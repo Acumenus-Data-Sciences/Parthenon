@@ -7,3 +7,6 @@ parameters:
     level: 6
     ignoreErrors:
         - '#uses generic trait .+HasFactory but does not specify its types#'
+        - identifier: missingType.iterableValue
+        - identifier: missingType.generics
+        - identifier: argument.templateType

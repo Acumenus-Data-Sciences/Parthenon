@@ -1,0 +1,75 @@
+import type { MappingStats } from "@/types/ingestion";
+
+interface ReviewStatsBarProps {
+  stats: MappingStats;
+}
+
+const SEGMENTS: {
+  key: keyof Pick<MappingStats, "auto_accepted" | "quick_review" | "full_review" | "unmappable">;
+  label: string;
+  color: string;
+}[] = [
+  { key: "auto_accepted", label: "Auto-Accepted", color: "#2DD4BF" },
+  { key: "quick_review", label: "Quick Review", color: "#E5A84B" },
+  { key: "full_review", label: "Full Review", color: "#E85A6B" },
+  { key: "unmappable", label: "Unmappable", color: "#5A5650" },
+];
+
+export function ReviewStatsBar({ stats }: ReviewStatsBarProps) {
+  const total = stats.total || 1;
+
+  return (
+    <div className="space-y-3">
+      {/* Progress info */}
+      <div className="flex items-center justify-between text-xs text-[#8A857D]">
+        <span>
+          <span className="text-[#F0EDE8] font-medium tabular-nums">
+            {stats.reviewed}
+          </span>{" "}
+          of{" "}
+          <span className="text-[#C5C0B8] tabular-nums">{stats.total}</span>{" "}
+          reviewed
+        </span>
+        <span className="tabular-nums">
+          {stats.pending} pending
+        </span>
+      </div>
+
+      {/* Stacked bar */}
+      <div className="flex h-2.5 w-full overflow-hidden rounded-full bg-[#232328]">
+        {SEGMENTS.map(({ key, color }) => {
+          const count = stats[key];
+          if (count <= 0) return null;
+          const widthPct = (count / total) * 100;
+
+          return (
+            <div
+              key={key}
+              className="h-full transition-all duration-300"
+              style={{
+                width: `${widthPct}%`,
+                backgroundColor: color,
+              }}
+            />
+          );
+        })}
+      </div>
+
+      {/* Legend */}
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-1">
+        {SEGMENTS.map(({ key, label, color }) => (
+          <div key={key} className="flex items-center gap-1.5 text-xs">
+            <span
+              className="inline-block h-2.5 w-2.5 rounded-sm shrink-0"
+              style={{ backgroundColor: color }}
+            />
+            <span className="text-[#8A857D]">{label}</span>
+            <span className="font-medium text-[#C5C0B8] tabular-nums font-['IBM_Plex_Mono',monospace]">
+              {stats[key]}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}

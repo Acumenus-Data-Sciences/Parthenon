@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class EmbeddingRequest(BaseModel):
@@ -55,3 +55,56 @@ class ClinicalEntity(BaseModel):
 
 class ClinicalNlpResponse(BaseModel):
     entities: list[ClinicalEntity]
+
+
+# --- Step 3B: Concept Mapping Engine models ---
+
+
+class MappingTerm(BaseModel):
+    source_code: str
+    source_description: str | None = None
+    source_vocabulary_id: str | None = None
+    source_table: str | None = None
+    source_column: str | None = None
+
+
+class RankedCandidate(BaseModel):
+    concept_id: int
+    concept_name: str
+    domain_id: str
+    vocabulary_id: str
+    standard_concept: str | None
+    final_score: float
+    strategy_scores: dict[str, float]
+    primary_strategy: str
+
+
+class MappingTermRequest(BaseModel):
+    source_code: str
+    source_description: str | None = None
+    source_vocabulary_id: str | None = None
+    source_table: str | None = None
+    source_column: str | None = None
+    sample_values: list[str] | None = None
+
+
+class MappingTermResponse(BaseModel):
+    term: str
+    candidates: list[RankedCandidate]
+    mapping_time_ms: int
+
+
+class BatchMappingRequest(BaseModel):
+    terms: list[MappingTerm] = Field(..., max_length=200)
+
+
+class MappingResult(BaseModel):
+    term: str
+    source_code: str
+    candidates: list[RankedCandidate]
+
+
+class BatchMappingResponse(BaseModel):
+    results: list[MappingResult]
+    total_time_ms: int
+    strategies_used: dict[str, int]

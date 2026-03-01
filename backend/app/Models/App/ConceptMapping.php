@@ -2,6 +2,7 @@
 
 namespace App\Models\App;
 
+use App\Enums\ReviewTier;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class ConceptMapping extends Model
 {
     protected $fillable = [
+        'ingestion_job_id',
         'source_code',
         'source_description',
         'source_vocabulary_id',
@@ -18,6 +20,10 @@ class ConceptMapping extends Model
         'strategy',
         'is_reviewed',
         'reviewer_id',
+        'source_table',
+        'source_column',
+        'source_frequency',
+        'review_tier',
     ];
 
     /**
@@ -28,7 +34,16 @@ class ConceptMapping extends Model
         return [
             'confidence' => 'decimal:4',
             'is_reviewed' => 'boolean',
+            'review_tier' => ReviewTier::class,
         ];
+    }
+
+    /**
+     * @return BelongsTo<IngestionJob, $this>
+     */
+    public function ingestionJob(): BelongsTo
+    {
+        return $this->belongsTo(IngestionJob::class);
     }
 
     /**
@@ -45,5 +60,13 @@ class ConceptMapping extends Model
     public function reviews(): HasMany
     {
         return $this->hasMany(MappingReview::class);
+    }
+
+    /**
+     * @return HasMany<MappingCandidate, $this>
+     */
+    public function candidates(): HasMany
+    {
+        return $this->hasMany(MappingCandidate::class);
     }
 }

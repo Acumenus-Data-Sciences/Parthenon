@@ -10,3 +10,4 @@ numpy==1.*
 ollama==0.4.*
 transformers==4.*
 torch==2.*
+pandas==2.*

@@ -28,7 +28,47 @@ export const router = createBrowserRouter([
       { path: "data-sources", element: <SourcesListPage /> },
       {
         path: "ingestion",
-        element: <PlaceholderPage title="Data Ingestion" />,
+        children: [
+          {
+            index: true,
+            lazy: () =>
+              import("@/features/ingestion/pages/IngestionDashboardPage").then(
+                (m) => ({ Component: m.default }),
+              ),
+          },
+          {
+            path: "upload",
+            lazy: () =>
+              import("@/features/ingestion/pages/UploadPage").then((m) => ({
+                Component: m.default,
+              })),
+          },
+          {
+            path: "jobs/:jobId",
+            lazy: () =>
+              import("@/features/ingestion/pages/JobDetailPage").then((m) => ({
+                Component: m.default,
+              })),
+          },
+          {
+            path: "jobs/:jobId/schema-mapping",
+            lazy: () =>
+              import(
+                "@/features/ingestion/pages/SchemaMappingPage"
+              ).then((m) => ({
+                Component: m.default,
+              })),
+          },
+          {
+            path: "jobs/:jobId/review",
+            lazy: () =>
+              import(
+                "@/features/ingestion/pages/MappingReviewPage"
+              ).then((m) => ({
+                Component: m.default,
+              })),
+          },
+        ],
       },
       {
         path: "data-explorer",

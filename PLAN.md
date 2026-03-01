@@ -238,6 +238,7 @@ php artisan parthenon:compute-embeddings
 | Google AlloyDB/Cloud SQL | native `pgsql` (PG-compatible) | P1 |
 | Google Spanner | `colopl/laravel-spanner` | P1 |
 | Oracle | `yajra/laravel-oci8` | P2 |
+| MS SQL Server | native `sqlsrv` | P2 |
 
 CDM models extend `CdmModel` base class with dynamic connection resolution. Read-only enforced at model level.
 
