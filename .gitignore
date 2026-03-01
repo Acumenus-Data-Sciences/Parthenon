@@ -1,0 +1,52 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Backend (Laravel)
+backend/vendor/
+backend/.env
+backend/storage/*.key
+backend/storage/logs/*
+!backend/storage/logs/.gitkeep
+backend/storage/framework/cache/*
+!backend/storage/framework/cache/.gitkeep
+backend/storage/framework/sessions/*
+!backend/storage/framework/sessions/.gitkeep
+backend/storage/framework/views/*
+!backend/storage/framework/views/.gitkeep
+backend/bootstrap/cache/*
+!backend/bootstrap/cache/.gitkeep
+backend/node_modules/
+
+# Frontend (React)
+frontend/node_modules/
+frontend/dist/
+frontend/.env.local
+frontend/.env.*.local
+
+# AI (Python)
+ai/__pycache__/
+ai/**/__pycache__/
+ai/.venv/
+ai/*.pyc
+ai/**/*.pyc
+ai/.env
+
+# R Runtime
+r-runtime/.Rhistory
+r-runtime/.RData
+
+# Docker
+docker/postgres-data/
+docker/redis-data/
+
+# Environment
+.env
+.env.local
+*.env.local

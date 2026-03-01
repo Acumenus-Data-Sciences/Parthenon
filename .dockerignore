@@ -1,0 +1,11 @@
+.git
+.github
+.idea
+.vscode
+**/node_modules
+**/__pycache__
+**/vendor
+**/.env
+**/dist
+PLAN.md
+LICENSE
