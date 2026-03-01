@@ -13,4 +13,4 @@ def test_health() -> None:
     assert data["service"] == "parthenon-ai"
     assert "llm" in data
     assert data["llm"]["provider"] == "ollama"
-    assert data["llm"]["model"] == "medgemma"
+    assert data["llm"]["model"] == "MedAIBase/MedGemma1.5:4b"

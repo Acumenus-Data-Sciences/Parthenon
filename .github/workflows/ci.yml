@@ -37,10 +37,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Create schemas and extensions
+        env:
+          PGPASSWORD: secret
+        run: |
+          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE EXTENSION IF NOT EXISTS vector;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS app;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS vocab;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS cdm;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS results;"
+
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: "8.3"
+          php-version: "8.4"
           extensions: pdo_pgsql, pgsql, redis, bcmath, intl, mbstring, pcntl, zip
           coverage: none
 
@@ -69,11 +80,15 @@ jobs:
           DB_DATABASE: parthenon_test
           DB_USERNAME: parthenon
           DB_PASSWORD: secret
+          CDM_DB_HOST: 127.0.0.1
+          CDM_DB_DATABASE: parthenon_test
+          DB_VOCAB_HOST: 127.0.0.1
+          DB_VOCAB_DATABASE: parthenon_test
           REDIS_HOST: 127.0.0.1
           CACHE_STORE: array
           SESSION_DRIVER: array
           QUEUE_CONNECTION: sync
-        run: php artisan test
+        run: php artisan migrate --force && php artisan test
 
   frontend:
     name: Frontend (React)
@@ -124,6 +139,7 @@ jobs:
       - name: Install dependencies
         working-directory: ai
         run: |
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
           pip install -r requirements.txt
           pip install -r requirements-dev.txt
 

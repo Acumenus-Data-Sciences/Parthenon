@@ -10,6 +10,16 @@ class EmbeddingResponse(BaseModel):
     model: str
 
 
+class BatchEmbeddingRequest(BaseModel):
+    texts: list[str]
+
+
+class BatchEmbeddingResponse(BaseModel):
+    embeddings: list[list[float]]
+    model: str
+    count: int
+
+
 class ConceptSearchRequest(BaseModel):
     query: str
     top_k: int = 10

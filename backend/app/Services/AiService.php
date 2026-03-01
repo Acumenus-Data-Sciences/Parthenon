@@ -54,6 +54,20 @@ class AiService
     }
 
     /**
+     * @param  list<string>  $texts
+     * @return array<string, mixed>
+     */
+    public function encodeBatch(array $texts): array
+    {
+        $response = Http::timeout($this->timeout)
+            ->post("{$this->baseUrl}/embeddings/encode-batch", [
+                'texts' => $texts,
+            ]);
+
+        return $response->json();
+    }
+
+    /**
      * @param  list<string>  $terms
      * @return array<string, mixed>
      */
