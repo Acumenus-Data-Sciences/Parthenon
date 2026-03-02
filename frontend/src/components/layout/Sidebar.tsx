@@ -26,23 +26,29 @@ interface NavItem {
   path: string;
   label: string;
   icon: React.ElementType;
+  section?: string;
   adminOnly?: boolean;
   superAdminOnly?: boolean;
-  children?: Array<{ path: string; label: string; icon: React.ElementType; superAdminOnly?: boolean }>;
+  children?: Array<{
+    path: string;
+    label: string;
+    icon: React.ElementType;
+    superAdminOnly?: boolean;
+  }>;
 }
 
 const navItems: NavItem[] = [
-  { path: "/", label: "Dashboard", icon: LayoutDashboard },
-  { path: "/data-sources", label: "Data Sources", icon: Database },
+  { path: "/", label: "Dashboard", icon: LayoutDashboard, section: "Overview" },
+  { path: "/data-sources", label: "Data Sources", icon: Database, section: "Data" },
   { path: "/ingestion", label: "Data Ingestion", icon: Upload },
   { path: "/data-explorer", label: "Data Explorer", icon: BarChart3 },
-  { path: "/vocabulary", label: "Vocabulary", icon: BookOpen },
+  { path: "/vocabulary", label: "Vocabulary", icon: BookOpen, section: "Research" },
   { path: "/cohort-definitions", label: "Cohort Definitions", icon: Users },
   { path: "/concept-sets", label: "Concept Sets", icon: FlaskConical },
   { path: "/analyses", label: "Analyses", icon: Workflow },
   { path: "/studies", label: "Studies", icon: Briefcase },
   { path: "/profiles", label: "Patient Profiles", icon: UserCircle },
-  { path: "/jobs", label: "Jobs", icon: Briefcase },
+  { path: "/jobs", label: "Jobs", icon: Briefcase, section: "System" },
   {
     path: "/admin",
     label: "Administration",
@@ -71,51 +77,46 @@ export function Sidebar() {
     return true;
   });
 
+  let lastSection: string | undefined;
+
   return (
-    <aside
-      className={cn(
-        "fixed left-0 top-0 z-40 h-screen border-r border-sidebar-border bg-sidebar-background transition-all duration-300",
-        sidebarOpen ? "w-64" : "w-16",
-      )}
-    >
-      {/* Logo / toggle */}
-      <div className="flex h-14 items-center justify-between border-b border-sidebar-border px-4">
-        {sidebarOpen && (
-          <span className="text-lg font-bold text-sidebar-foreground">Parthenon</span>
-        )}
+    <aside className={cn("app-sidebar", !sidebarOpen && "collapsed")}>
+      {/* Header */}
+      <div className="sidebar-header">
+        {sidebarOpen && <span className="sidebar-logo">Parthenon</span>}
         <button
           onClick={toggleSidebar}
-          className="rounded-md p-1 text-sidebar-foreground hover:bg-sidebar-accent"
+          className="sidebar-toggle"
+          aria-label={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
         >
-          {sidebarOpen ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
+          {sidebarOpen ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
         </button>
       </div>
 
       {/* Navigation */}
-      <nav className="mt-2 space-y-0.5 px-2 overflow-y-auto h-[calc(100vh-3.5rem)]">
+      <nav className="sidebar-nav" style={{ flex: 1 }}>
         {visibleItems.map((item) => {
           const active = isActive(item.path);
-          const adminExpanded = sidebarOpen && active && item.children;
+          const showSection = sidebarOpen && item.section && item.section !== lastSection;
+          if (item.section) lastSection = item.section;
 
           return (
             <div key={item.path}>
+              {showSection && (
+                <div className="sidebar-section-label">{item.section}</div>
+              )}
               <Link
                 to={item.path}
-                className={cn(
-                  "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
-                  active
-                    ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                    : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                )}
+                className={cn("nav-item", active && "active")}
                 title={!sidebarOpen ? item.label : undefined}
               >
-                <item.icon size={20} className="shrink-0" />
-                {sidebarOpen && <span>{item.label}</span>}
+                <item.icon size={18} className="nav-icon" />
+                {sidebarOpen && <span className="nav-label">{item.label}</span>}
               </Link>
 
               {/* Admin sub-navigation */}
-              {adminExpanded && item.children && (
-                <div className="ml-8 mt-0.5 space-y-0.5">
+              {sidebarOpen && active && item.children && (
+                <div>
                   {item.children
                     .filter((child) => !child.superAdminOnly || isSuperAdmin())
                     .map((child) => (
@@ -123,13 +124,11 @@ export function Sidebar() {
                         key={child.path}
                         to={child.path}
                         className={cn(
-                          "flex items-center gap-2 rounded-md px-3 py-1.5 text-xs transition-colors",
-                          location.pathname === child.path
-                            ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                            : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                          "nav-sub-item",
+                          location.pathname === child.path && "active",
                         )}
                       >
-                        <child.icon size={14} className="shrink-0" />
+                        <child.icon size={14} />
                         {child.label}
                       </Link>
                     ))}
@@ -139,6 +138,37 @@ export function Sidebar() {
           );
         })}
       </nav>
+
+      {/* Acumenus branding */}
+      <div
+        style={{
+          padding: sidebarOpen ? "var(--space-4) var(--space-5)" : "var(--space-4) 0",
+          borderTop: "1px solid var(--border-subtle)",
+          textAlign: "center",
+        }}
+      >
+        <a
+          href="https://www.acumenus.io"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            fontFamily: "var(--font-body)",
+            fontSize: sidebarOpen ? "var(--text-xs)" : "9px",
+            color: "var(--text-ghost)",
+            textDecoration: "none",
+            letterSpacing: "0.3px",
+            transition: "color 200ms",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = "var(--text-muted)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = "var(--text-ghost)";
+          }}
+        >
+          {sidebarOpen ? "Acumenus Data Sciences" : "ADS"}
+        </a>
+      </div>
     </aside>
   );
 }

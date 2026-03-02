@@ -4,17 +4,6 @@ import { LoginPage } from "@/features/auth/pages/LoginPage";
 import { DashboardPage } from "@/features/dashboard/pages/DashboardPage";
 import { SourcesListPage } from "@/features/data-sources/pages/SourcesListPage";
 
-function PlaceholderPage({ title }: { title: string }) {
-  return (
-    <div className="flex items-center justify-center h-64">
-      <div className="text-center">
-        <h2 className="text-2xl font-semibold text-foreground">{title}</h2>
-        <p className="mt-2 text-muted-foreground">Coming soon</p>
-      </div>
-    </div>
-  );
-}
-
 export const router = createBrowserRouter([
   {
     path: "/login",
@@ -243,7 +232,13 @@ export const router = createBrowserRouter([
           },
         ],
       },
-      { path: "jobs", element: <PlaceholderPage title="Jobs" /> },
+      {
+        path: "jobs",
+        lazy: () =>
+          import("@/features/jobs/pages/JobsPage").then((m) => ({
+            Component: m.default,
+          })),
+      },
       // ── Administration ────────────────────────────────────────────────
       {
         path: "admin",

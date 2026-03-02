@@ -1,0 +1,186 @@
+/* ============================================================
+   DESIGNLOG.md §9.15 — AI Chat Panel
+   ============================================================ */
+
+.ai-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--surface-raised);
+  border-left: 1px solid var(--border-default);
+}
+
+.ai-panel-header {
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--border-default);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-shrink: 0;
+}
+
+.ai-panel-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.ai-panel-footer {
+  padding: var(--space-4);
+  border-top: 1px solid var(--border-default);
+  flex-shrink: 0;
+}
+
+/* Chat bubbles */
+.ai-bubble-user {
+  align-self: flex-end;
+  background: var(--primary-bg);
+  border: 1px solid var(--primary-border);
+  border-radius: var(--radius-xl) var(--radius-xl) var(--radius-xs) var(--radius-xl);
+  padding: var(--space-3) var(--space-4);
+  max-width: 80%;
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+}
+
+.ai-bubble-model {
+  align-self: flex-start;
+  background: var(--surface-overlay);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl) var(--radius-xl) var(--radius-xl) var(--radius-xs);
+  padding: var(--space-3) var(--space-4);
+  max-width: 90%;
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+
+/* Code within AI bubbles */
+.ai-bubble-model code {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  background: var(--surface-accent);
+  padding: 1px 4px;
+  border-radius: var(--radius-xs);
+}
+
+.ai-bubble-model pre {
+  background: var(--surface-base);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  overflow-x: auto;
+  margin: var(--space-2) 0;
+}
+.ai-bubble-model pre code {
+  background: transparent;
+  padding: 0;
+}
+
+/* Streaming cursor */
+.ai-cursor::after {
+  content: '\25CD';
+  animation: subtlePulse 0.8s ease-in-out infinite;
+  color: var(--info);
+}
+
+/* AI chat input */
+.ai-input {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-2);
+  background: var(--surface-overlay);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-2) var(--space-3);
+  transition: border-color var(--duration-fast), box-shadow var(--duration-fast);
+}
+.ai-input:focus-within {
+  border-color: var(--border-focus);
+  box-shadow: var(--focus-ring);
+}
+.ai-input textarea {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  resize: none;
+  max-height: 120px;
+  min-height: 20px;
+  line-height: 1.4;
+}
+.ai-input textarea::placeholder {
+  color: var(--text-ghost);
+}
+.ai-input .ai-send-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: var(--primary);
+  color: var(--text-primary);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background var(--duration-fast), box-shadow var(--duration-fast);
+}
+.ai-input .ai-send-btn:hover {
+  background: var(--primary-light);
+  box-shadow: 0 4px 20px var(--primary-glow);
+}
+.ai-input .ai-send-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Code block (§9.14) */
+.code-block {
+  background: var(--surface-base);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.code-block-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-2) var(--space-3);
+  background: var(--surface-overlay);
+  border-bottom: 1px solid var(--border-default);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+.code-block-body {
+  padding: var(--space-3) var(--space-4);
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  line-height: 1.6;
+  white-space: pre;
+}
+.code-block-copy {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all var(--duration-fast);
+}
+.code-block-copy:hover {
+  background: var(--surface-elevated);
+  color: var(--text-primary);
+}

@@ -7,7 +7,6 @@ import {
   Trash2,
   Play,
   Database,
-  ChevronDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
@@ -77,7 +76,7 @@ export default function StudyDetailPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 size={24} className="animate-spin text-[#8A857D]" />
+        <Loader2 size={24} className="animate-spin" style={{ color: "var(--text-muted)" }} />
       </div>
     );
   }
@@ -86,11 +85,11 @@ export default function StudyDetailPage() {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <p className="text-[#E85A6B]">Failed to load study</p>
+          <p style={{ color: "var(--critical)" }}>Failed to load study</p>
           <button
             type="button"
             onClick={() => navigate("/studies")}
-            className="mt-4 text-sm text-[#8A857D] hover:text-[#F0EDE8] transition-colors"
+            className="btn btn-ghost btn-sm mt-4"
           >
             Back to studies
           </button>
@@ -102,33 +101,33 @@ export default function StudyDetailPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-start justify-between gap-4">
+      <div className="page-header">
         <div className="flex-1 min-w-0">
           <button
             type="button"
             onClick={() => navigate("/studies")}
-            className="inline-flex items-center gap-1 text-sm text-[#8A857D] hover:text-[#F0EDE8] transition-colors mb-3"
+            className="btn btn-ghost btn-sm mb-3"
           >
             <ArrowLeft size={14} />
             Studies
           </button>
-          <h1 className="text-2xl font-bold text-[#F0EDE8]">
+          <h1 className="page-title">
             {study.name}
           </h1>
           {study.description && (
-            <p className="mt-1 text-sm text-[#8A857D]">
+            <p className="page-subtitle">
               {study.description}
             </p>
           )}
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          {/* Execute All Controls */}
           <div className="flex items-center gap-2">
             <div className="relative">
               <Database
                 size={12}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
+                className="absolute left-3 top-1/2 -translate-y-1/2"
+                style={{ color: "var(--text-ghost)" }}
               />
               <select
                 value={sourceId ?? ""}
@@ -136,10 +135,8 @@ export default function StudyDetailPage() {
                   setSourceId(Number(e.target.value) || null)
                 }
                 disabled={loadingSources}
-                className={cn(
-                  "appearance-none rounded-lg border border-[#232328] bg-[#0E0E11] pl-8 pr-8 py-2 text-sm",
-                  "text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
-                )}
+                className="form-input form-select"
+                style={{ paddingLeft: "2rem" }}
               >
                 <option value="">Source</option>
                 {sources?.map((src) => (
@@ -148,10 +145,6 @@ export default function StudyDetailPage() {
                   </option>
                 ))}
               </select>
-              <ChevronDown
-                size={12}
-                className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
-              />
             </div>
             <button
               type="button"
@@ -161,7 +154,7 @@ export default function StudyDetailPage() {
                 executeAllMutation.isPending ||
                 isRunning
               }
-              className="inline-flex items-center gap-1.5 rounded-lg bg-[#C9A227] px-3 py-2 text-sm font-medium text-[#0E0E11] hover:bg-[#B89220] transition-colors disabled:opacity-50"
+              className="btn btn-primary btn-sm"
             >
               {executeAllMutation.isPending || isRunning ? (
                 <Loader2 size={14} className="animate-spin" />
@@ -176,7 +169,7 @@ export default function StudyDetailPage() {
             type="button"
             onClick={handleDelete}
             disabled={deleteMutation.isPending}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#8A857D] hover:text-[#E85A6B] hover:border-[#E85A6B]/30 transition-colors disabled:opacity-50"
+            className="btn btn-danger btn-sm"
           >
             {deleteMutation.isPending ? (
               <Loader2 size={14} className="animate-spin" />
@@ -189,7 +182,7 @@ export default function StudyDetailPage() {
       </div>
 
       {/* Tab navigation */}
-      <div className="flex items-center gap-1 border-b border-[#232328]">
+      <div className="tab-bar">
         {(
           [
             { key: "design" as const, label: "Design" },
@@ -200,17 +193,9 @@ export default function StudyDetailPage() {
             key={tab.key}
             type="button"
             onClick={() => setActiveTab(tab.key)}
-            className={cn(
-              "relative px-4 py-2.5 text-sm font-medium transition-colors",
-              activeTab === tab.key
-                ? "text-[#2DD4BF]"
-                : "text-[#8A857D] hover:text-[#C5C0B8]",
-            )}
+            className={cn("tab-item", activeTab === tab.key && "active")}
           >
             {tab.label}
-            {activeTab === tab.key && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2DD4BF]" />
-            )}
           </button>
         ))}
       </div>

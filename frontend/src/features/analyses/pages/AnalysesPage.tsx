@@ -280,10 +280,10 @@ export default function AnalysesPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="page-header">
         <div>
-          <h1 className="text-2xl font-bold text-[#F0EDE8]">Analyses</h1>
-          <p className="mt-1 text-sm text-[#8A857D]">
+          <h1 className="page-title">Analyses</h1>
+          <p className="page-subtitle">
             Characterization, incidence rate, pathway, estimation, and prediction
             analyses for population-level studies
           </p>
@@ -292,7 +292,7 @@ export default function AnalysesPage() {
           type="button"
           onClick={getCreateHandler()}
           disabled={isCreating}
-          className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-4 py-2.5 text-sm font-medium text-[#0E0E11] hover:bg-[#26B8A5] transition-colors disabled:opacity-50"
+          className="btn btn-primary"
         >
           {isCreating ? (
             <Loader2 size={16} className="animate-spin" />
@@ -304,23 +304,15 @@ export default function AnalysesPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-1 border-b border-[#232328]">
+      <div className="tab-bar">
         {tabs.map((tab) => (
           <button
             key={tab.key}
             type="button"
             onClick={() => setActiveTab(tab.key)}
-            className={cn(
-              "relative px-4 py-2.5 text-sm font-medium transition-colors",
-              activeTab === tab.key
-                ? "text-[#2DD4BF]"
-                : "text-[#8A857D] hover:text-[#C5C0B8]",
-            )}
+            className={cn("tab-item", activeTab === tab.key && "active")}
           >
             {tab.label}
-            {activeTab === tab.key && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2DD4BF]" />
-            )}
           </button>
         ))}
       </div>

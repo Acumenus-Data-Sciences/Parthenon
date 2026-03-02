@@ -134,17 +134,17 @@ export function CharacterizationResults({
   return (
     <div className="space-y-4">
       {/* Summary Header */}
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
+      <div className="panel">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-6">
             {results.map((r) => (
               <div key={r.cohort_id} className="space-y-1">
-                <p className="text-xs font-medium text-[#8A857D]">
+                <p style={{ fontSize: "var(--text-xs)", fontWeight: 500, color: "var(--text-muted)" }}>
                   {r.cohort_name}
                 </p>
-                <p className="font-['IBM_Plex_Mono',monospace] text-lg font-bold text-[#2DD4BF]">
+                <p style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-lg)", fontWeight: 700, color: "var(--primary)" }}>
                   {r.person_count.toLocaleString()}
-                  <span className="text-xs font-normal text-[#8A857D] ml-1">
+                  <span style={{ fontSize: "var(--text-xs)", fontWeight: 400, color: "var(--text-muted)", marginLeft: "var(--space-1)" }}>
                     persons
                   </span>
                 </p>
@@ -155,7 +155,7 @@ export function CharacterizationResults({
           <button
             type="button"
             onClick={() => downloadCSV(results)}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm text-[#8A857D] hover:text-[#F0EDE8] hover:border-[#323238] transition-colors"
+            className="btn btn-secondary btn-sm"
           >
             <Download size={14} />
             Download CSV
@@ -166,23 +166,15 @@ export function CharacterizationResults({
       {/* Feature Type Tabs */}
       {featureTypes.length > 0 && (
         <>
-          <div className="flex items-center gap-1 border-b border-[#232328]">
+          <div className="tab-bar">
             {featureTypes.map((ft) => (
               <button
                 key={ft}
                 type="button"
                 onClick={() => setActiveTab(ft)}
-                className={cn(
-                  "relative px-4 py-2.5 text-sm font-medium transition-colors",
-                  currentTab === ft
-                    ? "text-[#2DD4BF]"
-                    : "text-[#8A857D] hover:text-[#C5C0B8]",
-                )}
+                className={cn("tab-item", currentTab === ft && "active")}
               >
                 {FEATURE_TYPE_LABELS[ft]}
-                {currentTab === ft && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2DD4BF]" />
-                )}
               </button>
             ))}
           </div>

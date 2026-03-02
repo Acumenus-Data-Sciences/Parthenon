@@ -31,10 +31,10 @@ export default function StudiesPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="page-header">
         <div>
-          <h1 className="text-2xl font-bold text-[#F0EDE8]">Studies</h1>
-          <p className="mt-1 text-sm text-[#8A857D]">
+          <h1 className="page-title">Studies</h1>
+          <p className="page-subtitle">
             Orchestrate and manage multi-analysis research studies
           </p>
         </div>
@@ -42,7 +42,7 @@ export default function StudiesPage() {
           type="button"
           onClick={handleCreate}
           disabled={isCreating}
-          className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-4 py-2.5 text-sm font-medium text-[#0E0E11] hover:bg-[#26B8A5] transition-colors disabled:opacity-50"
+          className="btn btn-primary"
         >
           {isCreating ? (
             <Loader2 size={16} className="animate-spin" />

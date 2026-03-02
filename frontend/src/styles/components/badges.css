@@ -1,0 +1,112 @@
+/* ============================================================
+   DESIGNLOG.md §9.6 — Badges + Status Dot
+   ============================================================ */
+
+/* Badge base */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 2px var(--space-2);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+/* Badge variants */
+.badge-default {
+  background: var(--surface-accent);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-default);
+}
+.badge-primary {
+  background: var(--primary-bg);
+  color: var(--primary-lighter);
+  border: 1px solid var(--primary-border);
+}
+.badge-success {
+  background: var(--success-bg);
+  color: var(--success-light);
+  border: 1px solid var(--success-border);
+}
+.badge-warning {
+  background: var(--warning-bg);
+  color: var(--warning-light);
+  border: 1px solid var(--warning-border);
+}
+.badge-critical {
+  background: var(--critical-bg);
+  color: var(--critical-light);
+  border: 1px solid var(--critical-border);
+}
+.badge-info {
+  background: var(--info-bg);
+  color: var(--info-light);
+  border: 1px solid var(--info-border);
+}
+.badge-inactive {
+  background: var(--surface-overlay);
+  color: var(--text-ghost);
+  border: 1px solid var(--border-subtle);
+}
+.badge-accent {
+  background: var(--accent-bg);
+  color: var(--accent-light);
+  border: 1px solid rgba(201, 162, 39, 0.30);
+}
+
+/* Status Dot */
+.status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+.status-dot.healthy,
+.status-dot.success,
+.status-dot.active,
+.status-dot.pass {
+  background: var(--success);
+  box-shadow: 0 0 6px var(--success-glow);
+}
+.status-dot.warning,
+.status-dot.degraded {
+  background: var(--warning);
+  box-shadow: 0 0 6px var(--warning-glow);
+}
+.status-dot.critical,
+.status-dot.error,
+.status-dot.fail,
+.status-dot.unavailable {
+  background: var(--critical);
+  box-shadow: 0 0 6px var(--critical-glow);
+}
+.status-dot.info,
+.status-dot.running {
+  background: var(--info);
+  box-shadow: 0 0 6px var(--info-glow);
+  animation: subtlePulse 1.5s ease-in-out infinite;
+}
+.status-dot.inactive,
+.status-dot.draft,
+.status-dot.queued,
+.status-dot.unknown {
+  background: var(--text-ghost);
+}
+
+/* Domain-colored badges (OMOP) */
+.badge-condition   { background: rgba(155, 27, 48, 0.15); color: var(--primary-lighter); border-color: var(--primary-border); }
+.badge-drug        { background: var(--info-bg); color: var(--info-light); border-color: var(--info-border); }
+.badge-measurement { background: var(--success-bg); color: var(--success-light); border-color: var(--success-border); }
+.badge-visit       { background: var(--accent-bg); color: var(--accent-light); border-color: rgba(201, 162, 39, 0.30); }
+.badge-observation { background: rgba(167, 139, 250, 0.15); color: #C4B5FD; border-color: rgba(167, 139, 250, 0.30); }
+.badge-procedure   { background: rgba(244, 114, 182, 0.15); color: #F9A8D4; border-color: rgba(244, 114, 182, 0.30); }
+.badge-device      { background: rgba(251, 146, 60, 0.15); color: #FDBA74; border-color: rgba(251, 146, 60, 0.30); }
+
+/* Concept standard status */
+.badge-standard    { background: var(--success-bg); color: var(--success-light); border-color: var(--success-border); }
+.badge-classification { background: var(--warning-bg); color: var(--warning-light); border-color: var(--warning-border); }
+.badge-non-standard   { background: var(--surface-overlay); color: var(--text-ghost); border-color: var(--border-subtle); }

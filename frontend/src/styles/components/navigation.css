@@ -1,0 +1,198 @@
+/* ============================================================
+   DESIGNLOG.md §8 — Navigation Patterns
+   ============================================================ */
+
+/* Nav item */
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  font-size: var(--text-base);
+  color: var(--text-secondary);
+  text-decoration: none;
+  cursor: pointer;
+  transition: color var(--duration-fast), background var(--duration-fast);
+  white-space: nowrap;
+  overflow: hidden;
+  min-height: 40px;
+  border: none;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+}
+.nav-item:hover {
+  background: var(--surface-overlay);
+  color: var(--text-primary);
+}
+.nav-item.active {
+  background: var(--primary-bg);
+  color: var(--text-primary);
+  border-left: 3px solid var(--primary);
+  padding-left: calc(var(--space-3) - 3px);
+}
+.nav-item .nav-icon {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+}
+.nav-item .nav-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Sub-nav item */
+.nav-sub-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  margin-left: var(--space-8);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color var(--duration-fast), background var(--duration-fast);
+  min-height: 32px;
+}
+.nav-sub-item:hover {
+  background: var(--surface-overlay);
+  color: var(--text-primary);
+}
+.nav-sub-item.active {
+  color: var(--accent);
+  background: var(--accent-bg);
+}
+
+/* Tab bar */
+.tab-bar {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border-default);
+  overflow-x: auto;
+}
+.tab-item {
+  position: relative;
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-base);
+  color: var(--text-muted);
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  white-space: nowrap;
+  transition: color var(--duration-fast);
+}
+.tab-item:hover {
+  color: var(--text-primary);
+}
+.tab-item.active {
+  color: var(--accent);
+}
+.tab-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--accent);
+  border-radius: var(--radius-full) var(--radius-full) 0 0;
+}
+
+/* Breadcrumb */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+.breadcrumb a {
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color var(--duration-fast);
+}
+.breadcrumb a:hover {
+  color: var(--accent);
+}
+.breadcrumb .breadcrumb-separator {
+  color: var(--text-ghost);
+}
+.breadcrumb .breadcrumb-current {
+  color: var(--text-secondary);
+}
+
+/* Search bar */
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: var(--surface-overlay);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
+  color: var(--text-secondary);
+  transition: border-color var(--duration-fast), box-shadow var(--duration-fast);
+}
+.search-bar:focus-within {
+  border-color: var(--border-focus);
+  box-shadow: var(--focus-ring);
+}
+.search-bar input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-size: var(--text-base);
+  font-family: var(--font-body);
+}
+.search-bar input::placeholder {
+  color: var(--text-ghost);
+}
+.search-bar .search-icon {
+  color: var(--text-ghost);
+  flex-shrink: 0;
+}
+.search-bar .search-shortcut {
+  font-size: var(--text-xs);
+  color: var(--text-ghost);
+  background: var(--surface-accent);
+  border-radius: var(--radius-xs);
+  padding: 2px 6px;
+  font-family: var(--font-mono);
+}
+
+/* Filter chip */
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--text-sm);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-default);
+  background: var(--surface-accent);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--duration-fast);
+  white-space: nowrap;
+}
+.filter-chip:hover {
+  border-color: var(--border-hover);
+  color: var(--text-primary);
+}
+.filter-chip.active {
+  background: var(--accent-bg);
+  border-color: var(--accent);
+  color: var(--accent-light);
+}
+.filter-chip .chip-close {
+  margin-left: var(--space-1);
+  cursor: pointer;
+  opacity: 0.6;
+}
+.filter-chip .chip-close:hover {
+  opacity: 1;
+}

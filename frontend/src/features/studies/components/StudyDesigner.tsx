@@ -47,7 +47,6 @@ export function StudyDesigner({ study }: StudyDesignerProps) {
 
   const { data: studyAnalyses } = useStudyAnalyses(study.id);
 
-  // Load analyses for each type
   const { data: charData } = useCharacterizations(1);
   const { data: irData } = useIncidenceRates(1);
   const { data: pathwayData } = usePathways(1);
@@ -117,54 +116,37 @@ export function StudyDesigner({ study }: StudyDesignerProps) {
   return (
     <div className="space-y-6">
       {/* Name & Description */}
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 space-y-4">
-        <h3 className="text-sm font-semibold text-[#F0EDE8]">
+      <div className="panel">
+        <h3 className="panel-title" style={{ fontSize: "var(--text-base)" }}>
           Basic Information
         </h3>
-        <div className="space-y-3">
+        <div className="space-y-3 mt-3">
           <div>
-            <label className="block text-xs font-medium text-[#8A857D] mb-1">
-              Name
-            </label>
+            <label className="form-label">Name</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Study name"
-              className={cn(
-                "w-full rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm",
-                "text-[#F0EDE8] placeholder:text-[#5A5650]",
-                "focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
-              )}
+              className="form-input"
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-[#8A857D] mb-1">
-              Description
-            </label>
+            <label className="form-label">Description</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Optional description"
               rows={2}
-              className={cn(
-                "w-full rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm",
-                "text-[#F0EDE8] placeholder:text-[#5A5650] resize-none",
-                "focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
-              )}
+              className="form-input form-textarea"
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-[#8A857D] mb-1">
-              Study Type
-            </label>
+            <label className="form-label">Study Type</label>
             <select
               value={studyType}
               onChange={(e) => setStudyType(e.target.value)}
-              className={cn(
-                "w-full rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm",
-                "text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
-              )}
+              className="form-input form-select"
             >
               {STUDY_TYPES.map((st) => (
                 <option key={st.value} value={st.value}>
@@ -177,25 +159,20 @@ export function StudyDesigner({ study }: StudyDesignerProps) {
       </div>
 
       {/* Add Analysis */}
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 space-y-4">
-        <h3 className="text-sm font-semibold text-[#F0EDE8]">
+      <div className="panel">
+        <h3 className="panel-title" style={{ fontSize: "var(--text-base)" }}>
           Add Analysis
         </h3>
-        <div className="flex items-end gap-3">
+        <div className="flex items-end gap-3 mt-3">
           <div className="flex-1">
-            <label className="block text-xs font-medium text-[#8A857D] mb-1">
-              Analysis Type
-            </label>
+            <label className="form-label">Analysis Type</label>
             <select
               value={addType}
               onChange={(e) => {
                 setAddType(e.target.value);
                 setAddId(null);
               }}
-              className={cn(
-                "w-full rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm",
-                "text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
-              )}
+              className="form-input form-select"
             >
               {ANALYSIS_TYPES.map((at) => (
                 <option key={at.value} value={at.value}>
@@ -205,18 +182,13 @@ export function StudyDesigner({ study }: StudyDesignerProps) {
             </select>
           </div>
           <div className="flex-1">
-            <label className="block text-xs font-medium text-[#8A857D] mb-1">
-              Analysis
-            </label>
+            <label className="form-label">Analysis</label>
             <select
               value={addId ?? ""}
               onChange={(e) =>
                 setAddId(Number(e.target.value) || null)
               }
-              className={cn(
-                "w-full rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm",
-                "text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
-              )}
+              className="form-input form-select"
             >
               <option value="">Select analysis...</option>
               {analysisOptions.map((a) => (
@@ -230,7 +202,7 @@ export function StudyDesigner({ study }: StudyDesignerProps) {
             type="button"
             onClick={handleAddAnalysis}
             disabled={!addId || addAnalysisMutation.isPending}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-[#2DD4BF] px-3 py-2 text-sm font-medium text-[#0E0E11] hover:bg-[#26B8A5] transition-colors disabled:opacity-50"
+            className="btn btn-primary btn-sm"
           >
             {addAnalysisMutation.isPending ? (
               <Loader2 size={14} className="animate-spin" />
@@ -243,35 +215,36 @@ export function StudyDesigner({ study }: StudyDesignerProps) {
       </div>
 
       {/* Current Analyses */}
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 space-y-3">
-        <h3 className="text-sm font-semibold text-[#F0EDE8]">
+      <div className="panel">
+        <h3 className="panel-title" style={{ fontSize: "var(--text-base)" }}>
           Study Analyses ({studyAnalyses?.length ?? 0})
         </h3>
         {!studyAnalyses || studyAnalyses.length === 0 ? (
-          <p className="text-xs text-[#5A5650]">
+          <p className="mt-2" style={{ fontSize: "var(--text-xs)", color: "var(--text-ghost)" }}>
             No analyses added yet.
           </p>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-2 mt-3">
             {studyAnalyses.map((entry) => (
               <div
                 key={entry.id}
-                className="flex items-center justify-between rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2"
+                className="flex items-center justify-between rounded-lg px-3 py-2"
+                style={{ border: "1px solid var(--border-default)", background: "var(--surface-overlay)" }}
               >
                 <div className="flex items-center gap-3">
                   <span
                     className={cn(
-                      "inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium",
+                      "badge",
                       entry.analysis_type === "estimation"
-                        ? "bg-[#9B1B30]/10 text-[#E85A6B]"
+                        ? "badge-critical"
                         : entry.analysis_type === "prediction"
-                          ? "bg-[#C9A227]/10 text-[#C9A227]"
-                          : "bg-[#2DD4BF]/10 text-[#2DD4BF]",
+                          ? "badge-warning"
+                          : "badge-info",
                     )}
                   >
                     {entry.analysis_type}
                   </span>
-                  <span className="text-sm text-[#F0EDE8]">
+                  <span style={{ fontSize: "var(--text-sm)", color: "var(--text-primary)" }}>
                     {entry.analysis?.name ?? `Analysis #${entry.analysis_id}`}
                   </span>
                 </div>
@@ -279,7 +252,9 @@ export function StudyDesigner({ study }: StudyDesignerProps) {
                   type="button"
                   onClick={() => handleRemoveAnalysis(entry)}
                   disabled={removeAnalysisMutation.isPending}
-                  className="text-[#8A857D] hover:text-[#E85A6B] transition-colors"
+                  style={{ color: "var(--text-muted)", transition: "color 150ms" }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = "var(--critical)")}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-muted)")}
                 >
                   <X size={14} />
                 </button>
@@ -295,7 +270,7 @@ export function StudyDesigner({ study }: StudyDesignerProps) {
           type="button"
           onClick={handleSave}
           disabled={isSaving || !name.trim()}
-          className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-5 py-2.5 text-sm font-medium text-[#0E0E11] hover:bg-[#26B8A5] transition-colors disabled:opacity-50"
+          className="btn btn-primary"
         >
           {isSaving ? (
             <Loader2 size={14} className="animate-spin" />

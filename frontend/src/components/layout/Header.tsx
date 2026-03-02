@@ -1,32 +1,63 @@
 import { useAuthStore } from "@/stores/authStore";
-import { LogOut, User } from "lucide-react";
+import { useUiStore } from "@/stores/uiStore";
+import { LogOut, User, Search, Sparkles, Bell } from "lucide-react";
 
 export function Header() {
   const { user, isAuthenticated, logout } = useAuthStore();
+  const { setCommandPaletteOpen, toggleAiDrawer } = useUiStore();
 
   return (
-    <header className="flex h-14 items-center justify-between border-b border-border bg-background px-6">
-      <div />
-      <div className="flex items-center gap-4">
+    <header className="app-topbar">
+      {/* Left: Command palette trigger */}
+      <button
+        className="search-bar"
+        onClick={() => setCommandPaletteOpen(true)}
+        style={{ maxWidth: 320, cursor: "pointer" }}
+      >
+        <Search size={16} className="search-icon" />
+        <span style={{ color: "var(--text-ghost)", fontSize: "var(--text-base)" }}>
+          Search or jump to...
+        </span>
+        <span className="search-shortcut">Ctrl K</span>
+      </button>
+
+      {/* Right: actions */}
+      <div className="topbar-actions">
         {isAuthenticated && user ? (
           <>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <button
+              className="btn btn-ghost btn-icon btn-sm"
+              onClick={toggleAiDrawer}
+              aria-label="AI Assistant"
+              title="AI Assistant"
+            >
+              <Sparkles size={18} />
+            </button>
+
+            <button
+              className="btn btn-ghost btn-icon btn-sm"
+              aria-label="Notifications"
+              title="Notifications"
+            >
+              <Bell size={18} />
+            </button>
+
+            <div className="flex items-center gap-2 px-2" style={{ color: "var(--text-muted)", fontSize: "var(--text-sm)" }}>
               <User size={16} />
               <span>{user.name}</span>
             </div>
+
             <button
               onClick={logout}
-              className="flex items-center gap-1 rounded-md px-2 py-1 text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+              className="btn btn-ghost btn-sm"
+              style={{ gap: "var(--space-1)" }}
             >
               <LogOut size={16} />
               <span>Logout</span>
             </button>
           </>
         ) : (
-          <a
-            href="/login"
-            className="text-sm text-primary hover:text-primary/80"
-          >
+          <a href="/login" className="btn btn-primary btn-sm">
             Login
           </a>
         )}

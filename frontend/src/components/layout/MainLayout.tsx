@@ -1,26 +1,31 @@
 import { Outlet } from "react-router-dom";
 import { Sidebar } from "./Sidebar";
 import { Header } from "./Header";
+import { CommandPalette } from "./CommandPalette";
+import { AiDrawer } from "./AiDrawer";
+import { ToastContainer } from "@/components/ui";
 import { useUiStore } from "@/stores/uiStore";
+import { useGlobalKeyboard } from "@/hooks/useGlobalKeyboard";
 import { cn } from "@/lib/utils";
 
 export function MainLayout() {
   const sidebarOpen = useUiStore((s) => s.sidebarOpen);
 
+  // Register global keyboard shortcuts
+  useGlobalKeyboard();
+
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
+    <div className="app-shell">
       <Sidebar />
-      <div
-        className={cn(
-          "flex flex-1 flex-col overflow-hidden transition-all duration-300",
-          sidebarOpen ? "ml-64" : "ml-16",
-        )}
-      >
+      <div className={cn("app-content", !sidebarOpen && "sidebar-collapsed")}>
         <Header />
-        <main className="flex-1 overflow-auto p-6">
+        <main className="content-main">
           <Outlet />
         </main>
       </div>
+      <CommandPalette />
+      <AiDrawer />
+      <ToastContainer />
     </div>
   );
 }

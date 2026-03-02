@@ -132,68 +132,53 @@ export function CharacterizationDesigner({
   return (
     <div className="space-y-6">
       {/* Name & Description */}
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 space-y-4">
-        <h3 className="text-sm font-semibold text-[#F0EDE8]">
+      <div className="panel">
+        <h3 className="panel-title" style={{ fontSize: "var(--text-base)" }}>
           Basic Information
         </h3>
-        <div className="space-y-3">
+        <div className="space-y-3 mt-3">
           <div>
-            <label className="block text-xs font-medium text-[#8A857D] mb-1">
-              Name
-            </label>
+            <label className="form-label">Name</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Characterization name"
-              className={cn(
-                "w-full rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm",
-                "text-[#F0EDE8] placeholder:text-[#5A5650]",
-                "focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
-              )}
+              className="form-input"
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-[#8A857D] mb-1">
-              Description
-            </label>
+            <label className="form-label">Description</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Optional description"
               rows={2}
-              className={cn(
-                "w-full rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm",
-                "text-[#F0EDE8] placeholder:text-[#5A5650] resize-none",
-                "focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
-              )}
+              className="form-input form-textarea"
             />
           </div>
         </div>
       </div>
 
       {/* Target Cohorts */}
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 space-y-3">
-        <h3 className="text-sm font-semibold text-[#F0EDE8]">
+      <div className="panel">
+        <h3 className="panel-title" style={{ fontSize: "var(--text-base)" }}>
           Target Cohorts
         </h3>
-        <p className="text-xs text-[#8A857D]">
+        <p className="panel-subtitle">
           Select one or more cohorts to characterize.
         </p>
         {loadingCohorts ? (
-          <Loader2 size={16} className="animate-spin text-[#8A857D]" />
+          <Loader2 size={16} className="animate-spin" style={{ color: "var(--text-muted)" }} />
         ) : (
-          <>
+          <div className="space-y-3 mt-3">
             <select
               onChange={(e) => {
                 const val = Number(e.target.value);
                 if (val) toggleCohort("targetCohortIds", val);
                 e.target.value = "";
               }}
-              className={cn(
-                "w-full rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm",
-                "text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
-              )}
+              className="form-input form-select"
               defaultValue=""
             >
               <option value="">Add a target cohort...</option>
@@ -210,17 +195,14 @@ export function CharacterizationDesigner({
                 {design.targetCohortIds.map((id) => {
                   const cohort = cohorts.find((c) => c.id === id);
                   return (
-                    <span
-                      key={id}
-                      className="inline-flex items-center gap-1 rounded-full bg-[#2DD4BF]/10 px-2.5 py-1 text-xs text-[#2DD4BF]"
-                    >
+                    <span key={id} className="filter-chip active">
                       {cohort?.name ?? `Cohort #${id}`}
                       <button
                         type="button"
                         onClick={() =>
                           removeCohort("targetCohortIds", id)
                         }
-                        className="hover:text-white transition-colors"
+                        className="chip-close"
                       >
                         <X size={12} />
                       </button>
@@ -229,33 +211,30 @@ export function CharacterizationDesigner({
                 })}
               </div>
             )}
-          </>
+          </div>
         )}
       </div>
 
       {/* Comparator Cohorts */}
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 space-y-3">
-        <h3 className="text-sm font-semibold text-[#F0EDE8]">
+      <div className="panel">
+        <h3 className="panel-title" style={{ fontSize: "var(--text-base)" }}>
           Comparator Cohorts{" "}
-          <span className="text-[#5A5650] font-normal">(optional)</span>
+          <span style={{ color: "var(--text-ghost)", fontWeight: 400 }}>(optional)</span>
         </h3>
-        <p className="text-xs text-[#8A857D]">
+        <p className="panel-subtitle">
           Select comparator cohorts for side-by-side comparison.
         </p>
         {loadingCohorts ? (
-          <Loader2 size={16} className="animate-spin text-[#8A857D]" />
+          <Loader2 size={16} className="animate-spin" style={{ color: "var(--text-muted)" }} />
         ) : (
-          <>
+          <div className="space-y-3 mt-3">
             <select
               onChange={(e) => {
                 const val = Number(e.target.value);
                 if (val) toggleCohort("comparatorCohortIds", val);
                 e.target.value = "";
               }}
-              className={cn(
-                "w-full rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm",
-                "text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
-              )}
+              className="form-input form-select"
               defaultValue=""
             >
               <option value="">Add a comparator cohort...</option>
@@ -276,7 +255,8 @@ export function CharacterizationDesigner({
                   return (
                     <span
                       key={id}
-                      className="inline-flex items-center gap-1 rounded-full bg-[#C9A227]/10 px-2.5 py-1 text-xs text-[#C9A227]"
+                      className="filter-chip active"
+                      style={{ borderColor: "var(--accent)", color: "var(--accent-light)", background: "var(--accent-bg)" }}
                     >
                       {cohort?.name ?? `Cohort #${id}`}
                       <button
@@ -284,7 +264,7 @@ export function CharacterizationDesigner({
                         onClick={() =>
                           removeCohort("comparatorCohortIds", id)
                         }
-                        className="hover:text-white transition-colors"
+                        className="chip-close"
                       >
                         <X size={12} />
                       </button>
@@ -293,28 +273,32 @@ export function CharacterizationDesigner({
                 })}
               </div>
             )}
-          </>
+          </div>
         )}
       </div>
 
       {/* Feature Types */}
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 space-y-3">
-        <h3 className="text-sm font-semibold text-[#F0EDE8]">
+      <div className="panel">
+        <h3 className="panel-title" style={{ fontSize: "var(--text-base)" }}>
           Feature Types
         </h3>
-        <p className="text-xs text-[#8A857D]">
+        <p className="panel-subtitle">
           Select which feature categories to include in the analysis.
         </p>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-3">
           {ALL_FEATURE_TYPES.map((ft) => (
             <label
               key={ft.value}
               className={cn(
                 "flex items-center gap-2 rounded-lg border px-3 py-2 text-sm cursor-pointer transition-colors",
                 design.featureTypes.includes(ft.value)
-                  ? "border-[#2DD4BF]/30 bg-[#2DD4BF]/5 text-[#2DD4BF]"
-                  : "border-[#232328] bg-[#0E0E11] text-[#8A857D] hover:text-[#C5C0B8]",
+                  ? "border-[color:var(--primary)] bg-[color:var(--primary-bg)] text-[color:var(--text-primary)]"
+                  : "border-[color:var(--border-default)] bg-[color:var(--surface-overlay)] text-[color:var(--text-muted)]",
               )}
+              style={design.featureTypes.includes(ft.value)
+                ? { borderColor: "var(--primary)", background: "var(--primary-bg)", color: "var(--text-primary)" }
+                : { borderColor: "var(--border-default)", background: "var(--surface-overlay)", color: "var(--text-muted)" }
+              }
             >
               <input
                 type="checkbox"
@@ -323,12 +307,11 @@ export function CharacterizationDesigner({
                 className="sr-only"
               />
               <div
-                className={cn(
-                  "w-4 h-4 rounded border flex items-center justify-center shrink-0",
-                  design.featureTypes.includes(ft.value)
-                    ? "border-[#2DD4BF] bg-[#2DD4BF]"
-                    : "border-[#323238]",
-                )}
+                className="w-4 h-4 rounded border flex items-center justify-center shrink-0"
+                style={design.featureTypes.includes(ft.value)
+                  ? { borderColor: "var(--primary)", background: "var(--primary)" }
+                  : { borderColor: "var(--border-subtle)" }
+                }
               >
                 {design.featureTypes.includes(ft.value) && (
                   <svg
@@ -339,7 +322,7 @@ export function CharacterizationDesigner({
                   >
                     <path
                       d="M2 5L4 7L8 3"
-                      stroke="#0E0E11"
+                      stroke="var(--surface-base)"
                       strokeWidth="1.5"
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -354,14 +337,14 @@ export function CharacterizationDesigner({
       </div>
 
       {/* Stratification & Parameters */}
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 space-y-4">
-        <h3 className="text-sm font-semibold text-[#F0EDE8]">
+      <div className="panel">
+        <h3 className="panel-title" style={{ fontSize: "var(--text-base)" }}>
           Parameters
         </h3>
 
         {/* Stratification toggles */}
-        <div className="flex items-center gap-6">
-          <label className="flex items-center gap-2 text-sm text-[#C5C0B8] cursor-pointer">
+        <div className="flex items-center gap-6 mt-3">
+          <label className="flex items-center gap-2 text-sm cursor-pointer" style={{ color: "var(--text-secondary)" }}>
             <button
               type="button"
               onClick={() =>
@@ -370,23 +353,11 @@ export function CharacterizationDesigner({
                   stratifyByGender: !d.stratifyByGender,
                 }))
               }
-              className={cn(
-                "relative w-9 h-5 rounded-full transition-colors",
-                design.stratifyByGender
-                  ? "bg-[#2DD4BF]"
-                  : "bg-[#323238]",
-              )}
-            >
-              <span
-                className={cn(
-                  "absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform",
-                  design.stratifyByGender && "translate-x-4",
-                )}
-              />
-            </button>
+              className={cn("toggle", design.stratifyByGender && "active")}
+            />
             Stratify by Gender
           </label>
-          <label className="flex items-center gap-2 text-sm text-[#C5C0B8] cursor-pointer">
+          <label className="flex items-center gap-2 text-sm cursor-pointer" style={{ color: "var(--text-secondary)" }}>
             <button
               type="button"
               onClick={() =>
@@ -395,25 +366,15 @@ export function CharacterizationDesigner({
                   stratifyByAge: !d.stratifyByAge,
                 }))
               }
-              className={cn(
-                "relative w-9 h-5 rounded-full transition-colors",
-                design.stratifyByAge ? "bg-[#2DD4BF]" : "bg-[#323238]",
-              )}
-            >
-              <span
-                className={cn(
-                  "absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform",
-                  design.stratifyByAge && "translate-x-4",
-                )}
-              />
-            </button>
+              className={cn("toggle", design.stratifyByAge && "active")}
+            />
             Stratify by Age
           </label>
         </div>
 
         {/* Top N */}
-        <div>
-          <label className="block text-xs font-medium text-[#8A857D] mb-1">
+        <div className="mt-4">
+          <label className="form-label">
             Top N Features: {design.topN}
           </label>
           <input
@@ -425,17 +386,18 @@ export function CharacterizationDesigner({
             onChange={(e) =>
               setDesign((d) => ({ ...d, topN: Number(e.target.value) }))
             }
-            className="w-full accent-[#2DD4BF]"
+            className="w-full"
+            style={{ accentColor: "var(--primary)" }}
           />
-          <div className="flex items-center justify-between text-[10px] text-[#5A5650]">
+          <div className="flex items-center justify-between" style={{ fontSize: "var(--text-xs)", color: "var(--text-ghost)" }}>
             <span>10</span>
             <span>200</span>
           </div>
         </div>
 
         {/* Min Cell Count */}
-        <div>
-          <label className="block text-xs font-medium text-[#8A857D] mb-1">
+        <div className="mt-4">
+          <label className="form-label">
             Minimum Cell Count
           </label>
           <input
@@ -449,10 +411,8 @@ export function CharacterizationDesigner({
                 minCellCount: Number(e.target.value) || 5,
               }))
             }
-            className={cn(
-              "w-32 rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm",
-              "text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
-            )}
+            className="form-input"
+            style={{ width: "8rem" }}
           />
         </div>
       </div>
@@ -463,7 +423,7 @@ export function CharacterizationDesigner({
           type="button"
           onClick={handleSave}
           disabled={isSaving || !name.trim()}
-          className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-5 py-2.5 text-sm font-medium text-[#0E0E11] hover:bg-[#26B8A5] transition-colors disabled:opacity-50"
+          className="btn btn-primary"
         >
           {isSaving ? (
             <Loader2 size={14} className="animate-spin" />

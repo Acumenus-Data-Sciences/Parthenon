@@ -32,8 +32,8 @@ function ForestPlot({ results }: { results: IncidenceRateResult[] }) {
   const scale = maxRate > 0 ? 100 / maxRate : 1;
 
   return (
-    <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 space-y-3">
-      <h4 className="text-sm font-semibold text-[#F0EDE8]">
+    <div className="panel space-y-3">
+      <h4 className="panel-title" style={{ fontSize: "var(--text-base)" }}>
         Forest Plot (IR per 1,000 PY)
       </h4>
       <div className="space-y-2">
@@ -43,36 +43,36 @@ function ForestPlot({ results }: { results: IncidenceRateResult[] }) {
             className="flex items-center gap-3"
           >
             <div className="w-40 shrink-0">
-              <p className="text-xs text-[#C5C0B8] truncate">
+              <p className="text-xs truncate" style={{ color: "var(--text-secondary)" }}>
                 {r.outcome_cohort_name}
               </p>
             </div>
             <div className="flex-1 relative h-6">
-              {/* Background bar */}
               <div className="absolute inset-y-0 left-0 right-0 flex items-center">
-                <div className="w-full h-px bg-[#323238]" />
+                <div className="w-full h-px" style={{ background: "var(--border-subtle)" }} />
               </div>
-              {/* CI range */}
               <div
-                className="absolute top-1/2 -translate-y-1/2 h-1.5 bg-[#2DD4BF]/20 rounded"
+                className="absolute top-1/2 -translate-y-1/2 h-1.5 rounded"
                 style={{
                   left: `${r.rate_95_ci_lower * scale}%`,
                   width: `${Math.max((r.rate_95_ci_upper - r.rate_95_ci_lower) * scale, 1)}%`,
+                  background: "color-mix(in srgb, var(--primary) 20%, transparent)",
                 }}
               />
-              {/* Point estimate */}
               <div
-                className="absolute top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-[#2DD4BF] border border-[#0E0E11]"
+                className="absolute top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full"
                 style={{
                   left: `${r.incidence_rate * scale}%`,
                   marginLeft: "-5px",
+                  background: "var(--primary)",
+                  border: "1px solid var(--surface-base)",
                 }}
               />
             </div>
             <div className="w-36 shrink-0 text-right">
-              <span className="font-['IBM_Plex_Mono',monospace] text-xs text-[#C5C0B8]">
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-xs)", color: "var(--text-secondary)" }}>
                 {r.incidence_rate.toFixed(1)}
-                <span className="text-[#5A5650]">
+                <span style={{ color: "var(--text-ghost)" }}>
                   {" "}
                   ({r.rate_95_ci_lower.toFixed(1)}-
                   {r.rate_95_ci_upper.toFixed(1)})
@@ -214,28 +214,16 @@ export function IncidenceRateResults({
   return (
     <div className="space-y-6">
       {/* Summary Table */}
-      <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
-        <table className="w-full">
+      <div className="panel" style={{ padding: 0, overflow: "hidden" }}>
+        <table className="data-table">
           <thead>
-            <tr className="bg-[#1C1C20]">
-              <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
-                Outcome
-              </th>
-              <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
-                Persons at Risk
-              </th>
-              <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
-                With Outcome
-              </th>
-              <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
-                Person-Years
-              </th>
-              <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
-                IR / 1000 PY
-              </th>
-              <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
-                95% CI
-              </th>
+            <tr>
+              <th>Outcome</th>
+              <th style={{ textAlign: "right" }}>Persons at Risk</th>
+              <th style={{ textAlign: "right" }}>With Outcome</th>
+              <th style={{ textAlign: "right" }}>Person-Years</th>
+              <th style={{ textAlign: "right" }}>IR / 1000 PY</th>
+              <th style={{ textAlign: "right" }}>95% CI</th>
             </tr>
           </thead>
           <tbody>

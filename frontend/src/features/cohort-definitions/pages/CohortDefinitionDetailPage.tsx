@@ -16,6 +16,7 @@ import { CohortExpressionEditor } from "../components/CohortExpressionEditor";
 import { CohortSqlPreview } from "../components/CohortSqlPreview";
 import { CohortGenerationPanel } from "../components/CohortGenerationPanel";
 import { GenerationHistoryTable } from "../components/GenerationHistoryTable";
+import { AttritionChart } from "../components/AttritionChart";
 import {
   useCohortDefinition,
   useUpdateCohortDefinition,
@@ -24,7 +25,7 @@ import {
 } from "../hooks/useCohortDefinitions";
 import { useCohortExpressionStore } from "../stores/cohortExpressionStore";
 
-type Tab = "editor" | "results";
+type Tab = "editor" | "results" | "diagnostics";
 
 export default function CohortDefinitionDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -351,6 +352,7 @@ export default function CohortDefinitionDetailPage() {
           [
             { key: "editor", label: "Expression Editor" },
             { key: "results", label: "SQL & Generation" },
+            { key: "diagnostics", label: "Diagnostics" },
           ] as const
         ).map((tab) => (
           <button
@@ -375,7 +377,7 @@ export default function CohortDefinitionDetailPage() {
       {/* Tab content */}
       {activeTab === "editor" ? (
         <CohortExpressionEditor />
-      ) : (
+      ) : activeTab === "results" ? (
         <div className="space-y-6">
           <CohortGenerationPanel definitionId={cohortId} />
           <CohortSqlPreview definitionId={cohortId} />
@@ -385,6 +387,16 @@ export default function CohortDefinitionDetailPage() {
             </h3>
             <GenerationHistoryTable definitionId={cohortId} />
           </div>
+        </div>
+      ) : (
+        <div className="space-y-6">
+          {/* Attrition Chart — uses inclusion rule stats from latest generation */}
+          <AttritionChart
+            steps={definition.latest_generation?.inclusion_rule_stats ?? null}
+            totalCount={definition.latest_generation?.person_count ?? null}
+          />
+          <CohortGenerationPanel definitionId={cohortId} />
+          <GenerationHistoryTable definitionId={cohortId} />
         </div>
       )}
 

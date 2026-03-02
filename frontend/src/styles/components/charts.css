@@ -1,0 +1,157 @@
+/* ============================================================
+   DESIGNLOG.md §11 — Data Visualization
+   ============================================================ */
+
+/* Chart container */
+.chart-container {
+  background: var(--surface-raised);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  position: relative;
+}
+
+.chart-title {
+  font-family: var(--font-heading);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--space-3);
+}
+
+.chart-subtitle {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  margin-top: calc(-1 * var(--space-2));
+  margin-bottom: var(--space-3);
+}
+
+/* Chart area */
+.chart-area {
+  position: relative;
+  min-height: 200px;
+}
+
+/* Chart tooltip */
+.chart-tooltip {
+  position: absolute;
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  pointer-events: none;
+  z-index: var(--z-tooltip);
+  white-space: nowrap;
+}
+.chart-tooltip .tooltip-label {
+  color: var(--text-muted);
+  margin-bottom: var(--space-1);
+}
+.chart-tooltip .tooltip-value {
+  font-family: var(--font-mono);
+  font-weight: 500;
+}
+
+/* Chart legend */
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  padding-top: var(--space-3);
+  font-size: var(--text-sm);
+}
+.chart-legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-secondary);
+}
+.chart-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
+/* Chart loading */
+.chart-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+}
+
+/* Chart empty */
+.chart-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+.chart-empty .chart-empty-icon {
+  color: var(--text-ghost);
+  margin-bottom: var(--space-2);
+}
+
+/* Suppressed data warning */
+.chart-suppressed {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: var(--warning-bg);
+  border: 1px solid var(--warning-border);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  color: var(--warning-light);
+  margin-bottom: var(--space-3);
+}
+
+/* D3 / SVG styling */
+.chart-area svg {
+  overflow: visible;
+}
+.chart-area .axis text {
+  fill: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+.chart-area .axis line,
+.chart-area .axis path {
+  stroke: var(--border-default);
+}
+.chart-area .grid line {
+  stroke: var(--border-subtle);
+  stroke-dasharray: 2,2;
+}
+.chart-area .axis-title {
+  fill: var(--text-muted);
+  font-family: var(--font-body);
+  font-size: 12px;
+}
+
+/* Recharts overrides */
+.recharts-cartesian-axis-tick-value {
+  fill: var(--text-muted) !important;
+  font-family: var(--font-mono) !important;
+  font-size: 11px !important;
+}
+.recharts-cartesian-grid line {
+  stroke: var(--border-subtle) !important;
+}
+.recharts-legend-item-text {
+  color: var(--text-secondary) !important;
+  font-size: var(--text-sm) !important;
+}
+.recharts-tooltip-wrapper .recharts-default-tooltip {
+  background: var(--surface-elevated) !important;
+  border: 1px solid var(--border-default) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-lg) !important;
+}

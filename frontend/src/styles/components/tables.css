@@ -1,0 +1,126 @@
+/* ============================================================
+   DESIGNLOG.md §9.5 — Data Table
+   ============================================================ */
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+
+.data-table thead {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+}
+
+.data-table th {
+  background: var(--surface-overlay);
+  border-bottom: 1px solid var(--border-default);
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+  font-weight: 600;
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  user-select: none;
+}
+
+/* Sortable header */
+.data-table th.sortable {
+  cursor: pointer;
+  transition: color var(--duration-fast);
+}
+.data-table th.sortable:hover {
+  color: var(--accent);
+}
+.data-table th.sorted {
+  color: var(--accent);
+}
+
+.data-table td {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  vertical-align: middle;
+}
+
+.data-table tbody tr {
+  transition: background var(--duration-fast);
+  min-height: 44px;
+}
+.data-table tbody tr:hover {
+  background: var(--surface-overlay);
+}
+.data-table tbody tr.selected {
+  background: var(--surface-elevated);
+}
+
+/* Mono cells (concept IDs, codes) */
+.data-table td.mono {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+}
+
+/* Clickable rows */
+.data-table tbody tr.clickable {
+  cursor: pointer;
+}
+.data-table tbody tr.clickable:hover {
+  background: var(--surface-elevated);
+}
+
+/* Empty state within table */
+.data-table .table-empty {
+  text-align: center;
+  padding: var(--space-12) var(--space-6);
+  color: var(--text-muted);
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--border-default);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+.pagination-info {
+  color: var(--text-muted);
+}
+.pagination-buttons {
+  display: flex;
+  gap: var(--space-1);
+}
+.pagination-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-default);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: var(--text-sm);
+  transition: all var(--duration-fast);
+}
+.pagination-btn:hover {
+  border-color: var(--border-hover);
+  color: var(--text-primary);
+}
+.pagination-btn.active {
+  background: var(--accent-bg);
+  border-color: var(--accent);
+  color: var(--accent-light);
+}
+.pagination-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

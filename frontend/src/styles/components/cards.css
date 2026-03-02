@@ -1,0 +1,137 @@
+/* ============================================================
+   DESIGNLOG.md §9.1–9.2 — Panel + Metric Card
+   ============================================================ */
+
+/* Panel */
+.panel {
+  background: var(--gradient-panel);
+  background-color: var(--surface-raised);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: var(--panel-padding);
+  position: relative;
+  overflow: hidden;
+}
+
+/* 1px top-edge shimmer */
+.panel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, var(--glass-03) 50%, transparent 100%);
+}
+
+.panel:hover {
+  border-color: var(--border-hover);
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+}
+.panel-title {
+  font-family: var(--font-heading);
+  font-size: var(--text-xl);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.panel-subtitle {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  margin-top: var(--space-1);
+}
+
+.panel-body {
+  /* default: no padding (uses panel's padding) */
+}
+
+.panel-footer {
+  margin-top: var(--space-4);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border-subtle);
+}
+
+/* Panel variants */
+.panel-inset {
+  background: var(--gradient-panel-inset);
+  background-color: var(--surface-base);
+  border-color: var(--border-subtle);
+  box-shadow: var(--shadow-inset);
+}
+.panel-inset::before {
+  display: none;
+}
+
+/* Metric Card */
+.metric-card {
+  background: var(--gradient-panel);
+  background-color: var(--surface-raised);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4) var(--space-5);
+  position: relative;
+  overflow: hidden;
+  transition: border-color var(--duration-fast), transform var(--duration-fast);
+}
+.metric-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, var(--glass-03) 50%, transparent 100%);
+}
+.metric-card:hover {
+  border-color: var(--border-hover);
+  transform: translateY(-1px);
+}
+
+.metric-card .metric-label {
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-ghost);
+  margin-bottom: var(--space-2);
+}
+.metric-card .metric-value {
+  font-family: var(--font-display);
+  font-size: var(--text-4xl);
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.1;
+}
+.metric-card .metric-description {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  margin-top: var(--space-1);
+}
+.metric-card .metric-trend {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-xs);
+  margin-top: var(--space-2);
+}
+.metric-card .metric-trend.positive { color: var(--success); }
+.metric-card .metric-trend.negative { color: var(--critical); }
+.metric-card .metric-trend.neutral  { color: var(--text-muted); }
+
+/* Semantic metric card variants */
+.metric-card.critical { border-color: var(--critical-border); }
+.metric-card.critical .metric-value { color: var(--critical); }
+
+.metric-card.warning { border-color: var(--warning-border); }
+.metric-card.warning .metric-value { color: var(--warning); }
+
+.metric-card.success { border-color: var(--success-border); }
+.metric-card.success .metric-value { color: var(--success); }
+
+.metric-card.info { border-color: var(--info-border); }
+.metric-card.info .metric-value { color: var(--info); }

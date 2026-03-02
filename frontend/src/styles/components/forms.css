@@ -1,0 +1,225 @@
+/* ============================================================
+   DESIGNLOG.md §9.3–9.4 — Buttons + Form Controls
+   ============================================================ */
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all var(--duration-fast);
+  white-space: nowrap;
+  min-height: 32px;
+  line-height: 1;
+  text-decoration: none;
+}
+.btn:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Primary */
+.btn-primary {
+  background: var(--gradient-crimson);
+  background-color: var(--primary);
+  color: var(--text-primary);
+  border-color: var(--primary-light);
+}
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--primary-light);
+  box-shadow: 0 4px 20px var(--primary-glow);
+}
+
+/* Secondary */
+.btn-secondary {
+  background: var(--surface-overlay);
+  color: var(--text-secondary);
+  border-color: var(--border-default);
+}
+.btn-secondary:hover:not(:disabled) {
+  background: var(--surface-elevated);
+  border-color: var(--border-hover);
+  color: var(--text-primary);
+}
+
+/* Ghost */
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border-color: transparent;
+}
+.btn-ghost:hover:not(:disabled) {
+  background: var(--surface-overlay);
+  color: var(--text-primary);
+}
+
+/* Danger */
+.btn-danger {
+  background: var(--critical-bg);
+  color: var(--critical-light);
+  border-color: var(--critical-border);
+}
+.btn-danger:hover:not(:disabled) {
+  background: var(--critical);
+  color: var(--text-primary);
+  box-shadow: 0 4px 16px var(--critical-glow);
+}
+
+/* Button sizes */
+.btn-sm {
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--text-sm);
+  min-height: 28px;
+}
+.btn-lg {
+  padding: var(--space-3) var(--space-6);
+  font-size: var(--text-lg);
+  min-height: 40px;
+}
+
+/* Icon button */
+.btn-icon {
+  padding: var(--space-2);
+  min-width: 32px;
+  min-height: 32px;
+}
+.btn-icon.btn-sm {
+  padding: var(--space-1);
+  min-width: 28px;
+  min-height: 28px;
+}
+
+/* Form Input */
+.form-input {
+  display: block;
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  color: var(--text-primary);
+  background: var(--surface-overlay);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  outline: none;
+  transition: border-color var(--duration-fast), box-shadow var(--duration-fast);
+  min-height: 36px;
+}
+.form-input::placeholder {
+  color: var(--text-ghost);
+}
+.form-input:hover {
+  border-color: var(--border-hover);
+}
+.form-input:focus {
+  border-color: var(--border-focus);
+  box-shadow: var(--focus-ring);
+}
+.form-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: var(--surface-accent);
+}
+
+/* Select */
+.form-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%238A857D' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right var(--space-3) center;
+  background-repeat: no-repeat;
+  background-size: 16px;
+  padding-right: var(--space-8);
+}
+
+/* Textarea */
+.form-textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+/* Label */
+.form-label {
+  display: block;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-1);
+}
+
+/* Helper text */
+.form-helper {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  margin-top: var(--space-1);
+}
+
+/* Error state */
+.form-input.error {
+  border-color: var(--critical);
+}
+.form-error {
+  font-size: var(--text-xs);
+  color: var(--critical);
+  margin-top: var(--space-1);
+}
+
+/* Form group */
+.form-group {
+  margin-bottom: var(--space-4);
+}
+
+/* Checkbox / Radio */
+.form-check {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-base);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+.form-check input[type="checkbox"],
+.form-check input[type="radio"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--primary);
+}
+
+/* Toggle / Switch */
+.toggle {
+  position: relative;
+  display: inline-flex;
+  width: 36px;
+  height: 20px;
+  background: var(--surface-accent);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: background var(--duration-fast);
+}
+.toggle.active {
+  background: var(--primary);
+}
+.toggle::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  background: var(--text-primary);
+  border-radius: var(--radius-full);
+  transition: transform var(--duration-fast);
+}
+.toggle.active::after {
+  transform: translateX(16px);
+}

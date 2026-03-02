@@ -112,56 +112,44 @@ export function IncidenceRateDesigner({
   return (
     <div className="space-y-6">
       {/* Name & Description */}
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 space-y-4">
-        <h3 className="text-sm font-semibold text-[#F0EDE8]">
+      <div className="panel">
+        <h3 className="panel-title" style={{ fontSize: "var(--text-base)" }}>
           Basic Information
         </h3>
-        <div className="space-y-3">
+        <div className="space-y-3 mt-3">
           <div>
-            <label className="block text-xs font-medium text-[#8A857D] mb-1">
-              Name
-            </label>
+            <label className="form-label">Name</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Incidence rate analysis name"
-              className={cn(
-                "w-full rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm",
-                "text-[#F0EDE8] placeholder:text-[#5A5650]",
-                "focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
-              )}
+              className="form-input"
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-[#8A857D] mb-1">
-              Description
-            </label>
+            <label className="form-label">Description</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Optional description"
               rows={2}
-              className={cn(
-                "w-full rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm",
-                "text-[#F0EDE8] placeholder:text-[#5A5650] resize-none",
-                "focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
-              )}
+              className="form-input form-textarea"
             />
           </div>
         </div>
       </div>
 
       {/* Target Cohort (single select) */}
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 space-y-3">
-        <h3 className="text-sm font-semibold text-[#F0EDE8]">
+      <div className="panel">
+        <h3 className="panel-title" style={{ fontSize: "var(--text-base)" }}>
           Target Cohort
         </h3>
-        <p className="text-xs text-[#8A857D]">
+        <p className="panel-subtitle">
           Select the population at risk for this analysis.
         </p>
         {loadingCohorts ? (
-          <Loader2 size={16} className="animate-spin text-[#8A857D]" />
+          <Loader2 size={16} className="animate-spin" style={{ color: "var(--text-muted)" }} />
         ) : (
           <select
             value={design.targetCohortId || ""}
@@ -171,10 +159,7 @@ export function IncidenceRateDesigner({
                 targetCohortId: Number(e.target.value) || 0,
               }))
             }
-            className={cn(
-              "w-full rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm",
-              "text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
-            )}
+            className="form-input form-select mt-3"
           >
             <option value="">Select a target cohort...</option>
             {cohorts.map((c) => (
@@ -187,27 +172,24 @@ export function IncidenceRateDesigner({
       </div>
 
       {/* Outcome Cohorts (multi select) */}
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 space-y-3">
-        <h3 className="text-sm font-semibold text-[#F0EDE8]">
+      <div className="panel">
+        <h3 className="panel-title" style={{ fontSize: "var(--text-base)" }}>
           Outcome Cohorts
         </h3>
-        <p className="text-xs text-[#8A857D]">
+        <p className="panel-subtitle">
           Select one or more outcome cohorts to measure incidence for.
         </p>
         {loadingCohorts ? (
-          <Loader2 size={16} className="animate-spin text-[#8A857D]" />
+          <Loader2 size={16} className="animate-spin" style={{ color: "var(--text-muted)" }} />
         ) : (
-          <>
+          <div className="space-y-3 mt-3">
             <select
               onChange={(e) => {
                 const val = Number(e.target.value);
                 if (val) toggleOutcomeCohort(val);
                 e.target.value = "";
               }}
-              className={cn(
-                "w-full rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm",
-                "text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
-              )}
+              className="form-input form-select"
               defaultValue=""
             >
               <option value="">Add an outcome cohort...</option>
@@ -228,13 +210,14 @@ export function IncidenceRateDesigner({
                   return (
                     <span
                       key={id}
-                      className="inline-flex items-center gap-1 rounded-full bg-[#C9A227]/10 px-2.5 py-1 text-xs text-[#C9A227]"
+                      className="filter-chip active"
+                      style={{ borderColor: "var(--accent)", color: "var(--accent-light)", background: "var(--accent-bg)" }}
                     >
                       {cohort?.name ?? `Cohort #${id}`}
                       <button
                         type="button"
                         onClick={() => removeOutcomeCohort(id)}
-                        className="hover:text-white transition-colors"
+                        className="chip-close"
                       >
                         <X size={12} />
                       </button>
@@ -243,25 +226,23 @@ export function IncidenceRateDesigner({
                 })}
               </div>
             )}
-          </>
+          </div>
         )}
       </div>
 
       {/* Time at Risk */}
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 space-y-4">
-        <h3 className="text-sm font-semibold text-[#F0EDE8]">
+      <div className="panel">
+        <h3 className="panel-title" style={{ fontSize: "var(--text-base)" }}>
           Time at Risk
         </h3>
-        <p className="text-xs text-[#8A857D]">
+        <p className="panel-subtitle">
           Define the observation period relative to the target cohort entry.
         </p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-3">
           {/* Start */}
           <div className="space-y-2">
-            <label className="block text-xs font-medium text-[#8A857D]">
-              Start
-            </label>
+            <label className="form-label">Start</label>
             <div className="flex items-center gap-2">
               <select
                 value={design.timeAtRisk.start.dateField}
@@ -279,15 +260,12 @@ export function IncidenceRateDesigner({
                     },
                   }))
                 }
-                className={cn(
-                  "flex-1 rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm",
-                  "text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
-                )}
+                className="form-input form-select flex-1"
               >
                 <option value="StartDate">Start Date</option>
                 <option value="EndDate">End Date</option>
               </select>
-              <span className="text-xs text-[#8A857D]">+</span>
+              <span style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)" }}>+</span>
               <input
                 type="number"
                 value={design.timeAtRisk.start.offset}
@@ -303,20 +281,16 @@ export function IncidenceRateDesigner({
                     },
                   }))
                 }
-                className={cn(
-                  "w-20 rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm",
-                  "text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
-                )}
+                className="form-input"
+                style={{ width: "5rem" }}
               />
-              <span className="text-xs text-[#8A857D]">days</span>
+              <span style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)" }}>days</span>
             </div>
           </div>
 
           {/* End */}
           <div className="space-y-2">
-            <label className="block text-xs font-medium text-[#8A857D]">
-              End
-            </label>
+            <label className="form-label">End</label>
             <div className="flex items-center gap-2">
               <select
                 value={design.timeAtRisk.end.dateField}
@@ -334,15 +308,12 @@ export function IncidenceRateDesigner({
                     },
                   }))
                 }
-                className={cn(
-                  "flex-1 rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm",
-                  "text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
-                )}
+                className="form-input form-select flex-1"
               >
                 <option value="StartDate">Start Date</option>
                 <option value="EndDate">End Date</option>
               </select>
-              <span className="text-xs text-[#8A857D]">+</span>
+              <span style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)" }}>+</span>
               <input
                 type="number"
                 value={design.timeAtRisk.end.offset}
@@ -358,25 +329,23 @@ export function IncidenceRateDesigner({
                     },
                   }))
                 }
-                className={cn(
-                  "w-20 rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm",
-                  "text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
-                )}
+                className="form-input"
+                style={{ width: "5rem" }}
               />
-              <span className="text-xs text-[#8A857D]">days</span>
+              <span style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)" }}>days</span>
             </div>
           </div>
         </div>
       </div>
 
       {/* Stratification & Parameters */}
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 space-y-4">
-        <h3 className="text-sm font-semibold text-[#F0EDE8]">
+      <div className="panel">
+        <h3 className="panel-title" style={{ fontSize: "var(--text-base)" }}>
           Stratification
         </h3>
 
-        <div className="flex items-center gap-6">
-          <label className="flex items-center gap-2 text-sm text-[#C5C0B8] cursor-pointer">
+        <div className="flex items-center gap-6 mt-3">
+          <label className="flex items-center gap-2 text-sm cursor-pointer" style={{ color: "var(--text-secondary)" }}>
             <button
               type="button"
               onClick={() =>
@@ -385,23 +354,11 @@ export function IncidenceRateDesigner({
                   stratifyByGender: !d.stratifyByGender,
                 }))
               }
-              className={cn(
-                "relative w-9 h-5 rounded-full transition-colors",
-                design.stratifyByGender
-                  ? "bg-[#2DD4BF]"
-                  : "bg-[#323238]",
-              )}
-            >
-              <span
-                className={cn(
-                  "absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform",
-                  design.stratifyByGender && "translate-x-4",
-                )}
-              />
-            </button>
+              className={cn("toggle", design.stratifyByGender && "active")}
+            />
             Stratify by Gender
           </label>
-          <label className="flex items-center gap-2 text-sm text-[#C5C0B8] cursor-pointer">
+          <label className="flex items-center gap-2 text-sm cursor-pointer" style={{ color: "var(--text-secondary)" }}>
             <button
               type="button"
               onClick={() =>
@@ -410,25 +367,15 @@ export function IncidenceRateDesigner({
                   stratifyByAge: !d.stratifyByAge,
                 }))
               }
-              className={cn(
-                "relative w-9 h-5 rounded-full transition-colors",
-                design.stratifyByAge ? "bg-[#2DD4BF]" : "bg-[#323238]",
-              )}
-            >
-              <span
-                className={cn(
-                  "absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform",
-                  design.stratifyByAge && "translate-x-4",
-                )}
-              />
-            </button>
+              className={cn("toggle", design.stratifyByAge && "active")}
+            />
             Stratify by Age
           </label>
         </div>
 
         {/* Min Cell Count */}
-        <div>
-          <label className="block text-xs font-medium text-[#8A857D] mb-1">
+        <div className="mt-4">
+          <label className="form-label">
             Minimum Cell Count
           </label>
           <input
@@ -442,10 +389,8 @@ export function IncidenceRateDesigner({
                 minCellCount: Number(e.target.value) || 5,
               }))
             }
-            className={cn(
-              "w-32 rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm",
-              "text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
-            )}
+            className="form-input"
+            style={{ width: "8rem" }}
           />
         </div>
       </div>
@@ -456,7 +401,7 @@ export function IncidenceRateDesigner({
           type="button"
           onClick={handleSave}
           disabled={isSaving || !name.trim()}
-          className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-5 py-2.5 text-sm font-medium text-[#0E0E11] hover:bg-[#26B8A5] transition-colors disabled:opacity-50"
+          className="btn btn-primary"
         >
           {isSaving ? (
             <Loader2 size={14} className="animate-spin" />

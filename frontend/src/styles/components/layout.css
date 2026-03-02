@@ -1,0 +1,148 @@
+/* ============================================================
+   DESIGNLOG.md §7 — Application Shell Layout
+   ============================================================ */
+
+.app-shell {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  background-color: var(--surface-base);
+}
+
+/* Sidebar */
+.app-sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: var(--z-sidebar);
+  height: 100vh;
+  width: var(--sidebar-width);
+  background-color: var(--sidebar-bg);
+  border-right: 1px solid var(--border-default);
+  display: flex;
+  flex-direction: column;
+  transition: width var(--duration-slow) var(--ease-out);
+  overflow: hidden;
+}
+.app-sidebar.collapsed {
+  width: var(--sidebar-width-collapsed);
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--topbar-height);
+  padding: 0 var(--space-4);
+  border-bottom: 1px solid var(--border-default);
+  flex-shrink: 0;
+}
+
+.sidebar-logo {
+  font-family: var(--font-heading);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.sidebar-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: color var(--duration-fast), background var(--duration-fast);
+}
+.sidebar-toggle:hover {
+  background: var(--surface-overlay);
+  color: var(--text-primary);
+}
+
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-2);
+}
+
+.sidebar-section-label {
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-ghost);
+  padding: var(--space-3) var(--space-3) var(--space-1);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+/* Top bar */
+.app-topbar {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-topbar);
+  height: var(--topbar-height);
+  background-color: var(--surface-raised);
+  border-bottom: 1px solid var(--border-default);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-6);
+  flex-shrink: 0;
+}
+
+.topbar-title {
+  font-family: var(--font-heading);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Content area */
+.app-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  margin-left: var(--sidebar-width);
+  transition: margin-left var(--duration-slow) var(--ease-out);
+}
+.app-content.sidebar-collapsed {
+  margin-left: var(--sidebar-width-collapsed);
+}
+
+.content-main {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--content-padding);
+  max-width: var(--content-max-width);
+}
+
+/* Page header */
+.page-header {
+  margin-bottom: var(--space-6);
+}
+.page-title {
+  font-family: var(--font-heading);
+  font-size: var(--text-2xl);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+.page-subtitle {
+  font-size: var(--text-base);
+  color: var(--text-muted);
+  margin-top: var(--space-1);
+}
