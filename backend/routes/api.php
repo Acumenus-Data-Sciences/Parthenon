@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AbbyAiController;
+use App\Http\Controllers\Api\V1\NetworkAnalysisController;
 use App\Http\Controllers\Api\V1\AchillesController;
 use App\Http\Controllers\Api\V1\ClinicalCoherenceController;
 use App\Http\Controllers\Api\V1\PopulationRiskScoreController;
@@ -203,6 +204,14 @@ Route::prefix('v1')->group(function () {
             Route::post('/{bundle}/evaluate', [CareGapController::class, 'evaluate']);
             Route::get('/{bundle}/evaluations', [CareGapController::class, 'evaluations']);
             Route::get('/{bundle}/evaluations/{evaluation}', [CareGapController::class, 'showEvaluation']);
+        });
+
+        // Network Analytics (Tier 4)
+        Route::prefix('network')->group(function () {
+            Route::get('/analyses', [NetworkAnalysisController::class, 'index']);
+            Route::get('/analyses/{analysisId}', [NetworkAnalysisController::class, 'show']);
+            Route::post('/run', [NetworkAnalysisController::class, 'run']);
+            Route::get('/summary', [NetworkAnalysisController::class, 'summary']);
         });
 
         // Abby AI

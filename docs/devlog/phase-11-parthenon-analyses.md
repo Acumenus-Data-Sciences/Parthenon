@@ -855,3 +855,118 @@ This prevents silent notification failures after job deserialization.
 | Tier 2 — Temporal Quality | 6 | Period integrity, era violations, date drift |
 | Tier 3 — Population Risk | 20 | Validated clinical risk scores w/ confidence |
 | **Total** | **174** | |
+
+---
+
+## Phase 11h — Tier 4: Network Analytics (NA001–NA008)
+
+### Motivation
+
+OHDSI Atlas has no built-in cross-site comparison engine. Researchers wanting to compare condition prevalence or data quality across multiple CDM databases must manually export Achilles results and join them in R or Excel. Parthenon's Tier 4 engine makes this a first-class API operation — no exports, no manual joins.
+
+### Architecture
+
+Network analyses follow the same Registry/Interface/Engine/Controller pattern as Tiers 1–3, with one key difference: the engine executes per-source SQL against **each registered CDM source** and then aggregates results in PHP, computing cross-site statistics without ever moving patient-level data.
+
+```
+NetworkAnalysisInterface
+    └─ perSourceSqlTemplate()   — SQL run per source (CDM or results schema)
+    └─ minimumSources()         — skip analysis if too few sources
+
+NetworkAnalysisEngineService
+    1. Iterate active sources with CDM daimon
+    2. Render SQL ({@cdmSchema} / {@resultsSchema}) per source
+    3. Execute and store rows in network_analysis_results with source_id
+    4. Compute PHP-level network aggregates (mean, SD, I², min, max)
+    5. Store network rows with source_id = NULL
+```
+
+### Cross-Site Statistics (computed in PHP)
+
+For each (stratum_1, stratum_2, stratum_3) group across sources:
+
+| Statistic | Formula |
+|---|---|
+| mean_ratio | Σ(count/total) / k |
+| sd_ratio | Sample SD of per-source ratios |
+| min_ratio / max_ratio | Range across sources |
+| heterogeneity_i² | max(0, (Q − df) / Q) — Higgins 2003 |
+
+I² interpretation: < 25% low, 25–50% moderate, 50–75% high, > 75% very high heterogeneity.
+
+### Analysis Catalogue
+
+| ID | Name | Category | Data Source | Min Sources |
+|---|---|---|---|---|
+| NA001 | Cross-Site Condition Prevalence | Prevalence | CDM | 2 |
+| NA002 | Demographic Distribution Parity | Demographics | CDM | 2 |
+| NA003 | Data Density Fingerprint | Coverage | CDM | 1 |
+| NA004 | Domain Coverage Completeness | Coverage | CDM | 1 |
+| NA005 | Vocabulary & Concept Usage | Coverage | CDM | 1 |
+| NA006 | Temporal Record Distribution | Coverage | CDM | 1 |
+| NA007 | Risk Score Distribution Comparison | Risk | Results schema | 2 |
+| NA008 | Between-Site Heterogeneity Index | Heterogeneity | Results schema | 3 |
+
+**NA007** queries `population_risk_score_results` (pre-computed Tier 3 outputs) — no CDM access, near-instant execution.
+
+**NA008** queries stored NA001 results to compute Cochran's Q and I² per condition — a true second-order meta-analysis.
+
+### New API Endpoints
+
+```
+GET  /api/v1/network/analyses                   — list all 8 analyses with run metadata
+GET  /api/v1/network/analyses/{analysisId}      — per-source + network aggregate results
+POST /api/v1/network/run                        — execute all analyses across all sources
+GET  /api/v1/network/summary                    — domain coverage heatmap + top heterogeneous conditions
+```
+
+### Results Table
+
+`network_analysis_results`:
+- `source_id` BIGINT nullable — NULL = network aggregate row
+- `analysis_id` VARCHAR(10)
+- `stratum_1/2/3` — grouping dimensions
+- `count_value` / `total_value` / `ratio_value`
+- `value_as_string` TEXT — JSON payload on network rows: `{source_count, mean_ratio, sd_ratio, min_ratio, max_ratio, heterogeneity_i2}`
+
+### New Files (Phase 11h)
+
+```
+backend/app/Contracts/NetworkAnalysisInterface.php
+backend/app/Services/Network/NetworkAnalysisRegistry.php
+backend/app/Services/Network/NetworkAnalysisEngineService.php
+backend/app/Services/Network/Analyses/NA001ConditionPrevalence.php
+backend/app/Services/Network/Analyses/NA002DemographicParity.php
+backend/app/Services/Network/Analyses/NA003DataDensityFingerprint.php
+backend/app/Services/Network/Analyses/NA004DomainCoverageCompleteness.php
+backend/app/Services/Network/Analyses/NA005VocabularyUsage.php
+backend/app/Services/Network/Analyses/NA006TemporalDistribution.php
+backend/app/Services/Network/Analyses/NA007RiskScoreComparison.php
+backend/app/Services/Network/Analyses/NA008HeterogeneityIndex.php
+backend/app/Models/Results/NetworkAnalysisResult.php
+backend/app/Http/Controllers/Api/V1/NetworkAnalysisController.php
+backend/app/Providers/NetworkAnalysisServiceProvider.php
+backend/database/migrations/2026_03_02_210000_create_network_analysis_results_table.php
+```
+
+### Modified (Phase 11h)
+
+```
+backend/bootstrap/providers.php   (added NetworkAnalysisServiceProvider)
+backend/routes/api.php            (added /network/* endpoints)
+docs/devlog/phase-11-parthenon-analyses.md
+```
+
+### Registry Summary (post-Phase-11h — FINAL)
+
+| Tier | Count | IDs |
+|---|---|---|
+| Standard Achilles | 127 analyses | via AchillesServiceProvider |
+| Achilles Heel | 15 rules | via AchillesServiceProvider |
+| Tier 1 — Clinical Coherence | 6 analyses | CC001–CC006 |
+| Tier 2 — Temporal Quality | 6 analyses | TQ001–TQ006 |
+| Tier 3 — Population Risk Scores | 20 scores | RS001–RS020 |
+| Tier 4 — Network Analytics | 8 analyses | NA001–NA008 |
+| **Total** | **182** | |
+
+**Phase 11 closed.**

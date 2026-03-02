@@ -6,4 +6,5 @@ return [
     App\Providers\ClinicalCoherenceServiceProvider::class,
     App\Providers\DataQualityServiceProvider::class,
     App\Providers\PopulationRiskServiceProvider::class,
+    App\Providers\NetworkAnalysisServiceProvider::class,
 ];
