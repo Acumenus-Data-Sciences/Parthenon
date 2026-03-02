@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Models\App\Source;
 use App\Services\Achilles\AchillesResultReaderService;
+use App\Services\Achilles\Heel\AchillesHeelService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -12,6 +13,7 @@ class AchillesController extends Controller
 {
     public function __construct(
         private readonly AchillesResultReaderService $reader,
+        private readonly AchillesHeelService $heel,
     ) {}
 
     /**
@@ -185,6 +187,48 @@ class AchillesController extends Controller
             return response()->json(['data' => $data]);
         } catch (\Throwable $e) {
             return $this->errorResponse("Failed to retrieve distribution for analysis {$analysisId}", $e);
+        }
+    }
+
+    /**
+     * GET /v1/sources/{source}/achilles/heel
+     *
+     * Returns Achilles Heel quality rule results grouped by severity.
+     */
+    public function heel(Source $source): JsonResponse
+    {
+        try {
+            $data = $this->heel->getResults($source);
+
+            return response()->json([
+                'data' => $data,
+                'summary' => [
+                    'errors'        => count($data['error']),
+                    'warnings'      => count($data['warning']),
+                    'notifications' => count($data['notification']),
+                ],
+            ]);
+        } catch (\Throwable $e) {
+            return $this->errorResponse('Failed to retrieve Achilles Heel results', $e);
+        }
+    }
+
+    /**
+     * POST /v1/sources/{source}/achilles/heel/run
+     *
+     * Runs all Achilles Heel rules synchronously and returns results.
+     */
+    public function runHeel(Source $source): JsonResponse
+    {
+        try {
+            $result = $this->heel->run($source);
+
+            return response()->json([
+                'data'    => $result,
+                'message' => "Heel completed: {$result['completed']} rules passed, {$result['failed']} failed.",
+            ]);
+        } catch (\Throwable $e) {
+            return $this->errorResponse('Failed to run Achilles Heel', $e);
         }
     }
 

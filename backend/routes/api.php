@@ -85,6 +85,8 @@ Route::prefix('v1')->group(function () {
             Route::get('/analyses', [AchillesController::class, 'analyses']);
             Route::get('/performance', [AchillesController::class, 'performance']);
             Route::get('/distributions/{analysisId}', [AchillesController::class, 'distribution']);
+            Route::get('/heel', [AchillesController::class, 'heel']);
+            Route::post('/heel/run', [AchillesController::class, 'runHeel']);
         });
 
         // Data Quality Dashboard
