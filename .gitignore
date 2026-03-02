@@ -46,6 +46,9 @@ r-runtime/.RData
 docker/postgres-data/
 docker/redis-data/
 
+# Data files
+*.zip
+
 # Secrets
 .secrets
 
