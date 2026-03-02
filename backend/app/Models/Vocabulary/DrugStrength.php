@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class DrugStrength extends VocabularyModel
 {
-    protected $table = 'drug_strengths';
+    protected $table = 'drug_strength';
 
     /**
      * @return array<string, string>

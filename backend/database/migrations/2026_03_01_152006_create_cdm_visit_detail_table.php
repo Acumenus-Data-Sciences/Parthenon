@@ -8,6 +8,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::connection('cdm')->hasTable('visit_detail')) {
+            return;
+        }
+
         Schema::connection('cdm')->create('visit_detail', function (Blueprint $table) {
             $table->bigInteger('visit_detail_id')->primary();
             $table->bigInteger('person_id');

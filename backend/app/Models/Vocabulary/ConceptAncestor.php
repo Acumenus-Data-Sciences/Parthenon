@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ConceptAncestor extends VocabularyModel
 {
-    protected $table = 'concept_ancestors';
+    protected $table = 'concept_ancestor';
 
     public $incrementing = false;
 

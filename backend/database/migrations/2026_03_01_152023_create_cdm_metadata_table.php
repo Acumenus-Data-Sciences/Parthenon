@@ -8,6 +8,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::connection('cdm')->hasTable('metadata')) {
+            return;
+        }
+
         Schema::connection('cdm')->create('metadata', function (Blueprint $table) {
             $table->bigIncrements('metadata_id');
             $table->integer('metadata_concept_id');

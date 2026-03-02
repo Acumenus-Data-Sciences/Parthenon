@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ConceptRelationship extends VocabularyModel
 {
-    protected $table = 'concept_relationships';
+    protected $table = 'concept_relationship';
 
     public $incrementing = false;
 

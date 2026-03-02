@@ -14,6 +14,10 @@ return new class extends Migration
     {
         $connection = config('database.connections.results') ? 'results' : null;
 
+        if (Schema::connection($connection)->hasTable('cohort_inclusion_stats')) {
+            return;
+        }
+
         Schema::connection($connection)->create('cohort_inclusion_stats', function (Blueprint $table) {
             $table->bigInteger('cohort_definition_id');
             $table->integer('rule_sequence');

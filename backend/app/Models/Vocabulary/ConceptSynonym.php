@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ConceptSynonym extends VocabularyModel
 {
-    protected $table = 'concept_synonyms';
+    protected $table = 'concept_synonym';
 
     /**
      * @return BelongsTo<Concept, $this>

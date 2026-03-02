@@ -8,7 +8,11 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::connection('vocab')->create('concept_classes', function (Blueprint $table) {
+        if (Schema::connection('vocab')->hasTable('concept_class')) {
+            return;
+        }
+
+        Schema::connection('vocab')->create('concept_class', function (Blueprint $table) {
             $table->string('concept_class_id', 20)->primary();
             $table->string('concept_class_name', 255);
             $table->integer('concept_class_concept_id');
@@ -17,6 +21,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::connection('vocab')->dropIfExists('concept_classes');
+        Schema::connection('vocab')->dropIfExists('concept_class');
     }
 };

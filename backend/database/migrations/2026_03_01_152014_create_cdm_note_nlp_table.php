@@ -8,6 +8,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::connection('cdm')->hasTable('note_nlp')) {
+            return;
+        }
+
         Schema::connection('cdm')->create('note_nlp', function (Blueprint $table) {
             $table->bigInteger('note_nlp_id')->primary();
             $table->bigInteger('note_id');

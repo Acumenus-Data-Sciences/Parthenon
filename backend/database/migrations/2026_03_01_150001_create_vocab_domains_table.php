@@ -8,7 +8,11 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::connection('vocab')->create('domains', function (Blueprint $table) {
+        if (Schema::connection('vocab')->hasTable('domain')) {
+            return;
+        }
+
+        Schema::connection('vocab')->create('domain', function (Blueprint $table) {
             $table->string('domain_id', 20)->primary();
             $table->string('domain_name', 255);
             $table->integer('domain_concept_id');
@@ -17,6 +21,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::connection('vocab')->dropIfExists('domains');
+        Schema::connection('vocab')->dropIfExists('domain');
     }
 };

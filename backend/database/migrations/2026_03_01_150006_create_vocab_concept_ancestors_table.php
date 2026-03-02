@@ -8,7 +8,11 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::connection('vocab')->create('concept_ancestors', function (Blueprint $table) {
+        if (Schema::connection('vocab')->hasTable('concept_ancestor')) {
+            return;
+        }
+
+        Schema::connection('vocab')->create('concept_ancestor', function (Blueprint $table) {
             $table->integer('ancestor_concept_id');
             $table->integer('descendant_concept_id');
             $table->integer('min_levels_of_separation');
@@ -20,6 +24,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::connection('vocab')->dropIfExists('concept_ancestors');
+        Schema::connection('vocab')->dropIfExists('concept_ancestor');
     }
 };

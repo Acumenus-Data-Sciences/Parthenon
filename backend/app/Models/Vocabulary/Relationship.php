@@ -4,7 +4,7 @@ namespace App\Models\Vocabulary;
 
 class Relationship extends VocabularyModel
 {
-    protected $table = 'relationships';
+    protected $table = 'relationship';
 
     protected $primaryKey = 'relationship_id';
 

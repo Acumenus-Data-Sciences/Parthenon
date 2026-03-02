@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Vocabulary extends VocabularyModel
 {
-    protected $table = 'vocabularies';
+    protected $table = 'vocabulary';
 
     protected $primaryKey = 'vocabulary_id';
 

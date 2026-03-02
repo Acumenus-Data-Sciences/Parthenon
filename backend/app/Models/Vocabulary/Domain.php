@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Domain extends VocabularyModel
 {
-    protected $table = 'domains';
+    protected $table = 'domain';
 
     protected $primaryKey = 'domain_id';
 

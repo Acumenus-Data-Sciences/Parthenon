@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class SourceToConceptMap extends VocabularyModel
 {
-    protected $table = 'source_to_concept_maps';
+    protected $table = 'source_to_concept_map';
 
     /**
      * @return array<string, string>

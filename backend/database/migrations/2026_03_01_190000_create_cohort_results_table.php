@@ -16,6 +16,10 @@ return new class extends Migration
     {
         $connection = config('database.connections.results') ? 'results' : null;
 
+        if (Schema::connection($connection)->hasTable('cohort')) {
+            return;
+        }
+
         Schema::connection($connection)->create('cohort', function (Blueprint $table) {
             $table->bigInteger('cohort_definition_id');
             $table->bigInteger('subject_id');

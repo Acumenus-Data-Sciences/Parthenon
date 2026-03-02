@@ -8,7 +8,11 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::connection('vocab')->create('vocabularies', function (Blueprint $table) {
+        if (Schema::connection('vocab')->hasTable('vocabulary')) {
+            return;
+        }
+
+        Schema::connection('vocab')->create('vocabulary', function (Blueprint $table) {
             $table->string('vocabulary_id', 20)->primary();
             $table->string('vocabulary_name', 255);
             $table->string('vocabulary_reference', 255)->nullable();
@@ -19,6 +23,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::connection('vocab')->dropIfExists('vocabularies');
+        Schema::connection('vocab')->dropIfExists('vocabulary');
     }
 };

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Concept extends VocabularyModel
 {
-    protected $table = 'concepts';
+    protected $table = 'concept';
 
     protected $primaryKey = 'concept_id';
 

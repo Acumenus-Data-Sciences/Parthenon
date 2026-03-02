@@ -8,6 +8,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::connection('cdm')->hasTable('fact_relationship')) {
+            return;
+        }
+
         Schema::connection('cdm')->create('fact_relationship', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->integer('domain_concept_id_1');

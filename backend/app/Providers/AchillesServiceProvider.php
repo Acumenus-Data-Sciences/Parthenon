@@ -17,6 +17,7 @@ use App\Services\Achilles\Analyses\ObservationPeriod\Analysis108;
 use App\Services\Achilles\Analyses\ObservationPeriod\Analysis109;
 use App\Services\Achilles\Analyses\ObservationPeriod\Analysis110;
 use App\Services\Achilles\Analyses\ObservationPeriod\Analysis111;
+use App\Services\Achilles\Analyses\ObservationPeriod\Analysis112;
 use App\Services\Achilles\Analyses\ObservationPeriod\Analysis113;
 
 // ── Person ─────────────────────────────────────────────────────────────────────
@@ -34,6 +35,7 @@ use App\Services\Achilles\Analyses\Visit\Analysis203;
 use App\Services\Achilles\Analyses\Visit\Analysis204;
 use App\Services\Achilles\Analyses\Visit\Analysis206;
 use App\Services\Achilles\Analyses\Visit\Analysis207;
+use App\Services\Achilles\Analyses\Visit\Analysis208;
 use App\Services\Achilles\Analyses\Visit\Analysis209;
 use App\Services\Achilles\Analyses\Visit\Analysis210;
 use App\Services\Achilles\Analyses\Visit\Analysis211;
@@ -47,6 +49,8 @@ use App\Services\Achilles\Analyses\Condition\Analysis403;
 use App\Services\Achilles\Analyses\Condition\Analysis404;
 use App\Services\Achilles\Analyses\Condition\Analysis405;
 use App\Services\Achilles\Analyses\Condition\Analysis406;
+use App\Services\Achilles\Analyses\Condition\Analysis407;
+use App\Services\Achilles\Analyses\Condition\Analysis408;
 use App\Services\Achilles\Analyses\Condition\Analysis409;
 use App\Services\Achilles\Analyses\Condition\Analysis410;
 use App\Services\Achilles\Analyses\Condition\Analysis411;
@@ -67,8 +71,11 @@ use App\Services\Achilles\Analyses\Procedure\Analysis600;
 use App\Services\Achilles\Analyses\Procedure\Analysis601;
 use App\Services\Achilles\Analyses\Procedure\Analysis602;
 use App\Services\Achilles\Analyses\Procedure\Analysis603;
+use App\Services\Achilles\Analyses\Procedure\Analysis604;
 use App\Services\Achilles\Analyses\Procedure\Analysis605;
 use App\Services\Achilles\Analyses\Procedure\Analysis606;
+use App\Services\Achilles\Analyses\Procedure\Analysis607;
+use App\Services\Achilles\Analyses\Procedure\Analysis608;
 use App\Services\Achilles\Analyses\Procedure\Analysis609;
 use App\Services\Achilles\Analyses\Procedure\Analysis610;
 use App\Services\Achilles\Analyses\Procedure\Analysis611;
@@ -81,6 +88,8 @@ use App\Services\Achilles\Analyses\Drug\Analysis703;
 use App\Services\Achilles\Analyses\Drug\Analysis704;
 use App\Services\Achilles\Analyses\Drug\Analysis705;
 use App\Services\Achilles\Analyses\Drug\Analysis706;
+use App\Services\Achilles\Analyses\Drug\Analysis707;
+use App\Services\Achilles\Analyses\Drug\Analysis708;
 use App\Services\Achilles\Analyses\Drug\Analysis709;
 use App\Services\Achilles\Analyses\Drug\Analysis710;
 use App\Services\Achilles\Analyses\Drug\Analysis711;
@@ -91,23 +100,30 @@ use App\Services\Achilles\Analyses\Drug\Analysis716;
 use App\Services\Achilles\Analyses\Observation\Analysis800;
 use App\Services\Achilles\Analyses\Observation\Analysis801;
 use App\Services\Achilles\Analyses\Observation\Analysis802;
+use App\Services\Achilles\Analyses\Observation\Analysis803;
+use App\Services\Achilles\Analyses\Observation\Analysis804;
 use App\Services\Achilles\Analyses\Observation\Analysis805;
 use App\Services\Achilles\Analyses\Observation\Analysis806;
+use App\Services\Achilles\Analyses\Observation\Analysis807;
+use App\Services\Achilles\Analyses\Observation\Analysis808;
 use App\Services\Achilles\Analyses\Observation\Analysis809;
 use App\Services\Achilles\Analyses\Observation\Analysis810;
 use App\Services\Achilles\Analyses\Observation\Analysis811;
+use App\Services\Achilles\Analyses\Observation\Analysis812;
 
 // ── Drug Era ───────────────────────────────────────────────────────────────────
 use App\Services\Achilles\Analyses\DrugEra\Analysis900;
 use App\Services\Achilles\Analyses\DrugEra\Analysis901;
 use App\Services\Achilles\Analyses\DrugEra\Analysis902;
 use App\Services\Achilles\Analyses\DrugEra\Analysis903;
+use App\Services\Achilles\Analyses\DrugEra\Analysis904;
 
 // ── Condition Era ──────────────────────────────────────────────────────────────
 use App\Services\Achilles\Analyses\ConditionEra\Analysis1000;
 use App\Services\Achilles\Analyses\ConditionEra\Analysis1001;
 use App\Services\Achilles\Analyses\ConditionEra\Analysis1002;
 use App\Services\Achilles\Analyses\ConditionEra\Analysis1003;
+use App\Services\Achilles\Analyses\ConditionEra\Analysis1004;
 
 // ── Measurement ────────────────────────────────────────────────────────────────
 use App\Services\Achilles\Analyses\Measurement\Analysis1800;
@@ -117,11 +133,17 @@ use App\Services\Achilles\Analyses\Measurement\Analysis1803;
 use App\Services\Achilles\Analyses\Measurement\Analysis1804;
 use App\Services\Achilles\Analyses\Measurement\Analysis1805;
 use App\Services\Achilles\Analyses\Measurement\Analysis1806;
+use App\Services\Achilles\Analyses\Measurement\Analysis1807;
+use App\Services\Achilles\Analyses\Measurement\Analysis1808;
 use App\Services\Achilles\Analyses\Measurement\Analysis1809;
 use App\Services\Achilles\Analyses\Measurement\Analysis1810;
 use App\Services\Achilles\Analyses\Measurement\Analysis1811;
+use App\Services\Achilles\Analyses\Measurement\Analysis1812;
+use App\Services\Achilles\Analyses\Measurement\Analysis1813;
 use App\Services\Achilles\Analyses\Measurement\Analysis1814;
 use App\Services\Achilles\Analyses\Measurement\Analysis1815;
+use App\Services\Achilles\Analyses\Measurement\Analysis1816;
+use App\Services\Achilles\Analyses\Measurement\Analysis1817;
 
 // ── Payer Plan ─────────────────────────────────────────────────────────────────
 use App\Services\Achilles\Analyses\PayerPlan\Analysis1700;
@@ -166,29 +188,29 @@ class AchillesServiceProvider extends ServiceProvider
                 $registry->register($a);
             }
 
-            // Observation Period (11 analyses)
+            // Observation Period (13 analyses)
             foreach ([
                 new Analysis101, new Analysis102, new Analysis103, new Analysis104,
                 new Analysis105, new Analysis106, new Analysis107, new Analysis108,
-                new Analysis109, new Analysis110, new Analysis111, new Analysis113,
+                new Analysis109, new Analysis110, new Analysis111, new Analysis112, new Analysis113,
             ] as $a) {
                 $registry->register($a);
             }
 
-            // Visit (8 analyses)
+            // Visit (12 analyses)
             foreach ([
                 new Analysis200, new Analysis201, new Analysis202, new Analysis203,
-                new Analysis204, new Analysis206, new Analysis207, new Analysis209,
-                new Analysis210, new Analysis211, new Analysis220,
+                new Analysis204, new Analysis206, new Analysis207, new Analysis208,
+                new Analysis209, new Analysis210, new Analysis211, new Analysis220,
             ] as $a) {
                 $registry->register($a);
             }
 
-            // Condition (10 analyses)
+            // Condition (13 analyses)
             foreach ([
                 new Analysis400, new Analysis401, new Analysis402, new Analysis403,
-                new Analysis404, new Analysis405, new Analysis406, new Analysis409,
-                new Analysis410, new Analysis411, new Analysis420,
+                new Analysis404, new Analysis405, new Analysis406, new Analysis407,
+                new Analysis408, new Analysis409, new Analysis410, new Analysis411, new Analysis420,
             ] as $a) {
                 $registry->register($a);
             }
@@ -201,47 +223,52 @@ class AchillesServiceProvider extends ServiceProvider
                 $registry->register($a);
             }
 
-            // Procedure (8 analyses)
+            // Procedure (11 analyses)
             foreach ([
                 new Analysis600, new Analysis601, new Analysis602, new Analysis603,
-                new Analysis605, new Analysis606, new Analysis609, new Analysis610,
-                new Analysis611,
+                new Analysis604, new Analysis605, new Analysis606, new Analysis607,
+                new Analysis608, new Analysis609, new Analysis610, new Analysis611,
             ] as $a) {
                 $registry->register($a);
             }
 
-            // Drug (11 analyses)
+            // Drug (14 analyses)
             foreach ([
                 new Analysis700, new Analysis701, new Analysis702, new Analysis703,
-                new Analysis704, new Analysis705, new Analysis706, new Analysis709,
-                new Analysis710, new Analysis711, new Analysis715, new Analysis716,
+                new Analysis704, new Analysis705, new Analysis706, new Analysis707,
+                new Analysis708, new Analysis709, new Analysis710, new Analysis711,
+                new Analysis715, new Analysis716,
             ] as $a) {
                 $registry->register($a);
             }
 
-            // Observation (7 analyses)
+            // Observation (13 analyses)
             foreach ([
-                new Analysis800, new Analysis801, new Analysis802, new Analysis805,
-                new Analysis806, new Analysis809, new Analysis810, new Analysis811,
+                new Analysis800, new Analysis801, new Analysis802, new Analysis803,
+                new Analysis804, new Analysis805, new Analysis806, new Analysis807,
+                new Analysis808, new Analysis809, new Analysis810, new Analysis811,
+                new Analysis812,
             ] as $a) {
                 $registry->register($a);
             }
 
-            // Drug Era (4 analyses)
-            foreach ([new Analysis900, new Analysis901, new Analysis902, new Analysis903] as $a) {
+            // Drug Era (5 analyses)
+            foreach ([new Analysis900, new Analysis901, new Analysis902, new Analysis903, new Analysis904] as $a) {
                 $registry->register($a);
             }
 
-            // Condition Era (4 analyses)
-            foreach ([new Analysis1000, new Analysis1001, new Analysis1002, new Analysis1003] as $a) {
+            // Condition Era (5 analyses)
+            foreach ([new Analysis1000, new Analysis1001, new Analysis1002, new Analysis1003, new Analysis1004] as $a) {
                 $registry->register($a);
             }
 
-            // Measurement (11 analyses)
+            // Measurement (18 analyses)
             foreach ([
                 new Analysis1800, new Analysis1801, new Analysis1802, new Analysis1803,
-                new Analysis1804, new Analysis1805, new Analysis1806, new Analysis1809,
-                new Analysis1810, new Analysis1811, new Analysis1814, new Analysis1815,
+                new Analysis1804, new Analysis1805, new Analysis1806, new Analysis1807,
+                new Analysis1808, new Analysis1809, new Analysis1810, new Analysis1811,
+                new Analysis1812, new Analysis1813, new Analysis1814, new Analysis1815,
+                new Analysis1816, new Analysis1817,
             ] as $a) {
                 $registry->register($a);
             }
