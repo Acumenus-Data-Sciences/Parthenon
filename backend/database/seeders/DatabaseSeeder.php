@@ -3,8 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -13,11 +13,21 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // Roles and permissions must exist before users are assigned roles.
+        $this->call(RolePermissionSeeder::class);
+        $this->call(AuthProviderSeeder::class);
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        // ── Default super-admin ────────────────────────────────────────────
+        // Credentials: login = admin   password = superuser
+        // Change the password immediately after the first deployment.
+        $admin = User::firstOrCreate(
+            ['email' => 'admin@parthenon.local'],
+            [
+                'name'     => 'Administrator',
+                'password' => Hash::make('superuser'),
+            ],
+        );
+
+        $admin->assignRole('super-admin');
     }
 }

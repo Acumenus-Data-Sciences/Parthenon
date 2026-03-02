@@ -89,14 +89,55 @@ export const router = createBrowserRouter([
           },
         ],
       },
-      { path: "vocabulary", element: <PlaceholderPage title="Vocabulary" /> },
+      {
+        path: "vocabulary",
+        children: [
+          {
+            index: true,
+            lazy: () =>
+              import("@/features/vocabulary/pages/VocabularyPage").then(
+                (m) => ({ Component: m.default }),
+              ),
+          },
+        ],
+      },
       {
         path: "cohort-definitions",
-        element: <PlaceholderPage title="Cohort Definitions" />,
+        children: [
+          {
+            index: true,
+            lazy: () =>
+              import(
+                "@/features/cohort-definitions/pages/CohortDefinitionsPage"
+              ).then((m) => ({ Component: m.default })),
+          },
+          {
+            path: ":id",
+            lazy: () =>
+              import(
+                "@/features/cohort-definitions/pages/CohortDefinitionDetailPage"
+              ).then((m) => ({ Component: m.default })),
+          },
+        ],
       },
       {
         path: "concept-sets",
-        element: <PlaceholderPage title="Concept Sets" />,
+        children: [
+          {
+            index: true,
+            lazy: () =>
+              import("@/features/concept-sets/pages/ConceptSetsPage").then(
+                (m) => ({ Component: m.default }),
+              ),
+          },
+          {
+            path: ":id",
+            lazy: () =>
+              import(
+                "@/features/concept-sets/pages/ConceptSetDetailPage"
+              ).then((m) => ({ Component: m.default })),
+          },
+        ],
       },
       { path: "analyses", element: <PlaceholderPage title="Analyses" /> },
       { path: "studies", element: <PlaceholderPage title="Studies" /> },
@@ -105,9 +146,39 @@ export const router = createBrowserRouter([
         element: <PlaceholderPage title="Patient Profiles" />,
       },
       { path: "jobs", element: <PlaceholderPage title="Jobs" /> },
+      // ── Administration ────────────────────────────────────────────────
       {
         path: "admin",
-        element: <PlaceholderPage title="Administration" />,
+        children: [
+          {
+            index: true,
+            lazy: () =>
+              import("@/features/administration/pages/AdminDashboardPage").then(
+                (m) => ({ Component: m.default }),
+              ),
+          },
+          {
+            path: "users",
+            lazy: () =>
+              import("@/features/administration/pages/UsersPage").then(
+                (m) => ({ Component: m.default }),
+              ),
+          },
+          {
+            path: "roles",
+            lazy: () =>
+              import("@/features/administration/pages/RolesPage").then(
+                (m) => ({ Component: m.default }),
+              ),
+          },
+          {
+            path: "auth-providers",
+            lazy: () =>
+              import("@/features/administration/pages/AuthProvidersPage").then(
+                (m) => ({ Component: m.default }),
+              ),
+          },
+        ],
       },
     ],
   },

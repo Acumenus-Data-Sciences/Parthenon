@@ -56,7 +56,14 @@ class AuthController extends Controller
 
     public function user(Request $request): JsonResponse
     {
-        return response()->json($request->user());
+        /** @var \App\Models\User $user */
+        $user = $request->user()->load('roles.permissions');
+
+        return response()->json([
+            ...$user->toArray(),
+            'roles'       => $user->getRoleNames(),
+            'permissions' => $user->getAllPermissions()->pluck('name'),
+        ]);
     }
 
     public function logout(Request $request): JsonResponse

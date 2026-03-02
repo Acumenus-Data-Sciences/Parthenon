@@ -1,7 +1,12 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AchillesController;
+use App\Http\Controllers\Api\V1\Admin\AuthProviderController;
+use App\Http\Controllers\Api\V1\Admin\RoleController;
+use App\Http\Controllers\Api\V1\Admin\UserController;
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\CohortDefinitionController;
+use App\Http\Controllers\Api\V1\ConceptSetController;
 use App\Http\Controllers\Api\V1\DataQualityController;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\IngestionController;
@@ -84,8 +89,58 @@ Route::prefix('v1')->group(function () {
             Route::delete('/runs/{runId}', [DataQualityController::class, 'destroyRun']);
         });
 
-        // Stubs for future phases
-        Route::get('/cohort-definitions', fn () => response()->json(['message' => 'Not yet implemented'], 501));
-        Route::get('/concept-sets', fn () => response()->json(['message' => 'Not yet implemented'], 501));
+        // Concept Sets
+        Route::apiResource('concept-sets', ConceptSetController::class);
+        Route::get('/concept-sets/{concept_set}/resolve', [ConceptSetController::class, 'resolve']);
+        Route::post('/concept-sets/{concept_set}/items', [ConceptSetController::class, 'addItem']);
+        Route::put('/concept-sets/{concept_set}/items/{item}', [ConceptSetController::class, 'updateItem']);
+        Route::delete('/concept-sets/{concept_set}/items/{item}', [ConceptSetController::class, 'removeItem']);
+
+        // Enhanced Vocabulary
+        Route::get('/vocabulary/concepts/{id}/descendants', [VocabularyController::class, 'descendants']);
+        Route::get('/vocabulary/concepts/{id}/hierarchy', [VocabularyController::class, 'hierarchy']);
+        Route::get('/vocabulary/domains', [VocabularyController::class, 'domains']);
+        Route::get('/vocabulary/vocabularies-list', [VocabularyController::class, 'vocabularies']);
+
+        // Cohort Definitions
+        Route::apiResource('cohort-definitions', CohortDefinitionController::class);
+        Route::post('/cohort-definitions/{cohortDefinition}/generate', [CohortDefinitionController::class, 'generate']);
+        Route::get('/cohort-definitions/{cohortDefinition}/generations', [CohortDefinitionController::class, 'generations']);
+        Route::get('/cohort-definitions/{cohortDefinition}/generations/{generation}', [CohortDefinitionController::class, 'showGeneration']);
+        Route::get('/cohort-definitions/{cohortDefinition}/sql', [CohortDefinitionController::class, 'previewSql']);
+        Route::post('/cohort-definitions/{cohortDefinition}/copy', [CohortDefinitionController::class, 'copy']);
+
+        // ── Admin panel (requires admin or super-admin role) ───────────────
+        Route::prefix('admin')->middleware('role:admin|super-admin')->group(function () {
+
+            // ── User management ───────────────────────────────────────────
+            Route::get('/users', [UserController::class, 'index']);
+            Route::post('/users', [UserController::class, 'store']);
+            Route::get('/users/roles', [UserController::class, 'roles']);
+            Route::get('/users/{user}', [UserController::class, 'show']);
+            Route::put('/users/{user}', [UserController::class, 'update']);
+            Route::delete('/users/{user}', [UserController::class, 'destroy']);
+            Route::put('/users/{user}/roles', [UserController::class, 'syncRoles']);
+
+            // ── Role & permission management (super-admin only) ────────────
+            Route::middleware('role:super-admin')->group(function () {
+                Route::get('/roles', [RoleController::class, 'index']);
+                Route::post('/roles', [RoleController::class, 'store']);
+                Route::get('/roles/permissions', [RoleController::class, 'permissions']);
+                Route::get('/roles/{role}', [RoleController::class, 'show']);
+                Route::put('/roles/{role}', [RoleController::class, 'update']);
+                Route::delete('/roles/{role}', [RoleController::class, 'destroy']);
+            });
+
+            // ── Auth provider configuration (super-admin only) ────────────
+            Route::middleware('role:super-admin')->prefix('auth-providers')->group(function () {
+                Route::get('/', [AuthProviderController::class, 'index']);
+                Route::get('/{providerType}', [AuthProviderController::class, 'show']);
+                Route::put('/{providerType}', [AuthProviderController::class, 'update']);
+                Route::post('/{providerType}/enable', [AuthProviderController::class, 'enable']);
+                Route::post('/{providerType}/disable', [AuthProviderController::class, 'disable']);
+                Route::post('/{providerType}/test', [AuthProviderController::class, 'test']);
+            });
+        });
     });
 });
