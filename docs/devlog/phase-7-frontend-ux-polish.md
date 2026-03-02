@@ -366,3 +366,57 @@ Portal-rendered to `document.body` to escape stacking contexts. Fuzzy search fil
 
 ### Docs
 - `docs/devlog/phase-7-frontend-ux-polish.md` — this file
+
+---
+
+## Production Deployment
+
+### Apache VirtualHost Configuration
+
+Deployed to `https://parthenon.acumenus.net` via Apache2 with SSL (Let's Encrypt). Configuration at `/etc/apache2/sites-available/parthenon.acumenus.net-le-ssl.conf`:
+
+- **Static frontend:** `DocumentRoot` points to `frontend/dist/` with `FallbackResource /index.html` for SPA routing
+- **API reverse proxy:** `ProxyPass /api/` → Docker nginx on `127.0.0.1:8082` → PHP-FPM
+- **Sanctum proxy:** `ProxyPass /sanctum` → Docker nginx for CSRF cookie flow
+- **Horizon proxy:** `ProxyPass /horizon` → Docker nginx for queue dashboard
+- **Security headers:** `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`
+- HTTP→HTTPS redirect via separate port 80 vhost
+
+### Database Architecture
+
+Dual-PostgreSQL topology:
+
+| Connection | Host | Database | Schema | Purpose |
+|------------|------|----------|--------|---------|
+| `pgsql` (default) | Docker PostgreSQL 16 | `parthenon` | `app` | Users, permissions, sessions, auth providers, app models |
+| `cdm` | Local PostgreSQL 17 | `ohdsi` | `cdm` | CDM table shells (data in `omop`) |
+| `vocab` | Local PostgreSQL 17 | `ohdsi` | `vocab` | Vocabulary table shells (data in `public`) |
+| `results` | Local PostgreSQL 17 | `ohdsi` | `achilles_results` | Achilles results (1.8M rows preserved), DQD, cohort results |
+
+Key schemas created in `ohdsi`: `app`, `vocab`, `cdm`. Existing schemas preserved: `omop` (full CDM + vocabulary data), `achilles_results` (1.8M Achilles result rows), `vocabulary`, `webapi`.
+
+### Migration Safety
+
+Four Achilles migrations guarded with `hasTable()` checks to prevent overwriting existing production data:
+- `170000_create_achilles_results_table` — skips if `achilles_results` exists
+- `170001_create_achilles_results_dist_table` — skips if `achilles_results_dist` exists
+- `170002_create_achilles_analysis_table` — skips if `achilles_analysis` exists
+- `170003_create_achilles_performance_table` — skips if `achilles_performance` exists
+
+`concept_embeddings` migration made idempotent — detects pgvector extension schema dynamically (`omop.vector` vs `public.vector`).
+
+`auth_provider_settings.settings` column changed from `jsonb` to `text` — the `encrypted:array` Eloquent cast produces base64, not valid JSON.
+
+### Sanctum Configuration
+
+Updated `.env` for production SPA auth:
+- `APP_URL=https://parthenon.acumenus.net`
+- `SESSION_DOMAIN=parthenon.acumenus.net`
+- `SANCTUM_STATEFUL_DOMAINS=localhost,localhost:80,localhost:5173,parthenon.acumenus.net`
+
+Frontend `LoginPage.tsx` updated to fetch `/sanctum/csrf-cookie` before POST to `/auth/login`.
+
+### Seeded Data
+
+- Admin user: `admin@parthenon.local` / `superuser` (super-admin role)
+- Auth providers: LDAP, OAuth2, SAML2, OIDC (all disabled, configuration templates seeded)

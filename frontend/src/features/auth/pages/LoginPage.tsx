@@ -3,6 +3,7 @@ import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { Loader2, AlertCircle, Lock, Mail } from "lucide-react";
 import { useAuthStore } from "@/stores/authStore";
+import axios from "axios";
 import apiClient from "@/lib/api-client";
 import type { AuthResponse } from "@/types/api";
 
@@ -20,6 +21,9 @@ export function LoginPage() {
     setLoading(true);
 
     try {
+      // Fetch CSRF cookie for Sanctum stateful auth
+      await axios.get("/sanctum/csrf-cookie", { withCredentials: true });
+
       const { data } = await apiClient.post<AuthResponse>("/auth/login", {
         email,
         password,

@@ -14,7 +14,7 @@ return new class extends Migration
             $table->string('display_name');
             $table->boolean('is_enabled')->default(false);
             $table->integer('priority')->default(0);
-            $table->jsonb('settings')->default('{}');
+            $table->text('settings')->nullable(); // encrypted:array cast stores base64, not JSON
             $table->foreignId('updated_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
         });

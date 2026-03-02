@@ -8,6 +8,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::connection('results')->hasTable('achilles_analysis')) {
+            return; // Table already exists — preserve data
+        }
+
         Schema::connection('results')->create('achilles_analysis', function (Blueprint $table) {
             $table->integer('analysis_id')->primary();
             $table->string('analysis_name');
