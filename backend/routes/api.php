@@ -5,12 +5,16 @@ use App\Http\Controllers\Api\V1\Admin\AuthProviderController;
 use App\Http\Controllers\Api\V1\Admin\RoleController;
 use App\Http\Controllers\Api\V1\Admin\UserController;
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\CharacterizationController;
 use App\Http\Controllers\Api\V1\CohortDefinitionController;
 use App\Http\Controllers\Api\V1\ConceptSetController;
 use App\Http\Controllers\Api\V1\DataQualityController;
 use App\Http\Controllers\Api\V1\HealthController;
+use App\Http\Controllers\Api\V1\IncidenceRateController;
 use App\Http\Controllers\Api\V1\IngestionController;
 use App\Http\Controllers\Api\V1\MappingReviewController;
+use App\Http\Controllers\Api\V1\PathwayController;
+use App\Http\Controllers\Api\V1\PatientProfileController;
 use App\Http\Controllers\Api\V1\SourceController;
 use App\Http\Controllers\Api\V1\VocabularyController;
 use Illuminate\Support\Facades\Route;
@@ -109,6 +113,28 @@ Route::prefix('v1')->group(function () {
         Route::get('/cohort-definitions/{cohortDefinition}/generations/{generation}', [CohortDefinitionController::class, 'showGeneration']);
         Route::get('/cohort-definitions/{cohortDefinition}/sql', [CohortDefinitionController::class, 'previewSql']);
         Route::post('/cohort-definitions/{cohortDefinition}/copy', [CohortDefinitionController::class, 'copy']);
+
+        // Characterizations
+        Route::apiResource('characterizations', CharacterizationController::class);
+        Route::post('characterizations/{characterization}/execute', [CharacterizationController::class, 'execute']);
+        Route::get('characterizations/{characterization}/executions', [CharacterizationController::class, 'executions']);
+        Route::get('characterizations/{characterization}/executions/{execution}', [CharacterizationController::class, 'showExecution']);
+
+        // Incidence Rates
+        Route::apiResource('incidence-rates', IncidenceRateController::class);
+        Route::post('incidence-rates/{incidenceRate}/execute', [IncidenceRateController::class, 'execute']);
+        Route::get('incidence-rates/{incidenceRate}/executions', [IncidenceRateController::class, 'executions']);
+        Route::get('incidence-rates/{incidenceRate}/executions/{execution}', [IncidenceRateController::class, 'showExecution']);
+
+        // Pathways
+        Route::apiResource('pathways', PathwayController::class);
+        Route::post('pathways/{pathway}/execute', [PathwayController::class, 'execute']);
+        Route::get('pathways/{pathway}/executions', [PathwayController::class, 'executions']);
+        Route::get('pathways/{pathway}/executions/{execution}', [PathwayController::class, 'showExecution']);
+
+        // Patient Profiles
+        Route::get('sources/{source}/profiles/{personId}', [PatientProfileController::class, 'show']);
+        Route::get('sources/{source}/cohorts/{cohortDefinitionId}/members', [PatientProfileController::class, 'members']);
 
         // ── Admin panel (requires admin or super-admin role) ───────────────
         Route::prefix('admin')->middleware('role:admin|super-admin')->group(function () {

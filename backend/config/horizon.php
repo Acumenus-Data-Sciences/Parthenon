@@ -238,6 +238,20 @@ return [
             'timeout' => 3600,
             'nice' => 0,
         ],
+
+        'analysis' => [
+            'connection' => 'redis',
+            'queue' => ['analysis'],
+            'balance' => 'auto',
+            'autoScalingStrategy' => 'time',
+            'maxProcesses' => 3,
+            'maxTime' => 0,
+            'maxJobs' => 0,
+            'memory' => 512,
+            'tries' => 1,
+            'timeout' => 3600,
+            'nice' => 0,
+        ],
     ],
 
     'environments' => [
@@ -253,6 +267,14 @@ return [
             'achilles' => [
                 'maxProcesses' => 3,
             ],
+            'analysis' => [
+                'connection' => 'redis',
+                'queue' => ['analysis'],
+                'balance' => 'auto',
+                'maxProcesses' => 3,
+                'timeout' => 3600,
+                'memory' => 512,
+            ],
         ],
 
         'local' => [
@@ -264,6 +286,14 @@ return [
             ],
             'achilles' => [
                 'maxProcesses' => 1,
+            ],
+            'analysis' => [
+                'connection' => 'redis',
+                'queue' => ['analysis'],
+                'balance' => 'auto',
+                'maxProcesses' => 3,
+                'timeout' => 3600,
+                'memory' => 512,
             ],
         ],
     ],

@@ -139,7 +139,32 @@ export const router = createBrowserRouter([
           },
         ],
       },
-      { path: "analyses", element: <PlaceholderPage title="Analyses" /> },
+      {
+        path: "analyses",
+        children: [
+          {
+            index: true,
+            lazy: () =>
+              import("@/features/analyses/pages/AnalysesPage").then(
+                (m) => ({ Component: m.default }),
+              ),
+          },
+          {
+            path: "characterizations/:id",
+            lazy: () =>
+              import(
+                "@/features/analyses/pages/CharacterizationDetailPage"
+              ).then((m) => ({ Component: m.default })),
+          },
+          {
+            path: "incidence-rates/:id",
+            lazy: () =>
+              import(
+                "@/features/analyses/pages/IncidenceRateDetailPage"
+              ).then((m) => ({ Component: m.default })),
+          },
+        ],
+      },
       { path: "studies", element: <PlaceholderPage title="Studies" /> },
       {
         path: "profiles",

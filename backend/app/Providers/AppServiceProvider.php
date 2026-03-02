@@ -14,6 +14,10 @@ use App\Services\Cohort\CohortSqlCompiler;
 use App\Services\Cohort\Criteria\CriteriaBuilderRegistry;
 use App\Services\Cohort\Criteria\DemographicCriteriaBuilder;
 use App\Services\Cohort\Schema\CohortExpressionSchema;
+use App\Services\Analysis\CharacterizationService;
+use App\Services\Analysis\IncidenceRateService;
+use App\Services\Analysis\PathwayService;
+use App\Services\Analysis\PatientProfileService;
 use App\Services\SqlRenderer\SqlRendererService;
 use Illuminate\Support\ServiceProvider;
 
@@ -25,6 +29,12 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(SqlRendererService::class);
+
+        // Analysis services
+        $this->app->singleton(CharacterizationService::class);
+        $this->app->singleton(IncidenceRateService::class);
+        $this->app->singleton(PathwayService::class);
+        $this->app->singleton(PatientProfileService::class);
 
         // Cohort SQL Compiler services
         $this->app->singleton(CohortExpressionSchema::class);
