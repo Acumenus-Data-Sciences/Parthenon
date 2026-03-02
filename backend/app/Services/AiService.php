@@ -141,6 +141,46 @@ class AiService
     }
 
     /**
+     * Parse a natural-language cohort description using MedGemma.
+     * Returns a structured spec: demographics, terms, temporal, study_design.
+     *
+     * @return array<string, mixed>
+     */
+    public function parseCohortPrompt(string $prompt, string $pageContext = 'cohort-builder'): array
+    {
+        $response = Http::timeout(120)
+            ->post("{$this->baseUrl}/abby/parse-cohort", [
+                'prompt'       => $prompt,
+                'page_context' => $pageContext,
+            ]);
+
+        return $response->json() ?? [];
+    }
+
+    /**
+     * Page-aware conversational chat with Abby (MedGemma).
+     *
+     * @param  array<array{role: string, content: string}>  $history
+     * @return array<string, mixed>  {reply: string, suggestions: string[]}
+     */
+    public function abbyChat(
+        string $message,
+        string $pageContext = 'general',
+        array  $pageData   = [],
+        array  $history    = [],
+    ): array {
+        $response = Http::timeout(120)
+            ->post("{$this->baseUrl}/abby/chat", [
+                'message'      => $message,
+                'page_context' => $pageContext,
+                'page_data'    => $pageData,
+                'history'      => $history,
+            ]);
+
+        return $response->json() ?? ['reply' => 'Abby is unavailable.', 'suggestions' => []];
+    }
+
+    /**
      * Generic POST to the AI service.
      *
      * @param  array<string, mixed>  $data

@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routers import clinical_nlp, concept_mapping, embeddings, health, profiling, schema_mapping
+from app.routers import abby, clinical_nlp, concept_mapping, embeddings, health, profiling, schema_mapping
 
 app = FastAPI(
     title="Parthenon AI Service",
@@ -29,3 +29,4 @@ app.include_router(profiling.router, prefix="/profiling", tags=["profiling"])
 app.include_router(
     schema_mapping.router, prefix="/schema-mapping", tags=["schema-mapping"]
 )
+app.include_router(abby.router, prefix="/abby", tags=["abby"])

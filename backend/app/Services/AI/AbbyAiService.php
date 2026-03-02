@@ -2,8 +2,12 @@
 
 namespace App\Services\AI;
 
+use App\Models\App\CohortDefinition;
+use App\Models\User;
+use App\Services\AiService;
 use App\Services\Cohort\Schema\CohortExpressionSchema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class AbbyAiService
 {
@@ -33,16 +37,93 @@ class AbbyAiService
 
     public function __construct(
         private readonly CohortExpressionSchema $schema,
+        private readonly AiService $aiService,
     ) {}
 
     /**
      * Build a cohort expression from natural language prompt.
      */
-    public function buildCohortFromPrompt(string $prompt, ?int $sourceId = null): array
+    public function buildCohortFromPrompt(string $prompt, ?int $sourceId = null, string $pageContext = 'cohort-builder'): array
     {
+        // ── 1. Try LLM-powered parse first; fall back to regex on failure ──
+        $llmSpec  = null;
+        $llmTerms = [];
+
+        try {
+            $llmSpec = $this->aiService->parseCohortPrompt($prompt, $pageContext);
+
+            // Merge LLM-parsed terms with regex analysis as cross-check
+            if (! empty($llmSpec['terms']) && ($llmSpec['confidence'] ?? 0) >= 0.4) {
+                $llmTerms = $llmSpec['terms'];
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Abby LLM parse failed, using regex fallback', ['error' => $e->getMessage()]);
+        }
+
+        // ── 2. Regex-based analysis (always run; merged below) ─────────────
         $analysis = $this->analyzePrompt($prompt);
+
+        // Prefer LLM terms when confident; merge demographics
+        if (! empty($llmTerms)) {
+            $analysis['terms'] = array_map(fn ($t) => [
+                'text'   => $t['text'],
+                'domain' => $t['domain'] ?? 'condition',
+                'role'   => $t['role'] ?? 'entry',
+            ], $llmTerms);
+        }
+
+        // Merge LLM demographics (override regex where LLM found something)
+        if ($llmSpec && ! empty($llmSpec['demographics'])) {
+            $demo = $llmSpec['demographics'];
+            if (! empty($demo['sex'])) {
+                $sex = strtolower($demo['sex'][0] ?? '');
+                if (in_array($sex, ['female', 'women', 'woman'])) {
+                    $analysis['demographics']['gender'] = 'female';
+                } elseif (in_array($sex, ['male', 'men', 'man'])) {
+                    $analysis['demographics']['gender'] = 'male';
+                }
+            }
+            if (! isset($analysis['demographics']['age']) && ($demo['age_min'] || $demo['age_max'])) {
+                $analysis['demographics']['age'] = [
+                    'min' => $demo['age_min'] ?? null,
+                    'max' => $demo['age_max'] ?? null,
+                ];
+            }
+            if (! empty($demo['location_state'])) {
+                $analysis['demographics']['location_state'] = $demo['location_state'];
+            }
+        }
+
+        // Merge LLM temporal
+        if ($llmSpec && ! empty($llmSpec['temporal'])) {
+            $temporal = $llmSpec['temporal'];
+            if ($temporal['washout_days'] ?? null) {
+                $analysis['temporal']['within_days'] = $temporal['washout_days'];
+            }
+            if ($temporal['within_days'] ?? null) {
+                $analysis['temporal']['within_days'] = $temporal['within_days'];
+            }
+        }
+
+        // Merge LLM study design
+        if ($llmSpec && ! empty($llmSpec['study_design'])) {
+            $design = $llmSpec['study_design'];
+            if ($design === 'new_users' || $design === 'incident') {
+                $analysis['design'] = 'new_users';
+            }
+        }
+
         $conceptSets = [];
-        $warnings = [];
+        $warnings    = array_merge(
+            $llmSpec['warnings'] ?? [],
+            [],
+        );
+
+        // Warn about location — OMOP location support varies
+        if (! empty($analysis['demographics']['location_state'])) {
+            $states = implode(', ', $analysis['demographics']['location_state']);
+            $warnings[] = "Geographic filter ({$states}) noted — OMOP CDM location data availability varies by site. Location filtering requires a location table join and is noted in the cohort description.";
+        }
 
         // Search vocabulary for each identified term
         foreach ($analysis['terms'] as $i => $term) {
@@ -74,14 +155,70 @@ class AbbyAiService
         $explanation = $this->generateExplanation($analysis, $conceptSets);
 
         return [
-            'expression' => $expression,
-            'explanation' => $explanation,
+            'cohort_name'  => $llmSpec['cohort_name'] ?? null,
+            'expression'   => $expression,
+            'explanation'  => $explanation,
             'concept_sets' => array_map(fn ($cs) => [
-                'name' => $cs['name'],
+                'name'     => $cs['name'],
                 'concepts' => array_map(fn ($item) => $item['concept'], $cs['expression']['items']),
             ], $conceptSets),
-            'warnings' => $warnings,
+            'warnings'        => $warnings,
+            'llm_confidence'  => $llmSpec['confidence'] ?? null,
+            'location_states' => $analysis['demographics']['location_state'] ?? [],
         ];
+    }
+
+    /**
+     * Build a cohort from natural language AND persist it as a CohortDefinition.
+     * Returns the saved model + the build result for immediate display.
+     */
+    public function buildCohortAndSave(string $prompt, User $author, string $pageContext = 'cohort-builder'): array
+    {
+        $build = $this->buildCohortFromPrompt($prompt, null, $pageContext);
+
+        $name = $build['cohort_name']
+            ?? ('Abby: ' . \Illuminate\Support\Str::limit($prompt, 80));
+
+        // Location states go into the description since OMOP CDM doesn't have
+        // a first-class state filter in the expression schema.
+        $description = ! empty($build['location_states'])
+            ? 'Geographic restriction: ' . implode(', ', $build['location_states']) . '. '
+            : '';
+        $description .= $build['explanation'];
+
+        $cohort = CohortDefinition::create([
+            'name'            => $name,
+            'description'     => $description,
+            'expression_json' => $build['expression'],
+            'author_id'       => $author->id,
+            'is_public'       => false,
+        ]);
+
+        $cohort->load('author:id,name,email');
+
+        return [
+            'cohort_definition' => $cohort,
+            'expression'        => $build['expression'],
+            'explanation'       => $build['explanation'],
+            'concept_sets'      => $build['concept_sets'],
+            'warnings'          => $build['warnings'],
+            'llm_confidence'    => $build['llm_confidence'],
+        ];
+    }
+
+    /**
+     * Page-aware conversational chat. Delegates to MedGemma via the AI service.
+     *
+     * @param  array<array{role: string, content: string}>  $history
+     * @return array{reply: string, suggestions: string[]}
+     */
+    public function chat(
+        string $message,
+        string $pageContext = 'general',
+        array  $pageData   = [],
+        array  $history    = [],
+    ): array {
+        return $this->aiService->abbyChat($message, $pageContext, $pageData, $history);
     }
 
     /**
