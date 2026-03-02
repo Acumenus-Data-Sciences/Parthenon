@@ -123,6 +123,19 @@ return [
             'sslmode' => 'prefer',
         ],
 
+        'results' => [
+            'driver' => 'pgsql',
+            'host' => env('RESULTS_DB_HOST', env('DB_HOST', '127.0.0.1')),
+            'port' => env('RESULTS_DB_PORT', env('DB_PORT', '5432')),
+            'database' => env('RESULTS_DB_DATABASE', env('DB_DATABASE', 'parthenon')),
+            'username' => env('RESULTS_DB_USERNAME', env('DB_USERNAME', 'parthenon')),
+            'password' => env('RESULTS_DB_PASSWORD', env('DB_PASSWORD', '')),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'search_path' => env('RESULTS_DB_SCHEMA', 'achilles_results').',public',
+            'sslmode' => 'prefer',
+        ],
+
         'sqlsrv' => [
             'driver' => 'sqlsrv',
             'url' => env('DB_URL'),

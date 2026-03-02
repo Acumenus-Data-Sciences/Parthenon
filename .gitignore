@@ -46,6 +46,9 @@ r-runtime/.RData
 docker/postgres-data/
 docker/redis-data/
 
+# Secrets
+.secrets
+
 # Environment
 .env
 .env.local

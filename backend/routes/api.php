@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\Api\V1\AchillesController;
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\DataQualityController;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\IngestionController;
 use App\Http\Controllers\Api\V1\MappingReviewController;
@@ -56,6 +58,31 @@ Route::prefix('v1')->group(function () {
         // Validation
         Route::get('/ingestion/jobs/{ingestionJob}/validation', [IngestionController::class, 'validation']);
         Route::get('/ingestion/jobs/{ingestionJob}/validation/summary', [IngestionController::class, 'validationSummary']);
+
+        // Achilles (Data Characterization)
+        Route::prefix('sources/{source}/achilles')->group(function () {
+            Route::get('/record-counts', [AchillesController::class, 'recordCounts']);
+            Route::get('/demographics', [AchillesController::class, 'demographics']);
+            Route::get('/observation-periods', [AchillesController::class, 'observationPeriods']);
+            Route::get('/domains/{domain}', [AchillesController::class, 'domainSummary']);
+            Route::get('/domains/{domain}/concepts/{conceptId}', [AchillesController::class, 'conceptDrilldown']);
+            Route::get('/temporal-trends', [AchillesController::class, 'temporalTrends']);
+            Route::get('/analyses', [AchillesController::class, 'analyses']);
+            Route::get('/performance', [AchillesController::class, 'performance']);
+            Route::get('/distributions/{analysisId}', [AchillesController::class, 'distribution']);
+        });
+
+        // Data Quality Dashboard
+        Route::prefix('sources/{source}/dqd')->group(function () {
+            Route::get('/runs', [DataQualityController::class, 'runs']);
+            Route::get('/runs/{runId}', [DataQualityController::class, 'showRun']);
+            Route::get('/runs/{runId}/results', [DataQualityController::class, 'results']);
+            Route::get('/runs/{runId}/summary', [DataQualityController::class, 'summary']);
+            Route::get('/runs/{runId}/tables/{table}', [DataQualityController::class, 'tableResults']);
+            Route::post('/run', [DataQualityController::class, 'dispatch']);
+            Route::get('/latest', [DataQualityController::class, 'latest']);
+            Route::delete('/runs/{runId}', [DataQualityController::class, 'destroyRun']);
+        });
 
         // Stubs for future phases
         Route::get('/cohort-definitions', fn () => response()->json(['message' => 'Not yet implemented'], 501));

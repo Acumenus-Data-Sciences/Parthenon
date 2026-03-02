@@ -72,7 +72,22 @@ export const router = createBrowserRouter([
       },
       {
         path: "data-explorer",
-        element: <PlaceholderPage title="Data Explorer" />,
+        children: [
+          {
+            index: true,
+            lazy: () =>
+              import("@/features/data-explorer/pages/DataExplorerPage").then(
+                (m) => ({ Component: m.default }),
+              ),
+          },
+          {
+            path: ":sourceId",
+            lazy: () =>
+              import("@/features/data-explorer/pages/DataExplorerPage").then(
+                (m) => ({ Component: m.default }),
+              ),
+          },
+        ],
       },
       { path: "vocabulary", element: <PlaceholderPage title="Vocabulary" /> },
       {

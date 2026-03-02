@@ -10,3 +10,7 @@ parameters:
         - identifier: missingType.iterableValue
         - identifier: missingType.generics
         - identifier: argument.templateType
+        - identifier: property.notFound
+        - identifier: isset.offset
+        - identifier: argument.unresolvableType
+        - identifier: method.unresolvableReturnType

@@ -224,6 +224,20 @@ return [
             'timeout' => 600,
             'nice' => 0,
         ],
+
+        'achilles' => [
+            'connection' => 'redis',
+            'queue' => ['achilles'],
+            'balance' => 'auto',
+            'autoScalingStrategy' => 'time',
+            'maxProcesses' => 2,
+            'maxTime' => 0,
+            'maxJobs' => 0,
+            'memory' => 1024,
+            'tries' => 1,
+            'timeout' => 3600,
+            'nice' => 0,
+        ],
     ],
 
     'environments' => [
@@ -236,6 +250,9 @@ return [
             'ingestion' => [
                 'maxProcesses' => 5,
             ],
+            'achilles' => [
+                'maxProcesses' => 3,
+            ],
         ],
 
         'local' => [
@@ -244,6 +261,9 @@ return [
             ],
             'ingestion' => [
                 'maxProcesses' => 2,
+            ],
+            'achilles' => [
+                'maxProcesses' => 1,
             ],
         ],
     ],
