@@ -1511,11 +1511,713 @@ arch('every API route has an unauthenticated rejection test')
 
 ---
 
-## Phase 9: Deployment (Weeks 18-24)
+## Phase 9: Atlas Parity, Migration & Documentation (Weeks 20-24)
+
+This phase ensures that every research team currently running Atlas can switch to Parthenon without losing a single workflow, and that users who have never touched OHDSI tooling can onboard confidently within a day. It covers three areas: a systematic Atlas feature parity audit with gap remediation, a migration tooling suite to import Atlas artefacts and WebAPI configurations, and a full documentation platform (Quick Start, User Manual, API Reference, Migration Guide) delivered as a Docusaurus site with PDF exports.
+
+---
+
+### 9.1 Atlas Feature Parity Audit
+
+The table below is the definitive checklist. Every row must be green before Phase 10 (Deployment). Items already delivered in earlier phases are marked; gaps are assigned to specific 9.x subsections.
+
+#### Cohort & Concept Management
+
+| Atlas Feature | Parthenon Equivalent | Status |
+|---|---|---|
+| Cohort Definition builder (Circe JSON) | `CohortSqlCompiler` + expression editor | ✅ Phase 5 |
+| Circe JSON import (Atlas export format) | `POST /cohort-definitions/import` | 🔲 §9.2 |
+| Circe JSON export | `GET /cohort-definitions/{id}/export` | 🔲 §9.2 |
+| Concept Set builder | Concept set editor + item flags | ✅ Phase 5 |
+| Concept Set JSON import/export | `POST /concept-sets/import`, `GET .../export` | 🔲 §9.2 |
+| Cohort copy / clone | `POST /cohort-definitions/{id}/copy` | ✅ Phase 5 |
+| Cohort tagging / search | Tag field on definitions + filter API | 🔲 §9.2 |
+| Cohort sharing (read-only link) | Deep-link URL → public read token | 🔲 §9.2 |
+
+#### Vocabulary
+
+| Atlas Feature | Parthenon Equivalent | Status |
+|---|---|---|
+| Concept search (name, code, ID) | Vocabulary search endpoint + panel | ✅ Phase 5 |
+| Domain / vocabulary / class filters | Filter params on search API | ✅ Phase 5 |
+| Hierarchy tree (ancestors/descendants) | `HierarchyTree` component | ✅ Phase 5 |
+| Concept relationships | Relationship panel in ConceptDetailPanel | ✅ Phase 5 |
+| Standard / non-standard toggle | `standard_concept` filter param | ✅ Phase 5 |
+| Synonym search | Synonym rows in concept detail | ✅ Phase 5 |
+| Concept comparison (side-by-side) | Multi-concept comparison panel | 🔲 §9.3 |
+| "Maps from" (source codes) | Reverse relationship query | 🔲 §9.3 |
+
+#### Analyses
+
+| Atlas Feature | Parthenon Equivalent | Status |
+|---|---|---|
+| Cohort Characterization (FeatureExtraction) | `CharacterizationService` + 6 builders | ✅ Phase 5 |
+| Incidence Rate analysis | `IncidenceRateService` + stratification | ✅ Phase 5 |
+| Treatment Pathways (PathFinder) | `PathwayService` + Sankey/sunburst | ✅ Phase 5 |
+| Population-Level Estimation (CohortMethod) | `EstimationService` → R sidecar | ✅ stub Phase 5 |
+| Patient-Level Prediction (PLP) | `PredictionService` → R sidecar | ✅ stub Phase 5 |
+| Negative Control Outcomes selection | Negative control concept set + IR run | 🔲 §9.4 |
+| Cohort Diagnostics | `CohortDiagnosticsService` → R sidecar | 🔲 §9.4 |
+| Cohort Overlap / Venn | Overlap analysis endpoint + Venn chart | 🔲 §9.4 |
+| IR analysis with negative controls | NC-adjusted IR computation | 🔲 §9.4 |
+
+#### Data Sources & Configuration
+
+| Atlas Feature | Parthenon Equivalent | Status |
+|---|---|---|
+| Source registration (CDM + Vocab + Results) | Data Sources CRUD + Daimons | ✅ Phase 1 |
+| Source priority ordering | `priority` field on Source | ✅ Phase 1 |
+| CDM version detection | `cdm_version` on Source | ✅ Phase 2 |
+| WebAPI source JSON import | `POST /data-sources/import-webapi` | 🔲 §9.5 |
+| Achilles heel rules | Achilles heel check engine | 🔲 §9.4 |
+
+#### Patient Profiles
+
+| Atlas Feature | Parthenon Equivalent | Status |
+|---|---|---|
+| Patient timeline by domain | `PatientTimeline` swimlane | ✅ Phase 5 |
+| Cohort member navigation | `CohortMemberList` pagination | ✅ Phase 5 |
+| Domain record drill-down | `ClinicalEventCard` detail | ✅ Phase 5 |
+| Concept record detail | Link to vocabulary browser | 🔲 §9.3 |
+| Drug era / condition era (derived) | Era derivation query + timeline layer | 🔲 §9.4 |
+
+#### Administration
+
+| Atlas Feature | Parthenon Equivalent | Status |
+|---|---|---|
+| User management | Admin → Users page | ✅ Phase 6 |
+| Role assignment | Admin → Roles & Permissions | ✅ Phase 6 |
+| Source-level permissions | Per-source role restrictions | 🔲 §9.5 |
+| Atlas security provider config | Admin → Auth Providers (LDAP/OAuth2/OIDC/SAML) | ✅ Phase 6 |
+| WebAPI URL configuration | System Config panel | 🔲 §9.5 |
+
+---
+
+### 9.2 Import / Export Compatibility Layer
+
+Atlas stores cohort definitions and concept sets as Circe-format JSON. Parthenon must read and write this format without loss.
+
+#### Cohort Definition Import/Export
+
+**`POST /api/v1/cohort-definitions/import`**
+
+- Accepts the standard Atlas cohort expression JSON (single object or Atlas "export" wrapper with `name`, `description`, `expression`)
+- Runs through `CohortExpressionSchema::normalise()` to fill any missing optional fields
+- Creates a new `CohortDefinition` record and returns it
+- Batch import: accepts a JSON array of expressions; returns array of results (success/failure per item)
+- Validation errors returned per item (does not abort the whole batch)
+
+**`GET /api/v1/cohort-definitions/{id}/export`**
+
+Returns the expression JSON in the exact Atlas export wrapper format:
+
+```json
+{
+  "name": "GiBleed New-User Cohort",
+  "description": "...",
+  "expression": { /* Circe CohortExpression */ }
+}
+```
+
+Accepting `Accept: application/zip` on a batch export returns a ZIP containing one JSON file per cohort definition.
+
+**`artisan parthenon:import-atlas-cohorts {path}`**
+
+CLI command for bulk import from a directory of Atlas-exported JSON files. Skips duplicates (by name hash). Reports: imported N, skipped K (duplicate), failed M (with error).
+
+#### Concept Set Import/Export
+
+**`POST /api/v1/concept-sets/import`**
+
+Accepts Atlas concept set export format (name, expression items with `concept.CONCEPT_ID`, `includeDescendants`, `includeMapped`, `isExcluded`). Maps Atlas field names to Parthenon schema. Batch import supported.
+
+**`GET /api/v1/concept-sets/{id}/export`**
+
+Returns Atlas-format concept set JSON with full concept objects embedded (as Atlas expects when re-importing). Concept objects fetched from the vocabulary schema.
+
+#### Cohort Tagging
+
+Add `tags` (string array, stored as `jsonb`) to `cohort_definitions` table. Filter params on the list endpoint: `?tags[]=diabetes&tags[]=new-user`. Tag management: inline tag input on the definition detail page (create-on-type). Shared global tag list for autocomplete (distinct tags from all definitions).
+
+#### Read-Only Sharing Links
+
+`POST /api/v1/cohort-definitions/{id}/share` — generates a signed URL token (expires in N days, configurable). Recipients who are not logged in can view the cohort expression and generation results (read-only, no CDM data) via a public-facing page at `/shared/{token}`. Useful for sharing study protocols pre-publication.
+
+---
+
+### 9.3 Vocabulary Enhancements
+
+#### Concept Comparison
+
+**`GET /api/v1/vocabulary/compare?ids[]=4329847&ids[]=4182210`**
+
+Returns 2–4 concept objects side-by-side with all attributes, relationships, and first 2 levels of ancestor hierarchy for each. Frontend renders them as equal-width cards with a "same/different" highlight for fields that differ.
+
+#### "Maps From" (Reverse Source Codes)
+
+`GET /api/v1/vocabulary/concepts/{id}/maps-from` — queries `concept_relationship` where `relationship_id = 'Mapped from'` (reverse of "Maps to"). Returns source codes (ICD-10-CM, SNOMED, RxNorm, etc.) that map to this standard concept. Essential for understanding what EHR source codes feed a standard concept.
+
+#### Concept → Clinical Record Link
+
+From the patient profile's clinical event card, clicking a concept name navigates to the vocabulary browser with that concept pre-selected. URL: `/vocabulary?concept={id}`. Vocabulary page detects this param on mount and loads the concept directly into the detail panel.
+
+#### Drug / Condition Era Layer in Patient Profiles
+
+**`GET /api/v1/sources/{source}/profiles/{personId}/eras`**
+
+Queries `drug_era` and `condition_era` tables (OMOP CDM derived tables). Returns era records grouped by domain. The `PatientTimeline` component adds an "Eras" toggle that overlays era blocks (longer duration bars) behind the individual exposure events.
+
+---
+
+### 9.4 Gap Remediation — Analyses
+
+#### Negative Control Outcomes
+
+Negative controls are outcomes not expected to be causally associated with the exposure, used to detect residual confounding in PLE studies.
+
+**Backend:**
+
+`NegativeControlService` — queries a published negative control concept set (OHDSI's standard ~700-concept NC set, loaded into a `negative_controls` table via seeder) and filters to concepts present in the connected CDM.
+
+`GET /api/v1/negative-controls?source_id={id}` — returns NC concepts with CDM prevalence (from Achilles results). Frontend renders a checklist of recommended NCs ranked by outcome prevalence.
+
+`EstimationDesign` extended with `negativeControlOutcomeIds[]` — these are included as additional outcomes in the CohortMethod payload; results used to calibrate the empirical null distribution and produce calibrated p-values.
+
+**Frontend:**
+
+`NegativeControlPicker.tsx` — searchable, paginated list of NC concepts with prevalence bars. "Recommended" (top 50 by prevalence), "All NCs" tabs. Multi-select with select-all. Embedded in `EstimationDesigner` as an expandable section.
+
+#### Cohort Diagnostics
+
+**Backend:**
+
+`CohortDiagnosticsService` — orchestrates R sidecar's CohortDiagnostics package. Payload: cohort expression, CDM source, diagnostics to run (incidenceRates, cohortOverlap, indexEventBreakdown, inclusionStatistics, visitContext, temporalCovariates).
+
+`RunCohortDiagnosticsJob` — queue: `r-analysis`, timeout: 7200s.
+
+`GET /api/v1/cohort-definitions/{id}/diagnostics` — list of diagnostic runs.
+`POST /api/v1/cohort-definitions/{id}/diagnostics` — dispatch job (202).
+`GET /api/v1/cohort-definitions/{id}/diagnostics/{diagId}` — results.
+
+**R Sidecar** (`r-runtime/api/cohort_diagnostics.R`): CohortDiagnostics::executeDiagnostics() stub with TODO plan. Returns structured JSON matching the CohortDiagnostics result schema.
+
+**Frontend:**
+
+`CohortDiagnosticsPage.tsx` — sub-tab on the cohort definition detail page. Shows:
+- **Index Event Breakdown** — bar chart of concept IDs triggering the index event
+- **Inclusion Rule Statistics** — waterfall attrition chart (same as generation diagnostics, but from CohortDiagnostics)
+- **Visit Context** — bar chart of visit types at the index date
+- **Temporal Covariates** — heatmap of feature prevalence over time relative to index
+- **Cohort Overlap** — Venn/UpSet comparison with other selected cohorts
+
+#### Cohort Overlap Analysis
+
+`POST /api/v1/cohort-definitions/compare`
+
+Body: `{ cohortIds: [1, 2, 3], sourceId: N }`. Computes pairwise and multi-way overlaps in the `cohort_results` table (persons present in each combination of cohort_definition_ids). Returns subject counts for each intersection set.
+
+Frontend: 2 cohorts → `VennDiagram.tsx` (D3 two-circle Venn); 3 cohorts → three-circle Venn; 4+ → `UpSetPlot.tsx` (D3 UpSet). Accessible table alternative always rendered below the chart.
+
+#### Achilles Heel Rules
+
+**`AchillesHeelService`** — post-processes Achilles results against a configurable rule set (drawn from OHDSI's published AchillesHeel checks). Rules evaluate conditions like: death before birth, age implausibility, CDM field nullability violations, domain record counts below thresholds.
+
+Rules stored in `achilles_heel_rules` table (rule_id, category, sql_template, severity). `RunAchillesHeelJob` executes all rules against the Achilles result tables and writes violations to `achilles_heel_results`.
+
+Data Explorer → Characterization → new "Heel Checks" tab: table of violations by category, severity badge (notification/warning/error), record count, and remediation suggestion.
+
+---
+
+### 9.5 WebAPI Compatibility & Source Migration
+
+Many institutions have existing Atlas/WebAPI deployments. Parthenon must be able to ingest their configuration without manual re-entry.
+
+#### WebAPI Source Importer
+
+**`POST /api/v1/data-sources/import-webapi`**
+
+Body: `{ webapi_url: "https://legacy-webapi.example.com", token: "..." }`. Calls the WebAPI `/source/` endpoint, parses the source list (sourceKey, sourceName, daimons, CDM version), and creates corresponding `Source` + `SourceDaimon` records in Parthenon. Handles authentication via Basic Auth or Bearer token.
+
+`artisan parthenon:import-webapi-sources {url} {--token=}` — CLI equivalent for scripted migration.
+
+#### Per-Source Role Restrictions
+
+Each `Source` gains a `restricted_to_roles` (jsonb, array of role names). If non-empty, only users with at least one of those roles can see or use that source. Enforced at the `Source` model's `scopeVisibleToUser()` query scope, applied on all API endpoints that list or select sources.
+
+Admin → Data Sources → Edit → "Access Control" tab: role multi-select for restricting source visibility.
+
+#### WebAPI URL Registry
+
+`System Config → Legacy WebAPI` — stores base URLs of any legacy WebAPI instances the organisation is still running. Used by:
+1. The source importer
+2. The legacy redirect handler (see §9.6)
+
+---
+
+### 9.6 Legacy Atlas Redirect Handler
+
+For organisations pointing existing bookmarks or integrations at Atlas URLs, a compatibility router maps common Atlas URL patterns to equivalent Parthenon routes.
+
+**`LegacyAtlasRedirectController`** — mounted at `/atlas/` and `/WebAPI/` prefixes:
+
+| Legacy Atlas URL | Parthenon Redirect |
+|---|---|
+| `/#/cohortdefinition/{id}` | `/cohort-definitions/{id}` |
+| `/#/conceptset/{id}` | `/concept-sets/{id}` |
+| `/#/incidencerate/{id}` | `/analyses/incidence-rates/{id}` |
+| `/#/characterization/{id}` | `/analyses/characterizations/{id}` |
+| `/#/estimation/{id}` | `/analyses/estimations/{id}` |
+| `/#/prediction/{id}` | `/analyses/predictions/{id}` |
+| `/#/pathway/{id}` | `/analyses/pathways/{id}` |
+| `/#/profiles` | `/profiles` |
+| `/#/datasources` | `/data-sources` |
+| `/WebAPI/cohortdefinition/{id}` | API: `GET /api/v1/cohort-definitions/{id}` |
+| `/WebAPI/cohortdefinition/{id}/generate/{sourceKey}` | API: `POST /api/v1/cohort-definitions/{id}/generate` |
+| `/WebAPI/vocabulary/search` | API: `GET /api/v1/vocabulary/search` (param passthrough) |
+
+Unknown Atlas paths return a 301 to the Parthenon Dashboard with a banner: "This Atlas URL has no direct equivalent — you may have been redirected from a legacy bookmark."
+
+---
+
+### 9.7 Quick Start Guide
+
+**Audience:** Researchers familiar with Atlas who are logging into Parthenon for the first time, and new OMOP users who have never used Atlas.
+
+**Delivery:** Embedded in the application as a dismissable onboarding overlay (shown once on first login), and hosted on the documentation site as `/docs/quick-start`.
+
+**Goal:** Get from zero to a generated cohort count in 15 minutes.
+
+#### Structure
+
+```
+Quick Start: From Zero to Cohort Count in 15 Minutes
+
+Step 1 — Log in & navigate (2 min)
+  1.1  Log in with your credentials (admin@parthenon.local / superuser for local dev)
+  1.2  Explore the Sidebar — identify your primary tools
+  1.3  Open the Command Palette (⌘K) — try searching "cohort"
+  1.4  Check your Data Sources are configured (sidebar → Data Sources)
+
+Step 2 — Explore your vocabulary (3 min)
+  2.1  Open Vocabulary (sidebar)
+  2.2  Search for "Type 2 diabetes" — note domain, vocabulary, concept ID
+  2.3  Click the concept — explore hierarchy (parents/children)
+  2.4  Click "Include Descendants" — note the descendant count
+  2.5  Add to a new concept set: "T2D Concept Set"
+
+Step 3 — Build your first cohort (5 min)
+  3.1  Open Cohort Definitions → New Cohort Definition
+  3.2  Name it "Type 2 Diabetes New Users"
+  3.3  In Primary Criteria — click "Add Criteria" → Condition Occurrence
+  3.4  Select concept set: "T2D Concept Set"
+  3.5  Set Qualified Limit to "First" (first qualifying event per person)
+  3.6  Add an Inclusion Rule: "No prior T2D in 365 days"
+        Rule type: Condition Occurrence, same concept set, 0 occurrences,
+        window: 365 days before to 0 days before index date
+  3.7  Save the cohort definition
+
+Step 4 — Generate & inspect (5 min)
+  4.1  Click "Generate" — select your CDM source
+  4.2  Watch the generation status update live
+  4.3  Open the Generations tab — view person count and attrition chart
+  4.4  Click "SQL Preview" — review the generated SQL (hover CTEs for explanations)
+  4.5  If you have a connected CDM with patients — the count is real!
+
+Congratulations — you have completed a new-user cohort definition.
+Next steps → see User Manual §3 for characterization and §4 for incidence rates.
+```
+
+#### In-App Onboarding Overlay
+
+On first login (detected via `user.onboarding_completed = false`), a full-screen overlay with:
+- Welcome message + brief platform description
+- Four action cards: "Explore Vocabulary", "Build a Cohort", "Import from Atlas", "Watch 3-min Demo"
+- "Start Quick Start" launches a guided spotlight tour (react-joyride) highlighting sidebar, command palette, and first action
+
+Tour steps are skippable and resumable. `PUT /api/v1/user/onboarding` marks completion. Tour progress stored in `localStorage` as backup.
+
+---
+
+### 9.8 User Manual
+
+**Delivery:** Docusaurus v3 site at `/docs/` (served as a static subpath from the Parthenon nginx container). Versioned: one documentation version per Parthenon release. PDF export via `docusaurus-print-pdf` (generates a single-page print layout, exported to PDF via headless Chromium in CI).
+
+**Structure:**
+
+```
+Parthenon User Manual
+
+Part I — Getting Started
+  1. Introduction & Platform Overview
+     1.1 What is Parthenon?
+     1.2 How Parthenon replaces the OHDSI toolchain
+     1.3 System requirements
+     1.4 Logging in for the first time
+     1.5 Understanding the interface (sidebar, command palette, AI copilot)
+     1.6 Keyboard shortcuts reference
+
+  2. Data Sources
+     2.1 Connecting a CDM database
+     2.2 Configuring daimons (CDM, Vocabulary, Results)
+     2.3 Testing a connection
+     2.4 Managing multiple sources
+     2.5 Importing sources from a legacy WebAPI
+
+Part II — Vocabulary & Concept Sets
+  3. Vocabulary Browser
+     3.1 Searching concepts (name, code, domain, vocabulary)
+     3.2 Exploring concept hierarchies
+     3.3 Understanding standard vs non-standard concepts
+     3.4 Concept relationships (maps to, maps from)
+     3.5 Comparing concepts side-by-side
+     3.6 Exporting search results
+
+  4. Concept Sets
+     4.1 Creating a concept set
+     4.2 Adding concepts from search results
+     4.3 Configuring per-item flags (include descendants, include mapped, exclude)
+     4.4 Resolving a concept set (viewing the expanded concept list)
+     4.5 Importing and exporting concept sets (Atlas format)
+     4.6 Sharing concept sets
+
+Part III — Cohort Definitions
+  5. Understanding Cohort Expressions
+     5.1 What is a cohort?
+     5.2 Anatomy of a Circe cohort expression (Primary Criteria, Inclusion Rules, End Strategy)
+     5.3 Qualified Limit (First / All events)
+     5.4 Temporal windows explained
+     5.5 Domain criteria (Condition, Drug, Procedure, Measurement, Observation, Visit, Death, Demographic)
+
+  6. Building Cohorts
+     6.1 Creating a cohort definition
+     6.2 Defining primary criteria
+     6.3 Adding inclusion rules (AND/OR/NOT logic)
+     6.4 Configuring additional criteria groups
+     6.5 Setting the end strategy (fixed offset, custom era, observation period)
+     6.6 Adding censoring criteria
+     6.7 Demographic filters (age, gender, race)
+     6.8 Using the visual node-graph builder
+     6.9 AI-assisted cohort building (Abby AI)
+     6.10 Previewing the generated SQL
+
+  7. Generating Cohorts
+     7.1 Selecting a CDM source
+     7.2 Monitoring generation progress (real-time)
+     7.3 Reviewing generation results (person count, attrition chart)
+     7.4 Generation history and rerunning
+     7.5 Troubleshooting generation failures
+
+  8. Cohort Management
+     8.1 Copying and importing cohort definitions (Atlas JSON)
+     8.2 Tagging cohorts for organisation
+     8.3 Sharing cohorts with colleagues
+     8.4 Comparing cohort overlaps (Venn diagrams)
+     8.5 Cohort Diagnostics
+
+Part IV — Analyses
+  9. Characterization
+     9.1 What is cohort characterization?
+     9.2 Selecting target and comparator cohorts
+     9.3 Choosing feature types (demographics, conditions, drugs, procedures, measurements, visits)
+     9.4 Interpreting the covariate table and SMD plot
+     9.5 Exporting characterization results
+
+  10. Incidence Rates
+      10.1 Defining target cohort, outcomes, and time-at-risk
+      10.2 Stratification (gender, age, calendar year)
+      10.3 Interpreting incidence rate results (IR, person-years, 95% CI)
+      10.4 Negative control outcomes and empirical calibration
+
+  11. Treatment Pathways
+      11.1 Defining event cohorts and target population
+      11.2 Combination window and max depth settings
+      11.3 Interpreting the Sankey and sunburst diagrams
+      11.4 Pathway table export
+
+  12. Population-Level Estimation (PLE)
+      12.1 Study design overview (target/comparator/outcome)
+      12.2 Propensity score settings (matching, stratification, trimming)
+      12.3 Covariate selection
+      12.4 Interpreting PS diagnostics (overlap, balance)
+      12.5 Interpreting estimation results (HR, 95% CI, KM curve)
+      12.6 Subgroup analyses and forest plots
+
+  13. Patient-Level Prediction (PLP)
+      13.1 Study design (target cohort, outcome, time-at-risk)
+      13.2 Algorithm selection (LASSO, XGBoost, random forest, gradient boosting)
+      13.3 Interpreting model performance (AUC, calibration, SHAP)
+      13.4 Model validation across data sources
+
+  14. Studies (Multi-Analysis Orchestration)
+      14.1 What is a study?
+      14.2 Adding analyses to a study
+      14.3 Understanding the study DAG
+      14.4 Executing across multiple CDM sources (federated)
+      14.5 Generating the study protocol document
+      14.6 Exporting as a Strategus JSON package
+
+Part V — Data Ingestion (AI ETL)
+  15. Uploading Source Data
+      15.1 Supported file formats
+      15.2 Upload and file validation
+      15.3 Monitoring ingestion pipelines
+
+  16. Schema Mapping
+      16.1 Understanding AI-generated schema suggestions
+      16.2 Accepting, rejecting, and overriding mappings
+      16.3 Manual field assignment
+
+  17. Concept Mapping (Vocabulary Mapping)
+      17.1 How the AI concept mapper works
+      17.2 The review queue — interpreting confidence scores
+      17.3 Batch accept/reject workflows
+      17.4 Creating manual mappings
+      17.5 Audit trail and export
+
+Part VI — Data Explorer
+  18. Characterization (Achilles)
+      18.1 Running Achilles on a CDM source
+      18.2 Domain deep-dives (person, condition, drug, procedure, measurement, visit, death)
+      18.3 Chart interactions and annotations
+      18.4 Achilles Heel checks (data quality alerts)
+
+  19. Data Quality Dashboard (DQD)
+      19.1 Running a DQD check
+      19.2 Understanding the scorecard (Completeness, Conformance, Plausibility)
+      19.3 Drilling into failing checks
+      19.4 Acknowledging known issues
+      19.5 Tracking DQD scores over time
+
+  20. Population Stats
+      20.1 Ad-hoc population exploration
+      20.2 Applying domain filters
+      20.3 Venn/UpSet diagrams for multi-condition populations
+
+Part VII — Patient Profiles
+  21. Viewing Patient Timelines
+      21.1 Selecting a cohort and navigating to a member
+      21.2 Reading the swimlane timeline
+      21.3 Domain filters and zoom controls
+      21.4 Drug and condition era overlay
+      21.5 Adding annotations
+
+Part VIII — Administration
+  22. User Management
+      22.1 Creating and editing users
+      22.2 Assigning roles
+      22.3 Onboarding checklist for new users
+
+  23. Roles & Permissions
+      23.1 Built-in roles (super-admin, admin, researcher, data-steward, mapping-reviewer, viewer)
+      23.2 Creating custom roles
+      23.3 Using the Permission Matrix for bulk edits
+      23.4 Per-source access restrictions
+
+  24. Authentication Providers
+      24.1 Enabling LDAP/Active Directory
+      24.2 Configuring OAuth 2.0 (GitHub, Google, Microsoft, Custom)
+      24.3 Configuring SAML 2.0
+      24.4 Configuring OIDC
+      24.5 Testing provider connections
+
+  25. System Configuration
+      25.1 Default CDM source
+      25.2 AI feature toggles
+      25.3 Scheduled analysis runs (Achilles, DQD)
+      25.4 Email and SMS notification settings
+      25.5 Data retention policies
+
+  26. Audit Log
+      26.1 Understanding the audit trail
+      26.2 Filtering and exporting audit records
+      26.3 Regulatory compliance notes
+
+Appendices
+  A. Keyboard Shortcuts Reference
+  B. OMOP CDM Domains Quick Reference
+  C. Circe Cohort Expression JSON Schema
+  D. Parthenon API Quick Reference (OpenAPI links)
+  E. Glossary of OHDSI and OMOP Terms
+  F. Known Limitations vs Atlas
+  G. Troubleshooting Common Issues
+```
+
+#### PDF Generation
+
+CI job runs `docusaurus build --out-dir docs-dist` then Puppeteer headless-Chromium print-to-PDF across all pages and concatenates them with `pdf-lib`. Output: `Parthenon_User_Manual_v{version}.pdf` and `Parthenon_Quick_Start_v{version}.pdf` (just Parts I + quick start guide). Both committed to `docs/releases/` and attached to GitHub Releases.
+
+---
+
+### 9.9 Migration Guide (Atlas → Parthenon)
+
+**Audience:** Informatics teams migrating an institution from a running Atlas + WebAPI installation.
+
+Hosted at `/docs/migration`. Also available as a standalone PDF.
+
+#### Structure
+
+```
+Atlas → Parthenon Migration Guide
+
+1. Before You Begin
+   1.1 Prerequisites (Parthenon instance running, CDM source connected)
+   1.2 What transfers automatically vs what requires manual work
+   1.3 Timeline estimate (days per migration activity)
+
+2. Export From Atlas
+   2.1 Exporting all cohort definitions (Atlas JSON bulk export)
+   2.2 Exporting concept sets
+   2.3 Exporting IR and characterization analysis definitions
+   2.4 Recording your WebAPI source configuration
+
+3. Import Into Parthenon
+   3.1 Import cohort definitions: UI (bulk upload) and CLI
+       $ php artisan parthenon:import-atlas-cohorts ./atlas-exports/cohorts/
+   3.2 Import concept sets: UI and CLI
+       $ php artisan parthenon:import-atlas-concept-sets ./atlas-exports/
+   3.3 Import WebAPI source configuration
+       $ php artisan parthenon:import-webapi-sources https://webapi.example.com --token=...
+   3.4 Verify imported records (count comparison checklist)
+
+4. Validating Parity
+   4.1 Run the parity validation suite
+       $ php artisan parthenon:validate-atlas-parity --atlas-url=... --compare-n=10
+       Selects 10 random cohort definitions, generates them on both Atlas and Parthenon,
+       compares person counts (tolerance ±2%), reports discrepancies.
+   4.2 Manual spot-check checklist
+   4.3 SQL diff tool: compare Atlas-generated SQL vs Parthenon SQL for the same cohort
+
+5. Cutover
+   5.1 Setting up the legacy URL redirect (§9.6) so bookmarks continue to work
+   5.2 Communication template for end users
+   5.3 Running Atlas in read-only mode during parallel operation period
+   5.4 Decommissioning Atlas (checklist)
+
+6. Feature Comparison Reference
+   (Reproduced version of §9.1 parity table — full Atlas feature mapping)
+```
+
+#### Parity Validation Artisan Command
+
+`artisan parthenon:validate-atlas-parity {--atlas-url=} {--atlas-token=} {--compare-n=10} {--tolerance=0.02}`
+
+1. Calls Atlas WebAPI `/cohortdefinition/` to get all definitions
+2. Randomly selects N
+3. For each: imports to Parthenon (if not already present), generates on the same source
+4. Calls Atlas WebAPI `/cohortdefinition/{id}/generate/{sourceKey}` to get Atlas-generated count
+5. Compares counts: pass if within tolerance, warn if within 5×tolerance, fail otherwise
+6. Outputs a markdown table of results with pass/warn/fail status
+7. Exits non-zero if any failures → usable in CI for regression testing during migration
+
+---
+
+### 9.10 API Reference
+
+**Auto-generated** from the Laravel OpenAPI spec (via `dedoc/scramble` or `l5-swagger`). Hosted at `/docs/api/` and `/api/documentation`. Updated on every release via CI.
+
+Structure:
+- Authentication (Sanctum token flow + admin token creation)
+- Grouped by resource: Data Sources, Vocabulary, Concept Sets, Cohort Definitions, Analyses (Characterization, IR, Pathway, PLE, PLP, Care Gaps), Studies, Patient Profiles, Administration, AI (Abby AI), Notifications
+- Each endpoint: method, path, auth requirements, request schema (with examples), response schema (with examples), error codes
+- Interactive "Try It" panel (Swagger UI) available in non-production environments only
+
+**SDKs (generated stubs):** TypeScript SDK generated from the OpenAPI spec via `openapi-typescript-codegen`, published as `@parthenon/api-client`. Used by the frontend itself. External integrators can install it as a package.
+
+---
+
+### 9.11 Documentation Site Infrastructure
+
+**Stack:** Docusaurus v3 (React-based, MDX, versioned, full-text search via Algolia DocSearch or local Lunr).
+
+**Served from:** Static build output served by the Parthenon nginx container at `/docs/`. In development, runs as a separate Vite dev server on port 3001.
+
+**Authoring workflow:**
+- All docs in `docs/site/` directory (MDX files)
+- Diagrams via Mermaid (rendered server-side at build)
+- Screenshots captured with Playwright (`docs/screenshots/`) — a script runs Playwright against a Eunomia-seeded instance and captures annotated screenshots for the manual
+- `docs/site/versioned_docs/` for per-release archives
+
+**CI jobs:**
+- `docs-build`: `docusaurus build`, link-checker, broken-internal-link detection
+- `docs-pdf`: headless Chromium PDF export of full manual and quick start
+- `docs-screenshots`: Playwright screenshot capture (runs on release branches only)
+
+**Search:** Algolia DocSearch (free for open-source/academic projects). Fallback: Lunr.js client-side search if Algolia not configured.
+
+---
+
+### 9.12 In-App Help System
+
+Beyond the documentation site, help is surfaced contextually within the application:
+
+**Contextual help `?` button:** Every page and major component has a `?` icon (top-right of the component card). Clicking opens a slide-over with:
+- A 2–3 sentence description of what this component does
+- A "Learn more →" link to the relevant User Manual section
+- A short embedded video clip (30–90 s, linked from YouTube/Vimeo, not hosted inline)
+- 3–5 common "gotcha" tips for this specific workflow
+
+Help content stored in `docs/help/` as JSON files, served via `GET /api/v1/help/{context-key}`. Context keys are defined per-component (e.g., `cohort-builder.primary-criteria`, `dqd.scorecard`, `characterization.smd-plot`).
+
+**Tooltips:** Every non-obvious field label has a `(i)` info icon with a one-sentence tooltip. Tooltip content co-located with the component's help JSON. No tooltip on self-explanatory fields (name, description).
+
+**"What's New" changelog:** On the first login after an upgrade, a "What's New in v{version}" modal shows the top 5 changes (pulled from `CHANGELOG.md` via a parsed endpoint). Dismissible; re-readable via Help → What's New.
+
+---
+
+### 9.13 Video Tutorial Scripts
+
+Parthenon ships with a catalogue of short tutorial videos. Phase 9 delivers the production-ready scripts/storyboards; video recording is a post-deployment activity.
+
+| # | Title | Duration | Covers |
+|---|---|---|---|
+| V1 | Getting Started: Your First Cohort | 8 min | Quick Start guide as a walkthrough |
+| V2 | Vocabulary & Concept Sets Deep Dive | 12 min | Search, hierarchy, descendants, concept set management |
+| V3 | Cohort Builder: Advanced Criteria | 15 min | Inclusion rules, temporal windows, end strategies |
+| V4 | Running Achilles & Interpreting Results | 10 min | Achilles run, domain charts, Heel checks |
+| V5 | Data Quality Dashboard | 8 min | DQD scorecard, drill-down, acknowledgement |
+| V6 | Characterization & Incidence Rates | 12 min | Analysis design, SMD, forest plots, stratification |
+| V7 | Treatment Pathways & Sunburst | 8 min | Pathway design, interpreting Sankey/sunburst |
+| V8 | Migrating from Atlas | 10 min | Export → import, URL redirect, parity check |
+| V9 | Administration: Users, Roles, Auth | 8 min | User CRUD, permission matrix, LDAP/OIDC config |
+| V10 | AI Concept Mapping Review | 8 min | Review queue, batch accept, audit trail |
+
+Each script is a Markdown document at `docs/videos/{slug}.md` with: learning objectives, section timestamps, narration text, screen action notes, and callout annotations.
+
+---
+
+### 9.14 Phase 9 Deliverables Checklist
+
+Before Phase 10 (Deployment) begins, all of the following must be complete:
+
+**Feature Parity:**
+- [ ] All ✅ rows in §9.1 verified against a running Eunomia instance
+- [ ] All 🔲 rows implemented and tested (cohort import/export, tagging, sharing, NC outcomes, Cohort Diagnostics, Overlap, Heel, source ACL, WebAPI importer, URL redirects, eras in profiles, concept comparison)
+- [ ] Parity validation command passes at ≥ 98% of test cohorts vs Atlas reference
+
+**Migration Tooling:**
+- [ ] `parthenon:import-atlas-cohorts` command
+- [ ] `parthenon:import-atlas-concept-sets` command
+- [ ] `parthenon:import-webapi-sources` command
+- [ ] `parthenon:validate-atlas-parity` command
+- [ ] Legacy URL redirect controller with all Atlas route mappings
+
+**Documentation:**
+- [ ] Quick Start Guide complete (in-app + docs site)
+- [ ] In-app onboarding tour (react-joyride, all steps)
+- [ ] User Manual: all 26 chapters drafted and reviewed
+- [ ] Migration Guide complete
+- [ ] API Reference auto-generated and live at `/docs/api/`
+- [ ] PDF exports: User Manual and Quick Start
+- [ ] Contextual help JSON for all major pages
+- [ ] Video tutorial scripts for V1–V10
+
+---
+
+## Phase 10: Deployment (Weeks 22-26)
 
 Docker prod: nginx, php, horizon, scheduler, python-ai (GPU), r-runtime, postgres+pgvector, redis.
 
-Legacy migration: `parthenon:migrate-legacy`, `import-usagi-mappings`, `import-achilles-results`, `import-dqd-results`.
+Legacy migration: `parthenon:migrate-legacy`, `parthenon:import-atlas-cohorts`, `parthenon:import-webapi-sources`, `parthenon:import-usagi-mappings`, `parthenon:import-achilles-results`, `parthenon:import-dqd-results`.
 
 ---
 
@@ -1552,17 +2254,18 @@ Legacy migration: `parthenon:migrate-legacy`, `import-usagi-mappings`, `import-a
 
 ## Timeline
 
-| Phase | Weeks |
-|---|---|
-| Foundation | 1-4 |
-| Database & OMOP | 3-7 |
-| AI Ingestion | 5-12 |
-| Data Quality | 8-13 |
-| Research Workbench | 10-18 |
-| Auth & Teams | 5-8 |
-| Frontend | 8-20 |
-| Testing | Ongoing |
-| Deployment | 18-24 |
+| Phase | Name | Weeks |
+|---|---|---|
+| 1 | Foundation | 1-4 |
+| 2 | Database & OMOP | 3-7 |
+| 3 | AI Ingestion | 5-12 |
+| 4 | Data Quality | 8-13 |
+| 5 | Research Workbench | 10-18 |
+| 6 | Auth & Multi-tenancy | 5-8 |
+| 7 | Frontend | 8-20 |
+| 8 | Testing | Ongoing |
+| 9 | Atlas Parity, Migration & Documentation | 20-24 |
+| 10 | Deployment | 22-26 |
 
-**Total: ~24 weeks (6 months)** with 2-3 developers.
-Critical path: Foundation -> Vocabulary/Embeddings -> AI Mapper -> Research Workbench.
+**Total: ~26 weeks (6.5 months)** with 2-3 developers.
+Critical path: Foundation → Vocabulary/Embeddings → AI Mapper → Research Workbench → Atlas Parity → Deployment.
