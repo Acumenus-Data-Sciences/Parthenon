@@ -6,8 +6,11 @@ import type {
   IncidenceRateAnalysis,
   AnalysisExecution,
 } from "../types/analysis";
+import type { PathwayAnalysis } from "@/features/pathways/types/pathway";
+import type { EstimationAnalysis } from "@/features/estimation/types/estimation";
+import type { PredictionAnalysis } from "@/features/prediction/types/prediction";
 
-type Analysis = Characterization | IncidenceRateAnalysis;
+type Analysis = Characterization | IncidenceRateAnalysis | PathwayAnalysis | EstimationAnalysis | PredictionAnalysis;
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString("en-US", {
@@ -31,7 +34,7 @@ function getLatestExecution(
 
 interface AnalysisListProps {
   analyses: Analysis[];
-  type: "characterization" | "incidence-rate";
+  type: "characterization" | "incidence-rate" | "pathway" | "estimation" | "prediction";
   onSelect: (id: number) => void;
   isLoading?: boolean;
   error?: Error | null;
@@ -62,14 +65,28 @@ export function AnalysisList({
     );
   }
 
+  const typeLabelMap: Record<string, string> = {
+    characterization: "characterizations",
+    "incidence-rate": "incidence rate analyses",
+    pathway: "pathway analyses",
+    estimation: "estimation analyses",
+    prediction: "prediction models",
+  };
+  const typeLabelSingularMap: Record<string, string> = {
+    characterization: "characterization",
+    "incidence-rate": "incidence rate analysis",
+    pathway: "pathway analysis",
+    estimation: "estimation analysis",
+    prediction: "prediction model",
+  };
+  const typeLabel = typeLabelMap[type] ?? type;
+  const typeLabelSingular = typeLabelSingularMap[type] ?? type;
+
   if (error) {
     return (
       <div className="flex items-center justify-center h-64">
         <p className="text-[#E85A6B]">
-          Failed to load{" "}
-          {type === "characterization"
-            ? "characterizations"
-            : "incidence rate analyses"}
+          Failed to load {typeLabel}
         </p>
       </div>
     );
@@ -82,18 +99,10 @@ export function AnalysisList({
           <Layers size={24} className="text-[#8A857D]" />
         </div>
         <h3 className="text-lg font-semibold text-[#F0EDE8]">
-          No{" "}
-          {type === "characterization"
-            ? "characterizations"
-            : "incidence rate analyses"}{" "}
-          yet
+          No {typeLabel} yet
         </h3>
         <p className="mt-2 text-sm text-[#8A857D]">
-          Create your first{" "}
-          {type === "characterization"
-            ? "characterization"
-            : "incidence rate analysis"}{" "}
-          to get started.
+          Create your first {typeLabelSingular} to get started.
         </p>
       </div>
     );

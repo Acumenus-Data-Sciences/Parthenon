@@ -1,0 +1,155 @@
+import { useState, useMemo } from "react";
+import { Search, Plus, Loader2, ChevronDown, SortAsc } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { BundleCard } from "./BundleCard";
+import { useBundles } from "../hooks/useCareGaps";
+import type { ConditionBundle } from "../types/careGap";
+
+const DISEASE_CATEGORIES = [
+  "All Categories",
+  "Endocrine",
+  "Cardiovascular",
+  "Respiratory",
+  "Mental Health",
+  "Rheumatologic",
+  "Neurological",
+  "Oncology",
+];
+
+type SortField = "name" | "compliance";
+
+interface BundleListProps {
+  onCreateClick?: () => void;
+}
+
+export function BundleList({ onCreateClick }: BundleListProps) {
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("All Categories");
+  const [sortBy, setSortBy] = useState<SortField>("name");
+
+  const { data, isLoading } = useBundles({
+    search: search || undefined,
+    disease_category: category === "All Categories" ? undefined : category,
+  });
+
+  const bundles = data?.data ?? [];
+
+  const sorted = useMemo(() => {
+    const copy = [...bundles];
+    copy.sort((a: ConditionBundle, b: ConditionBundle) => {
+      if (sortBy === "compliance") {
+        const aPct =
+          a.latest_evaluation?.compliance_summary?.compliance_pct ?? -1;
+        const bPct =
+          b.latest_evaluation?.compliance_summary?.compliance_pct ?? -1;
+        return bPct - aPct; // desc
+      }
+      return a.condition_name.localeCompare(b.condition_name);
+    });
+    return copy;
+  }, [bundles, sortBy]);
+
+  return (
+    <div className="space-y-4">
+      {/* Toolbar */}
+      <div className="flex flex-wrap items-center gap-3">
+        {/* Search */}
+        <div className="relative flex-1 min-w-[200px] max-w-sm">
+          <Search
+            size={14}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8A857D]"
+          />
+          <input
+            type="text"
+            placeholder="Search bundles..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className={cn(
+              "w-full rounded-lg border border-[#232328] bg-[#151518] pl-9 pr-3 py-2 text-sm",
+              "text-[#F0EDE8] placeholder:text-[#5A5650]",
+              "focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+            )}
+          />
+        </div>
+
+        {/* Category filter */}
+        <div className="relative">
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className={cn(
+              "appearance-none rounded-lg border border-[#232328] bg-[#151518] pl-3 pr-8 py-2 text-sm",
+              "text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+              "cursor-pointer",
+            )}
+          >
+            {DISEASE_CATEGORIES.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
+          </select>
+          <ChevronDown
+            size={14}
+            className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[#8A857D]"
+          />
+        </div>
+
+        {/* Sort toggle */}
+        <button
+          type="button"
+          onClick={() =>
+            setSortBy((prev) => (prev === "name" ? "compliance" : "name"))
+          }
+          className={cn(
+            "inline-flex items-center gap-1.5 rounded-lg border border-[#232328] bg-[#151518] px-3 py-2 text-sm",
+            "text-[#8A857D] hover:text-[#F0EDE8] hover:border-[#323238] transition-colors",
+          )}
+        >
+          <SortAsc size={14} />
+          {sortBy === "name" ? "Name" : "Compliance"}
+        </button>
+
+        {/* Create button */}
+        {onCreateClick && (
+          <button
+            type="button"
+            onClick={onCreateClick}
+            className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-4 py-2 text-sm font-medium text-[#0E0E11] hover:bg-[#26B8A5] transition-colors"
+          >
+            <Plus size={16} />
+            New Bundle
+          </button>
+        )}
+      </div>
+
+      {/* Loading */}
+      {isLoading && (
+        <div className="flex items-center justify-center py-16">
+          <Loader2 size={24} className="animate-spin text-[#8A857D]" />
+        </div>
+      )}
+
+      {/* Empty */}
+      {!isLoading && sorted.length === 0 && (
+        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-16">
+          <p className="text-sm text-[#8A857D]">No bundles found</p>
+          <p className="mt-1 text-xs text-[#5A5650]">
+            {search || category !== "All Categories"
+              ? "Try adjusting your filters"
+              : "Create a bundle to get started"}
+          </p>
+        </div>
+      )}
+
+      {/* Grid */}
+      {!isLoading && sorted.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {sorted.map((bundle) => (
+            <BundleCard key={bundle.id} bundle={bundle} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}

@@ -19,6 +19,7 @@ import {
   KeyRound,
   ShieldCheck,
   UsersRound,
+  Bell,
 } from "lucide-react";
 
 interface NavItem {
@@ -51,6 +52,7 @@ const navItems: NavItem[] = [
       { path: "/admin/users", label: "Users", icon: UsersRound },
       { path: "/admin/roles", label: "Roles & Permissions", icon: ShieldCheck, superAdminOnly: true },
       { path: "/admin/auth-providers", label: "Auth Providers", icon: KeyRound, superAdminOnly: true },
+      { path: "/admin/notifications", label: "Notifications", icon: Bell },
     ],
   },
 ];

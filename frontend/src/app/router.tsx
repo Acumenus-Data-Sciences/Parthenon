@@ -163,12 +163,85 @@ export const router = createBrowserRouter([
                 "@/features/analyses/pages/IncidenceRateDetailPage"
               ).then((m) => ({ Component: m.default })),
           },
+          {
+            path: "pathways/:id",
+            lazy: () =>
+              import(
+                "@/features/pathways/pages/PathwayDetailPage"
+              ).then((m) => ({ Component: m.default })),
+          },
+          {
+            path: "estimations/:id",
+            lazy: () =>
+              import(
+                "@/features/estimation/pages/EstimationDetailPage"
+              ).then((m) => ({ Component: m.default })),
+          },
+          {
+            path: "predictions/:id",
+            lazy: () =>
+              import(
+                "@/features/prediction/pages/PredictionDetailPage"
+              ).then((m) => ({ Component: m.default })),
+          },
         ],
       },
-      { path: "studies", element: <PlaceholderPage title="Studies" /> },
+      {
+        path: "studies",
+        children: [
+          {
+            index: true,
+            lazy: () =>
+              import("@/features/studies/pages/StudiesPage").then(
+                (m) => ({ Component: m.default }),
+              ),
+          },
+          {
+            path: ":id",
+            lazy: () =>
+              import(
+                "@/features/studies/pages/StudyDetailPage"
+              ).then((m) => ({ Component: m.default })),
+          },
+        ],
+      },
       {
         path: "profiles",
-        element: <PlaceholderPage title="Patient Profiles" />,
+        children: [
+          {
+            index: true,
+            lazy: () =>
+              import(
+                "@/features/profiles/pages/PatientProfilePage"
+              ).then((m) => ({ Component: m.default })),
+          },
+          {
+            path: ":personId",
+            lazy: () =>
+              import(
+                "@/features/profiles/pages/PatientProfilePage"
+              ).then((m) => ({ Component: m.default })),
+          },
+        ],
+      },
+      {
+        path: "care-gaps",
+        children: [
+          {
+            index: true,
+            lazy: () =>
+              import("@/features/care-gaps/pages/CareGapsPage").then(
+                (m) => ({ Component: m.default }),
+              ),
+          },
+          {
+            path: ":id",
+            lazy: () =>
+              import("@/features/care-gaps/pages/BundleDetailPage").then(
+                (m) => ({ Component: m.default }),
+              ),
+          },
+        ],
       },
       { path: "jobs", element: <PlaceholderPage title="Jobs" /> },
       // ── Administration ────────────────────────────────────────────────
@@ -202,6 +275,13 @@ export const router = createBrowserRouter([
               import("@/features/administration/pages/AuthProvidersPage").then(
                 (m) => ({ Component: m.default }),
               ),
+          },
+          {
+            path: "notifications",
+            lazy: () =>
+              import(
+                "@/features/settings/pages/NotificationSettingsPage"
+              ).then((m) => ({ Component: m.default })),
           },
         ],
       },

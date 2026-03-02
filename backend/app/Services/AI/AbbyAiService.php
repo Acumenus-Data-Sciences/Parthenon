@@ -1,0 +1,599 @@
+<?php
+
+namespace App\Services\AI;
+
+use App\Services\Cohort\Schema\CohortExpressionSchema;
+use Illuminate\Support\Facades\DB;
+
+class AbbyAiService
+{
+    // Common study design patterns
+    private const PATTERNS = [
+        'new_users' => '/\b(new|first[- ]time|incident|newly)\s+(users?|initiators?|diagnosed|exposure)\b/i',
+        'with_condition' => '/\b(with|having|diagnosed\s+with|who\s+have)\s+/i',
+        'without_condition' => '/\b(without|no\s+prior|excluding|no\s+history\s+of|never\s+had)\s+/i',
+        'on_drug' => '/\b(on|taking|receiving|treated\s+with|exposed\s+to|started|starting)\s+/i',
+        'age_range' => '/\b(aged?|age)\s*(\d+)\s*[-\x{2013}to]+\s*(\d+)/iu',
+        'age_over' => '/\b(aged?|age|older\s+than|over)\s*(\d+)\s*\+?\b/i',
+        'age_under' => '/\b(under|younger\s+than|below)\s*(\d+)/i',
+        'female' => '/\b(female|women|woman)\b/i',
+        'male' => '/\b(male|men|man)\b/i',
+        'prior' => '/\b(prior|previous|history\s+of|preceding)\b/i',
+        'after' => '/\b(after|following|subsequent|post)\b/i',
+        'within_days' => '/\bwithin\s+(\d+)\s*(days?|weeks?|months?|years?)\b/i',
+    ];
+
+    // Map common medical terms to OMOP domains
+    private const DOMAIN_HINTS = [
+        'condition' => ['diabetes', 'hypertension', 'cancer', 'heart failure', 'stroke', 'asthma', 'copd', 'depression', 'anxiety', 'pneumonia', 'fracture', 'obesity', 'infection', 'arthritis', 'alzheimer', 'parkinson', 'epilepsy', 'migraine', 'anemia', 'sepsis'],
+        'drug' => ['metformin', 'insulin', 'aspirin', 'statin', 'ace inhibitor', 'lisinopril', 'amlodipine', 'warfarin', 'chemotherapy', 'antibiotic', 'ssri', 'opioid', 'beta blocker', 'diuretic', 'corticosteroid'],
+        'procedure' => ['surgery', 'biopsy', 'transplant', 'dialysis', 'endoscopy', 'colonoscopy', 'mri', 'ct scan', 'x-ray', 'hip replacement', 'knee replacement', 'catheterization', 'intubation'],
+        'measurement' => ['hba1c', 'blood pressure', 'bmi', 'creatinine', 'cholesterol', 'glucose', 'hemoglobin', 'platelet', 'white blood cell', 'potassium', 'sodium'],
+    ];
+
+    public function __construct(
+        private readonly CohortExpressionSchema $schema,
+    ) {}
+
+    /**
+     * Build a cohort expression from natural language prompt.
+     */
+    public function buildCohortFromPrompt(string $prompt, ?int $sourceId = null): array
+    {
+        $analysis = $this->analyzePrompt($prompt);
+        $conceptSets = [];
+        $warnings = [];
+
+        // Search vocabulary for each identified term
+        foreach ($analysis['terms'] as $i => $term) {
+            $concepts = $this->searchConcepts($term['text'], $term['domain']);
+            if (empty($concepts)) {
+                $warnings[] = "No OMOP concepts found for '{$term['text']}'. You may need to add this concept set manually.";
+                continue;
+            }
+            $conceptSets[] = [
+                'id' => $i,
+                'name' => $term['text'],
+                'expression' => [
+                    'items' => array_map(fn ($c) => [
+                        'concept' => $c,
+                        'isExcluded' => false,
+                        'includeDescendants' => true,
+                        'includeMapped' => true,
+                    ], array_slice($concepts, 0, 10)),
+                ],
+                'role' => $term['role'],
+                'domain' => $term['domain'],
+            ];
+        }
+
+        // Build expression JSON
+        $expression = $this->buildExpression($analysis, $conceptSets);
+
+        // Generate explanation
+        $explanation = $this->generateExplanation($analysis, $conceptSets);
+
+        return [
+            'expression' => $expression,
+            'explanation' => $explanation,
+            'concept_sets' => array_map(fn ($cs) => [
+                'name' => $cs['name'],
+                'concepts' => array_map(fn ($item) => $item['concept'], $cs['expression']['items']),
+            ], $conceptSets),
+            'warnings' => $warnings,
+        ];
+    }
+
+    /**
+     * Analyze prompt to identify medical terms, demographics, and design pattern.
+     */
+    private function analyzePrompt(string $prompt): array
+    {
+        $terms = [];
+        $demographics = [];
+        $design = 'general';
+
+        // Detect study design
+        if (preg_match(self::PATTERNS['new_users'], $prompt)) {
+            $design = 'new_users';
+        }
+
+        // Detect age filters
+        if (preg_match(self::PATTERNS['age_range'], $prompt, $m)) {
+            $demographics['age'] = ['min' => (int) $m[2], 'max' => (int) $m[3]];
+        } elseif (preg_match(self::PATTERNS['age_over'], $prompt, $m)) {
+            $demographics['age'] = ['min' => (int) $m[2], 'max' => null];
+        } elseif (preg_match(self::PATTERNS['age_under'], $prompt, $m)) {
+            $demographics['age'] = ['min' => null, 'max' => (int) $m[2]];
+        }
+
+        // Detect gender
+        if (preg_match(self::PATTERNS['female'], $prompt)) {
+            $demographics['gender'] = 'female';
+        } elseif (preg_match(self::PATTERNS['male'], $prompt)) {
+            $demographics['gender'] = 'male';
+        }
+
+        // Detect temporal windows
+        $temporal = [];
+        if (preg_match(self::PATTERNS['within_days'], $prompt, $m)) {
+            $days = (int) $m[1];
+            $unit = strtolower($m[2]);
+            if (str_starts_with($unit, 'week')) $days *= 7;
+            elseif (str_starts_with($unit, 'month')) $days *= 30;
+            elseif (str_starts_with($unit, 'year')) $days *= 365;
+            $temporal['within_days'] = $days;
+        }
+
+        // Extract medical terms and their roles
+        $lowerPrompt = strtolower($prompt);
+
+        foreach (self::DOMAIN_HINTS as $domain => $terms_list) {
+            foreach ($terms_list as $hint) {
+                if (stripos($lowerPrompt, $hint) !== false) {
+                    // Determine role
+                    $role = 'entry'; // default
+                    $pos = stripos($lowerPrompt, $hint);
+                    $before = substr($lowerPrompt, max(0, $pos - 50), min($pos, 50));
+
+                    if (preg_match(self::PATTERNS['without_condition'], $before)) {
+                        $role = 'exclusion';
+                    } elseif (preg_match(self::PATTERNS['prior'], $before)) {
+                        $role = 'exclusion';
+                    } elseif (count($terms) > 0 && $domain !== ($terms[0]['domain'] ?? '')) {
+                        $role = 'inclusion';
+                    }
+
+                    $terms[] = [
+                        'text' => $hint,
+                        'domain' => $domain,
+                        'role' => $role,
+                    ];
+                }
+            }
+        }
+
+        // If no terms found via hints, try to extract noun phrases
+        if (empty($terms)) {
+            // Fallback: extract quoted terms or capitalized phrases
+            preg_match_all('/["\']([^"\']+)["\']/', $prompt, $quoted);
+            foreach ($quoted[1] as $q) {
+                $terms[] = ['text' => $q, 'domain' => 'condition', 'role' => 'entry'];
+            }
+        }
+
+        return [
+            'terms' => $terms,
+            'demographics' => $demographics,
+            'design' => $design,
+            'temporal' => $temporal,
+        ];
+    }
+
+    /**
+     * Search OMOP concepts by text and optional domain filter.
+     */
+    private function searchConcepts(string $query, ?string $domain = null): array
+    {
+        $builder = DB::connection(config('database.vocab_connection', 'pgsql'))
+            ->table(config('database.vocab_schema', 'public') . '.concept')
+            ->where('standard_concept', 'S')
+            ->where('invalid_reason', null)
+            ->where(function ($q) use ($query) {
+                $q->where('concept_name', 'ilike', "%{$query}%")
+                  ->orWhere('concept_code', 'ilike', "%{$query}%");
+            });
+
+        if ($domain) {
+            $domainMap = [
+                'condition' => 'Condition',
+                'drug' => 'Drug',
+                'procedure' => 'Procedure',
+                'measurement' => 'Measurement',
+                'observation' => 'Observation',
+            ];
+            if (isset($domainMap[$domain])) {
+                $builder->where('domain_id', $domainMap[$domain]);
+            }
+        }
+
+        return $builder
+            ->orderByRaw("CASE WHEN LOWER(concept_name) = ? THEN 0 WHEN LOWER(concept_name) LIKE ? THEN 1 ELSE 2 END", [strtolower($query), strtolower($query) . '%'])
+            ->limit(10)
+            ->get()
+            ->map(fn ($row) => [
+                'concept_id' => $row->concept_id,
+                'concept_name' => $row->concept_name,
+                'domain' => $row->domain_id,
+                'vocabulary_id' => $row->vocabulary_id,
+                'standard_concept' => $row->standard_concept,
+                'concept_code' => $row->concept_code,
+            ])
+            ->toArray();
+    }
+
+    /**
+     * Build CohortExpression JSON from analyzed components.
+     */
+    private function buildExpression(array $analysis, array $conceptSets): array
+    {
+        $expression = [
+            'ConceptSets' => [],
+            'PrimaryCriteria' => [
+                'CriteriaList' => [],
+                'ObservationWindow' => ['PriorDays' => 0, 'PostDays' => 0],
+            ],
+            'AdditionalCriteria' => null,
+            'QualifiedLimit' => ['Type' => 'First'],
+            'ExpressionLimit' => ['Type' => 'First'],
+            'InclusionRules' => [],
+            'CensoringCriteria' => [],
+            'EndStrategy' => [
+                'DateOffset' => [
+                    'DateField' => 'StartDate',
+                    'Offset' => 0,
+                ],
+            ],
+            'CollapseSettings' => ['CollapseType' => 'ERA', 'EraPad' => 0],
+            'DemographicCriteria' => [],
+        ];
+
+        // Add concept sets
+        foreach ($conceptSets as $cs) {
+            $expression['ConceptSets'][] = [
+                'id' => $cs['id'],
+                'name' => $cs['name'],
+                'expression' => $cs['expression'],
+            ];
+        }
+
+        // Determine entry event (first "entry" role concept set)
+        $entryCs = collect($conceptSets)->firstWhere('role', 'entry');
+        if ($entryCs) {
+            $domainCriterion = $this->buildDomainCriterion($entryCs);
+            $expression['PrimaryCriteria']['CriteriaList'][] = $domainCriterion;
+        }
+
+        // Add new_users observation window
+        if ($analysis['design'] === 'new_users') {
+            $expression['PrimaryCriteria']['ObservationWindow'] = [
+                'PriorDays' => 365,
+                'PostDays' => 0,
+            ];
+            $expression['QualifiedLimit'] = ['Type' => 'First'];
+        }
+
+        // Add inclusion criteria
+        $inclusions = collect($conceptSets)->where('role', 'inclusion');
+        foreach ($inclusions as $cs) {
+            $days = $analysis['temporal']['within_days'] ?? 365;
+            $expression['InclusionRules'][] = [
+                'name' => "Has {$cs['name']}",
+                'expression' => [
+                    'Type' => 'ALL',
+                    'CriteriaList' => [
+                        [
+                            'Criteria' => $this->buildDomainCriterion($cs),
+                            'StartWindow' => [
+                                'Start' => ['Days' => $days, 'Coeff' => -1],
+                                'End' => ['Days' => $days, 'Coeff' => 1],
+                                'UseEventEnd' => false,
+                            ],
+                            'Occurrence' => ['Type' => 2, 'Count' => 1],
+                        ],
+                    ],
+                    'DemographicCriteriaList' => [],
+                    'Groups' => [],
+                ],
+            ];
+        }
+
+        // Add exclusion criteria
+        $exclusions = collect($conceptSets)->where('role', 'exclusion');
+        foreach ($exclusions as $cs) {
+            $expression['InclusionRules'][] = [
+                'name' => "No prior {$cs['name']}",
+                'expression' => [
+                    'Type' => 'ALL',
+                    'CriteriaList' => [
+                        [
+                            'Criteria' => $this->buildDomainCriterion($cs),
+                            'StartWindow' => [
+                                'Start' => ['Days' => 99999, 'Coeff' => -1],
+                                'End' => ['Days' => 0, 'Coeff' => -1],
+                                'UseEventEnd' => false,
+                            ],
+                            'Occurrence' => ['Type' => 1, 'Count' => 0], // at most 0
+                        ],
+                    ],
+                    'DemographicCriteriaList' => [],
+                    'Groups' => [],
+                ],
+            ];
+        }
+
+        // Add demographic filters
+        if (!empty($analysis['demographics'])) {
+            $demo = [];
+            if (isset($analysis['demographics']['age'])) {
+                $age = $analysis['demographics']['age'];
+                if ($age['min'] !== null) $demo['Age'] = ['Value' => $age['min'], 'Op' => 'gte'];
+                if ($age['max'] !== null) $demo['AgeMax'] = ['Value' => $age['max'], 'Op' => 'lte'];
+            }
+            if (isset($analysis['demographics']['gender'])) {
+                $genderConceptId = $analysis['demographics']['gender'] === 'female' ? 8532 : 8507;
+                $demo['Gender'] = [['CONCEPT_ID' => $genderConceptId]];
+            }
+            if (!empty($demo)) {
+                $expression['DemographicCriteria'][] = $demo;
+            }
+        }
+
+        return $expression;
+    }
+
+    /**
+     * Build a domain criterion from a concept set.
+     */
+    private function buildDomainCriterion(array $conceptSet): array
+    {
+        $domainMap = [
+            'condition' => 'ConditionOccurrence',
+            'drug' => 'DrugExposure',
+            'procedure' => 'ProcedureOccurrence',
+            'measurement' => 'Measurement',
+            'observation' => 'Observation',
+        ];
+
+        $domainKey = $domainMap[$conceptSet['domain']] ?? 'ConditionOccurrence';
+
+        return [
+            $domainKey => [
+                'CodesetId' => $conceptSet['id'],
+            ],
+        ];
+    }
+
+    /**
+     * Generate human-readable explanation.
+     */
+    private function generateExplanation(array $analysis, array $conceptSets): string
+    {
+        $parts = [];
+
+        $entryCs = collect($conceptSets)->firstWhere('role', 'entry');
+        if ($entryCs) {
+            $isNew = $analysis['design'] === 'new_users';
+            $parts[] = $isNew
+                ? "This cohort identifies patients with their **first** recorded {$entryCs['domain']} event matching **{$entryCs['name']}**."
+                : "This cohort identifies patients with a {$entryCs['domain']} event matching **{$entryCs['name']}**.";
+
+            if ($isNew) {
+                $parts[] = "A 365-day washout period is required (no prior occurrence).";
+            }
+        }
+
+        $inclusions = collect($conceptSets)->where('role', 'inclusion');
+        if ($inclusions->isNotEmpty()) {
+            $names = $inclusions->pluck('name')->join(', ');
+            $days = $analysis['temporal']['within_days'] ?? 365;
+            $parts[] = "Patients must also have: **{$names}** within {$days} days of the index event.";
+        }
+
+        $exclusions = collect($conceptSets)->where('role', 'exclusion');
+        if ($exclusions->isNotEmpty()) {
+            $names = $exclusions->pluck('name')->join(', ');
+            $parts[] = "Patients with any prior history of **{$names}** are excluded.";
+        }
+
+        if (!empty($analysis['demographics'])) {
+            $demoParts = [];
+            if (isset($analysis['demographics']['age'])) {
+                $age = $analysis['demographics']['age'];
+                if ($age['min'] !== null && $age['max'] !== null) {
+                    $demoParts[] = "aged {$age['min']}\u{2013}{$age['max']}";
+                } elseif ($age['min'] !== null) {
+                    $demoParts[] = "aged {$age['min']}+";
+                } elseif ($age['max'] !== null) {
+                    $demoParts[] = "under age {$age['max']}";
+                }
+            }
+            if (isset($analysis['demographics']['gender'])) {
+                $demoParts[] = $analysis['demographics']['gender'];
+            }
+            if (!empty($demoParts)) {
+                $parts[] = "Demographic filter: " . implode(', ', $demoParts) . ".";
+            }
+        }
+
+        if (empty($parts)) {
+            return "No specific criteria could be extracted from the prompt. Please try rephrasing or adding more detail about the target population.";
+        }
+
+        return implode("\n\n", $parts);
+    }
+
+    /**
+     * Suggest concepts for a given domain + description.
+     */
+    public function suggestCriteria(string $domain, string $description): array
+    {
+        return $this->searchConcepts($description, $domain);
+    }
+
+    /**
+     * Generate human-readable explanation from an existing expression.
+     */
+    public function explainExpression(array $expression): string
+    {
+        $parts = [];
+
+        // Describe concept sets
+        $conceptSets = $expression['ConceptSets'] ?? [];
+        if (!empty($conceptSets)) {
+            $names = collect($conceptSets)->pluck('name')->join(', ');
+            $parts[] = "**Concept Sets defined:** {$names}";
+        }
+
+        // Describe primary criteria
+        $primary = $expression['PrimaryCriteria'] ?? [];
+        $criteriaList = $primary['CriteriaList'] ?? [];
+        if (!empty($criteriaList)) {
+            $domains = [];
+            foreach ($criteriaList as $c) {
+                foreach (['ConditionOccurrence', 'DrugExposure', 'ProcedureOccurrence', 'Measurement', 'Observation', 'VisitOccurrence', 'Death'] as $d) {
+                    if (isset($c[$d])) {
+                        $codesetId = $c[$d]['CodesetId'] ?? '?';
+                        $csName = collect($conceptSets)->firstWhere('id', $codesetId)['name'] ?? "Concept Set #{$codesetId}";
+                        $domains[] = "{$d} matching **{$csName}**";
+                    }
+                }
+            }
+            $parts[] = "**Entry event:** " . implode(' OR ', $domains);
+        }
+
+        // Observation window
+        $window = $primary['ObservationWindow'] ?? [];
+        if (($window['PriorDays'] ?? 0) > 0) {
+            $parts[] = "Requires **{$window['PriorDays']} days** of prior observation.";
+        }
+
+        // Inclusion rules
+        $rules = $expression['InclusionRules'] ?? [];
+        if (!empty($rules)) {
+            $count = count($rules);
+            $ruleNames = collect($rules)->pluck('name')->join(', ');
+            $parts[] = "**Inclusion rules ({$count}):** {$ruleNames}";
+        }
+
+        // Demographics
+        $demographics = $expression['DemographicCriteria'] ?? [];
+        if (!empty($demographics)) {
+            $parts[] = "**Demographic filters** are applied.";
+        }
+
+        // Qualified limit
+        $limit = $expression['QualifiedLimit']['Type'] ?? 'All';
+        $parts[] = "Selects **{$limit}** qualifying events per person.";
+
+        return empty($parts)
+            ? "Empty cohort expression \u{2014} no criteria defined."
+            : implode("\n\n", $parts);
+    }
+
+    /**
+     * Refine an existing expression based on a natural language instruction.
+     */
+    public function refineCohort(array $expression, string $prompt): array
+    {
+        // Re-analyze the refinement prompt
+        $analysis = $this->analyzePrompt($prompt);
+        $warnings = [];
+
+        // Determine current max concept set ID
+        $maxId = collect($expression['ConceptSets'] ?? [])->max('id') ?? -1;
+
+        // Add new terms to concept sets
+        $newConceptSets = [];
+        foreach ($analysis['terms'] as $term) {
+            $concepts = $this->searchConcepts($term['text'], $term['domain']);
+            if (empty($concepts)) {
+                $warnings[] = "No OMOP concepts found for '{$term['text']}'.";
+                continue;
+            }
+
+            $maxId++;
+            $cs = [
+                'id' => $maxId,
+                'name' => $term['text'],
+                'expression' => [
+                    'items' => array_map(fn ($c) => [
+                        'concept' => $c,
+                        'isExcluded' => false,
+                        'includeDescendants' => true,
+                        'includeMapped' => true,
+                    ], array_slice($concepts, 0, 10)),
+                ],
+                'role' => $term['role'],
+                'domain' => $term['domain'],
+            ];
+
+            $expression['ConceptSets'][] = [
+                'id' => $cs['id'],
+                'name' => $cs['name'],
+                'expression' => $cs['expression'],
+            ];
+
+            $newConceptSets[] = $cs;
+
+            // Add as inclusion or exclusion rule
+            if ($term['role'] === 'inclusion') {
+                $days = $analysis['temporal']['within_days'] ?? 365;
+                $expression['InclusionRules'][] = [
+                    'name' => "Has {$cs['name']}",
+                    'expression' => [
+                        'Type' => 'ALL',
+                        'CriteriaList' => [[
+                            'Criteria' => $this->buildDomainCriterion($cs),
+                            'StartWindow' => [
+                                'Start' => ['Days' => $days, 'Coeff' => -1],
+                                'End' => ['Days' => $days, 'Coeff' => 1],
+                                'UseEventEnd' => false,
+                            ],
+                            'Occurrence' => ['Type' => 2, 'Count' => 1],
+                        ]],
+                        'DemographicCriteriaList' => [],
+                        'Groups' => [],
+                    ],
+                ];
+            } elseif ($term['role'] === 'exclusion') {
+                $expression['InclusionRules'][] = [
+                    'name' => "No prior {$cs['name']}",
+                    'expression' => [
+                        'Type' => 'ALL',
+                        'CriteriaList' => [[
+                            'Criteria' => $this->buildDomainCriterion($cs),
+                            'StartWindow' => [
+                                'Start' => ['Days' => 99999, 'Coeff' => -1],
+                                'End' => ['Days' => 0, 'Coeff' => -1],
+                                'UseEventEnd' => false,
+                            ],
+                            'Occurrence' => ['Type' => 1, 'Count' => 0],
+                        ]],
+                        'DemographicCriteriaList' => [],
+                        'Groups' => [],
+                    ],
+                ];
+            }
+        }
+
+        // Apply demographic changes
+        if (!empty($analysis['demographics'])) {
+            $demo = [];
+            if (isset($analysis['demographics']['age'])) {
+                $age = $analysis['demographics']['age'];
+                if ($age['min'] !== null) $demo['Age'] = ['Value' => $age['min'], 'Op' => 'gte'];
+                if ($age['max'] !== null) $demo['AgeMax'] = ['Value' => $age['max'], 'Op' => 'lte'];
+            }
+            if (isset($analysis['demographics']['gender'])) {
+                $genderConceptId = $analysis['demographics']['gender'] === 'female' ? 8532 : 8507;
+                $demo['Gender'] = [['CONCEPT_ID' => $genderConceptId]];
+            }
+            if (!empty($demo)) {
+                $expression['DemographicCriteria'] = [$demo];
+            }
+        }
+
+        $explanation = $this->explainExpression($expression);
+
+        return [
+            'expression' => $expression,
+            'explanation' => $explanation,
+            'concept_sets' => array_map(fn ($cs) => [
+                'name' => $cs['name'],
+                'concepts' => array_map(fn ($item) => $item['concept'], $cs['expression']['items']),
+            ], $newConceptSets),
+            'warnings' => $warnings,
+        ];
+    }
+}

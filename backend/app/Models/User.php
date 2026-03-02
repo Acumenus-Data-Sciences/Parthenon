@@ -24,6 +24,10 @@ class User extends Authenticatable
         'provider',
         'provider_id',
         'last_login_at',
+        'notification_email',
+        'notification_sms',
+        'phone_number',
+        'notification_preferences',
     ];
 
     /**
@@ -43,6 +47,9 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'last_login_at' => 'datetime',
             'password' => 'hashed',
+            'notification_email' => 'boolean',
+            'notification_sms' => 'boolean',
+            'notification_preferences' => 'array',
         ];
     }
 }

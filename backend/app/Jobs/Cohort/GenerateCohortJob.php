@@ -2,8 +2,10 @@
 
 namespace App\Jobs\Cohort;
 
+use App\Enums\ExecutionStatus;
 use App\Models\App\CohortDefinition;
 use App\Models\App\Source;
+use App\Notifications\CohortGeneratedNotification;
 use App\Services\Cohort\CohortGenerationService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -51,5 +53,16 @@ class GenerateCohortJob implements ShouldQueue
             'status' => $generation->status->value,
             'person_count' => $generation->person_count,
         ]);
+
+        // Notify cohort author on successful generation
+        if ($generation->status === ExecutionStatus::Completed) {
+            $author = $this->cohortDefinition->author;
+            if ($author) {
+                $prefs = $author->notification_preferences ?? [];
+                if ($prefs['cohort_generated'] ?? true) {
+                    $author->notify(new CohortGeneratedNotification($generation));
+                }
+            }
+        }
     }
 }

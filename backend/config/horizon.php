@@ -252,6 +252,20 @@ return [
             'timeout' => 3600,
             'nice' => 0,
         ],
+
+        'r-analysis' => [
+            'connection' => 'redis',
+            'queue' => ['r-analysis'],
+            'balance' => 'auto',
+            'autoScalingStrategy' => 'time',
+            'maxProcesses' => 2,
+            'maxTime' => 0,
+            'maxJobs' => 0,
+            'memory' => 512,
+            'tries' => 1,
+            'timeout' => 14400,
+            'nice' => 0,
+        ],
     ],
 
     'environments' => [
@@ -275,6 +289,15 @@ return [
                 'timeout' => 3600,
                 'memory' => 512,
             ],
+            'r-analysis' => [
+                'connection' => 'redis',
+                'queue' => ['r-analysis'],
+                'balance' => 'auto',
+                'maxProcesses' => 2,
+                'timeout' => 14400,
+                'memory' => 512,
+                'tries' => 1,
+            ],
         ],
 
         'local' => [
@@ -294,6 +317,15 @@ return [
                 'maxProcesses' => 3,
                 'timeout' => 3600,
                 'memory' => 512,
+            ],
+            'r-analysis' => [
+                'connection' => 'redis',
+                'queue' => ['r-analysis'],
+                'balance' => 'auto',
+                'maxProcesses' => 2,
+                'timeout' => 14400,
+                'memory' => 512,
+                'tries' => 1,
             ],
         ],
     ],

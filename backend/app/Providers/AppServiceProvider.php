@@ -14,10 +14,15 @@ use App\Services\Cohort\CohortSqlCompiler;
 use App\Services\Cohort\Criteria\CriteriaBuilderRegistry;
 use App\Services\Cohort\Criteria\DemographicCriteriaBuilder;
 use App\Services\Cohort\Schema\CohortExpressionSchema;
+use App\Services\AI\AbbyAiService;
+use App\Services\Analysis\CareGapService;
 use App\Services\Analysis\CharacterizationService;
+use App\Services\Analysis\EstimationService;
 use App\Services\Analysis\IncidenceRateService;
 use App\Services\Analysis\PathwayService;
 use App\Services\Analysis\PatientProfileService;
+use App\Services\Analysis\PredictionService;
+use App\Services\Analysis\StudyService;
 use App\Services\SqlRenderer\SqlRendererService;
 use Illuminate\Support\ServiceProvider;
 
@@ -30,11 +35,18 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->singleton(SqlRendererService::class);
 
+        // AI services
+        $this->app->singleton(AbbyAiService::class);
+
         // Analysis services
+        $this->app->singleton(CareGapService::class);
         $this->app->singleton(CharacterizationService::class);
         $this->app->singleton(IncidenceRateService::class);
         $this->app->singleton(PathwayService::class);
         $this->app->singleton(PatientProfileService::class);
+        $this->app->singleton(EstimationService::class);
+        $this->app->singleton(PredictionService::class);
+        $this->app->singleton(StudyService::class);
 
         // Cohort SQL Compiler services
         $this->app->singleton(CohortExpressionSchema::class);

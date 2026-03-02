@@ -1,21 +1,27 @@
 <?php
 
+use App\Http\Controllers\Api\V1\AbbyAiController;
 use App\Http\Controllers\Api\V1\AchillesController;
 use App\Http\Controllers\Api\V1\Admin\AuthProviderController;
 use App\Http\Controllers\Api\V1\Admin\RoleController;
 use App\Http\Controllers\Api\V1\Admin\UserController;
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\CareGapController;
 use App\Http\Controllers\Api\V1\CharacterizationController;
 use App\Http\Controllers\Api\V1\CohortDefinitionController;
 use App\Http\Controllers\Api\V1\ConceptSetController;
 use App\Http\Controllers\Api\V1\DataQualityController;
+use App\Http\Controllers\Api\V1\EstimationController;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\IncidenceRateController;
 use App\Http\Controllers\Api\V1\IngestionController;
 use App\Http\Controllers\Api\V1\MappingReviewController;
+use App\Http\Controllers\Api\V1\NotificationPreferenceController;
 use App\Http\Controllers\Api\V1\PathwayController;
 use App\Http\Controllers\Api\V1\PatientProfileController;
+use App\Http\Controllers\Api\V1\PredictionController;
 use App\Http\Controllers\Api\V1\SourceController;
+use App\Http\Controllers\Api\V1\StudyController;
 use App\Http\Controllers\Api\V1\VocabularyController;
 use Illuminate\Support\Facades\Route;
 
@@ -132,9 +138,61 @@ Route::prefix('v1')->group(function () {
         Route::get('pathways/{pathway}/executions', [PathwayController::class, 'executions']);
         Route::get('pathways/{pathway}/executions/{execution}', [PathwayController::class, 'showExecution']);
 
+        // Estimation
+        Route::apiResource('estimations', EstimationController::class);
+        Route::post('estimations/{estimation}/execute', [EstimationController::class, 'execute']);
+        Route::get('estimations/{estimation}/executions', [EstimationController::class, 'executions']);
+        Route::get('estimations/{estimation}/executions/{execution}', [EstimationController::class, 'showExecution']);
+
+        // Prediction
+        Route::apiResource('predictions', PredictionController::class);
+        Route::post('predictions/{prediction}/execute', [PredictionController::class, 'execute']);
+        Route::get('predictions/{prediction}/executions', [PredictionController::class, 'executions']);
+        Route::get('predictions/{prediction}/executions/{execution}', [PredictionController::class, 'showExecution']);
+
+        // Studies
+        Route::apiResource('studies', StudyController::class);
+        Route::post('studies/{study}/execute', [StudyController::class, 'executeAll']);
+        Route::get('studies/{study}/progress', [StudyController::class, 'progress']);
+        Route::get('studies/{study}/analyses', [StudyController::class, 'analyses']);
+        Route::post('studies/{study}/analyses', [StudyController::class, 'addAnalysis']);
+        Route::delete('studies/{study}/analyses/{studyAnalysis}', [StudyController::class, 'removeAnalysis']);
+
         // Patient Profiles
         Route::get('sources/{source}/profiles/{personId}', [PatientProfileController::class, 'show']);
         Route::get('sources/{source}/cohorts/{cohortDefinitionId}/members', [PatientProfileController::class, 'members']);
+
+        // Notification Preferences
+        Route::get('user/notification-preferences', [NotificationPreferenceController::class, 'show']);
+        Route::put('user/notification-preferences', [NotificationPreferenceController::class, 'update']);
+
+        // Care Bundles & Care Gaps
+        Route::prefix('care-bundles')->group(function () {
+            Route::get('/overlap-rules', [CareGapController::class, 'overlapRules']);
+            Route::get('/population-summary', [CareGapController::class, 'populationSummary']);
+
+            Route::get('/', [CareGapController::class, 'index']);
+            Route::post('/', [CareGapController::class, 'store']);
+            Route::get('/{bundle}', [CareGapController::class, 'show']);
+            Route::put('/{bundle}', [CareGapController::class, 'update']);
+            Route::delete('/{bundle}', [CareGapController::class, 'destroy']);
+
+            Route::get('/{bundle}/measures', [CareGapController::class, 'measures']);
+            Route::post('/{bundle}/measures', [CareGapController::class, 'addMeasure']);
+            Route::delete('/{bundle}/measures/{measure}', [CareGapController::class, 'removeMeasure']);
+
+            Route::post('/{bundle}/evaluate', [CareGapController::class, 'evaluate']);
+            Route::get('/{bundle}/evaluations', [CareGapController::class, 'evaluations']);
+            Route::get('/{bundle}/evaluations/{evaluation}', [CareGapController::class, 'showEvaluation']);
+        });
+
+        // Abby AI
+        Route::prefix('abby')->group(function () {
+            Route::post('build-cohort', [AbbyAiController::class, 'buildCohort']);
+            Route::post('suggest-criteria', [AbbyAiController::class, 'suggestCriteria']);
+            Route::post('explain', [AbbyAiController::class, 'explain']);
+            Route::post('refine', [AbbyAiController::class, 'refine']);
+        });
 
         // ── Admin panel (requires admin or super-admin role) ───────────────
         Route::prefix('admin')->middleware('role:admin|super-admin')->group(function () {

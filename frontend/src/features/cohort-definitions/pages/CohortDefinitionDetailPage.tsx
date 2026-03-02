@@ -8,7 +8,9 @@ import {
   Copy,
   Globe,
   Lock,
+  Sparkles,
 } from "lucide-react";
+import { AbbyAiPanel } from "@/features/abby-ai/components/AbbyAiPanel";
 import { cn } from "@/lib/utils";
 import { CohortExpressionEditor } from "../components/CohortExpressionEditor";
 import { CohortSqlPreview } from "../components/CohortSqlPreview";
@@ -42,6 +44,7 @@ export default function CohortDefinitionDetailPage() {
   const [isEditingName, setIsEditingName] = useState(false);
   const [isEditingDesc, setIsEditingDesc] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>("editor");
+  const [abbyOpen, setAbbyOpen] = useState(false);
 
   // Load expression from API into store
   useEffect(() => {
@@ -300,6 +303,16 @@ export default function CohortDefinitionDetailPage() {
             {definition.is_public ? "Public" : "Private"}
           </button>
 
+          {/* Abby AI */}
+          <button
+            type="button"
+            onClick={() => setAbbyOpen(true)}
+            className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium bg-gradient-to-r from-[#2DD4BF]/20 to-[#A78BFA]/20 border border-[#2DD4BF]/30 text-[#2DD4BF] hover:from-[#2DD4BF]/30 hover:to-[#A78BFA]/30 transition-all"
+          >
+            <Sparkles size={14} />
+            Abby AI
+          </button>
+
           {/* Copy */}
           <button
             type="button"
@@ -374,6 +387,16 @@ export default function CohortDefinitionDetailPage() {
           </div>
         </div>
       )}
+
+      {/* Abby AI Panel */}
+      <AbbyAiPanel
+        isOpen={abbyOpen}
+        onClose={() => setAbbyOpen(false)}
+        onApply={(expr) => {
+          loadExpression(expr);
+          setAbbyOpen(false);
+        }}
+      />
     </div>
   );
 }

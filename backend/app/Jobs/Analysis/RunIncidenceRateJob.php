@@ -7,6 +7,7 @@ use App\Models\App\AnalysisExecution;
 use App\Models\App\IncidenceRateAnalysis;
 use App\Models\App\Source;
 use App\Services\Analysis\IncidenceRateService;
+use App\Traits\NotifiesOnCompletion;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -17,6 +18,7 @@ use Illuminate\Support\Facades\Log;
 class RunIncidenceRateJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use NotifiesOnCompletion;
 
     /**
      * The number of seconds the job can run before timing out.
@@ -56,6 +58,8 @@ class RunIncidenceRateJob implements ShouldQueue
                 'execution_id' => $this->execution->id,
                 'status' => $this->execution->fresh()->status->value,
             ]);
+
+            $this->notifyAuthor($this->execution->fresh());
         } catch (\Throwable $e) {
             Log::error('RunIncidenceRateJob failed', [
                 'incidence_rate_analysis_id' => $this->incidenceRateAnalysis->id,
@@ -69,6 +73,8 @@ class RunIncidenceRateJob implements ShouldQueue
                 'completed_at' => now(),
                 'fail_message' => mb_substr($e->getMessage(), 0, 2000),
             ]);
+
+            $this->notifyAuthor($this->execution->fresh());
         }
     }
 }

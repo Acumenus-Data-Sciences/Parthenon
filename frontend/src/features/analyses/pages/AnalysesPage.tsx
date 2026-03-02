@@ -11,9 +11,15 @@ import {
 import {
   useCreateIncidenceRate,
 } from "../hooks/useIncidenceRates";
+import { usePathways, useCreatePathway } from "@/features/pathways/hooks/usePathways";
+import { useEstimations, useCreateEstimation } from "@/features/estimation/hooks/useEstimations";
+import { usePredictions, useCreatePrediction } from "@/features/prediction/hooks/usePredictions";
 import type { CharacterizationDesign, IncidenceRateDesign } from "../types/analysis";
+import type { PathwayDesign } from "@/features/pathways/types/pathway";
+import type { EstimationDesign } from "@/features/estimation/types/estimation";
+import type { PredictionDesign } from "@/features/prediction/types/prediction";
 
-type Tab = "characterizations" | "incidence-rates";
+type Tab = "characterizations" | "incidence-rates" | "pathways" | "estimations" | "predictions";
 
 const defaultCharDesign: CharacterizationDesign = {
   targetCohortIds: [],
@@ -38,11 +44,83 @@ const defaultIRDesign: IncidenceRateDesign = {
   minCellCount: 5,
 };
 
+const defaultPathwayDesign: PathwayDesign = {
+  targetCohortId: 0,
+  eventCohortIds: [],
+  maxDepth: 5,
+  minCellCount: 5,
+  combinationWindow: 1,
+  maxPathLength: 5,
+};
+
+const defaultEstimationDesign: EstimationDesign = {
+  targetCohortId: 0,
+  comparatorCohortId: 0,
+  outcomeCohortIds: [],
+  model: {
+    type: "cox",
+    timeAtRiskStart: 0,
+    timeAtRiskEnd: 0,
+    endAnchor: "cohort end",
+  },
+  propensityScore: {
+    enabled: true,
+    trimming: 0.05,
+    matching: { ratio: 1, caliper: 0.2 },
+    stratification: { strata: 5 },
+  },
+  covariateSettings: {
+    useDemographics: true,
+    useConditionOccurrence: true,
+    useDrugExposure: true,
+    useProcedureOccurrence: false,
+    useMeasurement: false,
+    useObservation: false,
+    timeWindows: [{ start: -365, end: 0 }],
+  },
+  negativeControlOutcomes: [],
+};
+
+const defaultPredictionDesign: PredictionDesign = {
+  targetCohortId: 0,
+  outcomeCohortId: 0,
+  model: {
+    type: "lasso_logistic_regression",
+    hyperParameters: {},
+  },
+  timeAtRisk: {
+    start: 1,
+    end: 365,
+    endAnchor: "cohort start",
+  },
+  covariateSettings: {
+    useDemographics: true,
+    useConditionOccurrence: true,
+    useDrugExposure: true,
+    useProcedureOccurrence: false,
+    useMeasurement: false,
+    timeWindows: [{ start: -365, end: 0 }],
+  },
+  populationSettings: {
+    washoutPeriod: 365,
+    removeSubjectsWithPriorOutcome: true,
+    requireTimeAtRisk: true,
+    minTimeAtRisk: 365,
+  },
+  splitSettings: {
+    testFraction: 0.25,
+    splitSeed: 42,
+  },
+};
+
 export default function AnalysesPage() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<Tab>("characterizations");
   const [charPage, setCharPage] = useState(1);
   const [irPage, setIRPage] = useState(1);
+  const [pathwayPage, setPathwayPage] = useState(1);
+  const [estPage, setEstPage] = useState(1);
+  const [predPage, setPredPage] = useState(1);
 
   const {
     data: charData,
@@ -56,8 +134,29 @@ export default function AnalysesPage() {
     error: irError,
   } = useIncidenceRates(irPage);
 
+  const {
+    data: pathwayData,
+    isLoading: pathwayLoading,
+    error: pathwayError,
+  } = usePathways(pathwayPage);
+
+  const {
+    data: estData,
+    isLoading: estLoading,
+    error: estError,
+  } = useEstimations(estPage);
+
+  const {
+    data: predData,
+    isLoading: predLoading,
+    error: predError,
+  } = usePredictions(predPage);
+
   const createCharMutation = useCreateCharacterization();
   const createIRMutation = useCreateIncidenceRate();
+  const createPathwayMutation = useCreatePathway();
+  const createEstMutation = useCreateEstimation();
+  const createPredMutation = useCreatePrediction();
   const [isCreating, setIsCreating] = useState(false);
 
   const handleCreateCharacterization = () => {
@@ -92,10 +191,91 @@ export default function AnalysesPage() {
     );
   };
 
+  const handleCreatePathway = () => {
+    setIsCreating(true);
+    createPathwayMutation.mutate(
+      {
+        name: "Untitled Pathway Analysis",
+        design_json: defaultPathwayDesign,
+      },
+      {
+        onSuccess: (p) => {
+          navigate(`/analyses/pathways/${p.id}`);
+        },
+        onSettled: () => setIsCreating(false),
+      },
+    );
+  };
+
+  const handleCreateEstimation = () => {
+    setIsCreating(true);
+    createEstMutation.mutate(
+      {
+        name: "Untitled Estimation",
+        design_json: defaultEstimationDesign,
+      },
+      {
+        onSuccess: (e) => {
+          navigate(`/analyses/estimations/${e.id}`);
+        },
+        onSettled: () => setIsCreating(false),
+      },
+    );
+  };
+
+  const handleCreatePrediction = () => {
+    setIsCreating(true);
+    createPredMutation.mutate(
+      {
+        name: "Untitled Prediction",
+        design_json: defaultPredictionDesign,
+      },
+      {
+        onSuccess: (p) => {
+          navigate(`/analyses/predictions/${p.id}`);
+        },
+        onSettled: () => setIsCreating(false),
+      },
+    );
+  };
+
   const tabs: { key: Tab; label: string }[] = [
     { key: "characterizations", label: "Characterizations" },
     { key: "incidence-rates", label: "Incidence Rates" },
+    { key: "pathways", label: "Pathways" },
+    { key: "estimations", label: "Estimations" },
+    { key: "predictions", label: "Predictions" },
   ];
+
+  const getCreateHandler = () => {
+    switch (activeTab) {
+      case "characterizations":
+        return handleCreateCharacterization;
+      case "incidence-rates":
+        return handleCreateIncidenceRate;
+      case "pathways":
+        return handleCreatePathway;
+      case "estimations":
+        return handleCreateEstimation;
+      case "predictions":
+        return handleCreatePrediction;
+    }
+  };
+
+  const getButtonLabel = () => {
+    switch (activeTab) {
+      case "characterizations":
+        return "New Characterization";
+      case "incidence-rates":
+        return "New Incidence Rate";
+      case "pathways":
+        return "New Pathway";
+      case "estimations":
+        return "New Estimation";
+      case "predictions":
+        return "New Prediction";
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -104,17 +284,13 @@ export default function AnalysesPage() {
         <div>
           <h1 className="text-2xl font-bold text-[#F0EDE8]">Analyses</h1>
           <p className="mt-1 text-sm text-[#8A857D]">
-            Characterization and incidence rate analyses for population-level
-            studies
+            Characterization, incidence rate, pathway, estimation, and prediction
+            analyses for population-level studies
           </p>
         </div>
         <button
           type="button"
-          onClick={
-            activeTab === "characterizations"
-              ? handleCreateCharacterization
-              : handleCreateIncidenceRate
-          }
+          onClick={getCreateHandler()}
           disabled={isCreating}
           className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-4 py-2.5 text-sm font-medium text-[#0E0E11] hover:bg-[#26B8A5] transition-colors disabled:opacity-50"
         >
@@ -123,9 +299,7 @@ export default function AnalysesPage() {
           ) : (
             <Plus size={16} />
           )}
-          {activeTab === "characterizations"
-            ? "New Characterization"
-            : "New Incidence Rate"}
+          {getButtonLabel()}
         </button>
       </div>
 
@@ -183,6 +357,57 @@ export default function AnalysesPage() {
           total={irData?.meta?.total ?? 0}
           perPage={irData?.meta?.per_page ?? 15}
           onPageChange={setIRPage}
+        />
+      )}
+
+      {activeTab === "pathways" && (
+        <AnalysisList
+          analyses={pathwayData?.data ?? []}
+          type="pathway"
+          onSelect={(id) =>
+            navigate(`/analyses/pathways/${id}`)
+          }
+          isLoading={pathwayLoading}
+          error={pathwayError}
+          page={pathwayPage}
+          totalPages={pathwayData?.meta?.last_page ?? 1}
+          total={pathwayData?.meta?.total ?? 0}
+          perPage={pathwayData?.meta?.per_page ?? 15}
+          onPageChange={setPathwayPage}
+        />
+      )}
+
+      {activeTab === "estimations" && (
+        <AnalysisList
+          analyses={estData?.data ?? []}
+          type="estimation"
+          onSelect={(id) =>
+            navigate(`/analyses/estimations/${id}`)
+          }
+          isLoading={estLoading}
+          error={estError}
+          page={estPage}
+          totalPages={estData?.meta?.last_page ?? 1}
+          total={estData?.meta?.total ?? 0}
+          perPage={estData?.meta?.per_page ?? 15}
+          onPageChange={setEstPage}
+        />
+      )}
+
+      {activeTab === "predictions" && (
+        <AnalysisList
+          analyses={predData?.data ?? []}
+          type="prediction"
+          onSelect={(id) =>
+            navigate(`/analyses/predictions/${id}`)
+          }
+          isLoading={predLoading}
+          error={predError}
+          page={predPage}
+          totalPages={predData?.meta?.last_page ?? 1}
+          total={predData?.meta?.total ?? 0}
+          perPage={predData?.meta?.per_page ?? 15}
+          onPageChange={setPredPage}
         />
       )}
     </div>
