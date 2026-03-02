@@ -1,6 +1,6 @@
 # Phase 11 — Parthenon-Native Analyses: Achilles Parity + Clinical Intelligence
 
-**Status:** Complete (Tier 1)
+**Status:** Complete (Tiers 1–3)
 **Start date:** 2026-03-02
 **Branch:** `master`
 
@@ -670,3 +670,148 @@ backend/app/Providers/ClinicalCoherenceServiceProvider.php  (added Tier 2 foreac
 | Tier 1 Clinical Coherence | 6 | CC001–CC006 |
 | Tier 2 Temporal Quality | 6 | TQ001–TQ006 |
 | **Total** | **154** | |
+
+---
+
+## Phase 11g — Tier 3: Population Risk Scoring (RS001–RS020)
+
+### Motivation
+
+OHDSI Atlas has no native population-level risk scoring engine. A clinician looking at a CDM-backed database has no way to quickly answer "what fraction of my hypertensive patients are at high 10-year cardiovascular risk?" or "how many diabetic patients have DCSI ≥ 3?" without writing custom R code.
+
+Parthenon now ships 20 validated clinical risk scores that execute directly against the OMOP CDM. Each score:
+
+- Is fully documented with the clinical reference
+- Handles incomplete data gracefully (confidence + missing-component flags)
+- Aggregates to population-level risk tier summaries (not individual patient rows)
+- Returns `mean_confidence` to communicate data completeness to end users
+
+### Confidence Scoring Methodology
+
+All 20 scores apply a consistent confidence model:
+
+| Data pattern | Baseline confidence |
+|---|---|
+| All required labs available | 1.0 (weighted by lab importance) |
+| Condition-only scores (e.g., CCI, CHA₂DS₂-VASc) | 0.80–0.85 (EHR undercoding acknowledged) |
+| Lab-based scores with missing labs | Proportional to available / required count |
+| FRAX (parental history unavailable from CDM) | 0.75 ceiling |
+| STOP-BANG (neck circumference not in CDM) | 0.875 ceiling |
+
+### Missing Data Handling
+
+- If any **required** lab is absent → patient gets `risk_tier = 'uncomputable'` (not excluded; still counted)
+- Binary components (smoking, diabetes, BP treatment) → **assumed absent** if no record found (standard epidemiologic conservative assumption)
+- `missing_components` column stores a JSON object with per-component absence counts per tier:
+  ```json
+  {"total_cholesterol": 312, "hdl_cholesterol": 89, "systolic_bp": 204}
+  ```
+
+### Score Catalogue
+
+| ID | Score | Category | Eligible Population | Required Labs | Tiers |
+|---|---|---|---|---|---|
+| RS001 | Framingham Risk Score (Wilson 1998) | Cardiovascular | Ages 30–74 | TC, HDL, SBP | low / intermediate / high |
+| RS002 | ACC/AHA Pooled Cohort Equations | Cardiovascular | Ages 40–79 | TC, HDL, SBP | low / borderline / intermediate / high |
+| RS003 | CHA₂DS₂-VASc | Cardiovascular | AF patients | None | low (0) / moderate (1) / high (≥2) |
+| RS004 | HAS-BLED | Cardiovascular | AF patients | INR (optional) | low (0–1) / moderate (2–3) / high (≥4) |
+| RS005 | Charlson Comorbidity Index | Comorbidity | All adults | None | low (0) / moderate (1–2) / high (3–4) / very high (≥5) |
+| RS006 | Elixhauser Index (van Walraven) | Comorbidity | All adults | None | negative / low (0–5) / moderate (6–12) / high (≥13) |
+| RS007 | MELD Score | Hepatic | Chronic liver disease | Creatinine, Bilirubin, INR | low (6–14) / moderate (15–24) / high (≥25) |
+| RS008 | Child-Pugh Score | Hepatic | Cirrhosis | Bilirubin, Albumin, INR | A (5–6) / B (7–9) / C (10–15) |
+| RS009 | Revised Cardiac Risk Index | Cardiovascular | Pre-operative adults | Creatinine | low (0) / intermediate (1–2) / high (≥3) |
+| RS010 | CURB-65 | Pulmonary | Pneumonia patients | BUN | low (0–1) / moderate (2) / high (3–5) |
+| RS011 | DCSI (Diabetes Complications Severity) | Metabolic | Diabetic patients | None | none (0) / mild (1–2) / moderate (3–4) / severe (≥5) |
+| RS012 | SCORE2 (European) | Cardiovascular | Ages 40–69 | TC, HDL, SBP | low / moderate / high / very high |
+| RS013 | FIB-4 Hepatic Fibrosis Index | Hepatic | Adults (liver disease) | AST, ALT, Platelets | low (<1.3) / intermediate (1.3–2.67) / high (≥2.67) |
+| RS014 | Metabolic Syndrome Score | Metabolic | All adults | Glucose, Triglycerides, HDL, SBP | present / absent |
+| RS015 | TIMI Risk Score (UA/NSTEMI) | Cardiovascular | ACS patients | Troponin (optional) | low (0–2) / intermediate (3–4) / high (5–7) |
+| RS016 | FRAX-inspired Fracture Risk | Musculoskeletal | Ages 40–90 | None | low (<10%) / moderate (10–20%) / high (≥20%) |
+| RS017 | GRACE Score (simplified) | Cardiovascular | ACS patients | Creatinine | low (≤88) / intermediate (89–118) / high (≥119) |
+| RS018 | STOP-BANG Sleep Apnea | Pulmonary | All adults | None | low (0–2) / intermediate (3–4) / high (5–8) |
+| RS019 | CHADS₂ Score | Cardiovascular | AF patients | None | low (0) / moderate (1–2) / high (≥3) |
+| RS020 | Multimorbidity Burden Index | Comorbidity | All adults | None | none (0) / low (1–2) / moderate (3–4) / high (≥5) |
+
+### Implementation Details
+
+**RS001 Framingham**: Wilson 1998 sex-specific point tables. Men: `1 - 0.9048^exp(pt - 23.9802)`; Women: `1 - 0.9665^exp(pt - 26.1931)`.
+
+**RS002 ACC/AHA PCE**: Four race/sex-specific Cox equations. Uses race_concept_id 8516 for Black/African-American; all others default to White equations (standard clinical practice). Log-transformed all continuous inputs (LN).
+
+**RS005 CCI**: Hierarchical exclusion enforced in SQL — mild liver disease component only if no severe liver disease; DM without CC only if no DM with CC. Confidence 0.80 baseline (conditions may be undercoded).
+
+**RS006 Elixhauser**: Full 30-condition van Walraven weighted model. Negative tier added for composite scores < 0 (some conditions have protective weights). Confidence 0.80 baseline.
+
+**RS007 MELD**: `GREATEST(value, 1.0)` floor applied to all lab values before logarithm. Creatinine capped at 4.0 mg/dL. Final score clamped 6–40.
+
+**RS008 Child-Pugh**: Missing lab values default to 2 points (middle category) rather than making the score uncomputable. Ascites and encephalopathy derived from condition_occurrence.
+
+**RS013 FIB-4**: Formula = `(age × AST) / (platelets × SQRT(ALT))`. All three labs required; score is uncomputable if any is absent.
+
+**RS016 FRAX**: Parental history component cannot be derived from OMOP CDM; confidence ceiling 0.75. Uses BMI proxy from weight/height measurements when available.
+
+**RS018 STOP-BANG**: Neck circumference (N) is universally proxied; confidence ceiling 0.875 (7/8 components directly measurable).
+
+### New Infrastructure
+
+```
+backend/app/Contracts/PopulationRiskScoreInterface.php
+backend/app/Services/PopulationRisk/PopulationRiskScoreRegistry.php
+backend/app/Services/PopulationRisk/PopulationRiskScoreEngineService.php
+backend/app/Models/Results/PopulationRiskScoreResult.php
+backend/app/Http/Controllers/Api/V1/PopulationRiskScoreController.php
+backend/app/Providers/PopulationRiskServiceProvider.php
+backend/database/migrations/2026_03_02_200000_create_population_risk_score_results_table.php
+```
+
+### New API Endpoints
+
+```
+GET  /api/v1/risk-scores/catalogue                     — static metadata for all 20 scores
+GET  /api/v1/sources/{source}/risk-scores              — population summary grouped by category
+POST /api/v1/sources/{source}/risk-scores/run          — execute all 20 scores against CDM
+GET  /api/v1/sources/{source}/risk-scores/{scoreId}    — tier-level breakdown with confidence
+```
+
+### New Files (Phase 11g)
+
+```
+backend/app/Services/PopulationRisk/Scores/RS001FraminghamRiskScore.php
+backend/app/Services/PopulationRisk/Scores/RS002PooledCohortEquations.php
+backend/app/Services/PopulationRisk/Scores/RS003CHA2DS2VASc.php
+backend/app/Services/PopulationRisk/Scores/RS004HASBLED.php
+backend/app/Services/PopulationRisk/Scores/RS005CharlsonComorbidityIndex.php
+backend/app/Services/PopulationRisk/Scores/RS006ElixhauserIndex.php
+backend/app/Services/PopulationRisk/Scores/RS007MELDScore.php
+backend/app/Services/PopulationRisk/Scores/RS008ChildPughScore.php
+backend/app/Services/PopulationRisk/Scores/RS009RevisedCardiacRiskIndex.php
+backend/app/Services/PopulationRisk/Scores/RS010CURB65.php
+backend/app/Services/PopulationRisk/Scores/RS011DiabetesComplicationsSeverity.php
+backend/app/Services/PopulationRisk/Scores/RS012SCORE2.php
+backend/app/Services/PopulationRisk/Scores/RS013FIB4Index.php
+backend/app/Services/PopulationRisk/Scores/RS014MetabolicSyndrome.php
+backend/app/Services/PopulationRisk/Scores/RS015TIMIRiskScore.php
+backend/app/Services/PopulationRisk/Scores/RS016FRAXFractureRisk.php
+backend/app/Services/PopulationRisk/Scores/RS017GRACEScore.php
+backend/app/Services/PopulationRisk/Scores/RS018STOPBANGApnea.php
+backend/app/Services/PopulationRisk/Scores/RS019CHADS2Score.php
+backend/app/Services/PopulationRisk/Scores/RS020MultimorbidityBurden.php
+```
+
+### Modified (Phase 11g)
+
+```
+backend/bootstrap/providers.php               (added PopulationRiskServiceProvider)
+backend/routes/api.php                        (added risk-scores endpoints)
+```
+
+### Registry Summary (post-Phase-11g)
+
+| Tier | Count | IDs |
+|---|---|---|
+| Standard Achilles | 127 analyses | via AchillesServiceProvider |
+| Achilles Heel | 15 rules | via AchillesServiceProvider |
+| Tier 1 Clinical Coherence | 6 analyses | CC001–CC006 |
+| Tier 2 Temporal Quality | 6 analyses | TQ001–TQ006 |
+| Tier 3 Population Risk Scores | 20 scores | RS001–RS020 |
+| **Total** | **174** | |

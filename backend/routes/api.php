@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\V1\AbbyAiController;
 use App\Http\Controllers\Api\V1\AchillesController;
 use App\Http\Controllers\Api\V1\ClinicalCoherenceController;
+use App\Http\Controllers\Api\V1\PopulationRiskScoreController;
 use App\Http\Controllers\Api\V1\Admin\AuthProviderController;
 use App\Http\Controllers\Api\V1\Admin\RoleController;
 use App\Http\Controllers\Api\V1\Admin\UserController;
@@ -88,6 +89,14 @@ Route::prefix('v1')->group(function () {
             Route::get('/distributions/{analysisId}', [AchillesController::class, 'distribution']);
             Route::get('/heel', [AchillesController::class, 'heel']);
             Route::post('/heel/run', [AchillesController::class, 'runHeel']);
+        });
+
+        // Population Risk Scoring (Tier 3 — 20 validated clinical risk scores)
+        Route::get('/risk-scores/catalogue', [PopulationRiskScoreController::class, 'catalogue']);
+        Route::prefix('sources/{source}/risk-scores')->group(function () {
+            Route::get('/', [PopulationRiskScoreController::class, 'index']);
+            Route::post('/run', [PopulationRiskScoreController::class, 'run']);
+            Route::get('/{scoreId}', [PopulationRiskScoreController::class, 'show']);
         });
 
         // Clinical Coherence (Tier 1 Parthenon-native analyses)
