@@ -391,33 +391,704 @@ RBAC via spatie/laravel-permission. Permission groups for research, ingestion, m
 
 ## Phase 7: Frontend (Weeks 8-20)
 
-### Navigation
+### Design Philosophy
+
+Atlas's UX was frozen in 2014: tab-heavy modal forms, disconnected pages, no real-time feedback, no AI, no collaboration, no keyboard navigation. Parthenon's frontend must be qualitatively different — not a reskin, but a rethinking of how outcomes research is done interactively.
+
+**Ten governing principles:**
+
+1. **Spatial over sequential.** Researchers think in graphs and networks, not forms. Where Atlas forces linear flows (modal → save → navigate), Parthenon uses canvas-based, multi-panel workspaces where related artifacts are visible simultaneously.
+2. **AI as a collaborator, not a button.** The AI copilot is ambient — surfacing concept suggestions, flagging cohort issues, explaining DQ failures, and drafting inclusion criteria — throughout every surface, not isolated to the ingestion pipeline.
+3. **Real-time first.** Every long-running operation (cohort generation, Achilles, DQD, study execution) emits live progress via Laravel Echo / WebSockets. No polling, no page-refresh, no "check back later."
+4. **Keyboard sovereignty.** Every action reachable via keyboard. A command palette (`⌘K`) gives instant fuzzy access to any page, cohort, concept set, study, or action. Power users should be able to run a cohort without touching the mouse.
+5. **Progressive disclosure.** Simple tasks are simple. Advanced options (temporal windows, censor events, custom end strategies, SQL preview) are a single expansion away — never buried, never mandatory.
+6. **Context persistence.** Navigating away never loses in-progress work. Unsaved cohort expressions, concept set edits, and study configurations are auto-saved to draft state and restored on return.
+7. **Data storytelling.** Results are not tables. Every numeric output has a chart. Every chart has a narrative annotation layer. Researchers can add findings-level comments that persist with the analysis.
+8. **Composable panels.** The layout system allows splitting the viewport into multiple panels (cohort builder left, SQL preview right; vocabulary hierarchy top, concept set editor bottom). Panel state is URL-serialised so layouts can be shared.
+9. **Accessibility by default.** WCAG 2.2 AA. Full keyboard navigation. Screen-reader tested. No chart-only information (always a table alternative). High-contrast and reduced-motion modes built in.
+10. **Zero-friction sharing.** Every page, filter state, cohort expression, and analysis result is deep-linkable. Sharing a URL shares the exact state — including active tab, selected concept, and filter values.
+
+---
+
+### 7.1 Application Shell
+
+#### Layout Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  [≡] Parthenon          [⌘K] Command...           [AI ●] [👤]  │  ← TopBar
+├──────────┬──────────────────────────────────────────────────────┤
+│          │                                                       │
+│ Sidebar  │                 Main Panel                           │
+│ (60-256px│         (multi-panel, splittable)                    │
+│ collaps. │                                                       │
+│          │                                                       │
+│          │                                                       │
+└──────────┴──────────────────────────────────────────────────────┘
+```
+
+The sidebar collapses to an icon rail (60 px) on demand or automatically on viewports < 1280 px. The main panel supports horizontal splits: any page can be "popped" into a right-hand panel (e.g., vocabulary search alongside concept set editor, or SQL preview alongside cohort builder). Panel split state persists in URL (`?panel=vocabulary&concept=4329847`).
+
+#### TopBar
+
+- **Logo + nav breadcrumb**: `Parthenon / Cohort Definitions / GiBleed New-User`
+- **Command palette trigger** (`⌘K`): see 7.2
+- **AI Copilot indicator**: green pulse when active, amber when processing; click to open the AI drawer
+- **Job activity indicator**: spinning icon + count badge when any background job is running; click to open the Jobs slide-over
+- **Notification bell**: real-time alerts (generation completed, DQD failed, mapping review ready)
+- **User menu**: avatar initial, `hasRole`-gated quick links (Admin → if admin), theme toggle, sign out
+
+#### Sidebar Navigation
 
 ```
 Parthenon
-+-- Dashboard
-+-- Data Ingestion (NEW - AI ETL)
-|   Upload, Profiles, Schema Maps, Concept Maps, Review Queue, Pipelines
-+-- Data Explorer (Ares replacement)
-|   Characterization (Achilles), Data Quality (DQD), Population Stats
-+-- Vocabulary (Athena browser replacement)
-|   Search, Hierarchy, Concept Sets
-+-- Cohort Definitions
-+-- Analyses
-|   Characterizations, Incidence Rates, Pathways, PLE, PLP
-+-- Studies (Strategus replacement)
-+-- Patient Profiles
-+-- Jobs
-+-- Data Sources
-+-- Administration
-    Users, Teams, Roles, Vocabularies, Config
+├── Dashboard                      (all users)
+│
+├── ── DATA ──────────────────────
+├── Data Sources                   (data-steward+)
+├── Data Ingestion                 (data-steward+)
+│   ├── Upload
+│   ├── Ingestion Jobs
+│   ├── Schema Mapping
+│   ├── Concept Mapping
+│   └── Review Queue
+│
+├── ── ANALYSIS ──────────────────
+├── Data Explorer                  (researcher+)
+│   ├── Characterization (Achilles)
+│   ├── Data Quality (DQD)
+│   └── Population Stats
+├── Vocabulary                     (all users)
+│   ├── Search
+│   ├── Hierarchy
+│   └── Concept Sets
+├── Cohort Definitions             (researcher+)
+├── Concept Sets                   (researcher+)
+├── Analyses                       (researcher+)
+│   ├── Characterizations
+│   ├── Incidence Rates
+│   ├── Pathways
+│   ├── Pop. Level Estimation
+│   └── Patient Level Prediction
+├── Studies                        (researcher+)
+├── Patient Profiles               (researcher+)
+│
+├── ── SYSTEM ────────────────────
+├── Jobs                           (all users - own jobs)
+├── Administration                 (admin+)
+│   ├── Users
+│   ├── Roles & Permissions
+│   └── Auth Providers
 ```
 
-### Visualization Library
+Role-gated: items invisible (not just disabled) to users lacking permission. `data-testid` on every nav item for Playwright targeting.
 
-D3 v7 + Recharts: Treemap, sunburst, box plots, histograms, line/scatter/donut, Venn/UpSet, population pyramid, timeline, sankey, heatmap, forest plots, ROC curves, calibration plots.
+Active item: left-border accent + background tint. Sub-items expand inline (no separate page for sub-navigation). Hover tooltips on collapsed rail mode show full label.
 
-### State: TanStack Query (server) + Zustand (client) + React Hook Form + Zod (forms) + React Router (URL) + Laravel Echo (real-time)
+---
+
+### 7.2 Command Palette (`⌘K`)
+
+Global command palette, always available, inspired by Linear/Raycast. Opens with `⌘K` (Mac) / `Ctrl+K` (Windows/Linux) or clicking the search trigger in the TopBar.
+
+**Search scope:** fuzzy-matches across:
+- Pages and actions ("generate cohort", "new concept set", "run DQD")
+- Cohort definitions (name, description)
+- Concept sets
+- Studies
+- Vocabulary concepts (top 5 matches from Postgres full-text index)
+- Users (admin context)
+- Recent items (last 20 visited, stored in Zustand + localStorage)
+
+**Result anatomy:**
+```
+[icon]  GiBleed New-User Cohort              Cohort Definitions
+        Last generated 3h ago · 18,431 persons
+[icon]  Generate cohort…                     Action
+[icon]  Gastrointestinal Bleed (concept)     Vocabulary · SNOMED · 4291241
+```
+
+**Keyboard:** `↑↓` to navigate, `Enter` to go, `Tab` to preview in right panel without navigating, `Esc` to close. `>` prefix for commands only, `#` for concepts only, `@` for users.
+
+**AI shortcut:** typing `?` prefix routes the query to the AI copilot and displays the answer inline without leaving the palette.
+
+---
+
+### 7.3 AI Copilot Drawer
+
+A persistent right-side drawer (320 px, toggleable) that acts as a research assistant throughout the application. Context-aware: the copilot knows the currently open cohort definition, concept set, or analysis and provides relevant suggestions.
+
+**Modes (tabs within drawer):**
+
+| Tab | Function |
+|---|---|
+| **Chat** | Free-form questions: "explain this DQ failure", "suggest inclusion criteria for T2D", "what concepts map to ICD-10 E11?" |
+| **Suggestions** | Proactive: "This cohort has no washout period — consider adding a 365-day lookback", "3 concepts in this set are non-standard — review?" |
+| **SQL Explain** | Paste or auto-loads current cohort SQL; AI explains each CTE in plain English |
+| **Literature** | PubMed-linked concept summaries for the active domain (powered by AI summarisation) |
+
+AI responses cite sources (vocabulary IDs, OHDSI guidance docs, PubMed PMIDs) and include confidence indicators. Thumbs up/down feedback stored to improve future suggestions.
+
+---
+
+### 7.4 Dashboard
+
+**URL:** `/`
+
+Replaces Atlas's static landing page with an activity-centred command centre.
+
+**Layout (3 columns above fold, activity feed below):**
+
+```
+┌─────────────┬─────────────┬─────────────────────────────────┐
+│  My Cohorts │  My Studies │  Data Health                    │
+│  (3 recent) │  (2 active) │  DQD score · Achilles freshness │
+├─────────────┴─────────────┴─────────────────────────────────┤
+│  Activity Feed (real-time)                                   │
+│  ● Cohort "MACE Primary" generated — 24,109 persons  3m ago │
+│  ● DQD check run completed — 2 new failures          1h ago │
+│  ● Concept mapping batch — 847 auto-accepted         2h ago │
+└──────────────────────────────────────────────────────────────┘
+```
+
+**Data Health widget:** single-glance CDM status. Achilles last-run age, DQD overall conformance score (%), record counts per domain (bar sparklines), and a colour-coded freshness indicator (green/amber/red). Click to go to Data Explorer.
+
+**Quick-actions bar:** `+ New Cohort`, `+ New Concept Set`, `+ New Study`, `Run Achilles`, `Run DQD` — one-click shortcuts to the most common research actions.
+
+**Recent items rail:** last 8 visited objects (cohorts, concept sets, studies, jobs) with type icons and status chips. Reopens exactly where you left off.
+
+---
+
+### 7.5 Data Sources
+
+**URL:** `/data-sources`
+
+Replaces the Atlas Source/Daimon configuration page. Card-based layout: one card per source.
+
+**Source card:**
+- Source name, CDM version, dialect badge (PostgreSQL)
+- Daimon chips: CDM ✓, Vocab ✓, Results ✓ / ✗ (colour-coded)
+- "Last Achilles" and "Last DQD" run timestamps with staleness indicator
+- Quick-action buttons: `Run Achilles`, `Run DQD`, `Edit`, `Test Connection`
+- Record count sparklines: person, visit, condition, drug (pulled from Achilles results)
+
+**Add source flow:** stepped wizard (connection string → test → daimon config → save) with live connection-test feedback before saving. No page navigation required — the wizard is a right-side sheet.
+
+---
+
+### 7.6 Data Ingestion (AI ETL)
+
+**URL:** `/ingestion`
+
+Already partially built (Phases 3 & 5). Phase 7 polishes the UX and fills remaining gaps.
+
+#### 7.6.1 Ingestion Dashboard
+
+Active and recent pipelines. Filterable by status (Running / Completed / Failed / Draft). Each job card shows:
+- Source file name, size, upload timestamp
+- Pipeline stage progress bar: `Upload → Profile → Schema Map → Concept Map → Review → Write`
+- Current stage with live step-level progress (WebSocket)
+- Person/record estimates per domain
+
+#### 7.6.2 Upload
+
+Drag-and-drop zone (multi-file). Accepts CSV, TSV, XLSX, Parquet, JSON, HL7 FHIR R4 bundles. File-type badge auto-detected. Progress ring per file. Validation errors displayed inline (duplicate header names, encoding issues) before the pipeline starts.
+
+#### 7.6.3 Schema Mapping
+
+Two-panel layout: source columns (left) and target OMOP fields (right). AI-suggested mappings displayed as confidence-ranked rows — green (auto-accepted), amber (needs review), red (no match found). Drag rows to reorder; double-click to override. Column preview shows 5 sample values to aid manual mapping decisions. "Apply all suggestions above 0.9 confidence" bulk action.
+
+#### 7.6.4 Concept Mapping
+
+Full-width table: source value, source count, AI-suggested OMOP concept (name + ID + domain), confidence bar, and status chip. Filter bar: domain, status, confidence tier. Batch-select rows for bulk accept/reject/reassign. Clicking a suggestion opens the vocabulary hierarchy inline in a split-right panel — researchers can browse siblings/children without leaving the review queue.
+
+**Keyboard shortcuts:** `A` = accept, `R` = reject, `S` = skip, `J/K` = next/prev row (vim-style).
+
+#### 7.6.5 Review Queue
+
+Prioritised by downstream impact: concepts with highest source-value frequency appear first. Queue statistics header: total, accepted, rejected, pending, auto-accepted. Export-to-CSV for offline review / audit trail. Pagination replaced by virtual scrolling (react-virtual).
+
+---
+
+### 7.7 Data Explorer (Ares Replacement)
+
+**URL:** `/data-explorer`
+**Replaces:** Ares + standalone Achilles/DQD visualisation tools
+
+Three sub-sections, unified under a source-aware shell. Top-level source selector (dropdown) applies to all sub-sections.
+
+#### 7.7.1 Characterization (Achilles)
+
+**URL:** `/data-explorer/characterization`
+
+Overview page: domain record counts (horizontal bar chart, sortable), person demographics (population pyramid — age × sex), observation period distribution (line area chart), and a "freshness" banner if Achilles results are > 30 days old.
+
+**Domain deep-dives** (navigated via domain tab strip):
+
+| Domain | Visualisations |
+|---|---|
+| Person | Age distribution (histogram 5-yr bins), sex pie, race/ethnicity breakdown, index year line |
+| Condition | Prevalence treemap (condition category → specific condition), top-50 conditions bar, temporal trend (year-over-year), co-occurrence heatmap |
+| Drug | Drug class sunburst (ATC → drug), exposure duration histogram, days-supply distribution, polypharmacy histogram |
+| Measurement | Measurement × value distribution (box plots per concept), lab result over time (line), abnormal flag rate |
+| Observation | Similar to measurement; free-text vs coded split |
+| Visit | Visit type donut, length-of-stay box-plot, visit frequency histogram |
+| Death | Cause of death bar, time-from-cohort-entry-to-death KM curve |
+| Procedure | Procedure frequency, OR vs inpatient vs outpatient split |
+
+**Chart interactions:** click any bar/segment to filter the full page to that subgroup; breadcrumb shows active filters; "Export to PNG" and "Copy data as CSV" on every chart. Annotations: click a chart → add a sticky note (persists in database, visible to all users with access to that source).
+
+#### 7.7.2 Data Quality Dashboard (DQD)
+
+**URL:** `/data-explorer/data-quality`
+
+Replaces the standalone DQD Shiny app.
+
+**Scorecard header:** overall conformance score (large %, colour-coded), pass/fail/error counts, last run timestamp, `Run DQD` button.
+
+**Category breakdown** (Kahn et al. 2016 framework): three columns — Completeness, Conformance, Plausibility — each with a donut score and failing-check count.
+
+**Checks table** (filterable by category, severity, domain, status):
+- Check name, domain, table, field, severity (note/warning/error/critical)
+- Threshold value, actual value, delta
+- Expandable row: full check description, SQL query used, suggested remediation
+- Status toggle: Mark as "Acknowledged" (with reason) — acknowledged checks excluded from score
+
+**Drill-down:** clicking a failing check opens a right panel with the raw SQL, the failing rows (sample, paginated), a time-series of this check's value across historical DQD runs, and a link to the OHDSI DQD documentation for that check.
+
+#### 7.7.3 Population Stats
+
+**URL:** `/data-explorer/population`
+
+Free-form population exploration without needing to define a full cohort. Filter builder (domain + concept + date range + value) produces a live person count and domain breakdown. Think of it as a "quick cohort count" for ad-hoc exploration.
+
+Venn/UpSet diagram when 2–6 conditions are selected simultaneously (powered by D3 UpSet.js). Population pyramid refreshes with each filter change.
+
+---
+
+### 7.8 Vocabulary Browser (Athena Replacement)
+
+**URL:** `/vocabulary`
+**Already built:** search, hierarchy tree, concept detail panel (Phase 5). Phase 7 adds:
+
+**Enhanced search UX:**
+- Filter chips replace dropdowns: `Domain: Condition` `Vocabulary: SNOMED` `Standard only` — removable chips, instant re-query
+- Saved searches ("My Searches") persisted per user
+- Concept comparison: select 2–4 concepts → "Compare" opens a side-by-side panel showing all attributes, relationships, and ancestor paths simultaneously
+- Export search results to CSV
+
+**Concept detail panel:**
+- Add-to-concept-set popover (select target set or create new) without leaving the page
+- "Related studies" — shows any cohort definitions or concept sets that reference this concept
+- "Usage statistics" — record count for this concept in connected CDMs (if Achilles results exist), shown as sparkline
+- Relationship graph: D3 force-directed mini-graph of concept relationships (parents, children, maps-from/to) — more intuitive than a flat list for branching hierarchies
+
+**Hierarchy tree:**
+- Keyboard navigable: `→` expand, `←` collapse, `↑↓` navigate siblings
+- "Pin" nodes to keep them expanded across navigations
+- Breadcrumb at top shows current concept's ancestor chain to root
+- Level-of-Detail: shows only standard children by default; toggle "show non-standard" to reveal mapped variants
+
+---
+
+### 7.9 Cohort Definitions
+
+**URL:** `/cohort-definitions`
+**Already built:** full CRUD, expression editor, generation, SQL preview (Phase 5). Phase 7 adds:
+
+#### 7.9.1 List Page Upgrades
+- Gallery / table view toggle
+- Status chips: Draft, Generated (N persons, date), Failed
+- Bulk actions: generate all selected, export expressions as JSON, copy to another source
+- Cohort comparison: select 2 cohorts → view Venn overlap (requires both generated against same source)
+
+#### 7.9.2 Cohort Expression Editor — UX Refinements
+
+**Visual cohort builder mode:** toggle between the current form-based editor and a node-graph view (D3 dagre layout) where each criterion is a node, inclusion rules are edges, and logical operators (AND/OR/NOT) are junction nodes. Researchers who think visually can build cohorts without encountering a single text input.
+
+**Inline validation:** real-time warnings as the expression is built:
+- "No washout period defined" (AI suggestion: "Add 365-day prior observation requirement?")
+- "Concept set is empty" with a link to open the concept set editor in a split-right panel
+- "End strategy not specified — defaults to observation period end"
+
+**Concept set picker improvements:** search box inside the picker, "recent" concept sets at top, "Create and assign" one-click to create a new concept set and immediately assign it to this criterion.
+
+**Temporal window visualiser:** interactive timeline diagram showing the index event, start/end windows, and gap ranges. Dragging the window handles updates the numeric inputs. Updates bi-directionally.
+
+**Cohort diagnostics panel** (after generation):
+- Attrition chart: waterfall bar chart showing person count after applying each inclusion rule in order
+- Inclusion rule breakdown table: persons passing, failing, gain, percent
+- Concept set coverage: for each concept set used, shows the actual record count in the CDM
+- Index event distribution: histogram of index dates over time
+
+#### 7.9.3 Generation History
+Live-updating row for the active generation (spinner + elapsed time + current step label). Completed rows show person count, duration, and source. One-click regeneration. Delete generation record (with confirmation). CSV export of generation results (subject_id, start_date, end_date).
+
+---
+
+### 7.10 Analyses
+
+**URL:** `/analyses`
+**Already built:** Characterizations, Incidence Rates list/detail pages (Phase 5 shell). Phase 7 completes all analysis types.
+
+#### 7.10.1 Characterizations
+
+Cohort characterization (Feature Extraction): select a generated cohort + feature set (demographics, conditions, drugs, procedures, measurements). Dispatches an R-sidecar job. Results rendered as:
+
+- **Covariate table**: feature name, % in cohort, mean (for continuous), standardised mean difference (SMD) vs comparator if applicable — sortable, searchable, CSV-exportable
+- **SMD forest plot**: all covariates plotted with confidence intervals; click row to highlight concept in vocabulary browser
+- **Domain breakdown tabs**: separate views for each domain with domain-appropriate charts (condition prevalence treemap, drug sunburst, measurement distribution box plots)
+
+#### 7.10.2 Incidence Rates
+
+**IR builder**: target cohort, outcome cohort, time-at-risk start/end offsets, optional subgroup stratification (age, sex, calendar year). Results as:
+
+- Rate table: IR, person-time, case count, 95% CI — per subgroup row
+- Trend line chart: IR by calendar year with CI ribbon
+- Subgroup comparison bar chart
+- Export: CSV, publication-ready PNG
+
+#### 7.10.3 Pathways
+
+Patient Treatment Pathways (OHDSI Sunburst): define a target cohort and up to 10 event cohorts (treatment lines). Results displayed as:
+
+- **Sunburst diagram** (D3): each ring = treatment line; arc width = patient proportion. Interactive: hover shows path + %, click drills down to that sub-path
+- **Sankey diagram** alternative: treatment sequences as flowing bands (D3 Sankey)
+- **Path table**: top-N most common treatment sequences, sortable by frequency
+- **Combination detection**: identifies patients receiving simultaneous treatments (overlapping cohort periods)
+
+Settings: maximum path length, combination window (days), minimum cell count (privacy threshold), event persistence strategy.
+
+#### 7.10.4 Population-Level Estimation (PLE)
+
+Comparative cohort study: target and comparator cohort, outcome, propensity score model, time-at-risk. Dispatches CohortMethod R-sidecar job.
+
+Results page:
+
+- **Propensity score distribution** (mirrored histogram — target above axis, comparator below)
+- **Covariate balance** (SMD plot before/after PS matching or weighting)
+- **Kaplan-Meier curve** with risk table
+- **Forest plot** (subgroup HRs with CI)
+- **Calibration plot** (negative control outcomes)
+- Effect estimate table: HR, RR, OR, 95% CI, p-value, method
+
+#### 7.10.5 Patient-Level Prediction (PLP)
+
+Prediction model builder: target cohort, outcome cohort, time-at-risk, ML algorithm selector (LASSO, XGBoost, random forest, GBM via PatientLevelPrediction). Dispatches PLP R-sidecar job.
+
+Results page:
+
+- **ROC curve** with AUC (interactive: hover shows sensitivity/specificity at each threshold)
+- **Precision-Recall curve**
+- **Calibration plot** (observed vs predicted probability by decile)
+- **Variable importance** (SHAP-style horizontal bar chart, top-20 features)
+- Performance table: AUROC, AUPRC, Brier score, Calibration slope, c-statistic
+
+---
+
+### 7.11 Studies (Strategus Replacement)
+
+**URL:** `/studies`
+
+The highest-level orchestration layer — a study bundles multiple analyses (characterization, IR, PLE, PLP) to be executed consistently across federated CDM sites. Replaces OHDSI Strategus.
+
+#### Study Builder
+
+Step-by-step wizard with a persistent **study DAG sidebar** (directed acyclic graph showing study components and their dependencies):
+
+```
+Study: "ACE Inhibitor Comparative Effectiveness"
+├── Concept Sets (3)          ← shared across all analyses
+│   ├── ACE Inhibitors
+│   ├── ARBs
+│   └── MACE Outcomes
+├── Cohorts (3)
+│   ├── ACE Inhibitor New Users
+│   ├── ARB New Users
+│   └── MACE (outcome)
+└── Analyses (2)
+    ├── Incidence Rate (MACE in each cohort)
+    └── Population-Level Estimation (ACE vs ARB → MACE)
+```
+
+Each node in the DAG is clickable (opens inline editor for that component). Edges show data dependencies (which cohorts feed which analyses). Status badges on each node (Draft / Ready / Running / Complete / Failed) update live via WebSocket.
+
+**Study Protocol**: auto-generated Markdown document from the study configuration — hypothesis, target/comparator/outcome definitions, analysis specs. Exported as a DOCX or PDF for regulatory submission. OHDSI Protocol Template compliant.
+
+**Network execution**: for federated networks, each participating CDM site listed with its status (Invited / Running / Results Submitted / Complete). Results are aggregated (meta-analysis forest plot) when all sites complete. Data never leaves the site — only summary statistics are transmitted.
+
+**Study Package export**: generates an R-ready Strategus JSON study package for sites that cannot use the Parthenon API directly (backward compatibility).
+
+---
+
+### 7.12 Patient Profiles
+
+**URL:** `/profiles`
+
+Interactive individual patient timeline. Requires a generated cohort and a connected CDM source with patient-level data access permissions.
+
+**Patient selector**: search by subject_id (de-identified) within a cohort; random-patient navigation; filter by subgroup.
+
+**Timeline view:**
+
+```
+Age: 45                      Index Date: 2018-03-15
+─────────────────────────────────────────────────────────────────►
+│ Conditions   [■ Type 2 Diabetes]        [■ Hypertension]
+│              [■ Hyperlipidemia]                       [■ CKD]
+│ Drugs        [══ Metformin ══════════════════]  [═══ Lisinopril
+│              [═══ Atorvastatin ══════════════════════════════]
+│ Visits       ↑ ED    ↑ Out  ↑ Out  ↑ Out     ↑ Hosp  ↑ Out
+│ Measurements         ✦ HbA1c 7.2           ✦ HbA1c 8.1
+```
+
+- Each row is a domain; events rendered as blocks (for durations) or markers (for point events)
+- Colour-coded by concept domain; hover for concept name, date, value
+- Scrollable horizontally (time), collapsible rows vertically
+- Index date highlighted with a vertical marker
+- Click any event to open the full observation record detail
+- "Add annotation" on any event — persisted per-study note visible to collaborators
+
+**Privacy controls**: `profiles.view` permission required; de-identified subject_id only; no free-text note access unless explicitly enabled by admin.
+
+---
+
+### 7.13 Jobs
+
+**URL:** `/jobs`
+
+Unified job monitor across all job types: cohort generation, Achilles, DQD, PLE, PLP, Pathway, concept mapping, ingestion.
+
+**List view**: sortable/filterable table. Columns: job type (icon), name, status (badge), created, started, duration, queued-by user, actions (cancel if running, re-run if failed, view log).
+
+**Job detail slide-over**: full log output (ANSI-coloured terminal display), step-by-step progress timeline, error traceback if failed, output artifact links (result record, generated cohort, DQD report).
+
+**Horizon integration**: link to Laravel Horizon dashboard for infrastructure-level queue visibility (available to admins).
+
+**Real-time**: all status changes pushed via Laravel Echo; no manual refresh required.
+
+---
+
+### 7.14 Administration
+
+**URL:** `/admin`
+**Already built:** Users, Roles & Permissions (permission matrix), Auth Providers (Phase 6). Phase 7 adds:
+
+#### Vocabulary Management
+
+`/admin/vocabulary` — status panel for the OMOP vocabulary tables: loaded vocabularies (name, version, concept count, load date), vocabulary health checks (orphaned concepts, missing relationships), and a trigger for re-importing vocabulary from a new Athena download.
+
+#### System Configuration
+
+`/admin/config` — application-level settings:
+- Default CDM source for new analyses
+- AI service enable/disable toggles per feature (concept mapping, copilot, NLP)
+- Achilles/DQD auto-run schedules (cron expressions with human-readable preview)
+- Email notification settings (SMTP config, alert thresholds)
+- Data retention policies (generation history TTL, job log TTL)
+
+#### Audit Log
+
+`/admin/audit` — immutable log of all write operations across the platform (who, what, when, before/after values). Filterable by user, action type, entity type, date range. Non-repudiation critical for regulatory environments.
+
+---
+
+### 7.15 Visualization Library
+
+**Primary stack:**
+
+| Library | Role |
+|---|---|
+| **Recharts** | Standard charts: bar, line, area, scatter, donut, histogram, composed |
+| **D3 v7** | Custom / interactive: force graph, dagre DAG, sunburst, sankey, timeline, treemap, UpSet |
+| **Visx** (AirBnB) | Low-level D3-React bridge for bespoke chart components |
+| **Observable Plot** | Exploratory small-multiples and layered statistical charts |
+
+**Chart catalogue:**
+
+| Chart | Used In |
+|---|---|
+| Population pyramid | Data Explorer / Characterization (person domain) |
+| Treemap | Condition / Procedure prevalence |
+| Sunburst | Drug class hierarchy, Treatment Pathways |
+| Sankey | Treatment Pathways (alternative view) |
+| Box plot | Measurement value distributions |
+| Histogram | Age, days-supply, observation period |
+| Kaplan-Meier curve | PLE results |
+| Forest plot | PLE subgroup HRs, IR comparisons, meta-analysis |
+| SMD plot (lollipop) | Covariate balance |
+| ROC curve | PLP model evaluation |
+| Precision-Recall curve | PLP model evaluation |
+| Calibration plot | PLP model evaluation |
+| SHAP bar chart | PLP variable importance |
+| Waterfall / Attrition | Cohort inclusion rule attrition |
+| Venn diagram | Cohort overlap (2–3 cohorts) |
+| UpSet plot | Cohort overlap (4+ cohorts) |
+| Mirrored histogram | PLE propensity score overlap |
+| Heatmap | Concept co-occurrence, correlation matrix |
+| Force-directed graph | Concept relationship network |
+| Timeline (swimlane) | Patient profiles |
+| Sparkline | Dashboard/card summary values |
+| Donut + score | DQD scorecard |
+
+**Cross-cutting chart standards:**
+- All charts export PNG (high-DPI) and CSV via a standard right-click context menu
+- All charts have a "Table view" toggle for screen-reader accessibility
+- All charts respect system-level colour-scheme preference (dark/light)
+- Colour palettes are perceptually uniform (OKLab-based) and colour-blind safe (tested against Deuteranopia and Protanopia)
+- Hover tooltips rendered via a portal (never clipped by overflow) with ARIA roles
+
+---
+
+### 7.16 State Architecture
+
+| Concern | Tool | Notes |
+|---|---|---|
+| Server state | **TanStack Query v5** | All API data: caching, background refetch, pagination, optimistic updates |
+| Client state | **Zustand** | Per-feature stores: `cohortExpressionStore`, `uiStore`, `authStore`, `studyBuilderStore` |
+| Forms | **React Hook Form + Zod** | Validation at field level; schema shared with backend TS types |
+| URL state | **React Router v6** | Deep-linkable filters, panel splits, selected items; `useSearchParams` |
+| Real-time | **Laravel Echo + Pusher** | WebSocket channel per job, per cohort generation, per study execution |
+| Drag-and-drop | **@dnd-kit/core** | Concept set item reordering, panel splits, DAG node repositioning |
+| Virtual lists | **TanStack Virtual** | Concept mapping review queue (10k+ rows), job logs |
+| Rich text | **Tiptap** | Study protocol editor, annotation notes |
+| Command palette | **cmdk** | Global `⌘K` command palette |
+| Date/time | **date-fns** | All formatting and arithmetic (no Moment.js) |
+| Keyboard shortcuts | **useHotkeys** | Registered per-page with a help sheet (`?`) |
+
+---
+
+### 7.17 Interaction Design System
+
+#### Design Tokens
+
+All visual attributes defined as CSS custom properties (TailwindCSS v4 theme). Tokens:
+
+- **Color**: 9-shade semantic palettes (foreground, background, muted, accent, primary, destructive, success, warning, info) + data-viz palettes
+- **Typography**: `--font-sans` (Inter), `--font-mono` (Geist Mono) — mono used for concept IDs, SQL, medical codes
+- **Spacing**: 4 px base grid
+- **Radius**: small (4 px), medium (8 px), large (16 px) — applied consistently by component type
+- **Shadow**: 3 elevations (card, modal, overlay)
+- **Motion**: `--duration-fast` (100 ms), `--duration-base` (200 ms), `--duration-slow` (350 ms) — all transitions respect `prefers-reduced-motion`
+
+#### Component Library
+
+Built on Radix UI primitives (accessible, unstyled) + TailwindCSS v4 styling. Components:
+
+| Group | Components |
+|---|---|
+| Layout | Sheet (slide-over), Dialog (modal), Drawer, Popover, Tooltip, ContextMenu, Splitter |
+| Data display | Table (sortable, paginated, virtual-scroll), Card, Badge, Avatar, Skeleton, Timeline |
+| Forms | Input, Textarea, Select, Combobox (searchable), MultiSelect, DatePicker, Checkbox, Switch, RadioGroup, Slider |
+| Feedback | Toast (top-right, 4s, dismissible), AlertBanner, Progress (linear + circular), Spinner, EmptyState |
+| Navigation | Tabs, Breadcrumb, Pagination, CommandPalette, Sidebar, Stepper |
+| Charts | ChartContainer (standard wrapper with title, export, table-view toggle) |
+
+All interactive components have `data-testid` attributes. All custom components export a Storybook story. All form components are keyboard-navigable with clear focus rings.
+
+#### Keyboard Shortcuts
+
+Global shortcuts (active on all pages):
+
+| Shortcut | Action |
+|---|---|
+| `⌘K` | Open command palette |
+| `⌘/` | Open AI copilot drawer |
+| `⌘J` | Open jobs slide-over |
+| `⌘,` | Go to settings (admin only) |
+| `?` | Show keyboard shortcut help sheet |
+| `G` then `D` | Go to Dashboard |
+| `G` then `C` | Go to Cohort Definitions |
+| `G` then `V` | Go to Vocabulary |
+| `G` then `S` | Go to Studies |
+
+Page-level shortcuts documented in each section above (`A/R/S/J/K` for mapping review, `→/←/↑↓` for hierarchy tree, etc.).
+
+---
+
+### 7.18 Performance Targets
+
+| Metric | Target | Measurement |
+|---|---|---|
+| Initial page load (LCP) | < 2.0 s | Lighthouse CI, p75 |
+| Route navigation (SPA) | < 150 ms | React DevTools Profiler |
+| Vocabulary search (TTFB) | < 100 ms | k6 |
+| Chart render (10k data points) | < 300 ms | Vitest benchmark |
+| Command palette open | < 50 ms | Measured with `performance.now()` |
+| Bundle size (initial) | < 250 kB gzip | Vite bundle analysis |
+| Route chunks (lazy) | < 80 kB gzip each | Vite bundle analysis |
+
+**Techniques:**
+- All routes lazy-loaded (`React.lazy` + `Suspense`) — already implemented
+- TanStack Query stale-while-revalidate on all list endpoints
+- Optimistic UI updates on all mutations (no waiting for server before UI reflects change)
+- `react-virtual` for all tables > 100 rows
+- D3 charts rendered to `<canvas>` for data sets > 5,000 points; SVG for < 5,000
+- Service worker (Workbox) for static asset caching in production
+- `preconnect` DNS hints to API origin and AI service origin in `<head>`
+
+---
+
+### 7.19 Accessibility & Internationalisation
+
+**Accessibility (WCAG 2.2 AA):**
+- All interactive elements keyboard-reachable and have visible focus indicators
+- All images and charts have `aria-label` or `aria-describedby`
+- All colour-only information has a secondary non-colour indicator (icon or pattern)
+- Modal dialogs trap focus and restore on close
+- Live regions (`aria-live="polite"`) for toast notifications and async status updates
+- High-contrast mode: system-level `prefers-contrast: more` automatically activates a high-contrast theme variant
+
+**Internationalisation:**
+- All user-facing strings externalised via `react-i18next` with English as the source locale
+- Date/time formatted via `Intl.DateTimeFormat` (locale-aware)
+- Number formatting via `Intl.NumberFormat` (thousand separator, decimal locale)
+- Medical concept names always served from OMOP vocabulary (multilingual concept names available via `concept_synonym` where loaded)
+- RTL layout support via CSS logical properties (`margin-inline-start` not `margin-left`)
+
+---
+
+### 7.20 Already-Built Inventory (Do Not Rebuild)
+
+The following features are fully implemented and must be preserved/extended, not rebuilt:
+
+| Feature | Phase | Status |
+|---|---|---|
+| Auth (login/logout, Sanctum) | 1, 6 | Complete |
+| Sidebar + TopBar shell | 1, 6 | Complete |
+| Dark mode (TailwindCSS v4 `dark:`) | 1 | Complete |
+| Data Sources CRUD | 1 | Complete |
+| AI Ingestion (Upload, Jobs, Schema Map, Review) | 3 | Complete |
+| Vocabulary Search + Hierarchy + Concept Sets | 5 | Complete |
+| Cohort Definitions (Editor, Generation, SQL Preview) | 5 | Complete |
+| Concept Sets (CRUD + item flags) | 5 | Complete |
+| Analyses (Characterizations, Incidence Rates) | 5 | Complete (shell) |
+| Data Explorer (shell) | 5 | Shell only |
+| Administration (Users, Roles Matrix, Auth Providers) | 6 | Complete |
+| Router (lazy routes, `/admin/*`) | 1, 5, 6 | Complete |
+
+---
+
+### 7.21 Build Order
+
+Phase 7 work is sequenced by user value and dependency:
+
+| Step | Deliverable | Deps |
+|---|---|---|
+| 7A | Command palette + keyboard shortcuts + AI drawer shell | — |
+| 7B | Dashboard (activity feed, data health widget, quick actions) | Achilles/DQD results |
+| 7C | Data Explorer: Achilles visualisations (all domains) | Achilles results |
+| 7D | Data Explorer: DQD Scorecard + drill-down | DQD results |
+| 7E | Cohort Definitions: attrition chart, diagnostics panel, visual builder | Cohort generation |
+| 7F | Analyses: Characterization results (covariate table, SMD plot) | R sidecar |
+| 7G | Analyses: Incidence Rate results (trend, subgroup) | IR engine |
+| 7H | Analyses: Pathways (sunburst + sankey) | R sidecar |
+| 7I | Patient Profiles (timeline, domain rows) | CDM access |
+| 7J | Studies (builder, DAG, protocol, network execution) | All analyses |
+| 7K | Analyses: PLE results (KM, forest plot, PS overlap) | CohortMethod |
+| 7L | Analyses: PLP results (ROC, calibration, SHAP) | PLP sidecar |
+| 7M | Admin: Vocabulary management + audit log + system config | — |
+| 7N | Storybook, accessibility audit, Lighthouse CI gate | All above |
 
 ---
 
