@@ -6,7 +6,7 @@ CREATE EXTENSION IF NOT EXISTS pg_trgm;
 CREATE SCHEMA IF NOT EXISTS app;
 CREATE SCHEMA IF NOT EXISTS vocab;
 CREATE SCHEMA IF NOT EXISTS cdm;
-CREATE SCHEMA IF NOT EXISTS results;
+CREATE SCHEMA IF NOT EXISTS achilles_results;
 
 -- Grant permissions
-GRANT ALL ON SCHEMA app, vocab, cdm, results TO parthenon;
+GRANT ALL ON SCHEMA app, vocab, cdm, achilles_results TO parthenon;
