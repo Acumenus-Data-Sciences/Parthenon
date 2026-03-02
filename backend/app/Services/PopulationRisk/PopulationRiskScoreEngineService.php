@@ -4,7 +4,7 @@ namespace App\Services\PopulationRisk;
 
 use App\Models\App\Source;
 use App\Models\Results\PopulationRiskScoreResult;
-use App\Services\Achilles\SqlRendererService;
+use App\Services\SqlRenderer\SqlRendererService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Throwable;

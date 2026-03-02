@@ -815,3 +815,43 @@ backend/routes/api.php                        (added risk-scores endpoints)
 | Tier 2 Temporal Quality | 6 analyses | TQ001–TQ006 |
 | Tier 3 Population Risk Scores | 20 scores | RS001–RS020 |
 | **Total** | **174** | |
+
+---
+
+## Phase 11 Wrap-Up — Fixes & Namespace Corrections
+
+### SqlRendererService Namespace
+
+`SqlRendererService` was originally placed under `App\Services\Achilles\` but serves all analysis tiers. Corrected import in both engine services to the canonical path `App\Services\SqlRenderer\SqlRendererService`:
+
+```
+backend/app/Services/ClinicalCoherence/ClinicalCoherenceEngineService.php
+backend/app/Services/PopulationRisk/PopulationRiskScoreEngineService.php
+```
+
+### ExecutionStatus Enum Cast Safety
+
+`NotifiesOnCompletion` trait was performing a strict identity comparison (`===`) against `ExecutionStatus` on a value that could arrive as either the enum instance or its raw string backing value (e.g., after queue serialisation). Fixed with a `tryFrom()` guard:
+
+```php
+$status = $execution->status instanceof ExecutionStatus
+    ? $execution->status
+    : ExecutionStatus::tryFrom($execution->status);
+```
+
+This prevents silent notification failures after job deserialization.
+
+---
+
+## Phase 11 Final State
+
+**174 analyses** shipped across 5 layers, all executing natively in PHP/PostgreSQL with no R dependency for characterisation or risk scoring. Parthenon now materially surpasses OHDSI Atlas/Achilles in analysis breadth, clinical depth, and missing-data transparency.
+
+| Layer | Count | Description |
+|---|---|---|
+| Standard Achilles | 127 | Full OMOP CDM domain coverage |
+| Achilles Heel | 15 rules | Post-hoc data quality flagging |
+| Tier 1 — Clinical Coherence | 6 | Sex/age plausibility, DDI, lab bounds, O/E |
+| Tier 2 — Temporal Quality | 6 | Period integrity, era violations, date drift |
+| Tier 3 — Population Risk | 20 | Validated clinical risk scores w/ confidence |
+| **Total** | **174** | |

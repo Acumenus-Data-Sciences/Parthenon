@@ -22,12 +22,15 @@ trait NotifiesOnCompletion
         }
 
         $prefs = $author->notification_preferences ?? [];
+        $status = $execution->status instanceof ExecutionStatus
+            ? $execution->status
+            : ExecutionStatus::tryFrom($execution->status);
 
-        if ($execution->status === ExecutionStatus::Completed) {
+        if ($status === ExecutionStatus::Completed) {
             if ($prefs['analysis_completed'] ?? true) {
                 $author->notify(new AnalysisCompletedNotification($execution));
             }
-        } elseif ($execution->status === ExecutionStatus::Failed) {
+        } elseif ($status === ExecutionStatus::Failed) {
             if ($prefs['analysis_failed'] ?? true) {
                 $author->notify(new AnalysisFailedNotification($execution));
             }
