@@ -608,3 +608,65 @@ backend/routes/api.php             (added /clinical-coherence routes)
 5ee19f48  feat: Phase 11 - complete Achilles coverage to 127 analyses + Heel engine
 (next)    feat: Phase 11e - Tier 1 Clinical Coherence analyses (CC001–CC006)
 ```
+
+---
+
+## 13. Phase 11f — Tier 2 Temporal Quality Analyses
+
+### Overview
+
+Tier 2 analyses examine the **temporal coherence** of OMOP CDM data — not just whether values are plausible in isolation, but whether the timing of events is internally consistent. This tier surfaces the most common ETL failure modes: date transposition, observation period misalignment, EHR system gaps, and derived-table violations.
+
+All 6 analyses reuse the existing `ClinicalCoherenceAnalysisInterface` / registry / engine / table infrastructure. No new tables or controllers are required.
+
+### New Analysis Classes
+
+| ID | Name | Category | Severity | Key SQL Technique |
+|---|---|---|---|---|
+| TQ001 | Observation Period Integrity | Temporal Quality | critical | Self-join for overlaps; HAVING to suppress zero rows |
+| TQ002 | Domain Events Outside Observation | Temporal Quality | major | NOT EXISTS correlated subquery per domain (5 domains) |
+| TQ003 | Drug Duration Anomalies | Temporal Quality | major | ABS(actual_days - days_supply) > 30 discordance check |
+| TQ004 | Visit-Event Date Misalignment | Temporal Quality | major | JOIN to visit_occurrence with ±1 day tolerance (4 domains) |
+| TQ005 | Longitudinal Data Gaps (Silent Years) | Temporal Quality | major | `generate_series()` interior years × event_years LEFT JOIN |
+| TQ006 | Era Boundary Violations | Temporal Quality | major | obs_bounds envelope (min/max per person) vs era dates (6 checks) |
+
+### Design Notes
+
+**TQ001**: Four UNION ALL blocks each suppressed with `HAVING COUNT(*) > 0` — the query returns zero rows if the CDM is clean, rather than a row of zeros.
+
+**TQ002**: NOT EXISTS is intentional over LEFT JOIN / WHERE NULL — it uses the observation_period index on person_id efficiently and correctly handles multi-period patients.
+
+**TQ003**: Four sub-checks covering negative supply, excessive supply, start/end/supply discordance, and null end date (the most common — a non-zero null rate is informational but very high rates warrant investigation).
+
+**TQ004**: 1-day tolerance on each side (`vo.visit_start_date - 1`) handles same-day events documented with timezone offset. Uses date arithmetic (integer subtraction of dates in PostgreSQL).
+
+**TQ005**: `generate_series` is PostgreSQL-native and generates the set of "expected active years" per person. Skips first and last years of each period (likely partial). Only runs against persons with ≥730 days of observation to reduce false positives from short-stay patients.
+
+**TQ006**: Uses a `WITH obs_bounds AS (...)` envelope CTE rather than joining against every individual period — this is correct and efficient: an era is only a violation if it falls outside the **entire** observation envelope, not just one period.
+
+### New Files (Phase 11f)
+
+```
+backend/app/Services/ClinicalCoherence/Analyses/TQ001ObservationPeriodIntegrity.php
+backend/app/Services/ClinicalCoherence/Analyses/TQ002DomainEventsOutsideObservation.php
+backend/app/Services/ClinicalCoherence/Analyses/TQ003DrugDurationAnomalies.php
+backend/app/Services/ClinicalCoherence/Analyses/TQ004VisitEventDateMisalignment.php
+backend/app/Services/ClinicalCoherence/Analyses/TQ005LongitudinalDataGaps.php
+backend/app/Services/ClinicalCoherence/Analyses/TQ006EraBoundaryViolations.php
+```
+
+### Modified (Phase 11f)
+
+```
+backend/app/Providers/ClinicalCoherenceServiceProvider.php  (added Tier 2 foreach block)
+```
+
+### Registry Summary (post-Phase-11f)
+
+| Tier | Analyses | IDs |
+|---|---|---|
+| Standard Achilles | 127 | via AchillesServiceProvider |
+| Achilles Heel | 15 rules | via AchillesServiceProvider |
+| Tier 1 Clinical Coherence | 6 | CC001–CC006 |
+| Tier 2 Temporal Quality | 6 | TQ001–TQ006 |
+| **Total** | **154** | |
