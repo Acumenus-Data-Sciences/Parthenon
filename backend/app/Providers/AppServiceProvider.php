@@ -2,6 +2,18 @@
 
 namespace App\Providers;
 
+use App\Services\Cohort\Builders\CensoringBuilder;
+use App\Services\Cohort\Builders\ConceptSetSqlBuilder;
+use App\Services\Cohort\Builders\EndStrategyBuilder;
+use App\Services\Cohort\Builders\InclusionCriteriaBuilder;
+use App\Services\Cohort\Builders\OccurrenceFilterBuilder;
+use App\Services\Cohort\Builders\PrimaryCriteriaBuilder;
+use App\Services\Cohort\Builders\TemporalWindowBuilder;
+use App\Services\Cohort\CohortGenerationService;
+use App\Services\Cohort\CohortSqlCompiler;
+use App\Services\Cohort\Criteria\CriteriaBuilderRegistry;
+use App\Services\Cohort\Criteria\DemographicCriteriaBuilder;
+use App\Services\Cohort\Schema\CohortExpressionSchema;
 use App\Services\SqlRenderer\SqlRendererService;
 use Illuminate\Support\ServiceProvider;
 
@@ -13,6 +25,57 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(SqlRendererService::class);
+
+        // Cohort SQL Compiler services
+        $this->app->singleton(CohortExpressionSchema::class);
+        $this->app->singleton(CriteriaBuilderRegistry::class);
+        $this->app->singleton(DemographicCriteriaBuilder::class);
+        $this->app->singleton(ConceptSetSqlBuilder::class);
+        $this->app->singleton(TemporalWindowBuilder::class);
+        $this->app->singleton(OccurrenceFilterBuilder::class);
+        $this->app->singleton(EndStrategyBuilder::class);
+
+        $this->app->singleton(PrimaryCriteriaBuilder::class, function ($app) {
+            return new PrimaryCriteriaBuilder(
+                $app->make(CriteriaBuilderRegistry::class),
+                $app->make(CohortExpressionSchema::class),
+            );
+        });
+
+        $this->app->singleton(InclusionCriteriaBuilder::class, function ($app) {
+            return new InclusionCriteriaBuilder(
+                $app->make(CriteriaBuilderRegistry::class),
+                $app->make(CohortExpressionSchema::class),
+                $app->make(TemporalWindowBuilder::class),
+                $app->make(OccurrenceFilterBuilder::class),
+                $app->make(DemographicCriteriaBuilder::class),
+            );
+        });
+
+        $this->app->singleton(CensoringBuilder::class, function ($app) {
+            return new CensoringBuilder(
+                $app->make(CriteriaBuilderRegistry::class),
+                $app->make(CohortExpressionSchema::class),
+            );
+        });
+
+        $this->app->singleton(CohortSqlCompiler::class, function ($app) {
+            return new CohortSqlCompiler(
+                $app->make(SqlRendererService::class),
+                $app->make(CohortExpressionSchema::class),
+                $app->make(ConceptSetSqlBuilder::class),
+                $app->make(PrimaryCriteriaBuilder::class),
+                $app->make(InclusionCriteriaBuilder::class),
+                $app->make(CensoringBuilder::class),
+                $app->make(EndStrategyBuilder::class),
+            );
+        });
+
+        $this->app->singleton(CohortGenerationService::class, function ($app) {
+            return new CohortGenerationService(
+                $app->make(CohortSqlCompiler::class),
+            );
+        });
     }
 
     /**

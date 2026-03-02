@@ -1,0 +1,75 @@
+export interface Concept {
+  concept_id: number;
+  concept_name: string;
+  domain_id: string;
+  vocabulary_id: string;
+  concept_class_id: string;
+  standard_concept: string | null;
+  concept_code: string;
+  valid_start_date?: string;
+  valid_end_date?: string;
+  invalid_reason?: string | null;
+}
+
+export interface ConceptRelationship {
+  concept_id_1: number;
+  concept_id_2: number;
+  relationship_id: string;
+  related_concept: Concept;
+}
+
+export interface ConceptHierarchyNode {
+  concept_id: number;
+  concept_name: string;
+  domain_id: string;
+  vocabulary_id: string;
+  concept_class_id: string;
+  standard_concept: string | null;
+  depth: number;
+  children?: ConceptHierarchyNode[];
+  is_current?: boolean;
+}
+
+export interface VocabularyInfo {
+  vocabulary_id: string;
+  vocabulary_name: string;
+  vocabulary_concept_id: number;
+  vocabulary_version: string | null;
+}
+
+export interface DomainInfo {
+  domain_id: string;
+  domain_name: string;
+  domain_concept_id: number;
+}
+
+export interface ConceptSearchParams {
+  q: string;
+  domain?: string;
+  vocabulary?: string;
+  standard?: boolean;
+  page?: number;
+  limit?: number;
+}
+
+export interface ConceptSearchResult {
+  items: Concept[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export interface PaginatedRelationships {
+  items: ConceptRelationship[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export interface SemanticSearchResult {
+  concept_id: number;
+  concept_name: string;
+  domain_id: string;
+  vocabulary_id: string;
+  score: number;
+}
