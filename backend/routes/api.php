@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\AbbyAiController;
 use App\Http\Controllers\Api\V1\AchillesController;
+use App\Http\Controllers\Api\V1\ClinicalCoherenceController;
 use App\Http\Controllers\Api\V1\Admin\AuthProviderController;
 use App\Http\Controllers\Api\V1\Admin\RoleController;
 use App\Http\Controllers\Api\V1\Admin\UserController;
@@ -87,6 +88,13 @@ Route::prefix('v1')->group(function () {
             Route::get('/distributions/{analysisId}', [AchillesController::class, 'distribution']);
             Route::get('/heel', [AchillesController::class, 'heel']);
             Route::post('/heel/run', [AchillesController::class, 'runHeel']);
+        });
+
+        // Clinical Coherence (Tier 1 Parthenon-native analyses)
+        Route::prefix('sources/{source}/clinical-coherence')->group(function () {
+            Route::get('/', [ClinicalCoherenceController::class, 'index']);
+            Route::post('/run', [ClinicalCoherenceController::class, 'run']);
+            Route::get('/{analysisId}', [ClinicalCoherenceController::class, 'show']);
         });
 
         // Data Quality Dashboard

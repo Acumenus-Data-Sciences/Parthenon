@@ -1,6 +1,6 @@
 # Phase 11 — Parthenon-Native Analyses: Achilles Parity + Clinical Intelligence
 
-**Status:** In Progress
+**Status:** Complete (Tier 1)
 **Start date:** 2026-03-02
 **Branch:** `master`
 
@@ -503,8 +503,108 @@ docs/devlog/phase-4-data-quality.md         (appended gap analysis section)
 
 ---
 
-## 10. Commit History
+---
+
+## 11. Phase 11e — Tier 1 Clinical Coherence Analyses
+
+### Overview
+
+With Achilles parity achieved (127 analyses), Phase 11e introduces the first six **Parthenon-native** analyses under a new `ClinicalCoherence` subsystem. These analyses go beyond counting records to checking the *plausibility* of clinical relationships — a category of check that Achilles Heel only touches superficially and Atlas does not offer at all.
+
+### New Analysis Classes
+
+| ID | Name | Category | Severity | Key SQL Technique |
+|---|---|---|---|---|
+| CC001 | Sex-Condition Plausibility | Sex Plausibility | critical | ILIKE patterns on concept_name + gender_concept_id (8507/8532) |
+| CC002 | Age-Condition Plausibility | Age Plausibility | major | EXTRACT(YEAR FROM condition_start) - year_of_birth age estimate |
+| CC003 | Drug-Indication Concordance | Drug Coherence | major | concept_ancestor rollup to ingredient; ±90/+30 day condition window |
+| CC004 | Drug-Drug Interaction Prevalence | Drug Safety | critical | Overlapping exposure windows for 11 known high-risk DDI pairs |
+| CC005 | Lab Value Clinical Plausibility | Measurement Quality | critical | VALUES-based bounds table; concept IDs for 12 LOINC measurements |
+| CC006 | Comorbidity Coherence (O/E) | Population Coherence | informational | Observed / Expected co-occurrence for top 20 condition pairs |
+
+### Architecture
 
 ```
-e0f216cc  feat: Phase 4 remediation - complete Achilles analysis coverage + Heel engine
+App\Contracts\ClinicalCoherenceAnalysisInterface
+    analysisId(): string          (e.g. 'CC001')
+    analysisName(): string
+    category(): string
+    description(): string
+    severity(): string            ('critical' | 'major' | 'informational')
+    sqlTemplate(): string         (pure SELECT → stratum_1..3, count_value, total_value, ratio_value, notes)
+    requiredTables(): array
+    flagThreshold(): ?float       (null = flag any occurrence; float = flag if ratio >= threshold)
+
+App\Services\ClinicalCoherence\
+    ClinicalCoherenceAnalysisRegistry     (singleton, 6 analyses pre-loaded)
+    ClinicalCoherenceEngineService        (run(), getResults(), getSummary())
+    Analyses\CC001..CC006                 (6 PHP classes)
+
+App\Models\Results\ClinicalCoherenceResult
+    (source_id, analysis_id, category, severity, stratum_1..3,
+     count_value, total_value, ratio_value, flagged, notes, run_at)
+
+App\Http\Controllers\Api\V1\ClinicalCoherenceController
+    GET  /api/v1/sources/{source}/clinical-coherence          index()
+    POST /api/v1/sources/{source}/clinical-coherence/run      run()
+    GET  /api/v1/sources/{source}/clinical-coherence/{id}     show()
+
+App\Providers\ClinicalCoherenceServiceProvider
+    → registered in bootstrap/providers.php
+```
+
+### Flagging Logic
+
+The engine applies per-analysis `flagThreshold()`:
+- `null` → flag if `count_value > 0` (any occurrence is notable — used for CC001, CC004)
+- `float` → flag if `ratio_value >= threshold` (e.g. 0.30 for CC003, 0.01 for CC005, 1.50 for CC006)
+
+### CC001 Design Notes
+
+Uses PostgreSQL `ILIKE` on OMOP `concept.concept_name` to identify sex-specific conditions without hardcoding vocabulary version-dependent concept IDs. Covers ~15 female-specific and ~16 male-specific condition name patterns. More precise implementations would use concept_ancestor traversal from SNOMED disorder hierarchies (362875003 female / 362876002 male).
+
+### CC004 Design Notes
+
+Uses known RxNorm ingredient concept IDs embedded in a `VALUES` CTE, joined via `concept_ancestor` to capture all formulations (clinical drugs, branded drugs). 11 DDI pairs covering the highest-severity interactions in standard pharmacology references. Drug exposure end date defaults to start + 30 days when null.
+
+### CC005 Design Notes
+
+A `VALUES`-based bounds table defines physiological ranges for 12 LOINC measurements. Concept IDs are standard OMOP mappings of LOINC codes — stable across CDM versions. The `impossible_count / total_for_concept` ratio identifies systematic data quality issues vs isolated entry errors.
+
+### CC006 Design Notes
+
+Fully data-driven O/E comorbidity analysis requires no hardcoded concept IDs. It builds the co-occurrence matrix for the top 20 most prevalent conditions and computes `observed / expected` under the independence assumption. Flags pairs with ratio > 1.5 (positive comorbidity) or < 0.5 (mutual exclusion). This can surface unexpected disease associations or data integrity issues (e.g., mutually exclusive diagnoses appearing together).
+
+### New Files (Phase 11e)
+
+```
+backend/app/Contracts/ClinicalCoherenceAnalysisInterface.php
+backend/app/Services/ClinicalCoherence/ClinicalCoherenceAnalysisRegistry.php
+backend/app/Services/ClinicalCoherence/ClinicalCoherenceEngineService.php
+backend/app/Services/ClinicalCoherence/Analyses/CC001SexConditionPlausibility.php
+backend/app/Services/ClinicalCoherence/Analyses/CC002AgeConditionPlausibility.php
+backend/app/Services/ClinicalCoherence/Analyses/CC003DrugIndicationConcordance.php
+backend/app/Services/ClinicalCoherence/Analyses/CC004DrugDrugInteraction.php
+backend/app/Services/ClinicalCoherence/Analyses/CC005LabValuePlausibility.php
+backend/app/Services/ClinicalCoherence/Analyses/CC006ComorbidityCoherence.php
+backend/app/Models/Results/ClinicalCoherenceResult.php
+backend/app/Http/Controllers/Api/V1/ClinicalCoherenceController.php
+backend/app/Providers/ClinicalCoherenceServiceProvider.php
+backend/database/migrations/2026_03_02_100000_create_clinical_coherence_results_table.php
+```
+
+### Modified (Phase 11e)
+
+```
+backend/bootstrap/providers.php    (added ClinicalCoherenceServiceProvider)
+backend/routes/api.php             (added /clinical-coherence routes)
+```
+
+---
+
+## 12. Commit History
+
+```
+5ee19f48  feat: Phase 11 - complete Achilles coverage to 127 analyses + Heel engine
+(next)    feat: Phase 11e - Tier 1 Clinical Coherence analyses (CC001–CC006)
 ```
