@@ -2,8 +2,12 @@
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-
 uses(RefreshDatabase::class);
+
+beforeEach(function () {
+    // Prevent rate-limiter interference across parallel tests
+    $this->withoutMiddleware(\Illuminate\Routing\Middleware\ThrottleRequests::class);
+});
 
 test('user can register', function () {
     $response = $this->postJson('/api/v1/auth/register', [
