@@ -1,6 +1,7 @@
 # Parthenon
 
 **Unified Outcomes Research Platform on OMOP CDM v5.4**
+![parthenon](https://github.com/user-attachments/assets/ff7dd041-d489-4340-ae4e-4e3c56b56ded)
 
 Parthenon consolidates the fragmented OHDSI ecosystem — Atlas, WebAPI, Achilles, DataQualityDashboard, Usagi, WhiteRabbit, Circe, CohortGenerator, and more — into a single, AI-powered application. Built with a modern stack (Laravel 11 + React 19 + TypeScript), it replaces two decades of language sprawl (Java, R, Knockout.js, .NET) with one deployable Docker Compose stack.
 
