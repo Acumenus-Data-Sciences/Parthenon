@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Plus, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { HelpButton } from "@/features/help";
 import { AnalysisList } from "../components/AnalysisList";
 import { useCharacterizations } from "../hooks/useCharacterizations";
 import { useIncidenceRates } from "../hooks/useIncidenceRates";
@@ -288,19 +289,22 @@ export default function AnalysesPage() {
             analyses for population-level studies
           </p>
         </div>
-        <button
-          type="button"
-          onClick={getCreateHandler()}
-          disabled={isCreating}
-          className="btn btn-primary"
-        >
-          {isCreating ? (
-            <Loader2 size={16} className="animate-spin" />
-          ) : (
-            <Plus size={16} />
-          )}
-          {getButtonLabel()}
-        </button>
+        <div className="flex items-center gap-2">
+          <HelpButton helpKey="characterization" />
+          <button
+            type="button"
+            onClick={getCreateHandler()}
+            disabled={isCreating}
+            className="btn btn-primary"
+          >
+            {isCreating ? (
+              <Loader2 size={16} className="animate-spin" />
+            ) : (
+              <Plus size={16} />
+            )}
+            {getButtonLabel()}
+          </button>
+        </div>
       </div>
 
       {/* Tabs */}

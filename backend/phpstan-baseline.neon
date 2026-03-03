@@ -7,10 +7,94 @@ parameters:
 			path: app/Console/Commands/ComputeEmbeddings.php
 
 		-
+			message: '#^Parameter \#1 \$json of function json_decode expects string, string\|false given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Console/Commands/ImportAtlasCohortsCommand.php
+
+		-
+			message: '#^Parameter \#1 \$json of function json_decode expects string, string\|false given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Console/Commands/ImportAtlasConceptSetsCommand.php
+
+		-
+			message: '#^Parameter \#2 \$authType of method App\\Services\\WebApi\\WebApiImporterService\:\:importFromUrl\(\) expects string, string\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Console/Commands/ImportWebApiSourcesCommand.php
+
+		-
 			message: '#^Offset ''error'' might not exist on array\{analysis_id\: int, status\: string, elapsed_seconds\: float, error\?\: string\}\.$#'
 			identifier: offsetAccess.notFound
 			count: 1
 			path: app/Console/Commands/RunAchillesCommand.php
+
+		-
+			message: '#^Parameter \#2 \$author of method App\\Services\\AI\\AbbyAiService\:\:buildCohortAndSave\(\) expects App\\Models\\User, App\\Models\\User\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Api/V1/AbbyAiController.php
+
+		-
+			message: '#^Cannot access property \$id on App\\Models\\User\|null\.$#'
+			identifier: property.nonObject
+			count: 4
+			path: app/Http/Controllers/Api/V1/Admin/AiProviderController.php
+
+		-
+			message: '#^Parameter \#1 \$cfg of method App\\Http\\Controllers\\Api\\V1\\Admin\\AiProviderController\:\:testAnthropic\(\) expects array\<string, mixed\>, array\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Api/V1/Admin/AiProviderController.php
+
+		-
+			message: '#^Parameter \#1 \$cfg of method App\\Http\\Controllers\\Api\\V1\\Admin\\AiProviderController\:\:testDeepSeek\(\) expects array\<string, mixed\>, array\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Api/V1/Admin/AiProviderController.php
+
+		-
+			message: '#^Parameter \#1 \$cfg of method App\\Http\\Controllers\\Api\\V1\\Admin\\AiProviderController\:\:testGemini\(\) expects array\<string, mixed\>, array\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Api/V1/Admin/AiProviderController.php
+
+		-
+			message: '#^Parameter \#1 \$cfg of method App\\Http\\Controllers\\Api\\V1\\Admin\\AiProviderController\:\:testMistral\(\) expects array\<string, mixed\>, array\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Api/V1/Admin/AiProviderController.php
+
+		-
+			message: '#^Parameter \#1 \$cfg of method App\\Http\\Controllers\\Api\\V1\\Admin\\AiProviderController\:\:testMoonshot\(\) expects array\<string, mixed\>, array\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Api/V1/Admin/AiProviderController.php
+
+		-
+			message: '#^Parameter \#1 \$cfg of method App\\Http\\Controllers\\Api\\V1\\Admin\\AiProviderController\:\:testOllama\(\) expects array\<string, mixed\>, array\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Api/V1/Admin/AiProviderController.php
+
+		-
+			message: '#^Parameter \#1 \$cfg of method App\\Http\\Controllers\\Api\\V1\\Admin\\AiProviderController\:\:testOpenAi\(\) expects array\<string, mixed\>, array\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Api/V1/Admin/AiProviderController.php
+
+		-
+			message: '#^Parameter \#1 \$cfg of method App\\Http\\Controllers\\Api\\V1\\Admin\\AiProviderController\:\:testQwen\(\) expects array\<string, mixed\>, array\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Api/V1/Admin/AiProviderController.php
+
+		-
+			message: '#^Parameter \#1 \.\.\.\$arrays of function array_merge expects array, array\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Api/V1/Admin/AiProviderController.php
 
 		-
 			message: '#^Cannot access property \$id on App\\Models\\User\|null\.$#'
@@ -43,6 +127,18 @@ parameters:
 			path: app/Http/Controllers/Api/V1/Admin/AuthProviderController.php
 
 		-
+			message: '#^Called ''env'' outside of the config directory which returns null when the config is cached, use ''config''\.$#'
+			identifier: larastan.noEnvCallsOutsideOfConfig
+			count: 2
+			path: app/Http/Controllers/Api/V1/Admin/SystemHealthController.php
+
+		-
+			message: '#^Cannot access property \$id on App\\Models\\User\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Http/Controllers/Api/V1/Admin/WebApiRegistryController.php
+
+		-
 			message: '#^Cannot call method currentAccessToken\(\) on App\\Models\\User\|null\.$#'
 			identifier: method.nonObject
 			count: 1
@@ -51,6 +147,18 @@ parameters:
 		-
 			message: '#^Cannot call method load\(\) on App\\Models\\User\|null\.$#'
 			identifier: method.nonObject
+			count: 1
+			path: app/Http/Controllers/Api/V1/AuthController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method App\\Http\\Controllers\\Api\\V1\\AuthController\:\:formatUser\(\) expects App\\Models\\User, App\\Models\\User\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Api/V1/AuthController.php
+
+		-
+			message: '#^Ternary operator condition is always true\.$#'
+			identifier: ternary.alwaysTrue
 			count: 1
 			path: app/Http/Controllers/Api/V1/AuthController.php
 
@@ -93,11 +201,29 @@ parameters:
 		-
 			message: '#^Cannot access property \$id on App\\Models\\User\|null\.$#'
 			identifier: property.nonObject
-			count: 2
+			count: 3
+			path: app/Http/Controllers/Api/V1/CohortDefinitionController.php
+
+		-
+			message: '#^Cannot call method toIso8601String\(\) on string\|null\.$#'
+			identifier: method.nonObject
+			count: 1
 			path: app/Http/Controllers/Api/V1/CohortDefinitionController.php
 
 		-
 			message: '#^Parameter \#2 \$source of job class App\\Jobs\\Cohort\\GenerateCohortJob constructor expects App\\Models\\App\\Source in App\\Jobs\\Cohort\\GenerateCohortJob\:\:dispatch\(\), App\\Models\\App\\Source\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\App\\Source\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Api/V1/CohortDefinitionController.php
+
+		-
+			message: '#^Parameter \#2 \$source of method App\\Services\\Analysis\\CohortDiagnosticsService\:\:run\(\) expects App\\Models\\App\\Source, App\\Models\\App\\Source\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\App\\Source\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Api/V1/CohortDefinitionController.php
+
+		-
+			message: '#^Parameter \#2 \$source of method App\\Services\\Analysis\\CohortOverlapService\:\:computeOverlap\(\) expects App\\Models\\App\\Source, App\\Models\\App\\Source\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\App\\Source\> given\.$#'
 			identifier: argument.type
 			count: 1
 			path: app/Http/Controllers/Api/V1/CohortDefinitionController.php
@@ -129,6 +255,42 @@ parameters:
 		-
 			message: '#^Cannot access property \$id on App\\Models\\User\|null\.$#'
 			identifier: property.nonObject
+			count: 2
+			path: app/Http/Controllers/Api/V1/ConceptSetController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>concept_class_id" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Controllers/Api/V1/ConceptSetController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>concept_code" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Controllers/Api/V1/ConceptSetController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>concept_name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Controllers/Api/V1/ConceptSetController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>domain_id" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Controllers/Api/V1/ConceptSetController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>standard_concept" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Controllers/Api/V1/ConceptSetController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>vocabulary_id" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
 			count: 1
 			path: app/Http/Controllers/Api/V1/ConceptSetController.php
 
@@ -161,6 +323,12 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: app/Http/Controllers/Api/V1/EstimationController.php
+
+		-
+			message: '#^Cannot access property \$id on App\\Models\\User\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Http/Controllers/Api/V1/EvidenceSynthesisController.php
 
 		-
 			message: '#^Cannot access property \$id on App\\Models\\User\|null\.$#'
@@ -235,6 +403,18 @@ parameters:
 			path: app/Http/Controllers/Api/V1/MappingReviewController.php
 
 		-
+			message: '#^Parameter \#2 \$source of method App\\Services\\Analysis\\NegativeControlService\:\:suggestNegativeControls\(\) expects App\\Models\\App\\Source, App\\Models\\App\\Source\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\App\\Source\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Api/V1/NegativeControlController.php
+
+		-
+			message: '#^Parameter \#3 \$source of method App\\Services\\Analysis\\NegativeControlService\:\:validateCandidates\(\) expects App\\Models\\App\\Source, App\\Models\\App\\Source\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\App\\Source\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Api/V1/NegativeControlController.php
+
+		-
 			message: '#^Cannot access property \$notification_email on App\\Models\\User\|null\.$#'
 			identifier: property.nonObject
 			count: 1
@@ -265,6 +445,12 @@ parameters:
 			path: app/Http/Controllers/Api/V1/NotificationPreferenceController.php
 
 		-
+			message: '#^Cannot call method update\(\) on App\\Models\\User\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Http/Controllers/Api/V1/OnboardingController.php
+
+		-
 			message: '#^Cannot access property \$id on App\\Models\\User\|null\.$#'
 			identifier: property.nonObject
 			count: 1
@@ -292,6 +478,24 @@ parameters:
 			message: '#^Cannot access property \$id on App\\Models\\User\|null\.$#'
 			identifier: property.nonObject
 			count: 1
+			path: app/Http/Controllers/Api/V1/SccsController.php
+
+		-
+			message: '#^Parameter \#2 \$source of job class App\\Jobs\\Analysis\\RunSccsJob constructor expects App\\Models\\App\\Source in App\\Jobs\\Analysis\\RunSccsJob\:\:dispatch\(\), App\\Models\\App\\Source\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\App\\Source\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Api/V1/SccsController.php
+
+		-
+			message: '#^Parameter \#1 \$user of method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\App\\Source\>\:\:visibleToUser\(\) expects App\\Models\\User, App\\Models\\User\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Api/V1/SourceController.php
+
+		-
+			message: '#^Cannot access property \$id on App\\Models\\User\|null\.$#'
+			identifier: property.nonObject
+			count: 1
 			path: app/Http/Controllers/Api/V1/StudyController.php
 
 		-
@@ -299,6 +503,12 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: app/Http/Controllers/Api/V1/StudyController.php
+
+		-
+			message: '#^Offset 0 on non\-empty\-list\<string\> on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 2
+			path: app/Http/Controllers/LegacyAtlasRedirectController.php
 
 		-
 			message: '#^Cannot access property \$status on App\\Models\\App\\CareGapEvaluation\|null\.$#'
@@ -353,6 +563,30 @@ parameters:
 			identifier: argument.type
 			count: 2
 			path: app/Jobs/Analysis/RunEstimationJob.php
+
+		-
+			message: '#^Cannot access property \$status on App\\Models\\App\\AnalysisExecution\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Jobs/Analysis/RunEvidenceSynthesisJob.php
+
+		-
+			message: '#^Cannot access property \$value on string\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Jobs/Analysis/RunEvidenceSynthesisJob.php
+
+		-
+			message: '#^Instanceof between string and App\\Enums\\ExecutionStatus will always evaluate to false\.$#'
+			identifier: instanceof.alwaysFalse
+			count: 1
+			path: app/Jobs/Analysis/RunEvidenceSynthesisJob.php
+
+		-
+			message: '#^Parameter \#1 \$execution of method App\\Jobs\\Analysis\\RunEvidenceSynthesisJob\:\:notifyAuthor\(\) expects App\\Models\\App\\AnalysisExecution, App\\Models\\App\\AnalysisExecution\|null given\.$#'
+			identifier: argument.type
+			count: 2
+			path: app/Jobs/Analysis/RunEvidenceSynthesisJob.php
 
 		-
 			message: '#^Cannot access property \$status on App\\Models\\App\\AnalysisExecution\|null\.$#'
@@ -425,6 +659,30 @@ parameters:
 			identifier: argument.type
 			count: 2
 			path: app/Jobs/Analysis/RunPredictionJob.php
+
+		-
+			message: '#^Cannot access property \$status on App\\Models\\App\\AnalysisExecution\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Jobs/Analysis/RunSccsJob.php
+
+		-
+			message: '#^Cannot access property \$value on string\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Jobs/Analysis/RunSccsJob.php
+
+		-
+			message: '#^Instanceof between string and App\\Enums\\ExecutionStatus will always evaluate to false\.$#'
+			identifier: instanceof.alwaysFalse
+			count: 1
+			path: app/Jobs/Analysis/RunSccsJob.php
+
+		-
+			message: '#^Parameter \#1 \$execution of method App\\Jobs\\Analysis\\RunSccsJob\:\:notifyAuthor\(\) expects App\\Models\\App\\AnalysisExecution, App\\Models\\App\\AnalysisExecution\|null given\.$#'
+			identifier: argument.type
+			count: 2
+			path: app/Jobs/Analysis/RunSccsJob.php
 
 		-
 			message: '#^Cannot access property \$value on string\.$#'
@@ -569,6 +827,12 @@ parameters:
 			identifier: nullsafe.neverNull
 			count: 1
 			path: app/Notifications/CohortGeneratedNotification.php
+
+		-
+			message: '#^Method App\\Services\\AI\\AbbyAiService\:\:chat\(\) should return array\{reply\: string, suggestions\: array\<string\>\} but returns array\<string, mixed\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Services/AI/AbbyAiService.php
 
 		-
 			message: '#^Offset ''domain'' on array\{text\: ''ace inhibitor''\|''alzheimer''\|''amlodipine''\|''anemia''\|''antibiotic''\|''anxiety''\|''arthritis''\|''aspirin''\|''asthma''\|''beta blocker''\|''biopsy''\|''blood pressure''\|''bmi''\|''cancer''\|''catheterization''\|''chemotherapy''\|''cholesterol''\|''colonoscopy''\|''copd''\|''corticosteroid''\|''creatinine''\|''ct scan''\|''depression''\|''diabetes''\|''dialysis''\|''diuretic''\|''endoscopy''\|''epilepsy''\|''fracture''\|''glucose''\|''hba1c''\|''heart failure''\|''hemoglobin''\|''hip replacement''\|''hypertension''\|''infection''\|''insulin''\|''intubation''\|''knee replacement''\|''lisinopril''\|''metformin''\|''migraine''\|''mri''\|''obesity''\|''opioid''\|''parkinson''\|''platelet''\|''pneumonia''\|''potassium''\|''sepsis''\|''sodium''\|''ssri''\|''statin''\|''stroke''\|''surgery''\|''transplant''\|''warfarin''\|''white blood cell''\|''x\-ray'', domain\: ''condition''\|''drug''\|''measurement''\|''procedure'', role\: literal\-string&non\-falsy\-string\} on left side of \?\? always exists and is not nullable\.$#'
@@ -769,6 +1033,12 @@ parameters:
 			path: app/Services/Analysis/CharacterizationService.php
 
 		-
+			message: '#^Parameter \#4 \$vocabSchema of method App\\Services\\Analysis\\CohortDiagnosticsService\:\:getVisitContext\(\) expects string, string\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/Analysis/CohortDiagnosticsService.php
+
+		-
 			message: '#^Method App\\Services\\Analysis\\EstimationService\:\:isNotImplemented\(\) is unused\.$#'
 			identifier: method.unused
 			count: 1
@@ -853,6 +1123,36 @@ parameters:
 			path: app/Services/Analysis/EstimationService.php
 
 		-
+			message: '#^Comparison operation "\<" between 0 and 2 is always true\.$#'
+			identifier: smaller.alwaysTrue
+			count: 1
+			path: app/Services/Analysis/EvidenceSynthesisService.php
+
+		-
+			message: '#^Method App\\Services\\Analysis\\EvidenceSynthesisService\:\:isNotImplemented\(\) is unused\.$#'
+			identifier: method.unused
+			count: 1
+			path: app/Services/Analysis/EvidenceSynthesisService.php
+
+		-
+			message: '#^Offset ''estimates'' on string\|null on left side of \?\? does not exist\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Services/Analysis/EvidenceSynthesisService.php
+
+		-
+			message: '#^Property App\\Services\\Analysis\\EvidenceSynthesisService\:\:\$rService is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: app/Services/Analysis/EvidenceSynthesisService.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 1
+			path: app/Services/Analysis/EvidenceSynthesisService.php
+
+		-
 			message: '#^Empty array passed to foreach\.$#'
 			identifier: foreach.emptyArray
 			count: 1
@@ -917,6 +1217,18 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: app/Services/Analysis/IncidenceRateService.php
+
+		-
+			message: '#^Method App\\Services\\Analysis\\NegativeControlService\:\:suggestNegativeControls\(\) should return list\<array\{concept_id\: int, concept_name\: string, person_count\: int\}\> but returns array\<array\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Services/Analysis/NegativeControlService.php
+
+		-
+			message: '#^Parameter \#2 \$params of method App\\Services\\SqlRenderer\\SqlRendererService\:\:render\(\) expects array\<string, string\>, array\<string, string\|null\> given\.$#'
+			identifier: argument.type
+			count: 2
+			path: app/Services/Analysis/NegativeControlService.php
 
 		-
 			message: '#^Method App\\Services\\Analysis\\PathwayService\:\:buildEventCohortNames\(\) is unused\.$#'
@@ -997,7 +1309,19 @@ parameters:
 			path: app/Services/Analysis/PathwayService.php
 
 		-
+			message: '#^Method App\\Services\\Analysis\\PatientProfileService\:\:getConditionEras\(\) should return list\<array\<string, mixed\>\> but returns array\<array\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Services/Analysis/PatientProfileService.php
+
+		-
 			message: '#^Method App\\Services\\Analysis\\PatientProfileService\:\:getConditions\(\) should return list\<array\<string, mixed\>\> but returns array\<array\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Services/Analysis/PatientProfileService.php
+
+		-
+			message: '#^Method App\\Services\\Analysis\\PatientProfileService\:\:getDrugEras\(\) should return list\<array\<string, mixed\>\> but returns array\<array\>\.$#'
 			identifier: return.type
 			count: 1
 			path: app/Services/Analysis/PatientProfileService.php
@@ -1039,6 +1363,12 @@ parameters:
 			path: app/Services/Analysis/PatientProfileService.php
 
 		-
+			message: '#^Parameter \#2 \$params of method App\\Services\\Analysis\\PatientProfileService\:\:getConditionEras\(\) expects array\<string, string\>, array\<string, string\|null\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/Analysis/PatientProfileService.php
+
+		-
 			message: '#^Parameter \#2 \$params of method App\\Services\\Analysis\\PatientProfileService\:\:getConditions\(\) expects array\<string, string\>, array\<string, string\|null\> given\.$#'
 			identifier: argument.type
 			count: 1
@@ -1046,6 +1376,12 @@ parameters:
 
 		-
 			message: '#^Parameter \#2 \$params of method App\\Services\\Analysis\\PatientProfileService\:\:getDemographics\(\) expects array\<string, string\>, array\<string, string\|null\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/Analysis/PatientProfileService.php
+
+		-
+			message: '#^Parameter \#2 \$params of method App\\Services\\Analysis\\PatientProfileService\:\:getDrugEras\(\) expects array\<string, string\>, array\<string, string\|null\> given\.$#'
 			identifier: argument.type
 			count: 1
 			path: app/Services/Analysis/PatientProfileService.php
@@ -1169,6 +1505,48 @@ parameters:
 			identifier: deadCode.unreachable
 			count: 1
 			path: app/Services/Analysis/PredictionService.php
+
+		-
+			message: '#^Method App\\Services\\Analysis\\SccsService\:\:isNotImplemented\(\) is unused\.$#'
+			identifier: method.unused
+			count: 1
+			path: app/Services/Analysis/SccsService.php
+
+		-
+			message: '#^Offset ''exposureCohortId'' on string\|null on left side of \?\? does not exist\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Services/Analysis/SccsService.php
+
+		-
+			message: '#^Offset ''outcomeCohortId'' on string\|null on left side of \?\? does not exist\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Services/Analysis/SccsService.php
+
+		-
+			message: '#^Property App\\Services\\Analysis\\SccsService\:\:\$rService is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: app/Services/Analysis/SccsService.php
+
+		-
+			message: '#^Result of \|\| is always true\.$#'
+			identifier: booleanOr.alwaysTrue
+			count: 1
+			path: app/Services/Analysis/SccsService.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between null and null will always evaluate to true\.$#'
+			identifier: identical.alwaysTrue
+			count: 2
+			path: app/Services/Analysis/SccsService.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 1
+			path: app/Services/Analysis/SccsService.php
 
 		-
 			message: '#^Cannot access property \$value on string\.$#'
@@ -1357,18 +1735,6 @@ parameters:
 			path: app/Services/Ingestion/FileUploadService.php
 
 		-
-			message: '#^Call to static method create\(\) on an unknown class App\\Models\\Results\\NetworkAnalysisResult\.$#'
-			identifier: class.notFound
-			count: 2
-			path: app/Services/Network/NetworkAnalysisEngineService.php
-
-		-
-			message: '#^Call to static method where\(\) on an unknown class App\\Models\\Results\\NetworkAnalysisResult\.$#'
-			identifier: class.notFound
-			count: 6
-			path: app/Services/Network/NetworkAnalysisEngineService.php
-
-		-
 			message: '#^Offset ''count_total'' on array\{stratum_1\: mixed, stratum_2\: mixed, stratum_3\: mixed, count_total\: \(float\|int\), denom_total\: \(float\|int\), ratios\?\: non\-empty\-list\<float\|int\>, source_ids\?\: non\-empty\-list\<\(int\|string\)\>\} on left side of \?\? always exists and is not nullable\.$#'
 			identifier: nullCoalesce.offset
 			count: 1
@@ -1379,6 +1745,12 @@ parameters:
 			identifier: nullCoalesce.offset
 			count: 1
 			path: app/Services/Network/NetworkAnalysisEngineService.php
+
+		-
+			message: '#^Parameter \#2 \$params of method App\\Services\\SqlRenderer\\SqlRendererService\:\:render\(\) expects array\<string, string\>, App\\Models\\App\\Source given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/PopulationCharacterization/PopulationCharacterizationEngineService.php
 
 		-
 			message: '#^Cannot access property \$category on App\\Models\\Results\\PopulationRiskScoreResult\|null\.$#'
@@ -1403,3 +1775,9 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: app/Services/PopulationRisk/PopulationRiskScoreEngineService.php
+
+		-
+			message: '#^Offset 0 on non\-empty\-list\<string\> on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Services/WebApi/WebApiImporterService.php

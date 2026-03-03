@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { VocabularySearchPanel } from "../components/VocabularySearchPanel";
 import { ConceptDetailPanel } from "../components/ConceptDetailPanel";
+import { HelpButton } from "@/features/help";
 
 export default function VocabularyPage() {
   const [searchParams] = useSearchParams();
@@ -22,13 +23,16 @@ export default function VocabularyPage() {
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-[#F0EDE8]">
-          Vocabulary Browser
-        </h1>
-        <p className="mt-1 text-sm text-[#8A857D]">
-          Search, explore, and navigate the OMOP standardized vocabulary
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-[#F0EDE8]">
+            Vocabulary Browser
+          </h1>
+          <p className="mt-1 text-sm text-[#8A857D]">
+            Search, explore, and navigate the OMOP standardized vocabulary
+          </p>
+        </div>
+        <HelpButton helpKey="vocabulary-search" />
       </div>
 
       {/* Split Pane Layout */}

@@ -1,0 +1,14 @@
+{
+  "key": "characterization",
+  "title": "Cohort Characterization",
+  "description": "Cohort Characterization computes descriptive statistics for one or more cohorts — demographic breakdowns, comorbidity prevalence, drug utilisation, procedure frequencies, and more. Results include standardised mean differences (SMD) for comparing cohorts.",
+  "docs_url": "/docs/part4-analyses/09-characterization",
+  "video_url": null,
+  "tips": [
+    "Add a comparator cohort to compute SMD — values > 0.1 indicate meaningful imbalance.",
+    "Select 'All Features' to compute the full OMOP standard feature set, or pick specific domains to speed up execution.",
+    "Characterization runs in the background (Horizon queue) — you'll get a notification when done.",
+    "Export results to CSV for reporting or input into downstream tools like R's CohortMethod.",
+    "Time-windowed features (e.g., '365 days before index') are more clinically meaningful than all-time features."
+  ]
+}

@@ -4,6 +4,7 @@ import { Loader2, PlayCircle } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 import { SourceSelector } from "../components/SourceSelector";
+import { HelpButton } from "@/features/help";
 import apiClient from "@/lib/api-client";
 
 // Lazy-loaded tab content
@@ -65,6 +66,7 @@ export default function DataExplorerPage() {
         </div>
 
         <div className="flex items-center gap-3">
+          <HelpButton helpKey="data-explorer" />
           <SourceSelector
             value={sourceId}
             onChange={handleSourceChange}

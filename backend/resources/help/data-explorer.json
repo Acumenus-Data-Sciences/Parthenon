@@ -1,0 +1,14 @@
+{
+  "key": "data-explorer",
+  "title": "Data Explorer",
+  "description": "The Data Explorer visualises pre-computed Achilles characterisation results for a selected data source. It provides an overview of patient counts, demographic distributions, domain coverage, and data quality summaries without running any new queries.",
+  "docs_url": "/docs/part6-data-explorer/18-characterization-achilles",
+  "video_url": null,
+  "tips": [
+    "Select a source from the top dropdown to load its Achilles results.",
+    "The Overview tab gives a quick sanity check: total patients, observation years, and domain record counts.",
+    "Domain drilldown (Conditions, Drugs, etc.) shows the most prevalent concepts — useful for data characterisation.",
+    "Temporal Trends shows patient inflow/outflow over time — inspect for data truncation or upload gaps.",
+    "Results are only as fresh as the last Achilles run. Contact your admin if counts look stale."
+  ]
+}

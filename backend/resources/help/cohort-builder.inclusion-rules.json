@@ -1,0 +1,14 @@
+{
+  "key": "cohort-builder.inclusion-rules",
+  "title": "Inclusion Rules",
+  "description": "Inclusion rules are applied sequentially after the primary event to further filter the qualifying population. Each rule specifies a condition (e.g., age range, diagnosis, drug exposure) relative to the index date using temporal windows.",
+  "docs_url": "/docs/part3-cohorts/05-cohort-expressions#inclusion-rules",
+  "video_url": null,
+  "tips": [
+    "Rules are AND-ed together — a patient must satisfy ALL rules to remain in the cohort.",
+    "Use negative temporal windows (e.g., -365 to -1) to require history before the index date.",
+    "The Attrition tab after generation shows exactly how many patients each rule removes.",
+    "An 'exit' rule (e.g., prior diagnosis) uses a negative window; an 'entry' rule uses a positive one.",
+    "Avoid very long windows without CDM coverage checks — patients with insufficient observation periods will be dropped automatically."
+  ]
+}

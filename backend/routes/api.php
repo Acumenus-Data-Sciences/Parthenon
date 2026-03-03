@@ -21,6 +21,7 @@ use App\Http\Controllers\Api\V1\DataQualityController;
 use App\Http\Controllers\Api\V1\EstimationController;
 use App\Http\Controllers\Api\V1\EvidenceSynthesisController;
 use App\Http\Controllers\Api\V1\HealthController;
+use App\Http\Controllers\Api\V1\HelpController;
 use App\Http\Controllers\Api\V1\IncidenceRateController;
 use App\Http\Controllers\Api\V1\IngestionController;
 use App\Http\Controllers\Api\V1\MappingReviewController;
@@ -227,6 +228,10 @@ Route::prefix('v1')->group(function () {
 
         // Onboarding
         Route::put('user/onboarding', [OnboardingController::class, 'complete']);
+
+        // Help & Changelog (§9.12)
+        Route::get('/help/{key}', [HelpController::class, 'help']);
+        Route::get('/changelog', [HelpController::class, 'changelog']);
 
         // Care Bundles & Care Gaps
         Route::prefix('care-bundles')->group(function () {

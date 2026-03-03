@@ -1,0 +1,14 @@
+{
+  "key": "data-sources",
+  "title": "Data Sources",
+  "description": "Data sources represent OMOP CDM database connections. Each source has daimon configurations for CDM, vocabulary, results, and temp schemas. Cohort generation and analyses are always run against a specific source.",
+  "docs_url": "/docs/part1-getting-started/02-data-sources",
+  "video_url": null,
+  "tips": [
+    "A source needs at least a CDM daimon and a results daimon to support cohort generation.",
+    "The vocabulary daimon can point to a shared schema if multiple sources use the same vocabulary version.",
+    "Test Connection verifies credentials and schema accessibility before running analyses.",
+    "Import from WebAPI pulls source configurations from an existing Atlas instance — useful during migration.",
+    "The results schema must be writable — ensure the DB user has INSERT/UPDATE/DELETE rights."
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "key": "data-explorer.dqd",
+  "title": "Data Quality Dashboard",
+  "description": "The Data Quality Dashboard (DQD) runs OHDSI's standardised data quality checks across all CDM tables. It evaluates completeness, plausibility, and conformance rules and summarises failures by category and threshold.",
+  "docs_url": "/docs/part6-data-explorer/19-data-quality-dashboard",
+  "video_url": null,
+  "tips": [
+    "A DQD run can take 30–90 minutes on large databases — schedule during off-peak hours.",
+    "The Overview scorecard shows Pass/Fail/Error counts; drill into a category to see individual check results.",
+    "CDM_SOURCE table failures are often the first sign of an incomplete ETL — check this table first.",
+    "Plausibility checks flag biologically implausible values (e.g., age > 150) — investigate before using that field in analyses.",
+    "Export results to CSV for documentation or to share with data engineering teams."
+  ]
+}

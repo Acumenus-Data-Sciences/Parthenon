@@ -1,0 +1,14 @@
+{
+  "key": "treatment-pathways",
+  "title": "Treatment Pathway Analysis",
+  "description": "Treatment Pathway analysis describes the sequence of treatments a cohort receives over time. It shows what proportion of patients start on each drug, switch, combine, or discontinue — producing a Sankey diagram of treatment flows.",
+  "docs_url": "/docs/part4-analyses/11-treatment-pathways",
+  "video_url": null,
+  "tips": [
+    "Add all treatment-of-interest cohorts to see the full treatment landscape for a condition.",
+    "The combination window ('permitted gap') controls how overlapping exposures are treated as a combination.",
+    "Minimum cell count hides rare pathways for privacy — adjust this threshold in the settings.",
+    "Pathway results are exploratory — use Incidence Rate or Estimation for inferential analyses.",
+    "Sorting the Sankey by frequency highlights the most common clinical journeys."
+  ]
+}

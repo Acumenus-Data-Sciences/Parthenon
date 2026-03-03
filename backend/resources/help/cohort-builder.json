@@ -1,0 +1,14 @@
+{
+  "key": "cohort-builder",
+  "title": "Cohort Builder",
+  "description": "The Cohort Builder lets you define patient populations using CIRCE expression logic. A cohort definition specifies who qualifies (primary event + inclusion rules) and for how long (exit strategies). Cohorts are the foundation for every analysis in Parthenon.",
+  "docs_url": "/docs/part3-cohorts/06-building-cohorts",
+  "video_url": null,
+  "tips": [
+    "Start with the Primary Event — this anchors the index date for every qualifying patient.",
+    "Inclusion rules are AND-ed together; each rule further filters the cohort population.",
+    "Preview the generated SQL (SQL tab) before running generation to catch logic errors early.",
+    "Use the Clone button to duplicate a definition when exploring small variations of the same cohort.",
+    "Tag your cohorts (e.g. 'T2DM', 'validation') to find them quickly as the library grows."
+  ]
+}

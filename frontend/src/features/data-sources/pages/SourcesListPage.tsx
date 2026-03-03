@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { useSources } from "../hooks/useSources";
 import { WebApiImportPanel } from "../components/WebApiImportPanel";
 import { SourceAccessControl } from "../components/SourceAccessControl";
+import { HelpButton } from "@/features/help";
 
 export function SourcesListPage() {
   const { data: sources, isLoading, error } = useSources();
@@ -35,19 +36,22 @@ export function SourcesListPage() {
             Manage CDM database connections and access controls
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => setShowImport(!showImport)}
-          className={cn(
-            "inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium transition-colors",
-            showImport
-              ? "border-[#C9A227]/40 bg-[#C9A227]/10 text-[#C9A227]"
-              : "border-[#232328] text-[#8A857D] hover:text-[#C5C0B8]",
-          )}
-        >
-          <Upload size={14} />
-          Import from WebAPI
-        </button>
+        <div className="flex items-center gap-2">
+          <HelpButton helpKey="data-sources" />
+          <button
+            type="button"
+            onClick={() => setShowImport(!showImport)}
+            className={cn(
+              "inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium transition-colors",
+              showImport
+                ? "border-[#C9A227]/40 bg-[#C9A227]/10 text-[#C9A227]"
+                : "border-[#232328] text-[#8A857D] hover:text-[#C5C0B8]",
+            )}
+          >
+            <Upload size={14} />
+            Import from WebAPI
+          </button>
+        </div>
       </div>
 
       {showImport && <WebApiImportPanel />}

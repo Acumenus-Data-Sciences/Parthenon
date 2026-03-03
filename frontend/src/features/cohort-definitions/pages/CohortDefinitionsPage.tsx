@@ -6,6 +6,7 @@ import { CohortDefinitionList } from "../components/CohortDefinitionList";
 import { ImportCohortModal } from "../components/ImportCohortModal";
 import { useCreateCohortDefinition } from "../hooks/useCohortDefinitions";
 import { getCohortTags } from "../api/cohortApi";
+import { HelpButton } from "@/features/help";
 
 const defaultExpression = {
   ConceptSets: [],
@@ -69,6 +70,7 @@ export default function CohortDefinitionsPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <HelpButton helpKey="cohort-builder" />
           <button
             type="button"
             onClick={() => setShowImport(true)}

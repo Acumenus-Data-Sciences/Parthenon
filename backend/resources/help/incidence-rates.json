@@ -1,0 +1,14 @@
+{
+  "key": "incidence-rates",
+  "title": "Incidence Rate Analysis",
+  "description": "Incidence Rate analysis estimates the rate of a new outcome event in a target population, optionally stratified by age, sex, and calendar year. It measures how often an outcome occurs per 100 person-years in the at-risk period.",
+  "docs_url": "/docs/part4-analyses/10-incidence-rates",
+  "video_url": null,
+  "tips": [
+    "The target cohort defines the at-risk population; the outcome cohort defines the event being measured.",
+    "An outcome cohort should typically use 'First Event' to avoid counting re-occurrences.",
+    "Clean windows (time-at-risk start/end) define the exact period during which patients are observed for the outcome.",
+    "Stratified results by age/sex are available in the Breakdown tab post-execution.",
+    "Use multiple outcome cohorts in one analysis to compare incidence across related outcomes efficiently."
+  ]
+}

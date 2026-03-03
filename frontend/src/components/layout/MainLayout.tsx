@@ -7,6 +7,7 @@ import { ToastContainer } from "@/components/ui";
 import { ChangePasswordModal } from "@/features/auth/components/ChangePasswordModal";
 import { OnboardingModal } from "@/features/auth/components/OnboardingModal";
 import { SetupWizard } from "@/features/auth/components/SetupWizard";
+import { WhatsNewModal } from "@/features/help";
 import { useUiStore } from "@/stores/uiStore";
 import { useAuthStore } from "@/stores/authStore";
 import { useGlobalKeyboard } from "@/hooks/useGlobalKeyboard";
@@ -40,6 +41,7 @@ export function MainLayout() {
       <CommandPalette />
       <AiDrawer />
       <ToastContainer />
+      <WhatsNewModal />
     </div>
   );
 }

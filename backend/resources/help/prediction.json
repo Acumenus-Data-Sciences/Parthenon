@@ -1,0 +1,14 @@
+{
+  "key": "prediction",
+  "title": "Patient-Level Prediction",
+  "description": "Patient-Level Prediction (PLP) trains machine learning models to predict individual patient outcomes within a specified time-at-risk window. Models include LASSO logistic regression, random forests, and gradient boosting.",
+  "docs_url": "/docs/part4-analyses/13-patient-level-prediction",
+  "video_url": null,
+  "tips": [
+    "Define the prediction window carefully — too short misses late outcomes; too long captures unrelated events.",
+    "Minimum outcome prevalence of 1% is recommended for reliable model training.",
+    "LASSO logistic regression is the recommended starting model — it's interpretable and fast.",
+    "Review the AUC, calibration plot, and feature importance before deploying any prediction model.",
+    "PLP requires the HADES R runtime — check System Health if execution stalls."
+  ]
+}

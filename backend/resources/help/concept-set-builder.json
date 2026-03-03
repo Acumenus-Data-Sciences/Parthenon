@@ -1,0 +1,14 @@
+{
+  "key": "concept-set-builder",
+  "title": "Concept Set Builder",
+  "description": "Concept sets are reusable collections of OMOP vocabulary concepts (diagnoses, drugs, procedures, measurements) used as building blocks in cohort definitions and analyses. You can add concepts individually, expand them to include descendants, or import from Atlas-format JSON.",
+  "docs_url": "/docs/part2-vocabulary/04-concept-sets",
+  "video_url": null,
+  "tips": [
+    "Always check 'Include Descendants' for condition/drug hierarchies — you rarely want only the exact concept.",
+    "Use 'Exclude' to remove specific sub-concepts (e.g., include all statins but exclude rosuvastatin).",
+    "Search vocabulary first to confirm a concept exists before building the set.",
+    "Export your concept set as JSON to share it or import it into Atlas for cross-tool compatibility.",
+    "The 'Resolve' view shows every specific concept_id that will be matched at query time — verify it before running generation."
+  ]
+}

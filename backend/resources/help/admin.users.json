@@ -1,0 +1,14 @@
+{
+  "key": "admin.users",
+  "title": "User Management",
+  "description": "The User Management panel lets administrators create, modify, and deactivate user accounts, assign roles, and reset passwords. New users receive a temporary password by email and are prompted to change it on first login.",
+  "docs_url": "/docs/part8-administration/22-user-management",
+  "video_url": null,
+  "tips": [
+    "Use roles rather than individual permissions — roles bundle appropriate permissions for common job functions.",
+    "The 'analyst' role is appropriate for most research users; 'admin' for IT staff; 'super-admin' for system owners only.",
+    "Deactivating a user (rather than deleting) preserves audit trail entries linked to that account.",
+    "Users with 'PHI Access' role can view patient timelines — grant this role only to clinically credentialed staff.",
+    "All role changes are logged in the Audit Log with the admin who made the change and the timestamp."
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "key": "data-ingestion",
+  "title": "Data Ingestion",
+  "description": "Data Ingestion lets you upload CSV files and map them to the OMOP CDM schema without writing ETL code. Parthenon profiles your data, suggests column mappings, resolves source codes to standard concepts, and writes the output to the CDM.",
+  "docs_url": "/docs/part5-ingestion/15-uploading-data",
+  "video_url": null,
+  "tips": [
+    "Upload files in UTF-8 encoding with header rows — other encodings may cause mapping errors.",
+    "The profiler runs a statistical analysis of your data before mapping — review it to identify data quality issues early.",
+    "AI-assisted schema mapping suggests the most likely OMOP column for each source column — always review before confirming.",
+    "Concept mapping resolves source codes (ICD-10, NDC, CPT) to standard OMOP concepts — mappings with low confidence require manual review.",
+    "Failed ingestion jobs can be retried from the job detail page without re-uploading the file."
+  ]
+}

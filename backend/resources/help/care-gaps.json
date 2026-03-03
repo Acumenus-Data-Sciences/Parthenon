@@ -1,0 +1,14 @@
+{
+  "key": "care-gaps",
+  "title": "Care Bundles & Gaps",
+  "description": "Care Bundles group clinical quality measures (care gaps) targeting a specific patient population. Evaluating a bundle identifies which patients are out-of-compliance with each measure, enabling population health management workflows.",
+  "docs_url": "/docs/part4-analyses/09-characterization",
+  "video_url": null,
+  "tips": [
+    "A care gap measure typically has a denominator cohort (eligible patients) and a numerator cohort (patients in compliance).",
+    "Gap rate = 1 − (numerator count / denominator count) — lower is better.",
+    "Overlap rules detect patients with conflicting or redundant measure assignments.",
+    "Evaluation results can be exported to drive clinical outreach workflows.",
+    "Bundle evaluation runs periodically if you configure a scheduled job — contact your admin."
+  ]
+}

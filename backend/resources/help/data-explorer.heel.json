@@ -1,0 +1,13 @@
+{
+  "key": "data-explorer.heel",
+  "title": "Achilles Heel Checks",
+  "description": "Achilles Heel is a set of rule-based data quality checks that flag common CDM issues such as future dates, impossible ages, missing required concepts, and atypically high or low record counts. Results appear in the Heel Checks tab.",
+  "docs_url": "/docs/part6-data-explorer/18-characterization-achilles",
+  "video_url": null,
+  "tips": [
+    "Errors (not just warnings) should be resolved before using the database for research.",
+    "High-frequency violations often point to ETL issues — share the Heel report with your data engineering team.",
+    "Run Heel after any ETL refresh or vocabulary update to catch newly introduced issues.",
+    "The 'rule_id' column maps to documented Achilles Heel rules — look up the rule to understand root cause."
+  ]
+}

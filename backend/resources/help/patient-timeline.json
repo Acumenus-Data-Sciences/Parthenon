@@ -1,0 +1,14 @@
+{
+  "key": "patient-timeline",
+  "title": "Patient Timeline",
+  "description": "The Patient Timeline displays a longitudinal view of a single patient's clinical events across all CDM domains — conditions, drug exposures, procedures, measurements, visits, and observations. It requires the PHI Access role.",
+  "docs_url": "/docs/part7-patient-profiles/21-patient-timelines",
+  "video_url": null,
+  "tips": [
+    "Access to patient timelines is logged in the audit trail — only access records you have a clinical need to view.",
+    "Use the domain filter chips to focus on specific event types (e.g., drugs only).",
+    "Hovering over any event shows the full concept name, source value, and associated visit.",
+    "The timeline is read-only — it reflects the CDM as-is and cannot be edited.",
+    "Patient IDs are internal CDM person_ids — they are not patient MRNs or hospital identifiers."
+  ]
+}

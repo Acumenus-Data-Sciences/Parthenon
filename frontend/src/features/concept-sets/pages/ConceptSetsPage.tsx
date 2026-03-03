@@ -5,6 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { ConceptSetList } from "../components/ConceptSetList";
 import { useCreateConceptSet } from "../hooks/useConceptSets";
 import { importConceptSets, type ImportConceptSetResult } from "../api/conceptSetApi";
+import { HelpButton } from "@/features/help";
 
 function ImportConceptSetModal({
   onClose,
@@ -174,6 +175,7 @@ export default function ConceptSetsPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <HelpButton helpKey="concept-set-builder" />
           <button
             type="button"
             onClick={() => setShowImport(true)}

@@ -1,0 +1,13 @@
+{
+  "key": "cohort-builder.primary-criteria",
+  "title": "Primary Event Criteria",
+  "description": "The primary event defines the index date — the anchor point from which all inclusion/exclusion windows and exit strategies are measured. Every patient in the cohort must have at least one occurrence of the primary event during the observation period.",
+  "docs_url": "/docs/part3-cohorts/05-cohort-expressions#primary-event",
+  "video_url": null,
+  "tips": [
+    "Set 'Occurrence limit' to 'First' to study new-user / incidence populations.",
+    "Use 'All Events' for prevalence studies where repeated occurrences matter.",
+    "The observation window (Prior Days / Post Days) defines how much CDM history must exist around the event.",
+    "Multiple domain criteria within one primary event are OR-ed — any one qualifying event anchors the index date."
+  ]
+}
