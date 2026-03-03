@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\App\Source;
 use App\Services\PopulationCharacterization\PopulationCharacterizationEngineService;
 use App\Services\PopulationCharacterization\PopulationCharacterizationRegistry;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Throwable;
 
+#[Group('Population Analytics', weight: 170)]
 class PopulationCharacterizationController extends Controller
 {
     public function __construct(
@@ -65,16 +67,16 @@ class PopulationCharacterizationController extends Controller
     public function catalogue(): JsonResponse
     {
         $catalogue = array_map(fn ($a) => [
-            'analysis_id'           => $a->analysisId(),
-            'analysis_name'         => $a->analysisName(),
-            'category'              => $a->category(),
-            'description'           => $a->description(),
-            'requires_optional'     => $a->requiresOptionalTables(),
-            'required_tables'       => $a->requiredTables(),
+            'analysis_id' => $a->analysisId(),
+            'analysis_name' => $a->analysisName(),
+            'category' => $a->category(),
+            'description' => $a->description(),
+            'requires_optional' => $a->requiresOptionalTables(),
+            'required_tables' => $a->requiredTables(),
         ], $this->registry->all());
 
         return response()->json([
-            'data'  => $catalogue,
+            'data' => $catalogue,
             'total' => count($catalogue),
         ]);
     }

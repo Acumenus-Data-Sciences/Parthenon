@@ -6,18 +6,20 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\LoginRequest;
 use App\Mail\TempPasswordMail;
 use App\Models\User;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 
+#[Group('Authentication', weight: 10)]
 class AuthController extends Controller
 {
     public function register(Request $request): JsonResponse
     {
         $request->validate([
-            'name'         => 'required|string|max:255',
-            'email'        => 'required|string|email|max:255',
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255',
             'phone_number' => 'nullable|string|max:30',
         ]);
 
@@ -31,11 +33,11 @@ class AuthController extends Controller
         $tempPassword = $this->generateTempPassword();
 
         $user = User::create([
-            'name'                 => trim($request->string('name')),
-            'email'                => $email,
-            'password'             => Hash::make($tempPassword),
+            'name' => trim($request->string('name')),
+            'email' => $email,
+            'password' => Hash::make($tempPassword),
             'must_change_password' => true,
-            'phone_number'         => $request->string('phone_number') ?: null,
+            'phone_number' => $request->string('phone_number') ?: null,
         ]);
 
         try {
@@ -43,10 +45,10 @@ class AuthController extends Controller
         } catch (\Throwable $e) {
             // Non-fatal: log the temp password so admins can retrieve it if email fails
             logger()->warning('Failed to send temp password email', [
-                'user_id'       => $user->id,
-                'email'         => $user->email,
+                'user_id' => $user->id,
+                'email' => $user->email,
                 'temp_password' => $tempPassword,
-                'error'         => $e->getMessage(),
+                'error' => $e->getMessage(),
             ]);
         }
 
@@ -68,7 +70,7 @@ class AuthController extends Controller
 
         return response()->json([
             'token' => $token,
-            'user'  => $this->formatUser($user),
+            'user' => $this->formatUser($user),
         ]);
     }
 
@@ -84,7 +86,7 @@ class AuthController extends Controller
     {
         $request->validate([
             'current_password' => 'required|string',
-            'new_password'     => 'required|string|min:8',
+            'new_password' => 'required|string|min:8',
         ]);
 
         /** @var User $user */
@@ -99,13 +101,13 @@ class AuthController extends Controller
         }
 
         $user->update([
-            'password'             => Hash::make($request->new_password),
+            'password' => Hash::make($request->new_password),
             'must_change_password' => false,
         ]);
 
         return response()->json([
             'message' => 'Password changed successfully',
-            'user'    => $this->formatUser($user->fresh()),
+            'user' => $this->formatUser($user->fresh()),
         ]);
     }
 
@@ -125,7 +127,7 @@ class AuthController extends Controller
         return [
             ...$user->only(['id', 'name', 'email', 'avatar', 'phone_number', 'last_login_at',
                 'must_change_password', 'onboarding_completed', 'created_at', 'updated_at']),
-            'roles'       => $user->getRoleNames(),
+            'roles' => $user->getRoleNames(),
             'permissions' => $user->getAllPermissions()->pluck('name'),
         ];
     }

@@ -7,9 +7,11 @@ use App\Models\App\Source;
 use App\Models\App\Study;
 use App\Models\App\StudyAnalysis;
 use App\Services\Analysis\StudyService;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+#[Group('Studies', weight: 150)]
 class StudyController extends Controller
 {
     public function __construct(

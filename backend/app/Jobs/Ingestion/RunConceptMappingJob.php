@@ -19,11 +19,6 @@ class RunConceptMappingJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
-     * The queue this job should be dispatched to.
-     */
-    public string $queue = 'ingestion';
-
-    /**
      * The number of seconds the job can run before timing out.
      */
     public int $timeout = 1800;
@@ -35,7 +30,9 @@ class RunConceptMappingJob implements ShouldQueue
 
     public function __construct(
         public readonly IngestionJob $ingestionJob,
-    ) {}
+    ) {
+        $this->queue = 'ingestion';
+    }
 
     public function handle(AiService $aiService, ConfidenceRouterService $confidenceRouter): void
     {

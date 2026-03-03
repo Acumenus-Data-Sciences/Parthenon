@@ -3,14 +3,17 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+#[Group('Authentication', weight: 10)]
 class NotificationPreferenceController extends Controller
 {
     public function show(Request $request): JsonResponse
     {
         $user = $request->user();
+
         return response()->json([
             'notification_email' => $user->notification_email,
             'notification_sms' => $user->notification_sms,

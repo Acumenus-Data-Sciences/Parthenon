@@ -9,10 +9,12 @@ use App\Models\App\ConceptMapping;
 use App\Models\App\IngestionJob;
 use App\Models\App\MappingCache;
 use App\Models\App\MappingReview;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
+#[Group('Data Ingestion', weight: 200)]
 class MappingReviewController extends Controller
 {
     /**

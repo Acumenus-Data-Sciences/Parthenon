@@ -7,9 +7,11 @@ use App\Models\App\ConceptSet;
 use App\Models\App\ConceptSetItem;
 use App\Models\Vocabulary\Concept;
 use App\Services\ConceptSet\ConceptSetResolverService;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+#[Group('Concept Sets', weight: 40)]
 class ConceptSetController extends Controller
 {
     public function __construct(
@@ -310,6 +312,7 @@ class ConceptSetController extends Controller
             if (! $name) {
                 $failed++;
                 $results[] = ['name' => '(unknown)', 'status' => 'failed', 'reason' => 'Missing name'];
+
                 continue;
             }
 
@@ -317,6 +320,7 @@ class ConceptSetController extends Controller
             if ($exists) {
                 $skipped++;
                 $results[] = ['name' => $name, 'status' => 'skipped', 'reason' => 'Duplicate name'];
+
                 continue;
             }
 

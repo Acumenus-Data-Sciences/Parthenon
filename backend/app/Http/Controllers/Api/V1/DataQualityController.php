@@ -8,10 +8,12 @@ use App\Models\App\DqdResult;
 use App\Models\App\Source;
 use App\Services\Dqd\DqdCheckRegistry;
 use App\Services\Dqd\DqdEngineService;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
+#[Group('Data Explorer', weight: 160)]
 class DataQualityController extends Controller
 {
     public function __construct(

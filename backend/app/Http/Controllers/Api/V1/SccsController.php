@@ -8,9 +8,11 @@ use App\Jobs\Analysis\RunSccsJob;
 use App\Models\App\AnalysisExecution;
 use App\Models\App\SccsAnalysis;
 use App\Models\App\Source;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+#[Group('SCCS', weight: 110)]
 class SccsController extends Controller
 {
     /**

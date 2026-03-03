@@ -13,6 +13,7 @@
 #   ./deploy.sh --frontend  # frontend build only
 #   ./deploy.sh --db        # migrations + cache clear only
 #   ./deploy.sh --docs      # documentation build only
+#   ./deploy.sh --openapi   # OpenAPI spec export + TypeScript type generation only
 
 set -euo pipefail
 
@@ -20,6 +21,7 @@ PHP_ONLY=false
 FRONTEND_ONLY=false
 DB_ONLY=false
 DOCS_ONLY=false
+OPENAPI_ONLY=false
 
 for arg in "$@"; do
   case $arg in
@@ -27,6 +29,7 @@ for arg in "$@"; do
     --frontend) FRONTEND_ONLY=true ;;
     --db)       DB_ONLY=true ;;
     --docs)     DOCS_ONLY=true ;;
+    --openapi)  OPENAPI_ONLY=true ;;
   esac
 done
 
@@ -34,11 +37,13 @@ DO_PHP=true
 DO_FRONTEND=true
 DO_DB=true
 DO_DOCS=true
+DO_OPENAPI=true
 
-if $PHP_ONLY;      then DO_FRONTEND=false; DO_DB=false;      DO_DOCS=false; fi
-if $FRONTEND_ONLY; then DO_PHP=false;      DO_DB=false;      DO_DOCS=false; fi
-if $DB_ONLY;       then DO_PHP=false;      DO_FRONTEND=false; DO_DOCS=false; fi
-if $DOCS_ONLY;     then DO_PHP=false;      DO_FRONTEND=false; DO_DB=false;   fi
+if $PHP_ONLY;      then DO_FRONTEND=false; DO_DB=false;      DO_DOCS=false; DO_OPENAPI=false; fi
+if $FRONTEND_ONLY; then DO_PHP=false;      DO_DB=false;      DO_DOCS=false; DO_OPENAPI=false; fi
+if $DB_ONLY;       then DO_PHP=false;      DO_FRONTEND=false; DO_DOCS=false; DO_OPENAPI=false; fi
+if $DOCS_ONLY;     then DO_PHP=false;      DO_FRONTEND=false; DO_DB=false;  DO_OPENAPI=false;  fi
+if $OPENAPI_ONLY;  then DO_PHP=false;      DO_FRONTEND=false; DO_DB=false;  DO_DOCS=false;     fi
 
 echo "==> Parthenon deploy"
 
@@ -80,6 +85,16 @@ if $DO_DOCS; then
   mkdir -p docs/dist
   docker compose --profile docs run --rm docs-build
   echo "   Built → docs/dist  (served by nginx at /docs/)"
+fi
+
+# ── OpenAPI spec export + TypeScript type generation ─────────────────────────
+if $DO_OPENAPI; then
+  echo ""
+  echo "── OpenAPI: exporting spec and regenerating TypeScript types ──"
+  docker compose exec php php artisan scramble:export
+  echo "   Spec exported → backend/api.json"
+  docker compose exec node sh -c "cd /app && npm run generate:api-types"
+  echo "   Types generated → frontend/src/types/api.generated.ts"
 fi
 
 echo ""

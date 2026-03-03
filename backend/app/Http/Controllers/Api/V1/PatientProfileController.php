@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Models\App\Source;
 use App\Services\Analysis\PatientProfileService;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+#[Group('Patient Profiles', weight: 190)]
 class PatientProfileController extends Controller
 {
     public function __construct(

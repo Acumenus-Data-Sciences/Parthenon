@@ -8,9 +8,11 @@ use App\Jobs\Analysis\RunPredictionJob;
 use App\Models\App\AnalysisExecution;
 use App\Models\App\PredictionAnalysis;
 use App\Models\App\Source;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+#[Group('Patient-Level Prediction', weight: 100)]
 class PredictionController extends Controller
 {
     /**

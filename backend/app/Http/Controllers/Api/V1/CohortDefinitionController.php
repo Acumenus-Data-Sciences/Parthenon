@@ -12,10 +12,12 @@ use App\Services\Analysis\CohortOverlapService;
 use App\Services\Cohort\CohortGenerationService;
 use App\Services\Cohort\CohortSqlCompiler;
 use App\Services\Cohort\Schema\CohortExpressionSchema;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
+#[Group('Cohort Definitions', weight: 50)]
 class CohortDefinitionController extends Controller
 {
     public function __construct(
@@ -371,6 +373,7 @@ class CohortDefinitionController extends Controller
             if (! $name || ! $expression) {
                 $failed++;
                 $results[] = ['name' => $name ?: '(unknown)', 'status' => 'failed', 'reason' => 'Missing name or expression'];
+
                 continue;
             }
 
@@ -379,6 +382,7 @@ class CohortDefinitionController extends Controller
             if ($exists) {
                 $skipped++;
                 $results[] = ['name' => $name, 'status' => 'skipped', 'reason' => 'Duplicate name'];
+
                 continue;
             }
 
@@ -430,13 +434,13 @@ class CohortDefinitionController extends Controller
     public function tags(): JsonResponse
     {
         try {
-            $tags = \DB::select("
+            $tags = \DB::select('
                 SELECT DISTINCT jsonb_array_elements_text(tags) AS tag
                 FROM cohort_definitions
                 WHERE deleted_at IS NULL
                   AND tags IS NOT NULL
                 ORDER BY tag
-            ");
+            ');
 
             return response()->json(array_column($tags, 'tag'));
         } catch (\Throwable $e) {

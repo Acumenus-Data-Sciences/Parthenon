@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Services\AI\AbbyAiService;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+#[Group('AI Assistant (Abby)', weight: 210)]
 class AbbyAiController extends Controller
 {
     public function __construct(
@@ -20,8 +22,8 @@ class AbbyAiController extends Controller
     public function buildCohort(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'prompt'       => 'required|string|min:10|max:3000',
-            'source_id'    => 'sometimes|nullable|integer',
+            'prompt' => 'required|string|min:10|max:3000',
+            'source_id' => 'sometimes|nullable|integer',
             'page_context' => 'sometimes|string|max:64',
         ]);
 
@@ -42,7 +44,7 @@ class AbbyAiController extends Controller
     public function createCohort(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'prompt'       => 'required|string|min:10|max:3000',
+            'prompt' => 'required|string|min:10|max:3000',
             'page_context' => 'sometimes|string|max:64',
         ]);
 
@@ -53,12 +55,12 @@ class AbbyAiController extends Controller
         );
 
         return response()->json([
-            'data'  => $result['cohort_definition'],
+            'data' => $result['cohort_definition'],
             'build' => [
-                'expression'     => $result['expression'],
-                'explanation'    => $result['explanation'],
-                'concept_sets'   => $result['concept_sets'],
-                'warnings'       => $result['warnings'],
+                'expression' => $result['expression'],
+                'explanation' => $result['explanation'],
+                'concept_sets' => $result['concept_sets'],
+                'warnings' => $result['warnings'],
                 'llm_confidence' => $result['llm_confidence'],
             ],
             'message' => 'Cohort created. Review the definition and generate when ready.',
@@ -76,19 +78,19 @@ class AbbyAiController extends Controller
     public function chat(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'message'           => 'required|string|min:1|max:4000',
-            'page_context'      => 'sometimes|string|max:64',
-            'page_data'         => 'sometimes|array',
-            'history'           => 'sometimes|array',
-            'history.*.role'    => 'required_with:history|string|in:user,assistant',
+            'message' => 'required|string|min:1|max:4000',
+            'page_context' => 'sometimes|string|max:64',
+            'page_data' => 'sometimes|array',
+            'history' => 'sometimes|array',
+            'history.*.role' => 'required_with:history|string|in:user,assistant',
             'history.*.content' => 'required_with:history|string|max:4000',
         ]);
 
         $result = $this->abbyAi->chat(
-            message:     $validated['message'],
+            message: $validated['message'],
             pageContext: $validated['page_context'] ?? 'general',
-            pageData:    $validated['page_data'] ?? [],
-            history:     $validated['history'] ?? [],
+            pageData: $validated['page_data'] ?? [],
+            history: $validated['history'] ?? [],
         );
 
         return response()->json($result);
@@ -100,7 +102,7 @@ class AbbyAiController extends Controller
     public function suggestCriteria(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'domain'      => 'required|string|in:condition,drug,procedure,measurement,observation',
+            'domain' => 'required|string|in:condition,drug,procedure,measurement,observation',
             'description' => 'required|string|min:2|max:500',
         ]);
 
@@ -118,7 +120,7 @@ class AbbyAiController extends Controller
     public function explain(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'expression'   => 'required|array',
+            'expression' => 'required|array',
             'page_context' => 'sometimes|string|max:64',
         ]);
 
@@ -133,8 +135,8 @@ class AbbyAiController extends Controller
     public function refine(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'expression'   => 'required|array',
-            'prompt'       => 'required|string|min:5|max:2000',
+            'expression' => 'required|array',
+            'prompt' => 'required|string|min:5|max:2000',
             'page_context' => 'sometimes|string|max:64',
         ]);
 

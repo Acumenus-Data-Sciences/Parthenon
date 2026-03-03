@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Controller;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
+#[Group('Administration', weight: 220)]
 class RoleController extends Controller
 {
     /** Protected built-in roles that cannot be deleted. */
@@ -37,8 +39,8 @@ class RoleController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'name'          => 'required|string|max:100|unique:roles,name',
-            'permissions'   => 'array',
+            'name' => 'required|string|max:100|unique:roles,name',
+            'permissions' => 'array',
             'permissions.*' => 'string|exists:permissions,name',
         ]);
 
@@ -54,8 +56,8 @@ class RoleController extends Controller
     public function update(Request $request, Role $role): JsonResponse
     {
         $validated = $request->validate([
-            'name'          => "sometimes|string|max:100|unique:roles,name,{$role->id}",
-            'permissions'   => 'sometimes|array',
+            'name' => "sometimes|string|max:100|unique:roles,name,{$role->id}",
+            'permissions' => 'sometimes|array',
             'permissions.*' => 'string|exists:permissions,name',
         ]);
 

@@ -69,3 +69,7 @@ docs/dist/*
 docs/site/node_modules/
 docs/site/build/
 docs/site/.docusaurus/
+
+# OpenAPI / generated types
+backend/api.json
+frontend/src/types/api.generated.ts

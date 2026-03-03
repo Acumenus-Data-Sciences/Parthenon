@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\App\Source;
 use App\Models\Results\ClinicalCoherenceResult;
 use App\Services\ClinicalCoherence\ClinicalCoherenceEngineService;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 
+#[Group('Population Analytics', weight: 170)]
 class ClinicalCoherenceController extends Controller
 {
     public function __construct(
@@ -29,9 +31,9 @@ class ClinicalCoherenceController extends Controller
 
         return response()->json([
             'source_id' => $source->id,
-            'last_run'  => $lastRun,
-            'summary'   => $summary,
-            'results'   => $grouped,
+            'last_run' => $lastRun,
+            'summary' => $summary,
+            'results' => $grouped,
         ]);
     }
 
@@ -47,9 +49,9 @@ class ClinicalCoherenceController extends Controller
         return response()->json([
             'source_id' => $source->id,
             'completed' => $outcome['completed'],
-            'failed'    => $outcome['failed'],
-            'flagged'   => $outcome['flagged'],
-            'analyses'  => $outcome['results'],
+            'failed' => $outcome['failed'],
+            'flagged' => $outcome['flagged'],
+            'analyses' => $outcome['results'],
         ]);
     }
 
@@ -74,13 +76,13 @@ class ClinicalCoherenceController extends Controller
         $first = $rows->first();
 
         return response()->json([
-            'analysis_id'   => $first->analysis_id,
+            'analysis_id' => $first->analysis_id,
             'analysis_name' => $first->analysis_name,
-            'category'      => $first->category,
-            'severity'      => $first->severity,
-            'run_at'        => $first->run_at,
+            'category' => $first->category,
+            'severity' => $first->severity,
+            'run_at' => $first->run_at,
             'flagged_count' => $rows->where('flagged', true)->count(),
-            'rows'          => $rows->values(),
+            'rows' => $rows->values(),
         ]);
     }
 }

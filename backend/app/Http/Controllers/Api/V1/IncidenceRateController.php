@@ -8,9 +8,11 @@ use App\Jobs\Analysis\RunIncidenceRateJob;
 use App\Models\App\AnalysisExecution;
 use App\Models\App\IncidenceRateAnalysis;
 use App\Models\App\Source;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+#[Group('Incidence Rates', weight: 70)]
 class IncidenceRateController extends Controller
 {
     /**

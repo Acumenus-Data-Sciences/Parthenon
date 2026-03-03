@@ -10,9 +10,11 @@ use App\Models\Vocabulary\ConceptRelationship;
 use App\Models\Vocabulary\Domain;
 use App\Models\Vocabulary\Vocabulary;
 use App\Services\AiService;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+#[Group('Vocabulary', weight: 30)]
 class VocabularyController extends Controller
 {
     /**

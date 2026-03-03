@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\App\AiProviderSetting;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 
+#[Group('Administration', weight: 220)]
 class AiProviderController extends Controller
 {
     public function index(): JsonResponse
@@ -27,8 +29,8 @@ class AiProviderController extends Controller
     {
         $validated = $request->validate([
             'display_name' => 'sometimes|string|max:100',
-            'model'        => 'sometimes|string|max:200',
-            'settings'     => 'sometimes|array',
+            'model' => 'sometimes|string|max:200',
+            'settings' => 'sometimes|array',
         ]);
 
         $provider = AiProviderSetting::where('provider_type', $type)->firstOrFail();
@@ -81,15 +83,15 @@ class AiProviderController extends Controller
         $settings = $provider->settings ?? [];
 
         $result = match ($type) {
-            'ollama'    => $this->testOllama($settings),
+            'ollama' => $this->testOllama($settings),
             'anthropic' => $this->testAnthropic($settings),
-            'openai'    => $this->testOpenAi($settings),
-            'gemini'    => $this->testGemini($settings),
-            'deepseek'  => $this->testDeepSeek($settings),
-            'qwen'      => $this->testQwen($settings),
-            'moonshot'  => $this->testMoonshot($settings),
-            'mistral'   => $this->testMistral($settings),
-            default     => ['success' => false, 'message' => "Connection test not available for {$type}."],
+            'openai' => $this->testOpenAi($settings),
+            'gemini' => $this->testGemini($settings),
+            'deepseek' => $this->testDeepSeek($settings),
+            'qwen' => $this->testQwen($settings),
+            'moonshot' => $this->testMoonshot($settings),
+            'mistral' => $this->testMistral($settings),
+            default => ['success' => false, 'message' => "Connection test not available for {$type}."],
         };
 
         return response()->json($result);
@@ -129,14 +131,14 @@ class AiProviderController extends Controller
         try {
             $response = Http::timeout(10)
                 ->withHeaders([
-                    'x-api-key'         => $apiKey,
+                    'x-api-key' => $apiKey,
                     'anthropic-version' => '2023-06-01',
-                    'content-type'      => 'application/json',
+                    'content-type' => 'application/json',
                 ])
                 ->post('https://api.anthropic.com/v1/messages', [
-                    'model'      => 'claude-haiku-4-5-20251001',
+                    'model' => 'claude-haiku-4-5-20251001',
                     'max_tokens' => 1,
-                    'messages'   => [['role' => 'user', 'content' => 'Hi']],
+                    'messages' => [['role' => 'user', 'content' => 'Hi']],
                 ]);
 
             if ($response->status() === 200 || $response->status() === 400) {

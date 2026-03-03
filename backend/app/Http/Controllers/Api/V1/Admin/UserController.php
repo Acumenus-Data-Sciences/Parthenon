@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1\Admin;
 use App\Http\Controllers\Controller;
 use App\Mail\TempPasswordMail;
 use App\Models\User;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -12,6 +13,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rules\Password;
 use Spatie\Permission\Models\Role;
 
+#[Group('Administration', weight: 220)]
 class UserController extends Controller
 {
     public function index(Request $request): JsonResponse
@@ -35,12 +37,12 @@ class UserController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'name'                 => 'required|string|max:255',
-            'email'                => 'required|email|unique:users',
-            'send_temp_password'   => 'boolean',
-            'password'             => ['nullable', Password::min(8)->mixedCase()->numbers()],
-            'roles'                => 'array',
-            'roles.*'              => 'string|exists:roles,name',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users',
+            'send_temp_password' => 'boolean',
+            'password' => ['nullable', Password::min(8)->mixedCase()->numbers()],
+            'roles' => 'array',
+            'roles.*' => 'string|exists:roles,name',
         ]);
 
         $sendTemp = $validated['send_temp_password'] ?? true;
@@ -49,9 +51,9 @@ class UserController extends Controller
             : $validated['password'];
 
         $user = User::create([
-            'name'                 => $validated['name'],
-            'email'                => strtolower($validated['email']),
-            'password'             => Hash::make($plainPassword),
+            'name' => $validated['name'],
+            'email' => strtolower($validated['email']),
+            'password' => Hash::make($plainPassword),
             'must_change_password' => $sendTemp,
         ]);
 
@@ -64,9 +66,9 @@ class UserController extends Controller
                 Mail::to($user->email)->send(new TempPasswordMail($user->name, $plainPassword));
             } catch (\Throwable $e) {
                 logger()->warning('Failed to send temp password email', [
-                    'user_id'       => $user->id,
+                    'user_id' => $user->id,
                     'temp_password' => $plainPassword,
-                    'error'         => $e->getMessage(),
+                    'error' => $e->getMessage(),
                 ]);
             }
         }
@@ -90,11 +92,11 @@ class UserController extends Controller
     public function update(Request $request, User $user): JsonResponse
     {
         $validated = $request->validate([
-            'name'     => 'sometimes|string|max:255',
-            'email'    => "sometimes|email|unique:users,email,{$user->id}",
+            'name' => 'sometimes|string|max:255',
+            'email' => "sometimes|email|unique:users,email,{$user->id}",
             'password' => ['sometimes', Password::min(8)->mixedCase()->numbers()],
-            'roles'    => 'sometimes|array',
-            'roles.*'  => 'string|exists:roles,name',
+            'roles' => 'sometimes|array',
+            'roles.*' => 'string|exists:roles,name',
         ]);
 
         if (isset($validated['password'])) {
@@ -138,7 +140,7 @@ class UserController extends Controller
     public function syncRoles(Request $request, User $user): JsonResponse
     {
         $validated = $request->validate([
-            'roles'   => 'required|array',
+            'roles' => 'required|array',
             'roles.*' => 'string|exists:roles,name',
         ]);
 

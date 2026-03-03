@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\StoreSourceRequest;
 use App\Models\App\Source;
 use App\Services\WebApi\WebApiImporterService;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+#[Group('Data Sources', weight: 20)]
 class SourceController extends Controller
 {
     public function __construct(

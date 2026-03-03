@@ -4,11 +4,11 @@ namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\App\AuthProviderSetting;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Crypt;
-use Illuminate\Validation\Rule;
 
+#[Group('Administration', weight: 220)]
 class AuthProviderController extends Controller
 {
     private const TYPES = ['ldap', 'oauth2', 'saml2', 'oidc'];
@@ -31,9 +31,9 @@ class AuthProviderController extends Controller
     {
         $validated = $request->validate([
             'display_name' => 'sometimes|string|max:100',
-            'is_enabled'   => 'sometimes|boolean',
-            'priority'     => 'sometimes|integer|min:0',
-            'settings'     => 'sometimes|array',
+            'is_enabled' => 'sometimes|boolean',
+            'priority' => 'sometimes|integer|min:0',
+            'settings' => 'sometimes|array',
         ]);
 
         $provider = AuthProviderSetting::where('provider_type', $providerType)->firstOrFail();
@@ -77,8 +77,8 @@ class AuthProviderController extends Controller
         $provider = AuthProviderSetting::where('provider_type', $providerType)->firstOrFail();
 
         $result = match ($providerType) {
-            'ldap'  => $this->testLdap($provider->settings ?? []),
-            'oidc'  => $this->testOidc($provider->settings ?? []),
+            'ldap' => $this->testLdap($provider->settings ?? []),
+            'oidc' => $this->testOidc($provider->settings ?? []),
             default => ['success' => false, 'message' => "Connection test not available for {$providerType}."],
         };
 
@@ -94,8 +94,8 @@ class AuthProviderController extends Controller
             return ['success' => false, 'message' => 'LDAP host is not configured.'];
         }
 
-        $host    = $cfg['host'];
-        $port    = (int) ($cfg['port'] ?? 389);
+        $host = $cfg['host'];
+        $port = (int) ($cfg['port'] ?? 389);
         $timeout = (int) ($cfg['timeout'] ?? 5);
 
         $conn = @ldap_connect("ldap://{$host}:{$port}");
@@ -110,7 +110,7 @@ class AuthProviderController extends Controller
         $bound = @ldap_bind($conn, $cfg['bind_dn'] ?? null, $cfg['bind_password'] ?? null);
 
         if (! $bound) {
-            return ['success' => false, 'message' => 'LDAP bind failed: ' . ldap_error($conn)];
+            return ['success' => false, 'message' => 'LDAP bind failed: '.ldap_error($conn)];
         }
 
         ldap_unbind($conn);
@@ -138,9 +138,9 @@ class AuthProviderController extends Controller
                 'success' => true,
                 'message' => 'OIDC discovery document fetched successfully.',
                 'details' => [
-                    'issuer'                 => $doc['issuer'] ?? null,
+                    'issuer' => $doc['issuer'] ?? null,
                     'authorization_endpoint' => $doc['authorization_endpoint'] ?? null,
-                    'token_endpoint'         => $doc['token_endpoint'] ?? null,
+                    'token_endpoint' => $doc['token_endpoint'] ?? null,
                 ],
             ];
         } catch (\Throwable $e) {

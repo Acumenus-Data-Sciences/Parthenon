@@ -178,10 +178,104 @@ jobs:
         working-directory: docs/site
         run: npm run build
 
+  openapi-export:
+    name: OpenAPI Spec (Scramble)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_DB: parthenon_test
+          POSTGRES_USER: parthenon
+          POSTGRES_PASSWORD: secret
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U parthenon"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create schemas
+        env:
+          PGPASSWORD: secret
+        run: |
+          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE EXTENSION IF NOT EXISTS vector;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS app;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS vocab;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS cdm;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS achilles_results;"
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          extensions: pdo_pgsql, pgsql, redis, bcmath, intl, mbstring, pcntl, zip
+          coverage: none
+
+      - name: Install Composer dependencies
+        working-directory: backend
+        run: composer install --prefer-dist --no-interaction
+
+      - name: Copy env
+        working-directory: backend
+        run: cp .env.example .env && php artisan key:generate
+
+      - name: Export OpenAPI spec
+        working-directory: backend
+        env:
+          DB_CONNECTION: pgsql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 5432
+          DB_DATABASE: parthenon_test
+          DB_USERNAME: parthenon
+          DB_PASSWORD: secret
+          DB_SEARCH_PATH: app,public
+        run: php artisan scramble:export
+
+      - name: Validate OpenAPI spec
+        working-directory: backend
+        run: |
+          python3 -c "
+          import json, sys
+          with open('api.json') as f:
+              spec = json.load(f)
+          paths = len(spec.get('paths', {}))
+          tags = {op.get('tags', [''])[0] for p in spec['paths'].values() for op in p.values() if isinstance(op, dict)}
+          print(f'Paths: {paths}')
+          print(f'Groups: {sorted(tags)}')
+          if paths < 100:
+              print('ERROR: too few paths', file=sys.stderr)
+              sys.exit(1)
+          print('Spec valid.')
+          "
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Generate TypeScript types
+        working-directory: frontend
+        run: npm run generate:api-types
+
+      - name: Verify TypeScript types compile
+        working-directory: frontend
+        run: npx tsc --noEmit
+
   docker:
     name: Docker Build Validation
     runs-on: ubuntu-latest
-    needs: [backend, frontend, ai]
+    needs: [backend, frontend, ai, openapi-export]
     steps:
       - uses: actions/checkout@v4
 

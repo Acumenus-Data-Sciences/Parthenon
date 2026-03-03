@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Controller;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Redis;
 
+#[Group('Administration', weight: 220)]
 class SystemHealthController extends Controller
 {
     public function index(): JsonResponse
@@ -27,9 +29,9 @@ class SystemHealthController extends Controller
     private function checkBackend(): array
     {
         return [
-            'name'    => 'Backend API',
-            'key'     => 'backend',
-            'status'  => 'healthy',
+            'name' => 'Backend API',
+            'key' => 'backend',
+            'status' => 'healthy',
             'message' => 'Laravel is responding normally.',
         ];
     }
@@ -40,16 +42,16 @@ class SystemHealthController extends Controller
             Redis::ping();
 
             return [
-                'name'    => 'Redis',
-                'key'     => 'redis',
-                'status'  => 'healthy',
+                'name' => 'Redis',
+                'key' => 'redis',
+                'status' => 'healthy',
                 'message' => 'Redis is reachable.',
             ];
         } catch (\Throwable $e) {
             return [
-                'name'    => 'Redis',
-                'key'     => 'redis',
-                'status'  => 'down',
+                'name' => 'Redis',
+                'key' => 'redis',
+                'status' => 'down',
                 'message' => $e->getMessage(),
             ];
         }
@@ -64,24 +66,24 @@ class SystemHealthController extends Controller
 
             if ($response->successful()) {
                 return [
-                    'name'    => 'AI Service (Abby)',
-                    'key'     => 'ai',
-                    'status'  => 'healthy',
+                    'name' => 'AI Service (Abby)',
+                    'key' => 'ai',
+                    'status' => 'healthy',
                     'message' => 'AI service is reachable.',
                 ];
             }
 
             return [
-                'name'    => 'AI Service (Abby)',
-                'key'     => 'ai',
-                'status'  => 'degraded',
+                'name' => 'AI Service (Abby)',
+                'key' => 'ai',
+                'status' => 'degraded',
                 'message' => "AI service returned HTTP {$response->status()}.",
             ];
         } catch (\Throwable $e) {
             return [
-                'name'    => 'AI Service (Abby)',
-                'key'     => 'ai',
-                'status'  => 'down',
+                'name' => 'AI Service (Abby)',
+                'key' => 'ai',
+                'status' => 'down',
                 'message' => $e->getMessage(),
             ];
         }
@@ -96,24 +98,24 @@ class SystemHealthController extends Controller
 
             if ($response->successful()) {
                 return [
-                    'name'    => 'R Analytics Runtime',
-                    'key'     => 'r',
-                    'status'  => 'healthy',
+                    'name' => 'R Analytics Runtime',
+                    'key' => 'r',
+                    'status' => 'healthy',
                     'message' => 'R Plumber is reachable.',
                 ];
             }
 
             return [
-                'name'    => 'R Analytics Runtime',
-                'key'     => 'r',
-                'status'  => 'degraded',
+                'name' => 'R Analytics Runtime',
+                'key' => 'r',
+                'status' => 'degraded',
                 'message' => "R Plumber returned HTTP {$response->status()}.",
             ];
         } catch (\Throwable $e) {
             return [
-                'name'    => 'R Analytics Runtime',
-                'key'     => 'r',
-                'status'  => 'down',
+                'name' => 'R Analytics Runtime',
+                'key' => 'r',
+                'status' => 'down',
                 'message' => $e->getMessage(),
             ];
         }
@@ -123,22 +125,22 @@ class SystemHealthController extends Controller
     {
         try {
             $pending = DB::table('jobs')->count();
-            $failed  = DB::table('failed_jobs')->count();
+            $failed = DB::table('failed_jobs')->count();
 
             $status = $failed > 0 ? 'degraded' : 'healthy';
 
             return [
-                'name'    => 'Job Queue',
-                'key'     => 'queue',
-                'status'  => $status,
+                'name' => 'Job Queue',
+                'key' => 'queue',
+                'status' => $status,
                 'message' => "Pending: {$pending}, Failed: {$failed}",
                 'details' => ['pending' => $pending, 'failed' => $failed],
             ];
         } catch (\Throwable $e) {
             return [
-                'name'    => 'Job Queue',
-                'key'     => 'queue',
-                'status'  => 'down',
+                'name' => 'Job Queue',
+                'key' => 'queue',
+                'status' => 'down',
                 'message' => $e->getMessage(),
             ];
         }

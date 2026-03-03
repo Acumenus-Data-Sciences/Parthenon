@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Results\NetworkAnalysisResult;
 use App\Services\Network\NetworkAnalysisEngineService;
 use App\Services\Network\NetworkAnalysisRegistry;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Throwable;
 
+#[Group('Network Analysis', weight: 180)]
 class NetworkAnalysisController extends Controller
 {
     public function __construct(
@@ -44,12 +46,12 @@ class NetworkAnalysisController extends Controller
 
         return response()->json([
             'analysis' => [
-                'id'          => $analysis->analysisId(),
-                'name'        => $analysis->analysisName(),
-                'category'    => $analysis->category(),
+                'id' => $analysis->analysisId(),
+                'name' => $analysis->analysisName(),
+                'category' => $analysis->category(),
                 'description' => $analysis->description(),
             ],
-            'network'    => $results['network'],
+            'network' => $results['network'],
             'per_source' => $results['per_source'],
         ]);
     }
@@ -63,7 +65,7 @@ class NetworkAnalysisController extends Controller
         $result = $this->engine->runAll();
 
         return response()->json([
-            'message' => "Network analyses completed.",
+            'message' => 'Network analyses completed.',
             'summary' => $result,
         ]);
     }
@@ -96,10 +98,10 @@ class NetworkAnalysisController extends Controller
             ->pluck('source_count', 'analysis_id');
 
         return response()->json([
-            'domain_coverage'       => $coverage->groupBy('source_id'),
-            'top_heterogeneous'     => $heterogeneity,
-            'sources_by_analysis'   => $sourcesByAnalysis,
-            'total_analyses'        => $this->registry->count(),
+            'domain_coverage' => $coverage->groupBy('source_id'),
+            'top_heterogeneous' => $heterogeneity,
+            'sources_by_analysis' => $sourcesByAnalysis,
+            'total_analyses' => $this->registry->count(),
         ]);
     }
 }

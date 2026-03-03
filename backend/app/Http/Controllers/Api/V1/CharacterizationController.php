@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Enums\AnalysisType;
 use App\Enums\ExecutionStatus;
 use App\Http\Controllers\Controller;
 use App\Jobs\Analysis\RunCharacterizationJob;
@@ -10,9 +9,11 @@ use App\Models\App\AnalysisExecution;
 use App\Models\App\Characterization;
 use App\Models\App\Source;
 use App\Services\Analysis\CharacterizationService;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+#[Group('Characterization', weight: 60)]
 class CharacterizationController extends Controller
 {
     public function __construct(

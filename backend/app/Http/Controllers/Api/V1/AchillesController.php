@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\App\Source;
 use App\Services\Achilles\AchillesResultReaderService;
 use App\Services\Achilles\Heel\AchillesHeelService;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+#[Group('Data Explorer', weight: 160)]
 class AchillesController extends Controller
 {
     public function __construct(
@@ -203,8 +205,8 @@ class AchillesController extends Controller
             return response()->json([
                 'data' => $data,
                 'summary' => [
-                    'errors'        => count($data['error']),
-                    'warnings'      => count($data['warning']),
+                    'errors' => count($data['error']),
+                    'warnings' => count($data['warning']),
                     'notifications' => count($data['notification']),
                 ],
             ]);
@@ -224,7 +226,7 @@ class AchillesController extends Controller
             $result = $this->heel->run($source);
 
             return response()->json([
-                'data'    => $result,
+                'data' => $result,
                 'message' => "Heel completed: {$result['completed']} rules passed, {$result['failed']} failed.",
             ]);
         } catch (\Throwable $e) {
