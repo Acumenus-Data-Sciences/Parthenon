@@ -2270,6 +2270,7 @@ Legacy migration: `parthenon:migrate-legacy`, `parthenon:import-atlas-cohorts`, 
 | 14 | HADES R Package Integration | Post-deploy |
 | 15 | Molecular Diagnostics & Cancer Genomics | Post-14, 18 months |
 | 16 | DICOM & Medical Imaging Integration | Post-14, 18 months |
+| 17 | Health Economics & Outcomes Research (HEOR) | Post-14, 18 months |
 
 **Total: ~26 weeks (6.5 months)** with 2-3 developers.
 Critical path: Foundation → Vocabulary/Embeddings → AI Mapper → Research Workbench → Atlas Parity → Deployment → Data Wiring → HADES Integration.
@@ -5211,3 +5212,824 @@ When Phase 16 is complete:
 | Radiogenomics | No | No | No | No | **Yes (Phase 15 convergence)** |
 | Federated imaging | No | No | No | No | **Yes (feature-level)** |
 | Open source | No | No | Partial | Yes | **Yes** |
+
+---
+---
+
+# Phase 17 — Health Economics & Outcomes Research (HEOR) Extension
+
+**Status:** Planned
+**Target date:** TBD
+**Branch:** `master`
+**Goal:** Extend Parthenon's existing 45 care bundles and 438 care gaps with a full health economics engine — linking care gap closure to claims cost data through the OMOP COST and PAYER_PLAN_PERIOD tables, propensity-score-matched comparative cohorts, ROI computation, population scenario modeling, and value-based contract simulation. Transform clinical quality data into computable economic evidence: *"What does each unaddressed care gap actually cost — and what is the return on investment of closing it?"*
+
+**Reference Document:** `docs/Parthenon_HEOR_Care_Gap_Economics_Plan.docx` (Udoshi, March 2026)
+
+---
+
+## 1. Background & Motivation
+
+Healthcare in the United States spends $4.5 trillion annually, yet ~30% ($1.3 trillion) is attributable to waste from care delivery and coordination failures. The most expensive downstream events — diabetic amputations, dialysis initiation, heart failure hospitalizations, COPD exacerbations requiring ICU — are the direct, predictable consequences of care gaps that went unaddressed.
+
+Parthenon already tracks 45 care bundles and 438 care gaps with open/closed/overdue status and bundle compliance scoring. But it currently stops at the clinical question: *Is the gap open or closed?* The HEOR extension answers the economic question: *What does it cost when the gap stays open?*
+
+### What Parthenon Already Has
+
+| Component | Status | Details |
+|-----------|--------|---------|
+| **45 Care Bundles** | Implemented | T2DM, HTN, HF (HFrEF/HFpEF), COPD, Asthma, AFib, CAD, CKD, Hyperlipidemia, Obesity, Depression, Anxiety, Osteoporosis, OA, RA, and more |
+| **438 Care Gaps** | Implemented | HbA1c testing, retinal exam, nephropathy screening, statin therapy, BP control, medication adherence, cancer screenings, immunizations, depression screening, etc. |
+| **Gap Status Tracking** | Implemented | Per-patient state: open, closed, overdue, recently closed, never addressed — with timestamps |
+| **Bundle Compliance Scoring** | Implemented | Composite % of constituent gaps addressed per patient, population dashboards |
+
+### What's Missing: The Economic Layer
+
+| Question | Requires |
+|----------|---------|
+| What is the downstream cost of a care gap remaining open 6 months vs. closed within 30 days? | Claims/cost data + temporal cost windows |
+| What is the total cost of care for 90% vs. 50% bundle compliance? | Matched cohort comparison |
+| Which specific gaps within a bundle produce the largest economic return? | Per-gap ROI computation |
+| How do answers differ by age, comorbidity, payer type, geography? | Stratified comparative effectiveness |
+
+### The OMOP Health Economics Data Model
+
+**COST Table** (CDM v5.0.1+): Captures cost of any medical event — total_charge, total_cost, total_paid, paid_by_payer, paid_by_patient, copay, coinsurance, deductible, revenue_code, DRG. Links to clinical events via `cost_event_id` + `cost_event_field_concept_id`.
+
+**PAYER_PLAN_PERIOD Table**: Continuous enrollment periods under specific payer/plan. Essential for ensuring claims completeness during observation windows — a patient with enrollment gaps may appear lower-cost simply due to missing claims.
+
+### Gap in OHDSI's Economics Tooling
+
+OHDSI has world-class clinical comparative effectiveness (CohortMethod, SCCS, PLP), but **no native mechanism for economic outcomes analysis**: no cost accumulation over follow-up windows, no ICER computation, no bootstrapped cost CIs, no discount rate application, no QALY framework integration. This is the gap Parthenon fills.
+
+---
+
+## 2. The Care Gap Economics Architecture
+
+### 2.1 Care Gap Event Model
+
+Every care gap state transition is represented as a structured event:
+- `person_id` — the patient
+- `care_gap_concept_id` — identifies the specific gap (e.g., "HbA1c testing within 12 months")
+- `care_bundle_concept_id` — the parent bundle
+- `event_date` — when the transition occurred
+- `event_type` — opened / closed / overdue
+- `closing_intervention_id` — the PROCEDURE, MEASUREMENT, or DRUG_EXPOSURE that satisfied the gap
+- `days_to_closure` — elapsed time from gap identification to closure
+
+### 2.2 Cost Accumulation Windows
+
+For each person relative to a care gap event, compute:
+- **Pre-period costs** — baseline (6–12 months before gap identification)
+- **Intervention-period costs** — cost of closing the gap itself (screening, medication, visit)
+- **Post-period costs** — downstream costs in 6, 12, 24, 36-month windows
+
+Costs categorized by:
+- **Complication-related** — hospitalizations, ED visits, procedures for known complications (defined by ICD-10/SNOMED concept sets per bundle)
+- **Disease management** — routine visits, labs, medications for the chronic condition
+- **All-cause** — everything regardless of attribution
+
+### 2.3 Complication Concept Sets
+
+For each of 45 care bundles, curated concept sets of preventable complications. Example — Diabetes bundle:
+- Diabetic retinopathy and blindness
+- Diabetic nephropathy and ESRD
+- Diabetic neuropathy and lower-extremity amputation
+- DKA and hyperosmolar hyperglycemic state
+- Cardiovascular events (MI, stroke, PVD)
+- Hypoglycemic events requiring emergency care
+
+Each set includes ICD-10-CM codes, SNOMED concepts, and associated procedure codes (dialysis initiation, vitrectomy, amputation).
+
+### 2.4 Comparative Cohort Construction
+
+**Gap-Closed Cohort (Treatment):** Patients whose care gaps were closed within defined timeframe (e.g., all diabetes gaps within 90 days). Requires continuous PAYER_PLAN_PERIOD enrollment for full follow-up.
+
+**Gap-Open Cohort (Comparator):** Same condition, same gaps identified, but gaps remained open or addressed late/partially. Same enrollment requirement.
+
+**Propensity Score Matching** (OHDSI CohortMethod framework):
+- Thousands of baseline covariates via FeatureExtraction (demographics, conditions, drugs, procedures, comorbidity indices, utilization, prior costs)
+- Variable-ratio matching with caliper (0.2 SD of PS logit)
+- All covariates must achieve SMD < 0.1 post-match
+- IPTW and stratification as sensitivity analyses
+- Negative control outcomes for residual confounding assessment
+
+**Difference-in-Differences** (complementary design):
+- (Post_costs_closed − Pre_costs_closed) − (Post_costs_open − Pre_costs_open) = Incremental Cost Impact
+- Controls for time-invariant unmeasured confounders
+- Parallel trends assumption validated by pre-period cost trajectories
+
+---
+
+## 3. The HEOR Analytics Suite
+
+### 3.1 Care Gap ROI Calculator
+
+For each of 438 care gaps and 45 bundles, compute:
+
+| Metric | Definition |
+|--------|-----------|
+| **Intervention Cost** | Direct cost of closing the gap (screening, visit, medication, lab). From actual COST records in gap-closed cohort |
+| **Complication Cost Avoided** | Complication-related cost difference between matched gap-open vs. gap-closed cohorts |
+| **All-Cause Cost Difference** | Total cost difference (captures expected savings + unexpected cost shifts) |
+| **ROI** | Complication Cost Avoided ÷ Intervention Cost (4.0 = $4 avoided per $1 spent) |
+| **NNT** | Patients needing gap closure to prevent one complication event |
+| **Cost per Complication Averted** | Total intervention cost for NNT patients |
+| **Time to Break-Even** | Months until cumulative savings exceed intervention costs |
+| **Confidence Intervals** | Non-parametric bootstrap (1,000 iterations), 95% CIs for all metrics |
+
+### 3.2 Bundle Prioritization Engine
+
+Ranks every care gap by economic impact — answering: *If you can only close 5 of 12 diabetes gaps, which 5 produce the greatest cost avoidance?*
+
+Ranking considers:
+- Magnitude of cost avoidance per patient
+- Prevalence of open gap in population (a high-impact gap that's 95% closed has less population value than a moderate-impact gap at 40% closed)
+- Time to break-even (shorter payback = higher rank for short contract cycles)
+- Interaction effects (synergistic gaps — closing HbA1c monitoring without statin therapy may yield less than the sum)
+
+### 3.3 Population Scenario Modeler
+
+Interactive Monte Carlo simulation projecting economic impact of care gap closure strategies:
+
+**Inputs:** Target population, current gap closure rates (from Parthenon real-time tracking), target improvement rates, projection horizon (1–5 years)
+
+**Outputs:**
+- Total investment required (intervention costs for incremental gap closures)
+- Total complication costs avoided
+- Net savings (avoided costs − investment)
+- HEDIS score impact → predicted Star Rating change
+- Risk-adjusted revenue impact (coding completeness from care gap visits improves RAF/HCC capture)
+- Quality bonus payment projections
+- Uncertainty quantification (propagated bootstrap CIs through Monte Carlo)
+
+### 3.4 Temporal Cost Trajectory Analyzer
+
+Longitudinal cost curves for matched cohorts:
+- **Divergence point** — at what month do gap-closed vs. gap-open cost curves separate?
+- **Acceleration curve** — how does the differential grow? (often exponential as complications cascade)
+- **Plateau analysis** — does the benefit plateau or keep growing? (determines optimal contract length)
+- **Cohort stratification** — overlay by age, comorbidity burden, baseline severity, SES
+
+### 3.5 Value-Based Contract Simulator
+
+Decision support for payer-provider negotiation:
+- **Shared savings calculation** — given population, quality target, savings split %, compute expected financial outcome for both parties
+- **Risk corridor modeling** — probability distribution of savings outcomes (risk of losses, upside potential)
+- **Star Rating impact projection** — HEDIS improvement → Star Rating change → Medicare Advantage bonus payments (0.5-star improvement for 100K members = tens of millions annually)
+- **Contract term optimization** — minimum duration for preventive investments to demonstrate returns (break-even analysis)
+- **Exportable evidence packages** — PDF/DOCX reports with matched cohort characteristics, cost curves, ROI tables, Star Rating projections for contract negotiations
+
+---
+
+## 4. Implementation Plan
+
+### Phase 17a — Cost Data Foundation (Months 1–4)
+
+**Objective:** Ingest claims data into OMOP CDM and establish care gap → cost linkage.
+
+#### 17a.1 Claims Data ETL Pipeline
+
+Configurable ETL pipelines for common claims data formats:
+
+| Format | Description |
+|--------|-----------|
+| 837 Professional/Institutional | Medical claims (CMS-1500, UB-04) |
+| NCPDP | Pharmacy claims |
+| ASC X12 835 | Remittance advice (payment data) |
+| Flat-file extracts | IBM MarketScan, Optum Clinformatics, custom health plan formats |
+
+Populate OMOP tables:
+- `COST` — all financial fields (total_charge, total_cost, total_paid, paid_by_payer/patient, copay/coinsurance/deductible, revenue_code, DRG)
+- `PAYER_PLAN_PERIOD` — enrollment continuity for observation window validation
+- Clinical tables — PROCEDURE_OCCURRENCE, CONDITION_OCCURRENCE, VISIT_OCCURRENCE, DRUG_EXPOSURE from claim lines
+
+Cost inflation adjustment using CMS Market Basket indices and Medical CPI, configurable by year and cost category.
+
+**New Files:**
+| File | Purpose |
+|------|---------|
+| `ai/app/claims/claims_etl_pipeline.py` | Main ETL orchestrator for claims → OMOP |
+| `ai/app/claims/x837_parser.py` | 837 Professional/Institutional parser |
+| `ai/app/claims/x835_parser.py` | 835 Remittance advice parser |
+| `ai/app/claims/ncpdp_parser.py` | NCPDP pharmacy claims parser |
+| `ai/app/claims/flat_file_adapters.py` | MarketScan/Optum/custom format adapters |
+| `ai/app/claims/cost_inflation_adjuster.py` | CMS Market Basket / Medical CPI normalization |
+| `ai/app/api/claims_routes.py` | FastAPI endpoints for claims ingestion |
+
+#### 17a.2 Care Gap Event Formalization
+
+Formalize care gap state transitions as structured events in OMOP CDM:
+
+- Use OBSERVATION table with Parthenon-defined concept_ids for 438 gap states and 45 bundle compliance scores
+- Create `care_gap_event` extension table linking gap state changes to triggering clinical events (the MEASUREMENT for the HbA1c result, PROCEDURE for the eye exam, DRUG_EXPOSURE for the statin Rx)
+- Build complication concept sets for all 45 care bundles (ICD-10/SNOMED condition sets, procedure sets, emergency/hospitalization visit sets)
+
+**New Files:**
+| File | Purpose |
+|------|---------|
+| `backend/database/migrations/xxxx_create_care_gap_event_table.php` | Care gap event extension table |
+| `backend/database/migrations/xxxx_create_complication_concept_set_table.php` | Complication concept set definitions |
+| `backend/app/Models/App/CareGapEvent.php` | Care gap event model |
+| `backend/app/Models/App/ComplicationConceptSet.php` | Complication set model |
+| `backend/database/seeders/ComplicationConceptSetSeeder.php` | Seed complication sets for 45 bundles |
+
+#### 17a.3 Cost Accumulation Engine
+
+Compute pre/post cost windows for any person + index date:
+
+- Configurable window lengths (6, 12, 24, 36 months)
+- Cost categorization: complication-related, disease-management, all-cause
+- Handle complexities: right-censoring (enrollment loss), zero-cost observations, extreme outliers, currency normalization
+- PostgreSQL materialized views + DuckDB columnar for large-scale aggregation
+
+**New Files:**
+| File | Purpose |
+|------|---------|
+| `backend/app/Services/Heor/CostAccumulationService.php` | Cost window computation engine |
+| `backend/database/migrations/xxxx_create_cost_accumulation_views.php` | Materialized views for cost aggregation |
+
+---
+
+### Phase 17b — Comparative Analytics Engine (Months 3–8)
+
+**Objective:** Build propensity score matching, DiD analysis, and ROI computation.
+
+#### 17b.1 Propensity Score Module
+
+- Large-scale PS computation using OHDSI FeatureExtraction conventions
+- Multiple matching strategies: 1:1, variable-ratio, caliper-based, IPTW, stratification
+- Automated balance diagnostics: SMD tables, preference score distributions, Love plots
+- Analyses failing SMD < 0.1 flagged with sensitivity analysis recommendations
+- Negative control outcomes for residual confounding assessment (OHDSI empirical calibration)
+
+**New Files:**
+| File | Purpose |
+|------|---------|
+| `r-runtime/api/heor_propensity.R` | PS computation + matching for HEOR cohorts |
+| `r-runtime/api/heor_did.R` | Difference-in-differences estimator |
+| `backend/app/Services/Heor/PropensityMatchingService.php` | Orchestrates R propensity score jobs |
+| `backend/app/Jobs/Heor/RunPropensityMatchingJob.php` | Queue job for PS matching |
+
+#### 17b.2 ROI Calculator and Bundle Prioritization
+
+- Per-gap and per-bundle ROI with bootstrap CIs (1,000 iterations)
+- Bundle Prioritization Engine with interaction effect detection (additive vs. joint models)
+- Care Gap Economics Dashboard in React
+
+**New Files:**
+| File | Purpose |
+|------|---------|
+| `ai/app/heor/roi_calculator.py` | Per-gap ROI, NNT, break-even, bootstrap CIs |
+| `ai/app/heor/bundle_prioritizer.py` | Economic ranking engine with interaction effects |
+| `backend/app/Services/Heor/RoiService.php` | Orchestrates ROI computation |
+| `backend/app/Http/Controllers/Api/V1/HeorController.php` | HEOR API endpoints |
+| `frontend/src/features/heor/pages/CareGapEconomicsDashboard.tsx` | Interactive ROI tables, filterable by disease/payer/demographic |
+| `frontend/src/features/heor/components/RoiTable.tsx` | Per-gap ROI ranking table |
+| `frontend/src/features/heor/components/BundlePrioritizationChart.tsx` | Visual gap priority stack |
+| `frontend/src/features/heor/types/heor.ts` | TypeScript types for HEOR models |
+| `frontend/src/features/heor/api/heorApi.ts` | REST API client |
+| `frontend/src/features/heor/hooks/useHeor.ts` | TanStack Query hooks |
+
+---
+
+### Phase 17c — Simulation & Decision Support (Months 6–12)
+
+**Objective:** Build scenario modeler, contract simulator, and automated evidence generation.
+
+#### 17c.1 Population Scenario Modeler
+
+- Monte Carlo simulation engine projecting population-level financial outcomes
+- Star Rating impact model: HEDIS improvements → Star Rating changes using CMS cut-points and weighting
+- Risk-adjusted revenue impact: coding completeness improvement from care gap visits → HCC/RAF improvement
+- Runs in Web Workers for non-blocking UI
+
+**New Files:**
+| File | Purpose |
+|------|---------|
+| `frontend/src/features/heor/pages/ScenarioModelerPage.tsx` | Interactive simulation UI |
+| `frontend/src/features/heor/components/MonteCarloSimulator.tsx` | Web Worker Monte Carlo engine |
+| `frontend/src/features/heor/components/StarRatingImpactChart.tsx` | Star Rating projection visualization |
+| `frontend/src/features/heor/components/SavingsProjectionChart.tsx` | Cumulative savings projection |
+
+#### 17c.2 Value-Based Contract Module
+
+- Shared savings calculator (configurable split ratios, minimum savings rates)
+- Risk corridor modeling with probability distributions
+- Contract term optimization (break-even analysis → minimum duration recommendations)
+- Exportable evidence packages (PDF/DOCX reports for negotiations)
+
+**New Files:**
+| File | Purpose |
+|------|---------|
+| `frontend/src/features/heor/pages/ContractSimulatorPage.tsx` | Contract negotiation decision support |
+| `frontend/src/features/heor/components/SharedSavingsCalculator.tsx` | Payer-provider savings split |
+| `frontend/src/features/heor/components/RiskCorridorChart.tsx` | Probability distribution of outcomes |
+| `ai/app/heor/evidence_report_generator.py` | Automated HEOR report generation (PDF/DOCX) |
+| `ai/app/heor/star_rating_model.py` | CMS Star Rating impact projection |
+
+#### 17c.3 Temporal Cost Trajectory Analyzer
+
+**New Files:**
+| File | Purpose |
+|------|---------|
+| `frontend/src/features/heor/components/CostTrajectoryChart.tsx` | Longitudinal cost curves with divergence/acceleration/plateau |
+| `frontend/src/features/heor/components/CohortCostComparison.tsx` | Matched cohort cost comparison panels |
+
+---
+
+### Phase 17d — Federated Economics Network (Months 10–18)
+
+**Objective:** Multi-institutional care gap economics research and benchmarking.
+
+#### 17d.1 Federated Cost Benchmarking
+
+- Share aggregate ROI metrics across Parthenon nodes (average intervention cost, complication cost avoided, ROI ratios, break-even — by gap, disease, demographic stratum)
+- Cross-institutional benchmarking: your diabetes gap closure rate vs. network, with economic implications
+- Multi-site pooled analyses for rare complications (federated PS matching)
+
+#### 17d.2 Payer-Provider Evidence Marketplace
+
+- Computable evidence repository: publish and consume standardized care gap economics evidence
+- Health plans consume for network adequacy, contract design, member outreach prioritization
+- Pharma/device manufacturers build real-world value dossiers showing care gap closure rates and downstream cost avoidance for adherence-related gaps
+
+**New Files:**
+| File | Purpose |
+|------|---------|
+| `backend/app/Services/Federation/FederatedHeorService.php` | Aggregate ROI sharing across nodes |
+| `backend/app/Services/Heor/EvidenceMarketplaceService.php` | Evidence repository publish/consume |
+| `frontend/src/features/heor/pages/EvidenceMarketplacePage.tsx` | Browse/publish economic evidence |
+| `frontend/src/features/heor/components/BenchmarkComparison.tsx` | Cross-institutional benchmarking |
+
+---
+
+## 5. Priority Use Cases
+
+### 5.1 Diabetes: The Flagship Disease Model
+- 12-gap Comprehensive Diabetes Care bundle: HbA1c testing/control, retinal exam, nephropathy screening, BP control, statin therapy, medication adherence, foot exam
+- PS-matched comparison: ≥80% compliance vs. <50% compliance, 36-month follow-up
+- Per-gap ROI, bundle-level ROI, stratified by HbA1c severity, comorbidities, age, payer type
+
+### 5.2 Heart Failure: High-Cost, High-Impact
+- Gaps: beta-blocker/ACEI/ARB, volume monitoring, cardiac rehab, weight monitoring, adherence, annual echo
+- Average HF hospitalization: $15,000–$25,000, 23% 30-day readmission
+- Returns may appear within 6–12 months — ideal for short-term value-based contracts
+
+### 5.3 COPD: Exacerbation Prevention
+- Gaps: inhaler technique, pulmonary rehab, annual spirometry, flu/pneumococcal vaccination, smoking cessation, controller adherence
+- Each hospitalization: $10,000–$20,000. Vaccination alone may prevent 30–50% of pneumonia hospitalizations
+
+### 5.4 Hypertension: The Silent Multiplier
+- BP control gaps interact with every other chronic disease bundle (diabetes, HF, CKD, stroke)
+- Decompose contribution of HTN gap closure across multiple disease bundles simultaneously
+
+### 5.5 Preventive Screening Portfolio
+- Cancer screenings, immunizations, depression screening, osteoporosis screening
+- 5-year follow-up: first systematic claims-linked economic analysis of screening portfolio optimization
+
+---
+
+## 6. Convergence with Phases 15 & 16
+
+### 6.1 Pharmacogenomic Care Gap Economics (Phase 15 ↔ 17)
+- Statin care gap has different economics for CYP2C19 poor-metabolizers vs. normal metabolizers (higher ADR rates, discontinuation, treatment failure → higher downstream costs)
+- Compute ROI of pharmacogenomic-guided statin selection vs. empiric prescribing
+
+### 6.2 Imaging-Augmented Screening Economics (Phase 16 ↔ 17)
+- Does AI-augmented diabetic retinopathy screening (a specific gap closure mechanism) produce different economic outcomes than traditional ophthalmologic referral?
+- Imaging features (retinopathy grade, macular thickness) become covariates in economic model
+
+### 6.3 The Unified Evidence Model (Phases 15 + 16 + 17)
+When all three plans converge: *"For a 55-year-old male with T2DM, CYP2C9 intermediate metabolizer genotype, baseline retinopathy on AI screening, and HbA1c of 8.5%, closing the statin dose-optimization gap and retinal follow-up gap within 60 days avoids $12,400 in complication costs over 24 months (95% CI: $8,200–$17,100), ROI 5.8:1."*
+
+Clinical quality + molecular precision + imaging intelligence + economic evidence — all computable, all reproducible, all OMOP CDM.
+
+---
+
+## 7. Phased Rollout Order
+
+| Sub-Phase | What | Timeline | Priority | Dependencies |
+|-----------|------|----------|----------|-------------|
+| **17a.1** | Claims ETL pipeline (837/835/NCPDP, COST, PAYER_PLAN_PERIOD) | Month 1–3 | P0 | Claims data source agreement, OMOP CDM v5.4 |
+| **17a.2** | Care gap event formalization + complication concept sets | Month 1–3 | P0 | Existing 45 bundles / 438 gaps |
+| **17a.3** | Cost accumulation engine (pre/post windows, categorization) | Month 2–4 | P0 | 17a.1, 17a.2 |
+| **17b.1** | Propensity score module + DiD framework | Month 3–6 | P1 | 17a.3, OHDSI CohortMethod R packages |
+| **17b.2** | ROI calculator + Bundle Prioritization + Economics Dashboard | Month 4–8 | P1 | 17b.1 |
+| **17c.1** | Population Scenario Modeler + Star Rating impact | Month 6–9 | P2 | 17b.2, CMS Star Rating specs |
+| **17c.2** | Value-Based Contract Simulator + evidence reports | Month 7–10 | P2 | 17c.1, Monte Carlo framework |
+| **17c.3** | Temporal Cost Trajectory Analyzer | Month 6–8 | P2 | 17b.1 |
+| **17d.1** | Federated cost benchmarking | Month 10–15 | P3 | Multiple Parthenon nodes with claims data |
+| **17d.2** | Evidence marketplace | Month 12–18 | P3 | 17d.1, Phases 15/16 Phase III for convergence |
+
+**Critical path:** 17a.1 + 17a.2 → 17a.3 → 17b.1 → 17b.2 → 17c.1 → 17c.2 → 17d.1 → 17d.2
+
+---
+
+## 8. Acceptance Criteria
+
+When Phase 17 is complete:
+
+1. **Ingest claims data** (837/835/NCPDP or flat-file) → OMOP COST and PAYER_PLAN_PERIOD tables populated with financial data
+2. **Care gap events** are structured records with timestamps, closing interventions, and days-to-closure
+3. **For any care gap**, compute pre/post cost windows with complication attribution → correct categorization
+4. **PS-matched comparison** of gap-closed vs. gap-open cohorts achieves SMD < 0.1 on all covariates
+5. **ROI calculator** produces per-gap ROI, NNT, break-even, cost per complication averted with 95% bootstrap CIs for all 438 gaps
+6. **Bundle prioritization** ranks gaps by economic impact including interaction effects
+7. **Scenario modeler** projects $X savings from improving gap closure rate from Y% to Z% over N years with uncertainty bounds
+8. **Star Rating projector** maps HEDIS improvements to predicted Star Rating changes and bonus payment estimates
+9. **Contract simulator** generates exportable evidence packages (PDF) for payer-provider negotiations
+10. **No existing OMOP capability broken** — all Phases 1–16 features continue to work
+
+---
+
+## 9. Competitive Positioning
+
+| Capability | Milliman | Cotiviti/Eliza | Optum Analytics | Atlas/WebAPI | **Parthenon** |
+|-----------|---------|---------------|----------------|-------------|---------------|
+| OMOP CDM compliance | No | No | No | Yes (no economics) | **Yes (full COST/PPP)** |
+| Care gap tracking | No | HEDIS gaps only | Proprietary | No | **Yes (45 bundles, 438 gaps)** |
+| Gap → cost linkage | Actuarial estimates | No | Proprietary, non-reproducible | No | **Yes (PS-matched, reproducible)** |
+| Per-gap ROI | No | No | No | No | **Yes (with bootstrap CIs)** |
+| Scenario modeling | Actuarial | No | Proprietary | No | **Yes (Monte Carlo, open)** |
+| Star Rating projection | No | Partial | Proprietary | No | **Yes (CMS cut-points)** |
+| Federated benchmarking | No | No | No | Partial | **Yes (privacy-preserving)** |
+| Open source | No | No | No | Yes | **Yes** |
+
+---
+---
+
+# Phases 15–17: Unified Backend Schema Plan
+
+**Purpose:** Define all new database tables required across the `ohdsi` database (OMOP CDM extensions in the `omop` schema) and the `parthenon` database (app tables) to support the Genomics, Imaging, and HEOR capabilities.
+
+---
+
+## A. OMOP CDM Extensions (`ohdsi` DB, `omop` Schema)
+
+These tables extend the OMOP CDM v5.4 core. They live alongside existing CDM tables and follow OMOP naming conventions (snake_case, singular). All are read/write from Parthenon but maintain backward compatibility — existing OHDSI tools are unaffected.
+
+### A.1 OMOP Oncology Extension (Phase 15a)
+
+Already specified in OMOP CDM v5.4 but not yet created in Parthenon's schema:
+
+```sql
+-- Cancer patient journey: disease states and treatment episodes
+CREATE TABLE omop.episode (
+    episode_id              BIGINT PRIMARY KEY,
+    person_id               BIGINT NOT NULL REFERENCES omop.person(person_id),
+    episode_concept_id      INTEGER NOT NULL,       -- Disease/treatment episode type
+    episode_start_date      DATE NOT NULL,
+    episode_start_datetime  TIMESTAMP,
+    episode_end_date        DATE,
+    episode_end_datetime    TIMESTAMP,
+    episode_parent_id       BIGINT,                 -- Nested episodes (regimen → cycle)
+    episode_number          INTEGER,                -- Ordinal within parent
+    episode_object_concept_id INTEGER NOT NULL,     -- What the episode represents (HemOnc regimen, cancer modifier)
+    episode_type_concept_id INTEGER NOT NULL,       -- Provenance (EHR, tumor registry, derived)
+    episode_source_value    VARCHAR(50),
+    episode_source_concept_id INTEGER
+);
+
+-- Links episodes to underlying clinical events
+CREATE TABLE omop.episode_event (
+    episode_id              BIGINT NOT NULL REFERENCES omop.episode(episode_id),
+    event_id                BIGINT NOT NULL,         -- FK to clinical event table
+    episode_event_field_concept_id INTEGER NOT NULL  -- Identifies which table event_id references
+);
+```
+
+### A.2 MI-CDM Imaging Extension (Phase 16a)
+
+From Park et al. 2024 MI-CDM specification:
+
+```sql
+-- Imaging events: what images exist and how they were acquired
+CREATE TABLE omop.image_occurrence (
+    image_occurrence_id         BIGINT PRIMARY KEY,
+    person_id                   BIGINT NOT NULL REFERENCES omop.person(person_id),
+    image_occurrence_date       DATE NOT NULL,
+    image_occurrence_datetime   TIMESTAMP,
+    image_type_concept_id       INTEGER NOT NULL,       -- DICOM image type
+    modality_concept_id         INTEGER NOT NULL,       -- CT, MRI, PET, US, XR, etc.
+    anatomic_site_concept_id    INTEGER,                -- Body part examined
+    image_occurrence_source_value VARCHAR(250),
+    study_uid                   VARCHAR(128),           -- DICOM Study Instance UID
+    series_uid                  VARCHAR(128),           -- DICOM Series Instance UID
+    wadors_uri                  VARCHAR(1000),          -- DICOMweb retrieval URL
+    visit_occurrence_id         BIGINT,
+    visit_detail_id             BIGINT,
+    procedure_occurrence_id     BIGINT,
+    provider_id                 BIGINT
+);
+
+-- Imaging features: measurements, AI outputs, SR extractions
+CREATE TABLE omop.image_feature (
+    image_feature_id            BIGINT PRIMARY KEY,
+    person_id                   BIGINT NOT NULL REFERENCES omop.person(person_id),
+    image_feature_date          DATE NOT NULL,
+    image_feature_datetime      TIMESTAMP,
+    image_feature_concept_id    INTEGER NOT NULL,       -- What was measured (DICOM CG, RadLex, SNOMED)
+    image_feature_type_concept_id INTEGER NOT NULL,     -- Provenance: SR, algorithm, manual, NLP
+    value_as_number             NUMERIC,
+    value_as_concept_id         INTEGER,
+    unit_concept_id             INTEGER,
+    anatomic_site_concept_id    INTEGER,
+    image_occurrence_id         BIGINT REFERENCES omop.image_occurrence(image_occurrence_id),
+    measurement_id              BIGINT,                 -- Flow to Measurement table
+    observation_id              BIGINT,                 -- Flow to Observation table
+    note_nlp_id                 BIGINT,                 -- From NLP extraction
+    algorithm_variant           VARCHAR(250),           -- AI model version
+    feature_group_id            BIGINT                  -- Group related features
+);
+```
+
+### A.3 Genomic Extension Tables (Phase 15a)
+
+Custom extensions for molecular diagnostics data:
+
+```sql
+-- Links MEASUREMENT to molecular test metadata
+CREATE TABLE omop.genomic_test (
+    genomic_test_id         BIGINT PRIMARY KEY,
+    measurement_id          BIGINT NOT NULL,            -- FK to MEASUREMENT (the variant record)
+    panel_name              VARCHAR(250),               -- e.g., "FoundationOne CDx"
+    sequencing_platform     VARCHAR(250),               -- e.g., "Illumina NovaSeq"
+    coverage_depth          INTEGER,                    -- Mean coverage depth
+    tumor_purity            NUMERIC(5,4),               -- 0.0000–1.0000
+    reference_genome        VARCHAR(20),                -- GRCh37, GRCh38
+    specimen_id             BIGINT                      -- FK to SPECIMEN
+);
+
+-- Per-variant computed annotations
+CREATE TABLE omop.variant_annotation (
+    variant_annotation_id   BIGINT PRIMARY KEY,
+    measurement_id          BIGINT NOT NULL,            -- FK to MEASUREMENT (the variant record)
+    vrs_identifier          VARCHAR(128),               -- GA4GH VRS computed ID (SHA-512)
+    allele_frequency_gnomad NUMERIC(10,8),              -- gnomAD population frequency
+    allele_frequency_exac   NUMERIC(10,8),
+    sift_score              NUMERIC(6,4),
+    polyphen_score          NUMERIC(6,4),
+    cadd_score              NUMERIC(8,4),
+    clinvar_significance    VARCHAR(50),                -- Benign/Likely_benign/VUS/Likely_pathogenic/Pathogenic
+    clinvar_review_status   VARCHAR(100),
+    actionability_tier      VARCHAR(20),                -- OncoKB: 1/2/3A/3B/4/R1/R2
+    actionability_source    VARCHAR(50),                -- OncoKB, CIViC, etc.
+    hgvs_genomic            VARCHAR(500),               -- HGVS g. notation
+    hgvs_coding             VARCHAR(500),               -- HGVS c. notation
+    hgvs_protein            VARCHAR(500),               -- HGVS p. notation
+    gene_symbol             VARCHAR(50),                -- HGNC gene symbol
+    gene_hgnc_id            INTEGER                     -- HGNC ID
+);
+
+-- Extends SPECIMEN with molecular-specific attributes
+CREATE TABLE omop.specimen_molecular (
+    specimen_molecular_id   BIGINT PRIMARY KEY,
+    specimen_id             BIGINT NOT NULL,            -- FK to SPECIMEN
+    tumor_percentage        NUMERIC(5,2),
+    dna_extraction_method   VARCHAR(100),
+    rna_extraction_method   VARCHAR(100),
+    library_preparation     VARCHAR(100),
+    qc_pass                 BOOLEAN,
+    qc_metrics              JSONB                       -- Flexible QC data
+);
+```
+
+### A.4 OMOP Standard Tables Already Exist (Verify populated)
+
+These are standard OMOP CDM v5.4 tables that Phase 15–17 features depend on but should already exist in the `omop` schema:
+
+| Table | Used By | Notes |
+|-------|---------|-------|
+| `cost` | Phase 17 (HEOR) | May need population from claims data |
+| `payer_plan_period` | Phase 17 (HEOR) | May need population from enrollment data |
+| `specimen` | Phase 15 (Genomics) | Exists but may be empty |
+| `note` | Phase 16 (Radiology NLP) | Exists, used for report text |
+| `note_nlp` | Phase 16 (Radiology NLP) | Exists, NLP extraction results |
+| `measurement` | Phases 15+16 | Genomic variants + imaging features flow here |
+| `observation` | Phases 16+17 | Imaging features + care gap events |
+
+---
+
+## B. Parthenon App Tables (`parthenon` DB, `public` Schema)
+
+These are Laravel-managed tables in the app database for configuration, tracking, and analytics metadata. They follow Laravel conventions (plural, snake_case, timestamps).
+
+### B.1 Genomics App Tables (Phase 15)
+
+```sql
+-- AI model registry for genomic ingestion pipelines
+CREATE TABLE genomic_ingestion_jobs (
+    id                  BIGSERIAL PRIMARY KEY,
+    user_id             BIGINT NOT NULL REFERENCES users(id),
+    source_id           BIGINT REFERENCES sources(id),
+    input_type          VARCHAR(50) NOT NULL,           -- vcf, pdf_report, fhir, cbioportal, hl7v2
+    input_filename      VARCHAR(500),
+    status              VARCHAR(20) NOT NULL DEFAULT 'pending', -- pending, processing, completed, failed
+    variants_ingested   INTEGER DEFAULT 0,
+    variants_annotated  INTEGER DEFAULT 0,
+    error_message       TEXT,
+    started_at          TIMESTAMP,
+    completed_at        TIMESTAMP,
+    created_at          TIMESTAMP NOT NULL,
+    updated_at          TIMESTAMP NOT NULL
+);
+
+-- Vendor-specific extraction templates for PDF panel reports
+CREATE TABLE panel_report_templates (
+    id                  BIGSERIAL PRIMARY KEY,
+    vendor_name         VARCHAR(100) NOT NULL UNIQUE,    -- FoundationMedicine, Tempus, Guardant, Caris
+    extraction_config   JSONB NOT NULL,                  -- LLM prompt template + field mappings
+    is_active           BOOLEAN NOT NULL DEFAULT true,
+    created_at          TIMESTAMP NOT NULL,
+    updated_at          TIMESTAMP NOT NULL
+);
+```
+
+### B.2 Imaging App Tables (Phase 16)
+
+```sql
+-- AI model registry for imaging inference
+CREATE TABLE imaging_ai_models (
+    id                  BIGSERIAL PRIMARY KEY,
+    name                VARCHAR(250) NOT NULL,
+    slug                VARCHAR(100) NOT NULL UNIQUE,
+    description         TEXT,
+    container_image     VARCHAR(500) NOT NULL,           -- Docker image reference
+    input_modality      VARCHAR(50) NOT NULL,            -- CT, MRI, PET, US, etc.
+    output_features     JSONB NOT NULL,                  -- Array of {concept_id, name, unit}
+    version             VARCHAR(50) NOT NULL,
+    is_active           BOOLEAN NOT NULL DEFAULT true,
+    trigger_on_ingest   BOOLEAN NOT NULL DEFAULT false,  -- Auto-run on new DICOM
+    created_at          TIMESTAMP NOT NULL,
+    updated_at          TIMESTAMP NOT NULL
+);
+
+-- Imaging inference job tracking
+CREATE TABLE imaging_inference_jobs (
+    id                  BIGSERIAL PRIMARY KEY,
+    model_id            BIGINT NOT NULL REFERENCES imaging_ai_models(id),
+    image_occurrence_id BIGINT NOT NULL,                 -- FK to omop.image_occurrence
+    person_id           BIGINT NOT NULL,
+    status              VARCHAR(20) NOT NULL DEFAULT 'pending',
+    features_extracted  INTEGER DEFAULT 0,
+    error_message       TEXT,
+    started_at          TIMESTAMP,
+    completed_at        TIMESTAMP,
+    created_at          TIMESTAMP NOT NULL,
+    updated_at          TIMESTAMP NOT NULL
+);
+
+-- Orthanc-to-OMOP patient linkage configuration
+CREATE TABLE dicom_patient_linkage (
+    id                  BIGSERIAL PRIMARY KEY,
+    dicom_patient_id    VARCHAR(250) NOT NULL,           -- DICOM Patient ID tag
+    person_id           BIGINT NOT NULL,                 -- OMOP person_id
+    linkage_method      VARCHAR(50) NOT NULL,            -- direct_mrn, hash, manual
+    verified            BOOLEAN NOT NULL DEFAULT false,
+    created_at          TIMESTAMP NOT NULL,
+    updated_at          TIMESTAMP NOT NULL,
+    UNIQUE(dicom_patient_id)
+);
+```
+
+### B.3 HEOR App Tables (Phase 17)
+
+```sql
+-- Care gap events: state transitions with clinical linkage
+CREATE TABLE care_gap_events (
+    id                      BIGSERIAL PRIMARY KEY,
+    person_id               BIGINT NOT NULL,
+    care_gap_concept_id     INTEGER NOT NULL,                -- Parthenon concept for the specific gap
+    care_bundle_concept_id  INTEGER NOT NULL,                -- Parent bundle concept
+    event_type              VARCHAR(20) NOT NULL,            -- opened, closed, overdue
+    event_date              DATE NOT NULL,
+    closing_intervention_type VARCHAR(50),                   -- measurement, procedure, drug_exposure
+    closing_intervention_id BIGINT,                          -- FK to the OMOP clinical event
+    days_to_closure         INTEGER,                         -- Elapsed days from open → close
+    source_id               BIGINT REFERENCES sources(id),
+    created_at              TIMESTAMP NOT NULL,
+    updated_at              TIMESTAMP NOT NULL
+);
+CREATE INDEX idx_cge_person ON care_gap_events(person_id);
+CREATE INDEX idx_cge_gap ON care_gap_events(care_gap_concept_id);
+CREATE INDEX idx_cge_bundle ON care_gap_events(care_bundle_concept_id);
+CREATE INDEX idx_cge_date ON care_gap_events(event_date);
+
+-- Complication concept set definitions per bundle
+CREATE TABLE complication_concept_sets (
+    id                      BIGSERIAL PRIMARY KEY,
+    care_bundle_concept_id  INTEGER NOT NULL,                -- Which bundle this serves
+    complication_name       VARCHAR(250) NOT NULL,            -- e.g., "Diabetic retinopathy"
+    condition_concept_ids   JSONB NOT NULL DEFAULT '[]',     -- ICD-10/SNOMED condition concepts
+    procedure_concept_ids   JSONB NOT NULL DEFAULT '[]',     -- Related procedure concepts
+    visit_concept_ids       JSONB NOT NULL DEFAULT '[]',     -- ED/hospitalization visit concepts
+    include_descendants     BOOLEAN NOT NULL DEFAULT true,
+    created_at              TIMESTAMP NOT NULL,
+    updated_at              TIMESTAMP NOT NULL
+);
+
+-- HEOR analysis definitions (like other analysis types)
+CREATE TABLE heor_analyses (
+    id                  BIGSERIAL PRIMARY KEY,
+    name                VARCHAR(250) NOT NULL,
+    description         TEXT,
+    design_json         JSONB,                              -- Care gaps, bundles, comparison strategy, windows
+    author_id           BIGINT NOT NULL REFERENCES users(id),
+    created_at          TIMESTAMP NOT NULL,
+    updated_at          TIMESTAMP NOT NULL,
+    deleted_at          TIMESTAMP                           -- Soft delete
+);
+
+-- HEOR analysis results (ROI metrics per gap)
+CREATE TABLE heor_results (
+    id                      BIGSERIAL PRIMARY KEY,
+    heor_analysis_id        BIGINT NOT NULL REFERENCES heor_analyses(id),
+    execution_id            BIGINT NOT NULL,                 -- FK to analysis_executions
+    care_gap_concept_id     INTEGER NOT NULL,
+    intervention_cost       NUMERIC(12,2),
+    complication_cost_avoided NUMERIC(12,2),
+    all_cause_cost_diff     NUMERIC(12,2),
+    roi                     NUMERIC(8,4),
+    nnt                     NUMERIC(10,2),
+    cost_per_complication_averted NUMERIC(12,2),
+    break_even_months       INTEGER,
+    ci_lower_roi            NUMERIC(8,4),
+    ci_upper_roi            NUMERIC(8,4),
+    ci_lower_cost_avoided   NUMERIC(12,2),
+    ci_upper_cost_avoided   NUMERIC(12,2),
+    matched_pairs_count     INTEGER,
+    smd_max                 NUMERIC(6,4),                    -- Worst SMD after matching
+    created_at              TIMESTAMP NOT NULL
+);
+CREATE INDEX idx_hr_analysis ON heor_results(heor_analysis_id);
+CREATE INDEX idx_hr_gap ON heor_results(care_gap_concept_id);
+
+-- Value-based contract scenarios
+CREATE TABLE contract_scenarios (
+    id                  BIGSERIAL PRIMARY KEY,
+    name                VARCHAR(250) NOT NULL,
+    author_id           BIGINT NOT NULL REFERENCES users(id),
+    scenario_json       JSONB NOT NULL,                     -- Population, targets, split %, horizon
+    projection_json     JSONB,                              -- Monte Carlo results
+    created_at          TIMESTAMP NOT NULL,
+    updated_at          TIMESTAMP NOT NULL,
+    deleted_at          TIMESTAMP
+);
+```
+
+### B.4 Federation App Tables (Phases 15d, 16d, 17d)
+
+```sql
+-- Federated network node registry
+CREATE TABLE federation_nodes (
+    id                  BIGSERIAL PRIMARY KEY,
+    name                VARCHAR(250) NOT NULL,
+    base_url            VARCHAR(500) NOT NULL,
+    api_key_hash        VARCHAR(128) NOT NULL,              -- SHA-512 of shared API key
+    is_active           BOOLEAN NOT NULL DEFAULT true,
+    last_heartbeat_at   TIMESTAMP,
+    capabilities        JSONB DEFAULT '[]',                 -- ['genomics', 'imaging', 'heor']
+    created_at          TIMESTAMP NOT NULL,
+    updated_at          TIMESTAMP NOT NULL
+);
+
+-- Federated study definitions
+CREATE TABLE federated_studies (
+    id                  BIGSERIAL PRIMARY KEY,
+    name                VARCHAR(250) NOT NULL,
+    study_type          VARCHAR(50) NOT NULL,               -- variant_frequency, imaging_features, heor_benchmark
+    definition_json     JSONB NOT NULL,                     -- Study parameters
+    author_id           BIGINT NOT NULL REFERENCES users(id),
+    status              VARCHAR(20) NOT NULL DEFAULT 'draft',
+    created_at          TIMESTAMP NOT NULL,
+    updated_at          TIMESTAMP NOT NULL
+);
+
+-- Per-node results for federated studies
+CREATE TABLE federated_study_results (
+    id                  BIGSERIAL PRIMARY KEY,
+    study_id            BIGINT NOT NULL REFERENCES federated_studies(id),
+    node_id             BIGINT NOT NULL REFERENCES federation_nodes(id),
+    status              VARCHAR(20) NOT NULL DEFAULT 'pending',
+    result_json         JSONB,                              -- Aggregate results (no patient data)
+    submitted_at        TIMESTAMP,
+    created_at          TIMESTAMP NOT NULL
+);
+```
+
+---
+
+## C. Schema Summary
+
+| Database | Schema | New Tables | Phase |
+|----------|--------|-----------|-------|
+| `ohdsi` | `omop` | `episode`, `episode_event` | 15a |
+| `ohdsi` | `omop` | `genomic_test`, `variant_annotation`, `specimen_molecular` | 15a |
+| `ohdsi` | `omop` | `image_occurrence`, `image_feature` | 16a |
+| `ohdsi` | `omop` | (verify `cost`, `payer_plan_period`, `specimen`, `note_nlp` exist + populated) | 17a |
+| `parthenon` | `public` | `genomic_ingestion_jobs`, `panel_report_templates` | 15a |
+| `parthenon` | `public` | `imaging_ai_models`, `imaging_inference_jobs`, `dicom_patient_linkage` | 16a |
+| `parthenon` | `public` | `care_gap_events`, `complication_concept_sets`, `heor_analyses`, `heor_results`, `contract_scenarios` | 17a–17c |
+| `parthenon` | `public` | `federation_nodes`, `federated_studies`, `federated_study_results` | 15d/16d/17d |
+
+**Total: 8 new OMOP CDM tables + 13 new app tables = 21 new tables across Phases 15–17**
