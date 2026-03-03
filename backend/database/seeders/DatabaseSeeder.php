@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
         // Roles and permissions must exist before users are assigned roles.
         $this->call(RolePermissionSeeder::class);
         $this->call(AuthProviderSeeder::class);
+        $this->call(AiProviderSeeder::class);
 
         // ── Default super-admin ────────────────────────────────────────────
         // Credentials: login = admin   password = superuser

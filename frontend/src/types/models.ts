@@ -93,6 +93,33 @@ export interface OidcSettings {
   pkce_enabled: boolean;
 }
 
+export type AiProviderType = "ollama" | "anthropic" | "openai" | "gemini" | "deepseek" | "qwen" | "moonshot" | "mistral";
+
+export interface AiProviderSetting {
+  id: number;
+  provider_type: AiProviderType;
+  display_name: string;
+  is_enabled: boolean;
+  is_active: boolean;
+  model: string;
+  settings: Record<string, string | number | boolean>;
+  updated_by: number | null;
+  updated_at: string;
+}
+
+export interface SystemHealthService {
+  name: string;
+  key: string;
+  status: "healthy" | "degraded" | "down";
+  message: string;
+  details?: Record<string, unknown>;
+}
+
+export interface SystemHealth {
+  services: SystemHealthService[];
+  checked_at: string;
+}
+
 export interface Source {
   id: number;
   source_name: string;

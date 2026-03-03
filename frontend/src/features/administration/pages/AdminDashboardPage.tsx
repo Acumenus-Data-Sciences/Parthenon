@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
-import { Users, ShieldCheck, KeyRound, Settings2, ArrowRight } from "lucide-react";
+import { Activity, Bot, KeyRound, ShieldCheck, Users, ArrowRight } from "lucide-react";
 import { useUsers } from "../hooks/useAdminUsers";
 import { useRoles } from "../hooks/useAdminRoles";
 import { useAuthProviders } from "../hooks/useAuthProviders";
+import { useAiProviders } from "../hooks/useAiProviders";
 import { useAuthStore } from "@/stores/authStore";
 
 const cards = [
@@ -33,6 +34,24 @@ const cards = [
     bg: "bg-amber-500/10",
     superAdminOnly: true,
   },
+  {
+    title: "AI Provider Configuration",
+    description: "Switch Abby's backend between local Ollama, Anthropic, OpenAI, Gemini, and more.",
+    icon: Bot,
+    href: "/admin/ai-providers",
+    color: "text-orange-500",
+    bg: "bg-orange-500/10",
+    superAdminOnly: true,
+  },
+  {
+    title: "System Health",
+    description: "Live status of all Parthenon services: Redis, AI, R runtime, job queues.",
+    icon: Activity,
+    href: "/admin/system-health",
+    color: "text-emerald-500",
+    bg: "bg-emerald-500/10",
+    superAdminOnly: false,
+  },
 ];
 
 export default function AdminDashboardPage() {
@@ -40,13 +59,22 @@ export default function AdminDashboardPage() {
   const { data: usersPage } = useUsers({ per_page: 1 });
   const { data: roles } = useRoles();
   const { data: providers } = useAuthProviders();
+  const { data: aiProviders } = useAiProviders();
 
   const enabledProviders = providers?.filter((p) => p.is_enabled).length ?? 0;
+  const activeAiProvider = aiProviders?.find((p) => p.is_active);
 
   const stats = [
     { label: "Total Users", value: usersPage?.total ?? "—" },
     { label: "Roles Defined", value: roles?.length ?? "—" },
     { label: "Auth Providers Enabled", value: enabledProviders },
+    {
+      label: "Active AI Provider",
+      value: activeAiProvider
+        ? activeAiProvider.display_name
+        : "—",
+      sub: activeAiProvider?.model,
+    },
   ];
 
   return (
@@ -59,11 +87,12 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Quick stats */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         {stats.map((s) => (
           <div key={s.label} className="rounded-lg border border-border bg-card p-4">
             <p className="text-sm text-muted-foreground">{s.label}</p>
-            <p className="mt-1 text-3xl font-bold text-foreground">{s.value}</p>
+            <p className="mt-1 text-2xl font-bold text-foreground">{s.value}</p>
+            {s.sub && <p className="mt-0.5 truncate text-xs text-muted-foreground">{s.sub}</p>}
           </div>
         ))}
       </div>

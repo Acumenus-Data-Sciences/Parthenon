@@ -22,6 +22,7 @@ use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\IncidenceRateController;
 use App\Http\Controllers\Api\V1\IngestionController;
 use App\Http\Controllers\Api\V1\MappingReviewController;
+use App\Http\Controllers\Api\V1\NegativeControlController;
 use App\Http\Controllers\Api\V1\NotificationPreferenceController;
 use App\Http\Controllers\Api\V1\PathwayController;
 use App\Http\Controllers\Api\V1\PatientProfileController;
@@ -143,9 +144,10 @@ Route::prefix('v1')->group(function () {
         Route::get('/vocabulary/domains', [VocabularyController::class, 'domains']);
         Route::get('/vocabulary/vocabularies-list', [VocabularyController::class, 'vocabularies']);
 
-        // Cohort Definitions — §9.2 static routes BEFORE apiResource (avoid wildcard clash)
+        // Cohort Definitions — §9.2/9.4 static routes BEFORE apiResource (avoid wildcard clash)
         Route::post('/cohort-definitions/import', [CohortDefinitionController::class, 'import']);
         Route::get('/cohort-definitions/tags', [CohortDefinitionController::class, 'tags']);
+        Route::post('/cohort-definitions/compare', [CohortDefinitionController::class, 'compare']);
         Route::apiResource('cohort-definitions', CohortDefinitionController::class);
         Route::get('/cohort-definitions/{cohortDefinition}/export', [CohortDefinitionController::class, 'export']);
         Route::post('/cohort-definitions/{cohortDefinition}/share', [CohortDefinitionController::class, 'share']);
@@ -154,6 +156,7 @@ Route::prefix('v1')->group(function () {
         Route::get('/cohort-definitions/{cohortDefinition}/generations/{generation}', [CohortDefinitionController::class, 'showGeneration']);
         Route::get('/cohort-definitions/{cohortDefinition}/sql', [CohortDefinitionController::class, 'previewSql']);
         Route::post('/cohort-definitions/{cohortDefinition}/copy', [CohortDefinitionController::class, 'copy']);
+        Route::post('/cohort-definitions/{cohortDefinition}/diagnostics', [CohortDefinitionController::class, 'diagnostics']);
 
         // Characterizations
         Route::apiResource('characterizations', CharacterizationController::class);
@@ -196,6 +199,10 @@ Route::prefix('v1')->group(function () {
         // Patient Profiles
         Route::get('sources/{source}/profiles/{personId}', [PatientProfileController::class, 'show']);
         Route::get('sources/{source}/cohorts/{cohortDefinitionId}/members', [PatientProfileController::class, 'members']);
+
+        // Negative Control Outcomes
+        Route::post('negative-controls/suggest', [NegativeControlController::class, 'suggest']);
+        Route::post('negative-controls/validate', [NegativeControlController::class, 'validate']);
 
         // Notification Preferences
         Route::get('user/notification-preferences', [NotificationPreferenceController::class, 'show']);

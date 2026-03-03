@@ -1,5 +1,5 @@
 import apiClient from "@/lib/api-client";
-import type { User, Role, AuthProviderSetting } from "@/types/models";
+import type { User, Role, AuthProviderSetting, AiProviderSetting, SystemHealth } from "@/types/models";
 
 // ── Users ─────────────────────────────────────────────────────────────────────
 
@@ -98,3 +98,33 @@ export const disableAuthProvider = (type: string) =>
 
 export const testAuthProvider = (type: string) =>
   apiClient.post<TestResult>(`/v1/admin/auth-providers/${type}/test`).then((r) => r.data);
+
+// ── AI Providers ──────────────────────────────────────────────────────────────
+
+export const fetchAiProviders = () =>
+  apiClient.get<AiProviderSetting[]>("/v1/admin/ai-providers").then((r) => r.data);
+
+export const fetchAiProvider = (type: string) =>
+  apiClient.get<AiProviderSetting>(`/v1/admin/ai-providers/${type}`).then((r) => r.data);
+
+export const updateAiProvider = (
+  type: string,
+  data: Partial<Pick<AiProviderSetting, "display_name" | "model"> & { settings: Record<string, string> }>,
+) => apiClient.put<AiProviderSetting>(`/v1/admin/ai-providers/${type}`, data).then((r) => r.data);
+
+export const activateAiProvider = (type: string) =>
+  apiClient.post<AiProviderSetting>(`/v1/admin/ai-providers/${type}/activate`).then((r) => r.data);
+
+export const enableAiProvider = (type: string) =>
+  apiClient.post<AiProviderSetting>(`/v1/admin/ai-providers/${type}/enable`).then((r) => r.data);
+
+export const disableAiProvider = (type: string) =>
+  apiClient.post<AiProviderSetting>(`/v1/admin/ai-providers/${type}/disable`).then((r) => r.data);
+
+export const testAiProvider = (type: string) =>
+  apiClient.post<TestResult>(`/v1/admin/ai-providers/${type}/test`).then((r) => r.data);
+
+// ── System Health ─────────────────────────────────────────────────────────────
+
+export const fetchSystemHealth = () =>
+  apiClient.get<SystemHealth>("/v1/admin/system-health").then((r) => r.data);
