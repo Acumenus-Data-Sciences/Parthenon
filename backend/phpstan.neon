@@ -1,10 +1,11 @@
 includes:
     - vendor/larastan/larastan/extension.neon
+    - phpstan-baseline.neon
 
 parameters:
     paths:
         - app/
-    level: 6
+    level: 8
     ignoreErrors:
         - '#uses generic trait .+HasFactory but does not specify its types#'
         - identifier: missingType.iterableValue

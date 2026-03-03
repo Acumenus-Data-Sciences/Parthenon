@@ -3,6 +3,8 @@ export interface User {
   name: string;
   email: string;
   avatar: string | null;
+  phone_number: string | null;
+  must_change_password: boolean;
   last_login_at: string | null;
   created_at: string;
   updated_at: string;

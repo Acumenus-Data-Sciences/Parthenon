@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\AbbyAiController;
 use App\Http\Controllers\Api\V1\NetworkAnalysisController;
+use App\Http\Controllers\Api\V1\PopulationCharacterizationController;
 use App\Http\Controllers\Api\V1\AchillesController;
 use App\Http\Controllers\Api\V1\ClinicalCoherenceController;
 use App\Http\Controllers\Api\V1\PopulationRiskScoreController;
@@ -34,13 +35,14 @@ Route::get('/health', [HealthController::class, 'index']);
 // API v1
 Route::prefix('v1')->group(function () {
     // Auth (public)
-    Route::post('/auth/login', [AuthController::class, 'login']);
+    Route::post('/auth/login', [AuthController::class, 'login'])->middleware('throttle:5,15');
     Route::post('/auth/register', [AuthController::class, 'register']);
 
     // Protected routes
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/auth/user', [AuthController::class, 'user']);
         Route::post('/auth/logout', [AuthController::class, 'logout']);
+        Route::post('/auth/change-password', [AuthController::class, 'changePassword']);
 
         // Sources
         Route::apiResource('sources', SourceController::class);
@@ -204,6 +206,14 @@ Route::prefix('v1')->group(function () {
             Route::post('/{bundle}/evaluate', [CareGapController::class, 'evaluate']);
             Route::get('/{bundle}/evaluations', [CareGapController::class, 'evaluations']);
             Route::get('/{bundle}/evaluations/{evaluation}', [CareGapController::class, 'showEvaluation']);
+        });
+
+        // Population Characterization (Tier 3 — PC001–PC006)
+        Route::get('/population-insights/catalogue', [PopulationCharacterizationController::class, 'catalogue']);
+        Route::prefix('sources/{source}/population-insights')->group(function () {
+            Route::get('/', [PopulationCharacterizationController::class, 'index']);
+            Route::post('/run', [PopulationCharacterizationController::class, 'run']);
+            Route::get('/{analysisId}', [PopulationCharacterizationController::class, 'show']);
         });
 
         // Network Analytics (Tier 4)

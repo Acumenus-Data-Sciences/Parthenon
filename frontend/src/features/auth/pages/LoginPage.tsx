@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Loader2, AlertCircle, Lock, Mail } from "lucide-react";
 import { useAuthStore } from "@/stores/authStore";
 import axios from "axios";
@@ -576,8 +576,26 @@ export function LoginPage() {
               marginTop: "var(--space-8)",
               paddingTop: "var(--space-5)",
               borderTop: "1px solid rgba(255, 255, 255, 0.05)",
+              display: "flex",
+              flexDirection: "column",
+              gap: "var(--space-3)",
             }}
           >
+            <p
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--text-sm)",
+                color: "var(--text-muted)",
+              }}
+            >
+              Don't have an account?{" "}
+              <Link
+                to="/register"
+                style={{ color: "var(--accent)", textDecoration: "none" }}
+              >
+                Request access
+              </Link>
+            </p>
             <p
               style={{
                 fontFamily: "var(--font-mono)",

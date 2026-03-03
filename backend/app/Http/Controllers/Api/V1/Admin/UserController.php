@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\TempPasswordMail;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rules\Password;
 use Spatie\Permission\Models\Role;
 
@@ -33,24 +35,56 @@ class UserController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|email|unique:users',
-            'password' => ['required', Password::min(8)->mixedCase()->numbers()],
-            'roles'    => 'array',
-            'roles.*'  => 'string|exists:roles,name',
+            'name'                 => 'required|string|max:255',
+            'email'                => 'required|email|unique:users',
+            'send_temp_password'   => 'boolean',
+            'password'             => ['nullable', Password::min(8)->mixedCase()->numbers()],
+            'roles'                => 'array',
+            'roles.*'              => 'string|exists:roles,name',
         ]);
 
+        $sendTemp = $validated['send_temp_password'] ?? true;
+        $plainPassword = $sendTemp
+            ? $this->generateTempPassword()
+            : $validated['password'];
+
         $user = User::create([
-            'name'     => $validated['name'],
-            'email'    => $validated['email'],
-            'password' => Hash::make($validated['password']),
+            'name'                 => $validated['name'],
+            'email'                => strtolower($validated['email']),
+            'password'             => Hash::make($plainPassword),
+            'must_change_password' => $sendTemp,
         ]);
 
         if (! empty($validated['roles'])) {
             $user->syncRoles($validated['roles']);
         }
 
+        if ($sendTemp) {
+            try {
+                Mail::to($user->email)->send(new TempPasswordMail($user->name, $plainPassword));
+            } catch (\Throwable $e) {
+                logger()->warning('Failed to send temp password email', [
+                    'user_id'       => $user->id,
+                    'temp_password' => $plainPassword,
+                    'error'         => $e->getMessage(),
+                ]);
+            }
+        }
+
         return response()->json($user->load('roles'), 201);
+    }
+
+    private function generateTempPassword(int $length = 12): string
+    {
+        $chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+        $result = '';
+        $max = strlen($chars) - 1;
+
+        for ($i = 0; $i < $length; $i++) {
+            $result .= $chars[random_int(0, $max)];
+        }
+
+        return $result;
     }
 
     public function update(Request $request, User $user): JsonResponse

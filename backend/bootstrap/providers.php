@@ -7,4 +7,5 @@ return [
     App\Providers\DataQualityServiceProvider::class,
     App\Providers\PopulationRiskServiceProvider::class,
     App\Providers\NetworkAnalysisServiceProvider::class,
+    App\Providers\PopulationCharacterizationServiceProvider::class,
 ];

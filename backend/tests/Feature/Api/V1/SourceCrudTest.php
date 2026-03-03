@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\App\User;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -27,8 +27,8 @@ it('creates a source with daimons', function () {
         ])
         ->assertStatus(201);
 
-    $response->assertJsonPath('data.source_name', 'Test CDM');
-    $response->assertJsonPath('data.source_key', 'test_cdm');
+    $response->assertJsonPath('source_name', 'Test CDM');
+    $response->assertJsonPath('source_key', 'test_cdm');
 
     $this->assertDatabaseHas('sources', ['source_key' => 'test_cdm']);
     $this->assertDatabaseCount('source_daimons', 3);
@@ -77,7 +77,6 @@ it('validates daimon type values', function () {
 it('lists sources', function () {
     $user = User::factory()->create();
 
-    // Create sources
     $this->actingAs($user)
         ->postJson('/api/v1/sources', [
             'source_name' => 'Source A',
@@ -86,10 +85,12 @@ it('lists sources', function () {
             'source_connection' => 'jdbc:postgresql://localhost/dba',
         ]);
 
-    $this->actingAs($user)
+    $response = $this->actingAs($user)
         ->getJson('/api/v1/sources')
-        ->assertStatus(200)
-        ->assertJsonStructure(['data']);
+        ->assertStatus(200);
+
+    expect($response->json())->toBeArray();
+    expect(count($response->json()))->toBeGreaterThanOrEqual(1);
 });
 
 it('deletes a source', function () {
@@ -103,11 +104,11 @@ it('deletes a source', function () {
             'source_connection' => 'jdbc:postgresql://localhost/del',
         ]);
 
-    $sourceId = $response->json('data.id');
+    $sourceId = $response->json('id');
 
     $this->actingAs($user)
         ->deleteJson("/api/v1/sources/{$sourceId}")
-        ->assertStatus(200);
+        ->assertStatus(204);
 
     $this->assertSoftDeleted('sources', ['id' => $sourceId]);
 });

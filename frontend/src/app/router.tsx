@@ -1,8 +1,16 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { LoginPage } from "@/features/auth/pages/LoginPage";
+import { RegisterPage } from "@/features/auth/pages/RegisterPage";
 import { DashboardPage } from "@/features/dashboard/pages/DashboardPage";
 import { SourcesListPage } from "@/features/data-sources/pages/SourcesListPage";
+import { useAuthStore } from "@/stores/authStore";
+
+function ProtectedLayout() {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  return <MainLayout />;
+}
 
 export const router = createBrowserRouter([
   {
@@ -10,8 +18,12 @@ export const router = createBrowserRouter([
     element: <LoginPage />,
   },
   {
+    path: "/register",
+    element: <RegisterPage />,
+  },
+  {
     path: "/",
-    element: <MainLayout />,
+    element: <ProtectedLayout />,
     children: [
       { index: true, element: <DashboardPage /> },
       { path: "data-sources", element: <SourcesListPage /> },

@@ -1,43 +1,33 @@
 <?php
 
-use App\Models\App\User;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    // Create vocab schema tables for testing
-    // Note: In CI, these are created by migrations. Here we seed minimal test data.
+    // Seed minimal vocab data if the concept table is empty (CI environment).
+    // In local dev, the omop schema already has 7M+ concepts — skip seeding.
     try {
-        DB::connection('vocab')->statement("
-            INSERT INTO vocab.vocabularies (vocabulary_id, vocabulary_name, vocabulary_reference, vocabulary_version, vocabulary_concept_id)
-            VALUES ('SNOMED', 'Systematic Nomenclature of Medicine', 'SNOMED CT', '20230901', 44819096)
-            ON CONFLICT DO NOTHING
-        ");
-
-        DB::connection('vocab')->statement("
-            INSERT INTO vocab.domains (domain_id, domain_name, domain_concept_id)
-            VALUES ('Condition', 'Condition', 19)
-            ON CONFLICT DO NOTHING
-        ");
-
-        DB::connection('vocab')->statement("
-            INSERT INTO vocab.concept_classes (concept_class_id, concept_class_name, concept_class_concept_id)
-            VALUES ('Clinical Finding', 'Clinical Finding', 44818979)
-            ON CONFLICT DO NOTHING
-        ");
-
-        DB::connection('vocab')->statement("
-            INSERT INTO vocab.concepts (concept_id, concept_name, domain_id, vocabulary_id, concept_class_id, standard_concept, concept_code, valid_start_date, valid_end_date, invalid_reason)
-            VALUES
-                (201826, 'Type 2 diabetes mellitus', 'Condition', 'SNOMED', 'Clinical Finding', 'S', '44054006', '1970-01-01', '2099-12-31', NULL),
-                (443238, 'Diabetic retinopathy', 'Condition', 'SNOMED', 'Clinical Finding', 'S', '4855003', '1970-01-01', '2099-12-31', NULL),
-                (316139, 'Heart failure', 'Condition', 'SNOMED', 'Clinical Finding', 'S', '84114007', '1970-01-01', '2099-12-31', NULL)
-            ON CONFLICT DO NOTHING
-        ");
+        $count = DB::connection('vocab')->table('concept')->count();
+        if ($count === 0) {
+            DB::connection('vocab')->table('vocabulary')->insertOrIgnore([
+                ['vocabulary_id' => 'SNOMED', 'vocabulary_name' => 'Systematic Nomenclature of Medicine', 'vocabulary_reference' => 'SNOMED CT', 'vocabulary_version' => '20230901', 'vocabulary_concept_id' => 44819096],
+            ]);
+            DB::connection('vocab')->table('domain')->insertOrIgnore([
+                ['domain_id' => 'Condition', 'domain_name' => 'Condition', 'domain_concept_id' => 19],
+            ]);
+            DB::connection('vocab')->table('concept_class')->insertOrIgnore([
+                ['concept_class_id' => 'Clinical Finding', 'concept_class_name' => 'Clinical Finding', 'concept_class_concept_id' => 44818979],
+            ]);
+            DB::connection('vocab')->table('concept')->insertOrIgnore([
+                ['concept_id' => 201826, 'concept_name' => 'Type 2 diabetes mellitus', 'domain_id' => 'Condition', 'vocabulary_id' => 'SNOMED', 'concept_class_id' => 'Clinical Finding', 'standard_concept' => 'S', 'concept_code' => '44054006', 'valid_start_date' => '1970-01-01', 'valid_end_date' => '2099-12-31', 'invalid_reason' => null],
+                ['concept_id' => 443238, 'concept_name' => 'Diabetic retinopathy', 'domain_id' => 'Condition', 'vocabulary_id' => 'SNOMED', 'concept_class_id' => 'Clinical Finding', 'standard_concept' => 'S', 'concept_code' => '4855003', 'valid_start_date' => '1970-01-01', 'valid_end_date' => '2099-12-31', 'invalid_reason' => null],
+                ['concept_id' => 316139, 'concept_name' => 'Heart failure', 'domain_id' => 'Condition', 'vocabulary_id' => 'SNOMED', 'concept_class_id' => 'Clinical Finding', 'standard_concept' => 'S', 'concept_code' => '84114007', 'valid_start_date' => '1970-01-01', 'valid_end_date' => '2099-12-31', 'invalid_reason' => null],
+            ]);
+        }
     } catch (\Exception $e) {
-        // Tables may not exist in test environment without vocab migrations
         $this->markTestSkipped('Vocabulary tables not available: '.$e->getMessage());
     }
 });
