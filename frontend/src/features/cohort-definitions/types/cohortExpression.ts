@@ -165,6 +165,7 @@ export interface CohortDefinitionListParams {
   page?: number;
   limit?: number;
   q?: string;
+  tags?: string[];
 }
 
 export interface PaginatedResponse<T> {

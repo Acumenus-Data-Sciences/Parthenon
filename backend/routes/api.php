@@ -38,6 +38,9 @@ Route::prefix('v1')->group(function () {
     Route::post('/auth/login', [AuthController::class, 'login'])->middleware('throttle:5,15');
     Route::post('/auth/register', [AuthController::class, 'register']);
 
+    // §9.2 — Public shared cohort link (no auth required)
+    Route::get('/cohort-definitions/shared/{token}', [CohortDefinitionController::class, 'showShared']);
+
     // Protected routes
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/auth/user', [AuthController::class, 'user']);
@@ -121,8 +124,10 @@ Route::prefix('v1')->group(function () {
             Route::delete('/runs/{runId}', [DataQualityController::class, 'destroyRun']);
         });
 
-        // Concept Sets
+        // Concept Sets — §9.2 static routes BEFORE apiResource
+        Route::post('/concept-sets/import', [ConceptSetController::class, 'import']);
         Route::apiResource('concept-sets', ConceptSetController::class);
+        Route::get('/concept-sets/{concept_set}/export', [ConceptSetController::class, 'export']);
         Route::get('/concept-sets/{concept_set}/resolve', [ConceptSetController::class, 'resolve']);
         Route::post('/concept-sets/{concept_set}/items', [ConceptSetController::class, 'addItem']);
         Route::put('/concept-sets/{concept_set}/items/{item}', [ConceptSetController::class, 'updateItem']);
@@ -134,8 +139,12 @@ Route::prefix('v1')->group(function () {
         Route::get('/vocabulary/domains', [VocabularyController::class, 'domains']);
         Route::get('/vocabulary/vocabularies-list', [VocabularyController::class, 'vocabularies']);
 
-        // Cohort Definitions
+        // Cohort Definitions — §9.2 static routes BEFORE apiResource (avoid wildcard clash)
+        Route::post('/cohort-definitions/import', [CohortDefinitionController::class, 'import']);
+        Route::get('/cohort-definitions/tags', [CohortDefinitionController::class, 'tags']);
         Route::apiResource('cohort-definitions', CohortDefinitionController::class);
+        Route::get('/cohort-definitions/{cohortDefinition}/export', [CohortDefinitionController::class, 'export']);
+        Route::post('/cohort-definitions/{cohortDefinition}/share', [CohortDefinitionController::class, 'share']);
         Route::post('/cohort-definitions/{cohortDefinition}/generate', [CohortDefinitionController::class, 'generate']);
         Route::get('/cohort-definitions/{cohortDefinition}/generations', [CohortDefinitionController::class, 'generations']);
         Route::get('/cohort-definitions/{cohortDefinition}/generations/{generation}', [CohortDefinitionController::class, 'showGeneration']);

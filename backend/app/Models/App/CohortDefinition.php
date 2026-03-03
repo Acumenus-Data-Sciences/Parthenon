@@ -20,6 +20,9 @@ class CohortDefinition extends Model
         'author_id',
         'is_public',
         'version',
+        'tags',
+        'share_token',
+        'share_expires_at',
     ];
 
     /**
@@ -30,6 +33,8 @@ class CohortDefinition extends Model
         return [
             'expression_json' => 'array',
             'is_public' => 'boolean',
+            'tags' => 'array',
+            'share_expires_at' => 'datetime',
         ];
     }
 

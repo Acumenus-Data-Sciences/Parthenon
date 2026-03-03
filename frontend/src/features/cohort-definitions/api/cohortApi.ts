@@ -1,4 +1,4 @@
-import apiClient from "@/lib/api-client";
+import apiClient, { toLaravelPaginated } from "@/lib/api-client";
 import type {
   CohortDefinition,
   CohortGeneration,
@@ -17,36 +17,30 @@ const BASE = "/cohort-definitions";
 export async function getCohortDefinitions(
   params?: CohortDefinitionListParams,
 ): Promise<PaginatedResponse<CohortDefinition>> {
-  const { data } = await apiClient.get<PaginatedResponse<CohortDefinition>>(
-    BASE,
-    { params },
-  );
-  return data;
+  const { data } = await apiClient.get(BASE, { params });
+  return toLaravelPaginated<CohortDefinition>(data);
 }
 
 export async function getCohortDefinition(
   id: number,
 ): Promise<CohortDefinition> {
-  const { data } = await apiClient.get<CohortDefinition>(`${BASE}/${id}`);
-  return data;
+  const { data } = await apiClient.get(`${BASE}/${id}`);
+  return data.data ?? data;
 }
 
 export async function createCohortDefinition(
   payload: CreateCohortDefinitionPayload,
 ): Promise<CohortDefinition> {
-  const { data } = await apiClient.post<CohortDefinition>(BASE, payload);
-  return data;
+  const { data } = await apiClient.post(BASE, payload);
+  return data.data ?? data;
 }
 
 export async function updateCohortDefinition(
   id: number,
   payload: UpdateCohortDefinitionPayload,
 ): Promise<CohortDefinition> {
-  const { data } = await apiClient.put<CohortDefinition>(
-    `${BASE}/${id}`,
-    payload,
-  );
-  return data;
+  const { data } = await apiClient.put(`${BASE}/${id}`, payload);
+  return data.data ?? data;
 }
 
 export async function deleteCohortDefinition(id: number): Promise<void> {
@@ -56,10 +50,8 @@ export async function deleteCohortDefinition(id: number): Promise<void> {
 export async function copyCohortDefinition(
   id: number,
 ): Promise<CohortDefinition> {
-  const { data } = await apiClient.post<CohortDefinition>(
-    `${BASE}/${id}/copy`,
-  );
-  return data;
+  const { data } = await apiClient.post(`${BASE}/${id}/copy`);
+  return data.data ?? data;
 }
 
 // ---------------------------------------------------------------------------
@@ -70,11 +62,8 @@ export async function generateCohort(
   id: number,
   payload: { source_id: number },
 ): Promise<CohortGeneration> {
-  const { data } = await apiClient.post<CohortGeneration>(
-    `${BASE}/${id}/generate`,
-    payload,
-  );
-  return data;
+  const { data } = await apiClient.post(`${BASE}/${id}/generate`, payload);
+  return data.data ?? data;
 }
 
 export async function getCohortGenerations(
@@ -108,5 +97,73 @@ export async function previewCohortSql(
     `${BASE}/${id}/sql`,
     payload,
   );
+  return data;
+}
+
+// ---------------------------------------------------------------------------
+// §9.2 — Import / Export / Tags / Share
+// ---------------------------------------------------------------------------
+
+export interface ImportCohortPayload {
+  name: string;
+  description?: string;
+  expression: Record<string, unknown>;
+}
+
+export interface ImportCohortResult {
+  imported: number;
+  skipped: number;
+  failed: number;
+  results: { name: string; status: string; id?: number; reason?: string }[];
+}
+
+export async function importCohortDefinitions(
+  payload: ImportCohortPayload | ImportCohortPayload[],
+): Promise<ImportCohortResult> {
+  const { data } = await apiClient.post<ImportCohortResult>(
+    `${BASE}/import`,
+    payload,
+  );
+  return data;
+}
+
+export async function exportCohortDefinition(
+  id: number,
+): Promise<{ name: string; description?: string; expression: Record<string, unknown> }> {
+  const { data } = await apiClient.get(`${BASE}/${id}/export`);
+  return data;
+}
+
+export async function getCohortTags(): Promise<string[]> {
+  const { data } = await apiClient.get<string[]>(`${BASE}/tags`);
+  return data;
+}
+
+export interface ShareCohortResult {
+  token: string;
+  url: string;
+  expires_at: string;
+}
+
+export async function shareCohortDefinition(
+  id: number,
+  days?: number,
+): Promise<ShareCohortResult> {
+  const { data } = await apiClient.post<ShareCohortResult>(
+    `${BASE}/${id}/share`,
+    days ? { days } : {},
+  );
+  return data;
+}
+
+export async function getSharedCohort(token: string): Promise<{
+  id: number;
+  name: string;
+  description?: string;
+  expression: Record<string, unknown>;
+  expires_at: string;
+}> {
+  // Public endpoint — no auth header needed, but apiClient still works for it
+  const { data } = await apiClient.get(`${BASE}/shared/${token}`);
   return data;
 }

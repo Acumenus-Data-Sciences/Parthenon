@@ -12,6 +12,7 @@ use App\Services\Cohort\CohortSqlCompiler;
 use App\Services\Cohort\Schema\CohortExpressionSchema;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class CohortDefinitionController extends Controller
 {
@@ -40,6 +41,14 @@ class CohortDefinitionController extends Controller
                     $q->where('name', 'ilike', "%{$search}%")
                         ->orWhere('description', 'ilike', "%{$search}%");
                 });
+            }
+
+            // Optional tag filter (?tags[]=cardiology&tags[]=diabetes)
+            if ($request->filled('tags')) {
+                $tags = (array) $request->input('tags');
+                foreach ($tags as $tag) {
+                    $query->whereRaw('tags @> ?::jsonb', [json_encode([$tag])]);
+                }
             }
 
             $cohortDefinitions = $query->paginate($request->integer('per_page', 20));
@@ -326,6 +335,165 @@ class CohortDefinitionController extends Controller
         } catch (\Throwable $e) {
             return $this->errorResponse('Failed to copy cohort definition', $e);
         }
+    }
+
+    /**
+     * POST /v1/cohort-definitions/import
+     *
+     * Import one or more Atlas-format cohort definitions.
+     * Accepts: {name, description, expression} or [{...}, ...]
+     */
+    public function import(Request $request): JsonResponse
+    {
+        $payload = $request->json()->all();
+
+        // Normalize to array of items
+        $items = isset($payload['name']) ? [$payload] : array_values($payload);
+
+        if (empty($items)) {
+            return response()->json(['error' => 'No cohort definitions provided'], 422);
+        }
+
+        $imported = 0;
+        $skipped = 0;
+        $failed = 0;
+        $results = [];
+
+        foreach ($items as $item) {
+            $name = trim($item['name'] ?? '');
+            $description = $item['description'] ?? null;
+            $expression = $item['expression'] ?? $item['expression_json'] ?? null;
+
+            if (! $name || ! $expression) {
+                $failed++;
+                $results[] = ['name' => $name ?: '(unknown)', 'status' => 'failed', 'reason' => 'Missing name or expression'];
+                continue;
+            }
+
+            // Duplicate check (case-insensitive)
+            $exists = CohortDefinition::whereRaw('lower(name) = ?', [strtolower($name)])->exists();
+            if ($exists) {
+                $skipped++;
+                $results[] = ['name' => $name, 'status' => 'skipped', 'reason' => 'Duplicate name'];
+                continue;
+            }
+
+            try {
+                $this->schema->validate($expression);
+
+                $def = CohortDefinition::create([
+                    'name' => $name,
+                    'description' => $description,
+                    'expression_json' => $expression,
+                    'author_id' => $request->user()->id,
+                ]);
+
+                $imported++;
+                $results[] = ['name' => $name, 'status' => 'imported', 'id' => $def->id];
+            } catch (\Throwable $e) {
+                $failed++;
+                $results[] = ['name' => $name, 'status' => 'failed', 'reason' => $e->getMessage()];
+            }
+        }
+
+        return response()->json([
+            'imported' => $imported,
+            'skipped' => $skipped,
+            'failed' => $failed,
+            'results' => $results,
+        ], 201);
+    }
+
+    /**
+     * GET /v1/cohort-definitions/{cohortDefinition}/export
+     *
+     * Export a cohort definition in Atlas-compatible format.
+     */
+    public function export(CohortDefinition $cohortDefinition): JsonResponse
+    {
+        return response()->json([
+            'name' => $cohortDefinition->name,
+            'description' => $cohortDefinition->description,
+            'expression' => $cohortDefinition->expression_json,
+        ]);
+    }
+
+    /**
+     * GET /v1/cohort-definitions/tags
+     *
+     * Return distinct tag values across all non-deleted definitions.
+     */
+    public function tags(): JsonResponse
+    {
+        try {
+            $tags = \DB::select("
+                SELECT DISTINCT jsonb_array_elements_text(tags) AS tag
+                FROM cohort_definitions
+                WHERE deleted_at IS NULL
+                  AND tags IS NOT NULL
+                ORDER BY tag
+            ");
+
+            return response()->json(array_column($tags, 'tag'));
+        } catch (\Throwable $e) {
+            return $this->errorResponse('Failed to retrieve tags', $e);
+        }
+    }
+
+    /**
+     * POST /v1/cohort-definitions/{cohortDefinition}/share
+     *
+     * Generate a read-only share token for a cohort definition.
+     */
+    public function share(Request $request, CohortDefinition $cohortDefinition): JsonResponse
+    {
+        $days = $request->integer('days', 30);
+        $days = max(1, min(365, $days));
+
+        try {
+            $token = Str::random(64);
+            $expiresAt = now()->addDays($days);
+
+            $cohortDefinition->update([
+                'share_token' => $token,
+                'share_expires_at' => $expiresAt,
+            ]);
+
+            $url = url("/shared/{$token}");
+
+            return response()->json([
+                'token' => $token,
+                'url' => $url,
+                'expires_at' => $expiresAt->toIso8601String(),
+            ]);
+        } catch (\Throwable $e) {
+            return $this->errorResponse('Failed to generate share token', $e);
+        }
+    }
+
+    /**
+     * GET /v1/cohort-definitions/shared/{token}
+     *
+     * Public endpoint — returns definition for a valid, non-expired share token.
+     */
+    public function showShared(string $token): JsonResponse
+    {
+        $def = CohortDefinition::where('share_token', $token)
+            ->whereNotNull('share_expires_at')
+            ->where('share_expires_at', '>', now())
+            ->first(['id', 'name', 'description', 'expression_json', 'share_expires_at']);
+
+        if (! $def) {
+            return response()->json(['error' => 'Not found or expired'], 404);
+        }
+
+        return response()->json([
+            'id' => $def->id,
+            'name' => $def->name,
+            'description' => $def->description,
+            'expression' => $def->expression_json,
+            'expires_at' => $def->share_expires_at->toIso8601String(),
+        ]);
     }
 
     /**

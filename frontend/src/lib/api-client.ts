@@ -29,4 +29,23 @@ apiClient.interceptors.response.use(
   },
 );
 
+/**
+ * Transform Laravel's paginator response to the frontend's PaginatedResponse format.
+ * Laravel: { data: T[], total, current_page, per_page, ... }
+ * Frontend: { items: T[], total, page, limit }
+ */
+export function toLaravelPaginated<T>(response: {
+  data: T[];
+  total: number;
+  current_page: number;
+  per_page: number;
+}): { items: T[]; total: number; page: number; limit: number } {
+  return {
+    items: response.data ?? [],
+    total: response.total ?? 0,
+    page: response.current_page ?? 1,
+    limit: response.per_page ?? 20,
+  };
+}
+
 export default apiClient;

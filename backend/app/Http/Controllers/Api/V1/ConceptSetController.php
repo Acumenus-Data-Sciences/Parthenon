@@ -282,6 +282,135 @@ class ConceptSetController extends Controller
     }
 
     /**
+     * POST /v1/concept-sets/import
+     *
+     * Import one or more concept sets from Atlas format.
+     * Atlas format: {name, expression: {items: [{concept: {CONCEPT_ID,...}, isExcluded, includeDescendants, includeMapped}]}}
+     * Batch: array of the above.
+     */
+    public function import(Request $request): JsonResponse
+    {
+        $payload = $request->json()->all();
+        $items = isset($payload['name']) ? [$payload] : array_values($payload);
+
+        if (empty($items)) {
+            return response()->json(['error' => 'No concept sets provided'], 422);
+        }
+
+        $imported = 0;
+        $skipped = 0;
+        $failed = 0;
+        $results = [];
+
+        foreach ($items as $item) {
+            $name = trim($item['name'] ?? '');
+            $expression = $item['expression'] ?? null;
+            $atlasItems = $expression['items'] ?? [];
+
+            if (! $name) {
+                $failed++;
+                $results[] = ['name' => '(unknown)', 'status' => 'failed', 'reason' => 'Missing name'];
+                continue;
+            }
+
+            $exists = ConceptSet::whereRaw('lower(name) = ?', [strtolower($name)])->exists();
+            if ($exists) {
+                $skipped++;
+                $results[] = ['name' => $name, 'status' => 'skipped', 'reason' => 'Duplicate name'];
+                continue;
+            }
+
+            try {
+                $conceptSet = ConceptSet::create([
+                    'name' => $name,
+                    'description' => $item['description'] ?? null,
+                    'author_id' => $request->user()->id,
+                ]);
+
+                foreach ($atlasItems as $atlasItem) {
+                    $conceptId = $atlasItem['concept']['CONCEPT_ID'] ?? null;
+                    if (! $conceptId) {
+                        continue;
+                    }
+
+                    $conceptSet->items()->create([
+                        'concept_id' => $conceptId,
+                        'is_excluded' => (bool) ($atlasItem['isExcluded'] ?? false),
+                        'include_descendants' => (bool) ($atlasItem['includeDescendants'] ?? false),
+                        'include_mapped' => (bool) ($atlasItem['includeMapped'] ?? false),
+                    ]);
+                }
+
+                $imported++;
+                $results[] = ['name' => $name, 'status' => 'imported', 'id' => $conceptSet->id];
+            } catch (\Throwable $e) {
+                $failed++;
+                $results[] = ['name' => $name, 'status' => 'failed', 'reason' => $e->getMessage()];
+            }
+        }
+
+        return response()->json([
+            'imported' => $imported,
+            'skipped' => $skipped,
+            'failed' => $failed,
+            'results' => $results,
+        ], 201);
+    }
+
+    /**
+     * GET /v1/concept-sets/{conceptSet}/export
+     *
+     * Export a concept set in Atlas format with full concept objects.
+     */
+    public function export(ConceptSet $conceptSet): JsonResponse
+    {
+        $conceptSet->load('items');
+
+        $conceptIds = $conceptSet->items->pluck('concept_id')->unique()->all();
+        $concepts = [];
+        if (! empty($conceptIds)) {
+            $concepts = Concept::whereIn('concept_id', $conceptIds)
+                ->get([
+                    'concept_id',
+                    'concept_name',
+                    'domain_id',
+                    'vocabulary_id',
+                    'concept_class_id',
+                    'standard_concept',
+                    'concept_code',
+                ])
+                ->keyBy('concept_id');
+        }
+
+        $atlasItems = $conceptSet->items->map(function (ConceptSetItem $item) use ($concepts) {
+            $concept = $concepts[$item->concept_id] ?? null;
+
+            return [
+                'concept' => [
+                    'CONCEPT_ID' => $item->concept_id,
+                    'CONCEPT_NAME' => $concept?->concept_name ?? '',
+                    'DOMAIN_ID' => $concept?->domain_id ?? '',
+                    'VOCABULARY_ID' => $concept?->vocabulary_id ?? '',
+                    'CONCEPT_CLASS_ID' => $concept?->concept_class_id ?? '',
+                    'STANDARD_CONCEPT' => $concept?->standard_concept ?? '',
+                    'CONCEPT_CODE' => $concept?->concept_code ?? '',
+                ],
+                'isExcluded' => (bool) $item->is_excluded,
+                'includeDescendants' => (bool) $item->include_descendants,
+                'includeMapped' => (bool) $item->include_mapped,
+            ];
+        })->values();
+
+        return response()->json([
+            'name' => $conceptSet->name,
+            'description' => $conceptSet->description,
+            'expression' => [
+                'items' => $atlasItems,
+            ],
+        ]);
+    }
+
+    /**
      * Build a standardized error response for database/service failures.
      */
     private function errorResponse(string $message, \Throwable $exception): JsonResponse

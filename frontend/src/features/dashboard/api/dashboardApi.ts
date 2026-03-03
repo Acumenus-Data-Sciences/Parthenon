@@ -35,8 +35,10 @@ export async function fetchDashboardStats(): Promise<DashboardStats> {
 
   const sources = sourcesRes.status === "fulfilled" ? sourcesRes.value.data : [];
 
-  const cohortsData = cohortsRes.status === "fulfilled" ? cohortsRes.value.data : { data: [], meta: { total: 0 } };
-  const cohortCount = (cohortsData as { meta?: { total: number } }).meta?.total ?? 0;
+  const cohortsData = cohortsRes.status === "fulfilled" ? cohortsRes.value.data : { data: [], total: 0 };
+  const cohortCount = (cohortsData as { total?: number; meta?: { total: number } }).total
+    ?? (cohortsData as { meta?: { total: number } }).meta?.total
+    ?? 0;
   const recentCohorts = ((cohortsData as { data: Array<{ id: number; name: string; status?: string; person_count?: number | null; updated_at: string }> }).data ?? []).slice(0, 5).map((c) => ({
     id: c.id,
     name: c.name,

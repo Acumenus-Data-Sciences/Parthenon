@@ -7,6 +7,7 @@ import {
   Save,
   Globe,
   Lock,
+  Download,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ConceptSetEditor } from "../components/ConceptSetEditor";
@@ -15,6 +16,7 @@ import {
   useUpdateConceptSet,
   useDeleteConceptSet,
 } from "../hooks/useConceptSets";
+import { exportConceptSet } from "../api/conceptSetApi";
 
 export default function ConceptSetDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -71,6 +73,20 @@ export default function ConceptSetDetailPage() {
       id: conceptSetId,
       payload: { is_public: !conceptSet.is_public },
     });
+  };
+
+  const handleExport = async () => {
+    if (!conceptSetId) return;
+    const exported = await exportConceptSet(conceptSetId);
+    const blob = new Blob([JSON.stringify(exported, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${conceptSet?.name ?? "concept-set"}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   if (isLoading) {
@@ -222,6 +238,15 @@ export default function ConceptSetDetailPage() {
 
         {/* Action Buttons */}
         <div className="flex items-center gap-2 shrink-0">
+          <button
+            type="button"
+            onClick={handleExport}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#8A857D] hover:text-[#C5C0B8] transition-colors"
+          >
+            <Download size={14} />
+            Export
+          </button>
+
           <button
             type="button"
             onClick={handleTogglePublic}

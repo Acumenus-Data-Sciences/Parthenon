@@ -9,9 +9,13 @@ import {
   Globe,
   Lock,
   Sparkles,
+  Download,
+  Share2,
 } from "lucide-react";
 import { AbbyAiPanel } from "@/features/abby-ai/components/AbbyAiPanel";
+import { ShareCohortModal } from "../components/ShareCohortModal";
 import { cn } from "@/lib/utils";
+import { exportCohortDefinition } from "../api/cohortApi";
 import { CohortExpressionEditor } from "../components/CohortExpressionEditor";
 import { CohortSqlPreview } from "../components/CohortSqlPreview";
 import { CohortGenerationPanel } from "../components/CohortGenerationPanel";
@@ -46,6 +50,7 @@ export default function CohortDefinitionDetailPage() {
   const [isEditingDesc, setIsEditingDesc] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>("editor");
   const [abbyOpen, setAbbyOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
 
   // Load expression from API into store
   useEffect(() => {
@@ -117,6 +122,20 @@ export default function CohortDefinitionDetailPage() {
       id: cohortId,
       payload: { is_public: !definition.is_public },
     });
+  };
+
+  const handleExport = async () => {
+    if (!cohortId) return;
+    const exported = await exportCohortDefinition(cohortId);
+    const blob = new Blob([JSON.stringify(exported, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${definition?.name ?? "cohort"}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   if (isLoading) {
@@ -314,6 +333,26 @@ export default function CohortDefinitionDetailPage() {
             Abby AI
           </button>
 
+          {/* Export */}
+          <button
+            type="button"
+            onClick={handleExport}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#8A857D] hover:text-[#C5C0B8] transition-colors"
+          >
+            <Download size={14} />
+            Export
+          </button>
+
+          {/* Share */}
+          <button
+            type="button"
+            onClick={() => setShareOpen(true)}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#8A857D] hover:text-[#C5C0B8] transition-colors"
+          >
+            <Share2 size={14} />
+            Share
+          </button>
+
           {/* Copy */}
           <button
             type="button"
@@ -409,6 +448,14 @@ export default function CohortDefinitionDetailPage() {
           setAbbyOpen(false);
         }}
       />
+
+      {/* Share Modal */}
+      {shareOpen && cohortId && (
+        <ShareCohortModal
+          cohortId={cohortId}
+          onClose={() => setShareOpen(false)}
+        />
+      )}
     </div>
   );
 }

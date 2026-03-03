@@ -74,12 +74,16 @@ function LatestGenerationBadge({
   );
 }
 
-export function CohortDefinitionList() {
+interface Props {
+  tags?: string[];
+}
+
+export function CohortDefinitionList({ tags }: Props) {
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const limit = 20;
 
-  const { data, isLoading, error } = useCohortDefinitions({ page, limit });
+  const { data, isLoading, error } = useCohortDefinitions({ page, limit, tags });
 
   if (isLoading) {
     return (

@@ -22,6 +22,13 @@ export const router = createBrowserRouter([
     element: <RegisterPage />,
   },
   {
+    path: "/shared/:token",
+    lazy: () =>
+      import(
+        "@/features/cohort-definitions/pages/SharedCohortPage"
+      ).then((m) => ({ Component: m.default })),
+  },
+  {
     path: "/",
     element: <ProtectedLayout />,
     children: [
