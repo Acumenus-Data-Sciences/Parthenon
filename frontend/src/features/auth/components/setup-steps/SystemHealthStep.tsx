@@ -1,0 +1,165 @@
+import { useEffect } from "react";
+import { CheckCircle2, AlertTriangle, XCircle, RefreshCw, Loader2 } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useSystemHealth } from "@/features/administration/hooks/useAiProviders";
+import type { SystemHealthService } from "@/types/models";
+import { cn } from "@/lib/utils";
+
+interface Props {
+  onHealthChecked: () => void;
+}
+
+const STATUS_CONFIG = {
+  healthy: {
+    icon: CheckCircle2,
+    dot: "bg-emerald-500",
+    border: "border-emerald-500/30",
+    bg: "bg-emerald-500/10",
+    text: "text-emerald-400",
+    label: "Healthy",
+  },
+  degraded: {
+    icon: AlertTriangle,
+    dot: "bg-yellow-500",
+    border: "border-yellow-500/30",
+    bg: "bg-yellow-500/10",
+    text: "text-yellow-400",
+    label: "Degraded",
+  },
+  down: {
+    icon: XCircle,
+    dot: "bg-red-500",
+    border: "border-red-500/30",
+    bg: "bg-red-500/10",
+    text: "text-red-400",
+    label: "Down",
+  },
+} as const;
+
+function ServiceRow({ service }: { service: SystemHealthService }) {
+  const config = STATUS_CONFIG[service.status];
+  const Icon = config.icon;
+  const queueDetails = service.details as { pending?: number; failed?: number } | undefined;
+
+  return (
+    <div className={cn("rounded-lg border p-4", config.border, config.bg)}>
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <span className={cn("mt-0.5 h-2.5 w-2.5 shrink-0 rounded-full", config.dot)} />
+          <div>
+            <p className="font-semibold text-[#F0EDE8]">{service.name}</p>
+            <p className={cn("mt-0.5 text-sm", config.text)}>{service.message}</p>
+          </div>
+        </div>
+        <span
+          className={cn(
+            "rounded-full px-2 py-0.5 text-xs font-medium capitalize",
+            config.bg,
+            config.text,
+          )}
+        >
+          {config.label}
+        </span>
+      </div>
+
+      {queueDetails && (
+        <div className="mt-3 flex gap-4 text-sm">
+          <span className="text-[#8A857D]">
+            Pending:{" "}
+            <span className="font-medium text-[#F0EDE8]">{queueDetails.pending ?? 0}</span>
+          </span>
+          <span className="text-[#8A857D]">
+            Failed:{" "}
+            <span
+              className={cn(
+                "font-medium",
+                (queueDetails.failed ?? 0) > 0 ? "text-red-400" : "text-[#F0EDE8]",
+              )}
+            >
+              {queueDetails.failed ?? 0}
+            </span>
+          </span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function SystemHealthStep({ onHealthChecked }: Props) {
+  const { data: health, isLoading, isFetching, dataUpdatedAt } = useSystemHealth();
+  const qc = useQueryClient();
+
+  useEffect(() => {
+    if (health) onHealthChecked();
+  }, [health, onHealthChecked]);
+
+  const overallStatus = health?.services.find((s) => s.status === "down")
+    ? "down"
+    : health?.services.find((s) => s.status === "degraded")
+      ? "degraded"
+      : "healthy";
+
+  const overallConfig = STATUS_CONFIG[overallStatus];
+  const checkedAt = dataUpdatedAt ? new Date(dataUpdatedAt).toLocaleTimeString() : null;
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-lg font-semibold text-[#F0EDE8]">System Health Check</h3>
+          <p className="text-sm text-[#8A857D]">
+            Verifying that all platform services are running correctly.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => qc.invalidateQueries({ queryKey: ["system-health"] })}
+          disabled={isFetching}
+          className="inline-flex items-center gap-1.5 rounded-md border border-[#232328] px-3 py-1.5 text-xs font-medium text-[#8A857D] transition-colors hover:text-[#C5C0B8] disabled:opacity-50"
+        >
+          <RefreshCw size={12} className={isFetching ? "animate-spin" : ""} />
+          Refresh
+        </button>
+      </div>
+
+      {isLoading ? (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-6 w-6 animate-spin text-[#C9A227]" />
+          <span className="ml-2 text-sm text-[#8A857D]">Checking services...</span>
+        </div>
+      ) : (
+        <>
+          {/* Overall banner */}
+          {health && (
+            <div
+              className={cn(
+                "flex items-center gap-3 rounded-lg border px-4 py-3",
+                overallConfig.border,
+                overallConfig.bg,
+              )}
+            >
+              <span className={cn("h-2.5 w-2.5 rounded-full", overallConfig.dot)} />
+              <span className={cn("text-sm font-medium capitalize", overallConfig.text)}>
+                System {overallStatus}
+              </span>
+              {checkedAt && (
+                <span className="ml-auto text-xs text-[#5A5650]">
+                  Last checked at {checkedAt}
+                </span>
+              )}
+            </div>
+          )}
+
+          {/* Service list */}
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {(health?.services ?? []).map((service) => (
+              <ServiceRow key={service.key} service={service} />
+            ))}
+          </div>
+
+          <p className="text-xs text-[#5A5650]">Auto-refreshes every 30 seconds.</p>
+        </>
+      )}
+    </div>
+  );
+}
