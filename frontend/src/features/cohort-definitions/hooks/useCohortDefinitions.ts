@@ -8,6 +8,7 @@ import {
   deleteCohortDefinition,
   generateCohort,
   copyCohortDefinition,
+  compareCohorts,
 } from "../api/cohortApi";
 import type {
   CohortDefinitionListParams,
@@ -116,5 +117,22 @@ export function useCopyCohortDefinition() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["cohort-definitions"] });
     },
+  });
+}
+
+// ---------------------------------------------------------------------------
+// §9.4 — Cohort Overlap
+// ---------------------------------------------------------------------------
+
+export function useCohortOverlap(
+  cohortIds: number[],
+  sourceId: number | null,
+) {
+  return useQuery({
+    queryKey: ["cohort-overlap", cohortIds, sourceId],
+    queryFn: () =>
+      compareCohorts({ cohort_ids: cohortIds, source_id: sourceId! }),
+    enabled: cohortIds.length >= 2 && sourceId != null,
+    staleTime: 60_000,
   });
 }

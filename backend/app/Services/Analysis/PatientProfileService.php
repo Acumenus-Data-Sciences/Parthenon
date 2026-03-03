@@ -48,6 +48,8 @@ class PatientProfileService
             'measurements' => $this->getMeasurements($personId, $params, $dialect, $connectionName),
             'observations' => $this->getObservations($personId, $params, $dialect, $connectionName),
             'visits' => $this->getVisits($personId, $params, $dialect, $connectionName),
+            'condition_eras' => $this->getConditionEras($personId, $params, $dialect, $connectionName),
+            'drug_eras' => $this->getDrugEras($personId, $params, $dialect, $connectionName),
         ];
 
         return $profile;
@@ -428,6 +430,75 @@ class PatientProfileService
                 ON vo.visit_type_concept_id = tc.concept_id
             WHERE vo.person_id = {$personId}
             ORDER BY vo.visit_start_date
+        ";
+
+        $renderedSql = $this->sqlRenderer->render($sql, $params, $dialect);
+        $rows = DB::connection($connectionName)->select($renderedSql);
+
+        return array_map(fn ($row) => (array) $row, $rows);
+    }
+
+    /**
+     * Get condition eras for a person.
+     * Condition eras merge overlapping condition records into continuous spans.
+     *
+     * @param  array<string, string>  $params
+     * @return list<array<string, mixed>>
+     */
+    private function getConditionEras(
+        int $personId,
+        array $params,
+        string $dialect,
+        string $connectionName,
+    ): array {
+        $sql = "
+            SELECT
+                ce.condition_era_id,
+                ce.condition_concept_id,
+                COALESCE(c.concept_name, 'Unknown') AS condition_name,
+                ce.condition_era_start_date,
+                ce.condition_era_end_date,
+                ce.condition_occurrence_count
+            FROM {@cdmSchema}.condition_era ce
+            LEFT JOIN {@vocabSchema}.concept c
+                ON ce.condition_concept_id = c.concept_id
+            WHERE ce.person_id = {$personId}
+            ORDER BY ce.condition_era_start_date
+        ";
+
+        $renderedSql = $this->sqlRenderer->render($sql, $params, $dialect);
+        $rows = DB::connection($connectionName)->select($renderedSql);
+
+        return array_map(fn ($row) => (array) $row, $rows);
+    }
+
+    /**
+     * Get drug eras for a person.
+     * Drug eras merge overlapping drug exposure records with a persistence window.
+     *
+     * @param  array<string, string>  $params
+     * @return list<array<string, mixed>>
+     */
+    private function getDrugEras(
+        int $personId,
+        array $params,
+        string $dialect,
+        string $connectionName,
+    ): array {
+        $sql = "
+            SELECT
+                de.drug_era_id,
+                de.drug_concept_id,
+                COALESCE(c.concept_name, 'Unknown') AS drug_name,
+                de.drug_era_start_date,
+                de.drug_era_end_date,
+                de.drug_exposure_count,
+                de.gap_days
+            FROM {@cdmSchema}.drug_era de
+            LEFT JOIN {@vocabSchema}.concept c
+                ON de.drug_concept_id = c.concept_id
+            WHERE de.person_id = {$personId}
+            ORDER BY de.drug_era_start_date
         ";
 
         $renderedSql = $this->sqlRenderer->render($sql, $params, $dialect);

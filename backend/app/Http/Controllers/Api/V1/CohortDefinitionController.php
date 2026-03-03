@@ -7,6 +7,8 @@ use App\Jobs\Cohort\GenerateCohortJob;
 use App\Models\App\CohortDefinition;
 use App\Models\App\CohortGeneration;
 use App\Models\App\Source;
+use App\Services\Analysis\CohortDiagnosticsService;
+use App\Services\Analysis\CohortOverlapService;
 use App\Services\Cohort\CohortGenerationService;
 use App\Services\Cohort\CohortSqlCompiler;
 use App\Services\Cohort\Schema\CohortExpressionSchema;
@@ -20,6 +22,8 @@ class CohortDefinitionController extends Controller
         private readonly CohortSqlCompiler $compiler,
         private readonly CohortGenerationService $generationService,
         private readonly CohortExpressionSchema $schema,
+        private readonly CohortOverlapService $overlapService,
+        private readonly CohortDiagnosticsService $diagnosticsService,
     ) {}
 
     /**
@@ -494,6 +498,53 @@ class CohortDefinitionController extends Controller
             'expression' => $def->expression_json,
             'expires_at' => $def->share_expires_at->toIso8601String(),
         ]);
+    }
+
+    /**
+     * POST /v1/cohort-definitions/{cohortDefinition}/diagnostics
+     *
+     * Run SQL-based cohort diagnostics (counts, visit context, time distributions, age).
+     */
+    public function diagnostics(Request $request, CohortDefinition $cohortDefinition): JsonResponse
+    {
+        $validated = $request->validate([
+            'source_id' => 'required|integer|exists:sources,id',
+        ]);
+
+        try {
+            $source = Source::with('daimons')->findOrFail($validated['source_id']);
+            $result = $this->diagnosticsService->run($cohortDefinition, $source);
+
+            return response()->json(['data' => $result]);
+        } catch (\Throwable $e) {
+            return $this->errorResponse('Failed to run cohort diagnostics', $e);
+        }
+    }
+
+    /**
+     * POST /v1/cohort-definitions/compare
+     *
+     * Compute pairwise overlap between 2-4 generated cohorts.
+     */
+    public function compare(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'cohort_ids' => 'required|array|min:2|max:4',
+            'cohort_ids.*' => 'integer',
+            'source_id' => 'required|integer|exists:sources,id',
+        ]);
+
+        try {
+            $source = Source::with('daimons')->findOrFail($validated['source_id']);
+            $result = $this->overlapService->computeOverlap(
+                $validated['cohort_ids'],
+                $source,
+            );
+
+            return response()->json(['data' => $result]);
+        } catch (\Throwable $e) {
+            return $this->errorResponse('Failed to compute cohort overlap', $e);
+        }
     }
 
     /**

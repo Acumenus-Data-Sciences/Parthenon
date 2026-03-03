@@ -37,6 +37,25 @@ export interface ObservationPeriod {
   end_date: string;
 }
 
+export interface ConditionEra {
+  condition_era_id: number;
+  condition_concept_id: number;
+  condition_name: string;
+  condition_era_start_date: string;
+  condition_era_end_date: string;
+  condition_occurrence_count: number;
+}
+
+export interface DrugEra {
+  drug_era_id: number;
+  drug_concept_id: number;
+  drug_name: string;
+  drug_era_start_date: string;
+  drug_era_end_date: string;
+  drug_exposure_count: number;
+  gap_days: number;
+}
+
 export interface PatientProfile {
   demographics: PatientDemographics;
   observation_periods: ObservationPeriod[];
@@ -46,6 +65,8 @@ export interface PatientProfile {
   measurements: ClinicalEvent[];
   observations: ClinicalEvent[];
   visits: ClinicalEvent[];
+  condition_eras?: ConditionEra[];
+  drug_eras?: DrugEra[];
 }
 
 export interface CohortMember {

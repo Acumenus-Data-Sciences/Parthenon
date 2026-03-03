@@ -21,6 +21,7 @@ import { CohortSqlPreview } from "../components/CohortSqlPreview";
 import { CohortGenerationPanel } from "../components/CohortGenerationPanel";
 import { GenerationHistoryTable } from "../components/GenerationHistoryTable";
 import { AttritionChart } from "../components/AttritionChart";
+import { CohortOverlapPanel } from "../components/CohortOverlapPanel";
 import {
   useCohortDefinition,
   useUpdateCohortDefinition,
@@ -29,7 +30,7 @@ import {
 } from "../hooks/useCohortDefinitions";
 import { useCohortExpressionStore } from "../stores/cohortExpressionStore";
 
-type Tab = "editor" | "results" | "diagnostics";
+type Tab = "editor" | "results" | "diagnostics" | "overlap";
 
 export default function CohortDefinitionDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -392,6 +393,7 @@ export default function CohortDefinitionDetailPage() {
             { key: "editor", label: "Expression Editor" },
             { key: "results", label: "SQL & Generation" },
             { key: "diagnostics", label: "Diagnostics" },
+            { key: "overlap", label: "Overlap" },
           ] as const
         ).map((tab) => (
           <button
@@ -427,7 +429,7 @@ export default function CohortDefinitionDetailPage() {
             <GenerationHistoryTable definitionId={cohortId} />
           </div>
         </div>
-      ) : (
+      ) : activeTab === "diagnostics" ? (
         <div className="space-y-6">
           {/* Attrition Chart — uses inclusion rule stats from latest generation */}
           <AttritionChart
@@ -437,6 +439,8 @@ export default function CohortDefinitionDetailPage() {
           <CohortGenerationPanel definitionId={cohortId} />
           <GenerationHistoryTable definitionId={cohortId} />
         </div>
+      ) : (
+        <CohortOverlapPanel currentCohortId={cohortId} />
       )}
 
       {/* Abby AI Panel */}

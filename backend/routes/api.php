@@ -202,7 +202,7 @@ Route::prefix('v1')->group(function () {
 
         // Negative Control Outcomes
         Route::post('negative-controls/suggest', [NegativeControlController::class, 'suggest']);
-        Route::post('negative-controls/validate', [NegativeControlController::class, 'validate']);
+        Route::post('negative-controls/validate', [NegativeControlController::class, 'validateCandidates']);
 
         // Notification Preferences
         Route::get('user/notification-preferences', [NotificationPreferenceController::class, 'show']);

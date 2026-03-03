@@ -187,3 +187,66 @@ export interface UpdateCohortDefinitionPayload {
   expression_json?: CohortExpression;
   is_public?: boolean;
 }
+
+// ---------------------------------------------------------------------------
+// §9.4 — Cohort Overlap types
+// ---------------------------------------------------------------------------
+
+export interface CohortOverlapPair {
+  cohort_id_a: number;
+  cohort_id_b: number;
+  count_a: number;
+  count_b: number;
+  overlap_count: number;
+  only_a: number;
+  only_b: number;
+  jaccard_index: number;
+}
+
+export interface CohortOverlapResult {
+  cohort_counts: Record<number, number>;
+  pairs: CohortOverlapPair[];
+  summary: {
+    cohort_ids: number[];
+    total_unique_subjects: number;
+  };
+}
+
+// ---------------------------------------------------------------------------
+// §9.4 — Negative Control types
+// ---------------------------------------------------------------------------
+
+export interface NegativeControlSuggestion {
+  concept_id: number;
+  concept_name: string;
+  person_count: number;
+}
+
+export interface NegativeControlValidation {
+  concept_id: number;
+  has_relationship: boolean;
+  relationship_ids: string[];
+}
+
+// ---------------------------------------------------------------------------
+// §9.4 — Cohort Diagnostics types
+// ---------------------------------------------------------------------------
+
+export interface CohortDiagnosticsResult {
+  cohort_id: number;
+  cohort_name: string;
+  counts: {
+    total_records: number;
+    distinct_persons: number;
+  };
+  visit_context: { visit_type: string; person_count: number }[];
+  time_distributions: {
+    p25_before?: number;
+    median_before?: number;
+    p75_before?: number;
+    p25_after?: number;
+    median_after?: number;
+    p75_after?: number;
+  };
+  age_at_index: { age_group: number; person_count: number }[];
+}

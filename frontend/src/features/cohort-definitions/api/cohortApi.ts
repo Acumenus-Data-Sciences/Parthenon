@@ -6,6 +6,10 @@ import type {
   PaginatedResponse,
   CreateCohortDefinitionPayload,
   UpdateCohortDefinitionPayload,
+  CohortOverlapResult,
+  NegativeControlSuggestion,
+  NegativeControlValidation,
+  CohortDiagnosticsResult,
 } from "../types/cohortExpression";
 
 const BASE = "/cohort-definitions";
@@ -166,4 +170,57 @@ export async function getSharedCohort(token: string): Promise<{
   // Public endpoint — no auth header needed, but apiClient still works for it
   const { data } = await apiClient.get(`${BASE}/shared/${token}`);
   return data;
+}
+
+// ---------------------------------------------------------------------------
+// §9.4 — Cohort Overlap
+// ---------------------------------------------------------------------------
+
+export async function compareCohorts(payload: {
+  cohort_ids: number[];
+  source_id: number;
+}): Promise<CohortOverlapResult> {
+  const { data } = await apiClient.post(`${BASE}/compare`, payload);
+  return data.data ?? data;
+}
+
+// ---------------------------------------------------------------------------
+// §9.4 — Negative Controls
+// ---------------------------------------------------------------------------
+
+export async function suggestNegativeControls(payload: {
+  exposure_concept_ids: number[];
+  source_id: number;
+  exclude_concept_ids?: number[];
+  limit?: number;
+}): Promise<NegativeControlSuggestion[]> {
+  const { data } = await apiClient.post("/negative-controls/suggest", payload);
+  return data.data ?? data;
+}
+
+export async function validateNegativeControls(payload: {
+  exposure_concept_ids: number[];
+  candidate_concept_ids: number[];
+  source_id: number;
+}): Promise<NegativeControlValidation[]> {
+  const { data } = await apiClient.post(
+    "/negative-controls/validate",
+    payload,
+  );
+  return data.data ?? data;
+}
+
+// ---------------------------------------------------------------------------
+// §9.4 — Cohort Diagnostics
+// ---------------------------------------------------------------------------
+
+export async function runCohortDiagnostics(
+  id: number,
+  payload: { source_id: number },
+): Promise<CohortDiagnosticsResult> {
+  const { data } = await apiClient.post(
+    `${BASE}/${id}/diagnostics`,
+    payload,
+  );
+  return data.data ?? data;
 }

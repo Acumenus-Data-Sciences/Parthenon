@@ -16,9 +16,10 @@ import { PatientDemographicsCard } from "../components/PatientDemographicsCard";
 import { PatientTimeline } from "../components/PatientTimeline";
 import { ClinicalEventCard } from "../components/ClinicalEventCard";
 import { CohortMemberList } from "../components/CohortMemberList";
+import { EraTimeline } from "../components/EraTimeline";
 import type { ClinicalDomain, ClinicalEvent } from "../types/profile";
 
-type ViewMode = "timeline" | "list";
+type ViewMode = "timeline" | "list" | "eras";
 type DomainTab =
   | "all"
   | "condition"
@@ -239,12 +240,36 @@ export default function PatientProfilePage() {
                 <LayoutList size={12} />
                 List
               </button>
+              {((profile.condition_eras?.length ?? 0) > 0 ||
+                (profile.drug_eras?.length ?? 0) > 0) && (
+                <button
+                  type="button"
+                  onClick={() => setViewMode("eras")}
+                  className={cn(
+                    "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+                    viewMode === "eras"
+                      ? "bg-[#2DD4BF]/10 text-[#2DD4BF]"
+                      : "text-[#8A857D] hover:text-[#C5C0B8]",
+                  )}
+                >
+                  <Database size={12} />
+                  Eras
+                </button>
+              )}
             </div>
           </div>
 
           {/* Timeline view */}
           {viewMode === "timeline" && (
             <PatientTimeline events={allEvents} />
+          )}
+
+          {/* Eras view */}
+          {viewMode === "eras" && (
+            <EraTimeline
+              conditionEras={profile.condition_eras ?? []}
+              drugEras={profile.drug_eras ?? []}
+            />
           )}
 
           {/* List view */}
