@@ -8,32 +8,37 @@
 #   - Laravel caches are cleared
 #
 # Usage:
-#   ./deploy.sh             # full deploy (PHP + frontend + DB)
+#   ./deploy.sh             # full deploy (PHP + frontend + DB + docs)
 #   ./deploy.sh --php       # PHP + caches only (skip frontend build)
 #   ./deploy.sh --frontend  # frontend build only
 #   ./deploy.sh --db        # migrations + cache clear only
+#   ./deploy.sh --docs      # documentation build only
 
 set -euo pipefail
 
 PHP_ONLY=false
 FRONTEND_ONLY=false
 DB_ONLY=false
+DOCS_ONLY=false
 
 for arg in "$@"; do
   case $arg in
     --php)      PHP_ONLY=true ;;
     --frontend) FRONTEND_ONLY=true ;;
     --db)       DB_ONLY=true ;;
+    --docs)     DOCS_ONLY=true ;;
   esac
 done
 
 DO_PHP=true
 DO_FRONTEND=true
 DO_DB=true
+DO_DOCS=true
 
-if $PHP_ONLY;      then DO_FRONTEND=false; DO_DB=false; fi
-if $FRONTEND_ONLY; then DO_PHP=false;      DO_DB=false; fi
-if $DB_ONLY;       then DO_PHP=false;      DO_FRONTEND=false; fi
+if $PHP_ONLY;      then DO_FRONTEND=false; DO_DB=false;      DO_DOCS=false; fi
+if $FRONTEND_ONLY; then DO_PHP=false;      DO_DB=false;      DO_DOCS=false; fi
+if $DB_ONLY;       then DO_PHP=false;      DO_FRONTEND=false; DO_DOCS=false; fi
+if $DOCS_ONLY;     then DO_PHP=false;      DO_FRONTEND=false; DO_DB=false;   fi
 
 echo "==> Parthenon deploy"
 
@@ -66,6 +71,15 @@ if $DO_FRONTEND; then
   # Build inside the node container (same Node/npm version as dev)
   docker compose exec node sh -c "cd /app && npx vite build --mode production"
   echo "   Built → frontend/dist  (served by Apache at parthenon.acumenus.net)"
+fi
+
+# ── Documentation build ───────────────────────────────────────────────────────
+if $DO_DOCS; then
+  echo ""
+  echo "── Docs: building Docusaurus site ──"
+  mkdir -p docs/dist
+  docker compose --profile docs run --rm docs-build
+  echo "   Built → docs/dist  (served by nginx at /docs/)"
 fi
 
 echo ""

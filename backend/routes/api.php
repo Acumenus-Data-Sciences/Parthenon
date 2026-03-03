@@ -19,6 +19,7 @@ use App\Http\Controllers\Api\V1\CohortDefinitionController;
 use App\Http\Controllers\Api\V1\ConceptSetController;
 use App\Http\Controllers\Api\V1\DataQualityController;
 use App\Http\Controllers\Api\V1\EstimationController;
+use App\Http\Controllers\Api\V1\EvidenceSynthesisController;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\IncidenceRateController;
 use App\Http\Controllers\Api\V1\IngestionController;
@@ -29,6 +30,7 @@ use App\Http\Controllers\Api\V1\OnboardingController;
 use App\Http\Controllers\Api\V1\PathwayController;
 use App\Http\Controllers\Api\V1\PatientProfileController;
 use App\Http\Controllers\Api\V1\PredictionController;
+use App\Http\Controllers\Api\V1\SccsController;
 use App\Http\Controllers\Api\V1\SourceController;
 use App\Http\Controllers\Api\V1\StudyController;
 use App\Http\Controllers\Api\V1\VocabularyController;
@@ -190,6 +192,18 @@ Route::prefix('v1')->group(function () {
         Route::post('predictions/{prediction}/execute', [PredictionController::class, 'execute']);
         Route::get('predictions/{prediction}/executions', [PredictionController::class, 'executions']);
         Route::get('predictions/{prediction}/executions/{execution}', [PredictionController::class, 'showExecution']);
+
+        // SCCS (Self-Controlled Case Series)
+        Route::apiResource('sccs', SccsController::class);
+        Route::post('sccs/{scc}/execute', [SccsController::class, 'execute']);
+        Route::get('sccs/{scc}/executions', [SccsController::class, 'executions']);
+        Route::get('sccs/{scc}/executions/{execution}', [SccsController::class, 'showExecution']);
+
+        // Evidence Synthesis (Meta-Analysis)
+        Route::apiResource('evidence-synthesis', EvidenceSynthesisController::class);
+        Route::post('evidence-synthesis/{evidence_synthesis}/execute', [EvidenceSynthesisController::class, 'execute']);
+        Route::get('evidence-synthesis/{evidence_synthesis}/executions', [EvidenceSynthesisController::class, 'executions']);
+        Route::get('evidence-synthesis/{evidence_synthesis}/executions/{execution}', [EvidenceSynthesisController::class, 'showExecution']);
 
         // Studies
         Route::apiResource('studies', StudyController::class);

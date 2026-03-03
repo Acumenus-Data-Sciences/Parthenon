@@ -199,6 +199,20 @@ export const router = createBrowserRouter([
                 "@/features/prediction/pages/PredictionDetailPage"
               ).then((m) => ({ Component: m.default })),
           },
+          {
+            path: "sccs/:id",
+            lazy: () =>
+              import(
+                "@/features/sccs/pages/SccsDetailPage"
+              ).then((m) => ({ Component: m.default })),
+          },
+          {
+            path: "evidence-synthesis/:id",
+            lazy: () =>
+              import(
+                "@/features/evidence-synthesis/pages/EvidenceSynthesisDetailPage"
+              ).then((m) => ({ Component: m.default })),
+          },
         ],
       },
       {

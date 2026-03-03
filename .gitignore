@@ -62,3 +62,8 @@ docker/redis-data/
 .install-state.json
 installer/__pycache__/
 installer/**/__pycache__/
+
+# Documentation
+docs/dist/*
+!docs/dist/.gitkeep
+docs/site/node_modules/

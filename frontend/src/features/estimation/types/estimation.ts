@@ -4,32 +4,36 @@
 
 import type { AnalysisExecution } from "@/features/analyses/types/analysis";
 
+import type { CovariateSettings } from "@/components/analysis/CovariateSettingsPanel";
+
 export interface EstimationDesign {
   targetCohortId: number;
   comparatorCohortId: number;
   outcomeCohortIds: number[];
   model: {
-    type: "cox" | "logistic";
+    type: "cox" | "logistic" | "poisson";
     timeAtRiskStart: number;
     timeAtRiskEnd: number;
     endAnchor: "cohort start" | "cohort end";
   };
   propensityScore: {
     enabled: boolean;
+    method?: "matching" | "stratification" | "iptw";
     trimming: number;
-    matching: { ratio: number; caliper: number };
+    matching: {
+      ratio: number;
+      caliper: number;
+      caliperScale?: "ps" | "standardized" | "standardized_logit";
+    };
     stratification: { strata: number };
+    iptw?: Record<string, unknown>;
   };
-  covariateSettings: {
-    useDemographics: boolean;
-    useConditionOccurrence: boolean;
-    useDrugExposure: boolean;
-    useProcedureOccurrence: boolean;
-    useMeasurement: boolean;
-    useObservation: boolean;
-    timeWindows: { start: number; end: number }[];
-  };
+  covariateSettings: CovariateSettings;
   negativeControlOutcomes: number[];
+  studyPeriod?: {
+    startDate?: string;
+    endDate?: string;
+  };
 }
 
 export interface EstimationAnalysis {

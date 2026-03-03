@@ -157,6 +157,27 @@ jobs:
         working-directory: ai
         run: pytest
 
+  docs-build:
+    name: Documentation (Docusaurus)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: docs/site/package-lock.json
+
+      - name: Install dependencies
+        working-directory: docs/site
+        run: npm ci
+
+      - name: Build
+        working-directory: docs/site
+        run: npm run build
+
   docker:
     name: Docker Build Validation
     runs-on: ubuntu-latest

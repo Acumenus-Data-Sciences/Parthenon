@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
-import { Loader2, Save, X } from "lucide-react";
+import { Loader2, Save } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { getCohortDefinitions } from "@/features/cohort-definitions/api/cohortApi";
+import { CovariateSettingsPanel } from "@/components/analysis/CovariateSettingsPanel";
 import type {
   PredictionDesign,
   PredictionAnalysis,
+  PredictionModelType,
 } from "../types/prediction";
 import {
   useUpdatePrediction,
@@ -111,20 +113,18 @@ export function PredictionDesigner({
   const isSaving = createMutation.isPending || updateMutation.isPending;
 
   const modelTypes: {
-    value: PredictionDesign["model"]["type"];
+    value: PredictionModelType;
     label: string;
   }[] = [
     { value: "lasso_logistic_regression", label: "LASSO Logistic Regression" },
     { value: "gradient_boosting", label: "Gradient Boosting Machine" },
     { value: "random_forest", label: "Random Forest" },
-  ];
-
-  const covariateOptions = [
-    { key: "useDemographics" as const, label: "Demographics" },
-    { key: "useConditionOccurrence" as const, label: "Condition Occurrence" },
-    { key: "useDrugExposure" as const, label: "Drug Exposure" },
-    { key: "useProcedureOccurrence" as const, label: "Procedure Occurrence" },
-    { key: "useMeasurement" as const, label: "Measurement" },
+    { value: "ada_boost", label: "AdaBoost" },
+    { value: "decision_tree", label: "Decision Tree" },
+    { value: "naive_bayes", label: "Naive Bayes" },
+    { value: "mlp", label: "Multi-Layer Perceptron" },
+    { value: "lightgbm", label: "LightGBM" },
+    { value: "cox_model", label: "Cox Proportional Hazards" },
   ];
 
   return (
@@ -350,164 +350,12 @@ export function PredictionDesigner({
       </div>
 
       {/* Covariate Settings */}
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 space-y-3">
-        <h3 className="text-sm font-semibold text-[#F0EDE8]">
-          Covariate Settings
-        </h3>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-          {covariateOptions.map((opt) => (
-            <label
-              key={opt.key}
-              className={cn(
-                "flex items-center gap-2 rounded-lg border px-3 py-2 text-sm cursor-pointer transition-colors",
-                design.covariateSettings[opt.key]
-                  ? "border-[#2DD4BF]/30 bg-[#2DD4BF]/5 text-[#2DD4BF]"
-                  : "border-[#232328] bg-[#0E0E11] text-[#8A857D] hover:text-[#C5C0B8]",
-              )}
-            >
-              <input
-                type="checkbox"
-                checked={design.covariateSettings[opt.key]}
-                onChange={() =>
-                  setDesign((d) => ({
-                    ...d,
-                    covariateSettings: {
-                      ...d.covariateSettings,
-                      [opt.key]: !d.covariateSettings[opt.key],
-                    },
-                  }))
-                }
-                className="sr-only"
-              />
-              <div
-                className={cn(
-                  "w-4 h-4 rounded border flex items-center justify-center shrink-0",
-                  design.covariateSettings[opt.key]
-                    ? "border-[#2DD4BF] bg-[#2DD4BF]"
-                    : "border-[#323238]",
-                )}
-              >
-                {design.covariateSettings[opt.key] && (
-                  <svg
-                    width="10"
-                    height="10"
-                    viewBox="0 0 10 10"
-                    fill="none"
-                  >
-                    <path
-                      d="M2 5L4 7L8 3"
-                      stroke="#0E0E11"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                )}
-              </div>
-              {opt.label}
-            </label>
-          ))}
-        </div>
-
-        {/* Time Windows */}
-        <div className="mt-4">
-          <label className="block text-xs font-medium text-[#8A857D] mb-2">
-            Time Windows
-          </label>
-          {design.covariateSettings.timeWindows.map((tw, idx) => (
-            <div key={idx} className="flex items-center gap-2 mb-2">
-              <input
-                type="number"
-                value={tw.start}
-                onChange={(e) => {
-                  const newWindows = [
-                    ...design.covariateSettings.timeWindows,
-                  ];
-                  newWindows[idx] = {
-                    ...newWindows[idx],
-                    start: Number(e.target.value),
-                  };
-                  setDesign((d) => ({
-                    ...d,
-                    covariateSettings: {
-                      ...d.covariateSettings,
-                      timeWindows: newWindows,
-                    },
-                  }));
-                }}
-                className={cn(
-                  "w-28 rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm",
-                  "text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
-                )}
-              />
-              <span className="text-xs text-[#5A5650]">to</span>
-              <input
-                type="number"
-                value={tw.end}
-                onChange={(e) => {
-                  const newWindows = [
-                    ...design.covariateSettings.timeWindows,
-                  ];
-                  newWindows[idx] = {
-                    ...newWindows[idx],
-                    end: Number(e.target.value),
-                  };
-                  setDesign((d) => ({
-                    ...d,
-                    covariateSettings: {
-                      ...d.covariateSettings,
-                      timeWindows: newWindows,
-                    },
-                  }));
-                }}
-                className={cn(
-                  "w-28 rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm",
-                  "text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
-                )}
-              />
-              <span className="text-xs text-[#5A5650]">days</span>
-              {design.covariateSettings.timeWindows.length > 1 && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setDesign((d) => ({
-                      ...d,
-                      covariateSettings: {
-                        ...d.covariateSettings,
-                        timeWindows:
-                          d.covariateSettings.timeWindows.filter(
-                            (_, i) => i !== idx,
-                          ),
-                      },
-                    }));
-                  }}
-                  className="text-[#8A857D] hover:text-[#E85A6B] transition-colors"
-                >
-                  <X size={14} />
-                </button>
-              )}
-            </div>
-          ))}
-          <button
-            type="button"
-            onClick={() =>
-              setDesign((d) => ({
-                ...d,
-                covariateSettings: {
-                  ...d.covariateSettings,
-                  timeWindows: [
-                    ...d.covariateSettings.timeWindows,
-                    { start: -365, end: 0 },
-                  ],
-                },
-              }))
-            }
-            className="text-xs text-[#2DD4BF] hover:text-[#26B8A5] transition-colors"
-          >
-            + Add time window
-          </button>
-        </div>
-      </div>
+      <CovariateSettingsPanel
+        settings={design.covariateSettings}
+        onChange={(covariateSettings) =>
+          setDesign((d) => ({ ...d, covariateSettings }))
+        }
+      />
 
       {/* Population Settings */}
       <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 space-y-4">

@@ -65,7 +65,7 @@ class PredictionController extends Controller
             'design_json.targetCohortId' => 'required|integer',
             'design_json.outcomeCohortId' => 'required|integer',
             'design_json.model' => 'nullable|array',
-            'design_json.model.type' => 'nullable|string',
+            'design_json.model.type' => 'nullable|string|in:lasso_logistic_regression,gradient_boosting,random_forest,ada_boost,decision_tree,naive_bayes,mlp,lightgbm,cox_model',
             'design_json.model.hyperParameters' => 'nullable|array',
             'design_json.timeAtRisk' => 'nullable|array',
             'design_json.timeAtRisk.start' => 'nullable|integer',
@@ -77,9 +77,16 @@ class PredictionController extends Controller
             'design_json.populationSettings.removeSubjectsWithPriorOutcome' => 'nullable|boolean',
             'design_json.populationSettings.requireTimeAtRisk' => 'nullable|boolean',
             'design_json.populationSettings.minTimeAtRisk' => 'nullable|integer',
+            'design_json.populationSettings.firstExposureOnly' => 'nullable|boolean',
             'design_json.splitSettings' => 'nullable|array',
             'design_json.splitSettings.testFraction' => 'nullable|numeric|min:0|max:1',
             'design_json.splitSettings.splitSeed' => 'nullable|integer',
+            'design_json.splitSettings.nFold' => 'nullable|integer|min:2|max:10',
+            'design_json.splitSettings.type' => 'nullable|string|in:stratified,time',
+            'design_json.preprocessSettings' => 'nullable|array',
+            'design_json.preprocessSettings.minFraction' => 'nullable|numeric|min:0|max:1',
+            'design_json.preprocessSettings.normalize' => 'nullable|boolean',
+            'design_json.preprocessSettings.removeRedundancy' => 'nullable|boolean',
         ]);
 
         try {
@@ -137,7 +144,7 @@ class PredictionController extends Controller
             'design_json.targetCohortId' => 'required_with:design_json|integer',
             'design_json.outcomeCohortId' => 'required_with:design_json|integer',
             'design_json.model' => 'nullable|array',
-            'design_json.model.type' => 'nullable|string',
+            'design_json.model.type' => 'nullable|string|in:lasso_logistic_regression,gradient_boosting,random_forest,ada_boost,decision_tree,naive_bayes,mlp,lightgbm,cox_model',
             'design_json.model.hyperParameters' => 'nullable|array',
             'design_json.timeAtRisk' => 'nullable|array',
             'design_json.timeAtRisk.start' => 'nullable|integer',
@@ -149,9 +156,16 @@ class PredictionController extends Controller
             'design_json.populationSettings.removeSubjectsWithPriorOutcome' => 'nullable|boolean',
             'design_json.populationSettings.requireTimeAtRisk' => 'nullable|boolean',
             'design_json.populationSettings.minTimeAtRisk' => 'nullable|integer',
+            'design_json.populationSettings.firstExposureOnly' => 'nullable|boolean',
             'design_json.splitSettings' => 'nullable|array',
             'design_json.splitSettings.testFraction' => 'nullable|numeric|min:0|max:1',
             'design_json.splitSettings.splitSeed' => 'nullable|integer',
+            'design_json.splitSettings.nFold' => 'nullable|integer|min:2|max:10',
+            'design_json.splitSettings.type' => 'nullable|string|in:stratified,time',
+            'design_json.preprocessSettings' => 'nullable|array',
+            'design_json.preprocessSettings.minFraction' => 'nullable|numeric|min:0|max:1',
+            'design_json.preprocessSettings.normalize' => 'nullable|boolean',
+            'design_json.preprocessSettings.removeRedundancy' => 'nullable|boolean',
         ]);
 
         try {
