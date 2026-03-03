@@ -5,13 +5,21 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\StoreSourceRequest;
 use App\Models\App\Source;
+use App\Services\WebApi\WebApiImporterService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class SourceController extends Controller
 {
-    public function index(): JsonResponse
+    public function __construct(
+        private readonly WebApiImporterService $importer,
+    ) {}
+
+    public function index(Request $request): JsonResponse
     {
-        $sources = Source::with('daimons')->get();
+        $sources = Source::with('daimons')
+            ->visibleToUser($request->user())
+            ->get();
 
         return response()->json($sources);
     }
@@ -38,6 +46,13 @@ class SourceController extends Controller
     {
         $source->update($request->validated());
 
+        if ($request->has('daimons')) {
+            $source->daimons()->delete();
+            foreach ($request->input('daimons') as $daimon) {
+                $source->daimons()->create($daimon);
+            }
+        }
+
         return response()->json($source->load('daimons'));
     }
 
@@ -46,5 +61,34 @@ class SourceController extends Controller
         $source->delete();
 
         return response()->json(null, 204);
+    }
+
+    /**
+     * POST /v1/sources/import-webapi
+     *
+     * Import sources from a legacy OHDSI WebAPI instance.
+     */
+    public function importWebApi(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'webapi_url' => 'required|url',
+            'auth_type' => 'string|in:none,basic,bearer',
+            'auth_credentials' => 'nullable|string',
+        ]);
+
+        try {
+            $result = $this->importer->importFromUrl(
+                $validated['webapi_url'],
+                $validated['auth_type'] ?? 'none',
+                $validated['auth_credentials'] ?? null,
+            );
+
+            return response()->json(['data' => $result]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Failed to import from WebAPI',
+                'message' => $e->getMessage(),
+            ], 502);
+        }
     }
 }

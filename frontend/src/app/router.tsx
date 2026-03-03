@@ -312,6 +312,13 @@ export const router = createBrowserRouter([
               ),
           },
           {
+            path: "webapi-registry",
+            lazy: () =>
+              import("@/features/data-sources/pages/WebApiRegistryPage").then(
+                (m) => ({ Component: m.WebApiRegistryPage }),
+              ),
+          },
+          {
             path: "notifications",
             lazy: () =>
               import(

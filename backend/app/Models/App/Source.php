@@ -3,6 +3,8 @@
 namespace App\Models\App;
 
 use App\Enums\DaimonType;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -20,6 +22,8 @@ class Source extends Model
         'source_dialect',
         'source_connection',
         'is_cache_enabled',
+        'restricted_to_roles',
+        'imported_from_webapi',
     ];
 
     protected $hidden = [
@@ -35,7 +39,34 @@ class Source extends Model
         return [
             'is_cache_enabled' => 'boolean',
             'password' => 'encrypted',
+            'restricted_to_roles' => 'array',
         ];
+    }
+
+    /**
+     * Scope: only sources visible to the given user.
+     *
+     * If restricted_to_roles is NULL or empty, the source is visible to everyone.
+     * Otherwise, the user must hold at least one of the listed roles.
+     *
+     * @param  Builder<Source>  $query
+     */
+    public function scopeVisibleToUser(Builder $query, User $user): void
+    {
+        if ($user->hasRole('super-admin')) {
+            return;
+        }
+
+        $userRoles = $user->getRoleNames()->toArray();
+
+        $query->where(function (Builder $q) use ($userRoles) {
+            $q->whereNull('restricted_to_roles')
+                ->orWhereJsonLength('restricted_to_roles', 0);
+
+            foreach ($userRoles as $role) {
+                $q->orWhereJsonContains('restricted_to_roles', $role);
+            }
+        });
     }
 
     /**

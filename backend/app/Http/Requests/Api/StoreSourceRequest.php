@@ -30,6 +30,8 @@ class StoreSourceRequest extends FormRequest
             'source_dialect' => 'required|string|in:postgresql,bigquery,oracle,spanner',
             'source_connection' => 'required|string',
             'is_cache_enabled' => 'boolean',
+            'restricted_to_roles' => 'nullable|array',
+            'restricted_to_roles.*' => 'string',
             'daimons' => 'sometimes|array',
             'daimons.*.daimon_type' => 'required_with:daimons|string|in:cdm,vocabulary,results,temp',
             'daimons.*.table_qualifier' => 'required_with:daimons|string',

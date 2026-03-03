@@ -127,6 +127,8 @@ export interface Source {
   source_dialect: string;
   source_connection: string;
   is_cache_enabled: boolean;
+  restricted_to_roles: string[] | null;
+  imported_from_webapi: string | null;
   daimons: SourceDaimon[];
   created_at: string;
   updated_at: string;
@@ -138,4 +140,22 @@ export interface SourceDaimon {
   daimon_type: "cdm" | "vocabulary" | "results" | "temp";
   table_qualifier: string;
   priority: number;
+}
+
+export interface WebApiRegistry {
+  id: number;
+  name: string;
+  base_url: string;
+  auth_type: "none" | "basic" | "bearer";
+  is_active: boolean;
+  last_synced_at: string | null;
+  created_by: number | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface WebApiImportResult {
+  imported: number;
+  skipped: number;
+  sources: { source_key: string; source_name: string; status: string }[];
 }

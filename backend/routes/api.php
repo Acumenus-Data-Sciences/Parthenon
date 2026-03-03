@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\V1\Admin\AuthProviderController;
 use App\Http\Controllers\Api\V1\Admin\RoleController;
 use App\Http\Controllers\Api\V1\Admin\SystemHealthController;
 use App\Http\Controllers\Api\V1\Admin\UserController;
+use App\Http\Controllers\Api\V1\Admin\WebApiRegistryController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CareGapController;
 use App\Http\Controllers\Api\V1\CharacterizationController;
@@ -50,7 +51,8 @@ Route::prefix('v1')->group(function () {
         Route::post('/auth/logout', [AuthController::class, 'logout']);
         Route::post('/auth/change-password', [AuthController::class, 'changePassword']);
 
-        // Sources
+        // Sources — §9.5 import route BEFORE apiResource
+        Route::post('sources/import-webapi', [SourceController::class, 'importWebApi']);
         Route::apiResource('sources', SourceController::class);
 
         // Vocabulary
@@ -295,6 +297,16 @@ Route::prefix('v1')->group(function () {
                 Route::post('/{type}/disable', [AiProviderController::class, 'disable']);
                 Route::post('/{type}/activate', [AiProviderController::class, 'activate']);
                 Route::post('/{type}/test', [AiProviderController::class, 'test']);
+            });
+
+            // ── WebAPI registry (admin+) ──────────────────────────────────
+            Route::prefix('webapi-registries')->group(function () {
+                Route::get('/', [WebApiRegistryController::class, 'index']);
+                Route::post('/', [WebApiRegistryController::class, 'store']);
+                Route::get('/{registry}', [WebApiRegistryController::class, 'show']);
+                Route::put('/{registry}', [WebApiRegistryController::class, 'update']);
+                Route::delete('/{registry}', [WebApiRegistryController::class, 'destroy']);
+                Route::post('/{registry}/sync', [WebApiRegistryController::class, 'sync']);
             });
 
             // ── System health (admin+) ────────────────────────────────────
