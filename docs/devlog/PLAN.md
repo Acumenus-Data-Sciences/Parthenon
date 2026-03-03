@@ -2268,6 +2268,7 @@ Legacy migration: `parthenon:migrate-legacy`, `parthenon:import-atlas-cohorts`, 
 | 10 | Deployment | 22-26 |
 | 13 | End-to-End Data Wiring | Post-deploy |
 | 14 | HADES R Package Integration | Post-deploy |
+| 15 | Molecular Diagnostics & Cancer Genomics | Post-14, 18 months |
 
 **Total: ~26 weeks (6.5 months)** with 2-3 developers.
 Critical path: Foundation → Vocabulary/Embeddings → AI Mapper → Research Workbench → Atlas Parity → Deployment → Data Wiring → HADES Integration.
@@ -4190,3 +4191,464 @@ Even after achieving parity, Parthenon surpasses Atlas:
 | Collaboration | Share R packages manually | Shared workspace, other users see all analyses |
 | Concept search | Separate Vocabulary tab | Unified search with AI-powered synonym resolution |
 | Data quality | Separate Achilles run | Integrated 170+ analyses run natively without R |
+
+---
+---
+
+# Phase 15 — Molecular Diagnostics & Cancer Genomics Integration
+
+**Status:** Planned
+**Target date:** TBD
+**Branch:** `master`
+**Goal:** Extend Parthenon into the definitive platform for molecular diagnostics outcomes research — natively integrating cancer genomics, surgical outcomes, perioperative data, and multi-domain clinical evidence, all powered by AI that converts raw observational data into actionable, computable knowledge at the point of care.
+
+**Reference Document:** `docs/Parthenon_Genomics_Enhancement_Plan.docx` (Udoshi, March 2026)
+
+---
+
+## 1. Background & Motivation
+
+It takes an average of 17 years for validated medical evidence to reach routine clinical practice. In oncology and precision medicine, where molecular diagnostics are reshaping treatment paradigms monthly, this translational lag causes preventable morbidity and mortality. The OHDSI community, with 544+ databases worldwide mapped to OMOP CDM, represents the most powerful infrastructure for generating real-world evidence at scale — yet genomic data representation is immature, tooling is scattered, and the evidence-to-practice loop remains broken.
+
+Parthenon already unifies the fragmented OHDSI toolchain (Phases 1–14). Phase 15 extends it with genomics-native capabilities across four sub-phases, each delivering standalone value.
+
+### What Exists in OHDSI Today
+
+| Component | Status | Parthenon Impact |
+|-----------|--------|-----------------|
+| **OMOP Oncology Extension** (Episode/Episode_Event, CDM v5.4) | Stable, 20+ data partners converting | Must support as first-class entities |
+| **HemOnc Ontology** (chemotherapy regimens) | Standard vocabulary, Drug Regimen Algorithm V2.0 | Integrate for regimen derivation |
+| **OMOP Genomic Vocabulary** (HGVS, COSMIC, ClinVar) | Active development, biweekly WG meetings | Extend AI concept mapper for genomic terms |
+| **Ajou G-CDM** (TARGET_GENE, VARIANT_OCCURRENCE, etc.) | Research prototype (2019), validated on TCGA | Reference architecture for schema extensions |
+| **KOIOS** (VCF-to-OMOP R package) | Maintained at OHDSI/Koios GitHub | Port logic to Python, add VRS identifiers |
+| **KOIOS-VRS Pipeline** (Feb 2026 preprint) | Cutting-edge, GA4GH VRS integration | Adopt VRS for federated variant identification |
+| **Cancer Modifier Vocabulary** (stage, grade, histology) | Authored by Oncology WG, in OMOP | Native support in cohort builder |
+| **NAACCR Integration** (US Tumor Registry ETL) | Mapping complete | AI-powered field mapping for ingestion |
+
+### Critical Gaps Parthenon Must Solve
+
+| Gap | Current State | Parthenon Solution |
+|-----|--------------|-------------------|
+| **Genomic Data Ingestion** | KOIOS (R only), vcf2omop (Java), no unified pipeline | AI-powered multi-format ingestion: VCF, panel reports (PDF/HL7), FHIR Genomics, cBioPortal MAF |
+| **Variant-Outcome Linkage** | Variants in MEASUREMENT but no tooling to link to treatment response/survival | Built-in variant-outcome correlation engine |
+| **Biomarker-Driven Cohorts** | Atlas cohort builder has no genomic concept support | Visual cohort builder with native genomic criteria (gene, variant, TMB, MSI, fusions) |
+| **Real-Time Evidence at Point of Care** | OHDSI is strictly retrospective | AI-powered evidence synthesis generating computable recommendations from OMOP data |
+| **Multi-Domain Integration** | Oncology, Surgery, Devices, Imaging WGs work in silos | Unified cross-domain queries: genomics + surgery + imaging + devices + perioperative |
+| **Federated Genomic Analysis** | No federated analysis for genomic data across OHDSI network | GA4GH VRS-based federated variant frequency, treatment-variant association, survival analysis |
+| **NLP for Molecular Reports** | OHDSI NLP WG has no genomics-specific extractors | LLM-powered extraction from free-text pathology and molecular diagnostics reports |
+
+---
+
+## 2. Extended Technical Architecture
+
+### 2.1 Stack Enhancements
+
+| Layer | Current | Phase 15 Enhancement |
+|-------|---------|---------------------|
+| **Backend API** | Laravel 11, PHP 8.4 | + Genomics API endpoints, FHIR R4 server facade, CDS Hooks service |
+| **Frontend** | React 19, TypeScript, Vite | + Genomic visualization (IGV.js), interactive Oncoprints, lollipop plots, pathway viewer |
+| **AI Service** | Python FastAPI + MedGemma | + Genomic ingestion pipeline, NLP molecular report extraction, evidence synthesis, VRS computation |
+| **Analytics** | R Plumber (HADES) | + Survival analysis, treatment-variant matrices, pharmacogenomic correlation, federated statistics |
+| **Database** | PostgreSQL 17 (OMOP CDM) | + Oncology Extension tables, genomic schema extensions, columnar storage (pg_analytics/DuckDB) |
+| **Interop Layer** | (none) | FHIR R4 facade, HL7 v2 parser, GA4GH Beacon API |
+| **Federation** | (none) | Parthenon-to-Parthenon secure API, VRS-based variant resolution, differential privacy engine |
+
+### 2.2 Data Flow Architecture
+
+```
+Stage 1 — Ingest & Harmonize
+  Raw molecular data (VCF, PDF reports, FHIR, HL7 v2, cBioPortal MAF)
+    → AI ingestion service
+    → HGVS normalization + VRS identifier generation
+    → OMOP Genomic Vocabulary mapping + ClinVar/COSMIC/OncoKB annotation
+    → OMOP MEASUREMENT table + genomic extension tables
+
+Stage 2 — Analyze & Generate Evidence
+  Genomics-aware cohort builder + variant-outcome analytical suite
+    → Molecularly-stratified populations
+    → Automated evidence generation (signal detection, study execution)
+    → Computable evidence repository
+
+Stage 3 — Deliver & Learn
+  Evidence packaged for clinical consumption
+    → CDS Hooks → EHR integration
+    → FHIR ClinicalReasoning resources
+    → Molecular tumor board dashboard
+    → Outcomes feed back into Stage 2 (learning loop)
+```
+
+---
+
+## 3. Implementation Plan
+
+### Phase 15a — Genomic Data Foundation (Months 1–4)
+
+**Objective:** Make Parthenon the easiest path from raw molecular diagnostics data to OMOP-compliant genomic records.
+
+#### 15a.1 OMOP Oncology Extension Native Support
+
+Implement full support for OMOP Oncology Extension tables as first-class entities:
+
+**Database Migrations:**
+- `episode` table — disease states and treatment episodes (diagnosis, first-line, progression, second-line, outcomes)
+- `episode_event` table — links episodes to underlying clinical events
+- Cancer Modifier concepts (stage, grade, histology, metastasis) with validated vocabulary lookups
+
+**Backend:**
+- `EpisodeController` — CRUD for episodes with nested Episode_Event management
+- `EpisodeService` — episode creation, timeline computation, regimen derivation
+- `HemOncRegimenService` — Drug Regimen Algorithm V2.0 implementation (derives treatment regimens from drug administration records via temporal pattern matching)
+
+**Frontend:**
+- `EpisodeTimeline` component — visual cancer patient journey rendering (diagnosis → treatment episodes → progression → outcomes)
+- Episode editor with nested event linking
+- Cancer stage/grade/histology selectors with OMOP vocabulary lookups
+
+#### 15a.2 Genomic Data Ingestion Pipeline
+
+Build a unified genomic data ingestion service in the Python FastAPI AI layer:
+
+**VCF/gVCF Files:**
+- Port KOIOS logic from R to Python
+- Add VRS identifier generation using GA4GH `vrs-python` library
+- Support single-sample and multi-sample VCF
+- Reference genome auto-detection (GRCh37/GRCh38)
+
+**Panel Reports (PDF):**
+- LLM-powered extraction from commercial molecular diagnostics reports
+- Vendor-specific extraction templates: Foundation Medicine, Tempus, Guardant Health, Caris Life Sciences
+- MedGemma fine-tuning for molecular report comprehension
+
+**HL7 v2 / FHIR Genomics:**
+- Parse HL7 OBX segments carrying molecular results
+- Map FHIR Genomics Reporting IG resources (DiagnosticReport, Observation, MolecularSequence) to OMOP MEASUREMENT records
+
+**cBioPortal MAF/Fusion/CNA:**
+- Direct import from cBioPortal data formats
+- TCGA and institutional genomic repository integration
+
+**GA4GH VRS Integration:**
+- Generate and store VRS computed identifiers (SHA-512 digest) for every ingested variant
+- Enable federated cross-institutional variant identification without prior coordination
+
+**New Files:**
+| File | Purpose |
+|------|---------|
+| `ai/app/genomics/vcf_ingester.py` | VCF/gVCF parser with VRS ID generation |
+| `ai/app/genomics/vrs_service.py` | GA4GH VRS identifier computation |
+| `ai/app/genomics/panel_report_extractor.py` | LLM-powered PDF report extraction |
+| `ai/app/genomics/fhir_genomics_mapper.py` | FHIR Genomics Reporting IG → OMOP mapper |
+| `ai/app/genomics/hl7v2_molecular_parser.py` | HL7 v2 OBX molecular result parser |
+| `ai/app/genomics/cbioportal_importer.py` | cBioPortal MAF/fusion/CNA import |
+| `ai/app/genomics/hgvs_normalizer.py` | HGVS notation parsing and normalization |
+| `ai/app/api/genomics_routes.py` | FastAPI endpoints for all ingestion formats |
+
+#### 15a.3 Genomic Vocabulary Management
+
+Extend Parthenon's AI-powered concept mapper for genomic terminology:
+
+- HGVS notation parsing and normalization (genomic, transcript, protein level)
+- Gene symbol resolution via HGNC
+- ClinVar pathogenicity classification integration (Benign → Pathogenic)
+- COSMIC somatic variant cross-referencing
+- PharmGKB pharmacogenomic annotation linking
+- Actionability classification (OncoKB, CIViC) as concept relationships
+
+**New Files:**
+| File | Purpose |
+|------|---------|
+| `ai/app/genomics/hgnc_resolver.py` | Gene symbol → HGNC ID resolution |
+| `ai/app/genomics/clinvar_annotator.py` | ClinVar pathogenicity classification lookup |
+| `ai/app/genomics/actionability_classifier.py` | OncoKB/CIViC actionability tier mapping |
+
+#### 15a.4 Database Schema Extensions
+
+PostgreSQL schema extensions to OMOP CDM v5.4 core (backward-compatible):
+
+**New Tables:**
+| Table | Purpose | Key Columns |
+|-------|---------|-------------|
+| `genomic_test` | Links MEASUREMENT to test metadata | measurement_id, panel_name, sequencing_platform, coverage_depth, tumor_purity, reference_genome |
+| `variant_annotation` | Per-variant computed annotations | measurement_id, vrs_identifier, allele_frequency_gnomad, sift_score, polyphen_score, cadd_score, clinvar_significance, actionability_tier |
+| `specimen_molecular` | Extends SPECIMEN with molecular attributes | specimen_id, tumor_percentage, extraction_method, library_preparation, qc_metrics |
+
+**Backend Models:**
+| File | Purpose |
+|------|---------|
+| `app/Models/Cdm/Episode.php` | OMOP Episode (read-only CdmModel) |
+| `app/Models/Cdm/EpisodeEvent.php` | OMOP Episode_Event (read-only CdmModel) |
+| `app/Models/Genomics/GenomicTest.php` | Genomic test metadata |
+| `app/Models/Genomics/VariantAnnotation.php` | Variant annotation data |
+| `app/Models/Genomics/SpecimenMolecular.php` | Specimen molecular attributes |
+
+---
+
+### Phase 15b — Outcomes Research Engine (Months 3–8)
+
+**Objective:** Enable researchers to ask and answer precision medicine questions directly in Parthenon without writing code.
+
+#### 15b.1 Genomics-Aware Cohort Builder
+
+Extend the React cohort definition interface with genomic criteria panels:
+
+**New Criteria Types:**
+- Gene mutation criteria (e.g., "EGFR L858R mutation")
+- TMB (Tumor Mutational Burden) quantile criteria
+- MSI (Microsatellite Instability) status criteria
+- Gene fusion criteria (e.g., "ALK fusion")
+- Pathogenicity class criteria (ClinVar)
+- Actionability tier criteria (OncoKB)
+
+**Example Cohort Definition:**
+> Patients with EGFR L858R mutation AND Stage IIIB or IV NSCLC AND first-line treatment with osimertinib
+
+Expressed through visual drag-and-drop criteria with real-time patient count estimation. SQL compiler generates efficient queries joining MEASUREMENT (genomic variants), CONDITION_OCCURRENCE (cancer diagnosis), EPISODE (treatment), and EPISODE_EVENT tables.
+
+**New Files:**
+| File | Purpose |
+|------|---------|
+| `frontend/src/features/cohort-definitions/components/criteria/GenomicCriteriaPanel.tsx` | Gene/variant/TMB/MSI/fusion criteria editor |
+| `frontend/src/features/cohort-definitions/components/criteria/EpisodeCriteriaPanel.tsx` | Treatment episode criteria (HemOnc regimens) |
+| `backend/app/Services/Cohort/GenomicCriteriaSqlCompiler.php` | SQL generation for genomic criteria |
+
+#### 15b.2 Variant-Outcome Analysis Suite
+
+Build dedicated analytical modules for precision medicine outcomes research:
+
+**Mutation-Survival Analyzer:**
+- Kaplan-Meier and Cox proportional hazards stratified by genomic features
+- Visualize OS, PFS, and time-to-treatment-failure by mutation status, TMB quantile, MSI status, or gene signature score
+- Integrates with R HADES sidecar (CohortMethod + SelfControlledCaseSeries)
+
+**Treatment-Variant Response Matrix:**
+- Heatmap visualization showing response rates across variant-treatment combinations
+- Auto-generate comparative effectiveness evidence for molecularly-defined subgroups
+
+**Genomic Characterization Dashboard:**
+- Modernized replacement for GeneProfiler (the Ajou G-CDM tool)
+- Interactive waterfall plots, lollipop mutation diagrams, co-occurrence matrices, pathway enrichment
+- React with D3/Recharts
+
+**Pharmacogenomic Correlator:**
+- Link drug exposure data to germline pharmacogenomic variants
+- Identify metabolizer phenotypes (CYP450, VKORC1, CYP2C9)
+- Predict adverse drug reactions at the population level
+
+**New Files:**
+| File | Purpose |
+|------|---------|
+| `frontend/src/features/genomics/components/MutationSurvivalAnalyzer.tsx` | KM + Cox stratified by genomic features |
+| `frontend/src/features/genomics/components/TreatmentVariantMatrix.tsx` | Response rate heatmap |
+| `frontend/src/features/genomics/components/GenomicCharacterization.tsx` | Waterfall, lollipop, co-occurrence |
+| `frontend/src/features/genomics/components/LollipopPlot.tsx` | Protein domain mutation lollipop diagram |
+| `frontend/src/features/genomics/components/WaterfallPlot.tsx` | Tumor response waterfall chart |
+| `frontend/src/features/genomics/components/CoOccurrenceMatrix.tsx` | Gene co-mutation matrix |
+| `frontend/src/features/genomics/components/PharmacogenomicCorrelator.tsx` | PGx population-level analysis |
+| `r-runtime/api/genomic_survival.R` | R endpoint for genomic-stratified survival analysis |
+
+#### 15b.3 Multi-Domain Evidence Integration
+
+Cross-domain query capabilities uniting multiple OHDSI working group domains:
+
+**Surgical Outcomes + Genomics:**
+- Link PROCEDURE_OCCURRENCE and perioperative events to molecular profiles
+- Example: Do BRCA1 carriers undergoing risk-reducing salpingo-oophorectomy have different complication rates?
+
+**Imaging + Genomics (Radiogenomics):**
+- When OHDSI Medical Imaging extension is finalized, integrate imaging features with molecular data
+- Tumor size, response assessment correlated with molecular profiling
+
+**Devices + Outcomes:**
+- Track medical device implantation through surgical episodes
+- Correlate with long-term outcomes (ports, pumps, surgical mesh in cancer patients)
+
+---
+
+### Phase 15c — AI-Powered Evidence Synthesis (Months 6–12)
+
+**Objective:** Use AI to close the 17-year evidence-to-practice gap by generating computable knowledge from OMOP observational data.
+
+#### 15c.1 Automated Evidence Generation
+
+Deploy an evidence generation pipeline that continuously monitors OMOP data for emerging signals:
+
+**Signal Detection:**
+- Disproportionality analysis and Bayesian sequential monitoring for genomic-treatment interactions
+- Detect when specific mutations correlate with unexpected treatment toxicity or exceptional response
+
+**Automated Study Execution:**
+- Extend Strategus study orchestration to auto-generate and execute population-level effect estimation studies
+- Trigger when sufficient data accumulates for a genomic-treatment question
+- Converts raw observations into evidence without human bottleneck
+
+**Evidence Summarization:**
+- LLM-powered synthesis of analytical results into human-readable evidence summaries
+- Include confidence intervals, effect sizes, GRADE-style quality assessments
+- Abby AI integration for natural-language evidence explanation
+
+**New Files:**
+| File | Purpose |
+|------|---------|
+| `ai/app/evidence/signal_detector.py` | Disproportionality analysis + Bayesian monitoring |
+| `ai/app/evidence/auto_study_generator.py` | Auto-generate study definitions from data signals |
+| `ai/app/evidence/evidence_summarizer.py` | LLM-powered evidence summary generation |
+| `backend/app/Services/Evidence/EvidencePipelineService.php` | Orchestrates signal detection → study → summarization |
+| `backend/app/Jobs/Evidence/RunSignalDetectionJob.php` | Scheduled signal detection job |
+
+#### 15c.2 Clinical Decision Support Interface
+
+CDS Hooks-compatible layer for EHR integration:
+
+**Molecular Tumor Board Support:**
+- Given a patient's molecular profile, query Parthenon evidence base for treatment-outcome data from molecularly similar patients
+- Interactive evidence dashboard for tumor board discussions
+
+**FHIR-based Evidence Delivery:**
+- Package evidence into FHIR ClinicalReasoning resources (PlanDefinition, Library, EvidenceVariable)
+- Integrate with EHR clinical pathways via FHIR+OMOP bidirectional transformation
+
+**NLP for Molecular Reports:**
+- LLM-powered extraction pipeline: read unstructured pathology reports → extract structured variant data → map to OMOP concepts → query evidence base — all in a single workflow
+
+**New Files:**
+| File | Purpose |
+|------|---------|
+| `backend/app/Http/Controllers/Api/V1/CdsHooksController.php` | CDS Hooks service endpoint |
+| `backend/app/Services/Cds/MolecularTumorBoardService.php` | Evidence lookup for molecular profiles |
+| `backend/app/Services/Fhir/FhirEvidencePackager.php` | Package evidence as FHIR resources |
+| `ai/app/genomics/molecular_report_nlp.py` | NLP pipeline for pathology reports |
+| `frontend/src/features/genomics/pages/TumorBoardDashboard.tsx` | Molecular tumor board UI |
+| `frontend/src/features/genomics/components/EvidenceSummaryPanel.tsx` | AI-generated evidence display |
+
+---
+
+### Phase 15d — Federated Network (Months 10–18)
+
+**Objective:** Enable multi-institutional precision medicine research without sharing patient-level data.
+
+#### 15d.1 Federated Genomic Analytics
+
+**GA4GH VRS-Based Federation:**
+- Use VRS computed identifiers as universal variant key across institutions
+- Each Parthenon node computes VRS IDs locally; federated queries reference variants by globally unique VRS identifiers
+- No patient data exposure
+
+**Federated Variant Frequency:**
+- Compute allele frequencies across the network
+- Privacy-preserving alternative to centralized genomic databases
+- Enables institutional comparisons (like G-CDM's Ajou vs. TCGA analysis showing 6.64x difference in EGFR L858R frequency)
+
+**Network Study Packages:**
+- Pre-packaged, reproducible study definitions
+- Participating institutions execute locally against their OMOP CDM
+- Return aggregate results only
+
+**Differential Privacy:**
+- Differential privacy guarantees for genomic summary statistics
+- Safe sharing of variant frequencies even for rare variants where small cell counts risk re-identification
+
+**New Files:**
+| File | Purpose |
+|------|---------|
+| `backend/app/Services/Federation/FederatedQueryService.php` | Parthenon-to-Parthenon secure query dispatch |
+| `backend/app/Services/Federation/VrsVariantResolver.php` | VRS-based cross-institutional variant matching |
+| `backend/app/Services/Federation/DifferentialPrivacyEngine.php` | ε-differential privacy for genomic statistics |
+| `backend/app/Http/Controllers/Api/V1/FederationController.php` | Federation API endpoints |
+| `frontend/src/features/federation/pages/NetworkDashboard.tsx` | Network topology + study status |
+| `frontend/src/features/federation/components/FederatedResultsViewer.tsx` | Aggregated cross-site results |
+
+#### 15d.2 Learning Health Network Integration
+
+**Computable Evidence Repository:**
+- Shared, versioned repository of evidence artifacts (cohort definitions, prediction models, treatment algorithms)
+- Parthenon nodes subscribe and deploy locally
+
+**Continuous Learning Loop:**
+- Each node contributes aggregate outcomes data
+- Network-level models refined automatically
+- New evidence distributed and, upon institutional review, deployed into local CDS systems
+
+**OHDSI Evidence Network Alignment:**
+- Federation layer compatible with broader OHDSI Evidence Network
+- Parthenon nodes can participate in standard OHDSI network studies
+- Additional genomics-specific federation capabilities layered on top
+
+---
+
+## 4. Priority Use Cases by Domain
+
+### 4.1 Cancer Genomics
+- Biomarker-stratified treatment effectiveness across OMOP network (e.g., EGFR-mutant NSCLC outcomes by regimen and specific mutation)
+- Real-world progression-free survival by TMB category and immunotherapy agent
+- Automated detection of emerging resistance mutations linked to treatment failure
+- Comparative genomic epidemiology across diverse populations
+
+### 4.2 Surgical Oncology
+- Molecular predictors of surgical margin status and local recurrence
+- Genomic signatures predicting perioperative complications (wound healing, bleeding, infection)
+- Neoadjuvant therapy response prediction by molecular subtype and surgical outcome
+
+### 4.3 Pharmacogenomics
+- Population-level adverse drug reaction prediction from CYP450 and transporter genotypes
+- Perioperative analgesia optimization based on opioid metabolism genotype
+- Warfarin/DOAC dosing outcomes by VKORC1/CYP2C9 genotype across diverse populations
+
+### 4.4 Rare Disease
+- Diagnostic odyssey analysis: time from symptom onset to molecular diagnosis
+- Genotype-phenotype correlation for rare variants using federated analysis across Parthenon nodes
+- Natural history studies for molecularly defined rare disease cohorts
+
+### 4.5 Cardiology & CNS
+- Genetic risk score integration with clinical outcomes for hereditary cardiomyopathies
+- Pharmacogenomic-guided statin therapy and cardiovascular event reduction
+- CNS pain pharmacogenomics — linking genetic markers to analgesic response and opioid use patterns
+
+---
+
+## 5. Phased Rollout Order
+
+| Sub-Phase | What | Timeline | Priority | Dependencies |
+|-----------|------|----------|----------|-------------|
+| **15a.1** | OMOP Oncology Extension (Episode/Episode_Event) | Month 1–2 | P0 | OMOP CDM v5.4 |
+| **15a.4** | Genomic schema extensions (genomic_test, variant_annotation, specimen_molecular) | Month 1–2 | P0 | None |
+| **15a.2** | Genomic data ingestion pipeline (VCF, PDF, FHIR, cBioPortal) | Month 2–4 | P0 | 15a.4, vrs-python |
+| **15a.3** | Genomic vocabulary management (HGVS, HGNC, ClinVar, COSMIC) | Month 2–4 | P0 | OHDSI Vocabulary release |
+| **15b.1** | Genomics-aware cohort builder | Month 3–5 | P1 | 15a.1, 15a.2, 15a.3 |
+| **15b.2** | Variant-outcome analysis suite | Month 4–7 | P1 | 15b.1, R HADES sidecar |
+| **15b.3** | Multi-domain evidence integration | Month 6–8 | P2 | 15b.1, 15b.2 |
+| **15c.1** | Automated evidence generation | Month 6–9 | P2 | 15b.2, MedGemma fine-tuning |
+| **15c.2** | Clinical decision support interface (CDS Hooks, FHIR, NLP) | Month 8–12 | P2 | 15c.1, FHIR+OMOP specs |
+| **15d.1** | Federated genomic analytics (VRS federation, differential privacy) | Month 10–15 | P3 | Multiple Parthenon nodes, GA4GH Beacon |
+| **15d.2** | Learning health network integration | Month 14–18 | P3 | 15d.1, institutional IRB frameworks |
+
+**Critical path:** 15a.4 → 15a.2 → 15b.1 → 15b.2 → 15c.1 → 15c.2 → 15d.1 → 15d.2
+
+---
+
+## 6. Acceptance Criteria
+
+When Phase 15 is complete:
+
+1. **Ingest a VCF file** → variants appear as OMOP MEASUREMENT records with VRS identifiers, ClinVar annotations, and OncoKB actionability tiers
+2. **Extract variants from a Foundation Medicine PDF** → same structured output as VCF ingestion
+3. **Define a cohort** using "EGFR L858R + Stage IV NSCLC + first-line osimertinib" → get real patient count
+4. **Run mutation-survival analysis** → Kaplan-Meier curves stratified by mutation status with CIs
+5. **View genomic characterization** → waterfall plot, lollipop diagram, co-occurrence matrix from real data
+6. **Automated signal detection** identifies a genomic-treatment interaction → auto-generates and executes a study
+7. **Molecular tumor board** receives patient profile → evidence dashboard shows treatment-outcome data from similar patients
+8. **CDS Hook fires** when molecular result enters EHR → returns genomics-informed recommendation
+9. **Federated query** across 2+ Parthenon nodes → aggregated variant frequencies without patient-level data exchange
+10. **No existing OMOP capability broken** — all Phases 1–14 features continue to work
+
+---
+
+## 7. Competitive Positioning
+
+| Capability | Flatiron | TriNetX | cBioPortal | Atlas/WebAPI | **Parthenon** |
+|-----------|----------|---------|------------|-------------|---------------|
+| Unified OHDSI tooling | No | Partial | No | Yes (fragmented) | **Yes (modern, unified)** |
+| Native molecular diagnostics | Closed | No | Visualization only | No | **Yes (ingestion → analysis → CDS)** |
+| AI-powered evidence synthesis | No | No | No | No | **Yes (MedGemma + signal detection)** |
+| Federated genomic analytics | No | Yes (clinical only) | No | Partial | **Yes (VRS-based, genomics-native)** |
+| Open source | No | No | Yes | Yes | **Yes** |
+| OMOP CDM compliant | No | Yes | No | Yes | **Yes** |
