@@ -1,0 +1,62 @@
+---
+id: 17-concept-mapping
+title: "17. Concept Mapping"
+sidebar_label: "17. Concept Mapping"
+---
+
+# Concept Mapping
+
+**Concept mapping** (also called code mapping or vocabulary mapping) translates source codes in your data (ICD-10-CM diagnosis codes, NDC drug codes, LOINC lab codes, etc.) into OMOP standard concept IDs. This step is required to make your CDM data queryable using the standardized vocabulary and enables cross-database analyses.
+
+## Why Concept Mapping Matters
+
+Source data typically uses local or non-standard terminologies:
+
+- ICD-10-CM codes for diagnoses (e.g. `E11.9` for T2DM without complications)
+- NDC codes for drug dispensings
+- CPT-4 codes for procedures
+- Custom lab identifiers from the EHR
+
+OMOP CDM stores these source codes in `*_source_value` columns for traceability, but all analytical queries use standardized concept IDs (SNOMED for conditions, RxNorm for drugs, LOINC for labs). The mapping step populates `*_concept_id` and `*_source_concept_id` columns correctly.
+
+## Automatic Mapping
+
+Parthenon can automatically map many source codes using the `concept_relationship` table in the OMOP vocabulary:
+
+1. Navigate to the mapping results for your upload batch.
+2. Click **Auto-Map** on the Concept Mapping tab.
+3. Parthenon queries the vocabulary for `Maps to` relationships from your source codes.
+4. Codes with a single unambiguous standard mapping are auto-applied.
+5. Codes with multiple mappings or no mapping are flagged for manual review.
+
+## Manual Mapping Review
+
+The mapping review table shows:
+
+| Column | Description |
+|--------|-------------|
+| Source Value | The raw code from your data |
+| Source Vocab | Detected vocabulary (ICD10CM, NDC, CPT4, etc.) |
+| Frequency | How many rows have this source value |
+| Auto-mapped to | Concept ID and name from auto-mapping (if found) |
+| Status | Mapped / Unmapped / Review needed |
+
+For unmapped codes, click the **search icon** to open a concept search dialog and manually select the correct standard concept. Click **Accept** to apply the mapping.
+
+## Unmappable Codes
+
+Some source codes cannot be mapped to a standard OMOP concept because:
+
+- The code is a local custom code with no vocabulary entry
+- The OMOP vocabulary for this domain does not cover this terminology
+- The code is malformed or a data quality issue
+
+For unmappable codes, set the concept ID to `0` (the OMOP convention for "no standard concept"). These records will still appear in `*_source_value` columns and can be queried directly if needed.
+
+## Exporting and Importing Mapping Tables
+
+Concept mapping tables can be exported as CSV and imported into other Parthenon instances handling the same source system. This enables a "build once, reuse everywhere" approach for multi-site studies using the same data vendor.
+
+:::tip Usagi
+For large-scale manual concept mapping, consider using [OHDSI Usagi](https://ohdsi.github.io/Usagi/) — a standalone tool that uses NLP-assisted concept suggestions. Export your Usagi mapping file and import it into Parthenon to skip the manual review step.
+:::

@@ -1,0 +1,71 @@
+---
+id: 02-data-sources
+title: "2. Data Sources"
+sidebar_label: "2. Data Sources"
+---
+
+# Data Sources
+
+A **data source** in Parthenon represents a connection to one or more OMOP CDM databases. Each source has one or more **daimons** — named pointers to the PostgreSQL schemas that hold CDM data, vocabulary, results, and temporary tables. This mirrors the legacy OHDSI WebAPI source/daimon model for compatibility with HADES packages.
+
+## How Sources Work
+
+Parthenon connects to your OMOP CDM through a source record that specifies:
+
+- **CDM daimon** — schema containing clinical tables (`person`, `condition_occurrence`, etc.)
+- **Vocabulary daimon** — schema containing concept and vocabulary tables
+- **Results daimon** — schema where Achilles pre-computed results are stored
+- **Temp daimon** — schema used for temporary cohort generation tables
+
+All daimons can point to the same schema (common Atlas convention) or separate schemas depending on your database layout.
+
+## Viewing Data Sources
+
+Navigate to **Data Sources** in the top navigation. The list shows all configured sources with their connection status, CDM version, and available daimons.
+
+Click any source to open its detail view, which includes:
+
+- Connection metadata (host, database, dialect)
+- Available daimon types and schema names
+- Vocabulary version loaded in that source
+- Quick links to Data Explorer reports for this source
+
+## Adding a Data Source (Admin)
+
+Only users with the **admin** or **super-admin** role can create or edit sources.
+
+1. Click **Add Data Source** (top right of the Sources list).
+2. Fill in the **Source Name** — a human-readable label (e.g. "Claims Database 2024").
+3. Enter the **Source Key** — a short identifier used in API calls (lowercase, no spaces).
+4. Provide the **Connection String** — a JDBC-style URL, e.g.:
+   ```
+   jdbc:postgresql://dbhost:5432/ohdsi?currentSchema=omop
+   ```
+5. Enter database **Username** and **Password** (stored encrypted).
+6. Add one or more **Daimons** by clicking **+ Add Daimon**, selecting the type, and entering the schema name and priority.
+7. Click **Save**. Parthenon tests the connection before saving.
+
+:::warning Credentials storage
+Data source credentials are stored encrypted in the application database using AES-256. Never share source credentials outside your security perimeter.
+:::
+
+## Editing and Deleting Sources
+
+- Click the **pencil icon** on any source to edit it.
+- Click the **trash icon** to delete. Deletion is blocked if any cohort has been generated against this source.
+
+## Source Priority
+
+When multiple sources provide the same daimon type, the **priority** field determines which is used by default. Lower numbers have higher priority. This allows you to configure a primary production database and a sandbox without changing analysis settings.
+
+## Connection Health
+
+The Data Sources list shows a live **connection indicator** for each source:
+
+| Indicator | Meaning |
+|-----------|---------|
+| Green dot | Connection tested within the last 5 minutes |
+| Yellow dot | Last test was more than 5 minutes ago |
+| Red dot | Last connection attempt failed |
+
+Click **Test Connection** on a source detail page to force an immediate connection check.

@@ -1,0 +1,68 @@
+---
+id: 08-cohort-management
+title: "8. Cohort Management"
+sidebar_label: "8. Cohort Management"
+---
+
+# Cohort Management
+
+The **Cohorts** list view is your workspace for organizing, reviewing, and acting on cohort definitions. This chapter covers the lifecycle management features available beyond the basic build-and-generate workflow.
+
+## Cohort List View
+
+Navigate to **Cohorts** to see all defined cohorts in the organization. The list shows:
+
+- **Name** and **Description**
+- **Created by** and **Created at** timestamps
+- **Generation status** — a summary badge (Not Generated / Partial / All Sources Complete)
+- **Quick actions** — Generate, Edit, Clone, Export, Delete
+
+Use the search box to filter by name, and the **Sort** dropdown to order by name, date, or generation status.
+
+## Cloning a Cohort
+
+Cloning creates a full copy of a cohort definition, including its CIRCE expression and any linked concept sets. This is useful for:
+
+- Creating variants of a validated phenotype (e.g. "stricter" vs. "sensitive" T2DM definitions)
+- Starting a new cohort from a known-good template
+
+To clone: click the **Clone** icon in the cohort list row, enter a new name, and click **Clone**.
+
+## Comparing Cohort Counts
+
+When you have multiple versions of a cohort definition all generated against the same source, the **Compare** feature lets you see counts side-by-side:
+
+1. Select two or more cohort definitions (checkboxes in the list).
+2. Click **Compare Selected**.
+3. The comparison view shows counts, attrition waterfall, and the percentage overlap between cohorts (subjects in both).
+
+## Bulk Operations
+
+Select multiple cohort definitions to access bulk operations:
+
+- **Bulk Generate** — queue generation for all selected definitions on a chosen data source
+- **Bulk Delete** — remove multiple definitions (requires admin role)
+- **Bulk Export** — download all selected definitions as a ZIP of OHDSI JSON files
+
+## Import from Atlas
+
+You can import cohort definitions exported from OHDSI Atlas:
+
+1. Click **Import** on the Cohorts list page.
+2. Paste the Atlas JSON or upload the `.json` file.
+3. Click **Import**. Parthenon validates the CIRCE schema and saves the definition.
+4. Concept sets referenced in the expression are imported automatically if they do not already exist by name.
+
+## Archiving Cohorts
+
+Cohort definitions that are no longer actively used but must be preserved for reproducibility can be **archived**. Archived cohorts:
+
+- Remain in the database with all generation results intact
+- Are hidden from the default list (use the **Archived** filter tab to find them)
+- Cannot be edited, but can be cloned to create an editable copy
+
+To archive, click **Archive** in the cohort detail page's action menu.
+
+:::tip OMOP phenotype library
+OHDSI maintains a curated [Phenotype Library](https://atlas-phenotype.ohdsi.org/) with hundreds of validated cohort definitions. Export these from Atlas and import them into Parthenon to bootstrap your study design.
+:::

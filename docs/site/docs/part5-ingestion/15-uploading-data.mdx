@@ -1,0 +1,55 @@
+---
+id: 15-uploading-data
+title: "15. Uploading Data"
+sidebar_label: "15. Uploading Data"
+---
+
+# Uploading Data
+
+Parthenon includes a data ingestion pipeline for uploading source data and transforming it into OMOP CDM format. This chapter covers the upload step; see [Chapter 16 — Schema Mapping](16-schema-mapping) and [Chapter 17 — Concept Mapping](17-concept-mapping) for the subsequent ETL steps.
+
+## Supported Upload Formats
+
+| Format | Description |
+|--------|-------------|
+| CSV | Comma-separated values (UTF-8 encoding required) |
+| TSV | Tab-separated values |
+| Parquet | Apache Parquet columnar format (recommended for large files) |
+| Excel (.xlsx) | Single-sheet Excel files (converted to CSV internally) |
+
+Maximum file size per upload: **500 MB** per file, up to **20 files** per batch. For larger datasets, use the bulk loader CLI described below.
+
+## Uploading Files
+
+1. Navigate to **Data Ingestion → Upload Data**.
+2. Click **New Upload Batch** and enter a **Batch Name** (e.g. "Claims Q4 2025").
+3. Select a **Target Data Source** — the source that will receive the ingested data.
+4. Drag and drop files into the upload area, or click **Browse Files**.
+5. Click **Start Upload**. Files are uploaded to the server and staged in the ingestion schema.
+
+Each file is shown with its upload progress, detected row count, and column headers after parsing.
+
+## Staging Schema
+
+Uploaded files are stored in a staging schema (configurable, defaults to `staging`) as raw tables named after the uploaded filenames (sanitized). No data transformation occurs at this step — the raw data is preserved exactly as uploaded for the mapping step.
+
+## Bulk Loader CLI
+
+For large datasets that exceed the web upload limit, use the CLI bulk loader:
+
+```bash
+php artisan ingestion:load \
+  --source=my_source \
+  --batch="My Batch" \
+  --path=/data/claims/q4-2025/
+```
+
+This reads all CSV/Parquet files from the specified directory and loads them directly into the staging schema, bypassing the web upload size limit.
+
+## Upload History
+
+Navigate to **Data Ingestion → Upload History** to see all past upload batches with their status, file counts, and row totals. Click any batch to view per-file statistics and re-trigger mapping if needed.
+
+:::warning Data privacy
+Uploaded data is stored unencrypted in the staging schema within your PostgreSQL database. Ensure your database security, network access controls, and audit logging are configured before uploading patient data. Parthenon does not anonymize or de-identify uploaded data automatically.
+:::

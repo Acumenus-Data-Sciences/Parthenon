@@ -1,0 +1,75 @@
+---
+id: g-troubleshooting
+title: "Appendix G — Troubleshooting"
+sidebar_label: "G. Troubleshooting"
+---
+
+# Appendix G — Troubleshooting
+
+## Authentication Issues
+
+### "Invalid credentials" on login
+- Verify your email and password are correct.
+- Check if your account has been suspended (ask your admin).
+- If you recently changed passwords, ensure you're using the new password.
+- Try resetting your password via "Forgot Password" on the login page.
+
+### "Your session has expired"
+Sessions expire after the configured idle timeout (default 60 minutes). Log in again. If this occurs frequently, ask your admin to increase the session timeout in System Configuration.
+
+### Stuck on "Change Password" screen
+If you're permanently stuck on the change password screen, your `must_change_password` flag is set. Complete the password change form — the new password must meet the minimum complexity requirements. If the screen reappears after changing, clear your browser cookies and log in again.
+
+## Cohort Building Issues
+
+### Cohort generation fails with "Schema not found"
+The daimon schema configured in the data source does not exist in the database. Ask your admin to verify the data source schema names match the actual PostgreSQL schema names. Schema names are case-sensitive in PostgreSQL.
+
+### Cohort count is 0 (empty cohort)
+Common causes:
+1. **Concept set resolves to 0 IDs** — the concept set uses concepts not present in the loaded vocabulary. Click "Preview" on the concept set to check resolved IDs.
+2. **Time window too restrictive** — the index event window or observation window excludes all patients. Try relaxing the date range.
+3. **CDM schema is empty** — the data source points to a schema with no patient data. Check the Overview tab in Data Explorer for record counts.
+4. **Incorrect schema in daimon** — the CDM daimon points to a vocabulary-only schema. Verify schema assignment in the source configuration.
+
+### "Concept set empty" error during generation
+The concept set referenced in the cohort expression resolved to zero concept IDs when evaluated against this source's vocabulary. This usually means the concept IDs exist in one vocabulary release but were deprecated or removed in the version loaded in this source. Update the concept set to use concepts valid in the target vocabulary version.
+
+## Data Explorer Issues
+
+### Data Explorer shows "No Achilles results found"
+The selected data source has not had Achilles run against it, or the results schema is empty. Ask an admin to trigger an Achilles run: **Admin → System → Achilles Jobs → Run**.
+
+### Measurements tab shows no distributions
+The measurement domain may have low record counts in this source, or the vocabulary mapping may be incomplete. Check the measurement count in the Overview tab. If the count is low, the source may not have structured lab data.
+
+## Performance Issues
+
+### Page loads are slow
+- Try a hard refresh (`Ctrl/⌘ + Shift + R`) to clear cached assets.
+- Check your network connection speed.
+- If all users report slowness, it may be a server issue — ask your admin to check the System Health dashboard.
+
+### Cohort generation is stuck "Running" for >30 minutes
+For large databases, complex cohorts can take 30–60 minutes. If it exceeds 60 minutes, it may have stalled. Ask an admin to check the Laravel Horizon queue dashboard (`/horizon`) for failed or stalled jobs and retry if necessary.
+
+## API Issues
+
+### 401 Unauthorized
+Your session token has expired. Re-authenticate via `POST /api/v1/auth/login`.
+
+### 422 Validation Error
+The request body failed validation. Check the `errors` field in the JSON response for field-specific messages.
+
+### 429 Too Many Requests
+You've exceeded the rate limit. The login endpoint allows 5 attempts per 15 minutes per IP. Wait for the cooldown period specified in the `Retry-After` response header.
+
+## Reporting Bugs
+
+If you encounter an issue not covered here:
+
+1. Check the **Admin → System → Logs** page for relevant error messages.
+2. Note the URL, the action you were taking, and the exact error message.
+3. Open an issue at the project's GitHub repository with this information.
+
+Include your Parthenon version (shown in Admin → System → About) in all bug reports.

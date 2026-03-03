@@ -1,0 +1,65 @@
+---
+id: f-known-limitations
+title: "Appendix F — Known Limitations"
+sidebar_label: "F. Known Limitations"
+---
+
+# Appendix F — Known Limitations
+
+This appendix documents known limitations and constraints in the current release of Parthenon. Items marked with a roadmap note are planned for future releases.
+
+## Analysis Capabilities
+
+### Population-Level Estimation (Not Implemented)
+PLE (CohortMethod, SCCS) is not yet available. The navigation item exists as a placeholder. Estimated availability: Phase 10.
+
+### Patient-Level Prediction (Not Implemented)
+PLP machine learning model training is not yet available. See [Chapter 13](../part4-analyses/13-patient-level-prediction) for the planned design.
+
+### Treatment Pathway Visualization
+The Sankey/Sunburst interactive diagram for treatment pathways is not yet implemented. Pathway results are currently shown in tabular form only.
+
+### Network Studies
+Multi-database federated execution (sending analysis packages to distributed sites) is not yet supported. Each source must be directly accessible from the Parthenon server.
+
+## Data and Vocabulary
+
+### Vocabulary Refresh UI
+The Admin → Vocabulary Refresh feature (for uploading new Athena vocabulary ZIPs) is planned but not yet built. Vocabulary updates must currently be performed via direct database operations.
+
+### Single CDM Dialect
+Parthenon currently supports **PostgreSQL only**. Support for SQL Server, BigQuery, Redshift, and Spark is on the roadmap.
+
+### CDM Versions
+Only **OMOP CDM v5.4** is fully supported. CDM v5.3 databases will work for most queries but may encounter column naming differences in newer CDM additions.
+
+## Performance
+
+### Large CDM Generation Times
+Cohort generation on CDMs with >100 million patients may take 15–60 minutes for complex expressions. There is no progress streaming to the UI during this time — only the terminal status (Running/Complete).
+
+### Achilles Real-Time
+The Data Explorer reflects Achilles pre-computed results, not real-time CDM queries. Results may be weeks or months old depending on when Achilles was last run.
+
+## Authentication
+
+### SSO Providers
+SAML 2.0 and OIDC authentication provider configuration is implemented in the data model and API but the Admin UI for configuring these providers is not yet complete. Configuration must be done via the API or database directly.
+
+## Accessibility
+
+### Screen Reader Support
+The React application has partial ARIA labeling. Full screen reader compatibility (WCAG 2.1 AA) is targeted for v1.0.
+
+### Mobile Responsiveness
+The interface is optimized for desktop use (≥1280px wide). Tablet layouts are partially supported; mobile (&lt;768px) use is not recommended.
+
+## File Size Limits
+
+| Feature | Limit |
+|---------|-------|
+| Web file upload | 500 MB per file |
+| API request body | 100 MB |
+| Export file size | Unlimited (streaming) |
+
+For larger uploads, use the CLI bulk loader (`php artisan ingestion:load`).

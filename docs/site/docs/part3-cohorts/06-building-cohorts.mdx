@@ -1,0 +1,70 @@
+---
+id: 06-building-cohorts
+title: "6. Building Cohorts"
+sidebar_label: "6. Building Cohorts"
+---
+
+# Building Cohorts
+
+This chapter walks you through creating a complete cohort definition in Parthenon using the cohort builder UI. If you are new to OMOP cohorts, read [Chapter 5 — Cohort Expressions](05-cohort-expressions) first.
+
+## Creating a New Cohort Definition
+
+1. Navigate to **Cohorts** in the top navigation.
+2. Click **New Cohort Definition**.
+3. Enter a **Name** (e.g. "T2DM New Users — Metformin") and an optional **Description**.
+4. The cohort builder opens with three tabs: **Index Event**, **Inclusion Rules**, and **Cohort Exit**.
+
+## Step 1: Define the Index Event
+
+The index event tab is where you define what clinical event qualifies a patient for cohort entry.
+
+1. Click **Add Primary Event**.
+2. Select the **Domain** (e.g. Drug Exposure for a drug-based cohort).
+3. Click **Add Concept Set** and either select an existing concept set or click **New** to create one inline.
+4. Configure optional filters:
+   - **Date range** — restrict to events in a specific calendar period
+   - **First occurrence only** — check this for new-user designs
+   - **Age at event** — add age-range constraints
+   - **Visit type** — require events in specific visit settings
+5. Under **Observation window**, set the required continuous observation before index (e.g. "at least 365 days before index").
+
+## Step 2: Add Inclusion Rules
+
+1. Click **+ Add Inclusion Rule** on the Inclusion Rules tab.
+2. Enter a rule **Name** (shown in attrition reports).
+3. Choose whether the rule must be **met (inclusion)** or **NOT met (exclusion)**.
+4. Click **Add Criteria** to add one or more clinical criteria to the rule.
+5. For each criterion:
+   - Select the **Domain**
+   - Attach a **Concept Set**
+   - Set the **time window** (e.g. "0 to 365 days before index")
+   - Set the **occurrence count** (e.g. "at least 1")
+6. Multiple criteria within a rule are combined with **AND** by default. Use the **ANY of** toggle to switch to OR logic.
+7. Repeat to add all required rules.
+
+### Common Rule Patterns
+
+| Pattern | Description |
+|---------|-------------|
+| Prior diagnosis | At least 1 condition occurrence of concept set X in days −365 to −1 |
+| New user | 0 occurrences of drug concept set X in days −365 to −1 |
+| Minimum follow-up | At least 365 days of observation after index |
+| Demographics | Age 18+ at index (use the Demographic criteria type) |
+
+## Step 3: Configure Cohort Exit
+
+1. Switch to the **Cohort Exit** tab.
+2. Select the exit strategy:
+   - **End of continuous observation** (most common for pharmacoepidemiology)
+   - **Fixed days after index** — enter the number of days
+   - **Drug era end** — select the drug concept set defining the treatment era
+   - **Event criteria** — define an event that ends cohort membership
+
+## Saving the Definition
+
+Click **Save** to persist the cohort definition. The definition is saved as CIRCE JSON and is ready to be generated against one or more data sources. The definition itself contains no patient data — it is just a specification.
+
+:::tip Naming conventions
+Use a consistent naming convention: `[Outcome/Exposure] — [Design variant] — [Version]`. For example: `GI Hemorrhage — Inpatient only — v2`. This makes attrition reports and publications easier to trace.
+:::

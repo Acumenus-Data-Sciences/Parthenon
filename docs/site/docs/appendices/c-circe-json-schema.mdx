@@ -1,0 +1,141 @@
+---
+id: c-circe-json-schema
+title: "Appendix C — CIRCE JSON Schema"
+sidebar_label: "C. CIRCE JSON Schema"
+---
+
+# Appendix C — CIRCE JSON Schema
+
+CIRCE (Cohort Inception, Refinement, and Containment Expression) is the JSON format used to define OMOP cohort expressions. Parthenon stores cohort definitions in this format and generates SQL from it using the `circe-be` library.
+
+## Top-Level Structure
+
+```json
+{
+  "ConceptSets": [],
+  "PrimaryCriteria": {},
+  "AdditionalCriteria": {},
+  "QualifiedLimit": {},
+  "ExpressionLimit": {},
+  "InclusionRules": [],
+  "CensoringCriteria": [],
+  "CollapseSettings": {},
+  "CensorWindow": {}
+}
+```
+
+## ConceptSets
+
+An array of concept set definitions embedded in the cohort expression:
+
+```json
+{
+  "id": 0,
+  "name": "Type 2 Diabetes",
+  "expression": {
+    "items": [
+      {
+        "concept": {
+          "CONCEPT_ID": 201826,
+          "CONCEPT_NAME": "Type 2 diabetes mellitus",
+          "DOMAIN_ID": "Condition",
+          "VOCABULARY_ID": "SNOMED",
+          "CONCEPT_CLASS_ID": "Clinical Finding",
+          "STANDARD_CONCEPT": "S",
+          "CONCEPT_CODE": "44054006",
+          "INVALID_REASON": "V"
+        },
+        "isExcluded": false,
+        "includeDescendants": true,
+        "includeMapped": false
+      }
+    ]
+  }
+}
+```
+
+## PrimaryCriteria
+
+Defines the index event(s). `CriteriaList` contains one or more domain criteria; patients qualifying on any of them enter the cohort:
+
+```json
+{
+  "PrimaryCriteria": {
+    "CriteriaList": [
+      {
+        "ConditionOccurrence": {
+          "CodesetId": 0,
+          "ConditionType": [],
+          "First": true
+        }
+      }
+    ],
+    "ObservationWindow": {
+      "PriorDays": 365,
+      "PostDays": 0
+    },
+    "PrimaryCriteriaLimit": {
+      "Type": "First"
+    }
+  }
+}
+```
+
+## InclusionRules
+
+An array of named inclusion/exclusion rules. Each rule has a `name`, `description`, and `expression`:
+
+```json
+{
+  "name": "No prior T2DM diagnosis",
+  "description": "Exclude patients with any T2DM diagnosis in the 365 days before index",
+  "expression": {
+    "Type": "ALL",
+    "CriteriaList": [
+      {
+        "Criteria": {
+          "ConditionOccurrence": {
+            "CodesetId": 0
+          }
+        },
+        "StartWindow": {
+          "Start": { "Days": 365, "Coeff": -1 },
+          "End": { "Days": 0, "Coeff": -1 }
+        },
+        "Occurrence": {
+          "Type": 0,
+          "Count": 0
+        }
+      }
+    ]
+  }
+}
+```
+
+`Occurrence.Type` values: `0` = at most, `1` = exactly, `2` = at least. `Occurrence.Count` is the number.
+
+## CollapseSettings
+
+Controls how multiple cohort entries per person are merged:
+
+```json
+{
+  "CollapseType": "ERA",
+  "EraPad": 0
+}
+```
+
+- `ERA` — merge overlapping/adjacent entries into continuous eras (with optional gap padding in days)
+- `START_DATE` — use distinct start dates only
+
+## CriteriaList Domain Types
+
+Valid domain types for criteria:
+
+`ConditionOccurrence`, `DrugExposure`, `ProcedureOccurrence`, `Measurement`, `Observation`, `VisitOccurrence`, `DeviceExposure`, `Death`, `ObservationPeriod`, `Demographic`
+
+Each domain type has specific sub-fields (e.g. `Measurement` has `ValueAsNumber`, `Operator`, `Unit`).
+
+## Full Schema Reference
+
+The complete CIRCE JSON Schema (JSON Schema Draft 7) is available in the OHDSI GitHub repository: [github.com/OHDSI/circe-be](https://github.com/OHDSI/circe-be)

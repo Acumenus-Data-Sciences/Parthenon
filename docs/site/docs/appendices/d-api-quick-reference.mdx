@@ -1,0 +1,123 @@
+---
+id: d-api-quick-reference
+title: "Appendix D — API Quick Reference"
+sidebar_label: "D. API Quick Reference"
+---
+
+# Appendix D — API Quick Reference
+
+Parthenon exposes a REST API at `/api/v1/`. Full interactive documentation is available at [/docs/api](/docs/api). This appendix provides a quick reference for the most commonly used endpoints.
+
+## Authentication
+
+All API endpoints require a valid Sanctum session cookie or Bearer token.
+
+```bash
+# Get CSRF token first (cookie-based auth)
+curl -X GET /sanctum/csrf-cookie
+
+# Login
+curl -X POST /api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "user@example.com", "password": "secret"}'
+```
+
+The response includes `user` and `token` fields. Pass the token as `Authorization: Bearer {token}` for subsequent requests.
+
+## Data Sources
+
+```
+GET    /api/v1/sources                  List all sources
+POST   /api/v1/sources                  Create a source
+GET    /api/v1/sources/{id}             Get source detail
+PUT    /api/v1/sources/{id}             Update source
+DELETE /api/v1/sources/{id}             Delete source
+POST   /api/v1/sources/{id}/test        Test connection
+```
+
+## Vocabulary
+
+```
+GET    /api/v1/vocabulary/search?q={term}&domain={domain}
+       Search concepts
+
+GET    /api/v1/vocabulary/concept/{id}
+       Get concept detail
+
+GET    /api/v1/vocabulary/concept/{id}/descendants
+       Get all descendant concepts
+
+GET    /api/v1/vocabulary/concept/{id}/ancestors
+       Get ancestor hierarchy
+```
+
+## Concept Sets
+
+```
+GET    /api/v1/concept-sets             List concept sets
+POST   /api/v1/concept-sets             Create concept set
+GET    /api/v1/concept-sets/{id}        Get concept set detail
+PUT    /api/v1/concept-sets/{id}        Update concept set
+DELETE /api/v1/concept-sets/{id}        Delete concept set
+GET    /api/v1/concept-sets/{id}/resolve  Resolve to flat ID list
+```
+
+## Cohort Definitions
+
+```
+GET    /api/v1/cohort-definitions       List cohort definitions
+POST   /api/v1/cohort-definitions       Create cohort definition
+GET    /api/v1/cohort-definitions/{id}  Get cohort definition
+PUT    /api/v1/cohort-definitions/{id}  Update cohort definition
+DELETE /api/v1/cohort-definitions/{id}  Delete cohort definition
+
+POST   /api/v1/cohort-definitions/{id}/generate
+       Start generation against a source
+
+GET    /api/v1/cohort-definitions/{id}/generation-info
+       Get all generation job statuses
+
+GET    /api/v1/cohort-definitions/{id}/report/{sourceKey}
+       Get attrition report for a source
+```
+
+## WebAPI Compatibility Endpoints
+
+These endpoints mirror the legacy OHDSI WebAPI interface for HADES compatibility:
+
+```
+GET    /api/v1/source/sources           Atlas-compatible source list
+GET    /api/v1/cohortdefinition/{id}    Atlas-compatible cohort definition
+GET    /api/v1/vocabulary/{sourceKey}/search?query={q}
+       Atlas-compatible vocabulary search
+```
+
+## Pagination
+
+List endpoints support pagination via query parameters:
+
+```
+?page=1&per_page=20
+```
+
+Response format:
+```json
+{
+  "data": [...],
+  "total": 150,
+  "current_page": 1,
+  "per_page": 20,
+  "last_page": 8
+}
+```
+
+## Error Responses
+
+| HTTP Status | Meaning |
+|------------|---------|
+| 401 | Unauthenticated — missing or invalid token |
+| 403 | Forbidden — insufficient permissions |
+| 404 | Resource not found |
+| 422 | Validation error — see `errors` field in response body |
+| 429 | Rate limited — try again after the `Retry-After` header value |
+| 500 | Server error — check logs |

@@ -1,0 +1,55 @@
+---
+id: 10-incidence-rates
+title: "10. Incidence Rates"
+sidebar_label: "10. Incidence Rates"
+---
+
+# Incidence Rates
+
+**Incidence rate analysis** estimates how frequently a clinical outcome occurs in a defined population at risk. The result is expressed as an incidence rate (IR) in cases per 1,000 person-years, along with incidence proportions, confidence intervals, and stratified breakdowns.
+
+## Core Concepts
+
+- **Target cohort** — the population at risk (denominator). Patients are "at risk" from their cohort start to cohort end date.
+- **Outcome cohort** — the event of interest (numerator). The first occurrence of the outcome after the target cohort start is counted.
+- **Time at risk (TAR)** — the portion of each patient's time in the target cohort during which they are considered at risk. Configurable as a window relative to cohort start/end.
+- **Clean window** — patients who have the outcome before entering the target cohort can be excluded (washout).
+
+## Creating an Incidence Analysis
+
+1. Navigate to **Analyses → Incidence Rates** and click **New Incidence Analysis**.
+2. Add one or more **Target Cohorts** (populations at risk).
+3. Add one or more **Outcome Cohorts** (outcomes to count).
+4. Configure the **Time at Risk** window:
+   - **Start** — days after cohort start when observation begins (commonly 0 or 1)
+   - **End** — days after cohort start/end (commonly cohort end date)
+5. Optionally set a **Clean window** — exclude patients with the outcome in the N days before cohort start.
+6. Add **Subgroup analyses** if desired (e.g. by age band, gender, calendar year).
+7. Click **Save**, select a **Data Source**, then click **Execute**.
+
+## Reading the Results
+
+The results table shows for each Target × Outcome combination:
+
+| Column | Description |
+|--------|-------------|
+| Persons | Number of unique patients in the target cohort |
+| Person-time | Total time at risk (person-years) |
+| Cases | Outcome events counted |
+| IR (per 1000PY) | Incidence rate with 95% CI |
+| IP (proportion) | Incidence proportion (cases / persons) |
+
+Stratified results (by age, gender, etc.) are shown in expandable sub-tables.
+
+## Interpreting Results
+
+Incidence rates are particularly useful for:
+
+- Establishing background rates before a study
+- Comparing rates across populations or calendar periods
+- Reporting safety event frequencies in observational data
+- Planning sample size calculations for interventional studies
+
+:::warning Observational data limitations
+Incidence rates from claims or EHR data reflect **diagnosed and recorded** events, not true population incidence. Under-coding, care-seeking behavior, and database coverage all affect the rate estimates.
+:::

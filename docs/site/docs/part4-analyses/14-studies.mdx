@@ -1,0 +1,60 @@
+---
+id: 14-studies
+title: "14. Studies"
+sidebar_label: "14. Studies"
+---
+
+# Studies
+
+A **Study** in Parthenon is a container that groups related cohort definitions, concept sets, and analyses into a single reproducible research package. Studies provide version control, collaboration, and export capabilities for full research projects.
+
+## Why Use Studies?
+
+Individual cohort definitions and analyses are created independently, but a real-world evidence study requires many coordinated components:
+
+- Multiple target and comparator cohorts
+- Shared concept sets (exposure, outcome, covariate definitions)
+- Multiple analysis types (characterization, incidence, estimation)
+- Documentation of design choices and protocol amendments
+- Reproducible export for multi-database replication
+
+Studies tie all these components together with provenance tracking.
+
+## Creating a Study
+
+1. Navigate to **Analyses → Studies** and click **New Study**.
+2. Enter a **Study Title** (e.g. "Cardiovascular Safety of GLP-1 Agonists vs. DPP-4 Inhibitors").
+3. Add an optional **Abstract** and **Protocol** document (plain text or Markdown).
+4. Set the **Study Status** (Design, Execution, Complete, Archived).
+5. Click **Save**.
+
+## Adding Components
+
+Once created, open the study and use the component tabs to link related objects:
+
+- **Cohorts tab** — attach target, comparator, and outcome cohort definitions
+- **Concept Sets tab** — attach concept sets used across the study
+- **Analyses tab** — attach characterization, incidence, pathway, and estimation analyses
+- **Data Sources tab** — select which sources this study should execute against
+
+## Study Execution
+
+Click **Execute All** to queue all analyses in the study on their configured data sources. Parthenon executes them in dependency order: cohorts are generated first, then analyses that depend on generated cohorts.
+
+A progress dashboard shows the status of each component as execution proceeds.
+
+## Exporting a Study
+
+Click **Export Study Package** to download a ZIP containing:
+
+- All cohort definition JSONs (OHDSI/CIRCE format)
+- All concept set JSONs
+- Analysis specification JSONs
+- A `README.md` with study metadata
+- An `r-analysis/` folder with pre-configured HADES R scripts ready to run on any OMOP CDM
+
+This export format is compatible with the OHDSI study packages convention and can be submitted to OHDSI network studies.
+
+:::tip Protocol registration
+Before executing a study that will be published, register your protocol on [ClinicalTrials.gov](https://clinicaltrials.gov/) or the [EU PAS Register](https://www.encepp.eu/encepp/studiesDatabase.jsp). Include the registration ID in the Study Abstract field for full traceability.
+:::

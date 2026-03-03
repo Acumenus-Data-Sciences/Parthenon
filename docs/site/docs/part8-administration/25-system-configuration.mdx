@@ -1,0 +1,77 @@
+---
+id: 25-system-configuration
+title: "25. System Configuration"
+sidebar_label: "25. System Configuration"
+---
+
+# System Configuration
+
+**Admin → System Configuration** provides controls for platform-wide settings. Only users with the `super-admin` role can access this section.
+
+## General Settings
+
+| Setting | Description | Default |
+|---------|-------------|---------|
+| Platform Name | Displayed in browser title and emails | "Parthenon" |
+| Support Email | Address shown in error pages and emails | — |
+| Session Timeout | Idle session timeout (minutes) | 60 |
+| Allow Self-Registration | Whether `/register` is publicly accessible | false |
+| Default Role | Role assigned to self-registered users | viewer |
+
+## Mail Configuration
+
+Parthenon sends transactional emails for account creation, password reset, and admin notifications. Configure the mail provider:
+
+1. Select **Mail Driver** (SMTP, Resend, Mailgun, Amazon SES, Log)
+2. Enter driver-specific credentials (API key, SMTP host/port/credentials)
+3. Enter **From Address** and **From Name**
+4. Click **Send Test Email** to verify
+
+The `Log` driver writes emails to the Laravel log (useful for development; no real emails sent).
+
+## AI Provider Configuration
+
+Parthenon integrates an AI assistant (MedGemma) for cohort building suggestions and result interpretation. Configure the active AI provider:
+
+1. Navigate to **Admin → System → AI Providers**.
+2. Select a provider (Ollama, OpenAI, Anthropic, etc.) and enter credentials.
+3. Click **Set Active** to make it the default provider.
+4. Click **Test** to verify the connection and model availability.
+
+See the AI Providers section for the full list of supported providers.
+
+## Queue and Background Jobs
+
+Parthenon uses Laravel Horizon to manage background jobs (cohort generation, analysis execution, Achilles runs). The **Queue Dashboard** (available at `/horizon` for admins) shows:
+
+- Job throughput (jobs per minute)
+- Failed jobs with error messages and retry controls
+- Queue depths by queue name
+- Worker status
+
+## System Health Dashboard
+
+Navigate to **Admin → System → Health** to see real-time status of all Parthenon services:
+
+| Service | Health check |
+|---------|-------------|
+| PHP-FPM | Laravel can bootstrap |
+| PostgreSQL (app DB) | Connection to parthenon database |
+| Redis | PING response |
+| Horizon | Queue worker process alive |
+| AI Service | HTTP health endpoint at /health |
+| R Runtime | HTTP health endpoint at /health |
+
+The dashboard auto-refreshes every 30 seconds. Red status on any service triggers an admin notification email (if mail is configured).
+
+## Vocabulary Refresh
+
+The vocabulary in your data source can be updated when new OMOP vocabulary releases are available from Athena. Navigate to **Admin → System → Vocabulary** to:
+
+1. Upload a new Athena vocabulary ZIP
+2. Preview the changes (new/deprecated concepts)
+3. Trigger the background migration job
+
+:::warning Vocabulary migration downtime
+During vocabulary refresh, the CDM vocabulary tables are locked for writes. Plan this maintenance window for off-peak hours. Concept sets should be reviewed after any vocabulary upgrade.
+:::

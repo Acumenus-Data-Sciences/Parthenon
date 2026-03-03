@@ -1,0 +1,63 @@
+---
+id: 09-characterization
+title: "9. Characterization"
+sidebar_label: "9. Characterization"
+---
+
+# Characterization
+
+**Cohort characterization** produces a summary of the clinical and demographic features of one or more cohorts. It answers the question: "Who are the patients in this cohort, and what are their baseline characteristics?" This is the standard first analysis in any pharmacoepidemiological or comparative effectiveness study.
+
+## What Characterization Produces
+
+A characterization analysis generates, for each cohort and each feature:
+
+- **Prevalence** — percentage of cohort members with at least one occurrence of the feature
+- **Mean and standard deviation** — for continuous measurements (e.g. HbA1c, BMI, age)
+- **Distribution** — for age and other stratified variables
+
+Features are drawn from all OMOP CDM domains: conditions, drugs, procedures, measurements, observations, device exposures, and demographics.
+
+## Creating a Characterization
+
+1. Navigate to **Analyses → Characterization** and click **New Characterization**.
+2. Enter a **Name** and optional **Description**.
+3. Add one or more **Cohorts** to characterize by clicking **+ Add Cohort**.
+4. Configure the **Feature Set**:
+   - Use **Predefined feature sets** (demographics, conditions, drugs, measurements — all domains pre-loaded)
+   - Or **Custom feature set** — add individual concept sets with specific time windows
+5. Set the **Time window** for each feature domain (e.g. "365 days before cohort start").
+6. Choose whether to **Stratify by** age, gender, or year of cohort entry.
+7. Click **Save**, then **Execute**.
+
+## Feature Categories
+
+| Category | CDM Domain | Default Window |
+|----------|-----------|----------------|
+| Demographics | Person | At index |
+| Conditions | ConditionOccurrence | 365d before index |
+| Drug Exposures | DrugExposure | 365d before index |
+| Procedures | ProcedureOccurrence | 365d before index |
+| Measurements | Measurement | 365d before index |
+| Observations | Observation | 365d before index |
+| Visit Types | VisitOccurrence | 365d before index |
+| Charlson Comorbidity | Multiple domains | 365d before index |
+
+## Viewing Results
+
+After execution, the characterization results page shows an interactive table with:
+
+- Feature name and concept ID
+- Count and percentage per cohort
+- Difference between cohorts (for comparative views)
+- Standardized Mean Difference (SMD) when comparing two cohorts
+
+Use the **search box** to filter features by name, and the **Sort** controls to order by prevalence, SMD, or concept ID.
+
+## Exporting Results
+
+Click **Export CSV** to download the full characterization table. The exported file contains one row per feature per cohort and includes all counts, percentages, and SMD values.
+
+:::tip Standardized Mean Difference
+An SMD < 0.1 between two cohorts indicates that covariate is well-balanced. Use the SMD column to quickly identify important differences between a treatment and comparator cohort — these become confounders that must be addressed in any causal analysis.
+:::

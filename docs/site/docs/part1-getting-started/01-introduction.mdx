@@ -1,0 +1,65 @@
+---
+id: 01-introduction
+title: "1. Introduction"
+sidebar_label: "1. Introduction"
+---
+
+# Introduction to Parthenon
+
+Parthenon is a unified outcomes research platform that modernizes the OHDSI analytics workflow. It provides a React-based single-page application backed by a Laravel API, connecting to one or more OMOP CDM v5.4 databases to enable the full spectrum of real-world evidence (RWE) research without leaving the browser.
+
+## Why Parthenon?
+
+Legacy OHDSI Atlas is built on Knockout.js and requires a Java-based WebAPI backend with complex deployment requirements. Parthenon replaces this stack with:
+
+- **React 19 + TypeScript** frontend for a responsive, accessible UI
+- **Laravel 11** REST API with Sanctum authentication and role-based access control
+- **OMOP CDM v5.4** compatibility — works with any properly mapped database
+- **AI assistance** via MedGemma for query suggestions and result interpretation
+- **Full WebAPI compatibility** so existing OHDSI tools (HADES, Atlas exports) continue to work
+
+## System Requirements
+
+To use Parthenon you need:
+
+- A modern browser (Chrome 120+, Firefox 120+, Safari 17+, Edge 120+)
+- Network access to the Parthenon server (provided by your administrator)
+- An account with at least the **Researcher** role
+
+## Logging In
+
+1. Navigate to the Parthenon URL provided by your administrator (e.g. `https://parthenon.yourorg.net`).
+2. Enter your email address and password.
+3. Click **Sign In**.
+4. On first login you will be prompted to change your temporary password.
+
+:::tip First-time users
+After your first login, Parthenon shows a guided onboarding tour covering the main navigation areas. You can replay the tour at any time from the **Help** menu.
+:::
+
+## Main Navigation
+
+The top-level navigation bar provides access to all major features:
+
+| Menu item | Purpose |
+|-----------|---------|
+| **Data Sources** | Browse and configure OMOP CDM connections |
+| **Vocabulary** | Search concepts and build concept sets |
+| **Cohorts** | Define, generate, and manage patient cohorts |
+| **Analyses** | Run characterization, incidence, pathway, and causal analyses |
+| **Data Explorer** | Explore Achilles results and data quality reports |
+| **Patients** | Browse individual patient timelines (requires PHI access) |
+| **Admin** | User management, system configuration (admin only) |
+
+## User Roles
+
+Parthenon uses a hierarchical role system:
+
+| Role | Description |
+|------|-------------|
+| `super-admin` | Full platform access, system configuration |
+| `admin` | User management, data source configuration |
+| `researcher` | Create and run analyses, browse all data |
+| `viewer` | Read-only access to cohorts and results |
+
+Your role is shown in the user menu (top right). Contact your administrator to request elevated access.

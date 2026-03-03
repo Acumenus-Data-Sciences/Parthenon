@@ -1,0 +1,108 @@
+/**
+ * Parthenon documentation — custom theme
+ * Matches the app's Tailwind slate palette (dark-first design).
+ */
+
+/* ── Light mode palette ─────────────────────────────────────────────────── */
+:root {
+  --ifm-color-primary: #3b82f6;
+  --ifm-color-primary-dark: #2563eb;
+  --ifm-color-primary-darker: #1d4ed8;
+  --ifm-color-primary-darkest: #1e40af;
+  --ifm-color-primary-light: #60a5fa;
+  --ifm-color-primary-lighter: #93c5fd;
+  --ifm-color-primary-lightest: #bfdbfe;
+
+  --ifm-background-color: #f8fafc;
+  --ifm-background-surface-color: #ffffff;
+  --ifm-navbar-background-color: #1e293b;
+  --ifm-navbar-link-color: #cbd5e1;
+  --ifm-navbar-link-hover-color: #f1f5f9;
+  --ifm-footer-background-color: #0f172a;
+  --ifm-code-font-size: 90%;
+  --docusaurus-highlighted-code-line-bg: rgba(59, 130, 246, 0.1);
+}
+
+/* ── Dark mode palette ─────────────────────────────────────────────────── */
+[data-theme="dark"] {
+  --ifm-color-primary: #60a5fa;
+  --ifm-color-primary-dark: #3b82f6;
+  --ifm-color-primary-darker: #2563eb;
+  --ifm-color-primary-darkest: #1d4ed8;
+  --ifm-color-primary-light: #93c5fd;
+  --ifm-color-primary-lighter: #bfdbfe;
+  --ifm-color-primary-lightest: #dbeafe;
+
+  --ifm-background-color: #0f172a;
+  --ifm-background-surface-color: #1e293b;
+  --ifm-navbar-background-color: #0f172a;
+  --ifm-navbar-link-color: #94a3b8;
+  --ifm-navbar-link-hover-color: #f1f5f9;
+  --ifm-toc-border-color: #334155;
+  --ifm-menu-color: #94a3b8;
+  --ifm-menu-color-active: #60a5fa;
+  --ifm-sidebar-background: #1e293b;
+  --docusaurus-highlighted-code-line-bg: rgba(96, 165, 250, 0.15);
+}
+
+/* ── Sidebar ─────────────────────────────────────────────────────────────── */
+[data-theme="dark"] .menu {
+  background: #1e293b;
+}
+
+[data-theme="dark"] .menu__link--active {
+  color: #60a5fa;
+  background: rgba(96, 165, 250, 0.08);
+}
+
+/* ── Navbar ──────────────────────────────────────────────────────────────── */
+.navbar {
+  border-bottom: 1px solid #334155;
+}
+
+/* ── Admonitions (callout blocks) ────────────────────────────────────────── */
+[data-theme="dark"] .alert {
+  border-left-width: 4px;
+}
+
+[data-theme="dark"] .alert--note {
+  background: rgba(96, 165, 250, 0.08);
+  border-color: #3b82f6;
+}
+
+[data-theme="dark"] .alert--tip {
+  background: rgba(34, 197, 94, 0.08);
+  border-color: #22c55e;
+}
+
+[data-theme="dark"] .alert--warning {
+  background: rgba(234, 179, 8, 0.08);
+  border-color: #eab308;
+}
+
+[data-theme="dark"] .alert--danger {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: #ef4444;
+}
+
+/* ── Code blocks ─────────────────────────────────────────────────────────── */
+[data-theme="dark"] .prism-code {
+  background: #0f172a !important;
+}
+
+/* ── Article content ─────────────────────────────────────────────────────── */
+[data-theme="dark"] article h1,
+[data-theme="dark"] article h2,
+[data-theme="dark"] article h3 {
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] article a {
+  color: #60a5fa;
+}
+
+/* ── Table of contents ────────────────────────────────────────────────────── */
+[data-theme="dark"] .table-of-contents__link:hover,
+[data-theme="dark"] .table-of-contents__link--active {
+  color: #60a5fa;
+}

@@ -1,0 +1,68 @@
+---
+id: 05-cohort-expressions
+title: "5. Cohort Expressions"
+sidebar_label: "5. Cohort Expressions"
+---
+
+# Cohort Expressions
+
+A **cohort expression** is the logical definition of who belongs to a cohort. Parthenon uses the CIRCE-BE cohort expression format — the same format used by OHDSI Atlas — which describes cohort membership as a combination of inclusion criteria applied to a patient's clinical history.
+
+## Core Concepts
+
+Every CIRCE cohort expression has three sections:
+
+### 1. Primary Event Criteria (Index Event)
+
+The **index event** is the anchoring clinical event that begins a patient's cohort entry. Common examples:
+
+- First diagnosis of Type 2 Diabetes Mellitus (a condition occurrence)
+- First dispensing of metformin (a drug exposure)
+- A hospitalization for GI hemorrhage (a visit occurrence)
+- A measurement of HbA1c ≥ 7% (a measurement with value filter)
+
+The index event defines **T = 0** (the index date) for each patient's entry into the cohort. A single patient can have multiple index events (leading to multiple entries) or be restricted to only the first event.
+
+### 2. Inclusion Rules
+
+**Inclusion rules** are additional criteria that must be satisfied relative to the index event. Each rule is a named logical expression that can reference:
+
+- Concept set occurrences in any CDM domain (conditions, drugs, measurements, procedures, visits, observations, device exposures, death)
+- Demographic attributes (age, gender, race, ethnicity)
+- Time windows relative to the index date (e.g. "in the 365 days prior to index")
+- Occurrence counts (at least N, exactly N, at most N)
+- Correlated criteria (temporal relationships between events)
+
+Rules can be marked as **required** (must be met) or **exclusionary** (must NOT be met to remain in the cohort).
+
+### 3. Cohort Exit Criteria
+
+The **cohort exit** defines when a patient leaves the cohort. Options include:
+
+- **End of observation** — the patient stays in the cohort until their last observation period
+- **Fixed duration** — a fixed number of days after the index event
+- **Drug era end** — when a drug era (continuous exposure window) ends
+- **Event criteria** — when a specific clinical event occurs (e.g. first myocardial infarction)
+
+## JSON Representation
+
+CIRCE cohort expressions are stored as JSON. Parthenon stores this JSON in the `cohort_definitions` table and generates SQL from it using the CIRCE-BE library. See [Appendix C](../appendices/c-circe-json-schema) for the full JSON schema reference.
+
+## Primary Event Filters
+
+Within the primary event, you can apply:
+
+- **Domain filter** — which CDM table to query (ConditionOccurrence, DrugExposure, etc.)
+- **Concept set filter** — which concept set must match
+- **Date filter** — limit events to a specific calendar window
+- **First occurrence** — restrict to only the chronologically first qualifying event per patient
+- **Age at event** — age range filter evaluated at the index date
+- **Visit context** — require the event to occur during a specific visit type (inpatient, outpatient, ED, etc.)
+
+## Understanding Index Date Offsets
+
+All temporal windows in inclusion rules are measured in **days relative to the index date**. A window of `[-365, -1]` means "in the year before index (exclusive of index date itself)." A window of `[0, 30]` means "at index or in the 30 days following."
+
+:::tip Washout periods
+A common pattern is to require a **minimum observation period before index** (e.g. ≥ 365 days of continuous observation) and **no prior exposure to the drug of interest** in that period. This is called a "new user" or "incident user" design and is critical for unbiased pharmacoepidemiology.
+:::

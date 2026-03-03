@@ -1,0 +1,88 @@
+---
+id: e-glossary
+title: "Appendix E — Glossary"
+sidebar_label: "E. Glossary"
+---
+
+# Appendix E — Glossary
+
+**Achilles**
+An OHDSI R package that runs ~170 aggregate analysis queries against an OMOP CDM and stores the results in a results schema, enabling fast interactive database characterization.
+
+**CIRCE**
+Cohort Inception, Refinement, and Containment Expression — the JSON format used by OHDSI to define cohort expressions. Used by Atlas and Parthenon.
+
+**CDM (Common Data Model)**
+See OMOP CDM.
+
+**Cohort**
+A group of patients who satisfy a set of inclusion criteria and who are studied for a defined period of time. In OMOP, a cohort is stored as rows in the `cohort` table with `cohort_start_date` and `cohort_end_date` for each patient entry.
+
+**Cohort Expression**
+The logical definition of cohort membership, encoded as CIRCE JSON. Specifies an index event, inclusion/exclusion rules, and cohort exit criteria.
+
+**Concept**
+A standardized clinical term in the OMOP vocabulary with a unique integer ID. Examples: concept 201826 = "Type 2 diabetes mellitus" (SNOMED).
+
+**Concept Ancestor**
+A broader concept in the OMOP concept hierarchy. Used to find all descendants (more specific concepts) of a given concept.
+
+**Concept Set**
+A named, reusable list of OMOP concepts (with optional descendants and mapped codes) used to define criteria in cohort expressions and analyses.
+
+**Daimon**
+A named pointer to a database schema used by a Parthenon data source. Each source has one or more daimons of types: CDM, Vocabulary, Results, Temp.
+
+**Data Quality Dashboard (DQD)**
+An OHDSI tool (and Parthenon feature) that runs ~3,000 conformance, completeness, and plausibility checks on an OMOP CDM database.
+
+**Domain**
+An OMOP classification of clinical data types. Each domain has a primary CDM table (e.g. the Condition domain → `condition_occurrence`).
+
+**Drug Era**
+A derived OMOP table (`drug_era`) that collapses individual drug dispensing records for the same ingredient into continuous exposure periods, applying configurable gap tolerances.
+
+**HADES**
+Health Analytics Data-to-Evidence Suite — the OHDSI R package ecosystem for running standardized analyses (CohortMethod, PatientLevelPrediction, etc.) on OMOP CDM data.
+
+**Index Event / Index Date**
+The anchoring clinical event that begins a patient's cohort entry. All temporal windows in inclusion rules are measured relative to the index date (T = 0).
+
+**New User Design**
+A pharmacoepidemiological study design that restricts to patients with no prior exposure to the study drug (a "washout" or "clean" period before the index date), reducing prevalent user bias.
+
+**Observation Period**
+A period of continuous observation for a patient during which their healthcare encounters are assumed to be completely captured in the database.
+
+**OMOP CDM**
+Observational Medical Outcomes Partnership Common Data Model — a standardized relational data model maintained by the OHDSI community for representing observational health data using standardized vocabularies.
+
+**Person-Year**
+A unit of time-at-risk. 1,000 person-years = 1,000 patients observed for 1 year each (or 500 patients for 2 years, etc.). Used as the denominator in incidence rate calculations.
+
+**Phenotype**
+A case definition that identifies patients with a specific clinical condition or characteristic using coded data. Equivalent to a cohort definition in OMOP parlance.
+
+**PLE (Population-Level Estimation)**
+Causal inference analyses estimating the effect of a treatment on an outcome using observational data. Includes new-user cohort designs (CohortMethod) and self-controlled designs (SCCS).
+
+**PLP (Patient-Level Prediction)**
+Machine learning analyses that predict the probability of a clinical outcome for individual patients based on their OMOP CDM data.
+
+**RWE (Real-World Evidence)**
+Evidence derived from real-world data sources (claims, EHR, registries) rather than randomized clinical trials.
+
+**Scramble**
+The Laravel package used by Parthenon to auto-generate OpenAPI documentation from PHP code, served at `/docs/api`.
+
+**SNOMED CT**
+Systematized Nomenclature of Medicine — Clinical Terms. The standard vocabulary for the OMOP Condition, Procedure, and Observation domains.
+
+**SMD (Standardized Mean Difference)**
+A statistical measure of covariate balance between two groups. SMD < 0.1 indicates good balance; used in propensity score and comparative effectiveness analyses.
+
+**Vocabulary**
+A controlled terminology (e.g. SNOMED, RxNorm, LOINC). OMOP incorporates ~100 vocabularies via the Athena vocabulary repository.
+
+**WebAPI**
+The legacy OHDSI Java REST API used by Atlas. Parthenon provides compatible endpoints at `/api/v1/` for HADES package integration.

@@ -1,0 +1,62 @@
+---
+id: 20-population-stats
+title: "20. Population Statistics"
+sidebar_label: "20. Population Statistics"
+---
+
+# Population Statistics
+
+The **Population Statistics** tab in Data Explorer provides high-level demographic and temporal summaries of the patient population in a data source. These summaries are useful for quickly assessing database coverage and suitability for a specific research question before investing in full cohort generation.
+
+## Overview Panel
+
+The Overview panel shows:
+
+| Statistic | Description |
+|-----------|-------------|
+| Total patients | Unique `person_id` count |
+| Date range | Earliest to latest observation period |
+| Observation years | Total person-years of follow-up |
+| Median follow-up | Median observation period duration (days) |
+| Vocabulary version | Name and date of loaded OMOP vocabulary |
+| CDM version | Detected CDM schema version |
+
+## Age and Gender Distribution
+
+A stacked bar chart shows the age-gender distribution of the population in 5-year age bands. Toggle between **counts** and **percentages**. Hover over a bar to see the exact count for that age-gender cell.
+
+## Observation Period Timeline
+
+A time-series chart shows the number of patients with active observation in each calendar month. This reveals:
+
+- Database enrollment/disenrollment patterns
+- Coverage gaps (months with anomalously low counts)
+- The effective study window (years with stable coverage)
+
+## Domain Coverage
+
+A coverage table shows the count of records and unique patients in each CDM domain:
+
+| Domain | Record Count | Patient Count | Avg per Patient |
+|--------|-------------|--------------|-----------------|
+| condition_occurrence | | | |
+| drug_exposure | | | |
+| measurement | | | |
+| procedure_occurrence | | | |
+| visit_occurrence | | | |
+| observation | | | |
+| death | | | |
+
+Low patient counts in a domain relative to overall population size may indicate incomplete data capture for that domain.
+
+## Data Source Comparison
+
+When you have multiple data sources configured, use the **Compare Sources** view to overlay population statistics across sources. This is useful for:
+
+- Identifying which source has the longest follow-up for a specific patient population
+- Comparing demographic distributions across sites (relevant for multi-site studies)
+- Assessing coverage before selecting a source for a specific analysis
+
+:::tip Research feasibility
+Use Population Statistics as your first stop when evaluating feasibility for a new study. Check that the database covers the study period, has sufficient patients in the age/gender strata of interest, and has good coverage in the domains you plan to query.
+:::

@@ -1,0 +1,67 @@
+---
+id: 16-schema-mapping
+title: "16. Schema Mapping"
+sidebar_label: "16. Schema Mapping"
+---
+
+# Schema Mapping
+
+**Schema mapping** is the process of matching columns in your uploaded source files to the corresponding columns in OMOP CDM tables. After mapping, Parthenon generates and executes SQL that transforms your staged data into properly structured OMOP tables.
+
+## Overview
+
+OMOP CDM has ~40 clinical tables with well-defined column specifications. Schema mapping creates a translation layer between your source schema (which may be claims, EHR extract, registry, etc.) and the target CDM schema. This step handles:
+
+- Column name alignment (e.g. `PATIENT_ID` → `person_id`)
+- Data type coercion (e.g. string dates to `DATE` type)
+- Static value assignment (e.g. hardcoding `condition_type_concept_id = 32817` for "EHR")
+- Column expression transforms (e.g. `CONCAT(year, '-', month, '-01')` → `drug_exposure_start_date`)
+
+## Opening the Mapping Editor
+
+1. Navigate to **Data Ingestion → Upload History**.
+2. Click on an upload batch that has completed.
+3. Click **Create Schema Mapping** to open the mapping editor.
+
+## Mapping Interface
+
+The mapping editor shows:
+
+- **Left panel** — your source table columns with detected data types and sample values
+- **Right panel** — the target OMOP CDM table and its required/optional columns
+- **Mapping rows** — drag a source column onto a target column to create a mapping
+
+### Target Table Selection
+
+Click **Select Target Table** to choose which OMOP CDM table this file maps to. Parthenon shows all 40+ CDM tables organized by domain. Common mappings:
+
+| Source content | Target CDM table |
+|---------------|-----------------|
+| Diagnoses / ICD codes | `condition_occurrence` |
+| Drug dispensings | `drug_exposure` |
+| Lab results | `measurement` |
+| Demographics | `person` |
+| Visit records | `visit_occurrence` |
+| Procedures | `procedure_occurrence` |
+
+### Required Columns
+
+Required columns (marked with a red asterisk) must be mapped before the transformation can run. Optional columns can be left unmapped (they will be populated with `NULL` or a configurable default).
+
+### Expression Transforms
+
+For complex column transforms, click the **Expression** icon on any mapping row to enter an SQL expression using the source column values. For example:
+
+```sql
+CAST(TO_DATE(source.visit_date, 'MM/DD/YYYY') AS DATE)
+```
+
+## Saving and Executing the Mapping
+
+Click **Save Mapping** to persist your configuration. Click **Execute Transform** to run the mapping SQL against the staging data and write the results into the CDM schema.
+
+The execution page shows row counts written to each CDM table and any constraint violations (e.g. invalid concept IDs, missing required values).
+
+:::tip Reusable mappings
+Once you create a mapping for a data source, save it as a **Mapping Template**. Future uploads from the same source system can reuse the template, requiring only minor adjustments for new columns.
+:::

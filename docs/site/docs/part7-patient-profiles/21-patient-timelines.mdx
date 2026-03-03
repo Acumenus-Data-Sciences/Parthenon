@@ -1,0 +1,62 @@
+---
+id: 21-patient-timelines
+title: "21. Patient Timelines"
+sidebar_label: "21. Patient Timelines"
+---
+
+# Patient Timelines
+
+The **Patient Timelines** feature provides an interactive, event-level view of an individual patient's clinical history drawn from the OMOP CDM. It displays all clinical events — conditions, drugs, procedures, measurements, visits, observations — on a chronological timeline, enabling clinical review, phenotype validation, and case study work.
+
+## Access Requirements
+
+Patient Timelines displays **Protected Health Information (PHI)** and requires:
+
+- The **Researcher** role (minimum) or higher
+- A data source with a properly configured CDM daimon
+- Explicit administrator enablement of patient-level access for your account
+
+If you do not see the **Patients** menu item, contact your administrator to request access.
+
+## Finding a Patient
+
+Navigate to **Patients → Patient Timelines**. You can locate patients by:
+
+- **Person ID** — direct lookup by OMOP `person_id` (integer)
+- **Cohort membership** — browse patients within a generated cohort
+
+When browsing cohort patients, the list shows person IDs sorted by cohort start date. Click any patient to open their timeline.
+
+:::warning PHI handling
+All patient searches and timeline views are logged in the audit log with your user ID and timestamp. Do not share patient-identifiable information outside your authorized data use agreement.
+:::
+
+## Timeline View
+
+The timeline shows events on a horizontal time axis with:
+
+- **Color-coded event bands** — each domain has a distinct color (conditions = purple, drugs = orange, measurements = teal, visits = blue, procedures = green)
+- **Observation periods** — shown as gray bars behind events indicating periods of continuous observation
+- **Zoom controls** — click-drag to zoom into a specific time window; double-click to zoom out
+- **Event tooltips** — hover over any event to see concept ID, concept name, source value, and dates
+
+## Event Detail Panel
+
+Click any event to open the detail panel, which shows all available CDM fields for that record:
+
+- Concept IDs and names (standard and source)
+- Dates (start, end, visit context)
+- Type concept, quantity, dose, units (domain-specific fields)
+- Visit link — click to highlight all events from the same visit
+
+## Filtering the Timeline
+
+Use the **Filter** panel (right sidebar) to show/hide domains, date ranges, or specific concept sets. For example, to focus on diabetes-related events:
+
+1. Click **Filter by Concept Set**
+2. Select your "Type 2 Diabetes" concept set
+3. The timeline highlights matching events and fades unrelated events
+
+## Export
+
+Click **Export Timeline** to download the patient's event list as a CSV file for offline review or case narrative writing.

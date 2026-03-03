@@ -1,0 +1,77 @@
+---
+id: 18-characterization-achilles
+title: "18. Achilles Characterization"
+sidebar_label: "18. Achilles Characterization"
+---
+
+# Achilles Characterization
+
+The **Data Explorer** provides pre-computed summary statistics for your OMOP CDM databases powered by [OHDSI Achilles](https://ohdsi.github.io/Achilles/). Achilles runs once against a CDM and stores hundreds of aggregate queries in a results schema, enabling fast interactive exploration without running expensive real-time queries.
+
+## What Achilles Contains
+
+Achilles computes ~170 analysis queries covering:
+
+| Analysis group | Examples |
+|---------------|---------|
+| Person | Age distribution, gender split, race, ethnicity |
+| Observation period | Observation years, duration distributions |
+| Visit | Visit type frequencies, visit duration |
+| Condition | Condition prevalence, co-occurrence, by age/gender |
+| Drug | Drug prevalence, era duration, days supply distributions |
+| Measurement | Lab value distributions, units, ranges |
+| Procedure | Procedure frequency by type and setting |
+| Death | Cause of death distributions, time from index to death |
+
+## Opening Data Explorer
+
+Navigate to **Data Explorer** in the top navigation. Select a **Data Source** from the dropdown (only sources with a populated results daimon are available).
+
+The explorer has five tabs:
+
+1. **Overview** — database summary statistics (patient count, date range, vocabulary version)
+2. **Conditions** — condition prevalence treemap and drill-down
+3. **Drugs** — drug exposure prevalence and era statistics
+4. **Measurements** — lab value distributions with box plots
+5. **Data Quality** — Achilles Heel results (see [Chapter 19](19-data-quality-dashboard))
+
+## Conditions Tab
+
+The Conditions tab shows conditions sorted by prevalence. Select any condition to see:
+
+- Prevalence (% of patients with at least one occurrence)
+- Age and gender distribution
+- Prevalence by year (trend)
+- Top co-occurring conditions
+
+## Drugs Tab
+
+The Drugs tab shows drug exposures by RxNorm ingredient. Select any drug to see:
+
+- Prevalence by ingredient
+- Days supply distribution
+- Era duration distribution (how long patients stay on therapy)
+- First exposure year trend
+
+## Measurements Tab
+
+The Measurements tab shows LOINC-coded measurement statistics. Select any measurement to see:
+
+- Distribution of values (histogram with configurable bins)
+- Summary statistics (median, IQR, min/max)
+- Unit of measure breakdown
+- Stratification by gender
+
+## Refreshing Achilles Results
+
+Achilles results are static — they reflect the state of the CDM when Achilles was last run. To refresh:
+
+1. Navigate to **Admin → System → Achilles Jobs** (admin only).
+2. Select a data source and click **Run Achilles**.
+3. Achilles runs as a background job; monitor progress in the job queue.
+
+Running Achilles on a large CDM can take 30–120 minutes. Schedule it during off-peak hours.
+
+:::tip
+The Achilles result counts are shown in the bottom bar of the Data Explorer as "As of [date]" to help users understand data freshness.
+:::

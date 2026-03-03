@@ -1,0 +1,55 @@
+---
+id: 03-vocabulary-browser
+title: "3. Vocabulary Browser"
+sidebar_label: "3. Vocabulary Browser"
+---
+
+# Vocabulary Browser
+
+The Vocabulary Browser lets you search and explore OMOP standardized vocabularies — the controlled terminologies that classify every clinical event recorded in a CDM database. Understanding vocabulary concepts is fundamental to OMOP-based research; every condition, drug, measurement, procedure, and observation is represented by a **concept** with a unique integer ID.
+
+## What is an OMOP Concept?
+
+An OMOP concept is a vocabulary entry with:
+
+- **Concept ID** — unique integer (e.g. `201826` for Type 2 Diabetes Mellitus)
+- **Concept Name** — human-readable label
+- **Domain** — clinical area (Condition, Drug, Measurement, etc.)
+- **Vocabulary** — source terminology (SNOMED, RxNorm, ICD10CM, LOINC, etc.)
+- **Concept Class** — granularity level within the vocabulary
+- **Standard flag** — whether this concept is the OMOP standard for its domain
+- **Valid dates** — validity window for the concept
+
+## Searching Concepts
+
+1. Navigate to **Vocabulary → Browse Concepts**.
+2. Type a search term in the search box (e.g. "diabetes", "metformin", "HbA1c").
+3. Use the **Domain**, **Vocabulary**, and **Standard** filters to narrow results.
+4. Click any result row to view the full concept detail.
+
+The search uses full-text indexing on concept names and synonyms. Partial matches and synonym lookups are supported. For example, searching "T2DM" returns results that include "Type 2 diabetes mellitus" via concept synonyms.
+
+## Concept Detail View
+
+The concept detail panel shows:
+
+- All concept metadata fields
+- **Ancestors** — broader concepts in the hierarchy (e.g. "Diabetes mellitus" is an ancestor of "Type 2 diabetes mellitus")
+- **Descendants** — narrower concepts (important for building inclusive cohort criteria)
+- **Related concepts** — concept relationships (maps to, is a, has ingredient, etc.)
+- **Concept synonyms** — alternative names in various languages
+- **Source concepts** — non-standard concepts that map to this standard concept (e.g. ICD-10-CM codes that map to this SNOMED concept)
+
+## Standard vs. Source Concepts
+
+OMOP CDM stores clinical data using **standard concepts** from a single vocabulary per domain (SNOMED for conditions, RxNorm for drugs, LOINC for measurements). Source data in the original terminology is preserved in `*_source_concept_id` columns.
+
+When building cohort criteria, always prefer **standard concepts** unless you specifically need source code matching. The vocabulary browser shows a "Standard" badge on standard concepts.
+
+:::tip Using descendants
+A single standard concept often has hundreds of descendants. For example, selecting concept `201826` (Type 2 diabetes mellitus) with **Include descendants** catches all more-specific T2DM subtypes without listing them individually.
+:::
+
+## Vocabulary Versions
+
+The vocabulary version loaded in each data source is shown at the top of the browser when a source is selected. Vocabulary releases are dated (e.g. `v5.0 2026-02-25`). Newer releases may add concepts, deprecate others, or reclassify domains. Always ensure your concept sets are reviewed after a vocabulary upgrade.

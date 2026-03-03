@@ -1,0 +1,63 @@
+---
+id: 19-data-quality-dashboard
+title: "19. Data Quality Dashboard"
+sidebar_label: "19. Data Quality Dashboard"
+---
+
+# Data Quality Dashboard
+
+The **Data Quality Dashboard** (DQD) evaluates the conformance, completeness, and plausibility of your OMOP CDM data against the [OHDSI DQD specification](https://ohdsi.github.io/DataQualityDashboard/). It runs ~3,000 data quality checks and summarizes results by category, CDM table, and concept domain.
+
+## DQD Check Categories
+
+| Category | Description | Check count |
+|----------|-------------|-------------|
+| **Conformance** | Data conforms to CDM structure (valid values, foreign keys, date ranges) | ~1,200 |
+| **Completeness** | Expected columns and records are populated | ~800 |
+| **Plausibility** | Values are clinically plausible (e.g. age at death, date ordering) | ~1,000 |
+
+Each check returns a **pass/fail** status and a **failure rate** (% of records failing). The overall DQD score is the weighted percentage of passing checks.
+
+## Viewing DQD Results
+
+1. Navigate to **Data Explorer** and select a Data Source.
+2. Click the **Data Quality** tab.
+3. The summary shows the overall pass rate and a breakdown by category.
+
+The check list shows each check with:
+- Check name and description
+- CDM table and column being evaluated
+- Threshold (configurable, default 5% failure = fail)
+- Actual failure count and rate
+- Pass/Fail status
+
+## Filtering and Searching
+
+Use the filter bar to narrow checks by:
+
+- **Category** (Conformance / Completeness / Plausibility)
+- **Status** (Passing / Failing / All)
+- **CDM Table** (e.g. `condition_occurrence`, `drug_exposure`)
+- **Concept domain**
+
+Search by check name to find specific checks (e.g. "measurement value" to find all value plausibility checks).
+
+## Achilles Heel Checks
+
+The **Achilles Heel** tab within Data Quality shows the Achilles-generated quality notifications — simpler rule-based checks run as part of the Achilles analysis:
+
+- **ERROR** — critical data quality issues (e.g. future dates, negative drug durations)
+- **WARNING** — potential issues (e.g. records with birth year after death year)
+- **NOTIFICATION** — informational items (e.g. low record counts in certain domains)
+
+These checks are faster than full DQD and update whenever Achilles is re-run.
+
+## Running a Full DQD Check
+
+1. Navigate to **Admin → System → DQD Jobs** (admin only).
+2. Select a Data Source and click **Run DQD**.
+3. The DQD runs as a background job and takes 15–60 minutes depending on CDM size.
+
+:::warning Failure thresholds
+The default failure threshold is 5% — checks where more than 5% of records fail are marked as "failing." Adjust this threshold in the DQD configuration based on your data quality standards and acceptable error rates for your specific use case.
+:::

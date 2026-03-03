@@ -1,0 +1,59 @@
+---
+id: 22-user-management
+title: "22. User Management"
+sidebar_label: "22. User Management"
+---
+
+# User Management
+
+Parthenon's user management system controls who can access the platform, what roles they hold, and how they authenticate. All user management functions require the **admin** or **super-admin** role.
+
+## User List
+
+Navigate to **Admin → Users** to see all registered users. The list shows:
+
+| Column | Description |
+|--------|-------------|
+| Name | Full name |
+| Email | Login email address |
+| Roles | Assigned roles |
+| Status | Active / Suspended |
+| Must Change Password | Whether the user has a pending forced password change |
+| Last Login | Timestamp of most recent authentication |
+| Created | Account creation date |
+
+## Creating a User
+
+1. Click **New User**.
+2. Enter the user's **Full Name** and **Email Address**.
+3. Assign one or more **Roles** (see [Chapter 23 — Roles & Permissions](23-roles-permissions)).
+4. Click **Create User**.
+
+Parthenon generates a random temporary password and sends it to the user's email address via the configured mail provider. The user is required to change this password on their first login.
+
+## Editing a User
+
+Click the **Edit** icon on any user row to:
+
+- Change the user's name or email
+- Add or remove roles
+- Reset the password (generates a new temporary password and emails it)
+- Suspend or reactivate the account
+
+## Suspending Accounts
+
+Suspended users cannot log in. Their existing session tokens are invalidated immediately. Suspension is reversible — click **Reactivate** to restore access.
+
+Use suspension (rather than deletion) when an employee changes roles or takes leave, so their history and created objects are preserved.
+
+## Deleting a User
+
+Deleting a user permanently removes their account. Objects they created (cohort definitions, concept sets, analyses) are reassigned to the admin performing the deletion. Use deletion only when the user account was created in error.
+
+## Bulk Import
+
+For onboarding large teams, use **Import Users** to upload a CSV file with columns `name,email,role`. Each row creates one account. Invitation emails are sent in batch.
+
+:::tip Self-registration
+If your administrator has enabled self-registration, new users can create accounts at `/register` using their institutional email. All self-registered accounts receive the **Viewer** role by default and must be upgraded by an admin.
+:::

@@ -1,0 +1,49 @@
+---
+id: 12-population-level-estimation
+title: "12. Population-Level Estimation"
+sidebar_label: "12. Population-Level Estimation"
+---
+
+# Population-Level Estimation
+
+:::note Under Development
+Population-Level Estimation (PLE) is not yet implemented in the current release. This chapter documents the planned design. The UI placeholder exists in the navigation menu and will be populated in a future phase.
+:::
+
+**Population-Level Estimation** (PLE) enables comparative effectiveness and safety research using causal inference methods applied to observational OMOP CDM data. It implements the OHDSI HADES `CohortMethod` and `SelfControlledCaseSeries` (SCCS) approaches.
+
+## Planned Methods
+
+### New-User Cohort Design (CohortMethod)
+
+This approach compares outcomes between a **treatment cohort** and a **comparator cohort** of new users, adjusting for baseline confounders using one or more of:
+
+- **Propensity score matching** — 1:1 or 1:N matching on estimated propensity of treatment
+- **Propensity score stratification** — stratify patients into quintiles by propensity
+- **Inverse probability of treatment weighting (IPTW)** — weight patients by inverse propensity
+- **Large-scale regularized regression** — LASSO-penalized logistic regression over thousands of covariates
+
+Effect estimates are expressed as Hazard Ratios (HR) or Risk Ratios (RR) with 95% confidence intervals, computed using Cox proportional hazards or Poisson regression.
+
+### Self-Controlled Case Series (SCCS)
+
+SCCS uses each patient as their own control, comparing event rates during exposed and unexposed time windows. This design controls for all time-invariant confounders by design. It is particularly suitable for vaccine safety studies and acute adverse event detection.
+
+## Planned UI
+
+The PLE module will include:
+
+1. **Design specification** — target/comparator/outcome cohort selection, analysis settings
+2. **Diagnostics** — propensity score distribution, covariate balance before/after adjustment, negative control calibration
+3. **Results** — HR/RR estimates with confidence intervals, forest plots for multi-database analyses
+4. **Evidence synthesis** — fixed-effects and random-effects meta-analysis across data sources
+
+## When to Use PLE
+
+Use Population-Level Estimation when you need to:
+
+- Estimate the causal effect of a treatment on an outcome while accounting for confounding by indication
+- Replicate or extend OHDSI network studies
+- Generate regulatory-grade real-world evidence packages
+
+For simple frequency counts without causal inference, use [Characterization](09-characterization) or [Incidence Rates](10-incidence-rates) instead.

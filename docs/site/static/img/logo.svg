@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <!-- Parthenon-inspired column structure -->
+  <!-- Entablature (top bar) -->
+  <rect x="20" y="30" width="160" height="14" rx="2" fill="#3b82f6"/>
+  <!-- Columns -->
+  <rect x="30" y="44" width="18" height="90" rx="2" fill="#60a5fa"/>
+  <rect x="57" y="44" width="18" height="90" rx="2" fill="#60a5fa"/>
+  <rect x="84" y="44" width="18" height="90" rx="2" fill="#60a5fa"/>
+  <rect x="111" y="44" width="18" height="90" rx="2" fill="#60a5fa"/>
+  <rect x="138" y="44" width="18" height="90" rx="2" fill="#60a5fa"/>
+  <!-- Stylobate (base) -->
+  <rect x="16" y="134" width="168" height="10" rx="2" fill="#3b82f6"/>
+  <rect x="10" y="144" width="180" height="8" rx="2" fill="#2563eb"/>
+  <!-- Pediment triangle -->
+  <polygon points="100,8 20,30 180,30" fill="#1d4ed8"/>
+  <!-- DNA helix hint (research symbol) -->
+  <circle cx="100" cy="170" r="14" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/>
+  <path d="M94 165 Q100 170 106 165 Q100 160 94 165Z" fill="#60a5fa"/>
+  <path d="M94 175 Q100 170 106 175 Q100 180 94 175Z" fill="#60a5fa"/>
+</svg>

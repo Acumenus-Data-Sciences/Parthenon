@@ -1,0 +1,58 @@
+---
+id: 04-concept-sets
+title: "4. Concept Sets"
+sidebar_label: "4. Concept Sets"
+---
+
+# Concept Sets
+
+A **concept set** is a named, reusable list of OMOP concepts used to define clinical criteria in cohort expressions and analyses. A concept set for "Type 2 Diabetes Medications" might include metformin, glipizide, sitagliptin, and all their ingredient descendants, giving you a single reusable object you can reference across multiple cohort definitions.
+
+## Creating a Concept Set
+
+1. Navigate to **Vocabulary → Concept Sets** and click **New Concept Set**.
+2. Enter a descriptive **Name** (e.g. "T2DM first-line oral agents").
+3. Use the **concept search panel** to find concepts and click **Add** to include them.
+4. For each concept entry, configure the **inclusion flags**:
+   - **Include descendants** — automatically includes all narrower concepts in the hierarchy
+   - **Include mapped** — includes non-standard source concepts that map to this concept
+   - **Excluded** — marks a concept as an explicit exclusion (useful for subtracting specific drugs from a class)
+5. Click **Save**.
+
+## Editing Concept Set Entries
+
+The concept set editor shows a table of all included concepts with their flags. You can:
+
+- Toggle **descendants** and **mapped** checkboxes inline
+- Click the **X** button to remove a concept
+- Use **Add concept** to search and append more entries
+- Click **Preview** to see the full list of concept IDs that will be resolved at query time (including all descendants)
+
+## Concept Set Resolution
+
+At query time, Parthenon resolves your concept set to a flat list of concept IDs by:
+
+1. Starting with the directly listed concept IDs
+2. Adding all descendant concept IDs for entries with **Include descendants** checked
+3. Adding all source concept IDs that map to standard concepts, for entries with **Include mapped** checked
+4. Removing any concept IDs that appear in **Excluded** entries (including their descendants)
+
+The final resolved ID list is used in SQL `WHERE concept_id IN (...)` clauses.
+
+## Sharing and Reuse
+
+Concept sets are saved at the organization level and visible to all users with at least **viewer** access. When a concept set is referenced inside a cohort expression, the cohort definition stores a copy of the concept set at the time of cohort generation to ensure reproducibility — changes to the source concept set do not retroactively affect previously generated cohorts.
+
+## Import/Export
+
+Concept sets can be exported as OHDSI-compatible JSON and re-imported into any Atlas or Parthenon instance:
+
+1. Open the concept set detail page.
+2. Click **Export JSON** to download the definition.
+3. On another instance, navigate to Concept Sets and click **Import JSON**.
+
+This format is identical to the Atlas concept set JSON used by OHDSI phenotype libraries.
+
+:::note
+Concept set resolution depends on the vocabulary loaded in your data source. A concept set created against one vocabulary version may resolve to slightly different concept IDs against a different version.
+:::

@@ -1,0 +1,60 @@
+---
+id: 26-audit-log
+title: "26. Audit Log"
+sidebar_label: "26. Audit Log"
+---
+
+# Audit Log
+
+The **Audit Log** records all significant user actions in Parthenon, providing a tamper-evident trail for security review, compliance reporting, and incident investigation. Access requires the `admin` or `super-admin` role.
+
+## What Gets Logged
+
+Every event in the audit log captures:
+
+- **Timestamp** — UTC time of the event
+- **User** — who performed the action
+- **IP Address** — originating IP
+- **Event Type** — category and action (e.g. `auth.login`, `cohort.generate`)
+- **Resource** — affected object (e.g. `CohortDefinition:42`)
+- **Details** — additional context (e.g. old/new values for edits)
+
+### Logged Event Categories
+
+| Category | Events |
+|----------|--------|
+| `auth` | login, logout, login_failed, password_change, password_reset |
+| `user` | created, updated, deleted, suspended, role_changed |
+| `source` | created, updated, deleted, connection_tested |
+| `cohort` | created, updated, deleted, generated, archived |
+| `analysis` | created, executed, deleted |
+| `concept_set` | created, updated, deleted |
+| `patient` | timeline_viewed (includes person_id) |
+| `admin` | config_changed, ai_provider_changed, vocab_refreshed |
+| `data` | upload_started, upload_completed, mapping_executed |
+
+## Viewing the Audit Log
+
+Navigate to **Admin → Audit Log**. The log shows the most recent 1,000 events by default.
+
+Use the filter panel to search by:
+
+- **Date range** — events within a time window
+- **User** — actions by a specific user
+- **Event type** — filter by category or specific event
+- **Resource** — events affecting a specific object (e.g. all actions on cohort ID 42)
+- **IP Address** — events from a specific IP
+
+## Exporting Audit Logs
+
+Click **Export CSV** to download the filtered audit log as a CSV file. This export is suitable for compliance reporting and external SIEM ingestion.
+
+## Log Retention
+
+By default, audit log entries are retained for 365 days. Configure the retention period in **Admin → System Configuration → Audit Log Retention**. Entries older than the retention period are purged automatically by a scheduled maintenance job.
+
+For long-term retention beyond 365 days, configure log forwarding to an external SIEM (Splunk, Elastic, etc.) using the `AUDIT_LOG_WEBHOOK_URL` environment variable — Parthenon will HTTP POST each event as JSON to the configured endpoint in real time.
+
+:::tip Compliance use cases
+Many healthcare data governance frameworks (HIPAA, GDPR, SOC 2) require demonstrating who accessed what patient data and when. The patient timeline audit events (`patient.timeline_viewed` with `person_id`) satisfy this requirement. Configure log retention to match your organization's data access agreement terms.
+:::

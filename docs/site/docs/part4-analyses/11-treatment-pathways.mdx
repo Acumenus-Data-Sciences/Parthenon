@@ -1,0 +1,57 @@
+---
+id: 11-treatment-pathways
+title: "11. Treatment Pathways"
+sidebar_label: "11. Treatment Pathways"
+---
+
+# Treatment Pathways
+
+**Treatment pathway analysis** describes the sequence of therapies received by patients in a cohort over time. It answers: "After diagnosis, what drugs do patients actually receive, in what order, and how often do they switch or add therapies?" Results are visualized as a Sankey diagram showing the flow of patients through treatment sequences.
+
+## How Pathways Work
+
+The analysis:
+
+1. Takes a **target cohort** (e.g. newly diagnosed T2DM patients)
+2. Identifies drug exposure **event cohorts** (e.g. one cohort per drug class: biguanides, sulfonylureas, DPP-4 inhibitors, etc.)
+3. For each patient, constructs an ordered sequence of treatment "eras" — continuous periods of exposure to each therapy
+4. Aggregates sequences across patients to compute pathway frequencies
+5. Renders the top-N pathways in a Sunburst or Sankey visualization
+
+## Creating a Treatment Pathway Analysis
+
+1. Navigate to **Analyses → Treatment Pathways** and click **New Pathway Analysis**.
+2. Add one **Target Cohort** (the population to analyze).
+3. Add multiple **Event Cohorts** — each representing one therapy or drug class to track.
+4. Configure:
+   - **Combination window** — days within which two drugs are considered a combination (default 30)
+   - **Minimum cell count** — suppress pathways with fewer than N patients (privacy protection, default 5)
+   - **Max path length** — maximum number of treatment steps to track (default 5)
+5. Click **Save**, select a Data Source, then click **Execute**.
+
+## Viewing the Sankey Diagram
+
+:::note Under Development
+The Sankey/Sunburst pathway visualization is under active development. The current release shows pathway data in tabular form. The interactive diagram will be added in a future release.
+:::
+
+The current pathway results table shows:
+
+| Column | Description |
+|--------|-------------|
+| Pathway | Ordered sequence of treatment events (e.g. "Metformin → Metformin+Sitagliptin → Insulin") |
+| Count | Number of patients following this exact sequence |
+| % of target | Percentage of the target cohort |
+
+## Common Pathway Patterns
+
+- **Monotherapy** — patients who stay on a single agent throughout
+- **Add-on** — patients who add a second agent without stopping the first
+- **Switch** — patients who discontinue one agent and start another
+- **Intensification** — escalation from oral agents to injectable therapy
+
+These patterns align with treatment guidelines and can reveal real-world adherence to clinical algorithms.
+
+:::tip Combination window
+The combination window is critical for pathway interpretation. With window = 30 days, patients on both drug A and drug B for at least 30 overlapping days are classified as "A+B combination therapy." Adjust based on dispensing patterns in your data (e.g. 90-day supply vs. 30-day supply).
+:::

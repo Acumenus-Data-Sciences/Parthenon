@@ -1,0 +1,54 @@
+---
+id: 13-patient-level-prediction
+title: "13. Patient-Level Prediction"
+sidebar_label: "13. Patient-Level Prediction"
+---
+
+# Patient-Level Prediction
+
+:::note Under Development
+Patient-Level Prediction (PLP) is not yet implemented in the current release. This chapter documents the planned design.
+:::
+
+**Patient-Level Prediction** (PLP) builds machine learning models that predict the probability of a clinical outcome for individual patients. It implements the OHDSI HADES `PatientLevelPrediction` R package interface, enabling standardized, reproducible predictive modeling on OMOP CDM data.
+
+## What PLP Does
+
+Given a **target population** and an **outcome**, PLP:
+
+1. Extracts a large feature matrix from the CDM (demographics, conditions, drugs, procedures, measurements — typically 10,000+ features per patient)
+2. Splits patients into training and test sets (or uses cross-validation)
+3. Trains one or more classifiers (logistic regression, LASSO, random forest, gradient boosting, deep learning)
+4. Evaluates model performance on the held-out test set
+5. Produces a **calibrated predicted probability** for each patient in the target cohort
+
+## Planned Model Types
+
+| Model | Description |
+|-------|-------------|
+| LASSO Logistic Regression | Regularized logistic regression; most interpretable |
+| Random Forest | Ensemble of decision trees; robust to non-linearity |
+| Gradient Boosting (XGBoost) | High-accuracy gradient boosting |
+| Deep Learning (ResNet) | Neural network; requires GPU for large datasets |
+| AdaBoost | Adaptive boosting ensemble |
+
+## Performance Metrics
+
+All PLP models are evaluated on:
+
+- **AUROC** — area under the receiver operating characteristic curve
+- **AUPRC** — area under the precision-recall curve (preferred for rare outcomes)
+- **Calibration** — expected vs. observed event rates in deciles
+- **Brier score** — mean squared error of probabilistic predictions
+- **Net benefit** — decision-curve analysis threshold metrics
+
+## Privacy and Model Sharing
+
+PLP models are always trained on patient-level data within a data access boundary. Only the trained model object (not patient data) can be exported. Predictions for new patients are run within the same security perimeter.
+
+## Use Cases
+
+- Early identification of patients at high risk of hospitalization
+- Propensity score model building for comparative effectiveness studies
+- Risk stratification for clinical decision support
+- Outcome prediction for power calculations in clinical trials

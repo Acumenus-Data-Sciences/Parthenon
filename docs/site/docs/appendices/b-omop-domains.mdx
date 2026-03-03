@@ -1,0 +1,79 @@
+---
+id: b-omop-domains
+title: "Appendix B — OMOP Domains"
+sidebar_label: "B. OMOP Domains"
+---
+
+# Appendix B — OMOP Domains
+
+The OMOP CDM v5.4 organizes clinical data into **domains**, each stored in one or more tables. Understanding domains is essential for building correct cohort criteria and analyses.
+
+## Domain Reference
+
+| Domain | Primary Table | Standard Vocabulary | Description |
+|--------|--------------|--------------------|----|
+| Condition | `condition_occurrence` | SNOMED CT | Diagnoses, problems, clinical findings |
+| Drug | `drug_exposure` | RxNorm | Drug prescriptions, dispensings, administrations |
+| Measurement | `measurement` | LOINC | Lab tests, vital signs, clinical assessments with numeric or categorical values |
+| Procedure | `procedure_occurrence` | SNOMED CT, CPT4, HCPCS | Medical procedures performed on patients |
+| Observation | `observation` | SNOMED CT, LOINC | Clinical facts, survey responses, social determinants of health |
+| Visit | `visit_occurrence` | OMOP Visit | Healthcare encounters (inpatient, outpatient, ED, telehealth) |
+| Visit Detail | `visit_detail` | OMOP Visit | Sub-encounters within a visit (e.g. individual department stays) |
+| Device | `device_exposure` | SNOMED CT | Medical devices used (implants, prosthetics, monitors) |
+| Death | `death` | SNOMED CT, ICD10CM | Cause of death and mortality status |
+| Specimen | `specimen` | SNOMED CT | Biological specimens collected |
+| Note | `note` | — | Unstructured clinical notes (text) |
+| Note NLP | `note_nlp` | — | NLP-extracted entities from clinical notes |
+
+## Standard Vocabularies by Domain
+
+### Condition Domain
+- **Standard:** SNOMED CT (OMOP concept class: Clinical Finding, Disorder)
+- **Source:** ICD-10-CM, ICD-10, ICD-9-CM, MedDRA, Read codes
+
+### Drug Domain
+- **Standard:** RxNorm (Ingredient, Clinical Drug, Clinical Drug Form)
+- **Source:** NDC, NDF-RT, GPI, AMIS, Multilex
+
+### Measurement Domain
+- **Standard:** LOINC
+- **Source:** LOINC (local labs may use LOINC directly), custom lab codes
+
+### Procedure Domain
+- **Standard:** SNOMED CT, CPT4, HCPCS
+- **Source:** ICD-10-PCS, ICD-9-CM procedures, local procedure codes
+
+## CDM v5.4 Key Tables
+
+### Person Table
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `person_id` | BIGINT | Unique person identifier |
+| `gender_concept_id` | INT | OMOP gender concept (8507=Male, 8532=Female) |
+| `year_of_birth` | INT | Birth year |
+| `race_concept_id` | INT | OMOP race concept |
+| `ethnicity_concept_id` | INT | OMOP ethnicity concept |
+
+### Condition Occurrence Table
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `condition_occurrence_id` | BIGINT | Row identifier |
+| `person_id` | BIGINT | Foreign key to person |
+| `condition_concept_id` | INT | Standard SNOMED concept |
+| `condition_start_date` | DATE | Onset date |
+| `condition_end_date` | DATE | Resolution date (optional) |
+| `condition_type_concept_id` | INT | Source of record (EHR, claims, etc.) |
+| `condition_source_value` | VARCHAR | Original ICD code |
+| `condition_source_concept_id` | INT | Concept mapped from source code |
+
+## Observation Period
+
+The `observation_period` table defines the windows during which a person's data is expected to be complete. OMOP-based analyses restrict to events within observation periods to avoid bias from incomplete records.
+
+| Column | Description |
+|--------|-------------|
+| `observation_period_start_date` | Start of continuous observation |
+| `observation_period_end_date` | End of continuous observation |
+| `period_type_concept_id` | How the period was defined (insurance enrollment, EHR registration, etc.) |
