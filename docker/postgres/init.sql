@@ -7,6 +7,7 @@ CREATE SCHEMA IF NOT EXISTS app;
 CREATE SCHEMA IF NOT EXISTS vocab;
 CREATE SCHEMA IF NOT EXISTS cdm;
 CREATE SCHEMA IF NOT EXISTS achilles_results;
+CREATE SCHEMA IF NOT EXISTS eunomia;
 
 -- Grant permissions
-GRANT ALL ON SCHEMA app, vocab, cdm, achilles_results TO parthenon;
+GRANT ALL ON SCHEMA app, vocab, cdm, achilles_results, eunomia TO parthenon;

@@ -67,6 +67,7 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
       - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+      - ./docker/fixtures:/fixtures:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U parthenon"]
       interval: 5s

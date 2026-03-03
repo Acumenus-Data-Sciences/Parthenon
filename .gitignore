@@ -56,3 +56,9 @@ docker/redis-data/
 .env
 .env.local
 *.env.local
+
+# Installer artifacts
+.install-credentials
+.install-state.json
+installer/__pycache__/
+installer/**/__pycache__/
