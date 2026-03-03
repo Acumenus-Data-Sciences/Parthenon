@@ -1,0 +1,97 @@
+---
+id: 05-cutover
+title: "5. Cutover"
+sidebar_label: "5. Cutover"
+---
+
+# Cutover
+
+Once parity validation passes, you are ready to begin the cut-over process — transitioning researchers from Atlas to Parthenon and eventually decommissioning the Atlas instance.
+
+## 5.1 Legacy URL Redirects
+
+Parthenon includes built-in redirects for Atlas URLs so that existing bookmarks and integrations continue to work automatically. No configuration is needed — the redirects are active by default.
+
+| Legacy URL pattern | Redirects to |
+|-------------------|-------------|
+| `/atlas/#/cohortdefinitions` | Parthenon Cohorts list |
+| `/atlas/#/cohortdefinition/{id}` | Matching Parthenon cohort (by Atlas ID mapping) |
+| `/atlas/#/conceptsets` | Parthenon Concept Sets list |
+| `/atlas/#/vocabulary` | Parthenon Vocabulary Browser |
+| `/WebAPI/cohortdefinition/{id}` | `/api/v1/cohort-definitions/{id}` (REST) |
+| `/WebAPI/conceptset/{id}` | `/api/v1/concept-sets/{id}` (REST) |
+| `/WebAPI/vocabulary/{src}/search` | `/api/v1/vocabulary/search` |
+| `/WebAPI/source/sources` | `/api/v1/sources` |
+
+Test the redirects by visiting a few Atlas bookmarks after pointing your DNS/reverse proxy at Parthenon.
+
+## 5.2 Communication Template for End Users
+
+Send this communication to your research team 2 weeks before the Atlas decommission date:
+
+---
+
+**Subject: Migration from Atlas to Parthenon — Action Required by [DATE]**
+
+Dear research team,
+
+We are migrating from OHDSI Atlas to Parthenon, our new unified outcomes research platform. Parthenon offers the same cohort building and vocabulary browsing capabilities as Atlas, with significant improvements in usability, performance, and analytical depth.
+
+**What you need to do:**
+- Log in to Parthenon at **[PARTHENON_URL]** using your institutional credentials.
+- Complete the first-login setup (you will be prompted to set a new password).
+- Verify that your cohort definitions and concept sets have been migrated correctly.
+
+**What has been migrated automatically:**
+- All cohort definitions (check the Cohorts menu)
+- All concept sets (check Vocabulary → Concept Sets)
+
+**What has NOT been migrated:**
+- Saved IR and characterization analysis results (you will need to re-run these analyses)
+- Atlas bookmarks (please update your browser bookmarks to the new URL)
+
+**Support:** Contact [CONTACT_EMAIL] with any questions. We will maintain Atlas in read-only mode through [PARALLEL_END_DATE].
+
+---
+
+## 5.3 Parallel Operation Period
+
+During the parallel operation period (recommended 2–4 weeks), run Atlas in **read-only mode** to prevent divergence:
+
+1. **Revoke write permissions** on the Atlas application database user so new objects cannot be created.
+2. **Post a banner** in the Atlas UI (via WebAPI configuration) noting the migration cutover date.
+3. **Monitor usage** — watch for users still actively creating new cohorts in Atlas that would need to be re-migrated.
+4. **Continue validating** — run `parthenon:validate-atlas-parity` weekly during the parallel period to catch any divergence introduced by late Atlas changes.
+
+## 5.4 Decommissioning Atlas Checklist
+
+When you are ready to decommission Atlas, complete these steps in order:
+
+### Pre-Decommission
+
+- [ ] Final `parthenon:validate-atlas-parity` run — all cohorts within tolerance.
+- [ ] All active users have logged into Parthenon at least once.
+- [ ] Final Atlas export archived to long-term storage (ZIP of all JSON exports).
+- [ ] Analysis results in the results schema backed up (pgdump of `achilles_results` schema).
+
+### DNS / Reverse Proxy Cutover
+
+- [ ] Update DNS or reverse proxy to point the Atlas hostname at Parthenon (if using the same domain).
+- [ ] Test that legacy Atlas URLs redirect correctly (spot-check 5 cohort bookmarks).
+- [ ] Verify `/WebAPI/` API compatibility routes return correct responses.
+
+### Atlas Shutdown
+
+- [ ] Stop the Atlas WebAPI service: `systemctl stop atlas-webapi` (or equivalent).
+- [ ] Stop the Atlas Tomcat container if running in Docker.
+- [ ] Keep the Atlas application database in a **paused/archived** state for 90 days (do not drop it yet).
+
+### Post-Decommission
+
+- [ ] Send confirmation email to users: "Atlas has been decommissioned. All workflows are now in Parthenon."
+- [ ] Update any external documentation, wikis, or intranet pages that reference the Atlas URL.
+- [ ] Archive the Atlas database backup after 90 days or per your data retention policy.
+
+:::warning Do not drop the Atlas database immediately
+Keep the Atlas application database available for at least 90 days after decommission. Users may discover missing objects (saved searches, custom configurations) that need to be recovered.
+:::

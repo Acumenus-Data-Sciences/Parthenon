@@ -1,0 +1,104 @@
+---
+id: 06-feature-comparison
+title: "6. Feature Comparison Reference"
+sidebar_label: "6. Feature Comparison"
+---
+
+# Feature Comparison Reference
+
+This table maps every major Atlas feature to its Parthenon equivalent, noting current status and any workflow differences.
+
+## Vocabulary
+
+| Atlas Feature | Parthenon Equivalent | Status | Notes |
+|--------------|---------------------|--------|-------|
+| Concept Search | Vocabulary → Browse Concepts | ✅ Full parity | Full-text + synonym search |
+| Concept Detail (ancestors, descendants) | Concept detail panel | ✅ Full parity | |
+| Concept Set Builder | Vocabulary → Concept Sets → New | ✅ Full parity | Same flags: descendants, mapped, excluded |
+| Concept Set Import/Export | JSON import/export + CLI | ✅ Full parity | Compatible JSON format |
+| Vocabulary version display | Data Explorer → Overview | ✅ Full parity | |
+
+## Cohort Definitions
+
+| Atlas Feature | Parthenon Equivalent | Status | Notes |
+|--------------|---------------------|--------|-------|
+| Cohort Builder UI | Cohorts → New Cohort Definition | ✅ Full parity | Same CIRCE expression model |
+| Primary event (all domains) | Index Event tab | ✅ Full parity | |
+| Inclusion rules | Inclusion Rules tab | ✅ Full parity | |
+| Cohort exit strategies | Cohort Exit tab | ✅ Full parity | |
+| Cohort generation | Generate button | ✅ Full parity | Async via Horizon queue |
+| Attrition report | Attrition tab post-generation | ✅ Full parity | |
+| Cohort overlap report | Cohorts → Compare | ✅ Full parity | |
+| Cohort import/export (JSON) | Import / Export buttons + CLI | ✅ Full parity | |
+| Cohort copy/clone | Clone button | ✅ Full parity | |
+
+## Data Sources
+
+| Atlas Feature | Parthenon Equivalent | Status | Notes |
+|--------------|---------------------|--------|-------|
+| Source management | Admin → Data Sources | ✅ Full parity | |
+| Daimon configuration | Per-source daimon settings | ✅ Full parity | Same CDM/vocab/results/temp model |
+| WebAPI source import | CLI `import-webapi-sources` | ✅ Full parity | |
+| Connection testing | Test Connection button | ✅ Full parity | |
+
+## Data Explorer (Achilles)
+
+| Atlas Feature | Parthenon Equivalent | Status | Notes |
+|--------------|---------------------|--------|-------|
+| Database profile (Achilles results) | Data Explorer → Overview | ✅ Full parity | |
+| Condition prevalence | Data Explorer → Conditions | ✅ Full parity | |
+| Drug prevalence | Data Explorer → Drugs | ✅ Full parity | |
+| Measurement distributions | Data Explorer → Measurements | ✅ Full parity | |
+| DQD / Achilles Heel | Data Explorer → Data Quality | ✅ Full parity | Full DQD + Heel checks |
+
+## Analyses
+
+| Atlas Feature | Parthenon Equivalent | Status | Notes |
+|--------------|---------------------|--------|-------|
+| Cohort Characterization | Analyses → Characterization | ✅ Full parity | |
+| Incidence Rate Analysis | Analyses → Incidence Rates | ✅ Full parity | |
+| Treatment Pathways (table) | Analyses → Treatment Pathways | ✅ Functional | Sankey viz coming in future release |
+| Population-Level Estimation | Analyses → Estimation | 🔲 Planned | UI placeholder; HADES R integration built |
+| Patient-Level Prediction | Analyses → Prediction | 🔲 Planned | UI placeholder; HADES R integration built |
+| Evidence Synthesis | Analyses → Evidence Synthesis | 🔲 Planned | |
+| SCCS | Analyses → SCCS | 🔲 Planned | |
+| Negative Controls | Not yet implemented | 🔲 Planned | |
+
+## Patient Explorer
+
+| Atlas Feature | Parthenon Equivalent | Status | Notes |
+|--------------|---------------------|--------|-------|
+| Profile viewer (patient timeline) | Patients → Patient Timelines | ✅ Full parity | Requires PHI access role |
+
+## Administration
+
+| Atlas Feature | Parthenon Equivalent | Status | Notes |
+|--------------|---------------------|--------|-------|
+| User management | Admin → Users | ✅ Full parity | Role-based, email-invited |
+| Security provider config | Admin → Authentication Providers | ✅ Full parity | Local, LDAP, SAML, OIDC |
+| Source management | Admin → Data Sources | ✅ Full parity | |
+| System health | Admin → System → Health | ✅ Extended | Real-time service health dashboard |
+| Audit log | Admin → Audit Log | ✅ Extended | Full CRUD event log, exportable |
+
+## WebAPI Compatibility
+
+Parthenon exposes Atlas WebAPI-compatible endpoints for HADES R package integration:
+
+| Legacy WebAPI endpoint | Parthenon equivalent | Notes |
+|-----------------------|---------------------|-------|
+| `GET /source/sources` | `GET /api/v1/sources` | Source list |
+| `GET /cohortdefinition/{id}` | `GET /api/v1/cohort-definitions/{id}` | Cohort def |
+| `POST /cohortdefinition/{id}/generate/{src}` | `POST /api/v1/cohort-definitions/{id}/generate` | Trigger generation |
+| `GET /vocabulary/{src}/search` | `GET /api/v1/vocabulary/search` | Concept search |
+| `GET /conceptset/{id}/expression` | `GET /api/v1/concept-sets/{id}/export` | Concept set export |
+
+HADES packages (CohortMethod, PatientLevelPrediction, etc.) can point to Parthenon's API URL and work without modification.
+
+## Legend
+
+| Symbol | Meaning |
+|--------|---------|
+| ✅ Full parity | Feature fully implemented; Atlas workflows transfer directly |
+| ✅ Extended | Feature implemented with enhancements beyond Atlas |
+| ✅ Functional | Core feature works; minor Atlas capabilities not yet ported |
+| 🔲 Planned | Feature on roadmap; UI placeholder exists in current release |

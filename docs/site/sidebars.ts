@@ -82,6 +82,19 @@ const sidebars: SidebarsConfig = {
     },
     {
       type: "category",
+      label: "Migration Guide (Atlas → Parthenon)",
+      items: [
+        "migration/00-overview",
+        "migration/01-before-you-begin",
+        "migration/02-export-from-atlas",
+        "migration/03-import-into-parthenon",
+        "migration/04-validating-parity",
+        "migration/05-cutover",
+        "migration/06-feature-comparison",
+      ],
+    },
+    {
+      type: "category",
       label: "Appendices",
       items: [
         "appendices/a-keyboard-shortcuts",

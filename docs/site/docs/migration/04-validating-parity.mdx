@@ -1,0 +1,119 @@
+---
+id: 04-validating-parity
+title: "4. Validating Parity"
+sidebar_label: "4. Validating Parity"
+---
+
+# Validating Parity
+
+After importing, verify that Parthenon generates the same cohort counts as Atlas. The parity validation suite (`parthenon:validate-atlas-parity`) automates this comparison.
+
+## 4.1 Run the Parity Validation Suite
+
+The command connects to both your Atlas WebAPI and Parthenon, generates cohorts on a shared data source, and compares person counts within a configurable tolerance.
+
+```bash
+docker compose exec php php artisan parthenon:validate-atlas-parity \
+  --atlas-url=https://atlas.yourorg.net/WebAPI \
+  --source-key=your_cdm_source \
+  --compare-n=10
+```
+
+Full option reference:
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `--atlas-url` | required | Atlas WebAPI base URL |
+| `--atlas-token` | none | Bearer token for WebAPI auth |
+| `--source-key` | first source | Parthenon source key to generate against |
+| `--compare-n` | 10 | Number of cohorts to compare (0 = all) |
+| `--tolerance` | 0.02 | Acceptable difference as fraction (0.02 = 2%) |
+| `--no-generate` | false | Skip generation; compare already-generated cohorts |
+
+### Example Output
+
+```
+Atlas URL: https://atlas.yourorg.net/WebAPI
+Parthenon source: acumenus_claims
+Tolerance: 2%
+
+Fetching cohort definitions from Atlas...
+Found 47 cohort definitions in Atlas.
+Comparing 10 cohorts...
+
+  [PASS] T2DM New Users
+  [PASS] GI Hemorrhage
+  [WARN] AFib on Warfarin
+  [PASS] Heart Failure
+  [PASS] HTN + T2DM Comorbidity
+  [PASS] T2DM Metformin New Users
+  [PASS] CKD Stage 3+
+  [N/A]  Pilot Cohort 2024 (Atlas count not available)
+  [PASS] Stroke Incident
+  [PASS] Acute MI
+
++----------------------------------+-------------+-----------------+---------------+--------+
+| Cohort                           | Atlas Count | Parthenon Count | Difference    | Result |
++----------------------------------+-------------+-----------------+---------------+--------+
+| T2DM New Users                   | 12,441      | 12,441          | +0 (0.0%)     | PASS   |
+| GI Hemorrhage                    | 3,892       | 3,887           | -5 (0.1%)     | PASS   |
+| AFib on Warfarin                  | 8,103       | 8,245           | +142 (1.7%)   | WARN   |
+| ...                              | ...         | ...             | ...           | ...    |
++----------------------------------+-------------+-----------------+---------------+--------+
+
+Results: 8 PASS  |  1 WARN  |  0 FAIL  |  1 N/A
+All compared cohorts within tolerance.
+```
+
+Exit codes: `0` = all within tolerance, `1` = one or more FAILures.
+
+## 4.2 Manual Spot-Check Checklist
+
+For cohorts that are critical to your research programme, perform a manual spot-check in addition to the automated comparison:
+
+1. Open the cohort in Parthenon and check the **Attrition** report.
+2. Open the same cohort in Atlas and compare attrition at each inclusion rule step.
+3. Verify that cohort entry count, unique person count, and cohort exit distribution match.
+4. For any discrepancy > 5%, compare the generated SQL (see below).
+
+## 4.3 SQL Diff Tool
+
+Parthenon can output the compiled CIRCE SQL for any cohort definition. Compare this SQL against the Atlas-generated SQL for the same cohort to identify the source of any discrepancy.
+
+```bash
+# Get Parthenon SQL for a cohort (replace ID with your cohort definition ID)
+curl -s http://localhost:8082/api/v1/cohort-definitions/42/sql?source_key=your_source \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  | jq -r '.data.sql' > parthenon.sql
+
+# Get Atlas SQL (WebAPI endpoint)
+curl -s https://atlas.yourorg.net/WebAPI/cohortdefinition/7/sql \
+  | jq -r '.templateSql' > atlas.sql
+
+# Diff
+diff --unified parthenon.sql atlas.sql | less
+```
+
+Common SQL differences are usually benign:
+
+| Difference | Cause | Impact |
+|-----------|-------|--------|
+| Schema prefix differences | Parthenon uses explicit schema qualifiers | None — identical logic |
+| Date arithmetic style | Minor dialect variations | None — equivalent results |
+| CTE order | Different compilation order | None — CTEs are non-ordered |
+| Concept set ID numbering | Parthenon reindexes embedded concept sets | None — concept IDs are identical |
+
+If the logic structure differs (different WHERE clauses, different join conditions), file a bug report with both SQL files attached.
+
+## Understanding WARN vs FAIL
+
+| Status | Condition | Recommended Action |
+|--------|-----------|-------------------|
+| PASS | Count difference ≤ tolerance | No action needed |
+| WARN | Count difference between tolerance and 5× tolerance | Investigate; likely acceptable in large CDMs |
+| FAIL | Count difference > 5× tolerance | Investigate SQL diff before proceeding with cut-over |
+| N/A | Atlas count not available (cohort not generated in Atlas) | Generate in Atlas manually, then re-run validation |
+
+:::tip Tolerance guidance
+A 2% tolerance is appropriate for most CDMs. In very large databases (100M+ patients), tiny SQL differences in observation period handling can produce small legitimate count differences. A 5% tolerance may be more appropriate for CDMs with complex observation period structures.
+:::

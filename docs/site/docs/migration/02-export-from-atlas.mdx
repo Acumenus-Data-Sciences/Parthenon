@@ -1,0 +1,127 @@
+---
+id: 02-export-from-atlas
+title: "2. Export From Atlas"
+sidebar_label: "2. Export From Atlas"
+---
+
+# Export From Atlas
+
+Before importing into Parthenon, you need to export your Atlas artefacts. All Atlas exports use standard OHDSI JSON formats that Parthenon accepts directly.
+
+## 2.1 Exporting Cohort Definitions
+
+### Via the Atlas UI (per cohort)
+
+1. Open Atlas and navigate to **Cohort Definitions**.
+2. Open any cohort definition.
+3. Click **Export** (the download icon in the top-right toolbar).
+4. Select **JSON** format and save the file.
+
+The exported JSON has the format:
+```json
+{
+  "name": "T2DM New Users",
+  "description": "...",
+  "expression": { ... }
+}
+```
+
+### Via the Atlas UI (bulk)
+
+Atlas does not have a native bulk export button, but you can export all cohort definitions programmatically using the WebAPI:
+
+```bash
+# Export all cohort definitions from Atlas WebAPI
+ATLAS_URL="https://atlas.yourorg.net/WebAPI"
+mkdir -p atlas-exports/cohorts
+
+# Get list of all cohort IDs
+curl -s "${ATLAS_URL}/cohortdefinition/" | jq -r '.[].id' | while read id; do
+  name=$(curl -s "${ATLAS_URL}/cohortdefinition/${id}" | jq -r '.name' | tr '/ ' '--')
+  echo "Exporting cohort ${id}: ${name}"
+  curl -s "${ATLAS_URL}/cohortdefinition/${id}" \
+    > "atlas-exports/cohorts/${id}-${name}.json"
+done
+
+echo "Exported $(ls atlas-exports/cohorts/ | wc -l) cohort definitions"
+```
+
+If your WebAPI requires authentication, add `-H "Authorization: Bearer YOUR_TOKEN"` to each `curl` command.
+
+## 2.2 Exporting Concept Sets
+
+### Via the Atlas UI (per concept set)
+
+1. Navigate to **Concept Sets** in Atlas.
+2. Open a concept set.
+3. Click **Export → JSON**.
+
+### Via the WebAPI (bulk)
+
+```bash
+mkdir -p atlas-exports/concept-sets
+
+curl -s "${ATLAS_URL}/conceptset/" | jq -r '.[].id' | while read id; do
+  name=$(curl -s "${ATLAS_URL}/conceptset/${id}" | jq -r '.name' | tr '/ ' '--')
+  echo "Exporting concept set ${id}: ${name}"
+  curl -s "${ATLAS_URL}/conceptset/${id}/expression" \
+    | jq --arg name "$(curl -s "${ATLAS_URL}/conceptset/${id}" | jq -r '.name')" \
+         '{name: $name, expression: .}' \
+    > "atlas-exports/concept-sets/${id}-${name}.json"
+done
+
+echo "Exported $(ls atlas-exports/concept-sets/ | wc -l) concept sets"
+```
+
+## 2.3 Exporting IR and Characterization Analysis Definitions
+
+Atlas stores incidence rate and characterization analysis definitions in its application database. Export them via WebAPI:
+
+```bash
+mkdir -p atlas-exports/analyses
+
+# Incidence rate analyses
+curl -s "${ATLAS_URL}/ir/" > atlas-exports/analyses/incidence-rates.json
+
+# Characterization analyses
+curl -s "${ATLAS_URL}/cohortcharacterization/" > atlas-exports/analyses/characterizations.json
+```
+
+:::note
+Parthenon does not currently import these analysis definitions automatically. Export them for reference — you will recreate them manually using the imported cohorts as inputs. The analysis definition format is simpler in Parthenon's UI.
+:::
+
+## 2.4 Recording Your WebAPI Source Configuration
+
+The WebAPI source configuration (which CDM schema, vocabulary schema, and results schema your Atlas instance connects to) is needed to set up the matching Parthenon Data Source.
+
+Export it:
+
+```bash
+curl -s "${ATLAS_URL}/source/sources" > atlas-exports/sources.json
+cat atlas-exports/sources.json | jq '.[] | {sourceKey, sourceName, daimons: .daimons}'
+```
+
+Save the source keys and schema names. You will need these in [Chapter 3](03-import-into-parthenon).
+
+## File Organization
+
+After export, your directory should look like:
+
+```
+atlas-exports/
+  cohorts/
+    1-T2DM-New-Users.json
+    2-GI-Hemorrhage.json
+    ...
+  concept-sets/
+    1-Type-2-Diabetes.json
+    2-Metformin.json
+    ...
+  analyses/
+    incidence-rates.json
+    characterizations.json
+  sources.json
+```
+
+Keep this export directory — it serves as a backup of your Atlas configuration.

@@ -1,0 +1,66 @@
+---
+id: 01-before-you-begin
+title: "1. Before You Begin"
+sidebar_label: "1. Before You Begin"
+---
+
+# Before You Begin
+
+## Prerequisites Checklist
+
+Complete all items in this checklist before starting the migration. Each item links to the relevant documentation.
+
+### Parthenon Instance
+
+- [ ] Parthenon is deployed and accessible (use the [Python installer](/docs/part1-getting-started/01-introduction) or manual Docker deployment).
+- [ ] At least one super-admin account exists (`php artisan admin:seed`).
+- [ ] Email is configured (for user account creation notifications).
+- [ ] At least one **Data Source** is configured with CDM, Vocabulary, and Results daimons pointing to your OMOP database.
+- [ ] Achilles results exist in the results schema (run Achilles if needed).
+
+### Atlas / WebAPI
+
+- [ ] You know the **WebAPI base URL** (e.g. `https://atlas.yourorg.net/WebAPI`).
+- [ ] You have **admin credentials** or a service account token for the WebAPI.
+- [ ] You can access the Atlas web UI and export cohort definitions as JSON.
+- [ ] You know the **Atlas source key** for your CDM (visible in Atlas → Configure → Sources).
+
+### Access
+
+- [ ] You can run `docker compose exec php bash` or have direct shell access to the Parthenon server.
+- [ ] You have outbound HTTP access from the Parthenon server to the Atlas WebAPI URL (for automated import).
+
+## What Transfers Automatically vs Manually
+
+### Automatic (CLI / UI import)
+
+- Cohort definitions (CIRCE JSON format — identical between Atlas and Parthenon)
+- Concept sets (Atlas JSON format — fully compatible)
+- Data source connections (imported directly from WebAPI via `parthenon:import-webapi-sources`)
+
+### Manual Migration Required
+
+**User accounts:** Atlas stores users in its own database. Parthenon has a separate user registry. You must recreate user accounts manually or via bulk CSV import (`Admin → Users → Import CSV`). Users will receive a temporary password by email.
+
+**Analysis definitions:** Characterization, incidence rate, and treatment pathway analysis _definitions_ are stored in Atlas format. Parthenon does not currently import analysis definitions from Atlas. You will need to recreate these analyses using the imported cohorts and concept sets as inputs.
+
+**Analysis results:** Previously run Achilles and DQD results are stored in the shared results schema and are available immediately in the Data Explorer without any migration action — they are not stored in Atlas's application database.
+
+## Timeline Estimate
+
+A full migration for a team of 10–30 researchers typically takes:
+
+| Phase | Duration |
+|-------|---------|
+| Export from Atlas | 2–4 hours |
+| Import into Parthenon + validation | 4–8 hours |
+| User onboarding + parallel operation | 2–4 weeks |
+| Atlas decommission | 1 day |
+
+Plan for a **parallel operation period** of at least 2 weeks where both systems are available. This allows researchers to validate their workflows in Parthenon before Atlas is shut down.
+
+## Risk Mitigation
+
+- Parthenon's CLI import is **non-destructive** — it skips any cohort or concept set with a matching name. Your Atlas data is never modified.
+- If Parthenon generates different cohort counts than Atlas, the [parity validation tool](04-validating-parity) identifies the discrepancies before cut-over.
+- Legacy Atlas URLs (`/atlas/#/...` and `/WebAPI/...`) are automatically redirected to Parthenon equivalents by the built-in redirect layer (§9.6). Existing bookmarks continue to work.

@@ -1,0 +1,164 @@
+---
+id: 03-import-into-parthenon
+title: "3. Import Into Parthenon"
+sidebar_label: "3. Import Into Parthenon"
+---
+
+# Import Into Parthenon
+
+Parthenon provides both CLI commands and UI bulk upload for importing Atlas artefacts. The CLI is recommended for large libraries (100+ cohorts/concept sets); the UI is convenient for smaller imports.
+
+## 3.1 Import Cohort Definitions
+
+### Via CLI (recommended for bulk)
+
+```bash
+# Import all JSON files from a directory
+docker compose exec php php artisan parthenon:import-atlas-cohorts \
+  /path/to/atlas-exports/cohorts/
+
+# Import a single file
+docker compose exec php php artisan parthenon:import-atlas-cohorts \
+  /path/to/atlas-exports/cohorts/1-T2DM-New-Users.json
+
+# Specify which user should be recorded as the author
+docker compose exec php php artisan parthenon:import-atlas-cohorts \
+  /path/to/atlas-exports/cohorts/ \
+  --user-id=1
+```
+
+The command outputs a line per cohort:
+
+```
+  ✓ Imported T2DM New Users
+  ↷ Skipped GI Hemorrhage (duplicate)
+  ✗ Failed Bad Cohort: Missing PrimaryCriteria
+
+  ✓ Imported 45  ↷ Skipped 3 (duplicate)  ✗ Failed 1
+```
+
+Cohorts with a name that already exists in Parthenon are skipped (not overwritten). To re-import a modified cohort, either delete the existing one first or rename the imported file.
+
+### Via UI
+
+1. Navigate to **Cohorts** in Parthenon.
+2. Click **Import**.
+3. Paste the Atlas cohort JSON or click **Upload File**.
+4. Review the parsed name and expression, then click **Import**.
+
+The UI imports one cohort at a time. For bulk imports of dozens of cohorts, use the CLI.
+
+## 3.2 Import Concept Sets
+
+### Via CLI
+
+```bash
+# Import all concept set JSON files from a directory
+docker compose exec php php artisan parthenon:import-atlas-concept-sets \
+  /path/to/atlas-exports/concept-sets/
+
+# Import a single file
+docker compose exec php php artisan parthenon:import-atlas-concept-sets \
+  /path/to/atlas-exports/concept-sets/1-Type-2-Diabetes.json
+```
+
+Output:
+
+```
+  ✓ Imported Type 2 Diabetes (3 concepts)
+  ✓ Imported Metformin (12 concepts)
+  ↷ Skipped Hypertension (duplicate)
+
+  ✓ Imported 28  ↷ Skipped 2 (duplicate)  ✗ Failed 0
+```
+
+### Expected Atlas Concept Set JSON Format
+
+The import commands accept the standard Atlas concept set export format:
+
+```json
+{
+  "name": "Type 2 Diabetes",
+  "description": "Standard T2DM concept set",
+  "expression": {
+    "items": [
+      {
+        "concept": {
+          "CONCEPT_ID": 201826,
+          "CONCEPT_NAME": "Type 2 diabetes mellitus",
+          "DOMAIN_ID": "Condition",
+          "VOCABULARY_ID": "SNOMED",
+          "CONCEPT_CLASS_ID": "Clinical Finding",
+          "STANDARD_CONCEPT": "S",
+          "CONCEPT_CODE": "44054006",
+          "INVALID_REASON": "V"
+        },
+        "isExcluded": false,
+        "includeDescendants": true,
+        "includeMapped": false
+      }
+    ]
+  }
+}
+```
+
+Both single-object files and array files (multiple concept sets in one JSON array) are supported.
+
+## 3.3 Import WebAPI Source Configuration
+
+If you want Parthenon to use the same data source configuration as your Atlas instance:
+
+```bash
+# Import sources directly from a live WebAPI instance
+docker compose exec php php artisan parthenon:import-webapi-sources \
+  https://atlas.yourorg.net/WebAPI
+
+# With bearer token authentication
+docker compose exec php php artisan parthenon:import-webapi-sources \
+  https://atlas.yourorg.net/WebAPI \
+  --auth-type=bearer \
+  --token=YOUR_TOKEN
+
+# With basic auth
+docker compose exec php php artisan parthenon:import-webapi-sources \
+  https://atlas.yourorg.net/WebAPI \
+  --auth-type=basic \
+  --token=username:password
+```
+
+This fetches the source list from `{WebAPI-URL}/source/sources` and creates matching Source and SourceDaimon records in Parthenon.
+
+:::warning Connection strings
+The imported source record will contain the JDBC connection string from Atlas. Parthenon uses PostgreSQL JDBC-style connection strings. Verify the imported source connection works by clicking **Test Connection** in Admin → Data Sources.
+:::
+
+## 3.4 Verify Imported Records
+
+After import, verify counts match your expectations:
+
+```bash
+# Count imported cohort definitions
+docker compose exec php php artisan tinker --execute="echo App\Models\App\CohortDefinition::count();"
+
+# Count imported concept sets
+docker compose exec php php artisan tinker --execute="echo App\Models\App\ConceptSet::count();"
+```
+
+Compare these counts with the number of cohorts and concept sets in your Atlas instance:
+
+```bash
+# Atlas counts (via WebAPI)
+ATLAS_URL="https://atlas.yourorg.net/WebAPI"
+echo "Atlas cohorts: $(curl -s ${ATLAS_URL}/cohortdefinition/ | jq length)"
+echo "Atlas concept sets: $(curl -s ${ATLAS_URL}/conceptset/ | jq length)"
+```
+
+A count mismatch is usually caused by duplicate names (skipped) or validation failures (failed). Review the import command output to identify which artefacts need attention.
+
+### Comparison Checklist
+
+- [ ] Cohort count in Parthenon ≈ cohort count in Atlas (accounting for duplicates skipped)
+- [ ] Concept set count in Parthenon ≈ concept set count in Atlas
+- [ ] At least one data source configured with CDM, Vocabulary, and Results daimons
+- [ ] Data source test connection passes (Admin → Data Sources → Test)
+- [ ] Vocabulary is loaded and searchable (Vocabulary → Browse Concepts)

@@ -1,0 +1,51 @@
+---
+id: 00-overview
+title: Atlas → Parthenon Migration Guide
+slug: /migration
+sidebar_label: Overview
+---
+
+# Atlas → Parthenon Migration Guide
+
+This guide helps informatics teams migrate an institution from a running **OHDSI Atlas + WebAPI** installation to **Parthenon**. The process is designed to be low-risk and fully reversible: you can run both systems in parallel until validation is complete, then cut over at a scheduled time.
+
+## What Transfers Automatically
+
+| Artefact | How it migrates |
+|----------|----------------|
+| Cohort definitions | CLI import or UI bulk upload from Atlas JSON exports |
+| Concept sets | CLI import or UI bulk upload from Atlas JSON exports |
+| Data source connections | CLI import from live WebAPI instance |
+| Vocabulary | Shared — Parthenon connects to the same CDM/vocab schema as Atlas |
+| Achilles results | Shared — Parthenon reads the same results schema |
+
+## What Requires Manual Work
+
+| Artefact | Notes |
+|----------|-------|
+| User accounts | Must be recreated in Parthenon (bulk CSV import supported) |
+| Analysis results (IR, characterization) | Re-run analyses after import |
+| Atlas bookmarks / saved searches | Not migrated; document and recreate in Parthenon |
+| Custom Atlas plugins / visualisations | Evaluate Parthenon equivalent features |
+
+## Estimated Timeline
+
+| Activity | Typical duration |
+|----------|-----------------|
+| Parthenon instance setup | 1–2 days (use the Python installer) |
+| Atlas export | 1–4 hours |
+| Import and validation | 1–2 days |
+| User onboarding | 1 week (staggered) |
+| Parallel operation period | 2–4 weeks |
+| Atlas decommission | 1 day |
+
+## Prerequisites
+
+Before starting migration:
+
+1. **Parthenon is running** and accessible at its production URL.
+2. **CDM source is connected** — at least one Source with CDM, Vocabulary, and Results daimons configured.
+3. **Atlas is accessible** — you have admin access to the Atlas instance and know its WebAPI URL.
+4. **PHP CLI access** — you can run `php artisan` commands inside the Parthenon container or on the host.
+
+See [Chapter 1 — Before You Begin](01-before-you-begin) for the full prerequisite checklist.
