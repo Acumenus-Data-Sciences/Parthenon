@@ -80,7 +80,7 @@ export function Sidebar() {
   let lastSection: string | undefined;
 
   return (
-    <aside className={cn("app-sidebar", !sidebarOpen && "collapsed")}>
+    <aside className={cn("app-sidebar", !sidebarOpen && "collapsed")} data-tour="sidebar">
       {/* Header */}
       <div className="sidebar-header">
         {sidebarOpen && <span className="sidebar-logo">Parthenon</span>}
@@ -109,6 +109,15 @@ export function Sidebar() {
                 to={item.path}
                 className={cn("nav-item", active && "active")}
                 title={!sidebarOpen ? item.label : undefined}
+                data-tour={
+                  item.path === "/data-sources"
+                    ? "data-sources"
+                    : item.path === "/cohort-definitions"
+                      ? "cohort-definitions"
+                      : item.path === "/vocabulary"
+                        ? "vocabulary"
+                        : undefined
+                }
               >
                 <item.icon size={18} className="nav-icon" />
                 {sidebarOpen && <span className="nav-label">{item.label}</span>}

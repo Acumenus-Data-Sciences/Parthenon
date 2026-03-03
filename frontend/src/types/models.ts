@@ -5,6 +5,7 @@ export interface User {
   avatar: string | null;
   phone_number: string | null;
   must_change_password: boolean;
+  onboarding_completed: boolean;
   last_login_at: string | null;
   created_at: string;
   updated_at: string;

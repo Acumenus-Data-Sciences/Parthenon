@@ -124,7 +124,7 @@ class AuthController extends Controller
 
         return [
             ...$user->only(['id', 'name', 'email', 'avatar', 'phone_number', 'last_login_at',
-                'must_change_password', 'created_at', 'updated_at']),
+                'must_change_password', 'onboarding_completed', 'created_at', 'updated_at']),
             'roles'       => $user->getRoleNames(),
             'permissions' => $user->getAllPermissions()->pluck('name'),
         ];

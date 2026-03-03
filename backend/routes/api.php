@@ -25,6 +25,7 @@ use App\Http\Controllers\Api\V1\IngestionController;
 use App\Http\Controllers\Api\V1\MappingReviewController;
 use App\Http\Controllers\Api\V1\NegativeControlController;
 use App\Http\Controllers\Api\V1\NotificationPreferenceController;
+use App\Http\Controllers\Api\V1\OnboardingController;
 use App\Http\Controllers\Api\V1\PathwayController;
 use App\Http\Controllers\Api\V1\PatientProfileController;
 use App\Http\Controllers\Api\V1\PredictionController;
@@ -209,6 +210,9 @@ Route::prefix('v1')->group(function () {
         // Notification Preferences
         Route::get('user/notification-preferences', [NotificationPreferenceController::class, 'show']);
         Route::put('user/notification-preferences', [NotificationPreferenceController::class, 'update']);
+
+        // Onboarding
+        Route::put('user/onboarding', [OnboardingController::class, 'complete']);
 
         // Care Bundles & Care Gaps
         Route::prefix('care-bundles')->group(function () {

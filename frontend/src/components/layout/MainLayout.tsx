@@ -5,6 +5,7 @@ import { CommandPalette } from "./CommandPalette";
 import { AiDrawer } from "./AiDrawer";
 import { ToastContainer } from "@/components/ui";
 import { ChangePasswordModal } from "@/features/auth/components/ChangePasswordModal";
+import { OnboardingModal } from "@/features/auth/components/OnboardingModal";
 import { useUiStore } from "@/stores/uiStore";
 import { useAuthStore } from "@/stores/authStore";
 import { useGlobalKeyboard } from "@/hooks/useGlobalKeyboard";
@@ -21,6 +22,11 @@ export function MainLayout() {
     <div className="app-shell">
       {/* Blocking modal: shown until user changes their temporary password */}
       {user?.must_change_password && <ChangePasswordModal />}
+
+      {/* Onboarding overlay: shown on first login */}
+      {user && !user.must_change_password && !user.onboarding_completed && (
+        <OnboardingModal />
+      )}
 
       <Sidebar />
       <div className={cn("app-content", !sidebarOpen && "sidebar-collapsed")}>

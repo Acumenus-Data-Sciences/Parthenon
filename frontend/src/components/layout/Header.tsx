@@ -13,6 +13,7 @@ export function Header() {
         className="search-bar"
         onClick={() => setCommandPaletteOpen(true)}
         style={{ maxWidth: 320, cursor: "pointer" }}
+        data-tour="cmd-palette"
       >
         <Search size={16} className="search-icon" />
         <span style={{ color: "var(--text-ghost)", fontSize: "var(--text-base)" }}>
