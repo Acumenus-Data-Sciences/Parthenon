@@ -173,7 +173,7 @@ class AiService
             ->post("{$this->baseUrl}/abby/chat", [
                 'message'      => $message,
                 'page_context' => $pageContext,
-                'page_data'    => $pageData,
+                'page_data'    => $pageData ?: (object) [],
                 'history'      => $history,
             ]);
 

@@ -247,7 +247,13 @@ class DataQualityController extends Controller
             ->value('run_id');
 
         if (! $latestRunId) {
-            return response()->json(['message' => 'No DQD runs found for this source'], 404);
+            return response()->json(['data' => [
+                'total' => 0,
+                'passed' => 0,
+                'failed' => 0,
+                'not_applicable' => 0,
+                'categories' => [],
+            ]]);
         }
 
         $summary = $this->engine->getSummary($latestRunId);

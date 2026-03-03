@@ -18,11 +18,13 @@ const BASE = "/vocabulary";
 export async function searchConcepts(
   params: ConceptSearchParams,
 ): Promise<ConceptSearchResult> {
-  const { data } = await apiClient.get<ConceptSearchResult>(
-    `${BASE}/search`,
-    { params },
-  );
-  return data;
+  const { data } = await apiClient.get(`${BASE}/search`, { params });
+  return {
+    items: data.data ?? [],
+    total: data.count ?? 0,
+    page: params.page ?? 1,
+    limit: params.limit ?? 25,
+  };
 }
 
 export async function getConcept(id: number): Promise<Concept> {
@@ -71,15 +73,13 @@ export async function getConceptHierarchy(
 }
 
 export async function getDomains(): Promise<DomainInfo[]> {
-  const { data } = await apiClient.get<DomainInfo[]>(`${BASE}/domains`);
-  return data;
+  const { data } = await apiClient.get(`${BASE}/domains`);
+  return data.data ?? data;
 }
 
 export async function getVocabularies(): Promise<VocabularyInfo[]> {
-  const { data } = await apiClient.get<VocabularyInfo[]>(
-    `${BASE}/vocabularies`,
-  );
-  return data;
+  const { data } = await apiClient.get(`${BASE}/vocabularies-list`);
+  return data.data ?? data;
 }
 
 export async function semanticSearch(

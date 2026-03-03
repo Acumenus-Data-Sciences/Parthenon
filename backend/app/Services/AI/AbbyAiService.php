@@ -312,8 +312,8 @@ class AbbyAiService
      */
     private function searchConcepts(string $query, ?string $domain = null): array
     {
-        $builder = DB::connection(config('database.vocab_connection', 'pgsql'))
-            ->table(config('database.vocab_schema', 'public') . '.concept')
+        $builder = DB::connection('vocab')
+            ->table('concept')
             ->where('standard_concept', 'S')
             ->where('invalid_reason', null)
             ->where(function ($q) use ($query) {

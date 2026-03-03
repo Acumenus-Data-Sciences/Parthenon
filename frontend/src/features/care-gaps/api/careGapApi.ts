@@ -11,7 +11,7 @@ import type {
   PaginatedResponse,
 } from "../types/careGap";
 
-const BASE = "/care-gaps/bundles";
+const BASE = "/care-bundles";
 
 // ---------------------------------------------------------------------------
 // Bundles CRUD
@@ -123,7 +123,7 @@ export async function getEvaluation(
 
 export async function getOverlapRules(): Promise<BundleOverlapRule[]> {
   const { data } = await apiClient.get<BundleOverlapRule[]>(
-    "/care-gaps/overlap-rules",
+    "/care-bundles/overlap-rules",
   );
   return data;
 }
@@ -136,7 +136,7 @@ export async function getPopulationSummary(
   sourceId: number,
 ): Promise<PopulationSummary> {
   const { data } = await apiClient.get<PopulationSummary>(
-    "/care-gaps/population-summary",
+    "/care-bundles/population-summary",
     { params: { source_id: sourceId } },
   );
   return data;

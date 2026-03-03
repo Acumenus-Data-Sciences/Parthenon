@@ -8,7 +8,7 @@ use App\Models\App\SourceDaimon;
 use Illuminate\Console\Command;
 
 /**
- * Create (or update) the Eunomia GiBleed demo Source in the app database.
+ * Seed the OHDSI Acumenus data source (1M patients, omop schema) in the app database.
  *
  * Usage: php artisan eunomia:seed-source
  *
@@ -18,22 +18,23 @@ class SeedEunomiaSourceCommand extends Command
 {
     protected $signature = 'eunomia:seed-source';
 
-    protected $description = 'Register the Eunomia GiBleed demo data source in Parthenon';
+    protected $description = 'Register the OHDSI Acumenus data source in Parthenon';
 
     public function handle(): int
     {
         $source = Source::updateOrCreate(
-            ['source_key' => 'eunomia'],
+            ['source_key' => 'ohdsi-acumenus'],
             [
-                'source_name'     => 'Eunomia GiBleed (Demo)',
-                'source_dialect'  => 'postgresql',
-                'is_cache_enabled' => false,
+                'source_name'       => 'OHDSI Acumenus',
+                'source_dialect'    => 'postgresql',
+                'source_connection' => 'cdm',
+                'is_cache_enabled'  => false,
             ]
         );
 
         $daimons = [
-            ['daimon_type' => DaimonType::CDM->value,        'table_qualifier' => 'eunomia',          'priority' => 0],
-            ['daimon_type' => DaimonType::Vocabulary->value,  'table_qualifier' => 'eunomia',          'priority' => 0],
+            ['daimon_type' => DaimonType::CDM->value,        'table_qualifier' => 'omop',             'priority' => 0],
+            ['daimon_type' => DaimonType::Vocabulary->value,  'table_qualifier' => 'omop',             'priority' => 0],
             ['daimon_type' => DaimonType::Results->value,     'table_qualifier' => 'achilles_results', 'priority' => 0],
         ];
 

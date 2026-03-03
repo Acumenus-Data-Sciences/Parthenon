@@ -104,6 +104,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/distributions/{analysisId}', [AchillesController::class, 'distribution']);
             Route::get('/heel', [AchillesController::class, 'heel']);
             Route::post('/heel/run', [AchillesController::class, 'runHeel']);
+            Route::post('/run', [AchillesController::class, 'run']);
         });
 
         // Population Risk Scoring (Tier 3 — 20 validated clinical risk scores)

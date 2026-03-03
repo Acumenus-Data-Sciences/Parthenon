@@ -43,8 +43,8 @@ export function SetupWizard() {
     if (completing) return;
     setCompleting(true);
     try {
-      await apiClient.put<{ onboarding_completed: boolean }>("/v1/user/onboarding");
-      const { data } = await apiClient.get<{ data: User }>("/v1/auth/user");
+      await apiClient.put<{ onboarding_completed: boolean }>("/user/onboarding");
+      const { data } = await apiClient.get<{ data: User }>("/auth/user");
       updateUser(data.data ?? (data as unknown as User));
     } catch {
       const user = useAuthStore.getState().user;

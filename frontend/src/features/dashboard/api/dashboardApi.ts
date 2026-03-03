@@ -50,12 +50,27 @@ export async function fetchDashboardStats(): Promise<DashboardStats> {
   const conceptSetsData = conceptSetsRes.status === "fulfilled" ? conceptSetsRes.value.data : { total: 0 };
   const conceptSetCount = (conceptSetsData as { total?: number }).total ?? 0;
 
+  // Aggregate DQD failures across all sources
+  const sourceList = (Array.isArray(sources) ? sources : (sources as { data?: Source[] }).data ?? []) as Source[];
+  let dqdFailures = 0;
+  if (sourceList.length > 0) {
+    const dqdResults = await Promise.allSettled(
+      sourceList.map((s) => apiClient.get(`/sources/${s.id}/dqd/latest`)),
+    );
+    for (const res of dqdResults) {
+      if (res.status === "fulfilled") {
+        const summary = res.value.data?.data ?? res.value.data;
+        dqdFailures += summary?.failed ?? 0;
+      }
+    }
+  }
+
   return {
-    sources: sources as Source[],
+    sources: sourceList,
     cohortCount,
     conceptSetCount,
-    activeJobCount: 0,
-    dqdFailures: 0,
+    activeJobCount: 0, // TODO: wire when /jobs endpoint exists
+    dqdFailures,
     recentCohorts,
     recentJobs: [],
   };

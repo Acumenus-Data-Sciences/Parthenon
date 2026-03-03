@@ -67,6 +67,8 @@ if $DO_DB; then
   echo ""
   echo "── DB: running migrations ──"
   docker compose exec php php artisan migrate --force
+  echo "── DB: running seeders (idempotent) ──"
+  docker compose exec php php artisan db:seed --force
 fi
 
 # ── Frontend production build ─────────────────────────────────────────────────

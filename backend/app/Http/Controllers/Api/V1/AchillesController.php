@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\Achilles\RunAchillesJob;
 use App\Models\App\Source;
 use App\Services\Achilles\AchillesResultReaderService;
 use App\Services\Achilles\Heel\AchillesHeelService;
@@ -231,6 +232,27 @@ class AchillesController extends Controller
             ]);
         } catch (\Throwable $e) {
             return $this->errorResponse('Failed to run Achilles Heel', $e);
+        }
+    }
+
+    /**
+     * POST /v1/sources/{source}/achilles/run
+     *
+     * Dispatches a full Achilles characterization job for the given source.
+     */
+    public function run(Request $request, Source $source): JsonResponse
+    {
+        try {
+            RunAchillesJob::dispatch(
+                $source,
+                $request->input('categories'),
+                $request->input('analysis_ids'),
+                $request->boolean('fresh', false),
+            );
+
+            return response()->json(['message' => 'Achilles run dispatched.'], 202);
+        } catch (\Throwable $e) {
+            return $this->errorResponse('Failed to dispatch Achilles run', $e);
         }
     }
 

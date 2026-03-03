@@ -97,9 +97,9 @@ export async function previewCohortSql(
   id: number,
   payload: { source_id: number },
 ): Promise<{ sql: string }> {
-  const { data } = await apiClient.post<{ sql: string }>(
+  const { data } = await apiClient.get<{ sql: string }>(
     `${BASE}/${id}/sql`,
-    payload,
+    { params: payload },
   );
   return data;
 }

@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { X, Sparkles, Send, Loader2 } from "lucide-react";
 import { useUiStore } from "@/stores/uiStore";
+import apiClient from "@/lib/api-client";
 
 interface Message {
   id: string;
@@ -64,34 +65,24 @@ export function AiDrawer() {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/v1/ai/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text }),
+      const { data } = await apiClient.post<{ reply: string; suggestions: string[] }>("/abby/chat", {
+        message: text,
+        page_context: "general",
+        history: messages
+          .filter((m) => m.id !== "welcome")
+          .slice(-10)
+          .map((m) => ({ role: m.role, content: m.content })),
       });
 
-      if (res.ok) {
-        const data = await res.json();
-        setMessages((m) => [
-          ...m,
-          {
-            id: crypto.randomUUID(),
-            role: "assistant",
-            content: data.response ?? data.message ?? "I received your message but couldn't generate a response.",
-            timestamp: new Date(),
-          },
-        ]);
-      } else {
-        setMessages((m) => [
-          ...m,
-          {
-            id: crypto.randomUUID(),
-            role: "assistant",
-            content: "Sorry, I encountered an error. The AI service may be unavailable. Please try again later.",
-            timestamp: new Date(),
-          },
-        ]);
-      }
+      setMessages((m) => [
+        ...m,
+        {
+          id: crypto.randomUUID(),
+          role: "assistant",
+          content: data.reply ?? "I received your message but couldn't generate a response.",
+          timestamp: new Date(),
+        },
+      ]);
     } catch {
       setMessages((m) => [
         ...m,

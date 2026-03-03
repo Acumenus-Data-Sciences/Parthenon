@@ -7,26 +7,35 @@ cambridgeltl/SapBERT-from-PubMedBERT-fulltext model.
 import logging
 from functools import lru_cache
 
-import torch
-from transformers import AutoModel, AutoTokenizer  # type: ignore[import-untyped]
-
 from app.config import settings
 
 logger = logging.getLogger(__name__)
+
+try:
+    import torch
+    from transformers import AutoModel, AutoTokenizer  # type: ignore[import-untyped]
+    _HAS_TORCH = True
+except ImportError:
+    _HAS_TORCH = False
+    torch = None  # type: ignore[assignment]
+    AutoModel = None  # type: ignore[assignment,misc]
+    AutoTokenizer = None  # type: ignore[assignment,misc]
 
 
 class SapBERTService:
     """Lazy-loaded SapBERT model for generating concept embeddings."""
 
     def __init__(self) -> None:
-        self._model: AutoModel | None = None
-        self._tokenizer: AutoTokenizer | None = None
-        self._device: str = "cuda" if torch.cuda.is_available() else "cpu"
+        self._model = None
+        self._tokenizer = None
+        self._device: str = "cuda" if (_HAS_TORCH and torch.cuda.is_available()) else "cpu"
 
     def _load_model(self) -> None:
         """Load model and tokenizer on first use."""
         if self._model is not None:
             return
+        if not _HAS_TORCH:
+            raise RuntimeError("torch/transformers not installed — SapBERT unavailable")
 
         logger.info(
             "Loading SapBERT model: %s (device: %s)",
