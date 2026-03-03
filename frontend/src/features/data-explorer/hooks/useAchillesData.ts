@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   fetchRecordCounts,
   fetchDemographics,
@@ -6,6 +6,8 @@ import {
   fetchDomainSummary,
   fetchConceptDrilldown,
   fetchTemporalTrends,
+  fetchHeelResults,
+  runHeel,
 } from "../api/achillesApi";
 import {
   fetchDqdRuns,
@@ -67,6 +69,28 @@ export function useTemporalTrends(sourceId: number, domain: string) {
     queryKey: ["achilles", "temporal-trends", sourceId, domain],
     queryFn: () => fetchTemporalTrends(sourceId, domain),
     enabled: sourceId > 0 && domain.length > 0,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Achilles Heel hooks
+// ---------------------------------------------------------------------------
+
+export function useHeelResults(sourceId: number) {
+  return useQuery({
+    queryKey: ["achilles", "heel", sourceId],
+    queryFn: () => fetchHeelResults(sourceId),
+    enabled: sourceId > 0,
+  });
+}
+
+export function useRunHeel(sourceId: number) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () => runHeel(sourceId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["achilles", "heel", sourceId] });
+    },
   });
 }
 

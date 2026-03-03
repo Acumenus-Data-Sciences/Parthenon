@@ -9,6 +9,8 @@ import type {
   AnalysisInfo,
   PerformanceEntry,
   DistributionEntry,
+  HeelResultsGrouped,
+  HeelRunResult,
 } from "../types/dataExplorer";
 
 const BASE = (sourceId: number) => `/sources/${sourceId}/achilles`;
@@ -102,6 +104,22 @@ export async function fetchDistribution(
     {
       params: stratum1 ? { stratum1 } : undefined,
     },
+  );
+  return data;
+}
+
+export async function fetchHeelResults(
+  sourceId: number,
+): Promise<HeelResultsGrouped> {
+  const { data } = await apiClient.get<HeelResultsGrouped>(
+    `${BASE(sourceId)}/heel`,
+  );
+  return data;
+}
+
+export async function runHeel(sourceId: number): Promise<HeelRunResult> {
+  const { data } = await apiClient.post<HeelRunResult>(
+    `${BASE(sourceId)}/heel/run`,
   );
   return data;
 }

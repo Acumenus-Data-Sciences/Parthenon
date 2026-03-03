@@ -11,14 +11,16 @@ const OverviewTab = lazy(() => import("./OverviewTab"));
 const DomainTab = lazy(() => import("./DomainTab"));
 const DqdTab = lazy(() => import("./DqdTab"));
 const TemporalTab = lazy(() => import("./TemporalTab"));
+const HeelTab = lazy(() => import("./HeelTab"));
 
-type TabId = "overview" | "domains" | "dqd" | "temporal";
+type TabId = "overview" | "domains" | "dqd" | "temporal" | "heel";
 
 const TABS: { id: TabId; label: string }[] = [
   { id: "overview", label: "Overview" },
   { id: "domains", label: "Domains" },
   { id: "dqd", label: "Data Quality" },
   { id: "temporal", label: "Temporal" },
+  { id: "heel", label: "Heel Checks" },
 ];
 
 function TabFallback() {
@@ -141,6 +143,7 @@ export default function DataExplorerPage() {
           {activeTab === "domains" && <DomainTab sourceId={sourceId} />}
           {activeTab === "dqd" && <DqdTab sourceId={sourceId} />}
           {activeTab === "temporal" && <TemporalTab sourceId={sourceId} />}
+          {activeTab === "heel" && <HeelTab sourceId={sourceId} />}
         </Suspense>
       )}
     </div>

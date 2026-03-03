@@ -165,3 +165,39 @@ export const CATEGORY_LABELS: Record<DqdCategory, string> = {
   conformance: "Conformance",
   plausibility: "Plausibility",
 };
+
+// ---------------------------------------------------------------------------
+// Achilles Heel types
+// ---------------------------------------------------------------------------
+
+export type HeelSeverity = "error" | "warning" | "notification";
+
+export interface HeelResult {
+  id: number;
+  source_id: number;
+  rule_id: number;
+  rule_name: string;
+  severity: HeelSeverity;
+  record_count: number;
+  attribute_name: string | null;
+  attribute_value: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface HeelResultsGrouped {
+  error: HeelResult[];
+  warning: HeelResult[];
+  notification: HeelResult[];
+}
+
+export interface HeelRunResult {
+  completed: number;
+  failed: number;
+  results: Array<{
+    rule_id: number;
+    status: "completed" | "failed";
+    violations: number;
+    error?: string;
+  }>;
+}
