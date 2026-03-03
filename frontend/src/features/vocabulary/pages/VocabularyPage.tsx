@@ -1,11 +1,23 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { VocabularySearchPanel } from "../components/VocabularySearchPanel";
 import { ConceptDetailPanel } from "../components/ConceptDetailPanel";
 
 export default function VocabularyPage() {
+  const [searchParams] = useSearchParams();
+  const conceptParam = searchParams.get("concept");
+
   const [selectedConceptId, setSelectedConceptId] = useState<number | null>(
-    null,
+    conceptParam ? Number(conceptParam) : null,
   );
+
+  // If the URL changes (e.g., navigated from a profile link), update selection
+  useEffect(() => {
+    if (conceptParam) {
+      const id = Number(conceptParam);
+      if (id > 0) setSelectedConceptId(id);
+    }
+  }, [conceptParam]);
 
   return (
     <div className="space-y-4">

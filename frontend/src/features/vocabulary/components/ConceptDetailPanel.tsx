@@ -5,15 +5,17 @@ import {
   useConcept,
   useConceptRelationships,
   useConceptAncestors,
+  useConceptMapsFrom,
 } from "../hooks/useVocabularySearch";
 import { useConceptHierarchy } from "../hooks/useConceptHierarchy";
 import { HierarchyTree } from "./HierarchyTree";
 
-type Tab = "info" | "relationships" | "hierarchy";
+type Tab = "info" | "relationships" | "maps-from" | "hierarchy";
 
 const TABS: { id: Tab; label: string }[] = [
   { id: "info", label: "Info" },
   { id: "relationships", label: "Relationships" },
+  { id: "maps-from", label: "Maps From" },
   { id: "hierarchy", label: "Hierarchy" },
 ];
 
@@ -55,6 +57,8 @@ export function ConceptDetailPanel({ conceptId }: ConceptDetailPanelProps) {
   );
   const { data: hierarchy, isLoading: isLoadingHierarchy } =
     useConceptHierarchy(activeTab === "hierarchy" ? conceptId : null);
+  const { data: mapsFrom, isLoading: isLoadingMapsFrom } =
+    useConceptMapsFrom(activeTab === "maps-from" ? conceptId : null);
 
   if (!conceptId) {
     return (
@@ -325,6 +329,87 @@ export function ConceptDetailPanel({ conceptId }: ConceptDetailPanelProps) {
                     <p className="text-[10px] text-[#5A5650]">
                       Showing {relationships.items.length} of{" "}
                       {relationships.total} relationships
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === "maps-from" && (
+          <div>
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-[#8A857D] mb-1">
+              Source Codes Mapping To This Concept
+            </h3>
+            <p className="text-[10px] text-[#5A5650] mb-3">
+              Source vocabulary codes (ICD-10, SNOMED, RxNorm, etc.) that map to this standard concept
+            </p>
+            {isLoadingMapsFrom ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2
+                  size={18}
+                  className="animate-spin text-[#8A857D]"
+                />
+              </div>
+            ) : !mapsFrom?.data || mapsFrom.data.length === 0 ? (
+              <div className="rounded-lg border border-[#232328] bg-[#1A1A1E] p-6 text-center">
+                <p className="text-xs text-[#5A5650]">
+                  No source codes map to this concept
+                </p>
+              </div>
+            ) : (
+              <div className="rounded-lg border border-[#232328] bg-[#1A1A1E] overflow-hidden">
+                <table className="w-full">
+                  <thead>
+                    <tr className="bg-[#1C1C20]">
+                      <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-[#8A857D]">
+                        Code
+                      </th>
+                      <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-[#8A857D]">
+                        Name
+                      </th>
+                      <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-[#8A857D]">
+                        Vocabulary
+                      </th>
+                      <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-[#8A857D]">
+                        Class
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {mapsFrom.data.map((entry, i) => (
+                      <tr
+                        key={entry.concept_id}
+                        className={cn(
+                          "border-t border-[#232328]",
+                          i % 2 === 0 ? "bg-[#1A1A1E]" : "bg-[#151518]",
+                        )}
+                      >
+                        <td className="px-3 py-2 text-xs font-['IBM_Plex_Mono',monospace] tabular-nums text-[#C9A227]">
+                          {entry.concept_code}
+                        </td>
+                        <td className="px-3 py-2 text-xs text-[#F0EDE8]">
+                          {entry.concept_name}
+                        </td>
+                        <td className="px-3 py-2">
+                          <span className="inline-flex items-center rounded px-1 py-0.5 text-[9px] font-medium bg-[#C9A227]/15 text-[#C9A227]">
+                            {entry.vocabulary_id}
+                          </span>
+                        </td>
+                        <td className="px-3 py-2">
+                          <span className="inline-flex items-center rounded px-1 py-0.5 text-[9px] font-medium bg-[#8A857D]/15 text-[#8A857D]">
+                            {entry.concept_class_id}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {mapsFrom.total > mapsFrom.data.length && (
+                  <div className="px-3 py-2 border-t border-[#232328] text-center">
+                    <p className="text-[10px] text-[#5A5650]">
+                      Showing {mapsFrom.data.length} of {mapsFrom.total} source codes
                     </p>
                   </div>
                 )}

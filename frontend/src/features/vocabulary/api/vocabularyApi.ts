@@ -9,6 +9,8 @@ import type {
   DomainInfo,
   VocabularyInfo,
   SemanticSearchResult,
+  ConceptComparisonEntry,
+  MapsFromResult,
 } from "../types/vocabulary";
 
 const BASE = "/vocabulary";
@@ -88,6 +90,26 @@ export async function semanticSearch(
     `${BASE}/semantic-search`,
     { query, top_k: topK },
   );
+  return data;
+}
+
+export async function compareConcepts(
+  ids: number[],
+): Promise<ConceptComparisonEntry[]> {
+  const { data } = await apiClient.get(`${BASE}/compare`, {
+    params: { ids },
+  });
+  return data.data ?? data;
+}
+
+export async function getConceptMapsFrom(
+  id: number,
+  limit?: number,
+  offset?: number,
+): Promise<MapsFromResult> {
+  const { data } = await apiClient.get(`${BASE}/concepts/${id}/maps-from`, {
+    params: { limit, offset },
+  });
   return data;
 }
 

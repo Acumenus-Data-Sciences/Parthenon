@@ -107,6 +107,13 @@ export const router = createBrowserRouter([
                 (m) => ({ Component: m.default }),
               ),
           },
+          {
+            path: "compare",
+            lazy: () =>
+              import("@/features/vocabulary/pages/ConceptComparePage").then(
+                (m) => ({ Component: m.default }),
+              ),
+          },
         ],
       },
       {
@@ -287,6 +294,20 @@ export const router = createBrowserRouter([
             path: "auth-providers",
             lazy: () =>
               import("@/features/administration/pages/AuthProvidersPage").then(
+                (m) => ({ Component: m.default }),
+              ),
+          },
+          {
+            path: "ai-providers",
+            lazy: () =>
+              import("@/features/administration/pages/AiProvidersPage").then(
+                (m) => ({ Component: m.default }),
+              ),
+          },
+          {
+            path: "system-health",
+            lazy: () =>
+              import("@/features/administration/pages/SystemHealthPage").then(
                 (m) => ({ Component: m.default }),
               ),
           },

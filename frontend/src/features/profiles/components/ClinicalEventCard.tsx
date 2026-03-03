@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { Link } from "react-router-dom";
 import type { ClinicalEvent, ClinicalDomain } from "../types/profile";
 
 const DOMAIN_COLORS: Record<ClinicalDomain, string> = {
@@ -39,10 +39,20 @@ export function ClinicalEventCard({ event }: ClinicalEventCardProps) {
     <div className="rounded-lg border border-[#232328] bg-[#151518] p-3 hover:bg-[#1A1A1E] transition-colors">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          {/* Concept name */}
-          <p className="text-sm font-medium text-[#F0EDE8] truncate">
-            {event.concept_name}
-          </p>
+          {/* Concept name — links to vocabulary browser */}
+          {event.concept_id ? (
+            <Link
+              to={`/vocabulary?concept=${event.concept_id}`}
+              className="text-sm font-medium text-[#F0EDE8] hover:text-[#C9A227] transition-colors truncate block"
+              title={`View concept ${event.concept_id} in Vocabulary Browser`}
+            >
+              {event.concept_name}
+            </Link>
+          ) : (
+            <p className="text-sm font-medium text-[#F0EDE8] truncate">
+              {event.concept_name}
+            </p>
+          )}
 
           {/* Dates */}
           <p className="mt-1 text-xs text-[#8A857D]">

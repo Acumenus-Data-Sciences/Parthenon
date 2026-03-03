@@ -6,8 +6,10 @@ use App\Http\Controllers\Api\V1\PopulationCharacterizationController;
 use App\Http\Controllers\Api\V1\AchillesController;
 use App\Http\Controllers\Api\V1\ClinicalCoherenceController;
 use App\Http\Controllers\Api\V1\PopulationRiskScoreController;
+use App\Http\Controllers\Api\V1\Admin\AiProviderController;
 use App\Http\Controllers\Api\V1\Admin\AuthProviderController;
 use App\Http\Controllers\Api\V1\Admin\RoleController;
+use App\Http\Controllers\Api\V1\Admin\SystemHealthController;
 use App\Http\Controllers\Api\V1\Admin\UserController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CareGapController;
@@ -134,8 +136,10 @@ Route::prefix('v1')->group(function () {
         Route::delete('/concept-sets/{concept_set}/items/{item}', [ConceptSetController::class, 'removeItem']);
 
         // Enhanced Vocabulary
+        Route::get('/vocabulary/compare', [VocabularyController::class, 'compare']);
         Route::get('/vocabulary/concepts/{id}/descendants', [VocabularyController::class, 'descendants']);
         Route::get('/vocabulary/concepts/{id}/hierarchy', [VocabularyController::class, 'hierarchy']);
+        Route::get('/vocabulary/concepts/{id}/maps-from', [VocabularyController::class, 'mapsFrom']);
         Route::get('/vocabulary/domains', [VocabularyController::class, 'domains']);
         Route::get('/vocabulary/vocabularies-list', [VocabularyController::class, 'vocabularies']);
 
@@ -274,6 +278,20 @@ Route::prefix('v1')->group(function () {
                 Route::post('/{providerType}/disable', [AuthProviderController::class, 'disable']);
                 Route::post('/{providerType}/test', [AuthProviderController::class, 'test']);
             });
+
+            // ── AI provider configuration (super-admin only) ──────────────
+            Route::middleware('role:super-admin')->prefix('ai-providers')->group(function () {
+                Route::get('/', [AiProviderController::class, 'index']);
+                Route::get('/{type}', [AiProviderController::class, 'show']);
+                Route::put('/{type}', [AiProviderController::class, 'update']);
+                Route::post('/{type}/enable', [AiProviderController::class, 'enable']);
+                Route::post('/{type}/disable', [AiProviderController::class, 'disable']);
+                Route::post('/{type}/activate', [AiProviderController::class, 'activate']);
+                Route::post('/{type}/test', [AiProviderController::class, 'test']);
+            });
+
+            // ── System health (admin+) ────────────────────────────────────
+            Route::get('/system-health', [SystemHealthController::class, 'index']);
         });
     });
 });

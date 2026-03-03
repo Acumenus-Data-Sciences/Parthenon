@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\VocabularySearchRequest;
 use App\Models\Vocabulary\Concept;
 use App\Models\Vocabulary\ConceptAncestor;
+use App\Models\Vocabulary\ConceptRelationship;
 use App\Models\Vocabulary\Domain;
 use App\Models\Vocabulary\Vocabulary;
 use App\Services\AiService;
@@ -223,6 +224,113 @@ class VocabularyController extends Controller
         return response()->json([
             'data' => $vocabularies,
             'count' => $vocabularies->count(),
+        ]);
+    }
+
+    /**
+     * GET /v1/vocabulary/compare?ids[]=X&ids[]=Y
+     *
+     * Compare 2–4 concepts side-by-side with attributes, relationships,
+     * and first 2 levels of ancestors.
+     */
+    public function compare(Request $request): JsonResponse
+    {
+        $request->validate([
+            'ids' => 'required|array|min:2|max:4',
+            'ids.*' => 'integer',
+        ]);
+
+        $ids = $request->input('ids');
+
+        $concepts = Concept::with(['vocabulary', 'domain', 'conceptClass', 'synonyms'])
+            ->whereIn('concept_id', $ids)
+            ->get()
+            ->keyBy('concept_id');
+
+        $results = [];
+
+        foreach ($ids as $id) {
+            $concept = $concepts->get((int) $id);
+            if (! $concept) {
+                continue;
+            }
+
+            // First 2 levels of ancestors
+            $ancestors = $concept->ancestors()
+                ->with('ancestor')
+                ->where('min_levels_of_separation', '<=', 2)
+                ->where('min_levels_of_separation', '>', 0)
+                ->orderBy('min_levels_of_separation')
+                ->limit(20)
+                ->get()
+                ->map(fn (ConceptAncestor $ca) => [
+                    'concept_id' => $ca->ancestor_concept_id,
+                    'concept_name' => $ca->ancestor?->concept_name,
+                    'domain_id' => $ca->ancestor?->domain_id,
+                    'vocabulary_id' => $ca->ancestor?->vocabulary_id,
+                    'min_levels_of_separation' => $ca->min_levels_of_separation,
+                ]);
+
+            // Key relationships (up to 20)
+            $relationships = $concept->relationships()
+                ->with(['concept2', 'relationship'])
+                ->limit(20)
+                ->get()
+                ->map(fn ($rel) => [
+                    'relationship_id' => $rel->relationship_id,
+                    'concept_id_2' => $rel->concept_id_2,
+                    'concept_name' => $rel->concept2?->concept_name,
+                    'domain_id' => $rel->concept2?->domain_id,
+                    'vocabulary_id' => $rel->concept2?->vocabulary_id,
+                ]);
+
+            $results[] = [
+                'concept' => $concept,
+                'ancestors' => $ancestors,
+                'relationships' => $relationships,
+            ];
+        }
+
+        return response()->json(['data' => $results]);
+    }
+
+    /**
+     * GET /v1/vocabulary/concepts/{id}/maps-from
+     *
+     * Get source codes that map to this standard concept
+     * (reverse of "Maps to").
+     */
+    public function mapsFrom(Request $request, int $id): JsonResponse
+    {
+        Concept::findOrFail($id);
+
+        $limit = (int) $request->input('limit', 50);
+        $offset = (int) $request->input('offset', 0);
+
+        $mappings = ConceptRelationship::with('concept1')
+            ->where('concept_id_2', $id)
+            ->where('relationship_id', 'Mapped from')
+            ->offset($offset)
+            ->limit($limit)
+            ->get()
+            ->map(fn ($rel) => [
+                'concept_id' => $rel->concept_id_1,
+                'concept_name' => $rel->concept1?->concept_name,
+                'domain_id' => $rel->concept1?->domain_id,
+                'vocabulary_id' => $rel->concept1?->vocabulary_id,
+                'concept_class_id' => $rel->concept1?->concept_class_id,
+                'concept_code' => $rel->concept1?->concept_code,
+                'standard_concept' => $rel->concept1?->standard_concept,
+            ]);
+
+        $total = ConceptRelationship::where('concept_id_2', $id)
+            ->where('relationship_id', 'Mapped from')
+            ->count();
+
+        return response()->json([
+            'data' => $mappings,
+            'total' => $total,
+            'concept_id' => $id,
         ]);
     }
 }

@@ -73,3 +73,37 @@ export interface SemanticSearchResult {
   vocabulary_id: string;
   score: number;
 }
+
+export interface ConceptComparisonEntry {
+  concept: Concept;
+  ancestors: {
+    concept_id: number;
+    concept_name: string;
+    domain_id: string;
+    vocabulary_id: string;
+    min_levels_of_separation: number;
+  }[];
+  relationships: {
+    relationship_id: string;
+    concept_id_2: number;
+    concept_name: string;
+    domain_id: string;
+    vocabulary_id: string;
+  }[];
+}
+
+export interface MapsFromEntry {
+  concept_id: number;
+  concept_name: string;
+  domain_id: string;
+  vocabulary_id: string;
+  concept_class_id: string;
+  concept_code: string;
+  standard_concept: string | null;
+}
+
+export interface MapsFromResult {
+  data: MapsFromEntry[];
+  total: number;
+  concept_id: number;
+}

@@ -8,6 +8,8 @@ import {
   getConceptDescendants,
   getDomains,
   getVocabularies,
+  compareConcepts,
+  getConceptMapsFrom,
 } from "../api/vocabularyApi";
 import type { Concept } from "../types/vocabulary";
 
@@ -126,6 +128,31 @@ export function useVocabularies() {
     queryKey: ["vocabulary", "vocabularies"],
     queryFn: getVocabularies,
     staleTime: 5 * 60 * 1000,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Concept comparison hook (2-4 concepts)
+// ---------------------------------------------------------------------------
+
+export function useConceptComparison(ids: number[]) {
+  return useQuery({
+    queryKey: ["vocabulary", "compare", ...ids],
+    queryFn: () => compareConcepts(ids),
+    enabled: ids.length >= 2 && ids.length <= 4,
+    staleTime: 60_000,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Maps-from hook (reverse source code lookup)
+// ---------------------------------------------------------------------------
+
+export function useConceptMapsFrom(id: number | null) {
+  return useQuery({
+    queryKey: ["vocabulary", "maps-from", id],
+    queryFn: () => getConceptMapsFrom(id!),
+    enabled: id != null && id > 0,
   });
 }
 
