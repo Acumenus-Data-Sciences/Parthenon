@@ -1,4 +1,4 @@
-import apiClient from "@/lib/api-client";
+import apiClient, { toLaravelPaginated } from "@/lib/api-client";
 import type {
   EstimationAnalysis,
   EstimationDesign,
@@ -17,18 +17,15 @@ const BASE = "/estimations";
 export async function listEstimations(params?: {
   page?: number;
 }): Promise<PaginatedResponse<EstimationAnalysis>> {
-  const { data } = await apiClient.get<PaginatedResponse<EstimationAnalysis>>(
-    BASE,
-    { params },
-  );
-  return data;
+  const { data } = await apiClient.get(BASE, { params });
+  return toLaravelPaginated<EstimationAnalysis>(data);
 }
 
 export async function getEstimation(
   id: number,
 ): Promise<EstimationAnalysis> {
-  const { data } = await apiClient.get<EstimationAnalysis>(`${BASE}/${id}`);
-  return data;
+  const { data } = await apiClient.get(`${BASE}/${id}`);
+  return data.data ?? data;
 }
 
 export async function createEstimation(payload: {
@@ -36,8 +33,8 @@ export async function createEstimation(payload: {
   description?: string;
   design_json: EstimationDesign;
 }): Promise<EstimationAnalysis> {
-  const { data } = await apiClient.post<EstimationAnalysis>(BASE, payload);
-  return data;
+  const { data } = await apiClient.post(BASE, payload);
+  return data.data ?? data;
 }
 
 export async function updateEstimation(
@@ -48,11 +45,8 @@ export async function updateEstimation(
     design_json: EstimationDesign;
   }>,
 ): Promise<EstimationAnalysis> {
-  const { data } = await apiClient.put<EstimationAnalysis>(
-    `${BASE}/${id}`,
-    payload,
-  );
-  return data;
+  const { data } = await apiClient.put(`${BASE}/${id}`, payload);
+  return data.data ?? data;
 }
 
 export async function deleteEstimation(id: number): Promise<void> {
@@ -67,11 +61,11 @@ export async function executeEstimation(
   id: number,
   sourceId: number,
 ): Promise<AnalysisExecution> {
-  const { data } = await apiClient.post<AnalysisExecution>(
+  const { data } = await apiClient.post(
     `${BASE}/${id}/execute`,
     { source_id: sourceId },
   );
-  return data;
+  return data.data ?? data;
 }
 
 export async function listEstimationExecutions(

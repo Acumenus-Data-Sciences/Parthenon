@@ -1,4 +1,4 @@
-import apiClient from "@/lib/api-client";
+import apiClient, { toLaravelPaginated } from "@/lib/api-client";
 import type {
   Characterization,
   CharacterizationDesign,
@@ -15,18 +15,15 @@ const BASE = "/characterizations";
 export async function listCharacterizations(params?: {
   page?: number;
 }): Promise<PaginatedResponse<Characterization>> {
-  const { data } = await apiClient.get<PaginatedResponse<Characterization>>(
-    BASE,
-    { params },
-  );
-  return data;
+  const { data } = await apiClient.get(BASE, { params });
+  return toLaravelPaginated<Characterization>(data);
 }
 
 export async function getCharacterization(
   id: number,
 ): Promise<Characterization> {
-  const { data } = await apiClient.get<Characterization>(`${BASE}/${id}`);
-  return data;
+  const { data } = await apiClient.get(`${BASE}/${id}`);
+  return data.data ?? data;
 }
 
 export async function createCharacterization(payload: {
@@ -34,8 +31,8 @@ export async function createCharacterization(payload: {
   description?: string;
   design_json: CharacterizationDesign;
 }): Promise<Characterization> {
-  const { data } = await apiClient.post<Characterization>(BASE, payload);
-  return data;
+  const { data } = await apiClient.post(BASE, payload);
+  return data.data ?? data;
 }
 
 export async function updateCharacterization(
@@ -46,11 +43,8 @@ export async function updateCharacterization(
     design_json: CharacterizationDesign;
   }>,
 ): Promise<Characterization> {
-  const { data } = await apiClient.put<Characterization>(
-    `${BASE}/${id}`,
-    payload,
-  );
-  return data;
+  const { data } = await apiClient.put(`${BASE}/${id}`, payload);
+  return data.data ?? data;
 }
 
 export async function deleteCharacterization(id: number): Promise<void> {
@@ -65,11 +59,11 @@ export async function executeCharacterization(
   id: number,
   sourceId: number,
 ): Promise<AnalysisExecution> {
-  const { data } = await apiClient.post<AnalysisExecution>(
+  const { data } = await apiClient.post(
     `${BASE}/${id}/execute`,
     { source_id: sourceId },
   );
-  return data;
+  return data.data ?? data;
 }
 
 export async function listExecutions(

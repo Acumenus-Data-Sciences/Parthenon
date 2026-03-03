@@ -1,4 +1,4 @@
-import apiClient from "@/lib/api-client";
+import apiClient, { toLaravelPaginated } from "@/lib/api-client";
 import type {
   PathwayAnalysis,
   PathwayDesign,
@@ -17,16 +17,13 @@ const BASE = "/pathways";
 export async function listPathways(params?: {
   page?: number;
 }): Promise<PaginatedResponse<PathwayAnalysis>> {
-  const { data } = await apiClient.get<PaginatedResponse<PathwayAnalysis>>(
-    BASE,
-    { params },
-  );
-  return data;
+  const { data } = await apiClient.get(BASE, { params });
+  return toLaravelPaginated<PathwayAnalysis>(data);
 }
 
 export async function getPathway(id: number): Promise<PathwayAnalysis> {
-  const { data } = await apiClient.get<PathwayAnalysis>(`${BASE}/${id}`);
-  return data;
+  const { data } = await apiClient.get(`${BASE}/${id}`);
+  return data.data ?? data;
 }
 
 export async function createPathway(payload: {
@@ -34,8 +31,8 @@ export async function createPathway(payload: {
   description?: string;
   design_json: PathwayDesign;
 }): Promise<PathwayAnalysis> {
-  const { data } = await apiClient.post<PathwayAnalysis>(BASE, payload);
-  return data;
+  const { data } = await apiClient.post(BASE, payload);
+  return data.data ?? data;
 }
 
 export async function updatePathway(
@@ -46,11 +43,8 @@ export async function updatePathway(
     design_json: PathwayDesign;
   }>,
 ): Promise<PathwayAnalysis> {
-  const { data } = await apiClient.put<PathwayAnalysis>(
-    `${BASE}/${id}`,
-    payload,
-  );
-  return data;
+  const { data } = await apiClient.put(`${BASE}/${id}`, payload);
+  return data.data ?? data;
 }
 
 export async function deletePathway(id: number): Promise<void> {
@@ -65,11 +59,11 @@ export async function executePathway(
   id: number,
   sourceId: number,
 ): Promise<AnalysisExecution> {
-  const { data } = await apiClient.post<AnalysisExecution>(
+  const { data } = await apiClient.post(
     `${BASE}/${id}/execute`,
     { source_id: sourceId },
   );
-  return data;
+  return data.data ?? data;
 }
 
 export async function listPathwayExecutions(

@@ -1,4 +1,4 @@
-import apiClient from "@/lib/api-client";
+import apiClient, { toLaravelPaginated } from "@/lib/api-client";
 import type {
   ConditionBundle,
   QualityMeasure,
@@ -20,34 +20,28 @@ const BASE = "/care-gaps/bundles";
 export async function listBundles(
   params?: BundleListParams,
 ): Promise<PaginatedResponse<ConditionBundle>> {
-  const { data } = await apiClient.get<PaginatedResponse<ConditionBundle>>(
-    BASE,
-    { params },
-  );
-  return data;
+  const { data } = await apiClient.get(BASE, { params });
+  return toLaravelPaginated<ConditionBundle>(data);
 }
 
 export async function getBundle(id: number): Promise<ConditionBundle> {
-  const { data } = await apiClient.get<ConditionBundle>(`${BASE}/${id}`);
-  return data;
+  const { data } = await apiClient.get(`${BASE}/${id}`);
+  return data.data ?? data;
 }
 
 export async function createBundle(
   payload: CreateBundlePayload,
 ): Promise<ConditionBundle> {
-  const { data } = await apiClient.post<ConditionBundle>(BASE, payload);
-  return data;
+  const { data } = await apiClient.post(BASE, payload);
+  return data.data ?? data;
 }
 
 export async function updateBundle(
   id: number,
   payload: UpdateBundlePayload,
 ): Promise<ConditionBundle> {
-  const { data } = await apiClient.put<ConditionBundle>(
-    `${BASE}/${id}`,
-    payload,
-  );
-  return data;
+  const { data } = await apiClient.put(`${BASE}/${id}`, payload);
+  return data.data ?? data;
 }
 
 export async function deleteBundle(id: number): Promise<void> {
@@ -94,14 +88,14 @@ export async function evaluateBundle(
   sourceId: number,
   cohortDefinitionId?: number,
 ): Promise<CareGapEvaluation> {
-  const { data } = await apiClient.post<CareGapEvaluation>(
+  const { data } = await apiClient.post(
     `${BASE}/${bundleId}/evaluate`,
     {
       source_id: sourceId,
       cohort_definition_id: cohortDefinitionId ?? null,
     },
   );
-  return data;
+  return data.data ?? data;
 }
 
 export async function listEvaluations(

@@ -1,4 +1,4 @@
-import apiClient from "@/lib/api-client";
+import apiClient, { toLaravelPaginated } from "@/lib/api-client";
 import type {
   Study,
   StudyAnalysisEntry,
@@ -15,15 +15,13 @@ const BASE = "/studies";
 export async function listStudies(params?: {
   page?: number;
 }): Promise<PaginatedResponse<Study>> {
-  const { data } = await apiClient.get<PaginatedResponse<Study>>(BASE, {
-    params,
-  });
-  return data;
+  const { data } = await apiClient.get(BASE, { params });
+  return toLaravelPaginated<Study>(data);
 }
 
 export async function getStudy(id: number): Promise<Study> {
-  const { data } = await apiClient.get<Study>(`${BASE}/${id}`);
-  return data;
+  const { data } = await apiClient.get(`${BASE}/${id}`);
+  return data.data ?? data;
 }
 
 export async function createStudy(payload: {
@@ -32,8 +30,8 @@ export async function createStudy(payload: {
   study_type: string;
   metadata?: Record<string, unknown>;
 }): Promise<Study> {
-  const { data } = await apiClient.post<Study>(BASE, payload);
-  return data;
+  const { data } = await apiClient.post(BASE, payload);
+  return data.data ?? data;
 }
 
 export async function updateStudy(
@@ -45,8 +43,8 @@ export async function updateStudy(
     metadata: Record<string, unknown>;
   }>,
 ): Promise<Study> {
-  const { data } = await apiClient.put<Study>(`${BASE}/${id}`, payload);
-  return data;
+  const { data } = await apiClient.put(`${BASE}/${id}`, payload);
+  return data.data ?? data;
 }
 
 export async function deleteStudy(id: number): Promise<void> {
@@ -70,11 +68,11 @@ export async function addStudyAnalysis(
   studyId: number,
   payload: { analysis_type: string; analysis_id: number },
 ): Promise<StudyAnalysisEntry> {
-  const { data } = await apiClient.post<StudyAnalysisEntry>(
+  const { data } = await apiClient.post(
     `${BASE}/${studyId}/analyses`,
     payload,
   );
-  return data;
+  return data.data ?? data;
 }
 
 export async function removeStudyAnalysis(

@@ -1,4 +1,4 @@
-import apiClient from "@/lib/api-client";
+import apiClient, { toLaravelPaginated } from "@/lib/api-client";
 import type {
   IncidenceRateAnalysis,
   IncidenceRateDesign,
@@ -15,17 +15,15 @@ const BASE = "/incidence-rates";
 export async function listIncidenceRates(params?: {
   page?: number;
 }): Promise<PaginatedResponse<IncidenceRateAnalysis>> {
-  const { data } = await apiClient.get<
-    PaginatedResponse<IncidenceRateAnalysis>
-  >(BASE, { params });
-  return data;
+  const { data } = await apiClient.get(BASE, { params });
+  return toLaravelPaginated<IncidenceRateAnalysis>(data);
 }
 
 export async function getIncidenceRate(
   id: number,
 ): Promise<IncidenceRateAnalysis> {
-  const { data } = await apiClient.get<IncidenceRateAnalysis>(`${BASE}/${id}`);
-  return data;
+  const { data } = await apiClient.get(`${BASE}/${id}`);
+  return data.data ?? data;
 }
 
 export async function createIncidenceRate(payload: {
@@ -33,8 +31,8 @@ export async function createIncidenceRate(payload: {
   description?: string;
   design_json: IncidenceRateDesign;
 }): Promise<IncidenceRateAnalysis> {
-  const { data } = await apiClient.post<IncidenceRateAnalysis>(BASE, payload);
-  return data;
+  const { data } = await apiClient.post(BASE, payload);
+  return data.data ?? data;
 }
 
 export async function updateIncidenceRate(
@@ -45,11 +43,8 @@ export async function updateIncidenceRate(
     design_json: IncidenceRateDesign;
   }>,
 ): Promise<IncidenceRateAnalysis> {
-  const { data } = await apiClient.put<IncidenceRateAnalysis>(
-    `${BASE}/${id}`,
-    payload,
-  );
-  return data;
+  const { data } = await apiClient.put(`${BASE}/${id}`, payload);
+  return data.data ?? data;
 }
 
 export async function deleteIncidenceRate(id: number): Promise<void> {
@@ -64,11 +59,11 @@ export async function executeIncidenceRate(
   id: number,
   sourceId: number,
 ): Promise<AnalysisExecution> {
-  const { data } = await apiClient.post<AnalysisExecution>(
+  const { data } = await apiClient.post(
     `${BASE}/${id}/execute`,
     { source_id: sourceId },
   );
-  return data;
+  return data.data ?? data;
 }
 
 export async function listIRExecutions(
