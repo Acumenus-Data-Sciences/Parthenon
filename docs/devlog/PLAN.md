@@ -2269,6 +2269,7 @@ Legacy migration: `parthenon:migrate-legacy`, `parthenon:import-atlas-cohorts`, 
 | 13 | End-to-End Data Wiring | Post-deploy |
 | 14 | HADES R Package Integration | Post-deploy |
 | 15 | Molecular Diagnostics & Cancer Genomics | Post-14, 18 months |
+| 16 | DICOM & Medical Imaging Integration | Post-14, 18 months |
 
 **Total: ~26 weeks (6.5 months)** with 2-3 developers.
 Critical path: Foundation → Vocabulary/Embeddings → AI Mapper → Research Workbench → Atlas Parity → Deployment → Data Wiring → HADES Integration.
@@ -4652,3 +4653,561 @@ When Phase 15 is complete:
 | Federated genomic analytics | No | Yes (clinical only) | No | Partial | **Yes (VRS-based, genomics-native)** |
 | Open source | No | No | Yes | Yes | **Yes** |
 | OMOP CDM compliant | No | Yes | No | Yes | **Yes** |
+
+---
+---
+
+# Phase 16 — DICOM & Medical Imaging Integration
+
+**Status:** Planned
+**Target date:** TBD
+**Branch:** `master`
+**Goal:** Make Parthenon the first platform to deliver a complete, production-ready implementation of the OMOP Medical Imaging extension (MI-CDM) — integrated with an embedded PACS/VNA (Orthanc), a zero-footprint DICOM viewer (OHIF), AI-powered imaging biomarker extraction, NLP-driven radiology report structuring, and cross-domain analytics linking imaging findings to genomic profiles, surgical outcomes, and clinical trajectories.
+
+**Reference Document:** `docs/Parthenon_DICOM_Imaging_Enhancement_Plan.docx` (Udoshi, March 2026)
+
+---
+
+## 1. Background & Motivation
+
+Medical imaging generates more data than any other healthcare domain — an estimated 3.6 billion imaging procedures per year, producing petabytes of DICOM data. Yet in the OHDSI ecosystem, imaging has been reduced to a single procedure code in the `Procedure_occurrence` table. The pixel data, acquisition parameters, quantitative measurements, AI-derived biomarkers, and radiology reports that give imaging its clinical meaning have been entirely invisible to observational research.
+
+The OHDSI Medical Imaging Working Group (Johns Hopkins, Woo Yeon Park & Paul Nagy) has made landmark progress with the MI-CDM extension (2024) and the JAMIA DICOM vocabulary integration paper (October 2025). The earlier Radiology CDM (R-CDM) from Ajou University validated the approach with 41.7 TB of DICOM data. These are foundational, but remain specification-level work with limited reference implementations.
+
+### What Exists in OHDSI Today
+
+| Component | Status | Parthenon Impact |
+|-----------|--------|-----------------|
+| **MI-CDM Extension** (Image_occurrence, Image_feature) | Published 2024 (Park et al.), ADNI reference implementation | Implement as first-class tables |
+| **DICOM Vocabulary Integration** (JAMIA 2025) | DICOM Parts 3/6/16 → OMOP concept mappings | Build vocabulary ETL |
+| **R-CDM** (Ajou, 2022) | Validated on 41.7 TB DICOM, 16 essential metadata elements | Reference architecture |
+| **RadLex Playbook** (~1,000 procedure names → LOINC) | Stable, in OMOP Vocabulary | Enable standardized imaging procedure queries |
+| **DICOM Structured Reports** (SR/RDSR) | Standard DICOM objects for coded measurements | Parse into Image_feature records |
+| **IBSI** (Image Biomarker Standardization Initiative) | Reproducible radiomic feature definitions | Standardized radiomic extraction |
+| **Orthanc** (Open-source DICOM server) | GPLv3, DICOMweb, PostgreSQL backend, Docker-ready | Embed as PACS/VNA container |
+| **OHIF Viewer** (Open Health Imaging Foundation) | React/TypeScript, Cornerstone.js, zero-footprint | Embed in React SPA |
+
+### Critical Gaps Parthenon Must Solve
+
+| Gap | Current State | Parthenon Solution |
+|-----|--------------|-------------------|
+| **PACS/VNA Integration** | MI-CDM references DICOM via `wadors_uri` but provides no PACS server | Embedded Orthanc in Docker Compose, pre-configured DICOMweb, auto-ETL |
+| **Zero-Footprint Viewing** | Atlas cannot display images; requires separate PACS workstations | Embedded OHIF Viewer in React SPA, context-linked from cohorts/patients/episodes |
+| **Radiology Report NLP** | MI-CDM acknowledges NLP need but provides no tooling | LLM-powered report structuring → RadLex/SNOMED mapping → Image_feature records |
+| **AI Biomarker Pipeline** | MI-CDM has provenance fields but no inference pipeline | Pluggable containerized AI models: DICOM in → Image_feature out, with provenance |
+| **Imaging-Aware Cohorts** | ADNI demo required manual Atlas configuration | Native imaging criteria in cohort builder: modality, acquisition params, feature values |
+| **Radiogenomics** | Imaging WG and Genomics WG work in complete isolation | Unified queries linking Image_feature to genomic MEASUREMENT via person_id + temporal context |
+| **Radiation Dose Tracking** | DICOM RDSR data exists but no OMOP representation | Automatic RDSR parsing into Image_feature for population-level dose optimization |
+| **Federated Imaging Research** | No mechanism for sharing imaging features across sites | Federated radiomic feature distributions, AI model validation, cohort discovery |
+
+---
+
+## 2. Extended Docker Compose Architecture
+
+### 2.1 New Containers
+
+| Container | Technology | Purpose | Connections |
+|-----------|-----------|---------|------------|
+| `parthenon-orthanc` | Orthanc + DICOMweb + PostgreSQL plugins | DICOM server/VNA, DICOMweb API, SR processing | PostgreSQL (indexes), S3/filesystem (pixels), Python ETL hooks |
+| `parthenon-ohif` | OHIF Viewer v3 (static assets via Nginx) | Zero-footprint DICOM viewer embedded in React SPA | DICOMweb to Orthanc (WADO-RS/QIDO-RS) |
+
+### 2.2 Extended Containers
+
+| Container | Enhancement |
+|-----------|------------|
+| `parthenon-ai` | + pydicom, DICOM ETL, report NLP, AI inference orchestration, radiomics |
+| `parthenon-backend` | + Image_occurrence/Image_feature API endpoints, imaging cohort criteria |
+| `parthenon-frontend` | + OHIF integration, imaging cohort builder, analytics dashboards |
+
+### 2.3 Data Flow
+
+```
+Ingest Path:
+  Imaging modality / PACS → DICOM C-STORE/STOW-RS → Orthanc
+    → Python ETL hook extracts metadata
+    → Creates Image_occurrence + Image_feature (from SR/RDSR) in OMOP CDM
+    → Optionally triggers AI inference pipeline
+    → AI results deposited as Image_feature records with provenance
+
+View Path:
+  User clicks imaging context (patient, cohort member, episode)
+    → React fetches Image_occurrence records from Laravel API
+    → Constructs DICOMweb URLs from wadors_uri
+    → Launches embedded OHIF viewer pointed at Orthanc
+
+Analytics Path:
+  Researcher builds cohort (imaging + clinical + genomic criteria)
+    → SQL compiler joins Image_feature, Measurement, Condition, Episode
+    → Analytics engine runs survival/correlation/regression
+    → Results displayed in imaging analytics dashboard
+```
+
+---
+
+## 3. Implementation Plan
+
+### Phase 16a — DICOM Infrastructure & MI-CDM Foundation (Months 1–4)
+
+**Objective:** Make Parthenon a fully DICOM-capable platform with native Image_occurrence and Image_feature tables.
+
+#### 16a.1 Orthanc DICOM Server Integration
+
+Add Orthanc container to Parthenon's Docker Compose stack:
+
+- Shared PostgreSQL with dedicated `orthanc` schema for indexes
+- Object storage (local filesystem or S3-compatible) for DICOM pixel data
+- DICOMweb plugin enabled (QIDO-RS, WADO-RS, STOW-RS) with CORS headers for OHIF
+- Anonymization profiles configurable per deployment
+- Lua/Python hooks to trigger OMOP ETL on C-STORE/STOW-RS events
+
+**New Files:**
+| File | Purpose |
+|------|---------|
+| `docker/orthanc/Dockerfile` | Orthanc + DICOMweb + PostgreSQL plugins |
+| `docker/orthanc/orthanc.json` | Orthanc configuration (PostgreSQL, DICOMweb, storage, CORS) |
+| `docker/orthanc/python/on_stored_instance.py` | ETL hook: triggers DICOM-to-OMOP pipeline on C-STORE |
+
+**docker-compose.yml addition:**
+```yaml
+orthanc:
+  build: docker/orthanc
+  ports:
+    - "${ORTHANC_HTTP_PORT:-8042}:8042"     # Orthanc REST + DICOMweb
+    - "${ORTHANC_DICOM_PORT:-4242}:4242"    # DICOM C-STORE/C-FIND
+  volumes:
+    - orthanc-storage:/var/lib/orthanc/db
+  depends_on:
+    - postgres
+```
+
+#### 16a.2 MI-CDM Schema Implementation
+
+Implement Image_occurrence and Image_feature tables following Park et al. (2024) specification exactly:
+
+**`image_occurrence` table:**
+| Column | Type | Description |
+|--------|------|-------------|
+| `image_occurrence_id` | bigint PK | Unique identifier |
+| `person_id` | bigint FK | Link to person |
+| `image_occurrence_date` | date | Study date |
+| `image_occurrence_datetime` | timestamp | Study datetime |
+| `image_type_concept_id` | integer FK | DICOM image type concept |
+| `modality_concept_id` | integer FK | CT, MRI, PET, US, XR, etc. |
+| `anatomic_site_concept_id` | integer FK | Body part examined |
+| `image_occurrence_source_value` | varchar | Source system identifier |
+| `study_uid` | varchar | DICOM Study Instance UID |
+| `series_uid` | varchar | DICOM Series Instance UID |
+| `wadors_uri` | varchar | DICOMweb retrieval URL |
+| `visit_occurrence_id` | bigint FK | Link to visit |
+| `visit_detail_id` | bigint FK | Link to visit detail |
+| `procedure_occurrence_id` | bigint FK | Link to procedure |
+| `provider_id` | bigint FK | Performing physician |
+
+**`image_feature` table:**
+| Column | Type | Description |
+|--------|------|-------------|
+| `image_feature_id` | bigint PK | Unique identifier |
+| `person_id` | bigint FK | Link to person |
+| `image_feature_date` | date | Feature extraction date |
+| `image_feature_datetime` | timestamp | Feature extraction datetime |
+| `image_feature_concept_id` | integer FK | What was measured (DICOM CG, RadLex, SNOMED) |
+| `image_feature_type_concept_id` | integer FK | Provenance: SR, algorithm, manual, NLP |
+| `value_as_number` | numeric | Quantitative value |
+| `value_as_concept_id` | integer FK | Categorical value |
+| `unit_concept_id` | integer FK | Unit of measurement |
+| `anatomic_site_concept_id` | integer FK | Anatomic site |
+| `image_occurrence_id` | bigint FK | Source imaging event |
+| `measurement_id` | bigint FK | Link to Measurement table |
+| `observation_id` | bigint FK | Link to Observation table |
+| `note_nlp_id` | bigint FK | Link to NLP extraction |
+| `algorithm_variant` | varchar | AI model version/identifier |
+| `feature_group_id` | bigint | Group related features |
+
+**Key Design Principle:** Imaging features flow into standard clinical domain tables (Measurement, Observation, Condition_occurrence) so existing OHDSI analytics work without modification. Image_feature provides provenance and linkage to source imaging data.
+
+**New Backend Files:**
+| File | Purpose |
+|------|---------|
+| `backend/database/migrations/xxxx_create_image_occurrence_table.php` | MI-CDM Image_occurrence table |
+| `backend/database/migrations/xxxx_create_image_feature_table.php` | MI-CDM Image_feature table |
+| `backend/app/Models/Cdm/ImageOccurrence.php` | CdmModel for image occurrences |
+| `backend/app/Models/Cdm/ImageFeature.php` | CdmModel for image features |
+| `backend/app/Http/Controllers/Api/V1/ImageOccurrenceController.php` | CRUD + query for imaging events |
+| `backend/app/Http/Controllers/Api/V1/ImageFeatureController.php` | CRUD + query for imaging features |
+
+#### 16a.3 DICOM Vocabulary ETL
+
+Implement the vocabulary integration from the 2025 JAMIA paper:
+
+**DICOM Tags → OMOP Concepts:**
+- Extract attribute definitions from DICOM Parts 3 and 6
+- Map each tag (Modality, Body Part Examined, Laterality, Patient Position, etc.) to OMOP concept_id
+- Create custom 2-billion-range concepts where standard mappings don't exist
+
+**DICOM Context Groups → RadLex/SNOMED:**
+- Map Part 16 Context Groups to existing RadLex and SNOMED concepts
+- Where Context Group entries reference SNOMED directly, create concept relationships
+
+**RadLex Playbook → LOINC → OMOP:**
+- Ensure ~1,000 RadLex Playbook procedure names are linked to LOINC codes in OMOP vocabulary
+- Enable standardized querying of imaging procedures across institutions
+
+**ACR/RSNA Common Data Elements:**
+- Map CDEs (Lung-RADS, BI-RADS, LI-RADS, TI-RADS categories) to OMOP concept_ids for Image_feature records
+
+**New Files:**
+| File | Purpose |
+|------|---------|
+| `ai/app/imaging/dicom_vocabulary_etl.py` | DICOM tag → OMOP concept mapping |
+| `ai/app/imaging/radlex_mapper.py` | RadLex → SNOMED/LOINC/OMOP concept resolution |
+| `ai/app/imaging/cde_mapper.py` | ACR/RSNA CDE → OMOP concept mapping |
+| `backend/database/seeders/DicomVocabularySeeder.php` | Seed DICOM/RadLex/CDE concepts |
+
+#### 16a.4 Automated DICOM-to-OMOP ETL Pipeline
+
+Python-based ETL triggered by Orthanc event hooks on C-STORE/STOW-RS:
+
+1. New DICOM study arrives → extract metadata headers via Orthanc REST API / pydicom
+2. Map patient identifiers to OMOP `person_id` (configurable: direct MRN, hash-based de-identification, or manual linkage table)
+3. Create `Image_occurrence` records from study/series metadata with modality, anatomic site, and acquisition parameter concepts
+4. Generate `wadors_uri` values pointing to embedded Orthanc's DICOMweb endpoint
+5. Parse DICOM Structured Reports (if present) → `Image_feature` records with appropriate provenance `type_concept_ids`
+6. Parse DICOM Radiation Dose Structured Reports (RDSR) → capture dose-length products, CTDIvol, organ doses as `Image_feature` records
+
+**New Files:**
+| File | Purpose |
+|------|---------|
+| `ai/app/imaging/dicom_etl_pipeline.py` | Main ETL orchestrator |
+| `ai/app/imaging/dicom_metadata_extractor.py` | pydicom header extraction + concept mapping |
+| `ai/app/imaging/dicom_sr_parser.py` | Structured Report → Image_feature extraction |
+| `ai/app/imaging/dicom_rdsr_parser.py` | Radiation Dose SR → dose feature extraction |
+| `ai/app/imaging/patient_linker.py` | Configurable patient identifier → person_id resolution |
+| `ai/app/api/imaging_routes.py` | FastAPI endpoints for imaging ETL |
+
+---
+
+### Phase 16b — Visualization & Analytics (Months 3–8)
+
+**Objective:** Enable researchers to view, query, and analyze imaging data natively within Parthenon.
+
+#### 16b.1 OHIF Viewer Integration
+
+Embed OHIF Viewer v3.x into Parthenon's React SPA:
+
+- DICOMweb configuration pointing to embedded Orthanc (QIDO-RS search, WADO-RS retrieval)
+- Context-sensitive launching from:
+  - Cohort results (click patient → view studies)
+  - Data Explorer (click Image_occurrence → view images)
+  - Patient profile timeline (click Episode → view associated imaging)
+- Measurement tool integration: OHIF built-in measurements (length, area, angle, HU probe) write back to Image_feature via Parthenon API
+- DICOM SR overlay rendering
+
+**New Files:**
+| File | Purpose |
+|------|---------|
+| `docker/ohif/Dockerfile` | OHIF static build served by nginx |
+| `docker/ohif/app-config.js` | DICOMweb data source pointing to Orthanc |
+| `frontend/src/features/imaging/components/DicomViewer.tsx` | OHIF integration wrapper (iframe or module federation) |
+| `frontend/src/features/imaging/components/StudyBrowser.tsx` | Study list with thumbnails, filterable by modality/date/site |
+| `frontend/src/features/imaging/hooks/useImagingStudies.ts` | TanStack Query hooks for Image_occurrence queries |
+| `frontend/src/features/imaging/api/imagingApi.ts` | REST API client for imaging endpoints |
+| `frontend/src/features/imaging/types/imaging.ts` | TypeScript types for Image_occurrence, Image_feature |
+
+#### 16b.2 Imaging-Aware Cohort Builder
+
+Extend cohort definition interface with imaging criteria panels:
+
+**Imaging Event Criteria:**
+- Filter by modality (CT, MRI, PET, US, XR, etc.), anatomic site, date range
+- Acquisition parameters: slice thickness ≤ Nmm, specific MRI sequences, contrast agent use
+
+**Imaging Feature Criteria:**
+- Filter by quantitative features: tumor size, brain volume, calcification score, SUV max, nodule density
+- Operators: greater than, less than, between, with temporal logic (first occurrence, within time window)
+
+**AI-Derived Feature Criteria:**
+- Filter by AI model outputs stored as Image_features: Lung-RADS score, brain atrophy classification, cardiac EF from AI echo
+
+**Cross-Domain Criteria:**
+- Combine imaging + standard OMOP + genomic criteria in one cohort definition
+- Example: EGFR mutation (MEASUREMENT) AND brain MRI showing ≥ 3 lesions (Image_feature) AND received whole-brain radiation (PROCEDURE)
+
+**New Files:**
+| File | Purpose |
+|------|---------|
+| `frontend/src/features/cohort-definitions/components/criteria/ImagingCriteriaPanel.tsx` | Modality/site/params/feature criteria editor |
+| `backend/app/Services/Cohort/ImagingCriteriaSqlCompiler.php` | SQL generation for imaging criteria |
+
+#### 16b.3 Radiology Report NLP Engine
+
+LLM-powered pipeline in Python FastAPI AI service:
+
+**Entity Extraction:**
+- Anatomic locations, findings (nodule, mass, effusion, fracture), measurements (dimensions, HU, SUV)
+- Classifications: BI-RADS, Lung-RADS, LI-RADS, TI-RADS
+- Domain-adapted MedGemma fine-tuned on RadLex-annotated corpora
+
+**Concept Mapping:**
+- Extracted entities → RadLex/SNOMED concept_ids
+- Leverage RadLex ontology's 75,000+ terms and hierarchical relationships
+
+**Feature Generation:**
+- Create Image_feature records from NLP-extracted measurements/findings
+- `type_concept_id` indicates NLP provenance (distinguishing from direct SR or manual annotation)
+
+**Temporal Reasoning:**
+- Detect temporal language ("unchanged from prior," "new compared to," "decreased in size")
+- Establish longitudinal feature relationships
+- Populate Episode/Episode_event tables for imaging follow-up
+
+**New Files:**
+| File | Purpose |
+|------|---------|
+| `ai/app/imaging/radiology_report_nlp.py` | LLM-powered report structuring pipeline |
+| `ai/app/imaging/radlex_entity_extractor.py` | RadLex-aware entity extraction |
+| `ai/app/imaging/temporal_reasoner.py` | Temporal language detection + longitudinal linking |
+| `ai/app/imaging/classification_extractor.py` | BI-RADS/Lung-RADS/LI-RADS/TI-RADS extraction |
+
+#### 16b.4 Imaging Analytics Dashboard
+
+Dedicated visualization modules in React frontend:
+
+**Longitudinal Feature Tracker:**
+- Plot quantitative imaging features over time (individual patients or cohorts)
+- Overlay treatment events
+- Tumor growth kinetics, brain volume trajectories, cardiac function trends
+
+**Imaging-Outcome Correlator:**
+- Scatter plots, regression analysis, survival curves stratified by imaging features
+- Example: OS stratified by baseline tumor volume quartile in NSCLC + immunotherapy
+
+**Radiation Dose Population Analytics:**
+- Distribution of dose-length products by procedure type, age group, institution
+- Benchmark against ACR Dose Index Registry targets
+- Identify outlier protocols
+
+**AI Model Performance Dashboard:**
+- Track AI model accuracy, sensitivity, specificity, AUC over time and patient subgroups
+- Compare AI-derived vs. radiologist-derived features using Image_feature provenance
+
+**New Files:**
+| File | Purpose |
+|------|---------|
+| `frontend/src/features/imaging/pages/ImagingDashboardPage.tsx` | Hub for imaging analytics |
+| `frontend/src/features/imaging/components/LongitudinalFeatureTracker.tsx` | Time-series imaging feature plot |
+| `frontend/src/features/imaging/components/ImagingOutcomeCorrelator.tsx` | Feature ↔ outcome analysis |
+| `frontend/src/features/imaging/components/DoseAnalyticsDashboard.tsx` | Radiation dose population analytics |
+| `frontend/src/features/imaging/components/AiModelPerformanceDashboard.tsx` | AI model governance dashboard |
+
+---
+
+### Phase 16c — AI Biomarker Pipeline & Radiogenomics (Months 6–12)
+
+**Objective:** Enable automated imaging biomarker extraction and cross-domain imaging-genomics research.
+
+#### 16c.1 Pluggable AI Inference Pipeline
+
+Containerized inference framework: AI models consume DICOM from Orthanc, produce standardized Image_feature outputs.
+
+**Model Registry:**
+- Catalog of containerized AI models with input modality requirements, output feature definitions, OMOP concept mappings
+- Initial models: TotalSegmentator (organ segmentation), nnU-Net (tumor segmentation), cardiac function, brain volumetrics
+
+**Inference Orchestrator:**
+- Triggered by configurable rules (on ingest, on demand, on schedule)
+- Pull DICOM from Orthanc via DICOMweb → run model → write Image_feature records with `algorithm_variant` provenance
+
+**IBSI-Compliant Radiomics:**
+- Shape features, first-order statistics, texture features (GLCM, GLRLM, GLSZM), wavelet features
+- All stored as Image_feature records with IBSI feature concept_ids
+- Full provenance: algorithm version, preprocessing parameters, segmentation method
+
+**DICOM SR Output:**
+- AI results optionally written back to Orthanc as DICOM SR objects
+- Maintains full DICOM compliance for downstream PACS system integration
+
+**New Files:**
+| File | Purpose |
+|------|---------|
+| `ai/app/imaging/model_registry.py` | AI model catalog + metadata |
+| `ai/app/imaging/inference_orchestrator.py` | Trigger, run, and record AI inference |
+| `ai/app/imaging/radiomics_extractor.py` | IBSI-compliant radiomic feature extraction |
+| `ai/app/imaging/dicom_sr_writer.py` | Write AI results back as DICOM SR |
+| `backend/app/Http/Controllers/Api/V1/AiModelRegistryController.php` | Model registry CRUD |
+| `backend/app/Services/Imaging/InferenceService.php` | Backend orchestration for AI inference jobs |
+| `backend/app/Jobs/Imaging/RunImagingInferenceJob.php` | Queue job for AI model inference |
+| `frontend/src/features/imaging/pages/ModelRegistryPage.tsx` | AI model catalog UI |
+
+#### 16c.2 Radiogenomics Integration
+
+**Convergence point with Phase 15 (Genomics).** This is where imaging and genomics plans merge into a capability that exists nowhere else.
+
+**Unified Patient Timeline:**
+- Genomic variants (MEASUREMENT), imaging features (Image_feature → Measurement), treatment episodes (EPISODE), clinical outcomes — all in single OMOP CDM, queryable with one SQL join chain through `person_id` + temporal relationships
+
+**Radiomic-Genomic Correlation:**
+- Compute correlations between radiomic texture features and specific mutations or gene expression signatures
+- Example: Does intratumoral heterogeneity (CT texture features) correlate with KRAS mutation status in colorectal cancer?
+
+**Imaging-Based Treatment Response by Genotype:**
+- Stratify RECIST response assessment (from Image_feature longitudinal tracking) by molecular subtype (from MEASUREMENT genomic records)
+- Evidence: do molecularly-defined subgroups respond differently on imaging?
+
+**Pathology-Radiology-Genomics Triangulation:**
+- MI-CDM supports digital pathology DICOM images
+- Correlate histopathologic features (whole-slide imaging AI), radiologic features (CT/MRI AI), and molecular profiles in single analytic framework
+
+**New Files:**
+| File | Purpose |
+|------|---------|
+| `frontend/src/features/imaging/components/RadiogenomicCorrelator.tsx` | Radiomic ↔ genomic correlation analysis |
+| `frontend/src/features/imaging/components/RecistTracker.tsx` | RECIST response tracking with molecular overlay |
+| `r-runtime/api/radiogenomics.R` | R endpoint for radiomic-genomic statistical analysis |
+
+---
+
+### Phase 16d — Federated Imaging Network (Months 10–18)
+
+**Objective:** Enable multi-institutional imaging-outcomes research without sharing pixel data.
+
+#### 16d.1 Federated Imaging Analytics
+
+**Feature-Level Federation:**
+- Share standardized Image_feature distributions (radiomic statistics, AI outputs, quantitative measurements) across Parthenon nodes
+- No pixel data transmitted — preserves privacy while enabling large-scale imaging biomarker validation
+
+**Protocol Harmonization:**
+- Use Image_occurrence acquisition parameters (kVp, slice thickness, reconstruction kernel, MRI sequence parameters)
+- Identify protocol-comparable subgroups across institutions
+- Addresses acquisition variability confound in multi-site imaging research
+
+**AI Model Validation Network:**
+- Deploy AI models across Parthenon nodes
+- Compare performance metrics (AUC, sensitivity, specificity) by institution, scanner vendor, demographics
+- Enables the large-scale external validation imaging AI desperately needs
+
+**Cohort Discovery:**
+- Federated queries with combined clinical + imaging criteria across nodes
+- Example: "How many patients across the network match stage III NSCLC with baseline CT available and ≥ 6 months follow-up imaging?"
+
+#### 16d.2 Clinical Integration
+
+**CDS Hooks for Imaging:**
+- New imaging study arrives → trigger evidence lookup
+- Has this imaging phenotype been studied in context of this patient's molecular profile?
+- Protocol optimization recommendations based on dose analytics
+
+**FHIR ImagingStudy Integration:**
+- Map OMOP Image_occurrence ↔ FHIR ImagingStudy resources
+- Bidirectional data flow with EHR systems via FHIR+OMOP WG transformation specs
+
+**Tumor Board Imaging Review:**
+- Integrate OHIF viewer into molecular tumor board interface (from Phase 15)
+- Side-by-side: imaging review + genomic profile + treatment history — single platform
+
+**New Files:**
+| File | Purpose |
+|------|---------|
+| `backend/app/Services/Federation/FederatedImagingService.php` | Feature-level imaging federation |
+| `backend/app/Services/Federation/ProtocolHarmonizer.php` | Cross-site acquisition parameter matching |
+| `backend/app/Services/Federation/AiModelValidationService.php` | Multi-site AI model performance comparison |
+| `backend/app/Http/Controllers/Api/V1/FhirImagingStudyController.php` | FHIR ImagingStudy ↔ Image_occurrence mapping |
+| `frontend/src/features/imaging/components/TumorBoardImagingPanel.tsx` | OHIF viewer in tumor board context |
+
+---
+
+## 4. Priority Use Cases by Domain
+
+### 4.1 Oncology Imaging-Outcomes Research
+- RECIST response assessment correlated with molecular subtypes across multi-institutional network
+- Radiogenomic signatures predicting immunotherapy response in melanoma or NSCLC
+- Longitudinal brain metastasis volumetric tracking linked to systemic therapy regimens and genomic profiles
+- CT texture features as prognostic biomarkers in hepatocellular carcinoma, validated across institutions
+
+### 4.2 Surgical & Perioperative Imaging
+- Preoperative imaging features predicting surgical complexity and complications
+- Post-surgical imaging surveillance outcomes by procedure type and patient comorbidity profile
+- Intraoperative imaging (fluoroscopy, ultrasound) dose tracking and outcomes correlation
+
+### 4.3 Radiation Dose Optimization
+- Population-level CT dose benchmarking against ACR Dose Index Registry standards
+- Protocol optimization: identifying scanner/protocol combinations delivering diagnostic quality at lower doses
+- Pediatric dose monitoring and long-term cancer incidence correlation (the 3–5% attributable risk)
+
+### 4.4 AI Model Governance
+- Continuous monitoring of deployed imaging AI model performance across demographic subgroups
+- Drift detection: tracking model accuracy over time as scanner firmware, protocols, and patient populations evolve
+- Multi-site external validation using federated feature comparison without pixel data sharing
+
+### 4.5 Neurology & Cardiac Imaging
+- Brain volumetric trajectories correlated with cognitive scores and pharmacotherapy in Alzheimer's disease
+- Cardiac MRI-derived ejection fraction trends linked to heart failure medication regimens
+- Stroke imaging features (infarct volume, penumbra) correlated with revascularization timing and neurological outcomes
+
+---
+
+## 5. Phased Rollout Order
+
+| Sub-Phase | What | Timeline | Priority | Dependencies |
+|-----------|------|----------|----------|-------------|
+| **16a.1** | Orthanc DICOM server in Docker Compose | Month 1–2 | P0 | Docker Compose stack |
+| **16a.2** | MI-CDM tables (Image_occurrence, Image_feature) | Month 1–2 | P0 | OMOP CDM v5.4 |
+| **16a.3** | DICOM vocabulary ETL (tags, Context Groups, RadLex, CDEs) | Month 2–3 | P0 | DICOM Parts 3/6/16, RadLex |
+| **16a.4** | Automated DICOM-to-OMOP ETL pipeline | Month 2–4 | P0 | 16a.1, 16a.2, 16a.3 |
+| **16b.1** | OHIF Viewer embedded in React SPA | Month 3–5 | P1 | 16a.1, OHIF v3 |
+| **16b.2** | Imaging-aware cohort builder | Month 4–6 | P1 | 16a.2, 16a.4 |
+| **16b.3** | Radiology report NLP engine | Month 4–7 | P1 | 16a.3, MedGemma fine-tuning |
+| **16b.4** | Imaging analytics dashboards | Month 5–8 | P2 | 16b.1, 16b.2 |
+| **16c.1** | AI inference pipeline + model registry | Month 6–9 | P2 | 16a.4, AI model containers |
+| **16c.2** | Radiogenomics integration | Month 8–12 | P2 | 16c.1, Phase 15b (Genomics) |
+| **16d.1** | Federated imaging analytics | Month 10–15 | P3 | Multiple Parthenon nodes, 16c.1 |
+| **16d.2** | Clinical integration (CDS, FHIR, tumor board) | Month 12–18 | P3 | 16d.1, Phase 15c (Genomics CDS) |
+
+**Critical path:** 16a.1 → 16a.4 → 16b.1 + 16b.2 → 16b.4 → 16c.1 → 16c.2 → 16d.1 → 16d.2
+
+---
+
+## 6. Convergence with Phase 15 (Genomics)
+
+Phase 15 and Phase 16 are designed to converge at their Phase III sub-phases:
+
+| Convergence Point | Phase 15 Component | Phase 16 Component | Combined Capability |
+|-------------------|-------------------|-------------------|-------------------|
+| **Radiogenomics** | Variant-outcome analysis | Radiomic-genomic correlation | CT texture features ↔ mutation status |
+| **Tumor Board** | Molecular tumor board dashboard | OHIF imaging review panel | Single-screen: imaging + genomics + treatment |
+| **Cohort Builder** | Genomic criteria (gene, variant, TMB) | Imaging criteria (modality, features) | Multi-modal cohort: EGFR mutation + brain MRI lesions |
+| **CDS Hooks** | Genomics-informed recommendations | Imaging phenotype evidence lookup | Combined molecular + imaging CDS at point of care |
+| **Federation** | VRS-based variant federation | Feature-level imaging federation | Multi-modal federated research |
+| **Episode Tracking** | Treatment episodes (HemOnc) | Imaging episodes (longitudinal tracking) | Cancer journey: diagnosis → imaging → treatment → response |
+
+---
+
+## 7. Acceptance Criteria
+
+When Phase 16 is complete:
+
+1. **Send DICOM images** to Parthenon via C-STORE or STOW-RS → they appear in Orthanc and generate Image_occurrence records
+2. **View images** inline in Parthenon's React SPA via embedded OHIF viewer — from cohort results, patient profiles, or episode timelines
+3. **Build a cohort** with imaging criteria: "patients with chest CT, slice ≤ 1mm, showing nodule > 8mm" → get real patient count
+4. **NLP-structured radiology report** → findings extracted as Image_feature records with RadLex/SNOMED concepts
+5. **AI model** processes a DICOM study → produces Image_feature records with provenance (algorithm_variant, type_concept_id)
+6. **Radiation dose analytics** show population-level dose distributions from RDSR data
+7. **Radiogenomic correlation** links CT texture features to genomic variants in a single analysis
+8. **RECIST tracking** shows tumor response longitudinally with molecular subtype overlay
+9. **Federated query** across 2+ Parthenon nodes → aggregated imaging feature distributions without pixel data exchange
+10. **No existing OMOP capability broken** — all Phases 1–15 features continue to work
+
+---
+
+## 8. Competitive Positioning
+
+| Capability | Google Health | Flywheel.io | MD.ai | Atlas/WebAPI | **Parthenon** |
+|-----------|-------------|------------|-------|-------------|---------------|
+| OMOP CDM compliance | No | No | No | Yes (no imaging) | **Yes (full MI-CDM)** |
+| Embedded PACS/VNA | No | Yes | No | No | **Yes (Orthanc)** |
+| Zero-footprint DICOM viewer | No | Yes | Yes | No | **Yes (OHIF)** |
+| AI biomarker pipeline | Yes (closed) | Partial | Training only | No | **Yes (pluggable, open)** |
+| Imaging-outcomes research | No | No | No | No | **Yes (MI-CDM + analytics)** |
+| Radiogenomics | No | No | No | No | **Yes (Phase 15 convergence)** |
+| Federated imaging | No | No | No | No | **Yes (feature-level)** |
+| Open source | No | No | Partial | Yes | **Yes** |
