@@ -22,6 +22,30 @@ Parthenon submits the generation job to the background queue (Laravel Horizon). 
 3. Writes results into the results schema `cohort` table with `cohort_definition_id` matching your definition
 4. Records the generation job status in the application database
 
+```mermaid
+sequenceDiagram
+    participant UI as Browser
+    participant API as Laravel API
+    participant Q as Horizon Queue
+    participant CDM as OMOP CDM DB
+    participant App as App DB
+
+    UI->>API: POST /cohort-definitions/{id}/generate
+    API->>App: Insert generation job (status=pending)
+    API->>Q: Dispatch GenerateCohortJob
+    API-->>UI: 202 Accepted {generation_id}
+
+    loop Poll /generations/{id}
+        UI->>API: GET generation status
+        API-->>UI: {status: "running"|"complete"|"failed"}
+    end
+
+    Q->>API: GenerateCohortJob picked up
+    API->>CDM: Execute CIRCE SQL
+    CDM-->>API: Cohort rows written
+    API->>App: Update generation (status=complete, person_count=N)
+```
+
 ## Monitoring Progress
 
 The **Generations** tab on the cohort detail page shows all generation jobs for the definition:

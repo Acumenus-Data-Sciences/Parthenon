@@ -2266,6 +2266,1927 @@ Legacy migration: `parthenon:migrate-legacy`, `parthenon:import-atlas-cohorts`, 
 | 8 | Testing | Ongoing |
 | 9 | Atlas Parity, Migration & Documentation | 20-24 |
 | 10 | Deployment | 22-26 |
+| 13 | End-to-End Data Wiring | Post-deploy |
+| 14 | HADES R Package Integration | Post-deploy |
 
 **Total: ~26 weeks (6.5 months)** with 2-3 developers.
-Critical path: Foundation → Vocabulary/Embeddings → AI Mapper → Research Workbench → Atlas Parity → Deployment.
+Critical path: Foundation → Vocabulary/Embeddings → AI Mapper → Research Workbench → Atlas Parity → Deployment → Data Wiring → HADES Integration.
+
+---
+
+# Phase 13 — End-to-End Data Wiring: Every Page Functional Against Real OMOP Data
+
+**Status:** Planned
+**Target date:** TBD
+**Branch:** `master`
+**Goal:** Ensure every page in Parthenon is fully functional, displaying real clinical data from the local PostgreSQL 17 `ohdsi` database (`omop` schema: 1M patients, 7.2M concepts, 710M measurements, 86M drug exposures, 14.7M conditions). No page should show empty states, stubs, or broken queries when the seeded "OHDSI Acumenus" source (id=6) is selected.
+
+---
+
+## 1. Background & Motivation
+
+Parthenon has 15+ feature areas, each with frontend pages backed by Laravel API endpoints. The backend is architecturally wired to the local PostgreSQL 17 database via three connections (`cdm`, `vocab`, `results`) pointing at the `omop` and `achilles_results` schemas. However, the full chain — from UI interaction → API call → service → database query → response → rendered result — has never been systematically verified end-to-end for every page.
+
+This phase performs a page-by-page audit and fix pass, ensuring:
+1. Every page loads without errors when authenticated
+2. Data-dependent pages show real data from the `omop` schema (not empty states)
+3. Actions (generate, execute, run) complete successfully
+4. Error handling works gracefully for missing/optional data
+
+### Data Inventory (Local PG 17 `ohdsi` DB)
+
+| Schema | Contents | Key Counts |
+|--------|----------|-----------|
+| `omop` | Full CDM v5.4 + vocabulary (combined) | 1M persons, 7.2M concepts, 710M measurements, 86M drug_exposures, 14.7M conditions, 82M concept_ancestors, 42.9M concept_relationships |
+| `achilles_results` | Populated Achilles + DQD + cohort tables | 1.8M achilles_results rows |
+
+### Source Configuration
+
+The seeded source "OHDSI Acumenus" (id=6) maps:
+- CDM daimon → `table_qualifier: 'omop'`
+- Vocabulary daimon → `table_qualifier: 'omop'`
+- Results daimon → `table_qualifier: 'achilles_results'`
+
+---
+
+## 2. Page-by-Page Verification Plan
+
+### 13.1 Dashboard (`/`)
+
+**Component:** `DashboardPage.tsx`
+**API:** `GET /v1/dashboard/stats`
+**Queries:** Counts from sources, cohorts, jobs, DQD failures, concept sets
+
+**Verify:**
+- [ ] All 5 metric cards show non-zero values
+- [ ] Source Health panel lists "OHDSI Acumenus" with status
+- [ ] Active Jobs panel shows recent execution history
+- [ ] Recent Cohort Activity shows seeded cohorts with person counts
+- [ ] Quick Actions all navigate correctly
+
+**Potential Issues:**
+- Dashboard stats may return 0 for cohorts if none have been generated yet
+- Job history empty until first analysis/generation is run
+
+---
+
+### 13.2 Data Sources (`/data-sources`)
+
+**Component:** `SourcesListPage.tsx`
+**API:** `GET /v1/sources`
+
+**Verify:**
+- [ ] "OHDSI Acumenus" appears with correct dialect (PostgreSQL)
+- [ ] Expandable row shows 3 daimons: CDM → `omop`, Vocabulary → `omop`, Results → `achilles_results`
+- [ ] Connection status/test button works
+- [ ] WebAPI import panel functions (if WebAPI available)
+
+**Potential Issues:**
+- Source connection test may fail if Docker→localhost networking not configured (Docker must reach host PG)
+
+---
+
+### 13.3 Data Explorer (`/data-explorer`)
+
+**Component:** `DataExplorerPage.tsx`
+**API:** `GET /v1/sources/{source}/achilles/*`
+**Service:** `AchillesResultReaderService`
+
+**Verify:**
+- [ ] Source selector shows "OHDSI Acumenus"
+- [ ] **Overview tab:** Record counts (persons, visits, conditions, drugs, measurements) all non-zero
+- [ ] **Overview tab:** Demographics charts (age distribution, gender breakdown, race/ethnicity) render with data
+- [ ] **Overview tab:** Observation period histogram renders
+- [ ] **Domains tab:** All domains (Condition, Drug, Procedure, Measurement, Observation, Visit) show top concepts
+- [ ] **Domains tab:** Concept drilldown (click on a concept) shows gender/age/type distributions
+- [ ] **DQD tab:** Data Quality Dashboard shows check results with pass/fail counts
+- [ ] **Temporal tab:** Time-series trends render for at least one domain
+- [ ] **Heel Checks tab:** Achilles Heel results display (warnings/errors)
+- [ ] "Run Achilles" button dispatches a job and completes (or shows existing results)
+
+**Potential Issues:**
+- Achilles analysis IDs may not all be present in `achilles_results` — some analyses may return empty
+- Temporal trends require specific Achilles analyses (monthly distributions) which may not have been run
+- DQD results depend on DQD having been executed at least once
+- Concept name resolution requires vocab connection to `omop.concept` table
+
+---
+
+### 13.4 Vocabulary Search (`/vocabulary`)
+
+**Component:** `VocabularyPage.tsx`
+**API:** `GET /v1/vocabulary/search`, `GET /v1/vocabulary/concepts/{id}`, etc.
+**Connection:** `vocab` → `omop` schema
+
+**Verify:**
+- [ ] Search for "diabetes" returns multiple concepts from `omop.concept`
+- [ ] Domain filter dropdown populated (from `omop.domain`)
+- [ ] Vocabulary filter dropdown populated (from `omop.vocabulary`)
+- [ ] Standard concept filter works
+- [ ] Clicking a concept opens detail panel with:
+  - [ ] Concept metadata (name, ID, domain, vocabulary, class, standard status)
+  - [ ] Ancestors tab (from `omop.concept_ancestor`)
+  - [ ] Descendants tab
+  - [ ] Relationships tab (from `omop.concept_relationship`)
+  - [ ] Mapped From tab
+- [ ] Pagination works for large result sets
+- [ ] URL parameter `?concept=201826` loads concept directly
+
+**Potential Issues:**
+- 7.2M concepts means search must be indexed/optimized — verify query performance
+- `concept_synonym` table may need to be included for comprehensive search
+
+---
+
+### 13.5 Concept Sets (`/concept-sets`, `/concept-sets/:id`)
+
+**Component:** `ConceptSetsPage.tsx`, `ConceptSetDetailPage.tsx`
+**API:** `GET/POST/PUT /v1/concept-sets`
+
+**Verify:**
+- [ ] List page shows 7 seeded concept sets (T2DM, Hypertension, AFib, GI Hemorrhage, Heart Failure, Warfarin, Metformin)
+- [ ] Click into a concept set shows items with resolved concept names
+- [ ] Add concept (search + add) works
+- [ ] Remove concept works
+- [ ] Include descendants toggle resolves via `omop.concept_ancestor`
+- [ ] Include mapped toggle resolves via `omop.concept_relationship`
+- [ ] Resolved concept count updates when descendants/mapped toggled
+- [ ] Export JSON produces valid Atlas-compatible format
+- [ ] Import JSON works (paste or file upload)
+
+**Potential Issues:**
+- Descendant resolution on large hierarchies (e.g., "Diabetes mellitus") may be slow — verify query performance against 82M concept_ancestor rows
+
+---
+
+### 13.6 Cohort Definitions (`/cohort-definitions`, `/cohort-definitions/:id`)
+
+**Component:** `CohortDefinitionsPage.tsx`, `CohortDefinitionDetailPage.tsx`
+**API:** `GET/POST/PUT /v1/cohort-definitions`, `POST /v1/cohort-definitions/{id}/generate`
+**Service:** `CohortGenerationService` → queries `omop.*` tables
+
+**Verify:**
+- [ ] List page shows 6 seeded cohorts (T2DM New Users, GI Hemorrhage, AFib on Warfarin, Heart Failure, HTN+DM, T2DM Metformin Users)
+- [ ] Detail page — Expression tab: cohort expression renders correctly
+- [ ] Detail page — SQL tab: compiled SQL shown, uses `omop.` schema qualifier
+- [ ] **Generate cohort** against "OHDSI Acumenus" source:
+  - [ ] Job dispatches successfully
+  - [ ] Job completes (status → completed)
+  - [ ] Person count is non-zero (e.g., T2DM cohort should find patients in 1M-person dataset)
+- [ ] Diagnostics tab: attrition chart shows inclusion rule stats after generation
+- [ ] Cohort overlap: compare two generated cohorts, see Venn diagram
+- [ ] Copy cohort works
+- [ ] Export/Import JSON works
+- [ ] Abby AI panel opens and can generate suggestions (requires AI service)
+
+**Potential Issues:**
+- Cohort SQL compilation must use correct schema qualifiers from SourceDaimon
+- Complex cohort expressions (temporal criteria, nested groups) may fail on edge cases
+- Generation against 1M persons may take significant time — verify timeout settings
+- Inclusion rule statistics must be tracked during generation for attrition to work
+
+---
+
+### 13.7 Patient Profiles (`/profiles`)
+
+**Component:** `PatientProfilePage.tsx`
+**API:** `GET /v1/sources/{source}/profiles/{personId}`, `GET /v1/sources/{source}/profiles/cohorts/{cohortId}/members`
+**Service:** `PatientProfileService` → queries `omop.*` tables
+
+**Verify:**
+- [ ] Source selector shows "OHDSI Acumenus"
+- [ ] Browse cohort members (requires a generated cohort) — shows person list
+- [ ] Select a person → full profile loads:
+  - [ ] Demographics card (age, gender, race, ethnicity)
+  - [ ] Observation periods displayed
+  - [ ] Timeline view renders clinical events chronologically
+  - [ ] List view shows events filtered by domain
+  - [ ] Eras view shows condition and drug eras (if available)
+- [ ] Events have resolved concept names (from vocab lookup)
+- [ ] Can navigate to a person directly via URL parameter
+
+**Potential Issues:**
+- Person IDs must exist in `omop.person` — verify sample person IDs
+- Eras depend on `omop.condition_era` and `omop.drug_era` tables being populated
+- Large patient records (many events) may need pagination
+
+---
+
+### 13.8 Analyses Hub (`/analyses`)
+
+**Component:** `AnalysesPage.tsx`
+**API:** Multiple endpoints per analysis type
+
+**Verify all 5 analysis tabs:**
+
+#### 13.8a Characterizations
+- [ ] List page loads (may be empty initially)
+- [ ] Create new characterization
+- [ ] Select target cohort, feature settings
+- [ ] Execute against "OHDSI Acumenus"
+- [ ] Results show feature distributions, prevalence
+
+#### 13.8b Incidence Rates
+- [ ] Create new IR analysis
+- [ ] Select target + outcome cohorts, time-at-risk settings
+- [ ] Execute — job completes
+- [ ] Results show incidence rates with confidence intervals
+
+#### 13.8c Pathways
+- [ ] Create new pathway analysis
+- [ ] Select target cohort + event cohorts
+- [ ] Execute — results show treatment sequences
+- [ ] Sankey/sunburst visualization renders
+
+#### 13.8d Estimation (PLE)
+- [ ] Create new estimation
+- [ ] Configure: target/comparator/outcome cohorts, PS settings, model type (Cox/logistic/poisson)
+- [ ] CovariateSettingsPanel works (toggle domains, set time windows)
+- [ ] Execute against "OHDSI Acumenus" — dispatches to R runtime
+- [ ] Results: forest plot, KM curves, PS distribution, covariate balance (requires R runtime)
+
+#### 13.8e Prediction (PLP)
+- [ ] Create new prediction
+- [ ] Configure: target/outcome cohorts, model type (9 options), split settings
+- [ ] CovariateSettingsPanel works
+- [ ] Execute — dispatches to R runtime
+- [ ] Results: ROC curve, calibration plot, top predictors (requires R runtime)
+
+#### 13.8f SCCS
+- [ ] Create new SCCS analysis
+- [ ] Configure: target/outcome cohorts, risk windows, model type
+- [ ] Execute against "OHDSI Acumenus"
+- [ ] Results: IRR estimates, population summary
+
+#### 13.8g Evidence Synthesis
+- [ ] Create new evidence synthesis
+- [ ] Configure site estimates, method (Bayesian/Fixed)
+- [ ] Execute (no source needed)
+- [ ] Results: forest plot, pooled estimate, per-site table
+
+**Potential Issues:**
+- R runtime must be running for estimation/prediction/SCCS execution
+- Characterization/IR/Pathway may need specific backend services verified
+- Long-running analyses need proper timeout handling
+
+---
+
+### 13.9 Studies (`/studies`)
+
+**Component:** `StudiesPage.tsx`
+**API:** `GET/POST /v1/studies`
+
+**Verify:**
+- [ ] List page loads
+- [ ] Create new study
+- [ ] Study detail page allows attaching analyses
+- [ ] Study execution orchestrates multiple analyses
+
+---
+
+### 13.10 Jobs (`/jobs`)
+
+**Component:** `JobsPage.tsx`
+**API:** `GET /v1/jobs`
+
+**Verify:**
+- [ ] Jobs list shows all dispatched jobs (cohort generation, Achilles, DQD, analyses)
+- [ ] Status filter chips work (all, running, failed, completed, queued)
+- [ ] Job detail drawer shows metadata + logs
+- [ ] Retry failed job works
+- [ ] Cancel running job works
+
+---
+
+### 13.11 Ingestion (`/ingestion`)
+
+**Component:** `IngestionDashboardPage.tsx`
+**API:** `GET /v1/ingestion/jobs`
+
+**Verify:**
+- [ ] Dashboard loads (may show empty state if no uploads)
+- [ ] Upload page allows CSV file selection
+- [ ] Schema mapping page maps CSV columns to CDM fields
+- [ ] AI-assisted concept mapping works (requires AI service)
+
+---
+
+### 13.12 Care Gaps (`/care-gaps`)
+
+**Component:** `CareGapsPage.tsx`
+**API:** `GET/POST /v1/care-gaps/bundles`
+
+**Verify:**
+- [ ] Disease bundles tab loads
+- [ ] Create new bundle with conditions/measures
+- [ ] Population overview shows compliance metrics against "OHDSI Acumenus"
+
+---
+
+### 13.13 Administration (`/admin/*`)
+
+**Verify all admin pages:**
+- [ ] **Dashboard** (`/admin`): stat cards show correct counts
+- [ ] **Users** (`/admin/users`): user list, create/edit/delete, role assignment
+- [ ] **Roles** (`/admin/roles`): role CRUD, permission matrix
+- [ ] **Auth Providers** (`/admin/auth-providers`): 4 providers listed, toggle/configure/test
+- [ ] **AI Providers** (`/admin/ai-providers`): 8 providers, Ollama active, test connection
+- [ ] **System Health** (`/admin/system-health`): 5 services with real status (Redis, AI, R, Queue, DB)
+
+---
+
+## 3. Cross-Cutting Concerns
+
+### 13.14 Schema Resolution Verification
+
+Verify the Source → SourceDaimon → schema resolution chain:
+
+```
+Source "OHDSI Acumenus" (id=6)
+  ├── CDM daimon      → table_qualifier: 'omop'     → omop.person, omop.condition_occurrence, ...
+  ├── Vocabulary daimon → table_qualifier: 'omop'   → omop.concept, omop.concept_ancestor, ...
+  └── Results daimon   → table_qualifier: 'achilles_results' → achilles_results.achilles_results, ...
+```
+
+- [ ] All services using `$source->getTableQualifier()` produce correct schema-qualified queries
+- [ ] Raw SQL queries use the daimon schema, not hardcoded schema names
+- [ ] CohortGenerationService SQL uses `{cdmSchema}.person`, `{vocabSchema}.concept`, etc.
+
+### 13.15 Docker → Host Database Connectivity
+
+The Docker containers must reach the host PostgreSQL 17:
+
+- [ ] `CDM_DB_HOST`, `DB_VOCAB_HOST`, `RESULTS_DB_HOST` env vars set correctly
+- [ ] PHP container can connect to `pgsql.acumenus.net:5432` / `localhost:5432`
+- [ ] R runtime has `DATABASE_URL` pointing to host PG (for HADES analyses)
+- [ ] Connection pooling / timeouts appropriate for large queries (710M measurements)
+
+### 13.16 Query Performance
+
+With real data volumes, verify queries complete in reasonable time:
+
+| Query | Expected Volume | Target Time |
+|-------|----------------|-------------|
+| Vocabulary search ("diabetes") | ~7.2M concepts scanned | < 2s |
+| Concept ancestor resolution | ~82M ancestor rows | < 5s |
+| Cohort generation (simple) | ~1M persons | < 30s |
+| Achilles record counts | ~1.8M result rows | < 1s |
+| Patient profile load | Variable per patient | < 3s |
+| Domain summary (top concepts) | Aggregation over millions | < 5s |
+
+- [ ] Add database indexes if missing (concept.concept_name, concept.domain_id, etc.)
+- [ ] Verify `ANALYZE` has been run on large tables
+- [ ] Consider materialized views for expensive aggregations if needed
+
+---
+
+## 4. Implementation Order
+
+| Step | Section | Priority | Dependency |
+|------|---------|----------|-----------|
+| 1 | §13.14 Schema Resolution | P0 | None — everything else depends on this |
+| 2 | §13.15 Docker Connectivity | P0 | None — must work for any data page |
+| 3 | §13.4 Vocabulary Search | P0 | §13.14, §13.15 |
+| 4 | §13.3 Data Explorer | P0 | §13.14, §13.15, Achilles run |
+| 5 | §13.5 Concept Sets | P1 | §13.4 (vocab queries) |
+| 6 | §13.6 Cohort Definitions | P1 | §13.5 (concept sets), §13.14 |
+| 7 | §13.7 Patient Profiles | P1 | §13.6 (needs generated cohort for browsing) |
+| 8 | §13.1 Dashboard | P1 | §13.6 (stats from cohorts/jobs) |
+| 9 | §13.2 Data Sources | P1 | §13.14 |
+| 10 | §13.8 Analyses | P2 | §13.6, R runtime for PLE/PLP/SCCS |
+| 11 | §13.10 Jobs | P2 | §13.6, §13.8 (needs jobs to exist) |
+| 12 | §13.16 Query Performance | P2 | After functional verification |
+| 13 | §13.9, §13.11, §13.12, §13.13 | P3 | After core pages verified |
+
+---
+
+## 5. Acceptance Criteria
+
+When Phase 13 is complete:
+
+1. **Every page loads** without console errors or white screens
+2. **Data Explorer** shows real demographics, domain summaries, and quality checks for 1M patients
+3. **Vocabulary search** returns concepts from the 7.2M-concept vocabulary
+4. **Concept sets** resolve descendants and mapped concepts correctly
+5. **Cohort generation** produces non-zero person counts for all 6 seeded cohorts
+6. **Patient profiles** display full clinical timelines for individual patients
+7. **Dashboard** shows accurate aggregate stats
+8. **All analysis types** can be created, saved, and (where R runtime available) executed
+9. **No hardcoded schemas** — all CDM/vocab/results queries use SourceDaimon resolution
+10. **Query performance** is acceptable (no page takes > 10s to load with real data)
+
+---
+
+# Phase 14 — HADES R Package Integration: Full PLE & PLP Parity with Atlas
+
+**Status:** Planned
+**Target date:** TBD
+**Branch:** `master`
+**Goal:** Eliminate the two remaining capability gaps — Population-Level Estimation (PLE) and Patient-Level Prediction (PLP) — so that long-time Atlas power users encounter **zero** capability absences when migrating to Parthenon.
+
+---
+
+## 1. Background & Motivation
+
+The Phase 11 parity audit identified two real gaps between Parthenon and Atlas:
+
+| Gap | Atlas Capability | Parthenon Status |
+|-----|-----------------|-----------------|
+| **PLE** | CohortMethod R package — comparative effectiveness studies with propensity scores, outcome modeling, negative control calibration, KM curves | Architecture complete, R sidecar stubs return 501 |
+| **PLP** | PatientLevelPrediction R package — LASSO LR, GBM, Random Forest, model validation, ROC/calibration | Architecture complete, R sidecar stubs return 501 |
+
+Both are architecturally ready: the Laravel backend has full CRUD, async job dispatch via Horizon, polymorphic execution tracking, and notification. The React frontend has complete designer forms, result visualizations (ForestPlot, RocCurve, CalibrationPlot), and execution history. The R sidecar (Plumber API) has mounted routers and validated request schemas.
+
+**The only missing piece is the actual R package integration inside the sidecar.** Additionally, the frontend designers need enhancement to expose the full configuration surface that Atlas power users expect.
+
+### What Atlas Power Users Expect
+
+Atlas users configure PLE/PLP studies through a rich UI, then export downloadable R study packages via Hydra. They execute locally and view results in OhdsiShinyModules. Parthenon must match or exceed this:
+
+1. **Full CohortMethod configuration** — PS matching/stratification/trimming/IPTW, Cox/logistic/Poisson outcome models, negative control calibration, empirical calibration plots
+2. **Full PatientLevelPrediction configuration** — 10+ model types, hyperparameter grids, population settings, split strategies, external validation
+3. **FeatureExtraction parity** — all 100+ covariate settings, temporal covariates, custom time windows
+4. **Self-Controlled Case Series (SCCS)** — within-person design for safety surveillance
+5. **EvidenceSynthesis** — cross-database meta-analysis
+6. **In-platform execution** — no R package download needed; results stream back live
+7. **Rich results viewers** — matching OhdsiShinyModules visualizations
+
+---
+
+## 2. Existing Infrastructure Inventory
+
+### 2.1 R Sidecar (`r-runtime/`)
+
+| File | Current State |
+|------|--------------|
+| `plumber_api.R` | Mounts routers at `/analysis/estimation` and `/analysis/prediction` |
+| `api/estimation.R` | `POST /run` — validates `source`, `cohorts`, `model` fields → returns 501 with TODO comments outlining 7-step CohortMethod flow |
+| `api/prediction.R` | `POST /run` — validates `source`, `cohorts`, `model` fields → returns 501 with TODO comments outlining 7-step PLP flow |
+| `api/stubs.R` | Additional 501 stubs: `/estimation`, `/prediction`, `/feature-extraction`, `/self-controlled` |
+| `api/health.R` | `GET /health` → `{status: "ok"}` |
+| `R/db.R` | Database connection helper via `RPostgres`, parses `DATABASE_URL` env var |
+| `Dockerfile` | R 4.4.0, installs system deps, `remotes`, `plumber`, `RPostgres` |
+
+**Key observation:** HADES packages are not yet installed in the Docker image.
+
+### 2.2 Backend (`backend/`)
+
+| Component | File | State |
+|-----------|------|-------|
+| **EstimationController** | `Http/Controllers/Api/V1/EstimationController.php` | Full CRUD + execute + executions endpoints |
+| **PredictionController** | `Http/Controllers/Api/V1/PredictionController.php` | Full CRUD + execute + executions endpoints |
+| **EstimationService** | `Services/Analysis/EstimationService.php` | Parses design_json, resolves CDM/vocab/results schemas, calls `RService::runEstimation()`, handles not_implemented gracefully |
+| **PredictionService** | `Services/Analysis/PredictionService.php` | Same pattern, calls `RService::runPrediction()` |
+| **RService** | `Services/RService.php` | HTTP client to R sidecar (`POST /stubs/estimation`, `POST /stubs/prediction`), configurable URL + timeout |
+| **RunEstimationJob** | `Jobs/Analysis/RunEstimationJob.php` | Horizon queue job, `r-analysis` queue, 4h timeout, 1 try, notifies author on completion |
+| **RunPredictionJob** | `Jobs/Analysis/RunPredictionJob.php` | Same pattern |
+| **EstimationAnalysis** | `Models/App/EstimationAnalysis.php` | `name`, `description`, `design_json` (jsonb), `author_id`, soft deletes, polymorphic executions |
+| **PredictionAnalysis** | `Models/App/PredictionAnalysis.php` | Same schema |
+| **AnalysisExecution** | `Models/App/AnalysisExecution.php` | Polymorphic, tracks status (pending→queued→running→completed/failed), `result_json`, `fail_message` |
+| **ExecutionLog** | `Models/App/ExecutionLog.php` | Per-execution log entries (level, message, context) |
+| **ExecutionStatus** | `Enums/ExecutionStatus.php` | Pending, Queued, Running, Completed, Failed, Cancelled |
+
+**API routes** (from `routes/api.php`):
+```
+POST   /v1/estimations                              → create
+GET    /v1/estimations                              → list (paginated)
+GET    /v1/estimations/{estimation}                 → show
+PUT    /v1/estimations/{estimation}                 → update
+DELETE /v1/estimations/{estimation}                 → delete
+POST   /v1/estimations/{estimation}/execute         → dispatch job
+GET    /v1/estimations/{estimation}/executions       → list executions
+GET    /v1/estimations/{estimation}/executions/{id}  → show execution
+
+POST   /v1/predictions                              → create
+GET    /v1/predictions                              → list (paginated)
+GET    /v1/predictions/{prediction}                 → show
+PUT    /v1/predictions/{prediction}                 → update
+DELETE /v1/predictions/{prediction}                 → delete
+POST   /v1/predictions/{prediction}/execute         → dispatch job
+GET    /v1/predictions/{prediction}/executions       → list executions
+GET    /v1/predictions/{prediction}/executions/{id}  → show execution
+```
+
+**Validation rules** already enforce the design_json schema:
+- Estimation: targetCohortId, comparatorCohortId, outcomeCohortIds[], model (type, timeAtRisk), propensityScore (enabled, trimming, matching, stratification), covariateSettings, negativeControlOutcomes
+- Prediction: targetCohortId, outcomeCohortId, model (type, hyperParameters), timeAtRisk, covariateSettings, populationSettings (washout, priorOutcome, requireTimeAtRisk, minTimeAtRisk), splitSettings (testFraction, splitSeed)
+
+**Horizon queue config** (`config/horizon.php`):
+- `r-analysis` supervisor: 2 processes, 512MB, 14400s timeout (4 hours), 1 try
+
+**R service config** (`config/services.php`):
+- `r_runtime.url`: `http://r-runtime:8787` (env `R_SERVICE_URL`)
+- `r_runtime.timeout`: 300s (env `R_SERVICE_TIMEOUT`)
+
+### 2.3 Frontend (`frontend/src/features/`)
+
+#### Estimation Feature
+| File | State |
+|------|-------|
+| `estimation/types/estimation.ts` | `EstimationDesign` (target/comparator/outcomes, model type Cox/Logistic, PS settings, covariates, negative controls), `EstimationResult` (summary, estimates[], PS diagnostics, equipoise, power) |
+| `estimation/api/estimationApi.ts` | Full CRUD + execute + execution list/detail API calls |
+| `estimation/hooks/useEstimations.ts` | TanStack Query hooks with 2s polling during execution |
+| `estimation/components/EstimationDesigner.tsx` | Form builder: cohort selectors, model type, PS toggle with matching/stratification, covariate checkboxes + time windows |
+| `estimation/components/EstimationResults.tsx` | Summary cards, forest plot, estimates table, PS diagnostics, equipoise/power |
+| `estimation/components/ForestPlot.tsx` | SVG forest plot with log-scale HR visualization |
+| `estimation/pages/EstimationDetailPage.tsx` | Design + Results tabs, source selector, execution history |
+
+#### Prediction Feature
+| File | State |
+|------|-------|
+| `prediction/types/prediction.ts` | `PredictionDesign` (target/outcome, model type LASSO/GBM/RF, hyperParams, timeAtRisk, covariates, population, split), `PredictionResult` (AUC, Brier, calibration, top predictors, ROC/calibration data) |
+| `prediction/api/predictionApi.ts` | Full CRUD + execute + execution list/detail |
+| `prediction/hooks/usePredictions.ts` | TanStack Query hooks with 2s polling |
+| `prediction/components/PredictionDesigner.tsx` | Form builder: cohorts, model type selector, hyperparams, time windows, covariates, population settings, split settings |
+| `prediction/components/PredictionResults.tsx` | Performance cards (AUC, Brier, calibration), ROC + calibration charts, top predictors table |
+| `prediction/components/RocCurve.tsx` | SVG ROC curve with AUC annotation |
+| `prediction/components/CalibrationPlot.tsx` | SVG calibration plot with slope/intercept overlay |
+| `prediction/pages/PredictionDetailPage.tsx` | Design + Results tabs, source selector, execution history |
+
+### 2.4 Database Migrations
+
+| Table | Purpose |
+|-------|---------|
+| `estimation_analyses` | id, name, description, design_json (jsonb), author_id, timestamps, soft deletes |
+| `prediction_analyses` | id, name, description, design_json (jsonb), author_id, timestamps, soft deletes |
+| `analysis_executions` | Polymorphic (analysis_type + analysis_id), source_id, status, started_at, completed_at, result_json (jsonb), fail_message |
+| `execution_logs` | execution_id, level, message, context (jsonb) |
+
+---
+
+## 3. Implementation Plan
+
+### Phase 14a — R Sidecar: HADES Package Installation & Infrastructure
+
+**Objective:** Install all required HADES R packages in the Docker image and establish shared infrastructure (connection management, schema resolution, logging, progress reporting).
+
+#### 3a.1 Update Dockerfile (`r-runtime/Dockerfile`)
+
+Install HADES packages from OHDSI's R-universe or GitHub:
+
+```dockerfile
+# System dependencies for HADES packages
+RUN apt-get update && apt-get install -y \
+    libxml2-dev libcurl4-openssl-dev libssl-dev \
+    default-jdk \
+    && R CMD javareconf
+
+# Core HADES packages
+RUN Rscript -e ' \
+  options(repos = c( \
+    OHDSI = "https://ohdsi.r-universe.dev", \
+    CRAN = "https://cloud.r-project.org" \
+  )); \
+  install.packages(c( \
+    "DatabaseConnector", \
+    "SqlRender", \
+    "FeatureExtraction", \
+    "CohortMethod", \
+    "PatientLevelPrediction", \
+    "SelfControlledCaseSeries", \
+    "EvidenceSynthesis", \
+    "CohortGenerator", \
+    "Cyclops", \
+    "Andromeda", \
+    "ParallelLogger", \
+    "ResultModelManager", \
+    "OhdsiShinyModules" \
+  )); \
+'
+
+# Python for scikit-learn models (PLP)
+RUN apt-get install -y python3 python3-pip && \
+    pip3 install scikit-learn numpy
+```
+
+**Critical notes:**
+- `DatabaseConnector` requires JDBC drivers. For PostgreSQL, include the PostgreSQL JDBC JAR (`postgresql-42.x.jar`) at a known path, set `DATABASECONNECTOR_JAR_FOLDER` env var.
+- `Cyclops` needs a C++ compiler (already present in r-base image).
+- `Andromeda` uses Arrow/DuckDB for memory-efficient data handling — verify it builds cleanly.
+- PLP uses `reticulate` to call Python sklearn models — install Python 3 and `scikit-learn`.
+- Expect Docker image build time to increase from ~5 min to ~30 min due to compilation. Consider a pre-built base image.
+
+#### 3a.2 Shared Infrastructure (`r-runtime/R/`)
+
+**File: `r-runtime/R/connection.R`** — DatabaseConnector wrapper
+
+```r
+# Establishes a DatabaseConnector connection from spec$source
+# Handles dialect mapping (PostgreSQL → "postgresql")
+# Returns connectionDetails object compatible with all HADES packages
+# Sets CDM, vocabulary, results, cohort schema qualifiers
+create_hades_connection <- function(source_spec) { ... }
+```
+
+**File: `r-runtime/R/covariates.R`** — FeatureExtraction settings builder
+
+```r
+# Translates design_json covariate settings to FeatureExtraction::createCovariateSettings()
+# Maps frontend booleans (demographics, conditions, drugs, etc.) to 100+ individual flags
+# Handles time windows (longTermStartDays, mediumTermStartDays, shortTermStartDays)
+# Handles concept exclusions (exclude treatment drugs from PS model)
+build_covariate_settings <- function(covariate_spec) { ... }
+```
+
+**File: `r-runtime/R/progress.R`** — Progress/logging callback
+
+```r
+# Wraps ParallelLogger to emit structured JSON logs
+# Can POST progress updates back to Laravel for real-time status
+# Captures R warnings and messages into structured output
+create_progress_logger <- function(execution_id) { ... }
+```
+
+**File: `r-runtime/R/results.R`** — Result serialization
+
+```r
+# Converts HADES output objects to JSON-serializable lists
+# Handles Andromeda data (extracts summary statistics, not raw data)
+# Formats hazard ratios, confidence intervals, p-values
+# Extracts ROC curve points, calibration data, feature importance
+serialize_estimation_result <- function(cm_result) { ... }
+serialize_prediction_result <- function(plp_result) { ... }
+```
+
+---
+
+### Phase 14b — CohortMethod (PLE) R Implementation
+
+**Objective:** Implement the full CohortMethod pipeline in the R sidecar, matching Atlas's PLE capability.
+
+#### 3b.1 Replace Estimation Stub (`r-runtime/api/estimation.R`)
+
+The `POST /run` endpoint currently returns 501. Replace with a fully functional CohortMethod pipeline:
+
+```
+Input (from EstimationService.php):
+{
+  "source": {
+    "dialect": "postgresql",
+    "connection": { "host", "port", "database", "user", "password" },
+    "cdm_schema": "cdm",
+    "vocab_schema": "vocab",
+    "results_schema": "results",
+    "cohort_table": "cohort"
+  },
+  "cohorts": {
+    "target_cohort_id": 1,
+    "comparator_cohort_id": 2,
+    "outcome_cohort_ids": [3, 4, 5]
+  },
+  "model": {
+    "type": "cox",           // "cox" | "logistic" | "poisson"
+    "time_at_risk_start": 1,
+    "time_at_risk_end": 9999,
+    "end_anchor": "cohort end"
+  },
+  "propensity_score": {
+    "enabled": true,
+    "trimming": 0.05,
+    "matching": { "ratio": 1, "caliper": 0.2, "caliper_scale": "standardized_logit" },
+    "stratification": { "num_strata": 5 },
+    "method": "matching"     // "matching" | "stratification" | "iptw"
+  },
+  "covariate_settings": { ... },
+  "negative_control_outcomes": [101, 102, 103, ...]
+}
+```
+
+#### 3b.2 CohortMethod Pipeline Steps
+
+**Step 1: Establish connection**
+```r
+connectionDetails <- create_hades_connection(spec$source)
+```
+
+**Step 2: Extract data**
+```r
+covariateSettings <- build_covariate_settings(spec$covariate_settings)
+cmData <- CohortMethod::getDbCohortMethodData(
+  connectionDetails = connectionDetails,
+  cdmDatabaseSchema = spec$source$cdm_schema,
+  targetId = spec$cohorts$target_cohort_id,
+  comparatorId = spec$cohorts$comparator_cohort_id,
+  outcomeIds = spec$cohorts$outcome_cohort_ids,
+  exposureDatabaseSchema = spec$source$results_schema,
+  exposureTable = spec$source$cohort_table,
+  outcomeDatabaseSchema = spec$source$results_schema,
+  outcomeTable = spec$source$cohort_table,
+  covariateSettings = covariateSettings
+)
+```
+
+**Step 3: Create study population** (per outcome)
+```r
+studyPop <- CohortMethod::createStudyPopulation(
+  cohortMethodData = cmData,
+  outcomeId = outcomeId,
+  removeSubjectsWithPriorOutcome = TRUE,
+  riskWindowStart = spec$model$time_at_risk_start,
+  startAnchor = "cohort start",
+  riskWindowEnd = spec$model$time_at_risk_end,
+  endAnchor = spec$model$end_anchor
+)
+```
+
+**Step 4: Fit propensity score**
+```r
+ps <- CohortMethod::createPs(
+  cohortMethodData = cmData,
+  population = studyPop
+)
+psAuc <- CohortMethod::computePsAuc(ps)
+equipoise <- CohortMethod::computeEquipoise(ps)
+```
+
+**Step 5: Adjust population**
+```r
+if (spec$propensity_score$method == "matching") {
+  adjustedPop <- CohortMethod::matchOnPs(ps,
+    maxRatio = spec$propensity_score$matching$ratio,
+    caliper = spec$propensity_score$matching$caliper
+  )
+} else if (spec$propensity_score$method == "stratification") {
+  adjustedPop <- CohortMethod::stratifyByPs(ps,
+    numberOfStrata = spec$propensity_score$stratification$num_strata
+  )
+} else {  # IPTW
+  adjustedPop <- CohortMethod::trimByPs(ps,
+    trimFraction = spec$propensity_score$trimming
+  )
+}
+```
+
+**Step 6: Compute covariate balance**
+```r
+balance <- CohortMethod::computeCovariateBalance(
+  population = adjustedPop,
+  cohortMethodData = cmData
+)
+# Extract mean/max SMD before and after adjustment
+```
+
+**Step 7: Fit outcome model**
+```r
+outcomeModel <- CohortMethod::fitOutcomeModel(
+  population = adjustedPop,
+  cohortMethodData = cmData,
+  modelType = spec$model$type,   # "cox", "logistic", "poisson"
+  stratified = (spec$propensity_score$method %in% c("matching", "stratification"))
+)
+# Extract: HR/OR/IRR = exp(coef(outcomeModel)), CI = exp(confint(outcomeModel))
+```
+
+**Step 8: Negative control calibration** (if negative controls provided)
+```r
+if (length(spec$negative_control_outcomes) > 0) {
+  # Run same pipeline for each negative control outcome
+  # Compute empirical null distribution
+  # Calibrate primary estimates
+  # Use EmpiricalCalibration::calibrateCi()
+}
+```
+
+**Step 9: Additional diagnostics**
+```r
+# Kaplan-Meier data extraction
+kmData <- CohortMethod::plotKaplanMeier(adjustedPop, includeZero = TRUE)
+
+# Attrition diagram data
+attrition <- CohortMethod::getAttritionTable(adjustedPop)
+
+# Follow-up distribution
+followUp <- CohortMethod::getFollowUpDistribution(adjustedPop)
+
+# Minimum detectable relative risk
+mdrr <- CohortMethod::computeMdrr(adjustedPop, modelType = spec$model$type)
+```
+
+**Step 10: Serialize and return**
+```r
+result <- serialize_estimation_result(list(
+  summary = list(
+    target_count = nrow(studyPop[studyPop$treatment == 1,]),
+    comparator_count = nrow(studyPop[studyPop$treatment == 0,]),
+    outcome_counts = outcome_counts_list
+  ),
+  estimates = estimates_list,            # Per-outcome: HR, CI, p-value, events
+  propensity_score = list(
+    auc = psAuc,
+    equipoise = equipoise,
+    mean_smd_before = ...,
+    mean_smd_after = ...,
+    max_smd_before = ...,
+    max_smd_after = ...
+  ),
+  covariate_balance = balance_summary,   # Top covariates with SMD before/after
+  kaplan_meier = km_data,                # Time, survival, lower, upper per arm
+  attrition = attrition_table,           # Step, subjects remaining, excluded
+  follow_up = follow_up_data,            # Distribution of follow-up days
+  mdrr = mdrr_per_outcome,              # Minimum detectable relative risk
+  negative_controls = calibration_data,  # If provided: NC estimates + calibrated estimates
+  ps_distribution = ps_dist_data         # Preference score histogram data
+))
+```
+
+#### 3b.3 Expected Output Schema (`result_json` in `analysis_executions`)
+
+```json
+{
+  "status": "completed",
+  "summary": {
+    "target_count": 45231,
+    "comparator_count": 38792,
+    "outcome_counts": { "3": 1205, "4": 892, "5": 2341 }
+  },
+  "estimates": [
+    {
+      "outcome_id": 3,
+      "outcome_name": "MI",
+      "hazard_ratio": 0.85,
+      "ci_95_lower": 0.72,
+      "ci_95_upper": 1.01,
+      "p_value": 0.063,
+      "target_events": 523,
+      "comparator_events": 682,
+      "log_rr": -0.163,
+      "se_log_rr": 0.087,
+      "calibrated_hr": 0.87,
+      "calibrated_ci_lower": 0.71,
+      "calibrated_ci_upper": 1.06,
+      "calibrated_p": 0.091
+    }
+  ],
+  "propensity_score": {
+    "auc": 0.78,
+    "equipoise": 0.62,
+    "mean_smd_before": 0.145,
+    "mean_smd_after": 0.012,
+    "max_smd_before": 0.892,
+    "max_smd_after": 0.035,
+    "distribution": {
+      "target": [{ "x": 0.0, "y": 120 }, ...],
+      "comparator": [{ "x": 0.0, "y": 135 }, ...]
+    }
+  },
+  "covariate_balance": [
+    {
+      "covariate_name": "Diabetes mellitus type 2",
+      "concept_id": 201826,
+      "smd_before": 0.34,
+      "smd_after": 0.01,
+      "mean_target_before": 0.45,
+      "mean_comparator_before": 0.31,
+      "mean_target_after": 0.38,
+      "mean_comparator_after": 0.37
+    }
+  ],
+  "kaplan_meier": {
+    "target": [{ "time": 0, "survival": 1.0, "lower": 1.0, "upper": 1.0 }, ...],
+    "comparator": [{ "time": 0, "survival": 1.0, "lower": 1.0, "upper": 1.0 }, ...]
+  },
+  "attrition": [
+    { "step": "Starting population", "target": 50000, "comparator": 42000 },
+    { "step": "First exposure only", "target": 48321, "comparator": 40108 },
+    { "step": "Has ≥1 day at risk", "target": 45231, "comparator": 38792 },
+    { "step": "PS matched", "target": 35000, "comparator": 35000 }
+  ],
+  "mdrr": { "3": 1.15, "4": 1.22, "5": 1.08 },
+  "negative_controls": {
+    "estimates": [
+      { "outcome_id": 101, "log_rr": 0.02, "se_log_rr": 0.15 }
+    ],
+    "empirical_null": { "mean": 0.01, "sd": 0.12 }
+  }
+}
+```
+
+---
+
+### Phase 14c — PatientLevelPrediction (PLP) R Implementation
+
+**Objective:** Implement the full PLP pipeline in the R sidecar, matching Atlas's PLP capability.
+
+#### 3c.1 Replace Prediction Stub (`r-runtime/api/prediction.R`)
+
+```
+Input (from PredictionService.php):
+{
+  "source": { /* same as estimation */ },
+  "cohorts": {
+    "target_cohort_id": 1,
+    "outcome_cohort_id": 3
+  },
+  "model": {
+    "type": "lasso_logistic_regression",
+    "hyper_parameters": {
+      "variance": [0.001, 0.01, 0.1],
+      "seed": 42
+    }
+  },
+  "time_at_risk": {
+    "start": 1,
+    "end": 365,
+    "end_anchor": "cohort start"
+  },
+  "covariate_settings": { ... },
+  "population_settings": {
+    "washout_period": 364,
+    "remove_subjects_with_prior_outcome": true,
+    "require_time_at_risk": true,
+    "min_time_at_risk": 364,
+    "first_exposure_only": false
+  },
+  "split_settings": {
+    "test_fraction": 0.25,
+    "split_seed": 42,
+    "n_fold": 3,
+    "type": "stratified"
+  }
+}
+```
+
+#### 3c.2 PLP Pipeline Steps
+
+**Step 1: Create database details**
+```r
+databaseDetails <- PatientLevelPrediction::createDatabaseDetails(
+  connectionDetails = create_hades_connection(spec$source),
+  cdmDatabaseSchema = spec$source$cdm_schema,
+  cdmDatabaseName = "parthenon",
+  cohortDatabaseSchema = spec$source$results_schema,
+  cohortTable = spec$source$cohort_table,
+  outcomeDatabaseSchema = spec$source$results_schema,
+  outcomeTable = spec$source$cohort_table,
+  targetId = spec$cohorts$target_cohort_id,
+  outcomeIds = spec$cohorts$outcome_cohort_id
+)
+```
+
+**Step 2: Configure model**
+```r
+modelSettings <- switch(spec$model$type,
+  "lasso_logistic_regression" = PatientLevelPrediction::setLassoLogisticRegression(
+    variance = spec$model$hyper_parameters$variance %||% 0.01,
+    seed = spec$model$hyper_parameters$seed %||% 42
+  ),
+  "gradient_boosting" = PatientLevelPrediction::setGradientBoostingMachine(
+    ntrees = spec$model$hyper_parameters$ntrees %||% c(100, 300),
+    maxDepth = spec$model$hyper_parameters$max_depth %||% c(4, 6, 8),
+    learnRate = spec$model$hyper_parameters$learn_rate %||% c(0.05, 0.1),
+    seed = spec$model$hyper_parameters$seed %||% 42
+  ),
+  "random_forest" = PatientLevelPrediction::setRandomForest(
+    ntrees = spec$model$hyper_parameters$ntrees %||% c(100, 500),
+    maxDepth = spec$model$hyper_parameters$max_depth %||% c(4, 8, 17),
+    seed = spec$model$hyper_parameters$seed %||% 42
+  ),
+  "ada_boost" = PatientLevelPrediction::setAdaBoost(
+    nEstimators = spec$model$hyper_parameters$n_estimators %||% c(50, 100),
+    learningRate = spec$model$hyper_parameters$learning_rate %||% c(0.5, 1.0),
+    seed = spec$model$hyper_parameters$seed %||% 42
+  ),
+  "decision_tree" = PatientLevelPrediction::setDecisionTree(
+    maxDepth = spec$model$hyper_parameters$max_depth %||% c(3, 5, 10),
+    seed = spec$model$hyper_parameters$seed %||% 42
+  ),
+  "naive_bayes" = PatientLevelPrediction::setNaiveBayes(),
+  "mlp" = PatientLevelPrediction::setMLP(
+    hiddenLayerSizes = spec$model$hyper_parameters$hidden_layers %||% list(c(128)),
+    seed = spec$model$hyper_parameters$seed %||% 42
+  ),
+  "lightgbm" = PatientLevelPrediction::setLightGBM(
+    nthread = spec$model$hyper_parameters$nthread %||% 4,
+    numLeaves = spec$model$hyper_parameters$num_leaves %||% c(31, 63),
+    learningRate = spec$model$hyper_parameters$learning_rate %||% c(0.05, 0.1),
+    seed = spec$model$hyper_parameters$seed %||% 42
+  ),
+  stop(paste("Unsupported model type:", spec$model$type))
+)
+```
+
+**Step 3: Configure population and split**
+```r
+populationSettings <- PatientLevelPrediction::createStudyPopulationSettings(
+  washoutPeriod = spec$population_settings$washout_period %||% 364,
+  firstExposureOnly = spec$population_settings$first_exposure_only %||% FALSE,
+  removeSubjectsWithPriorOutcome = spec$population_settings$remove_subjects_with_prior_outcome %||% TRUE,
+  priorOutcomeLookback = 9999,
+  riskWindowStart = spec$time_at_risk$start %||% 1,
+  riskWindowEnd = spec$time_at_risk$end %||% 365,
+  startAnchor = "cohort start",
+  endAnchor = spec$time_at_risk$end_anchor %||% "cohort start",
+  minTimeAtRisk = spec$population_settings$min_time_at_risk %||% 364,
+  requireTimeAtRisk = spec$population_settings$require_time_at_risk %||% TRUE,
+  includeAllOutcomes = TRUE
+)
+
+splitSettings <- PatientLevelPrediction::createDefaultSplitSetting(
+  testFraction = spec$split_settings$test_fraction %||% 0.25,
+  splitSeed = spec$split_settings$split_seed %||% 42,
+  nfold = spec$split_settings$n_fold %||% 3,
+  type = spec$split_settings$type %||% "stratified"
+)
+```
+
+**Step 4: Run PLP**
+```r
+plpResult <- PatientLevelPrediction::runPlp(
+  plpData = plpData,
+  outcomeId = spec$cohorts$outcome_cohort_id,
+  modelSettings = modelSettings,
+  populationSettings = populationSettings,
+  splitSettings = splitSettings,
+  sampleSettings = PatientLevelPrediction::createSampleSettings(),
+  featureEngineeringSettings = PatientLevelPrediction::createFeatureEngineeringSettings(),
+  preprocessSettings = PatientLevelPrediction::createPreprocessSettings(
+    minFraction = 0.001,
+    normalize = TRUE,
+    removeRedundancy = TRUE
+  ),
+  executeSettings = PatientLevelPrediction::createExecuteSettings(
+    runSplitData = TRUE,
+    runSampleData = FALSE,
+    runfeatureEngineering = FALSE,
+    runPreprocessData = TRUE,
+    runModelDevelopment = TRUE,
+    runCovariateSummary = TRUE
+  ),
+  saveDirectory = tempdir()
+)
+```
+
+**Step 5: Extract and serialize results**
+```r
+result <- serialize_prediction_result(list(
+  summary = list(
+    target_count = plpResult$model$trainDetails$trainingSize +
+                   nrow(plpResult$prediction[plpResult$prediction$evaluationType == "Test",]),
+    outcome_count = sum(plpResult$prediction$outcomeCount),
+    outcome_rate = mean(plpResult$prediction$outcomeCount)
+  ),
+  performance = list(
+    auc = plpResult$performanceEvaluation$evaluationStatistics$AUC.auc,
+    auc_ci_lower = plpResult$performanceEvaluation$evaluationStatistics$AUC.auc_lb95ci,
+    auc_ci_upper = plpResult$performanceEvaluation$evaluationStatistics$AUC.auc_ub95ci,
+    auprc = plpResult$performanceEvaluation$evaluationStatistics$AUPRC,
+    brier_score = plpResult$performanceEvaluation$evaluationStatistics$BrierScore,
+    calibration_slope = plpResult$performanceEvaluation$calibrationSummary$calibrationSlope,
+    calibration_intercept = plpResult$performanceEvaluation$calibrationSummary$calibrationIntercept
+  ),
+  roc_curve = extract_roc_points(plpResult),
+  calibration = extract_calibration_points(plpResult),
+  top_predictors = extract_top_predictors(plpResult, n = 30),
+  model_details = list(
+    type = spec$model$type,
+    hyper_parameters_selected = plpResult$model$modelDesign$modelSettings,
+    covariate_count = plpResult$model$trainDetails$covariateCount,
+    training_time_seconds = plpResult$executionSummary$TotalExecutionElapsedTime
+  )
+))
+```
+
+#### 3c.3 Expected Output Schema
+
+```json
+{
+  "status": "completed",
+  "summary": {
+    "target_count": 28543,
+    "outcome_count": 3421,
+    "outcome_rate": 0.1199
+  },
+  "performance": {
+    "auc": 0.812,
+    "auc_ci_lower": 0.795,
+    "auc_ci_upper": 0.829,
+    "auprc": 0.452,
+    "brier_score": 0.089,
+    "calibration_slope": 1.02,
+    "calibration_intercept": -0.03
+  },
+  "roc_curve": [
+    { "fpr": 0.0, "tpr": 0.0 },
+    { "fpr": 0.01, "tpr": 0.08 },
+    { "fpr": 0.05, "tpr": 0.28 },
+    ...
+    { "fpr": 1.0, "tpr": 1.0 }
+  ],
+  "calibration": [
+    { "predicted": 0.05, "observed": 0.048 },
+    { "predicted": 0.10, "observed": 0.103 },
+    ...
+  ],
+  "top_predictors": [
+    { "name": "Diabetes mellitus type 2", "concept_id": 201826, "coefficient": 1.34, "importance": 0.089 },
+    { "name": "Age 65-69", "concept_id": null, "coefficient": 0.92, "importance": 0.072 },
+    { "name": "Hypertension", "concept_id": 320128, "coefficient": 0.87, "importance": 0.065 }
+  ],
+  "model_details": {
+    "type": "lasso_logistic_regression",
+    "hyper_parameters_selected": { "variance": 0.01 },
+    "covariate_count": 23451,
+    "training_time_seconds": 342
+  }
+}
+```
+
+---
+
+### Phase 14d — FeatureExtraction Parity
+
+**Objective:** Expose the full FeatureExtraction configuration surface to match Atlas's covariate settings UI.
+
+#### 3d.1 Expand Frontend Covariate Designer
+
+The current `EstimationDesigner.tsx` and `PredictionDesigner.tsx` have simple checkboxes for 6 covariate domains. Atlas exposes 100+ individual settings. Create a shared `CovariateSettingsPanel.tsx`:
+
+**File: `frontend/src/components/analysis/CovariateSettingsPanel.tsx`**
+
+Sections:
+1. **Quick Presets**
+   - "Default" — enables demographics + all common domains (matches `createDefaultCovariateSettings()`)
+   - "Minimal" — demographics only
+   - "Full" — everything enabled
+   - "Custom" — manually toggle each domain
+
+2. **Demographics** (checkboxes)
+   - Gender, Age, Age Group, Race, Ethnicity, Index Year, Index Month, Prior Observation Time, Post Observation Time
+
+3. **Conditions** (grouped with time window selector)
+   - Condition Occurrence: Any Time Prior, Long Term, Medium Term, Short Term
+   - Primary Inpatient Conditions: Any Time Prior, Long Term, Medium Term, Short Term
+   - Condition Era: Any Time Prior, Long Term, Overlapping
+   - Condition Group Era: Any Time Prior, Long Term, Overlapping
+
+4. **Drugs** (same grouping pattern)
+   - Drug Exposure: Any Time Prior, Long Term, Medium Term, Short Term
+   - Drug Era: Any Time Prior, Long Term, Overlapping
+   - Drug Group Era: Any Time Prior, Long Term, Overlapping
+
+5. **Procedures**: Any Time Prior, Long Term, Medium Term, Short Term
+
+6. **Measurements**: Occurrence, Values, Range Groups (below/within/above normal)
+
+7. **Observations**: Any Time Prior, Long Term, Medium Term, Short Term
+
+8. **Devices**: Any Time Prior, Long Term, Medium Term, Short Term
+
+9. **Comorbidity Indices**: Charlson, DCSI, CHADS2, CHADS2Vasc, HFRS
+
+10. **Count Covariates**: Distinct conditions, ingredients, procedures, measurements, observations, visits
+
+11. **Time Windows** (editable)
+    - Long term start: -365 (days)
+    - Medium term start: -180
+    - Short term start: -30
+    - End: 0
+
+12. **Concept Filters**
+    - Include concept IDs (with "include descendants" toggle)
+    - Exclude concept IDs (with "include descendants" toggle)
+    - Integrated with concept set picker
+
+#### 3d.2 Expand Backend Validation
+
+Update `EstimationController` and `PredictionController` validation rules to accept the expanded covariate settings structure:
+
+```php
+'design_json.covariateSettings.demographics' => 'nullable|array',
+'design_json.covariateSettings.demographics.gender' => 'nullable|boolean',
+'design_json.covariateSettings.demographics.age' => 'nullable|boolean',
+'design_json.covariateSettings.demographics.ageGroup' => 'nullable|boolean',
+// ... etc for each individual flag
+'design_json.covariateSettings.conditions' => 'nullable|array',
+'design_json.covariateSettings.conditions.anyTimePrior' => 'nullable|boolean',
+// ... etc
+'design_json.covariateSettings.timeWindows' => 'nullable|array',
+'design_json.covariateSettings.timeWindows.longTermStart' => 'nullable|integer',
+'design_json.covariateSettings.timeWindows.mediumTermStart' => 'nullable|integer',
+'design_json.covariateSettings.timeWindows.shortTermStart' => 'nullable|integer',
+'design_json.covariateSettings.timeWindows.end' => 'nullable|integer',
+'design_json.covariateSettings.excludedConceptIds' => 'nullable|array',
+'design_json.covariateSettings.excludedConceptIds.*' => 'integer',
+'design_json.covariateSettings.includedConceptIds' => 'nullable|array',
+'design_json.covariateSettings.includedConceptIds.*' => 'integer',
+```
+
+#### 3d.3 R-side Covariate Builder
+
+The `build_covariate_settings()` function in `R/covariates.R` maps the expanded JSON structure to `FeatureExtraction::createCovariateSettings()`:
+
+```r
+build_covariate_settings <- function(spec) {
+  if (is.null(spec) || identical(spec, list())) {
+    return(FeatureExtraction::createDefaultCovariateSettings())
+  }
+
+  args <- list()
+
+  # Demographics
+  if (!is.null(spec$demographics)) {
+    args$useDemographicsGender <- spec$demographics$gender %||% FALSE
+    args$useDemographicsAge <- spec$demographics$age %||% FALSE
+    args$useDemographicsAgeGroup <- spec$demographics$ageGroup %||% FALSE
+    args$useDemographicsRace <- spec$demographics$race %||% FALSE
+    args$useDemographicsEthnicity <- spec$demographics$ethnicity %||% FALSE
+    # ... etc
+  }
+
+  # Conditions
+  if (!is.null(spec$conditions)) {
+    args$useConditionOccurrenceAnyTimePrior <- spec$conditions$anyTimePrior %||% FALSE
+    args$useConditionOccurrenceLongTerm <- spec$conditions$longTerm %||% FALSE
+    # ... etc
+  }
+
+  # Time windows
+  if (!is.null(spec$timeWindows)) {
+    args$longTermStartDays <- spec$timeWindows$longTermStart %||% -365
+    args$mediumTermStartDays <- spec$timeWindows$mediumTermStart %||% -180
+    args$shortTermStartDays <- spec$timeWindows$shortTermStart %||% -30
+    args$endDays <- spec$timeWindows$end %||% 0
+  }
+
+  # Concept filters
+  if (!is.null(spec$excludedConceptIds)) {
+    args$excludedCovariateConceptIds <- spec$excludedConceptIds
+    args$addDescendantsToExclude <- spec$excludeDescendants %||% TRUE
+  }
+
+  do.call(FeatureExtraction::createCovariateSettings, args)
+}
+```
+
+---
+
+### Phase 14e — Enhanced Frontend Results Viewers
+
+**Objective:** Match the full OhdsiShinyModules results experience within Parthenon's React UI.
+
+#### 3e.1 Estimation Results Enhancements
+
+Enhance `EstimationResults.tsx` with additional tabs/sections:
+
+| Visualization | Component | What It Shows |
+|--------------|-----------|--------------|
+| **Forest Plot** | `ForestPlot.tsx` (existing) | HR/OR/IRR with 95% CI per outcome — already implemented |
+| **Kaplan-Meier Curves** | `KaplanMeierChart.tsx` (new) | Time-to-event survival curves for target vs comparator, with confidence bands |
+| **PS Distribution** | `PsDistributionChart.tsx` (new) | Overlapping histograms of propensity scores for target vs comparator, with preference score overlay |
+| **Covariate Balance** | `CovariateBalanceScatter.tsx` (new) | Scatter plot: SMD before (x) vs after (y) adjustment, with dashed threshold lines at ±0.1 |
+| **Table 1** | `PopulationCharacteristics.tsx` (new) | Baseline characteristics table: covariate name, target %, comparator %, SMD (sortable) |
+| **Attrition Diagram** | `AttritionDiagram.tsx` (new) | Funnel/flow diagram showing patient counts at each inclusion/exclusion step |
+| **Negative Control Plot** | `NegativeControlPlot.tsx` (new) | Systematic error diagnostic: NC estimates as blue dots, primary estimate as gold diamond, calibrated CI overlay |
+| **Power Analysis** | Already in results | MDRR per outcome — already implemented |
+
+#### 3e.2 Prediction Results Enhancements
+
+Enhance `PredictionResults.tsx` with additional tabs/sections:
+
+| Visualization | Component | What It Shows |
+|--------------|-----------|--------------|
+| **ROC Curve** | `RocCurve.tsx` (existing) | Sensitivity vs 1-specificity — already implemented |
+| **Calibration Plot** | `CalibrationPlot.tsx` (existing) | Predicted vs observed — already implemented |
+| **Precision-Recall Curve** | `PrecisionRecallCurve.tsx` (new) | Precision vs recall for rare outcomes, AUPRC annotation |
+| **Threshold Analysis** | `ThresholdAnalysis.tsx` (new) | Interactive slider: at a given probability threshold, show sensitivity, specificity, PPV, NPV, F1, number needed to screen |
+| **Decision Curve** | `DecisionCurve.tsx` (new) | Net benefit vs threshold probability, comparing model to "treat all" and "treat none" strategies |
+| **Feature Importance** | Already in results | Top predictors with coefficient/importance bars — already implemented |
+| **Variable Scatter** | `VariableScatter.tsx` (new) | Mean covariate difference between outcome+ vs outcome- groups, highlighting top discriminators |
+| **Model Comparison** | `ModelComparison.tsx` (new) | Side-by-side AUC/Brier/calibration for multiple model types run on same data |
+
+#### 3e.3 Shared Analysis Components
+
+**File: `frontend/src/components/analysis/ExecutionStatusBanner.tsx`**
+
+A unified execution status component showing:
+- Queued → animated pulsing indicator
+- Running → progress bar with elapsed time + log streaming
+- Completed → summary metrics banner
+- Failed → error message with retry button
+
+**File: `frontend/src/components/analysis/LogViewer.tsx`**
+
+Real-time log viewer that polls `GET /executions/{id}` and renders `ExecutionLog` entries with:
+- Timestamp, level (info/warning/error), message
+- Color-coded by level
+- Auto-scroll to latest
+- Collapsible context JSON
+
+---
+
+### Phase 14f — Self-Controlled Case Series (SCCS)
+
+**Objective:** Add SCCS as a third analysis type, extending beyond what Atlas typically exposes inline.
+
+#### 3f.1 Backend
+
+- **Model:** `SccsAnalysis` (same pattern as EstimationAnalysis)
+- **Controller:** `SccsController` with CRUD + execute
+- **Service:** `SccsService` — builds spec, calls R sidecar
+- **Job:** `RunSccsJob` on `r-analysis` queue
+- **Migration:** `sccs_analyses` table (name, description, design_json, author_id, timestamps, soft deletes)
+- **Routes:**
+  ```
+  POST   /v1/sccs
+  GET    /v1/sccs
+  GET    /v1/sccs/{sccs}
+  PUT    /v1/sccs/{sccs}
+  DELETE /v1/sccs/{sccs}
+  POST   /v1/sccs/{sccs}/execute
+  GET    /v1/sccs/{sccs}/executions
+  GET    /v1/sccs/{sccs}/executions/{execution}
+  ```
+
+#### 3f.2 R Sidecar
+
+**File: `r-runtime/api/sccs.R`**
+
+Pipeline:
+1. `SelfControlledCaseSeries::getDbSccsData()` — extract case series data
+2. `createStudyPopulation()` — define observation/naive periods
+3. `createEraCovariateSettings()` — define exposure risk windows (pre-exposure, on-treatment, post-exposure)
+4. `createSccsIntervalData()` — create person-interval data with covariates
+5. `fitSccsModel()` — conditional Poisson regression
+6. Run diagnostics: rare outcome check, exposure-event independence, censoring independence, time stability
+7. Return: IRR with CI, diagnostic pass/fail, pre-exposure estimate, seasonal/calendar effects
+
+#### 3f.3 Frontend
+
+| Component | Purpose |
+|-----------|---------|
+| `SccsDesigner.tsx` | Exposure cohort, outcome cohort, risk windows (pre/during/post exposure), naive period, seasonality toggle |
+| `SccsResults.tsx` | IRR estimates, diagnostic checklist (4 assumption tests), exposure-centered plot |
+| `SccsDetailPage.tsx` | Design + Results tabs, execution history |
+
+#### 3f.4 SCCS Design JSON Schema
+
+```json
+{
+  "exposureCohortId": 1,
+  "outcomeCohortId": 3,
+  "riskWindows": [
+    { "label": "Pre-exposure", "start": -30, "end": -1, "endAnchor": "era start" },
+    { "label": "On treatment", "start": 0, "end": 0, "endAnchor": "era end" },
+    { "label": "Post-exposure", "start": 1, "end": 30, "endAnchor": "era end" }
+  ],
+  "naivePeriod": 180,
+  "firstOutcomeOnly": true,
+  "seasonality": true,
+  "calendarTime": true,
+  "eventDependentObservation": true,
+  "covariateSettings": { ... }
+}
+```
+
+---
+
+### Phase 14g — Evidence Synthesis (Cross-Database Meta-Analysis)
+
+**Objective:** Allow users to combine PLE/PLP results across multiple data sources, matching Atlas's multi-site study capability.
+
+#### 3g.1 Backend
+
+- **Model:** `EvidenceSynthesisAnalysis` (references parent EstimationAnalysis or PredictionAnalysis + multiple executions across sources)
+- **Controller:** `EvidenceSynthesisController`
+- **Service:** `EvidenceSynthesisService` — collects result_json from executions across sources, calls R sidecar for meta-analysis
+- **Routes:**
+  ```
+  POST   /v1/evidence-synthesis
+  GET    /v1/evidence-synthesis
+  GET    /v1/evidence-synthesis/{id}
+  POST   /v1/evidence-synthesis/{id}/run
+  ```
+
+#### 3g.2 R Sidecar
+
+**File: `r-runtime/api/evidence_synthesis.R`**
+
+Pipeline:
+1. Receive per-site estimation results (log hazard ratios + SE)
+2. `EvidenceSynthesis::approximateLikelihood()` — convert to shareable likelihoods
+3. `EvidenceSynthesis::computeBayesianMetaAnalysis()` — Bayesian random-effects meta-analysis
+4. Return: pooled estimate, CI, heterogeneity (tau), per-site forest plot data
+
+#### 3g.3 Frontend
+
+| Component | Purpose |
+|-----------|---------|
+| `EvidenceSynthesisDesigner.tsx` | Select parent analysis + pick which source executions to include |
+| `MetaAnalysisForestPlot.tsx` | Forest plot with per-site estimates + diamond for pooled |
+| `HeterogeneityTable.tsx` | I², tau², Q statistic, p-value for heterogeneity |
+
+---
+
+### Phase 14h — Backend Enhancements
+
+#### 3h.1 Update RService Endpoints
+
+Currently `RService.php` calls `/stubs/estimation` and `/stubs/prediction`. Update to call the real endpoints:
+
+```php
+// RService.php
+public function runEstimation(array $spec): array
+{
+    // Change from: POST /stubs/estimation
+    // Change to:   POST /analysis/estimation/run
+    return $this->post('/analysis/estimation/run', $spec);
+}
+
+public function runPrediction(array $spec): array
+{
+    // Change from: POST /stubs/prediction
+    // Change to:   POST /analysis/prediction/run
+    return $this->post('/analysis/prediction/run', $spec);
+}
+
+public function runSccs(array $spec): array
+{
+    return $this->post('/analysis/sccs/run', $spec);
+}
+
+public function runEvidenceSynthesis(array $spec): array
+{
+    return $this->post('/analysis/evidence-synthesis/run', $spec);
+}
+```
+
+#### 3h.2 Increase R Service Timeout
+
+CohortMethod with large datasets can run for 30-60 minutes. PLP with hyperparameter grid search can take hours.
+
+```php
+// config/services.php
+'r_runtime' => [
+    'url' => env('R_SERVICE_URL', 'http://r-runtime:8787'),
+    'timeout' => env('R_SERVICE_TIMEOUT', 7200),  // Increase from 300s to 7200s (2 hours)
+],
+```
+
+The Horizon job timeout is already 14400s (4 hours) — sufficient.
+
+#### 3h.3 Streaming Execution Logs
+
+Add a new endpoint for real-time log streaming during long-running analyses:
+
+```php
+// EstimationController & PredictionController
+public function streamLogs(Request $request, $analysisId, $executionId)
+{
+    // SSE (Server-Sent Events) endpoint
+    // Polls execution_logs table for new entries
+    // Yields events as they appear
+    // Closes when execution status leaves 'running'
+}
+```
+
+Route: `GET /v1/estimations/{id}/executions/{executionId}/logs/stream`
+
+Frontend hooks: `useExecutionLogStream(executionId)` using `EventSource` API.
+
+#### 3h.4 Expand Estimation Validation for PS Methods
+
+```php
+// Add to estimation validation
+'design_json.propensityScore.method' => 'nullable|string|in:matching,stratification,iptw',
+'design_json.propensityScore.matching.caliper' => 'nullable|numeric|min:0',
+'design_json.propensityScore.matching.caliperScale' => 'nullable|string|in:ps,standardized,standardized_logit',
+'design_json.propensityScore.iptw.maxWeight' => 'nullable|numeric|min:1',
+'design_json.propensityScore.iptw.truncation' => 'nullable|numeric|min:0|max:0.5',
+```
+
+#### 3h.5 Expand Prediction Validation for All Model Types
+
+```php
+// Add to prediction validation
+'design_json.model.type' => 'nullable|string|in:lasso_logistic_regression,gradient_boosting,random_forest,ada_boost,decision_tree,naive_bayes,mlp,lightgbm,cox_model',
+'design_json.model.hyperParameters.variance' => 'nullable|array',
+'design_json.model.hyperParameters.ntrees' => 'nullable|array',
+'design_json.model.hyperParameters.maxDepth' => 'nullable|array',
+'design_json.model.hyperParameters.learnRate' => 'nullable|array',
+'design_json.model.hyperParameters.nEstimators' => 'nullable|array',
+'design_json.model.hyperParameters.hiddenLayers' => 'nullable|array',
+'design_json.model.hyperParameters.seed' => 'nullable|integer',
+'design_json.splitSettings.nFold' => 'nullable|integer|min:2|max:10',
+'design_json.splitSettings.type' => 'nullable|string|in:stratified,time',
+```
+
+---
+
+### Phase 14i — Frontend Designer Enhancements
+
+**Objective:** Expand the existing designers to expose the full configuration surface.
+
+#### 3i.1 Estimation Designer Enhancements
+
+Add to `EstimationDesigner.tsx`:
+
+| Section | New Fields |
+|---------|-----------|
+| **Model Type** | Add Poisson regression option alongside Cox and Logistic |
+| **PS Method** | Radio group: Matching / Stratification / IPTW (currently only matching/stratification) |
+| **PS Matching** | Caliper input + caliper scale dropdown (PS / Standardized / Standardized Logit) |
+| **PS IPTW** | Max weight, truncation percentage |
+| **Negative Controls** | Concept set picker for negative control outcomes (currently just an ID array) |
+| **Study Period** | Study start date, study end date boundaries |
+| **Exposure** | First exposure only toggle, handling of subjects in both cohorts |
+| **Covariates** | Replace simple checkboxes with `CovariateSettingsPanel` |
+
+#### 3i.2 Prediction Designer Enhancements
+
+Add to `PredictionDesigner.tsx`:
+
+| Section | New Fields |
+|---------|-----------|
+| **Model Types** | Add AdaBoost, Decision Tree, Naive Bayes, MLP, LightGBM, Cox Model alongside existing LASSO/GBM/RF |
+| **Hyperparameters** | Dynamic form based on selected model type — show relevant hyperparams with sensible defaults |
+| **Multi-Model** | Allow selecting multiple model types for comparison runs |
+| **Split Strategy** | Add time-based splitting option alongside stratified |
+| **Cross-Validation** | Number of folds (2-10) slider |
+| **Preprocessing** | Min fraction threshold, normalization toggle, redundancy removal toggle |
+| **Sampling** | Under/over-sampling for class imbalance toggle |
+| **Covariates** | Replace simple checkboxes with `CovariateSettingsPanel` |
+
+#### 3i.3 Type Updates
+
+Expand `estimation.ts` and `prediction.ts` types to match the full HADES API surface:
+
+```typescript
+// estimation.ts additions
+interface EstimationDesign {
+  // Existing fields...
+  model: {
+    type: "cox" | "logistic" | "poisson";
+    // ...
+  };
+  propensityScore: {
+    enabled: boolean;
+    method: "matching" | "stratification" | "iptw";
+    trimming: number;
+    matching?: {
+      ratio: number;
+      caliper: number;
+      caliperScale: "ps" | "standardized" | "standardized_logit";
+      maxCasesPerComparator?: number;
+    };
+    stratification?: {
+      numStrata: number;
+      baseSelection: "target" | "comparator" | "overall";
+    };
+    iptw?: {
+      maxWeight: number;
+      truncation: number;
+    };
+  };
+  studyPeriod?: {
+    startDate?: string;
+    endDate?: string;
+  };
+  exposure?: {
+    firstExposureOnly: boolean;
+    removeDuplicateSubjects: "keep_first" | "keep_all" | "remove_all";
+    washoutPeriod: number;
+  };
+  covariateSettings: ExpandedCovariateSettings;  // Full FeatureExtraction surface
+}
+
+// prediction.ts additions
+interface PredictionDesign {
+  // Existing fields...
+  model: {
+    type: "lasso_logistic_regression" | "gradient_boosting" | "random_forest" |
+          "ada_boost" | "decision_tree" | "naive_bayes" | "mlp" | "lightgbm" | "cox_model";
+    hyperParameters: Record<string, unknown>;
+  };
+  splitSettings: {
+    testFraction: number;
+    splitSeed: number;
+    nFold: number;
+    type: "stratified" | "time";
+  };
+  preprocessSettings?: {
+    minFraction: number;
+    normalize: boolean;
+    removeRedundancy: boolean;
+  };
+  sampleSettings?: {
+    type: "none" | "underSample" | "overSample";
+    ratio?: number;
+  };
+  covariateSettings: ExpandedCovariateSettings;
+}
+```
+
+---
+
+## 4. R Sidecar Docker Image Strategy
+
+### 4.1 Two-Stage Build
+
+HADES packages are large (CohortMethod alone pulls in ~50 dependencies). A two-stage Docker build avoids reinstalling on every code change:
+
+```dockerfile
+# Stage 1: Heavy dependencies (cached layer)
+FROM rocker/r-ver:4.4.0 AS hades-base
+RUN apt-get update && apt-get install -y \
+    libxml2-dev libcurl4-openssl-dev libssl-dev \
+    default-jdk libpq-dev libarrow-dev cmake \
+    python3 python3-pip python3-venv
+RUN R CMD javareconf
+RUN Rscript -e 'install.packages(c("remotes", "plumber", "RPostgres", "rJava"))'
+RUN Rscript -e ' \
+  options(repos = c(OHDSI = "https://ohdsi.r-universe.dev", CRAN = "https://cloud.r-project.org")); \
+  install.packages(c( \
+    "DatabaseConnector", "SqlRender", "Cyclops", "Andromeda", "ParallelLogger", \
+    "FeatureExtraction", "CohortMethod", "PatientLevelPrediction", \
+    "SelfControlledCaseSeries", "EvidenceSynthesis", "CohortGenerator", \
+    "EmpiricalCalibration", "ResultModelManager" \
+  ))'
+RUN pip3 install scikit-learn numpy xgboost lightgbm
+
+# Stage 2: Application code (fast layer)
+FROM hades-base AS runtime
+WORKDIR /app
+COPY . .
+# Download PostgreSQL JDBC driver
+RUN mkdir -p /app/jdbc && \
+    curl -L -o /app/jdbc/postgresql-42.7.3.jar \
+    https://jdbc.postgresql.org/download/postgresql-42.7.3.jar
+ENV DATABASECONNECTOR_JAR_FOLDER=/app/jdbc
+EXPOSE 8787
+CMD ["Rscript", "-e", "plumber::plumb('plumber_api.R')$run(host='0.0.0.0', port=8787)"]
+```
+
+### 4.2 JDBC Driver Management
+
+HADES uses `DatabaseConnector` which requires JDBC. For PostgreSQL:
+
+```r
+# In R/connection.R
+library(DatabaseConnector)
+
+create_hades_connection <- function(source_spec) {
+  connectionDetails <- DatabaseConnector::createConnectionDetails(
+    dbms = "postgresql",
+    server = paste0(
+      source_spec$connection$host, "/",
+      source_spec$connection$database
+    ),
+    port = source_spec$connection$port,
+    user = source_spec$connection$user,
+    password = source_spec$connection$password,
+    pathToDriver = Sys.getenv("DATABASECONNECTOR_JAR_FOLDER", "/app/jdbc")
+  )
+  return(connectionDetails)
+}
+```
+
+### 4.3 Memory Considerations
+
+- CohortMethod with 50K+ subjects and 30K+ covariates can use 4-8 GB RAM
+- PLP with grid search can use 2-4 GB per model
+- Andromeda uses Arrow/DuckDB for disk-backed data — reduces RAM pressure
+- **Recommendation:** Set R container memory limit to 16 GB in production, 4 GB for dev
+
+```yaml
+# docker-compose.yml
+r-runtime:
+  deploy:
+    resources:
+      limits:
+        memory: 16G
+```
+
+---
+
+## 5. Migration Path & Backwards Compatibility
+
+### 5.1 Existing Analyses Unaffected
+
+The `design_json` column is schemaless JSONB. Existing analyses with the current minimal schema will continue to work. The R sidecar will apply sensible defaults for any missing fields:
+
+```r
+# Example: if propensity_score$method is missing, default to "matching"
+spec$propensity_score$method <- spec$propensity_score$method %||% "matching"
+```
+
+### 5.2 Not-Implemented Graceful Fallback
+
+The `EstimationService` and `PredictionService` already handle `status='not_implemented'` responses. During the transition, partially implemented endpoints can return partial results with a `warnings` array:
+
+```json
+{
+  "status": "completed",
+  "warnings": ["Negative control calibration not yet available"],
+  "estimates": [...]
+}
+```
+
+### 5.3 Frontend Feature Flags
+
+New visualization components and designer sections can be gated behind feature flags:
+
+```typescript
+// features/estimation/components/EstimationResults.tsx
+const SHOW_KM_CURVES = true;  // Flip to false if R sidecar doesn't return KM data yet
+const SHOW_NEGATIVE_CONTROLS = true;
+```
+
+---
+
+## 6. Testing Strategy
+
+### 6.1 R Sidecar Unit Tests
+
+**File: `r-runtime/tests/test_covariates.R`** — Verify `build_covariate_settings()` produces valid FeatureExtraction settings
+**File: `r-runtime/tests/test_connection.R`** — Verify `create_hades_connection()` returns valid connectionDetails
+**File: `r-runtime/tests/test_serialization.R`** — Verify result serialization handles edge cases (empty results, missing fields)
+
+### 6.2 R Sidecar Integration Tests
+
+Using a test PostgreSQL database with synthetic OMOP CDM data (e.g., Eunomia package):
+
+```r
+# Install Eunomia test CDM
+Eunomia::exportToCdm(outputFolder = "/tmp/eunomia")
+# Run estimation pipeline end-to-end
+# Verify output JSON schema matches expected structure
+```
+
+### 6.3 Backend Tests
+
+- **EstimationServiceTest** — Mock RService to return realistic JSON, verify execution tracking
+- **PredictionServiceTest** — Same pattern
+- **RServiceTest** — Integration test against running R sidecar
+
+### 6.4 Frontend Tests
+
+- **EstimationDesigner** — Render test with expanded covariate settings
+- **PredictionDesigner** — Render test with all model types
+- **Result visualizations** — Snapshot tests for SVG chart components with realistic data
+
+### 6.5 End-to-End Test
+
+1. Create estimation analysis via API with full design_json
+2. Execute against test CDM
+3. Poll until completed
+4. Verify result_json contains all expected sections
+5. Render in frontend, verify all charts render
+
+---
+
+## 7. Phased Rollout Order
+
+| Sub-Phase | What | Priority | Dependency |
+|-----------|------|----------|------------|
+| **14a** | HADES Docker install + shared R infra | P0 | None |
+| **14b** | CohortMethod R implementation | P0 | 14a |
+| **14c** | PatientLevelPrediction R implementation | P0 | 14a |
+| **14d** | FeatureExtraction full covariate UI | P1 | 14b, 14c |
+| **14e** | Enhanced results viewers (KM, PS dist, balance, attrition, etc.) | P1 | 14b, 14c |
+| **14f** | SCCS implementation | P2 | 14a |
+| **14g** | Evidence Synthesis | P2 | 14b, 14f |
+| **14h** | Backend enhancements (streaming logs, expanded validation) | P1 | 14b, 14c |
+| **14i** | Frontend designer enhancements | P1 | 14d |
+
+**Critical path:** 14a → 14b + 14c (parallel) → 14e + 14h (parallel) → 14d + 14i → 14f → 14g
+
+**Estimated effort:**
+- 14a: 1 day (Docker + infra)
+- 14b: 3-4 days (CohortMethod pipeline + edge cases)
+- 14c: 3-4 days (PLP pipeline + model types)
+- 14d: 2 days (covariate settings panel)
+- 14e: 3-4 days (6-8 new chart components)
+- 14f: 2-3 days (SCCS full stack)
+- 14g: 2 days (Evidence Synthesis)
+- 14h: 1-2 days (backend enhancements)
+- 14i: 2 days (designer expansion)
+
+---
+
+## 8. Files Manifest
+
+### New Files (R Sidecar)
+
+| File | Purpose |
+|------|---------|
+| `r-runtime/R/connection.R` | DatabaseConnector wrapper — creates HADES-compatible connectionDetails from spec |
+| `r-runtime/R/covariates.R` | FeatureExtraction settings builder — maps JSON config to createCovariateSettings() |
+| `r-runtime/R/progress.R` | Structured logging + progress reporting back to Laravel |
+| `r-runtime/R/results.R` | Result serialization — converts HADES output to JSON |
+| `r-runtime/api/sccs.R` | SCCS analysis endpoint |
+| `r-runtime/api/evidence_synthesis.R` | Evidence Synthesis meta-analysis endpoint |
+| `r-runtime/tests/test_covariates.R` | Unit tests for covariate settings builder |
+| `r-runtime/tests/test_connection.R` | Unit tests for connection factory |
+| `r-runtime/tests/test_serialization.R` | Unit tests for result serialization |
+
+### Modified Files (R Sidecar)
+
+| File | Change |
+|------|--------|
+| `r-runtime/Dockerfile` | Install HADES packages, Python sklearn, JDBC driver |
+| `r-runtime/plumber_api.R` | Mount new routers: `/analysis/sccs`, `/analysis/evidence-synthesis` |
+| `r-runtime/api/estimation.R` | Replace 501 stub with full CohortMethod pipeline |
+| `r-runtime/api/prediction.R` | Replace 501 stub with full PLP pipeline |
+| `r-runtime/api/stubs.R` | Remove stubs for endpoints now implemented |
+
+### New Files (Backend)
+
+| File | Purpose |
+|------|---------|
+| `backend/app/Models/App/SccsAnalysis.php` | SCCS analysis model |
+| `backend/app/Http/Controllers/Api/V1/SccsController.php` | SCCS CRUD + execute |
+| `backend/app/Services/Analysis/SccsService.php` | SCCS business logic |
+| `backend/app/Jobs/Analysis/RunSccsJob.php` | SCCS queue job |
+| `backend/app/Models/App/EvidenceSynthesisAnalysis.php` | Evidence Synthesis model |
+| `backend/app/Http/Controllers/Api/V1/EvidenceSynthesisController.php` | ES controller |
+| `backend/app/Services/Analysis/EvidenceSynthesisService.php` | ES service |
+| `backend/database/migrations/xxxx_create_sccs_analyses_table.php` | SCCS migration |
+| `backend/database/migrations/xxxx_create_evidence_synthesis_analyses_table.php` | ES migration |
+
+### Modified Files (Backend)
+
+| File | Change |
+|------|--------|
+| `backend/app/Services/RService.php` | Update endpoint paths, add `runSccs()` + `runEvidenceSynthesis()` |
+| `backend/config/services.php` | Increase R timeout to 7200s |
+| `backend/routes/api.php` | Add SCCS + ES routes |
+| `backend/app/Http/Controllers/Api/V1/EstimationController.php` | Expand validation rules, add log streaming |
+| `backend/app/Http/Controllers/Api/V1/PredictionController.php` | Expand validation rules, add log streaming |
+
+### New Files (Frontend)
+
+| File | Purpose |
+|------|---------|
+| `frontend/src/components/analysis/CovariateSettingsPanel.tsx` | Shared full FeatureExtraction covariate configuration UI |
+| `frontend/src/components/analysis/ExecutionStatusBanner.tsx` | Unified execution status display |
+| `frontend/src/components/analysis/LogViewer.tsx` | Real-time execution log viewer |
+| `frontend/src/features/estimation/components/KaplanMeierChart.tsx` | KM survival curves |
+| `frontend/src/features/estimation/components/PsDistributionChart.tsx` | PS histogram overlay |
+| `frontend/src/features/estimation/components/CovariateBalanceScatter.tsx` | SMD scatter plot |
+| `frontend/src/features/estimation/components/PopulationCharacteristics.tsx` | Table 1 |
+| `frontend/src/features/estimation/components/AttritionDiagram.tsx` | Patient flow diagram |
+| `frontend/src/features/estimation/components/NegativeControlPlot.tsx` | Systematic error diagnostic |
+| `frontend/src/features/prediction/components/PrecisionRecallCurve.tsx` | PR curve |
+| `frontend/src/features/prediction/components/ThresholdAnalysis.tsx` | Interactive threshold slider |
+| `frontend/src/features/prediction/components/DecisionCurve.tsx` | Net benefit analysis |
+| `frontend/src/features/prediction/components/VariableScatter.tsx` | Feature discrimination plot |
+| `frontend/src/features/prediction/components/ModelComparison.tsx` | Multi-model comparison |
+| `frontend/src/features/sccs/types/sccs.ts` | SCCS types |
+| `frontend/src/features/sccs/api/sccsApi.ts` | SCCS API calls |
+| `frontend/src/features/sccs/hooks/useSccs.ts` | SCCS TanStack Query hooks |
+| `frontend/src/features/sccs/components/SccsDesigner.tsx` | SCCS configuration form |
+| `frontend/src/features/sccs/components/SccsResults.tsx` | SCCS results display |
+| `frontend/src/features/sccs/pages/SccsDetailPage.tsx` | SCCS detail page |
+| `frontend/src/features/evidence-synthesis/types/evidenceSynthesis.ts` | ES types |
+| `frontend/src/features/evidence-synthesis/api/evidenceSynthesisApi.ts` | ES API calls |
+| `frontend/src/features/evidence-synthesis/hooks/useEvidenceSynthesis.ts` | ES hooks |
+| `frontend/src/features/evidence-synthesis/components/EvidenceSynthesisDesigner.tsx` | ES configuration |
+| `frontend/src/features/evidence-synthesis/components/MetaAnalysisForestPlot.tsx` | Pooled forest plot |
+| `frontend/src/features/evidence-synthesis/components/HeterogeneityTable.tsx` | I² / tau² display |
+| `frontend/src/features/evidence-synthesis/pages/EvidenceSynthesisDetailPage.tsx` | ES detail page |
+
+### Modified Files (Frontend)
+
+| File | Change |
+|------|--------|
+| `frontend/src/features/estimation/types/estimation.ts` | Expand EstimationDesign with full PS methods, study period, covariates |
+| `frontend/src/features/estimation/components/EstimationDesigner.tsx` | Integrate CovariateSettingsPanel, add PS method radio, IPTW, negative controls |
+| `frontend/src/features/estimation/components/EstimationResults.tsx` | Add tabs for KM, PS distribution, balance, attrition, negative controls |
+| `frontend/src/features/prediction/types/prediction.ts` | Expand PredictionDesign with all model types, preprocessing, sampling |
+| `frontend/src/features/prediction/components/PredictionDesigner.tsx` | Integrate CovariateSettingsPanel, add model types, hyperparams, sampling |
+| `frontend/src/features/prediction/components/PredictionResults.tsx` | Add tabs for PR curve, threshold analysis, decision curve |
+| `frontend/src/app/router.tsx` | Add SCCS and Evidence Synthesis routes |
+
+---
+
+## 9. Acceptance Criteria
+
+When Phase 14 is complete, a long-time Atlas power user should be able to:
+
+1. **Create a PLE study** with target/comparator/outcome cohorts, configure PS matching with caliper, select Cox outcome model, add negative control outcomes, and run the analysis entirely within Parthenon
+2. **View PLE results** including: forest plot, Kaplan-Meier curves, PS distribution overlap, covariate balance scatter, attrition diagram, negative control calibration plot, and Table 1 — all matching or exceeding OhdsiShinyModules
+3. **Create a PLP study** with any of 9+ model types, configure hyperparameter grids, set population and split settings, and run with cross-validation
+4. **View PLP results** including: ROC curve, calibration plot, precision-recall curve, threshold analysis, decision curve, top predictors, and model comparison — all matching or exceeding OhdsiShinyModules
+5. **Configure covariates** with the full FeatureExtraction surface: 100+ individual domain settings, time windows, concept inclusion/exclusion
+6. **Run SCCS analyses** for within-person safety studies with customizable risk windows
+7. **Combine results across data sources** via Evidence Synthesis meta-analysis
+8. **Monitor execution** with real-time log streaming during long-running R analyses
+9. **Never need to download an R package** — all execution happens server-side, results stream back to the browser
+
+---
+
+## 10. What Parthenon Will Do That Atlas Cannot
+
+Even after achieving parity, Parthenon surpasses Atlas:
+
+| Feature | Atlas | Parthenon |
+|---------|-------|-----------|
+| Execution model | Download R package → run locally → upload results | Click "Execute" → results stream back automatically |
+| Result storage | Per-researcher, local files, shared via CSV export | Centralized, all results in database, full execution history |
+| AI assistance | None | Abby can explain results, suggest analyses, flag issues |
+| Real-time monitoring | None (R console output) | Live execution logs, status badges, notifications |
+| Multi-model comparison | Requires separate exports and manual comparison | Side-by-side in-platform comparison |
+| Authentication | None (assumes local R session) | Full RBAC with audit trail |
+| Collaboration | Share R packages manually | Shared workspace, other users see all analyses |
+| Concept search | Separate Vocabulary tab | Unified search with AI-powered synonym resolution |
+| Data quality | Separate Achilles run | Integrated 170+ analyses run natively without R |
