@@ -109,6 +109,56 @@ Python's `shutil.which` automatically respects `PATHEXT` on Windows, so it finds
 
 ---
 
+---
+
+## VM Test Session — 2026-03-04
+
+### Environment
+- **Host:** acumenus-test / `192.168.1.33`, Ubuntu 24.04, 15 GB RAM, 48 GB disk
+- **Docker:** Native Docker Engine 29.2.1, Compose v5.1.0 (not Docker Desktop)
+- **Python:** 3.12.7
+
+### What happened
+Session crashed immediately after preflight completed (`.install-state.json` contained `{"completed_phases": ["preflight"], "config": {}}`). No `.env` files were written, no containers were ever started. On reconnect, disk showed 94% full (2.8 GB free) but recovered to 78% (11 GB free) — likely a Docker build cache prune occurred between checks.
+
+All 4 Parthenon Docker images were already cached from the previous session (`parthenon-php:latest`, `parthenon-node:latest`, `parthenon-python-ai:latest`, `parthenon-r-runtime:latest`). Repo was pulled to `c22bc40b`.
+
+### Critical bug discovered: nginx not configured to serve the React SPA
+
+**Problem:** In the existing nginx config, `root /var/www/html/public` (Laravel backend) was the only root. There was no volume mount or location block to serve `frontend/dist/` — the React SPA build output. The `location /` fell through to `index.php`, which serves the default Laravel welcome page, NOT the Parthenon React app.
+
+This worked at `parthenon.acumenus.net` because Apache sits in front and serves `frontend/dist` directly, proxying only `/api/` to Docker nginx. But for a **standalone Docker install** (the installer's use case), nginx must serve the React SPA itself.
+
+**Fix:**
+1. Updated `docker/nginx/default.conf` — changed all PHP-served routes (`/api`, `/sanctum`, `/horizon`, `/docs/api`) to forward directly to php-fpm with hardcoded `SCRIPT_FILENAME /var/www/html/public/index.php` (no root dependency). Changed `location /` to `root /var/www/frontend; try_files $uri $uri/ /index.html` for SPA routing.
+2. Added `./frontend/dist:/var/www/frontend:ro` to nginx volumes in `docker-compose.yml`.
+3. Added `frontend/dist/.gitkeep` (with `!frontend/dist/.gitkeep` in `.gitignore`) so the directory exists on fresh clone before the first Vite build.
+
+**Key lesson:** The production Apache setup masks a missing Docker-native frontend serving configuration. Any fresh Docker-only deploy would have shown the Laravel default welcome page instead of the Parthenon login screen.
+
+### Manual bootstrap (config phase was not completed by installer)
+
+Because the session crashed before config was answered, the env files were written manually for the VM:
+
+- `APP_URL=http://192.168.1.33:8082`
+- `SANCTUM_STATEFUL_DOMAINS=192.168.1.33,192.168.1.33:8082,localhost,localhost:8082`
+- `DB_HOST=postgres`, `DB_DATABASE=parthenon`, `DB_USERNAME=parthenon`
+- `SESSION_DOMAIN=null` (cookie set to request domain)
+
+Bootstrap sequence executed manually via SSH:
+```bash
+docker compose up -d
+# wait for services healthy (~60s)
+docker compose exec -T php php artisan key:generate --force
+docker compose exec -T php php artisan migrate --force
+docker compose exec -T php php artisan db:seed --class=DatabaseSeeder --force
+docker compose run --rm --no-deps -T node sh -c "cd /app && npm ci --legacy-peer-deps && npx vite build --mode production"
+```
+
+Login screen verified at `http://192.168.1.33:8082`.
+
+---
+
 ## TODOs / Future Work
 
 - **Git LFS tracking** for `docker/fixtures/eunomia.pgdump` once file is generated (`git lfs track "*.pgdump"`)

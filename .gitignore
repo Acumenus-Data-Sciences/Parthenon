@@ -26,7 +26,8 @@ backend/node_modules/
 
 # Frontend (React)
 frontend/node_modules/
-frontend/dist/
+frontend/dist/*
+!frontend/dist/.gitkeep
 frontend/.env.local
 frontend/.env.*.local
 
