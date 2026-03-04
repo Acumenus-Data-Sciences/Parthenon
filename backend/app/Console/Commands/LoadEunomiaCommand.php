@@ -318,6 +318,14 @@ class LoadEunomiaCommand extends Command
         if (str_ends_with($col, '_concept_id')) {
             return 'integer';
         }
+        // Vocabulary table IDs are string-based in OMOP CDM, not numeric.
+        // e.g. domain_id='Condition', vocabulary_id='SNOMED', relationship_id='Maps to'
+        if (in_array($col, [
+            'domain_id', 'vocabulary_id', 'relationship_id', 'concept_class_id',
+            'standard_concept', 'invalid_reason',
+        ], true)) {
+            return 'text';
+        }
         if (str_ends_with($col, '_id')) {
             return 'bigint';
         }
