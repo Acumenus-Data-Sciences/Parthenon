@@ -149,3 +149,29 @@ The `DashboardController.stats()` method selected `status` and `person_count` co
 
 ### Docker Desktop Reliability Issue
 Docker Desktop socket proxy (`~/.docker/desktop/docker.sock`) intermittently returns 500 errors. Workaround: `DOCKER_HOST=unix:///var/run/docker.sock` to use the real Docker engine directly. Also changed `REDIS_HOST` from `host.docker.internal` to `redis` for container networking compatibility.
+
+### Achilles Analysis ID Fix (2026-03-04)
+
+**Critical bug:** The `AchillesResultReaderService` had 4 wrong OHDSI Achilles analysis IDs, causing the Overview dashboard to display incorrect or missing data.
+
+| Field | Wrong Analysis | Correct Analysis | Symptom |
+|-------|---------------|-----------------|---------|
+| Year of Birth | 4 (race) | **3** | Showed race concept IDs as years |
+| Race | 10 (YoB×gender) | **4** | Showed YoB×gender data as race |
+| Age Pyramid | 3 (YoB) | **10** (YoB×gender → age deciles) | "No age distribution data" |
+| Obs Duration | 109 (continuous obs/year) | **105** (duration dist) | Median = 0 days |
+
+**Root cause:** Analysis IDs were assumed from memory rather than verified against the `achilles_analysis` table. The OHDSI Achilles spec defines analysis 3 as "year of birth" and 4 as "race" — the code had them swapped.
+
+**Fixes applied:**
+- Backend: Corrected all 4 analysis IDs, added `RACE_CONCEPTS` constant for well-known IDs, compute real age decile pyramid from analysis 10 (year_of_birth × gender → age buckets with male/female split)
+- Frontend: Updated `AgeDistribution` type to `{age_decile, male, female}` (was `{age_decile, count}`), `DemographicsPyramid` now uses real gender counts instead of dividing total by 2
+- Added `unwrap()` helper to all `achillesApi.ts` functions to handle Laravel's `{data: T}` response envelope
+
+**Result:**
+- Age pyramid renders correctly with real male/female breakdown across all deciles (0-9 through 90+)
+- Race shows "White" (834.7K), "Black or African American" (115.2K), "Asian" (33.8K)
+- Median obs duration: 11,179 days (was 0)
+- Year of birth: correct years (1914-2026)
+
+**Lesson learned:** Never assume OHDSI analysis IDs — always verify against the `achilles_analysis` table. Memory file written to prevent recurrence.

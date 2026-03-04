@@ -181,13 +181,33 @@ class AchillesResultReaderService
     }
 
     /**
+     * Well-known OHDSI race concept IDs mapped to readable names.
+     *
+     * @var array<int, string>
+     */
+    private const RACE_CONCEPTS = [
+        8527 => 'White',
+        8516 => 'Black or African American',
+        8515 => 'Asian',
+        8557 => 'Native Hawaiian or Other Pacific Islander',
+        8657 => 'American Indian or Alaska Native',
+    ];
+
+    /**
      * Get demographic distributions.
+     *
+     * Analysis mapping (per OHDSI Achilles specification):
+     *   2  = Number of persons by gender            (stratum_1 = gender_concept_id)
+     *   3  = Number of persons by year of birth     (stratum_1 = year_of_birth)
+     *   4  = Number of persons by race              (stratum_1 = race_concept_id)
+     *   5  = Number of persons by ethnicity         (stratum_1 = ethnicity_concept_id)
+     *   10 = Number of persons by YoB × gender      (stratum_1 = year_of_birth, stratum_2 = gender_concept_id)
      *
      * @return array{
      *     gender: array<int, array{concept_id: int, concept_name: string, count: int}>,
      *     race: array<int, array{concept_id: int, concept_name: string, count: int}>,
      *     ethnicity: array<int, array{concept_id: int, concept_name: string, count: int}>,
-     *     age: array<int, array{age_decile: string, count: int}>,
+     *     age: array<int, array{age_decile: string, male: int, female: int}>,
      *     yearOfBirth: array<int, array{year: string, count: int}>
      * }
      */
@@ -201,8 +221,8 @@ class AchillesResultReaderService
             'count' => (int) $row->count_value,
         ])->values()->toArray();
 
-        // Analysis 4: year of birth distribution (stratum_1 = year_of_birth)
-        $yearOfBirthRows = AchillesResult::forAnalysis(4)->get();
+        // Analysis 3: year of birth distribution (stratum_1 = year_of_birth)
+        $yearOfBirthRows = AchillesResult::forAnalysis(3)->get();
         $yearOfBirth = $yearOfBirthRows->map(fn ($row) => [
             'year' => $row->stratum_1,
             'count' => (int) $row->count_value,
@@ -216,29 +236,76 @@ class AchillesResultReaderService
             'count' => (int) $row->count_value,
         ])->values()->toArray();
 
-        // Analysis 3: age at first observation (stratum_1 = age decile)
-        $ageRows = AchillesResult::forAnalysis(3)->get();
-        $age = $ageRows->map(fn ($row) => [
-            'age_decile' => $row->stratum_1,
-            'count' => (int) $row->count_value,
-        ])->sortBy('age_decile')->values()->toArray();
+        // Analysis 4: race distribution (stratum_1 = race_concept_id)
+        $raceRows = AchillesResult::forAnalysis(4)->get();
+        $raceConceptIds = $raceRows->pluck('stratum_1')
+            ->filter()
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->values()
+            ->toArray();
+        $raceNames = $this->batchResolveConceptNames($raceConceptIds);
 
-        // Race: analysis 10 gives race by gender (stratum_1 = race_concept_id, stratum_2 = gender_concept_id)
-        // We aggregate across genders to get race totals
-        $raceRows = AchillesResult::forAnalysis(10)->get();
-        $raceAggregated = $raceRows->groupBy('stratum_1')->map(function ($group) {
-            $conceptId = (int) $group->first()->stratum_1;
+        $race = $raceRows->map(function ($row) use ($raceNames) {
+            $conceptId = (int) $row->stratum_1;
+
+            $name = $conceptId === 0
+                ? 'No matching concept'
+                : (self::RACE_CONCEPTS[$conceptId] ?? $raceNames[$conceptId] ?? "Concept {$conceptId}");
 
             return [
                 'concept_id' => $conceptId,
-                'concept_name' => $this->resolveConceptName($conceptId),
-                'count' => (int) $group->sum('count_value'),
+                'concept_name' => $name,
+                'count' => (int) $row->count_value,
             ];
         })->values()->toArray();
 
+        // Analysis 10: year of birth × gender → compute age decile pyramid
+        // stratum_1 = year_of_birth, stratum_2 = gender_concept_id
+        $yobGenderRows = AchillesResult::forAnalysis(10)->get();
+        $currentYear = (int) date('Y');
+        $decileBuckets = [];
+
+        foreach ($yobGenderRows as $row) {
+            $yob = (int) $row->stratum_1;
+            $genderConceptId = (int) $row->stratum_2;
+            $count = (int) $row->count_value;
+            $age = $currentYear - $yob;
+
+            if ($age < 0) {
+                $age = 0;
+            }
+
+            // Bucket into deciles: 0-9, 10-19, ..., 90+
+            $decile = $age >= 90 ? '90+' : (floor($age / 10) * 10).'-'.(floor($age / 10) * 10 + 9);
+
+            if (! isset($decileBuckets[$decile])) {
+                $decileBuckets[$decile] = ['male' => 0, 'female' => 0];
+            }
+
+            if ($genderConceptId === 8507) {
+                $decileBuckets[$decile]['male'] += $count;
+            } elseif ($genderConceptId === 8532) {
+                $decileBuckets[$decile]['female'] += $count;
+            }
+        }
+
+        // Sort deciles in order and build output
+        $decileOrder = ['0-9', '10-19', '20-29', '30-39', '40-49', '50-59', '60-69', '70-79', '80-89', '90+'];
+        $age = [];
+        foreach ($decileOrder as $decile) {
+            if (isset($decileBuckets[$decile])) {
+                $age[] = [
+                    'age_decile' => $decile,
+                    'male' => $decileBuckets[$decile]['male'],
+                    'female' => $decileBuckets[$decile]['female'],
+                ];
+            }
+        }
+
         return [
             'gender' => $gender,
-            'race' => $raceAggregated,
+            'race' => $race,
             'ethnicity' => $ethnicity,
             'age' => $age,
             'yearOfBirth' => $yearOfBirth,
@@ -263,8 +330,8 @@ class AchillesResultReaderService
         $countRow = AchillesResult::forAnalysis(101)->first();
         $count = $countRow ? (int) $countRow->count_value : 0;
 
-        // Analysis 109: observation period length distribution
-        $durationDist = $this->extractDistribution(109);
+        // Analysis 105: observation period length distribution (days)
+        $durationDist = $this->extractDistribution(105);
 
         // Analysis 111: observation period start year+month (stratum_1 = YYYYMM)
         $startYearMonthRows = AchillesResult::forAnalysis(111)->get();

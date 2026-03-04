@@ -13,7 +13,8 @@ export interface DemographicDistribution {
 
 export interface AgeDistribution {
   age_decile: string;
-  count: number;
+  male: number;
+  female: number;
 }
 
 export interface Demographics {

@@ -66,28 +66,13 @@ export function DemographicsPyramid({
   }
 
   // Build pyramid data: male counts negative (left), female positive (right)
-  // If no gender breakdown is available, show as a simple horizontal bar
-  const deciles = [
-    "0-9",
-    "10-19",
-    "20-29",
-    "30-39",
-    "40-49",
-    "50-59",
-    "60-69",
-    "70-79",
-    "80-89",
-    "90+",
-  ];
-
-  // Simple age distribution chart (horizontal bars)
-  const ageMap = new Map(age.map((a) => [a.age_decile, a.count]));
-  const pyramidData = deciles
-    .map((d) => ({
-      age_decile: d,
-      male: -(ageMap.get(d) ?? 0) / 2,
-      female: (ageMap.get(d) ?? 0) / 2,
-      total: ageMap.get(d) ?? 0,
+  // Backend provides real male/female counts per age decile from analysis 10
+  const pyramidData = age
+    .map((a) => ({
+      age_decile: a.age_decile,
+      male: -(a.male ?? 0),
+      female: a.female ?? 0,
+      total: (a.male ?? 0) + (a.female ?? 0),
     }))
     .filter((d) => d.total > 0);
 
