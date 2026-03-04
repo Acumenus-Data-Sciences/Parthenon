@@ -97,29 +97,37 @@ return [
             'sslmode' => 'prefer',
         ],
 
+        // CDM connection — used by DQD, ingestion, cohort generation, and other
+        // analytical services. On Docker installer deployments this falls back to
+        // the Docker postgres / eunomia schema. On Acumenus dev set CDM_DB_* vars
+        // (host, database, username) and CDM_DB_SEARCH_PATH=omop,public in .env.
         'cdm' => [
             'driver' => 'pgsql',
             'host' => env('CDM_DB_HOST', env('DB_HOST', '127.0.0.1')),
             'port' => env('CDM_DB_PORT', env('DB_PORT', '5432')),
-            'database' => env('CDM_DB_DATABASE', env('DB_DATABASE', 'ohdsi')),
-            'username' => env('CDM_DB_USERNAME', env('DB_USERNAME', 'smudoshi')),
+            'database' => env('CDM_DB_DATABASE', env('DB_DATABASE', 'parthenon')),
+            'username' => env('CDM_DB_USERNAME', env('DB_USERNAME', 'parthenon')),
             'password' => env('CDM_DB_PASSWORD', env('DB_PASSWORD', '')),
             'charset' => 'utf8',
             'prefix' => '',
-            'search_path' => env('CDM_DB_SEARCH_PATH', 'omop,public'),
+            'search_path' => env('CDM_DB_SEARCH_PATH', 'eunomia,public'),
             'sslmode' => 'prefer',
         ],
 
+        // Vocabulary/concept lookup connection. Used by AbbyAiService, AchillesResultReaderService,
+        // and VocabularyModel. On Docker installer deployments the Eunomia CDM (including vocab
+        // tables) is in the 'eunomia' schema of the Docker postgres. On Acumenus dev the vocab
+        // is in the 'omop' schema of local PG 17 — set VOCAB_DB_SEARCH_PATH=omop,public in .env.
         'vocab' => [
             'driver' => 'pgsql',
             'host' => env('DB_VOCAB_HOST', env('DB_HOST', '127.0.0.1')),
             'port' => env('DB_VOCAB_PORT', env('DB_PORT', '5432')),
-            'database' => env('DB_VOCAB_DATABASE', env('DB_DATABASE', 'ohdsi')),
-            'username' => env('DB_VOCAB_USERNAME', env('DB_USERNAME', 'smudoshi')),
+            'database' => env('DB_VOCAB_DATABASE', env('DB_DATABASE', 'parthenon')),
+            'username' => env('DB_VOCAB_USERNAME', env('DB_USERNAME', 'parthenon')),
             'password' => env('DB_VOCAB_PASSWORD', env('DB_PASSWORD', '')),
             'charset' => 'utf8',
             'prefix' => '',
-            'search_path' => env('VOCAB_DB_SEARCH_PATH', 'omop,public'),
+            'search_path' => env('VOCAB_DB_SEARCH_PATH', 'eunomia,public'),
             'sslmode' => 'prefer',
         ],
 

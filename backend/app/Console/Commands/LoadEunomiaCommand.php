@@ -157,7 +157,7 @@ class LoadEunomiaCommand extends Command
     private function dropSchemas(): void
     {
         $this->warn('Dropping existing schemas...');
-        $db = DB::connection('cdm');
+        $db = DB::connection('eunomia');
         $db->statement('DROP SCHEMA IF EXISTS '.self::CDM_SCHEMA.' CASCADE');
         $db->statement('DROP SCHEMA IF EXISTS '.self::RESULTS_SCHEMA.' CASCADE');
         $this->info('Schemas dropped.');
@@ -165,7 +165,7 @@ class LoadEunomiaCommand extends Command
 
     private function createSchema(string $schema): void
     {
-        DB::connection('cdm')->statement("CREATE SCHEMA IF NOT EXISTS {$schema}");
+        DB::connection('eunomia')->statement("CREATE SCHEMA IF NOT EXISTS {$schema}");
         $this->info("Schema '{$schema}' ready.");
     }
 
@@ -228,7 +228,7 @@ class LoadEunomiaCommand extends Command
             return -1;
         }
 
-        $db = DB::connection('cdm');
+        $db = DB::connection('eunomia');
         $schema = self::CDM_SCHEMA;
 
         // Create table
@@ -347,7 +347,7 @@ class LoadEunomiaCommand extends Command
     private function createAchillesTables(): void
     {
         $schema = self::RESULTS_SCHEMA;
-        $db = DB::connection('cdm');
+        $db = DB::connection('eunomia');
 
         $db->statement("
             CREATE TABLE IF NOT EXISTS {$schema}.achilles_results (
@@ -403,7 +403,7 @@ class LoadEunomiaCommand extends Command
     {
         $cdm = self::CDM_SCHEMA;
         $res = self::RESULTS_SCHEMA;
-        $db = DB::connection('cdm');
+        $db = DB::connection('eunomia');
 
         // Clear any existing results
         $db->statement("TRUNCATE {$res}.achilles_results");
@@ -641,7 +641,7 @@ class LoadEunomiaCommand extends Command
     private function populateAnalysisCatalog(): void
     {
         $res = self::RESULTS_SCHEMA;
-        $db = DB::connection('cdm');
+        $db = DB::connection('eunomia');
 
         $analyses = [
             [0, 'Number of persons', null, null, 'Person'],
@@ -696,20 +696,23 @@ class LoadEunomiaCommand extends Command
 
     private function seedSource(): void
     {
+        // Remove old key if present from a pre-2026-03-04 run
+        Source::where('source_key', 'eunomia-gibleed')->delete();
+
         $source = Source::updateOrCreate(
-            ['source_key' => 'eunomia-gibleed'],
+            ['source_key' => 'EUNOMIA'],
             [
-                'source_name' => 'Eunomia (Demo)',
+                'source_name' => 'Eunomia GiBleed',
                 'source_dialect' => 'postgresql',
-                'source_connection' => 'cdm',
+                'source_connection' => 'eunomia',
                 'is_cache_enabled' => false,
             ]
         );
 
         $daimons = [
-            ['daimon_type' => DaimonType::CDM->value, 'table_qualifier' => self::CDM_SCHEMA, 'priority' => 0],
-            ['daimon_type' => DaimonType::Vocabulary->value, 'table_qualifier' => 'omop', 'priority' => 0],
-            ['daimon_type' => DaimonType::Results->value, 'table_qualifier' => self::RESULTS_SCHEMA, 'priority' => 0],
+            ['daimon_type' => DaimonType::CDM->value,       'table_qualifier' => self::CDM_SCHEMA,     'priority' => 0],
+            ['daimon_type' => DaimonType::Vocabulary->value, 'table_qualifier' => self::CDM_SCHEMA,     'priority' => 0],
+            ['daimon_type' => DaimonType::Results->value,    'table_qualifier' => self::RESULTS_SCHEMA, 'priority' => 0],
         ];
 
         foreach ($daimons as $daimon) {
