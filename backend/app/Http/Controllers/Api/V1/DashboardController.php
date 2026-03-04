@@ -29,12 +29,11 @@ class DashboardController extends Controller
 
         $recentCohorts = CohortDefinition::orderByDesc('updated_at')
             ->limit(5)
-            ->get(['id', 'name', 'status', 'person_count', 'updated_at'])
+            ->get(['id', 'name', 'tags', 'updated_at'])
             ->map(fn ($c) => [
                 'id' => $c->id,
                 'name' => $c->name,
-                'status' => $c->status ?? 'draft',
-                'person_count' => $c->person_count,
+                'tags' => $c->tags,
                 'updated_at' => $c->updated_at,
             ]);
 
