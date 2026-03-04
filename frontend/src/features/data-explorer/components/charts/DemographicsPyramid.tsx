@@ -16,6 +16,7 @@ import type {
 interface DemographicsPyramidProps {
   gender: DemographicDistribution[];
   age: AgeDistribution[];
+  height?: number;
 }
 
 /** Format large numbers compactly */
@@ -56,6 +57,7 @@ function CustomTooltip({
 
 export function DemographicsPyramid({
   age,
+  height = 320,
 }: DemographicsPyramidProps) {
   if (!age.length) {
     return (
@@ -89,7 +91,7 @@ export function DemographicsPyramid({
       <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-[#8A857D]">
         Age Distribution
       </h3>
-      <ResponsiveContainer width="100%" height={320}>
+      <ResponsiveContainer width="100%" height={height}>
         <BarChart
           data={pyramidData}
           layout="vertical"

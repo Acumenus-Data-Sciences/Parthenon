@@ -150,7 +150,7 @@ class AchillesController extends Controller
     public function analyses(Source $source): JsonResponse
     {
         try {
-            $data = $this->reader->getAvailableAnalyses();
+            $data = $this->reader->getAvailableAnalyses($source);
 
             return response()->json(['data' => $data]);
         } catch (\Throwable $e) {
@@ -166,7 +166,7 @@ class AchillesController extends Controller
     public function performance(Source $source): JsonResponse
     {
         try {
-            $data = $this->reader->getPerformanceReport();
+            $data = $this->reader->getPerformanceReport($source);
 
             return response()->json(['data' => $data]);
         } catch (\Throwable $e) {
@@ -185,7 +185,7 @@ class AchillesController extends Controller
         $stratum1 = $request->input('stratum1');
 
         try {
-            $data = $this->reader->getDistribution($analysisId, $stratum1);
+            $data = $this->reader->getDistribution($source, $analysisId, $stratum1);
 
             return response()->json(['data' => $data]);
         } catch (\Throwable $e) {

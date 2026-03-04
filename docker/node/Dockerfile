@@ -3,7 +3,7 @@ FROM node:22-alpine
 WORKDIR /app
 
 COPY frontend/package.json frontend/package-lock.json* ./
-RUN npm ci || npm install
+RUN npm ci --legacy-peer-deps || npm install --legacy-peer-deps
 
 COPY frontend/ .
 

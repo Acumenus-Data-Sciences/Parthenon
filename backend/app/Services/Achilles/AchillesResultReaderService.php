@@ -2,6 +2,7 @@
 
 namespace App\Services\Achilles;
 
+use App\Enums\DaimonType;
 use App\Models\App\Source;
 use App\Models\Results\AchillesAnalysis;
 use App\Models\Results\AchillesPerformance;
@@ -11,6 +12,20 @@ use Illuminate\Support\Facades\DB;
 
 class AchillesResultReaderService
 {
+    /**
+     * Set the results connection's search_path based on the source's results daimon.
+     * This enables multi-source support — each source can have Achilles results
+     * in a different schema (e.g., achilles_results vs eunomia_results).
+     */
+    private function setSchemaForSource(Source $source): void
+    {
+        $daimon = $source->daimons()->where('daimon_type', DaimonType::Results->value)->first();
+        $schema = $daimon?->table_qualifier ?? 'achilles_results';
+        DB::connection('results')->statement(
+            "SET search_path TO \"{$schema}\", public"
+        );
+    }
+
     /**
      * Mapping of domain names to their base Achilles analysis IDs.
      *
@@ -143,6 +158,7 @@ class AchillesResultReaderService
      */
     public function getRecordCounts(Source $source): array
     {
+        $this->setSchemaForSource($source);
         $analysisIds = array_values(self::RECORD_COUNT_ANALYSES);
 
         $results = AchillesResult::forAnalysis($analysisIds)
@@ -213,6 +229,7 @@ class AchillesResultReaderService
      */
     public function getDemographics(Source $source): array
     {
+        $this->setSchemaForSource($source);
         // Analysis 2: gender distribution (stratum_1 = gender_concept_id)
         $genderRows = AchillesResult::forAnalysis(2)->get();
         $gender = $genderRows->map(fn ($row) => [
@@ -326,6 +343,7 @@ class AchillesResultReaderService
      */
     public function getObservationPeriods(Source $source): array
     {
+        $this->setSchemaForSource($source);
         // Analysis 101: observation period count
         $countRow = AchillesResult::forAnalysis(101)->first();
         $count = $countRow ? (int) $countRow->count_value : 0;
@@ -376,6 +394,7 @@ class AchillesResultReaderService
      */
     public function getDomainSummary(Source $source, string $domain, int $limit = 25): array
     {
+        $this->setSchemaForSource($source);
         $analysisMap = self::DOMAIN_ANALYSIS_MAP[$domain] ?? null;
 
         if ($analysisMap === null) {
@@ -444,6 +463,7 @@ class AchillesResultReaderService
      */
     public function getConceptDrilldown(Source $source, string $domain, int $conceptId): array
     {
+        $this->setSchemaForSource($source);
         $analysisMap = self::DOMAIN_ANALYSIS_MAP[$domain] ?? null;
 
         if ($analysisMap === null) {
@@ -532,6 +552,7 @@ class AchillesResultReaderService
      */
     public function getTemporalTrends(Source $source, string $domain): array
     {
+        $this->setSchemaForSource($source);
         $analysisMap = self::DOMAIN_ANALYSIS_MAP[$domain] ?? null;
 
         if ($analysisMap === null || ! isset($analysisMap['month'])) {
@@ -560,8 +581,9 @@ class AchillesResultReaderService
      *
      * @return array<int, array{stratum_1: string|null, min: float, p10: float, p25: float, median: float, p75: float, p90: float, max: float, count: int}>
      */
-    public function getDistribution(int $analysisId, ?string $stratum1 = null): array
+    public function getDistribution(Source $source, int $analysisId, ?string $stratum1 = null): array
     {
+        $this->setSchemaForSource($source);
         $query = AchillesResultDist::forAnalysis($analysisId);
 
         if ($stratum1 !== null) {
@@ -588,8 +610,9 @@ class AchillesResultReaderService
      *
      * @return array<int, array{analysis_id: int, analysis_name: string, category: string|null, row_count: int}>
      */
-    public function getAvailableAnalyses(): array
+    public function getAvailableAnalyses(Source $source): array
     {
+        $this->setSchemaForSource($source);
         // Join achilles_analysis with a count of rows in achilles_results per analysis_id
         $analyses = AchillesAnalysis::query()
             ->select('achilles_analysis.*')
@@ -616,8 +639,9 @@ class AchillesResultReaderService
      *
      * @return array<int, array{analysis_id: int, analysis_name: string|null, elapsed_seconds: float}>
      */
-    public function getPerformanceReport(): array
+    public function getPerformanceReport(Source $source): array
     {
+        $this->setSchemaForSource($source);
         $performances = AchillesPerformance::query()
             ->orderByDesc('elapsed_seconds')
             ->get();
