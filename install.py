@@ -34,10 +34,19 @@ def _ensure_deps() -> None:
 
     if missing:
         print(f"Installing missing dependencies: {', '.join(missing)}")
-        subprocess.check_call(
-            [sys.executable, "-m", "pip", "install", "--quiet", *missing],
-            stdout=subprocess.DEVNULL,
-        )
+        # Try normal install first; fall back to --break-system-packages for
+        # Debian/Ubuntu systems that block system-wide pip installs (PEP 668).
+        cmd = [sys.executable, "-m", "pip", "install", "--quiet", *missing]
+        result = subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+        if result.returncode != 0:
+            if b"externally-managed" in result.stderr:
+                subprocess.check_call(
+                    cmd + ["--break-system-packages"],
+                    stdout=subprocess.DEVNULL,
+                )
+            else:
+                sys.stderr.buffer.write(result.stderr)
+                raise SystemExit(1)
         print("Dependencies installed.\n")
 
 

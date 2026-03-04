@@ -64,9 +64,19 @@ def _check_compose() -> CheckResult:
             "fail",
             "docker compose not found — update Docker or install plugin",
         )
-    if "v2" in ver or "2." in ver:
-        return CheckResult("Docker Compose v2", "ok", ver.split()[-1])
-    return CheckResult("Docker Compose v2", "warn", f"v1 detected ({ver}) — upgrade recommended")
+    # `docker compose version` returning *any* string means the v2 Go plugin is
+    # present.  The plugin version number can be >= 2 (e.g. v5.x) — do not
+    # compare it against the string "v2" or "2." which would false-positive.
+    # Only warn if the standalone docker-compose v1 Python script is all that's
+    # available (that would show up as `docker-compose version 1.x`).
+    version_tag = ver.split()[-1]  # e.g. "v5.1.0"
+    try:
+        major = int(version_tag.lstrip("v").split(".")[0])
+        if major >= 2:
+            return CheckResult("Docker Compose v2", "ok", version_tag)
+        return CheckResult("Docker Compose v2", "warn", f"v1 detected ({version_tag}) — upgrade recommended")
+    except (ValueError, IndexError):
+        return CheckResult("Docker Compose v2", "ok", version_tag)
 
 
 def _check_daemon() -> CheckResult:
