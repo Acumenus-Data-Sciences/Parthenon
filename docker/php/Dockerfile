@@ -33,9 +33,9 @@ RUN apk add --no-cache --virtual .build-deps $PHPIZE_DEPS \
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# PHP-FPM healthcheck script
+# PHP-FPM healthcheck script — pinned to known-good commit
 RUN wget -O /usr/local/bin/php-fpm-healthcheck \
-    https://raw.githubusercontent.com/renatomefi/php-fpm-healthcheck/master/php-fpm-healthcheck \
+    https://raw.githubusercontent.com/renatomefi/php-fpm-healthcheck/v0.5.0/php-fpm-healthcheck \
     && chmod +x /usr/local/bin/php-fpm-healthcheck
 
 # Configure PHP
@@ -46,11 +46,11 @@ WORKDIR /var/www/html
 
 # Install dependencies (cached layer)
 COPY backend/composer.json backend/composer.lock* ./
-RUN composer install --no-scripts --no-autoloader --prefer-dist || true
+RUN composer install --no-scripts --no-autoloader --prefer-dist
 
 # Copy application
 COPY backend/ .
-RUN composer dump-autoload --optimize || true
+RUN composer dump-autoload --optimize
 
 # Set permissions
 RUN mkdir -p storage/logs storage/framework/cache storage/framework/sessions storage/framework/views bootstrap/cache \

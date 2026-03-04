@@ -29,6 +29,10 @@ RUN JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java)))) \
     && echo "JAVA_HOME=$JAVA_HOME" \
     && R CMD javareconf
 
+# ── Pinned package versions (2026-03-04) ────────────────────────────
+# Pin versions to prevent rolling-release breakage.
+# To update: check https://ohdsi.r-universe.dev/api/packages/{name}
+
 ## Layer 1 — base R plumbing + the two packages that require native compilation
 ##            (rJava needs javareconf to have run; duckdb compiles a C++ library)
 RUN R -e " \
@@ -36,12 +40,10 @@ RUN R -e " \
     OHDSI = 'https://ohdsi.r-universe.dev', \
     CRAN  = 'https://cloud.r-project.org' \
   )); \
-  install.packages(c( \
-    'plumber', 'jsonlite', 'DBI', 'RPostgres', 'httr2', 'remotes', \
-    'ParallelLogger', \
-    'rJava', \
-    'duckdb' \
-  )); \
+  install.packages('remotes'); \
+  install.packages(c('plumber', 'jsonlite', 'DBI', 'RPostgres', 'httr2')); \
+  remotes::install_version('ParallelLogger', version = '3.5.1', repos = c('https://ohdsi.r-universe.dev', 'https://cloud.r-project.org')); \
+  install.packages(c('rJava', 'duckdb')); \
   if (!requireNamespace('rJava',  quietly = TRUE)) stop('rJava failed'); \
   if (!requireNamespace('duckdb', quietly = TRUE)) stop('duckdb failed'); \
 "
@@ -52,7 +54,9 @@ RUN R -e " \
     OHDSI = 'https://ohdsi.r-universe.dev', \
     CRAN  = 'https://cloud.r-project.org' \
   )); \
-  install.packages(c('SqlRender', 'DatabaseConnector', 'Andromeda')); \
+  remotes::install_version('SqlRender',          version = '1.19.4', repos = c('https://ohdsi.r-universe.dev', 'https://cloud.r-project.org')); \
+  remotes::install_version('DatabaseConnector',  version = '7.1.0',  repos = c('https://ohdsi.r-universe.dev', 'https://cloud.r-project.org')); \
+  remotes::install_version('Andromeda',          version = '1.2.0',  repos = c('https://ohdsi.r-universe.dev', 'https://cloud.r-project.org')); \
   if (!requireNamespace('DatabaseConnector', quietly = TRUE)) stop('DatabaseConnector failed'); \
   if (!requireNamespace('Andromeda',         quietly = TRUE)) stop('Andromeda failed'); \
 "
@@ -63,10 +67,10 @@ RUN R -e " \
     OHDSI = 'https://ohdsi.r-universe.dev', \
     CRAN  = 'https://cloud.r-project.org' \
   )); \
-  install.packages(c( \
-    'Cyclops', 'FeatureExtraction', \
-    'ResultModelManager', 'EmpiricalCalibration' \
-  )); \
+  remotes::install_version('Cyclops',               version = '3.6.0',  repos = c('https://ohdsi.r-universe.dev', 'https://cloud.r-project.org')); \
+  remotes::install_version('FeatureExtraction',      version = '3.12.0', repos = c('https://ohdsi.r-universe.dev', 'https://cloud.r-project.org')); \
+  remotes::install_version('ResultModelManager',     version = '0.6.2',  repos = c('https://ohdsi.r-universe.dev', 'https://cloud.r-project.org')); \
+  remotes::install_version('EmpiricalCalibration',   version = '3.1.4',  repos = c('https://ohdsi.r-universe.dev', 'https://cloud.r-project.org')); \
   if (!requireNamespace('Cyclops',            quietly = TRUE)) stop('Cyclops failed'); \
   if (!requireNamespace('FeatureExtraction',  quietly = TRUE)) stop('FeatureExtraction failed'); \
 "
@@ -77,17 +81,21 @@ RUN R -e " \
     OHDSI = 'https://ohdsi.r-universe.dev', \
     CRAN  = 'https://cloud.r-project.org' \
   )); \
-  install.packages(c( \
-    'CohortMethod', 'PatientLevelPrediction', \
-    'SelfControlledCaseSeries', 'EvidenceSynthesis', \
-    'CohortGenerator' \
-  )); \
+  remotes::install_version('CohortMethod',              version = '6.0.0', repos = c('https://ohdsi.r-universe.dev', 'https://cloud.r-project.org')); \
+  remotes::install_version('PatientLevelPrediction',    version = '6.5.1', repos = c('https://ohdsi.r-universe.dev', 'https://cloud.r-project.org')); \
+  remotes::install_version('SelfControlledCaseSeries',  version = '6.1.1', repos = c('https://ohdsi.r-universe.dev', 'https://cloud.r-project.org')); \
+  remotes::install_version('EvidenceSynthesis',         version = '1.1.0', repos = c('https://ohdsi.r-universe.dev', 'https://cloud.r-project.org')); \
+  remotes::install_version('CohortGenerator',           version = '1.1.0', repos = c('https://ohdsi.r-universe.dev', 'https://cloud.r-project.org')); \
   if (!requireNamespace('CohortMethod',           quietly = TRUE)) stop('CohortMethod failed'); \
   if (!requireNamespace('PatientLevelPrediction', quietly = TRUE)) stop('PLP failed'); \
 "
 
-# Python packages for PLP sklearn-based models (GBM, RF, AdaBoost, etc.)
-RUN pip3 install --break-system-packages scikit-learn numpy xgboost lightgbm
+# Python packages for PLP sklearn-based models — pinned versions
+RUN pip3 install --break-system-packages \
+    scikit-learn==1.6.1 \
+    numpy==2.2.3 \
+    xgboost==2.1.4 \
+    lightgbm==4.6.0
 
 # Download PostgreSQL JDBC driver for DatabaseConnector
 RUN mkdir -p /app/jdbc && \
