@@ -15,10 +15,14 @@ import { useEstimations } from "@/features/estimation/hooks/useEstimations";
 import { usePredictions } from "@/features/prediction/hooks/usePredictions";
 
 const STUDY_TYPES = [
-  { value: "Estimation", label: "Estimation" },
-  { value: "Prediction", label: "Prediction" },
-  { value: "Characterization", label: "Characterization" },
-  { value: "Mixed", label: "Mixed" },
+  { value: "characterization", label: "Characterization" },
+  { value: "population_level_estimation", label: "Population-Level Estimation" },
+  { value: "patient_level_prediction", label: "Patient-Level Prediction" },
+  { value: "drug_utilization", label: "Drug Utilization" },
+  { value: "quality_improvement", label: "Quality Improvement" },
+  { value: "comparative_effectiveness", label: "Comparative Effectiveness" },
+  { value: "safety_surveillance", label: "Safety Surveillance" },
+  { value: "custom", label: "Custom" },
 ];
 
 const ANALYSIS_TYPES = [
@@ -34,9 +38,9 @@ interface StudyDesignerProps {
 }
 
 export function StudyDesigner({ study }: StudyDesignerProps) {
-  const [name, setName] = useState("");
+  const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [studyType, setStudyType] = useState("Mixed");
+  const [studyType, setStudyType] = useState("characterization");
 
   const [addType, setAddType] = useState("characterization");
   const [addId, setAddId] = useState<number | null>(null);
@@ -54,9 +58,9 @@ export function StudyDesigner({ study }: StudyDesignerProps) {
   const { data: predData } = usePredictions(1);
 
   useEffect(() => {
-    setName(study.name);
+    setTitle(study.title || study.name || "");
     setDescription(study.description ?? "");
-    setStudyType(study.study_type || "Mixed");
+    setStudyType(study.study_type || "characterization");
   }, [study]);
 
   const getAnalysisOptions = () => {
@@ -79,11 +83,11 @@ export function StudyDesigner({ study }: StudyDesignerProps) {
   };
 
   const handleSave = () => {
-    if (!name.trim()) return;
+    if (!title.trim()) return;
     updateMutation.mutate({
-      id: study.id,
+      idOrSlug: study.slug || study.id,
       payload: {
-        name: name.trim(),
+        title: title.trim(),
         description: description.trim(),
         study_type: studyType,
       },
@@ -122,12 +126,12 @@ export function StudyDesigner({ study }: StudyDesignerProps) {
         </h3>
         <div className="space-y-3 mt-3">
           <div>
-            <label className="form-label">Name</label>
+            <label className="form-label">Title</label>
             <input
               type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Study name"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Study title"
               className="form-input"
             />
           </div>
@@ -269,7 +273,7 @@ export function StudyDesigner({ study }: StudyDesignerProps) {
         <button
           type="button"
           onClick={handleSave}
-          disabled={isSaving || !name.trim()}
+          disabled={isSaving || !title.trim()}
           className="btn btn-primary"
         >
           {isSaving ? (

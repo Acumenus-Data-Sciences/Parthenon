@@ -81,32 +81,58 @@ export function VocabularySearchPanel({
           )}
         </div>
 
-        {/* Filter Toggle */}
-        <button
-          type="button"
-          onClick={() => setShowFilters(!showFilters)}
-          className={cn(
-            "inline-flex items-center gap-1.5 text-xs transition-colors",
-            hasActiveFilters
-              ? "text-[#2DD4BF]"
-              : "text-[#8A857D] hover:text-[#C5C0B8]",
-          )}
-        >
-          <Filter size={12} />
-          Filters
-          {hasActiveFilters && (
-            <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-[#2DD4BF]/15 text-[9px] font-bold text-[#2DD4BF]">
-              {[domainFilter, vocabFilter, standardOnly].filter(Boolean).length}
-            </span>
-          )}
-          <ChevronDown
-            size={12}
+        {/* Filter Toggle + Standard Toggle (same row) */}
+        <div className="flex items-center justify-between">
+          <button
+            type="button"
+            onClick={() => setShowFilters(!showFilters)}
             className={cn(
-              "transition-transform",
-              showFilters && "rotate-180",
+              "inline-flex items-center gap-1.5 text-xs transition-colors",
+              hasActiveFilters
+                ? "text-[#2DD4BF]"
+                : "text-[#8A857D] hover:text-[#C5C0B8]",
             )}
-          />
-        </button>
+          >
+            <Filter size={12} />
+            Filters
+            {hasActiveFilters && (
+              <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-[#2DD4BF]/15 text-[9px] font-bold text-[#2DD4BF]">
+                {[domainFilter, vocabFilter, standardOnly].filter(Boolean).length}
+              </span>
+            )}
+            <ChevronDown
+              size={12}
+              className={cn(
+                "transition-transform",
+                showFilters && "rotate-180",
+              )}
+            />
+          </button>
+
+          {/* Standard Concepts Toggle */}
+          <label className="flex items-center gap-1.5 cursor-pointer">
+            <span className={cn("text-xs transition-colors", standardOnly ? "text-[#2DD4BF]" : "text-[#5A5650]")}>
+              Standard
+            </span>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={standardOnly}
+              onClick={() => setStandardOnly(!standardOnly)}
+              className={cn(
+                "relative w-8 h-[18px] rounded-full transition-colors",
+                standardOnly ? "bg-[#2DD4BF]" : "bg-[#323238]",
+              )}
+            >
+              <div
+                className={cn(
+                  "absolute top-[2px] left-[2px] w-[14px] h-[14px] rounded-full bg-white shadow transition-transform",
+                  standardOnly && "translate-x-[14px]",
+                )}
+              />
+            </button>
+          </label>
+        </div>
 
         {/* Filter Dropdowns */}
         {showFilters && (
@@ -148,32 +174,6 @@ export function VocabularySearchPanel({
                 </option>
               ))}
             </select>
-
-            {/* Standard Concept Only */}
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={standardOnly}
-                onChange={(e) => setStandardOnly(e.target.checked)}
-                className="sr-only peer"
-              />
-              <div
-                className={cn(
-                  "relative w-9 h-5 rounded-full transition-colors",
-                  standardOnly ? "bg-[#2DD4BF]" : "bg-[#323238]",
-                )}
-              >
-                <div
-                  className={cn(
-                    "absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform",
-                    standardOnly && "translate-x-4",
-                  )}
-                />
-              </div>
-              <span className="text-xs text-[#C5C0B8]">
-                Standard concepts only
-              </span>
-            </label>
 
             {/* Clear Filters */}
             {hasActiveFilters && (

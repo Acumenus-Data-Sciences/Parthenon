@@ -3,10 +3,22 @@ import type {
   Study,
   StudyAnalysisEntry,
   StudyProgress,
+  StudyStats,
+  StudyCreatePayload,
+  StudyUpdatePayload,
 } from "../types/study";
 import type { PaginatedResponse } from "@/features/analyses/types/analysis";
 
 const BASE = "/studies";
+
+// ---------------------------------------------------------------------------
+// Stats
+// ---------------------------------------------------------------------------
+
+export async function getStudyStats(): Promise<StudyStats> {
+  const { data } = await apiClient.get(`${BASE}/stats`);
+  return data.data ?? data;
+}
 
 // ---------------------------------------------------------------------------
 // CRUD
@@ -14,41 +26,38 @@ const BASE = "/studies";
 
 export async function listStudies(params?: {
   page?: number;
+  search?: string;
+  status?: string;
+  study_type?: string;
+  phase?: string;
+  my_studies?: boolean;
 }): Promise<PaginatedResponse<Study>> {
   const { data } = await apiClient.get(BASE, { params });
   return toLaravelPaginated<Study>(data);
 }
 
-export async function getStudy(id: number): Promise<Study> {
-  const { data } = await apiClient.get(`${BASE}/${id}`);
+export async function getStudy(idOrSlug: number | string): Promise<Study> {
+  const { data } = await apiClient.get(`${BASE}/${idOrSlug}`);
   return data.data ?? data;
 }
 
-export async function createStudy(payload: {
-  name: string;
-  description?: string;
-  study_type: string;
-  metadata?: Record<string, unknown>;
-}): Promise<Study> {
+export async function createStudy(
+  payload: StudyCreatePayload,
+): Promise<Study> {
   const { data } = await apiClient.post(BASE, payload);
   return data.data ?? data;
 }
 
 export async function updateStudy(
-  id: number,
-  payload: Partial<{
-    name: string;
-    description: string;
-    study_type: string;
-    metadata: Record<string, unknown>;
-  }>,
+  idOrSlug: number | string,
+  payload: StudyUpdatePayload,
 ): Promise<Study> {
-  const { data } = await apiClient.put(`${BASE}/${id}`, payload);
+  const { data } = await apiClient.put(`${BASE}/${idOrSlug}`, payload);
   return data.data ?? data;
 }
 
-export async function deleteStudy(id: number): Promise<void> {
-  await apiClient.delete(`${BASE}/${id}`);
+export async function deleteStudy(idOrSlug: number | string): Promise<void> {
+  await apiClient.delete(`${BASE}/${idOrSlug}`);
 }
 
 // ---------------------------------------------------------------------------
@@ -91,7 +100,7 @@ export async function executeAllStudyAnalyses(
   sourceId: number,
 ): Promise<{ message: string }> {
   const { data } = await apiClient.post<{ message: string }>(
-    `${BASE}/${studyId}/execute-all`,
+    `${BASE}/${studyId}/execute`,
     { source_id: sourceId },
   );
   return data;

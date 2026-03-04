@@ -192,12 +192,12 @@ export function AnalysisList({
                     </p>
                   </td>
                   <td className="px-4 py-3">
-                    <p className="text-xs text-[#8A857D] truncate max-w-[250px]">
+                    <p className="text-sm text-[#8A857D] truncate max-w-[250px]">
                       {analysis.description || "--"}
                     </p>
                   </td>
                   <td className="px-4 py-3">
-                    <span className="text-xs text-[#8A857D]">
+                    <span className="text-sm text-[#8A857D]">
                       {analysis.author?.name ?? "--"}
                     </span>
                   </td>
@@ -205,12 +205,12 @@ export function AnalysisList({
                     {latest ? (
                       <ExecutionStatusBadge status={latest.status} />
                     ) : (
-                      <span className="text-xs text-[#5A5650]">
+                      <span className="text-sm text-[#5A5650]">
                         Not executed
                       </span>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-xs text-[#8A857D]">
+                  <td className="px-4 py-3 text-sm text-[#8A857D]">
                     {latest?.completed_at
                       ? formatDate(latest.completed_at)
                       : latest?.started_at
@@ -230,7 +230,7 @@ export function AnalysisList({
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex items-center justify-between px-1">
-          <p className="text-xs text-[#8A857D]">
+          <p className="text-sm text-[#8A857D]">
             Showing {(page - 1) * perPage + 1} -{" "}
             {Math.min(page * perPage, total)} of {total}
           </p>
@@ -243,7 +243,7 @@ export function AnalysisList({
             >
               <ChevronLeft size={16} />
             </button>
-            <span className="text-xs text-[#C5C0B8] px-2">
+            <span className="text-sm text-[#C5C0B8] px-2">
               {page} / {totalPages}
             </span>
             <button

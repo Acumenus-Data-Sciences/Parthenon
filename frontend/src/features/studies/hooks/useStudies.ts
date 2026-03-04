@@ -1,7 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import type { StudyCreatePayload, StudyUpdatePayload } from "../types/study";
 import {
   listStudies,
   getStudy,
+  getStudyStats,
   createStudy,
   updateStudy,
   deleteStudy,
@@ -16,18 +18,25 @@ import {
 // Query hooks
 // ---------------------------------------------------------------------------
 
-export function useStudies(page?: number) {
+export function useStudies(page?: number, search?: string) {
   return useQuery({
-    queryKey: ["studies", { page }],
-    queryFn: () => listStudies({ page }),
+    queryKey: ["studies", { page, search }],
+    queryFn: () => listStudies({ page, search: search || undefined }),
   });
 }
 
-export function useStudy(id: number | null) {
+export function useStudyStats() {
   return useQuery({
-    queryKey: ["studies", id],
-    queryFn: () => getStudy(id!),
-    enabled: id != null && id > 0,
+    queryKey: ["studies", "stats"],
+    queryFn: getStudyStats,
+  });
+}
+
+export function useStudy(idOrSlug: number | string | null) {
+  return useQuery({
+    queryKey: ["studies", idOrSlug],
+    queryFn: () => getStudy(idOrSlug!),
+    enabled: idOrSlug != null && idOrSlug !== "",
   });
 }
 
@@ -62,12 +71,7 @@ export function useCreateStudy() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: {
-      name: string;
-      description?: string;
-      study_type: string;
-      metadata?: Record<string, unknown>;
-    }) => createStudy(payload),
+    mutationFn: (payload: StudyCreatePayload) => createStudy(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["studies"] });
     },
@@ -79,20 +83,15 @@ export function useUpdateStudy() {
 
   return useMutation({
     mutationFn: ({
-      id,
+      idOrSlug,
       payload,
     }: {
-      id: number;
-      payload: Partial<{
-        name: string;
-        description: string;
-        study_type: string;
-        metadata: Record<string, unknown>;
-      }>;
-    }) => updateStudy(id, payload),
+      idOrSlug: number | string;
+      payload: StudyUpdatePayload;
+    }) => updateStudy(idOrSlug, payload),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ["studies", variables.id],
+        queryKey: ["studies", variables.idOrSlug],
       });
       queryClient.invalidateQueries({ queryKey: ["studies"] });
     },
@@ -103,7 +102,7 @@ export function useDeleteStudy() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: number) => deleteStudy(id),
+    mutationFn: (idOrSlug: number | string) => deleteStudy(idOrSlug),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["studies"] });
     },

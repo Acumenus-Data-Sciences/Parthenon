@@ -40,8 +40,8 @@
 
 .sidebar-logo {
   font-family: var(--font-heading);
-  font-size: var(--text-lg);
-  font-weight: 600;
+  font-size: var(--text-xl);
+  font-weight: 700;
   color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;

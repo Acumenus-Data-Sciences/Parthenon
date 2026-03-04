@@ -36,6 +36,7 @@ use App\Http\Controllers\Api\V1\PredictionController;
 use App\Http\Controllers\Api\V1\SccsController;
 use App\Http\Controllers\Api\V1\SourceController;
 use App\Http\Controllers\Api\V1\StudyController;
+use App\Http\Controllers\Api\V1\StudyStatsController;
 use App\Http\Controllers\Api\V1\VocabularyController;
 use Illuminate\Support\Facades\Route;
 
@@ -223,6 +224,7 @@ Route::prefix('v1')->group(function () {
         Route::get('evidence-synthesis/{evidence_synthesis}/executions/{execution}', [EvidenceSynthesisController::class, 'showExecution']);
 
         // Studies
+        Route::get('studies/stats', StudyStatsController::class);
         Route::apiResource('studies', StudyController::class);
         Route::post('studies/{study}/execute', [StudyController::class, 'executeAll']);
         Route::get('studies/{study}/progress', [StudyController::class, 'progress']);

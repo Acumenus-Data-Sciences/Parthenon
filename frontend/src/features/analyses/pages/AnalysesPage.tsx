@@ -1,10 +1,23 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Loader2, Search, X } from "lucide-react";
+import {
+  Plus,
+  Loader2,
+  Search,
+  X,
+  ChevronDown,
+  BarChart3,
+  TrendingUp,
+  GitBranch,
+  Scale,
+  Brain,
+  Clock,
+  Layers,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { HelpButton } from "@/features/help";
 import { AnalysisList } from "../components/AnalysisList";
-import { AnalysisStatsBar } from "../components/AnalysisStatsBar";
+import { useAnalysisStats } from "../components/AnalysisStatsBar";
 import { useCharacterizations } from "../hooks/useCharacterizations";
 import { useIncidenceRates } from "../hooks/useIncidenceRates";
 import {
@@ -140,6 +153,34 @@ const defaultESDesign: EvidenceSynthesisDesign = {
   subSample: 1000,
 };
 
+interface TabDef {
+  key: Tab;
+  label: string;
+  icon: typeof BarChart3;
+  color: string;
+  statsKey: "characterizations" | "incidence_rates" | "pathways" | "estimations" | "predictions" | "sccs" | "evidence_synthesis";
+}
+
+const tabDefs: TabDef[] = [
+  { key: "characterizations", label: "Characterizations", icon: BarChart3, color: "#60A5FA", statsKey: "characterizations" },
+  { key: "incidence-rates", label: "Incidence Rates", icon: TrendingUp, color: "#2DD4BF", statsKey: "incidence_rates" },
+  { key: "pathways", label: "Pathways", icon: GitBranch, color: "#C9A227", statsKey: "pathways" },
+  { key: "estimations", label: "Estimations", icon: Scale, color: "#A78BFA", statsKey: "estimations" },
+  { key: "predictions", label: "Predictions", icon: Brain, color: "#F472B6", statsKey: "predictions" },
+  { key: "sccs", label: "SCCS", icon: Clock, color: "#FB923C", statsKey: "sccs" },
+  { key: "evidence-synthesis", label: "Evidence Synthesis", icon: Layers, color: "#34D399", statsKey: "evidence_synthesis" },
+];
+
+const createMenuItems: { key: Tab; label: string; icon: typeof BarChart3; color: string }[] = [
+  { key: "characterizations", label: "Characterization", icon: BarChart3, color: "#60A5FA" },
+  { key: "incidence-rates", label: "Incidence Rate", icon: TrendingUp, color: "#2DD4BF" },
+  { key: "pathways", label: "Pathway", icon: GitBranch, color: "#C9A227" },
+  { key: "estimations", label: "Estimation", icon: Scale, color: "#A78BFA" },
+  { key: "predictions", label: "Prediction", icon: Brain, color: "#F472B6" },
+  { key: "sccs", label: "SCCS", icon: Clock, color: "#FB923C" },
+  { key: "evidence-synthesis", label: "Evidence Synthesis", icon: Layers, color: "#34D399" },
+];
+
 export default function AnalysesPage() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<Tab>("characterizations");
@@ -152,6 +193,21 @@ export default function AnalysesPage() {
   const [esPage, setEsPage] = useState(1);
   const [searchInput, setSearchInput] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [showCreateMenu, setShowCreateMenu] = useState(false);
+  const createMenuRef = useRef<HTMLDivElement>(null);
+
+  const { data: stats } = useAnalysisStats();
+
+  // Close create menu on outside click
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (createMenuRef.current && !createMenuRef.current.contains(e.target as Node)) {
+        setShowCreateMenu(false);
+      }
+    };
+    if (showCreateMenu) document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [showCreateMenu]);
 
   // Debounce search input
   useEffect(() => {
@@ -223,199 +279,190 @@ export default function AnalysesPage() {
   const createESMutation = useCreateEvidenceSynthesis();
   const [isCreating, setIsCreating] = useState(false);
 
-  const handleCreateCharacterization = () => {
+  const handleCreate = (type: Tab) => {
+    setShowCreateMenu(false);
     setIsCreating(true);
-    createCharMutation.mutate(
-      { name: "Untitled Characterization", design_json: defaultCharDesign },
-      {
-        onSuccess: (c) => navigate(`/analyses/characterizations/${c.id}`),
-        onSettled: () => setIsCreating(false),
-      },
-    );
-  };
-
-  const handleCreateIncidenceRate = () => {
-    setIsCreating(true);
-    createIRMutation.mutate(
-      { name: "Untitled Incidence Rate Analysis", design_json: defaultIRDesign },
-      {
-        onSuccess: (ir) => navigate(`/analyses/incidence-rates/${ir.id}`),
-        onSettled: () => setIsCreating(false),
-      },
-    );
-  };
-
-  const handleCreatePathway = () => {
-    setIsCreating(true);
-    createPathwayMutation.mutate(
-      { name: "Untitled Pathway Analysis", design_json: defaultPathwayDesign },
-      {
-        onSuccess: (p) => navigate(`/analyses/pathways/${p.id}`),
-        onSettled: () => setIsCreating(false),
-      },
-    );
-  };
-
-  const handleCreateEstimation = () => {
-    setIsCreating(true);
-    createEstMutation.mutate(
-      { name: "Untitled Estimation", design_json: defaultEstimationDesign },
-      {
-        onSuccess: (e) => navigate(`/analyses/estimations/${e.id}`),
-        onSettled: () => setIsCreating(false),
-      },
-    );
-  };
-
-  const handleCreatePrediction = () => {
-    setIsCreating(true);
-    createPredMutation.mutate(
-      { name: "Untitled Prediction", design_json: defaultPredictionDesign },
-      {
-        onSuccess: (p) => navigate(`/analyses/predictions/${p.id}`),
-        onSettled: () => setIsCreating(false),
-      },
-    );
-  };
-
-  const handleCreateSccs = () => {
-    setIsCreating(true);
-    createSccsMutation.mutate(
-      { name: "Untitled SCCS Analysis", design_json: defaultSccsDesign },
-      {
-        onSuccess: (s) => navigate(`/analyses/sccs/${s.id}`),
-        onSettled: () => setIsCreating(false),
-      },
-    );
-  };
-
-  const handleCreateES = () => {
-    setIsCreating(true);
-    createESMutation.mutate(
-      { name: "Untitled Evidence Synthesis", design_json: defaultESDesign },
-      {
-        onSuccess: (es) => navigate(`/analyses/evidence-synthesis/${es.id}`),
-        onSettled: () => setIsCreating(false),
-      },
-    );
-  };
-
-  const tabs: { key: Tab; label: string }[] = [
-    { key: "characterizations", label: "Characterizations" },
-    { key: "incidence-rates", label: "Incidence Rates" },
-    { key: "pathways", label: "Pathways" },
-    { key: "estimations", label: "Estimations" },
-    { key: "predictions", label: "Predictions" },
-    { key: "sccs", label: "SCCS" },
-    { key: "evidence-synthesis", label: "Evidence Synthesis" },
-  ];
-
-  const getCreateHandler = () => {
-    switch (activeTab) {
-      case "characterizations": return handleCreateCharacterization;
-      case "incidence-rates": return handleCreateIncidenceRate;
-      case "pathways": return handleCreatePathway;
-      case "estimations": return handleCreateEstimation;
-      case "predictions": return handleCreatePrediction;
-      case "sccs": return handleCreateSccs;
-      case "evidence-synthesis": return handleCreateES;
+    switch (type) {
+      case "characterizations":
+        createCharMutation.mutate(
+          { name: "Untitled Characterization", design_json: defaultCharDesign },
+          { onSuccess: (c) => navigate(`/analyses/characterizations/${c.id}`), onSettled: () => setIsCreating(false) },
+        );
+        break;
+      case "incidence-rates":
+        createIRMutation.mutate(
+          { name: "Untitled Incidence Rate Analysis", design_json: defaultIRDesign },
+          { onSuccess: (ir) => navigate(`/analyses/incidence-rates/${ir.id}`), onSettled: () => setIsCreating(false) },
+        );
+        break;
+      case "pathways":
+        createPathwayMutation.mutate(
+          { name: "Untitled Pathway Analysis", design_json: defaultPathwayDesign },
+          { onSuccess: (p) => navigate(`/analyses/pathways/${p.id}`), onSettled: () => setIsCreating(false) },
+        );
+        break;
+      case "estimations":
+        createEstMutation.mutate(
+          { name: "Untitled Estimation", design_json: defaultEstimationDesign },
+          { onSuccess: (e) => navigate(`/analyses/estimations/${e.id}`), onSettled: () => setIsCreating(false) },
+        );
+        break;
+      case "predictions":
+        createPredMutation.mutate(
+          { name: "Untitled Prediction", design_json: defaultPredictionDesign },
+          { onSuccess: (p) => navigate(`/analyses/predictions/${p.id}`), onSettled: () => setIsCreating(false) },
+        );
+        break;
+      case "sccs":
+        createSccsMutation.mutate(
+          { name: "Untitled SCCS Analysis", design_json: defaultSccsDesign },
+          { onSuccess: (s) => navigate(`/analyses/sccs/${s.id}`), onSettled: () => setIsCreating(false) },
+        );
+        break;
+      case "evidence-synthesis":
+        createESMutation.mutate(
+          { name: "Untitled Evidence Synthesis", design_json: defaultESDesign },
+          { onSuccess: (es) => navigate(`/analyses/evidence-synthesis/${es.id}`), onSettled: () => setIsCreating(false) },
+        );
+        break;
     }
   };
 
-  const getButtonLabel = () => {
-    switch (activeTab) {
-      case "characterizations": return "New Characterization";
-      case "incidence-rates": return "New Incidence Rate";
-      case "pathways": return "New Pathway";
-      case "estimations": return "New Estimation";
-      case "predictions": return "New Prediction";
-      case "sccs": return "New SCCS";
-      case "evidence-synthesis": return "New Evidence Synthesis";
-    }
+  const getCount = (statsKey: TabDef["statsKey"]) => {
+    if (!stats) return undefined;
+    return stats[statsKey]?.total;
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="page-header">
-        <div>
-          <h1 className="page-title">Analyses</h1>
-          <p className="page-subtitle">
-            Population-level characterization, incidence, pathway, estimation,
-            prediction, SCCS, and evidence synthesis studies
+    <div className="space-y-5">
+      {/* Header — title left, search center, create dropdown right */}
+      <div className="flex items-start justify-between gap-4">
+        <div className="shrink-0">
+          <h1 className="text-2xl font-bold text-[#F0EDE8]">Analyses</h1>
+          <p className="mt-1 text-sm text-[#8A857D]">
+            Population-level research studies across 7 analysis types
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <HelpButton helpKey="characterization" />
-          <button
-            type="button"
-            onClick={getCreateHandler()}
-            disabled={isCreating}
-            className="btn btn-primary"
-          >
-            {isCreating ? (
-              <Loader2 size={16} className="animate-spin" />
-            ) : (
-              <Plus size={16} />
+
+        <div className="flex-1 flex items-center justify-center max-w-lg mx-4 pt-1">
+          <div className="relative w-full">
+            <Search
+              size={16}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
+            />
+            <input
+              type="text"
+              placeholder="Search across all analyses..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              className="w-full rounded-lg border border-[#232328] bg-[#151518] py-2 pl-9 pr-8 text-sm text-[#F0EDE8] placeholder:text-[#5A5650] focus:border-[#2DD4BF]/40 focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/40"
+            />
+            {searchInput && (
+              <button
+                type="button"
+                onClick={() => setSearchInput("")}
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 text-[#5A5650] hover:text-[#F0EDE8]"
+              >
+                <X size={14} />
+              </button>
             )}
-            {getButtonLabel()}
-          </button>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0">
+          <HelpButton helpKey="characterization" />
+          <div className="relative" ref={createMenuRef}>
+            <button
+              type="button"
+              onClick={() => setShowCreateMenu((v) => !v)}
+              disabled={isCreating}
+              className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-4 py-2 text-sm font-medium text-[#0E0E11] hover:bg-[#26B8A5] transition-colors disabled:opacity-50"
+            >
+              {isCreating ? (
+                <Loader2 size={16} className="animate-spin" />
+              ) : (
+                <Plus size={16} />
+              )}
+              New Analysis
+              <ChevronDown size={14} className={cn("transition-transform", showCreateMenu && "rotate-180")} />
+            </button>
+
+            {showCreateMenu && (
+              <div className="absolute right-0 top-full mt-1 z-50 w-56 rounded-lg border border-[#232328] bg-[#1A1A1F] py-1 shadow-xl">
+                {createMenuItems.map((item) => (
+                  <button
+                    key={item.key}
+                    type="button"
+                    onClick={() => handleCreate(item.key)}
+                    className="flex w-full items-center gap-2.5 px-3 py-2 text-sm text-[#C5C0B8] hover:bg-[#232328] transition-colors"
+                  >
+                    <item.icon size={14} style={{ color: item.color }} />
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Stats Bar */}
-      <AnalysisStatsBar />
-
-      {/* Search */}
-      <div className="relative max-w-md">
-        <Search
-          size={16}
-          className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
-        />
-        <input
-          type="text"
-          placeholder="Search analyses..."
-          value={searchInput}
-          onChange={(e) => setSearchInput(e.target.value)}
-          className="w-full rounded-lg border border-[#232328] bg-[#151518] py-2 pl-9 pr-8 text-sm text-[#F0EDE8] placeholder:text-[#5A5650] focus:border-[#2DD4BF]/40 focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/40"
-        />
-        {searchInput && (
-          <button
-            type="button"
-            onClick={() => setSearchInput("")}
-            className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 text-[#5A5650] hover:text-[#F0EDE8]"
-          >
-            <X size={14} />
-          </button>
-        )}
+      {/* Tabs with inline counts — replaces both stats bar and old tab bar */}
+      <div className="flex gap-1.5 overflow-x-auto pb-1 -mb-1 scrollbar-thin">
+        {tabDefs.map((tab) => {
+          const count = getCount(tab.statsKey);
+          const isActive = activeTab === tab.key;
+          const Icon = tab.icon;
+          return (
+            <button
+              key={tab.key}
+              type="button"
+              onClick={() => setActiveTab(tab.key)}
+              className={cn(
+                "flex items-center gap-2 shrink-0 rounded-lg px-3 py-2 text-sm font-medium transition-all",
+                isActive
+                  ? "bg-[#1E1E24] border border-[#2A2A32] text-[#F0EDE8]"
+                  : "border border-transparent text-[#5A5650] hover:text-[#8A857D] hover:bg-[#151518]",
+              )}
+            >
+              <Icon
+                size={14}
+                style={{ color: isActive ? tab.color : undefined }}
+                className={cn(!isActive && "opacity-50")}
+              />
+              <span>{tab.label}</span>
+              {count !== undefined && (
+                <span
+                  className={cn(
+                    "inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded text-xs font-semibold font-['IBM_Plex_Mono',monospace]",
+                    isActive
+                      ? "text-[#0E0E11]"
+                      : "bg-[#1A1A1F] text-[#5A5650]",
+                  )}
+                  style={isActive ? { backgroundColor: tab.color } : undefined}
+                >
+                  {count}
+                </span>
+              )}
+            </button>
+          );
+        })}
       </div>
 
-      {/* Tabs */}
-      <div className="tab-bar">
-        {tabs.map((tab) => (
-          <button
-            key={tab.key}
-            type="button"
-            onClick={() => setActiveTab(tab.key)}
-            className={cn("tab-item", activeTab === tab.key && "active")}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
+      {/* Divider */}
+      <div className="border-t border-[#1E1E24]" />
 
       {/* Tab Content */}
       {activeTab === "characterizations" && (
         <AnalysisList
-          analyses={charData?.data ?? []}
+          analyses={charData?.items ?? []}
           type="characterization"
           onSelect={(id) => navigate(`/analyses/characterizations/${id}`)}
           isLoading={charLoading}
           error={charError}
           page={charPage}
-          totalPages={charData?.meta?.last_page ?? 1}
-          total={charData?.meta?.total ?? 0}
-          perPage={charData?.meta?.per_page ?? 15}
+          totalPages={charData ? Math.ceil(charData.total / charData.limit) : 1}
+          total={charData?.total ?? 0}
+          perPage={charData?.limit ?? 15}
           onPageChange={setCharPage}
           isSearching={!!debouncedSearch}
         />
@@ -423,15 +470,15 @@ export default function AnalysesPage() {
 
       {activeTab === "incidence-rates" && (
         <AnalysisList
-          analyses={irData?.data ?? []}
+          analyses={irData?.items ?? []}
           type="incidence-rate"
           onSelect={(id) => navigate(`/analyses/incidence-rates/${id}`)}
           isLoading={irLoading}
           error={irError}
           page={irPage}
-          totalPages={irData?.meta?.last_page ?? 1}
-          total={irData?.meta?.total ?? 0}
-          perPage={irData?.meta?.per_page ?? 15}
+          totalPages={irData ? Math.ceil(irData.total / irData.limit) : 1}
+          total={irData?.total ?? 0}
+          perPage={irData?.limit ?? 15}
           onPageChange={setIRPage}
           isSearching={!!debouncedSearch}
         />
@@ -439,15 +486,15 @@ export default function AnalysesPage() {
 
       {activeTab === "pathways" && (
         <AnalysisList
-          analyses={pathwayData?.data ?? []}
+          analyses={pathwayData?.items ?? []}
           type="pathway"
           onSelect={(id) => navigate(`/analyses/pathways/${id}`)}
           isLoading={pathwayLoading}
           error={pathwayError}
           page={pathwayPage}
-          totalPages={pathwayData?.meta?.last_page ?? 1}
-          total={pathwayData?.meta?.total ?? 0}
-          perPage={pathwayData?.meta?.per_page ?? 15}
+          totalPages={pathwayData ? Math.ceil(pathwayData.total / pathwayData.limit) : 1}
+          total={pathwayData?.total ?? 0}
+          perPage={pathwayData?.limit ?? 15}
           onPageChange={setPathwayPage}
           isSearching={!!debouncedSearch}
         />
@@ -455,15 +502,15 @@ export default function AnalysesPage() {
 
       {activeTab === "estimations" && (
         <AnalysisList
-          analyses={estData?.data ?? []}
+          analyses={estData?.items ?? []}
           type="estimation"
           onSelect={(id) => navigate(`/analyses/estimations/${id}`)}
           isLoading={estLoading}
           error={estError}
           page={estPage}
-          totalPages={estData?.meta?.last_page ?? 1}
-          total={estData?.meta?.total ?? 0}
-          perPage={estData?.meta?.per_page ?? 15}
+          totalPages={estData ? Math.ceil(estData.total / estData.limit) : 1}
+          total={estData?.total ?? 0}
+          perPage={estData?.limit ?? 15}
           onPageChange={setEstPage}
           isSearching={!!debouncedSearch}
         />
@@ -471,15 +518,15 @@ export default function AnalysesPage() {
 
       {activeTab === "predictions" && (
         <AnalysisList
-          analyses={predData?.data ?? []}
+          analyses={predData?.items ?? []}
           type="prediction"
           onSelect={(id) => navigate(`/analyses/predictions/${id}`)}
           isLoading={predLoading}
           error={predError}
           page={predPage}
-          totalPages={predData?.meta?.last_page ?? 1}
-          total={predData?.meta?.total ?? 0}
-          perPage={predData?.meta?.per_page ?? 15}
+          totalPages={predData ? Math.ceil(predData.total / predData.limit) : 1}
+          total={predData?.total ?? 0}
+          perPage={predData?.limit ?? 15}
           onPageChange={setPredPage}
           isSearching={!!debouncedSearch}
         />
@@ -487,15 +534,15 @@ export default function AnalysesPage() {
 
       {activeTab === "sccs" && (
         <AnalysisList
-          analyses={sccsData?.data ?? []}
+          analyses={sccsData?.items ?? []}
           type="sccs"
           onSelect={(id) => navigate(`/analyses/sccs/${id}`)}
           isLoading={sccsLoading}
           error={sccsError}
           page={sccsPage}
-          totalPages={sccsData?.meta?.last_page ?? 1}
-          total={sccsData?.meta?.total ?? 0}
-          perPage={sccsData?.meta?.per_page ?? 15}
+          totalPages={sccsData ? Math.ceil(sccsData.total / sccsData.limit) : 1}
+          total={sccsData?.total ?? 0}
+          perPage={sccsData?.limit ?? 15}
           onPageChange={setSccsPage}
           isSearching={!!debouncedSearch}
         />
@@ -503,15 +550,15 @@ export default function AnalysesPage() {
 
       {activeTab === "evidence-synthesis" && (
         <AnalysisList
-          analyses={esData?.data ?? []}
+          analyses={esData?.items ?? []}
           type="evidence-synthesis"
           onSelect={(id) => navigate(`/analyses/evidence-synthesis/${id}`)}
           isLoading={esLoading}
           error={esError}
           page={esPage}
-          totalPages={esData?.meta?.last_page ?? 1}
-          total={esData?.meta?.total ?? 0}
-          perPage={esData?.meta?.per_page ?? 15}
+          totalPages={esData ? Math.ceil(esData.total / esData.limit) : 1}
+          total={esData?.total ?? 0}
+          perPage={esData?.limit ?? 15}
           onPageChange={setEsPage}
           isSearching={!!debouncedSearch}
         />

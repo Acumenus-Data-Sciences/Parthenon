@@ -23,20 +23,23 @@ import {
 type Tab = "design" | "progress";
 
 export default function StudyDetailPage() {
-  const { id } = useParams<{ id: string }>();
+  const { id: slugOrId } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const studyId = id ? Number(id) : null;
+  // Support both slug and numeric id
+  const studyKey = slugOrId ?? null;
+  const studyId = slugOrId ? (Number(slugOrId) || null) : null;
 
   const {
     data: study,
     isLoading,
     error,
-  } = useStudy(studyId);
+  } = useStudy(studyKey);
   const deleteMutation = useDeleteStudy();
   const executeAllMutation = useExecuteAllStudyAnalyses();
 
-  const { data: analyses } = useStudyAnalyses(studyId);
-  const { data: progress } = useStudyProgress(studyId);
+  const resolvedId = study?.id ?? studyId;
+  const { data: analyses } = useStudyAnalyses(resolvedId ?? null);
+  const { data: progress } = useStudyProgress(resolvedId ?? null);
 
   const [activeTab, setActiveTab] = useState<Tab>("design");
   const [sourceId, setSourceId] = useState<number | null>(null);
@@ -47,20 +50,20 @@ export default function StudyDetailPage() {
   });
 
   const handleDelete = () => {
-    if (!studyId) return;
+    if (!study) return;
     if (
       window.confirm("Are you sure you want to delete this study?")
     ) {
-      deleteMutation.mutate(studyId, {
+      deleteMutation.mutate(study.slug || study.id, {
         onSuccess: () => navigate("/studies"),
       });
     }
   };
 
   const handleExecuteAll = () => {
-    if (!studyId || !sourceId) return;
+    if (!resolvedId || !sourceId) return;
     executeAllMutation.mutate(
-      { studyId, sourceId },
+      { studyId: resolvedId, sourceId },
       {
         onSuccess: () => {
           setActiveTab("progress");
@@ -112,7 +115,7 @@ export default function StudyDetailPage() {
             Studies
           </button>
           <h1 className="page-title">
-            {study.name}
+            {study.title}
           </h1>
           {study.description && (
             <p className="page-subtitle">

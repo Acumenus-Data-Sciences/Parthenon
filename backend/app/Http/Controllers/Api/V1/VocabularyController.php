@@ -34,7 +34,8 @@ class VocabularyController extends Controller
         }
 
         if ($request->filled('standard')) {
-            $query->where('standard_concept', $request->input('standard'));
+            $val = $request->input('standard');
+            $query->where('standard_concept', in_array($val, ['true', '1', true], true) ? 'S' : $val);
         }
 
         $limit = (int) $request->input('limit', 25);

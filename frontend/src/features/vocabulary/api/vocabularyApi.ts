@@ -58,30 +58,42 @@ export async function getConceptRelationships(
 export async function getConceptAncestors(
   id: number,
 ): Promise<Concept[]> {
-  const { data } = await apiClient.get<Concept[]>(
+  const { data } = await apiClient.get(
     `${BASE}/concepts/${id}/ancestors`,
   );
-  return data;
+  const items = data.data ?? data;
+  if (!Array.isArray(items)) return [];
+  return items.map((item: Record<string, unknown>) => {
+    // Backend nests the concept under an `ancestor` key
+    const concept = (item.ancestor ?? item) as Concept;
+    return concept;
+  });
 }
 
 export async function getConceptDescendants(
   id: number,
   page?: number,
 ): Promise<ConceptSearchResult> {
-  const { data } = await apiClient.get<ConceptSearchResult>(
+  const { data } = await apiClient.get(
     `${BASE}/concepts/${id}/descendants`,
     { params: page != null ? { page } : undefined },
   );
-  return data;
+  const items = data.data ?? [];
+  return {
+    items: Array.isArray(items) ? items : [],
+    total: data.count ?? data.total ?? 0,
+    page: page ?? 1,
+    limit: 25,
+  };
 }
 
 export async function getConceptHierarchy(
   id: number,
 ): Promise<ConceptHierarchyNode> {
-  const { data } = await apiClient.get<ConceptHierarchyNode>(
+  const { data } = await apiClient.get(
     `${BASE}/concepts/${id}/hierarchy`,
   );
-  return data;
+  return data.data ?? data;
 }
 
 export async function getDomains(): Promise<DomainInfo[]> {

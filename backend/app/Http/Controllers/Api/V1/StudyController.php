@@ -26,19 +26,37 @@ class StudyController extends Controller
     public function index(Request $request): JsonResponse
     {
         try {
-            $query = Study::with(['author:id,name,email'])
-                ->orderByDesc('updated_at');
+            $query = Study::with([
+                'author:id,name,email',
+                'principalInvestigator:id,name,email',
+            ])->orderByDesc('updated_at');
 
             if ($request->filled('search')) {
-                $search = $request->input('search');
-                $query->where(function ($q) use ($search) {
-                    $q->where('name', 'ilike', "%{$search}%")
-                        ->orWhere('description', 'ilike', "%{$search}%");
-                });
+                $query->search($request->input('search'));
             }
 
             if ($request->filled('study_type')) {
                 $query->where('study_type', $request->input('study_type'));
+            }
+
+            if ($request->filled('study_design')) {
+                $query->where('study_design', $request->input('study_design'));
+            }
+
+            if ($request->filled('status')) {
+                $query->where('status', $request->input('status'));
+            }
+
+            if ($request->filled('phase')) {
+                $query->where('phase', $request->input('phase'));
+            }
+
+            if ($request->filled('priority')) {
+                $query->where('priority', $request->input('priority'));
+            }
+
+            if ($request->boolean('my_studies') && $request->user()) {
+                $query->where('created_by', $request->user()->id);
             }
 
             $studies = $query->paginate($request->integer('per_page', 20));
@@ -65,23 +83,37 @@ class StudyController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'title' => 'required|string|max:500',
+            'short_title' => 'nullable|string|max:100',
             'description' => 'nullable|string',
             'study_type' => 'required|string|max:100',
+            'study_design' => 'nullable|string|max:50',
+            'phase' => 'nullable|string|max:20',
+            'priority' => 'nullable|string|max:20',
+            'scientific_rationale' => 'nullable|string',
+            'hypothesis' => 'nullable|string',
+            'primary_objective' => 'nullable|string',
+            'secondary_objectives' => 'nullable|array',
+            'study_start_date' => 'nullable|date',
+            'study_end_date' => 'nullable|date',
+            'target_enrollment_sites' => 'nullable|integer|min:0',
+            'funding_source' => 'nullable|string',
+            'clinicaltrials_gov_id' => 'nullable|string|max:20',
+            'tags' => 'nullable|array',
+            'principal_investigator_id' => 'nullable|integer|exists:users,id',
+            'lead_data_scientist_id' => 'nullable|integer|exists:users,id',
+            'lead_statistician_id' => 'nullable|integer|exists:users,id',
             'metadata' => 'nullable|array',
         ]);
 
         try {
             $study = Study::create([
-                'name' => $validated['name'],
-                'description' => $validated['description'] ?? null,
-                'study_type' => $validated['study_type'],
-                'author_id' => $request->user()->id,
+                ...$validated,
+                'created_by' => $request->user()->id,
                 'status' => 'draft',
-                'metadata' => $validated['metadata'] ?? null,
             ]);
 
-            $study->load('author:id,name,email');
+            $study->load(['author:id,name,email', 'principalInvestigator:id,name,email']);
 
             return response()->json([
                 'data' => $study,
@@ -102,6 +134,9 @@ class StudyController extends Controller
         try {
             $study->load([
                 'author:id,name,email',
+                'principalInvestigator:id,name,email',
+                'leadDataScientist:id,name,email',
+                'leadStatistician:id,name,email',
                 'analyses.analysis',
             ]);
 
@@ -124,9 +159,26 @@ class StudyController extends Controller
     public function update(Request $request, Study $study): JsonResponse
     {
         $validated = $request->validate([
-            'name' => 'sometimes|required|string|max:255',
+            'title' => 'sometimes|required|string|max:500',
+            'short_title' => 'nullable|string|max:100',
             'description' => 'nullable|string',
             'study_type' => 'sometimes|required|string|max:100',
+            'study_design' => 'nullable|string|max:50',
+            'phase' => 'nullable|string|max:20',
+            'priority' => 'nullable|string|max:20',
+            'scientific_rationale' => 'nullable|string',
+            'hypothesis' => 'nullable|string',
+            'primary_objective' => 'nullable|string',
+            'secondary_objectives' => 'nullable|array',
+            'study_start_date' => 'nullable|date',
+            'study_end_date' => 'nullable|date',
+            'target_enrollment_sites' => 'nullable|integer|min:0',
+            'funding_source' => 'nullable|string',
+            'clinicaltrials_gov_id' => 'nullable|string|max:20',
+            'tags' => 'nullable|array',
+            'principal_investigator_id' => 'nullable|integer|exists:users,id',
+            'lead_data_scientist_id' => 'nullable|integer|exists:users,id',
+            'lead_statistician_id' => 'nullable|integer|exists:users,id',
             'metadata' => 'nullable|array',
         ]);
 
