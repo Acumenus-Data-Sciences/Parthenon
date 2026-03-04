@@ -1,9 +1,4 @@
-import { Activity, Bot, Shield, Database } from "lucide-react";
-
-interface Props {
-  organizationName: string;
-  onOrganizationNameChange: (name: string) => void;
-}
+import { Activity, Bot, Shield, Database, CheckCircle2 } from "lucide-react";
 
 const WIZARD_OVERVIEW = [
   {
@@ -28,58 +23,68 @@ const WIZARD_OVERVIEW = [
   },
 ];
 
-export function WelcomeStep({ organizationName, onOrganizationNameChange }: Props) {
+const BEFORE_YOU_START = [
+  "Your OMOP CDM database is accessible from this server",
+  "Docker and all containers are running (verified in the next step)",
+  "Ollama is running locally if you want AI features (optional)",
+  "You have your organization's SSO details if enabling single sign-on (optional)",
+];
+
+export function WelcomeStep() {
   return (
     <div className="space-y-6">
       {/* Hero */}
       <div className="text-center">
         <h2 className="text-2xl font-bold text-[#F0EDE8]">Welcome to Parthenon</h2>
-        <p className="mt-2 text-sm text-[#8A857D]">
-          Let's configure your research platform. This wizard will walk you through the
-          essential setup steps. You can skip any step and return to the admin panel later.
+        <p className="mt-2 text-base text-[#8A857D]">
+          Let's configure your research platform. This wizard walks through the essential setup
+          steps — each can be skipped and revisited any time from the Administration panel.
         </p>
       </div>
 
-      {/* Organization name */}
-      <div className="mx-auto max-w-md">
-        <label className="block text-xs font-medium uppercase tracking-wide text-[#8A857D]">
-          Organization Name
-        </label>
-        <input
-          type="text"
-          value={organizationName}
-          onChange={(e) => onOrganizationNameChange(e.target.value)}
-          placeholder="Your organization"
-          className="mt-1 w-full rounded-md border border-[#232328] bg-[#1A1A1E] px-3 py-2 text-sm text-[#F0EDE8] placeholder:text-[#5A5650] focus:outline-none focus:ring-2 focus:ring-[#C9A227]/50"
-        />
-        <p className="mt-1 text-xs text-[#5A5650]">
-          Displayed on the completion screen. You can change this later.
-        </p>
-      </div>
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+        {/* What we'll set up */}
+        <div>
+          <p className="mb-3 text-sm font-medium uppercase tracking-wide text-[#8A857D]">
+            What we'll configure
+          </p>
+          <div className="space-y-2">
+            {WIZARD_OVERVIEW.map((item) => {
+              const Icon = item.icon;
+              return (
+                <div
+                  key={item.label}
+                  className="flex items-start gap-3 rounded-xl border border-[#232328] bg-[#1A1A1E] p-3"
+                >
+                  <div className="rounded-lg bg-[#C9A227]/10 p-2 shrink-0">
+                    <Icon size={15} className="text-[#C9A227]" />
+                  </div>
+                  <div>
+                    <p className="text-base font-semibold text-[#F0EDE8]">{item.label}</p>
+                    <p className="mt-0.5 text-sm text-[#8A857D]">{item.description}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
 
-      {/* What's ahead */}
-      <div>
-        <p className="mb-3 text-center text-xs font-medium uppercase tracking-wide text-[#8A857D]">
-          What we'll set up
-        </p>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {WIZARD_OVERVIEW.map((item) => {
-            const Icon = item.icon;
-            return (
-              <div
-                key={item.label}
-                className="flex items-start gap-3 rounded-xl border border-[#232328] bg-[#1A1A1E] p-4"
-              >
-                <div className="rounded-lg bg-[#C9A227]/10 p-2">
-                  <Icon size={18} className="text-[#C9A227]" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-[#F0EDE8]">{item.label}</p>
-                  <p className="mt-0.5 text-xs text-[#8A857D]">{item.description}</p>
-                </div>
+        {/* Before you start */}
+        <div>
+          <p className="mb-3 text-sm font-medium uppercase tracking-wide text-[#8A857D]">
+            Before you start
+          </p>
+          <div className="rounded-xl border border-[#232328] bg-[#1A1A1E] p-4 space-y-3">
+            {BEFORE_YOU_START.map((item) => (
+              <div key={item} className="flex items-start gap-2.5">
+                <CheckCircle2 size={14} className="mt-0.5 shrink-0 text-[#5A5650]" />
+                <p className="text-sm text-[#8A857D] leading-relaxed">{item}</p>
               </div>
-            );
-          })}
+            ))}
+            <p className="pt-1 text-sm text-[#5A5650] border-t border-[#232328] mt-2">
+              None of the optional steps are required to proceed.
+            </p>
+          </div>
         </div>
       </div>
     </div>

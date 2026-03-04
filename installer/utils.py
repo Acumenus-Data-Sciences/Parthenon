@@ -168,6 +168,23 @@ def container_health(name: str) -> str:
         return "unknown"
 
 
+def wait_healthy(container_name: str, timeout_s: int = 90, *, console=None) -> bool:
+    """
+    Poll container_health() every 3 seconds until healthy/running or timeout.
+    Returns True on success, False on timeout or unhealthy.
+    """
+    import time
+    deadline = time.time() + timeout_s
+    while time.time() < deadline:
+        status = container_health(container_name)
+        if status in ("healthy", "running"):
+            return True
+        if status == "unhealthy":
+            return False
+        time.sleep(3)
+    return False  # timeout
+
+
 def container_exists(name: str) -> bool:
     try:
         result = run(

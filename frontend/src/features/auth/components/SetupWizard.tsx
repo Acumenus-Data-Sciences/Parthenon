@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { Check, X, ArrowLeft, ArrowRight, Loader2, SkipForward } from "lucide-react";
 import apiClient from "@/lib/api-client";
 import { useAuthStore } from "@/stores/authStore";
@@ -6,39 +6,79 @@ import type { User } from "@/types/models";
 import { cn } from "@/lib/utils";
 
 import { WelcomeStep } from "./setup-steps/WelcomeStep";
+import { ChangePasswordStep } from "./setup-steps/ChangePasswordStep";
 import { SystemHealthStep } from "./setup-steps/SystemHealthStep";
 import { AiProviderStep } from "./setup-steps/AiProviderStep";
 import { AuthenticationStep } from "./setup-steps/AuthenticationStep";
 import { DataSourcesStep } from "./setup-steps/DataSourcesStep";
 import { CompleteStep, type WizardState } from "./setup-steps/CompleteStep";
 
-// ── Steps ────────────────────────────────────────────────────────────────────
+// ── Types ─────────────────────────────────────────────────────────────────────
 
-const STEPS = [
-  { key: "welcome", label: "Welcome" },
-  { key: "system-health", label: "System Health" },
-  { key: "ai-provider", label: "AI Provider" },
-  { key: "authentication", label: "Authentication" },
-  { key: "data-sources", label: "Data Sources" },
-  { key: "complete", label: "Complete" },
-] as const;
+type StepKey =
+  | "welcome"
+  | "change-password"
+  | "system-health"
+  | "ai-provider"
+  | "authentication"
+  | "data-sources"
+  | "complete";
 
-// ── Component ────────────────────────────────────────────────────────────────
+interface StepDef {
+  key: StepKey;
+  label: string;
+  skippable: boolean;
+}
 
-export function SetupWizard() {
+interface Props {
+  mustChangePassword: boolean;
+  /** Called when wizard should close without marking onboarding complete (admin re-open). */
+  onClose?: () => void;
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+function buildSteps(mustChangePassword: boolean): StepDef[] {
+  return [
+    { key: "welcome", label: "Welcome", skippable: false },
+    ...(mustChangePassword
+      ? [{ key: "change-password" as StepKey, label: "Security", skippable: false }]
+      : []),
+    { key: "system-health", label: "Health", skippable: true },
+    { key: "ai-provider", label: "AI", skippable: true },
+    { key: "authentication", label: "Auth", skippable: true },
+    { key: "data-sources", label: "Data Sources", skippable: true },
+    { key: "complete", label: "Complete", skippable: false },
+  ];
+}
+
+// ── Component ─────────────────────────────────────────────────────────────────
+
+export function SetupWizard({ mustChangePassword, onClose }: Props) {
   const updateUser = useAuthStore((s) => s.updateUser);
 
+  const steps = useMemo(() => buildSteps(mustChangePassword), [mustChangePassword]);
+
   const [currentStep, setCurrentStep] = useState(0);
+  const [slideDir, setSlideDir] = useState<"forward" | "back">("forward");
+  const [animKey, setAnimKey] = useState(0);
   const [completing, setCompleting] = useState(false);
   const [wizardState, setWizardState] = useState<WizardState>({
-    organizationName: "Parthenon",
+    passwordChanged: !mustChangePassword,
     healthChecked: false,
     aiConfigured: false,
     authConfigured: false,
     sourcesConfigured: false,
   });
 
-  // Mark onboarding complete — same pattern as OnboardingModal
+  // ── Helpers ─────────────────────────────────────────────────────────────
+
+  const step = steps[currentStep];
+  const isFirstStep = currentStep === 0;
+  const isLastStep = currentStep === steps.length - 1;
+  const canDismiss = !mustChangePassword || wizardState.passwordChanged;
+
+  // Mark onboarding complete and close
   async function markComplete() {
     if (completing) return;
     setCompleting(true);
@@ -54,15 +94,44 @@ export function SetupWizard() {
     }
   }
 
+  async function dismiss() {
+    if (onClose) {
+      // Opened from admin panel — just close, don't re-mark complete
+      onClose();
+    } else {
+      // First launch — closing permanently dismisses the wizard
+      await markComplete();
+    }
+  }
+
+  function navigate(toIndex: number, dir: "forward" | "back") {
+    setSlideDir(dir);
+    setAnimKey((k) => k + 1);
+    setCurrentStep(toIndex);
+  }
+
   function goNext() {
-    if (currentStep < STEPS.length - 1) setCurrentStep((s) => s + 1);
+    if (currentStep < steps.length - 1) navigate(currentStep + 1, "forward");
   }
 
   function goPrev() {
-    if (currentStep > 0) setCurrentStep((s) => s - 1);
+    if (currentStep > 0) navigate(currentStep - 1, "back");
   }
 
-  // Memoized callbacks for step components
+  function goToStepKey(key: StepKey) {
+    const idx = steps.findIndex((s) => s.key === key);
+    if (idx !== -1) navigate(idx, "back");
+  }
+
+  // Index of AI provider step (varies if change-password is included)
+  const aiProviderIndex = steps.findIndex((s) => s.key === "ai-provider");
+
+  // ── Step callbacks ───────────────────────────────────────────────────────
+
+  const onPasswordChanged = useCallback(
+    () => setWizardState((s) => ({ ...s, passwordChanged: true })),
+    [],
+  );
   const onHealthChecked = useCallback(
     () => setWizardState((s) => ({ ...s, healthChecked: true })),
     [],
@@ -80,27 +149,48 @@ export function SetupWizard() {
     [],
   );
 
-  const isFirstStep = currentStep === 0;
-  const isLastStep = currentStep === STEPS.length - 1;
+  // ── Step content map ─────────────────────────────────────────────────────
+
+  const stepContentMap: Record<StepKey, React.ReactNode> = {
+    welcome: <WelcomeStep />,
+    "change-password": <ChangePasswordStep onPasswordChanged={onPasswordChanged} />,
+    "system-health": (
+      <SystemHealthStep
+        onHealthChecked={onHealthChecked}
+        onGoToAiProvider={aiProviderIndex !== -1 ? () => navigate(aiProviderIndex, "forward") : undefined}
+      />
+    ),
+    "ai-provider": <AiProviderStep onConfigured={onAiConfigured} />,
+    authentication: <AuthenticationStep onConfigured={onAuthConfigured} />,
+    "data-sources": <DataSourcesStep onConfigured={onSourcesConfigured} />,
+    complete: (
+      <CompleteStep
+        wizardState={wizardState}
+        steps={steps}
+        onFinish={onClose ? onClose : markComplete}
+        completing={completing}
+        onGoToStep={goToStepKey}
+      />
+    ),
+  };
 
   // ── Step indicator ───────────────────────────────────────────────────────
 
   function StepIndicator() {
     return (
-      <div className="flex items-center justify-between px-8 pt-6 pb-2">
-        {STEPS.map((step, index) => {
+      <div className="flex items-center justify-between pl-8 pr-14 pt-6 pb-2">
+        {steps.map((s, index) => {
           const isCompleted = index < currentStep;
           const isActive = index === currentStep;
           const isPending = index > currentStep;
-          const isLast = index === STEPS.length - 1;
+          const isLast = index === steps.length - 1;
 
           return (
-            <div key={step.key} className="flex items-center flex-1 last:flex-none">
-              {/* Step circle + label */}
+            <div key={s.key} className="flex items-center flex-1 last:flex-none">
               <div className="flex flex-col items-center gap-1.5">
                 <div
                   className={cn(
-                    "flex items-center justify-center w-8 h-8 rounded-full text-xs font-semibold transition-all shrink-0",
+                    "flex items-center justify-center w-8 h-8 rounded-full text-sm font-semibold transition-all shrink-0",
                     isCompleted && "bg-[#C9A227] text-[#0E0E11]",
                     isActive && "border-2 border-[#C9A227] bg-[#C9A227]/10 text-[#C9A227]",
                     isPending && "border-2 border-[#323238] text-[#5A5650] bg-transparent",
@@ -110,17 +200,16 @@ export function SetupWizard() {
                 </div>
                 <span
                   className={cn(
-                    "text-[10px] font-medium whitespace-nowrap",
+                    "text-xs font-medium whitespace-nowrap",
                     isCompleted && "text-[#C9A227]",
                     isActive && "text-[#F0EDE8]",
                     isPending && "text-[#5A5650]",
                   )}
                 >
-                  {step.label}
+                  {s.label}
                 </span>
               </div>
 
-              {/* Connector line */}
               {!isLast && (
                 <div className="flex-1 mx-2 mb-5">
                   <div
@@ -140,93 +229,101 @@ export function SetupWizard() {
 
   // ── Render ───────────────────────────────────────────────────────────────
 
-  const stepContent = [
-    <WelcomeStep
-      key="welcome"
-      organizationName={wizardState.organizationName}
-      onOrganizationNameChange={(name) =>
-        setWizardState((s) => ({ ...s, organizationName: name }))
-      }
-    />,
-    <SystemHealthStep key="system-health" onHealthChecked={onHealthChecked} />,
-    <AiProviderStep key="ai-provider" onConfigured={onAiConfigured} />,
-    <AuthenticationStep key="authentication" onConfigured={onAuthConfigured} />,
-    <DataSourcesStep key="data-sources" onConfigured={onSourcesConfigured} />,
-    <CompleteStep
-      key="complete"
-      wizardState={wizardState}
-      onFinish={markComplete}
-      completing={completing}
-    />,
-  ];
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0E0E11]/90 backdrop-blur-sm">
-      <div className="relative mx-4 flex w-full max-w-4xl flex-col rounded-2xl border border-[#232328] bg-[#151518] shadow-2xl max-h-[90vh]">
-        {/* Skip wizard (X button) */}
-        <button
-          type="button"
-          onClick={markComplete}
-          disabled={completing}
-          className="absolute right-4 top-4 z-10 rounded-md p-1.5 text-[#5A5650] hover:text-[#8A857D] transition-colors"
-          aria-label="Skip setup wizard"
-        >
-          <X size={18} />
-        </button>
+    <>
+      {/* Slide keyframes */}
+      <style>{`
+        @keyframes wizardSlideFromRight {
+          from { opacity: 0; transform: translateX(18px); }
+          to   { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes wizardSlideFromLeft {
+          from { opacity: 0; transform: translateX(-18px); }
+          to   { opacity: 1; transform: translateX(0); }
+        }
+      `}</style>
 
-        {/* Step indicator */}
-        <StepIndicator />
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0E0E11]/90 backdrop-blur-sm">
+        <div className="relative mx-4 flex w-full max-w-4xl flex-col rounded-2xl border border-[#232328] bg-[#151518] shadow-2xl max-h-[90vh]">
 
-        {/* Step content */}
-        <div className="flex-1 overflow-y-auto px-8 py-4">{stepContent[currentStep]}</div>
-
-        {/* Navigation footer (hidden on last step — CompleteStep has its own button) */}
-        {!isLastStep && (
-          <div className="flex items-center justify-between border-t border-[#232328] px-8 py-4">
+          {/* Dismiss button — hidden until password is changed on first run */}
+          {canDismiss && (
             <button
               type="button"
-              onClick={goPrev}
-              disabled={isFirstStep}
-              className={cn(
-                "inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors",
-                isFirstStep
-                  ? "text-[#323238] cursor-not-allowed"
-                  : "text-[#8A857D] hover:text-[#C5C0B8]",
-              )}
+              onClick={dismiss}
+              disabled={completing}
+              title={onClose ? "Close" : "Skip setup — return any time via Administration"}
+              className="absolute right-4 top-4 z-10 rounded-md p-1.5 text-[#5A5650] hover:text-[#8A857D] transition-colors disabled:opacity-50"
             >
-              <ArrowLeft size={14} />
-              Previous
+              <X size={18} />
             </button>
+          )}
 
-            <div className="flex items-center gap-3">
-              {/* Skip this step */}
-              {currentStep > 0 && (
+          {/* Step indicator */}
+          <StepIndicator />
+
+          {/* Animated step content */}
+          <div className="flex-1 overflow-y-auto px-8 py-4">
+            <div
+              key={animKey}
+              style={{
+                animation: `${slideDir === "forward" ? "wizardSlideFromRight" : "wizardSlideFromLeft"} 220ms ease forwards`,
+              }}
+            >
+              {stepContentMap[step.key]}
+            </div>
+          </div>
+
+          {/* Navigation footer (hidden on last step) */}
+          {!isLastStep && (
+            <div className="flex items-center justify-between border-t border-[#232328] px-8 py-4">
+              <button
+                type="button"
+                onClick={goPrev}
+                disabled={isFirstStep}
+                className={cn(
+                  "inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors",
+                  isFirstStep
+                    ? "cursor-not-allowed text-[#323238]"
+                    : "text-[#8A857D] hover:text-[#C5C0B8]",
+                )}
+              >
+                <ArrowLeft size={14} />
+                Previous
+              </button>
+
+              <div className="flex items-center gap-3">
+                {/* Skip — only for skippable steps after welcome */}
+                {currentStep > 0 && step.skippable && (
+                  <button
+                    type="button"
+                    onClick={goNext}
+                    title="Skip this step — configure later in Administration"
+                    className="inline-flex items-center gap-1.5 text-sm text-[#5A5650] hover:text-[#8A857D] transition-colors"
+                  >
+                    <SkipForward size={14} />
+                    Skip
+                  </button>
+                )}
+
+                {/* Next — blocked on non-skippable steps until action taken */}
                 <button
                   type="button"
                   onClick={goNext}
-                  className="inline-flex items-center gap-1.5 text-sm text-[#5A5650] hover:text-[#8A857D] transition-colors"
+                  disabled={step.key === "change-password" && !wizardState.passwordChanged}
+                  className={cn(
+                    "inline-flex items-center gap-2 rounded-lg bg-[#C9A227] px-5 py-2 text-sm font-semibold text-[#0E0E11]",
+                    "hover:bg-[#D4AE3A] transition-colors disabled:opacity-40 disabled:cursor-not-allowed",
+                  )}
                 >
-                  <SkipForward size={14} />
-                  Skip
+                  Next
+                  <ArrowRight size={14} />
                 </button>
-              )}
-
-              {/* Next */}
-              <button
-                type="button"
-                onClick={goNext}
-                className={cn(
-                  "inline-flex items-center gap-2 rounded-lg bg-[#C9A227] px-5 py-2 text-sm font-semibold text-[#0E0E11]",
-                  "hover:bg-[#D4AE3A] transition-colors",
-                )}
-              >
-                Next
-                <ArrowRight size={14} />
-              </button>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }

@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import {
-  Activity, Bot, KeyRound, ShieldCheck, Users, ArrowRight,
+  Activity, Bot, KeyRound, ShieldCheck, Users, ArrowRight, Wand2,
 } from "lucide-react";
 import { MetricCard, Panel } from "@/components/ui";
 import { useUsers } from "../hooks/useAdminUsers";
@@ -8,8 +8,9 @@ import { useRoles } from "../hooks/useAdminRoles";
 import { useAuthProviders } from "../hooks/useAuthProviders";
 import { useAiProviders } from "../hooks/useAiProviders";
 import { useAuthStore } from "@/stores/authStore";
+import { useSetupWizard } from "@/contexts/SetupWizardContext";
 
-const cards = [
+const NAV_CARDS = [
   {
     title: "User Management",
     description: "Create, edit, and deactivate user accounts. Assign roles to control access.",
@@ -59,6 +60,7 @@ const cards = [
 
 export default function AdminDashboardPage() {
   const { isSuperAdmin } = useAuthStore();
+  const { openSetupWizard } = useSetupWizard();
   const { data: usersPage } = useUsers({ per_page: 1 });
   const { data: roles } = useRoles();
   const { data: providers } = useAuthProviders();
@@ -76,7 +78,7 @@ export default function AdminDashboardPage() {
         </p>
       </div>
 
-      {/* Quick stats — using shared MetricCard */}
+      {/* Quick stats */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <MetricCard
           label="Total Users"
@@ -102,28 +104,48 @@ export default function AdminDashboardPage() {
         />
       </div>
 
-      {/* Navigation cards — using shared Panel */}
+      {/* Navigation cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        {cards
-          .filter((c) => !c.superAdminOnly || isSuperAdmin())
-          .map((card) => (
-            <Link key={card.href} to={card.href} className="block">
-              <Panel className="group h-full transition-colors hover:border-primary/50 cursor-pointer">
-                <div className="flex flex-col justify-between h-full">
-                  <div>
-                    <div className={`inline-flex rounded-md p-2 ${card.bg}`}>
-                      <card.icon className={`h-5 w-5 ${card.color}`} />
-                    </div>
-                    <h3 className="mt-4 text-base font-semibold text-foreground">{card.title}</h3>
-                    <p className="mt-1 text-sm text-muted-foreground">{card.description}</p>
+        {NAV_CARDS.filter((c) => !c.superAdminOnly || isSuperAdmin()).map((card) => (
+          <Link key={card.href} to={card.href} className="block">
+            <Panel className="group h-full cursor-pointer transition-colors hover:border-primary/50">
+              <div className="flex h-full flex-col justify-between">
+                <div>
+                  <div className={`inline-flex rounded-md p-2 ${card.bg}`}>
+                    <card.icon className={`h-5 w-5 ${card.color}`} />
                   </div>
-                  <div className="mt-4 flex items-center gap-1 text-sm font-medium text-primary opacity-0 transition-opacity group-hover:opacity-100">
-                    Open <ArrowRight className="h-4 w-4" />
-                  </div>
+                  <h3 className="mt-4 text-base font-semibold text-foreground">{card.title}</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">{card.description}</p>
                 </div>
-              </Panel>
-            </Link>
-          ))}
+                <div className="mt-4 flex items-center gap-1 text-sm font-medium text-primary opacity-0 transition-opacity group-hover:opacity-100">
+                  Open <ArrowRight className="h-4 w-4" />
+                </div>
+              </div>
+            </Panel>
+          </Link>
+        ))}
+
+        {/* Setup Wizard — superadmin only, button not link */}
+        {isSuperAdmin() && (
+          <button type="button" onClick={openSetupWizard} className="block text-left">
+            <Panel className="group h-full cursor-pointer transition-colors hover:border-[#C9A227]/50">
+              <div className="flex h-full flex-col justify-between">
+                <div>
+                  <div className="inline-flex rounded-md bg-[#C9A227]/10 p-2">
+                    <Wand2 className="h-5 w-5 text-[#C9A227]" />
+                  </div>
+                  <h3 className="mt-4 text-base font-semibold text-foreground">Platform Setup Wizard</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Re-run the guided setup — health check, AI provider, authentication, and data sources.
+                  </p>
+                </div>
+                <div className="mt-4 flex items-center gap-1 text-sm font-medium text-[#C9A227] opacity-0 transition-opacity group-hover:opacity-100">
+                  Open wizard <ArrowRight className="h-4 w-4" />
+                </div>
+              </div>
+            </Panel>
+          </button>
+        )}
       </div>
     </div>
   );

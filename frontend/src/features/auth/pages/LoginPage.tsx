@@ -501,40 +501,42 @@ export function LoginPage() {
               </div>
             </div>
 
-            {/* Demo login shortcut */}
-            <button
-              type="button"
-              onClick={() => {
-                setEmail("admin@parthenon.local");
-                setPassword("superuser");
-              }}
-              style={{
-                width: "100%",
-                marginBottom: "var(--space-3)",
-                padding: "8px 0",
-                fontFamily: "var(--font-mono)",
-                fontSize: "var(--text-xs)",
-                color: "var(--text-muted)",
-                background: "rgba(255, 255, 255, 0.03)",
-                border: "1px dashed rgba(255, 255, 255, 0.08)",
-                borderRadius: "var(--radius-md)",
-                cursor: "pointer",
-                transition: "color 200ms, border-color 200ms, background 200ms",
-                letterSpacing: "0.3px",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = "var(--accent)";
-                e.currentTarget.style.borderColor = "var(--accent-muted)";
-                e.currentTarget.style.background = "var(--accent-bg)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = "var(--text-muted)";
-                e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.08)";
-                e.currentTarget.style.background = "rgba(255, 255, 255, 0.03)";
-              }}
-            >
-              Fill demo credentials
-            </button>
+            {/* Demo login shortcut — only rendered when installer wrote VITE_DEMO_* vars */}
+            {import.meta.env.VITE_DEMO_EMAIL && import.meta.env.VITE_DEMO_PASSWORD && (
+              <button
+                type="button"
+                onClick={() => {
+                  setEmail(import.meta.env.VITE_DEMO_EMAIL);
+                  setPassword(import.meta.env.VITE_DEMO_PASSWORD);
+                }}
+                style={{
+                  width: "100%",
+                  marginBottom: "var(--space-3)",
+                  padding: "8px 0",
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "var(--text-xs)",
+                  color: "var(--text-muted)",
+                  background: "rgba(255, 255, 255, 0.03)",
+                  border: "1px dashed rgba(255, 255, 255, 0.08)",
+                  borderRadius: "var(--radius-md)",
+                  cursor: "pointer",
+                  transition: "color 200ms, border-color 200ms, background 200ms",
+                  letterSpacing: "0.3px",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = "var(--accent)";
+                  e.currentTarget.style.borderColor = "var(--accent-muted)";
+                  e.currentTarget.style.background = "var(--accent-bg)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = "var(--text-muted)";
+                  e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.08)";
+                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.03)";
+                }}
+              >
+                Fill demo credentials
+              </button>
+            )}
 
             {/* Sign in button */}
             <button

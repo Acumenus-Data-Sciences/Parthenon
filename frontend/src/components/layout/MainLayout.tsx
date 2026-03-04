@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import { Sidebar } from "./Sidebar";
 import { Header } from "./Header";
@@ -8,6 +9,7 @@ import { ChangePasswordModal } from "@/features/auth/components/ChangePasswordMo
 import { OnboardingModal } from "@/features/auth/components/OnboardingModal";
 import { SetupWizard } from "@/features/auth/components/SetupWizard";
 import { WhatsNewModal } from "@/features/help";
+import { SetupWizardContext } from "@/contexts/SetupWizardContext";
 import { useUiStore } from "@/stores/uiStore";
 import { useAuthStore } from "@/stores/authStore";
 import { useGlobalKeyboard } from "@/hooks/useGlobalKeyboard";
@@ -18,30 +20,47 @@ export function MainLayout() {
   const user = useAuthStore((s) => s.user);
   const isSuperAdmin = useAuthStore((s) => (s.user?.roles ?? []).includes("super-admin"));
 
+  // Wizard open state — true on first launch, togglable from admin panel
+  const [wizardOpen, setWizardOpen] = useState(
+    () => !!user && !user.onboarding_completed && isSuperAdmin,
+  );
+
   // Register global keyboard shortcuts
   useGlobalKeyboard();
 
+  const showWizard = wizardOpen && isSuperAdmin;
+
   return (
-    <div className="app-shell">
-      {/* Blocking modal: shown until user changes their temporary password */}
-      {user?.must_change_password && <ChangePasswordModal />}
+    <SetupWizardContext.Provider value={{ openSetupWizard: () => setWizardOpen(true) }}>
+      <div className="app-shell">
+        {/* Blocking password change for non-superadmins (superadmins handle it inside the wizard) */}
+        {user?.must_change_password && !isSuperAdmin && <ChangePasswordModal />}
 
-      {/* Onboarding: superadmins see the setup wizard, others see the quick tour */}
-      {user && !user.must_change_password && !user.onboarding_completed && (
-        isSuperAdmin ? <SetupWizard /> : <OnboardingModal />
-      )}
+        {/* Superadmin setup wizard — first launch or opened from admin panel */}
+        {showWizard && (
+          <SetupWizard
+            mustChangePassword={user?.must_change_password ?? false}
+            onClose={user?.onboarding_completed ? () => setWizardOpen(false) : undefined}
+          />
+        )}
 
-      <Sidebar />
-      <div className={cn("app-content", !sidebarOpen && "sidebar-collapsed")}>
-        <Header />
-        <main className="content-main">
-          <Outlet />
-        </main>
+        {/* Regular user onboarding tour — shown after password change if needed */}
+        {user && !user.onboarding_completed && !isSuperAdmin && !user.must_change_password && (
+          <OnboardingModal />
+        )}
+
+        <Sidebar />
+        <div className={cn("app-content", !sidebarOpen && "sidebar-collapsed")}>
+          <Header />
+          <main className="content-main">
+            <Outlet />
+          </main>
+        </div>
+        <CommandPalette />
+        <AiDrawer />
+        <ToastContainer />
+        <WhatsNewModal />
       </div>
-      <CommandPalette />
-      <AiDrawer />
-      <ToastContainer />
-      <WhatsNewModal />
-    </div>
+    </SetupWizardContext.Provider>
   );
 }

@@ -136,3 +136,93 @@ Uses an inline role check (not `s.isSuperAdmin()`) to ensure Zustand re-renders 
 TypeScript:      npx tsc --noEmit → 0 errors
 Frontend tests:  npx vitest run → 64/64 pass (11 suites)
 ```
+
+---
+
+## Phase 12.1 Enhancement Pass — 2026-03-04
+
+Complete overhaul of the Setup Wizard: all UX improvements, admin panel integration, conditional Change Password step, and font-size corrections. Deployed to `parthenon.acumenus.net`.
+
+### Goals
+
+1. Make the wizard persistent — accessible any time from the Admin panel, not just on first login
+2. Integrate the change-password flow for fresh installs (superadmins no longer see `ChangePasswordModal`)
+3. Meaningful content improvements across every step
+4. Font sizes corrected (were too small throughout)
+5. Step indicator spacing fixed (X button was overlapping step 6 circle)
+
+---
+
+### New Files
+
+| File | Purpose |
+|------|---------|
+| `frontend/src/contexts/SetupWizardContext.tsx` | React Context exposing `openSetupWizard()` — any admin page can trigger the wizard without prop-drilling |
+| `frontend/src/features/auth/components/setup-steps/ChangePasswordStep.tsx` | New wizard step: password change form with 5-bar strength meter and installer credentials callout |
+
+---
+
+### Modified Files
+
+| File | Change |
+|------|--------|
+| `frontend/src/components/layout/MainLayout.tsx` | Provides `SetupWizardContext`; superadmins bypass `ChangePasswordModal` (wizard handles it); `wizardOpen` state; `onClose` is `undefined` on first launch (marks complete), provided on admin re-open (just closes) |
+| `frontend/src/features/auth/components/SetupWizard.tsx` | Complete rewrite — dynamic steps, slide animation, X-button conditional hide, `onGoToStep()` back-nav for CompleteStep |
+| `frontend/src/features/auth/components/setup-steps/WelcomeStep.tsx` | Removed org name input (never persisted); two-column layout — "What we'll configure" icon cards + "Before you start" checklist |
+| `frontend/src/features/auth/components/setup-steps/SystemHealthStep.tsx` | Added `onGoToAiProvider?` prop; when AI service is down/degraded, shows inline callout with "Configure AI →" shortcut button |
+| `frontend/src/features/auth/components/setup-steps/DataSourcesStep.tsx` | `EunomiaCallout` component — displayed when Eunomia source is detected (`source_key === 'EUNOMIA'`); Eunomia source visually separated from other sources |
+| `frontend/src/features/auth/components/setup-steps/CompleteStep.tsx` | Two-column layout: setup summary with per-item "Fix →" go-back buttons + "What to do next" quick-start links; `WizardState` gains `passwordChanged`, drops `organizationName` |
+| `frontend/src/features/administration/pages/AdminDashboardPage.tsx` | "Platform Setup Wizard" card (Wand2 icon, gold accent) visible to super-admins only; calls `openSetupWizard()` from context |
+| `installer/bootstrap.py` | `run_create_admin()` sets `must_change_password = true` via psql UPDATE after admin creation |
+
+---
+
+### Wizard Architecture (After)
+
+```
+MainLayout
+├─ SetupWizardContext.Provider (openSetupWizard)
+├─ {must_change_password && !isSuperAdmin} → <ChangePasswordModal /> (non-superadmins only)
+└─ {showWizard} → <SetupWizard mustChangePassword onClose? />
+     ├─ buildSteps(mustChangePassword) → dynamic step array
+     │    [welcome, ?change-password, system-health, ai-provider, authentication, data-sources, complete]
+     ├─ slide animation (CSS keyframes, direction-aware)
+     ├─ step indicator: pl-8 pr-14 (gives X button 56px clearance)
+     └─ steps pass props down:
+          SystemHealthStep → onGoToAiProvider (index computed at runtime)
+          CompleteStep → steps[], onGoToStep()
+```
+
+### Key Design Details
+
+**Dynamic steps:** `buildSteps(mustChangePassword: boolean)` produces 6 or 7 steps depending on whether the user needs to change their password. The Change Password step (`key: "change-password"`) is injected as index 1 only when the prop is true. All subsequent step indices shift accordingly — cross-links (e.g., SystemHealth → AI Provider) resolve the target index at call time, not hardcoded.
+
+**First-launch vs admin re-open:** Distinguished by the `onClose` prop on `SetupWizard`:
+- `undefined` = first launch: closing calls `markComplete()` (PUT `/user/onboarding`)
+- function = admin re-open: closing just calls the function (no API call, wizard already marked complete)
+
+**X button hide on fresh installs with `must_change_password=true`:** The X button is hidden until `wizardState.passwordChanged` is true. The Next button on the Change Password step is also disabled until the step is complete. Superadmins cannot dismiss the wizard without first setting a password.
+
+**Eunomia detection:** `source_key?.toUpperCase() === 'EUNOMIA'` — case-insensitive match. The Eunomia source is visually separated from other sources and shown as a callout rather than a regular source row.
+
+**CompleteStep "Fix" buttons:** Each skipped summary item (not done) shows a "↺ Fix" button that calls `onGoToStep(item.stepKey)`. Only shown when the step was part of the current wizard run (fresh installs without password step don't show a "Fix" for Change Password). The wizard tracks direction so the slide animation goes backwards when navigating to a previous step.
+
+**SetupWizardContext:** Exported from `frontend/src/contexts/SetupWizardContext.tsx`. `MainLayout` holds the `wizardOpen` state and provides `openSetupWizard: () => setWizardOpen(true)`. The Admin Dashboard card uses `useSetupWizard().openSetupWizard()` — no router navigation needed.
+
+### UI Corrections
+
+| Issue | Fix |
+|-------|-----|
+| X close button overlapping step 6 circle | Changed `px-8` → `pl-8 pr-14` on step indicator row (56px right padding) |
+| Fonts too small throughout all wizard steps | Systematic one-level bump: labels `text-[10px]`→`text-xs`, body `text-xs`→`text-sm`, content `text-sm`→`text-base`, inputs `text-sm`→`text-base` |
+| Step numbers/labels too small in indicator | Bumped to `text-sm` for numbers, `text-xs` for labels |
+
+### Gotchas
+
+1. **`organizationName` was cosmetic-only** — it was stored in `wizardState` and shown on the Complete step but never sent to any API. Removed entirely from WelcomeStep rather than adding a dummy endpoint.
+
+2. **Docker Desktop socket broken during deploy** — `./deploy.sh` failed with `500 Internal Server Error for API route`. Workaround: `DOCKER_HOST=unix:///var/run/docker.sock docker compose exec node sh -c "cd /app && npx vite build"` — bypasses the Desktop proxy and uses the real Docker Engine socket directly. Build succeeded in 4.38s.
+
+3. **`dist/` owned by Docker root** — First attempted local `npx vite build` which failed with `EACCES: permission denied, unlink 'frontend/dist/assets/...'` because `dist/` was created inside the Docker node container and owned by root. Solution: build via Docker node container (above) which has the correct permissions.
+
+4. **`must_change_password` set at installer time** — The psql UPDATE in `run_create_admin()` runs against Docker postgres with `docker compose exec -T postgres psql ...`. The SQL is parameterized by the email string collected during the admin creation flow, so it targets the correct user row even if the admin email was customized.

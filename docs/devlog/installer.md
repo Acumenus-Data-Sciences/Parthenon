@@ -181,3 +181,63 @@ API working: `GET /api/v1/sources` returns `{"message":"Unauthenticated."}` (cor
 - **`--non-interactive` flag** on `install.py` for CI/CD or scripted installs (pass config via env vars)
 - **Uninstall mode** — `python install.py --uninstall` to stop containers and optionally wipe volumes
 - **Upgrade mode** — detect existing install, run only `migrate` + `db:seed` + frontend rebuild
+
+---
+
+## Installer Hardening Pass — 2026-03-04
+
+Three show-stopping bugs were identified from the VM test session above. The installer completed all 8 phases without visible error messages but left the system non-functional. All three have been fixed.
+
+### Bug 1 — Missing `composer install` (Bootstrap fails silently on fresh clone)
+
+**Root cause:** The PHP Dockerfile installs `vendor/` inside the image at build time. However `docker-compose.yml` bind-mounts `./backend:/var/www/html` at runtime, which **shadows** the image's `vendor/` with the host directory. On a fresh clone, `backend/vendor/` does not exist on the host, so the container sees no `vendor/autoload.php`. Every artisan command fails immediately with a Composer autoload error.
+
+**Symptom:** `php artisan key:generate` fails in the first line of bootstrap — but the installer was catching the error without surfacing it clearly, so all 8 phases showed green.
+
+**Fix:** Step 1 of the new 6-step bootstrap sequence runs `composer install --no-dev --optimize-autoloader --no-interaction` inside the running php container before any artisan commands. Added to `installer/bootstrap.py::run_laravel_bootstrap()`.
+
+**Preflight addition:** `installer/preflight.py` now has an informational (non-blocking) check for `backend/vendor/`. If absent, it prints "Not found — will run composer install automatically in Phase 4 (normal on fresh clone)" rather than failing.
+
+### Bug 2 — APP_KEY not reloaded into running container after `key:generate`
+
+**Root cause:** `docker compose env_file` is processed at **container creation time** (`docker compose up`). After `php artisan key:generate --force` writes `APP_KEY=base64:...` to `backend/.env`, the already-running PHP container's process environment still contains the old empty `APP_KEY`. `docker compose restart` reuses the same container and does **not** re-read env_file.
+
+**Symptom:** `php artisan db:seed` throws `No application encryption key has been specified` because models with `encrypted:array` casts try to decrypt before INSERT.
+
+**Fix:** After `key:generate`, the bootstrap now runs `docker compose up -d php` (container recreation, not restart) to force env_file reload, then calls `utils.wait_healthy("parthenon-php", timeout_s=90)` before continuing. Also runs `php artisan config:clear` to purge any stale cached empty APP_KEY.
+
+**New utility:** `installer/utils.py` now exports `wait_healthy(container_name, timeout_s, *, console)` — polls `container_health()` every 3 seconds until `healthy/running` or timeout. Returns bool.
+
+### Bug 3 — Storage directory permissions (HTTP 500 on all API calls)
+
+**Root cause:** On a fresh install, `backend/storage/` and `backend/bootstrap/cache/` may be owned by the host user or root (from Docker build layers). PHP-FPM runs as `www-data` and cannot write view cache, session files, or logs.
+
+**Symptom:** Every API endpoint returns HTTP 500 even though all containers appear healthy. `docker compose logs php` shows `Permission denied` on `storage/framework/views/`.
+
+**Fix:** Step 6 of the bootstrap sequence runs `chown -R www-data:www-data storage bootstrap/cache` and `chmod -R 775 storage bootstrap/cache` inside the php container. These are non-fatal (errors are captured and printed as warnings, not hard failures).
+
+### Summary: `run_laravel_bootstrap()` before → after
+
+| Before (3 steps) | After (6 steps) |
+|-----------------|-----------------|
+| 1. `key:generate` | 1. `composer install` |
+| 2. `migrate` | 2. `key:generate` |
+| 3. `db:seed` | 3. `docker compose up -d php` + `wait_healthy` + `config:clear` |
+| | 4. `migrate` |
+| | 5. `db:seed` |
+| | 6. `chown/chmod storage` |
+
+### Demo credentials button fix
+
+**Problem:** The login page had a "Fill demo credentials" button hardcoded to `admin@parthenon.local` / `superuser`. In a fresh installer run the admin email and password are chosen interactively by the user.
+
+**Fix:** `installer/config.py::write()` now creates `frontend/.env.local` with:
+```
+VITE_DEMO_EMAIL=<admin_email>
+VITE_DEMO_PASSWORD=<admin_password>
+```
+`frontend/.gitignore` already has `*.local` so this file is never committed. The frontend Vite build bakes the values into the JS bundle. `LoginPage.tsx` now reads `import.meta.env.VITE_DEMO_EMAIL` and `import.meta.env.VITE_DEMO_PASSWORD`, and only renders the "Fill demo credentials" button when both vars are set (empty in dev clones or production deployments without the installer).
+
+### `must_change_password` set for installer-created admin
+
+The `run_create_admin()` function now runs a psql UPDATE after `admin:create` to set `must_change_password = true` for the new admin user. This ensures the Setup Wizard's "Security" (Change Password) step fires on first login, prompting the installer-created admin to replace the auto-generated password with a permanent one.

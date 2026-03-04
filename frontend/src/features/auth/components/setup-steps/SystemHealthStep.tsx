@@ -1,5 +1,12 @@
 import { useEffect } from "react";
-import { CheckCircle2, AlertTriangle, XCircle, RefreshCw, Loader2 } from "lucide-react";
+import {
+  CheckCircle2,
+  AlertTriangle,
+  XCircle,
+  RefreshCw,
+  Loader2,
+  ArrowRight,
+} from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useSystemHealth } from "@/features/administration/hooks/useAiProviders";
 import type { SystemHealthService } from "@/types/models";
@@ -7,6 +14,8 @@ import { cn } from "@/lib/utils";
 
 interface Props {
   onHealthChecked: () => void;
+  /** Jump directly to AI Provider step when AI service is down. */
+  onGoToAiProvider?: () => void;
 }
 
 const STATUS_CONFIG = {
@@ -36,10 +45,20 @@ const STATUS_CONFIG = {
   },
 } as const;
 
-function ServiceRow({ service }: { service: SystemHealthService }) {
+function ServiceRow({
+  service,
+  onGoToAiProvider,
+}: {
+  service: SystemHealthService;
+  onGoToAiProvider?: () => void;
+}) {
   const config = STATUS_CONFIG[service.status];
   const Icon = config.icon;
   const queueDetails = service.details as { pending?: number; failed?: number } | undefined;
+
+  // Detect AI service by key
+  const isAiService = service.key === "ai" || service.name?.toLowerCase().includes("ai");
+  const aiUnhealthy = isAiService && service.status !== "healthy";
 
   return (
     <div className={cn("rounded-lg border p-4", config.border, config.bg)}>
@@ -48,12 +67,12 @@ function ServiceRow({ service }: { service: SystemHealthService }) {
           <span className={cn("mt-0.5 h-2.5 w-2.5 shrink-0 rounded-full", config.dot)} />
           <div>
             <p className="font-semibold text-[#F0EDE8]">{service.name}</p>
-            <p className={cn("mt-0.5 text-sm", config.text)}>{service.message}</p>
+            <p className={cn("mt-0.5 text-base", config.text)}>{service.message}</p>
           </div>
         </div>
         <span
           className={cn(
-            "rounded-full px-2 py-0.5 text-xs font-medium capitalize",
+            "shrink-0 rounded-full px-2 py-0.5 text-xs font-medium capitalize",
             config.bg,
             config.text,
           )}
@@ -81,11 +100,28 @@ function ServiceRow({ service }: { service: SystemHealthService }) {
           </span>
         </div>
       )}
+
+      {/* AI service cross-link */}
+      {aiUnhealthy && onGoToAiProvider && (
+        <div className="mt-3 flex items-center justify-between rounded-md border border-[#323238] bg-[#0E0E11]/60 px-3 py-2">
+          <p className="text-sm text-[#8A857D]">
+            Abby AI is not responding — configure the provider in the next step.
+          </p>
+          <button
+            type="button"
+            onClick={onGoToAiProvider}
+            className="ml-3 flex shrink-0 items-center gap-1 text-sm font-medium text-[#C9A227] hover:text-[#D4AE3A] transition-colors"
+          >
+            Configure AI
+            <ArrowRight size={12} />
+          </button>
+        </div>
+      )}
     </div>
   );
 }
 
-export function SystemHealthStep({ onHealthChecked }: Props) {
+export function SystemHealthStep({ onHealthChecked, onGoToAiProvider }: Props) {
   const { data: health, isLoading, isFetching, dataUpdatedAt } = useSystemHealth();
   const qc = useQueryClient();
 
@@ -107,7 +143,7 @@ export function SystemHealthStep({ onHealthChecked }: Props) {
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-lg font-semibold text-[#F0EDE8]">System Health Check</h3>
-          <p className="text-sm text-[#8A857D]">
+          <p className="text-base text-[#8A857D]">
             Verifying that all platform services are running correctly.
           </p>
         </div>
@@ -115,7 +151,7 @@ export function SystemHealthStep({ onHealthChecked }: Props) {
           type="button"
           onClick={() => qc.invalidateQueries({ queryKey: ["system-health"] })}
           disabled={isFetching}
-          className="inline-flex items-center gap-1.5 rounded-md border border-[#232328] px-3 py-1.5 text-xs font-medium text-[#8A857D] transition-colors hover:text-[#C5C0B8] disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded-md border border-[#232328] px-3 py-1.5 text-sm font-medium text-[#8A857D] transition-colors hover:text-[#C5C0B8] disabled:opacity-50"
         >
           <RefreshCw size={12} className={isFetching ? "animate-spin" : ""} />
           Refresh
@@ -139,11 +175,11 @@ export function SystemHealthStep({ onHealthChecked }: Props) {
               )}
             >
               <span className={cn("h-2.5 w-2.5 rounded-full", overallConfig.dot)} />
-              <span className={cn("text-sm font-medium capitalize", overallConfig.text)}>
+              <span className={cn("text-base font-medium capitalize", overallConfig.text)}>
                 System {overallStatus}
               </span>
               {checkedAt && (
-                <span className="ml-auto text-xs text-[#5A5650]">
+                <span className="ml-auto text-sm text-[#5A5650]">
                   Last checked at {checkedAt}
                 </span>
               )}
@@ -153,11 +189,15 @@ export function SystemHealthStep({ onHealthChecked }: Props) {
           {/* Service list */}
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {(health?.services ?? []).map((service) => (
-              <ServiceRow key={service.key} service={service} />
+              <ServiceRow
+                key={service.key}
+                service={service}
+                onGoToAiProvider={onGoToAiProvider}
+              />
             ))}
           </div>
 
-          <p className="text-xs text-[#5A5650]">Auto-refreshes every 30 seconds.</p>
+          <p className="text-sm text-[#5A5650]">Auto-refreshes every 30 seconds.</p>
         </>
       )}
     </div>

@@ -131,6 +131,17 @@ def _check_existing_install() -> CheckResult:
     return CheckResult("Existing install", "ok", "none detected")
 
 
+def _check_vendor() -> CheckResult:
+    vendor_path = utils.REPO_ROOT / "backend" / "vendor"
+    if vendor_path.exists():
+        return CheckResult("PHP vendor dir", "ok", "Present")
+    return CheckResult(
+        "PHP vendor dir",
+        "warn",
+        "Not found — will run composer install automatically in Phase 4 (normal on fresh clone)",
+    )
+
+
 def run_checks() -> list[CheckResult]:
     """Run all preflight checks and return the results."""
     checks: list[CheckResult] = []
@@ -144,6 +155,7 @@ def run_checks() -> list[CheckResult]:
     checks.append(_check_disk())
     checks.append(_check_repo())
     checks.append(_check_existing_install())
+    checks.append(_check_vendor())
     return checks
 
 

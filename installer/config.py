@@ -381,6 +381,16 @@ def write(cfg: dict[str, Any]) -> None:
     (REPO_ROOT / ".env").write_text(root_env)
     (REPO_ROOT / "backend" / ".env").write_text(backend_env)
 
+    # Write Vite local env so the "Fill demo credentials" button on the login
+    # screen knows the actual admin credentials chosen during this install.
+    # *.local is gitignored; Vite bakes these values into the JS bundle at
+    # Phase 6 build time.  If the file is absent, the button is hidden.
+    frontend_env_local = (
+        f"VITE_DEMO_EMAIL={cfg['admin_email']}\n"
+        f"VITE_DEMO_PASSWORD={cfg['admin_password']}\n"
+    )
+    (REPO_ROOT / "frontend" / ".env.local").write_text(frontend_env_local)
+
     # Save credentials
     creds_path = REPO_ROOT / ".install-credentials"
     creds = {
