@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\V1\CareGapController;
 use App\Http\Controllers\Api\V1\CharacterizationController;
 use App\Http\Controllers\Api\V1\CohortDefinitionController;
 use App\Http\Controllers\Api\V1\ConceptSetController;
+use App\Http\Controllers\Api\V1\DashboardController;
 use App\Http\Controllers\Api\V1\DataQualityController;
 use App\Http\Controllers\Api\V1\EstimationController;
 use App\Http\Controllers\Api\V1\EvidenceSynthesisController;
@@ -54,6 +55,9 @@ Route::prefix('v1')->group(function () {
         Route::get('/auth/user', [AuthController::class, 'user']);
         Route::post('/auth/logout', [AuthController::class, 'logout']);
         Route::post('/auth/change-password', [AuthController::class, 'changePassword']);
+
+        // Dashboard (unified stats — single call replaces 3+N frontend requests)
+        Route::get('/dashboard/stats', [DashboardController::class, 'stats']);
 
         // Sources — §9.5 import route BEFORE apiResource
         Route::post('sources/import-webapi', [SourceController::class, 'importWebApi']);

@@ -57,16 +57,21 @@ class AuthController extends Controller
 
     public function login(LoginRequest $request): JsonResponse
     {
-        $user = User::where('email', strtolower($request->email))->first();
+        $user = User::where('email', strtolower($request->email))
+            ->with('roles.permissions')  // Eager-load upfront — avoids extra queries in formatUser
+            ->first();
 
         // Same error for "not found" and "wrong password" to prevent enumeration
         if (! $user || ! Hash::check($request->password, $user->password)) {
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
 
-        $user->update(['last_login_at' => now()]);
-
         $token = $user->createToken('auth-token')->plainTextToken;
+
+        // Defer last_login_at update until after response is sent
+        dispatch(function () use ($user) {
+            $user->updateQuietly(['last_login_at' => now()]);
+        })->afterResponse();
 
         return response()->json([
             'token' => $token,

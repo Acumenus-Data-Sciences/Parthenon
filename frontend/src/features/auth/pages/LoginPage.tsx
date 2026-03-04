@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import type { FormEvent } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Loader2, AlertCircle, Lock, Mail } from "lucide-react";
 import { useAuthStore } from "@/stores/authStore";
 import axios from "axios";
 import apiClient from "@/lib/api-client";
+import { queryClient } from "@/lib/query-client";
+import { fetchDashboardStats } from "@/features/dashboard/api/dashboardApi";
 import type { AuthResponse } from "@/types/api";
 
 export function LoginPage() {
@@ -15,20 +17,37 @@ export function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Prefetch CSRF cookie on mount — eliminates a round-trip at submit time
+  const csrfReady = useRef<Promise<void> | null>(null);
+  useEffect(() => {
+    csrfReady.current = axios
+      .get("/sanctum/csrf-cookie", { withCredentials: true })
+      .then(() => undefined)
+      .catch(() => undefined);
+  }, []);
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError("");
     setLoading(true);
 
     try {
-      // Fetch CSRF cookie for Sanctum stateful auth
-      await axios.get("/sanctum/csrf-cookie", { withCredentials: true });
+      // Wait for CSRF cookie (usually already resolved from prefetch)
+      await csrfReady.current;
 
       const { data } = await apiClient.post<AuthResponse>("/auth/login", {
         email,
         password,
       });
       setAuth(data.token, data.user);
+
+      // Prefetch dashboard data before navigating — data is ready by the time DashboardPage mounts
+      queryClient.prefetchQuery({
+        queryKey: ["dashboard", "stats"],
+        queryFn: fetchDashboardStats,
+        staleTime: 15_000,
+      });
+
       navigate("/");
     } catch {
       setError("Invalid credentials. Please try again.");

@@ -25,53 +25,28 @@ export interface DashboardStats {
   }>;
 }
 
+/**
+ * Unified dashboard stats — single API call replaces 3+N frontend requests.
+ */
 export async function fetchDashboardStats(): Promise<DashboardStats> {
-  // Fetch multiple endpoints in parallel for the dashboard
-  const [sourcesRes, cohortsRes, conceptSetsRes] = await Promise.allSettled([
-    apiClient.get<Source[]>("/sources"),
-    apiClient.get<{ data: unknown[]; meta?: { total: number } }>("/cohort-definitions?per_page=5&sort=-updated_at"),
-    apiClient.get<{ data: unknown[]; total?: number }>("/concept-sets?per_page=1"),
-  ]);
+  const { data } = await apiClient.get("/dashboard/stats");
+  const d = data.data ?? data;
 
-  const sources = sourcesRes.status === "fulfilled" ? sourcesRes.value.data : [];
-
-  const cohortsData = cohortsRes.status === "fulfilled" ? cohortsRes.value.data : { data: [], total: 0 };
-  const cohortCount = (cohortsData as { total?: number; meta?: { total: number } }).total
-    ?? (cohortsData as { meta?: { total: number } }).meta?.total
-    ?? 0;
-  const recentCohorts = ((cohortsData as { data: Array<{ id: number; name: string; status?: string; person_count?: number | null; updated_at: string }> }).data ?? []).slice(0, 5).map((c) => ({
-    id: c.id,
-    name: c.name,
-    status: c.status ?? "draft",
-    person_count: c.person_count ?? null,
-    updated_at: c.updated_at,
-  }));
-
-  const conceptSetsData = conceptSetsRes.status === "fulfilled" ? conceptSetsRes.value.data : { total: 0 };
-  const conceptSetCount = (conceptSetsData as { total?: number }).total ?? 0;
-
-  // Aggregate DQD failures across all sources
-  const sourceList = (Array.isArray(sources) ? sources : (sources as { data?: Source[] }).data ?? []) as Source[];
-  let dqdFailures = 0;
-  if (sourceList.length > 0) {
-    const dqdResults = await Promise.allSettled(
-      sourceList.map((s) => apiClient.get(`/sources/${s.id}/dqd/latest`)),
-    );
-    for (const res of dqdResults) {
-      if (res.status === "fulfilled") {
-        const summary = res.value.data?.data ?? res.value.data;
-        dqdFailures += summary?.failed ?? 0;
-      }
-    }
-  }
+  const sources: Source[] = Array.isArray(d.sources) ? d.sources : [];
 
   return {
-    sources: sourceList,
-    cohortCount,
-    conceptSetCount,
-    activeJobCount: 0, // TODO: wire when /jobs endpoint exists
-    dqdFailures,
-    recentCohorts,
-    recentJobs: [],
+    sources,
+    cohortCount: d.cohort_count ?? 0,
+    conceptSetCount: d.concept_set_count ?? 0,
+    activeJobCount: d.active_job_count ?? 0,
+    dqdFailures: d.dqd_failures ?? 0,
+    recentCohorts: (d.recent_cohorts ?? []).map((c: Record<string, unknown>) => ({
+      id: c.id,
+      name: c.name,
+      status: c.status ?? "draft",
+      person_count: c.person_count ?? null,
+      updated_at: c.updated_at,
+    })),
+    recentJobs: d.recent_jobs ?? [],
   };
 }
