@@ -5,8 +5,8 @@
 
 library(SelfControlledCaseSeries)
 library(DatabaseConnector)
-source("R/connection.R")
-source("R/progress.R")
+source("/app/R/connection.R")
+source("/app/R/progress.R")
 
 #* Run Self-Controlled Case Series analysis
 #* @post /run

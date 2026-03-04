@@ -4,7 +4,7 @@
 # the frontend's EstimationResult / PredictionResult types.
 # ──────────────────────────────────────────────────────────────────
 
-source("R/connection.R")  # for %||%
+source("/app/R/connection.R")  # for %||%
 
 # ── CohortMethod helpers ────────────────────────────────────────
 

@@ -4,8 +4,8 @@
 # ──────────────────────────────────────────────────────────────────
 
 library(EvidenceSynthesis)
-source("R/connection.R")
-source("R/progress.R")
+source("/app/R/connection.R")
+source("/app/R/progress.R")
 
 #* Run meta-analysis across multiple site estimates
 #* @post /run

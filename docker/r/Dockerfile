@@ -101,11 +101,13 @@ RUN pip3 install --break-system-packages \
     xgboost==2.1.4 \
     lightgbm==4.6.0
 
-# Download PostgreSQL JDBC driver for DatabaseConnector
-RUN mkdir -p /app/jdbc && \
-    curl -L -o /app/jdbc/postgresql-42.7.3.jar \
+# Download PostgreSQL JDBC driver for DatabaseConnector.
+# IMPORTANT: must live outside /app because docker-compose mounts ./r-runtime:/app
+# at runtime, which would clobber /app/jdbc and make the driver unavailable.
+RUN mkdir -p /opt/jdbc && \
+    curl -L -o /opt/jdbc/postgresql-42.7.3.jar \
     https://jdbc.postgresql.org/download/postgresql-42.7.3.jar
-ENV DATABASECONNECTOR_JAR_FOLDER=/app/jdbc
+ENV DATABASECONNECTOR_JAR_FOLDER=/opt/jdbc
 
 ## ──────────────────────────────────────────────────────────────────
 ## Stage 2: Application code (fast layer — changes on every edit)

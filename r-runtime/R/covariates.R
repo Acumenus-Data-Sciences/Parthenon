@@ -5,7 +5,7 @@
 # ──────────────────────────────────────────────────────────────────
 
 library(FeatureExtraction)
-source("R/connection.R")  # for %||%
+source("/app/R/connection.R")  # for %||%
 
 #' Build FeatureExtraction covariate settings from a spec list.
 #'

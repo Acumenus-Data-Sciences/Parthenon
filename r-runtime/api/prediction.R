@@ -6,10 +6,10 @@
 library(PatientLevelPrediction)
 library(FeatureExtraction)
 library(DatabaseConnector)
-source("R/connection.R")
-source("R/covariates.R")
-source("R/progress.R")
-source("R/results.R")
+source("/app/R/connection.R")
+source("/app/R/covariates.R")
+source("/app/R/progress.R")
+source("/app/R/results.R")
 
 #* Run patient-level prediction via PatientLevelPrediction
 #* @post /run

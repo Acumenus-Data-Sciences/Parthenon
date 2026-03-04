@@ -4,7 +4,7 @@
 # ──────────────────────────────────────────────────────────────────
 
 library(ParallelLogger)
-source("R/connection.R")  # for %||%
+source("/app/R/connection.R")  # for %||%
 
 #' Create a structured logger that collects messages for the final response.
 #'
