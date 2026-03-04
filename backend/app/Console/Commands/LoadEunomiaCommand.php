@@ -23,13 +23,6 @@ class LoadEunomiaCommand extends Command
 
     private const RESULTS_SCHEMA = 'eunomia_results';
 
-    /** Vocabulary tables to skip (reuse existing omop vocab) */
-    private const VOCAB_TABLES = [
-        'concept', 'concept_ancestor', 'concept_class', 'concept_relationship',
-        'concept_synonym', 'domain', 'drug_strength', 'relationship',
-        'source_to_concept_map', 'vocabulary',
-    ];
-
     /** Non-essential tables to skip */
     private const SKIP_TABLES = [
         'cohort', 'cohort_attribute', 'cdm_source', 'metadata',
@@ -184,9 +177,8 @@ class LoadEunomiaCommand extends Command
         foreach ($csvFiles as $csvFile) {
             $tableName = strtolower(pathinfo($csvFile, PATHINFO_FILENAME));
 
-            // Skip vocab and non-essential tables
-            if (in_array($tableName, self::VOCAB_TABLES, true) ||
-                in_array($tableName, self::SKIP_TABLES, true)) {
+            // Skip non-essential tables
+            if (in_array($tableName, self::SKIP_TABLES, true)) {
                 continue;
             }
 
