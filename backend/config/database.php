@@ -123,16 +123,38 @@ return [
             'sslmode' => 'prefer',
         ],
 
+        // Achilles/DQD results connection. AchillesResultReaderService overrides
+        // search_path per-request based on the source's results daimon table_qualifier
+        // (e.g. 'achilles_results' for Acumenus, 'eunomia_results' for Eunomia).
+        // In Docker installer deployments DB_HOST/DB_DATABASE point to the Docker
+        // postgres, so eunomia_results is reachable without any extra env vars.
         'results' => [
             'driver' => 'pgsql',
             'host' => env('RESULTS_DB_HOST', env('DB_HOST', '127.0.0.1')),
             'port' => env('RESULTS_DB_PORT', env('DB_PORT', '5432')),
-            'database' => env('RESULTS_DB_DATABASE', env('DB_DATABASE', 'ohdsi')),
-            'username' => env('RESULTS_DB_USERNAME', env('DB_USERNAME', 'smudoshi')),
+            'database' => env('RESULTS_DB_DATABASE', env('DB_DATABASE', 'parthenon')),
+            'username' => env('RESULTS_DB_USERNAME', env('DB_USERNAME', 'parthenon')),
             'password' => env('RESULTS_DB_PASSWORD', env('DB_PASSWORD', '')),
             'charset' => 'utf8',
             'prefix' => '',
-            'search_path' => env('RESULTS_DB_SEARCH_PATH', 'achilles_results,public'),
+            'search_path' => env('RESULTS_DB_SEARCH_PATH', 'eunomia_results,public'),
+            'sslmode' => 'prefer',
+        ],
+
+        // Eunomia GiBleed demo dataset — lives in the Docker postgres (same DB as
+        // the app) in the 'eunomia' schema. The schema is populated by pg_restore
+        // during Phase 5 of the installer. search_path is set statically here and
+        // overridden per-request by AchillesResultReaderService for the results schema.
+        'eunomia' => [
+            'driver' => 'pgsql',
+            'host' => env('DB_HOST', 'postgres'),
+            'port' => env('DB_PORT', '5432'),
+            'database' => env('DB_DATABASE', 'parthenon'),
+            'username' => env('DB_USERNAME', 'parthenon'),
+            'password' => env('DB_PASSWORD', ''),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'search_path' => 'eunomia,public',
             'sslmode' => 'prefer',
         ],
 

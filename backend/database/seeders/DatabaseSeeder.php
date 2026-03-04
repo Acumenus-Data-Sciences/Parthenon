@@ -2,9 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Enums\DaimonType;
-use App\Models\App\Source;
-use App\Models\App\SourceDaimon;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -37,33 +34,13 @@ class DatabaseSeeder extends Seeder
 
         $admin->assignRole('super-admin');
 
-        // ── OHDSI Acumenus data source ─────────────────────────────────────
-        // Points to the local PG 17 ohdsi database (omop schema for CDM+vocab,
-        // achilles_results schema for Achilles/DQD). Idempotent via updateOrCreate.
-        $source = Source::updateOrCreate(
-            ['source_key' => 'ohdsi-acumenus'],
-            [
-                'source_name'       => 'OHDSI Acumenus',
-                'source_dialect'    => 'postgresql',
-                'source_connection' => 'cdm',
-                'is_cache_enabled'  => false,
-            ],
-        );
-
-        $daimons = [
-            ['daimon_type' => DaimonType::CDM->value,        'table_qualifier' => 'omop',             'priority' => 0],
-            ['daimon_type' => DaimonType::Vocabulary->value,  'table_qualifier' => 'omop',             'priority' => 0],
-            ['daimon_type' => DaimonType::Results->value,     'table_qualifier' => 'achilles_results', 'priority' => 0],
-        ];
-
-        foreach ($daimons as $daimon) {
-            SourceDaimon::updateOrCreate(
-                ['source_id' => $source->id, 'daimon_type' => $daimon['daimon_type']],
-                ['table_qualifier' => $daimon['table_qualifier'], 'priority' => $daimon['priority']],
-            );
-        }
-
         // ── Condition bundles ──────────────────────────────────────────────
+        // Data sources are NOT seeded here — Eunomia is seeded by the installer
+        // via `php artisan eunomia:seed-source` after pg_restore. Customer CDM
+        // sources are added through the admin UI or WebAPI import.
         $this->call(ConditionBundleSeeder::class);
+
+        // ── Sample cohort definitions ────────────────────────────────────
+        $this->call(CohortDefinitionSeeder::class);
     }
 }
