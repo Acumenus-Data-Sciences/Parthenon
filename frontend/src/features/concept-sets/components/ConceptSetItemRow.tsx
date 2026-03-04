@@ -5,6 +5,8 @@ import type { ConceptSetItem } from "../types/conceptSet";
 interface ConceptSetItemRowProps {
   item: ConceptSetItem;
   index: number;
+  isSelected?: boolean;
+  onSelectionChange?: (itemId: number) => void;
   onToggle: (
     itemId: number,
     field: "is_excluded" | "include_descendants" | "include_mapped",
@@ -54,6 +56,8 @@ function ToggleSwitch({
 export function ConceptSetItemRow({
   item,
   index,
+  isSelected,
+  onSelectionChange,
   onToggle,
   onRemove,
   isUpdating,
@@ -67,8 +71,19 @@ export function ConceptSetItemRow({
       className={cn(
         "border-t border-[#1C1C20] transition-colors hover:bg-[#1C1C20]",
         index % 2 === 0 ? "bg-[#151518]" : "bg-[#1A1A1E]",
+        isSelected && "bg-[#2DD4BF]/5",
       )}
     >
+      {/* Checkbox */}
+      <td className="px-3 py-3">
+        <input
+          type="checkbox"
+          checked={isSelected ?? false}
+          onChange={() => onSelectionChange?.(item.id)}
+          className="h-3.5 w-3.5 rounded border-[#323238] bg-[#0E0E11] text-[#2DD4BF] focus:ring-[#2DD4BF]/40 cursor-pointer"
+        />
+      </td>
+
       {/* Concept ID */}
       <td className="px-4 py-3 text-sm">
         <span className="font-['IBM_Plex_Mono',monospace] text-xs tabular-nums text-[#C9A227]">

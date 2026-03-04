@@ -9,6 +9,10 @@ import {
   addConceptSetItem,
   updateConceptSetItem,
   removeConceptSetItem,
+  getConceptSetStats,
+  copyConceptSet,
+  createConceptSetsFromBundle,
+  bulkUpdateConceptSetItems,
 } from "../api/conceptSetApi";
 import type {
   ConceptSetListParams,
@@ -16,6 +20,7 @@ import type {
   UpdateConceptSetPayload,
   AddConceptSetItemPayload,
   UpdateConceptSetItemPayload,
+  BulkUpdateConceptSetItemsPayload,
 } from "../types/conceptSet";
 
 // ---------------------------------------------------------------------------
@@ -42,6 +47,14 @@ export function useResolveConceptSet(id: number | null) {
     queryKey: ["concept-sets", id, "resolve"],
     queryFn: () => resolveConceptSet(id!),
     enabled: id != null && id > 0,
+  });
+}
+
+export function useConceptSetStats() {
+  return useQuery({
+    queryKey: ["concept-sets", "stats"],
+    queryFn: getConceptSetStats,
+    staleTime: 30_000,
   });
 }
 
@@ -131,6 +144,47 @@ export function useRemoveConceptSetItem() {
   return useMutation({
     mutationFn: ({ setId, itemId }: { setId: number; itemId: number }) =>
       removeConceptSetItem(setId, itemId),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["concept-sets", variables.setId],
+      });
+    },
+  });
+}
+
+export function useCopyConceptSet() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: number) => copyConceptSet(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["concept-sets"] });
+    },
+  });
+}
+
+export function useCreateConceptSetsFromBundle() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: createConceptSetsFromBundle,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["concept-sets"] });
+    },
+  });
+}
+
+export function useBulkUpdateConceptSetItems() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      setId,
+      payload,
+    }: {
+      setId: number;
+      payload: BulkUpdateConceptSetItemsPayload;
+    }) => bulkUpdateConceptSetItems(setId, payload),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({
         queryKey: ["concept-sets", variables.setId],

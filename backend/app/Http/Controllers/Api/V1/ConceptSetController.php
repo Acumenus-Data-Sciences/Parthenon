@@ -5,11 +5,13 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Models\App\ConceptSet;
 use App\Models\App\ConceptSetItem;
+use App\Models\App\ConditionBundle;
 use App\Models\Vocabulary\Concept;
 use App\Services\ConceptSet\ConceptSetResolverService;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 #[Group('Concept Sets', weight: 40)]
 class ConceptSetController extends Controller
@@ -22,18 +24,65 @@ class ConceptSetController extends Controller
      * GET /v1/concept-sets
      *
      * List all concept sets (paginated), with items count.
+     * Supports ?search= and ?tags[]= filters.
      */
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
         try {
-            $conceptSets = ConceptSet::withCount('items')
-                ->orderByDesc('updated_at')
-                ->paginate(20);
+            $query = ConceptSet::withCount('items')
+                ->with(['author:id,name,email'])
+                ->orderByDesc('updated_at');
 
-            return response()->json($conceptSets);
+            if ($request->filled('search')) {
+                $search = $request->input('search');
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'ilike', "%{$search}%")
+                        ->orWhere('description', 'ilike', "%{$search}%");
+                });
+            }
+
+            if ($request->filled('tags')) {
+                $tags = (array) $request->input('tags');
+                foreach ($tags as $tag) {
+                    $query->whereRaw('tags @> ?::jsonb', [json_encode([$tag])]);
+                }
+            }
+
+            return response()->json($query->paginate($request->integer('per_page', 20)));
         } catch (\Throwable $e) {
             return $this->errorResponse('Failed to retrieve concept sets', $e);
         }
+    }
+
+    /**
+     * GET /v1/concept-sets/stats
+     *
+     * Aggregate stats for concept sets.
+     */
+    public function stats(): JsonResponse
+    {
+        return response()->json([
+            'total' => ConceptSet::count(),
+            'with_items' => ConceptSet::whereHas('items')->count(),
+            'public' => ConceptSet::where('is_public', true)->count(),
+        ]);
+    }
+
+    /**
+     * GET /v1/concept-sets/tags
+     *
+     * Distinct tags across all concept sets.
+     */
+    public function tags(): JsonResponse
+    {
+        $tags = DB::select('
+            SELECT DISTINCT jsonb_array_elements_text(tags) AS tag
+            FROM concept_sets
+            WHERE deleted_at IS NULL AND tags IS NOT NULL
+            ORDER BY tag
+        ');
+
+        return response()->json(array_column($tags, 'tag'));
     }
 
     /**
@@ -180,6 +229,150 @@ class ConceptSetController extends Controller
     }
 
     /**
+     * POST /v1/concept-sets/{conceptSet}/copy
+     *
+     * Duplicate a concept set with all items.
+     */
+    public function copy(Request $request, ConceptSet $conceptSet): JsonResponse
+    {
+        try {
+            $copy = $conceptSet->replicate(['id', 'created_at', 'updated_at', 'deleted_at']);
+            $copy->name = "Copy of {$conceptSet->name}";
+            $copy->author_id = $request->user()->id;
+            $copy->save();
+
+            foreach ($conceptSet->items as $item) {
+                $copy->items()->create([
+                    'concept_id' => $item->concept_id,
+                    'is_excluded' => $item->is_excluded,
+                    'include_descendants' => $item->include_descendants,
+                    'include_mapped' => $item->include_mapped,
+                ]);
+            }
+
+            $copy->loadCount('items');
+            $copy->load('author:id,name,email');
+
+            return response()->json([
+                'data' => $copy,
+                'message' => 'Concept set copied.',
+            ], 201);
+        } catch (\Throwable $e) {
+            return $this->errorResponse('Failed to copy concept set', $e);
+        }
+    }
+
+    /**
+     * POST /v1/concept-sets/from-bundle
+     *
+     * Create concept sets from a Care Bundle (one per domain group).
+     */
+    public function createFromBundle(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'bundle_id' => 'required|integer|exists:condition_bundles,id',
+            'name' => 'nullable|string|max:255',
+        ]);
+
+        try {
+            $bundle = ConditionBundle::with('measures')->findOrFail($validated['bundle_id']);
+            $baseName = $validated['name'] ?? $bundle->condition_name;
+            $userId = $request->user()->id;
+            $bundleCode = strtolower($bundle->bundle_code);
+            $created = [];
+
+            // Condition concept set (always)
+            $conditionSet = ConceptSet::create([
+                'name' => "{$baseName} - Conditions",
+                'description' => "Condition concepts from {$bundle->condition_name} care bundle.",
+                'author_id' => $userId,
+                'is_public' => true,
+                'tags' => [$bundleCode, 'care-bundle', 'conditions'],
+            ]);
+            foreach ($bundle->omop_concept_ids as $conceptId) {
+                $conditionSet->items()->create([
+                    'concept_id' => $conceptId,
+                    'is_excluded' => false,
+                    'include_descendants' => true,
+                    'include_mapped' => false,
+                ]);
+            }
+            $conditionSet->loadCount('items');
+            $created[] = $conditionSet;
+
+            // Group measure concept IDs by domain
+            $domainGroups = [];
+            foreach ($bundle->measures as $measure) {
+                $ids = $measure->numerator_criteria['concept_ids'] ?? [];
+                $domain = $measure->domain ?? 'other';
+                foreach ($ids as $id) {
+                    $domainGroups[$domain][$id] = true;
+                }
+            }
+
+            foreach ($domainGroups as $domain => $ids) {
+                $domainLabel = ucfirst($domain) . 's';
+                $set = ConceptSet::create([
+                    'name' => "{$baseName} - {$domainLabel}",
+                    'description' => "{$domainLabel} from {$bundle->condition_name} care bundle.",
+                    'author_id' => $userId,
+                    'is_public' => true,
+                    'tags' => [$bundleCode, 'care-bundle', strtolower($domain)],
+                ]);
+                foreach (array_keys($ids) as $conceptId) {
+                    $set->items()->create([
+                        'concept_id' => $conceptId,
+                        'is_excluded' => false,
+                        'include_descendants' => true,
+                        'include_mapped' => false,
+                    ]);
+                }
+                $set->loadCount('items');
+                $created[] = $set;
+            }
+
+            return response()->json([
+                'data' => $created,
+                'message' => count($created) . ' concept sets created from bundle.',
+            ], 201);
+        } catch (\Throwable $e) {
+            return $this->errorResponse('Failed to create concept sets from bundle', $e);
+        }
+    }
+
+    /**
+     * PUT /v1/concept-sets/{conceptSet}/items/bulk
+     *
+     * Bulk update flags on multiple items.
+     */
+    public function bulkUpdateItems(Request $request, ConceptSet $conceptSet): JsonResponse
+    {
+        $validated = $request->validate([
+            'item_ids' => 'required|array|min:1',
+            'item_ids.*' => 'integer',
+            'is_excluded' => 'sometimes|boolean',
+            'include_descendants' => 'sometimes|boolean',
+            'include_mapped' => 'sometimes|boolean',
+        ]);
+
+        try {
+            $itemIds = $validated['item_ids'];
+            unset($validated['item_ids']);
+
+            $count = $conceptSet->items()
+                ->whereIn('id', $itemIds)
+                ->update($validated);
+
+            return response()->json([
+                'updated' => $count,
+                'message' => "{$count} items updated.",
+            ]);
+        } catch (\Throwable $e) {
+            return $this->errorResponse('Failed to bulk update items', $e);
+        }
+    }
+
+    /**
      * GET /v1/concept-sets/{conceptSet}/resolve
      *
      * Resolve the concept set into a flat list of concept IDs.
@@ -287,8 +480,6 @@ class ConceptSetController extends Controller
      * POST /v1/concept-sets/import
      *
      * Import one or more concept sets from Atlas format.
-     * Atlas format: {name, expression: {items: [{concept: {CONCEPT_ID,...}, isExcluded, includeDescendants, includeMapped}]}}
-     * Batch: array of the above.
      */
     public function import(Request $request): JsonResponse
     {

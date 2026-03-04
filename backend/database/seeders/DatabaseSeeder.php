@@ -42,5 +42,8 @@ class DatabaseSeeder extends Seeder
 
         // ── Sample cohort definitions ────────────────────────────────────
         $this->call(CohortDefinitionSeeder::class);
+
+        // ── Sample concept sets (matching cohort definitions) ────────────
+        $this->call(ConceptSetSeeder::class);
     }
 }

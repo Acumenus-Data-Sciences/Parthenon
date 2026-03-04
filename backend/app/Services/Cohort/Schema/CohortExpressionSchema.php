@@ -37,11 +37,11 @@ class CohortExpressionSchema
 
         $primary = $expression['PrimaryCriteria'];
 
-        if (! isset($primary['CriteriaList']) || ! is_array($primary['CriteriaList']) || empty($primary['CriteriaList'])) {
-            throw new InvalidArgumentException('PrimaryCriteria.CriteriaList must be a non-empty array.');
+        if (! isset($primary['CriteriaList']) || ! is_array($primary['CriteriaList'])) {
+            throw new InvalidArgumentException('PrimaryCriteria.CriteriaList must be an array.');
         }
 
-        // Validate each primary criterion has exactly one domain key
+        // Validate each primary criterion has exactly one domain key (empty list is valid for drafts)
         foreach ($primary['CriteriaList'] as $index => $criterion) {
             $this->validateCriterionHasDomain($criterion, "PrimaryCriteria.CriteriaList[{$index}]");
         }

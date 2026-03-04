@@ -138,11 +138,16 @@ Route::prefix('v1')->group(function () {
             Route::delete('/runs/{runId}', [DataQualityController::class, 'destroyRun']);
         });
 
-        // Concept Sets — §9.2 static routes BEFORE apiResource
+        // Concept Sets — static routes BEFORE apiResource (avoid wildcard clash)
         Route::post('/concept-sets/import', [ConceptSetController::class, 'import']);
+        Route::get('/concept-sets/stats', [ConceptSetController::class, 'stats']);
+        Route::get('/concept-sets/tags', [ConceptSetController::class, 'tags']);
+        Route::post('/concept-sets/from-bundle', [ConceptSetController::class, 'createFromBundle']);
         Route::apiResource('concept-sets', ConceptSetController::class);
         Route::get('/concept-sets/{concept_set}/export', [ConceptSetController::class, 'export']);
         Route::get('/concept-sets/{concept_set}/resolve', [ConceptSetController::class, 'resolve']);
+        Route::post('/concept-sets/{concept_set}/copy', [ConceptSetController::class, 'copy']);
+        Route::put('/concept-sets/{concept_set}/items/bulk', [ConceptSetController::class, 'bulkUpdateItems']);
         Route::post('/concept-sets/{concept_set}/items', [ConceptSetController::class, 'addItem']);
         Route::put('/concept-sets/{concept_set}/items/{item}', [ConceptSetController::class, 'updateItem']);
         Route::delete('/concept-sets/{concept_set}/items/{item}', [ConceptSetController::class, 'removeItem']);

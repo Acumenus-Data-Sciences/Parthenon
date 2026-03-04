@@ -4,6 +4,7 @@ export interface ConceptSet {
   description: string | null;
   expression_json: unknown;
   author_id: number;
+  author?: { id: number; name: string; email: string };
   is_public: boolean;
   tags: string[];
   items: ConceptSetItem[];
@@ -37,10 +38,17 @@ export interface ConceptSetResolveResult {
   count: number;
 }
 
+export interface ConceptSetStats {
+  total: number;
+  with_items: number;
+  public: number;
+}
+
 export interface ConceptSetListParams {
   page?: number;
   limit?: number;
-  q?: string;
+  search?: string;
+  tags?: string[];
   is_public?: boolean;
 }
 
@@ -73,6 +81,13 @@ export interface AddConceptSetItemPayload {
 }
 
 export interface UpdateConceptSetItemPayload {
+  is_excluded?: boolean;
+  include_descendants?: boolean;
+  include_mapped?: boolean;
+}
+
+export interface BulkUpdateConceptSetItemsPayload {
+  item_ids: number[];
   is_excluded?: boolean;
   include_descendants?: boolean;
   include_mapped?: boolean;

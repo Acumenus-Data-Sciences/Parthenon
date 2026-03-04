@@ -1,145 +1,15 @@
-import { useRef, useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Loader2, Upload, X, CheckCircle, AlertCircle, SkipForward } from "lucide-react";
-import { useQueryClient } from "@tanstack/react-query";
+import { Plus, Loader2, Upload, Stethoscope, Search, X } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { ConceptSetList } from "../components/ConceptSetList";
+import { ConceptSetStatsBar } from "../components/ConceptSetStatsBar";
+import { ImportConceptSetModal } from "../components/ImportConceptSetModal";
+import { CreateFromBundleModal } from "../components/CreateFromBundleModal";
 import { useCreateConceptSet } from "../hooks/useConceptSets";
-import { importConceptSets, type ImportConceptSetResult } from "../api/conceptSetApi";
+import { getConceptSetTags } from "../api/conceptSetApi";
 import { HelpButton } from "@/features/help";
-
-function ImportConceptSetModal({
-  onClose,
-  onImported,
-}: {
-  onClose: () => void;
-  onImported: () => void;
-}) {
-  const fileRef = useRef<HTMLInputElement>(null);
-  const [jsonText, setJsonText] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<ImportConceptSetResult | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => setJsonText((ev.target?.result as string) ?? "");
-    reader.readAsText(file);
-  };
-
-  const handleSubmit = async () => {
-    setError(null);
-    setResult(null);
-    let parsed: unknown;
-    try {
-      parsed = JSON.parse(jsonText);
-    } catch {
-      setError("Invalid JSON — please check your input.");
-      return;
-    }
-    setLoading(true);
-    try {
-      const res = await importConceptSets(parsed as never);
-      setResult(res);
-      if (res.imported > 0) onImported();
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Import failed");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="w-full max-w-lg rounded-xl bg-[#1A1A1F] border border-[#2A2A30] shadow-2xl">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[#2A2A30]">
-          <h2 className="text-base font-semibold text-[#F0EDE8]">
-            Import Concept Set
-          </h2>
-          <button type="button" onClick={onClose} className="text-[#8A857D] hover:text-[#F0EDE8] transition-colors">
-            <X size={18} />
-          </button>
-        </div>
-
-        <div className="px-5 py-4 space-y-4">
-          <div>
-            <label className="block text-xs font-medium text-[#8A857D] mb-1.5">Upload JSON file</label>
-            <button
-              type="button"
-              onClick={() => fileRef.current?.click()}
-              className="inline-flex items-center gap-2 rounded-lg border border-[#2A2A30] bg-[#151518] px-3 py-2 text-sm text-[#8A857D] hover:text-[#C5C0B8] hover:border-[#3A3A42] transition-colors"
-            >
-              <Upload size={14} />
-              Choose file
-            </button>
-            <input ref={fileRef} type="file" accept=".json" onChange={handleFileChange} className="hidden" />
-          </div>
-
-          <div>
-            <label className="block text-xs font-medium text-[#8A857D] mb-1.5">Or paste JSON (Atlas format)</label>
-            <textarea
-              value={jsonText}
-              onChange={(e) => setJsonText(e.target.value)}
-              rows={8}
-              placeholder={'{\n  "name": "My Concept Set",\n  "expression": { "items": [...] }\n}'}
-              className="w-full rounded-lg bg-[#0E0E11] border border-[#2A2A30] px-3 py-2 text-xs font-mono text-[#C5C0B8] placeholder:text-[#3A3A42] focus:outline-none focus:border-[#2DD4BF]/50 resize-none"
-            />
-          </div>
-
-          {error && <p className="text-xs text-[#E85A6B]">{error}</p>}
-
-          {result && (
-            <div className="rounded-lg bg-[#0E0E11] border border-[#2A2A30] p-3 space-y-2">
-              <div className="flex items-center gap-4 text-xs">
-                <span className="flex items-center gap-1 text-[#2DD4BF]">
-                  <CheckCircle size={12} />{result.imported} imported
-                </span>
-                <span className="flex items-center gap-1 text-[#C9A227]">
-                  <SkipForward size={12} />{result.skipped} skipped
-                </span>
-                {result.failed > 0 && (
-                  <span className="flex items-center gap-1 text-[#E85A6B]">
-                    <AlertCircle size={12} />{result.failed} failed
-                  </span>
-                )}
-              </div>
-              {result.results.filter((r) => r.status !== "imported").map((r, i) => (
-                <p key={i} className="text-[10px] text-[#8A857D]">
-                  <span className={r.status === "skipped" ? "text-[#C9A227]" : "text-[#E85A6B]"}>
-                    {r.status === "skipped" ? "↷" : "✗"}
-                  </span>{" "}
-                  {r.name}: {r.reason}
-                </p>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div className="flex justify-end gap-2 px-5 py-4 border-t border-[#2A2A30]">
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-lg border border-[#2A2A30] bg-[#151518] px-4 py-2 text-sm text-[#8A857D] hover:text-[#C5C0B8] transition-colors"
-          >
-            {result ? "Close" : "Cancel"}
-          </button>
-          {!result && (
-            <button
-              type="button"
-              onClick={handleSubmit}
-              disabled={loading || !jsonText.trim()}
-              className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-4 py-2 text-sm font-medium text-[#0E0E11] hover:bg-[#26B8A5] transition-colors disabled:opacity-50"
-            >
-              {loading && <Loader2 size={14} className="animate-spin" />}
-              Import
-            </button>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export default function ConceptSetsPage() {
   const navigate = useNavigate();
@@ -147,6 +17,31 @@ export default function ConceptSetsPage() {
   const createMutation = useCreateConceptSet();
   const [isCreating, setIsCreating] = useState(false);
   const [showImport, setShowImport] = useState(false);
+  const [showBundle, setShowBundle] = useState(false);
+
+  // Search + tag filters
+  const [searchInput, setSearchInput] = useState("");
+  const [search, setSearch] = useState("");
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+
+  // Debounce search
+  useEffect(() => {
+    const t = setTimeout(() => setSearch(searchInput), 300);
+    return () => clearTimeout(t);
+  }, [searchInput]);
+
+  // Fetch available tags
+  const { data: allTags } = useQuery({
+    queryKey: ["concept-set-tags"],
+    queryFn: getConceptSetTags,
+  });
+
+  const tags = useMemo(() => allTags ?? [], [allTags]);
+
+  const toggleTag = (tag: string) =>
+    setSelectedTags((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag],
+    );
 
   const handleCreate = () => {
     setIsCreating(true);
@@ -178,6 +73,14 @@ export default function ConceptSetsPage() {
           <HelpButton helpKey="concept-set-builder" />
           <button
             type="button"
+            onClick={() => setShowBundle(true)}
+            className="inline-flex items-center gap-2 rounded-lg border border-[#2A2A30] bg-[#151518] px-4 py-2.5 text-sm font-medium text-[#8A857D] hover:text-[#C5C0B8] hover:border-[#3A3A42] transition-colors"
+          >
+            <Stethoscope size={16} />
+            From Bundle
+          </button>
+          <button
+            type="button"
             onClick={() => setShowImport(true)}
             className="inline-flex items-center gap-2 rounded-lg border border-[#2A2A30] bg-[#151518] px-4 py-2.5 text-sm font-medium text-[#8A857D] hover:text-[#C5C0B8] hover:border-[#3A3A42] transition-colors"
           >
@@ -200,18 +103,97 @@ export default function ConceptSetsPage() {
         </div>
       </div>
 
+      {/* Stats Bar */}
+      <ConceptSetStatsBar />
+
+      {/* Search + Tag Filters */}
+      <div className="space-y-3">
+        {/* Search */}
+        <div className="relative max-w-md">
+          <Search
+            size={14}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
+          />
+          <input
+            type="text"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            placeholder="Search concept sets..."
+            className={cn(
+              "w-full rounded-lg pl-9 pr-8 py-2 text-sm",
+              "bg-[#0E0E11] border border-[#232328]",
+              "text-[#F0EDE8] placeholder:text-[#5A5650]",
+              "focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40",
+              "transition-colors",
+            )}
+          />
+          {searchInput && (
+            <button
+              type="button"
+              onClick={() => setSearchInput("")}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-[#5A5650] hover:text-[#C5C0B8] transition-colors"
+            >
+              <X size={14} />
+            </button>
+          )}
+        </div>
+
+        {/* Tag chips */}
+        {tags.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {tags.map((tag) => {
+              const active = selectedTags.includes(tag);
+              return (
+                <button
+                  key={tag}
+                  type="button"
+                  onClick={() => toggleTag(tag)}
+                  className={cn(
+                    "inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors",
+                    active
+                      ? "bg-[#C9A227]/20 text-[#C9A227] ring-1 ring-[#C9A227]/40"
+                      : "bg-[#1C1C20] text-[#8A857D] hover:text-[#C5C0B8] hover:bg-[#232328]",
+                  )}
+                >
+                  {tag}
+                </button>
+              );
+            })}
+            {selectedTags.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setSelectedTags([])}
+                className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium text-[#5A5650] hover:text-[#8A857D] transition-colors"
+              >
+                <X size={10} />
+                Clear
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+
       {/* List */}
-      <ConceptSetList />
+      <ConceptSetList
+        search={search}
+        tags={selectedTags}
+        onCreateFromBundle={() => setShowBundle(true)}
+      />
 
       {/* Import modal */}
-      {showImport && (
-        <ImportConceptSetModal
-          onClose={() => setShowImport(false)}
-          onImported={() => {
-            queryClient.invalidateQueries({ queryKey: ["concept-sets"] });
-          }}
-        />
-      )}
+      <ImportConceptSetModal
+        open={showImport}
+        onClose={() => setShowImport(false)}
+        onImported={() => {
+          queryClient.invalidateQueries({ queryKey: ["concept-sets"] });
+        }}
+      />
+
+      {/* Bundle modal */}
+      <CreateFromBundleModal
+        open={showBundle}
+        onClose={() => setShowBundle(false)}
+      />
     </div>
   );
 }

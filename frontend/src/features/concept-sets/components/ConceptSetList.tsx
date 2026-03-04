@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Loader2,
@@ -7,6 +7,8 @@ import {
   Layers,
   Globe,
   Lock,
+  Plus,
+  Stethoscope,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useConceptSets } from "../hooks/useConceptSets";
@@ -19,12 +21,32 @@ function formatDate(iso: string): string {
   });
 }
 
-export function ConceptSetList() {
+interface ConceptSetListProps {
+  search?: string;
+  tags?: string[];
+  onCreateFromBundle?: () => void;
+}
+
+export function ConceptSetList({
+  search,
+  tags,
+  onCreateFromBundle,
+}: ConceptSetListProps) {
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const limit = 20;
 
-  const { data, isLoading, error } = useConceptSets({ page, limit });
+  // Reset page on search/tags change
+  useEffect(() => {
+    setPage(1);
+  }, [search, tags]);
+
+  const { data, isLoading, error } = useConceptSets({
+    page,
+    limit,
+    search: search || undefined,
+    tags: tags?.length ? tags : undefined,
+  });
 
   if (isLoading) {
     return (
@@ -45,6 +67,7 @@ export function ConceptSetList() {
   const items = data?.items ?? [];
   const total = data?.total ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / limit));
+  const isFiltering = !!(search || (tags && tags.length > 0));
 
   if (items.length === 0 && page === 1) {
     return (
@@ -53,11 +76,35 @@ export function ConceptSetList() {
           <Layers size={24} className="text-[#8A857D]" />
         </div>
         <h3 className="text-lg font-semibold text-[#F0EDE8]">
-          No concept sets
+          {isFiltering ? "No matching concept sets" : "No concept sets"}
         </h3>
         <p className="mt-2 text-sm text-[#8A857D]">
-          Create your first concept set to start building definitions.
+          {isFiltering
+            ? "Try adjusting your search or tag filters."
+            : "Create your first concept set to start building definitions."}
         </p>
+        {!isFiltering && (
+          <div className="flex items-center gap-2 mt-4">
+            <button
+              type="button"
+              onClick={() => navigate("/concept-sets")}
+              className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-4 py-2 text-sm font-medium text-[#0E0E11] hover:bg-[#26B8A5] transition-colors"
+            >
+              <Plus size={14} />
+              New Concept Set
+            </button>
+            {onCreateFromBundle && (
+              <button
+                type="button"
+                onClick={onCreateFromBundle}
+                className="inline-flex items-center gap-2 rounded-lg border border-[#2A2A30] bg-[#151518] px-4 py-2 text-sm font-medium text-[#8A857D] hover:text-[#C5C0B8] transition-colors"
+              >
+                <Stethoscope size={14} />
+                From Bundle
+              </button>
+            )}
+          </div>
+        )}
       </div>
     );
   }
@@ -73,6 +120,9 @@ export function ConceptSetList() {
                 Name
               </th>
               <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+                Author
+              </th>
+              <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
                 Visibility
               </th>
               <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
@@ -80,9 +130,6 @@ export function ConceptSetList() {
               </th>
               <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
                 Tags
-              </th>
-              <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
-                Created
               </th>
               <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
                 Updated
@@ -110,6 +157,9 @@ export function ConceptSetList() {
                       </p>
                     )}
                   </div>
+                </td>
+                <td className="px-4 py-3 text-sm text-[#8A857D]">
+                  {cs.author?.name ?? "--"}
                 </td>
                 <td className="px-4 py-3">
                   {cs.is_public ? (
@@ -146,9 +196,6 @@ export function ConceptSetList() {
                       </span>
                     )}
                   </div>
-                </td>
-                <td className="px-4 py-3 text-sm text-[#8A857D]">
-                  {formatDate(cs.created_at)}
                 </td>
                 <td className="px-4 py-3 text-sm text-[#8A857D]">
                   {formatDate(cs.updated_at)}

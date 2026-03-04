@@ -6,6 +6,10 @@ import {
   X,
   CheckCircle2,
   Hash,
+  GitBranch,
+  MapPin,
+  Ban,
+  Check,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ConceptSetItemRow } from "./ConceptSetItemRow";
@@ -14,6 +18,7 @@ import {
   useAddConceptSetItem,
   useUpdateConceptSetItem,
   useRemoveConceptSetItem,
+  useBulkUpdateConceptSetItems,
 } from "../hooks/useConceptSets";
 import type { ConceptSet } from "../types/conceptSet";
 import { useVocabularySearch } from "@/features/vocabulary/hooks/useVocabularySearch";
@@ -26,6 +31,9 @@ export function ConceptSetEditor({ conceptSet }: ConceptSetEditorProps) {
   const [showAddPanel, setShowAddPanel] = useState(false);
   const [showResolve, setShowResolve] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedItemIds, setSelectedItemIds] = useState<Set<number>>(
+    new Set(),
+  );
 
   const {
     data: resolveResult,
@@ -36,11 +44,56 @@ export function ConceptSetEditor({ conceptSet }: ConceptSetEditorProps) {
   const addItemMutation = useAddConceptSetItem();
   const updateItemMutation = useUpdateConceptSetItem();
   const removeItemMutation = useRemoveConceptSetItem();
+  const bulkUpdateMutation = useBulkUpdateConceptSetItems();
 
-  const {
-    data: searchResults,
-    isLoading: isSearching,
-  } = useVocabularySearch(searchQuery, {});
+  const { data: searchResults, isLoading: isSearching } =
+    useVocabularySearch(searchQuery, {});
+
+  const items = conceptSet.items ?? [];
+  const allSelected =
+    items.length > 0 && selectedItemIds.size === items.length;
+  const someSelected = selectedItemIds.size > 0;
+
+  const toggleSelectAll = () => {
+    if (allSelected) {
+      setSelectedItemIds(new Set());
+    } else {
+      setSelectedItemIds(new Set(items.map((item) => item.id)));
+    }
+  };
+
+  const toggleSelectItem = (itemId: number) => {
+    setSelectedItemIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(itemId)) {
+        next.delete(itemId);
+      } else {
+        next.add(itemId);
+      }
+      return next;
+    });
+  };
+
+  const handleBulkUpdate = (
+    field: "is_excluded" | "include_descendants" | "include_mapped",
+    value: boolean,
+  ) => {
+    if (selectedItemIds.size === 0) return;
+    bulkUpdateMutation.mutate(
+      {
+        setId: conceptSet.id,
+        payload: {
+          item_ids: Array.from(selectedItemIds),
+          [field]: value,
+        },
+      },
+      {
+        onSuccess: () => {
+          setSelectedItemIds(new Set());
+        },
+      },
+    );
+  };
 
   const handleToggle = (
     itemId: number,
@@ -102,7 +155,7 @@ export function ConceptSetEditor({ conceptSet }: ConceptSetEditorProps) {
           </button>
 
           <span className="text-xs text-[#8A857D]">
-            {conceptSet.items?.length ?? 0} items
+            {items.length} items
           </span>
         </div>
 
@@ -126,6 +179,73 @@ export function ConceptSetEditor({ conceptSet }: ConceptSetEditorProps) {
           )}
         </button>
       </div>
+
+      {/* Bulk action toolbar */}
+      {someSelected && (
+        <div className="flex items-center gap-2 rounded-lg border border-[#2DD4BF]/20 bg-[#2DD4BF]/5 px-4 py-2">
+          <span className="text-xs font-medium text-[#2DD4BF]">
+            {selectedItemIds.size} selected
+          </span>
+          <div className="mx-2 h-4 w-px bg-[#232328]" />
+          <button
+            type="button"
+            onClick={() => handleBulkUpdate("include_descendants", true)}
+            disabled={bulkUpdateMutation.isPending}
+            className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] font-medium text-[#C5C0B8] bg-[#1A1A1F] border border-[#232328] hover:bg-[#232328] transition-colors disabled:opacity-50"
+          >
+            <GitBranch size={11} />
+            Descendants On
+          </button>
+          <button
+            type="button"
+            onClick={() => handleBulkUpdate("include_descendants", false)}
+            disabled={bulkUpdateMutation.isPending}
+            className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] font-medium text-[#C5C0B8] bg-[#1A1A1F] border border-[#232328] hover:bg-[#232328] transition-colors disabled:opacity-50"
+          >
+            <GitBranch size={11} className="opacity-40" />
+            Descendants Off
+          </button>
+          <button
+            type="button"
+            onClick={() => handleBulkUpdate("include_mapped", true)}
+            disabled={bulkUpdateMutation.isPending}
+            className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] font-medium text-[#C5C0B8] bg-[#1A1A1F] border border-[#232328] hover:bg-[#232328] transition-colors disabled:opacity-50"
+          >
+            <MapPin size={11} />
+            Mapped On
+          </button>
+          <button
+            type="button"
+            onClick={() => handleBulkUpdate("include_mapped", false)}
+            disabled={bulkUpdateMutation.isPending}
+            className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] font-medium text-[#C5C0B8] bg-[#1A1A1F] border border-[#232328] hover:bg-[#232328] transition-colors disabled:opacity-50"
+          >
+            <MapPin size={11} className="opacity-40" />
+            Mapped Off
+          </button>
+          <button
+            type="button"
+            onClick={() => handleBulkUpdate("is_excluded", true)}
+            disabled={bulkUpdateMutation.isPending}
+            className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] font-medium text-[#E85A6B] bg-[#1A1A1F] border border-[#232328] hover:bg-[#232328] transition-colors disabled:opacity-50"
+          >
+            <Ban size={11} />
+            Exclude
+          </button>
+          <button
+            type="button"
+            onClick={() => handleBulkUpdate("is_excluded", false)}
+            disabled={bulkUpdateMutation.isPending}
+            className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] font-medium text-[#2DD4BF] bg-[#1A1A1F] border border-[#232328] hover:bg-[#232328] transition-colors disabled:opacity-50"
+          >
+            <Check size={11} />
+            Include
+          </button>
+          {bulkUpdateMutation.isPending && (
+            <Loader2 size={12} className="animate-spin text-[#8A857D] ml-1" />
+          )}
+        </div>
+      )}
 
       {/* Add Concept Panel */}
       {showAddPanel && (
@@ -182,7 +302,7 @@ export function ConceptSetEditor({ conceptSet }: ConceptSetEditorProps) {
               <div className="divide-y divide-[#232328]">
                 {searchResults.map((concept) => {
                   const isStandard = concept.standard_concept === "S";
-                  const alreadyAdded = conceptSet.items?.some(
+                  const alreadyAdded = items.some(
                     (item) => item.concept_id === concept.concept_id,
                   );
 
@@ -256,12 +376,25 @@ export function ConceptSetEditor({ conceptSet }: ConceptSetEditorProps) {
       )}
 
       {/* Items Table */}
-      {conceptSet.items && conceptSet.items.length > 0 ? (
+      {items.length > 0 ? (
         <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="bg-[#1C1C20]">
+                  <th className="px-3 py-2.5 w-10">
+                    <input
+                      type="checkbox"
+                      checked={allSelected}
+                      ref={(el) => {
+                        if (el)
+                          el.indeterminate =
+                            someSelected && !allSelected;
+                      }}
+                      onChange={toggleSelectAll}
+                      className="h-3.5 w-3.5 rounded border-[#323238] bg-[#0E0E11] text-[#2DD4BF] focus:ring-[#2DD4BF]/40 cursor-pointer"
+                    />
+                  </th>
                   <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
                     Concept ID
                   </th>
@@ -292,11 +425,13 @@ export function ConceptSetEditor({ conceptSet }: ConceptSetEditorProps) {
                 </tr>
               </thead>
               <tbody>
-                {conceptSet.items.map((item, i) => (
+                {items.map((item, i) => (
                   <ConceptSetItemRow
                     key={item.id}
                     item={item}
                     index={i}
+                    isSelected={selectedItemIds.has(item.id)}
+                    onSelectionChange={toggleSelectItem}
                     onToggle={handleToggle}
                     onRemove={handleRemoveItem}
                     isUpdating={updateItemMutation.isPending}
@@ -310,11 +445,10 @@ export function ConceptSetEditor({ conceptSet }: ConceptSetEditorProps) {
       ) : (
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-12">
           <Search size={24} className="text-[#323238] mb-3" />
-          <p className="text-sm text-[#8A857D]">
-            No concepts added yet
-          </p>
+          <p className="text-sm text-[#8A857D]">No concepts added yet</p>
           <p className="mt-1 text-xs text-[#5A5650]">
-            Click &ldquo;Add Concept&rdquo; to search and add concepts to this set
+            Click &ldquo;Add Concept&rdquo; to search and add concepts to this
+            set
           </p>
         </div>
       )}

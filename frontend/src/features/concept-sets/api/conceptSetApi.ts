@@ -3,12 +3,14 @@ import type {
   ConceptSet,
   ConceptSetItem,
   ConceptSetResolveResult,
+  ConceptSetStats,
   ConceptSetListParams,
   PaginatedResponse,
   CreateConceptSetPayload,
   UpdateConceptSetPayload,
   AddConceptSetItemPayload,
   UpdateConceptSetItemPayload,
+  BulkUpdateConceptSetItemsPayload,
 } from "../types/conceptSet";
 
 const BASE = "/concept-sets";
@@ -51,6 +53,41 @@ export async function resolveConceptSet(
   return data.data ?? data;
 }
 
+// ---------------------------------------------------------------------------
+// Stats & Tags
+// ---------------------------------------------------------------------------
+
+export async function getConceptSetStats(): Promise<ConceptSetStats> {
+  const { data } = await apiClient.get<ConceptSetStats>(`${BASE}/stats`);
+  return data;
+}
+
+export async function getConceptSetTags(): Promise<string[]> {
+  const { data } = await apiClient.get<string[]>(`${BASE}/tags`);
+  return data;
+}
+
+// ---------------------------------------------------------------------------
+// Copy & Create from Bundle
+// ---------------------------------------------------------------------------
+
+export async function copyConceptSet(id: number): Promise<ConceptSet> {
+  const { data } = await apiClient.post(`${BASE}/${id}/copy`);
+  return data.data ?? data;
+}
+
+export async function createConceptSetsFromBundle(payload: {
+  bundle_id: number;
+  name?: string;
+}): Promise<ConceptSet[]> {
+  const { data } = await apiClient.post(`${BASE}/from-bundle`, payload);
+  return data.data ?? data;
+}
+
+// ---------------------------------------------------------------------------
+// Items
+// ---------------------------------------------------------------------------
+
 export async function addConceptSetItem(
   setId: number,
   payload: AddConceptSetItemPayload,
@@ -76,6 +113,14 @@ export async function removeConceptSetItem(
   itemId: number,
 ): Promise<void> {
   await apiClient.delete(`${BASE}/${setId}/items/${itemId}`);
+}
+
+export async function bulkUpdateConceptSetItems(
+  setId: number,
+  payload: BulkUpdateConceptSetItemsPayload,
+): Promise<{ updated: number }> {
+  const { data } = await apiClient.put(`${BASE}/${setId}/items/bulk`, payload);
+  return data;
 }
 
 // ---------------------------------------------------------------------------

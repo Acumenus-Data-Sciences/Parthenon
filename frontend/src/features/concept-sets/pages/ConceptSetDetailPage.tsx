@@ -8,13 +8,16 @@ import {
   Globe,
   Lock,
   Download,
+  Copy,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { toast } from "@/components/ui/Toast";
 import { ConceptSetEditor } from "../components/ConceptSetEditor";
 import {
   useConceptSet,
   useUpdateConceptSet,
   useDeleteConceptSet,
+  useCopyConceptSet,
 } from "../hooks/useConceptSets";
 import { exportConceptSet } from "../api/conceptSetApi";
 
@@ -26,6 +29,7 @@ export default function ConceptSetDetailPage() {
   const { data: conceptSet, isLoading, error } = useConceptSet(conceptSetId);
   const updateMutation = useUpdateConceptSet();
   const deleteMutation = useDeleteConceptSet();
+  const copyMutation = useCopyConceptSet();
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -72,6 +76,19 @@ export default function ConceptSetDetailPage() {
     updateMutation.mutate({
       id: conceptSetId,
       payload: { is_public: !conceptSet.is_public },
+    });
+  };
+
+  const handleDuplicate = () => {
+    if (!conceptSetId) return;
+    copyMutation.mutate(conceptSetId, {
+      onSuccess: (copy) => {
+        toast.success(`Duplicated as "${copy.name}"`);
+        navigate(`/concept-sets/${copy.id}`);
+      },
+      onError: () => {
+        toast.error("Failed to duplicate concept set");
+      },
     });
   };
 
@@ -238,6 +255,20 @@ export default function ConceptSetDetailPage() {
 
         {/* Action Buttons */}
         <div className="flex items-center gap-2 shrink-0">
+          <button
+            type="button"
+            onClick={handleDuplicate}
+            disabled={copyMutation.isPending}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#8A857D] hover:text-[#C5C0B8] transition-colors disabled:opacity-50"
+          >
+            {copyMutation.isPending ? (
+              <Loader2 size={14} className="animate-spin" />
+            ) : (
+              <Copy size={14} />
+            )}
+            Duplicate
+          </button>
+
           <button
             type="button"
             onClick={handleExport}
