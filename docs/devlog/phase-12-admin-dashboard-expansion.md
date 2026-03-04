@@ -132,3 +132,49 @@ Vite build                              → ✓ success
 3. **Spatie middleware in Laravel 11**: Unlike Laravel 10 (which had `Http/Kernel.php`), Laravel 11 requires explicit `$middleware->alias()` registration in `bootstrap/app.php`. Spatie does NOT auto-register in `PermissionServiceProvider`.
 
 4. **AI service hostname**: `AI_SERVICE_URL` defaults to `http://ai:8002` (Docker service name). PHP container can reach the AI container via this name when both are on the `parthenon` network. From outside Docker, this hostname doesn't resolve — expected behavior.
+
+---
+
+## Post-Phase 12: Admin Pages React Error Fix + UI Consistency (2026-03-04)
+
+### React Error Fix
+
+The `/admin/users` page crashed with "Objects are not valid as a React child (found: object with keys {id, name, guard_name, created_at, updated_at, pivot})".
+
+**Root cause:** `UserController::index()` used `User::with('roles')` which eager-loads full Spatie Role model objects, but the frontend `User` type expects `roles: string[]`. The `AuthController` already correctly used `$user->getRoleNames()` — the admin controller was inconsistent.
+
+**Fix:** Added `formatUser()` helper to `UserController` that transforms roles to string names via `getRoleNames()`. Applied to all 4 user-returning methods (`index` via paginator `through()`, `store`, `update`, `syncRoles`). Also added defensive normalization in `UserModal` to handle both `string[]` and `object[]` formats.
+
+### UI Consistency Overhaul
+
+Rewrote all 6 admin pages + `UserModal` to use the shared UI component library instead of raw tailwind divs and hand-rolled modals/tabs/tables. The admin section now matches the visual language of Dashboard and Data Explorer.
+
+| Page | Shared Components Used |
+|------|----------------------|
+| `AdminDashboardPage` | `MetricCard`, `Panel` |
+| `UsersPage` | `DataTable`, `Badge`, `Modal`, `Button`, `SearchBar` |
+| `UserModal` | `Modal`, `Button` |
+| `RolesPage` | `TabBar`, `TabPanel`, `Panel`, `Badge`, `Modal`, `Button` |
+| `SystemHealthPage` | `Panel`, `Badge`, `StatusDot`, `Button` |
+| `AiProvidersPage` | `Panel`, `Badge`, `Button` |
+| `AuthProvidersPage` | `Panel`, `Badge`, `Button` |
+
+### Files Changed
+
+| File | Change |
+|------|--------|
+| `backend/app/Http/Controllers/Api/V1/Admin/UserController.php` | Added `formatUser()`, transform all user responses |
+| `frontend/src/features/administration/pages/AdminDashboardPage.tsx` | Rewritten with `MetricCard`, `Panel` |
+| `frontend/src/features/administration/pages/UsersPage.tsx` | Rewritten with `DataTable`, `Badge`, `Modal`, `SearchBar` |
+| `frontend/src/features/administration/components/UserModal.tsx` | Rewritten with `Modal`, defensive role handling |
+| `frontend/src/features/administration/pages/RolesPage.tsx` | Rewritten with `TabBar`, `Panel`, `Badge`, `Modal` |
+| `frontend/src/features/administration/pages/SystemHealthPage.tsx` | Rewritten with `Panel`, `Badge`, `StatusDot` |
+| `frontend/src/features/administration/pages/AiProvidersPage.tsx` | Rewritten with `Panel`, `Badge` |
+| `frontend/src/features/administration/pages/AuthProvidersPage.tsx` | Rewritten with `Panel`, `Badge` |
+
+### Verification
+
+- TypeScript: `npx tsc --noEmit` → 0 errors
+- Vite build (Docker): success (3.27s)
+- `/admin/users` renders without React error, role badges display correctly
+- All admin subpages visually consistent with Dashboard/Data Explorer

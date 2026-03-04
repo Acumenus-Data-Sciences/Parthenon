@@ -243,19 +243,3 @@ New section between the metric row and two-column panels:
 |--------|---------|---------------|-------------------|
 | OHDSI Acumenus | 1,005,787 | 1.8M | Many |
 | Eunomia (Demo) | 2,694 | 64,476 | 2 |
-
----
-
-## Admin Pages: React Error Fix + UI Consistency (2026-03-04)
-
-### React Error Fix
-The `/admin/users` page (and any page rendering user roles) crashed with "Objects are not valid as a React child (found: object with keys {id, name, guard_name, created_at, updated_at, pivot})".
-
-**Root cause:** `UserController::index()` used `User::with('roles')` which eager-loads full Spatie Role model objects, but frontend `User` type expects `roles: string[]`. The `AuthController` already correctly used `$user->getRoleNames()`.
-
-**Fix:** Added `formatUser()` helper to UserController that transforms roles to string names via `getRoleNames()`. Applied to all 4 user-returning methods (index, store, update, syncRoles).
-
-### UI Consistency Overhaul
-Rewrote all 6 admin pages + UserModal to use the shared UI component library (Panel, MetricCard, Badge, Modal, DataTable, TabBar, Button, SearchBar, StatusDot) instead of raw tailwind divs. Now visually consistent with Dashboard and Data Explorer pages.
-
-**Files changed:** UserController.php, AdminDashboardPage.tsx, UsersPage.tsx, UserModal.tsx, RolesPage.tsx, SystemHealthPage.tsx, AiProvidersPage.tsx, AuthProvidersPage.tsx
