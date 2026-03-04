@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Search, X, Loader2, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -135,31 +135,34 @@ function ConceptQuickSearch({
   const [searching, setSearching] = useState(false);
   const debouncedQuery = useDebounce(query, 350);
 
-  // Trigger search when debounced query changes
-  useState(() => {
-    // Initial empty state
-  });
+  const doSearch = useCallback(
+    async (q: string) => {
+      if (q.length < 2) {
+        setResults([]);
+        return;
+      }
+      setSearching(true);
+      try {
+        const res = await searchConcepts({ q, limit: 10 });
+        setResults(
+          (res.items ?? []).filter(
+            (c: Concept) => !excludeIds.includes(c.concept_id),
+          ),
+        );
+      } finally {
+        setSearching(false);
+      }
+    },
+    [excludeIds],
+  );
 
-  const doSearch = async (q: string) => {
-    if (q.length < 2) {
+  useEffect(() => {
+    if (debouncedQuery.length >= 2) {
+      doSearch(debouncedQuery);
+    } else {
       setResults([]);
-      return;
     }
-    setSearching(true);
-    try {
-      const res = await searchConcepts({ q, limit: 10 });
-      setResults((res.items ?? res.data ?? []).filter(
-        (c: Concept) => !excludeIds.includes(c.concept_id),
-      ));
-    } finally {
-      setSearching(false);
-    }
-  };
-
-  // Effect via debounce
-  if (debouncedQuery !== query) {
-    // Still debouncing
-  }
+  }, [debouncedQuery, doSearch]);
 
   return (
     <div className="space-y-2">
@@ -169,11 +172,6 @@ function ConceptQuickSearch({
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              doSearch(query);
-            }
-          }}
           placeholder="Search concept to add..."
           className="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-[#232328] bg-[#1A1A1E] text-[#F0EDE8] placeholder:text-[#5A5650] focus:outline-none focus:border-[#C9A227]/50"
         />
@@ -181,15 +179,6 @@ function ConceptQuickSearch({
           <Loader2 size={14} className="absolute right-3 top-1/2 -translate-y-1/2 animate-spin text-[#8A857D]" />
         )}
       </div>
-      {query.length >= 2 && (
-        <button
-          type="button"
-          onClick={() => doSearch(query)}
-          className="w-full px-3 py-1.5 text-xs rounded border border-[#232328] bg-[#1A1A1E] text-[#8A857D] hover:text-[#F0EDE8] hover:border-[#C9A227]/30 transition-colors"
-        >
-          Search
-        </button>
-      )}
       {results.length > 0 && (
         <div className="rounded-lg border border-[#232328] bg-[#1A1A1E] max-h-48 overflow-y-auto">
           {results.map((c) => (

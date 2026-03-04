@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 import {
   searchConcepts,
   getConcept,
@@ -14,7 +14,7 @@ import {
 import type { Concept } from "../types/vocabulary";
 
 // ---------------------------------------------------------------------------
-// Vocabulary search hook with debounce
+// Vocabulary search hook with debounce + infinite scroll
 // ---------------------------------------------------------------------------
 
 interface VocabularySearchFilters {
@@ -23,10 +23,11 @@ interface VocabularySearchFilters {
   standard?: boolean;
 }
 
+const SEARCH_LIMIT = 25;
+
 export function useVocabularySearch(
   query: string,
   filters: VocabularySearchFilters,
-  page?: number,
 ) {
   const [debouncedQuery, setDebouncedQuery] = useState(query);
 
@@ -37,7 +38,7 @@ export function useVocabularySearch(
     return () => clearTimeout(timer);
   }, [query]);
 
-  const { data, isLoading, error, isFetching } = useQuery({
+  const result = useInfiniteQuery({
     queryKey: [
       "vocabulary",
       "search",
@@ -45,22 +46,38 @@ export function useVocabularySearch(
       filters.domain,
       filters.vocabulary,
       filters.standard,
-      page,
     ],
-    queryFn: () =>
+    queryFn: ({ pageParam = 0 }) =>
       searchConcepts({
         q: debouncedQuery,
         domain: filters.domain,
         vocabulary: filters.vocabulary,
         standard: filters.standard,
-        page,
+        limit: SEARCH_LIMIT,
+        offset: pageParam,
       }),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages) => {
+      const loaded = allPages.reduce((sum, p) => sum + p.items.length, 0);
+      return loaded < lastPage.total ? loaded : undefined;
+    },
     enabled: debouncedQuery.length >= 2,
     staleTime: 30_000,
-    select: (result) => result.items,
   });
 
-  return { data: data as Concept[] | undefined, isLoading, error, isFetching };
+  const items = result.data?.pages.flatMap((p) => p.items) as Concept[] | undefined;
+  const total = result.data?.pages[0]?.total ?? 0;
+
+  return {
+    data: items,
+    total,
+    isLoading: result.isLoading,
+    error: result.error,
+    isFetching: result.isFetching,
+    hasNextPage: result.hasNextPage,
+    fetchNextPage: result.fetchNextPage,
+    isFetchingNextPage: result.isFetchingNextPage,
+  };
 }
 
 // ---------------------------------------------------------------------------

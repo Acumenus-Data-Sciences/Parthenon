@@ -21,26 +21,38 @@ export async function searchConcepts(
   const { data } = await apiClient.get(`${BASE}/search`, { params });
   return {
     items: data.data ?? [],
-    total: data.count ?? 0,
+    total: data.total ?? data.count ?? 0,
     page: params.page ?? 1,
     limit: params.limit ?? 25,
   };
 }
 
 export async function getConcept(id: number): Promise<Concept> {
-  const { data } = await apiClient.get<Concept>(`${BASE}/concepts/${id}`);
-  return data;
+  const { data } = await apiClient.get(`${BASE}/concepts/${id}`);
+  return data.data ?? data;
 }
 
 export async function getConceptRelationships(
   id: number,
-  page?: number,
+  page: number = 1,
+  limit: number = 25,
 ): Promise<PaginatedRelationships> {
-  const { data } = await apiClient.get<PaginatedRelationships>(
+  const offset = (page - 1) * limit;
+  const { data } = await apiClient.get(
     `${BASE}/concepts/${id}/relationships`,
-    { params: page != null ? { page } : undefined },
+    { params: { offset, limit } },
   );
-  return data;
+  return {
+    items: (data.data ?? []).map((rel: Record<string, unknown>) => ({
+      concept_id_1: rel.concept_id_1,
+      concept_id_2: rel.concept_id_2,
+      relationship_id: rel.relationship_id,
+      related_concept: rel.concept2 ?? rel.related_concept,
+    })),
+    total: data.total ?? data.count ?? 0,
+    page,
+    limit,
+  };
 }
 
 export async function getConceptAncestors(

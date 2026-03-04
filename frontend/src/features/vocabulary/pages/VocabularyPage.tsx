@@ -48,7 +48,7 @@ export default function VocabularyPage() {
 
           {/* Detail Panel (60%) */}
           <div className="flex-1 h-full overflow-hidden">
-            <ConceptDetailPanel conceptId={selectedConceptId} />
+            <ConceptDetailPanel conceptId={selectedConceptId} onSelectConcept={setSelectedConceptId} />
           </div>
         </div>
       </div>

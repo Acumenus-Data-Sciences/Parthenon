@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Loader2, ExternalLink } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Loader2, ExternalLink, ChevronLeft, ChevronRight, Copy, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   useConcept,
@@ -9,6 +9,8 @@ import {
 } from "../hooks/useVocabularySearch";
 import { useConceptHierarchy } from "../hooks/useConceptHierarchy";
 import { HierarchyTree } from "./HierarchyTree";
+import { AddToConceptSetModal } from "./AddToConceptSetModal";
+import { toast } from "@/components/ui/Toast";
 
 type Tab = "info" | "relationships" | "maps-from" | "hierarchy";
 
@@ -21,6 +23,7 @@ const TABS: { id: Tab; label: string }[] = [
 
 interface ConceptDetailPanelProps {
   conceptId: number | null;
+  onSelectConcept?: (id: number) => void;
 }
 
 function InfoField({
@@ -42,9 +45,15 @@ function InfoField({
   );
 }
 
-export function ConceptDetailPanel({ conceptId }: ConceptDetailPanelProps) {
+export function ConceptDetailPanel({ conceptId, onSelectConcept }: ConceptDetailPanelProps) {
   const [activeTab, setActiveTab] = useState<Tab>("info");
-  const [relPage] = useState(1);
+  const [relPage, setRelPage] = useState(1);
+  const [showAddToSet, setShowAddToSet] = useState(false);
+
+  // Reset relationship page when concept changes
+  useEffect(() => {
+    setRelPage(1);
+  }, [conceptId]);
 
   const { data: concept, isLoading } = useConcept(conceptId);
   const { data: relationships, isLoading: isLoadingRels } =
@@ -98,6 +107,17 @@ export function ConceptDetailPanel({ conceptId }: ConceptDetailPanelProps) {
           <span className="font-['IBM_Plex_Mono',monospace] text-sm tabular-nums text-[#C9A227]">
             {concept.concept_id}
           </span>
+          <button
+            type="button"
+            onClick={() => {
+              navigator.clipboard.writeText(String(concept.concept_id));
+              toast.success("Concept ID copied");
+            }}
+            className="p-0.5 rounded text-[#5A5650] hover:text-[#C9A227] transition-colors"
+            title="Copy concept ID"
+          >
+            <Copy size={12} />
+          </button>
           {isStandard && (
             <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-[#2DD4BF]/15 text-[#2DD4BF]">
               Standard
@@ -117,6 +137,14 @@ export function ConceptDetailPanel({ conceptId }: ConceptDetailPanelProps) {
           <span className="inline-flex items-center rounded px-2 py-1 text-xs font-medium bg-[#8A857D]/15 text-[#8A857D]">
             {concept.concept_class_id}
           </span>
+          <button
+            type="button"
+            onClick={() => setShowAddToSet(true)}
+            className="inline-flex items-center gap-1 rounded px-2 py-1 text-xs font-medium bg-[#2DD4BF]/15 text-[#2DD4BF] hover:bg-[#2DD4BF]/25 transition-colors ml-auto"
+          >
+            <Plus size={12} />
+            Add to Set
+          </button>
         </div>
       </div>
 
@@ -184,6 +212,24 @@ export function ConceptDetailPanel({ conceptId }: ConceptDetailPanelProps) {
               </div>
             </section>
 
+            {/* Synonyms */}
+            {concept.synonyms && concept.synonyms.length > 0 && (
+              <section>
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-[#8A857D] mb-3">
+                  Synonyms
+                </h3>
+                <div className="rounded-lg border border-[#232328] bg-[#1A1A1E] p-4">
+                  <ul className="space-y-1">
+                    {concept.synonyms.map((syn: { concept_synonym_name: string }, i: number) => (
+                      <li key={i} className="text-sm text-[#F0EDE8]">
+                        {syn.concept_synonym_name}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </section>
+            )}
+
             {/* Ancestors */}
             <section>
               <h3 className="text-xs font-semibold uppercase tracking-wider text-[#8A857D] mb-3">
@@ -221,9 +267,11 @@ export function ConceptDetailPanel({ conceptId }: ConceptDetailPanelProps) {
                       {ancestors.map((anc, i) => (
                         <tr
                           key={anc.concept_id}
+                          onClick={() => onSelectConcept?.(anc.concept_id)}
                           className={cn(
-                            "border-t border-[#232328]",
+                            "border-t border-[#232328] transition-colors",
                             i % 2 === 0 ? "bg-[#1A1A1E]" : "bg-[#151518]",
+                            onSelectConcept && "cursor-pointer hover:bg-[#232328]",
                           )}
                         >
                           <td className="px-3 py-2 text-xs font-['IBM_Plex_Mono',monospace] tabular-nums text-[#C9A227]">
@@ -252,90 +300,117 @@ export function ConceptDetailPanel({ conceptId }: ConceptDetailPanelProps) {
           </div>
         )}
 
-        {activeTab === "relationships" && (
-          <div>
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-[#8A857D] mb-3">
-              Relationships
-            </h3>
-            {isLoadingRels ? (
-              <div className="flex items-center justify-center py-8">
-                <Loader2
-                  size={18}
-                  className="animate-spin text-[#8A857D]"
-                />
-              </div>
-            ) : !relationships?.items || relationships.items.length === 0 ? (
-              <p className="text-xs text-[#5A5650]">
-                No relationships found
-              </p>
-            ) : (
-              <div className="rounded-lg border border-[#232328] bg-[#1A1A1E] overflow-hidden">
-                <table className="w-full">
-                  <thead>
-                    <tr className="bg-[#1C1C20]">
-                      <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-[#8A857D]">
-                        Relationship
-                      </th>
-                      <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-[#8A857D]">
-                        Related ID
-                      </th>
-                      <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-[#8A857D]">
-                        Related Name
-                      </th>
-                      <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-[#8A857D]">
-                        Domain
-                      </th>
-                      <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-[#8A857D]">
-                        Vocabulary
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {relationships.items.map((rel, i) => (
-                      <tr
-                        key={`${rel.relationship_id}-${rel.concept_id_2}`}
-                        className={cn(
-                          "border-t border-[#232328]",
-                          i % 2 === 0 ? "bg-[#1A1A1E]" : "bg-[#151518]",
-                        )}
-                      >
-                        <td className="px-3 py-2">
-                          <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-[#A78BFA]/15 text-[#A78BFA]">
-                            {rel.relationship_id}
-                          </span>
-                        </td>
-                        <td className="px-3 py-2 text-xs font-['IBM_Plex_Mono',monospace] tabular-nums text-[#C9A227]">
-                          {rel.related_concept.concept_id}
-                        </td>
-                        <td className="px-3 py-2 text-xs text-[#F0EDE8]">
-                          {rel.related_concept.concept_name}
-                        </td>
-                        <td className="px-3 py-2">
-                          <span className="inline-flex items-center rounded px-1 py-0.5 text-[9px] font-medium bg-[#60A5FA]/15 text-[#60A5FA]">
-                            {rel.related_concept.domain_id}
-                          </span>
-                        </td>
-                        <td className="px-3 py-2">
-                          <span className="inline-flex items-center rounded px-1 py-0.5 text-[9px] font-medium bg-[#C9A227]/15 text-[#C9A227]">
-                            {rel.related_concept.vocabulary_id}
-                          </span>
-                        </td>
+        {activeTab === "relationships" && (() => {
+          const totalPages = relationships ? Math.max(1, Math.ceil(relationships.total / relationships.limit)) : 1;
+          return (
+            <div>
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-[#8A857D] mb-3">
+                Relationships
+              </h3>
+              {isLoadingRels ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2
+                    size={18}
+                    className="animate-spin text-[#8A857D]"
+                  />
+                </div>
+              ) : !relationships?.items || relationships.items.length === 0 ? (
+                <p className="text-xs text-[#5A5650]">
+                  No relationships found
+                </p>
+              ) : (
+                <div className="rounded-lg border border-[#232328] bg-[#1A1A1E] overflow-hidden">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="bg-[#1C1C20]">
+                        <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-[#8A857D]">
+                          Relationship
+                        </th>
+                        <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-[#8A857D]">
+                          Related ID
+                        </th>
+                        <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-[#8A857D]">
+                          Related Name
+                        </th>
+                        <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-[#8A857D]">
+                          Domain
+                        </th>
+                        <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-[#8A857D]">
+                          Vocabulary
+                        </th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-                {relationships.total > relationships.items.length && (
-                  <div className="px-3 py-2 border-t border-[#232328] text-center">
+                    </thead>
+                    <tbody>
+                      {relationships.items.map((rel, i) => (
+                        <tr
+                          key={`${rel.relationship_id}-${rel.concept_id_2}`}
+                          onClick={() => onSelectConcept?.(rel.related_concept.concept_id)}
+                          className={cn(
+                            "border-t border-[#232328] transition-colors",
+                            i % 2 === 0 ? "bg-[#1A1A1E]" : "bg-[#151518]",
+                            onSelectConcept && "cursor-pointer hover:bg-[#232328]",
+                          )}
+                        >
+                          <td className="px-3 py-2">
+                            <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-[#A78BFA]/15 text-[#A78BFA]">
+                              {rel.relationship_id}
+                            </span>
+                          </td>
+                          <td className="px-3 py-2 text-xs font-['IBM_Plex_Mono',monospace] tabular-nums text-[#C9A227]">
+                            {rel.related_concept.concept_id}
+                          </td>
+                          <td className="px-3 py-2 text-xs text-[#F0EDE8]">
+                            {rel.related_concept.concept_name}
+                          </td>
+                          <td className="px-3 py-2">
+                            <span className="inline-flex items-center rounded px-1 py-0.5 text-[9px] font-medium bg-[#60A5FA]/15 text-[#60A5FA]">
+                              {rel.related_concept.domain_id}
+                            </span>
+                          </td>
+                          <td className="px-3 py-2">
+                            <span className="inline-flex items-center rounded px-1 py-0.5 text-[9px] font-medium bg-[#C9A227]/15 text-[#C9A227]">
+                              {rel.related_concept.vocabulary_id}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  {/* Pagination */}
+                  <div className="flex items-center justify-between px-3 py-2 border-t border-[#232328]">
                     <p className="text-[10px] text-[#5A5650]">
-                      Showing {relationships.items.length} of{" "}
-                      {relationships.total} relationships
+                      Showing {(relPage - 1) * relationships.limit + 1}–{Math.min(relPage * relationships.limit, relationships.total)} of{" "}
+                      {relationships.total}
                     </p>
+                    {totalPages > 1 && (
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => setRelPage((p) => Math.max(1, p - 1))}
+                          disabled={relPage <= 1}
+                          className="p-1 rounded text-[#8A857D] hover:text-[#F0EDE8] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                        >
+                          <ChevronLeft size={14} />
+                        </button>
+                        <span className="text-[10px] text-[#C5C0B8] px-1">
+                          {relPage} / {totalPages}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setRelPage((p) => Math.min(totalPages, p + 1))}
+                          disabled={relPage >= totalPages}
+                          className="p-1 rounded text-[#8A857D] hover:text-[#F0EDE8] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                        >
+                          <ChevronRight size={14} />
+                        </button>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-            )}
-          </div>
-        )}
+                </div>
+              )}
+            </div>
+          );
+        })()}
 
         {activeTab === "maps-from" && (
           <div>
@@ -431,6 +506,16 @@ export function ConceptDetailPanel({ conceptId }: ConceptDetailPanelProps) {
           </div>
         )}
       </div>
+
+      {/* Add to Concept Set Modal */}
+      {showAddToSet && concept && (
+        <AddToConceptSetModal
+          open={showAddToSet}
+          onClose={() => setShowAddToSet(false)}
+          conceptId={concept.concept_id}
+          conceptName={concept.concept_name}
+        />
+      )}
     </div>
   );
 }

@@ -50,6 +50,7 @@ export interface ConceptSearchParams {
   standard?: boolean;
   page?: number;
   limit?: number;
+  offset?: number;
 }
 
 export interface ConceptSearchResult {

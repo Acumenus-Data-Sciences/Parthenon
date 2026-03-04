@@ -22,6 +22,7 @@ class VocabularySearchRequest extends FormRequest
             'vocabulary' => 'sometimes|string|max:20',
             'standard' => 'sometimes|string|in:S,C',
             'limit' => 'sometimes|integer|min:1|max:100',
+            'offset' => 'sometimes|integer|min:0',
         ];
     }
 }

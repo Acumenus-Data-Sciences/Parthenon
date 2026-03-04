@@ -38,8 +38,11 @@ class VocabularyController extends Controller
         }
 
         $limit = (int) $request->input('limit', 25);
+        $offset = (int) $request->input('offset', 0);
 
-        $concepts = $query->limit($limit)->get([
+        $total = (clone $query)->count();
+
+        $concepts = $query->offset($offset)->limit($limit)->get([
             'concept_id',
             'concept_name',
             'domain_id',
@@ -52,6 +55,8 @@ class VocabularyController extends Controller
         return response()->json([
             'data' => $concepts,
             'count' => $concepts->count(),
+            'total' => $total,
+            'offset' => $offset,
         ]);
     }
 
@@ -76,6 +81,8 @@ class VocabularyController extends Controller
         $limit = (int) $request->input('limit', 25);
         $offset = (int) $request->input('offset', 0);
 
+        $total = $concept->relationships()->count();
+
         $relationships = $concept->relationships()
             ->with(['concept2', 'relationship'])
             ->offset($offset)
@@ -85,6 +92,7 @@ class VocabularyController extends Controller
         return response()->json([
             'data' => $relationships,
             'count' => $relationships->count(),
+            'total' => $total,
             'concept_id' => $id,
         ]);
     }

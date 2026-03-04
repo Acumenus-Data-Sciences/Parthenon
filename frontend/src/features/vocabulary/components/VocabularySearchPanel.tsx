@@ -27,8 +27,12 @@ export function VocabularySearchPanel({
 
   const {
     data: results,
+    total,
     isLoading,
     isFetching,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
   } = useVocabularySearch(query, {
     domain: domainFilter || undefined,
     vocabulary: vocabFilter || undefined,
@@ -187,7 +191,7 @@ export function VocabularySearchPanel({
 
       {/* Results */}
       <div className="flex-1 overflow-y-auto">
-        {isLoading || isFetching ? (
+        {isLoading && !isFetchingNextPage ? (
           <div className="flex items-center justify-center py-12">
             <Loader2 size={18} className="animate-spin text-[#8A857D]" />
           </div>
@@ -215,55 +219,89 @@ export function VocabularySearchPanel({
             )}
           </div>
         ) : (
-          <div className="divide-y divide-[#232328]">
-            {results.map((concept) => {
-              const isStandard = concept.standard_concept === "S";
-              const isSelected = concept.concept_id === selectedConceptId;
+          <div>
+            {/* Result count */}
+            <div className="px-4 py-2 border-b border-[#232328]">
+              <p className="text-[10px] text-[#5A5650]">
+                Showing {results.length} of {total.toLocaleString()} results
+              </p>
+            </div>
 
-              return (
+            <div className="divide-y divide-[#232328]">
+              {results.map((concept) => {
+                const isStandard = concept.standard_concept === "S";
+                const isSelected = concept.concept_id === selectedConceptId;
+
+                return (
+                  <button
+                    key={concept.concept_id}
+                    type="button"
+                    onClick={() => onSelectConcept(concept.concept_id)}
+                    className={cn(
+                      "flex flex-col gap-1 w-full px-4 py-3 text-left transition-colors",
+                      isSelected
+                        ? "bg-[#2DD4BF]/10 border-l-2 border-[#2DD4BF]"
+                        : "hover:bg-[#1C1C20] border-l-2 border-transparent",
+                    )}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={cn(
+                          "font-['IBM_Plex_Mono',monospace] text-xs tabular-nums",
+                          isStandard ? "text-[#C9A227]" : "text-[#8A857D]",
+                        )}
+                      >
+                        {concept.concept_id}
+                      </span>
+                      {isStandard && (
+                        <span className="inline-flex items-center rounded px-1 py-0.5 text-[9px] font-medium bg-[#2DD4BF]/15 text-[#2DD4BF]">
+                          S
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-sm text-[#F0EDE8] leading-snug">
+                      {concept.concept_name}
+                    </p>
+                    <div className="flex items-center gap-1.5">
+                      <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-[#60A5FA]/15 text-[#60A5FA]">
+                        {concept.domain_id}
+                      </span>
+                      <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-[#C9A227]/15 text-[#C9A227]">
+                        {concept.vocabulary_id}
+                      </span>
+                      <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-[#8A857D]/15 text-[#8A857D]">
+                        {concept.concept_class_id}
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Load More */}
+            {hasNextPage && (
+              <div className="px-4 py-3 border-t border-[#232328]">
                 <button
-                  key={concept.concept_id}
                   type="button"
-                  onClick={() => onSelectConcept(concept.concept_id)}
+                  onClick={() => fetchNextPage()}
+                  disabled={isFetchingNextPage}
                   className={cn(
-                    "flex flex-col gap-1 w-full px-4 py-3 text-left transition-colors",
-                    isSelected
-                      ? "bg-[#2DD4BF]/10 border-l-2 border-[#2DD4BF]"
-                      : "hover:bg-[#1C1C20] border-l-2 border-transparent",
+                    "w-full px-3 py-2 text-xs rounded-lg border border-[#232328] transition-colors",
+                    "text-[#8A857D] hover:text-[#F0EDE8] hover:border-[#2DD4BF]/30",
+                    isFetchingNextPage && "opacity-50 cursor-not-allowed",
                   )}
                 >
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={cn(
-                        "font-['IBM_Plex_Mono',monospace] text-xs tabular-nums",
-                        isStandard ? "text-[#C9A227]" : "text-[#8A857D]",
-                      )}
-                    >
-                      {concept.concept_id}
+                  {isFetchingNextPage ? (
+                    <span className="inline-flex items-center gap-2">
+                      <Loader2 size={12} className="animate-spin" />
+                      Loading...
                     </span>
-                    {isStandard && (
-                      <span className="inline-flex items-center rounded px-1 py-0.5 text-[9px] font-medium bg-[#2DD4BF]/15 text-[#2DD4BF]">
-                        S
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-sm text-[#F0EDE8] leading-snug">
-                    {concept.concept_name}
-                  </p>
-                  <div className="flex items-center gap-1.5">
-                    <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-[#60A5FA]/15 text-[#60A5FA]">
-                      {concept.domain_id}
-                    </span>
-                    <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-[#C9A227]/15 text-[#C9A227]">
-                      {concept.vocabulary_id}
-                    </span>
-                    <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-[#8A857D]/15 text-[#8A857D]">
-                      {concept.concept_class_id}
-                    </span>
-                  </div>
+                  ) : (
+                    "Load more results"
+                  )}
                 </button>
-              );
-            })}
+              </div>
+            )}
           </div>
         )}
       </div>
