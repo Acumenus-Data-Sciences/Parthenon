@@ -127,3 +127,25 @@ All in `frontend/src/features/data-explorer/components/charts/`.
 3. **Derived domain treemap**: Instead of needing a new backend endpoint, treemap data is derived from existing record counts by mapping CDM table names → clinical domain names.
 
 4. **File extension**: `chartUtils.tsx` (not `.ts`) because it exports a JSX component (`ChartCard`). esbuild requires `.tsx` for files with JSX.
+
+---
+
+## Post-Phase 14: Speed Optimization & Fixes (2026-03-04)
+
+### Login-to-Dashboard Speed Optimization (commit `9dfd3c9a`)
+Reduced login-to-dashboard time from multi-second waterfall to **~250ms click-to-visible**.
+
+5 optimizations:
+1. **CSRF prefetch on mount** — `LoginPage` fires `/sanctum/csrf-cookie` on component mount, eliminating a blocking round-trip at submit time
+2. **Unified `/api/v1/dashboard/stats` endpoint** — new `DashboardController` replaces 3+N sequential frontend API calls with 1 backend query
+3. **Deferred `last_login_at` update** — `dispatch()->afterResponse()` moves the write out of the critical path
+4. **Eager-load `roles.permissions`** in login query — eliminates N+1 queries
+5. **Dashboard data prefetch** — `queryClient.prefetchQuery` starts loading before React Router navigation completes
+
+Verified with Playwright headless test: 250-320ms click-to-dashboard consistently.
+
+### DashboardController Column Fix (commit `a6fbb92f`)
+The `DashboardController.stats()` method selected `status` and `person_count` columns from `cohort_definitions` — columns that don't exist. Fixed to use `tags`. Also fixed log file permissions that were masking the real error.
+
+### Docker Desktop Reliability Issue
+Docker Desktop socket proxy (`~/.docker/desktop/docker.sock`) intermittently returns 500 errors. Workaround: `DOCKER_HOST=unix:///var/run/docker.sock` to use the real Docker engine directly. Also changed `REDIS_HOST` from `host.docker.internal` to `redis` for container networking compatibility.

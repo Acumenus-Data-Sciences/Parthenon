@@ -16,6 +16,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     default-jdk \
     python3 python3-pip python3-venv \
     curl \
+    xz-utils \
+    libpcre2-dev \
+    libdeflate-dev \
+    liblzma-dev \
+    libbz2-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Configure Java for rJava — detect JAVA_HOME from the active JDK
