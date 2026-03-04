@@ -15,10 +15,10 @@ import type { CharacterizationDesign } from "../types/analysis";
 // Query hooks
 // ---------------------------------------------------------------------------
 
-export function useCharacterizations(page?: number) {
+export function useCharacterizations(page?: number, search?: string) {
   return useQuery({
-    queryKey: ["characterizations", { page }],
-    queryFn: () => listCharacterizations({ page }),
+    queryKey: ["characterizations", { page, search }],
+    queryFn: () => listCharacterizations({ page, search }),
   });
 }
 

@@ -15,10 +15,10 @@ import type { SccsDesign } from "../types/sccs";
 // Query hooks
 // ---------------------------------------------------------------------------
 
-export function useSccsAnalyses(page?: number) {
+export function useSccsAnalyses(page?: number, search?: string) {
   return useQuery({
-    queryKey: ["sccs", { page }],
-    queryFn: () => listSccs({ page }),
+    queryKey: ["sccs", { page, search }],
+    queryFn: () => listSccs({ page, search }),
   });
 }
 

@@ -16,6 +16,7 @@ const BASE = "/evidence-synthesis";
 
 export async function listEvidenceSynthesis(params?: {
   page?: number;
+  search?: string;
 }): Promise<PaginatedResponse<EvidenceSynthesisAnalysis>> {
   const { data } = await apiClient.get(BASE, { params });
   return toLaravelPaginated<EvidenceSynthesisAnalysis>(data);

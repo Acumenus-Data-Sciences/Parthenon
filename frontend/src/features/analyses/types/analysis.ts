@@ -51,6 +51,7 @@ export interface Characterization {
   description: string | null;
   design_json: CharacterizationDesign;
   author_id: number;
+  author?: { id: number; name: string; email: string };
   created_at: string;
   updated_at: string;
   executions?: AnalysisExecution[];
@@ -80,6 +81,7 @@ export interface IncidenceRateAnalysis {
   description: string | null;
   design_json: IncidenceRateDesign;
   author_id: number;
+  author?: { id: number; name: string; email: string };
   created_at: string;
   updated_at: string;
   executions?: AnalysisExecution[];

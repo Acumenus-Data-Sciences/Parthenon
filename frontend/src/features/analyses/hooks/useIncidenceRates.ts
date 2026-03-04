@@ -15,10 +15,10 @@ import type { IncidenceRateDesign } from "../types/analysis";
 // Query hooks
 // ---------------------------------------------------------------------------
 
-export function useIncidenceRates(page?: number) {
+export function useIncidenceRates(page?: number, search?: string) {
   return useQuery({
-    queryKey: ["incidence-rates", { page }],
-    queryFn: () => listIncidenceRates({ page }),
+    queryKey: ["incidence-rates", { page, search }],
+    queryFn: () => listIncidenceRates({ page, search }),
   });
 }
 

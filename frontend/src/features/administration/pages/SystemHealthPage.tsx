@@ -56,7 +56,7 @@ export default function SystemHealthPage() {
         ? "degraded"
         : "healthy";
 
-  const { badge: overallBadge, dot: overallDot } = STATUS_MAP[overallStatus];
+  const overallDot: StatusDotVariant = overallStatus === "healthy" ? "healthy" : "degraded";
   const checkedAt = dataUpdatedAt ? new Date(dataUpdatedAt).toLocaleTimeString() : null;
 
   return (
@@ -84,10 +84,12 @@ export default function SystemHealthPage() {
         <Panel>
           <div className="flex items-center gap-3">
             <StatusDot status={overallDot} />
-            <span className="text-sm font-medium text-foreground capitalize">
-              System {overallStatus}
+            <span className="text-sm font-medium text-foreground">
+              Server Status
             </span>
-            <Badge variant={overallBadge}>{overallStatus}</Badge>
+            <Badge variant={overallStatus === "healthy" ? "success" : "warning"}>
+              {overallStatus === "healthy" ? "Healthy" : "Needs Attention"}
+            </Badge>
             {checkedAt && (
               <span className="ml-auto text-xs text-muted-foreground">
                 Last checked at {checkedAt}

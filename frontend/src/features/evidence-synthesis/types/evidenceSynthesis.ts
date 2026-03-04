@@ -24,6 +24,7 @@ export interface EvidenceSynthesisAnalysis {
   description: string | null;
   design_json: EvidenceSynthesisDesign;
   author_id: number;
+  author?: { id: number; name: string; email: string };
   created_at: string;
   updated_at: string;
   executions?: AnalysisExecution[];

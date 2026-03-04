@@ -9,8 +9,26 @@ import type {
 import type { PathwayAnalysis } from "@/features/pathways/types/pathway";
 import type { EstimationAnalysis } from "@/features/estimation/types/estimation";
 import type { PredictionAnalysis } from "@/features/prediction/types/prediction";
+import type { SccsAnalysis } from "@/features/sccs/types/sccs";
+import type { EvidenceSynthesisAnalysis } from "@/features/evidence-synthesis/types/evidenceSynthesis";
 
-type Analysis = Characterization | IncidenceRateAnalysis | PathwayAnalysis | EstimationAnalysis | PredictionAnalysis;
+type Analysis =
+  | Characterization
+  | IncidenceRateAnalysis
+  | PathwayAnalysis
+  | EstimationAnalysis
+  | PredictionAnalysis
+  | SccsAnalysis
+  | EvidenceSynthesisAnalysis;
+
+type AnalysisType =
+  | "characterization"
+  | "incidence-rate"
+  | "pathway"
+  | "estimation"
+  | "prediction"
+  | "sccs"
+  | "evidence-synthesis";
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString("en-US", {
@@ -32,9 +50,29 @@ function getLatestExecution(
   return null;
 }
 
+const typeLabelMap: Record<AnalysisType, string> = {
+  characterization: "characterizations",
+  "incidence-rate": "incidence rate analyses",
+  pathway: "pathway analyses",
+  estimation: "estimation analyses",
+  prediction: "prediction models",
+  sccs: "SCCS analyses",
+  "evidence-synthesis": "evidence synthesis analyses",
+};
+
+const typeLabelSingularMap: Record<AnalysisType, string> = {
+  characterization: "characterization",
+  "incidence-rate": "incidence rate analysis",
+  pathway: "pathway analysis",
+  estimation: "estimation analysis",
+  prediction: "prediction model",
+  sccs: "SCCS analysis",
+  "evidence-synthesis": "evidence synthesis analysis",
+};
+
 interface AnalysisListProps {
   analyses: Analysis[];
-  type: "characterization" | "incidence-rate" | "pathway" | "estimation" | "prediction";
+  type: AnalysisType;
   onSelect: (id: number) => void;
   isLoading?: boolean;
   error?: Error | null;
@@ -43,6 +81,7 @@ interface AnalysisListProps {
   total?: number;
   perPage?: number;
   onPageChange?: (page: number) => void;
+  isSearching?: boolean;
 }
 
 export function AnalysisList({
@@ -56,6 +95,7 @@ export function AnalysisList({
   total = 0,
   perPage = 15,
   onPageChange,
+  isSearching = false,
 }: AnalysisListProps) {
   if (isLoading) {
     return (
@@ -65,22 +105,8 @@ export function AnalysisList({
     );
   }
 
-  const typeLabelMap: Record<string, string> = {
-    characterization: "characterizations",
-    "incidence-rate": "incidence rate analyses",
-    pathway: "pathway analyses",
-    estimation: "estimation analyses",
-    prediction: "prediction models",
-  };
-  const typeLabelSingularMap: Record<string, string> = {
-    characterization: "characterization",
-    "incidence-rate": "incidence rate analysis",
-    pathway: "pathway analysis",
-    estimation: "estimation analysis",
-    prediction: "prediction model",
-  };
-  const typeLabel = typeLabelMap[type] ?? type;
-  const typeLabelSingular = typeLabelSingularMap[type] ?? type;
+  const typeLabel = typeLabelMap[type];
+  const typeLabelSingular = typeLabelSingularMap[type];
 
   if (error) {
     return (
@@ -98,12 +124,25 @@ export function AnalysisList({
         <div className="flex items-center justify-center w-14 h-14 rounded-full bg-[#1C1C20] mb-4">
           <Layers size={24} className="text-[#8A857D]" />
         </div>
-        <h3 className="text-lg font-semibold text-[#F0EDE8]">
-          No {typeLabel} yet
-        </h3>
-        <p className="mt-2 text-sm text-[#8A857D]">
-          Create your first {typeLabelSingular} to get started.
-        </p>
+        {isSearching ? (
+          <>
+            <h3 className="text-lg font-semibold text-[#F0EDE8]">
+              No matching {typeLabel}
+            </h3>
+            <p className="mt-2 text-sm text-[#8A857D]">
+              Try adjusting your search terms.
+            </p>
+          </>
+        ) : (
+          <>
+            <h3 className="text-lg font-semibold text-[#F0EDE8]">
+              No {typeLabel} yet
+            </h3>
+            <p className="mt-2 text-sm text-[#8A857D]">
+              Create your first {typeLabelSingular} to get started.
+            </p>
+          </>
+        )}
       </div>
     );
   }
@@ -120,6 +159,9 @@ export function AnalysisList({
               </th>
               <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
                 Description
+              </th>
+              <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+                Author
               </th>
               <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
                 Status
@@ -150,9 +192,14 @@ export function AnalysisList({
                     </p>
                   </td>
                   <td className="px-4 py-3">
-                    <p className="text-xs text-[#8A857D] truncate max-w-[300px]">
+                    <p className="text-xs text-[#8A857D] truncate max-w-[250px]">
                       {analysis.description || "--"}
                     </p>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className="text-xs text-[#8A857D]">
+                      {analysis.author?.name ?? "--"}
+                    </span>
                   </td>
                   <td className="px-4 py-3">
                     {latest ? (

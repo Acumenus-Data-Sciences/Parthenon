@@ -16,6 +16,7 @@ const BASE = "/estimations";
 
 export async function listEstimations(params?: {
   page?: number;
+  search?: string;
 }): Promise<PaginatedResponse<EstimationAnalysis>> {
   const { data } = await apiClient.get(BASE, { params });
   return toLaravelPaginated<EstimationAnalysis>(data);

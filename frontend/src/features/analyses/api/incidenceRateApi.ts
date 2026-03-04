@@ -14,6 +14,7 @@ const BASE = "/incidence-rates";
 
 export async function listIncidenceRates(params?: {
   page?: number;
+  search?: string;
 }): Promise<PaginatedResponse<IncidenceRateAnalysis>> {
   const { data } = await apiClient.get(BASE, { params });
   return toLaravelPaginated<IncidenceRateAnalysis>(data);

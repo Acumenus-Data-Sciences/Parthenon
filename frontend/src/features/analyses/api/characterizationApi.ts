@@ -14,6 +14,7 @@ const BASE = "/characterizations";
 
 export async function listCharacterizations(params?: {
   page?: number;
+  search?: string;
 }): Promise<PaginatedResponse<Characterization>> {
   const { data } = await apiClient.get(BASE, { params });
   return toLaravelPaginated<Characterization>(data);

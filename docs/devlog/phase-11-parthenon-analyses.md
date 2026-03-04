@@ -970,3 +970,71 @@ docs/devlog/phase-11-parthenon-analyses.md
 | **Total** | **182** | |
 
 **Phase 11 closed.**
+
+---
+
+## Phase 11i — Tier 3: Population Characterization (PC001–PC006)
+
+### Motivation
+
+OHDSI Atlas's characterization module produces broad demographic breakdowns but lacks deep population-composition analyses. Researchers asking "how comorbid is my population?", "are my patients on too many drugs?", or "how fragmented is care across facilities?" have no Atlas equivalent. PC001–PC006 fill this gap.
+
+### Analysis Catalogue
+
+| ID | Name | Category | Requires Optional Tables | Key Output |
+|---|---|---|---|---|
+| PC001 | Charlson Comorbidity Index Distribution | Comorbidity | No | CCI score distribution × entry decade |
+| PC002 | Polypharmacy Prevalence | Medication | No | Peak concurrent drug eras; yearly ≥5-drug rate |
+| PC003 | Treatment Pathway Analysis | Treatment | No | First/second-line drugs for top-10 conditions |
+| PC004 | Provider Practice Pattern Variance | Provider | Yes (provider_id) | CV in domain coding rates across providers |
+| PC005 | Visit Complexity Score | Visit | No | Domain multiplicity per visit type |
+| PC006 | Care Fragmentation Index | Care | Yes (care_site_id) | Distinct care sites per person-year |
+
+### Implementation Notes
+
+**PC001** reuses the full Quan 2005 CCI logic from RS005 but returns per-person scores in a distribution table rather than aggregating to risk tiers. Hierarchical exclusion enforced in SQL: mild liver excluded if severe liver present; DM uncomplicated excluded if DM complicated present. Cross-tabulated by observation-entry decade.
+
+**PC002** uses `drug_era` (consolidated by ingredient) not `drug_exposure`. Polypharmacy computed as peak concurrent overlapping drug eras per person via self-join (`d2.start <= d1.start AND d2.end >= d1.start`). Includes a yearly trend for ≥5-drug polypharmacy rate.
+
+**PC003** dynamically finds the top-10 conditions at runtime (not hardcoded), then joins `drug_era` within ±90 days (first-line) and 91–365 days (second-line) of each person's earliest condition index date. Returns top-5 drugs per step per condition, ranked by person count.
+
+**PC004** requires `provider_id` on `visit_occurrence`. Returns coefficient of variation (SD/mean) in records-per-patient across providers with ≥10 patients, per domain. CV stored as integer × 1000 for lossless storage; UI divides by 1000.
+
+**PC005** uses correlated EXISTS subqueries (one per domain) on the visit date to count active domains per visit. Bucketed into 1 / 2-3 / 4-5 domains = low / medium / full complexity, broken out by inpatient / outpatient / emergency / other.
+
+**PC006** uses `generate_series()` to produce person-year rows from observation periods, then counts distinct `care_site_id` per person per year. Returns both an overall fragmentation distribution and a year-over-year median (encoded × 1000 in count_value).
+
+### New Infrastructure
+
+```
+backend/app/Contracts/PopulationCharacterizationInterface.php
+backend/app/Services/PopulationCharacterization/PopulationCharacterizationRegistry.php
+backend/app/Services/PopulationCharacterization/PopulationCharacterizationEngineService.php
+backend/app/Models/Results/PopulationCharacterizationResult.php
+backend/app/Http/Controllers/Api/V1/PopulationCharacterizationController.php
+backend/app/Providers/PopulationCharacterizationServiceProvider.php
+backend/database/migrations/2026_03_02_220000_create_population_characterization_results_table.php
+```
+
+### New API Endpoints
+
+```
+GET  /api/v1/population-insights/catalogue
+GET  /api/v1/sources/{source}/population-insights
+POST /api/v1/sources/{source}/population-insights/run
+GET  /api/v1/sources/{source}/population-insights/{analysisId}
+```
+
+### Registry Summary (post-Phase-11i)
+
+| Tier | Count | IDs |
+|---|---|---|
+| Standard Achilles | 127 analyses | via AchillesServiceProvider |
+| Achilles Heel | 15 rules | via AchillesServiceProvider |
+| Tier 1 — Clinical Coherence | 6 analyses | CC001–CC006 |
+| Tier 2 — Temporal Quality | 6 analyses | TQ001–TQ006 |
+| Tier 3 — Population Characterization | 6 analyses | PC001–PC006 |
+| Tier 3b — Population Risk Scores | 20 scores | RS001–RS020 |
+| Tier 4 — Network Analytics | 8 analyses | NA001–NA008 |
+| Abby Cohort Builder | NL→CohortDef | MedGemma-powered |
+| **Total** | **188+** | |

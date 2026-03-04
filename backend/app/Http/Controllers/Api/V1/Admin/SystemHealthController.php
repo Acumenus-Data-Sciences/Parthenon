@@ -59,7 +59,7 @@ class SystemHealthController extends Controller
 
     private function checkAiService(): array
     {
-        $url = rtrim(config('services.ai.url', env('AI_SERVICE_URL', 'http://ai:8002')), '/');
+        $url = rtrim(config('services.ai.url', env('AI_SERVICE_URL', 'http://python-ai:8000')), '/');
 
         try {
             $response = Http::timeout(3)->get("{$url}/health");
@@ -91,7 +91,7 @@ class SystemHealthController extends Controller
 
     private function checkRRuntime(): array
     {
-        $url = rtrim(config('services.r.url', env('R_PLUMBER_URL', 'http://r:8787')), '/');
+        $url = rtrim(config('services.r.url', env('R_PLUMBER_URL', 'http://r-runtime:8787')), '/');
 
         try {
             $response = Http::timeout(3)->get("{$url}/healthz");

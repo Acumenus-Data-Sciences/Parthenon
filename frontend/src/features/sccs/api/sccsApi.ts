@@ -13,6 +13,7 @@ const BASE = "/sccs";
 
 export async function listSccs(params?: {
   page?: number;
+  search?: string;
 }): Promise<PaginatedResponse<SccsAnalysis>> {
   const { data } = await apiClient.get(BASE, { params });
   return toLaravelPaginated<SccsAnalysis>(data);

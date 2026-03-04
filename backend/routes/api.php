@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AbbyAiController;
+use App\Http\Controllers\Api\V1\AnalysisStatsController;
 use App\Http\Controllers\Api\V1\NetworkAnalysisController;
 use App\Http\Controllers\Api\V1\PopulationCharacterizationController;
 use App\Http\Controllers\Api\V1\AchillesController;
@@ -175,6 +176,9 @@ Route::prefix('v1')->group(function () {
         Route::get('/cohort-definitions/{cohortDefinition}/sql', [CohortDefinitionController::class, 'previewSql']);
         Route::post('/cohort-definitions/{cohortDefinition}/copy', [CohortDefinitionController::class, 'copy']);
         Route::post('/cohort-definitions/{cohortDefinition}/diagnostics', [CohortDefinitionController::class, 'diagnostics']);
+
+        // Analysis Stats (must be before resource routes)
+        Route::get('analyses/stats', AnalysisStatsController::class);
 
         // Characterizations
         Route::apiResource('characterizations', CharacterizationController::class);

@@ -59,7 +59,7 @@ services:
     environment:
       - NODE_ENV=development
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:5173/ || exit 1"]
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:5173/ || exit 1"]
       interval: 15s
       timeout: 5s
       retries: 3
