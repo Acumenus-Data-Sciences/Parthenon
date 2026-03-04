@@ -4,6 +4,7 @@ import {
   ChevronDown, ChevronUp, CheckCircle2, XCircle,
   Loader2, FlaskConical,
 } from "lucide-react";
+import { Panel, Badge, Button } from "@/components/ui";
 import { useAuthProviders, useToggleAuthProvider, useUpdateAuthProvider, useTestAuthProvider } from "../hooks/useAuthProviders";
 import { LdapConfigForm } from "../components/LdapConfigForm";
 import { OAuth2ConfigForm } from "../components/OAuth2ConfigForm";
@@ -17,14 +18,12 @@ const META: Record<AuthProviderType, {
   icon: React.ElementType;
   description: string;
   color: string;
-  docsHref?: string;
 }> = {
   ldap: {
     label: "LDAP / Active Directory",
     icon: Server,
     description: "Authenticate against Microsoft Active Directory or any LDAP v3 directory. Supports TLS, group sync, and attribute mapping.",
     color: "text-blue-500",
-    docsHref: "https://ldap.com",
   },
   oauth2: {
     label: "OAuth 2.0",
@@ -104,15 +103,20 @@ function ProviderCard({ provider }: { provider: AuthProviderSetting }) {
   }[provider.provider_type];
 
   return (
-    <div className="rounded-lg border border-border bg-card overflow-hidden">
+    <Panel>
       {/* Card header */}
-      <div className="flex items-center justify-between px-5 py-4">
+      <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className={`flex h-9 w-9 items-center justify-center rounded-lg bg-muted ${meta.color}`}>
             <meta.icon className="h-5 w-5" />
           </div>
           <div>
-            <p className="font-medium text-foreground">{meta.label}</p>
+            <div className="flex items-center gap-2">
+              <p className="font-medium text-foreground">{meta.label}</p>
+              <Badge variant={provider.is_enabled ? "success" : "inactive"}>
+                {provider.is_enabled ? "Enabled" : "Disabled"}
+              </Badge>
+            </div>
             <p className="text-xs text-muted-foreground">{meta.description}</p>
           </div>
         </div>
@@ -120,9 +124,6 @@ function ProviderCard({ provider }: { provider: AuthProviderSetting }) {
         <div className="flex items-center gap-3 shrink-0 ml-4">
           {/* Enable / Disable toggle */}
           <label className="flex cursor-pointer items-center gap-2">
-            <span className="text-xs text-muted-foreground">
-              {provider.is_enabled ? "Enabled" : "Disabled"}
-            </span>
             <div className="relative">
               <input
                 type="checkbox"
@@ -146,18 +147,15 @@ function ProviderCard({ provider }: { provider: AuthProviderSetting }) {
           </label>
 
           {/* Expand / collapse */}
-          <button
-            onClick={() => setOpen((o) => !o)}
-            className="flex items-center gap-1 rounded-md border border-border px-3 py-1.5 text-xs font-medium hover:bg-accent"
-          >
-            Configure {open ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-          </button>
+          <Button variant="secondary" size="sm" onClick={() => setOpen((o) => !o)}>
+            Configure {open ? <ChevronUp className="h-3 w-3 ml-1" /> : <ChevronDown className="h-3 w-3 ml-1" />}
+          </Button>
         </div>
       </div>
 
       {/* Collapsible config form */}
       {open && (
-        <div className="border-t border-border px-5 pb-5 pt-4">
+        <div className="border-t border-border mt-4 pt-4">
           <ConfigForm
             settings={provider.settings as never}
             onSave={handleSave}
@@ -168,24 +166,25 @@ function ProviderCard({ provider }: { provider: AuthProviderSetting }) {
           {/* Test connection */}
           {["ldap", "oidc"].includes(provider.provider_type) && (
             <div className="mt-4 border-t border-border pt-4">
-              <button
+              <Button
+                variant="secondary"
+                size="sm"
                 onClick={handleTest}
                 disabled={test.isPending}
-                className="flex items-center gap-2 rounded-md border border-border px-3 py-1.5 text-sm hover:bg-accent disabled:opacity-50"
               >
                 {test.isPending ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <Loader2 className="h-4 w-4 animate-spin mr-1" />
                 ) : (
-                  <FlaskConical className="h-4 w-4" />
+                  <FlaskConical className="h-4 w-4 mr-1" />
                 )}
                 Test Connection
-              </button>
+              </Button>
               {testResult && <TestResultBadge result={testResult} />}
             </div>
           )}
         </div>
       )}
-    </div>
+    </Panel>
   );
 }
 
@@ -205,20 +204,22 @@ export default function AuthProvidersPage() {
       </div>
 
       {/* Sanctum (always-on) */}
-      <div className="flex items-center gap-3 rounded-lg border border-border bg-card px-5 py-4 opacity-70">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted text-primary">
-          <Fingerprint className="h-5 w-5" />
+      <Panel className="opacity-70">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted text-primary">
+            <Fingerprint className="h-5 w-5" />
+          </div>
+          <div className="flex-1">
+            <div className="flex items-center gap-2">
+              <p className="font-medium text-foreground">Username &amp; Password</p>
+              <Badge variant="success">Always on</Badge>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Built-in Sanctum authentication — always active.
+            </p>
+          </div>
         </div>
-        <div className="flex-1">
-          <p className="font-medium text-foreground">Username &amp; Password</p>
-          <p className="text-xs text-muted-foreground">
-            Built-in Sanctum authentication — always active. Default credentials: <code className="font-mono">admin / superuser</code>.
-          </p>
-        </div>
-        <span className="rounded-full bg-green-500/15 px-2.5 py-0.5 text-xs font-medium text-green-600">
-          Always on
-        </span>
-      </div>
+      </Panel>
 
       {isLoading ? (
         <p className="text-muted-foreground">Loading providers…</p>

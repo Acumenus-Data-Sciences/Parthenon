@@ -1,12 +1,16 @@
 import { useState } from "react";
 import { Plus, ChevronDown, ChevronRight, Pencil, Trash2, ShieldCheck, Grid3x3 } from "lucide-react";
+import { Panel, Badge, Modal, Button, TabBar, TabPanel } from "@/components/ui";
 import { useRoles, usePermissions, useCreateRole, useUpdateRole, useDeleteRole } from "../hooks/useAdminRoles";
 import { PermissionMatrix } from "../components/PermissionMatrix";
 import type { Role } from "@/types/models";
 
 const PROTECTED = ["super-admin", "admin", "researcher", "data-steward", "mapping-reviewer", "viewer"];
 
-type Tab = "roles" | "matrix";
+const TABS = [
+  { id: "roles", label: "Role List", icon: <ShieldCheck size={14} /> },
+  { id: "matrix", label: "Permission Matrix", icon: <Grid3x3 size={14} /> },
+];
 
 // ── Inline role editor ────────────────────────────────────────────────────────
 
@@ -40,7 +44,7 @@ function RoleEditor({
   };
 
   return (
-    <div className="rounded-lg border border-primary/30 bg-card p-5 shadow-sm">
+    <Panel className="border-primary/30">
       <div className="mb-4">
         <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
           Role Name
@@ -112,21 +116,17 @@ function RoleEditor({
       </div>
 
       <div className="flex justify-end gap-2 pt-2 border-t border-border">
-        <button
-          onClick={onCancel}
-          className="rounded-md border border-border px-3 py-1.5 text-sm hover:bg-accent"
-        >
-          Cancel
-        </button>
-        <button
+        <Button variant="secondary" size="sm" onClick={onCancel}>Cancel</Button>
+        <Button
+          variant="primary"
+          size="sm"
           disabled={!name.trim() || isPending}
           onClick={() => onSave({ name: name.trim(), permissions: Array.from(selected) })}
-          className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
         >
           {isPending ? "Saving…" : "Save Role"}
-        </button>
+        </Button>
       </div>
-    </div>
+    </Panel>
   );
 }
 
@@ -139,7 +139,7 @@ export default function RolesPage() {
   const updateRole = useUpdateRole();
   const deleteRole = useDeleteRole();
 
-  const [tab, setTab] = useState<Tab>("roles");
+  const [tab, setTab] = useState("roles");
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<Role | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<Role | null>(null);
@@ -155,94 +155,74 @@ export default function RolesPage() {
           </p>
         </div>
         {tab === "roles" && (
-          <button
-            onClick={() => setCreating(true)}
-            className="flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-          >
-            <Plus className="h-4 w-4" /> New Role
-          </button>
+          <Button variant="primary" onClick={() => setCreating(true)}>
+            <Plus className="h-4 w-4 mr-1" /> New Role
+          </Button>
         )}
       </div>
 
-      {/* Tab switcher */}
-      <div className="flex gap-1 rounded-lg border border-border bg-muted p-1 w-fit">
-        {([["roles", "Role List"], ["matrix", "Permission Matrix"]] as [Tab, string][]).map(
-          ([t, label]) => (
-            <button
-              key={t}
-              onClick={() => setTab(t)}
-              className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-                tab === t
-                  ? "bg-background text-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {t === "matrix" && <Grid3x3 className="h-3.5 w-3.5" />}
-              {label}
-            </button>
-          ),
-        )}
-      </div>
+      {/* Tab switcher — shared TabBar */}
+      <TabBar tabs={TABS} activeTab={tab} onTabChange={setTab} />
 
       {/* Permission Matrix tab */}
-      {tab === "matrix" && roles && permsByDomain && (
-        <PermissionMatrix roles={roles} permissionsByDomain={permsByDomain} />
-      )}
+      <TabPanel id="matrix" active={tab === "matrix"}>
+        {roles && permsByDomain && (
+          <PermissionMatrix roles={roles} permissionsByDomain={permsByDomain} />
+        )}
+      </TabPanel>
 
       {/* Role list tab */}
-      {tab === "roles" && (
-        <>
-          {/* Create form */}
-          {creating && permsByDomain && (
-            <RoleEditor
-              initial={{ name: "", permissions: [] }}
-              permissionsByDomain={permsByDomain}
-              isPending={createRole.isPending}
-              onCancel={() => setCreating(false)}
-              onSave={(data) =>
-                createRole.mutate(data, { onSuccess: () => setCreating(false) })
-              }
-            />
-          )}
+      <TabPanel id="roles" active={tab === "roles"}>
+        {/* Create form */}
+        {creating && permsByDomain && (
+          <RoleEditor
+            initial={{ name: "", permissions: [] }}
+            permissionsByDomain={permsByDomain}
+            isPending={createRole.isPending}
+            onCancel={() => setCreating(false)}
+            onSave={(data) =>
+              createRole.mutate(data, { onSuccess: () => setCreating(false) })
+            }
+          />
+        )}
 
-          {/* Role cards */}
-          {isLoading ? (
-            <p className="text-muted-foreground">Loading…</p>
-          ) : (
-            <div className="space-y-3">
-              {roles?.map((role) => {
-                const isProtected = PROTECTED.includes(role.name);
-                const isEditing = editing?.id === role.id;
+        {/* Role cards */}
+        {isLoading ? (
+          <p className="text-muted-foreground">Loading…</p>
+        ) : (
+          <div className="space-y-3">
+            {roles?.map((role) => {
+              const isProtected = PROTECTED.includes(role.name);
+              const isEditing = editing?.id === role.id;
 
-                return (
-                  <div key={role.id}>
-                    {isEditing && permsByDomain ? (
-                      <RoleEditor
-                        initial={{
-                          name: role.name,
-                          permissions: role.permissions?.map((p) => p.name) ?? [],
-                        }}
-                        permissionsByDomain={permsByDomain}
-                        isPending={updateRole.isPending}
-                        onCancel={() => setEditing(null)}
-                        onSave={(data) =>
-                          updateRole.mutate(
-                            { id: role.id, data },
-                            { onSuccess: () => setEditing(null) },
-                          )
-                        }
-                      />
-                    ) : (
-                      <div className="flex items-start justify-between rounded-lg border border-border bg-card px-5 py-4">
+              return (
+                <div key={role.id}>
+                  {isEditing && permsByDomain ? (
+                    <RoleEditor
+                      initial={{
+                        name: role.name,
+                        permissions: role.permissions?.map((p) => p.name) ?? [],
+                      }}
+                      permissionsByDomain={permsByDomain}
+                      isPending={updateRole.isPending}
+                      onCancel={() => setEditing(null)}
+                      onSave={(data) =>
+                        updateRole.mutate(
+                          { id: role.id, data },
+                          { onSuccess: () => setEditing(null) },
+                        )
+                      }
+                    />
+                  ) : (
+                    <Panel>
+                      <div className="flex items-start justify-between">
                         <div className="flex items-start gap-3">
                           <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
                           <div>
                             <div className="flex items-center gap-2">
                               <p className="font-medium text-foreground">{role.name}</p>
                               {isProtected && (
-                                <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
-                                  built-in
-                                </span>
+                                <Badge variant="inactive">built-in</Badge>
                               )}
                             </div>
                             <p className="mt-1 text-xs text-muted-foreground">
@@ -252,12 +232,9 @@ export default function RolesPage() {
                             </p>
                             <div className="mt-2 flex flex-wrap gap-1">
                               {role.permissions?.slice(0, 8).map((p) => (
-                                <span
-                                  key={p.name}
-                                  className="rounded bg-muted px-1.5 py-0.5 text-xs font-mono text-muted-foreground"
-                                >
+                                <Badge key={p.name} variant="default">
                                   {p.name}
-                                </span>
+                                </Badge>
                               ))}
                               {(role.permissions?.length ?? 0) > 8 && (
                                 <span className="text-xs text-muted-foreground">
@@ -269,65 +246,58 @@ export default function RolesPage() {
                         </div>
                         <div className="flex items-center gap-1 shrink-0 ml-4">
                           {role.name !== "super-admin" && (
-                            <button
-                              onClick={() => setEditing(role)}
-                              className="rounded p-1.5 hover:bg-accent"
-                              title="Edit role"
-                            >
-                              <Pencil className="h-4 w-4 text-muted-foreground" />
-                            </button>
+                            <Button variant="ghost" size="sm" icon onClick={() => setEditing(role)} title="Edit role">
+                              <Pencil className="h-4 w-4" />
+                            </Button>
                           )}
                           {!isProtected && (
-                            <button
-                              onClick={() => setDeleteConfirm(role)}
-                              className="rounded p-1.5 hover:bg-destructive/10"
-                              title="Delete role"
-                            >
+                            <Button variant="ghost" size="sm" icon onClick={() => setDeleteConfirm(role)} title="Delete role">
                               <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
-                            </button>
+                            </Button>
                           )}
                         </div>
                       </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </>
-      )}
+                    </Panel>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </TabPanel>
 
       {/* Delete confirmation modal */}
-      {deleteConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="w-full max-w-md rounded-lg border border-border bg-card p-6 shadow-xl">
-            <h3 className="text-lg font-semibold text-foreground">Delete role?</h3>
-            <p className="mt-2 text-sm text-muted-foreground">
-              The role <strong>{deleteConfirm.name}</strong> will be permanently deleted. Users
-              assigned only this role will lose all permissions.
-            </p>
-            <div className="mt-6 flex justify-end gap-3">
-              <button
-                onClick={() => setDeleteConfirm(null)}
-                className="rounded-md border border-border px-4 py-2 text-sm hover:bg-accent"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() =>
+      <Modal
+        open={!!deleteConfirm}
+        onClose={() => setDeleteConfirm(null)}
+        title="Delete role?"
+        size="sm"
+        footer={
+          <div className="flex justify-end gap-3">
+            <Button variant="secondary" onClick={() => setDeleteConfirm(null)}>Cancel</Button>
+            <Button
+              variant="danger"
+              disabled={deleteRole.isPending}
+              onClick={() => {
+                if (deleteConfirm) {
                   deleteRole.mutate(deleteConfirm.id, {
                     onSuccess: () => setDeleteConfirm(null),
-                  })
+                  });
                 }
-                disabled={deleteRole.isPending}
-                className="rounded-md bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50"
-              >
-                {deleteRole.isPending ? "Deleting…" : "Delete"}
-              </button>
-            </div>
+              }}
+            >
+              {deleteRole.isPending ? "Deleting…" : "Delete"}
+            </Button>
           </div>
-        </div>
-      )}
+        }
+      >
+        {deleteConfirm && (
+          <p className="text-sm text-muted-foreground">
+            The role <strong>{deleteConfirm.name}</strong> will be permanently deleted. Users
+            assigned only this role will lose all permissions.
+          </p>
+        )}
+      </Modal>
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Bot, ChevronDown, ChevronUp, Eye, EyeOff, Loader2, Radio } from "lucide-react";
+import { Panel, Badge, Button } from "@/components/ui";
 import type { AiProviderSetting } from "@/types/models";
 import {
   useActivateAiProvider,
@@ -13,7 +14,7 @@ import {
 
 interface ProviderMeta {
   region: "US" | "EU" | "China" | "Local";
-  regionColor: string;
+  regionBadge: "info" | "success" | "critical" | "inactive";
   models: string[];
   hasApiKey: boolean;
   hasBaseUrl: boolean;
@@ -22,56 +23,56 @@ interface ProviderMeta {
 const PROVIDER_META: Record<string, ProviderMeta> = {
   ollama: {
     region: "Local",
-    regionColor: "bg-gray-500/10 text-gray-400",
+    regionBadge: "inactive",
     models: ["MedAIBase/MedGemma1.5:4b", "llama3.2", "gemma3:4b", "mistral"],
     hasApiKey: false,
     hasBaseUrl: true,
   },
   anthropic: {
     region: "US",
-    regionColor: "bg-blue-500/10 text-blue-400",
+    regionBadge: "info",
     models: ["claude-opus-4-6", "claude-sonnet-4-6", "claude-haiku-4-5-20251001"],
     hasApiKey: true,
     hasBaseUrl: false,
   },
   openai: {
     region: "US",
-    regionColor: "bg-blue-500/10 text-blue-400",
+    regionBadge: "info",
     models: ["gpt-4o", "gpt-4o-mini", "o3-mini"],
     hasApiKey: true,
     hasBaseUrl: false,
   },
   gemini: {
     region: "US",
-    regionColor: "bg-blue-500/10 text-blue-400",
+    regionBadge: "info",
     models: ["gemini-2.5-pro", "gemini-2.0-flash", "gemini-1.5-pro"],
     hasApiKey: true,
     hasBaseUrl: false,
   },
   deepseek: {
     region: "China",
-    regionColor: "bg-red-500/10 text-red-400",
+    regionBadge: "critical",
     models: ["deepseek-chat", "deepseek-reasoner"],
     hasApiKey: true,
     hasBaseUrl: false,
   },
   qwen: {
     region: "China",
-    regionColor: "bg-red-500/10 text-red-400",
+    regionBadge: "critical",
     models: ["qwen-max", "qwen-plus", "qwen-turbo"],
     hasApiKey: true,
     hasBaseUrl: false,
   },
   moonshot: {
     region: "China",
-    regionColor: "bg-red-500/10 text-red-400",
+    regionBadge: "critical",
     models: ["moonshot-v1-128k"],
     hasApiKey: true,
     hasBaseUrl: false,
   },
   mistral: {
     region: "EU",
-    regionColor: "bg-emerald-500/10 text-emerald-400",
+    regionBadge: "success",
     models: ["mistral-large-latest", "mistral-medium"],
     hasApiKey: true,
     hasBaseUrl: false,
@@ -89,7 +90,7 @@ interface TestResult {
 function ProviderCard({ provider }: { provider: AiProviderSetting }) {
   const meta = PROVIDER_META[provider.provider_type] ?? {
     region: "US" as const,
-    regionColor: "bg-gray-500/10 text-gray-400",
+    regionBadge: "info" as const,
     models: [],
     hasApiKey: true,
     hasBaseUrl: false,
@@ -137,14 +138,10 @@ function ProviderCard({ provider }: { provider: AiProviderSetting }) {
   const isTesting = testMutation.isPending;
 
   return (
-    <div
-      className={`rounded-lg border bg-card transition-colors ${
-        provider.is_active ? "border-primary/50" : "border-border"
-      }`}
-    >
+    <Panel className={provider.is_active ? "border-primary/50" : ""}>
       {/* Header row */}
       <div
-        className="flex cursor-pointer items-center gap-4 p-4"
+        className="flex cursor-pointer items-center gap-4"
         onClick={() => setExpanded((v) => !v)}
       >
         <div className="flex h-10 w-10 items-center justify-center rounded-md bg-muted">
@@ -154,14 +151,8 @@ function ProviderCard({ provider }: { provider: AiProviderSetting }) {
         <div className="flex-1">
           <div className="flex items-center gap-2">
             <span className="font-semibold text-foreground">{provider.display_name}</span>
-            {provider.is_active && (
-              <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
-                Active
-              </span>
-            )}
-            <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${meta.regionColor}`}>
-              {meta.region}
-            </span>
+            {provider.is_active && <Badge variant="primary">Active</Badge>}
+            <Badge variant={meta.regionBadge}>{meta.region}</Badge>
           </div>
           <p className="text-sm text-muted-foreground">{provider.model || "No model selected"}</p>
         </div>
@@ -194,7 +185,7 @@ function ProviderCard({ provider }: { provider: AiProviderSetting }) {
 
       {/* Expanded config */}
       {expanded && (
-        <div className="border-t border-border px-4 pb-4 pt-4">
+        <div className="border-t border-border mt-4 pt-4">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {/* Model selector */}
             <div>
@@ -209,9 +200,7 @@ function ProviderCard({ provider }: { provider: AiProviderSetting }) {
                   }}
                 >
                   {meta.models.map((m) => (
-                    <option key={m} value={m}>
-                      {m}
-                    </option>
+                    <option key={m} value={m}>{m}</option>
                   ))}
                 </select>
               ) : (
@@ -289,44 +278,31 @@ function ProviderCard({ provider }: { provider: AiProviderSetting }) {
 
           {/* Action row */}
           <div className="mt-4 flex flex-wrap items-center gap-3">
-            {/* Set as Active */}
-            <button
-              type="button"
+            <Button
+              variant="secondary"
+              size="sm"
               onClick={() => activateMutation.mutate(provider.provider_type)}
               disabled={provider.is_active || activateMutation.isPending}
-              className="flex items-center gap-1.5 rounded-md border border-primary/40 px-3 py-1.5 text-sm font-medium text-primary transition-colors hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              <Radio className="h-3.5 w-3.5" />
+              <Radio className="h-3.5 w-3.5 mr-1" />
               {provider.is_active ? "Currently Active" : "Set as Active"}
-            </button>
+            </Button>
 
-            {/* Save */}
             {dirty && (
-              <button
-                type="button"
-                onClick={handleSave}
-                disabled={isSaving}
-                className="flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
-              >
-                {isSaving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+              <Button variant="primary" size="sm" onClick={handleSave} disabled={isSaving}>
+                {isSaving && <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" />}
                 Save
-              </button>
+              </Button>
             )}
 
-            {/* Test */}
-            <button
-              type="button"
-              onClick={handleTest}
-              disabled={isTesting}
-              className="flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground disabled:opacity-50"
-            >
-              {isTesting && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+            <Button variant="secondary" size="sm" onClick={handleTest} disabled={isTesting}>
+              {isTesting && <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" />}
               Test Connection
-            </button>
+            </Button>
           </div>
         </div>
       )}
-    </div>
+    </Panel>
   );
 }
 
@@ -349,18 +325,21 @@ export default function AiProvidersPage() {
 
       {/* Active provider banner */}
       {activeProvider && (
-        <div className="flex items-center gap-3 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-3">
-          <div className="h-2 w-2 rounded-full bg-emerald-500" />
-          <span className="text-sm font-medium text-emerald-400">
-            Active provider:{" "}
-            <span className="font-semibold">{activeProvider.display_name}</span>
-            {activeProvider.model && (
-              <span className="ml-2 font-normal text-emerald-300/80">
-                / {activeProvider.model}
-              </span>
-            )}
-          </span>
-        </div>
+        <Panel>
+          <div className="flex items-center gap-3">
+            <div className="h-2 w-2 rounded-full bg-emerald-500" />
+            <span className="text-sm font-medium text-foreground">
+              Active provider:{" "}
+              <span className="font-semibold">{activeProvider.display_name}</span>
+              {activeProvider.model && (
+                <span className="ml-2 font-normal text-muted-foreground">
+                  / {activeProvider.model}
+                </span>
+              )}
+            </span>
+            <Badge variant="success">Active</Badge>
+          </div>
+        </Panel>
       )}
 
       {/* Provider list */}

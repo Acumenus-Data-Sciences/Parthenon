@@ -1,5 +1,8 @@
 import { Link } from "react-router-dom";
-import { Activity, Bot, KeyRound, ShieldCheck, Users, ArrowRight } from "lucide-react";
+import {
+  Activity, Bot, KeyRound, ShieldCheck, Users, ArrowRight,
+} from "lucide-react";
+import { MetricCard, Panel } from "@/components/ui";
 import { useUsers } from "../hooks/useAdminUsers";
 import { useRoles } from "../hooks/useAdminRoles";
 import { useAuthProviders } from "../hooks/useAuthProviders";
@@ -64,19 +67,6 @@ export default function AdminDashboardPage() {
   const enabledProviders = providers?.filter((p) => p.is_enabled).length ?? 0;
   const activeAiProvider = aiProviders?.find((p) => p.is_active);
 
-  const stats = [
-    { label: "Total Users", value: usersPage?.total ?? "—" },
-    { label: "Roles Defined", value: roles?.length ?? "—" },
-    { label: "Auth Providers Enabled", value: enabledProviders },
-    {
-      label: "Active AI Provider",
-      value: activeAiProvider
-        ? activeAiProvider.display_name
-        : "—",
-      sub: activeAiProvider?.model,
-    },
-  ];
-
   return (
     <div className="space-y-8">
       <div>
@@ -86,37 +76,52 @@ export default function AdminDashboardPage() {
         </p>
       </div>
 
-      {/* Quick stats */}
+      {/* Quick stats — using shared MetricCard */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        {stats.map((s) => (
-          <div key={s.label} className="rounded-lg border border-border bg-card p-4">
-            <p className="text-sm text-muted-foreground">{s.label}</p>
-            <p className="mt-1 text-2xl font-bold text-foreground">{s.value}</p>
-            {s.sub && <p className="mt-0.5 truncate text-xs text-muted-foreground">{s.sub}</p>}
-          </div>
-        ))}
+        <MetricCard
+          label="Total Users"
+          value={usersPage?.total ?? "—"}
+          icon={<Users size={16} />}
+        />
+        <MetricCard
+          label="Roles Defined"
+          value={roles?.length ?? "—"}
+          icon={<ShieldCheck size={16} />}
+        />
+        <MetricCard
+          label="Auth Providers"
+          value={enabledProviders}
+          description={`${enabledProviders} enabled`}
+          icon={<KeyRound size={16} />}
+        />
+        <MetricCard
+          label="Active AI"
+          value={activeAiProvider?.display_name ?? "—"}
+          description={activeAiProvider?.model}
+          icon={<Bot size={16} />}
+        />
       </div>
 
-      {/* Navigation cards */}
+      {/* Navigation cards — using shared Panel */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {cards
           .filter((c) => !c.superAdminOnly || isSuperAdmin())
           .map((card) => (
-            <Link
-              key={card.href}
-              to={card.href}
-              className="group flex flex-col justify-between rounded-lg border border-border bg-card p-6 transition-colors hover:border-primary/50 hover:bg-accent"
-            >
-              <div>
-                <div className={`inline-flex rounded-md p-2 ${card.bg}`}>
-                  <card.icon className={`h-5 w-5 ${card.color}`} />
+            <Link key={card.href} to={card.href} className="block">
+              <Panel className="group h-full transition-colors hover:border-primary/50 cursor-pointer">
+                <div className="flex flex-col justify-between h-full">
+                  <div>
+                    <div className={`inline-flex rounded-md p-2 ${card.bg}`}>
+                      <card.icon className={`h-5 w-5 ${card.color}`} />
+                    </div>
+                    <h3 className="mt-4 text-base font-semibold text-foreground">{card.title}</h3>
+                    <p className="mt-1 text-sm text-muted-foreground">{card.description}</p>
+                  </div>
+                  <div className="mt-4 flex items-center gap-1 text-sm font-medium text-primary opacity-0 transition-opacity group-hover:opacity-100">
+                    Open <ArrowRight className="h-4 w-4" />
+                  </div>
                 </div>
-                <h3 className="mt-4 text-base font-semibold text-foreground">{card.title}</h3>
-                <p className="mt-1 text-sm text-muted-foreground">{card.description}</p>
-              </div>
-              <div className="mt-4 flex items-center gap-1 text-sm font-medium text-primary opacity-0 transition-opacity group-hover:opacity-100">
-                Open <ArrowRight className="h-4 w-4" />
-              </div>
+              </Panel>
             </Link>
           ))}
       </div>

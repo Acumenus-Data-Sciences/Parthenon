@@ -1,53 +1,29 @@
 import { RefreshCw } from "lucide-react";
+import { Panel, Badge, StatusDot, Button, type BadgeVariant, type StatusDotVariant } from "@/components/ui";
 import type { SystemHealthService } from "@/types/models";
 import { useSystemHealth } from "../hooks/useAiProviders";
 
-function statusColor(status: SystemHealthService["status"]) {
-  switch (status) {
-    case "healthy":
-      return {
-        dot: "bg-emerald-500",
-        border: "border-emerald-500/30",
-        bg: "bg-emerald-500/10",
-        text: "text-emerald-400",
-        badge: "bg-emerald-500/10 text-emerald-400",
-      };
-    case "degraded":
-      return {
-        dot: "bg-yellow-500",
-        border: "border-yellow-500/30",
-        bg: "bg-yellow-500/10",
-        text: "text-yellow-400",
-        badge: "bg-yellow-500/10 text-yellow-400",
-      };
-    case "down":
-      return {
-        dot: "bg-red-500",
-        border: "border-red-500/30",
-        bg: "bg-red-500/10",
-        text: "text-red-400",
-        badge: "bg-red-500/10 text-red-400",
-      };
-  }
-}
+const STATUS_MAP: Record<string, { badge: BadgeVariant; dot: StatusDotVariant }> = {
+  healthy:  { badge: "success",  dot: "healthy" },
+  degraded: { badge: "warning",  dot: "degraded" },
+  down:     { badge: "critical", dot: "critical" },
+};
 
 function ServiceCard({ service }: { service: SystemHealthService }) {
-  const colors = statusColor(service.status);
+  const { badge, dot } = STATUS_MAP[service.status] ?? STATUS_MAP.down;
   const queueDetails = service.details as { pending?: number; failed?: number } | undefined;
 
   return (
-    <div className={`rounded-lg border ${colors.border} ${colors.bg} p-4`}>
+    <Panel>
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
-          <span className={`mt-0.5 h-2.5 w-2.5 flex-shrink-0 rounded-full ${colors.dot}`} />
+          <StatusDot status={dot} />
           <div>
             <p className="font-semibold text-foreground">{service.name}</p>
-            <p className={`mt-0.5 text-sm ${colors.text}`}>{service.message}</p>
+            <p className="mt-0.5 text-sm text-muted-foreground">{service.message}</p>
           </div>
         </div>
-        <span className={`rounded-full px-2 py-0.5 text-xs font-medium capitalize ${colors.badge}`}>
-          {service.status}
-        </span>
+        <Badge variant={badge}>{service.status}</Badge>
       </div>
 
       {queueDetails && (
@@ -59,14 +35,14 @@ function ServiceCard({ service }: { service: SystemHealthService }) {
           <span className="text-muted-foreground">
             Failed:{" "}
             <span
-              className={`font-medium ${(queueDetails.failed ?? 0) > 0 ? "text-red-400" : "text-foreground"}`}
+              className={`font-medium ${(queueDetails.failed ?? 0) > 0 ? "text-destructive" : "text-foreground"}`}
             >
               {queueDetails.failed ?? 0}
             </span>
           </span>
         </div>
       )}
-    </div>
+    </Panel>
   );
 }
 
@@ -80,7 +56,7 @@ export default function SystemHealthPage() {
         ? "degraded"
         : "healthy";
 
-  const overallColors = data ? statusColor(overallStatus) : null;
+  const { badge: overallBadge, dot: overallDot } = STATUS_MAP[overallStatus];
   const checkedAt = dataUpdatedAt ? new Date(dataUpdatedAt).toLocaleTimeString() : null;
 
   return (
@@ -92,32 +68,33 @@ export default function SystemHealthPage() {
             Live status of all Parthenon services. Auto-refreshes every 30 seconds.
           </p>
         </div>
-        <button
-          type="button"
+        <Button
+          variant="secondary"
+          size="sm"
           onClick={() => refetch()}
           disabled={isFetching}
-          className="flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground disabled:opacity-50"
         >
-          <RefreshCw className={`h-4 w-4 ${isFetching ? "animate-spin" : ""}`} />
+          <RefreshCw className={`h-4 w-4 mr-1 ${isFetching ? "animate-spin" : ""}`} />
           Refresh
-        </button>
+        </Button>
       </div>
 
       {/* Overall banner */}
-      {overallColors && data && (
-        <div
-          className={`flex items-center gap-3 rounded-lg border px-4 py-3 ${overallColors.border} ${overallColors.bg}`}
-        >
-          <span className={`h-2.5 w-2.5 rounded-full ${overallColors.dot}`} />
-          <span className={`text-sm font-medium capitalize ${overallColors.text}`}>
-            System {overallStatus}
-          </span>
-          {checkedAt && (
-            <span className="ml-auto text-xs text-muted-foreground">
-              Last checked at {checkedAt}
+      {data && (
+        <Panel>
+          <div className="flex items-center gap-3">
+            <StatusDot status={overallDot} />
+            <span className="text-sm font-medium text-foreground capitalize">
+              System {overallStatus}
             </span>
-          )}
-        </div>
+            <Badge variant={overallBadge}>{overallStatus}</Badge>
+            {checkedAt && (
+              <span className="ml-auto text-xs text-muted-foreground">
+                Last checked at {checkedAt}
+              </span>
+            )}
+          </div>
+        </Panel>
       )}
 
       {/* Service cards */}

@@ -24,7 +24,9 @@ class UserController extends Controller
             ->when($request->role, fn ($q, $r) => $q->role($r))
             ->orderBy($request->sort_by ?? 'created_at', $request->sort_dir ?? 'desc');
 
-        return response()->json($query->paginate($request->per_page ?? 25));
+        return response()->json(
+            $query->paginate($request->per_page ?? 25)->through(fn ($user) => $this->formatUser($user))
+        );
     }
 
     public function show(User $user): JsonResponse
@@ -73,7 +75,16 @@ class UserController extends Controller
             }
         }
 
-        return response()->json($user->load('roles'), 201);
+        return response()->json($this->formatUser($user->load('roles')), 201);
+    }
+
+    /** Format a User for API responses — roles as string names, not full objects. */
+    private function formatUser(User $user): array
+    {
+        return [
+            ...$user->toArray(),
+            'roles' => $user->getRoleNames(),
+        ];
     }
 
     private function generateTempPassword(int $length = 12): string
@@ -117,7 +128,7 @@ class UserController extends Controller
             $user->syncRoles($validated['roles']);
         }
 
-        return response()->json($user->load('roles'));
+        return response()->json($this->formatUser($user->load('roles')));
     }
 
     public function destroy(User $user): JsonResponse
@@ -153,7 +164,7 @@ class UserController extends Controller
 
         $user->syncRoles($validated['roles']);
 
-        return response()->json($user->load('roles'));
+        return response()->json($this->formatUser($user->load('roles')));
     }
 
     /** List all available roles (for populating role dropdowns). */
