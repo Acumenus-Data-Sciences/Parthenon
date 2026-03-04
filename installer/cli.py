@@ -54,7 +54,7 @@ def _build_frontend() -> None:
     # Use `docker compose run --rm --no-deps` to spin up a one-shot build container.
     rc = utils.run_stream(
         ["docker", "compose", "run", "--rm", "--no-deps", "-T", "node",
-         "sh", "-c", "cd /app && npm ci && npx vite build --mode production"]
+         "sh", "-c", "cd /app && npm ci --legacy-peer-deps && npx vite build --mode production"]
     )
     if rc != 0:
         console.print("[red]✗ Frontend build failed.[/red]")
