@@ -149,13 +149,29 @@ Bootstrap sequence executed manually via SSH:
 ```bash
 docker compose up -d
 # wait for services healthy (~60s)
+docker compose exec -T php composer install --no-dev --optimize-autoloader
 docker compose exec -T php php artisan key:generate --force
 docker compose exec -T php php artisan migrate --force
+# CRITICAL: Must recreate php container after key:generate so env_file reloads APP_KEY
+# docker compose restart does NOT reload env_file — only docker compose up -d (recreate) does
+docker compose up -d php
 docker compose exec -T php php artisan db:seed --class=DatabaseSeeder --force
 docker compose run --rm --no-deps -T node sh -c "cd /app && npm ci --legacy-peer-deps && npx vite build --mode production"
+docker compose exec -T php php artisan admin:create --email=admin@parthenon.local --name=Admin --password=ParthenomTest2026 --force
+# Fix storage permissions if needed (fresh clone may have wrong ownership)
+docker compose exec -T php chown -R www-data:www-data storage bootstrap/cache
 ```
 
-Login screen verified at `http://192.168.1.33:8082`.
+Login screen verified at `http://192.168.1.33:8082` — React SPA title `<title>Parthenon</title>` confirmed.
+API working: `GET /api/v1/sources` returns `{"message":"Unauthenticated."}` (correct — auth guard active).
+
+### Critical Gotcha: `docker compose restart` vs `up -d` for env_file reload
+
+`docker compose restart` does **not** reload `env_file` entries into the container process environment. The env vars are set at **container creation time** (`docker compose up`). After running `php artisan key:generate --force` (which writes APP_KEY to `backend/.env`), the running PHP container still has the old empty APP_KEY in its process env.
+
+**Symptom:** `php artisan db:seed` throws `No application encryption key has been specified` even though `backend/.env` shows `APP_KEY=base64:...`.
+
+**Fix:** `docker compose up -d php` (recreates the container, re-reading env_file from disk). Then wait for healthy and run the seeder.
 
 ---
 
