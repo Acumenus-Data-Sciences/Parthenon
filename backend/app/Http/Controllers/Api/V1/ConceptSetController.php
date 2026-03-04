@@ -155,12 +155,15 @@ class ConceptSetController extends Controller
                     'is_excluded' => $item->is_excluded,
                     'include_descendants' => $item->include_descendants,
                     'include_mapped' => $item->include_mapped,
-                    'concept_name' => $concept?->concept_name,
-                    'domain_id' => $concept?->domain_id,
-                    'vocabulary_id' => $concept?->vocabulary_id,
-                    'concept_class_id' => $concept?->concept_class_id,
-                    'standard_concept' => $concept?->standard_concept,
-                    'concept_code' => $concept?->concept_code,
+                    'concept' => $concept ? [
+                        'concept_id' => $concept->concept_id,
+                        'concept_name' => $concept->concept_name,
+                        'domain_id' => $concept->domain_id,
+                        'vocabulary_id' => $concept->vocabulary_id,
+                        'concept_class_id' => $concept->concept_class_id,
+                        'standard_concept' => $concept->standard_concept,
+                        'concept_code' => $concept->concept_code,
+                    ] : null,
                 ];
             });
 
