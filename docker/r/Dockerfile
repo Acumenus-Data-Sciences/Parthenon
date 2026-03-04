@@ -76,16 +76,20 @@ RUN R -e " \
 "
 
 ## Layer 4 — HADES analysis packages (depends on layers 2 + 3)
+## install_github used because r-universe lags behind GitHub releases;
+## pinned tags ensure reproducibility.
 RUN R -e " \
   options(repos = c( \
     OHDSI = 'https://ohdsi.r-universe.dev', \
     CRAN  = 'https://cloud.r-project.org' \
   )); \
-  remotes::install_version('CohortMethod',              version = '6.0.0', repos = c('https://ohdsi.r-universe.dev', 'https://cloud.r-project.org')); \
-  remotes::install_version('PatientLevelPrediction',    version = '6.5.1', repos = c('https://ohdsi.r-universe.dev', 'https://cloud.r-project.org')); \
-  remotes::install_version('SelfControlledCaseSeries',  version = '6.1.1', repos = c('https://ohdsi.r-universe.dev', 'https://cloud.r-project.org')); \
-  remotes::install_version('EvidenceSynthesis',         version = '1.1.0', repos = c('https://ohdsi.r-universe.dev', 'https://cloud.r-project.org')); \
-  remotes::install_version('CohortGenerator',           version = '1.1.0', repos = c('https://ohdsi.r-universe.dev', 'https://cloud.r-project.org')); \
+  remotes::install_github(c( \
+    'OHDSI/CohortMethod@v6.0.0', \
+    'OHDSI/PatientLevelPrediction@v6.5.1', \
+    'OHDSI/SelfControlledCaseSeries@v6.1.1', \
+    'OHDSI/EvidenceSynthesis@v1.1.0', \
+    'OHDSI/CohortGenerator@v1.1.0' \
+  ), upgrade = FALSE); \
   if (!requireNamespace('CohortMethod',           quietly = TRUE)) stop('CohortMethod failed'); \
   if (!requireNamespace('PatientLevelPrediction', quietly = TRUE)) stop('PLP failed'); \
 "
