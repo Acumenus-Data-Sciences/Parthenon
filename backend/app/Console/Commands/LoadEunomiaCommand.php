@@ -321,8 +321,8 @@ class LoadEunomiaCommand extends Command
         // Vocabulary table IDs are string-based in OMOP CDM, not numeric.
         // e.g. domain_id='Condition', vocabulary_id='SNOMED', relationship_id='Maps to'
         if (in_array($col, [
-            'domain_id', 'vocabulary_id', 'relationship_id', 'concept_class_id',
-            'standard_concept', 'invalid_reason',
+            'domain_id', 'vocabulary_id', 'relationship_id', 'reverse_relationship_id',
+            'concept_class_id', 'standard_concept', 'invalid_reason',
         ], true)) {
             return 'text';
         }
