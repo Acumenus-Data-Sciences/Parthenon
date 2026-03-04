@@ -1,4 +1,4 @@
-import { useState, lazy, Suspense } from "react";
+import { useState, useCallback, lazy, Suspense } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Loader2, PlayCircle } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
@@ -47,6 +47,11 @@ export default function DataExplorerPage() {
     setLocalSourceId(id);
     navigate(`/data-explorer/${id}`, { replace: true });
   };
+
+  // Cross-tab navigation (Overview treemap → Domains tab)
+  const handleNavigateToDomain = useCallback((domain: string) => {
+    setActiveTab("domains");
+  }, []);
 
   // Run Achilles mutation
   const achillesMutation = useMutation({
@@ -141,7 +146,7 @@ export default function DataExplorerPage() {
         </div>
       ) : (
         <Suspense fallback={<TabFallback />}>
-          {activeTab === "overview" && <OverviewTab sourceId={sourceId} />}
+          {activeTab === "overview" && <OverviewTab sourceId={sourceId} onNavigateToDomain={handleNavigateToDomain} />}
           {activeTab === "domains" && <DomainTab sourceId={sourceId} />}
           {activeTab === "dqd" && <DqdTab sourceId={sourceId} />}
           {activeTab === "temporal" && <TemporalTab sourceId={sourceId} />}

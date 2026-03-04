@@ -1,4 +1,5 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMemo } from "react";
+import { useQuery, useQueries, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   fetchRecordCounts,
   fetchDemographics,
@@ -9,6 +10,7 @@ import {
   fetchHeelResults,
   runHeel,
 } from "../api/achillesApi";
+import type { Domain } from "../types/dataExplorer";
 import {
   fetchDqdRuns,
   fetchDqdRun,
@@ -70,6 +72,52 @@ export function useTemporalTrends(sourceId: number, domain: string) {
     queryFn: () => fetchTemporalTrends(sourceId, domain),
     enabled: sourceId > 0 && domain.length > 0,
   });
+}
+
+// ---------------------------------------------------------------------------
+// All-domain temporal trends (for heatmap)
+// ---------------------------------------------------------------------------
+
+const ALL_DOMAINS: Domain[] = [
+  "condition",
+  "drug",
+  "procedure",
+  "measurement",
+  "observation",
+  "visit",
+];
+
+export interface DomainTrendPoint {
+  domain: string;
+  year_month: string;
+  count: number;
+}
+
+export function useAllDomainTrends(sourceId: number) {
+  const results = useQueries({
+    queries: ALL_DOMAINS.map((domain) => ({
+      queryKey: ["achilles", "temporal-trends", sourceId, domain],
+      queryFn: () => fetchTemporalTrends(sourceId, domain),
+      enabled: sourceId > 0,
+    })),
+  });
+
+  const isLoading = results.some((r) => r.isLoading);
+  const isError = results.some((r) => r.isError);
+
+  const data = useMemo(() => {
+    const points: DomainTrendPoint[] = [];
+    results.forEach((r, i) => {
+      if (r.data) {
+        for (const pt of r.data) {
+          points.push({ domain: ALL_DOMAINS[i], year_month: pt.year_month, count: pt.count });
+        }
+      }
+    });
+    return points;
+  }, [results]);
+
+  return { data, isLoading, isError };
 }
 
 // ---------------------------------------------------------------------------
