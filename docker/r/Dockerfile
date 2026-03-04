@@ -16,10 +16,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     default-jdk \
     python3 python3-pip python3-venv \
     curl \
-    && R CMD javareconf \
     && rm -rf /var/lib/apt/lists/*
 
-# CRAN + OHDSI R-universe repos
+# Configure Java for rJava — detect JAVA_HOME from the active JDK
+# and bake it into R's Makeconf so rJava can find libjvm at compile time.
+RUN JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java)))) \
+    && echo "JAVA_HOME=$JAVA_HOME" \
+    && R CMD javareconf
+
+## Layer 1 — base R plumbing + the two packages that require native compilation
+##            (rJava needs javareconf to have run; duckdb compiles a C++ library)
 RUN R -e " \
   options(repos = c( \
     OHDSI = 'https://ohdsi.r-universe.dev', \
@@ -27,14 +33,51 @@ RUN R -e " \
   )); \
   install.packages(c( \
     'plumber', 'jsonlite', 'DBI', 'RPostgres', 'httr2', 'remotes', \
-    'rJava', 'DatabaseConnector', 'SqlRender', 'Cyclops', \
-    'Andromeda', 'ParallelLogger', 'FeatureExtraction', \
+    'ParallelLogger', \
+    'rJava', \
+    'duckdb' \
+  )); \
+  if (!requireNamespace('rJava',  quietly = TRUE)) stop('rJava failed'); \
+  if (!requireNamespace('duckdb', quietly = TRUE)) stop('duckdb failed'); \
+"
+
+## Layer 2 — OHDSI connectivity core (depends on rJava + duckdb from layer 1)
+RUN R -e " \
+  options(repos = c( \
+    OHDSI = 'https://ohdsi.r-universe.dev', \
+    CRAN  = 'https://cloud.r-project.org' \
+  )); \
+  install.packages(c('SqlRender', 'DatabaseConnector', 'Andromeda')); \
+  if (!requireNamespace('DatabaseConnector', quietly = TRUE)) stop('DatabaseConnector failed'); \
+  if (!requireNamespace('Andromeda',         quietly = TRUE)) stop('Andromeda failed'); \
+"
+
+## Layer 3 — analytics core (depends on layer 2)
+RUN R -e " \
+  options(repos = c( \
+    OHDSI = 'https://ohdsi.r-universe.dev', \
+    CRAN  = 'https://cloud.r-project.org' \
+  )); \
+  install.packages(c( \
+    'Cyclops', 'FeatureExtraction', \
+    'ResultModelManager', 'EmpiricalCalibration' \
+  )); \
+  if (!requireNamespace('Cyclops',            quietly = TRUE)) stop('Cyclops failed'); \
+  if (!requireNamespace('FeatureExtraction',  quietly = TRUE)) stop('FeatureExtraction failed'); \
+"
+
+## Layer 4 — HADES analysis packages (depends on layers 2 + 3)
+RUN R -e " \
+  options(repos = c( \
+    OHDSI = 'https://ohdsi.r-universe.dev', \
+    CRAN  = 'https://cloud.r-project.org' \
+  )); \
+  install.packages(c( \
     'CohortMethod', 'PatientLevelPrediction', \
     'SelfControlledCaseSeries', 'EvidenceSynthesis', \
-    'CohortGenerator', 'EmpiricalCalibration', \
-    'ResultModelManager' \
+    'CohortGenerator' \
   )); \
-  if (!requireNamespace('CohortMethod', quietly = TRUE)) stop('CohortMethod failed'); \
+  if (!requireNamespace('CohortMethod',           quietly = TRUE)) stop('CohortMethod failed'); \
   if (!requireNamespace('PatientLevelPrediction', quietly = TRUE)) stop('PLP failed'); \
 "
 

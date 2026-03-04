@@ -77,21 +77,30 @@ def _print_summary(cfg: dict[str, Any]) -> None:
 
     eunomia_line = "  [green]Demo:[/green]     Eunomia GiBleed (Demo) ready" if cfg.get("include_eunomia") else ""
 
+    cdm_dialect = cfg.get("cdm_dialect", "")
+    cdm_line = f"  [green]CDM DB:[/green]   {cdm_dialect}" if cdm_dialect else ""
+
     lines = [
         f"  [green]URL:[/green]      {display_url}",
         f"  [green]Admin:[/green]    {cfg['admin_email']}",
         f"  [green]Password:[/green] (saved to .install-credentials)",
     ]
+    if cdm_line:
+        lines.append(cdm_line)
     if eunomia_line:
         lines.append(eunomia_line)
 
-    lines += [
-        "",
-        "  [bold]Next steps:[/bold]",
+    next_steps = [
         f"  • Open {display_url} to log in",
         "  • Run [bold]./deploy.sh[/bold] after code changes",
         f"  • API docs at {display_url}/docs/api",
     ]
+    if cfg.get("vocab_zip_path"):
+        next_steps.append(
+            f"  • Load vocabulary: Settings → Vocabulary Refresh → upload {cfg['vocab_zip_path']}"
+        )
+
+    lines += ["", "  [bold]Next steps:[/bold]"] + next_steps
 
     content = "\n".join(lines)
     console.print(

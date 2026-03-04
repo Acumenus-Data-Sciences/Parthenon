@@ -53,6 +53,88 @@ def _session_domain(app_url: str) -> str:
     return host
 
 
+PREREQS_URL = "https://acumenus.notion.site/Prerequisites-3dd65283fdc44bc8b4f76a0f8072d3d1"
+
+
+def _validate_vocab_zip(path: str) -> bool | str:
+    p = Path(path.strip())
+    if not p.exists():
+        return "File not found — enter the full path to your Athena vocabulary ZIP"
+    if p.suffix.lower() != ".zip":
+        return "Must be a .zip file downloaded from Athena (athena.ohdsi.org)"
+    return True
+
+
+def _ask_experience(defaults: dict[str, Any]) -> tuple[str, str | None]:
+    """
+    Ask experience level, gate first-timers on prerequisites, and
+    optionally collect an Athena vocabulary ZIP path for experienced users.
+
+    Returns (experience, vocab_zip_path | None).
+    """
+    import questionary
+
+    experience: str = questionary.select(
+        "Are you a first-time or experienced OHDSI user/developer?",
+        choices=["First-time", "Experienced"],
+        default=defaults.get("experience", "First-time"),
+    ).ask()
+
+    if experience == "First-time":
+        console.print()
+        console.print(
+            Panel(
+                "[bold]Before installing Parthenon you must complete the prerequisites.[/bold]\n\n"
+                f"  [cyan]{PREREQS_URL}[/cyan]\n\n"
+                "The prerequisites guide covers:\n"
+                "  • Downloading an Athena OMOP vocabulary ZIP\n"
+                "  • Preparing your OMOP CDM database\n"
+                "  • Docker and system requirements",
+                title="Prerequisites",
+                border_style="yellow",
+                padding=(1, 2),
+            )
+        )
+        done = questionary.confirm(
+            "Have you completed all prerequisites at acumenus.notion.site?",
+            default=False,
+        ).ask()
+        if not done:
+            console.print()
+            console.print(
+                Panel(
+                    "[yellow]Please complete the prerequisites before running the installer.[/yellow]\n\n"
+                    f"  [cyan]{PREREQS_URL}[/cyan]",
+                    border_style="yellow",
+                    padding=(1, 2),
+                )
+            )
+            raise SystemExit(0)
+        return experience, None
+
+    # Experienced path — ask about Athena vocab ZIP
+    has_zip = questionary.confirm(
+        "Do you have an Athena vocabulary ZIP ready?",
+        default=True,
+    ).ask()
+
+    vocab_zip_path: str | None = None
+    if has_zip:
+        vocab_zip_path = questionary.text(
+            "Path to Athena vocabulary ZIP",
+            default=defaults.get("vocab_zip_path", ""),
+            validate=_validate_vocab_zip,
+        ).ask()
+        vocab_zip_path = str(Path(vocab_zip_path.strip()).resolve())
+    else:
+        console.print(
+            "  [dim]No problem — you can load the vocabulary later via "
+            "Settings → Vocabulary Refresh after first login.[/dim]\n"
+        )
+
+    return experience, vocab_zip_path
+
+
 def collect(resume_data: dict[str, Any] | None = None) -> dict[str, Any]:
     """Run the interactive config wizard. Returns a config dict."""
     import questionary
@@ -61,6 +143,42 @@ def collect(resume_data: dict[str, Any] | None = None) -> dict[str, Any]:
     console.print("Answer the prompts below. Press [Enter] to accept defaults.\n")
 
     defaults = resume_data or {}
+
+    # Experience level / prerequisites gate (skip when resuming — already answered)
+    if "experience" not in defaults:
+        experience, vocab_zip_path = _ask_experience(defaults)
+    else:
+        experience = defaults["experience"]
+        vocab_zip_path = defaults.get("vocab_zip_path")
+
+    # --- CDM database ---
+    console.print()
+    console.print(
+        Panel(
+            "[bold]Parthenon ships with a bundled PostgreSQL container for application data[/bold]\n"
+            "[dim](user accounts, cohort definitions, analysis results, etc.)[/dim]\n\n"
+            "Your [bold]OMOP CDM database[/bold] is separate — Parthenon connects to it as a "
+            "read/write data source.\nYou will register the connection details after first login "
+            "via [bold]Settings → Data Sources[/bold].",
+            title="CDM Database",
+            border_style="cyan",
+            padding=(1, 2),
+        )
+    )
+
+    cdm_dialect = questionary.select(
+        "What database system hosts your OMOP CDM?",
+        choices=[
+            "PostgreSQL",
+            "Microsoft SQL Server",
+            "Google BigQuery",
+            "Amazon Redshift",
+            "Snowflake",
+            "Oracle",
+            "Not sure yet / will configure later",
+        ],
+        default=defaults.get("cdm_dialect", "PostgreSQL"),
+    ).ask()
 
     app_url = questionary.text(
         "App URL",
@@ -128,6 +246,9 @@ def collect(resume_data: dict[str, Any] | None = None) -> dict[str, Any]:
         ai_port       = int(questionary.text("AI_PORT",       default=str(ai_port)).ask())
 
     return {
+        "experience":     experience,
+        "vocab_zip_path": vocab_zip_path,
+        "cdm_dialect":    cdm_dialect,
         "app_url":        app_url,
         "env":            env,
         "db_password":    db_password,
