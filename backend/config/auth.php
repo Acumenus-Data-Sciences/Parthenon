@@ -40,6 +40,15 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
+        // Sanctum token guard — must declare provider so Spatie Permission's
+        // getModelForGuard("sanctum") can resolve App\Models\User. Without this,
+        // Role::withCount('users') throws "Class name must be a valid object or a string"
+        // when a request is authenticated via a Sanctum API token.
+        'sanctum' => [
+            'driver' => 'sanctum',
+            'provider' => 'users',
+        ],
     ],
 
     /*
