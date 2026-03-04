@@ -11,6 +11,8 @@ import {
   Sparkles,
   Download,
   Share2,
+  Plus,
+  X,
 } from "lucide-react";
 import { AbbyAiPanel } from "@/features/abby-ai/components/AbbyAiPanel";
 import { ShareCohortModal } from "../components/ShareCohortModal";
@@ -52,6 +54,8 @@ export default function CohortDefinitionDetailPage() {
   const [activeTab, setActiveTab] = useState<Tab>("editor");
   const [abbyOpen, setAbbyOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
+  const [tagInput, setTagInput] = useState("");
+  const [isAddingTag, setIsAddingTag] = useState(false);
 
   // Load expression from API into store
   useEffect(() => {
@@ -64,6 +68,23 @@ export default function CohortDefinitionDetailPage() {
       reset();
     };
   }, [definition]);
+
+  // Ctrl+S / Cmd+S keyboard shortcut
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "s") {
+        e.preventDefault();
+        if (isDirty && cohortId) {
+          updateMutation.mutate(
+            { id: cohortId, payload: { expression_json: expression } },
+            { onSuccess: () => loadExpression(expression) },
+          );
+        }
+      }
+    };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [isDirty, cohortId, expression]);
 
   const handleSaveName = () => {
     if (!cohortId || !name.trim()) return;
@@ -122,6 +143,35 @@ export default function CohortDefinitionDetailPage() {
     updateMutation.mutate({
       id: cohortId,
       payload: { is_public: !definition.is_public },
+    });
+  };
+
+  const handleAddTag = () => {
+    const tag = tagInput.trim().toLowerCase();
+    if (!tag || !cohortId || !definition) return;
+    const currentTags = definition.tags ?? [];
+    if (currentTags.includes(tag)) {
+      setTagInput("");
+      setIsAddingTag(false);
+      return;
+    }
+    updateMutation.mutate(
+      { id: cohortId, payload: { tags: [...currentTags, tag] } },
+      {
+        onSuccess: () => {
+          setTagInput("");
+          setIsAddingTag(false);
+        },
+      },
+    );
+  };
+
+  const handleRemoveTag = (tagToRemove: string) => {
+    if (!cohortId || !definition) return;
+    const currentTags = definition.tags ?? [];
+    updateMutation.mutate({
+      id: cohortId,
+      payload: { tags: currentTags.filter((t) => t !== tagToRemove) },
     });
   };
 
@@ -271,11 +321,68 @@ export default function CohortDefinitionDetailPage() {
             </p>
           )}
 
-          {/* Version badge */}
-          <div className="flex items-center gap-2 mt-2">
+          {/* Version badge + last saved */}
+          <div className="flex items-center gap-3 mt-2">
             <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-[#C9A227]/15 text-[#C9A227]">
               v{definition.version}
             </span>
+            <span className="text-[10px] text-[#5A5650]">
+              Last saved{" "}
+              {new Date(definition.updated_at).toLocaleString("en-US", {
+                month: "short",
+                day: "numeric",
+                hour: "numeric",
+                minute: "2-digit",
+              })}
+            </span>
+          </div>
+
+          {/* Tags */}
+          <div className="flex flex-wrap items-center gap-1.5 mt-2">
+            {definition.tags?.map((tag) => (
+              <span
+                key={tag}
+                className="inline-flex items-center gap-1 rounded px-2 py-0.5 text-[10px] bg-[#1A1A1F] text-[#8A857D] border border-[#2A2A30] group"
+              >
+                {tag}
+                <button
+                  type="button"
+                  onClick={() => handleRemoveTag(tag)}
+                  className="opacity-0 group-hover:opacity-100 transition-opacity text-[#5A5650] hover:text-[#E85A6B]"
+                >
+                  <X size={8} />
+                </button>
+              </span>
+            ))}
+            {isAddingTag ? (
+              <input
+                type="text"
+                value={tagInput}
+                onChange={(e) => setTagInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleAddTag();
+                  if (e.key === "Escape") {
+                    setTagInput("");
+                    setIsAddingTag(false);
+                  }
+                }}
+                onBlur={() => {
+                  if (!tagInput.trim()) setIsAddingTag(false);
+                }}
+                autoFocus
+                placeholder="tag name"
+                className="rounded px-2 py-0.5 text-[10px] w-20 bg-[#0E0E11] border border-[#2DD4BF] text-[#F0EDE8] placeholder:text-[#5A5650] focus:outline-none"
+              />
+            ) : (
+              <button
+                type="button"
+                onClick={() => setIsAddingTag(true)}
+                className="inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[10px] text-[#5A5650] hover:text-[#8A857D] border border-dashed border-[#323238] hover:border-[#5A5650] transition-colors"
+              >
+                <Plus size={8} />
+                tag
+              </button>
+            )}
           </div>
         </div>
 

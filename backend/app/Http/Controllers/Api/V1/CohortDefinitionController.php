@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Jobs\Cohort\GenerateCohortJob;
 use App\Models\App\CohortDefinition;
 use App\Models\App\CohortGeneration;
+use App\Models\App\ConditionBundle;
 use App\Models\App\Source;
 use App\Services\Analysis\CohortDiagnosticsService;
 use App\Services\Analysis\CohortOverlapService;
@@ -149,6 +150,8 @@ class CohortDefinitionController extends Controller
             'description' => 'nullable|string',
             'expression_json' => 'sometimes|required|array',
             'is_public' => 'boolean',
+            'tags' => 'sometimes|array',
+            'tags.*' => 'string|max:50',
         ]);
 
         try {
@@ -549,6 +552,202 @@ class CohortDefinitionController extends Controller
         } catch (\Throwable $e) {
             return $this->errorResponse('Failed to compute cohort overlap', $e);
         }
+    }
+
+    /**
+     * GET /v1/cohort-definitions/stats
+     *
+     * Quick aggregate stats for cohort definitions.
+     */
+    public function stats(): JsonResponse
+    {
+        try {
+            return response()->json([
+                'total' => CohortDefinition::count(),
+                'with_generations' => CohortDefinition::whereHas('generations', fn ($q) => $q->where('status', 'completed'))->count(),
+                'public' => CohortDefinition::where('is_public', true)->count(),
+            ]);
+        } catch (\Throwable $e) {
+            return $this->errorResponse('Failed to retrieve stats', $e);
+        }
+    }
+
+    /**
+     * POST /v1/cohort-definitions/from-bundle
+     *
+     * Create a cohort definition from a Care Gap condition bundle.
+     * Builds concept sets and criteria from the bundle's condition concepts
+     * and quality measure criteria.
+     */
+    public function createFromBundle(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'bundle_id' => 'required|integer|exists:condition_bundles,id',
+            'include_measures' => 'boolean',
+            'name' => 'nullable|string|max:255',
+        ]);
+
+        try {
+            $bundle = ConditionBundle::with('measures')->findOrFail($validated['bundle_id']);
+            $includeMeasures = $validated['include_measures'] ?? true;
+            $name = $validated['name'] ?? "{$bundle->condition_name} Cohort";
+
+            // Build concept sets
+            $conceptSets = [];
+            $conceptSetIndex = 0;
+
+            // ConceptSet 0: Primary condition concepts from bundle
+            $conditionItems = collect($bundle->omop_concept_ids)->map(fn (int $id) => [
+                'concept' => [
+                    'CONCEPT_ID' => $id,
+                    'CONCEPT_NAME' => $bundle->condition_name,
+                    'DOMAIN_ID' => 'Condition',
+                    'VOCABULARY_ID' => 'SNOMED',
+                    'CONCEPT_CLASS_ID' => 'Clinical Finding',
+                    'STANDARD_CONCEPT' => 'S',
+                    'CONCEPT_CODE' => '',
+                ],
+                'isExcluded' => false,
+                'includeDescendants' => true,
+                'includeMapped' => false,
+            ])->values()->all();
+
+            $conceptSets[] = [
+                'id' => $conceptSetIndex,
+                'name' => "{$bundle->condition_name} Conditions",
+                'expression' => ['items' => $conditionItems],
+            ];
+            $conceptSetIndex++;
+
+            // Build additional criteria from measures
+            $additionalCriteriaList = [];
+
+            if ($includeMeasures && $bundle->measures->isNotEmpty()) {
+                foreach ($bundle->measures as $measure) {
+                    $conceptIds = $measure->numerator_criteria['concept_ids'] ?? [];
+                    if (empty($conceptIds)) {
+                        continue;
+                    }
+
+                    $domainType = $this->mapMeasureDomainToCriterionType($measure->domain);
+                    if (! $domainType) {
+                        continue;
+                    }
+
+                    // Build concept set for this measure
+                    $measureItems = collect($conceptIds)->map(fn (int $id) => [
+                        'concept' => [
+                            'CONCEPT_ID' => $id,
+                            'CONCEPT_NAME' => $measure->measure_name,
+                            'DOMAIN_ID' => $this->mapDomainToOmop($measure->domain),
+                            'VOCABULARY_ID' => '',
+                            'CONCEPT_CLASS_ID' => '',
+                            'STANDARD_CONCEPT' => 'S',
+                            'CONCEPT_CODE' => '',
+                        ],
+                        'isExcluded' => false,
+                        'includeDescendants' => true,
+                        'includeMapped' => false,
+                    ])->values()->all();
+
+                    $conceptSets[] = [
+                        'id' => $conceptSetIndex,
+                        'name' => $measure->measure_name,
+                        'expression' => ['items' => $measureItems],
+                    ];
+
+                    $lookbackDays = $measure->numerator_criteria['lookback_days'] ?? 365;
+
+                    $additionalCriteriaList[] = [
+                        'Criteria' => [$domainType => ['CodesetId' => $conceptSetIndex]],
+                        'StartWindow' => [
+                            'Start' => ['Days' => $lookbackDays, 'Coeff' => -1],
+                            'End' => ['Days' => $lookbackDays, 'Coeff' => 1],
+                        ],
+                        'Occurrence' => ['Type' => 2, 'Count' => 1],
+                    ];
+
+                    $conceptSetIndex++;
+                }
+            }
+
+            // Assemble the expression
+            $expression = [
+                'ConceptSets' => $conceptSets,
+                'PrimaryCriteria' => [
+                    'CriteriaList' => [
+                        ['ConditionOccurrence' => ['CodesetId' => 0, 'First' => true]],
+                    ],
+                    'ObservationWindow' => ['PriorDays' => 365, 'PostDays' => 0],
+                ],
+                'QualifiedLimit' => ['Type' => 'First'],
+                'ExpressionLimit' => ['Type' => 'First'],
+                'CollapseSettings' => ['CollapseType' => 'ERA', 'EraPad' => 0],
+            ];
+
+            if (! empty($additionalCriteriaList)) {
+                $expression['AdditionalCriteria'] = [
+                    'Type' => 'ALL',
+                    'CriteriaList' => $additionalCriteriaList,
+                    'Groups' => [],
+                ];
+            }
+
+            $tags = array_filter([
+                strtolower($bundle->bundle_code),
+                strtolower($bundle->disease_category ?? ''),
+                'from-bundle',
+            ]);
+
+            $cohortDef = CohortDefinition::create([
+                'name' => $name,
+                'description' => "Auto-generated from {$bundle->condition_name} care bundle. Includes primary condition criteria"
+                    . ($includeMeasures ? ' and quality measure inclusion rules.' : '.'),
+                'expression_json' => $expression,
+                'author_id' => $request->user()->id,
+                'is_public' => false,
+                'tags' => array_values($tags),
+            ]);
+
+            $cohortDef->load('author:id,name,email');
+
+            return response()->json([
+                'data' => $cohortDef,
+                'message' => "Cohort definition created from {$bundle->condition_name} bundle.",
+            ], 201);
+        } catch (\Throwable $e) {
+            return $this->errorResponse('Failed to create cohort from bundle', $e);
+        }
+    }
+
+    /**
+     * Map quality measure domain to OHDSI criterion type.
+     */
+    private function mapMeasureDomainToCriterionType(string $domain): ?string
+    {
+        return match ($domain) {
+            'measurement' => 'Measurement',
+            'drug' => 'DrugExposure',
+            'procedure' => 'ProcedureOccurrence',
+            'observation' => 'Observation',
+            'condition' => 'ConditionOccurrence',
+            default => null,
+        };
+    }
+
+    /**
+     * Map quality measure domain to OMOP domain_id.
+     */
+    private function mapDomainToOmop(string $domain): string
+    {
+        return match ($domain) {
+            'measurement' => 'Measurement',
+            'drug' => 'Drug',
+            'procedure' => 'Procedure',
+            'observation' => 'Observation',
+            'condition' => 'Condition',
+            default => 'Observation',
+        };
     }
 
     /**

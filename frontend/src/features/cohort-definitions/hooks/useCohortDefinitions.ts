@@ -9,6 +9,8 @@ import {
   generateCohort,
   copyCohortDefinition,
   compareCohorts,
+  getCohortStats,
+  createCohortFromBundle,
 } from "../api/cohortApi";
 import type {
   CohortDefinitionListParams,
@@ -114,6 +116,29 @@ export function useCopyCohortDefinition() {
 
   return useMutation({
     mutationFn: (id: number) => copyCohortDefinition(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cohort-definitions"] });
+    },
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Stats & Create from Bundle
+// ---------------------------------------------------------------------------
+
+export function useCohortStats() {
+  return useQuery({
+    queryKey: ["cohort-definitions", "stats"],
+    queryFn: getCohortStats,
+    staleTime: 30_000,
+  });
+}
+
+export function useCreateCohortFromBundle() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: createCohortFromBundle,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["cohort-definitions"] });
     },

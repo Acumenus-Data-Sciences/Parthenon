@@ -224,3 +224,27 @@ export async function runCohortDiagnostics(
   );
   return data.data ?? data;
 }
+
+// ---------------------------------------------------------------------------
+// Stats & Create from Bundle
+// ---------------------------------------------------------------------------
+
+export interface CohortStats {
+  total: number;
+  with_generations: number;
+  public: number;
+}
+
+export async function getCohortStats(): Promise<CohortStats> {
+  const { data } = await apiClient.get<CohortStats>(`${BASE}/stats`);
+  return data;
+}
+
+export async function createCohortFromBundle(payload: {
+  bundle_id: number;
+  include_measures?: boolean;
+  name?: string;
+}): Promise<CohortDefinition> {
+  const { data } = await apiClient.post(`${BASE}/from-bundle`, payload);
+  return data.data ?? data;
+}

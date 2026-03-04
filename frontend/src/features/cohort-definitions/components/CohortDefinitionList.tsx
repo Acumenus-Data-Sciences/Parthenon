@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Loader2,
@@ -9,6 +9,10 @@ import {
   XCircle,
   Clock,
   Layers,
+  Globe,
+  Lock,
+  Stethoscope,
+  Plus,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCohortDefinitions } from "../hooks/useCohortDefinitions";
@@ -76,14 +80,26 @@ function LatestGenerationBadge({
 
 interface Props {
   tags?: string[];
+  search?: string;
+  onCreateFromBundle?: () => void;
 }
 
-export function CohortDefinitionList({ tags }: Props) {
+export function CohortDefinitionList({ tags, search, onCreateFromBundle }: Props) {
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const limit = 20;
 
-  const { data, isLoading, error } = useCohortDefinitions({ page, limit, tags });
+  // Reset page when search or tags change
+  useEffect(() => {
+    setPage(1);
+  }, [search, tags]);
+
+  const { data, isLoading, error } = useCohortDefinitions({
+    page,
+    limit,
+    tags,
+    search,
+  });
 
   if (isLoading) {
     return (
@@ -112,11 +128,35 @@ export function CohortDefinitionList({ tags }: Props) {
           <Layers size={24} className="text-[#8A857D]" />
         </div>
         <h3 className="text-lg font-semibold text-[#F0EDE8]">
-          No cohort definitions
+          {search ? "No matching cohort definitions" : "No cohort definitions"}
         </h3>
-        <p className="mt-2 text-sm text-[#8A857D]">
-          Create your first cohort definition to start building cohorts.
+        <p className="mt-2 text-sm text-[#8A857D] max-w-md text-center">
+          {search
+            ? `No results for "${search}". Try a different search term.`
+            : "Cohort definitions let you define inclusion and exclusion criteria to identify patient populations for research studies."}
         </p>
+        {!search && (
+          <div className="flex items-center gap-3 mt-6">
+            <button
+              type="button"
+              onClick={() => navigate("/cohort-definitions")}
+              className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-4 py-2.5 text-sm font-medium text-[#0E0E11] hover:bg-[#26B8A5] transition-colors"
+            >
+              <Plus size={16} />
+              New Cohort Definition
+            </button>
+            {onCreateFromBundle && (
+              <button
+                type="button"
+                onClick={onCreateFromBundle}
+                className="inline-flex items-center gap-2 rounded-lg border border-[#2A2A30] bg-[#151518] px-4 py-2.5 text-sm font-medium text-[#8A857D] hover:text-[#C5C0B8] hover:border-[#3A3A42] transition-colors"
+              >
+                <Stethoscope size={16} />
+                Create from Care Bundle
+              </button>
+            )}
+          </div>
+        )}
       </div>
     );
   }
@@ -132,7 +172,10 @@ export function CohortDefinitionList({ tags }: Props) {
                 Name
               </th>
               <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
-                Description
+                Author
+              </th>
+              <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+                Tags
               </th>
               <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
                 Latest Generation
@@ -153,14 +196,40 @@ export function CohortDefinitionList({ tags }: Props) {
                 )}
               >
                 <td className="px-4 py-3">
-                  <p className="text-sm font-medium text-[#F0EDE8]">
-                    {def.name}
+                  <div className="flex items-center gap-2">
+                    {def.is_public ? (
+                      <Globe size={12} className="text-[#60A5FA] shrink-0" />
+                    ) : (
+                      <Lock size={12} className="text-[#5A5650] shrink-0" />
+                    )}
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-[#F0EDE8] truncate">
+                        {def.name}
+                      </p>
+                      {def.description && (
+                        <p className="text-[10px] text-[#5A5650] truncate max-w-[250px]">
+                          {def.description}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </td>
+                <td className="px-4 py-3">
+                  <p className="text-xs text-[#8A857D]">
+                    {def.author?.name ?? "--"}
                   </p>
                 </td>
                 <td className="px-4 py-3">
-                  <p className="text-xs text-[#8A857D] truncate max-w-[300px]">
-                    {def.description || "--"}
-                  </p>
+                  <div className="flex flex-wrap gap-1">
+                    {def.tags?.map((tag) => (
+                      <span
+                        key={tag}
+                        className="inline-block rounded px-1.5 py-0.5 text-[10px] bg-[#1A1A1F] text-[#8A857D] border border-[#2A2A30]"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
                 </td>
                 <td className="px-4 py-3">
                   <LatestGenerationBadge generations={def.generations} />

@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Loader2, Upload, X } from "lucide-react";
+import { Plus, Loader2, Upload, X, Search, Stethoscope } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { CohortDefinitionList } from "../components/CohortDefinitionList";
+import { CohortStatsBar } from "../components/CohortStatsBar";
 import { ImportCohortModal } from "../components/ImportCohortModal";
+import { CreateFromBundleModal } from "../components/CreateFromBundleModal";
 import { useCreateCohortDefinition } from "../hooks/useCohortDefinitions";
 import { getCohortTags } from "../api/cohortApi";
 import { HelpButton } from "@/features/help";
@@ -25,7 +27,16 @@ export default function CohortDefinitionsPage() {
   const createMutation = useCreateCohortDefinition();
   const [isCreating, setIsCreating] = useState(false);
   const [showImport, setShowImport] = useState(false);
+  const [showFromBundle, setShowFromBundle] = useState(false);
   const [activeTags, setActiveTags] = useState<string[]>([]);
+  const [searchInput, setSearchInput] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(searchInput), 300);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
 
   const { data: tags } = useQuery({
     queryKey: ["cohort-tags"],
@@ -81,6 +92,14 @@ export default function CohortDefinitionsPage() {
           </button>
           <button
             type="button"
+            onClick={() => setShowFromBundle(true)}
+            className="inline-flex items-center gap-2 rounded-lg border border-[#2A2A30] bg-[#151518] px-4 py-2.5 text-sm font-medium text-[#8A857D] hover:text-[#C5C0B8] hover:border-[#3A3A42] transition-colors"
+          >
+            <Stethoscope size={16} />
+            From Bundle
+          </button>
+          <button
+            type="button"
             onClick={handleCreate}
             disabled={isCreating}
             className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-4 py-2.5 text-sm font-medium text-[#0E0E11] hover:bg-[#26B8A5] transition-colors disabled:opacity-50"
@@ -93,6 +112,33 @@ export default function CohortDefinitionsPage() {
             New Cohort Definition
           </button>
         </div>
+      </div>
+
+      {/* Stats bar */}
+      <CohortStatsBar />
+
+      {/* Search bar */}
+      <div className="relative max-w-md">
+        <Search
+          size={16}
+          className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
+        />
+        <input
+          type="text"
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          placeholder="Search cohort definitions..."
+          className="w-full rounded-lg pl-10 pr-3 py-2.5 text-sm bg-[#151518] border border-[#232328] text-[#F0EDE8] placeholder:text-[#5A5650] focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40 transition-colors"
+        />
+        {searchInput && (
+          <button
+            type="button"
+            onClick={() => setSearchInput("")}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5A5650] hover:text-[#8A857D]"
+          >
+            <X size={14} />
+          </button>
+        )}
       </div>
 
       {/* Tag filter chips */}
@@ -130,7 +176,11 @@ export default function CohortDefinitionsPage() {
       )}
 
       {/* List */}
-      <CohortDefinitionList tags={activeTags.length > 0 ? activeTags : undefined} />
+      <CohortDefinitionList
+        tags={activeTags.length > 0 ? activeTags : undefined}
+        search={debouncedSearch || undefined}
+        onCreateFromBundle={() => setShowFromBundle(true)}
+      />
 
       {/* Import modal */}
       {showImport && (
@@ -142,6 +192,12 @@ export default function CohortDefinitionsPage() {
           }}
         />
       )}
+
+      {/* Create from Bundle modal */}
+      <CreateFromBundleModal
+        open={showFromBundle}
+        onClose={() => setShowFromBundle(false)}
+      />
     </div>
   );
 }

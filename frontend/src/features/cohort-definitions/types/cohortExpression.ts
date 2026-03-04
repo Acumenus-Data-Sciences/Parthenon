@@ -135,6 +135,8 @@ export interface CohortDefinition {
   author_id: number;
   is_public: boolean;
   version: number;
+  tags?: string[];
+  author?: { id: number; name: string; email: string };
   created_at: string;
   updated_at: string;
   generations?: CohortGeneration[];
@@ -164,7 +166,7 @@ export interface CohortGeneration {
 export interface CohortDefinitionListParams {
   page?: number;
   limit?: number;
-  q?: string;
+  search?: string;
   tags?: string[];
 }
 
@@ -186,6 +188,7 @@ export interface UpdateCohortDefinitionPayload {
   description?: string;
   expression_json?: CohortExpression;
   is_public?: boolean;
+  tags?: string[];
 }
 
 // ---------------------------------------------------------------------------

@@ -158,6 +158,8 @@ Route::prefix('v1')->group(function () {
         // Cohort Definitions — §9.2/9.4 static routes BEFORE apiResource (avoid wildcard clash)
         Route::post('/cohort-definitions/import', [CohortDefinitionController::class, 'import']);
         Route::get('/cohort-definitions/tags', [CohortDefinitionController::class, 'tags']);
+        Route::get('/cohort-definitions/stats', [CohortDefinitionController::class, 'stats']);
+        Route::post('/cohort-definitions/from-bundle', [CohortDefinitionController::class, 'createFromBundle']);
         Route::post('/cohort-definitions/compare', [CohortDefinitionController::class, 'compare']);
         Route::apiResource('cohort-definitions', CohortDefinitionController::class);
         Route::get('/cohort-definitions/{cohortDefinition}/export', [CohortDefinitionController::class, 'export']);
