@@ -54,10 +54,10 @@ import {
 // Query hooks
 // ---------------------------------------------------------------------------
 
-export function useStudies(page?: number, search?: string) {
+export function useStudies(page?: number, search?: string, filters?: { status?: string; study_type?: string }) {
   return useQuery({
-    queryKey: ["studies", { page, search }],
-    queryFn: () => listStudies({ page, search: search || undefined }),
+    queryKey: ["studies", { page, search, ...filters }],
+    queryFn: () => listStudies({ page, search: search || undefined, ...filters }),
   });
 }
 

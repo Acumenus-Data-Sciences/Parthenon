@@ -13,19 +13,38 @@ import {
   List,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { HelpButton } from "@/features/help";
 import { StudyList } from "../components/StudyList";
 import { StudyCard } from "../components/StudyCard";
 import { useStudies, useStudyStats } from "../hooks/useStudies";
 
 const STUDY_TYPE_OPTIONS = [
-  { value: "characterization", label: "Characterization", icon: BarChart3, color: "#2DD4BF" },
-  { value: "population_level_estimation", label: "Population-Level Estimation", icon: Scale, color: "#60A5FA" },
-  { value: "patient_level_prediction", label: "Patient-Level Prediction", icon: Brain, color: "#A78BFA" },
-  { value: "comparative_effectiveness", label: "Comparative Effectiveness", icon: FlaskConical, color: "#F59E0B" },
-  { value: "safety_surveillance", label: "Safety Surveillance", icon: Shield, color: "#E85A6B" },
-  { value: "drug_utilization", label: "Drug Utilization", icon: Pill, color: "#34D399" },
-  { value: "quality_improvement", label: "Quality Improvement", icon: Activity, color: "#FB923C" },
-  { value: "custom", label: "Custom", icon: Wrench, color: "#8A857D" },
+  { value: "characterization", label: "Characterization", color: "#2DD4BF" },
+  { value: "population_level_estimation", label: "PLE", color: "#60A5FA" },
+  { value: "patient_level_prediction", label: "PLP", color: "#A78BFA" },
+  { value: "comparative_effectiveness", label: "Comparative", color: "#F59E0B" },
+  { value: "safety_surveillance", label: "Safety", color: "#E85A6B" },
+  { value: "drug_utilization", label: "Drug Util", color: "#34D399" },
+  { value: "quality_improvement", label: "QI", color: "#FB923C" },
+  { value: "custom", label: "Custom", color: "#8A857D" },
+];
+
+const STATUS_OPTIONS = [
+  { value: "draft", label: "Draft", color: "#8A857D" },
+  { value: "protocol_development", label: "Protocol Dev", color: "#60A5FA" },
+  { value: "feasibility", label: "Feasibility", color: "#A78BFA" },
+  { value: "irb_review", label: "IRB Review", color: "#F59E0B" },
+  { value: "execution", label: "Execution", color: "#2DD4BF" },
+  { value: "analysis", label: "Analysis", color: "#34D399" },
+  { value: "published", label: "Published", color: "#22D3EE" },
+  { value: "archived", label: "Archived", color: "#6B7280" },
+];
+
+const PRIORITY_OPTIONS = [
+  { value: "critical", label: "Critical", color: "#E85A6B" },
+  { value: "high", label: "High", color: "#F59E0B" },
+  { value: "medium", label: "Medium", color: "#60A5FA" },
+  { value: "low", label: "Low", color: "#8A857D" },
 ];
 
 export default function StudiesPage() {
@@ -33,12 +52,20 @@ export default function StudiesPage() {
   const [page, setPage] = useState(1);
   const [searchInput, setSearchInput] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [filterStatus, setFilterStatus] = useState<string | null>(null);
+  const [filterType, setFilterType] = useState<string | null>(null);
+  const [filterPriority, setFilterPriority] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"table" | "card">(() => {
     return (localStorage.getItem("studies-view") as "table" | "card") || "table";
   });
 
+  const hasFilters = !!(filterStatus || filterType || filterPriority);
+
   const { data: stats } = useStudyStats();
-  const { data, isLoading, error } = useStudies(page, debouncedSearch);
+  const { data, isLoading, error } = useStudies(page, debouncedSearch, {
+    status: filterStatus ?? undefined,
+    study_type: filterType ?? undefined,
+  });
 
   // Debounce search
   useEffect(() => {
@@ -49,12 +76,24 @@ export default function StudiesPage() {
     return () => clearTimeout(timer);
   }, [searchInput]);
 
+  // Reset page when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [filterStatus, filterType, filterPriority]);
+
   // Persist view mode
   useEffect(() => {
     localStorage.setItem("studies-view", viewMode);
   }, [viewMode]);
 
-  const studies = useMemo(() => data?.data ?? [], [data]);
+  const studies = useMemo(() => {
+    let items = data?.data ?? [];
+    // Client-side priority filter (backend doesn't support priority param)
+    if (filterPriority) {
+      items = items.filter((s) => s.priority === filterPriority);
+    }
+    return items;
+  }, [data, filterPriority]);
 
   return (
     <div className="space-y-6">
@@ -130,6 +169,8 @@ export default function StudiesPage() {
             </button>
           </div>
 
+          <HelpButton helpKey="studies" />
+
           {/* New Study */}
           <button
             type="button"
@@ -180,6 +221,76 @@ export default function StudiesPage() {
           })}
         </div>
       )}
+
+      {/* Filter Chips */}
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-[10px] text-[#5A5650] uppercase tracking-wider mr-1">Status</span>
+        {STATUS_OPTIONS.map((opt) => (
+          <button
+            key={opt.value}
+            type="button"
+            onClick={() => setFilterStatus(filterStatus === opt.value ? null : opt.value)}
+            className={cn(
+              "px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors border",
+              filterStatus === opt.value
+                ? "border-transparent"
+                : "border-[#232328] bg-[#151518] text-[#8A857D] hover:text-[#C5C0B8] hover:border-[#323238]",
+            )}
+            style={filterStatus === opt.value ? { backgroundColor: `${opt.color}20`, color: opt.color, borderColor: `${opt.color}40` } : undefined}
+          >
+            {opt.label}
+          </button>
+        ))}
+
+        <span className="text-[#232328] mx-1">|</span>
+        <span className="text-[10px] text-[#5A5650] uppercase tracking-wider mr-1">Type</span>
+        {STUDY_TYPE_OPTIONS.map((opt) => (
+          <button
+            key={opt.value}
+            type="button"
+            onClick={() => setFilterType(filterType === opt.value ? null : opt.value)}
+            className={cn(
+              "px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors border",
+              filterType === opt.value
+                ? "border-transparent"
+                : "border-[#232328] bg-[#151518] text-[#8A857D] hover:text-[#C5C0B8] hover:border-[#323238]",
+            )}
+            style={filterType === opt.value ? { backgroundColor: `${opt.color}20`, color: opt.color, borderColor: `${opt.color}40` } : undefined}
+          >
+            {opt.label}
+          </button>
+        ))}
+
+        <span className="text-[#232328] mx-1">|</span>
+        <span className="text-[10px] text-[#5A5650] uppercase tracking-wider mr-1">Priority</span>
+        {PRIORITY_OPTIONS.map((opt) => (
+          <button
+            key={opt.value}
+            type="button"
+            onClick={() => setFilterPriority(filterPriority === opt.value ? null : opt.value)}
+            className={cn(
+              "px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors border",
+              filterPriority === opt.value
+                ? "border-transparent"
+                : "border-[#232328] bg-[#151518] text-[#8A857D] hover:text-[#C5C0B8] hover:border-[#323238]",
+            )}
+            style={filterPriority === opt.value ? { backgroundColor: `${opt.color}20`, color: opt.color, borderColor: `${opt.color}40` } : undefined}
+          >
+            {opt.label}
+          </button>
+        ))}
+
+        {hasFilters && (
+          <button
+            type="button"
+            onClick={() => { setFilterStatus(null); setFilterType(null); setFilterPriority(null); }}
+            className="ml-2 px-2 py-1 rounded text-[11px] text-[#E85A6B] hover:bg-[#E85A6B]/10 transition-colors"
+          >
+            <X size={12} className="inline mr-0.5" />
+            Clear
+          </button>
+        )}
+      </div>
 
       {/* Content */}
       {viewMode === "table" ? (

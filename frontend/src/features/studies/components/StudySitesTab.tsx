@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Loader2, Plus, MapPin, Trash2, Edit3, Save, X } from "lucide-react";
+import { Loader2, Plus, MapPin, Trash2, Edit3, Save, X, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   useStudySites,
@@ -7,7 +7,10 @@ import {
   useUpdateStudySite,
   useDeleteStudySite,
 } from "../hooks/useStudies";
+import { useSources } from "@/features/data-sources/hooks/useSources";
 import type { StudySite } from "../types/study";
+
+const SITE_ROLES = ["data_partner", "coordinating_center", "analytics_node", "observer"] as const;
 
 const SITE_STATUS_COLORS: Record<string, string> = {
   pending: "#8A857D",
@@ -24,6 +27,7 @@ interface StudySitesTabProps {
 
 export function StudySitesTab({ slug }: StudySitesTabProps) {
   const { data: sites, isLoading } = useStudySites(slug);
+  const { data: allSources } = useSources();
   const createMutation = useCreateStudySite();
   const updateMutation = useUpdateStudySite();
   const deleteMutation = useDeleteStudySite();
@@ -31,11 +35,49 @@ export function StudySitesTab({ slug }: StudySitesTabProps) {
   const [editId, setEditId] = useState<number | null>(null);
   const [editPayload, setEditPayload] = useState<Partial<StudySite>>({});
 
-  const handleAdd = () => {
-    createMutation.mutate({
-      slug,
-      payload: { source_id: 1, site_role: "data_partner", status: "pending" },
-    });
+  // Add form state
+  const [showAdd, setShowAdd] = useState(false);
+  const [newSourceId, setNewSourceId] = useState<number | "">("");
+  const [newRole, setNewRole] = useState<string>("data_partner");
+  const [newIrb, setNewIrb] = useState("");
+  const [newNotes, setNewNotes] = useState("");
+  const [sourceSearch, setSourceSearch] = useState("");
+
+  // Filter out sources already assigned
+  const assignedSourceIds = new Set(sites?.map((s) => s.source_id) ?? []);
+  const availableSources = (allSources ?? []).filter(
+    (s: { id: number; source_name: string }) => !assignedSourceIds.has(s.id),
+  );
+  const filteredSources = sourceSearch
+    ? availableSources.filter((s: { source_name: string }) =>
+        s.source_name.toLowerCase().includes(sourceSearch.toLowerCase()),
+      )
+    : availableSources;
+
+  const handleCreate = () => {
+    if (!newSourceId) return;
+    createMutation.mutate(
+      {
+        slug,
+        payload: {
+          source_id: newSourceId as number,
+          site_role: newRole,
+          status: "pending",
+          irb_protocol_number: newIrb || null,
+          notes: newNotes || null,
+        },
+      },
+      {
+        onSuccess: () => {
+          setShowAdd(false);
+          setNewSourceId("");
+          setNewRole("data_partner");
+          setNewIrb("");
+          setNewNotes("");
+          setSourceSearch("");
+        },
+      },
+    );
   };
 
   const startEdit = (site: StudySite) => {
@@ -64,11 +106,95 @@ export function StudySitesTab({ slug }: StudySitesTabProps) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-[#C5C0B8]">Sites ({sites?.length ?? 0})</h3>
-        <button type="button" onClick={handleAdd} disabled={createMutation.isPending} className="btn btn-primary btn-sm">
-          {createMutation.isPending ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
-          Add Site
+        <button type="button" onClick={() => setShowAdd(true)} disabled={showAdd} className="btn btn-primary btn-sm">
+          <Plus size={14} /> Add Site
         </button>
       </div>
+
+      {/* Add site form */}
+      {showAdd && (
+        <div className="panel space-y-3">
+          <p className="text-xs font-medium text-[#C5C0B8] uppercase tracking-wider">Add Data Partner Site</p>
+
+          {/* Source search + select */}
+          <div className="space-y-2">
+            <div className="relative">
+              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]" />
+              <input
+                type="text"
+                value={sourceSearch}
+                onChange={(e) => setSourceSearch(e.target.value)}
+                placeholder="Search data sources..."
+                className="form-input pl-9 w-full"
+                autoFocus
+              />
+            </div>
+            {filteredSources.length > 0 ? (
+              <div className="max-h-40 overflow-y-auto rounded-lg border border-[#232328] bg-[#0E0E11]">
+                {filteredSources.map((source: { id: number; source_name: string; source_key?: string }) => (
+                  <button
+                    key={source.id}
+                    type="button"
+                    onClick={() => { setNewSourceId(source.id); setSourceSearch(source.source_name); }}
+                    className={cn(
+                      "w-full text-left px-3 py-2 text-sm hover:bg-[#1C1C20] transition-colors",
+                      newSourceId === source.id ? "bg-[#2DD4BF]/10 text-[#2DD4BF]" : "text-[#F0EDE8]",
+                    )}
+                  >
+                    <span className="font-medium">{source.source_name}</span>
+                    {source.source_key && (
+                      <span className="ml-2 text-xs text-[#5A5650]">{source.source_key}</span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs text-[#5A5650] py-2">
+                {availableSources.length === 0 ? "All sources are already assigned" : "No matching sources"}
+              </p>
+            )}
+          </div>
+
+          <div className="grid grid-cols-3 gap-3">
+            <div>
+              <label className="text-[10px] text-[#5A5650] uppercase tracking-wider mb-1 block">Site Role</label>
+              <select value={newRole} onChange={(e) => setNewRole(e.target.value)} className="form-input form-select w-full">
+                {SITE_ROLES.map((r) => (
+                  <option key={r} value={r}>{r.replace(/_/g, " ")}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="text-[10px] text-[#5A5650] uppercase tracking-wider mb-1 block">IRB Protocol #</label>
+              <input
+                type="text"
+                value={newIrb}
+                onChange={(e) => setNewIrb(e.target.value)}
+                placeholder="Optional"
+                className="form-input w-full"
+              />
+            </div>
+            <div>
+              <label className="text-[10px] text-[#5A5650] uppercase tracking-wider mb-1 block">Notes</label>
+              <input
+                type="text"
+                value={newNotes}
+                onChange={(e) => setNewNotes(e.target.value)}
+                placeholder="Optional"
+                className="form-input w-full"
+              />
+            </div>
+          </div>
+
+          <div className="flex gap-2 justify-end">
+            <button type="button" onClick={() => { setShowAdd(false); setSourceSearch(""); setNewSourceId(""); }} className="btn btn-ghost btn-sm">Cancel</button>
+            <button type="button" onClick={handleCreate} disabled={!newSourceId || createMutation.isPending} className="btn btn-primary btn-sm">
+              {createMutation.isPending ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+              Add Site
+            </button>
+          </div>
+        </div>
+      )}
 
       {(!sites || sites.length === 0) ? (
         <div className="empty-state">
@@ -104,9 +230,9 @@ export function StudySitesTab({ slug }: StudySitesTabProps) {
                           onChange={(e) => setEditPayload({ ...editPayload, site_role: e.target.value })}
                           className="form-input form-select py-1 text-xs"
                         >
-                          <option value="data_partner">Data Partner</option>
-                          <option value="coordinating_center">Coordinating Center</option>
-                          <option value="analysis_center">Analysis Center</option>
+                          {SITE_ROLES.map((r) => (
+                            <option key={r} value={r}>{r.replace(/_/g, " ")}</option>
+                          ))}
                         </select>
                       ) : (
                         <span className="text-xs text-[#8A857D] capitalize">{site.site_role.replace(/_/g, " ")}</span>

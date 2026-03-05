@@ -21,6 +21,9 @@ import {
   Save,
   X,
   Layers,
+  Copy,
+  Download,
+  Archive,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { StudyDesigner } from "../components/StudyDesigner";
@@ -37,10 +40,16 @@ import {
   useStudy,
   useUpdateStudy,
   useDeleteStudy,
+  useCreateStudy,
   useStudyAnalyses,
   useStudyProgress,
   useAllowedTransitions,
   useTransitionStudy,
+  useStudySites,
+  useStudyTeam,
+  useStudyCohorts,
+  useStudyMilestones,
+  useStudyArtifacts,
 } from "../hooks/useStudies";
 
 // ---------------------------------------------------------------------------
@@ -109,6 +118,23 @@ export default function StudyDetailPage() {
   const { data: analyses } = useStudyAnalyses(resolvedId ?? null);
   const { data: progress } = useStudyProgress(resolvedId ?? null);
   const { data: transitions } = useAllowedTransitions(slug || null);
+  const createMutation = useCreateStudy();
+
+  // Sub-resource counts for tab badges
+  const { data: sitesData } = useStudySites(slug || null);
+  const { data: teamData } = useStudyTeam(slug || null);
+  const { data: cohortsData } = useStudyCohorts(slug || null);
+  const { data: milestonesData } = useStudyMilestones(slug || null);
+  const { data: artifactsData } = useStudyArtifacts(slug || null);
+
+  const tabCounts: Partial<Record<TabKey, number>> = {
+    analyses: analyses?.length,
+    sites: sitesData?.length,
+    team: teamData?.length,
+    cohorts: cohortsData?.length,
+    milestones: milestonesData?.length,
+    artifacts: artifactsData?.length,
+  };
 
   const [activeTab, setActiveTab] = useState<TabKey>("overview");
   const [showTransitions, setShowTransitions] = useState(false);
@@ -138,6 +164,42 @@ export default function StudyDetailPage() {
       { idOrSlug: study.slug || study.id, payload: { title: titleDraft.trim() } },
       { onSuccess: () => setEditingTitle(false) },
     );
+  };
+
+  const handleDuplicate = () => {
+    if (!study) return;
+    createMutation.mutate(
+      {
+        title: `Copy of ${study.title}`,
+        short_title: study.short_title ? `${study.short_title}-copy` : undefined,
+        study_type: study.study_type,
+        description: study.description,
+        primary_objective: study.primary_objective,
+        hypothesis: study.hypothesis,
+        study_design: study.study_design,
+        priority: study.priority,
+        tags: study.tags,
+      },
+      { onSuccess: (newStudy) => navigate(`/studies/${newStudy.slug || newStudy.id}`) },
+    );
+  };
+
+  const handleExportJson = () => {
+    if (!study) return;
+    const blob = new Blob([JSON.stringify(study, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${study.slug || study.id}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleArchive = () => {
+    if (!study) return;
+    if (window.confirm("Archive this study? It can be restored later.")) {
+      transitionMutation.mutate({ slug: study.slug, status: "archived" });
+    }
   };
 
   const statusStyle = STATUS_COLORS[study?.status ?? "draft"] ?? STATUS_COLORS.draft;
@@ -266,12 +328,41 @@ export default function StudyDetailPage() {
           </div>
 
           {/* Action buttons */}
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              type="button"
+              onClick={handleDuplicate}
+              disabled={createMutation.isPending}
+              className="btn btn-ghost btn-sm"
+              title="Duplicate study"
+            >
+              <Copy size={14} />
+            </button>
+            <button
+              type="button"
+              onClick={handleExportJson}
+              className="btn btn-ghost btn-sm"
+              title="Export as JSON"
+            >
+              <Download size={14} />
+            </button>
+            {study.status !== "archived" && allowedTransitions.includes("archived") && (
+              <button
+                type="button"
+                onClick={handleArchive}
+                disabled={transitionMutation.isPending}
+                className="btn btn-ghost btn-sm"
+                title="Archive study"
+              >
+                <Archive size={14} />
+              </button>
+            )}
             <button
               type="button"
               onClick={handleDelete}
               disabled={deleteMutation.isPending}
               className="btn btn-danger btn-sm"
+              title="Delete study"
             >
               <Trash2 size={14} />
             </button>
@@ -280,9 +371,10 @@ export default function StudyDetailPage() {
       </div>
 
       {/* Tab navigation */}
-      <div className="tab-bar overflow-x-auto">
+      <div className="tab-bar overflow-x-auto" style={{ scrollbarWidth: "none" }}>
         {TABS.map((tab) => {
           const Icon = tab.icon;
+          const count = tabCounts[tab.key];
           return (
             <button
               key={tab.key}
@@ -292,6 +384,11 @@ export default function StudyDetailPage() {
             >
               <Icon size={14} />
               {tab.label}
+              {count != null && (
+                <span className="ml-0.5 text-[10px] font-medium text-[#5A5650]">
+                  ({count})
+                </span>
+              )}
             </button>
           );
         })}

@@ -1,11 +1,19 @@
+import { useState, useMemo } from "react";
 import {
   Loader2,
   ChevronLeft,
   ChevronRight,
+  ChevronUp,
+  ChevronDown,
   Briefcase,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Study } from "../types/study";
+
+type SortKey = "title" | "study_type" | "status" | "priority" | "created_at";
+type SortDir = "asc" | "desc";
+
+const PRIORITY_ORDER: Record<string, number> = { critical: 0, high: 1, medium: 2, low: 3 };
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString("en-US", {
@@ -71,6 +79,49 @@ export function StudyList({
   onPageChange,
   searchActive = false,
 }: StudyListProps) {
+  const [sortKey, setSortKey] = useState<SortKey | null>(null);
+  const [sortDir, setSortDir] = useState<SortDir>("asc");
+
+  const toggleSort = (key: SortKey) => {
+    if (sortKey === key) {
+      setSortDir(sortDir === "asc" ? "desc" : "asc");
+    } else {
+      setSortKey(key);
+      setSortDir("asc");
+    }
+  };
+
+  const sortedStudies = useMemo(() => {
+    if (!sortKey) return studies;
+    return [...studies].sort((a, b) => {
+      let cmp = 0;
+      if (sortKey === "priority") {
+        cmp = (PRIORITY_ORDER[a.priority] ?? 9) - (PRIORITY_ORDER[b.priority] ?? 9);
+      } else if (sortKey === "created_at") {
+        cmp = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+      } else {
+        cmp = (a[sortKey] ?? "").localeCompare(b[sortKey] ?? "");
+      }
+      return sortDir === "desc" ? -cmp : cmp;
+    });
+  }, [studies, sortKey, sortDir]);
+
+  const SortHeader = ({ label, field }: { label: string; field: SortKey }) => (
+    <th
+      onClick={() => toggleSort(field)}
+      className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D] cursor-pointer select-none hover:text-[#C5C0B8] transition-colors"
+    >
+      <span className="inline-flex items-center gap-1">
+        {label}
+        {sortKey === field ? (
+          sortDir === "asc" ? <ChevronUp size={12} className="text-[#2DD4BF]" /> : <ChevronDown size={12} className="text-[#2DD4BF]" />
+        ) : (
+          <ChevronUp size={12} className="opacity-0 group-hover:opacity-30" />
+        )}
+      </span>
+    </th>
+  );
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -112,28 +163,18 @@ export function StudyList({
         <table className="w-full">
           <thead>
             <tr className="bg-[#1C1C20]">
-              <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
-                Title
-              </th>
-              <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
-                Type
-              </th>
-              <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
-                Status
-              </th>
-              <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
-                Priority
-              </th>
+              <SortHeader label="Title" field="title" />
+              <SortHeader label="Type" field="study_type" />
+              <SortHeader label="Status" field="status" />
+              <SortHeader label="Priority" field="priority" />
               <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
                 PI
               </th>
-              <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
-                Created
-              </th>
+              <SortHeader label="Created" field="created_at" />
             </tr>
           </thead>
           <tbody>
-            {studies.map((study, i) => {
+            {sortedStudies.map((study, i) => {
               const statusColor = STATUS_COLORS[study.status] ?? "#8A857D";
               const priorityColor = PRIORITY_COLORS[study.priority] ?? "#8A857D";
 

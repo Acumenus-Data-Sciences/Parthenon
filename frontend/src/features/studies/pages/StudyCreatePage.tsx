@@ -21,6 +21,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { HelpButton } from "@/features/help";
 import apiClient from "@/lib/api-client";
 import { useCreateStudy } from "../hooks/useStudies";
 import type { StudyCreatePayload } from "../types/study";
@@ -115,8 +116,13 @@ export default function StudyCreatePage() {
   const [nctId, setNctId] = useState("");
 
   // ---------------------------------------------------------------------------
+  const dateError = startDate && endDate && endDate < startDate
+    ? "End date must be after start date"
+    : "";
+
   const canNext = () => {
     if (step === 0) return title.trim().length > 0 && studyType.length > 0;
+    if (step === 2) return !dateError;
     return true;
   };
 
@@ -450,7 +456,8 @@ export default function StudyCreatePage() {
         </div>
         <div>
           <label className="form-label">Study End Date</label>
-          <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="form-input" />
+          <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className={cn("form-input", dateError && "border-[#E85A6B]")} />
+          {dateError && <p className="text-xs text-[#E85A6B] mt-1">{dateError}</p>}
         </div>
       </div>
 
@@ -589,7 +596,10 @@ export default function StudyCreatePage() {
         <button type="button" onClick={() => navigate("/studies")} className="btn btn-ghost btn-sm mb-3">
           <ArrowLeft size={14} /> Studies
         </button>
-        <h1 className="page-title">Create Study</h1>
+        <div className="flex items-center gap-2">
+          <h1 className="page-title">Create Study</h1>
+          <HelpButton helpKey="studies" />
+        </div>
         <p className="page-subtitle">Configure your research study step by step</p>
       </div>
 
