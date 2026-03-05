@@ -1,15 +1,17 @@
 import { useState } from "react";
-import { Database, Shield, Upload, ChevronDown, ChevronRight } from "lucide-react";
+import { Database, Shield, Upload, ChevronDown, ChevronRight, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSources } from "../hooks/useSources";
 import { WebApiImportPanel } from "../components/WebApiImportPanel";
 import { SourceAccessControl } from "../components/SourceAccessControl";
 import { HelpButton } from "@/features/help";
+import { AddSourceWizard } from "../components/AddSourceWizard";
 
 export function SourcesListPage() {
   const { data: sources, isLoading, error } = useSources();
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const [showImport, setShowImport] = useState(false);
+  const [wizardOpen, setWizardOpen] = useState(false);
 
   if (isLoading) {
     return (
@@ -38,6 +40,14 @@ export function SourcesListPage() {
         </div>
         <div className="flex items-center gap-2">
           <HelpButton helpKey="data-sources" />
+          <button
+            type="button"
+            onClick={() => setWizardOpen(true)}
+            className="flex items-center gap-1.5 rounded-lg bg-[#C9353F] px-3 py-2 text-sm font-medium text-white hover:bg-[#D94550] transition-colors"
+          >
+            <Plus size={14} />
+            Add Source
+          </button>
           <button
             type="button"
             onClick={() => setShowImport(!showImport)}
@@ -176,6 +186,8 @@ export function SourcesListPage() {
           </p>
         </div>
       )}
+
+      {wizardOpen && <AddSourceWizard onClose={() => setWizardOpen(false)} />}
     </div>
   );
 }
