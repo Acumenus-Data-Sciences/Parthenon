@@ -165,3 +165,82 @@ Additionally, modality badges used light-mode colors (`bg-blue-100 text-blue-800
 - `ImagingCriteriaPanel` is embedded inside the Cohort Builder dark panel — its design tokens must match that context exactly, not stand alone.
 
 ---
+
+## §16.7 — Local DICOM File Import + Cornerstone3D Viewer ✅
+
+**Completed:** 2026-03-05
+
+### What Was Built
+
+**Dataset:**
+518 DICOM CT slices (CBCT dental scan, Class 3 malocclusion, 640×640, 0.25mm slice thickness, JPEG 2000 compressed). 1 study, 1 series, 517 importable instances (DICOMDIR excluded). PatientID: NOID, anonymized.
+
+**Migration** `2026_03_05_162001_add_dicom_file_support_to_imaging_tables`:
+- `imaging_studies`: adds `patient_name_dicom`, `patient_id_dicom`, `institution_name`, `file_dir`
+- `imaging_series`: adds `pixel_spacing`, `rows_x_cols`, `kvp`, `file_dir`
+- New `imaging_instances` table: per-SOP-instance registry (`sop_instance_uid`, `instance_number`, `slice_location`, `file_path`)
+
+**`DicomFileService`** (`app/Services/Imaging/DicomFileService.php`):
+- Pure-PHP DICOM metadata reader — no external tools required in PHP container
+- Explicit VR Little Endian support (handles all modern DICOM)
+- Recursive directory scan with magic-byte DICOM detection
+- Correct undefined-length SQ handling via nested-depth tracking (`skipUndefinedLength()`)
+- Key tags extracted: StudyInstanceUID, SeriesInstanceUID, SOPInstanceUID, Modality, PatientName, PatientID, StudyDate, SliceThickness, PixelSpacing, Rows/Columns, SliceLocation, InstanceNumber
+- Upserts via `updateOrCreate` in a single DB transaction
+
+**New ImagingController methods:**
+- `triggerLocalImport(Request)` — UI-triggered scan (uses DicomFileService, PHP-native)
+- `importLocal(Request)` — accepts pre-parsed data from `tools/import_dicom.py` (Python path)
+- `listInstances(ImagingStudy)` — returns sorted SOP instance list for viewer
+- `wado(string $sopUid)` — streams raw DICOM file with `Content-Type: application/dicom`
+
+**New routes:**
+- `POST /imaging/import-local/trigger` — UI import trigger
+- `POST /imaging/import-local` — Python script data receiver
+- `GET /imaging/studies/{study}/instances` — instance registry for viewer
+- `GET /imaging/wado/{sopUid}` — WADO-URI file serving
+
+**Docker:** `dicom_samples/` mounted into PHP container (`:ro`) via `docker-compose.yml`.
+
+**Artisan command** `imaging:import-samples`:
+- `--dir=` (relative to repo root), `--source=` (name or ID)
+- Calls DicomFileService directly (no Python required)
+
+**Python import script** `tools/import_dicom.py`:
+- Standalone `pydicom`-based metadata extractor + API caller
+- Supports `--dry-run`, `--url`, `--token`
+- Alternative import path for non-PHP environments
+
+**`DicomViewer` React component** (`features/imaging/components/DicomViewer.tsx`):
+- Cornerstone3D-powered (`@cornerstonejs/core`, `@cornerstonejs/tools`, `@cornerstonejs/dicom-image-loader`)
+- Fetches instance list from `/imaging/studies/{id}/instances`
+- Loads DICOM via WADO-URI scheme pointing to `/api/v1/imaging/wado/{sopUid}`
+- Tools: Window/Level (primary), Pan (middle), Zoom (right), Scroll (wheel)
+- Slice navigation (prev/next buttons + counter)
+- Reset view button
+- Single-threaded mode (`useWebWorkers: false`) for Vite compatibility
+
+**ImagingStudyPage** — new "View Scan" / "Metadata" tab bar; lazy-loads `DicomViewer` on demand.
+
+**ImagingPage** — new `LocalImportPanel` at top of Studies tab:
+- Source ID + Directory inputs
+- Import button → `POST /imaging/import-local/trigger`
+- Success/error banners with counts
+
+### Architecture Decisions
+
+- **PHP-native DICOM parser** over adding Python/dcmtk to the PHP container. Pure-PHP is sufficient for the ~15 tags we need and eliminates an external dependency.
+- **WADO-URI over base64 embedding**: serves raw DICOM bytes from disk, standard protocol, works natively with Cornerstone3D's dicom-image-loader.
+- **`useWebWorkers: false`** in Cornerstone3D: Vite worker build requires `format: es` + disabling the loader's own workers to avoid `iife` format collision. This is appropriate for a single-user demo environment; re-enable workers for production scale.
+- **Lazy-loaded viewer chunk**: DicomViewer is `lazy()`-imported — the 2.5MB Cornerstone3D bundle only loads when a user opens the View Scan tab.
+- **`dicom_samples/` read-only mount**: The directory is mounted `:ro` into the PHP container. The WADO endpoint reads directly from this mount via the stored `file_path` relative to `base_path()`.
+
+### Gotchas
+
+- **Undefined-length DICOM sequences (SQ)**: DICOM sequences with length=0xFFFFFFFF are common. A naive byte-by-byte scan finds the first `FFFE,E0DD` delimiter, which may be an inner (nested) sequence delimiter. Fix: use a depth-tracking `skipUndefinedLength()` that increments depth on nested SQs and decrements on `FFFE,E0DD`, only terminating when depth reaches 0.
+- **`maxTags` limit**: A limit of 50 tags is far too small — StudyInstanceUID is in group 0020, which comes after many (0008,xxxx) tags. Raised to 500.
+- **Cornerstone3D + Vite worker conflict**: `@cornerstonejs/dicom-image-loader` uses an IIFE web worker that conflicts with Vite code-splitting. Fix: `vite.config.ts worker.format: 'es'` + `optimizeDeps.exclude: ['@cornerstonejs/dicom-image-loader']`.
+- **`@cornerstonejs/tools` has no default export**: Must use named imports (`import { WindowLevelTool, ... } from '@cornerstonejs/tools'`), not `import cornerstoneTools from '...'`.
+- **Docker node container**: `npm install` on the host does NOT install into the Docker node container used for `./deploy.sh --frontend`. Must run inside container: `docker compose exec node sh -c "cd /app && npm install --legacy-peer-deps ..."`.
+
+---

@@ -95,3 +95,14 @@ export function usePopulationAnalytics(sourceId: number) {
     enabled: sourceId > 0,
   });
 }
+
+export function useImportLocalDicom() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: imagingApi.importLocal,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["imaging", "studies"] });
+      qc.invalidateQueries({ queryKey: ["imaging", "stats"] });
+    },
+  });
+}

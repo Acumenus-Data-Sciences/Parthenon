@@ -11,6 +11,14 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  optimizeDeps: {
+    // Cornerstone3D DICOM image loader has web workers that need special handling
+    exclude: ["@cornerstonejs/dicom-image-loader"],
+  },
+  worker: {
+    // Use ES module format for web workers (required by Cornerstone3D in Vite)
+    format: "es",
+  },
   server: {
     host: "0.0.0.0",
     port: 5173,

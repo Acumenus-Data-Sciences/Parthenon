@@ -5,18 +5,24 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Models\App\ImagingCohortCriterion;
 use App\Models\App\ImagingFeature;
+use App\Models\App\ImagingInstance;
+use App\Models\App\ImagingSeries;
 use App\Models\App\ImagingStudy;
+use App\Services\Imaging\DicomFileService;
 use App\Services\Imaging\DicomwebService;
 use App\Services\Imaging\RadiologyNlpService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class ImagingController extends Controller
 {
     public function __construct(
         private readonly DicomwebService $dicomweb,
         private readonly RadiologyNlpService $nlp,
+        private readonly DicomFileService $dicomFiles,
     ) {}
 
     // ──────────────────────────────────────────────────────────────────────────
@@ -184,6 +190,160 @@ class ImagingController extends Controller
         $criterion->delete();
 
         return response()->json(null, 204);
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // Local DICOM file import
+    // ──────────────────────────────────────────────────────────────────────────
+
+    /**
+     * POST /api/v1/imaging/import-local
+     * Accepts bulk metadata from import_dicom.py and upserts studies/series/instances.
+     */
+    public function importLocal(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'source_id'  => 'required|integer|exists:sources,id',
+            'studies'    => 'required|array',
+            'series'     => 'required|array',
+            'instances'  => 'required|array',
+        ]);
+
+        $sourceId = $validated['source_id'];
+        $studyCount = 0;
+        $seriesCount = 0;
+        $instanceCount = 0;
+
+        DB::transaction(function () use ($validated, $sourceId, &$studyCount, &$seriesCount, &$instanceCount) {
+            // ── Studies ─────────────────────────────────────────────────────
+            $studyUidToId = [];
+            foreach ($validated['studies'] as $s) {
+                $study = ImagingStudy::updateOrCreate(
+                    ['study_instance_uid' => $s['study_instance_uid']],
+                    array_merge(
+                        array_filter($s, fn ($v) => $v !== null && $v !== ''),
+                        ['source_id' => $sourceId]
+                    )
+                );
+                $studyUidToId[$s['study_instance_uid']] = $study->id;
+                $studyCount++;
+            }
+
+            // ── Series ──────────────────────────────────────────────────────
+            $seriesUidToId = [];
+            foreach ($validated['series'] as $s) {
+                $studyId = $studyUidToId[$s['study_instance_uid']] ?? null;
+                if (!$studyId) {
+                    continue;
+                }
+                $data = array_filter($s, fn ($v) => $v !== null && $v !== '');
+                unset($data['study_instance_uid']);
+                $ser = ImagingSeries::updateOrCreate(
+                    ['series_instance_uid' => $s['series_instance_uid']],
+                    array_merge($data, ['study_id' => $studyId])
+                );
+                $seriesUidToId[$s['series_instance_uid']] = $ser->id;
+                $seriesCount++;
+            }
+
+            // ── Instances ───────────────────────────────────────────────────
+            foreach ($validated['instances'] as $inst) {
+                $studyId = $studyUidToId[$inst['study_instance_uid']] ?? null;
+                $seriesId = $seriesUidToId[$inst['series_instance_uid']] ?? null;
+                if (!$studyId || !$seriesId) {
+                    continue;
+                }
+                $data = array_filter($inst, fn ($v) => $v !== null && $v !== '');
+                unset($data['study_instance_uid'], $data['series_instance_uid']);
+                ImagingInstance::updateOrCreate(
+                    ['sop_instance_uid' => $inst['sop_instance_uid']],
+                    array_merge($data, ['study_id' => $studyId, 'series_id' => $seriesId])
+                );
+                $instanceCount++;
+            }
+        });
+
+        return response()->json([
+            'data' => [
+                'studies_imported'   => $studyCount,
+                'series_imported'    => $seriesCount,
+                'instances_imported' => $instanceCount,
+            ],
+        ], 201);
+    }
+
+    /**
+     * POST /api/v1/imaging/import-local/trigger
+     * UI-triggered local DICOM directory scan. Uses DicomFileService (PHP-native reader).
+     */
+    public function triggerLocalImport(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'source_id' => 'required|integer|exists:sources,id',
+            'dir'       => 'nullable|string|max:500',
+        ]);
+
+        $relDir  = $validated['dir'] ?? 'dicom_samples';
+        $absDir  = base_path($relDir);
+
+        if (!is_dir($absDir)) {
+            return response()->json(['message' => "Directory not found: {$relDir}"], 422);
+        }
+
+        try {
+            $result = $this->dicomFiles->importDirectory($absDir, $validated['source_id']);
+        } catch (\Throwable $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+
+        return response()->json(['data' => $result], 201);
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // Instance listing (for viewer)
+    // ──────────────────────────────────────────────────────────────────────────
+
+    /**
+     * GET /api/v1/imaging/studies/{study}/instances
+     * Returns sorted instance list for a study (all series).
+     */
+    public function listInstances(ImagingStudy $study): JsonResponse
+    {
+        $instances = ImagingInstance::where('study_id', $study->id)
+            ->orderBy('series_id')
+            ->orderBy('instance_number')
+            ->get(['id', 'series_id', 'sop_instance_uid', 'instance_number', 'slice_location', 'file_path']);
+
+        return response()->json(['data' => $instances]);
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // WADO-URI endpoint (serve raw DICOM file)
+    // ──────────────────────────────────────────────────────────────────────────
+
+    /**
+     * GET /api/v1/imaging/wado/{sopUid}
+     * Streams a DICOM file to the client (used by Cornerstone3D dicom-image-loader).
+     */
+    public function wado(string $sopUid): Response
+    {
+        $instance = ImagingInstance::where('sop_instance_uid', $sopUid)->firstOrFail();
+
+        if (!$instance->file_path) {
+            abort(404, 'No file path recorded for this instance');
+        }
+
+        $absolutePath = base_path($instance->file_path);
+
+        if (!file_exists($absolutePath)) {
+            abort(404, 'DICOM file not found on disk');
+        }
+
+        return response()->file($absolutePath, [
+            'Content-Type'        => 'application/dicom',
+            'Cache-Control'       => 'private, max-age=3600',
+            'Content-Disposition' => 'inline',
+        ]);
     }
 
     // ──────────────────────────────────────────────────────────────────────────

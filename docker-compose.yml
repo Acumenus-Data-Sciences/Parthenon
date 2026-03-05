@@ -23,6 +23,7 @@ services:
       dockerfile: docker/php/Dockerfile
     volumes:
       - ./backend:/var/www/html
+      - ./dicom_samples:/var/www/html/dicom_samples:ro
     env_file:
       - ./backend/.env
     extra_hosts:

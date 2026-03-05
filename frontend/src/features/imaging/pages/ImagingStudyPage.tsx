@@ -1,11 +1,22 @@
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Layers, Brain, RefreshCw, Loader2, ScanLine } from "lucide-react";
+import { useState, lazy, Suspense } from "react";
+import { ArrowLeft, Layers, Brain, RefreshCw, Loader2, ScanLine, Monitor } from "lucide-react";
 import { useImagingStudy, useIndexSeries, useExtractNlp, useImagingFeatures } from "../hooks/useImaging";
 import type { ImagingSeries, ImagingFeature } from "../types";
+
+const DicomViewer = lazy(() => import("../components/DicomViewer"));
+
+const STUDY_TABS = [
+  { id: "metadata", label: "Metadata", icon: ScanLine },
+  { id: "viewer",   label: "View Scan", icon: Monitor },
+] as const;
+
+type StudyTab = (typeof STUDY_TABS)[number]["id"];
 
 export default function ImagingStudyPage() {
   const { id } = useParams<{ id: string }>();
   const studyId = parseInt(id ?? "0");
+  const [activeTab, setActiveTab] = useState<StudyTab>("metadata");
 
   const { data: study, isLoading } = useImagingStudy(studyId);
   const { data: features } = useImagingFeatures({ study_id: studyId, per_page: 50 });
@@ -109,6 +120,38 @@ export default function ImagingStudyPage() {
         </div>
       )}
 
+      {/* Tab bar */}
+      <div className="flex gap-0 border-b border-[#232328]">
+        {STUDY_TABS.map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            onClick={() => setActiveTab(tab.id)}
+            className={`inline-flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px ${
+              activeTab === tab.id
+                ? "border-[#2DD4BF] text-[#2DD4BF]"
+                : "border-transparent text-[#5A5650] hover:text-[#8A857D]"
+            }`}
+          >
+            <tab.icon size={14} />
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Viewer tab */}
+      {activeTab === "viewer" && (
+        <Suspense fallback={
+          <div className="flex items-center justify-center py-24">
+            <Loader2 size={24} className="animate-spin text-[#2DD4BF]" />
+          </div>
+        }>
+          <DicomViewer studyId={studyId} />
+        </Suspense>
+      )}
+
+      {activeTab !== "viewer" && (
+      <>
       {/* Metadata */}
       <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
         <h2 className="text-sm font-semibold text-[#F0EDE8] mb-4">Study Metadata</h2>
@@ -218,6 +261,8 @@ export default function ImagingStudyPage() {
             </table>
           </div>
         </div>
+      )}
+      </>
       )}
     </div>
   );

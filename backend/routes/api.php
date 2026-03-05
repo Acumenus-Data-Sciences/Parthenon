@@ -48,6 +48,7 @@ use App\Http\Controllers\Api\V1\StudySynthesisController;
 use App\Http\Controllers\Api\V1\StudyTeamController;
 use App\Http\Controllers\Api\V1\GenomicsController;
 use App\Http\Controllers\Api\V1\HeorController;
+use App\Http\Controllers\Api\V1\Admin\FhirConnectionController;
 use App\Http\Controllers\Api\V1\ImagingController;
 use App\Http\Controllers\Api\V1\VocabularyController;
 use Illuminate\Support\Facades\Route;
@@ -426,6 +427,18 @@ Route::prefix('v1')->group(function () {
                 Route::get('/imports/{vocabularyImport}', [AdminVocabularyController::class, 'show']);
                 Route::delete('/imports/{vocabularyImport}', [AdminVocabularyController::class, 'destroy']);
             });
+
+            // ── FHIR EHR Connections (super-admin only) ──────────────────
+            Route::middleware('role:super-admin')->prefix('fhir-connections')->group(function () {
+                Route::get('/', [FhirConnectionController::class, 'index']);
+                Route::post('/', [FhirConnectionController::class, 'store']);
+                Route::get('/{fhirConnection}', [FhirConnectionController::class, 'show']);
+                Route::put('/{fhirConnection}', [FhirConnectionController::class, 'update']);
+                Route::delete('/{fhirConnection}', [FhirConnectionController::class, 'destroy']);
+                Route::post('/{fhirConnection}/test', [FhirConnectionController::class, 'testConnection']);
+                Route::post('/{fhirConnection}/sync', [FhirConnectionController::class, 'startSync']);
+                Route::get('/{fhirConnection}/sync-runs', [FhirConnectionController::class, 'syncRuns']);
+            });
         });
     });
 });
@@ -491,6 +504,17 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 
         // Population analytics
         Route::get('/analytics/population', [ImagingController::class, 'populationAnalytics']);
+
+        // Local DICOM import (from import_dicom.py — external Python script)
+        Route::post('/import-local', [ImagingController::class, 'importLocal']);
+        // UI-triggered import (PHP-native DICOM reader, no Python required)
+        Route::post('/import-local/trigger', [ImagingController::class, 'triggerLocalImport']);
+
+        // Instance listing (for viewer navigation)
+        Route::get('/studies/{study}/instances', [ImagingController::class, 'listInstances']);
+
+        // WADO-URI: serve raw DICOM file by SOP Instance UID
+        Route::get('/wado/{sopUid}', [ImagingController::class, 'wado']);
     });
 });
 

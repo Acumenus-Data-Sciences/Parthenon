@@ -87,4 +87,13 @@ export const imagingApi = {
         params: { source_id: sourceId, modality },
       })
       .then((r) => r.data.data),
+
+  // Local DICOM import (triggers server-side Python scan)
+  importLocal: (payload: { source_id: number; dir?: string }) =>
+    apiClient
+      .post<{ data: { studies_imported: number; series_imported: number; instances_imported: number } }>(
+        "/imaging/import-local/trigger",
+        payload,
+      )
+      .then((r) => r.data.data),
 };

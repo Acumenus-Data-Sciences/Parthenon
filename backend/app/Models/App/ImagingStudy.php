@@ -13,6 +13,7 @@ class ImagingStudy extends Model
         'modality', 'body_part_examined', 'study_description', 'referring_physician',
         'study_date', 'num_series', 'num_images', 'orthanc_study_id', 'wadors_uri',
         'status', 'image_occurrence_id',
+        'patient_name_dicom', 'patient_id_dicom', 'institution_name', 'file_dir',
     ];
 
     protected function casts(): array
@@ -42,5 +43,11 @@ class ImagingStudy extends Model
     public function features(): HasMany
     {
         return $this->hasMany(ImagingFeature::class, 'study_id');
+    }
+
+    /** @return HasMany<ImagingInstance, $this> */
+    public function instances(): HasMany
+    {
+        return $this->hasMany(ImagingInstance::class, 'study_id');
     }
 }

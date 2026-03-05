@@ -11,6 +11,7 @@ class ImagingSeries extends Model
         'study_id', 'series_instance_uid', 'series_description', 'modality',
         'body_part_examined', 'series_number', 'num_images', 'slice_thickness_mm',
         'manufacturer', 'manufacturer_model', 'orthanc_series_id',
+        'pixel_spacing', 'rows_x_cols', 'kvp', 'file_dir',
     ];
 
     protected function casts(): array
@@ -26,5 +27,11 @@ class ImagingSeries extends Model
     public function study(): BelongsTo
     {
         return $this->belongsTo(ImagingStudy::class, 'study_id');
+    }
+
+    /** @return \Illuminate\Database\Eloquent\Relations\HasMany<ImagingInstance, $this> */
+    public function instances(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(ImagingInstance::class, 'series_id')->orderBy('instance_number');
     }
 }
