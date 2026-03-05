@@ -10,6 +10,11 @@ export interface PatientDemographics {
   day_of_birth: number | null;
   race: string;
   ethnicity: string;
+  // Location from location table (may be null if no location_id on person)
+  city?: string | null;
+  state?: string | null;
+  zip?: string | null;
+  county?: string | null;
 }
 
 export type ClinicalDomain =
@@ -20,21 +25,41 @@ export type ClinicalDomain =
   | "observation"
   | "visit";
 
+/** Normalized clinical event — all domains share these fields. */
 export interface ClinicalEvent {
   domain: ClinicalDomain;
   concept_id: number;
   concept_name: string;
   start_date: string;
   end_date: string | null;
-  value?: string | number | null;
-  unit?: string | null;
   type_name?: string | null;
-  additional?: Record<string, unknown>;
+  vocabulary?: string | null;
+  occurrence_id?: number | null;
+
+  // Measurement / Observation value fields
+  value?: number | string | null;
+  value_as_concept?: string | null;
+  value_as_string?: string | null;
+  unit?: string | null;
+
+  // Measurement reference range
+  range_low?: number | null;
+  range_high?: number | null;
+
+  // Drug-specific
+  route?: string | null;
+  quantity?: number | null;
+  days_supply?: number | null;
+
+  // Visit-specific (for event binning)
+  visit_occurrence_id?: number | null;
 }
 
 export interface ObservationPeriod {
+  observation_period_id?: number;
   start_date: string;
   end_date: string;
+  period_type?: string | null;
 }
 
 export interface ConditionEra {

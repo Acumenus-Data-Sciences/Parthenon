@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Loader2,
@@ -8,11 +8,17 @@ import {
   Database,
   ChevronDown,
   Users,
+  Download,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+  SlidersHorizontal,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
 import { getCohortDefinitions } from "@/features/cohort-definitions/api/cohortApi";
 import { useCohortMembers } from "../hooks/useProfiles";
+import type { CohortMember } from "../types/profile";
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString("en-US", {
@@ -22,17 +28,49 @@ function formatDate(iso: string): string {
   });
 }
 
+type SortKey = keyof Pick<
+  CohortMember,
+  "subject_id" | "gender" | "year_of_birth" | "cohort_start_date" | "cohort_end_date"
+>;
+type SortDir = "asc" | "desc";
+
+function SortIcon({
+  col,
+  sortKey,
+  sortDir,
+}: {
+  col: SortKey;
+  sortKey: SortKey;
+  sortDir: SortDir;
+}) {
+  if (sortKey !== col) return <ArrowUpDown size={11} className="opacity-30" />;
+  return sortDir === "asc" ? (
+    <ArrowUp size={11} className="text-[#2DD4BF]" />
+  ) : (
+    <ArrowDown size={11} className="text-[#2DD4BF]" />
+  );
+}
+
 interface CohortMemberListProps {
   onSelectPerson: (sourceId: number, personId: number) => void;
 }
 
-export function CohortMemberList({
-  onSelectPerson,
-}: CohortMemberListProps) {
+export function CohortMemberList({ onSelectPerson }: CohortMemberListProps) {
   const [sourceId, setSourceId] = useState<number | null>(null);
   const [cohortId, setCohortId] = useState<number | null>(null);
   const [page, setPage] = useState(1);
   const [directPersonId, setDirectPersonId] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
+
+  // Sorting
+  const [sortKey, setSortKey] = useState<SortKey>("subject_id");
+  const [sortDir, setSortDir] = useState<SortDir>("asc");
+
+  // Client-side filters
+  const [filterGender, setFilterGender] = useState("");
+  const [filterBirthYearMin, setFilterBirthYearMin] = useState("");
+  const [filterBirthYearMax, setFilterBirthYearMax] = useState("");
+  const [searchId, setSearchId] = useState("");
 
   const { data: sources, isLoading: loadingSources } = useQuery({
     queryKey: ["sources"],
@@ -53,10 +91,79 @@ export function CohortMemberList({
     error: membersError,
   } = useCohortMembers(sourceId, cohortId, page);
 
-  const members = membersData?.data ?? [];
+  const rawMembers = membersData?.data ?? [];
   const totalPages = membersData?.meta?.last_page ?? 1;
   const total = membersData?.meta?.total ?? 0;
   const perPage = membersData?.meta?.per_page ?? 15;
+
+  // Apply client-side sort + filter to current page
+  const members = useMemo(() => {
+    let data = [...rawMembers];
+
+    // Filter by partial ID search
+    if (searchId.trim()) {
+      data = data.filter((m) =>
+        String(m.subject_id).includes(searchId.trim()),
+      );
+    }
+
+    // Filter by gender
+    if (filterGender) {
+      data = data.filter(
+        (m) => (m.gender ?? "").toLowerCase() === filterGender.toLowerCase(),
+      );
+    }
+
+    // Filter by birth year range
+    const minY = filterBirthYearMin ? Number(filterBirthYearMin) : null;
+    const maxY = filterBirthYearMax ? Number(filterBirthYearMax) : null;
+    if (minY != null) data = data.filter((m) => (m.year_of_birth ?? 0) >= minY);
+    if (maxY != null) data = data.filter((m) => (m.year_of_birth ?? 9999) <= maxY);
+
+    // Sort
+    data.sort((a, b) => {
+      const aVal = a[sortKey] ?? "";
+      const bVal = b[sortKey] ?? "";
+      const cmp =
+        typeof aVal === "number" && typeof bVal === "number"
+          ? aVal - bVal
+          : String(aVal).localeCompare(String(bVal));
+      return sortDir === "asc" ? cmp : -cmp;
+    });
+
+    return data;
+  }, [rawMembers, searchId, filterGender, filterBirthYearMin, filterBirthYearMax, sortKey, sortDir]);
+
+  // Summary stats for the cohort page
+  const stats = useMemo(() => {
+    if (rawMembers.length === 0) return null;
+    const genderCounts: Record<string, number> = {};
+    for (const m of rawMembers) {
+      const g = m.gender ?? "Unknown";
+      genderCounts[g] = (genderCounts[g] ?? 0) + 1;
+    }
+    const yearVals = rawMembers.map((m) => m.year_of_birth ?? 0).filter(Boolean);
+    const meanYear =
+      yearVals.length > 0
+        ? Math.round(yearVals.reduce((s, v) => s + v, 0) / yearVals.length)
+        : null;
+    return { genderCounts, meanYear, totalPage: rawMembers.length };
+  }, [rawMembers]);
+
+  // Unique genders for filter dropdown (from current page)
+  const uniqueGenders = useMemo(
+    () => [...new Set(rawMembers.map((m) => m.gender ?? "Unknown").filter(Boolean))],
+    [rawMembers],
+  );
+
+  const handleSort = (key: SortKey) => {
+    if (sortKey === key) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortKey(key);
+      setSortDir("asc");
+    }
+  };
 
   const handleDirectSearch = () => {
     const pid = Number(directPersonId);
@@ -65,13 +172,39 @@ export function CohortMemberList({
     }
   };
 
+  const handleExportCsv = useCallback(() => {
+    if (members.length === 0) return;
+    const headers = [
+      "person_id",
+      "gender",
+      "year_of_birth",
+      "cohort_start_date",
+      "cohort_end_date",
+    ];
+    const rows = members.map((m) =>
+      [
+        m.subject_id,
+        m.gender ?? "",
+        m.year_of_birth ?? "",
+        m.cohort_start_date,
+        m.cohort_end_date,
+      ].join(","),
+    );
+    const csv = [headers.join(","), ...rows].join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `cohort-members-page${page}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [members, page]);
+
   return (
     <div className="space-y-6">
       {/* Source and Cohort Selection */}
       <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 space-y-4">
-        <h3 className="text-sm font-semibold text-[#F0EDE8]">
-          Select Patient
-        </h3>
+        <h3 className="text-sm font-semibold text-[#F0EDE8]">Select Patient</h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Source Selector */}
@@ -192,13 +325,10 @@ export function CohortMemberList({
 
       {/* Members Table */}
       {sourceId && cohortId && (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {loadingMembers ? (
             <div className="flex items-center justify-center h-48">
-              <Loader2
-                size={24}
-                className="animate-spin text-[#8A857D]"
-              />
+              <Loader2 size={24} className="animate-spin text-[#8A857D]" />
             </div>
           ) : membersError ? (
             <div className="flex items-center justify-center h-32">
@@ -206,7 +336,7 @@ export function CohortMemberList({
                 Failed to load cohort members
               </p>
             </div>
-          ) : members.length === 0 ? (
+          ) : rawMembers.length === 0 ? (
             <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-12">
               <Users size={24} className="text-[#5A5650] mb-3" />
               <p className="text-sm text-[#8A857D]">
@@ -215,58 +345,230 @@ export function CohortMemberList({
             </div>
           ) : (
             <>
+              {/* Stats + toolbar */}
+              <div className="flex items-center justify-between gap-3 flex-wrap">
+                {/* Cohort summary stats */}
+                {stats && (
+                  <div className="flex items-center gap-4 text-xs text-[#8A857D]">
+                    <span>
+                      <span className="font-semibold text-[#F0EDE8]">
+                        {total.toLocaleString()}
+                      </span>{" "}
+                      total members
+                    </span>
+                    {stats.meanYear && (
+                      <span>
+                        Mean birth year:{" "}
+                        <span className="font-semibold text-[#F0EDE8]">
+                          {stats.meanYear}
+                        </span>
+                      </span>
+                    )}
+                    {Object.entries(stats.genderCounts)
+                      .sort((a, b) => b[1] - a[1])
+                      .slice(0, 2)
+                      .map(([g, n]) => (
+                        <span key={g}>
+                          {g}:{" "}
+                          <span className="font-semibold text-[#F0EDE8]">
+                            {((n / stats.totalPage) * 100).toFixed(0)}%
+                          </span>
+                        </span>
+                      ))}
+                  </div>
+                )}
+
+                {/* Toolbar buttons */}
+                <div className="flex items-center gap-2">
+                  {/* ID search filter */}
+                  <div className="relative">
+                    <Search
+                      size={11}
+                      className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#5A5650]"
+                    />
+                    <input
+                      type="text"
+                      value={searchId}
+                      onChange={(e) => setSearchId(e.target.value)}
+                      placeholder="Filter by ID..."
+                      className={cn(
+                        "w-36 rounded-md border border-[#323238] bg-[#0E0E11] pl-7 pr-2 py-1.5 text-xs",
+                        "text-[#F0EDE8] placeholder:text-[#5A5650]",
+                        "focus:border-[#C9A227] focus:outline-none",
+                      )}
+                    />
+                  </div>
+
+                  {/* Filters toggle */}
+                  <button
+                    type="button"
+                    onClick={() => setShowFilters((p) => !p)}
+                    className={cn(
+                      "inline-flex items-center gap-1 rounded-md border px-3 py-1.5 text-xs transition-colors",
+                      showFilters
+                        ? "border-[#C9A227] text-[#C9A227] bg-[#C9A227]/10"
+                        : "border-[#323238] text-[#8A857D] hover:text-[#F0EDE8]",
+                    )}
+                  >
+                    <SlidersHorizontal size={12} />
+                    Filters
+                    {(filterGender || filterBirthYearMin || filterBirthYearMax) && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#C9A227]" />
+                    )}
+                  </button>
+
+                  {/* Export */}
+                  <button
+                    type="button"
+                    onClick={handleExportCsv}
+                    disabled={members.length === 0}
+                    className="inline-flex items-center gap-1 rounded-md border border-[#323238] px-3 py-1.5 text-xs text-[#8A857D] hover:text-[#F0EDE8] hover:border-[#5A5650] transition-colors disabled:opacity-40"
+                  >
+                    <Download size={12} />
+                    CSV
+                  </button>
+                </div>
+              </div>
+
+              {/* Filter row */}
+              {showFilters && (
+                <div className="flex items-center gap-3 rounded-lg border border-[#323238] bg-[#151518] px-4 py-3 flex-wrap">
+                  <span className="text-xs font-medium text-[#8A857D]">
+                    Filters:
+                  </span>
+                  {/* Gender */}
+                  <div>
+                    <label className="text-[10px] text-[#5A5650] block mb-0.5">
+                      Gender
+                    </label>
+                    <select
+                      value={filterGender}
+                      onChange={(e) => setFilterGender(e.target.value)}
+                      className="rounded border border-[#323238] bg-[#0E0E11] px-2 py-1 text-xs text-[#F0EDE8] focus:outline-none"
+                    >
+                      <option value="">All</option>
+                      {uniqueGenders.map((g) => (
+                        <option key={g} value={g}>
+                          {g}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  {/* Birth year range */}
+                  <div className="flex items-end gap-1.5">
+                    <div>
+                      <label className="text-[10px] text-[#5A5650] block mb-0.5">
+                        Birth year ≥
+                      </label>
+                      <input
+                        type="number"
+                        value={filterBirthYearMin}
+                        onChange={(e) => setFilterBirthYearMin(e.target.value)}
+                        placeholder="e.g. 1950"
+                        className="w-24 rounded border border-[#323238] bg-[#0E0E11] px-2 py-1 text-xs text-[#F0EDE8] focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-[#5A5650] block mb-0.5">
+                        Birth year ≤
+                      </label>
+                      <input
+                        type="number"
+                        value={filterBirthYearMax}
+                        onChange={(e) => setFilterBirthYearMax(e.target.value)}
+                        placeholder="e.g. 2000"
+                        className="w-24 rounded border border-[#323238] bg-[#0E0E11] px-2 py-1 text-xs text-[#F0EDE8] focus:outline-none"
+                      />
+                    </div>
+                  </div>
+                  {/* Clear */}
+                  {(filterGender || filterBirthYearMin || filterBirthYearMax) && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFilterGender("");
+                        setFilterBirthYearMin("");
+                        setFilterBirthYearMax("");
+                      }}
+                      className="text-xs text-[#E85A6B] hover:underline"
+                    >
+                      Clear filters
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {/* Table */}
               <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
                 <table className="w-full">
                   <thead>
                     <tr className="bg-[#1C1C20]">
-                      <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
-                        Person ID
-                      </th>
-                      <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
-                        Gender
-                      </th>
-                      <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
-                        Year of Birth
-                      </th>
-                      <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
-                        Cohort Start
-                      </th>
-                      <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
-                        Cohort End
-                      </th>
+                      {(
+                        [
+                          { key: "subject_id", label: "Person ID" },
+                          { key: "gender", label: "Gender" },
+                          { key: "year_of_birth", label: "Year of Birth" },
+                          { key: "cohort_start_date", label: "Cohort Start" },
+                          { key: "cohort_end_date", label: "Cohort End" },
+                        ] as { key: SortKey; label: string }[]
+                      ).map((col) => (
+                        <th
+                          key={col.key}
+                          className="px-4 py-2.5 text-left cursor-pointer select-none group"
+                          onClick={() => handleSort(col.key)}
+                        >
+                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-[#8A857D] group-hover:text-[#C5C0B8] transition-colors">
+                            {col.label}
+                            <SortIcon
+                              col={col.key}
+                              sortKey={sortKey}
+                              sortDir={sortDir}
+                            />
+                          </span>
+                        </th>
+                      ))}
                     </tr>
                   </thead>
                   <tbody>
-                    {members.map((member, i) => (
-                      <tr
-                        key={member.subject_id}
-                        onClick={() =>
-                          onSelectPerson(sourceId, member.subject_id)
-                        }
-                        className={cn(
-                          "border-t border-[#1C1C20] transition-colors hover:bg-[#1C1C20] cursor-pointer",
-                          i % 2 === 0
-                            ? "bg-[#151518]"
-                            : "bg-[#1A1A1E]",
-                        )}
-                      >
-                        <td className="px-4 py-3 text-sm font-medium text-[#2DD4BF]">
-                          {member.subject_id}
-                        </td>
-                        <td className="px-4 py-3 text-xs text-[#C5C0B8]">
-                          {member.gender ?? "--"}
-                        </td>
-                        <td className="px-4 py-3 text-xs text-[#C5C0B8]">
-                          {member.year_of_birth ?? "--"}
-                        </td>
-                        <td className="px-4 py-3 text-xs text-[#8A857D]">
-                          {formatDate(member.cohort_start_date)}
-                        </td>
-                        <td className="px-4 py-3 text-xs text-[#8A857D]">
-                          {formatDate(member.cohort_end_date)}
+                    {members.length === 0 ? (
+                      <tr>
+                        <td
+                          colSpan={5}
+                          className="px-4 py-8 text-center text-sm text-[#8A857D]"
+                        >
+                          No members match the current filters
                         </td>
                       </tr>
-                    ))}
+                    ) : (
+                      members.map((member, i) => (
+                        <tr
+                          key={member.subject_id}
+                          onClick={() =>
+                            onSelectPerson(sourceId!, member.subject_id)
+                          }
+                          className={cn(
+                            "border-t border-[#1C1C20] transition-colors hover:bg-[#1C1C20] cursor-pointer",
+                            i % 2 === 0 ? "bg-[#151518]" : "bg-[#1A1A1E]",
+                          )}
+                        >
+                          <td className="px-4 py-3 text-sm font-medium text-[#2DD4BF]">
+                            {member.subject_id}
+                          </td>
+                          <td className="px-4 py-3 text-xs text-[#C5C0B8]">
+                            {member.gender ?? "--"}
+                          </td>
+                          <td className="px-4 py-3 text-xs text-[#C5C0B8]">
+                            {member.year_of_birth ?? "--"}
+                          </td>
+                          <td className="px-4 py-3 text-xs text-[#8A857D]">
+                            {formatDate(member.cohort_start_date)}
+                          </td>
+                          <td className="px-4 py-3 text-xs text-[#8A857D]">
+                            {formatDate(member.cohort_end_date)}
+                          </td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -275,8 +577,8 @@ export function CohortMemberList({
               {totalPages > 1 && (
                 <div className="flex items-center justify-between px-1">
                   <p className="text-xs text-[#8A857D]">
-                    Showing {(page - 1) * perPage + 1} -{" "}
-                    {Math.min(page * perPage, total)} of {total}
+                    Showing {(page - 1) * perPage + 1} –{" "}
+                    {Math.min(page * perPage, total)} of {total.toLocaleString()}
                   </p>
                   <div className="flex items-center gap-1">
                     <button
@@ -292,9 +594,7 @@ export function CohortMemberList({
                     </span>
                     <button
                       type="button"
-                      onClick={() =>
-                        setPage(Math.min(totalPages, page + 1))
-                      }
+                      onClick={() => setPage(Math.min(totalPages, page + 1))}
                       disabled={page >= totalPages}
                       className="inline-flex items-center justify-center w-8 h-8 rounded-md text-[#8A857D] hover:text-[#F0EDE8] hover:bg-[#232328] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                     >

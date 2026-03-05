@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -8,6 +8,10 @@ import {
   Activity,
   Database,
   ChevronDown,
+  FlaskConical,
+  Hospital,
+  Download,
+  GitBranch,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
@@ -17,9 +21,13 @@ import { PatientTimeline } from "../components/PatientTimeline";
 import { ClinicalEventCard } from "../components/ClinicalEventCard";
 import { CohortMemberList } from "../components/CohortMemberList";
 import { EraTimeline } from "../components/EraTimeline";
+import { PatientSummaryStats } from "../components/PatientSummaryStats";
+import { PatientLabPanel } from "../components/PatientLabPanel";
+import { PatientVisitView } from "../components/PatientVisitView";
 import type { ClinicalDomain, ClinicalEvent } from "../types/profile";
 
-type ViewMode = "timeline" | "list" | "eras";
+type ViewMode = "timeline" | "list" | "labs" | "visits" | "eras";
+
 type DomainTab =
   | "all"
   | "condition"
@@ -38,6 +46,54 @@ const DOMAIN_TABS: { key: DomainTab; label: string }[] = [
   { key: "observation", label: "Observations" },
   { key: "visit", label: "Visits" },
 ];
+
+const VIEW_BUTTONS: {
+  mode: ViewMode;
+  icon: React.ReactNode;
+  label: string;
+}[] = [
+  { mode: "timeline", icon: <Activity size={12} />, label: "Timeline" },
+  { mode: "list", icon: <LayoutList size={12} />, label: "List" },
+  { mode: "labs", icon: <FlaskConical size={12} />, label: "Labs" },
+  { mode: "visits", icon: <Hospital size={12} />, label: "Visits" },
+  { mode: "eras", icon: <GitBranch size={12} />, label: "Eras" },
+];
+
+function downloadEventsAsCsv(events: ClinicalEvent[], filename: string) {
+  if (events.length === 0) return;
+  const headers = [
+    "domain",
+    "concept_id",
+    "concept_name",
+    "start_date",
+    "end_date",
+    "value",
+    "unit",
+    "type_name",
+    "vocabulary",
+  ];
+  const rows = events.map((e) =>
+    [
+      e.domain,
+      e.concept_id,
+      `"${(e.concept_name ?? "").replace(/"/g, '""')}"`,
+      e.start_date,
+      e.end_date ?? "",
+      e.value ?? "",
+      e.unit ?? "",
+      e.type_name ?? "",
+      e.vocabulary ?? "",
+    ].join(","),
+  );
+  const csv = [headers.join(","), ...rows].join("\n");
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
 
 export default function PatientProfilePage() {
   const { personId } = useParams<{ personId: string }>();
@@ -63,7 +119,7 @@ export default function PatientProfilePage() {
     error: profileError,
   } = usePatientProfile(sourceId, parsedPersonId);
 
-  // All events combined
+  // All events combined + sorted
   const allEvents = useMemo(() => {
     if (!profile) return [];
     return [
@@ -75,8 +131,7 @@ export default function PatientProfilePage() {
       ...profile.visits,
     ].sort(
       (a, b) =>
-        new Date(b.start_date).getTime() -
-        new Date(a.start_date).getTime(),
+        new Date(b.start_date).getTime() - new Date(a.start_date).getTime(),
     );
   }, [profile]);
 
@@ -84,6 +139,10 @@ export default function PatientProfilePage() {
     if (domainTab === "all") return allEvents;
     return allEvents.filter((e) => e.domain === domainTab);
   }, [allEvents, domainTab]);
+
+  const hasEras =
+    (profile?.condition_eras?.length ?? 0) > 0 ||
+    (profile?.drug_eras?.length ?? 0) > 0;
 
   const handleSelectPerson = (sid: number, pid: number) => {
     setSourceId(sid);
@@ -97,17 +156,27 @@ export default function PatientProfilePage() {
     }
   };
 
+  const handleExportCsv = useCallback(() => {
+    if (!profile || !parsedPersonId) return;
+    const events =
+      domainTab === "all"
+        ? allEvents
+        : allEvents.filter((e) => e.domain === domainTab);
+    downloadEventsAsCsv(
+      events,
+      `patient-${parsedPersonId}-${domainTab}.csv`,
+    );
+  }, [profile, parsedPersonId, allEvents, domainTab]);
+
   // No personId: show cohort member selection
   if (!parsedPersonId) {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-[#F0EDE8]">
-            Patient Profiles
-          </h1>
+          <h1 className="text-2xl font-bold text-[#F0EDE8]">Patient Profiles</h1>
           <p className="mt-1 text-sm text-[#8A857D]">
-            Browse cohort members or search by Person ID to view detailed
-            patient profiles
+            Browse cohort members or search by Person ID to view detailed patient
+            profiles
           </p>
         </div>
         <CohortMemberList onSelectPerson={handleSelectPerson} />
@@ -115,9 +184,9 @@ export default function PatientProfilePage() {
     );
   }
 
-  // Has personId: show profile
+  // Profile view
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
@@ -129,12 +198,8 @@ export default function PatientProfilePage() {
             <ArrowLeft size={14} />
             Patient Profiles
           </button>
-          <h1 className="text-2xl font-bold text-[#F0EDE8]">
-            Patient Profile
-          </h1>
-          <p className="mt-1 text-sm text-[#8A857D]">
-            Person #{parsedPersonId}
-          </p>
+          <h1 className="text-2xl font-bold text-[#F0EDE8]">Patient Profile</h1>
+          <p className="mt-1 text-sm text-[#8A857D]">Person #{parsedPersonId}</p>
         </div>
 
         {/* Source selector */}
@@ -145,9 +210,7 @@ export default function PatientProfilePage() {
           />
           <select
             value={sourceId ?? ""}
-            onChange={(e) =>
-              handleSourceChange(Number(e.target.value) || null)
-            }
+            onChange={(e) => handleSourceChange(Number(e.target.value) || null)}
             disabled={loadingSources}
             className={cn(
               "appearance-none rounded-lg border border-[#232328] bg-[#0E0E11] pl-8 pr-8 py-2 text-sm",
@@ -208,52 +271,47 @@ export default function PatientProfilePage() {
             observationPeriods={profile.observation_periods}
           />
 
-          {/* View toggle */}
-          <div className="flex items-center justify-between">
+          {/* Summary stats bar */}
+          <PatientSummaryStats profile={profile} />
+
+          {/* View controls */}
+          <div className="flex items-center justify-between gap-3 flex-wrap">
             <span className="text-sm font-semibold text-[#F0EDE8]">
               Clinical Events ({allEvents.length})
             </span>
-            <div className="flex items-center gap-1 rounded-lg border border-[#232328] bg-[#0E0E11] p-0.5">
-              <button
-                type="button"
-                onClick={() => setViewMode("timeline")}
-                className={cn(
-                  "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
-                  viewMode === "timeline"
-                    ? "bg-[#2DD4BF]/10 text-[#2DD4BF]"
-                    : "text-[#8A857D] hover:text-[#C5C0B8]",
-                )}
-              >
-                <Activity size={12} />
-                Timeline
-              </button>
-              <button
-                type="button"
-                onClick={() => setViewMode("list")}
-                className={cn(
-                  "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
-                  viewMode === "list"
-                    ? "bg-[#2DD4BF]/10 text-[#2DD4BF]"
-                    : "text-[#8A857D] hover:text-[#C5C0B8]",
-                )}
-              >
-                <LayoutList size={12} />
-                List
-              </button>
-              {((profile.condition_eras?.length ?? 0) > 0 ||
-                (profile.drug_eras?.length ?? 0) > 0) && (
+
+            <div className="flex items-center gap-2">
+              {/* View mode toggle */}
+              <div className="flex items-center gap-1 rounded-lg border border-[#232328] bg-[#0E0E11] p-0.5">
+                {VIEW_BUTTONS.filter(
+                  (b) => b.mode !== "eras" || hasEras,
+                ).map(({ mode, icon, label }) => (
+                  <button
+                    key={mode}
+                    type="button"
+                    onClick={() => setViewMode(mode)}
+                    className={cn(
+                      "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+                      viewMode === mode
+                        ? "bg-[#2DD4BF]/10 text-[#2DD4BF]"
+                        : "text-[#8A857D] hover:text-[#C5C0B8]",
+                    )}
+                  >
+                    {icon}
+                    {label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Export CSV (only in list view) */}
+              {viewMode === "list" && (
                 <button
                   type="button"
-                  onClick={() => setViewMode("eras")}
-                  className={cn(
-                    "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
-                    viewMode === "eras"
-                      ? "bg-[#2DD4BF]/10 text-[#2DD4BF]"
-                      : "text-[#8A857D] hover:text-[#C5C0B8]",
-                  )}
+                  onClick={handleExportCsv}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-[#323238] px-3 py-1.5 text-xs text-[#8A857D] hover:text-[#F0EDE8] hover:border-[#5A5650] transition-colors"
                 >
-                  <Database size={12} />
-                  Eras
+                  <Download size={12} />
+                  Export CSV
                 </button>
               )}
             </div>
@@ -261,7 +319,20 @@ export default function PatientProfilePage() {
 
           {/* Timeline view */}
           {viewMode === "timeline" && (
-            <PatientTimeline events={allEvents} />
+            <PatientTimeline
+              events={allEvents}
+              observationPeriods={profile.observation_periods}
+            />
+          )}
+
+          {/* Labs view */}
+          {viewMode === "labs" && (
+            <PatientLabPanel events={allEvents} />
+          )}
+
+          {/* Visits view */}
+          {viewMode === "visits" && (
+            <PatientVisitView events={allEvents} />
           )}
 
           {/* Eras view */}
@@ -281,8 +352,7 @@ export default function PatientProfilePage() {
                   const count =
                     tab.key === "all"
                       ? allEvents.length
-                      : allEvents.filter((e) => e.domain === tab.key)
-                          .length;
+                      : allEvents.filter((e) => e.domain === tab.key).length;
                   if (tab.key !== "all" && count === 0) return null;
                   return (
                     <button
@@ -297,9 +367,7 @@ export default function PatientProfilePage() {
                       )}
                     >
                       {tab.label}{" "}
-                      <span className="text-[10px] opacity-60">
-                        ({count})
-                      </span>
+                      <span className="text-[10px] opacity-60">({count})</span>
                       {domainTab === tab.key && (
                         <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2DD4BF]" />
                       )}

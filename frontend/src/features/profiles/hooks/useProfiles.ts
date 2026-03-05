@@ -20,11 +20,12 @@ export function useCohortMembers(
   sourceId: number | null,
   cohortId: number | null,
   page?: number,
+  perPage?: number,
 ) {
   return useQuery({
-    queryKey: ["cohort-members", sourceId, cohortId, { page }],
+    queryKey: ["cohort-members", sourceId, cohortId, { page, perPage }],
     queryFn: () =>
-      getCohortMembers(sourceId!, cohortId!, { page }),
+      getCohortMembers(sourceId!, cohortId!, { page, per_page: perPage }),
     enabled:
       sourceId != null &&
       sourceId > 0 &&

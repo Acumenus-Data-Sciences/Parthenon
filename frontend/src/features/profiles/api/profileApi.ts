@@ -9,10 +9,11 @@ export async function getPatientProfile(
   sourceId: number,
   personId: number,
 ): Promise<PatientProfile> {
-  const { data } = await apiClient.get<PatientProfile>(
+  // Backend wraps in {data: T} — unwrap the envelope
+  const { data } = await apiClient.get<{ data: PatientProfile }>(
     `/sources/${sourceId}/profiles/${personId}`,
   );
-  return data;
+  return data.data;
 }
 
 // ---------------------------------------------------------------------------
@@ -32,8 +33,9 @@ export interface CohortMembersPaginatedResponse {
 export async function getCohortMembers(
   sourceId: number,
   cohortId: number,
-  params?: { page?: number; limit?: number },
+  params?: { page?: number; per_page?: number },
 ): Promise<CohortMembersPaginatedResponse> {
+  // Backend returns {data: [...], meta: {...}} directly (no extra envelope)
   const { data } = await apiClient.get<CohortMembersPaginatedResponse>(
     `/sources/${sourceId}/cohorts/${cohortId}/members`,
     { params },

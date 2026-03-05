@@ -1,7 +1,7 @@
-import { useState, useMemo, useRef, useCallback } from "react";
-import { ChevronRight, ChevronDown as ChevronDownIcon } from "lucide-react";
+import { useState, useMemo, useRef, useCallback, useEffect } from "react";
+import { Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { ClinicalEvent, ClinicalDomain } from "../types/profile";
+import type { ClinicalEvent, ClinicalDomain, ObservationPeriod } from "../types/profile";
 
 // ---------------------------------------------------------------------------
 // Domain configuration
@@ -57,24 +57,25 @@ function formatTooltipDate(d: string): string {
 
 interface PatientTimelineProps {
   events: ClinicalEvent[];
+  observationPeriods?: ObservationPeriod[];
 }
 
 const LANE_HEIGHT = 28;
 const EVENT_HEIGHT = 6;
 const MIN_EVENT_WIDTH = 4;
 const TIMELINE_PADDING = 60;
-const LABEL_WIDTH = 140;
+const LABEL_WIDTH = 148;
 
-export function PatientTimeline({ events }: PatientTimelineProps) {
+export function PatientTimeline({ events, observationPeriods = [] }: PatientTimelineProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [collapsedDomains, setCollapsedDomains] = useState<
-    Set<ClinicalDomain>
-  >(new Set());
+  const [collapsedDomains, setCollapsedDomains] = useState<Set<ClinicalDomain>>(new Set());
+  const [hiddenDomains, setHiddenDomains] = useState<Set<ClinicalDomain>>(new Set());
   const [tooltip, setTooltip] = useState<{
     event: ClinicalEvent;
     x: number;
     y: number;
   } | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Zoom and pan state
   const [zoom, setZoom] = useState(1);
@@ -83,7 +84,31 @@ export function PatientTimeline({ events }: PatientTimelineProps) {
   const dragStart = useRef(0);
   const panStart = useRef(0);
 
-  // Group events by domain
+  // Keyboard navigation
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.target !== el && !el.contains(e.target as Node)) return;
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        setPanOffset((p) => p + 80);
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        setPanOffset((p) => p - 80);
+      } else if (e.key === "+" || e.key === "=") {
+        e.preventDefault();
+        setZoom((z) => Math.min(10, z * 1.2));
+      } else if (e.key === "-") {
+        e.preventDefault();
+        setZoom((z) => Math.max(0.5, z / 1.2));
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  // Group events by domain (respecting hidden)
   const domainEvents = useMemo(() => {
     const grouped: Record<ClinicalDomain, ClinicalEvent[]> = {
       condition: [],
@@ -94,14 +119,14 @@ export function PatientTimeline({ events }: PatientTimelineProps) {
       visit: [],
     };
     for (const ev of events) {
-      if (grouped[ev.domain]) {
+      if (grouped[ev.domain] && !hiddenDomains.has(ev.domain)) {
         grouped[ev.domain].push(ev);
       }
     }
     return grouped;
-  }, [events]);
+  }, [events, hiddenDomains]);
 
-  // Compute time bounds
+  // Compute time bounds from ALL events (including hidden — so axis stays stable)
   const { timeMin, timeMax } = useMemo(() => {
     if (events.length === 0) {
       const now = Date.now();
@@ -118,14 +143,20 @@ export function PatientTimeline({ events }: PatientTimelineProps) {
         if (end > max) max = end;
       }
     }
-    // Add 5% padding
+    // Add obs period bounds too
+    for (const op of observationPeriods) {
+      const s = parseDate(op.start_date);
+      const e = parseDate(op.end_date);
+      if (s < min) min = s;
+      if (e > max) max = e;
+    }
     const range = max - min || 365 * 24 * 60 * 60 * 1000;
-    return { timeMin: min - range * 0.05, timeMax: max + range * 0.05 };
-  }, [events]);
+    return { timeMin: min - range * 0.03, timeMax: max + range * 0.03 };
+  }, [events, observationPeriods]);
 
   const timeRange = timeMax - timeMin;
 
-  // Active (non-collapsed) domains
+  // Active (non-hidden, non-empty) domains
   const activeDomains = useMemo(
     () =>
       ALL_DOMAINS
@@ -134,14 +165,29 @@ export function PatientTimeline({ events }: PatientTimelineProps) {
     [domainEvents],
   );
 
-  const toggleDomain = (domain: ClinicalDomain) => {
+  // All domains that have any events (even if hidden) for toggle buttons
+  const allPresentDomains = useMemo(
+    () =>
+      ALL_DOMAINS.filter(
+        (d) => events.filter((e) => e.domain === d).length > 0,
+      ),
+    [events],
+  );
+
+  const toggleCollapse = (domain: ClinicalDomain) => {
     setCollapsedDomains((prev) => {
       const next = new Set(prev);
-      if (next.has(domain)) {
-        next.delete(domain);
-      } else {
-        next.add(domain);
-      }
+      if (next.has(domain)) next.delete(domain);
+      else next.add(domain);
+      return next;
+    });
+  };
+
+  const toggleHide = (domain: ClinicalDomain) => {
+    setHiddenDomains((prev) => {
+      const next = new Set(prev);
+      if (next.has(domain)) next.delete(domain);
+      else next.add(domain);
       return next;
     });
   };
@@ -150,18 +196,18 @@ export function PatientTimeline({ events }: PatientTimelineProps) {
   const svgWidth = 900;
   const chartWidth = svgWidth - LABEL_WIDTH - TIMELINE_PADDING;
 
-  let yOffset = 30; // Space for time axis
+  let yOffset = 34; // Space for time axis
   const lanePositions: { domain: ClinicalDomain; y: number; height: number }[] = [];
   for (const domain of activeDomains) {
     const isCollapsed = collapsedDomains.has(domain);
     const eventCount = domainEvents[domain].length;
-    const rows = isCollapsed ? 0 : Math.min(Math.ceil(eventCount / 3), 8);
+    const rows = isCollapsed ? 0 : Math.min(Math.ceil(eventCount / 4), 10);
     const height = isCollapsed ? LANE_HEIGHT : LANE_HEIGHT + rows * (EVENT_HEIGHT + 2);
     lanePositions.push({ domain, y: yOffset, height });
     yOffset += height + 2;
   }
 
-  const svgHeight = yOffset + 10;
+  const svgHeight = Math.max(yOffset + 10, 120);
 
   // Convert time to x position with zoom and pan
   const timeToX = useCallback(
@@ -174,7 +220,7 @@ export function PatientTimeline({ events }: PatientTimelineProps) {
 
   // Generate time axis ticks
   const ticks = useMemo(() => {
-    const count = Math.max(4, Math.floor(chartWidth / 120));
+    const count = Math.max(4, Math.floor(chartWidth / 110));
     const result: { x: number; label: string }[] = [];
     for (let i = 0; i <= count; i++) {
       const t = timeMin + (timeRange * i) / count;
@@ -186,13 +232,56 @@ export function PatientTimeline({ events }: PatientTimelineProps) {
     return result;
   }, [timeMin, timeRange, timeToX, chartWidth, svgWidth]);
 
+  // Year quick-nav
+  const years = useMemo(() => {
+    const startYear = new Date(timeMin).getFullYear();
+    const endYear = new Date(timeMax).getFullYear();
+    const result: number[] = [];
+    for (let y = startYear; y <= endYear; y++) result.push(y);
+    return result;
+  }, [timeMin, timeMax]);
+
+  const jumpToYear = (year: number) => {
+    const yearMs = new Date(`${year}-01-01`).getTime();
+    const normalized = (yearMs - timeMin) / timeRange;
+    const targetX = normalized * chartWidth * zoom;
+    // Center year in view: pan so targetX is at mid-chart
+    const midChart = chartWidth / 2;
+    setPanOffset(midChart - targetX);
+  };
+
+  // Observation period x-spans
+  const obsPeriodBands = useMemo(() => {
+    return observationPeriods.map((op) => ({
+      x1: timeToX(parseDate(op.start_date)),
+      x2: timeToX(parseDate(op.end_date)),
+      label: op.period_type ?? "",
+    }));
+  }, [observationPeriods, timeToX]);
+
+  // Today marker
+  const todayX = useMemo(() => {
+    const now = Date.now();
+    if (now < timeMin || now > timeMax) return null;
+    return timeToX(now);
+  }, [timeMin, timeMax, timeToX]);
+
+  // Search: which events match?
+  const matchingEventKey = useMemo(() => {
+    if (!searchQuery.trim()) return null;
+    const q = searchQuery.toLowerCase();
+    const set = new Set<ClinicalEvent>();
+    for (const ev of events) {
+      if (ev.concept_name.toLowerCase().includes(q)) set.add(ev);
+    }
+    return set;
+  }, [events, searchQuery]);
+
   // Wheel zoom
   const handleWheel = (e: React.WheelEvent) => {
     e.preventDefault();
     const delta = e.deltaY > 0 ? 0.9 : 1.1;
     const newZoom = Math.max(0.5, Math.min(10, zoom * delta));
-
-    // Zoom toward cursor position
     const rect = containerRef.current?.getBoundingClientRect();
     if (rect) {
       const cursorX = e.clientX - rect.left - LABEL_WIDTH;
@@ -211,20 +300,15 @@ export function PatientTimeline({ events }: PatientTimelineProps) {
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!isDragging.current) return;
-    const dx = e.clientX - dragStart.current;
-    setPanOffset(panStart.current + dx);
+    setPanOffset(panStart.current + (e.clientX - dragStart.current));
   };
 
-  const handleMouseUp = () => {
-    isDragging.current = false;
-  };
+  const handleMouseUp = () => { isDragging.current = false; };
 
   if (events.length === 0) {
     return (
       <div className="flex items-center justify-center h-48 rounded-lg border border-dashed border-[#323238] bg-[#151518]">
-        <p className="text-sm text-[#8A857D]">
-          No clinical events to display
-        </p>
+        <p className="text-sm text-[#8A857D]">No clinical events to display</p>
       </div>
     );
   }
@@ -232,31 +316,117 @@ export function PatientTimeline({ events }: PatientTimelineProps) {
   return (
     <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
       {/* Toolbar */}
-      <div className="flex items-center justify-between px-4 py-2 bg-[#1C1C20] border-b border-[#232328]">
-        <span className="text-xs text-[#8A857D]">
-          {events.length} events across {activeDomains.length} domains
-        </span>
+      <div className="flex items-center justify-between gap-3 px-4 py-2 bg-[#1C1C20] border-b border-[#232328] flex-wrap">
         <div className="flex items-center gap-2">
+          <span className="text-xs text-[#8A857D]">
+            {events.length} events · {activeDomains.length} domains
+          </span>
+          {observationPeriods.length > 0 && (
+            <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] bg-[#2DD4BF]/10 text-[#2DD4BF] border border-[#2DD4BF]/20">
+              {observationPeriods.length} obs. period{observationPeriods.length > 1 ? "s" : ""}
+            </span>
+          )}
+        </div>
+
+        <div className="flex items-center gap-2">
+          {/* Search */}
+          <div className="relative">
+            <Search
+              size={11}
+              className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#5A5650]"
+            />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Highlight events..."
+              className={cn(
+                "w-44 rounded-md border border-[#323238] bg-[#0E0E11] pl-7 pr-2 py-1 text-xs",
+                "text-[#F0EDE8] placeholder:text-[#5A5650]",
+                "focus:border-[#C9A227] focus:outline-none",
+              )}
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-[#5A5650] hover:text-[#F0EDE8]"
+              >
+                <X size={10} />
+              </button>
+            )}
+          </div>
+
+          {/* Zoom display + reset */}
           <button
             type="button"
-            onClick={() => {
-              setZoom(1);
-              setPanOffset(0);
-            }}
+            onClick={() => { setZoom(1); setPanOffset(0); }}
             className="text-[10px] text-[#8A857D] hover:text-[#F0EDE8] transition-colors px-2 py-1 rounded border border-[#323238]"
           >
             Reset
           </button>
-          <span className="text-[10px] text-[#5A5650]">
+          <span className="text-[10px] text-[#5A5650] w-8 text-right">
             {Math.round(zoom * 100)}%
           </span>
         </div>
       </div>
 
+      {/* Domain filter toggles */}
+      <div className="flex items-center gap-1.5 px-4 py-2 bg-[#151518] border-b border-[#232328] overflow-x-auto">
+        <span className="text-[10px] text-[#5A5650] shrink-0 mr-1">Domains:</span>
+        {allPresentDomains.map((domain) => {
+          const cfg = DOMAIN_CONFIG[domain];
+          const hidden = hiddenDomains.has(domain);
+          const count = events.filter((e) => e.domain === domain).length;
+          return (
+            <button
+              key={domain}
+              type="button"
+              onClick={() => toggleHide(domain)}
+              className={cn(
+                "inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-medium border transition-all shrink-0",
+                hidden
+                  ? "border-[#323238] text-[#5A5650] bg-transparent"
+                  : "border-opacity-30 text-opacity-90",
+              )}
+              style={
+                hidden
+                  ? {}
+                  : {
+                      backgroundColor: `${cfg.color}15`,
+                      color: cfg.color,
+                      borderColor: `${cfg.color}40`,
+                    }
+              }
+            >
+              {cfg.label} ({count})
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Year quick-nav */}
+      {years.length > 1 && (
+        <div className="flex items-center gap-1 px-4 py-1.5 bg-[#0E0E11] border-b border-[#1C1C20] overflow-x-auto">
+          <span className="text-[10px] text-[#5A5650] shrink-0 mr-1">Jump:</span>
+          {years.map((y) => (
+            <button
+              key={y}
+              type="button"
+              onClick={() => jumpToYear(y)}
+              className="text-[10px] text-[#8A857D] hover:text-[#F0EDE8] hover:bg-[#232328] px-1.5 py-0.5 rounded transition-colors shrink-0"
+            >
+              {y}
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* SVG Timeline */}
       <div
         ref={containerRef}
         className="overflow-hidden cursor-grab active:cursor-grabbing"
+        tabIndex={0}
         onWheel={handleWheel}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
@@ -268,7 +438,6 @@ export function PatientTimeline({ events }: PatientTimelineProps) {
           viewBox={`0 0 ${svgWidth} ${svgHeight}`}
           className="select-none"
         >
-          {/* Clip path for chart area */}
           <defs>
             <clipPath id="chart-clip">
               <rect
@@ -278,15 +447,50 @@ export function PatientTimeline({ events }: PatientTimelineProps) {
                 height={svgHeight}
               />
             </clipPath>
+            {/* Hatch pattern for gaps between obs periods */}
+            <pattern
+              id="gap-hatch"
+              width={6}
+              height={6}
+              patternUnits="userSpaceOnUse"
+              patternTransform="rotate(45)"
+            >
+              <line
+                x1={0}
+                y1={0}
+                x2={0}
+                y2={6}
+                stroke="#232328"
+                strokeWidth={1.5}
+              />
+            </pattern>
           </defs>
+
+          {/* Observation period bands (behind everything) */}
+          <g clipPath="url(#chart-clip)">
+            {obsPeriodBands.map((band, i) => {
+              const bw = Math.max(band.x2 - band.x1, 2);
+              return (
+                <rect
+                  key={i}
+                  x={band.x1}
+                  y={28}
+                  width={bw}
+                  height={svgHeight - 28}
+                  fill="#2DD4BF"
+                  opacity={0.05}
+                />
+              );
+            })}
+          </g>
 
           {/* Time axis */}
           <g clipPath="url(#chart-clip)">
             <line
               x1={LABEL_WIDTH}
               x2={svgWidth}
-              y1={24}
-              y2={24}
+              y1={26}
+              y2={26}
               stroke="#323238"
               strokeWidth={1}
             />
@@ -295,25 +499,24 @@ export function PatientTimeline({ events }: PatientTimelineProps) {
                 <line
                   x1={tick.x}
                   x2={tick.x}
-                  y1={20}
-                  y2={28}
+                  y1={22}
+                  y2={30}
                   stroke="#5A5650"
                   strokeWidth={1}
                 />
                 <text
                   x={tick.x}
-                  y={16}
+                  y={18}
                   textAnchor="middle"
                   className="fill-[#8A857D]"
                   style={{ fontSize: 9 }}
                 >
                   {tick.label}
                 </text>
-                {/* Grid lines */}
                 <line
                   x1={tick.x}
                   x2={tick.x}
-                  y1={28}
+                  y1={30}
                   y2={svgHeight}
                   stroke="#1C1C20"
                   strokeWidth={1}
@@ -321,6 +524,30 @@ export function PatientTimeline({ events }: PatientTimelineProps) {
                 />
               </g>
             ))}
+
+            {/* Today marker */}
+            {todayX != null && (
+              <g>
+                <line
+                  x1={todayX}
+                  x2={todayX}
+                  y1={26}
+                  y2={svgHeight}
+                  stroke="#C9A227"
+                  strokeWidth={1}
+                  strokeDasharray="3 3"
+                  opacity={0.5}
+                />
+                <text
+                  x={todayX + 3}
+                  y={18}
+                  className="fill-[#C9A227]"
+                  style={{ fontSize: 8 }}
+                >
+                  Today
+                </text>
+              </g>
+            )}
           </g>
 
           {/* Swim lanes */}
@@ -337,7 +564,7 @@ export function PatientTimeline({ events }: PatientTimelineProps) {
                   y={y}
                   width={svgWidth}
                   height={height}
-                  fill={`${config.color}05`}
+                  fill={`${config.color}04`}
                 />
                 <line
                   x1={0}
@@ -348,10 +575,10 @@ export function PatientTimeline({ events }: PatientTimelineProps) {
                   strokeWidth={1}
                 />
 
-                {/* Domain label */}
+                {/* Domain label (clickable to collapse) */}
                 <g
                   className="cursor-pointer"
-                  onClick={() => toggleDomain(domain)}
+                  onClick={() => toggleCollapse(domain)}
                 >
                   <rect
                     x={0}
@@ -360,7 +587,6 @@ export function PatientTimeline({ events }: PatientTimelineProps) {
                     height={LANE_HEIGHT}
                     fill="transparent"
                   />
-                  {/* Collapse indicator - using simple triangle */}
                   <text
                     x={10}
                     y={y + LANE_HEIGHT / 2 + 4}
@@ -369,7 +595,6 @@ export function PatientTimeline({ events }: PatientTimelineProps) {
                   >
                     {isCollapsed ? "\u25B6" : "\u25BC"}
                   </text>
-                  {/* Color indicator */}
                   <rect
                     x={22}
                     y={y + LANE_HEIGHT / 2 - 4}
@@ -387,7 +612,7 @@ export function PatientTimeline({ events }: PatientTimelineProps) {
                     {config.label}
                   </text>
                   <text
-                    x={LABEL_WIDTH - 8}
+                    x={LABEL_WIDTH - 6}
                     y={y + LANE_HEIGHT / 2 + 3}
                     textAnchor="end"
                     className="fill-[#5A5650]"
@@ -406,20 +631,25 @@ export function PatientTimeline({ events }: PatientTimelineProps) {
                         ? timeToX(parseDate(ev.end_date))
                         : startX + MIN_EVENT_WIDTH;
                       const w = Math.max(endX - startX, MIN_EVENT_WIDTH);
-                      const row = evIdx % 8;
-                      const evY =
-                        y +
-                        LANE_HEIGHT +
-                        row * (EVENT_HEIGHT + 2);
+                      const row = evIdx % 10;
+                      const evY = y + LANE_HEIGHT + row * (EVENT_HEIGHT + 2);
 
-                      const isSingleDay = !ev.end_date || w <= MIN_EVENT_WIDTH;
+                      const isSingleDay = !ev.end_date || w <= MIN_EVENT_WIDTH + 2;
+                      const isMatch =
+                        matchingEventKey != null
+                          ? matchingEventKey.has(ev)
+                          : true;
+                      const opacity = matchingEventKey != null
+                        ? isMatch
+                          ? 1.0
+                          : 0.15
+                        : 0.75;
 
                       return (
                         <g
                           key={evIdx}
                           onMouseEnter={(e) => {
-                            const rect =
-                              containerRef.current?.getBoundingClientRect();
+                            const rect = containerRef.current?.getBoundingClientRect();
                             if (rect) {
                               setTooltip({
                                 event: ev,
@@ -430,6 +660,7 @@ export function PatientTimeline({ events }: PatientTimelineProps) {
                           }}
                           onMouseLeave={() => setTooltip(null)}
                           className="cursor-pointer"
+                          opacity={opacity}
                         >
                           {isSingleDay ? (
                             <circle
@@ -437,7 +668,6 @@ export function PatientTimeline({ events }: PatientTimelineProps) {
                               cy={evY + EVENT_HEIGHT / 2}
                               r={EVENT_HEIGHT / 2}
                               fill={config.color}
-                              opacity={0.8}
                             />
                           ) : (
                             <rect
@@ -447,8 +677,33 @@ export function PatientTimeline({ events }: PatientTimelineProps) {
                               height={EVENT_HEIGHT}
                               rx={2}
                               fill={config.color}
-                              opacity={0.7}
                             />
+                          )}
+                          {/* Search highlight ring */}
+                          {isMatch && matchingEventKey != null && (
+                            isSingleDay ? (
+                              <circle
+                                cx={startX}
+                                cy={evY + EVENT_HEIGHT / 2}
+                                r={EVENT_HEIGHT / 2 + 2}
+                                fill="none"
+                                stroke={config.color}
+                                strokeWidth={1}
+                                opacity={0.6}
+                              />
+                            ) : (
+                              <rect
+                                x={startX - 1}
+                                y={evY - 1}
+                                width={w + 2}
+                                height={EVENT_HEIGHT + 2}
+                                rx={3}
+                                fill="none"
+                                stroke={config.color}
+                                strokeWidth={1}
+                                opacity={0.6}
+                              />
+                            )
                           )}
                         </g>
                       );
@@ -458,6 +713,34 @@ export function PatientTimeline({ events }: PatientTimelineProps) {
               </g>
             );
           })}
+
+          {/* Obs period border lines (on top) */}
+          <g clipPath="url(#chart-clip)">
+            {obsPeriodBands.map((band, i) => (
+              <g key={i}>
+                <line
+                  x1={band.x1}
+                  x2={band.x1}
+                  y1={28}
+                  y2={svgHeight}
+                  stroke="#2DD4BF"
+                  strokeWidth={1}
+                  strokeDasharray="3 2"
+                  opacity={0.3}
+                />
+                <line
+                  x1={band.x2}
+                  x2={band.x2}
+                  y1={28}
+                  y2={svgHeight}
+                  stroke="#2DD4BF"
+                  strokeWidth={1}
+                  strokeDasharray="3 2"
+                  opacity={0.3}
+                />
+              </g>
+            ))}
+          </g>
         </svg>
       </div>
 
@@ -465,10 +748,7 @@ export function PatientTimeline({ events }: PatientTimelineProps) {
       {tooltip && (
         <div
           className="absolute pointer-events-none z-50"
-          style={{
-            left: tooltip.x + 12,
-            top: tooltip.y - 10,
-          }}
+          style={{ left: tooltip.x + 12, top: tooltip.y - 10 }}
         >
           <div className="rounded-lg bg-[#0E0E11] border border-[#323238] px-3 py-2 shadow-xl max-w-xs">
             <p className="text-xs font-semibold text-[#F0EDE8]">
@@ -478,22 +758,24 @@ export function PatientTimeline({ events }: PatientTimelineProps) {
               <p className="text-[10px] text-[#8A857D]">
                 <span
                   className="inline-block w-2 h-2 rounded-sm mr-1"
-                  style={{
-                    backgroundColor:
-                      DOMAIN_CONFIG[tooltip.event.domain].color,
-                  }}
+                  style={{ backgroundColor: DOMAIN_CONFIG[tooltip.event.domain].color }}
                 />
                 {DOMAIN_CONFIG[tooltip.event.domain].label}
               </p>
               <p className="text-[10px] text-[#8A857D]">
                 {formatTooltipDate(tooltip.event.start_date)}
                 {tooltip.event.end_date &&
-                  ` - ${formatTooltipDate(tooltip.event.end_date)}`}
+                  ` – ${formatTooltipDate(tooltip.event.end_date)}`}
               </p>
               {tooltip.event.value != null && (
                 <p className="text-[10px] text-[#C9A227]">
-                  Value: {tooltip.event.value}
+                  {String(tooltip.event.value)}
                   {tooltip.event.unit ? ` ${tooltip.event.unit}` : ""}
+                </p>
+              )}
+              {tooltip.event.vocabulary && (
+                <p className="text-[10px] text-[#5A5650]">
+                  {tooltip.event.vocabulary}
                 </p>
               )}
             </div>
@@ -501,22 +783,33 @@ export function PatientTimeline({ events }: PatientTimelineProps) {
         </div>
       )}
 
-      {/* Legend */}
-      <div className="flex flex-wrap gap-3 px-4 py-2 border-t border-[#232328] bg-[#1C1C20]">
-        {activeDomains.map((domain) => {
-          const config = DOMAIN_CONFIG[domain];
-          return (
-            <div key={domain} className="flex items-center gap-1.5">
-              <div
-                className="w-2.5 h-2.5 rounded-sm"
-                style={{ backgroundColor: config.color }}
-              />
-              <span className="text-[10px] text-[#8A857D]">
-                {config.label} ({domainEvents[domain].length})
-              </span>
+      {/* Legend + keyboard hint */}
+      <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-2 border-t border-[#232328] bg-[#1C1C20]">
+        <div className="flex flex-wrap gap-3">
+          {activeDomains.map((domain) => {
+            const config = DOMAIN_CONFIG[domain];
+            return (
+              <div key={domain} className="flex items-center gap-1.5">
+                <div
+                  className="w-2.5 h-2.5 rounded-sm"
+                  style={{ backgroundColor: config.color }}
+                />
+                <span className="text-[10px] text-[#8A857D]">
+                  {config.label} ({domainEvents[domain].length})
+                </span>
+              </div>
+            );
+          })}
+          {observationPeriods.length > 0 && (
+            <div className="flex items-center gap-1.5">
+              <div className="w-2.5 h-2.5 rounded-sm bg-[#2DD4BF] opacity-30" />
+              <span className="text-[10px] text-[#8A857D]">Obs. period</span>
             </div>
-          );
-        })}
+          )}
+        </div>
+        <span className="text-[10px] text-[#3A3A40]">
+          Scroll to zoom · Drag to pan · ←→ keys · +/- keys
+        </span>
       </div>
     </div>
   );
