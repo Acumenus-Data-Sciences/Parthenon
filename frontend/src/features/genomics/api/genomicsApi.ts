@@ -8,6 +8,8 @@ import type {
   FileFormat,
   GenomeBuild,
   CriteriaType,
+  ClinVarVariant,
+  ClinVarStatus,
 } from "../types";
 
 const BASE = "/genomics";
@@ -138,4 +140,43 @@ export async function updateCriterion(
 
 export async function deleteCriterion(id: number): Promise<void> {
   await apiClient.delete(`${BASE}/criteria/${id}`);
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// ClinVar
+// ──────────────────────────────────────────────────────────────────────────────
+
+export async function getClinVarStatus(): Promise<ClinVarStatus> {
+  const { data } = await apiClient.get(`${BASE}/clinvar/status`);
+  return data.data;
+}
+
+export async function searchClinVar(params?: {
+  q?: string;
+  gene?: string;
+  significance?: string;
+  pathogenic_only?: boolean;
+  per_page?: number;
+  page?: number;
+}): Promise<PaginatedResponse<ClinVarVariant>> {
+  const { data } = await apiClient.get(`${BASE}/clinvar/search`, { params });
+  return data;
+}
+
+export async function syncClinVar(papuOnly = false): Promise<{
+  inserted: number;
+  updated: number;
+  errors: number;
+  log_id: number;
+}> {
+  const { data } = await apiClient.post(`${BASE}/clinvar/sync`, { papu_only: papuOnly });
+  return data.data;
+}
+
+export async function annotateClinVar(uploadId: number): Promise<{
+  annotated: number;
+  skipped: number;
+}> {
+  const { data } = await apiClient.post(`${BASE}/uploads/${uploadId}/annotate-clinvar`);
+  return data.data;
 }

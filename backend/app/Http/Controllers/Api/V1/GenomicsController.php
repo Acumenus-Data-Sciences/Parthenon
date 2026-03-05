@@ -3,10 +3,14 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Models\App\ClinVarSyncLog;
+use App\Models\App\ClinVarVariant;
 use App\Models\App\GenomicCohortCriterion;
 use App\Models\App\GenomicUpload;
 use App\Models\App\GenomicVariant;
 use App\Models\App\Source;
+use App\Services\Genomics\ClinVarAnnotationService;
+use App\Services\Genomics\ClinVarSyncService;
 use App\Services\Genomics\OmopMeasurementWriterService;
 use App\Services\Genomics\PersonMatcherService;
 use App\Services\Genomics\VcfParserService;
@@ -25,6 +29,8 @@ class GenomicsController extends Controller
         private readonly OmopMeasurementWriterService $writer,
         private readonly VariantOutcomeService $outcomes,
         private readonly TumorBoardService $tumorBoard,
+        private readonly ClinVarAnnotationService $clinVarAnnotation,
+        private readonly ClinVarSyncService $clinVarSync,
     ) {}
 
     // ──────────────────────────────────────────────────────────────────────────
@@ -331,6 +337,119 @@ class GenomicsController extends Controller
         $result = $this->outcomes->genomicCharacterization(
             $request->integer('source_id'),
         );
+
+        return response()->json(['data' => $result]);
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // ClinVar Reference Database
+    // ──────────────────────────────────────────────────────────────────────────
+
+    /**
+     * GET /api/v1/genomics/clinvar/status
+     * Returns sync metadata: total variants cached, last sync date.
+     */
+    public function clinvarStatus(): JsonResponse
+    {
+        $latestSync = ClinVarSyncLog::where('status', 'completed')
+            ->orderByDesc('finished_at')
+            ->first();
+
+        return response()->json([
+            'data' => [
+                'total_variants'  => ClinVarVariant::count(),
+                'pathogenic_count' => ClinVarVariant::where('is_pathogenic', true)->count(),
+                'last_sync'       => $latestSync?->finished_at,
+                'last_sync_build' => $latestSync?->genome_build,
+                'last_sync_papu'  => $latestSync?->papu_only,
+                'syncs'           => ClinVarSyncLog::orderByDesc('created_at')->limit(5)->get(),
+            ],
+        ]);
+    }
+
+    /**
+     * GET /api/v1/genomics/clinvar/search
+     * Search the local ClinVar cache.
+     *
+     * Query params: q (free text on gene/hgvs/disease), gene, significance, pathogenic_only, per_page, page
+     */
+    public function clinvarSearch(Request $request): JsonResponse
+    {
+        $request->validate([
+            'q'               => 'nullable|string|max:200',
+            'gene'            => 'nullable|string|max:100',
+            'significance'    => 'nullable|string|max:100',
+            'pathogenic_only' => 'nullable|boolean',
+            'per_page'        => 'nullable|integer|min:1|max:200',
+        ]);
+
+        $query = ClinVarVariant::query();
+
+        if ($request->filled('q')) {
+            $term = '%' . $request->string('q') . '%';
+            $query->where(function ($q) use ($term) {
+                $q->where('gene_symbol', 'ilike', $term)
+                  ->orWhere('hgvs', 'ilike', $term)
+                  ->orWhere('disease_name', 'ilike', $term)
+                  ->orWhere('variation_id', 'ilike', $term)
+                  ->orWhere('rs_id', 'ilike', $term);
+            });
+        }
+
+        if ($request->filled('gene')) {
+            $query->where('gene_symbol', 'ilike', $request->string('gene') . '%');
+        }
+
+        if ($request->filled('significance')) {
+            $query->where('clinical_significance', 'ilike', '%' . $request->string('significance') . '%');
+        }
+
+        if ($request->boolean('pathogenic_only')) {
+            $query->where('is_pathogenic', true);
+        }
+
+        $results = $query->orderBy('gene_symbol')
+                         ->orderByDesc('is_pathogenic')
+                         ->paginate($request->integer('per_page', 50));
+
+        return response()->json($results);
+    }
+
+    /**
+     * POST /api/v1/genomics/clinvar/sync
+     * Trigger a ClinVar sync (downloads from NCBI FTP and indexes).
+     * Runs synchronously — for large syncs use the Artisan command via queue instead.
+     */
+    public function clinvarSync(Request $request): JsonResponse
+    {
+        $request->validate([
+            'papu_only' => 'nullable|boolean',
+        ]);
+
+        $papuOnly = $request->boolean('papu_only', false);
+
+        try {
+            $result = $this->clinVarSync->sync($papuOnly);
+        } catch (\Throwable $e) {
+            return response()->json(['message' => 'Sync failed: ' . $e->getMessage()], 500);
+        }
+
+        return response()->json(['data' => $result]);
+    }
+
+    /**
+     * POST /api/v1/genomics/uploads/{upload}/annotate-clinvar
+     * Annotate an upload's unannotated variants with ClinVar significance from local cache.
+     */
+    public function annotateClinVar(GenomicUpload $upload): JsonResponse
+    {
+        if (ClinVarVariant::count() === 0) {
+            return response()->json([
+                'message' => 'ClinVar database is empty. Run genomics:sync-clinvar first.',
+            ], 422);
+        }
+
+        $result = $this->clinVarAnnotation->annotateUpload($upload);
 
         return response()->json(['data' => $result]);
     }

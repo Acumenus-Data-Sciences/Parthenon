@@ -83,3 +83,44 @@ export interface PaginatedResponse<T> {
   per_page: number;
   total: number;
 }
+
+// ── ClinVar ───────────────────────────────────────────────────────────────────
+
+export interface ClinVarVariant {
+  id: number;
+  variation_id: string | null;
+  rs_id: string | null;
+  chromosome: string;
+  position: number;
+  reference_allele: string;
+  alternate_allele: string;
+  genome_build: string;
+  gene_symbol: string | null;
+  hgvs: string | null;
+  clinical_significance: string | null;
+  disease_name: string | null;
+  review_status: string | null;
+  is_pathogenic: boolean;
+  last_synced_at: string | null;
+}
+
+export interface ClinVarSyncLogEntry {
+  id: number;
+  genome_build: string;
+  papu_only: boolean;
+  status: 'running' | 'completed' | 'failed';
+  variants_inserted: number;
+  variants_updated: number;
+  error_message: string | null;
+  started_at: string | null;
+  finished_at: string | null;
+}
+
+export interface ClinVarStatus {
+  total_variants: number;
+  pathogenic_count: number;
+  last_sync: string | null;
+  last_sync_build: string | null;
+  last_sync_papu: boolean | null;
+  syncs: ClinVarSyncLogEntry[];
+}

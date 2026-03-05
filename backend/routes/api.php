@@ -455,6 +455,12 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         Route::get('/variants', [GenomicsController::class, 'indexVariants']);
         Route::get('/variants/{variant}', [GenomicsController::class, 'showVariant']);
 
+        // ClinVar reference database
+        Route::get('/clinvar/status', [GenomicsController::class, 'clinvarStatus']);
+        Route::get('/clinvar/search', [GenomicsController::class, 'clinvarSearch']);
+        Route::post('/clinvar/sync', [GenomicsController::class, 'clinvarSync']);
+        Route::post('/uploads/{upload}/annotate-clinvar', [GenomicsController::class, 'annotateClinVar']);
+
         // Cohort criteria
         Route::get('/criteria', [GenomicsController::class, 'indexCriteria']);
         Route::post('/criteria', [GenomicsController::class, 'storeCriterion']);

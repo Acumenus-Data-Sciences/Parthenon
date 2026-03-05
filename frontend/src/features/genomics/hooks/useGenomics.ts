@@ -10,6 +10,10 @@ import {
   listCriteria,
   createCriterion,
   deleteCriterion,
+  getClinVarStatus,
+  searchClinVar,
+  syncClinVar,
+  annotateClinVar,
 } from "../api/genomicsApi";
 import type { FileFormat, GenomeBuild, CriteriaType } from "../types";
 
@@ -134,5 +138,53 @@ export function useDeleteCriterion() {
   return useMutation({
     mutationFn: (id: number) => deleteCriterion(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["genomics", "criteria"] }),
+  });
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// ClinVar
+// ──────────────────────────────────────────────────────────────────────────────
+
+export function useClinVarStatus() {
+  return useQuery({
+    queryKey: ["genomics", "clinvar", "status"],
+    queryFn: getClinVarStatus,
+    staleTime: 60_000,
+  });
+}
+
+export function useClinVarSearch(params?: {
+  q?: string;
+  gene?: string;
+  significance?: string;
+  pathogenic_only?: boolean;
+  per_page?: number;
+  page?: number;
+}) {
+  return useQuery({
+    queryKey: ["genomics", "clinvar", "search", params],
+    queryFn: () => searchClinVar(params),
+    enabled: !!(params?.q || params?.gene || params?.significance || params?.pathogenic_only),
+  });
+}
+
+export function useSyncClinVar() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (papuOnly: boolean) => syncClinVar(papuOnly),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["genomics", "clinvar"] });
+    },
+  });
+}
+
+export function useAnnotateClinVar() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (uploadId: number) => annotateClinVar(uploadId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["genomics", "uploads"] });
+      qc.invalidateQueries({ queryKey: ["genomics", "variants"] });
+    },
   });
 }

@@ -30,6 +30,8 @@ class GenomicVariant extends Model
         'read_depth',
         'clinvar_id',
         'clinvar_significance',
+        'clinvar_disease',
+        'clinvar_review_status',
         'cosmic_id',
         'tmb_contribution',
         'is_msi_marker',
