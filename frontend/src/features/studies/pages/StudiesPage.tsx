@@ -55,16 +55,18 @@ export default function StudiesPage() {
   const [filterStatus, setFilterStatus] = useState<string | null>(null);
   const [filterType, setFilterType] = useState<string | null>(null);
   const [filterPriority, setFilterPriority] = useState<string | null>(null);
+  const [filterPhase, setFilterPhase] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"table" | "card">(() => {
     return (localStorage.getItem("studies-view") as "table" | "card") || "table";
   });
 
-  const hasFilters = !!(filterStatus || filterType || filterPriority);
+  const hasFilters = !!(filterStatus || filterType || filterPriority || filterPhase);
 
   const { data: stats } = useStudyStats();
   const { data, isLoading, error } = useStudies(page, debouncedSearch, {
     status: filterStatus ?? undefined,
     study_type: filterType ?? undefined,
+    phase: filterPhase ?? undefined,
   });
 
   // Debounce search
@@ -79,7 +81,7 @@ export default function StudiesPage() {
   // Reset page when filters change
   useEffect(() => {
     setPage(1);
-  }, [filterStatus, filterType, filterPriority]);
+  }, [filterStatus, filterType, filterPriority, filterPhase]);
 
   // Persist view mode
   useEffect(() => {
@@ -106,39 +108,7 @@ export default function StudiesPage() {
           </p>
         </div>
 
-        {/* Search */}
-        <div className="flex-1 max-w-md">
-          <div className="relative">
-            <Search
-              size={14}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
-            />
-            <input
-              type="text"
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              placeholder="Search studies..."
-              className={cn(
-                "w-full rounded-lg pl-9 pr-8 py-2 text-sm",
-                "bg-[#0E0E11] border border-[#232328]",
-                "text-[#F0EDE8] placeholder:text-[#5A5650]",
-                "focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40",
-                "transition-colors",
-              )}
-            />
-            {searchInput && (
-              <button
-                type="button"
-                onClick={() => setSearchInput("")}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-[#5A5650] hover:text-[#C5C0B8]"
-              >
-                <X size={14} />
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* View toggle + Create */}
+        {/* Right side: view toggle, search, help, create */}
         <div className="flex items-center gap-2 shrink-0">
           <div className="flex items-center rounded-lg border border-[#232328] bg-[#0E0E11] overflow-hidden">
             <button
@@ -169,6 +139,36 @@ export default function StudiesPage() {
             </button>
           </div>
 
+          {/* Search */}
+          <div className="relative w-56">
+            <Search
+              size={14}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
+            />
+            <input
+              type="text"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              placeholder="Search studies..."
+              className={cn(
+                "w-full rounded-lg pl-9 pr-8 py-2 text-sm",
+                "bg-[#0E0E11] border border-[#232328]",
+                "text-[#F0EDE8] placeholder:text-[#5A5650]",
+                "focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40",
+                "transition-colors",
+              )}
+            />
+            {searchInput && (
+              <button
+                type="button"
+                onClick={() => setSearchInput("")}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-[#5A5650] hover:text-[#C5C0B8]"
+              >
+                <X size={14} />
+              </button>
+            )}
+          </div>
+
           <HelpButton helpKey="studies" />
 
           {/* New Study */}
@@ -187,20 +187,52 @@ export default function StudiesPage() {
       {stats && (
         <div className="grid grid-cols-5 gap-3">
           {[
-            { label: "Total", value: stats.total, icon: Briefcase, color: "#C5C0B8" },
-            { label: "Active", value: stats.active_count, icon: Activity, color: "#2DD4BF" },
-            { label: "Pre-Study", value: stats.by_phase?.pre_study ?? 0, icon: FlaskConical, color: "#60A5FA" },
-            { label: "In Progress", value: stats.by_phase?.active ?? 0, icon: Loader2, color: "#F59E0B" },
-            { label: "Post-Study", value: stats.by_phase?.post_study ?? 0, icon: Shield, color: "#A78BFA" },
+            { label: "Total", value: stats.total, icon: Briefcase, color: "#C5C0B8", phase: null as string | null },
+            { label: "Active", value: stats.active_count, icon: Activity, color: "#2DD4BF", phase: "__active__" },
+            { label: "Pre-Study", value: stats.by_phase?.pre_study ?? 0, icon: FlaskConical, color: "#60A5FA", phase: "pre_study" },
+            { label: "In Progress", value: stats.by_phase?.active ?? 0, icon: Loader2, color: "#F59E0B", phase: "active" },
+            { label: "Post-Study", value: stats.by_phase?.post_study ?? 0, icon: Shield, color: "#A78BFA", phase: "post_study" },
           ].map((metric) => {
             const Icon = metric.icon;
+            const isActive = metric.phase === null
+              ? !hasFilters
+              : metric.phase === "__active__"
+                ? filterStatus === "execution"
+                : filterPhase === metric.phase;
             return (
-              <div
+              <button
                 key={metric.label}
-                className="flex items-center gap-3 rounded-lg border border-[#232328] bg-[#151518] px-4 py-3"
+                type="button"
+                onClick={() => {
+                  if (metric.phase === null) {
+                    // "Total" — clear all filters
+                    setFilterStatus(null);
+                    setFilterType(null);
+                    setFilterPriority(null);
+                    setFilterPhase(null);
+                  } else if (metric.phase === "__active__") {
+                    // "Active" — filter to execution status
+                    setFilterPhase(null);
+                    setFilterType(null);
+                    setFilterPriority(null);
+                    setFilterStatus(filterStatus === "execution" ? null : "execution");
+                  } else {
+                    // Phase filters
+                    setFilterStatus(null);
+                    setFilterType(null);
+                    setFilterPriority(null);
+                    setFilterPhase(filterPhase === metric.phase ? null : metric.phase);
+                  }
+                }}
+                className={cn(
+                  "flex items-center gap-3 rounded-lg border px-4 py-3 text-left transition-all",
+                  isActive
+                    ? "border-[#2DD4BF]/30 bg-[#2DD4BF]/5 ring-1 ring-[#2DD4BF]/20"
+                    : "border-[#232328] bg-[#151518] hover:border-[#323238] hover:bg-[#1C1C20]",
+                )}
               >
                 <div
-                  className="flex items-center justify-center w-9 h-9 rounded-lg"
+                  className="flex items-center justify-center w-9 h-9 rounded-lg shrink-0"
                   style={{ backgroundColor: `${metric.color}15` }}
                 >
                   <Icon size={18} style={{ color: metric.color }} />
@@ -216,7 +248,7 @@ export default function StudiesPage() {
                     {metric.label}
                   </p>
                 </div>
-              </div>
+              </button>
             );
           })}
         </div>
@@ -283,7 +315,7 @@ export default function StudiesPage() {
         {hasFilters && (
           <button
             type="button"
-            onClick={() => { setFilterStatus(null); setFilterType(null); setFilterPriority(null); }}
+            onClick={() => { setFilterStatus(null); setFilterType(null); setFilterPriority(null); setFilterPhase(null); }}
             className="ml-2 px-2 py-1 rounded text-[11px] text-[#E85A6B] hover:bg-[#E85A6B]/10 transition-colors"
           >
             <X size={12} className="inline mr-0.5" />
