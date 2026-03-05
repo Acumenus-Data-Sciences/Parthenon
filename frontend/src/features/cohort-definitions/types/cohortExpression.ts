@@ -106,6 +106,40 @@ export interface EndStrategy {
   };
 }
 
+// ---------------------------------------------------------------------------
+// Phase 15 — Genomic Criteria (extends OHDSI expression with molecular filters)
+// ---------------------------------------------------------------------------
+
+export type GenomicCriteriaType =
+  | "gene_mutation"
+  | "tmb"
+  | "msi"
+  | "fusion"
+  | "pathogenicity"
+  | "treatment_episode";
+
+export interface GenomicCriterion {
+  id?: number; // saved criterion ID (from genomic_cohort_criteria)
+  type: GenomicCriteriaType;
+  label: string; // human-readable, e.g. "EGFR L858R mutation present"
+  // gene_mutation fields
+  gene?: string;
+  hgvs?: string;
+  // tmb fields
+  tmbOperator?: "gt" | "gte" | "lt" | "lte";
+  tmbValue?: number;
+  tmbUnit?: "mut/Mb";
+  // msi fields
+  msiStatus?: "MSS" | "MSI-L" | "MSI-H" | "any_unstable";
+  // fusion fields
+  gene1?: string;
+  gene2?: string;
+  // pathogenicity fields
+  clinvarClasses?: ("Pathogenic" | "Likely pathogenic" | "Uncertain significance")[];
+  // negation
+  exclude?: boolean;
+}
+
 export interface CohortExpression {
   ConceptSets: ConceptSetExpression[];
   PrimaryCriteria: {
@@ -121,6 +155,8 @@ export interface CohortExpression {
   ExpressionLimit?: { Type: "First" | "All" };
   DemographicCriteria?: DemographicFilter[];
   CollapseSettings?: { CollapseType: "ERA"; EraPad: number };
+  // Phase 15 extension
+  GenomicCriteria?: GenomicCriterion[];
 }
 
 // ---------------------------------------------------------------------------

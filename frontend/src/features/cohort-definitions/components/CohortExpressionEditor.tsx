@@ -11,6 +11,8 @@ import {
   Settings,
   Plus,
   Trash2,
+  Dna,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PrimaryCriteriaPanel } from "./PrimaryCriteriaPanel";
@@ -18,11 +20,13 @@ import { InclusionCriteriaPanel } from "./InclusionCriteriaPanel";
 import { EndStrategyEditor } from "./EndStrategyEditor";
 import { DemographicFilterEditor } from "./DemographicFilterEditor";
 import { DomainCriteriaSelector, getDomainInfo } from "./DomainCriteriaSelector";
+import { GenomicCriteriaPanel } from "@/features/genomics/components/GenomicCriteriaPanel";
 import { useCohortExpressionStore } from "../stores/cohortExpressionStore";
 import type {
   DomainCriterionType,
   DomainCriterion,
   DemographicFilter,
+  GenomicCriterion,
 } from "../types/cohortExpression";
 
 interface SectionProps {
@@ -83,9 +87,12 @@ export function CohortExpressionEditor() {
     setDemographicCriteria,
     setCensoringCriteria,
     setQualifiedLimit,
+    addGenomicCriterion,
+    removeGenomicCriterion,
   } = useCohortExpressionStore();
 
   const [showAddCensor, setShowAddCensor] = useState(false);
+  const [showAddGenomic, setShowAddGenomic] = useState(false);
 
   const primaryCount = expression.PrimaryCriteria.CriteriaList.length;
   const inclusionCount =
@@ -94,6 +101,7 @@ export function CohortExpressionEditor() {
   const censorCount = expression.CensoringCriteria?.length ?? 0;
   const conceptSetCount = expression.ConceptSets.length;
   const demographicCount = expression.DemographicCriteria?.length ?? 0;
+  const genomicCount = expression.GenomicCriteria?.length ?? 0;
 
   const handleAddDemographic = () => {
     const current = expression.DemographicCriteria ?? [];
@@ -322,7 +330,54 @@ export function CohortExpressionEditor() {
         </div>
       </CollapsibleSection>
 
-      {/* 7. Qualified Limit */}
+      {/* 7. Genomic Criteria (Phase 15) */}
+      <CollapsibleSection
+        title="Genomic Criteria"
+        icon={Dna}
+        iconColor="#A78BFA"
+        badge={genomicCount > 0 ? genomicCount : undefined}
+      >
+        <div className="space-y-3">
+          <p className="text-xs text-[#5A5650]">
+            Filter cohort by molecular features: gene mutations, TMB, MSI status, gene fusions, or ClinVar pathogenicity class.
+          </p>
+
+          {(expression.GenomicCriteria ?? []).map((criterion, i) => (
+            <div key={i} className="flex items-center justify-between rounded-lg border border-purple-700/30 bg-purple-900/10 px-3 py-2">
+              <div className="flex items-center gap-2">
+                <Dna size={12} className="text-purple-400" />
+                <span className="text-xs text-purple-200">{criterion.label}</span>
+                <span className="text-[10px] text-purple-500 uppercase">{criterion.type.replace("_", " ")}</span>
+                {criterion.exclude && <span className="text-[10px] text-red-400">EXCLUDE</span>}
+              </div>
+              <button onClick={() => removeGenomicCriterion(i)} className="text-gray-600 hover:text-red-400">
+                <X size={12} />
+              </button>
+            </div>
+          ))}
+
+          {showAddGenomic ? (
+            <GenomicCriteriaPanel
+              onAdd={(criterion: GenomicCriterion) => {
+                addGenomicCriterion(criterion);
+                setShowAddGenomic(false);
+              }}
+              onCancel={() => setShowAddGenomic(false)}
+            />
+          ) : (
+            <button
+              type="button"
+              onClick={() => setShowAddGenomic(true)}
+              className="flex items-center gap-2 rounded-lg border border-dashed border-purple-700/40 px-3 py-2 text-xs text-purple-400 hover:border-purple-600 hover:text-purple-300 transition-colors"
+            >
+              <Plus size={12} />
+              Add Genomic Criterion
+            </button>
+          )}
+        </div>
+      </CollapsibleSection>
+
+      {/* 8. Qualified Limit */}
       <CollapsibleSection
         title="Qualified Limit"
         icon={Settings}

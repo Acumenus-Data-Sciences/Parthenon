@@ -110,8 +110,47 @@ Writes matched genomic variants to OMOP MEASUREMENT table:
 
 ---
 
+---
+
+## §15.3 — Genomic Criteria in Cohort Builder (Complete)
+
+**What was built:**
+
+### Type Extension (cohortExpression.ts)
+- `GenomicCriteriaType` union: gene_mutation | tmb | msi | fusion | pathogenicity | treatment_episode
+- `GenomicCriterion` interface with type-discriminated fields (gene, hgvs, tmbOperator/tmbValue, msiStatus, gene1/gene2, clinvarClasses, exclude)
+- `CohortExpression.GenomicCriteria?: GenomicCriterion[]` — extends OHDSI expression format without breaking existing structure
+
+### Zustand Store (cohortExpressionStore.ts)
+- `addGenomicCriterion(criterion)` — appends to expression.GenomicCriteria, marks isDirty
+- `removeGenomicCriterion(index)` — removes by index, marks isDirty
+- Both actions serialize to/from the expression_json stored in cohort_definitions table
+
+### GenomicCriteriaPanel Component
+Interactive form for 6 genomic criteria types:
+- **Gene Mutation**: gene symbol + optional HGVS p./c. notation
+- **TMB**: operator (≥/>/<=/< ) + numeric threshold + "mut/Mb" unit
+- **MSI**: radio selection (MSI-H, any_unstable, MSI-L, MSS)
+- **Gene Fusion**: primary gene + optional partner gene (displays as GENE1::GENE2)
+- **Pathogenicity**: multi-select ClinVar classes (Pathogenic, Likely pathogenic, Uncertain significance)
+- **Treatment Episode**: free-text regimen name (maps to EPISODE table in OMOP Oncology Extension)
+- Exclude toggle: negates criterion (exclude patients WITH this feature)
+- Human-readable label auto-generated for each type
+
+### CohortExpressionEditor Integration
+- New "Genomic Criteria" collapsible section (#7, before Qualified Limit)
+- Purple/DNA icon theming, badge count, criterion chips with X button
+- "Add Genomic Criterion" button renders GenomicCriteriaPanel inline
+- GenomicCriteria count shown in section badge
+
+### Standards Applied
+- OMOP Oncology Extension: treatment_episode type maps to EPISODE/EPISODE_EVENT tables
+- MSI and TMB thresholds follow ASCO/NCCAP clinical nomenclature (MSI-H, TMB-High ≥10 mut/Mb)
+- ClinVar classification names follow ClinVar standard terminology
+
+---
+
 ## Next Steps
 
-- §15.3 — Genomic cohort criteria in the cohort builder UI
 - §15.4 — Variant-Outcome Analysis Suite (Kaplan-Meier, treatment-variant matrix, waterfall plots)
 - §15.5 — Molecular Tumor Board Dashboard (per-patient evidence panel)
