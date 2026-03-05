@@ -12,6 +12,7 @@ import {
   Plus,
   Trash2,
   Dna,
+  ScanLine,
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -21,12 +22,14 @@ import { EndStrategyEditor } from "./EndStrategyEditor";
 import { DemographicFilterEditor } from "./DemographicFilterEditor";
 import { DomainCriteriaSelector, getDomainInfo } from "./DomainCriteriaSelector";
 import { GenomicCriteriaPanel } from "@/features/genomics/components/GenomicCriteriaPanel";
+import { ImagingCriteriaPanel } from "@/features/imaging/components/ImagingCriteriaPanel";
 import { useCohortExpressionStore } from "../stores/cohortExpressionStore";
 import type {
   DomainCriterionType,
   DomainCriterion,
   DemographicFilter,
   GenomicCriterion,
+  ImagingCriterion,
 } from "../types/cohortExpression";
 
 interface SectionProps {
@@ -89,10 +92,13 @@ export function CohortExpressionEditor() {
     setQualifiedLimit,
     addGenomicCriterion,
     removeGenomicCriterion,
+    addImagingCriterion,
+    removeImagingCriterion,
   } = useCohortExpressionStore();
 
   const [showAddCensor, setShowAddCensor] = useState(false);
   const [showAddGenomic, setShowAddGenomic] = useState(false);
+  const [showAddImaging, setShowAddImaging] = useState(false);
 
   const primaryCount = expression.PrimaryCriteria.CriteriaList.length;
   const inclusionCount =
@@ -102,6 +108,7 @@ export function CohortExpressionEditor() {
   const conceptSetCount = expression.ConceptSets.length;
   const demographicCount = expression.DemographicCriteria?.length ?? 0;
   const genomicCount = expression.GenomicCriteria?.length ?? 0;
+  const imagingCount = expression.ImagingCriteria?.length ?? 0;
 
   const handleAddDemographic = () => {
     const current = expression.DemographicCriteria ?? [];
@@ -377,7 +384,54 @@ export function CohortExpressionEditor() {
         </div>
       </CollapsibleSection>
 
-      {/* 8. Qualified Limit */}
+      {/* 8. Imaging Criteria (Phase 16) */}
+      <CollapsibleSection
+        title="Imaging Criteria"
+        icon={ScanLine}
+        iconColor="#22D3EE"
+        badge={imagingCount > 0 ? imagingCount : undefined}
+      >
+        <div className="space-y-3">
+          <p className="text-xs text-[#5A5650]">
+            Filter cohort by imaging characteristics: modality, anatomy, quantitative radiomic features, AI classification labels, or radiation dose.
+          </p>
+
+          {(expression.ImagingCriteria ?? []).map((criterion, i) => (
+            <div key={i} className="flex items-center justify-between rounded-lg border border-cyan-700/30 bg-cyan-900/10 px-3 py-2">
+              <div className="flex items-center gap-2">
+                <ScanLine size={12} className="text-cyan-400" />
+                <span className="text-xs text-cyan-200">{criterion.label}</span>
+                <span className="text-[10px] text-cyan-500 uppercase">{criterion.type.replace("_", " ")}</span>
+                {criterion.exclude && <span className="text-[10px] text-red-400">EXCLUDE</span>}
+              </div>
+              <button onClick={() => removeImagingCriterion(i)} className="text-gray-600 hover:text-red-400">
+                <X size={12} />
+              </button>
+            </div>
+          ))}
+
+          {showAddImaging ? (
+            <ImagingCriteriaPanel
+              onAdd={(criterion: ImagingCriterion) => {
+                addImagingCriterion(criterion);
+                setShowAddImaging(false);
+              }}
+              onCancel={() => setShowAddImaging(false)}
+            />
+          ) : (
+            <button
+              type="button"
+              onClick={() => setShowAddImaging(true)}
+              className="flex items-center gap-2 rounded-lg border border-dashed border-cyan-700/40 px-3 py-2 text-xs text-cyan-400 hover:border-cyan-600 hover:text-cyan-300 transition-colors"
+            >
+              <Plus size={12} />
+              Add Imaging Criterion
+            </button>
+          )}
+        </div>
+      </CollapsibleSection>
+
+      {/* 9. Qualified Limit */}
       <CollapsibleSection
         title="Qualified Limit"
         icon={Settings}

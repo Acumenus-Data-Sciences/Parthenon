@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
   ScanLine,
-  Activity,
   Layers,
   BarChart3,
   Filter,
@@ -17,7 +16,7 @@ import {
   useImagingCriteria,
   useDeleteImagingCriterion,
   useIndexFromDicomweb,
-  useExtractNlp,
+  usePopulationAnalytics,
 } from "../hooks/useImaging";
 import type { ImagingStudy, ImagingFeature } from "../types";
 
@@ -25,6 +24,7 @@ const TABS = [
   { id: "studies", label: "Studies", icon: ScanLine },
   { id: "features", label: "AI Features", icon: Brain },
   { id: "criteria", label: "Imaging Criteria", icon: Filter },
+  { id: "analytics", label: "Population Analytics", icon: BarChart3 },
 ] as const;
 
 type Tab = (typeof TABS)[number]["id"];
@@ -358,6 +358,109 @@ function CriteriaTab() {
   );
 }
 
+function AnalyticsTab() {
+  const [sourceId, setSourceId] = useState("");
+  const sid = sourceId ? parseInt(sourceId) : 0;
+  const { data, isLoading } = usePopulationAnalytics(sid);
+
+  const maxModalityN = data ? Math.max(...data.by_modality.map((m) => m.n), 1) : 1;
+  const maxBodyN = data ? Math.max(...data.by_body_part.map((b) => b.n), 1) : 1;
+
+  return (
+    <div>
+      <div className="flex gap-3 mb-6">
+        <input
+          className="input"
+          placeholder="Source ID"
+          value={sourceId}
+          onChange={(e) => setSourceId(e.target.value)}
+          style={{ width: 140 }}
+        />
+      </div>
+
+      {!sid && (
+        <div className="card p-8 text-center text-muted">
+          Enter a Source ID to view population imaging analytics.
+        </div>
+      )}
+
+      {sid > 0 && isLoading && (
+        <div className="text-muted text-sm">Loading analytics…</div>
+      )}
+
+      {data && (
+        <div className="grid grid-cols-2 gap-6">
+          {/* By Modality */}
+          <div className="card p-4">
+            <h3 className="font-semibold mb-4 flex items-center gap-2">
+              <ScanLine size={14} className="text-accent" /> Studies by Modality
+            </h3>
+            <div className="space-y-2">
+              {data.by_modality.map((row) => (
+                <div key={row.modality}>
+                  <div className="flex justify-between text-sm mb-1">
+                    <span className="font-mono font-semibold">{row.modality}</span>
+                    <span className="text-muted">
+                      {row.n.toLocaleString()} ({row.unique_persons.toLocaleString()} persons)
+                    </span>
+                  </div>
+                  <div className="h-2 bg-surface rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-accent rounded-full"
+                      style={{ width: `${(row.n / maxModalityN) * 100}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* By Body Part */}
+          <div className="card p-4">
+            <h3 className="font-semibold mb-4 flex items-center gap-2">
+              <Layers size={14} className="text-accent" /> Studies by Body Part
+            </h3>
+            <div className="space-y-2">
+              {data.by_body_part.map((row) => (
+                <div key={row.body_part_examined}>
+                  <div className="flex justify-between text-sm mb-1">
+                    <span>{row.body_part_examined}</span>
+                    <span className="text-muted">{row.n.toLocaleString()}</span>
+                  </div>
+                  <div className="h-2 bg-surface rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-green-500 rounded-full"
+                      style={{ width: `${(row.n / maxBodyN) * 100}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Top Features */}
+          {data.top_features.length > 0 && (
+            <div className="card p-4 col-span-2">
+              <h3 className="font-semibold mb-4 flex items-center gap-2">
+                <Brain size={14} className="text-accent" /> Top AI / NLP Features
+              </h3>
+              <div className="grid grid-cols-4 gap-3">
+                {data.top_features.map((f, i) => (
+                  <div key={i} className="bg-surface rounded-lg p-3">
+                    <p className="font-medium text-sm truncate">{f.feature_name}</p>
+                    <p className="text-xs text-muted mt-0.5">{f.feature_type}</p>
+                    <p className="text-lg font-bold mt-1">{f.n.toLocaleString()}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function ImagingPage() {
   const [tab, setTab] = useState<Tab>("studies");
 
@@ -395,6 +498,7 @@ export default function ImagingPage() {
       {tab === "studies" && <StudiesTab />}
       {tab === "features" && <FeaturesTab />}
       {tab === "criteria" && <CriteriaTab />}
+      {tab === "analytics" && <AnalyticsTab />}
     </div>
   );
 }

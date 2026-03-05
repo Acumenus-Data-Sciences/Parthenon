@@ -140,6 +140,38 @@ export interface GenomicCriterion {
   exclude?: boolean;
 }
 
+// Phase 16 — Imaging Criteria
+// ---------------------------------------------------------------------------
+
+export type ImagingCriteriaType =
+  | "modality"
+  | "anatomy"
+  | "quantitative"
+  | "ai_classification"
+  | "dose";
+
+export interface ImagingCriterion {
+  id?: number;
+  type: ImagingCriteriaType;
+  label: string;
+  // modality
+  modality?: string;
+  // anatomy
+  bodyPart?: string;
+  // quantitative
+  featureName?: string;
+  operator?: "gt" | "gte" | "lt" | "lte" | "eq";
+  value?: number;
+  unit?: string;
+  // ai_classification
+  classificationLabel?: string;
+  minConfidence?: number;
+  // dose
+  maxDoseGy?: number;
+  // negation
+  exclude?: boolean;
+}
+
 export interface CohortExpression {
   ConceptSets: ConceptSetExpression[];
   PrimaryCriteria: {
@@ -157,6 +189,8 @@ export interface CohortExpression {
   CollapseSettings?: { CollapseType: "ERA"; EraPad: number };
   // Phase 15 extension
   GenomicCriteria?: GenomicCriterion[];
+  // Phase 16 extension
+  ImagingCriteria?: ImagingCriterion[];
 }
 
 // ---------------------------------------------------------------------------

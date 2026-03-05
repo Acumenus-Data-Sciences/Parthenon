@@ -9,6 +9,7 @@ import type {
   DomainCriterionType,
   DomainCriterion,
   GenomicCriterion,
+  ImagingCriterion,
 } from "../types/cohortExpression";
 
 const defaultExpression: CohortExpression = {
@@ -59,6 +60,9 @@ interface CohortExpressionStore {
   // Phase 15: Genomic criteria
   addGenomicCriterion: (criterion: GenomicCriterion) => void;
   removeGenomicCriterion: (index: number) => void;
+  // Phase 16: Imaging criteria
+  addImagingCriterion: (criterion: ImagingCriterion) => void;
+  removeImagingCriterion: (index: number) => void;
 
   // State
   reset: (expression?: CohortExpression) => void;
@@ -271,6 +275,24 @@ export const useCohortExpressionStore = create<CohortExpressionStore>()(
         expression: {
           ...s.expression,
           GenomicCriteria: (s.expression.GenomicCriteria ?? []).filter((_, i) => i !== index),
+        },
+      })),
+
+    addImagingCriterion: (criterion) =>
+      set((s) => ({
+        isDirty: true,
+        expression: {
+          ...s.expression,
+          ImagingCriteria: [...(s.expression.ImagingCriteria ?? []), criterion],
+        },
+      })),
+
+    removeImagingCriterion: (index) =>
+      set((s) => ({
+        isDirty: true,
+        expression: {
+          ...s.expression,
+          ImagingCriteria: (s.expression.ImagingCriteria ?? []).filter((_, i) => i !== index),
         },
       })),
 
