@@ -10,6 +10,7 @@ use App\Models\App\Source;
 use App\Services\Genomics\OmopMeasurementWriterService;
 use App\Services\Genomics\PersonMatcherService;
 use App\Services\Genomics\VcfParserService;
+use App\Services\Genomics\VariantOutcomeService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -21,6 +22,7 @@ class GenomicsController extends Controller
         private readonly VcfParserService $parser,
         private readonly PersonMatcherService $matcher,
         private readonly OmopMeasurementWriterService $writer,
+        private readonly VariantOutcomeService $outcomes,
     ) {}
 
     // ──────────────────────────────────────────────────────────────────────────
@@ -267,5 +269,67 @@ class GenomicsController extends Controller
         $criterion->delete();
 
         return response()->json(null, 204);
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // Variant-Outcome Analysis Suite
+    // ──────────────────────────────────────────────────────────────────────────
+
+    /**
+     * GET /api/v1/genomics/analysis/survival?source_id=9&gene=EGFR&hgvs=p.Leu858Arg
+     * Returns Kaplan-Meier–ready event data: {mutated: [{t,e}], wildtype: [{t,e}]}
+     */
+    public function survivalAnalysis(Request $request): JsonResponse
+    {
+        $request->validate([
+            'source_id' => 'required|integer|exists:sources,id',
+            'gene' => 'required|string|max:100',
+            'hgvs' => 'nullable|string|max:200',
+        ]);
+
+        $result = $this->outcomes->survivalByMutation(
+            $request->integer('source_id'),
+            $request->string('gene'),
+            $request->string('hgvs') ?: null,
+        );
+
+        return response()->json(['data' => $result]);
+    }
+
+    /**
+     * GET /api/v1/genomics/analysis/treatment-matrix?source_id=9&genes[]=EGFR&genes[]=KRAS
+     * Returns treatment × variant response matrix rows.
+     */
+    public function treatmentMatrix(Request $request): JsonResponse
+    {
+        $request->validate([
+            'source_id' => 'required|integer|exists:sources,id',
+            'genes' => 'required|array|max:10',
+            'genes.*' => 'string|max:100',
+        ]);
+
+        $result = $this->outcomes->treatmentVariantMatrix(
+            $request->integer('source_id'),
+            $request->input('genes'),
+        );
+
+        return response()->json(['data' => $result]);
+    }
+
+    /**
+     * GET /api/v1/genomics/analysis/characterization?source_id=9
+     * Returns top genes, TMB buckets, variant type distribution.
+     */
+    public function characterization(Request $request): JsonResponse
+    {
+        $request->validate([
+            'source_id' => 'required|integer|exists:sources,id',
+        ]);
+
+        $result = $this->outcomes->genomicCharacterization(
+            $request->integer('source_id'),
+        );
+
+        return response()->json(['data' => $result]);
     }
 }

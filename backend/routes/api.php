@@ -432,6 +432,11 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         Route::post('/uploads/{upload}/match-persons', [GenomicsController::class, 'matchPersons']);
         Route::post('/uploads/{upload}/import', [GenomicsController::class, 'importToOmop']);
 
+        // Analysis suite
+        Route::get('/analysis/survival', [GenomicsController::class, 'survivalAnalysis']);
+        Route::get('/analysis/treatment-matrix', [GenomicsController::class, 'treatmentMatrix']);
+        Route::get('/analysis/characterization', [GenomicsController::class, 'characterization']);
+
         // Variants
         Route::get('/variants', [GenomicsController::class, 'indexVariants']);
         Route::get('/variants/{variant}', [GenomicsController::class, 'showVariant']);

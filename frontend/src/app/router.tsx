@@ -304,6 +304,13 @@ export const router = createBrowserRouter([
                 (m) => ({ Component: m.default }),
               ),
           },
+          {
+            path: "analysis",
+            lazy: () =>
+              import("@/features/genomics/pages/GenomicAnalysisPage").then(
+                (m) => ({ Component: m.default }),
+              ),
+          },
         ],
       },
       // ── Administration ────────────────────────────────────────────────

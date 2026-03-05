@@ -150,7 +150,62 @@ Interactive form for 6 genomic criteria types:
 
 ---
 
+---
+
+## §15.4 — Variant-Outcome Analysis Suite (Complete)
+
+**What was built:**
+
+### VariantOutcomeService (backend)
+Three analytical methods:
+
+1. **survivalByMutation** — Kaplan-Meier event data:
+   - Fetches person_ids with gene variant from genomic_variants
+   - Queries omop.observation_period + omop.death to get (time_days, event) pairs
+   - Returns mutated vs wild-type series (matched cohort at 3:1 ratio)
+   - Uses `EXTRACT(DAY)` for time calculation, handles censored observations
+   - Graceful failure with Log::warning + empty array return
+
+2. **treatmentVariantMatrix** — Event rate by gene × drug:
+   - For each gene: joins genomic_variants → omop.drug_exposure → omop.concept → omop.death
+   - Returns top drugs by patient count, with event_rate = deaths/n
+   - HAVING n ≥ 3 filter prevents small-n spurious rates
+
+3. **genomicCharacterization** — Population-level genomic summary:
+   - Top mutated genes (count + pct of total)
+   - TMB approximation: variant count per sample, bucketed into 5 ranges
+   - Variant type distribution (SNP, INS, DEL, MNP)
+
+### Three API endpoints
+- `GET /api/v1/genomics/analysis/survival?source_id=9&gene=EGFR&hgvs=p.Leu858Arg`
+- `GET /api/v1/genomics/analysis/treatment-matrix?source_id=9&genes[]=EGFR&genes[]=KRAS`
+- `GET /api/v1/genomics/analysis/characterization?source_id=9`
+
+### GenomicAnalysisPage (frontend)
+Three-tab analysis UI at `/genomics/analysis`:
+
+1. **Mutation-Survival tab**: Gene + HGVS inputs → inline SVG KM curve (no external charting library)
+   - KM step function computed in browser from (t, e) event data
+   - Two curves: mutated (red) vs wild-type (blue) with n counts in legend
+   - X-axis: days, Y-axis: survival probability
+
+2. **Treatment-Variant Matrix tab**: Comma-separated gene input → heatmap
+   - Color intensity = event rate (red gradient, max-normalized)
+   - Cell tooltip shows n + rate%; rotated drug name headers
+   - Empty state guides user to upload data + CDM connection
+
+3. **Genomic Characterization tab**: Top genes waterfall + variant type chips + TMB histogram
+   - Gradient bar chart for gene frequencies
+   - Variant type distribution as labeled chips
+   - TMB bucket bar chart (vertical bars with counts)
+
+### Standards Applied
+- KM curves follow standard actuarial method (product-limit estimator)
+- TMB buckets align with MSK-IMPACT thresholds (TMB-H ≥10 mut/Mb)
+- Drug concept filtering: `concept_class_id IN ('Ingredient','Clinical Drug')` for standard OMOP drug hierarchy
+
+---
+
 ## Next Steps
 
-- §15.4 — Variant-Outcome Analysis Suite (Kaplan-Meier, treatment-variant matrix, waterfall plots)
 - §15.5 — Molecular Tumor Board Dashboard (per-patient evidence panel)
