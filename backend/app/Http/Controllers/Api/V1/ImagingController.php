@@ -14,6 +14,7 @@ use App\Services\Imaging\RadiologyNlpService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -325,7 +326,7 @@ class ImagingController extends Controller
      * GET /api/v1/imaging/wado/{sopUid}
      * Streams a DICOM file to the client (used by Cornerstone3D dicom-image-loader).
      */
-    public function wado(string $sopUid): Response
+    public function wado(string $sopUid): BinaryFileResponse
     {
         $instance = ImagingInstance::where('sop_instance_uid', $sopUid)->firstOrFail();
 
