@@ -5,7 +5,7 @@
  * a scrollable axial stack with window/level, zoom, and pan tools.
  */
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, useLayoutEffect } from "react";
 import { Loader2, RefreshCw, Layers, ChevronLeft, ChevronRight } from "lucide-react";
 import * as cornerstone from "@cornerstonejs/core";
 import {
@@ -78,6 +78,8 @@ function buildWadoId(sopUid: string): string {
 
 export default function DicomViewer({ studyId, className = "" }: DicomViewerProps) {
   const viewportEl = useRef<HTMLDivElement>(null);
+  const containerEl = useRef<HTMLDivElement>(null);
+  const [vpHeight, setVpHeight] = useState(480);
 
   const [instances, setInstances] = useState<DicomInstance[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -85,6 +87,20 @@ export default function DicomViewer({ studyId, className = "" }: DicomViewerProp
   const [loadingViewer, setLoadingViewer] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeTool, setActiveTool] = useState("WindowLevel");
+
+  // ── Dynamic viewport height: stretch to 30px above browser bottom ────────
+  useLayoutEffect(() => {
+    function recalc() {
+      if (!containerEl.current) return;
+      const rect = containerEl.current.getBoundingClientRect();
+      // 30px bottom margin + ~24px for the hints text below the viewport
+      const available = window.innerHeight - rect.top - 30 - 24;
+      setVpHeight(Math.max(300, available));
+    }
+    recalc();
+    window.addEventListener("resize", recalc);
+    return () => window.removeEventListener("resize", recalc);
+  }, [instances.length]);
 
   const engineId = `engine-${studyId}`;
   const viewportId = `vp-${studyId}`;
@@ -337,7 +353,7 @@ export default function DicomViewer({ studyId, className = "" }: DicomViewerProp
       </div>
 
       {/* Viewport canvas */}
-      <div className="relative">
+      <div ref={containerEl} className="relative">
         {loadingViewer && (
           <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#0E0E11]/80 rounded-lg">
             <div className="flex flex-col items-center gap-2 text-[#8A857D]">
@@ -349,7 +365,7 @@ export default function DicomViewer({ studyId, className = "" }: DicomViewerProp
         <div
           ref={viewportEl}
           className="w-full rounded-lg overflow-hidden bg-black border border-[#1E1E23]"
-          style={{ height: 480, cursor: "crosshair" }}
+          style={{ height: vpHeight, cursor: "crosshair" }}
         />
       </div>
 
