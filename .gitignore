@@ -2,6 +2,9 @@
 .DS_Store
 Thumbs.db
 
+# DICOM sample data
+dicom_samples/
+
 # IDE
 .idea/
 .vscode/
