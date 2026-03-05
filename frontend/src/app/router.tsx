@@ -387,6 +387,13 @@ export const router = createBrowserRouter([
               ),
           },
           {
+            path: "vocabulary",
+            lazy: () =>
+              import("@/features/administration/pages/VocabularyPage").then(
+                (m) => ({ Component: m.default }),
+              ),
+          },
+          {
             path: "webapi-registry",
             lazy: () =>
               import("@/features/data-sources/pages/WebApiRegistryPage").then(

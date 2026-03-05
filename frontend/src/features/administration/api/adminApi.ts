@@ -128,3 +128,51 @@ export const testAiProvider = (type: string) =>
 
 export const fetchSystemHealth = () =>
   apiClient.get<SystemHealth>("/admin/system-health").then((r) => r.data);
+
+// ── Vocabulary Imports ────────────────────────────────────────────────────────
+
+export type VocabImportStatus = "pending" | "running" | "completed" | "failed";
+
+export interface VocabularyImport {
+  id: number;
+  user_id: number;
+  source_id: number | null;
+  status: VocabImportStatus;
+  progress_percentage: number;
+  file_name: string;
+  file_size: number | null;
+  log_output: string | null;
+  error_message: string | null;
+  rows_loaded: number | null;
+  target_schema: string | null;
+  started_at: string | null;
+  completed_at: string | null;
+  created_at: string;
+  updated_at: string;
+  user?: { id: number; name: string; email: string };
+  source?: { id: number; source_name: string; source_key: string } | null;
+}
+
+export const fetchVocabImports = () =>
+  apiClient
+    .get<{ data: VocabularyImport[] }>("/admin/vocabulary/imports")
+    .then((r) => r.data.data);
+
+export const fetchVocabImport = (id: number) =>
+  apiClient
+    .get<{ data: VocabularyImport }>(`/admin/vocabulary/imports/${id}`)
+    .then((r) => r.data.data);
+
+export const uploadVocabZip = (file: File, sourceId?: number) => {
+  const form = new FormData();
+  form.append("file", file);
+  if (sourceId) form.append("source_id", String(sourceId));
+  return apiClient
+    .post<{ data: VocabularyImport }>("/admin/vocabulary/upload", form, {
+      headers: { "Content-Type": "multipart/form-data" },
+    })
+    .then((r) => r.data.data);
+};
+
+export const deleteVocabImport = (id: number) =>
+  apiClient.delete(`/admin/vocabulary/imports/${id}`);

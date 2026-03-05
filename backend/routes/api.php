@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\V1\Admin\AuthProviderController;
 use App\Http\Controllers\Api\V1\Admin\RoleController;
 use App\Http\Controllers\Api\V1\Admin\SystemHealthController;
 use App\Http\Controllers\Api\V1\Admin\UserController;
+use App\Http\Controllers\Api\V1\Admin\VocabularyController as AdminVocabularyController;
 use App\Http\Controllers\Api\V1\Admin\WebApiRegistryController;
 use App\Http\Controllers\Api\V1\AnalysisStatsController;
 use App\Http\Controllers\Api\V1\AuthController;
@@ -46,6 +47,7 @@ use App\Http\Controllers\Api\V1\StudyStatsController;
 use App\Http\Controllers\Api\V1\StudySynthesisController;
 use App\Http\Controllers\Api\V1\StudyTeamController;
 use App\Http\Controllers\Api\V1\GenomicsController;
+use App\Http\Controllers\Api\V1\HeorController;
 use App\Http\Controllers\Api\V1\ImagingController;
 use App\Http\Controllers\Api\V1\VocabularyController;
 use Illuminate\Support\Facades\Route;
@@ -416,6 +418,14 @@ Route::prefix('v1')->group(function () {
 
             // ── System health (admin+) ────────────────────────────────────
             Route::get('/system-health', [SystemHealthController::class, 'index']);
+
+            // ── Vocabulary management (super-admin only) ──────────────────
+            Route::middleware('role:super-admin')->prefix('vocabulary')->group(function () {
+                Route::get('/imports', [AdminVocabularyController::class, 'index']);
+                Route::post('/upload', [AdminVocabularyController::class, 'upload']);
+                Route::get('/imports/{vocabularyImport}', [AdminVocabularyController::class, 'show']);
+                Route::delete('/imports/{vocabularyImport}', [AdminVocabularyController::class, 'destroy']);
+            });
         });
     });
 });
@@ -475,6 +485,44 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 
         // Population analytics
         Route::get('/analytics/population', [ImagingController::class, 'populationAnalytics']);
+    });
+});
+
+// ── Phase 17: HEOR ───────────────────────────────────────────────────────────
+Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
+    Route::prefix('heor')->group(function () {
+        Route::get('/stats', [HeorController::class, 'stats']);
+
+        // Analyses CRUD
+        Route::get('/analyses', [HeorController::class, 'index']);
+        Route::post('/analyses', [HeorController::class, 'store']);
+        Route::get('/analyses/{analysis}', [HeorController::class, 'show']);
+        Route::put('/analyses/{analysis}', [HeorController::class, 'update']);
+        Route::delete('/analyses/{analysis}', [HeorController::class, 'destroy']);
+
+        // Scenarios
+        Route::get('/analyses/{analysis}/scenarios', [HeorController::class, 'indexScenarios']);
+        Route::post('/analyses/{analysis}/scenarios', [HeorController::class, 'storeScenario']);
+        Route::put('/analyses/{analysis}/scenarios/{scenario}', [HeorController::class, 'updateScenario']);
+        Route::delete('/analyses/{analysis}/scenarios/{scenario}', [HeorController::class, 'destroyScenario']);
+
+        // Parameters
+        Route::get('/analyses/{analysis}/parameters', [HeorController::class, 'indexParameters']);
+        Route::post('/analyses/{analysis}/parameters', [HeorController::class, 'storeParameter']);
+        Route::put('/analyses/{analysis}/parameters/{parameter}', [HeorController::class, 'updateParameter']);
+        Route::delete('/analyses/{analysis}/parameters/{parameter}', [HeorController::class, 'destroyParameter']);
+
+        // Run + results
+        Route::post('/analyses/{analysis}/run', [HeorController::class, 'run']);
+        Route::get('/analyses/{analysis}/results', [HeorController::class, 'results']);
+
+        // Value-based contracts
+        Route::get('/contracts', [HeorController::class, 'indexContracts']);
+        Route::post('/contracts', [HeorController::class, 'storeContract']);
+        Route::get('/contracts/{contract}', [HeorController::class, 'showContract']);
+        Route::put('/contracts/{contract}', [HeorController::class, 'updateContract']);
+        Route::delete('/contracts/{contract}', [HeorController::class, 'destroyContract']);
+        Route::post('/contracts/{contract}/simulate-rebate', [HeorController::class, 'simulateRebate']);
     });
 });
 

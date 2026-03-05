@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import {
-  Activity, Bot, KeyRound, ShieldCheck, Users, ArrowRight, Wand2,
+  Activity, Bot, KeyRound, ShieldCheck, Users, ArrowRight, Wand2, BookOpen,
 } from "lucide-react";
 import { MetricCard, Panel } from "@/components/ui";
 import { useUsers } from "../hooks/useAdminUsers";
@@ -55,6 +55,15 @@ const NAV_CARDS = [
     color: "text-emerald-500",
     bg: "bg-emerald-500/10",
     superAdminOnly: false,
+  },
+  {
+    title: "Vocabulary Management",
+    description: "Update OMOP vocabulary tables by uploading a new Athena vocabulary ZIP file.",
+    icon: BookOpen,
+    href: "/admin/vocabulary",
+    color: "text-violet-500",
+    bg: "bg-violet-500/10",
+    superAdminOnly: true,
   },
 ];
 
