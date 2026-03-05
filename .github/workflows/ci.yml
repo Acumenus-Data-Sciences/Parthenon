@@ -372,7 +372,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Build PHP image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: docker/php/Dockerfile
@@ -382,7 +382,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Build Node image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: docker/node/Dockerfile
@@ -390,7 +390,7 @@ jobs:
           tags: parthenon-node:test
 
       - name: Build Python image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: docker/python/Dockerfile
@@ -398,7 +398,7 @@ jobs:
           tags: parthenon-ai:test
 
       - name: Build R image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: docker/r/Dockerfile
