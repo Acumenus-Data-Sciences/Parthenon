@@ -63,11 +63,49 @@ with a configurable endpoint (can point to any Orthanc instance including produc
 - Axios `baseURL` is already `/api/v1` — route paths must omit the `/v1` prefix
 - Duplicate `services.ai` PHP key: second definition silently overwrites first; fixed by merging into one
 
+---
+
+## §16.2 — Population Analytics UI ✅
+
+**Completed:** 2026-03-05
+
+Added **Population Analytics** tab to ImagingPage:
+- Studies by modality: horizontal bar chart with unique_persons breakdown
+- Studies by body part: top 15 body parts with bar visualization
+- Top AI/NLP features: grid of feature name + type + count cards
+- Requires source_id input to query — zero-state prompt when none entered
+
+---
+
+## §16.3 — Imaging Criteria in Cohort Builder ✅
+
+**Completed:** 2026-03-05
+
+**New types in `cohortExpression.ts`:**
+- `ImagingCriteriaType` union: modality | anatomy | quantitative | ai_classification | dose
+- `ImagingCriterion` interface with all type-specific fields + `exclude` flag
+
+**New store actions in `cohortExpressionStore.ts`:**
+- `addImagingCriterion(criterion)` — appends to `expression.ImagingCriteria`
+- `removeImagingCriterion(index)` — removes by index
+
+**`ImagingCriteriaPanel` component** (`features/imaging/components/ImagingCriteriaPanel.tsx`):
+- Type selector: 5 types with icons and descriptions
+- Modality: quick-select chip grid (CT/MR/PT/US/CR/DX/MG/XA/NM/RF) + custom text input
+- Anatomy: common body part chip grid + custom text input
+- Quantitative: feature name + operator selector (≥/>/≤/</=) + value + unit
+- AI Classification: label text + confidence slider (0-100%)
+- Dose: max Gy numeric input
+- Exclude toggle + cyan "Add Criterion" button
+
+**`CohortExpressionEditor` section 8** (`Imaging Criteria`):
+- Collapsible section with `ScanLine` icon + cyan badge
+- Criterion chips (cyan color scheme, type label, EXCLUDE badge)
+- Dashed "Add Imaging Criterion" button → inline panel
+
 ### Pending
 
-- §16.2: Orthanc Docker service + automated study → OMOP `image_occurrence` ETL
-- §16.3: Imaging criteria panel in cohort builder
-- §16.4: Radiology NLP UI (trigger + findings review)
-- §16.5: Population imaging analytics charts
+- §16.4: Radiology NLP UI (trigger + findings review in study detail page)
+- §16.5: Orthanc Docker service (optional — system works without it via configurable endpoint)
 
 ---

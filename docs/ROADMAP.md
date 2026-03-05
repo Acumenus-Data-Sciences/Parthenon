@@ -12,8 +12,8 @@ Each phase is designed so that it delivers standalone value before the next one 
 |---|---|---|
 | **0.9** | Shipped | Full Atlas parity, Docusaurus manual, API reference, in-app help |
 | **1.0** | Shipped | Phase 14 — CDM characterization dashboard, patient profiles, care gaps materialized layer, Eunomia GiBleed loader, multi-source Achilles |
-| **1.1** | In development | Phase 15 — Molecular Diagnostics & Cancer Genomics |
-| **1.2** | Planned | Phase 16 — DICOM & Medical Imaging |
+| **1.1** | Shipped | Phase 15 — Molecular Diagnostics & Cancer Genomics |
+| **1.2** | In development | Phase 16 — DICOM & Medical Imaging (§16.1-16.3 complete) |
 | **1.3** | Planned | Phase 17 — Health Economics & Outcomes Research |
 
 ---
