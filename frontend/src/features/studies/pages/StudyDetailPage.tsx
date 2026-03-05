@@ -1,13 +1,12 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
 import {
   ArrowLeft,
   Loader2,
   Trash2,
   Play,
-  Database,
   Settings,
+  BarChart3,
   MapPin,
   Users,
   Target,
@@ -23,9 +22,9 @@ import {
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { fetchSources } from "@/features/data-sources/api/sourcesApi";
 import { StudyDesigner } from "../components/StudyDesigner";
 import { StudyDashboard } from "../components/StudyDashboard";
+import { StudyAnalysesTab } from "../components/StudyAnalysesTab";
 import { StudySitesTab } from "../components/StudySitesTab";
 import { StudyTeamTab } from "../components/StudyTeamTab";
 import { StudyCohortsTab } from "../components/StudyCohortsTab";
@@ -38,7 +37,6 @@ import {
   useDeleteStudy,
   useStudyAnalyses,
   useStudyProgress,
-  useExecuteAllStudyAnalyses,
   useAllowedTransitions,
   useTransitionStudy,
 } from "../hooks/useStudies";
@@ -77,11 +75,12 @@ const STATUS_LABELS: Record<string, string> = {
   withdrawn: "Withdrawn",
 };
 
-type TabKey = "overview" | "design" | "progress" | "sites" | "team" | "cohorts" | "milestones" | "artifacts" | "activity";
+type TabKey = "overview" | "design" | "analyses" | "progress" | "sites" | "team" | "cohorts" | "milestones" | "artifacts" | "activity";
 
 const TABS: { key: TabKey; label: string; icon: typeof Settings }[] = [
   { key: "overview", label: "Overview", icon: Settings },
   { key: "design", label: "Design", icon: Edit3 },
+  { key: "analyses", label: "Analyses", icon: BarChart3 },
   { key: "progress", label: "Progress", icon: Play },
   { key: "sites", label: "Sites", icon: MapPin },
   { key: "team", label: "Team", icon: Users },
@@ -100,7 +99,6 @@ export default function StudyDetailPage() {
   const { data: study, isLoading, error } = useStudy(studyKey);
   const updateMutation = useUpdateStudy();
   const deleteMutation = useDeleteStudy();
-  const executeAllMutation = useExecuteAllStudyAnalyses();
   const transitionMutation = useTransitionStudy();
 
   const resolvedId = study?.id ?? studyId;
@@ -110,15 +108,9 @@ export default function StudyDetailPage() {
   const { data: transitions } = useAllowedTransitions(slug || null);
 
   const [activeTab, setActiveTab] = useState<TabKey>("overview");
-  const [sourceId, setSourceId] = useState<number | null>(null);
   const [showTransitions, setShowTransitions] = useState(false);
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleDraft, setTitleDraft] = useState("");
-
-  const { data: sources, isLoading: loadingSources } = useQuery({
-    queryKey: ["sources"],
-    queryFn: fetchSources,
-  });
 
   const handleDelete = () => {
     if (!study) return;
@@ -127,14 +119,6 @@ export default function StudyDetailPage() {
         onSuccess: () => navigate("/studies"),
       });
     }
-  };
-
-  const handleExecuteAll = () => {
-    if (!resolvedId || !sourceId) return;
-    executeAllMutation.mutate(
-      { studyId: resolvedId, sourceId },
-      { onSuccess: () => setActiveTab("progress") },
-    );
   };
 
   const handleTransition = (status: string) => {
@@ -153,7 +137,6 @@ export default function StudyDetailPage() {
     );
   };
 
-  const isRunning = progress?.overall_status === "running" || progress?.overall_status === "pending";
   const statusStyle = STATUS_COLORS[study?.status ?? "draft"] ?? STATUS_COLORS.draft;
   const allowedTransitions = transitions?.allowed_transitions ?? [];
 
@@ -281,37 +264,6 @@ export default function StudyDetailPage() {
 
           {/* Action buttons */}
           <div className="flex items-center gap-2 shrink-0">
-            <div className="flex items-center gap-2">
-              <div className="relative">
-                <Database size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]" />
-                <select
-                  value={sourceId ?? ""}
-                  onChange={(e) => setSourceId(Number(e.target.value) || null)}
-                  disabled={loadingSources}
-                  className="form-input form-select"
-                  style={{ paddingLeft: "2rem" }}
-                >
-                  <option value="">Source</option>
-                  {sources?.map((src) => (
-                    <option key={src.id} value={src.id}>{src.source_name}</option>
-                  ))}
-                </select>
-              </div>
-              <button
-                type="button"
-                onClick={handleExecuteAll}
-                disabled={!sourceId || executeAllMutation.isPending || isRunning}
-                className="btn btn-primary btn-sm"
-              >
-                {executeAllMutation.isPending || isRunning ? (
-                  <Loader2 size={14} className="animate-spin" />
-                ) : (
-                  <Play size={14} />
-                )}
-                Execute
-              </button>
-            </div>
-
             <button
               type="button"
               onClick={handleDelete}
@@ -347,6 +299,7 @@ export default function StudyDetailPage() {
         <StudyOverview study={study} analyses={analyses} progress={progress} />
       )}
       {activeTab === "design" && <StudyDesigner study={study} />}
+      {activeTab === "analyses" && <StudyAnalysesTab studyId={study.id} studySlug={study.slug} />}
       {activeTab === "progress" && <StudyDashboard analyses={analyses} progress={progress} />}
       {activeTab === "sites" && <StudySitesTab slug={study.slug} />}
       {activeTab === "team" && <StudyTeamTab slug={study.slug} />}
