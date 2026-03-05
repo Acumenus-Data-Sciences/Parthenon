@@ -311,6 +311,13 @@ export const router = createBrowserRouter([
                 (m) => ({ Component: m.default }),
               ),
           },
+          {
+            path: "tumor-board",
+            lazy: () =>
+              import("@/features/genomics/pages/TumorBoardPage").then(
+                (m) => ({ Component: m.default }),
+              ),
+          },
         ],
       },
       // ── Administration ────────────────────────────────────────────────

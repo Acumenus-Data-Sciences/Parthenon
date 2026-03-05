@@ -11,6 +11,8 @@ import {
   CheckCircle2,
   Clock,
   FlaskConical,
+  Activity,
+  Users,
 } from "lucide-react";
 import { useGenomicsStats, useGenomicUploads, useDeleteUpload } from "../hooks/useGenomics";
 import type { GenomicUpload, UploadStatus } from "../types";
@@ -83,13 +85,29 @@ export default function GenomicsPage() {
             </p>
           </div>
         </div>
-        <button
-          onClick={() => setShowUpload(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-medium transition-colors"
-        >
-          <Upload size={16} />
-          Upload Variants
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => navigate("/genomics/analysis")}
+            className="flex items-center gap-2 px-3 py-2 bg-[#0f0f23] hover:bg-white/5 border border-white/10 text-gray-300 rounded-lg text-sm font-medium transition-colors"
+          >
+            <Activity size={14} />
+            Analysis Suite
+          </button>
+          <button
+            onClick={() => navigate("/genomics/tumor-board")}
+            className="flex items-center gap-2 px-3 py-2 bg-[#0f0f23] hover:bg-white/5 border border-white/10 text-gray-300 rounded-lg text-sm font-medium transition-colors"
+          >
+            <Users size={14} />
+            Tumor Board
+          </button>
+          <button
+            onClick={() => setShowUpload(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-medium transition-colors"
+          >
+            <Upload size={16} />
+            Upload Variants
+          </button>
+        </div>
       </div>
 
       {/* Stats */}

@@ -437,6 +437,9 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         Route::get('/analysis/treatment-matrix', [GenomicsController::class, 'treatmentMatrix']);
         Route::get('/analysis/characterization', [GenomicsController::class, 'characterization']);
 
+        // Tumor Board
+        Route::get('/tumor-board/{personId}', [GenomicsController::class, 'tumorBoard']);
+
         // Variants
         Route::get('/variants', [GenomicsController::class, 'indexVariants']);
         Route::get('/variants/{variant}', [GenomicsController::class, 'showVariant']);

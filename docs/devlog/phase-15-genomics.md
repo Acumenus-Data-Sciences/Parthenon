@@ -206,6 +206,49 @@ Three-tab analysis UI at `/genomics/analysis`:
 
 ---
 
-## Next Steps
+## §15.5 — Molecular Tumor Board Dashboard (Complete)
 
-- §15.5 — Molecular Tumor Board Dashboard (per-patient evidence panel)
+**What was built:**
+
+### TumorBoardService (backend)
+Per-patient evidence panel builder:
+1. **Patient variants**: all genomic_variants for person_id, sorted by ClinVar significance + gene
+2. **Patient demographics**: pulls from omop.person + concept lookups for gender/race/ethnicity
+3. **Similar patient outcomes**: for each actionable (Pathogenic/LP) gene, finds patients in genomic_variants with same gene mutation, queries omop.observation_period + omop.death for (n, median_survival_days, event_rate)
+   - Uses PostgreSQL `PERCENTILE_CONT(0.5) WITHIN GROUP` for median survival
+   - Excludes current patient from cohort
+4. **Drug patterns**: across all similar patients (union of all actionable genes), finds top 15 drugs from omop.drug_exposure with n and pct
+5. **Evidence summary**: auto-generated text — variant count, actionable genes, VUS count, total similar patients
+
+### API endpoint
+`GET /api/v1/genomics/tumor-board/{personId}?source_id=9`
+
+### TumorBoardPage (frontend)
+- Person ID search input → loads panel on submit or Enter
+- **Evidence summary banner** — auto-generated text + actionable gene chips
+- **Variants table** — gene, HGVS p./c., type, class, AF, ClinVar classification with color-coded shield icons (red=Pathogenic, orange=LP, yellow=VUS, blue=LB, green=Benign)
+- **Demographics card** — age, gender, race, ethnicity from OMOP CDM
+- **Drug patterns card** — horizontal bar chart of drug frequencies in similar patients
+- **Similar patient outcomes table** — n, median survival in months, event rate with color-coded progress bar (red-to-green gradient)
+- Navigation from GenomicsPage via "Tumor Board" header button
+
+### Navigation
+- GenomicsPage: "Analysis Suite" + "Tumor Board" quick-access buttons added to header
+- Router: `/genomics/tumor-board` lazy route
+
+### Standards Applied
+- Median survival via PERCENTILE_CONT (standard actuarial convention)
+- ClinVar classifications follow ClinVar standard terminology + pathogenicity hierarchy
+- Drug patterns use Ingredient/Clinical Drug concept classes (standard OMOP drug hierarchy)
+- Evidence panel structure follows ASCO Molecular Tumor Board reporting conventions
+
+---
+
+## Phase 15 Complete ✓
+
+All 5 subsections delivered:
+- §15.1: Data layer (3 migrations, 3 models, VCF parser, 11 API endpoints, frontend module)
+- §15.2: OMOP measurement writer + person matcher + import pipeline
+- §15.3: Genomic criteria in cohort builder (6 types, Zustand integration, CohortExpressionEditor section)
+- §15.4: Variant-Outcome Analysis Suite (KM survival, treatment×variant matrix, genomic characterization)
+- §15.5: Molecular Tumor Board Dashboard (per-patient evidence panel with similar patient outcomes)

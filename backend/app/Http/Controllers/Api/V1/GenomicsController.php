@@ -10,6 +10,7 @@ use App\Models\App\Source;
 use App\Services\Genomics\OmopMeasurementWriterService;
 use App\Services\Genomics\PersonMatcherService;
 use App\Services\Genomics\VcfParserService;
+use App\Services\Genomics\TumorBoardService;
 use App\Services\Genomics\VariantOutcomeService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -23,6 +24,7 @@ class GenomicsController extends Controller
         private readonly PersonMatcherService $matcher,
         private readonly OmopMeasurementWriterService $writer,
         private readonly VariantOutcomeService $outcomes,
+        private readonly TumorBoardService $tumorBoard,
     ) {}
 
     // ──────────────────────────────────────────────────────────────────────────
@@ -331,5 +333,24 @@ class GenomicsController extends Controller
         );
 
         return response()->json(['data' => $result]);
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // Tumor Board Dashboard
+    // ──────────────────────────────────────────────────────────────────────────
+
+    /**
+     * GET /api/v1/genomics/tumor-board/{personId}?source_id=9
+     * Returns full molecular evidence panel for a patient.
+     */
+    public function tumorBoard(Request $request, int $personId): JsonResponse
+    {
+        $request->validate([
+            'source_id' => 'required|integer|exists:sources,id',
+        ]);
+
+        $panel = $this->tumorBoard->buildPanel($personId, $request->integer('source_id'));
+
+        return response()->json(['data' => $panel]);
     }
 }
