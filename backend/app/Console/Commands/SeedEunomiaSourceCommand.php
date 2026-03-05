@@ -18,8 +18,8 @@ use Illuminate\Console\Command;
  * into the Docker postgres container. The 'eunomia' Laravel connection points to
  * that same Docker postgres with search_path=eunomia.
  *
- * Also removes any stale 'ohdsi-acumenus' source created by earlier versions of
- * DatabaseSeeder so the app shows only the Eunomia demo on a fresh install.
+ * Also removes the stale 'eunomia-gibleed' key created by early versions of
+ * LoadEunomiaCommand so the source list stays clean.
  */
 class SeedEunomiaSourceCommand extends Command
 {
@@ -29,11 +29,10 @@ class SeedEunomiaSourceCommand extends Command
 
     public function handle(): int
     {
-        // Remove the Acumenus dev source if present from a previous seeder version.
-        // Safe to delete — source_daimons cascade on source deletion.
-        $removed = Source::where('source_key', 'ohdsi-acumenus')->delete();
+        // Remove stale 'eunomia-gibleed' key created by early LoadEunomiaCommand versions.
+        $removed = Source::where('source_key', 'eunomia-gibleed')->delete();
         if ($removed) {
-            $this->line("  Removed stale 'ohdsi-acumenus' source from previous seeder version.");
+            $this->line("  Removed stale 'eunomia-gibleed' source.");
         }
 
         $source = Source::updateOrCreate(
