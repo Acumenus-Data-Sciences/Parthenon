@@ -252,3 +252,72 @@ All 5 subsections delivered:
 - §15.3: Genomic criteria in cohort builder (6 types, Zustand integration, CohortExpressionEditor section)
 - §15.4: Variant-Outcome Analysis Suite (KM survival, treatment×variant matrix, genomic characterization)
 - §15.5: Molecular Tumor Board Dashboard (per-patient evidence panel with similar patient outcomes)
+
+---
+
+## §15.6 — Genomics UX Alignment (Post-ship polish, March 5, 2026)
+
+**What was built:**
+
+All 5 genomics frontend files were comprehensively revised to match the Parthenon design system as established by the Cohort Definitions module (the design ideal).
+
+### Problem
+The genomics pages were built with a divergent design system:
+- Outer wrapper `min-h-screen bg-[#1a1a2e] text-white` created a floating dark navy island inside the MainLayout rather than inheriting the layout background
+- Wrong card style: `bg-[#0f0f23] border-white/10` instead of `bg-[#151518] border-[#232328]`
+- Wrong accent color: `purple-600/700` buttons instead of `#2DD4BF` teal
+- Wrong text tokens: `text-white / text-gray-400` instead of `text-[#F0EDE8] / text-[#8A857D]`
+- No IBM Plex Mono for numeric displays
+- Wrong tab active indicator: `border-purple-500` instead of `border-[#2DD4BF]`
+- Wrong focus ring: `focus:border-purple-500` instead of `focus:border-[#2DD4BF]`
+
+### Files revised (5)
+
+**GenomicsPage.tsx**
+- Removed `min-h-screen bg-[#1a1a2e]` wrapper → `space-y-6` (inherits MainLayout bg)
+- Standard title-only header (no icon prefix on h1), teal primary Upload button
+- Stats bar redesigned to match `CohortStatsBar` pattern: horizontal tiles, icon-in-circle with `bg-[color]/18`, IBM Plex Mono numbers
+- Top genes pills: `bg-[#2DD4BF]/10 border-[#2DD4BF]/30 text-[#2DD4BF]`
+- Status badges fully redesigned with design-system tokens (teal for mapped/imported, amber for review, red for failed, neutral for pending)
+- Delete button: icon (`Trash2`) with hover danger style instead of raw red text link
+
+**UploadDetailPage.tsx**
+- Same wrapper removal; loading/error states no longer use `min-h-screen bg-[#1a1a2e]`
+- Back nav: `text-[#8A857D] hover:text-[#F0EDE8]`
+- Action buttons: "Match Persons" → secondary style; "Import to OMOP" → primary teal
+- Summary cards: IBM Plex Mono numbers with per-metric accent colors (violet/teal/amber)
+- OMOP mapping badge: teal for mapped, amber for review, neutral for unmapped
+- Error banner: `bg-[#E85A6B]/10 border-[#E85A6B]/30`
+
+**GenomicAnalysisPage.tsx**
+- Same wrapper removal
+- Tab bar active state: `border-[#2DD4BF] text-[#2DD4BF]`; inactive: `text-[#5A5650] hover:text-[#8A857D]`; track border: `border-[#232328]`
+- All inputs: `bg-[#151518] border-[#232328] focus:border-[#2DD4BF] focus:ring-[#2DD4BF]/40`
+- Characterization bars: teal gradient (`#2DD4BF → #26B8A5`) instead of purple
+- TMB histogram: `#2DD4BF` bars
+- KM curve SVG preserved as-is (clinical data visualization — hardcoded colors intentional)
+- Gene names in matrix/bars: `text-[#A78BFA]` (violet retained as genomics domain accent)
+
+**TumorBoardPage.tsx**
+- Same wrapper removal
+- Evidence summary banner: `bg-[#2DD4BF]/10 border-[#2DD4BF]/30`, icon `text-[#2DD4BF]`
+- Actionable gene pills: `bg-[#E85A6B]/15 border-[#E85A6B]/30 text-[#E85A6B]` (clinical warning — correct semantic color)
+- Load Panel button: teal primary
+- Drug pattern bars: `#2DD4BF`
+- All cards/borders/text tokens aligned
+
+**UploadDialog.tsx**
+- Modal: `bg-[#151518] border-[#232328]`
+- Drop zone: `border-[#2A2A30] bg-[#0E0E11]`; drag active: `border-[#2DD4BF] bg-[#2DD4BF]/10`
+- Format selector: active `border-[#2DD4BF] bg-[#2DD4BF]/10 text-[#2DD4BF]`
+- All form inputs/selects: `bg-[#0E0E11] border-[#232328] focus:border-[#2DD4BF]`
+- Upload button: `bg-[#2DD4BF] text-[#0E0E11]`
+- Error: `bg-[#E85A6B]/10 border-[#E85A6B]/30 text-[#E85A6B]`
+
+### Design decisions
+- **Violet accent (`#A78BFA`) retained** for gene names, section icons, and domain headers — gives Genomics visual identity within the design system without diverging from tokens
+- **KM curve colors preserved** — `#E85A6B` (mutated) and `#60A5FA` (wild-type) are clinical visualization colors, not UI chrome
+- **ClinVar semantic colors preserved** — `text-[#E85A6B]` / orange / amber / blue / teal map to pathogenicity severity and must remain semantically meaningful
+
+### Gotchas
+- None. Pure styling pass — zero logic or API changes.
