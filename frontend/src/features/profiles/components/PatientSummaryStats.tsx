@@ -123,7 +123,7 @@ export function PatientSummaryStats({ profile, stats: domainStats }: PatientSumm
       observationCount: observationTotal,
       lastEventDate,
     };
-  }, [profile, domainStats, conditionTotal, drugTotal, measurementTotal, visitTotal, observationTotal]);
+  }, [profile, domainStats]);
 
   return (
     <div className="flex gap-3 overflow-x-auto pb-1">
