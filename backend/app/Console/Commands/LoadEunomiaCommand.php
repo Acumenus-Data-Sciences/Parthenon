@@ -261,6 +261,7 @@ class LoadEunomiaCommand extends Command
                 if ($f === null || $f === '') {
                     return '__EUNOMIA_NULL__';
                 }
+
                 // Escape backslashes and tabs for PG text format
                 return str_replace(['\\', "\t"], ['\\\\', '\\t'], $f);
             }, $fields);

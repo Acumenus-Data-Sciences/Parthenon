@@ -7,7 +7,6 @@ use App\Models\App\CohortDefinition;
 use App\Models\App\ConceptSet;
 use App\Models\App\EstimationAnalysis;
 use App\Models\App\EvidenceSynthesisAnalysis;
-use App\Models\App\FeatureAnalysis;
 use App\Models\App\IncidenceRateAnalysis;
 use App\Models\App\PathwayAnalysis;
 use App\Models\App\PredictionAnalysis;

@@ -29,12 +29,12 @@ class RS018STOPBANGApnea implements PopulationRiskScoreInterface
     public function description(): string
     {
         return 'STOP-BANG is an 8-item validated screening questionnaire for obstructive sleep apnea. '
-            . 'Items: S=Snoring (condition), T=Tired/fatigue (condition), O=Observed apnea (condition), '
-            . 'P=Pressure/hypertension treated (condition or medication), B=BMI>35 (diagnosis or BMI '
-            . 'measurement), A=Age>50, N=Neck circumference>40cm (proxied by obesity+male sex), '
-            . 'G=Gender male. Score 0-8. Confidence is capped at 7/8 = 0.875 because neck circumference '
-            . 'is never directly measurable from CDM and is always a proxy. BMI measurement may not be '
-            . 'present for all patients, contributing to the missing_components count.';
+            .'Items: S=Snoring (condition), T=Tired/fatigue (condition), O=Observed apnea (condition), '
+            .'P=Pressure/hypertension treated (condition or medication), B=BMI>35 (diagnosis or BMI '
+            .'measurement), A=Age>50, N=Neck circumference>40cm (proxied by obesity+male sex), '
+            .'G=Gender male. Score 0-8. Confidence is capped at 7/8 = 0.875 because neck circumference '
+            .'is never directly measurable from CDM and is always a proxy. BMI measurement may not be '
+            .'present for all patients, contributing to the missing_components count.';
     }
 
     public function requiredComponents(): array
@@ -54,9 +54,9 @@ class RS018STOPBANGApnea implements PopulationRiskScoreInterface
     public function riskTiers(): array
     {
         return [
-            'low'          => [0, 3],
+            'low' => [0, 3],
             'intermediate' => [3, 5],
-            'high'         => [5, null],
+            'high' => [5, null],
         ];
     }
 

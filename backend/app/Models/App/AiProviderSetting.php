@@ -27,8 +27,8 @@ class AiProviderSetting extends Model
     {
         return [
             'is_enabled' => 'boolean',
-            'is_active'  => 'boolean',
-            'settings'   => 'encrypted:array',
+            'is_active' => 'boolean',
+            'settings' => 'encrypted:array',
         ];
     }
 

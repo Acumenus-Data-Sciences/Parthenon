@@ -28,17 +28,32 @@ use App\Contracts\NetworkAnalysisInterface;
  */
 class NA008HeterogeneityIndex implements NetworkAnalysisInterface
 {
-    public function analysisId(): string    { return 'NA008'; }
-    public function analysisName(): string  { return 'Between-Site Heterogeneity Index'; }
-    public function category(): string      { return 'Heterogeneity'; }
-    public function minimumSources(): int   { return 3; }
+    public function analysisId(): string
+    {
+        return 'NA008';
+    }
+
+    public function analysisName(): string
+    {
+        return 'Between-Site Heterogeneity Index';
+    }
+
+    public function category(): string
+    {
+        return 'Heterogeneity';
+    }
+
+    public function minimumSources(): int
+    {
+        return 3;
+    }
 
     public function description(): string
     {
         return 'Computes Cochran\'s Q and I² heterogeneity statistics for condition '
-            . 'prevalences stored from NA001. I² > 50% identifies conditions whose '
-            . 'site-to-site variation is unlikely to arise from chance alone, flagging '
-            . 'coding inconsistencies or genuine population differences.';
+            .'prevalences stored from NA001. I² > 50% identifies conditions whose '
+            .'site-to-site variation is unlikely to arise from chance alone, flagging '
+            .'coding inconsistencies or genuine population differences.';
     }
 
     public function requiredTables(): array

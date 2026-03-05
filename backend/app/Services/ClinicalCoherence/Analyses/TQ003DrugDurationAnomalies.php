@@ -19,23 +19,35 @@ use App\Contracts\ClinicalCoherenceAnalysisInterface;
  */
 class TQ003DrugDurationAnomalies implements ClinicalCoherenceAnalysisInterface
 {
-    public function analysisId(): string { return 'TQ003'; }
+    public function analysisId(): string
+    {
+        return 'TQ003';
+    }
 
     public function analysisName(): string
     {
         return 'Drug Exposure Duration Anomalies';
     }
 
-    public function category(): string { return 'Temporal Quality'; }
+    public function category(): string
+    {
+        return 'Temporal Quality';
+    }
 
     public function description(): string
     {
         return 'Identifies drug exposure records with duration anomalies: negative days_supply, days_supply > 365, discordance between start/end dates and days_supply, or missing end_date.';
     }
 
-    public function severity(): string { return 'major'; }
+    public function severity(): string
+    {
+        return 'major';
+    }
 
-    public function flagThreshold(): ?float { return 0.02; } // flag if >2% of exposures are anomalous
+    public function flagThreshold(): ?float
+    {
+        return 0.02;
+    } // flag if >2% of exposures are anomalous
 
     public function requiredTables(): array
     {

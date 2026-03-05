@@ -29,13 +29,13 @@ class RS020MultimorbidityBurden implements PopulationRiskScoreInterface
     public function description(): string
     {
         return 'Counts the number of distinct chronic condition domains (out of 20) that a patient has '
-            . 'at least one condition in. Domains span: cardiovascular, cerebrovascular, respiratory, '
-            . 'metabolic, renal, hepatic, musculoskeletal, mental health, cancer, neurological, '
-            . 'hematologic, gastrointestinal, endocrine, infectious, peripheral vascular, chronic pain, '
-            . 'sleep disorders, sensory, urological, and dermatological. Each domain is binary (0/1). '
-            . 'Score 0-20 reflects the breadth of chronic disease burden across organ systems. '
-            . 'Confidence is set to 0.75 as a baseline reflecting chronic condition under-coding, '
-            . 'especially for less severe or specialist-managed conditions. No labs required.';
+            .'at least one condition in. Domains span: cardiovascular, cerebrovascular, respiratory, '
+            .'metabolic, renal, hepatic, musculoskeletal, mental health, cancer, neurological, '
+            .'hematologic, gastrointestinal, endocrine, infectious, peripheral vascular, chronic pain, '
+            .'sleep disorders, sensory, urological, and dermatological. Each domain is binary (0/1). '
+            .'Score 0-20 reflects the breadth of chronic disease burden across organ systems. '
+            .'Confidence is set to 0.75 as a baseline reflecting chronic condition under-coding, '
+            .'especially for less severe or specialist-managed conditions. No labs required.';
     }
 
     public function requiredComponents(): array
@@ -58,10 +58,10 @@ class RS020MultimorbidityBurden implements PopulationRiskScoreInterface
     {
         return [
             'no_multimorbidity' => [0, 1],
-            'low'               => [1, 3],
-            'moderate'          => [3, 6],
-            'high'              => [6, 10],
-            'very_high'         => [10, null],
+            'low' => [1, 3],
+            'moderate' => [3, 6],
+            'high' => [6, 10],
+            'very_high' => [10, null],
         ];
     }
 

@@ -29,13 +29,13 @@ class RS013FIB4Index implements PopulationRiskScoreInterface
     public function description(): string
     {
         return 'FIB-4 = (Age × AST [U/L]) / (Platelet count [10⁹/L] × √ALT [U/L]). '
-            . 'A non-invasive index for estimating hepatic fibrosis severity. '
-            . 'Eligible patients are those with at least AST and ALT measurements available '
-            . '(broad inclusion as a screening tool). Standard thresholds: <1.30 low risk (F0-F1), '
-            . '1.30–2.67 indeterminate, >2.67 high risk (F3-F4). '
-            . 'All three labs (AST, ALT, platelets) are required for computation; '
-            . 'patients missing any are still included but assigned to low tier with reduced confidence. '
-            . 'Confidence reflects the fraction of the three required labs that are available.';
+            .'A non-invasive index for estimating hepatic fibrosis severity. '
+            .'Eligible patients are those with at least AST and ALT measurements available '
+            .'(broad inclusion as a screening tool). Standard thresholds: <1.30 low risk (F0-F1), '
+            .'1.30–2.67 indeterminate, >2.67 high risk (F3-F4). '
+            .'All three labs (AST, ALT, platelets) are required for computation; '
+            .'patients missing any are still included but assigned to low tier with reduced confidence. '
+            .'Confidence reflects the fraction of the three required labs that are available.';
     }
 
     public function requiredComponents(): array
@@ -51,9 +51,9 @@ class RS013FIB4Index implements PopulationRiskScoreInterface
     public function riskTiers(): array
     {
         return [
-            'low'           => [null, 1.3],
+            'low' => [null, 1.3],
             'indeterminate' => [1.3, 2.67],
-            'high'          => [2.67, null],
+            'high' => [2.67, null],
         ];
     }
 

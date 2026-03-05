@@ -27,27 +27,29 @@ class SeedAdminCommand extends Command
         $this->line('─────────────────────────────────');
 
         $email = $this->ask('Admin email');
-        $name  = $this->ask('Admin name', 'Super Admin');
+        $name = $this->ask('Admin name', 'Super Admin');
 
         $password = $this->secret('Password (min 8 chars)');
         if (strlen($password) < 8) {
             $this->error('Password must be at least 8 characters.');
+
             return self::FAILURE;
         }
 
         $confirm = $this->secret('Confirm password');
         if ($password !== $confirm) {
             $this->error('Passwords do not match.');
+
             return self::FAILURE;
         }
 
         $user = User::updateOrCreate(
             ['email' => strtolower(trim($email))],
             [
-                'name'                 => trim($name),
-                'password'             => Hash::make($password),
+                'name' => trim($name),
+                'password' => Hash::make($password),
                 'must_change_password' => false,
-                'email_verified_at'    => now(),
+                'email_verified_at' => now(),
             ]
         );
 

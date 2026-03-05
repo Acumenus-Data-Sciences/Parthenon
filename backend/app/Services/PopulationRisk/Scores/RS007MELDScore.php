@@ -34,10 +34,25 @@ use App\Contracts\PopulationRiskScoreInterface;
  */
 class RS007MELDScore implements PopulationRiskScoreInterface
 {
-    public function scoreId(): string       { return 'RS007'; }
-    public function scoreName(): string     { return 'MELD Score (Liver Disease Severity)'; }
-    public function category(): string      { return 'Hepatic'; }
-    public function eligiblePopulation(): string { return 'Patients with cirrhosis or chronic liver disease'; }
+    public function scoreId(): string
+    {
+        return 'RS007';
+    }
+
+    public function scoreName(): string
+    {
+        return 'MELD Score (Liver Disease Severity)';
+    }
+
+    public function category(): string
+    {
+        return 'Hepatic';
+    }
+
+    public function eligiblePopulation(): string
+    {
+        return 'Patients with cirrhosis or chronic liver disease';
+    }
 
     public function description(): string
     {
@@ -52,9 +67,9 @@ class RS007MELDScore implements PopulationRiskScoreInterface
     public function riskTiers(): array
     {
         return [
-            'low'          => [6,  15],
+            'low' => [6,  15],
             'intermediate' => [15, 25],
-            'high'         => [25, null],
+            'high' => [25, null],
         ];
     }
 

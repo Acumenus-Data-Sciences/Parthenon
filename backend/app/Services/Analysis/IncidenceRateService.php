@@ -298,17 +298,17 @@ class IncidenceRateService
 
         if ($stratifyBy === 'gender') {
             $stratifySelect = "COALESCE(gc.concept_name, 'Unknown') AS stratum_name,";
-            $stratifyJoin = "
+            $stratifyJoin = '
                 JOIN {@cdmSchema}.person p ON target.subject_id = p.person_id
                 LEFT JOIN {@vocabSchema}.concept gc ON p.gender_concept_id = gc.concept_id
-            ";
+            ';
             $stratifyGroup = "GROUP BY COALESCE(gc.concept_name, 'Unknown')";
         } elseif ($stratifyBy === 'age') {
             $ageCase = $this->buildAgeCaseExpression($ageGroups ?? ['0-17', '18-34', '35-49', '50-64', '65+']);
             $stratifySelect = "{$ageCase} AS stratum_name,";
-            $stratifyJoin = "
+            $stratifyJoin = '
                 JOIN {@cdmSchema}.person p ON target.subject_id = p.person_id
-            ";
+            ';
             $stratifyGroup = "GROUP BY {$ageCase}";
         }
 
@@ -394,11 +394,11 @@ class IncidenceRateService
             } elseif (str_contains($group, '-')) {
                 // e.g. "18-34"
                 [$lower, $upper] = explode('-', $group);
-                $cases[] = "WHEN (EXTRACT(YEAR FROM target.cohort_start_date) - p.year_of_birth) BETWEEN " . (int) $lower . ' AND ' . (int) $upper . " THEN '{$group}'";
+                $cases[] = 'WHEN (EXTRACT(YEAR FROM target.cohort_start_date) - p.year_of_birth) BETWEEN '.(int) $lower.' AND '.(int) $upper." THEN '{$group}'";
             }
         }
 
-        return "CASE\n                    " . implode("\n                    ", $cases) . "\n                    ELSE 'Unknown'\n                END";
+        return "CASE\n                    ".implode("\n                    ", $cases)."\n                    ELSE 'Unknown'\n                END";
     }
 
     /**

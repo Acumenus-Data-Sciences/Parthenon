@@ -5,7 +5,6 @@ namespace App\Console\Commands;
 use App\Models\App\CohortDefinition;
 use App\Services\Cohort\Schema\CohortExpressionSchema;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Auth;
 
 class ImportAtlasCohortsCommand extends Command
 {
@@ -69,6 +68,7 @@ class ImportAtlasCohortsCommand extends Command
             if (json_last_error() !== JSON_ERROR_NONE) {
                 $this->line("  <fg=red>✗ Failed</> {$file}: Invalid JSON");
                 $failed++;
+
                 continue;
             }
 
@@ -80,14 +80,16 @@ class ImportAtlasCohortsCommand extends Command
                 $expression = $item['expression'] ?? $item['expression_json'] ?? null;
 
                 if (! $name || ! $expression) {
-                    $this->line("  <fg=red>✗ Failed</>: Missing name or expression in ".basename($file));
+                    $this->line('  <fg=red>✗ Failed</>: Missing name or expression in '.basename($file));
                     $failed++;
+
                     continue;
                 }
 
                 if (CohortDefinition::whereRaw('lower(name) = ?', [strtolower($name)])->exists()) {
                     $this->line("  <fg=yellow>↷ Skipped</> {$name} (duplicate)");
                     $skipped++;
+
                     continue;
                 }
 

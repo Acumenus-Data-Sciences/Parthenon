@@ -314,7 +314,7 @@ class ConceptSetController extends Controller
             }
 
             foreach ($domainGroups as $domain => $ids) {
-                $domainLabel = ucfirst($domain) . 's';
+                $domainLabel = ucfirst($domain).'s';
                 $set = ConceptSet::create([
                     'name' => "{$baseName} - {$domainLabel}",
                     'description' => "{$domainLabel} from {$bundle->condition_name} care bundle.",
@@ -336,7 +336,7 @@ class ConceptSetController extends Controller
 
             return response()->json([
                 'data' => $created,
-                'message' => count($created) . ' concept sets created from bundle.',
+                'message' => count($created).' concept sets created from bundle.',
             ], 201);
         } catch (\Throwable $e) {
             return $this->errorResponse('Failed to create concept sets from bundle', $e);

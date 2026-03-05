@@ -14,7 +14,7 @@ class EndStrategyBuilder
      * @param  array<string, mixed>|null  $endStrategy  The EndStrategy configuration
      * @param  string  $startDateExpr  The SQL expression for event start_date
      * @param  string  $endDateExpr  The SQL expression for event end_date
-     * @return string  SQL expression for cohort_end_date
+     * @return string SQL expression for cohort_end_date
      */
     public function build(?array $endStrategy, string $startDateExpr, string $endDateExpr): string
     {

@@ -16,7 +16,7 @@ class TemporalWindowBuilder
      * @param  array<string, mixed>  $window  The window definition with Start/End
      * @param  string  $eventDateExpr  The date expression of the correlated event
      * @param  string  $indexDateExpr  The date expression of the index event
-     * @return list<string>  SQL WHERE clause fragments
+     * @return list<string> SQL WHERE clause fragments
      */
     public function build(array $window, string $eventDateExpr, string $indexDateExpr): array
     {

@@ -29,11 +29,11 @@ class RS011DiabetesComplicationsSeverity implements PopulationRiskScoreInterface
     public function description(): string
     {
         return 'DCSI measures severity of diabetes-related complications across 7 domains: '
-            . 'retinopathy, nephropathy, neuropathy, peripheral vascular disease, cardiovascular disease, '
-            . 'cerebrovascular disease, and metabolic complications. Each domain contributes 1-2 points '
-            . 'based on severity, with a maximum possible score of 13. Higher scores indicate greater '
-            . 'complication burden. All components are derived from condition_occurrence records. '
-            . 'Confidence is set to 0.80 baseline to reflect potential under-coding of diabetes complications.';
+            .'retinopathy, nephropathy, neuropathy, peripheral vascular disease, cardiovascular disease, '
+            .'cerebrovascular disease, and metabolic complications. Each domain contributes 1-2 points '
+            .'based on severity, with a maximum possible score of 13. Higher scores indicate greater '
+            .'complication burden. All components are derived from condition_occurrence records. '
+            .'Confidence is set to 0.80 baseline to reflect potential under-coding of diabetes complications.';
     }
 
     public function requiredComponents(): array
@@ -54,9 +54,9 @@ class RS011DiabetesComplicationsSeverity implements PopulationRiskScoreInterface
     {
         return [
             'no_complications' => [0, 1],
-            'mild'             => [1, 4],
-            'moderate'         => [4, 7],
-            'severe'           => [7, null],
+            'mild' => [1, 4],
+            'moderate' => [4, 7],
+            'severe' => [7, null],
         ];
     }
 

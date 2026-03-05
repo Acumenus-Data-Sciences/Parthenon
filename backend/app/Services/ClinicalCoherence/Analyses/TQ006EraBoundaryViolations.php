@@ -23,23 +23,35 @@ use App\Contracts\ClinicalCoherenceAnalysisInterface;
  */
 class TQ006EraBoundaryViolations implements ClinicalCoherenceAnalysisInterface
 {
-    public function analysisId(): string { return 'TQ006'; }
+    public function analysisId(): string
+    {
+        return 'TQ006';
+    }
 
     public function analysisName(): string
     {
         return 'Era Boundary Violations';
     }
 
-    public function category(): string { return 'Temporal Quality'; }
+    public function category(): string
+    {
+        return 'Temporal Quality';
+    }
 
     public function description(): string
     {
         return 'Checks that drug_era and condition_era records fall within the observation period envelope for each person, and that era durations are physiologically plausible.';
     }
 
-    public function severity(): string { return 'major'; }
+    public function severity(): string
+    {
+        return 'major';
+    }
 
-    public function flagThreshold(): ?float { return 0.01; } // flag if >1% of eras have violations
+    public function flagThreshold(): ?float
+    {
+        return 0.01;
+    } // flag if >1% of eras have violations
 
     public function requiredTables(): array
     {

@@ -3,7 +3,6 @@
 namespace App\Services\PopulationCharacterization;
 
 use App\Contracts\PopulationCharacterizationInterface;
-use App\Enums\DaimonType;
 use App\Models\App\Source;
 use App\Models\Results\PopulationCharacterizationResult;
 use App\Services\SqlRenderer\SqlRendererService;
@@ -24,8 +23,8 @@ class PopulationCharacterizationEngineService
     public function run(Source $source): array
     {
         $completed = 0;
-        $failed    = 0;
-        $results   = [];
+        $failed = 0;
+        $results = [];
 
         foreach ($this->registry->all() as $analysis) {
             try {
@@ -41,10 +40,10 @@ class PopulationCharacterizationEngineService
         }
 
         return [
-            'source_id'  => $source->id,
-            'completed'  => $completed,
-            'failed'     => $failed,
-            'results'    => $results,
+            'source_id' => $source->id,
+            'completed' => $completed,
+            'failed' => $failed,
+            'results' => $results,
         ];
     }
 
@@ -53,7 +52,7 @@ class PopulationCharacterizationEngineService
      */
     public function runAnalysis(PopulationCharacterizationInterface $analysis, Source $source): array
     {
-        $sql  = $this->renderer->render($analysis->sqlTemplate(), $source);
+        $sql = $this->renderer->render($analysis->sqlTemplate(), $source);
         $rows = DB::select($sql);
 
         // Remove stale results for this analysis + source
@@ -68,24 +67,24 @@ class PopulationCharacterizationEngineService
 
             PopulationCharacterizationResult::create([
                 'analysis_id' => $analysis->analysisId(),
-                'source_id'   => $source->id,
-                'stratum_1'   => $row->stratum_1 ?? '',
-                'stratum_2'   => $row->stratum_2 ?? '',
-                'stratum_3'   => $row->stratum_3 ?? '',
+                'source_id' => $source->id,
+                'stratum_1' => $row->stratum_1 ?? '',
+                'stratum_2' => $row->stratum_2 ?? '',
+                'stratum_3' => $row->stratum_3 ?? '',
                 'count_value' => $countValue,
                 'total_value' => $totalValue,
                 'ratio_value' => $totalValue > 0
                     ? round($countValue / $totalValue, 6)
                     : null,
-                'run_at'      => $now,
+                'run_at' => $now,
             ]);
         }
 
         return [
-            'analysis_id'          => $analysis->analysisId(),
-            'analysis_name'        => $analysis->analysisName(),
-            'rows_stored'          => count($rows),
-            'requires_optional'    => $analysis->requiresOptionalTables(),
+            'analysis_id' => $analysis->analysisId(),
+            'analysis_name' => $analysis->analysisName(),
+            'rows_stored' => count($rows),
+            'requires_optional' => $analysis->requiresOptionalTables(),
         ];
     }
 
@@ -104,13 +103,13 @@ class PopulationCharacterizationEngineService
 
         return [
             'analysis' => [
-                'id'                    => $analysis->analysisId(),
-                'name'                  => $analysis->analysisName(),
-                'category'              => $analysis->category(),
-                'description'           => $analysis->description(),
-                'requires_optional'     => $analysis->requiresOptionalTables(),
+                'id' => $analysis->analysisId(),
+                'name' => $analysis->analysisName(),
+                'category' => $analysis->category(),
+                'description' => $analysis->description(),
+                'requires_optional' => $analysis->requiresOptionalTables(),
             ],
-            'data'     => $rows,
+            'data' => $rows,
             'last_run' => $rows->max('run_at'),
         ];
     }
@@ -132,13 +131,13 @@ class PopulationCharacterizationEngineService
                 ->count();
 
             $summaries[] = [
-                'analysis_id'        => $analysis->analysisId(),
-                'analysis_name'      => $analysis->analysisName(),
-                'category'           => $analysis->category(),
-                'description'        => $analysis->description(),
-                'requires_optional'  => $analysis->requiresOptionalTables(),
-                'last_run'           => $lastRun,
-                'row_count'          => $rowCount,
+                'analysis_id' => $analysis->analysisId(),
+                'analysis_name' => $analysis->analysisName(),
+                'category' => $analysis->category(),
+                'description' => $analysis->description(),
+                'requires_optional' => $analysis->requiresOptionalTables(),
+                'last_run' => $lastRun,
+                'row_count' => $rowCount,
             ];
         }
 

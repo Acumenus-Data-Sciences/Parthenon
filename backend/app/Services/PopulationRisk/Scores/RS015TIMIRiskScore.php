@@ -29,12 +29,12 @@ class RS015TIMIRiskScore implements PopulationRiskScoreInterface
     public function description(): string
     {
         return 'TIMI Risk Score for Unstable Angina/NSTEMI (0-7 points) predicts 14-day risk of '
-            . 'death, MI, or urgent revascularization. Seven components: age ≥65, ≥3 CAD risk factors, '
-            . 'prior coronary stenosis ≥50%, ST changes on ECG, ≥2 anginal events in 24h (proxied by '
-            . 'recent angina diagnoses), aspirin use in past 7 days (proxied by 90-day use), and '
-            . 'elevated cardiac markers (troponin or CK-MB). Eligible patients have unstable angina '
-            . '(315286) or NSTEMI (444406) in condition_occurrence. Confidence scales with troponin '
-            . 'availability as the most uncertain component.';
+            .'death, MI, or urgent revascularization. Seven components: age ≥65, ≥3 CAD risk factors, '
+            .'prior coronary stenosis ≥50%, ST changes on ECG, ≥2 anginal events in 24h (proxied by '
+            .'recent angina diagnoses), aspirin use in past 7 days (proxied by 90-day use), and '
+            .'elevated cardiac markers (troponin or CK-MB). Eligible patients have unstable angina '
+            .'(315286) or NSTEMI (444406) in condition_occurrence. Confidence scales with troponin '
+            .'availability as the most uncertain component.';
     }
 
     public function requiredComponents(): array
@@ -53,9 +53,9 @@ class RS015TIMIRiskScore implements PopulationRiskScoreInterface
     public function riskTiers(): array
     {
         return [
-            'low'          => [0, 3],
+            'low' => [0, 3],
             'intermediate' => [3, 5],
-            'high'         => [5, null],
+            'high' => [5, null],
         ];
     }
 

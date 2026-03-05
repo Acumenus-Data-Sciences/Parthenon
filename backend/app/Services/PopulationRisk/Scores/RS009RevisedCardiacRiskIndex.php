@@ -44,10 +44,25 @@ use App\Contracts\PopulationRiskScoreInterface;
  */
 class RS009RevisedCardiacRiskIndex implements PopulationRiskScoreInterface
 {
-    public function scoreId(): string       { return 'RS009'; }
-    public function scoreName(): string     { return 'Revised Cardiac Risk Index (RCRI)'; }
-    public function category(): string      { return 'Cardiovascular'; }
-    public function eligiblePopulation(): string { return 'Patients ≥18 with any surgical history or preoperative assessment'; }
+    public function scoreId(): string
+    {
+        return 'RS009';
+    }
+
+    public function scoreName(): string
+    {
+        return 'Revised Cardiac Risk Index (RCRI)';
+    }
+
+    public function category(): string
+    {
+        return 'Cardiovascular';
+    }
+
+    public function eligiblePopulation(): string
+    {
+        return 'Patients ≥18 with any surgical history or preoperative assessment';
+    }
 
     public function description(): string
     {
@@ -69,10 +84,10 @@ class RS009RevisedCardiacRiskIndex implements PopulationRiskScoreInterface
     public function riskTiers(): array
     {
         return [
-            'very_low'     => [0, 1],
-            'low'          => [1, 2],
+            'very_low' => [0, 1],
+            'low' => [1, 2],
             'intermediate' => [2, 3],
-            'high'         => [3, null],
+            'high' => [3, null],
         ];
     }
 

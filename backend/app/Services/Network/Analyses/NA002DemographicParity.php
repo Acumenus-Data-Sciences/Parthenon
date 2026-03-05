@@ -19,16 +19,31 @@ use App\Contracts\NetworkAnalysisInterface;
  */
 class NA002DemographicParity implements NetworkAnalysisInterface
 {
-    public function analysisId(): string    { return 'NA002'; }
-    public function analysisName(): string  { return 'Demographic Distribution Parity'; }
-    public function category(): string      { return 'Demographics'; }
-    public function minimumSources(): int   { return 2; }
+    public function analysisId(): string
+    {
+        return 'NA002';
+    }
+
+    public function analysisName(): string
+    {
+        return 'Demographic Distribution Parity';
+    }
+
+    public function category(): string
+    {
+        return 'Demographics';
+    }
+
+    public function minimumSources(): int
+    {
+        return 2;
+    }
 
     public function description(): string
     {
         return 'Compares age-decile, sex, and race distributions across CDM sources. '
-            . 'Sources with divergent demographics require case-mix adjustment before '
-            . 'interpreting prevalence or risk score differences.';
+            .'Sources with divergent demographics require case-mix adjustment before '
+            .'interpreting prevalence or risk score differences.';
     }
 
     public function requiredTables(): array

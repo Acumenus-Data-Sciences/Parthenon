@@ -24,9 +24,9 @@ class ClinicalCoherenceEngineService
     public function run(Source $source): array
     {
         $completed = 0;
-        $failed    = 0;
-        $flagged   = 0;
-        $results   = [];
+        $failed = 0;
+        $flagged = 0;
+        $results = [];
 
         // Purge previous run for this source
         ClinicalCoherenceResult::where('source_id', $source->id)->delete();
@@ -34,14 +34,14 @@ class ClinicalCoherenceEngineService
         foreach ($this->registry->all() as $analysis) {
             $start = microtime(true);
             try {
-                $sql     = $this->renderer->render($analysis->sqlTemplate(), $source);
-                $rows    = DB::connection($source->connection_name)->select($sql);
+                $sql = $this->renderer->render($analysis->sqlTemplate(), $source);
+                $rows = DB::connection($source->connection_name)->select($sql);
                 $inserts = [];
 
                 foreach ($rows as $row) {
-                    $row      = (array) $row;
-                    $ratio    = isset($row['ratio_value']) ? (float) $row['ratio_value'] : null;
-                    $count    = (int) ($row['count_value'] ?? 0);
+                    $row = (array) $row;
+                    $ratio = isset($row['ratio_value']) ? (float) $row['ratio_value'] : null;
+                    $count = (int) ($row['count_value'] ?? 0);
                     $threshold = $analysis->flagThreshold();
 
                     $isFlagged = $threshold === null
@@ -53,45 +53,45 @@ class ClinicalCoherenceEngineService
                     }
 
                     $inserts[] = [
-                        'source_id'     => $source->id,
-                        'analysis_id'   => $analysis->analysisId(),
+                        'source_id' => $source->id,
+                        'analysis_id' => $analysis->analysisId(),
                         'analysis_name' => $analysis->analysisName(),
-                        'category'      => $analysis->category(),
-                        'severity'      => $analysis->severity(),
-                        'stratum_1'     => $row['stratum_1'] ?? null,
-                        'stratum_2'     => $row['stratum_2'] ?? null,
-                        'stratum_3'     => $row['stratum_3'] ?? null,
-                        'count_value'   => $count,
-                        'total_value'   => isset($row['total_value']) ? (int) $row['total_value'] : null,
-                        'ratio_value'   => $ratio,
-                        'flagged'       => $isFlagged,
-                        'notes'         => $row['notes'] ?? null,
-                        'run_at'        => now(),
-                        'created_at'    => now(),
-                        'updated_at'    => now(),
+                        'category' => $analysis->category(),
+                        'severity' => $analysis->severity(),
+                        'stratum_1' => $row['stratum_1'] ?? null,
+                        'stratum_2' => $row['stratum_2'] ?? null,
+                        'stratum_3' => $row['stratum_3'] ?? null,
+                        'count_value' => $count,
+                        'total_value' => isset($row['total_value']) ? (int) $row['total_value'] : null,
+                        'ratio_value' => $ratio,
+                        'flagged' => $isFlagged,
+                        'notes' => $row['notes'] ?? null,
+                        'run_at' => now(),
+                        'created_at' => now(),
+                        'updated_at' => now(),
                     ];
                 }
 
-                if (!empty($inserts)) {
+                if (! empty($inserts)) {
                     ClinicalCoherenceResult::insert($inserts);
                 }
 
                 $elapsed = round((microtime(true) - $start) * 1000);
-                Log::info("[CC] {$analysis->analysisId()} completed in {$elapsed}ms — " . count($rows) . ' rows');
+                Log::info("[CC] {$analysis->analysisId()} completed in {$elapsed}ms — ".count($rows).' rows');
                 $completed++;
                 $results[] = [
                     'analysis_id' => $analysis->analysisId(),
-                    'status'      => 'completed',
-                    'rows'        => count($rows),
-                    'elapsed_ms'  => $elapsed,
+                    'status' => 'completed',
+                    'rows' => count($rows),
+                    'elapsed_ms' => $elapsed,
                 ];
             } catch (Throwable $e) {
-                Log::error("[CC] {$analysis->analysisId()} failed: " . $e->getMessage());
+                Log::error("[CC] {$analysis->analysisId()} failed: ".$e->getMessage());
                 $failed++;
                 $results[] = [
                     'analysis_id' => $analysis->analysisId(),
-                    'status'      => 'failed',
-                    'error'       => $e->getMessage(),
+                    'status' => 'failed',
+                    'error' => $e->getMessage(),
                 ];
             }
         }
@@ -114,12 +114,12 @@ class ClinicalCoherenceEngineService
         foreach ($rows->groupBy('analysis_id') as $id => $group) {
             $first = $group->first();
             $entry = [
-                'analysis_id'   => $id,
+                'analysis_id' => $id,
                 'analysis_name' => $first->analysis_name,
-                'category'      => $first->category,
-                'severity'      => $first->severity,
+                'category' => $first->category,
+                'severity' => $first->severity,
                 'flagged_count' => $group->where('flagged', true)->count(),
-                'rows'          => $group->values(),
+                'rows' => $group->values(),
             ];
             $grouped[$first->severity][] = $entry;
         }

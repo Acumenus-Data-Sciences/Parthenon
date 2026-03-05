@@ -7,7 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class PopulationCharacterizationResult extends Model
 {
     protected $connection = 'pgsql';
-    protected $table      = 'population_characterization_results';
+
+    protected $table = 'population_characterization_results';
 
     protected $fillable = [
         'source_id',
@@ -24,7 +25,7 @@ class PopulationCharacterizationResult extends Model
     protected function casts(): array
     {
         return [
-            'run_at'      => 'datetime',
+            'run_at' => 'datetime',
             'ratio_value' => 'float',
         ];
     }

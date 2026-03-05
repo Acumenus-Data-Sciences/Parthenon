@@ -29,11 +29,11 @@ class RS012SCORE2 implements PopulationRiskScoreInterface
     public function description(): string
     {
         return 'SCORE2 (2021) estimates 10-year risk of fatal and non-fatal cardiovascular events '
-            . 'in apparently healthy adults aged 40-69 without prior CVD. Uses sex-specific equations '
-            . 'with non-HDL cholesterol (total cholesterol minus HDL), systolic blood pressure, and '
-            . 'smoking status. Low-risk region coefficients are applied. non-HDL is converted from '
-            . 'mg/dL to mmol/L by dividing by 38.67. Output is expressed as a percentage (0-100). '
-            . 'Confidence scales with laboratory data availability across TC, HDL, and SBP.';
+            .'in apparently healthy adults aged 40-69 without prior CVD. Uses sex-specific equations '
+            .'with non-HDL cholesterol (total cholesterol minus HDL), systolic blood pressure, and '
+            .'smoking status. Low-risk region coefficients are applied. non-HDL is converted from '
+            .'mg/dL to mmol/L by dividing by 38.67. Output is expressed as a percentage (0-100). '
+            .'Confidence scales with laboratory data availability across TC, HDL, and SBP.';
     }
 
     public function requiredComponents(): array
@@ -51,9 +51,9 @@ class RS012SCORE2 implements PopulationRiskScoreInterface
     public function riskTiers(): array
     {
         return [
-            'low'      => [null, 5],
+            'low' => [null, 5],
             'moderate' => [5, 10],
-            'high'     => [10, null],
+            'high' => [10, null],
         ];
     }
 

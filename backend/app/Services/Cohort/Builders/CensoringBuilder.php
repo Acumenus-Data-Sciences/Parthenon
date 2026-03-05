@@ -21,8 +21,8 @@ class CensoringBuilder
      * @param  list<array<string, mixed>>  $censoringCriteria  The CensoringCriteria array
      * @param  string  $cdmSchema  The CDM schema qualifier
      * @return array{ctes: list<string>, censorExpr: string|null}
-     *   - ctes: CTE definitions
-     *   - censorExpr: SQL expression to apply censoring to end_date, or null if no censoring
+     *                                                            - ctes: CTE definitions
+     *                                                            - censorExpr: SQL expression to apply censoring to end_date, or null if no censoring
      */
     public function build(array $censoringCriteria, string $cdmSchema): array
     {
@@ -60,7 +60,7 @@ class CensoringBuilder
             $domainWhere = $builder->buildWhereClauses($domainConfig, 'e');
             $whereStr = '';
             if (! empty($domainWhere)) {
-                $whereStr = "\n    AND " . implode("\n    AND ", $domainWhere);
+                $whereStr = "\n    AND ".implode("\n    AND ", $domainWhere);
             }
 
             $ctes[] = <<<SQL

@@ -2,9 +2,9 @@
 
 namespace App\Models\App;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use App\Models\User;
 
 class AuthProviderSetting extends Model
 {
@@ -26,8 +26,8 @@ class AuthProviderSetting extends Model
     {
         return [
             'is_enabled' => 'boolean',
-            'priority'   => 'integer',
-            'settings'   => 'encrypted:array',
+            'priority' => 'integer',
+            'settings' => 'encrypted:array',
         ];
     }
 

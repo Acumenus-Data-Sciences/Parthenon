@@ -20,16 +20,31 @@ use App\Contracts\NetworkAnalysisInterface;
  */
 class NA001ConditionPrevalence implements NetworkAnalysisInterface
 {
-    public function analysisId(): string    { return 'NA001'; }
-    public function analysisName(): string  { return 'Cross-Site Condition Prevalence'; }
-    public function category(): string      { return 'Prevalence'; }
-    public function minimumSources(): int   { return 2; }
+    public function analysisId(): string
+    {
+        return 'NA001';
+    }
+
+    public function analysisName(): string
+    {
+        return 'Cross-Site Condition Prevalence';
+    }
+
+    public function category(): string
+    {
+        return 'Prevalence';
+    }
+
+    public function minimumSources(): int
+    {
+        return 2;
+    }
 
     public function description(): string
     {
         return 'Compares prevalence of top conditions across all connected CDM sources. '
-            . 'Highlights conditions with high between-site heterogeneity (I² > 0.50) '
-            . 'that may indicate coding variation, population differences, or data quality issues.';
+            .'Highlights conditions with high between-site heterogeneity (I² > 0.50) '
+            .'that may indicate coding variation, population differences, or data quality issues.';
     }
 
     public function requiredTables(): array

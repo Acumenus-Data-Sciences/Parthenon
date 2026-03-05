@@ -702,7 +702,7 @@ class CohortDefinitionController extends Controller
             $cohortDef = CohortDefinition::create([
                 'name' => $name,
                 'description' => "Auto-generated from {$bundle->condition_name} care bundle. Includes primary condition criteria"
-                    . ($includeMeasures ? ' and quality measure inclusion rules.' : '.'),
+                    .($includeMeasures ? ' and quality measure inclusion rules.' : '.'),
                 'expression_json' => $expression,
                 'author_id' => $request->user()->id,
                 'is_public' => false,

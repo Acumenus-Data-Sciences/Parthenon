@@ -27,15 +27,15 @@ class PopulationRiskScoreResult extends Model
     ];
 
     protected $casts = [
-        'patient_count'     => 'integer',
-        'total_eligible'    => 'integer',
-        'mean_score'        => 'decimal:4',
-        'p25_score'         => 'decimal:4',
-        'median_score'      => 'decimal:4',
-        'p75_score'         => 'decimal:4',
-        'mean_confidence'   => 'decimal:4',
+        'patient_count' => 'integer',
+        'total_eligible' => 'integer',
+        'mean_score' => 'decimal:4',
+        'p25_score' => 'decimal:4',
+        'median_score' => 'decimal:4',
+        'p75_score' => 'decimal:4',
+        'mean_confidence' => 'decimal:4',
         'mean_completeness' => 'decimal:4',
-        'run_at'            => 'datetime',
+        'run_at' => 'datetime',
     ];
 
     public function source(): BelongsTo

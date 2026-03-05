@@ -39,7 +39,7 @@ abstract class AbstractCriteriaBuilder implements CriteriaBuilderInterface
             'eq' => "{$column} = {$value}",
             'neq' => "{$column} <> {$value}",
             'bt' => $extent !== null
-                ? "{$column} BETWEEN {$value} AND " . (float) $extent
+                ? "{$column} BETWEEN {$value} AND ".(float) $extent
                 : "{$column} >= {$value}",
             default => "{$column} = {$value}",
         };

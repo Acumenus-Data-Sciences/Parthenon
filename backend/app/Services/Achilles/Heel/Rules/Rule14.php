@@ -9,13 +9,25 @@ use App\Contracts\AchillesHeelRuleInterface;
  */
 class Rule14 implements AchillesHeelRuleInterface
 {
-    public function ruleId(): int { return 14; }
+    public function ruleId(): int
+    {
+        return 14;
+    }
 
-    public function ruleName(): string { return 'Negative days supply in drug exposure'; }
+    public function ruleName(): string
+    {
+        return 'Negative days supply in drug exposure';
+    }
 
-    public function severity(): string { return 'error'; }
+    public function severity(): string
+    {
+        return 'error';
+    }
 
-    public function category(): string { return 'Drug'; }
+    public function category(): string
+    {
+        return 'Drug';
+    }
 
     public function sqlTemplate(): string
     {

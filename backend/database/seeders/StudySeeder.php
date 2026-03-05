@@ -1209,6 +1209,7 @@ class StudySeeder extends Seeder
 
         if (empty($studyMap)) {
             $this->command->warn('No studies found for sub-resource seeding — skipping.');
+
             return;
         }
 
@@ -1262,7 +1263,9 @@ class StudySeeder extends Seeder
 
         $count = 0;
         foreach ($teamDefs as $key => $members) {
-            if (! isset($studyMap[$key])) continue;
+            if (! isset($studyMap[$key])) {
+                continue;
+            }
             $study = $studyMap[$key];
 
             foreach ($members as $member) {
@@ -1285,6 +1288,7 @@ class StudySeeder extends Seeder
     {
         if (empty($sources)) {
             $this->command->warn('  No sources found — skipping site seeding.');
+
             return;
         }
 
@@ -1316,7 +1320,9 @@ class StudySeeder extends Seeder
 
         $count = 0;
         foreach ($siteDefs as $key => $sites) {
-            if (! isset($studyMap[$key])) continue;
+            if (! isset($studyMap[$key])) {
+                continue;
+            }
             $study = $studyMap[$key];
 
             foreach ($sites as $i => $site) {
@@ -1350,6 +1356,7 @@ class StudySeeder extends Seeder
     {
         if (empty($cohorts)) {
             $this->command->warn('  No cohort definitions found — skipping cohort seeding.');
+
             return;
         }
 
@@ -1380,12 +1387,16 @@ class StudySeeder extends Seeder
 
         $count = 0;
         foreach ($cohortDefs as $key => $defs) {
-            if (! isset($studyMap[$key])) continue;
+            if (! isset($studyMap[$key])) {
+                continue;
+            }
             $study = $studyMap[$key];
 
             foreach ($defs as $order => $def) {
                 $cohortId = $cohorts[$def['cohort']] ?? null;
-                if (! $cohortId) continue;
+                if (! $cohortId) {
+                    continue;
+                }
 
                 StudyCohort::firstOrCreate(
                     ['study_id' => $study->id, 'cohort_definition_id' => $cohortId, 'role' => $def['role']],
@@ -1447,7 +1458,9 @@ class StudySeeder extends Seeder
 
         $count = 0;
         foreach ($milestoneDefs as $key => $milestones) {
-            if (! isset($studyMap[$key])) continue;
+            if (! isset($studyMap[$key])) {
+                continue;
+            }
             $study = $studyMap[$key];
 
             foreach ($milestones as $order => $ms) {
@@ -1504,7 +1517,9 @@ class StudySeeder extends Seeder
 
         $count = 0;
         foreach ($artifactDefs as $key => $artifacts) {
-            if (! isset($studyMap[$key])) continue;
+            if (! isset($studyMap[$key])) {
+                continue;
+            }
             $study = $studyMap[$key];
 
             foreach ($artifacts as $artifact) {
@@ -1555,7 +1570,9 @@ class StudySeeder extends Seeder
 
         $count = 0;
         foreach ($logDefs as $key => $logs) {
-            if (! isset($studyMap[$key])) continue;
+            if (! isset($studyMap[$key])) {
+                continue;
+            }
             $study = $studyMap[$key];
 
             foreach ($logs as $log) {

@@ -24,16 +24,31 @@ use App\Contracts\PopulationCharacterizationInterface;
  */
 class PC001CharlsonDistribution implements PopulationCharacterizationInterface
 {
-    public function analysisId(): string    { return 'PC001'; }
-    public function analysisName(): string  { return 'Charlson Comorbidity Index Distribution'; }
-    public function category(): string      { return 'Comorbidity'; }
-    public function requiresOptionalTables(): bool { return false; }
+    public function analysisId(): string
+    {
+        return 'PC001';
+    }
+
+    public function analysisName(): string
+    {
+        return 'Charlson Comorbidity Index Distribution';
+    }
+
+    public function category(): string
+    {
+        return 'Comorbidity';
+    }
+
+    public function requiresOptionalTables(): bool
+    {
+        return false;
+    }
 
     public function description(): string
     {
         return 'Full distribution of individual Charlson Comorbidity Index scores across all CDM persons, '
-            . 'cross-tabulated by observation-entry decade. Reveals population comorbidity burden '
-            . 'and secular trends in disease coding.';
+            .'cross-tabulated by observation-entry decade. Reveals population comorbidity burden '
+            .'and secular trends in disease coding.';
     }
 
     public function requiredTables(): array

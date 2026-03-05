@@ -66,7 +66,7 @@ class StudySubResourceObserver
             $entity = $class;
         }
 
-        return Str::snake($entity) . '_' . $verb;
+        return Str::snake($entity).'_'.$verb;
     }
 
     private function log(

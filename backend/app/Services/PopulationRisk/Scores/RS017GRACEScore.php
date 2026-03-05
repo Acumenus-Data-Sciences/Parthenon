@@ -29,13 +29,13 @@ class RS017GRACEScore implements PopulationRiskScoreInterface
     public function description(): string
     {
         return 'Simplified GRACE (Global Registry of Acute Coronary Events) score for in-hospital '
-            . 'mortality prediction in ACS patients. The full GRACE score uses eight variables: age, '
-            . 'heart rate, systolic BP, creatinine, Killip class, cardiac arrest, ST depression, '
-            . 'and elevated cardiac markers. This implementation operationalises all eight using OMOP '
-            . 'measurements and conditions. Age and condition-based items (cardiac arrest, ST depression) '
-            . 'are always available. Vital signs and lab items (HR, SBP, creatinine, troponin) contribute '
-            . 'to both the score and confidence calculation. Score thresholds: <88 low (<3% mortality), '
-            . '88-128 intermediate (3-8%), ≥129 high (>8%). Coefficients approximate Morrow 2007 GRACE.';
+            .'mortality prediction in ACS patients. The full GRACE score uses eight variables: age, '
+            .'heart rate, systolic BP, creatinine, Killip class, cardiac arrest, ST depression, '
+            .'and elevated cardiac markers. This implementation operationalises all eight using OMOP '
+            .'measurements and conditions. Age and condition-based items (cardiac arrest, ST depression) '
+            .'are always available. Vital signs and lab items (HR, SBP, creatinine, troponin) contribute '
+            .'to both the score and confidence calculation. Score thresholds: <88 low (<3% mortality), '
+            .'88-128 intermediate (3-8%), ≥129 high (>8%). Coefficients approximate Morrow 2007 GRACE.';
     }
 
     public function requiredComponents(): array
@@ -55,9 +55,9 @@ class RS017GRACEScore implements PopulationRiskScoreInterface
     public function riskTiers(): array
     {
         return [
-            'low'          => [0, 88],
+            'low' => [0, 88],
             'intermediate' => [88, 128],
-            'high'         => [128, null],
+            'high' => [128, null],
         ];
     }
 

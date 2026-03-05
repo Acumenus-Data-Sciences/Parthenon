@@ -44,10 +44,25 @@ use App\Contracts\PopulationRiskScoreInterface;
  */
 class RS008ChildPughScore implements PopulationRiskScoreInterface
 {
-    public function scoreId(): string       { return 'RS008'; }
-    public function scoreName(): string     { return 'Child-Pugh Score (Cirrhosis Severity)'; }
-    public function category(): string      { return 'Hepatic'; }
-    public function eligiblePopulation(): string { return 'Patients with cirrhosis or chronic liver disease'; }
+    public function scoreId(): string
+    {
+        return 'RS008';
+    }
+
+    public function scoreName(): string
+    {
+        return 'Child-Pugh Score (Cirrhosis Severity)';
+    }
+
+    public function category(): string
+    {
+        return 'Hepatic';
+    }
+
+    public function eligiblePopulation(): string
+    {
+        return 'Patients with cirrhosis or chronic liver disease';
+    }
 
     public function description(): string
     {

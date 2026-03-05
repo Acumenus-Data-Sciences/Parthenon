@@ -21,16 +21,31 @@ use App\Contracts\NetworkAnalysisInterface;
  */
 class NA006TemporalDistribution implements NetworkAnalysisInterface
 {
-    public function analysisId(): string    { return 'NA006'; }
-    public function analysisName(): string  { return 'Temporal Record Distribution'; }
-    public function category(): string      { return 'Coverage'; }
-    public function minimumSources(): int   { return 1; }
+    public function analysisId(): string
+    {
+        return 'NA006';
+    }
+
+    public function analysisName(): string
+    {
+        return 'Temporal Record Distribution';
+    }
+
+    public function category(): string
+    {
+        return 'Coverage';
+    }
+
+    public function minimumSources(): int
+    {
+        return 1;
+    }
 
     public function description(): string
     {
         return 'Counts clinical events per calendar year per domain per source. '
-            . 'Data cut-offs, backfill artifacts, and temporal coverage mismatches '
-            . 'across sites are immediately visible in the resulting time-series chart.';
+            .'Data cut-offs, backfill artifacts, and temporal coverage mismatches '
+            .'across sites are immediately visible in the resulting time-series chart.';
     }
 
     public function requiredTables(): array

@@ -18,7 +18,7 @@ class PrimaryCriteriaBuilder
      * @param  array<string, mixed>  $primaryCriteria  The PrimaryCriteria section of the expression
      * @param  string  $cdmSchema  The CDM schema qualifier
      * @param  array<string, mixed>  $qualifiedLimit  The QualifiedLimit config
-     * @return list<string>  Array of CTE definitions
+     * @return list<string> Array of CTE definitions
      */
     public function build(array $primaryCriteria, string $cdmSchema, array $qualifiedLimit): array
     {
@@ -66,13 +66,13 @@ class PrimaryCriteriaBuilder
             // Build additional WHERE clause string
             $whereStr = '';
             if (! empty($whereClauses)) {
-                $whereStr = "\n        AND " . implode("\n        AND ", $whereClauses);
+                $whereStr = "\n        AND ".implode("\n        AND ", $whereClauses);
             }
 
             // Observation period constraint
             $opJoin = "JOIN {$cdmSchema}.observation_period op\n            ON p.{$personIdCol} = op.person_id";
             $opWhere = "\n            AND e.{$startDateCol} >= DATEADD(op.observation_period_start_date, {$priorDays})"
-                     . "\n            AND e.{$startDateCol} <= DATEADD(op.observation_period_end_date, -{$postDays})";
+                     ."\n            AND e.{$startDateCol} <= DATEADD(op.observation_period_end_date, -{$postDays})";
 
             $selectPart = <<<SQL
         SELECT
@@ -116,20 +116,20 @@ SQL;
         $limitType = $qualifiedLimit['Type'] ?? 'First';
 
         $qualifiedCte = match ($limitType) {
-            'First' => <<<SQL
+            'First' => <<<'SQL'
 qualified_events AS (
     SELECT *
     FROM primary_events
     WHERE ordinal = 1
 )
 SQL,
-            'All' => <<<SQL
+            'All' => <<<'SQL'
 qualified_events AS (
     SELECT *
     FROM primary_events
 )
 SQL,
-            default => <<<SQL
+            default => <<<'SQL'
 qualified_events AS (
     SELECT *
     FROM primary_events

@@ -1,19 +1,19 @@
 <?php
 
 use App\Contracts\AchillesAnalysisInterface;
-use App\Services\Achilles\Analyses\Person\Analysis0;
-use App\Services\Achilles\Analyses\Person\Analysis2;
-use App\Services\Achilles\Analyses\Person\Analysis3;
-use App\Services\Achilles\Analyses\Person\Analysis4;
-use App\Services\Achilles\Analyses\Person\Analysis5;
 use App\Services\Achilles\Analyses\Condition\Analysis400;
 use App\Services\Achilles\Analyses\Condition\Analysis401;
 use App\Services\Achilles\Analyses\Condition\Analysis402;
 use App\Services\Achilles\Analyses\Condition\Analysis404;
 use App\Services\Achilles\Analyses\Condition\Analysis411;
-use App\Services\Achilles\Analyses\ObservationPeriod\Analysis105;
-use App\Services\Achilles\Analyses\Visit\Analysis211;
 use App\Services\Achilles\Analyses\DataDensity\Analysis2000;
+use App\Services\Achilles\Analyses\ObservationPeriod\Analysis105;
+use App\Services\Achilles\Analyses\Person\Analysis0;
+use App\Services\Achilles\Analyses\Person\Analysis2;
+use App\Services\Achilles\Analyses\Person\Analysis3;
+use App\Services\Achilles\Analyses\Person\Analysis4;
+use App\Services\Achilles\Analyses\Person\Analysis5;
+use App\Services\Achilles\Analyses\Visit\Analysis211;
 
 describe('AchillesAnalysis classes', function () {
 

@@ -119,7 +119,7 @@ class PathwayService
 
             $eventRows = DB::connection($connectionName)->select($renderedOrderedEventsSql);
 
-            $this->log($execution, 'info', 'Retrieved ' . count($eventRows) . ' event records');
+            $this->log($execution, 'info', 'Retrieved '.count($eventRows).' event records');
 
             // Step 4: Process events in PHP to build pathways
             $this->log($execution, 'info', 'Processing event sequences into pathways');

@@ -1,10 +1,10 @@
 <?php
 
-use App\Models\Cdm\Person;
 use App\Models\Cdm\ConditionOccurrence;
 use App\Models\Cdm\DrugExposure;
 use App\Models\Cdm\Measurement;
 use App\Models\Cdm\Observation;
+use App\Models\Cdm\Person;
 use App\Models\Cdm\ProcedureOccurrence;
 use App\Models\Cdm\VisitOccurrence;
 

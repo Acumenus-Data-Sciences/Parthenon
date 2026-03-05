@@ -9,13 +9,25 @@ use App\Contracts\AchillesHeelRuleInterface;
  */
 class Rule5 implements AchillesHeelRuleInterface
 {
-    public function ruleId(): int { return 5; }
+    public function ruleId(): int
+    {
+        return 5;
+    }
 
-    public function ruleName(): string { return 'Clinical events outside observation period'; }
+    public function ruleName(): string
+    {
+        return 'Clinical events outside observation period';
+    }
 
-    public function severity(): string { return 'warning'; }
+    public function severity(): string
+    {
+        return 'warning';
+    }
 
-    public function category(): string { return 'Observation Period'; }
+    public function category(): string
+    {
+        return 'Observation Period';
+    }
 
     public function sqlTemplate(): string
     {

@@ -9,13 +9,25 @@ use App\Contracts\AchillesHeelRuleInterface;
  */
 class Rule2 implements AchillesHeelRuleInterface
 {
-    public function ruleId(): int { return 2; }
+    public function ruleId(): int
+    {
+        return 2;
+    }
 
-    public function ruleName(): string { return 'Impossible age (> 150 years)'; }
+    public function ruleName(): string
+    {
+        return 'Impossible age (> 150 years)';
+    }
 
-    public function severity(): string { return 'error'; }
+    public function severity(): string
+    {
+        return 'error';
+    }
 
-    public function category(): string { return 'Person'; }
+    public function category(): string
+    {
+        return 'Person';
+    }
 
     public function sqlTemplate(): string
     {

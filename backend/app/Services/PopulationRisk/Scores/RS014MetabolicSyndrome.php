@@ -29,13 +29,13 @@ class RS014MetabolicSyndrome implements PopulationRiskScoreInterface
     public function description(): string
     {
         return 'IDF/NCEP-ATP III criteria: metabolic syndrome is defined as ≥3 of 5 criteria fulfilled. '
-            . 'Criteria: (1) elevated waist circumference (proxied by BMI ≥30 or obesity diagnosis), '
-            . '(2) elevated triglycerides ≥150 mg/dL or fibrate/niacin use, '
-            . '(3) low HDL (<40 mg/dL males, <50 mg/dL females), '
-            . '(4) elevated BP (SBP ≥130 or DBP ≥85) or hypertension diagnosis/antihypertensive use, '
-            . '(5) elevated fasting glucose ≥100 mg/dL or diabetes diagnosis. '
-            . 'Score 0-5 reflects the number of criteria met. '
-            . 'Confidence is proportional to the fraction of measurable components with data available.';
+            .'Criteria: (1) elevated waist circumference (proxied by BMI ≥30 or obesity diagnosis), '
+            .'(2) elevated triglycerides ≥150 mg/dL or fibrate/niacin use, '
+            .'(3) low HDL (<40 mg/dL males, <50 mg/dL females), '
+            .'(4) elevated BP (SBP ≥130 or DBP ≥85) or hypertension diagnosis/antihypertensive use, '
+            .'(5) elevated fasting glucose ≥100 mg/dL or diabetes diagnosis. '
+            .'Score 0-5 reflects the number of criteria met. '
+            .'Confidence is proportional to the fraction of measurable components with data available.';
     }
 
     public function requiredComponents(): array
@@ -52,7 +52,7 @@ class RS014MetabolicSyndrome implements PopulationRiskScoreInterface
     public function riskTiers(): array
     {
         return [
-            'no_mets'            => [0, 3],
+            'no_mets' => [0, 3],
             'metabolic_syndrome' => [3, null],
         ];
     }

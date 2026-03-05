@@ -38,10 +38,10 @@ class SeedEunomiaSourceCommand extends Command
         $source = Source::updateOrCreate(
             ['source_key' => 'EUNOMIA'],
             [
-                'source_name'       => 'Eunomia (demo)',
-                'source_dialect'    => 'postgresql',
+                'source_name' => 'Eunomia (demo)',
+                'source_dialect' => 'postgresql',
                 'source_connection' => 'eunomia',
-                'is_cache_enabled'  => false,
+                'is_cache_enabled' => false,
             ]
         );
 

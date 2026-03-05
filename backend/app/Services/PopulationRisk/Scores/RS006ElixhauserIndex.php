@@ -44,10 +44,25 @@ use App\Contracts\PopulationRiskScoreInterface;
  */
 class RS006ElixhauserIndex implements PopulationRiskScoreInterface
 {
-    public function scoreId(): string       { return 'RS006'; }
-    public function scoreName(): string     { return 'Elixhauser Comorbidity Index (van Walraven)'; }
-    public function category(): string      { return 'Comorbidity Burden'; }
-    public function eligiblePopulation(): string { return 'All patients with any condition record'; }
+    public function scoreId(): string
+    {
+        return 'RS006';
+    }
+
+    public function scoreName(): string
+    {
+        return 'Elixhauser Comorbidity Index (van Walraven)';
+    }
+
+    public function category(): string
+    {
+        return 'Comorbidity Burden';
+    }
+
+    public function eligiblePopulation(): string
+    {
+        return 'All patients with any condition record';
+    }
 
     public function description(): string
     {
@@ -62,10 +77,10 @@ class RS006ElixhauserIndex implements PopulationRiskScoreInterface
     public function riskTiers(): array
     {
         return [
-            'negative'     => [null, 0],
-            'low'          => [0,    5],
+            'negative' => [null, 0],
+            'low' => [0,    5],
             'intermediate' => [5,   10],
-            'high'         => [10, null],
+            'high' => [10, null],
         ];
     }
 

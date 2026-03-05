@@ -1,21 +1,18 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AbbyAiController;
-use App\Http\Controllers\Api\V1\AnalysisStatsController;
-use App\Http\Controllers\Api\V1\NetworkAnalysisController;
-use App\Http\Controllers\Api\V1\PopulationCharacterizationController;
 use App\Http\Controllers\Api\V1\AchillesController;
-use App\Http\Controllers\Api\V1\ClinicalCoherenceController;
-use App\Http\Controllers\Api\V1\PopulationRiskScoreController;
 use App\Http\Controllers\Api\V1\Admin\AiProviderController;
 use App\Http\Controllers\Api\V1\Admin\AuthProviderController;
 use App\Http\Controllers\Api\V1\Admin\RoleController;
 use App\Http\Controllers\Api\V1\Admin\SystemHealthController;
 use App\Http\Controllers\Api\V1\Admin\UserController;
 use App\Http\Controllers\Api\V1\Admin\WebApiRegistryController;
+use App\Http\Controllers\Api\V1\AnalysisStatsController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CareGapController;
 use App\Http\Controllers\Api\V1\CharacterizationController;
+use App\Http\Controllers\Api\V1\ClinicalCoherenceController;
 use App\Http\Controllers\Api\V1\CohortDefinitionController;
 use App\Http\Controllers\Api\V1\ConceptSetController;
 use App\Http\Controllers\Api\V1\DashboardController;
@@ -28,10 +25,13 @@ use App\Http\Controllers\Api\V1\IncidenceRateController;
 use App\Http\Controllers\Api\V1\IngestionController;
 use App\Http\Controllers\Api\V1\MappingReviewController;
 use App\Http\Controllers\Api\V1\NegativeControlController;
+use App\Http\Controllers\Api\V1\NetworkAnalysisController;
 use App\Http\Controllers\Api\V1\NotificationPreferenceController;
 use App\Http\Controllers\Api\V1\OnboardingController;
 use App\Http\Controllers\Api\V1\PathwayController;
 use App\Http\Controllers\Api\V1\PatientProfileController;
+use App\Http\Controllers\Api\V1\PopulationCharacterizationController;
+use App\Http\Controllers\Api\V1\PopulationRiskScoreController;
 use App\Http\Controllers\Api\V1\PredictionController;
 use App\Http\Controllers\Api\V1\SccsController;
 use App\Http\Controllers\Api\V1\SourceController;
@@ -40,8 +40,8 @@ use App\Http\Controllers\Api\V1\StudyArtifactController;
 use App\Http\Controllers\Api\V1\StudyCohortController;
 use App\Http\Controllers\Api\V1\StudyController;
 use App\Http\Controllers\Api\V1\StudyMilestoneController;
-use App\Http\Controllers\Api\V1\StudySiteController;
 use App\Http\Controllers\Api\V1\StudyResultController;
+use App\Http\Controllers\Api\V1\StudySiteController;
 use App\Http\Controllers\Api\V1\StudyStatsController;
 use App\Http\Controllers\Api\V1\StudySynthesisController;
 use App\Http\Controllers\Api\V1\StudyTeamController;
@@ -69,8 +69,9 @@ Route::prefix('v1')->group(function () {
         // Dashboard (unified stats — single call replaces 3+N frontend requests)
         Route::get('/dashboard/stats', [DashboardController::class, 'stats']);
 
-        // Sources — §9.5 import route BEFORE apiResource
+        // Sources — custom routes BEFORE apiResource to avoid route shadowing
         Route::post('sources/import-webapi', [SourceController::class, 'importWebApi']);
+        Route::post('sources/test-connection', [SourceController::class, 'testConnection']);
         Route::apiResource('sources', SourceController::class);
 
         // Vocabulary

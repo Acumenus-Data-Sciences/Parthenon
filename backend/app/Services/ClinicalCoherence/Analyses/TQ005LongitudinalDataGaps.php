@@ -21,23 +21,35 @@ use App\Contracts\ClinicalCoherenceAnalysisInterface;
  */
 class TQ005LongitudinalDataGaps implements ClinicalCoherenceAnalysisInterface
 {
-    public function analysisId(): string { return 'TQ005'; }
+    public function analysisId(): string
+    {
+        return 'TQ005';
+    }
 
     public function analysisName(): string
     {
         return 'Longitudinal Data Gaps (Silent Years)';
     }
 
-    public function category(): string { return 'Temporal Quality'; }
+    public function category(): string
+    {
+        return 'Temporal Quality';
+    }
 
     public function description(): string
     {
         return 'For persons with ≥2 full years of observation, detects calendar years within the observation window that have zero clinical events. Silent years suggest EHR system transitions or extract boundary errors.';
     }
 
-    public function severity(): string { return 'major'; }
+    public function severity(): string
+    {
+        return 'major';
+    }
 
-    public function flagThreshold(): ?float { return 0.05; } // flag years where >5% of long-term patients are silent
+    public function flagThreshold(): ?float
+    {
+        return 0.05;
+    } // flag years where >5% of long-term patients are silent
 
     public function requiredTables(): array
     {

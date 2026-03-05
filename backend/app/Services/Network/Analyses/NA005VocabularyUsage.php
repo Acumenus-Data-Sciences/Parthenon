@@ -19,22 +19,37 @@ use App\Contracts\NetworkAnalysisInterface;
  */
 class NA005VocabularyUsage implements NetworkAnalysisInterface
 {
-    public function analysisId(): string    { return 'NA005'; }
-    public function analysisName(): string  { return 'Vocabulary & Concept Usage'; }
-    public function category(): string      { return 'Coverage'; }
-    public function minimumSources(): int   { return 1; }
+    public function analysisId(): string
+    {
+        return 'NA005';
+    }
+
+    public function analysisName(): string
+    {
+        return 'Vocabulary & Concept Usage';
+    }
+
+    public function category(): string
+    {
+        return 'Coverage';
+    }
+
+    public function minimumSources(): int
+    {
+        return 1;
+    }
 
     public function description(): string
     {
         return 'Identifies vocabulary mix and unmapped concept rates per domain per source. '
-            . 'High unmapped rates (concept_id = 0) indicate ETL gaps; vocabulary mix '
-            . 'differences across sites may affect concept-set portability.';
+            .'High unmapped rates (concept_id = 0) indicate ETL gaps; vocabulary mix '
+            .'differences across sites may affect concept-set portability.';
     }
 
     public function requiredTables(): array
     {
         return ['condition_occurrence', 'drug_exposure', 'measurement',
-                'procedure_occurrence', 'observation', 'concept'];
+            'procedure_occurrence', 'observation', 'concept'];
     }
 
     public function perSourceSqlTemplate(): string

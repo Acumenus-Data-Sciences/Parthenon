@@ -24,16 +24,31 @@ use App\Contracts\PopulationCharacterizationInterface;
  */
 class PC003TreatmentPathways implements PopulationCharacterizationInterface
 {
-    public function analysisId(): string    { return 'PC003'; }
-    public function analysisName(): string  { return 'Treatment Pathway Analysis'; }
-    public function category(): string      { return 'Treatment'; }
-    public function requiresOptionalTables(): bool { return false; }
+    public function analysisId(): string
+    {
+        return 'PC003';
+    }
+
+    public function analysisName(): string
+    {
+        return 'Treatment Pathway Analysis';
+    }
+
+    public function category(): string
+    {
+        return 'Treatment';
+    }
+
+    public function requiresOptionalTables(): bool
+    {
+        return false;
+    }
 
     public function description(): string
     {
         return 'First-line and second-line drug therapy distributions for the top-10 most '
-            . 'prevalent conditions. First-line = drug started within 90 days of condition '
-            . 'index date; second-line = drug started 91–365 days after index date.';
+            .'prevalent conditions. First-line = drug started within 90 days of condition '
+            .'index date; second-line = drug started 91–365 days after index date.';
     }
 
     public function requiredTables(): array

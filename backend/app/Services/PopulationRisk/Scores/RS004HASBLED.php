@@ -41,10 +41,25 @@ use App\Contracts\PopulationRiskScoreInterface;
  */
 class RS004HASBLED implements PopulationRiskScoreInterface
 {
-    public function scoreId(): string       { return 'RS004'; }
-    public function scoreName(): string     { return 'HAS-BLED Bleeding Risk Score'; }
-    public function category(): string      { return 'Cardiovascular'; }
-    public function eligiblePopulation(): string { return 'Patients with atrial fibrillation'; }
+    public function scoreId(): string
+    {
+        return 'RS004';
+    }
+
+    public function scoreName(): string
+    {
+        return 'HAS-BLED Bleeding Risk Score';
+    }
+
+    public function category(): string
+    {
+        return 'Cardiovascular';
+    }
+
+    public function eligiblePopulation(): string
+    {
+        return 'Patients with atrial fibrillation';
+    }
 
     public function description(): string
     {
@@ -69,9 +84,9 @@ class RS004HASBLED implements PopulationRiskScoreInterface
     public function riskTiers(): array
     {
         return [
-            'low'          => [0, 2],
+            'low' => [0, 2],
             'intermediate' => [2, 3],
-            'high'         => [3, null],
+            'high' => [3, null],
         ];
     }
 

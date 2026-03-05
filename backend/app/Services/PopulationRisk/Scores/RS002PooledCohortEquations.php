@@ -23,10 +23,25 @@ use App\Contracts\PopulationRiskScoreInterface;
  */
 class RS002PooledCohortEquations implements PopulationRiskScoreInterface
 {
-    public function scoreId(): string       { return 'RS002'; }
-    public function scoreName(): string     { return 'ACC/AHA Pooled Cohort Equations (ASCVD 10-yr)'; }
-    public function category(): string      { return 'Cardiovascular'; }
-    public function eligiblePopulation(): string { return 'Ages 40–79, both sexes'; }
+    public function scoreId(): string
+    {
+        return 'RS002';
+    }
+
+    public function scoreName(): string
+    {
+        return 'ACC/AHA Pooled Cohort Equations (ASCVD 10-yr)';
+    }
+
+    public function category(): string
+    {
+        return 'Cardiovascular';
+    }
+
+    public function eligiblePopulation(): string
+    {
+        return 'Ages 40–79, both sexes';
+    }
 
     public function description(): string
     {
@@ -36,16 +51,16 @@ class RS002PooledCohortEquations implements PopulationRiskScoreInterface
     public function requiredComponents(): array
     {
         return ['age', 'sex', 'race', 'total_cholesterol', 'hdl_cholesterol',
-                'systolic_bp', 'bp_treatment', 'diabetes', 'smoking_status'];
+            'systolic_bp', 'bp_treatment', 'diabetes', 'smoking_status'];
     }
 
     public function riskTiers(): array
     {
         return [
-            'low'          => [null,  7.5],
-            'borderline'   => [7.5,  10.0],
+            'low' => [null,  7.5],
+            'borderline' => [7.5,  10.0],
             'intermediate' => [10.0, 20.0],
-            'high'         => [20.0, null],
+            'high' => [20.0, null],
         ];
     }
 

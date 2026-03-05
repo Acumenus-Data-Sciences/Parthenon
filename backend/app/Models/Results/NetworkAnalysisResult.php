@@ -7,7 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class NetworkAnalysisResult extends Model
 {
     protected $connection = 'pgsql';
-    protected $table      = 'network_analysis_results';
+
+    protected $table = 'network_analysis_results';
 
     protected $fillable = [
         'source_id',
@@ -25,7 +26,7 @@ class NetworkAnalysisResult extends Model
     protected function casts(): array
     {
         return [
-            'run_at'      => 'datetime',
+            'run_at' => 'datetime',
             'ratio_value' => 'float',
         ];
     }

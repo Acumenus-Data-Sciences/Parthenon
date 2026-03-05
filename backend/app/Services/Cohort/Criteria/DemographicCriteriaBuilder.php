@@ -12,7 +12,7 @@ class DemographicCriteriaBuilder
      * @param  list<array<string, mixed>>  $demographicCriteria
      * @param  string  $personAlias  The alias for the person table
      * @param  string  $eventDateExpr  The expression for the index event date (for age calculation)
-     * @return list<string>  SQL WHERE clause fragments
+     * @return list<string> SQL WHERE clause fragments
      */
     public function buildWhereClauses(array $demographicCriteria, string $personAlias, string $eventDateExpr): array
     {

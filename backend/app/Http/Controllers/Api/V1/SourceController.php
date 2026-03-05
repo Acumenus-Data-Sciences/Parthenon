@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\StoreSourceRequest;
 use App\Models\App\Source;
+use App\Services\Database\DynamicConnectionFactory;
 use App\Services\WebApi\WebApiImporterService;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
@@ -13,8 +14,12 @@ use Illuminate\Http\Request;
 #[Group('Data Sources', weight: 20)]
 class SourceController extends Controller
 {
+    /** Dialects that are proxied through the R service — no PHP PDO connection needed. */
+    private const R_PROXY_DIALECTS = ['databricks', 'bigquery', 'duckdb'];
+
     public function __construct(
         private readonly WebApiImporterService $importer,
+        private readonly DynamicConnectionFactory $connectionFactory,
     ) {}
 
     public function index(Request $request): JsonResponse
@@ -63,6 +68,35 @@ class SourceController extends Controller
         $source->delete();
 
         return response()->json(null, 204);
+    }
+
+    /**
+     * POST /v1/sources/test-connection
+     *
+     * Validate connectivity with the supplied source credentials without persisting.
+     * R-proxied dialects (databricks, bigquery, duckdb) always return success=true
+     * because connectivity is verified at analysis time by the R service.
+     */
+    public function testConnection(StoreSourceRequest $request): JsonResponse
+    {
+        $dialect = $request->input('source_dialect');
+
+        if (in_array($dialect, self::R_PROXY_DIALECTS)) {
+            return response()->json([
+                'success' => true,
+                'latency_ms' => 0,
+                'error' => null,
+                'note' => 'Connectivity for this dialect is verified by the R service at analysis time.',
+            ]);
+        }
+
+        // Build a temporary (unsaved) Source to test against
+        $source = new Source($request->validated());
+        $result = $this->connectionFactory->testConnection($source);
+
+        $status = $result['success'] ? 200 : 422;
+
+        return response()->json($result, $status);
     }
 
     /**

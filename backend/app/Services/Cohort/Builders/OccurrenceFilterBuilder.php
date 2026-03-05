@@ -8,9 +8,9 @@ class OccurrenceFilterBuilder
      * Build HAVING clause for occurrence count filtering.
      *
      * @param  array<string, mixed>  $occurrence  The Occurrence definition
-     *   - Type: 0 = exactly, 1 = at most, 2 = at least
-     *   - Count: the threshold count
-     * @return string|null  The HAVING clause (without HAVING keyword), or null if no filter
+     *                                            - Type: 0 = exactly, 1 = at most, 2 = at least
+     *                                            - Count: the threshold count
+     * @return string|null The HAVING clause (without HAVING keyword), or null if no filter
      */
     public function build(?array $occurrence): ?string
     {

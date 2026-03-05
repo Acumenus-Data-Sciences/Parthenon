@@ -9,13 +9,25 @@ use App\Contracts\AchillesHeelRuleInterface;
  */
 class Rule9 implements AchillesHeelRuleInterface
 {
-    public function ruleId(): int { return 9; }
+    public function ruleId(): int
+    {
+        return 9;
+    }
 
-    public function ruleName(): string { return 'High rate of unmapped measurement concepts (> 10%)'; }
+    public function ruleName(): string
+    {
+        return 'High rate of unmapped measurement concepts (> 10%)';
+    }
 
-    public function severity(): string { return 'warning'; }
+    public function severity(): string
+    {
+        return 'warning';
+    }
 
-    public function category(): string { return 'Measurement'; }
+    public function category(): string
+    {
+        return 'Measurement';
+    }
 
     public function sqlTemplate(): string
     {

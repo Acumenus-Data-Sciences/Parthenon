@@ -46,7 +46,7 @@ class AbbyAiService
     public function buildCohortFromPrompt(string $prompt, ?int $sourceId = null, string $pageContext = 'cohort-builder'): array
     {
         // ── 1. Try LLM-powered parse first; fall back to regex on failure ──
-        $llmSpec  = null;
+        $llmSpec = null;
         $llmTerms = [];
 
         try {
@@ -66,9 +66,9 @@ class AbbyAiService
         // Prefer LLM terms when confident; merge demographics
         if (! empty($llmTerms)) {
             $analysis['terms'] = array_map(fn ($t) => [
-                'text'   => $t['text'],
+                'text' => $t['text'],
                 'domain' => $t['domain'] ?? 'condition',
-                'role'   => $t['role'] ?? 'entry',
+                'role' => $t['role'] ?? 'entry',
             ], $llmTerms);
         }
 
@@ -114,7 +114,7 @@ class AbbyAiService
         }
 
         $conceptSets = [];
-        $warnings    = array_merge(
+        $warnings = array_merge(
             $llmSpec['warnings'] ?? [],
             [],
         );
@@ -130,6 +130,7 @@ class AbbyAiService
             $concepts = $this->searchConcepts($term['text'], $term['domain']);
             if (empty($concepts)) {
                 $warnings[] = "No OMOP concepts found for '{$term['text']}'. You may need to add this concept set manually.";
+
                 continue;
             }
             $conceptSets[] = [
@@ -155,15 +156,15 @@ class AbbyAiService
         $explanation = $this->generateExplanation($analysis, $conceptSets);
 
         return [
-            'cohort_name'  => $llmSpec['cohort_name'] ?? null,
-            'expression'   => $expression,
-            'explanation'  => $explanation,
+            'cohort_name' => $llmSpec['cohort_name'] ?? null,
+            'expression' => $expression,
+            'explanation' => $explanation,
             'concept_sets' => array_map(fn ($cs) => [
-                'name'     => $cs['name'],
+                'name' => $cs['name'],
                 'concepts' => array_map(fn ($item) => $item['concept'], $cs['expression']['items']),
             ], $conceptSets),
-            'warnings'        => $warnings,
-            'llm_confidence'  => $llmSpec['confidence'] ?? null,
+            'warnings' => $warnings,
+            'llm_confidence' => $llmSpec['confidence'] ?? null,
             'location_states' => $analysis['demographics']['location_state'] ?? [],
         ];
     }
@@ -177,32 +178,32 @@ class AbbyAiService
         $build = $this->buildCohortFromPrompt($prompt, null, $pageContext);
 
         $name = $build['cohort_name']
-            ?? ('Abby: ' . \Illuminate\Support\Str::limit($prompt, 80));
+            ?? ('Abby: '.\Illuminate\Support\Str::limit($prompt, 80));
 
         // Location states go into the description since OMOP CDM doesn't have
         // a first-class state filter in the expression schema.
         $description = ! empty($build['location_states'])
-            ? 'Geographic restriction: ' . implode(', ', $build['location_states']) . '. '
+            ? 'Geographic restriction: '.implode(', ', $build['location_states']).'. '
             : '';
         $description .= $build['explanation'];
 
         $cohort = CohortDefinition::create([
-            'name'            => $name,
-            'description'     => $description,
+            'name' => $name,
+            'description' => $description,
             'expression_json' => $build['expression'],
-            'author_id'       => $author->id,
-            'is_public'       => false,
+            'author_id' => $author->id,
+            'is_public' => false,
         ]);
 
         $cohort->load('author:id,name,email');
 
         return [
             'cohort_definition' => $cohort,
-            'expression'        => $build['expression'],
-            'explanation'       => $build['explanation'],
-            'concept_sets'      => $build['concept_sets'],
-            'warnings'          => $build['warnings'],
-            'llm_confidence'    => $build['llm_confidence'],
+            'expression' => $build['expression'],
+            'explanation' => $build['explanation'],
+            'concept_sets' => $build['concept_sets'],
+            'warnings' => $build['warnings'],
+            'llm_confidence' => $build['llm_confidence'],
         ];
     }
 
@@ -215,8 +216,8 @@ class AbbyAiService
     public function chat(
         string $message,
         string $pageContext = 'general',
-        array  $pageData   = [],
-        array  $history    = [],
+        array $pageData = [],
+        array $history = [],
     ): array {
         return $this->aiService->abbyChat($message, $pageContext, $pageData, $history);
     }
@@ -256,9 +257,13 @@ class AbbyAiService
         if (preg_match(self::PATTERNS['within_days'], $prompt, $m)) {
             $days = (int) $m[1];
             $unit = strtolower($m[2]);
-            if (str_starts_with($unit, 'week')) $days *= 7;
-            elseif (str_starts_with($unit, 'month')) $days *= 30;
-            elseif (str_starts_with($unit, 'year')) $days *= 365;
+            if (str_starts_with($unit, 'week')) {
+                $days *= 7;
+            } elseif (str_starts_with($unit, 'month')) {
+                $days *= 30;
+            } elseif (str_starts_with($unit, 'year')) {
+                $days *= 365;
+            }
             $temporal['within_days'] = $days;
         }
 
@@ -318,7 +323,7 @@ class AbbyAiService
             ->where('invalid_reason', null)
             ->where(function ($q) use ($query) {
                 $q->where('concept_name', 'ilike', "%{$query}%")
-                  ->orWhere('concept_code', 'ilike', "%{$query}%");
+                    ->orWhere('concept_code', 'ilike', "%{$query}%");
             });
 
         if ($domain) {
@@ -335,7 +340,7 @@ class AbbyAiService
         }
 
         return $builder
-            ->orderByRaw("CASE WHEN LOWER(concept_name) = ? THEN 0 WHEN LOWER(concept_name) LIKE ? THEN 1 ELSE 2 END", [strtolower($query), strtolower($query) . '%'])
+            ->orderByRaw('CASE WHEN LOWER(concept_name) = ? THEN 0 WHEN LOWER(concept_name) LIKE ? THEN 1 ELSE 2 END', [strtolower($query), strtolower($query).'%'])
             ->limit(10)
             ->get()
             ->map(fn ($row) => [
@@ -450,18 +455,22 @@ class AbbyAiService
         }
 
         // Add demographic filters
-        if (!empty($analysis['demographics'])) {
+        if (! empty($analysis['demographics'])) {
             $demo = [];
             if (isset($analysis['demographics']['age'])) {
                 $age = $analysis['demographics']['age'];
-                if ($age['min'] !== null) $demo['Age'] = ['Value' => $age['min'], 'Op' => 'gte'];
-                if ($age['max'] !== null) $demo['AgeMax'] = ['Value' => $age['max'], 'Op' => 'lte'];
+                if ($age['min'] !== null) {
+                    $demo['Age'] = ['Value' => $age['min'], 'Op' => 'gte'];
+                }
+                if ($age['max'] !== null) {
+                    $demo['AgeMax'] = ['Value' => $age['max'], 'Op' => 'lte'];
+                }
             }
             if (isset($analysis['demographics']['gender'])) {
                 $genderConceptId = $analysis['demographics']['gender'] === 'female' ? 8532 : 8507;
                 $demo['Gender'] = [['CONCEPT_ID' => $genderConceptId]];
             }
-            if (!empty($demo)) {
+            if (! empty($demo)) {
                 $expression['DemographicCriteria'][] = $demo;
             }
         }
@@ -506,7 +515,7 @@ class AbbyAiService
                 : "This cohort identifies patients with a {$entryCs['domain']} event matching **{$entryCs['name']}**.";
 
             if ($isNew) {
-                $parts[] = "A 365-day washout period is required (no prior occurrence).";
+                $parts[] = 'A 365-day washout period is required (no prior occurrence).';
             }
         }
 
@@ -523,7 +532,7 @@ class AbbyAiService
             $parts[] = "Patients with any prior history of **{$names}** are excluded.";
         }
 
-        if (!empty($analysis['demographics'])) {
+        if (! empty($analysis['demographics'])) {
             $demoParts = [];
             if (isset($analysis['demographics']['age'])) {
                 $age = $analysis['demographics']['age'];
@@ -538,13 +547,13 @@ class AbbyAiService
             if (isset($analysis['demographics']['gender'])) {
                 $demoParts[] = $analysis['demographics']['gender'];
             }
-            if (!empty($demoParts)) {
-                $parts[] = "Demographic filter: " . implode(', ', $demoParts) . ".";
+            if (! empty($demoParts)) {
+                $parts[] = 'Demographic filter: '.implode(', ', $demoParts).'.';
             }
         }
 
         if (empty($parts)) {
-            return "No specific criteria could be extracted from the prompt. Please try rephrasing or adding more detail about the target population.";
+            return 'No specific criteria could be extracted from the prompt. Please try rephrasing or adding more detail about the target population.';
         }
 
         return implode("\n\n", $parts);
@@ -567,7 +576,7 @@ class AbbyAiService
 
         // Describe concept sets
         $conceptSets = $expression['ConceptSets'] ?? [];
-        if (!empty($conceptSets)) {
+        if (! empty($conceptSets)) {
             $names = collect($conceptSets)->pluck('name')->join(', ');
             $parts[] = "**Concept Sets defined:** {$names}";
         }
@@ -575,7 +584,7 @@ class AbbyAiService
         // Describe primary criteria
         $primary = $expression['PrimaryCriteria'] ?? [];
         $criteriaList = $primary['CriteriaList'] ?? [];
-        if (!empty($criteriaList)) {
+        if (! empty($criteriaList)) {
             $domains = [];
             foreach ($criteriaList as $c) {
                 foreach (['ConditionOccurrence', 'DrugExposure', 'ProcedureOccurrence', 'Measurement', 'Observation', 'VisitOccurrence', 'Death'] as $d) {
@@ -586,7 +595,7 @@ class AbbyAiService
                     }
                 }
             }
-            $parts[] = "**Entry event:** " . implode(' OR ', $domains);
+            $parts[] = '**Entry event:** '.implode(' OR ', $domains);
         }
 
         // Observation window
@@ -597,7 +606,7 @@ class AbbyAiService
 
         // Inclusion rules
         $rules = $expression['InclusionRules'] ?? [];
-        if (!empty($rules)) {
+        if (! empty($rules)) {
             $count = count($rules);
             $ruleNames = collect($rules)->pluck('name')->join(', ');
             $parts[] = "**Inclusion rules ({$count}):** {$ruleNames}";
@@ -605,8 +614,8 @@ class AbbyAiService
 
         // Demographics
         $demographics = $expression['DemographicCriteria'] ?? [];
-        if (!empty($demographics)) {
-            $parts[] = "**Demographic filters** are applied.";
+        if (! empty($demographics)) {
+            $parts[] = '**Demographic filters** are applied.';
         }
 
         // Qualified limit
@@ -636,6 +645,7 @@ class AbbyAiService
             $concepts = $this->searchConcepts($term['text'], $term['domain']);
             if (empty($concepts)) {
                 $warnings[] = "No OMOP concepts found for '{$term['text']}'.";
+
                 continue;
             }
 
@@ -705,18 +715,22 @@ class AbbyAiService
         }
 
         // Apply demographic changes
-        if (!empty($analysis['demographics'])) {
+        if (! empty($analysis['demographics'])) {
             $demo = [];
             if (isset($analysis['demographics']['age'])) {
                 $age = $analysis['demographics']['age'];
-                if ($age['min'] !== null) $demo['Age'] = ['Value' => $age['min'], 'Op' => 'gte'];
-                if ($age['max'] !== null) $demo['AgeMax'] = ['Value' => $age['max'], 'Op' => 'lte'];
+                if ($age['min'] !== null) {
+                    $demo['Age'] = ['Value' => $age['min'], 'Op' => 'gte'];
+                }
+                if ($age['max'] !== null) {
+                    $demo['AgeMax'] = ['Value' => $age['max'], 'Op' => 'lte'];
+                }
             }
             if (isset($analysis['demographics']['gender'])) {
                 $genderConceptId = $analysis['demographics']['gender'] === 'female' ? 8532 : 8507;
                 $demo['Gender'] = [['CONCEPT_ID' => $genderConceptId]];
             }
-            if (!empty($demo)) {
+            if (! empty($demo)) {
                 $expression['DemographicCriteria'] = [$demo];
             }
         }

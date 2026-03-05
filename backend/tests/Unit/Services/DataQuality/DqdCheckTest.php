@@ -2,13 +2,13 @@
 
 use App\Contracts\DqdCheckInterface;
 use App\Services\Dqd\Checks\Completeness\CompletenessCheckFactory;
+use App\Services\Dqd\Checks\Completeness\NonZeroConceptCheck;
 use App\Services\Dqd\Checks\Completeness\RequiredFieldCheck;
 use App\Services\Dqd\Checks\Completeness\ValueCompletenessCheck;
-use App\Services\Dqd\Checks\Completeness\NonZeroConceptCheck;
-use App\Services\Dqd\Checks\Conformance\ConformanceCheckFactory;
 use App\Services\Dqd\Checks\Conformance\ConceptIdValidCheck;
-use App\Services\Dqd\Checks\Plausibility\PlausibilityCheckFactory;
+use App\Services\Dqd\Checks\Conformance\ConformanceCheckFactory;
 use App\Services\Dqd\Checks\Plausibility\NoFutureDateCheck;
+use App\Services\Dqd\Checks\Plausibility\PlausibilityCheckFactory;
 
 describe('DQD Check classes', function () {
 

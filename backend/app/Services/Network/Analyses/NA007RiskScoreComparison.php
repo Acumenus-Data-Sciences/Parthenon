@@ -25,16 +25,31 @@ use App\Contracts\NetworkAnalysisInterface;
  */
 class NA007RiskScoreComparison implements NetworkAnalysisInterface
 {
-    public function analysisId(): string    { return 'NA007'; }
-    public function analysisName(): string  { return 'Risk Score Distribution Comparison'; }
-    public function category(): string      { return 'Risk'; }
-    public function minimumSources(): int   { return 2; }
+    public function analysisId(): string
+    {
+        return 'NA007';
+    }
+
+    public function analysisName(): string
+    {
+        return 'Risk Score Distribution Comparison';
+    }
+
+    public function category(): string
+    {
+        return 'Risk';
+    }
+
+    public function minimumSources(): int
+    {
+        return 2;
+    }
 
     public function description(): string
     {
         return 'Compares population risk tier distributions (RS001–RS020) across sources '
-            . 'using pre-computed risk score results. Sources with higher proportions of '
-            . 'high-risk patients may reflect older, sicker, or more underserved populations.';
+            .'using pre-computed risk score results. Sources with higher proportions of '
+            .'high-risk patients may reflect older, sicker, or more underserved populations.';
     }
 
     public function requiredTables(): array

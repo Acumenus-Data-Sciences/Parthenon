@@ -9,13 +9,25 @@ use App\Contracts\AchillesHeelRuleInterface;
  */
 class Rule15 implements AchillesHeelRuleInterface
 {
-    public function ruleId(): int { return 15; }
+    public function ruleId(): int
+    {
+        return 15;
+    }
 
-    public function ruleName(): string { return 'Visit end date before visit start date'; }
+    public function ruleName(): string
+    {
+        return 'Visit end date before visit start date';
+    }
 
-    public function severity(): string { return 'error'; }
+    public function severity(): string
+    {
+        return 'error';
+    }
 
-    public function category(): string { return 'Visit'; }
+    public function category(): string
+    {
+        return 'Visit';
+    }
 
     public function sqlTemplate(): string
     {

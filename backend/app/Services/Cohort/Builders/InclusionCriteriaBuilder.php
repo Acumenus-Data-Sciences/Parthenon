@@ -25,7 +25,7 @@ class InclusionCriteriaBuilder
      * @param  array<string, mixed>|null  $additionalCriteria  The AdditionalCriteria section
      * @param  list<array<string, mixed>>  $demographicCriteria  The DemographicCriteria array
      * @param  string  $cdmSchema  The CDM schema qualifier
-     * @return list<string>  Array of CTE definitions
+     * @return list<string> Array of CTE definitions
      */
     public function build(?array $additionalCriteria, array $demographicCriteria, string $cdmSchema): array
     {
@@ -68,7 +68,7 @@ SQL;
 
         // If no inclusion rules, all qualified events pass through
         if (empty($rulePersonSets)) {
-            $ctes[] = <<<SQL
+            $ctes[] = <<<'SQL'
 inclusion_events AS (
     SELECT person_id, start_date, end_date, concept_id, op_start_date, op_end_date
     FROM qualified_events
@@ -190,7 +190,7 @@ SQL;
         $allWhere = array_merge($domainWhere, $windowClauses);
         $whereStr = '';
         if (! empty($allWhere)) {
-            $whereStr = "\n    AND " . implode("\n    AND ", $allWhere);
+            $whereStr = "\n    AND ".implode("\n    AND ", $allWhere);
         }
 
         // Occurrence filter
@@ -198,8 +198,8 @@ SQL;
         $havingClause = $this->occurrenceBuilder->buildClause($occurrence);
 
         // Build the CTE
-        $selectExpr = "qe.person_id";
-        $groupBy = "GROUP BY qe.person_id";
+        $selectExpr = 'qe.person_id';
+        $groupBy = 'GROUP BY qe.person_id';
 
         if (! empty($havingClause)) {
             return <<<SQL
@@ -278,10 +278,10 @@ SQL;
                 "\n    AND ",
                 array_map(fn (string $set) => "qe.person_id IN (SELECT person_id FROM {$set})", $personSets)
             ),
-            'ANY' => '(' . implode(
+            'ANY' => '('.implode(
                 "\n    OR ",
                 array_map(fn (string $set) => "qe.person_id IN (SELECT person_id FROM {$set})", $personSets)
-            ) . ')',
+            ).')',
             'AT_MOST_0' => implode(
                 "\n    AND ",
                 array_map(fn (string $set) => "qe.person_id NOT IN (SELECT person_id FROM {$set})", $personSets)

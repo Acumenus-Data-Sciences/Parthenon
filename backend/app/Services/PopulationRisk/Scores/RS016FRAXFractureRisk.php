@@ -29,14 +29,14 @@ class RS016FRAXFractureRisk implements PopulationRiskScoreInterface
     public function description(): string
     {
         return 'Simplified FRAX-inspired clinical risk score for 10-year major osteoporotic fracture risk. '
-            . 'FRAX normally uses country-specific lookup tables and optionally bone mineral density (BMD). '
-            . 'This implementation approximates the risk using OMOP-available clinical factors: age bands, '
-            . 'sex, prior fragility fracture (2 pts), current smoking, glucocorticoid use ≥3 months, '
-            . 'rheumatoid arthritis, secondary osteoporosis causes, low BMD proxy (osteoporosis/osteopenia '
-            . 'diagnosis), and alcohol use. Parental hip fracture history is not available in CDM and is '
-            . 'omitted. 10-year risk is estimated empirically from total score bands. '
-            . 'Confidence baseline 0.75 reflects missing BMD, country calibration, and parental history. '
-            . 'Note: this score is an approximation and should not substitute for formal FRAX calculation.';
+            .'FRAX normally uses country-specific lookup tables and optionally bone mineral density (BMD). '
+            .'This implementation approximates the risk using OMOP-available clinical factors: age bands, '
+            .'sex, prior fragility fracture (2 pts), current smoking, glucocorticoid use ≥3 months, '
+            .'rheumatoid arthritis, secondary osteoporosis causes, low BMD proxy (osteoporosis/osteopenia '
+            .'diagnosis), and alcohol use. Parental hip fracture history is not available in CDM and is '
+            .'omitted. 10-year risk is estimated empirically from total score bands. '
+            .'Confidence baseline 0.75 reflects missing BMD, country calibration, and parental history. '
+            .'Note: this score is an approximation and should not substitute for formal FRAX calculation.';
     }
 
     public function requiredComponents(): array
@@ -56,9 +56,9 @@ class RS016FRAXFractureRisk implements PopulationRiskScoreInterface
     public function riskTiers(): array
     {
         return [
-            'low'       => [0, 3],
-            'moderate'  => [3, 6],
-            'high'      => [6, 10],
+            'low' => [0, 3],
+            'moderate' => [3, 6],
+            'high' => [6, 10],
             'very_high' => [10, null],
         ];
     }

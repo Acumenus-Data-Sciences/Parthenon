@@ -29,8 +29,8 @@ class ClinicalCoherenceResult extends Model
         'count_value' => 'integer',
         'total_value' => 'integer',
         'ratio_value' => 'decimal:6',
-        'flagged'     => 'boolean',
-        'run_at'      => 'datetime',
+        'flagged' => 'boolean',
+        'run_at' => 'datetime',
     ];
 
     public function source(): BelongsTo

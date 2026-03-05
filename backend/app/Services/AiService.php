@@ -150,7 +150,7 @@ class AiService
     {
         $response = Http::timeout(120)
             ->post("{$this->baseUrl}/abby/parse-cohort", [
-                'prompt'       => $prompt,
+                'prompt' => $prompt,
                 'page_context' => $pageContext,
             ]);
 
@@ -161,20 +161,20 @@ class AiService
      * Page-aware conversational chat with Abby (MedGemma).
      *
      * @param  array<array{role: string, content: string}>  $history
-     * @return array<string, mixed>  {reply: string, suggestions: string[]}
+     * @return array<string, mixed> {reply: string, suggestions: string[]}
      */
     public function abbyChat(
         string $message,
         string $pageContext = 'general',
-        array  $pageData   = [],
-        array  $history    = [],
+        array $pageData = [],
+        array $history = [],
     ): array {
         $response = Http::timeout(120)
             ->post("{$this->baseUrl}/abby/chat", [
-                'message'      => $message,
+                'message' => $message,
                 'page_context' => $pageContext,
-                'page_data'    => $pageData ?: (object) [],
-                'history'      => $history,
+                'page_data' => $pageData ?: (object) [],
+                'history' => $history,
             ]);
 
         return $response->json() ?? ['reply' => 'Abby is unavailable.', 'suggestions' => []];

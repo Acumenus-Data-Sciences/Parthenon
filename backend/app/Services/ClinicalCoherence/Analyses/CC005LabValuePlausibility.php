@@ -25,23 +25,35 @@ use App\Contracts\ClinicalCoherenceAnalysisInterface;
  */
 class CC005LabValuePlausibility implements ClinicalCoherenceAnalysisInterface
 {
-    public function analysisId(): string { return 'CC005'; }
+    public function analysisId(): string
+    {
+        return 'CC005';
+    }
 
     public function analysisName(): string
     {
         return 'Lab Value Clinical Plausibility';
     }
 
-    public function category(): string { return 'Measurement Quality'; }
+    public function category(): string
+    {
+        return 'Measurement Quality';
+    }
 
     public function description(): string
     {
         return 'Identifies measurement values that fall outside physiologically possible ranges for common vital signs and laboratory tests (e.g. heart rate = 0, hemoglobin > 25 g/dL).';
     }
 
-    public function severity(): string { return 'critical'; }
+    public function severity(): string
+    {
+        return 'critical';
+    }
 
-    public function flagThreshold(): ?float { return 0.01; } // flag if >1% of values are impossible
+    public function flagThreshold(): ?float
+    {
+        return 0.01;
+    } // flag if >1% of values are impossible
 
     public function requiredTables(): array
     {

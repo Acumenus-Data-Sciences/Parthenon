@@ -29,8 +29,8 @@ class NetworkAnalysisEngineService
         )->values();
 
         $completed = 0;
-        $failed    = 0;
-        $results   = [];
+        $failed = 0;
+        $results = [];
 
         foreach ($this->registry->all() as $analysis) {
             try {
@@ -46,10 +46,10 @@ class NetworkAnalysisEngineService
         }
 
         return [
-            'analyses_run'  => $completed,
-            'sources_used'  => $sources->count(),
-            'failed'        => $failed,
-            'results'       => $results,
+            'analyses_run' => $completed,
+            'sources_used' => $sources->count(),
+            'failed' => $failed,
+            'results' => $results,
         ];
     }
 
@@ -59,7 +59,7 @@ class NetworkAnalysisEngineService
     public function runAnalysis(NetworkAnalysisInterface $analysis, array $sources): array
     {
         $perSourceRows = [];
-        $sourcesRun    = 0;
+        $sourcesRun = 0;
         $sourcesFailed = 0;
 
         // ── 1. Execute per-source SQL ──────────────────────────────────────
@@ -70,7 +70,7 @@ class NetworkAnalysisEngineService
             }
 
             try {
-                $sql  = $this->renderer->render($analysis->perSourceSqlTemplate(), $source);
+                $sql = $this->renderer->render($analysis->perSourceSqlTemplate(), $source);
                 $rows = DB::select($sql);
 
                 // Delete stale rows for this analysis + source
@@ -81,17 +81,17 @@ class NetworkAnalysisEngineService
                 $now = now();
                 foreach ($rows as $row) {
                     NetworkAnalysisResult::create([
-                        'analysis_id'  => $analysis->analysisId(),
-                        'source_id'    => $source->id,
-                        'stratum_1'    => $row->stratum_1 ?? '',
-                        'stratum_2'    => $row->stratum_2 ?? '',
-                        'stratum_3'    => $row->stratum_3 ?? '',
-                        'count_value'  => (int) ($row->count_value ?? 0),
-                        'total_value'  => (int) ($row->total_value ?? 0),
-                        'ratio_value'  => $row->total_value > 0
+                        'analysis_id' => $analysis->analysisId(),
+                        'source_id' => $source->id,
+                        'stratum_1' => $row->stratum_1 ?? '',
+                        'stratum_2' => $row->stratum_2 ?? '',
+                        'stratum_3' => $row->stratum_3 ?? '',
+                        'count_value' => (int) ($row->count_value ?? 0),
+                        'total_value' => (int) ($row->total_value ?? 0),
+                        'ratio_value' => $row->total_value > 0
                             ? round($row->count_value / $row->total_value, 6)
                             : null,
-                        'run_at'       => $now,
+                        'run_at' => $now,
                     ]);
 
                     $perSourceRows[$source->id][] = $row;
@@ -118,17 +118,17 @@ class NetworkAnalysisEngineService
         foreach ($networkRows as $row) {
             NetworkAnalysisResult::create(array_merge($row, [
                 'analysis_id' => $analysis->analysisId(),
-                'source_id'   => null,
-                'run_at'      => $now,
+                'source_id' => null,
+                'run_at' => $now,
             ]));
         }
 
         return [
-            'analysis_id'    => $analysis->analysisId(),
-            'analysis_name'  => $analysis->analysisName(),
-            'sources_run'    => $sourcesRun,
+            'analysis_id' => $analysis->analysisId(),
+            'analysis_name' => $analysis->analysisName(),
+            'sources_run' => $sourcesRun,
             'sources_failed' => $sourcesFailed,
-            'network_rows'   => count($networkRows),
+            'network_rows' => count($networkRows),
         ];
     }
 
@@ -155,14 +155,14 @@ class NetworkAnalysisEngineService
                     ? ($row->count_value / $row->total_value)
                     : null;
 
-                $groups[$key]['stratum_1']    = $row->stratum_1 ?? '';
-                $groups[$key]['stratum_2']    = $row->stratum_2 ?? '';
-                $groups[$key]['stratum_3']    = $row->stratum_3 ?? '';
-                $groups[$key]['count_total']  = ($groups[$key]['count_total'] ?? 0) + ($row->count_value ?? 0);
-                $groups[$key]['denom_total']  = ($groups[$key]['denom_total'] ?? 0) + ($row->total_value ?? 0);
+                $groups[$key]['stratum_1'] = $row->stratum_1 ?? '';
+                $groups[$key]['stratum_2'] = $row->stratum_2 ?? '';
+                $groups[$key]['stratum_3'] = $row->stratum_3 ?? '';
+                $groups[$key]['count_total'] = ($groups[$key]['count_total'] ?? 0) + ($row->count_value ?? 0);
+                $groups[$key]['denom_total'] = ($groups[$key]['denom_total'] ?? 0) + ($row->total_value ?? 0);
 
                 if ($ratio !== null) {
-                    $groups[$key]['ratios'][]    = $ratio;
+                    $groups[$key]['ratios'][] = $ratio;
                     $groups[$key]['source_ids'][] = $sourceId;
                 }
             }
@@ -172,39 +172,39 @@ class NetworkAnalysisEngineService
 
         foreach ($groups as $row) {
             $ratios = $row['ratios'] ?? [];
-            $n      = count($ratios);
+            $n = count($ratios);
 
             if ($n === 0) {
                 continue;
             }
 
             $mean = array_sum($ratios) / $n;
-            $sd   = $n > 1
+            $sd = $n > 1
                 ? sqrt(array_sum(array_map(fn ($r) => ($r - $mean) ** 2, $ratios)) / ($n - 1))
                 : 0.0;
 
             // Cochran's I² approximation: I² = max(0, (Q - df) / Q)
             $i2 = 0.0;
             if ($n > 1) {
-                $q  = array_sum(array_map(fn ($r) => (($r - $mean) ** 2) / max($sd * $sd, 1e-12), $ratios));
+                $q = array_sum(array_map(fn ($r) => (($r - $mean) ** 2) / max($sd * $sd, 1e-12), $ratios));
                 $i2 = max(0.0, ($q - ($n - 1)) / max($q, 1e-12));
             }
 
             $networkRows[] = [
-                'stratum_1'       => $row['stratum_1'],
-                'stratum_2'       => $row['stratum_2'],
-                'stratum_3'       => $row['stratum_3'],
-                'count_value'     => (int) ($row['count_total'] ?? 0),
-                'total_value'     => (int) ($row['denom_total'] ?? 0),
-                'ratio_value'     => $row['denom_total'] > 0
+                'stratum_1' => $row['stratum_1'],
+                'stratum_2' => $row['stratum_2'],
+                'stratum_3' => $row['stratum_3'],
+                'count_value' => (int) ($row['count_total'] ?? 0),
+                'total_value' => (int) ($row['denom_total'] ?? 0),
+                'ratio_value' => $row['denom_total'] > 0
                     ? round($row['count_total'] / $row['denom_total'], 6)
                     : null,
                 'value_as_string' => json_encode([
-                    'source_count'   => $n,
-                    'mean_ratio'     => round($mean, 6),
-                    'sd_ratio'       => round($sd, 6),
-                    'min_ratio'      => round(min($ratios), 6),
-                    'max_ratio'      => round(max($ratios), 6),
+                    'source_count' => $n,
+                    'mean_ratio' => round($mean, 6),
+                    'sd_ratio' => round($sd, 6),
+                    'min_ratio' => round(min($ratios), 6),
+                    'max_ratio' => round(max($ratios), 6),
                     'heterogeneity_i2' => round($i2, 4),
                 ]),
             ];
@@ -232,8 +232,8 @@ class NetworkAnalysisEngineService
 
         return [
             'analysis_id' => $analysisId,
-            'per_source'  => $perSource,
-            'network'     => $network,
+            'per_source' => $perSource,
+            'network' => $network,
         ];
     }
 
@@ -255,12 +255,12 @@ class NetworkAnalysisEngineService
                 ->count('source_id');
 
             $summaries[] = [
-                'analysis_id'  => $analysis->analysisId(),
+                'analysis_id' => $analysis->analysisId(),
                 'analysis_name' => $analysis->analysisName(),
-                'category'     => $analysis->category(),
-                'description'  => $analysis->description(),
-                'sources_run'  => $sourceCount,
-                'last_run'     => $latest,
+                'category' => $analysis->category(),
+                'description' => $analysis->description(),
+                'sources_run' => $sourceCount,
+                'last_run' => $latest,
             ];
         }
 

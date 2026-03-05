@@ -27,23 +27,38 @@ use App\Contracts\PopulationCharacterizationInterface;
  */
 class PC005VisitComplexityScore implements PopulationCharacterizationInterface
 {
-    public function analysisId(): string    { return 'PC005'; }
-    public function analysisName(): string  { return 'Visit Complexity Score'; }
-    public function category(): string      { return 'Visit'; }
-    public function requiresOptionalTables(): bool { return false; }
+    public function analysisId(): string
+    {
+        return 'PC005';
+    }
+
+    public function analysisName(): string
+    {
+        return 'Visit Complexity Score';
+    }
+
+    public function category(): string
+    {
+        return 'Visit';
+    }
+
+    public function requiresOptionalTables(): bool
+    {
+        return false;
+    }
 
     public function description(): string
     {
         return 'Counts distinct clinical domains (condition, drug, measurement, procedure, '
-            . 'observation) active on each visit date. Bucketed by visit type (inpatient / '
-            . 'outpatient / emergency). Low complexity outpatient visits suggest documentation '
-            . 'gaps; high-complexity inpatient visits are expected.';
+            .'observation) active on each visit date. Bucketed by visit type (inpatient / '
+            .'outpatient / emergency). Low complexity outpatient visits suggest documentation '
+            .'gaps; high-complexity inpatient visits are expected.';
     }
 
     public function requiredTables(): array
     {
         return ['visit_occurrence', 'condition_occurrence', 'drug_exposure',
-                'measurement', 'procedure_occurrence', 'observation'];
+            'measurement', 'procedure_occurrence', 'observation'];
     }
 
     public function sqlTemplate(): string

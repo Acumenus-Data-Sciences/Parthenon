@@ -45,23 +45,18 @@ class PatientProfileController extends Controller
         int $cohortDefinitionId,
     ): JsonResponse {
         try {
-            $limit = $request->integer('limit', 100);
-            $offset = $request->integer('offset', 0);
-
-            // Clamp values to reasonable bounds
-            $limit = max(1, min($limit, 1000));
-            $offset = max(0, $offset);
+            $page = max(1, $request->integer('page', 1));
+            $perPage = max(1, min($request->integer('per_page', 15), 200));
 
             $result = $this->patientProfileService->getCohortMembers(
                 $cohortDefinitionId,
                 $source,
-                $limit,
-                $offset,
+                $page,
+                $perPage,
             );
 
-            return response()->json([
-                'data' => $result,
-            ]);
+            // Return {data: [...], meta: {...}} directly — no extra wrapper
+            return response()->json($result);
         } catch (\Throwable $e) {
             return $this->errorResponse('Failed to retrieve cohort members', $e);
         }

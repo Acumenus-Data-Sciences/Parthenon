@@ -3,7 +3,6 @@
 namespace App\Services\Analysis;
 
 use App\Models\App\Source;
-use App\Models\App\StudySite;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -105,7 +104,7 @@ class HadesBridgeService
 
         return [
             'dbms' => 'postgresql',
-            'server' => ($dbConfig['host'] ?? 'localhost') . '/' . ($dbConfig['database'] ?? ''),
+            'server' => ($dbConfig['host'] ?? 'localhost').'/'.($dbConfig['database'] ?? ''),
             'port' => (string) ($dbConfig['port'] ?? '5432'),
             'user' => $dbConfig['username'] ?? '',
             'password' => $dbConfig['password'] ?? '',
@@ -146,7 +145,7 @@ class HadesBridgeService
 
             return [
                 'status' => 'error',
-                'message' => 'R analytics service unavailable: ' . $e->getMessage(),
+                'message' => 'R analytics service unavailable: '.$e->getMessage(),
             ];
         }
     }

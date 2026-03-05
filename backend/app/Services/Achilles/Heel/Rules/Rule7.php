@@ -10,13 +10,25 @@ use App\Contracts\AchillesHeelRuleInterface;
  */
 class Rule7 implements AchillesHeelRuleInterface
 {
-    public function ruleId(): int { return 7; }
+    public function ruleId(): int
+    {
+        return 7;
+    }
 
-    public function ruleName(): string { return 'High rate of unmapped condition concepts (> 10%)'; }
+    public function ruleName(): string
+    {
+        return 'High rate of unmapped condition concepts (> 10%)';
+    }
 
-    public function severity(): string { return 'warning'; }
+    public function severity(): string
+    {
+        return 'warning';
+    }
 
-    public function category(): string { return 'Condition'; }
+    public function category(): string
+    {
+        return 'Condition';
+    }
 
     public function sqlTemplate(): string
     {

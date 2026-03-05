@@ -12,12 +12,12 @@ trait NotifiesOnCompletion
     protected function notifyAuthor(AnalysisExecution $execution): void
     {
         $analysis = $execution->analysis;
-        if (!$analysis || !method_exists($analysis, 'author')) {
+        if (! $analysis || ! method_exists($analysis, 'author')) {
             return;
         }
 
         $author = $analysis->author;
-        if (!$author) {
+        if (! $author) {
             return;
         }
 

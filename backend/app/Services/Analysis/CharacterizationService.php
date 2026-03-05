@@ -258,7 +258,7 @@ class CharacterizationService
                     );
                 }
 
-                $this->log($execution, 'info', "Feature {$builder->label()} computed: " . count($cohortResults[$featureType]) . ' rows');
+                $this->log($execution, 'info', "Feature {$builder->label()} computed: ".count($cohortResults[$featureType]).' rows');
             } catch (\Throwable $e) {
                 $this->log($execution, 'error', "Feature {$builder->label()} failed: {$e->getMessage()}");
                 $cohortResults[$featureType] = [
@@ -360,7 +360,7 @@ class CharacterizationService
     private function getRowKey(array $row, string $featureType): string
     {
         if ($featureType === 'demographics') {
-            return ($row['feature_name'] ?? '') . '|' . ($row['category'] ?? '');
+            return ($row['feature_name'] ?? '').'|'.($row['category'] ?? '');
         }
 
         return (string) ($row['concept_id'] ?? $row['category'] ?? '');

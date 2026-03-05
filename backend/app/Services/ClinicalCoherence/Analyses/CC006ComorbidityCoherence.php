@@ -21,21 +21,30 @@ use App\Contracts\ClinicalCoherenceAnalysisInterface;
  */
 class CC006ComorbidityCoherence implements ClinicalCoherenceAnalysisInterface
 {
-    public function analysisId(): string { return 'CC006'; }
+    public function analysisId(): string
+    {
+        return 'CC006';
+    }
 
     public function analysisName(): string
     {
         return 'Comorbidity Coherence (Observed / Expected)';
     }
 
-    public function category(): string { return 'Population Coherence'; }
+    public function category(): string
+    {
+        return 'Population Coherence';
+    }
 
     public function description(): string
     {
         return 'Computes observed vs expected co-occurrence ratios for the top 20 condition pairs. Flags pairs with significantly higher (positive comorbidity) or lower (mutual exclusion) co-occurrence than chance.';
     }
 
-    public function severity(): string { return 'informational'; }
+    public function severity(): string
+    {
+        return 'informational';
+    }
 
     /**
      * ratio_value here is O/E ratio; flag when outside [0.5, 1.5].
@@ -45,7 +54,10 @@ class CC006ComorbidityCoherence implements ClinicalCoherenceAnalysisInterface
      * (ratio < 0.5) are flagged separately via the engine's count_value > 0 check
      * when flagThreshold is null, but we want threshold-based here.
      */
-    public function flagThreshold(): ?float { return 1.5; }
+    public function flagThreshold(): ?float
+    {
+        return 1.5;
+    }
 
     public function requiredTables(): array
     {

@@ -48,14 +48,14 @@ class AnalysisFailedNotification extends Notification implements ShouldQueue
             preg_replace('/(?<!^)[A-Z]/', '-$0', $type)
         );
 
-        return (new MailMessage())
+        return (new MailMessage)
             ->error()
             ->subject("Analysis Failed: {$name}")
             ->line("Your {$type} analysis '{$name}' has failed.")
             ->line("Error: {$failMessage}")
             ->action(
                 'View Details',
-                config('app.url') . "/analyses/{$typeSlug}/{$analysis->id}"
+                config('app.url')."/analyses/{$typeSlug}/{$analysis->id}"
             )
             ->line('-- Parthenon Research Platform');
     }

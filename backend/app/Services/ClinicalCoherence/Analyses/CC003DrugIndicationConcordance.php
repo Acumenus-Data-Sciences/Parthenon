@@ -17,23 +17,35 @@ use App\Contracts\ClinicalCoherenceAnalysisInterface;
  */
 class CC003DrugIndicationConcordance implements ClinicalCoherenceAnalysisInterface
 {
-    public function analysisId(): string { return 'CC003'; }
+    public function analysisId(): string
+    {
+        return 'CC003';
+    }
 
     public function analysisName(): string
     {
         return 'Drug-Indication Concordance';
     }
 
-    public function category(): string { return 'Drug Coherence'; }
+    public function category(): string
+    {
+        return 'Drug Coherence';
+    }
 
     public function description(): string
     {
         return 'For the top 20 prescribed drug ingredients, measures the fraction of patients with no condition recorded in a ±90/+30 day window around drug start (undocumented clinical context rate).';
     }
 
-    public function severity(): string { return 'major'; }
+    public function severity(): string
+    {
+        return 'major';
+    }
 
-    public function flagThreshold(): ?float { return 0.30; } // flag if >30% of patients lack context
+    public function flagThreshold(): ?float
+    {
+        return 0.30;
+    } // flag if >30% of patients lack context
 
     public function requiredTables(): array
     {

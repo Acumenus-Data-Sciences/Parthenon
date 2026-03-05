@@ -12,7 +12,7 @@ class ConceptSetSqlBuilder
      *
      * @param  list<array<string, mixed>>  $conceptSets  The conceptSets array from the expression
      * @param  string  $vocabSchema  The vocabulary schema qualifier
-     * @return list<string>  Array of CTE definitions (without WITH keyword)
+     * @return list<string> Array of CTE definitions (without WITH keyword)
      */
     public function build(array $conceptSets, string $vocabSchema): array
     {
@@ -63,7 +63,7 @@ class ConceptSetSqlBuilder
     private function buildExpansionUnion(array $items, string $vocabSchema): string
     {
         if (empty($items)) {
-            return "SELECT CAST(NULL AS BIGINT) AS concept_id WHERE 1 = 0";
+            return 'SELECT CAST(NULL AS BIGINT) AS concept_id WHERE 1 = 0';
         }
 
         $parts = [];
@@ -105,7 +105,7 @@ class ConceptSetSqlBuilder
         }
 
         if (empty($parts)) {
-            return "SELECT CAST(NULL AS BIGINT) AS concept_id WHERE 1 = 0";
+            return 'SELECT CAST(NULL AS BIGINT) AS concept_id WHERE 1 = 0';
         }
 
         return implode("\n        UNION ALL\n        ", $parts);

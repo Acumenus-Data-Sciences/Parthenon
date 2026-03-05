@@ -32,34 +32,37 @@ class CreateAdminCommand extends Command
 
     public function handle(): int
     {
-        $email    = $this->option('email');
-        $name     = $this->option('name') ?: 'Admin';
+        $email = $this->option('email');
+        $name = $this->option('name') ?: 'Admin';
         $password = $this->option('password');
-        $force    = $this->option('force');
+        $force = $this->option('force');
 
         if (empty($email)) {
             $this->error('--email is required.');
+
             return self::FAILURE;
         }
 
         if (empty($password) || strlen($password) < 8) {
             $this->error('--password is required and must be at least 8 characters.');
+
             return self::FAILURE;
         }
 
-        if (!$force && !$this->confirm("Create super-admin {$email}?", true)) {
+        if (! $force && ! $this->confirm("Create super-admin {$email}?", true)) {
             $this->line('Aborted.');
+
             return self::SUCCESS;
         }
 
         $user = User::updateOrCreate(
             ['email' => strtolower(trim($email))],
             [
-                'name'                  => trim($name),
-                'password'              => Hash::make($password),
-                'must_change_password'  => false,
-                'onboarding_completed'  => false,
-                'email_verified_at'     => now(),
+                'name' => trim($name),
+                'password' => Hash::make($password),
+                'must_change_password' => false,
+                'onboarding_completed' => false,
+                'email_verified_at' => now(),
             ]
         );
 

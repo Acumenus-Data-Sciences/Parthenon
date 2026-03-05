@@ -13,23 +13,35 @@ use App\Contracts\ClinicalCoherenceAnalysisInterface;
  */
 class CC001SexConditionPlausibility implements ClinicalCoherenceAnalysisInterface
 {
-    public function analysisId(): string { return 'CC001'; }
+    public function analysisId(): string
+    {
+        return 'CC001';
+    }
 
     public function analysisName(): string
     {
         return 'Sex-Condition Plausibility';
     }
 
-    public function category(): string { return 'Sex Plausibility'; }
+    public function category(): string
+    {
+        return 'Sex Plausibility';
+    }
 
     public function description(): string
     {
         return 'Identifies conditions that are biologically specific to one sex but recorded for patients of the other sex (e.g. uterine conditions in male patients).';
     }
 
-    public function severity(): string { return 'critical'; }
+    public function severity(): string
+    {
+        return 'critical';
+    }
 
-    public function flagThreshold(): ?float { return null; } // flag any occurrence
+    public function flagThreshold(): ?float
+    {
+        return null;
+    } // flag any occurrence
 
     public function requiredTables(): array
     {

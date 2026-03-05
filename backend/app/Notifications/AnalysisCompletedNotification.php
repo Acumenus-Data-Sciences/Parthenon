@@ -47,7 +47,7 @@ class AnalysisCompletedNotification extends Notification implements ShouldQueue
             ? $this->execution->started_at->diffForHumans($this->execution->completed_at, true)
             : 'N/A';
 
-        $message = (new MailMessage())
+        $message = (new MailMessage)
             ->subject("Analysis Complete: {$name}")
             ->line("Your {$type} analysis '{$name}' has completed successfully.")
             ->line("Duration: {$duration}");
@@ -69,7 +69,7 @@ class AnalysisCompletedNotification extends Notification implements ShouldQueue
 
         $message->action(
             'View Results',
-            config('app.url') . "/analyses/{$typeSlug}/{$analysis->id}"
+            config('app.url')."/analyses/{$typeSlug}/{$analysis->id}"
         );
 
         $message->line('-- Parthenon Research Platform');

@@ -2,28 +2,6 @@
 
 namespace App\Providers;
 
-use App\Services\Cohort\Builders\CensoringBuilder;
-use App\Services\Cohort\Builders\ConceptSetSqlBuilder;
-use App\Services\Cohort\Builders\EndStrategyBuilder;
-use App\Services\Cohort\Builders\InclusionCriteriaBuilder;
-use App\Services\Cohort\Builders\OccurrenceFilterBuilder;
-use App\Services\Cohort\Builders\PrimaryCriteriaBuilder;
-use App\Services\Cohort\Builders\TemporalWindowBuilder;
-use App\Services\Cohort\CohortGenerationService;
-use App\Services\Cohort\CohortSqlCompiler;
-use App\Services\Cohort\Criteria\CriteriaBuilderRegistry;
-use App\Services\Cohort\Criteria\DemographicCriteriaBuilder;
-use App\Services\Cohort\Schema\CohortExpressionSchema;
-use App\Services\AI\AbbyAiService;
-use App\Services\Analysis\CareGapService;
-use App\Services\Analysis\CharacterizationService;
-use App\Services\Analysis\EstimationService;
-use App\Services\Analysis\IncidenceRateService;
-use App\Services\Analysis\PathwayService;
-use App\Services\Analysis\PatientProfileService;
-use App\Services\Analysis\PredictionService;
-use App\Services\Analysis\StudyService;
-use App\Services\SqlRenderer\SqlRendererService;
 use App\Models\App\Study;
 use App\Models\App\StudyArtifact;
 use App\Models\App\StudyCohort;
@@ -36,6 +14,28 @@ use App\Models\App\StudySynthesis;
 use App\Models\App\StudyTeamMember;
 use App\Observers\StudyObserver;
 use App\Observers\StudySubResourceObserver;
+use App\Services\AI\AbbyAiService;
+use App\Services\Analysis\CareGapService;
+use App\Services\Analysis\CharacterizationService;
+use App\Services\Analysis\EstimationService;
+use App\Services\Analysis\IncidenceRateService;
+use App\Services\Analysis\PathwayService;
+use App\Services\Analysis\PatientProfileService;
+use App\Services\Analysis\PredictionService;
+use App\Services\Analysis\StudyService;
+use App\Services\Cohort\Builders\CensoringBuilder;
+use App\Services\Cohort\Builders\ConceptSetSqlBuilder;
+use App\Services\Cohort\Builders\EndStrategyBuilder;
+use App\Services\Cohort\Builders\InclusionCriteriaBuilder;
+use App\Services\Cohort\Builders\OccurrenceFilterBuilder;
+use App\Services\Cohort\Builders\PrimaryCriteriaBuilder;
+use App\Services\Cohort\Builders\TemporalWindowBuilder;
+use App\Services\Cohort\CohortGenerationService;
+use App\Services\Cohort\CohortSqlCompiler;
+use App\Services\Cohort\Criteria\CriteriaBuilderRegistry;
+use App\Services\Cohort\Criteria\DemographicCriteriaBuilder;
+use App\Services\Cohort\Schema\CohortExpressionSchema;
+use App\Services\SqlRenderer\SqlRendererService;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -125,9 +125,9 @@ class AppServiceProvider extends ServiceProvider
 
         if ($key !== '') {
             config([
-                'mail.default'                    => 'resend',
-                'mail.mailers.resend.transport'   => 'resend',
-                'resend.api_key'                  => $key,
+                'mail.default' => 'resend',
+                'mail.mailers.resend.transport' => 'resend',
+                'resend.api_key' => $key,
             ]);
         }
 

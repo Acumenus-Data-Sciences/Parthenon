@@ -3,46 +3,8 @@
 namespace App\Providers;
 
 use App\Services\Achilles\AchillesAnalysisRegistry;
-use App\Services\Achilles\Heel\AchillesHeelRuleRegistry;
-
-// ── Observation Period ─────────────────────────────────────────────────────────
-use App\Services\Achilles\Analyses\ObservationPeriod\Analysis101;
-use App\Services\Achilles\Analyses\ObservationPeriod\Analysis102;
-use App\Services\Achilles\Analyses\ObservationPeriod\Analysis103;
-use App\Services\Achilles\Analyses\ObservationPeriod\Analysis104;
-use App\Services\Achilles\Analyses\ObservationPeriod\Analysis105;
-use App\Services\Achilles\Analyses\ObservationPeriod\Analysis106;
-use App\Services\Achilles\Analyses\ObservationPeriod\Analysis107;
-use App\Services\Achilles\Analyses\ObservationPeriod\Analysis108;
-use App\Services\Achilles\Analyses\ObservationPeriod\Analysis109;
-use App\Services\Achilles\Analyses\ObservationPeriod\Analysis110;
-use App\Services\Achilles\Analyses\ObservationPeriod\Analysis111;
-use App\Services\Achilles\Analyses\ObservationPeriod\Analysis112;
-use App\Services\Achilles\Analyses\ObservationPeriod\Analysis113;
-
-// ── Person ─────────────────────────────────────────────────────────────────────
-use App\Services\Achilles\Analyses\Person\Analysis0;
-use App\Services\Achilles\Analyses\Person\Analysis2;
-use App\Services\Achilles\Analyses\Person\Analysis3;
-use App\Services\Achilles\Analyses\Person\Analysis4;
-use App\Services\Achilles\Analyses\Person\Analysis5;
-
-// ── Visit ──────────────────────────────────────────────────────────────────────
-use App\Services\Achilles\Analyses\Visit\Analysis200;
-use App\Services\Achilles\Analyses\Visit\Analysis201;
-use App\Services\Achilles\Analyses\Visit\Analysis202;
-use App\Services\Achilles\Analyses\Visit\Analysis203;
-use App\Services\Achilles\Analyses\Visit\Analysis204;
-use App\Services\Achilles\Analyses\Visit\Analysis206;
-use App\Services\Achilles\Analyses\Visit\Analysis207;
-use App\Services\Achilles\Analyses\Visit\Analysis208;
-use App\Services\Achilles\Analyses\Visit\Analysis209;
-use App\Services\Achilles\Analyses\Visit\Analysis210;
-use App\Services\Achilles\Analyses\Visit\Analysis211;
-use App\Services\Achilles\Analyses\Visit\Analysis220;
-
-// ── Condition ──────────────────────────────────────────────────────────────────
 use App\Services\Achilles\Analyses\Condition\Analysis400;
+// ── Observation Period ─────────────────────────────────────────────────────────
 use App\Services\Achilles\Analyses\Condition\Analysis401;
 use App\Services\Achilles\Analyses\Condition\Analysis402;
 use App\Services\Achilles\Analyses\Condition\Analysis403;
@@ -55,8 +17,18 @@ use App\Services\Achilles\Analyses\Condition\Analysis409;
 use App\Services\Achilles\Analyses\Condition\Analysis410;
 use App\Services\Achilles\Analyses\Condition\Analysis411;
 use App\Services\Achilles\Analyses\Condition\Analysis420;
-
-// ── Death ──────────────────────────────────────────────────────────────────────
+use App\Services\Achilles\Analyses\ConditionEra\Analysis1000;
+// ── Person ─────────────────────────────────────────────────────────────────────
+use App\Services\Achilles\Analyses\ConditionEra\Analysis1001;
+use App\Services\Achilles\Analyses\ConditionEra\Analysis1002;
+use App\Services\Achilles\Analyses\ConditionEra\Analysis1003;
+use App\Services\Achilles\Analyses\ConditionEra\Analysis1004;
+use App\Services\Achilles\Analyses\DataDensity\Analysis117;
+// ── Visit ──────────────────────────────────────────────────────────────────────
+use App\Services\Achilles\Analyses\DataDensity\Analysis2000;
+use App\Services\Achilles\Analyses\DataDensity\Analysis2001;
+use App\Services\Achilles\Analyses\DataDensity\Analysis2002;
+use App\Services\Achilles\Analyses\DataDensity\Analysis2003;
 use App\Services\Achilles\Analyses\Death\Analysis500;
 use App\Services\Achilles\Analyses\Death\Analysis501;
 use App\Services\Achilles\Analyses\Death\Analysis502;
@@ -65,22 +37,7 @@ use App\Services\Achilles\Analyses\Death\Analysis504;
 use App\Services\Achilles\Analyses\Death\Analysis505;
 use App\Services\Achilles\Analyses\Death\Analysis506;
 use App\Services\Achilles\Analyses\Death\Analysis507;
-
-// ── Procedure ──────────────────────────────────────────────────────────────────
-use App\Services\Achilles\Analyses\Procedure\Analysis600;
-use App\Services\Achilles\Analyses\Procedure\Analysis601;
-use App\Services\Achilles\Analyses\Procedure\Analysis602;
-use App\Services\Achilles\Analyses\Procedure\Analysis603;
-use App\Services\Achilles\Analyses\Procedure\Analysis604;
-use App\Services\Achilles\Analyses\Procedure\Analysis605;
-use App\Services\Achilles\Analyses\Procedure\Analysis606;
-use App\Services\Achilles\Analyses\Procedure\Analysis607;
-use App\Services\Achilles\Analyses\Procedure\Analysis608;
-use App\Services\Achilles\Analyses\Procedure\Analysis609;
-use App\Services\Achilles\Analyses\Procedure\Analysis610;
-use App\Services\Achilles\Analyses\Procedure\Analysis611;
-
-// ── Drug ───────────────────────────────────────────────────────────────────────
+// ── Condition ──────────────────────────────────────────────────────────────────
 use App\Services\Achilles\Analyses\Drug\Analysis700;
 use App\Services\Achilles\Analyses\Drug\Analysis701;
 use App\Services\Achilles\Analyses\Drug\Analysis702;
@@ -94,40 +51,16 @@ use App\Services\Achilles\Analyses\Drug\Analysis709;
 use App\Services\Achilles\Analyses\Drug\Analysis710;
 use App\Services\Achilles\Analyses\Drug\Analysis711;
 use App\Services\Achilles\Analyses\Drug\Analysis715;
+// ── Death ──────────────────────────────────────────────────────────────────────
 use App\Services\Achilles\Analyses\Drug\Analysis716;
-
-// ── Observation ────────────────────────────────────────────────────────────────
-use App\Services\Achilles\Analyses\Observation\Analysis800;
-use App\Services\Achilles\Analyses\Observation\Analysis801;
-use App\Services\Achilles\Analyses\Observation\Analysis802;
-use App\Services\Achilles\Analyses\Observation\Analysis803;
-use App\Services\Achilles\Analyses\Observation\Analysis804;
-use App\Services\Achilles\Analyses\Observation\Analysis805;
-use App\Services\Achilles\Analyses\Observation\Analysis806;
-use App\Services\Achilles\Analyses\Observation\Analysis807;
-use App\Services\Achilles\Analyses\Observation\Analysis808;
-use App\Services\Achilles\Analyses\Observation\Analysis809;
-use App\Services\Achilles\Analyses\Observation\Analysis810;
-use App\Services\Achilles\Analyses\Observation\Analysis811;
-use App\Services\Achilles\Analyses\Observation\Analysis812;
-
-// ── Drug Era ───────────────────────────────────────────────────────────────────
 use App\Services\Achilles\Analyses\DrugEra\Analysis900;
 use App\Services\Achilles\Analyses\DrugEra\Analysis901;
 use App\Services\Achilles\Analyses\DrugEra\Analysis902;
 use App\Services\Achilles\Analyses\DrugEra\Analysis903;
 use App\Services\Achilles\Analyses\DrugEra\Analysis904;
-
-// ── Condition Era ──────────────────────────────────────────────────────────────
-use App\Services\Achilles\Analyses\ConditionEra\Analysis1000;
-use App\Services\Achilles\Analyses\ConditionEra\Analysis1001;
-use App\Services\Achilles\Analyses\ConditionEra\Analysis1002;
-use App\Services\Achilles\Analyses\ConditionEra\Analysis1003;
-use App\Services\Achilles\Analyses\ConditionEra\Analysis1004;
-
-// ── Measurement ────────────────────────────────────────────────────────────────
 use App\Services\Achilles\Analyses\Measurement\Analysis1800;
 use App\Services\Achilles\Analyses\Measurement\Analysis1801;
+// ── Procedure ──────────────────────────────────────────────────────────────────
 use App\Services\Achilles\Analyses\Measurement\Analysis1802;
 use App\Services\Achilles\Analyses\Measurement\Analysis1803;
 use App\Services\Achilles\Analyses\Measurement\Analysis1804;
@@ -140,26 +73,85 @@ use App\Services\Achilles\Analyses\Measurement\Analysis1810;
 use App\Services\Achilles\Analyses\Measurement\Analysis1811;
 use App\Services\Achilles\Analyses\Measurement\Analysis1812;
 use App\Services\Achilles\Analyses\Measurement\Analysis1813;
+// ── Drug ───────────────────────────────────────────────────────────────────────
 use App\Services\Achilles\Analyses\Measurement\Analysis1814;
 use App\Services\Achilles\Analyses\Measurement\Analysis1815;
 use App\Services\Achilles\Analyses\Measurement\Analysis1816;
 use App\Services\Achilles\Analyses\Measurement\Analysis1817;
-
-// ── Payer Plan ─────────────────────────────────────────────────────────────────
+use App\Services\Achilles\Analyses\Observation\Analysis800;
+use App\Services\Achilles\Analyses\Observation\Analysis801;
+use App\Services\Achilles\Analyses\Observation\Analysis802;
+use App\Services\Achilles\Analyses\Observation\Analysis803;
+use App\Services\Achilles\Analyses\Observation\Analysis804;
+use App\Services\Achilles\Analyses\Observation\Analysis805;
+use App\Services\Achilles\Analyses\Observation\Analysis806;
+use App\Services\Achilles\Analyses\Observation\Analysis807;
+use App\Services\Achilles\Analyses\Observation\Analysis808;
+use App\Services\Achilles\Analyses\Observation\Analysis809;
+// ── Observation ────────────────────────────────────────────────────────────────
+use App\Services\Achilles\Analyses\Observation\Analysis810;
+use App\Services\Achilles\Analyses\Observation\Analysis811;
+use App\Services\Achilles\Analyses\Observation\Analysis812;
+use App\Services\Achilles\Analyses\ObservationPeriod\Analysis101;
+use App\Services\Achilles\Analyses\ObservationPeriod\Analysis102;
+use App\Services\Achilles\Analyses\ObservationPeriod\Analysis103;
+use App\Services\Achilles\Analyses\ObservationPeriod\Analysis104;
+use App\Services\Achilles\Analyses\ObservationPeriod\Analysis105;
+use App\Services\Achilles\Analyses\ObservationPeriod\Analysis106;
+use App\Services\Achilles\Analyses\ObservationPeriod\Analysis107;
+use App\Services\Achilles\Analyses\ObservationPeriod\Analysis108;
+use App\Services\Achilles\Analyses\ObservationPeriod\Analysis109;
+use App\Services\Achilles\Analyses\ObservationPeriod\Analysis110;
+// ── Drug Era ───────────────────────────────────────────────────────────────────
+use App\Services\Achilles\Analyses\ObservationPeriod\Analysis111;
+use App\Services\Achilles\Analyses\ObservationPeriod\Analysis112;
+use App\Services\Achilles\Analyses\ObservationPeriod\Analysis113;
 use App\Services\Achilles\Analyses\PayerPlan\Analysis1700;
 use App\Services\Achilles\Analyses\PayerPlan\Analysis1701;
+// ── Condition Era ──────────────────────────────────────────────────────────────
 use App\Services\Achilles\Analyses\PayerPlan\Analysis1702;
 use App\Services\Achilles\Analyses\PayerPlan\Analysis1703;
-
+use App\Services\Achilles\Analyses\Person\Analysis0;
+use App\Services\Achilles\Analyses\Person\Analysis2;
+use App\Services\Achilles\Analyses\Person\Analysis3;
+// ── Measurement ────────────────────────────────────────────────────────────────
+use App\Services\Achilles\Analyses\Person\Analysis4;
+use App\Services\Achilles\Analyses\Person\Analysis5;
+use App\Services\Achilles\Analyses\Procedure\Analysis600;
+use App\Services\Achilles\Analyses\Procedure\Analysis601;
+use App\Services\Achilles\Analyses\Procedure\Analysis602;
+use App\Services\Achilles\Analyses\Procedure\Analysis603;
+use App\Services\Achilles\Analyses\Procedure\Analysis604;
+use App\Services\Achilles\Analyses\Procedure\Analysis605;
+use App\Services\Achilles\Analyses\Procedure\Analysis606;
+use App\Services\Achilles\Analyses\Procedure\Analysis607;
+use App\Services\Achilles\Analyses\Procedure\Analysis608;
+use App\Services\Achilles\Analyses\Procedure\Analysis609;
+use App\Services\Achilles\Analyses\Procedure\Analysis610;
+use App\Services\Achilles\Analyses\Procedure\Analysis611;
+use App\Services\Achilles\Analyses\Visit\Analysis200;
+use App\Services\Achilles\Analyses\Visit\Analysis201;
+use App\Services\Achilles\Analyses\Visit\Analysis202;
+use App\Services\Achilles\Analyses\Visit\Analysis203;
+// ── Payer Plan ─────────────────────────────────────────────────────────────────
+use App\Services\Achilles\Analyses\Visit\Analysis204;
+use App\Services\Achilles\Analyses\Visit\Analysis206;
+use App\Services\Achilles\Analyses\Visit\Analysis207;
+use App\Services\Achilles\Analyses\Visit\Analysis208;
 // ── Data Density ───────────────────────────────────────────────────────────────
-use App\Services\Achilles\Analyses\DataDensity\Analysis117;
-use App\Services\Achilles\Analyses\DataDensity\Analysis2000;
-use App\Services\Achilles\Analyses\DataDensity\Analysis2001;
-use App\Services\Achilles\Analyses\DataDensity\Analysis2002;
-use App\Services\Achilles\Analyses\DataDensity\Analysis2003;
-
+use App\Services\Achilles\Analyses\Visit\Analysis209;
+use App\Services\Achilles\Analyses\Visit\Analysis210;
+use App\Services\Achilles\Analyses\Visit\Analysis211;
+use App\Services\Achilles\Analyses\Visit\Analysis220;
+use App\Services\Achilles\Heel\AchillesHeelRuleRegistry;
 // ── Achilles Heel Rules ────────────────────────────────────────────────────────
 use App\Services\Achilles\Heel\Rules\Rule1;
+use App\Services\Achilles\Heel\Rules\Rule10;
+use App\Services\Achilles\Heel\Rules\Rule11;
+use App\Services\Achilles\Heel\Rules\Rule12;
+use App\Services\Achilles\Heel\Rules\Rule13;
+use App\Services\Achilles\Heel\Rules\Rule14;
+use App\Services\Achilles\Heel\Rules\Rule15;
 use App\Services\Achilles\Heel\Rules\Rule2;
 use App\Services\Achilles\Heel\Rules\Rule3;
 use App\Services\Achilles\Heel\Rules\Rule4;
@@ -168,12 +160,6 @@ use App\Services\Achilles\Heel\Rules\Rule6;
 use App\Services\Achilles\Heel\Rules\Rule7;
 use App\Services\Achilles\Heel\Rules\Rule8;
 use App\Services\Achilles\Heel\Rules\Rule9;
-use App\Services\Achilles\Heel\Rules\Rule10;
-use App\Services\Achilles\Heel\Rules\Rule11;
-use App\Services\Achilles\Heel\Rules\Rule12;
-use App\Services\Achilles\Heel\Rules\Rule13;
-use App\Services\Achilles\Heel\Rules\Rule14;
-use App\Services\Achilles\Heel\Rules\Rule15;
 use Illuminate\Support\ServiceProvider;
 
 class AchillesServiceProvider extends ServiceProvider

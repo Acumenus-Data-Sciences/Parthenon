@@ -9,13 +9,25 @@ use App\Contracts\AchillesHeelRuleInterface;
  */
 class Rule13 implements AchillesHeelRuleInterface
 {
-    public function ruleId(): int { return 13; }
+    public function ruleId(): int
+    {
+        return 13;
+    }
 
-    public function ruleName(): string { return 'Low person count (< 1,000)'; }
+    public function ruleName(): string
+    {
+        return 'Low person count (< 1,000)';
+    }
 
-    public function severity(): string { return 'notification'; }
+    public function severity(): string
+    {
+        return 'notification';
+    }
 
-    public function category(): string { return 'Person'; }
+    public function category(): string
+    {
+        return 'Person';
+    }
 
     public function sqlTemplate(): string
     {

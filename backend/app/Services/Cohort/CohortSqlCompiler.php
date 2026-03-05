@@ -36,7 +36,7 @@ class CohortSqlCompiler
      * @param  string  $resultsSchema  The results schema qualifier
      * @param  int  $cohortDefinitionId  The cohort definition ID
      * @param  string  $dialect  The SQL dialect name (default: postgresql)
-     * @return string  The compiled SQL
+     * @return string The compiled SQL
      */
     public function compile(
         array $expression,
@@ -167,7 +167,7 @@ SQL;
      * @param  string  $cdmSchema  The CDM schema qualifier
      * @param  string  $vocabSchema  The vocabulary schema qualifier
      * @param  string  $dialect  The SQL dialect name (default: postgresql)
-     * @return string  The preview SQL (SELECT only)
+     * @return string The preview SQL (SELECT only)
      */
     public function preview(
         array $expression,

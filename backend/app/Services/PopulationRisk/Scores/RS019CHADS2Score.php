@@ -29,12 +29,12 @@ class RS019CHADS2Score implements PopulationRiskScoreInterface
     public function description(): string
     {
         return 'CHADS₂ Score estimates annual stroke risk in patients with non-valvular atrial fibrillation. '
-            . 'Components: C=Congestive heart failure (1 pt), H=Hypertension (1 pt), A=Age ≥75 (1 pt), '
-            . 'D=Diabetes mellitus (1 pt), S₂=Prior stroke or TIA (2 pts). Maximum score 6. '
-            . 'Approximate annual stroke rates by score: 0→1.9%, 1→2.8%, 2→4.0%, 3→5.9%, 4→8.5%, '
-            . '5→12.5%, 6→18.2%. All components are derived from structured condition_occurrence data. '
-            . 'Confidence is set to 0.85 as a baseline acknowledging potential under-coding of conditions. '
-            . 'No laboratory components are required. Eligible population: patients with AF diagnosis (313217).';
+            .'Components: C=Congestive heart failure (1 pt), H=Hypertension (1 pt), A=Age ≥75 (1 pt), '
+            .'D=Diabetes mellitus (1 pt), S₂=Prior stroke or TIA (2 pts). Maximum score 6. '
+            .'Approximate annual stroke rates by score: 0→1.9%, 1→2.8%, 2→4.0%, 3→5.9%, 4→8.5%, '
+            .'5→12.5%, 6→18.2%. All components are derived from structured condition_occurrence data. '
+            .'Confidence is set to 0.85 as a baseline acknowledging potential under-coding of conditions. '
+            .'No laboratory components are required. Eligible population: patients with AF diagnosis (313217).';
     }
 
     public function requiredComponents(): array
@@ -52,9 +52,9 @@ class RS019CHADS2Score implements PopulationRiskScoreInterface
     public function riskTiers(): array
     {
         return [
-            'low'      => [0, 1],
+            'low' => [0, 1],
             'moderate' => [1, 2],
-            'high'     => [2, null],
+            'high' => [2, null],
         ];
     }
 

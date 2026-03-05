@@ -20,23 +20,35 @@ use App\Contracts\ClinicalCoherenceAnalysisInterface;
  */
 class TQ002DomainEventsOutsideObservation implements ClinicalCoherenceAnalysisInterface
 {
-    public function analysisId(): string { return 'TQ002'; }
+    public function analysisId(): string
+    {
+        return 'TQ002';
+    }
 
     public function analysisName(): string
     {
         return 'Domain Events Outside Observation Windows';
     }
 
-    public function category(): string { return 'Temporal Quality'; }
+    public function category(): string
+    {
+        return 'Temporal Quality';
+    }
 
     public function description(): string
     {
         return 'Per clinical domain, measures the fraction of records whose event date falls outside all observation periods for that person. Flags domains where >5% of records are out-of-window.';
     }
 
-    public function severity(): string { return 'major'; }
+    public function severity(): string
+    {
+        return 'major';
+    }
 
-    public function flagThreshold(): ?float { return 0.05; } // flag if >5% out-of-window
+    public function flagThreshold(): ?float
+    {
+        return 0.05;
+    } // flag if >5% out-of-window
 
     public function requiredTables(): array
     {

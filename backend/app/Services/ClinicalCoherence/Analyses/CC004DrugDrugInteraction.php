@@ -20,23 +20,35 @@ use App\Contracts\ClinicalCoherenceAnalysisInterface;
  */
 class CC004DrugDrugInteraction implements ClinicalCoherenceAnalysisInterface
 {
-    public function analysisId(): string { return 'CC004'; }
+    public function analysisId(): string
+    {
+        return 'CC004';
+    }
 
     public function analysisName(): string
     {
         return 'Drug-Drug Interaction Prevalence';
     }
 
-    public function category(): string { return 'Drug Safety'; }
+    public function category(): string
+    {
+        return 'Drug Safety';
+    }
 
     public function description(): string
     {
         return 'Counts patients with concurrent exposure to known high-risk drug pairs (major DDIs). Uses concept_ancestor to capture all formulations of each ingredient.';
     }
 
-    public function severity(): string { return 'critical'; }
+    public function severity(): string
+    {
+        return 'critical';
+    }
 
-    public function flagThreshold(): ?float { return null; } // flag any concurrent DDI pair
+    public function flagThreshold(): ?float
+    {
+        return null;
+    } // flag any concurrent DDI pair
 
     public function requiredTables(): array
     {

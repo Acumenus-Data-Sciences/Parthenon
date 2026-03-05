@@ -26,16 +26,31 @@ use App\Contracts\PopulationCharacterizationInterface;
  */
 class PC002PolypharmacyPrevalence implements PopulationCharacterizationInterface
 {
-    public function analysisId(): string    { return 'PC002'; }
-    public function analysisName(): string  { return 'Polypharmacy Prevalence'; }
-    public function category(): string      { return 'Medication'; }
-    public function requiresOptionalTables(): bool { return false; }
+    public function analysisId(): string
+    {
+        return 'PC002';
+    }
+
+    public function analysisName(): string
+    {
+        return 'Polypharmacy Prevalence';
+    }
+
+    public function category(): string
+    {
+        return 'Medication';
+    }
+
+    public function requiresOptionalTables(): bool
+    {
+        return false;
+    }
 
     public function description(): string
     {
         return 'Distribution of peak concurrent drug-era counts per person (using consolidated '
-            . 'drug eras by ingredient). Polypharmacy thresholds: ≥5 drugs (minor), ≥10 (major), '
-            . '≥15 (severe). Includes a year-over-year polypharmacy rate trend.';
+            .'drug eras by ingredient). Polypharmacy thresholds: ≥5 drugs (minor), ≥10 (major), '
+            .'≥15 (severe). Includes a year-over-year polypharmacy rate trend.';
     }
 
     public function requiredTables(): array

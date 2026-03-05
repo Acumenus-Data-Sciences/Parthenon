@@ -15,23 +15,35 @@ use App\Contracts\ClinicalCoherenceAnalysisInterface;
  */
 class TQ001ObservationPeriodIntegrity implements ClinicalCoherenceAnalysisInterface
 {
-    public function analysisId(): string { return 'TQ001'; }
+    public function analysisId(): string
+    {
+        return 'TQ001';
+    }
 
     public function analysisName(): string
     {
         return 'Observation Period Integrity';
     }
 
-    public function category(): string { return 'Temporal Quality'; }
+    public function category(): string
+    {
+        return 'Temporal Quality';
+    }
 
     public function description(): string
     {
         return 'Checks for structural violations in the observation_period table: overlapping periods per person, zero-length periods, impossible start > end, and implausibly long periods (> 40 years).';
     }
 
-    public function severity(): string { return 'critical'; }
+    public function severity(): string
+    {
+        return 'critical';
+    }
 
-    public function flagThreshold(): ?float { return null; } // flag any occurrence
+    public function flagThreshold(): ?float
+    {
+        return null;
+    } // flag any occurrence
 
     public function requiredTables(): array
     {

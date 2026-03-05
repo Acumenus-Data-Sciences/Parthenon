@@ -43,10 +43,25 @@ use App\Contracts\PopulationRiskScoreInterface;
  */
 class RS005CharlsonComorbidityIndex implements PopulationRiskScoreInterface
 {
-    public function scoreId(): string       { return 'RS005'; }
-    public function scoreName(): string     { return 'Charlson Comorbidity Index (CCI)'; }
-    public function category(): string      { return 'Comorbidity Burden'; }
-    public function eligiblePopulation(): string { return 'All patients with any condition record'; }
+    public function scoreId(): string
+    {
+        return 'RS005';
+    }
+
+    public function scoreName(): string
+    {
+        return 'Charlson Comorbidity Index (CCI)';
+    }
+
+    public function category(): string
+    {
+        return 'Comorbidity Burden';
+    }
+
+    public function eligiblePopulation(): string
+    {
+        return 'All patients with any condition record';
+    }
 
     public function description(): string
     {
@@ -61,9 +76,9 @@ class RS005CharlsonComorbidityIndex implements PopulationRiskScoreInterface
     public function riskTiers(): array
     {
         return [
-            'low'       => [0, 3],
-            'moderate'  => [3, 5],
-            'high'      => [5, 7],
+            'low' => [0, 3],
+            'moderate' => [3, 5],
+            'high' => [5, 7],
             'very_high' => [7, null],
         ];
     }

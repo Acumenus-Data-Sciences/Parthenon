@@ -9,13 +9,25 @@ use App\Contracts\AchillesHeelRuleInterface;
  */
 class Rule10 implements AchillesHeelRuleInterface
 {
-    public function ruleId(): int { return 10; }
+    public function ruleId(): int
+    {
+        return 10;
+    }
 
-    public function ruleName(): string { return 'Persons with missing gender concept'; }
+    public function ruleName(): string
+    {
+        return 'Persons with missing gender concept';
+    }
 
-    public function severity(): string { return 'warning'; }
+    public function severity(): string
+    {
+        return 'warning';
+    }
 
-    public function category(): string { return 'Person'; }
+    public function category(): string
+    {
+        return 'Person';
+    }
 
     public function sqlTemplate(): string
     {

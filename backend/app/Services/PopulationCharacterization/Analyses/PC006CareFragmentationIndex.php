@@ -28,17 +28,32 @@ use App\Contracts\PopulationCharacterizationInterface;
  */
 class PC006CareFragmentationIndex implements PopulationCharacterizationInterface
 {
-    public function analysisId(): string    { return 'PC006'; }
-    public function analysisName(): string  { return 'Care Fragmentation Index'; }
-    public function category(): string      { return 'Care'; }
-    public function requiresOptionalTables(): bool { return true; }
+    public function analysisId(): string
+    {
+        return 'PC006';
+    }
+
+    public function analysisName(): string
+    {
+        return 'Care Fragmentation Index';
+    }
+
+    public function category(): string
+    {
+        return 'Care';
+    }
+
+    public function requiresOptionalTables(): bool
+    {
+        return true;
+    }
 
     public function description(): string
     {
         return 'Distribution of distinct care sites visited per person per year. '
-            . 'Requires care_site_id to be populated in visit_occurrence. '
-            . 'High fragmentation (≥6 sites/year) may indicate lack of primary care '
-            . 'continuity or a highly distributed network.';
+            .'Requires care_site_id to be populated in visit_occurrence. '
+            .'High fragmentation (≥6 sites/year) may indicate lack of primary care '
+            .'continuity or a highly distributed network.';
     }
 
     public function requiredTables(): array

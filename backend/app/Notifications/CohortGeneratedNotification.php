@@ -43,13 +43,13 @@ class CohortGeneratedNotification extends Notification implements ShouldQueue
         $name = $cohort->name ?? 'Unknown';
         $personCount = $this->generation->person_count ?? 0;
 
-        return (new MailMessage())
+        return (new MailMessage)
             ->subject("Cohort Generated: {$name}")
             ->line("Your cohort '{$name}' has been generated successfully.")
             ->line("Person count: {$personCount}")
             ->action(
                 'View Cohort',
-                config('app.url') . "/cohort-definitions/{$cohort->id}"
+                config('app.url')."/cohort-definitions/{$cohort->id}"
             )
             ->line('-- Parthenon Research Platform');
     }

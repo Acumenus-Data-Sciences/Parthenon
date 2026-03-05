@@ -23,22 +23,37 @@ use App\Contracts\PopulationCharacterizationInterface;
  */
 class PC004ProviderPracticeVariance implements PopulationCharacterizationInterface
 {
-    public function analysisId(): string    { return 'PC004'; }
-    public function analysisName(): string  { return 'Provider Practice Pattern Variance'; }
-    public function category(): string      { return 'Provider'; }
-    public function requiresOptionalTables(): bool { return true; }
+    public function analysisId(): string
+    {
+        return 'PC004';
+    }
+
+    public function analysisName(): string
+    {
+        return 'Provider Practice Pattern Variance';
+    }
+
+    public function category(): string
+    {
+        return 'Provider';
+    }
+
+    public function requiresOptionalTables(): bool
+    {
+        return true;
+    }
 
     public function description(): string
     {
         return 'Coefficient of variation in domain record rates across providers '
-            . '(requires provider_id to be populated). High CV (> 1.0) indicates '
-            . 'significant between-provider coding variation beyond patient-mix differences.';
+            .'(requires provider_id to be populated). High CV (> 1.0) indicates '
+            .'significant between-provider coding variation beyond patient-mix differences.';
     }
 
     public function requiredTables(): array
     {
         return ['condition_occurrence', 'drug_exposure', 'measurement',
-                'procedure_occurrence', 'visit_occurrence'];
+            'procedure_occurrence', 'visit_occurrence'];
     }
 
     public function sqlTemplate(): string

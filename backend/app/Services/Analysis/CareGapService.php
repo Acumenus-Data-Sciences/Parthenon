@@ -279,11 +279,11 @@ class CareGapService
 
         // If a cohort is specified, intersect with cohort members
         if ($cohortDefinitionId !== null && $resultsSchema !== null) {
-            $sql .= "
+            $sql .= '
                 AND co.person_id IN (
                     SELECT subject_id FROM {@resultsSchema}.cohort
                     WHERE cohort_definition_id = ?
-                )";
+                )';
         }
 
         $renderedSql = $this->sqlRenderer->render(

@@ -26,8 +26,8 @@ class DatabaseSeeder extends Seeder
         $admin = User::firstOrCreate(
             ['email' => 'admin@parthenon.local'],
             [
-                'name'                 => 'Administrator',
-                'password'             => Hash::make('superuser'),
+                'name' => 'Administrator',
+                'password' => Hash::make('superuser'),
                 'must_change_password' => false,
             ],
         );

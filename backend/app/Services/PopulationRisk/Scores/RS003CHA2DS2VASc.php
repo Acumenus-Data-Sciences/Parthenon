@@ -37,10 +37,25 @@ use App\Contracts\PopulationRiskScoreInterface;
  */
 class RS003CHA2DS2VASc implements PopulationRiskScoreInterface
 {
-    public function scoreId(): string       { return 'RS003'; }
-    public function scoreName(): string     { return 'CHA₂DS₂-VASc Score (Stroke Risk in AF)'; }
-    public function category(): string      { return 'Cardiovascular'; }
-    public function eligiblePopulation(): string { return 'Patients with atrial fibrillation'; }
+    public function scoreId(): string
+    {
+        return 'RS003';
+    }
+
+    public function scoreName(): string
+    {
+        return 'CHA₂DS₂-VASc Score (Stroke Risk in AF)';
+    }
+
+    public function category(): string
+    {
+        return 'Cardiovascular';
+    }
+
+    public function eligiblePopulation(): string
+    {
+        return 'Patients with atrial fibrillation';
+    }
 
     public function description(): string
     {
@@ -64,9 +79,9 @@ class RS003CHA2DS2VASc implements PopulationRiskScoreInterface
     public function riskTiers(): array
     {
         return [
-            'low'          => [0, 2],
+            'low' => [0, 2],
             'intermediate' => [1, 3],
-            'high'         => [3, null],
+            'high' => [3, null],
         ];
     }
 

@@ -8,22 +8,64 @@ use App\Models\Results\AchillesAnalysis;
 use App\Models\Results\AchillesPerformance;
 use App\Models\Results\AchillesResult;
 use App\Models\Results\AchillesResultDist;
+use App\Services\Database\DynamicConnectionFactory;
 use Illuminate\Support\Facades\DB;
 
 class AchillesResultReaderService
 {
+    public function __construct(
+        private readonly DynamicConnectionFactory $connectionFactory,
+    ) {}
+
     /**
-     * Set the results connection's search_path based on the source's results daimon.
-     * This enables multi-source support — each source can have Achilles results
-     * in a different schema (e.g., achilles_results vs eunomia_results).
+     * Set the results connection's search_path (or equivalent) for this source
+     * and store the active connection name for subsequent queries in this request.
      */
+    private string $activeConnection = 'results';
+
     private function setSchemaForSource(Source $source): void
     {
         $daimon = $source->daimons()->where('daimon_type', DaimonType::Results->value)->first();
         $schema = $daimon?->table_qualifier ?? 'achilles_results';
-        DB::connection('results')->statement(
-            "SET search_path TO \"{$schema}\", public"
-        );
+
+        if (! empty($source->db_host)) {
+            // Dynamic source — build connection and set search_path
+            $this->activeConnection = $this->connectionFactory->connectionForSchema($source, $schema);
+        } else {
+            // Static named connection — SET search_path on the configured 'results' connection
+            $this->activeConnection = 'results';
+            DB::connection('results')->statement(
+                "SET search_path TO \"{$schema}\", public"
+            );
+        }
+    }
+
+    // ── Per-connection model query helpers ───────────────────────────────────
+    // These scope every Eloquent query to $this->activeConnection so that
+    // dynamic sources (db_host set) use their own registered connection.
+
+    /** @return \Illuminate\Database\Eloquent\Builder<AchillesResult> */
+    private function ar(): \Illuminate\Database\Eloquent\Builder
+    {
+        return AchillesResult::on($this->activeConnection)->newQuery();
+    }
+
+    /** @return \Illuminate\Database\Eloquent\Builder<AchillesResultDist> */
+    private function ard(): \Illuminate\Database\Eloquent\Builder
+    {
+        return AchillesResultDist::on($this->activeConnection)->newQuery();
+    }
+
+    /** @return \Illuminate\Database\Eloquent\Builder<AchillesAnalysis> */
+    private function aa(): \Illuminate\Database\Eloquent\Builder
+    {
+        return AchillesAnalysis::on($this->activeConnection)->newQuery();
+    }
+
+    /** @return \Illuminate\Database\Eloquent\Builder<AchillesPerformance> */
+    private function ap(): \Illuminate\Database\Eloquent\Builder
+    {
+        return AchillesPerformance::on($this->activeConnection)->newQuery();
     }
 
     /**
@@ -161,7 +203,7 @@ class AchillesResultReaderService
         $this->setSchemaForSource($source);
         $analysisIds = array_values(self::RECORD_COUNT_ANALYSES);
 
-        $results = AchillesResult::forAnalysis($analysisIds)
+        $results = $this->ar()->forAnalysis($analysisIds)
             ->get()
             ->groupBy('analysis_id');
 
@@ -231,7 +273,7 @@ class AchillesResultReaderService
     {
         $this->setSchemaForSource($source);
         // Analysis 2: gender distribution (stratum_1 = gender_concept_id)
-        $genderRows = AchillesResult::forAnalysis(2)->get();
+        $genderRows = $this->ar()->forAnalysis(2)->get();
         $gender = $genderRows->map(fn ($row) => [
             'concept_id' => (int) $row->stratum_1,
             'concept_name' => $this->resolveConceptName((int) $row->stratum_1),
@@ -239,14 +281,14 @@ class AchillesResultReaderService
         ])->values()->toArray();
 
         // Analysis 3: year of birth distribution (stratum_1 = year_of_birth)
-        $yearOfBirthRows = AchillesResult::forAnalysis(3)->get();
+        $yearOfBirthRows = $this->ar()->forAnalysis(3)->get();
         $yearOfBirth = $yearOfBirthRows->map(fn ($row) => [
             'year' => $row->stratum_1,
             'count' => (int) $row->count_value,
         ])->sortBy('year')->values()->toArray();
 
         // Analysis 5: ethnicity distribution (stratum_1 = ethnicity_concept_id)
-        $ethnicityRows = AchillesResult::forAnalysis(5)->get();
+        $ethnicityRows = $this->ar()->forAnalysis(5)->get();
         $ethnicity = $ethnicityRows->map(fn ($row) => [
             'concept_id' => (int) $row->stratum_1,
             'concept_name' => $this->resolveConceptName((int) $row->stratum_1),
@@ -254,7 +296,7 @@ class AchillesResultReaderService
         ])->values()->toArray();
 
         // Analysis 4: race distribution (stratum_1 = race_concept_id)
-        $raceRows = AchillesResult::forAnalysis(4)->get();
+        $raceRows = $this->ar()->forAnalysis(4)->get();
         $raceConceptIds = $raceRows->pluck('stratum_1')
             ->filter()
             ->map(fn ($id) => (int) $id)
@@ -279,7 +321,7 @@ class AchillesResultReaderService
 
         // Analysis 10: year of birth × gender → compute age decile pyramid
         // stratum_1 = year_of_birth, stratum_2 = gender_concept_id
-        $yobGenderRows = AchillesResult::forAnalysis(10)->get();
+        $yobGenderRows = $this->ar()->forAnalysis(10)->get();
         $currentYear = (int) date('Y');
         $decileBuckets = [];
 
@@ -345,28 +387,28 @@ class AchillesResultReaderService
     {
         $this->setSchemaForSource($source);
         // Analysis 101: observation period count
-        $countRow = AchillesResult::forAnalysis(101)->first();
+        $countRow = $this->ar()->forAnalysis(101)->first();
         $count = $countRow ? (int) $countRow->count_value : 0;
 
         // Analysis 105: observation period length distribution (days)
         $durationDist = $this->extractDistribution(105);
 
         // Analysis 111: observation period start year+month (stratum_1 = YYYYMM)
-        $startYearMonthRows = AchillesResult::forAnalysis(111)->get();
+        $startYearMonthRows = $this->ar()->forAnalysis(111)->get();
         $startYearMonth = $startYearMonthRows->map(fn ($row) => [
             'year_month' => $row->stratum_1,
             'count' => (int) $row->count_value,
         ])->sortBy('year_month')->values()->toArray();
 
         // Analysis 106: observation period end month
-        $endYearMonthRows = AchillesResult::forAnalysis(106)->get();
+        $endYearMonthRows = $this->ar()->forAnalysis(106)->get();
         $endYearMonth = $endYearMonthRows->map(fn ($row) => [
             'year_month' => $row->stratum_1,
             'count' => (int) $row->count_value,
         ])->sortBy('year_month')->values()->toArray();
 
         // Analysis 108: persons by observation period count (stratum_1 = number of periods)
-        $periodsByPersonRows = AchillesResult::forAnalysis(108)->get();
+        $periodsByPersonRows = $this->ar()->forAnalysis(108)->get();
         $periodsByPerson = $periodsByPersonRows->map(fn ($row) => [
             'count_value' => $row->stratum_1,
             'persons' => (int) $row->count_value,
@@ -405,7 +447,7 @@ class AchillesResultReaderService
 
         // Get all concept rows for this domain's count analysis
         // stratum_1 = concept_id, count_value = number of records
-        $conceptRows = AchillesResult::forAnalysis($countAnalysisId)
+        $conceptRows = $this->ar()->forAnalysis($countAnalysisId)
             ->orderByDesc('count_value')
             ->get();
 
@@ -482,13 +524,13 @@ class AchillesResultReaderService
         $stratum1 = (string) $conceptId;
 
         // Record count for this concept (count analysis, stratum_1 = concept_id)
-        $countRow = AchillesResult::forAnalysis($analysisMap['count'])
+        $countRow = $this->ar()->forAnalysis($analysisMap['count'])
             ->withStratum(1, $stratum1)
             ->first();
         $recordCount = $countRow ? (int) $countRow->count_value : 0;
 
         // Gender distribution (gender analysis, stratum_1 = concept_id, stratum_2 = gender_concept_id)
-        $genderRows = AchillesResult::forAnalysis($analysisMap['gender'])
+        $genderRows = $this->ar()->forAnalysis($analysisMap['gender'])
             ->withStratum(1, $stratum1)
             ->get();
         $genderDistribution = $genderRows->map(fn ($row) => [
@@ -501,7 +543,7 @@ class AchillesResultReaderService
         $ageDistribution = $this->extractDistribution($analysisMap['age_dist'], $stratum1);
 
         // Monthly trend (month analysis, stratum_1 = concept_id, stratum_2 = YYYYMM)
-        $monthRows = AchillesResult::forAnalysis($analysisMap['month'])
+        $monthRows = $this->ar()->forAnalysis($analysisMap['month'])
             ->withStratum(1, $stratum1)
             ->get();
         $monthlyTrend = $monthRows->map(fn ($row) => [
@@ -510,7 +552,7 @@ class AchillesResultReaderService
         ])->sortBy('year_month')->values()->toArray();
 
         // Type distribution (type analysis, stratum_1 = concept_id, stratum_2 = type_concept_id)
-        $typeRows = AchillesResult::forAnalysis($analysisMap['type'])
+        $typeRows = $this->ar()->forAnalysis($analysisMap['type'])
             ->withStratum(1, $stratum1)
             ->get();
 
@@ -563,7 +605,7 @@ class AchillesResultReaderService
 
         // stratum_1 = concept_id, stratum_2 = YYYYMM
         // Aggregate across all concepts to get total per month
-        $rows = AchillesResult::forAnalysis($monthAnalysisId)
+        $rows = $this->ar()->forAnalysis($monthAnalysisId)
             ->select('stratum_2', DB::raw('SUM(count_value) as total_count'))
             ->whereNotNull('stratum_2')
             ->groupBy('stratum_2')
@@ -584,7 +626,7 @@ class AchillesResultReaderService
     public function getDistribution(Source $source, int $analysisId, ?string $stratum1 = null): array
     {
         $this->setSchemaForSource($source);
-        $query = AchillesResultDist::forAnalysis($analysisId);
+        $query = $this->ard()->forAnalysis($analysisId);
 
         if ($stratum1 !== null) {
             $query->where('stratum_1', $stratum1);
@@ -614,10 +656,10 @@ class AchillesResultReaderService
     {
         $this->setSchemaForSource($source);
         // Join achilles_analysis with a count of rows in achilles_results per analysis_id
-        $analyses = AchillesAnalysis::query()
+        $analyses = $this->aa()
             ->select('achilles_analysis.*')
             ->selectSub(
-                AchillesResult::query()
+                $this->ar()
                     ->selectRaw('COUNT(*)')
                     ->whereColumn('achilles_results.analysis_id', 'achilles_analysis.analysis_id'),
                 'row_count'
@@ -642,13 +684,13 @@ class AchillesResultReaderService
     public function getPerformanceReport(Source $source): array
     {
         $this->setSchemaForSource($source);
-        $performances = AchillesPerformance::query()
+        $performances = $this->ap()
             ->orderByDesc('elapsed_seconds')
             ->get();
 
         // Batch lookup analysis names
         $analysisIds = $performances->pluck('analysis_id')->unique()->values()->toArray();
-        $analysisNames = AchillesAnalysis::whereIn('analysis_id', $analysisIds)
+        $analysisNames = $this->aa()->whereIn('analysis_id', $analysisIds)
             ->pluck('analysis_name', 'analysis_id')
             ->toArray();
 
@@ -666,7 +708,7 @@ class AchillesResultReaderService
      */
     private function extractDistribution(int $analysisId, ?string $stratum1 = null): ?array
     {
-        $query = AchillesResultDist::forAnalysis($analysisId);
+        $query = $this->ard()->forAnalysis($analysisId);
 
         if ($stratum1 !== null) {
             $query->where('stratum_1', $stratum1);
@@ -694,7 +736,7 @@ class AchillesResultReaderService
      */
     private function getTotalPersonCount(): int
     {
-        $row = AchillesResult::forAnalysis(0)->first();
+        $row = $this->ar()->forAnalysis(0)->first();
 
         return $row ? (int) $row->count_value : 0;
     }

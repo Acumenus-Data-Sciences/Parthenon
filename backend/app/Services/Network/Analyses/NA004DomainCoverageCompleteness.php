@@ -19,23 +19,38 @@ use App\Contracts\NetworkAnalysisInterface;
  */
 class NA004DomainCoverageCompleteness implements NetworkAnalysisInterface
 {
-    public function analysisId(): string    { return 'NA004'; }
-    public function analysisName(): string  { return 'Domain Coverage Completeness'; }
-    public function category(): string      { return 'Coverage'; }
-    public function minimumSources(): int   { return 1; }
+    public function analysisId(): string
+    {
+        return 'NA004';
+    }
+
+    public function analysisName(): string
+    {
+        return 'Domain Coverage Completeness';
+    }
+
+    public function category(): string
+    {
+        return 'Coverage';
+    }
+
+    public function minimumSources(): int
+    {
+        return 1;
+    }
 
     public function description(): string
     {
         return 'Reports what fraction of CDM persons have ≥1 record in each of 8 clinical '
-            . 'domains. Sources with < 50% coverage in any domain should be treated as '
-            . 'incomplete for analyses depending on that domain.';
+            .'domains. Sources with < 50% coverage in any domain should be treated as '
+            .'incomplete for analyses depending on that domain.';
     }
 
     public function requiredTables(): array
     {
         return ['person', 'condition_occurrence', 'drug_exposure', 'measurement',
-                'observation', 'procedure_occurrence', 'visit_occurrence',
-                'device_exposure', 'death'];
+            'observation', 'procedure_occurrence', 'visit_occurrence',
+            'device_exposure', 'death'];
     }
 
     public function perSourceSqlTemplate(): string

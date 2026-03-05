@@ -24,11 +24,19 @@ class Source extends Model
         'is_cache_enabled',
         'restricted_to_roles',
         'imported_from_webapi',
+        // Dynamic connection fields (DB-1.1)
+        'db_host',
+        'db_port',
+        'db_database',
+        'db_options',
+        'username',
+        'password',
     ];
 
     protected $hidden = [
         'username',
         'password',
+        'db_options',
     ];
 
     /**
@@ -39,6 +47,8 @@ class Source extends Model
         return [
             'is_cache_enabled' => 'boolean',
             'password' => 'encrypted',
+            'db_options' => 'encrypted:array',
+            'db_port' => 'integer',
             'restricted_to_roles' => 'array',
         ];
     }

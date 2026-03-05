@@ -38,8 +38,7 @@ class PatientProfileService
             'vocabSchema' => $vocabSchema,
         ];
 
-        // Collect all domain data in parallel structure
-        $profile = [
+        return [
             'demographics' => $this->getDemographics($personId, $params, $dialect, $connectionName),
             'observation_periods' => $this->getObservationPeriods($personId, $params, $dialect, $connectionName),
             'conditions' => $this->getConditions($personId, $params, $dialect, $connectionName),
@@ -51,20 +50,19 @@ class PatientProfileService
             'condition_eras' => $this->getConditionEras($personId, $params, $dialect, $connectionName),
             'drug_eras' => $this->getDrugEras($personId, $params, $dialect, $connectionName),
         ];
-
-        return $profile;
     }
 
     /**
      * Get paginated cohort members with basic demographics.
+     * Returns {data: [...], meta: {current_page, last_page, per_page, total}}
      *
      * @return array<string, mixed>
      */
     public function getCohortMembers(
         int $cohortDefinitionId,
         Source $source,
-        int $limit = 100,
-        int $offset = 0,
+        int $page = 1,
+        int $perPage = 15,
     ): array {
         $source->load('daimons');
         $cdmSchema = $source->getTableQualifier(DaimonType::CDM);
@@ -85,10 +83,10 @@ class PatientProfileService
             'cdmSchema' => $cdmSchema,
             'vocabSchema' => $vocabSchema,
             'resultsSchema' => $resultsSchema,
-            'cohortTable' => $cohortTable,
         ];
 
-        // Get total count
+        $offset = ($page - 1) * $perPage;
+
         $countSql = "
             SELECT COUNT(DISTINCT c.subject_id) AS total_count
             FROM {$cohortTable} c
@@ -99,10 +97,11 @@ class PatientProfileService
         $countResult = DB::connection($connectionName)->select($renderedCountSql);
         $totalCount = ! empty($countResult) ? (int) $countResult[0]->total_count : 0;
 
-        // Get paginated members
+        $lastPage = max(1, (int) ceil($totalCount / $perPage));
+
         $membersSql = "
             SELECT
-                c.subject_id AS person_id,
+                c.subject_id,
                 c.cohort_start_date,
                 c.cohort_end_date,
                 p.year_of_birth,
@@ -114,22 +113,25 @@ class PatientProfileService
                 ON p.gender_concept_id = gc.concept_id
             WHERE c.cohort_definition_id = {$cohortDefinitionId}
             ORDER BY c.subject_id
-            LIMIT {$limit} OFFSET {$offset}
+            LIMIT {$perPage} OFFSET {$offset}
         ";
 
         $renderedMembersSql = $this->sqlRenderer->render($membersSql, $params, $dialect);
         $memberRows = DB::connection($connectionName)->select($renderedMembersSql);
 
         return [
-            'total_count' => $totalCount,
-            'offset' => $offset,
-            'limit' => $limit,
-            'members' => array_map(fn ($row) => (array) $row, $memberRows),
+            'data' => array_map(fn ($row) => (array) $row, $memberRows),
+            'meta' => [
+                'current_page' => $page,
+                'last_page' => $lastPage,
+                'per_page' => $perPage,
+                'total' => $totalCount,
+            ],
         ];
     }
 
     /**
-     * Get person demographics.
+     * Get person demographics including location.
      *
      * @param  array<string, string>  $params
      * @return array<string, mixed>
@@ -172,7 +174,7 @@ class PatientProfileService
     }
 
     /**
-     * Get observation periods for a person.
+     * Get observation periods — normalized to start_date / end_date.
      *
      * @param  array<string, string>  $params
      * @return list<array<string, mixed>>
@@ -186,8 +188,8 @@ class PatientProfileService
         $sql = "
             SELECT
                 op.observation_period_id,
-                op.observation_period_start_date,
-                op.observation_period_end_date,
+                op.observation_period_start_date AS start_date,
+                op.observation_period_end_date AS end_date,
                 COALESCE(ptc.concept_name, 'Unknown') AS period_type
             FROM {@cdmSchema}.observation_period op
             LEFT JOIN {@vocabSchema}.concept ptc
@@ -203,7 +205,7 @@ class PatientProfileService
     }
 
     /**
-     * Get conditions for a person.
+     * Get conditions — normalized to shared ClinicalEvent schema.
      *
      * @param  array<string, string>  $params
      * @return list<array<string, mixed>>
@@ -216,14 +218,14 @@ class PatientProfileService
     ): array {
         $sql = "
             SELECT
-                co.condition_occurrence_id,
-                co.condition_concept_id,
-                COALESCE(c.concept_name, 'Unknown') AS condition_name,
-                COALESCE(c.domain_id, '') AS domain,
+                co.condition_occurrence_id AS occurrence_id,
+                co.condition_concept_id AS concept_id,
+                COALESCE(c.concept_name, 'Unknown') AS concept_name,
+                'condition' AS domain,
                 COALESCE(c.vocabulary_id, '') AS vocabulary,
-                co.condition_start_date,
-                co.condition_end_date,
-                COALESCE(tc.concept_name, 'Unknown') AS condition_type
+                co.condition_start_date AS start_date,
+                co.condition_end_date AS end_date,
+                COALESCE(tc.concept_name, 'Unknown') AS type_name
             FROM {@cdmSchema}.condition_occurrence co
             LEFT JOIN {@vocabSchema}.concept c
                 ON co.condition_concept_id = c.concept_id
@@ -240,7 +242,7 @@ class PatientProfileService
     }
 
     /**
-     * Get drug exposures for a person.
+     * Get drug exposures — normalized with route, quantity, days_supply.
      *
      * @param  array<string, string>  $params
      * @return list<array<string, mixed>>
@@ -253,17 +255,17 @@ class PatientProfileService
     ): array {
         $sql = "
             SELECT
-                de.drug_exposure_id,
-                de.drug_concept_id,
-                COALESCE(c.concept_name, 'Unknown') AS drug_name,
-                COALESCE(c.domain_id, '') AS domain,
+                de.drug_exposure_id AS occurrence_id,
+                de.drug_concept_id AS concept_id,
+                COALESCE(c.concept_name, 'Unknown') AS concept_name,
+                'drug' AS domain,
                 COALESCE(c.vocabulary_id, '') AS vocabulary,
-                de.drug_exposure_start_date,
-                de.drug_exposure_end_date,
-                de.quantity,
-                de.days_supply,
+                de.drug_exposure_start_date AS start_date,
+                de.drug_exposure_end_date AS end_date,
+                COALESCE(tc.concept_name, 'Unknown') AS type_name,
                 COALESCE(rc.concept_name, '') AS route,
-                COALESCE(tc.concept_name, 'Unknown') AS drug_type
+                de.quantity,
+                de.days_supply
             FROM {@cdmSchema}.drug_exposure de
             LEFT JOIN {@vocabSchema}.concept c
                 ON de.drug_concept_id = c.concept_id
@@ -282,7 +284,7 @@ class PatientProfileService
     }
 
     /**
-     * Get procedures for a person.
+     * Get procedures — normalized, includes quantity.
      *
      * @param  array<string, string>  $params
      * @return list<array<string, mixed>>
@@ -295,14 +297,15 @@ class PatientProfileService
     ): array {
         $sql = "
             SELECT
-                po.procedure_occurrence_id,
-                po.procedure_concept_id,
-                COALESCE(c.concept_name, 'Unknown') AS procedure_name,
-                COALESCE(c.domain_id, '') AS domain,
+                po.procedure_occurrence_id AS occurrence_id,
+                po.procedure_concept_id AS concept_id,
+                COALESCE(c.concept_name, 'Unknown') AS concept_name,
+                'procedure' AS domain,
                 COALESCE(c.vocabulary_id, '') AS vocabulary,
-                po.procedure_date,
-                po.quantity,
-                COALESCE(tc.concept_name, 'Unknown') AS procedure_type
+                po.procedure_date AS start_date,
+                NULL AS end_date,
+                COALESCE(tc.concept_name, 'Unknown') AS type_name,
+                po.quantity
             FROM {@cdmSchema}.procedure_occurrence po
             LEFT JOIN {@vocabSchema}.concept c
                 ON po.procedure_concept_id = c.concept_id
@@ -319,7 +322,7 @@ class PatientProfileService
     }
 
     /**
-     * Get measurements for a person.
+     * Get measurements — normalized with value, unit, and reference range.
      *
      * @param  array<string, string>  $params
      * @return list<array<string, mixed>>
@@ -332,16 +335,19 @@ class PatientProfileService
     ): array {
         $sql = "
             SELECT
-                m.measurement_id,
-                m.measurement_concept_id,
-                COALESCE(c.concept_name, 'Unknown') AS measurement_name,
-                m.measurement_date,
-                m.value_as_number,
+                m.measurement_id AS occurrence_id,
+                m.measurement_concept_id AS concept_id,
+                COALESCE(c.concept_name, 'Unknown') AS concept_name,
+                'measurement' AS domain,
+                COALESCE(c.vocabulary_id, '') AS vocabulary,
+                m.measurement_date AS start_date,
+                NULL AS end_date,
+                COALESCE(tc.concept_name, 'Unknown') AS type_name,
+                m.value_as_number AS value,
                 COALESCE(vc.concept_name, '') AS value_as_concept,
                 COALESCE(uc.concept_name, '') AS unit,
                 m.range_low,
-                m.range_high,
-                COALESCE(tc.concept_name, 'Unknown') AS measurement_type
+                m.range_high
             FROM {@cdmSchema}.measurement m
             LEFT JOIN {@vocabSchema}.concept c
                 ON m.measurement_concept_id = c.concept_id
@@ -362,7 +368,7 @@ class PatientProfileService
     }
 
     /**
-     * Get observations for a person.
+     * Get observations — normalized with value fields.
      *
      * @param  array<string, string>  $params
      * @return list<array<string, mixed>>
@@ -375,15 +381,18 @@ class PatientProfileService
     ): array {
         $sql = "
             SELECT
-                o.observation_id,
-                o.observation_concept_id,
-                COALESCE(c.concept_name, 'Unknown') AS observation_name,
-                o.observation_date,
-                o.value_as_number,
+                o.observation_id AS occurrence_id,
+                o.observation_concept_id AS concept_id,
+                COALESCE(c.concept_name, 'Unknown') AS concept_name,
+                'observation' AS domain,
+                COALESCE(c.vocabulary_id, '') AS vocabulary,
+                o.observation_date AS start_date,
+                NULL AS end_date,
+                COALESCE(tc.concept_name, 'Unknown') AS type_name,
+                o.value_as_number AS value,
                 o.value_as_string,
                 COALESCE(vc.concept_name, '') AS value_as_concept,
-                COALESCE(uc.concept_name, '') AS unit,
-                COALESCE(tc.concept_name, 'Unknown') AS observation_type
+                COALESCE(uc.concept_name, '') AS unit
             FROM {@cdmSchema}.observation o
             LEFT JOIN {@vocabSchema}.concept c
                 ON o.observation_concept_id = c.concept_id
@@ -404,7 +413,7 @@ class PatientProfileService
     }
 
     /**
-     * Get visits for a person.
+     * Get visits — normalized, includes visit_occurrence_id for event binning.
      *
      * @param  array<string, string>  $params
      * @return list<array<string, mixed>>
@@ -418,11 +427,13 @@ class PatientProfileService
         $sql = "
             SELECT
                 vo.visit_occurrence_id,
-                vo.visit_concept_id,
-                COALESCE(c.concept_name, 'Unknown') AS visit_type,
-                vo.visit_start_date,
-                vo.visit_end_date,
-                COALESCE(tc.concept_name, 'Unknown') AS visit_type_concept
+                vo.visit_concept_id AS concept_id,
+                COALESCE(c.concept_name, 'Unknown') AS concept_name,
+                'visit' AS domain,
+                'Visit' AS vocabulary,
+                vo.visit_start_date AS start_date,
+                vo.visit_end_date AS end_date,
+                COALESCE(tc.concept_name, 'Unknown') AS type_name
             FROM {@cdmSchema}.visit_occurrence vo
             LEFT JOIN {@vocabSchema}.concept c
                 ON vo.visit_concept_id = c.concept_id
@@ -439,8 +450,7 @@ class PatientProfileService
     }
 
     /**
-     * Get condition eras for a person.
-     * Condition eras merge overlapping condition records into continuous spans.
+     * Get condition eras.
      *
      * @param  array<string, string>  $params
      * @return list<array<string, mixed>>
@@ -473,8 +483,7 @@ class PatientProfileService
     }
 
     /**
-     * Get drug eras for a person.
-     * Drug eras merge overlapping drug exposure records with a persistence window.
+     * Get drug eras.
      *
      * @param  array<string, string>  $params
      * @return list<array<string, mixed>>

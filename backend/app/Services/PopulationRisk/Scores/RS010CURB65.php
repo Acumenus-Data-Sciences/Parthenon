@@ -48,10 +48,25 @@ use App\Contracts\PopulationRiskScoreInterface;
  */
 class RS010CURB65 implements PopulationRiskScoreInterface
 {
-    public function scoreId(): string       { return 'RS010'; }
-    public function scoreName(): string     { return 'CURB-65 (Pneumonia Severity)'; }
-    public function category(): string      { return 'Pulmonary'; }
-    public function eligiblePopulation(): string { return 'Patients with pneumonia diagnosis'; }
+    public function scoreId(): string
+    {
+        return 'RS010';
+    }
+
+    public function scoreName(): string
+    {
+        return 'CURB-65 (Pneumonia Severity)';
+    }
+
+    public function category(): string
+    {
+        return 'Pulmonary';
+    }
+
+    public function eligiblePopulation(): string
+    {
+        return 'Patients with pneumonia diagnosis';
+    }
 
     public function description(): string
     {
@@ -73,9 +88,9 @@ class RS010CURB65 implements PopulationRiskScoreInterface
     public function riskTiers(): array
     {
         return [
-            'low'          => [0, 1],
+            'low' => [0, 1],
             'intermediate' => [1, 3],
-            'severe'       => [3, null],
+            'severe' => [3, null],
         ];
     }
 

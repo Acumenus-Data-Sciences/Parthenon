@@ -20,22 +20,37 @@ use App\Contracts\NetworkAnalysisInterface;
  */
 class NA003DataDensityFingerprint implements NetworkAnalysisInterface
 {
-    public function analysisId(): string    { return 'NA003'; }
-    public function analysisName(): string  { return 'Data Density Fingerprint'; }
-    public function category(): string      { return 'Coverage'; }
-    public function minimumSources(): int   { return 1; }
+    public function analysisId(): string
+    {
+        return 'NA003';
+    }
+
+    public function analysisName(): string
+    {
+        return 'Data Density Fingerprint';
+    }
+
+    public function category(): string
+    {
+        return 'Coverage';
+    }
+
+    public function minimumSources(): int
+    {
+        return 1;
+    }
 
     public function description(): string
     {
         return 'Characterises data richness per source: median observation-period length, '
-            . 'visits/person/year, conditions/person, measurements/person, and drug exposures/person. '
-            . 'Low-density sources may underestimate condition burden and risk scores.';
+            .'visits/person/year, conditions/person, measurements/person, and drug exposures/person. '
+            .'Low-density sources may underestimate condition burden and risk scores.';
     }
 
     public function requiredTables(): array
     {
         return ['person', 'observation_period', 'visit_occurrence', 'condition_occurrence',
-                'measurement', 'drug_exposure'];
+            'measurement', 'drug_exposure'];
     }
 
     public function perSourceSqlTemplate(): string

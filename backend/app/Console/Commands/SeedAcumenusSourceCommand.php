@@ -34,10 +34,10 @@ class SeedAcumenusSourceCommand extends Command
         $source = Source::updateOrCreate(
             ['source_key' => 'ACUMENUS'],
             [
-                'source_name'       => 'OHDSI Acumenus CDM',
-                'source_dialect'    => 'postgresql',
+                'source_name' => 'OHDSI Acumenus CDM',
+                'source_dialect' => 'postgresql',
                 'source_connection' => 'cdm',
-                'is_cache_enabled'  => false,
+                'is_cache_enabled' => false,
             ]
         );
 

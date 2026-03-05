@@ -157,8 +157,8 @@ class RolePermissionSeeder extends Seeder
             } else {
                 $role->syncPermissions(
                     Permission::whereIn('name', $permNames)
-                              ->where('guard_name', 'web')
-                              ->get(),
+                        ->where('guard_name', 'web')
+                        ->get(),
                 );
             }
         }

@@ -22,10 +22,25 @@ use App\Contracts\PopulationRiskScoreInterface;
  */
 class RS001FraminghamRiskScore implements PopulationRiskScoreInterface
 {
-    public function scoreId(): string       { return 'RS001'; }
-    public function scoreName(): string     { return 'Framingham Risk Score (10-yr CVD)'; }
-    public function category(): string      { return 'Cardiovascular'; }
-    public function eligiblePopulation(): string { return 'Ages 30–74, both sexes'; }
+    public function scoreId(): string
+    {
+        return 'RS001';
+    }
+
+    public function scoreName(): string
+    {
+        return 'Framingham Risk Score (10-yr CVD)';
+    }
+
+    public function category(): string
+    {
+        return 'Cardiovascular';
+    }
+
+    public function eligiblePopulation(): string
+    {
+        return 'Ages 30–74, both sexes';
+    }
 
     public function description(): string
     {
@@ -35,15 +50,15 @@ class RS001FraminghamRiskScore implements PopulationRiskScoreInterface
     public function requiredComponents(): array
     {
         return ['age', 'sex', 'total_cholesterol', 'hdl_cholesterol', 'systolic_bp',
-                'smoking_status', 'diabetes', 'bp_treatment'];
+            'smoking_status', 'diabetes', 'bp_treatment'];
     }
 
     public function riskTiers(): array
     {
         return [
-            'low'          => [null, 10],
+            'low' => [null, 10],
             'intermediate' => [10,   20],
-            'high'         => [20, null],
+            'high' => [20, null],
         ];
     }
 

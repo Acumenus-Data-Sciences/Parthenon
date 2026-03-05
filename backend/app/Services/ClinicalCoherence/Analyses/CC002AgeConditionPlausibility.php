@@ -15,23 +15,35 @@ use App\Contracts\ClinicalCoherenceAnalysisInterface;
  */
 class CC002AgeConditionPlausibility implements ClinicalCoherenceAnalysisInterface
 {
-    public function analysisId(): string { return 'CC002'; }
+    public function analysisId(): string
+    {
+        return 'CC002';
+    }
 
     public function analysisName(): string
     {
         return 'Age-Condition Plausibility';
     }
 
-    public function category(): string { return 'Age Plausibility'; }
+    public function category(): string
+    {
+        return 'Age Plausibility';
+    }
 
     public function description(): string
     {
         return 'Identifies conditions diagnosed at biologically implausible ages, such as pediatric-only conditions in adults or late-onset conditions in young patients.';
     }
 
-    public function severity(): string { return 'major'; }
+    public function severity(): string
+    {
+        return 'major';
+    }
 
-    public function flagThreshold(): ?float { return null; } // flag any occurrence > threshold enforced in HAVING
+    public function flagThreshold(): ?float
+    {
+        return null;
+    } // flag any occurrence > threshold enforced in HAVING
 
     public function requiredTables(): array
     {

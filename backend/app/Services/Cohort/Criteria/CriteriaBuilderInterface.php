@@ -44,7 +44,7 @@ interface CriteriaBuilderInterface
      *
      * @param  array<string, mixed>  $criterion  The domain-specific criterion config
      * @param  string  $alias  The table alias used in the query
-     * @return list<string>  SQL WHERE clause fragments (without leading AND)
+     * @return list<string> SQL WHERE clause fragments (without leading AND)
      */
     public function buildWhereClauses(array $criterion, string $alias): array;
 }

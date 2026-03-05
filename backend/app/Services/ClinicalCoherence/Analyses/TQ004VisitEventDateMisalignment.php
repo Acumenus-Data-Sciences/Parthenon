@@ -21,23 +21,35 @@ use App\Contracts\ClinicalCoherenceAnalysisInterface;
  */
 class TQ004VisitEventDateMisalignment implements ClinicalCoherenceAnalysisInterface
 {
-    public function analysisId(): string { return 'TQ004'; }
+    public function analysisId(): string
+    {
+        return 'TQ004';
+    }
 
     public function analysisName(): string
     {
         return 'Visit-Event Date Misalignment';
     }
 
-    public function category(): string { return 'Temporal Quality'; }
+    public function category(): string
+    {
+        return 'Temporal Quality';
+    }
 
     public function description(): string
     {
         return 'For records linked to a visit (visit_occurrence_id IS NOT NULL), checks that the event date falls within the visit start/end dates (±1 day tolerance). Misalignment suggests ETL linkage errors or date transposition.';
     }
 
-    public function severity(): string { return 'major'; }
+    public function severity(): string
+    {
+        return 'major';
+    }
 
-    public function flagThreshold(): ?float { return 0.05; } // flag if >5% of linked records are misaligned
+    public function flagThreshold(): ?float
+    {
+        return 0.05;
+    } // flag if >5% of linked records are misaligned
 
     public function requiredTables(): array
     {

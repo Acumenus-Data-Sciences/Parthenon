@@ -38,12 +38,12 @@ class AchillesHeelService
                 $violations = 0;
                 foreach ($rows as $row) {
                     AchillesHeelResult::create([
-                        'source_id'       => $source->source_id,
-                        'rule_id'         => $rule->ruleId(),
-                        'rule_name'       => $rule->ruleName(),
-                        'severity'        => $rule->severity(),
-                        'record_count'    => $row->record_count ?? 0,
-                        'attribute_name'  => $row->attribute_name ?? null,
+                        'source_id' => $source->source_id,
+                        'rule_id' => $rule->ruleId(),
+                        'rule_name' => $rule->ruleName(),
+                        'severity' => $rule->severity(),
+                        'record_count' => $row->record_count ?? 0,
+                        'attribute_name' => $row->attribute_name ?? null,
                         'attribute_value' => $row->attribute_value ?? null,
                     ]);
                     $violations++;
@@ -51,17 +51,17 @@ class AchillesHeelService
 
                 $completed++;
                 $results[] = [
-                    'rule_id'    => $rule->ruleId(),
-                    'status'     => 'completed',
+                    'rule_id' => $rule->ruleId(),
+                    'status' => 'completed',
                     'violations' => $violations,
                 ];
             } catch (\Throwable $e) {
                 $failed++;
                 $results[] = [
                     'rule_id' => $rule->ruleId(),
-                    'status'  => 'failed',
+                    'status' => 'failed',
                     'violations' => 0,
-                    'error'   => $e->getMessage(),
+                    'error' => $e->getMessage(),
                 ];
 
                 Log::warning("Achilles Heel rule {$rule->ruleId()} failed: {$e->getMessage()}");
