@@ -65,7 +65,7 @@ export function LoginPage() {
         overflow: "hidden",
       }}
     >
-      {/* Full-screen background image — darkly faded */}
+      {/* Full-screen background image */}
       <div
         style={{
           position: "absolute",
@@ -73,7 +73,7 @@ export function LoginPage() {
           backgroundImage: "url(/parthenon.jpg)",
           backgroundSize: "cover",
           backgroundPosition: "center 40%",
-          filter: "brightness(0.15) saturate(0.25)",
+          filter: "brightness(0.35) saturate(0.65)",
         }}
       />
 
@@ -90,7 +90,7 @@ export function LoginPage() {
           overflow: "hidden",
         }}
       >
-        {/* Hero image — brighter on the left side */}
+        {/* Hero image — bright and vivid, fading at the right edge */}
         <div
           style={{
             position: "absolute",
@@ -98,26 +98,47 @@ export function LoginPage() {
             backgroundImage: "url(/parthenon.jpg)",
             backgroundSize: "cover",
             backgroundPosition: "center 40%",
-            filter: "brightness(0.28) saturate(0.4)",
+            filter: "brightness(0.78) saturate(1.05) contrast(1.08)",
             maskImage:
-              "linear-gradient(to right, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%)",
+              "linear-gradient(to right, rgba(0,0,0,1) 55%, rgba(0,0,0,0) 100%)",
             WebkitMaskImage:
-              "linear-gradient(to right, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%)",
+              "linear-gradient(to right, rgba(0,0,0,1) 55%, rgba(0,0,0,0) 100%)",
           }}
         />
 
-        {/* Centered radial overlay for text legibility */}
+        {/* Atmospheric colour wash — Athenian sky & warm marble */}
         <div
           style={{
             position: "absolute",
             inset: 0,
             background:
-              "radial-gradient(ellipse at center, rgba(8, 8, 10, 0.55) 0%, rgba(8, 8, 10, 0.3) 50%, transparent 80%)",
+              "linear-gradient(to bottom, rgba(120, 170, 230, 0.10) 0%, rgba(201, 162, 39, 0.06) 55%, rgba(8, 8, 10, 0.18) 100%)",
+            maskImage:
+              "linear-gradient(to right, rgba(0,0,0,1) 55%, rgba(0,0,0,0) 100%)",
+            WebkitMaskImage:
+              "linear-gradient(to right, rgba(0,0,0,1) 55%, rgba(0,0,0,0) 100%)",
           }}
         />
 
-        {/* Hero content — centered */}
-        <div style={{ position: "relative", zIndex: 1, maxWidth: 500, textAlign: "center" }}>
+        {/* Hero content — centered, inside a glassmorphic panel */}
+        <div
+          style={{
+            position: "relative",
+            zIndex: 1,
+            maxWidth: 500,
+            textAlign: "center",
+            background:
+              "linear-gradient(135deg, rgba(10, 8, 6, 0.62) 0%, rgba(6, 5, 4, 0.52) 100%)",
+            backdropFilter: "blur(28px) saturate(1.4)",
+            WebkitBackdropFilter: "blur(28px) saturate(1.4)",
+            border: "1px solid rgba(255, 255, 255, 0.10)",
+            borderTop: "1px solid rgba(255, 255, 255, 0.20)",
+            borderRadius: 20,
+            padding: "48px 52px",
+            boxShadow:
+              "0 24px 72px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.15)",
+          }}
+        >
           {/* Crimson accent line */}
           <div
             style={{
