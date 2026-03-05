@@ -21,6 +21,7 @@ import {
   UsersRound,
   Bell,
   Dna,
+  ScanLine,
 } from "lucide-react";
 import { ParthenonIcon } from "@/components/icons/ParthenonIcon";
 
@@ -51,6 +52,7 @@ const navItems: NavItem[] = [
   { path: "/studies", label: "Studies", icon: Briefcase },
   { path: "/profiles", label: "Patient Profiles", icon: UserCircle },
   { path: "/genomics", label: "Genomics", icon: Dna },
+  { path: "/imaging", label: "Imaging", icon: ScanLine },
   { path: "/jobs", label: "Jobs", icon: Briefcase, section: "System" },
   {
     path: "/admin",

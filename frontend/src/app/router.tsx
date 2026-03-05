@@ -320,6 +320,26 @@ export const router = createBrowserRouter([
           },
         ],
       },
+      // ── Phase 16: Imaging ─────────────────────────────────────────────
+      {
+        path: "imaging",
+        children: [
+          {
+            index: true,
+            lazy: () =>
+              import("@/features/imaging/pages/ImagingPage").then(
+                (m) => ({ Component: m.default }),
+              ),
+          },
+          {
+            path: "studies/:id",
+            lazy: () =>
+              import("@/features/imaging/pages/ImagingStudyPage").then(
+                (m) => ({ Component: m.default }),
+              ),
+          },
+        ],
+      },
       // ── Administration ────────────────────────────────────────────────
       {
         path: "admin",

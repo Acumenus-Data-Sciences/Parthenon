@@ -46,6 +46,7 @@ use App\Http\Controllers\Api\V1\StudyStatsController;
 use App\Http\Controllers\Api\V1\StudySynthesisController;
 use App\Http\Controllers\Api\V1\StudyTeamController;
 use App\Http\Controllers\Api\V1\GenomicsController;
+use App\Http\Controllers\Api\V1\ImagingController;
 use App\Http\Controllers\Api\V1\VocabularyController;
 use Illuminate\Support\Facades\Route;
 
@@ -449,6 +450,31 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         Route::post('/criteria', [GenomicsController::class, 'storeCriterion']);
         Route::put('/criteria/{criterion}', [GenomicsController::class, 'updateCriterion']);
         Route::delete('/criteria/{criterion}', [GenomicsController::class, 'destroyCriterion']);
+    });
+});
+
+// ── Phase 16: DICOM Imaging ───────────────────────────────────────────────────
+Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
+    Route::prefix('imaging')->group(function () {
+        Route::get('/stats', [ImagingController::class, 'stats']);
+
+        // Studies
+        Route::get('/studies', [ImagingController::class, 'indexStudies']);
+        Route::get('/studies/{study}', [ImagingController::class, 'showStudy']);
+        Route::post('/studies/index-from-dicomweb', [ImagingController::class, 'indexFromDicomweb']);
+        Route::post('/studies/{study}/index-series', [ImagingController::class, 'indexSeries']);
+        Route::post('/studies/{study}/extract-nlp', [ImagingController::class, 'extractNlp']);
+
+        // Features
+        Route::get('/features', [ImagingController::class, 'indexFeatures']);
+
+        // Cohort criteria
+        Route::get('/criteria', [ImagingController::class, 'indexCriteria']);
+        Route::post('/criteria', [ImagingController::class, 'storeCriterion']);
+        Route::delete('/criteria/{criterion}', [ImagingController::class, 'destroyCriterion']);
+
+        // Population analytics
+        Route::get('/analytics/population', [ImagingController::class, 'populationAnalytics']);
     });
 });
 

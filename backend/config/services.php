@@ -35,14 +35,23 @@ return [
         ],
     ],
 
-    'ai' => [
-        'url' => env('AI_SERVICE_URL', 'http://python-ai:8000'),
-        'timeout' => env('AI_SERVICE_TIMEOUT', 30),
-    ],
-
     'r_runtime' => [
         'url' => env('R_SERVICE_URL', 'http://r-runtime:8787'),
         'timeout' => env('R_SERVICE_TIMEOUT', 7200),
+    ],
+
+    // Phase 16: DICOMweb / Orthanc
+    'dicomweb' => [
+        'base_url' => env('DICOMWEB_BASE_URL', 'http://orthanc:8042'),
+        'username' => env('DICOMWEB_USERNAME'),
+        'password' => env('DICOMWEB_PASSWORD'),
+    ],
+
+    // Phase 16: AI service base URL (used by RadiologyNlpService)
+    'ai' => [
+        'base_url' => env('AI_SERVICE_URL', 'http://python-ai:8000'),
+        'url' => env('AI_SERVICE_URL', 'http://python-ai:8000'),
+        'timeout' => env('AI_SERVICE_TIMEOUT', 30),
     ],
 
 ];
