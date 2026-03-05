@@ -25,10 +25,34 @@ parameters:
 			path: app/Console/Commands/ImportWebApiSourcesCommand.php
 
 		-
+			message: '#^Argument of an invalid type list\<string\>\|false supplied for foreach, only iterables are supported\.$#'
+			identifier: foreach.nonIterable
+			count: 1
+			path: app/Console/Commands/LoadEunomiaCommand.php
+
+		-
+			message: '#^Parameter \#1 \$string of function trim expects string, string\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Console/Commands/LoadEunomiaCommand.php
+
+		-
+			message: '#^Variable \$columns in empty\(\) always exists and is not falsy\.$#'
+			identifier: empty.variable
+			count: 1
+			path: app/Console/Commands/LoadEunomiaCommand.php
+
+		-
 			message: '#^Offset ''error'' might not exist on array\{analysis_id\: int, status\: string, elapsed_seconds\: float, error\?\: string\}\.$#'
 			identifier: offsetAccess.notFound
 			count: 1
 			path: app/Console/Commands/RunAchillesCommand.php
+
+		-
+			message: '#^Cannot access property \$value on string\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Events/StudyExecutionUpdated.php
 
 		-
 			message: '#^Parameter \#2 \$author of method App\\Services\\AI\\AbbyAiService\:\:buildCohortAndSave\(\) expects App\\Models\\User, App\\Models\\User\|null given\.$#'
@@ -201,12 +225,42 @@ parameters:
 		-
 			message: '#^Cannot access property \$id on App\\Models\\User\|null\.$#'
 			identifier: property.nonObject
-			count: 3
+			count: 4
 			path: app/Http/Controllers/Api/V1/CohortDefinitionController.php
 
 		-
 			message: '#^Cannot call method toIso8601String\(\) on string\|null\.$#'
 			identifier: method.nonObject
+			count: 1
+			path: app/Http/Controllers/Api/V1/CohortDefinitionController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\Api\\V1\\CohortDefinitionController\:\:mapDomainToOmop\(\) is unused\.$#'
+			identifier: method.unused
+			count: 1
+			path: app/Http/Controllers/Api/V1/CohortDefinitionController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\Api\\V1\\CohortDefinitionController\:\:mapMeasureDomainToCriterionType\(\) is unused\.$#'
+			identifier: method.unused
+			count: 1
+			path: app/Http/Controllers/Api/V1/CohortDefinitionController.php
+
+		-
+			message: '#^Offset ''concept_ids'' on string\|null on left side of \?\? does not exist\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Http/Controllers/Api/V1/CohortDefinitionController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,string\>\:\:map\(\) expects callable\(string, 0\)\: array\{concept\: array\{CONCEPT_ID\: int, CONCEPT_NAME\: string, DOMAIN_ID\: ''Condition'', VOCABULARY_ID\: ''SNOMED'', CONCEPT_CLASS_ID\: ''Clinical Finding'', STANDARD_CONCEPT\: ''S'', CONCEPT_CODE\: ''''\}, isExcluded\: false, includeDescendants\: true, includeMapped\: false\}, Closure\(int\)\: array\{concept\: array\{CONCEPT_ID\: int, CONCEPT_NAME\: string, DOMAIN_ID\: ''Condition'', VOCABULARY_ID\: ''SNOMED'', CONCEPT_CLASS_ID\: ''Clinical Finding'', STANDARD_CONCEPT\: ''S'', CONCEPT_CODE\: ''''\}, isExcluded\: false, includeDescendants\: true, includeMapped\: false\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Api/V1/CohortDefinitionController.php
+
+		-
+			message: '#^Parameter \#1 \$value of function collect expects Illuminate\\Contracts\\Support\\Arrayable\<\(int\|string\), mixed\>\|iterable\<\(int\|string\), mixed\>\|null, string given\.$#'
+			identifier: argument.type
 			count: 1
 			path: app/Http/Controllers/Api/V1/CohortDefinitionController.php
 
@@ -253,9 +307,51 @@ parameters:
 			path: app/Http/Controllers/Api/V1/CohortDefinitionController.php
 
 		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 1
+			path: app/Http/Controllers/Api/V1/CohortDefinitionController.php
+
+		-
+			message: '#^Variable \$additionalCriteriaList in empty\(\) always exists and is always falsy\.$#'
+			identifier: empty.variable
+			count: 1
+			path: app/Http/Controllers/Api/V1/CohortDefinitionController.php
+
+		-
+			message: '#^Variable \$conceptIds in empty\(\) always exists and is always falsy\.$#'
+			identifier: empty.variable
+			count: 1
+			path: app/Http/Controllers/Api/V1/CohortDefinitionController.php
+
+		-
+			message: '#^Argument of an invalid type string supplied for foreach, only iterables are supported\.$#'
+			identifier: foreach.nonIterable
+			count: 1
+			path: app/Http/Controllers/Api/V1/ConceptSetController.php
+
+		-
 			message: '#^Cannot access property \$id on App\\Models\\User\|null\.$#'
 			identifier: property.nonObject
+			count: 4
+			path: app/Http/Controllers/Api/V1/ConceptSetController.php
+
+		-
+			message: '#^Empty array passed to foreach\.$#'
+			identifier: foreach.emptyArray
 			count: 2
+			path: app/Http/Controllers/Api/V1/ConceptSetController.php
+
+		-
+			message: '#^Offset ''concept_ids'' on string\|null on left side of \?\? does not exist\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Http/Controllers/Api/V1/ConceptSetController.php
+
+		-
+			message: '#^Property App\\Models\\App\\ConceptSet\:\:\$author_id \(int\<0, max\>\) does not accept int\.$#'
+			identifier: assign.propertyType
+			count: 1
 			path: app/Http/Controllers/Api/V1/ConceptSetController.php
 
 		-
@@ -491,6 +587,12 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: app/Http/Controllers/Api/V1/SourceController.php
+
+		-
+			message: '#^Cannot access property \$id on App\\Models\\User\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Http/Controllers/Api/V1/StudyArtifactController.php
 
 		-
 			message: '#^Cannot access property \$id on App\\Models\\User\|null\.$#'
@@ -853,8 +955,8 @@ parameters:
 			path: app/Services/AI/AbbyAiService.php
 
 		-
-			message: '#^Cannot access property \$stratum_1 on App\\Models\\Results\\AchillesResult\|null\.$#'
-			identifier: property.nonObject
+			message: '#^Using nullsafe property access "\?\-\>table_qualifier" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
 			count: 1
 			path: app/Services/Achilles/AchillesResultReaderService.php
 
@@ -1151,6 +1253,18 @@ parameters:
 			identifier: deadCode.unreachable
 			count: 1
 			path: app/Services/Analysis/EvidenceSynthesisService.php
+
+		-
+			message: '#^Method App\\Services\\Analysis\\HadesBridgeService\:\:feasibility\(\) should return array\{status\: string, counts\: array\<string, int\|string\>\} but returns array\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Services/Analysis/HadesBridgeService.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>table_qualifier" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 4
+			path: app/Services/Analysis/HadesBridgeService.php
 
 		-
 			message: '#^Empty array passed to foreach\.$#'
