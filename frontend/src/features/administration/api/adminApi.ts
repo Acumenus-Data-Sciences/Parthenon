@@ -235,6 +235,10 @@ export interface FhirSyncRun {
   id: number;
   fhir_connection_id: number;
   status: string;
+  export_url: string | null;
+  since_param: string | null;
+  resource_types: string[] | null;
+  files_downloaded: number;
   records_extracted: number;
   records_mapped: number;
   records_written: number;
@@ -244,6 +248,8 @@ export interface FhirSyncRun {
   started_at: string | null;
   finished_at: string | null;
   triggered_by_user?: { id: number; name: string } | null;
+  triggered_by?: { id: number; name: string } | null;
+  connection?: { id: number; site_name: string; site_key: string } | null;
   created_at: string;
 }
 
@@ -265,8 +271,43 @@ export const deleteFhirConnection = (id: number) =>
 export const testFhirConnection = (id: number) =>
   apiClient.post<FhirTestResult>(`/admin/fhir-connections/${id}/test`).then((r) => r.data);
 
-export const startFhirSync = (id: number) =>
-  apiClient.post<{ data: FhirSyncRun }>(`/admin/fhir-connections/${id}/sync`).then((r) => r.data.data);
+export const startFhirSync = (id: number, forceFull = false) =>
+  apiClient.post<{ data: FhirSyncRun }>(`/admin/fhir-connections/${id}/sync`, { force_full: forceFull }).then((r) => r.data.data);
 
 export const fetchFhirSyncRuns = (connectionId: number) =>
   apiClient.get<{ data: FhirSyncRun[] }>(`/admin/fhir-connections/${connectionId}/sync-runs`).then((r) => r.data.data);
+
+export const fetchFhirSyncRunDetail = (connectionId: number, runId: number) =>
+  apiClient.get<{ data: FhirSyncRun }>(`/admin/fhir-connections/${connectionId}/sync-runs/${runId}`).then((r) => r.data.data);
+
+export interface FhirSyncDashboard {
+  summary: {
+    total_connections: number;
+    active_connections: number;
+    total_runs: number;
+    completed_runs: number;
+    failed_runs: number;
+    active_runs: number;
+    total_extracted: number;
+    total_mapped: number;
+    total_written: number;
+    total_failed: number;
+    avg_coverage: number | null;
+  };
+  connections: Array<{
+    id: number;
+    site_name: string;
+    site_key: string;
+    ehr_vendor: string;
+    is_active: boolean;
+    last_sync_at: string | null;
+    last_sync_status: string | null;
+    last_sync_records: number;
+    total_runs: number;
+  }>;
+  recent_runs: FhirSyncRun[];
+  timeline: Array<{ date: string; completed: number; failed: number; total: number }>;
+}
+
+export const fetchFhirSyncDashboard = () =>
+  apiClient.get<{ data: FhirSyncDashboard }>("/admin/fhir-sync/dashboard").then((r) => r.data.data);

@@ -12,7 +12,8 @@ function ProtectedLayout() {
   return <MainLayout />;
 }
 
-export const router = createBrowserRouter([
+export const router = createBrowserRouter(
+  [
   {
     path: "/login",
     element: <LoginPage />,
@@ -428,6 +429,13 @@ export const router = createBrowserRouter([
               ).then((m) => ({ Component: m.default })),
           },
           {
+            path: "fhir-sync-monitor",
+            lazy: () =>
+              import(
+                "@/features/administration/pages/FhirSyncDashboardPage"
+              ).then((m) => ({ Component: m.default })),
+          },
+          {
             path: "notifications",
             lazy: () =>
               import(
@@ -438,4 +446,6 @@ export const router = createBrowserRouter([
       },
     ],
   },
-]);
+  ],
+  { future: { v7_startTransition: true } }
+);

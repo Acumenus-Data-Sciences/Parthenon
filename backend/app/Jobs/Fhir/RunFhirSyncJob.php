@@ -46,6 +46,7 @@ class RunFhirSyncJob implements ShouldQueue
     public function __construct(
         public readonly FhirConnection $fhirConnection,
         public readonly FhirSyncRun $syncRun,
+        public readonly bool $forceFull = false,
     ) {
         $this->onQueue('default');
     }
@@ -64,9 +65,15 @@ class RunFhirSyncJob implements ShouldQueue
                 'started_at' => now(),
             ]);
 
-            Log::info("FHIR sync started for {$conn->site_key}", ['run_id' => $run->id]);
+            $isIncremental = $conn->incremental_enabled && !$this->forceFull && $conn->last_sync_at;
 
-            $pollingUrl = $exportService->startExport($conn, $run);
+            Log::info("FHIR sync started for {$conn->site_key}", [
+                'run_id'      => $run->id,
+                'incremental' => $isIncremental,
+                'force_full'  => $this->forceFull,
+            ]);
+
+            $pollingUrl = $exportService->startExport($conn, $run, $this->forceFull);
             $run->update(['export_url' => $pollingUrl]);
 
             // ── Step 2: Poll until complete ─────────────────────────────────
@@ -98,7 +105,7 @@ class RunFhirSyncJob implements ShouldQueue
             // ── Step 4: Process NDJSON → OMOP CDM ───────────────────────────
             $run->update(['status' => 'processing']);
 
-            $stats = $processor->processFiles($run, $filesByType, $conn->site_key);
+            $stats = $processor->processFiles($run, $filesByType, $conn->site_key, $isIncremental);
 
             // ── Step 5: Finalize ────────────────────────────────────────────
             $run->update([

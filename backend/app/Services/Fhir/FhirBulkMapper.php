@@ -57,11 +57,11 @@ class FhirBulkMapper
     /**
      * Map a FHIR resource to an OMOP CDM row.
      *
-     * @return array{cdm_table: string, data: array<string, mixed>}|null
+     * @return array{cdm_table: string, data: array<string, mixed>, fhir_resource_type: string, fhir_resource_id: string}|null
      */
     public function mapResource(array $resource, string $siteKey): ?array
     {
-        return match ($resource['resourceType'] ?? null) {
+        $mapped = match ($resource['resourceType'] ?? null) {
             'Patient'                                       => $this->mapPatient($resource, $siteKey),
             'Encounter'                                     => $this->mapEncounter($resource, $siteKey),
             'Condition'                                     => $this->mapCondition($resource, $siteKey),
@@ -74,6 +74,13 @@ class FhirBulkMapper
             'AllergyIntolerance'                            => $this->mapAllergyIntolerance($resource, $siteKey),
             default                                         => null,
         };
+
+        if ($mapped !== null) {
+            $mapped['fhir_resource_type'] = $resource['resourceType'];
+            $mapped['fhir_resource_id']   = $resource['id'] ?? '';
+        }
+
+        return $mapped;
     }
 
     // ──────────────────────────────────────────────────────────────────────────

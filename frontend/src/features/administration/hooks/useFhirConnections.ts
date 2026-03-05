@@ -8,6 +8,7 @@ import {
   testFhirConnection,
   startFhirSync,
   fetchFhirSyncRuns,
+  fetchFhirSyncDashboard,
   type FhirConnectionPayload,
 } from "../api/adminApi";
 
@@ -60,18 +61,28 @@ export function useTestFhirConnection() {
 export function useStartFhirSync() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (id: number) => startFhirSync(id),
-    onSuccess: (_data, id) => {
+    mutationFn: ({ id, forceFull = false }: { id: number; forceFull?: boolean }) =>
+      startFhirSync(id, forceFull),
+    onSuccess: (_data, { id }) => {
       qc.invalidateQueries({ queryKey: ["admin", "fhir-connections"] });
       qc.invalidateQueries({ queryKey: ["admin", "fhir-connections", id, "sync-runs"] });
     },
   });
 }
 
-export function useFhirSyncRuns(connectionId: number) {
+export function useFhirSyncRuns(connectionId: number, refetchInterval?: number) {
   return useQuery({
     queryKey: ["admin", "fhir-connections", connectionId, "sync-runs"],
     queryFn: () => fetchFhirSyncRuns(connectionId),
     enabled: connectionId > 0,
+    refetchInterval,
+  });
+}
+
+export function useFhirSyncDashboard(refetchInterval?: number) {
+  return useQuery({
+    queryKey: ["admin", "fhir-sync", "dashboard"],
+    queryFn: fetchFhirSyncDashboard,
+    refetchInterval,
   });
 }

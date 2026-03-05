@@ -195,7 +195,7 @@ class FhirConnectionController extends Controller
      * Trigger a bulk data sync for this connection. Creates a FhirSyncRun
      * and dispatches the RunFhirSyncJob to the queue.
      */
-    public function startSync(FhirConnection $fhirConnection): JsonResponse
+    public function startSync(Request $request, FhirConnection $fhirConnection): JsonResponse
     {
         if (!$fhirConnection->is_active) {
             return response()->json([
@@ -220,6 +220,8 @@ class FhirConnectionController extends Controller
             ], 409);
         }
 
+        $forceFull = (bool) $request->input('force_full', false);
+
         $run = FhirSyncRun::create([
             'fhir_connection_id' => $fhirConnection->id,
             'status'             => 'pending',
@@ -228,7 +230,7 @@ class FhirConnectionController extends Controller
 
         $fhirConnection->update(['last_sync_status' => 'pending']);
 
-        RunFhirSyncJob::dispatch($fhirConnection, $run);
+        RunFhirSyncJob::dispatch($fhirConnection, $run, $forceFull);
 
         return response()->json(['data' => $run->load('triggeredBy:id,name')], 202);
     }
@@ -244,6 +246,103 @@ class FhirConnectionController extends Controller
             ->paginate(20);
 
         return response()->json($runs);
+    }
+
+    /**
+     * GET /admin/fhir-connections/{id}/sync-runs/{syncRun}
+     */
+    public function syncRunDetail(FhirConnection $fhirConnection, FhirSyncRun $syncRun): JsonResponse
+    {
+        if ($syncRun->fhir_connection_id !== $fhirConnection->id) {
+            abort(404);
+        }
+
+        $syncRun->load('triggeredBy:id,name', 'connection:id,site_name,site_key,ehr_vendor');
+
+        return response()->json(['data' => $syncRun]);
+    }
+
+    /**
+     * GET /admin/fhir-sync/dashboard
+     *
+     * Aggregate stats across all connections for the monitoring dashboard.
+     */
+    public function syncDashboard(): JsonResponse
+    {
+        $connections = FhirConnection::withCount('syncRuns')->get();
+
+        $totalConnections = $connections->count();
+        $activeConnections = $connections->where('is_active', true)->count();
+
+        // Aggregate sync run stats
+        $allRuns = FhirSyncRun::query();
+        $totalRuns = (clone $allRuns)->count();
+        $completedRuns = (clone $allRuns)->where('status', 'completed')->count();
+        $failedRuns = (clone $allRuns)->where('status', 'failed')->count();
+        $activeRuns = (clone $allRuns)->whereIn('status', ['pending', 'exporting', 'downloading', 'processing'])->count();
+
+        // Records totals (from completed runs)
+        $completedQuery = FhirSyncRun::where('status', 'completed');
+        $totalExtracted = (clone $completedQuery)->sum('records_extracted');
+        $totalMapped = (clone $completedQuery)->sum('records_mapped');
+        $totalWritten = (clone $completedQuery)->sum('records_written');
+        $totalFailed = (clone $completedQuery)->sum('records_failed');
+        $avgCoverage = (clone $completedQuery)->whereNotNull('mapping_coverage')->avg('mapping_coverage');
+
+        // Recent runs (last 20 across all connections)
+        $recentRuns = FhirSyncRun::with('triggeredBy:id,name', 'connection:id,site_name,site_key')
+            ->orderByDesc('created_at')
+            ->limit(20)
+            ->get();
+
+        // Per-connection summary
+        $connectionSummaries = $connections->map(fn (FhirConnection $c) => [
+            'id'               => $c->id,
+            'site_name'        => $c->site_name,
+            'site_key'         => $c->site_key,
+            'ehr_vendor'       => $c->ehr_vendor,
+            'is_active'        => $c->is_active,
+            'last_sync_at'     => $c->last_sync_at,
+            'last_sync_status' => $c->last_sync_status,
+            'last_sync_records' => $c->last_sync_records,
+            'total_runs'       => $c->sync_runs_count,
+        ]);
+
+        // Sync timeline (last 30 days, runs per day)
+        $timeline = FhirSyncRun::where('created_at', '>=', now()->subDays(30))
+            ->selectRaw("DATE(created_at) as date, status, COUNT(*) as count")
+            ->groupByRaw('DATE(created_at), status')
+            ->orderBy('date')
+            ->get()
+            ->groupBy('date')
+            ->map(fn ($group) => [
+                'date'      => $group->first()->date,
+                'completed' => $group->where('status', 'completed')->sum('count'),
+                'failed'    => $group->where('status', 'failed')->sum('count'),
+                'total'     => $group->sum('count'),
+            ])
+            ->values();
+
+        return response()->json([
+            'data' => [
+                'summary' => [
+                    'total_connections'  => $totalConnections,
+                    'active_connections' => $activeConnections,
+                    'total_runs'         => $totalRuns,
+                    'completed_runs'     => $completedRuns,
+                    'failed_runs'        => $failedRuns,
+                    'active_runs'        => $activeRuns,
+                    'total_extracted'    => (int) $totalExtracted,
+                    'total_mapped'       => (int) $totalMapped,
+                    'total_written'      => (int) $totalWritten,
+                    'total_failed'       => (int) $totalFailed,
+                    'avg_coverage'       => $avgCoverage ? round((float) $avgCoverage, 2) : null,
+                ],
+                'connections' => $connectionSummaries,
+                'recent_runs' => $recentRuns,
+                'timeline'    => $timeline,
+            ],
+        ]);
     }
 
     // ──────────────────────────────────────────────────────────────────────────

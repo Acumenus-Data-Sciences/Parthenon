@@ -438,7 +438,12 @@ Route::prefix('v1')->group(function () {
                 Route::post('/{fhirConnection}/test', [FhirConnectionController::class, 'testConnection']);
                 Route::post('/{fhirConnection}/sync', [FhirConnectionController::class, 'startSync']);
                 Route::get('/{fhirConnection}/sync-runs', [FhirConnectionController::class, 'syncRuns']);
+                Route::get('/{fhirConnection}/sync-runs/{syncRun}', [FhirConnectionController::class, 'syncRunDetail']);
             });
+
+            // ── FHIR Sync Dashboard (super-admin only) ──────────────────
+            Route::middleware('role:super-admin')
+                ->get('/fhir-sync/dashboard', [FhirConnectionController::class, 'syncDashboard']);
         });
     });
 });

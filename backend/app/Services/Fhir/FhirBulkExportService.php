@@ -20,7 +20,7 @@ class FhirBulkExportService
     /**
      * Kick off a FHIR Bulk Data $export and return the polling URL.
      */
-    public function startExport(FhirConnection $connection, FhirSyncRun $run): string
+    public function startExport(FhirConnection $connection, FhirSyncRun $run, bool $forceFull = false): string
     {
         $token = $this->auth->getAccessToken($connection);
         $accessToken = $token['access_token'];
@@ -40,8 +40,8 @@ class FhirBulkExportService
             ?: 'Patient,Condition,Encounter,MedicationRequest,Observation,Procedure,Immunization,AllergyIntolerance,DiagnosticReport';
         $params['_type'] = $resourceTypes;
 
-        // Incremental: use _since if enabled and we have a last sync timestamp
-        if ($connection->incremental_enabled && $connection->last_sync_at) {
+        // Incremental: use _since if enabled and we have a last sync timestamp (unless forced full)
+        if (!$forceFull && $connection->incremental_enabled && $connection->last_sync_at) {
             $params['_since'] = $connection->last_sync_at->toIso8601String();
             $run->update(['since_param' => $connection->last_sync_at]);
         }

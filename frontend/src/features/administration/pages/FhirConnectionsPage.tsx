@@ -18,7 +18,9 @@ import {
   Download,
   FileText,
   BarChart3,
+  Activity,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Panel, MetricCard } from "@/components/ui";
 import {
   useFhirConnections,
@@ -105,13 +107,20 @@ function SyncRunRow({ run }: { run: FhirSyncRun }) {
 // ──────────────────────────────────────────────────────────────────────────────
 
 function SyncRunsPanel({ connectionId }: { connectionId: number }) {
-  const { data: runs, isLoading } = useFhirSyncRuns(connectionId);
+  const { data: runs, isLoading } = useFhirSyncRuns(
+    connectionId,
+    // Auto-refresh every 10s if there are active runs
+    undefined, // initial — will be overridden below
+  );
+  const hasActive = runs?.some((r) => ["pending", "exporting", "downloading", "processing"].includes(r.status));
+  const { data: liveRuns } = useFhirSyncRuns(connectionId, hasActive ? 10_000 : undefined);
+  const displayRuns = liveRuns ?? runs;
 
   if (isLoading) {
     return <div className="flex items-center gap-2 py-2 text-xs text-[#5A5650]"><Loader2 size={12} className="animate-spin" /> Loading sync history...</div>;
   }
 
-  if (!runs || runs.length === 0) {
+  if (!displayRuns || displayRuns.length === 0) {
     return <p className="text-xs text-[#5A5650] py-2">No sync runs yet.</p>;
   }
 
@@ -123,7 +132,7 @@ function SyncRunsPanel({ connectionId }: { connectionId: number }) {
         <span className="min-w-[60px]">Duration</span>
         <span>Metrics</span>
       </div>
-      {runs.slice(0, 10).map((run) => (
+      {displayRuns.slice(0, 10).map((run) => (
         <SyncRunRow key={run.id} run={run} />
       ))}
     </div>
@@ -319,6 +328,7 @@ function ConnectionCard({
 }) {
   const [expanded, setExpanded] = useState(false);
   const [showRuns, setShowRuns] = useState(false);
+  const [showSyncMenu, setShowSyncMenu] = useState(false);
   const [testResult, setTestResult] = useState<FhirTestResult | null>(null);
   const [syncError, setSyncError] = useState("");
   const deleteMut = useDeleteFhirConnection();
@@ -326,6 +336,8 @@ function ConnectionCard({
   const syncMut = useStartFhirSync();
 
   const isSyncing = ["pending", "exporting", "downloading", "processing", "running"].includes(conn.last_sync_status ?? "");
+  const canSync = conn.is_active && conn.has_private_key && !isSyncing && !syncMut.isPending;
+  const hasLastSync = !!conn.last_sync_at;
 
   async function handleTest() {
     setTestResult(null);
@@ -333,10 +345,11 @@ function ConnectionCard({
     setTestResult(result);
   }
 
-  async function handleSync() {
+  async function handleSync(forceFull = false) {
     setSyncError("");
+    setShowSyncMenu(false);
     try {
-      await syncMut.mutateAsync(conn.id);
+      await syncMut.mutateAsync({ id: conn.id, forceFull });
       setShowRuns(true);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Failed to start sync";
@@ -366,17 +379,59 @@ function ConnectionCard({
         </div>
 
         <div className="flex items-center gap-1 flex-shrink-0">
-          {/* Start Sync */}
-          <button
-            type="button"
-            onClick={handleSync}
-            disabled={syncMut.isPending || isSyncing || !conn.is_active || !conn.has_private_key}
-            title={!conn.is_active ? "Activate connection first" : !conn.has_private_key ? "Upload a private key first" : isSyncing ? "Sync in progress" : "Start Bulk Data Sync"}
-            className="inline-flex items-center gap-1 px-2 py-1.5 rounded text-xs font-medium bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-          >
-            {syncMut.isPending || isSyncing ? <Loader2 size={12} className="animate-spin" /> : <RefreshCw size={12} />}
-            Sync
-          </button>
+          {/* Start Sync — dropdown with incremental vs full */}
+          <div className="relative">
+            <div className="flex">
+              <button
+                type="button"
+                onClick={() => handleSync(false)}
+                disabled={!canSync}
+                title={!conn.is_active ? "Activate connection first" : !conn.has_private_key ? "Upload a private key first" : isSyncing ? "Sync in progress" : conn.incremental_enabled && hasLastSync ? "Incremental Sync (only new data)" : "Full Sync"}
+                className="inline-flex items-center gap-1 px-2 py-1.5 rounded-l text-xs font-medium bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+              >
+                {syncMut.isPending || isSyncing ? <Loader2 size={12} className="animate-spin" /> : <RefreshCw size={12} />}
+                {conn.incremental_enabled && hasLastSync ? "Sync" : "Full Sync"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowSyncMenu(!showSyncMenu)}
+                disabled={!canSync}
+                className="inline-flex items-center px-1 py-1.5 rounded-r border-l border-blue-400/20 bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+              >
+                <ChevronDown size={10} />
+              </button>
+            </div>
+            {showSyncMenu && (
+              <div className="absolute right-0 mt-1 w-48 rounded-lg border border-[#232328] bg-[#151518] shadow-xl z-20">
+                <button
+                  type="button"
+                  onClick={() => handleSync(false)}
+                  className="w-full px-3 py-2 text-left text-xs hover:bg-[#1E1E23] transition-colors rounded-t-lg"
+                >
+                  <div className="font-medium text-[#F0EDE8]">
+                    {conn.incremental_enabled && hasLastSync ? "Incremental Sync" : "Full Sync"}
+                  </div>
+                  <div className="text-[10px] text-[#5A5650] mt-0.5">
+                    {conn.incremental_enabled && hasLastSync
+                      ? "Only new/updated data since last sync"
+                      : "Download all data from EHR"}
+                  </div>
+                </button>
+                {conn.incremental_enabled && hasLastSync && (
+                  <button
+                    type="button"
+                    onClick={() => handleSync(true)}
+                    className="w-full px-3 py-2 text-left text-xs hover:bg-[#1E1E23] transition-colors border-t border-[#232328] rounded-b-lg"
+                  >
+                    <div className="font-medium text-amber-400">Force Full Sync</div>
+                    <div className="text-[10px] text-[#5A5650] mt-0.5">
+                      Re-download all data, dedup on write
+                    </div>
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
           <button type="button" onClick={handleTest} disabled={testMut.isPending} title="Test connection" className="p-1.5 rounded text-[#5A5650] hover:text-[#2DD4BF] hover:bg-[#2DD4BF]/10 transition-colors disabled:opacity-30">
             {testMut.isPending ? <Loader2 size={14} className="animate-spin" /> : <Play size={14} />}
           </button>
@@ -461,7 +516,7 @@ function ConnectionCard({
           <div><span className="text-[#5A5650]">Scopes:</span> <span className="text-[#C5C0B8]">{conn.scopes}</span></div>
           <div><span className="text-[#5A5650]">Group ID:</span> <span className="text-[#C5C0B8] font-mono">{conn.group_id || "—"}</span></div>
           <div><span className="text-[#5A5650]">Resource types:</span> <span className="text-[#C5C0B8]">{conn.export_resource_types || "All supported"}</span></div>
-          <div><span className="text-[#5A5650]">Incremental:</span> <span className="text-[#C5C0B8]">{conn.incremental_enabled ? "Yes" : "No"}</span></div>
+          <div><span className="text-[#5A5650]">Incremental:</span> <span className="text-[#C5C0B8]">{conn.incremental_enabled ? "Enabled" : "Disabled"}</span>{conn.incremental_enabled && conn.last_sync_at && <span className="text-[#5A5650]"> (since {formatDate(conn.last_sync_at)})</span>}</div>
           <div><span className="text-[#5A5650]">Target source:</span> <span className="text-[#C5C0B8]">{conn.target_source?.source_name ?? "Not set"}</span></div>
           <div><span className="text-[#5A5650]">Sync runs:</span> <span className="text-[#C5C0B8]">{conn.sync_runs_count ?? 0}</span></div>
         </div>
@@ -496,14 +551,23 @@ export default function FhirConnectionsPage() {
             Configure SMART Backend Services connections for FHIR R4 Bulk Data extraction from Epic, Cerner, and other EHR systems.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => { setDialogConn(undefined); setShowDialog(true); }}
-          className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-4 py-2.5 text-sm font-medium text-[#0E0E11] hover:bg-[#26B8A5] transition-colors"
-        >
-          <Plus size={16} />
-          Add Connection
-        </button>
+        <div className="flex items-center gap-2">
+          <Link
+            to="/admin/fhir-sync-monitor"
+            className="inline-flex items-center gap-2 rounded-lg border border-[#232328] px-4 py-2.5 text-sm font-medium text-[#C5C0B8] hover:bg-[#232328] transition-colors"
+          >
+            <Activity size={16} />
+            Sync Monitor
+          </Link>
+          <button
+            type="button"
+            onClick={() => { setDialogConn(undefined); setShowDialog(true); }}
+            className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-4 py-2.5 text-sm font-medium text-[#0E0E11] hover:bg-[#26B8A5] transition-colors"
+          >
+            <Plus size={16} />
+            Add Connection
+          </button>
+        </div>
       </div>
 
       {/* Stats */}
