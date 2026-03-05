@@ -41,7 +41,9 @@ use App\Http\Controllers\Api\V1\StudyCohortController;
 use App\Http\Controllers\Api\V1\StudyController;
 use App\Http\Controllers\Api\V1\StudyMilestoneController;
 use App\Http\Controllers\Api\V1\StudySiteController;
+use App\Http\Controllers\Api\V1\StudyResultController;
 use App\Http\Controllers\Api\V1\StudyStatsController;
+use App\Http\Controllers\Api\V1\StudySynthesisController;
 use App\Http\Controllers\Api\V1\StudyTeamController;
 use App\Http\Controllers\Api\V1\VocabularyController;
 use Illuminate\Support\Facades\Route;
@@ -273,6 +275,17 @@ Route::prefix('v1')->group(function () {
             Route::put('artifacts/{artifact}', [StudyArtifactController::class, 'update']);
             Route::delete('artifacts/{artifact}', [StudyArtifactController::class, 'destroy']);
 
+            // Results
+            Route::get('results', [StudyResultController::class, 'index']);
+            Route::get('results/{result}', [StudyResultController::class, 'show']);
+            Route::put('results/{result}', [StudyResultController::class, 'update']);
+
+            // Synthesis
+            Route::get('synthesis', [StudySynthesisController::class, 'index']);
+            Route::post('synthesis', [StudySynthesisController::class, 'store']);
+            Route::get('synthesis/{synthesis}', [StudySynthesisController::class, 'show']);
+            Route::delete('synthesis/{synthesis}', [StudySynthesisController::class, 'destroy']);
+
             // Activity log (read-only)
             Route::get('activity', [StudyActivityController::class, 'index']);
         });
@@ -340,6 +353,7 @@ Route::prefix('v1')->group(function () {
             Route::post('suggest-criteria', [AbbyAiController::class, 'suggestCriteria']);
             Route::post('explain', [AbbyAiController::class, 'explain']);
             Route::post('refine', [AbbyAiController::class, 'refine']);
+            Route::post('suggest-protocol', [AbbyAiController::class, 'suggestProtocol']);
         });
 
         // ── Admin panel (requires admin or super-admin role) ───────────────

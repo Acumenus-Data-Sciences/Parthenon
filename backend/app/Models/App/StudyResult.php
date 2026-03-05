@@ -65,7 +65,7 @@ class StudyResult extends Model
     /**
      * @return BelongsTo<User, $this>
      */
-    public function reviewedBy(): BelongsTo
+    public function reviewedByUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'reviewed_by');
     }

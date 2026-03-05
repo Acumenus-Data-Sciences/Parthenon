@@ -733,4 +733,111 @@ class AbbyAiService
             'warnings' => $warnings,
         ];
     }
+
+    /**
+     * Generate AI-assisted study protocol suggestions.
+     *
+     * Uses MedGemma to suggest scientific rationale, hypothesis,
+     * and design considerations based on the study title and description.
+     */
+    public function suggestStudyProtocol(
+        string $title,
+        string $description,
+        string $studyType,
+    ): array {
+        $prompt = <<<PROMPT
+You are a clinical research methodologist helping design an OHDSI observational study.
+
+Study Title: {$title}
+Study Type: {$studyType}
+Description: {$description}
+
+Please provide the following in JSON format with these exact keys:
+{
+  "scientific_rationale": "A 2-3 sentence scientific rationale explaining why this study is important and what gap in knowledge it addresses.",
+  "hypothesis": "A clear, testable hypothesis statement for the study.",
+  "primary_objective": "The primary objective of the study in one sentence.",
+  "secondary_objectives": ["List 2-3 secondary objectives as separate strings."],
+  "design_considerations": "Key methodological considerations for this study design (confounders, time windows, cohort definitions, outcome definitions). 2-3 sentences.",
+  "suggested_study_design": "The recommended study design approach (e.g., cohort study, case-control, self-controlled case series, etc.) with brief justification."
+}
+
+Respond ONLY with valid JSON. No markdown, no code fences, no explanation outside the JSON.
+PROMPT;
+
+        try {
+            $result = $this->aiService->abbyChat(
+                message: $prompt,
+                pageContext: 'studies',
+                pageData: ['study_type' => $studyType, 'title' => $title],
+            );
+
+            $reply = $result['reply'] ?? '';
+
+            // Try to extract JSON from the reply
+            $json = $this->extractJson($reply);
+            if ($json) {
+                return [
+                    'suggestions' => $json,
+                    'raw_reply' => $reply,
+                    'source' => 'ai',
+                ];
+            }
+
+            // If JSON extraction fails, return the raw reply as rationale
+            return [
+                'suggestions' => [
+                    'scientific_rationale' => $reply,
+                    'hypothesis' => null,
+                    'primary_objective' => null,
+                    'secondary_objectives' => [],
+                    'design_considerations' => null,
+                    'suggested_study_design' => null,
+                ],
+                'raw_reply' => $reply,
+                'source' => 'ai_fallback',
+            ];
+        } catch (\Throwable $e) {
+            Log::warning('AI study protocol suggestion failed', [
+                'error' => $e->getMessage(),
+                'title' => $title,
+            ]);
+
+            return [
+                'suggestions' => null,
+                'error' => 'AI service is currently unavailable. Please fill in the fields manually.',
+                'source' => 'error',
+            ];
+        }
+    }
+
+    /**
+     * Extract JSON object from a string that may contain markdown or extra text.
+     */
+    private function extractJson(string $text): ?array
+    {
+        // Try direct decode first
+        $decoded = json_decode($text, true);
+        if (is_array($decoded)) {
+            return $decoded;
+        }
+
+        // Try to find JSON block in markdown code fences
+        if (preg_match('/```(?:json)?\s*\n?([\s\S]*?)\n?```/', $text, $m)) {
+            $decoded = json_decode(trim($m[1]), true);
+            if (is_array($decoded)) {
+                return $decoded;
+            }
+        }
+
+        // Try to find first { ... } block
+        if (preg_match('/\{[\s\S]*\}/', $text, $m)) {
+            $decoded = json_decode($m[0], true);
+            if (is_array($decoded)) {
+                return $decoded;
+            }
+        }
+
+        return null;
+    }
 }

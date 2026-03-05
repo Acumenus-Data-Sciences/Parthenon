@@ -18,8 +18,10 @@ import {
   Wrench,
   Plus,
   X,
+  Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import apiClient from "@/lib/api-client";
 import { useCreateStudy } from "../hooks/useStudies";
 import type { StudyCreatePayload } from "../types/study";
 
@@ -101,6 +103,10 @@ export default function StudyCreatePage() {
   const [secObjInput, setSecObjInput] = useState("");
   const [fundingSource, setFundingSource] = useState("");
 
+  // AI suggestion
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState("");
+
   // Step 3: Team & Timeline
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -128,6 +134,33 @@ export default function StudyCreatePage() {
       setSecondaryObjectives([...secondaryObjectives, s]);
     }
     setSecObjInput("");
+  };
+
+  const handleAiSuggest = async () => {
+    if (!title.trim() || !studyType) return;
+    setAiLoading(true);
+    setAiError("");
+    try {
+      const { data } = await apiClient.post("/abby/suggest-protocol", {
+        title: title.trim(),
+        description: description.trim(),
+        study_type: studyType,
+      });
+      const s = data.suggestions;
+      if (s) {
+        if (s.scientific_rationale && !rationale) setRationale(s.scientific_rationale);
+        if (s.hypothesis && !hypothesis) setHypothesis(s.hypothesis);
+        if (s.primary_objective && !primaryObjective) setPrimaryObjective(s.primary_objective);
+        if (s.secondary_objectives?.length && secondaryObjectives.length === 0) {
+          setSecondaryObjectives(s.secondary_objectives);
+        }
+      }
+      if (data.error) setAiError(data.error);
+    } catch {
+      setAiError("AI service unavailable. Please fill in fields manually.");
+    } finally {
+      setAiLoading(false);
+    }
   };
 
   const handleCreate = (startProtocol: boolean) => {
@@ -307,6 +340,29 @@ export default function StudyCreatePage() {
 
   const renderScience = () => (
     <div className="space-y-5">
+      {/* AI Suggest Banner */}
+      <div className="flex items-center justify-between rounded-lg border border-[#A78BFA]/20 bg-[#A78BFA]/5 px-4 py-3">
+        <div className="flex items-center gap-2">
+          <Sparkles size={16} className="text-[#A78BFA]" />
+          <span className="text-sm text-[#C5C0B8]">
+            Let AI suggest scientific design fields based on your study title
+          </span>
+        </div>
+        <button
+          type="button"
+          onClick={handleAiSuggest}
+          disabled={aiLoading || !title.trim() || !studyType}
+          className="btn btn-sm"
+          style={{ backgroundColor: "#A78BFA20", color: "#A78BFA", borderColor: "#A78BFA40" }}
+        >
+          {aiLoading ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
+          {aiLoading ? "Generating..." : "Generate with AI"}
+        </button>
+      </div>
+      {aiError && (
+        <p className="text-xs text-[#E85A6B]">{aiError}</p>
+      )}
+
       <div>
         <label className="form-label">Scientific Rationale</label>
         <textarea

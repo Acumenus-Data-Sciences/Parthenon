@@ -20,6 +20,7 @@ import {
   Edit3,
   Save,
   X,
+  Layers,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { StudyDesigner } from "../components/StudyDesigner";
@@ -31,6 +32,7 @@ import { StudyCohortsTab } from "../components/StudyCohortsTab";
 import { StudyMilestonesTab } from "../components/StudyMilestonesTab";
 import { StudyArtifactsTab } from "../components/StudyArtifactsTab";
 import { StudyActivityTab } from "../components/StudyActivityTab";
+import { StudyResultsTab } from "../components/StudyResultsTab";
 import {
   useStudy,
   useUpdateStudy,
@@ -75,12 +77,13 @@ const STATUS_LABELS: Record<string, string> = {
   withdrawn: "Withdrawn",
 };
 
-type TabKey = "overview" | "design" | "analyses" | "progress" | "sites" | "team" | "cohorts" | "milestones" | "artifacts" | "activity";
+type TabKey = "overview" | "design" | "analyses" | "results" | "progress" | "sites" | "team" | "cohorts" | "milestones" | "artifacts" | "activity";
 
 const TABS: { key: TabKey; label: string; icon: typeof Settings }[] = [
   { key: "overview", label: "Overview", icon: Settings },
   { key: "design", label: "Design", icon: Edit3 },
   { key: "analyses", label: "Analyses", icon: BarChart3 },
+  { key: "results", label: "Results", icon: Layers },
   { key: "progress", label: "Progress", icon: Play },
   { key: "sites", label: "Sites", icon: MapPin },
   { key: "team", label: "Team", icon: Users },
@@ -300,6 +303,7 @@ export default function StudyDetailPage() {
       )}
       {activeTab === "design" && <StudyDesigner study={study} />}
       {activeTab === "analyses" && <StudyAnalysesTab studyId={study.id} studySlug={study.slug} />}
+      {activeTab === "results" && <StudyResultsTab slug={study.slug} />}
       {activeTab === "progress" && <StudyDashboard analyses={analyses} progress={progress} />}
       {activeTab === "sites" && <StudySitesTab slug={study.slug} />}
       {activeTab === "team" && <StudyTeamTab slug={study.slug} />}

@@ -24,6 +24,18 @@ use App\Services\Analysis\PatientProfileService;
 use App\Services\Analysis\PredictionService;
 use App\Services\Analysis\StudyService;
 use App\Services\SqlRenderer\SqlRendererService;
+use App\Models\App\Study;
+use App\Models\App\StudyArtifact;
+use App\Models\App\StudyCohort;
+use App\Models\App\StudyComment;
+use App\Models\App\StudyExecution;
+use App\Models\App\StudyMilestone;
+use App\Models\App\StudyResult;
+use App\Models\App\StudySite;
+use App\Models\App\StudySynthesis;
+use App\Models\App\StudyTeamMember;
+use App\Observers\StudyObserver;
+use App\Observers\StudySubResourceObserver;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -117,6 +129,25 @@ class AppServiceProvider extends ServiceProvider
                 'mail.mailers.resend.transport'   => 'resend',
                 'resend.api_key'                  => $key,
             ]);
+        }
+
+        // Study activity logging observers
+        Study::observe(StudyObserver::class);
+
+        $subResourceModels = [
+            StudySite::class,
+            StudyTeamMember::class,
+            StudyCohort::class,
+            StudyExecution::class,
+            StudyResult::class,
+            StudySynthesis::class,
+            StudyArtifact::class,
+            StudyMilestone::class,
+            StudyComment::class,
+        ];
+
+        foreach ($subResourceModels as $model) {
+            $model::observe(StudySubResourceObserver::class);
         }
     }
 }

@@ -47,7 +47,7 @@ class StudySynthesis extends Model
     /**
      * @return BelongsTo<User, $this>
      */
-    public function generatedBy(): BelongsTo
+    public function generatedByUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'generated_by');
     }

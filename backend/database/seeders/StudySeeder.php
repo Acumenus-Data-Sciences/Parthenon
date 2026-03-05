@@ -2,7 +2,15 @@
 
 namespace Database\Seeders;
 
+use App\Models\App\CohortDefinition;
+use App\Models\App\Source;
 use App\Models\App\Study;
+use App\Models\App\StudyActivityLog;
+use App\Models\App\StudyArtifact;
+use App\Models\App\StudyCohort;
+use App\Models\App\StudyMilestone;
+use App\Models\App\StudySite;
+use App\Models\App\StudyTeamMember;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
@@ -1166,5 +1174,404 @@ class StudySeeder extends Seeder
         }
 
         $this->command->info("StudySeeder: {$seeded} OHDSI network studies seeded.");
+
+        // ── Sub-resources: team, sites, cohorts, milestones, artifacts, activity ──
+        $this->seedSubResources($adminId);
+    }
+
+    /**
+     * Seed team members, sites, cohorts, milestones, artifacts, and activity logs
+     * for a representative subset of studies.
+     */
+    private function seedSubResources(int $adminId): void
+    {
+        // Lookup sources by key (may not exist in all environments)
+        $sources = Source::pluck('id', 'source_key')->toArray();
+        $cohorts = CohortDefinition::pluck('id', 'name')->toArray();
+
+        // Select 6 representative studies for sub-resource population
+        $studyMap = [];
+        $slugs = [
+            'legend-t2dm' => 'LEGEND-T2DM: Large-scale Evidence Generation for Diabetes Management',
+            'legend-htn' => 'LEGEND-HTN Step Care: Hypertension Treatment Pathway Effectiveness',
+            'covax-myocarditis' => 'COVID-19 Vaccine Safety Surveillance: mRNA Boosters and Myocarditis',
+            'hf-readmit' => 'Heart Failure 30-Day Readmission Risk Prediction',
+            'gde-drs' => 'Diabetic Retinopathy Screening: Guideline-Driven Evidence (GDE 2025)',
+            'cap-pathways' => 'Community-Acquired Pneumonia Treatment Pathway Analysis',
+        ];
+
+        foreach ($slugs as $key => $title) {
+            $study = Study::where('title', $title)->first();
+            if ($study) {
+                $studyMap[$key] = $study;
+            }
+        }
+
+        if (empty($studyMap)) {
+            $this->command->warn('No studies found for sub-resource seeding — skipping.');
+            return;
+        }
+
+        $this->seedTeamMembers($studyMap, $adminId);
+        $this->seedSites($studyMap, $adminId, $sources);
+        $this->seedCohorts($studyMap, $cohorts);
+        $this->seedMilestones($studyMap, $adminId);
+        $this->seedArtifacts($studyMap, $adminId);
+        $this->seedActivityLogs($studyMap, $adminId);
+
+        $this->command->info('StudySeeder: sub-resources seeded for '.count($studyMap).' studies.');
+    }
+
+    private function seedTeamMembers(array $studyMap, int $adminId): void
+    {
+        $teamDefs = [
+            'legend-t2dm' => [
+                ['role' => 'principal_investigator', 'joined_at' => '2025-05-15'],
+                ['role' => 'data_scientist', 'joined_at' => '2025-06-01'],
+                ['role' => 'statistician', 'joined_at' => '2025-06-01'],
+                ['role' => 'research_coordinator', 'joined_at' => '2025-06-10'],
+                ['role' => 'project_manager', 'joined_at' => '2025-05-20'],
+            ],
+            'legend-htn' => [
+                ['role' => 'principal_investigator', 'joined_at' => '2025-01-15'],
+                ['role' => 'co_investigator', 'joined_at' => '2025-02-01'],
+                ['role' => 'data_scientist', 'joined_at' => '2025-02-15'],
+            ],
+            'covax-myocarditis' => [
+                ['role' => 'principal_investigator', 'joined_at' => '2023-12-01'],
+                ['role' => 'data_scientist', 'joined_at' => '2024-01-10'],
+                ['role' => 'statistician', 'joined_at' => '2024-01-10'],
+                ['role' => 'irb_liaison', 'joined_at' => '2024-01-15'],
+                ['role' => 'project_manager', 'joined_at' => '2023-12-15'],
+            ],
+            'hf-readmit' => [
+                ['role' => 'principal_investigator', 'joined_at' => '2024-12-01'],
+                ['role' => 'data_scientist', 'joined_at' => '2025-01-01'],
+                ['role' => 'co_investigator', 'joined_at' => '2025-01-05'],
+            ],
+            'gde-drs' => [
+                ['role' => 'principal_investigator', 'joined_at' => '2025-01-15'],
+                ['role' => 'data_analyst', 'joined_at' => '2025-02-01'],
+            ],
+            'cap-pathways' => [
+                ['role' => 'principal_investigator', 'joined_at' => '2025-04-15'],
+                ['role' => 'data_scientist', 'joined_at' => '2025-05-01'],
+                ['role' => 'research_coordinator', 'joined_at' => '2025-05-01'],
+            ],
+        ];
+
+        $count = 0;
+        foreach ($teamDefs as $key => $members) {
+            if (! isset($studyMap[$key])) continue;
+            $study = $studyMap[$key];
+
+            foreach ($members as $member) {
+                StudyTeamMember::firstOrCreate(
+                    ['study_id' => $study->id, 'user_id' => $adminId, 'role' => $member['role']],
+                    [
+                        'permissions' => ['view' => true, 'edit' => true, 'execute' => true],
+                        'joined_at' => $member['joined_at'],
+                        'is_active' => true,
+                    ],
+                );
+                $count++;
+            }
+        }
+
+        $this->command->info("  Team members: {$count}");
+    }
+
+    private function seedSites(array $studyMap, int $adminId, array $sources): void
+    {
+        if (empty($sources)) {
+            $this->command->warn('  No sources found — skipping site seeding.');
+            return;
+        }
+
+        // Use whatever sources are available
+        $sourceIds = array_values($sources);
+
+        $siteDefs = [
+            'legend-t2dm' => [
+                ['site_role' => 'coordinating_center', 'status' => 'executing', 'irb_type' => 'expedited', 'irb_approval_date' => '2025-05-28', 'cdm_version' => '5.4', 'patient_count_estimate' => 1200000],
+                ['site_role' => 'data_partner', 'status' => 'executing', 'irb_type' => 'exempt', 'irb_approval_date' => '2025-06-15', 'cdm_version' => '5.4', 'patient_count_estimate' => 850000],
+            ],
+            'legend-htn' => [
+                ['site_role' => 'coordinating_center', 'status' => 'results_submitted', 'irb_type' => 'expedited', 'irb_approval_date' => '2025-01-30', 'cdm_version' => '5.4', 'patient_count_estimate' => 2100000],
+            ],
+            'covax-myocarditis' => [
+                ['site_role' => 'coordinating_center', 'status' => 'completed', 'irb_type' => 'full_board', 'irb_approval_date' => '2024-01-20', 'cdm_version' => '5.4', 'patient_count_estimate' => 3500000],
+                ['site_role' => 'data_partner', 'status' => 'completed', 'irb_type' => 'expedited', 'irb_approval_date' => '2024-02-10', 'cdm_version' => '5.3', 'patient_count_estimate' => 1800000],
+            ],
+            'hf-readmit' => [
+                ['site_role' => 'coordinating_center', 'status' => 'results_submitted', 'irb_type' => 'exempt', 'irb_approval_date' => '2025-01-10', 'cdm_version' => '5.4', 'patient_count_estimate' => 950000],
+            ],
+            'gde-drs' => [
+                ['site_role' => 'coordinating_center', 'status' => 'executing', 'irb_type' => 'waiver', 'irb_approval_date' => '2025-02-05', 'cdm_version' => '5.4', 'patient_count_estimate' => 1500000],
+            ],
+            'cap-pathways' => [
+                ['site_role' => 'coordinating_center', 'status' => 'executing', 'irb_type' => 'not_required', 'cdm_version' => '5.4', 'patient_count_estimate' => 780000],
+            ],
+        ];
+
+        $count = 0;
+        foreach ($siteDefs as $key => $sites) {
+            if (! isset($studyMap[$key])) continue;
+            $study = $studyMap[$key];
+
+            foreach ($sites as $i => $site) {
+                $sourceId = $sourceIds[$i % count($sourceIds)];
+
+                StudySite::firstOrCreate(
+                    ['study_id' => $study->id, 'source_id' => $sourceId],
+                    [
+                        'site_role' => $site['site_role'],
+                        'status' => $site['status'],
+                        'irb_type' => $site['irb_type'] ?? null,
+                        'irb_approval_date' => $site['irb_approval_date'] ?? null,
+                        'irb_expiry_date' => isset($site['irb_approval_date']) ? date('Y-m-d', strtotime($site['irb_approval_date'].' +1 year')) : null,
+                        'dua_signed_at' => isset($site['irb_approval_date']) ? $site['irb_approval_date'] : null,
+                        'site_contact_user_id' => $adminId,
+                        'cdm_version' => $site['cdm_version'] ?? null,
+                        'vocabulary_version' => 'v5.0 2025-01-01',
+                        'data_freshness_date' => '2025-12-31',
+                        'patient_count_estimate' => $site['patient_count_estimate'] ?? null,
+                        'notes' => null,
+                    ],
+                );
+                $count++;
+            }
+        }
+
+        $this->command->info("  Sites: {$count}");
+    }
+
+    private function seedCohorts(array $studyMap, array $cohorts): void
+    {
+        if (empty($cohorts)) {
+            $this->command->warn('  No cohort definitions found — skipping cohort seeding.');
+            return;
+        }
+
+        $cohortDefs = [
+            'legend-t2dm' => [
+                ['cohort' => 'Type 2 Diabetes Mellitus', 'role' => 'target', 'label' => 'T2DM patients on metformin monotherapy'],
+                ['cohort' => 'Chronic Kidney Disease Stage 3-5 with eGFR Monitoring', 'role' => 'outcome', 'label' => 'CKD progression outcome'],
+            ],
+            'legend-htn' => [
+                ['cohort' => 'Essential Hypertension with Antihypertensive Therapy', 'role' => 'target', 'label' => 'Hypertension patients initiating treatment'],
+                ['cohort' => 'Coronary Artery Disease with Statin Therapy', 'role' => 'outcome', 'label' => 'Cardiovascular composite outcome'],
+            ],
+            'covax-myocarditis' => [
+                ['cohort' => 'Heart Failure with BNP Monitoring', 'role' => 'outcome', 'label' => 'Myocarditis/pericarditis events (proxy)'],
+            ],
+            'hf-readmit' => [
+                ['cohort' => 'Heart Failure with BNP Monitoring', 'role' => 'target', 'label' => 'Heart failure index hospitalization cohort'],
+                ['cohort' => 'Type 2 Diabetes Mellitus', 'role' => 'subgroup', 'label' => 'Diabetic HF subgroup'],
+                ['cohort' => 'Chronic Kidney Disease Stage 3-5 with eGFR Monitoring', 'role' => 'subgroup', 'label' => 'CKD comorbidity subgroup'],
+            ],
+            'gde-drs' => [
+                ['cohort' => 'Type 2 Diabetes Mellitus', 'role' => 'target', 'label' => 'Diabetic patients for screening assessment'],
+            ],
+            'cap-pathways' => [
+                ['cohort' => 'Essential Hypertension with Antihypertensive Therapy', 'role' => 'subgroup', 'label' => 'Hypertensive CAP patients (comorbidity subgroup)'],
+            ],
+        ];
+
+        $count = 0;
+        foreach ($cohortDefs as $key => $defs) {
+            if (! isset($studyMap[$key])) continue;
+            $study = $studyMap[$key];
+
+            foreach ($defs as $order => $def) {
+                $cohortId = $cohorts[$def['cohort']] ?? null;
+                if (! $cohortId) continue;
+
+                StudyCohort::firstOrCreate(
+                    ['study_id' => $study->id, 'cohort_definition_id' => $cohortId, 'role' => $def['role']],
+                    [
+                        'label' => $def['label'],
+                        'sort_order' => $order,
+                    ],
+                );
+                $count++;
+            }
+        }
+
+        $this->command->info("  Cohorts: {$count}");
+    }
+
+    private function seedMilestones(array $studyMap, int $adminId): void
+    {
+        $milestoneDefs = [
+            'legend-t2dm' => [
+                ['title' => 'Protocol Finalized', 'type' => 'protocol_finalized', 'status' => 'completed', 'target' => '2025-05-25', 'actual' => '2025-05-28'],
+                ['title' => 'IRB Approval', 'type' => 'irb_approved', 'status' => 'completed', 'target' => '2025-06-15', 'actual' => '2025-06-12'],
+                ['title' => 'Feasibility Complete', 'type' => 'feasibility_complete', 'status' => 'completed', 'target' => '2025-07-01', 'actual' => '2025-07-03'],
+                ['title' => 'Code Validated', 'type' => 'code_validated', 'status' => 'completed', 'target' => '2025-07-15', 'actual' => '2025-07-18'],
+                ['title' => 'Execution Started', 'type' => 'execution_started', 'status' => 'completed', 'target' => '2025-08-01', 'actual' => '2025-08-01'],
+                ['title' => 'All Sites Complete', 'type' => 'all_sites_complete', 'status' => 'in_progress', 'target' => '2026-06-30', 'actual' => null],
+                ['title' => 'Synthesis Complete', 'type' => 'synthesis_complete', 'status' => 'pending', 'target' => '2026-09-30', 'actual' => null],
+                ['title' => 'Manuscript Submitted', 'type' => 'manuscript_submitted', 'status' => 'pending', 'target' => '2026-12-31', 'actual' => null],
+            ],
+            'legend-htn' => [
+                ['title' => 'Protocol Finalized', 'type' => 'protocol_finalized', 'status' => 'completed', 'target' => '2025-01-20', 'actual' => '2025-01-18'],
+                ['title' => 'IRB Approval', 'type' => 'irb_approved', 'status' => 'completed', 'target' => '2025-02-15', 'actual' => '2025-02-10'],
+                ['title' => 'All Sites Complete', 'type' => 'all_sites_complete', 'status' => 'completed', 'target' => '2025-11-30', 'actual' => '2025-12-05'],
+                ['title' => 'Synthesis Complete', 'type' => 'synthesis_complete', 'status' => 'in_progress', 'target' => '2026-03-31', 'actual' => null],
+            ],
+            'covax-myocarditis' => [
+                ['title' => 'Protocol Finalized', 'type' => 'protocol_finalized', 'status' => 'completed', 'target' => '2024-02-15', 'actual' => '2024-02-28'],
+                ['title' => 'All Sites Complete', 'type' => 'all_sites_complete', 'status' => 'completed', 'target' => '2025-06-30', 'actual' => '2025-07-15'],
+                ['title' => 'Manuscript Submitted', 'type' => 'manuscript_submitted', 'status' => 'completed', 'target' => '2025-08-31', 'actual' => '2025-09-10'],
+                ['title' => 'Published', 'type' => 'published', 'status' => 'completed', 'target' => '2025-10-31', 'actual' => '2025-09-30'],
+            ],
+            'hf-readmit' => [
+                ['title' => 'Protocol Finalized', 'type' => 'protocol_finalized', 'status' => 'completed', 'target' => '2025-02-01', 'actual' => '2025-02-15'],
+                ['title' => 'Execution Started', 'type' => 'execution_started', 'status' => 'completed', 'target' => '2025-03-01', 'actual' => '2025-03-05'],
+                ['title' => 'All Sites Complete', 'type' => 'all_sites_complete', 'status' => 'completed', 'target' => '2026-01-31', 'actual' => '2026-02-10'],
+                ['title' => 'Synthesis Complete', 'type' => 'synthesis_complete', 'status' => 'in_progress', 'target' => '2026-04-30', 'actual' => null],
+            ],
+            'gde-drs' => [
+                ['title' => 'Protocol Finalized', 'type' => 'protocol_finalized', 'status' => 'completed', 'target' => '2025-02-01', 'actual' => '2025-01-28'],
+                ['title' => 'Feasibility Complete', 'type' => 'feasibility_complete', 'status' => 'completed', 'target' => '2025-03-15', 'actual' => '2025-03-10'],
+                ['title' => 'Execution Started', 'type' => 'execution_started', 'status' => 'completed', 'target' => '2025-04-01', 'actual' => '2025-04-01'],
+                ['title' => 'All Sites Complete', 'type' => 'all_sites_complete', 'status' => 'pending', 'target' => '2025-12-31', 'actual' => null],
+            ],
+            'cap-pathways' => [
+                ['title' => 'Protocol Finalized', 'type' => 'protocol_finalized', 'status' => 'completed', 'target' => '2025-05-01', 'actual' => '2025-04-28'],
+                ['title' => 'Execution Started', 'type' => 'execution_started', 'status' => 'completed', 'target' => '2025-06-01', 'actual' => '2025-06-01'],
+                ['title' => 'All Sites Complete', 'type' => 'all_sites_complete', 'status' => 'pending', 'target' => '2026-02-28', 'actual' => null],
+            ],
+        ];
+
+        $count = 0;
+        foreach ($milestoneDefs as $key => $milestones) {
+            if (! isset($studyMap[$key])) continue;
+            $study = $studyMap[$key];
+
+            foreach ($milestones as $order => $ms) {
+                StudyMilestone::firstOrCreate(
+                    ['study_id' => $study->id, 'title' => $ms['title']],
+                    [
+                        'milestone_type' => $ms['type'],
+                        'status' => $ms['status'],
+                        'target_date' => $ms['target'],
+                        'actual_date' => $ms['actual'],
+                        'assigned_to' => $adminId,
+                        'sort_order' => $order,
+                    ],
+                );
+                $count++;
+            }
+        }
+
+        $this->command->info("  Milestones: {$count}");
+    }
+
+    private function seedArtifacts(array $studyMap, int $adminId): void
+    {
+        $artifactDefs = [
+            'legend-t2dm' => [
+                ['type' => 'protocol', 'title' => 'LEGEND-T2DM Study Protocol v2.1', 'version' => '2.1', 'mime' => 'application/pdf'],
+                ['type' => 'sap', 'title' => 'Statistical Analysis Plan', 'version' => '1.0', 'mime' => 'application/pdf'],
+                ['type' => 'cohort_json', 'title' => 'T2DM Target Cohort Definition', 'version' => '1.0', 'mime' => 'application/json'],
+                ['type' => 'analysis_package_r', 'title' => 'LEGEND-T2DM R Analysis Package', 'version' => '2.1.0', 'mime' => 'application/zip'],
+            ],
+            'legend-htn' => [
+                ['type' => 'protocol', 'title' => 'LEGEND-HTN Study Protocol v1.2', 'version' => '1.2', 'mime' => 'application/pdf'],
+                ['type' => 'results_report', 'title' => 'Preliminary Results Summary', 'version' => '0.9', 'mime' => 'application/pdf'],
+            ],
+            'covax-myocarditis' => [
+                ['type' => 'protocol', 'title' => 'CoVax-Myocarditis Protocol v3.0', 'version' => '3.0', 'mime' => 'application/pdf'],
+                ['type' => 'manuscript_draft', 'title' => 'Manuscript Draft — NEJM Submission', 'version' => '4.2', 'mime' => 'application/pdf'],
+                ['type' => 'supplementary', 'title' => 'Supplementary Tables and Figures', 'version' => '1.0', 'mime' => 'application/pdf'],
+                ['type' => 'shiny_app_url', 'title' => 'Interactive Results Explorer (Shiny)', 'version' => '1.0', 'mime' => 'text/uri-list'],
+            ],
+            'hf-readmit' => [
+                ['type' => 'protocol', 'title' => 'HF-Readmit Protocol v3.0', 'version' => '3.0', 'mime' => 'application/pdf'],
+                ['type' => 'analysis_package_r', 'title' => 'HF Readmission PLP Package', 'version' => '1.2.0', 'mime' => 'application/zip'],
+                ['type' => 'results_report', 'title' => 'Model Performance Report', 'version' => '1.0', 'mime' => 'application/pdf'],
+            ],
+            'gde-drs' => [
+                ['type' => 'protocol', 'title' => 'GDE-DRS Protocol v1.0', 'version' => '1.0', 'mime' => 'application/pdf'],
+                ['type' => 'data_dictionary', 'title' => 'Data Dictionary — Screening Variables', 'version' => '1.0', 'mime' => 'text/csv'],
+            ],
+            'cap-pathways' => [
+                ['type' => 'protocol', 'title' => 'CAP Treatment Pathways Protocol v1.0', 'version' => '1.0', 'mime' => 'application/pdf'],
+            ],
+        ];
+
+        $count = 0;
+        foreach ($artifactDefs as $key => $artifacts) {
+            if (! isset($studyMap[$key])) continue;
+            $study = $studyMap[$key];
+
+            foreach ($artifacts as $artifact) {
+                StudyArtifact::firstOrCreate(
+                    ['study_id' => $study->id, 'title' => $artifact['title']],
+                    [
+                        'artifact_type' => $artifact['type'],
+                        'version' => $artifact['version'],
+                        'mime_type' => $artifact['mime'],
+                        'uploaded_by' => $adminId,
+                        'is_current' => true,
+                    ],
+                );
+                $count++;
+            }
+        }
+
+        $this->command->info("  Artifacts: {$count}");
+    }
+
+    private function seedActivityLogs(array $studyMap, int $adminId): void
+    {
+        $logDefs = [
+            'legend-t2dm' => [
+                ['action' => 'created', 'occurred_at' => '2025-05-15 09:00:00'],
+                ['action' => 'team_member_added', 'entity_type' => 'StudyTeamMember', 'new_value' => ['role' => 'principal_investigator'], 'occurred_at' => '2025-05-15 09:05:00'],
+                ['action' => 'status_changed', 'old_value' => ['status' => 'draft'], 'new_value' => ['status' => 'protocol_development'], 'occurred_at' => '2025-05-20 14:30:00'],
+                ['action' => 'artifact_uploaded', 'entity_type' => 'StudyArtifact', 'new_value' => ['title' => 'Study Protocol v2.1'], 'occurred_at' => '2025-05-28 10:00:00'],
+                ['action' => 'status_changed', 'old_value' => ['status' => 'protocol_development'], 'new_value' => ['status' => 'feasibility'], 'occurred_at' => '2025-06-01 08:00:00'],
+                ['action' => 'site_added', 'entity_type' => 'StudySite', 'new_value' => ['site_role' => 'coordinating_center'], 'occurred_at' => '2025-06-05 11:00:00'],
+                ['action' => 'cohort_added', 'entity_type' => 'StudyCohort', 'new_value' => ['role' => 'target', 'label' => 'T2DM patients'], 'occurred_at' => '2025-06-10 09:30:00'],
+                ['action' => 'status_changed', 'old_value' => ['status' => 'feasibility'], 'new_value' => ['status' => 'execution'], 'occurred_at' => '2025-08-01 08:00:00'],
+            ],
+            'covax-myocarditis' => [
+                ['action' => 'created', 'occurred_at' => '2023-12-01 10:00:00'],
+                ['action' => 'status_changed', 'old_value' => ['status' => 'draft'], 'new_value' => ['status' => 'execution'], 'occurred_at' => '2024-02-28 09:00:00'],
+                ['action' => 'status_changed', 'old_value' => ['status' => 'execution'], 'new_value' => ['status' => 'synthesis'], 'occurred_at' => '2025-07-15 16:00:00'],
+                ['action' => 'status_changed', 'old_value' => ['status' => 'synthesis'], 'new_value' => ['status' => 'manuscript'], 'occurred_at' => '2025-08-20 10:00:00'],
+                ['action' => 'status_changed', 'old_value' => ['status' => 'manuscript'], 'new_value' => ['status' => 'published'], 'occurred_at' => '2025-09-30 14:00:00'],
+            ],
+            'hf-readmit' => [
+                ['action' => 'created', 'occurred_at' => '2024-12-01 09:00:00'],
+                ['action' => 'status_changed', 'old_value' => ['status' => 'draft'], 'new_value' => ['status' => 'execution'], 'occurred_at' => '2025-03-05 08:00:00'],
+                ['action' => 'status_changed', 'old_value' => ['status' => 'execution'], 'new_value' => ['status' => 'synthesis'], 'occurred_at' => '2026-02-10 16:00:00'],
+                ['action' => 'execution_completed', 'entity_type' => 'StudySite', 'new_value' => ['status' => 'results_submitted'], 'occurred_at' => '2026-02-10 16:05:00'],
+            ],
+        ];
+
+        $count = 0;
+        foreach ($logDefs as $key => $logs) {
+            if (! isset($studyMap[$key])) continue;
+            $study = $studyMap[$key];
+
+            foreach ($logs as $log) {
+                StudyActivityLog::firstOrCreate(
+                    ['study_id' => $study->id, 'action' => $log['action'], 'occurred_at' => $log['occurred_at']],
+                    [
+                        'user_id' => $adminId,
+                        'entity_type' => $log['entity_type'] ?? null,
+                        'old_value' => $log['old_value'] ?? null,
+                        'new_value' => $log['new_value'] ?? null,
+                    ],
+                );
+                $count++;
+            }
+        }
+
+        $this->command->info("  Activity logs: {$count}");
     }
 }

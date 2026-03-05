@@ -43,6 +43,11 @@ import {
   updateStudyArtifact,
   deleteStudyArtifact,
   listStudyActivity,
+  listStudyResults,
+  updateStudyResult,
+  listStudySyntheses,
+  createStudySynthesis,
+  deleteStudySynthesis,
 } from "../api/studyApi";
 
 // ---------------------------------------------------------------------------
@@ -455,6 +460,83 @@ export function useDeleteStudyArtifact() {
       deleteStudyArtifact(slug, artifactId),
     onSuccess: (_d, v) => {
       queryClient.invalidateQueries({ queryKey: ["studies", v.slug, "artifacts"] });
+    },
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Results
+// ---------------------------------------------------------------------------
+
+export function useStudyResults(
+  slug: string | null,
+  params?: { result_type?: string; site_id?: number; publishable_only?: boolean; page?: number },
+) {
+  return useQuery({
+    queryKey: ["studies", slug, "results", params],
+    queryFn: () => listStudyResults(slug!, params),
+    enabled: slug != null && slug !== "",
+  });
+}
+
+export function useUpdateStudyResult() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      slug,
+      resultId,
+      payload,
+    }: {
+      slug: string;
+      resultId: number;
+      payload: { is_primary?: boolean; is_publishable?: boolean };
+    }) => updateStudyResult(slug, resultId, payload),
+    onSuccess: (_d, v) => {
+      queryClient.invalidateQueries({ queryKey: ["studies", v.slug, "results"] });
+    },
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Synthesis
+// ---------------------------------------------------------------------------
+
+export function useStudySyntheses(slug: string | null) {
+  return useQuery({
+    queryKey: ["studies", slug, "syntheses"],
+    queryFn: () => listStudySyntheses(slug!),
+    enabled: slug != null && slug !== "",
+  });
+}
+
+export function useCreateStudySynthesis() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      slug,
+      payload,
+    }: {
+      slug: string;
+      payload: {
+        study_analysis_id?: number;
+        synthesis_type: string;
+        input_result_ids: number[];
+        method_settings?: Record<string, unknown>;
+      };
+    }) => createStudySynthesis(slug, payload),
+    onSuccess: (_d, v) => {
+      queryClient.invalidateQueries({ queryKey: ["studies", v.slug, "syntheses"] });
+    },
+  });
+}
+
+export function useDeleteStudySynthesis() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ slug, synthesisId }: { slug: string; synthesisId: number }) =>
+      deleteStudySynthesis(slug, synthesisId),
+    onSuccess: (_d, v) => {
+      queryClient.invalidateQueries({ queryKey: ["studies", v.slug, "syntheses"] });
     },
   });
 }

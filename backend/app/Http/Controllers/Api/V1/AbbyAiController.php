@@ -130,6 +130,27 @@ class AbbyAiController extends Controller
     }
 
     /**
+     * POST /api/v1/abby/suggest-protocol
+     * AI-assisted study protocol suggestion based on title, description, and type.
+     */
+    public function suggestProtocol(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|min:5|max:500',
+            'description' => 'sometimes|string|max:3000',
+            'study_type' => 'required|string|max:100',
+        ]);
+
+        $result = $this->abbyAi->suggestStudyProtocol(
+            $validated['title'],
+            $validated['description'] ?? '',
+            $validated['study_type'],
+        );
+
+        return response()->json($result);
+    }
+
+    /**
      * POST /api/v1/abby/refine
      */
     public function refine(Request $request): JsonResponse

@@ -234,3 +234,41 @@ export interface StudyTransitionResponse {
   message: string;
   allowed_transitions: string[];
 }
+
+// ---------------------------------------------------------------------------
+// Results & Synthesis
+// ---------------------------------------------------------------------------
+
+export interface StudyResult {
+  id: number;
+  study_id: number;
+  study_analysis_id: number | null;
+  execution_id: number | null;
+  site_id: number | null;
+  result_type: string;
+  summary_data: Record<string, unknown> | null;
+  diagnostics: Record<string, unknown> | null;
+  is_primary: boolean;
+  is_publishable: boolean;
+  reviewed_by: number | null;
+  reviewed_at: string | null;
+  created_at: string;
+  updated_at: string;
+  site?: { id: number; source?: { id: number; source_name: string } } | null;
+  reviewed_by_user?: { id: number; name: string; email: string } | null;
+}
+
+export interface StudySynthesis {
+  id: number;
+  study_id: number;
+  study_analysis_id: number | null;
+  synthesis_type: string;
+  input_result_ids: number[];
+  method_settings: Record<string, unknown> | null;
+  output: Record<string, unknown> | null;
+  generated_by: number | null;
+  generated_at: string | null;
+  created_at: string;
+  updated_at: string;
+  generated_by_user?: { id: number; name: string; email: string } | null;
+}

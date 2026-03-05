@@ -13,6 +13,8 @@ import type {
   StudyArtifact,
   StudyActivityLogEntry,
   StudyTransitionResponse,
+  StudyResult,
+  StudySynthesis,
 } from "../types/study";
 import type { PaginatedResponse } from "@/features/analyses/types/analysis";
 
@@ -335,6 +337,63 @@ export async function deleteStudyArtifact(
   artifactId: number,
 ): Promise<void> {
   await apiClient.delete(`${BASE}/${slug}/artifacts/${artifactId}`);
+}
+
+// ---------------------------------------------------------------------------
+// Results
+// ---------------------------------------------------------------------------
+
+export async function listStudyResults(
+  slug: string,
+  params?: { result_type?: string; site_id?: number; publishable_only?: boolean; page?: number; per_page?: number },
+): Promise<PaginatedResponse<StudyResult>> {
+  const { data } = await apiClient.get(`${BASE}/${slug}/results`, { params });
+  return toLaravelPaginated<StudyResult>(data);
+}
+
+export async function getStudyResult(slug: string, resultId: number): Promise<StudyResult> {
+  const { data } = await apiClient.get(`${BASE}/${slug}/results/${resultId}`);
+  return data.data ?? data;
+}
+
+export async function updateStudyResult(
+  slug: string,
+  resultId: number,
+  payload: { is_primary?: boolean; is_publishable?: boolean },
+): Promise<StudyResult> {
+  const { data } = await apiClient.put(`${BASE}/${slug}/results/${resultId}`, payload);
+  return data.data ?? data;
+}
+
+// ---------------------------------------------------------------------------
+// Synthesis
+// ---------------------------------------------------------------------------
+
+export async function listStudySyntheses(slug: string): Promise<StudySynthesis[]> {
+  const { data } = await apiClient.get(`${BASE}/${slug}/synthesis`);
+  return data.data ?? data;
+}
+
+export async function createStudySynthesis(
+  slug: string,
+  payload: {
+    study_analysis_id?: number;
+    synthesis_type: string;
+    input_result_ids: number[];
+    method_settings?: Record<string, unknown>;
+  },
+): Promise<StudySynthesis> {
+  const { data } = await apiClient.post(`${BASE}/${slug}/synthesis`, payload);
+  return data.data ?? data;
+}
+
+export async function getStudySynthesis(slug: string, synthesisId: number): Promise<StudySynthesis> {
+  const { data } = await apiClient.get(`${BASE}/${slug}/synthesis/${synthesisId}`);
+  return data.data ?? data;
+}
+
+export async function deleteStudySynthesis(slug: string, synthesisId: number): Promise<void> {
+  await apiClient.delete(`${BASE}/${slug}/synthesis/${synthesisId}`);
 }
 
 // ---------------------------------------------------------------------------
