@@ -7,6 +7,7 @@ use App\Models\App\Source;
 use App\Models\App\Study;
 use App\Models\App\StudyAnalysis;
 use App\Services\Analysis\StudyService;
+use App\Services\Analysis\StudyStatusStateMachine;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -313,6 +314,58 @@ class StudyController extends Controller
         } catch (\Throwable $e) {
             return $this->errorResponse('Failed to add analysis to study', $e);
         }
+    }
+
+    /**
+     * POST /v1/studies/{study}/transition
+     *
+     * Transition study to a new status using the state machine.
+     */
+    public function transition(Request $request, Study $study): JsonResponse
+    {
+        $validated = $request->validate([
+            'status' => 'required|string',
+        ]);
+
+        try {
+            $study = StudyStatusStateMachine::transition(
+                $study,
+                $validated['status'],
+                $request->user()?->id,
+                $request->ip(),
+            );
+
+            $study->load(['author:id,name,email', 'principalInvestigator:id,name,email']);
+
+            return response()->json([
+                'data' => $study,
+                'message' => "Study transitioned to '{$validated['status']}'.",
+                'allowed_transitions' => StudyStatusStateMachine::allowedTransitions($study->status),
+            ]);
+        } catch (\InvalidArgumentException $e) {
+            return response()->json([
+                'error' => 'Invalid status transition.',
+                'message' => $e->getMessage(),
+                'allowed_transitions' => StudyStatusStateMachine::allowedTransitions($study->status),
+            ], 422);
+        } catch (\Throwable $e) {
+            return $this->errorResponse('Failed to transition study status', $e);
+        }
+    }
+
+    /**
+     * GET /v1/studies/{study}/allowed-transitions
+     *
+     * Get allowed status transitions for a study.
+     */
+    public function allowedTransitions(Study $study): JsonResponse
+    {
+        return response()->json([
+            'data' => [
+                'current_status' => $study->status,
+                'allowed_transitions' => StudyStatusStateMachine::allowedTransitions($study->status),
+            ],
+        ]);
     }
 
     /**

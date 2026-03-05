@@ -152,6 +152,86 @@ class Study extends Model
         return $this->hasMany(StudyAnalysis::class);
     }
 
+    /**
+     * @return HasMany<StudySite, $this>
+     */
+    public function sites(): HasMany
+    {
+        return $this->hasMany(StudySite::class);
+    }
+
+    /**
+     * @return HasMany<StudyTeamMember, $this>
+     */
+    public function teamMembers(): HasMany
+    {
+        return $this->hasMany(StudyTeamMember::class);
+    }
+
+    /**
+     * @return HasMany<StudyCohort, $this>
+     */
+    public function cohorts(): HasMany
+    {
+        return $this->hasMany(StudyCohort::class);
+    }
+
+    /**
+     * @return HasMany<StudyExecution, $this>
+     */
+    public function executions(): HasMany
+    {
+        return $this->hasMany(StudyExecution::class);
+    }
+
+    /**
+     * @return HasMany<StudyResult, $this>
+     */
+    public function results(): HasMany
+    {
+        return $this->hasMany(StudyResult::class);
+    }
+
+    /**
+     * @return HasMany<StudySynthesis, $this>
+     */
+    public function syntheses(): HasMany
+    {
+        return $this->hasMany(StudySynthesis::class);
+    }
+
+    /**
+     * @return HasMany<StudyArtifact, $this>
+     */
+    public function artifacts(): HasMany
+    {
+        return $this->hasMany(StudyArtifact::class);
+    }
+
+    /**
+     * @return HasMany<StudyMilestone, $this>
+     */
+    public function milestones(): HasMany
+    {
+        return $this->hasMany(StudyMilestone::class);
+    }
+
+    /**
+     * @return HasMany<StudyComment, $this>
+     */
+    public function comments(): HasMany
+    {
+        return $this->hasMany(StudyComment::class);
+    }
+
+    /**
+     * @return HasMany<StudyActivityLog, $this>
+     */
+    public function activityLog(): HasMany
+    {
+        return $this->hasMany(StudyActivityLog::class);
+    }
+
     // ── Scopes ───────────────────────────────────────────────────────────
 
     /**

@@ -35,8 +35,14 @@ use App\Http\Controllers\Api\V1\PatientProfileController;
 use App\Http\Controllers\Api\V1\PredictionController;
 use App\Http\Controllers\Api\V1\SccsController;
 use App\Http\Controllers\Api\V1\SourceController;
+use App\Http\Controllers\Api\V1\StudyActivityController;
+use App\Http\Controllers\Api\V1\StudyArtifactController;
+use App\Http\Controllers\Api\V1\StudyCohortController;
 use App\Http\Controllers\Api\V1\StudyController;
+use App\Http\Controllers\Api\V1\StudyMilestoneController;
+use App\Http\Controllers\Api\V1\StudySiteController;
 use App\Http\Controllers\Api\V1\StudyStatsController;
+use App\Http\Controllers\Api\V1\StudyTeamController;
 use App\Http\Controllers\Api\V1\VocabularyController;
 use Illuminate\Support\Facades\Route;
 
@@ -228,9 +234,48 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('studies', StudyController::class);
         Route::post('studies/{study}/execute', [StudyController::class, 'executeAll']);
         Route::get('studies/{study}/progress', [StudyController::class, 'progress']);
+        Route::post('studies/{study}/transition', [StudyController::class, 'transition']);
+        Route::get('studies/{study}/allowed-transitions', [StudyController::class, 'allowedTransitions']);
         Route::get('studies/{study}/analyses', [StudyController::class, 'analyses']);
         Route::post('studies/{study}/analyses', [StudyController::class, 'addAnalysis']);
         Route::delete('studies/{study}/analyses/{studyAnalysis}', [StudyController::class, 'removeAnalysis']);
+
+        // Study sub-resources
+        Route::prefix('studies/{study}')->group(function () {
+            // Sites
+            Route::get('sites', [StudySiteController::class, 'index']);
+            Route::post('sites', [StudySiteController::class, 'store']);
+            Route::get('sites/{site}', [StudySiteController::class, 'show']);
+            Route::put('sites/{site}', [StudySiteController::class, 'update']);
+            Route::delete('sites/{site}', [StudySiteController::class, 'destroy']);
+
+            // Team members
+            Route::get('team', [StudyTeamController::class, 'index']);
+            Route::post('team', [StudyTeamController::class, 'store']);
+            Route::put('team/{member}', [StudyTeamController::class, 'update']);
+            Route::delete('team/{member}', [StudyTeamController::class, 'destroy']);
+
+            // Cohorts
+            Route::get('cohorts', [StudyCohortController::class, 'index']);
+            Route::post('cohorts', [StudyCohortController::class, 'store']);
+            Route::put('cohorts/{cohort}', [StudyCohortController::class, 'update']);
+            Route::delete('cohorts/{cohort}', [StudyCohortController::class, 'destroy']);
+
+            // Milestones
+            Route::get('milestones', [StudyMilestoneController::class, 'index']);
+            Route::post('milestones', [StudyMilestoneController::class, 'store']);
+            Route::put('milestones/{milestone}', [StudyMilestoneController::class, 'update']);
+            Route::delete('milestones/{milestone}', [StudyMilestoneController::class, 'destroy']);
+
+            // Artifacts
+            Route::get('artifacts', [StudyArtifactController::class, 'index']);
+            Route::post('artifacts', [StudyArtifactController::class, 'store']);
+            Route::put('artifacts/{artifact}', [StudyArtifactController::class, 'update']);
+            Route::delete('artifacts/{artifact}', [StudyArtifactController::class, 'destroy']);
+
+            // Activity log (read-only)
+            Route::get('activity', [StudyActivityController::class, 'index']);
+        });
 
         // Patient Profiles
         Route::get('sources/{source}/profiles/{personId}', [PatientProfileController::class, 'show']);

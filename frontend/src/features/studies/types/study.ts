@@ -116,3 +116,121 @@ export interface StudyCreatePayload {
 }
 
 export type StudyUpdatePayload = Partial<StudyCreatePayload>;
+
+// ---------------------------------------------------------------------------
+// Study Sub-resources
+// ---------------------------------------------------------------------------
+
+export interface StudySite {
+  id: number;
+  study_id: number;
+  source_id: number;
+  site_role: string;
+  status: string;
+  irb_protocol_number: string | null;
+  irb_approval_date: string | null;
+  irb_expiry_date: string | null;
+  irb_type: string | null;
+  dua_signed_at: string | null;
+  site_contact_user_id: number | null;
+  cdm_version: string | null;
+  vocabulary_version: string | null;
+  data_freshness_date: string | null;
+  patient_count_estimate: number | null;
+  feasibility_results: Record<string, unknown> | null;
+  execution_log: Record<string, unknown> | null;
+  results_received_at: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+  source?: { id: number; source_name: string };
+  site_contact?: { id: number; name: string; email: string } | null;
+}
+
+export interface StudyTeamMember {
+  id: number;
+  study_id: number;
+  user_id: number;
+  role: string;
+  site_id: number | null;
+  permissions: Record<string, boolean> | null;
+  joined_at: string;
+  left_at: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+  user?: { id: number; name: string; email: string };
+  site?: StudySite | null;
+}
+
+export interface StudyCohort {
+  id: number;
+  study_id: number;
+  cohort_definition_id: number;
+  role: string;
+  label: string | null;
+  description: string | null;
+  sql_definition: string | null;
+  json_definition: Record<string, unknown> | null;
+  concept_set_ids: number[] | null;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+  cohort_definition?: { id: number; name: string };
+}
+
+export interface StudyMilestone {
+  id: number;
+  study_id: number;
+  title: string;
+  description: string | null;
+  milestone_type: string;
+  target_date: string | null;
+  actual_date: string | null;
+  status: string;
+  assigned_to: number | null;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+  assigned_to_user?: { id: number; name: string; email: string } | null;
+}
+
+export interface StudyArtifact {
+  id: number;
+  study_id: number;
+  artifact_type: string;
+  title: string;
+  description: string | null;
+  version: string;
+  file_path: string | null;
+  file_size_bytes: number | null;
+  mime_type: string | null;
+  url: string | null;
+  metadata: Record<string, unknown> | null;
+  uploaded_by: number;
+  is_current: boolean;
+  created_at: string;
+  updated_at: string;
+  uploaded_by_user?: { id: number; name: string; email: string };
+}
+
+export interface StudyActivityLogEntry {
+  id: number;
+  study_id: number;
+  user_id: number | null;
+  action: string;
+  entity_type: string | null;
+  entity_id: number | null;
+  old_value: Record<string, unknown> | null;
+  new_value: Record<string, unknown> | null;
+  ip_address: string | null;
+  occurred_at: string;
+  created_at: string;
+  user?: { id: number; name: string; email: string } | null;
+}
+
+export interface StudyTransitionResponse {
+  data: Study;
+  message: string;
+  allowed_transitions: string[];
+}
