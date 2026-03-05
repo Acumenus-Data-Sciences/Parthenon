@@ -18,8 +18,7 @@ import {
   PanTool,
   Enums as csToolsEnums,
 } from "@cornerstonejs/tools";
-import dicomImageLoader from "@cornerstonejs/dicom-image-loader";
-import dicomParser from "dicom-parser";
+import { init as dicomImageLoaderInit } from "@cornerstonejs/dicom-image-loader";
 import apiClient from "@/lib/api-client";
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -52,22 +51,9 @@ async function initCornerstone() {
 
   await cornerstone.init();
 
-  // Configure dicom-image-loader (without web workers for Vite compatibility)
-  (dicomImageLoader as unknown as Record<string, unknown>).external = {
-    cornerstone,
-    dicomParser,
-  };
-  dicomImageLoader.configure({ useWebWorkers: false });
-
-  // Register wadouri image loader scheme
-  const loader = dicomImageLoader as unknown as {
-    wadouri?: { loadImage: (uri: string) => unknown };
-    default?: { wadouri?: { loadImage: (uri: string) => unknown } };
-  };
-  const loadImage = loader.wadouri?.loadImage ?? loader.default?.wadouri?.loadImage;
-  if (loadImage) {
-    cornerstone.imageLoader.registerImageLoader("wadouri", loadImage as cornerstone.Types.ImageLoaderFn);
-  }
+  // @cornerstonejs/dicom-image-loader v3+ uses init() which auto-registers
+  // the 'wadouri:' and 'wadors:' image loader schemes with cornerstone core.
+  dicomImageLoaderInit();
 
   // Init tools
   csToolsInit();
@@ -136,13 +122,11 @@ export default function DicomViewer({ studyId, className = "" }: DicomViewerProp
         if (cancelled || !viewportEl.current) return;
 
         // Destroy previous engine
-        try {
-          cornerstone.getRenderingEngine(engineId)?.destroy();
-        } catch (_) {}
-        // Destroy previous tool group
-        try {
+        cornerstone.getRenderingEngine(engineId)?.destroy();
+        // Destroy previous tool group (check existence first — destroyToolGroup throws if missing)
+        if (ToolGroupManager.getToolGroup(toolGroupId)) {
           ToolGroupManager.destroyToolGroup(toolGroupId);
-        } catch (_) {}
+        }
 
         const engine = new cornerstone.RenderingEngine(engineId);
         engine.enableElement({
@@ -179,10 +163,10 @@ export default function DicomViewer({ studyId, className = "" }: DicomViewerProp
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      try {
-        cornerstone.getRenderingEngine(engineId)?.destroy();
+      cornerstone.getRenderingEngine(engineId)?.destroy();
+      if (ToolGroupManager.getToolGroup(toolGroupId)) {
         ToolGroupManager.destroyToolGroup(toolGroupId);
-      } catch (_) {}
+      }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

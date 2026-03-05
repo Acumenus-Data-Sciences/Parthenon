@@ -517,10 +517,12 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 
         // Instance listing (for viewer navigation)
         Route::get('/studies/{study}/instances', [ImagingController::class, 'listInstances']);
-
-        // WADO-URI: serve raw DICOM file by SOP Instance UID
-        Route::get('/wado/{sopUid}', [ImagingController::class, 'wado']);
     });
+});
+
+// WADO-URI: public endpoint — Cornerstone3D XHR cannot send Sanctum session cookies
+Route::prefix('v1/imaging')->group(function () {
+    Route::get('/wado/{sopUid}', [ImagingController::class, 'wado']);
 });
 
 // ── Phase 17: HEOR ───────────────────────────────────────────────────────────
