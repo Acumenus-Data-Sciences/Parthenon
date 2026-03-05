@@ -22,8 +22,8 @@ export function StudyActivityTab({ slug }: StudyActivityTabProps) {
   const [page, setPage] = useState(1);
   const { data, isLoading } = useStudyActivity(slug, page);
 
-  const entries = data?.data ?? [];
-  const totalPages = data?.meta?.last_page ?? 1;
+  const entries = data?.items ?? [];
+  const totalPages = Math.ceil((data?.total ?? 0) / (data?.limit ?? 25)) || 1;
 
   if (isLoading) {
     return <div className="flex items-center justify-center py-16"><Loader2 size={24} className="animate-spin text-[#8A857D]" /></div>;

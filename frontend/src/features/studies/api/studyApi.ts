@@ -35,14 +35,15 @@ export async function getStudyStats(): Promise<StudyStats> {
 
 export async function listStudies(params?: {
   page?: number;
+  per_page?: number;
   search?: string;
   status?: string;
   study_type?: string;
   phase?: string;
   my_studies?: boolean;
-}): Promise<PaginatedResponse<Study>> {
+}): Promise<{ data: Study[]; total: number; current_page: number; last_page: number; per_page: number }> {
   const { data } = await apiClient.get(BASE, { params });
-  return toLaravelPaginated<Study>(data);
+  return data;
 }
 
 export async function getStudy(idOrSlug: number | string): Promise<Study> {
@@ -74,30 +75,30 @@ export async function deleteStudy(idOrSlug: number | string): Promise<void> {
 // ---------------------------------------------------------------------------
 
 export async function listStudyAnalyses(
-  studyId: number,
+  slugOrId: string | number,
 ): Promise<StudyAnalysisEntry[]> {
-  const { data } = await apiClient.get<StudyAnalysisEntry[]>(
-    `${BASE}/${studyId}/analyses`,
+  const { data } = await apiClient.get(
+    `${BASE}/${slugOrId}/analyses`,
   );
-  return data;
+  return data.data ?? data;
 }
 
 export async function addStudyAnalysis(
-  studyId: number,
+  slugOrId: string | number,
   payload: { analysis_type: string; analysis_id: number },
 ): Promise<StudyAnalysisEntry> {
   const { data } = await apiClient.post(
-    `${BASE}/${studyId}/analyses`,
+    `${BASE}/${slugOrId}/analyses`,
     payload,
   );
   return data.data ?? data;
 }
 
 export async function removeStudyAnalysis(
-  studyId: number,
+  slugOrId: string | number,
   entryId: number,
 ): Promise<void> {
-  await apiClient.delete(`${BASE}/${studyId}/analyses/${entryId}`);
+  await apiClient.delete(`${BASE}/${slugOrId}/analyses/${entryId}`);
 }
 
 // ---------------------------------------------------------------------------
@@ -105,23 +106,23 @@ export async function removeStudyAnalysis(
 // ---------------------------------------------------------------------------
 
 export async function executeAllStudyAnalyses(
-  studyId: number,
+  slugOrId: string | number,
   sourceId: number,
 ): Promise<{ message: string }> {
-  const { data } = await apiClient.post<{ message: string }>(
-    `${BASE}/${studyId}/execute`,
+  const { data } = await apiClient.post(
+    `${BASE}/${slugOrId}/execute`,
     { source_id: sourceId },
   );
-  return data;
+  return data.data ?? data;
 }
 
 export async function getStudyProgress(
-  studyId: number,
+  slugOrId: string | number,
 ): Promise<StudyProgress> {
-  const { data } = await apiClient.get<StudyProgress>(
-    `${BASE}/${studyId}/progress`,
+  const { data } = await apiClient.get(
+    `${BASE}/${slugOrId}/progress`,
   );
-  return data;
+  return data.data ?? data;
 }
 
 // ---------------------------------------------------------------------------

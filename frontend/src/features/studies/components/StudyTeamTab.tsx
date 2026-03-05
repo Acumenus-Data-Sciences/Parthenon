@@ -8,7 +8,6 @@ import {
   useRemoveStudyTeamMember,
 } from "../hooks/useStudies";
 import { useUsers } from "@/features/administration/hooks/useAdminUsers";
-import type { StudyTeamMember } from "../types/study";
 
 const ROLES = [
   "principal_investigator",
@@ -58,7 +57,8 @@ export function StudyTeamTab({ slug }: StudyTeamTabProps) {
 
   // Filter out users already on the team
   const existingUserIds = new Set(members?.map((m) => m.user_id) ?? []);
-  const allUsers = (usersData as { id: number; name: string; email: string }[] | undefined) ?? [];
+  const allUsers: { id: number; name: string; email: string }[] =
+    (usersData as { data?: { id: number; name: string; email: string }[] } | undefined)?.data ?? [];
   const availableUsers = allUsers.filter((u) => !existingUserIds.has(u.id));
   const filteredUsers = userSearch
     ? availableUsers.filter(

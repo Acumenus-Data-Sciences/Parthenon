@@ -17,7 +17,6 @@ import {
   Database,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { cn } from "@/lib/utils";
 import { ExecutionStatusBadge } from "@/features/analyses/components/ExecutionStatusBadge";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
 import {
@@ -65,10 +64,11 @@ interface StudyAnalysesTabProps {
   studySlug: string;
 }
 
-export function StudyAnalysesTab({ studyId, studySlug }: StudyAnalysesTabProps) {
+export function StudyAnalysesTab({ studySlug }: StudyAnalysesTabProps) {
   const navigate = useNavigate();
-  const { data: analyses, isLoading } = useStudyAnalyses(studyId);
-  const { data: progress } = useStudyProgress(studyId);
+  const slug = studySlug;
+  const { data: analyses, isLoading } = useStudyAnalyses(slug);
+  const { data: progress } = useStudyProgress(slug);
   const addMutation = useAddStudyAnalysis();
   const removeMutation = useRemoveStudyAnalysis();
   const executeMutation = useExecuteAllStudyAnalyses();
@@ -89,11 +89,11 @@ export function StudyAnalysesTab({ studyId, studySlug }: StudyAnalysesTabProps) 
 
   const getAnalysisOptions = () => {
     switch (addType) {
-      case "characterization": return charData?.data?.map((a) => ({ id: a.id, name: a.name })) ?? [];
-      case "incidence_rate": return irData?.data?.map((a) => ({ id: a.id, name: a.name })) ?? [];
-      case "pathway": return pathwayData?.data?.map((a) => ({ id: a.id, name: a.name })) ?? [];
-      case "estimation": return estData?.data?.map((a) => ({ id: a.id, name: a.name })) ?? [];
-      case "prediction": return predData?.data?.map((a) => ({ id: a.id, name: a.name })) ?? [];
+      case "characterization": return charData?.items?.map((a) => ({ id: a.id, name: a.name })) ?? [];
+      case "incidence_rate": return irData?.items?.map((a) => ({ id: a.id, name: a.name })) ?? [];
+      case "pathway": return pathwayData?.items?.map((a) => ({ id: a.id, name: a.name })) ?? [];
+      case "estimation": return estData?.items?.map((a) => ({ id: a.id, name: a.name })) ?? [];
+      case "prediction": return predData?.items?.map((a) => ({ id: a.id, name: a.name })) ?? [];
       default: return [];
     }
   };
@@ -111,14 +111,14 @@ export function StudyAnalysesTab({ studyId, studySlug }: StudyAnalysesTabProps) 
     // Map frontend type name to backend expected format
     const backendType = addType === "incidence_rate" ? "incidence_rate" : addType;
     addMutation.mutate(
-      { studyId, payload: { analysis_type: backendType, analysis_id: addId } },
+      { slug, payload: { analysis_type: backendType, analysis_id: addId } },
       { onSuccess: () => { setAddId(null); setShowAddPanel(false); } },
     );
   };
 
   const handleExecuteAll = () => {
     if (!sourceId) return;
-    executeMutation.mutate({ studyId, sourceId });
+    executeMutation.mutate({ slug, sourceId });
   };
 
   const isRunning = progress?.overall_status === "running" || progress?.overall_status === "pending";
@@ -310,7 +310,7 @@ export function StudyAnalysesTab({ studyId, studySlug }: StudyAnalysesTabProps) 
                               type="button"
                               onClick={() => {
                                 if (window.confirm("Remove this analysis from the study?")) {
-                                  removeMutation.mutate({ studyId, entryId: entry.id });
+                                  removeMutation.mutate({ slug, entryId: entry.id });
                                 }
                               }}
                               disabled={removeMutation.isPending}

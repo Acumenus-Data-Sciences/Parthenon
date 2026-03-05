@@ -49,7 +49,7 @@ export function StudyDesigner({ study }: StudyDesignerProps) {
   const addAnalysisMutation = useAddStudyAnalysis();
   const removeAnalysisMutation = useRemoveStudyAnalysis();
 
-  const { data: studyAnalyses } = useStudyAnalyses(study.id);
+  const { data: studyAnalyses } = useStudyAnalyses(study.slug);
 
   const { data: charData } = useCharacterizations(1);
   const { data: irData } = useIncidenceRates(1);
@@ -66,17 +66,17 @@ export function StudyDesigner({ study }: StudyDesignerProps) {
   const getAnalysisOptions = () => {
     switch (addType) {
       case "characterization":
-        return charData?.data?.map((a) => ({ id: a.id, name: a.name })) ?? [];
+        return charData?.items?.map((a) => ({ id: a.id, name: a.name })) ?? [];
       case "incidence-rate":
-        return irData?.data?.map((a) => ({ id: a.id, name: a.name })) ?? [];
+        return irData?.items?.map((a) => ({ id: a.id, name: a.name })) ?? [];
       case "pathway":
         return (
-          pathwayData?.data?.map((a) => ({ id: a.id, name: a.name })) ?? []
+          pathwayData?.items?.map((a) => ({ id: a.id, name: a.name })) ?? []
         );
       case "estimation":
-        return estData?.data?.map((a) => ({ id: a.id, name: a.name })) ?? [];
+        return estData?.items?.map((a) => ({ id: a.id, name: a.name })) ?? [];
       case "prediction":
-        return predData?.data?.map((a) => ({ id: a.id, name: a.name })) ?? [];
+        return predData?.items?.map((a) => ({ id: a.id, name: a.name })) ?? [];
       default:
         return [];
     }
@@ -98,7 +98,7 @@ export function StudyDesigner({ study }: StudyDesignerProps) {
     if (!addId) return;
     addAnalysisMutation.mutate(
       {
-        studyId: study.id,
+        slug: study.slug,
         payload: { analysis_type: addType, analysis_id: addId },
       },
       {
@@ -109,7 +109,7 @@ export function StudyDesigner({ study }: StudyDesignerProps) {
 
   const handleRemoveAnalysis = (entry: StudyAnalysisEntry) => {
     removeAnalysisMutation.mutate({
-      studyId: study.id,
+      slug: study.slug,
       entryId: entry.id,
     });
   };

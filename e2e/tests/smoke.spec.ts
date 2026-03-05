@@ -3,7 +3,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { TOKEN_FILE } from "../global-setup";
 
-const BASE = "http://192.168.1.33:8082";
+const BASE = process.env.PLAYWRIGHT_BASE_URL ?? "http://192.168.1.33:8082";
 
 function getToken(): string {
   try {

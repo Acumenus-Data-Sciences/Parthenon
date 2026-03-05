@@ -106,17 +106,15 @@ export default function StudyDetailPage() {
   const { id: slugOrId } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const studyKey = slugOrId ?? null;
-  const studyId = slugOrId ? (Number(slugOrId) || null) : null;
 
   const { data: study, isLoading, error } = useStudy(studyKey);
   const updateMutation = useUpdateStudy();
   const deleteMutation = useDeleteStudy();
   const transitionMutation = useTransitionStudy();
 
-  const resolvedId = study?.id ?? studyId;
   const slug = study?.slug ?? slugOrId ?? "";
-  const { data: analyses } = useStudyAnalyses(resolvedId ?? null);
-  const { data: progress } = useStudyProgress(resolvedId ?? null);
+  const { data: analyses } = useStudyAnalyses(slug || null);
+  const { data: progress } = useStudyProgress(slug || null);
   const { data: transitions } = useAllowedTransitions(slug || null);
   const createMutation = useCreateStudy();
 
@@ -173,12 +171,12 @@ export default function StudyDetailPage() {
         title: `Copy of ${study.title}`,
         short_title: study.short_title ? `${study.short_title}-copy` : undefined,
         study_type: study.study_type,
-        description: study.description,
-        primary_objective: study.primary_objective,
-        hypothesis: study.hypothesis,
-        study_design: study.study_design,
-        priority: study.priority,
-        tags: study.tags,
+        description: study.description ?? undefined,
+        primary_objective: study.primary_objective ?? undefined,
+        hypothesis: study.hypothesis ?? undefined,
+        study_design: study.study_design ?? undefined,
+        priority: study.priority ?? undefined,
+        tags: study.tags ?? undefined,
       },
       { onSuccess: (newStudy) => navigate(`/studies/${newStudy.slug || newStudy.id}`) },
     );

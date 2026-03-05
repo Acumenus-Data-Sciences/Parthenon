@@ -169,7 +169,7 @@ export default function StudyCreatePage() {
     }
   };
 
-  const handleCreate = (startProtocol: boolean) => {
+  const handleCreate = (_startProtocol: boolean) => {
     const payload: StudyCreatePayload = {
       title: title.trim(),
       short_title: shortTitle.trim() || undefined,
@@ -606,7 +606,6 @@ export default function StudyCreatePage() {
       {/* Step Indicator */}
       <div className="flex items-center gap-1">
         {STEPS.map((s, i) => {
-          const Icon = s.icon;
           const isActive = i === step;
           const isDone = i < step;
           return (

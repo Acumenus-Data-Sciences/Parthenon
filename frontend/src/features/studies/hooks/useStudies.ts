@@ -61,6 +61,14 @@ export function useStudies(page?: number, search?: string, filters?: { status?: 
   });
 }
 
+export function useAllStudies() {
+  return useQuery({
+    queryKey: ["studies", "all"],
+    queryFn: () => listStudies({ per_page: 200 }),
+    staleTime: 30_000,
+  });
+}
+
 export function useStudyStats() {
   return useQuery({
     queryKey: ["studies", "stats"],
@@ -76,19 +84,19 @@ export function useStudy(idOrSlug: number | string | null) {
   });
 }
 
-export function useStudyAnalyses(studyId: number | null) {
+export function useStudyAnalyses(slugOrId: string | number | null) {
   return useQuery({
-    queryKey: ["studies", studyId, "analyses"],
-    queryFn: () => listStudyAnalyses(studyId!),
-    enabled: studyId != null && studyId > 0,
+    queryKey: ["studies", slugOrId, "analyses"],
+    queryFn: () => listStudyAnalyses(slugOrId!),
+    enabled: slugOrId != null && slugOrId !== "",
   });
 }
 
-export function useStudyProgress(studyId: number | null) {
+export function useStudyProgress(slugOrId: string | number | null) {
   return useQuery({
-    queryKey: ["studies", studyId, "progress"],
-    queryFn: () => getStudyProgress(studyId!),
-    enabled: studyId != null && studyId > 0,
+    queryKey: ["studies", slugOrId, "progress"],
+    queryFn: () => getStudyProgress(slugOrId!),
+    enabled: slugOrId != null && slugOrId !== "",
     refetchInterval: (query) => {
       const status = query.state.data?.overall_status;
       if (status === "running" || status === "pending") {
@@ -150,18 +158,18 @@ export function useAddStudyAnalysis() {
 
   return useMutation({
     mutationFn: ({
-      studyId,
+      slug,
       payload,
     }: {
-      studyId: number;
+      slug: string;
       payload: { analysis_type: string; analysis_id: number };
-    }) => addStudyAnalysis(studyId, payload),
+    }) => addStudyAnalysis(slug, payload),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ["studies", variables.studyId, "analyses"],
+        queryKey: ["studies", variables.slug, "analyses"],
       });
       queryClient.invalidateQueries({
-        queryKey: ["studies", variables.studyId],
+        queryKey: ["studies", variables.slug],
       });
     },
   });
@@ -172,18 +180,18 @@ export function useRemoveStudyAnalysis() {
 
   return useMutation({
     mutationFn: ({
-      studyId,
+      slug,
       entryId,
     }: {
-      studyId: number;
+      slug: string;
       entryId: number;
-    }) => removeStudyAnalysis(studyId, entryId),
+    }) => removeStudyAnalysis(slug, entryId),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ["studies", variables.studyId, "analyses"],
+        queryKey: ["studies", variables.slug, "analyses"],
       });
       queryClient.invalidateQueries({
-        queryKey: ["studies", variables.studyId],
+        queryKey: ["studies", variables.slug],
       });
     },
   });
@@ -194,21 +202,21 @@ export function useExecuteAllStudyAnalyses() {
 
   return useMutation({
     mutationFn: ({
-      studyId,
+      slug,
       sourceId,
     }: {
-      studyId: number;
+      slug: string;
       sourceId: number;
-    }) => executeAllStudyAnalyses(studyId, sourceId),
+    }) => executeAllStudyAnalyses(slug, sourceId),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ["studies", variables.studyId, "progress"],
+        queryKey: ["studies", variables.slug, "progress"],
       });
       queryClient.invalidateQueries({
-        queryKey: ["studies", variables.studyId, "analyses"],
+        queryKey: ["studies", variables.slug, "analyses"],
       });
       queryClient.invalidateQueries({
-        queryKey: ["studies", variables.studyId],
+        queryKey: ["studies", variables.slug],
       });
     },
   });
@@ -470,7 +478,7 @@ export function useDeleteStudyArtifact() {
 
 export function useStudyResults(
   slug: string | null,
-  params?: { result_type?: string; site_id?: number; publishable_only?: boolean; page?: number },
+  params?: { result_type?: string; site_id?: number; publishable_only?: boolean; page?: number; per_page?: number },
 ) {
   return useQuery({
     queryKey: ["studies", slug, "results", params],

@@ -1,4 +1,3 @@
-import { cn } from "@/lib/utils";
 import type { Study } from "../types/study";
 
 function formatDate(iso: string): string {

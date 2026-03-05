@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Plus,
@@ -16,7 +16,26 @@ import { cn } from "@/lib/utils";
 import { HelpButton } from "@/features/help";
 import { StudyList } from "../components/StudyList";
 import { StudyCard } from "../components/StudyCard";
-import { useStudies, useStudyStats } from "../hooks/useStudies";
+import { useStudies, useStudyStats, useAllStudies } from "../hooks/useStudies";
+import type { Study } from "../types/study";
+
+const STATUS_COLORS: Record<string, string> = {
+  draft: "#8A857D",
+  protocol_development: "#60A5FA",
+  feasibility: "#A78BFA",
+  irb_review: "#F59E0B",
+  execution: "#2DD4BF",
+  analysis: "#34D399",
+  published: "#22D3EE",
+  archived: "#6B7280",
+};
+
+const PRIORITY_COLORS: Record<string, string> = {
+  critical: "#E85A6B",
+  high: "#F59E0B",
+  medium: "#60A5FA",
+  low: "#8A857D",
+};
 
 const STUDY_TYPE_OPTIONS = [
   { value: "characterization", label: "Characterization", color: "#2DD4BF" },
@@ -59,6 +78,9 @@ export default function StudiesPage() {
   const [viewMode, setViewMode] = useState<"table" | "card">(() => {
     return (localStorage.getItem("studies-view") as "table" | "card") || "table";
   });
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [drilldownPhase, setDrilldownPhase] = useState<string | null>(null);
+  const searchRef = useRef<HTMLDivElement>(null);
 
   const hasFilters = !!(filterStatus || filterType || filterPriority || filterPhase);
 
@@ -68,6 +90,7 @@ export default function StudiesPage() {
     study_type: filterType ?? undefined,
     phase: filterPhase ?? undefined,
   });
+  const { data: allStudiesData } = useAllStudies();
 
   // Debounce search
   useEffect(() => {
@@ -96,6 +119,39 @@ export default function StudiesPage() {
     }
     return items;
   }, [data, filterPriority]);
+
+  // Search dropdown — list all studies, filtered by input
+  const dropdownStudies = useMemo(() => {
+    const all = allStudiesData?.data ?? [];
+    if (!searchInput.trim()) return all.slice(0, 12);
+    const q = searchInput.toLowerCase();
+    return all.filter((s) =>
+      s.title.toLowerCase().includes(q) ||
+      s.study_type.replace(/_/g, " ").toLowerCase().includes(q) ||
+      s.status.replace(/_/g, " ").toLowerCase().includes(q)
+    ).slice(0, 12);
+  }, [allStudiesData, searchInput]);
+
+  // Studies for drilldown panel
+  const drilldownStudies = useMemo(() => {
+    if (!drilldownPhase) return [];
+    const all = allStudiesData?.data ?? [];
+    if (drilldownPhase === "__active__") {
+      return all.filter((s) => s.phase === "active");
+    }
+    return all.filter((s) => s.phase === drilldownPhase);
+  }, [allStudiesData, drilldownPhase]);
+
+  // Close dropdown on click outside
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -139,16 +195,20 @@ export default function StudiesPage() {
             </button>
           </div>
 
-          {/* Search */}
-          <div className="relative w-56">
+          {/* Search dropdown — lists all studies */}
+          <div className="relative w-72" ref={searchRef}>
             <Search
               size={14}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650] z-10"
             />
             <input
               type="text"
               value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
+              onChange={(e) => {
+                setSearchInput(e.target.value);
+                setShowDropdown(true);
+              }}
+              onFocus={() => setShowDropdown(true)}
               placeholder="Search studies..."
               className={cn(
                 "w-full rounded-lg pl-9 pr-8 py-2 text-sm",
@@ -161,96 +221,196 @@ export default function StudiesPage() {
             {searchInput && (
               <button
                 type="button"
-                onClick={() => setSearchInput("")}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-[#5A5650] hover:text-[#C5C0B8]"
+                onClick={() => { setSearchInput(""); }}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-[#5A5650] hover:text-[#C5C0B8] z-10"
               >
                 <X size={14} />
               </button>
+            )}
+
+            {/* Dropdown listing */}
+            {showDropdown && (
+              <div className="absolute top-full left-0 w-96 mt-1 rounded-lg border border-[#232328] bg-[#151518] shadow-xl z-50 overflow-hidden">
+                <div className="max-h-80 overflow-y-auto">
+                  {dropdownStudies.length === 0 ? (
+                    <div className="px-4 py-6 text-center text-sm text-[#5A5650]">
+                      No studies match &ldquo;{searchInput}&rdquo;
+                    </div>
+                  ) : (
+                    dropdownStudies.map((study) => {
+                      const sColor = STATUS_COLORS[study.status] ?? "#8A857D";
+                      const pColor = PRIORITY_COLORS[study.priority] ?? "#8A857D";
+                      return (
+                        <button
+                          key={study.id}
+                          type="button"
+                          onClick={() => {
+                            setShowDropdown(false);
+                            setSearchInput("");
+                            navigate(`/studies/${study.slug || study.id}`);
+                          }}
+                          className="w-full px-4 py-2.5 text-left hover:bg-[#1C1C20] transition-colors border-b border-[#1C1C20] last:border-b-0"
+                        >
+                          <p className="text-sm font-medium text-[#F0EDE8] truncate">{study.title}</p>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <span
+                              className="inline-flex items-center gap-1 text-[10px] font-medium"
+                              style={{ color: sColor }}
+                            >
+                              <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: sColor }} />
+                              {study.status.replace(/_/g, " ")}
+                            </span>
+                            <span className="text-[10px] text-[#323238]">&middot;</span>
+                            <span className="text-[10px]" style={{ color: pColor }}>
+                              {study.priority}
+                            </span>
+                            <span className="text-[10px] text-[#323238]">&middot;</span>
+                            <span className="text-[10px] text-[#5A5650]">
+                              {study.study_type.replace(/_/g, " ")}
+                            </span>
+                          </div>
+                        </button>
+                      );
+                    })
+                  )}
+                </div>
+                {(allStudiesData?.data?.length ?? 0) > 12 && !searchInput.trim() && (
+                  <div className="px-4 py-2 text-center text-[10px] text-[#5A5650] border-t border-[#232328] bg-[#0E0E11]">
+                    Type to filter {allStudiesData?.data?.length} studies
+                  </div>
+                )}
+              </div>
             )}
           </div>
 
           <HelpButton helpKey="studies" />
 
-          {/* New Study */}
-          <button
-            type="button"
-            onClick={() => navigate("/studies/create")}
-            className="btn btn-primary"
-          >
-            <Plus size={16} />
-            New Study
-          </button>
+          <div className="ml-auto">
+            <button
+              type="button"
+              onClick={() => navigate("/studies/create")}
+              className="btn btn-primary"
+            >
+              <Plus size={16} />
+              New Study
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Stats Bar */}
       {stats && (
-        <div className="grid grid-cols-5 gap-3">
-          {[
-            { label: "Total", value: stats.total, icon: Briefcase, color: "#C5C0B8", phase: null as string | null },
-            { label: "Active", value: stats.active_count, icon: Activity, color: "#2DD4BF", phase: "__active__" },
-            { label: "Pre-Study", value: stats.by_phase?.pre_study ?? 0, icon: FlaskConical, color: "#60A5FA", phase: "pre_study" },
-            { label: "In Progress", value: stats.by_phase?.active ?? 0, icon: Loader2, color: "#F59E0B", phase: "active" },
-            { label: "Post-Study", value: stats.by_phase?.post_study ?? 0, icon: Shield, color: "#A78BFA", phase: "post_study" },
-          ].map((metric) => {
-            const Icon = metric.icon;
-            const isActive = metric.phase === null
-              ? !hasFilters
-              : metric.phase === "__active__"
-                ? filterStatus === "execution"
-                : filterPhase === metric.phase;
-            return (
-              <button
-                key={metric.label}
-                type="button"
-                onClick={() => {
-                  if (metric.phase === null) {
-                    // "Total" — clear all filters
-                    setFilterStatus(null);
-                    setFilterType(null);
-                    setFilterPriority(null);
-                    setFilterPhase(null);
-                  } else if (metric.phase === "__active__") {
-                    // "Active" — filter to execution status
-                    setFilterPhase(null);
-                    setFilterType(null);
-                    setFilterPriority(null);
-                    setFilterStatus(filterStatus === "execution" ? null : "execution");
-                  } else {
-                    // Phase filters
-                    setFilterStatus(null);
-                    setFilterType(null);
-                    setFilterPriority(null);
-                    setFilterPhase(filterPhase === metric.phase ? null : metric.phase);
-                  }
-                }}
-                className={cn(
-                  "flex items-center gap-3 rounded-lg border px-4 py-3 text-left transition-all",
-                  isActive
-                    ? "border-[#2DD4BF]/30 bg-[#2DD4BF]/5 ring-1 ring-[#2DD4BF]/20"
-                    : "border-[#232328] bg-[#151518] hover:border-[#323238] hover:bg-[#1C1C20]",
-                )}
-              >
-                <div
-                  className="flex items-center justify-center w-9 h-9 rounded-lg shrink-0"
-                  style={{ backgroundColor: `${metric.color}15` }}
+        <div className="space-y-3">
+          <div className="grid grid-cols-5 gap-3">
+            {[
+              { label: "Total", value: stats.total, icon: Briefcase, color: "#C5C0B8", phase: null as string | null },
+              { label: "Active", value: stats.active_count, icon: Activity, color: "#2DD4BF", phase: "__active__" },
+              { label: "Pre-Study", value: stats.by_phase?.pre_study ?? 0, icon: FlaskConical, color: "#60A5FA", phase: "pre_study" },
+              { label: "In Progress", value: stats.by_phase?.active ?? 0, icon: Loader2, color: "#F59E0B", phase: "active" },
+              { label: "Post-Study", value: stats.by_phase?.post_study ?? 0, icon: Shield, color: "#A78BFA", phase: "post_study" },
+            ].map((metric) => {
+              const Icon = metric.icon;
+              const isDrilling = metric.phase !== null && drilldownPhase === metric.phase;
+              return (
+                <button
+                  key={metric.label}
+                  type="button"
+                  onClick={() => {
+                    if (metric.phase === null) {
+                      setDrilldownPhase(null);
+                    } else {
+                      setDrilldownPhase(drilldownPhase === metric.phase ? null : metric.phase);
+                    }
+                  }}
+                  className={cn(
+                    "flex items-center gap-3 rounded-lg border px-4 py-3 text-left transition-all",
+                    isDrilling
+                      ? "ring-1"
+                      : "border-[#232328] bg-[#151518] hover:border-[#323238] hover:bg-[#1C1C20]",
+                  )}
+                  style={isDrilling ? {
+                    borderColor: `${metric.color}40`,
+                    backgroundColor: `${metric.color}08`,
+                    boxShadow: `0 0 0 1px ${metric.color}30`,
+                  } : undefined}
                 >
-                  <Icon size={18} style={{ color: metric.color }} />
-                </div>
-                <div>
-                  <p
-                    className="font-['IBM_Plex_Mono',monospace] text-xl font-semibold tabular-nums"
-                    style={{ color: metric.color }}
+                  <div
+                    className="flex items-center justify-center w-9 h-9 rounded-lg shrink-0"
+                    style={{ backgroundColor: `${metric.color}15` }}
                   >
-                    {metric.value}
-                  </p>
-                  <p className="text-[10px] text-[#5A5650] uppercase tracking-wider">
-                    {metric.label}
-                  </p>
-                </div>
-              </button>
-            );
-          })}
+                    <Icon size={18} style={{ color: metric.color }} />
+                  </div>
+                  <div>
+                    <p
+                      className="font-['IBM_Plex_Mono',monospace] text-xl font-semibold tabular-nums"
+                      style={{ color: metric.color }}
+                    >
+                      {metric.value}
+                    </p>
+                    <p className="text-[10px] text-[#5A5650] uppercase tracking-wider">
+                      {metric.label}
+                    </p>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Drilldown panel */}
+          {drilldownPhase && drilldownStudies.length > 0 && (
+            <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
+              <div className="flex items-center justify-between px-4 py-2 bg-[#1C1C20] border-b border-[#232328]">
+                <p className="text-[11px] font-semibold text-[#8A857D] uppercase tracking-wider">
+                  {drilldownPhase === "__active__" ? "Active" : drilldownPhase.replace(/_/g, " ")} Studies
+                  <span className="ml-1.5 text-[#5A5650]">({drilldownStudies.length})</span>
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setDrilldownPhase(null)}
+                  className="text-[#5A5650] hover:text-[#C5C0B8] transition-colors"
+                >
+                  <X size={14} />
+                </button>
+              </div>
+              <div className="divide-y divide-[#1C1C20] max-h-64 overflow-y-auto">
+                {drilldownStudies.map((study: Study) => {
+                  const sColor = STATUS_COLORS[study.status] ?? "#8A857D";
+                  const pColor = PRIORITY_COLORS[study.priority] ?? "#8A857D";
+                  return (
+                    <button
+                      key={study.id}
+                      type="button"
+                      onClick={() => navigate(`/studies/${study.slug || study.id}`)}
+                      className="w-full flex items-center justify-between px-4 py-2.5 text-left hover:bg-[#1C1C20] transition-colors"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium text-[#F0EDE8] truncate">{study.title}</p>
+                        <p className="text-[10px] text-[#5A5650] truncate mt-0.5">
+                          {study.study_type.replace(/_/g, " ")}
+                          {study.principal_investigator?.name ? ` — ${study.principal_investigator.name}` : ""}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0 ml-4">
+                        <span
+                          className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium"
+                          style={{ backgroundColor: `${sColor}15`, color: sColor }}
+                        >
+                          <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: sColor }} />
+                          {study.status.replace(/_/g, " ")}
+                        </span>
+                        <span
+                          className="inline-flex items-center rounded px-1.5 py-0.5 text-[9px] font-medium uppercase"
+                          style={{ backgroundColor: `${pColor}15`, color: pColor }}
+                        >
+                          {study.priority}
+                        </span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -332,9 +492,9 @@ export default function StudiesPage() {
           isLoading={isLoading}
           error={error}
           page={page}
-          totalPages={data?.meta?.last_page ?? 1}
-          total={data?.meta?.total ?? 0}
-          perPage={data?.meta?.per_page ?? 20}
+          totalPages={data?.last_page ?? 1}
+          total={data?.total ?? 0}
+          perPage={data?.per_page ?? 20}
           onPageChange={setPage}
           searchActive={!!debouncedSearch}
         />
