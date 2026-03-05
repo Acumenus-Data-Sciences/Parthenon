@@ -93,3 +93,42 @@ Implements standard health economic methods:
 - §17.3: CEAC (Cost-Effectiveness Acceptability Curve) visualization
 - §17.4: Value contract outcome tracking — wire to OMOP cohort generations for automated outcome measurement
 - §17.5: Budget impact model with population growth and market penetration curves
+
+---
+
+## §17.6 — HEOR UX Alignment (Post-ship polish, March 5, 2026)
+
+**What was built:**
+
+Both HEOR frontend files comprehensively revised to match the Parthenon design system.
+
+### Problem severity
+Both `HeorPage.tsx` and `HeorAnalysisPage.tsx` used the identical legacy CSS framework as the Imaging pages — abstract class names that produced no styles in production: `page-container`, `card`, `btn btn-primary`, `btn btn-secondary`, `btn btn-danger btn-sm`, `badge badge-sm badge-neutral/success/danger/warning`, `tabs`, `tab`, `tab-active`, `text-muted`, `bg-surface`, `text-accent`, `bg-accent`, `border-subtle`, `alert alert-success`, `page-title`, `page-subtitle`. Additionally `border-subtle` is not defined anywhere in Tailwind. The HEOR pages were rendering as completely unstyled HTML.
+
+### Files revised (2)
+
+**HeorPage.tsx** — complete rewrite
+- Removed `page-container` → `space-y-6`; header → standard h1/subtitle with icon-in-circle (amber `#F59E0B` domain accent — fitting for economics/financial data)
+- `StatsBar`: CohortStatsBar-style tiles; IBM Plex Mono numbers; amber/teal/violet/blue per metric
+- `NewAnalysisForm`: all `input`/`btn` classes replaced with design system tokens; Cancel → text link; Create → teal primary
+- `AnalysesTab`: standard layout; analysis type + status badges using design system; Open → secondary button; delete → icon Trash2 with danger hover
+- `ContractsTab`: same form/badge/button treatment; rebate tier chips use `bg-[#0E0E11] border-[#232328]`; contract status: teal active, red expired, neutral draft
+- Tab bar: `border-[#2DD4BF]` active state
+
+**HeorAnalysisPage.tsx** — complete rewrite
+- Removed `page-container` wrapper; back nav → ArrowLeft with `text-[#8A857D] hover:text-[#F0EDE8]`
+- Loading/not-found states: teal spinner, no rogue wrappers
+- "Run Analysis" → teal primary button with Loader2 spinner
+- Run success banner: teal `bg-[#2DD4BF]/10 border-[#2DD4BF]/30`
+- Scenarios section: standard card rows; Base Case badge teal; scenario type badge neutral; delete icon button
+- Cost Parameters section: inline parameter list in scrollable `divide-y divide-[#1E1E23]` container; parameter values in amber IBM Plex Mono
+- `ResultCard`: full redesign — proper card bg/border, `text-[#5A5650]` labels, `text-[#F0EDE8]` values; budget impact year tiles use `bg-[#0E0E11]` with amber IBM Plex Mono numbers; tornado sensitivity bars use `#2DD4BF`
+- Alert (analysis completed, no results): `bg-amber-400/10 border-amber-400/30 text-amber-400`
+- `border-subtle` → `border-[#1E1E23]` (design system row divider)
+
+### Domain accent color (HEOR)
+- **Amber (`#F59E0B`)** — domain icon, section h2 icons, parameter value numbers, budget impact IBM Plex Mono — evokes financial/economic data
+
+### Gotchas
+- `border-subtle` is not a defined Tailwind class anywhere in the project — replaced with `border-[#1E1E23]`
+- `bg-surface`, `text-accent`, `bg-accent` are also undefined — replaced throughout with explicit tokens
