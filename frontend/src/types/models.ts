@@ -126,10 +126,14 @@ export interface Source {
   source_name: string;
   source_key: string;
   source_dialect: string;
-  source_connection: string;
+  source_connection: string | null;
   is_cache_enabled: boolean;
   restricted_to_roles: string[] | null;
   imported_from_webapi: string | null;
+  // Dynamic connection fields (DB-1.1) — never returned with password/db_options
+  db_host?: string | null;
+  db_port?: number | null;
+  db_database?: string | null;
   daimons: SourceDaimon[];
   created_at: string;
   updated_at: string;

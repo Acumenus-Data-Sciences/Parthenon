@@ -65,12 +65,7 @@ function StepIndicator({ currentStep }: { currentStep: number }) {
             </div>
             {!isLast && (
               <div className="flex-1 mx-2 mb-5">
-                <div
-                  className={cn(
-                    "h-[2px] w-full rounded-full",
-                    isCompleted ? "bg-[#C9A227]" : "bg-[#323238]",
-                  )}
-                />
+                <div className={cn("h-[2px] w-full rounded-full", isCompleted ? "bg-[#C9A227]" : "bg-[#323238]")} />
               </div>
             )}
           </div>
@@ -82,6 +77,19 @@ function StepIndicator({ currentStep }: { currentStep: number }) {
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
+const EMPTY_CONNECTION: ConnectionData = {
+  source_name: "",
+  source_key: "",
+  source_connection: "",
+  is_cache_enabled: false,
+  db_host: "",
+  db_port: "",
+  db_database: "",
+  username: "",
+  password: "",
+  db_options: {},
+};
+
 export function AddSourceWizard({ onClose }: Props) {
   const [currentStep, setCurrentStep] = useState(0);
   const [slideDir, setSlideDir] = useState<"forward" | "back">("forward");
@@ -90,18 +98,8 @@ export function AddSourceWizard({ onClose }: Props) {
 
   const [state, setState] = useState<WizardState>({
     dialect: "postgresql",
-    connection: {
-      source_name: "",
-      source_key: "",
-      source_connection: "",
-      is_cache_enabled: false,
-    },
-    daimons: {
-      cdm: "",
-      vocabulary: "",
-      results: "",
-      temp: "",
-    },
+    connection: EMPTY_CONNECTION,
+    daimons: { cdm: "", vocabulary: "", results: "", temp: "" },
   });
 
   const createSource = useCreateSource();
@@ -112,25 +110,17 @@ export function AddSourceWizard({ onClose }: Props) {
     setCurrentStep(toIndex);
   }
 
-  function goNext() {
-    if (currentStep < STEPS.length - 1) navigate(currentStep + 1, "forward");
-  }
-
-  function goPrev() {
-    if (currentStep > 0) navigate(currentStep - 1, "back");
-  }
-
   // ── Validation ───────────────────────────────────────────────────────────
 
   function canProceed(): boolean {
     const step = STEPS[currentStep].key;
     if (step === "database") return !!state.dialect;
     if (step === "connection") {
-      return (
-        state.connection.source_name.trim() !== "" &&
-        state.connection.source_key.trim() !== "" &&
-        state.connection.source_connection.trim() !== ""
-      );
+      const c = state.connection;
+      const hasName = c.source_name.trim() !== "" && c.source_key.trim() !== "";
+      // For dialects with dynamic fields, require at least host
+      const hasConn = c.db_host.trim() !== "" || c.source_connection.trim() !== "";
+      return hasName && hasConn;
     }
     if (step === "daimons") {
       return (
@@ -146,6 +136,8 @@ export function AddSourceWizard({ onClose }: Props) {
 
   async function handleSubmit() {
     setSubmitError(null);
+    const c = state.connection;
+
     const daimons: { daimon_type: string; table_qualifier: string; priority: number }[] = [
       { daimon_type: "cdm", table_qualifier: state.daimons.cdm, priority: 0 },
       { daimon_type: "vocabulary", table_qualifier: state.daimons.vocabulary, priority: 0 },
@@ -155,25 +147,30 @@ export function AddSourceWizard({ onClose }: Props) {
       daimons.push({ daimon_type: "temp", table_qualifier: state.daimons.temp, priority: 0 });
     }
 
+    const hasOptions = Object.values(c.db_options).some(Boolean);
+
     try {
       await createSource.mutateAsync({
-        source_name: state.connection.source_name,
-        source_key: state.connection.source_key,
+        source_name: c.source_name,
+        source_key: c.source_key,
         source_dialect: state.dialect,
-        source_connection: state.connection.source_connection,
-        is_cache_enabled: state.connection.is_cache_enabled,
+        source_connection: c.source_connection || undefined,
+        is_cache_enabled: c.is_cache_enabled,
+        db_host: c.db_host || undefined,
+        db_port: c.db_port ? parseInt(c.db_port) : undefined,
+        db_database: c.db_database || undefined,
+        username: c.username || undefined,
+        password: c.password || undefined,
+        db_options: hasOptions ? c.db_options : undefined,
         daimons,
-      });
+      } as Parameters<typeof createSource.mutateAsync>[0]);
       onClose();
     } catch (err: unknown) {
       const e = err as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } };
       if (e?.response?.data?.errors) {
-        const msgs = Object.values(e.response.data.errors).flat();
-        setSubmitError(msgs.join(" "));
-      } else if (e?.response?.data?.message) {
-        setSubmitError(e.response.data.message);
+        setSubmitError(Object.values(e.response.data.errors).flat().join(" "));
       } else {
-        setSubmitError("Failed to create source. Please check your inputs and try again.");
+        setSubmitError(e?.response?.data?.message ?? "Failed to create source. Please check your inputs.");
       }
     }
   }
@@ -186,11 +183,12 @@ export function AddSourceWizard({ onClose }: Props) {
     database: (
       <DatabaseStep
         dialect={state.dialect}
-        onChange={(dialect) => setState((s) => ({ ...s, dialect }))}
+        onChange={(dialect) => setState((s) => ({ ...s, dialect, connection: EMPTY_CONNECTION }))}
       />
     ),
     connection: (
       <ConnectionStep
+        dialect={state.dialect}
         data={state.connection}
         onChange={(connection) => setState((s) => ({ ...s, connection }))}
       />
@@ -214,7 +212,6 @@ export function AddSourceWizard({ onClose }: Props) {
   };
 
   const isLastStep = currentStep === STEPS.length - 1;
-  const isFirstStep = currentStep === 0;
 
   return (
     <>
@@ -232,7 +229,6 @@ export function AddSourceWizard({ onClose }: Props) {
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0E0E11]/90 backdrop-blur-sm">
         <div className="relative mx-4 flex w-full max-w-2xl flex-col rounded-2xl border border-[#232328] bg-[#151518] shadow-2xl max-h-[90vh]">
 
-          {/* Close button */}
           <button
             type="button"
             onClick={onClose}
@@ -242,10 +238,8 @@ export function AddSourceWizard({ onClose }: Props) {
             <X size={18} />
           </button>
 
-          {/* Step indicator */}
           <StepIndicator currentStep={currentStep} />
 
-          {/* Animated step content */}
           <div className="flex-1 overflow-y-auto px-8 py-4">
             <div
               key={animKey}
@@ -257,26 +251,26 @@ export function AddSourceWizard({ onClose }: Props) {
             </div>
           </div>
 
-          {/* Navigation footer (hidden on review step) */}
-          {!isLastStep && (
-            <div className="flex items-center justify-between border-t border-[#232328] px-8 py-4">
+          <div className="flex items-center justify-between border-t border-[#232328] px-8 py-4">
+            <button
+              type="button"
+              onClick={() => navigate(currentStep - 1, "back")}
+              disabled={currentStep === 0 || createSource.isPending}
+              className={cn(
+                "inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors",
+                currentStep === 0
+                  ? "cursor-not-allowed text-[#323238]"
+                  : "text-[#8A857D] hover:text-[#C5C0B8]",
+              )}
+            >
+              <ArrowLeft size={14} />
+              Back
+            </button>
+
+            {!isLastStep && (
               <button
                 type="button"
-                onClick={goPrev}
-                disabled={isFirstStep}
-                className={cn(
-                  "inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors",
-                  isFirstStep
-                    ? "cursor-not-allowed text-[#323238]"
-                    : "text-[#8A857D] hover:text-[#C5C0B8]",
-                )}
-              >
-                <ArrowLeft size={14} />
-                Back
-              </button>
-              <button
-                type="button"
-                onClick={goNext}
+                onClick={() => navigate(currentStep + 1, "forward")}
                 disabled={!canProceed()}
                 className={cn(
                   "inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors",
@@ -288,21 +282,8 @@ export function AddSourceWizard({ onClose }: Props) {
                 Next
                 <ArrowRight size={14} />
               </button>
-            </div>
-          )}
-          {isLastStep && (
-            <div className="flex items-center border-t border-[#232328] px-8 py-4">
-              <button
-                type="button"
-                onClick={goPrev}
-                disabled={createSource.isPending}
-                className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-[#8A857D] hover:text-[#C5C0B8] transition-colors disabled:opacity-50"
-              >
-                <ArrowLeft size={14} />
-                Back
-              </button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </>

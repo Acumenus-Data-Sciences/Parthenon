@@ -21,11 +21,12 @@ function SummaryCard({ title, children }: { title: string; children: React.React
 }
 
 function SummaryRow({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
+  if (!value) return null;
   return (
     <div className="flex items-start justify-between gap-4 text-sm">
       <span className="text-[#5A5650] shrink-0">{label}</span>
-      <span className={`text-right ${mono ? "font-mono text-[#C9A227]" : "text-[#C5C0B8]"}`}>
-        {value || <span className="text-[#5A5650] italic">—</span>}
+      <span className={`text-right break-all ${mono ? "font-mono text-[#C9A227] text-xs" : "text-[#C5C0B8]"}`}>
+        {value}
       </span>
     </div>
   );
@@ -38,7 +39,20 @@ const DAIMON_ICONS = {
   temp: Clock,
 };
 
-export function ReviewStep({ dialect, connection, daimons, onSubmit, isLoading, error }: Props) {
+const DIALECT_LABELS: Record<string, string> = {
+  postgresql: "PostgreSQL",
+  redshift: "Amazon Redshift",
+  oracle: "Oracle",
+  sqlserver: "SQL Server",
+  synapse: "Azure Synapse",
+  snowflake: "Snowflake",
+  databricks: "Databricks",
+  bigquery: "Google BigQuery",
+  duckdb: "DuckDB",
+  mysql: "MySQL",
+};
+
+export function ReviewStep({ dialect, connection: c, daimons, onSubmit, isLoading, error }: Props) {
   const daimonList = [
     { type: "cdm", qualifier: daimons.cdm },
     { type: "vocabulary", qualifier: daimons.vocabulary },
@@ -46,30 +60,44 @@ export function ReviewStep({ dialect, connection, daimons, onSubmit, isLoading, 
     ...(daimons.temp ? [{ type: "temp", qualifier: daimons.temp }] : []),
   ];
 
+  const connSummary = [
+    c.db_host && { label: "Host", value: c.db_host },
+    c.db_port && { label: "Port", value: c.db_port },
+    c.db_database && { label: "Database", value: c.db_database },
+    c.username && { label: "Username", value: c.username },
+    c.password && { label: "Password", value: "••••••••" },
+    c.source_connection && { label: "Connection", value: c.source_connection },
+    c.is_cache_enabled && { label: "Query cache", value: "Enabled" },
+    ...Object.entries(c.db_options)
+      .filter(([, v]) => v)
+      .map(([k, v]) => ({ label: k, value: v })),
+  ].filter(Boolean) as { label: string; value: string }[];
+
   return (
     <div className="space-y-5">
       <div>
         <h2 className="text-lg font-semibold text-[#F0EDE8]">Review & Add Source</h2>
         <p className="mt-1 text-sm text-[#8A857D]">
-          Confirm the settings below, then click Add Source to register it.
+          Confirm the settings below, then click Add Source.
         </p>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        {/* Left: summary cards */}
+        {/* Left: summary */}
         <div className="space-y-3">
           <SummaryCard title="Database">
-            <SummaryRow label="Type" value={dialect === "postgresql" ? "PostgreSQL" : dialect} />
+            <SummaryRow label="Type" value={DIALECT_LABELS[dialect] ?? dialect} />
+          </SummaryCard>
+
+          <SummaryCard title="Identity">
+            <SummaryRow label="Name" value={c.source_name} />
+            <SummaryRow label="Key" value={c.source_key} mono />
           </SummaryCard>
 
           <SummaryCard title="Connection">
-            <SummaryRow label="Name" value={connection.source_name} />
-            <SummaryRow label="Key" value={connection.source_key} mono />
-            <SummaryRow label="Connection" value={connection.source_connection} mono />
-            <SummaryRow
-              label="Query cache"
-              value={connection.is_cache_enabled ? "Enabled" : "Disabled"}
-            />
+            {connSummary.map(({ label, value }) => (
+              <SummaryRow key={label} label={label} value={value} mono={["Host", "Port", "Database", "Connection"].includes(label)} />
+            ))}
           </SummaryCard>
 
           <SummaryCard title="Daimons">
@@ -88,14 +116,12 @@ export function ReviewStep({ dialect, connection, daimons, onSubmit, isLoading, 
 
         {/* Right: what happens next */}
         <div className="rounded-lg border border-[#232328] bg-[#0E0E11] p-4 space-y-3">
-          <h4 className="text-xs font-semibold uppercase tracking-wider text-[#8A857D]">
-            What happens next
-          </h4>
+          <h4 className="text-xs font-semibold uppercase tracking-wider text-[#8A857D]">What happens next</h4>
           <ul className="space-y-2">
             {[
-              "The source is registered in the Parthenon database",
-              "Daimon schema qualifiers are stored for query routing",
-              "The source appears in the Data Sources list immediately",
+              "Source is registered in the Parthenon database",
+              "Daimon schema qualifiers stored for query routing",
+              "Source appears in the Data Sources list immediately",
               "Users with access can select it in Data Explorer",
               "Run Achilles in the R service to populate characterization data",
             ].map((item, i) => (
@@ -110,14 +136,12 @@ export function ReviewStep({ dialect, connection, daimons, onSubmit, isLoading, 
         </div>
       </div>
 
-      {/* Error */}
       {error && (
         <div className="rounded-lg border border-[#E85A6B]/30 bg-[#E85A6B]/10 px-4 py-3 text-sm text-[#E85A6B]">
           {error}
         </div>
       )}
 
-      {/* Submit */}
       <button
         type="button"
         onClick={onSubmit}
