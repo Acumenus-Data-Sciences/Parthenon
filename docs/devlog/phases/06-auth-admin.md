@@ -278,8 +278,8 @@ Both return HTTP 422 with a descriptive message rather than silently failing.
 - `components/layout/Sidebar.tsx` — role-gated admin links + sub-navigation
 
 ### Docs
-- `docs/devlog/phase-6-auth-admin.md` — this file
-- `PLAN.md` — Phase 6 updated; Phase 8 extensively rewritten
+- `docs/devlog/phases/06-auth-admin.md` — this file
+- `docs/devlog/strategy/PLAN.md` — Phase 6 updated; Phase 8 extensively rewritten
 
 ---
 
@@ -287,7 +287,7 @@ Both return HTTP 422 with a descriptive message rather than silently failing.
 
 ### Overview
 
-After the initial Phase 6 delivery, the full auth regime from `docs/devlog/authregime.md` was implemented. This adapts the Node.js/Express auth pattern from that document to Parthenon's Laravel/React stack. The core additions are:
+After the initial Phase 6 delivery, the full auth regime from `docs/devlog/architecture/authregime.md` was implemented. This adapts the Node.js/Express auth pattern from that document to Parthenon's Laravel/React stack. The core additions are:
 
 - **Temp password registration flow** — users register with email + name only; a generated temp password is emailed to them
 - **`must_change_password` enforcement** — blocking modal on first login, cleared only after password change

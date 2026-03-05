@@ -136,9 +136,9 @@ The Rich TUI walks through prerequisites, environment setup, container orchestra
 | User Manual (26 chapters + 7 appendices) | [/docs](https://parthenon.acumenus.net/docs) |
 | API Reference (173 endpoints) | [/docs/api](https://parthenon.acumenus.net/docs/api) |
 | Atlas → Parthenon Migration Guide | [/docs/migration](https://parthenon.acumenus.net/docs/migration) |
-| Technical Architecture | [SPECS.md](docs/SPECS.md) |
-| Roadmap (Phases 15–17) | [ROADMAP.md](docs/ROADMAP.md) |
-| SDLC & Development Process | [SDLC-plan.md](docs/SDLC-plan.md) |
+| Technical Architecture | [SPECS.md](docs/devlog/strategy/SPECS.md) |
+| Roadmap (Phases 15–17) | [ROADMAP.md](docs/devlog/strategy/ROADMAP.md) |
+| SDLC & Development Process | [SDLC-plan.md](docs/devlog/strategy/SDLC-plan.md) |
 | Phase devlogs | [docs/devlog/](docs/devlog/) |
 
 ---
@@ -180,11 +180,11 @@ Parthenon consolidates more than a dozen OHDSI tools into a single deployable ap
 
 1. Fork and clone the repo
 2. Branch off `main`: `git checkout -b feature/your-feature`
-3. Follow the SDLC process in [docs/SDLC-plan.md](docs/SDLC-plan.md)
+3. Follow the SDLC process in [docs/devlog/strategy/SDLC-plan.md](docs/devlog/strategy/SDLC-plan.md)
 4. Run the Phase 8 quality gates: PHPStan, Pest, TSC, ESLint, Vitest
 5. Open a PR against `main` — CI must be fully green
 
-See [docs/SDLC-documentation.md](docs/SDLC-documentation.md) for the complete Phase 8/9 checklist.
+See [docs/devlog/process/SDLC-documentation.md](docs/devlog/process/SDLC-documentation.md) for the complete Phase 8/9 checklist.
 
 The original OHDSI Atlas codebase is archived at the `archive/legacy` branch.
 

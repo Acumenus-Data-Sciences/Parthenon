@@ -418,8 +418,8 @@ The `CriteriaGroupEditor` passes a `groupPath: number[]` prop (index chain from 
 - `features/vocabulary/pages/VocabularyPage.tsx`
 
 ### Docs
-- `docs/devlog/phase-5-research-workbench.md` — this file
-- `docs/devlog/DESIGNLOG.md` — full design decisions log added
+- `docs/devlog/phases/05-research-workbench.md` — this file
+- `docs/devlog/strategy/DESIGNLOG.md` — full design decisions log added
 
 ---
 
@@ -1219,4 +1219,4 @@ All new routes added within the `auth:sanctum` middleware group. Care bundles an
 - `r-runtime/plumber_api.R` — mounted estimation + prediction routers
 
 ### Docs
-- `docs/devlog/phase-5-research-workbench.md` — this file (updated)
+- `docs/devlog/phases/05-research-workbench.md` — this file (updated)

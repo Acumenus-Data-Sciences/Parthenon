@@ -498,7 +498,7 @@ backend/database/migrations/2026_03_02_000000_create_achilles_heel_results_table
 backend/bootstrap/providers.php              (added AchillesServiceProvider)
 backend/routes/api.php                       (added /heel and /heel/run endpoints)
 backend/app/Http/Controllers/Api/V1/AchillesController.php  (heel() and runHeel())
-docs/devlog/phase-4-data-quality.md         (appended gap analysis section)
+docs/devlog/phases/04-data-quality.md      (appended gap analysis section)
 ```
 
 ---
@@ -954,7 +954,7 @@ backend/database/migrations/2026_03_02_210000_create_network_analysis_results_ta
 ```
 backend/bootstrap/providers.php   (added NetworkAnalysisServiceProvider)
 backend/routes/api.php            (added /network/* endpoints)
-docs/devlog/phase-11-parthenon-analyses.md
+docs/devlog/phases/11-analyses.md
 ```
 
 ### Registry Summary (post-Phase-11h — FINAL)

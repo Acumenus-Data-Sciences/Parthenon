@@ -202,7 +202,7 @@ Uses Source model's `getTableQualifier(DaimonType::Results)` for schema resoluti
 
 7. **Source-scoped endpoints** — All Achilles and DQD endpoints are scoped under `/v1/sources/{source}/` to support multiple CDM sources with independent characterization.
 
-8. **Dark clinical chart theme** — All recharts and SVG visualizations use the DESIGNLOG.md color system: transparent backgrounds, teal (#2DD4BF) primary series, gold (#C9A227) accents, #F0EDE8 axis text, #323238 grid lines.
+8. **Dark clinical chart theme** — All recharts and SVG visualizations use the [DESIGNLOG.md](../strategy/DESIGNLOG.md) color system: transparent backgrounds, teal (#2DD4BF) primary series, gold (#C9A227) accents, #F0EDE8 axis text, #323238 grid lines.
 
 ---
 

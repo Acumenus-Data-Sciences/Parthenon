@@ -8,7 +8,7 @@
 
 ## Overview
 
-Phase 8 establishes the testing infrastructure and baseline test coverage for all runtimes. The guiding principle from PLAN.md: "testing is a first-class concern throughout every phase, not a post-hoc activity."
+Phase 8 establishes the testing infrastructure and baseline test coverage for all runtimes. The guiding principle from [PLAN.md](../strategy/PLAN.md): "testing is a first-class concern throughout every phase, not a post-hoc activity."
 
 Work completed in this pass:
 
@@ -113,7 +113,7 @@ After DB consolidation (all schemas in one Postgres instance with search_path), 
 
 ## Not Yet Implemented
 
-From PLAN.md Phase 8, these remain for future passes:
+From [PLAN.md](../strategy/PLAN.md) Phase 8, these remain for future passes:
 
 - **Eunomia integration tests** — cohort generation against synthetic dataset with known-output validation
 - **Playwright E2E** — critical user journeys (login, source config, cohort build, analysis run)

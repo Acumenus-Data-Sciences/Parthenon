@@ -365,7 +365,7 @@ Portal-rendered to `document.body` to escape stacking contexts. Fuzzy search fil
 - `frontend/package.json` — added cmdk, framer-motion, date-fns, @tanstack/react-virtual
 
 ### Docs
-- `docs/devlog/phase-7-frontend-ux-polish.md` — this file
+- `docs/devlog/phases/07-frontend-ux-polish.md` — this file
 
 ---
 

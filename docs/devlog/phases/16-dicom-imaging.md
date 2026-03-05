@@ -5,7 +5,7 @@
 
 ## Plan
 
-Per ROADMAP.md:
+Per [ROADMAP.md](../strategy/ROADMAP.md):
 - §16.1: App-layer imaging tables (image_occurrences, image_features, orthanc_series) + models
 - §16.2: DICOM metadata ETL service (DICOMweb QIDO-RS → OMOP Image_occurrence)
 - §16.3: Imaging criteria in cohort builder (modality, anatomy, AI-derived classification, dose)
@@ -244,3 +244,44 @@ Additionally, modality badges used light-mode colors (`bg-blue-100 text-blue-800
 - **Docker node container**: `npm install` on the host does NOT install into the Docker node container used for `./deploy.sh --frontend`. Must run inside container: `docker compose exec node sh -c "cd /app && npm install --legacy-peer-deps ..."`.
 
 ---
+
+## §16.8 — Cornerstone3D v3 API Fix (2026-03-05)
+
+### Problem
+
+After the initial viewer implementation, the browser console showed:
+```
+TypeError: C1.configure is not a function
+```
+
+This crash prevented any DICOM images from loading in the viewer. The error originated in `DicomViewer.tsx` where the initialization code called:
+```typescript
+dicomImageLoader.configure({ useWebWorkers: false });
+dicomImageLoader.external.cornerstone = cornerstone;
+dicomImageLoader.external.dicomParser = dicomParser;
+```
+
+These APIs (`configure()`, `external`) belong to the **old** `cornerstone-wado-image-loader` package (v2 API). The project uses `@cornerstonejs/dicom-image-loader` v3+, which has a completely different API — it uses `init()` instead, which auto-registers the `wadouri:` and `wadors:` image loader schemes with Cornerstone core automatically.
+
+A secondary console warning about React Router future flags was also addressed.
+
+### Fixes Applied
+
+**`frontend/src/features/imaging/components/DicomViewer.tsx`**:
+- Removed: `import dicomImageLoader from "@cornerstonejs/dicom-image-loader"`
+- Removed: `import dicomParser from "dicom-parser"` (not needed — bundled internally)
+- Added: `import { init as dicomImageLoaderInit } from "@cornerstonejs/dicom-image-loader"`
+- Replaced the configure/external block with a single `dicomImageLoaderInit()` call in `initCornerstone()`
+
+**`frontend/src/app/router.tsx`**:
+- Added `{ future: { v7_startTransition: true } }` as second argument to `createBrowserRouter()`
+- Silences the React Router v6→v7 deprecation warning
+
+### Architecture Note
+
+In `@cornerstonejs/dicom-image-loader` v3+:
+- `init()` registers the `wadouri:` and `wadors:` schemes with `@cornerstonejs/core` automatically
+- The `dicom-parser` peer dependency is handled internally
+- `configure()` and `external` do not exist — attempting to call them throws `TypeError`
+- No `useWebWorkers` option needed; the loader uses streaming fetch by default
+

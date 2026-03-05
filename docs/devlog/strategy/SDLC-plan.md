@@ -103,11 +103,11 @@ main
 git checkout main && git pull
 git checkout -b feature/phase-15-genomics
 
-# 2. Review the phase specification in docs/devlog/PLAN.md
+# 2. Review the phase specification in docs/devlog/strategy/PLAN.md
 # Understand: new models, new endpoints, new pages, new Docker services
 
 # 3. Create devlog skeleton
-touch docs/devlog/phase-15-genomics.md
+touch docs/devlog/phases/15-genomics.md
 # Fill in: Phase title, date, status: In Progress
 
 # 4. Begin implementation (models → migrations → services → controllers → routes → frontend)

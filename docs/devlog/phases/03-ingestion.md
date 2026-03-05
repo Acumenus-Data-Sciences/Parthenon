@@ -218,7 +218,7 @@ Phase 3 builds the AI-powered data ingestion pipeline, replacing the legacy Whit
 
 7. **DQD-aligned validation** — The 29 validation checks mirror OHDSI Data Quality Dashboard categories (completeness, conformance, plausibility) to ensure CDM data quality meets community standards.
 
-8. **Dark clinical theme with glassmorphic design** — All frontend components follow the DESIGNLOG.md design system: #0E0E11/#151518/#1A1A1E layered surfaces, #9B1B30 crimson primary, #C9A227 gold accent, #2DD4BF teal for success/confidence, IBM Plex Mono for clinical codes.
+8. **Dark clinical theme with glassmorphic design** — All frontend components follow the [DESIGNLOG.md](../strategy/DESIGNLOG.md) design system: #0E0E11/#151518/#1A1A1E layered surfaces, #9B1B30 crimson primary, #C9A227 gold accent, #2DD4BF teal for success/confidence, IBM Plex Mono for clinical codes.
 
 ---
 
