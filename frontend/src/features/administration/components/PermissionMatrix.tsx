@@ -4,13 +4,10 @@
  * Clicking a column header toggles all permissions for that role.
  * Clicking a row header toggles that permission across all roles.
  * Clicking a domain section header toggles all permissions in that domain for all roles.
- *
- * Designed for admins who need to quickly replicate or compare permissions
- * across multiple roles without editing each role individually.
  */
 
-import { useState } from "react";
-import { Check, Minus } from "lucide-react";
+import { Fragment, useState } from "react";
+import { Check, X, Minus, Loader2 } from "lucide-react";
 import type { Role } from "@/types/models";
 import type { PermissionsByDomain } from "../api/adminApi";
 import { useUpdateRole } from "../hooks/useAdminRoles";
@@ -120,50 +117,55 @@ export function PermissionMatrix({ roles, permissionsByDomain }: Props) {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">
-          Click cells to toggle individual permissions, row headers to apply across all roles,
-          or column headers to grant/revoke all permissions for a role.
+      {/* Toolbar */}
+      <div className="flex items-center justify-between gap-4">
+        <p className="text-sm text-[#8A857D]">
+          Click cells to toggle permissions · row headers to apply across all roles ·
+          column headers to grant/revoke all for a role.
         </p>
         {dirty.size > 0 && (
           <button
+            type="button"
             onClick={saveAll}
-            className="rounded-md bg-primary px-4 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+            className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-4 py-1.5 text-sm font-medium text-[#0E0E11] transition-colors hover:bg-[#26B8A5] shrink-0"
           >
             Save All Changes ({dirty.size} role{dirty.size > 1 ? "s" : ""})
           </button>
         )}
       </div>
 
-      <div className="overflow-x-auto rounded-lg border border-border">
+      {/* Matrix table */}
+      <div className="overflow-x-auto rounded-lg border border-[#232328] bg-[#151518]">
         <table className="w-full text-xs">
           <thead>
-            {/* Role name headers */}
-            <tr className="border-b border-border bg-muted/50">
-              <th className="w-48 px-3 py-2 text-left font-medium text-muted-foreground sticky left-0 bg-muted/50 z-10">
+            <tr className="border-b border-[#232328] bg-[#1C1C20]">
+              <th className="sticky left-0 z-10 w-48 bg-[#1C1C20] px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wider text-[#5A5650]">
                 Permission
               </th>
               {editableRoles.map((r) => (
                 <th
                   key={r.id}
-                  className="px-2 py-2 text-center min-w-[7rem] cursor-pointer hover:bg-accent"
+                  className="min-w-[8rem] cursor-pointer px-2 py-2.5 text-center transition-colors hover:bg-[#232328]"
                   onClick={() => toggleColumn(r.name)}
                   title={`Toggle all permissions for ${r.name}`}
                 >
-                  <div className="font-medium text-foreground">{r.name}</div>
-                  <div className="text-muted-foreground font-normal mt-0.5">
+                  <div className="font-semibold text-[#F0EDE8]">{r.name}</div>
+                  <div className="mt-0.5 font-normal text-[#5A5650]">
                     {matrix[r.name]?.size ?? 0} perms
                   </div>
                   {dirty.has(r.name) && (
                     <div className="mt-0.5">
                       {saving.has(r.name) ? (
-                        <span className="text-muted-foreground">saving…</span>
+                        <span className="inline-flex items-center gap-1 text-[#8A857D]">
+                          <Loader2 size={10} className="animate-spin" /> saving…
+                        </span>
                       ) : saved.has(r.name) ? (
-                        <span className="text-green-600">saved</span>
+                        <span className="text-[#22C55E]">saved ✓</span>
                       ) : (
                         <button
+                          type="button"
                           onClick={(e) => { e.stopPropagation(); saveRole(r.name); }}
-                          className="text-primary underline underline-offset-2"
+                          className="text-[#2DD4BF] underline underline-offset-2 hover:text-[#26B8A5]"
                         >
                           save
                         </button>
@@ -175,73 +177,73 @@ export function PermissionMatrix({ roles, permissionsByDomain }: Props) {
             </tr>
           </thead>
           <tbody>
-            {allDomains.map(([domain, perms]) => {
-              return (
-                <>
-                  {/* Domain section header row */}
-                  <tr
-                    key={`domain-${domain}`}
-                    className="bg-muted/30 border-t border-border cursor-pointer hover:bg-muted/50"
-                    onClick={() => toggleDomainRow(perms)}
-                    title={`Toggle all ${domain} permissions across all roles`}
-                  >
-                    <td className="px-3 py-1.5 font-semibold text-foreground capitalize sticky left-0 bg-muted/30 z-10">
-                      {domain}
-                    </td>
-                    {editableRoles.map((r) => {
-                      const domOn = perms.every((p) => matrix[r.name]?.has(p.name));
-                      const domSome = perms.some((p) => matrix[r.name]?.has(p.name));
-                      return (
-                        <td key={r.id} className="px-2 py-1.5 text-center">
-                          {domOn ? (
-                            <Check className="mx-auto h-3.5 w-3.5 text-primary" />
-                          ) : domSome ? (
-                            <Minus className="mx-auto h-3.5 w-3.5 text-muted-foreground" />
-                          ) : null}
-                        </td>
-                      );
-                    })}
-                  </tr>
-
-                  {/* Individual permission rows */}
-                  {perms.map((perm) => {
-                    const action = perm.name.split(".")[1];
-
+            {allDomains.map(([domain, perms]) => (
+              <Fragment key={domain}>
+                {/* Domain section header */}
+                <tr
+                  className="cursor-pointer border-t border-[#232328] bg-[#1C1C20]/60 transition-colors hover:bg-[#1C1C20]"
+                  onClick={() => toggleDomainRow(perms)}
+                  title={`Toggle all ${domain} permissions across all roles`}
+                >
+                  <td className="sticky left-0 z-10 bg-[#1C1C20] px-3 py-1.5 font-semibold capitalize text-[#C5C0B8]">
+                    {domain}
+                  </td>
+                  {editableRoles.map((r) => {
+                    const domOn = perms.every((p) => matrix[r.name]?.has(p.name));
+                    const domSome = perms.some((p) => matrix[r.name]?.has(p.name));
                     return (
-                      <tr
-                        key={perm.name}
-                        className="border-t border-border/50 hover:bg-muted/20"
-                      >
-                        <td
-                          className="px-3 py-1 cursor-pointer sticky left-0 bg-background z-10 hover:bg-accent"
-                          onClick={() => toggleRow(perm.name)}
-                          title={`Toggle ${perm.name} for all roles`}
-                        >
-                          <span className="font-mono text-muted-foreground pl-3">{action}</span>
-                        </td>
-                        {editableRoles.map((r) => {
-                          const on = matrix[r.name]?.has(perm.name);
-                          return (
-                            <td
-                              key={r.id}
-                              className="px-2 py-1 text-center cursor-pointer hover:bg-accent/60"
-                              onClick={() => toggleCell(r.name, perm.name)}
-                              title={`${on ? "Revoke" : "Grant"} ${perm.name} from ${r.name}`}
-                            >
-                              {on && (
-                                <span className="mx-auto flex h-4 w-4 items-center justify-center rounded bg-primary/15">
-                                  <Check className="h-3 w-3 text-primary" />
-                                </span>
-                              )}
-                            </td>
-                          );
-                        })}
-                      </tr>
+                      <td key={r.id} className="px-2 py-1.5 text-center">
+                        {domOn ? (
+                          <Check className="mx-auto h-3.5 w-3.5 text-[#22C55E]" />
+                        ) : domSome ? (
+                          <Minus className="mx-auto h-3.5 w-3.5 text-[#8A857D]" />
+                        ) : (
+                          <X className="mx-auto h-3.5 w-3.5 text-[#E85A6B]/40" />
+                        )}
+                      </td>
                     );
                   })}
-                </>
-              );
-            })}
+                </tr>
+
+                {/* Individual permission rows */}
+                {perms.map((perm) => {
+                  const action = perm.name.split(".")[1];
+                  return (
+                    <tr
+                      key={perm.name}
+                      className="border-t border-[#232328]/50 transition-colors hover:bg-[#1C1C20]/30"
+                    >
+                      <td
+                        className="sticky left-0 z-10 cursor-pointer bg-[#151518] px-3 py-1 transition-colors hover:bg-[#1C1C20]"
+                        onClick={() => toggleRow(perm.name)}
+                        title={`Toggle ${perm.name} for all roles`}
+                      >
+                        <span className="pl-3 font-mono text-[#8A857D]">{action}</span>
+                      </td>
+                      {editableRoles.map((r) => {
+                        const on = matrix[r.name]?.has(perm.name);
+                        return (
+                          <td
+                            key={r.id}
+                            className="cursor-pointer px-2 py-1 text-center transition-colors hover:bg-[#1C1C20]/60"
+                            onClick={() => toggleCell(r.name, perm.name)}
+                            title={`${on ? "Revoke" : "Grant"} ${perm.name} from ${r.name}`}
+                          >
+                            {on ? (
+                              <span className="mx-auto flex h-4 w-4 items-center justify-center rounded bg-[#22C55E]/15">
+                                <Check className="h-3 w-3 text-[#22C55E]" />
+                              </span>
+                            ) : (
+                              <X className="mx-auto h-3 w-3 text-[#E85A6B]/35" />
+                            )}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  );
+                })}
+              </Fragment>
+            ))}
           </tbody>
         </table>
       </div>
