@@ -11,8 +11,8 @@ Each phase is designed so that it delivers standalone value before the next one 
 | Version | Status | What ships |
 |---|---|---|
 | **0.9** | Shipped | Full Atlas parity, Docusaurus manual, API reference, in-app help |
-| **1.0** | In development | Phase 14 — complete HADES R sidecar integration (CohortMethod, PLP, SCCS in production) |
-| **1.1** | Planned | Phase 15 — Molecular Diagnostics & Cancer Genomics |
+| **1.0** | Shipped | Phase 14 — CDM characterization dashboard, patient profiles, care gaps materialized layer, Eunomia GiBleed loader, multi-source Achilles |
+| **1.1** | In development | Phase 15 — Molecular Diagnostics & Cancer Genomics |
 | **1.2** | Planned | Phase 16 — DICOM & Medical Imaging |
 | **1.3** | Planned | Phase 17 — Health Economics & Outcomes Research |
 
@@ -203,3 +203,4 @@ Phase priorities are informed by the OHDSI community and clinical research needs
 
 [github.com/sudoshi/Parthenon/issues](https://github.com/sudoshi/Parthenon/issues)
 [github.com/sudoshi/Parthenon/discussions](https://github.com/sudoshi/Parthenon/discussions)
+
