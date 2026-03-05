@@ -226,6 +226,13 @@ export const router = createBrowserRouter([
               ),
           },
           {
+            path: "create",
+            lazy: () =>
+              import("@/features/studies/pages/StudyCreatePage").then(
+                (m) => ({ Component: m.default }),
+              ),
+          },
+          {
             path: ":id",
             lazy: () =>
               import(

@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Plus,
@@ -8,19 +8,14 @@ import {
   Briefcase,
   FlaskConical,
   Shield,
-  BarChart3,
-  Brain,
-  Scale,
-  Pill,
   Activity,
-  Wrench,
   LayoutGrid,
   List,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { StudyList } from "../components/StudyList";
 import { StudyCard } from "../components/StudyCard";
-import { useStudies, useCreateStudy, useStudyStats } from "../hooks/useStudies";
+import { useStudies, useStudyStats } from "../hooks/useStudies";
 
 const STUDY_TYPE_OPTIONS = [
   { value: "characterization", label: "Characterization", icon: BarChart3, color: "#2DD4BF" },
@@ -38,15 +33,12 @@ export default function StudiesPage() {
   const [page, setPage] = useState(1);
   const [searchInput, setSearchInput] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [showCreateMenu, setShowCreateMenu] = useState(false);
   const [viewMode, setViewMode] = useState<"table" | "card">(() => {
     return (localStorage.getItem("studies-view") as "table" | "card") || "table";
   });
-  const createMenuRef = useRef<HTMLDivElement>(null);
 
   const { data: stats } = useStudyStats();
   const { data, isLoading, error } = useStudies(page, debouncedSearch);
-  const createMutation = useCreateStudy();
 
   // Debounce search
   useEffect(() => {
@@ -61,33 +53,6 @@ export default function StudiesPage() {
   useEffect(() => {
     localStorage.setItem("studies-view", viewMode);
   }, [viewMode]);
-
-  // Close create menu on outside click
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (createMenuRef.current && !createMenuRef.current.contains(e.target as Node)) {
-        setShowCreateMenu(false);
-      }
-    };
-    if (showCreateMenu) document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, [showCreateMenu]);
-
-  const handleCreate = (studyType: string) => {
-    setShowCreateMenu(false);
-    const label = STUDY_TYPE_OPTIONS.find((t) => t.value === studyType)?.label ?? studyType;
-    createMutation.mutate(
-      {
-        title: `New ${label} Study`,
-        study_type: studyType,
-      },
-      {
-        onSuccess: (study) => {
-          navigate(`/studies/${study.slug || study.id}`);
-        },
-      },
-    );
-  };
 
   const studies = useMemo(() => data?.data ?? [], [data]);
 
@@ -165,41 +130,15 @@ export default function StudiesPage() {
             </button>
           </div>
 
-          {/* New Study dropdown */}
-          <div className="relative" ref={createMenuRef}>
-            <button
-              type="button"
-              onClick={() => setShowCreateMenu(!showCreateMenu)}
-              disabled={createMutation.isPending}
-              className="btn btn-primary"
-            >
-              {createMutation.isPending ? (
-                <Loader2 size={16} className="animate-spin" />
-              ) : (
-                <Plus size={16} />
-              )}
-              New Study
-            </button>
-
-            {showCreateMenu && (
-              <div className="absolute right-0 top-full mt-2 w-72 rounded-lg border border-[#232328] bg-[#1C1C20] shadow-xl z-50 py-1">
-                {STUDY_TYPE_OPTIONS.map((opt) => {
-                  const Icon = opt.icon;
-                  return (
-                    <button
-                      key={opt.value}
-                      type="button"
-                      onClick={() => handleCreate(opt.value)}
-                      className="w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-[#232328] transition-colors"
-                    >
-                      <Icon size={16} style={{ color: opt.color }} />
-                      <span className="text-sm text-[#F0EDE8]">{opt.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-          </div>
+          {/* New Study */}
+          <button
+            type="button"
+            onClick={() => navigate("/studies/create")}
+            className="btn btn-primary"
+          >
+            <Plus size={16} />
+            New Study
+          </button>
         </div>
       </div>
 
