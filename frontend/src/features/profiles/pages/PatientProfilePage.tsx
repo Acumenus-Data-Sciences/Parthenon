@@ -12,10 +12,12 @@ import {
   Hospital,
   Download,
   GitBranch,
+  AlertTriangle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
-import { usePatientProfile } from "../hooks/useProfiles";
+import { usePatientProfile, useProfileStats } from "../hooks/useProfiles";
+import { PROFILE_DOMAIN_LIMIT } from "../api/profileApi";
 import { PatientDemographicsCard } from "../components/PatientDemographicsCard";
 import { PatientTimeline } from "../components/PatientTimeline";
 import { ClinicalEventCard } from "../components/ClinicalEventCard";
@@ -25,6 +27,7 @@ import { PatientSummaryStats } from "../components/PatientSummaryStats";
 import { PatientLabPanel } from "../components/PatientLabPanel";
 import { PatientVisitView } from "../components/PatientVisitView";
 import { PatientSearchPanel } from "../components/PatientSearchPanel";
+import { ConceptDetailDrawer } from "../components/ConceptDetailDrawer";
 import type { ClinicalDomain, ClinicalEvent } from "../types/profile";
 
 type ViewMode = "timeline" | "list" | "labs" | "visits" | "eras";
@@ -108,6 +111,7 @@ export default function PatientProfilePage() {
   );
   const [viewMode, setViewMode] = useState<ViewMode>("timeline");
   const [domainTab, setDomainTab] = useState<DomainTab>("all");
+  const [selectedEvent, setSelectedEvent] = useState<ClinicalEvent | null>(null);
 
   const { data: sources, isLoading: loadingSources } = useQuery({
     queryKey: ["sources"],
@@ -119,6 +123,8 @@ export default function PatientProfilePage() {
     isLoading: loadingProfile,
     error: profileError,
   } = usePatientProfile(sourceId, parsedPersonId);
+
+  const { data: profileStats } = useProfileStats(sourceId, parsedPersonId);
 
   // All events combined + sorted
   const allEvents = useMemo(() => {
@@ -144,6 +150,22 @@ export default function PatientProfilePage() {
   const hasEras =
     (profile?.condition_eras?.length ?? 0) > 0 ||
     (profile?.drug_eras?.length ?? 0) > 0;
+
+  // Domains where the loaded count equals the backend limit — likely truncated
+  const truncatedDomains = useMemo(() => {
+    if (!profile || !profileStats) return [];
+    const domainMap: { key: keyof typeof profileStats; label: string; loaded: number }[] = [
+      { key: "condition", label: "Conditions", loaded: profile.conditions.length },
+      { key: "drug", label: "Drugs", loaded: profile.drugs.length },
+      { key: "procedure", label: "Procedures", loaded: profile.procedures.length },
+      { key: "measurement", label: "Measurements", loaded: profile.measurements.length },
+      { key: "observation", label: "Observations", loaded: profile.observations.length },
+      { key: "visit", label: "Visits", loaded: profile.visits.length },
+    ];
+    return domainMap
+      .filter((d) => profileStats[d.key] > PROFILE_DOMAIN_LIMIT)
+      .map((d) => ({ label: d.label, total: profileStats[d.key], loaded: d.loaded }));
+  }, [profile, profileStats]);
 
   const handleSelectPerson = (sid: number, pid: number) => {
     setSourceId(sid);
@@ -285,7 +307,24 @@ export default function PatientProfilePage() {
           />
 
           {/* Summary stats bar */}
-          <PatientSummaryStats profile={profile} />
+          <PatientSummaryStats profile={profile} stats={profileStats} />
+
+          {/* Truncation warning */}
+          {truncatedDomains.length > 0 && (
+            <div className="flex items-start gap-2 rounded-lg border border-[#C9A227]/30 bg-[#C9A227]/5 px-4 py-3">
+              <AlertTriangle size={14} className="text-[#C9A227] shrink-0 mt-0.5" />
+              <div className="text-xs text-[#C9A227]">
+                <span className="font-semibold">Results capped at {PROFILE_DOMAIN_LIMIT.toLocaleString()} per domain. </span>
+                Showing most recent records only.{" "}
+                {truncatedDomains.map((d, i) => (
+                  <span key={d.label}>
+                    {i > 0 && " · "}
+                    {d.label}: {d.loaded.toLocaleString()} of {d.total.toLocaleString()}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* View controls */}
           <div className="flex items-center justify-between gap-3 flex-wrap">
@@ -335,6 +374,7 @@ export default function PatientProfilePage() {
             <PatientTimeline
               events={allEvents}
               observationPeriods={profile.observation_periods}
+              onEventClick={setSelectedEvent}
             />
           )}
 
@@ -405,8 +445,12 @@ export default function PatientProfilePage() {
               )}
             </div>
           )}
-        </>
-      )}
+        <ConceptDetailDrawer
+          event={selectedEvent}
+          onClose={() => setSelectedEvent(null)}
+        />
+      </>
+    )}
     </div>
   );
 }

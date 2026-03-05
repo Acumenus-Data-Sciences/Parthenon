@@ -58,6 +58,7 @@ function formatTooltipDate(d: string): string {
 interface PatientTimelineProps {
   events: ClinicalEvent[];
   observationPeriods?: ObservationPeriod[];
+  onEventClick?: (event: ClinicalEvent) => void;
 }
 
 const LANE_HEIGHT = 28;
@@ -66,7 +67,7 @@ const MIN_EVENT_WIDTH = 4;
 const TIMELINE_PADDING = 60;
 const LABEL_WIDTH = 148;
 
-export function PatientTimeline({ events, observationPeriods = [] }: PatientTimelineProps) {
+export function PatientTimeline({ events, observationPeriods = [], onEventClick }: PatientTimelineProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [collapsedDomains, setCollapsedDomains] = useState<Set<ClinicalDomain>>(new Set());
   const [hiddenDomains, setHiddenDomains] = useState<Set<ClinicalDomain>>(new Set());
@@ -241,6 +242,29 @@ export function PatientTimeline({ events, observationPeriods = [] }: PatientTime
     return result;
   }, [timeMin, timeMax]);
 
+  // Event density strip — monthly buckets across the full time range
+  const densityBuckets = useMemo(() => {
+    const spanMs = timeMax - timeMin;
+    // Choose bucket size: monthly for spans < 10yr, quarterly for longer
+    const bucketMs = spanMs > 10 * 365.25 * 24 * 60 * 60 * 1000
+      ? 90 * 24 * 60 * 60 * 1000   // ~quarterly
+      : 30 * 24 * 60 * 60 * 1000;  // ~monthly
+    const bucketCount = Math.ceil(spanMs / bucketMs);
+    const counts = new Array<number>(bucketCount).fill(0);
+    for (const ev of events) {
+      const t = parseDate(ev.start_date);
+      const idx = Math.min(Math.floor((t - timeMin) / bucketMs), bucketCount - 1);
+      if (idx >= 0) counts[idx]++;
+    }
+    const maxCount = Math.max(...counts, 1);
+    return counts.map((count, i) => ({
+      x1: LABEL_WIDTH + ((i * bucketMs) / spanMs) * chartWidth,
+      x2: LABEL_WIDTH + (((i + 1) * bucketMs) / spanMs) * chartWidth,
+      intensity: count / maxCount,
+      count,
+    }));
+  }, [events, timeMin, timeMax, chartWidth]);
+
   const jumpToYear = (year: number) => {
     const yearMs = new Date(`${year}-01-01`).getTime();
     const normalized = (yearMs - timeMin) / timeRange;
@@ -403,6 +427,29 @@ export function PatientTimeline({ events, observationPeriods = [] }: PatientTime
             </button>
           );
         })}
+      </div>
+
+      {/* Event density heatmap strip */}
+      <div className="relative bg-[#0E0E11] border-b border-[#1C1C20]" style={{ height: 20 }}>
+        <svg width="100%" height={20} viewBox={`0 0 ${svgWidth} 20`} preserveAspectRatio="none">
+          {densityBuckets.map((bucket, i) => (
+            <rect
+              key={i}
+              x={bucket.x1}
+              y={0}
+              width={Math.max(bucket.x2 - bucket.x1 - 0.5, 0.5)}
+              height={20}
+              fill="#2DD4BF"
+              opacity={0.08 + bucket.intensity * 0.55}
+            />
+          ))}
+          {/* Axis line */}
+          <line x1={LABEL_WIDTH} x2={svgWidth} y1={19} y2={19} stroke="#1C1C20" strokeWidth={1} />
+          {/* Label */}
+          <text x={4} y={13} className="fill-[#3A3A40]" style={{ fontSize: 8 }}>
+            activity
+          </text>
+        </svg>
       </div>
 
       {/* Year quick-nav */}
@@ -659,6 +706,7 @@ export function PatientTimeline({ events, observationPeriods = [] }: PatientTime
                             }
                           }}
                           onMouseLeave={() => setTooltip(null)}
+                          onClick={() => onEventClick?.(ev)}
                           className="cursor-pointer"
                           opacity={opacity}
                         >

@@ -10,9 +10,12 @@ import {
   TrendingUp,
 } from "lucide-react";
 import type { PatientProfile } from "../types/profile";
+import type { ProfileStats } from "../api/profileApi";
 
 interface PatientSummaryStatsProps {
   profile: PatientProfile;
+  /** Optional real totals from the stats endpoint (may exceed loaded counts if capped). */
+  stats?: ProfileStats;
 }
 
 function daysBetween(a: string, b: string): number {
@@ -59,18 +62,25 @@ function StatPill({ icon, label, value, sub, color }: StatPillProps) {
   );
 }
 
-export function PatientSummaryStats({ profile }: PatientSummaryStatsProps) {
+export function PatientSummaryStats({ profile, stats: domainStats }: PatientSummaryStatsProps) {
   const stats = useMemo(() => {
     const { conditions, drugs, procedures, measurements, observations, visits, observation_periods } =
       profile;
 
+    // Use real totals from stats endpoint when available (loaded counts may be capped at 2000)
+    const conditionTotal = domainStats?.condition ?? conditions.length;
+    const drugTotal = domainStats?.drug ?? drugs.length;
+    const measurementTotal = domainStats?.measurement ?? measurements.length;
+    const visitTotal = domainStats?.visit ?? visits.length;
+    const observationTotal = domainStats?.observation ?? observations.length;
+
     const totalEvents =
-      conditions.length +
-      drugs.length +
-      procedures.length +
-      measurements.length +
-      observations.length +
-      visits.length;
+      conditionTotal +
+      drugTotal +
+      (domainStats?.procedure ?? procedures.length) +
+      measurementTotal +
+      observationTotal +
+      visitTotal;
 
     const uniqueConditions = new Set(conditions.map((e) => e.concept_id)).size;
     const uniqueDrugs = new Set(drugs.map((e) => e.concept_id)).size;
@@ -108,11 +118,12 @@ export function PatientSummaryStats({ profile }: PatientSummaryStatsProps) {
       uniqueDrugs,
       obsSpanDays,
       obsCoverage,
-      visitCount: visits.length,
-      measurementCount: measurements.length,
+      visitCount: visitTotal,
+      measurementCount: measurementTotal,
+      observationCount: observationTotal,
       lastEventDate,
     };
-  }, [profile]);
+  }, [profile, domainStats, conditionTotal, drugTotal, measurementTotal, visitTotal, observationTotal]);
 
   return (
     <div className="flex gap-3 overflow-x-auto pb-1">
@@ -173,7 +184,7 @@ export function PatientSummaryStats({ profile }: PatientSummaryStatsProps) {
       <StatPill
         icon={<Eye size={16} />}
         label="Observations"
-        value={profile.observations.length.toLocaleString()}
+        value={stats.observationCount.toLocaleString()}
         color="#94A3B8"
       />
     </div>

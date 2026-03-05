@@ -42,6 +42,34 @@ export async function searchPersons(
 }
 
 // ---------------------------------------------------------------------------
+// Profile stats (per-domain row counts for truncation detection)
+// ---------------------------------------------------------------------------
+
+/** The per-domain LIMIT applied by the backend profile queries. */
+export const PROFILE_DOMAIN_LIMIT = 2000;
+
+export interface ProfileStats {
+  condition: number;
+  drug: number;
+  procedure: number;
+  measurement: number;
+  observation: number;
+  visit: number;
+  condition_era: number;
+  drug_era: number;
+}
+
+export async function getProfileStats(
+  sourceId: number,
+  personId: number,
+): Promise<ProfileStats> {
+  const { data } = await apiClient.get<{ data: ProfileStats }>(
+    `/sources/${sourceId}/profiles/${personId}/stats`,
+  );
+  return data.data;
+}
+
+// ---------------------------------------------------------------------------
 // Cohort members
 // ---------------------------------------------------------------------------
 

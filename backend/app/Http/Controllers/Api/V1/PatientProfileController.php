@@ -40,6 +40,23 @@ class PatientProfileController extends Controller
     }
 
     /**
+     * GET /v1/sources/{source}/profiles/{personId}/stats
+     *
+     * Get per-domain total row counts for a person (fast UNION ALL count query).
+     * Used by the frontend to show truncation banners when the 2000-row limit is hit.
+     */
+    public function stats(Source $source, int $personId): JsonResponse
+    {
+        try {
+            $counts = $this->patientProfileService->getProfileStats($personId, $source);
+
+            return response()->json(['data' => $counts]);
+        } catch (\Throwable $e) {
+            return $this->errorResponse('Failed to retrieve profile stats', $e);
+        }
+    }
+
+    /**
      * GET /v1/sources/{source}/profiles/{personId}
      *
      * Get the full clinical profile for a single person.

@@ -14,6 +14,55 @@ class PatientProfileService
     ) {}
 
     /**
+     * Get per-domain row counts for a person (single UNION ALL query).
+     * Used by the frontend to detect when results are truncated at the LIMIT.
+     *
+     * @return array<string, int>
+     */
+    public function getProfileStats(int $personId, Source $source): array
+    {
+        $source->load('daimons');
+        $cdmSchema = $source->getTableQualifier(DaimonType::CDM);
+
+        if ($cdmSchema === null) {
+            throw new \RuntimeException('Source is missing required CDM schema configuration.');
+        }
+
+        $dialect = $source->source_dialect ?? 'postgresql';
+        $connectionName = $source->source_connection ?? 'cdm';
+
+        $params = ['cdmSchema' => $cdmSchema];
+
+        $sql = "
+            SELECT 'condition'     AS domain, COUNT(*) AS total FROM {@cdmSchema}.condition_occurrence WHERE person_id = {$personId}
+            UNION ALL
+            SELECT 'drug',                    COUNT(*) FROM {@cdmSchema}.drug_exposure          WHERE person_id = {$personId}
+            UNION ALL
+            SELECT 'procedure',               COUNT(*) FROM {@cdmSchema}.procedure_occurrence   WHERE person_id = {$personId}
+            UNION ALL
+            SELECT 'measurement',             COUNT(*) FROM {@cdmSchema}.measurement            WHERE person_id = {$personId}
+            UNION ALL
+            SELECT 'observation',             COUNT(*) FROM {@cdmSchema}.observation            WHERE person_id = {$personId}
+            UNION ALL
+            SELECT 'visit',                   COUNT(*) FROM {@cdmSchema}.visit_occurrence       WHERE person_id = {$personId}
+            UNION ALL
+            SELECT 'condition_era',           COUNT(*) FROM {@cdmSchema}.condition_era          WHERE person_id = {$personId}
+            UNION ALL
+            SELECT 'drug_era',                COUNT(*) FROM {@cdmSchema}.drug_era               WHERE person_id = {$personId}
+        ";
+
+        $renderedSql = $this->sqlRenderer->render($sql, $params, $dialect);
+        $rows = DB::connection($connectionName)->select($renderedSql);
+
+        $counts = [];
+        foreach ($rows as $row) {
+            $counts[$row->domain] = (int) $row->total;
+        }
+
+        return $counts;
+    }
+
+    /**
      * Get the full clinical profile for a single person.
      *
      * @return array<string, mixed>
@@ -80,8 +129,8 @@ class PatientProfileService
 
         // Determine bindings: numeric = id prefix match, else source_value contains match
         $isNumeric = ctype_digit(ltrim($query, ' '));
-        $idPattern = $isNumeric ? $query . '%' : '%__no_match__%';
-        $srcPattern = '%' . mb_strtolower($query) . '%';
+        $idPattern = $isNumeric ? $query.'%' : '%__no_match__%';
+        $srcPattern = '%'.mb_strtolower($query).'%';
 
         $sql = "
             SELECT
@@ -290,7 +339,8 @@ class PatientProfileService
             LEFT JOIN {@vocabSchema}.concept tc
                 ON co.condition_type_concept_id = tc.concept_id
             WHERE co.person_id = {$personId}
-            ORDER BY co.condition_start_date
+            ORDER BY co.condition_start_date DESC
+            LIMIT 2000
         ";
 
         $renderedSql = $this->sqlRenderer->render($sql, $params, $dialect);
@@ -332,7 +382,8 @@ class PatientProfileService
             LEFT JOIN {@vocabSchema}.concept tc
                 ON de.drug_type_concept_id = tc.concept_id
             WHERE de.person_id = {$personId}
-            ORDER BY de.drug_exposure_start_date
+            ORDER BY de.drug_exposure_start_date DESC
+            LIMIT 2000
         ";
 
         $renderedSql = $this->sqlRenderer->render($sql, $params, $dialect);
@@ -370,7 +421,8 @@ class PatientProfileService
             LEFT JOIN {@vocabSchema}.concept tc
                 ON po.procedure_type_concept_id = tc.concept_id
             WHERE po.person_id = {$personId}
-            ORDER BY po.procedure_date
+            ORDER BY po.procedure_date DESC
+            LIMIT 2000
         ";
 
         $renderedSql = $this->sqlRenderer->render($sql, $params, $dialect);
@@ -416,7 +468,8 @@ class PatientProfileService
             LEFT JOIN {@vocabSchema}.concept tc
                 ON m.measurement_type_concept_id = tc.concept_id
             WHERE m.person_id = {$personId}
-            ORDER BY m.measurement_date
+            ORDER BY m.measurement_date DESC
+            LIMIT 2000
         ";
 
         $renderedSql = $this->sqlRenderer->render($sql, $params, $dialect);
@@ -461,7 +514,8 @@ class PatientProfileService
             LEFT JOIN {@vocabSchema}.concept tc
                 ON o.observation_type_concept_id = tc.concept_id
             WHERE o.person_id = {$personId}
-            ORDER BY o.observation_date
+            ORDER BY o.observation_date DESC
+            LIMIT 2000
         ";
 
         $renderedSql = $this->sqlRenderer->render($sql, $params, $dialect);
@@ -498,7 +552,8 @@ class PatientProfileService
             LEFT JOIN {@vocabSchema}.concept tc
                 ON vo.visit_type_concept_id = tc.concept_id
             WHERE vo.person_id = {$personId}
-            ORDER BY vo.visit_start_date
+            ORDER BY vo.visit_start_date DESC
+            LIMIT 500
         ";
 
         $renderedSql = $this->sqlRenderer->render($sql, $params, $dialect);
