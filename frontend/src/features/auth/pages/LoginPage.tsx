@@ -65,15 +65,12 @@ export function LoginPage() {
         overflow: "hidden",
       }}
     >
-      {/* Full-screen background image */}
+      {/* Dark base — no image here; the hero panel renders its own */}
       <div
         style={{
           position: "absolute",
           inset: 0,
-          backgroundImage: "url(/parthenon.jpg)",
-          backgroundSize: "cover",
-          backgroundPosition: "center 40%",
-          filter: "brightness(0.35) saturate(0.65)",
+          background: "#08060A",
         }}
       />
 
