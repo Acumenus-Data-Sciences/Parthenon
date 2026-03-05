@@ -45,6 +45,7 @@ use App\Http\Controllers\Api\V1\StudySiteController;
 use App\Http\Controllers\Api\V1\StudyStatsController;
 use App\Http\Controllers\Api\V1\StudySynthesisController;
 use App\Http\Controllers\Api\V1\StudyTeamController;
+use App\Http\Controllers\Api\V1\GenomicsController;
 use App\Http\Controllers\Api\V1\VocabularyController;
 use Illuminate\Support\Facades\Route;
 
@@ -415,6 +416,29 @@ Route::prefix('v1')->group(function () {
             // ── System health (admin+) ────────────────────────────────────
             Route::get('/system-health', [SystemHealthController::class, 'index']);
         });
+    });
+});
+
+// ── Phase 15: Genomics ────────────────────────────────────────────────────────
+Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
+    Route::prefix('genomics')->group(function () {
+        Route::get('/stats', [GenomicsController::class, 'stats']);
+
+        // VCF / MAF uploads
+        Route::get('/uploads', [GenomicsController::class, 'indexUploads']);
+        Route::post('/uploads', [GenomicsController::class, 'uploadFile']);
+        Route::get('/uploads/{upload}', [GenomicsController::class, 'showUpload']);
+        Route::delete('/uploads/{upload}', [GenomicsController::class, 'destroyUpload']);
+
+        // Variants
+        Route::get('/variants', [GenomicsController::class, 'indexVariants']);
+        Route::get('/variants/{variant}', [GenomicsController::class, 'showVariant']);
+
+        // Cohort criteria
+        Route::get('/criteria', [GenomicsController::class, 'indexCriteria']);
+        Route::post('/criteria', [GenomicsController::class, 'storeCriterion']);
+        Route::put('/criteria/{criterion}', [GenomicsController::class, 'updateCriterion']);
+        Route::delete('/criteria/{criterion}', [GenomicsController::class, 'destroyCriterion']);
     });
 });
 

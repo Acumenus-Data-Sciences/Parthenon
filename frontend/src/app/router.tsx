@@ -286,6 +286,26 @@ export const router = createBrowserRouter([
             Component: m.default,
           })),
       },
+      // ── Phase 15: Genomics ────────────────────────────────────────────────
+      {
+        path: "genomics",
+        children: [
+          {
+            index: true,
+            lazy: () =>
+              import("@/features/genomics/pages/GenomicsPage").then(
+                (m) => ({ Component: m.default }),
+              ),
+          },
+          {
+            path: "uploads/:id",
+            lazy: () =>
+              import("@/features/genomics/pages/UploadDetailPage").then(
+                (m) => ({ Component: m.default }),
+              ),
+          },
+        ],
+      },
       // ── Administration ────────────────────────────────────────────────
       {
         path: "admin",
