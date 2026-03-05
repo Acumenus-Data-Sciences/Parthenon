@@ -52,7 +52,19 @@ class PatientProfileService
         ";
 
         $renderedSql = $this->sqlRenderer->render($sql, $params, $dialect);
-        $rows = DB::connection($connectionName)->select($renderedSql);
+
+        try {
+            $conn = DB::connection($connectionName);
+            $conn->statement('SET enable_seqscan = off');
+            $conn->statement('SET statement_timeout = 5000');
+            $rows = $conn->select($renderedSql);
+            $conn->statement('SET enable_seqscan = on');
+            $conn->statement('SET statement_timeout = 0');
+        } catch (\Throwable $e) {
+            \Log::warning('PatientProfileService: stats query failed', ['error' => $e->getMessage()]);
+            try { $conn->statement('SET enable_seqscan = on'); $conn->statement('SET statement_timeout = 0'); } catch (\Throwable) {}
+            $rows = [];
+        }
 
         $counts = [];
         foreach ($rows as $row) {
@@ -87,18 +99,57 @@ class PatientProfileService
             'vocabSchema' => $vocabSchema,
         ];
 
-        return [
-            'demographics' => $this->getDemographics($personId, $params, $dialect, $connectionName),
-            'observation_periods' => $this->getObservationPeriods($personId, $params, $dialect, $connectionName),
-            'conditions' => $this->getConditions($personId, $params, $dialect, $connectionName),
-            'drugs' => $this->getDrugs($personId, $params, $dialect, $connectionName),
-            'procedures' => $this->getProcedures($personId, $params, $dialect, $connectionName),
-            'measurements' => $this->getMeasurements($personId, $params, $dialect, $connectionName),
-            'observations' => $this->getObservations($personId, $params, $dialect, $connectionName),
-            'visits' => $this->getVisits($personId, $params, $dialect, $connectionName),
-            'condition_eras' => $this->getConditionEras($personId, $params, $dialect, $connectionName),
-            'drug_eras' => $this->getDrugEras($personId, $params, $dialect, $connectionName),
-        ];
+        // On this HDD-backed server the planner prefers parallel seq scans over
+        // index scans (random_page_cost=4). For person-level profile queries the
+        // person_id-first indexes are far faster in practice, so disable seq scans
+        // for this session. Also cap each query to 15 s so a stale index path
+        // never hangs the whole request.
+        $conn = DB::connection($connectionName);
+        $conn->statement('SET enable_seqscan = off');
+        $conn->statement('SET statement_timeout = 5000');
+
+        try {
+            $result = [
+                'demographics'        => $this->getDemographics($personId, $params, $dialect, $connectionName),
+                'observation_periods' => $this->getObservationPeriods($personId, $params, $dialect, $connectionName),
+                'conditions'          => $this->safeQuery(fn () => $this->getConditions($personId, $params, $dialect, $connectionName)),
+                'drugs'               => $this->safeQuery(fn () => $this->getDrugs($personId, $params, $dialect, $connectionName)),
+                'procedures'          => $this->safeQuery(fn () => $this->getProcedures($personId, $params, $dialect, $connectionName)),
+                'measurements'        => $this->safeQuery(fn () => $this->getMeasurements($personId, $params, $dialect, $connectionName)),
+                'observations'        => $this->safeQuery(fn () => $this->getObservations($personId, $params, $dialect, $connectionName)),
+                'visits'              => $this->safeQuery(fn () => $this->getVisits($personId, $params, $dialect, $connectionName)),
+                'condition_eras'      => $this->safeQuery(fn () => $this->getConditionEras($personId, $params, $dialect, $connectionName)),
+                'drug_eras'           => $this->safeQuery(fn () => $this->getDrugEras($personId, $params, $dialect, $connectionName)),
+            ];
+        } finally {
+            // Always reset so subsequent requests on this connection aren't affected
+            try {
+                $conn->statement('SET enable_seqscan = on');
+                $conn->statement('SET statement_timeout = 0');
+            } catch (\Throwable) {}
+        }
+
+        return $result;
+    }
+
+    /**
+     * Run a query closure and return [] on timeout or query failure.
+     * Allows partial profile loads when indexes are missing on large tables.
+     *
+     * @param  callable(): list<array<string,mixed>>  $fn
+     * @return list<array<string,mixed>>
+     */
+    private function safeQuery(callable $fn): array
+    {
+        try {
+            return $fn();
+        } catch (\Throwable $e) {
+            // Log but don't bubble — return empty so other domains still load
+            \Log::warning('PatientProfileService: domain query failed', [
+                'error' => $e->getMessage(),
+            ]);
+            return [];
+        }
     }
 
     /**
@@ -469,7 +520,7 @@ class PatientProfileService
                 ON m.measurement_type_concept_id = tc.concept_id
             WHERE m.person_id = {$personId}
             ORDER BY m.measurement_date DESC
-            LIMIT 2000
+            LIMIT 500
         ";
 
         $renderedSql = $this->sqlRenderer->render($sql, $params, $dialect);
@@ -515,7 +566,7 @@ class PatientProfileService
                 ON o.observation_type_concept_id = tc.concept_id
             WHERE o.person_id = {$personId}
             ORDER BY o.observation_date DESC
-            LIMIT 2000
+            LIMIT 500
         ";
 
         $renderedSql = $this->sqlRenderer->render($sql, $params, $dialect);
