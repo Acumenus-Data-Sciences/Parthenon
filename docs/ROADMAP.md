@@ -15,6 +15,46 @@ Each phase is designed so that it delivers standalone value before the next one 
 | **1.1** | Shipped | Phase 15 — Molecular Diagnostics & Cancer Genomics |
 | **1.2** | In development | Phase 16 — DICOM & Medical Imaging (§16.1-16.3 complete) |
 | **1.3** | In development | Phase 17 — Health Economics & Outcomes Research (§17.1 complete) |
+| **2.0** | Planned | Deep Enhancement Phase — production-grade v2.0 of Phases 15-17 |
+
+---
+
+## Deep Enhancement Phase — v2.0 (Planned)
+
+> *The first-pass builds establish the architecture, APIs, and UI scaffolding. The v2.0 enhancement phase hardens each domain with production-grade features, advanced analytics, and federated network capabilities.*
+
+### Phase 15.2 — Genomics v2.0
+
+| Enhancement | Description |
+|---|---|
+| **GA4GH VRS federation** | Federated variant frequency queries across OHDSI network sites using VRS IDs — no patient-level data sharing |
+| **Probabilistic person matching** | Fuzzy name + DOB + MRN matching for variant-to-patient linkage (Fellegi-Sunter record linkage) |
+| **FHIR Genomics export** | ClinicalReasoning resource export for EHR integration via CDS Hooks |
+| **Annotation quality scoring** | VEP/SnpEff confidence tiers; CADD score integration; gnomAD population frequency filtering |
+| **Pharmacogenomic correlator** | Link CYP450/VKORC1/CYP2C9 germline variants to drug exposure and adverse event rates |
+| **Full OMOP Oncology write-back** | Episode/Episode_Event creation from treatment timelines; CDM v5.4 image_occurrence linkage |
+
+### Phase 16.2 — Imaging v2.0
+
+| Enhancement | Description |
+|---|---|
+| **Embedded Orthanc PACS** | Add Orthanc Docker service to compose stack; automated DICOM ingestion via STOW-RS |
+| **OHIF viewer integration** | Launch OHIF viewer iframe from study detail page via WADO-RS URI; annotate and bookmark series |
+| **OMOP Image_occurrence write-back** | Automated ETL: indexed study → OMOP image_occurrence record with person linkage |
+| **PyRadiomics pipeline** | Extract 107 IBIS-standard radiomic features via AI service; store as ImagingFeature with feature type = 'radiomic' |
+| **Dose-volume histogram (DVH)** | Parse RT Dose DICOM; compute DVH and dose constraints (Dmax, D95, V20Gy); store as ImagingFeature type = 'dose' |
+| **Imaging cohort generation** | Wire ImagingCriterion to cohort SQL generator — persons with CT + pulmonary nodule + confidence ≥ 0.8 |
+
+### Phase 17.2 — HEOR v2.0
+
+| Enhancement | Description |
+|---|---|
+| **Probabilistic sensitivity analysis (PSA)** | Monte Carlo simulation (10K iterations) with configurable distributions (normal, gamma, beta, log-normal); CEAC output |
+| **CEAC visualization** | Cost-Effectiveness Acceptability Curve — probability cost-effective at each WTP threshold |
+| **Automated outcome measurement** | Wire value contract outcome metric to OMOP cohort generation person_count for automated rate tracking |
+| **Budget impact with market penetration** | Logistic growth curve for market share; population-size-adjusted multi-year BIA |
+| **ISPOR-compliant model export** | Word/PDF documentation of model structure, parameters, assumptions, and results (ISPOR Good Practices) |
+| **Multi-indication analysis** | Single drug, multiple indications — aggregate ICER across populations |
 
 ---
 
