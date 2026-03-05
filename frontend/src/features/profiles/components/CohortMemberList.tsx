@@ -4,7 +4,6 @@ import {
   Loader2,
   ChevronLeft,
   ChevronRight,
-  Search,
   Database,
   ChevronDown,
   Users,
@@ -13,11 +12,13 @@ import {
   ArrowUp,
   ArrowDown,
   SlidersHorizontal,
+  Search,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
 import { getCohortDefinitions } from "@/features/cohort-definitions/api/cohortApi";
 import { useCohortMembers } from "../hooks/useProfiles";
+import { PatientSearchPanel } from "./PatientSearchPanel";
 import type { CohortMember } from "../types/profile";
 
 function formatDate(iso: string): string {
@@ -59,7 +60,6 @@ export function CohortMemberList({ onSelectPerson }: CohortMemberListProps) {
   const [sourceId, setSourceId] = useState<number | null>(null);
   const [cohortId, setCohortId] = useState<number | null>(null);
   const [page, setPage] = useState(1);
-  const [directPersonId, setDirectPersonId] = useState("");
   const [showFilters, setShowFilters] = useState(false);
 
   // Sorting
@@ -165,13 +165,6 @@ export function CohortMemberList({ onSelectPerson }: CohortMemberListProps) {
     }
   };
 
-  const handleDirectSearch = () => {
-    const pid = Number(directPersonId);
-    if (pid > 0 && sourceId) {
-      onSelectPerson(sourceId, pid);
-    }
-  };
-
   const handleExportCsv = useCallback(() => {
     if (members.length === 0) return;
     const headers = [
@@ -202,9 +195,15 @@ export function CohortMemberList({ onSelectPerson }: CohortMemberListProps) {
 
   return (
     <div className="space-y-6">
-      {/* Source and Cohort Selection */}
+      {/* Patient Search — live search by ID / MRN */}
       <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 space-y-4">
-        <h3 className="text-sm font-semibold text-[#F0EDE8]">Select Patient</h3>
+        <h3 className="text-sm font-semibold text-[#F0EDE8]">Find Patient</h3>
+        <PatientSearchPanel onSelectPerson={onSelectPerson} />
+      </div>
+
+      {/* Cohort browser — secondary way to browse by cohort */}
+      <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 space-y-4">
+        <h3 className="text-sm font-semibold text-[#F0EDE8]">Browse by Cohort</h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Source Selector */}
@@ -279,46 +278,6 @@ export function CohortMemberList({ onSelectPerson }: CohortMemberListProps) {
                 className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
               />
             </div>
-          </div>
-        </div>
-
-        {/* Direct Person ID */}
-        <div>
-          <label className="block text-xs font-medium text-[#8A857D] mb-1">
-            Or enter Person ID directly
-          </label>
-          <div className="flex items-center gap-2">
-            <div className="relative flex-1">
-              <Search
-                size={12}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
-              />
-              <input
-                type="number"
-                value={directPersonId}
-                onChange={(e) => setDirectPersonId(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") handleDirectSearch();
-                }}
-                placeholder="Enter person ID..."
-                className={cn(
-                  "w-full rounded-lg border border-[#232328] bg-[#0E0E11] pl-8 pr-3 py-2 text-sm",
-                  "text-[#F0EDE8] placeholder:text-[#5A5650]",
-                  "focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
-                )}
-              />
-            </div>
-            <button
-              type="button"
-              onClick={handleDirectSearch}
-              disabled={
-                !sourceId || !directPersonId || Number(directPersonId) <= 0
-              }
-              className="inline-flex items-center gap-1.5 rounded-lg bg-[#2DD4BF] px-4 py-2 text-sm font-medium text-[#0E0E11] hover:bg-[#26B8A5] transition-colors disabled:opacity-50"
-            >
-              <Search size={14} />
-              View Profile
-            </button>
           </div>
         </div>
       </div>

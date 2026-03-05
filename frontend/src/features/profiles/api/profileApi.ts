@@ -17,6 +17,31 @@ export async function getPatientProfile(
 }
 
 // ---------------------------------------------------------------------------
+// Person search
+// ---------------------------------------------------------------------------
+
+export interface PersonSearchResult {
+  person_id: number;
+  person_source_value: string;
+  year_of_birth: number;
+  month_of_birth: number | null;
+  gender: string;
+  race: string;
+}
+
+export async function searchPersons(
+  sourceId: number,
+  query: string,
+  limit = 20,
+): Promise<PersonSearchResult[]> {
+  const { data } = await apiClient.get<{ data: PersonSearchResult[] }>(
+    `/sources/${sourceId}/persons/search`,
+    { params: { q: query, limit } },
+  );
+  return data.data;
+}
+
+// ---------------------------------------------------------------------------
 // Cohort members
 // ---------------------------------------------------------------------------
 

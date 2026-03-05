@@ -24,6 +24,7 @@ import { EraTimeline } from "../components/EraTimeline";
 import { PatientSummaryStats } from "../components/PatientSummaryStats";
 import { PatientLabPanel } from "../components/PatientLabPanel";
 import { PatientVisitView } from "../components/PatientVisitView";
+import { PatientSearchPanel } from "../components/PatientSearchPanel";
 import type { ClinicalDomain, ClinicalEvent } from "../types/profile";
 
 type ViewMode = "timeline" | "list" | "labs" | "visits" | "eras";
@@ -168,15 +169,14 @@ export default function PatientProfilePage() {
     );
   }, [profile, parsedPersonId, allEvents, domainTab]);
 
-  // No personId: show cohort member selection
+  // No personId: show search + cohort member selection
   if (!parsedPersonId) {
     return (
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-bold text-[#F0EDE8]">Patient Profiles</h1>
           <p className="mt-1 text-sm text-[#8A857D]">
-            Browse cohort members or search by Person ID to view detailed patient
-            profiles
+            Search by person ID or MRN, or browse cohort members
           </p>
         </div>
         <CohortMemberList onSelectPerson={handleSelectPerson} />
@@ -202,32 +202,45 @@ export default function PatientProfilePage() {
           <p className="mt-1 text-sm text-[#8A857D]">Person #{parsedPersonId}</p>
         </div>
 
-        {/* Source selector */}
-        <div className="relative shrink-0">
-          <Database
-            size={12}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
-          />
-          <select
-            value={sourceId ?? ""}
-            onChange={(e) => handleSourceChange(Number(e.target.value) || null)}
-            disabled={loadingSources}
-            className={cn(
-              "appearance-none rounded-lg border border-[#232328] bg-[#0E0E11] pl-8 pr-8 py-2 text-sm",
-              "text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
-            )}
-          >
-            <option value="">Select source...</option>
-            {sources?.map((src) => (
-              <option key={src.id} value={src.id}>
-                {src.source_name}
-              </option>
-            ))}
-          </select>
-          <ChevronDown
-            size={12}
-            className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
-          />
+        {/* Right side: source selector + quick patient search */}
+        <div className="flex items-start gap-3 shrink-0">
+          {/* Quick-jump patient search (only when source selected) */}
+          {sourceId && (
+            <div className="w-72">
+              <PatientSearchPanel
+                onSelectPerson={handleSelectPerson}
+                sourceId={sourceId}
+              />
+            </div>
+          )}
+
+          {/* Source selector */}
+          <div className="relative">
+            <Database
+              size={12}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
+            />
+            <select
+              value={sourceId ?? ""}
+              onChange={(e) => handleSourceChange(Number(e.target.value) || null)}
+              disabled={loadingSources}
+              className={cn(
+                "appearance-none rounded-lg border border-[#232328] bg-[#0E0E11] pl-8 pr-8 py-2 text-sm",
+                "text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+              )}
+            >
+              <option value="">Select source...</option>
+              {sources?.map((src) => (
+                <option key={src.id} value={src.id}>
+                  {src.source_name}
+                </option>
+              ))}
+            </select>
+            <ChevronDown
+              size={12}
+              className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
+            />
+          </div>
         </div>
       </div>
 

@@ -53,6 +53,64 @@ class PatientProfileService
     }
 
     /**
+     * Search for persons by ID prefix or person_source_value (MRN) substring.
+     * Returns up to $limit matching persons with basic demographics.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function searchPersons(string $query, Source $source, int $limit = 20): array
+    {
+        $source->load('daimons');
+        $cdmSchema = $source->getTableQualifier(DaimonType::CDM);
+        $vocabSchema = $source->getTableQualifier(DaimonType::Vocabulary) ?? $cdmSchema;
+
+        if ($cdmSchema === null) {
+            throw new \RuntimeException(
+                'Source is missing required CDM schema configuration.'
+            );
+        }
+
+        $dialect = $source->source_dialect ?? 'postgresql';
+        $connectionName = $source->source_connection ?? 'cdm';
+
+        $params = [
+            'cdmSchema' => $cdmSchema,
+            'vocabSchema' => $vocabSchema,
+        ];
+
+        // Determine bindings: numeric = id prefix match, else source_value contains match
+        $isNumeric = ctype_digit(ltrim($query, ' '));
+        $idPattern = $isNumeric ? $query . '%' : '%__no_match__%';
+        $srcPattern = '%' . mb_strtolower($query) . '%';
+
+        $sql = "
+            SELECT
+                p.person_id,
+                COALESCE(p.person_source_value, '') AS person_source_value,
+                p.year_of_birth,
+                p.month_of_birth,
+                COALESCE(gc.concept_name, 'Unknown') AS gender,
+                COALESCE(rc.concept_name, 'Unknown') AS race
+            FROM {@cdmSchema}.person p
+            LEFT JOIN {@vocabSchema}.concept gc
+                ON p.gender_concept_id = gc.concept_id
+            LEFT JOIN {@vocabSchema}.concept rc
+                ON p.race_concept_id = rc.concept_id
+            WHERE (
+                CAST(p.person_id AS VARCHAR) LIKE ?
+                OR LOWER(COALESCE(p.person_source_value, '')) LIKE ?
+            )
+            ORDER BY p.person_id
+            LIMIT {$limit}
+        ";
+
+        $renderedSql = $this->sqlRenderer->render($sql, $params, $dialect);
+        $rows = DB::connection($connectionName)->select($renderedSql, [$idPattern, $srcPattern]);
+
+        return array_map(fn ($row) => (array) $row, $rows);
+    }
+
+    /**
      * Get paginated cohort members with basic demographics.
      * Returns {data: [...], meta: {current_page, last_page, per_page, total}}
      *

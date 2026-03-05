@@ -292,6 +292,7 @@ Route::prefix('v1')->group(function () {
         });
 
         // Patient Profiles
+        Route::get('sources/{source}/persons/search', [PatientProfileController::class, 'search']);
         Route::get('sources/{source}/profiles/{personId}', [PatientProfileController::class, 'show']);
         Route::get('sources/{source}/cohorts/{cohortDefinitionId}/members', [PatientProfileController::class, 'members']);
 

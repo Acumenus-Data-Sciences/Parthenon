@@ -17,6 +17,29 @@ class PatientProfileController extends Controller
     ) {}
 
     /**
+     * GET /v1/sources/{source}/persons/search?q=...&limit=...
+     *
+     * Search persons by person_id prefix or person_source_value (MRN) substring.
+     */
+    public function search(Request $request, Source $source): JsonResponse
+    {
+        $q = trim((string) $request->input('q', ''));
+        $limit = max(1, min($request->integer('limit', 20), 100));
+
+        if (mb_strlen($q) < 1) {
+            return response()->json(['data' => []]);
+        }
+
+        try {
+            $results = $this->patientProfileService->searchPersons($q, $source, $limit);
+
+            return response()->json(['data' => $results]);
+        } catch (\Throwable $e) {
+            return $this->errorResponse('Failed to search persons', $e);
+        }
+    }
+
+    /**
      * GET /v1/sources/{source}/profiles/{personId}
      *
      * Get the full clinical profile for a single person.
