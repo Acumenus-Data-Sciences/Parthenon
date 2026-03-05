@@ -22,6 +22,13 @@ return Application::configure(basePath: dirname(__DIR__))
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
         ]);
     })
+    ->withSchedule(function (\Illuminate\Console\Scheduling\Schedule $schedule) {
+        $schedule->job(new \App\Jobs\Analysis\CareGapNightlyRefreshJob)
+            ->dailyAt('02:00')
+            ->withoutOverlapping(60)
+            ->onOneServer()
+            ->appendOutputTo(storage_path('logs/care-gap-refresh.log'));
+    })
     ->withExceptions(function (Exceptions $exceptions) {
         //
     })->create();

@@ -359,7 +359,7 @@ class CareGapService
                 FROM {@cdmSchema}.{$tableName} t
                 WHERE t.{$conceptColumn} IN ({$conceptPlaceholders})
                 AND t.person_id IN ({$patientPlaceholders})
-                AND t.{$dateColumn} >= DATEADD(CURRENT_DATE, -{$lookbackDays})";
+                AND t.{$dateColumn} >= DATEADD(day, -{$lookbackDays}, {CURRENT_DATE})";
 
             $renderedSql = $this->sqlRenderer->render(
                 $sql,
