@@ -9,7 +9,7 @@
  * across multiple roles without editing each role individually.
  */
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { Check, Minus } from "lucide-react";
 import type { Role } from "@/types/models";
 import type { PermissionsByDomain } from "../api/adminApi";
@@ -176,13 +176,6 @@ export function PermissionMatrix({ roles, permissionsByDomain }: Props) {
           </thead>
           <tbody>
             {allDomains.map(([domain, perms]) => {
-              const domainAllOn = editableRoles.every((r) =>
-                perms.every((p) => matrix[r.name]?.has(p.name)),
-              );
-              const domainSomeOn = editableRoles.some((r) =>
-                perms.some((p) => matrix[r.name]?.has(p.name)),
-              );
-
               return (
                 <>
                   {/* Domain section header row */}
@@ -212,7 +205,6 @@ export function PermissionMatrix({ roles, permissionsByDomain }: Props) {
 
                   {/* Individual permission rows */}
                   {perms.map((perm) => {
-                    const allOn = editableRoles.every((r) => matrix[r.name]?.has(perm.name));
                     const action = perm.name.split(".")[1];
 
                     return (

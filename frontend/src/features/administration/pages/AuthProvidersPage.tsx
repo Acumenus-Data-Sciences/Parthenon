@@ -85,7 +85,7 @@ function ProviderCard({ provider }: { provider: AuthProviderSetting }) {
   const handleSave = (settings: Record<string, unknown>) => {
     setSaveSuccess(false);
     update.mutate(
-      { type: provider.provider_type, data: { settings: settings as AuthProviderSetting["settings"] } },
+      { type: provider.provider_type, data: { settings: settings as unknown as AuthProviderSetting["settings"] } },
       { onSuccess: () => { setSaveSuccess(true); setTimeout(() => setSaveSuccess(false), 3000); } },
     );
   };
