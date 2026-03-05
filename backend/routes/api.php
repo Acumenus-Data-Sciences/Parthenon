@@ -429,6 +429,8 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         Route::post('/uploads', [GenomicsController::class, 'uploadFile']);
         Route::get('/uploads/{upload}', [GenomicsController::class, 'showUpload']);
         Route::delete('/uploads/{upload}', [GenomicsController::class, 'destroyUpload']);
+        Route::post('/uploads/{upload}/match-persons', [GenomicsController::class, 'matchPersons']);
+        Route::post('/uploads/{upload}/import', [GenomicsController::class, 'importToOmop']);
 
         // Variants
         Route::get('/variants', [GenomicsController::class, 'indexVariants']);

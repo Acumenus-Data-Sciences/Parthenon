@@ -69,9 +69,49 @@ GET /api/v1/genomics/stats → {"data":{"total_uploads":0,"total_variants":0,...
 
 ---
 
+---
+
+## §15.2 — OMOP Measurement Writer & Person Matcher (Complete)
+
+**What was built:**
+
+### PersonMatcherService
+Three-strategy person matching for uploaded variants:
+1. Direct numeric match (sample_id is a person_id)
+2. person_source_value lookup in OMOP person table
+3. Per-variant sample_id matching (multi-sample VCF support)
+
+Graceful fallback — unmatched variants remain with person_id=null, flagged in import stats.
+
+### OmopMeasurementWriterService
+Writes matched genomic variants to OMOP MEASUREMENT table:
+- `measurement_type_concept_id = 32856` (Lab) — standard for genomic measurements
+- `measurement_source_value` = "GENE:HGVS_c" (≤50 chars per CDM spec)
+- `value_source_value` = "REF>ALT"
+- `value_as_concept_id` → ClinVar pathogenicity concept (Pathogenic=36307720, etc.)
+- `value_as_number` = allele_frequency (numerical representation)
+- Vocabulary lookup: tries HGVS exact match, then gene-level ILIKE search for standard concept
+- Falls back to measurement_concept_id=0 for unmapped variants
+- Processes in chunks of 200 to avoid memory limits
+- Updates variant.omop_measurement_id + mapping_status after write
+
+### Two new API endpoints
+- `POST /api/v1/genomics/uploads/{id}/match-persons` — runs PersonMatcherService
+- `POST /api/v1/genomics/uploads/{id}/import` — runs OmopMeasurementWriterService, returns {written, skipped, errors}
+
+### Frontend
+- UploadDetailPage: "Match Persons" + "Import to OMOP" action buttons appear when status=mapped
+- useMatchPersons() + useImportToOmop() hooks with cache invalidation
+
+### Standards Applied
+- OMOP CDM v5.4 measurement table field spec (all required fields populated)
+- ClinVar significance → OMOP concept_id mapping (standard vocabulary IDs)
+- measurement_source_value capped at 50 chars per CDM convention
+
+---
+
 ## Next Steps
 
-- §15.2 — OMOP Measurement writer: map parsed variants to measurement_concept_id via vocabulary search, write to omop.measurement in CDM source DB
 - §15.3 — Genomic cohort criteria in the cohort builder UI
 - §15.4 — Variant-Outcome Analysis Suite (Kaplan-Meier, treatment-variant matrix, waterfall plots)
 - §15.5 — Molecular Tumor Board Dashboard (per-patient evidence panel)

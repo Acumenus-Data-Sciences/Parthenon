@@ -7,6 +7,8 @@ use App\Models\App\GenomicCohortCriterion;
 use App\Models\App\GenomicUpload;
 use App\Models\App\GenomicVariant;
 use App\Models\App\Source;
+use App\Services\Genomics\OmopMeasurementWriterService;
+use App\Services\Genomics\PersonMatcherService;
 use App\Services\Genomics\VcfParserService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -15,7 +17,11 @@ use Illuminate\Support\Facades\Storage;
 
 class GenomicsController extends Controller
 {
-    public function __construct(private readonly VcfParserService $parser) {}
+    public function __construct(
+        private readonly VcfParserService $parser,
+        private readonly PersonMatcherService $matcher,
+        private readonly OmopMeasurementWriterService $writer,
+    ) {}
 
     // ──────────────────────────────────────────────────────────────────────────
     // Stats
@@ -163,6 +169,47 @@ class GenomicsController extends Controller
     public function showVariant(GenomicVariant $variant): JsonResponse
     {
         return response()->json(['data' => $variant]);
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // Import pipeline actions
+    // ──────────────────────────────────────────────────────────────────────────
+
+    /**
+     * Step 1: Match upload variants to OMOP person records.
+     * Call after upload completes (status=mapped) before import.
+     */
+    public function matchPersons(GenomicUpload $upload): JsonResponse
+    {
+        $source = $upload->source;
+        $connectionName = 'cdm'; // resolved from source daimon in full implementation
+        $schema = 'omop';
+
+        $result = $this->matcher->matchUpload($upload, $connectionName, $schema);
+
+        return response()->json(['data' => $result]);
+    }
+
+    /**
+     * Step 2: Write matched variants to OMOP MEASUREMENT table.
+     * Requires at least some variants to have person_id set (via matchPersons).
+     */
+    public function importToOmop(GenomicUpload $upload): JsonResponse
+    {
+        if (!in_array($upload->status, ['mapped', 'review'], true)) {
+            return response()->json(['message' => 'Upload must be in mapped or review status to import'], 422);
+        }
+
+        $result = $this->writer->writeUploadToOmop($upload);
+
+        $upload->refresh();
+
+        return response()->json([
+            'data' => [
+                'upload' => $upload,
+                'result' => $result,
+            ],
+        ]);
     }
 
     // ──────────────────────────────────────────────────────────────────────────

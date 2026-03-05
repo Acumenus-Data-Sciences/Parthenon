@@ -1,8 +1,8 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Dna, CheckCircle2, AlertCircle, Loader2, Clock } from "lucide-react";
+import { ArrowLeft, Dna, CheckCircle2, AlertCircle, Loader2, Clock, UserCheck, DatabaseZap } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getUpload } from "../api/genomicsApi";
-import { useGenomicVariants } from "../hooks/useGenomics";
+import { useGenomicVariants, useMatchPersons, useImportToOmop } from "../hooks/useGenomics";
 import type { GenomicVariant, UploadStatus } from "../types";
 
 const STATUS_COLOR: Record<UploadStatus, string> = {
@@ -36,6 +36,9 @@ export default function UploadDetailPage() {
       return status === "parsing" || status === "pending" ? 3000 : false;
     },
   });
+
+  const matchPersons = useMatchPersons();
+  const importOmop = useImportToOmop();
 
   const { data: variantsPage, isLoading: variantsLoading } = useGenomicVariants({
     upload_id: uploadId,
@@ -94,7 +97,28 @@ export default function UploadDetailPage() {
             </div>
           </div>
         </div>
-        <div className={`flex items-center gap-1.5 text-sm font-medium ${STATUS_COLOR[upload.status]}`}>
+        <div className="flex items-center gap-2">
+          {upload.status === "mapped" && (
+            <>
+              <button
+                onClick={() => matchPersons.mutate(uploadId)}
+                disabled={matchPersons.isPending}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-700 hover:bg-blue-600 disabled:opacity-50 text-white rounded-lg text-xs font-medium transition-colors"
+              >
+                {matchPersons.isPending ? <Loader2 size={12} className="animate-spin" /> : <UserCheck size={12} />}
+                Match Persons
+              </button>
+              <button
+                onClick={() => importOmop.mutate(uploadId)}
+                disabled={importOmop.isPending}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-purple-700 hover:bg-purple-600 disabled:opacity-50 text-white rounded-lg text-xs font-medium transition-colors"
+              >
+                {importOmop.isPending ? <Loader2 size={12} className="animate-spin" /> : <DatabaseZap size={12} />}
+                Import to OMOP
+              </button>
+            </>
+          )}
+          <div className={`flex items-center gap-1.5 text-sm font-medium ${STATUS_COLOR[upload.status]}`}>
           {upload.status === "parsing" ? (
             <Loader2 size={14} className="animate-spin" />
           ) : upload.status === "failed" ? (
@@ -105,6 +129,7 @@ export default function UploadDetailPage() {
             <Clock size={14} />
           )}
           {upload.status}
+          </div>
         </div>
       </div>
 

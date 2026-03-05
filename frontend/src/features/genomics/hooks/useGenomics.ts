@@ -4,6 +4,8 @@ import {
   listUploads,
   uploadVariantFile,
   deleteUpload,
+  matchPersons,
+  importToOmop,
   listVariants,
   listCriteria,
   createCriterion,
@@ -59,6 +61,28 @@ export function useDeleteUpload() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => deleteUpload(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["genomics", "uploads"] });
+      qc.invalidateQueries({ queryKey: ["genomics", "stats"] });
+    },
+  });
+}
+
+export function useMatchPersons() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => matchPersons(id),
+    onSuccess: (_, id) => {
+      qc.invalidateQueries({ queryKey: ["genomics", "uploads", id] });
+      qc.invalidateQueries({ queryKey: ["genomics", "variants"] });
+    },
+  });
+}
+
+export function useImportToOmop() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => importToOmop(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["genomics", "uploads"] });
       qc.invalidateQueries({ queryKey: ["genomics", "stats"] });

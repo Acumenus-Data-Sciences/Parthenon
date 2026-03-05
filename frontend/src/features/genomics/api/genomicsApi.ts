@@ -64,6 +64,20 @@ export async function deleteUpload(id: number): Promise<void> {
   await apiClient.delete(`${BASE}/uploads/${id}`);
 }
 
+export async function matchPersons(
+  id: number
+): Promise<{ matched: number; unmatched: number }> {
+  const { data } = await apiClient.post(`${BASE}/uploads/${id}/match-persons`);
+  return data.data;
+}
+
+export async function importToOmop(
+  id: number
+): Promise<{ upload: GenomicUpload; result: { written: number; skipped: number; errors: number } }> {
+  const { data } = await apiClient.post(`${BASE}/uploads/${id}/import`);
+  return data.data;
+}
+
 // ──────────────────────────────────────────────────────────────────────────────
 // Variants
 // ──────────────────────────────────────────────────────────────────────────────
