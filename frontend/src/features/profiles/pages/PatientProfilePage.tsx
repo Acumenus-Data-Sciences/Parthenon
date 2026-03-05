@@ -20,7 +20,7 @@ import { usePatientProfile, useProfileStats } from "../hooks/useProfiles";
 import { PROFILE_DOMAIN_LIMIT } from "../api/profileApi";
 import { PatientDemographicsCard } from "../components/PatientDemographicsCard";
 import { PatientTimeline } from "../components/PatientTimeline";
-import { ClinicalEventCard } from "../components/ClinicalEventCard";
+import { ClinicalEventCard, GroupedConceptCard } from "../components/ClinicalEventCard";
 import { CohortMemberList } from "../components/CohortMemberList";
 import { EraTimeline } from "../components/EraTimeline";
 import { PatientSummaryStats } from "../components/PatientSummaryStats";
@@ -112,6 +112,7 @@ export default function PatientProfilePage() {
   const [viewMode, setViewMode] = useState<ViewMode>("timeline");
   const [domainTab, setDomainTab] = useState<DomainTab>("all");
   const [selectedEvent, setSelectedEvent] = useState<ClinicalEvent | null>(null);
+  const [groupList, setGroupList] = useState(true);
 
   const { data: sources, isLoading: loadingSources } = useQuery({
     queryKey: ["sources"],
@@ -146,6 +147,34 @@ export default function PatientProfilePage() {
     if (domainTab === "all") return allEvents;
     return allEvents.filter((e) => e.domain === domainTab);
   }, [allEvents, domainTab]);
+
+  // Group filteredEvents by concept for deduplicated list view
+  const groupedEvents = useMemo(() => {
+    const groups = new Map<
+      string,
+      { conceptId: number | null; conceptName: string; domain: string; events: ClinicalEvent[]; firstDate: string; lastDate: string }
+    >();
+    for (const ev of filteredEvents) {
+      const key = `${ev.domain}::${ev.concept_id ?? "null"}::${ev.concept_name}`;
+      if (!groups.has(key)) {
+        groups.set(key, {
+          conceptId: ev.concept_id ?? null,
+          conceptName: ev.concept_name,
+          domain: ev.domain,
+          events: [],
+          firstDate: ev.start_date,
+          lastDate: ev.start_date,
+        });
+      }
+      const g = groups.get(key)!;
+      g.events.push(ev);
+      if (ev.start_date < g.firstDate) g.firstDate = ev.start_date;
+      if (ev.start_date > g.lastDate) g.lastDate = ev.start_date;
+    }
+    return Array.from(groups.values()).sort(
+      (a, b) => new Date(b.lastDate).getTime() - new Date(a.lastDate).getTime(),
+    );
+  }, [filteredEvents]);
 
   const hasEras =
     (profile?.condition_eras?.length ?? 0) > 0 ||
@@ -307,7 +336,14 @@ export default function PatientProfilePage() {
           />
 
           {/* Summary stats bar */}
-          <PatientSummaryStats profile={profile} stats={profileStats} />
+          <PatientSummaryStats
+            profile={profile}
+            stats={profileStats}
+            onDrillDown={(view, domain) => {
+              setViewMode(view as ViewMode);
+              if (domain) setDomainTab(domain as DomainTab);
+            }}
+          />
 
           {/* Truncation warning */}
           {truncatedDomains.length > 0 && (
@@ -399,34 +435,48 @@ export default function PatientProfilePage() {
           {/* List view */}
           {viewMode === "list" && (
             <div className="space-y-4">
-              {/* Domain tabs */}
-              <div className="flex items-center gap-1 border-b border-[#232328] overflow-x-auto">
-                {DOMAIN_TABS.map((tab) => {
-                  const count =
-                    tab.key === "all"
-                      ? allEvents.length
-                      : allEvents.filter((e) => e.domain === tab.key).length;
-                  if (tab.key !== "all" && count === 0) return null;
-                  return (
-                    <button
-                      key={tab.key}
-                      type="button"
-                      onClick={() => setDomainTab(tab.key)}
-                      className={cn(
-                        "relative px-3 py-2 text-xs font-medium transition-colors whitespace-nowrap",
-                        domainTab === tab.key
-                          ? "text-[#2DD4BF]"
-                          : "text-[#8A857D] hover:text-[#C5C0B8]",
-                      )}
-                    >
-                      {tab.label}{" "}
-                      <span className="text-[10px] opacity-60">({count})</span>
-                      {domainTab === tab.key && (
-                        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2DD4BF]" />
-                      )}
-                    </button>
-                  );
-                })}
+              {/* Domain tabs + grouping toggle */}
+              <div className="flex items-center justify-between gap-3 border-b border-[#232328] overflow-x-auto">
+                <div className="flex items-center gap-1">
+                  {DOMAIN_TABS.map((tab) => {
+                    const count =
+                      tab.key === "all"
+                        ? allEvents.length
+                        : allEvents.filter((e) => e.domain === tab.key).length;
+                    if (tab.key !== "all" && count === 0) return null;
+                    return (
+                      <button
+                        key={tab.key}
+                        type="button"
+                        onClick={() => setDomainTab(tab.key)}
+                        className={cn(
+                          "relative px-3 py-2 text-xs font-medium transition-colors whitespace-nowrap",
+                          domainTab === tab.key
+                            ? "text-[#2DD4BF]"
+                            : "text-[#8A857D] hover:text-[#C5C0B8]",
+                        )}
+                      >
+                        {tab.label}{" "}
+                        <span className="text-[10px] opacity-60">({count})</span>
+                        {domainTab === tab.key && (
+                          <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2DD4BF]" />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setGroupList((v) => !v)}
+                  className={cn(
+                    "shrink-0 mb-1 text-[10px] px-2.5 py-1 rounded border transition-colors",
+                    groupList
+                      ? "border-[#2DD4BF]/40 text-[#2DD4BF] bg-[#2DD4BF]/5"
+                      : "border-[#323238] text-[#8A857D] hover:text-[#F0EDE8]",
+                  )}
+                >
+                  {groupList ? `${groupedEvents.length} concepts` : `${filteredEvents.length} events`}
+                </button>
               </div>
 
               {/* Event cards */}
@@ -435,6 +485,20 @@ export default function PatientProfilePage() {
                   <p className="text-sm text-[#8A857D]">
                     No events in this category
                   </p>
+                </div>
+              ) : groupList ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {groupedEvents.map((group, i) => (
+                    <GroupedConceptCard
+                      key={i}
+                      conceptId={group.conceptId}
+                      conceptName={group.conceptName}
+                      domain={group.domain as import("../types/profile").ClinicalDomain}
+                      events={group.events}
+                      firstDate={group.firstDate}
+                      lastDate={group.lastDate}
+                    />
+                  ))}
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">

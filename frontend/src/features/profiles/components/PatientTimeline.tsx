@@ -84,6 +84,7 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
   const isDragging = useRef(false);
   const dragStart = useRef(0);
   const panStart = useRef(0);
+  const hasSetInitialView = useRef(false);
 
   // Keyboard navigation
   useEffect(() => {
@@ -108,6 +109,21 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
+
+  // Smart initial zoom: show last 5 years for long histories
+  useEffect(() => {
+    if (hasSetInitialView.current || events.length === 0) return;
+    hasSetInitialView.current = true;
+    const FIVE_YEARS_MS = 5 * 365.25 * 24 * 60 * 60 * 1000;
+    const totalMs = timeMax - timeMin;
+    if (totalMs <= FIVE_YEARS_MS) return;
+    const z = Math.min(totalMs / FIVE_YEARS_MS, 10);
+    // pan so that timeMax is at the right edge of the chart
+    const pan = chartWidth * (1 - z);
+    setZoom(z);
+    setPanOffset(pan);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [events]);
 
   // Group events by domain (respecting hidden)
   const domainEvents = useMemo(() => {
@@ -265,6 +281,26 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
     }));
   }, [events, timeMin, timeMax, chartWidth]);
 
+  // Minimap viewport: which portion of the full history is currently visible
+  const minimapViewport = useMemo(() => {
+    const leftNorm = Math.max(0, Math.min(1, -panOffset / (chartWidth * zoom)));
+    const rightNorm = Math.max(0, Math.min(1, (chartWidth - panOffset) / (chartWidth * zoom)));
+    return {
+      x1: LABEL_WIDTH + leftNorm * chartWidth,
+      x2: LABEL_WIDTH + rightNorm * chartWidth,
+    };
+  }, [zoom, panOffset]);
+
+  // Click on minimap to center that time position in the main view
+  const handleMinimapClick = useCallback((e: React.MouseEvent<SVGSVGElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const clickX = (e.clientX - rect.left) * (svgWidth / rect.width);
+    const norm = (clickX - LABEL_WIDTH) / chartWidth;
+    if (norm < 0 || norm > 1) return;
+    const targetPanX = norm * chartWidth * zoom;
+    setPanOffset(chartWidth / 2 - targetPanX);
+  }, [zoom]);
+
   const jumpToYear = (year: number) => {
     const yearMs = new Date(`${year}-01-01`).getTime();
     const normalized = (yearMs - timeMin) / timeRange;
@@ -338,7 +374,7 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
   }
 
   return (
-    <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
+    <div className="relative rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
       {/* Toolbar */}
       <div className="flex items-center justify-between gap-3 px-4 py-2 bg-[#1C1C20] border-b border-[#232328] flex-wrap">
         <div className="flex items-center gap-2">
@@ -429,24 +465,52 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
         })}
       </div>
 
-      {/* Event density heatmap strip */}
-      <div className="relative bg-[#0E0E11] border-b border-[#1C1C20]" style={{ height: 20 }}>
-        <svg width="100%" height={20} viewBox={`0 0 ${svgWidth} 20`} preserveAspectRatio="none">
+      {/* Event density / minimap strip — click to jump */}
+      <div className="relative bg-[#0E0E11] border-b border-[#1C1C20]" style={{ height: 32 }}>
+        <svg
+          width="100%"
+          height={32}
+          viewBox={`0 0 ${svgWidth} 32`}
+          preserveAspectRatio="none"
+          className="cursor-pointer"
+          onClick={handleMinimapClick}
+        >
           {densityBuckets.map((bucket, i) => (
             <rect
               key={i}
               x={bucket.x1}
               y={0}
               width={Math.max(bucket.x2 - bucket.x1 - 0.5, 0.5)}
-              height={20}
+              height={32}
               fill="#2DD4BF"
               opacity={0.08 + bucket.intensity * 0.55}
             />
           ))}
+          {/* Viewport indicator */}
+          <rect
+            x={minimapViewport.x1}
+            y={1}
+            width={Math.max(minimapViewport.x2 - minimapViewport.x1, 4)}
+            height={30}
+            fill="white"
+            opacity={0.05}
+            rx={1}
+          />
+          <rect
+            x={minimapViewport.x1}
+            y={1}
+            width={Math.max(minimapViewport.x2 - minimapViewport.x1, 4)}
+            height={30}
+            fill="none"
+            stroke="white"
+            strokeWidth={0.8}
+            opacity={0.25}
+            rx={1}
+          />
           {/* Axis line */}
-          <line x1={LABEL_WIDTH} x2={svgWidth} y1={19} y2={19} stroke="#1C1C20" strokeWidth={1} />
+          <line x1={LABEL_WIDTH} x2={svgWidth} y1={31} y2={31} stroke="#1C1C20" strokeWidth={1} />
           {/* Label */}
-          <text x={4} y={13} className="fill-[#3A3A40]" style={{ fontSize: 8 }}>
+          <text x={4} y={19} className="fill-[#3A3A40]" style={{ fontSize: 8 }}>
             activity
           </text>
         </svg>

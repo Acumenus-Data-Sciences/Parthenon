@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { cn } from "@/lib/utils";
 import {
   Activity,
   Pill,
@@ -16,6 +17,8 @@ interface PatientSummaryStatsProps {
   profile: PatientProfile;
   /** Optional real totals from the stats endpoint (may exceed loaded counts if capped). */
   stats?: ProfileStats;
+  /** Called when user clicks a drillable pill to navigate to that domain/view. */
+  onDrillDown?: (view: string, domain?: string) => void;
 }
 
 function daysBetween(a: string, b: string): number {
@@ -38,11 +41,18 @@ interface StatPillProps {
   value: string | number;
   sub?: string;
   color: string;
+  onClick?: () => void;
 }
 
-function StatPill({ icon, label, value, sub, color }: StatPillProps) {
+function StatPill({ icon, label, value, sub, color, onClick }: StatPillProps) {
   return (
-    <div className="flex items-center gap-3 rounded-lg border border-[#232328] bg-[#151518] px-4 py-3 shrink-0">
+    <div
+      className={cn(
+        "flex items-center gap-3 rounded-lg border border-[#232328] bg-[#151518] px-4 py-3 shrink-0 transition-colors",
+        onClick && "cursor-pointer hover:border-[#3A3A40] hover:bg-[#1C1C20]",
+      )}
+      onClick={onClick}
+    >
       <div
         className="flex items-center justify-center w-8 h-8 rounded-md"
         style={{ backgroundColor: `${color}18` }}
@@ -62,7 +72,7 @@ function StatPill({ icon, label, value, sub, color }: StatPillProps) {
   );
 }
 
-export function PatientSummaryStats({ profile, stats: domainStats }: PatientSummaryStatsProps) {
+export function PatientSummaryStats({ profile, stats: domainStats, onDrillDown }: PatientSummaryStatsProps) {
   const stats = useMemo(() => {
     const { conditions, drugs, procedures, measurements, observations, visits, observation_periods } =
       profile;
@@ -132,6 +142,7 @@ export function PatientSummaryStats({ profile, stats: domainStats }: PatientSumm
         label="Total Events"
         value={stats.totalEvents.toLocaleString()}
         color="#2DD4BF"
+        onClick={onDrillDown ? () => onDrillDown("list", "all") : undefined}
       />
       <StatPill
         icon={<CalendarRange size={16} />}
@@ -150,6 +161,7 @@ export function PatientSummaryStats({ profile, stats: domainStats }: PatientSumm
         value={stats.uniqueConditions}
         sub={`${profile.conditions.length} occurrences`}
         color="#E85A6B"
+        onClick={onDrillDown ? () => onDrillDown("list", "condition") : undefined}
       />
       <StatPill
         icon={<Pill size={16} />}
@@ -157,18 +169,21 @@ export function PatientSummaryStats({ profile, stats: domainStats }: PatientSumm
         value={stats.uniqueDrugs}
         sub={`${profile.drugs.length} exposures`}
         color="#2DD4BF"
+        onClick={onDrillDown ? () => onDrillDown("list", "drug") : undefined}
       />
       <StatPill
         icon={<TrendingUp size={16} />}
         label="Visits"
         value={stats.visitCount}
         color="#F59E0B"
+        onClick={onDrillDown ? () => onDrillDown("visits") : undefined}
       />
       <StatPill
         icon={<FlaskConical size={16} />}
         label="Labs"
         value={stats.measurementCount.toLocaleString()}
         color="#818CF8"
+        onClick={onDrillDown ? () => onDrillDown("labs") : undefined}
       />
       {stats.lastEventDate && (
         <StatPill
@@ -186,6 +201,7 @@ export function PatientSummaryStats({ profile, stats: domainStats }: PatientSumm
         label="Observations"
         value={stats.observationCount.toLocaleString()}
         color="#94A3B8"
+        onClick={onDrillDown ? () => onDrillDown("list", "observation") : undefined}
       />
     </div>
   );
