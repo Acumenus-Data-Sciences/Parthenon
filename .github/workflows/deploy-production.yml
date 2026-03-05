@@ -1,0 +1,196 @@
+name: Deploy to Production
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to deploy (e.g., v1.2.3)'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  deployments: write
+  issues: write
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false  # Never cancel a production deploy in progress
+
+jobs:
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    # Requires manual approval via GitHub Environment protection rules
+    environment: production
+
+    steps:
+      - name: Determine tag
+        id: tag
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "ref=${{ github.event.inputs.tag }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "ref=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.tag.outputs.ref }}
+
+      - name: Create GitHub deployment
+        id: deployment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: deployment } = await github.rest.repos.createDeployment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: '${{ steps.tag.outputs.ref }}',
+              environment: 'production',
+              auto_merge: false,
+              required_contexts: [],
+              description: `Deploy ${{ steps.tag.outputs.ref }} to production`
+            });
+            core.setOutput('id', deployment.id);
+
+      - name: Pre-deploy backup
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_SSH_HOST_PRODUCTION }}
+          username: ${{ secrets.DEPLOY_SSH_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            cd ${{ secrets.DEPLOY_PATH_PRODUCTION }}
+            # Record current commit for rollback
+            git rev-parse HEAD > .rollback-ref
+            # Database backup
+            docker compose exec -T postgres pg_dump -U parthenon parthenon \
+              > backups/pre-deploy-$(date +%Y%m%d-%H%M%S).sql 2>/dev/null || true
+
+      - name: Deploy
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_SSH_HOST_PRODUCTION }}
+          username: ${{ secrets.DEPLOY_SSH_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            cd ${{ secrets.DEPLOY_PATH_PRODUCTION }}
+            git fetch origin --tags
+            git checkout ${{ steps.tag.outputs.ref }}
+            ./deploy.sh --php --frontend --db --docs --openapi
+
+      - name: Health check
+        id: health
+        run: |
+          PROD_URL="${{ secrets.PRODUCTION_URL }}"
+          MAX_RETRIES=15
+          RETRY_DELAY=10
+
+          for i in $(seq 1 $MAX_RETRIES); do
+            echo "Health check attempt $i/$MAX_RETRIES..."
+
+            APP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$PROD_URL" --max-time 10 || echo "000")
+            API_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$PROD_URL/api/v1/health" --max-time 10 || echo "000")
+
+            echo "  App: $APP_STATUS, API: $API_STATUS"
+
+            if [ "$APP_STATUS" = "200" ] && [ "$API_STATUS" = "200" ]; then
+              echo "✅ Production health checks passed"
+              echo "healthy=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+
+            if [ "$i" -lt "$MAX_RETRIES" ]; then
+              sleep $RETRY_DELAY
+            fi
+          done
+
+          echo "❌ Production health checks failed"
+          echo "healthy=false" >> "$GITHUB_OUTPUT"
+          exit 1
+
+      - name: Monitor for errors (5 min window)
+        if: steps.health.outputs.healthy == 'true' && secrets.SENTRY_AUTH_TOKEN != ''
+        id: sentry
+        run: |
+          echo "Monitoring Sentry for critical errors (5 min window)..."
+          sleep 300  # Wait 5 minutes
+
+          # Query Sentry for new issues since deploy
+          RESPONSE=$(curl -s -H "Authorization: Bearer ${{ secrets.SENTRY_AUTH_TOKEN }}" \
+            "https://sentry.io/api/0/projects/${{ secrets.SENTRY_ORG }}/${{ secrets.SENTRY_PROJECT }}/issues/?query=is:unresolved+level:fatal&statsPeriod=5m" \
+            --max-time 30 || echo "[]")
+
+          CRITICAL_COUNT=$(echo "$RESPONSE" | python3 -c "import sys,json; print(len(json.load(sys.stdin)))" 2>/dev/null || echo "0")
+
+          echo "Critical errors in last 5 min: $CRITICAL_COUNT"
+
+          if [ "$CRITICAL_COUNT" -gt 2 ]; then
+            echo "⚠️ Error spike detected — triggering rollback"
+            echo "spike=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "✅ No error spike — deploy looks healthy"
+            echo "spike=false" >> "$GITHUB_OUTPUT"
+          fi
+        continue-on-error: true
+
+      - name: Rollback on failure
+        if: steps.health.outputs.healthy != 'true' || steps.sentry.outputs.spike == 'true'
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_SSH_HOST_PRODUCTION }}
+          username: ${{ secrets.DEPLOY_SSH_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            cd ${{ secrets.DEPLOY_PATH_PRODUCTION }}
+            ROLLBACK_REF=$(cat .rollback-ref 2>/dev/null)
+            if [ -n "$ROLLBACK_REF" ]; then
+              echo "Rolling back to $ROLLBACK_REF..."
+              git checkout "$ROLLBACK_REF"
+              ./deploy.sh --php --frontend
+              echo "✅ Rollback complete"
+            else
+              echo "❌ No rollback reference found"
+              exit 1
+            fi
+
+      - name: Update deployment status
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const healthy = '${{ steps.health.outputs.healthy }}' === 'true';
+            const spike = '${{ steps.sentry.outputs.spike }}' === 'true';
+            const state = healthy && !spike ? 'success' : 'failure';
+
+            await github.rest.repos.createDeploymentStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              deployment_id: ${{ steps.deployment.outputs.id }},
+              state: state,
+              environment_url: '${{ secrets.PRODUCTION_URL }}',
+              description: !healthy
+                ? 'Deploy failed health checks — rolled back'
+                : spike
+                  ? 'Error spike detected — rolled back'
+                  : `${{ steps.tag.outputs.ref }} deployed successfully`
+            });
+
+      - name: Create GitHub Release
+        if: steps.health.outputs.healthy == 'true' && steps.sentry.outputs.spike != 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const tag = '${{ steps.tag.outputs.ref }}';
+            await github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: tag,
+              name: `Parthenon ${tag}`,
+              generate_release_notes: true
+            });

@@ -1,0 +1,222 @@
+name: Diagnose CI Failure
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: read
+  checks: write
+
+jobs:
+  diagnose:
+    name: Diagnose & Auto-Fix
+    runs-on: ubuntu-latest
+    # Only run when CI failed on a PR branch (not main)
+    if: >
+      github.event.workflow_run.conclusion == 'failure' &&
+      github.event.workflow_run.head_branch != 'main' &&
+      github.event.workflow_run.head_branch != 'master'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_branch }}
+          fetch-depth: 0
+
+      - name: Download CI logs
+        id: logs
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const run_id = context.payload.workflow_run.id;
+
+            // Get failed jobs
+            const { data: jobs } = await github.rest.actions.listJobsForWorkflowRun({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: run_id,
+              filter: 'latest'
+            });
+
+            const failedJobs = jobs.jobs.filter(j => j.conclusion === 'failure');
+            let allLogs = '';
+
+            for (const job of failedJobs) {
+              try {
+                const { data: log } = await github.rest.actions.downloadJobLogsForWorkflowRun({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  job_id: job.id
+                });
+                // Truncate to last 200 lines per job to stay within token limits
+                const lines = log.split('\n');
+                const tail = lines.slice(-200).join('\n');
+                allLogs += `\n--- JOB: ${job.name} (FAILED) ---\n${tail}\n`;
+              } catch (e) {
+                allLogs += `\n--- JOB: ${job.name} (FAILED) --- [Could not fetch logs]\n`;
+              }
+            }
+
+            const fs = require('fs');
+            fs.writeFileSync('ci-failure-logs.txt', allLogs);
+
+            // Also record failed job names
+            const failedNames = failedJobs.map(j => j.name).join(', ');
+            core.setOutput('failed_jobs', failedNames);
+            core.setOutput('has_failures', failedJobs.length > 0 ? 'true' : 'false');
+
+      - name: Diagnose with Claude
+        if: steps.logs.outputs.has_failures == 'true'
+        id: diagnosis
+        uses: anthropics/claude-code-action@beta
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            Read the CI failure logs below and the system prompt in .github/prompts/diagnose-failure.md.
+
+            Failed jobs: ${{ steps.logs.outputs.failed_jobs }}
+
+            CI Logs:
+            $(cat ci-failure-logs.txt)
+
+            Diagnose the failure and respond with the JSON format specified in the prompt.
+
+      - name: Parse diagnosis
+        if: steps.logs.outputs.has_failures == 'true'
+        id: parse
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const response = `${{ steps.diagnosis.outputs.response }}`;
+
+            // Extract JSON from response
+            const jsonMatch = response.match(/\{[\s\S]*\}/);
+            if (!jsonMatch) {
+              core.setOutput('category', 'UNKNOWN');
+              core.setOutput('auto_fixable', 'false');
+              core.setOutput('summary', 'Could not parse diagnosis');
+              return;
+            }
+
+            try {
+              const diagnosis = JSON.parse(jsonMatch[0]);
+              core.setOutput('category', diagnosis.category);
+              core.setOutput('auto_fixable', String(diagnosis.auto_fixable));
+              core.setOutput('summary', diagnosis.summary);
+              core.setOutput('fix_command', diagnosis.fix_command || '');
+              core.setOutput('explanation', diagnosis.explanation);
+            } catch (e) {
+              core.setOutput('category', 'UNKNOWN');
+              core.setOutput('auto_fixable', 'false');
+              core.setOutput('summary', 'Diagnosis parsing failed');
+            }
+
+      # --- Auto-fix formatting issues ---
+      - name: Auto-fix PHP formatting
+        if: steps.parse.outputs.category == 'FORMATTING' && steps.parse.outputs.auto_fixable == 'true'
+        run: |
+          cd backend
+          composer install --no-interaction --quiet
+          vendor/bin/pint --fix || true
+        continue-on-error: true
+
+      - name: Auto-fix JS/TS formatting
+        if: steps.parse.outputs.category == 'FORMATTING' && steps.parse.outputs.auto_fixable == 'true'
+        run: |
+          cd frontend
+          npm ci --legacy-peer-deps --silent
+          npx eslint . --fix || true
+          npx prettier --write "src/**/*.{ts,tsx}" || true
+        continue-on-error: true
+
+      - name: Auto-fix Python formatting
+        if: steps.parse.outputs.category == 'FORMATTING' && steps.parse.outputs.auto_fixable == 'true'
+        run: |
+          cd ai
+          pip install black isort --quiet
+          black app/ || true
+          isort app/ || true
+        continue-on-error: true
+
+      - name: Commit auto-fixes
+        if: steps.parse.outputs.category == 'FORMATTING' && steps.parse.outputs.auto_fixable == 'true'
+        run: |
+          git config user.name "ci-fix-bot"
+          git config user.email "ci-fix-bot@users.noreply.github.com"
+          git add -A
+          if git diff --staged --quiet; then
+            echo "No formatting changes to commit"
+          else
+            git commit -m "style: auto-fix formatting issues
+
+          CI diagnosed: ${{ steps.parse.outputs.summary }}
+
+          Co-Authored-By: CI Fix Bot <ci-fix-bot@users.noreply.github.com>"
+            git push origin ${{ github.event.workflow_run.head_branch }}
+            echo "✅ Auto-fix committed and pushed. CI will re-run."
+          fi
+
+      # --- Comment on PR for non-auto-fixable issues ---
+      - name: Find associated PR
+        if: steps.parse.outputs.category != 'FORMATTING' || steps.parse.outputs.auto_fixable != 'true'
+        id: find_pr
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const branch = context.payload.workflow_run.head_branch;
+            const { data: prs } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              head: `${context.repo.owner}:${branch}`,
+              state: 'open'
+            });
+            if (prs.length > 0) {
+              core.setOutput('pr_number', prs[0].number);
+              core.setOutput('has_pr', 'true');
+            } else {
+              core.setOutput('has_pr', 'false');
+            }
+
+      - name: Comment diagnosis on PR
+        if: steps.find_pr.outputs.has_pr == 'true' && (steps.parse.outputs.category != 'FORMATTING' || steps.parse.outputs.auto_fixable != 'true')
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const category = '${{ steps.parse.outputs.category }}';
+            const summary = '${{ steps.parse.outputs.summary }}';
+            const explanation = `${{ steps.parse.outputs.explanation }}`;
+            const fixCommand = '${{ steps.parse.outputs.fix_command }}';
+
+            const icons = {
+              'FORMATTING': '🎨',
+              'TYPE_ERROR': '📝',
+              'TEST_FAILURE': '🧪',
+              'BUILD_ERROR': '🔧',
+              'UNKNOWN': '❓'
+            };
+
+            let body = `## ${icons[category] || '❓'} CI Failure Diagnosis
+
+            **Category:** ${category}
+            **Summary:** ${summary}
+
+            ### Analysis
+            ${explanation}`;
+
+            if (fixCommand) {
+              body += `\n\n### Suggested Fix\n\`\`\`bash\n${fixCommand}\n\`\`\``;
+            }
+
+            body += `\n\n---\n*Diagnosed automatically by the CI Fix Agent*`;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: ${{ steps.find_pr.outputs.pr_number }},
+              body: body
+            });

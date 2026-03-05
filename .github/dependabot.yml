@@ -1,0 +1,67 @@
+version: 2
+
+updates:
+  # PHP / Composer — check daily (security-sensitive backend)
+  - package-ecosystem: composer
+    directory: /backend
+    schedule:
+      interval: daily
+    labels:
+      - dependencies
+      - php
+    reviewers:
+      - sudoshi
+    groups:
+      dev-dependencies:
+        dependency-type: development
+        update-types:
+          - minor
+          - patch
+      production-dependencies:
+        dependency-type: production
+        update-types:
+          - patch
+
+  # Node / npm — check weekly (frontend + build tools)
+  - package-ecosystem: npm
+    directory: /frontend
+    schedule:
+      interval: weekly
+      day: monday
+    labels:
+      - dependencies
+      - javascript
+    reviewers:
+      - sudoshi
+    groups:
+      dev-dependencies:
+        dependency-type: development
+        update-types:
+          - minor
+          - patch
+      production-dependencies:
+        dependency-type: production
+        update-types:
+          - patch
+
+  # Python / pip — check weekly (AI service)
+  - package-ecosystem: pip
+    directory: /ai
+    schedule:
+      interval: weekly
+      day: monday
+    labels:
+      - dependencies
+      - python
+    reviewers:
+      - sudoshi
+
+  # GitHub Actions — keep workflows up to date
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    labels:
+      - dependencies
+      - ci
