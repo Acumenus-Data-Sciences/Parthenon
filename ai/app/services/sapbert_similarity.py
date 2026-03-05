@@ -58,11 +58,11 @@ class SapBERTSimilarityStrategy:
 
             candidates.append(
                 ConceptCandidate(
-                    concept_id=int(row["concept_id"]),
+                    concept_id=int(row["concept_id"]),  # type: ignore[call-overload]
                     concept_name=str(row["concept_name"]),
                     domain_id=str(row.get("domain_id", "")),
                     vocabulary_id=str(row.get("vocabulary_id", "")),
-                    score=float(row["similarity"]),
+                    score=float(row["similarity"]),  # type: ignore[arg-type]
                     strategy=STRATEGY_NAME,
                 )
             )

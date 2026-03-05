@@ -172,7 +172,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: docs/site
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
       - name: Build
         working-directory: docs/site
@@ -195,7 +195,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: docs/site
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
       - name: Build documentation
         working-directory: docs/site

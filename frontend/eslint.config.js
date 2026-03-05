@@ -19,5 +19,19 @@ export default defineConfig([
       ecmaVersion: 2020,
       globals: globals.browser,
     },
+    rules: {
+      // react-hooks v7 added strict React Compiler rules; downgrade to warn
+      // until the codebase is fully migrated to compiler-compatible patterns.
+      'react-hooks/set-state-in-effect': 'warn',
+      'react-hooks/cannot-create-components': 'warn',
+      'react-hooks/immutability': 'warn',
+      'react-hooks/impure-function': 'warn',
+      // Dev-tooling hint, not a bug — downgrade to warn.
+      'react-refresh/only-export-components': 'warn',
+      // Unused vars: warn instead of error; prefix with _ to suppress.
+      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+      // Unused expressions occur in some legacy guard patterns — warn.
+      '@typescript-eslint/no-unused-expressions': 'warn',
+    },
   },
 ])

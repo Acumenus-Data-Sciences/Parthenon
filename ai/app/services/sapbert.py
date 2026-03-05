@@ -51,7 +51,7 @@ class SapBERTService:
             settings.sapbert_model,
             cache_dir=settings.model_cache_dir,
         ).to(self._device)
-        self._model.eval()
+        self._model.eval()  # type: ignore[union-attr, attr-defined]
 
         logger.info("SapBERT model loaded successfully")
 

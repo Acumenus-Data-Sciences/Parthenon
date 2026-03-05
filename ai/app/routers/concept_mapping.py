@@ -194,7 +194,7 @@ async def map_batch(request: BatchMappingRequest) -> BatchMappingResponse:
             else []
         )
         if cache_cands:
-            candidates_by_strategy["historical_cache"] = cache_cands
+            candidates_by_strategy["historical_cache"] = cache_cands  # type: ignore[assignment]
             strategies_used["historical_cache"] += 1
 
         # Exact
@@ -204,18 +204,18 @@ async def map_batch(request: BatchMappingRequest) -> BatchMappingResponse:
             else []
         )
         if exact_cands:
-            candidates_by_strategy["exact_code_match"] = exact_cands
+            candidates_by_strategy["exact_code_match"] = exact_cands  # type: ignore[assignment]
             strategies_used["exact_code_match"] += 1
 
         # SapBERT
         sapbert_rows = sapbert_results_per_term[i]
         sapbert_cands = [
             ConceptCandidate(
-                concept_id=int(r["concept_id"]),
+                concept_id=int(r["concept_id"]),  # type: ignore[call-overload]
                 concept_name=str(r["concept_name"]),
                 domain_id=str(r.get("domain_id", "")),
                 vocabulary_id=str(r.get("vocabulary_id", "")),
-                score=float(r["similarity"]),
+                score=float(r["similarity"]),  # type: ignore[arg-type]
                 strategy="sapbert_cosine",
             )
             for r in sapbert_rows

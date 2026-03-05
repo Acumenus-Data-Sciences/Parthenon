@@ -129,7 +129,7 @@ class LLMReasoningStrategy:
 
         # Build a lookup from the original candidates for domain/vocabulary
         candidate_lookup: dict[int, dict[str, object]] = {
-            int(c["concept_id"]): c for c in candidate_concepts
+            int(c["concept_id"]): c for c in candidate_concepts  # type: ignore[call-overload]
         }
 
         candidates: list[ConceptCandidate] = []

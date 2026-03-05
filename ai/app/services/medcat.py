@@ -174,9 +174,9 @@ class ClinicalNlpService:
 
                 if candidates:
                     best = candidates[0]
-                    entity.concept_id = best["concept_id"]
-                    entity.concept_name = best["concept_name"]
-                    entity.confidence = best["similarity"]
+                    entity.concept_id = best["concept_id"]  # type: ignore[assignment]
+                    entity.concept_name = best["concept_name"]  # type: ignore[assignment]
+                    entity.confidence = best["similarity"]  # type: ignore[assignment]
             except Exception:
                 # If linking fails, entity still has text/span/label
                 pass

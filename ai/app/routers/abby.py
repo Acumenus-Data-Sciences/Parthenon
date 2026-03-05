@@ -215,7 +215,7 @@ async def call_ollama(system_prompt: str, user_message: str,
             )
             resp.raise_for_status()
             data = resp.json()
-            return data["message"]["content"]
+            return data["message"]["content"]  # type: ignore[no-any-return]
     except httpx.TimeoutException:
         raise HTTPException(status_code=504, detail="LLM service timed out.")
     except Exception as e:

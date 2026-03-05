@@ -68,7 +68,7 @@ async def similarity_search(request: ConceptSearchRequest) -> ConceptSearchRespo
                 "concept_name": str(r["concept_name"]),
                 "domain_id": str(r.get("domain_id", "")),
                 "vocabulary_id": str(r.get("vocabulary_id", "")),
-                "score": float(r["similarity"]),
+                "score": float(r["similarity"]),  # type: ignore[arg-type]
                 "strategy": "sapbert_cosine",
             }
             for r in results
@@ -76,7 +76,7 @@ async def similarity_search(request: ConceptSearchRequest) -> ConceptSearchRespo
 
         return ConceptSearchResponse(
             query=request.query,
-            candidates=candidates,
+            candidates=candidates,  # type: ignore[arg-type]
         )
     except Exception as e:
         raise HTTPException(

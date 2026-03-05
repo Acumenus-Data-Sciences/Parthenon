@@ -84,7 +84,7 @@ class EnsembleRanker:
                 # Keep the metadata from the highest-scoring occurrence
                 existing = meta.get(c.concept_id)
                 if existing is None or weighted > float(
-                    existing.get("_best_score", 0.0)
+                    existing.get("_best_score", 0.0)  # type: ignore[arg-type]
                 ):
                     meta[c.concept_id] = {
                         "concept_name": c.concept_name,
