@@ -55,6 +55,9 @@ docker/redis-data/
 
 # Secrets
 .secrets
+.claudeapikey
+.resendapikey
+*.apikey
 
 # Environment
 .env
