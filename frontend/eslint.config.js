@@ -20,12 +20,21 @@ export default defineConfig([
       globals: globals.browser,
     },
     rules: {
-      // react-hooks v7 added strict React Compiler rules; downgrade to warn
-      // until the codebase is fully migrated to compiler-compatible patterns.
+      // react-hooks v7 introduced strict React Compiler rules; downgrade to
+      // warn until the codebase is fully migrated to compiler-compatible patterns.
       'react-hooks/set-state-in-effect': 'warn',
-      'react-hooks/cannot-create-components': 'warn',
+      'react-hooks/static-components': 'warn',
       'react-hooks/immutability': 'warn',
-      'react-hooks/impure-function': 'warn',
+      'react-hooks/purity': 'warn',
+      'react-hooks/set-state-in-render': 'warn',
+      'react-hooks/use-memo': 'warn',
+      'react-hooks/component-hook-factories': 'warn',
+      'react-hooks/preserve-manual-memoization': 'warn',
+      'react-hooks/globals': 'warn',
+      'react-hooks/refs': 'warn',
+      'react-hooks/error-boundaries': 'warn',
+      'react-hooks/config': 'warn',
+      'react-hooks/gating': 'warn',
       // Dev-tooling hint, not a bug — downgrade to warn.
       'react-refresh/only-export-components': 'warn',
       // Unused vars: warn instead of error; prefix with _ to suppress.

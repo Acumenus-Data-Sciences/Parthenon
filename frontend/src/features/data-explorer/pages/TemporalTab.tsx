@@ -84,11 +84,23 @@ export default function TemporalTab({ sourceId }: TemporalTabProps) {
     new Set(["condition", "drug", "procedure"]),
   );
 
-  // Fetch trends for all enabled domains
-  const trendQueries = DOMAINS.map((domain) => ({
-    domain,
-    ...useTemporalTrends(sourceId, enabledDomains.has(domain) ? domain : ""),
-  }));
+  // Call hooks unconditionally for all domains (rules-of-hooks requirement),
+  // then filter by enabled state during rendering.
+  const conditionTrends = useTemporalTrends(sourceId, enabledDomains.has("condition") ? "condition" : "");
+  const drugTrends = useTemporalTrends(sourceId, enabledDomains.has("drug") ? "drug" : "");
+  const procedureTrends = useTemporalTrends(sourceId, enabledDomains.has("procedure") ? "procedure" : "");
+  const measurementTrends = useTemporalTrends(sourceId, enabledDomains.has("measurement") ? "measurement" : "");
+  const observationTrends = useTemporalTrends(sourceId, enabledDomains.has("observation") ? "observation" : "");
+  const visitTrends = useTemporalTrends(sourceId, enabledDomains.has("visit") ? "visit" : "");
+
+  const trendQueries = useMemo(() => [
+    { domain: "condition" as Domain, ...conditionTrends },
+    { domain: "drug" as Domain, ...drugTrends },
+    { domain: "procedure" as Domain, ...procedureTrends },
+    { domain: "measurement" as Domain, ...measurementTrends },
+    { domain: "observation" as Domain, ...observationTrends },
+    { domain: "visit" as Domain, ...visitTrends },
+  ], [conditionTrends, drugTrends, procedureTrends, measurementTrends, observationTrends, visitTrends]);
 
   const toggleDomain = (domain: Domain) => {
     setEnabledDomains((prev) => {
