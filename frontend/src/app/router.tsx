@@ -340,6 +340,26 @@ export const router = createBrowserRouter([
           },
         ],
       },
+      // ── Phase 17: HEOR ────────────────────────────────────────────────
+      {
+        path: "heor",
+        children: [
+          {
+            index: true,
+            lazy: () =>
+              import("@/features/heor/pages/HeorPage").then(
+                (m) => ({ Component: m.default }),
+              ),
+          },
+          {
+            path: ":id",
+            lazy: () =>
+              import("@/features/heor/pages/HeorAnalysisPage").then(
+                (m) => ({ Component: m.default }),
+              ),
+          },
+        ],
+      },
       // ── Administration ────────────────────────────────────────────────
       {
         path: "admin",
