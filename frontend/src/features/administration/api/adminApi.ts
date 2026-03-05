@@ -176,3 +176,97 @@ export const uploadVocabZip = (file: File, sourceId?: number) => {
 
 export const deleteVocabImport = (id: number) =>
   apiClient.delete(`/admin/vocabulary/imports/${id}`);
+
+// ── FHIR EHR Connections ────────────────────────────────────────────────────
+
+export interface FhirConnection {
+  id: number;
+  site_name: string;
+  site_key: string;
+  ehr_vendor: "epic" | "cerner" | "other";
+  fhir_base_url: string;
+  token_endpoint: string;
+  client_id: string;
+  has_private_key: boolean;
+  jwks_url: string | null;
+  scopes: string;
+  group_id: string | null;
+  export_resource_types: string | null;
+  target_source_id: number | null;
+  sync_config: Record<string, unknown> | null;
+  is_active: boolean;
+  incremental_enabled: boolean;
+  last_sync_at: string | null;
+  last_sync_status: string | null;
+  last_sync_records: number;
+  sync_runs_count?: number;
+  target_source?: { id: number; source_name: string } | null;
+  creator?: { id: number; name: string };
+  created_at: string;
+  updated_at: string;
+}
+
+export interface FhirConnectionPayload {
+  site_name: string;
+  site_key: string;
+  ehr_vendor: string;
+  fhir_base_url: string;
+  token_endpoint: string;
+  client_id: string;
+  private_key_pem?: string;
+  jwks_url?: string;
+  scopes?: string;
+  group_id?: string;
+  export_resource_types?: string;
+  target_source_id?: number | null;
+  sync_config?: Record<string, unknown>;
+  is_active?: boolean;
+  incremental_enabled?: boolean;
+}
+
+export interface FhirTestResult {
+  success: boolean;
+  message: string;
+  steps: Array<{ step: string; status: string; detail?: string }>;
+  elapsed_ms: number;
+}
+
+export interface FhirSyncRun {
+  id: number;
+  fhir_connection_id: number;
+  status: string;
+  records_extracted: number;
+  records_mapped: number;
+  records_written: number;
+  records_failed: number;
+  mapping_coverage: number | null;
+  error_message: string | null;
+  started_at: string | null;
+  finished_at: string | null;
+  triggered_by_user?: { id: number; name: string } | null;
+  created_at: string;
+}
+
+export const fetchFhirConnections = () =>
+  apiClient.get<{ data: FhirConnection[] }>("/admin/fhir-connections").then((r) => r.data.data);
+
+export const fetchFhirConnection = (id: number) =>
+  apiClient.get<{ data: FhirConnection }>(`/admin/fhir-connections/${id}`).then((r) => r.data.data);
+
+export const createFhirConnection = (data: FhirConnectionPayload) =>
+  apiClient.post<{ data: FhirConnection }>("/admin/fhir-connections", data).then((r) => r.data.data);
+
+export const updateFhirConnection = (id: number, data: Partial<FhirConnectionPayload>) =>
+  apiClient.put<{ data: FhirConnection }>(`/admin/fhir-connections/${id}`, data).then((r) => r.data.data);
+
+export const deleteFhirConnection = (id: number) =>
+  apiClient.delete(`/admin/fhir-connections/${id}`);
+
+export const testFhirConnection = (id: number) =>
+  apiClient.post<FhirTestResult>(`/admin/fhir-connections/${id}/test`).then((r) => r.data);
+
+export const startFhirSync = (id: number) =>
+  apiClient.post<{ data: FhirSyncRun }>(`/admin/fhir-connections/${id}/sync`).then((r) => r.data.data);
+
+export const fetchFhirSyncRuns = (connectionId: number) =>
+  apiClient.get<{ data: FhirSyncRun[] }>(`/admin/fhir-connections/${connectionId}/sync-runs`).then((r) => r.data.data);

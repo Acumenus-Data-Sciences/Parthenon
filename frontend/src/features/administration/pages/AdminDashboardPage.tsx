@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import {
-  Activity, Bot, KeyRound, ShieldCheck, Users, ArrowRight, Wand2, BookOpen,
+  Activity, Bot, KeyRound, ShieldCheck, Users, ArrowRight, Wand2, BookOpen, Server,
 } from "lucide-react";
 import { MetricCard, Panel } from "@/components/ui";
 import { useUsers } from "../hooks/useAdminUsers";
@@ -63,6 +63,15 @@ const NAV_CARDS = [
     href: "/admin/vocabulary",
     color: "text-violet-500",
     bg: "bg-violet-500/10",
+    superAdminOnly: true,
+  },
+  {
+    title: "FHIR EHR Connections",
+    description: "Manage FHIR R4 connections to Epic, Cerner, and other EHR systems for bulk data import.",
+    icon: Server,
+    href: "/admin/fhir-connections",
+    color: "text-teal-500",
+    bg: "bg-teal-500/10",
     superAdminOnly: true,
   },
 ];

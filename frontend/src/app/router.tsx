@@ -421,6 +421,13 @@ export const router = createBrowserRouter([
               ),
           },
           {
+            path: "fhir-connections",
+            lazy: () =>
+              import(
+                "@/features/administration/pages/FhirConnectionsPage"
+              ).then((m) => ({ Component: m.default })),
+          },
+          {
             path: "notifications",
             lazy: () =>
               import(

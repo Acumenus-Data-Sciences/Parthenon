@@ -57,69 +57,101 @@ class DicomFileService
     /**
      * Scan $dir recursively, import all DICOM files into the DB for $sourceId.
      *
+     * Processes files in batches of $batchSize to avoid OOM on large datasets.
+     *
      * @return array{studies: int, series: int, instances: int, errors: int}
      */
-    public function importDirectory(string $dir, int $sourceId): array
+    public function importDirectory(string $dir, int $sourceId, int $batchSize = 5000): array
     {
         if (!is_dir($dir)) {
             throw new \InvalidArgumentException("Directory not found: {$dir}");
         }
 
-        $files = $this->findDicomFiles($dir);
+        $repoRoot    = base_path();
+        $totalStudies  = 0;
+        $totalSeries   = 0;
+        $totalInstances = 0;
+        $errors        = 0;
 
-        $studies = [];   // uid -> data
-        $series = [];    // uid -> data
-        $instances = []; // sopUid -> data
+        // Accumulation buffers for current batch
+        $studies   = [];
+        $series    = [];
+        $instances = [];
+        $batchCount = 0;
 
-        foreach ($files as $path) {
-            try {
-                $meta = $this->readMeta($path);
-                if (!$meta) {
-                    continue;
+        $flush = function () use (
+            &$studies, &$series, &$instances, &$batchCount,
+            &$totalStudies, &$totalSeries, &$totalInstances,
+            $sourceId, $repoRoot
+        ) {
+            if (empty($instances) && empty($studies)) {
+                return;
+            }
+
+            // Make paths repo-relative
+            foreach ($studies as &$s) {
+                if (isset($s['file_dir'])) {
+                    $s['file_dir'] = $this->relativeTo($s['file_dir'], $repoRoot);
                 }
-                $this->accumulate($meta, $path, $studies, $series, $instances);
+            }
+            unset($s);
+            foreach ($series as &$s) {
+                if (isset($s['file_dir'])) {
+                    $s['file_dir'] = $this->relativeTo($s['file_dir'], $repoRoot);
+                }
+            }
+            unset($s);
+            foreach ($instances as &$i) {
+                if (isset($i['file_path'])) {
+                    $i['file_path'] = $this->relativeTo($i['file_path'], $repoRoot);
+                }
+            }
+            unset($i);
+
+            [$sc, $ssc, $ic] = $this->persist($sourceId, $studies, $series, $instances);
+            $totalStudies   += $sc;
+            $totalSeries    += $ssc;
+            $totalInstances += $ic;
+
+            $studies   = [];
+            $series    = [];
+            $instances = [];
+            $batchCount = 0;
+        };
+
+        $iterator = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($dir, \FilesystemIterator::SKIP_DOTS)
+        );
+
+        foreach ($iterator as $file) {
+            /** @var \SplFileInfo $file */
+            if (!$file->isFile() || !$this->isDicom($file->getPathname())) {
+                continue;
+            }
+
+            try {
+                $meta = $this->readMeta($file->getPathname());
+                if ($meta) {
+                    $this->accumulate($meta, $file->getPathname(), $studies, $series, $instances);
+                    $batchCount++;
+                }
             } catch (\Throwable $e) {
-                Log::warning("DICOM parse error: {$path}: " . $e->getMessage());
+                Log::warning("DICOM parse error: {$file->getPathname()}: " . $e->getMessage());
+                $errors++;
+            }
+
+            if ($batchCount >= $batchSize) {
+                $flush();
             }
         }
 
-        $errors = 0;
-
-        // Derive repo-relative paths (so files served from base_path())
-        $repoRoot = base_path();
-
-        $studies = array_map(function (array $s) use ($repoRoot) {
-            if (isset($s['file_dir'])) {
-                $s['file_dir'] = $this->relativeTo($s['file_dir'], $repoRoot);
-            }
-            return $s;
-        }, $studies);
-
-        $series = array_map(function (array $s) use ($repoRoot) {
-            if (isset($s['file_dir'])) {
-                $s['file_dir'] = $this->relativeTo($s['file_dir'], $repoRoot);
-            }
-            return $s;
-        }, $series);
-
-        $instances = array_map(function (array $i) use ($repoRoot) {
-            if (isset($i['file_path'])) {
-                $i['file_path'] = $this->relativeTo($i['file_path'], $repoRoot);
-            }
-            return $i;
-        }, $instances);
-
-        [$studyCount, $seriesCount, $instanceCount] = $this->persist(
-            $sourceId,
-            $studies,
-            $series,
-            $instances
-        );
+        // Flush remaining
+        $flush();
 
         return [
-            'studies'   => $studyCount,
-            'series'    => $seriesCount,
-            'instances' => $instanceCount,
+            'studies'   => $totalStudies,
+            'series'    => $totalSeries,
+            'instances' => $totalInstances,
             'errors'    => $errors,
         ];
     }
@@ -294,8 +326,14 @@ class DicomFileService
                 $tagName = self::TAGS[$tag] ?? null;
                 if ($tagName && $length > 0) {
                     $value = fread($fh, $length);
-                    // Trim padding (DICOM pads with space or null)
-                    $result[$tagName] = rtrim($value, " \0");
+                    // Trim DICOM padding (space or null)
+                    $value = rtrim($value, " \0");
+                    // Sanitize to UTF-8 (DICOM default charset is ISO-IR 6/ASCII;
+                    // some files use Latin-1 — convert and strip any remaining invalids)
+                    if (!mb_check_encoding($value, 'UTF-8')) {
+                        $value = mb_convert_encoding($value, 'UTF-8', 'ISO-8859-1');
+                    }
+                    $result[$tagName] = $value;
                 } elseif ($length > 0) {
                     fseek($fh, $length, SEEK_CUR);
                 }
