@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\V1\Admin\RoleController;
 use App\Http\Controllers\Api\V1\Admin\SystemHealthController;
 use App\Http\Controllers\Api\V1\Admin\UserController;
 use App\Http\Controllers\Api\V1\Admin\VocabularyController as AdminVocabularyController;
+use App\Http\Controllers\Api\V1\Admin\AtlasMigrationController;
 use App\Http\Controllers\Api\V1\Admin\WebApiRegistryController;
 use App\Http\Controllers\Api\V1\AnalysisStatsController;
 use App\Http\Controllers\Api\V1\AuthController;
@@ -415,6 +416,16 @@ Route::prefix('v1')->group(function () {
                 Route::put('/{registry}', [WebApiRegistryController::class, 'update']);
                 Route::delete('/{registry}', [WebApiRegistryController::class, 'destroy']);
                 Route::post('/{registry}/sync', [WebApiRegistryController::class, 'sync']);
+            });
+
+            // ── Atlas Migration Wizard (admin+) ──────────────────────────
+            Route::prefix('atlas-migration')->group(function () {
+                Route::post('/test-connection', [AtlasMigrationController::class, 'testConnection']);
+                Route::post('/discover', [AtlasMigrationController::class, 'discover']);
+                Route::post('/start', [AtlasMigrationController::class, 'start']);
+                Route::get('/history', [AtlasMigrationController::class, 'history']);
+                Route::get('/{migration}/status', [AtlasMigrationController::class, 'status']);
+                Route::post('/{migration}/retry', [AtlasMigrationController::class, 'retry']);
             });
 
             // ── System health (admin+) ────────────────────────────────────

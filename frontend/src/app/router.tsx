@@ -422,6 +422,13 @@ export const router = createBrowserRouter(
               ),
           },
           {
+            path: "atlas-migration",
+            lazy: () =>
+              import(
+                "@/features/administration/pages/AtlasMigrationPage"
+              ).then((m) => ({ Component: m.default })),
+          },
+          {
             path: "fhir-connections",
             lazy: () =>
               import(

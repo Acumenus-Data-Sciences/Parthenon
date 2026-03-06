@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import {
-  Activity, Bot, KeyRound, ShieldCheck, Users, ArrowRight, Wand2, BookOpen, Server,
+  Activity, Bot, KeyRound, ShieldCheck, Users, ArrowRight, Wand2, BookOpen, Server, ArrowRightLeft,
 } from "lucide-react";
 import { MetricCard, Panel } from "@/components/ui";
 import { useUsers } from "../hooks/useAdminUsers";
@@ -72,6 +72,15 @@ const NAV_CARDS = [
     href: "/admin/fhir-connections",
     color: "text-teal-500",
     bg: "bg-teal-500/10",
+    superAdminOnly: true,
+  },
+  {
+    title: "Migrate from Atlas",
+    description: "Import cohort definitions, concept sets, and analyses from an existing OHDSI Atlas installation.",
+    icon: ArrowRightLeft,
+    href: "/admin/atlas-migration",
+    color: "text-rose-500",
+    bg: "bg-rose-500/10",
     superAdminOnly: true,
   },
 ];
