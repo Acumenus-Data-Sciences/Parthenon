@@ -1,5 +1,5 @@
 # Heavy ML dependencies - install when needed for SapBERT embeddings
 # These are deferred from the base requirements due to large download size
-transformers==4.*
+transformers==5.*
 torch==2.*
 medcat==2.*
