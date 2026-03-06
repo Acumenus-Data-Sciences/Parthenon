@@ -370,7 +370,7 @@ export default function AnalysesPage() {
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          <HelpButton helpKey="characterization" />
+          <HelpButton helpKey="analyses" />
           <div className="relative" ref={createMenuRef}>
             <button
               type="button"

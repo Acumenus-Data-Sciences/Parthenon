@@ -1,14 +1,15 @@
 {
   "key": "imaging",
-  "title": "Imaging",
-  "description": "The Imaging module provides DICOM medical image viewing and management. Upload DICOM files, browse imaging studies, and view images with clinical-grade tools including windowing, zoom, pan, and measurement overlays powered by Cornerstone3D.",
-  "docs_url": "/docs/part7-advanced/23-imaging",
+  "title": "Medical Imaging",
+  "description": "The Imaging module integrates DICOM medical imaging with OMOP CDM. Browse imaging studies, view DICOM images with Cornerstone3D clinical tools, extract AI/NLP features, define imaging-based cohort criteria, and analyze imaging patterns across patient populations.",
+  "docs_url": "/docs/part10-imaging/28-imaging-overview",
   "video_url": null,
   "tips": [
-    "Upload DICOM files (.dcm) or ZIP archives containing DICOM series.",
-    "The viewer supports standard radiology tools: window/level, zoom, pan, scroll, and length measurement.",
-    "Studies are organized by patient, study date, and series for easy navigation.",
-    "WADO-RS endpoints serve images to the Cornerstone3D viewer for high-performance rendering.",
-    "Imaging studies can be linked to OMOP procedure_occurrence records for cohort-level imaging analysis."
+    "The Studies tab lists all DICOM imaging studies. Filter by source or modality, and click a study to open the DICOM viewer with windowing, zoom, pan, and measurement tools.",
+    "Import DICOM files via local upload (.dcm or ZIP) or connect to a DICOMweb-compatible PACS server.",
+    "The AI Features tab shows extracted imaging features (NLP Findings, AI Classifications, Radiomics, Manual annotations) with confidence scores and OMOP concept mappings.",
+    "Use the Imaging Criteria tab to define reusable cohort criteria based on modality, anatomy, quantitative measures, AI classifications, or radiation dose thresholds.",
+    "The Population Analytics tab provides aggregate analysis by modality distribution, body part coverage, and top AI/NLP features across your imaging data.",
+    "Imaging studies are linked to OMOP procedure_occurrence records, enabling cohort-level imaging analysis alongside clinical data."
   ]
 }

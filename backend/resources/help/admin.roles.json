@@ -2,7 +2,7 @@
   "key": "admin.roles",
   "title": "Roles & Permissions",
   "description": "Define roles and assign granular permissions to control what users can access and modify in Parthenon. Roles use a domain-based permission model covering data sources, cohorts, analyses, vocabulary, administration, and more.",
-  "docs_url": "/docs/part5-admin/15-roles-permissions",
+  "docs_url": "/docs/part8-administration/23-roles-permissions",
   "video_url": null,
   "tips": [
     "Each role can have any combination of permissions across different domains.",

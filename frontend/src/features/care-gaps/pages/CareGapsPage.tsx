@@ -6,6 +6,7 @@ import { SourceSelector } from "@/features/data-explorer/components/SourceSelect
 import { BundleList } from "../components/BundleList";
 import { PopulationComplianceDashboard } from "../components/PopulationComplianceDashboard";
 import { useCreateBundle } from "../hooks/useCareGaps";
+import { HelpButton } from "@/features/help";
 
 type Tab = "bundles" | "population";
 
@@ -38,14 +39,17 @@ export default function CareGapsPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-[#F0EDE8]">
-            Care Gaps
-          </h1>
-          <p className="mt-1 text-sm text-[#8A857D]">
-            Condition bundles, quality measures, and population compliance
-            tracking
-          </p>
+        <div className="flex items-center gap-2">
+          <div>
+            <h1 className="text-2xl font-bold text-[#F0EDE8]">
+              Care Gaps
+            </h1>
+            <p className="mt-1 text-sm text-[#8A857D]">
+              Condition bundles, quality measures, and population compliance
+              tracking
+            </p>
+          </div>
+          <HelpButton helpKey="care-gaps" />
         </div>
 
         <div className="flex items-center gap-3">

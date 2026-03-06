@@ -2,7 +2,7 @@
   "key": "admin.auth-providers",
   "title": "Authentication Providers",
   "description": "Configure external authentication providers for single sign-on (SSO). Parthenon supports SAML 2.0 and OIDC protocols, allowing integration with enterprise identity providers like Azure AD, Okta, and Google Workspace.",
-  "docs_url": "/docs/part5-admin/16-auth-providers",
+  "docs_url": "/docs/part8-administration/24-authentication-providers",
   "video_url": null,
   "tips": [
     "Enable a provider and configure its credentials before testing the connection.",

@@ -24,6 +24,7 @@ import {
   useImportLocalDicom,
 } from "../hooks/useImaging";
 import type { ImagingStudy, ImagingFeature } from "../types";
+import { HelpButton } from "@/features/help";
 
 const TABS = [
   { id: "studies", label: "Studies", icon: ScanLine },
@@ -631,6 +632,7 @@ export default function ImagingPage() {
             DICOM study management, AI feature extraction, and imaging cohort criteria
           </p>
         </div>
+        <HelpButton helpKey="imaging" />
       </div>
 
       <StatsBar />

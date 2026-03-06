@@ -1,14 +1,15 @@
 {
   "key": "studies",
   "title": "Study Packages",
-  "description": "A Study Package bundles multiple related analyses (characterization, incidence rates, estimation, prediction) into a single unit that can be executed together and tracked as a research project. Use studies to organise multi-analysis research protocols.",
+  "description": "A Study Package bundles multiple related analyses (characterization, incidence rates, estimation, prediction) into a single unit that can be executed together and tracked as a research project. Use studies to organize multi-analysis research protocols.",
   "docs_url": "/docs/part4-analyses/14-studies",
   "video_url": null,
   "tips": [
-    "Add all analyses for a research question to one study to keep results organised.",
-    "Execute All runs all analyses in the study sequentially in the background.",
-    "Study progress is tracked per-analysis — you can re-run individual failed analyses without restarting others.",
-    "Export the full study as a JSON bundle to reproduce or share the analysis protocol.",
-    "Studies map directly to OHDSI study packages — use them for network study coordination."
+    "Use the search bar and filter chips (Status, Type, Priority) to find studies quickly. Toggle between table and card views.",
+    "Create a new study to group all analyses for a research question into one trackable package.",
+    "Within a study, Execute All runs all analyses sequentially in the background — you can re-run individual failed analyses without restarting others.",
+    "Study progress is tracked per-analysis with status indicators showing which are pending, running, completed, or failed.",
+    "Export the full study as a JSON bundle to reproduce or share the analysis protocol across OHDSI network sites.",
+    "Studies map directly to OHDSI study packages — use them for multi-site network study coordination."
   ]
 }

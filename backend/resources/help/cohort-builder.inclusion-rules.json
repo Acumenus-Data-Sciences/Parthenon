@@ -2,7 +2,7 @@
   "key": "cohort-builder.inclusion-rules",
   "title": "Inclusion Rules",
   "description": "Inclusion rules are applied sequentially after the primary event to further filter the qualifying population. Each rule specifies a condition (e.g., age range, diagnosis, drug exposure) relative to the index date using temporal windows.",
-  "docs_url": "/docs/part3-cohorts/05-cohort-expressions#inclusion-rules",
+  "docs_url": "/docs/part3-cohorts/06-building-cohorts",
   "video_url": null,
   "tips": [
     "Rules are AND-ed together — a patient must satisfy ALL rules to remain in the cohort.",

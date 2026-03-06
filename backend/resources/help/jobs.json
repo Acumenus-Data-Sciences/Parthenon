@@ -2,7 +2,7 @@
   "key": "jobs",
   "title": "Jobs",
   "description": "The Jobs page shows the status of all background tasks running in Parthenon, including cohort generation, data quality checks, vocabulary imports, FHIR syncs, and analysis executions. Monitor progress, view errors, and track completion.",
-  "docs_url": "/docs/part6-data-explorer/20-jobs-monitoring",
+  "docs_url": "/docs/part6-data-explorer/20-population-stats",
   "video_url": null,
   "tips": [
     "Jobs run asynchronously via Laravel Horizon queues -- they continue even if you navigate away.",

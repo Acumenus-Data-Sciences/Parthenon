@@ -1,13 +1,15 @@
 {
   "key": "dashboard",
   "title": "Dashboard",
-  "description": "The Parthenon Dashboard provides an at-a-glance overview of your OMOP CDM environment, including data source status, recent activity, and quick links to key modules like cohort definitions, vocabulary browsing, and data exploration.",
-  "docs_url": "/docs/part1-getting-started/01-overview",
+  "description": "The Parthenon Dashboard provides an at-a-glance overview of your OMOP CDM environment. View key metrics across data sources, monitor active jobs, review recent cohort activity, and access CDM characterization data including demographics and observation coverage.",
+  "docs_url": "/docs/part1-getting-started/01-introduction",
   "video_url": null,
   "tips": [
-    "Check your data source connections on the Dashboard to ensure they are active before running analyses.",
-    "Use the sidebar navigation to quickly access any module in Parthenon.",
-    "The Dashboard surfaces recent cohort definitions and analyses for fast access.",
-    "Superadmins can access the Setup Wizard from here to configure system settings."
+    "The top metrics bar shows CDM Sources, Active Cohorts, Running Jobs, DQD Failures, and Concept Sets counts.",
+    "The CDM Characterization section lets you select a source and view patient counts, median observation duration, total events, data completeness, gender distribution, and age pyramid.",
+    "Source Health shows connection status for your top data sources — check this if analyses fail to run.",
+    "Active Jobs displays currently running background tasks. Click 'View All' to go to the full Jobs page.",
+    "Recent Cohort Activity shows the latest cohort definitions and their generation status.",
+    "Quick Actions provide one-click access to common tasks: create cohorts, browse vocabulary, explore data, and run analyses."
   ]
 }

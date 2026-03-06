@@ -21,6 +21,7 @@ import { ProportionalBar } from "@/features/data-explorer/components/charts/Prop
 import { DemographicsPyramid } from "@/features/data-explorer/components/charts/DemographicsPyramid";
 import { Sparkline } from "@/features/data-explorer/components/charts/Sparkline";
 import { formatCompact, GENDER_COLORS } from "@/features/data-explorer/components/charts/chartUtils";
+import { HelpButton } from "@/features/help";
 
 export function DashboardPage() {
   const { data: stats, isLoading, error } = useDashboardStats();
@@ -69,11 +70,14 @@ export function DashboardPage() {
   return (
     <div>
       {/* Page header */}
-      <div className="page-header">
-        <h1 className="page-title">Dashboard</h1>
-        <p className="page-subtitle">
-          Unified Outcomes Research Platform
-        </p>
+      <div className="page-header" style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
+        <div style={{ flex: 1 }}>
+          <h1 className="page-title">Dashboard</h1>
+          <p className="page-subtitle">
+            Unified Outcomes Research Platform
+          </p>
+        </div>
+        <HelpButton helpKey="dashboard" />
       </div>
 
       {/* Metric row */}

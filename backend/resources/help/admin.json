@@ -2,7 +2,7 @@
   "key": "admin",
   "title": "Administration",
   "description": "The Administration section provides system-level management for Parthenon, including user accounts, role-based access control, authentication provider configuration, AI provider settings, FHIR EHR connections, and system health monitoring.",
-  "docs_url": "/docs/part5-admin/14-user-management",
+  "docs_url": "/docs/part8-administration/22-user-management",
   "video_url": null,
   "tips": [
     "Manage users, assign roles, and control access permissions from the Users and Roles pages.",

@@ -2,7 +2,7 @@
   "key": "cohort-builder.primary-criteria",
   "title": "Primary Event Criteria",
   "description": "The primary event defines the index date — the anchor point from which all inclusion/exclusion windows and exit strategies are measured. Every patient in the cohort must have at least one occurrence of the primary event during the observation period.",
-  "docs_url": "/docs/part3-cohorts/05-cohort-expressions#primary-event",
+  "docs_url": "/docs/part3-cohorts/06-building-cohorts",
   "video_url": null,
   "tips": [
     "Set 'Occurrence limit' to 'First' to study new-user / incidence populations.",

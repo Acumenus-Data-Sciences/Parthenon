@@ -2,7 +2,7 @@
   "key": "analyses",
   "title": "Analyses",
   "description": "The Analyses module lets you design and run population-level effect estimation, patient-level prediction, incidence rate calculations, treatment pathway analyses, characterizations, and more. Each analysis type is configured against a cohort and data source.",
-  "docs_url": "/docs/part4-analyses/10-analysis-types",
+  "docs_url": "/docs/part4-analyses/09-characterization",
   "video_url": null,
   "tips": [
     "Start by selecting an analysis type from the tabs: Characterization, Incidence Rates, Treatment Pathways, Estimation, Prediction, SCCS, or Evidence Synthesis.",

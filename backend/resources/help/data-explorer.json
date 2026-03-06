@@ -1,14 +1,16 @@
 {
   "key": "data-explorer",
   "title": "Data Explorer",
-  "description": "The Data Explorer visualises pre-computed Achilles characterisation results for a selected data source. It provides an overview of patient counts, demographic distributions, domain coverage, and data quality summaries without running any new queries.",
+  "description": "The Data Explorer visualizes pre-computed Achilles characterization results for a selected data source. It provides an overview of patient counts, demographics, domain coverage, data quality metrics, and temporal trends without running new queries.",
   "docs_url": "/docs/part6-data-explorer/18-characterization-achilles",
   "video_url": null,
   "tips": [
-    "Select a source from the top dropdown to load its Achilles results.",
-    "The Overview tab gives a quick sanity check: total patients, observation years, and domain record counts.",
-    "Domain drilldown (Conditions, Drugs, etc.) shows the most prevalent concepts — useful for data characterisation.",
-    "Temporal Trends shows patient inflow/outflow over time — inspect for data truncation or upload gaps.",
+    "Select a source from the dropdown to load its Achilles results. Use 'Run Achilles' to generate fresh results if needed.",
+    "The Overview tab shows total patients, observation years, domain record counts, and demographic distributions (gender, age pyramid).",
+    "Domain drilldown (Conditions, Drugs, etc.) shows the most prevalent concepts — useful for understanding data coverage.",
+    "The Data Quality tab displays DQD (Data Quality Dashboard) results with pass/fail checks across completeness, conformance, and plausibility dimensions.",
+    "The Heel Checks tab shows Achilles Heel rule violations — automated data integrity checks that flag potential issues.",
+    "The Temporal tab shows patient inflow/outflow over time — inspect for data truncation or upload gaps.",
     "Results are only as fresh as the last Achilles run. Contact your admin if counts look stale."
   ]
 }

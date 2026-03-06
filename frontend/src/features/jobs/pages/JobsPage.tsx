@@ -19,6 +19,7 @@ import { FilterChip, Badge, StatusDot, Progress, EmptyState, Drawer, CodeBlock }
 import { useJobs, useJob, useRetryJob, useCancelJob } from "../hooks/useJobs";
 import type { Job, JobStatus, JobType } from "../api/jobsApi";
 import { cn } from "@/lib/utils";
+import { HelpButton } from "@/features/help";
 
 const statusFilters: Array<{ label: string; value: JobStatus | "all" }> = [
   { label: "All", value: "all" },
@@ -100,9 +101,12 @@ export default function JobsPage() {
   return (
     <div>
       {/* Page header */}
-      <div className="page-header">
-        <h1 className="page-title">Jobs</h1>
-        <p className="page-subtitle">Monitor background jobs and queue status</p>
+      <div className="page-header" style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
+        <div style={{ flex: 1 }}>
+          <h1 className="page-title">Jobs</h1>
+          <p className="page-subtitle">Monitor background jobs and queue status</p>
+        </div>
+        <HelpButton helpKey="jobs" />
       </div>
 
       {/* Filter chips */}

@@ -2,7 +2,7 @@
   "key": "cohort-builder.cohort-exit",
   "title": "Cohort Exit Strategy",
   "description": "The cohort exit strategy defines when a patient leaves the cohort after qualifying. Options include end of observation period, a fixed offset from the index date, or a drug era end / condition end event.",
-  "docs_url": "/docs/part3-cohorts/05-cohort-expressions#exit-strategies",
+  "docs_url": "/docs/part3-cohorts/06-building-cohorts",
   "video_url": null,
   "tips": [
     "'End of Observation' is the default — patients stay in the cohort until they leave the database.",

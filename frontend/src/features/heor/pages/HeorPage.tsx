@@ -22,6 +22,7 @@ import {
   useDeleteContract,
 } from "../hooks/useHeor";
 import type { HeorAnalysis, HeorValueContract } from "../types";
+import { HelpButton } from "@/features/help";
 
 const TABS = [
   { id: "analyses", label: "Economic Analyses", icon: BarChart2 },
@@ -452,6 +453,7 @@ export default function HeorPage() {
             contract simulation
           </p>
         </div>
+        <HelpButton helpKey="heor" />
       </div>
 
       <StatsBar />
