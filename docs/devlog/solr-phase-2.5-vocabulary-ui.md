@@ -89,3 +89,46 @@ Updated `CohortDefinitionController::index` and `StudyController::index` to use 
 ### Files Modified
 - `backend/app/Http/Controllers/Api/V1/CohortDefinitionController.php` — inject CohortSearchService, Solr-first search in index()
 - `backend/app/Http/Controllers/Api/V1/StudyController.php` — inject CohortSearchService, Solr-first search in index()
+
+---
+
+## Phase 3 Completion: Frontend Faceted Filters + Global Search
+
+### Facet Counts on Filter Chips
+
+Updated both listing pages to display Solr facet counts alongside existing filter chips when Solr is the active search engine.
+
+**Cohort Definitions Page:**
+- `cohortApi.ts` — `getCohortDefinitions()` now returns `facets` and `engine` from API response
+- `CohortDefinitionsPage.tsx` — tag chips show counts in parentheses (e.g., "diabetes (2)"); new Status and Author chip rows when facets available
+- `CohortDefinitionList.tsx` — teal "Solr" pill badge next to pagination when `engine === "solr"`
+
+**Studies Page:**
+- `studyApi.ts` — `listStudies()` return type includes `facets` and `engine`
+- `StudiesPage.tsx` — status/type/priority chips show facet counts; teal "Solr" pill next to search bar
+
+All facet UI is conditional — renders nothing when facets are absent (PG fallback). Backward compatible.
+
+### Global Search (Cmd+K / Ctrl+K)
+
+Already complete from prior work:
+- `CommandPalette.tsx` — command-palette style search with debounced Solr queries
+- `GlobalSearchController.php` + `GlobalSearchService.php` — fans out to vocabulary, cohorts, and studies cores in parallel via `Http::pool()`
+- Navigation commands + live search results grouped by type (concepts, cohorts, studies)
+- Full keyboard navigation (ArrowUp/Down, Enter, Escape)
+
+### Phase 3 Completion Status
+
+| Item | Status |
+|------|--------|
+| 3.1 Solr Schema — `cohorts` core | Complete |
+| 3.2 Indexing (command + observers + job) | Complete |
+| 3.3 CohortSearchService | Complete |
+| 3.4 Controller integration | Complete |
+| 3.4 Frontend faceted filters | Complete |
+| 3.4 Global search (Cmd+K) | Complete |
+
+### Verification
+- TypeScript compiles clean
+- Production build succeeds
+- Facet counts display when Solr active, hidden gracefully on PG fallback

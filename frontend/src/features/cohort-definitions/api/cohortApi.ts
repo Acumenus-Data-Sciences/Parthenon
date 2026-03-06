@@ -20,9 +20,13 @@ const BASE = "/cohort-definitions";
 
 export async function getCohortDefinitions(
   params?: CohortDefinitionListParams,
-): Promise<PaginatedResponse<CohortDefinition>> {
+): Promise<PaginatedResponse<CohortDefinition> & { facets?: Record<string, Record<string, number>>; engine?: string }> {
   const { data } = await apiClient.get(BASE, { params });
-  return toLaravelPaginated<CohortDefinition>(data);
+  return {
+    ...toLaravelPaginated<CohortDefinition>(data),
+    facets: data.facets ?? undefined,
+    engine: data.engine ?? undefined,
+  };
 }
 
 export async function getCohortDefinition(

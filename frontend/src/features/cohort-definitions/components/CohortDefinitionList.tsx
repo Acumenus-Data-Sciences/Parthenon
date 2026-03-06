@@ -120,6 +120,7 @@ export function CohortDefinitionList({ tags, search, onCreateFromBundle }: Props
   const items = data?.items ?? [];
   const total = data?.total ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / limit));
+  const engine = data?.engine;
 
   if (items.length === 0 && page === 1) {
     return (
@@ -246,9 +247,14 @@ export function CohortDefinitionList({ tags, search, onCreateFromBundle }: Props
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex items-center justify-between px-1">
-          <p className="text-xs text-[#8A857D]">
+          <p className="text-xs text-[#8A857D] flex items-center gap-2">
             Showing {(page - 1) * limit + 1} -{" "}
             {Math.min(page * limit, total)} of {total}
+            {engine === "solr" && (
+              <span className="inline-flex items-center rounded-full bg-[#2DD4BF]/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-[#2DD4BF]">
+                Solr
+              </span>
+            )}
           </p>
           <div className="flex items-center gap-1">
             <button

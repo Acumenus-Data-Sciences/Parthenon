@@ -41,7 +41,7 @@ export async function listStudies(params?: {
   study_type?: string;
   phase?: string;
   my_studies?: boolean;
-}): Promise<{ data: Study[]; total: number; current_page: number; last_page: number; per_page: number }> {
+}): Promise<{ data: Study[]; total: number; current_page: number; last_page: number; per_page: number; facets?: Record<string, Record<string, number>>; engine?: string }> {
   const { data } = await apiClient.get(BASE, { params });
   return data;
 }

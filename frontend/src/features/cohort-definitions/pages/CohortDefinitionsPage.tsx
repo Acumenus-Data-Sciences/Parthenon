@@ -6,7 +6,10 @@ import { CohortDefinitionList } from "../components/CohortDefinitionList";
 import { CohortStatsBar } from "../components/CohortStatsBar";
 import { ImportCohortModal } from "../components/ImportCohortModal";
 import { CreateFromBundleModal } from "../components/CreateFromBundleModal";
-import { useCreateCohortDefinition } from "../hooks/useCohortDefinitions";
+import {
+  useCreateCohortDefinition,
+  useCohortDefinitions,
+} from "../hooks/useCohortDefinitions";
 import { getCohortTags } from "../api/cohortApi";
 import { HelpButton } from "@/features/help";
 
@@ -43,6 +46,15 @@ export default function CohortDefinitionsPage() {
     queryFn: getCohortTags,
     staleTime: 30_000,
   });
+
+  // Fetch the same paginated data to extract Solr facets (TanStack Query deduplicates)
+  const { data: listData } = useCohortDefinitions({
+    page: 1,
+    limit: 20,
+    tags: activeTags.length > 0 ? activeTags : undefined,
+    search: debouncedSearch || undefined,
+  });
+  const facets = listData?.facets;
 
   const handleCreate = () => {
     setIsCreating(true);
@@ -147,6 +159,7 @@ export default function CohortDefinitionsPage() {
           <span className="text-xs text-[#5A5650]">Filter by tag:</span>
           {tags.map((tag) => {
             const active = activeTags.includes(tag);
+            const count = facets?.tags?.[tag];
             return (
               <button
                 key={tag}
@@ -159,6 +172,9 @@ export default function CohortDefinitionsPage() {
                 }`}
               >
                 {tag}
+                {count != null && (
+                  <span className="text-[10px] opacity-60">({count})</span>
+                )}
                 {active && <X size={10} />}
               </button>
             );
@@ -172,6 +188,38 @@ export default function CohortDefinitionsPage() {
               Clear all
             </button>
           )}
+        </div>
+      )}
+
+      {/* Solr facet chips: status */}
+      {facets?.status && Object.keys(facets.status).length > 0 && (
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs text-[#5A5650]">Status:</span>
+          {Object.entries(facets.status).map(([value, count]) => (
+            <span
+              key={value}
+              className="inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs bg-[#1A1A1F] text-[#8A857D] border border-[#2A2A30]"
+            >
+              {value}
+              <span className="text-[10px] opacity-60">({count})</span>
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* Solr facet chips: author */}
+      {facets?.author_name && Object.keys(facets.author_name).length > 0 && (
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs text-[#5A5650]">Author:</span>
+          {Object.entries(facets.author_name).map(([value, count]) => (
+            <span
+              key={value}
+              className="inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs bg-[#1A1A1F] text-[#8A857D] border border-[#2A2A30]"
+            >
+              {value}
+              <span className="text-[10px] opacity-60">({count})</span>
+            </span>
+          ))}
         </div>
       )}
 

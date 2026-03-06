@@ -92,6 +92,9 @@ export default function StudiesPage() {
   });
   const { data: allStudiesData } = useAllStudies();
 
+  const facets = data?.facets;
+  const searchEngine = data?.engine;
+
   // Debounce search
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -283,6 +286,12 @@ export default function StudiesPage() {
             )}
           </div>
 
+          {searchEngine === "solr" && (
+            <span className="inline-flex items-center rounded-full px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider bg-[#2DD4BF]/10 text-[#2DD4BF] border border-[#2DD4BF]/20">
+              Solr
+            </span>
+          )}
+
           <HelpButton helpKey="studies" />
 
           <div className="ml-auto">
@@ -417,60 +426,72 @@ export default function StudiesPage() {
       {/* Filter Chips */}
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-[10px] text-[#5A5650] uppercase tracking-wider mr-1">Status</span>
-        {STATUS_OPTIONS.map((opt) => (
-          <button
-            key={opt.value}
-            type="button"
-            onClick={() => setFilterStatus(filterStatus === opt.value ? null : opt.value)}
-            className={cn(
-              "px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors border",
-              filterStatus === opt.value
-                ? "border-transparent"
-                : "border-[#232328] bg-[#151518] text-[#8A857D] hover:text-[#C5C0B8] hover:border-[#323238]",
-            )}
-            style={filterStatus === opt.value ? { backgroundColor: `${opt.color}20`, color: opt.color, borderColor: `${opt.color}40` } : undefined}
-          >
-            {opt.label}
-          </button>
-        ))}
+        {STATUS_OPTIONS.map((opt) => {
+          const count = facets?.status?.[opt.value];
+          return (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => setFilterStatus(filterStatus === opt.value ? null : opt.value)}
+              className={cn(
+                "px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors border",
+                filterStatus === opt.value
+                  ? "border-transparent"
+                  : "border-[#232328] bg-[#151518] text-[#8A857D] hover:text-[#C5C0B8] hover:border-[#323238]",
+              )}
+              style={filterStatus === opt.value ? { backgroundColor: `${opt.color}20`, color: opt.color, borderColor: `${opt.color}40` } : undefined}
+            >
+              {opt.label}
+              {count != null && <span className="ml-1 text-[10px] opacity-60">({count})</span>}
+            </button>
+          );
+        })}
 
         <span className="text-[#232328] mx-1">|</span>
         <span className="text-[10px] text-[#5A5650] uppercase tracking-wider mr-1">Type</span>
-        {STUDY_TYPE_OPTIONS.map((opt) => (
-          <button
-            key={opt.value}
-            type="button"
-            onClick={() => setFilterType(filterType === opt.value ? null : opt.value)}
-            className={cn(
-              "px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors border",
-              filterType === opt.value
-                ? "border-transparent"
-                : "border-[#232328] bg-[#151518] text-[#8A857D] hover:text-[#C5C0B8] hover:border-[#323238]",
-            )}
-            style={filterType === opt.value ? { backgroundColor: `${opt.color}20`, color: opt.color, borderColor: `${opt.color}40` } : undefined}
-          >
-            {opt.label}
-          </button>
-        ))}
+        {STUDY_TYPE_OPTIONS.map((opt) => {
+          const count = facets?.study_type?.[opt.value];
+          return (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => setFilterType(filterType === opt.value ? null : opt.value)}
+              className={cn(
+                "px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors border",
+                filterType === opt.value
+                  ? "border-transparent"
+                  : "border-[#232328] bg-[#151518] text-[#8A857D] hover:text-[#C5C0B8] hover:border-[#323238]",
+              )}
+              style={filterType === opt.value ? { backgroundColor: `${opt.color}20`, color: opt.color, borderColor: `${opt.color}40` } : undefined}
+            >
+              {opt.label}
+              {count != null && <span className="ml-1 text-[10px] opacity-60">({count})</span>}
+            </button>
+          );
+        })}
 
         <span className="text-[#232328] mx-1">|</span>
         <span className="text-[10px] text-[#5A5650] uppercase tracking-wider mr-1">Priority</span>
-        {PRIORITY_OPTIONS.map((opt) => (
-          <button
-            key={opt.value}
-            type="button"
-            onClick={() => setFilterPriority(filterPriority === opt.value ? null : opt.value)}
-            className={cn(
-              "px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors border",
-              filterPriority === opt.value
-                ? "border-transparent"
-                : "border-[#232328] bg-[#151518] text-[#8A857D] hover:text-[#C5C0B8] hover:border-[#323238]",
-            )}
-            style={filterPriority === opt.value ? { backgroundColor: `${opt.color}20`, color: opt.color, borderColor: `${opt.color}40` } : undefined}
-          >
-            {opt.label}
-          </button>
-        ))}
+        {PRIORITY_OPTIONS.map((opt) => {
+          const count = facets?.priority?.[opt.value];
+          return (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => setFilterPriority(filterPriority === opt.value ? null : opt.value)}
+              className={cn(
+                "px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors border",
+                filterPriority === opt.value
+                  ? "border-transparent"
+                  : "border-[#232328] bg-[#151518] text-[#8A857D] hover:text-[#C5C0B8] hover:border-[#323238]",
+              )}
+              style={filterPriority === opt.value ? { backgroundColor: `${opt.color}20`, color: opt.color, borderColor: `${opt.color}40` } : undefined}
+            >
+              {opt.label}
+              {count != null && <span className="ml-1 text-[10px] opacity-60">({count})</span>}
+            </button>
+          );
+        })}
 
         {hasFilters && (
           <button
