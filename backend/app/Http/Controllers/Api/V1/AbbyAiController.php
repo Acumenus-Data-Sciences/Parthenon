@@ -129,12 +129,13 @@ class AbbyAiController extends Controller
                 return;
             }
 
+            $pageData = $validated['page_data'] ?? [];
             curl_setopt_array($ch, [
                 CURLOPT_POST => true,
                 CURLOPT_POSTFIELDS => json_encode([
                     'message' => $validated['message'],
                     'page_context' => $validated['page_context'] ?? 'general',
-                    'page_data' => $validated['page_data'] ?? [],
+                    'page_data' => empty($pageData) ? (object) [] : $pageData,
                     'history' => $validated['history'] ?? [],
                     'user_profile' => $validated['user_profile'] ?? null,
                 ]),
