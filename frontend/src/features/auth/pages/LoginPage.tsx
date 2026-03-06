@@ -292,6 +292,47 @@ export function LoginPage() {
         </div>
       </div>
 
+      {/* ─── Crimson shimmer divider ─── */}
+      <style>{`
+        @keyframes crimson-pulse {
+          0%, 100% { opacity: 0.55; }
+          50% { opacity: 1; }
+        }
+        @keyframes crimson-sweep {
+          0%   { top: -40%; }
+          100% { top: 140%; }
+        }
+      `}</style>
+      <div
+        style={{
+          position: "relative",
+          width: 1,
+          flexShrink: 0,
+          alignSelf: "stretch",
+          zIndex: 10,
+          background:
+            "linear-gradient(to bottom, transparent 0%, rgba(139,0,20,0.4) 12%, rgba(196,18,36,0.9) 35%, rgba(220,38,58,1) 50%, rgba(196,18,36,0.9) 65%, rgba(139,0,20,0.4) 88%, transparent 100%)",
+          boxShadow:
+            "0 0 6px 2px rgba(210,30,50,0.55), 0 0 20px 4px rgba(190,20,40,0.25)",
+          animation: "crimson-pulse 3s ease-in-out infinite",
+        }}
+      >
+        {/* Sweeping bright highlight */}
+        <div style={{ position: "absolute", inset: 0, overflow: "hidden" }}>
+          <div
+            style={{
+              position: "absolute",
+              left: -3,
+              right: -3,
+              height: "22%",
+              background:
+                "linear-gradient(to bottom, transparent 0%, rgba(255,160,170,0.7) 50%, transparent 100%)",
+              animation: "crimson-sweep 2.8s ease-in-out infinite",
+            }}
+          />
+        </div>
+      </div>
+
       {/* ─── Right: Login panel ─── */}
       <div
         style={{
@@ -303,7 +344,6 @@ export function LoginPage() {
           padding: "var(--space-10)",
           background:
             "linear-gradient(135deg, rgba(14, 14, 17, 0.88) 0%, rgba(14, 14, 17, 0.95) 100%)",
-          borderLeft: "1px solid rgba(255, 255, 255, 0.04)",
           backdropFilter: "blur(40px)",
           WebkitBackdropFilter: "blur(40px)",
         }}
