@@ -27,7 +27,51 @@ return [
         /*
          * Description rendered on the home page of the API documentation (`/docs/api`).
          */
-        'description' => 'Parthenon REST API — OMOP outcomes research platform. All endpoints require Sanctum authentication unless marked public. Use `POST /api/v1/auth/login` to obtain a Bearer token.',
+        'description' => <<<'MD'
+## Unified Outcomes Research Platform
+
+Parthenon provides a comprehensive REST API for clinical data analysis built on the **OMOP Common Data Model v5.4**. It powers cohort building, population-level estimation, patient-level prediction, pathway analysis, genomics, medical imaging, and health economics research — all through a single, consistent interface.
+
+### Getting Started
+
+**Authentication** — All endpoints require [Laravel Sanctum](https://laravel.com/docs/sanctum) Bearer token authentication unless marked public.
+
+```
+POST /api/v1/auth/login
+Content-Type: application/json
+
+{ "email": "you@example.com", "password": "your-password" }
+```
+
+The response includes a `token` field — pass it as `Authorization: Bearer {token}` on subsequent requests.
+
+### API Groups
+
+| Group | Description |
+|-------|-------------|
+| **Authentication** | Login, registration, password management |
+| **Cohort Definitions** | Build and generate patient cohorts using Circe expressions |
+| **Concept Sets** | Manage OMOP concept sets with vocabulary lookups |
+| **Analyses** | Incidence rates, characterizations, estimations, predictions, pathways |
+| **Data Sources** | Configure CDM/vocabulary/results database connections |
+| **Vocabulary** | Search concepts, browse hierarchies, map codes |
+| **Data Quality** | Achilles characterization and DQD heel checks |
+| **Imaging** | DICOM study management, DICOMweb integration, radiology NLP |
+| **Genomics** | Variant queries, ClinVar annotations, gene-level analysis |
+| **HEOR** | Cost-effectiveness, budget impact, Markov modeling |
+| **Administration** | Users, roles, permissions, system health, AI providers |
+
+### Standards & Conventions
+
+- **Response envelope**: All responses wrap data in `{ "data": ... }` with pagination metadata where applicable
+- **Error format**: `{ "message": "...", "errors": { "field": ["..."] } }` with appropriate HTTP status codes
+- **Pagination**: `?page=N&per_page=N` query parameters, responses include `total`, `current_page`, `last_page`
+- **Rate limiting**: Auth endpoints throttled at 5 requests / 15 minutes per IP
+
+---
+
+*Built by [Acumenus Data Sciences](https://www.acumenus.io) — open source on [GitHub](https://github.com/sudoshi/Parthenon)*
+MD,
     ],
 
     /*
@@ -57,7 +101,7 @@ return [
         /*
          * URL to an image that displays as a small square logo next to the title, above the table of contents.
          */
-        'logo' => '',
+        'logo' => '/parthenon_icon.png',
 
         /*
          * Use to fetch the credential policy for the Try It feature. Options are: omit, include (default), and same-origin
