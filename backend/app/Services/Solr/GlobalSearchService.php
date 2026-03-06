@@ -25,7 +25,7 @@ class GlobalSearchService
         $results = [];
         $totals = [];
 
-        $searchTypes = ! empty($types) ? $types : ['concept', 'cohort', 'study'];
+        $searchTypes = ! empty($types) ? $types : ['concept', 'cohort', 'study', 'analysis'];
         $host = config('solr.endpoint.default.host', 'solr');
         $port = config('solr.endpoint.default.port', 8983);
         $timeout = (int) config('solr.endpoint.default.timeout', 5);
@@ -58,6 +58,18 @@ class GlobalSearchService
                     ]);
                     $pool->as($type)->timeout($timeout)
                         ->get("http://{$host}:{$port}/solr/{$core}/select?{$params}");
+                } elseif ($type === 'analysis') {
+                    $core = config('solr.cores.analyses', 'analyses');
+                    $params = http_build_query([
+                        'q' => $query,
+                        'defType' => 'edismax',
+                        'qf' => 'analysis_name^3 category^2',
+                        'rows' => $limit,
+                        'fl' => 'id,analysis_id,analysis_name,category,source_id,source_name',
+                        'wt' => 'json',
+                    ]);
+                    $pool->as('analysis')->timeout($timeout)
+                        ->get("http://{$host}:{$port}/solr/{$core}/select?{$params}");
                 }
             }
         });
@@ -82,6 +94,15 @@ class GlobalSearchService
                         'title' => $doc['concept_name'] ?? '',
                         'subtitle' => ($doc['vocabulary_id'] ?? '').': '.($doc['domain_id'] ?? ''),
                         'url' => '/vocabulary?conceptId='.$doc['concept_id'],
+                    ];
+                } elseif ($type === 'analysis') {
+                    $sourceId = $doc['source_id'] ?? 1;
+                    $results[] = [
+                        'type' => 'analysis',
+                        'id' => $doc['analysis_id'] ?? null,
+                        'title' => $doc['analysis_name'] ?? '',
+                        'subtitle' => ($doc['category'] ?? '').($doc['source_name'] ? ' · '.$doc['source_name'] : ''),
+                        'url' => "/data-explorer?source={$sourceId}&analysis={$doc['analysis_id']}",
                     ];
                 } else {
                     $rawId = $doc['id'] ?? '';

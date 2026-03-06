@@ -7,6 +7,7 @@ use App\Jobs\Achilles\RunAchillesJob;
 use App\Models\App\Source;
 use App\Services\Achilles\AchillesResultReaderService;
 use App\Services\Achilles\Heel\AchillesHeelService;
+use App\Services\Solr\AnalysesSearchService;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -17,6 +18,7 @@ class AchillesController extends Controller
     public function __construct(
         private readonly AchillesResultReaderService $reader,
         private readonly AchillesHeelService $heel,
+        private readonly AnalysesSearchService $analysesSearch,
     ) {}
 
     /**
@@ -254,6 +256,51 @@ class AchillesController extends Controller
         } catch (\Throwable $e) {
             return $this->errorResponse('Failed to dispatch Achilles run', $e);
         }
+    }
+
+    /**
+     * GET /v1/analyses/search
+     *
+     * Search Achilles analyses across all sources via Solr.
+     * Falls back to empty results when Solr is unavailable.
+     */
+    public function searchAnalyses(Request $request): JsonResponse
+    {
+        $query = $request->input('q', '');
+        $sourceId = $request->integer('source_id') ?: null;
+        $category = $request->input('category');
+        $limit = min($request->integer('limit', 50), 200);
+        $offset = $request->integer('offset', 0);
+
+        if (! $this->analysesSearch->isAvailable()) {
+            return response()->json([
+                'data' => [],
+                'total' => 0,
+                'facets' => null,
+                'engine' => 'unavailable',
+            ]);
+        }
+
+        $result = $this->analysesSearch->search($query, [
+            'source_id' => $sourceId,
+            'category' => $category,
+        ], $limit, $offset);
+
+        if ($result === null) {
+            return response()->json([
+                'data' => [],
+                'total' => 0,
+                'facets' => null,
+                'engine' => 'unavailable',
+            ]);
+        }
+
+        return response()->json([
+            'data' => $result['items'],
+            'total' => $result['total'],
+            'facets' => $result['facets'],
+            'engine' => 'solr',
+        ]);
     }
 
     /**

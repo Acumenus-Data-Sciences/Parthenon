@@ -74,7 +74,9 @@ export function CommandPalette() {
                 ? Users
                 : r.type === "study"
                   ? Briefcase
-                  : FileText,
+                  : r.type === "analysis"
+                    ? BarChart3
+                    : FileText,
           action: () => navigate(r.url),
           keywords: r.subtitle,
         }));

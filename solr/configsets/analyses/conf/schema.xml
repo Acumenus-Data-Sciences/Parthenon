@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<schema name="analyses" version="1.6">
+
+  <!-- Unique key: source_id + analysis_id -->
+  <uniqueKey>id</uniqueKey>
+
+  <!-- Field types -->
+  <fieldType name="pint" class="solr.IntPointField" docValues="true"/>
+  <fieldType name="plong" class="solr.LongPointField" docValues="true"/>
+  <fieldType name="string" class="solr.StrField" sortMissingLast="true" docValues="true"/>
+
+  <fieldType name="text_general" class="solr.TextField" positionIncrementGap="100">
+    <analyzer type="index">
+      <tokenizer class="solr.StandardTokenizerFactory"/>
+      <filter class="solr.LowerCaseFilterFactory"/>
+      <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt"/>
+    </analyzer>
+    <analyzer type="query">
+      <tokenizer class="solr.StandardTokenizerFactory"/>
+      <filter class="solr.LowerCaseFilterFactory"/>
+      <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt"/>
+    </analyzer>
+  </fieldType>
+
+  <fieldType name="text_suggest" class="solr.TextField" positionIncrementGap="100">
+    <analyzer type="index">
+      <tokenizer class="solr.StandardTokenizerFactory"/>
+      <filter class="solr.LowerCaseFilterFactory"/>
+      <filter class="solr.EdgeNGramFilterFactory" minGramSize="2" maxGramSize="25"/>
+    </analyzer>
+    <analyzer type="query">
+      <tokenizer class="solr.StandardTokenizerFactory"/>
+      <filter class="solr.LowerCaseFilterFactory"/>
+    </analyzer>
+  </fieldType>
+
+  <!-- Fields -->
+  <field name="id" type="string" indexed="true" stored="true" required="true"/>
+  <field name="analysis_id" type="pint" indexed="true" stored="true"/>
+  <field name="analysis_name" type="text_general" indexed="true" stored="true"/>
+  <field name="analysis_name_suggest" type="text_suggest" indexed="true" stored="false"/>
+  <field name="category" type="string" indexed="true" stored="true"/>
+  <field name="source_id" type="pint" indexed="true" stored="true"/>
+  <field name="source_name" type="string" indexed="true" stored="true"/>
+  <field name="stratum_1_name" type="string" indexed="true" stored="true"/>
+  <field name="stratum_2_name" type="string" indexed="true" stored="true"/>
+  <field name="stratum_3_name" type="string" indexed="true" stored="true"/>
+  <field name="stratum_4_name" type="string" indexed="true" stored="true"/>
+  <field name="stratum_5_name" type="string" indexed="true" stored="true"/>
+  <field name="row_count" type="pint" indexed="true" stored="true"/>
+
+  <!-- Required by Solr -->
+  <field name="_version_" type="plong" indexed="false" stored="false"/>
+
+  <!-- Copy field for autocomplete -->
+  <copyField source="analysis_name" dest="analysis_name_suggest"/>
+
+</schema>

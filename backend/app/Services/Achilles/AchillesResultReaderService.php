@@ -664,7 +664,11 @@ class AchillesResultReaderService
                     ->whereColumn('achilles_results.analysis_id', 'achilles_analysis.analysis_id'),
                 'row_count'
             )
-            ->having('row_count', '>', 0)
+            ->whereExists(function ($query) {
+                $query->selectRaw('1')
+                    ->from('achilles_results')
+                    ->whereColumn('achilles_results.analysis_id', 'achilles_analysis.analysis_id');
+            })
             ->orderBy('analysis_id')
             ->get();
 

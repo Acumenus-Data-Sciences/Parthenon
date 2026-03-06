@@ -81,6 +81,9 @@ Route::prefix('v1')->group(function () {
         // Global search (across Solr cores: vocabulary, cohorts, studies)
         Route::get('/search', [GlobalSearchController::class, 'search']);
 
+        // Achilles analysis search (across all sources, Solr-powered)
+        Route::get('/analyses/search', [AchillesController::class, 'searchAnalyses']);
+
         // Sources — custom routes BEFORE apiResource to avoid route shadowing
         Route::post('sources/import-webapi', [SourceController::class, 'importWebApi']);
         Route::post('sources/test-connection', [SourceController::class, 'testConnection']);

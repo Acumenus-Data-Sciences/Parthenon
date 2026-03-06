@@ -76,6 +76,7 @@ class SolrAdminController extends Controller
         $command = match ($core) {
             'vocabulary' => 'solr:index-vocabulary',
             'cohorts' => 'solr:index-cohorts',
+            'analyses' => 'solr:index-analyses',
             default => null,
         };
 
@@ -126,6 +127,7 @@ class SolrAdminController extends Controller
         $indexers = [
             'vocabulary' => 'solr:index-vocabulary',
             'cohorts' => 'solr:index-cohorts',
+            'analyses' => 'solr:index-analyses',
         ];
 
         foreach ($indexers as $core => $command) {
