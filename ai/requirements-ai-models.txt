@@ -2,4 +2,4 @@
 # These are deferred from the base requirements due to large download size
 transformers==4.*
 torch==2.*
-medcat==1.*
+medcat==2.*
