@@ -6,55 +6,198 @@ sidebar_label: "26. Audit Log"
 
 # Audit Log
 
-The **Audit Log** records all significant user actions in Parthenon, providing a tamper-evident trail for security review, compliance reporting, and incident investigation. Access requires the `admin` or `super-admin` role.
+The **Audit Log** records all significant user actions and system events in Parthenon, providing a tamper-evident trail for security review, compliance reporting, regulatory audits, and incident investigation. Access requires the `admin` or `super-admin` role.
 
 ## What Gets Logged
 
-Every event in the audit log captures:
+Every event in the audit log captures a comprehensive set of contextual information:
 
-- **Timestamp** — UTC time of the event
-- **User** — who performed the action
-- **IP Address** — originating IP
-- **Event Type** — category and action (e.g. `auth.login`, `cohort.generate`)
-- **Resource** — affected object (e.g. `CohortDefinition:42`)
-- **Details** — additional context (e.g. old/new values for edits)
+| Field | Description |
+|-------|-------------|
+| **Timestamp** | UTC time of the event (millisecond precision) |
+| **User** | Authenticated user who performed the action (name + ID) |
+| **IP Address** | Originating IP address of the request |
+| **User Agent** | Browser or client identifier |
+| **Event Type** | Category and action (e.g., `auth.login`, `cohort.generate`) |
+| **Resource** | Affected object type and ID (e.g., `CohortDefinition:42`) |
+| **Details** | Additional context -- old/new values for edits, parameters for actions |
+| **HTTP Method** | GET, POST, PUT, DELETE |
+| **Request Path** | API endpoint that was called |
+| **Response Status** | HTTP status code of the response |
 
-### Logged Event Categories
+## Logged Event Categories
 
-| Category | Events |
-|----------|--------|
-| `auth` | login, logout, login_failed, password_change, password_reset |
-| `user` | created, updated, deleted, suspended, role_changed |
-| `source` | created, updated, deleted, connection_tested |
-| `cohort` | created, updated, deleted, generated, archived |
-| `analysis` | created, executed, deleted |
-| `concept_set` | created, updated, deleted |
-| `patient` | timeline_viewed (includes person_id) |
-| `admin` | config_changed, ai_provider_changed, vocab_refreshed |
-| `data` | upload_started, upload_completed, mapping_executed |
+### Authentication Events
+
+| Event | Description | Details Captured |
+|-------|-------------|-----------------|
+| `auth.login` | Successful user login | Authentication method (local/LDAP/SAML/OAuth) |
+| `auth.logout` | User logout | Session duration |
+| `auth.login_failed` | Failed login attempt | Attempted email, failure reason |
+| `auth.password_change` | User changed their password | Whether it was a forced change |
+| `auth.password_reset` | Admin reset a user's password | Target user ID |
+| `auth.token_created` | API token generated | Token name, expiry |
+
+### User Management Events
+
+| Event | Description | Details Captured |
+|-------|-------------|-----------------|
+| `user.created` | New user account created | Name, email, assigned roles |
+| `user.updated` | User profile modified | Changed fields (old/new values) |
+| `user.deleted` | User account deleted | Reassigned objects count |
+| `user.suspended` | User account suspended | Reason (if provided) |
+| `user.reactivated` | Suspended account restored | -- |
+| `user.role_changed` | Role assignment modified | Added/removed roles |
+
+### Research Object Events
+
+| Event | Description | Details Captured |
+|-------|-------------|-----------------|
+| `cohort.created` | Cohort definition created | Name, expression summary |
+| `cohort.updated` | Cohort definition modified | Changed fields |
+| `cohort.deleted` | Cohort definition deleted | Name, creator |
+| `cohort.generated` | Cohort generation executed | Source, result count, duration |
+| `cohort.archived` | Cohort archived | Reason |
+| `concept_set.created` | Concept set created | Name, concept count |
+| `concept_set.updated` | Concept set modified | Added/removed concepts |
+| `concept_set.deleted` | Concept set deleted | Name, creator |
+| `analysis.created` | Analysis created | Type, name |
+| `analysis.executed` | Analysis job executed | Source, duration, result summary |
+| `analysis.deleted` | Analysis deleted | Name, type |
+
+### Data Source Events
+
+| Event | Description | Details Captured |
+|-------|-------------|-----------------|
+| `source.created` | Data source configured | Name, connection type |
+| `source.updated` | Data source modified | Changed fields |
+| `source.deleted` | Data source removed | Name |
+| `source.connection_tested` | Connection test executed | Success/failure, response time |
+
+### Patient Access Events
+
+| Event | Description | Details Captured |
+|-------|-------------|-----------------|
+| `patient.timeline_viewed` | Patient timeline accessed | `person_id`, data source |
+| `patient.data_exported` | Patient data exported | `person_id`, export format |
+
+### System Administration Events
+
+| Event | Description | Details Captured |
+|-------|-------------|-----------------|
+| `admin.config_changed` | System configuration modified | Setting name, old/new values |
+| `admin.ai_provider_changed` | AI provider activated | Provider name, previous provider |
+| `admin.vocab_refreshed` | Vocabulary updated | Version, concept counts |
+| `admin.auth_provider_changed` | Auth provider configured | Provider type, enabled/disabled |
+| `admin.fhir_connection_created` | FHIR connection added | Site name, EHR vendor |
+| `admin.fhir_sync_triggered` | FHIR sync started | Connection, triggered by |
+
+### Data Ingestion Events
+
+| Event | Description | Details Captured |
+|-------|-------------|-----------------|
+| `data.upload_started` | File upload initiated | Filename, size, format |
+| `data.upload_completed` | File upload finished | Row count, parse status |
+| `data.mapping_executed` | Schema/concept mapping run | Source rows, mapped rows, errors |
+| `data.genomic_upload` | Genomic file uploaded | Format, variant count |
+| `data.imaging_import` | DICOM study imported | Study count, series count |
 
 ## Viewing the Audit Log
 
-Navigate to **Admin → Audit Log**. The log shows the most recent 1,000 events by default.
+Navigate to **Admin > Audit Log**. The log displays the most recent 1,000 events by default, with infinite scroll loading for older entries.
 
-Use the filter panel to search by:
+### Filter Panel
 
-- **Date range** — events within a time window
-- **User** — actions by a specific user
-- **Event type** — filter by category or specific event
-- **Resource** — events affecting a specific object (e.g. all actions on cohort ID 42)
-- **IP Address** — events from a specific IP
+Use the comprehensive filter panel to narrow results:
+
+| Filter | Type | Description |
+|--------|------|-------------|
+| **Date Range** | Date picker | Events within a specific time window |
+| **User** | Dropdown/search | Actions by a specific user |
+| **Event Type** | Category tree | Filter by category (auth, user, cohort, etc.) or specific event |
+| **Resource** | Text search | Events affecting a specific object (e.g., `CohortDefinition:42`) |
+| **IP Address** | Text input | Events from a specific IP address |
+| **Status** | Dropdown | Success / Failure / All |
+
+Filters can be combined -- for example, show all `patient.timeline_viewed` events by a specific user within the last 30 days.
+
+### Event Detail View
+
+Click any audit log entry to expand the detail panel showing:
+
+- Full event metadata (all fields listed above)
+- Request/response details (sanitized -- no passwords or tokens)
+- Related events (e.g., all events in the same user session)
+- Link to the affected resource (if it still exists)
 
 ## Exporting Audit Logs
 
-Click **Export CSV** to download the filtered audit log as a CSV file. This export is suitable for compliance reporting and external SIEM ingestion.
+Click **Export CSV** to download the filtered audit log as a comma-separated file. The export includes all visible columns and respects active filters.
+
+### Export Use Cases
+
+- **Compliance reporting** -- regular audit log exports for HIPAA, GDPR, SOC 2, or IRB audits
+- **SIEM ingestion** -- import into Splunk, Elastic/Kibana, or other security monitoring tools
+- **Incident investigation** -- download logs for a specific time window around a security event
+- **Access reviews** -- export patient access logs for data use agreement compliance
 
 ## Log Retention
 
-By default, audit log entries are retained for 365 days. Configure the retention period in **Admin → System Configuration → Audit Log Retention**. Entries older than the retention period are purged automatically by a scheduled maintenance job.
+By default, audit log entries are retained for **365 days** (1 year). Configure the retention period in **Admin > System Configuration > Audit Log Retention**.
 
-For long-term retention beyond 365 days, configure log forwarding to an external SIEM (Splunk, Elastic, etc.) using the `AUDIT_LOG_WEBHOOK_URL` environment variable — Parthenon will HTTP POST each event as JSON to the configured endpoint in real time.
+| Retention Setting | Description |
+|-------------------|-------------|
+| **Retention period** | Days to keep audit log entries (minimum: 90, maximum: unlimited) |
+| **Purge schedule** | Automated daily purge of entries exceeding the retention period |
+| **Archive before purge** | Optionally export entries to CSV before deletion |
+
+:::warning Regulatory retention requirements
+Many healthcare data governance frameworks have specific retention requirements:
+- **HIPAA** -- 6 years for access logs
+- **GDPR** -- retention must be proportionate to purpose
+- **SOC 2** -- typically 1 year minimum
+- **21 CFR Part 11** -- electronic records must be retained for the required record retention period
+
+Configure retention to match your most stringent requirement.
+:::
+
+## Real-Time Log Forwarding
+
+For organizations requiring centralized security monitoring, configure real-time log forwarding via webhook:
+
+1. Set the `AUDIT_LOG_WEBHOOK_URL` environment variable to your SIEM endpoint.
+2. Parthenon HTTP POSTs each audit event as a JSON payload to the configured URL in real time.
+3. Events are sent asynchronously (non-blocking) via the Laravel queue.
+
+### Webhook Payload Format
+
+```json
+{
+  "timestamp": "2026-03-05T14:23:17.892Z",
+  "event_type": "patient.timeline_viewed",
+  "user_id": 12,
+  "user_email": "researcher@hospital.org",
+  "ip_address": "10.0.1.42",
+  "resource_type": "Patient",
+  "resource_id": "person_id:98765",
+  "source": "OMOP-Production",
+  "details": {},
+  "http_method": "GET",
+  "request_path": "/api/v1/patients/98765/timeline",
+  "response_status": 200
+}
+```
+
+### Supported SIEM Integrations
+
+| Platform | Integration Method |
+|----------|-------------------|
+| **Splunk** | HTTP Event Collector (HEC) endpoint |
+| **Elastic/Kibana** | Elasticsearch ingest endpoint or Logstash HTTP input |
+| **Datadog** | HTTP log intake API |
+| **Azure Sentinel** | Log Analytics Data Collector API |
+| **Custom** | Any endpoint accepting JSON POST requests |
 
 :::tip Compliance use cases
-Many healthcare data governance frameworks (HIPAA, GDPR, SOC 2) require demonstrating who accessed what patient data and when. The patient timeline audit events (`patient.timeline_viewed` with `person_id`) satisfy this requirement. Configure log retention to match your organization's data access agreement terms.
+The patient timeline audit events (`patient.timeline_viewed` with `person_id`) are specifically designed to satisfy the HIPAA Minimum Necessary Standard requirement. They provide a complete record of who accessed which patient's data and when. Combined with log forwarding to a tamper-proof SIEM, this creates a defensible audit trail for regulatory inquiries.
 :::

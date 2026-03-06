@@ -6,72 +6,221 @@ sidebar_label: "25. System Configuration"
 
 # System Configuration
 
-**Admin → System Configuration** provides controls for platform-wide settings. Only users with the `super-admin` role can access this section.
+**Admin > System Configuration** provides centralized controls for all platform-wide settings, integrations, and infrastructure monitoring. Only users with the `super-admin` role can access this section. The system configuration area has been significantly expanded to cover AI providers, health monitoring, vocabulary management, FHIR EHR connections, and sync monitoring.
 
 ## General Settings
 
 | Setting | Description | Default |
 |---------|-------------|---------|
-| Platform Name | Displayed in browser title and emails | "Parthenon" |
-| Support Email | Address shown in error pages and emails | — |
-| Session Timeout | Idle session timeout (minutes) | 60 |
-| Allow Self-Registration | Whether `/register` is publicly accessible | false |
-| Default Role | Role assigned to self-registered users | viewer |
+| **Platform Name** | Displayed in browser title bar, emails, and PDF exports | "Parthenon" |
+| **Support Email** | Address shown in error pages and system notifications | -- |
+| **Session Timeout** | Idle session timeout in minutes before automatic logout | 60 |
+| **Allow Self-Registration** | Whether the `/register` page is publicly accessible | false |
+| **Default Role** | Role assigned to self-registered users | viewer |
+| **Max Upload Size** | Maximum file size for web uploads (MB) | 500 |
 
 ## Mail Configuration
 
-Parthenon sends transactional emails for account creation, password reset, and admin notifications. Configure the mail provider:
+Parthenon sends transactional emails for account creation, password resets, analysis completion notifications, and admin alerts. Configure the mail provider:
 
-1. Select **Mail Driver** (SMTP, Resend, Mailgun, Amazon SES, Log)
-2. Enter driver-specific credentials (API key, SMTP host/port/credentials)
-3. Enter **From Address** and **From Name**
-4. Click **Send Test Email** to verify
+1. Select **Mail Driver** from the dropdown:
 
-The `Log` driver writes emails to the Laravel log (useful for development; no real emails sent).
+| Driver | Use Case | Configuration |
+|--------|----------|---------------|
+| **SMTP** | Standard email server | Host, port, username, password, encryption |
+| **Resend** | Modern email API | API key (loaded from `.resendapikey` if present) |
+| **Mailgun** | Transactional email API | API key, domain |
+| **Amazon SES** | AWS email service | Access key, secret, region |
+| **Log** | Development only | Emails written to Laravel log (no real delivery) |
+
+2. Enter driver-specific credentials.
+3. Set **From Address** and **From Name** (e.g., `noreply@yourdomain.com`, "Parthenon Platform").
+4. Click **Send Test Email** to verify delivery to your own email address.
+
+:::info Production mail
+For production deployments, Resend is the recommended mail provider. Place your API key in `.resendapikey` at the repository root -- `AppServiceProvider` auto-detects and configures it at boot time.
+:::
 
 ## AI Provider Configuration
 
-Parthenon integrates an AI assistant (MedGemma) for cohort building suggestions and result interpretation. Configure the active AI provider:
+Parthenon integrates an AI assistant for cohort building suggestions, clinical concept search assistance, and result interpretation. The platform supports 8 AI providers with a single-active-provider architecture.
 
-1. Navigate to **Admin → System → AI Providers**.
-2. Select a provider (Ollama, OpenAI, Anthropic, etc.) and enter credentials.
-3. Click **Set Active** to make it the default provider.
-4. Click **Test** to verify the connection and model availability.
+### Supported Providers
 
-See the AI Providers section for the full list of supported providers.
+| Provider | Model Examples | Auth Method |
+|----------|---------------|-------------|
+| **Ollama** (default) | MedGemma 1.5 4B, Llama 3, Mistral | Local (no API key required) |
+| **OpenAI** | GPT-4o, GPT-4 Turbo | API key |
+| **Anthropic** | Claude 3.5 Sonnet, Claude 3 Opus | API key |
+| **Google AI** | Gemini 1.5 Pro, Gemini Flash | API key |
+| **Azure OpenAI** | GPT-4 (Azure-hosted) | API key + endpoint URL |
+| **AWS Bedrock** | Claude, Titan, Llama | IAM credentials + region |
+| **Mistral AI** | Mistral Large, Mixtral | API key |
+| **Cohere** | Command R+, Embed v3 | API key |
 
-## Queue and Background Jobs
+### Configuration Steps
 
-Parthenon uses Laravel Horizon to manage background jobs (cohort generation, analysis execution, Achilles runs). The **Queue Dashboard** (available at `/horizon` for admins) shows:
+1. Navigate to **Admin > System > AI Providers**.
+2. Each provider card shows its current status (Active / Configured / Not configured).
+3. Click a provider card to configure:
+   - Enter the required credentials (API key, endpoint URL, etc.)
+   - All credentials are stored **encrypted** in the `ai_provider_settings` table using Laravel's `encrypted:array` cast
+   - Select the default model name
+4. Click **Test** to verify the connection and model availability. The test sends a simple health check prompt and reports the response time.
+5. Click **Set Active** to make this provider the default for all AI-assisted features.
 
-- Job throughput (jobs per minute)
-- Failed jobs with error messages and retry controls
-- Queue depths by queue name
-- Worker status
+### Single-Active Constraint
+
+Only one AI provider can be active at any time. Setting a new provider as active automatically deactivates the previous one within a database transaction, ensuring consistency.
+
+:::tip Ollama for air-gapped environments
+For healthcare environments without internet access, Ollama runs entirely on-premises with local models. The default configuration uses MedGemma 1.5 4B (`MedAIBase/MedGemma1.5:4b`), a medical domain-tuned model suitable for clinical concept assistance. No data leaves your infrastructure.
+:::
 
 ## System Health Dashboard
 
-Navigate to **Admin → System → Health** to see real-time status of all Parthenon services:
+Navigate to **Admin > System > Health** to monitor the real-time status of all Parthenon services. The dashboard auto-refreshes every **30 seconds**.
 
-| Service | Health check |
-|---------|-------------|
-| PHP-FPM | Laravel can bootstrap |
-| PostgreSQL (app DB) | Connection to parthenon database |
-| Redis | PING response |
-| Horizon | Queue worker process alive |
-| AI Service | HTTP health endpoint at /health |
-| R Runtime | HTTP health endpoint at /health |
+### Monitored Services
 
-The dashboard auto-refreshes every 30 seconds. Red status on any service triggers an admin notification email (if mail is configured).
+| Service | Health Check | Healthy Response |
+|---------|-------------|-----------------|
+| **PHP-FPM** | Laravel bootstrap validation | Application boots without errors |
+| **PostgreSQL (App DB)** | Connection test to `parthenon` database | SELECT 1 succeeds |
+| **PostgreSQL (CDM)** | Connection test to clinical data database | SELECT 1 succeeds |
+| **Redis** | PING command | PONG response |
+| **AI Service** | HTTP GET to Python FastAPI `/health` endpoint | 200 OK with service version |
+| **R Runtime** | HTTP GET to Plumber `/health` endpoint | 200 OK |
+| **Node (Frontend)** | Container health check (127.0.0.1) | Process alive |
+| **Horizon** | Queue worker process status | Workers running, no stuck jobs |
 
-## Vocabulary Refresh
+### Status Indicators
 
-The vocabulary in your data source can be updated when new OMOP vocabulary releases are available from Athena. Navigate to **Admin → System → Vocabulary** to:
+- **Green** -- service is healthy and responding within expected latency
+- **Yellow** -- service is responding but with degraded performance (high latency or partial errors)
+- **Red** -- service is unreachable or returning errors
 
-1. Upload a new Athena vocabulary ZIP
-2. Preview the changes (new/deprecated concepts)
-3. Trigger the background migration job
+Red status on any critical service (PHP, PostgreSQL, Redis) triggers an admin notification email if mail is configured.
 
-:::warning Vocabulary migration downtime
-During vocabulary refresh, the CDM vocabulary tables are locked for writes. Plan this maintenance window for off-peak hours. Concept sets should be reviewed after any vocabulary upgrade.
+### Service Details
+
+Click any service card to see:
+- Response time history (last 24 hours)
+- Recent error messages
+- Configuration details (host, port, version)
+- Restart/reconnect action button
+
+## Queue and Background Jobs
+
+Parthenon uses [Laravel Horizon](https://laravel.com/docs/11.x/horizon) to manage background job processing. Access the Horizon dashboard at `/horizon` (admin-only):
+
+### Monitored Queues
+
+| Queue | Purpose | Typical Jobs |
+|-------|---------|-------------|
+| `default` | General processing | Cohort generation, email sending |
+| `analyses` | Analysis execution | Characterization, PLE, PLP, pathway analysis |
+| `ingestion` | Data ingestion | File parsing, schema mapping, concept mapping |
+| `fhir-sync` | FHIR synchronization | Bulk data export, NDJSON processing, OMOP mapping |
+| `genomics` | Genomics processing | VCF parsing, ClinVar annotation, OMOP import |
+
+### Dashboard Features
+
+- **Job throughput** -- real-time jobs-per-minute graph
+- **Failed jobs** -- error messages, stack traces, and one-click retry
+- **Queue depths** -- number of pending jobs per queue
+- **Worker status** -- active worker processes and their current job
+- **Job metrics** -- average execution time, memory usage, failure rates
+
+## Vocabulary Management
+
+The OMOP vocabulary powering concept searches, cohort definitions, and concept mapping can be updated when new releases are available from [Athena](https://athena.ohdsi.org/).
+
+### Upload and Update Process
+
+1. Navigate to **Admin > System > Vocabulary**.
+2. The current vocabulary version and concept counts are displayed.
+3. Click **Upload Athena ZIP** and select the vocabulary bundle downloaded from Athena.
+4. Parthenon shows a **progress tracker** during upload and extraction:
+   - Upload progress (file transfer)
+   - Extraction (ZIP decompression)
+   - Validation (schema verification)
+   - Loading (COPY into vocabulary tables)
+   - Indexing (rebuild search indexes)
+5. After loading, a **change preview** shows:
+   - New concepts added
+   - Deprecated concepts
+   - Updated concept names or relationships
+6. Click **Apply** to finalize the vocabulary update.
+
+:::warning Vocabulary update downtime
+During vocabulary refresh, the vocabulary tables are locked for writes. Concept searches remain available (read-only) but new concept set creation may be temporarily affected. Schedule vocabulary updates during maintenance windows. Review all concept sets after any vocabulary upgrade -- deprecated concepts may affect existing cohort definitions.
+:::
+
+## FHIR EHR Connections
+
+Parthenon supports direct integration with EHR systems via FHIR R4, enabling automated clinical data synchronization. See [Chapter 30 -- FHIR EHR Integration](/fhir-ehr-integration) for comprehensive documentation.
+
+### Connection Management
+
+Navigate to **Admin > System > FHIR Connections** to manage EHR integrations:
+
+- **Add Connection** -- configure a new FHIR endpoint with SMART Backend Services authentication
+- **Test Connection** -- three-step verification (JWT assertion build, token exchange, FHIR metadata fetch)
+- **Start Sync** -- trigger a bulk data export and OMOP mapping pipeline
+- **View Sync History** -- monitor past sync runs with detailed metrics
+
+### Authentication
+
+FHIR connections use **SMART Backend Services** (OAuth 2.0 client credentials with RS384 JWT assertions):
+
+1. Register a SMART client in your EHR system (Epic, Cerner, etc.)
+2. Upload the RSA private key PEM to Parthenon (validated and stored encrypted)
+3. Parthenon builds JWT assertions signed with the private key
+4. Tokens are exchanged at the EHR's token endpoint
+5. Authorized FHIR API calls use the Bearer token
+
+### Supported EHR Vendors
+
+| Vendor | FHIR Version | Bulk Data | Notes |
+|--------|-------------|-----------|-------|
+| **Epic** | R4 | Yes | Group-based export with `$export` |
+| **Cerner** | R4 | Yes | Patient-level and group export |
+| **Other** | R4 | Varies | Generic FHIR R4 endpoint support |
+
+## Sync Monitoring Dashboard
+
+Navigate to **Admin > System > FHIR Sync Dashboard** for a unified view of all FHIR synchronization activity:
+
+### Dashboard Components
+
+1. **Pipeline Funnel** -- visual funnel showing records at each stage:
+   - Extracted (from FHIR Bulk Data)
+   - Mapped (FHIR resources to OMOP concepts)
+   - Written (inserted/updated in CDM tables)
+   - Failed (errors during processing)
+
+2. **30-Day Timeline** -- bar chart showing daily sync activity (completed vs. failed runs)
+
+3. **Connection Health** -- per-connection summary cards showing:
+   - Last sync timestamp and status
+   - Total records synced
+   - Success rate
+   - Active/inactive status
+
+4. **Recent Runs** -- chronological list of the 20 most recent sync runs across all connections with status, duration, record counts, and the user who triggered each run
+
+5. **Aggregate Metrics**:
+   - Total connections (active/total)
+   - Total sync runs (completed/failed/active)
+   - Cumulative records extracted, mapped, written, failed
+   - Average mapping coverage percentage
+
+The dashboard auto-refreshes every 30 seconds and provides a comprehensive operational view of your FHIR data pipeline.
+
+:::tip Monitoring best practices
+Set up alerts for:
+- **Failed syncs** -- investigate immediately to prevent data gaps
+- **Mapping coverage below 80%** -- indicates vocabulary or resource mapping issues
+- **Sync duration increasing** -- may indicate EHR performance degradation or growing data volumes
 :::

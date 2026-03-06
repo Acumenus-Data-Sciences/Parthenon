@@ -6,11 +6,11 @@ sidebar_label: "5. Cutover"
 
 # Cutover
 
-Once parity validation passes, you are ready to begin the cut-over process — transitioning researchers from Atlas to Parthenon and eventually decommissioning the Atlas instance.
+Once parity validation passes, you are ready to begin the cut-over process --- transitioning researchers from Atlas to Parthenon and eventually decommissioning the Atlas instance.
 
 ## 5.1 Legacy URL Redirects
 
-Parthenon includes built-in redirects for Atlas URLs so that existing bookmarks and integrations continue to work automatically. No configuration is needed — the redirects are active by default.
+Parthenon includes built-in redirects for Atlas URLs so that existing bookmarks and integrations continue to work automatically. No configuration is needed --- the redirects are active by default.
 
 | Legacy URL pattern | Redirects to |
 |-------------------|-------------|
@@ -31,11 +31,11 @@ Send this communication to your research team 2 weeks before the Atlas decommiss
 
 ---
 
-**Subject: Migration from Atlas to Parthenon — Action Required by [DATE]**
+**Subject: Migration from Atlas to Parthenon --- Action Required by [DATE]**
 
 Dear research team,
 
-We are migrating from OHDSI Atlas to Parthenon, our new unified outcomes research platform. Parthenon offers the same cohort building and vocabulary browsing capabilities as Atlas, with significant improvements in usability, performance, and analytical depth.
+We are migrating from OHDSI Atlas to Parthenon, our new unified outcomes research platform. Parthenon offers the same cohort building and vocabulary browsing capabilities as Atlas, with significant improvements in usability, performance, and analytical depth --- plus new modules for Genomics, Imaging, HEOR, and direct EHR integration via FHIR.
 
 **What you need to do:**
 - Log in to Parthenon at **[PARTHENON_URL]** using your institutional credentials.
@@ -44,11 +44,18 @@ We are migrating from OHDSI Atlas to Parthenon, our new unified outcomes researc
 
 **What has been migrated automatically:**
 - All cohort definitions (check the Cohorts menu)
-- All concept sets (check Vocabulary → Concept Sets)
+- All concept sets (check Vocabulary --> Concept Sets)
 
 **What has NOT been migrated:**
 - Saved IR and characterization analysis results (you will need to re-run these analyses)
 - Atlas bookmarks (please update your browser bookmarks to the new URL)
+
+**New capabilities available in Parthenon:**
+- Genomics module (VCF upload, ClinVar annotations, tumor board)
+- Imaging module (DICOM viewer, study browser)
+- HEOR module (cost-effectiveness, care gap analysis)
+- FHIR EHR integration (automated data sync from Epic, Cerner)
+- Seven analysis types including SCCS, Evidence Synthesis, PLE, and PLP
 
 **Support:** Contact [CONTACT_EMAIL] with any questions. We will maintain Atlas in read-only mode through [PARALLEL_END_DATE].
 
@@ -56,12 +63,12 @@ We are migrating from OHDSI Atlas to Parthenon, our new unified outcomes researc
 
 ## 5.3 Parallel Operation Period
 
-During the parallel operation period (recommended 2–4 weeks), run Atlas in **read-only mode** to prevent divergence:
+During the parallel operation period (recommended 2--4 weeks), run Atlas in **read-only mode** to prevent divergence:
 
 1. **Revoke write permissions** on the Atlas application database user so new objects cannot be created.
 2. **Post a banner** in the Atlas UI (via WebAPI configuration) noting the migration cutover date.
-3. **Monitor usage** — watch for users still actively creating new cohorts in Atlas that would need to be re-migrated.
-4. **Continue validating** — run `parthenon:validate-atlas-parity` weekly during the parallel period to catch any divergence introduced by late Atlas changes.
+3. **Monitor usage** --- watch for users still actively creating new cohorts in Atlas that would need to be re-migrated.
+4. **Continue validating** --- run `parthenon:validate-atlas-parity` weekly during the parallel period to catch any divergence introduced by late Atlas changes.
 
 ## 5.4 Decommissioning Atlas Checklist
 
@@ -69,7 +76,7 @@ When you are ready to decommission Atlas, complete these steps in order:
 
 ### Pre-Decommission
 
-- [ ] Final `parthenon:validate-atlas-parity` run — all cohorts within tolerance.
+- [ ] Final `parthenon:validate-atlas-parity` run --- all cohorts within tolerance.
 - [ ] All active users have logged into Parthenon at least once.
 - [ ] Final Atlas export archived to long-term storage (ZIP of all JSON exports).
 - [ ] Analysis results in the results schema backed up (pgdump of `achilles_results` schema).
@@ -91,6 +98,7 @@ When you are ready to decommission Atlas, complete these steps in order:
 - [ ] Send confirmation email to users: "Atlas has been decommissioned. All workflows are now in Parthenon."
 - [ ] Update any external documentation, wikis, or intranet pages that reference the Atlas URL.
 - [ ] Archive the Atlas database backup after 90 days or per your data retention policy.
+- [ ] Schedule onboarding sessions for new Parthenon features (Genomics, Imaging, HEOR, FHIR) to maximize adoption.
 
 :::warning Do not drop the Atlas database immediately
 Keep the Atlas application database available for at least 90 days after decommission. Users may discover missing objects (saved searches, custom configurations) that need to be recovered.

@@ -6,7 +6,7 @@ sidebar_label: "C. CIRCE JSON Schema"
 
 # Appendix C — CIRCE JSON Schema
 
-CIRCE (Cohort Inception, Refinement, and Containment Expression) is the JSON format used to define OMOP cohort expressions. Parthenon stores cohort definitions in this format and generates SQL from it using the `circe-be` library.
+CIRCE (Cohort Inception, Refinement, and Containment Expression) is the JSON format used to define OMOP cohort expressions. Parthenon stores cohort definitions in this format and generates SQL from it using the `circe-be` library. This appendix documents the schema structure, domain criteria types, and Parthenon-specific extensions.
 
 ## Top-Level Structure
 
@@ -54,6 +54,14 @@ An array of concept set definitions embedded in the cohort expression:
 }
 ```
 
+### Concept Item Flags
+
+| Flag | Type | Description |
+|------|------|-------------|
+| `isExcluded` | boolean | When `true`, this concept and its descendants/mapped codes are excluded from the resolved set |
+| `includeDescendants` | boolean | When `true`, all descendant concepts in the hierarchy are included |
+| `includeMapped` | boolean | When `true`, non-standard concepts that map to this standard concept are included |
+
 ## PrimaryCriteria
 
 Defines the index event(s). `CriteriaList` contains one or more domain criteria; patients qualifying on any of them enter the cohort:
@@ -80,6 +88,18 @@ Defines the index event(s). `CriteriaList` contains one or more domain criteria;
   }
 }
 ```
+
+### PrimaryCriteriaLimit Types
+
+| Type | Description |
+|------|-------------|
+| `"First"` | Only the first qualifying event per person |
+| `"All"` | All qualifying events (multiple entries per person) |
+| `"Last"` | Only the last qualifying event per person |
+
+### ObservationWindow
+
+Requires continuous observation for `PriorDays` before and `PostDays` after the index event.
 
 ## InclusionRules
 
@@ -112,7 +132,22 @@ An array of named inclusion/exclusion rules. Each rule has a `name`, `descriptio
 }
 ```
 
-`Occurrence.Type` values: `0` = at most, `1` = exactly, `2` = at least. `Occurrence.Count` is the number.
+### Occurrence Type Values
+
+| Value | Meaning | Example |
+|-------|---------|---------|
+| `0` | At most N occurrences | `Type: 0, Count: 0` = zero occurrences (exclusion) |
+| `1` | Exactly N occurrences | `Type: 1, Count: 1` = exactly one occurrence |
+| `2` | At least N occurrences | `Type: 2, Count: 2` = two or more occurrences |
+
+### Window Coefficients
+
+| Coeff | Meaning |
+|-------|---------|
+| `-1` | Before the index date |
+| `1` | After the index date |
+
+Example: `Start: { Days: 365, Coeff: -1 }, End: { Days: 0, Coeff: -1 }` means "from 365 days before index to the index date."
 
 ## CollapseSettings
 
@@ -125,17 +160,65 @@ Controls how multiple cohort entries per person are merged:
 }
 ```
 
-- `ERA` — merge overlapping/adjacent entries into continuous eras (with optional gap padding in days)
-- `START_DATE` — use distinct start dates only
+- `ERA` --- merge overlapping/adjacent entries into continuous eras (with optional gap padding in days)
+- `START_DATE` --- use distinct start dates only
+
+## CensoringCriteria
+
+An array of criteria that end cohort membership when observed. Uses the same domain criteria format as `InclusionRules`. When a censoring event occurs, the cohort end date is set to the event date.
 
 ## CriteriaList Domain Types
 
-Valid domain types for criteria:
+Valid domain types for criteria in `PrimaryCriteria` and `InclusionRules`:
 
-`ConditionOccurrence`, `DrugExposure`, `ProcedureOccurrence`, `Measurement`, `Observation`, `VisitOccurrence`, `DeviceExposure`, `Death`, `ObservationPeriod`, `Demographic`
+| Domain Type | CDM Table | Key Sub-Fields |
+|-------------|-----------|---------------|
+| `ConditionOccurrence` | `condition_occurrence` | `CodesetId`, `ConditionType`, `First` |
+| `DrugExposure` | `drug_exposure` | `CodesetId`, `DrugType`, `DaysSupply`, `Quantity` |
+| `ProcedureOccurrence` | `procedure_occurrence` | `CodesetId`, `ProcedureType` |
+| `Measurement` | `measurement` | `CodesetId`, `ValueAsNumber`, `Operator`, `Unit` |
+| `Observation` | `observation` | `CodesetId`, `ValueAsNumber`, `ValueAsConcept` |
+| `VisitOccurrence` | `visit_occurrence` | `CodesetId`, `VisitType`, `VisitLength` |
+| `DeviceExposure` | `device_exposure` | `CodesetId`, `DeviceType` |
+| `Death` | `death` | `CodesetId` |
+| `ObservationPeriod` | `observation_period` | `PeriodLength`, `AgeAtStart` |
+| `Demographic` | `person` | `Age`, `Gender`, `Race`, `Ethnicity`, `OccurrenceStartDate` |
 
-Each domain type has specific sub-fields (e.g. `Measurement` has `ValueAsNumber`, `Operator`, `Unit`).
+## Imaging Criteria Extension
+
+:::info Parthenon Extension
+Parthenon extends the standard CIRCE schema with imaging-based criteria for the cohort builder. This allows cohort definitions to include patients based on imaging study characteristics.
+:::
+
+The Parthenon cohort builder supports adding **imaging criteria** as inclusion rules. Imaging criteria are stored in the Parthenon application database and evaluated at generation time against the imaging metadata tables. They are represented in the cohort expression as extended criteria:
+
+```json
+{
+  "Criteria": {
+    "ProcedureOccurrence": {
+      "CodesetId": 5
+    }
+  },
+  "StartWindow": {
+    "Start": { "Days": 365, "Coeff": -1 },
+    "End": { "Days": 0, "Coeff": 1 }
+  },
+  "_parthenon_imaging": {
+    "modality": ["CT", "MR"],
+    "bodyPart": "CHEST",
+    "minStudies": 1
+  }
+}
+```
+
+The `_parthenon_imaging` property is a Parthenon-specific extension that filters on DICOM metadata fields (modality, body part, study count). At SQL generation time, these criteria are translated into joins against the imaging metadata tables. When exporting cohort definitions for use in standard Atlas or other OHDSI tools, the `_parthenon_imaging` extension is stripped and only the standard `ProcedureOccurrence` criteria remain.
+
+:::warning Portability
+Cohort definitions that use imaging criteria will lose the imaging-specific filters when exported to standard CIRCE JSON. The underlying `ProcedureOccurrence` criteria (matching the imaging procedure CPT4 code) are preserved, but modality and body part filters are Parthenon-specific.
+:::
 
 ## Full Schema Reference
 
 The complete CIRCE JSON Schema (JSON Schema Draft 7) is available in the OHDSI GitHub repository: [github.com/OHDSI/circe-be](https://github.com/OHDSI/circe-be)
+
+For Parthenon's API documentation of the cohort definition endpoints (which accept and return CIRCE JSON), see the interactive API reference at `/docs/api`.

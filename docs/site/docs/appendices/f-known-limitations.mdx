@@ -6,26 +6,74 @@ sidebar_label: "F. Known Limitations"
 
 # Appendix F — Known Limitations
 
-This appendix documents known limitations and constraints in the current release of Parthenon. Items marked with a roadmap note are planned for future releases.
+This appendix documents known limitations and constraints in the current release of Parthenon. Items are organized by module and include workarounds where available.
 
 ## Analysis Capabilities
 
-### Population-Level Estimation (Not Implemented)
-PLE (CohortMethod, SCCS) is not yet available. The navigation item exists as a placeholder. Estimated availability: Phase 10.
-
-### Patient-Level Prediction (Not Implemented)
-PLP machine learning model training is not yet available. See [Chapter 13](../part4-analyses/13-patient-level-prediction) for the planned design.
-
 ### Treatment Pathway Visualization
-The Sankey/Sunburst interactive diagram for treatment pathways is not yet implemented. Pathway results are currently shown in tabular form only.
+The Sankey/Sunburst interactive diagram for treatment pathways is not yet implemented. Pathway results are currently shown in tabular form. An interactive Sankey visualization is planned for a future release.
 
 ### Network Studies
-Multi-database federated execution (sending analysis packages to distributed sites) is not yet supported. Each source must be directly accessible from the Parthenon server.
+Multi-database federated execution (sending analysis packages to distributed sites) is not yet supported. Each data source must be directly accessible from the Parthenon server.
+
+### Negative Controls
+Automated negative control outcome generation (used in PLE and SCCS calibration) is not yet integrated. Negative control concept sets must be manually curated and added to analysis configurations.
+
+### R Runtime Dependency
+PLE (CohortMethod), PLP (PatientLevelPrediction), SCCS, and Evidence Synthesis analyses require the R runtime container to be running and connected. Configuration UIs for these analysis types are fully implemented, but execution depends on the R/HADES packages being properly installed in the R container.
+
+## Genomics
+
+### ClinVar Annotation Requires Local Database
+ClinVar variant annotation requires downloading and loading the ClinVar database locally via `POST /api/v1/genomics/clinvar/sync`. The initial download is approximately 1.5 GB and indexing can take 15--30 minutes. Without a local ClinVar database, variant clinical significance annotations will not be available.
+
+:::tip
+Run the ClinVar sync during off-hours to avoid impacting other operations. The sync is incremental after the initial load.
+:::
+
+### VCF File Size
+Large VCF files (>500 MB) may time out during upload via the web interface. For files exceeding this size, use the CLI bulk loader or split the VCF by chromosome before uploading.
+
+### Multi-Sample VCF
+Multi-sample VCF files are supported but each sample must be matched to an OMOP `person_id` individually via the person matching step. If sample identifiers in the VCF do not match patient identifiers in the CDM, manual mapping is required.
+
+## Imaging
+
+### Single-Frame DICOM Only
+The current DICOM viewer (Cornerstone3D) supports single-frame DICOM instances. Multi-frame DICOM objects (e.g., enhanced MR, enhanced CT, ultrasound cine loops) are planned for a future release. Multi-frame files can be indexed and stored but will not render in the built-in viewer.
+
+### DICOMweb Server Required for Remote Studies
+Retrieving imaging studies from a remote PACS requires a DICOMweb-compatible server (Orthanc, dcm4chee, Google Cloud Healthcare API, etc.). Legacy DICOM C-FIND/C-MOVE protocols are not supported. Local DICOM file import is available as an alternative.
+
+### Radiomics Feature Extraction
+Radiomics feature extraction (texture, shape, intensity features) is available but relies on pre-computed features. Real-time feature extraction from raw DICOM pixel data is not yet supported within Parthenon; use external tools (PyRadiomics) and import results.
+
+### NLP Report Extraction
+Imaging report NLP extraction uses the configured AI provider (Ollama/MedGemma by default). Extraction quality depends on the model's capabilities and the structure of the radiology report text. Complex or highly abbreviated reports may produce incomplete structured findings.
+
+## HEOR
+
+### Cost Models Depend on CDM Cost Data
+HEOR cost-effectiveness and budget impact analyses require cost data in the OMOP CDM `cost` table. If your CDM does not include cost data (common in EHR-only installations), HEOR economic analyses will produce incomplete or estimated results. The HEOR module can work with external cost assumptions configured via analysis parameters.
+
+### Rebate Simulation Accuracy
+Payer contract rebate simulations use simplified models. Actual rebate calculations depend on complex contractual terms that may not be fully captured in the simulation parameters. Results should be used for directional analysis, not as definitive financial projections.
+
+## FHIR Integration
+
+### Tested EHR Vendors
+FHIR R4 integration has been tested with **Epic** and **Cerner (Oracle Health)** EHR systems. Other FHIR R4-compliant vendors should work but may require custom mapping adjustments for non-standard resource profiles or extensions.
+
+### SMART Backend Services Authentication
+FHIR connections use SMART Backend Services (system-to-system JWT auth). Your EHR vendor must support this authorization profile and provide a registered client ID and JWKS endpoint or public key. User-facing SMART on FHIR (interactive OAuth2 launch) is not supported.
+
+### Bulk Data Export Timeouts
+FHIR Bulk Data Export operations on large patient populations may take hours. If the EHR server's export job times out or fails mid-export, Parthenon will retry from the last checkpoint. However, some EHR vendors impose export size limits or concurrent export restrictions that may require coordination with the EHR team.
+
+### Resource Type Coverage
+Parthenon maps the following FHIR R4 resource types to OMOP CDM tables: Patient, Condition, MedicationRequest, Procedure, Observation, Encounter, DiagnosticReport, and Immunization. Other resource types (AllergyIntolerance, CarePlan, Goal, etc.) are not yet mapped and will be skipped during sync.
 
 ## Data and Vocabulary
-
-### Vocabulary Refresh UI
-The Admin → Vocabulary Refresh feature (for uploading new Athena vocabulary ZIPs) is planned but not yet built. Vocabulary updates must currently be performed via direct database operations.
 
 ### Single CDM Dialect
 Parthenon currently supports **PostgreSQL only**. Support for SQL Server, BigQuery, Redshift, and Spark is on the roadmap.
@@ -36,30 +84,31 @@ Only **OMOP CDM v5.4** is fully supported. CDM v5.3 databases will work for most
 ## Performance
 
 ### Large CDM Generation Times
-Cohort generation on CDMs with >100 million patients may take 15–60 minutes for complex expressions. There is no progress streaming to the UI during this time — only the terminal status (Running/Complete).
+Cohort generation on CDMs with >100 million patients may take 15--60 minutes for complex expressions. There is no progress streaming to the UI during generation --- only the terminal status (Running/Complete) is displayed.
 
-### Achilles Real-Time
-The Data Explorer reflects Achilles pre-computed results, not real-time CDM queries. Results may be weeks or months old depending on when Achilles was last run.
+### Achilles Results Are Pre-Computed
+The Data Explorer reflects Achilles pre-computed results, not real-time CDM queries. Results may be weeks or months old depending on when Achilles was last run against the source.
 
-## Authentication
-
-### SSO Providers
-SAML 2.0 and OIDC authentication provider configuration is implemented in the data model and API but the Admin UI for configuring these providers is not yet complete. Configuration must be done via the API or database directly.
-
-## Accessibility
-
-### Screen Reader Support
-The React application has partial ARIA labeling. Full screen reader compatibility (WCAG 2.1 AA) is targeted for v1.0.
+## Authentication and Access
 
 ### Mobile Responsiveness
-The interface is optimized for desktop use (≥1280px wide). Tablet layouts are partially supported; mobile (&lt;768px) use is not recommended.
+The interface is optimized for desktop use (1280px or wider). Tablet layouts are partially supported; mobile (&lt;768px) use is not recommended for clinical research workflows.
+
+### Screen Reader Support
+The React application has partial ARIA labeling. Full screen reader compatibility (WCAG 2.1 AA) is targeted for a future release.
+
+## Search
+
+### Documentation Search
+The Docusaurus documentation site (`/docs/`) uses Lunr.js for client-side search. This provides good results for exact and partial term matches but lacks the relevance ranking and typo tolerance of a server-side search engine. Algolia DocSearch integration is planned as a future enhancement.
 
 ## File Size Limits
 
-| Feature | Limit |
-|---------|-------|
-| Web file upload | 500 MB per file |
-| API request body | 100 MB |
-| Export file size | Unlimited (streaming) |
-
-For larger uploads, use the CLI bulk loader (`php artisan ingestion:load`).
+| Feature | Limit | Workaround |
+|---------|-------|------------|
+| Web file upload (general) | 500 MB per file | Use CLI bulk loader |
+| VCF upload | 500 MB per file | Split by chromosome |
+| DICOM local import | No limit (async) | Use `import-local/trigger` for large batches |
+| Athena vocabulary ZIP | 2 GB | Upload directly; extraction is streamed |
+| API request body | 100 MB | Use streaming upload endpoints |
+| Export file size | Unlimited | Streaming response |

@@ -54,7 +54,7 @@ If your WebAPI requires authentication, add `-H "Authorization: Bearer YOUR_TOKE
 
 1. Navigate to **Concept Sets** in Atlas.
 2. Open a concept set.
-3. Click **Export → JSON**.
+3. Click **Export --> JSON**.
 
 ### Via the WebAPI (bulk)
 
@@ -88,7 +88,7 @@ curl -s "${ATLAS_URL}/cohortcharacterization/" > atlas-exports/analyses/characte
 ```
 
 :::note
-Parthenon does not currently import these analysis definitions automatically. Export them for reference — you will recreate them manually using the imported cohorts as inputs. The analysis definition format is simpler in Parthenon's UI.
+Parthenon does not currently import these analysis definitions automatically. Export them for reference --- you will recreate them manually using the imported cohorts as inputs. The analysis definition format is simpler in Parthenon's UI, and Parthenon supports additional analysis types (SCCS, Evidence Synthesis, PLE, PLP) that can be configured during recreation.
 :::
 
 ## 2.4 Recording Your WebAPI Source Configuration
@@ -124,4 +124,4 @@ atlas-exports/
   sources.json
 ```
 
-Keep this export directory — it serves as a backup of your Atlas configuration.
+Keep this export directory --- it serves as a backup of your Atlas configuration.

@@ -20,6 +20,10 @@ const DATA_ENV_PATTERNS = [
   "/data-quality/",
   "/cdm/",
   "/vocabulary/search",
+  "/genomics/variants",
+  "/imaging/studies",
+  "/imaging/wado",
+  "/heor/",
 ];
 
 function isDataEnvFailure(url: string): boolean {
@@ -28,26 +32,46 @@ function isDataEnvFailure(url: string): boolean {
 
 // All app routes to probe
 const ROUTES = [
+  // Core
   { path: "/", label: "Dashboard" },
   { path: "/data-sources", label: "Data Sources" },
   { path: "/data-explorer", label: "Data Explorer" },
+  // Vocabulary
   { path: "/vocabulary", label: "Vocabulary" },
   { path: "/vocabulary/compare", label: "Vocabulary Compare" },
+  // Cohorts & Concepts
   { path: "/cohort-definitions", label: "Cohort Definitions" },
   { path: "/concept-sets", label: "Concept Sets" },
+  // Analyses
   { path: "/analyses", label: "Analyses" },
+  // Studies
   { path: "/studies", label: "Studies" },
+  // Profiles
   { path: "/profiles", label: "Patient Profiles" },
+  // Care Gaps
   { path: "/care-gaps", label: "Care Gaps" },
+  // Jobs & Ingestion
   { path: "/jobs", label: "Jobs" },
   { path: "/ingestion", label: "Ingestion Dashboard" },
   { path: "/ingestion/upload", label: "Ingestion Upload" },
+  // Genomics
+  { path: "/genomics", label: "Genomics" },
+  { path: "/genomics/analysis", label: "Genomics Analysis" },
+  { path: "/genomics/tumor-board", label: "Genomics Tumor Board" },
+  // Imaging
+  { path: "/imaging", label: "Imaging" },
+  // HEOR
+  { path: "/heor", label: "HEOR" },
+  // Admin
   { path: "/admin", label: "Admin Dashboard" },
   { path: "/admin/users", label: "Admin Users" },
   { path: "/admin/roles", label: "Admin Roles" },
   { path: "/admin/auth-providers", label: "Admin Auth Providers" },
   { path: "/admin/ai-providers", label: "Admin AI Providers" },
   { path: "/admin/system-health", label: "Admin System Health" },
+  { path: "/admin/vocabulary", label: "Admin Vocabulary" },
+  { path: "/admin/fhir-connections", label: "Admin FHIR Connections" },
+  { path: "/admin/fhir-sync-monitor", label: "Admin FHIR Sync Monitor" },
   { path: "/admin/webapi-registry", label: "Admin WebAPI Registry" },
   { path: "/admin/notifications", label: "Admin Notifications" },
 ];

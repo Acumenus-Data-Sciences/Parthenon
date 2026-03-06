@@ -6,52 +6,172 @@ sidebar_label: "11. Treatment Pathways"
 
 # Treatment Pathways
 
-**Treatment pathway analysis** describes the sequence of therapies received by patients in a cohort over time. It answers: "After diagnosis, what drugs do patients actually receive, in what order, and how often do they switch or add therapies?" Results are visualized as a Sankey diagram showing the flow of patients through treatment sequences.
+**Treatment pathway analysis** describes the sequence of therapies that patients in a cohort actually receive over time. It answers the question: "After diagnosis (or treatment initiation), what drugs do patients receive, in what order, and how often do they switch, add, or discontinue therapies?" Treatment pathway analysis is essential for understanding real-world treatment patterns and adherence to clinical guidelines.
 
-## How Pathways Work
+---
 
-The analysis:
+## How Pathway Analysis Works
 
-1. Takes a **target cohort** (e.g. newly diagnosed T2DM patients)
-2. Identifies drug exposure **event cohorts** (e.g. one cohort per drug class: biguanides, sulfonylureas, DPP-4 inhibitors, etc.)
-3. For each patient, constructs an ordered sequence of treatment "eras" — continuous periods of exposure to each therapy
-4. Aggregates sequences across patients to compute pathway frequencies
-5. Renders the top-N pathways in a Sunburst or Sankey visualization
+The analysis proceeds through several stages:
+
+1. **Target cohort identification**: Start with a target cohort (e.g., newly diagnosed T2DM patients) that defines the population and observation window.
+
+2. **Event cohort matching**: For each patient in the target cohort, identify which **event cohorts** (one per drug or drug class) overlap with their target cohort membership period. Each event cohort defines a continuous treatment era for that therapy.
+
+3. **Sequence construction**: For each patient, construct an ordered sequence of treatment steps based on the chronological order of event cohort eras. The combination window determines whether overlapping therapies are classified as "combination" (taken simultaneously) or "sequential" (one after another).
+
+4. **Path aggregation**: Aggregate the individual patient sequences into pathway frequencies --- how many patients followed each unique treatment path.
+
+5. **Results presentation**: Display the aggregated pathways as a ranked table showing the most common treatment sequences.
+
+---
 
 ## Creating a Treatment Pathway Analysis
 
-1. Navigate to **Analyses → Treatment Pathways** and click **New Pathway Analysis**.
-2. Add one **Target Cohort** (the population to analyze).
-3. Add multiple **Event Cohorts** — each representing one therapy or drug class to track.
-4. Configure:
-   - **Combination window** — days within which two drugs are considered a combination (default 30)
-   - **Minimum cell count** — suppress pathways with fewer than N patients (privacy protection, default 5)
-   - **Max path length** — maximum number of treatment steps to track (default 5)
-5. Click **Save**, select a Data Source, then click **Execute**.
+1. Navigate to **Analyses** and select the **Pathways** tab.
+2. Click **New Analysis** and select **Pathway**.
+3. Configure the analysis on the design page.
 
-## Viewing the Sankey Diagram
+### Design Configuration
 
-:::note Under Development
-The Sankey/Sunburst pathway visualization is under active development. The current release shows pathway data in tabular form. The interactive diagram will be added in a future release.
+**Target Cohort:**
+Add the cohort representing the population to analyze. This is typically an incident (new-user) cohort for a condition or treatment.
+
+**Event Cohorts:**
+Add multiple event cohorts, each representing one therapy or drug class to track. For a diabetes treatment pathway study, you might add:
+
+| Event Cohort | Description |
+|---|---|
+| Metformin users | Patients with active metformin exposure |
+| Sulfonylurea users | Patients with active SU exposure |
+| DPP-4 inhibitor users | Patients with active DPP-4i exposure |
+| GLP-1 RA users | Patients with active GLP-1 receptor agonist exposure |
+| SGLT2 inhibitor users | Patients with active SGLT2i exposure |
+| Insulin users | Patients with active insulin exposure |
+
+Each event cohort should be independently defined and generated before configuring the pathway analysis.
+
+**Settings:**
+
+| Parameter | Description | Default |
+|---|---|---|
+| **Combination window** | Days within which two overlapping drug eras are classified as a combination therapy rather than sequential | 1 |
+| **Max depth** | Maximum number of treatment steps to track in the sequence | 5 |
+| **Max path length** | Maximum number of treatment steps to display | 5 |
+| **Minimum cell count** | Suppress pathways with fewer than N patients (privacy) | 5 |
+
+### Understanding the Combination Window
+
+The combination window is the most impactful parameter in pathway analysis. It determines how overlapping drug exposures are classified:
+
+- **Window = 1 day** (strict): Only drugs with eras that start on the same day are classified as combination therapy. Most switches will appear as sequential steps.
+- **Window = 30 days**: Drugs with eras overlapping for at least 30 days are classified as combination. This accommodates refill gaps and pharmacy overlap.
+- **Window = 90 days**: Very lenient --- drugs active at any point within a 90-day sliding window are considered combination.
+
+:::tip Choosing the combination window
+Match the combination window to the prescription pattern in your data:
+- **30-day supply databases** (US commercial claims): Use 30 or fewer days
+- **90-day supply databases** (Medicare, mail-order): Use up to 90 days
+- **EHR data without supply days**: Use a shorter window (7--14 days) since exposure gaps are common
 :::
 
-The current pathway results table shows:
+---
+
+## Viewing Results
+
+After execution, the results page shows the aggregated treatment pathways in tabular form:
 
 | Column | Description |
-|--------|-------------|
-| Pathway | Ordered sequence of treatment events (e.g. "Metformin → Metformin+Sitagliptin → Insulin") |
-| Count | Number of patients following this exact sequence |
-| % of target | Percentage of the target cohort |
+|---|---|
+| **Pathway** | Ordered sequence of treatment steps (e.g., "Metformin --> Metformin + Sitagliptin --> Insulin") |
+| **Count** | Number of patients who followed this exact sequence |
+| **% of Target** | Percentage of the target cohort following this pathway |
+
+Pathways are ranked by patient count (most common first).
+
+### Example Results
+
+| Pathway | Count | % of Target |
+|---|---|---|
+| Metformin only | 12,340 | 31.2% |
+| Metformin --> Metformin + DPP-4i | 4,560 | 11.5% |
+| Metformin --> Sulfonylurea | 3,890 | 9.8% |
+| Metformin --> Metformin + SGLT2i | 2,780 | 7.0% |
+| Metformin --> Insulin | 2,100 | 5.3% |
+| Sulfonylurea only | 1,890 | 4.8% |
+| No treatment | 1,560 | 3.9% |
+| Metformin --> Metformin + GLP-1 RA | 1,230 | 3.1% |
+| Other pathways (< 3% each) | 9,150 | 23.4% |
+
+:::info Visualization roadmap
+Sankey diagram and Sunburst visualization for treatment pathways are planned for a future release. These interactive visualizations will show patient flow through treatment sequences as connected streams (Sankey) or nested arcs (Sunburst). The current release provides full pathway data in tabular form.
+:::
+
+---
 
 ## Common Pathway Patterns
 
-- **Monotherapy** — patients who stay on a single agent throughout
-- **Add-on** — patients who add a second agent without stopping the first
-- **Switch** — patients who discontinue one agent and start another
-- **Intensification** — escalation from oral agents to injectable therapy
+Understanding the vocabulary of treatment patterns helps interpret results:
 
-These patterns align with treatment guidelines and can reveal real-world adherence to clinical algorithms.
+| Pattern | Definition | Example |
+|---|---|---|
+| **Monotherapy** | Patient stays on a single agent throughout | Metformin only |
+| **Add-on (augmentation)** | Second agent added without stopping the first | Metformin --> Metformin + DPP-4i |
+| **Switch** | First agent discontinued, second started | Metformin --> Sulfonylurea |
+| **Intensification** | Escalation from one class to a more intensive class | Oral agents --> Insulin |
+| **Step-down** | De-escalation from intensive to less intensive therapy | Insulin --> Metformin only |
+| **Combination start** | Initial therapy is a combination | Metformin + SGLT2i (first line) |
+| **Treatment gap** | Period with no active therapy between steps | Metformin --> [gap] --> Sulfonylurea |
 
-:::tip Combination window
-The combination window is critical for pathway interpretation. With window = 30 days, patients on both drug A and drug B for at least 30 overlapping days are classified as "A+B combination therapy." Adjust based on dispensing patterns in your data (e.g. 90-day supply vs. 30-day supply).
+These patterns map directly to treatment guideline recommendations and can reveal how closely real-world practice aligns with evidence-based algorithms.
+
+---
+
+## Multi-Source Comparison
+
+Run the same pathway analysis across multiple data sources to understand geographic and population-level variation in treatment patterns:
+
+| Source | Top Pathway | 2nd Pathway | 3rd Pathway |
+|---|---|---|---|
+| US Commercial Claims | Metformin (35%) | Met --> Met+DPP4i (12%) | Met --> SU (10%) |
+| UK CPRD | Metformin (42%) | Met --> SU (15%) | Met --> Met+SGLT2i (8%) |
+| Korea NHIS | Metformin (28%) | Met+DPP4i (18%) | DPP4i only (11%) |
+
+Cross-source comparison reveals how prescribing culture, guideline adoption, formulary coverage, and healthcare system structure influence treatment decisions.
+
+---
+
+## Interpreting Results
+
+### What Pathways Reveal
+
+- **Guideline adherence**: Do most patients start with recommended first-line therapy?
+- **Treatment inertia**: How long do patients stay on initial therapy before intensification?
+- **Real-world combination use**: Which combinations are actually used in practice?
+- **Equity patterns**: Do pathway distributions differ by age, gender, or other demographics?
+
+### Common Pitfalls
+
+- **Short follow-up**: If many patients have short observation periods, they may appear as "monotherapy only" simply because intensification was not yet observed. Filter for patients with minimum follow-up.
+- **Event cohort gaps**: If event cohorts are not comprehensive (e.g., missing insulin), patients using those therapies appear as "no treatment" or have truncated pathways.
+- **Data lag**: Prescription claims may lag behind actual prescribing by weeks or months, causing apparent treatment gaps.
+
+:::warning Missing therapies bias pathways
+If an important therapy class is not represented by an event cohort, patients using that therapy will appear to have a treatment gap or shorter pathway. Ensure all relevant therapies in the therapeutic area are represented as event cohorts.
 :::
+
+---
+
+## Best Practices
+
+1. **Define comprehensive event cohorts**: Include all major therapy classes for the condition of interest. Missing classes create misleading pathway gaps.
+
+2. **Use incident target cohorts**: Start with newly diagnosed or new-user populations to capture the full treatment trajectory from the beginning.
+
+3. **Calibrate the combination window**: Run the analysis with multiple window values (e.g., 1, 30, 90 days) to understand how the classification changes. Report the chosen window and justification.
+
+4. **Require minimum follow-up**: Consider adding an inclusion rule requiring minimum observation after index (e.g., 365 days) to ensure patients have sufficient time for treatment changes to be observed.
+
+5. **Report pathway coverage**: State what percentage of the target cohort is represented by the reported pathways. If the "Other" category exceeds 30--40%, consider simplifying by grouping related therapies.
+
+6. **Validate against clinical knowledge**: Share results with clinical domain experts to confirm that observed patterns make medical sense. Unexpected pathways may indicate data quality issues or cohort definition problems.

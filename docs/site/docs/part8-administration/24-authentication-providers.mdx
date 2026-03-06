@@ -6,68 +6,183 @@ sidebar_label: "24. Authentication Providers"
 
 # Authentication Providers
 
-Parthenon supports multiple authentication methods. The **super-admin** can configure which providers are active and set their parameters through **Admin → Authentication Providers**.
+Parthenon supports multiple authentication methods to integrate with your organization's identity infrastructure. The **super-admin** can configure, test, and manage providers through **Admin > Authentication Providers** -- a fully implemented admin UI for centralized authentication management.
 
 ## Supported Providers
 
-| Provider | Type | Notes |
-|----------|------|-------|
-| **Local** | Username/password | Always available; uses bcrypt-hashed passwords |
-| **LDAP/AD** | Directory | Connects to an LDAP v3 server or Active Directory |
-| **SAML 2.0** | Federated SSO | Works with Okta, Azure AD, ADFS, Shibboleth |
-| **OAuth 2.0 / OIDC** | Federated SSO | Works with Google Workspace, GitHub, Keycloak |
+| Provider | Type | Protocol | Common Integrations |
+|----------|------|----------|-------------------|
+| **Local** | Username/password | Bcrypt hashed | Always available (fallback) |
+| **LDAP/AD** | Directory service | LDAP v3 / LDAPS | Active Directory, OpenLDAP, FreeIPA |
+| **SAML 2.0** | Federated SSO | SAML assertions | Okta, Azure AD (Entra ID), ADFS, Shibboleth, OneLogin |
+| **OAuth 2.0 / OIDC** | Federated SSO | OAuth 2.0 + OpenID Connect | Google Workspace, GitHub, Keycloak, Auth0 |
 
 ## Local Authentication
 
-Local authentication is enabled by default and cannot be disabled (it is the fallback when all other providers fail). Users authenticate with their registered email and password.
+Local authentication is the built-in username/password system. It is **always available** and cannot be disabled -- it serves as the fallback when all external providers are unreachable.
 
-Password policy (configurable in Admin → System Configuration):
-- Minimum 12 characters
-- Required: uppercase, lowercase, number
-- Optional: special character requirement
-- Password history: last 5 passwords cannot be reused
-- Maximum age: 90 days (configurable; can be disabled)
+### How It Works
+
+1. User enters their registered email and password on the login page.
+2. Parthenon verifies the password against the bcrypt hash stored in the database.
+3. On success, a Sanctum session token is issued.
+4. The `must_change_password` check is evaluated -- if `true`, the non-dismissable password change modal appears.
+
+### Password Policy
+
+Password policy is configurable in **Admin > System Configuration > Security**:
+
+| Setting | Description | Default |
+|---------|-------------|---------|
+| **Minimum length** | Minimum password character count | 12 |
+| **Uppercase required** | At least one uppercase letter | Yes |
+| **Lowercase required** | At least one lowercase letter | Yes |
+| **Number required** | At least one digit | Yes |
+| **Special character required** | At least one symbol (!@#$%^&*) | No (optional) |
+| **Password history** | Number of previous passwords that cannot be reused | 5 |
+| **Maximum age** | Days before password expires (0 = disabled) | 90 |
+
+### Login Throttling
+
+To protect against brute-force attacks, Parthenon throttles login attempts:
+
+- **5 attempts per 15 minutes** per IP address
+- After the limit is reached, the IP is blocked with a 429 (Too Many Requests) response
+- The throttle resets automatically after the window expires
+- Failed login attempts are logged in the audit trail with the attempted email and IP
 
 ## Configuring LDAP / Active Directory
 
-1. Navigate to **Admin → Authentication Providers**.
-2. Click **Add Provider** and select **LDAP/Active Directory**.
-3. Enter:
-   - **Host** — LDAP server hostname or IP
-   - **Port** — 389 (LDAP) or 636 (LDAPS)
-   - **Base DN** — e.g. `dc=yourorg,dc=com`
-   - **Bind DN** — service account DN for directory lookup
-   - **Bind Password** — service account password (stored encrypted)
-   - **User Filter** — LDAP filter for valid users, e.g. `(&(objectClass=user)(memberOf=CN=Parthenon,OU=Groups,DC=yourorg,DC=com))`
-4. Click **Test Connection** to verify.
-5. Set **Default Role** for new LDAP users (typically `viewer`).
+The LDAP provider allows users to authenticate against your organization's directory service.
+
+### Setup Steps
+
+1. Navigate to **Admin > Authentication Providers**.
+2. Click **Add Provider** and select **LDAP / Active Directory**.
+3. Configure the connection settings:
+
+| Field | Description | Example |
+|-------|-------------|---------|
+| **Host** | LDAP server hostname or IP | `ldap.yourorg.com` |
+| **Port** | Connection port | 389 (LDAP) or 636 (LDAPS) |
+| **Use SSL** | Enable LDAPS encryption | Yes (recommended) |
+| **Base DN** | Search base for user lookup | `dc=yourorg,dc=com` |
+| **Bind DN** | Service account distinguished name | `cn=parthenon-svc,ou=Services,dc=yourorg,dc=com` |
+| **Bind Password** | Service account password | Stored encrypted in the database |
+| **User Filter** | LDAP filter to identify valid users | `(&(objectClass=user)(memberOf=CN=Parthenon,OU=Groups,DC=yourorg,DC=com))` |
+| **Username Attribute** | Attribute containing the user's email | `userPrincipalName` or `mail` |
+| **Display Name Attribute** | Attribute containing the user's full name | `displayName` |
+
+4. Click **Test Connection** to verify the LDAP bind succeeds and the user filter returns results.
+5. Set **Default Role** for new LDAP-authenticated users (typically `viewer`).
 6. Toggle **Enabled** and click **Save**.
+
+:::tip Active Directory specifics
+For AD environments, use:
+- Port 636 with SSL enabled
+- `userPrincipalName` as the username attribute (format: `user@domain.com`)
+- A service account with read-only access to the relevant OU
+- Group-based filtering via `memberOf` to restrict access to authorized users
+:::
+
+### LDAP Group-to-Role Mapping
+
+Map LDAP groups to Parthenon roles for automatic role assignment:
+
+| LDAP Group | Parthenon Role |
+|------------|---------------|
+| `CN=Parthenon-Admins,OU=Groups,DC=...` | `admin` |
+| `CN=Parthenon-Researchers,OU=Groups,DC=...` | `researcher` |
+| `CN=Parthenon-Viewers,OU=Groups,DC=...` | `viewer` |
+
+When a user authenticates via LDAP, their Parthenon roles are synchronized with their LDAP group memberships.
 
 ## Configuring SAML 2.0
 
+SAML 2.0 enables single sign-on (SSO) with enterprise identity providers.
+
+### Setup Steps
+
 1. Select **SAML 2.0** as the provider type.
-2. Enter the **Identity Provider Metadata URL** (or upload the XML metadata file).
-3. Copy the **Parthenon SP Metadata URL** and register it in your IdP.
-4. Map IdP attributes to Parthenon fields:
-   - `email` → user email
-   - `name` → display name
-   - `groups` → role mapping (optional)
-5. Test with a real IdP login using the **Test SAML Flow** button.
+2. Configure the Identity Provider (IdP):
+   - **IdP Metadata URL** -- enter the metadata endpoint URL (e.g., `https://login.microsoftonline.com/TENANT/federationmetadata/2007-06/federationmetadata.xml`)
+   - **Or upload XML** -- upload the IdP metadata XML file directly
+3. Copy the **Parthenon SP Metadata URL** (displayed in the setup panel) and register it as a trusted Service Provider in your IdP.
+4. Configure **attribute mapping**:
+
+| IdP Attribute | Parthenon Field | Required |
+|---------------|-----------------|----------|
+| `email` / `nameID` | User email address | Yes |
+| `displayName` / `name` | Display name | Yes |
+| `groups` / `memberOf` | Role mapping | No (optional) |
+
+5. Click **Test SAML Flow** to perform a real authentication round-trip with your IdP.
+6. Toggle **Enabled** and click **Save**.
+
+### IdP-Specific Guides
+
+- **Okta** -- Create a SAML app, set ACS URL to `https://parthenon.yourdomain.com/api/v1/auth/saml/callback`
+- **Azure AD (Entra ID)** -- Register an Enterprise Application with SAML SSO, configure claims
+- **ADFS** -- Add a Relying Party Trust with the Parthenon SP metadata
+- **Shibboleth** -- Configure the SP metadata in the IdP's `metadata-providers.xml`
 
 ## Configuring OAuth 2.0 / OIDC
 
-1. Select **OAuth 2.0 / OpenID Connect**.
-2. Enter:
-   - **Provider** — select a pre-configured template (Google, GitHub, Keycloak, Generic)
-   - **Client ID** and **Client Secret** (from your OAuth app registration)
-   - **Issuer URL** — OIDC discovery document URL
-   - **Scopes** — typically `openid email profile`
-3. Configure the **Redirect URI** in your OAuth app to match the displayed Parthenon callback URL.
+OAuth 2.0 with OpenID Connect provides flexible SSO for cloud identity providers.
+
+### Setup Steps
+
+1. Select **OAuth 2.0 / OpenID Connect** as the provider type.
+2. Choose a **Provider Template** (pre-configured defaults for common providers):
+   - Google Workspace
+   - GitHub
+   - Keycloak
+   - Generic OIDC (custom configuration)
+3. Enter credentials from your OAuth application registration:
+
+| Field | Description |
+|-------|-------------|
+| **Client ID** | Application client ID |
+| **Client Secret** | Application client secret (stored encrypted) |
+| **Issuer URL** | OIDC discovery document URL (e.g., `https://accounts.google.com`) |
+| **Scopes** | OAuth scopes to request (default: `openid email profile`) |
+
+4. Configure the **Redirect URI** in your OAuth application to match the displayed Parthenon callback URL: `https://parthenon.yourdomain.com/api/v1/auth/oauth/callback`
+5. Click **Test Connection** to verify the OAuth flow.
 
 ## Multi-Provider Setup
 
-Multiple providers can be active simultaneously. The login page shows a button for each active provider plus the local login form. Users who have accounts linked to multiple providers can use any of them.
+Multiple authentication providers can be active simultaneously. The login page dynamically renders:
 
-:::tip Provider priority
-If a user's email exists in both local and LDAP, the LDAP authentication takes precedence (configurable via provider priority). This prevents shadow accounts from bypassing your central directory policies.
+- The **local login form** (email + password) -- always visible
+- A **button for each active external provider** (e.g., "Sign in with Okta", "Sign in with Google")
+
+Users who have accounts linked to multiple providers can use any of them to authenticate. Parthenon links accounts by email address -- if a user authenticates via SAML and their email matches an existing local account, the accounts are automatically linked.
+
+### Provider Priority
+
+When a user's email exists in both local and external directories, authentication behavior follows the configured priority:
+
+1. **External first** (default) -- LDAP/SAML/OAuth authentication takes precedence. This prevents shadow local accounts from bypassing your central directory policies (password expiration, MFA, account disablement).
+2. **Local first** -- local authentication is tried first. Use this only if you need local accounts to override external providers.
+
+Configure priority in **Admin > Authentication Providers > Settings**.
+
+:::tip Testing providers
+Always use the **Test Connection** button before enabling a new provider. The test performs the full authentication flow (for SAML/OAuth) or a bind + search (for LDAP) and reports step-by-step results. This catches configuration errors before they affect real users.
 :::
+
+## Provider Management
+
+The Authentication Providers list shows all configured providers with:
+
+| Column | Description |
+|--------|-------------|
+| **Name** | Provider display name |
+| **Type** | Local / LDAP / SAML / OAuth |
+| **Status** | Enabled (green) / Disabled (gray) |
+| **Users** | Number of users who have authenticated via this provider |
+| **Last Used** | Timestamp of the most recent authentication |
+| **Actions** | Edit, Test, Enable/Disable, Delete |
+
+Disabling a provider does not delete user accounts -- it only removes the provider as a login option. Users who only authenticate via a disabled provider will need to use password reset to set a local password or wait for the provider to be re-enabled.

@@ -6,40 +6,52 @@ sidebar_label: "D. API Quick Reference"
 
 # Appendix D — API Quick Reference
 
-Parthenon exposes a REST API at `/api/v1/`. Full interactive documentation is available at [/docs/api](/docs/api). This appendix provides a quick reference for the most commonly used endpoints.
+Parthenon exposes a REST API at `/api/v1/`. Full interactive documentation is available at [/docs/api](/docs/api) (powered by Scramble). This appendix provides a quick reference for all endpoints organized by module.
 
 ## Authentication
 
-All API endpoints require a valid Sanctum session cookie or Bearer token.
+All API endpoints require a valid Sanctum session cookie or Bearer token unless otherwise noted.
 
 ```bash
 # Get CSRF token first (cookie-based auth)
-curl -X GET /sanctum/csrf-cookie
+curl -X GET https://parthenon.example.com/sanctum/csrf-cookie
 
 # Login
-curl -X POST /api/v1/auth/login \
+curl -X POST https://parthenon.example.com/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email": "user@example.com", "password": "secret"}'
 ```
 
 The response includes `user` and `token` fields. Pass the token as `Authorization: Bearer {token}` for subsequent requests.
 
+```
+POST   /api/v1/auth/login                 Login (returns user + token)
+POST   /api/v1/auth/logout                Logout (invalidates token)
+POST   /api/v1/auth/register              Register new user (admin only)
+POST   /api/v1/auth/change-password       Change password (authenticated)
+GET    /api/v1/auth/user                  Get current user profile
+```
+
+---
+
 ## Data Sources
 
 ```
-GET    /api/v1/sources                  List all sources
-POST   /api/v1/sources                  Create a source
-GET    /api/v1/sources/{id}             Get source detail
-PUT    /api/v1/sources/{id}             Update source
-DELETE /api/v1/sources/{id}             Delete source
-POST   /api/v1/sources/{id}/test        Test connection
+GET    /api/v1/sources                    List all sources
+POST   /api/v1/sources                    Create a source
+GET    /api/v1/sources/{id}               Get source detail
+PUT    /api/v1/sources/{id}               Update source
+DELETE /api/v1/sources/{id}               Delete source
+POST   /api/v1/sources/{id}/test          Test connection
 ```
+
+---
 
 ## Vocabulary
 
 ```
 GET    /api/v1/vocabulary/search?q={term}&domain={domain}
-       Search concepts
+       Search concepts (full-text + synonym search)
 
 GET    /api/v1/vocabulary/concept/{id}
        Get concept detail
@@ -51,25 +63,29 @@ GET    /api/v1/vocabulary/concept/{id}/ancestors
        Get ancestor hierarchy
 ```
 
+---
+
 ## Concept Sets
 
 ```
-GET    /api/v1/concept-sets             List concept sets
-POST   /api/v1/concept-sets             Create concept set
-GET    /api/v1/concept-sets/{id}        Get concept set detail
-PUT    /api/v1/concept-sets/{id}        Update concept set
-DELETE /api/v1/concept-sets/{id}        Delete concept set
-GET    /api/v1/concept-sets/{id}/resolve  Resolve to flat ID list
+GET    /api/v1/concept-sets               List concept sets
+POST   /api/v1/concept-sets               Create concept set
+GET    /api/v1/concept-sets/{id}          Get concept set detail
+PUT    /api/v1/concept-sets/{id}          Update concept set
+DELETE /api/v1/concept-sets/{id}          Delete concept set
+GET    /api/v1/concept-sets/{id}/resolve  Resolve to flat concept ID list
 ```
+
+---
 
 ## Cohort Definitions
 
 ```
-GET    /api/v1/cohort-definitions       List cohort definitions
-POST   /api/v1/cohort-definitions       Create cohort definition
-GET    /api/v1/cohort-definitions/{id}  Get cohort definition
-PUT    /api/v1/cohort-definitions/{id}  Update cohort definition
-DELETE /api/v1/cohort-definitions/{id}  Delete cohort definition
+GET    /api/v1/cohort-definitions         List cohort definitions
+POST   /api/v1/cohort-definitions         Create cohort definition
+GET    /api/v1/cohort-definitions/{id}    Get cohort definition
+PUT    /api/v1/cohort-definitions/{id}    Update cohort definition
+DELETE /api/v1/cohort-definitions/{id}    Delete cohort definition
 
 POST   /api/v1/cohort-definitions/{id}/generate
        Start generation against a source
@@ -81,16 +97,285 @@ GET    /api/v1/cohort-definitions/{id}/report/{sourceKey}
        Get attrition report for a source
 ```
 
-## WebAPI Compatibility Endpoints
+---
 
-These endpoints mirror the legacy OHDSI WebAPI interface for HADES compatibility:
+## Analyses
 
 ```
-GET    /api/v1/source/sources           Atlas-compatible source list
-GET    /api/v1/cohortdefinition/{id}    Atlas-compatible cohort definition
+GET    /api/v1/analyses                   List all analyses
+POST   /api/v1/analyses                   Create an analysis
+GET    /api/v1/analyses/{id}              Get analysis detail
+PUT    /api/v1/analyses/{id}              Update analysis
+DELETE /api/v1/analyses/{id}              Delete analysis
+GET    /api/v1/analyses/stats             Get analysis counts by type
+```
+
+Analysis types: `characterization`, `incidence_rate`, `treatment_pathways`, `estimation`, `prediction`, `sccs`, `evidence_synthesis`
+
+---
+
+## Genomics
+
+### Uploads (VCF Files)
+
+```
+GET    /api/v1/genomics/stats             Genomics dashboard statistics
+GET    /api/v1/genomics/uploads           List VCF uploads
+POST   /api/v1/genomics/uploads           Upload a VCF file
+GET    /api/v1/genomics/uploads/{id}      Get upload detail (with parsed variants)
+DELETE /api/v1/genomics/uploads/{id}      Delete an upload
+POST   /api/v1/genomics/uploads/{id}/match-persons
+       Match VCF samples to OMOP person records
+POST   /api/v1/genomics/uploads/{id}/import
+       Import parsed variants into OMOP measurement table
+```
+
+### Variants
+
+```
+GET    /api/v1/genomics/variants          List all imported variants (filterable)
+GET    /api/v1/genomics/variants/{id}     Get variant detail with annotations
+```
+
+### ClinVar Annotation
+
+```
+GET    /api/v1/genomics/clinvar/status    Check ClinVar database status
+GET    /api/v1/genomics/clinvar/search    Search ClinVar by gene or variant
+POST   /api/v1/genomics/clinvar/sync      Sync/update local ClinVar database
+POST   /api/v1/genomics/uploads/{id}/annotate-clinvar
+       Annotate upload variants with ClinVar data
+```
+
+### Genomic Analysis
+
+```
+GET    /api/v1/genomics/analysis/survival
+       Survival analysis by variant stratification
+GET    /api/v1/genomics/analysis/treatment-matrix
+       Treatment-variant response matrix
+GET    /api/v1/genomics/analysis/characterization
+       Genomic cohort characterization
+```
+
+### Tumor Board
+
+```
+GET    /api/v1/genomics/tumor-board/{personId}
+       Get tumor board summary for a patient (variants, treatments, clinical timeline)
+```
+
+### Genomic Cohort Criteria
+
+```
+GET    /api/v1/genomics/criteria          List genomic inclusion criteria
+POST   /api/v1/genomics/criteria          Create genomic criterion
+PUT    /api/v1/genomics/criteria/{id}     Update genomic criterion
+DELETE /api/v1/genomics/criteria/{id}     Delete genomic criterion
+```
+
+---
+
+## Imaging (DICOM)
+
+### Studies
+
+```
+GET    /api/v1/imaging/stats              Imaging dashboard statistics
+GET    /api/v1/imaging/studies            List imaging studies (filterable by modality, date, patient)
+GET    /api/v1/imaging/studies/{id}       Get study detail (with series and instances)
+POST   /api/v1/imaging/studies/index-from-dicomweb
+       Index studies from a DICOMweb server
+POST   /api/v1/imaging/studies/{id}/index-series
+       Index series metadata for a study
+POST   /api/v1/imaging/studies/{id}/extract-nlp
+       Extract NLP findings from imaging report
+```
+
+### Instances and WADO-RS
+
+```
+GET    /api/v1/imaging/studies/{id}/instances
+       List DICOM instances for a study
+
+GET    /api/v1/imaging/wado/{sopUid}
+       WADO-RS retrieve — returns DICOM instance data for the Cornerstone3D viewer
+       (Public endpoint, no auth required for viewer integration)
+```
+
+### Radiomics Features
+
+```
+GET    /api/v1/imaging/features           List extracted radiomics features
+```
+
+### Imaging Cohort Criteria
+
+```
+GET    /api/v1/imaging/criteria           List imaging inclusion criteria
+POST   /api/v1/imaging/criteria           Create imaging criterion
+DELETE /api/v1/imaging/criteria/{id}      Delete imaging criterion
+```
+
+### Population Analytics
+
+```
+GET    /api/v1/imaging/analytics/population
+       Population-level imaging analytics (modality distribution, temporal trends)
+```
+
+### Local Import
+
+```
+POST   /api/v1/imaging/import-local       Import DICOM files from local directory
+POST   /api/v1/imaging/import-local/trigger
+       Trigger async local import job
+```
+
+---
+
+## HEOR (Health Economics and Outcomes Research)
+
+### Analyses
+
+```
+GET    /api/v1/heor/stats                 HEOR dashboard statistics
+GET    /api/v1/heor/analyses              List HEOR analyses
+POST   /api/v1/heor/analyses              Create HEOR analysis
+GET    /api/v1/heor/analyses/{id}         Get analysis detail
+PUT    /api/v1/heor/analyses/{id}         Update analysis
+DELETE /api/v1/heor/analyses/{id}         Delete analysis
+POST   /api/v1/heor/analyses/{id}/run     Execute analysis (async)
+GET    /api/v1/heor/analyses/{id}/results Get analysis results
+```
+
+### Scenarios
+
+```
+GET    /api/v1/heor/analyses/{id}/scenarios
+       List scenarios for an analysis
+POST   /api/v1/heor/analyses/{id}/scenarios
+       Create scenario
+PUT    /api/v1/heor/analyses/{id}/scenarios/{scenarioId}
+       Update scenario
+DELETE /api/v1/heor/analyses/{id}/scenarios/{scenarioId}
+       Delete scenario
+```
+
+### Parameters
+
+```
+GET    /api/v1/heor/analyses/{id}/parameters
+       List parameters for an analysis
+POST   /api/v1/heor/analyses/{id}/parameters
+       Create parameter
+PUT    /api/v1/heor/analyses/{id}/parameters/{paramId}
+       Update parameter
+DELETE /api/v1/heor/analyses/{id}/parameters/{paramId}
+       Delete parameter
+```
+
+### Contracts and Rebates
+
+```
+GET    /api/v1/heor/contracts             List payer contracts
+POST   /api/v1/heor/contracts             Create contract
+GET    /api/v1/heor/contracts/{id}        Get contract detail
+PUT    /api/v1/heor/contracts/{id}        Update contract
+DELETE /api/v1/heor/contracts/{id}        Delete contract
+POST   /api/v1/heor/contracts/{id}/simulate-rebate
+       Simulate rebate calculations for a contract
+```
+
+---
+
+## Administration
+
+### User Management
+
+```
+GET    /api/v1/admin/users                List users
+POST   /api/v1/admin/users                Create user
+GET    /api/v1/admin/users/{id}           Get user detail
+PUT    /api/v1/admin/users/{id}           Update user
+DELETE /api/v1/admin/users/{id}           Delete user
+```
+
+### AI Provider Configuration
+
+```
+GET    /api/v1/admin/ai-providers         List AI providers and their status
+PUT    /api/v1/admin/ai-providers/{type}  Update provider configuration
+POST   /api/v1/admin/ai-providers/{type}/test
+       Test provider connectivity
+```
+
+Supported provider types: `ollama`, `openai`, `anthropic`, `google`, `azure_openai`, `huggingface`, `aws_bedrock`, `replicate`
+
+### Vocabulary Management
+
+```
+POST   /api/v1/admin/vocabulary/upload    Upload Athena vocabulary ZIP for refresh
+```
+
+:::info Vocabulary Upload
+Upload the ZIP file downloaded from [Athena](https://athena.ohdsi.org/). Parthenon will process the vocabulary tables and update the vocabulary schema. This replaces the need for manual database operations.
+:::
+
+### FHIR EHR Connections
+
+```
+GET    /api/v1/admin/fhir-connections     List FHIR connections
+POST   /api/v1/admin/fhir-connections     Create FHIR connection
+GET    /api/v1/admin/fhir-connections/{id}
+       Get FHIR connection detail
+PUT    /api/v1/admin/fhir-connections/{id}
+       Update FHIR connection
+DELETE /api/v1/admin/fhir-connections/{id}
+       Delete FHIR connection
+POST   /api/v1/admin/fhir-connections/{id}/test
+       Test FHIR server connectivity
+POST   /api/v1/admin/fhir-connections/{id}/sync
+       Start FHIR Bulk Data Export sync
+GET    /api/v1/admin/fhir-connections/{id}/sync-runs
+       List sync run history
+GET    /api/v1/admin/fhir-connections/{id}/sync-runs/{runId}
+       Get sync run detail (progress, errors)
+```
+
+### FHIR Sync Dashboard
+
+```
+GET    /api/v1/admin/fhir-sync/dashboard  Aggregated sync dashboard (all connections)
+```
+
+---
+
+## Help and Changelog
+
+```
+GET    /api/v1/help/{key}                 Get contextual help content by key
+GET    /api/v1/changelog                  Get application changelog
+```
+
+---
+
+## WebAPI Compatibility Endpoints
+
+These endpoints mirror the legacy OHDSI WebAPI interface for HADES R package compatibility:
+
+```
+GET    /api/v1/source/sources             Atlas-compatible source list
+GET    /api/v1/cohortdefinition/{id}      Atlas-compatible cohort definition
 GET    /api/v1/vocabulary/{sourceKey}/search?query={q}
        Atlas-compatible vocabulary search
 ```
+
+:::tip HADES Integration
+HADES R packages (CohortMethod, PatientLevelPrediction, CohortGenerator, etc.) can point to Parthenon's API URL and work without modification using these compatibility endpoints.
+:::
+
+---
 
 ## Pagination
 
@@ -103,7 +388,7 @@ List endpoints support pagination via query parameters:
 Response format:
 ```json
 {
-  "data": [...],
+  "data": [],
   "total": 150,
   "current_page": 1,
   "per_page": 20,
@@ -111,13 +396,37 @@ Response format:
 }
 ```
 
+---
+
 ## Error Responses
 
 | HTTP Status | Meaning |
 |------------|---------|
-| 401 | Unauthenticated — missing or invalid token |
-| 403 | Forbidden — insufficient permissions |
+| 401 | Unauthenticated --- missing or invalid token |
+| 403 | Forbidden --- insufficient permissions or role |
 | 404 | Resource not found |
-| 422 | Validation error — see `errors` field in response body |
-| 429 | Rate limited — try again after the `Retry-After` header value |
-| 500 | Server error — check logs |
+| 422 | Validation error --- see `errors` field in response body |
+| 429 | Rate limited --- try again after the `Retry-After` header value |
+| 500 | Server error --- check logs via Admin or `/horizon` |
+
+### Validation Error Response Example
+
+```json
+{
+  "message": "The given data was invalid.",
+  "errors": {
+    "name": ["The name field is required."],
+    "expression": ["The expression must be valid JSON."]
+  }
+}
+```
+
+---
+
+## Rate Limiting
+
+| Endpoint | Limit |
+|----------|-------|
+| `POST /api/v1/auth/login` | 5 requests per 15 minutes per IP |
+| All other authenticated endpoints | 60 requests per minute per user |
+| File upload endpoints (genomics, imaging, vocabulary) | 10 requests per minute per user |

@@ -1,0 +1,359 @@
+---
+id: 30-fhir-ehr-integration
+title: "30. FHIR EHR Integration"
+sidebar_label: "30. FHIR EHR Integration"
+slug: /fhir-ehr-integration
+---
+
+# FHIR EHR Integration
+
+Parthenon's **FHIR integration module** enables direct, automated synchronization of clinical data from EHR systems into the OMOP CDM. Using the FHIR R4 Bulk Data Access specification and SMART Backend Services authentication, Parthenon can establish secure server-to-server connections with Epic, Cerner, and other FHIR-capable EHR systems -- pulling patient data, mapping it to OMOP concepts, and loading it into your research database with incremental sync and content-hash deduplication.
+
+## Architecture Overview
+
+```
+EHR System (Epic/Cerner)
+       |
+  SMART Backend Services (RS384 JWT)
+       |
+  Token Exchange (client_credentials)
+       |
+  FHIR Bulk Data Export ($export)
+       |
+  NDJSON Download (Patient, Condition, Medication, etc.)
+       |
+  FHIR-to-OMOP Mapping (concept resolution)
+       |
+  CDM Table Writes (person, condition_occurrence, drug_exposure, etc.)
+       |
+  SHA-256 Dedup (incremental sync)
+```
+
+## SMART Backend Services Authentication
+
+Parthenon uses the [SMART Backend Services](https://hl7.org/fhir/smart-app-launch/backend-services.html) specification for server-to-server authentication. This is the standard mechanism for automated data access without user interaction.
+
+### How It Works
+
+1. **Client Registration** -- register Parthenon as a SMART client in your EHR system's developer portal. You receive a `client_id` and register your JWKS (JSON Web Key Set) URL or upload a public key.
+
+2. **JWT Assertion** -- when Parthenon needs to authenticate, it builds a JWT (JSON Web Token) signed with your RS384 private key:
+
+| JWT Claim | Value |
+|-----------|-------|
+| `iss` | Your registered `client_id` |
+| `sub` | Same as `iss` |
+| `aud` | EHR token endpoint URL |
+| `exp` | Expiration (5 minutes from now) |
+| `jti` | Unique token ID (UUID) |
+
+3. **Token Exchange** -- Parthenon sends the JWT assertion to the EHR's token endpoint using the `client_credentials` grant type:
+
+```http
+POST /oauth2/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=client_credentials
+&scope=system/*.read
+&client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer
+&client_assertion=<signed_jwt>
+```
+
+4. **Access Token** -- the EHR returns a Bearer token with the authorized scopes and expiration time.
+
+5. **Authorized Requests** -- all subsequent FHIR API calls include the Bearer token in the Authorization header.
+
+### Private Key Management
+
+- Private keys are validated on upload (must be valid RSA or EC PEM format)
+- Keys are stored encrypted in the database using Laravel's encryption
+- The `has_private_key` flag on the connection indicates whether a key has been uploaded
+- Keys are never exposed through the API -- only the flag is visible
+
+:::danger Private key security
+The RSA private key grants server-to-server access to your EHR's clinical data. Treat it with the same security as a database root password:
+- Generate keys on a secure workstation
+- Never commit keys to version control
+- Rotate keys on a regular schedule (annually at minimum)
+- Revoke keys immediately if compromise is suspected
+:::
+
+## Configuring a FHIR Connection
+
+### Connection Fields
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| **Site Name** | Yes | Human-readable name (e.g., "Memorial Hospital Epic") |
+| **Site Key** | Yes | Unique lowercase identifier (e.g., `memorial-epic`) |
+| **EHR Vendor** | Yes | `epic`, `cerner`, or `other` |
+| **FHIR Base URL** | Yes | Root URL of the FHIR R4 server (e.g., `https://fhir.hospital.org/api/FHIR/R4`) |
+| **Token Endpoint** | Yes | OAuth token exchange URL |
+| **Client ID** | Yes | SMART Backend Services client identifier |
+| **Private Key PEM** | No | RSA private key for JWT signing (uploaded securely) |
+| **JWKS URL** | No | URL to your public JWKS (alternative to PEM upload) |
+| **Scopes** | No | OAuth scopes (default: `system/*.read`) |
+| **Group ID** | No | FHIR Group resource ID for group-based export |
+| **Export Resource Types** | No | Comma-separated FHIR resource types to export (default: all supported) |
+| **Target Source** | No | Parthenon data source to receive mapped data |
+| **Incremental Enabled** | No | Enable `_since` parameter for delta syncs |
+| **Sync Config** | No | Additional sync configuration (JSON) |
+| **Is Active** | No | Enable/disable the connection |
+
+### Setup Steps
+
+1. Navigate to **Admin > System > FHIR Connections**.
+2. Click **Add Connection**.
+3. Fill in the connection fields.
+4. Upload the RSA private key PEM.
+5. Click **Save**.
+6. Click **Test Connection** to verify the three-step authentication flow.
+
+### Connection Testing
+
+The **Test Connection** button performs three sequential checks:
+
+| Step | Description | Success Criteria |
+|------|-------------|-----------------|
+| **1. JWT Assertion** | Build and sign the client assertion JWT | Valid JWT created with RS384 signature |
+| **2. Token Exchange** | Exchange the JWT for an access token | Token endpoint returns access_token with expiry |
+| **3. FHIR Metadata** | Fetch the FHIR CapabilityStatement | Successful metadata response with server version |
+
+Each step reports `ok`, `warning`, or `failed` status with details. The total elapsed time is shown for performance assessment.
+
+:::tip Epic registration
+For Epic connections:
+1. Register at [Epic on FHIR](https://fhir.epic.com/)
+2. Create a Backend System application
+3. Upload your public key to Epic's JWKS registration
+4. Request the `system/*.read` scope
+5. Use the production FHIR base URL (not the sandbox) for real data
+:::
+
+## FHIR Bulk Data Export
+
+Parthenon uses the [FHIR Bulk Data Access](https://hl7.org/fhir/uv/bulkdata/) specification to efficiently extract large volumes of clinical data.
+
+### Export Process
+
+1. **Kick-off** -- Parthenon sends a `$export` request to the FHIR server:
+
+```http
+GET /Group/{groupId}/$export
+  ?_type=Patient,Condition,MedicationRequest,Observation,Encounter,Procedure
+  &_since=2026-01-01T00:00:00Z
+Accept: application/fhir+json
+Prefer: respond-async
+```
+
+2. **Polling** -- the server returns a `Content-Location` URL. Parthenon polls this URL until the export is complete.
+
+3. **Download** -- when complete, the server provides URLs to NDJSON (Newline-Delimited JSON) files, one per resource type.
+
+4. **Processing** -- Parthenon downloads each NDJSON file and processes resources line by line.
+
+### Incremental Sync
+
+When `incremental_enabled` is true, Parthenon tracks the last successful sync timestamp and uses the `_since` parameter on subsequent exports. This dramatically reduces export volume after the initial full sync:
+
+- **First sync** -- full export of all data (may take hours for large populations)
+- **Subsequent syncs** -- only resources created or modified since the last sync timestamp
+- **Force Full** -- option to bypass `_since` and re-export everything (useful after ETL fixes)
+
+## FHIR-to-OMOP Resource Mapping
+
+Parthenon maps FHIR R4 resources to OMOP CDM tables using a rule-based mapping pipeline with concept resolution:
+
+### Resource Mapping Table
+
+| FHIR Resource | OMOP CDM Table | Key Mappings |
+|---------------|---------------|-------------|
+| **Patient** | `person` | Gender, birth date, race, ethnicity, address (state) |
+| **Condition** | `condition_occurrence` | Code (SNOMED), onset/abatement dates, clinical status |
+| **MedicationRequest** | `drug_exposure` | Medication code (RxNorm), authored date, dosage, supply |
+| **Observation** | `measurement` or `observation` | Code (LOINC), value, unit, effective date. Lab results map to `measurement`; social/behavioral observations map to `observation` |
+| **Encounter** | `visit_occurrence` | Type (inpatient/outpatient/ED), period, facility |
+| **Procedure** | `procedure_occurrence` | Code (SNOMED/CPT), performed date |
+
+### Concept Resolution
+
+FHIR resources use a variety of coding systems. Parthenon resolves these to OMOP standard concepts using a priority-based lookup:
+
+| FHIR Coding System | OMOP Vocabulary | Priority | Target Domain |
+|--------------------|-----------------|---------:|---------------|
+| `http://snomed.info/sct` | SNOMED | 1 | Condition, Procedure, Observation |
+| `http://loinc.org` | LOINC | 1 | Measurement |
+| `http://www.nlm.nih.gov/research/umls/rxnorm` | RxNorm | 1 | Drug |
+| `http://hl7.org/fhir/sid/icd-10-cm` | ICD10CM | 2 | Condition (mapped to SNOMED) |
+| `http://hl7.org/fhir/sid/icd-10` | ICD10 | 2 | Condition (mapped to SNOMED) |
+| `http://www.ama-assn.org/go/cpt` | CPT4 | 2 | Procedure |
+| `http://hl7.org/fhir/sid/ndc` | NDC | 2 | Drug (mapped to RxNorm) |
+
+The resolver:
+1. Checks if the source code exists in the OMOP `concept` table for the corresponding vocabulary
+2. Follows `Maps to` relationships to find the standard concept
+3. Falls back to concept ID 0 if no mapping exists
+4. Populates both `*_concept_id` (standard) and `*_source_concept_id` (source vocabulary) fields
+
+### Detailed Mapping Rules
+
+#### Patient to Person
+
+| FHIR Field | OMOP Column | Transformation |
+|-----------|-------------|---------------|
+| `identifier[0].value` | `person_source_value` | Direct mapping |
+| `gender` | `gender_concept_id` | male=8507, female=8532, other=8521, unknown=8551 |
+| `birthDate` | `year_of_birth`, `month_of_birth`, `day_of_birth` | Date decomposition |
+| `extension[us-core-race]` | `race_concept_id` | OMB race code mapping |
+| `extension[us-core-ethnicity]` | `ethnicity_concept_id` | OMB ethnicity code mapping |
+
+#### Condition to Condition Occurrence
+
+| FHIR Field | OMOP Column | Transformation |
+|-----------|-------------|---------------|
+| `code.coding[0]` | `condition_concept_id` | Concept resolution (SNOMED priority) |
+| `onsetDateTime` | `condition_start_date` | Date extraction |
+| `abatementDateTime` | `condition_end_date` | Date extraction |
+| `clinicalStatus` | `condition_status_concept_id` | Active/resolved/remission mapping |
+| `subject.reference` | `person_id` | Patient reference resolution |
+| `encounter.reference` | `visit_occurrence_id` | Encounter linkage |
+
+#### MedicationRequest to Drug Exposure
+
+| FHIR Field | OMOP Column | Transformation |
+|-----------|-------------|---------------|
+| `medicationCodeableConcept.coding[0]` | `drug_concept_id` | Concept resolution (RxNorm priority) |
+| `authoredOn` | `drug_exposure_start_date` | Date extraction |
+| `dispenseRequest.expectedSupplyDuration` | `days_supply` | Duration in days |
+| `dispenseRequest.quantity` | `quantity` | Prescribed quantity |
+| `dosageInstruction[0].text` | `sig` | Dosage instructions |
+
+## Incremental Sync with SHA-256 Deduplication
+
+To handle both incremental and full re-syncs efficiently, Parthenon uses content-hash deduplication:
+
+### How It Works
+
+1. For each FHIR resource processed, Parthenon computes a **SHA-256 hash** of the resource's clinical content (excluding metadata like `meta.lastUpdated`).
+2. Before writing to the CDM, the hash is compared against previously stored hashes.
+3. **If the hash matches** -- the record is identical to what was previously imported; it is skipped.
+4. **If the hash differs** -- the record is new or modified; it is upserted into the CDM.
+5. This ensures idempotent syncs -- running a full sync multiple times produces the same result without duplicating data.
+
+### Benefits
+
+- **Idempotent syncs** -- safe to re-run without data duplication
+- **Efficient incremental updates** -- only changed records are processed
+- **Data integrity** -- prevents duplicate clinical events from repeated exports
+- **Auditability** -- hash history provides a record of what changed between syncs
+
+## Sync Run Lifecycle
+
+Each sync operation creates a `FhirSyncRun` record that tracks progress through the pipeline:
+
+| Status | Description |
+|--------|-------------|
+| `pending` | Sync triggered, awaiting worker pickup |
+| `exporting` | Bulk data export request sent; polling for completion |
+| `downloading` | NDJSON files being downloaded from the FHIR server |
+| `processing` | Resources being mapped to OMOP and written to CDM |
+| `completed` | All resources processed successfully |
+| `failed` | Error occurred (see error message and stack trace) |
+
+### Sync Run Metrics
+
+Each completed run records:
+
+| Metric | Description |
+|--------|-------------|
+| **Records Extracted** | Total FHIR resources downloaded |
+| **Records Mapped** | Resources successfully mapped to OMOP concepts |
+| **Records Written** | Records inserted or updated in CDM tables |
+| **Records Failed** | Resources that could not be processed (logged with reasons) |
+| **Mapping Coverage** | Percentage of resources with valid OMOP concept mappings |
+| **Duration** | Total sync time from trigger to completion |
+| **Triggered By** | User who initiated the sync |
+
+### Concurrency Protection
+
+Only one sync can run per connection at a time. Attempting to start a sync while another is in progress returns a 409 Conflict response. This prevents race conditions in CDM writes.
+
+## Sync Monitoring Dashboard
+
+Navigate to **Admin > System > FHIR Sync Dashboard** for operational monitoring (see [Chapter 25](/part8-administration/25-system-configuration) for dashboard details):
+
+- Pipeline funnel visualization (extracted -> mapped -> written -> failed)
+- 30-day sync timeline
+- Per-connection health cards
+- Recent sync runs with drill-down to detailed metrics
+- Aggregate statistics across all connections
+
+## Triggering a Sync
+
+### Via the Admin UI
+
+1. Navigate to **Admin > System > FHIR Connections**.
+2. Click on an active connection.
+3. Click **Start Sync**.
+4. Optionally check **Force Full Sync** to bypass incremental `_since` parameter.
+5. The sync runs as a background job (`RunFhirSyncJob`) on the `fhir-sync` queue.
+
+### Sync History
+
+Click **Sync Runs** on any connection to see its sync history:
+
+- Chronological list of all runs
+- Status, duration, and record counts per run
+- Click any run for detailed metrics and error logs
+- Filter by status (completed, failed, active)
+
+## Supported EHR Platforms
+
+### Epic
+
+- **FHIR Version**: R4 (February 2019 and later)
+- **Bulk Data**: Group-based `$export` via Epic on FHIR
+- **Authentication**: SMART Backend Services with RS384 JWT
+- **Common Scopes**: `system/Patient.read`, `system/Condition.read`, `system/MedicationRequest.read`, `system/Observation.read`, `system/Encounter.read`, `system/Procedure.read`
+
+### Cerner (Oracle Health)
+
+- **FHIR Version**: R4
+- **Bulk Data**: Patient-level and group-based export
+- **Authentication**: SMART Backend Services
+- **Notes**: Cerner uses slightly different code systems for some resources; Parthenon handles vendor-specific mappings
+
+### Generic FHIR R4
+
+Any FHIR R4 server implementing the Bulk Data Access specification can be connected. Configure the token endpoint and FHIR base URL manually.
+
+:::warning Data volume considerations
+Initial full syncs from large health systems can take several hours and produce millions of OMOP records. Plan your first sync during a maintenance window:
+- Monitor the sync dashboard for progress
+- Ensure sufficient disk space for NDJSON downloads (temporarily stored during processing)
+- Verify your PostgreSQL instance has capacity for the expected record volume
+- Consider running Achilles after the initial sync to generate characterization data
+:::
+
+## Troubleshooting
+
+| Issue | Likely Cause | Resolution |
+|-------|-------------|------------|
+| JWT assertion fails | Invalid or expired private key | Re-upload the PEM key; verify it matches the public key registered with the EHR |
+| Token exchange returns 401 | Client ID mismatch or incorrect scope | Verify client_id and scopes match the EHR registration |
+| Export times out | Large population or EHR server load | Increase timeout; try with a modality or date filter |
+| Low mapping coverage | Missing OMOP vocabulary entries | Update vocabulary (Athena ZIP); check for non-standard code systems |
+| Duplicate records after sync | Dedup hash mismatch | Run a force-full sync to recompute all hashes |
+| Connection test warning on metadata | Metadata endpoint access restricted | Non-critical -- auth worked but CapabilityStatement is not exposed |
+
+## API Reference
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/v1/admin/fhir-connections` | GET, POST | List/create connections |
+| `/api/v1/admin/fhir-connections/{id}` | GET, PUT, DELETE | CRUD for connection |
+| `/api/v1/admin/fhir-connections/{id}/test` | POST | Test connection (3-step) |
+| `/api/v1/admin/fhir-connections/{id}/sync` | POST | Trigger sync |
+| `/api/v1/admin/fhir-connections/{id}/sync-runs` | GET | List sync runs |
+| `/api/v1/admin/fhir-connections/{id}/sync-runs/{rid}` | GET | Sync run detail |
+| `/api/v1/admin/fhir-sync/dashboard` | GET | Sync monitoring dashboard |

@@ -10,54 +10,125 @@ Parthenon uses role-based access control (RBAC) powered by [Spatie Laravel Permi
 
 ## Built-in Roles
 
-| Role | Description |
-|------|-------------|
-| `super-admin` | All permissions. Manages system configuration, authentication providers, and all other admin functions. |
-| `admin` | User management, data source management, system health. Cannot change system-level authentication settings. |
-| `researcher` | Full read/write on cohorts, concept sets, analyses. Can generate cohorts and run analyses. Cannot manage users or sources. |
-| `viewer` | Read-only access to cohort definitions, concept sets, and analysis results. Cannot generate cohorts or run analyses. |
+Parthenon ships with four built-in roles that cover the most common organizational structures in outcomes research:
+
+| Role | Description | Typical Users |
+|------|-------------|---------------|
+| **`super-admin`** | All permissions. Full system control including authentication providers, AI configuration, system health, and vocabulary management. | Platform administrators, IT leads |
+| **`admin`** | User management, data source management, system health monitoring. Cannot modify system-level authentication or AI provider settings. | Department leads, data managers |
+| **`researcher`** | Full read/write on cohorts, concept sets, and analyses. Can generate cohorts, run analyses, and access patient timelines. Cannot manage users or data sources. | Epidemiologists, data scientists, pharmacoepidemiologists |
+| **`viewer`** | Read-only access to cohort definitions, concept sets, analysis results, and Data Explorer. Cannot generate cohorts, run analyses, or access patient-level data. | Stakeholders, reviewers, trainees |
 
 ## Permission Reference
 
-Permissions follow the convention `action:resource`:
+Permissions follow the `action:resource` naming convention. Each permission controls a specific capability:
 
-| Permission | Description |
-|-----------|-------------|
-| `view:users` | List and view user accounts |
-| `manage:users` | Create, edit, suspend, delete users |
-| `view:sources` | List data sources |
-| `manage:sources` | Create, edit, delete data sources |
-| `view:cohorts` | View cohort definitions |
-| `manage:cohorts` | Create, edit, delete cohort definitions |
-| `generate:cohorts` | Execute cohort generation jobs |
-| `view:analyses` | View analysis results |
-| `manage:analyses` | Create, edit, delete analyses |
-| `run:analyses` | Execute analysis jobs |
-| `view:patients` | Access patient-level timeline data (PHI) |
-| `manage:system` | System health, queue management, configuration |
+### User & System Permissions
+
+| Permission | Description | Roles |
+|-----------|-------------|-------|
+| `view:users` | List and view user accounts | admin, super-admin |
+| `manage:users` | Create, edit, suspend, delete users | admin, super-admin |
+| `manage:system` | System health, queue management, AI providers, vocabulary | super-admin |
+| `manage:auth` | Configure authentication providers (LDAP, SAML, OAuth) | super-admin |
+
+### Data Source Permissions
+
+| Permission | Description | Roles |
+|-----------|-------------|-------|
+| `view:sources` | List and view data source configurations | all roles |
+| `manage:sources` | Create, edit, delete data sources and daimons | admin, super-admin |
+
+### Research Permissions
+
+| Permission | Description | Roles |
+|-----------|-------------|-------|
+| `view:cohorts` | View cohort definitions and generation results | viewer, researcher, admin, super-admin |
+| `manage:cohorts` | Create, edit, delete cohort definitions | researcher, admin, super-admin |
+| `generate:cohorts` | Execute cohort generation jobs against CDM | researcher, admin, super-admin |
+| `view:analyses` | View analysis configurations and results | viewer, researcher, admin, super-admin |
+| `manage:analyses` | Create, edit, delete analyses | researcher, admin, super-admin |
+| `run:analyses` | Execute analysis jobs (characterization, PLE, PLP, etc.) | researcher, admin, super-admin |
+| `view:patients` | Access patient-level timeline data (PHI) | researcher, admin, super-admin |
+
+### Genomics, Imaging & HEOR Permissions
+
+| Permission | Description | Roles |
+|-----------|-------------|-------|
+| `manage:genomics` | Upload VCF files, manage genomic data, run analyses | researcher, admin, super-admin |
+| `manage:imaging` | Import DICOM studies, manage imaging data | researcher, admin, super-admin |
+| `manage:heor` | Create and run HEOR economic analyses | researcher, admin, super-admin |
 
 ## Creating Custom Roles
 
-Administrators can create custom roles for specialized use cases:
+Administrators can create custom roles for specialized use cases that do not fit the built-in roles:
 
-1. Navigate to **Admin → Roles**.
+1. Navigate to **Admin > Roles**.
 2. Click **New Role**.
-3. Enter a **Role Name** (snake_case, e.g. `data_steward`).
-4. Select the permissions to include.
-5. Click **Save**.
+3. Enter a **Role Name** using snake_case (e.g., `data_steward`, `study_coordinator`, `vocabulary_manager`).
+4. Select the permissions to include from the full permission checklist.
+5. Optionally add a **Description** explaining the role's purpose.
+6. Click **Save**.
 
-Custom roles can then be assigned to users on the User Management page.
+### Example Custom Roles
+
+| Custom Role | Permissions | Use Case |
+|-------------|-----------|----------|
+| `data_steward` | `view:sources`, `manage:sources`, `view:cohorts` | Source configuration without research access |
+| `study_coordinator` | `view:cohorts`, `view:analyses`, `view:patients` | Read-only research access with PHI |
+| `vocabulary_manager` | `view:sources`, `manage:system` (restricted) | Vocabulary upload and refresh only |
+| `genomics_analyst` | `view:cohorts`, `manage:genomics`, `view:patients` | Genomics-focused research role |
 
 ## Role Assignment
 
-Users can hold multiple roles. For example, a user might be both a `researcher` (for analytical work) and a `data_steward` (custom role with `manage:sources` permission for source configuration).
+Users can hold multiple roles simultaneously. Their effective permission set is the **union** of all permissions across all assigned roles. For example, a user with both `researcher` and `data_steward` roles can:
 
-Role assignments take effect immediately — the user's next API call uses the updated permission set.
+- Create and generate cohorts (from `researcher`)
+- Manage data sources (from `data_steward`)
+- Access patient timelines (from `researcher`)
+
+### Assignment Workflow
+
+1. Navigate to **Admin > Users**.
+2. Click **Edit** on the target user.
+3. In the **Roles** section, check or uncheck role boxes.
+4. Click **Save**.
+
+Role changes take effect **immediately** -- the user's next API call uses the updated permission set. No logout/login is required.
 
 ## Super-Admin Bypass
 
-Users with the `super-admin` role bypass all permission checks — they have access to all resources and actions regardless of their explicit permission list. Super-admin status is set in the database and cannot be self-assigned.
+Users with the `super-admin` role bypass all permission checks entirely. They have unrestricted access to every resource and action in the platform, regardless of their explicit permission list. Key properties:
+
+- Super-admin status is assigned via the database (through the admin UI or `admin:seed` command)
+- Super-admin users cannot remove their own super-admin role (prevents accidental lockout)
+- At least one super-admin must exist at all times
 
 :::warning Principle of least privilege
-Assign the minimum role required for each user's job function. Avoid granting `researcher` to users who only need to review existing results — use `viewer` instead. This limits the blast radius of compromised credentials.
+Assign the minimum role required for each user's job function. Specific guidelines:
+
+- **Do not grant `researcher` to users who only need to review results** -- use `viewer` instead
+- **Do not grant `super-admin` to department leads** -- use `admin` for user management without system configuration access
+- **Create custom roles** for specialized functions rather than over-granting built-in roles
+- **Review role assignments quarterly** to remove stale access
+
+This limits the blast radius of compromised credentials and satisfies compliance requirements for healthcare data governance (HIPAA minimum necessary standard).
 :::
+
+## Domain-Based Permissions
+
+For organizations requiring source-level access control, Parthenon supports domain-based permission scoping:
+
+- A researcher can be granted access to specific data sources rather than all sources
+- Patient timeline access can be restricted to specific CDM databases
+- Analysis execution can be limited to designated sources
+
+Configure domain-based permissions in **Admin > Users > [User] > Source Access**.
+
+## Permission Audit
+
+Navigate to **Admin > Roles > Permission Audit** to see a matrix of all roles and their permissions. This view helps administrators:
+
+- Verify that role configurations match organizational policies
+- Identify permission gaps or overlaps
+- Export the permission matrix as CSV for compliance documentation

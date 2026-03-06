@@ -129,7 +129,7 @@ const config: Config = {
             },
             {
               label: "Migration Guide",
-              to: "/migration/00-overview",
+              to: "/migration",
             },
           ],
         },

@@ -6,65 +6,259 @@ sidebar_label: "6. Building Cohorts"
 
 # Building Cohorts
 
-This chapter walks you through creating a complete cohort definition in Parthenon using the cohort builder UI. If you are new to OMOP cohorts, read [Chapter 5 — Cohort Expressions](05-cohort-expressions) first.
+This chapter walks you through creating a complete cohort definition in Parthenon using the visual cohort builder. The builder provides a structured, form-driven interface for constructing CIRCE cohort expressions without writing JSON or SQL. If you are new to OMOP cohort concepts, read [Chapter 5 --- Cohort Expressions](05-cohort-expressions) first.
+
+---
 
 ## Creating a New Cohort Definition
 
-1. Navigate to **Cohorts** in the top navigation.
+1. Navigate to **Cohorts** in the top navigation bar.
 2. Click **New Cohort Definition**.
-3. Enter a **Name** (e.g. "T2DM New Users — Metformin") and an optional **Description**.
-4. The cohort builder opens with three tabs: **Index Event**, **Inclusion Rules**, and **Cohort Exit**.
+3. Enter a **Name** (e.g., "T2DM New Users --- Metformin") and an optional **Description**.
+4. The cohort builder opens with collapsible sections for each part of the cohort expression.
 
-## Step 1: Define the Index Event
+The builder is organized into the following sections, each represented as a collapsible panel:
 
-The index event tab is where you define what clinical event qualifies a patient for cohort entry.
+| Section | Icon | Purpose |
+|---|---|---|
+| Primary Criteria | Target | Define the index event |
+| Inclusion Rules | Filter | Add qualifying criteria |
+| End Strategy | Clock | Configure cohort exit |
+| Demographic Filters | Users | Age, gender, race, ethnicity |
+| Censoring Criteria | Shield | Events that terminate observation |
+| Genomic Criteria | DNA | Molecular biomarker filters |
+| Imaging Criteria | Scan | DICOM imaging-based filters |
+| Settings | Settings | Qualified/expression limits, collapse |
 
-1. Click **Add Primary Event**.
-2. Select the **Domain** (e.g. Drug Exposure for a drug-based cohort).
-3. Click **Add Concept Set** and either select an existing concept set or click **New** to create one inline.
-4. Configure optional filters:
-   - **Date range** — restrict to events in a specific calendar period
-   - **First occurrence only** — check this for new-user designs
-   - **Age at event** — add age-range constraints
-   - **Visit type** — require events in specific visit settings
-5. Under **Observation window**, set the required continuous observation before index (e.g. "at least 365 days before index").
+---
 
-## Step 2: Add Inclusion Rules
+## Tab 1: Index Event (Primary Criteria)
 
-1. Click **+ Add Inclusion Rule** on the Inclusion Rules tab.
-2. Enter a rule **Name** (shown in attrition reports).
-3. Choose whether the rule must be **met (inclusion)** or **NOT met (exclusion)**.
-4. Click **Add Criteria** to add one or more clinical criteria to the rule.
-5. For each criterion:
-   - Select the **Domain**
-   - Attach a **Concept Set**
-   - Set the **time window** (e.g. "0 to 365 days before index")
-   - Set the **occurrence count** (e.g. "at least 1")
-6. Multiple criteria within a rule are combined with **AND** by default. Use the **ANY of** toggle to switch to OR logic.
-7. Repeat to add all required rules.
+The index event tab is where you define the clinical event that qualifies a patient for cohort entry. This is the most critical decision in cohort design.
 
-### Common Rule Patterns
+### Adding a Primary Event
 
-| Pattern | Description |
-|---------|-------------|
-| Prior diagnosis | At least 1 condition occurrence of concept set X in days −365 to −1 |
-| New user | 0 occurrences of drug concept set X in days −365 to −1 |
-| Minimum follow-up | At least 365 days of observation after index |
-| Demographics | Age 18+ at index (use the Demographic criteria type) |
+1. Expand the **Primary Criteria** section (open by default).
+2. Click **Add Primary Event** to add a domain criterion.
+3. Select the **Domain** from the domain selector:
+   - Condition Occurrence
+   - Drug Exposure
+   - Procedure Occurrence
+   - Measurement
+   - Observation
+   - Visit Occurrence
+   - Death
+4. Attach a **Concept Set** by selecting an existing one or creating a new one inline.
 
-## Step 3: Configure Cohort Exit
+### Configuring Domain-Specific Filters
 
-1. Switch to the **Cohort Exit** tab.
-2. Select the exit strategy:
-   - **End of continuous observation** (most common for pharmacoepidemiology)
-   - **Fixed days after index** — enter the number of days
-   - **Drug era end** — select the drug concept set defining the treatment era
-   - **Event criteria** — define an event that ends cohort membership
+Each domain offers specific filter options:
 
-## Saving the Definition
+**All domains:**
+- **First occurrence only** --- restricts to the chronologically earliest qualifying event per patient. Essential for new-user/incident cohort designs.
+- **Date range** --- limit events to a specific calendar window (useful for studies with enrollment periods).
+- **Age at event** --- numeric range filter on the patient's age at the time of the event.
 
-Click **Save** to persist the cohort definition. The definition is saved as CIRCE JSON and is ready to be generated against one or more data sources. The definition itself contains no patient data — it is just a specification.
+**Measurement-specific:**
+- **Value as number** --- apply a numeric threshold (e.g., HbA1c >= 7.0). Operators: `>`, `>=`, `<`, `<=`, `=`, `between`.
+- **Value as concept** --- filter by result concept (e.g., "Positive", "Abnormal").
+- **Unit** --- restrict to measurements with specific units.
+
+**Visit-specific:**
+- **Visit type** --- require the event to occur during a specific visit context (inpatient, outpatient, ED, long-term care).
+
+### Setting the Observation Window
+
+Below the primary event criteria, configure the required continuous observation:
+
+- **Prior days**: Minimum days of continuous observation _before_ the index date (e.g., 365 days for adequate lookback)
+- **Post days**: Minimum days of continuous observation _after_ the index date (e.g., 0 for no minimum follow-up requirement)
+
+:::warning Observation window impacts cohort size
+Requiring long observation windows (e.g., 730 days prior) significantly reduces cohort size because patients must have uninterrupted enrollment for the entire period. For claims databases with annual enrollment, even 365 days can cause substantial attrition. Check your data source's enrollment patterns before setting long windows.
+:::
+
+---
+
+## Tab 2: Inclusion Rules
+
+Inclusion rules refine the cohort by requiring (or prohibiting) additional clinical events relative to the index date. Each rule is named and appears as a row in the attrition report, making it easy to understand which criteria cause the most patient loss.
+
+### Adding an Inclusion Rule
+
+1. Expand the **Inclusion Rules** section.
+2. Click **+ Add Inclusion Rule**.
+3. Enter a descriptive **Rule Name** (e.g., "Has prior T2DM diagnosis", "No prior insulin use"). This name appears in the attrition report, so clarity matters.
+4. Set the **Group Logic**:
+   - **ALL** --- every criterion in this rule must be met
+   - **ANY** --- at least one criterion must be met
+   - **AT_MOST_0** --- no criteria must be met (exclusion logic)
+
+### Adding Criteria to a Rule
+
+For each criterion within a rule:
+
+1. Click **Add Criteria**.
+2. Select the **Domain** (Condition, Drug, Procedure, Measurement, etc.).
+3. Attach a **Concept Set**.
+4. Configure the **Temporal Window** --- days relative to the index date:
+   - Start and End days with direction (before index = negative coefficient, after = positive)
+   - Example: Start = 365 days before, End = 1 day before means the window `[-365, -1]`
+5. Set the **Occurrence Count**:
+   - `At least N` (type 2) --- e.g., "at least 1 diagnosis"
+   - `Exactly N` (type 0) --- e.g., "exactly 0 prior exposures" for washout
+   - `At most N` (type 1) --- e.g., "at most 2 prior visits"
+
+### Nesting Criteria Groups
+
+For complex logic, you can nest groups within a rule. Click **Add Group** within an existing group to create a sub-group with its own ALL/ANY/AT_MOST_0 logic. This enables expressions like:
+
+> "Has at least 1 T2DM diagnosis in the prior year AND (has HbA1c >= 7 OR has fasting glucose >= 126 mg/dL)"
+
+### Common Inclusion Rule Patterns
+
+| Pattern | Rule Name | Configuration |
+|---|---|---|
+| **Prior diagnosis** | "Has prior T2DM" | At least 1 ConditionOccurrence in T2DM set, [-365, -1] |
+| **New user washout** | "No prior metformin" | Exactly 0 DrugExposure in metformin set, [-365, -1] |
+| **Minimum follow-up** | "365 days follow-up" | At least 365 days of observation after index |
+| **Age restriction** | "Adults only" | Demographic filter: age >= 18 at index |
+| **Exclude outcome history** | "No prior MI" | Group type AT_MOST_0: ConditionOccurrence in MI set, [-9999, -1] |
+| **Require lab value** | "Has baseline HbA1c" | At least 1 Measurement in HbA1c set with value, [-180, 0] |
+| **Inpatient only** | "Inpatient setting" | At least 1 VisitOccurrence of type Inpatient, [0, 0] |
+
+:::tip Rule ordering for attrition
+Order your inclusion rules from least to most restrictive. This produces an attrition waterfall where the biggest drops appear last, making it easier to identify which criteria are most limiting. If a rule eliminates 90% of patients and appears first, subsequent rules will show misleadingly small drops.
+:::
+
+---
+
+## Tab 3: Cohort Exit
+
+The cohort exit strategy determines when each patient's cohort membership period ends. This directly affects the `cohort_end_date` written to the results table.
+
+### Exit Strategy Options
+
+1. **End of continuous observation** (default)
+   - The patient remains in the cohort until their continuous observation period ends (e.g., they disenroll from insurance, leave the health system, or the database coverage ends).
+   - Most common choice for pharmacoepidemiological studies.
+
+2. **Fixed duration after index**
+   - Set a fixed number of days after the index date.
+   - Choose the anchor: `StartDate` (index date) or `EndDate` (end of the index event).
+   - Example: 90 days after drug dispensing start for a 90-day outcome window.
+
+3. **Drug era end**
+   - Select a drug concept set and configure:
+     - **Gap days**: Maximum allowed gap between consecutive exposures before the era is considered ended (e.g., 30 days accommodates refill gaps).
+     - **Offset**: Days to add after the era end date (e.g., 30 to capture events shortly after discontinuation).
+   - Ideal for treatment cohorts where membership should match active therapy.
+
+:::info No event-based exit in the builder
+While the CIRCE specification supports event-based exit (cohort ends when a specific clinical event occurs), Parthenon currently implements exit via censoring criteria rather than a separate event-based exit panel. Add censoring criteria for events like death or competing risks.
+:::
+
+---
+
+## Additional Configuration Sections
+
+### Demographic Filters
+
+Expand the **Demographic Filters** section to add patient-level constraints:
+
+- **Age**: Numeric range at the index date (e.g., 18 to 89)
+- **Gender**: Select Male, Female, or both
+- **Race**: Select one or more OMOP race concepts
+- **Ethnicity**: Select one or more OMOP ethnicity concepts
+
+These filters are applied independently of inclusion rules and do not appear in the attrition waterfall.
+
+### Censoring Criteria
+
+Expand the **Censoring Criteria** section to define events that terminate a patient's cohort observation even if their continuous observation has not ended:
+
+- Add domain criteria (same interface as primary criteria) for events like death, transplant, or treatment switch.
+- Patients are censored at the first occurrence of any censoring event.
+
+### Settings (Limits and Collapse)
+
+Expand the **Settings** section to configure:
+
+- **Qualified Limit**: `First` (only earliest qualifying event per patient) or `All` (all qualifying events). Default: `First`.
+- **Expression Limit**: `First` (keep first event surviving inclusion rules) or `All`. Default: `First`.
+- **Collapse Settings**: Enable era collapse with a configurable `EraPad` (gap in days). When enabled, adjacent cohort entry periods separated by fewer than `EraPad` days are merged into a single continuous period.
+
+---
+
+## Genomic Criteria Panel (Phase 15)
+
+The **Genomic Criteria** section allows you to add molecular biomarker filters to the cohort definition. This extends the standard CIRCE format for precision medicine research.
+
+Available criterion types:
+- **Gene mutation** --- require or exclude a specific gene variant (e.g., EGFR L858R)
+- **Tumor mutational burden (TMB)** --- threshold on mutations per megabase
+- **Microsatellite instability (MSI)** --- status filter (MSS, MSI-L, MSI-H)
+- **Gene fusion** --- require a specific fusion event (e.g., ALK-EML4)
+- **Pathogenicity** --- ClinVar classification filter
+
+Each criterion can be toggled between inclusion and exclusion mode.
+
+---
+
+## Imaging Criteria Panel (Phase 16)
+
+The **Imaging Criteria** section adds DICOM imaging-based filters to cohort definitions. This is particularly useful for oncology, radiology, and multi-modal research studies.
+
+Available criterion types:
+- **Modality** --- filter by imaging modality (CT, MRI, PET, X-Ray, Ultrasound)
+- **Anatomy** --- filter by body part examined
+- **Quantitative** --- threshold on radiomics features (e.g., tumor volume > 2 cm)
+- **AI classification** --- require a specific AI model classification with minimum confidence
+- **Dose** --- maximum radiation dose constraint
+
+:::info Imaging data requirements
+Imaging criteria require DICOM metadata to be loaded into the CDM extension tables. If your data source does not include imaging data, these criteria will match zero patients. The imaging data pipeline is configured in **Admin > Imaging Sources**.
+:::
+
+---
+
+## Population Analytics Tab (Phase 16)
+
+After defining your cohort and generating it against a data source, the **Population Analytics** tab provides aggregate statistics about the generated cohort:
+
+- Age and gender distribution
+- Observation period coverage
+- Geographic distribution (if available)
+- Temporal trends in cohort entry over calendar time
+
+This tab is read-only and reflects the most recent generation results. It helps you quickly validate that the cohort composition matches expectations before proceeding to analyses.
+
+---
+
+## Saving and Versioning
+
+Click **Save** to persist the cohort definition. Key behaviors:
+
+- The definition is saved as CIRCE JSON in the `expression_json` column of the `cohort_definitions` table.
+- Each save increments the `version` number.
+- The definition itself contains **no patient data** --- it is purely a specification. Patient data is only produced during generation.
+- Saved definitions can be made public (visible to all users) or kept private.
 
 :::tip Naming conventions
-Use a consistent naming convention: `[Outcome/Exposure] — [Design variant] — [Version]`. For example: `GI Hemorrhage — Inpatient only — v2`. This makes attrition reports and publications easier to trace.
+Use a consistent naming convention for cohort definitions. A recommended format:
+
+```
+[Phenotype] --- [Design variant] --- [Version]
+```
+
+Examples:
+- `GI Hemorrhage --- Inpatient only --- v2`
+- `T2DM New Users --- 365d washout --- v1`
+- `NSCLC EGFR+ --- First-line --- v3`
+
+This makes attrition reports, study references, and publications easier to trace back to specific definitions.
+:::
+
+:::danger Do not modify generated cohorts
+Once a cohort has been generated and used in downstream analyses, modifying the definition and regenerating will invalidate all analysis results that reference it. Clone the definition and create a new version instead.
 :::

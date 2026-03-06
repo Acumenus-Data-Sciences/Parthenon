@@ -6,54 +6,128 @@ sidebar_label: "22. User Management"
 
 # User Management
 
-Parthenon's user management system controls who can access the platform, what roles they hold, and how they authenticate. All user management functions require the **admin** or **super-admin** role.
+Parthenon's user management system controls who can access the platform, what roles they hold, and how they authenticate. All user management functions require the **admin** or **super-admin** role and are accessed through the **Admin > Users** section.
 
 ## User List
 
-Navigate to **Admin → Users** to see all registered users. The list shows:
+Navigate to **Admin > Users** to see all registered users. The list displays a sortable, searchable table:
 
 | Column | Description |
 |--------|-------------|
-| Name | Full name |
-| Email | Login email address |
-| Roles | Assigned roles |
-| Status | Active / Suspended |
-| Must Change Password | Whether the user has a pending forced password change |
-| Last Login | Timestamp of most recent authentication |
-| Created | Account creation date |
+| **Name** | Full name of the user |
+| **Email** | Login email address (unique identifier) |
+| **Roles** | Assigned roles displayed as badges (e.g., `researcher`, `admin`) |
+| **Status** | Active (green) or Suspended (red) |
+| **Must Change Password** | Flag indicating a pending forced password change on next login |
+| **Last Login** | Timestamp of the most recent successful authentication |
+| **Created** | Account creation date |
+
+Use the search bar to filter by name or email. Click column headers to sort. The list supports pagination for organizations with many users.
 
 ## Creating a User
 
-1. Click **New User**.
+1. Click **New User** in the top right corner.
 2. Enter the user's **Full Name** and **Email Address**.
-3. Assign one or more **Roles** (see [Chapter 23 — Roles & Permissions](23-roles-permissions)).
+3. Assign one or more **Roles** (see [Chapter 23 -- Roles & Permissions](23-roles-permissions)).
 4. Click **Create User**.
 
-Parthenon generates a random temporary password and sends it to the user's email address via the configured mail provider. The user is required to change this password on their first login.
+### Password Generation and Delivery
+
+When a user is created, Parthenon:
+
+1. Generates a cryptographically random temporary password.
+2. Sets the `must_change_password` flag to `true` on the user record.
+3. Sends the temporary password to the user's email address via the configured mail provider (see [Chapter 25 -- System Configuration](25-system-configuration)).
+4. On the user's first login, a **non-dismissable password change modal** appears, requiring them to set a new password before accessing any platform features.
+
+:::info Mail configuration
+If mail is configured with the `log` driver (development mode), temporary passwords are written to the Laravel log file instead of being emailed. In production, configure a real mail provider (Resend, SMTP, Mailgun, or Amazon SES) to ensure users receive their credentials.
+:::
 
 ## Editing a User
 
-Click the **Edit** icon on any user row to:
+Click the **Edit** icon on any user row to open the edit panel:
 
-- Change the user's name or email
-- Add or remove roles
-- Reset the password (generates a new temporary password and emails it)
-- Suspend or reactivate the account
+- **Change name or email** -- update the user's display name or login email address
+- **Add or remove roles** -- modify role assignments (changes take effect on the user's next API call)
+- **Reset password** -- generates a new temporary password, emails it, and sets `must_change_password = true`
+- **Suspend or reactivate** -- toggle account access (see below)
 
 ## Suspending Accounts
 
-Suspended users cannot log in. Their existing session tokens are invalidated immediately. Suspension is reversible — click **Reactivate** to restore access.
+Suspended users cannot log in. When an account is suspended:
 
-Use suspension (rather than deletion) when an employee changes roles or takes leave, so their history and created objects are preserved.
+1. All existing session tokens (Sanctum personal access tokens) are immediately invalidated.
+2. Any active browser sessions are terminated on the next request.
+3. The user sees an "Account suspended" message if they attempt to log in.
+
+Suspension is **reversible** -- click **Reactivate** to restore full access. The user's data, created objects (cohort definitions, concept sets, analyses), and audit history are preserved.
+
+:::tip Use suspension over deletion
+When an employee changes roles, goes on leave, or transfers to a different department, suspend their account rather than deleting it. This preserves:
+- Their created cohort definitions and concept sets
+- Analysis execution history
+- Audit trail entries
+- Role and permission configuration (for easy reactivation)
+:::
 
 ## Deleting a User
 
-Deleting a user permanently removes their account. Objects they created (cohort definitions, concept sets, analyses) are reassigned to the admin performing the deletion. Use deletion only when the user account was created in error.
+Deleting a user permanently removes their account from Parthenon. Before deletion:
+
+- Objects they created (cohort definitions, concept sets, analyses) are **reassigned** to the administrator performing the deletion.
+- Audit log entries referencing this user are preserved with their original user ID for compliance.
+- Active sessions and tokens are destroyed.
+
+Use deletion only when an account was created in error. For all other cases, prefer suspension.
+
+:::warning Irreversible action
+User deletion cannot be undone. The user's authentication credentials, role assignments, and preferences are permanently removed. If the user needs access again in the future, a new account must be created.
+:::
 
 ## Bulk Import
 
-For onboarding large teams, use **Import Users** to upload a CSV file with columns `name,email,role`. Each row creates one account. Invitation emails are sent in batch.
+For onboarding large teams or organizations, use the **Import Users** feature:
 
-:::tip Self-registration
-If your administrator has enabled self-registration, new users can create accounts at `/register` using their institutional email. All self-registered accounts receive the **Viewer** role by default and must be upgraded by an admin.
+1. Click **Import Users** in the Admin > Users section.
+2. Upload a CSV file with the following columns:
+
+```csv
+name,email,role
+Jane Smith,jane.smith@hospital.org,researcher
+Bob Chen,bob.chen@hospital.org,viewer
+Alice Wong,alice.wong@hospital.org,admin
+```
+
+3. Parthenon validates the CSV:
+   - Checks for duplicate email addresses (against existing users and within the CSV)
+   - Validates role names against configured roles
+   - Flags any invalid email formats
+4. Click **Import** to create all accounts.
+5. Temporary passwords are generated and sent to each user via batch email.
+
+The import summary shows how many accounts were created, skipped (duplicates), and failed (validation errors).
+
+## Self-Registration
+
+If the administrator has enabled self-registration in [System Configuration](25-system-configuration), new users can create accounts at the `/register` page:
+
+1. User enters their **name** and **email address**.
+2. Parthenon generates a temporary password and emails it.
+3. The user logs in with the temporary password and must change it immediately.
+4. All self-registered accounts receive the **Viewer** role by default.
+5. An administrator must manually upgrade the user's role (to `researcher` or higher) to grant additional permissions.
+
+:::tip Institutional email restriction
+For security, consider restricting self-registration to specific email domains (e.g., `@yourhospital.org`). This prevents unauthorized external users from creating accounts. Configure the allowed domain list in **Admin > System Configuration > Registration Settings**.
 :::
+
+## Admin Seed Command
+
+For initial setup or after a fresh database migration, use the Artisan command to create the super-admin account:
+
+```bash
+php artisan admin:seed
+```
+
+This interactive command prompts for the admin's name, email, and password. It uses `upsert` logic -- if an account with the specified email already exists, it updates the existing record rather than creating a duplicate. The seeded admin has `must_change_password = false` so they can access the system immediately.

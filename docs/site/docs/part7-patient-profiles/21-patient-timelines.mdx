@@ -6,57 +6,153 @@ sidebar_label: "21. Patient Timelines"
 
 # Patient Timelines
 
-The **Patient Timelines** feature provides an interactive, event-level view of an individual patient's clinical history drawn from the OMOP CDM. It displays all clinical events — conditions, drugs, procedures, measurements, visits, observations — on a chronological timeline, enabling clinical review, phenotype validation, and case study work.
+The **Patient Timelines** feature provides an interactive, event-level view of an individual patient's complete clinical history drawn from the OMOP CDM. It displays all clinical events -- conditions, drugs, procedures, measurements, visits, observations, and device exposures -- on a chronological timeline, enabling clinical review, phenotype validation, cohort quality assessment, and case study work.
 
 ## Access Requirements
 
-Patient Timelines displays **Protected Health Information (PHI)** and requires:
+Patient Timelines displays **Protected Health Information (PHI)** at the individual patient level. Access requires:
 
-- The **Researcher** role (minimum) or higher
+- The **Researcher** role (minimum) or a custom role with the `view:patients` permission
 - A data source with a properly configured CDM daimon
 - Explicit administrator enablement of patient-level access for your account
+- An active data use agreement covering individual-level data access
 
-If you do not see the **Patients** menu item, contact your administrator to request access.
+If you do not see the **Patients** menu item in the navigation, contact your administrator to request access.
+
+:::danger PHI compliance
+All patient timeline access is logged in the audit trail with your user ID, the person ID viewed, and a UTC timestamp. Sharing patient-identifiable information outside your authorized data use agreement may violate HIPAA, GDPR, or institutional policies. See [Chapter 26 -- Audit Log](../part8-administration/26-audit-log) for details on access monitoring.
+:::
 
 ## Finding a Patient
 
-Navigate to **Patients → Patient Timelines**. You can locate patients by:
+Navigate to **Patients > Patient Timelines**. You can locate patients through two methods:
 
-- **Person ID** — direct lookup by OMOP `person_id` (integer)
-- **Cohort membership** — browse patients within a generated cohort
+### Direct Lookup
 
-When browsing cohort patients, the list shows person IDs sorted by cohort start date. Click any patient to open their timeline.
+Enter an OMOP `person_id` (integer) in the search field and press Enter. The timeline loads immediately if the person exists in the selected data source.
 
-:::warning PHI handling
-All patient searches and timeline views are logged in the audit log with your user ID and timestamp. Do not share patient-identifiable information outside your authorized data use agreement.
+### Cohort Browse
+
+1. Select a generated cohort from the **Cohort** dropdown.
+2. The cohort member list shows person IDs sorted by cohort start date, along with:
+   - Cohort start and end dates
+   - Age at cohort entry
+   - Gender
+   - Observation period span
+3. Click any row to open that patient's timeline.
+
+This workflow is particularly useful for validating cohort definitions -- review several patients' clinical histories to confirm the cohort phenotype is capturing the intended population.
+
+:::tip Phenotype validation
+When validating a new cohort definition, review at least 20-30 patient timelines from the generated cohort. Look for:
+- **True positives** -- patients who clearly match the intended phenotype
+- **False positives** -- patients captured by the logic but who do not truly have the condition/exposure
+- **Edge cases** -- patients where the classification is ambiguous
+
+Document your findings to refine the cohort definition iteratively.
 :::
 
 ## Timeline View
 
-The timeline shows events on a horizontal time axis with:
+The timeline displays events on a horizontal time axis with the following visual elements:
 
-- **Color-coded event bands** — each domain has a distinct color (conditions = purple, drugs = orange, measurements = teal, visits = blue, procedures = green)
-- **Observation periods** — shown as gray bars behind events indicating periods of continuous observation
-- **Zoom controls** — click-drag to zoom into a specific time window; double-click to zoom out
-- **Event tooltips** — hover over any event to see concept ID, concept name, source value, and dates
+### Event Bands
+
+Each clinical domain is rendered as a horizontal band with a distinct color:
+
+| Domain | Color | Event Shape |
+|--------|-------|------------|
+| **Conditions** | Purple | Duration bar (start to end date) |
+| **Drugs** | Orange | Duration bar (exposure period) |
+| **Measurements** | Teal | Point marker (measurement date) |
+| **Visits** | Blue | Duration bar (visit start to end) |
+| **Procedures** | Green | Point marker (procedure date) |
+| **Observations** | Gray | Point marker |
+| **Device Exposures** | Amber | Duration bar |
+
+### Observation Periods
+
+Gray background bars span each continuous observation period, indicating when the patient was actively enrolled and generating data. Events outside observation periods may indicate data quality issues.
+
+### Navigation Controls
+
+- **Click-drag** -- zoom into a specific time window
+- **Double-click** -- zoom out to the full timeline
+- **Scroll wheel** -- zoom in/out at the cursor position
+- **Arrow keys** -- pan left/right along the time axis
+- **Minimap** -- a compressed overview bar at the bottom shows the full timeline with a viewport indicator
+
+### Event Tooltips
+
+Hover over any event to see a tooltip with:
+
+- Standard concept name and concept ID
+- Source value and source concept ID
+- Start and end dates
+- Domain-specific fields (e.g., value and unit for measurements, days supply for drugs)
+- Visit context (which visit this event belongs to)
 
 ## Event Detail Panel
 
-Click any event to open the detail panel, which shows all available CDM fields for that record:
+Click any event to open the detail panel on the right side of the screen. The panel displays all available CDM fields for the selected record:
 
-- Concept IDs and names (standard and source)
-- Dates (start, end, visit context)
-- Type concept, quantity, dose, units (domain-specific fields)
-- Visit link — click to highlight all events from the same visit
+### Common Fields
+
+- **Concept IDs** -- standard concept ID/name and source concept ID/name
+- **Dates** -- start date, end date, and visit date
+- **Type concept** -- provenance of the record (EHR, claim, self-report, etc.)
+- **Visit link** -- click to highlight all events from the same visit encounter
+
+### Domain-Specific Fields
+
+| Domain | Additional Fields |
+|--------|------------------|
+| **Conditions** | Condition status (active, resolved, history of), stop reason |
+| **Drugs** | Quantity, days supply, refills, dose, route, sig |
+| **Measurements** | Value (numeric or concept), unit, range (low/high), operator |
+| **Procedures** | Modifier, quantity |
+| **Observations** | Value (numeric, string, or concept), qualifier, unit |
 
 ## Filtering the Timeline
 
-Use the **Filter** panel (right sidebar) to show/hide domains, date ranges, or specific concept sets. For example, to focus on diabetes-related events:
+The **Filter** panel (right sidebar, toggle with the filter icon) provides multiple ways to focus the timeline:
 
-1. Click **Filter by Concept Set**
-2. Select your "Type 2 Diabetes" concept set
-3. The timeline highlights matching events and fades unrelated events
+### Domain Filters
+
+Toggle visibility of each clinical domain independently. For example, hide conditions and procedures to focus exclusively on the drug-lab relationship.
+
+### Date Range
+
+Set a custom date range to zoom into a specific period (e.g., "6 months before and after cohort entry date").
+
+### Concept Set Filter
+
+1. Click **Filter by Concept Set**.
+2. Select a saved concept set (e.g., "Type 2 Diabetes Conditions").
+3. The timeline highlights matching events with full opacity and fades unrelated events to 20% opacity.
+4. Matching event count is shown in the filter badge.
+
+This is invaluable for answering questions like "When did this patient's diabetes-related events begin, and what medications followed?"
+
+### Search
+
+Free-text search across concept names and source values to find specific events (e.g., search "metformin" to highlight all metformin-related drug exposures).
+
+## Event Chronology Table
+
+Below the visual timeline, a sortable table lists all events in chronological order with columns for date, domain, concept name, source value, and key attributes. This table view is useful for:
+
+- Exporting a patient's event list
+- Sorting events by a specific column
+- Quickly counting events by domain
 
 ## Export
 
-Click **Export Timeline** to download the patient's event list as a CSV file for offline review or case narrative writing.
+Click **Export Timeline** to download the patient's event data:
+
+- **CSV** -- full event list with all CDM columns, suitable for case narrative writing or external analysis
+- **PDF** -- formatted timeline report with visual chart and event table, suitable for clinical review or tumor board presentation
+
+:::warning Export audit
+All timeline exports are logged in the audit trail. The exported file contains PHI and must be handled according to your institutional data governance policies. Do not email exports or store them on unsecured devices.
+:::

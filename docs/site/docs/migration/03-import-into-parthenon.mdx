@@ -30,11 +30,11 @@ docker compose exec php php artisan parthenon:import-atlas-cohorts \
 The command outputs a line per cohort:
 
 ```
-  ✓ Imported T2DM New Users
-  ↷ Skipped GI Hemorrhage (duplicate)
-  ✗ Failed Bad Cohort: Missing PrimaryCriteria
+  Imported T2DM New Users
+  Skipped GI Hemorrhage (duplicate)
+  Failed Bad Cohort: Missing PrimaryCriteria
 
-  ✓ Imported 45  ↷ Skipped 3 (duplicate)  ✗ Failed 1
+  Imported 45  Skipped 3 (duplicate)  Failed 1
 ```
 
 Cohorts with a name that already exists in Parthenon are skipped (not overwritten). To re-import a modified cohort, either delete the existing one first or rename the imported file.
@@ -65,11 +65,11 @@ docker compose exec php php artisan parthenon:import-atlas-concept-sets \
 Output:
 
 ```
-  ✓ Imported Type 2 Diabetes (3 concepts)
-  ✓ Imported Metformin (12 concepts)
-  ↷ Skipped Hypertension (duplicate)
+  Imported Type 2 Diabetes (3 concepts)
+  Imported Metformin (12 concepts)
+  Skipped Hypertension (duplicate)
 
-  ✓ Imported 28  ↷ Skipped 2 (duplicate)  ✗ Failed 0
+  Imported 28  Skipped 2 (duplicate)  Failed 0
 ```
 
 ### Expected Atlas Concept Set JSON Format
@@ -129,7 +129,7 @@ docker compose exec php php artisan parthenon:import-webapi-sources \
 This fetches the source list from `{WebAPI-URL}/source/sources` and creates matching Source and SourceDaimon records in Parthenon.
 
 :::warning Connection strings
-The imported source record will contain the JDBC connection string from Atlas. Parthenon uses PostgreSQL JDBC-style connection strings. Verify the imported source connection works by clicking **Test Connection** in Admin → Data Sources.
+The imported source record will contain the JDBC connection string from Atlas. Parthenon uses PostgreSQL JDBC-style connection strings. Verify the imported source connection works by clicking **Test Connection** in Admin --> Data Sources.
 :::
 
 ## 3.4 Verify Imported Records
@@ -157,8 +157,12 @@ A count mismatch is usually caused by duplicate names (skipped) or validation fa
 
 ### Comparison Checklist
 
-- [ ] Cohort count in Parthenon ≈ cohort count in Atlas (accounting for duplicates skipped)
-- [ ] Concept set count in Parthenon ≈ concept set count in Atlas
+- [ ] Cohort count in Parthenon is approximately equal to cohort count in Atlas (accounting for duplicates skipped)
+- [ ] Concept set count in Parthenon is approximately equal to concept set count in Atlas
 - [ ] At least one data source configured with CDM, Vocabulary, and Results daimons
-- [ ] Data source test connection passes (Admin → Data Sources → Test)
-- [ ] Vocabulary is loaded and searchable (Vocabulary → Browse Concepts)
+- [ ] Data source test connection passes (Admin --> Data Sources --> Test)
+- [ ] Vocabulary is loaded and searchable (Vocabulary --> Browse Concepts)
+
+:::tip Post-Import: Explore New Features
+After importing your Atlas artefacts, consider exploring Parthenon's new capabilities that go beyond Atlas: Genomics (VCF upload), Imaging (DICOM viewer), HEOR (cost-effectiveness), and FHIR EHR integration. See the [Feature Comparison](06-feature-comparison) for the full list.
+:::

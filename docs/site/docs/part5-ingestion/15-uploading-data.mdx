@@ -6,50 +6,105 @@ sidebar_label: "15. Uploading Data"
 
 # Uploading Data
 
-Parthenon includes a data ingestion pipeline for uploading source data and transforming it into OMOP CDM format. This chapter covers the upload step; see [Chapter 16 — Schema Mapping](16-schema-mapping) and [Chapter 17 — Concept Mapping](17-concept-mapping) for the subsequent ETL steps.
+Parthenon includes a production-grade data ingestion pipeline for uploading source data and transforming it into OMOP CDM v5.4 format. This chapter covers the upload step -- the first stage of the ETL (Extract, Transform, Load) process. See [Chapter 16 -- Schema Mapping](16-schema-mapping) and [Chapter 17 -- Concept Mapping](17-concept-mapping) for the subsequent transformation and vocabulary mapping steps.
 
 ## Supported Upload Formats
 
-| Format | Description |
-|--------|-------------|
-| CSV | Comma-separated values (UTF-8 encoding required) |
-| TSV | Tab-separated values |
-| Parquet | Apache Parquet columnar format (recommended for large files) |
-| Excel (.xlsx) | Single-sheet Excel files (converted to CSV internally) |
+Parthenon accepts the most common data interchange formats used in healthcare and clinical research:
 
-Maximum file size per upload: **500 MB** per file, up to **20 files** per batch. For larger datasets, use the bulk loader CLI described below.
+| Format | Extension | Description | Best For |
+|--------|-----------|-------------|----------|
+| **CSV** | `.csv` | Comma-separated values (UTF-8 encoding required) | Claims data, registry exports |
+| **TSV** | `.tsv` | Tab-separated values | Lab extracts, delimiter-sensitive data |
+| **Parquet** | `.parquet` | Apache Parquet columnar format | Large datasets, high performance |
+| **Excel** | `.xlsx` | Single-sheet Excel workbooks (converted to CSV internally) | Ad-hoc uploads, small datasets |
 
-## Uploading Files
+:::info File size limits
+The web upload interface supports files up to **500 MB** each, with a maximum of **20 files** per batch. For larger datasets, use the CLI bulk loader described below. Parquet files are strongly recommended for datasets exceeding 100 MB due to their columnar compression and faster parsing.
+:::
 
-1. Navigate to **Data Ingestion → Upload Data**.
-2. Click **New Upload Batch** and enter a **Batch Name** (e.g. "Claims Q4 2025").
-3. Select a **Target Data Source** — the source that will receive the ingested data.
-4. Drag and drop files into the upload area, or click **Browse Files**.
+## Uploading Files via the Web Interface
+
+1. Navigate to **Data Ingestion > Upload Data** from the main navigation.
+2. Click **New Upload Batch** and enter a descriptive **Batch Name** (e.g., "Claims Q4 2025" or "EHR Extract - Site Alpha").
+3. Select a **Target Data Source** -- the configured data source that will receive the ingested data. Only sources where you have write access are shown.
+4. Drag and drop files into the upload area, or click **Browse Files** to select from your local filesystem.
 5. Click **Start Upload**. Files are uploaded to the server and staged in the ingestion schema.
 
-Each file is shown with its upload progress, detected row count, and column headers after parsing.
+Each file displays a real-time progress bar during upload. After upload completes, the system parses the file and shows:
+
+- **Row count** -- total data rows detected (excluding headers)
+- **Column headers** -- detected column names with inferred data types
+- **File size** -- original and on-disk size
+- **Parse status** -- success, warnings (e.g., encoding issues), or failure
+
+:::tip Naming conventions
+Use descriptive filenames that indicate the source system and content type (e.g., `claims_pharmacy_2025q4.csv` rather than `data_export.csv`). Parthenon preserves the original filename for traceability throughout the ETL pipeline.
+:::
 
 ## Staging Schema
 
-Uploaded files are stored in a staging schema (configurable, defaults to `staging`) as raw tables named after the uploaded filenames (sanitized). No data transformation occurs at this step — the raw data is preserved exactly as uploaded for the mapping step.
+Uploaded files are stored in a staging schema (configurable per source, defaults to `staging`) as raw tables named after the uploaded filenames (sanitized to valid PostgreSQL identifiers). Key properties of the staging layer:
+
+- **No transformation** -- raw data is preserved exactly as uploaded. Column names, data types, and values remain unchanged.
+- **Isolation** -- each upload batch creates its own set of staging tables, preventing collisions between concurrent uploads.
+- **Retention** -- staging data is retained until explicitly purged by an administrator or replaced by a subsequent upload to the same batch.
+- **Inspection** -- you can preview any staging table directly from the upload detail page to verify data before mapping.
 
 ## Bulk Loader CLI
 
-For large datasets that exceed the web upload limit, use the CLI bulk loader:
+For large datasets that exceed the web upload limit, or for automated ETL pipelines, use the Artisan CLI bulk loader:
 
 ```bash
 php artisan ingestion:load \
   --source=my_source \
-  --batch="My Batch" \
+  --batch="Claims Q4 2025" \
   --path=/data/claims/q4-2025/
 ```
 
-This reads all CSV/Parquet files from the specified directory and loads them directly into the staging schema, bypassing the web upload size limit.
+This command reads all CSV and Parquet files from the specified directory and loads them directly into the staging schema using PostgreSQL `COPY` for maximum throughput, bypassing the web upload size limit entirely.
+
+**CLI options:**
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--source` | Source key (from Data Sources configuration) | Required |
+| `--batch` | Batch name for grouping | Required |
+| `--path` | Directory containing data files | Required |
+| `--format` | Force file format (`csv`, `tsv`, `parquet`) | Auto-detect |
+| `--delimiter` | CSV delimiter character | `,` |
+| `--encoding` | Input file encoding | `UTF-8` |
+| `--truncate` | Truncate existing staging tables before load | `false` |
+
+:::warning Data privacy
+Uploaded data is stored unencrypted in the staging schema within your PostgreSQL database. Ensure your database security, network access controls, and audit logging are properly configured before uploading patient data. Parthenon does not anonymize or de-identify uploaded data automatically. All upload actions are recorded in the [Audit Log](../part8-administration/26-audit-log).
+:::
 
 ## Upload History
 
-Navigate to **Data Ingestion → Upload History** to see all past upload batches with their status, file counts, and row totals. Click any batch to view per-file statistics and re-trigger mapping if needed.
+Navigate to **Data Ingestion > Upload History** to view all past upload batches. The history view shows:
 
-:::warning Data privacy
-Uploaded data is stored unencrypted in the staging schema within your PostgreSQL database. Ensure your database security, network access controls, and audit logging are configured before uploading patient data. Parthenon does not anonymize or de-identify uploaded data automatically.
+| Column | Description |
+|--------|-------------|
+| **Batch Name** | User-provided name for the upload batch |
+| **Target Source** | Data source receiving the data |
+| **Files** | Number of files in the batch |
+| **Total Rows** | Sum of rows across all files |
+| **Status** | Staged / Mapped / Imported / Failed |
+| **Uploaded By** | User who performed the upload |
+| **Date** | Upload timestamp |
+
+Click any batch to view per-file statistics, preview staging data, and proceed to the [Schema Mapping](16-schema-mapping) step.
+
+## Troubleshooting Uploads
+
+| Symptom | Likely Cause | Resolution |
+|---------|-------------|------------|
+| Upload fails at 100% | Server timeout for large files | Use the CLI bulk loader instead |
+| Garbled characters in preview | Non-UTF-8 encoding | Re-export source data as UTF-8, or specify encoding in CLI |
+| Zero rows detected | Header-only file or wrong delimiter | Check file contents and delimiter settings |
+| Duplicate batch error | Batch name already exists for this source | Use a unique batch name or append a timestamp |
+
+:::danger Do not upload PHI to development environments
+If you are running Parthenon in a development or demo environment without proper HIPAA safeguards, do not upload real patient data. Use synthetic datasets such as [SynPUF](https://www.cms.gov/data-research/statistics-trends-and-reports/medicare-claims-synthetic-public-use-files) or [Synthea](https://synthetichealth.github.io/synthea/) for testing.
 :::

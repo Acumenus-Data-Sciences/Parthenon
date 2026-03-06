@@ -6,57 +6,138 @@ sidebar_label: "17. Concept Mapping"
 
 # Concept Mapping
 
-**Concept mapping** (also called code mapping or vocabulary mapping) translates source codes in your data (ICD-10-CM diagnosis codes, NDC drug codes, LOINC lab codes, etc.) into OMOP standard concept IDs. This step is required to make your CDM data queryable using the standardized vocabulary and enables cross-database analyses.
+**Concept mapping** (also called code mapping or vocabulary mapping) translates source codes in your data -- ICD-10-CM diagnosis codes, NDC drug codes, LOINC lab codes, CPT procedure codes, and other terminologies -- into OMOP standard concept IDs. This step is essential for making your CDM data queryable using the standardized OMOP vocabulary and enables cross-database analyses across institutions using different source coding systems.
 
 ## Why Concept Mapping Matters
 
-Source data typically uses local or non-standard terminologies:
+Source data typically uses local or domain-specific terminologies that vary by institution, vendor, and country:
 
-- ICD-10-CM codes for diagnoses (e.g. `E11.9` for T2DM without complications)
-- NDC codes for drug dispensings
-- CPT-4 codes for procedures
-- Custom lab identifiers from the EHR
+| Source Terminology | Domain | Example Code | Example Meaning |
+|-------------------|--------|-------------|-----------------|
+| ICD-10-CM | Conditions | `E11.9` | Type 2 diabetes without complications |
+| NDC | Drugs | `00002-7510-01` | Metformin 500mg tablet |
+| CPT-4 | Procedures | `99213` | Office visit, established patient |
+| LOINC | Measurements | `2339-0` | Glucose [Mass/volume] in Blood |
+| SNOMED CT | Observations | `73211009` | Diabetes mellitus |
 
-OMOP CDM stores these source codes in `*_source_value` columns for traceability, but all analytical queries use standardized concept IDs (SNOMED for conditions, RxNorm for drugs, LOINC for labs). The mapping step populates `*_concept_id` and `*_source_concept_id` columns correctly.
+OMOP CDM stores the original source codes in `*_source_value` and `*_source_concept_id` columns for full traceability, but all analytical queries use **standardized concept IDs** in the `*_concept_id` columns:
+
+- **SNOMED CT** for conditions
+- **RxNorm** for drugs
+- **LOINC** for measurements
+- **SNOMED CT** for procedures (or CPT4 mapped to SNOMED)
+
+The concept mapping step populates these standardized concept ID columns correctly, enabling your data to participate in network studies and standardized analytics.
 
 ## Automatic Mapping
 
-Parthenon can automatically map many source codes using the `concept_relationship` table in the OMOP vocabulary:
+Parthenon leverages the OMOP vocabulary's `concept_relationship` table to automatically map source codes to standard concepts:
 
-1. Navigate to the mapping results for your upload batch.
-2. Click **Auto-Map** on the Concept Mapping tab.
-3. Parthenon queries the vocabulary for `Maps to` relationships from your source codes.
-4. Codes with a single unambiguous standard mapping are auto-applied.
-5. Codes with multiple mappings or no mapping are flagged for manual review.
+1. Navigate to the mapping results for your upload batch (after schema mapping is complete).
+2. Click the **Concept Mapping** tab.
+3. Click **Auto-Map** to start the automatic mapping process.
+4. Parthenon queries the vocabulary for `Maps to` relationships from each source code.
+5. The system categorizes results:
+   - **Mapped** -- single unambiguous standard concept found; auto-applied
+   - **Review** -- multiple possible standard concepts found; requires manual selection
+   - **Unmapped** -- no `Maps to` relationship exists in the vocabulary
+
+:::info Auto-mapping coverage
+For well-coded claims data using standard terminologies (ICD-10-CM, NDC, CPT-4), auto-mapping typically achieves 85-95% coverage. EHR data with local codes or free-text descriptions will have lower auto-mapping rates and require more manual review.
+:::
 
 ## Manual Mapping Review
 
-The mapping review table shows:
+The mapping review table provides a comprehensive view of all source codes and their mapping status:
 
 | Column | Description |
 |--------|-------------|
-| Source Value | The raw code from your data |
-| Source Vocab | Detected vocabulary (ICD10CM, NDC, CPT4, etc.) |
-| Frequency | How many rows have this source value |
-| Auto-mapped to | Concept ID and name from auto-mapping (if found) |
-| Status | Mapped / Unmapped / Review needed |
+| **Source Value** | The raw code from your data (e.g., `E11.9`) |
+| **Source Vocabulary** | Detected vocabulary (ICD10CM, NDC, CPT4, LOINC, HCPCS, etc.) |
+| **Frequency** | Number of rows in your data containing this source code |
+| **Auto-Mapped To** | Standard concept ID and name from auto-mapping (if found) |
+| **Confidence** | Mapping confidence score (High / Medium / Low) |
+| **Status** | Mapped / Unmapped / Review Needed |
 
-For unmapped codes, click the **search icon** to open a concept search dialog and manually select the correct standard concept. Click **Accept** to apply the mapping.
+### Resolving Unmapped Codes
+
+For codes with no automatic mapping or those flagged for review:
+
+1. Click the **search icon** next to the unmapped code to open the concept search dialog.
+2. Search by code, name, or keyword in the OMOP vocabulary.
+3. Review candidate standard concepts with their domain, vocabulary, and validity dates.
+4. Click **Accept** to apply the mapping.
+5. Optionally check **Apply to all** to map all occurrences of this source code across all batches.
+
+### Bulk Review Workflow
+
+For large mapping efforts, use the bulk review tools:
+
+- **Sort by frequency** -- map high-frequency codes first for maximum impact
+- **Filter by status** -- show only unmapped or review-needed codes
+- **Filter by domain** -- focus on one clinical domain at a time
+- **Batch accept** -- accept all high-confidence auto-mappings in one click
 
 ## Unmappable Codes
 
-Some source codes cannot be mapped to a standard OMOP concept because:
+Some source codes cannot be mapped to a standard OMOP concept. Common reasons:
 
-- The code is a local custom code with no vocabulary entry
-- The OMOP vocabulary for this domain does not cover this terminology
-- The code is malformed or a data quality issue
+- **Custom local codes** -- institution-specific codes not in any standard vocabulary
+- **Vocabulary gaps** -- the OMOP vocabulary does not yet include this terminology
+- **Malformed codes** -- truncated, invalid, or data entry errors
+- **Deprecated codes** -- codes that have been retired from their source vocabulary
 
-For unmappable codes, set the concept ID to `0` (the OMOP convention for "no standard concept"). These records will still appear in `*_source_value` columns and can be queried directly if needed.
+For unmappable codes, set the concept ID to `0` -- the OMOP convention meaning "no standard concept available." These records will still appear in `*_source_value` columns and can be queried directly when needed. The source concept ID (`*_source_concept_id`) should still be populated if the source code exists in the vocabulary, even without a standard mapping.
+
+:::warning Concept ID 0 impact
+Records mapped to concept ID 0 are excluded from most standard OHDSI analyses (incidence rates, characterization, cohort definitions) because these analyses filter on standard concepts. Track your concept 0 rate as a key data quality metric -- high rates indicate vocabulary gaps that may bias your analyses.
+:::
 
 ## Exporting and Importing Mapping Tables
 
-Concept mapping tables can be exported as CSV and imported into other Parthenon instances handling the same source system. This enables a "build once, reuse everywhere" approach for multi-site studies using the same data vendor.
+Concept mapping tables can be exported and shared across Parthenon instances:
 
-:::tip Usagi
-For large-scale manual concept mapping, consider using [OHDSI Usagi](https://ohdsi.github.io/Usagi/) — a standalone tool that uses NLP-assisted concept suggestions. Export your Usagi mapping file and import it into Parthenon to skip the manual review step.
+### Export
+
+1. Navigate to the completed concept mapping for a batch.
+2. Click **Export Mappings** to download a CSV file containing:
+   - Source vocabulary, source code, source name
+   - Target standard concept ID, concept name, domain
+   - Mapping status and reviewer notes
+
+### Import
+
+1. Navigate to **Data Ingestion > Concept Mappings**.
+2. Click **Import Mapping File**.
+3. Upload a previously exported CSV mapping file.
+4. Parthenon validates the target concept IDs against the current vocabulary and flags any concepts that have been deprecated or invalidated since the export.
+
+This enables a "build once, reuse everywhere" approach for multi-site studies using the same source system or data vendor.
+
+## Integration with Usagi
+
+For large-scale manual concept mapping projects, Parthenon integrates with [OHDSI Usagi](https://ohdsi.github.io/Usagi/) -- a standalone Java tool that provides NLP-assisted concept suggestions based on term similarity:
+
+1. Export your unmapped codes from Parthenon as a Usagi-compatible CSV.
+2. Open the export in Usagi and use its similarity-based suggestions to find appropriate standard concepts.
+3. Review and approve mappings in Usagi's interface.
+4. Export the completed Usagi mapping file.
+5. Import the Usagi output back into Parthenon to apply all mappings at once.
+
+:::tip Vocabulary updates
+When you update your OMOP vocabulary (see [Chapter 25 -- System Configuration](../part8-administration/25-system-configuration)), re-run auto-mapping on existing unmapped codes. New vocabulary releases often add mappings for previously unmappable codes, especially for newer ICD-10-CM codes and drug products.
 :::
+
+## Mapping Quality Metrics
+
+After concept mapping is complete, the summary dashboard shows:
+
+| Metric | Description | Target |
+|--------|-------------|--------|
+| **Overall mapping rate** | % of source codes with a standard concept | > 90% |
+| **Frequency-weighted rate** | % of data rows with a mapped concept | > 95% |
+| **Concept 0 rate** | % of rows mapped to concept ID 0 | < 5% |
+| **Review pending** | Codes still awaiting manual review | 0 |
+| **Domain coverage** | Mapping rates per clinical domain | Varies |
+
+These metrics help assess whether your ETL is producing analysis-ready data or requires additional vocabulary work.

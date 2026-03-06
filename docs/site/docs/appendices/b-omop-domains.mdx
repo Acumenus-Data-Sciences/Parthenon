@@ -6,7 +6,7 @@ sidebar_label: "B. OMOP Domains"
 
 # Appendix B — OMOP Domains
 
-The OMOP CDM v5.4 organizes clinical data into **domains**, each stored in one or more tables. Understanding domains is essential for building correct cohort criteria and analyses.
+The OMOP CDM v5.4 organizes clinical data into **domains**, each stored in one or more tables. Understanding domains is essential for building correct cohort criteria, analyses, and for mapping extended data types (genomics, imaging) into the standardized model.
 
 ## Domain Reference
 
@@ -22,8 +22,40 @@ The OMOP CDM v5.4 organizes clinical data into **domains**, each stored in one o
 | Device | `device_exposure` | SNOMED CT | Medical devices used (implants, prosthetics, monitors) |
 | Death | `death` | SNOMED CT, ICD10CM | Cause of death and mortality status |
 | Specimen | `specimen` | SNOMED CT | Biological specimens collected |
-| Note | `note` | — | Unstructured clinical notes (text) |
-| Note NLP | `note_nlp` | — | NLP-extracted entities from clinical notes |
+| Note | `note` | --- | Unstructured clinical notes (text) |
+| Note NLP | `note_nlp` | --- | NLP-extracted entities from clinical notes |
+
+## Genomics and the Measurement Domain
+
+Parthenon's Genomics module maps genomic variant data into the OMOP CDM using the **Measurement** domain. This follows the OHDSI Genomic CDM Working Group conventions:
+
+| Genomic Data Element | OMOP Mapping | Details |
+|---------------------|-------------|---------|
+| Genetic variant (SNV, indel) | `measurement` row | `measurement_concept_id` maps to a genomic measurement concept; `value_as_concept_id` encodes the variant allele |
+| Gene name | `measurement.measurement_source_value` | HUGO gene symbol (e.g., `BRCA1`, `TP53`) stored as source value |
+| Variant classification | `measurement.value_as_concept_id` | Pathogenic, Likely Pathogenic, VUS, Benign, etc. mapped to OMOP concepts |
+| Zygosity | `measurement.qualifier_concept_id` | Heterozygous, Homozygous, Hemizygous |
+| Allele frequency | `measurement.value_as_number` | Variant allele frequency (0.0 -- 1.0) |
+
+:::info VCF to OMOP Pipeline
+When you upload a VCF file in the Genomics module, Parthenon parses variants and creates corresponding `measurement` rows linked to the patient via `person_id`. ClinVar annotations are stored as additional measurement attributes. This allows genomic variants to participate in standard OMOP cohort definitions and analyses alongside clinical data.
+:::
+
+## Imaging and the Procedure Domain
+
+DICOM imaging studies are mapped into the OMOP CDM using the **Procedure** domain, following radiology procedure coding conventions:
+
+| Imaging Data Element | OMOP Mapping | Details |
+|---------------------|-------------|---------|
+| Imaging study (e.g., CT Chest) | `procedure_occurrence` row | `procedure_concept_id` maps to the CPT4/SNOMED procedure concept for the imaging modality |
+| Study date | `procedure_date` | Date the imaging study was performed |
+| Modality (CT, MR, US, XR) | `procedure_source_value` | DICOM modality code stored as source value |
+| Imaging report findings | `note` row | Radiology report text linked to the procedure via `visit_occurrence_id` |
+| NLP-extracted findings | `note_nlp` + `condition_occurrence` | Structured findings extracted from radiology reports may also create condition rows |
+
+:::info DICOM Metadata
+Parthenon stores the full DICOM metadata (study UID, series UID, SOP instance UID, pixel data references) in its own imaging tables (`imaging_studies`, `imaging_series`, `imaging_instances`). The `procedure_occurrence` row links the OMOP clinical record to the imaging metadata via `procedure_occurrence_id`, enabling cohort definitions that combine imaging criteria with standard clinical criteria.
+:::
 
 ## Standard Vocabularies by Domain
 
@@ -38,10 +70,12 @@ The OMOP CDM v5.4 organizes clinical data into **domains**, each stored in one o
 ### Measurement Domain
 - **Standard:** LOINC
 - **Source:** LOINC (local labs may use LOINC directly), custom lab codes
+- **Genomic extension:** Genomic variant measurements use LOINC panel codes (e.g., LOINC 81247-9 for master HL7 genetic variant reporting)
 
 ### Procedure Domain
 - **Standard:** SNOMED CT, CPT4, HCPCS
 - **Source:** ICD-10-PCS, ICD-9-CM procedures, local procedure codes
+- **Imaging extension:** CPT4 radiology codes (70000--79999 range) map imaging studies to procedures
 
 ## CDM v5.4 Key Tables
 
@@ -68,6 +102,30 @@ The OMOP CDM v5.4 organizes clinical data into **domains**, each stored in one o
 | `condition_source_value` | VARCHAR | Original ICD code |
 | `condition_source_concept_id` | INT | Concept mapped from source code |
 
+### Measurement Table (Including Genomic Variants)
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `measurement_id` | BIGINT | Row identifier |
+| `person_id` | BIGINT | Foreign key to person |
+| `measurement_concept_id` | INT | Standard LOINC concept |
+| `measurement_date` | DATE | Date of measurement |
+| `value_as_number` | NUMERIC | Numeric result (lab value, allele frequency) |
+| `value_as_concept_id` | INT | Categorical result concept (variant classification) |
+| `unit_concept_id` | INT | Unit of measure concept |
+| `measurement_source_value` | VARCHAR | Original code or gene symbol |
+
+### Procedure Occurrence Table (Including Imaging)
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `procedure_occurrence_id` | BIGINT | Row identifier |
+| `person_id` | BIGINT | Foreign key to person |
+| `procedure_concept_id` | INT | Standard CPT4/SNOMED concept |
+| `procedure_date` | DATE | Date procedure was performed |
+| `procedure_type_concept_id` | INT | Source of record |
+| `procedure_source_value` | VARCHAR | Original code or DICOM modality |
+
 ## Observation Period
 
 The `observation_period` table defines the windows during which a person's data is expected to be complete. OMOP-based analyses restrict to events within observation periods to avoid bias from incomplete records.
@@ -77,3 +135,7 @@ The `observation_period` table defines the windows during which a person's data 
 | `observation_period_start_date` | Start of continuous observation |
 | `observation_period_end_date` | End of continuous observation |
 | `period_type_concept_id` | How the period was defined (insurance enrollment, EHR registration, etc.) |
+
+:::caution Genomic and Imaging Data Outside Observation Periods
+Genomic test results and imaging studies must fall within a patient's observation period to be included in cohort definitions and analyses. If your genomic or imaging data has dates outside the observation period, those records will be excluded from OMOP-standard analyses. Ensure observation periods are updated when integrating new data sources.
+:::

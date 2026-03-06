@@ -6,99 +6,163 @@ sidebar_label: "6. Feature Comparison"
 
 # Feature Comparison Reference
 
-This table maps every major Atlas feature to its Parthenon equivalent, noting current status and any workflow differences.
+This table maps every major Atlas feature to its Parthenon equivalent, noting current status and any workflow differences. Parthenon extends well beyond Atlas with modules for Genomics, Imaging, HEOR, and FHIR EHR integration that have no Atlas counterpart.
 
 ## Vocabulary
 
 | Atlas Feature | Parthenon Equivalent | Status | Notes |
 |--------------|---------------------|--------|-------|
-| Concept Search | Vocabulary → Browse Concepts | ✅ Full parity | Full-text + synonym search |
-| Concept Detail (ancestors, descendants) | Concept detail panel | ✅ Full parity | |
-| Concept Set Builder | Vocabulary → Concept Sets → New | ✅ Full parity | Same flags: descendants, mapped, excluded |
-| Concept Set Import/Export | JSON import/export + CLI | ✅ Full parity | Compatible JSON format |
-| Vocabulary version display | Data Explorer → Overview | ✅ Full parity | |
+| Concept Search | Vocabulary --> Browse Concepts | ✅ Full Parity | Full-text + synonym search, AI-powered concept suggestions |
+| Concept Detail (ancestors, descendants) | Concept detail panel | ✅ Full Parity | |
+| Concept Set Builder | Vocabulary --> Concept Sets --> New | ✅ Full Parity | Same flags: descendants, mapped, excluded |
+| Concept Set Import/Export | JSON import/export + CLI | ✅ Full Parity | Compatible JSON format |
+| Vocabulary version display | Data Explorer --> Overview | ✅ Full Parity | |
+| Vocabulary Refresh | Admin --> Vocabulary Management | ✅ Implemented | Upload Athena ZIP via admin UI; no manual DB operations needed |
 
 ## Cohort Definitions
 
 | Atlas Feature | Parthenon Equivalent | Status | Notes |
 |--------------|---------------------|--------|-------|
-| Cohort Builder UI | Cohorts → New Cohort Definition | ✅ Full parity | Same CIRCE expression model |
-| Primary event (all domains) | Index Event tab | ✅ Full parity | |
-| Inclusion rules | Inclusion Rules tab | ✅ Full parity | |
-| Cohort exit strategies | Cohort Exit tab | ✅ Full parity | |
-| Cohort generation | Generate button | ✅ Full parity | Async via Horizon queue |
-| Attrition report | Attrition tab post-generation | ✅ Full parity | |
-| Cohort overlap report | Cohorts → Compare | ✅ Full parity | |
-| Cohort import/export (JSON) | Import / Export buttons + CLI | ✅ Full parity | |
-| Cohort copy/clone | Clone button | ✅ Full parity | |
+| Cohort Builder UI | Cohorts --> New Cohort Definition | ✅ Full Parity | Same CIRCE expression model |
+| Primary event (all domains) | Index Event tab | ✅ Full Parity | |
+| Inclusion rules | Inclusion Rules tab | ✅ Full Parity | |
+| Cohort exit strategies | Cohort Exit tab | ✅ Full Parity | |
+| Cohort generation | Generate button | ✅ Full Parity | Async via Horizon queue |
+| Attrition report | Attrition tab post-generation | ✅ Full Parity | |
+| Cohort overlap report | Cohorts --> Compare | ✅ Full Parity | |
+| Cohort import/export (JSON) | Import / Export buttons + CLI | ✅ Full Parity | |
+| Cohort copy/clone | Clone button | ✅ Full Parity | |
 
 ## Data Sources
 
 | Atlas Feature | Parthenon Equivalent | Status | Notes |
 |--------------|---------------------|--------|-------|
-| Source management | Admin → Data Sources | ✅ Full parity | |
-| Daimon configuration | Per-source daimon settings | ✅ Full parity | Same CDM/vocab/results/temp model |
-| WebAPI source import | CLI `import-webapi-sources` | ✅ Full parity | |
-| Connection testing | Test Connection button | ✅ Full parity | |
+| Source management | Admin --> Data Sources | ✅ Full Parity | |
+| Daimon configuration | Per-source daimon settings | ✅ Full Parity | Same CDM/vocab/results/temp model |
+| WebAPI source import | CLI `import-webapi-sources` | ✅ Full Parity | |
+| Connection testing | Test Connection button | ✅ Full Parity | |
 
 ## Data Explorer (Achilles)
 
 | Atlas Feature | Parthenon Equivalent | Status | Notes |
 |--------------|---------------------|--------|-------|
-| Database profile (Achilles results) | Data Explorer → Overview | ✅ Full parity | |
-| Condition prevalence | Data Explorer → Conditions | ✅ Full parity | |
-| Drug prevalence | Data Explorer → Drugs | ✅ Full parity | |
-| Measurement distributions | Data Explorer → Measurements | ✅ Full parity | |
-| DQD / Achilles Heel | Data Explorer → Data Quality | ✅ Full parity | Full DQD + Heel checks |
+| Database profile (Achilles results) | Data Explorer --> Overview | ✅ Full Parity | 6-section CDM characterization dashboard |
+| Condition prevalence | Data Explorer --> Conditions | ✅ Full Parity | |
+| Drug prevalence | Data Explorer --> Drugs | ✅ Full Parity | |
+| Measurement distributions | Data Explorer --> Measurements | ✅ Full Parity | |
+| DQD / Achilles Heel | Data Explorer --> Data Quality + Heel Checks | ✅ Full Parity | Full DQD + dedicated Heel checks tab |
 
 ## Analyses
 
 | Atlas Feature | Parthenon Equivalent | Status | Notes |
 |--------------|---------------------|--------|-------|
-| Cohort Characterization | Analyses → Characterization | ✅ Full parity | |
-| Incidence Rate Analysis | Analyses → Incidence Rates | ✅ Full parity | |
-| Treatment Pathways (table) | Analyses → Treatment Pathways | ✅ Functional | Sankey viz coming in future release |
-| Population-Level Estimation | Analyses → Estimation | 🔲 Planned | UI placeholder; HADES R integration built |
-| Patient-Level Prediction | Analyses → Prediction | 🔲 Planned | UI placeholder; HADES R integration built |
-| Evidence Synthesis | Analyses → Evidence Synthesis | 🔲 Planned | |
-| SCCS | Analyses → SCCS | 🔲 Planned | |
-| Negative Controls | Not yet implemented | 🔲 Planned | |
+| Cohort Characterization | Analyses --> Characterization | ✅ Full Parity | |
+| Incidence Rate Analysis | Analyses --> Incidence Rates | ✅ Full Parity | |
+| Treatment Pathways (table) | Analyses --> Treatment Pathways | ✅ Full Parity | Tabular results; Sankey visualization planned |
+| Population-Level Estimation | Analyses --> Estimation | ✅ Configuration UI | Full config forms; R/HADES execution connected |
+| Patient-Level Prediction | Analyses --> Prediction | ✅ Configuration UI | Full config forms; R/HADES execution connected |
+| SCCS | Analyses --> SCCS | ✅ Full Parity | Self-Controlled Case Series with full configuration |
+| Evidence Synthesis | Analyses --> Evidence Synthesis | ✅ Full Parity | Meta-analysis across multiple databases |
+| Negative Controls | Not yet implemented | 🔲 Planned | Manual concept set curation available as workaround |
 
 ## Patient Explorer
 
 | Atlas Feature | Parthenon Equivalent | Status | Notes |
 |--------------|---------------------|--------|-------|
-| Profile viewer (patient timeline) | Patients → Patient Timelines | ✅ Full parity | Requires PHI access role |
+| Profile viewer (patient timeline) | Patients --> Patient Timelines | ✅ Full Parity | Requires PHI access role |
 
 ## Administration
 
 | Atlas Feature | Parthenon Equivalent | Status | Notes |
 |--------------|---------------------|--------|-------|
-| User management | Admin → Users | ✅ Full parity | Role-based, email-invited |
-| Security provider config | Admin → Authentication Providers | ✅ Full parity | Local, LDAP, SAML, OIDC |
-| Source management | Admin → Data Sources | ✅ Full parity | |
-| System health | Admin → System → Health | ✅ Extended | Real-time service health dashboard |
-| Audit log | Admin → Audit Log | ✅ Extended | Full CRUD event log, exportable |
+| User management | Admin --> Users | ✅ Full Parity | Role-based, email-invited, CSV bulk import |
+| Security provider config | Admin --> Authentication Providers | ✅ Full Parity | Local, LDAP, SAML 2.0, OIDC --- full admin UI |
+| Source management | Admin --> Data Sources | ✅ Full Parity | |
+| System health | Admin --> System --> Health | ✅ Extended | Real-time 5-service health dashboard with 30s auto-refresh |
+| Audit log | Admin --> Audit Log | ✅ Extended | Full CRUD event log, exportable |
+| AI Provider config | Admin --> AI Providers | ✅ New | 8 AI providers (Ollama, OpenAI, Anthropic, Google, Azure, etc.) |
+| Vocabulary refresh | Admin --> Vocabulary Management | ✅ New | Upload Athena ZIP via admin UI |
+
+## New Capabilities (No Atlas Equivalent)
+
+These features are unique to Parthenon and have no counterpart in OHDSI Atlas.
+
+### Genomics
+
+| Feature | Parthenon Location | Status | Notes |
+|---------|-------------------|--------|-------|
+| VCF Upload and Parsing | Genomics --> Uploads | ✅ New | Upload VCF files, parse variants, match to OMOP persons |
+| ClinVar Annotation | Genomics --> ClinVar | ✅ New | Local ClinVar database with variant pathogenicity lookup |
+| Variant Browser | Genomics --> Variants | ✅ New | Search, filter, and explore imported genomic variants |
+| Tumor Board | Genomics --> Tumor Board | ✅ New | Per-patient genomic + clinical summary with AI insights |
+| Genomic Cohort Criteria | Cohort Builder --> Genomic Criteria | ✅ New | Include/exclude patients by gene, variant, pathogenicity |
+| Survival Analysis by Variant | Genomics --> Analysis | ✅ New | Variant-stratified survival curves |
+| Treatment-Variant Matrix | Genomics --> Analysis | ✅ New | Treatment response by genomic variant |
+| OMOP Measurement Mapping | Genomics --> Import | ✅ New | Map VCF variants to OMOP measurement domain |
+
+### Imaging (DICOM)
+
+| Feature | Parthenon Location | Status | Notes |
+|---------|-------------------|--------|-------|
+| DICOM Study Browser | Imaging --> Studies | ✅ New | Browse, search, and filter imaging studies by modality, date, patient |
+| Built-in DICOM Viewer | Imaging --> Viewer | ✅ New | Cornerstone3D-powered viewer with windowing, zoom, pan |
+| DICOMweb Integration | Imaging --> Index from DICOMweb | ✅ New | Index studies from Orthanc, dcm4chee, or cloud PACS |
+| Local DICOM Import | Imaging --> Import Local | ✅ New | Import DICOM files from server filesystem |
+| WADO-RS Endpoint | `/api/v1/imaging/wado/{sopUid}` | ✅ New | Standard WADO-RS retrieval for viewer integration |
+| Imaging Cohort Criteria | Cohort Builder --> Imaging Criteria | ✅ New | Filter cohorts by modality, body part, study count |
+| Population Imaging Analytics | Imaging --> Analytics | ✅ New | Modality distribution, temporal trends across populations |
+| NLP Report Extraction | Imaging --> NLP | ✅ New | AI-powered structured finding extraction from radiology reports |
+
+### HEOR (Health Economics and Outcomes Research)
+
+| Feature | Parthenon Location | Status | Notes |
+|---------|-------------------|--------|-------|
+| Cost-Effectiveness Analysis | HEOR --> Analyses | ✅ New | CEA with configurable cost models and outcomes |
+| Budget Impact Modeling | HEOR --> Analyses | ✅ New | Multi-scenario budget impact projections |
+| Care Gap Identification | HEOR --> Analyses | ✅ New | Identify gaps between guidelines and observed care |
+| Sensitivity Analysis | HEOR --> Scenarios | ✅ New | Parameter sweeps and scenario comparison |
+| Payer Contract Simulation | HEOR --> Contracts | ✅ New | Model rebate structures and value-based contracts |
+
+### FHIR EHR Integration
+
+| Feature | Parthenon Location | Status | Notes |
+|---------|-------------------|--------|-------|
+| FHIR R4 Connection Management | Admin --> FHIR Connections | ✅ New | Connect to Epic, Cerner, and other FHIR R4 servers |
+| SMART Backend Services Auth | Admin --> FHIR Connections | ✅ New | JWT-based system-to-system authentication |
+| Bulk Data Export Sync | Admin --> FHIR Connections --> Sync | ✅ New | Async NDJSON-based bulk data transfer to OMOP CDM |
+| Incremental Sync | Admin --> FHIR Connections --> Sync | ✅ New | Delta sync using `_lastUpdated` filters |
+| Content Hash Deduplication | Automatic during sync | ✅ New | Prevents duplicate CDM records across syncs |
+| Sync Dashboard | Admin --> FHIR Sync Dashboard | ✅ New | Aggregated sync status, progress, and error monitoring |
+
+### AI-Powered Features
+
+| Feature | Parthenon Location | Status | Notes |
+|---------|-------------------|--------|-------|
+| AI Concept Search | Vocabulary search | ✅ New | Natural language concept search via MedGemma/Ollama |
+| AI Provider Management | Admin --> AI Providers | ✅ New | 8 provider backends, encrypted credentials, test endpoints |
+| Contextual Help | In-app help system | ✅ New | AI-augmented contextual help throughout the application |
 
 ## WebAPI Compatibility
 
 Parthenon exposes Atlas WebAPI-compatible endpoints for HADES R package integration:
 
-| Legacy WebAPI endpoint | Parthenon equivalent | Notes |
+| Legacy WebAPI Endpoint | Parthenon Equivalent | Notes |
 |-----------------------|---------------------|-------|
 | `GET /source/sources` | `GET /api/v1/sources` | Source list |
-| `GET /cohortdefinition/{id}` | `GET /api/v1/cohort-definitions/{id}` | Cohort def |
+| `GET /cohortdefinition/{id}` | `GET /api/v1/cohort-definitions/{id}` | Cohort definition |
 | `POST /cohortdefinition/{id}/generate/{src}` | `POST /api/v1/cohort-definitions/{id}/generate` | Trigger generation |
 | `GET /vocabulary/{src}/search` | `GET /api/v1/vocabulary/search` | Concept search |
 | `GET /conceptset/{id}/expression` | `GET /api/v1/concept-sets/{id}/export` | Concept set export |
 
-HADES packages (CohortMethod, PatientLevelPrediction, etc.) can point to Parthenon's API URL and work without modification.
+HADES packages (CohortMethod, PatientLevelPrediction, CohortGenerator, etc.) can point to Parthenon's API URL and work without modification.
 
 ## Legend
 
 | Symbol | Meaning |
 |--------|---------|
-| ✅ Full parity | Feature fully implemented; Atlas workflows transfer directly |
+| ✅ Full Parity | Feature fully implemented; Atlas workflows transfer directly |
 | ✅ Extended | Feature implemented with enhancements beyond Atlas |
-| ✅ Functional | Core feature works; minor Atlas capabilities not yet ported |
-| 🔲 Planned | Feature on roadmap; UI placeholder exists in current release |
+| ✅ Configuration UI | Full configuration interface built; backend execution connected |
+| ✅ Implemented | Feature built and operational |
+| ✅ New | Capability unique to Parthenon (no Atlas equivalent) |
+| 🔲 Planned | Feature on roadmap; not yet available |

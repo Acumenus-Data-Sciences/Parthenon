@@ -6,16 +6,22 @@ sidebar_label: "A. Keyboard Shortcuts"
 
 # Appendix A — Keyboard Shortcuts
 
+Parthenon supports keyboard shortcuts throughout the application to accelerate common workflows. This reference covers all available shortcuts organized by context.
+
 ## Global Shortcuts
+
+These shortcuts work from any page in the application.
 
 | Shortcut | Action |
 |----------|--------|
 | `?` | Open keyboard shortcut help overlay |
-| `Ctrl/⌘ + K` | Open global command palette |
-| `Ctrl/⌘ + /` | Toggle sidebar collapse |
+| `Ctrl/Cmd + K` | Open global command palette |
+| `Ctrl/Cmd + /` | Toggle sidebar collapse |
 | `Esc` | Close modal / dismiss panel |
 
 ## Navigation
+
+Press these key sequences (not held simultaneously) to jump to major sections.
 
 | Shortcut | Action |
 |----------|--------|
@@ -25,14 +31,17 @@ sidebar_label: "A. Keyboard Shortcuts"
 | `G A` | Go to Analyses |
 | `G E` | Go to Data Explorer |
 | `G P` | Go to Patient Timelines |
+| `G G` | Go to Genomics |
+| `G I` | Go to Imaging |
+| `G H` | Go to HEOR |
 
 ## Cohort Builder
 
 | Shortcut | Action |
 |----------|--------|
-| `Ctrl/⌘ + S` | Save cohort definition |
-| `Ctrl/⌘ + Enter` | Save and close |
-| `Ctrl/⌘ + G` | Open generate dialog |
+| `Ctrl/Cmd + S` | Save cohort definition |
+| `Ctrl/Cmd + Enter` | Save and close |
+| `Ctrl/Cmd + G` | Open generate dialog |
 | `Alt + R` | Add inclusion rule |
 | `Alt + C` | Add criteria to current rule |
 
@@ -41,7 +50,7 @@ sidebar_label: "A. Keyboard Shortcuts"
 | Shortcut | Action |
 |----------|--------|
 | `/` | Focus search input |
-| `↑ / ↓` | Navigate search results |
+| `Up / Down` | Navigate search results |
 | `Enter` | Open selected concept |
 | `A` | Add selected concept to open concept set |
 | `D` | Toggle descendants flag |
@@ -50,7 +59,7 @@ sidebar_label: "A. Keyboard Shortcuts"
 
 | Shortcut | Action |
 |----------|--------|
-| `1–5` | Switch between tabs (Overview, Conditions, Drugs, Measurements, DQD) |
+| `1` -- `6` | Switch between tabs (Overview, Conditions, Drugs, Measurements, DQD, Heel Checks) |
 | `F` | Focus filter/search input |
 | `E` | Export current view to CSV |
 
@@ -59,16 +68,50 @@ sidebar_label: "A. Keyboard Shortcuts"
 | Shortcut | Action |
 |----------|--------|
 | `+` / `-` | Zoom in / zoom out on timeline |
-| `←` / `→` | Pan timeline left / right |
+| `Left` / `Right` | Pan timeline left / right |
 | `0` | Reset zoom to full history |
 | `F` | Toggle filter panel |
+
+## Genomics
+
+| Shortcut | Action |
+|----------|--------|
+| `/` | Focus variant search / filter input |
+| `U` | Open VCF upload dialog |
+| `T` | Open tumor board for selected patient |
+| `Up / Down` | Navigate variant list |
+| `Enter` | Open variant detail / ClinVar annotation |
+
+## Imaging (DICOM Viewer)
+
+| Shortcut | Action |
+|----------|--------|
+| `W` / `L` | Adjust window width / level (when viewer is focused) |
+| `Z` | Activate zoom tool |
+| `P` | Activate pan tool |
+| `R` | Reset viewport to default |
+| `Left` / `Right` | Previous / next instance in series |
+| `Esc` | Exit full-screen viewer |
+
+## HEOR
+
+| Shortcut | Action |
+|----------|--------|
+| `/` | Focus analysis search input |
+| `N` | Create new HEOR analysis |
+| `Up / Down` | Navigate analysis list |
+| `Enter` | Open selected analysis |
 
 ## General UI
 
 | Shortcut | Action |
 |----------|--------|
-| `Ctrl/⌘ + Z` | Undo (in form editors) |
+| `Ctrl/Cmd + Z` | Undo (in form editors) |
 | `Tab` | Move to next form field |
 | `Shift + Tab` | Move to previous form field |
 | `Space` | Toggle checkboxes, activate buttons |
 | `Enter` | Submit focused form |
+
+:::tip
+Press `?` from any page to see a context-sensitive overlay of shortcuts available on that page.
+:::

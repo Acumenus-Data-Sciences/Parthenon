@@ -1,0 +1,292 @@
+---
+id: 28-imaging-overview
+title: "28. Imaging Module"
+sidebar_label: "28. Imaging"
+slug: /imaging-overview
+---
+
+# Imaging Module
+
+Parthenon's **Imaging module** integrates DICOM medical imaging data into the OMOP CDM research platform. It provides DICOM file import, study/series/instance hierarchy management, a Cornerstone3D-powered web viewer with clinical tools, radiology NLP feature extraction, population-level imaging analytics, and imaging cohort criteria for the cohort builder.
+
+## Module Architecture
+
+```
+DICOM Source  -->  Import & Index  -->  Study/Series/Instance DB  -->  WADO-RS Endpoint
+     |                                          |                          |
+Local files                              Feature Extraction         Cornerstone3D Viewer
+DICOMweb server                                 |
+                                         Imaging Features
+                                                |
+                                    Cohort Criteria  /  Population Analytics
+```
+
+## DICOM Data Model
+
+Parthenon follows the standard DICOM information hierarchy:
+
+### Studies
+
+A study represents a single imaging examination (e.g., a chest CT scan ordered for a patient):
+
+| Field | Description |
+|-------|-------------|
+| **Study Instance UID** | Globally unique DICOM identifier |
+| **Accession Number** | Hospital-assigned order number |
+| **Modality** | Imaging modality (CT, MR, US, XA, etc.) |
+| **Body Part Examined** | Anatomical region (CHEST, HEAD, ABDOMEN, etc.) |
+| **Study Description** | Free-text description from the DICOM header |
+| **Study Date** | Date the examination was performed |
+| **Person ID** | Linked OMOP person (if matched) |
+| **Series Count** | Number of series in the study |
+| **Image Count** | Total number of images across all series |
+| **Status** | indexed / processed / error |
+
+### Series
+
+A series is a set of images acquired with the same parameters (e.g., axial CT slices at 5mm thickness):
+
+| Field | Description |
+|-------|-------------|
+| **Series Instance UID** | Unique series identifier |
+| **Series Description** | Protocol name or series label |
+| **Modality** | Series-level modality (may differ from study) |
+| **Series Number** | Ordering index within the study |
+| **Image Count** | Number of instances in this series |
+| **Slice Thickness** | Slice thickness in mm |
+| **Manufacturer** | Scanner manufacturer |
+| **Model** | Scanner model name |
+
+### Instances
+
+Individual DICOM image files with SOP Instance UIDs, instance numbers, and slice locations.
+
+## Supported Modalities
+
+| Code | Modality | Description |
+|------|----------|-------------|
+| **CT** | Computed Tomography | Cross-sectional X-ray imaging |
+| **MR** | Magnetic Resonance | MRI scans |
+| **PT** | Positron Emission Tomography | PET scans |
+| **US** | Ultrasound | Sonographic imaging |
+| **CR** | Computed Radiography | Digital X-rays |
+| **DX** | Digital Radiography | Direct digital X-rays |
+| **MG** | Mammography | Breast imaging |
+| **XA** | X-Ray Angiography | Vascular imaging |
+| **NM** | Nuclear Medicine | Scintigraphy, SPECT |
+| **RF** | Radiofluoroscopy | Real-time X-ray |
+
+## Importing DICOM Data
+
+### Local File Import
+
+Import DICOM files from a directory on the Parthenon server:
+
+1. Navigate to **Imaging** from the main navigation.
+2. Click **Import Local** in the toolbar.
+3. Configure:
+   - **Data Source** -- target OMOP source
+   - **Directory** -- relative path to DICOM files on the server (default: `dicom_samples`)
+4. Click **Import**.
+
+The `DicomFileService` scans the directory recursively, parses DICOM headers from each `.dcm` file using a PHP-native DICOM reader, and upserts study/series/instance records in the database.
+
+Import results show:
+- Studies imported (new or updated)
+- Series imported
+- Instances imported
+
+### DICOMweb Indexing
+
+For integration with PACS or Orthanc servers, Parthenon can pull study metadata via the DICOMweb (QIDO-RS) protocol:
+
+1. Click **Index from DICOMweb** in the toolbar.
+2. Configure:
+   - **Data Source** -- target OMOP source
+   - **Limit** -- maximum number of studies to index (default: 100, max: 1000)
+   - **Modality filter** -- optionally restrict to a specific modality (e.g., CT)
+3. Click **Index**.
+
+The `DicomwebService` queries the configured DICOMweb endpoint, retrieves study-level metadata, and upserts records. Series can be indexed separately per study.
+
+:::info DICOMweb configuration
+The DICOMweb endpoint URL is configured per data source in the source settings. Parthenon supports Orthanc's built-in DICOMweb plugin and any standard WADO-RS/QIDO-RS compliant server.
+:::
+
+### Series Indexing
+
+After a study is indexed, retrieve detailed series information:
+
+1. Open a study in the study browser.
+2. Click **Index Series**.
+3. Parthenon queries the DICOMweb endpoint for series-level metadata and populates the series table.
+
+## Study Browser
+
+The study browser provides a searchable, filterable list of all indexed imaging studies:
+
+### Filters
+
+| Filter | Description |
+|--------|-------------|
+| **Data Source** | Studies from a specific OMOP source |
+| **Modality** | Filter by imaging modality (CT, MR, etc.) |
+| **Person ID** | Studies for a specific patient |
+| **Date Range** | Studies within a time period |
+| **Body Part** | Studies of a specific anatomical region |
+| **Search** | Free-text search across study description and accession number |
+
+### Study Detail Page
+
+Click any study to open the detail page showing:
+
+- Full study metadata (all DICOM header fields)
+- Series list with thumbnails and metadata
+- Instance list (sortable by instance number and slice location)
+- Imaging features extracted from NLP or AI (see below)
+- Link to the Cornerstone3D viewer
+
+## Cornerstone3D DICOM Viewer
+
+Parthenon includes an integrated web-based DICOM viewer built on [Cornerstone3D](https://www.cornerstonejs.org/), providing clinical-grade image viewing directly in the browser:
+
+### Viewer Features
+
+| Tool | Description | Shortcut |
+|------|-------------|----------|
+| **Window/Level** | Adjust brightness and contrast (Hounsfield units for CT) | Left-click drag |
+| **Zoom** | Magnify or reduce image size | Scroll wheel |
+| **Pan** | Move the image within the viewport | Middle-click drag |
+| **Scroll** | Navigate through slices in a series | Scroll wheel (over image) |
+| **Length Measurement** | Measure distance between two points in mm | L key |
+| **Angle Measurement** | Measure angle between three points | A key |
+| **Reset** | Reset all viewport adjustments | R key |
+
+### WADO-RS Endpoints
+
+The viewer retrieves DICOM images via Parthenon's built-in WADO-URI endpoint:
+
+```
+GET /api/v1/imaging/wado/{sopInstanceUid}
+```
+
+This endpoint streams the raw DICOM file with `Content-Type: application/dicom` and appropriate caching headers. The Cornerstone3D `dicomImageLoader` uses this endpoint to load images on demand.
+
+:::tip Viewer performance
+For large studies (500+ images), the viewer loads images progressively as you scroll through slices. Initial viewport rendering begins immediately with the first available image. Enable browser caching to avoid re-downloading images on repeat views.
+:::
+
+## Imaging Features
+
+The imaging module extracts structured features from imaging studies for use in research queries:
+
+### Feature Types
+
+| Type | Source | Description |
+|------|--------|-------------|
+| **NLP Finding** | Radiology NLP service | Findings extracted from radiology report text |
+| **AI Classification** | AI model inference | Classification results from imaging AI models |
+| **Radiomic** | Quantitative analysis | Radiomic features (texture, shape, intensity) |
+| **Manual** | User annotation | Manually entered imaging observations |
+
+### NLP Feature Extraction
+
+For studies linked to OMOP patients, Parthenon can extract imaging findings from associated radiology notes:
+
+1. Open a study detail page.
+2. Click **Extract NLP Features**.
+3. The `RadiologyNlpService` queries the OMOP `note` table for radiology reports matching the patient.
+4. NLP extracts structured findings (e.g., "pulmonary nodule", "pleural effusion") with confidence scores.
+5. Extracted features are stored in the `imaging_features` table.
+
+### Feature Table
+
+Each feature record contains:
+
+| Field | Description |
+|-------|-------------|
+| **Feature Name** | Descriptive name (e.g., "Pulmonary Nodule") |
+| **Feature Type** | nlp_finding / ai_classification / radiomic / manual |
+| **Algorithm** | Name of the extraction algorithm or model |
+| **Value (numeric)** | Quantitative value (e.g., nodule size in mm) |
+| **Value (string)** | Qualitative value (e.g., "present", "absent") |
+| **Unit** | Unit of measurement (mm, HU, etc.) |
+| **Body Site** | Anatomical location of the finding |
+| **Confidence** | Algorithm confidence score (0-1) |
+| **OMOP Concept ID** | Mapped OMOP concept for standardized querying |
+
+## Imaging Cohort Criteria
+
+The Imaging module extends the cohort builder with imaging-specific criteria:
+
+| Criteria Type | Description | Example |
+|--------------|-------------|---------|
+| `modality` | Patients with studies of a specific modality | Patients with at least one CT scan |
+| `anatomy` | Patients with studies of a specific body part | Patients with chest imaging |
+| `quantitative` | Patients with imaging features meeting numeric thresholds | Patients with nodule size > 8mm |
+| `ai_classification` | Patients with specific AI classification results | Patients classified as "high risk" by lung screening AI |
+| `dose` | Patients based on radiation dose parameters | Patients with cumulative CT dose > threshold |
+
+### Creating Imaging Criteria
+
+1. Navigate to **Imaging > Criteria** (or use the Cohort Builder's imaging criteria panel).
+2. Click **New Criterion**.
+3. Select a criteria type and configure parameters.
+4. Optionally mark as **Shared** for organization-wide use.
+
+Imaging criteria combine with standard clinical criteria in the cohort builder for multi-modal research.
+
+## Population Imaging Analytics
+
+The **Population Analytics** view provides aggregate imaging statistics across a data source:
+
+### By Modality
+
+Bar chart showing study counts and unique patient counts per modality:
+
+| Modality | Studies | Unique Patients |
+|----------|---------|-----------------|
+| CT | -- | -- |
+| MR | -- | -- |
+| US | -- | -- |
+| ... | -- | -- |
+
+### By Body Part
+
+Top 15 body parts by study count, revealing the most common examination types in your database.
+
+### Top Features
+
+Most frequently extracted imaging features across all studies, grouped by feature type. This identifies the most common radiological findings in your population.
+
+## OMOP CDM Integration
+
+Imaging studies can be linked to the OMOP CDM through:
+
+- **Person matching** -- linking `person_id` from patient demographics
+- **Image occurrence** -- mapping to the OMOP `image_occurrence` extension table (if available)
+- **Visit linking** -- associating studies with OMOP visits via accession number or date matching
+- **Measurement mapping** -- imaging features written to the `measurement` table with appropriate concepts
+
+## API Reference
+
+Key imaging API endpoints:
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/v1/imaging/stats` | GET | Module statistics |
+| `/api/v1/imaging/studies` | GET | List/filter studies |
+| `/api/v1/imaging/studies/{id}` | GET | Study detail with series |
+| `/api/v1/imaging/studies/{id}/instances` | GET | Instance list for viewer |
+| `/api/v1/imaging/studies/{id}/index-series` | POST | Index series from DICOMweb |
+| `/api/v1/imaging/studies/{id}/extract-nlp` | POST | Extract NLP features |
+| `/api/v1/imaging/studies/index-from-dicomweb` | POST | Index studies from DICOMweb |
+| `/api/v1/imaging/features` | GET | List imaging features |
+| `/api/v1/imaging/criteria` | GET, POST | List/create cohort criteria |
+| `/api/v1/imaging/analytics/population` | GET | Population-level analytics |
+| `/api/v1/imaging/wado/{sopUid}` | GET | WADO-URI DICOM file stream |
+| `/api/v1/imaging/import-local/trigger` | POST | Trigger local DICOM import |
+
+:::warning DICOM data privacy
+DICOM files may contain patient-identifying information embedded in the DICOM headers (patient name, date of birth, medical record number). Parthenon does not automatically de-identify DICOM data. Ensure your DICOM files are appropriately de-identified before importing into research environments, or configure your import pipeline to strip PHI-containing DICOM tags.
+:::

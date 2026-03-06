@@ -1,0 +1,264 @@
+---
+id: 29-heor-overview
+title: "29. HEOR Module"
+sidebar_label: "29. HEOR"
+slug: /heor-overview
+---
+
+# Health Economics & Outcomes Research (HEOR) Module
+
+Parthenon's **HEOR module** provides a comprehensive health economics engine for cost-effectiveness analysis, budget impact modeling, value-based contracting, and care gap identification. Built on top of the OMOP CDM, it connects real-world clinical evidence directly to economic evaluation, enabling payer-provider negotiations, formulary decisions, and health technology assessments grounded in your own patient data.
+
+## Module Architecture
+
+```
+OMOP CDM Data  -->  Cohort Definitions  -->  HEOR Analysis  -->  Scenarios  -->  Economic Results
+                          |                       |                                    |
+                   Target Cohort            Cost Parameters                    ICER / NMB / ROI
+                   Comparator Cohort        Utility Values                    Tornado Diagrams
+                                            Resource Use                     Budget Impact
+                                                                                   |
+                                                                          Value-Based Contracts
+                                                                          Rebate Simulation
+```
+
+## Analysis Types
+
+The HEOR module supports five analysis types covering the major health economics evaluation frameworks:
+
+| Type | Code | Description | Key Output |
+|------|------|-------------|------------|
+| **Cost-Effectiveness Analysis** | `cea` | Compares costs and health outcomes of interventions | Incremental Cost-Effectiveness Ratio (ICER) |
+| **Cost-Benefit Analysis** | `cba` | Monetizes health outcomes for direct comparison | Net Monetary Benefit (NMB) |
+| **Cost-Utility Analysis** | `cua` | Uses quality-adjusted life years (QALYs) as the outcome measure | Cost per QALY gained |
+| **Budget Impact Analysis** | `budget_impact` | Projects financial impact of adopting a new therapy | Year 1, 3, and 5 budget impact |
+| **Return on Investment** | `roi` | Evaluates investment return for health programs | ROI percentage, payback period |
+
+## Creating an Analysis
+
+### Step 1: Define the Analysis
+
+1. Navigate to **HEOR** from the main navigation.
+2. Click **New Analysis**.
+3. Configure the analysis parameters:
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| **Name** | Yes | Descriptive analysis name |
+| **Analysis Type** | Yes | CEA, CBA, CUA, Budget Impact, or ROI |
+| **Description** | No | Detailed description of the analysis question |
+| **Perspective** | No | Economic perspective: payer, societal, provider, or patient |
+| **Time Horizon** | No | Evaluation period: 1 year, 5 years, 10 years, or lifetime |
+| **Discount Rate** | No | Annual discount rate for future costs/outcomes (default: 3%, range: 0-20%) |
+| **Currency** | No | Currency code (default: USD) |
+| **Data Source** | No | OMOP source for real-world cost data |
+| **Target Cohort** | No | Parthenon cohort definition for the intervention group |
+| **Comparator Cohort** | No | Parthenon cohort definition for the comparator group |
+
+:::info OMOP CDM integration
+When a data source and cohorts are linked, the HEOR engine can pull real-world cost data from the OMOP `cost` table and clinical outcomes from the CDM tables, grounding your economic model in actual patient data rather than literature estimates alone.
+:::
+
+### Step 2: Define Scenarios
+
+Each analysis contains one or more scenarios representing different modeling assumptions:
+
+| Field | Description |
+|-------|-------------|
+| **Name** | Scenario label (e.g., "Base Case", "Optimistic", "Conservative") |
+| **Scenario Type** | `intervention` -- the new therapy; `comparator` -- current standard of care; `sensitivity` -- parameter variation |
+| **Description** | Explanation of scenario assumptions |
+| **Parameter Overrides** | JSON object overriding base-case parameter values |
+| **Is Base Case** | Boolean flag (only one scenario can be the base case) |
+| **Sort Order** | Display ordering |
+
+:::tip Base case convention
+Always create at least two scenarios: an **intervention** base case and a **comparator** base case. Sensitivity scenarios vary individual parameters around the base case to test robustness.
+:::
+
+### Step 3: Define Cost Parameters
+
+Add cost and utility parameters to your analysis:
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| **Parameter Name** | Yes | Descriptive name (e.g., "Osimertinib annual cost") |
+| **Parameter Type** | Yes | Category (see table below) |
+| **Value** | Yes | Numeric value |
+| **Unit** | No | Unit of measurement (USD, QALY, per patient, etc.) |
+| **Lower Bound** | No | Low end for sensitivity analysis |
+| **Upper Bound** | No | High end for sensitivity analysis |
+| **Distribution** | No | Statistical distribution: normal, gamma, beta, log_normal, uniform |
+| **OMOP Concept ID** | No | Link to OMOP concept for data-driven parameters |
+| **Source Reference** | No | Literature citation or data source |
+
+### Parameter Types
+
+| Type | Code | Description | Examples |
+|------|------|-------------|---------|
+| **Drug Cost** | `drug_cost` | Acquisition cost of medications | Annual drug cost, per-dose cost |
+| **Administration Cost** | `admin_cost` | Cost of administering the therapy | Infusion center, nurse time |
+| **Hospitalization** | `hospitalization` | Inpatient stay costs | ICU day, general ward day |
+| **ER Visit** | `er_visit` | Emergency department costs | Per-visit ER cost |
+| **QALY Weight** | `qaly_weight` | Quality-adjusted life year weights | Health state utility |
+| **Utility Value** | `utility_value` | Health state utility values (0-1) | Progression-free, post-progression |
+| **Resource Use** | `resource_use` | Healthcare resource utilization | Physician visits/year, lab tests/year |
+| **Avoided Cost** | `avoided_cost` | Costs prevented by the intervention | Avoided hospitalizations |
+| **Program Cost** | `program_cost` | Implementation and program costs | Screening program cost, training |
+
+### Step 4: Run the Analysis
+
+1. Ensure at least one scenario is defined.
+2. Click **Run Analysis** on the analysis detail page.
+3. The `HeorEconomicsService` computes results for each scenario.
+4. Status transitions: `draft` -> `running` -> `completed` (or `failed`).
+
+## Understanding Results
+
+### Result Fields
+
+Each scenario produces a result record with:
+
+| Field | Description |
+|-------|-------------|
+| **Total Cost** | Aggregate cost for this scenario |
+| **Total QALYs** | Quality-adjusted life years gained |
+| **Total Life Years** | Unadjusted life years |
+| **Incremental Cost** | Cost difference vs. comparator |
+| **Incremental QALYs** | QALY difference vs. comparator |
+| **ICER** | Incremental cost-effectiveness ratio (cost per QALY gained) |
+| **Net Monetary Benefit** | NMB at the willingness-to-pay threshold |
+| **Willingness-to-Pay Threshold** | WTP used for NMB calculation |
+| **ROI Percent** | Return on investment percentage (for ROI analyses) |
+| **Payback Period** | Months until investment is recovered (for ROI analyses) |
+| **Budget Impact (Year 1/3/5)** | Projected budget impact (for budget impact analyses) |
+| **Cohort Size** | Number of patients in the analysis |
+
+### Tornado Diagram
+
+For sensitivity analyses, results include tornado data showing how each parameter affects the ICER:
+
+| Field | Description |
+|-------|-------------|
+| **Parameter** | Name of the varied parameter |
+| **Base Value** | Parameter's base-case value |
+| **Low/High Value** | Tested lower and upper bound |
+| **Low/High ICER** | Resulting ICER at each bound |
+| **Range** | ICER range (measures parameter sensitivity) |
+
+The tornado diagram ranks parameters by their impact on the ICER, helping identify which inputs most affect the economic conclusion. Parameters at the top of the tornado have the greatest influence and warrant the most scrutiny in data sourcing.
+
+:::info Interpreting ICER
+- **ICER below WTP threshold** -- the intervention is cost-effective
+- **ICER above WTP threshold** -- the intervention is not cost-effective at this price
+- **Negative ICER (cost-saving)** -- the intervention saves money while improving outcomes (dominant strategy)
+- Common WTP thresholds: $50,000/QALY (conservative), $100,000/QALY (moderate), $150,000/QALY (generous)
+:::
+
+## Value-Based Contracts
+
+The HEOR module includes a value-based contracting system for outcomes-linked pricing agreements between payers and manufacturers:
+
+### Contract Types
+
+| Type | Code | Description |
+|------|------|-------------|
+| **Outcomes-Based** | `outcomes_based` | Rebates tied to real-world outcome achievement |
+| **Amortized** | `amortized` | Payment spread over time, linked to continued benefit |
+| **Warranty** | `warranty` | Manufacturer guarantees outcomes; refund if not achieved |
+
+### Creating a Contract
+
+1. Navigate to **HEOR > Contracts**.
+2. Click **New Contract**.
+3. Configure:
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| **Contract Name** | Yes | Descriptive contract name |
+| **Analysis** | Yes | Link to an HEOR analysis |
+| **Drug Name** | No | Drug under contract |
+| **Contract Type** | No | outcomes_based, amortized, or warranty |
+| **Outcome Metric** | Yes | Clinical endpoint being measured (e.g., "30-day readmission rate") |
+| **Baseline Rate** | No | Expected outcome rate without intervention |
+| **List Price** | No | Drug list price per unit |
+| **Net Price Floor** | No | Minimum net price after rebates |
+| **Measurement Period** | No | Months over which outcomes are measured |
+| **Effective Date** | No | Contract start date |
+| **Rebate Tiers** | No | Tiered rebate structure (see below) |
+
+### Rebate Tiers
+
+Rebate tiers define outcome-linked pricing adjustments:
+
+```json
+[
+  { "threshold": 0.05, "rebate_percent": 10 },
+  { "threshold": 0.10, "rebate_percent": 20 },
+  { "threshold": 0.20, "rebate_percent": 35 }
+]
+```
+
+Each tier specifies: if the outcome improvement exceeds the threshold, the corresponding rebate percentage applies. Tiers are evaluated in order; the highest qualifying tier is used.
+
+### Rebate Simulation
+
+Simulate contract rebates based on observed real-world outcomes:
+
+1. Open a contract detail page.
+2. Enter the **observed outcome rate** from your real-world data.
+3. Click **Simulate Rebate**.
+4. The system computes:
+   - Which rebate tier applies
+   - Rebate percentage and dollar amount
+   - Net price after rebate
+   - Comparison to baseline rate
+
+This enables payers to model financial scenarios before finalizing contract terms.
+
+## HEOR Dashboard
+
+The main HEOR page displays:
+
+### Statistics Bar
+
+| Metric | Description |
+|--------|-------------|
+| **Total Analyses** | Number of analyses created by the current user |
+| **Completed** | Analyses with computed results |
+| **Total Contracts** | Value-based contracts managed |
+| **By Type** | Breakdown of analyses by type (CEA, CBA, CUA, etc.) |
+
+### Analysis List
+
+Sortable table of all analyses with:
+- Name, type, status, perspective, time horizon
+- Created and last updated timestamps
+- Quick actions (view, edit, run, delete)
+
+### Contract List
+
+Separate tab showing all value-based contracts with status (draft, active, expired).
+
+## API Reference
+
+Key HEOR API endpoints:
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/v1/heor/stats` | GET | Module statistics |
+| `/api/v1/heor/analyses` | GET, POST | List/create analyses |
+| `/api/v1/heor/analyses/{id}` | GET, PUT, DELETE | CRUD for analysis |
+| `/api/v1/heor/analyses/{id}/scenarios` | GET, POST | List/create scenarios |
+| `/api/v1/heor/analyses/{id}/scenarios/{sid}` | PUT, DELETE | Update/delete scenario |
+| `/api/v1/heor/analyses/{id}/parameters` | GET, POST | List/create parameters |
+| `/api/v1/heor/analyses/{id}/parameters/{pid}` | PUT, DELETE | Update/delete parameter |
+| `/api/v1/heor/analyses/{id}/run` | POST | Execute analysis |
+| `/api/v1/heor/analyses/{id}/results` | GET | Retrieve results |
+| `/api/v1/heor/contracts` | GET, POST | List/create contracts |
+| `/api/v1/heor/contracts/{id}` | GET, PUT, DELETE | CRUD for contract |
+| `/api/v1/heor/contracts/{id}/simulate-rebate` | POST | Simulate rebate |
+
+:::warning Regulatory compliance
+HEOR analyses produced by Parthenon are research tools. Economic models used for regulatory submissions (e.g., HTA dossiers, AMCP Format submissions) require additional validation, sensitivity analyses, and expert review beyond what the platform automates. Consult health economics methodologists for regulatory-grade deliverables.
+:::

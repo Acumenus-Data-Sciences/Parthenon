@@ -98,10 +98,10 @@ Common SQL differences are usually benign:
 
 | Difference | Cause | Impact |
 |-----------|-------|--------|
-| Schema prefix differences | Parthenon uses explicit schema qualifiers | None — identical logic |
-| Date arithmetic style | Minor dialect variations | None — equivalent results |
-| CTE order | Different compilation order | None — CTEs are non-ordered |
-| Concept set ID numbering | Parthenon reindexes embedded concept sets | None — concept IDs are identical |
+| Schema prefix differences | Parthenon uses explicit schema qualifiers | None --- identical logic |
+| Date arithmetic style | Minor dialect variations | None --- equivalent results |
+| CTE order | Different compilation order | None --- CTEs are non-ordered |
+| Concept set ID numbering | Parthenon reindexes embedded concept sets | None --- concept IDs are identical |
 
 If the logic structure differs (different WHERE clauses, different join conditions), file a bug report with both SQL files attached.
 
@@ -109,9 +109,9 @@ If the logic structure differs (different WHERE clauses, different join conditio
 
 | Status | Condition | Recommended Action |
 |--------|-----------|-------------------|
-| PASS | Count difference ≤ tolerance | No action needed |
-| WARN | Count difference between tolerance and 5× tolerance | Investigate; likely acceptable in large CDMs |
-| FAIL | Count difference > 5× tolerance | Investigate SQL diff before proceeding with cut-over |
+| PASS | Count difference within tolerance | No action needed |
+| WARN | Count difference between tolerance and 5x tolerance | Investigate; likely acceptable in large CDMs |
+| FAIL | Count difference > 5x tolerance | Investigate SQL diff before proceeding with cut-over |
 | N/A | Atlas count not available (cohort not generated in Atlas) | Generate in Atlas manually, then re-run validation |
 
 :::tip Tolerance guidance

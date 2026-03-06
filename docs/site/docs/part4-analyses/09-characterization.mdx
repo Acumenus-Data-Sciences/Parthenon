@@ -6,58 +6,176 @@ sidebar_label: "9. Characterization"
 
 # Characterization
 
-**Cohort characterization** produces a summary of the clinical and demographic features of one or more cohorts. It answers the question: "Who are the patients in this cohort, and what are their baseline characteristics?" This is the standard first analysis in any pharmacoepidemiological or comparative effectiveness study.
+**Cohort characterization** produces a comprehensive summary of the clinical and demographic features of one or more cohorts. It answers the fundamental question: "Who are the patients in this cohort, and what are their baseline characteristics?" Characterization is typically the first analysis performed in any pharmacoepidemiological, comparative effectiveness, or safety study.
+
+Characterization is one of **seven analysis types** available in Parthenon, accessible from the Analyses page which displays an AnalysisStatsBar with counts across all types.
+
+---
 
 ## What Characterization Produces
 
-A characterization analysis generates, for each cohort and each feature:
+For each cohort and each feature, a characterization analysis computes:
 
-- **Prevalence** — percentage of cohort members with at least one occurrence of the feature
-- **Mean and standard deviation** — for continuous measurements (e.g. HbA1c, BMI, age)
-- **Distribution** — for age and other stratified variables
+- **Prevalence (binary features)**: The percentage of cohort members with at least one occurrence of the feature during the specified time window. For example, "42.3% of the target cohort had a diagnosis of hypertension in the 365 days before index."
 
-Features are drawn from all OMOP CDM domains: conditions, drugs, procedures, measurements, observations, device exposures, and demographics.
+- **Mean and standard deviation (continuous features)**: For numeric measurements like HbA1c, BMI, systolic blood pressure, and age. Reported as mean +/- SD with the count of patients who had at least one measurement.
 
-## Creating a Characterization
+- **Distribution statistics**: Percentiles (p25, median, p75) for age, observation time, and other stratified continuous variables.
 
-1. Navigate to **Analyses → Characterization** and click **New Characterization**.
-2. Enter a **Name** and optional **Description**.
-3. Add one or more **Cohorts** to characterize by clicking **+ Add Cohort**.
-4. Configure the **Feature Set**:
-   - Use **Predefined feature sets** (demographics, conditions, drugs, measurements — all domains pre-loaded)
-   - Or **Custom feature set** — add individual concept sets with specific time windows
-5. Set the **Time window** for each feature domain (e.g. "365 days before cohort start").
-6. Choose whether to **Stratify by** age, gender, or year of cohort entry.
-7. Click **Save**, then **Execute**.
+- **Standardized Mean Difference (SMD)**: When comparing two cohorts, the SMD quantifies how different each feature is between them. This is the standard metric for assessing covariate balance in observational studies.
+
+---
 
 ## Feature Categories
 
-| Category | CDM Domain | Default Window |
-|----------|-----------|----------------|
-| Demographics | Person | At index |
-| Conditions | ConditionOccurrence | 365d before index |
-| Drug Exposures | DrugExposure | 365d before index |
-| Procedures | ProcedureOccurrence | 365d before index |
-| Measurements | Measurement | 365d before index |
-| Observations | Observation | 365d before index |
-| Visit Types | VisitOccurrence | 365d before index |
-| Charlson Comorbidity | Multiple domains | 365d before index |
+Characterization draws features from all major OMOP CDM domains. Each category has a default time window that can be customized:
+
+| Category | CDM Domain | What is captured | Default Window |
+|---|---|---|---|
+| **Demographics** | Person | Age, gender, race, ethnicity, year of birth | At index date |
+| **Conditions** | ConditionOccurrence | All recorded diagnoses | 365 days before index |
+| **Drug Exposures** | DrugExposure | All dispensed/prescribed medications | 365 days before index |
+| **Procedures** | ProcedureOccurrence | All recorded procedures | 365 days before index |
+| **Measurements** | Measurement | Lab tests, vital signs | 365 days before index |
+| **Observations** | Observation | Clinical observations (smoking, BMI, etc.) | 365 days before index |
+| **Visit Types** | VisitOccurrence | Inpatient, outpatient, ED visits | 365 days before index |
+| **Charlson Comorbidity** | Multiple domains | 17-condition Charlson Comorbidity Index | 365 days before index |
+
+### Charlson Comorbidity Index
+
+The Charlson index is a validated composite score derived from 17 condition categories (myocardial infarction, congestive heart failure, cerebrovascular disease, diabetes, renal disease, cancer, etc.). Parthenon computes both the individual component prevalences and the weighted composite score. The Charlson index is widely used in outcomes research as a summary measure of comorbidity burden.
+
+---
+
+## Creating a Characterization
+
+1. Navigate to **Analyses** in the top navigation.
+2. Ensure the **Characterizations** tab is active (it is the default).
+3. Click **New Analysis** and select **Characterization** from the dropdown.
+4. You are taken to the characterization design page.
+
+### Design Configuration
+
+The characterization design page includes the following settings:
+
+**Cohorts:**
+- **Target cohorts**: Add one or more cohorts whose members you want to characterize. Click **+ Add Cohort** and select from your generated cohort definitions.
+- **Comparator cohorts** (optional): Add cohorts for comparative analysis. When comparator cohorts are specified, the results include SMD calculations between each target-comparator pair.
+
+**Feature Types:**
+Select which feature categories to include. The default selection covers the most commonly used categories:
+- Demographics
+- Conditions
+- Drugs
+
+You can expand the selection to include procedures, measurements, observations, visits, and Charlson scoring. Including all categories provides the most complete picture but increases computation time and result size.
+
+**Stratification:**
+- **Stratify by gender**: Break results down by male/female/other
+- **Stratify by age**: Break results down by age bands (configurable)
+
+**Additional settings:**
+- **Top N**: Maximum number of features to return per category (default: 100). Features are ranked by prevalence.
+- **Minimum cell count**: Suppress features with fewer than N patients for privacy protection (default: 5).
+
+### Time Window Configuration
+
+Each feature category can have a custom time window, defined as days relative to the cohort start date:
+
+| Window notation | Meaning |
+|---|---|
+| `[-365, 0]` | In the 365 days up to and including the index date |
+| `[-365, -1]` | In the 365 days before index, excluding index day itself |
+| `[0, 30]` | At index through 30 days after |
+| `[-9999, -1]` | Any time before index (full lookback) |
+| `[-365, 365]` | One year before through one year after index |
+
+:::tip Window selection impacts results
+The time window determines what "baseline" means for your study. A 365-day window captures one year of history, which is standard for most pharmacoepi studies. A shorter window (e.g., 90 days) captures more acute/recent conditions. A longer window (e.g., all prior history) captures lifetime comorbidities but may include resolved conditions.
+:::
+
+---
+
+## Executing a Characterization
+
+After configuring the design:
+
+1. Click **Save** to persist the configuration.
+2. Select the **Data Source** to execute against.
+3. Click **Execute**.
+
+The characterization job is dispatched to the Horizon queue. Execution time depends on the number of cohorts, feature categories, and CDM database size. A typical characterization on a 1M-patient database with 3 feature categories completes in 1--5 minutes.
+
+---
 
 ## Viewing Results
 
-After execution, the characterization results page shows an interactive table with:
+After execution completes, the results page displays an interactive table:
 
-- Feature name and concept ID
-- Count and percentage per cohort
-- Difference between cohorts (for comparative views)
-- Standardized Mean Difference (SMD) when comparing two cohorts
+| Column | Description |
+|---|---|
+| **Feature Name** | Human-readable feature description (e.g., "Hypertension", "metformin", "Age 65-69") |
+| **Concept ID** | OMOP concept ID for the feature |
+| **Count** | Number of patients with the feature |
+| **Percentage** | Prevalence as a percentage of the cohort |
+| **Mean / SD** | For continuous features (measurements) |
+| **SMD** | Standardized Mean Difference (when comparing two cohorts) |
 
-Use the **search box** to filter features by name, and the **Sort** controls to order by prevalence, SMD, or concept ID.
+### Interactive Controls
+
+- **Search**: Filter features by name using the search box.
+- **Sort**: Click column headers to sort by prevalence, count, SMD, or concept ID.
+- **Category filter**: Toggle which feature categories are displayed.
+- **SMD threshold highlight**: Features with SMD > 0.1 are highlighted, indicating meaningful imbalance between cohorts.
+
+### Understanding SMD
+
+The Standardized Mean Difference (SMD) is calculated as:
+
+```
+SMD = (mean_target - mean_comparator) / sqrt((sd_target^2 + sd_comparator^2) / 2)
+```
+
+For binary features (prevalence), the formula uses the prevalence proportions and their corresponding standard deviations.
+
+| SMD Range | Interpretation |
+|---|---|
+| < 0.1 | Well-balanced; unlikely to confound |
+| 0.1 -- 0.2 | Moderate imbalance; may need adjustment |
+| > 0.2 | Substantial imbalance; must be addressed in any causal analysis |
+
+:::info SMD is direction-independent
+An SMD of -0.15 and +0.15 both indicate the same magnitude of imbalance. The sign indicates which cohort has the higher prevalence, but the absolute value is what matters for balance assessment.
+:::
+
+---
 
 ## Exporting Results
 
-Click **Export CSV** to download the full characterization table. The exported file contains one row per feature per cohort and includes all counts, percentages, and SMD values.
+Click **Export CSV** to download the full characterization table. The exported file contains one row per feature per cohort and includes:
 
-:::tip Standardized Mean Difference
-An SMD < 0.1 between two cohorts indicates that covariate is well-balanced. Use the SMD column to quickly identify important differences between a treatment and comparator cohort — these become confounders that must be addressed in any causal analysis.
+- Feature name and concept ID
+- Cohort name and ID
+- Count, percentage
+- Mean, SD (for continuous features)
+- SMD (for comparative analyses)
+
+The CSV export is suitable for inclusion in study reports, regulatory submissions, and "Table 1" generation in publications.
+
+:::tip Table 1 in publications
+Characterization results directly produce the standard "Table 1" (baseline characteristics) found in every observational study publication. Export the CSV, filter to the features you want to report, and format according to journal requirements.
 :::
+
+---
+
+## Best Practices
+
+1. **Always characterize before estimating**: Understanding baseline differences between cohorts is a prerequisite for any causal analysis. SMD values from characterization inform your propensity score model and confounder adjustment strategy.
+
+2. **Use standard feature sets**: Start with the predefined feature sets (demographics, conditions, drugs) rather than custom concept sets. This ensures comprehensive coverage and comparability across studies.
+
+3. **Check for empty features**: If many features show 0% prevalence, the concept sets may not be resolving correctly against your vocabulary, or the time window may be too narrow.
+
+4. **Compare across data sources**: Run the same characterization on multiple data sources to understand how population composition varies. This is essential for interpreting heterogeneity in network study results.
+
+5. **Document your choices**: Record which feature categories, time windows, and stratification settings you used. These details are required for study protocol documentation and reproducibility.

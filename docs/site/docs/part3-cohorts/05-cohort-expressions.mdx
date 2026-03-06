@@ -6,63 +6,272 @@ sidebar_label: "5. Cohort Expressions"
 
 # Cohort Expressions
 
-A **cohort expression** is the logical definition of who belongs to a cohort. Parthenon uses the CIRCE-BE cohort expression format — the same format used by OHDSI Atlas — which describes cohort membership as a combination of inclusion criteria applied to a patient's clinical history.
+A **cohort expression** is the formal, machine-readable definition of who belongs to a cohort and when their membership begins and ends. Parthenon uses the **CIRCE-BE** cohort expression format --- the same standard used by OHDSI Atlas --- which describes cohort membership as a structured combination of clinical criteria evaluated against OMOP CDM v5.4 data.
 
-## Core Concepts
+Understanding cohort expressions is foundational. Every cohort you build in Parthenon --- whether through the visual builder or by importing JSON --- resolves to a CIRCE expression that gets compiled into SQL and executed against your CDM.
 
-Every CIRCE cohort expression has three sections:
+---
 
-### 1. Primary Event Criteria (Index Event)
+## Anatomy of a Cohort Expression
 
-The **index event** is the anchoring clinical event that begins a patient's cohort entry. Common examples:
+Every CIRCE cohort expression is composed of seven logical sections. Not all sections are required, but together they give you full control over cohort membership logic.
 
-- First diagnosis of Type 2 Diabetes Mellitus (a condition occurrence)
-- First dispensing of metformin (a drug exposure)
-- A hospitalization for GI hemorrhage (a visit occurrence)
-- A measurement of HbA1c ≥ 7% (a measurement with value filter)
+### 1. Primary Criteria (Index Event)
 
-The index event defines **T = 0** (the index date) for each patient's entry into the cohort. A single patient can have multiple index events (leading to multiple entries) or be restricted to only the first event.
+The **primary criteria** define the anchoring clinical event --- the **index event** --- that qualifies a patient for cohort entry. The index event establishes **T = 0** (the index date) from which all other temporal logic is measured.
 
-### 2. Inclusion Rules
+Primary criteria specify:
 
-**Inclusion rules** are additional criteria that must be satisfied relative to the index event. Each rule is a named logical expression that can reference:
+- **Domain**: Which CDM table to search. Supported domains are:
+  - `ConditionOccurrence` --- diagnoses and conditions
+  - `DrugExposure` --- prescriptions, dispensings, administrations
+  - `ProcedureOccurrence` --- surgical and diagnostic procedures
+  - `Measurement` --- lab tests and vital signs
+  - `Observation` --- clinical observations
+  - `VisitOccurrence` --- encounters (inpatient, outpatient, ED)
+  - `Death` --- mortality events
 
-- Concept set occurrences in any CDM domain (conditions, drugs, measurements, procedures, visits, observations, device exposures, death)
-- Demographic attributes (age, gender, race, ethnicity)
-- Time windows relative to the index date (e.g. "in the 365 days prior to index")
-- Occurrence counts (at least N, exactly N, at most N)
-- Correlated criteria (temporal relationships between events)
+- **Concept Set**: Which concepts must match (e.g., all concepts in "Type 2 Diabetes" concept set)
 
-Rules can be marked as **required** (must be met) or **exclusionary** (must NOT be met to remain in the cohort).
+- **Observation Window**: Required continuous observation before and/or after the index date. For example, requiring 365 days of prior observation ensures sufficient lookback for baseline characterization.
 
-### 3. Cohort Exit Criteria
+**Examples of index events:**
 
-The **cohort exit** defines when a patient leaves the cohort. Options include:
+| Clinical scenario | Domain | Description |
+|---|---|---|
+| New T2DM diagnosis | ConditionOccurrence | First condition record matching T2DM concept set |
+| Metformin initiation | DrugExposure | First drug exposure for metformin concepts |
+| GI hemorrhage hospitalization | VisitOccurrence | Inpatient visit with a GI bleed diagnosis |
+| Elevated HbA1c | Measurement | HbA1c measurement with value >= 7.0% |
 
-- **End of observation** — the patient stays in the cohort until their last observation period
-- **Fixed duration** — a fixed number of days after the index event
-- **Drug era end** — when a drug era (continuous exposure window) ends
-- **Event criteria** — when a specific clinical event occurs (e.g. first myocardial infarction)
+:::tip Index event selection matters
+The choice of index event fundamentally shapes the study. A "first diagnosis" index event produces an **incident** cohort (new cases), while allowing any occurrence produces a **prevalent** cohort (existing cases). For causal inference studies, incident/new-user designs are strongly preferred.
+:::
+
+### 2. Inclusion Rules (Additional Criteria)
+
+**Inclusion rules** are named logical expressions that must be satisfied relative to the index event for a patient to remain in the cohort. They are evaluated sequentially, and the attrition report shows how many patients survive each rule.
+
+Each inclusion rule contains one or more **criteria groups** that define:
+
+- **Criteria**: Clinical events from any CDM domain with concept set filters
+- **Temporal windows**: Days relative to the index date. A window of `[-365, -1]` means "in the 365 days before index (exclusive of index day)." A window of `[0, 30]` means "at index or within 30 days after."
+- **Occurrence counts**: How many times the criterion must be met:
+  - `At least N` (type 2) --- most common, e.g., "at least 1 prior diagnosis"
+  - `Exactly N` (type 0) --- e.g., "exactly 0 prior drug exposures" for new-user designs
+  - `At most N` (type 1) --- upper bound
+- **Group logic**: Criteria within a group combine with `ALL` (every criterion met), `ANY` (at least one met), or `AT_MOST_0` (none met, i.e., exclusion)
+- **Nested groups**: Groups can contain sub-groups for complex boolean logic
+
+| Pattern | Implementation |
+|---|---|
+| Prior diagnosis required | At least 1 ConditionOccurrence in concept set X, window [-365, -1] |
+| New user (no prior exposure) | Exactly 0 DrugExposure in concept set X, window [-365, -1] |
+| Minimum follow-up | At least 365 days of continuous observation after index |
+| Age restriction | Demographic filter: age >= 18 at index |
+| Exclude prior outcome | Group type AT_MOST_0 with the outcome concept set |
+
+### 3. Cohort Exit (End Strategy)
+
+The **end strategy** defines when a patient's cohort membership ends. If no end strategy is specified, the default is **end of continuous observation**.
+
+Available strategies:
+
+| Strategy | Configuration | Use case |
+|---|---|---|
+| End of continuous observation | (default) | Pharmacoepi studies where you observe until data runs out |
+| Fixed duration after index | `DateField` + `Offset` in days | Time-limited exposure windows (e.g., 90 days post-surgery) |
+| Drug era end | `DrugCodesetId` + `GapDays` + `Offset` | Treatment cohorts where membership = active drug era |
+
+For drug era-based exit, the `GapDays` parameter defines how many days of no drug supply are allowed before the era is considered ended. An `Offset` of 0 means exit on the exact era end date; a positive offset extends membership beyond era end.
+
+### 4. Qualified Limit
+
+The **QualifiedLimit** controls how many qualifying events per patient are considered _before_ inclusion rules are applied:
+
+- `"First"` --- only the earliest qualifying event per patient (most common for incident cohorts)
+- `"All"` --- all qualifying events per patient (allows multiple cohort entries)
+
+### 5. Expression Limit
+
+The **ExpressionLimit** controls how many events per patient survive _after_ all inclusion rules are applied:
+
+- `"First"` --- keep only the first surviving event per patient
+- `"All"` --- keep all surviving events
+
+:::info Qualified vs. Expression Limit
+The distinction matters: `QualifiedLimit = "All"` with `ExpressionLimit = "First"` means "evaluate all events against inclusion rules, but ultimately keep only the first one that passes." This is useful when the first qualifying event might not meet inclusion rules but a later one does.
+:::
+
+### 6. Censoring Criteria
+
+**Censoring criteria** define events that terminate a patient's observation for the purpose of this cohort, even if their continuous observation period has not ended. Common censoring events:
+
+- Death
+- Occurrence of a competing risk (e.g., censor at liver transplant in a hepatic outcome study)
+- Switch to a different treatment
+
+Censoring criteria use the same domain/concept-set structure as primary criteria but do not have temporal windows --- they are evaluated across the entire cohort membership period.
+
+### 7. Collapse Settings
+
+**CollapseSettings** control whether multiple cohort entry periods for the same patient that are close together should be merged into a single continuous period:
+
+- `CollapseType: "ERA"` --- merge adjacent periods
+- `EraPad` --- maximum gap in days between periods that still triggers collapse (e.g., `EraPad: 30` merges entries separated by 30 days or fewer)
+
+This is analogous to the drug era construction logic in OMOP --- it smooths over brief gaps to create continuous exposure eras.
+
+---
+
+## Demographic Criteria
+
+In addition to clinical domain criteria, cohort expressions support **demographic filters** that constrain based on patient attributes:
+
+- **Age**: Numeric range evaluated at the index date
+- **Gender**: Concept IDs for Male (8507) and Female (8532)
+- **Race**: OMOP race concept IDs
+- **Ethnicity**: OMOP ethnicity concept IDs
+
+Demographic filters can appear in both primary criteria (restricting who qualifies for the index event) and in inclusion rules (further narrowing after index).
+
+---
+
+## Extended Criteria: Genomics and Imaging
+
+Parthenon extends the standard CIRCE format with two additional criteria types for precision medicine research.
+
+### Genomic Criteria (Phase 15)
+
+The `GenomicCriteria` array allows cohort definitions to incorporate molecular biomarker filters:
+
+| Type | Description | Parameters |
+|---|---|---|
+| `gene_mutation` | Specific gene mutation | `gene`, `hgvs` (e.g., EGFR L858R) |
+| `tmb` | Tumor mutational burden | `tmbOperator`, `tmbValue`, `tmbUnit` |
+| `msi` | Microsatellite instability | `msiStatus` (MSS, MSI-L, MSI-H) |
+| `fusion` | Gene fusion event | `gene1`, `gene2` |
+| `pathogenicity` | ClinVar pathogenicity class | `clinvarClasses` array |
+| `treatment_episode` | Treatment episode linkage | (context-dependent) |
+
+Each genomic criterion can be negated with `exclude: true` to create exclusion filters (e.g., "patients WITHOUT KRAS mutation").
+
+### Imaging Criteria (Phase 16)
+
+The `ImagingCriteria` array adds DICOM imaging-based filters:
+
+| Type | Description | Parameters |
+|---|---|---|
+| `modality` | Imaging modality | `modality` (CT, MRI, PET, etc.) |
+| `anatomy` | Body part examined | `bodyPart` |
+| `quantitative` | Radiomics feature threshold | `featureName`, `operator`, `value`, `unit` |
+| `ai_classification` | AI model classification | `classificationLabel`, `minConfidence` |
+| `dose` | Radiation dose limit | `maxDoseGy` |
+
+:::warning Non-standard extensions
+Genomic and imaging criteria are Parthenon extensions to the CIRCE format. Cohort definitions using these criteria will not be directly compatible with standard OHDSI Atlas. The standard CIRCE portions of the expression remain fully interoperable.
+:::
+
+---
 
 ## JSON Representation
 
-CIRCE cohort expressions are stored as JSON. Parthenon stores this JSON in the `cohort_definitions` table and generates SQL from it using the CIRCE-BE library. See [Appendix C](../appendices/c-circe-json-schema) for the full JSON schema reference.
+CIRCE cohort expressions are stored as JSON in the `expression_json` column of the `cohort_definitions` table in the application database. The JSON structure maps directly to the TypeScript `CohortExpression` interface.
 
-## Primary Event Filters
+Here is a simplified example of a "New users of metformin with T2DM" cohort expression:
 
-Within the primary event, you can apply:
+```json
+{
+  "ConceptSets": [
+    {
+      "id": 0,
+      "name": "Metformin",
+      "expression": {
+        "items": [
+          {
+            "concept": {
+              "CONCEPT_ID": 1503297,
+              "CONCEPT_NAME": "metformin",
+              "DOMAIN_ID": "Drug",
+              "VOCABULARY_ID": "RxNorm",
+              "STANDARD_CONCEPT": "S"
+            },
+            "isExcluded": false,
+            "includeDescendants": true,
+            "includeMapped": false
+          }
+        ]
+      }
+    },
+    {
+      "id": 1,
+      "name": "Type 2 Diabetes Mellitus",
+      "expression": {
+        "items": [
+          {
+            "concept": {
+              "CONCEPT_ID": 201826,
+              "CONCEPT_NAME": "Type 2 diabetes mellitus",
+              "DOMAIN_ID": "Condition",
+              "VOCABULARY_ID": "SNOMED",
+              "STANDARD_CONCEPT": "S"
+            },
+            "isExcluded": false,
+            "includeDescendants": true,
+            "includeMapped": false
+          }
+        ]
+      }
+    }
+  ],
+  "PrimaryCriteria": {
+    "CriteriaList": [
+      { "DrugExposure": { "CodesetId": 0, "First": true } }
+    ],
+    "ObservationWindow": { "PriorDays": 365, "PostDays": 0 }
+  },
+  "AdditionalCriteria": {
+    "Type": "ALL",
+    "CriteriaList": [
+      {
+        "Criteria": {
+          "ConditionOccurrence": { "CodesetId": 1 }
+        },
+        "StartWindow": {
+          "Start": { "Days": 365, "Coeff": -1 },
+          "End": { "Days": 0, "Coeff": -1 }
+        },
+        "Occurrence": { "Type": 2, "Count": 1 }
+      }
+    ],
+    "Groups": []
+  },
+  "QualifiedLimit": { "Type": "First" },
+  "ExpressionLimit": { "Type": "First" },
+  "CollapseSettings": { "CollapseType": "ERA", "EraPad": 0 }
+}
+```
 
-- **Domain filter** — which CDM table to query (ConditionOccurrence, DrugExposure, etc.)
-- **Concept set filter** — which concept set must match
-- **Date filter** — limit events to a specific calendar window
-- **First occurrence** — restrict to only the chronologically first qualifying event per patient
-- **Age at event** — age range filter evaluated at the index date
-- **Visit context** — require the event to occur during a specific visit type (inpatient, outpatient, ED, etc.)
+This expression reads: "Find patients whose first-ever metformin exposure (with at least 365 days of prior observation) occurs after at least one T2DM diagnosis in the prior year. Keep only the first qualifying event per patient."
 
-## Understanding Index Date Offsets
-
-All temporal windows in inclusion rules are measured in **days relative to the index date**. A window of `[-365, -1]` means "in the year before index (exclusive of index date itself)." A window of `[0, 30]` means "at index or in the 30 days following."
-
-:::tip Washout periods
-A common pattern is to require a **minimum observation period before index** (e.g. ≥ 365 days of continuous observation) and **no prior exposure to the drug of interest** in that period. This is called a "new user" or "incident user" design and is critical for unbiased pharmacoepidemiology.
+:::tip JSON portability
+Cohort expression JSON exported from Parthenon (without genomic/imaging extensions) can be imported directly into OHDSI Atlas, and vice versa. This makes Parthenon fully interoperable with the broader OHDSI ecosystem.
 :::
+
+---
+
+## SQL Generation
+
+When you generate a cohort, Parthenon compiles the CIRCE JSON into executable SQL parameterized for your target CDM schema. The generated SQL:
+
+1. Creates a temporary table of all qualifying index events from the primary criteria domain
+2. Applies the observation window filter to ensure sufficient lookback/follow-up
+3. Applies each inclusion rule sequentially, recording the count surviving each rule (for the attrition report)
+4. Applies the end strategy to compute `cohort_end_date`
+5. Applies the qualified and expression limits
+6. Applies collapse settings to merge adjacent eras
+7. Inserts final rows into the `{results_schema}.cohort` table
+
+The SQL generation is deterministic --- the same expression JSON always produces the same SQL, ensuring reproducibility across executions and data refreshes.
+
+For the complete JSON schema reference, see [Appendix C --- CIRCE JSON Schema](../appendices/c-circe-json-schema).

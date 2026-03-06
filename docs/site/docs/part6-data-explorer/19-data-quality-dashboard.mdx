@@ -6,58 +6,123 @@ sidebar_label: "19. Data Quality Dashboard"
 
 # Data Quality Dashboard
 
-The **Data Quality Dashboard** (DQD) evaluates the conformance, completeness, and plausibility of your OMOP CDM data against the [OHDSI DQD specification](https://ohdsi.github.io/DataQualityDashboard/). It runs ~3,000 data quality checks and summarizes results by category, CDM table, and concept domain.
+The **Data Quality Dashboard** (DQD) evaluates the conformance, completeness, and plausibility of your OMOP CDM data against the [OHDSI Data Quality Dashboard specification](https://ohdsi.github.io/DataQualityDashboard/). It runs approximately 3,000 data quality checks and summarizes results by category, CDM table, and concept domain. Data quality assessment is a critical prerequisite before using any CDM for research -- it helps identify ETL errors, source data issues, and potential biases.
 
 ## DQD Check Categories
 
-| Category | Description | Check count |
-|----------|-------------|-------------|
-| **Conformance** | Data conforms to CDM structure (valid values, foreign keys, date ranges) | ~1,200 |
-| **Completeness** | Expected columns and records are populated | ~800 |
-| **Plausibility** | Values are clinically plausible (e.g. age at death, date ordering) | ~1,000 |
+The DQD framework organizes checks into three categories, each targeting a different dimension of data quality:
 
-Each check returns a **pass/fail** status and a **failure rate** (% of records failing). The overall DQD score is the weighted percentage of passing checks.
+| Category | Description | Approximate Count | Examples |
+|----------|-------------|-------------------|---------|
+| **Conformance** | Data conforms to CDM structural requirements | ~1,200 | Valid concept IDs, correct data types, referential integrity, date ranges within bounds |
+| **Completeness** | Expected columns and records are populated | ~800 | Non-null required fields, expected record counts per domain, observation period coverage |
+| **Plausibility** | Values are clinically reasonable | ~1,000 | Age at death within lifespan, drug duration within expected range, lab values within physiological limits |
+
+Each check returns:
+
+- **Pass/Fail status** -- based on the configured failure threshold
+- **Failure count** -- number of records violating the check
+- **Failure rate** -- percentage of applicable records that fail
+- **Violation sample** -- up to 10 example records for investigation
+
+The **overall DQD score** is the weighted percentage of passing checks, giving a single number that summarizes database quality.
 
 ## Viewing DQD Results
 
-1. Navigate to **Data Explorer** and select a Data Source.
-2. Click the **Data Quality** tab.
-3. The summary shows the overall pass rate and a breakdown by category.
+1. Navigate to **Data Explorer** and select a Data Source from the dropdown.
+2. Click the **Data Quality** tab (4th tab).
+3. The summary panel shows:
+   - Overall pass rate with a color-coded gauge (green > 90%, yellow 70-90%, red < 70%)
+   - Category breakdown -- pass rate for Conformance, Completeness, and Plausibility independently
+   - CDM table breakdown -- pass rates grouped by clinical table
 
-The check list shows each check with:
-- Check name and description
-- CDM table and column being evaluated
-- Threshold (configurable, default 5% failure = fail)
-- Actual failure count and rate
-- Pass/Fail status
+### Check Detail Table
+
+Below the summary, the full check list displays every DQD check with:
+
+| Column | Description |
+|--------|-------------|
+| **Check Name** | Descriptive name of the quality check |
+| **Description** | What the check evaluates |
+| **Category** | Conformance / Completeness / Plausibility |
+| **CDM Table** | The clinical table being checked (e.g., `condition_occurrence`) |
+| **CDM Column** | The specific column (e.g., `condition_concept_id`) |
+| **Threshold** | Configurable failure rate limit (default: 5%) |
+| **Failure Count** | Number of records failing this check |
+| **Failure Rate** | Percentage of applicable records failing |
+| **Status** | Pass / Fail icon |
+
+Click any check row to expand the violation detail panel, showing example records and suggested remediation steps.
 
 ## Filtering and Searching
 
-Use the filter bar to narrow checks by:
+The filter bar provides multiple dimensions for narrowing the check list:
 
-- **Category** (Conformance / Completeness / Plausibility)
-- **Status** (Passing / Failing / All)
-- **CDM Table** (e.g. `condition_occurrence`, `drug_exposure`)
-- **Concept domain**
+- **Category** -- Conformance / Completeness / Plausibility (toggle buttons)
+- **Status** -- Passing / Failing / All (dropdown)
+- **CDM Table** -- select a specific table (e.g., `measurement`, `drug_exposure`)
+- **Concept Domain** -- filter by OMOP domain (Condition, Drug, Measurement, etc.)
+- **Search** -- free-text search across check names and descriptions
 
-Search by check name to find specific checks (e.g. "measurement value" to find all value plausibility checks).
+:::tip Prioritization
+Start by filtering to **Failing** checks sorted by **Failure Count** descending. This surfaces the highest-impact data quality issues first. A single check with 100,000 failures is more urgent than 10 checks with 5 failures each.
+:::
 
 ## Achilles Heel Checks
 
-The **Achilles Heel** tab within Data Quality shows the Achilles-generated quality notifications — simpler rule-based checks run as part of the Achilles analysis:
+The **Achilles Heel** tab (5th tab in Data Explorer) shows rule-based quality notifications generated as part of the Achilles analysis run. These are simpler, faster checks compared to the full DQD:
 
-- **ERROR** — critical data quality issues (e.g. future dates, negative drug durations)
-- **WARNING** — potential issues (e.g. records with birth year after death year)
-- **NOTIFICATION** — informational items (e.g. low record counts in certain domains)
+| Severity | Icon | Description | Examples |
+|----------|------|-------------|---------|
+| **ERROR** | Red circle | Critical data quality issues requiring immediate attention | Future dates in observation period, negative drug exposure durations, orphaned records |
+| **WARNING** | Yellow triangle | Potential issues that may affect analysis validity | Birth year after death year, extremely long observation periods, unusual gender distributions |
+| **NOTIFICATION** | Blue info | Informational items about data characteristics | Low record counts in certain domains, single-value columns, vocabulary coverage gaps |
 
-These checks are faster than full DQD and update whenever Achilles is re-run.
+Heel checks are stored in the `achilles_heel_results` table and update automatically whenever Achilles is re-run. They are significantly faster than a full DQD execution (seconds vs. minutes).
+
+### Heel Check Table
+
+The Heel tab displays checks in a sortable, filterable table:
+
+- Filter by severity (Error / Warning / Notification)
+- Search by message text
+- Sort by record count to find the most prevalent issues
+- Click any check to see the underlying Achilles analysis that triggered it
 
 ## Running a Full DQD Check
 
-1. Navigate to **Admin → System → DQD Jobs** (admin only).
-2. Select a Data Source and click **Run DQD**.
-3. The DQD runs as a background job and takes 15–60 minutes depending on CDM size.
+1. Navigate to **Admin > System > DQD Jobs** (requires admin role).
+2. Select a Data Source from the dropdown.
+3. Optionally configure:
+   - **Failure threshold** -- percentage above which a check is considered failing (default: 5%)
+   - **Check categories** -- run all categories or select specific ones
+   - **CDM tables** -- restrict checks to specific tables (useful for targeted re-evaluation after ETL fixes)
+4. Click **Run DQD**.
+5. The DQD executes as a background job via Laravel Horizon. Typical execution times:
+   - Small CDM (< 10K patients): 5-15 minutes
+   - Medium CDM (10K-1M patients): 15-45 minutes
+   - Large CDM (> 1M patients): 30-90 minutes
 
 :::warning Failure thresholds
-The default failure threshold is 5% — checks where more than 5% of records fail are marked as "failing." Adjust this threshold in the DQD configuration based on your data quality standards and acceptable error rates for your specific use case.
+The default failure threshold is **5%** -- checks where more than 5% of applicable records fail are marked as "failing." This threshold should be tuned based on your data quality standards:
+
+- **Research networks** (OHDSI, PCORnet): Typically use 1-5% thresholds
+- **Regulatory submissions**: May require 0% tolerance for certain checks
+- **Exploratory analysis**: 10% may be acceptable for initial data assessment
+
+Adjust thresholds in **Admin > System Configuration > Data Quality Settings**.
+:::
+
+## DQD Results History
+
+Parthenon stores historical DQD results for trend analysis. Navigate to **Data Quality > History** to view:
+
+- **Score trend** -- line chart of overall DQD score over time
+- **Category trends** -- individual trend lines for Conformance, Completeness, and Plausibility
+- **Run comparison** -- side-by-side diff of two DQD runs to see which checks improved or regressed after an ETL update
+
+This historical view is invaluable for tracking data quality improvement over successive ETL iterations.
+
+:::danger Do not ignore failing checks
+Failing DQD checks can silently bias research results. For example, if 20% of `condition_occurrence` records have `condition_concept_id = 0` (unmapped), prevalence estimates will be systematically underestimated. Always review and address failing checks before using a CDM for published research.
 :::

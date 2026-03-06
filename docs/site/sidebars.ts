@@ -82,6 +82,26 @@ const sidebars: SidebarsConfig = {
     },
     {
       type: "category",
+      label: "Part IX — Genomics",
+      items: ["part9-genomics/27-genomics-overview"],
+    },
+    {
+      type: "category",
+      label: "Part X — Imaging",
+      items: ["part10-imaging/28-imaging-overview"],
+    },
+    {
+      type: "category",
+      label: "Part XI — HEOR",
+      items: ["part11-heor/29-heor-overview"],
+    },
+    {
+      type: "category",
+      label: "Part XII — FHIR EHR Integration",
+      items: ["part12-fhir/30-fhir-ehr-integration"],
+    },
+    {
+      type: "category",
       label: "Migration Guide (Atlas → Parthenon)",
       items: [
         "migration/00-overview",

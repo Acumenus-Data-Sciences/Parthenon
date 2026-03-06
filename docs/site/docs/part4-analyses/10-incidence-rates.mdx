@@ -6,50 +6,183 @@ sidebar_label: "10. Incidence Rates"
 
 # Incidence Rates
 
-**Incidence rate analysis** estimates how frequently a clinical outcome occurs in a defined population at risk. The result is expressed as an incidence rate (IR) in cases per 1,000 person-years, along with incidence proportions, confidence intervals, and stratified breakdowns.
+**Incidence rate analysis** estimates how frequently a clinical outcome occurs in a defined population at risk. The primary result is an incidence rate (IR) expressed as cases per 1,000 person-years (PY), along with incidence proportions, 95% confidence intervals, and stratified breakdowns. Incidence analysis is the standard approach for establishing background event rates, comparing outcome frequencies across populations, and supporting safety surveillance.
+
+---
 
 ## Core Concepts
 
-- **Target cohort** — the population at risk (denominator). Patients are "at risk" from their cohort start to cohort end date.
-- **Outcome cohort** — the event of interest (numerator). The first occurrence of the outcome after the target cohort start is counted.
-- **Time at risk (TAR)** — the portion of each patient's time in the target cohort during which they are considered at risk. Configurable as a window relative to cohort start/end.
-- **Clean window** — patients who have the outcome before entering the target cohort can be excluded (washout).
+Understanding four key concepts is essential for configuring an incidence rate analysis:
 
-## Creating an Incidence Analysis
+### Target Cohort (Denominator)
 
-1. Navigate to **Analyses → Incidence Rates** and click **New Incidence Analysis**.
-2. Add one or more **Target Cohorts** (populations at risk).
-3. Add one or more **Outcome Cohorts** (outcomes to count).
-4. Configure the **Time at Risk** window:
-   - **Start** — days after cohort start when observation begins (commonly 0 or 1)
-   - **End** — days after cohort start/end (commonly cohort end date)
-5. Optionally set a **Clean window** — exclude patients with the outcome in the N days before cohort start.
-6. Add **Subgroup analyses** if desired (e.g. by age band, gender, calendar year).
-7. Click **Save**, select a **Data Source**, then click **Execute**.
+The **target cohort** defines the population at risk. Patients contribute person-time from their cohort start date to their cohort end date (or the outcome event, whichever comes first). The target cohort must be generated before the incidence analysis can execute.
+
+Example: "New users of metformin with T2DM and 365 days prior observation" --- this defines who is at risk.
+
+### Outcome Cohort (Numerator)
+
+The **outcome cohort** defines the event of interest. For each patient in the target cohort, the analysis counts whether (and when) they experience the outcome. Typically, the **first occurrence** of the outcome after the target cohort start date is counted.
+
+Example: "Myocardial infarction (inpatient)" --- this is the event being measured.
+
+### Time at Risk (TAR)
+
+The **time at risk** window specifies which portion of each patient's time in the target cohort counts toward the analysis:
+
+- **Start**: Days relative to cohort start when risk observation begins. Commonly `0` (from day of entry) or `1` (day after entry, excluding the index day).
+- **End**: Days relative to cohort start or cohort end when risk observation ends. Commonly set to `cohort end date` for open-ended follow-up.
+
+The TAR window determines the denominator (total person-time) for the rate calculation.
+
+| TAR Configuration | Use case |
+|---|---|
+| Start = 0, End = cohort end | Full follow-up from entry to exit |
+| Start = 1, End = cohort end | Exclude the index day (common for drug safety) |
+| Start = 0, End = 365 days after start | Fixed 1-year risk window |
+| Start = 31, End = cohort end | Skip the first 30 days (induction period) |
+
+### Clean Window (Washout)
+
+The **clean window** excludes patients who already have the outcome in the N days before their target cohort start date. This ensures you are measuring **incident** (new) events rather than prevalent (pre-existing) conditions.
+
+Example: A clean window of 365 days for MI means patients with any MI diagnosis in the year before entering the target cohort are excluded from the analysis.
+
+---
+
+## Creating an Incidence Rate Analysis
+
+1. Navigate to **Analyses** and select the **Incidence Rates** tab.
+2. Click **New Analysis** and select **Incidence Rate**.
+3. Configure the analysis on the design page.
+
+### Design Configuration
+
+**Target Cohorts:**
+- Add one or more target cohorts. Multiple targets allow you to compare rates across different populations in a single analysis (e.g., metformin users vs. sulfonylurea users).
+- Target cohorts must already be generated on the source you plan to analyze.
+
+**Outcome Cohorts:**
+- Add one or more outcome cohorts. Each target-outcome pair produces an independent rate estimate.
+- Multiple outcomes allow you to assess several safety or effectiveness endpoints simultaneously.
+
+**Time at Risk:**
+- **Start anchor**: `cohort start date`
+- **Start offset**: Days after anchor (commonly 0 or 1)
+- **End anchor**: `cohort start date` or `cohort end date`
+- **End offset**: Days after anchor (commonly 0 when using cohort end date)
+
+**Clean Window:**
+- Days before cohort start during which the outcome must not be present
+- Set to 0 to include all patients (no washout)
+
+**Stratification:**
+- **By gender**: Separate rates for male/female
+- **By age**: Separate rates for configurable age bands
+- **By calendar year**: Separate rates for each calendar year of cohort entry
+
+**Privacy:**
+- **Minimum cell count**: Suppress results where the case count is below this threshold (default: 5)
+
+---
 
 ## Reading the Results
 
-The results table shows for each Target × Outcome combination:
+After execution, the results table shows one row per target-outcome combination:
 
 | Column | Description |
-|--------|-------------|
-| Persons | Number of unique patients in the target cohort |
-| Person-time | Total time at risk (person-years) |
-| Cases | Outcome events counted |
-| IR (per 1000PY) | Incidence rate with 95% CI |
-| IP (proportion) | Incidence proportion (cases / persons) |
+|---|---|
+| **Target Cohort** | Name of the at-risk population |
+| **Outcome Cohort** | Name of the event being measured |
+| **Persons at Risk** | Unique patients in the target cohort after clean window exclusions |
+| **Person-Time (PY)** | Total time at risk in person-years |
+| **Cases** | Number of outcome events observed |
+| **IR per 1,000 PY** | Incidence rate with 95% confidence interval |
+| **IP (proportion)** | Incidence proportion: cases / persons at risk |
 
-Stratified results (by age, gender, etc.) are shown in expandable sub-tables.
+### Stratified Results
+
+When stratification is enabled, expandable sub-tables show rates broken down by the stratification variable:
+
+**Age-stratified example:**
+
+| Age Band | Persons | Person-Years | Cases | IR per 1,000 PY (95% CI) |
+|---|---|---|---|---|
+| 18--34 | 12,450 | 18,230 | 23 | 1.26 (0.80--1.89) |
+| 35--49 | 28,310 | 42,100 | 112 | 2.66 (2.19--3.20) |
+| 50--64 | 45,200 | 61,300 | 389 | 6.35 (5.73--7.01) |
+| 65+ | 31,040 | 38,500 | 542 | 14.08 (12.91--15.33) |
+
+---
 
 ## Interpreting Results
 
-Incidence rates are particularly useful for:
+### Incidence Rate vs. Incidence Proportion
 
-- Establishing background rates before a study
-- Comparing rates across populations or calendar periods
-- Reporting safety event frequencies in observational data
-- Planning sample size calculations for interventional studies
+| Metric | Formula | When to use |
+|---|---|---|
+| **Incidence Rate** | Cases / Person-Years | When follow-up time varies across patients; standard for pharmacoepi |
+| **Incidence Proportion** | Cases / Persons at Risk | When all patients have similar follow-up; simpler to interpret |
+
+The incidence rate accounts for differential follow-up (patients who exit early contribute less person-time), making it the preferred metric for observational studies where follow-up is not uniform.
+
+### Confidence Intervals
+
+Parthenon computes exact Poisson 95% confidence intervals for incidence rates. Narrow confidence intervals indicate precise estimates (large sample size and/or long follow-up). Wide intervals suggest insufficient data for reliable estimation.
+
+### Common Applications
+
+- **Background rates**: Establishing the natural frequency of an outcome in a population (e.g., MI rate among T2DM patients)
+- **Comparative rates**: Comparing event rates between populations (e.g., metformin vs. sulfonylurea users)
+- **Temporal trends**: Tracking how rates change over calendar time (annual stratification)
+- **Subgroup analysis**: Identifying populations with elevated risk (age, gender stratification)
+- **Safety surveillance**: Monitoring adverse event rates in post-marketing drug safety studies
+- **Sample size planning**: Using observed rates to calculate required sample sizes for clinical trials
 
 :::warning Observational data limitations
-Incidence rates from claims or EHR data reflect **diagnosed and recorded** events, not true population incidence. Under-coding, care-seeking behavior, and database coverage all affect the rate estimates.
+Incidence rates from claims or EHR data reflect **diagnosed and recorded** events, not true population incidence. Under-coding, care-seeking behavior, database coverage, and coding practices all affect rate estimates. Rates from administrative data are typically lower than clinical trial rates due to under-ascertainment. Always report the data source type and known limitations alongside the rates.
 :::
+
+---
+
+## Multiple Target-Outcome Pairs
+
+A powerful feature of Parthenon's incidence analysis is the ability to configure multiple targets and multiple outcomes in a single analysis:
+
+```
+Targets: [Metformin users, Sulfonylurea users, DPP-4i users]
+Outcomes: [MI, Stroke, Heart failure, Hypoglycemia]
+```
+
+This produces a 3 x 4 matrix of 12 incidence rate estimates, enabling comprehensive comparative safety profiling across drug classes in one execution.
+
+:::tip Negative control outcomes
+Include outcomes that have no plausible causal relationship with the exposure (e.g., appendicitis as a negative control for a diabetes drug). If the incidence rate is elevated for negative controls, it suggests residual confounding or systematic bias in the analysis design.
+:::
+
+---
+
+## Exporting Results
+
+Click **Export CSV** to download the complete results table, including all stratified breakdowns. The export includes:
+
+- Target and outcome cohort identifiers and names
+- Person counts, person-time, case counts
+- Rate estimates with confidence intervals
+- Stratification variables and values
+
+The export format is suitable for inclusion in regulatory submissions, study reports, and journal publications.
+
+---
+
+## Best Practices
+
+1. **Set appropriate clean windows**: A 365-day clean window is standard for chronic conditions. For acute events (e.g., fracture), a shorter window (90--180 days) may be more appropriate.
+
+2. **Validate against published rates**: Compare your computed rates against published epidemiologic literature. Major discrepancies suggest issues with cohort definition, outcome ascertainment, or data quality.
+
+3. **Always report person-time**: Incidence proportions without person-time context can be misleading. A 5% incidence over 1 year is very different from 5% over 10 years.
+
+4. **Use age-gender stratification by default**: Age and gender are the strongest predictors of most clinical outcomes. Stratified rates reveal patterns that overall rates mask.
+
+5. **Consider competing risks**: In elderly populations, death is a competing risk that prevents outcome observation. Report mortality rates alongside outcome rates when relevant.

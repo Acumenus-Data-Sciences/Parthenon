@@ -6,72 +6,120 @@ sidebar_label: "18. Achilles Characterization"
 
 # Achilles Characterization
 
-The **Data Explorer** provides pre-computed summary statistics for your OMOP CDM databases powered by [OHDSI Achilles](https://ohdsi.github.io/Achilles/). Achilles runs once against a CDM and stores hundreds of aggregate queries in a results schema, enabling fast interactive exploration without running expensive real-time queries.
+The **Data Explorer** provides pre-computed summary statistics for your OMOP CDM databases powered by [OHDSI Achilles](https://ohdsi.github.io/Achilles/). Achilles runs once against a CDM and stores hundreds of aggregate queries in a results schema, enabling fast interactive exploration without running expensive real-time queries against the clinical tables.
 
 ## What Achilles Contains
 
-Achilles computes ~170 analysis queries covering:
+Achilles computes approximately 170 analysis queries covering every major clinical domain in the OMOP CDM:
 
-| Analysis group | Examples |
-|---------------|---------|
-| Person | Age distribution, gender split, race, ethnicity |
-| Observation period | Observation years, duration distributions |
-| Visit | Visit type frequencies, visit duration |
-| Condition | Condition prevalence, co-occurrence, by age/gender |
-| Drug | Drug prevalence, era duration, days supply distributions |
-| Measurement | Lab value distributions, units, ranges |
-| Procedure | Procedure frequency by type and setting |
-| Death | Cause of death distributions, time from index to death |
+| Analysis Group | Analysis IDs | Examples |
+|---------------|-------------|---------|
+| **Person** | 1-10 | Gender distribution, year of birth, race, ethnicity, gender x year of birth |
+| **Observation period** | 101-117 | Observation years, duration distributions, continuous observation per year |
+| **Visit** | 200-220 | Visit type frequencies, visit duration, visits per year |
+| **Condition** | 400-420 | Condition prevalence, co-occurrence, by age/gender, trends by year |
+| **Drug** | 700-720 | Drug prevalence, era duration, days supply distributions |
+| **Measurement** | 1800-1820 | Lab value distributions, units, value ranges, measurement frequency |
+| **Procedure** | 600-620 | Procedure frequency by type and clinical setting |
+| **Death** | 500-510 | Cause of death distributions, time from observation start to death |
 
-## Opening Data Explorer
+Each analysis produces rows in the `achilles_results` and `achilles_results_dist` tables, identified by `analysis_id`, with breakdowns by `stratum_1` through `stratum_5` for dimensional slicing.
 
-Navigate to **Data Explorer** in the top navigation. Select a **Data Source** from the dropdown (only sources with a populated results daimon are available).
+## CDM Characterization Dashboard
 
-The explorer has five tabs:
+The Data Explorer Overview tab presents a 6-section CDM characterization dashboard that provides an at-a-glance summary of your database:
 
-1. **Overview** — database summary statistics (patient count, date range, vocabulary version)
-2. **Conditions** — condition prevalence treemap and drill-down
-3. **Drugs** — drug exposure prevalence and era statistics
-4. **Measurements** — lab value distributions with box plots
-5. **Data Quality** — Achilles Heel results (see [Chapter 19](19-data-quality-dashboard))
+### Source Selector
+
+A dropdown at the top of the dashboard lets you switch between configured data sources. Only sources with a populated **results daimon** appear in the selector. Parthenon uses dynamic `SET search_path` to route queries to the correct results schema for each source, enabling seamless multi-source exploration.
+
+### Metric Cards
+
+Four summary cards display key population statistics:
+
+| Card | Metric | Source |
+|------|--------|--------|
+| **Total Patients** | Unique person count | Analysis 1 |
+| **Observation Period** | Earliest to latest date range | Analysis 101, 109 |
+| **Gender Split** | Male / Female / Other counts | Analysis 2 |
+| **Median Follow-up** | Median observation period duration | Analysis 105 |
+
+### Gender Distribution Bar
+
+A horizontal bar chart shows the gender distribution across the entire patient population, color-coded by gender concept (Male = blue, Female = pink, Other = gray).
+
+### Age-Gender Pyramid
+
+A population pyramid chart displays the age distribution in 5-year bands, split by gender. This visualization immediately reveals the demographic profile of the database -- whether it skews young (Medicaid), elderly (Medicare), or balanced (commercial claims).
+
+### Domain Record Counts
+
+A table showing total record counts per clinical domain (conditions, drugs, procedures, measurements, observations, visits, death) with per-patient averages.
+
+### Temporal Coverage
+
+A line chart showing the number of patients with active observation by calendar year, revealing enrollment trends and the effective study window.
+
+## Navigating Data Explorer Tabs
+
+The Data Explorer has five tabs:
+
+1. **Overview** -- CDM characterization dashboard (described above)
+2. **Conditions** -- condition prevalence treemap and drill-down
+3. **Drugs** -- drug exposure prevalence and era statistics
+4. **Measurements** -- lab value distributions with box plots
+5. **Data Quality** -- Achilles Heel results (see [Chapter 19](19-data-quality-dashboard))
 
 ## Conditions Tab
 
-The Conditions tab shows conditions sorted by prevalence. Select any condition to see:
+The Conditions tab displays conditions sorted by prevalence. The default view is a treemap where tile size corresponds to patient count. Select any condition to see:
 
-- Prevalence (% of patients with at least one occurrence)
-- Age and gender distribution
-- Prevalence by year (trend)
-- Top co-occurring conditions
+- **Prevalence** -- percentage of patients with at least one occurrence
+- **Age and gender distribution** -- stratified bar chart
+- **Prevalence by year** -- temporal trend line
+- **Top co-occurring conditions** -- conditions most frequently observed in the same patients
+- **Source codes** -- original ICD/SNOMED codes mapped to this standard concept
 
 ## Drugs Tab
 
-The Drugs tab shows drug exposures by RxNorm ingredient. Select any drug to see:
+The Drugs tab shows drug exposures aggregated by RxNorm ingredient. Select any drug to see:
 
-- Prevalence by ingredient
-- Days supply distribution
-- Era duration distribution (how long patients stay on therapy)
-- First exposure year trend
+- **Prevalence by ingredient** -- percentage of patients exposed
+- **Days supply distribution** -- histogram of prescription durations
+- **Era duration distribution** -- how long patients remain on continuous therapy
+- **First exposure year trend** -- when patients first start the drug over time
+- **Dose distribution** -- if quantity and days supply are populated
 
 ## Measurements Tab
 
 The Measurements tab shows LOINC-coded measurement statistics. Select any measurement to see:
 
-- Distribution of values (histogram with configurable bins)
-- Summary statistics (median, IQR, min/max)
-- Unit of measure breakdown
-- Stratification by gender
+- **Value distribution** -- histogram with configurable bin width
+- **Summary statistics** -- median, interquartile range, 5th/95th percentiles, min/max
+- **Unit of measure breakdown** -- distribution of recording units
+- **Gender stratification** -- separate distributions for male and female patients
+- **Temporal trend** -- measurement frequency over calendar years
+
+## Multi-Source Achilles
+
+Parthenon supports multiple data sources, each with its own Achilles results. The system handles this via the **Source/Daimon pattern**:
+
+1. Each data source has a `results` daimon pointing to a specific schema (e.g., `achilles_results`, `eunomia_results`).
+2. When you select a source in the Data Explorer, the `AchillesResultReaderService` calls `SET search_path` on the results connection to the appropriate schema.
+3. This is stateless per-request -- each API call sets the search path independently, so concurrent users exploring different sources do not interfere with each other.
+
+:::tip
+The Achilles result freshness is shown in the dashboard footer as "Results as of [date]" to help users understand data currency. Stale results (older than 30 days) display a warning badge.
+:::
 
 ## Refreshing Achilles Results
 
-Achilles results are static — they reflect the state of the CDM when Achilles was last run. To refresh:
+Achilles results are static snapshots -- they reflect the state of the CDM when Achilles was last executed. To refresh:
 
-1. Navigate to **Admin → System → Achilles Jobs** (admin only).
+1. Navigate to **Admin > System > Achilles Jobs** (requires admin role).
 2. Select a data source and click **Run Achilles**.
-3. Achilles runs as a background job; monitor progress in the job queue.
+3. Achilles runs as a background job via Laravel Horizon; monitor progress in the job queue.
 
-Running Achilles on a large CDM can take 30–120 minutes. Schedule it during off-peak hours.
-
-:::tip
-The Achilles result counts are shown in the bottom bar of the Data Explorer as "As of [date]" to help users understand data freshness.
+:::warning Performance considerations
+Running Achilles on a large CDM (millions of patients) can take 30-120 minutes and generates significant database load. Schedule Achilles runs during off-peak hours and avoid running multiple sources concurrently. For the bundled Eunomia demo dataset (~2,700 patients), Achilles completes in under 30 seconds using the SQL-based mini-Achilles built into Parthenon.
 :::

@@ -6,49 +6,216 @@ sidebar_label: "13. Patient-Level Prediction"
 
 # Patient-Level Prediction
 
-:::note Under Development
-Patient-Level Prediction (PLP) is not yet implemented in the current release. This chapter documents the planned design.
+**Patient-Level Prediction** (PLP) builds machine learning models that predict the probability of a clinical outcome for individual patients. Given a target population and an outcome, PLP extracts features from the OMOP CDM, trains classifiers, evaluates performance on held-out data, and produces calibrated risk scores. PLP implements the OHDSI HADES `PatientLevelPrediction` R package interface, enabling standardized, reproducible predictive modeling.
+
+:::info Configuration available; execution connecting to R runtime
+The PLP design UI is fully functional --- you can configure target/outcome cohorts, select model types, tune hyperparameters, and set population and covariate settings. Execution is being connected to the R runtime container where the HADES `PatientLevelPrediction` package performs the actual model training and evaluation. In the interim, designs can be exported as R-ready configuration objects.
 :::
 
-**Patient-Level Prediction** (PLP) builds machine learning models that predict the probability of a clinical outcome for individual patients. It implements the OHDSI HADES `PatientLevelPrediction` R package interface, enabling standardized, reproducible predictive modeling on OMOP CDM data.
+---
 
 ## What PLP Does
 
-Given a **target population** and an **outcome**, PLP:
+The PLP pipeline performs the following steps:
 
-1. Extracts a large feature matrix from the CDM (demographics, conditions, drugs, procedures, measurements — typically 10,000+ features per patient)
-2. Splits patients into training and test sets (or uses cross-validation)
-3. Trains one or more classifiers (logistic regression, LASSO, random forest, gradient boosting, deep learning)
-4. Evaluates model performance on the held-out test set
-5. Produces a **calibrated predicted probability** for each patient in the target cohort
+1. **Population definition**: Identify patients in the target cohort who meet the study criteria (observation requirements, no prior outcome, etc.)
+2. **Feature extraction**: Extract a large feature matrix from the CDM --- demographics, conditions, drugs, procedures, measurements --- typically producing 10,000+ binary and continuous features per patient
+3. **Data splitting**: Divide patients into training and test sets (or use cross-validation)
+4. **Model training**: Train one or more classifiers on the training set
+5. **Model evaluation**: Assess performance on the held-out test set using discrimination, calibration, and clinical utility metrics
+6. **Risk scoring**: Produce a calibrated predicted probability for each patient
 
-## Planned Model Types
+---
 
-| Model | Description |
-|-------|-------------|
-| LASSO Logistic Regression | Regularized logistic regression; most interpretable |
-| Random Forest | Ensemble of decision trees; robust to non-linearity |
-| Gradient Boosting (XGBoost) | High-accuracy gradient boosting |
-| Deep Learning (ResNet) | Neural network; requires GPU for large datasets |
-| AdaBoost | Adaptive boosting ensemble |
+## Model Types
+
+Parthenon supports five model architectures, spanning interpretable linear models to complex ensemble and deep learning approaches:
+
+| Model | Type | Key Characteristics | Best For |
+|---|---|---|---|
+| **LASSO Logistic Regression** | Linear | L1-regularized; automatic feature selection; most interpretable; coefficient-based explanation | Default choice; regulatory submissions; situations requiring model explainability |
+| **Random Forest** | Ensemble | Collection of decision trees; robust to non-linearity and interactions; variable importance ranking | Moderate-sized datasets; exploration of non-linear relationships |
+| **Gradient Boosting (XGBoost)** | Ensemble | Sequential boosting of weak learners; often highest accuracy; tunable complexity | Large datasets; maximizing predictive performance |
+| **Deep Learning (ResNet)** | Neural Network | Deep residual network; can capture complex patterns; requires more data and compute | Very large datasets (100K+ patients); GPU-accelerated environments |
+| **AdaBoost** | Ensemble | Adaptive boosting; focuses training on misclassified examples; simpler than XGBoost | Moderate datasets; alternative ensemble approach |
+
+:::tip Start with LASSO
+LASSO logistic regression should be your default first model. It is fast, interpretable (you can inspect which features drive predictions), and often performs competitively with more complex models. Only move to ensemble or deep learning models if LASSO performance is insufficient and you have enough data to support the additional complexity.
+:::
+
+---
+
+## Creating a Prediction Analysis
+
+1. Navigate to **Analyses** and select the **Predictions** tab.
+2. Click **New Analysis** and select **Prediction**.
+3. Configure the design on the detail page.
+
+### Cohort Configuration
+
+| Setting | Description |
+|---|---|
+| **Target cohort** | The population in which predictions will be made (e.g., patients hospitalized for heart failure) |
+| **Outcome cohort** | The event to predict (e.g., 30-day readmission, 1-year mortality) |
+
+### Time at Risk
+
+The time at risk defines the prediction window --- the period during which the outcome must occur to be counted as a positive case:
+
+| Setting | Description | Default |
+|---|---|---|
+| **Start** | Days after cohort start to begin observation | 1 |
+| **End** | Days after the anchor to end observation | 365 |
+| **End anchor** | `cohort start` or `cohort end` | `cohort start` |
+
+Example configurations:
+
+| Prediction question | Start | End | End anchor |
+|---|---|---|---|
+| 30-day readmission after discharge | 1 | 30 | cohort start |
+| 1-year mortality after T2DM diagnosis | 1 | 365 | cohort start |
+| 90-day adverse event after drug start | 1 | 90 | cohort start |
+| Event during active treatment | 1 | 0 | cohort end |
+
+### Model Configuration
+
+| Setting | Description | Default |
+|---|---|---|
+| **Model type** | One of the five model types | `lasso_logistic_regression` |
+| **Hyperparameters** | Model-specific tuning parameters (optional) | Auto-tuned |
+
+Model-specific hyperparameters:
+
+| Model | Key Hyperparameters |
+|---|---|
+| LASSO LR | Regularization strength (lambda), convergence tolerance |
+| Random Forest | Number of trees, max depth, min samples per leaf |
+| XGBoost | Number of rounds, learning rate, max depth, subsample ratio |
+| Deep Learning | Layer sizes, dropout rate, learning rate, epochs, batch size |
+| AdaBoost | Number of estimators, learning rate, base estimator type |
+
+:::info Automatic hyperparameter tuning
+When hyperparameters are left at their defaults (empty `{}`), the R runtime uses cross-validation on the training set to automatically select optimal values. This is recommended for most use cases. Manual hyperparameter specification is available for advanced users who want to replicate specific model configurations.
+:::
+
+### Covariate Settings
+
+Configure which CDM features are included in the feature matrix:
+
+| Setting | Description | Default |
+|---|---|---|
+| **Demographics** | Age, gender, race, ethnicity, year of birth | Enabled |
+| **Condition occurrence** | Binary indicators for each condition concept | Enabled |
+| **Drug exposure** | Binary indicators for each drug concept | Enabled |
+| **Procedure occurrence** | Binary indicators for each procedure concept | Disabled |
+| **Measurement** | Measurement values and binary indicators | Disabled |
+| **Time windows** | Lookback periods for feature extraction | [-365, 0] |
+
+### Population Settings
+
+Population settings control which patients from the target cohort are included in the modeling dataset:
+
+| Setting | Description | Default |
+|---|---|---|
+| **Washout period** | Days of required observation before index | 365 |
+| **Remove prior outcome** | Exclude patients with the outcome before index | Enabled |
+| **Require time at risk** | Require minimum observation after index | Enabled |
+| **Minimum time at risk** | Minimum days of post-index observation required | 365 |
+
+:::warning Outcome prevalence matters
+If the outcome is very rare (< 1% of the target population), prediction models may struggle to learn meaningful patterns. Consider:
+- Extending the time at risk window
+- Broadening the outcome definition
+- Using AUPRC (which handles class imbalance better) rather than AUROC as the primary metric
+:::
+
+### Split Settings
+
+| Setting | Description | Default |
+|---|---|---|
+| **Test fraction** | Proportion of patients held out for evaluation | 0.25 |
+| **Split seed** | Random seed for reproducible train/test splitting | 42 |
+
+---
 
 ## Performance Metrics
 
-All PLP models are evaluated on:
+All PLP models are evaluated on a comprehensive set of metrics:
 
-- **AUROC** — area under the receiver operating characteristic curve
-- **AUPRC** — area under the precision-recall curve (preferred for rare outcomes)
-- **Calibration** — expected vs. observed event rates in deciles
-- **Brier score** — mean squared error of probabilistic predictions
-- **Net benefit** — decision-curve analysis threshold metrics
+### Discrimination
+
+| Metric | What it measures | Ideal value |
+|---|---|---|
+| **AUROC** | Probability that a random positive case is ranked higher than a random negative case | 1.0 (random = 0.5) |
+| **AUPRC** | Area under the precision-recall curve; preferred for rare outcomes | 1.0 (random = outcome prevalence) |
+
+### Calibration
+
+| Metric | What it measures | Ideal value |
+|---|---|---|
+| **Calibration plot** | Expected vs. observed event rates across deciles of predicted risk | Points on the 45-degree line |
+| **Brier score** | Mean squared error of probabilistic predictions | 0.0 (lower is better) |
+| **E-statistic** | Average absolute calibration error across deciles | 0.0 (lower is better) |
+
+### Clinical Utility
+
+| Metric | What it measures |
+|---|---|
+| **Net benefit** | Decision-curve analysis across probability thresholds; compares model to "treat all" and "treat none" strategies |
+| **Sensitivity/Specificity at threshold** | Performance at clinically meaningful probability cutoffs |
+
+### Interpretation Guidelines
+
+| AUROC Range | Interpretation |
+|---|---|
+| 0.90--1.00 | Excellent discrimination |
+| 0.80--0.90 | Good discrimination |
+| 0.70--0.80 | Acceptable discrimination |
+| 0.60--0.70 | Poor discrimination |
+| 0.50--0.60 | Near random; model is not useful |
+
+:::danger AUROC alone is insufficient
+A high AUROC does not guarantee a useful model. A model with AUROC = 0.85 but poor calibration (predicted 10% risk when actual risk is 2%) is clinically dangerous. Always evaluate both discrimination AND calibration before deploying a model.
+:::
+
+---
 
 ## Privacy and Model Sharing
 
-PLP models are always trained on patient-level data within a data access boundary. Only the trained model object (not patient data) can be exported. Predictions for new patients are run within the same security perimeter.
+PLP models are trained on patient-level data within a data access boundary. Parthenon enforces the following privacy constraints:
+
+- **Model objects can be exported** (coefficients, tree structures, neural network weights) because they do not contain individual patient data.
+- **Patient-level predictions cannot be exported** from the platform without explicit authorization.
+- **Minimum cell count** settings suppress any aggregate statistics (feature prevalences, outcome counts) with small counts.
+- **External validation** (applying a model trained at one site to data at another site) requires the model object to be transferred, not the data.
+
+---
 
 ## Use Cases
 
-- Early identification of patients at high risk of hospitalization
-- Propensity score model building for comparative effectiveness studies
-- Risk stratification for clinical decision support
-- Outcome prediction for power calculations in clinical trials
+| Use Case | Target Cohort | Outcome | Time at Risk |
+|---|---|---|---|
+| **Hospital readmission** | Patients discharged from inpatient visit | 30-day all-cause readmission | 1--30 days |
+| **Cardiovascular risk** | T2DM patients initiating therapy | Major adverse cardiovascular event | 1--365 days |
+| **Treatment response** | Cancer patients starting immunotherapy | Treatment response at 90 days | 1--90 days |
+| **Surgical complication** | Patients undergoing joint replacement | Post-operative infection | 1--90 days |
+| **Disease progression** | Early CKD patients | Progression to Stage 4+ | 1--730 days |
+| **Propensity scoring** | (Any two treatment groups) | Treatment assignment | At index |
+
+---
+
+## Best Practices
+
+1. **Define the question precisely**: The prediction question must specify WHO (target), WHAT (outcome), and WHEN (time at risk) before any modeling begins.
+
+2. **Ensure adequate sample size**: As a rough guide, you need at least 100 outcome events in the training set for LASSO, and 500+ for ensemble/deep learning methods.
+
+3. **Avoid data leakage**: Features must be derived only from data available BEFORE the prediction time point. The time window setting ensures this --- never include post-index features.
+
+4. **Evaluate on held-out data**: Never assess model performance on the data used for training. The test fraction setting ensures proper evaluation.
+
+5. **Validate externally**: A model trained on one database should be validated on an independent database before clinical deployment. Performance typically drops in external validation.
+
+6. **Report all metrics**: Discrimination (AUROC, AUPRC), calibration (Brier score, calibration plot), and clinical utility (net benefit) together --- not just AUROC alone.
+
+7. **Consider clinical actionability**: A prediction model is only useful if the predicted risk can lead to a different clinical action (intervention, monitoring, referral). Models predicting non-actionable outcomes have limited value.

@@ -6,55 +6,234 @@ sidebar_label: "14. Studies"
 
 # Studies
 
-A **Study** in Parthenon is a container that groups related cohort definitions, concept sets, and analyses into a single reproducible research package. Studies provide version control, collaboration, and export capabilities for full research projects.
+A **Study** in Parthenon is a container that groups related cohort definitions, concept sets, analyses, and data sources into a single reproducible research package. Studies provide the organizational structure, provenance tracking, and export capabilities needed for real-world evidence projects --- from single-site exploratory analyses to multi-database OHDSI network studies.
+
+---
 
 ## Why Use Studies?
 
-Individual cohort definitions and analyses are created independently, but a real-world evidence study requires many coordinated components:
+Individual cohort definitions and analyses are useful on their own, but a real-world evidence study requires many coordinated components:
 
-- Multiple target and comparator cohorts
-- Shared concept sets (exposure, outcome, covariate definitions)
-- Multiple analysis types (characterization, incidence, estimation)
-- Documentation of design choices and protocol amendments
-- Reproducible export for multi-database replication
+- Multiple target, comparator, and outcome cohorts
+- Shared concept sets (exposure definitions, outcome definitions, covariate definitions)
+- Multiple analysis types (characterization for Table 1, incidence for background rates, estimation for causal effects)
+- Execution across multiple data sources for network-level evidence
+- Documentation of design choices, protocol amendments, and analysis decisions
+- Reproducible export for peer review, regulatory submission, or multi-site replication
 
-Studies tie all these components together with provenance tracking.
+Without a study container, these components are disconnected --- you cannot reliably reconstruct which cohort versions and analysis configurations were used together for a specific research question. Studies solve this by binding everything together with metadata and execution history.
+
+---
 
 ## Creating a Study
 
-1. Navigate to **Analyses → Studies** and click **New Study**.
-2. Enter a **Study Title** (e.g. "Cardiovascular Safety of GLP-1 Agonists vs. DPP-4 Inhibitors").
-3. Add an optional **Abstract** and **Protocol** document (plain text or Markdown).
-4. Set the **Study Status** (Design, Execution, Complete, Archived).
+1. Navigate to **Analyses** and click **Studies** (or navigate directly to the Studies section).
+2. Click **New Study**.
+3. Fill in the study metadata:
+
+| Field | Description | Required |
+|---|---|---|
+| **Study Title** | Descriptive title (e.g., "Cardiovascular Safety of GLP-1 Agonists vs. DPP-4 Inhibitors") | Yes |
+| **Abstract** | Brief summary of the research question, population, and methods | No |
+| **Protocol** | Full study protocol document (plain text or Markdown) | No |
+| **Status** | Current lifecycle stage | Yes |
+
+4. Set the initial **Study Status** (default: `Design`).
 5. Click **Save**.
+
+### Study Status Lifecycle
+
+| Status | Description |
+|---|---|
+| **Design** | Study is being designed. Components can be added, removed, and modified freely. |
+| **Execution** | Study is actively being executed. Cohorts are being generated and analyses are running. Modifications are discouraged but allowed. |
+| **Complete** | All analyses have been executed and results reviewed. The study is finalized. |
+| **Archived** | Study is preserved for reproducibility but no longer actively used. Read-only. |
+
+:::tip Protocol-first design
+Write your study protocol (or at least a structured abstract) before adding components. This disciplines the analysis plan and prevents post-hoc fishing for significant results. Include the study protocol in the Protocol field so it is permanently associated with the study package.
+:::
+
+---
 
 ## Adding Components
 
-Once created, open the study and use the component tabs to link related objects:
+Once a study is created, open it and use the component tabs to link the building blocks of your research:
 
-- **Cohorts tab** — attach target, comparator, and outcome cohort definitions
-- **Concept Sets tab** — attach concept sets used across the study
-- **Analyses tab** — attach characterization, incidence, pathway, and estimation analyses
-- **Data Sources tab** — select which sources this study should execute against
+### Cohorts Tab
+
+Attach cohort definitions to the study, categorized by their role:
+
+| Role | Description | Example |
+|---|---|---|
+| **Target** | The primary population(s) of interest | New users of GLP-1 RA |
+| **Comparator** | The comparison population(s) | New users of DPP-4i |
+| **Outcome** | The clinical event(s) being studied | Myocardial infarction, stroke, heart failure |
+| **Subgroup** | Subpopulation definitions for stratified analysis | Age >= 65, patients with CKD |
+
+Click **+ Add Cohort** to search and select from existing cohort definitions. Each cohort can be tagged with its role in the study.
+
+### Concept Sets Tab
+
+Attach concept sets used across the study. While concept sets are embedded within cohort expressions, explicitly linking them to the study provides:
+
+- A central inventory of all concepts used in the study
+- Easy comparison of concept set versions
+- Export of concept sets as standalone artifacts
+
+### Analyses Tab
+
+Attach analyses of any type:
+
+- **Characterizations** --- for baseline Table 1 and covariate profiling
+- **Incidence Rates** --- for background event rates and comparative incidence
+- **Treatment Pathways** --- for understanding real-world treatment patterns
+- **Estimations** --- for causal effect estimates (CohortMethod)
+- **SCCS** --- for self-controlled analyses
+- **Predictions** --- for risk models
+- **Evidence Synthesis** --- for meta-analysis across data sources
+
+Each analysis is linked to the study with its configuration preserved. Changes to the analysis configuration after linking are reflected in the study (they are references, not copies).
+
+### Data Sources Tab
+
+Select which data sources this study will execute against. For single-site studies, select your primary CDM. For network studies, select all participating sites.
+
+| Setting | Description |
+|---|---|
+| **Available sources** | All configured data sources in the Parthenon instance |
+| **Selected sources** | Sources included in this study's execution plan |
+
+---
 
 ## Study Execution
 
-Click **Execute All** to queue all analyses in the study on their configured data sources. Parthenon executes them in dependency order: cohorts are generated first, then analyses that depend on generated cohorts.
+### Execute All
 
-A progress dashboard shows the status of each component as execution proceeds.
+Click **Execute All** to queue all analyses in the study across all selected data sources. Parthenon handles execution in dependency order:
 
-## Exporting a Study
+1. **Cohort generation**: All cohort definitions linked to the study are generated on each selected source (if not already generated).
+2. **Analysis execution**: Analyses that depend on generated cohorts are queued after cohort generation completes.
+3. **Evidence synthesis**: Meta-analytic analyses are queued after individual source-level analyses complete.
 
-Click **Export Study Package** to download a ZIP containing:
+A progress dashboard shows the real-time status of each component:
 
-- All cohort definition JSONs (OHDSI/CIRCE format)
-- All concept set JSONs
-- Analysis specification JSONs
-- A `README.md` with study metadata
-- An `r-analysis/` folder with pre-configured HADES R scripts ready to run on any OMOP CDM
+| Component | Source 1 | Source 2 | Source 3 |
+|---|---|---|---|
+| Target cohort (GLP-1 RA) | Completed | Running | Pending |
+| Comparator cohort (DPP-4i) | Completed | Completed | Pending |
+| Outcome cohort (MI) | Completed | Running | Pending |
+| Characterization | Completed | Pending | Pending |
+| Incidence rates | Running | Pending | Pending |
+| Estimation (HR) | Pending | Pending | Pending |
+| Evidence synthesis | Pending | Pending | Pending |
 
-This export format is compatible with the OHDSI study packages convention and can be submitted to OHDSI network studies.
+### Selective Execution
 
-:::tip Protocol registration
-Before executing a study that will be published, register your protocol on [ClinicalTrials.gov](https://clinicaltrials.gov/) or the [EU PAS Register](https://www.encepp.eu/encepp/studiesDatabase.jsp). Include the registration ID in the Study Abstract field for full traceability.
+You can also execute individual components:
+- Click **Generate** on a specific cohort to generate it on selected sources
+- Click **Execute** on a specific analysis to run just that analysis
+- Click **Rerun** on a failed component to retry it
+
+### Results Aggregation
+
+The study's **Results** tab aggregates outputs from all analyses:
+
+- Characterization tables per source
+- Incidence rate tables per target-outcome-source combination
+- Effect estimates per source with forest plots
+- Evidence synthesis meta-analytic summaries
+
+This aggregated view is the study's "answer" --- the complete evidence package that supports the research conclusion.
+
+---
+
+## Exporting a Study Package
+
+Click **Export Study Package** to download a comprehensive ZIP archive containing:
+
+```
+study-package/
+  README.md                      # Study metadata, abstract, protocol summary
+  protocol.md                    # Full study protocol
+  cohorts/
+    target-glp1ra.json          # CIRCE JSON for each cohort
+    comparator-dpp4i.json
+    outcome-mi.json
+    outcome-stroke.json
+    outcome-hf.json
+  concept-sets/
+    glp1-ra-concepts.json       # Concept set expressions
+    dpp4i-concepts.json
+    mi-concepts.json
+  analyses/
+    characterization.json       # Analysis configuration
+    incidence-rates.json
+    estimation.json
+    evidence-synthesis.json
+  results/                       # (Optional) Aggregated results
+    characterization-results.csv
+    incidence-results.csv
+    estimation-results.csv
+  r-analysis/
+    StudySpecification.json     # HADES-compatible study spec
+    RunStudy.R                  # Pre-configured R script
+    requirements.R              # Required R packages
+```
+
+### OHDSI Network Study Compatibility
+
+The exported study package follows OHDSI conventions and can be:
+
+- **Submitted to OHDSI network studies**: The `r-analysis/` folder contains scripts that partner sites can run on their own OMOP CDM databases without access to your data.
+- **Shared with collaborators**: The complete package provides everything needed to understand, replicate, or extend the study.
+- **Archived for reproducibility**: The package captures the exact state of all study components at the time of export.
+
+:::tip Version your exports
+Export the study package at key milestones (protocol lock, after each data refresh, at final analysis). Name exports with dates or version numbers (e.g., `glp1-safety-study-v2.1-2026-03-05.zip`) for clear provenance.
+:::
+
+---
+
+## Collaboration Features
+
+### Team Access
+
+Study creators can manage access:
+
+- **Owner**: Full control (edit, execute, delete, manage access)
+- **Contributor**: Can add/remove components and execute analyses
+- **Viewer**: Read-only access to study design and results
+
+### Activity Log
+
+The study detail page includes an activity log showing:
+
+- When components were added or removed
+- When executions were started and completed
+- When the study status was changed
+- Who performed each action
+
+This audit trail supports regulatory requirements for documenting analysis decisions and timeline.
+
+---
+
+## Best Practices
+
+1. **One study per research question**: Keep studies focused on a single research question. A study comparing GLP-1 RA vs. DPP-4i safety should not also include an unrelated T2DM pathway analysis.
+
+2. **Write the protocol first**: Define your research question, target/comparator/outcome cohorts, analysis plan, and data sources in the protocol before building anything. This prevents HARKing (Hypothesizing After Results are Known).
+
+3. **Use consistent naming**: Name cohorts and analyses within the study using a consistent scheme that makes their role clear (e.g., prefix target cohorts with "[T]", comparators with "[C]", outcomes with "[O]").
+
+4. **Link all dependencies**: Ensure every concept set used in any cohort or analysis is explicitly linked to the study. This makes the export self-contained.
+
+5. **Execute incrementally**: Do not wait until everything is configured to execute. Generate cohorts early to validate counts, run characterization to check population balance, then proceed to estimation.
+
+6. **Export before publication**: Always export the study package before submitting results for publication or regulatory review. The export preserves the exact state of all components.
+
+7. **Archive completed studies**: Change status to `Archived` after publication to prevent accidental modification while preserving full access for future reference.
+
+:::warning Regulatory traceability
+For studies supporting regulatory submissions (FDA, EMA), the study package serves as the analysis audit trail. Ensure the protocol, all cohort definitions, analysis configurations, and results are captured in the export. Missing components can delay or derail regulatory review.
 :::

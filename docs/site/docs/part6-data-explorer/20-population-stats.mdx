@@ -6,57 +6,121 @@ sidebar_label: "20. Population Statistics"
 
 # Population Statistics
 
-The **Population Statistics** tab in Data Explorer provides high-level demographic and temporal summaries of the patient population in a data source. These summaries are useful for quickly assessing database coverage and suitability for a specific research question before investing in full cohort generation.
+The **Population Statistics** section in Data Explorer provides high-level demographic and temporal summaries of the patient population in a data source. These summaries are essential for quickly assessing database coverage, demographic composition, and suitability for a specific research question before investing time in full cohort definition and generation.
 
 ## Overview Panel
 
-The Overview panel shows:
+The Overview panel consolidates key database metrics into a single summary view:
 
-| Statistic | Description |
-|-----------|-------------|
-| Total patients | Unique `person_id` count |
-| Date range | Earliest to latest observation period |
-| Observation years | Total person-years of follow-up |
-| Median follow-up | Median observation period duration (days) |
-| Vocabulary version | Name and date of loaded OMOP vocabulary |
-| CDM version | Detected CDM schema version |
+| Statistic | Description | Source |
+|-----------|-------------|--------|
+| **Total Patients** | Unique `person_id` count in the CDM | `person` table |
+| **Date Range** | Earliest to latest observation period start/end dates | `observation_period` table |
+| **Observation Years** | Total person-years of follow-up across all patients | Sum of observation period durations |
+| **Median Follow-up** | Median observation period duration in days | Achilles analysis 105 |
+| **Vocabulary Version** | Name and date of the loaded OMOP vocabulary | `vocabulary` table metadata |
+| **CDM Version** | Detected OMOP CDM schema version | `cdm_source` table |
+
+:::info Metric interpretation
+**Total person-years** is a better measure of database "size" than patient count alone. A database with 100,000 patients and 10 years of follow-up (1M person-years) is more useful for longitudinal studies than one with 500,000 patients and 6 months of follow-up (250K person-years).
+:::
 
 ## Age and Gender Distribution
 
-A stacked bar chart shows the age-gender distribution of the population in 5-year age bands. Toggle between **counts** and **percentages**. Hover over a bar to see the exact count for that age-gender cell.
+A population pyramid chart displays the age-gender distribution in 5-year age bands (0-4, 5-9, ..., 85+). This visualization provides immediate insight into the demographic profile:
+
+- **Medicare databases** -- pyramid heavily weighted toward 65+ age bands
+- **Medicaid databases** -- bimodal distribution (children and young adults)
+- **Commercial claims** -- concentrated in working-age adults (18-64)
+- **EHR databases** -- distribution reflects the patient population of the health system
+
+### Controls
+
+- **Toggle counts/percentages** -- switch between absolute counts and relative percentages
+- **Hover tooltips** -- exact count for each age-gender cell
+- **Export** -- download the chart as PNG or the underlying data as CSV
 
 ## Observation Period Timeline
 
-A time-series chart shows the number of patients with active observation in each calendar month. This reveals:
+A time-series line chart shows the number of patients with active observation in each calendar month or quarter. This chart reveals critical information about your database:
 
-- Database enrollment/disenrollment patterns
-- Coverage gaps (months with anomalously low counts)
-- The effective study window (years with stable coverage)
+- **Enrollment patterns** -- gradual growth (expanding health system), seasonal drops (academic medical centers), or sharp changes (insurance plan changes)
+- **Coverage gaps** -- months with anomalously low patient counts may indicate data capture failures or ETL issues
+- **Effective study window** -- the years with stable, consistent coverage suitable for epidemiological analysis
+- **Data currency** -- how recent the data extends, and whether the latest months show complete capture
+
+:::tip Study period selection
+When designing a study, use the timeline chart to identify the period with the most stable coverage. Avoid using the first and last 6 months of data -- enrollment ramp-up and data lag often create incomplete capture at the boundaries.
+:::
 
 ## Domain Coverage
 
-A coverage table shows the count of records and unique patients in each CDM domain:
+The domain coverage table shows record counts and patient coverage across all major OMOP CDM clinical domains:
 
-| Domain | Record Count | Patient Count | Avg per Patient |
-|--------|-------------|--------------|-----------------|
-| condition_occurrence | | | |
-| drug_exposure | | | |
-| measurement | | | |
-| procedure_occurrence | | | |
-| visit_occurrence | | | |
-| observation | | | |
-| death | | | |
+| Domain | Record Count | Patient Count | % of Population | Avg Records per Patient |
+|--------|-------------|--------------|-----------------|------------------------|
+| `condition_occurrence` | -- | -- | -- | -- |
+| `drug_exposure` | -- | -- | -- | -- |
+| `measurement` | -- | -- | -- | -- |
+| `procedure_occurrence` | -- | -- | -- | -- |
+| `visit_occurrence` | -- | -- | -- | -- |
+| `observation` | -- | -- | -- | -- |
+| `death` | -- | -- | -- | -- |
+| `device_exposure` | -- | -- | -- | -- |
 
-Low patient counts in a domain relative to overall population size may indicate incomplete data capture for that domain.
+### Interpreting Domain Coverage
 
-## Data Source Comparison
+- **Low patient coverage** in a domain relative to the overall population size may indicate incomplete data capture. For example, if only 10% of patients have `measurement` records in an EHR database, lab data may not be routinely captured.
+- **Zero records** in a domain means the ETL did not populate that table -- it does not necessarily mean the source system lacks that data.
+- **High records-per-patient** in `measurement` (often 50-200+) is normal for EHR databases with lab data; claims databases typically have much lower measurement density.
 
-When you have multiple data sources configured, use the **Compare Sources** view to overlay population statistics across sources. This is useful for:
+## Multi-Source Comparison
 
-- Identifying which source has the longest follow-up for a specific patient population
-- Comparing demographic distributions across sites (relevant for multi-site studies)
-- Assessing coverage before selecting a source for a specific analysis
+When multiple data sources are configured, the **Compare Sources** view provides side-by-side population statistics for cross-database assessment:
+
+### Comparison Table
+
+A multi-column table aligning key metrics across selected sources:
+
+| Metric | Source A | Source B | Source C |
+|--------|---------|---------|---------|
+| Total patients | -- | -- | -- |
+| Date range | -- | -- | -- |
+| Person-years | -- | -- | -- |
+| % Female | -- | -- | -- |
+| Median age | -- | -- | -- |
+| Condition records | -- | -- | -- |
+| Drug records | -- | -- | -- |
+
+### Use Cases for Comparison
+
+- **Source selection** -- identify which database has the longest follow-up for your target population
+- **Multi-site studies** -- compare demographic distributions across sites to assess representativeness
+- **Data completeness** -- compare domain coverage to identify which sources have the richest data for specific domains
+- **Feasibility assessment** -- quickly determine whether sufficient patients exist across sources for a multi-database study
+
+### Overlay Charts
+
+Toggle the **Overlay** view to superimpose age-gender pyramids and timeline charts from multiple sources on a single plot, with each source shown in a different color.
 
 :::tip Research feasibility
-Use Population Statistics as your first stop when evaluating feasibility for a new study. Check that the database covers the study period, has sufficient patients in the age/gender strata of interest, and has good coverage in the domains you plan to query.
+Use Population Statistics as your first stop when evaluating feasibility for a new study. Before building cohort definitions, verify that:
+1. The database covers your intended study period
+2. Sufficient patients exist in the age/gender strata of interest
+3. The relevant clinical domains (conditions, drugs, procedures, labs) have adequate coverage
+4. Observation period durations are long enough for your required follow-up time
+
+This 5-minute feasibility check can save hours of cohort development work on an unsuitable database.
 :::
+
+## Population Analytics Tab
+
+The **Population Analytics** tab extends basic statistics with advanced demographic analysis:
+
+- **Age distribution histogram** -- continuous distribution with kernel density estimate
+- **Enrollment duration distribution** -- how long patients typically remain in the database
+- **Year-over-year growth** -- patient acquisition and attrition rates
+- **Geographic distribution** -- if location data is available (state, region)
+- **Payer mix** -- distribution of insurance types (if captured in the CDM)
+
+These analytics draw from both Achilles pre-computed results and real-time queries against the CDM tables, providing a comprehensive demographic profile of each data source.

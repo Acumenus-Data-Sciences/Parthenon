@@ -6,63 +6,267 @@ sidebar_label: "8. Cohort Management"
 
 # Cohort Management
 
-The **Cohorts** list view is your workspace for organizing, reviewing, and acting on cohort definitions. This chapter covers the lifecycle management features available beyond the basic build-and-generate workflow.
+The **Cohorts** list view is your workspace for organizing, reviewing, and acting on cohort definitions throughout their lifecycle. Beyond the build-and-generate workflow covered in previous chapters, Parthenon provides tools for cloning, comparing, bulk operations, import/export, archiving, and collaboration.
+
+---
 
 ## Cohort List View
 
-Navigate to **Cohorts** to see all defined cohorts in the organization. The list shows:
+Navigate to **Cohorts** in the top navigation bar to see all cohort definitions accessible to you. The list displays:
 
-- **Name** and **Description**
-- **Created by** and **Created at** timestamps
-- **Generation status** — a summary badge (Not Generated / Partial / All Sources Complete)
-- **Quick actions** — Generate, Edit, Clone, Export, Delete
+| Column | Description |
+|---|---|
+| **Name** | Cohort definition name (clickable to open detail view) |
+| **Description** | Brief description of the phenotype |
+| **Author** | User who created the definition |
+| **Created** | Creation timestamp |
+| **Status** | Generation status badge: `Not Generated`, `Partial` (some sources), `All Complete` |
+| **Tags** | User-assigned tags for categorization |
+| **Actions** | Quick-access icons: Generate, Edit, Clone, Export, Delete |
 
-Use the search box to filter by name, and the **Sort** dropdown to order by name, date, or generation status.
+### Filtering and Sorting
+
+- **Search**: Use the search box to filter by name or description text.
+- **Tags**: Click a tag to filter to definitions with that tag. Tags are free-form text labels you assign when editing a cohort definition.
+- **Sort**: Order by name (alphabetical), creation date (newest/oldest), or generation status.
+- **Visibility**: Toggle between **My Cohorts** (your own definitions) and **All Cohorts** (includes public definitions from other users).
+
+:::tip Organize with tags
+Adopt a consistent tagging convention across your organization. Common tag categories:
+
+- **Phenotype type**: `exposure`, `outcome`, `comparator`, `covariate`
+- **Therapeutic area**: `cardiology`, `oncology`, `endocrine`
+- **Study**: `GLP1-vs-DPP4-study`, `vaccine-safety-2026`
+- **Status**: `validated`, `draft`, `deprecated`
+:::
+
+---
 
 ## Cloning a Cohort
 
-Cloning creates a full copy of a cohort definition, including its CIRCE expression and any linked concept sets. This is useful for:
+Cloning creates a complete copy of a cohort definition, including the full CIRCE expression and all referenced concept sets. The clone is a new, independent definition with its own ID and version history.
 
-- Creating variants of a validated phenotype (e.g. "stricter" vs. "sensitive" T2DM definitions)
-- Starting a new cohort from a known-good template
+**To clone:**
+1. Click the **Clone** icon on the cohort list row, or open the definition and select **Clone** from the actions menu.
+2. Enter a new name for the clone (the default is "Copy of [original name]").
+3. Click **Clone**.
 
-To clone: click the **Clone** icon in the cohort list row, enter a new name, and click **Clone**.
+**When to clone:**
+- Creating sensitivity analysis variants (e.g., "T2DM --- broad definition" vs. "T2DM --- strict, 2+ diagnoses")
+- Starting a new cohort from a validated template
+- Preserving a snapshot before making destructive edits to a definition
+- Adapting a colleague's cohort for your specific study needs
+
+Cloned cohorts have no generation results --- they must be generated independently.
+
+---
 
 ## Comparing Cohort Counts
 
-When you have multiple versions of a cohort definition all generated against the same source, the **Compare** feature lets you see counts side-by-side:
+When you have multiple versions or variants of a cohort definition, the **Compare** feature lets you evaluate them side by side.
 
-1. Select two or more cohort definitions (checkboxes in the list).
+### Count Comparison
+
+1. Select two or more cohort definitions using the checkboxes in the list.
 2. Click **Compare Selected**.
-3. The comparison view shows counts, attrition waterfall, and the percentage overlap between cohorts (subjects in both).
+3. The comparison view shows:
+   - **Person counts** per source for each selected cohort
+   - **Attrition waterfalls** side by side (if generated against the same source)
+   - **Overlap statistics**: For cohorts generated on the same source, you see the number of subjects in both cohorts and the Jaccard index (intersection / union).
+
+### Overlap Analysis
+
+The overlap view provides:
+
+| Metric | Description |
+|---|---|
+| **Count A** | Unique subjects in cohort A |
+| **Count B** | Unique subjects in cohort B |
+| **Overlap** | Subjects appearing in both cohorts |
+| **Only A** | Subjects in A but not B |
+| **Only B** | Subjects in B but not A |
+| **Jaccard Index** | Overlap / (Count A + Count B - Overlap), ranges 0 to 1 |
+
+A Jaccard index close to 1.0 indicates the definitions are near-equivalent. A low Jaccard index reveals that the phenotype variants capture substantially different populations --- useful for sensitivity analysis design.
+
+:::info Same-source requirement
+Overlap analysis requires both cohorts to be generated against the same data source. If they are generated on different sources, only count comparison is available.
+:::
+
+---
 
 ## Bulk Operations
 
-Select multiple cohort definitions to access bulk operations:
+Select multiple cohort definitions (checkboxes) to access bulk operations from the toolbar:
 
-- **Bulk Generate** — queue generation for all selected definitions on a chosen data source
-- **Bulk Delete** — remove multiple definitions (requires admin role)
-- **Bulk Export** — download all selected definitions as a ZIP of OHDSI JSON files
+### Bulk Generate
+
+1. Select the cohort definitions to generate.
+2. Click **Bulk Generate**.
+3. Choose the target data source(s).
+4. Click **Start**. One generation job per cohort per source is queued in Horizon.
+
+This is the standard workflow for OHDSI network studies where you define multiple cohorts upfront and generate them all at once.
+
+### Bulk Delete
+
+1. Select the cohort definitions to delete.
+2. Click **Bulk Delete**.
+3. Confirm the action.
+
+:::danger Deletion is permanent
+Bulk delete removes the cohort definitions and all associated generation results from both the app database and the results schema `cohort` table. This action cannot be undone. Consider archiving instead of deleting if you may need the definitions later.
+:::
+
+### Bulk Export
+
+1. Select the cohort definitions to export.
+2. Click **Bulk Export**.
+3. A ZIP file is downloaded containing one OHDSI-standard JSON file per cohort definition.
+
+The exported JSON files are compatible with OHDSI Atlas and can be shared with collaborators, submitted to OHDSI network studies, or imported into other Parthenon instances.
+
+---
 
 ## Import from Atlas
 
-You can import cohort definitions exported from OHDSI Atlas:
+Parthenon supports importing cohort definitions exported from OHDSI Atlas or other CIRCE-compatible tools.
+
+### UI Import
 
 1. Click **Import** on the Cohorts list page.
-2. Paste the Atlas JSON or upload the `.json` file.
-3. Click **Import**. Parthenon validates the CIRCE schema and saves the definition.
-4. Concept sets referenced in the expression are imported automatically if they do not already exist by name.
+2. Choose your import method:
+   - **Paste JSON** --- paste the Atlas cohort definition JSON directly into the text area
+   - **Upload file** --- select a `.json` file from your filesystem
+3. Click **Import**.
+4. Parthenon validates the CIRCE schema structure. If valid:
+   - A new cohort definition is created with the imported expression.
+   - Concept sets referenced in the expression are imported automatically if they do not already exist by name.
+   - You are redirected to the new definition's detail page.
+
+If validation fails, an error message describes which part of the JSON is invalid.
+
+### CLI Import (Artisan Command)
+
+For bulk imports or automation, use the Artisan CLI:
+
+```bash
+# Import a single cohort definition JSON file
+docker compose exec php php artisan cohort:import /path/to/cohort.json
+
+# Import all JSON files in a directory
+docker compose exec php php artisan cohort:import /path/to/cohorts/ --directory
+```
+
+The CLI command:
+- Creates cohort definitions in the app database
+- Links or creates concept sets as needed
+- Reports success/failure for each file
+- Supports `--dry-run` to validate without persisting
+
+:::tip OHDSI Phenotype Library
+The OHDSI community maintains a curated [Phenotype Library](https://atlas-phenotype.ohdsi.org/) with hundreds of validated cohort definitions for common conditions, exposures, and outcomes. Export these from Atlas and import them into Parthenon to bootstrap your study design with peer-reviewed phenotypes.
+:::
+
+---
+
+## Sharing Cohort Definitions
+
+### Public/Private Visibility
+
+Each cohort definition has an `is_public` flag:
+
+- **Private** (default): Only the author and administrators can see and edit the definition.
+- **Public**: All authenticated users in the organization can view and clone the definition. Only the author and administrators can edit.
+
+Toggle visibility from the cohort detail page using the **Visibility** control.
+
+### Shared Links
+
+To share a specific cohort definition with a colleague:
+
+1. Open the cohort definition.
+2. Click **Share** in the actions menu.
+3. Copy the generated link.
+4. Send the link to your colleague. They must be authenticated to access it.
+
+Shared links point to the cohort definition detail page and work as long as the recipient has the appropriate visibility permissions.
+
+---
 
 ## Archiving Cohorts
 
-Cohort definitions that are no longer actively used but must be preserved for reproducibility can be **archived**. Archived cohorts:
+Cohort definitions that are no longer actively used but must be preserved for reproducibility can be **archived**. This is strongly recommended over deletion for any definition that has been used in published analyses.
 
-- Remain in the database with all generation results intact
-- Are hidden from the default list (use the **Archived** filter tab to find them)
-- Cannot be edited, but can be cloned to create an editable copy
+### Archive Behavior
 
-To archive, click **Archive** in the cohort detail page's action menu.
+- Archived cohorts remain in the database with all generation results intact.
+- They are **hidden** from the default list view.
+- They **cannot be edited** (the expression is frozen).
+- They **can be cloned** to create a new editable copy.
+- They **can be unarchived** to restore them to active status.
 
-:::tip OMOP phenotype library
-OHDSI maintains a curated [Phenotype Library](https://atlas-phenotype.ohdsi.org/) with hundreds of validated cohort definitions. Export these from Atlas and import them into Parthenon to bootstrap your study design.
+### How to Archive
+
+1. Open the cohort definition.
+2. Click **Archive** in the actions menu.
+3. Confirm the action.
+
+### Viewing Archived Cohorts
+
+Use the **Archived** filter tab on the Cohorts list page to see archived definitions. The filter toggles between:
+- **Active** (default) --- shows only non-archived definitions
+- **Archived** --- shows only archived definitions
+- **All** --- shows everything
+
+:::warning Reproducibility obligation
+In regulated research environments (FDA submissions, EMA post-marketing studies), you may be required to preserve the exact cohort definition used to generate published results. Archiving --- rather than deleting --- ensures you can reproduce or audit the analysis years later.
 :::
+
+---
+
+## Cohort Definition Data Model
+
+For reference, the `cohort_definitions` table in the application database contains:
+
+| Column | Type | Description |
+|---|---|---|
+| `id` | bigint | Primary key |
+| `name` | varchar | Display name |
+| `description` | text | Optional description |
+| `expression_json` | jsonb | CIRCE cohort expression (potentially with genomic/imaging extensions) |
+| `author_id` | bigint | Foreign key to users table |
+| `is_public` | boolean | Visibility flag |
+| `version` | integer | Auto-incremented on each save |
+| `tags` | jsonb | Array of string tags |
+| `created_at` | timestamp | Creation time |
+| `updated_at` | timestamp | Last modification time |
+
+Generation results are tracked in the `cohort_generations` table:
+
+| Column | Type | Description |
+|---|---|---|
+| `id` | bigint | Primary key |
+| `cohort_definition_id` | bigint | Foreign key to cohort_definitions |
+| `source_id` | bigint | Foreign key to sources table |
+| `status` | varchar | `pending` / `queued` / `running` / `completed` / `failed` / `cancelled` |
+| `started_at` | timestamp | Job start time |
+| `completed_at` | timestamp | Job completion time |
+| `person_count` | integer | Unique person count (null until completed) |
+| `fail_message` | text | Error message (null unless failed) |
+
+---
+
+## Best Practices
+
+1. **Name cohorts descriptively**: Include the phenotype, key design choices, and version. Future you (and your colleagues) will thank you.
+
+2. **Tag consistently**: Use organizational conventions for tags so definitions are discoverable across teams.
+
+3. **Clone before modifying**: If a cohort has been generated and used in analyses, clone it and modify the clone rather than editing in place.
+
+4. **Archive, do not delete**: Preserve definitions that have been used in any completed analysis, even if you no longer need them actively.
+
+5. **Validate after import**: After importing from Atlas, review the expression in the builder to ensure concept sets resolved correctly against your vocabulary version.
+
+6. **Compare variants systematically**: When developing phenotype algorithms, create multiple variants, generate all of them, and use the comparison view to evaluate which performs best.

@@ -6,44 +6,254 @@ sidebar_label: "12. Population-Level Estimation"
 
 # Population-Level Estimation
 
-:::note Under Development
-Population-Level Estimation (PLE) is not yet implemented in the current release. This chapter documents the planned design. The UI placeholder exists in the navigation menu and will be populated in a future phase.
+**Population-Level Estimation** (PLE) enables comparative effectiveness and safety research using causal inference methods applied to observational OMOP CDM data. PLE goes beyond descriptive analyses (characterization, incidence rates) to estimate the **causal effect** of a treatment on an outcome while accounting for confounding by indication.
+
+Parthenon implements two major causal inference approaches: the **New-User Cohort Design** (CohortMethod) for between-patient comparisons and **Self-Controlled Case Series** (SCCS) for within-patient comparisons. Both are available as fully configurable analysis types with design forms, diagnostics, and result visualization.
+
+---
+
+## New-User Cohort Design (CohortMethod)
+
+The CohortMethod approach compares outcomes between a **target cohort** (treatment) and a **comparator cohort** (alternative treatment or no treatment) of new users, adjusting for baseline confounders.
+
+### Study Design Overview
+
+```
+Target Cohort:      New users of Drug A (with washout)
+Comparator Cohort:  New users of Drug B (with washout)
+Outcome Cohort:     Clinical event of interest (e.g., MI, stroke)
+
+      Index                              Outcome?
+        |<---- Time at Risk ----------->|
+        |                                |
+        Baseline covariates              |
+        (pre-index features)             Follow-up end
+```
+
+### Creating a CohortMethod Analysis
+
+1. Navigate to **Analyses** and select the **Estimations** tab.
+2. Click **New Analysis** and select **Estimation**.
+3. Configure the design:
+
+**Cohort Selection:**
+
+| Setting | Description |
+|---|---|
+| **Target cohort** | Treatment cohort (e.g., new users of Drug A) |
+| **Comparator cohort** | Alternative treatment cohort (e.g., new users of Drug B) |
+| **Outcome cohorts** | One or more outcomes to estimate effects for |
+
+**Model Settings:**
+
+| Setting | Description | Default |
+|---|---|---|
+| **Model type** | Cox proportional hazards regression | `cox` |
+| **Time at risk start** | Days after index to begin observation | 0 |
+| **Time at risk end** | Days after index/cohort end to stop observation | 0 (at cohort end) |
+| **End anchor** | Whether end offset is from cohort start or cohort end | `cohort end` |
+
+**Propensity Score Settings:**
+
+The propensity score (PS) is the estimated probability of receiving the target treatment given baseline covariates. Parthenon supports three PS-based adjustment methods:
+
+| Method | How it works | Configuration |
+|---|---|---|
+| **PS Matching** | Match each target patient to one or more comparator patients with similar PS | `ratio`: match ratio (1:1, 1:4); `caliper`: maximum PS distance for a valid match (default 0.2) |
+| **PS Stratification** | Divide patients into strata (quintiles) by PS and compare within strata | `strata`: number of strata (default 5) |
+| **IPTW** | Weight each patient by inverse of their PS to create a pseudo-population | `trimming`: truncate extreme PS values (default 0.05) |
+
+| Setting | Description | Default |
+|---|---|---|
+| **Enable PS** | Whether to use propensity score adjustment | Enabled |
+| **Trimming** | Remove patients with extreme PS values (PS < trim or > 1-trim) | 0.05 |
+
+**Covariate Settings:**
+
+Covariates are the baseline features used to build the propensity score model. Parthenon uses large-scale regularized regression (LASSO) over thousands of covariates automatically extracted from the CDM.
+
+| Setting | Description | Default |
+|---|---|---|
+| **Demographics** | Age, gender, race, ethnicity, year of birth | Enabled |
+| **Condition occurrence** | All condition diagnoses in the time window | Enabled |
+| **Drug exposure** | All drug exposures in the time window | Enabled |
+| **Procedure occurrence** | All procedures in the time window | Disabled |
+| **Measurement** | Lab values and vitals | Disabled |
+| **Observation** | Clinical observations | Disabled |
+| **Time windows** | Lookback period for covariates | [-365, 0] |
+
+**Negative Control Outcomes:**
+
+Negative controls are outcomes with no plausible causal relationship to the exposure. They are used to calibrate effect estimates and detect residual systematic bias.
+
+- Add concept IDs for negative control outcomes (e.g., appendicitis, ingrown toenail for a cardiovascular drug study).
+- After execution, the negative control distribution is used to empirically calibrate the true outcome effect estimates.
+
+:::tip Negative controls are essential
+Including 50--100 negative control outcomes is considered best practice for OHDSI studies. If the negative control effect estimates cluster around HR = 1.0 with appropriate coverage probability, the analysis is well-calibrated. If negative controls show systematic bias (e.g., most HRs < 1.0), confounding adjustment is insufficient.
 :::
 
-**Population-Level Estimation** (PLE) enables comparative effectiveness and safety research using causal inference methods applied to observational OMOP CDM data. It implements the OHDSI HADES `CohortMethod` and `SelfControlledCaseSeries` (SCCS) approaches.
+---
 
-## Planned Methods
+## Self-Controlled Case Series (SCCS)
 
-### New-User Cohort Design (CohortMethod)
+SCCS uses each patient as their own control, comparing event rates during **exposed** time windows to **unexposed** time within the same patient. This design inherently controls for all time-invariant confounders (genetics, chronic conditions, socioeconomic status) because each patient serves as their own baseline.
 
-This approach compares outcomes between a **treatment cohort** and a **comparator cohort** of new users, adjusting for baseline confounders using one or more of:
+### When to Use SCCS
 
-- **Propensity score matching** — 1:1 or 1:N matching on estimated propensity of treatment
-- **Propensity score stratification** — stratify patients into quintiles by propensity
-- **Inverse probability of treatment weighting (IPTW)** — weight patients by inverse propensity
-- **Large-scale regularized regression** — LASSO-penalized logistic regression over thousands of covariates
+SCCS is particularly suited for:
 
-Effect estimates are expressed as Hazard Ratios (HR) or Risk Ratios (RR) with 95% confidence intervals, computed using Cox proportional hazards or Poisson regression.
+- **Vaccine safety studies**: Comparing adverse event rates in the days following vaccination vs. baseline periods
+- **Acute adverse event detection**: Short-term risks after drug initiation
+- **Drug-event associations**: When the exposure is transient and the outcome is acute
+- **Situations with strong unmeasured confounding**: Since patients serve as their own controls, time-invariant confounders are eliminated by design
 
-### Self-Controlled Case Series (SCCS)
+### Creating an SCCS Analysis
 
-SCCS uses each patient as their own control, comparing event rates during exposed and unexposed time windows. This design controls for all time-invariant confounders by design. It is particularly suitable for vaccine safety studies and acute adverse event detection.
+1. Navigate to **Analyses** and select the **SCCS** tab.
+2. Click **New Analysis** and select **SCCS**.
+3. Configure the design:
 
-## Planned UI
+**Cohort Selection:**
 
-The PLE module will include:
+| Setting | Description |
+|---|---|
+| **Exposure cohort** | The drug or vaccine exposure to study |
+| **Outcome cohort** | The adverse event or clinical event of interest |
 
-1. **Design specification** — target/comparator/outcome cohort selection, analysis settings
-2. **Diagnostics** — propensity score distribution, covariate balance before/after adjustment, negative control calibration
-3. **Results** — HR/RR estimates with confidence intervals, forest plots for multi-database analyses
-4. **Evidence synthesis** — fixed-effects and random-effects meta-analysis across data sources
+**Risk Windows:**
 
-## When to Use PLE
+Risk windows define the time periods during which you hypothesize the exposure increases (or decreases) the event rate. Multiple risk windows can be defined:
 
-Use Population-Level Estimation when you need to:
+| Setting | Description | Default |
+|---|---|---|
+| **Start** | Days after era start (or era end) to begin the risk window | 1 |
+| **End** | Days after era start (or era end) to end the risk window | 30 |
+| **Start anchor** | `era_start` or `era_end` | `era_start` |
+| **End anchor** | `era_start` or `era_end` | `era_start` |
+| **Label** | Descriptive name for this risk window | "Risk window 1" |
 
-- Estimate the causal effect of a treatment on an outcome while accounting for confounding by indication
-- Replicate or extend OHDSI network studies
-- Generate regulatory-grade real-world evidence packages
+Example risk windows for a vaccine safety study:
+- Window 1: Days 1--7 after vaccination ("acute risk")
+- Window 2: Days 8--28 after vaccination ("sub-acute risk")
+- Window 3: Days 29--42 after vaccination ("extended risk")
 
-For simple frequency counts without causal inference, use [Characterization](09-characterization) or [Incidence Rates](10-incidence-rates) instead.
+**Model Settings:**
+
+| Setting | Description | Default |
+|---|---|---|
+| **Model type** | `simple` (standard SCCS) or with additional adjustments | `simple` |
+
+**Study Population:**
+
+| Setting | Description | Default |
+|---|---|---|
+| **Naive period** | Days at the start of observation excluded from analysis | 180 |
+| **First outcome only** | Whether to count only the first event per patient | Enabled |
+
+---
+
+## Effect Estimates and Results
+
+### CohortMethod Results
+
+After execution, the estimation results page shows:
+
+| Metric | Description |
+|---|---|
+| **Hazard Ratio (HR)** | Estimated relative hazard of the outcome in the target vs. comparator cohort |
+| **95% Confidence Interval** | Precision of the HR estimate |
+| **P-value** | Statistical significance (null hypothesis: HR = 1.0) |
+| **Target events** | Number of outcome events in the target cohort |
+| **Comparator events** | Number of outcome events in the comparator cohort |
+| **Target persons** | Number of patients in the adjusted target cohort |
+| **Comparator persons** | Number of patients in the adjusted comparator cohort |
+
+### Interpretation Guide
+
+| HR | Interpretation |
+|---|---|
+| HR = 1.0 | No difference between target and comparator |
+| HR < 1.0 | Target treatment is associated with lower risk |
+| HR > 1.0 | Target treatment is associated with higher risk |
+| HR = 0.75 (0.65--0.86) | 25% risk reduction, statistically significant |
+| HR = 1.42 (0.98--2.05) | 42% risk increase, not statistically significant |
+
+### SCCS Results
+
+SCCS produces an **Incidence Rate Ratio (IRR)** comparing event rates during risk windows to unexposed time:
+
+| IRR | Interpretation |
+|---|---|
+| IRR = 1.0 | No change in event rate during risk window |
+| IRR = 3.2 (2.1--4.8) | 3.2x higher event rate during exposure, significant |
+| IRR = 0.8 (0.5--1.3) | No significant change in event rate |
+
+---
+
+## Diagnostics
+
+Proper interpretation of PLE results requires checking diagnostic outputs:
+
+### Propensity Score Diagnostics (CohortMethod)
+
+- **PS distribution plot**: Shows the overlap between target and comparator PS distributions. Good overlap (clinical equipoise) is required for valid estimation.
+- **Covariate balance**: Table of SMDs before and after PS adjustment. All SMDs should be < 0.1 after adjustment.
+- **Preference score**: A rescaled PS that accounts for different cohort sizes.
+
+### Negative Control Calibration
+
+- **Null distribution**: Plot of negative control effect estimates. Should center around 1.0.
+- **Calibrated estimates**: True outcome estimates adjusted for empirical bias observed in negative controls.
+
+:::danger Check diagnostics before interpreting results
+An HR that appears statistically significant may be entirely driven by residual confounding if diagnostics show poor covariate balance or biased negative controls. Always review diagnostics before drawing causal conclusions.
+:::
+
+---
+
+## Evidence Synthesis
+
+Parthenon includes an **Evidence Synthesis** analysis type (accessible from the Evidence Synthesis tab on the Analyses page) for combining PLE results across multiple data sources using meta-analytic methods.
+
+### Available Methods
+
+| Method | Description |
+|---|---|
+| **Fixed-effects** | Assumes a common true effect across all sources; weights by precision |
+| **Random-effects** | Allows the true effect to vary across sources; accounts for heterogeneity |
+| **Bayesian** | Bayesian hierarchical model with configurable chain length and burn-in |
+
+### Configuration
+
+| Setting | Description | Default |
+|---|---|---|
+| **Estimates** | Select individual PLE results to combine | (required) |
+| **Method** | Meta-analysis method | `bayesian` |
+| **Chain length** | MCMC chain length (Bayesian only) | 1,100,000 |
+| **Burn-in** | MCMC burn-in iterations (Bayesian only) | 100,000 |
+| **Sub-sample** | MCMC thinning interval (Bayesian only) | 1,000 |
+
+Results include a **forest plot** showing individual source estimates and the combined meta-analytic estimate with confidence/credible intervals.
+
+---
+
+## Best Practices
+
+1. **Use active comparators**: Comparing Drug A to Drug B (active comparator) is far more robust than comparing Drug A to "no treatment." Active comparator designs reduce confounding by indication.
+
+2. **Require new-user designs**: Both target and comparator cohorts should be incident (new-user) cohorts with adequate washout periods to avoid prevalent-user bias.
+
+3. **Include comprehensive covariates**: Enable demographics, conditions, and drugs at minimum. The LASSO regularization handles the dimensionality --- more covariates generally improve confounding adjustment.
+
+4. **Always use negative controls**: 50--100 negative control outcomes provide the empirical calibration needed to assess and correct for residual systematic bias.
+
+5. **Check all diagnostics before interpreting**: PS overlap, covariate balance, and negative control calibration are not optional quality checks --- they are required for valid causal inference.
+
+6. **Consider SCCS for self-controlled questions**: When time-invariant confounding is a major concern and the exposure is transient, SCCS provides stronger causal evidence than CohortMethod.
+
+7. **Synthesize across sources**: Single-database results may reflect database-specific biases. Meta-analysis across multiple databases provides more robust evidence.
+
+:::info R runtime connection
+PLE analyses are designed to leverage the OHDSI HADES R packages (`CohortMethod`, `SelfControlledCaseSeries`, `EvidenceSynthesis`) running in the R runtime container. The configuration UI is fully functional for specifying analysis designs. Execution against the R runtime is being connected. In the interim, designs can be exported as R-ready configuration objects for manual execution.
+:::

@@ -6,53 +6,308 @@ sidebar_label: "4. Concept Sets"
 
 # Concept Sets
 
-A **concept set** is a named, reusable list of OMOP concepts used to define clinical criteria in cohort expressions and analyses. A concept set for "Type 2 Diabetes Medications" might include metformin, glipizide, sitagliptin, and all their ingredient descendants, giving you a single reusable object you can reference across multiple cohort definitions.
+A **concept set** is a named, reusable collection of OMOP concepts that defines a clinical criterion — a set of conditions, drugs, measurements, procedures, or other clinical events. Concept sets are the building blocks of cohort definitions and analyses in Parthenon. Instead of listing individual concept IDs throughout your research artifacts, you create a concept set once and reference it everywhere.
+
+For example, a concept set named "Type 2 Diabetes Medications" might include the ingredients metformin, glipizide, sitagliptin, empagliflozin, and liraglutide — each with the "Include descendants" flag enabled so that all formulations, strengths, and branded products are automatically captured. This single concept set can then be referenced across multiple cohort definitions, characterization analyses, and treatment pathway studies.
 
 ## Creating a Concept Set
 
-1. Navigate to **Vocabulary → Concept Sets** and click **New Concept Set**.
-2. Enter a descriptive **Name** (e.g. "T2DM first-line oral agents").
-3. Use the **concept search panel** to find concepts and click **Add** to include them.
-4. For each concept entry, configure the **inclusion flags**:
-   - **Include descendants** — automatically includes all narrower concepts in the hierarchy
-   - **Include mapped** — includes non-standard source concepts that map to this concept
-   - **Excluded** — marks a concept as an explicit exclusion (useful for subtracting specific drugs from a class)
-5. Click **Save**.
+1. Navigate to **Vocabulary > Concept Sets** in the top navigation.
+2. Click **New Concept Set** (top right).
+3. Enter a descriptive **Name** that clearly communicates the clinical intent (e.g., "T2DM first-line oral agents", "ACE inhibitors and ARBs", "HbA1c measurements").
+4. Optionally add a **Description** to document the rationale, version notes, or phenotype library reference.
+5. The concept set editor opens with an empty concept list. Use the **search panel** on the right to find and add concepts.
+
+### Adding Concepts
+
+The concept set editor includes an integrated concept search panel identical to the [Vocabulary Browser](./03-vocabulary-browser). To add concepts:
+
+1. Type a search term in the search panel (e.g., "metformin").
+2. Apply filters (domain, vocabulary, standard concept) as needed.
+3. Click the **+** button on any search result to add it to the concept set.
+4. The concept appears in the concept set table on the left with default inclusion flags.
+
+You can add concepts from multiple searches without saving between additions. The concept set table accumulates all added concepts.
+
+:::tip Bulk Add from Vocabulary Browser
+You can also add concepts to an existing concept set directly from the Vocabulary Browser. When browsing concepts, select one or more results using the checkboxes, then click **Add to Concept Set** and choose the target concept set from the dropdown. This is faster when you are exploring the vocabulary and want to collect concepts as you find them.
+:::
+
+## Inclusion Flags
+
+Each concept in a concept set has three flags that control how it is resolved at query time:
+
+### Include Descendants
+
+When checked, the concept set automatically includes all concepts that are hierarchically below the selected concept in the vocabulary. This is the most powerful feature of concept sets.
+
+**Example:** Adding "Diabetes mellitus" (concept 201820) with "Include descendants":
+- Automatically includes Type 1 diabetes mellitus, Type 2 diabetes mellitus, gestational diabetes, and all their subtypes
+- Captures hundreds of specific diabetes-related conditions without listing them individually
+- If the vocabulary is updated with new diabetes subtypes, they are automatically included
+
+**When to use:** Almost always for conditions and drug ingredients. A single ingredient concept (e.g., "Metformin") with descendants captures every clinical drug form, strength, branded product, and pack that contains metformin.
+
+**When not to use:** When you need exactly one specific concept and do not want any subtypes. For example, if you want only "Type 2 diabetes mellitus" and not its complications, you might leave descendants unchecked — but verify by previewing the descendants list first.
+
+### Include Mapped
+
+When checked, the concept set includes non-standard (source) concepts that have a "Maps to" relationship pointing to the selected standard concept. This is useful when your analysis needs to capture records stored under source concept IDs.
+
+**Example:** Adding SNOMED "Type 2 diabetes mellitus" (201826) with "Include mapped":
+- Includes ICD-10-CM E11.9, E11, and other source codes that map to this SNOMED concept
+- Useful when querying `*_source_concept_id` columns in addition to standard concept columns
+
+**When to use:** When your CDM has data in source concept columns that you want to capture, or when doing source code-level analysis.
+
+**When not to use:** For most standard analyses — the CDM stores data under standard concept IDs, so mapped concepts are unnecessary for typical cohort definitions.
+
+:::info Standard Analyses Rarely Need "Include Mapped"
+The OMOP CDM ETL process maps all source data to standard concepts. When you query `condition_concept_id = 201826`, you already capture all patients whose source codes (ICD-10, ICD-9, Read, etc.) mapped to SNOMED 201826 during ETL. The "Include mapped" flag is for the rarer case where you also want to match against `condition_source_concept_id`.
+:::
+
+### Excluded
+
+When checked, the concept is explicitly **removed** from the resolved concept set. Exclusions are applied after descendants and mapped concepts are resolved, making them a precise tool for subtracting specific concepts from a broad inclusion.
+
+**Example:** Building a concept set for "All diabetes medications except insulin":
+1. Add "Antidiabetic agent" (ATC class) with "Include descendants" checked
+2. Add "Insulin" (ingredient) with "Excluded" checked and "Include descendants" checked
+3. The resolved set includes all antidiabetic drugs minus all insulin formulations
+
+**When to use:** When a broad parent concept includes descendants you want to exclude, and it is easier to exclude specific items than to list all the ones you want individually.
+
+### Flag Combinations
+
+| Descendants | Mapped | Excluded | Effect |
+|------------|--------|----------|--------|
+| Off | Off | Off | Only the exact concept ID is included |
+| On | Off | Off | The concept plus all its descendants are included |
+| Off | On | Off | The concept plus all source concepts that map to it |
+| On | On | Off | The concept, its descendants, and all mapped source concepts for each |
+| Off | Off | On | The exact concept ID is excluded from the resolved set |
+| On | Off | On | The concept and all its descendants are excluded |
+| On | On | On | The concept, its descendants, and their mapped concepts are all excluded |
 
 ## Editing Concept Set Entries
 
-The concept set editor shows a table of all included concepts with their flags. You can:
+The concept set editor displays a table of all included concepts with columns for:
 
-- Toggle **descendants** and **mapped** checkboxes inline
-- Click the **X** button to remove a concept
-- Use **Add concept** to search and append more entries
-- Click **Preview** to see the full list of concept IDs that will be resolved at query time (including all descendants)
+- **Concept ID** — Click to open the concept detail view
+- **Concept Name** — The human-readable label
+- **Domain** — Condition, Drug, Measurement, etc.
+- **Vocabulary** — SNOMED, RxNorm, LOINC, etc.
+- **Standard** — Standard concept indicator badge
+- **Descendants** — Toggle checkbox
+- **Mapped** — Toggle checkbox
+- **Excluded** — Toggle checkbox
+- **Remove** — X button to delete the entry
+
+All flag toggles take effect immediately in the editor. Changes are persisted when you click **Save**.
+
+### Reordering and Organizing
+
+Concept set entries are displayed in the order they were added. While the order does not affect resolution (the result is always a flat set of concept IDs), keeping related concepts grouped together improves readability:
+
+- Drug ingredients for the same therapeutic class together
+- Condition concepts from general to specific
+- Excluded concepts at the bottom for visibility
 
 ## Concept Set Resolution
 
-At query time, Parthenon resolves your concept set to a flat list of concept IDs by:
+Resolution is the process of expanding a concept set definition into the flat list of concept IDs that will be used in SQL queries. Understanding resolution is critical for verifying that your concept set captures the intended clinical criteria.
 
-1. Starting with the directly listed concept IDs
-2. Adding all descendant concept IDs for entries with **Include descendants** checked
-3. Adding all source concept IDs that map to standard concepts, for entries with **Include mapped** checked
-4. Removing any concept IDs that appear in **Excluded** entries (including their descendants)
+### Resolution Steps
 
-The final resolved ID list is used in SQL `WHERE concept_id IN (...)` clauses.
+1. **Start with directly listed concepts** — All non-excluded concept IDs form the initial set.
+
+2. **Expand descendants** — For each entry with "Include descendants" checked, query `concept_ancestor` to find all descendant concept IDs and add them to the set.
+
+3. **Expand mapped concepts** — For each entry with "Include mapped" checked, query `concept_relationship` for "Maps to" relationships where the selected concept is the target, and add the source concept IDs.
+
+4. **Apply exclusions** — For each entry marked as "Excluded", remove its concept ID from the set. If the excluded entry has "Include descendants" checked, also remove all descendant concept IDs. If "Include mapped" is checked, remove mapped source concept IDs as well.
+
+5. **Deduplicate** — The final set contains only unique concept IDs.
+
+The resolved ID list is used in SQL `WHERE concept_id IN (...)` clauses when generating cohorts or running analyses.
+
+### Previewing Resolution
+
+Click the **Preview** button in the concept set editor to see the fully resolved concept list. The preview shows:
+
+- **Total resolved concept count** — The number of unique concept IDs after resolution
+- **Resolved concept table** — Every concept ID with its name, domain, vocabulary, and which entry it came from
+- **Entry contribution** — How many concepts each entry contributed (useful for understanding which entries have the largest footprint)
+
+:::warning Always Preview Before Using in Cohorts
+A concept set with several entries and "Include descendants" can resolve to thousands of concept IDs. Preview the resolved list to verify there are no unexpected inclusions. A common mistake is adding a high-level concept with descendants that inadvertently captures unrelated clinical events. For example, "Disorder" (SNOMED root) with descendants would include nearly every condition in the vocabulary.
+:::
+
+### Resolution is Vocabulary-Dependent
+
+Concept set resolution queries the vocabulary tables in the selected data source. This means:
+
+- The same concept set definition may resolve to different concept ID lists against different vocabulary versions
+- A concept deprecated in a newer vocabulary version will be excluded from resolution
+- New descendants added in a vocabulary update will be included if "Include descendants" is checked
+
+:::danger Resolution Changes with Vocabulary Updates
+When your administrator uploads a new vocabulary version, the resolved concept IDs for your existing concept sets may change. Always re-preview concept sets after a vocabulary update, especially those used in active cohort definitions. If reproducibility is critical, document the resolved concept IDs at the time of analysis.
+:::
 
 ## Sharing and Reuse
 
-Concept sets are saved at the organization level and visible to all users with at least **viewer** access. When a concept set is referenced inside a cohort expression, the cohort definition stores a copy of the concept set at the time of cohort generation to ensure reproducibility — changes to the source concept set do not retroactively affect previously generated cohorts.
+Concept sets are organization-level resources visible to all users with at least **viewer** access. Any researcher can use any concept set in their cohort definitions and analyses.
 
-## Import/Export
+### Concept Set Versioning in Cohorts
 
-Concept sets can be exported as OHDSI-compatible JSON and re-imported into any Atlas or Parthenon instance:
+When a concept set is referenced inside a cohort expression, Parthenon stores a **snapshot** of the concept set definition at the time of cohort generation. This ensures reproducibility:
+
+- Changes to the source concept set **do not** retroactively affect previously generated cohorts
+- Each cohort generation records the exact concept set state used
+- You can compare the current concept set definition against the snapshot used in a past generation
+
+This snapshotting behavior means you can safely evolve concept sets over time (adding new concepts, adjusting flags) without worrying about invalidating past research results.
+
+### Concept Set Ownership
+
+The user who creates a concept set is listed as its creator. Any user with the **researcher** role or above can edit any concept set. If your organization needs stricter access control, concept sets can be used within the Studies module where study-level permissions apply.
+
+## Import and Export
+
+Concept sets can be exported as OHDSI-compatible JSON and re-imported into any Parthenon or Atlas instance. This interoperability is essential for multi-site studies, phenotype library sharing, and migration.
+
+### Exporting a Concept Set
 
 1. Open the concept set detail page.
-2. Click **Export JSON** to download the definition.
-3. On another instance, navigate to Concept Sets and click **Import JSON**.
+2. Click **Export JSON** in the toolbar.
+3. A JSON file is downloaded containing the full concept set definition:
 
-This format is identical to the Atlas concept set JSON used by OHDSI phenotype libraries.
+```json
+{
+  "name": "Type 2 Diabetes Medications",
+  "id": 42,
+  "expression": {
+    "items": [
+      {
+        "concept": {
+          "CONCEPT_ID": 1503297,
+          "CONCEPT_NAME": "Metformin",
+          "DOMAIN_ID": "Drug",
+          "VOCABULARY_ID": "RxNorm",
+          "CONCEPT_CLASS_ID": "Ingredient",
+          "STANDARD_CONCEPT": "S",
+          "CONCEPT_CODE": "6809",
+          "INVALID_REASON": null
+        },
+        "isExcluded": false,
+        "includeDescendants": true,
+        "includeMapped": false
+      },
+      {
+        "concept": {
+          "CONCEPT_ID": 1560171,
+          "CONCEPT_NAME": "Glipizide",
+          "DOMAIN_ID": "Drug",
+          "VOCABULARY_ID": "RxNorm",
+          "CONCEPT_CLASS_ID": "Ingredient",
+          "STANDARD_CONCEPT": "S",
+          "CONCEPT_CODE": "4821",
+          "INVALID_REASON": null
+        },
+        "isExcluded": false,
+        "includeDescendants": true,
+        "includeMapped": false
+      }
+    ]
+  }
+}
+```
 
-:::note
-Concept set resolution depends on the vocabulary loaded in your data source. A concept set created against one vocabulary version may resolve to slightly different concept IDs against a different version.
+This JSON format is identical to the format used by OHDSI Atlas and the [OHDSI Phenotype Library](https://github.com/OHDSI/PhenotypeLibrary), ensuring full interoperability.
+
+### Importing a Concept Set
+
+1. Navigate to **Vocabulary > Concept Sets**.
+2. Click **Import JSON** in the toolbar.
+3. Select a JSON file from your local filesystem, or paste JSON content directly.
+4. Review the imported concept set — all concepts are displayed with their flags.
+5. Optionally rename the concept set or adjust flags.
+6. Click **Save** to create the concept set.
+
+:::tip Importing from OHDSI Phenotype Library
+The [OHDSI Phenotype Library](https://github.com/OHDSI/PhenotypeLibrary) publishes validated concept set definitions for common clinical conditions. Download the JSON files from the library and import them directly into Parthenon. This saves significant time and leverages community-validated phenotype definitions.
 :::
+
+### Import Validation
+
+During import, Parthenon validates each concept ID against the vocabulary in the current data source:
+
+- **Valid concepts** are imported normally
+- **Deprecated concepts** are flagged with a warning but still imported (they will not resolve at query time)
+- **Unknown concept IDs** (not found in the vocabulary) are flagged with an error — they may indicate a vocabulary version mismatch
+
+## Best Practices
+
+### Naming Conventions
+
+Use clear, descriptive names that communicate clinical intent:
+
+| Good | Bad |
+|------|-----|
+| "Type 2 Diabetes Mellitus — SNOMED" | "diabetes concepts" |
+| "ACE Inhibitors — Ingredients" | "my drug list" |
+| "HbA1c Lab Measurements" | "labs v2" |
+| "GI Bleed Events (broad)" | "concept set 47" |
+
+Include the scope (broad vs. narrow), the vocabulary, and the domain when relevant.
+
+### Start Broad, Then Exclude
+
+It is usually easier to start with a broad parent concept (with "Include descendants") and exclude specific unwanted subtypes than to manually list every desired concept:
+
+1. Add the broadest applicable concept with "Include descendants"
+2. Preview the resolved list
+3. Add any unwanted descendants as excluded entries (with their own "Include descendants" if needed)
+4. Re-preview to confirm
+
+### One Concept Set Per Clinical Criterion
+
+Create focused concept sets that represent a single clinical criterion:
+
+- "T2DM Conditions" (conditions only)
+- "T2DM Medications" (drugs only)
+- "HbA1c Measurements" (measurements only)
+
+Avoid mixing domains in a single concept set — cohort criteria typically filter on one domain at a time, and mixing makes reuse harder.
+
+### Document Your Rationale
+
+Use the description field to document:
+- Why specific concepts were included or excluded
+- The clinical rationale for the concept set scope
+- References to published phenotype definitions or clinical guidelines
+- The vocabulary version the concept set was validated against
+
+### Review After Vocabulary Updates
+
+After any vocabulary update (see [Chapter 3: Vocabulary Browser](./03-vocabulary-browser#vocabulary-versions)):
+
+1. Open each active concept set
+2. Click **Preview** to see the current resolved list
+3. Check for newly added descendants that may be unintended
+4. Check for deprecated concepts that are no longer resolving
+5. Update flags or add exclusions as needed
+
+## Usage in Cohort Definitions
+
+Concept sets are referenced in cohort expressions as criteria. For example, a cohort definition for "Patients with T2DM on metformin" might reference:
+
+- Concept set "T2DM Conditions" as an **initial event** condition criterion
+- Concept set "Metformin" as an **additional inclusion** drug exposure criterion
+
+When the cohort is generated, each concept set is resolved against the target data source's vocabulary, and the resulting concept IDs are used in the SQL query. See [Chapter 5: Cohort Expressions](../part3-cohorts/05-cohort-expressions) and [Chapter 6: Building Cohorts](../part3-cohorts/06-building-cohorts) for details on using concept sets in cohort definitions.
+
+## Next Steps
+
+With concept sets in hand, you are ready to build patient cohorts. Proceed to [Chapter 5: Cohort Expressions](../part3-cohorts/05-cohort-expressions) to learn the cohort expression language, or jump to [Chapter 6: Building Cohorts](../part3-cohorts/06-building-cohorts) for a hands-on walkthrough of creating your first cohort definition.

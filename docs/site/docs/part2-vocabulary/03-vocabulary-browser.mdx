@@ -6,50 +6,271 @@ sidebar_label: "3. Vocabulary Browser"
 
 # Vocabulary Browser
 
-The Vocabulary Browser lets you search and explore OMOP standardized vocabularies — the controlled terminologies that classify every clinical event recorded in a CDM database. Understanding vocabulary concepts is fundamental to OMOP-based research; every condition, drug, measurement, procedure, and observation is represented by a **concept** with a unique integer ID.
+The Vocabulary Browser is your primary tool for exploring the OMOP standardized vocabularies — the controlled terminologies that classify every clinical event recorded in an OMOP CDM database. Understanding and navigating these vocabularies is fundamental to OMOP-based research: every condition, drug, measurement, procedure, observation, and device in the CDM is represented by a **concept** with a unique integer identifier.
+
+Parthenon's Vocabulary Browser combines traditional full-text search with AI-powered semantic search, letting you find concepts not just by keyword matching but by clinical meaning.
 
 ## What is an OMOP Concept?
 
-An OMOP concept is a vocabulary entry with:
+An OMOP concept is a single entry in the standardized vocabulary with the following attributes:
 
-- **Concept ID** — unique integer (e.g. `201826` for Type 2 Diabetes Mellitus)
-- **Concept Name** — human-readable label
-- **Domain** — clinical area (Condition, Drug, Measurement, etc.)
-- **Vocabulary** — source terminology (SNOMED, RxNorm, ICD10CM, LOINC, etc.)
-- **Concept Class** — granularity level within the vocabulary
-- **Standard flag** — whether this concept is the OMOP standard for its domain
-- **Valid dates** — validity window for the concept
+| Attribute | Description | Example |
+|-----------|-------------|---------|
+| **Concept ID** | Unique integer identifier | `201826` |
+| **Concept Name** | Human-readable label | Type 2 diabetes mellitus |
+| **Domain** | Clinical area the concept belongs to | Condition |
+| **Vocabulary** | Source terminology system | SNOMED |
+| **Concept Class** | Granularity level within the vocabulary | Clinical Finding |
+| **Standard Concept** | Whether this is the OMOP standard for its domain | Standard (S) |
+| **Concept Code** | The code in the source vocabulary | `44054006` |
+| **Valid Start/End** | Validity window for the concept | 2002-01-31 to 2099-12-31 |
+| **Invalid Reason** | If deprecated, the reason (D=deleted, U=upgraded) | NULL (valid) |
+
+The OMOP vocabulary contains over 7.2 million concepts drawn from dozens of vocabularies including SNOMED CT, RxNorm, RxNorm Extension, ICD-10-CM, ICD-10-PCS, LOINC, CPT4, HCPCS, ATC, MedDRA, UCUM, and many others.
+
+## Navigating to the Vocabulary Browser
+
+Navigate to **Vocabulary > Browse Concepts** in the top navigation bar. The browser opens with an empty search field and filter panel. A source selector in the header indicates which data source's vocabulary is being searched — different sources may have different vocabulary versions loaded.
 
 ## Searching Concepts
 
-1. Navigate to **Vocabulary → Browse Concepts**.
-2. Type a search term in the search box (e.g. "diabetes", "metformin", "HbA1c").
-3. Use the **Domain**, **Vocabulary**, and **Standard** filters to narrow results.
-4. Click any result row to view the full concept detail.
+### Text Search
 
-The search uses full-text indexing on concept names and synonyms. Partial matches and synonym lookups are supported. For example, searching "T2DM" returns results that include "Type 2 diabetes mellitus" via concept synonyms.
+Type a search term in the search box and press Enter or click the search icon. The search uses full-text indexing on concept names, concept codes, and concept synonyms.
+
+**Search examples:**
+
+| Query | Finds |
+|-------|-------|
+| `diabetes` | All concepts with "diabetes" in the name |
+| `201826` | The concept with ID 201826 directly |
+| `E11.9` | ICD-10-CM code E11.9 (Type 2 diabetes mellitus, without complications) |
+| `metformin` | Drug concepts containing "metformin" |
+| `HbA1c` | Measurement concepts for hemoglobin A1c |
+
+The search supports partial matches and synonym lookups. For example, searching "T2DM" returns "Type 2 diabetes mellitus" because "T2DM" is registered as a concept synonym. Similarly, searching "heart attack" finds "Myocardial infarction" through synonym relationships.
+
+:::tip Search by Concept ID
+If you know the exact concept ID, type it directly in the search box. Parthenon recognizes numeric input and performs a direct ID lookup, which is faster than text search and always returns an exact match.
+:::
+
+### AI Semantic Search
+
+When an AI provider is configured (see [Chapter 1: Introduction](../part1-getting-started/01-introduction)), the search box also supports **semantic search**. Toggle the AI search mode using the brain icon next to the search field.
+
+In semantic mode, you can describe clinical concepts in natural language:
+
+| Natural Language Query | Concepts Found |
+|----------------------|----------------|
+| "medications for lowering blood sugar" | Metformin, Glipizide, Sitagliptin, Insulin, etc. |
+| "lab tests for kidney function" | Creatinine, eGFR, BUN, Cystatin C, etc. |
+| "heart failure with reduced ejection fraction" | Systolic heart failure, HFrEF, related SNOMED concepts |
+| "drugs that cause QT prolongation" | Amiodarone, Sotalol, Haloperidol, etc. |
+
+Semantic search uses the MedGemma model (or your configured AI provider) to understand the clinical intent behind your query and match it against concept descriptions, hierarchical relationships, and medical knowledge.
+
+:::info Semantic Search Availability
+AI semantic search requires an active AI provider configured in **Admin > AI Providers**. If no provider is active, the semantic search toggle is disabled and only text search is available. The default Ollama/MedGemma configuration keeps all queries on-premises — no data leaves your network.
+:::
+
+## Filtering Results
+
+The filter panel on the left side of the browser allows you to narrow search results by multiple criteria. Filters are applied additively (AND logic):
+
+### Domain Filter
+Select one or more clinical domains to restrict results:
+
+| Domain | Contains | Example Concepts |
+|--------|----------|-----------------|
+| **Condition** | Diagnoses, diseases, symptoms | Type 2 diabetes, Pneumonia, Chest pain |
+| **Drug** | Medications, ingredients, clinical drugs | Metformin 500mg tablet, Aspirin |
+| **Measurement** | Lab tests, vital signs, assessments | HbA1c, Blood pressure systolic, BMI |
+| **Procedure** | Surgical and diagnostic procedures | Colonoscopy, Coronary angiography |
+| **Observation** | Clinical observations, social history | Tobacco use, Blood type |
+| **Device** | Medical devices | Pacemaker, Insulin pump |
+| **Visit** | Encounter types | Inpatient, Outpatient, ER visit |
+| **Specimen** | Biological specimens | Blood, Urine, Tissue biopsy |
+| **Unit** | Units of measurement | mg/dL, mmol/L, kg |
+
+### Vocabulary Filter
+Select specific source vocabularies:
+
+- **SNOMED** — Primary vocabulary for conditions, procedures, observations
+- **RxNorm / RxNorm Extension** — Drug ingredients, clinical drugs, branded drugs
+- **ICD-10-CM** — Diagnosis codes (US clinical modification)
+- **ICD-10-PCS** — Procedure codes (US procedure coding system)
+- **LOINC** — Laboratory and clinical observations
+- **CPT4 / HCPCS** — Procedure and service codes (US billing)
+- **ATC** — Anatomical Therapeutic Chemical drug classification
+- **MedDRA** — Medical Dictionary for Regulatory Activities
+- **UCUM** — Unified Code for Units of Measure
+
+### Standard Concept Filter
+Filter by standard classification:
+
+| Value | Meaning | When to Use |
+|-------|---------|-------------|
+| **Standard** | The OMOP standard concept for its domain | Default choice for cohort criteria — these are what the CDM stores |
+| **Classification** | A grouping concept used for hierarchy | Useful for navigating the vocabulary tree |
+| **Non-Standard** | Source concept that maps to a standard | Use when you need to find specific source codes (ICD-10, CPT) |
+
+### Concept Class Filter
+Filter by granularity within a vocabulary. Examples:
+
+- SNOMED: Clinical Finding, Procedure, Organism, Body Structure
+- RxNorm: Ingredient, Clinical Drug, Branded Drug, Clinical Drug Form
+- LOINC: Lab Test, Clinical Observation, Survey
+
+### Validity Filter
+- **Valid only** (default) — Excludes deprecated and invalid concepts
+- **Include invalid** — Shows all concepts including deprecated ones
+
+:::warning Always Use Standard Concepts for Cohort Criteria
+The OMOP CDM stores clinical data using standard concepts. When building cohort inclusion criteria, always select **Standard** concepts (SNOMED for conditions, RxNorm for drugs, LOINC for measurements). Non-standard concepts (ICD-10, CPT) appear in source fields but are not used for primary clinical data queries. The vocabulary browser highlights standard concepts with a blue "Standard" badge.
+:::
 
 ## Concept Detail View
 
-The concept detail panel shows:
+Click any concept in the search results to open the full concept detail view. This panel provides comprehensive information organized into several sections:
 
-- All concept metadata fields
-- **Ancestors** — broader concepts in the hierarchy (e.g. "Diabetes mellitus" is an ancestor of "Type 2 diabetes mellitus")
-- **Descendants** — narrower concepts (important for building inclusive cohort criteria)
-- **Related concepts** — concept relationships (maps to, is a, has ingredient, etc.)
-- **Concept synonyms** — alternative names in various languages
-- **Source concepts** — non-standard concepts that map to this standard concept (e.g. ICD-10-CM codes that map to this SNOMED concept)
+### Metadata Header
+Displays the concept ID, name, domain, vocabulary, class, standard flag, concept code, and validity dates at a glance.
+
+### Hierarchy — Ancestors
+Shows broader concepts above the selected concept in the vocabulary hierarchy. Navigate upward to understand how a concept fits into the overall classification.
+
+**Example hierarchy for "Type 2 diabetes mellitus" (201826):**
+
+```
+Endocrine disease
+  └── Disorder of glucose metabolism
+        └── Diabetes mellitus
+              └── Type 2 diabetes mellitus  ← selected
+```
+
+Click any ancestor to navigate to that concept's detail view.
+
+### Hierarchy — Descendants
+Shows narrower, more specific concepts below the selected concept. This is critically important for understanding what a concept's "Include descendants" flag will capture in a concept set.
+
+**Example descendants of "Type 2 diabetes mellitus" (201826):**
+- Type 2 diabetes mellitus with ophthalmic complication
+- Type 2 diabetes mellitus with renal complication
+- Type 2 diabetes mellitus with neurological complication
+- Type 2 diabetes mellitus with peripheral circulatory complication
+- ... (potentially hundreds more)
+
+:::tip Preview Descendants Before Building Concept Sets
+Before adding a concept to a concept set with "Include descendants" checked, always review the descendants list in the detail view. You may find that descendants include unintended subtypes. For example, "Diabetes mellitus" includes both Type 1 and Type 2 — if you only want Type 2, start from concept 201826 instead of the parent concept.
+:::
+
+### Relationships
+Displays all concept relationships defined in `concept_relationship`:
+
+| Relationship | Direction | Example |
+|-------------|-----------|---------|
+| **Is a** | Upward | "Type 2 diabetes mellitus" Is a "Diabetes mellitus" |
+| **Maps to** | Standard mapping | ICD-10-CM E11.9 Maps to SNOMED 201826 |
+| **Has ingredient** | Drug composition | "Metformin 500mg tablet" Has ingredient "Metformin" |
+| **Has finding site** | Anatomy link | "Pneumonia" Has finding site "Lung structure" |
+| **Subsumes** | Downward | "Diabetes mellitus" Subsumes "Type 2 diabetes mellitus" |
+
+### Synonyms
+Lists alternative names for the concept from `concept_synonym`. Synonyms are searchable — you can find concepts by any registered synonym.
+
+### Source Concepts
+For a standard concept, this section shows all non-standard concepts that map to it. This is useful for understanding which source codes (ICD-10, CPT, etc.) resolve to this standard concept during ETL.
+
+**Example:** Standard concept "Type 2 diabetes mellitus" (201826) is the target of mappings from:
+- ICD-10-CM E11.9 (Type 2 diabetes mellitus, without complications)
+- ICD-10-CM E11 (Type 2 diabetes mellitus)
+- ICD-9-CM 250.00 (Diabetes mellitus without mention of complication)
+- Read V2 C109. (Non-insulin dependent diabetes mellitus)
+
+## Concept Comparison Tool
+
+Parthenon provides a side-by-side concept comparison tool at **Vocabulary > Compare Concepts** (or navigable via the URL path `/vocabulary/compare`). This tool is useful when you need to decide between similar concepts for a concept set.
+
+### Using the Comparison Tool
+
+1. Navigate to **Vocabulary > Compare Concepts**.
+2. Search and select two or more concepts to compare.
+3. The comparison view displays the concepts in columns with rows for each attribute:
+   - Metadata (ID, name, domain, vocabulary, class, standard status)
+   - Ancestor count and hierarchy depth
+   - Descendant count
+   - Relationship count
+   - Synonym count
+   - Source concept mapping count
+
+This helps you make informed decisions about which concept to use. For example, comparing "Diabetes mellitus type 2" across SNOMED and ICD-10 shows which has more descendants, more source mappings, and which is the standard concept.
 
 ## Standard vs. Source Concepts
 
-OMOP CDM stores clinical data using **standard concepts** from a single vocabulary per domain (SNOMED for conditions, RxNorm for drugs, LOINC for measurements). Source data in the original terminology is preserved in `*_source_concept_id` columns.
+Understanding the distinction between standard and source (non-standard) concepts is essential for effective use of the OMOP CDM:
 
-When building cohort criteria, always prefer **standard concepts** unless you specifically need source code matching. The vocabulary browser shows a "Standard" badge on standard concepts.
+### Standard Concepts
+- One vocabulary is designated as "standard" for each domain (e.g., SNOMED for conditions, RxNorm for drugs, LOINC for measurements)
+- Clinical data in the CDM is stored using standard concept IDs in the primary `*_concept_id` columns
+- **Always use standard concepts when building cohort criteria** — they are what the CDM queries against
 
-:::tip Using descendants
-A single standard concept often has hundreds of descendants. For example, selecting concept `201826` (Type 2 diabetes mellitus) with **Include descendants** catches all more-specific T2DM subtypes without listing them individually.
-:::
+### Source Concepts
+- Source concepts preserve the original terminology from the source data (ICD-10, CPT, local codes)
+- They are stored in `*_source_concept_id` columns and `*_source_value` text fields
+- Source concepts have "Maps to" relationships pointing to their corresponding standard concepts
+- Use source concepts only when you need exact source code matching (rare in most research)
+
+### Classification Concepts
+- These are grouping nodes in vocabulary hierarchies (e.g., ATC drug classes)
+- They are not directly used in CDM data columns
+- They are useful for navigating the hierarchy and understanding concept relationships
 
 ## Vocabulary Versions
 
-The vocabulary version loaded in each data source is shown at the top of the browser when a source is selected. Vocabulary releases are dated (e.g. `v5.0 2026-02-25`). Newer releases may add concepts, deprecate others, or reclassify domains. Always ensure your concept sets are reviewed after a vocabulary upgrade.
+The vocabulary version loaded in each data source is shown in the browser header when a source is selected. Vocabulary releases from Athena are dated (e.g., `v5.0 2026-02-25`) and periodically include:
+
+- **New concepts** added to source vocabularies
+- **Deprecated concepts** marked as invalid with `invalid_reason = 'D'` (deleted) or `'U'` (upgraded/replaced)
+- **Reclassified concepts** moved between domains or classes
+- **New relationships** linking concepts across vocabularies
+- **Updated synonyms** in multiple languages
+
+:::danger Review Concept Sets After Vocabulary Upgrades
+When your administrator uploads a new vocabulary version, existing concept sets should be reviewed. A concept that was standard may have been deprecated, or new descendants may have been added that change the scope of a concept set with "Include descendants" enabled. Use the concept set **Preview** feature to verify resolved concept IDs after any vocabulary update.
+:::
+
+### Checking Vocabulary Version
+
+To see which vocabulary version a source is using:
+
+1. Open **Data Sources** and click on the source
+2. The vocabulary version is listed under the vocabulary daimon metadata
+3. Alternatively, in the Vocabulary Browser, the version is shown in the header bar next to the source name
+
+## Practical Workflows
+
+### Finding the Right Concept for a Condition
+
+1. Search for the condition name (e.g., "myocardial infarction")
+2. Filter by **Domain: Condition** and **Standard Concept: Standard**
+3. Review the top results — look for the broadest concept that captures your intent
+4. Open the concept detail view and review descendants to understand scope
+5. Add to a concept set with appropriate flags (see [Chapter 4: Concept Sets](./04-concept-sets))
+
+### Finding Drug Concepts at the Ingredient Level
+
+1. Search for the drug name (e.g., "metformin")
+2. Filter by **Domain: Drug** and **Concept Class: Ingredient**
+3. The ingredient concept captures all formulations, strengths, and brands
+4. Use "Include descendants" in your concept set to automatically include all clinical drug forms
+
+### Mapping Source Codes to Standard Concepts
+
+1. Search for the source code directly (e.g., "E11.9" for ICD-10-CM)
+2. Open the concept detail view
+3. Look at the **Relationships** section for "Maps to" relationships
+4. The target of the "Maps to" relationship is the standard concept you should use
+
+## Next Steps
+
+Now that you understand how to navigate vocabularies and find concepts, proceed to [Chapter 4: Concept Sets](./04-concept-sets) to learn how to assemble concepts into reusable lists that power cohort definitions and analyses.

@@ -1,11 +1,11 @@
 ---
 id: 00-overview
-title: Atlas → Parthenon Migration Guide
+title: Atlas to Parthenon Migration Guide
 slug: /migration
 sidebar_label: Overview
 ---
 
-# Atlas → Parthenon Migration Guide
+# Atlas to Parthenon Migration Guide
 
 This guide helps informatics teams migrate an institution from a running **OHDSI Atlas + WebAPI** installation to **Parthenon**. The process is designed to be low-risk and fully reversible: you can run both systems in parallel until validation is complete, then cut over at a scheduled time.
 
@@ -16,8 +16,8 @@ This guide helps informatics teams migrate an institution from a running **OHDSI
 | Cohort definitions | CLI import or UI bulk upload from Atlas JSON exports |
 | Concept sets | CLI import or UI bulk upload from Atlas JSON exports |
 | Data source connections | CLI import from live WebAPI instance |
-| Vocabulary | Shared — Parthenon connects to the same CDM/vocab schema as Atlas |
-| Achilles results | Shared — Parthenon reads the same results schema |
+| Vocabulary | Shared --- Parthenon connects to the same CDM/vocab schema as Atlas |
+| Achilles results | Shared --- Parthenon reads the same results schema |
 
 ## What Requires Manual Work
 
@@ -28,15 +28,28 @@ This guide helps informatics teams migrate an institution from a running **OHDSI
 | Atlas bookmarks / saved searches | Not migrated; document and recreate in Parthenon |
 | Custom Atlas plugins / visualisations | Evaluate Parthenon equivalent features |
 
+## New Capabilities After Migration
+
+After migrating to Parthenon, your team gains access to capabilities that have no Atlas equivalent:
+
+- **Genomics** --- VCF upload, ClinVar annotation, variant browsing, tumor board, genomic cohort criteria
+- **Imaging** --- DICOM study browser, built-in Cornerstone3D viewer, imaging cohort criteria, population analytics
+- **HEOR** --- Cost-effectiveness analysis, budget impact modeling, care gap identification, payer contract simulation
+- **FHIR EHR Integration** --- Connect to Epic, Cerner, and other FHIR R4 servers for automated data sync
+- **AI-Powered Search** --- Natural language concept search, contextual help, clinical text summarization
+- **Expanded Analyses** --- SCCS, Evidence Synthesis, PLE and PLP configuration UIs with R/HADES execution
+
+See [Chapter 6 --- Feature Comparison](./06-feature-comparison) for the complete feature-by-feature mapping.
+
 ## Estimated Timeline
 
 | Activity | Typical duration |
 |----------|-----------------|
-| Parthenon instance setup | 1–2 days (use the Python installer) |
-| Atlas export | 1–4 hours |
-| Import and validation | 1–2 days |
+| Parthenon instance setup | 1--2 days (use the Python installer) |
+| Atlas export | 1--4 hours |
+| Import and validation | 1--2 days |
 | User onboarding | 1 week (staggered) |
-| Parallel operation period | 2–4 weeks |
+| Parallel operation period | 2--4 weeks |
 | Atlas decommission | 1 day |
 
 ## Prerequisites
@@ -44,8 +57,8 @@ This guide helps informatics teams migrate an institution from a running **OHDSI
 Before starting migration:
 
 1. **Parthenon is running** and accessible at its production URL.
-2. **CDM source is connected** — at least one Source with CDM, Vocabulary, and Results daimons configured.
-3. **Atlas is accessible** — you have admin access to the Atlas instance and know its WebAPI URL.
-4. **PHP CLI access** — you can run `php artisan` commands inside the Parthenon container or on the host.
+2. **CDM source is connected** --- at least one Source with CDM, Vocabulary, and Results daimons configured.
+3. **Atlas is accessible** --- you have admin access to the Atlas instance and know its WebAPI URL.
+4. **PHP CLI access** --- you can run `php artisan` commands inside the Parthenon container or on the host.
 
-See [Chapter 1 — Before You Begin](01-before-you-begin) for the full prerequisite checklist.
+See [Chapter 1 --- Before You Begin](./01-before-you-begin) for the full prerequisite checklist.

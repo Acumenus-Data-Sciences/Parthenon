@@ -1,0 +1,285 @@
+---
+id: 27-genomics-overview
+title: "27. Genomics Module"
+sidebar_label: "27. Genomics"
+slug: /genomics-overview
+---
+
+# Genomics Module
+
+Parthenon's **Genomics module** brings molecular-level variant data into the OMOP CDM framework, enabling integrated analysis of genomic variants alongside clinical phenotypes. The module supports VCF and MAF file upload, automated ClinVar annotation, OMOP measurement mapping, variant-outcome analysis, and tumor board dashboards -- all within the same unified platform used for cohort building and outcomes research.
+
+## Module Architecture
+
+The genomics pipeline follows a staged workflow:
+
+```
+Upload VCF/MAF  -->  Parse Variants  -->  ClinVar Annotate  -->  Match Persons  -->  Import to OMOP
+                                                                                        |
+                                                                              measurement table
+                                                                                        |
+                                                               Variant Browser  /  Analysis  /  Tumor Board
+```
+
+Each stage is tracked with status management, allowing you to review and validate data before it flows into the CDM.
+
+## Supported File Formats
+
+| Format | Extension | Description |
+|--------|-----------|-------------|
+| **VCF** | `.vcf`, `.vcf.gz` | Variant Call Format -- the standard output from sequencing pipelines (GATK, bcftools, etc.) |
+| **MAF** | `.maf` | Mutation Annotation Format -- common in cancer genomics |
+| **cBioPortal MAF** | `.maf` (cBio) | cBioPortal-flavored MAF with additional annotation columns |
+| **FHIR Genomics** | `.json` | FHIR R4 Genomics resources (MolecularSequence, Observation) |
+
+### Genome Build Support
+
+| Build | Aliases | Status |
+|-------|---------|--------|
+| **GRCh38** | hg38 | Recommended (current reference) |
+| **GRCh37** | hg19 | Supported (legacy data) |
+
+:::info File size handling
+Files under **10 MB** are parsed synchronously during upload for immediate feedback. Larger files are queued for background processing via Laravel Horizon. The upload API accepts files up to **200 MB**.
+:::
+
+## Uploading Genomic Data
+
+### Web Interface
+
+1. Navigate to **Genomics** from the main navigation.
+2. Click **Upload** to open the upload dialog.
+3. Configure the upload:
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| **Data Source** | Yes | Target OMOP data source for this genomic data |
+| **File** | Yes | VCF, MAF, or FHIR Genomics file |
+| **File Format** | Yes | Select: `vcf`, `maf`, `cbio_maf`, or `fhir_genomics` |
+| **Genome Build** | No | GRCh38 (default) or GRCh37 |
+| **Sample ID** | No | External sample identifier for linking |
+
+4. Click **Upload**. The file is uploaded and parsing begins.
+
+### Upload Status Lifecycle
+
+| Status | Description |
+|--------|-------------|
+| `pending` | File received, awaiting parsing |
+| `parsing` | VCF/MAF parser is extracting variants |
+| `mapped` | Variants extracted, ready for annotation and person matching |
+| `review` | Some variants require manual review (ambiguous mappings) |
+| `imported` | Variants successfully written to OMOP measurement table |
+| `failed` | Parsing or import error (see error message) |
+
+### CLI Batch Upload
+
+For high-throughput environments, use the Artisan command:
+
+```bash
+php artisan genomics:upload \
+  --source=my_source \
+  --format=vcf \
+  --build=GRCh38 \
+  /path/to/samples/*.vcf.gz
+```
+
+## Variant Browser
+
+The variant browser provides a searchable, filterable table of all parsed variants across uploads:
+
+### Variant Fields
+
+Each variant record contains:
+
+| Field | Description |
+|-------|-------------|
+| **Chromosome** | Chromosome (1-22, X, Y, MT) |
+| **Position** | Genomic coordinate |
+| **Reference / Alternate** | Reference and alternate alleles |
+| **Gene Symbol** | Gene containing the variant (e.g., EGFR, KRAS, TP53) |
+| **HGVS.c** | Coding DNA sequence change notation |
+| **HGVS.p** | Protein sequence change notation |
+| **Variant Type** | SNV, insertion, deletion, MNV |
+| **Consequence** | Functional consequence (missense, nonsense, frameshift, etc.) |
+| **Quality** | Variant call quality score (QUAL from VCF) |
+| **Zygosity** | Homozygous / Heterozygous |
+| **Allele Frequency** | Variant allele frequency in the sample |
+| **Read Depth** | Sequencing depth at the variant position |
+| **ClinVar ID** | ClinVar variation ID (after annotation) |
+| **ClinVar Significance** | Clinical significance (pathogenic, likely pathogenic, VUS, benign) |
+| **COSMIC ID** | COSMIC mutation ID (if available) |
+| **Mapping Status** | mapped / unmapped / review |
+
+### Filters
+
+The variant browser supports multi-dimensional filtering:
+
+- **Gene** -- filter by gene symbol (supports partial match)
+- **Chromosome** -- select specific chromosome(s)
+- **Clinical Significance** -- pathogenic, likely pathogenic, VUS, benign, likely benign
+- **Mapping Status** -- mapped, unmapped, review
+- **Quality** -- minimum quality score threshold
+- **Upload** -- variants from a specific upload batch
+- **Data Source** -- variants from a specific OMOP source
+
+## ClinVar Annotation Service
+
+Parthenon maintains a local ClinVar database that is synchronized from NCBI and used to annotate uploaded variants with clinical significance.
+
+### ClinVar Sync
+
+1. Navigate to **Genomics > ClinVar** (or use the Artisan command).
+2. Click **Sync ClinVar** to download and index variants from NCBI's ClinVar FTP.
+3. Options:
+   - **Full sync** -- download all ClinVar variants (large dataset)
+   - **PAPU only** -- download only Pathogenic, Likely Pathogenic, and Uncertain Significance variants (smaller, faster)
+
+The sync status panel shows:
+
+| Metric | Description |
+|--------|-------------|
+| **Total ClinVar variants** | Number of variants in the local cache |
+| **Pathogenic count** | Variants classified as pathogenic or likely pathogenic |
+| **Last sync date** | When the cache was last updated |
+| **Sync history** | Log of recent sync operations with status and counts |
+
+### Annotating Uploads
+
+After ClinVar is synced, annotate an upload's variants:
+
+1. Open an upload in the upload detail page.
+2. Click **Annotate with ClinVar**.
+3. Parthenon matches variants by chromosome, position, reference allele, and alternate allele.
+4. Matching variants receive `clinvar_id`, `clinvar_significance`, and `is_pathogenic` annotations.
+
+```bash
+# CLI alternative
+php artisan genomics:sync-clinvar --papu-only
+```
+
+:::tip ClinVar update frequency
+ClinVar is updated weekly by NCBI. For clinical genomics workflows, schedule monthly syncs to keep your local cache current. Stale ClinVar data may miss newly classified pathogenic variants.
+:::
+
+## OMOP Measurement Mapping
+
+Genomic variants are mapped to the OMOP CDM `measurement` table, enabling integration with standard OHDSI analytical tools:
+
+### Mapping Pipeline
+
+1. **Person Matching** -- link variants to OMOP `person` records using sample ID, patient identifier, or manual assignment. The `PersonMatcherService` queries the CDM to find matching persons.
+
+2. **OMOP Import** -- write matched variants to the `measurement` table with:
+   - `measurement_concept_id` -- mapped to appropriate genomics measurement concepts
+   - `value_source_value` -- HGVS notation or variant description
+   - `measurement_date` -- sample collection date (from upload metadata)
+   - Source value fields preserving the original variant call
+
+3. **Result tracking** -- the import report shows:
+   - Variants written to OMOP
+   - Variants skipped (no person match)
+   - Errors (constraint violations)
+
+### Workflow
+
+```
+Upload Detail Page  -->  "Match Persons" button  -->  "Import to OMOP" button
+```
+
+Each step is triggered independently, allowing review between stages.
+
+## Genomic Cohort Criteria
+
+The Genomics module extends Parthenon's cohort builder with genomic criteria types:
+
+| Criteria Type | Description | Example |
+|--------------|-------------|---------|
+| `gene_mutation` | Patients with a specific gene mutation | EGFR L858R carriers |
+| `tmb` | Tumor mutation burden threshold | TMB > 10 mutations/Mb |
+| `msi` | Microsatellite instability status | MSI-High patients |
+| `fusion` | Gene fusion events | ALK-EML4 fusion carriers |
+| `pathogenicity` | ClinVar pathogenicity classification | Any pathogenic variant in BRCA1/2 |
+| `treatment_episode` | Treatment following genomic finding | Patients who received osimertinib after EGFR mutation |
+
+### Creating Genomic Criteria
+
+1. Navigate to **Genomics > Criteria** (or access from the Cohort Builder's genomic criteria panel).
+2. Click **New Criterion**.
+3. Select a criteria type and configure:
+   - Gene(s) of interest
+   - Specific variant(s) or any variant in the gene
+   - Thresholds for quantitative criteria (TMB, MSI score)
+4. Optionally mark as **Shared** to make available to all researchers.
+
+Genomic criteria integrate with the standard cohort builder -- combine genomic criteria with clinical criteria (conditions, drugs, procedures) to build precision medicine cohorts.
+
+## Genomic Analysis Suite
+
+The analysis page provides three genomic analysis types:
+
+### Survival Analysis
+
+Kaplan-Meier survival analysis comparing outcomes between variant carriers and wild-type patients:
+
+1. Select a data source, gene, and optionally a specific HGVS variant.
+2. Parthenon queries the CDM for survival endpoints (time-to-death or time-to-event from `death` and `observation_period` tables).
+3. Results display mutated vs. wild-type survival curves with log-rank p-value.
+
+### Treatment-Variant Response Matrix
+
+Cross-tabulation of treatment responses by genomic variant:
+
+1. Select a data source and up to 10 genes.
+2. Parthenon builds a matrix of drugs x variants x outcomes.
+3. Results show which treatment-variant combinations are associated with better or worse outcomes.
+
+### Genomic Characterization
+
+Population-level genomic profile of a data source:
+
+- Top mutated genes (bar chart)
+- TMB distribution (histogram)
+- Variant type breakdown (SNV, indel, MNV)
+- ClinVar significance distribution
+
+## Tumor Board Dashboard
+
+The tumor board page provides a comprehensive molecular evidence panel for individual patients:
+
+1. Navigate to **Genomics > Tumor Board**.
+2. Enter a `person_id` and select a data source.
+3. The dashboard displays:
+   - All genomic variants for the patient, sorted by clinical significance
+   - ClinVar annotations with links to NCBI
+   - Relevant drug exposures from the CDM
+   - Condition history from the CDM
+   - Treatment timeline with genomic events overlaid
+
+This view supports molecular tumor board discussions by consolidating genomic and clinical evidence in a single interface.
+
+:::warning Research use only
+The genomics module is designed for research and quality improvement purposes. It is not a validated clinical diagnostic tool. All clinical decisions should be made in consultation with qualified medical geneticists and using validated clinical-grade sequencing and interpretation pipelines.
+:::
+
+## API Reference
+
+Key genomics API endpoints:
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/v1/genomics/stats` | GET | Module statistics |
+| `/api/v1/genomics/uploads` | GET, POST | List/create uploads |
+| `/api/v1/genomics/uploads/{id}` | GET, DELETE | Get/delete upload |
+| `/api/v1/genomics/uploads/{id}/match-persons` | POST | Match variants to persons |
+| `/api/v1/genomics/uploads/{id}/import` | POST | Import to OMOP measurement |
+| `/api/v1/genomics/uploads/{id}/annotate-clinvar` | POST | Annotate with ClinVar |
+| `/api/v1/genomics/variants` | GET | List/filter variants |
+| `/api/v1/genomics/criteria` | GET, POST | List/create cohort criteria |
+| `/api/v1/genomics/clinvar/status` | GET | ClinVar sync status |
+| `/api/v1/genomics/clinvar/sync` | POST | Trigger ClinVar sync |
+| `/api/v1/genomics/clinvar/search` | GET | Search ClinVar database |
+| `/api/v1/genomics/analysis/survival` | GET | Survival analysis |
+| `/api/v1/genomics/analysis/treatment-matrix` | GET | Treatment-variant matrix |
+| `/api/v1/genomics/analysis/characterization` | GET | Genomic characterization |
+| `/api/v1/genomics/tumor-board/{personId}` | GET | Tumor board panel |

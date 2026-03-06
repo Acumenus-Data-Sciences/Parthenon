@@ -9,11 +9,20 @@ sidebar_label: "E. Glossary"
 **Achilles**
 An OHDSI R package that runs ~170 aggregate analysis queries against an OMOP CDM and stores the results in a results schema, enabling fast interactive database characterization.
 
-**CIRCE**
-Cohort Inception, Refinement, and Containment Expression — the JSON format used by OHDSI to define cohort expressions. Used by Atlas and Parthenon.
+**Bulk Data Export**
+A FHIR specification (FHIR Bulk Data Access IG) for exporting large volumes of patient data from an EHR system. Returns NDJSON files asynchronously. Used by Parthenon's FHIR integration to sync clinical data from EHR systems into the OMOP CDM.
+
+**Care Gap**
+A discrepancy between recommended clinical care (based on guidelines) and the care actually received by a patient or population. Parthenon's HEOR module identifies care gaps by comparing cohort outcomes against evidence-based benchmarks.
 
 **CDM (Common Data Model)**
 See OMOP CDM.
+
+**CIRCE**
+Cohort Inception, Refinement, and Containment Expression --- the JSON format used by OHDSI to define cohort expressions. Used by Atlas and Parthenon.
+
+**ClinVar**
+A freely accessible public archive of reports linking human genetic variants to clinical conditions, maintained by the National Center for Biotechnology Information (NCBI). Parthenon's Genomics module uses ClinVar to annotate VCF variants with clinical significance (Pathogenic, Likely Pathogenic, VUS, Benign, Likely Benign).
 
 **Cohort**
 A group of patients who satisfy a set of inclusion criteria and who are studied for a defined period of time. In OMOP, a cohort is stored as rows in the `cohort` table with `cohort_start_date` and `cohort_end_date` for each patient entry.
@@ -30,23 +39,47 @@ A broader concept in the OMOP concept hierarchy. Used to find all descendants (m
 **Concept Set**
 A named, reusable list of OMOP concepts (with optional descendants and mapped codes) used to define criteria in cohort expressions and analyses.
 
+**Content Hash Dedup (Deduplication)**
+A technique used by Parthenon's FHIR sync engine to avoid importing duplicate records. Each incoming FHIR resource is hashed based on its clinical content. If a record with the same content hash already exists in the CDM, it is skipped. This ensures idempotent syncs without creating duplicate rows.
+
+**Cornerstone3D**
+An open-source JavaScript library for medical image viewing in the browser. Parthenon uses Cornerstone3D to render DICOM images in the Imaging module's built-in viewer, supporting windowing, zoom, pan, and measurement tools.
+
 **Daimon**
 A named pointer to a database schema used by a Parthenon data source. Each source has one or more daimons of types: CDM, Vocabulary, Results, Temp.
 
 **Data Quality Dashboard (DQD)**
 An OHDSI tool (and Parthenon feature) that runs ~3,000 conformance, completeness, and plausibility checks on an OMOP CDM database.
 
+**DICOM**
+Digital Imaging and Communications in Medicine --- the international standard for medical imaging data and communication protocols. DICOM files contain both pixel data (the image) and metadata (patient, study, series, and instance identifiers). Parthenon's Imaging module imports, indexes, and displays DICOM studies.
+
 **Domain**
-An OMOP classification of clinical data types. Each domain has a primary CDM table (e.g. the Condition domain → `condition_occurrence`).
+An OMOP classification of clinical data types. Each domain has a primary CDM table (e.g. the Condition domain maps to `condition_occurrence`).
 
 **Drug Era**
 A derived OMOP table (`drug_era`) that collapses individual drug dispensing records for the same ingredient into continuous exposure periods, applying configurable gap tolerances.
 
+**FHIR R4**
+Fast Healthcare Interoperability Resources, Release 4 --- the current normative release of the HL7 FHIR standard for healthcare data exchange. Parthenon connects to FHIR R4 servers (Epic, Cerner, etc.) to sync clinical data into the OMOP CDM.
+
 **HADES**
-Health Analytics Data-to-Evidence Suite — the OHDSI R package ecosystem for running standardized analyses (CohortMethod, PatientLevelPrediction, etc.) on OMOP CDM data.
+Health Analytics Data-to-Evidence Suite --- the OHDSI R package ecosystem for running standardized analyses (CohortMethod, PatientLevelPrediction, etc.) on OMOP CDM data.
+
+**HEOR**
+Health Economics and Outcomes Research --- a discipline that evaluates the clinical and economic value of healthcare interventions. Parthenon's HEOR module provides cost-effectiveness analysis, budget impact modeling, care gap identification, and payer contract simulation.
+
+**Incremental Sync**
+A data synchronization strategy where only new or changed records are transferred on subsequent sync runs, rather than re-transferring the entire dataset. Parthenon's FHIR integration uses incremental sync with `_lastUpdated` filters to efficiently keep the CDM current with the source EHR.
 
 **Index Event / Index Date**
 The anchoring clinical event that begins a patient's cohort entry. All temporal windows in inclusion rules are measured relative to the index date (T = 0).
+
+**MedGemma**
+A medical-domain language model developed by Google, optimized for clinical and biomedical text understanding. Parthenon can use MedGemma via Ollama for AI-powered concept search, clinical text summarization, and tumor board insights.
+
+**NDJSON**
+Newline-Delimited JSON --- a format where each line is a valid JSON object. Used by FHIR Bulk Data Export to stream large result sets. Each line represents one FHIR resource (Patient, Condition, Observation, etc.).
 
 **New User Design**
 A pharmacoepidemiological study design that restricts to patients with no prior exposure to the study drug (a "washout" or "clean" period before the index date), reducing prevalent user bias.
@@ -54,8 +87,11 @@ A pharmacoepidemiological study design that restricts to patients with no prior 
 **Observation Period**
 A period of continuous observation for a patient during which their healthcare encounters are assumed to be completely captured in the database.
 
+**Ollama**
+An open-source tool for running large language models locally. Parthenon uses Ollama as the default AI backend, hosting models like MedGemma for on-premises AI capabilities without sending data to external services.
+
 **OMOP CDM**
-Observational Medical Outcomes Partnership Common Data Model — a standardized relational data model maintained by the OHDSI community for representing observational health data using standardized vocabularies.
+Observational Medical Outcomes Partnership Common Data Model --- a standardized relational data model maintained by the OHDSI community for representing observational health data using standardized vocabularies. Parthenon is built on OMOP CDM v5.4.
 
 **Person-Year**
 A unit of time-at-risk. 1,000 person-years = 1,000 patients observed for 1 year each (or 500 patients for 2 years, etc.). Used as the denominator in incidence rate calculations.
@@ -75,14 +111,26 @@ Evidence derived from real-world data sources (claims, EHR, registries) rather t
 **Scramble**
 The Laravel package used by Parthenon to auto-generate OpenAPI documentation from PHP code, served at `/docs/api`.
 
-**SNOMED CT**
-Systematized Nomenclature of Medicine — Clinical Terms. The standard vocabulary for the OMOP Condition, Procedure, and Observation domains.
+**SMART Backend Services**
+A SMART on FHIR authorization profile for server-to-server (system-to-system) authentication using asymmetric key pairs (RS384/ES384 JWTs). Used by Parthenon's FHIR integration to authenticate with EHR servers without user interaction. Requires a registered client ID and a private key for JWT signing.
 
 **SMD (Standardized Mean Difference)**
 A statistical measure of covariate balance between two groups. SMD < 0.1 indicates good balance; used in propensity score and comparative effectiveness analyses.
 
+**SNOMED CT**
+Systematized Nomenclature of Medicine --- Clinical Terms. The standard vocabulary for the OMOP Condition, Procedure, and Observation domains.
+
+**Tumor Board**
+A multidisciplinary clinical conference where a patient's case is reviewed by specialists. Parthenon's Genomics module includes a virtual Tumor Board view that aggregates a patient's genomic variants, clinical history, treatment response, and AI-generated insights into a single summary screen.
+
+**VCF**
+Variant Call Format --- a standard text file format for storing gene sequence variations. VCF files contain variant calls (SNVs, indels, structural variants) with quality scores and annotations. Parthenon's Genomics module accepts VCF uploads, parses variants, and maps them to OMOP measurement records.
+
 **Vocabulary**
 A controlled terminology (e.g. SNOMED, RxNorm, LOINC). OMOP incorporates ~100 vocabularies via the Athena vocabulary repository.
 
+**WADO-RS**
+Web Access to DICOM Objects --- RESTful Services. A DICOMweb standard for retrieving DICOM objects over HTTP. Parthenon provides a WADO-RS endpoint (`/api/v1/imaging/wado/{sopUid}`) that serves DICOM instance data to the Cornerstone3D viewer.
+
 **WebAPI**
-The legacy OHDSI Java REST API used by Atlas. Parthenon provides compatible endpoints at `/api/v1/` for HADES package integration.
+The legacy OHDSI Java REST API used by Atlas. Parthenon provides compatible endpoints at `/api/v1/` for HADES R package integration.

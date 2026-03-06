@@ -6,66 +6,244 @@ sidebar_label: "2. Data Sources"
 
 # Data Sources
 
-A **data source** in Parthenon represents a connection to one or more OMOP CDM databases. Each source has one or more **daimons** — named pointers to the PostgreSQL schemas that hold CDM data, vocabulary, results, and temporary tables. This mirrors the legacy OHDSI WebAPI source/daimon model for compatibility with HADES packages.
+A **data source** in Parthenon represents a connection to an OMOP CDM database. Each source has one or more **daimons** — named pointers to the PostgreSQL schemas that hold CDM clinical data, vocabulary tables, Achilles results, and temporary working tables. This architecture mirrors the legacy OHDSI WebAPI source/daimon model, ensuring compatibility with HADES packages, Atlas exports, and the broader OHDSI toolchain.
 
-## How Sources Work
+Data sources are the foundation of everything in Parthenon. Before you can browse vocabularies, build cohorts, or run analyses, at least one data source must be configured and connected.
 
-Parthenon connects to your OMOP CDM through a source record that specifies:
+## The Source/Daimon Model
 
-- **CDM daimon** — schema containing clinical tables (`person`, `condition_occurrence`, etc.)
-- **Vocabulary daimon** — schema containing concept and vocabulary tables
-- **Results daimon** — schema where Achilles pre-computed results are stored
-- **Temp daimon** — schema used for temporary cohort generation tables
+Every data source consists of two components:
 
-All daimons can point to the same schema (common Atlas convention) or separate schemas depending on your database layout.
+### Source Record
+The source record defines the database connection itself:
+
+- **Source Name** — A human-readable label (e.g., "Claims Database 2024", "Eunomia Demo")
+- **Source Key** — A short, lowercase identifier used in API calls and URLs (e.g., `claims-2024`, `eunomia`)
+- **Connection Details** — Host, port, database name, and credentials for the PostgreSQL server
+- **CDM Version** — The OMOP CDM version of the data (v5.4 is the current standard)
+
+### Daimons
+Each source has one to four **daimons** that map logical data categories to physical database schemas:
+
+| Daimon Type | Purpose | Typical Schema | Required |
+|-------------|---------|----------------|----------|
+| **CDM** | Clinical data tables: `person`, `condition_occurrence`, `drug_exposure`, `measurement`, `procedure_occurrence`, `observation`, `visit_occurrence`, etc. | `omop`, `cdm`, or `eunomia` | Yes |
+| **Vocabulary** | Concept and terminology tables: `concept`, `concept_ancestor`, `concept_relationship`, `vocabulary`, `domain`, `concept_class`, `concept_synonym` | Same as CDM (common), or a dedicated `vocab` schema | Yes |
+| **Results** | Pre-computed analytics: Achilles results, data quality dashboard outputs, generated cohort tables (`cohort`, `cohort_inclusion`) | `achilles_results`, `results`, or `eunomia_results` | Recommended |
+| **Temp** | Scratch space for cohort generation intermediate tables and temporary analysis outputs | `temp`, `scratch`, or same as results | Optional |
+
+:::info All Daimons Can Point to the Same Schema
+In many OMOP CDM deployments (especially those set up by Atlas or ETL tools), all tables live in a single schema. It is perfectly valid — and common — for all four daimons to point to the same schema name. Parthenon handles this correctly.
+:::
+
+### How Daimons Are Used
+
+When Parthenon executes a query, it dynamically sets the PostgreSQL `search_path` based on the daimon configuration of the selected source. For example:
+
+- A vocabulary search sets the search path to the **vocabulary** daimon's schema
+- Cohort generation writes to the **results** daimon's schema
+- Patient profile queries read from the **CDM** daimon's schema
+- Achilles results are read from the **results** daimon's schema
+
+This approach allows a single Parthenon instance to work with multiple databases that have different schema layouts without any code changes.
 
 ## Viewing Data Sources
 
-Navigate to **Data Sources** in the top navigation. The list shows all configured sources with their connection status, CDM version, and available daimons.
+Navigate to **Data Sources** in the top navigation bar. The source list displays all configured data sources with:
 
-Click any source to open its detail view, which includes:
+- **Source name and key** — Click to open the detail view
+- **Connection status indicator** — Green (connected), yellow (stale), or red (failed)
+- **CDM version** — The OMOP CDM version reported by the source
+- **Daimon summary** — Icons showing which daimon types are configured
+- **Patient count** — Total persons in the CDM (from Achilles, if available)
 
-- Connection metadata (host, database, dialect)
-- Available daimon types and schema names
-- Vocabulary version loaded in that source
-- Quick links to Data Explorer reports for this source
+### Source Detail View
 
-## Adding a Data Source (Admin)
+Click any source to open its detail panel, which includes:
 
-Only users with the **admin** or **super-admin** role can create or edit sources.
+- Full connection metadata (host, database, dialect, CDM version)
+- All configured daimons with their schema names and priorities
+- Vocabulary version loaded in the source (e.g., `v5.0 2026-02-25`)
+- Quick links to:
+  - **Data Explorer** reports for this source
+  - **Data Quality Dashboard** results
+  - **Achilles Characterization** overview
 
-1. Click **Add Data Source** (top right of the Sources list).
-2. Fill in the **Source Name** — a human-readable label (e.g. "Claims Database 2024").
-3. Enter the **Source Key** — a short identifier used in API calls (lowercase, no spaces).
-4. Provide the **Connection String** — a JDBC-style URL, e.g.:
-   ```
-   jdbc:postgresql://dbhost:5432/ohdsi?currentSchema=omop
-   ```
-5. Enter database **Username** and **Password** (stored encrypted).
-6. Add one or more **Daimons** by clicking **+ Add Daimon**, selecting the type, and entering the schema name and priority.
-7. Click **Save**. Parthenon tests the connection before saving.
+## Adding a Data Source
 
-:::warning Credentials storage
-Data source credentials are stored encrypted in the application database using AES-256. Never share source credentials outside your security perimeter.
+:::warning Admin Access Required
+Only users with the **admin** or **super-admin** role can create, edit, or delete data sources.
 :::
+
+To add a new data source:
+
+1. Navigate to **Data Sources** and click **Add Data Source** (top right).
+
+2. Fill in the **basic information**:
+   - **Source Name** — A descriptive, human-readable label
+   - **Source Key** — A short identifier (lowercase letters, numbers, and hyphens only; no spaces)
+   - **CDM Version** — Select the OMOP CDM version (v5.4 recommended)
+
+3. Configure the **database connection**:
+   - **Host** — The PostgreSQL server hostname or IP address
+   - **Port** — Usually `5432`
+   - **Database** — The database name (e.g., `ohdsi`)
+   - **Username** — A database user with read access to CDM schemas
+   - **Password** — Stored encrypted using AES-256 in the application database
+
+4. Add **daimons** by clicking **+ Add Daimon** for each schema mapping:
+   - Select the **daimon type** (CDM, Vocabulary, Results, Temp)
+   - Enter the **schema name** (the PostgreSQL schema, e.g., `omop`)
+   - Set the **priority** (see [Source Priority](#source-priority) below)
+
+5. Click **Save**. Parthenon automatically tests the connection before saving.
+
+:::tip Connection String Compatibility
+If you are migrating from Atlas, you may have JDBC connection strings like `jdbc:postgresql://dbhost:5432/ohdsi?currentSchema=omop`. Parthenon accepts these for convenience — it extracts the host, port, database, and default schema from the JDBC URL automatically. You can also enter the connection details separately using the individual fields.
+:::
+
+### Example: Configuring a Typical OMOP Database
+
+For a database where all CDM tables, vocabulary, and results live in the `omop` schema:
+
+| Field | Value |
+|-------|-------|
+| Source Name | Acumenus OMOP |
+| Source Key | acumenus-omop |
+| Host | pgsql.acumenus.net |
+| Port | 5432 |
+| Database | ohdsi |
+| CDM Daimon | Schema: `omop`, Priority: 1 |
+| Vocabulary Daimon | Schema: `omop`, Priority: 1 |
+| Results Daimon | Schema: `achilles_results`, Priority: 1 |
+
+### Example: Separate CDM and Vocabulary Schemas
+
+For deployments with distinct schemas:
+
+| Field | Value |
+|-------|-------|
+| CDM Daimon | Schema: `cdm_data`, Priority: 1 |
+| Vocabulary Daimon | Schema: `vocabulary`, Priority: 1 |
+| Results Daimon | Schema: `results`, Priority: 1 |
+| Temp Daimon | Schema: `temp`, Priority: 1 |
 
 ## Editing and Deleting Sources
 
-- Click the **pencil icon** on any source to edit it.
-- Click the **trash icon** to delete. Deletion is blocked if any cohort has been generated against this source.
+- Click the **pencil icon** on any source row to open the edit form. All fields except the source key can be modified.
+- Click the **trash icon** to delete a source.
+
+:::danger Deletion Safeguards
+Deleting a data source is a destructive operation. Deletion is blocked if any cohort has been generated against this source. You must first delete or reassign dependent cohort generations before removing the source. This prevents orphaned analysis results that reference a non-existent data source.
+:::
 
 ## Source Priority
 
-When multiple sources provide the same daimon type, the **priority** field determines which is used by default. Lower numbers have higher priority. This allows you to configure a primary production database and a sandbox without changing analysis settings.
+When multiple sources provide the same daimon type, the **priority** field determines which is used by default in dropdowns and API calls that do not specify a source explicitly. Lower numbers have higher priority.
+
+**Use case:** You might configure both a production database (priority 1) and a development sandbox (priority 2). Researchers see the production database by default, but can switch to the sandbox for testing new cohort definitions without affecting production results.
+
+| Source | CDM Priority | Vocabulary Priority | Results Priority |
+|--------|-------------|--------------------|-----------------|
+| Production Claims | 1 | 1 | 1 |
+| Development Sandbox | 2 | 2 | 2 |
+| Eunomia Demo | 3 | 3 | 3 |
 
 ## Connection Health
 
-The Data Sources list shows a live **connection indicator** for each source:
+The data sources list shows a live **connection indicator** for each source:
 
 | Indicator | Meaning |
 |-----------|---------|
-| Green dot | Connection tested within the last 5 minutes |
-| Yellow dot | Last test was more than 5 minutes ago |
-| Red dot | Last connection attempt failed |
+| Green dot | Connection tested successfully within the last 5 minutes |
+| Yellow dot | Last successful test was more than 5 minutes ago |
+| Red dot | Most recent connection attempt failed |
 
-Click **Test Connection** on a source detail page to force an immediate connection check.
+### Testing Connections
+
+Click **Test Connection** on a source detail page to force an immediate connection check. The test verifies:
+
+1. TCP connectivity to the database host and port
+2. Authentication with the provided credentials
+3. Access to the CDM daimon schema
+4. Presence of the `person` table in the CDM schema (basic CDM validation)
+5. Access to the vocabulary daimon schema and presence of the `concept` table
+
+If any step fails, a detailed error message is displayed indicating the specific failure point.
+
+:::warning Firewall and Network Configuration
+If Parthenon is running in Docker, ensure the database host is reachable from inside the Docker network. Using `localhost` or `127.0.0.1` as the host will try to connect to the Docker container itself, not the host machine. Use the Docker host gateway IP (typically `host.docker.internal` on macOS/Windows, or the actual server IP on Linux) or a proper hostname.
+:::
+
+## Multi-Source Architecture
+
+Parthenon is designed for multi-source research environments. You can configure any number of data sources, and most platform features include a **source selector** that lets you switch between them:
+
+- **Vocabulary Browser** — Concept search results come from the selected source's vocabulary daimon. Different sources may have different vocabulary versions.
+- **Cohort Generation** — When generating a cohort, you select which source to execute against. The same cohort definition can be generated across multiple sources for network studies.
+- **Data Explorer** — Achilles dashboards and DQD reports are source-specific. A dropdown at the top lets you switch between sources.
+- **Analyses** — Each analysis configuration specifies its target source(s). Multi-database analyses (e.g., Evidence Synthesis) can aggregate results across sources.
+
+### Cross-Source Considerations
+
+:::tip Vocabulary Consistency
+For reliable cross-source comparisons, ensure all sources use the same vocabulary version. A concept set resolved against vocabulary version `v5.0 2025-01-01` may produce slightly different concept ID lists against version `v5.0 2025-06-01` due to new concepts, deprecated terms, or reclassified domains. The vocabulary version for each source is displayed in the source detail view and in the Vocabulary Browser header.
+:::
+
+## The Eunomia Demo Dataset
+
+Parthenon ships with built-in support for the **OHDSI Eunomia** dataset — a synthetic 2,694-patient GiBleed (gastrointestinal bleeding) cohort designed for testing and demonstration. Eunomia provides a complete, self-contained OMOP CDM v5.4 database with:
+
+- 2,694 synthetic patients with demographic and clinical data
+- 343,000+ clinical event rows across 20 CDM tables
+- A subset of OMOP vocabularies (444 concepts, 480 relationships) sufficient for the included clinical data
+- Pre-computed Achilles results for Data Explorer dashboards
+
+### Setting Up Eunomia
+
+Administrators can load the Eunomia dataset using two Artisan commands:
+
+```bash
+# Load Eunomia CDM data into the eunomia schema
+php artisan parthenon:load-eunomia --fresh
+
+# Create the Eunomia data source with proper daimon configuration
+php artisan eunomia:seed-source
+```
+
+The `--fresh` flag drops and recreates the Eunomia schema before loading. The `eunomia:seed-source` command creates a source named "OHDSI Eunomia" with daimons pointing to the `eunomia` and `eunomia_results` schemas.
+
+:::tip Perfect for Training and Demos
+Eunomia is ideal for onboarding new researchers who need to learn the platform without accessing real patient data. It provides realistic clinical scenarios (GI bleed events, related medications, lab values) that work with all platform features — vocabulary browsing, cohort building, characterization, and incidence rate calculations.
+:::
+
+## Troubleshooting Data Sources
+
+### Connection Refused
+- Verify the database host is reachable from the Parthenon server (or Docker container)
+- Check that PostgreSQL is listening on the specified port
+- Ensure the database firewall rules allow inbound connections from the Parthenon server IP
+
+### Authentication Failed
+- Double-check the username and password
+- Verify the database user has `CONNECT` privilege on the target database
+- Check for password expiration or account lockout policies
+
+### Schema Not Found
+- Confirm the schema name matches exactly (PostgreSQL schema names are case-sensitive if quoted)
+- Verify the database user has `USAGE` privilege on the schema
+- Run `\dn` in psql to list available schemas
+
+### Missing CDM Tables
+- The connection test expects `person` in the CDM schema and `concept` in the vocabulary schema
+- Ensure your ETL has completed and populated the required tables
+- Check that the schema search path resolves correctly: `SHOW search_path;`
+
+### Achilles Results Not Showing
+- Verify the results daimon points to the correct schema
+- Confirm Achilles has been run against this source (check for rows in `achilles_results`)
+- The Data Explorer requires at least the core analyses (analysis IDs 1-5, 101-120) to render dashboards
+
+## Next Steps
+
+With your data sources configured and connected, you are ready to explore the clinical vocabularies. Proceed to [Chapter 3: Vocabulary Browser](../part2-vocabulary/03-vocabulary-browser) to learn how to search OMOP concepts, navigate the hierarchy, and understand the terminology that underpins all cohort definitions and analyses.
