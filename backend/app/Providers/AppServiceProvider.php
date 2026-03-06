@@ -120,14 +120,23 @@ class AppServiceProvider extends ServiceProvider
         // Auto-configure Resend mail transport from .resendapikey file at project root.
         // Mimics the lazy-key-loading pattern from the authregime.
         // If no key is present, falls back to the MAIL_MAILER setting in .env (default: log).
-        $keyFile = base_path('../../.resendapikey');
-        $key = is_readable($keyFile) ? trim((string) file_get_contents($keyFile)) : '';
+        // Check multiple possible locations for the Resend API key file:
+        // 1. Docker mount at /var/www/.resendapikey (mounted from repo root)
+        // 2. Repo root relative to backend dir (local dev without Docker)
+        $keyFile = null;
+        foreach (['/var/www/.resendapikey', base_path('../.resendapikey')] as $candidate) {
+            if (is_readable($candidate)) {
+                $keyFile = $candidate;
+                break;
+            }
+        }
+        $key = $keyFile ? trim((string) file_get_contents($keyFile)) : '';
 
         if ($key !== '') {
             config([
                 'mail.default' => 'resend',
                 'mail.mailers.resend.transport' => 'resend',
-                'resend.api_key' => $key,
+                'services.resend.key' => $key,
             ]);
         }
 

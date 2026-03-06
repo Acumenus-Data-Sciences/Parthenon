@@ -24,6 +24,7 @@ services:
     volumes:
       - ./backend:/var/www/html
       - ./dicom_samples:/var/www/html/dicom_samples:ro
+      - ./.resendapikey:/var/www/.resendapikey:ro
     env_file:
       - ./backend/.env
     extra_hosts:
@@ -189,6 +190,7 @@ services:
     command: php artisan horizon
     volumes:
       - ./backend:/var/www/html
+      - ./.resendapikey:/var/www/.resendapikey:ro
     env_file:
       - ./backend/.env
     extra_hosts:
