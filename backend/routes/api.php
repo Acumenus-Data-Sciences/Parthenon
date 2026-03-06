@@ -52,6 +52,8 @@ use App\Http\Controllers\Api\V1\HeorController;
 use App\Http\Controllers\Api\V1\Admin\FhirConnectionController;
 use App\Http\Controllers\Api\V1\ImagingController;
 use App\Http\Controllers\Api\V1\VocabularyController;
+use App\Http\Controllers\Api\V1\GlobalSearchController;
+use App\Http\Controllers\Api\V1\Admin\SolrAdminController;
 use Illuminate\Support\Facades\Route;
 
 // Public health check
@@ -74,6 +76,9 @@ Route::prefix('v1')->group(function () {
 
         // Dashboard (unified stats — single call replaces 3+N frontend requests)
         Route::get('/dashboard/stats', [DashboardController::class, 'stats']);
+
+        // Global search (across Solr cores: vocabulary, cohorts, studies)
+        Route::get('/search', [GlobalSearchController::class, 'search']);
 
         // Sources — custom routes BEFORE apiResource to avoid route shadowing
         Route::post('sources/import-webapi', [SourceController::class, 'importWebApi']);
@@ -457,6 +462,14 @@ Route::prefix('v1')->group(function () {
             // ── FHIR Sync Dashboard (super-admin only) ──────────────────
             Route::middleware('role:super-admin')
                 ->get('/fhir-sync/dashboard', [FhirConnectionController::class, 'syncDashboard']);
+
+            // ── Solr Admin (super-admin only) ──────────────────────────
+            Route::middleware('role:super-admin')->prefix('solr')->group(function () {
+                Route::get('/status', [SolrAdminController::class, 'status']);
+                Route::post('/reindex/{core}', [SolrAdminController::class, 'reindex']);
+                Route::post('/reindex-all', [SolrAdminController::class, 'reindexAll']);
+                Route::post('/clear/{core}', [SolrAdminController::class, 'clear']);
+            });
         });
     });
 });

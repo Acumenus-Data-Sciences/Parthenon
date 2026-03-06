@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<schema name="cohorts" version="1.6">
+
+  <!-- Unique key -->
+  <uniqueKey>id</uniqueKey>
+
+  <!-- Field types -->
+  <fieldType name="pint" class="solr.IntPointField" docValues="true"/>
+  <fieldType name="plong" class="solr.LongPointField" docValues="true"/>
+  <fieldType name="pdate" class="solr.DatePointField" docValues="true"/>
+  <fieldType name="string" class="solr.StrField" sortMissingLast="true" docValues="true"/>
+  <fieldType name="boolean" class="solr.BoolField" sortMissingLast="true"/>
+
+  <fieldType name="text_general" class="solr.TextField" positionIncrementGap="100">
+    <analyzer type="index">
+      <tokenizer class="solr.StandardTokenizerFactory"/>
+      <filter class="solr.LowerCaseFilterFactory"/>
+      <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt"/>
+    </analyzer>
+    <analyzer type="query">
+      <tokenizer class="solr.StandardTokenizerFactory"/>
+      <filter class="solr.LowerCaseFilterFactory"/>
+      <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt"/>
+    </analyzer>
+  </fieldType>
+
+  <fieldType name="text_suggest" class="solr.TextField" positionIncrementGap="100">
+    <analyzer type="index">
+      <tokenizer class="solr.StandardTokenizerFactory"/>
+      <filter class="solr.LowerCaseFilterFactory"/>
+      <filter class="solr.EdgeNGramFilterFactory" minGramSize="2" maxGramSize="25"/>
+    </analyzer>
+    <analyzer type="query">
+      <tokenizer class="solr.StandardTokenizerFactory"/>
+      <filter class="solr.LowerCaseFilterFactory"/>
+    </analyzer>
+  </fieldType>
+
+  <!-- Shared fields for both cohorts and studies -->
+  <field name="id" type="string" indexed="true" stored="true" required="true"/>
+  <field name="type" type="string" indexed="true" stored="true"/>
+  <field name="name" type="text_general" indexed="true" stored="true"/>
+  <field name="name_sort" type="string" indexed="true" stored="true"/>
+  <field name="name_suggest" type="text_suggest" indexed="true" stored="false"/>
+  <field name="description" type="text_general" indexed="true" stored="true"/>
+  <field name="tags" type="string" indexed="true" stored="true" multiValued="true"/>
+  <field name="author_name" type="string" indexed="true" stored="true"/>
+  <field name="author_id" type="pint" indexed="true" stored="true"/>
+  <field name="status" type="string" indexed="true" stored="true"/>
+  <field name="is_public" type="boolean" indexed="true" stored="true"/>
+  <field name="created_at" type="pdate" indexed="true" stored="true"/>
+  <field name="updated_at" type="pdate" indexed="true" stored="true"/>
+
+  <!-- Cohort-specific fields -->
+  <field name="person_count" type="pint" indexed="true" stored="true"/>
+  <field name="generation_count" type="pint" indexed="true" stored="true"/>
+  <field name="version" type="pint" indexed="true" stored="true"/>
+
+  <!-- Study-specific fields -->
+  <field name="study_type" type="string" indexed="true" stored="true"/>
+  <field name="study_design" type="string" indexed="true" stored="true"/>
+  <field name="phase" type="string" indexed="true" stored="true"/>
+  <field name="priority" type="string" indexed="true" stored="true"/>
+  <field name="scientific_rationale" type="text_general" indexed="true" stored="false"/>
+  <field name="hypothesis" type="text_general" indexed="true" stored="false"/>
+  <field name="pi_name" type="string" indexed="true" stored="true"/>
+
+  <!-- Required by Solr -->
+  <field name="_version_" type="plong" indexed="false" stored="false"/>
+
+  <!-- Copy field for autocomplete -->
+  <copyField source="name" dest="name_suggest"/>
+
+</schema>

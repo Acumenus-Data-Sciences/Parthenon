@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Services\Solr\CohortSearchService;
+use App\Services\Solr\GlobalSearchService;
 use App\Services\Solr\SolrClientWrapper;
 use App\Services\Solr\VocabularySearchService;
 use Illuminate\Support\ServiceProvider;
@@ -12,5 +14,7 @@ class SolrServiceProvider extends ServiceProvider
     {
         $this->app->singleton(SolrClientWrapper::class);
         $this->app->singleton(VocabularySearchService::class);
+        $this->app->singleton(CohortSearchService::class);
+        $this->app->singleton(GlobalSearchService::class);
     }
 }

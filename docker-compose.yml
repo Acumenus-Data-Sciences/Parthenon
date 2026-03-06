@@ -164,9 +164,10 @@ services:
     volumes:
       - solr_data:/var/solr
       - ./solr/configsets/vocabulary:/opt/solr/server/solr/configsets/vocabulary:ro
+      - ./solr/configsets/cohorts:/opt/solr/server/solr/configsets/cohorts:ro
     environment:
       - SOLR_JAVA_MEM=-Xms512m -Xmx2g
-    command: solr-precreate vocabulary /opt/solr/server/solr/configsets/vocabulary
+    command: bash -c "precreate-core vocabulary /opt/solr/server/solr/configsets/vocabulary; precreate-core cohorts /opt/solr/server/solr/configsets/cohorts; exec solr-foreground"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8983/solr/vocabulary/admin/ping"]
       interval: 30s

@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import {
-  Activity, Bot, KeyRound, ShieldCheck, Users, ArrowRight, Wand2, BookOpen, Server, ArrowRightLeft,
+  Activity, Bot, KeyRound, ShieldCheck, Users, ArrowRight, Wand2, BookOpen, Server, ArrowRightLeft, Database,
 } from "lucide-react";
 import { MetricCard, Panel } from "@/components/ui";
 import { useUsers } from "../hooks/useAdminUsers";
@@ -73,6 +73,15 @@ const NAV_CARDS = [
     href: "/admin/fhir-connections",
     color: "text-teal-500",
     bg: "bg-teal-500/10",
+    superAdminOnly: true,
+  },
+  {
+    title: "Solr Search",
+    description: "Manage Solr search cores, trigger reindexing, and monitor search infrastructure status.",
+    icon: Database,
+    href: "/admin/solr",
+    color: "text-amber-500",
+    bg: "bg-amber-500/10",
     superAdminOnly: true,
   },
 ];

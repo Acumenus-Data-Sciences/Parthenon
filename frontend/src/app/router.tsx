@@ -436,6 +436,13 @@ export const router = createBrowserRouter(
               ).then((m) => ({ Component: m.default })),
           },
           {
+            path: "solr",
+            lazy: () =>
+              import(
+                "@/features/administration/pages/SolrAdminPage"
+              ).then((m) => ({ Component: m.default })),
+          },
+          {
             path: "notifications",
             lazy: () =>
               import(

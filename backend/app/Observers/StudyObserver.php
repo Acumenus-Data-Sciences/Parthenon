@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Jobs\Solr\SolrUpdateCohortJob;
 use App\Models\App\Study;
 use App\Models\App\StudyActivityLog;
 use Illuminate\Support\Facades\Auth;
@@ -17,6 +18,7 @@ class StudyObserver
     public function created(Study $study): void
     {
         $this->log($study, 'created');
+        $this->dispatchSolrUpdate($study);
     }
 
     public function updated(Study $study): void
@@ -50,11 +52,22 @@ class StudyObserver
         }
 
         $this->log($study, 'updated', $oldValues, $newValues);
+        $this->dispatchSolrUpdate($study);
     }
 
     public function deleted(Study $study): void
     {
         $this->log($study, 'deleted');
+        if (config('solr.enabled')) {
+            SolrUpdateCohortJob::dispatch('study', $study->id, true)->delay(5);
+        }
+    }
+
+    private function dispatchSolrUpdate(Study $study): void
+    {
+        if (config('solr.enabled')) {
+            SolrUpdateCohortJob::dispatch('study', $study->id, false)->delay(5);
+        }
     }
 
     private function log(

@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\App\CohortDefinition;
 use App\Models\App\Study;
 use App\Models\App\StudyArtifact;
 use App\Models\App\StudyCohort;
@@ -12,6 +13,7 @@ use App\Models\App\StudyResult;
 use App\Models\App\StudySite;
 use App\Models\App\StudySynthesis;
 use App\Models\App\StudyTeamMember;
+use App\Observers\CohortDefinitionObserver;
 use App\Observers\StudyObserver;
 use App\Observers\StudySubResourceObserver;
 use App\Services\AI\AbbyAiService;
@@ -140,7 +142,8 @@ class AppServiceProvider extends ServiceProvider
             ]);
         }
 
-        // Study activity logging observers
+        // Model observers — activity logging + Solr delta indexing
+        CohortDefinition::observe(CohortDefinitionObserver::class);
         Study::observe(StudyObserver::class);
 
         $subResourceModels = [

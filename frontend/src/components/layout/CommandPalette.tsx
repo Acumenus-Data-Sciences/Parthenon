@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState, useMemo } from "react";
+import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { createPortal } from "react-dom";
 import { useUiStore } from "@/stores/uiStore";
 import { useAbbyStore } from "@/stores/abbyStore";
+import apiClient from "@/lib/api-client";
 import {
   LayoutDashboard,
   Database,
@@ -17,6 +18,8 @@ import {
   Settings,
   Sparkles,
   Search,
+  Beaker,
+  FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -37,6 +40,53 @@ export function CommandPalette() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [searchResults, setSearchResults] = useState<CommandItem[]>([]);
+  const [searching, setSearching] = useState(false);
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+
+  const fetchSearchResults = useCallback(
+    async (q: string) => {
+      if (q.length < 2) {
+        setSearchResults([]);
+        return;
+      }
+      setSearching(true);
+      try {
+        const res = await apiClient.get<{
+          data: {
+            results: Array<{
+              type: string;
+              id: string;
+              title: string;
+              subtitle: string;
+              url: string;
+            }>;
+          };
+        }>("/search", { params: { q, limit: 8 } });
+        const items: CommandItem[] = (res.data.data?.results ?? []).map((r) => ({
+          id: `search-${r.type}-${r.id}`,
+          label: r.title,
+          group: "Search Results",
+          icon:
+            r.type === "concept"
+              ? Beaker
+              : r.type === "cohort"
+                ? Users
+                : r.type === "study"
+                  ? Briefcase
+                  : FileText,
+          action: () => navigate(r.url),
+          keywords: r.subtitle,
+        }));
+        setSearchResults(items);
+      } catch {
+        setSearchResults([]);
+      } finally {
+        setSearching(false);
+      }
+    },
+    [navigate],
+  );
 
   const commands = useMemo<CommandItem[]>(
     () => [
@@ -57,16 +107,31 @@ export function CommandPalette() {
     [navigate, toggleAbbyPanel],
   );
 
+  // Debounced Solr search
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (query.trim().length >= 2) {
+      debounceRef.current = setTimeout(() => fetchSearchResults(query.trim()), 300);
+    } else {
+      setSearchResults([]);
+    }
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [query, fetchSearchResults]);
+
   const filtered = useMemo(() => {
-    if (!query.trim()) return commands;
-    const q = query.toLowerCase();
-    return commands.filter(
-      (c) =>
-        c.label.toLowerCase().includes(q) ||
-        c.keywords?.toLowerCase().includes(q) ||
-        c.group.toLowerCase().includes(q),
-    );
-  }, [commands, query]);
+    const q = query.toLowerCase().trim();
+    const navItems = q
+      ? commands.filter(
+          (c) =>
+            c.label.toLowerCase().includes(q) ||
+            c.keywords?.toLowerCase().includes(q) ||
+            c.group.toLowerCase().includes(q),
+        )
+      : commands;
+    return [...navItems, ...searchResults];
+  }, [commands, query, searchResults]);
 
   // Group filtered results
   const groups = useMemo(() => {
@@ -143,7 +208,7 @@ export function CommandPalette() {
         <div className="command-palette-list">
           {filtered.length === 0 && (
             <div style={{ padding: "var(--space-6)", textAlign: "center", color: "var(--text-muted)", fontSize: "var(--text-sm)" }}>
-              No results found
+              {searching ? "Searching..." : "No results found"}
             </div>
           )}
           {Array.from(groups.entries()).map(([group, items]) => (
@@ -163,7 +228,14 @@ export function CommandPalette() {
                     onMouseEnter={() => setSelectedIndex(idx)}
                   >
                     <item.icon size={16} />
-                    <span>{item.label}</span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <span>{item.label}</span>
+                      {item.group === "Search Results" && item.keywords && (
+                        <span style={{ marginLeft: 8, color: "var(--text-ghost)", fontSize: "var(--text-xs)" }}>
+                          {item.keywords}
+                        </span>
+                      )}
+                    </div>
                     {item.shortcut && (
                       <span className="command-shortcut">{item.shortcut}</span>
                     )}
