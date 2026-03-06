@@ -1,6 +1,6 @@
 import { useRef, useEffect, useCallback, useState } from "react";
 import { createPortal } from "react-dom";
-import { X, Sparkles, Send, Loader2, Trash2, ChevronRight } from "lucide-react";
+import { X, Sparkles, Send, Loader2, Trash2, ChevronRight, Clock, MessageSquare, ChevronLeft } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useAbbyStore } from "@/stores/abbyStore";
@@ -8,6 +8,7 @@ import { useAbbyContext } from "@/hooks/useAbbyContext";
 import { useAuthStore } from "@/stores/authStore";
 import apiClient from "@/lib/api-client";
 import type { Message } from "@/stores/abbyStore";
+import type { ConversationSummary } from "@/stores/abbyStore";
 
 const CONTEXT_SUGGESTIONS: Record<string, string[]> = {
   cohort_builder: [
@@ -142,11 +143,27 @@ const CONTEXT_LABELS: Record<string, string> = {
   general: "General",
 };
 
+function formatRelativeTime(dateStr: string): string {
+  const now = new Date();
+  const date = new Date(dateStr);
+  const diffMs = now.getTime() - date.getTime();
+  const diffMin = Math.floor(diffMs / 60000);
+  if (diffMin < 1) return "just now";
+  if (diffMin < 60) return `${diffMin}m ago`;
+  const diffHrs = Math.floor(diffMin / 60);
+  if (diffHrs < 24) return `${diffHrs}h ago`;
+  const diffDays = Math.floor(diffHrs / 24);
+  if (diffDays < 7) return `${diffDays}d ago`;
+  return date.toLocaleDateString();
+}
+
 export function AbbyPanel() {
-  const { panelOpen, setPanelOpen, messages, addMessage, clearMessages, pageContext, isStreaming, setIsStreaming, streamingContent, setStreamingContent, appendStreamingContent } = useAbbyStore();
+  const { panelOpen, setPanelOpen, messages, addMessage, clearMessages, pageContext, isStreaming, setIsStreaming, streamingContent, setStreamingContent, appendStreamingContent, conversationId, setConversationId, conversationList, setConversationList } = useAbbyStore();
   const { pageName } = useAbbyContext();
   const user = useAuthStore((s) => s.user);
   const [input, setInput] = useState("");
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [historyLoading, setHistoryLoading] = useState(false);
   const bodyRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const abortRef = useRef<AbortController | null>(null);
@@ -183,6 +200,69 @@ export function AbbyPanel() {
     textarea.style.height = Math.min(textarea.scrollHeight, 120) + "px";
   }, [input]);
 
+  // Fetch conversation list when panel opens
+  useEffect(() => {
+    if (!panelOpen || !user) return;
+    const fetchConversations = async () => {
+      try {
+        const { data } = await apiClient.get<{ data: ConversationSummary[] }>(
+          "/abby/conversations?per_page=20"
+        );
+        setConversationList(data.data);
+      } catch {
+        // Silently fail — conversations are non-critical
+      }
+    };
+    fetchConversations();
+  }, [panelOpen, user, setConversationList]);
+
+  const loadConversation = useCallback(
+    async (conv: ConversationSummary) => {
+      setHistoryLoading(true);
+      try {
+        const { data } = await apiClient.get<{
+          data: {
+            id: number;
+            title: string;
+            messages: { id: number; role: "user" | "assistant"; content: string; metadata: unknown; created_at: string }[];
+          };
+        }>(`/abby/conversations/${conv.id}`);
+        const loaded: Message[] = data.data.messages.map((m) => ({
+          id: String(m.id),
+          role: m.role,
+          content: m.content,
+          timestamp: new Date(m.created_at),
+        }));
+        // Replace messages in store
+        useAbbyStore.setState({ messages: loaded });
+        setConversationId(String(data.data.id));
+        setHistoryOpen(false);
+      } catch {
+        // Failed to load conversation
+      } finally {
+        setHistoryLoading(false);
+      }
+    },
+    [setConversationId],
+  );
+
+  const deleteConversation = useCallback(
+    async (convId: number, e: React.MouseEvent) => {
+      e.stopPropagation();
+      try {
+        await apiClient.delete(`/abby/conversations/${convId}`);
+        setConversationList(conversationList.filter((c) => c.id !== convId));
+        // If the deleted conversation is the active one, clear it
+        if (conversationId === String(convId)) {
+          clearMessages();
+        }
+      } catch {
+        // Failed to delete
+      }
+    },
+    [conversationList, conversationId, setConversationList, clearMessages],
+  );
+
   const sendMessage = useCallback(
     async (text?: string) => {
       const msgText = (text ?? input).trim();
@@ -207,15 +287,21 @@ export function AbbyPanel() {
       const abortController = new AbortController();
       abortRef.current = abortController;
 
+      // Determine conversation_id from store
+      const currentConversationId = useAbbyStore.getState().conversationId;
+      // Auto-title: use first 50 chars of first user message if this is a new conversation
+      const isFirstMessage = !currentConversationId;
+      const autoTitle = isFirstMessage ? msgText.slice(0, 50) : undefined;
+
       try {
         // Try streaming first
-        const token = useAuthStore.getState().token;
+        const currentToken = useAuthStore.getState().token;
         const response = await fetch("/api/v1/abby/chat/stream", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Accept: "text/event-stream",
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            ...(currentToken ? { Authorization: `Bearer ${currentToken}` } : {}),
           },
           credentials: "include",
           body: JSON.stringify({
@@ -225,6 +311,8 @@ export function AbbyPanel() {
             user_profile: user
               ? { name: user.name, roles: user.roles ?? [] }
               : undefined,
+            ...(currentConversationId ? { conversation_id: currentConversationId } : {}),
+            ...(autoTitle ? { title: autoTitle } : {}),
           }),
           signal: abortController.signal,
         });
@@ -254,6 +342,7 @@ export function AbbyPanel() {
                     const parsed = JSON.parse(data) as {
                       token?: string;
                       suggestions?: string[];
+                      conversation_id?: string;
                       error?: string;
                     };
                     if (parsed.token) {
@@ -262,6 +351,9 @@ export function AbbyPanel() {
                     }
                     if (parsed.suggestions) {
                       suggestions = parsed.suggestions;
+                    }
+                    if (parsed.conversation_id && !useAbbyStore.getState().conversationId) {
+                      setConversationId(parsed.conversation_id);
                     }
                   } catch {
                     // skip non-JSON lines
@@ -283,6 +375,7 @@ export function AbbyPanel() {
           const { data } = await apiClient.post<{
             reply: string;
             suggestions: string[];
+            conversation_id?: string;
           }>("/abby/chat", {
             message: msgText,
             page_context: pageContext,
@@ -290,7 +383,13 @@ export function AbbyPanel() {
             user_profile: user
               ? { name: user.name, roles: user.roles ?? [] }
               : undefined,
+            ...(currentConversationId ? { conversation_id: currentConversationId } : {}),
+            ...(autoTitle ? { title: autoTitle } : {}),
           });
+
+          if (data.conversation_id && !useAbbyStore.getState().conversationId) {
+            setConversationId(data.conversation_id);
+          }
 
           addMessage({
             id: crypto.randomUUID(),
@@ -309,6 +408,7 @@ export function AbbyPanel() {
           const { data } = await apiClient.post<{
             reply: string;
             suggestions: string[];
+            conversation_id?: string;
           }>("/abby/chat", {
             message: msgText,
             page_context: pageContext,
@@ -316,7 +416,13 @@ export function AbbyPanel() {
             user_profile: user
               ? { name: user.name, roles: user.roles ?? [] }
               : undefined,
+            ...(currentConversationId ? { conversation_id: currentConversationId } : {}),
+            ...(autoTitle ? { title: autoTitle } : {}),
           });
+
+          if (data.conversation_id && !useAbbyStore.getState().conversationId) {
+            setConversationId(data.conversation_id);
+          }
 
           addMessage({
             id: crypto.randomUUID(),
@@ -340,7 +446,7 @@ export function AbbyPanel() {
         abortRef.current = null;
       }
     },
-    [input, isStreaming, messages, pageContext, user, addMessage, setIsStreaming, setStreamingContent, appendStreamingContent],
+    [input, isStreaming, messages, pageContext, user, addMessage, setIsStreaming, setStreamingContent, appendStreamingContent, setConversationId],
   );
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -382,7 +488,15 @@ export function AbbyPanel() {
           </div>
           <button
             className="btn btn-ghost btn-icon btn-sm"
-            onClick={() => clearMessages()}
+            onClick={() => setHistoryOpen(!historyOpen)}
+            aria-label="Conversation history"
+            title="Conversation history"
+          >
+            <Clock size={14} />
+          </button>
+          <button
+            className="btn btn-ghost btn-icon btn-sm"
+            onClick={() => { clearMessages(); setHistoryOpen(false); }}
             aria-label="New chat"
             title="New chat"
           >
@@ -396,6 +510,131 @@ export function AbbyPanel() {
             <X size={18} />
           </button>
         </div>
+
+        {/* History Sidebar */}
+        {historyOpen && (
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              bottom: 0,
+              width: "100%",
+              zIndex: 10,
+              display: "flex",
+              flexDirection: "column",
+              background: "#0E0E11",
+            }}
+          >
+            {/* History header */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                padding: "12px 16px",
+                borderBottom: "1px solid var(--border-default)",
+                flexShrink: 0,
+              }}
+            >
+              <button
+                className="btn btn-ghost btn-icon btn-sm"
+                onClick={() => setHistoryOpen(false)}
+                aria-label="Back to chat"
+              >
+                <ChevronLeft size={16} />
+              </button>
+              <span style={{ fontSize: "var(--text-sm)", fontWeight: 600, color: "var(--text-primary)" }}>
+                Conversation History
+              </span>
+            </div>
+
+            {/* History list */}
+            <div
+              style={{
+                flex: 1,
+                overflowY: "auto",
+                padding: "8px 0",
+              }}
+            >
+              {conversationList.length === 0 ? (
+                <div
+                  style={{
+                    textAlign: "center",
+                    padding: "32px 16px",
+                    color: "var(--text-muted)",
+                    fontSize: "var(--text-sm)",
+                  }}
+                >
+                  No past conversations
+                </div>
+              ) : (
+                conversationList.map((conv) => (
+                  <div
+                    key={conv.id}
+                    onClick={() => loadConversation(conv)}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 10,
+                      padding: "10px 16px",
+                      cursor: "pointer",
+                      borderBottom: "1px solid var(--border-default)",
+                      transition: "background 0.15s",
+                      background: conversationId === String(conv.id) ? "var(--surface-overlay)" : "transparent",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = "var(--surface-overlay)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background =
+                        conversationId === String(conv.id) ? "var(--surface-overlay)" : "transparent";
+                    }}
+                  >
+                    <MessageSquare size={14} style={{ color: "var(--text-muted)", flexShrink: 0 }} />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div
+                        style={{
+                          fontSize: "var(--text-sm)",
+                          color: "var(--text-primary)",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        {conv.title || "Untitled"}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "var(--text-xs)",
+                          color: "var(--text-muted)",
+                          marginTop: 2,
+                        }}
+                      >
+                        {formatRelativeTime(conv.created_at)}
+                        {conv.messages_count > 0 && ` · ${conv.messages_count} msgs`}
+                      </div>
+                    </div>
+                    <button
+                      className="btn btn-ghost btn-icon btn-sm"
+                      onClick={(e) => deleteConversation(conv.id, e)}
+                      aria-label="Delete conversation"
+                      title="Delete conversation"
+                      style={{ flexShrink: 0 }}
+                    >
+                      <X size={12} />
+                    </button>
+                  </div>
+                ))
+              )}
+              {historyLoading && (
+                <div style={{ textAlign: "center", padding: 16 }}>
+                  <Loader2 size={16} style={{ animation: "spin 1s linear infinite", color: "var(--text-muted)" }} />
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Messages */}
         <div className="ai-panel-body" ref={bodyRef}>

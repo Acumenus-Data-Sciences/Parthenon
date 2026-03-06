@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Models\App\AbbyConversation;
+use App\Models\App\AbbyMessage;
 use App\Services\AI\AbbyAiService;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
@@ -88,6 +90,7 @@ class AbbyAiController extends Controller
             'user_profile' => 'sometimes|array',
             'user_profile.name' => 'sometimes|string|max:255',
             'user_profile.roles' => 'sometimes|array',
+            'conversation_id' => 'sometimes|nullable|integer|exists:abby_conversations,id',
         ]);
 
         $result = $this->abbyAi->chat(
@@ -96,6 +99,50 @@ class AbbyAiController extends Controller
             pageData: $validated['page_data'] ?? [],
             history: $validated['history'] ?? [],
         );
+
+        // Persist messages to conversation
+        $conversationId = $validated['conversation_id'] ?? null;
+        $user = $request->user();
+
+        if ($user) {
+            try {
+                if ($conversationId) {
+                    $conversation = AbbyConversation::forUser($user->id)->find($conversationId);
+                } else {
+                    $conversation = AbbyConversation::create([
+                        'user_id' => $user->id,
+                        'title' => mb_substr($validated['message'], 0, 500),
+                        'page_context' => $validated['page_context'] ?? 'general',
+                    ]);
+                }
+
+                if ($conversation) {
+                    AbbyMessage::create([
+                        'conversation_id' => $conversation->id,
+                        'role' => 'user',
+                        'content' => $validated['message'],
+                        'metadata' => isset($validated['page_data']) ? ['page_data' => $validated['page_data']] : null,
+                    ]);
+
+                    $assistantContent = $result['reply'] ?? $result['message'] ?? '';
+                    $assistantMetadata = null;
+                    if (isset($result['suggestions'])) {
+                        $assistantMetadata = ['suggestions' => $result['suggestions']];
+                    }
+
+                    AbbyMessage::create([
+                        'conversation_id' => $conversation->id,
+                        'role' => 'assistant',
+                        'content' => $assistantContent,
+                        'metadata' => $assistantMetadata,
+                    ]);
+
+                    $result['conversation_id'] = $conversation->id;
+                }
+            } catch (\Throwable) {
+                // Persistence failure should not break the chat response
+            }
+        }
 
         return response()->json($result);
     }
@@ -117,11 +164,44 @@ class AbbyAiController extends Controller
             'user_profile' => 'sometimes|array',
             'user_profile.name' => 'sometimes|string|max:255',
             'user_profile.roles' => 'sometimes|array',
+            'conversation_id' => 'sometimes|nullable|integer|exists:abby_conversations,id',
         ]);
 
         $aiBaseUrl = config('services.ai.base_url', 'http://python-ai:8000');
+        $user = $request->user();
 
-        return new StreamedResponse(function () use ($validated, $aiBaseUrl): void {
+        // Resolve or create conversation before streaming
+        $conversationId = $validated['conversation_id'] ?? null;
+        $conversation = null;
+
+        if ($user) {
+            try {
+                if ($conversationId) {
+                    $conversation = AbbyConversation::forUser($user->id)->find($conversationId);
+                } else {
+                    $conversation = AbbyConversation::create([
+                        'user_id' => $user->id,
+                        'title' => mb_substr($validated['message'], 0, 500),
+                        'page_context' => $validated['page_context'] ?? 'general',
+                    ]);
+                }
+
+                if ($conversation) {
+                    AbbyMessage::create([
+                        'conversation_id' => $conversation->id,
+                        'role' => 'user',
+                        'content' => $validated['message'],
+                        'metadata' => isset($validated['page_data']) ? ['page_data' => $validated['page_data']] : null,
+                    ]);
+                }
+            } catch (\Throwable) {
+                // Persistence failure should not break the stream
+            }
+        }
+
+        $resolvedConversation = $conversation;
+
+        return new StreamedResponse(function () use ($validated, $aiBaseUrl, $resolvedConversation): void {
             $ch = curl_init("{$aiBaseUrl}/abby/chat/stream");
             if ($ch === false) {
                 echo 'data: '.json_encode(['error' => 'Failed to connect to AI service'])."\n\n";
@@ -130,6 +210,7 @@ class AbbyAiController extends Controller
                 return;
             }
 
+            $fullResponse = '';
             $pageData = $validated['page_data'] ?? [];
             curl_setopt_array($ch, [
                 CURLOPT_POST => true,
@@ -144,7 +225,21 @@ class AbbyAiController extends Controller
                     'Content-Type: application/json',
                     'Accept: text/event-stream',
                 ],
-                CURLOPT_WRITEFUNCTION => function ($ch, $data) {
+                CURLOPT_WRITEFUNCTION => function ($ch, $data) use (&$fullResponse, $resolvedConversation) {
+                    // Accumulate streamed content for persistence
+                    if ($resolvedConversation) {
+                        foreach (explode("\n", $data) as $line) {
+                            $line = trim($line);
+                            if (str_starts_with($line, 'data: ') && $line !== 'data: [DONE]') {
+                                $decoded = json_decode(substr($line, 6), true);
+                                if (isset($decoded['token'])) {
+                                    $fullResponse .= $decoded['token'];
+                                }
+                            }
+                        }
+                    }
+
+                    // Send conversation_id in the first chunk if we created one
                     echo $data;
                     if (ob_get_level() > 0) {
                         ob_flush();
@@ -156,6 +251,15 @@ class AbbyAiController extends Controller
                 CURLOPT_TIMEOUT => 120,
             ]);
 
+            // Send conversation_id event before streaming AI response
+            if ($resolvedConversation) {
+                echo 'data: '.json_encode(['conversation_id' => $resolvedConversation->id])."\n\n";
+                if (ob_get_level() > 0) {
+                    ob_flush();
+                }
+                flush();
+            }
+
             curl_exec($ch);
 
             if (curl_errno($ch)) {
@@ -164,6 +268,19 @@ class AbbyAiController extends Controller
             }
 
             curl_close($ch);
+
+            // Persist assistant response after stream completes
+            if ($resolvedConversation && $fullResponse !== '') {
+                try {
+                    AbbyMessage::create([
+                        'conversation_id' => $resolvedConversation->id,
+                        'role' => 'assistant',
+                        'content' => $fullResponse,
+                    ]);
+                } catch (\Throwable) {
+                    // Persistence failure should not break the stream
+                }
+            }
         }, 200, [
             'Content-Type' => 'text/event-stream',
             'Cache-Control' => 'no-cache',

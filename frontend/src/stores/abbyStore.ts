@@ -8,6 +8,14 @@ export interface Message {
   suggestions?: string[];
 }
 
+export interface ConversationSummary {
+  id: number;
+  title: string;
+  page_context: string;
+  created_at: string;
+  messages_count: number;
+}
+
 interface AbbyState {
   panelOpen: boolean;
   togglePanel: () => void;
@@ -16,6 +24,12 @@ interface AbbyState {
   messages: Message[];
   addMessage: (msg: Message) => void;
   clearMessages: () => void;
+
+  conversationId: string | null;
+  setConversationId: (id: string | null) => void;
+
+  conversationList: ConversationSummary[];
+  setConversationList: (list: ConversationSummary[]) => void;
 
   pageContext: string;
   setPageContext: (ctx: string) => void;
@@ -43,7 +57,13 @@ export const useAbbyStore = create<AbbyState>()((set) => ({
 
   messages: [WELCOME_MESSAGE],
   addMessage: (msg) => set((s) => ({ messages: [...s.messages, msg] })),
-  clearMessages: () => set({ messages: [WELCOME_MESSAGE] }),
+  clearMessages: () => set({ messages: [WELCOME_MESSAGE], conversationId: null }),
+
+  conversationId: null,
+  setConversationId: (id) => set({ conversationId: id }),
+
+  conversationList: [],
+  setConversationList: (list) => set({ conversationList: list }),
 
   pageContext: "general",
   setPageContext: (ctx) => set({ pageContext: ctx }),

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AbbyAiController;
+use App\Http\Controllers\Api\V1\AbbyConversationController;
 use App\Http\Controllers\Api\V1\AchillesController;
 use App\Http\Controllers\Api\V1\Admin\AiProviderController;
 use App\Http\Controllers\Api\V1\Admin\AtlasMigrationController;
@@ -371,6 +372,10 @@ Route::prefix('v1')->group(function () {
             Route::post('refine', [AbbyAiController::class, 'refine']);
             Route::post('suggest-protocol', [AbbyAiController::class, 'suggestProtocol']);
         });
+
+        // Abby Conversations (persistence)
+        Route::apiResource('abby/conversations', AbbyConversationController::class)
+            ->only(['index', 'store', 'show', 'destroy']);
 
         // ── Admin panel (requires admin or super-admin role) ───────────────
         Route::prefix('admin')->middleware('role:admin|super-admin')->group(function () {
