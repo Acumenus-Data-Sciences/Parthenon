@@ -1,0 +1,14 @@
+{
+  "key": "admin.notifications",
+  "title": "Notifications",
+  "description": "Configure system notification settings including email alerts, in-app notifications, and webhook integrations. Set up alerts for job completions, system health issues, and important user activity.",
+  "docs_url": "/docs/part5-admin/17-notifications",
+  "video_url": null,
+  "tips": [
+    "Email notifications require a configured mail provider (Resend, SMTP, etc.).",
+    "In-app notifications appear in the bell icon in the header.",
+    "Configure webhook URLs to integrate with Slack, Teams, or other notification systems.",
+    "Set notification preferences per event type to avoid alert fatigue.",
+    "Critical system alerts (like database connectivity issues) are always sent regardless of preferences."
+  ]
+}

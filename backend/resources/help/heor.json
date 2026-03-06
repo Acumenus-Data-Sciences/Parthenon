@@ -1,0 +1,14 @@
+{
+  "key": "heor",
+  "title": "Health Economics & Outcomes Research",
+  "description": "The HEOR module provides tools for health economics and outcomes research, including cost-effectiveness analysis, budget impact modeling, care gap identification, and population health analytics integrated with OMOP CDM data.",
+  "docs_url": "/docs/part7-advanced/24-heor",
+  "video_url": null,
+  "tips": [
+    "Define cost models based on procedure, drug, and visit costs from your CDM data.",
+    "Care gap analysis identifies patients who are missing recommended screenings or treatments.",
+    "Population analytics provides demographic breakdowns and outcome distributions across cohorts.",
+    "HEOR analyses can be scoped to specific data sources and cohort definitions.",
+    "Export results for publication-ready tables and figures."
+  ]
+}

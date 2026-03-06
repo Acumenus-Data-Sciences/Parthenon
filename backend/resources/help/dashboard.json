@@ -1,0 +1,13 @@
+{
+  "key": "dashboard",
+  "title": "Dashboard",
+  "description": "The Parthenon Dashboard provides an at-a-glance overview of your OMOP CDM environment, including data source status, recent activity, and quick links to key modules like cohort definitions, vocabulary browsing, and data exploration.",
+  "docs_url": "/docs/part1-getting-started/01-overview",
+  "video_url": null,
+  "tips": [
+    "Check your data source connections on the Dashboard to ensure they are active before running analyses.",
+    "Use the sidebar navigation to quickly access any module in Parthenon.",
+    "The Dashboard surfaces recent cohort definitions and analyses for fast access.",
+    "Superadmins can access the Setup Wizard from here to configure system settings."
+  ]
+}

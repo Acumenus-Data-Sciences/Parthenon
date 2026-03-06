@@ -1,0 +1,14 @@
+{
+  "key": "jobs",
+  "title": "Jobs",
+  "description": "The Jobs page shows the status of all background tasks running in Parthenon, including cohort generation, data quality checks, vocabulary imports, FHIR syncs, and analysis executions. Monitor progress, view errors, and track completion.",
+  "docs_url": "/docs/part6-data-explorer/20-jobs-monitoring",
+  "video_url": null,
+  "tips": [
+    "Jobs run asynchronously via Laravel Horizon queues -- they continue even if you navigate away.",
+    "Failed jobs show error messages that can help diagnose issues with data or configuration.",
+    "Long-running jobs like full cohort generation or VCF import show progress percentages.",
+    "You can retry failed jobs if the underlying issue has been resolved.",
+    "Check the Jobs page if a cohort generation or analysis seems stuck."
+  ]
+}

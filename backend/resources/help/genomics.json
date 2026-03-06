@@ -1,0 +1,14 @@
+{
+  "key": "genomics",
+  "title": "Genomics",
+  "description": "The Genomics module enables uploading, parsing, and analyzing VCF (Variant Call Format) files. Variants are annotated with ClinVar clinical significance data and mapped to OMOP measurement concepts for integration with the CDM.",
+  "docs_url": "/docs/part7-advanced/22-genomics",
+  "video_url": null,
+  "tips": [
+    "Upload VCF or VCF.GZ files through the upload interface. Large files are processed asynchronously.",
+    "Variants are automatically annotated with ClinVar significance when a local ClinVar database is available.",
+    "Use the variant browser to filter by gene, chromosome, clinical significance, and quality scores.",
+    "Pathogenic and likely pathogenic variants are highlighted for clinical review.",
+    "Genomic variants can be cross-referenced with patient cohorts for pharmacogenomics research."
+  ]
+}

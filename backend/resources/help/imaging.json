@@ -1,0 +1,14 @@
+{
+  "key": "imaging",
+  "title": "Imaging",
+  "description": "The Imaging module provides DICOM medical image viewing and management. Upload DICOM files, browse imaging studies, and view images with clinical-grade tools including windowing, zoom, pan, and measurement overlays powered by Cornerstone3D.",
+  "docs_url": "/docs/part7-advanced/23-imaging",
+  "video_url": null,
+  "tips": [
+    "Upload DICOM files (.dcm) or ZIP archives containing DICOM series.",
+    "The viewer supports standard radiology tools: window/level, zoom, pan, scroll, and length measurement.",
+    "Studies are organized by patient, study date, and series for easy navigation.",
+    "WADO-RS endpoints serve images to the Cornerstone3D viewer for high-performance rendering.",
+    "Imaging studies can be linked to OMOP procedure_occurrence records for cohort-level imaging analysis."
+  ]
+}

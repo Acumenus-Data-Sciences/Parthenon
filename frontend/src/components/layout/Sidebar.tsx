@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useUiStore } from "@/stores/uiStore";
@@ -23,8 +24,10 @@ import {
   Dna,
   ScanLine,
   TrendingUp,
+  HelpCircle,
 } from "lucide-react";
 import { ParthenonIcon } from "@/components/icons/ParthenonIcon";
+import { HelpSlideOver } from "@/features/help/components/HelpSlideOver";
 
 interface NavItem {
   path: string;
@@ -70,10 +73,42 @@ const navItems: NavItem[] = [
   },
 ];
 
+const routeHelpKeys: Record<string, string> = {
+  "/": "dashboard",
+  "/data-sources": "data-sources",
+  "/ingestion": "data-ingestion",
+  "/data-explorer": "data-explorer",
+  "/vocabulary": "vocabulary-search",
+  "/cohort-definitions": "cohort-builder",
+  "/concept-sets": "concept-set-builder",
+  "/analyses": "analyses",
+  "/studies": "studies",
+  "/profiles": "patient-timeline",
+  "/genomics": "genomics",
+  "/imaging": "imaging",
+  "/heor": "heor",
+  "/jobs": "jobs",
+  "/admin/users": "admin.users",
+  "/admin/roles": "admin.roles",
+  "/admin/auth-providers": "admin.auth-providers",
+  "/admin/notifications": "admin.notifications",
+  "/admin": "admin",
+};
+
+function getHelpKeyForPath(pathname: string): string {
+  if (routeHelpKeys[pathname]) return routeHelpKeys[pathname];
+  const sorted = Object.keys(routeHelpKeys).sort((a, b) => b.length - a.length);
+  for (const prefix of sorted) {
+    if (prefix !== "/" && pathname.startsWith(prefix)) return routeHelpKeys[prefix];
+  }
+  return "dashboard";
+}
+
 export function Sidebar() {
   const location = useLocation();
   const { sidebarOpen, toggleSidebar } = useUiStore();
   const { isAdmin, isSuperAdmin } = useAuthStore();
+  const [helpOpen, setHelpOpen] = useState(false);
 
   const isActive = (path: string) =>
     path === "/" ? location.pathname === "/" : location.pathname.startsWith(path);
@@ -155,6 +190,37 @@ export function Sidebar() {
           );
         })}
       </nav>
+
+      {/* Help button */}
+      <div
+        style={{
+          padding: sidebarOpen ? "var(--space-2) var(--space-5)" : "var(--space-2) 0",
+          display: "flex",
+          justifyContent: "center",
+        }}
+      >
+        <button
+          type="button"
+          onClick={() => setHelpOpen(true)}
+          title="Help"
+          aria-label="Open contextual help"
+          className={cn(
+            "flex items-center gap-2 rounded-lg transition-colors",
+            "bg-[#C9A227]/15 text-[#C9A227] hover:bg-[#C9A227]/25 hover:text-[#D4AF37]",
+            sidebarOpen
+              ? "px-3 py-2 text-sm font-medium w-full justify-center"
+              : "h-8 w-8 justify-center",
+          )}
+        >
+          <HelpCircle size={sidebarOpen ? 16 : 18} />
+          {sidebarOpen && <span>Help</span>}
+        </button>
+      </div>
+
+      <HelpSlideOver
+        helpKey={helpOpen ? getHelpKeyForPath(location.pathname) : null}
+        onClose={() => setHelpOpen(false)}
+      />
 
       {/* Acumenus branding */}
       <div
