@@ -306,14 +306,14 @@ export function LoginPage() {
       <div
         style={{
           position: "relative",
-          width: 1,
+          width: 2,
           flexShrink: 0,
           alignSelf: "stretch",
           zIndex: 10,
           background:
-            "linear-gradient(to bottom, transparent 0%, rgba(196,18,36,0.7) 30%, rgba(220,38,58,1) 50%, rgba(196,18,36,0.7) 70%, transparent 100%)",
+            "linear-gradient(to bottom, transparent 0%, rgba(220,30,50,0.85) 28%, rgba(240,50,70,1) 50%, rgba(220,30,50,0.85) 72%, transparent 100%)",
           boxShadow:
-            "0 0 6px 2px rgba(210,30,50,0.55), 0 0 20px 4px rgba(190,20,40,0.25)",
+            "0 0 10px 4px rgba(220,38,58,0.8), 0 0 32px 8px rgba(200,20,40,0.45), 0 0 60px 12px rgba(180,10,30,0.2)",
           animation: "crimson-pulse 3s ease-in-out infinite",
           maskImage:
             "linear-gradient(to bottom, transparent 0%, black 18%, black 82%, transparent 100%)",
@@ -326,11 +326,11 @@ export function LoginPage() {
           <div
             style={{
               position: "absolute",
-              left: -3,
-              right: -3,
-              height: "22%",
+              left: -6,
+              right: -6,
+              height: "28%",
               background:
-                "linear-gradient(to bottom, transparent 0%, rgba(255,160,170,0.7) 50%, transparent 100%)",
+                "linear-gradient(to bottom, transparent 0%, rgba(255,180,190,0.95) 50%, transparent 100%)",
               animation: "crimson-sweep 2.8s ease-in-out infinite",
             }}
           />
