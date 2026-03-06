@@ -8,6 +8,6 @@ psycopg2-binary==2.9.*
 pgvector==0.4.*
 numpy==1.*
 ollama==0.4.*
-transformers==4.*
+transformers==5.*
 torch==2.*
 pandas==2.*
