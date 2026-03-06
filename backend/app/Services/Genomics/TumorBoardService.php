@@ -22,8 +22,8 @@ class TumorBoardService
     /**
      * Build a full tumor board evidence panel for a patient.
      *
-     * @param int $personId OMOP person_id
-     * @param int $sourceId Parthenon source ID
+     * @param  int  $personId  OMOP person_id
+     * @param  int  $sourceId  Parthenon source ID
      * @return array The structured panel
      */
     public function buildPanel(int $personId, int $sourceId): array
@@ -117,15 +117,17 @@ class TumorBoardService
                  WHERE p.person_id = ?",
                 [$personId]
             );
+
             return $row ? (array) $row : null;
         } catch (\Throwable $e) {
             Log::warning('TumorBoardService: demographics query failed', ['error' => $e->getMessage()]);
+
             return null;
         }
     }
 
     /**
-     * @param string[] $actionableGenes
+     * @param  string[]  $actionableGenes
      * @return array<array{gene: string, n_similar: int, median_survival_days: int|null, event_rate: float}>
      */
     private function getSimilarPatientOutcomes(
@@ -190,7 +192,7 @@ class TumorBoardService
     }
 
     /**
-     * @param string[] $actionableGenes
+     * @param  string[]  $actionableGenes
      * @return array<array{gene: string, drug: string, n: int, pct: float}>
      */
     private function getDrugPatternsForGenes(
@@ -238,6 +240,7 @@ class TumorBoardService
             );
 
             $totalSimilar = count($similarIds);
+
             return array_map(fn ($r) => [
                 'drug' => $r->drug_name,
                 'n' => (int) $r->n,
@@ -245,6 +248,7 @@ class TumorBoardService
             ], $rows);
         } catch (\Throwable $e) {
             Log::warning('TumorBoardService: drug patterns query failed', ['error' => $e->getMessage()]);
+
             return [];
         }
     }
@@ -263,13 +267,13 @@ class TumorBoardService
             $parts[] = "{$actionable} actionable (Pathogenic/LP) in {$geneList}";
         }
         if (count($vus) > 0) {
-            $parts[] = count($vus) . " VUS requiring monitoring";
+            $parts[] = count($vus).' VUS requiring monitoring';
         }
-        if (!empty($similar)) {
+        if (! empty($similar)) {
             $totalSimilar = array_sum(array_column($similar, 'n_similar'));
             $parts[] = "{$totalSimilar} molecularly similar patients in database";
         }
 
-        return implode('. ', $parts) . '.';
+        return implode('. ', $parts).'.';
     }
 }

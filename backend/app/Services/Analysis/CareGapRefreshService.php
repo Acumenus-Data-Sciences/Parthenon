@@ -101,7 +101,7 @@ class CareGapRefreshService
                 $this->applyDeduplicationFlags($source, $bundle, $appConn);
             });
 
-            } catch (\Throwable $e) {
+        } catch (\Throwable $e) {
             Log::error('CareGapRefresh: bundle failed', [
                 'source_id' => $source->id,
                 'bundle_id' => $bundle->id,

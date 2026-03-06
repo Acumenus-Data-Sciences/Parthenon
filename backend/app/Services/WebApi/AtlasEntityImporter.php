@@ -119,6 +119,7 @@ class AtlasEntityImporter
                     $this->recordMapping($migration, 'concept_set', $atlasId, null, "ID {$atlasId}", 'failed', "HTTP {$metaResponse->status()}");
                     $failed++;
                     $this->incrementProgress($migration, 'failed');
+
                     continue;
                 }
 
@@ -130,6 +131,7 @@ class AtlasEntityImporter
                     $this->recordMapping($migration, 'concept_set', $atlasId, null, $name, 'skipped', 'Already exists');
                     $skipped++;
                     $this->incrementProgress($migration, 'skipped');
+
                     continue;
                 }
 
@@ -170,7 +172,7 @@ class AtlasEntityImporter
 
                 $this->incrementProgress($migration, 'imported');
             } catch (\Throwable $e) {
-                Log::warning("Atlas concept set import failed", ['atlas_id' => $atlasId, 'error' => $e->getMessage()]);
+                Log::warning('Atlas concept set import failed', ['atlas_id' => $atlasId, 'error' => $e->getMessage()]);
                 $this->recordMapping($migration, 'concept_set', $atlasId, null, "ID {$atlasId}", 'failed', $e->getMessage());
                 $failed++;
                 $this->incrementProgress($migration, 'failed');
@@ -197,6 +199,7 @@ class AtlasEntityImporter
                     $this->recordMapping($migration, 'cohort_definition', $atlasId, null, "ID {$atlasId}", 'failed', "HTTP {$response->status()}");
                     $failed++;
                     $this->incrementProgress($migration, 'failed');
+
                     continue;
                 }
 
@@ -207,6 +210,7 @@ class AtlasEntityImporter
                     $this->recordMapping($migration, 'cohort_definition', $atlasId, null, $name, 'skipped', 'Already exists');
                     $skipped++;
                     $this->incrementProgress($migration, 'skipped');
+
                     continue;
                 }
 
@@ -228,7 +232,7 @@ class AtlasEntityImporter
                 $imported++;
                 $this->incrementProgress($migration, 'imported');
             } catch (\Throwable $e) {
-                Log::warning("Atlas cohort import failed", ['atlas_id' => $atlasId, 'error' => $e->getMessage()]);
+                Log::warning('Atlas cohort import failed', ['atlas_id' => $atlasId, 'error' => $e->getMessage()]);
                 $this->recordMapping($migration, 'cohort_definition', $atlasId, null, "ID {$atlasId}", 'failed', $e->getMessage());
                 $failed++;
                 $this->incrementProgress($migration, 'failed');
@@ -319,6 +323,7 @@ class AtlasEntityImporter
                     $this->recordMapping($migration, $entityType, $atlasId, null, "ID {$atlasId}", 'failed', "HTTP {$response->status()}");
                     $failed++;
                     $this->incrementProgress($migration, 'failed');
+
                     continue;
                 }
 
@@ -329,6 +334,7 @@ class AtlasEntityImporter
                     $this->recordMapping($migration, $entityType, $atlasId, null, $name, 'skipped', 'Already exists');
                     $skipped++;
                     $this->incrementProgress($migration, 'skipped');
+
                     continue;
                 }
 

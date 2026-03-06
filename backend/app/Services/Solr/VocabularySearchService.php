@@ -2,8 +2,6 @@
 
 namespace App\Services\Solr;
 
-use Illuminate\Support\Facades\Log;
-
 class VocabularySearchService
 {
     public function __construct(

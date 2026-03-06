@@ -107,6 +107,7 @@ class AtlasDiscoveryService
 
             if (! $response || ! $response->successful()) {
                 $inventory[$key] = ['count' => 0, 'items' => []];
+
                 continue;
             }
 
@@ -119,6 +120,7 @@ class AtlasDiscoveryService
 
             if (! is_array($data)) {
                 $inventory[$key] = ['count' => 0, 'items' => []];
+
                 continue;
             }
 

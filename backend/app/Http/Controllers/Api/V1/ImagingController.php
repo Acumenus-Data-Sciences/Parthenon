@@ -13,10 +13,9 @@ use App\Services\Imaging\DicomwebService;
 use App\Services\Imaging\RadiologyNlpService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class ImagingController extends Controller
 {
@@ -142,7 +141,7 @@ class ImagingController extends Controller
      */
     public function extractNlp(Request $request, ImagingStudy $study): JsonResponse
     {
-        if (!$study->person_id) {
+        if (! $study->person_id) {
             return response()->json(['message' => 'Study has no matched person_id'], 422);
         }
 
@@ -204,10 +203,10 @@ class ImagingController extends Controller
     public function importLocal(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'source_id'  => 'required|integer|exists:sources,id',
-            'studies'    => 'required|array',
-            'series'     => 'required|array',
-            'instances'  => 'required|array',
+            'source_id' => 'required|integer|exists:sources,id',
+            'studies' => 'required|array',
+            'series' => 'required|array',
+            'instances' => 'required|array',
         ]);
 
         $sourceId = $validated['source_id'];
@@ -234,7 +233,7 @@ class ImagingController extends Controller
             $seriesUidToId = [];
             foreach ($validated['series'] as $s) {
                 $studyId = $studyUidToId[$s['study_instance_uid']] ?? null;
-                if (!$studyId) {
+                if (! $studyId) {
                     continue;
                 }
                 $data = array_filter($s, fn ($v) => $v !== null && $v !== '');
@@ -251,7 +250,7 @@ class ImagingController extends Controller
             foreach ($validated['instances'] as $inst) {
                 $studyId = $studyUidToId[$inst['study_instance_uid']] ?? null;
                 $seriesId = $seriesUidToId[$inst['series_instance_uid']] ?? null;
-                if (!$studyId || !$seriesId) {
+                if (! $studyId || ! $seriesId) {
                     continue;
                 }
                 $data = array_filter($inst, fn ($v) => $v !== null && $v !== '');
@@ -266,8 +265,8 @@ class ImagingController extends Controller
 
         return response()->json([
             'data' => [
-                'studies_imported'   => $studyCount,
-                'series_imported'    => $seriesCount,
+                'studies_imported' => $studyCount,
+                'series_imported' => $seriesCount,
                 'instances_imported' => $instanceCount,
             ],
         ], 201);
@@ -281,13 +280,13 @@ class ImagingController extends Controller
     {
         $validated = $request->validate([
             'source_id' => 'required|integer|exists:sources,id',
-            'dir'       => 'nullable|string|max:500',
+            'dir' => 'nullable|string|max:500',
         ]);
 
-        $relDir  = $validated['dir'] ?? 'dicom_samples';
-        $absDir  = base_path($relDir);
+        $relDir = $validated['dir'] ?? 'dicom_samples';
+        $absDir = base_path($relDir);
 
-        if (!is_dir($absDir)) {
+        if (! is_dir($absDir)) {
             return response()->json(['message' => "Directory not found: {$relDir}"], 422);
         }
 
@@ -330,19 +329,19 @@ class ImagingController extends Controller
     {
         $instance = ImagingInstance::where('sop_instance_uid', $sopUid)->firstOrFail();
 
-        if (!$instance->file_path) {
+        if (! $instance->file_path) {
             abort(404, 'No file path recorded for this instance');
         }
 
         $absolutePath = base_path($instance->file_path);
 
-        if (!file_exists($absolutePath)) {
+        if (! file_exists($absolutePath)) {
             abort(404, 'DICOM file not found on disk');
         }
 
         return response()->file($absolutePath, [
-            'Content-Type'        => 'application/dicom',
-            'Cache-Control'       => 'private, max-age=3600',
+            'Content-Type' => 'application/dicom',
+            'Cache-Control' => 'private, max-age=3600',
             'Content-Disposition' => 'inline',
         ]);
     }

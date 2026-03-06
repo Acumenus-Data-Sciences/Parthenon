@@ -71,7 +71,7 @@ class HeorEconomicsService
     /**
      * Compute results for a single scenario.
      *
-     * @param \Illuminate\Database\Eloquent\Collection<int, HeorCostParameter> $parameters
+     * @param  \Illuminate\Database\Eloquent\Collection<int, HeorCostParameter>  $parameters
      * @return array<string, mixed>
      */
     private function computeScenario(
@@ -140,8 +140,8 @@ class HeorEconomicsService
     /**
      * Sum all cost parameters for a scenario, applying discounting.
      *
-     * @param \Illuminate\Support\Collection<int, HeorCostParameter> $params
-     * @param array<string, float> $overrides
+     * @param  \Illuminate\Support\Collection<int, HeorCostParameter>  $params
+     * @param  array<string, float>  $overrides
      */
     private function sumCosts($params, array $overrides, float $rate, string $horizon): float
     {
@@ -150,20 +150,21 @@ class HeorEconomicsService
 
         $total = 0.0;
         foreach ($params as $p) {
-            if (!in_array($p->parameter_type, $costTypes)) {
+            if (! in_array($p->parameter_type, $costTypes)) {
                 continue;
             }
             $val = $overrides[$p->parameter_name] ?? (float) $p->value;
             $total += $this->discountedValue($val, $rate, $years);
         }
+
         return $total;
     }
 
     /**
      * Sum QALY/utility parameters.
      *
-     * @param \Illuminate\Support\Collection<int, HeorCostParameter> $params
-     * @param array<string, float> $overrides
+     * @param  \Illuminate\Support\Collection<int, HeorCostParameter>  $params
+     * @param  array<string, float>  $overrides
      */
     private function sumQalys($params, array $overrides, float $rate, string $horizon): float
     {
@@ -171,20 +172,21 @@ class HeorEconomicsService
 
         $total = 0.0;
         foreach ($params as $p) {
-            if (!in_array($p->parameter_type, ['qaly_weight', 'utility_value'])) {
+            if (! in_array($p->parameter_type, ['qaly_weight', 'utility_value'])) {
                 continue;
             }
             $val = $overrides[$p->parameter_name] ?? (float) $p->value;
             $total += $this->discountedValue($val * $years, $rate, $years);
         }
+
         return $total;
     }
 
     /**
      * Sum savings parameters (negative costs / avoided costs).
      *
-     * @param \Illuminate\Support\Collection<int, HeorCostParameter> $params
-     * @param array<string, float> $overrides
+     * @param  \Illuminate\Support\Collection<int, HeorCostParameter>  $params
+     * @param  array<string, float>  $overrides
      */
     private function sumSavings($params, array $overrides): float
     {
@@ -195,14 +197,15 @@ class HeorEconomicsService
             }
             $total += $overrides[$p->parameter_name] ?? (float) $p->value;
         }
+
         return $total;
     }
 
     /**
      * Sum investment/program cost parameters.
      *
-     * @param \Illuminate\Support\Collection<int, HeorCostParameter> $params
-     * @param array<string, float> $overrides
+     * @param  \Illuminate\Support\Collection<int, HeorCostParameter>  $params
+     * @param  array<string, float>  $overrides
      */
     private function sumInvestment($params, array $overrides): float
     {
@@ -213,6 +216,7 @@ class HeorEconomicsService
             }
             $total += $overrides[$p->parameter_name] ?? (float) $p->value;
         }
+
         return $total;
     }
 
@@ -227,6 +231,7 @@ class HeorEconomicsService
         }
         // Annuity factor
         $factor = (1 - pow(1 + $rate, -$years)) / $rate;
+
         return $annualValue * $factor;
     }
 
@@ -243,7 +248,7 @@ class HeorEconomicsService
 
     private function estimatePopulationSize(HeorAnalysis $analysis): int
     {
-        if (!$analysis->target_cohort_id || !$analysis->source_id) {
+        if (! $analysis->target_cohort_id || ! $analysis->source_id) {
             return 1000; // default planning assumption
         }
 
@@ -254,6 +259,7 @@ class HeorEconomicsService
                 ->where('status', 'completed')
                 ->orderByDesc('completed_at')
                 ->value('person_count');
+
             return (int) ($result ?? 1000);
         } catch (\Throwable) {
             return 1000;
@@ -264,8 +270,8 @@ class HeorEconomicsService
      * One-way sensitivity analysis (tornado diagram data).
      * Vary each parameter ±20% (or bound) and record ICER impact.
      *
-     * @param \Illuminate\Support\Collection<int, HeorCostParameter> $params
-     * @param array<string, float> $overrides
+     * @param  \Illuminate\Support\Collection<int, HeorCostParameter>  $params
+     * @param  array<string, float>  $overrides
      * @return array<int, array{parameter: string, low_icer: float|null, high_icer: float|null, range: float}>
      */
     private function computeTornado($params, array $overrides, HeorAnalysis $analysis, HeorScenario $scenario, HeorScenario $baseCase): array
@@ -325,7 +331,7 @@ class HeorEconomicsService
     /**
      * Compute rebate under a value-based contract given observed outcome rate.
      *
-     * @param array<int, array{threshold: float, rebate_percent: float}> $rebateTiers
+     * @param  array<int, array{threshold: float, rebate_percent: float}>  $rebateTiers
      */
     public function computeContractRebate(float $listPrice, float $observedRate, float $baselineRate, array $rebateTiers): array
     {

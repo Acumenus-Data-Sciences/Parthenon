@@ -26,10 +26,10 @@ class VariantOutcomeService
      * "Event" is death (person in death table within observation). Time = days from
      * first measurement of variant to death or end of observation period.
      *
-     * @param int $sourceId Parthenon source ID (resolves CDM connection)
-     * @param string $gene Gene symbol (e.g. "EGFR")
-     * @param string|null $hgvs Optional specific HGVS to filter (e.g. "p.Leu858Arg")
-     * @param int $cohortId Optional OMOP cohort_id to restrict population
+     * @param  int  $sourceId  Parthenon source ID (resolves CDM connection)
+     * @param  string  $gene  Gene symbol (e.g. "EGFR")
+     * @param  string|null  $hgvs  Optional specific HGVS to filter (e.g. "p.Leu858Arg")
+     * @param  int  $cohortId  Optional OMOP cohort_id to restrict population
      * @return array{mutated: array<array{t:int,e:int}>, wildtype: array<array{t:int,e:int}>, gene: string}
      */
     public function survivalByMutation(int $sourceId, string $gene, ?string $hgvs = null, ?int $cohortId = null): array
@@ -65,7 +65,7 @@ class VariantOutcomeService
             ->distinct()
             ->limit(count($mutatedIds) * 3)
             ->pluck('person_id')
-            ->filter(fn ($pid) => !in_array($pid, $mutatedIds))
+            ->filter(fn ($pid) => ! in_array($pid, $mutatedIds))
             ->take(count($mutatedIds))
             ->values()
             ->all();
@@ -83,7 +83,7 @@ class VariantOutcomeService
     }
 
     /**
-     * @param int[] $personIds
+     * @param  int[]  $personIds
      * @return array<array{t: int, e: int}>
      */
     private function getSurvivalEvents(\Illuminate\Database\Connection $conn, string $schema, array $personIds, ?int $cohortId): array
@@ -113,14 +113,16 @@ class VariantOutcomeService
             $seen = [];
             $result = [];
             foreach ($rows as $row) {
-                if (!isset($seen[$row->person_id])) {
+                if (! isset($seen[$row->person_id])) {
                     $seen[$row->person_id] = true;
                     $result[] = ['t' => (int) $row->time_days, 'e' => (int) $row->event];
                 }
             }
+
             return $result;
         } catch (\Throwable $e) {
             Log::warning('VariantOutcomeService: survival query failed', ['error' => $e->getMessage()]);
+
             return [];
         }
     }
@@ -132,9 +134,8 @@ class VariantOutcomeService
      * - n: patients with both the variant and the treatment
      * - event_rate: proportion who had a specific outcome (death or complication)
      *
-     * @param int $sourceId
-     * @param string[] $genes Genes to include (e.g. ["EGFR","KRAS","ALK"])
-     * @param int $limit Maximum drug concepts to return
+     * @param  string[]  $genes  Genes to include (e.g. ["EGFR","KRAS","ALK"])
+     * @param  int  $limit  Maximum drug concepts to return
      * @return array<array{gene: string, drug: string, n: int, event_rate: float}>
      */
     public function treatmentVariantMatrix(int $sourceId, array $genes, int $limit = 20): array
@@ -206,8 +207,7 @@ class VariantOutcomeService
     /**
      * Genomic characterization: TMB distribution, top mutated genes, co-occurrence pairs.
      *
-     * @param int $sourceId
-     * @param int $limit Top N genes to return
+     * @param  int  $limit  Top N genes to return
      * @return array{
      *   top_genes: array<array{gene: string, n: int, pct: float}>,
      *   tmb_distribution: array<array{bucket: string, count: int}>,
@@ -246,7 +246,7 @@ class VariantOutcomeService
         $tmbBuckets = DB::table('genomic_variants')
             ->where('source_id', $sourceId)
             ->whereNotNull('sample_id')
-            ->select(DB::raw("sample_id, COUNT(*) as variant_count"))
+            ->select(DB::raw('sample_id, COUNT(*) as variant_count'))
             ->groupBy('sample_id')
             ->get()
             ->groupBy(fn ($r) => match (true) {

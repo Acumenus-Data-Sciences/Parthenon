@@ -50,25 +50,25 @@ class FhirNdjsonProcessorService
         // Warm dedup cache for incremental syncs
         if ($incremental) {
             $this->dedup->warmCache($siteKey);
-            Log::info("FHIR incremental mode enabled, dedup cache warmed", [
-                'run_id'  => $run->id,
-                'stats'   => $this->dedup->getStats($siteKey),
+            Log::info('FHIR incremental mode enabled, dedup cache warmed', [
+                'run_id' => $run->id,
+                'stats' => $this->dedup->getStats($siteKey),
             ]);
         }
 
         $stats = [
             'extracted' => 0,
-            'mapped'    => 0,
-            'written'   => 0,
-            'failed'    => 0,
-            'skipped'   => 0,
-            'updated'   => 0,
-            'by_table'  => [],
+            'mapped' => 0,
+            'written' => 0,
+            'failed' => 0,
+            'skipped' => 0,
+            'updated' => 0,
+            'by_table' => [],
         ];
 
         // ── Pass 1: Process Patient + Encounter files first ─────────────
         foreach (self::PASS_1_TYPES as $type) {
-            if (!isset($filesByType[$type])) {
+            if (! isset($filesByType[$type])) {
                 continue;
             }
 
@@ -79,10 +79,10 @@ class FhirNdjsonProcessorService
             $this->flushAllBuffers($buffers, $stats);
         }
 
-        Log::info("FHIR Pass 1 complete: crosswalks populated", [
-            'run_id'    => $run->id,
+        Log::info('FHIR Pass 1 complete: crosswalks populated', [
+            'run_id' => $run->id,
             'extracted' => $stats['extracted'],
-            'written'   => $stats['written'],
+            'written' => $stats['written'],
         ]);
 
         // ── Pass 2: Process all other resource types ────────────────────
@@ -101,24 +101,24 @@ class FhirNdjsonProcessorService
         // Calculate mapping coverage
         $run->update([
             'records_extracted' => $stats['extracted'],
-            'records_mapped'    => $stats['mapped'],
-            'records_written'   => $stats['written'],
-            'records_failed'    => $stats['failed'],
-            'mapping_coverage'  => $stats['extracted'] > 0
+            'records_mapped' => $stats['mapped'],
+            'records_written' => $stats['written'],
+            'records_failed' => $stats['failed'],
+            'mapping_coverage' => $stats['extracted'] > 0
                 ? round(($stats['mapped'] / $stats['extracted']) * 100, 2)
                 : null,
         ]);
 
         Log::info('FHIR NDJSON processing complete', [
-            'run_id'      => $run->id,
+            'run_id' => $run->id,
             'incremental' => $this->incrementalMode,
-            'extracted'   => $stats['extracted'],
-            'mapped'      => $stats['mapped'],
-            'written'     => $stats['written'],
-            'skipped'     => $stats['skipped'],
-            'updated'     => $stats['updated'],
-            'failed'      => $stats['failed'],
-            'by_table'    => $stats['by_table'],
+            'extracted' => $stats['extracted'],
+            'mapped' => $stats['mapped'],
+            'written' => $stats['written'],
+            'skipped' => $stats['skipped'],
+            'updated' => $stats['updated'],
+            'failed' => $stats['failed'],
+            'by_table' => $stats['by_table'],
             'vocab_cache' => $this->vocab->getCacheStats(),
             'dedup_stats' => $this->incrementalMode ? $this->dedup->getStats($this->siteKey) : null,
         ]);
@@ -199,9 +199,9 @@ class FhirNdjsonProcessorService
             // Add to buffer with FHIR metadata for tracking
             $buffers[$cdmTable] = $buffers[$cdmTable] ?? [];
             $buffers[$cdmTable][] = [
-                'data'      => $data,
+                'data' => $data,
                 'fhir_type' => $fhirType,
-                'fhir_id'   => $fhirId,
+                'fhir_id' => $fhirId,
             ];
 
             // Flush if buffer is full
@@ -224,8 +224,8 @@ class FhirNdjsonProcessorService
     {
         foreach ($data as $key => $value) {
             if (str_ends_with($key, '_concept_id')
-                && !str_ends_with($key, '_type_concept_id')
-                && !str_ends_with($key, '_source_concept_id')
+                && ! str_ends_with($key, '_type_concept_id')
+                && ! str_ends_with($key, '_source_concept_id')
                 && is_int($value)
                 && $value > 0
             ) {
@@ -242,7 +242,7 @@ class FhirNdjsonProcessorService
     private function flushAllBuffers(array &$buffers, array &$stats): void
     {
         foreach ($buffers as $table => $rows) {
-            if (!empty($rows)) {
+            if (! empty($rows)) {
                 $written = $this->flushBuffer($table, $rows);
                 $stats['written'] += $written;
                 $stats['failed'] += count($rows) - $written;
@@ -279,7 +279,7 @@ class FhirNdjsonProcessorService
             return $written;
         } catch (\Exception $e) {
             Log::error("FHIR CDM write error for table {$table}: {$e->getMessage()}", [
-                'table'     => $table,
+                'table' => $table,
                 'row_count' => count($dataRows),
             ]);
 
@@ -339,23 +339,23 @@ class FhirNdjsonProcessorService
 
             // For person/visit tables, the PK is in the data itself
             $pkColumn = match ($table) {
-                'person'           => 'person_id',
+                'person' => 'person_id',
                 'visit_occurrence' => 'visit_occurrence_id',
-                default            => null,
+                default => null,
             };
             $rowId = $pkColumn ? ($entry['data'][$pkColumn] ?? 0) : 0;
 
             $records[] = [
-                'site_key'      => $this->siteKey,
+                'site_key' => $this->siteKey,
                 'resource_type' => $entry['fhir_type'],
-                'resource_id'   => $entry['fhir_id'],
-                'cdm_table'     => $table,
-                'cdm_row_id'    => (int) $rowId,
-                'data'          => $entry['data'],
+                'resource_id' => $entry['fhir_id'],
+                'cdm_table' => $table,
+                'cdm_row_id' => (int) $rowId,
+                'data' => $entry['data'],
             ];
         }
 
-        if (!empty($records)) {
+        if (! empty($records)) {
             $this->dedup->trackBatch($records);
         }
     }

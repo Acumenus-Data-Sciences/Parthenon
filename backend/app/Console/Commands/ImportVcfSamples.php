@@ -26,20 +26,22 @@ class ImportVcfSamples extends Command
         $limit = (int) $this->option('limit');
         $passOnly = $this->option('pass-only');
 
-        if (!is_dir($dir)) {
+        if (! is_dir($dir)) {
             $this->error("Directory not found: {$dir}");
+
             return 1;
         }
 
-        $files = glob($dir . '/*.vcf') ?: [];
+        $files = glob($dir.'/*.vcf') ?: [];
         sort($files);
 
         if (empty($files)) {
             $this->error("No .vcf files found in {$dir}");
+
             return 1;
         }
 
-        $this->info("Found " . count($files) . " VCF file(s) in {$dir}");
+        $this->info('Found '.count($files)." VCF file(s) in {$dir}");
         $adminId = User::where('email', 'like', '%admin%')->first()?->id ?? 1;
 
         foreach ($files as $filePath) {
@@ -53,13 +55,14 @@ class ImportVcfSamples extends Command
 
             if ($existing) {
                 $this->warn("  Skipping {$filename} — already imported (upload #{$existing->id})");
+
                 continue;
             }
 
             $genomeBuild = $this->detectGenomeBuild($filePath);
             $sampleId = $this->extractSampleId($filePath) ?? pathinfo($filename, PATHINFO_FILENAME);
 
-            $this->info("Importing {$filename} (" . $this->formatBytes($fileSize) . ", build={$genomeBuild}, sample={$sampleId})");
+            $this->info("Importing {$filename} (".$this->formatBytes($fileSize).", build={$genomeBuild}, sample={$sampleId})");
 
             $upload = GenomicUpload::create([
                 'source_id' => $sourceId,
@@ -73,7 +76,7 @@ class ImportVcfSamples extends Command
                 'total_variants' => 0,
                 'mapped_variants' => 0,
                 'review_required' => 0,
-                'storage_path' => str_replace(base_path() . '/', '', $filePath),
+                'storage_path' => str_replace(base_path().'/', '', $filePath),
             ]);
 
             try {
@@ -91,6 +94,7 @@ class ImportVcfSamples extends Command
         }
 
         $this->info('All imports complete.');
+
         return 0;
     }
 
@@ -100,12 +104,21 @@ class ImportVcfSamples extends Command
         $build = 'GRCh38';
         $n = 0;
         while (($line = fgets($fh)) !== false && $n++ < 200) {
-            if (!str_starts_with($line, '##')) break;
+            if (! str_starts_with($line, '##')) {
+                break;
+            }
             $lower = strtolower($line);
-            if (str_contains($lower, 'grch38') || str_contains($lower, 'hg38')) { $build = 'GRCh38'; break; }
-            if (str_contains($lower, 'grch37') || str_contains($lower, 'hg19')) { $build = 'GRCh37'; break; }
+            if (str_contains($lower, 'grch38') || str_contains($lower, 'hg38')) {
+                $build = 'GRCh38';
+                break;
+            }
+            if (str_contains($lower, 'grch37') || str_contains($lower, 'hg19')) {
+                $build = 'GRCh37';
+                break;
+            }
         }
         fclose($fh);
+
         return $build;
     }
 
@@ -117,40 +130,60 @@ class ImportVcfSamples extends Command
             if (str_starts_with($line, '#CHROM')) {
                 $cols = explode("\t", rtrim($line, "\r\n"));
                 $fi = array_search('FORMAT', $cols, true);
-                if ($fi !== false && isset($cols[$fi + 1])) $sampleId = $cols[$fi + 1];
+                if ($fi !== false && isset($cols[$fi + 1])) {
+                    $sampleId = $cols[$fi + 1];
+                }
                 break;
             }
-            if (!str_starts_with($line, '#')) break;
+            if (! str_starts_with($line, '#')) {
+                break;
+            }
         }
         fclose($fh);
+
         return $sampleId;
     }
 
     private function parseVcfBatched(GenomicUpload $upload, string $filePath, int $batchSize, int $limit, bool $passOnly): array
     {
         $fh = fopen($filePath, 'r');
-        if ($fh === false) throw new \RuntimeException("Cannot open: {$filePath}");
+        if ($fh === false) {
+            throw new \RuntimeException("Cannot open: {$filePath}");
+        }
 
-        $total = 0; $inserted = 0; $errors = 0; $skipped = 0;
-        $batch = []; $sampleColumns = []; $now = now()->toDateTimeString();
+        $total = 0;
+        $inserted = 0;
+        $errors = 0;
+        $skipped = 0;
+        $batch = [];
+        $sampleColumns = [];
+        $now = now()->toDateTimeString();
 
         try {
             while (($line = fgets($fh)) !== false) {
                 $line = rtrim($line, "\r\n");
-                if (str_starts_with($line, '##')) continue;
+                if (str_starts_with($line, '##')) {
+                    continue;
+                }
                 if (str_starts_with($line, '#CHROM')) {
                     $cols = explode("\t", ltrim($line, '#'));
                     $fi = array_search('FORMAT', $cols, true);
-                    if ($fi !== false) $sampleColumns = array_slice($cols, $fi + 1);
+                    if ($fi !== false) {
+                        $sampleColumns = array_slice($cols, $fi + 1);
+                    }
+
                     continue;
                 }
 
                 $fields = explode("\t", $line);
-                if (count($fields) < 5) continue;
+                if (count($fields) < 5) {
+                    continue;
+                }
                 $total++;
 
                 if ($passOnly && isset($fields[6]) && $fields[6] !== 'PASS' && $fields[6] !== '.') {
                     $skipped++;
+
                     continue;
                 }
 
@@ -161,14 +194,18 @@ class ImportVcfSamples extends Command
                         $inserted += count($batch);
                         $batch = [];
                         if ($total % 100000 === 0) {
-                            $this->output->write("\r  Processed: " . number_format($total) . " lines, " . number_format($inserted) . " inserted...");
+                            $this->output->write("\r  Processed: ".number_format($total).' lines, '.number_format($inserted).' inserted...');
                         }
                     }
-                    if ($limit > 0 && $inserted >= $limit) break;
-                } catch (\Throwable $e) { $errors++; }
+                    if ($limit > 0 && $inserted >= $limit) {
+                        break;
+                    }
+                } catch (\Throwable $e) {
+                    $errors++;
+                }
             }
 
-            if (!empty($batch)) {
+            if (! empty($batch)) {
                 DB::table('genomic_variants')->insert($batch);
                 $inserted += count($batch);
             }
@@ -197,9 +234,13 @@ class ImportVcfSamples extends Command
         $gene = $ann['gene'];
         $hgvsc = $ann['hgvs_c'];
 
-        if ($gene && $hgvsc) $sv = "{$gene}:{$hgvsc}";
-        elseif ($gene) $sv = "{$gene}:{$chrom}:{$pos}:{$ref}>{$alt}";
-        else $sv = "{$chrom}:{$pos}:{$ref}>{$alt}";
+        if ($gene && $hgvsc) {
+            $sv = "{$gene}:{$hgvsc}";
+        } elseif ($gene) {
+            $sv = "{$gene}:{$chrom}:{$pos}:{$ref}>{$alt}";
+        } else {
+            $sv = "{$chrom}:{$pos}:{$ref}>{$alt}";
+        }
 
         return [
             'upload_id' => $upload->id, 'source_id' => $upload->source_id, 'person_id' => null,
@@ -230,9 +271,14 @@ class ImportVcfSamples extends Command
     {
         $info = [];
         foreach (explode(';', $s) as $p) {
-            if (str_contains($p, '=')) { [$k, $v] = explode('=', $p, 2); $info[trim($k)] = trim($v); }
-            elseif (trim($p) !== '') $info[trim($p)] = 'true';
+            if (str_contains($p, '=')) {
+                [$k, $v] = explode('=', $p, 2);
+                $info[trim($k)] = trim($v);
+            } elseif (trim($p) !== '') {
+                $info[trim($p)] = 'true';
+            }
         }
+
         return $info;
     }
 
@@ -241,47 +287,75 @@ class ImportVcfSamples extends Command
         $empty = ['gene' => null, 'variant_class' => null, 'consequence' => null, 'hgvs_c' => null, 'hgvs_p' => null, 'variant_type' => null];
         if (isset($info['ANN'])) {
             $p = explode('|', explode(',', $info['ANN'])[0]);
+
             return ['gene' => $p[3] ?? null, 'variant_class' => $p[1] ?? null, 'consequence' => $p[1] ?? null,
                 'hgvs_c' => ($p[9] ?? '') !== '' ? $p[9] : null, 'hgvs_p' => ($p[10] ?? '') !== '' ? $p[10] : null, 'variant_type' => null];
         }
         if (isset($info['CSQ'])) {
             $p = explode('|', explode(',', $info['CSQ'])[0]);
+
             return ['gene' => $p[3] ?? null, 'variant_class' => $p[1] ?? null, 'consequence' => $p[1] ?? null,
                 'hgvs_c' => $p[10] ?? null, 'hgvs_p' => $p[11] ?? null, 'variant_type' => null];
         }
+
         return $empty;
     }
 
     private function parseGenotype(string $fmt, string $smp): array
     {
-        if ($fmt === '' || $smp === '') return [null, null, null];
-        $ff = explode(':', $fmt); $sf = explode(':', $smp);
+        if ($fmt === '' || $smp === '') {
+            return [null, null, null];
+        }
+        $ff = explode(':', $fmt);
+        $sf = explode(':', $smp);
         $data = @array_combine($ff, $sf);
-        if ($data === false) return [null, null, null];
+        if ($data === false) {
+            return [null, null, null];
+        }
 
         $zyg = null;
         if (isset($data['GT'])) {
             $al = preg_split('/[\/|]/', $data['GT']);
-            if ($al !== false) { $al = array_filter($al, fn($a) => $a !== '.'); $u = array_unique($al);
-                if (count($al) > 0) $zyg = count($u) === 1 ? 'homozygous' : 'heterozygous'; }
+            if ($al !== false) {
+                $al = array_filter($al, fn ($a) => $a !== '.');
+                $u = array_unique($al);
+                if (count($al) > 0) {
+                    $zyg = count($u) === 1 ? 'homozygous' : 'heterozygous';
+                }
+            }
         }
         $af = null;
-        if (isset($data['AF'])) $af = (float) $data['AF'];
-        elseif (isset($data['AD'])) { $ads = array_map('intval', explode(',', $data['AD']));
-            $t = array_sum($ads); if ($t > 0 && count($ads) >= 2) $af = round($ads[1] / $t, 6); }
+        if (isset($data['AF'])) {
+            $af = (float) $data['AF'];
+        } elseif (isset($data['AD'])) {
+            $ads = array_map('intval', explode(',', $data['AD']));
+            $t = array_sum($ads);
+            if ($t > 0 && count($ads) >= 2) {
+                $af = round($ads[1] / $t, 6);
+            }
+        }
+
         return [$zyg, $af, isset($data['DP']) ? (int) $data['DP'] : null];
     }
 
     private function inferVariantType(string $ref, string $alt): string
     {
-        if (strlen($ref) === strlen($alt)) return strlen($ref) === 1 ? 'SNP' : 'MNP';
+        if (strlen($ref) === strlen($alt)) {
+            return strlen($ref) === 1 ? 'SNP' : 'MNP';
+        }
+
         return strlen($ref) < strlen($alt) ? 'INS' : 'DEL';
     }
 
     private function formatBytes(int $b): string
     {
-        if ($b >= 1073741824) return round($b / 1073741824, 1) . ' GB';
-        if ($b >= 1048576) return round($b / 1048576, 1) . ' MB';
-        return round($b / 1024, 1) . ' KB';
+        if ($b >= 1073741824) {
+            return round($b / 1073741824, 1).' GB';
+        }
+        if ($b >= 1048576) {
+            return round($b / 1048576, 1).' MB';
+        }
+
+        return round($b / 1024, 1).' KB';
     }
 }

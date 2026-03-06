@@ -16,7 +16,7 @@ class SyncClinVarCommand extends Command
     public function handle(ClinVarSyncService $service): int
     {
         $papuOnly = (bool) $this->option('papu-only');
-        $build    = (string) $this->option('build');
+        $build = (string) $this->option('build');
 
         $subset = $papuOnly ? 'Pathogenic/Likely-Pathogenic subset (clinvar_papu.vcf.gz)' : 'full ClinVar (clinvar.vcf.gz)';
         $this->info("Syncing {$subset} for build {$build}…");
@@ -31,7 +31,8 @@ class SyncClinVarCommand extends Command
                 [[$result['inserted'], $result['updated'], $result['errors'], $result['log_id']]]
             );
         } catch (\Throwable $e) {
-            $this->error('Sync failed: ' . $e->getMessage());
+            $this->error('Sync failed: '.$e->getMessage());
+
             return self::FAILURE;
         }
 

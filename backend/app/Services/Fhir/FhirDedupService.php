@@ -39,8 +39,8 @@ class FhirDedupService
         foreach ($rows as $row) {
             $key = "{$siteKey}|{$row->fhir_resource_type}|{$row->fhir_resource_id}";
             $this->cache[$key] = [
-                'cdm_table'    => $row->cdm_table,
-                'cdm_row_id'   => (int) $row->cdm_row_id,
+                'cdm_table' => $row->cdm_table,
+                'cdm_row_id' => (int) $row->cdm_row_id,
                 'content_hash' => $row->content_hash,
             ];
         }
@@ -64,7 +64,7 @@ class FhirDedupService
         string $resourceId,
         array $mappedData,
     ): string {
-        if (!$this->enabled) {
+        if (! $this->enabled) {
             return 'new';
         }
 
@@ -81,13 +81,13 @@ class FhirDedupService
                 ->where('fhir_resource_id', $resourceId)
                 ->first();
 
-            if (!$row) {
+            if (! $row) {
                 return 'new';
             }
 
             $existing = [
-                'cdm_table'    => $row->cdm_table,
-                'cdm_row_id'   => (int) $row->cdm_row_id,
+                'cdm_table' => $row->cdm_table,
+                'cdm_row_id' => (int) $row->cdm_row_id,
                 'content_hash' => $row->content_hash,
             ];
             $this->cache[$key] = $existing;
@@ -104,7 +104,7 @@ class FhirDedupService
         $key = "{$siteKey}|{$resourceType}|{$resourceId}";
         $existing = $this->cache[$key] ?? null;
 
-        if (!$existing) {
+        if (! $existing) {
             return;
         }
 
@@ -116,10 +116,10 @@ class FhirDedupService
                 ->where($pkColumn, $existing['cdm_row_id'])
                 ->delete();
         } catch (\Exception $e) {
-            Log::warning("Failed to delete old CDM row for dedup", [
-                'table'  => $existing['cdm_table'],
+            Log::warning('Failed to delete old CDM row for dedup', [
+                'table' => $existing['cdm_table'],
                 'row_id' => $existing['cdm_row_id'],
-                'error'  => $e->getMessage(),
+                'error' => $e->getMessage(),
             ]);
         }
     }
@@ -135,7 +135,7 @@ class FhirDedupService
         int $cdmRowId,
         array $mappedData,
     ): void {
-        if (!$this->enabled) {
+        if (! $this->enabled) {
             return;
         }
 
@@ -144,15 +144,15 @@ class FhirDedupService
 
         DB::table('fhir_dedup_tracking')->upsert(
             [
-                'site_key'           => $siteKey,
+                'site_key' => $siteKey,
                 'fhir_resource_type' => $resourceType,
-                'fhir_resource_id'   => $resourceId,
-                'cdm_table'          => $cdmTable,
-                'cdm_row_id'         => $cdmRowId,
-                'content_hash'       => $hash,
-                'last_synced_at'     => $now,
-                'created_at'         => $now,
-                'updated_at'         => $now,
+                'fhir_resource_id' => $resourceId,
+                'cdm_table' => $cdmTable,
+                'cdm_row_id' => $cdmRowId,
+                'content_hash' => $hash,
+                'last_synced_at' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             ['site_key', 'fhir_resource_type', 'fhir_resource_id'],
             ['cdm_table', 'cdm_row_id', 'content_hash', 'last_synced_at', 'updated_at'],
@@ -160,8 +160,8 @@ class FhirDedupService
 
         $key = "{$siteKey}|{$resourceType}|{$resourceId}";
         $this->cache[$key] = [
-            'cdm_table'    => $cdmTable,
-            'cdm_row_id'   => $cdmRowId,
+            'cdm_table' => $cdmTable,
+            'cdm_row_id' => $cdmRowId,
             'content_hash' => $hash,
         ];
     }
@@ -169,11 +169,11 @@ class FhirDedupService
     /**
      * Batch-track multiple rows at once (more efficient than one-by-one).
      *
-     * @param list<array{site_key: string, resource_type: string, resource_id: string, cdm_table: string, cdm_row_id: int, data: array}> $records
+     * @param  list<array{site_key: string, resource_type: string, resource_id: string, cdm_table: string, cdm_row_id: int, data: array}>  $records
      */
     public function trackBatch(array $records): void
     {
-        if (!$this->enabled || empty($records)) {
+        if (! $this->enabled || empty($records)) {
             return;
         }
 
@@ -183,22 +183,22 @@ class FhirDedupService
         foreach ($records as $rec) {
             $hash = $this->hashData($rec['data']);
             $rows[] = [
-                'site_key'           => $rec['site_key'],
+                'site_key' => $rec['site_key'],
                 'fhir_resource_type' => $rec['resource_type'],
-                'fhir_resource_id'   => $rec['resource_id'],
-                'cdm_table'          => $rec['cdm_table'],
-                'cdm_row_id'         => $rec['cdm_row_id'],
-                'content_hash'       => $hash,
-                'last_synced_at'     => $now,
-                'created_at'         => $now,
-                'updated_at'         => $now,
+                'fhir_resource_id' => $rec['resource_id'],
+                'cdm_table' => $rec['cdm_table'],
+                'cdm_row_id' => $rec['cdm_row_id'],
+                'content_hash' => $hash,
+                'last_synced_at' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
             ];
 
             // Update local cache
             $key = "{$rec['site_key']}|{$rec['resource_type']}|{$rec['resource_id']}";
             $this->cache[$key] = [
-                'cdm_table'    => $rec['cdm_table'],
-                'cdm_row_id'   => $rec['cdm_row_id'],
+                'cdm_table' => $rec['cdm_table'],
+                'cdm_row_id' => $rec['cdm_row_id'],
                 'content_hash' => $hash,
             ];
         }
@@ -237,7 +237,7 @@ class FhirDedupService
             'tracked_resources' => DB::table('fhir_dedup_tracking')
                 ->where('site_key', $siteKey)
                 ->count(),
-            'cache_size'        => count($this->cache),
+            'cache_size' => count($this->cache),
         ];
     }
 
@@ -252,16 +252,16 @@ class FhirDedupService
     private function getPrimaryKeyColumn(string $cdmTable): string
     {
         return match ($cdmTable) {
-            'person'                => 'person_id',
-            'visit_occurrence'      => 'visit_occurrence_id',
-            'condition_occurrence'  => 'condition_occurrence_id',
-            'drug_exposure'         => 'drug_exposure_id',
-            'procedure_occurrence'  => 'procedure_occurrence_id',
-            'measurement'           => 'measurement_id',
-            'observation'           => 'observation_id',
-            'device_exposure'       => 'device_exposure_id',
-            'specimen'              => 'specimen_id',
-            default                 => 'id',
+            'person' => 'person_id',
+            'visit_occurrence' => 'visit_occurrence_id',
+            'condition_occurrence' => 'condition_occurrence_id',
+            'drug_exposure' => 'drug_exposure_id',
+            'procedure_occurrence' => 'procedure_occurrence_id',
+            'measurement' => 'measurement_id',
+            'observation' => 'observation_id',
+            'device_exposure' => 'device_exposure_id',
+            'specimen' => 'specimen_id',
+            default => 'id',
         };
     }
 }

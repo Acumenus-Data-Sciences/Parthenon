@@ -43,10 +43,10 @@ class RadiologyNlpService
     /**
      * Extract structured imaging findings from all radiology notes for a person.
      *
-     * @param int $personId OMOP person_id
-     * @param ImagingStudy $study The study to associate findings with
-     * @param string $connectionName CDM DB connection
-     * @param string $schema OMOP schema
+     * @param  int  $personId  OMOP person_id
+     * @param  ImagingStudy  $study  The study to associate findings with
+     * @param  string  $connectionName  CDM DB connection
+     * @param  string  $schema  OMOP schema
      * @return array{extracted: int, mapped: int, errors: int}
      */
     public function extractFromNotes(int $personId, ImagingStudy $study, string $connectionName = 'cdm', string $schema = 'omop'): array
@@ -68,6 +68,7 @@ class RadiologyNlpService
             );
         } catch (\Throwable $e) {
             Log::warning('RadiologyNlpService: note fetch failed', ['error' => $e->getMessage()]);
+
             return ['extracted' => 0, 'mapped' => 0, 'errors' => 1];
         }
 
@@ -144,7 +145,7 @@ PROMPT;
                     'temperature' => 0.1,
                 ]);
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 return [];
             }
 
@@ -154,6 +155,7 @@ PROMPT;
             // Extract JSON block from response
             if (preg_match('/\{[\s\S]*\}/m', $text, $matches)) {
                 $parsed = json_decode($matches[0], true);
+
                 return $parsed['findings'] ?? [];
             }
         } catch (\Throwable $e) {
@@ -164,12 +166,12 @@ PROMPT;
     }
 
     /**
-     * @param array<string, mixed> $finding
+     * @param  array<string, mixed>  $finding
      */
     private function createFeature(ImagingStudy $study, array $finding, \Illuminate\Database\Connection $conn, string $schema): ?ImagingFeature
     {
         $featureName = $finding['finding'] ?? null;
-        if (!$featureName) {
+        if (! $featureName) {
             return null;
         }
 
@@ -181,7 +183,7 @@ PROMPT;
                  WHERE concept_name ILIKE ? AND domain_id IN ('Observation','Measurement','Condition')
                  AND standard_concept = 'S' AND invalid_reason IS NULL
                  LIMIT 1",
-                ['%' . $featureName . '%']
+                ['%'.$featureName.'%']
             );
             $conceptId = $concept ? (int) $concept->concept_id : null;
         } catch (\Throwable) {

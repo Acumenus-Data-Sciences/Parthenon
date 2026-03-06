@@ -41,7 +41,7 @@ class FhirBulkExportService
         $params['_type'] = $resourceTypes;
 
         // Incremental: use _since if enabled and we have a last sync timestamp (unless forced full)
-        if (!$forceFull && $connection->incremental_enabled && $connection->last_sync_at) {
+        if (! $forceFull && $connection->incremental_enabled && $connection->last_sync_at) {
             $params['_since'] = $connection->last_sync_at->toIso8601String();
             $run->update(['since_param' => $connection->last_sync_at]);
         }
@@ -51,14 +51,14 @@ class FhirBulkExportService
         $response = Http::timeout(30)
             ->withHeaders([
                 'Authorization' => "Bearer {$accessToken}",
-                'Accept'        => 'application/fhir+json',
-                'Prefer'        => 'respond-async',
+                'Accept' => 'application/fhir+json',
+                'Prefer' => 'respond-async',
             ])
             ->get($exportUrl, $params);
 
         if ($response->status() !== 202) {
             throw new RuntimeException(
-                "Bulk export request failed: HTTP {$response->status()} — " . substr($response->body(), 0, 500)
+                "Bulk export request failed: HTTP {$response->status()} — ".substr($response->body(), 0, 500)
             );
         }
 
@@ -78,7 +78,7 @@ class FhirBulkExportService
     /**
      * Poll the export status URL. Returns null if still in progress, or the manifest on completion.
      *
-     * @return array|null  The export manifest (with 'output' array of file URLs) or null if pending.
+     * @return array|null The export manifest (with 'output' array of file URLs) or null if pending.
      */
     public function pollExportStatus(FhirConnection $connection, string $pollingUrl): ?array
     {
@@ -87,7 +87,7 @@ class FhirBulkExportService
         $response = Http::timeout(30)
             ->withHeaders([
                 'Authorization' => "Bearer {$token['access_token']}",
-                'Accept'        => 'application/json',
+                'Accept' => 'application/json',
             ])
             ->get($pollingUrl);
 
@@ -96,7 +96,7 @@ class FhirBulkExportService
             $progress = $response->header('X-Progress');
             Log::debug('FHIR export still in progress', [
                 'connection' => $connection->site_key,
-                'progress'   => $progress,
+                'progress' => $progress,
             ]);
 
             return null;
@@ -107,7 +107,7 @@ class FhirBulkExportService
         }
 
         throw new RuntimeException(
-            "Export poll failed: HTTP {$response->status()} — " . substr($response->body(), 0, 500)
+            "Export poll failed: HTTP {$response->status()} — ".substr($response->body(), 0, 500)
         );
     }
 
@@ -115,7 +115,7 @@ class FhirBulkExportService
      * Download all NDJSON files from the export manifest to local storage.
      *
      * @param  array  $manifest  The export manifest with 'output' array.
-     * @return array<string, string[]>  Resource type => array of local file paths.
+     * @return array<string, string[]> Resource type => array of local file paths.
      */
     public function downloadNdjsonFiles(
         FhirConnection $connection,
@@ -141,27 +141,27 @@ class FhirBulkExportService
 
         foreach ($outputFiles as $file) {
             $type = $file['type'] ?? 'Unknown';
-            $url  = $file['url'] ?? '';
+            $url = $file['url'] ?? '';
 
             if (empty($url)) {
                 continue;
             }
 
-            $fileName = $type . '-' . ($fileCount + 1) . '.ndjson';
+            $fileName = $type.'-'.($fileCount + 1).'.ndjson';
             $filePath = "{$storageDir}/{$fileName}";
 
             // Stream download to disk
             $response = Http::timeout(300)
                 ->withHeaders([
                     'Authorization' => "Bearer {$token['access_token']}",
-                    'Accept'        => 'application/fhir+ndjson',
+                    'Accept' => 'application/fhir+ndjson',
                 ])
                 ->get($url);
 
             if ($response->failed()) {
                 Log::error('Failed to download NDJSON file', [
-                    'url'    => $url,
-                    'type'   => $type,
+                    'url' => $url,
+                    'type' => $type,
                     'status' => $response->status(),
                 ]);
 
@@ -179,9 +179,9 @@ class FhirBulkExportService
 
         Log::info('FHIR NDJSON files downloaded', [
             'connection' => $connection->site_key,
-            'run_id'     => $run->id,
-            'files'      => $fileCount,
-            'types'      => array_keys($downloadedByType),
+            'run_id' => $run->id,
+            'files' => $fileCount,
+            'types' => array_keys($downloadedByType),
         ]);
 
         return $downloadedByType;

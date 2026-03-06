@@ -63,19 +63,19 @@ class DicomFileService
      */
     public function importDirectory(string $dir, int $sourceId, int $batchSize = 5000): array
     {
-        if (!is_dir($dir)) {
+        if (! is_dir($dir)) {
             throw new \InvalidArgumentException("Directory not found: {$dir}");
         }
 
-        $repoRoot    = base_path();
-        $totalStudies  = 0;
-        $totalSeries   = 0;
+        $repoRoot = base_path();
+        $totalStudies = 0;
+        $totalSeries = 0;
         $totalInstances = 0;
-        $errors        = 0;
+        $errors = 0;
 
         // Accumulation buffers for current batch
-        $studies   = [];
-        $series    = [];
+        $studies = [];
+        $series = [];
         $instances = [];
         $batchCount = 0;
 
@@ -109,12 +109,12 @@ class DicomFileService
             unset($i);
 
             [$sc, $ssc, $ic] = $this->persist($sourceId, $studies, $series, $instances);
-            $totalStudies   += $sc;
-            $totalSeries    += $ssc;
+            $totalStudies += $sc;
+            $totalSeries += $ssc;
             $totalInstances += $ic;
 
-            $studies   = [];
-            $series    = [];
+            $studies = [];
+            $series = [];
             $instances = [];
             $batchCount = 0;
         };
@@ -125,7 +125,7 @@ class DicomFileService
 
         foreach ($iterator as $file) {
             /** @var \SplFileInfo $file */
-            if (!$file->isFile() || !$this->isDicom($file->getPathname())) {
+            if (! $file->isFile() || ! $this->isDicom($file->getPathname())) {
                 continue;
             }
 
@@ -136,7 +136,7 @@ class DicomFileService
                     $batchCount++;
                 }
             } catch (\Throwable $e) {
-                Log::warning("DICOM parse error: {$file->getPathname()}: " . $e->getMessage());
+                Log::warning("DICOM parse error: {$file->getPathname()}: ".$e->getMessage());
                 $errors++;
             }
 
@@ -149,10 +149,10 @@ class DicomFileService
         $flush();
 
         return [
-            'studies'   => $totalStudies,
-            'series'    => $totalSeries,
+            'studies' => $totalStudies,
+            'series' => $totalSeries,
             'instances' => $totalInstances,
-            'errors'    => $errors,
+            'errors' => $errors,
         ];
     }
 
@@ -165,19 +165,19 @@ class DicomFileService
         $depth = 1;
         $safeguard = 500000; // 500K iterations max
 
-        while ($depth > 0 && $safeguard-- > 0 && !feof($fh)) {
+        while ($depth > 0 && $safeguard-- > 0 && ! feof($fh)) {
             $rawGroup = fread($fh, 2);
-            $rawElem  = fread($fh, 2);
+            $rawElem = fread($fh, 2);
             if (strlen($rawGroup) < 2 || strlen($rawElem) < 2) {
                 break;
             }
             $group = unpack('v', $rawGroup)[1];
-            $elem  = unpack('v', $rawElem)[1];
+            $elem = unpack('v', $rawElem)[1];
 
             if ($group === 0xFFFE) {
                 // Control tags: Item, Item Delimiter, Sequence Delimiter
                 $lenRaw = fread($fh, 4);
-                $len    = strlen($lenRaw) === 4 ? unpack('V', $lenRaw)[1] : 0;
+                $len = strlen($lenRaw) === 4 ? unpack('V', $lenRaw)[1] : 0;
 
                 if ($elem === 0xE0DD) {
                     // Sequence Delimitation Item — end of current sequence
@@ -186,14 +186,15 @@ class DicomFileService
                     // Defined-length Item — skip contents
                     fseek($fh, $len, SEEK_CUR);
                 }
+
                 // E00D (Item Delimitation) and undefined-length E000 handled by loop
                 continue;
             }
 
             // Regular element inside sequence — read VR and length
             $vrRaw = fread($fh, 2);
-            $vr    = $vrRaw;
-            if (!preg_match('/^[A-Z]{2}$/', $vr)) {
+            $vr = $vrRaw;
+            if (! preg_match('/^[A-Z]{2}$/', $vr)) {
                 fseek($fh, -2, SEEK_CUR);
                 $length = unpack('V', fread($fh, 4))[1];
                 $vr = 'UN';
@@ -229,18 +230,20 @@ class DicomFileService
                 $results[] = $file->getPathname();
             }
         }
+
         return $results;
     }
 
     private function isDicom(string $path): bool
     {
         $fh = @fopen($path, 'rb');
-        if (!$fh) {
+        if (! $fh) {
             return false;
         }
         fseek($fh, 128);
         $magic = fread($fh, 4);
         fclose($fh);
+
         return $magic === 'DICM';
     }
 
@@ -252,7 +255,7 @@ class DicomFileService
     private function readMeta(string $path): ?array
     {
         $fh = @fopen($path, 'rb');
-        if (!$fh) {
+        if (! $fh) {
             return null;
         }
 
@@ -263,17 +266,17 @@ class DicomFileService
             $result = [];
             $maxTags = 500; // read up to 500 elements (StudyUID is in group 0020)
 
-            while (!feof($fh) && $maxTags-- > 0) {
+            while (! feof($fh) && $maxTags-- > 0) {
                 // Read group and element
                 $rawGroup = fread($fh, 2);
-                $rawElem  = fread($fh, 2);
+                $rawElem = fread($fh, 2);
                 if (strlen($rawGroup) < 2 || strlen($rawElem) < 2) {
                     break;
                 }
 
                 $group = unpack('v', $rawGroup)[1];
-                $elem  = unpack('v', $rawElem)[1];
-                $tag   = ($group << 16) | $elem;
+                $elem = unpack('v', $rawElem)[1];
+                $tag = ($group << 16) | $elem;
 
                 // Stop at pixel data
                 if ($tag >= 0x7FE00010) {
@@ -290,35 +293,43 @@ class DicomFileService
                 $vr = $vrRaw;
 
                 // Validate VR — if not printable ASCII letters, likely implicit VR
-                if (!preg_match('/^[A-Z]{2}$/', $vr)) {
+                if (! preg_match('/^[A-Z]{2}$/', $vr)) {
                     // Implicit VR — length is the 4 bytes we just read + next 2 bytes would be rewind
                     // Back up and treat as 4-byte implicit length
                     fseek($fh, -2, SEEK_CUR);
                     $lenRaw = fread($fh, 4);
-                    if (strlen($lenRaw) < 4) break;
+                    if (strlen($lenRaw) < 4) {
+                        break;
+                    }
                     $length = unpack('V', $lenRaw)[1];
                     $vr = 'UN';
                 } elseif (in_array($vr, self::LONG_VRS, true)) {
                     // Skip 2 reserved bytes
                     fread($fh, 2);
                     $lenRaw = fread($fh, 4);
-                    if (strlen($lenRaw) < 4) break;
+                    if (strlen($lenRaw) < 4) {
+                        break;
+                    }
                     $length = unpack('V', $lenRaw)[1];
                 } else {
                     $lenRaw = fread($fh, 2);
-                    if (strlen($lenRaw) < 2) break;
+                    if (strlen($lenRaw) < 2) {
+                        break;
+                    }
                     $length = unpack('v', $lenRaw)[1];
                 }
 
                 // Handle undefined length — skip this element (usually sequences)
                 if ($length === 0xFFFFFFFF) {
                     $this->skipUndefinedLength($fh);
+
                     continue;
                 }
 
                 // Skip large elements (pixel data, embedded images, etc.)
                 if ($length > 8192) {
                     fseek($fh, $length, SEEK_CUR);
+
                     continue;
                 }
 
@@ -330,7 +341,7 @@ class DicomFileService
                     $value = rtrim($value, " \0");
                     // Sanitize to UTF-8 (DICOM default charset is ISO-IR 6/ASCII;
                     // some files use Latin-1 — convert and strip any remaining invalids)
-                    if (!mb_check_encoding($value, 'UTF-8')) {
+                    if (! mb_check_encoding($value, 'UTF-8')) {
                         $value = mb_convert_encoding($value, 'UTF-8', 'ISO-8859-1');
                     }
                     $result[$tagName] = $value;
@@ -356,58 +367,58 @@ class DicomFileService
         array &$series,
         array &$instances
     ): void {
-        $studyUid  = $meta['StudyInstanceUID'] ?? null;
+        $studyUid = $meta['StudyInstanceUID'] ?? null;
         $seriesUid = $meta['SeriesInstanceUID'] ?? null;
-        $sopUid    = $meta['SOPInstanceUID'] ?? null;
+        $sopUid = $meta['SOPInstanceUID'] ?? null;
 
-        if (!$studyUid || !$seriesUid || !$sopUid) {
+        if (! $studyUid || ! $seriesUid || ! $sopUid) {
             return;
         }
 
         $dir = dirname($filePath);
 
         // ── Study ──────────────────────────────────────────────────────────
-        if (!isset($studies[$studyUid])) {
+        if (! isset($studies[$studyUid])) {
             $studies[$studyUid] = [
-                'study_instance_uid'  => $studyUid,
-                'modality'            => $meta['Modality'] ?? null,
-                'body_part_examined'  => $meta['BodyPartExamined'] ?? null,
-                'study_description'   => $meta['StudyDescription'] ?? null,
+                'study_instance_uid' => $studyUid,
+                'modality' => $meta['Modality'] ?? null,
+                'body_part_examined' => $meta['BodyPartExamined'] ?? null,
+                'study_description' => $meta['StudyDescription'] ?? null,
                 'referring_physician' => $meta['ReferringPhysicianName'] ?? null,
-                'study_date'          => $this->parseDate($meta['StudyDate'] ?? null),
-                'accession_number'    => null,
-                'patient_name_dicom'  => $meta['PatientName'] ?? null,
-                'patient_id_dicom'    => $meta['PatientID'] ?? null,
-                'institution_name'    => $meta['InstitutionName'] ?? null,
-                'file_dir'            => $dir,
-                'status'              => 'indexed',
-                'num_series'          => 0,
-                'num_images'          => 0,
+                'study_date' => $this->parseDate($meta['StudyDate'] ?? null),
+                'accession_number' => null,
+                'patient_name_dicom' => $meta['PatientName'] ?? null,
+                'patient_id_dicom' => $meta['PatientID'] ?? null,
+                'institution_name' => $meta['InstitutionName'] ?? null,
+                'file_dir' => $dir,
+                'status' => 'indexed',
+                'num_series' => 0,
+                'num_images' => 0,
             ];
         }
         $studies[$studyUid]['num_images']++;
 
         // ── Series ─────────────────────────────────────────────────────────
-        if (!isset($series[$seriesUid])) {
+        if (! isset($series[$seriesUid])) {
             $ps = $meta['PixelSpacing'] ?? null;
             $rows = isset($meta['Rows']) ? (int) $meta['Rows'] : null;
             $cols = isset($meta['Columns']) ? (int) $meta['Columns'] : null;
 
             $series[$seriesUid] = [
-                'study_instance_uid'  => $studyUid,
+                'study_instance_uid' => $studyUid,
                 'series_instance_uid' => $seriesUid,
-                'series_description'  => $meta['SeriesDescription'] ?? null,
-                'modality'            => $meta['Modality'] ?? null,
-                'body_part_examined'  => $meta['BodyPartExamined'] ?? null,
-                'series_number'       => isset($meta['SeriesNumber']) ? (int) $meta['SeriesNumber'] : null,
-                'slice_thickness_mm'  => isset($meta['SliceThickness']) ? (float) $meta['SliceThickness'] : null,
-                'manufacturer'        => $meta['Manufacturer'] ?? null,
-                'manufacturer_model'  => $meta['ManufacturerModelName'] ?? null,
-                'pixel_spacing'       => $ps,
-                'rows_x_cols'         => ($rows && $cols) ? "{$rows}x{$cols}" : null,
-                'kvp'                 => $meta['KVP'] ?? null,
-                'file_dir'            => $dir,
-                'num_images'          => 0,
+                'series_description' => $meta['SeriesDescription'] ?? null,
+                'modality' => $meta['Modality'] ?? null,
+                'body_part_examined' => $meta['BodyPartExamined'] ?? null,
+                'series_number' => isset($meta['SeriesNumber']) ? (int) $meta['SeriesNumber'] : null,
+                'slice_thickness_mm' => isset($meta['SliceThickness']) ? (float) $meta['SliceThickness'] : null,
+                'manufacturer' => $meta['Manufacturer'] ?? null,
+                'manufacturer_model' => $meta['ManufacturerModelName'] ?? null,
+                'pixel_spacing' => $ps,
+                'rows_x_cols' => ($rows && $cols) ? "{$rows}x{$cols}" : null,
+                'kvp' => $meta['KVP'] ?? null,
+                'file_dir' => $dir,
+                'num_images' => 0,
             ];
 
             $studies[$studyUid]['num_series']++;
@@ -415,15 +426,15 @@ class DicomFileService
         $series[$seriesUid]['num_images']++;
 
         // ── Instance ───────────────────────────────────────────────────────
-        if (!isset($instances[$sopUid])) {
+        if (! isset($instances[$sopUid])) {
             $instances[$sopUid] = [
-                'study_instance_uid'  => $studyUid,
+                'study_instance_uid' => $studyUid,
                 'series_instance_uid' => $seriesUid,
-                'sop_instance_uid'    => $sopUid,
-                'sop_class_uid'       => $meta['SOPClassUID'] ?? null,
-                'instance_number'     => isset($meta['InstanceNumber']) ? (int) $meta['InstanceNumber'] : null,
-                'slice_location'      => isset($meta['SliceLocation']) ? (float) $meta['SliceLocation'] : null,
-                'file_path'           => $filePath,
+                'sop_instance_uid' => $sopUid,
+                'sop_class_uid' => $meta['SOPClassUID'] ?? null,
+                'instance_number' => isset($meta['InstanceNumber']) ? (int) $meta['InstanceNumber'] : null,
+                'slice_location' => isset($meta['SliceLocation']) ? (float) $meta['SliceLocation'] : null,
+                'file_path' => $filePath,
             ];
         }
     }
@@ -439,15 +450,15 @@ class DicomFileService
         array $series,
         array $instances
     ): array {
-        $studyCount    = 0;
-        $seriesCount   = 0;
+        $studyCount = 0;
+        $seriesCount = 0;
         $instanceCount = 0;
 
         DB::transaction(function () use (
             $sourceId, $studies, $series, $instances,
             &$studyCount, &$seriesCount, &$instanceCount
         ) {
-            $studyUidToId  = [];
+            $studyUidToId = [];
             $seriesUidToId = [];
 
             foreach ($studies as $uid => $s) {
@@ -462,7 +473,7 @@ class DicomFileService
 
             foreach ($series as $uid => $s) {
                 $studyId = $studyUidToId[$s['study_instance_uid']] ?? null;
-                if (!$studyId) {
+                if (! $studyId) {
                     continue;
                 }
                 $data = array_filter($s, fn ($v) => $v !== null && $v !== '');
@@ -476,9 +487,9 @@ class DicomFileService
             }
 
             foreach ($instances as $sopUid => $inst) {
-                $studyId  = $studyUidToId[$inst['study_instance_uid']] ?? null;
+                $studyId = $studyUidToId[$inst['study_instance_uid']] ?? null;
                 $seriesId = $seriesUidToId[$inst['series_instance_uid']] ?? null;
-                if (!$studyId || !$seriesId) {
+                if (! $studyId || ! $seriesId) {
                     continue;
                 }
                 $data = array_filter($inst, fn ($v) => $v !== null && $v !== '');
@@ -501,17 +512,19 @@ class DicomFileService
     private function parseDate(?string $raw): ?string
     {
         if ($raw && strlen($raw) === 8 && ctype_digit($raw)) {
-            return substr($raw, 0, 4) . '-' . substr($raw, 4, 2) . '-' . substr($raw, 6, 2);
+            return substr($raw, 0, 4).'-'.substr($raw, 4, 2).'-'.substr($raw, 6, 2);
         }
+
         return null;
     }
 
     private function relativeTo(string $path, string $base): string
     {
-        $base = rtrim($base, '/') . '/';
+        $base = rtrim($base, '/').'/';
         if (str_starts_with($path, $base)) {
             return substr($path, strlen($base));
         }
+
         return $path;
     }
 }

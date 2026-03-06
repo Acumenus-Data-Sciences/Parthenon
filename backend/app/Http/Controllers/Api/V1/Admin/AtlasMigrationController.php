@@ -182,7 +182,7 @@ class AtlasMigrationController extends Controller
                 'concept_set' => 'concept_sets',
                 'cohort_definition' => 'cohort_definitions',
                 'incidence_rate' => 'incidence_rates',
-                default => $type . 's',
+                default => $type.'s',
             };
             $retrySelection[$entityKey] = $mappings->pluck('atlas_id')->toArray();
         }

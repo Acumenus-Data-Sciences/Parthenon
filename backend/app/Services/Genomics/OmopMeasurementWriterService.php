@@ -47,9 +47,8 @@ class OmopMeasurementWriterService
     /**
      * Write all unmapped variants from an upload to OMOP MEASUREMENT.
      *
-     * @param GenomicUpload $upload
-     * @param string $connectionName The CDM DB connection (e.g. 'cdm', 'eunomia')
-     * @param string $schema OMOP schema name (e.g. 'omop', 'eunomia')
+     * @param  string  $connectionName  The CDM DB connection (e.g. 'cdm', 'eunomia')
+     * @param  string  $schema  OMOP schema name (e.g. 'omop', 'eunomia')
      * @return array{written: int, skipped: int, errors: int}
      */
     public function writeUploadToOmop(
@@ -66,7 +65,7 @@ class OmopMeasurementWriterService
         $upload->variants()
             ->where('mapping_status', '!=', 'imported')
             ->whereNotNull('person_id')
-            ->chunk(200, function ($variants) use ($conn, $schema, &$written, &$skipped, &$errors, $upload) {
+            ->chunk(200, function ($variants) use ($conn, $schema, &$written, &$skipped, &$errors) {
                 foreach ($variants as $variant) {
                     try {
                         $measurementId = $this->writeVariant($variant, $conn, $schema);
@@ -189,6 +188,7 @@ class OmopMeasurementWriterService
                 return $conceptId;
             }
         }
+
         return null;
     }
 }

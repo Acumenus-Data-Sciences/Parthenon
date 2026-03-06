@@ -24,41 +24,41 @@ class ClinVarSyncService
     /**
      * Run a full sync.
      *
-     * @param bool   $papuOnly  If true, fetch the Pathogenic/Likely-Pathogenic subset (~69 KB)
-     * @param string $build     Genome build tag to store (GRCh38)
+     * @param  bool  $papuOnly  If true, fetch the Pathogenic/Likely-Pathogenic subset (~69 KB)
+     * @param  string  $build  Genome build tag to store (GRCh38)
      * @return array{inserted: int, updated: int, errors: int, log_id: int}
      */
     public function sync(bool $papuOnly = false, string $build = 'GRCh38'): array
     {
         $filename = $papuOnly ? 'clinvar_papu.vcf.gz' : 'clinvar.vcf.gz';
-        $url      = self::FTP_BASE . '/' . $filename;
+        $url = self::FTP_BASE.'/'.$filename;
 
         $syncLog = ClinVarSyncLog::create([
-            'genome_build'     => $build,
-            'papu_only'        => $papuOnly,
-            'source_url'       => $url,
-            'status'           => 'running',
-            'started_at'       => now(),
+            'genome_build' => $build,
+            'papu_only' => $papuOnly,
+            'source_url' => $url,
+            'status' => 'running',
+            'started_at' => now(),
         ]);
 
         try {
             $tmpPath = $this->download($url);
-            $counts  = $this->parseAndUpsert($tmpPath, $build, $syncLog->id);
+            $counts = $this->parseAndUpsert($tmpPath, $build, $syncLog->id);
             @unlink($tmpPath);
 
             $syncLog->update([
-                'status'            => 'completed',
+                'status' => 'completed',
                 'variants_inserted' => $counts['inserted'],
-                'variants_updated'  => $counts['updated'],
-                'finished_at'       => now(),
+                'variants_updated' => $counts['updated'],
+                'finished_at' => now(),
             ]);
 
             return array_merge($counts, ['log_id' => $syncLog->id]);
         } catch (\Throwable $e) {
             $syncLog->update([
-                'status'        => 'failed',
+                'status' => 'failed',
                 'error_message' => $e->getMessage(),
-                'finished_at'   => now(),
+                'finished_at' => now(),
             ]);
             throw $e;
         }
@@ -68,7 +68,7 @@ class ClinVarSyncService
 
     private function download(string $url): string
     {
-        $tmp = tempnam(sys_get_temp_dir(), 'clinvar_') . '.vcf.gz';
+        $tmp = tempnam(sys_get_temp_dir(), 'clinvar_').'.vcf.gz';
 
         Log::info('ClinVarSyncService: downloading', ['url' => $url, 'tmp' => $tmp]);
 
@@ -94,9 +94,9 @@ class ClinVarSyncService
         }
 
         $inserted = 0;
-        $updated  = 0;
-        $errors   = 0;
-        $batch    = [];
+        $updated = 0;
+        $errors = 0;
+        $batch = [];
         $syncedAt = now()->toDateTimeString();
 
         try {
@@ -120,19 +120,20 @@ class ClinVarSyncService
                     $batch[] = $row;
                 } catch (\Throwable $e) {
                     $errors++;
+
                     continue;
                 }
 
                 if (count($batch) >= self::BATCH) {
                     [$ins, $upd] = $this->flushBatch($batch);
                     $inserted += $ins;
-                    $updated  += $upd;
-                    $batch    = [];
+                    $updated += $upd;
+                    $batch = [];
 
                     // Heartbeat for long-running syncs
                     ClinVarSyncLog::where('id', $logId)->update([
                         'variants_inserted' => $inserted,
-                        'variants_updated'  => $updated,
+                        'variants_updated' => $updated,
                     ]);
                 }
             }
@@ -143,7 +144,7 @@ class ClinVarSyncService
         if ($batch !== []) {
             [$ins, $upd] = $this->flushBatch($batch);
             $inserted += $ins;
-            $updated  += $upd;
+            $updated += $upd;
         }
 
         return ['inserted' => $inserted, 'updated' => $updated, 'errors' => $errors];
@@ -155,7 +156,7 @@ class ClinVarSyncService
      * ClinVar VCF columns: CHROM POS ID REF ALT QUAL FILTER INFO
      * Key INFO fields: CLNSIG, CLNDN, CLNREVSTAT, CLNHGVS, RS, GENEINFO
      *
-     * @param string[] $fields
+     * @param  string[]  $fields
      * @return array<string, mixed>|null
      */
     private function parseVcfRow(array $fields, string $build, string $syncedAt): ?array
@@ -169,30 +170,30 @@ class ClinVarSyncService
 
         $info = $this->parseInfo($fields[7] ?? '');
 
-        $sig         = $this->normalizeSig($info['CLNSIG'] ?? null);
-        $gene        = $this->parseGeneInfo($info['GENEINFO'] ?? null);
-        $disease     = isset($info['CLNDN']) ? str_replace(['|', '_'], ['; ', ' '], $info['CLNDN']) : null;
-        $revStatus   = isset($info['CLNREVSTAT']) ? str_replace(['_', ','], [' ', ', '], $info['CLNREVSTAT']) : null;
-        $hgvs        = $info['CLNHGVS'] ?? null;
-        $rsId        = isset($info['RS']) ? 'rs' . $info['RS'] : null;
+        $sig = $this->normalizeSig($info['CLNSIG'] ?? null);
+        $gene = $this->parseGeneInfo($info['GENEINFO'] ?? null);
+        $disease = isset($info['CLNDN']) ? str_replace(['|', '_'], ['; ', ' '], $info['CLNDN']) : null;
+        $revStatus = isset($info['CLNREVSTAT']) ? str_replace(['_', ','], [' ', ', '], $info['CLNREVSTAT']) : null;
+        $hgvs = $info['CLNHGVS'] ?? null;
+        $rsId = isset($info['RS']) ? 'rs'.$info['RS'] : null;
 
         return [
-            'variation_id'          => $vcfId !== '.' ? substr($vcfId, 0, 30) : null,
-            'rs_id'                 => $rsId ? substr($rsId, 0, 30) : null,
-            'chromosome'            => substr(ltrim($chrom, 'chr'), 0, 10),
-            'position'              => (int) $pos,
-            'reference_allele'      => substr($ref, 0, 500),
-            'alternate_allele'      => substr($alt, 0, 500),
-            'genome_build'          => $build,
-            'gene_symbol'           => $gene ? substr($gene, 0, 100) : null,
-            'hgvs'                  => $hgvs ? substr($hgvs, 0, 500) : null,
+            'variation_id' => $vcfId !== '.' ? substr($vcfId, 0, 30) : null,
+            'rs_id' => $rsId ? substr($rsId, 0, 30) : null,
+            'chromosome' => substr(ltrim($chrom, 'chr'), 0, 10),
+            'position' => (int) $pos,
+            'reference_allele' => substr($ref, 0, 500),
+            'alternate_allele' => substr($alt, 0, 500),
+            'genome_build' => $build,
+            'gene_symbol' => $gene ? substr($gene, 0, 100) : null,
+            'hgvs' => $hgvs ? substr($hgvs, 0, 500) : null,
             'clinical_significance' => $sig ? substr($sig, 0, 200) : null,
-            'disease_name'          => $disease,
-            'review_status'         => $revStatus ? substr($revStatus, 0, 200) : null,
-            'is_pathogenic'         => $this->isPathogenic($sig),
-            'last_synced_at'        => $syncedAt,
-            'created_at'            => $syncedAt,
-            'updated_at'            => $syncedAt,
+            'disease_name' => $disease,
+            'review_status' => $revStatus ? substr($revStatus, 0, 200) : null,
+            'is_pathogenic' => $this->isPathogenic($sig),
+            'last_synced_at' => $syncedAt,
+            'created_at' => $syncedAt,
+            'updated_at' => $syncedAt,
         ];
     }
 
@@ -203,9 +204,9 @@ class ClinVarSyncService
         // (different submitters). Keep the last (most pathogenic wins via sort order).
         $deduped = [];
         foreach ($batch as $row) {
-            $key = $row['chromosome'] . ':' . $row['position'] . ':' . $row['reference_allele'] . ':' . $row['alternate_allele'];
+            $key = $row['chromosome'].':'.$row['position'].':'.$row['reference_allele'].':'.$row['alternate_allele'];
             // Prefer pathogenic over non-pathogenic when deduplicating
-            if (!isset($deduped[$key]) || $row['is_pathogenic']) {
+            if (! isset($deduped[$key]) || $row['is_pathogenic']) {
                 $deduped[$key] = $row;
             }
         }
@@ -223,7 +224,7 @@ class ClinVarSyncService
         $after = ClinVarVariant::count();
 
         $inserted = max(0, $after - $before);
-        $updated  = count($batch) - $inserted;
+        $updated = count($batch) - $inserted;
 
         return [$inserted, max(0, $updated)];
     }
@@ -238,6 +239,7 @@ class ClinVarSyncService
                 $info[trim($k)] = trim($v);
             }
         }
+
         return $info;
     }
 
@@ -248,6 +250,7 @@ class ClinVarSyncService
         }
         // Format: GENENAME:gene_id|GENENAME2:gene_id2
         $first = explode('|', $geneinfo)[0];
+
         return explode(':', $first)[0];
     }
 
@@ -258,6 +261,7 @@ class ClinVarSyncService
         }
         // ClinVar uses underscores for spaces and pipes for multiple values
         $sig = str_replace('_', ' ', $sig);
+
         // Take most severe if multiple conflict
         return explode('|', $sig)[0];
     }
@@ -268,6 +272,7 @@ class ClinVarSyncService
             return false;
         }
         $lower = strtolower($sig);
-        return str_contains($lower, 'pathogenic') && !str_contains($lower, 'conflicting');
+
+        return str_contains($lower, 'pathogenic') && ! str_contains($lower, 'conflicting');
     }
 }

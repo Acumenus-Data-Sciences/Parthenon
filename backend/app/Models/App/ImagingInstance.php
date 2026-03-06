@@ -19,7 +19,7 @@ class ImagingInstance extends Model
 
     protected $casts = [
         'instance_number' => 'integer',
-        'slice_location'  => 'float',
+        'slice_location' => 'float',
     ];
 
     public function study(): BelongsTo

@@ -94,14 +94,10 @@ export function StudyList({
   const sortedStudies = useMemo(() => {
     if (!sortKey) return studies;
     return [...studies].sort((a, b) => {
-      let cmp = 0;
-      if (sortKey === "priority") {
-        cmp = (PRIORITY_ORDER[a.priority] ?? 9) - (PRIORITY_ORDER[b.priority] ?? 9);
-      } else if (sortKey === "created_at") {
-        cmp = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
-      } else {
-        cmp = (a[sortKey] ?? "").localeCompare(b[sortKey] ?? "");
-      }
+      const cmp =
+        sortKey === "priority" ? (PRIORITY_ORDER[a.priority] ?? 9) - (PRIORITY_ORDER[b.priority] ?? 9) :
+        sortKey === "created_at" ? new Date(a.created_at).getTime() - new Date(b.created_at).getTime() :
+        (a[sortKey] ?? "").localeCompare(b[sortKey] ?? "");
       return sortDir === "desc" ? -cmp : cmp;
     });
   }, [studies, sortKey, sortDir]);

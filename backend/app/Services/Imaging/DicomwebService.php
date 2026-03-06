@@ -23,7 +23,9 @@ use Illuminate\Support\Facades\Log;
 class DicomwebService
 {
     private string $baseUrl;
+
     private ?string $username;
+
     private ?string $password;
 
     public function __construct()
@@ -36,9 +38,9 @@ class DicomwebService
     /**
      * Query studies from QIDO-RS endpoint and upsert into imaging_studies.
      *
-     * @param int $sourceId Parthenon source ID
-     * @param int $limit Max studies to import per call
-     * @param array<string, string> $filters QIDO-RS query params (e.g. ['Modality' => 'CT'])
+     * @param  int  $sourceId  Parthenon source ID
+     * @param  int  $limit  Max studies to import per call
+     * @param  array<string, string>  $filters  QIDO-RS query params (e.g. ['Modality' => 'CT'])
      * @return array{indexed: int, updated: int, errors: int}
      */
     public function indexStudies(int $sourceId, int $limit = 100, array $filters = []): array
@@ -47,17 +49,19 @@ class DicomwebService
 
         try {
             $response = $this->request('GET', '/dicom-web/studies', $params);
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 Log::warning('DicomwebService: QIDO-RS studies query failed', [
                     'status' => $response->status(),
                     'body' => $response->body(),
                 ]);
+
                 return ['indexed' => 0, 'updated' => 0, 'errors' => 1];
             }
 
             $studies = $response->json() ?? [];
         } catch (\Throwable $e) {
             Log::warning('DicomwebService: HTTP request failed', ['error' => $e->getMessage()]);
+
             return ['indexed' => 0, 'updated' => 0, 'errors' => 1];
         }
 
@@ -98,12 +102,13 @@ class DicomwebService
 
         try {
             $response = $this->request('GET', "/dicom-web/studies/{$uid}/series");
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 return ['indexed' => 0, 'errors' => 1];
             }
             $seriesList = $response->json() ?? [];
         } catch (\Throwable $e) {
             Log::warning('DicomwebService: series query failed', ['error' => $e->getMessage()]);
+
             return ['indexed' => 0, 'errors' => 1];
         }
 
@@ -133,6 +138,7 @@ class DicomwebService
      * Get study-level metadata from WADO-RS (retrieve metadata endpoint).
      *
      * Returns raw DICOMweb JSON+DICOM metadata array.
+     *
      * @return array<string, mixed>|null
      */
     public function getStudyMetadata(string $studyInstanceUid): ?array
@@ -142,6 +148,7 @@ class DicomwebService
             $response = $this->request('GET', "/dicom-web/studies/{$uid}/metadata", [], [
                 'Accept' => 'application/dicom+json',
             ]);
+
             return $response->successful() ? $response->json() : null;
         } catch (\Throwable) {
             return null;
@@ -160,7 +167,7 @@ class DicomwebService
      * Parse QIDO-RS JSON+DICOM study attributes.
      * DICOM attribute keys are hex tags (0020000D = StudyInstanceUID).
      *
-     * @param array<string, mixed> $study
+     * @param  array<string, mixed>  $study
      * @return array<string, mixed>
      */
     private function parseStudyAttributes(array $study): array
@@ -188,7 +195,7 @@ class DicomwebService
     }
 
     /**
-     * @param array<string, mixed> $series
+     * @param  array<string, mixed>  $series
      * @return array<string, mixed>
      */
     private function parseSeriesAttributes(array $series, int $studyId): array
@@ -214,21 +221,24 @@ class DicomwebService
      */
     private function parseDate(?string $dicomDate): ?string
     {
-        if (!$dicomDate || strlen($dicomDate) !== 8) {
+        if (! $dicomDate || strlen($dicomDate) !== 8) {
             return null;
         }
-        return substr($dicomDate, 0, 4) . '-' . substr($dicomDate, 4, 2) . '-' . substr($dicomDate, 6, 2);
+
+        return substr($dicomDate, 0, 4).'-'.substr($dicomDate, 4, 2).'-'.substr($dicomDate, 6, 2);
     }
 
     /**
      * Format DICOM PersonName (PN) VR to readable string.
-     * @param array<string,string>|null $pn
+     *
+     * @param  array<string,string>|null  $pn
      */
     private function formatPN(?array $pn): ?string
     {
-        if (!$pn || !isset($pn['Alphabetic'])) {
+        if (! $pn || ! isset($pn['Alphabetic'])) {
             return null;
         }
+
         return str_replace('^', ' ', $pn['Alphabetic']);
     }
 
@@ -243,7 +253,7 @@ class DicomwebService
         }
 
         return $req->timeout(30)->{strtolower($method)}(
-            $this->baseUrl . $path,
+            $this->baseUrl.$path,
             $query
         );
     }

@@ -35,6 +35,7 @@ class PersonMatcherService
             $exists = $conn->selectOne("SELECT 1 FROM {$schema}.person WHERE person_id = ? LIMIT 1", [$personId]);
             if ($exists) {
                 $count = $upload->variants()->whereNull('person_id')->update(['person_id' => $personId]);
+
                 return ['matched' => $count, 'unmatched' => 0];
             }
         }
@@ -48,6 +49,7 @@ class PersonMatcherService
                 );
                 if ($person) {
                     $count = $upload->variants()->whereNull('person_id')->update(['person_id' => $person->person_id]);
+
                     return ['matched' => $count, 'unmatched' => 0];
                 }
             } catch (\Throwable $e) {
@@ -64,7 +66,7 @@ class PersonMatcherService
             ->pluck('sample_id');
 
         foreach ($sampleIds as $sid) {
-            if (!$sid) {
+            if (! $sid) {
                 continue;
             }
 

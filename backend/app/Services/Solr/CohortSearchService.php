@@ -143,7 +143,7 @@ class CohortSearchService
         }
 
         $core = config('solr.cores.cohorts', 'cohorts');
-        $url = "http://".config('solr.endpoint.default.host', 'solr').":".config('solr.endpoint.default.port', 8983)."/solr/{$core}/update?commit=true";
+        $url = 'http://'.config('solr.endpoint.default.host', 'solr').':'.config('solr.endpoint.default.port', 8983)."/solr/{$core}/update?commit=true";
 
         try {
             $response = \Illuminate\Support\Facades\Http::timeout(5)

@@ -336,7 +336,7 @@ class HeorController extends Controller
             'observed_rate' => 'required|numeric|min:0',
         ]);
 
-        if (!$contract->rebate_tiers || !$contract->list_price) {
+        if (! $contract->rebate_tiers || ! $contract->list_price) {
             return response()->json(['message' => 'Contract missing rebate_tiers or list_price'], 422);
         }
 

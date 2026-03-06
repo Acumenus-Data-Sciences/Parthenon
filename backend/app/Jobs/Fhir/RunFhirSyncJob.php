@@ -6,7 +6,6 @@ namespace App\Jobs\Fhir;
 
 use App\Models\App\FhirConnection;
 use App\Models\App\FhirSyncRun;
-use App\Services\Fhir\FhirAuthService;
 use App\Services\Fhir\FhirBulkExportService;
 use App\Services\Fhir\FhirNdjsonProcessorService;
 use Illuminate\Bus\Queueable;
@@ -61,16 +60,16 @@ class RunFhirSyncJob implements ShouldQueue
         try {
             // ── Step 1: Start export ────────────────────────────────────────
             $run->update([
-                'status'     => 'exporting',
+                'status' => 'exporting',
                 'started_at' => now(),
             ]);
 
-            $isIncremental = $conn->incremental_enabled && !$this->forceFull && $conn->last_sync_at;
+            $isIncremental = $conn->incremental_enabled && ! $this->forceFull && $conn->last_sync_at;
 
             Log::info("FHIR sync started for {$conn->site_key}", [
-                'run_id'      => $run->id,
+                'run_id' => $run->id,
                 'incremental' => $isIncremental,
-                'force_full'  => $this->forceFull,
+                'force_full' => $this->forceFull,
             ]);
 
             $pollingUrl = $exportService->startExport($conn, $run, $this->forceFull);
@@ -83,7 +82,7 @@ class RunFhirSyncJob implements ShouldQueue
             $outputFiles = $manifest['output'] ?? [];
             $resourceTypes = array_unique(array_column($outputFiles, 'type'));
             $run->update([
-                'status'         => 'downloading',
+                'status' => 'downloading',
                 'resource_types' => array_values($resourceTypes),
             ]);
 
@@ -92,7 +91,7 @@ class RunFhirSyncJob implements ShouldQueue
 
             if (empty($filesByType)) {
                 $run->update([
-                    'status'      => 'completed',
+                    'status' => 'completed',
                     'finished_at' => now(),
                 ]);
                 $this->updateConnectionStatus($conn, $run, 'completed', 0);
@@ -109,7 +108,7 @@ class RunFhirSyncJob implements ShouldQueue
 
             // ── Step 5: Finalize ────────────────────────────────────────────
             $run->update([
-                'status'      => 'completed',
+                'status' => 'completed',
                 'finished_at' => now(),
             ]);
 
@@ -120,21 +119,21 @@ class RunFhirSyncJob implements ShouldQueue
             $exportService->cleanupFiles($conn, $run);
 
             Log::info("FHIR sync completed for {$conn->site_key}", [
-                'run_id'    => $run->id,
+                'run_id' => $run->id,
                 'extracted' => $stats['extracted'],
-                'written'   => $stats['written'],
-                'failed'    => $stats['failed'],
+                'written' => $stats['written'],
+                'failed' => $stats['failed'],
             ]);
         } catch (\Throwable $e) {
             Log::error("FHIR sync failed for {$conn->site_key}: {$e->getMessage()}", [
-                'run_id'    => $run->id,
+                'run_id' => $run->id,
                 'exception' => $e,
             ]);
 
             $run->update([
-                'status'        => 'failed',
+                'status' => 'failed',
                 'error_message' => substr($e->getMessage(), 0, 2000),
-                'finished_at'   => now(),
+                'finished_at' => now(),
             ]);
 
             $this->updateConnectionStatus($conn, $run, 'failed', 0);
@@ -158,7 +157,7 @@ class RunFhirSyncJob implements ShouldQueue
             $elapsed = time() - $startTime;
             if ($elapsed > self::MAX_POLL_SECONDS) {
                 throw new \RuntimeException(
-                    "FHIR bulk export timed out after " . round($elapsed / 60) . " minutes"
+                    'FHIR bulk export timed out after '.round($elapsed / 60).' minutes'
                 );
             }
 
@@ -185,8 +184,8 @@ class RunFhirSyncJob implements ShouldQueue
         int $recordCount,
     ): void {
         $conn->update([
-            'last_sync_at'      => $run->started_at,
-            'last_sync_status'  => $status,
+            'last_sync_at' => $run->started_at,
+            'last_sync_status' => $status,
             'last_sync_records' => $recordCount,
         ]);
     }

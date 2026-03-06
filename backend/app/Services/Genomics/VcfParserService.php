@@ -17,8 +17,8 @@ class VcfParserService
     /**
      * Parse a VCF file and insert variants into genomic_variants.
      *
-     * @param GenomicUpload $upload The upload record to populate
-     * @param string $filePath Absolute path to the VCF file
+     * @param  GenomicUpload  $upload  The upload record to populate
+     * @param  string  $filePath  Absolute path to the VCF file
      * @return array{total: int, inserted: int, errors: int}
      */
     public function parse(GenomicUpload $upload, string $filePath): array
@@ -56,6 +56,7 @@ class VcfParserService
                     } elseif (str_contains(strtolower($line), 'grch37') || str_contains($line, 'hg19')) {
                         $genomeBuild = $genomeBuild ?? 'GRCh37';
                     }
+
                     continue;
                 }
 
@@ -67,6 +68,7 @@ class VcfParserService
                     if ($formatIdx !== false) {
                         $sampleColumns = array_slice($cols, $formatIdx + 1);
                     }
+
                     continue;
                 }
 
@@ -165,6 +167,7 @@ class VcfParserService
                 $info[trim($part)] = 'true';
             }
         }
+
         return $info;
     }
 
@@ -174,6 +177,7 @@ class VcfParserService
         // SnpEff ANN= format: Allele|Annotation|Impact|Gene_Name|Gene_ID|Feature_Type|...
         if (isset($info['ANN'])) {
             $parts = explode('|', explode(',', $info['ANN'])[0]);
+
             return [
                 'gene' => $parts[3] ?? null,
                 'variant_class' => $parts[1] ?? null,
@@ -187,6 +191,7 @@ class VcfParserService
         // VEP CSQ= format: Allele|Consequence|IMPACT|SYMBOL|Gene|...|HGVSc|HGVSp|...
         if (isset($info['CSQ'])) {
             $parts = explode('|', explode(',', $info['CSQ'])[0]);
+
             return [
                 'gene' => $parts[3] ?? null,
                 'variant_class' => $parts[1] ?? null,
@@ -221,7 +226,7 @@ class VcfParserService
             $gt = $data['GT'];
             $alleles = preg_split('/[\/|]/', $gt);
             if ($alleles !== false) {
-                $alleles = array_filter($alleles, fn($a) => $a !== '.');
+                $alleles = array_filter($alleles, fn ($a) => $a !== '.');
                 $unique = array_unique($alleles);
                 if (count($alleles) > 0) {
                     $zygosity = count($unique) === 1 ? 'homozygous' : 'heterozygous';
@@ -250,6 +255,7 @@ class VcfParserService
         if (strlen($ref) === strlen($alt)) {
             return strlen($ref) === 1 ? 'SNP' : 'MNP';
         }
+
         return strlen($ref) < strlen($alt) ? 'INS' : 'DEL';
     }
 
@@ -262,6 +268,7 @@ class VcfParserService
         $sig = str_replace('_', ' ', $sig);
         // Take first value if pipe-delimited
         $sig = explode('|', $sig)[0];
+
         return $sig;
     }
 
@@ -273,9 +280,11 @@ class VcfParserService
         }
         if ($ann['gene'] !== null) {
             $chrom = ltrim($chrom, 'chr');
+
             return "{$ann['gene']}:{$chrom}:{$pos}:{$ref}>{$alt}";
         }
         $chrom = ltrim($chrom, 'chr');
+
         return "{$chrom}:{$pos}:{$ref}>{$alt}";
     }
 
@@ -306,6 +315,7 @@ class VcfParserService
                 // Header row
                 if (empty($headers)) {
                     $headers = $fields;
+
                     continue;
                 }
 
@@ -313,6 +323,7 @@ class VcfParserService
                 $row = array_combine($headers, $fields);
                 if ($row === false) {
                     $errors++;
+
                     continue;
                 }
 

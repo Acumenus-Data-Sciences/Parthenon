@@ -46,10 +46,10 @@ class CrosswalkService
         }
 
         $personId = DB::table('fhir_patient_crosswalk')->insertGetId([
-            'site_key'         => $siteKey,
-            'fhir_patient_id'  => $fhirPatientId,
-            'created_at'       => now(),
-            'updated_at'       => now(),
+            'site_key' => $siteKey,
+            'fhir_patient_id' => $fhirPatientId,
+            'created_at' => now(),
+            'updated_at' => now(),
         ], 'person_id');
 
         $this->patientCache[$cacheKey] = (int) $personId;
@@ -80,11 +80,11 @@ class CrosswalkService
         }
 
         $visitId = DB::table('fhir_encounter_crosswalk')->insertGetId([
-            'site_key'            => $siteKey,
-            'fhir_encounter_id'   => $fhirEncounterId,
-            'person_id'           => $personId,
-            'created_at'          => now(),
-            'updated_at'          => now(),
+            'site_key' => $siteKey,
+            'fhir_encounter_id' => $fhirEncounterId,
+            'person_id' => $personId,
+            'created_at' => now(),
+            'updated_at' => now(),
         ], 'visit_occurrence_id');
 
         $this->encounterCache[$cacheKey] = (int) $visitId;
@@ -115,10 +115,10 @@ class CrosswalkService
         }
 
         $providerId = DB::table('fhir_provider_crosswalk')->insertGetId([
-            'site_key'               => $siteKey,
-            'fhir_practitioner_id'   => $fhirPractitionerId,
-            'created_at'             => now(),
-            'updated_at'             => now(),
+            'site_key' => $siteKey,
+            'fhir_practitioner_id' => $fhirPractitionerId,
+            'created_at' => now(),
+            'updated_at' => now(),
         ], 'provider_id');
 
         $this->providerCache[$cacheKey] = (int) $providerId;

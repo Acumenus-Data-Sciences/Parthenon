@@ -6,7 +6,6 @@ use App\Models\Vocabulary\Concept;
 use App\Services\Solr\SolrClientWrapper;
 use App\Services\Solr\VocabularySearchService;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
 
 class SolrBenchmark extends Command
 {

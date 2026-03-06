@@ -62,7 +62,11 @@ class PatientProfileService
             $conn->statement('SET statement_timeout = 0');
         } catch (\Throwable $e) {
             \Log::warning('PatientProfileService: stats query failed', ['error' => $e->getMessage()]);
-            try { $conn->statement('SET enable_seqscan = on'); $conn->statement('SET statement_timeout = 0'); } catch (\Throwable) {}
+            try {
+                $conn->statement('SET enable_seqscan = on');
+                $conn->statement('SET statement_timeout = 0');
+            } catch (\Throwable) {
+            }
             $rows = [];
         }
 
@@ -110,23 +114,24 @@ class PatientProfileService
 
         try {
             $result = [
-                'demographics'        => $this->getDemographics($personId, $params, $dialect, $connectionName),
+                'demographics' => $this->getDemographics($personId, $params, $dialect, $connectionName),
                 'observation_periods' => $this->getObservationPeriods($personId, $params, $dialect, $connectionName),
-                'conditions'          => $this->safeQuery(fn () => $this->getConditions($personId, $params, $dialect, $connectionName)),
-                'drugs'               => $this->safeQuery(fn () => $this->getDrugs($personId, $params, $dialect, $connectionName)),
-                'procedures'          => $this->safeQuery(fn () => $this->getProcedures($personId, $params, $dialect, $connectionName)),
-                'measurements'        => $this->safeQuery(fn () => $this->getMeasurements($personId, $params, $dialect, $connectionName)),
-                'observations'        => $this->safeQuery(fn () => $this->getObservations($personId, $params, $dialect, $connectionName)),
-                'visits'              => $this->safeQuery(fn () => $this->getVisits($personId, $params, $dialect, $connectionName)),
-                'condition_eras'      => $this->safeQuery(fn () => $this->getConditionEras($personId, $params, $dialect, $connectionName)),
-                'drug_eras'           => $this->safeQuery(fn () => $this->getDrugEras($personId, $params, $dialect, $connectionName)),
+                'conditions' => $this->safeQuery(fn () => $this->getConditions($personId, $params, $dialect, $connectionName)),
+                'drugs' => $this->safeQuery(fn () => $this->getDrugs($personId, $params, $dialect, $connectionName)),
+                'procedures' => $this->safeQuery(fn () => $this->getProcedures($personId, $params, $dialect, $connectionName)),
+                'measurements' => $this->safeQuery(fn () => $this->getMeasurements($personId, $params, $dialect, $connectionName)),
+                'observations' => $this->safeQuery(fn () => $this->getObservations($personId, $params, $dialect, $connectionName)),
+                'visits' => $this->safeQuery(fn () => $this->getVisits($personId, $params, $dialect, $connectionName)),
+                'condition_eras' => $this->safeQuery(fn () => $this->getConditionEras($personId, $params, $dialect, $connectionName)),
+                'drug_eras' => $this->safeQuery(fn () => $this->getDrugEras($personId, $params, $dialect, $connectionName)),
             ];
         } finally {
             // Always reset so subsequent requests on this connection aren't affected
             try {
                 $conn->statement('SET enable_seqscan = on');
                 $conn->statement('SET statement_timeout = 0');
-            } catch (\Throwable) {}
+            } catch (\Throwable) {
+            }
         }
 
         return $result;
@@ -148,6 +153,7 @@ class PatientProfileService
             \Log::warning('PatientProfileService: domain query failed', [
                 'error' => $e->getMessage(),
             ]);
+
             return [];
         }
     }

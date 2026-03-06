@@ -3,12 +3,14 @@
 use App\Http\Controllers\Api\V1\AbbyAiController;
 use App\Http\Controllers\Api\V1\AchillesController;
 use App\Http\Controllers\Api\V1\Admin\AiProviderController;
+use App\Http\Controllers\Api\V1\Admin\AtlasMigrationController;
 use App\Http\Controllers\Api\V1\Admin\AuthProviderController;
+use App\Http\Controllers\Api\V1\Admin\FhirConnectionController;
 use App\Http\Controllers\Api\V1\Admin\RoleController;
+use App\Http\Controllers\Api\V1\Admin\SolrAdminController;
 use App\Http\Controllers\Api\V1\Admin\SystemHealthController;
 use App\Http\Controllers\Api\V1\Admin\UserController;
 use App\Http\Controllers\Api\V1\Admin\VocabularyController as AdminVocabularyController;
-use App\Http\Controllers\Api\V1\Admin\AtlasMigrationController;
 use App\Http\Controllers\Api\V1\Admin\WebApiRegistryController;
 use App\Http\Controllers\Api\V1\AnalysisStatsController;
 use App\Http\Controllers\Api\V1\AuthController;
@@ -21,8 +23,12 @@ use App\Http\Controllers\Api\V1\DashboardController;
 use App\Http\Controllers\Api\V1\DataQualityController;
 use App\Http\Controllers\Api\V1\EstimationController;
 use App\Http\Controllers\Api\V1\EvidenceSynthesisController;
+use App\Http\Controllers\Api\V1\GenomicsController;
+use App\Http\Controllers\Api\V1\GlobalSearchController;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\HelpController;
+use App\Http\Controllers\Api\V1\HeorController;
+use App\Http\Controllers\Api\V1\ImagingController;
 use App\Http\Controllers\Api\V1\IncidenceRateController;
 use App\Http\Controllers\Api\V1\IngestionController;
 use App\Http\Controllers\Api\V1\MappingReviewController;
@@ -47,13 +53,7 @@ use App\Http\Controllers\Api\V1\StudySiteController;
 use App\Http\Controllers\Api\V1\StudyStatsController;
 use App\Http\Controllers\Api\V1\StudySynthesisController;
 use App\Http\Controllers\Api\V1\StudyTeamController;
-use App\Http\Controllers\Api\V1\GenomicsController;
-use App\Http\Controllers\Api\V1\HeorController;
-use App\Http\Controllers\Api\V1\Admin\FhirConnectionController;
-use App\Http\Controllers\Api\V1\ImagingController;
 use App\Http\Controllers\Api\V1\VocabularyController;
-use App\Http\Controllers\Api\V1\GlobalSearchController;
-use App\Http\Controllers\Api\V1\Admin\SolrAdminController;
 use Illuminate\Support\Facades\Route;
 
 // Public health check
@@ -591,5 +591,5 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 
 // Catch-all for unknown API routes
 Route::fallback(function () {
-    return response()->json(["message" => "Not Found"], 404);
+    return response()->json(['message' => 'Not Found'], 404);
 });

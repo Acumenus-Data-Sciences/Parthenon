@@ -42,16 +42,11 @@ export function MeasureComplianceTable({
   const sorted = useMemo(() => {
     const copy = [...measures];
     copy.sort((a, b) => {
-      let cmp = 0;
-      if (sortKey === "measure_code") {
-        cmp = a.measure_code.localeCompare(b.measure_code);
-      } else if (sortKey === "measure_name") {
-        cmp = a.measure_name.localeCompare(b.measure_name);
-      } else if (sortKey === "eligible") {
-        cmp = a.eligible - b.eligible;
-      } else {
-        cmp = a.compliance_pct - b.compliance_pct;
-      }
+      const cmp =
+        sortKey === "measure_code" ? a.measure_code.localeCompare(b.measure_code) :
+        sortKey === "measure_name" ? a.measure_name.localeCompare(b.measure_name) :
+        sortKey === "eligible" ? a.eligible - b.eligible :
+        a.compliance_pct - b.compliance_pct;
       return sortDir === "asc" ? cmp : -cmp;
     });
     return copy;

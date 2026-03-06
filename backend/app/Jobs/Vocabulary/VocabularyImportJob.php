@@ -191,7 +191,7 @@ class VocabularyImportJob implements ShouldQueue
         $zip->extractTo($extractDir);
         $zip->close();
 
-        $import->appendLog("Extracted to temporary directory.");
+        $import->appendLog('Extracted to temporary directory.');
 
         // Athena ZIPs sometimes have a top-level folder — find the CSV files
         $csvFiles = glob($extractDir.'/*.csv');
@@ -316,7 +316,7 @@ class VocabularyImportJob implements ShouldQueue
             DB::connection('vocab')->statement(
                 "CREATE INDEX IF NOT EXISTS idx_{$schema}_concept_name_trgm ON {$schema}.concept USING gin (concept_name gin_trgm_ops)"
             );
-            $import->appendLog("  GIN trigram index on concept.concept_name");
+            $import->appendLog('  GIN trigram index on concept.concept_name');
         } catch (\Throwable $e) {
             $import->appendLog("  Skipped GIN index: {$e->getMessage()}");
         }

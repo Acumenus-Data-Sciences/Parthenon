@@ -124,8 +124,9 @@ class AbbyAiController extends Controller
         return new StreamedResponse(function () use ($validated, $aiBaseUrl): void {
             $ch = curl_init("{$aiBaseUrl}/abby/chat/stream");
             if ($ch === false) {
-                echo "data: " . json_encode(['error' => 'Failed to connect to AI service']) . "\n\n";
+                echo 'data: '.json_encode(['error' => 'Failed to connect to AI service'])."\n\n";
                 echo "data: [DONE]\n\n";
+
                 return;
             }
 
@@ -149,6 +150,7 @@ class AbbyAiController extends Controller
                         ob_flush();
                     }
                     flush();
+
                     return strlen($data);
                 },
                 CURLOPT_TIMEOUT => 120,
@@ -157,7 +159,7 @@ class AbbyAiController extends Controller
             curl_exec($ch);
 
             if (curl_errno($ch)) {
-                echo "data: " . json_encode(['error' => 'AI service error: ' . curl_error($ch)]) . "\n\n";
+                echo 'data: '.json_encode(['error' => 'AI service error: '.curl_error($ch)])."\n\n";
                 echo "data: [DONE]\n\n";
             }
 

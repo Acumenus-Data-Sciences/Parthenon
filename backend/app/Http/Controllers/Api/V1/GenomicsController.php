@@ -13,9 +13,9 @@ use App\Services\Genomics\ClinVarAnnotationService;
 use App\Services\Genomics\ClinVarSyncService;
 use App\Services\Genomics\OmopMeasurementWriterService;
 use App\Services\Genomics\PersonMatcherService;
-use App\Services\Genomics\VcfParserService;
 use App\Services\Genomics\TumorBoardService;
 use App\Services\Genomics\VariantOutcomeService;
+use App\Services\Genomics\VcfParserService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -153,8 +153,8 @@ class GenomicsController extends Controller
 
     public function indexVariants(Request $request): JsonResponse
     {
-        $query = GenomicVariant::orderByRaw("CASE WHEN gene_symbol IS NOT NULL THEN 0 ELSE 1 END")
-            ->orderByRaw("CASE WHEN clinvar_significance IS NOT NULL THEN 0 ELSE 1 END")
+        $query = GenomicVariant::orderByRaw('CASE WHEN gene_symbol IS NOT NULL THEN 0 ELSE 1 END')
+            ->orderByRaw('CASE WHEN clinvar_significance IS NOT NULL THEN 0 ELSE 1 END')
             ->orderBy('gene_symbol');
 
         if ($request->filled('upload_id')) {
@@ -167,7 +167,7 @@ class GenomicsController extends Controller
             $query->where('gene_symbol', $request->string('gene'));
         }
         if ($request->filled('clinvar_significance')) {
-            $query->where('clinvar_significance', 'ilike', '%' . $request->string('clinvar_significance') . '%');
+            $query->where('clinvar_significance', 'ilike', '%'.$request->string('clinvar_significance').'%');
         }
         if ($request->filled('mapping_status')) {
             $query->where('mapping_status', $request->string('mapping_status'));
@@ -208,7 +208,7 @@ class GenomicsController extends Controller
      */
     public function importToOmop(GenomicUpload $upload): JsonResponse
     {
-        if (!in_array($upload->status, ['mapped', 'review'], true)) {
+        if (! in_array($upload->status, ['mapped', 'review'], true)) {
             return response()->json(['message' => 'Upload must be in mapped or review status to import'], 422);
         }
 
@@ -359,12 +359,12 @@ class GenomicsController extends Controller
 
         return response()->json([
             'data' => [
-                'total_variants'  => ClinVarVariant::count(),
+                'total_variants' => ClinVarVariant::count(),
                 'pathogenic_count' => ClinVarVariant::where('is_pathogenic', true)->count(),
-                'last_sync'       => $latestSync?->finished_at,
+                'last_sync' => $latestSync?->finished_at,
                 'last_sync_build' => $latestSync?->genome_build,
-                'last_sync_papu'  => $latestSync?->papu_only,
-                'syncs'           => ClinVarSyncLog::orderByDesc('created_at')->limit(5)->get(),
+                'last_sync_papu' => $latestSync?->papu_only,
+                'syncs' => ClinVarSyncLog::orderByDesc('created_at')->limit(5)->get(),
             ],
         ]);
     }
@@ -378,32 +378,32 @@ class GenomicsController extends Controller
     public function clinvarSearch(Request $request): JsonResponse
     {
         $request->validate([
-            'q'               => 'nullable|string|max:200',
-            'gene'            => 'nullable|string|max:100',
-            'significance'    => 'nullable|string|max:100',
+            'q' => 'nullable|string|max:200',
+            'gene' => 'nullable|string|max:100',
+            'significance' => 'nullable|string|max:100',
             'pathogenic_only' => 'nullable|boolean',
-            'per_page'        => 'nullable|integer|min:1|max:200',
+            'per_page' => 'nullable|integer|min:1|max:200',
         ]);
 
         $query = ClinVarVariant::query();
 
         if ($request->filled('q')) {
-            $term = '%' . $request->string('q') . '%';
+            $term = '%'.$request->string('q').'%';
             $query->where(function ($q) use ($term) {
                 $q->where('gene_symbol', 'ilike', $term)
-                  ->orWhere('hgvs', 'ilike', $term)
-                  ->orWhere('disease_name', 'ilike', $term)
-                  ->orWhere('variation_id', 'ilike', $term)
-                  ->orWhere('rs_id', 'ilike', $term);
+                    ->orWhere('hgvs', 'ilike', $term)
+                    ->orWhere('disease_name', 'ilike', $term)
+                    ->orWhere('variation_id', 'ilike', $term)
+                    ->orWhere('rs_id', 'ilike', $term);
             });
         }
 
         if ($request->filled('gene')) {
-            $query->where('gene_symbol', 'ilike', $request->string('gene') . '%');
+            $query->where('gene_symbol', 'ilike', $request->string('gene').'%');
         }
 
         if ($request->filled('significance')) {
-            $query->where('clinical_significance', 'ilike', '%' . $request->string('significance') . '%');
+            $query->where('clinical_significance', 'ilike', '%'.$request->string('significance').'%');
         }
 
         if ($request->boolean('pathogenic_only')) {
@@ -411,8 +411,8 @@ class GenomicsController extends Controller
         }
 
         $results = $query->orderBy('gene_symbol')
-                         ->orderByDesc('is_pathogenic')
-                         ->paginate($request->integer('per_page', 50));
+            ->orderByDesc('is_pathogenic')
+            ->paginate($request->integer('per_page', 50));
 
         return response()->json($results);
     }
@@ -433,7 +433,7 @@ class GenomicsController extends Controller
         try {
             $result = $this->clinVarSync->sync($papuOnly);
         } catch (\Throwable $e) {
-            return response()->json(['message' => 'Sync failed: ' . $e->getMessage()], 500);
+            return response()->json(['message' => 'Sync failed: '.$e->getMessage()], 500);
         }
 
         return response()->json(['data' => $result]);

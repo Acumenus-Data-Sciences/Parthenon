@@ -19,9 +19,9 @@ class FhirBulkMapper
 {
     /** FHIR gender → OMOP concept_id. */
     private const GENDER_MAP = [
-        'male'    => 8507,
-        'female'  => 8532,
-        'other'   => 8521,
+        'male' => 8507,
+        'female' => 8532,
+        'other' => 8521,
         'unknown' => 8551,
     ];
 
@@ -41,12 +41,12 @@ class FhirBulkMapper
 
     /** FHIR Encounter.class → OMOP visit_concept_id. */
     private const VISIT_CLASS_MAP = [
-        'AMB'   => 9202,    // Outpatient
-        'IMP'   => 9201,    // Inpatient
-        'EMER'  => 9203,    // Emergency
-        'HH'    => 581476,  // Home Health
+        'AMB' => 9202,    // Outpatient
+        'IMP' => 9201,    // Inpatient
+        'EMER' => 9203,    // Emergency
+        'HH' => 581476,  // Home Health
         'OBSENC' => 9201,   // Observation → Inpatient
-        'SS'    => 9202,    // Short stay → Outpatient
+        'SS' => 9202,    // Short stay → Outpatient
     ];
 
     public function __construct(
@@ -62,22 +62,22 @@ class FhirBulkMapper
     public function mapResource(array $resource, string $siteKey): ?array
     {
         $mapped = match ($resource['resourceType'] ?? null) {
-            'Patient'                                       => $this->mapPatient($resource, $siteKey),
-            'Encounter'                                     => $this->mapEncounter($resource, $siteKey),
-            'Condition'                                     => $this->mapCondition($resource, $siteKey),
-            'MedicationRequest', 'MedicationStatement'      => $this->mapMedication($resource, $siteKey),
-            'MedicationAdministration'                       => $this->mapMedicationAdmin($resource, $siteKey),
-            'Procedure'                                     => $this->mapProcedure($resource, $siteKey),
-            'Observation'                                   => $this->mapObservation($resource, $siteKey),
-            'DiagnosticReport'                              => $this->mapDiagnosticReport($resource, $siteKey),
-            'Immunization'                                  => $this->mapImmunization($resource, $siteKey),
-            'AllergyIntolerance'                            => $this->mapAllergyIntolerance($resource, $siteKey),
-            default                                         => null,
+            'Patient' => $this->mapPatient($resource, $siteKey),
+            'Encounter' => $this->mapEncounter($resource, $siteKey),
+            'Condition' => $this->mapCondition($resource, $siteKey),
+            'MedicationRequest', 'MedicationStatement' => $this->mapMedication($resource, $siteKey),
+            'MedicationAdministration' => $this->mapMedicationAdmin($resource, $siteKey),
+            'Procedure' => $this->mapProcedure($resource, $siteKey),
+            'Observation' => $this->mapObservation($resource, $siteKey),
+            'DiagnosticReport' => $this->mapDiagnosticReport($resource, $siteKey),
+            'Immunization' => $this->mapImmunization($resource, $siteKey),
+            'AllergyIntolerance' => $this->mapAllergyIntolerance($resource, $siteKey),
+            default => null,
         };
 
         if ($mapped !== null) {
             $mapped['fhir_resource_type'] = $resource['resourceType'];
-            $mapped['fhir_resource_id']   = $resource['id'] ?? '';
+            $mapped['fhir_resource_id'] = $resource['id'] ?? '';
         }
 
         return $mapped;
@@ -96,18 +96,18 @@ class FhirBulkMapper
         return [
             'cdm_table' => 'person',
             'data' => [
-                'person_id'               => $personId,
-                'gender_concept_id'       => self::GENDER_MAP[$r['gender'] ?? 'unknown'] ?? 8551,
-                'gender_source_value'     => $r['gender'] ?? null,
-                'year_of_birth'           => $birthDate?->year,
-                'month_of_birth'          => $birthDate?->month,
-                'day_of_birth'            => $birthDate?->day,
-                'birth_datetime'          => $birthDate?->toDateTimeString(),
-                'race_concept_id'         => $this->extractRaceConcept($r),
-                'race_source_value'       => $this->extractExtensionText($r, 'us-core-race'),
-                'ethnicity_concept_id'    => $this->extractEthnicityConcept($r),
-                'ethnicity_source_value'  => $this->extractExtensionText($r, 'us-core-ethnicity'),
-                'person_source_value'     => $fhirId,
+                'person_id' => $personId,
+                'gender_concept_id' => self::GENDER_MAP[$r['gender'] ?? 'unknown'] ?? 8551,
+                'gender_source_value' => $r['gender'] ?? null,
+                'year_of_birth' => $birthDate?->year,
+                'month_of_birth' => $birthDate?->month,
+                'day_of_birth' => $birthDate?->day,
+                'birth_datetime' => $birthDate?->toDateTimeString(),
+                'race_concept_id' => $this->extractRaceConcept($r),
+                'race_source_value' => $this->extractExtensionText($r, 'us-core-race'),
+                'ethnicity_concept_id' => $this->extractEthnicityConcept($r),
+                'ethnicity_source_value' => $this->extractExtensionText($r, 'us-core-ethnicity'),
+                'person_source_value' => $fhirId,
             ],
         ];
     }
@@ -125,15 +125,15 @@ class FhirBulkMapper
         return [
             'cdm_table' => 'visit_occurrence',
             'data' => [
-                'visit_occurrence_id'   => $visitId,
-                'person_id'             => $personId,
-                'visit_concept_id'      => self::VISIT_CLASS_MAP[strtoupper($classCode)] ?? 0,
-                'visit_start_date'      => $this->parseDate($period['start'] ?? null),
-                'visit_start_datetime'  => $this->parseDatetime($period['start'] ?? null),
-                'visit_end_date'        => $this->parseDate($period['end'] ?? null),
-                'visit_end_datetime'    => $this->parseDatetime($period['end'] ?? null),
+                'visit_occurrence_id' => $visitId,
+                'person_id' => $personId,
+                'visit_concept_id' => self::VISIT_CLASS_MAP[strtoupper($classCode)] ?? 0,
+                'visit_start_date' => $this->parseDate($period['start'] ?? null),
+                'visit_start_datetime' => $this->parseDatetime($period['start'] ?? null),
+                'visit_end_date' => $this->parseDate($period['end'] ?? null),
+                'visit_end_datetime' => $this->parseDatetime($period['end'] ?? null),
                 'visit_type_concept_id' => 32817, // EHR
-                'visit_source_value'    => $classCode,
+                'visit_source_value' => $classCode,
             ],
         ];
     }
@@ -159,14 +159,14 @@ class FhirBulkMapper
             return [
                 'cdm_table' => 'observation',
                 'data' => [
-                    'person_id'                    => $personId,
-                    'observation_concept_id'       => $resolved['concept_id'],
-                    'observation_date'             => $this->parseDate($onset),
-                    'observation_datetime'         => $this->parseDatetime($onset),
-                    'observation_type_concept_id'  => 32817,
-                    'observation_source_value'     => $resolved['source_value'],
+                    'person_id' => $personId,
+                    'observation_concept_id' => $resolved['concept_id'],
+                    'observation_date' => $this->parseDate($onset),
+                    'observation_datetime' => $this->parseDatetime($onset),
+                    'observation_type_concept_id' => 32817,
+                    'observation_source_value' => $resolved['source_value'],
                     'observation_source_concept_id' => $resolved['source_concept_id'],
-                    'visit_occurrence_id'          => $visitId,
+                    'visit_occurrence_id' => $visitId,
                 ],
             ];
         }
@@ -174,16 +174,16 @@ class FhirBulkMapper
         return [
             'cdm_table' => 'condition_occurrence',
             'data' => [
-                'person_id'                      => $personId,
-                'condition_concept_id'           => $resolved['concept_id'],
-                'condition_start_date'           => $this->parseDate($onset),
-                'condition_start_datetime'       => $this->parseDatetime($onset),
-                'condition_end_date'             => $this->parseDate($abatement),
-                'condition_end_datetime'         => $this->parseDatetime($abatement),
-                'condition_type_concept_id'      => 32817,
-                'condition_source_value'         => $resolved['source_value'],
-                'condition_source_concept_id'    => $resolved['source_concept_id'],
-                'visit_occurrence_id'            => $visitId,
+                'person_id' => $personId,
+                'condition_concept_id' => $resolved['concept_id'],
+                'condition_start_date' => $this->parseDate($onset),
+                'condition_start_datetime' => $this->parseDatetime($onset),
+                'condition_end_date' => $this->parseDate($abatement),
+                'condition_end_datetime' => $this->parseDatetime($abatement),
+                'condition_type_concept_id' => 32817,
+                'condition_source_value' => $resolved['source_value'],
+                'condition_source_concept_id' => $resolved['source_concept_id'],
+                'visit_occurrence_id' => $visitId,
             ],
         ];
     }
@@ -201,17 +201,17 @@ class FhirBulkMapper
         return [
             'cdm_table' => 'drug_exposure',
             'data' => [
-                'person_id'                   => $personId,
-                'drug_concept_id'             => $resolved['concept_id'],
-                'drug_exposure_start_date'    => $this->parseDate($authored),
+                'person_id' => $personId,
+                'drug_concept_id' => $resolved['concept_id'],
+                'drug_exposure_start_date' => $this->parseDate($authored),
                 'drug_exposure_start_datetime' => $this->parseDatetime($authored),
-                'drug_exposure_end_date'      => $this->parseDate($authored),
-                'drug_type_concept_id'        => $typeConceptId,
-                'drug_source_value'           => $resolved['source_value'],
-                'drug_source_concept_id'      => $resolved['source_concept_id'],
-                'visit_occurrence_id'         => $visitId,
-                'quantity'                    => $this->extractQuantity($r),
-                'route_source_value'          => $this->extractRoute($r),
+                'drug_exposure_end_date' => $this->parseDate($authored),
+                'drug_type_concept_id' => $typeConceptId,
+                'drug_source_value' => $resolved['source_value'],
+                'drug_source_concept_id' => $resolved['source_concept_id'],
+                'visit_occurrence_id' => $visitId,
+                'quantity' => $this->extractQuantity($r),
+                'route_source_value' => $this->extractRoute($r),
             ],
         ];
     }
@@ -227,15 +227,15 @@ class FhirBulkMapper
         return [
             'cdm_table' => 'drug_exposure',
             'data' => [
-                'person_id'                   => $personId,
-                'drug_concept_id'             => $resolved['concept_id'],
-                'drug_exposure_start_date'    => $this->parseDate($effective),
+                'person_id' => $personId,
+                'drug_concept_id' => $resolved['concept_id'],
+                'drug_exposure_start_date' => $this->parseDate($effective),
                 'drug_exposure_start_datetime' => $this->parseDatetime($effective),
-                'drug_exposure_end_date'      => $this->parseDate($effective),
-                'drug_type_concept_id'        => 32818, // Administered
-                'drug_source_value'           => $resolved['source_value'],
-                'drug_source_concept_id'      => $resolved['source_concept_id'],
-                'visit_occurrence_id'         => $visitId,
+                'drug_exposure_end_date' => $this->parseDate($effective),
+                'drug_type_concept_id' => 32818, // Administered
+                'drug_source_value' => $resolved['source_value'],
+                'drug_source_concept_id' => $resolved['source_concept_id'],
+                'visit_occurrence_id' => $visitId,
             ],
         ];
     }
@@ -251,14 +251,14 @@ class FhirBulkMapper
         return [
             'cdm_table' => $resolved['cdm_table'] ?? 'procedure_occurrence',
             'data' => [
-                'person_id'                       => $personId,
-                'procedure_concept_id'            => $resolved['concept_id'],
-                'procedure_date'                  => $this->parseDate($performed),
-                'procedure_datetime'              => $this->parseDatetime($performed),
-                'procedure_type_concept_id'       => 32817,
-                'procedure_source_value'          => $resolved['source_value'],
-                'procedure_source_concept_id'     => $resolved['source_concept_id'],
-                'visit_occurrence_id'             => $visitId,
+                'person_id' => $personId,
+                'procedure_concept_id' => $resolved['concept_id'],
+                'procedure_date' => $this->parseDate($performed),
+                'procedure_datetime' => $this->parseDatetime($performed),
+                'procedure_type_concept_id' => 32817,
+                'procedure_source_value' => $resolved['source_value'],
+                'procedure_source_concept_id' => $resolved['source_concept_id'],
+                'visit_occurrence_id' => $visitId,
             ],
         ];
     }
@@ -270,7 +270,7 @@ class FhirBulkMapper
 
         // Concept-driven routing — vocabulary domain overrides category-based heuristic
         $cdmTable = $resolved['cdm_table'];
-        if (!$cdmTable) {
+        if (! $cdmTable) {
             // Fallback to category-based routing
             $category = $this->extractObservationCategory($r);
             $cdmTable = match ($category) {
@@ -287,19 +287,19 @@ class FhirBulkMapper
             return [
                 'cdm_table' => 'measurement',
                 'data' => [
-                    'person_id'                       => $personId,
-                    'measurement_concept_id'          => $resolved['concept_id'],
-                    'measurement_date'                => $this->parseDate($effective),
-                    'measurement_datetime'            => $this->parseDatetime($effective),
-                    'measurement_type_concept_id'     => 32817,
-                    'value_as_number'                 => $this->extractNumericValue($r),
-                    'value_as_concept_id'             => $this->extractValueConceptId($r),
-                    'unit_source_value'               => $this->extractUnit($r),
-                    'range_low'                       => $r['referenceRange'][0]['low']['value'] ?? null,
-                    'range_high'                      => $r['referenceRange'][0]['high']['value'] ?? null,
-                    'measurement_source_value'        => $resolved['source_value'],
-                    'measurement_source_concept_id'   => $resolved['source_concept_id'],
-                    'visit_occurrence_id'             => $visitId,
+                    'person_id' => $personId,
+                    'measurement_concept_id' => $resolved['concept_id'],
+                    'measurement_date' => $this->parseDate($effective),
+                    'measurement_datetime' => $this->parseDatetime($effective),
+                    'measurement_type_concept_id' => 32817,
+                    'value_as_number' => $this->extractNumericValue($r),
+                    'value_as_concept_id' => $this->extractValueConceptId($r),
+                    'unit_source_value' => $this->extractUnit($r),
+                    'range_low' => $r['referenceRange'][0]['low']['value'] ?? null,
+                    'range_high' => $r['referenceRange'][0]['high']['value'] ?? null,
+                    'measurement_source_value' => $resolved['source_value'],
+                    'measurement_source_concept_id' => $resolved['source_concept_id'],
+                    'visit_occurrence_id' => $visitId,
                 ],
             ];
         }
@@ -307,16 +307,16 @@ class FhirBulkMapper
         return [
             'cdm_table' => 'observation',
             'data' => [
-                'person_id'                        => $personId,
-                'observation_concept_id'           => $resolved['concept_id'],
-                'observation_date'                 => $this->parseDate($effective),
-                'observation_datetime'             => $this->parseDatetime($effective),
-                'observation_type_concept_id'      => 32817,
-                'value_as_string'                  => $this->extractValueString($r),
-                'value_as_number'                  => $this->extractNumericValue($r),
-                'observation_source_value'         => $resolved['source_value'],
-                'observation_source_concept_id'    => $resolved['source_concept_id'],
-                'visit_occurrence_id'              => $visitId,
+                'person_id' => $personId,
+                'observation_concept_id' => $resolved['concept_id'],
+                'observation_date' => $this->parseDate($effective),
+                'observation_datetime' => $this->parseDatetime($effective),
+                'observation_type_concept_id' => 32817,
+                'value_as_string' => $this->extractValueString($r),
+                'value_as_number' => $this->extractNumericValue($r),
+                'observation_source_value' => $resolved['source_value'],
+                'observation_source_concept_id' => $resolved['source_concept_id'],
+                'visit_occurrence_id' => $visitId,
             ],
         ];
     }
@@ -332,15 +332,15 @@ class FhirBulkMapper
         return [
             'cdm_table' => 'measurement',
             'data' => [
-                'person_id'                       => $personId,
-                'measurement_concept_id'          => $resolved['concept_id'],
-                'measurement_date'                => $this->parseDate($effective),
-                'measurement_datetime'            => $this->parseDatetime($effective),
-                'measurement_type_concept_id'     => 32817,
-                'value_as_string'                 => substr($r['conclusion'] ?? '', 0, 2000) ?: null,
-                'measurement_source_value'        => $resolved['source_value'],
-                'measurement_source_concept_id'   => $resolved['source_concept_id'],
-                'visit_occurrence_id'             => $visitId,
+                'person_id' => $personId,
+                'measurement_concept_id' => $resolved['concept_id'],
+                'measurement_date' => $this->parseDate($effective),
+                'measurement_datetime' => $this->parseDatetime($effective),
+                'measurement_type_concept_id' => 32817,
+                'value_as_string' => substr($r['conclusion'] ?? '', 0, 2000) ?: null,
+                'measurement_source_value' => $resolved['source_value'],
+                'measurement_source_concept_id' => $resolved['source_concept_id'],
+                'visit_occurrence_id' => $visitId,
             ],
         ];
     }
@@ -355,14 +355,14 @@ class FhirBulkMapper
         return [
             'cdm_table' => 'drug_exposure',
             'data' => [
-                'person_id'                   => $personId,
-                'drug_concept_id'             => $resolved['concept_id'],
-                'drug_exposure_start_date'    => $this->parseDate($occurrence),
+                'person_id' => $personId,
+                'drug_concept_id' => $resolved['concept_id'],
+                'drug_exposure_start_date' => $this->parseDate($occurrence),
                 'drug_exposure_start_datetime' => $this->parseDatetime($occurrence),
-                'drug_exposure_end_date'      => $this->parseDate($occurrence),
-                'drug_type_concept_id'        => 32817,
-                'drug_source_value'           => $resolved['source_value'],
-                'drug_source_concept_id'      => $resolved['source_concept_id'],
+                'drug_exposure_end_date' => $this->parseDate($occurrence),
+                'drug_type_concept_id' => 32817,
+                'drug_source_value' => $resolved['source_value'],
+                'drug_source_concept_id' => $resolved['source_concept_id'],
             ],
         ];
     }
@@ -377,14 +377,14 @@ class FhirBulkMapper
         return [
             'cdm_table' => 'observation',
             'data' => [
-                'person_id'                        => $personId,
-                'observation_concept_id'           => $resolved['concept_id'],
-                'observation_date'                 => $this->parseDate($recorded),
-                'observation_datetime'             => $this->parseDatetime($recorded),
-                'observation_type_concept_id'      => 32817,
-                'value_as_string'                  => $r['type'] ?? null,
-                'observation_source_value'         => $resolved['source_value'],
-                'observation_source_concept_id'    => $resolved['source_concept_id'],
+                'person_id' => $personId,
+                'observation_concept_id' => $resolved['concept_id'],
+                'observation_date' => $this->parseDate($recorded),
+                'observation_datetime' => $this->parseDatetime($recorded),
+                'observation_type_concept_id' => 32817,
+                'value_as_string' => $r['type'] ?? null,
+                'observation_source_value' => $resolved['source_value'],
+                'observation_source_concept_id' => $resolved['source_concept_id'],
             ],
         ];
     }
@@ -403,7 +403,7 @@ class FhirBulkMapper
     private function resolveEncounterVisitId(array $r, string $siteKey, string $field = 'encounter'): ?int
     {
         $ref = $this->extractRef($r[$field] ?? []);
-        if (!$ref) {
+        if (! $ref) {
             return null;
         }
 
@@ -475,7 +475,7 @@ class FhirBulkMapper
             return $r['valueCodeableConcept']['text'];
         }
         if (isset($r['valueQuantity'])) {
-            return $r['valueQuantity']['value'] . ' ' . ($r['valueQuantity']['unit'] ?? '');
+            return $r['valueQuantity']['value'].' '.($r['valueQuantity']['unit'] ?? '');
         }
 
         return null;
@@ -547,7 +547,7 @@ class FhirBulkMapper
 
     private function parseDate(?string $value): ?string
     {
-        if (!$value) {
+        if (! $value) {
             return null;
         }
         try {
@@ -559,7 +559,7 @@ class FhirBulkMapper
 
     private function parseDatetime(?string $value): ?string
     {
-        if (!$value) {
+        if (! $value) {
             return null;
         }
         try {

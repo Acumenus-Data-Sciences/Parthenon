@@ -57,7 +57,7 @@ class ClinVarAnnotationService
      *
      * Returns a map keyed by "chr:pos:ref:alt" → ClinVarVariant.
      *
-     * @param GenomicVariant[] $variants
+     * @param  GenomicVariant[]  $variants
      * @return array<string, ClinVarVariant>
      */
     private function lookupBatch(array $variants): array
@@ -70,8 +70,8 @@ class ClinVarAnnotationService
         $coords = [];
         foreach ($variants as $v) {
             $coords[] = [
-                'chromosome'       => $v->chromosome,
-                'position'         => $v->position,
+                'chromosome' => $v->chromosome,
+                'position' => $v->position,
                 'reference_allele' => $v->reference_allele,
                 'alternate_allele' => $v->alternate_allele,
             ];
@@ -84,9 +84,9 @@ class ClinVarAnnotationService
             $method = $first ? 'where' : 'orWhere';
             $query->$method(function ($q) use ($c) {
                 $q->where('chromosome', $c['chromosome'])
-                  ->where('position', $c['position'])
-                  ->where('reference_allele', $c['reference_allele'])
-                  ->where('alternate_allele', $c['alternate_allele']);
+                    ->where('position', $c['position'])
+                    ->where('reference_allele', $c['reference_allele'])
+                    ->where('alternate_allele', $c['alternate_allele']);
             });
             $first = false;
         }
@@ -95,14 +95,15 @@ class ClinVarAnnotationService
 
         $map = [];
         foreach ($results as $cv) {
-            $key = $cv->chromosome . ':' . $cv->position . ':' . $cv->reference_allele . ':' . $cv->alternate_allele;
+            $key = $cv->chromosome.':'.$cv->position.':'.$cv->reference_allele.':'.$cv->alternate_allele;
             $map[$key] = $cv;
         }
+
         return $map;
     }
 
     private function coordKey(GenomicVariant $v): string
     {
-        return $v->chromosome . ':' . $v->position . ':' . $v->reference_allele . ':' . $v->alternate_allele;
+        return $v->chromosome.':'.$v->position.':'.$v->reference_allele.':'.$v->alternate_allele;
     }
 }

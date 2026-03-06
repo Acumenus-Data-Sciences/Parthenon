@@ -26,8 +26,9 @@ class ImportDicomSamples extends Command
         $relDir = $this->option('dir');
         $absDir = base_path($relDir);
 
-        if (!is_dir($absDir)) {
+        if (! is_dir($absDir)) {
             $this->error("Directory not found: {$absDir}");
+
             return Command::FAILURE;
         }
 
@@ -41,8 +42,9 @@ class ImportDicomSamples extends Command
             $source = Source::first();
         }
 
-        if (!$source) {
+        if (! $source) {
             $this->error('No source found. Create a source first or pass --source=NAME.');
+
             return Command::FAILURE;
         }
 
@@ -52,7 +54,7 @@ class ImportDicomSamples extends Command
 
         $result = $this->dicomFiles->importDirectory($absDir, $source->id);
 
-        $this->info("Import complete:");
+        $this->info('Import complete:');
         $this->line("  Studies:   {$result['studies']}");
         $this->line("  Series:    {$result['series']}");
         $this->line("  Instances: {$result['instances']}");
@@ -62,8 +64,8 @@ class ImportDicomSamples extends Command
 
         $this->newLine();
         $this->line("DB totals for source #{$source->id}:");
-        $this->line("  Studies:   " . ImagingStudy::where('source_id', $source->id)->count());
-        $this->line("  Instances: " . ImagingInstance::whereHas('study', fn ($q) => $q->where('source_id', $source->id))->count());
+        $this->line('  Studies:   '.ImagingStudy::where('source_id', $source->id)->count());
+        $this->line('  Instances: '.ImagingInstance::whereHas('study', fn ($q) => $q->where('source_id', $source->id))->count());
 
         return Command::SUCCESS;
     }

@@ -22,18 +22,18 @@ class VocabularyLookupService
      * FHIR code system URI → OHDSI vocabulary_id.
      */
     private const SYSTEM_TO_VOCAB = [
-        'http://snomed.info/sct'                                  => 'SNOMED',
-        'http://loinc.org'                                        => 'LOINC',
-        'http://www.nlm.nih.gov/research/umls/rxnorm'             => 'RxNorm',
-        'http://hl7.org/fhir/sid/icd-10-cm'                      => 'ICD10CM',
-        'http://hl7.org/fhir/sid/icd-10'                          => 'ICD10',
-        'http://hl7.org/fhir/sid/icd-9-cm'                        => 'ICD9CM',
-        'http://www.ama-assn.org/go/cpt'                           => 'CPT4',
-        'http://hl7.org/fhir/sid/ndc'                              => 'NDC',
-        'http://hl7.org/fhir/sid/cvx'                              => 'CVX',
-        'http://www.cms.gov/Medicare/Coding/HCPCSReleaseCodeSets'  => 'HCPCS',
-        'urn:oid:2.16.840.1.113883.6.238'                         => 'Race',
-        'urn:oid:2.16.840.1.113883.6.12'                          => 'CPT4',
+        'http://snomed.info/sct' => 'SNOMED',
+        'http://loinc.org' => 'LOINC',
+        'http://www.nlm.nih.gov/research/umls/rxnorm' => 'RxNorm',
+        'http://hl7.org/fhir/sid/icd-10-cm' => 'ICD10CM',
+        'http://hl7.org/fhir/sid/icd-10' => 'ICD10',
+        'http://hl7.org/fhir/sid/icd-9-cm' => 'ICD9CM',
+        'http://www.ama-assn.org/go/cpt' => 'CPT4',
+        'http://hl7.org/fhir/sid/ndc' => 'NDC',
+        'http://hl7.org/fhir/sid/cvx' => 'CVX',
+        'http://www.cms.gov/Medicare/Coding/HCPCSReleaseCodeSets' => 'HCPCS',
+        'urn:oid:2.16.840.1.113883.6.238' => 'Race',
+        'urn:oid:2.16.840.1.113883.6.12' => 'CPT4',
     ];
 
     /** Priority vocabularies — direct standard matches preferred. */
@@ -41,13 +41,13 @@ class VocabularyLookupService
 
     /** Domain → CDM table mapping (used for concept-driven routing). */
     private const DOMAIN_TABLE = [
-        'Condition'   => 'condition_occurrence',
-        'Drug'        => 'drug_exposure',
-        'Procedure'   => 'procedure_occurrence',
+        'Condition' => 'condition_occurrence',
+        'Drug' => 'drug_exposure',
+        'Procedure' => 'procedure_occurrence',
         'Measurement' => 'measurement',
         'Observation' => 'observation',
-        'Device'      => 'device_exposure',
-        'Specimen'    => 'specimen',
+        'Device' => 'device_exposure',
+        'Specimen' => 'specimen',
     ];
 
     /** @var array<string, array|null> concept lookup cache: "vocab|code" => row */
@@ -81,16 +81,16 @@ class VocabularyLookupService
 
         foreach ($codings as $coding) {
             $system = $coding['system'] ?? '';
-            $code   = $coding['code'] ?? '';
+            $code = $coding['code'] ?? '';
             $vocabId = self::SYSTEM_TO_VOCAB[$system] ?? null;
 
-            if (!$vocabId || $code === '') {
+            if (! $vocabId || $code === '') {
                 continue;
             }
 
             // Look up concept in vocabulary
             $concept = $this->lookupConcept($vocabId, $code);
-            if (!$concept) {
+            if (! $concept) {
                 continue;
             }
 
@@ -102,11 +102,11 @@ class VocabularyLookupService
                 // Direct standard concept match
                 if ($priority < $bestPriority) {
                     $bestMatch = [
-                        'concept_id'        => (int) $concept['concept_id'],
-                        'domain_id'         => $concept['domain_id'],
+                        'concept_id' => (int) $concept['concept_id'],
+                        'domain_id' => $concept['domain_id'],
                         'source_concept_id' => (int) $concept['concept_id'],
-                        'source_value'      => "{$system}|{$code}",
-                        'mapping_type'      => 'direct_standard',
+                        'source_value' => "{$system}|{$code}",
+                        'mapping_type' => 'direct_standard',
                     ];
                     $bestPriority = $priority;
                 }
@@ -115,21 +115,21 @@ class VocabularyLookupService
                 $standard = $this->followMapsTo((int) $concept['concept_id']);
                 if ($standard && $priority < $bestPriority) {
                     $bestMatch = [
-                        'concept_id'        => (int) $standard['concept_id'],
-                        'domain_id'         => $standard['domain_id'],
+                        'concept_id' => (int) $standard['concept_id'],
+                        'domain_id' => $standard['domain_id'],
                         'source_concept_id' => (int) $concept['concept_id'],
-                        'source_value'      => "{$system}|{$code}",
-                        'mapping_type'      => 'maps_to',
+                        'source_value' => "{$system}|{$code}",
+                        'mapping_type' => 'maps_to',
                     ];
                     $bestPriority = $priority;
-                } elseif (!$standard && $bestMatch === null) {
+                } elseif (! $standard && $bestMatch === null) {
                     // Non-standard with no mapping — use as source only
                     $bestMatch = [
-                        'concept_id'        => 0,
-                        'domain_id'         => $concept['domain_id'],
+                        'concept_id' => 0,
+                        'domain_id' => $concept['domain_id'],
                         'source_concept_id' => (int) $concept['concept_id'],
-                        'source_value'      => "{$system}|{$code}",
-                        'mapping_type'      => 'source_only',
+                        'source_value' => "{$system}|{$code}",
+                        'mapping_type' => 'source_only',
                     ];
                 }
             }
@@ -145,12 +145,12 @@ class VocabularyLookupService
         $firstCoding = $codings[0] ?? [];
 
         return [
-            'concept_id'        => 0,
-            'domain_id'         => 'Unknown',
+            'concept_id' => 0,
+            'domain_id' => 'Unknown',
             'source_concept_id' => 0,
-            'source_value'      => ($firstCoding['system'] ?? '') . '|' . ($firstCoding['code'] ?? ''),
-            'cdm_table'         => null,
-            'mapping_type'      => 'unmapped',
+            'source_value' => ($firstCoding['system'] ?? '').'|'.($firstCoding['code'] ?? ''),
+            'cdm_table' => null,
+            'mapping_type' => 'unmapped',
         ];
     }
 
@@ -240,8 +240,8 @@ class VocabularyLookupService
     public function getCacheStats(): array
     {
         return [
-            'concept_cache_size'  => count($this->conceptCache),
-            'maps_to_cache_size'  => count($this->mapsToCache),
+            'concept_cache_size' => count($this->conceptCache),
+            'maps_to_cache_size' => count($this->mapsToCache),
         ];
     }
 }
