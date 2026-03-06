@@ -172,11 +172,8 @@ export default function DicomViewer({ studyId, className = "" }: DicomViewerProp
   const [showPresets, setShowPresets] = useState(false);
   const cineRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Unique IDs per mount — prevents collisions when React unmounts/remounts
-  const mountId = useRef(++mountCounter);
-  const engineId = `engine-${studyId}-${mountId.current}`;
-  const viewportId = `vp-${studyId}-${mountId.current}`;
-  const toolGroupId = `tg-${studyId}-${mountId.current}`;
+  // Track current Cornerstone resource IDs (assigned per effect invocation)
+  const csIds = useRef<{ engineId: string; viewportId: string; toolGroupId: string } | null>(null);
 
   // ── Dynamic viewport height ─────────────────────────────────────────────
   useLayoutEffect(() => {
@@ -247,31 +244,36 @@ export default function DicomViewer({ studyId, className = "" }: DicomViewerProp
     let cancelled = false;
     setLoadingViewer(true);
 
+    // Generate unique IDs per effect invocation — immune to StrictMode double-fire
+    const eid = `engine-${studyId}-${++mountCounter}`;
+    const vid = `vp-${studyId}-${mountCounter}`;
+    const tgid = `tg-${studyId}-${mountCounter}`;
+
     (async () => {
       try {
         await initCornerstone();
         if (cancelled || !viewportEl.current) return;
 
-        // ── Create rendering engine + viewport ────────────────────────
-        const engine = new cornerstone.RenderingEngine(engineId);
+        const engine = new cornerstone.RenderingEngine(eid);
         engine.enableElement({
-          viewportId,
+          viewportId: vid,
           type: cornerstone.Enums.ViewportType.STACK,
           element: viewportEl.current,
         });
 
-        const viewport = engine.getViewport(viewportId) as cornerstone.Types.IStackViewport;
+        const viewport = engine.getViewport(vid) as cornerstone.Types.IStackViewport;
         const imageIds = instances.map((i) => buildWadoId(i.sop_instance_uid));
         await viewport.setStack(imageIds, 0);
         viewport.render();
 
-        // ── Create tool group (unique ID per mount = no collision) ─────
-        const tg = ToolGroupManager.createToolGroup(toolGroupId)!;
-
+        const tg = ToolGroupManager.createToolGroup(tgid)!;
         for (const ToolClass of ALL_TOOL_CLASSES) {
           try { tg.addTool(ToolClass.toolName); } catch { /* already added */ }
         }
-        tg.addViewport(viewportId, engineId);
+        tg.addViewport(vid, eid);
+
+        // Store IDs so callbacks can reference the current resources
+        csIds.current = { engineId: eid, viewportId: vid, toolGroupId: tgid };
 
         applyToolBindings(tg, WindowLevelTool.toolName);
         setActiveTool(WindowLevelTool.toolName);
@@ -284,32 +286,26 @@ export default function DicomViewer({ studyId, className = "" }: DicomViewerProp
 
     return () => {
       cancelled = true;
+      // Cleanup THIS effect's resources (uses closure-captured IDs, not ref)
+      if (cineRef.current) clearInterval(cineRef.current);
+      try { cornerstone.getRenderingEngine(eid)?.destroy(); } catch { /* ok */ }
+      try { ToolGroupManager.destroyToolGroup(tgid); } catch { /* ok */ }
+      if (csIds.current?.engineId === eid) csIds.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [instances]);
 
-  // ── Cleanup on unmount ──────────────────────────────────────────────────
-  useEffect(() => {
-    return () => {
-      // Stop CINE
-      if (cineRef.current) clearInterval(cineRef.current);
-      // Destroy cornerstone resources
-      try { cornerstone.getRenderingEngine(engineId)?.destroy(); } catch { /* ok */ }
-      try { ToolGroupManager.destroyToolGroup(toolGroupId); } catch { /* ok */ }
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   // ── Get viewport helper ─────────────────────────────────────────────────
   const getViewport = useCallback(() => {
+    if (!csIds.current) return undefined;
     try {
       return cornerstone
-        .getRenderingEngine(engineId)
-        ?.getViewport(viewportId) as cornerstone.Types.IStackViewport | undefined;
+        .getRenderingEngine(csIds.current.engineId)
+        ?.getViewport(csIds.current.viewportId) as cornerstone.Types.IStackViewport | undefined;
     } catch {
       return undefined;
     }
-  }, [engineId, viewportId]);
+  }, []);
 
   // ── Navigate slice ──────────────────────────────────────────────────────
   const goToSlice = useCallback(
@@ -329,10 +325,11 @@ export default function DicomViewer({ studyId, className = "" }: DicomViewerProp
   const setTool = useCallback(
     (toolName: string) => {
       setActiveTool(toolName);
-      const tg = ToolGroupManager.getToolGroup(toolGroupId);
+      if (!csIds.current) return;
+      const tg = ToolGroupManager.getToolGroup(csIds.current.toolGroupId);
       applyToolBindings(tg, toolName);
     },
-    [toolGroupId, applyToolBindings],
+    [applyToolBindings],
   );
 
   // ── Reset view ──────────────────────────────────────────────────────────
