@@ -311,10 +311,14 @@ export function LoginPage() {
           alignSelf: "stretch",
           zIndex: 10,
           background:
-            "linear-gradient(to bottom, transparent 0%, rgba(139,0,20,0.4) 12%, rgba(196,18,36,0.9) 35%, rgba(220,38,58,1) 50%, rgba(196,18,36,0.9) 65%, rgba(139,0,20,0.4) 88%, transparent 100%)",
+            "linear-gradient(to bottom, transparent 0%, rgba(196,18,36,0.7) 30%, rgba(220,38,58,1) 50%, rgba(196,18,36,0.7) 70%, transparent 100%)",
           boxShadow:
             "0 0 6px 2px rgba(210,30,50,0.55), 0 0 20px 4px rgba(190,20,40,0.25)",
           animation: "crimson-pulse 3s ease-in-out infinite",
+          maskImage:
+            "linear-gradient(to bottom, transparent 0%, black 18%, black 82%, transparent 100%)",
+          WebkitMaskImage:
+            "linear-gradient(to bottom, transparent 0%, black 18%, black 82%, transparent 100%)",
         }}
       >
         {/* Sweeping bright highlight */}
