@@ -421,14 +421,7 @@ export const router = createBrowserRouter(
                 (m) => ({ Component: m.WebApiRegistryPage }),
               ),
           },
-          {
-            path: "atlas-migration",
-            lazy: () =>
-              import(
-                "@/features/administration/pages/AtlasMigrationPage"
-              ).then((m) => ({ Component: m.default })),
-          },
-          {
+{
             path: "fhir-connections",
             lazy: () =>
               import(

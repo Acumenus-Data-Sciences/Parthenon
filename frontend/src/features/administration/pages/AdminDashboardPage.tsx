@@ -9,6 +9,7 @@ import { useAuthProviders } from "../hooks/useAuthProviders";
 import { useAiProviders } from "../hooks/useAiProviders";
 import { useAuthStore } from "@/stores/authStore";
 import { useSetupWizard } from "@/contexts/SetupWizardContext";
+import { useAtlasMigration } from "@/contexts/AtlasMigrationContext";
 
 const NAV_CARDS = [
   {
@@ -74,20 +75,12 @@ const NAV_CARDS = [
     bg: "bg-teal-500/10",
     superAdminOnly: true,
   },
-  {
-    title: "Migrate from Atlas",
-    description: "Import cohort definitions, concept sets, and analyses from an existing OHDSI Atlas installation.",
-    icon: ArrowRightLeft,
-    href: "/admin/atlas-migration",
-    color: "text-rose-500",
-    bg: "bg-rose-500/10",
-    superAdminOnly: true,
-  },
 ];
 
 export default function AdminDashboardPage() {
   const { isSuperAdmin } = useAuthStore();
   const { openSetupWizard } = useSetupWizard();
+  const { openAtlasMigration } = useAtlasMigration();
   const { data: usersPage } = useUsers({ per_page: 1 });
   const { data: roles } = useRoles();
   const { data: providers } = useAuthProviders();
@@ -167,6 +160,28 @@ export default function AdminDashboardPage() {
                   </p>
                 </div>
                 <div className="mt-4 flex items-center gap-1 text-sm font-medium text-[#C9A227] opacity-0 transition-opacity group-hover:opacity-100">
+                  Open wizard <ArrowRight className="h-4 w-4" />
+                </div>
+              </div>
+            </Panel>
+          </button>
+        )}
+
+        {/* Migrate from Atlas — superadmin only, opens in-window modal wizard */}
+        {isSuperAdmin() && (
+          <button type="button" onClick={openAtlasMigration} className="block text-left">
+            <Panel className="group h-full cursor-pointer transition-colors hover:border-rose-500/50">
+              <div className="flex h-full flex-col justify-between">
+                <div>
+                  <div className="inline-flex rounded-md bg-rose-500/10 p-2">
+                    <ArrowRightLeft className="h-5 w-5 text-rose-500" />
+                  </div>
+                  <h3 className="mt-4 text-base font-semibold text-foreground">Migrate from Atlas</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Import cohort definitions, concept sets, and analyses from an existing OHDSI Atlas installation.
+                  </p>
+                </div>
+                <div className="mt-4 flex items-center gap-1 text-sm font-medium text-rose-500 opacity-0 transition-opacity group-hover:opacity-100">
                   Open wizard <ArrowRight className="h-4 w-4" />
                 </div>
               </div>

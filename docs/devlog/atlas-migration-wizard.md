@@ -37,9 +37,10 @@ A comprehensive multi-step wizard in the Admin panel that connects to a live OHD
 4. **Import** — progress bar, per-entity-type breakdown, real-time polling
 5. **Summary** — final report with imported/skipped/failed, retry option, migration history
 
-**Admin Integration:**
-- New "Migrate from Atlas" card on Admin Dashboard (rose-500, ArrowRightLeft icon)
-- Route: `/admin/atlas-migration`
+**Admin Integration (in-window modal pattern):**
+- "Migrate from Atlas" button card on Admin Dashboard (rose-500, ArrowRightLeft icon)
+- Opens as in-window modal via `AtlasMigrationContext` — same pattern as SetupWizard
+- No dedicated route — wizard is rendered in `MainLayout` and triggered from admin dashboard button
 
 ## Key Design Decisions
 
@@ -71,7 +72,7 @@ The import runs synchronously in the HTTP request. The frontend polls `/status` 
 
 ## Files Created/Modified
 
-### New Files (10)
+### New Files (11)
 - `backend/database/migrations/2026_03_05_290001_create_atlas_migrations_table.php`
 - `backend/app/Models/App/AtlasMigration.php`
 - `backend/app/Models/App/AtlasIdMapping.php`
@@ -80,19 +81,24 @@ The import runs synchronously in the HTTP request. The frontend polls `/status` 
 - `backend/app/Http/Controllers/Api/V1/Admin/AtlasMigrationController.php`
 - `frontend/src/features/administration/api/migrationApi.ts`
 - `frontend/src/features/administration/hooks/useAtlasMigration.ts`
-- `frontend/src/features/administration/pages/AtlasMigrationPage.tsx`
+- `frontend/src/features/administration/components/AtlasMigrationWizard.tsx` — in-window modal wizard
+- `frontend/src/contexts/AtlasMigrationContext.tsx` — context for opening wizard from admin dashboard
 - `docs/devlog/atlas-migration-wizard.md`
 
 ### Modified Files (3)
 - `backend/routes/api.php` — added 6 atlas-migration routes + controller import
-- `frontend/src/app/router.tsx` — added `/admin/atlas-migration` route
-- `frontend/src/features/administration/pages/AdminDashboardPage.tsx` — added "Migrate from Atlas" card
+- `frontend/src/components/layout/MainLayout.tsx` — added AtlasMigrationContext provider + wizard render
+- `frontend/src/features/administration/pages/AdminDashboardPage.tsx` — added "Migrate from Atlas" button card
 
 ## UX Pattern Alignment
 
-The wizard matches the existing SetupWizard UX exactly:
+The wizard matches the existing SetupWizard UX exactly — **one uniform standard for all wizards**:
+- **In-window modal** (`fixed inset-0 z-50` overlay with backdrop blur) — not a routed page
+- **Context-driven open** via React context (`AtlasMigrationContext`), same as `SetupWizardContext`
+- **Rendered in MainLayout** alongside SetupWizard, not on a dedicated route
 - Gold (#C9A227) stepper circles with connecting lines
 - Check marks for completed steps, numbered circles for pending
 - Slide animations between steps (wizardSlideFromRight/wizardSlideFromLeft)
 - Navigation footer with Previous/Next buttons
+- X close button at top right
 - Same border, background, typography, and spacing conventions

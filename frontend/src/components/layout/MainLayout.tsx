@@ -8,8 +8,10 @@ import { ToastContainer } from "@/components/ui";
 import { ChangePasswordModal } from "@/features/auth/components/ChangePasswordModal";
 import { OnboardingModal } from "@/features/auth/components/OnboardingModal";
 import { SetupWizard } from "@/features/auth/components/SetupWizard";
+import { AtlasMigrationWizard } from "@/features/administration/components/AtlasMigrationWizard";
 import { WhatsNewModal } from "@/features/help";
 import { SetupWizardContext } from "@/contexts/SetupWizardContext";
+import { AtlasMigrationContext } from "@/contexts/AtlasMigrationContext";
 import { useUiStore } from "@/stores/uiStore";
 import { useAuthStore } from "@/stores/authStore";
 import { useGlobalKeyboard } from "@/hooks/useGlobalKeyboard";
@@ -25,6 +27,9 @@ export function MainLayout() {
     () => !!user && !user.onboarding_completed && isSuperAdmin,
   );
 
+  // Atlas migration wizard — opened from admin dashboard
+  const [atlasMigrationOpen, setAtlasMigrationOpen] = useState(false);
+
   // Register global keyboard shortcuts
   useGlobalKeyboard();
 
@@ -32,6 +37,7 @@ export function MainLayout() {
 
   return (
     <SetupWizardContext.Provider value={{ openSetupWizard: () => setWizardOpen(true) }}>
+    <AtlasMigrationContext.Provider value={{ openAtlasMigration: () => setAtlasMigrationOpen(true) }}>
       <div className="app-shell">
         {/* Blocking password change for non-superadmins (superadmins handle it inside the wizard) */}
         {user?.must_change_password && !isSuperAdmin && <ChangePasswordModal />}
@@ -60,7 +66,13 @@ export function MainLayout() {
         <AiDrawer />
         <ToastContainer />
         <WhatsNewModal />
+
+        {/* Atlas migration wizard — in-window modal, same pattern as SetupWizard */}
+        {atlasMigrationOpen && (
+          <AtlasMigrationWizard onClose={() => setAtlasMigrationOpen(false)} />
+        )}
       </div>
+    </AtlasMigrationContext.Provider>
     </SetupWizardContext.Provider>
   );
 }
