@@ -96,10 +96,6 @@ export function LoginPage() {
             backgroundSize: "cover",
             backgroundPosition: "center 40%",
             filter: "brightness(0.78) saturate(1.05) contrast(1.08)",
-            maskImage:
-              "linear-gradient(to right, rgba(0,0,0,1) 55%, rgba(0,0,0,0) 100%)",
-            WebkitMaskImage:
-              "linear-gradient(to right, rgba(0,0,0,1) 55%, rgba(0,0,0,0) 100%)",
           }}
         />
 
@@ -110,10 +106,6 @@ export function LoginPage() {
             inset: 0,
             background:
               "linear-gradient(to bottom, rgba(120, 170, 230, 0.10) 0%, rgba(201, 162, 39, 0.06) 55%, rgba(8, 8, 10, 0.18) 100%)",
-            maskImage:
-              "linear-gradient(to right, rgba(0,0,0,1) 55%, rgba(0,0,0,0) 100%)",
-            WebkitMaskImage:
-              "linear-gradient(to right, rgba(0,0,0,1) 55%, rgba(0,0,0,0) 100%)",
           }}
         />
 
