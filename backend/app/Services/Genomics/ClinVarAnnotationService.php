@@ -18,37 +18,38 @@ class ClinVarAnnotationService
 
     /**
      * Annotate all variants in an upload that lack ClinVar data.
+     * Uses a single SQL JOIN UPDATE for performance on large uploads.
      *
      * @return array{annotated: int, skipped: int}
      */
     public function annotateUpload(GenomicUpload $upload): array
     {
-        $annotated = 0;
-        $skipped   = 0;
+        $annotated = DB::update("
+            UPDATE app.genomic_variants gv
+            SET
+                clinvar_id = COALESCE(cv.variation_id, cv.rs_id),
+                clinvar_significance = cv.clinical_significance,
+                clinvar_disease = cv.disease_name,
+                clinvar_review_status = cv.review_status,
+                gene_symbol = CASE WHEN gv.gene_symbol IS NULL THEN cv.gene_symbol ELSE gv.gene_symbol END,
+                mapping_status = CASE
+                    WHEN cv.clinical_significance IN ('Uncertain significance', 'Conflicting classifications of pathogenicity')
+                    THEN 'review'
+                    ELSE 'mapped'
+                END,
+                updated_at = NOW()
+            FROM app.clinvar_variants cv
+            WHERE gv.upload_id = ?
+              AND gv.chromosome = cv.chromosome
+              AND gv.position = cv.position
+              AND gv.reference_allele = cv.reference_allele
+              AND gv.alternate_allele = cv.alternate_allele
+              AND gv.clinvar_significance IS NULL
+        ", [$upload->id]);
 
-        GenomicVariant::where('upload_id', $upload->id)
-            ->whereNull('clinvar_significance')
-            ->orderBy('id')
-            ->chunk(self::BATCH, function ($variants) use (&$annotated, &$skipped) {
-                $matched = $this->lookupBatch($variants->all());
-                foreach ($variants as $variant) {
-                    $key = $this->coordKey($variant);
-                    if (isset($matched[$key])) {
-                        $cv = $matched[$key];
-                        $variant->update([
-                            'clinvar_id'            => $cv->variation_id ?? $cv->rs_id,
-                            'clinvar_significance'  => $cv->clinical_significance,
-                            'clinvar_disease'       => $cv->disease_name,
-                            'clinvar_review_status' => $cv->review_status,
-                        ]);
-                        $annotated++;
-                    } else {
-                        $skipped++;
-                    }
-                }
-            });
+        $total = GenomicVariant::where('upload_id', $upload->id)->count();
 
-        return ['annotated' => $annotated, 'skipped' => $skipped];
+        return ['annotated' => $annotated, 'skipped' => $total - $annotated];
     }
 
     /**

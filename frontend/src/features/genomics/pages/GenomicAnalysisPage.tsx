@@ -195,9 +195,9 @@ type Tab = "survival" | "matrix" | "characterization";
 export default function GenomicAnalysisPage() {
   const [tab, setTab] = useState<Tab>("survival");
   const [sourceId] = useState(9); // TODO: source selector
-  const [gene, setGene] = useState("EGFR");
+  const [gene, setGene] = useState("BRCA2");
   const [hgvs, setHgvs] = useState("");
-  const [matrixGenes, setMatrixGenes] = useState("EGFR,KRAS,ALK");
+  const [matrixGenes, setMatrixGenes] = useState("BRCA2,APC,BRCA1,SYNE1");
 
   const survivalQuery = useQuery({
     queryKey: ["genomics", "analysis", "survival", sourceId, gene, hgvs],

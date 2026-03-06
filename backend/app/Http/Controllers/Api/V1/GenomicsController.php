@@ -153,7 +153,9 @@ class GenomicsController extends Controller
 
     public function indexVariants(Request $request): JsonResponse
     {
-        $query = GenomicVariant::orderByDesc('created_at');
+        $query = GenomicVariant::orderByRaw("CASE WHEN gene_symbol IS NOT NULL THEN 0 ELSE 1 END")
+            ->orderByRaw("CASE WHEN clinvar_significance IS NOT NULL THEN 0 ELSE 1 END")
+            ->orderBy('gene_symbol');
 
         if ($request->filled('upload_id')) {
             $query->where('upload_id', $request->integer('upload_id'));
