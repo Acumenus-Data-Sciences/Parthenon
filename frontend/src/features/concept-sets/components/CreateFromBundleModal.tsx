@@ -6,6 +6,7 @@ import { Modal } from "@/components/ui/Modal";
 import { toast } from "@/components/ui/Toast";
 import { useQuery } from "@tanstack/react-query";
 import { listBundles } from "@/features/care-gaps/api/careGapApi";
+import type { ConditionBundle } from "@/features/care-gaps/types/careGap";
 import { useCreateConceptSetsFromBundle } from "../hooks/useConceptSets";
 
 interface CreateFromBundleModalProps {
@@ -24,21 +25,21 @@ export function CreateFromBundleModal({
 
   const { data: bundlesData, isLoading } = useQuery({
     queryKey: ["care-bundles", "all"],
-    queryFn: () => listBundles({ limit: 50 }),
+    queryFn: () => listBundles({ per_page: 50 }),
     enabled: open,
   });
 
   const createMutation = useCreateConceptSetsFromBundle();
 
-  const bundles = bundlesData?.items ?? [];
+  const bundles = bundlesData?.data ?? [];
   const filtered = bundles.filter(
-    (b) =>
+    (b: ConditionBundle) =>
       b.condition_name.toLowerCase().includes(filter.toLowerCase()) ||
       (b.description ?? "").toLowerCase().includes(filter.toLowerCase()) ||
       b.bundle_code.toLowerCase().includes(filter.toLowerCase()),
   );
 
-  const selectedBundle = bundles.find((b) => b.id === selectedId);
+  const selectedBundle = bundles.find((b: ConditionBundle) => b.id === selectedId);
 
   const handleCreate = () => {
     if (!selectedId) return;
@@ -111,7 +112,7 @@ export function CreateFromBundleModal({
             </div>
           ) : (
             <div className="divide-y divide-[#232328]">
-              {filtered.map((bundle) => {
+              {filtered.map((bundle: ConditionBundle) => {
                 const isSelected = selectedId === bundle.id;
                 return (
                   <button

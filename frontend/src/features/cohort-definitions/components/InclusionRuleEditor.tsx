@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronDown, ChevronRight, Trash2, Settings } from "lucide-react";
+import { ChevronDown, ChevronRight, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TemporalWindowEditor } from "./TemporalWindowEditor";
 import { getDomainInfo } from "./DomainCriteriaSelector";

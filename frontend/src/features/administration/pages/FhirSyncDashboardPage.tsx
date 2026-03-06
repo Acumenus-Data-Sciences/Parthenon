@@ -326,7 +326,7 @@ export default function FhirSyncDashboardPage() {
   const hasActiveRuns = (data: FhirSyncDashboard | undefined) =>
     data?.summary.active_runs ? data.summary.active_runs > 0 : false;
 
-  const { data, isLoading, dataUpdatedAt } = useFhirSyncDashboard(
+  const { data, isLoading } = useFhirSyncDashboard(
     // Auto-refresh every 10s when there are active runs, otherwise 60s
     undefined,
   );

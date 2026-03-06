@@ -21,7 +21,16 @@ export async function listBundles(
   params?: BundleListParams,
 ): Promise<PaginatedResponse<ConditionBundle>> {
   const { data } = await apiClient.get(BASE, { params });
-  return toLaravelPaginated<ConditionBundle>(data);
+  const paginated = toLaravelPaginated<ConditionBundle>(data);
+  return {
+    data: paginated.items,
+    meta: {
+      current_page: paginated.page,
+      last_page: Math.ceil(paginated.total / paginated.limit),
+      per_page: paginated.limit,
+      total: paginated.total,
+    },
+  };
 }
 
 export async function getBundle(id: number): Promise<ConditionBundle> {

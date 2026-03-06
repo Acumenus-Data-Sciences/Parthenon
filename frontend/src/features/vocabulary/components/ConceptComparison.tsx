@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Search, X, Loader2, Plus } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { useConceptComparison, useDebounce } from "../hooks/useVocabularySearch";
 import { searchConcepts } from "../api/vocabularyApi";
 import type { Concept } from "../types/vocabulary";

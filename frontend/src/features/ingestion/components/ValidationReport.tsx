@@ -3,8 +3,6 @@ import {
   CheckCircle2,
   XCircle,
   AlertTriangle,
-  Info,
-  ChevronDown,
   Shield,
 } from "lucide-react";
 import { cn } from "@/lib/utils";

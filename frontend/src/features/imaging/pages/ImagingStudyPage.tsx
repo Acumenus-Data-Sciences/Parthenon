@@ -1,6 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { useState, lazy, Suspense } from "react";
-import { ArrowLeft, Layers, Brain, RefreshCw, Loader2, ScanLine, Monitor } from "lucide-react";
+import { ArrowLeft, Layers, Brain, Loader2, ScanLine, Monitor } from "lucide-react";
 import { useImagingStudy, useIndexSeries, useExtractNlp, useImagingFeatures } from "../hooks/useImaging";
 import type { ImagingSeries, ImagingFeature } from "../types";
 

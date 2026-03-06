@@ -61,7 +61,7 @@ export function HelpSlideOver({ helpKey, onClose }: HelpSlideOverProps) {
             {data.docs_url && (
               <button
                 type="button"
-                onClick={() => window.open(data.docs_url, "_blank", "noopener,noreferrer")}
+                onClick={() => window.open(data.docs_url ?? undefined, "_blank", "noopener,noreferrer")}
                 className="inline-flex items-center gap-2 text-sm text-[#2DD4BF] hover:text-[#26B8A5] transition-colors cursor-pointer"
               >
                 <BookOpen size={14} />

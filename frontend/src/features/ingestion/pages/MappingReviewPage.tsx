@@ -14,7 +14,6 @@ import {
 import { cn } from "@/lib/utils";
 import type {
   MappingAction,
-  ReviewTier,
   ConceptMapping,
 } from "@/types/ingestion";
 import {

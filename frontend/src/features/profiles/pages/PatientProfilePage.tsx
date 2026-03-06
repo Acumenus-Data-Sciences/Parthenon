@@ -28,7 +28,7 @@ import { PatientLabPanel } from "../components/PatientLabPanel";
 import { PatientVisitView } from "../components/PatientVisitView";
 import { PatientSearchPanel } from "../components/PatientSearchPanel";
 import { ConceptDetailDrawer } from "../components/ConceptDetailDrawer";
-import type { ClinicalDomain, ClinicalEvent } from "../types/profile";
+import type { ClinicalEvent } from "../types/profile";
 
 type ViewMode = "timeline" | "list" | "labs" | "visits" | "eras";
 

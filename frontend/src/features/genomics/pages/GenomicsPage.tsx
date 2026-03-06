@@ -563,11 +563,11 @@ export default function GenomicsPage() {
                       <td className="px-4 py-3 text-[#C5C0B8] text-sm">
                         {upload.total_variants.toLocaleString()}
                         {upload.status === "failed" && upload.error_message && (
-                          <AlertCircle
-                            size={12}
-                            className="inline ml-1 text-[#E85A6B]"
-                            title={upload.error_message}
-                          />
+                          <span title={upload.error_message}>
+                            <AlertCircle
+                              className="inline ml-1 text-[#E85A6B] w-3 h-3"
+                            />
+                          </span>
                         )}
                       </td>
                       <td className="px-4 py-3">

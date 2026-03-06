@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { FilterChip, Badge, StatusDot, Progress, EmptyState, Drawer, CodeBlock } from "@/components/ui";
 import { useJobs, useJob, useRetryJob, useCancelJob } from "../hooks/useJobs";
-import type { Job, JobStatus, JobType } from "../api/jobsApi";
+import type { JobStatus, JobType } from "../api/jobsApi";
 import { cn } from "@/lib/utils";
 import { HelpButton } from "@/features/help";
 
@@ -173,7 +173,7 @@ export default function JobsPage() {
                         {job.status === "running" ? (
                           <>
                             <StatusDot status="running" />
-                            <Progress value={job.progress} variant="info" className="flex-1" style={{ maxWidth: 80 }} />
+                            <Progress value={job.progress} variant="info" className="flex-1 max-w-[80px]" />
                           </>
                         ) : (
                           <>
@@ -186,16 +186,13 @@ export default function JobsPage() {
                               style={{
                                 color: job.status === "completed" ? "var(--success)" :
                                        job.status === "failed" ? "var(--critical)" :
-                                       job.status === "running" ? "var(--info)" :
                                        "var(--text-muted)",
-                                ...(job.status === "running" ? { animation: "spin 1s linear infinite" } : {}),
                               }}
                             />
                             <Badge
                               variant={
                                 job.status === "completed" ? "success" :
                                 job.status === "failed" ? "critical" :
-                                job.status === "running" ? "info" :
                                 "default"
                               }
                             >

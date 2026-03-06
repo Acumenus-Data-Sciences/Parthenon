@@ -31,6 +31,7 @@ import {
   useCopyCohortDefinition,
 } from "../hooks/useCohortDefinitions";
 import { useCohortExpressionStore } from "../stores/cohortExpressionStore";
+import type { CohortExpression } from "../types/cohortExpression";
 
 type Tab = "editor" | "results" | "diagnostics" | "overlap";
 
@@ -555,7 +556,7 @@ export default function CohortDefinitionDetailPage() {
         isOpen={abbyOpen}
         onClose={() => setAbbyOpen(false)}
         onApply={(expr) => {
-          loadExpression(expr);
+          loadExpression(expr as unknown as CohortExpression);
           setAbbyOpen(false);
         }}
       />

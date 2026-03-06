@@ -7,7 +7,7 @@ import {
   useDomains,
   useVocabularies,
 } from "../hooks/useVocabularySearch";
-import type { FacetCounts } from "../types/vocabulary";
+
 
 interface VocabularySearchPanelProps {
   selectedConceptId: number | null;
@@ -48,7 +48,6 @@ export function VocabularySearchPanel({
     highlights,
     engine,
     isLoading,
-    isFetching,
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,

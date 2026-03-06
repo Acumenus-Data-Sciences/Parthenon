@@ -210,6 +210,7 @@ export interface CohortDefinition {
   created_at: string;
   updated_at: string;
   generations?: CohortGeneration[];
+  latest_generation?: CohortGeneration | null;
 }
 
 export interface CohortGeneration {
@@ -227,6 +228,7 @@ export interface CohortGeneration {
   completed_at: string | null;
   person_count: number | null;
   fail_message: string | null;
+  inclusion_rule_stats?: { name: string; personCount: number; personPercent: number }[] | null;
 }
 
 // ---------------------------------------------------------------------------

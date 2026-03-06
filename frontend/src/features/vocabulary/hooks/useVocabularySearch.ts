@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 import {
   searchConcepts,
@@ -12,7 +12,7 @@ import {
   getConceptMapsFrom,
   suggestConcepts,
 } from "../api/vocabularyApi";
-import type { Concept, FacetCounts, SuggestResult } from "../types/vocabulary";
+import type { Concept } from "../types/vocabulary";
 
 // ---------------------------------------------------------------------------
 // Vocabulary search hook with debounce + infinite scroll

@@ -49,7 +49,7 @@ export default function DataExplorerPage() {
   };
 
   // Cross-tab navigation (Overview treemap → Domains tab)
-  const handleNavigateToDomain = useCallback((domain: string) => {
+  const handleNavigateToDomain = useCallback((_domain: string) => {
     setActiveTab("domains");
   }, []);
 

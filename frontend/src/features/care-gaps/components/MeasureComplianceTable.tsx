@@ -1,6 +1,5 @@
 import { useState, useMemo } from "react";
 import { ArrowUpDown, Sparkles } from "lucide-react";
-import { cn } from "@/lib/utils";
 import type { MeasureResult } from "../types/careGap";
 
 interface MeasureComplianceTableProps {

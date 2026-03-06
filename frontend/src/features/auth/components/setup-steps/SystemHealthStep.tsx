@@ -53,7 +53,6 @@ function ServiceRow({
   onGoToAiProvider?: () => void;
 }) {
   const config = STATUS_CONFIG[service.status];
-  const Icon = config.icon;
   const queueDetails = service.details as { pending?: number; failed?: number } | undefined;
 
   // Detect AI service by key

@@ -1,7 +1,6 @@
 import { useState, useMemo } from "react";
 import { ChevronDown, ChevronRight, Hospital } from "lucide-react";
 import { Link } from "react-router-dom";
-import { cn } from "@/lib/utils";
 import type { ClinicalEvent, ClinicalDomain } from "../types/profile";
 
 interface PatientVisitViewProps {

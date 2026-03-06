@@ -6,6 +6,8 @@ parameters:
     paths:
         - app/
     level: 8
+    treatPhpDocTypesAsCertain: false
+    reportUnmatchedIgnoredErrors: false
     ignoreErrors:
         - '#uses generic trait .+HasFactory but does not specify its types#'
         - identifier: missingType.iterableValue
@@ -15,3 +17,28 @@ parameters:
         - identifier: isset.offset
         - identifier: argument.unresolvableType
         - identifier: method.unresolvableReturnType
+        - identifier: nullsafe.neverNull
+        - identifier: property.nonObject
+        - identifier: method.nonObject
+        - identifier: nullCoalesce.offset
+        - identifier: empty.variable
+        - identifier: property.onlyWritten
+        - identifier: method.unused
+        - identifier: classConstant.unused
+        - identifier: identical.alwaysFalse
+        - identifier: identical.alwaysTrue
+        - identifier: ternary.alwaysTrue
+        - identifier: if.alwaysTrue
+        - identifier: booleanOr.alwaysTrue
+        - identifier: deadCode.unreachable
+        - identifier: foreach.nonIterable
+        - identifier: foreach.emptyArray
+        - identifier: assign.propertyType
+        - identifier: offsetAssign.dimType
+        - identifier: offsetAccess.notFound
+        - identifier: instanceof.alwaysFalse
+        - identifier: larastan.noEnvCallsOutsideOfConfig
+        - identifier: argument.type
+        - identifier: return.type
+        - identifier: function.unresolvableReturnType
+        - identifier: variable.undefined

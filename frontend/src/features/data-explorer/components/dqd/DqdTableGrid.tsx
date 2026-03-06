@@ -27,7 +27,7 @@ function getCellColor(passRate: number): string {
 }
 
 export function DqdTableGrid({ results }: DqdTableGridProps) {
-  const { tables, grid } = useMemo(() => {
+  const { grid } = useMemo(() => {
     // Group by table and category
     const grouped = new Map<string, Map<string, CellData>>();
     const tableOverall = new Map<string, { passed: number; total: number }>();

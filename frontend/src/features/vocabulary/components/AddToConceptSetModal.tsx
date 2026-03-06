@@ -100,7 +100,7 @@ export function AddToConceptSetModal({
             </div>
           ) : (
             <div className="divide-y divide-[#232328]">
-              {filtered.map((cs: { id: number; name: string; description?: string }) => (
+              {filtered.map((cs: { id: number; name: string; description?: string | null }) => (
                 <button
                   key={cs.id}
                   type="button"

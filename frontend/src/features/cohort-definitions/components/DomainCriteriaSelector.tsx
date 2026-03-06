@@ -7,7 +7,6 @@ import {
   Eye,
   Building2,
   Skull,
-  ChevronDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ConceptSetPicker } from "./ConceptSetPicker";

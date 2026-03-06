@@ -1,430 +1,10 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Parameter \#1 \$texts of method App\\Services\\AiService\:\:encodeBatch\(\) expects list\<string\>, array\<mixed\> given\.$#'
+			message: '#^Parameter \#4 \$rebateTiers of method App\\Services\\Heor\\HeorEconomicsService\:\:computeContractRebate\(\) expects array\<int, array\{threshold\: float, rebate_percent\: float\}\>, non\-falsy\-string given\.$#'
 			identifier: argument.type
 			count: 1
-			path: app/Console/Commands/ComputeEmbeddings.php
-
-		-
-			message: '#^Parameter \#1 \$json of function json_decode expects string, string\|false given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Console/Commands/ImportAtlasCohortsCommand.php
-
-		-
-			message: '#^Parameter \#1 \$json of function json_decode expects string, string\|false given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Console/Commands/ImportAtlasConceptSetsCommand.php
-
-		-
-			message: '#^Parameter \#2 \$authType of method App\\Services\\WebApi\\WebApiImporterService\:\:importFromUrl\(\) expects string, string\|null given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Console/Commands/ImportWebApiSourcesCommand.php
-
-		-
-			message: '#^Argument of an invalid type list\<string\>\|false supplied for foreach, only iterables are supported\.$#'
-			identifier: foreach.nonIterable
-			count: 1
-			path: app/Console/Commands/LoadEunomiaCommand.php
-
-		-
-			message: '#^Parameter \#1 \$string of function trim expects string, string\|null given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Console/Commands/LoadEunomiaCommand.php
-
-		-
-			message: '#^Variable \$columns in empty\(\) always exists and is not falsy\.$#'
-			identifier: empty.variable
-			count: 1
-			path: app/Console/Commands/LoadEunomiaCommand.php
-
-		-
-			message: '#^Offset ''error'' might not exist on array\{analysis_id\: int, status\: string, elapsed_seconds\: float, error\?\: string\}\.$#'
-			identifier: offsetAccess.notFound
-			count: 1
-			path: app/Console/Commands/RunAchillesCommand.php
-
-		-
-			message: '#^Cannot access property \$value on string\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: app/Events/StudyExecutionUpdated.php
-
-		-
-			message: '#^Parameter \#2 \$author of method App\\Services\\AI\\AbbyAiService\:\:buildCohortAndSave\(\) expects App\\Models\\User, App\\Models\\User\|null given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Http/Controllers/Api/V1/AbbyAiController.php
-
-		-
-			message: '#^Cannot access property \$id on App\\Models\\User\|null\.$#'
-			identifier: property.nonObject
-			count: 4
-			path: app/Http/Controllers/Api/V1/Admin/AiProviderController.php
-
-		-
-			message: '#^Parameter \#1 \$cfg of method App\\Http\\Controllers\\Api\\V1\\Admin\\AiProviderController\:\:testAnthropic\(\) expects array\<string, mixed\>, array\|string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Http/Controllers/Api/V1/Admin/AiProviderController.php
-
-		-
-			message: '#^Parameter \#1 \$cfg of method App\\Http\\Controllers\\Api\\V1\\Admin\\AiProviderController\:\:testDeepSeek\(\) expects array\<string, mixed\>, array\|string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Http/Controllers/Api/V1/Admin/AiProviderController.php
-
-		-
-			message: '#^Parameter \#1 \$cfg of method App\\Http\\Controllers\\Api\\V1\\Admin\\AiProviderController\:\:testGemini\(\) expects array\<string, mixed\>, array\|string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Http/Controllers/Api/V1/Admin/AiProviderController.php
-
-		-
-			message: '#^Parameter \#1 \$cfg of method App\\Http\\Controllers\\Api\\V1\\Admin\\AiProviderController\:\:testMistral\(\) expects array\<string, mixed\>, array\|string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Http/Controllers/Api/V1/Admin/AiProviderController.php
-
-		-
-			message: '#^Parameter \#1 \$cfg of method App\\Http\\Controllers\\Api\\V1\\Admin\\AiProviderController\:\:testMoonshot\(\) expects array\<string, mixed\>, array\|string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Http/Controllers/Api/V1/Admin/AiProviderController.php
-
-		-
-			message: '#^Parameter \#1 \$cfg of method App\\Http\\Controllers\\Api\\V1\\Admin\\AiProviderController\:\:testOllama\(\) expects array\<string, mixed\>, array\|string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Http/Controllers/Api/V1/Admin/AiProviderController.php
-
-		-
-			message: '#^Parameter \#1 \$cfg of method App\\Http\\Controllers\\Api\\V1\\Admin\\AiProviderController\:\:testOpenAi\(\) expects array\<string, mixed\>, array\|string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Http/Controllers/Api/V1/Admin/AiProviderController.php
-
-		-
-			message: '#^Parameter \#1 \$cfg of method App\\Http\\Controllers\\Api\\V1\\Admin\\AiProviderController\:\:testQwen\(\) expects array\<string, mixed\>, array\|string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Http/Controllers/Api/V1/Admin/AiProviderController.php
-
-		-
-			message: '#^Parameter \#1 \.\.\.\$arrays of function array_merge expects array, array\|string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Http/Controllers/Api/V1/Admin/AiProviderController.php
-
-		-
-			message: '#^Cannot access property \$id on App\\Models\\User\|null\.$#'
-			identifier: property.nonObject
-			count: 3
-			path: app/Http/Controllers/Api/V1/Admin/AuthProviderController.php
-
-		-
-			message: '#^Constant App\\Http\\Controllers\\Api\\V1\\Admin\\AuthProviderController\:\:TYPES is unused\.$#'
-			identifier: classConstant.unused
-			count: 1
-			path: app/Http/Controllers/Api/V1/Admin/AuthProviderController.php
-
-		-
-			message: '#^Parameter \#1 \$cfg of method App\\Http\\Controllers\\Api\\V1\\Admin\\AuthProviderController\:\:testLdap\(\) expects array\<string, mixed\>, array\|string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Http/Controllers/Api/V1/Admin/AuthProviderController.php
-
-		-
-			message: '#^Parameter \#1 \$cfg of method App\\Http\\Controllers\\Api\\V1\\Admin\\AuthProviderController\:\:testOidc\(\) expects array\<string, mixed\>, array\|string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Http/Controllers/Api/V1/Admin/AuthProviderController.php
-
-		-
-			message: '#^Parameter \#1 \.\.\.\$arrays of function array_merge expects array, array\|string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Http/Controllers/Api/V1/Admin/AuthProviderController.php
-
-		-
-			message: '#^Called ''env'' outside of the config directory which returns null when the config is cached, use ''config''\.$#'
-			identifier: larastan.noEnvCallsOutsideOfConfig
-			count: 2
-			path: app/Http/Controllers/Api/V1/Admin/SystemHealthController.php
-
-		-
-			message: '#^Cannot access property \$id on App\\Models\\User\|null\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: app/Http/Controllers/Api/V1/Admin/WebApiRegistryController.php
-
-		-
-			message: '#^Cannot call method currentAccessToken\(\) on App\\Models\\User\|null\.$#'
-			identifier: method.nonObject
-			count: 1
-			path: app/Http/Controllers/Api/V1/AuthController.php
-
-		-
-			message: '#^Cannot call method load\(\) on App\\Models\\User\|null\.$#'
-			identifier: method.nonObject
-			count: 1
-			path: app/Http/Controllers/Api/V1/AuthController.php
-
-		-
-			message: '#^Parameter \#1 \$user of method App\\Http\\Controllers\\Api\\V1\\AuthController\:\:formatUser\(\) expects App\\Models\\User, App\\Models\\User\|null given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Http/Controllers/Api/V1/AuthController.php
-
-		-
-			message: '#^Ternary operator condition is always true\.$#'
-			identifier: ternary.alwaysTrue
-			count: 1
-			path: app/Http/Controllers/Api/V1/AuthController.php
-
-		-
-			message: '#^Cannot access property \$id on App\\Models\\User\|null\.$#'
-			identifier: property.nonObject
-			count: 2
-			path: app/Http/Controllers/Api/V1/CareGapController.php
-
-		-
-			message: '#^Parameter \#1 \$source of method App\\Services\\Analysis\\CareGapService\:\:getPopulationSummary\(\) expects App\\Models\\App\\Source, App\\Models\\App\\Source\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\App\\Source\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Http/Controllers/Api/V1/CareGapController.php
-
-		-
-			message: '#^Parameter \#2 \$source of job class App\\Jobs\\Analysis\\RunCareGapEvaluationJob constructor expects App\\Models\\App\\Source in App\\Jobs\\Analysis\\RunCareGapEvaluationJob\:\:dispatch\(\), App\\Models\\App\\Source\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\App\\Source\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Http/Controllers/Api/V1/CareGapController.php
-
-		-
-			message: '#^Cannot access property \$id on App\\Models\\User\|null\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: app/Http/Controllers/Api/V1/CharacterizationController.php
-
-		-
-			message: '#^Parameter \#2 \$source of job class App\\Jobs\\Analysis\\RunCharacterizationJob constructor expects App\\Models\\App\\Source in App\\Jobs\\Analysis\\RunCharacterizationJob\:\:dispatch\(\), App\\Models\\App\\Source\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\App\\Source\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Http/Controllers/Api/V1/CharacterizationController.php
-
-		-
-			message: '#^Property App\\Http\\Controllers\\Api\\V1\\CharacterizationController\:\:\$characterizationService is never read, only written\.$#'
-			identifier: property.onlyWritten
-			count: 1
-			path: app/Http/Controllers/Api/V1/CharacterizationController.php
-
-		-
-			message: '#^Cannot access property \$id on App\\Models\\User\|null\.$#'
-			identifier: property.nonObject
-			count: 4
-			path: app/Http/Controllers/Api/V1/CohortDefinitionController.php
-
-		-
-			message: '#^Cannot call method toIso8601String\(\) on string\|null\.$#'
-			identifier: method.nonObject
-			count: 1
-			path: app/Http/Controllers/Api/V1/CohortDefinitionController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Api\\V1\\CohortDefinitionController\:\:mapDomainToOmop\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: app/Http/Controllers/Api/V1/CohortDefinitionController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Api\\V1\\CohortDefinitionController\:\:mapMeasureDomainToCriterionType\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: app/Http/Controllers/Api/V1/CohortDefinitionController.php
-
-		-
-			message: '#^Offset ''concept_ids'' on string\|null on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Http/Controllers/Api/V1/CohortDefinitionController.php
-
-		-
-			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,string\>\:\:map\(\) expects callable\(string, 0\)\: array\{concept\: array\{CONCEPT_ID\: int, CONCEPT_NAME\: string, DOMAIN_ID\: ''Condition'', VOCABULARY_ID\: ''SNOMED'', CONCEPT_CLASS_ID\: ''Clinical Finding'', STANDARD_CONCEPT\: ''S'', CONCEPT_CODE\: ''''\}, isExcluded\: false, includeDescendants\: true, includeMapped\: false\}, Closure\(int\)\: array\{concept\: array\{CONCEPT_ID\: int, CONCEPT_NAME\: string, DOMAIN_ID\: ''Condition'', VOCABULARY_ID\: ''SNOMED'', CONCEPT_CLASS_ID\: ''Clinical Finding'', STANDARD_CONCEPT\: ''S'', CONCEPT_CODE\: ''''\}, isExcluded\: false, includeDescendants\: true, includeMapped\: false\} given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Http/Controllers/Api/V1/CohortDefinitionController.php
-
-		-
-			message: '#^Parameter \#1 \$value of function collect expects Illuminate\\Contracts\\Support\\Arrayable\<\(int\|string\), mixed\>\|iterable\<\(int\|string\), mixed\>\|null, string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Http/Controllers/Api/V1/CohortDefinitionController.php
-
-		-
-			message: '#^Parameter \#2 \$source of job class App\\Jobs\\Cohort\\GenerateCohortJob constructor expects App\\Models\\App\\Source in App\\Jobs\\Cohort\\GenerateCohortJob\:\:dispatch\(\), App\\Models\\App\\Source\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\App\\Source\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Http/Controllers/Api/V1/CohortDefinitionController.php
-
-		-
-			message: '#^Parameter \#2 \$source of method App\\Services\\Analysis\\CohortDiagnosticsService\:\:run\(\) expects App\\Models\\App\\Source, App\\Models\\App\\Source\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\App\\Source\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Http/Controllers/Api/V1/CohortDefinitionController.php
-
-		-
-			message: '#^Parameter \#2 \$source of method App\\Services\\Analysis\\CohortOverlapService\:\:computeOverlap\(\) expects App\\Models\\App\\Source, App\\Models\\App\\Source\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\App\\Source\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Http/Controllers/Api/V1/CohortDefinitionController.php
-
-		-
-			message: '#^Parameter \#2 \$source of method App\\Services\\Cohort\\CohortGenerationService\:\:previewSql\(\) expects App\\Models\\App\\Source, App\\Models\\App\\Source\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\App\\Source\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Http/Controllers/Api/V1/CohortDefinitionController.php
-
-		-
-			message: '#^Parameter \$expression of method App\\Services\\Cohort\\CohortSqlCompiler\:\:preview\(\) expects array\<string, mixed\>, string\|null given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Http/Controllers/Api/V1/CohortDefinitionController.php
-
-		-
-			message: '#^Property App\\Models\\App\\CohortDefinition\:\:\$author_id \(int\<0, max\>\) does not accept int\.$#'
-			identifier: assign.propertyType
-			count: 1
-			path: app/Http/Controllers/Api/V1/CohortDefinitionController.php
-
-		-
-			message: '#^Strict comparison using \=\=\= between string and App\\Enums\\ExecutionStatus\:\:Completed will always evaluate to false\.$#'
-			identifier: identical.alwaysFalse
-			count: 1
-			path: app/Http/Controllers/Api/V1/CohortDefinitionController.php
-
-		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
-			count: 1
-			path: app/Http/Controllers/Api/V1/CohortDefinitionController.php
-
-		-
-			message: '#^Variable \$additionalCriteriaList in empty\(\) always exists and is always falsy\.$#'
-			identifier: empty.variable
-			count: 1
-			path: app/Http/Controllers/Api/V1/CohortDefinitionController.php
-
-		-
-			message: '#^Variable \$conceptIds in empty\(\) always exists and is always falsy\.$#'
-			identifier: empty.variable
-			count: 1
-			path: app/Http/Controllers/Api/V1/CohortDefinitionController.php
-
-		-
-			message: '#^Argument of an invalid type string supplied for foreach, only iterables are supported\.$#'
-			identifier: foreach.nonIterable
-			count: 1
-			path: app/Http/Controllers/Api/V1/ConceptSetController.php
-
-		-
-			message: '#^Cannot access property \$id on App\\Models\\User\|null\.$#'
-			identifier: property.nonObject
-			count: 4
-			path: app/Http/Controllers/Api/V1/ConceptSetController.php
-
-		-
-			message: '#^Empty array passed to foreach\.$#'
-			identifier: foreach.emptyArray
-			count: 2
-			path: app/Http/Controllers/Api/V1/ConceptSetController.php
-
-		-
-			message: '#^Offset ''concept_ids'' on string\|null on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Http/Controllers/Api/V1/ConceptSetController.php
-
-		-
-			message: '#^Property App\\Models\\App\\ConceptSet\:\:\$author_id \(int\<0, max\>\) does not accept int\.$#'
-			identifier: assign.propertyType
-			count: 1
-			path: app/Http/Controllers/Api/V1/ConceptSetController.php
-
-		-
-			message: '#^Using nullsafe property access "\?\-\>concept_class_id" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: app/Http/Controllers/Api/V1/ConceptSetController.php
-
-		-
-			message: '#^Using nullsafe property access "\?\-\>concept_code" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: app/Http/Controllers/Api/V1/ConceptSetController.php
-
-		-
-			message: '#^Using nullsafe property access "\?\-\>concept_name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: app/Http/Controllers/Api/V1/ConceptSetController.php
-
-		-
-			message: '#^Using nullsafe property access "\?\-\>domain_id" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: app/Http/Controllers/Api/V1/ConceptSetController.php
-
-		-
-			message: '#^Using nullsafe property access "\?\-\>standard_concept" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: app/Http/Controllers/Api/V1/ConceptSetController.php
-
-		-
-			message: '#^Using nullsafe property access "\?\-\>vocabulary_id" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: app/Http/Controllers/Api/V1/ConceptSetController.php
-
-		-
-			message: '#^Cannot access property \$completed_at on App\\Models\\App\\DqdResult\|null\.$#'
-			identifier: property.nonObject
-			count: 2
-			path: app/Http/Controllers/Api/V1/DataQualityController.php
-
-		-
-			message: '#^Cannot access property \$started_at on App\\Models\\App\\DqdResult\|null\.$#'
-			identifier: property.nonObject
-			count: 2
-			path: app/Http/Controllers/Api/V1/DataQualityController.php
-
-		-
-			message: '#^Cannot access property \$total_execution_time_ms on App\\Models\\App\\DqdResult\|null\.$#'
-			identifier: property.nonObject
-			count: 2
-			path: app/Http/Controllers/Api/V1/DataQualityController.php
-
-		-
-			message: '#^Cannot access property \$id on App\\Models\\User\|null\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: app/Http/Controllers/Api/V1/EstimationController.php
-
-		-
-			message: '#^Parameter \#2 \$source of job class App\\Jobs\\Analysis\\RunEstimationJob constructor expects App\\Models\\App\\Source in App\\Jobs\\Analysis\\RunEstimationJob\:\:dispatch\(\), App\\Models\\App\\Source\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\App\\Source\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Http/Controllers/Api/V1/EstimationController.php
-
-		-
-			message: '#^Cannot access property \$id on App\\Models\\User\|null\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: app/Http/Controllers/Api/V1/EvidenceSynthesisController.php
+			path: app/Http/Controllers/Api/V1/HeorController.php
 
 		-
 			message: '#^Cannot access property \$id on App\\Models\\User\|null\.$#'
@@ -601,6 +181,12 @@ parameters:
 			path: app/Http/Controllers/Api/V1/StudyController.php
 
 		-
+			message: '#^Offset ''facets'' on array\{items\: list\<array\<string, mixed\>\>, total\: int, facets\: array\<string, array\<string, int\>\>, highlights\: array\<string, array\<string, array\<string\>\>\>\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Http/Controllers/Api/V1/StudyController.php
+
+		-
 			message: '#^Parameter \#2 \$source of method App\\Services\\Analysis\\StudyService\:\:executeAll\(\) expects App\\Models\\App\\Source, App\\Models\\App\\Source\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\App\\Source\> given\.$#'
 			identifier: argument.type
 			count: 1
@@ -667,304 +253,70 @@ parameters:
 			path: app/Jobs/Analysis/RunEstimationJob.php
 
 		-
-			message: '#^Cannot access property \$status on App\\Models\\App\\AnalysisExecution\|null\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: app/Jobs/Analysis/RunEvidenceSynthesisJob.php
-
-		-
-			message: '#^Cannot access property \$value on string\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: app/Jobs/Analysis/RunEvidenceSynthesisJob.php
-
-		-
-			message: '#^Instanceof between string and App\\Enums\\ExecutionStatus will always evaluate to false\.$#'
-			identifier: instanceof.alwaysFalse
-			count: 1
-			path: app/Jobs/Analysis/RunEvidenceSynthesisJob.php
-
-		-
-			message: '#^Parameter \#1 \$execution of method App\\Jobs\\Analysis\\RunEvidenceSynthesisJob\:\:notifyAuthor\(\) expects App\\Models\\App\\AnalysisExecution, App\\Models\\App\\AnalysisExecution\|null given\.$#'
-			identifier: argument.type
-			count: 2
-			path: app/Jobs/Analysis/RunEvidenceSynthesisJob.php
-
-		-
-			message: '#^Cannot access property \$status on App\\Models\\App\\AnalysisExecution\|null\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: app/Jobs/Analysis/RunIncidenceRateJob.php
-
-		-
-			message: '#^Cannot access property \$value on string\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: app/Jobs/Analysis/RunIncidenceRateJob.php
-
-		-
-			message: '#^Instanceof between string and App\\Enums\\ExecutionStatus will always evaluate to false\.$#'
-			identifier: instanceof.alwaysFalse
-			count: 1
-			path: app/Jobs/Analysis/RunIncidenceRateJob.php
-
-		-
-			message: '#^Parameter \#1 \$execution of method App\\Jobs\\Analysis\\RunIncidenceRateJob\:\:notifyAuthor\(\) expects App\\Models\\App\\AnalysisExecution, App\\Models\\App\\AnalysisExecution\|null given\.$#'
-			identifier: argument.type
-			count: 2
-			path: app/Jobs/Analysis/RunIncidenceRateJob.php
-
-		-
-			message: '#^Cannot access property \$status on App\\Models\\App\\AnalysisExecution\|null\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: app/Jobs/Analysis/RunPathwayJob.php
-
-		-
-			message: '#^Cannot access property \$value on string\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: app/Jobs/Analysis/RunPathwayJob.php
-
-		-
-			message: '#^Instanceof between string and App\\Enums\\ExecutionStatus will always evaluate to false\.$#'
-			identifier: instanceof.alwaysFalse
-			count: 1
-			path: app/Jobs/Analysis/RunPathwayJob.php
-
-		-
-			message: '#^Parameter \#1 \$execution of method App\\Jobs\\Analysis\\RunPathwayJob\:\:notifyAuthor\(\) expects App\\Models\\App\\AnalysisExecution, App\\Models\\App\\AnalysisExecution\|null given\.$#'
-			identifier: argument.type
-			count: 2
-			path: app/Jobs/Analysis/RunPathwayJob.php
-
-		-
-			message: '#^Cannot access property \$status on App\\Models\\App\\AnalysisExecution\|null\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: app/Jobs/Analysis/RunPredictionJob.php
-
-		-
-			message: '#^Cannot access property \$value on string\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: app/Jobs/Analysis/RunPredictionJob.php
-
-		-
-			message: '#^Instanceof between string and App\\Enums\\ExecutionStatus will always evaluate to false\.$#'
-			identifier: instanceof.alwaysFalse
-			count: 1
-			path: app/Jobs/Analysis/RunPredictionJob.php
-
-		-
-			message: '#^Parameter \#1 \$execution of method App\\Jobs\\Analysis\\RunPredictionJob\:\:notifyAuthor\(\) expects App\\Models\\App\\AnalysisExecution, App\\Models\\App\\AnalysisExecution\|null given\.$#'
-			identifier: argument.type
-			count: 2
-			path: app/Jobs/Analysis/RunPredictionJob.php
-
-		-
-			message: '#^Cannot access property \$status on App\\Models\\App\\AnalysisExecution\|null\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: app/Jobs/Analysis/RunSccsJob.php
-
-		-
-			message: '#^Cannot access property \$value on string\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: app/Jobs/Analysis/RunSccsJob.php
-
-		-
-			message: '#^Instanceof between string and App\\Enums\\ExecutionStatus will always evaluate to false\.$#'
-			identifier: instanceof.alwaysFalse
-			count: 1
-			path: app/Jobs/Analysis/RunSccsJob.php
-
-		-
-			message: '#^Parameter \#1 \$execution of method App\\Jobs\\Analysis\\RunSccsJob\:\:notifyAuthor\(\) expects App\\Models\\App\\AnalysisExecution, App\\Models\\App\\AnalysisExecution\|null given\.$#'
-			identifier: argument.type
-			count: 2
-			path: app/Jobs/Analysis/RunSccsJob.php
-
-		-
-			message: '#^Cannot access property \$value on string\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: app/Jobs/Cohort/GenerateCohortJob.php
-
-		-
-			message: '#^If condition is always true\.$#'
-			identifier: if.alwaysTrue
-			count: 1
-			path: app/Jobs/Cohort/GenerateCohortJob.php
-
-		-
-			message: '#^Offset ''cohort_generated'' on array\{\}\|string on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Jobs/Cohort/GenerateCohortJob.php
-
-		-
-			message: '#^Strict comparison using \=\=\= between string and App\\Enums\\ExecutionStatus\:\:Completed will always evaluate to false\.$#'
-			identifier: identical.alwaysFalse
-			count: 1
-			path: app/Jobs/Cohort/GenerateCohortJob.php
-
-		-
-			message: '#^Parameter \#2 \$offset of function substr expects int, float\|int\<0, max\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Jobs/Ingestion/ProcessClinicalNotesJob.php
-
-		-
-			message: '#^Cannot assign offset ''concept_mapping'' to array\|string\.$#'
-			identifier: offsetAssign.dimType
-			count: 1
-			path: app/Jobs/Ingestion/RunConceptMappingJob.php
-
-		-
-			message: '#^Cannot assign offset ''validation'' to array\|string\.$#'
-			identifier: offsetAssign.dimType
-			count: 1
-			path: app/Jobs/Ingestion/RunValidationJob.php
-
-		-
-			message: '#^Cannot assign offset ''cdm_writing'' to array\|string\.$#'
-			identifier: offsetAssign.dimType
-			count: 1
-			path: app/Jobs/Ingestion/WriteCdmDataJob.php
-
-		-
 			message: '#^Parameter \#2 \$haystack of function in_array expects array, array\|string given\.$#'
 			identifier: argument.type
 			count: 1
 			path: app/Models/App/ConditionBundle.php
 
 		-
-			message: '#^Call to function is_array\(\) with string\|null will always evaluate to false\.$#'
-			identifier: function.impossibleType
-			count: 1
-			path: app/Notifications/AnalysisCompletedNotification.php
-
-		-
-			message: '#^Cannot access property \$id on Illuminate\\Database\\Eloquent\\Model\|null\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: app/Notifications/AnalysisCompletedNotification.php
-
-		-
-			message: '#^Cannot call method diffForHumans\(\) on string\.$#'
-			identifier: method.nonObject
-			count: 1
-			path: app/Notifications/AnalysisCompletedNotification.php
-
-		-
-			message: '#^Cannot call method toIso8601String\(\) on string\.$#'
-			identifier: method.nonObject
-			count: 1
-			path: app/Notifications/AnalysisCompletedNotification.php
-
-		-
-			message: '#^Parameter \#1 \$class of function class_basename expects object\|string, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
-			identifier: argument.type
-			count: 2
-			path: app/Notifications/AnalysisCompletedNotification.php
-
-		-
-			message: '#^Parameter \#1 \$string of function strtolower expects string, string\|null given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Notifications/AnalysisCompletedNotification.php
-
-		-
-			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: app/Notifications/AnalysisCompletedNotification.php
-
-		-
-			message: '#^Cannot access property \$id on Illuminate\\Database\\Eloquent\\Model\|null\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: app/Notifications/AnalysisFailedNotification.php
-
-		-
-			message: '#^Cannot call method toIso8601String\(\) on string\.$#'
-			identifier: method.nonObject
-			count: 1
-			path: app/Notifications/AnalysisFailedNotification.php
-
-		-
-			message: '#^Parameter \#1 \$class of function class_basename expects object\|string, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
-			identifier: argument.type
-			count: 2
-			path: app/Notifications/AnalysisFailedNotification.php
-
-		-
-			message: '#^Parameter \#1 \$string of function strtolower expects string, string\|null given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Notifications/AnalysisFailedNotification.php
-
-		-
-			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: app/Notifications/AnalysisFailedNotification.php
-
-		-
-			message: '#^Cannot access property \$id on App\\Models\\App\\CohortDefinition\|null\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: app/Notifications/CohortGeneratedNotification.php
-
-		-
-			message: '#^Cannot call method toIso8601String\(\) on string\.$#'
-			identifier: method.nonObject
-			count: 1
-			path: app/Notifications/CohortGeneratedNotification.php
-
-		-
-			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: app/Notifications/CohortGeneratedNotification.php
-
-		-
-			message: '#^Method App\\Services\\AI\\AbbyAiService\:\:chat\(\) should return array\{reply\: string, suggestions\: array\<string\>\} but returns array\<string, mixed\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Services/AI/AbbyAiService.php
-
-		-
-			message: '#^Offset ''domain'' on array\{text\: ''ace inhibitor''\|''alzheimer''\|''amlodipine''\|''anemia''\|''antibiotic''\|''anxiety''\|''arthritis''\|''aspirin''\|''asthma''\|''beta blocker''\|''biopsy''\|''blood pressure''\|''bmi''\|''cancer''\|''catheterization''\|''chemotherapy''\|''cholesterol''\|''colonoscopy''\|''copd''\|''corticosteroid''\|''creatinine''\|''ct scan''\|''depression''\|''diabetes''\|''dialysis''\|''diuretic''\|''endoscopy''\|''epilepsy''\|''fracture''\|''glucose''\|''hba1c''\|''heart failure''\|''hemoglobin''\|''hip replacement''\|''hypertension''\|''infection''\|''insulin''\|''intubation''\|''knee replacement''\|''lisinopril''\|''metformin''\|''migraine''\|''mri''\|''obesity''\|''opioid''\|''parkinson''\|''platelet''\|''pneumonia''\|''potassium''\|''sepsis''\|''sodium''\|''ssri''\|''statin''\|''stroke''\|''surgery''\|''transplant''\|''warfarin''\|''white blood cell''\|''x\-ray'', domain\: ''condition''\|''drug''\|''measurement''\|''procedure'', role\: literal\-string&non\-falsy\-string\} on left side of \?\? always exists and is not nullable\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Services/AI/AbbyAiService.php
-
-		-
-			message: '#^Property App\\Services\\AI\\AbbyAiService\:\:\$schema is never read, only written\.$#'
-			identifier: property.onlyWritten
-			count: 1
-			path: app/Services/AI/AbbyAiService.php
-
-		-
-			message: '#^Variable \$parts in empty\(\) always exists and is not falsy\.$#'
-			identifier: empty.variable
-			count: 1
-			path: app/Services/AI/AbbyAiService.php
-
-		-
-			message: '#^Using nullsafe property access "\?\-\>table_qualifier" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: app/Services/Achilles/AchillesResultReaderService.php
-
-		-
 			message: '#^Parameter \#2 \$params of method App\\Services\\SqlRenderer\\SqlRendererService\:\:render\(\) expects array\<string, string\>, App\\Models\\App\\Source given\.$#'
 			identifier: argument.type
 			count: 1
 			path: app/Services/Achilles/Heel/AchillesHeelService.php
+
+		-
+			message: '#^Expression in empty\(\) is always falsy\.$#'
+			identifier: empty.expr
+			count: 1
+			path: app/Services/Analysis/CareGapRefreshService.php
+
+		-
+			message: '#^Method App\\Services\\Analysis\\CareGapRefreshService\:\:resolveConceptColumn\(\) is unused\.$#'
+			identifier: method.unused
+			count: 1
+			path: app/Services/Analysis/CareGapRefreshService.php
+
+		-
+			message: '#^Method App\\Services\\Analysis\\CareGapRefreshService\:\:resolveDateColumn\(\) is unused\.$#'
+			identifier: method.unused
+			count: 1
+			path: app/Services/Analysis/CareGapRefreshService.php
+
+		-
+			message: '#^Method App\\Services\\Analysis\\CareGapRefreshService\:\:resolveTableName\(\) is unused\.$#'
+			identifier: method.unused
+			count: 1
+			path: app/Services/Analysis/CareGapRefreshService.php
+
+		-
+			message: '#^Offset ''concept_ids'' on string on left side of \?\? does not exist\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Services/Analysis/CareGapRefreshService.php
+
+		-
+			message: '#^Parameter \#1 \$value of function count expects array\|Countable, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/Analysis/CareGapRefreshService.php
+
+		-
+			message: '#^Parameter \#2 \.\.\.\$arrays of function array_merge expects array, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/Analysis/CareGapRefreshService.php
+
+		-
+			message: '#^Result of \|\| is always true\.$#'
+			identifier: booleanOr.alwaysTrue
+			count: 1
+			path: app/Services/Analysis/CareGapRefreshService.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 1
+			path: app/Services/Analysis/CareGapRefreshService.php
 
 		-
 			message: '#^Cannot assign new offset to string\.$#'
@@ -1141,534 +493,6 @@ parameters:
 			path: app/Services/Analysis/CohortDiagnosticsService.php
 
 		-
-			message: '#^Method App\\Services\\Analysis\\EstimationService\:\:isNotImplemented\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: app/Services/Analysis/EstimationService.php
-
-		-
-			message: '#^Offset ''comparatorCohortId'' on string\|null on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Services/Analysis/EstimationService.php
-
-		-
-			message: '#^Offset ''covariateSettings'' on string\|null on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Services/Analysis/EstimationService.php
-
-		-
-			message: '#^Offset ''model'' on string\|null on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Services/Analysis/EstimationService.php
-
-		-
-			message: '#^Offset ''negativeControlOutc…'' on string\|null on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Services/Analysis/EstimationService.php
-
-		-
-			message: '#^Offset ''outcomeCohortIds'' on string\|null on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Services/Analysis/EstimationService.php
-
-		-
-			message: '#^Offset ''propensityScore'' on string\|null on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Services/Analysis/EstimationService.php
-
-		-
-			message: '#^Offset ''targetCohortId'' on string\|null on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Services/Analysis/EstimationService.php
-
-		-
-			message: '#^Property App\\Services\\Analysis\\EstimationService\:\:\$rService is never read, only written\.$#'
-			identifier: property.onlyWritten
-			count: 1
-			path: app/Services/Analysis/EstimationService.php
-
-		-
-			message: '#^Property App\\Services\\Analysis\\EstimationService\:\:\$sqlRenderer is never read, only written\.$#'
-			identifier: property.onlyWritten
-			count: 1
-			path: app/Services/Analysis/EstimationService.php
-
-		-
-			message: '#^Result of \|\| is always true\.$#'
-			identifier: booleanOr.alwaysTrue
-			count: 2
-			path: app/Services/Analysis/EstimationService.php
-
-		-
-			message: '#^Strict comparison using \=\=\= between null and null will always evaluate to true\.$#'
-			identifier: identical.alwaysTrue
-			count: 2
-			path: app/Services/Analysis/EstimationService.php
-
-		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
-			count: 1
-			path: app/Services/Analysis/EstimationService.php
-
-		-
-			message: '#^Variable \$outcomeCohortIds in empty\(\) always exists and is always falsy\.$#'
-			identifier: empty.variable
-			count: 1
-			path: app/Services/Analysis/EstimationService.php
-
-		-
-			message: '#^Comparison operation "\<" between 0 and 2 is always true\.$#'
-			identifier: smaller.alwaysTrue
-			count: 1
-			path: app/Services/Analysis/EvidenceSynthesisService.php
-
-		-
-			message: '#^Method App\\Services\\Analysis\\EvidenceSynthesisService\:\:isNotImplemented\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: app/Services/Analysis/EvidenceSynthesisService.php
-
-		-
-			message: '#^Offset ''estimates'' on string\|null on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Services/Analysis/EvidenceSynthesisService.php
-
-		-
-			message: '#^Property App\\Services\\Analysis\\EvidenceSynthesisService\:\:\$rService is never read, only written\.$#'
-			identifier: property.onlyWritten
-			count: 1
-			path: app/Services/Analysis/EvidenceSynthesisService.php
-
-		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
-			count: 1
-			path: app/Services/Analysis/EvidenceSynthesisService.php
-
-		-
-			message: '#^Method App\\Services\\Analysis\\HadesBridgeService\:\:feasibility\(\) should return array\{status\: string, counts\: array\<string, int\|string\>\} but returns array\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Services/Analysis/HadesBridgeService.php
-
-		-
-			message: '#^Using nullsafe property access "\?\-\>table_qualifier" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 4
-			path: app/Services/Analysis/HadesBridgeService.php
-
-		-
-			message: '#^Empty array passed to foreach\.$#'
-			identifier: foreach.emptyArray
-			count: 1
-			path: app/Services/Analysis/IncidenceRateService.php
-
-		-
-			message: '#^Offset ''ageGroups'' on string\|null on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Services/Analysis/IncidenceRateService.php
-
-		-
-			message: '#^Offset ''dateField'' on array\{dateField\: string, offset\: int\} on left side of \?\? always exists and is not nullable\.$#'
-			identifier: nullCoalesce.offset
-			count: 2
-			path: app/Services/Analysis/IncidenceRateService.php
-
-		-
-			message: '#^Offset ''minCellCount'' on string\|null on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Services/Analysis/IncidenceRateService.php
-
-		-
-			message: '#^Offset ''offset'' on array\{dateField\: string, offset\: int\} on left side of \?\? always exists and is not nullable\.$#'
-			identifier: nullCoalesce.offset
-			count: 2
-			path: app/Services/Analysis/IncidenceRateService.php
-
-		-
-			message: '#^Offset ''outcomeCohortIds'' on string\|null on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Services/Analysis/IncidenceRateService.php
-
-		-
-			message: '#^Offset ''stratifyByAge'' on string\|null on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Services/Analysis/IncidenceRateService.php
-
-		-
-			message: '#^Offset ''stratifyByGender'' on string\|null on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Services/Analysis/IncidenceRateService.php
-
-		-
-			message: '#^Offset ''targetCohortId'' does not exist on string\|null\.$#'
-			identifier: offsetAccess.notFound
-			count: 1
-			path: app/Services/Analysis/IncidenceRateService.php
-
-		-
-			message: '#^Offset ''timeAtRisk'' on string\|null on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Services/Analysis/IncidenceRateService.php
-
-		-
-			message: '#^Parameter \#8 \$vocabSchema of method App\\Services\\Analysis\\IncidenceRateService\:\:computeIncidenceRate\(\) expects string, string\|null given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Services/Analysis/IncidenceRateService.php
-
-		-
-			message: '#^Method App\\Services\\Analysis\\NegativeControlService\:\:suggestNegativeControls\(\) should return list\<array\{concept_id\: int, concept_name\: string, person_count\: int\}\> but returns array\<array\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Services/Analysis/NegativeControlService.php
-
-		-
-			message: '#^Parameter \#2 \$params of method App\\Services\\SqlRenderer\\SqlRendererService\:\:render\(\) expects array\<string, string\>, array\<string, string\|null\> given\.$#'
-			identifier: argument.type
-			count: 2
-			path: app/Services/Analysis/NegativeControlService.php
-
-		-
-			message: '#^Method App\\Services\\Analysis\\PathwayService\:\:buildEventCohortNames\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: app/Services/Analysis/PathwayService.php
-
-		-
-			message: '#^Method App\\Services\\Analysis\\PathwayService\:\:buildOrderedEventsSql\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: app/Services/Analysis/PathwayService.php
-
-		-
-			message: '#^Method App\\Services\\Analysis\\PathwayService\:\:buildPathways\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: app/Services/Analysis/PathwayService.php
-
-		-
-			message: '#^Method App\\Services\\Analysis\\PathwayService\:\:buildTargetCountSql\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: app/Services/Analysis/PathwayService.php
-
-		-
-			message: '#^Offset ''combinationWindow'' on string\|null on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Services/Analysis/PathwayService.php
-
-		-
-			message: '#^Offset ''eventCohortIds'' on string\|null on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Services/Analysis/PathwayService.php
-
-		-
-			message: '#^Offset ''maxDepth'' on string\|null on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Services/Analysis/PathwayService.php
-
-		-
-			message: '#^Offset ''maxPathLength'' on string\|null on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Services/Analysis/PathwayService.php
-
-		-
-			message: '#^Offset ''minCellCount'' on string\|null on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Services/Analysis/PathwayService.php
-
-		-
-			message: '#^Offset ''targetCohortId'' does not exist on string\|null\.$#'
-			identifier: offsetAccess.notFound
-			count: 1
-			path: app/Services/Analysis/PathwayService.php
-
-		-
-			message: '#^Property App\\Services\\Analysis\\PathwayService\:\:\$sqlRenderer is never read, only written\.$#'
-			identifier: property.onlyWritten
-			count: 1
-			path: app/Services/Analysis/PathwayService.php
-
-		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
-			count: 1
-			path: app/Services/Analysis/PathwayService.php
-
-		-
-			message: '#^Variable \$eventCohortIds in empty\(\) always exists and is always falsy\.$#'
-			identifier: empty.variable
-			count: 1
-			path: app/Services/Analysis/PathwayService.php
-
-		-
-			message: '#^Method App\\Services\\Analysis\\PatientProfileService\:\:getConditionEras\(\) should return list\<array\<string, mixed\>\> but returns array\<array\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Services/Analysis/PatientProfileService.php
-
-		-
-			message: '#^Method App\\Services\\Analysis\\PatientProfileService\:\:getConditions\(\) should return list\<array\<string, mixed\>\> but returns array\<array\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Services/Analysis/PatientProfileService.php
-
-		-
-			message: '#^Method App\\Services\\Analysis\\PatientProfileService\:\:getDrugEras\(\) should return list\<array\<string, mixed\>\> but returns array\<array\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Services/Analysis/PatientProfileService.php
-
-		-
-			message: '#^Method App\\Services\\Analysis\\PatientProfileService\:\:getDrugs\(\) should return list\<array\<string, mixed\>\> but returns array\<array\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Services/Analysis/PatientProfileService.php
-
-		-
-			message: '#^Method App\\Services\\Analysis\\PatientProfileService\:\:getMeasurements\(\) should return list\<array\<string, mixed\>\> but returns array\<array\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Services/Analysis/PatientProfileService.php
-
-		-
-			message: '#^Method App\\Services\\Analysis\\PatientProfileService\:\:getObservationPeriods\(\) should return list\<array\<string, mixed\>\> but returns array\<array\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Services/Analysis/PatientProfileService.php
-
-		-
-			message: '#^Method App\\Services\\Analysis\\PatientProfileService\:\:getObservations\(\) should return list\<array\<string, mixed\>\> but returns array\<array\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Services/Analysis/PatientProfileService.php
-
-		-
-			message: '#^Method App\\Services\\Analysis\\PatientProfileService\:\:getProcedures\(\) should return list\<array\<string, mixed\>\> but returns array\<array\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Services/Analysis/PatientProfileService.php
-
-		-
-			message: '#^Method App\\Services\\Analysis\\PatientProfileService\:\:getVisits\(\) should return list\<array\<string, mixed\>\> but returns array\<array\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Services/Analysis/PatientProfileService.php
-
-		-
-			message: '#^Parameter \#2 \$params of method App\\Services\\Analysis\\PatientProfileService\:\:getConditionEras\(\) expects array\<string, string\>, array\<string, string\|null\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Services/Analysis/PatientProfileService.php
-
-		-
-			message: '#^Parameter \#2 \$params of method App\\Services\\Analysis\\PatientProfileService\:\:getConditions\(\) expects array\<string, string\>, array\<string, string\|null\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Services/Analysis/PatientProfileService.php
-
-		-
-			message: '#^Parameter \#2 \$params of method App\\Services\\Analysis\\PatientProfileService\:\:getDemographics\(\) expects array\<string, string\>, array\<string, string\|null\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Services/Analysis/PatientProfileService.php
-
-		-
-			message: '#^Parameter \#2 \$params of method App\\Services\\Analysis\\PatientProfileService\:\:getDrugEras\(\) expects array\<string, string\>, array\<string, string\|null\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Services/Analysis/PatientProfileService.php
-
-		-
-			message: '#^Parameter \#2 \$params of method App\\Services\\Analysis\\PatientProfileService\:\:getDrugs\(\) expects array\<string, string\>, array\<string, string\|null\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Services/Analysis/PatientProfileService.php
-
-		-
-			message: '#^Parameter \#2 \$params of method App\\Services\\Analysis\\PatientProfileService\:\:getMeasurements\(\) expects array\<string, string\>, array\<string, string\|null\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Services/Analysis/PatientProfileService.php
-
-		-
-			message: '#^Parameter \#2 \$params of method App\\Services\\Analysis\\PatientProfileService\:\:getObservationPeriods\(\) expects array\<string, string\>, array\<string, string\|null\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Services/Analysis/PatientProfileService.php
-
-		-
-			message: '#^Parameter \#2 \$params of method App\\Services\\Analysis\\PatientProfileService\:\:getObservations\(\) expects array\<string, string\>, array\<string, string\|null\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Services/Analysis/PatientProfileService.php
-
-		-
-			message: '#^Parameter \#2 \$params of method App\\Services\\Analysis\\PatientProfileService\:\:getProcedures\(\) expects array\<string, string\>, array\<string, string\|null\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Services/Analysis/PatientProfileService.php
-
-		-
-			message: '#^Parameter \#2 \$params of method App\\Services\\Analysis\\PatientProfileService\:\:getVisits\(\) expects array\<string, string\>, array\<string, string\|null\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Services/Analysis/PatientProfileService.php
-
-		-
-			message: '#^Parameter \#2 \$params of method App\\Services\\SqlRenderer\\SqlRendererService\:\:render\(\) expects array\<string, string\>, array\<string, string\|null\> given\.$#'
-			identifier: argument.type
-			count: 2
-			path: app/Services/Analysis/PatientProfileService.php
-
-		-
-			message: '#^Method App\\Services\\Analysis\\PredictionService\:\:isNotImplemented\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: app/Services/Analysis/PredictionService.php
-
-		-
-			message: '#^Offset ''covariateSettings'' on string\|null on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Services/Analysis/PredictionService.php
-
-		-
-			message: '#^Offset ''model'' on string\|null on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Services/Analysis/PredictionService.php
-
-		-
-			message: '#^Offset ''outcomeCohortId'' on string\|null on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Services/Analysis/PredictionService.php
-
-		-
-			message: '#^Offset ''populationSettings'' on string\|null on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Services/Analysis/PredictionService.php
-
-		-
-			message: '#^Offset ''splitSettings'' on string\|null on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Services/Analysis/PredictionService.php
-
-		-
-			message: '#^Offset ''targetCohortId'' on string\|null on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Services/Analysis/PredictionService.php
-
-		-
-			message: '#^Offset ''timeAtRisk'' on string\|null on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Services/Analysis/PredictionService.php
-
-		-
-			message: '#^Property App\\Services\\Analysis\\PredictionService\:\:\$rService is never read, only written\.$#'
-			identifier: property.onlyWritten
-			count: 1
-			path: app/Services/Analysis/PredictionService.php
-
-		-
-			message: '#^Property App\\Services\\Analysis\\PredictionService\:\:\$sqlRenderer is never read, only written\.$#'
-			identifier: property.onlyWritten
-			count: 1
-			path: app/Services/Analysis/PredictionService.php
-
-		-
-			message: '#^Result of \|\| is always true\.$#'
-			identifier: booleanOr.alwaysTrue
-			count: 1
-			path: app/Services/Analysis/PredictionService.php
-
-		-
-			message: '#^Strict comparison using \=\=\= between null and null will always evaluate to true\.$#'
-			identifier: identical.alwaysTrue
-			count: 2
-			path: app/Services/Analysis/PredictionService.php
-
-		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
-			count: 1
-			path: app/Services/Analysis/PredictionService.php
-
-		-
-			message: '#^Method App\\Services\\Analysis\\SccsService\:\:isNotImplemented\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: app/Services/Analysis/SccsService.php
-
-		-
-			message: '#^Offset ''exposureCohortId'' on string\|null on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Services/Analysis/SccsService.php
-
-		-
-			message: '#^Offset ''outcomeCohortId'' on string\|null on left side of \?\? does not exist\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Services/Analysis/SccsService.php
-
-		-
-			message: '#^Property App\\Services\\Analysis\\SccsService\:\:\$rService is never read, only written\.$#'
-			identifier: property.onlyWritten
-			count: 1
-			path: app/Services/Analysis/SccsService.php
-
-		-
-			message: '#^Result of \|\| is always true\.$#'
-			identifier: booleanOr.alwaysTrue
-			count: 1
-			path: app/Services/Analysis/SccsService.php
-
-		-
-			message: '#^Strict comparison using \=\=\= between null and null will always evaluate to true\.$#'
-			identifier: identical.alwaysTrue
-			count: 2
-			path: app/Services/Analysis/SccsService.php
-
-		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
-			count: 1
-			path: app/Services/Analysis/SccsService.php
-
-		-
-			message: '#^Cannot access property \$value on string\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: app/Services/Analysis/StudyService.php
-
-		-
 			message: '#^Cannot access property \$analysis_name on App\\Models\\Results\\ClinicalCoherenceResult\|null\.$#'
 			identifier: property.nonObject
 			count: 1
@@ -1789,6 +613,276 @@ parameters:
 			path: app/Services/Cohort/Criteria/VisitCriteriaBuilder.php
 
 		-
+			message: '#^Parameter \#1 \$private_key of function openssl_pkey_get_private expects array\|OpenSSLAsymmetricKey\|OpenSSLCertificate\|string, string\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/Fhir/FhirAuthService.php
+
+		-
+			message: '#^Parameter \#1 \$string of function base64_encode expects string, string\|false given\.$#'
+			identifier: argument.type
+			count: 2
+			path: app/Services/Fhir/FhirAuthService.php
+
+		-
+			message: '#^Cannot call method toIso8601String\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Services/Fhir/FhirBulkExportService.php
+
+		-
+			message: '#^Method App\\Services\\Fhir\\FhirBulkMapper\:\:mapResource\(\) should return array\{cdm_table\: string, data\: array\<string, mixed\>, fhir_resource_type\: string, fhir_resource_id\: string\}\|null but returns non\-empty\-array\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Services/Fhir/FhirBulkMapper.php
+
+		-
+			message: '#^Parameter \#2 \$data of function hash expects string, string\|false given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/Fhir/FhirDedupService.php
+
+		-
+			message: '#^Method App\\Services\\Fhir\\FhirNdjsonProcessorService\:\:processFiles\(\) should return array\{extracted\: int, mapped\: int, written\: int, failed\: int, skipped\: int, updated\: int, by_table\: array\<string, int\>\} but returns non\-empty\-array\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Services/Fhir/FhirNdjsonProcessorService.php
+
+		-
+			message: '#^Offset ''fhir_resource_id'' on array\{cdm_table\: string, data\: array\<string, mixed\>, fhir_resource_type\: string, fhir_resource_id\: string\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Services/Fhir/FhirNdjsonProcessorService.php
+
+		-
+			message: '#^Offset ''fhir_resource_type'' on array\{cdm_table\: string, data\: array\<string, mixed\>, fhir_resource_type\: string, fhir_resource_id\: string\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Services/Fhir/FhirNdjsonProcessorService.php
+
+		-
+			message: '#^Offset ''skipped'' might not exist on array\{extracted\: int, mapped\: int, written\: int, failed\: int, by_table\: array\<string, int\>, updated\?\: \(float\|int\), skipped\?\: \(float\|int\)\}\.$#'
+			identifier: offsetAccess.notFound
+			count: 1
+			path: app/Services/Fhir/FhirNdjsonProcessorService.php
+
+		-
+			message: '#^Offset ''updated'' might not exist on array\{extracted\: int, mapped\: int, written\: int, failed\: int, by_table\: array\<string, int\>, updated\?\: \(float\|int\), skipped\?\: \(float\|int\)\}\.$#'
+			identifier: offsetAccess.notFound
+			count: 1
+			path: app/Services/Fhir/FhirNdjsonProcessorService.php
+
+		-
+			message: '#^Parameter \#2 \$entries of method App\\Services\\Fhir\\FhirNdjsonProcessorService\:\:flushBuffer\(\) expects list\<array\{data\: array\<string, mixed\>, fhir_type\: string, fhir_id\: string\}\>, non\-empty\-list\<array\<string, mixed\>\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/Fhir/FhirNdjsonProcessorService.php
+
+		-
+			message: '#^Parameter \#4 \$stats of method App\\Services\\Fhir\\FhirNdjsonProcessorService\:\:processFile\(\) expects array\{extracted\: int, mapped\: int, written\: int, failed\: int, by_table\: array\<string, int\>\}, array given\.$#'
+			identifier: argument.type
+			count: 2
+			path: app/Services/Fhir/FhirNdjsonProcessorService.php
+
+		-
+			message: '#^Property App\\Services\\Fhir\\FhirNdjsonProcessorService\:\:\$crosswalk is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: app/Services/Fhir/FhirNdjsonProcessorService.php
+
+		-
+			message: '#^Method App\\Services\\Fhir\\VocabularyLookupService\:\:followMapsTo\(\) should return array\{concept_id\: int, concept_name\: string, domain_id\: string\}\|null but returns array\|null\.$#'
+			identifier: return.type
+			count: 2
+			path: app/Services/Fhir/VocabularyLookupService.php
+
+		-
+			message: '#^Method App\\Services\\Fhir\\VocabularyLookupService\:\:lookupConcept\(\) should return array\{concept_id\: int, concept_name\: string, domain_id\: string, vocabulary_id\: string, standard_concept\: string\|null\}\|null but returns array\|null\.$#'
+			identifier: return.type
+			count: 2
+			path: app/Services/Fhir/VocabularyLookupService.php
+
+		-
+			message: '#^Property App\\Services\\Fhir\\VocabularyLookupService\:\:\$mapsToCache \(array\<string, array\|null\>\) does not accept array\<int\|string, array\|null\>\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: app/Services/Fhir/VocabularyLookupService.php
+
+		-
+			message: '#^Constant App\\Services\\Genomics\\ClinVarAnnotationService\:\:BATCH is unused\.$#'
+			identifier: classConstant.unused
+			count: 1
+			path: app/Services/Genomics/ClinVarAnnotationService.php
+
+		-
+			message: '#^Method App\\Services\\Genomics\\ClinVarAnnotationService\:\:coordKey\(\) is unused\.$#'
+			identifier: method.unused
+			count: 1
+			path: app/Services/Genomics/ClinVarAnnotationService.php
+
+		-
+			message: '#^Method App\\Services\\Genomics\\ClinVarAnnotationService\:\:lookupBatch\(\) is unused\.$#'
+			identifier: method.unused
+			count: 1
+			path: app/Services/Genomics/ClinVarAnnotationService.php
+
+		-
+			message: '#^Method App\\Services\\Genomics\\ClinVarSyncService\:\:parseAndUpsert\(\) should return array\{inserted\: int, updated\: int, errors\: int\} but returns array\{inserted\: float\|int, updated\: float\|int, errors\: int\<0, max\>\}\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Services/Genomics/ClinVarSyncService.php
+
+		-
+			message: '#^Anonymous function has an unused use \$skipped\.$#'
+			identifier: closure.unusedUse
+			count: 1
+			path: app/Services/Genomics/OmopMeasurementWriterService.php
+
+		-
+			message: '#^Called ''take'' on Laravel collection, but could have been retrieved as a query\.$#'
+			identifier: larastan.noUnnecessaryCollectionCall
+			count: 2
+			path: app/Services/Genomics/TumorBoardService.php
+
+		-
+			message: '#^Method App\\Services\\Genomics\\TumorBoardService\:\:getDrugPatternsForGenes\(\) should return array\<array\{gene\: string, drug\: string, n\: int, pct\: float\}\> but returns array\<array\{drug\: mixed, n\: int, pct\: float\}\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Services/Genomics/TumorBoardService.php
+
+		-
+			message: '#^Called ''pluck'' on Laravel collection, but could have been retrieved as a query\.$#'
+			identifier: larastan.noUnnecessaryCollectionCall
+			count: 1
+			path: app/Services/Genomics/VariantOutcomeService.php
+
+		-
+			message: '#^Method App\\Services\\Genomics\\VcfParserService\:\:parse\(\) should return array\{total\: int, inserted\: int, errors\: int\} but returns array\.$#'
+			identifier: return.type
+			count: 2
+			path: app/Services/Genomics/VcfParserService.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between non\-empty\-array\<string, string\> and false will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 2
+			path: app/Services/Genomics/VcfParserService.php
+
+		-
+			message: '#^Parameter \#2 \$overrides of method App\\Services\\Heor\\HeorEconomicsService\:\:computeTornado\(\) expects array\<string, float\>, array\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/Heor/HeorEconomicsService.php
+
+		-
+			message: '#^Parameter \#2 \$overrides of method App\\Services\\Heor\\HeorEconomicsService\:\:sumCosts\(\) expects array\<string, float\>, array\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/Heor/HeorEconomicsService.php
+
+		-
+			message: '#^Parameter \#2 \$overrides of method App\\Services\\Heor\\HeorEconomicsService\:\:sumInvestment\(\) expects array\<string, float\>, array\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/Heor/HeorEconomicsService.php
+
+		-
+			message: '#^Parameter \#2 \$overrides of method App\\Services\\Heor\\HeorEconomicsService\:\:sumQalys\(\) expects array\<string, float\>, array\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/Heor/HeorEconomicsService.php
+
+		-
+			message: '#^Parameter \#2 \$overrides of method App\\Services\\Heor\\HeorEconomicsService\:\:sumSavings\(\) expects array\<string, float\>, array\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/Heor/HeorEconomicsService.php
+
+		-
+			message: '#^Parameter \#4 \$baseCase of method App\\Services\\Heor\\HeorEconomicsService\:\:computeScenario\(\) expects App\\Models\\App\\HeorScenario, App\\Models\\App\\HeorScenario\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/Heor/HeorEconomicsService.php
+
+		-
+			message: '#^Cannot access offset 1 on array\|false\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 11
+			path: app/Services/Imaging/DicomFileService.php
+
+		-
+			message: '#^Method App\\Services\\Imaging\\DicomFileService\:\:findDicomFiles\(\) is unused\.$#'
+			identifier: method.unused
+			count: 1
+			path: app/Services/Imaging/DicomFileService.php
+
+		-
+			message: '#^Method App\\Services\\Imaging\\DicomFileService\:\:persist\(\) is unused\.$#'
+			identifier: method.unused
+			count: 1
+			path: app/Services/Imaging/DicomFileService.php
+
+		-
+			message: '#^Method App\\Services\\Imaging\\DicomFileService\:\:relativeTo\(\) is unused\.$#'
+			identifier: method.unused
+			count: 1
+			path: app/Services/Imaging/DicomFileService.php
+
+		-
+			message: '#^Method App\\Services\\Imaging\\DicomFileService\:\:skipUndefinedLength\(\) has parameter \$fh with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Services/Imaging/DicomFileService.php
+
+		-
+			message: '#^Parameter \#1 \$string of function rtrim expects string, string\|false given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/Imaging/DicomFileService.php
+
+		-
+			message: '#^Parameter \#1 \$string of function strlen expects string, string\|false given\.$#'
+			identifier: argument.type
+			count: 9
+			path: app/Services/Imaging/DicomFileService.php
+
+		-
+			message: '#^Parameter \#2 \$string of function unpack expects string, string\|false given\.$#'
+			identifier: argument.type
+			count: 11
+			path: app/Services/Imaging/DicomFileService.php
+
+		-
+			message: '#^Parameter \#2 \$subject of function preg_match expects string, string\|false given\.$#'
+			identifier: argument.type
+			count: 2
+			path: app/Services/Imaging/DicomFileService.php
+
+		-
+			message: '#^Result of && is always true\.$#'
+			identifier: booleanAnd.alwaysTrue
+			count: 1
+			path: app/Services/Imaging/DicomFileService.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 1
+			path: app/Services/Imaging/DicomFileService.php
+
+		-
+			message: '#^Variable \$instances in empty\(\) always exists and is always falsy\.$#'
+			identifier: empty.variable
+			count: 1
+			path: app/Services/Imaging/DicomFileService.php
+
+		-
+			message: '#^Variable \$studies in empty\(\) always exists and is always falsy\.$#'
+			identifier: empty.variable
+			count: 1
+			path: app/Services/Imaging/DicomFileService.php
+
+		-
 			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(string\|null\)\: mixed\)\|null, ''trim'' given\.$#'
 			identifier: argument.type
 			count: 1
@@ -1889,6 +983,114 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: app/Services/PopulationRisk/PopulationRiskScoreEngineService.php
+
+		-
+			message: '#^Parameter \#2 \$data of method Illuminate\\Http\\Client\\PendingRequest\<false\>\:\:post\(\) expects array\<int\<0, max\>\|string, mixed\>\|Illuminate\\Contracts\\Support\\Arrayable\<string, mixed\>\|JsonSerializable, array\<int, array\<string, mixed\>\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/Solr/SolrClientWrapper.php
+
+		-
+			message: '#^Method App\\Services\\Solr\\VocabularySearchService\:\:search\(\) should return array\{items\: array\<int, array\<string, mixed\>\>, total\: int, facets\: array\<string, array\<string, int\>\>, highlights\: array\<int, array\<string, array\<string\>\>\>\}\|null but returns array\{items\: mixed, total\: mixed, facets\: array\<string, array\<string, int\>\>, highlights\: array\<string, array\<string, array\<string\>\>\>\}\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Services/Solr/VocabularySearchService.php
+
+		-
+			message: '#^Method App\\Services\\Solr\\VocabularySearchService\:\:suggest\(\) should return array\<int, array\{concept_id\: int, concept_name\: string\}\>\|null but returns array\<array\{concept_name\: mixed, weight\: mixed\}\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Services/Solr/VocabularySearchService.php
+
+		-
+			message: '#^Method App\\Services\\WebApi\\AtlasDiscoveryService\:\:discover\(\) should return array\<string, array\{count\: int, items\: array\<int, array\{id\: int, name\: string, description\?\: string\}\>\}\> but returns non\-empty\-array\<''characterizations''\|''cohort_definitions''\|''concept_sets''\|''estimations''\|''incidence_rates''\|''pathways''\|''predictions''\|''sources'', array\{count\: int\<0, max\>, items\: list\<array\{id\: int, name\: string, description\: string\|null\}\>\}\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Services/WebApi/AtlasDiscoveryService.php
+
+		-
+			message: '#^Offset 0 on non\-empty\-list\<string\> on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Services/WebApi/AtlasDiscoveryService.php
+
+		-
+			message: '#^Argument of an invalid type array\|string supplied for foreach, only iterables are supported\.$#'
+			identifier: foreach.nonIterable
+			count: 1
+			path: app/Services/WebApi/AtlasEntityImporter.php
+
+		-
+			message: '#^Empty array passed to foreach\.$#'
+			identifier: foreach.emptyArray
+			count: 1
+			path: app/Services/WebApi/AtlasEntityImporter.php
+
+		-
+			message: '#^Match expression does not handle remaining value\: string$#'
+			identifier: match.unhandled
+			count: 1
+			path: app/Services/WebApi/AtlasEntityImporter.php
+
+		-
+			message: '#^Method App\\Services\\WebApi\\AtlasEntityImporter\:\:importCharacterizations\(\) is unused\.$#'
+			identifier: method.unused
+			count: 1
+			path: app/Services/WebApi/AtlasEntityImporter.php
+
+		-
+			message: '#^Method App\\Services\\WebApi\\AtlasEntityImporter\:\:importCohortDefinitions\(\) is unused\.$#'
+			identifier: method.unused
+			count: 1
+			path: app/Services/WebApi/AtlasEntityImporter.php
+
+		-
+			message: '#^Method App\\Services\\WebApi\\AtlasEntityImporter\:\:importConceptSets\(\) is unused\.$#'
+			identifier: method.unused
+			count: 1
+			path: app/Services/WebApi/AtlasEntityImporter.php
+
+		-
+			message: '#^Method App\\Services\\WebApi\\AtlasEntityImporter\:\:importEstimations\(\) is unused\.$#'
+			identifier: method.unused
+			count: 1
+			path: app/Services/WebApi/AtlasEntityImporter.php
+
+		-
+			message: '#^Method App\\Services\\WebApi\\AtlasEntityImporter\:\:importIncidenceRates\(\) is unused\.$#'
+			identifier: method.unused
+			count: 1
+			path: app/Services/WebApi/AtlasEntityImporter.php
+
+		-
+			message: '#^Method App\\Services\\WebApi\\AtlasEntityImporter\:\:importPathways\(\) is unused\.$#'
+			identifier: method.unused
+			count: 1
+			path: app/Services/WebApi/AtlasEntityImporter.php
+
+		-
+			message: '#^Method App\\Services\\WebApi\\AtlasEntityImporter\:\:importPredictions\(\) is unused\.$#'
+			identifier: method.unused
+			count: 1
+			path: app/Services/WebApi/AtlasEntityImporter.php
+
+		-
+			message: '#^Offset ''characterizations''\|''cohort_definitions''\|''concept_sets''\|''estimations''\|''incidence_rates''\|''pathways''\|''predictions'' on array\{\}\|string on left side of \?\? does not exist\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Services/WebApi/AtlasEntityImporter.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 1
+			path: app/Services/WebApi/AtlasEntityImporter.php
+
+		-
+			message: '#^Variable \$ids in empty\(\) always exists and is always falsy\.$#'
+			identifier: empty.variable
+			count: 1
+			path: app/Services/WebApi/AtlasEntityImporter.php
 
 		-
 			message: '#^Offset 0 on non\-empty\-list\<string\> on left side of \?\? always exists and is not nullable\.$#'

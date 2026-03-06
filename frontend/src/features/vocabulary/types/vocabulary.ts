@@ -9,6 +9,7 @@ export interface Concept {
   valid_start_date?: string;
   valid_end_date?: string;
   invalid_reason?: string | null;
+  synonyms?: { concept_synonym_name: string }[];
 }
 
 export interface ConceptRelationship {

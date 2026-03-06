@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo } from "react";
-import { Check, X, ArrowLeft, ArrowRight, Loader2, SkipForward } from "lucide-react";
+import { Check, X, ArrowLeft, ArrowRight, SkipForward } from "lucide-react";
 import apiClient from "@/lib/api-client";
 import { useAuthStore } from "@/stores/authStore";
 import type { User } from "@/types/models";

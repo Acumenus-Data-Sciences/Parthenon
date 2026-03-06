@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Bot, Loader2, Radio, Eye, EyeOff, ChevronDown, ChevronUp } from "lucide-react";
+import { Bot, Loader2, Eye, EyeOff, ChevronDown, ChevronUp } from "lucide-react";
 import {
   useAiProviders,
   useUpdateAiProvider,

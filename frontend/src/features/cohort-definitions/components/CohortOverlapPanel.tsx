@@ -18,7 +18,7 @@ export function CohortOverlapPanel({
   const [selectedIds, setSelectedIds] = useState<number[]>(
     currentCohortId ? [currentCohortId] : [],
   );
-  const [activeSourceId, setActiveSourceId] = useState<number | null>(
+  const [activeSourceId] = useState<number | null>(
     sourceId ?? null,
   );
 

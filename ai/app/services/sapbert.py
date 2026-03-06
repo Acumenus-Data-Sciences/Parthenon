@@ -6,6 +6,7 @@ cambridgeltl/SapBERT-from-PubMedBERT-fulltext model.
 
 import logging
 from functools import lru_cache
+from typing import Any
 
 from app.config import settings
 
@@ -26,8 +27,8 @@ class SapBERTService:
     """Lazy-loaded SapBERT model for generating concept embeddings."""
 
     def __init__(self) -> None:
-        self._model = None
-        self._tokenizer = None
+        self._model: Any = None
+        self._tokenizer: Any = None
         self._device: str = "cuda" if (_HAS_TORCH and torch.cuda.is_available()) else "cpu"
 
     def _load_model(self) -> None:

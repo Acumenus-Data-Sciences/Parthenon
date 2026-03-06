@@ -49,7 +49,7 @@ export function DataSourcesStep({ onConfigured }: Props) {
 
   const sources: Source[] = Array.isArray(sourcesData)
     ? (sourcesData as Source[])
-    : ((sourcesData as { data?: Source[] })?.data ?? []);
+    : ((sourcesData as unknown as { data?: Source[] })?.data ?? []);
 
   const [webApiUrl, setWebApiUrl] = useState("");
   const [authType, setAuthType] = useState<"none" | "basic" | "bearer">("none");

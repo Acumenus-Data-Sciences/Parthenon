@@ -8,7 +8,6 @@ import {
   FileText,
   Clock,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { fetchJob, fetchProfile, retryJob } from "../api/ingestionApi";
 import { PipelineStepper } from "../components/PipelineStepper";
 import { ScanReport } from "../components/ScanReport";
@@ -179,6 +178,7 @@ export default function JobDetailPage() {
   );
 
   function renderStepContent() {
+    if (!job) return null;
     // If profiling is currently running
     if (job.current_step === "profiling" && job.status === "running") {
       return (

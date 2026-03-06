@@ -20,7 +20,6 @@ import {
   ChevronDown,
   ChevronRight,
   Clock,
-  History,
 } from "lucide-react";
 import { Panel } from "@/components/ui";
 import { cn } from "@/lib/utils";
@@ -29,7 +28,6 @@ import {
   useDiscoverAtlasEntities,
   useStartAtlasMigration,
   useMigrationStatus,
-  useMigrationHistory,
   useRetryMigration,
 } from "../hooks/useAtlasMigration";
 import type {
@@ -48,8 +46,6 @@ const STEPS = [
   { key: "import", label: "Import" },
   { key: "summary", label: "Summary" },
 ] as const;
-
-type StepKey = (typeof STEPS)[number]["key"];
 
 const ENTITY_TYPES = [
   { key: "concept_sets" as const, label: "Concept Sets", icon: Database, color: "text-blue-400" },
@@ -72,13 +68,6 @@ const EMPTY_SELECTION: SelectedEntities = {
   estimations: [],
   predictions: [],
 };
-
-function formatDate(iso: string | null): string {
-  if (!iso) return "—";
-  return new Date(iso).toLocaleDateString(undefined, {
-    month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit",
-  });
-}
 
 function formatDuration(start: string | null, end: string | null): string {
   if (!start) return "—";
@@ -792,7 +781,6 @@ export function AtlasMigrationWizard({ onClose }: Props) {
 
   const stepKey = STEPS[currentStep].key;
   const isFirstStep = currentStep === 0;
-  const isLastStep = currentStep === STEPS.length - 1;
   const canDismiss = currentStep < 3; // Can't close during import
 
   return (

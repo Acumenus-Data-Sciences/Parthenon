@@ -10,7 +10,6 @@ import {
   Loader2,
   CheckCircle2,
   FileText,
-  DollarSign,
 } from "lucide-react";
 import {
   useHeorStats,
