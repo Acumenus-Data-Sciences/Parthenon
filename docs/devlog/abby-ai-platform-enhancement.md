@@ -89,12 +89,62 @@ Transformed Abby from a disconnected, page-unaware chat drawer into a unified, c
 | `/care-bundles/*` | `care_gaps` | Care Gaps |
 | `/` | `dashboard` | Dashboard |
 
+## Verified Test Results (2026-03-06)
+
+All tests run against production deployment at `localhost:8082` with MedGemma 1.5:4b via Ollama.
+
+| Test | Status | Details |
+|------|--------|---------|
+| TypeScript `tsc --noEmit` | PASS | Zero errors across full codebase |
+| Vite production build | PASS | 9.7s build, AbbyPanel confirmed in JS bundle |
+| API health | PASS | All 4 services (DB, Redis, AI, R) reporting OK |
+| Non-streaming chat (genomics) | PASS | Context-aware genomics response referencing ClinVar, VCF, GIAB; help JSON tips injected; user addressed as "Dr. Smith"; 3 follow-up suggestions returned |
+| SSE streaming (dashboard) | PASS | Token-by-token SSE delivery (`data: {"token":"..."}`) through full stack (Ollama -> Python -> Laravel curl proxy -> nginx -> browser); user profile acknowledged |
+| Cohort builder + help knowledge | PASS | Response included primary event guidance, inclusion rule steps, and occurrence limit tips — all from help JSON injection |
+| Empty page_data validation | PASS | PHP `(object)[]` -> JSON `{}` fix prevents Pydantic dict validation error |
+| Frontend production serve | PASS | Parthenon SPA loads at `localhost:8082`, JS bundle contains AbbyPanel/abbyStore/useAbbyContext |
+| Keyboard shortcut (Ctrl+Shift+A) | PASS | Wired to `abbyStore.togglePanel` |
+| Command palette "Open AI Assistant" | PASS | Wired to `abbyStore.togglePanel` |
+
+### SSE Streaming Architecture (verified end-to-end)
+
+```
+Browser (AbbyPanel.tsx)
+  |  POST /api/v1/abby/chat/stream (fetch + ReadableStream)
+  v
+Nginx (fastcgi_buffering off)
+  |  fastcgi_pass php-fpm
+  v
+Laravel (AbbyAiController::chatStream)
+  |  curl CURLOPT_WRITEFUNCTION -> echo + flush
+  v
+Python FastAPI (StreamingResponse, text/event-stream)
+  |  httpx.stream("POST", ollama/api/chat, stream=True)
+  v
+Ollama (MedGemma 1.5:4b, stream=True)
+```
+
+Each token flows through the full stack in real time. Frontend receives SSE events:
+- `data: {"token": "Hello"}` — individual tokens
+- `data: {"suggestions": ["...", "..."]}` — extracted at end of response
+- `data: [DONE]` — stream complete
+
+Graceful fallback: if streaming fails (503, timeout, non-SSE response), `AbbyPanel` catches the error and retries via the non-streaming `POST /abby/chat` endpoint.
+
 ## Gotchas
 
-- **nginx SSE location block must come BEFORE general `/api` block** — otherwise buffering stays on and tokens don't stream to the client.
-- **Docker `dist/` dir owned by root** — Vite build must run via `docker compose exec node` (not host), or you get EACCES on rebuild.
+- **nginx SSE location block must come BEFORE general `/api` block** — otherwise buffering stays on and tokens don't stream to the client. Use `location = /api/v1/abby/chat/stream` (exact match) for priority.
+- **Docker `dist/` dir owned by root** — Vite build must run via `docker compose exec node` (not host), or you get EACCES on rebuild. After build, `docker compose up -d nginx` to remount.
 - **Help files loaded at Python module import** — if the mount isn't ready at container start, help content is empty. The `HELP_DIR` env var and fallback path handle local dev.
-- **`react-markdown` must be installed in both host and Docker** node_modules — Docker volume mount shadows host node_modules.
+- **`react-markdown` must be installed in both host and Docker** node_modules — Docker volume mount shadows host node_modules. Install in both: `npm install --legacy-peer-deps react-markdown remark-gfm` on host AND `docker compose exec node npm install --legacy-peer-deps react-markdown remark-gfm`.
+- **PHP empty array -> JSON array, not object** — `json_encode([])` produces `[]` but Python Pydantic expects `{}` for `dict` fields. Fix: `empty($arr) ? (object) [] : $arr`.
+- **Ollama systemd binds to 127.0.0.1 by default** — Docker containers cannot reach it via `host.docker.internal`. Fix: add `Environment="OLLAMA_HOST=0.0.0.0"` to `/etc/systemd/system/ollama.service`, then `systemctl daemon-reload && systemctl restart ollama`.
+- **Docker-owned `.gitignore` files in `backend/storage/`** block git operations — use `git update-index --assume-unchanged` as workaround, or fix permissions via `docker compose exec php chown`.
+
+## Commits
+
+- `7e6787bb` — feat: Abby AI platform-wide enhancement (main implementation)
+- `9aa95ceb` — fix: cast empty page_data to object for Python Pydantic dict validation
 
 ## What's Next (P2+)
 
