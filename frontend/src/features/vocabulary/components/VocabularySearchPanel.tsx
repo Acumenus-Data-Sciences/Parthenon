@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Search, Loader2, X, Filter, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   useVocabularySearch,
+  useConceptSuggest,
   useDomains,
   useVocabularies,
 } from "../hooks/useVocabularySearch";
@@ -13,6 +14,14 @@ interface VocabularySearchPanelProps {
   onSelectConcept: (id: number) => void;
 }
 
+/** Render HTML string with <mark> highlights safely (only allow <mark> tags) */
+function HighlightedText({ html, fallback }: { html: string | undefined; fallback: string }) {
+  if (!html) return <>{fallback}</>;
+  // Sanitize: only allow <mark> and </mark>
+  const safe = html.replace(/<(?!\/?mark>)[^>]*>/g, "");
+  return <span dangerouslySetInnerHTML={{ __html: safe }} />;
+}
+
 export function VocabularySearchPanel({
   selectedConceptId,
   onSelectConcept,
@@ -21,15 +30,22 @@ export function VocabularySearchPanel({
   const [showFilters, setShowFilters] = useState(false);
   const [domainFilter, setDomainFilter] = useState<string>("");
   const [vocabFilter, setVocabFilter] = useState<string>("");
+  const [conceptClassFilter, setConceptClassFilter] = useState<string>("");
   const [standardOnly, setStandardOnly] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [selectedSuggestionIdx, setSelectedSuggestionIdx] = useState(-1);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
 
   const { data: domains } = useDomains();
   const { data: vocabularies } = useVocabularies();
+  const { data: suggestions } = useConceptSuggest(query);
 
   const {
     data: results,
     total,
     facets,
+    highlights,
     engine,
     isLoading,
     isFetching,
@@ -39,31 +55,99 @@ export function VocabularySearchPanel({
   } = useVocabularySearch(query, {
     domain: domainFilter || undefined,
     vocabulary: vocabFilter || undefined,
+    concept_class: conceptClassFilter || undefined,
     standard: standardOnly || undefined,
   });
+
+  // Close suggestions when clicking outside
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (
+        suggestionsRef.current &&
+        !suggestionsRef.current.contains(e.target as Node) &&
+        inputRef.current &&
+        !inputRef.current.contains(e.target as Node)
+      ) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  // Reset suggestion index when suggestions change
+  useEffect(() => {
+    setSelectedSuggestionIdx(-1);
+  }, [suggestions]);
+
+  const applySuggestion = useCallback((text: string) => {
+    setQuery(text);
+    setShowSuggestions(false);
+    inputRef.current?.focus();
+  }, []);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!showSuggestions || !suggestions?.length) return;
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setSelectedSuggestionIdx((prev) =>
+        prev < suggestions.length - 1 ? prev + 1 : 0,
+      );
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setSelectedSuggestionIdx((prev) =>
+        prev > 0 ? prev - 1 : suggestions.length - 1,
+      );
+    } else if (e.key === "Enter" && selectedSuggestionIdx >= 0) {
+      e.preventDefault();
+      applySuggestion(suggestions[selectedSuggestionIdx].concept_name);
+    } else if (e.key === "Escape") {
+      setShowSuggestions(false);
+    }
+  };
 
   const clearFilters = () => {
     setDomainFilter("");
     setVocabFilter("");
+    setConceptClassFilter("");
     setStandardOnly(false);
   };
 
-  const hasActiveFilters = domainFilter || vocabFilter || standardOnly;
+  const hasActiveFilters = domainFilter || vocabFilter || conceptClassFilter || standardOnly;
+  const activeFilterCount = [domainFilter, vocabFilter, conceptClassFilter, standardOnly].filter(Boolean).length;
+
+  // Get highlight for a concept's field (Solr returns keyed by concept_id)
+  const getHighlight = (conceptId: number, field: string): string | undefined => {
+    const h = highlights?.[String(conceptId)];
+    if (!h) return undefined;
+    return h[field]?.[0];
+  };
+
+  // Build concept class options from facets
+  const conceptClassOptions = facets?.concept_class_id
+    ? Object.entries(facets.concept_class_id).sort((a, b) => b[1] - a[1])
+    : [];
 
   return (
     <div className="flex flex-col h-full border-r border-[#232328]">
       {/* Search Header */}
       <div className="px-4 py-4 border-b border-[#232328] space-y-3">
-        {/* Search Input */}
+        {/* Search Input + Autocomplete */}
         <div className="relative">
           <Search
             size={14}
             className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
           />
           <input
+            ref={inputRef}
             type="text"
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setShowSuggestions(true);
+            }}
+            onFocus={() => query.length >= 2 && setShowSuggestions(true)}
+            onKeyDown={handleKeyDown}
             placeholder="Search concepts..."
             className={cn(
               "w-full rounded-lg pl-9 pr-8 py-2.5 text-sm",
@@ -76,11 +160,39 @@ export function VocabularySearchPanel({
           {query && (
             <button
               type="button"
-              onClick={() => setQuery("")}
+              onClick={() => {
+                setQuery("");
+                setShowSuggestions(false);
+              }}
               className="absolute right-2 top-1/2 -translate-y-1/2 text-[#5A5650] hover:text-[#C5C0B8] transition-colors"
             >
               <X size={14} />
             </button>
+          )}
+
+          {/* Autocomplete Dropdown */}
+          {showSuggestions && suggestions && suggestions.length > 0 && query.length >= 2 && (
+            <div
+              ref={suggestionsRef}
+              className="absolute z-50 top-full mt-1 w-full rounded-lg border border-[#232328] bg-[#16161A] shadow-xl overflow-hidden"
+            >
+              {suggestions.slice(0, 8).map((s, i) => (
+                <button
+                  key={s.concept_name}
+                  type="button"
+                  onClick={() => applySuggestion(s.concept_name)}
+                  className={cn(
+                    "flex items-center gap-2 w-full px-3 py-2 text-left text-sm transition-colors",
+                    i === selectedSuggestionIdx
+                      ? "bg-[#2DD4BF]/10 text-[#F0EDE8]"
+                      : "text-[#C5C0B8] hover:bg-[#1C1C20]",
+                  )}
+                >
+                  <Search size={11} className="shrink-0 text-[#5A5650]" />
+                  <span className="truncate">{s.concept_name}</span>
+                </button>
+              ))}
+            </div>
           )}
         </div>
 
@@ -100,7 +212,7 @@ export function VocabularySearchPanel({
             Filters
             {hasActiveFilters && (
               <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-[#2DD4BF]/15 text-[9px] font-bold text-[#2DD4BF]">
-                {[domainFilter, vocabFilter, standardOnly].filter(Boolean).length}
+                {activeFilterCount}
               </span>
             )}
             <ChevronDown
@@ -184,6 +296,25 @@ export function VocabularySearchPanel({
               })}
             </select>
 
+            {/* Concept Class Filter */}
+            <select
+              value={conceptClassFilter}
+              onChange={(e) => setConceptClassFilter(e.target.value)}
+              className={cn(
+                "w-full rounded-lg px-3 py-2 text-sm appearance-none",
+                "bg-[#0E0E11] border border-[#232328]",
+                "text-[#F0EDE8]",
+                "focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40",
+              )}
+            >
+              <option value="">All Concept Classes</option>
+              {conceptClassOptions.map(([name, count]) => (
+                <option key={name} value={name}>
+                  {name} ({count.toLocaleString()})
+                </option>
+              ))}
+            </select>
+
             {/* Clear Filters */}
             {hasActiveFilters && (
               <button
@@ -254,16 +385,16 @@ export function VocabularySearchPanel({
               )}
             </div>
 
-            {/* Faceted filter counts (Solr-powered) */}
+            {/* Faceted filter chips (Solr-powered) — domain, vocabulary, concept class */}
             {facets && Object.keys(facets).length > 0 && !showFilters && (
               <div className="px-4 py-1.5 border-b border-[#232328] flex flex-wrap gap-1">
-                {facets.domain_id && Object.entries(facets.domain_id).slice(0, 5).map(([name, count]) => (
+                {/* Domain chips */}
+                {facets.domain_id && Object.entries(facets.domain_id).slice(0, 4).map(([name, count]) => (
                   <button
-                    key={name}
+                    key={`d-${name}`}
                     type="button"
                     onClick={() => {
-                      setDomainFilter(name);
-                      setShowFilters(true);
+                      setDomainFilter(domainFilter === name ? "" : name);
                     }}
                     className={cn(
                       "inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[9px] transition-colors",
@@ -276,6 +407,44 @@ export function VocabularySearchPanel({
                     <span className="text-[#60A5FA]/50">{count.toLocaleString()}</span>
                   </button>
                 ))}
+                {/* Vocabulary chips */}
+                {facets.vocabulary_id && Object.entries(facets.vocabulary_id).slice(0, 3).map(([name, count]) => (
+                  <button
+                    key={`v-${name}`}
+                    type="button"
+                    onClick={() => {
+                      setVocabFilter(vocabFilter === name ? "" : name);
+                    }}
+                    className={cn(
+                      "inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[9px] transition-colors",
+                      vocabFilter === name
+                        ? "bg-[#C9A227]/20 text-[#C9A227]"
+                        : "bg-[#C9A227]/10 text-[#C9A227]/70 hover:text-[#C9A227]",
+                    )}
+                  >
+                    {name}
+                    <span className="text-[#C9A227]/50">{count.toLocaleString()}</span>
+                  </button>
+                ))}
+                {/* Concept class chips */}
+                {facets.concept_class_id && Object.entries(facets.concept_class_id).slice(0, 3).map(([name, count]) => (
+                  <button
+                    key={`c-${name}`}
+                    type="button"
+                    onClick={() => {
+                      setConceptClassFilter(conceptClassFilter === name ? "" : name);
+                    }}
+                    className={cn(
+                      "inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[9px] transition-colors",
+                      conceptClassFilter === name
+                        ? "bg-[#8A857D]/25 text-[#C5C0B8]"
+                        : "bg-[#8A857D]/10 text-[#8A857D]/70 hover:text-[#8A857D]",
+                    )}
+                  >
+                    {name}
+                    <span className="text-[#8A857D]/50">{count.toLocaleString()}</span>
+                  </button>
+                ))}
               </div>
             )}
 
@@ -283,6 +452,7 @@ export function VocabularySearchPanel({
               {results.map((concept) => {
                 const isStandard = concept.standard_concept === "S";
                 const isSelected = concept.concept_id === selectedConceptId;
+                const highlightedName = getHighlight(concept.concept_id, "concept_name");
 
                 return (
                   <button
@@ -311,8 +481,11 @@ export function VocabularySearchPanel({
                         </span>
                       )}
                     </div>
-                    <p className="text-sm text-[#F0EDE8] leading-snug">
-                      {concept.concept_name}
+                    <p className="text-sm text-[#F0EDE8] leading-snug [&_mark]:bg-[#C9A227]/30 [&_mark]:text-[#F0EDE8] [&_mark]:rounded-sm [&_mark]:px-0.5">
+                      <HighlightedText
+                        html={highlightedName}
+                        fallback={concept.concept_name}
+                      />
                     </p>
                     <div className="flex items-center gap-1.5">
                       <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-[#60A5FA]/15 text-[#60A5FA]">

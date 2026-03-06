@@ -13,6 +13,7 @@ use App\Services\Analysis\CohortOverlapService;
 use App\Services\Cohort\CohortGenerationService;
 use App\Services\Cohort\CohortSqlCompiler;
 use App\Services\Cohort\Schema\CohortExpressionSchema;
+use App\Services\Solr\CohortSearchService;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -27,6 +28,7 @@ class CohortDefinitionController extends Controller
         private readonly CohortExpressionSchema $schema,
         private readonly CohortOverlapService $overlapService,
         private readonly CohortDiagnosticsService $diagnosticsService,
+        private readonly CohortSearchService $cohortSearch,
     ) {}
 
     /**
@@ -37,30 +39,75 @@ class CohortDefinitionController extends Controller
     public function index(Request $request): JsonResponse
     {
         try {
+            $search = $request->input('search', '');
+            $perPage = $request->integer('per_page', 20);
+            $page = $request->integer('page', 1);
+            $offset = ($page - 1) * $perPage;
+            $tags = $request->filled('tags') ? (array) $request->input('tags') : [];
+
+            // Try Solr when search is active
+            if ($search && $this->cohortSearch->isAvailable()) {
+                $solrResult = $this->cohortSearch->search($search, [
+                    'type' => 'cohort',
+                    'tags' => $tags ?: null,
+                ], $perPage, $offset);
+
+                if ($solrResult !== null) {
+                    // Hydrate full models from database using Solr IDs
+                    $solrIds = collect($solrResult['items'])->pluck('id')
+                        ->map(fn (string $id) => (int) str_replace('cohort_', '', $id))
+                        ->all();
+
+                    $cohorts = CohortDefinition::withCount('generations')
+                        ->with(['author:id,name,email'])
+                        ->whereIn('id', $solrIds)
+                        ->get()
+                        ->keyBy('id');
+
+                    // Preserve Solr relevance order + append latest generation
+                    $ordered = collect($solrIds)
+                        ->map(fn (int $id) => $cohorts->get($id))
+                        ->filter()
+                        ->map(function (CohortDefinition $def) {
+                            $latestGeneration = $def->generations()
+                                ->orderByDesc('created_at')
+                                ->first(['id', 'status', 'person_count', 'completed_at', 'source_id']);
+                            $def->setAttribute('latest_generation', $latestGeneration);
+
+                            return $def;
+                        })
+                        ->values();
+
+                    return response()->json([
+                        'data' => $ordered,
+                        'total' => $solrResult['total'],
+                        'current_page' => $page,
+                        'per_page' => $perPage,
+                        'last_page' => max(1, (int) ceil($solrResult['total'] / $perPage)),
+                        'facets' => $solrResult['facets'] ?? null,
+                        'engine' => 'solr',
+                    ]);
+                }
+            }
+
+            // PostgreSQL fallback
             $query = CohortDefinition::withCount('generations')
                 ->with(['author:id,name,email'])
                 ->orderByDesc('updated_at');
 
-            // Optional search filter
-            if ($request->filled('search')) {
-                $search = $request->input('search');
+            if ($search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('name', 'ilike', "%{$search}%")
                         ->orWhere('description', 'ilike', "%{$search}%");
                 });
             }
 
-            // Optional tag filter (?tags[]=cardiology&tags[]=diabetes)
-            if ($request->filled('tags')) {
-                $tags = (array) $request->input('tags');
-                foreach ($tags as $tag) {
-                    $query->whereRaw('tags @> ?::jsonb', [json_encode([$tag])]);
-                }
+            foreach ($tags as $tag) {
+                $query->whereRaw('tags @> ?::jsonb', [json_encode([$tag])]);
             }
 
-            $cohortDefinitions = $query->paginate($request->integer('per_page', 20));
+            $cohortDefinitions = $query->paginate($perPage);
 
-            // Append latest generation info to each definition
             $cohortDefinitions->getCollection()->transform(function (CohortDefinition $def) {
                 $latestGeneration = $def->generations()
                     ->orderByDesc('created_at')
@@ -71,7 +118,10 @@ class CohortDefinitionController extends Controller
                 return $def;
             });
 
-            return response()->json($cohortDefinitions);
+            $result = $cohortDefinitions->toArray();
+            $result['engine'] = 'postgresql';
+
+            return response()->json($result);
         } catch (\Throwable $e) {
             return $this->errorResponse('Failed to retrieve cohort definitions', $e);
         }

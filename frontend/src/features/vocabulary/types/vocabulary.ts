@@ -67,6 +67,7 @@ export interface ConceptSearchResult {
   page: number;
   limit: number;
   facets?: FacetCounts;
+  highlights?: Record<string, Record<string, string[]>>;
   engine?: "solr" | "postgresql";
 }
 

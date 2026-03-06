@@ -21,6 +21,7 @@ import type { Concept, FacetCounts, SuggestResult } from "../types/vocabulary";
 interface VocabularySearchFilters {
   domain?: string;
   vocabulary?: string;
+  concept_class?: string;
   standard?: boolean;
 }
 
@@ -46,6 +47,7 @@ export function useVocabularySearch(
       debouncedQuery,
       filters.domain,
       filters.vocabulary,
+      filters.concept_class,
       filters.standard,
     ],
     queryFn: ({ pageParam = 0 }) =>
@@ -53,6 +55,7 @@ export function useVocabularySearch(
         q: debouncedQuery,
         domain: filters.domain,
         vocabulary: filters.vocabulary,
+        concept_class: filters.concept_class,
         standard: filters.standard,
         limit: SEARCH_LIMIT,
         offset: pageParam,
@@ -69,12 +72,14 @@ export function useVocabularySearch(
   const items = result.data?.pages.flatMap((p) => p.items) as Concept[] | undefined;
   const total = result.data?.pages[0]?.total ?? 0;
   const facets = result.data?.pages[0]?.facets;
+  const highlights = result.data?.pages[0]?.highlights;
   const engine = result.data?.pages[0]?.engine;
 
   return {
     data: items,
     total,
     facets,
+    highlights,
     engine,
     isLoading: result.isLoading,
     error: result.error,

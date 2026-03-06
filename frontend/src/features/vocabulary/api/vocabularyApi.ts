@@ -26,6 +26,7 @@ export async function searchConcepts(
     page: params.page ?? 1,
     limit: params.limit ?? 25,
     facets: data.facets ?? undefined,
+    highlights: data.highlights ?? undefined,
     engine: data.engine ?? undefined,
   };
 }

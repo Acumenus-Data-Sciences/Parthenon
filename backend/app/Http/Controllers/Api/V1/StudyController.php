@@ -8,6 +8,7 @@ use App\Models\App\Study;
 use App\Models\App\StudyAnalysis;
 use App\Services\Analysis\StudyService;
 use App\Services\Analysis\StudyStatusStateMachine;
+use App\Services\Solr\CohortSearchService;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -17,6 +18,7 @@ class StudyController extends Controller
 {
     public function __construct(
         private readonly StudyService $studyService,
+        private readonly CohortSearchService $cohortSearch,
     ) {}
 
     /**
@@ -27,13 +29,65 @@ class StudyController extends Controller
     public function index(Request $request): JsonResponse
     {
         try {
+            $search = $request->input('search', '');
+            $perPage = $request->integer('per_page', 20);
+            $page = $request->integer('page', 1);
+            $offset = ($page - 1) * $perPage;
+
+            // Try Solr when search is active
+            if ($search && $this->cohortSearch->isAvailable()) {
+                $filters = array_filter([
+                    'type' => 'study',
+                    'status' => $request->input('status'),
+                    'study_type' => $request->input('study_type'),
+                    'study_design' => $request->input('study_design'),
+                    'phase' => $request->input('phase'),
+                    'priority' => $request->input('priority'),
+                ]);
+
+                $solrResult = $this->cohortSearch->search($search, $filters, $perPage, $offset);
+
+                if ($solrResult !== null) {
+                    $solrIds = collect($solrResult['items'])->pluck('id')
+                        ->map(fn (string $id) => (int) str_replace('study_', '', $id))
+                        ->all();
+
+                    $studies = Study::with([
+                        'author:id,name,email',
+                        'principalInvestigator:id,name,email',
+                    ])->whereIn('id', $solrIds)->get()->keyBy('id');
+
+                    $ordered = collect($solrIds)
+                        ->map(fn (int $id) => $studies->get($id))
+                        ->filter()
+                        ->map(function (Study $study) {
+                            $progress = $this->studyService->getProgress($study);
+                            $study->setAttribute('progress', $progress);
+
+                            return $study;
+                        })
+                        ->values();
+
+                    return response()->json([
+                        'data' => $ordered,
+                        'total' => $solrResult['total'],
+                        'current_page' => $page,
+                        'per_page' => $perPage,
+                        'last_page' => max(1, (int) ceil($solrResult['total'] / $perPage)),
+                        'facets' => $solrResult['facets'] ?? null,
+                        'engine' => 'solr',
+                    ]);
+                }
+            }
+
+            // PostgreSQL fallback
             $query = Study::with([
                 'author:id,name,email',
                 'principalInvestigator:id,name,email',
             ])->orderByDesc('updated_at');
 
-            if ($request->filled('search')) {
-                $query->search($request->input('search'));
+            if ($search) {
+                $query->search($search);
             }
 
             if ($request->filled('study_type')) {
@@ -60,9 +114,8 @@ class StudyController extends Controller
                 $query->where('created_by', $request->user()->id);
             }
 
-            $studies = $query->paginate($request->integer('per_page', 20));
+            $studies = $query->paginate($perPage);
 
-            // Append progress info to each study
             $studies->getCollection()->transform(function (Study $study) {
                 $progress = $this->studyService->getProgress($study);
                 $study->setAttribute('progress', $progress);
@@ -70,7 +123,10 @@ class StudyController extends Controller
                 return $study;
             });
 
-            return response()->json($studies);
+            $result = $studies->toArray();
+            $result['engine'] = 'postgresql';
+
+            return response()->json($result);
         } catch (\Throwable $e) {
             return $this->errorResponse('Failed to retrieve studies', $e);
         }
