@@ -246,13 +246,10 @@ export default function DicomViewer({ studyId, className = "" }: DicomViewerProp
         await initCornerstone();
         if (cancelled || !viewportEl.current) return;
 
-        // ── Destroy previous resources synchronously ──────────────────
+        // ── Destroy previous resources ──────────────────────────────
         try { cornerstone.getRenderingEngine(engineId)?.destroy(); } catch { /* ok */ }
-        try {
-          if (ToolGroupManager.getToolGroup(toolGroupId)) {
-            ToolGroupManager.destroyToolGroup(toolGroupId);
-          }
-        } catch { /* ok */ }
+        // Unconditionally attempt destroy — don't rely on getToolGroup check
+        try { ToolGroupManager.destroyToolGroup(toolGroupId); } catch { /* ok */ }
 
         // ── Create rendering engine + viewport ────────────────────────
         const engine = new cornerstone.RenderingEngine(engineId);
@@ -267,10 +264,13 @@ export default function DicomViewer({ studyId, className = "" }: DicomViewerProp
         await viewport.setStack(imageIds, 0);
         viewport.render();
 
-        // ── Create tool group ─────────────────────────────────────────
-        const tg = ToolGroupManager.createToolGroup(toolGroupId);
+        // ── Create tool group (fallback to existing if race condition) ─
+        let tg = ToolGroupManager.createToolGroup(toolGroupId);
         if (!tg) {
-          throw new Error("Failed to create tool group — ID may already exist");
+          tg = ToolGroupManager.getToolGroup(toolGroupId) ?? undefined;
+        }
+        if (!tg) {
+          throw new Error("Failed to create or retrieve tool group");
         }
 
         for (const ToolClass of ALL_TOOL_CLASSES) {
@@ -300,11 +300,7 @@ export default function DicomViewer({ studyId, className = "" }: DicomViewerProp
       if (cineRef.current) clearInterval(cineRef.current);
       // Destroy cornerstone resources
       try { cornerstone.getRenderingEngine(engineId)?.destroy(); } catch { /* ok */ }
-      try {
-        if (ToolGroupManager.getToolGroup(toolGroupId)) {
-          ToolGroupManager.destroyToolGroup(toolGroupId);
-        }
-      } catch { /* ok */ }
+      try { ToolGroupManager.destroyToolGroup(toolGroupId); } catch { /* ok */ }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
