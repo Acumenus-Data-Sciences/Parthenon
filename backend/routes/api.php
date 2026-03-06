@@ -359,6 +359,7 @@ Route::prefix('v1')->group(function () {
             Route::post('build-cohort', [AbbyAiController::class, 'buildCohort']);
             Route::post('create-cohort', [AbbyAiController::class, 'createCohort']);
             Route::post('chat', [AbbyAiController::class, 'chat']);
+            Route::post('chat/stream', [AbbyAiController::class, 'chatStream']);
             Route::post('suggest-criteria', [AbbyAiController::class, 'suggestCriteria']);
             Route::post('explain', [AbbyAiController::class, 'explain']);
             Route::post('refine', [AbbyAiController::class, 'refine']);

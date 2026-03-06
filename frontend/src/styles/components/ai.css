@@ -58,7 +58,7 @@
   line-height: 1.6;
 }
 
-/* Code within AI bubbles */
+/* Markdown within AI bubbles */
 .ai-bubble-model code {
   font-family: var(--font-mono);
   font-size: var(--text-xs);
@@ -78,6 +78,66 @@
 .ai-bubble-model pre code {
   background: transparent;
   padding: 0;
+}
+
+.ai-bubble-model h1,
+.ai-bubble-model h2,
+.ai-bubble-model h3 {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: var(--space-2) 0 var(--space-1);
+}
+.ai-bubble-model h1:first-child,
+.ai-bubble-model h2:first-child,
+.ai-bubble-model h3:first-child {
+  margin-top: 0;
+}
+
+.ai-bubble-model ul,
+.ai-bubble-model ol {
+  padding-left: var(--space-4);
+  margin: var(--space-1) 0;
+}
+.ai-bubble-model li {
+  margin: 2px 0;
+}
+
+.ai-bubble-model p {
+  margin: var(--space-1) 0;
+}
+.ai-bubble-model p:first-child {
+  margin-top: 0;
+}
+.ai-bubble-model p:last-child {
+  margin-bottom: 0;
+}
+
+.ai-bubble-model table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: var(--space-2) 0;
+  font-size: var(--text-xs);
+}
+.ai-bubble-model th,
+.ai-bubble-model td {
+  border: 1px solid var(--border-default);
+  padding: var(--space-1) var(--space-2);
+  text-align: left;
+}
+.ai-bubble-model th {
+  background: var(--surface-accent);
+  font-weight: 600;
+}
+
+.ai-bubble-model strong {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.ai-bubble-model a {
+  color: var(--info);
+  text-decoration: underline;
 }
 
 /* Streaming cursor */

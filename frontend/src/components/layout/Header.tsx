@@ -1,10 +1,12 @@
 import { useAuthStore } from "@/stores/authStore";
 import { useUiStore } from "@/stores/uiStore";
+import { useAbbyStore } from "@/stores/abbyStore";
 import { LogOut, User, Search, Sparkles, Bell } from "lucide-react";
 
 export function Header() {
   const { user, isAuthenticated, logout } = useAuthStore();
-  const { setCommandPaletteOpen, toggleAiDrawer } = useUiStore();
+  const { setCommandPaletteOpen } = useUiStore();
+  const togglePanel = useAbbyStore((s) => s.togglePanel);
 
   return (
     <header className="app-topbar">
@@ -28,7 +30,7 @@ export function Header() {
           <>
             <button
               className="btn btn-ghost btn-icon btn-sm"
-              onClick={toggleAiDrawer}
+              onClick={togglePanel}
               aria-label="AI Assistant"
               title="AI Assistant"
             >

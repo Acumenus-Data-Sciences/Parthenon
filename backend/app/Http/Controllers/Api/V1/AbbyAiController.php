@@ -7,6 +7,7 @@ use App\Services\AI\AbbyAiService;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 #[Group('AI Assistant (Abby)', weight: 210)]
 class AbbyAiController extends Controller
@@ -84,6 +85,9 @@ class AbbyAiController extends Controller
             'history' => 'sometimes|array',
             'history.*.role' => 'required_with:history|string|in:user,assistant',
             'history.*.content' => 'required_with:history|string|max:4000',
+            'user_profile' => 'sometimes|array',
+            'user_profile.name' => 'sometimes|string|max:255',
+            'user_profile.roles' => 'sometimes|array',
         ]);
 
         $result = $this->abbyAi->chat(
@@ -94,6 +98,75 @@ class AbbyAiController extends Controller
         );
 
         return response()->json($result);
+    }
+
+    /**
+     * POST /api/v1/abby/chat/stream
+     * SSE streaming version of the chat endpoint.
+     * Proxies to the Python AI service streaming endpoint.
+     */
+    public function chatStream(Request $request): StreamedResponse
+    {
+        $validated = $request->validate([
+            'message' => 'required|string|min:1|max:4000',
+            'page_context' => 'sometimes|string|max:64',
+            'page_data' => 'sometimes|array',
+            'history' => 'sometimes|array',
+            'history.*.role' => 'required_with:history|string|in:user,assistant',
+            'history.*.content' => 'required_with:history|string|max:4000',
+            'user_profile' => 'sometimes|array',
+            'user_profile.name' => 'sometimes|string|max:255',
+            'user_profile.roles' => 'sometimes|array',
+        ]);
+
+        $aiBaseUrl = config('services.ai.base_url', 'http://python-ai:8000');
+
+        return new StreamedResponse(function () use ($validated, $aiBaseUrl): void {
+            $ch = curl_init("{$aiBaseUrl}/abby/chat/stream");
+            if ($ch === false) {
+                echo "data: " . json_encode(['error' => 'Failed to connect to AI service']) . "\n\n";
+                echo "data: [DONE]\n\n";
+                return;
+            }
+
+            curl_setopt_array($ch, [
+                CURLOPT_POST => true,
+                CURLOPT_POSTFIELDS => json_encode([
+                    'message' => $validated['message'],
+                    'page_context' => $validated['page_context'] ?? 'general',
+                    'page_data' => $validated['page_data'] ?? [],
+                    'history' => $validated['history'] ?? [],
+                    'user_profile' => $validated['user_profile'] ?? null,
+                ]),
+                CURLOPT_HTTPHEADER => [
+                    'Content-Type: application/json',
+                    'Accept: text/event-stream',
+                ],
+                CURLOPT_WRITEFUNCTION => function ($ch, $data) {
+                    echo $data;
+                    if (ob_get_level() > 0) {
+                        ob_flush();
+                    }
+                    flush();
+                    return strlen($data);
+                },
+                CURLOPT_TIMEOUT => 120,
+            ]);
+
+            curl_exec($ch);
+
+            if (curl_errno($ch)) {
+                echo "data: " . json_encode(['error' => 'AI service error: ' . curl_error($ch)]) . "\n\n";
+                echo "data: [DONE]\n\n";
+            }
+
+            curl_close($ch);
+        }, 200, [
+            'Content-Type' => 'text/event-stream',
+            'Cache-Control' => 'no-cache',
+            'Connection' => 'keep-alive',
+            'X-Accel-Buffering' => 'no',
+        ]);
     }
 
     /**

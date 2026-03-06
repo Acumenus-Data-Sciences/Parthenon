@@ -11,10 +11,13 @@ which resolves concepts via SapBERT and assembles the final CohortExpression.
 
 import json
 import logging
-from typing import Any
+import os
+from pathlib import Path
+from typing import Any, AsyncGenerator
 
 import httpx
 from fastapi import APIRouter, HTTPException
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
 from app.config import settings
@@ -71,12 +74,16 @@ class ChatMessage(BaseModel):
     content: str
 
 
+class UserProfile(BaseModel):
+    name: str = ""
+    roles: list[str] = []
+
+
 class ChatRequest(BaseModel):
     message: str = Field(..., min_length=1, max_length=4000)
     page_context: str = Field(
         default="general",
-        description="UI page context: cohort-builder | vocabulary-search | achilles | "
-                    "dqd | risk-scores | network | patient-profiles | studies | general"
+        description="UI page context for Abby to tailor responses"
     )
     page_data: dict[str, Any] = Field(
         default_factory=dict,
@@ -85,6 +92,10 @@ class ChatRequest(BaseModel):
     history: list[ChatMessage] = Field(
         default_factory=list,
         description="Prior conversation turns (last 10 recommended)"
+    )
+    user_profile: UserProfile | None = Field(
+        default=None,
+        description="Current user info for personalized responses"
     )
 
 
@@ -138,49 +149,121 @@ OUTPUT SCHEMA:
 """
 
 PAGE_SYSTEM_PROMPTS: dict[str, str] = {
-    "cohort-builder": (
+    "cohort_builder": (
         "You are Abby, a clinical informatics assistant. "
         "The user is building a cohort definition in the Parthenon cohort builder. "
         "Help them refine inclusion/exclusion criteria, suggest OMOP concept sets, "
         "explain study design choices (new-user, prevalent, incident), and interpret "
         "the generated SQL. Be concise and clinical."
     ),
-    "vocabulary-search": (
+    "cohort_list": (
+        "You are Abby. The user is viewing the list of cohort definitions. "
+        "Help them understand cohort design strategies, compare cohorts, "
+        "and explain new-user vs prevalent vs incident study designs."
+    ),
+    "concept_set_editor": (
+        "You are Abby. The user is editing a concept set in the concept set builder. "
+        "Help them add/remove concepts, decide on include-descendants strategy, "
+        "understand OMOP vocabulary hierarchies, and resolve non-standard to standard mappings."
+    ),
+    "concept_set_list": (
+        "You are Abby. The user is browsing their concept sets. "
+        "Help them understand concept set organization, versioning best practices, "
+        "and how concept sets feed into cohort definitions."
+    ),
+    "vocabulary": (
         "You are Abby. The user is searching the OMOP vocabulary. "
         "Help them find the right standard concepts, understand hierarchies, "
-        "explain vocabulary differences (SNOMED, ICD10CM, RxNorm, LOINC), "
+        "explain vocabulary differences (SNOMED, ICD10CM, RxNorm, LOINC, ATC), "
         "and suggest concept set strategies including descendants."
     ),
-    "achilles": (
+    "data_explorer": (
         "You are Abby. The user is viewing Achilles data characterization results "
         "for an OMOP CDM source. Help them interpret domain summaries, identify "
-        "data quality signals, explain distributions, and compare to expected ranges."
+        "data quality signals, explain distributions (age, gender, observation periods), "
+        "and compare to expected clinical data ranges."
     ),
-    "dqd": (
+    "data_sources": (
+        "You are Abby. The user is managing OMOP CDM data sources. "
+        "Help them configure source connections, understand source daimons "
+        "(CDM, vocabulary, results, temp), and troubleshoot connection issues."
+    ),
+    "data_quality": (
         "You are Abby. The user is reviewing Data Quality Dashboard results. "
         "Explain DQD check categories (plausibility, conformance, completeness), "
-        "help interpret failures, and suggest remediation steps."
+        "help interpret failures and heel rules, and suggest remediation steps."
     ),
-    "risk-scores": (
-        "You are Abby. The user is reviewing population risk score results "
-        "(Framingham, CHA2DS2-VASc, Charlson CCI, etc.). "
-        "Help them interpret risk tier distributions, explain what high confidence "
-        "vs low confidence means, and compare scores across clinical groups."
+    "analyses": (
+        "You are Abby. The user is on the Analyses overview page. "
+        "Help them understand the different analysis types available: "
+        "Characterizations, Incidence Rates, Cohort Pathways, Estimation (CohortMethod), "
+        "Prediction (PatientLevelPrediction), SCCS, and Evidence Synthesis. "
+        "Guide them on which analysis type fits their research question."
     ),
-    "network": (
-        "You are Abby. The user is reviewing cross-site network analytics. "
-        "Help them interpret I² heterogeneity statistics, explain domain coverage "
-        "differences, and guide them on which sites are suitable for federated analyses."
+    "incidence_rates": (
+        "You are Abby. The user is working with incidence rate analyses. "
+        "Help them define time-at-risk windows, choose target and outcome cohorts, "
+        "interpret incidence rate vs proportion, and understand age/sex stratification."
     ),
-    "patient-profiles": (
-        "You are Abby. The user is viewing individual patient timelines. "
-        "Help them interpret the clinical events, identify care gaps, and understand "
-        "the OMOP domain structure for the events shown."
+    "estimation": (
+        "You are Abby. The user is designing a comparative effectiveness estimation. "
+        "Help with propensity score methods (IPTW, stratification, matching), "
+        "negative control outcomes, diagnostic checks, and interpreting hazard ratios."
+    ),
+    "prediction": (
+        "You are Abby. The user is working with patient-level prediction models. "
+        "Help them choose features, understand LASSO regularization, interpret "
+        "AUROC/calibration metrics, and evaluate model performance and external validation."
+    ),
+    "genomics": (
+        "You are Abby. The user is in the Genomics module. "
+        "Help with VCF file interpretation, variant pathogenicity (ClinVar annotations), "
+        "GIAB benchmark comparisons, gene panel design, pharmacogenomics (PGx), "
+        "and creating genomic cohort criteria within the OMOP CDM framework."
+    ),
+    "imaging": (
+        "You are Abby. The user is in the Medical Imaging module. "
+        "Help with DICOM study management, viewer navigation, imaging analytics, "
+        "modality interpretation (CT, MRI, X-ray, US), NLP extraction from reports, "
+        "and creating imaging-based cohort criteria."
+    ),
+    "heor": (
+        "You are Abby. The user is in the Health Economics & Outcomes Research module. "
+        "Help with cost-effectiveness analysis (CEA), cost-utility analysis (CUA), "
+        "budget impact modeling, value-based contract simulation, sensitivity analysis, "
+        "and interpreting ICER thresholds and willingness-to-pay curves."
     ),
     "studies": (
         "You are Abby. The user is managing an outcomes research study in Parthenon. "
         "Help them understand study components (cohorts, characterizations, incidence rates, "
-        "pathways, estimations, predictions) and guide study execution."
+        "pathways, estimations, predictions), study lifecycle transitions, "
+        "multi-site coordination, and protocol design best practices."
+    ),
+    "administration": (
+        "You are Abby. The user is in the Administration panel. "
+        "Help them configure authentication providers, manage user roles and permissions, "
+        "set up AI providers, check system health, and manage data source connections."
+    ),
+    "patient_profiles": (
+        "You are Abby. The user is viewing individual patient timelines. "
+        "Help them interpret the clinical events, identify care gaps, and understand "
+        "the OMOP domain structure for the events shown."
+    ),
+    "data_ingestion": (
+        "You are Abby. The user is ingesting data into the OMOP CDM. "
+        "Help with file upload formats (CSV, JSON), schema mapping strategies, "
+        "concept mapping review, and data validation interpretation."
+    ),
+    "care_gaps": (
+        "You are Abby. The user is working with care bundles and care gap analysis. "
+        "Help them define quality measures, create care bundles, "
+        "interpret population-level compliance, and design interventions."
+    ),
+    "dashboard": (
+        "You are Abby, a clinical informatics assistant for the Parthenon OMOP CDM "
+        "research platform. The user is on the main dashboard. Help them navigate "
+        "to the right module for their task, understand platform metrics, "
+        "and get started with their research workflow."
     ),
     "general": (
         "You are Abby, a clinical informatics assistant for the Parthenon OMOP CDM "
@@ -188,6 +271,89 @@ PAGE_SYSTEM_PROMPTS: dict[str, str] = {
         "data quality, clinical analytics, or the Parthenon application."
     ),
 }
+
+
+# ── Help content knowledge base ──────────────────────────────────────────────
+
+# Map page context → help JSON keys to inject as knowledge
+CONTEXT_HELP_KEYS: dict[str, list[str]] = {
+    "cohort_builder": ["cohort-builder", "cohort-builder.primary-criteria", "cohort-builder.inclusion-rules", "cohort-builder.cohort-exit"],
+    "cohort_list": ["cohort-builder"],
+    "concept_set_editor": ["concept-set-builder"],
+    "concept_set_list": ["concept-set-builder"],
+    "vocabulary": ["vocabulary-search"],
+    "data_explorer": ["data-explorer", "data-explorer.dqd", "data-explorer.heel"],
+    "data_sources": ["data-sources"],
+    "data_quality": ["data-explorer.dqd", "data-explorer.heel"],
+    "analyses": ["analyses"],
+    "incidence_rates": ["incidence-rates"],
+    "estimation": ["estimation"],
+    "prediction": ["prediction"],
+    "genomics": ["genomics"],
+    "imaging": ["imaging"],
+    "heor": ["heor"],
+    "studies": ["studies"],
+    "administration": ["admin", "admin.users", "admin.roles", "admin.auth-providers"],
+    "patient_profiles": ["patient-timeline"],
+    "data_ingestion": ["data-ingestion"],
+    "care_gaps": ["care-gaps"],
+    "dashboard": ["dashboard"],
+}
+
+HELP_CONTENT: dict[str, dict[str, Any]] = {}
+
+
+def _load_help_files() -> None:
+    """Load help JSON files from the backend resources directory."""
+    help_dir = Path(os.environ.get("HELP_DIR", "/var/www/html/resources/help"))
+    if not help_dir.exists():
+        # Try relative path for local development
+        alt_dir = Path(__file__).parent.parent.parent.parent / "backend" / "resources" / "help"
+        if alt_dir.exists():
+            help_dir = alt_dir
+        else:
+            logger.warning("Help directory not found: %s", help_dir)
+            return
+
+    for f in help_dir.glob("*.json"):
+        try:
+            data = json.loads(f.read_text())
+            key = data.get("key", f.stem)
+            HELP_CONTENT[key] = data
+        except (json.JSONDecodeError, OSError) as e:
+            logger.warning("Failed to load help file %s: %s", f, e)
+
+    logger.info("Loaded %d help files for Abby", len(HELP_CONTENT))
+
+
+# Load at module import time
+_load_help_files()
+
+
+def _get_help_context(page_context: str) -> str:
+    """Build a help knowledge section for the given page context."""
+    keys = CONTEXT_HELP_KEYS.get(page_context, [])
+    if not keys:
+        return ""
+
+    sections = []
+    for key in keys:
+        data = HELP_CONTENT.get(key)
+        if not data:
+            continue
+        title = data.get("title", key)
+        desc = data.get("description", "")
+        tips = data.get("tips", [])
+        tip_text = "\n".join(f"  - {t}" for t in tips[:5]) if tips else ""
+        section = f"### {title}\n{desc}"
+        if tip_text:
+            section += f"\nKey tips:\n{tip_text}"
+        sections.append(section)
+
+    if not sections:
+        return ""
+
+    return "\n\nFEATURE DOCUMENTATION:\n" + "\n\n".join(sections)
 
 
 async def call_ollama(system_prompt: str, user_message: str,
@@ -298,17 +464,26 @@ async def parse_cohort(request: CohortParseRequest) -> CohortParseResponse:
     )
 
 
-@router.post("/chat", response_model=ChatResponse)
-async def chat(request: ChatRequest) -> ChatResponse:
-    """
-    Page-aware conversational endpoint. Abby adapts her persona and focus
-    based on the current UI page and any entity data passed from the frontend.
-    """
+def _build_chat_system_prompt(request: ChatRequest) -> str:
+    """Build the system prompt for a chat request, including page context and user profile."""
     system_prompt = PAGE_SYSTEM_PROMPTS.get(
         request.page_context, PAGE_SYSTEM_PROMPTS["general"]
     )
 
-    # Enrich system prompt with page-specific data context
+    # Inject help knowledge for this page context
+    help_context = _get_help_context(request.page_context)
+    if help_context:
+        system_prompt += help_context
+
+    # Inject user profile
+    if request.user_profile and request.user_profile.name:
+        role_str = ", ".join(request.user_profile.roles) if request.user_profile.roles else "researcher"
+        system_prompt += (
+            f"\n\nYou are assisting {request.user_profile.name}, "
+            f"who has roles: {role_str}."
+        )
+
+    # Enrich with page-specific data context
     if request.page_data:
         context_lines = []
         for key, val in request.page_data.items():
@@ -321,18 +496,16 @@ async def chat(request: ChatRequest) -> ChatResponse:
 
     system_prompt += (
         "\n\nIMPORTANT: Keep replies concise (under 300 words). "
+        "Use markdown formatting for headers, lists, and code blocks. "
         "End your reply with 1–3 brief follow-up suggestions the user might want "
         'to ask, formatted as a JSON array on the last line: SUGGESTIONS: ["...", "..."]'
     )
 
-    raw = await call_ollama(
-        system_prompt=system_prompt,
-        user_message=request.message,
-        history=request.history,
-        temperature=0.3,
-    )
+    return system_prompt
 
-    # Extract suggestions from the last line if present
+
+def _extract_suggestions(raw: str) -> tuple[str, list[str]]:
+    """Extract suggestion chips from the LLM reply."""
     suggestions: list[str] = []
     reply = raw.strip()
 
@@ -346,4 +519,99 @@ async def chat(request: ChatRequest) -> ChatResponse:
         except (json.JSONDecodeError, IndexError):
             suggestions = []
 
-    return ChatResponse(reply=reply, suggestions=suggestions[:3])
+    return reply, suggestions[:3]
+
+
+@router.post("/chat", response_model=ChatResponse)
+async def chat(request: ChatRequest) -> ChatResponse:
+    """
+    Page-aware conversational endpoint. Abby adapts her persona and focus
+    based on the current UI page and any entity data passed from the frontend.
+    """
+    system_prompt = _build_chat_system_prompt(request)
+
+    raw = await call_ollama(
+        system_prompt=system_prompt,
+        user_message=request.message,
+        history=request.history,
+        temperature=0.3,
+    )
+
+    reply, suggestions = _extract_suggestions(raw)
+    return ChatResponse(reply=reply, suggestions=suggestions)
+
+
+async def _stream_ollama(system_prompt: str, user_message: str,
+                         history: list[ChatMessage] | None = None,
+                         temperature: float = 0.3) -> AsyncGenerator[str, None]:
+    """Stream tokens from Ollama as SSE events."""
+    messages = [{"role": "system", "content": system_prompt}]
+    if history:
+        for msg in history[-10:]:
+            messages.append({"role": msg.role, "content": msg.content})
+    messages.append({"role": "user", "content": user_message})
+
+    try:
+        async with httpx.AsyncClient(timeout=settings.ollama_timeout) as client:
+            async with client.stream(
+                "POST",
+                f"{settings.ollama_base_url}/api/chat",
+                json={
+                    "model": settings.ollama_model,
+                    "messages": messages,
+                    "stream": True,
+                    "options": {"temperature": temperature},
+                },
+            ) as resp:
+                resp.raise_for_status()
+                full_content = ""
+                async for line in resp.aiter_lines():
+                    if not line.strip():
+                        continue
+                    try:
+                        data = json.loads(line)
+                        if data.get("done"):
+                            break
+                        token = data.get("message", {}).get("content", "")
+                        if token:
+                            full_content += token
+                            yield f"data: {json.dumps({'token': token})}\n\n"
+                    except json.JSONDecodeError:
+                        continue
+
+                # Extract suggestions from complete response
+                _, suggestions = _extract_suggestions(full_content)
+                if suggestions:
+                    yield f"data: {json.dumps({'suggestions': suggestions})}\n\n"
+                yield "data: [DONE]\n\n"
+    except httpx.TimeoutException:
+        yield f"data: {json.dumps({'error': 'LLM service timed out.'})}\n\n"
+        yield "data: [DONE]\n\n"
+    except Exception as e:
+        logger.error("Ollama streaming failed: %s", e)
+        yield f"data: {json.dumps({'error': f'LLM service unavailable: {e}'})}\n\n"
+        yield "data: [DONE]\n\n"
+
+
+@router.post("/chat/stream")
+async def chat_stream(request: ChatRequest) -> StreamingResponse:
+    """
+    SSE streaming version of the chat endpoint. Returns token-by-token
+    responses as Server-Sent Events for real-time display in the UI.
+    """
+    system_prompt = _build_chat_system_prompt(request)
+
+    return StreamingResponse(
+        _stream_ollama(
+            system_prompt=system_prompt,
+            user_message=request.message,
+            history=request.history,
+            temperature=0.3,
+        ),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )

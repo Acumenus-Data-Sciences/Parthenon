@@ -3,7 +3,7 @@ import { Outlet } from "react-router-dom";
 import { Sidebar } from "./Sidebar";
 import { Header } from "./Header";
 import { CommandPalette } from "./CommandPalette";
-import { AiDrawer } from "./AiDrawer";
+import { AbbyPanel } from "./AbbyPanel";
 import { ToastContainer } from "@/components/ui";
 import { ChangePasswordModal } from "@/features/auth/components/ChangePasswordModal";
 import { OnboardingModal } from "@/features/auth/components/OnboardingModal";
@@ -63,7 +63,7 @@ export function MainLayout() {
           </main>
         </div>
         <CommandPalette />
-        <AiDrawer />
+        <AbbyPanel />
         <ToastContainer />
         <WhatsNewModal />
 

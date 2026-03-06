@@ -1,10 +1,12 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUiStore } from "@/stores/uiStore";
+import { useAbbyStore } from "@/stores/abbyStore";
 
 export function useGlobalKeyboard() {
   const navigate = useNavigate();
-  const { setCommandPaletteOpen, toggleAiDrawer, toggleSidebar } = useUiStore();
+  const { setCommandPaletteOpen, toggleSidebar } = useUiStore();
+  const togglePanel = useAbbyStore((s) => s.togglePanel);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -23,7 +25,7 @@ export function useGlobalKeyboard() {
       // Ctrl/Cmd + Shift + A — AI drawer
       if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === "A") {
         e.preventDefault();
-        toggleAiDrawer();
+        togglePanel();
         return;
       }
 
@@ -60,5 +62,5 @@ export function useGlobalKeyboard() {
 
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
-  }, [navigate, setCommandPaletteOpen, toggleAiDrawer, toggleSidebar]);
+  }, [navigate, setCommandPaletteOpen, togglePanel, toggleSidebar]);
 }

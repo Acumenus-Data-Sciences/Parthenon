@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { createPortal } from "react-dom";
 import { useUiStore } from "@/stores/uiStore";
+import { useAbbyStore } from "@/stores/abbyStore";
 import {
   LayoutDashboard,
   Database,
@@ -31,7 +32,8 @@ interface CommandItem {
 
 export function CommandPalette() {
   const navigate = useNavigate();
-  const { commandPaletteOpen, setCommandPaletteOpen, toggleAiDrawer } = useUiStore();
+  const { commandPaletteOpen, setCommandPaletteOpen } = useUiStore();
+  const toggleAbbyPanel = useAbbyStore((s) => s.togglePanel);
   const inputRef = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -50,9 +52,9 @@ export function CommandPalette() {
       { id: "profiles", label: "Patient Profiles", group: "Navigation", icon: UserCircle, action: () => navigate("/profiles"), keywords: "person timeline" },
       { id: "jobs", label: "Jobs", group: "Navigation", icon: Briefcase, action: () => navigate("/jobs"), shortcut: "g j", keywords: "queue horizon status" },
       { id: "admin", label: "Administration", group: "Navigation", icon: Settings, action: () => navigate("/admin"), keywords: "users roles settings" },
-      { id: "ai", label: "Open AI Assistant", group: "Actions", icon: Sparkles, action: () => toggleAiDrawer(), shortcut: "Ctrl Shift A", keywords: "abby chat medgemma" },
+      { id: "ai", label: "Open AI Assistant", group: "Actions", icon: Sparkles, action: () => toggleAbbyPanel(), shortcut: "Ctrl Shift A", keywords: "abby chat medgemma" },
     ],
-    [navigate, toggleAiDrawer],
+    [navigate, toggleAbbyPanel],
   );
 
   const filtered = useMemo(() => {
