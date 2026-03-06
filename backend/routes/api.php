@@ -82,6 +82,7 @@ Route::prefix('v1')->group(function () {
 
         // Vocabulary
         Route::get('/vocabulary/search', [VocabularyController::class, 'search']);
+        Route::get('/vocabulary/suggest', [VocabularyController::class, 'suggest']);
         Route::get('/vocabulary/concepts/{id}', [VocabularyController::class, 'show']);
         Route::get('/vocabulary/concepts/{id}/relationships', [VocabularyController::class, 'relationships']);
         Route::get('/vocabulary/concepts/{id}/ancestors', [VocabularyController::class, 'ancestors']);

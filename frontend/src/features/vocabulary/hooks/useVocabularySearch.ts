@@ -10,8 +10,9 @@ import {
   getVocabularies,
   compareConcepts,
   getConceptMapsFrom,
+  suggestConcepts,
 } from "../api/vocabularyApi";
-import type { Concept } from "../types/vocabulary";
+import type { Concept, FacetCounts, SuggestResult } from "../types/vocabulary";
 
 // ---------------------------------------------------------------------------
 // Vocabulary search hook with debounce + infinite scroll
@@ -67,10 +68,14 @@ export function useVocabularySearch(
 
   const items = result.data?.pages.flatMap((p) => p.items) as Concept[] | undefined;
   const total = result.data?.pages[0]?.total ?? 0;
+  const facets = result.data?.pages[0]?.facets;
+  const engine = result.data?.pages[0]?.engine;
 
   return {
     data: items,
     total,
+    facets,
+    engine,
     isLoading: result.isLoading,
     error: result.error,
     isFetching: result.isFetching,
@@ -170,6 +175,26 @@ export function useConceptMapsFrom(id: number | null) {
     queryKey: ["vocabulary", "maps-from", id],
     queryFn: () => getConceptMapsFrom(id!),
     enabled: id != null && id > 0,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Suggest / autocomplete hook (Solr-powered when available)
+// ---------------------------------------------------------------------------
+
+export function useConceptSuggest(prefix: string) {
+  const [debouncedPrefix, setDebouncedPrefix] = useState(prefix);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedPrefix(prefix), 200);
+    return () => clearTimeout(timer);
+  }, [prefix]);
+
+  return useQuery({
+    queryKey: ["vocabulary", "suggest", debouncedPrefix],
+    queryFn: () => suggestConcepts(debouncedPrefix),
+    enabled: debouncedPrefix.length >= 2,
+    staleTime: 60_000,
   });
 }
 

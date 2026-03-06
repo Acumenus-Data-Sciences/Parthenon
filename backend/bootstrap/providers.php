@@ -8,4 +8,5 @@ return [
     App\Providers\PopulationRiskServiceProvider::class,
     App\Providers\NetworkAnalysisServiceProvider::class,
     App\Providers\PopulationCharacterizationServiceProvider::class,
+    App\Providers\SolrServiceProvider::class,
 ];

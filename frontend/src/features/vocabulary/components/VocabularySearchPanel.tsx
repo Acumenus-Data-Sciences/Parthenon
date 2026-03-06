@@ -6,6 +6,7 @@ import {
   useDomains,
   useVocabularies,
 } from "../hooks/useVocabularySearch";
+import type { FacetCounts } from "../types/vocabulary";
 
 interface VocabularySearchPanelProps {
   selectedConceptId: number | null;
@@ -28,6 +29,8 @@ export function VocabularySearchPanel({
   const {
     data: results,
     total,
+    facets,
+    engine,
     isLoading,
     isFetching,
     hasNextPage,
@@ -149,11 +152,14 @@ export function VocabularySearchPanel({
               )}
             >
               <option value="">All Domains</option>
-              {domains?.map((d) => (
-                <option key={d.domain_id} value={d.domain_id}>
-                  {d.domain_name}
-                </option>
-              ))}
+              {domains?.map((d) => {
+                const count = facets?.domain_id?.[d.domain_id];
+                return (
+                  <option key={d.domain_id} value={d.domain_id}>
+                    {d.domain_name}{count != null ? ` (${count.toLocaleString()})` : ""}
+                  </option>
+                );
+              })}
             </select>
 
             {/* Vocabulary Filter */}
@@ -168,11 +174,14 @@ export function VocabularySearchPanel({
               )}
             >
               <option value="">All Vocabularies</option>
-              {vocabularies?.map((v) => (
-                <option key={v.vocabulary_id} value={v.vocabulary_id}>
-                  {v.vocabulary_name}
-                </option>
-              ))}
+              {vocabularies?.map((v) => {
+                const count = facets?.vocabulary_id?.[v.vocabulary_id];
+                return (
+                  <option key={v.vocabulary_id} value={v.vocabulary_id}>
+                    {v.vocabulary_name}{count != null ? ` (${count.toLocaleString()})` : ""}
+                  </option>
+                );
+              })}
             </select>
 
             {/* Clear Filters */}
@@ -220,12 +229,55 @@ export function VocabularySearchPanel({
           </div>
         ) : (
           <div>
-            {/* Result count */}
-            <div className="px-4 py-2 border-b border-[#232328]">
+            {/* Result count + engine indicator */}
+            <div className="px-4 py-2 border-b border-[#232328] flex items-center justify-between">
               <p className="text-[10px] text-[#5A5650]">
                 Showing {results.length} of {total.toLocaleString()} results
               </p>
+              {engine && (
+                <span
+                  className={cn(
+                    "inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[9px] font-medium",
+                    engine === "solr"
+                      ? "bg-[#2DD4BF]/10 text-[#2DD4BF]"
+                      : "bg-[#8A857D]/10 text-[#8A857D]",
+                  )}
+                >
+                  <span
+                    className={cn(
+                      "w-1.5 h-1.5 rounded-full",
+                      engine === "solr" ? "bg-[#2DD4BF]" : "bg-[#8A857D]",
+                    )}
+                  />
+                  {engine === "solr" ? "Solr" : "PG"}
+                </span>
+              )}
             </div>
+
+            {/* Faceted filter counts (Solr-powered) */}
+            {facets && Object.keys(facets).length > 0 && !showFilters && (
+              <div className="px-4 py-1.5 border-b border-[#232328] flex flex-wrap gap-1">
+                {facets.domain_id && Object.entries(facets.domain_id).slice(0, 5).map(([name, count]) => (
+                  <button
+                    key={name}
+                    type="button"
+                    onClick={() => {
+                      setDomainFilter(name);
+                      setShowFilters(true);
+                    }}
+                    className={cn(
+                      "inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[9px] transition-colors",
+                      domainFilter === name
+                        ? "bg-[#60A5FA]/20 text-[#60A5FA]"
+                        : "bg-[#60A5FA]/10 text-[#60A5FA]/70 hover:text-[#60A5FA]",
+                    )}
+                  >
+                    {name}
+                    <span className="text-[#60A5FA]/50">{count.toLocaleString()}</span>
+                  </button>
+                ))}
+              </div>
+            )}
 
             <div className="divide-y divide-[#232328]">
               {results.map((concept) => {

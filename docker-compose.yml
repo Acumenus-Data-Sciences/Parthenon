@@ -156,6 +156,31 @@ services:
       - parthenon
     restart: unless-stopped
 
+  solr:
+    container_name: parthenon-solr
+    image: solr:9.7
+    ports:
+      - "${SOLR_PORT:-8983}:8983"
+    volumes:
+      - solr_data:/var/solr
+      - ./solr/configsets/vocabulary:/opt/solr/server/solr/configsets/vocabulary:ro
+    environment:
+      - SOLR_JAVA_MEM=-Xms512m -Xmx2g
+    command: solr-precreate vocabulary /opt/solr/server/solr/configsets/vocabulary
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8983/solr/vocabulary/admin/ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 3G
+    networks:
+      - parthenon
+    restart: unless-stopped
+
   r-runtime:
     container_name: parthenon-r
     build:
@@ -230,6 +255,7 @@ services:
 volumes:
   postgres-data:
   redis-data:
+  solr_data:
 
 networks:
   parthenon:

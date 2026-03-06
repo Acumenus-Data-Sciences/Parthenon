@@ -11,6 +11,7 @@ import type {
   SemanticSearchResult,
   ConceptComparisonEntry,
   MapsFromResult,
+  SuggestResult,
 } from "../types/vocabulary";
 
 const BASE = "/vocabulary";
@@ -24,7 +25,19 @@ export async function searchConcepts(
     total: data.total ?? data.count ?? 0,
     page: params.page ?? 1,
     limit: params.limit ?? 25,
+    facets: data.facets ?? undefined,
+    engine: data.engine ?? undefined,
   };
+}
+
+export async function suggestConcepts(
+  q: string,
+  limit: number = 10,
+): Promise<SuggestResult[]> {
+  const { data } = await apiClient.get(`${BASE}/suggest`, {
+    params: { q, limit },
+  });
+  return data.data ?? [];
 }
 
 export async function getConcept(id: number): Promise<Concept> {

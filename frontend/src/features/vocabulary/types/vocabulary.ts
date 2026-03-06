@@ -48,9 +48,17 @@ export interface ConceptSearchParams {
   domain?: string;
   vocabulary?: string;
   standard?: boolean;
+  concept_class?: string;
   page?: number;
   limit?: number;
   offset?: number;
+}
+
+export interface FacetCounts {
+  domain_id?: Record<string, number>;
+  vocabulary_id?: Record<string, number>;
+  concept_class_id?: Record<string, number>;
+  standard_concept?: Record<string, number>;
 }
 
 export interface ConceptSearchResult {
@@ -58,6 +66,13 @@ export interface ConceptSearchResult {
   total: number;
   page: number;
   limit: number;
+  facets?: FacetCounts;
+  engine?: "solr" | "postgresql";
+}
+
+export interface SuggestResult {
+  concept_name: string;
+  weight: number;
 }
 
 export interface PaginatedRelationships {

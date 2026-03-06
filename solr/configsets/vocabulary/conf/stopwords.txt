@@ -1,0 +1,11 @@
+# Minimal stopwords for medical vocabulary - keep most words searchable
+a
+an
+the
+and
+or
+of
+in
+to
+for
+is

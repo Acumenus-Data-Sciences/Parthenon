@@ -10,6 +10,7 @@ use App\Models\Vocabulary\ConceptRelationship;
 use App\Models\Vocabulary\Domain;
 use App\Models\Vocabulary\Vocabulary;
 use App\Services\AiService;
+use App\Services\Solr\VocabularySearchService;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -17,11 +18,47 @@ use Illuminate\Http\Request;
 #[Group('Vocabulary', weight: 30)]
 class VocabularyController extends Controller
 {
+    public function __construct(
+        private readonly VocabularySearchService $solrSearch,
+    ) {}
+
     /**
-     * Search concepts by name using trigram similarity.
+     * Search concepts by name. Uses Solr when available, falls back to PostgreSQL ILIKE.
      */
     public function search(VocabularySearchRequest $request): JsonResponse
     {
+        $limit = (int) $request->input('limit', 25);
+        $offset = (int) $request->input('offset', 0);
+
+        // Try Solr first
+        if ($this->solrSearch->isAvailable()) {
+            $filters = array_filter([
+                'domain' => $request->input('domain'),
+                'vocabulary' => $request->input('vocabulary'),
+                'standard' => $request->input('standard'),
+            ]);
+
+            $solrResult = $this->solrSearch->search(
+                $request->validated('q'),
+                $filters,
+                $limit,
+                $offset,
+            );
+
+            if ($solrResult !== null) {
+                return response()->json([
+                    'data' => $solrResult['items'],
+                    'count' => count($solrResult['items']),
+                    'total' => $solrResult['total'],
+                    'offset' => $offset,
+                    'facets' => $solrResult['facets'],
+                    'highlights' => $solrResult['highlights'],
+                    'engine' => 'solr',
+                ]);
+            }
+        }
+
+        // Fallback to PostgreSQL ILIKE
         $query = Concept::query()
             ->search($request->validated('q'));
 
@@ -37,9 +74,6 @@ class VocabularyController extends Controller
             $val = $request->input('standard');
             $query->where('standard_concept', in_array($val, ['true', '1', true], true) ? 'S' : $val);
         }
-
-        $limit = (int) $request->input('limit', 25);
-        $offset = (int) $request->input('offset', 0);
 
         $total = (clone $query)->count();
 
@@ -58,7 +92,39 @@ class VocabularyController extends Controller
             'count' => $concepts->count(),
             'total' => $total,
             'offset' => $offset,
+            'engine' => 'postgresql',
         ]);
+    }
+
+    /**
+     * Typeahead concept suggestions (Solr-powered when available).
+     */
+    public function suggest(Request $request): JsonResponse
+    {
+        $request->validate([
+            'q' => 'required|string|min:2|max:255',
+            'limit' => 'sometimes|integer|min:1|max:20',
+        ]);
+
+        $q = $request->input('q');
+        $limit = (int) $request->input('limit', 10);
+
+        // Try Solr suggest
+        if ($this->solrSearch->isAvailable()) {
+            $suggestions = $this->solrSearch->suggest($q, $limit);
+            if ($suggestions !== null) {
+                return response()->json(['data' => $suggestions, 'engine' => 'solr']);
+            }
+        }
+
+        // Fallback: simple PG prefix search
+        $concepts = Concept::query()
+            ->whereRaw('concept_name ILIKE ?', [$q.'%'])
+            ->orderByRaw('CASE WHEN standard_concept = ? THEN 0 ELSE 1 END', ['S'])
+            ->limit($limit)
+            ->get(['concept_id', 'concept_name', 'domain_id', 'vocabulary_id']);
+
+        return response()->json(['data' => $concepts, 'engine' => 'postgresql']);
     }
 
     /**
