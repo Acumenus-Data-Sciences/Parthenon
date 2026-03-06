@@ -79,7 +79,7 @@ const config: Config = {
   ],
 
   themeConfig: {
-    image: "img/logo.svg",
+    image: "img/parthenon_icon.png",
     colorMode: {
       defaultMode: "dark",
       disableSwitch: true,
@@ -91,8 +91,8 @@ const config: Config = {
       title: "Parthenon",
       logo: {
         alt: "Parthenon Logo",
-        src: "img/logo.svg",
-        srcDark: "img/logo.svg",
+        src: "img/parthenon_icon.png",
+        srcDark: "img/parthenon_icon.png",
       },
       items: [
         {

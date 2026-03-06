@@ -26,7 +26,6 @@ import {
   TrendingUp,
   HelpCircle,
 } from "lucide-react";
-import { ParthenonIcon } from "@/components/icons/ParthenonIcon";
 import { HelpSlideOver } from "@/features/help/components/HelpSlideOver";
 
 interface NavItem {
@@ -125,7 +124,7 @@ export function Sidebar() {
     <aside className={cn("app-sidebar", !sidebarOpen && "collapsed")} data-tour="sidebar">
       {/* Header */}
       <div className="sidebar-header">
-        <ParthenonIcon className={cn("shrink-0 text-[#C9A227]", sidebarOpen ? "w-8 h-8" : "w-6 h-6")} />
+        <img src="/parthenon_icon.png" alt="Parthenon" className={cn("shrink-0", sidebarOpen ? "w-8 h-8" : "w-6 h-6")} />
         {sidebarOpen && <span className="sidebar-logo">Parthenon</span>}
         <button
           onClick={toggleSidebar}
