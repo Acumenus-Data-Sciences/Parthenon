@@ -1,14 +1,17 @@
 {
   "key": "genomics",
-  "title": "Genomics",
-  "description": "The Genomics module enables uploading, parsing, and analyzing VCF (Variant Call Format) files. Variants are annotated with ClinVar clinical significance data and mapped to OMOP measurement concepts for integration with the CDM.",
-  "docs_url": "/docs/part7-advanced/22-genomics",
+  "title": "Molecular Genomics",
+  "description": "The Genomics module provides a complete workflow for ingesting, annotating, and analyzing genomic variant data within the OMOP CDM framework. Upload VCF or MAF files, annotate variants against the ClinVar reference database, match samples to OMOP patient records, and run population-level variant-outcome analyses.",
+  "docs_url": "/docs/part9-genomics/27-genomics-overview",
   "video_url": null,
   "tips": [
-    "Upload VCF or VCF.GZ files through the upload interface. Large files are processed asynchronously.",
-    "Variants are automatically annotated with ClinVar significance when a local ClinVar database is available.",
-    "Use the variant browser to filter by gene, chromosome, clinical significance, and quality scores.",
-    "Pathogenic and likely pathogenic variants are highlighted for clinical review.",
-    "Genomic variants can be cross-referenced with patient cohorts for pharmacogenomics research."
+    "Start by syncing the ClinVar reference database (ClinVar Reference tab). Use 'P/LP Only' for a fast seed or 'Full Sync' for all 4.4M variants.",
+    "Upload VCF or MAF files via 'Upload Variants'. Files under 10 MB parse instantly; larger files are queued.",
+    "After upload, click the sparkle icon on each upload row to annotate variants with ClinVar clinical significance, gene symbols, and disease associations.",
+    "Click into an upload to see its variant detail table. Use 'Match Persons' to link genomic samples to OMOP person records, then 'Import to OMOP' to write variants into the MEASUREMENT table.",
+    "Once variants are annotated, the 'Top Mutated Genes' section appears on the main page showing the most frequently mutated genes across all uploads.",
+    "Use the Analysis Suite for population-level analytics: Mutation-Survival (Kaplan-Meier curves), Treatment-Variant Matrix (drug response by gene), and Genomic Characterization (gene waterfall, variant types, mutation load).",
+    "The Tumor Board provides a patient-level molecular evidence panel for clinical decision support.",
+    "Pathogenic and Likely Pathogenic variants are flagged automatically. Uncertain significance and conflicting variants are marked for review."
   ]
 }

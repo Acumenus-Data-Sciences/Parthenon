@@ -33,6 +33,7 @@ import {
 } from "../hooks/useGenomics";
 import type { GenomicUpload, UploadStatus, ClinVarVariant } from "../types";
 import { UploadDialog } from "../components/UploadDialog";
+import { HelpButton } from "@/features/help";
 
 type Tab = "uploads" | "clinvar";
 
@@ -391,11 +392,14 @@ export default function GenomicsPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-[#F0EDE8]">Molecular Genomics</h1>
-          <p className="mt-1 text-sm text-[#8A857D]">
-            Variant ingestion, OMOP mapping, and cohort genomic criteria
-          </p>
+        <div className="flex items-center gap-2">
+          <div>
+            <h1 className="text-2xl font-bold text-[#F0EDE8]">Molecular Genomics</h1>
+            <p className="mt-1 text-sm text-[#8A857D]">
+              Variant ingestion, OMOP mapping, and cohort genomic criteria
+            </p>
+          </div>
+          <HelpButton helpKey="genomics" />
         </div>
         <div className="flex items-center gap-2">
           <button
