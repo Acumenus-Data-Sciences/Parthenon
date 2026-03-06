@@ -151,6 +151,10 @@ const TOOLBAR_TOOLS: ToolDef[] = [
 // Component
 // ──────────────────────────────────────────────────────────────────────────────
 
+// Monotonic counter ensures unique IDs per component mount — eliminates
+// Cornerstone ToolGroup/RenderingEngine ID collisions on React remount.
+let mountCounter = 0;
+
 export default function DicomViewer({ studyId, className = "" }: DicomViewerProps) {
   const viewportEl = useRef<HTMLDivElement>(null);
   const containerEl = useRef<HTMLDivElement>(null);
@@ -168,9 +172,11 @@ export default function DicomViewer({ studyId, className = "" }: DicomViewerProp
   const [showPresets, setShowPresets] = useState(false);
   const cineRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const engineId = `engine-${studyId}`;
-  const viewportId = `vp-${studyId}`;
-  const toolGroupId = `tg-${studyId}`;
+  // Unique IDs per mount — prevents collisions when React unmounts/remounts
+  const mountId = useRef(++mountCounter);
+  const engineId = `engine-${studyId}-${mountId.current}`;
+  const viewportId = `vp-${studyId}-${mountId.current}`;
+  const toolGroupId = `tg-${studyId}-${mountId.current}`;
 
   // ── Dynamic viewport height ─────────────────────────────────────────────
   useLayoutEffect(() => {
@@ -246,11 +252,6 @@ export default function DicomViewer({ studyId, className = "" }: DicomViewerProp
         await initCornerstone();
         if (cancelled || !viewportEl.current) return;
 
-        // ── Destroy previous resources ──────────────────────────────
-        try { cornerstone.getRenderingEngine(engineId)?.destroy(); } catch { /* ok */ }
-        // Unconditionally attempt destroy — don't rely on getToolGroup check
-        try { ToolGroupManager.destroyToolGroup(toolGroupId); } catch { /* ok */ }
-
         // ── Create rendering engine + viewport ────────────────────────
         const engine = new cornerstone.RenderingEngine(engineId);
         engine.enableElement({
@@ -264,14 +265,8 @@ export default function DicomViewer({ studyId, className = "" }: DicomViewerProp
         await viewport.setStack(imageIds, 0);
         viewport.render();
 
-        // ── Create tool group (fallback to existing if race condition) ─
-        let tg = ToolGroupManager.createToolGroup(toolGroupId);
-        if (!tg) {
-          tg = ToolGroupManager.getToolGroup(toolGroupId) ?? undefined;
-        }
-        if (!tg) {
-          throw new Error("Failed to create or retrieve tool group");
-        }
+        // ── Create tool group (unique ID per mount = no collision) ─────
+        const tg = ToolGroupManager.createToolGroup(toolGroupId)!;
 
         for (const ToolClass of ALL_TOOL_CLASSES) {
           try { tg.addTool(ToolClass.toolName); } catch { /* already added */ }
