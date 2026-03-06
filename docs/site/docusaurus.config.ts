@@ -82,8 +82,8 @@ const config: Config = {
     image: "img/logo.svg",
     colorMode: {
       defaultMode: "dark",
-      disableSwitch: false,
-      respectPrefersColorScheme: true,
+      disableSwitch: true,
+      respectPrefersColorScheme: false,
     },
     // Algolia search panel (only present when env vars are configured)
     ...algoliaConfig,
@@ -147,11 +147,11 @@ const config: Config = {
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} Parthenon. Built on OMOP CDM v5.4.`,
+      copyright: `Copyright \u00A9 ${new Date().getFullYear()} Acumenus Data Sciences. Built on OMOP CDM v5.4.`,
     },
     prism: {
       theme: prismThemes.github,
-      darkTheme: prismThemes.dracula,
+      darkTheme: prismThemes.oneDark,
       additionalLanguages: ["sql", "bash", "json", "php"],
     },
     mermaid: {

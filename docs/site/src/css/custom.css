@@ -1,108 +1,424 @@
 /**
- * Parthenon documentation — custom theme
- * Matches the app's Tailwind slate palette (dark-first design).
+ * Parthenon Documentation — Dark Crimson + Gold theme
+ * Matches the app's design system: tokens-dark.css + tokens-base.css
  */
 
-/* ── Light mode palette ─────────────────────────────────────────────────── */
-:root {
-  --ifm-color-primary: #3b82f6;
-  --ifm-color-primary-dark: #2563eb;
-  --ifm-color-primary-darker: #1d4ed8;
-  --ifm-color-primary-darkest: #1e40af;
-  --ifm-color-primary-light: #60a5fa;
-  --ifm-color-primary-lighter: #93c5fd;
-  --ifm-color-primary-lightest: #bfdbfe;
+/* ── Google Fonts (same as Parthenon app) ──────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600&family=Source+Serif+4:wght@400;600&family=Source+Sans+3:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
 
-  --ifm-background-color: #f8fafc;
-  --ifm-background-surface-color: #ffffff;
-  --ifm-navbar-background-color: #1e293b;
-  --ifm-navbar-link-color: #cbd5e1;
-  --ifm-navbar-link-hover-color: #f1f5f9;
-  --ifm-footer-background-color: #0f172a;
+/* ── Light mode palette (kept minimal — dark is primary) ──────────────── */
+:root {
+  --ifm-color-primary: #9B1B30;
+  --ifm-color-primary-dark: #6A1220;
+  --ifm-color-primary-darker: #5A0F1A;
+  --ifm-color-primary-darkest: #400B13;
+  --ifm-color-primary-light: #B82D42;
+  --ifm-color-primary-lighter: #D04058;
+  --ifm-color-primary-lightest: #E85A6B;
+
+  --ifm-background-color: #F0EDE8;
+  --ifm-background-surface-color: #FAFAF8;
+  --ifm-navbar-background-color: #0E0E11;
+  --ifm-navbar-link-color: #C5C0B8;
+  --ifm-navbar-link-hover-color: #F0EDE8;
+  --ifm-footer-background-color: #08080A;
+
+  --ifm-font-family-base: 'Source Sans 3', 'Helvetica Neue', sans-serif;
+  --ifm-heading-font-family: 'Source Serif 4', Georgia, serif;
+  --ifm-font-family-monospace: 'IBM Plex Mono', Consolas, monospace;
   --ifm-code-font-size: 90%;
-  --docusaurus-highlighted-code-line-bg: rgba(59, 130, 246, 0.1);
+  --ifm-global-radius: 8px;
+
+  --docusaurus-highlighted-code-line-bg: rgba(155, 27, 48, 0.1);
 }
 
 /* ── Dark mode palette ─────────────────────────────────────────────────── */
 [data-theme="dark"] {
-  --ifm-color-primary: #60a5fa;
-  --ifm-color-primary-dark: #3b82f6;
-  --ifm-color-primary-darker: #2563eb;
-  --ifm-color-primary-darkest: #1d4ed8;
-  --ifm-color-primary-light: #93c5fd;
-  --ifm-color-primary-lighter: #bfdbfe;
-  --ifm-color-primary-lightest: #dbeafe;
+  --ifm-color-primary: #D04058;
+  --ifm-color-primary-dark: #B82D42;
+  --ifm-color-primary-darker: #9B1B30;
+  --ifm-color-primary-darkest: #6A1220;
+  --ifm-color-primary-light: #E85A6B;
+  --ifm-color-primary-lighter: #FF6B7D;
+  --ifm-color-primary-lightest: #FF8A99;
 
-  --ifm-background-color: #0f172a;
-  --ifm-background-surface-color: #1e293b;
-  --ifm-navbar-background-color: #0f172a;
-  --ifm-navbar-link-color: #94a3b8;
-  --ifm-navbar-link-hover-color: #f1f5f9;
-  --ifm-toc-border-color: #334155;
-  --ifm-menu-color: #94a3b8;
-  --ifm-menu-color-active: #60a5fa;
-  --ifm-sidebar-background: #1e293b;
-  --docusaurus-highlighted-code-line-bg: rgba(96, 165, 250, 0.15);
+  --ifm-background-color: #0E0E11;
+  --ifm-background-surface-color: #151518;
+  --ifm-navbar-background-color: #0B0B0E;
+  --ifm-navbar-link-color: #8A857D;
+  --ifm-navbar-link-hover-color: #F0EDE8;
+  --ifm-toc-border-color: #2A2A30;
+  --ifm-menu-color: #8A857D;
+  --ifm-menu-color-active: #C9A227;
+  --ifm-footer-background-color: #08080A;
+  --ifm-link-color: #C9A227;
+  --ifm-link-hover-color: #D4B340;
+  --ifm-tabs-color-active: #C9A227;
+  --ifm-tabs-color-active-border: #C9A227;
+  --ifm-color-emphasis-300: #2A2A30;
+  --ifm-hr-border-color: #2A2A30;
+  --docusaurus-highlighted-code-line-bg: rgba(201, 162, 39, 0.15);
 }
 
-/* ── Sidebar ─────────────────────────────────────────────────────────────── */
-[data-theme="dark"] .menu {
-  background: #1e293b;
+/* ── Typography ────────────────────────────────────────────────────────── */
+[data-theme="dark"] {
+  --ifm-font-color-base: #C5C0B8;
+  --ifm-heading-color: #F0EDE8;
 }
 
-[data-theme="dark"] .menu__link--active {
-  color: #60a5fa;
-  background: rgba(96, 165, 250, 0.08);
-}
-
-/* ── Navbar ──────────────────────────────────────────────────────────────── */
+/* ── Navbar ────────────────────────────────────────────────────────────── */
 .navbar {
-  border-bottom: 1px solid #334155;
+  border-bottom: 1px solid #2A2A30;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.50);
 }
 
-/* ── Admonitions (callout blocks) ────────────────────────────────────────── */
-[data-theme="dark"] .alert {
-  border-left-width: 4px;
+.navbar__title {
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-weight: 600;
+  letter-spacing: 0.5px;
 }
 
-[data-theme="dark"] .alert--note {
-  background: rgba(96, 165, 250, 0.08);
-  border-color: #3b82f6;
+[data-theme="dark"] .navbar__title {
+  color: #C9A227;
 }
 
-[data-theme="dark"] .alert--tip {
-  background: rgba(34, 197, 94, 0.08);
-  border-color: #22c55e;
+[data-theme="dark"] .navbar__link {
+  color: #8A857D;
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 0.875rem;
 }
 
-[data-theme="dark"] .alert--warning {
-  background: rgba(234, 179, 8, 0.08);
-  border-color: #eab308;
+[data-theme="dark"] .navbar__link:hover,
+[data-theme="dark"] .navbar__link--active {
+  color: #F0EDE8;
 }
 
-[data-theme="dark"] .alert--danger {
-  background: rgba(239, 68, 68, 0.08);
-  border-color: #ef4444;
+/* Navbar search input */
+[data-theme="dark"] .navbar__search-input {
+  background: #1C1C20;
+  border: 1px solid #2A2A30;
+  color: #C5C0B8;
 }
 
-/* ── Code blocks ─────────────────────────────────────────────────────────── */
-[data-theme="dark"] .prism-code {
-  background: #0f172a !important;
+[data-theme="dark"] .navbar__search-input:focus {
+  border-color: #C9A227;
+  box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.15);
 }
 
-/* ── Article content ─────────────────────────────────────────────────────── */
-[data-theme="dark"] article h1,
+/* ── Sidebar ───────────────────────────────────────────────────────────── */
+[data-theme="dark"] .menu {
+  background: #0B0B0E;
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 0.875rem;
+}
+
+[data-theme="dark"] .menu__link {
+  color: #8A857D;
+  border-radius: 8px;
+  transition: color 100ms, background 100ms;
+}
+
+[data-theme="dark"] .menu__link:hover {
+  background: #1C1C20;
+  color: #F0EDE8;
+}
+
+[data-theme="dark"] .menu__link--active:not(.menu__link--sublist) {
+  color: #F0EDE8;
+  background: rgba(155, 27, 48, 0.15);
+  border-left: 3px solid #9B1B30;
+  padding-left: calc(var(--ifm-menu-link-padding-horizontal) - 3px);
+}
+
+[data-theme="dark"] .menu__link--sublist-caret::after {
+  filter: invert(0.5);
+}
+
+[data-theme="dark"] .menu__list-item-collapsible:hover {
+  background: #1C1C20;
+}
+
+[data-theme="dark"] .theme-doc-sidebar-container {
+  border-right: 1px solid #2A2A30 !important;
+}
+
+/* Category labels */
+[data-theme="dark"] .menu__link--sublist {
+  color: #5A5650;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.6875rem;
+  letter-spacing: 0.8px;
+}
+
+/* ── Article content ───────────────────────────────────────────────────── */
+[data-theme="dark"] article h1 {
+  font-family: 'Crimson Pro', Georgia, serif;
+  color: #F0EDE8;
+  font-weight: 600;
+}
+
 [data-theme="dark"] article h2,
-[data-theme="dark"] article h3 {
-  color: #f1f5f9;
+[data-theme="dark"] article h3,
+[data-theme="dark"] article h4 {
+  font-family: 'Source Serif 4', Georgia, serif;
+  color: #F0EDE8;
+  font-weight: 600;
+}
+
+[data-theme="dark"] article p,
+[data-theme="dark"] article li {
+  color: #C5C0B8;
+  line-height: 1.7;
 }
 
 [data-theme="dark"] article a {
-  color: #60a5fa;
+  color: #C9A227;
+  text-decoration: none;
+  transition: color 100ms;
 }
 
-/* ── Table of contents ────────────────────────────────────────────────────── */
+[data-theme="dark"] article a:hover {
+  color: #D4B340;
+  text-decoration: underline;
+}
+
+[data-theme="dark"] article strong {
+  color: #F0EDE8;
+}
+
+[data-theme="dark"] article hr {
+  border-color: #2A2A30;
+}
+
+/* Inline code */
+[data-theme="dark"] article code {
+  background: #1C1C20;
+  border: 1px solid #2A2A30;
+  color: #D04058;
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-family: 'IBM Plex Mono', Consolas, monospace;
+  font-size: 0.85em;
+}
+
+/* ── Code blocks ───────────────────────────────────────────────────────── */
+[data-theme="dark"] .prism-code {
+  background: #08080A !important;
+  border: 1px solid #2A2A30;
+  border-radius: 8px;
+}
+
+[data-theme="dark"] pre code {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+}
+
+[data-theme="dark"] .codeBlockTitle_node_modules-\@docusaurus-theme-classic-lib-theme-CodeBlock-Content-styles-module,
+[data-theme="dark"] [class*="codeBlockTitle"] {
+  background: #151518 !important;
+  border-bottom: 1px solid #2A2A30;
+  color: #8A857D;
+  font-family: 'IBM Plex Mono', Consolas, monospace;
+}
+
+/* ── Tables ────────────────────────────────────────────────────────────── */
+[data-theme="dark"] table {
+  border-collapse: collapse;
+}
+
+[data-theme="dark"] table thead tr {
+  background: #151518;
+  border-bottom: 2px solid #2A2A30;
+}
+
+[data-theme="dark"] table thead th {
+  color: #8A857D;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  font-weight: 600;
+}
+
+[data-theme="dark"] table tbody tr {
+  border-bottom: 1px solid rgba(42, 42, 48, 0.60);
+}
+
+[data-theme="dark"] table tbody tr:nth-child(2n) {
+  background: rgba(21, 21, 24, 0.5);
+}
+
+[data-theme="dark"] table td,
+[data-theme="dark"] table th {
+  border-color: rgba(42, 42, 48, 0.60);
+}
+
+/* ── Admonitions (callout blocks) ──────────────────────────────────────── */
+[data-theme="dark"] .alert {
+  border-left-width: 4px;
+  border-radius: 8px;
+  background: #151518;
+}
+
+[data-theme="dark"] .alert--note,
+[data-theme="dark"] .alert--info {
+  background: rgba(96, 165, 250, 0.08);
+  border-color: #60A5FA;
+}
+
+[data-theme="dark"] .alert--tip,
+[data-theme="dark"] .alert--success {
+  background: rgba(45, 212, 191, 0.08);
+  border-color: #2DD4BF;
+}
+
+[data-theme="dark"] .alert--warning,
+[data-theme="dark"] .alert--caution {
+  background: rgba(229, 168, 75, 0.08);
+  border-color: #E5A84B;
+}
+
+[data-theme="dark"] .alert--danger {
+  background: rgba(232, 90, 107, 0.08);
+  border-color: #E85A6B;
+}
+
+/* ── Table of contents ─────────────────────────────────────────────────── */
+[data-theme="dark"] .table-of-contents {
+  border-left: 1px solid #2A2A30;
+}
+
+[data-theme="dark"] .table-of-contents__link {
+  color: #5A5650;
+  font-size: 0.8125rem;
+  transition: color 100ms;
+}
+
 [data-theme="dark"] .table-of-contents__link:hover,
 [data-theme="dark"] .table-of-contents__link--active {
-  color: #60a5fa;
+  color: #C9A227;
+}
+
+/* ── Pagination (prev/next) ────────────────────────────────────────────── */
+[data-theme="dark"] .pagination-nav__link {
+  background: #151518;
+  border: 1px solid #2A2A30;
+  border-radius: 8px;
+  transition: border-color 200ms, box-shadow 200ms;
+}
+
+[data-theme="dark"] .pagination-nav__link:hover {
+  border-color: #C9A227;
+  box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.15);
+}
+
+[data-theme="dark"] .pagination-nav__sublabel {
+  color: #5A5650;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+[data-theme="dark"] .pagination-nav__label {
+  color: #C9A227;
+}
+
+/* ── Footer ────────────────────────────────────────────────────────────── */
+[data-theme="dark"] .footer {
+  background: #08080A;
+  border-top: 1px solid #2A2A30;
+}
+
+[data-theme="dark"] .footer__title {
+  color: #8A857D;
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  font-weight: 600;
+}
+
+[data-theme="dark"] .footer__link-item {
+  color: #5A5650;
+  font-size: 0.875rem;
+  transition: color 100ms;
+}
+
+[data-theme="dark"] .footer__link-item:hover {
+  color: #C9A227;
+}
+
+[data-theme="dark"] .footer__copyright {
+  color: #5A5650;
+  font-size: 0.75rem;
+  border-top: 1px solid rgba(42, 42, 48, 0.60);
+  padding-top: 1.5rem;
+}
+
+/* ── Breadcrumbs ───────────────────────────────────────────────────────── */
+[data-theme="dark"] .breadcrumbs__link {
+  color: #5A5650;
+  transition: color 100ms;
+}
+
+[data-theme="dark"] .breadcrumbs__link:hover {
+  color: #C9A227;
+}
+
+[data-theme="dark"] .breadcrumbs__item--active .breadcrumbs__link {
+  color: #C5C0B8;
+}
+
+/* ── Search (Lunr local) ───────────────────────────────────────────────── */
+[data-theme="dark"] .search-result-match {
+  color: #C9A227;
+  background: rgba(201, 162, 39, 0.15);
+}
+
+/* ── Scrollbar ─────────────────────────────────────────────────────────── */
+[data-theme="dark"] ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-track {
+  background: #0E0E11;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: #2A2A30;
+  border-radius: 4px;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+  background: #323238;
+}
+
+/* ── Doc page layout tweaks ────────────────────────────────────────────── */
+[data-theme="dark"] .theme-doc-markdown {
+  --ifm-leading: 1.7;
+}
+
+/* Back to top button */
+[data-theme="dark"] .theme-back-to-top-button {
+  background: #1C1C20 !important;
+  border: 1px solid #2A2A30;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.60);
+}
+
+[data-theme="dark"] .theme-back-to-top-button:hover {
+  background: #232328 !important;
+}
+
+/* ── Version badge / tags ──────────────────────────────────────────────── */
+[data-theme="dark"] .badge {
+  background: rgba(155, 27, 48, 0.15);
+  border: 1px solid rgba(184, 45, 66, 0.4);
+  color: #D04058;
+}
+
+/* ── Color mode toggle ─────────────────────────────────────────────────── */
+[data-theme="dark"] .toggleButton_node_modules-\@docusaurus-theme-classic-lib-theme-ColorModeToggle-styles-module:hover,
+[data-theme="dark"] [class*="toggleButton"]:hover {
+  background: #1C1C20;
 }
