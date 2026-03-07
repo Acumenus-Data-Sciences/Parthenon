@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\V1\AbbyAiController;
 use App\Http\Controllers\Api\V1\AbbyConversationController;
 use App\Http\Controllers\Api\V1\AchillesController;
+use App\Http\Controllers\Api\V1\RadiogenomicsController;
 use App\Http\Controllers\Api\V1\Admin\AiProviderController;
 use App\Http\Controllers\Api\V1\Admin\AtlasMigrationController;
 use App\Http\Controllers\Api\V1\Admin\AuthProviderController;
@@ -596,8 +597,8 @@ Route::prefix('v1/imaging')->group(function () {
 // ── Phase 5: Radiogenomics ────────────────────────────────────────────────
 Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
     Route::prefix('radiogenomics')->group(function () {
-        Route::get('/patients/{personId}', [Api\V1\RadiogenomicsController::class, 'patientPanel']);
-        Route::get('/variant-drug-interactions', [Api\V1\RadiogenomicsController::class, 'variantDrugInteractions']);
+        Route::get('/patients/{personId}', [RadiogenomicsController::class, 'patientPanel']);
+        Route::get('/variant-drug-interactions', [RadiogenomicsController::class, 'variantDrugInteractions']);
     });
 });
 

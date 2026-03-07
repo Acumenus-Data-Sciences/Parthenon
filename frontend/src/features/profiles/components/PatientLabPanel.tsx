@@ -293,8 +293,9 @@ export function PatientLabPanel({ events }: PatientLabPanelProps) {
     const grouped = new Map<number, LabGroup>();
 
     for (const m of measurements) {
-      const numVal = typeof m.value === "number" ? m.value : null;
-      if (numVal == null) continue; // skip non-numeric measurements
+      const raw = m.value;
+      const numVal = typeof raw === "number" ? raw : typeof raw === "string" ? Number(raw) : null;
+      if (numVal == null || isNaN(numVal)) continue; // skip non-numeric measurements
 
       const existing = grouped.get(m.concept_id);
       if (existing) {
@@ -305,8 +306,8 @@ export function PatientLabPanel({ events }: PatientLabPanelProps) {
           !existing.range_low &&
           m.range_low != null
         ) {
-          existing.range_low = m.range_low;
-          existing.range_high = m.range_high ?? null;
+          existing.range_low = typeof m.range_low === "string" ? Number(m.range_low) : m.range_low;
+          existing.range_high = m.range_high != null ? (typeof m.range_high === "string" ? Number(m.range_high) : m.range_high) : null;
         }
         if (!existing.unit && m.unit) {
           existing.unit = m.unit;
@@ -317,8 +318,8 @@ export function PatientLabPanel({ events }: PatientLabPanelProps) {
           concept_name: m.concept_name,
           unit: m.unit ?? "",
           values: [{ date: m.start_date, value: numVal }],
-          range_low: m.range_low ?? null,
-          range_high: m.range_high ?? null,
+          range_low: m.range_low != null ? (typeof m.range_low === "string" ? Number(m.range_low) : m.range_low) : null,
+          range_high: m.range_high != null ? (typeof m.range_high === "string" ? Number(m.range_high) : m.range_high) : null,
           latest: numVal,
           count: 1,
           vocabulary: m.vocabulary ?? "",

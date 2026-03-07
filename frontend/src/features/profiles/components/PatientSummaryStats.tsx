@@ -185,6 +185,13 @@ export function PatientSummaryStats({ profile, stats: domainStats, onDrillDown }
         color="#818CF8"
         onClick={onDrillDown ? () => onDrillDown("labs") : undefined}
       />
+      <StatPill
+        icon={<Eye size={16} />}
+        label="Observations"
+        value={stats.observationCount.toLocaleString()}
+        color="#94A3B8"
+        onClick={onDrillDown ? () => onDrillDown("list", "observation") : undefined}
+      />
       {stats.lastEventDate && (
         <StatPill
           icon={<Clock size={16} />}
@@ -196,13 +203,6 @@ export function PatientSummaryStats({ profile, stats: domainStats, onDrillDown }
           color="#C9A227"
         />
       )}
-      <StatPill
-        icon={<Eye size={16} />}
-        label="Observations"
-        value={stats.observationCount.toLocaleString()}
-        color="#94A3B8"
-        onClick={onDrillDown ? () => onDrillDown("list", "observation") : undefined}
-      />
     </div>
   );
 }

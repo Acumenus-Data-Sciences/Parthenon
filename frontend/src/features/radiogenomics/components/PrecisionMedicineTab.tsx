@@ -37,12 +37,12 @@ const SIGNIFICANCE_COLORS: Record<string, string> = {
 
 // ── Main Component ──────────────────────────────────────────────────────
 
-interface RadiogenomicsTabProps {
+interface PrecisionMedicineTabProps {
   personId: number;
   sourceId?: number;
 }
 
-export default function RadiogenomicsTab({ personId, sourceId }: RadiogenomicsTabProps) {
+export default function PrecisionMedicineTab({ personId, sourceId }: PrecisionMedicineTabProps) {
   const { data: panel, isLoading, error } = useRadiogenomicsPanel(personId, sourceId);
 
   if (isLoading) {
@@ -58,7 +58,7 @@ export default function RadiogenomicsTab({ personId, sourceId }: RadiogenomicsTa
       <div className="flex flex-col items-center justify-center h-48 rounded-lg border border-dashed border-[#323238] bg-[#151518]">
         <Dna size={24} className="text-[#5A5650] mb-3" />
         <p className="text-sm text-[#8A857D]">
-          {error ? "Failed to load radiogenomics panel" : "No genomic data available for this patient"}
+          {error ? "Failed to load precision medicine panel" : "No genomic data available for this patient"}
         </p>
       </div>
     );
@@ -93,7 +93,7 @@ export default function RadiogenomicsTab({ personId, sourceId }: RadiogenomicsTa
 // ── Panel Summary ───────────────────────────────────────────────────────
 
 function PanelSummary({ panel }: { panel: RadiogenomicsPanel }) {
-  const { variants, correlations, recommendations, imaging, drug_exposures } = panel;
+  const { variants, correlations, recommendations, drug_exposures } = panel;
 
   const stats = [
     { label: "Total Variants", value: variants.total, color: "#A78BFA", icon: Dna },
@@ -101,12 +101,11 @@ function PanelSummary({ panel }: { panel: RadiogenomicsPanel }) {
     { label: "VUS", value: variants.vus_count, color: "#C9A227", icon: FlaskConical },
     { label: "Drug Correlations", value: correlations.length, color: "#2DD4BF", icon: Pill },
     { label: "Recommendations", value: recommendations.length, color: "#60A5FA", icon: ShieldCheck },
-    { label: "Imaging Studies", value: imaging.studies.length, color: "#8A857D", icon: Activity },
     { label: "Treatments", value: drug_exposures.length, color: "#F0EDE8", icon: Pill },
   ];
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
       {stats.map((s) => {
         const Icon = s.icon;
         return (
@@ -133,7 +132,7 @@ function RecommendationsSection({ recommendations }: { recommendations: Precisio
     <div className="space-y-3">
       <h3 className="text-sm font-semibold text-[#F0EDE8] flex items-center gap-2">
         <ShieldCheck size={14} className="text-[#60A5FA]" />
-        Precision Oncology Recommendations
+        Precision Medicine Recommendations
       </h3>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         {recommendations.map((rec, i) => (

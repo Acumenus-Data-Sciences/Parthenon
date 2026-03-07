@@ -52,6 +52,7 @@ export default function OhifViewer({
   onMeasurementSaved,
 }: OhifViewerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
   const [height, setHeight] = useState(600);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -197,10 +198,25 @@ export default function OhifViewer({
       )}
 
       <iframe
+        ref={iframeRef}
         src={ohifUrl}
         title="OHIF DICOM Viewer"
         style={{ width: "100%", height, border: "none" }}
-        onLoad={() => { setLoading(false); recalcHeight(); }}
+        onLoad={() => {
+          setLoading(false);
+          recalcHeight();
+          // OHIF's Cornerstone viewports need a resize event after the iframe
+          // finishes layout — without this, viewports get stuck at size 0.
+          const iframe = iframeRef.current;
+          if (iframe?.contentWindow) {
+            const triggerResize = () => {
+              try { iframe.contentWindow?.dispatchEvent(new Event("resize")); } catch { /* cross-origin */ }
+            };
+            setTimeout(triggerResize, 500);
+            setTimeout(triggerResize, 1500);
+            setTimeout(triggerResize, 3000);
+          }
+        }}
         onError={() => { setLoading(false); setError(true); }}
         allow="fullscreen"
       />

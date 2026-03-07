@@ -14,6 +14,7 @@ import {
   GitBranch,
   AlertTriangle,
   Dna,
+  ScanLine,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
@@ -29,10 +30,12 @@ import { PatientLabPanel } from "../components/PatientLabPanel";
 import { PatientVisitView } from "../components/PatientVisitView";
 import { PatientSearchPanel } from "../components/PatientSearchPanel";
 import { ConceptDetailDrawer } from "../components/ConceptDetailDrawer";
-import RadiogenomicsTab from "@/features/radiogenomics/components/RadiogenomicsTab";
+import PrecisionMedicineTab from "@/features/radiogenomics/components/PrecisionMedicineTab";
+import ImagingPatientTimeline from "@/features/imaging/components/PatientTimeline";
+import { usePatientTimeline } from "@/features/imaging/hooks/useImaging";
 import type { ClinicalEvent } from "../types/profile";
 
-type ViewMode = "timeline" | "list" | "labs" | "visits" | "eras" | "precision";
+type ViewMode = "timeline" | "list" | "labs" | "imaging" | "visits" | "eras" | "precision";
 
 type DomainTab =
   | "all"
@@ -61,9 +64,10 @@ const VIEW_BUTTONS: {
   { mode: "timeline", icon: <Activity size={12} />, label: "Timeline" },
   { mode: "list", icon: <LayoutList size={12} />, label: "List" },
   { mode: "labs", icon: <FlaskConical size={12} />, label: "Labs" },
+  { mode: "imaging", icon: <ScanLine size={12} />, label: "Imaging" },
   { mode: "visits", icon: <Hospital size={12} />, label: "Visits" },
   { mode: "eras", icon: <GitBranch size={12} />, label: "Eras" },
-  { mode: "precision", icon: <Dna size={12} />, label: "Precision Oncology" },
+  { mode: "precision", icon: <Dna size={12} />, label: "Precision Medicine" },
 ];
 
 function downloadEventsAsCsv(events: ClinicalEvent[], filename: string) {
@@ -422,6 +426,11 @@ export default function PatientProfilePage() {
             <PatientLabPanel events={allEvents} />
           )}
 
+          {/* Imaging view */}
+          {viewMode === "imaging" && parsedPersonId && (
+            <PatientImagingView personId={parsedPersonId} />
+          )}
+
           {/* Visits view */}
           {viewMode === "visits" && (
             <PatientVisitView events={allEvents} />
@@ -435,9 +444,9 @@ export default function PatientProfilePage() {
             />
           )}
 
-          {/* Precision Oncology (Radiogenomics) view */}
+          {/* Precision Medicine view */}
           {viewMode === "precision" && parsedPersonId && (
-            <RadiogenomicsTab
+            <PrecisionMedicineTab
               personId={parsedPersonId}
               sourceId={sourceId ?? undefined}
             />
@@ -527,5 +536,38 @@ export default function PatientProfilePage() {
       </>
     )}
     </div>
+  );
+}
+
+// ── Embedded Imaging View ──────────────────────────────────────────────
+
+function PatientImagingView({ personId }: { personId: number }) {
+  const { data: timeline, isLoading, error } = usePatientTimeline(personId);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 size={24} className="animate-spin text-[#60A5FA]" />
+      </div>
+    );
+  }
+
+  if (error || !timeline) {
+    return (
+      <div className="flex flex-col items-center justify-center h-48 rounded-lg border border-dashed border-[#323238] bg-[#151518]">
+        <ScanLine size={24} className="text-[#5A5650] mb-3" />
+        <p className="text-sm text-[#8A857D]">
+          {error ? "Failed to load imaging data" : "No imaging studies available for this patient"}
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <ImagingPatientTimeline
+      data={timeline}
+      isLoading={false}
+      error={null}
+    />
   );
 }

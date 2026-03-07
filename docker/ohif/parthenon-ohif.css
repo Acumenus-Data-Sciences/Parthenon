@@ -4,6 +4,13 @@
  * Accent: #2DD4BF (teal), Secondary: #60A5FA (blue)
  */
 
+/* CRITICAL: Ensure full height chain when embedded in an iframe.
+ * OHIF's own CSS does NOT set height on html/body/#root, which causes
+ * Cornerstone viewports to initialize with size 0 inside iframes. */
+html, body, #root {
+  height: 100% !important;
+}
+
 /* Main backgrounds */
 .bg-primary-dark,
 .ohif-scrollbar,

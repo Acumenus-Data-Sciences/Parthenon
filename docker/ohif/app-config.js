@@ -19,7 +19,6 @@ window.config = {
 
   // Performance: more workers = faster parallel DICOM decoding
   maxNumberOfWebWorkers: navigator.hardwareConcurrency || 6,
-  useSharedArrayBuffer: 'AUTO',
 
   showWarningMessageForCrossOrigin: false,
   showCPUFallbackMessage: false,

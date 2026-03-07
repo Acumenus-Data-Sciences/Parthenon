@@ -301,9 +301,10 @@ services:
     image: node:22-alpine
     working_dir: /docs
     volumes:
-      - ./docs/site:/docs:ro
+      - ./docs/site:/docs
+      - ./docs/blog:/blog:ro
       - ./docs/dist:/dist
-    command: sh -c "npm ci && npm run build:docker"
+    command: sh -c "npm ci --legacy-peer-deps && npm run build:docker"
     profiles:
       - docs
 
