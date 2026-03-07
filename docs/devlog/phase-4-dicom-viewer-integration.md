@@ -134,3 +134,7 @@ This session completed all Phase 4 deliverables plus a large-scale COVID DICOM i
 4. **User model is `App\Models\User`** not `App\Models\App\User` — the memory file had incorrect namespace. Token generation script needed correction.
 
 5. **Incremental indexing strategy** — for large uploads (300K+ DICOM files), running index+link in periodic batches during upload provides immediate usability rather than waiting for completion.
+
+6. **OHIF `customizationService` crash** (`44fa38d2`) — the `dicomUploadComponent` string reference caused `TypeError: Cannot read properties of undefined (reading 'value')` in `CustomizationService.addReference()`. OHIF v3.9.2 expects objects with a `value` property, not plain strings. Fix: removed the invalid entry; DICOM upload works without it.
+
+7. **OHIF loads all patient studies, not just the selected one** (`7da4a9fb`) — patients with multiple studies in Orthanc (e.g. patient 499504 with 13 studies) caused OHIF to prefetch and display all prior studies for the same DICOM patient ID. The console showed `StudyPrefetcher is not enabled` but the hanging protocol still matched across studies. Fix: added `studyPrefetcher: { enabled: false }` to `app-config.js` to ensure only the requested `StudyInstanceUID` is loaded.
