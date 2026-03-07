@@ -293,13 +293,18 @@ class ImagingTimelineService
         $grouped = $unlinked->groupBy(fn ($s) => $s->patient_id_dicom ?? $s->patient_name_dicom ?? "unknown-{$s->id}");
 
         // Get CDM patients with the specified condition (randomized for variety)
-        $candidates = DB::connection('cdm')
+        // Use subquery to avoid PostgreSQL "SELECT DISTINCT + ORDER BY RANDOM()" conflict
+        $subquery = DB::connection('cdm')
             ->table('condition_occurrence as co')
             ->join('concept as c', 'c.concept_id', '=', 'co.condition_concept_id')
             ->join('person as p', 'p.person_id', '=', 'co.person_id')
             ->where('c.concept_name', 'ilike', $conditionPattern)
             ->select('p.person_id')
-            ->distinct()
+            ->distinct();
+
+        $candidates = DB::connection('cdm')
+            ->query()
+            ->fromSub($subquery, 'candidates')
             ->orderByRaw('RANDOM()')
             ->limit($grouped->count())
             ->pluck('person_id')

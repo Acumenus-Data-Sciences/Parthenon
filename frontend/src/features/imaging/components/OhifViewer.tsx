@@ -3,21 +3,62 @@
  *
  * OHIF is served as static files at /ohif/ by nginx. It reads DICOMweb data
  * from Orthanc (proxied at /orthanc/). The study is selected via URL parameter.
+ *
+ * Measurement Bridge: OHIF posts measurement events via postMessage (injected
+ * via ohif-bridge.js). This component listens and saves them to Parthenon's
+ * imaging measurement API.
  */
 
-import { useState, useRef, useLayoutEffect } from "react";
-import { Loader2, ExternalLink, AlertCircle } from "lucide-react";
+import { useState, useRef, useEffect, useLayoutEffect, useCallback } from "react";
+import { Loader2, ExternalLink, AlertCircle, Save, CheckCircle2 } from "lucide-react";
+import { imagingApi } from "../api/imagingApi";
+
+interface OhifMeasurementPayload {
+  uid: string;
+  StudyInstanceUID?: string;
+  SeriesInstanceUID?: string;
+  SOPInstanceUID?: string;
+  label?: string;
+  type?: string;
+  displayText?: string[];
+  length?: number | null;
+  area?: number | null;
+  longestDiameter?: number | null;
+  shortestDiameter?: number | null;
+  mean?: number | null;
+  stdDev?: number | null;
+  min?: number | null;
+  max?: number | null;
+  unit?: string;
+}
+
+interface PendingMeasurement {
+  uid: string;
+  payload: OhifMeasurementPayload;
+}
 
 interface OhifViewerProps {
   studyInstanceUid: string;
+  studyId?: number;
+  personId?: number | null;
   className?: string;
+  onMeasurementSaved?: () => void;
 }
 
-export default function OhifViewer({ studyInstanceUid, className = "" }: OhifViewerProps) {
+export default function OhifViewer({
+  studyInstanceUid,
+  studyId,
+  className = "",
+  onMeasurementSaved,
+}: OhifViewerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [height, setHeight] = useState(600);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [bridgeReady, setBridgeReady] = useState(false);
+  const [pending, setPending] = useState<PendingMeasurement[]>([]);
+  const [savedCount, setSavedCount] = useState(0);
+  const [saving, setSaving] = useState(false);
 
   // Fill available vertical space
   useLayoutEffect(() => {
@@ -31,6 +72,98 @@ export default function OhifViewer({ studyInstanceUid, className = "" }: OhifVie
     window.addEventListener("resize", recalc);
     return () => window.removeEventListener("resize", recalc);
   }, []);
+
+  // Listen for measurement events from OHIF bridge
+  useEffect(() => {
+    if (!studyId) return;
+
+    function handleMessage(event: MessageEvent) {
+      const data = event.data;
+      if (!data?.type?.startsWith("ohif:")) return;
+
+      if (data.type === "ohif:bridge:ready") {
+        setBridgeReady(true);
+        return;
+      }
+
+      if (data.type === "ohif:measurement:added" || data.type === "ohif:measurement:updated") {
+        const p = data.payload as OhifMeasurementPayload;
+        setPending((prev) => {
+          const idx = prev.findIndex((m) => m.uid === p.uid);
+          if (idx >= 0) {
+            const updated = [...prev];
+            updated[idx] = { uid: p.uid, payload: p };
+            return updated;
+          }
+          return [...prev, { uid: p.uid, payload: p }];
+        });
+      }
+
+      if (data.type === "ohif:measurement:removed") {
+        const uid = data.payload?.measurementId;
+        if (uid) setPending((prev) => prev.filter((m) => m.uid !== uid));
+      }
+    }
+
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, [studyId]);
+
+  // Save all pending measurements to Parthenon
+  const saveAllPending = useCallback(async () => {
+    if (!studyId || pending.length === 0) return;
+    setSaving(true);
+
+    let count = 0;
+    for (const m of pending) {
+      const p = m.payload;
+
+      // Determine measurement type and value from OHIF data
+      let measurementType = "longest_diameter";
+      let value = 0;
+      let unit = p.unit || "mm";
+      let name = p.label || p.type || "OHIF Measurement";
+
+      if (p.length != null) {
+        measurementType = "longest_diameter";
+        value = p.length;
+        name = p.label || "Length";
+      } else if (p.longestDiameter != null) {
+        measurementType = "longest_diameter";
+        value = p.longestDiameter;
+        name = p.label || "Bidimensional";
+      } else if (p.area != null) {
+        measurementType = "tumor_volume";
+        value = p.area;
+        unit = "mm2";
+        name = p.label || "Area";
+      } else if (p.mean != null) {
+        measurementType = "density_hu";
+        value = p.mean;
+        unit = "HU";
+        name = p.label || "ROI Mean";
+      }
+
+      try {
+        await imagingApi.createMeasurement(studyId, {
+          measurement_type: measurementType,
+          measurement_name: `[OHIF] ${name}`,
+          value_as_number: Math.round(value * 100) / 100,
+          unit,
+          algorithm_name: "ohif-viewer",
+          confidence: 1.0,
+        });
+        count++;
+      } catch {
+        // Individual measurement save failed — continue with rest
+      }
+    }
+
+    setPending([]);
+    setSavedCount((c) => c + count);
+    setSaving(false);
+    if (count > 0) onMeasurementSaved?.();
+  }, [studyId, pending, onMeasurementSaved]);
 
   const ohifUrl = `/ohif/viewer?StudyInstanceUIDs=${encodeURIComponent(studyInstanceUid)}`;
 
@@ -71,9 +204,39 @@ export default function OhifViewer({ studyInstanceUid, className = "" }: OhifVie
         allow="fullscreen"
       />
 
-      {/* Open in new tab link */}
-      {!loading && !error && (
-        <div className="absolute top-2 right-2 z-10">
+      {/* Top-right controls */}
+      <div className="absolute top-2 right-2 z-10 flex items-center gap-2">
+        {/* Pending measurement save button */}
+        {pending.length > 0 && studyId && (
+          <button
+            type="button"
+            onClick={saveAllPending}
+            disabled={saving}
+            className="inline-flex items-center gap-1.5 rounded-md bg-[#2DD4BF] px-3 py-1.5 text-xs font-semibold text-[#0E0E11] hover:bg-[#26B8A5] disabled:opacity-50 transition-colors shadow-lg"
+          >
+            {saving ? <Loader2 size={11} className="animate-spin" /> : <Save size={11} />}
+            Save {pending.length} measurement{pending.length > 1 ? "s" : ""}
+          </button>
+        )}
+
+        {/* Saved indicator */}
+        {savedCount > 0 && pending.length === 0 && (
+          <div className="inline-flex items-center gap-1 rounded-md bg-[#0E0E11]/80 px-2 py-1 text-[10px] text-[#2DD4BF] backdrop-blur-sm">
+            <CheckCircle2 size={10} />
+            {savedCount} saved
+          </div>
+        )}
+
+        {/* Bridge status */}
+        {bridgeReady && !loading && (
+          <div className="inline-flex items-center gap-1 rounded-md bg-[#0E0E11]/80 px-2 py-1 text-[10px] text-[#2DD4BF]/50 backdrop-blur-sm">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#2DD4BF]" />
+            Bridge
+          </div>
+        )}
+
+        {/* Expand to new tab */}
+        {!loading && !error && (
           <a
             href={ohifUrl}
             target="_blank"
@@ -84,8 +247,8 @@ export default function OhifViewer({ studyInstanceUid, className = "" }: OhifVie
             <ExternalLink size={10} />
             Expand
           </a>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

@@ -4,17 +4,29 @@
  */
 window.config = {
   routerBasename: '/ohif/',
-  customizationService: {},
+
+  // White-labeling: remove default OHIF branding
+  whiteLabeling: {
+    createLogoComponentFn: function () { return null; },
+  },
+
+  customizationService: {
+    dicomUploadComponent:
+      '@ohif/extension-cornerstone.customizationModule.cornerstoneDicomUploadComponent',
+  },
+
   extensions: [],
   modes: [],
   showStudyList: true,
   maxNumberOfWebWorkers: 3,
   showWarningMessageForCrossOrigin: false,
-  showCPUFallbackMessage: true,
+  showCPUFallbackMessage: false,
   strictZSpacingForVolumeViewport: true,
+
   investigationalUseDialog: {
     option: 'never',
   },
+
   studyListFunctionsEnabled: true,
 
   defaultDataSourceName: 'orthanc',

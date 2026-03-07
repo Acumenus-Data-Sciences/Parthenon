@@ -566,6 +566,7 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         Route::post('/studies/{study}/link-person', [ImagingTimelineController::class, 'linkPerson']);
         Route::post('/studies/bulk-link', [ImagingTimelineController::class, 'bulkLinkPerson']);
         Route::post('/studies/auto-link', [ImagingTimelineController::class, 'autoLink']);
+        Route::post('/studies/link-by-condition', [ImagingTimelineController::class, 'linkByCondition']);
 
         // Measurements
         Route::get('/studies/{study}/measurements', [ImagingTimelineController::class, 'studyMeasurements']);

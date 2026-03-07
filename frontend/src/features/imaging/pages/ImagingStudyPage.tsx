@@ -147,7 +147,11 @@ export default function ImagingStudyPage() {
 
       {/* Viewer tab */}
       {activeTab === "viewer" && (
-        <OhifViewer studyInstanceUid={study.study_instance_uid} />
+        <OhifViewer
+          studyInstanceUid={study.study_instance_uid}
+          studyId={studyId}
+          personId={study.person_id}
+        />
       )}
 
       {activeTab !== "viewer" && (

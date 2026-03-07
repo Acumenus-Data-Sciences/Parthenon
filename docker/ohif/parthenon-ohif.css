@@ -1,0 +1,71 @@
+/* Parthenon OHIF Dark Theme Overrides
+ * Aligns OHIF's built-in dark theme with Parthenon's color scheme:
+ * Base: #0E0E11, Surface: #151518, Border: #232328
+ * Accent: #2DD4BF (teal), Secondary: #60A5FA (blue)
+ */
+
+/* Main backgrounds */
+.bg-primary-dark,
+.ohif-scrollbar,
+[class*="bg-primary"] {
+  background-color: #0E0E11 !important;
+}
+
+.bg-secondary-dark,
+[class*="bg-secondary"] {
+  background-color: #151518 !important;
+}
+
+/* Side panels and toolbars */
+.ohif-toolbar,
+[class*="StudyBrowser"] {
+  background-color: #151518 !important;
+  border-color: #232328 !important;
+}
+
+/* Viewport background */
+.viewport-container,
+.cornerstone-canvas-wrapper {
+  background-color: #0E0E11 !important;
+}
+
+/* Active tool highlight */
+[class*="active"][class*="tool"],
+.active-tool {
+  border-color: #2DD4BF !important;
+  color: #2DD4BF !important;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0E0E11;
+}
+::-webkit-scrollbar-thumb {
+  background: #323238;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #5A5650;
+}
+
+/* Panel borders */
+.border-primary-dark,
+[class*="border-primary"] {
+  border-color: #232328 !important;
+}
+
+/* Text colors */
+.text-primary-light,
+[class*="text-primary-light"] {
+  color: #F0EDE8 !important;
+}
+
+/* Hide the "Investigational Use" warning banner */
+[class*="NotificationWarning"],
+[class*="InvestigationalUse"] {
+  display: none !important;
+}
