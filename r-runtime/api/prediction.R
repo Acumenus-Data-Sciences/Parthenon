@@ -221,13 +221,19 @@ function(req, res) {
     outcome_count <- sum(test_pred$outcomeCount > 0)
     outcome_rate  <- if (target_count > 0) round(outcome_count / target_count, 4) else 0
 
-    # Model details
+    # Model details — convert S3 objects to plain lists for JSON serialization
     model_details <- list(
       type       = model_type,
-      hyper_parameters_selected = tryCatch(
-        as.list(plpResult$model$modelDesign$modelSettings),
-        error = function(e) list()
-      ),
+      hyper_parameters_selected = tryCatch({
+        ms <- plpResult$model$modelDesign$modelSettings
+        # Strip S3 class to avoid jsonlite serialization errors
+        if (is.list(ms)) {
+          ms <- unclass(ms)
+          lapply(ms, function(x) if (is.list(x)) unclass(x) else x)
+        } else {
+          list()
+        }
+      }, error = function(e) list()),
       covariate_count = tryCatch(
         as.integer(plpResult$model$trainDetails$covariateCount %||% 0),
         error = function(e) 0L

@@ -164,23 +164,32 @@ function(req, res) {
         if (ps_method == "matching") {
           match_ratio  <- as.integer(ps_spec$matching$ratio  %||% 1)
           match_caliper <- as.numeric(ps_spec$matching$caliper %||% 0.2)
+          matchArgs <- CohortMethod::createMatchOnPsArgs(
+            caliper  = match_caliper,
+            maxRatio = match_ratio
+          )
           adjusted_pop <- CohortMethod::matchOnPs(
-            population = ps,
-            maxRatio   = match_ratio,
-            caliper    = match_caliper
+            population     = ps,
+            matchOnPsArgs  = matchArgs
           )
         } else if (ps_method == "stratification") {
           n_strata <- as.integer(ps_spec$stratification$num_strata %||% ps_spec$stratification$numStrata %||% 5)
-          adjusted_pop <- CohortMethod::stratifyByPs(
-            population     = ps,
+          stratArgs <- CohortMethod::createStratifyByPsArgs(
             numberOfStrata = n_strata
+          )
+          adjusted_pop <- CohortMethod::stratifyByPs(
+            population        = ps,
+            stratifyByPsArgs  = stratArgs
           )
         } else {
           # IPTW — trim extreme values
           trim_frac <- as.numeric(ps_spec$trimming %||% 0.05)
-          adjusted_pop <- CohortMethod::trimByPs(
-            population = ps,
+          trimArgs <- CohortMethod::createTrimByPsArgs(
             trimFraction = trim_frac
+          )
+          adjusted_pop <- CohortMethod::trimByPs(
+            population    = ps,
+            trimByPsArgs  = trimArgs
           )
         }
 

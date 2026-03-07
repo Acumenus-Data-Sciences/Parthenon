@@ -57,7 +57,19 @@ function(req, res) {
 
     # ── Study population ──────────────────────────────────────
     logger$info("Creating study population")
-    first_only <- isTRUE(spec$first_outcome_only) || isTRUE(spec$firstOutcomeOnly)
+
+    # Log data summary for debugging
+    logger$info(sprintf(
+      "SccsData class: %s, cases: %s",
+      paste(class(sccsData), collapse = ","),
+      tryCatch(
+        as.character(sccsData$metaData$outcomeCount),
+        error = function(e) "unknown"
+      )
+    ))
+
+    first_only <- isTRUE(spec$first_outcome_only) ||
+      isTRUE(spec$firstOutcomeOnly)
     popArgs <- SelfControlledCaseSeries::createCreateStudyPopulationArgs(
       naivePeriod      = naive_period,
       firstOutcomeOnly = first_only
@@ -67,35 +79,74 @@ function(req, res) {
       outcomeId = outcomeId,
       createStudyPopulationArgs = popArgs
     )
+    logger$info(sprintf(
+      "Study population created: %s class",
+      paste(class(studyPop), collapse = ",")
+    ))
 
     # ── Define era covariates (risk windows) ──────────────────
-    risk_windows <- spec$risk_windows %||% spec$riskWindows %||% list(
-      list(label = "On treatment", start = 0, end = 0, endAnchor = "era end")
+    raw_rw <- spec$risk_windows %||% spec$riskWindows %||% list(
+      list(label = "On treatment", start = 0,
+           end = 0, endAnchor = "era end")
     )
 
+    # Normalize underscore anchors to space-separated
+    normalize_anchor <- function(val, default = "era end") {
+      val <- val %||% default
+      gsub("_", " ", val)
+    }
+
+    # jsonlite may parse array-of-objects as data.frame;
+    # convert to list-of-lists for safe row iteration
+    if (is.data.frame(raw_rw)) {
+      risk_windows <- lapply(
+        seq_len(nrow(raw_rw)),
+        function(i) as.list(raw_rw[i, ])
+      )
+    } else {
+      risk_windows <- raw_rw
+    }
+
     era_settings_list <- lapply(risk_windows, function(rw) {
+      lbl <- rw$label %||% rw[["label"]] %||% "Exposure"
+      logger$info(sprintf(
+        "  Risk window: %s [%d, %d]",
+        lbl,
+        as.integer(rw$start %||% 0),
+        as.integer(rw$end %||% 0)
+      ))
       SelfControlledCaseSeries::createEraCovariateSettings(
-        label        = rw$label %||% "Exposure",
+        label         = lbl,
         includeEraIds = exposureId,
-        start        = as.integer(rw$start %||% 0),
-        end          = as.integer(rw$end   %||% 0),
-        endAnchor    = rw$endAnchor %||% rw$end_anchor %||% "era end"
+        start         = as.integer(rw$start %||% 0),
+        startAnchor   = normalize_anchor(
+          rw$startAnchor %||% rw$start_anchor,
+          "era start"
+        ),
+        end           = as.integer(rw$end %||% 0),
+        endAnchor     = normalize_anchor(
+          rw$endAnchor %||% rw$end_anchor,
+          "era end"
+        )
       )
     })
+    logger$info(sprintf(
+      "Created %d era covariate settings", length(era_settings_list)
+    ))
 
     # ── Create interval data ──────────────────────────────────
     logger$info("Creating interval data")
-    interval_args <- SelfControlledCaseSeries::createCreateSccsIntervalDataArgs(
-      eraCovariateSettings = era_settings_list,
-      eventDependentObservation = isTRUE(spec$event_dependent_observation %||%
-                                         spec$eventDependentObservation %||% TRUE)
-    )
+    interval_args <-
+      SelfControlledCaseSeries::createCreateSccsIntervalDataArgs(
+        eraCovariateSettings = era_settings_list
+      )
 
     sccsIntervalData <- SelfControlledCaseSeries::createSccsIntervalData(
       studyPopulation = studyPop,
       sccsData        = sccsData,
       createSccsIntervalDataArgs = interval_args
     )
+    logger$info("Interval data created")
 
     # ── Fit model (v6 API) ──────────────────────────────────
     logger$info("Fitting SCCS model")
@@ -124,12 +175,26 @@ function(req, res) {
 
     logger$info("SCCS pipeline complete", list(elapsed_seconds = logger$elapsed()))
 
+    # Extract summary counts safely (SCCS v6 changed studyPop structure)
+    n_cases  <- tryCatch({
+      pop_df <- as.data.frame(studyPop)
+      as.integer(nrow(pop_df))
+    }, error = function(e) NA_integer_)
+    n_events <- tryCatch({
+      pop_df <- as.data.frame(studyPop)
+      if ("outcomeCount" %in% names(pop_df)) {
+        as.integer(sum(pop_df$outcomeCount > 0))
+      } else {
+        n_cases
+      }
+    }, error = function(e) NA_integer_)
+
     list(
       status    = "completed",
       estimates = estimates,
       summary   = list(
-        cases     = tryCatch(as.integer(nrow(studyPop$outcomes)), error = function(e) NA),
-        events    = tryCatch(as.integer(sum(studyPop$outcomes$outcomeCount > 0)), error = function(e) NA)
+        cases     = n_cases,
+        events    = n_events
       ),
       logs            = logger$entries(),
       elapsed_seconds = logger$elapsed()

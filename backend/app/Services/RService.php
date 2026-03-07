@@ -51,7 +51,10 @@ class RService
         $response = Http::timeout($this->timeout)
             ->post("{$this->baseUrl}/analysis/prediction/run", $spec);
 
-        return $response->json();
+        return $response->json() ?? [
+            'status' => 'error',
+            'message' => 'R runtime returned empty response (HTTP ' . $response->status() . ')',
+        ];
     }
 
     /**

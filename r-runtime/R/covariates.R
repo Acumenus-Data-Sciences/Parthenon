@@ -29,8 +29,13 @@ build_covariate_settings <- function(spec, exclude_concept_ids = c()) {
   use_keys <- grep("^use", names(spec), value = TRUE)
   if (length(use_keys) > 0) {
     args <- lapply(spec[use_keys], as.logical)
-    if (length(exclude_concept_ids) > 0) {
-      args$excludedCovariateConceptIds <- as.integer(exclude_concept_ids)
+    # Merge exclusions from function param AND spec-level excludedConceptIds
+    all_exclude <- c(
+      as.integer(exclude_concept_ids),
+      as.integer(spec$excludedConceptIds %||% c())
+    )
+    if (length(all_exclude) > 0) {
+      args$excludedCovariateConceptIds <- unique(all_exclude)
       args$addDescendantsToExclude <- TRUE
     }
     return(do.call(FeatureExtraction::createCovariateSettings, args))
