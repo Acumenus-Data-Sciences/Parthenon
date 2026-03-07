@@ -138,3 +138,55 @@ This session completed all Phase 4 deliverables plus a large-scale COVID DICOM i
 6. **OHIF `customizationService` crash** (`44fa38d2`) — the `dicomUploadComponent` string reference caused `TypeError: Cannot read properties of undefined (reading 'value')` in `CustomizationService.addReference()`. OHIF v3.9.2 expects objects with a `value` property, not plain strings. Fix: removed the invalid entry; DICOM upload works without it.
 
 7. **OHIF loads all patient studies, not just the selected one** (`7da4a9fb`) — patients with multiple studies in Orthanc (e.g. patient 499504 with 13 studies) caused OHIF to prefetch and display all prior studies for the same DICOM patient ID. The console showed `StudyPrefetcher is not enabled` but the hanging protocol still matched across studies. Fix: added `studyPrefetcher: { enabled: false }` to `app-config.js` to ensure only the requested `StudyInstanceUID` is loaded.
+
+---
+
+## Session 2: OHIF Iframe Viewport Fix + Data Protection (2026-03-07)
+
+### Problem
+OHIF viewer failed to render for multiple studies with "viewports have size 0" error. Investigation revealed TWO separate root causes:
+
+1. **Seed data contamination:** Studies 1-11 were synthetic stubs (UIDs like `1.2.840.113619.2.MBU.*`) with no actual DICOM data in Orthanc. QIDO-RS returned `[]` for these UIDs, so OHIF never created viewports.
+2. **Iframe viewport sizing race condition:** OHIF's Cornerstone viewports initialize with size 0 inside iframes because `react-resize-detector` fires before the iframe layout finalizes. `CornerstoneViewportService.resize()` bails permanently on size 0 with no retry.
+
+### Fixes Applied
+
+#### 1. OHIF Bridge Rewrite (`docker/ohif/ohif-bridge.js`)
+- **Viewport resize watcher** starts immediately (not gated behind servicesManager)
+- Polls every 500ms for 20s, forcing height chain (`html/body/#root`) and dispatching `window.resize` events from INSIDE the iframe
+- Stops when any canvas renders with non-zero dimensions
+- Measurement bridge remains functional (polls for servicesManager separately)
+
+#### 2. CSS Height Fix (`docker/ohif/parthenon-ohif.css`)
+- Added `html, body, #root { height: 100% !important; }` — OHIF's own CSS does NOT set height on these elements, causing Cornerstone to measure 0 in iframes
+
+#### 3. Config Cleanup (`docker/ohif/app-config.js`)
+- Removed `useSharedArrayBuffer: 'AUTO'` which caused silent failures without cross-origin isolation headers
+
+#### 4. Frontend Guard (`frontend/src/features/imaging/pages/ImagingStudyPage.tsx`)
+- Viewer tab now checks `study.status === "indexed"` before loading OHIF
+- Non-indexed studies show an error message explaining no DICOM data is available
+- Prevents OHIF from loading with empty data (which caused the "size 0" symptom)
+
+#### 5. Seed Data Cleanup + MBU Patient Recovery
+- Deleted 11 synthetic seed studies and 19 orphaned measurements from the database
+- Re-indexed 13 real MBU studies from Orthanc (PatientID=499504) and linked to person 1005788
+- Re-indexed Solr imaging core (635 documents)
+
+### Key Technical Discoveries
+
+| Finding | Detail |
+|---------|--------|
+| OHIF v3.9.2 has no `window.ohif` global | Bridge cannot access servicesManager directly; resize fix must be DOM-based |
+| `react-resize-detector` uses ResizeObserver | Does NOT respond to `window.dispatchEvent(new Event('resize'))` — but forcing reflow + height chain triggers ResizeObserver |
+| COEP headers break Orthanc fetches | `Cross-Origin-Embedder-Policy: require-corp` prevents OHIF from loading study data via DICOMweb |
+| Cross-origin `iframe.contentWindow.dispatchEvent()` fails silently | Resize must be dispatched from INSIDE the iframe (via bridge script) |
+| QIDO-RS returns `[]` for missing studies | OHIF handles this gracefully but never creates viewports — no error, just blank |
+
+### Gotchas
+
+8. **`useSharedArrayBuffer: 'AUTO'` requires COEP/COOP headers** — without cross-origin isolation, this setting makes OHIF fail to initialize the viewer mode entirely. Either set up full COEP/COOP (which breaks Orthanc data loading) or remove the setting.
+
+9. **Seed data with fake DICOM UIDs is dangerous** — synthetic UIDs that don't exist in Orthanc cause silent failures in OHIF (no error, just blank viewer). Always validate that study UIDs exist in the PACS before creating database records. Frontend now guards against this.
+
+10. **Named Docker volumes persist across rebuilds** — `orthanc-data` (166.6GB) and `ohif-dist` are safe across `docker compose down` / `up`. Only `docker volume rm` destroys them.

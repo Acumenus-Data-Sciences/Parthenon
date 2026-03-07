@@ -146,12 +146,22 @@ export default function ImagingStudyPage() {
       )}
 
       {/* Viewer tab */}
-      {activeTab === "viewer" && (
+      {activeTab === "viewer" && study.status === "indexed" && (
         <OhifViewer
           studyInstanceUid={study.study_instance_uid}
           studyId={studyId}
           personId={study.person_id}
         />
+      )}
+      {activeTab === "viewer" && study.status !== "indexed" && (
+        <div className="rounded-lg border border-[#E85A6B]/30 bg-[#E85A6B]/10 px-4 py-8 text-center">
+          <p className="text-sm text-[#E85A6B]">
+            This study has no DICOM data in the PACS server (status: {study.status}).
+          </p>
+          <p className="text-xs text-[#8A857D] mt-1">
+            Only studies indexed from Orthanc can be viewed in OHIF.
+          </p>
+        </div>
       )}
 
       {activeTab !== "viewer" && (
