@@ -15,10 +15,16 @@ window.config = {
   extensions: [],
   modes: [],
   showStudyList: true,
+  showLoadingIndicator: true,
   maxNumberOfWebWorkers: 3,
   showWarningMessageForCrossOrigin: false,
   showCPUFallbackMessage: false,
   strictZSpacingForVolumeViewport: true,
+
+  // Only load the requested study — do not fetch prior studies for the same patient
+  studyPrefetcher: {
+    enabled: false,
+  },
 
   investigationalUseDialog: {
     option: 'never',
