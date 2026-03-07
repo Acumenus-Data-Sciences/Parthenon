@@ -61,8 +61,11 @@ function(req, res) {
     logger$info("Building covariate settings")
     covariateSettings <- build_covariate_settings(spec$covariate_settings)
 
-    # ── Step 3: Extract cohort method data ────────────────────
+    # ── Step 3: Extract cohort method data (CohortMethod v6 API) ──
     logger$info("Extracting CohortMethod data from database")
+    dataArgs <- CohortMethod::createGetDbCohortMethodDataArgs(
+      covariateSettings = covariateSettings
+    )
     cmData <- CohortMethod::getDbCohortMethodData(
       connectionDetails        = connectionDetails,
       cdmDatabaseSchema        = cdmSchema,
@@ -73,7 +76,7 @@ function(req, res) {
       exposureTable            = "cohort",
       outcomeDatabaseSchema    = resultsSchema,
       outcomeTable             = "cohort",
-      covariateSettings        = covariateSettings
+      getDbCohortMethodDataArgs = dataArgs
     )
     logger$info("Data extraction complete")
 
@@ -98,16 +101,20 @@ function(req, res) {
     for (oid in outcomeIds) {
       logger$info(sprintf("Processing outcome %d", oid))
 
-      # ── Study population ──────────────────────────────────
-      studyPop <- CohortMethod::createStudyPopulation(
-        cohortMethodData = cmData,
-        outcomeId        = oid,
+      # ── Study population (CohortMethod v6 API) ─────────────
+      popArgs <- CohortMethod::createCreateStudyPopulationArgs(
         removeSubjectsWithPriorOutcome = TRUE,
         riskWindowStart  = tar_start,
         startAnchor      = "cohort start",
         riskWindowEnd    = tar_end,
         endAnchor        = end_anchor,
         minDaysAtRisk    = 1
+      )
+      studyPop <- CohortMethod::createStudyPopulation(
+        cohortMethodData = cmData,
+        population       = NULL,
+        outcomeId        = oid,
+        createStudyPopulationArgs = popArgs
       )
 
       pop_df <- as.data.frame(studyPop)
@@ -133,10 +140,13 @@ function(req, res) {
       adjusted_pop <- studyPop
       if (ps_enabled) {
         logger$info(sprintf("Fitting propensity score model (method=%s)", ps_method))
+        psArgs <- CohortMethod::createCreatePsArgs(
+          maxCohortSizeForFitting = 250000
+        )
         ps <- CohortMethod::createPs(
           cohortMethodData = cmData,
           population       = studyPop,
-          maxCohortSizeForFitting = 250000
+          createPsArgs     = psArgs
         )
 
         # Capture PS diagnostics (only once, from first outcome)
@@ -197,11 +207,14 @@ function(req, res) {
       logger$info(sprintf("Fitting %s outcome model for outcome %d", model_type, oid))
       is_stratified <- ps_enabled && ps_method %in% c("matching", "stratification")
 
+      fitArgs <- CohortMethod::createFitOutcomeModelArgs(
+        modelType  = model_type,
+        stratified = is_stratified
+      )
       outcomeModel <- CohortMethod::fitOutcomeModel(
         population       = adjusted_pop,
         cohortMethodData = cmData,
-        modelType        = model_type,
-        stratified       = is_stratified
+        fitOutcomeModelArgs = fitArgs
       )
 
       # Extract effect estimate
@@ -211,14 +224,19 @@ function(req, res) {
       ci_lower <- exp(ci[1])
       ci_upper <- exp(ci[2])
 
-      # p-value from log_rr and SE
+      # p-value: derive SE from the confidence interval on the log scale
       se_log_rr <- tryCatch({
-        s <- summary(outcomeModel)
-        if (!is.null(s$seLogRr)) s$seLogRr else NA_real_
+        log_ci_lower <- log(ci_lower)
+        log_ci_upper <- log(ci_upper)
+        if (!is.na(log_ci_lower) && !is.na(log_ci_upper) && is.finite(log_ci_lower) && is.finite(log_ci_upper)) {
+          (log_ci_upper - log_ci_lower) / (2 * 1.96)
+        } else NA_real_
       }, error = function(e) NA_real_)
-      p_val <- if (!is.na(log_rr) && !is.na(se_log_rr) && se_log_rr > 0) {
-        2 * pnorm(-abs(log_rr / se_log_rr))
-      } else { NA_real_ }
+      p_val <- tryCatch({
+        if (!is.na(log_rr) && !is.na(se_log_rr) && se_log_rr > 0) {
+          2 * pnorm(-abs(log_rr / se_log_rr))
+        } else NA_real_
+      }, error = function(e) NA_real_)
 
       # Event counts
       adj_df <- as.data.frame(adjusted_pop)
@@ -255,9 +273,7 @@ function(req, res) {
       nc_estimates <- list()
       for (nc_id in as.integer(nc_outcomes)) {
         tryCatch({
-          nc_pop <- CohortMethod::createStudyPopulation(
-            cohortMethodData = cmData,
-            outcomeId        = nc_id,
+          nc_popArgs <- CohortMethod::createCreateStudyPopulationArgs(
             removeSubjectsWithPriorOutcome = TRUE,
             riskWindowStart  = tar_start,
             startAnchor      = "cohort start",
@@ -265,10 +281,18 @@ function(req, res) {
             endAnchor        = end_anchor,
             minDaysAtRisk    = 1
           )
+          nc_pop <- CohortMethod::createStudyPopulation(
+            cohortMethodData = cmData,
+            outcomeId        = nc_id,
+            createStudyPopulationArgs = nc_popArgs
+          )
+          nc_fitArgs <- CohortMethod::createFitOutcomeModelArgs(
+            modelType  = model_type,
+            stratified = FALSE
+          )
           nc_model <- CohortMethod::fitOutcomeModel(
             population       = nc_pop,
-            modelType        = model_type,
-            stratified       = FALSE
+            fitOutcomeModelArgs = nc_fitArgs
           )
           nc_lr <- tryCatch(coef(nc_model), error = function(e) NA_real_)
           nc_se <- tryCatch(summary(nc_model)$seLogRr, error = function(e) NA_real_)
@@ -302,15 +326,18 @@ function(req, res) {
     }
 
     # ── Summary counts ──────────────────────────────────────
-    all_pop <- as.data.frame(CohortMethod::createStudyPopulation(
-      cohortMethodData = cmData,
-      outcomeId        = outcomeIds[1],
+    summaryPopArgs <- CohortMethod::createCreateStudyPopulationArgs(
       removeSubjectsWithPriorOutcome = TRUE,
       riskWindowStart  = tar_start,
       startAnchor      = "cohort start",
       riskWindowEnd    = tar_end,
       endAnchor        = end_anchor,
       minDaysAtRisk    = 1
+    )
+    all_pop <- as.data.frame(CohortMethod::createStudyPopulation(
+      cohortMethodData = cmData,
+      outcomeId        = outcomeIds[1],
+      createStudyPopulationArgs = summaryPopArgs
     ))
 
     # Build outcome_counts map

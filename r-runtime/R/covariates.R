@@ -24,6 +24,18 @@ build_covariate_settings <- function(spec, exclude_concept_ids = c()) {
     ))
   }
 
+  # If spec contains direct FeatureExtraction parameter names (keys starting with "use"),
+  # pass them through directly to createCovariateSettings
+  use_keys <- grep("^use", names(spec), value = TRUE)
+  if (length(use_keys) > 0) {
+    args <- lapply(spec[use_keys], as.logical)
+    if (length(exclude_concept_ids) > 0) {
+      args$excludedCovariateConceptIds <- as.integer(exclude_concept_ids)
+      args$addDescendantsToExclude <- TRUE
+    }
+    return(do.call(FeatureExtraction::createCovariateSettings, args))
+  }
+
   # Helper: extract a boolean flag from a nested list, default FALSE
   flag <- function(section, key, default = FALSE) {
     val <- spec[[section]][[key]]

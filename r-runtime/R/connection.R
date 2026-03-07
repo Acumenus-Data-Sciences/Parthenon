@@ -14,13 +14,20 @@ library(DatabaseConnector)
 #'                     cdm_schema, vocab_schema, results_schema
 #' @return A DatabaseConnector connectionDetails object
 create_hades_connection <- function(source_spec) {
-  dialect <- tolower(source_spec$dialect %||% "postgresql")
+  dialect <- tolower(source_spec$dialect %||% source_spec$dbms %||% "postgresql")
   conn    <- source_spec$connection
   jar_dir <- Sys.getenv("DATABASECONNECTOR_JAR_FOLDER", "/opt/jdbc")
 
   # ── PostgreSQL / Redshift ─────────────────────────────────────────────────
   if (dialect %in% c("postgresql", "redshift")) {
-    if (is.list(conn) && !is.null(conn$host)) {
+    if (!is.null(source_spec$server)) {
+      # Flat format from HadesBridgeService::buildSourceSpec()
+      # server = "host/database", port, user, password at top level
+      server <- source_spec$server
+      port   <- as.integer(source_spec$port %||% if (dialect == "redshift") 5439L else 5432L)
+      user   <- source_spec$user %||% source_spec$username
+      pw     <- source_spec$password
+    } else if (is.list(conn) && !is.null(conn$host)) {
       server <- paste0(conn$host, "/", conn$database)
       port   <- as.integer(conn$port %||% if (dialect == "redshift") 5439L else 5432L)
       user   <- conn$user %||% conn$username
@@ -178,4 +185,6 @@ create_hades_connection <- function(source_spec) {
 }
 
 #' NULL-coalescing operator (same as rlang %||%)
-`%||%` <- function(a, b) if (!is.null(a) && length(a) > 0 && nchar(a) > 0) a else b
+`%||%` <- function(a, b) {
+  if (!is.null(a) && length(a) > 0 && !anyNA(a)) a else b
+}
