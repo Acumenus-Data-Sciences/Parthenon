@@ -1,6 +1,6 @@
 """Main installer orchestrator.
 
-Runs the 8-phase installation flow, tracking state in .install-state.json
+Runs the 9-phase installation flow, tracking state in .install-state.json
 for resume-on-failure support.
 """
 from __future__ import annotations
@@ -63,6 +63,39 @@ def _build_frontend() -> None:
 
 
 # ---------------------------------------------------------------------------
+# Solr indexing
+# ---------------------------------------------------------------------------
+
+def _index_solr(cfg: dict[str, Any]) -> None:
+    console.rule("[bold]Phase 7 — Solr Indexing[/bold]")
+
+    # Always index vocabulary (the highest-impact core)
+    cores = ["vocabulary"]
+
+    # Index cohorts and analyses if Eunomia demo data was loaded
+    if cfg.get("include_eunomia"):
+        cores.extend(["cohorts", "analyses"])
+
+    console.print(f"  Indexing {len(cores)} Solr core(s): {', '.join(cores)}\n")
+
+    for core in cores:
+        console.print(f"  [cyan]▶[/cyan] Indexing Solr core: [bold]{core}[/bold]…")
+        rc = utils.run_stream([
+            "docker", "compose", "exec", "-T", "php",
+            "php", "artisan", f"solr:index-{core}", "--no-interaction"
+        ])
+        if rc != 0:
+            console.print(
+                f"  [yellow]⚠ Solr indexing for '{core}' failed — "
+                f"you can re-run later via Admin → System Health → Solr → Manage Solr Cores.[/yellow]"
+            )
+        else:
+            console.print(f"  [green]✓ {core} indexed.[/green]")
+
+    console.print()
+
+
+# ---------------------------------------------------------------------------
 # Summary banner
 # ---------------------------------------------------------------------------
 
@@ -89,6 +122,9 @@ def _print_summary(cfg: dict[str, Any]) -> None:
         lines.append(cdm_line)
     if eunomia_line:
         lines.append(eunomia_line)
+    if cfg.get("enable_solr", True):
+        solr_port = cfg.get("solr_port", 8983)
+        lines.append(f"  [green]Solr:[/green]     http://localhost:{solr_port}/solr/")
 
     next_steps = [
         f"  • Open {display_url} to log in",
@@ -98,6 +134,10 @@ def _print_summary(cfg: dict[str, Any]) -> None:
     if cfg.get("vocab_zip_path"):
         next_steps.append(
             f"  • Load vocabulary: Settings → Vocabulary Refresh → upload {cfg['vocab_zip_path']}"
+        )
+    if cfg.get("enable_solr", True):
+        next_steps.append(
+            "  • Re-index Solr cores: Admin → System Health → Solr → Manage Solr Cores"
         )
 
     lines += ["", "  [bold]Next steps:[/bold]"] + next_steps
@@ -118,7 +158,7 @@ def _print_summary(cfg: dict[str, Any]) -> None:
 # ---------------------------------------------------------------------------
 
 def run(*, non_interactive: bool = False) -> None:
-    """Run the full 8-phase installer."""
+    """Run the full 9-phase installer."""
     console.print(
         Panel(
             "[bold cyan]Parthenon Installer[/bold cyan]\n"
@@ -170,7 +210,7 @@ def run(*, non_interactive: bool = False) -> None:
     # Phase 3 — Docker
     # -----------------------------------------------------------------------
     if "docker" not in completed:
-        docker_ops.run()
+        docker_ops.run(cfg=cfg)
         completed.append("docker")
         _save_state({"completed_phases": completed, "config": cfg})
 
@@ -203,7 +243,19 @@ def run(*, non_interactive: bool = False) -> None:
         _save_state({"completed_phases": completed, "config": cfg})
 
     # -----------------------------------------------------------------------
-    # Phase 7 — Admin account
+    # Phase 7 — Solr Indexing (if enabled)
+    # -----------------------------------------------------------------------
+    if "solr" not in completed:
+        if cfg.get("enable_solr", True):
+            _index_solr(cfg)
+        else:
+            console.rule("[bold]Phase 7 — Solr Indexing[/bold]")
+            console.print("[dim]Skipped (Solr not enabled).[/dim]\n")
+        completed.append("solr")
+        _save_state({"completed_phases": completed, "config": cfg})
+
+    # -----------------------------------------------------------------------
+    # Phase 8 — Admin account
     # -----------------------------------------------------------------------
     if "admin" not in completed:
         bootstrap.run_create_admin(
@@ -215,7 +267,7 @@ def run(*, non_interactive: bool = False) -> None:
         _save_state({"completed_phases": completed, "config": cfg})
 
     # -----------------------------------------------------------------------
-    # Phase 8 — Complete
+    # Phase 9 — Complete
     # -----------------------------------------------------------------------
     _clear_state()
     _print_summary(cfg)

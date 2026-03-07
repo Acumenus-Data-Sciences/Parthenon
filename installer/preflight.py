@@ -15,7 +15,7 @@ from . import utils
 
 console = Console()
 
-REQUIRED_PORTS = [8082, 5480, 6381, 8002, 8787]
+REQUIRED_PORTS = [8082, 5480, 6381, 8002, 8787, 8983]
 MIN_DISK_GB = 5.0
 
 

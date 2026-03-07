@@ -119,8 +119,8 @@ def run_laravel_bootstrap() -> None:
 
 
 def run_create_admin(email: str, name: str, password: str) -> None:
-    """Phase 7: create the super-admin account non-interactively."""
-    console.rule("[bold]Phase 7 — Admin Account[/bold]")
+    """Phase 8: create the super-admin account non-interactively."""
+    console.rule("[bold]Phase 8 — Admin Account[/bold]")
     console.print(f"  [cyan]▶[/cyan] Creating admin account ({email})…", end=" ")
 
     # Build the command as a list to avoid shell quoting issues

@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import sys
 import time
+from typing import Any
 
 from rich.console import Console
 from rich.live import Live
@@ -15,7 +16,7 @@ console = Console()
 
 # Services and their expected health status source
 # (name_in_compose, container_name, timeout_seconds)
-SERVICES = [
+BASE_SERVICES = [
     ("postgres",   "parthenon-postgres", 60),
     ("redis",      "parthenon-redis",    30),
     ("php",        "parthenon-php",      120),
@@ -24,6 +25,11 @@ SERVICES = [
     ("nginx",      "parthenon-nginx",    30),
     ("horizon",    "parthenon-horizon",  30),
 ]
+
+SOLR_SERVICE = ("solr", "parthenon-solr", 60)
+
+# Default for backward compat (used when run() called without config)
+SERVICES = BASE_SERVICES
 
 
 def pull() -> None:
@@ -65,10 +71,19 @@ def _poll_service(container: str, timeout: int) -> str:
     return "timeout"
 
 
-def wait_for_services() -> None:
+def _get_services(cfg: dict[str, Any] | None = None) -> list[tuple[str, str, int]]:
+    """Return list of services to poll, including Solr if enabled."""
+    services = list(BASE_SERVICES)
+    if cfg is None or cfg.get("enable_solr", True):
+        services.append(SOLR_SERVICE)
+    return services
+
+
+def wait_for_services(cfg: dict[str, Any] | None = None) -> None:
     """Poll each service until healthy or timeout, displaying a live table."""
     console.print("\n[bold]Waiting for services to become healthy…[/bold]")
 
+    services = _get_services(cfg)
     results: dict[str, str] = {}
     icons = {
         "healthy":   "[green]✓ healthy[/green]",
@@ -78,24 +93,24 @@ def wait_for_services() -> None:
         "waiting":   "[yellow]… waiting[/yellow]",
     }
 
-    for svc, container, timeout in SERVICES:
+    for svc, container, timeout in services:
         results[svc] = "waiting"
 
     def _render_table() -> Table:
         table = Table(show_header=False, box=None, padding=(0, 2))
         table.add_column("Service", style="white", min_width=14)
         table.add_column("Status")
-        for svc, _, _ in SERVICES:
+        for svc, _, _ in services:
             table.add_row(svc, icons.get(results[svc], results[svc]))
         return table
 
     with Live(_render_table(), console=console, refresh_per_second=4) as live:
-        for svc, container, timeout in SERVICES:
+        for svc, container, timeout in services:
             status = _poll_service(container, timeout)
             results[svc] = status
             live.update(_render_table())
 
-    failed = [svc for svc, _, _ in SERVICES if results[svc] in ("unhealthy", "timeout")]
+    failed = [svc for svc, _, _ in services if results[svc] in ("unhealthy", "timeout")]
     if failed:
         console.print(f"\n[red]✗ Services failed to start: {', '.join(failed)}[/red]")
         console.print("Run [bold]docker compose logs[/bold] to investigate.")
@@ -104,10 +119,10 @@ def wait_for_services() -> None:
     console.print("[green]✓ All services healthy.[/green]\n")
 
 
-def run() -> None:
+def run(cfg: dict[str, Any] | None = None) -> None:
     """Execute the full Docker setup phase."""
     console.rule("[bold]Phase 3 — Docker Setup[/bold]")
     pull()
     build()
     start()
-    wait_for_services()
+    wait_for_services(cfg)
