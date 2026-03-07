@@ -67,6 +67,14 @@ class EstimationService
                 );
             }
 
+            // Resolve outcome names from cohort definitions
+            $outcomeNames = [];
+            $cohortNames = \App\Models\App\CohortDefinition::whereIn('id', $outcomeCohortIds)
+                ->pluck('name', 'id');
+            foreach ($outcomeCohortIds as $oid) {
+                $outcomeNames[(string) $oid] = $cohortNames[$oid] ?? "Outcome {$oid}";
+            }
+
             // Build the spec for R sidecar call
             $spec = [
                 'source' => HadesBridgeService::buildSourceSpec($source),
@@ -74,6 +82,7 @@ class EstimationService
                     'target_cohort_id' => $targetCohortId,
                     'comparator_cohort_id' => $comparatorCohortId,
                     'outcome_cohort_ids' => $outcomeCohortIds,
+                    'outcome_names' => $outcomeNames,
                 ],
                 'model' => $model,
                 'propensity_score' => $propensityScore,

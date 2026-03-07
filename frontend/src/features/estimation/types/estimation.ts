@@ -49,6 +49,40 @@ export interface EstimationAnalysis {
   latest_execution?: AnalysisExecution | null;
 }
 
+export interface KaplanMeierPoint {
+  time: number;
+  survival: number;
+  lower: number;
+  upper: number;
+}
+
+export interface KaplanMeierData {
+  target: KaplanMeierPoint[];
+  comparator: KaplanMeierPoint[];
+}
+
+export interface AttritionStep {
+  step: string;
+  target: number;
+  comparator: number;
+}
+
+export interface PSDistPoint {
+  x: number;
+  y: number;
+}
+
+export interface CovariateBalanceEntry {
+  covariate_name: string;
+  concept_id?: number;
+  smd_before: number;
+  smd_after: number;
+  mean_target_before: number;
+  mean_comp_before: number;
+  mean_target_after: number;
+  mean_comp_after: number;
+}
+
 export interface EstimationResult {
   summary: {
     target_count: number;
@@ -58,9 +92,23 @@ export interface EstimationResult {
   estimates: EstimateEntry[];
   propensity_score?: {
     auc: number;
-    before_matching: { mean_smd: number; max_smd: number };
-    after_matching: { mean_smd: number; max_smd: number };
+    equipoise?: number;
+    mean_smd_before?: number;
+    mean_smd_after?: number;
+    max_smd_before?: number;
+    max_smd_after?: number;
+    distribution?: {
+      target: PSDistPoint[];
+      comparator: PSDistPoint[];
+    };
+    // Legacy format support
+    before_matching?: { mean_smd: number; max_smd: number };
+    after_matching?: { mean_smd: number; max_smd: number };
   };
+  covariate_balance?: CovariateBalanceEntry[];
+  kaplan_meier?: KaplanMeierData;
+  attrition?: AttritionStep[];
+  mdrr?: Record<string, number>;
   diagnostics?: {
     equipoise: number;
     power: Record<string, number>;

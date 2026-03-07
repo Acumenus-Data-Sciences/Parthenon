@@ -54,6 +54,7 @@ function(req, res) {
     targetId     <- as.integer(spec$cohorts$target_cohort_id)
     comparatorId <- as.integer(spec$cohorts$comparator_cohort_id)
     outcomeIds   <- as.integer(spec$cohorts$outcome_cohort_ids)
+    outcomeNames <- spec$cohorts$outcome_names %||% list()
 
     logger$info(sprintf("CDM=%s, Vocab=%s, Results=%s", cdmSchema, vocabSchema, resultsSchema))
 
@@ -125,12 +126,15 @@ function(req, res) {
         logger$warn(sprintf("Outcome %d: insufficient subjects (target=%d, comparator=%d)", oid, n_target, n_comparator))
         estimates_list[[length(estimates_list) + 1]] <- list(
           outcome_id       = oid,
+          outcome_name     = outcomeNames[[as.character(oid)]] %||% sprintf("Outcome %d", oid),
           hazard_ratio     = NA,
           ci_95_lower      = NA,
           ci_95_upper      = NA,
           p_value          = NA,
-          target_events    = sum(pop_df$outcomeCount[pop_df$treatment == 1] > 0),
-          comparator_events = sum(pop_df$outcomeCount[pop_df$treatment == 0] > 0),
+          target_outcomes  = as.integer(sum(pop_df$outcomeCount[pop_df$treatment == 1] > 0)),
+          comparator_outcomes = as.integer(sum(pop_df$outcomeCount[pop_df$treatment == 0] > 0)),
+          log_hr           = NA,
+          se_log_hr        = NA,
           warning          = "Insufficient subjects"
         )
         next
@@ -243,16 +247,18 @@ function(req, res) {
       target_events <- sum(adj_df$outcomeCount[adj_df$treatment == 1] > 0)
       comp_events   <- sum(adj_df$outcomeCount[adj_df$treatment == 0] > 0)
 
+      outcome_name <- outcomeNames[[as.character(oid)]] %||% sprintf("Outcome %d", oid)
       estimates_list[[length(estimates_list) + 1]] <- list(
         outcome_id        = oid,
+        outcome_name      = outcome_name,
         hazard_ratio      = round(hr, 4),
         ci_95_lower       = round(ci_lower, 4),
         ci_95_upper       = round(ci_upper, 4),
         p_value           = round(p_val, 6),
-        target_events     = as.integer(target_events),
-        comparator_events = as.integer(comp_events),
-        log_rr            = round(log_rr, 4),
-        se_log_rr         = round(se_log_rr %||% NA_real_, 4)
+        target_outcomes   = as.integer(target_events),
+        comparator_outcomes = as.integer(comp_events),
+        log_hr            = round(log_rr, 4),
+        se_log_hr         = round(se_log_rr %||% NA_real_, 4)
       )
 
       # MDRR
