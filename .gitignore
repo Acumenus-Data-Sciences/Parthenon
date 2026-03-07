@@ -55,6 +55,8 @@ docker/redis-data/
 *.vcf
 *.vcf.gz
 *.gz
+*.iso
+*.pdf
 vcf/
 
 # Secrets
@@ -76,6 +78,9 @@ e2e/
 .install-state.json
 installer/__pycache__/
 installer/**/__pycache__/
+
+# Medical records (PHI)
+docs/MBU/
 
 # Documentation
 docs/dist/*
