@@ -2,15 +2,16 @@ import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import {
   ScanLine, Pill, Ruler, ChevronRight, User, Calendar,
-  TrendingUp, TrendingDown, Minus, Loader2, AlertCircle,
+  Loader2, AlertCircle,
 } from "lucide-react";
 import type {
   PatientTimeline as TimelineData,
   TimelineStudy,
   DrugExposure,
   ImagingMeasurement,
-  MeasurementType,
 } from "../types";
+import { MultiTrendChart } from "./MeasurementTrendChart";
+import ResponseAssessmentPanel from "./ResponseAssessmentPanel";
 
 // ── Color Palette ───────────────────────────────────────────────────────
 
@@ -259,97 +260,9 @@ function VisualTimeline({ data }: { data: TimelineData }) {
         </div>
       </div>
 
-      {/* Measurement trends */}
+      {/* Measurement trends (Recharts) */}
       {measurements.length > 0 && (
-        <MeasurementTrendsSection measurements={measurements} />
-      )}
-    </div>
-  );
-}
-
-// ── Measurement Mini-Trends ─────────────────────────────────────────────
-
-function MeasurementTrendsSection({ measurements }: { measurements: ImagingMeasurement[] }) {
-  // Group by measurement_type
-  const grouped = useMemo(() => {
-    const map = new Map<string, ImagingMeasurement[]>();
-    measurements.forEach(m => {
-      const arr = map.get(m.measurement_type) || [];
-      arr.push(m);
-      map.set(m.measurement_type, arr);
-    });
-    return map;
-  }, [measurements]);
-
-  return (
-    <div className="space-y-3">
-      <p className="text-[10px] text-[#5A5650] uppercase tracking-wider">Measurement Trends</p>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        {Array.from(grouped.entries()).map(([type, items]) => (
-          <MiniTrendCard key={type} type={type} measurements={items} />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function MiniTrendCard({ type, measurements }: { type: string; measurements: ImagingMeasurement[] }) {
-  const sorted = [...measurements].sort((a, b) =>
-    toTimestamp(a.measured_at) - toTimestamp(b.measured_at)
-  );
-
-  const first = sorted[0];
-  const last = sorted[sorted.length - 1];
-  const change = sorted.length >= 2
-    ? ((last.value_as_number - first.value_as_number) / first.value_as_number) * 100
-    : null;
-
-  const label = MEASUREMENT_TYPE_LABELS[type] ?? type;
-  const unit = first?.unit ?? "";
-
-  const TrendIcon = change === null ? Minus : change > 5 ? TrendingUp : change < -5 ? TrendingDown : Minus;
-  const trendColor = change === null ? "#8A857D" : change > 5 ? "#E85A6B" : change < -5 ? "#2DD4BF" : "#C9A227";
-
-  // Simple sparkline as SVG
-  const values = sorted.map(m => m.value_as_number);
-  const minV = Math.min(...values);
-  const maxV = Math.max(...values);
-  const rangeV = maxV - minV || 1;
-  const svgPoints = values
-    .map((v, i) => `${(i / Math.max(values.length - 1, 1)) * 100},${100 - ((v - minV) / rangeV) * 80}`)
-    .join(" ");
-
-  return (
-    <div className="rounded-lg border border-[#232328] bg-[#0E0E11] p-3 flex items-center gap-3">
-      <div className="flex-1 min-w-0">
-        <p className="text-xs font-medium text-[#F0EDE8] truncate">{label}</p>
-        <div className="flex items-baseline gap-2 mt-1">
-          <span className="text-sm font-semibold font-mono text-[#C5C0B8]">
-            {last.value_as_number.toFixed(1)} {unit}
-          </span>
-          {change !== null && (
-            <span className="flex items-center gap-0.5 text-[10px] font-medium" style={{ color: trendColor }}>
-              <TrendIcon size={10} />
-              {change > 0 ? "+" : ""}{change.toFixed(1)}%
-            </span>
-          )}
-        </div>
-        <p className="text-[10px] text-[#5A5650] mt-0.5">
-          {sorted.length} measurements · {formatDate(first.measured_at)} → {formatDate(last.measured_at)}
-        </p>
-      </div>
-      {/* Sparkline */}
-      {sorted.length >= 2 && (
-        <svg viewBox="0 0 100 100" className="w-16 h-10 flex-shrink-0">
-          <polyline
-            points={svgPoints}
-            fill="none"
-            stroke={trendColor}
-            strokeWidth="3"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
+        <MultiTrendChart measurements={measurements} />
       )}
     </div>
   );
@@ -479,6 +392,7 @@ interface PatientTimelineProps {
 
 export default function PatientTimeline({ data, isLoading, error }: PatientTimelineProps) {
   const [showDrugs, setShowDrugs] = useState(true);
+  const [showAssessments, setShowAssessments] = useState(false);
 
   if (isLoading) {
     return (
@@ -502,8 +416,8 @@ export default function PatientTimeline({ data, isLoading, error }: PatientTimel
       <SummaryCards data={data} />
       <VisualTimeline data={data} />
 
-      {/* Toggle for drug table */}
-      <div className="flex items-center gap-3">
+      {/* Toggle buttons */}
+      <div className="flex items-center gap-4">
         <button
           type="button"
           onClick={() => setShowDrugs(!showDrugs)}
@@ -511,9 +425,21 @@ export default function PatientTimeline({ data, isLoading, error }: PatientTimel
         >
           {showDrugs ? "Hide" : "Show"} treatment details ({data.drug_exposures.length})
         </button>
+        <button
+          type="button"
+          onClick={() => setShowAssessments(!showAssessments)}
+          className="text-xs text-[#A78BFA] hover:text-[#C4B5FD] transition-colors"
+        >
+          {showAssessments ? "Hide" : "Show"} response assessments
+        </button>
       </div>
 
       {showDrugs && <DrugExposureTable drugs={data.drug_exposures} />}
+
+      {showAssessments && (
+        <ResponseAssessmentPanel personId={data.person.person_id} studies={data.studies} />
+      )}
+
       <StudyListTable studies={data.studies} />
     </div>
   );

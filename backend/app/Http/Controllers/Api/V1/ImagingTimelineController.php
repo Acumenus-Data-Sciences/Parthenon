@@ -8,6 +8,7 @@ use App\Models\App\ImagingResponseAssessment;
 use App\Models\App\ImagingStudy;
 use App\Services\Imaging\ImagingAiService;
 use App\Services\Imaging\ImagingTimelineService;
+use App\Services\Imaging\ResponseAssessmentService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -284,6 +285,56 @@ class ImagingTimelineController extends Controller
         ]);
 
         return response()->json(['data' => $assessment->load(['baselineStudy', 'currentStudy'])], 201);
+    }
+
+    /**
+     * POST /api/v1/imaging/patients/{personId}/compute-response
+     *
+     * Auto-compute response assessment using the ResponseAssessmentService.
+     */
+    public function computeResponse(Request $request, int $personId): JsonResponse
+    {
+        $validated = $request->validate([
+            'current_study_id' => 'required|integer|exists:imaging_studies,id',
+            'baseline_study_id' => 'nullable|integer|exists:imaging_studies,id',
+            'criteria_type' => 'nullable|string|in:auto,recist,ct_severity,deauville,rano',
+        ]);
+
+        $service = app(ResponseAssessmentService::class);
+
+        $assessment = $service->computeAndSave(
+            $personId,
+            $validated['current_study_id'],
+            $validated['baseline_study_id'] ?? null,
+            $validated['criteria_type'] ?? 'auto'
+        );
+
+        return response()->json([
+            'data' => $assessment->load(['baselineStudy', 'currentStudy']),
+        ], 201);
+    }
+
+    /**
+     * POST /api/v1/imaging/patients/{personId}/assess-preview
+     *
+     * Preview (dry-run) a response assessment without saving.
+     */
+    public function assessPreview(Request $request, int $personId): JsonResponse
+    {
+        $validated = $request->validate([
+            'current_study_id' => 'required|integer|exists:imaging_studies,id',
+            'criteria_type' => 'nullable|string|in:auto,recist,ct_severity,deauville,rano',
+        ]);
+
+        $service = app(ResponseAssessmentService::class);
+
+        $result = $service->assessResponse(
+            $personId,
+            $validated['current_study_id'],
+            $validated['criteria_type'] ?? 'auto'
+        );
+
+        return response()->json(['data' => $result]);
     }
 
     // ──────────────────────────────────────────────────────────────────────────

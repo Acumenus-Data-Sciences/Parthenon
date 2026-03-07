@@ -241,6 +241,18 @@ export function useCreateResponseAssessment() {
   });
 }
 
+export function useComputeResponse() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ personId, ...payload }: { personId: number; current_study_id: number; baseline_study_id?: number; criteria_type?: string }) =>
+      imagingApi.computeResponse(personId, payload),
+    onSuccess: (_data, variables) => {
+      qc.invalidateQueries({ queryKey: IMAGING_KEYS.responseAssessments(variables.personId) });
+      qc.invalidateQueries({ queryKey: ["imaging", "timeline"] });
+    },
+  });
+}
+
 // AI extraction
 
 export function useAiExtractMeasurements() {

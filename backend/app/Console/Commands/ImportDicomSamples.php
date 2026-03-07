@@ -12,7 +12,8 @@ class ImportDicomSamples extends Command
 {
     protected $signature = 'imaging:import-samples
                             {--dir=dicom_samples : Directory to scan (relative to repo root)}
-                            {--source= : Source name or ID to associate studies with}';
+                            {--source= : Source name or ID to associate studies with}
+                            {--person-id= : OMOP person_id to link studies to}';
 
     protected $description = 'Import local DICOM files into imaging_studies / imaging_series / imaging_instances tables';
 
@@ -53,6 +54,16 @@ class ImportDicomSamples extends Command
         $this->newLine();
 
         $result = $this->dicomFiles->importDirectory($absDir, $source->id);
+
+        // Link studies to a patient if --person-id provided
+        $personId = $this->option('person-id');
+        if ($personId) {
+            $personId = (int) $personId;
+            $updated = ImagingStudy::where('source_id', $source->id)
+                ->whereNull('person_id')
+                ->update(['person_id' => $personId]);
+            $this->info("Linked {$updated} studies to person_id={$personId}");
+        }
 
         $this->info('Import complete:');
         $this->line("  Studies:   {$result['studies']}");

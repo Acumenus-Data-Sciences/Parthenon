@@ -217,6 +217,27 @@ export const imagingApi = {
       .post<{ data: ImagingResponseAssessment }>(`/imaging/patients/${personId}/response-assessments`, payload)
       .then((r) => r.data.data),
 
+  // Automated response assessment
+  computeResponse: (personId: number, payload: {
+    current_study_id: number;
+    baseline_study_id?: number;
+    criteria_type?: string;
+  }) =>
+    apiClient
+      .post<{ data: ImagingResponseAssessment }>(`/imaging/patients/${personId}/compute-response`, payload)
+      .then((r) => r.data.data),
+
+  assessPreview: (personId: number, payload: {
+    current_study_id: number;
+    criteria_type?: string;
+  }) =>
+    apiClient
+      .post<{ data: { response_category: string; criteria_type: string; rationale: string; baseline_value: number | null; nadir_value: number | null; current_value: number | null; percent_change_from_baseline: number | null; percent_change_from_nadir: number | null } }>(
+        `/imaging/patients/${personId}/assess-preview`,
+        payload,
+      )
+      .then((r) => r.data.data),
+
   // AI-powered measurement extraction
   aiExtractMeasurements: (studyId: number) =>
     apiClient

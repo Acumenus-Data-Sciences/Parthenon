@@ -582,6 +582,8 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         // Response assessments
         Route::get('/patients/{personId}/response-assessments', [ImagingTimelineController::class, 'patientResponseAssessments']);
         Route::post('/patients/{personId}/response-assessments', [ImagingTimelineController::class, 'storeResponseAssessment']);
+        Route::post('/patients/{personId}/compute-response', [ImagingTimelineController::class, 'computeResponse']);
+        Route::post('/patients/{personId}/assess-preview', [ImagingTimelineController::class, 'assessPreview']);
     });
 });
 
