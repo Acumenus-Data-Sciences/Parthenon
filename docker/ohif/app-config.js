@@ -3,7 +3,7 @@
  *  Orthanc DICOMweb is proxied through Parthenon's nginx at /orthanc/.
  */
 window.config = {
-  routerBasename: '/ohif',
+  routerBasename: '/ohif/',
   customizationService: {},
   extensions: [],
   modes: [],

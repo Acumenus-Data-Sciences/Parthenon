@@ -279,9 +279,9 @@ services:
 
   ohif-build:
     container_name: parthenon-ohif-build
-    image: ohif/app:v3.9.2
-    user: root
-    entrypoint: ["sh", "-c", "cp -a /usr/share/nginx/html/. /output/ && cp /config/app-config.js /output/app-config.js"]
+    build:
+      context: ./docker/ohif
+    entrypoint: ["sh", "-c", "cp -a /dist/. /output/ && cp /config/app-config.js /output/app-config.js"]
     volumes:
       - ohif-dist:/output
       - ./docker/ohif/app-config.js:/config/app-config.js:ro
