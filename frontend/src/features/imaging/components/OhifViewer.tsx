@@ -60,18 +60,19 @@ export default function OhifViewer({
   const [savedCount, setSavedCount] = useState(0);
   const [saving, setSaving] = useState(false);
 
-  // Fill available vertical space
-  useLayoutEffect(() => {
-    function recalc() {
-      if (!containerRef.current) return;
-      const rect = containerRef.current.getBoundingClientRect();
-      const available = window.innerHeight - rect.top - 24;
-      setHeight(Math.max(400, available));
-    }
-    recalc();
-    window.addEventListener("resize", recalc);
-    return () => window.removeEventListener("resize", recalc);
+  // Fill available vertical space — recalc on mount, resize, and after iframe loads
+  const recalcHeight = useCallback(() => {
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const available = window.innerHeight - rect.top - 24;
+    setHeight(Math.max(600, available));
   }, []);
+
+  useLayoutEffect(() => {
+    recalcHeight();
+    window.addEventListener("resize", recalcHeight);
+    return () => window.removeEventListener("resize", recalcHeight);
+  }, [recalcHeight]);
 
   // Listen for measurement events from OHIF bridge
   useEffect(() => {
@@ -199,7 +200,7 @@ export default function OhifViewer({
         src={ohifUrl}
         title="OHIF DICOM Viewer"
         style={{ width: "100%", height, border: "none" }}
-        onLoad={() => setLoading(false)}
+        onLoad={() => { setLoading(false); recalcHeight(); }}
         onError={() => { setLoading(false); setError(true); }}
         allow="fullscreen"
       />
