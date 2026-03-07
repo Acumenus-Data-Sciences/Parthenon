@@ -63,6 +63,9 @@ vcf/
 .resendapikey
 *.apikey
 
+# E2E tests
+e2e/
+
 # Environment
 .env
 .env.local

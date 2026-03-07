@@ -3,6 +3,7 @@ import type { FormEvent } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Loader2, AlertCircle, Lock, Mail } from "lucide-react";
 import { useAuthStore } from "@/stores/authStore";
+import { ConstellationBackground } from "../components/ConstellationBackground";
 import axios from "axios";
 import apiClient from "@/lib/api-client";
 import { queryClient } from "@/lib/query-client";
@@ -352,6 +353,9 @@ export function LoginPage() {
           WebkitBackdropFilter: "blur(40px)",
         }}
       >
+        {/* Animated constellation star map */}
+        <ConstellationBackground />
+
         {/* Subtle top-right glow */}
         <div
           style={{

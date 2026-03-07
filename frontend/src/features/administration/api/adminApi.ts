@@ -1,5 +1,5 @@
 import apiClient from "@/lib/api-client";
-import type { User, Role, AuthProviderSetting, AiProviderSetting, SystemHealth } from "@/types/models";
+import type { User, Role, AuthProviderSetting, AiProviderSetting, SystemHealth, SystemHealthService } from "@/types/models";
 
 // ── Users ─────────────────────────────────────────────────────────────────────
 

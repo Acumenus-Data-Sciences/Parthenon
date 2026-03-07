@@ -322,11 +322,11 @@ class DicomwebService
 
         if ($body !== null && strtoupper($method) === 'POST') {
             return $req->withBody($body, $headers['Content-Type'] ?? 'application/dicom')
-                ->post($this->baseUrl . $path, $query);
+                ->post($this->baseUrl.$path, $query);
         }
 
         return $req->{strtolower($method)}(
-            $this->baseUrl . $path,
+            $this->baseUrl.$path,
             $query
         );
     }

@@ -287,7 +287,7 @@ class SystemHealthController extends Controller
                     'message' => $m[3],
                 ];
             } elseif ($current) {
-                $current['message'] .= "\n" . $line;
+                $current['message'] .= "\n".$line;
             }
         }
         if ($current) {
@@ -317,7 +317,7 @@ class SystemHealthController extends Controller
                 $entries[] = [
                     'timestamp' => date('Y-m-d H:i:s', (int) $entry[1]),
                     'level' => 'warning',
-                    'message' => "Slow command ({$entry[2]}μs): " . implode(' ', (array) ($entry[3] ?? [])),
+                    'message' => "Slow command ({$entry[2]}μs): ".implode(' ', (array) ($entry[3] ?? [])),
                 ];
             }
 
@@ -414,7 +414,7 @@ class SystemHealthController extends Controller
                 return [
                     'timestamp' => (string) $job->failed_at,
                     'level' => 'error',
-                    'message' => "[{$job->queue}] {$jobName}: " . mb_substr((string) $job->exception, 0, 300),
+                    'message' => "[{$job->queue}] {$jobName}: ".mb_substr((string) $job->exception, 0, 300),
                 ];
             })->all();
         } catch (\Throwable) {
@@ -596,6 +596,6 @@ class SystemHealthController extends Controller
             return 'unknown';
         }
 
-        return 'Request served in ' . round((microtime(true) - $startTime) * 1000) . 'ms';
+        return 'Request served in '.round((microtime(true) - $startTime) * 1000).'ms';
     }
 }
