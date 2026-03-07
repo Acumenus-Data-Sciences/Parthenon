@@ -12,6 +12,10 @@ window.config = {
   showWarningMessageForCrossOrigin: false,
   showCPUFallbackMessage: true,
   strictZSpacingForVolumeViewport: true,
+  investigationalUseDialog: {
+    option: 'never',
+  },
+  studyListFunctionsEnabled: true,
 
   defaultDataSourceName: 'orthanc',
   dataSources: [
@@ -35,6 +39,7 @@ window.config = {
         bulkDataURI: {
           enabled: true,
         },
+        omitQuotationForMultipartRequest: true,
       },
     },
   ],

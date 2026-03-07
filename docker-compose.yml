@@ -195,6 +195,8 @@ services:
       - "${R_PORT:-8787}:8787"
     volumes:
       - ./r-runtime:/app
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       - DATABASE_URL=postgresql://parthenon:${DB_PASSWORD:-secret}@postgres:5432/parthenon
     depends_on:
@@ -253,6 +255,7 @@ services:
       - "${ORTHANC_PORT:-8042}:8042"
     volumes:
       - orthanc-data:/var/lib/orthanc/db
+      - ./dicom_samples:/dicom_samples:ro
     environment:
       - ORTHANC__NAME=Parthenon Orthanc
       - ORTHANC__REMOTE_ACCESS_ALLOWED=true
