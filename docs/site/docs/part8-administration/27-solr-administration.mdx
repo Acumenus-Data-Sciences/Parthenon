@@ -1,0 +1,199 @@
+---
+id: 27-solr-administration
+title: "27. Solr Search Administration"
+sidebar_label: "27. Solr Search"
+---
+
+# Solr Search Administration
+
+Parthenon uses **Apache Solr 9.7** as a high-performance search and faceted filtering layer alongside PostgreSQL. Solr provides sub-100ms full-text search, instant facet counts, autocomplete suggestions, and relevance-ranked results across all major data domains.
+
+## Architecture
+
+```
+User Query → React Frontend → Laravel API Controller
+                                    │
+                      ┌─────────────┴─────────────┐
+                      ▼                             ▼
+             Solr (search/filter/facets)    PostgreSQL (writes/joins)
+                      │                             │
+                      ▼                             ▼
+             Return results + facet counts   Fallback when Solr unavailable
+```
+
+**Key principles:**
+- **PostgreSQL is authoritative** — all writes go to PostgreSQL first
+- **Solr is eventually consistent** — updates propagate via indexing commands
+- **Automatic fallback** — when Solr is unavailable, search falls back to PostgreSQL ILIKE queries
+- **Circuit breaker** — Redis-backed failure tracking prevents cascading failures
+
+## Solr Cores
+
+Each domain has its own Solr core with independent schema and indexing:
+
+| Core | Domain | Key Fields | Typical Size |
+|------|--------|-----------|-------------|
+| **vocabulary** | OMOP Concepts | concept_name, concept_code, domain_id, vocabulary_id, concept_class_id | 7M+ concepts |
+| **cohorts** | Cohort Definitions & Studies | name, description, tags, author, status | Hundreds |
+| **analyses** | Achilles Analysis Metadata | analysis_name, category, source_name | ~200 per source |
+| **mappings** | Concept Mappings (Ingestion) | source_code, source_description, target_concept_name, review_tier | Varies by ingestion |
+| **clinical** | CDM Clinical Events | concept_name, event_type, person_id, event_date, value_as_number | Millions of events |
+
+## Admin Panel
+
+Navigate to **Admin > Solr Search** to manage cores. The admin panel displays:
+
+- **Health status** — green (healthy) or red (unavailable) per core
+- **Document count** — number of indexed documents
+- **Last indexed** — timestamp and duration of the last index run
+- **Indexing status** — whether an index operation is currently running
+
+### Actions
+
+| Action | Description |
+|--------|-------------|
+| **Re-index** | Incremental reindex — adds/updates documents without clearing existing data |
+| **Full Re-index** | Deletes all documents and rebuilds the index from scratch |
+| **Clear** | Removes all documents from a core without reindexing (requires confirmation) |
+| **Re-index All** | Sequentially reindexes all cores |
+
+:::tip
+Use **Full Re-index** after schema changes, data corrections, or if document counts look wrong. Regular **Re-index** is sufficient for routine updates.
+:::
+
+## Configuration
+
+### Environment Variables
+
+Add these to `backend/.env`:
+
+```bash
+# Enable/disable Solr integration
+SOLR_ENABLED=true
+
+# Connection settings
+SOLR_HOST=solr
+SOLR_PORT=8983
+SOLR_TIMEOUT=5
+
+# Core names (rarely need changing)
+SOLR_CORE_VOCABULARY=vocabulary
+SOLR_CORE_COHORTS=cohorts
+SOLR_CORE_ANALYSES=analyses
+SOLR_CORE_MAPPINGS=mappings
+SOLR_CORE_CLINICAL=clinical
+
+# Circuit breaker
+SOLR_CB_FAILURE_THRESHOLD=5    # Failures before opening circuit
+SOLR_CB_RECOVERY_TIMEOUT=30    # Seconds before retrying
+```
+
+### Docker Configuration
+
+The Solr service is defined in `docker-compose.yml`:
+
+```yaml
+solr:
+  image: solr:9.7
+  ports:
+    - "${SOLR_PORT:-8983}:8983"
+  environment:
+    - SOLR_JAVA_MEM=-Xms512m -Xmx2g
+```
+
+**JVM memory recommendations:**
+- Development: `-Xms512m -Xmx2g`
+- Production (small): `-Xms1g -Xmx4g`
+- Production (large, with clinical core): `-Xms2g -Xmx8g`
+
+## CLI Indexing Commands
+
+Each core has a dedicated Artisan command:
+
+```bash
+# Vocabulary
+php artisan solr:index-vocabulary [--fresh]
+
+# Cohorts & Studies
+php artisan solr:index-cohorts [--fresh]
+
+# Analyses (Achilles metadata)
+php artisan solr:index-analyses [--source=ID] [--fresh]
+
+# Concept Mappings
+php artisan solr:index-mappings [--job=ID] [--fresh]
+
+# Clinical Events (largest core)
+php artisan solr:index-clinical [--source=ID] [--domain=condition] [--limit=N] [--fresh]
+```
+
+### Clinical Core Tips
+
+The clinical core indexes events from 6 CDM tables: condition_occurrence, drug_exposure, procedure_occurrence, measurement, observation, and visit_occurrence. For large databases:
+
+- Use `--limit=N` to cap events per domain during initial testing
+- Use `--domain=condition` to index one domain at a time
+- Use `--source=ID` to index a specific data source
+- The measurement table (often the largest) may need extended timeouts
+
+## Fallback Behavior
+
+When Solr is unavailable (container down, circuit breaker open):
+
+1. **Vocabulary search** falls back to PostgreSQL `ILIKE` queries (slower but functional)
+2. **Cohort/study listing** falls back to Eloquent queries with pagination
+3. **Global search (Cmd+K)** returns no Solr results but navigation items still work
+4. **Facet counts** are unavailable — filter chips show without counts
+5. **Clinical search** returns empty with an informational message
+
+The circuit breaker tracks failures in Redis. After 5 consecutive failures, the circuit opens for 30 seconds before retrying. This prevents overwhelming a struggling Solr instance.
+
+## Troubleshooting
+
+### Core shows "Unavailable"
+
+1. Check the Solr container: `docker compose ps solr`
+2. Check Solr logs: `docker compose logs solr`
+3. Ping the core directly: `curl http://localhost:8983/solr/vocabulary/admin/ping`
+4. If the container is healthy but the core is missing, restart Solr to re-create cores
+
+### Document count is zero
+
+1. Run the appropriate indexing command (see CLI section above)
+2. Ensure `SOLR_ENABLED=true` in `backend/.env`
+3. Check that the data source exists and has data
+
+### Search returns no results
+
+1. Verify the core has documents (check admin panel)
+2. Test directly: `curl "http://localhost:8983/solr/vocabulary/select?q=aspirin&rows=5"`
+3. Check that `SOLR_HOST` and `SOLR_PORT` are correct in `.env`
+
+### Reindexing is slow
+
+- The vocabulary core (7M+ concepts) typically takes 2-5 minutes
+- The clinical core depends on data volume — millions of events may take 10+ minutes
+- Use `--limit=N` and `--domain=` flags for incremental indexing
+- Increase `SOLR_JAVA_MEM` if Solr runs out of heap space
+
+## API Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/v1/admin/solr/status` | GET | Per-core status with document counts |
+| `/api/v1/admin/solr/reindex/{core}` | POST | Trigger reindex (optional `fresh` param) |
+| `/api/v1/admin/solr/reindex-all` | POST | Reindex all cores sequentially |
+| `/api/v1/admin/solr/clear/{core}` | POST | Clear all documents from a core |
+
+All admin endpoints require the `super-admin` role.
+
+### Search Endpoints (User-facing)
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/v1/vocabulary/search` | GET | Vocabulary concept search with facets |
+| `/api/v1/vocabulary/suggest` | GET | Autocomplete suggestions |
+| `/api/v1/analyses/search` | GET | Achilles analysis metadata search |
+| `/api/v1/ingestion/mappings/search` | GET | Cross-job mapping search with facets |
+| `/api/v1/clinical/search` | GET | Cross-patient clinical event search |
+| `/api/v1/search` | GET | Global multi-core search (Cmd+K) |

@@ -9,6 +9,7 @@
     "The profiler runs a statistical analysis of your data before mapping — review it to identify data quality issues early.",
     "AI-assisted schema mapping suggests the most likely OMOP column for each source column — always review before confirming.",
     "Concept mapping resolves source codes (ICD-10, NDC, CPT) to standard OMOP concepts — mappings with low confidence require manual review.",
-    "Failed ingestion jobs can be retried from the job detail page without re-uploading the file."
+    "Failed ingestion jobs can be retried from the job detail page without re-uploading the file.",
+    "Mapping review uses Solr-powered search and faceted filtering — filter by review tier, vocabulary, domain, confidence, and review status with instant facet counts."
   ]
 }

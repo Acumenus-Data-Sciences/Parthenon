@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import apiClient from "@/lib/api-client";
 import { Database, RefreshCw, Trash2, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
+import { HelpButton } from "@/features/help";
 
 interface CoreStatus {
   core: string;
@@ -103,6 +104,7 @@ export default function SolrAdminPage() {
             Manage Solr search cores, trigger reindexing, and monitor status.
           </p>
         </div>
+        <HelpButton helpKey="admin.solr" />
         <button
           className="btn btn-primary"
           onClick={reindexAll}

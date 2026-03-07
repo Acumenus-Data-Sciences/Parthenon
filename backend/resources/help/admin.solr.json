@@ -1,0 +1,17 @@
+{
+  "key": "admin.solr",
+  "title": "Solr Search Administration",
+  "description": "Parthenon uses Apache Solr as a high-performance search layer alongside PostgreSQL. Solr powers vocabulary search, concept autocomplete, cohort/study discovery, analysis metadata search, mapping review filtering, clinical event search, and the global Cmd+K command palette. PostgreSQL remains the authoritative data store — Solr is a read-optimized index that can be rebuilt at any time.",
+  "docs_url": "/docs/part8-administration/27-solr-administration",
+  "video_url": null,
+  "tips": [
+    "Each Solr core indexes a specific domain: vocabulary (concepts), cohorts (definitions + studies), analyses (Achilles metadata), mappings (ingestion concept mappings), and clinical (patient events from CDM tables).",
+    "Use 'Re-index' for incremental updates. Use 'Full Re-index' to delete all documents and rebuild from scratch — useful after schema changes or data corrections.",
+    "The vocabulary core is the highest-impact core — it powers the concept search, autocomplete, and faceted filtering in the Vocabulary Browser.",
+    "The clinical core can take several minutes to index on large databases (millions of events). Use the --source and --domain flags to index incrementally.",
+    "If a core shows 'Unavailable', check that the Solr container is running: docker compose ps solr. The circuit breaker will automatically recover when Solr comes back online.",
+    "Document counts should roughly match your PostgreSQL row counts. Large discrepancies may indicate a stale index — trigger a Full Re-index.",
+    "Solr configuration lives in backend/.env: SOLR_ENABLED, SOLR_HOST, SOLR_PORT. Set SOLR_ENABLED=true to activate Solr search.",
+    "When Solr is unavailable, all search features automatically fall back to PostgreSQL ILIKE queries — slower but functional."
+  ]
+}

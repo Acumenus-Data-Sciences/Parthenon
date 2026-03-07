@@ -11,6 +11,7 @@
     "The Data Quality tab displays DQD (Data Quality Dashboard) results with pass/fail checks across completeness, conformance, and plausibility dimensions.",
     "The Heel Checks tab shows Achilles Heel rule violations — automated data integrity checks that flag potential issues.",
     "The Temporal tab shows patient inflow/outflow over time — inspect for data truncation or upload gaps.",
-    "Results are only as fresh as the last Achilles run. Contact your admin if counts look stale."
+    "Results are only as fresh as the last Achilles run. Contact your admin if counts look stale.",
+    "Analysis metadata is indexed in Solr — use the global search (Cmd+K) to quickly find analyses by name or category across all sources."
   ]
 }

@@ -9,6 +9,8 @@
     "Standard concepts (standard_concept = 'S') are what appear in CDM clinical tables.",
     "Non-standard concepts can be browsed as source codes but won't appear in cohort queries directly.",
     "The Hierarchy tab shows ancestors and descendants — useful for understanding how broad a concept is.",
-    "Semantic search (AI-powered) can find concepts by clinical description when exact name matching fails."
+    "Semantic search (AI-powered) can find concepts by clinical description when exact name matching fails.",
+    "Search is powered by Apache Solr when available — faceted counts update instantly as you type. If Solr is unavailable, search falls back to PostgreSQL.",
+    "Use the autocomplete (Solr suggest) for fast type-ahead concept lookup when adding concepts to concept sets or cohort definitions."
   ]
 }

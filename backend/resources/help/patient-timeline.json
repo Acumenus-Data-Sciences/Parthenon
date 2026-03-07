@@ -9,6 +9,7 @@
     "Use the domain filter chips to focus on specific event types (e.g., drugs only).",
     "Hovering over any event shows the full concept name, source value, and associated visit.",
     "The timeline is read-only — it reflects the CDM as-is and cannot be edited.",
-    "Patient IDs are internal CDM person_ids — they are not patient MRNs or hospital identifiers."
+    "Patient IDs are internal CDM person_ids — they are not patient MRNs or hospital identifiers.",
+    "Clinical events are indexed in Solr for cross-patient search — use the global search (Cmd+K) to find events by concept name across all patients and sources."
   ]
 }
