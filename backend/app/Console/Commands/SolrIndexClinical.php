@@ -294,13 +294,13 @@ class SolrIndexClinical extends Command
                 $doc['type_concept_name'] = $row['type_concept_name'];
             }
 
-            if (isset($row['value_as_number']) && $row['value_as_number'] !== null) {
+            if (isset($row['value_as_number'])) {
                 $doc['value_as_number'] = (float) $row['value_as_number'];
             }
-            if (isset($row['value_as_string']) && $row['value_as_string'] !== null) {
+            if (isset($row['value_as_string'])) {
                 $doc['value_as_string'] = (string) $row['value_as_string'];
             }
-            if (isset($row['value_source_value']) && $row['value_source_value'] !== null) {
+            if (isset($row['value_source_value'])) {
                 $doc['value_as_string'] = (string) $row['value_source_value'];
             }
 

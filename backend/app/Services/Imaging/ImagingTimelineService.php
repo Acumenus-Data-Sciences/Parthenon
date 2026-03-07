@@ -265,6 +265,78 @@ class ImagingTimelineService
     }
 
     /**
+     * Link unlinked imaging studies to CDM patients matching a specific condition.
+     *
+     * Each unique DICOM patient gets assigned to a distinct CDM patient with the
+     * given condition. This allows research-grade linking of de-identified imaging
+     * datasets (e.g., Harvard COVID-19) to real CDM patients for demonstration.
+     *
+     * @param  string  $conditionPattern  SQL ILIKE pattern for condition name
+     * @param  int  $limit  Max studies to link
+     * @return array{linked: int, patients_used: int, errors: int}
+     */
+    public function linkStudiesToConditionPatients(string $conditionPattern, int $limit = 1000): array
+    {
+        // Get unlinked studies grouped by DICOM patient ID
+        $unlinked = ImagingStudy::whereNull('person_id')
+            ->select('id', 'patient_id_dicom', 'patient_name_dicom', 'study_date')
+            ->orderBy('patient_id_dicom')
+            ->orderBy('study_date')
+            ->limit($limit * 5) // headroom for multi-study patients
+            ->get();
+
+        if ($unlinked->isEmpty()) {
+            return ['linked' => 0, 'patients_used' => 0, 'errors' => 0];
+        }
+
+        // Group by DICOM patient ID (each unique patient gets one CDM person)
+        $grouped = $unlinked->groupBy(fn ($s) => $s->patient_id_dicom ?? $s->patient_name_dicom ?? "unknown-{$s->id}");
+
+        // Get CDM patients with the specified condition (randomized for variety)
+        $candidates = DB::connection('cdm')
+            ->table('condition_occurrence as co')
+            ->join('concept as c', 'c.concept_id', '=', 'co.condition_concept_id')
+            ->join('person as p', 'p.person_id', '=', 'co.person_id')
+            ->where('c.concept_name', 'ilike', $conditionPattern)
+            ->select('p.person_id')
+            ->distinct()
+            ->orderByRaw('RANDOM()')
+            ->limit($grouped->count())
+            ->pluck('person_id')
+            ->values();
+
+        if ($candidates->isEmpty()) {
+            return ['linked' => 0, 'patients_used' => 0, 'errors' => 0];
+        }
+
+        $linked = 0;
+        $patientsUsed = 0;
+        $errors = 0;
+        $candidateIndex = 0;
+
+        foreach ($grouped as $dicomPatientKey => $studies) {
+            if ($candidateIndex >= $candidates->count()) {
+                break; // Ran out of candidate patients
+            }
+
+            $personId = $candidates[$candidateIndex];
+            $candidateIndex++;
+            $patientsUsed++;
+
+            foreach ($studies as $study) {
+                try {
+                    ImagingStudy::where('id', $study->id)->update(['person_id' => $personId]);
+                    $linked++;
+                } catch (\Throwable) {
+                    $errors++;
+                }
+            }
+        }
+
+        return ['linked' => $linked, 'patients_used' => $patientsUsed, 'errors' => $errors];
+    }
+
+    /**
      * Build summary statistics for a patient's imaging timeline.
      *
      * @param  Collection<int, ImagingStudy>  $studies

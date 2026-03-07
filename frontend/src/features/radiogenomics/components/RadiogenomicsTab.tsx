@@ -4,7 +4,6 @@ import {
   ChevronDown, ChevronUp, Loader2, TrendingDown, TrendingUp,
   Minus, FlaskConical, Activity,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { useRadiogenomicsPanel } from "../hooks/useRadiogenomics";
 import type {
   RadiogenomicsPanel,

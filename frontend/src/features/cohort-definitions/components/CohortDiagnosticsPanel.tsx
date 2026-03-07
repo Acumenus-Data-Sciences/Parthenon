@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Loader2, Activity } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { runCohortDiagnostics } from "../api/cohortApi";
-import { useSourceStore } from "@/stores/sourceStore";
 import type { CohortDiagnosticsResult } from "../types/cohortExpression";
 
 interface CohortDiagnosticsPanelProps {
@@ -95,10 +94,9 @@ function TimeDistributionCard({ label, p25, median, p75 }: { label: string; p25?
 
 export function CohortDiagnosticsPanel({ definitionId }: CohortDiagnosticsPanelProps) {
   const [result, setResult] = useState<CohortDiagnosticsResult | null>(null);
-  const activeSource = useSourceStore((s) => s.activeSource);
 
   const mutation = useMutation({
-    mutationFn: () => runCohortDiagnostics(definitionId, { source_id: activeSource?.id ?? 1 }),
+    mutationFn: () => runCohortDiagnostics(definitionId, { source_id: 1 }),
     onSuccess: (data) => setResult(data),
   });
 

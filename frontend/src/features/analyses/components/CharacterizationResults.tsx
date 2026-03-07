@@ -77,6 +77,10 @@ function computeSmdFromFeatures(
       covariate_name: tf.feature_name,
       smd_before: smd,
       smd_after: smd,
+      mean_target_before: 0,
+      mean_comp_before: 0,
+      mean_target_after: 0,
+      mean_comp_after: 0,
     });
   }
 

@@ -112,6 +112,27 @@ class ImagingTimelineController extends Controller
         return response()->json(['data' => ['linked' => $linked]]);
     }
 
+    /**
+     * POST /api/v1/imaging/studies/link-by-condition
+     *
+     * Link unlinked studies to CDM patients matching a condition pattern.
+     * Each unique DICOM patient gets a distinct CDM person with the condition.
+     */
+    public function linkByCondition(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'condition_pattern' => 'required|string|min:3|max:200',
+            'limit' => 'integer|min:1|max:10000',
+        ]);
+
+        $result = $this->timeline->linkStudiesToConditionPatients(
+            $validated['condition_pattern'],
+            $validated['limit'] ?? 1000
+        );
+
+        return response()->json(['data' => $result]);
+    }
+
     // ──────────────────────────────────────────────────────────────────────────
     // Measurements CRUD
     // ──────────────────────────────────────────────────────────────────────────
@@ -371,4 +392,3 @@ class ImagingTimelineController extends Controller
         return response()->json($patients);
     }
 }
-// Note: This will fail because file already has closing brace

@@ -82,7 +82,7 @@ class GenerateCohortsCommand extends Command
 
         $source = Source::where('source_key', $sourceKey)->with('daimons')->first();
         if (! $source) {
-            $this->error("Source '{$sourceKey}' not found.");
+            $this->error("Source '".(is_array($sourceKey) ? implode(',', $sourceKey) : (string) $sourceKey)."' not found.");
 
             return 1;
         }

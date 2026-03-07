@@ -545,7 +545,7 @@ export default function CohortDefinitionDetailPage() {
             steps={definition.latest_generation?.inclusion_rule_stats ?? null}
             totalCount={definition.latest_generation?.person_count ?? null}
           />
-          <CohortDiagnosticsPanel definitionId={cohortId} />
+          {cohortId && <CohortDiagnosticsPanel definitionId={cohortId} />}
           <CohortGenerationPanel definitionId={cohortId} />
           <GenerationHistoryTable definitionId={cohortId} />
         </div>
