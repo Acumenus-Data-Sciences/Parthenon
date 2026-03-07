@@ -408,6 +408,13 @@ export const router = createBrowserRouter(
               ),
           },
           {
+            path: "system-health/:key",
+            lazy: () =>
+              import("@/features/administration/pages/ServiceDetailPage").then(
+                (m) => ({ Component: m.default }),
+              ),
+          },
+          {
             path: "vocabulary",
             lazy: () =>
               import("@/features/administration/pages/VocabularyPage").then(

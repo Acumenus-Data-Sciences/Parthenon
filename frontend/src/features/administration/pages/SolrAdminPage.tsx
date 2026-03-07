@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import apiClient from "@/lib/api-client";
-import { Database, RefreshCw, Trash2, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
+import { RefreshCw, Trash2, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
+import { Panel, Badge, StatusDot, Button } from "@/components/ui";
 import { HelpButton } from "@/features/help";
 
 interface CoreStatus {
@@ -83,137 +84,135 @@ export default function SolrAdminPage() {
 
   if (loading) {
     return (
-      <div className="page-container">
-        <div className="flex items-center justify-center" style={{ padding: "var(--space-12)" }}>
-          <Loader2 className="animate-spin" size={24} />
-          <span style={{ marginLeft: 8 }}>Loading Solr status...</span>
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Solr Search Administration</h1>
+          <p className="mt-1 text-muted-foreground">Loading core status...</p>
+        </div>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="h-40 animate-pulse rounded-lg border border-border bg-muted" />
+          ))}
         </div>
       </div>
     );
   }
 
   return (
-    <div className="page-container">
-      <div className="page-header">
+    <div className="space-y-6">
+      <div className="flex items-start justify-between">
         <div>
-          <h1 className="page-title flex items-center gap-2">
-            <Database size={24} />
-            Solr Search Administration
-          </h1>
-          <p className="page-subtitle">
+          <h1 className="text-2xl font-bold text-foreground">Solr Search Administration</h1>
+          <p className="mt-1 text-muted-foreground">
             Manage Solr search cores, trigger reindexing, and monitor status.
           </p>
         </div>
-        <HelpButton helpKey="admin.solr" />
-        <button
-          className="btn btn-primary"
-          onClick={reindexAll}
-          disabled={actionLoading !== null}
-        >
-          {actionLoading === "reindex-all" ? (
-            <Loader2 className="animate-spin" size={16} />
-          ) : (
-            <RefreshCw size={16} />
-          )}
-          Re-index All Cores
-        </button>
+        <div className="flex items-center gap-2">
+          <HelpButton helpKey="admin.solr" />
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={reindexAll}
+            disabled={actionLoading !== null}
+          >
+            {actionLoading === "reindex-all" ? (
+              <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+            ) : (
+              <RefreshCw className="mr-1 h-4 w-4" />
+            )}
+            Re-index All Cores
+          </Button>
+        </div>
       </div>
 
       {message && (
-        <div
-          className={`alert ${message.type === "success" ? "alert-success" : "alert-error"}`}
-          style={{ marginBottom: "var(--space-4)" }}
-        >
-          {message.type === "success" ? <CheckCircle size={16} /> : <AlertCircle size={16} />}
-          {message.text}
-        </div>
+        <Panel className={message.type === "success" ? "border-emerald-500/30" : "border-destructive/30"}>
+          <div className="flex items-center gap-2">
+            {message.type === "success" ? (
+              <CheckCircle className="h-4 w-4 text-emerald-500" />
+            ) : (
+              <AlertCircle className="h-4 w-4 text-destructive" />
+            )}
+            <span className="text-sm text-foreground">{message.text}</span>
+          </div>
+        </Panel>
       )}
 
-      <div className="grid" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(360px, 1fr))", gap: "var(--space-4)" }}>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         {Object.entries(statuses).map(([name, status]) => (
-          <div key={name} className="card" style={{ padding: "var(--space-5)" }}>
-            <div className="flex items-center justify-between" style={{ marginBottom: "var(--space-3)" }}>
-              <h3 style={{ fontSize: "var(--text-lg)", fontWeight: 600, textTransform: "capitalize" }}>
-                {name}
-              </h3>
-              <span
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 4,
-                  fontSize: "var(--text-xs)",
-                  padding: "2px 8px",
-                  borderRadius: 12,
-                  backgroundColor: status.available ? "rgba(45,212,191,0.15)" : "rgba(239,68,68,0.15)",
-                  color: status.available ? "var(--teal)" : "var(--danger)",
-                }}
-              >
-                <span style={{
-                  width: 6,
-                  height: 6,
-                  borderRadius: "50%",
-                  backgroundColor: status.available ? "var(--teal)" : "var(--danger)",
-                }} />
-                {status.available ? "Healthy" : "Unavailable"}
-              </span>
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-2)", fontSize: "var(--text-sm)", marginBottom: "var(--space-4)" }}>
-              <div>
-                <span style={{ color: "var(--text-muted)" }}>Documents</span>
-                <div style={{ fontWeight: 600, fontSize: "var(--text-lg)" }}>
-                  {status.document_count !== null ? status.document_count.toLocaleString() : "—"}
+          <Panel key={name}>
+            <div className="flex items-start justify-between gap-3 mb-4">
+              <div className="flex items-center gap-3">
+                <StatusDot status={status.available ? "healthy" : "critical"} />
+                <div>
+                  <p className="font-semibold capitalize text-foreground">{name}</p>
+                  <p className="mt-0.5 font-mono text-xs text-muted-foreground">{status.core}</p>
                 </div>
               </div>
+              <Badge variant={status.available ? "success" : "critical"}>
+                {status.available ? "Healthy" : "Unavailable"}
+              </Badge>
+            </div>
+
+            <div className="mb-4 grid grid-cols-3 gap-3 text-sm">
               <div>
-                <span style={{ color: "var(--text-muted)" }}>Core</span>
-                <div style={{ fontFamily: "monospace" }}>{status.core}</div>
+                <p className="text-muted-foreground">Documents</p>
+                <p className="text-lg font-semibold text-foreground">
+                  {status.document_count !== null ? status.document_count.toLocaleString() : "—"}
+                </p>
               </div>
               <div>
-                <span style={{ color: "var(--text-muted)" }}>Last Indexed</span>
-                <div>{status.last_indexed_at ? new Date(status.last_indexed_at).toLocaleString() : "Never"}</div>
+                <p className="text-muted-foreground">Last Indexed</p>
+                <p className="text-foreground">
+                  {status.last_indexed_at ? new Date(status.last_indexed_at).toLocaleString() : "Never"}
+                </p>
               </div>
               <div>
-                <span style={{ color: "var(--text-muted)" }}>Duration</span>
-                <div>{status.last_index_duration_seconds ? `${status.last_index_duration_seconds}s` : "—"}</div>
+                <p className="text-muted-foreground">Duration</p>
+                <p className="text-foreground">
+                  {status.last_index_duration_seconds ? `${status.last_index_duration_seconds}s` : "—"}
+                </p>
               </div>
             </div>
 
             <div className="flex gap-2">
-              <button
-                className="btn btn-sm btn-secondary"
+              <Button
+                variant="secondary"
+                size="sm"
                 onClick={() => reindex(name)}
                 disabled={actionLoading !== null || !status.available}
               >
                 {actionLoading === `reindex-${name}` ? (
-                  <Loader2 className="animate-spin" size={14} />
+                  <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />
                 ) : (
-                  <RefreshCw size={14} />
+                  <RefreshCw className="mr-1 h-3.5 w-3.5" />
                 )}
                 Re-index
-              </button>
-              <button
-                className="btn btn-sm btn-secondary"
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
                 onClick={() => reindex(name, true)}
                 disabled={actionLoading !== null || !status.available}
               >
                 Full Re-index
-              </button>
-              <button
-                className="btn btn-sm btn-ghost"
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-destructive hover:text-destructive"
                 onClick={() => clearCore(name)}
                 disabled={actionLoading !== null || !status.available}
-                style={{ color: "var(--danger)" }}
               >
                 {actionLoading === `clear-${name}` ? (
-                  <Loader2 className="animate-spin" size={14} />
+                  <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />
                 ) : (
-                  <Trash2 size={14} />
+                  <Trash2 className="mr-1 h-3.5 w-3.5" />
                 )}
                 Clear
-              </button>
+              </Button>
             </div>
-          </div>
+          </Panel>
         ))}
       </div>
     </div>

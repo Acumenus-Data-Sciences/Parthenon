@@ -129,6 +129,22 @@ export const testAiProvider = (type: string) =>
 export const fetchSystemHealth = () =>
   apiClient.get<SystemHealth>("/admin/system-health").then((r) => r.data);
 
+export interface ServiceLogEntry {
+  timestamp: string;
+  level: string;
+  message: string;
+}
+
+export interface ServiceDetail {
+  service: SystemHealthService;
+  logs: ServiceLogEntry[];
+  metrics: Record<string, unknown>;
+  checked_at: string;
+}
+
+export const fetchServiceDetail = (key: string) =>
+  apiClient.get<ServiceDetail>(`/admin/system-health/${key}`).then((r) => r.data);
+
 // ── Vocabulary Imports ────────────────────────────────────────────────────────
 
 export type VocabImportStatus = "pending" | "running" | "completed" | "failed";

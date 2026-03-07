@@ -447,6 +447,7 @@ Route::prefix('v1')->group(function () {
 
             // ── System health (admin+) ────────────────────────────────────
             Route::get('/system-health', [SystemHealthController::class, 'index']);
+            Route::get('/system-health/{key}', [SystemHealthController::class, 'show']);
 
             // ── Vocabulary management (super-admin only) ──────────────────
             Route::middleware('role:super-admin')->prefix('vocabulary')->group(function () {

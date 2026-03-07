@@ -5,6 +5,7 @@ import {
   enableAiProvider,
   fetchAiProvider,
   fetchAiProviders,
+  fetchServiceDetail,
   fetchSystemHealth,
   testAiProvider,
   updateAiProvider,
@@ -61,5 +62,14 @@ export function useSystemHealth() {
     queryKey: [HEALTH_KEY],
     queryFn: fetchSystemHealth,
     refetchInterval: 30_000,
+  });
+}
+
+export function useServiceDetail(key: string) {
+  return useQuery({
+    queryKey: [HEALTH_KEY, key],
+    queryFn: () => fetchServiceDetail(key),
+    refetchInterval: 15_000,
+    enabled: !!key,
   });
 }

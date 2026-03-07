@@ -1,4 +1,5 @@
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Panel, Badge, StatusDot, Button, type BadgeVariant, type StatusDotVariant } from "@/components/ui";
 import type { SystemHealthService } from "@/types/models";
 import { useSystemHealth } from "../hooks/useAiProviders";
@@ -12,37 +13,57 @@ const STATUS_MAP: Record<string, { badge: BadgeVariant; dot: StatusDotVariant }>
 function ServiceCard({ service }: { service: SystemHealthService }) {
   const { badge, dot } = STATUS_MAP[service.status] ?? STATUS_MAP.down;
   const queueDetails = service.details as { pending?: number; failed?: number } | undefined;
+  const solrDetails = service.details as { cores?: number; documents?: number } | undefined;
 
   return (
-    <Panel>
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <StatusDot status={dot} />
-          <div>
-            <p className="font-semibold text-foreground">{service.name}</p>
-            <p className="mt-0.5 text-sm text-muted-foreground">{service.message}</p>
+    <Link to={`/admin/system-health/${service.key}`}>
+      <Panel className="group cursor-pointer transition-colors hover:border-primary/50">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <StatusDot status={dot} />
+            <div>
+              <p className="font-semibold text-foreground">{service.name}</p>
+              <p className="mt-0.5 text-sm text-muted-foreground">{service.message}</p>
+            </div>
           </div>
+          <Badge variant={badge}>{service.status}</Badge>
         </div>
-        <Badge variant={badge}>{service.status}</Badge>
-      </div>
 
-      {queueDetails && (
-        <div className="mt-3 flex gap-4 text-sm">
-          <span className="text-muted-foreground">
-            Pending:{" "}
-            <span className="font-medium text-foreground">{queueDetails.pending ?? 0}</span>
-          </span>
-          <span className="text-muted-foreground">
-            Failed:{" "}
-            <span
-              className={`font-medium ${(queueDetails.failed ?? 0) > 0 ? "text-destructive" : "text-foreground"}`}
-            >
-              {queueDetails.failed ?? 0}
+        {queueDetails?.pending !== undefined && (
+          <div className="mt-3 flex gap-4 text-sm">
+            <span className="text-muted-foreground">
+              Pending:{" "}
+              <span className="font-medium text-foreground">{queueDetails.pending ?? 0}</span>
             </span>
-          </span>
+            <span className="text-muted-foreground">
+              Failed:{" "}
+              <span
+                className={`font-medium ${(queueDetails.failed ?? 0) > 0 ? "text-destructive" : "text-foreground"}`}
+              >
+                {queueDetails.failed ?? 0}
+              </span>
+            </span>
+          </div>
+        )}
+
+        {service.key === "solr" && solrDetails?.cores !== undefined && (
+          <div className="mt-3 flex gap-4 text-sm">
+            <span className="text-muted-foreground">
+              Cores:{" "}
+              <span className="font-medium text-foreground">{solrDetails.cores}</span>
+            </span>
+            <span className="text-muted-foreground">
+              Documents:{" "}
+              <span className="font-medium text-foreground">{solrDetails.documents?.toLocaleString() ?? 0}</span>
+            </span>
+          </div>
+        )}
+
+        <div className="mt-3 flex items-center gap-1 text-sm font-medium text-primary opacity-0 transition-opacity group-hover:opacity-100">
+          View details <ArrowRight className="h-3.5 w-3.5" />
         </div>
-      )}
-    </Panel>
+      </Panel>
+    </Link>
   );
 }
 
@@ -102,8 +123,8 @@ export default function SystemHealthPage() {
       {/* Service cards */}
       {isLoading ? (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="h-20 animate-pulse rounded-lg border border-border bg-muted" />
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="h-24 animate-pulse rounded-lg border border-border bg-muted" />
           ))}
         </div>
       ) : (
