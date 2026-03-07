@@ -196,7 +196,7 @@ function(req, res) {
       executeSettings    = PatientLevelPrediction::createExecuteSettings(
         runSplitData          = TRUE,
         runSampleData         = FALSE,
-        runfeatureEngineering = FALSE,
+        runFeatureEngineering = FALSE,
         runPreprocessData     = TRUE,
         runModelDevelopment   = TRUE,
         runCovariateSummary   = TRUE

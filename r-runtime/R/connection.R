@@ -184,7 +184,9 @@ create_hades_connection <- function(source_spec) {
   )
 }
 
-#' NULL-coalescing operator (same as rlang %||%)
-`%||%` <- function(a, b) {
-  if (!is.null(a) && length(a) > 0 && !anyNA(a)) a else b
+# NOTE: R 4.4+ has %||% in base. We do NOT override it.
+# Use base::`%||%` (NULL-coalescing) throughout.
+# For empty-string coalescing, use %|% below.
+`%|%` <- function(a, b) {
+  if (!is.null(a) && length(a) > 0 && !anyNA(a) && nzchar(as.character(a[1]))) a else b
 }

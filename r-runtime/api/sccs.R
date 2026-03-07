@@ -57,13 +57,15 @@ function(req, res) {
 
     # ── Study population ──────────────────────────────────────
     logger$info("Creating study population")
+    first_only <- isTRUE(spec$first_outcome_only) || isTRUE(spec$firstOutcomeOnly)
+    popArgs <- SelfControlledCaseSeries::createCreateStudyPopulationArgs(
+      naivePeriod      = naive_period,
+      firstOutcomeOnly = first_only
+    )
     studyPop <- SelfControlledCaseSeries::createStudyPopulation(
       sccsData = sccsData,
       outcomeId = outcomeId,
-      createStudyPopulationArgs = SelfControlledCaseSeries::createCreateStudyPopulationArgs(
-        naivePeriod      = naive_period,
-        firstOutcomeOnly = isTRUE(spec$first_outcome_only %||% spec$firstOutcomeOnly %||% TRUE)
-      )
+      createStudyPopulationArgs = popArgs
     )
 
     # ── Define era covariates (risk windows) ──────────────────
@@ -95,9 +97,13 @@ function(req, res) {
       createSccsIntervalDataArgs = interval_args
     )
 
-    # ── Fit model ─────────────────────────────────────────────
+    # ── Fit model (v6 API) ──────────────────────────────────
     logger$info("Fitting SCCS model")
-    sccsModel <- SelfControlledCaseSeries::fitSccsModel(sccsIntervalData)
+    fitArgs <- SelfControlledCaseSeries::createFitSccsModelArgs()
+    sccsModel <- SelfControlledCaseSeries::fitSccsModel(
+      sccsIntervalData = sccsIntervalData,
+      fitSccsModelArgs = fitArgs
+    )
 
     # Extract estimates
     estimates_df <- sccsModel$estimates
@@ -122,8 +128,8 @@ function(req, res) {
       status    = "completed",
       estimates = estimates,
       summary   = list(
-        cases     = tryCatch(as.integer(nrow(as.data.frame(studyPop))), error = function(e) NA),
-        events    = tryCatch(as.integer(sum(as.data.frame(studyPop)$outcomeCount > 0)), error = function(e) NA)
+        cases     = tryCatch(as.integer(nrow(studyPop$outcomes)), error = function(e) NA),
+        events    = tryCatch(as.integer(sum(studyPop$outcomes$outcomeCount > 0)), error = function(e) NA)
       ),
       logs            = logger$entries(),
       elapsed_seconds = logger$elapsed()
