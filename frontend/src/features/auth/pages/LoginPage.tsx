@@ -246,6 +246,32 @@ export function LoginPage() {
             ))}
           </div>
 
+          {/* Blog link */}
+          <a
+            href="/docs/blog"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "6px",
+              fontFamily: "var(--font-mono)",
+              fontSize: "var(--text-xs)",
+              color: "var(--accent)",
+              textDecoration: "none",
+              borderBottom: "1px solid var(--accent-muted)",
+              letterSpacing: "0.3px",
+              transition: "color 200ms",
+              marginTop: "var(--space-5)",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = "var(--accent-light)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = "var(--accent)";
+            }}
+          >
+            Read our Development Blog &rarr;
+          </a>
+
           {/* Version + Acumenus */}
           <div
             style={{

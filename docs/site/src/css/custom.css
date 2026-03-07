@@ -422,3 +422,43 @@
 [data-theme="dark"] [class*="toggleButton"]:hover {
   background: #1C1C20;
 }
+
+/* ── Blog ─────────────────────────────────────────────────────────────── */
+[data-theme="dark"] .blog-list-page article h2 a {
+  font-family: 'Crimson Pro', Georgia, serif;
+  color: #F0EDE8;
+}
+
+[data-theme="dark"] .blog-list-page article h2 a:hover {
+  color: #C9A227;
+}
+
+[data-theme="dark"] .blog-tags-post-tag,
+[data-theme="dark"] a[class*="tag_"] {
+  background: rgba(201, 162, 39, 0.10);
+  border: 1px solid rgba(201, 162, 39, 0.25);
+  color: #C9A227;
+}
+
+[data-theme="dark"] a[class*="tag_"]:hover {
+  background: rgba(201, 162, 39, 0.20);
+  color: #D4B340;
+}
+
+[data-theme="dark"] .avatar__name a {
+  color: #C9A227;
+}
+
+[data-theme="dark"] .avatar__subtitle {
+  color: #5A5650;
+}
+
+[data-theme="dark"] time {
+  color: #5A5650;
+  font-family: 'IBM Plex Mono', Consolas, monospace;
+  font-size: 0.75rem;
+}
+
+[data-theme="dark"] [class*="blogPostTitle"] {
+  font-family: 'Crimson Pro', Georgia, serif;
+}

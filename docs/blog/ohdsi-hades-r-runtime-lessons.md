@@ -1,14 +1,18 @@
-# Why OHDSI's R Packages Don't Just Work: Lessons from Building a Production HADES Runtime
-
-*Dr. M.B. Udoshi — March 2026*
-
-## The Promise
+---
+slug: ohdsi-hades-r-runtime-lessons
+title: "Why OHDSI's R Packages Don't Just Work: Lessons from Building a Production HADES Runtime"
+authors: [mudoshi]
+tags: [r-runtime, hades, ohdsi, debugging, cohort-method, plp, sccs]
+date: 2026-03-07
+---
 
 The OHDSI HADES ecosystem is remarkable. CohortMethod, PatientLevelPrediction, SelfControlledCaseSeries — these R packages encode decades of pharmacoepidemiology methodology into reusable software. In theory, you point them at an OMOP CDM database, call a few functions, and get publication-ready causal inference results.
 
 In practice, getting these packages to run correctly in a modern production environment required solving problems that no documentation warned us about.
 
 This is the story of what we encountered building Parthenon's R runtime — a Plumber API sidecar that executes HADES analyses against a 1-million-patient CDM — and the specific, reproducible bugs we had to fix before a single analysis could complete.
+
+<!-- truncate -->
 
 ## The Architecture
 

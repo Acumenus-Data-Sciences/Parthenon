@@ -51,7 +51,17 @@ const config: Config = {
           // Versioning: uncomment the next line when cutting the first release
           // lastVersion: "current",
         },
-        blog: false,
+        blog: {
+          path: "../blog",
+          routeBasePath: "blog",
+          blogTitle: "Development Log",
+          blogDescription:
+            "Daily development journal for the Parthenon platform",
+          showReadingTime: true,
+          blogSidebarTitle: "Recent Posts",
+          blogSidebarCount: 10,
+          authorsMapPath: "../blog/authors.yml",
+        },
         theme: {
           customCss: "./src/css/custom.css",
         },
@@ -107,6 +117,11 @@ const config: Config = {
           position: "left",
         },
         {
+          to: "blog",
+          label: "Dev Blog",
+          position: "left",
+        },
+        {
           href: "https://github.com/sudoshi/Parthenon",
           label: "GitHub",
           position: "right",
@@ -130,6 +145,10 @@ const config: Config = {
             {
               label: "Migration Guide",
               to: "/migration",
+            },
+            {
+              label: "Development Blog",
+              to: "/blog",
             },
           ],
         },
