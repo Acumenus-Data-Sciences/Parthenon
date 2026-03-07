@@ -255,7 +255,9 @@ class DicomwebService
             'study_date' => $this->parseDate($get('00080020')),
             'num_series' => (int) ($get('00201206') ?? 0),
             'num_images' => (int) ($get('00201208') ?? 0),
-            'orthanc_study_id' => null, // populated by Orthanc-specific endpoint if available
+            'patient_id_dicom' => $get('00100020'),  // PatientID
+            'patient_name_dicom' => $this->formatPN($study['00100010']['Value'][0] ?? null),  // PatientName
+            'orthanc_study_id' => null,
             'wadors_uri' => null,
             'status' => 'indexed',
         ];

@@ -169,9 +169,10 @@ services:
       - ./solr/configsets/analyses:/opt/solr/server/solr/configsets/analyses:ro
       - ./solr/configsets/mappings:/opt/solr/server/solr/configsets/mappings:ro
       - ./solr/configsets/clinical:/opt/solr/server/solr/configsets/clinical:ro
+      - ./solr/configsets/imaging:/opt/solr/server/solr/configsets/imaging:ro
     environment:
       - SOLR_JAVA_MEM=-Xms512m -Xmx2g
-    command: bash -c "precreate-core vocabulary /opt/solr/server/solr/configsets/vocabulary; precreate-core cohorts /opt/solr/server/solr/configsets/cohorts; precreate-core analyses /opt/solr/server/solr/configsets/analyses; precreate-core mappings /opt/solr/server/solr/configsets/mappings; precreate-core clinical /opt/solr/server/solr/configsets/clinical; exec solr-foreground"
+    command: bash -c "precreate-core vocabulary /opt/solr/server/solr/configsets/vocabulary; precreate-core cohorts /opt/solr/server/solr/configsets/cohorts; precreate-core analyses /opt/solr/server/solr/configsets/analyses; precreate-core mappings /opt/solr/server/solr/configsets/mappings; precreate-core clinical /opt/solr/server/solr/configsets/clinical; precreate-core imaging /opt/solr/server/solr/configsets/imaging; exec solr-foreground"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8983/solr/vocabulary/admin/ping"]
       interval: 30s
@@ -266,6 +267,10 @@ services:
       - ORTHANC__DICOM_WEB__ENABLE_WADO=true
       - ORTHANC__DICOM_WEB__WADO_ROOT=/wado
       - ORTHANC__DICOM_WEB__STUDIES_METADATA=Full
+      # Transcoding: serve compressed pixel data to reduce transfer size
+      - ORTHANC__BUILTIN_DECODER_TRANSCODER_ORDER=After
+      - ORTHANC__INGEST_TRANSCODING=1.2.840.10008.1.2.1
+      - ORTHANC__DICOM_WEB__ENABLE_METADATA_CACHE=true
     healthcheck:
       test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8042/system')"]
       interval: 10s
