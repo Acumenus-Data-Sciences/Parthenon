@@ -10,10 +10,7 @@ window.config = {
     createLogoComponentFn: function () { return null; },
   },
 
-  customizationService: {
-    dicomUploadComponent:
-      '@ohif/extension-cornerstone.customizationModule.cornerstoneDicomUploadComponent',
-  },
+  customizationService: {},
 
   extensions: [],
   modes: [],
