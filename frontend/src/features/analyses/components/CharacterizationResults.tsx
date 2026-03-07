@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Loader2, Download, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FeatureComparisonTable } from "./FeatureComparisonTable";
+import { LovePlot } from "@/features/estimation/components/LovePlot";
+import type { CovariateBalanceEntry } from "@/features/estimation/types/estimation";
 import type {
   AnalysisExecution,
   FeatureType,
@@ -50,6 +52,35 @@ function getAvailableFeatureTypes(
     }
   }
   return Array.from(types);
+}
+
+function computeSmdFromFeatures(
+  targetFeatures: FeatureResult[],
+  comparatorFeatures: FeatureResult[],
+): CovariateBalanceEntry[] {
+  const comparatorMap = new Map<string, FeatureResult>();
+  for (const f of comparatorFeatures) {
+    comparatorMap.set(f.feature_name, f);
+  }
+
+  const entries: CovariateBalanceEntry[] = [];
+  for (const tf of targetFeatures) {
+    const cf = comparatorMap.get(tf.feature_name);
+    if (!cf) continue;
+
+    const p1 = tf.percent / 100;
+    const p2 = cf.percent / 100;
+    const pooledSd = Math.sqrt(((p1 * (1 - p1)) + (p2 * (1 - p2))) / 2);
+    const smd = pooledSd > 0 ? (p1 - p2) / pooledSd : 0;
+
+    entries.push({
+      covariate_name: tf.feature_name,
+      smd_before: smd,
+      smd_after: smd,
+    });
+  }
+
+  return entries.sort((a, b) => Math.abs(b.smd_before) - Math.abs(a.smd_before));
 }
 
 function downloadCSV(results: CharacterizationResult[]) {
@@ -131,6 +162,19 @@ export function CharacterizationResults({
   const target = results[0];
   const comparator = results.length > 1 ? results[1] : null;
 
+  // Compute SMD for Love Plot when comparator exists
+  const balanceEntries: CovariateBalanceEntry[] = [];
+  if (comparator) {
+    for (const ft of featureTypes) {
+      const tf = target.features?.[ft];
+      const cf = comparator.features?.[ft];
+      if (tf && cf) {
+        balanceEntries.push(...computeSmdFromFeatures(tf, cf));
+      }
+    }
+    balanceEntries.sort((a, b) => Math.abs(b.smd_before) - Math.abs(a.smd_before));
+  }
+
   return (
     <div className="space-y-4">
       {/* Summary Header */}
@@ -162,6 +206,18 @@ export function CharacterizationResults({
           </button>
         </div>
       </div>
+
+      {/* Covariate Balance Love Plot (when comparator present) */}
+      {balanceEntries.length > 0 && (
+        <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
+          <h3 className="text-sm font-semibold text-[#F0EDE8] mb-4">
+            Covariate Balance — Standardized Mean Differences
+          </h3>
+          <div className="flex justify-center">
+            <LovePlot data={balanceEntries} />
+          </div>
+        </div>
+      )}
 
       {/* Feature Type Tabs */}
       {featureTypes.length > 0 && (

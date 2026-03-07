@@ -23,6 +23,7 @@ import { CohortSqlPreview } from "../components/CohortSqlPreview";
 import { CohortGenerationPanel } from "../components/CohortGenerationPanel";
 import { GenerationHistoryTable } from "../components/GenerationHistoryTable";
 import { AttritionChart } from "../components/AttritionChart";
+import { CohortDiagnosticsPanel } from "../components/CohortDiagnosticsPanel";
 import { CohortOverlapPanel } from "../components/CohortOverlapPanel";
 import {
   useCohortDefinition,
@@ -544,6 +545,7 @@ export default function CohortDefinitionDetailPage() {
             steps={definition.latest_generation?.inclusion_rule_stats ?? null}
             totalCount={definition.latest_generation?.person_count ?? null}
           />
+          <CohortDiagnosticsPanel definitionId={cohortId} />
           <CohortGenerationPanel definitionId={cohortId} />
           <GenerationHistoryTable definitionId={cohortId} />
         </div>
