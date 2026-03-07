@@ -13,6 +13,7 @@ import {
   Download,
   GitBranch,
   AlertTriangle,
+  Dna,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
@@ -28,9 +29,10 @@ import { PatientLabPanel } from "../components/PatientLabPanel";
 import { PatientVisitView } from "../components/PatientVisitView";
 import { PatientSearchPanel } from "../components/PatientSearchPanel";
 import { ConceptDetailDrawer } from "../components/ConceptDetailDrawer";
+import RadiogenomicsTab from "@/features/radiogenomics/components/RadiogenomicsTab";
 import type { ClinicalEvent } from "../types/profile";
 
-type ViewMode = "timeline" | "list" | "labs" | "visits" | "eras";
+type ViewMode = "timeline" | "list" | "labs" | "visits" | "eras" | "precision";
 
 type DomainTab =
   | "all"
@@ -61,6 +63,7 @@ const VIEW_BUTTONS: {
   { mode: "labs", icon: <FlaskConical size={12} />, label: "Labs" },
   { mode: "visits", icon: <Hospital size={12} />, label: "Visits" },
   { mode: "eras", icon: <GitBranch size={12} />, label: "Eras" },
+  { mode: "precision", icon: <Dna size={12} />, label: "Precision Oncology" },
 ];
 
 function downloadEventsAsCsv(events: ClinicalEvent[], filename: string) {
@@ -429,6 +432,14 @@ export default function PatientProfilePage() {
             <EraTimeline
               conditionEras={profile.condition_eras ?? []}
               drugEras={profile.drug_eras ?? []}
+            />
+          )}
+
+          {/* Precision Oncology (Radiogenomics) view */}
+          {viewMode === "precision" && parsedPersonId && (
+            <RadiogenomicsTab
+              personId={parsedPersonId}
+              sourceId={sourceId ?? undefined}
             />
           )}
 
