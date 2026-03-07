@@ -5,6 +5,7 @@ import { PrecisionRecallCurve } from "./PrecisionRecallCurve";
 import { DiscriminationBoxPlot } from "./DiscriminationBoxPlot";
 import { NetBenefitCurve } from "./NetBenefitCurve";
 import { PredictionDistribution } from "./PredictionDistribution";
+import { ExternalValidationComparison } from "./ExternalValidationComparison";
 import type { AnalysisExecution } from "@/features/analyses/types/analysis";
 import type { PredictionResult } from "../types/prediction";
 
@@ -233,6 +234,27 @@ export function PredictionResults({
           </div>
         )}
       </div>
+
+      {/* External Validation Comparison */}
+      {result.external_validation && result.external_validation.length > 0 && (
+        <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
+          <h3 className="text-sm font-semibold text-[#F0EDE8] mb-4">External Validation Comparison</h3>
+          <ExternalValidationComparison
+            development={{
+              database_name: "Development",
+              auc: result.performance.auc,
+              auc_ci_lower: result.performance.auc_ci_lower,
+              auc_ci_upper: result.performance.auc_ci_upper,
+              brier_score: result.performance.brier_score,
+              calibration_slope: result.performance.calibration_slope,
+              calibration_intercept: result.performance.calibration_intercept,
+              population_size: result.summary.target_count,
+              outcome_count: result.summary.outcome_count,
+            }}
+            validations={result.external_validation}
+          />
+        </div>
+      )}
 
       {/* Top Predictors */}
       {result.top_predictors && result.top_predictors.length > 0 && (
