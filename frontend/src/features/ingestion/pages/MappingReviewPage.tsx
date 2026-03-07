@@ -22,6 +22,7 @@ import {
   submitReview,
   submitBatchReview,
   fetchCandidates,
+  searchMappings,
 } from "../api/ingestionApi";
 import { ReviewStatsBar } from "../components/ReviewStatsBar";
 import { MappingCard } from "../components/MappingCard";
@@ -94,6 +95,14 @@ export default function MappingReviewPage() {
     queryKey: ["mapping-stats", id],
     queryFn: () => fetchMappingStats(id),
     enabled: !isNaN(id),
+  });
+
+  // Solr facet query for review_tier counts
+  const { data: solrFacets } = useQuery({
+    queryKey: ["mapping-facets", id],
+    queryFn: () => searchMappings({ ingestion_job_id: id, limit: 0 }),
+    enabled: !isNaN(id),
+    staleTime: 30_000,
   });
 
   // Review mutation
@@ -327,6 +336,14 @@ export default function MappingReviewPage() {
                 )}
               >
                 {tab.label}
+                {solrFacets?.facets?.review_tier &&
+                  tab.key !== "all" &&
+                  tab.key !== "reviewed" &&
+                  solrFacets.facets.review_tier[tab.key] != null && (
+                    <span className="ml-1.5 text-xs text-[#5A5650]">
+                      {solrFacets.facets.review_tier[tab.key]}
+                    </span>
+                  )}
                 {activeTab === tab.key && (
                   <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#9B1B30] rounded-t" />
                 )}

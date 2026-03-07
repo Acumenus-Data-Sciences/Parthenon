@@ -113,6 +113,24 @@ export async function fetchCandidates(
   return data;
 }
 
+// Solr-powered mapping search (cross-job)
+export interface MappingSearchResult {
+  data: ConceptMapping[];
+  total: number;
+  facets: Record<string, Record<string, number>>;
+  engine: string;
+}
+
+export async function searchMappings(
+  params: Record<string, string | number | boolean>,
+): Promise<MappingSearchResult> {
+  const { data } = await apiClient.get<MappingSearchResult>(
+    "/ingestion/mappings/search",
+    { params },
+  );
+  return data;
+}
+
 // Schema Mapping API
 export async function suggestSchemaMapping(
   jobId: number,

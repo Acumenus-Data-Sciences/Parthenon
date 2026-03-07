@@ -25,7 +25,7 @@ class GlobalSearchService
         $results = [];
         $totals = [];
 
-        $searchTypes = ! empty($types) ? $types : ['concept', 'cohort', 'study', 'analysis'];
+        $searchTypes = ! empty($types) ? $types : ['concept', 'cohort', 'study', 'analysis', 'mapping'];
         $host = config('solr.endpoint.default.host', 'solr');
         $port = config('solr.endpoint.default.port', 8983);
         $timeout = (int) config('solr.endpoint.default.timeout', 5);
@@ -70,6 +70,18 @@ class GlobalSearchService
                     ]);
                     $pool->as('analysis')->timeout($timeout)
                         ->get("http://{$host}:{$port}/solr/{$core}/select?{$params}");
+                } elseif ($type === 'mapping') {
+                    $core = config('solr.cores.mappings', 'mappings');
+                    $params = http_build_query([
+                        'q' => $query,
+                        'defType' => 'edismax',
+                        'qf' => 'source_code_text^3 source_description^2 target_concept_name^2',
+                        'rows' => $limit,
+                        'fl' => 'id,ingestion_job_id,source_code,source_description,target_concept_name,review_tier,confidence',
+                        'wt' => 'json',
+                    ]);
+                    $pool->as('mapping')->timeout($timeout)
+                        ->get("http://{$host}:{$port}/solr/{$core}/select?{$params}");
                 }
             }
         });
@@ -103,6 +115,15 @@ class GlobalSearchService
                         'title' => $doc['analysis_name'] ?? '',
                         'subtitle' => ($doc['category'] ?? '').($doc['source_name'] ? ' · '.$doc['source_name'] : ''),
                         'url' => "/data-explorer?source={$sourceId}&analysis={$doc['analysis_id']}",
+                    ];
+                } elseif ($type === 'mapping') {
+                    $jobId = $doc['ingestion_job_id'] ?? 0;
+                    $results[] = [
+                        'type' => 'mapping',
+                        'id' => $doc['id'] ?? null,
+                        'title' => ($doc['source_code'] ?? '').' — '.($doc['source_description'] ?? ''),
+                        'subtitle' => 'Maps to: '.($doc['target_concept_name'] ?? 'unmapped').' · '.($doc['review_tier'] ?? ''),
+                        'url' => "/ingestion/jobs/{$jobId}/review",
                     ];
                 } else {
                     $rawId = $doc['id'] ?? '';

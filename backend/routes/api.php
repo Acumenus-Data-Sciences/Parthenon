@@ -106,6 +106,7 @@ Route::prefix('v1')->group(function () {
         Route::post('/ingestion/jobs/{ingestionJob}/retry', [IngestionController::class, 'retry']);
 
         // Mapping Review
+        Route::get('/ingestion/mappings/search', [MappingReviewController::class, 'search']);
         Route::get('/ingestion/jobs/{ingestionJob}/mappings', [MappingReviewController::class, 'index']);
         Route::get('/ingestion/jobs/{ingestionJob}/mappings/stats', [MappingReviewController::class, 'stats']);
         Route::post('/ingestion/jobs/{ingestionJob}/mappings/{conceptMapping}/review', [MappingReviewController::class, 'review']);

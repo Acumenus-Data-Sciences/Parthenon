@@ -9,6 +9,7 @@ services:
       - ./backend:/var/www/html:ro
       - ./frontend/dist:/var/www/frontend:ro
       - ./docs/dist:/var/www/docs-dist:ro
+      - ohif-dist:/var/www/ohif:ro
     depends_on:
       php:
         condition: service_healthy
@@ -166,9 +167,10 @@ services:
       - ./solr/configsets/vocabulary:/opt/solr/server/solr/configsets/vocabulary:ro
       - ./solr/configsets/cohorts:/opt/solr/server/solr/configsets/cohorts:ro
       - ./solr/configsets/analyses:/opt/solr/server/solr/configsets/analyses:ro
+      - ./solr/configsets/mappings:/opt/solr/server/solr/configsets/mappings:ro
     environment:
       - SOLR_JAVA_MEM=-Xms512m -Xmx2g
-    command: bash -c "precreate-core vocabulary /opt/solr/server/solr/configsets/vocabulary; precreate-core cohorts /opt/solr/server/solr/configsets/cohorts; precreate-core analyses /opt/solr/server/solr/configsets/analyses; exec solr-foreground"
+    command: bash -c "precreate-core vocabulary /opt/solr/server/solr/configsets/vocabulary; precreate-core cohorts /opt/solr/server/solr/configsets/cohorts; precreate-core analyses /opt/solr/server/solr/configsets/analyses; precreate-core mappings /opt/solr/server/solr/configsets/mappings; exec solr-foreground"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8983/solr/vocabulary/admin/ping"]
       interval: 30s
@@ -243,6 +245,39 @@ services:
       - parthenon
     restart: unless-stopped
 
+  orthanc:
+    container_name: parthenon-orthanc
+    image: orthancteam/orthanc:18.1.4
+    ports:
+      - "${ORTHANC_PORT:-8042}:8042"
+    volumes:
+      - orthanc-data:/var/lib/orthanc/db
+      - ./docker/orthanc/orthanc.json:/etc/orthanc/orthanc.json:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8042/system"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+    networks:
+      - parthenon
+    restart: unless-stopped
+
+  ohif-build:
+    container_name: parthenon-ohif-build
+    image: ohif/app:v3.9.2
+    user: root
+    entrypoint: ["sh", "-c", "cp -a /usr/share/nginx/html/. /output/ && cp /config/app-config.js /output/app-config.js"]
+    volumes:
+      - ohif-dist:/output
+      - ./docker/ohif/app-config.js:/config/app-config.js:ro
+    profiles:
+      - setup
+
   docs-build:
     container_name: parthenon-docs-build
     image: node:22-alpine
@@ -258,6 +293,8 @@ volumes:
   postgres-data:
   redis-data:
   solr_data:
+  orthanc-data:
+  ohif-dist:
 
 networks:
   parthenon:

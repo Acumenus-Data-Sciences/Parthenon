@@ -9,6 +9,7 @@ use App\Models\App\ConceptMapping;
 use App\Models\App\IngestionJob;
 use App\Models\App\MappingCache;
 use App\Models\App\MappingReview;
+use App\Services\Solr\MappingSearchService;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -17,6 +18,71 @@ use Illuminate\Validation\Rule;
 #[Group('Data Ingestion', weight: 200)]
 class MappingReviewController extends Controller
 {
+    public function __construct(
+        private readonly MappingSearchService $mappingSearch,
+    ) {}
+
+    /**
+     * Search mappings across all jobs via Solr (or fallback to DB).
+     */
+    public function search(Request $request): JsonResponse
+    {
+        $query = $request->input('q', '');
+        $filters = $request->only([
+            'ingestion_job_id', 'review_tier', 'is_reviewed',
+            'source_vocabulary_id', 'target_domain_id',
+            'confidence_min', 'confidence_max',
+        ]);
+        $limit = (int) $request->input('limit', 50);
+        $offset = (int) $request->input('offset', 0);
+
+        if (isset($filters['is_reviewed'])) {
+            $filters['is_reviewed'] = filter_var($filters['is_reviewed'], FILTER_VALIDATE_BOOLEAN);
+        }
+
+        // Try Solr first
+        if ($this->mappingSearch->isAvailable()) {
+            $result = $this->mappingSearch->search($query, $filters, $limit, $offset);
+            if ($result !== null) {
+                return response()->json([
+                    'data' => $result['items'],
+                    'total' => $result['total'],
+                    'facets' => $result['facets'],
+                    'engine' => 'solr',
+                ]);
+            }
+        }
+
+        // Fallback to DB
+        $dbQuery = ConceptMapping::with(['candidates' => fn ($q) => $q->orderBy('rank')->limit(1)]);
+
+        if (! empty($filters['ingestion_job_id'])) {
+            $dbQuery->where('ingestion_job_id', (int) $filters['ingestion_job_id']);
+        }
+        if (! empty($filters['review_tier'])) {
+            $dbQuery->where('review_tier', $filters['review_tier']);
+        }
+        if (isset($filters['is_reviewed'])) {
+            $dbQuery->where('is_reviewed', $filters['is_reviewed']);
+        }
+        if ($query !== '') {
+            $dbQuery->where(function ($q) use ($query) {
+                $q->where('source_code', 'ilike', "%{$query}%")
+                    ->orWhere('source_description', 'ilike', "%{$query}%");
+            });
+        }
+
+        $total = $dbQuery->count();
+        $items = $dbQuery->orderBy('confidence', 'desc')->skip($offset)->take($limit)->get();
+
+        return response()->json([
+            'data' => $items,
+            'total' => $total,
+            'facets' => [],
+            'engine' => 'database',
+        ]);
+    }
+
     /**
      * List mappings for an ingestion job with pagination and filters.
      */

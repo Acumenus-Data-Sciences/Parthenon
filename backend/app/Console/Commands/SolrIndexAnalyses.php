@@ -64,7 +64,7 @@ class SolrIndexAnalyses extends Command
             }
 
             if (empty($analyses)) {
-                $this->line("  No analyses with results found.");
+                $this->line('  No analyses with results found.');
 
                 continue;
             }

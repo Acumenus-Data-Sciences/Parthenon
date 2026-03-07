@@ -20,6 +20,7 @@ import {
   Search,
   Beaker,
   FileText,
+  GitMerge,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -76,7 +77,9 @@ export function CommandPalette() {
                   ? Briefcase
                   : r.type === "analysis"
                     ? BarChart3
-                    : FileText,
+                    : r.type === "mapping"
+                      ? GitMerge
+                      : FileText,
           action: () => navigate(r.url),
           keywords: r.subtitle,
         }));

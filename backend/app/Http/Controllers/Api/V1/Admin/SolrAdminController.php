@@ -77,6 +77,7 @@ class SolrAdminController extends Controller
             'vocabulary' => 'solr:index-vocabulary',
             'cohorts' => 'solr:index-cohorts',
             'analyses' => 'solr:index-analyses',
+            'mappings' => 'solr:index-mappings',
             default => null,
         };
 
@@ -128,6 +129,7 @@ class SolrAdminController extends Controller
             'vocabulary' => 'solr:index-vocabulary',
             'cohorts' => 'solr:index-cohorts',
             'analyses' => 'solr:index-analyses',
+            'mappings' => 'solr:index-mappings',
         ];
 
         foreach ($indexers as $core => $command) {
