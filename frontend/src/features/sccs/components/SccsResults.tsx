@@ -1,5 +1,6 @@
 import { Loader2, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { SccsTimeline } from "@/features/estimation/components/SccsTimeline";
 import type { AnalysisExecution } from "@/features/analyses/types/analysis";
 import type { SccsResult } from "../types/sccs";
 
@@ -122,6 +123,18 @@ export function SccsResults({ execution, isLoading }: SccsResultsProps) {
                 ))}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+
+      {/* SCCS Era Timeline */}
+      {result.eras && result.eras.length > 0 && (
+        <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
+          <h3 className="text-sm font-semibold text-[#F0EDE8] mb-4">
+            Risk Window Timeline
+          </h3>
+          <div className="flex justify-center">
+            <SccsTimeline eras={result.eras} />
           </div>
         </div>
       )}

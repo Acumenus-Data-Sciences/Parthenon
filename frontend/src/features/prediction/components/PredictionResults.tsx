@@ -1,6 +1,10 @@
 import { Loader2, AlertCircle, Info } from "lucide-react";
 import { RocCurve } from "./RocCurve";
 import { CalibrationPlot } from "./CalibrationPlot";
+import { PrecisionRecallCurve } from "./PrecisionRecallCurve";
+import { DiscriminationBoxPlot } from "./DiscriminationBoxPlot";
+import { NetBenefitCurve } from "./NetBenefitCurve";
+import { PredictionDistribution } from "./PredictionDistribution";
 import type { AnalysisExecution } from "@/features/analyses/types/analysis";
 import type { PredictionResult } from "../types/prediction";
 
@@ -185,6 +189,46 @@ export function PredictionResults({
                 slope={result.performance.calibration_slope}
                 intercept={result.performance.calibration_intercept}
               />
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Precision-Recall & Discrimination */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {result.precision_recall_curve && result.precision_recall_curve.length > 0 && (
+          <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
+            <h3 className="text-sm font-semibold text-[#F0EDE8] mb-4">Precision-Recall Curve</h3>
+            <div className="flex justify-center">
+              <PrecisionRecallCurve data={result.precision_recall_curve} auprc={result.performance.auprc ?? 0} />
+            </div>
+          </div>
+        )}
+        {result.discrimination && (
+          <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
+            <h3 className="text-sm font-semibold text-[#F0EDE8] mb-4">Discrimination Box Plot</h3>
+            <div className="flex justify-center">
+              <DiscriminationBoxPlot outcomeGroup={result.discrimination.outcome_group} noOutcomeGroup={result.discrimination.no_outcome_group} />
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Decision Curve & Distribution */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {result.net_benefit && result.net_benefit.length > 0 && (
+          <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
+            <h3 className="text-sm font-semibold text-[#F0EDE8] mb-4">Decision Curve Analysis</h3>
+            <div className="flex justify-center">
+              <NetBenefitCurve data={result.net_benefit} />
+            </div>
+          </div>
+        )}
+        {result.prediction_distribution && result.prediction_distribution.length > 0 && (
+          <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
+            <h3 className="text-sm font-semibold text-[#F0EDE8] mb-4">Prediction Distribution</h3>
+            <div className="flex justify-center">
+              <PredictionDistribution bins={result.prediction_distribution} />
             </div>
           </div>
         )}
