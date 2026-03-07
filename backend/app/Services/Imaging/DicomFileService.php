@@ -17,6 +17,10 @@ use Illuminate\Support\Facades\Log;
  */
 class DicomFileService
 {
+    public function __construct(
+        private readonly DicomwebService $dicomweb
+    ) {}
+
     // ──────────────────────────────────────────────────────────────────────
     // DICOM tag constants (big-endian hex → for reference; we use LE in file)
     // ──────────────────────────────────────────────────────────────────────
@@ -72,23 +76,25 @@ class DicomFileService
         $totalSeries = 0;
         $totalInstances = 0;
         $errors = 0;
+        $orthancStored = 0;
 
         // Accumulation buffers for current batch
         $studies = [];
         $series = [];
         $instances = [];
+        $filePaths = [];
         $batchCount = 0;
 
         $flush = function () use (
-            &$studies, &$series, &$instances, &$batchCount,
-            &$totalStudies, &$totalSeries, &$totalInstances,
+            &$studies, &$series, &$instances, &$filePaths, &$batchCount,
+            &$totalStudies, &$totalSeries, &$totalInstances, &$orthancStored,
             $sourceId, $repoRoot
         ) {
             if (empty($instances) && empty($studies)) {
                 return;
             }
 
-            // Make paths repo-relative
+            // Make paths repo-relative for DB storage
             foreach ($studies as &$s) {
                 if (isset($s['file_dir'])) {
                     $s['file_dir'] = $this->relativeTo($s['file_dir'], $repoRoot);
@@ -113,9 +119,20 @@ class DicomFileService
             $totalSeries += $ssc;
             $totalInstances += $ic;
 
+            // Push DICOM files to Orthanc via STOW-RS
+            $stowResult = $this->dicomweb->stowInstances($filePaths);
+            $orthancStored += $stowResult['stored'];
+            if ($stowResult['errors'] > 0) {
+                Log::warning('DicomFileService: STOW-RS batch had errors', [
+                    'stored' => $stowResult['stored'],
+                    'errors' => $stowResult['errors'],
+                ]);
+            }
+
             $studies = [];
             $series = [];
             $instances = [];
+            $filePaths = [];
             $batchCount = 0;
         };
 
@@ -133,6 +150,7 @@ class DicomFileService
                 $meta = $this->readMeta($file->getPathname());
                 if ($meta) {
                     $this->accumulate($meta, $file->getPathname(), $studies, $series, $instances);
+                    $filePaths[] = $file->getPathname();
                     $batchCount++;
                 }
             } catch (\Throwable $e) {
@@ -153,6 +171,7 @@ class DicomFileService
             'series' => $totalSeries,
             'instances' => $totalInstances,
             'errors' => $errors,
+            'orthanc_stored' => $orthancStored,
         ];
     }
 

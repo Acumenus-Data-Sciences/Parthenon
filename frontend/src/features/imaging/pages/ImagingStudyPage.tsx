@@ -1,10 +1,9 @@
 import { useParams, Link } from "react-router-dom";
-import { useState, lazy, Suspense } from "react";
+import { useState } from "react";
 import { ArrowLeft, Layers, Brain, Loader2, ScanLine, Monitor } from "lucide-react";
 import { useImagingStudy, useIndexSeries, useExtractNlp, useImagingFeatures } from "../hooks/useImaging";
 import type { ImagingSeries, ImagingFeature } from "../types";
-
-const DicomViewer = lazy(() => import("../components/DicomViewer"));
+import OhifViewer from "../components/OhifViewer";
 
 const STUDY_TABS = [
   { id: "metadata", label: "Metadata", icon: ScanLine },
@@ -141,13 +140,7 @@ export default function ImagingStudyPage() {
 
       {/* Viewer tab */}
       {activeTab === "viewer" && (
-        <Suspense fallback={
-          <div className="flex items-center justify-center py-24">
-            <Loader2 size={24} className="animate-spin text-[#2DD4BF]" />
-          </div>
-        }>
-          <DicomViewer studyId={studyId} />
-        </Suspense>
+        <OhifViewer studyInstanceUid={study.study_instance_uid} />
       )}
 
       {activeTab !== "viewer" && (

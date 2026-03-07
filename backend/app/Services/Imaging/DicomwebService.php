@@ -164,6 +164,73 @@ class DicomwebService
     }
 
     /**
+     * Push a DICOM file to Orthanc via its REST API (POST /instances).
+     *
+     * Uses Orthanc's native endpoint which is simpler and more reliable
+     * than STOW-RS multipart for single-file uploads.
+     *
+     * @param  string  $filePath  Absolute path to DICOM file
+     * @return bool True if stored successfully
+     */
+    public function stowInstance(string $filePath): bool
+    {
+        if (! file_exists($filePath)) {
+            Log::warning('DicomwebService: STOW file not found', ['path' => $filePath]);
+
+            return false;
+        }
+
+        try {
+            $dicomData = file_get_contents($filePath);
+
+            $response = $this->request('POST', '/instances', [], [
+                'Content-Type' => 'application/dicom',
+                'Accept' => 'application/json',
+            ], $dicomData);
+
+            if (! $response->successful()) {
+                Log::warning('DicomwebService: STOW failed', [
+                    'status' => $response->status(),
+                    'file' => basename($filePath),
+                ]);
+
+                return false;
+            }
+
+            return true;
+        } catch (\Throwable $e) {
+            Log::warning('DicomwebService: STOW error', [
+                'error' => $e->getMessage(),
+                'file' => basename($filePath),
+            ]);
+
+            return false;
+        }
+    }
+
+    /**
+     * Push multiple DICOM files to Orthanc via STOW-RS.
+     *
+     * @param  string[]  $filePaths  Absolute paths to DICOM files
+     * @return array{stored: int, errors: int}
+     */
+    public function stowInstances(array $filePaths): array
+    {
+        $stored = 0;
+        $errors = 0;
+
+        foreach ($filePaths as $path) {
+            if ($this->stowInstance($path)) {
+                $stored++;
+            } else {
+                $errors++;
+            }
+        }
+
+        return ['stored' => $stored, 'errors' => $errors];
+    }
+
+    /**
      * Parse QIDO-RS JSON+DICOM study attributes.
      * DICOM attribute keys are hex tags (0020000D = StudyInstanceUID).
      *
@@ -242,18 +309,24 @@ class DicomwebService
         return str_replace('^', ' ', $pn['Alphabetic']);
     }
 
-    private function request(string $method, string $path, array $query = [], array $headers = []): \Illuminate\Http\Client\Response
+    private function request(string $method, string $path, array $query = [], array $headers = [], ?string $body = null): \Illuminate\Http\Client\Response
     {
-        $req = Http::withHeaders(array_merge([
-            'Accept' => 'application/dicom+json',
-        ], $headers));
+        $defaultHeaders = ['Accept' => 'application/dicom+json'];
+        $req = Http::withHeaders(array_merge($defaultHeaders, $headers));
 
         if ($this->username && $this->password) {
             $req = $req->withBasicAuth($this->username, $this->password);
         }
 
-        return $req->timeout(30)->{strtolower($method)}(
-            $this->baseUrl.$path,
+        $req = $req->timeout(60);
+
+        if ($body !== null && strtoupper($method) === 'POST') {
+            return $req->withBody($body, $headers['Content-Type'] ?? 'application/dicom')
+                ->post($this->baseUrl . $path, $query);
+        }
+
+        return $req->{strtolower($method)}(
+            $this->baseUrl . $path,
             $query
         );
     }

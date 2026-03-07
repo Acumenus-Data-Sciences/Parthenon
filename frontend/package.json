@@ -12,9 +12,6 @@
     "generate:api-types": "openapi-typescript ../backend/api.json -o src/types/api.generated.ts"
   },
   "dependencies": {
-    "@cornerstonejs/core": "^4.18.4",
-    "@cornerstonejs/dicom-image-loader": "^4.18.4",
-    "@cornerstonejs/tools": "^4.18.4",
     "@hookform/resolvers": "^5.2.2",
     "@tailwindcss/vite": "^4.2.1",
     "@tanstack/react-query": "^5.90.21",
@@ -26,7 +23,6 @@
     "cmdk": "^1.1.1",
     "d3": "^7.9.0",
     "date-fns": "^4.1.0",
-    "dicom-parser": "^1.8.21",
     "framer-motion": "^12.34.4",
     "i18next": "^25.8.14",
     "lucide-react": "^0.575.0",
