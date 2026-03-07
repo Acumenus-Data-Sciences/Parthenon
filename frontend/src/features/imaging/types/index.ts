@@ -3,6 +3,16 @@ export type StudyStatus = 'indexed' | 'processed' | 'error';
 export type FeatureType = 'nlp_finding' | 'ai_classification' | 'radiomic' | 'manual';
 export type CriteriaType = 'modality' | 'anatomy' | 'quantitative' | 'ai_classification' | 'dose';
 
+export type MeasurementType =
+  | 'tumor_volume' | 'suvmax' | 'opacity_score' | 'lesion_count'
+  | 'longest_diameter' | 'perpendicular_diameter' | 'density_hu'
+  | 'enhancement_ratio' | 'ground_glass_extent' | 'consolidation_extent'
+  | 'metabolic_tumor_volume' | 'total_lesion_glycolysis' | 'ct_severity_score'
+  | string;
+
+export type ResponseCategory = 'CR' | 'PR' | 'SD' | 'PD' | 'NE' | string;
+export type ResponseCriteria = 'recist' | 'ct_severity' | 'deauville' | 'rano';
+
 export interface ImagingStudy {
   id: number;
   source_id: number;
@@ -22,6 +32,7 @@ export interface ImagingStudy {
   created_at: string;
   updated_at: string;
   series?: ImagingSeries[];
+  measurements_count?: number;
 }
 
 export interface ImagingSeries {
@@ -88,4 +99,116 @@ export interface PaginatedResponse<T> {
   last_page: number;
   per_page: number;
   total: number;
+}
+
+// ── Imaging Outcomes Research Types ──────────────────────────────────────
+
+export interface ImagingMeasurement {
+  id: number;
+  study_id: number;
+  person_id: number | null;
+  series_id: number | null;
+  measurement_type: MeasurementType;
+  measurement_name: string;
+  value_as_number: number;
+  unit: string;
+  body_site: string | null;
+  laterality: 'LEFT' | 'RIGHT' | 'BILATERAL' | null;
+  algorithm_name: string | null;
+  confidence: number | null;
+  created_by: number | null;
+  measured_at: string | null;
+  is_target_lesion: boolean;
+  target_lesion_number: number | null;
+  created_at: string;
+  updated_at: string;
+  study?: Pick<ImagingStudy, 'id' | 'study_date' | 'modality' | 'body_part_examined'>;
+}
+
+export interface ImagingResponseAssessment {
+  id: number;
+  person_id: number;
+  criteria_type: ResponseCriteria;
+  assessment_date: string;
+  body_site: string | null;
+  baseline_study_id: number;
+  current_study_id: number;
+  baseline_value: number | null;
+  nadir_value: number | null;
+  current_value: number | null;
+  percent_change_from_baseline: number | null;
+  percent_change_from_nadir: number | null;
+  response_category: ResponseCategory;
+  rationale: string | null;
+  assessed_by: number | null;
+  is_confirmed: boolean;
+  created_at: string;
+  baseline_study?: Pick<ImagingStudy, 'id' | 'study_date' | 'modality'>;
+  current_study?: Pick<ImagingStudy, 'id' | 'study_date' | 'modality'>;
+}
+
+export interface PersonDemographics {
+  person_id: number;
+  year_of_birth: number | null;
+  gender: string | null;
+  race: string | null;
+}
+
+export interface DrugExposure {
+  drug_concept_id: number;
+  drug_name: string;
+  drug_class: string | null;
+  start_date: string;
+  end_date: string | null;
+  total_days: number;
+}
+
+export interface TimelineStudy {
+  id: number;
+  study_instance_uid: string;
+  study_date: string | null;
+  modality: ImagingModality | null;
+  body_part_examined: string | null;
+  study_description: string | null;
+  num_series: number;
+  num_images: number;
+  status: StudyStatus;
+  measurement_count: number;
+}
+
+export interface TimelineSummary {
+  total_studies: number;
+  modalities: string[];
+  date_range: { first: string | null; last: string | null };
+  total_measurements: number;
+  measurement_types: string[];
+  total_drugs: number;
+  imaging_span_days: number | null;
+}
+
+export interface PatientTimeline {
+  person: PersonDemographics;
+  studies: TimelineStudy[];
+  drug_exposures: DrugExposure[];
+  measurements: ImagingMeasurement[];
+  summary: TimelineSummary;
+}
+
+export interface MeasurementTrend {
+  date: string;
+  value: number;
+  unit: string;
+  study_id: number;
+  measurement_name: string;
+  body_site: string | null;
+  is_target_lesion: boolean;
+}
+
+export interface PatientWithImaging {
+  person_id: number;
+  study_count: number;
+  modality_count: number;
+  modalities: string[];
+  first_study_date: string | null;
+  last_study_date: string | null;
 }

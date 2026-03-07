@@ -30,6 +30,7 @@ use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\HelpController;
 use App\Http\Controllers\Api\V1\HeorController;
 use App\Http\Controllers\Api\V1\ImagingController;
+use App\Http\Controllers\Api\V1\ImagingTimelineController;
 use App\Http\Controllers\Api\V1\IncidenceRateController;
 use App\Http\Controllers\Api\V1\IngestionController;
 use App\Http\Controllers\Api\V1\MappingReviewController;
@@ -554,6 +555,33 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 
         // Instance listing (for viewer navigation)
         Route::get('/studies/{study}/instances', [ImagingController::class, 'listInstances']);
+
+        // ── Imaging Outcomes Research ──────────────────────────────────────
+        // Patient timelines
+        Route::get('/patients', [ImagingTimelineController::class, 'listPatientsWithImaging']);
+        Route::get('/patients/{personId}/timeline', [ImagingTimelineController::class, 'patientTimeline']);
+        Route::get('/patients/{personId}/studies', [ImagingTimelineController::class, 'patientStudies']);
+
+        // Study ↔ person linking
+        Route::post('/studies/{study}/link-person', [ImagingTimelineController::class, 'linkPerson']);
+        Route::post('/studies/bulk-link', [ImagingTimelineController::class, 'bulkLinkPerson']);
+        Route::post('/studies/auto-link', [ImagingTimelineController::class, 'autoLink']);
+
+        // Measurements
+        Route::get('/studies/{study}/measurements', [ImagingTimelineController::class, 'studyMeasurements']);
+        Route::post('/studies/{study}/measurements', [ImagingTimelineController::class, 'storeMeasurement']);
+        Route::put('/measurements/{measurement}', [ImagingTimelineController::class, 'updateMeasurement']);
+        Route::delete('/measurements/{measurement}', [ImagingTimelineController::class, 'destroyMeasurement']);
+        Route::get('/patients/{personId}/measurements', [ImagingTimelineController::class, 'patientMeasurements']);
+        Route::get('/patients/{personId}/measurements/trends', [ImagingTimelineController::class, 'measurementTrends']);
+
+        // AI-powered measurement extraction
+        Route::post('/studies/{study}/ai-extract', [ImagingTimelineController::class, 'aiExtractMeasurements']);
+        Route::get('/studies/{study}/suggest-template', [ImagingTimelineController::class, 'suggestTemplate']);
+
+        // Response assessments
+        Route::get('/patients/{personId}/response-assessments', [ImagingTimelineController::class, 'patientResponseAssessments']);
+        Route::post('/patients/{personId}/response-assessments', [ImagingTimelineController::class, 'storeResponseAssessment']);
     });
 });
 

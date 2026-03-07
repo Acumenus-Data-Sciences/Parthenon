@@ -8,7 +8,17 @@ export const IMAGING_KEYS = {
   features: (params?: object) => ["imaging", "features", params] as const,
   criteria: (params?: object) => ["imaging", "criteria", params] as const,
   population: (sourceId: number) => ["imaging", "population", sourceId] as const,
+  // Outcomes research keys
+  patients: (params?: object) => ["imaging", "patients", params] as const,
+  patientTimeline: (personId: number) => ["imaging", "timeline", personId] as const,
+  patientStudies: (personId: number) => ["imaging", "patient-studies", personId] as const,
+  studyMeasurements: (studyId: number) => ["imaging", "study-measurements", studyId] as const,
+  patientMeasurements: (personId: number, params?: object) => ["imaging", "patient-measurements", personId, params] as const,
+  measurementTrends: (personId: number, type: string, site?: string) => ["imaging", "trends", personId, type, site] as const,
+  responseAssessments: (personId: number) => ["imaging", "response-assessments", personId] as const,
 };
+
+// ── Existing hooks (unchanged) ──────────────────────────────────────────
 
 export function useImagingStats() {
   return useQuery({
@@ -104,5 +114,151 @@ export function useImportLocalDicom() {
       qc.invalidateQueries({ queryKey: ["imaging", "studies"] });
       qc.invalidateQueries({ queryKey: ["imaging", "stats"] });
     },
+  });
+}
+
+// ── Imaging Outcomes Research hooks ─────────────────────────────────────
+
+export function usePatientsWithImaging(params?: Parameters<typeof imagingApi.getPatientsWithImaging>[0]) {
+  return useQuery({
+    queryKey: IMAGING_KEYS.patients(params),
+    queryFn: () => imagingApi.getPatientsWithImaging(params),
+  });
+}
+
+export function usePatientTimeline(personId: number) {
+  return useQuery({
+    queryKey: IMAGING_KEYS.patientTimeline(personId),
+    queryFn: () => imagingApi.getPatientTimeline(personId),
+    enabled: personId > 0,
+  });
+}
+
+export function usePatientStudies(personId: number) {
+  return useQuery({
+    queryKey: IMAGING_KEYS.patientStudies(personId),
+    queryFn: () => imagingApi.getPatientStudies(personId),
+    enabled: personId > 0,
+  });
+}
+
+export function useLinkStudyToPerson() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ studyId, personId }: { studyId: number; personId: number }) =>
+      imagingApi.linkStudyToPerson(studyId, personId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["imaging", "studies"] });
+      qc.invalidateQueries({ queryKey: ["imaging", "patients"] });
+      qc.invalidateQueries({ queryKey: ["imaging", "stats"] });
+    },
+  });
+}
+
+export function useAutoLinkStudies() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: imagingApi.autoLinkStudies,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["imaging", "studies"] });
+      qc.invalidateQueries({ queryKey: ["imaging", "patients"] });
+      qc.invalidateQueries({ queryKey: ["imaging", "stats"] });
+    },
+  });
+}
+
+// Measurements
+
+export function useStudyMeasurements(studyId: number) {
+  return useQuery({
+    queryKey: IMAGING_KEYS.studyMeasurements(studyId),
+    queryFn: () => imagingApi.getStudyMeasurements(studyId),
+    enabled: studyId > 0,
+  });
+}
+
+export function useCreateMeasurement() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ studyId, ...payload }: Parameters<typeof imagingApi.createMeasurement>[1] & { studyId: number }) =>
+      imagingApi.createMeasurement(studyId, payload),
+    onSuccess: (_data, variables) => {
+      qc.invalidateQueries({ queryKey: IMAGING_KEYS.studyMeasurements(variables.studyId) });
+      qc.invalidateQueries({ queryKey: ["imaging", "patient-measurements"] });
+      qc.invalidateQueries({ queryKey: ["imaging", "trends"] });
+      qc.invalidateQueries({ queryKey: ["imaging", "timeline"] });
+    },
+  });
+}
+
+export function useDeleteMeasurement() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: imagingApi.deleteMeasurement,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["imaging", "study-measurements"] });
+      qc.invalidateQueries({ queryKey: ["imaging", "patient-measurements"] });
+      qc.invalidateQueries({ queryKey: ["imaging", "trends"] });
+      qc.invalidateQueries({ queryKey: ["imaging", "timeline"] });
+    },
+  });
+}
+
+export function usePatientMeasurements(personId: number, params?: { measurement_type?: string; body_site?: string }) {
+  return useQuery({
+    queryKey: IMAGING_KEYS.patientMeasurements(personId, params),
+    queryFn: () => imagingApi.getPatientMeasurements(personId, params),
+    enabled: personId > 0,
+  });
+}
+
+export function useMeasurementTrends(personId: number, measurementType: string, bodySite?: string) {
+  return useQuery({
+    queryKey: IMAGING_KEYS.measurementTrends(personId, measurementType, bodySite),
+    queryFn: () => imagingApi.getMeasurementTrends(personId, measurementType, bodySite),
+    enabled: personId > 0 && measurementType.length > 0,
+  });
+}
+
+// Response assessments
+
+export function usePatientResponseAssessments(personId: number) {
+  return useQuery({
+    queryKey: IMAGING_KEYS.responseAssessments(personId),
+    queryFn: () => imagingApi.getPatientResponseAssessments(personId),
+    enabled: personId > 0,
+  });
+}
+
+export function useCreateResponseAssessment() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ personId, ...payload }: Parameters<typeof imagingApi.createResponseAssessment>[1] & { personId: number }) =>
+      imagingApi.createResponseAssessment(personId, payload),
+    onSuccess: (_data, variables) => {
+      qc.invalidateQueries({ queryKey: IMAGING_KEYS.responseAssessments(variables.personId) });
+    },
+  });
+}
+
+// AI extraction
+
+export function useAiExtractMeasurements() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: imagingApi.aiExtractMeasurements,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["imaging", "study-measurements"] });
+      qc.invalidateQueries({ queryKey: ["imaging", "patient-measurements"] });
+      qc.invalidateQueries({ queryKey: ["imaging", "timeline"] });
+    },
+  });
+}
+
+export function useSuggestTemplate(studyId: number) {
+  return useQuery({
+    queryKey: ["imaging", "suggest-template", studyId] as const,
+    queryFn: () => imagingApi.suggestTemplate(studyId),
+    enabled: studyId > 0,
   });
 }

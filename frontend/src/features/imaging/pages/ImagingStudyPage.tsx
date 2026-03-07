@@ -1,12 +1,14 @@
 import { useParams, Link } from "react-router-dom";
 import { useState } from "react";
-import { ArrowLeft, Layers, Brain, Loader2, ScanLine, Monitor } from "lucide-react";
+import { ArrowLeft, Layers, Brain, Loader2, ScanLine, Monitor, Ruler } from "lucide-react";
 import { useImagingStudy, useIndexSeries, useExtractNlp, useImagingFeatures } from "../hooks/useImaging";
 import type { ImagingSeries, ImagingFeature } from "../types";
 import OhifViewer from "../components/OhifViewer";
+import MeasurementPanel from "../components/MeasurementPanel";
 
 const STUDY_TABS = [
   { id: "metadata", label: "Metadata", icon: ScanLine },
+  { id: "measurements", label: "Measurements", icon: Ruler },
   { id: "viewer",   label: "View Scan", icon: Monitor },
 ] as const;
 
@@ -137,6 +139,11 @@ export default function ImagingStudyPage() {
           </button>
         ))}
       </div>
+
+      {/* Measurements tab */}
+      {activeTab === "measurements" && (
+        <MeasurementPanel studyId={studyId} personId={study.person_id} />
+      )}
 
       {/* Viewer tab */}
       {activeTab === "viewer" && (

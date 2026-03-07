@@ -50,4 +50,10 @@ class ImagingStudy extends Model
     {
         return $this->hasMany(ImagingInstance::class, 'study_id');
     }
+
+    /** @return HasMany<ImagingMeasurement, $this> */
+    public function measurements(): HasMany
+    {
+        return $this->hasMany(ImagingMeasurement::class, 'study_id');
+    }
 }

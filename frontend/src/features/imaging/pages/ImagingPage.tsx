@@ -12,6 +12,7 @@ import {
   Users,
   Trash2,
   FolderInput,
+  Activity,
 } from "lucide-react";
 import {
   useImagingStats,
@@ -25,11 +26,13 @@ import {
 } from "../hooks/useImaging";
 import type { ImagingStudy, ImagingFeature } from "../types";
 import { HelpButton } from "@/features/help";
+import PatientTimelineTab from "../components/PatientTimelineTab";
 
 const TABS = [
   { id: "studies", label: "Studies", icon: ScanLine },
   { id: "features", label: "AI Features", icon: Brain },
   { id: "criteria", label: "Imaging Criteria", icon: Filter },
+  { id: "timeline", label: "Patient Timeline", icon: Activity },
   { id: "analytics", label: "Population Analytics", icon: BarChart3 },
 ] as const;
 
@@ -629,7 +632,7 @@ export default function ImagingPage() {
         <div>
           <h1 className="text-2xl font-bold text-[#F0EDE8]">Medical Imaging</h1>
           <p className="text-sm text-[#8A857D]">
-            DICOM study management, AI feature extraction, and imaging cohort criteria
+            Longitudinal imaging analysis, treatment response assessment, and outcomes research
           </p>
         </div>
         <HelpButton helpKey="imaging" />
@@ -656,6 +659,7 @@ export default function ImagingPage() {
         ))}
       </div>
 
+      {tab === "timeline" && <PatientTimelineTab />}
       {tab === "studies" && <StudiesTab />}
       {tab === "features" && <FeaturesTab />}
       {tab === "criteria" && <CriteriaTab />}
