@@ -592,6 +592,14 @@ Route::prefix('v1/imaging')->group(function () {
     Route::get('/wado/{sopUid}', [ImagingController::class, 'wado']);
 });
 
+// ── Phase 5: Radiogenomics ────────────────────────────────────────────────
+Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
+    Route::prefix('radiogenomics')->group(function () {
+        Route::get('/patients/{personId}', [Api\V1\RadiogenomicsController::class, 'patientPanel']);
+        Route::get('/variant-drug-interactions', [Api\V1\RadiogenomicsController::class, 'variantDrugInteractions']);
+    });
+});
+
 // ── Phase 17: HEOR ───────────────────────────────────────────────────────────
 Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     Route::prefix('heor')->group(function () {

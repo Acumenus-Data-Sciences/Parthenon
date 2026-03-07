@@ -4,6 +4,8 @@ import { KaplanMeierPlot } from "./KaplanMeierPlot";
 import { AttritionDiagram } from "./AttritionDiagram";
 import { PropensityScorePlot } from "./PropensityScorePlot";
 import { LovePlot } from "./LovePlot";
+import { SystematicErrorPlot } from "./SystematicErrorPlot";
+import { PowerTable } from "./PowerTable";
 import type { AnalysisExecution } from "@/features/analyses/types/analysis";
 import type { EstimationResult } from "../types/estimation";
 
@@ -446,6 +448,28 @@ export function EstimationResults({
               })}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* Negative Control / Systematic Error Plot */}
+      {result.negative_controls && result.negative_controls.length > 0 && (
+        <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
+          <h3 className="text-sm font-semibold text-[#F0EDE8] mb-4">
+            Empirical Calibration — Systematic Error
+          </h3>
+          <div className="flex justify-center">
+            <SystematicErrorPlot negativeControls={result.negative_controls} />
+          </div>
+        </div>
+      )}
+
+      {/* Power Analysis Table */}
+      {result.power_analysis && result.power_analysis.length > 0 && (
+        <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
+          <h3 className="text-sm font-semibold text-[#F0EDE8] mb-4">
+            Statistical Power Analysis
+          </h3>
+          <PowerTable entries={result.power_analysis} />
         </div>
       )}
 

@@ -169,7 +169,7 @@ class GenerateCohortsCommand extends Command
         }
 
         $this->newLine();
-        $this->info("Done! Generated {$totalGenerated} total cohort entries across " . count($this->cohortSpecs) . ' cohorts.');
+        $this->info("Done! Generated {$totalGenerated} total cohort entries across ".count($this->cohortSpecs).' cohorts.');
 
         // Show summary
         $rows = [];

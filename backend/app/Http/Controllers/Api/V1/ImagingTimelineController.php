@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\App\ImagingMeasurement;
 use App\Models\App\ImagingResponseAssessment;
 use App\Models\App\ImagingStudy;
-use App\Services\Imaging\ImagingAiService;
 use App\Services\Imaging\ImagingTimelineService;
 use App\Services\Imaging\ResponseAssessmentService;
 use Illuminate\Http\JsonResponse;
@@ -349,14 +348,14 @@ class ImagingTimelineController extends Controller
     public function listPatientsWithImaging(Request $request): JsonResponse
     {
         $query = ImagingStudy::whereNotNull('person_id')
-            ->selectRaw("
+            ->selectRaw('
                 person_id,
                 COUNT(*) as study_count,
                 COUNT(DISTINCT modality) as modality_count,
                 array_agg(DISTINCT modality) as modalities,
                 MIN(study_date) as first_study_date,
                 MAX(study_date) as last_study_date
-            ")
+            ')
             ->groupBy('person_id')
             ->orderByDesc('study_count');
 

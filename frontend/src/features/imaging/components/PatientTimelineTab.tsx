@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import {
   Search, Users, ChevronRight, Loader2, ScanLine, Link2,
 } from "lucide-react";

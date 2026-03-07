@@ -225,7 +225,7 @@ class ImagingAiService
      */
     private function buildExtractionPrompt(array $context, ?string $reportText): string
     {
-        $parts = ["Extract quantitative imaging measurements from the following:"];
+        $parts = ['Extract quantitative imaging measurements from the following:'];
         $parts[] = "Modality: {$context['modality']}";
         $parts[] = "Body Part: {$context['body_part']}";
         $parts[] = "Study Description: {$context['description']}";
@@ -295,7 +295,7 @@ class ImagingAiService
                 }
                 $measurements[] = [
                     'measurement_type' => 'longest_diameter',
-                    'measurement_name' => ucfirst(strtolower($match[3])) . ' ' . ($i + 1),
+                    'measurement_name' => ucfirst(strtolower($match[3])).' '.($i + 1),
                     'value_as_number' => $value,
                     'unit' => 'mm',
                     'body_site' => $context['body_part'],

@@ -63,6 +63,17 @@ jobs:
             core.setOutput('failed_jobs', failedNames);
             core.setOutput('has_failures', failedJobs.length > 0 ? 'true' : 'false');
 
+      - name: Read CI failure logs
+        if: steps.logs.outputs.has_failures == 'true'
+        id: read_logs
+        run: |
+          {
+            echo "CI_FAILURE_LOGS<<EOFMARKER"
+            head -c 40000 ci-failure-logs.txt
+            echo ""
+            echo "EOFMARKER"
+          } >> "$GITHUB_ENV"
+
       - name: Fix CI failures with Claude
         if: steps.logs.outputs.has_failures == 'true'
         uses: anthropics/claude-code-action@beta
@@ -75,7 +86,7 @@ jobs:
             ## Failed Jobs: ${{ steps.logs.outputs.failed_jobs }}
 
             ## CI Failure Logs
-            $(cat ci-failure-logs.txt)
+            ${{ env.CI_FAILURE_LOGS }}
 
             ## Instructions
 

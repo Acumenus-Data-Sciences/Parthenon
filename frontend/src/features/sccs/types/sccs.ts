@@ -51,6 +51,18 @@ export interface SccsEstimate {
   se_log_rr: number;
 }
 
+export interface SccsEra {
+  era_name: string;
+  era_type: "pre-exposure" | "exposure" | "post-exposure" | "control";
+  start_day: number;
+  end_day: number;
+  event_count: number;
+  person_days: number;
+  irr?: number;
+  ci_lower?: number;
+  ci_upper?: number;
+}
+
 export interface SccsResult {
   status: string;
   estimates: SccsEstimate[];
@@ -59,6 +71,7 @@ export interface SccsResult {
     outcomes: number;
     observation_periods: number;
   };
+  eras?: SccsEra[];
   logs?: { level: string; message: string; timestamp: string }[];
   elapsed_seconds?: number;
   message?: string;

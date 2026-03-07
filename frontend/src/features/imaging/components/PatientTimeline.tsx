@@ -224,7 +224,7 @@ function VisualTimeline({ data }: { data: TimelineData }) {
           {/* Axis line */}
           <div className="absolute top-1/2 left-0 right-0 h-px bg-[#2A2A30]" />
 
-          {studies.map((study, i) => {
+          {studies.map((study) => {
             const left = xPos(study.study_date);
             const color = MODALITY_COLORS[study.modality ?? ""] ?? "#8A857D";
             const studyMeasurements = measurementsByStudy.get(study.id) ?? [];

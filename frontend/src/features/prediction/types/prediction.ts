@@ -62,6 +62,27 @@ export interface PredictionAnalysis {
   latest_execution?: AnalysisExecution | null;
 }
 
+export interface BoxPlotStats {
+  min: number;
+  q1: number;
+  median: number;
+  q3: number;
+  max: number;
+  mean: number;
+}
+
+export interface ValidationMetrics {
+  database_name: string;
+  auc: number;
+  auc_ci_lower: number;
+  auc_ci_upper: number;
+  brier_score: number;
+  calibration_slope: number;
+  calibration_intercept: number;
+  population_size: number;
+  outcome_count: number;
+}
+
 export interface PredictionResult {
   summary: {
     target_count: number;
@@ -75,6 +96,7 @@ export interface PredictionResult {
     brier_score: number;
     calibration_slope: number;
     calibration_intercept: number;
+    auprc?: number;
   };
   top_predictors: {
     covariate_name: string;
@@ -82,7 +104,15 @@ export interface PredictionResult {
     importance: number;
   }[];
   roc_curve: { fpr: number; tpr: number }[];
+  precision_recall_curve?: { recall: number; precision: number }[];
   calibration: { predicted: number; observed: number }[];
+  discrimination?: {
+    outcome_group: BoxPlotStats;
+    no_outcome_group: BoxPlotStats;
+  };
+  net_benefit?: { threshold: number; model: number; treatAll: number; treatNone: number }[];
+  prediction_distribution?: { binStart: number; binEnd: number; outcomeCount: number; noOutcomeCount: number }[];
+  external_validation?: ValidationMetrics[];
   status?: string;
   message?: string;
 }

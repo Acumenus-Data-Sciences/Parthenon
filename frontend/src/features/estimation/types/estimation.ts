@@ -109,6 +109,8 @@ export interface EstimationResult {
   kaplan_meier?: KaplanMeierData;
   attrition?: AttritionStep[];
   mdrr?: Record<string, number>;
+  negative_controls?: NegativeControlOutcome[];
+  power_analysis?: PowerEntry[];
   diagnostics?: {
     equipoise: number;
     power: Record<string, number>;
@@ -116,6 +118,28 @@ export interface EstimationResult {
   status?: string;
   message?: string;
   design_validated?: boolean;
+}
+
+export interface NegativeControlOutcome {
+  outcome_name: string;
+  log_rr: number;
+  se_log_rr: number;
+  calibrated_log_rr?: number;
+  calibrated_se_log_rr?: number;
+  ci_95_lower: number;
+  ci_95_upper: number;
+}
+
+export interface PowerEntry {
+  outcome_name: string;
+  outcome_id: number;
+  target_outcomes: number;
+  comparator_outcomes: number;
+  target_person_years: number;
+  comparator_person_years: number;
+  mdrr: number;
+  power_at_1_5?: number;
+  power_at_2_0?: number;
 }
 
 export interface EstimateEntry {

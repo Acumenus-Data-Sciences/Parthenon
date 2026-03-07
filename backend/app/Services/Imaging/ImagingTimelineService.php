@@ -158,14 +158,14 @@ class ImagingTimelineService
             ->where('de.drug_exposure_start_date', '>=', $windowStart)
             ->where('de.drug_exposure_start_date', '<=', $windowEnd)
             ->groupBy('de.drug_concept_id', 'dc.concept_name')
-            ->selectRaw("
+            ->selectRaw('
                 de.drug_concept_id,
                 dc.concept_name as drug_name,
                 MIN(cc.concept_name) as drug_class,
                 MIN(de.drug_exposure_start_date) as start_date,
                 MAX(COALESCE(de.drug_exposure_end_date, de.drug_exposure_start_date)) as end_date,
                 SUM(COALESCE(de.days_supply, 1)) as total_days
-            ")
+            ')
             ->orderBy('start_date')
             ->limit(50)
             ->get();
@@ -222,7 +222,7 @@ class ImagingTimelineService
     /**
      * Link imaging studies to an OMOP person_id.
      *
-     * @param list<int> $studyIds
+     * @param  list<int>  $studyIds
      */
     public function linkStudiesToPerson(array $studyIds, int $personId): int
     {
@@ -267,9 +267,9 @@ class ImagingTimelineService
     /**
      * Build summary statistics for a patient's imaging timeline.
      *
-     * @param Collection<int, ImagingStudy> $studies
-     * @param Collection<int, ImagingMeasurement> $measurements
-     * @param list<array> $drugExposures
+     * @param  Collection<int, ImagingStudy>  $studies
+     * @param  Collection<int, ImagingMeasurement>  $measurements
+     * @param  list<array>  $drugExposures
      * @return array{total_studies: int, modalities: list<string>, date_range: array, total_measurements: int, measurement_types: list<string>, total_drugs: int, imaging_span_days: int|null}
      */
     private function buildSummary(Collection $studies, Collection $measurements, array $drugExposures): array

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import {
   Activity, Loader2, CheckCircle2, XCircle, MinusCircle,
-  AlertTriangle, HelpCircle, ChevronDown, ChevronUp,
+  HelpCircle, ChevronDown, ChevronUp,
 } from "lucide-react";
 import {
   usePatientResponseAssessments,

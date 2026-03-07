@@ -6,7 +6,6 @@ use App\Models\App\ImagingMeasurement;
 use App\Models\App\ImagingResponseAssessment;
 use App\Models\App\ImagingStudy;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Automated response assessment engine.
