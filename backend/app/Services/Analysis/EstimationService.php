@@ -69,14 +69,7 @@ class EstimationService
 
             // Build the spec for R sidecar call
             $spec = [
-                'source' => [
-                    'dialect' => $source->source_dialect ?? 'postgresql',
-                    'connection' => $source->source_connection ?? 'cdm',
-                    'cdm_schema' => $cdmSchema,
-                    'vocab_schema' => $vocabSchema,
-                    'results_schema' => $resultsSchema,
-                    'cohort_table' => "{$resultsSchema}.cohort",
-                ],
+                'source' => HadesBridgeService::buildSourceSpec($source),
                 'cohorts' => [
                     'target_cohort_id' => $targetCohortId,
                     'comparator_cohort_id' => $comparatorCohortId,

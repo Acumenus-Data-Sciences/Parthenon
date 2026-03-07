@@ -59,14 +59,7 @@ class SccsService
             }
 
             $spec = [
-                'source' => [
-                    'dialect' => $source->source_dialect ?? 'postgresql',
-                    'connection' => $source->source_connection ?? 'cdm',
-                    'cdm_schema' => $cdmSchema,
-                    'vocab_schema' => $vocabSchema,
-                    'results_schema' => $resultsSchema,
-                    'cohort_table' => "{$resultsSchema}.cohort",
-                ],
+                'source' => HadesBridgeService::buildSourceSpec($source),
                 'cohorts' => [
                     'exposure_cohort_id' => $exposureCohortId,
                     'outcome_cohort_id' => $outcomeCohortId,
