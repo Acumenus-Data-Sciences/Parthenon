@@ -16,12 +16,16 @@ window.config = {
   modes: [],
   showStudyList: true,
   showLoadingIndicator: true,
-  maxNumberOfWebWorkers: 3,
+
+  // Performance: more workers = faster parallel DICOM decoding
+  maxNumberOfWebWorkers: navigator.hardwareConcurrency || 6,
+  useSharedArrayBuffer: 'AUTO',
+
   showWarningMessageForCrossOrigin: false,
   showCPUFallbackMessage: false,
   strictZSpacingForVolumeViewport: true,
 
-  // Only load the requested study — do not fetch prior studies for the same patient
+  // Only load the requested study — do not fetch prior studies
   studyPrefetcher: {
     enabled: false,
   },
@@ -31,6 +35,15 @@ window.config = {
   },
 
   studyListFunctionsEnabled: true,
+
+  // Cornerstone performance settings
+  cornerstoneExtensionConfig: {
+    tools: {
+      // Use GPU-accelerated rendering
+      useNorm16Texture: true,
+      preferSizeOverAccuracy: true,
+    },
+  },
 
   defaultDataSourceName: 'orthanc',
   dataSources: [
