@@ -21,6 +21,7 @@ import {
   Beaker,
   FileText,
   GitMerge,
+  HeartPulse,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -79,7 +80,9 @@ export function CommandPalette() {
                     ? BarChart3
                     : r.type === "mapping"
                       ? GitMerge
-                      : FileText,
+                      : r.type === "clinical"
+                        ? HeartPulse
+                        : FileText,
           action: () => navigate(r.url),
           keywords: r.subtitle,
         }));

@@ -309,6 +309,7 @@ Route::prefix('v1')->group(function () {
         });
 
         // Patient Profiles
+        Route::get('clinical/search', [PatientProfileController::class, 'searchClinical']);
         Route::get('sources/{source}/persons/search', [PatientProfileController::class, 'search']);
         Route::get('sources/{source}/profiles/{personId}/stats', [PatientProfileController::class, 'stats']);
         Route::get('sources/{source}/profiles/{personId}', [PatientProfileController::class, 'show']);

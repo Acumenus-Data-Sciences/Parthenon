@@ -25,7 +25,7 @@ class GlobalSearchService
         $results = [];
         $totals = [];
 
-        $searchTypes = ! empty($types) ? $types : ['concept', 'cohort', 'study', 'analysis', 'mapping'];
+        $searchTypes = ! empty($types) ? $types : ['concept', 'cohort', 'study', 'analysis', 'mapping', 'clinical'];
         $host = config('solr.endpoint.default.host', 'solr');
         $port = config('solr.endpoint.default.port', 8983);
         $timeout = (int) config('solr.endpoint.default.timeout', 5);
@@ -82,6 +82,18 @@ class GlobalSearchService
                     ]);
                     $pool->as('mapping')->timeout($timeout)
                         ->get("http://{$host}:{$port}/solr/{$core}/select?{$params}");
+                } elseif ($type === 'clinical') {
+                    $core = config('solr.cores.clinical', 'clinical');
+                    $params = http_build_query([
+                        'q' => $query,
+                        'defType' => 'edismax',
+                        'qf' => 'concept_name^3 value_as_string^1',
+                        'rows' => $limit,
+                        'fl' => 'event_id,event_type,person_id,concept_name,source_id,source_name,event_date',
+                        'wt' => 'json',
+                    ]);
+                    $pool->as('clinical')->timeout($timeout)
+                        ->get("http://{$host}:{$port}/solr/{$core}/select?{$params}");
                 }
             }
         });
@@ -124,6 +136,17 @@ class GlobalSearchService
                         'title' => ($doc['source_code'] ?? '').' — '.($doc['source_description'] ?? ''),
                         'subtitle' => 'Maps to: '.($doc['target_concept_name'] ?? 'unmapped').' · '.($doc['review_tier'] ?? ''),
                         'url' => "/ingestion/jobs/{$jobId}/review",
+                    ];
+                } elseif ($type === 'clinical') {
+                    $sourceId = $doc['source_id'] ?? 1;
+                    $personId = $doc['person_id'] ?? 0;
+                    $eventDate = isset($doc['event_date']) ? substr((string) $doc['event_date'], 0, 10) : '';
+                    $results[] = [
+                        'type' => 'clinical',
+                        'id' => $doc['event_id'] ?? null,
+                        'title' => $doc['concept_name'] ?? '',
+                        'subtitle' => ucfirst($doc['event_type'] ?? '')." · Person #{$personId}".($eventDate ? " · {$eventDate}" : ''),
+                        'url' => "/profiles/{$personId}?sourceId={$sourceId}",
                     ];
                 } else {
                     $rawId = $doc['id'] ?? '';

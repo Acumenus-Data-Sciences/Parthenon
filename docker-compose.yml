@@ -168,9 +168,10 @@ services:
       - ./solr/configsets/cohorts:/opt/solr/server/solr/configsets/cohorts:ro
       - ./solr/configsets/analyses:/opt/solr/server/solr/configsets/analyses:ro
       - ./solr/configsets/mappings:/opt/solr/server/solr/configsets/mappings:ro
+      - ./solr/configsets/clinical:/opt/solr/server/solr/configsets/clinical:ro
     environment:
       - SOLR_JAVA_MEM=-Xms512m -Xmx2g
-    command: bash -c "precreate-core vocabulary /opt/solr/server/solr/configsets/vocabulary; precreate-core cohorts /opt/solr/server/solr/configsets/cohorts; precreate-core analyses /opt/solr/server/solr/configsets/analyses; precreate-core mappings /opt/solr/server/solr/configsets/mappings; exec solr-foreground"
+    command: bash -c "precreate-core vocabulary /opt/solr/server/solr/configsets/vocabulary; precreate-core cohorts /opt/solr/server/solr/configsets/cohorts; precreate-core analyses /opt/solr/server/solr/configsets/analyses; precreate-core mappings /opt/solr/server/solr/configsets/mappings; precreate-core clinical /opt/solr/server/solr/configsets/clinical; exec solr-foreground"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8983/solr/vocabulary/admin/ping"]
       interval: 30s
@@ -247,14 +248,23 @@ services:
 
   orthanc:
     container_name: parthenon-orthanc
-    image: orthancteam/orthanc:18.1.4
+    image: orthancteam/orthanc:latest
     ports:
       - "${ORTHANC_PORT:-8042}:8042"
     volumes:
       - orthanc-data:/var/lib/orthanc/db
-      - ./docker/orthanc/orthanc.json:/etc/orthanc/orthanc.json:ro
+    environment:
+      - ORTHANC__NAME=Parthenon Orthanc
+      - ORTHANC__REMOTE_ACCESS_ALLOWED=true
+      - ORTHANC__AUTHENTICATION_ENABLED=false
+      - DICOM_WEB_PLUGIN_ENABLED=true
+      - ORTHANC__DICOM_WEB__ENABLE=true
+      - ORTHANC__DICOM_WEB__ROOT=/dicom-web/
+      - ORTHANC__DICOM_WEB__ENABLE_WADO=true
+      - ORTHANC__DICOM_WEB__WADO_ROOT=/wado
+      - ORTHANC__DICOM_WEB__STUDIES_METADATA=Full
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8042/system"]
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8042/system')"]
       interval: 10s
       timeout: 5s
       retries: 3

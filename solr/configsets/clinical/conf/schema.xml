@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<schema name="clinical" version="1.6">
+
+  <uniqueKey>event_id</uniqueKey>
+
+  <!-- Field types -->
+  <fieldType name="pint" class="solr.IntPointField" docValues="true"/>
+  <fieldType name="plong" class="solr.LongPointField" docValues="true"/>
+  <fieldType name="pfloat" class="solr.FloatPointField" docValues="true"/>
+  <fieldType name="pdate" class="solr.DatePointField" docValues="true"/>
+  <fieldType name="string" class="solr.StrField" sortMissingLast="true" docValues="true"/>
+  <fieldType name="boolean" class="solr.BoolField" sortMissingLast="true"/>
+
+  <fieldType name="text_general" class="solr.TextField" positionIncrementGap="100">
+    <analyzer type="index">
+      <tokenizer class="solr.StandardTokenizerFactory"/>
+      <filter class="solr.LowerCaseFilterFactory"/>
+      <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt"/>
+    </analyzer>
+    <analyzer type="query">
+      <tokenizer class="solr.StandardTokenizerFactory"/>
+      <filter class="solr.LowerCaseFilterFactory"/>
+      <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt"/>
+    </analyzer>
+  </fieldType>
+
+  <!-- Clinical event fields -->
+  <field name="event_id" type="string" indexed="true" stored="true" required="true"/>
+  <field name="event_type" type="string" indexed="true" stored="true"/>
+  <field name="person_id" type="plong" indexed="true" stored="true"/>
+  <field name="concept_id" type="pint" indexed="true" stored="true"/>
+  <field name="concept_name" type="text_general" indexed="true" stored="true"/>
+  <field name="concept_name_exact" type="string" indexed="true" stored="false"/>
+  <field name="domain_id" type="string" indexed="true" stored="true"/>
+  <field name="vocabulary_id" type="string" indexed="true" stored="true"/>
+  <field name="event_date" type="pdate" indexed="true" stored="true"/>
+  <field name="event_end_date" type="pdate" indexed="true" stored="true"/>
+  <field name="source_id" type="pint" indexed="true" stored="true"/>
+  <field name="source_name" type="string" indexed="true" stored="true"/>
+  <field name="value_as_number" type="pfloat" indexed="true" stored="true"/>
+  <field name="value_as_string" type="text_general" indexed="true" stored="true"/>
+  <field name="unit" type="string" indexed="true" stored="true"/>
+  <field name="type_concept_name" type="string" indexed="true" stored="true"/>
+
+  <!-- Required by Solr -->
+  <field name="_version_" type="plong" indexed="false" stored="false"/>
+
+  <!-- Copy field for exact-match faceting on concept_name -->
+  <copyField source="concept_name" dest="concept_name_exact"/>
+
+</schema>

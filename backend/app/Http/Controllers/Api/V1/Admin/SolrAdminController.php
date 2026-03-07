@@ -78,6 +78,7 @@ class SolrAdminController extends Controller
             'cohorts' => 'solr:index-cohorts',
             'analyses' => 'solr:index-analyses',
             'mappings' => 'solr:index-mappings',
+            'clinical' => 'solr:index-clinical',
             default => null,
         };
 
@@ -130,6 +131,7 @@ class SolrAdminController extends Controller
             'cohorts' => 'solr:index-cohorts',
             'analyses' => 'solr:index-analyses',
             'mappings' => 'solr:index-mappings',
+            'clinical' => 'solr:index-clinical',
         ];
 
         foreach ($indexers as $core => $command) {
