@@ -128,6 +128,7 @@ export interface Source {
   source_dialect: string;
   source_connection: string | null;
   is_cache_enabled: boolean;
+  is_default: boolean;
   restricted_to_roles: string[] | null;
   imported_from_webapi: string | null;
   // Dynamic connection fields (DB-1.1) — never returned with password/db_options

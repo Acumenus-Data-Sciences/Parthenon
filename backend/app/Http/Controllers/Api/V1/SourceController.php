@@ -71,6 +71,31 @@ class SourceController extends Controller
     }
 
     /**
+     * PUT /v1/sources/{source}/set-default
+     *
+     * Mark a source as the default CDM. Clears is_default on all other sources.
+     */
+    public function setDefault(Source $source): JsonResponse
+    {
+        Source::where('is_default', true)->update(['is_default' => false]);
+        $source->update(['is_default' => true]);
+
+        return response()->json($source->load('daimons'));
+    }
+
+    /**
+     * DELETE /v1/sources/default
+     *
+     * Clear the default CDM source (no source is default).
+     */
+    public function clearDefault(): JsonResponse
+    {
+        Source::where('is_default', true)->update(['is_default' => false]);
+
+        return response()->json(null, 204);
+    }
+
+    /**
      * POST /v1/sources/test-connection
      *
      * Validate connectivity with the supplied source credentials without persisting.

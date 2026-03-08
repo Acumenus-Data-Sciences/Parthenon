@@ -22,6 +22,7 @@ class Source extends Model
         'source_dialect',
         'source_connection',
         'is_cache_enabled',
+        'is_default',
         'restricted_to_roles',
         'imported_from_webapi',
         // Dynamic connection fields (DB-1.1)
@@ -46,6 +47,7 @@ class Source extends Model
     {
         return [
             'is_cache_enabled' => 'boolean',
+            'is_default' => 'boolean',
             'password' => 'encrypted',
             'db_options' => 'encrypted:array',
             'db_port' => 'integer',

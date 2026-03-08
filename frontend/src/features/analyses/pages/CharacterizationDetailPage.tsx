@@ -7,6 +7,7 @@ import {
   Trash2,
   Play,
   Database,
+  ChevronDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
@@ -97,7 +98,7 @@ export default function CharacterizationDetailPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 size={24} className="animate-spin" style={{ color: "var(--text-muted)" }} />
+        <Loader2 size={24} className="animate-spin text-[#8A857D]" />
       </div>
     );
   }
@@ -106,13 +107,13 @@ export default function CharacterizationDetailPage() {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <p style={{ color: "var(--critical)" }}>
+          <p className="text-[#E85A6B]">
             Failed to load characterization
           </p>
           <button
             type="button"
             onClick={() => navigate("/analyses")}
-            className="btn btn-ghost btn-sm mt-4"
+            className="mt-4 text-sm text-[#8A857D] hover:text-[#F0EDE8] transition-colors"
           >
             Back to analyses
           </button>
@@ -124,21 +125,21 @@ export default function CharacterizationDetailPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="page-header">
+      <div className="flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
           <button
             type="button"
             onClick={() => navigate("/analyses")}
-            className="btn btn-ghost btn-sm mb-3"
+            className="inline-flex items-center gap-1 text-sm text-[#8A857D] hover:text-[#F0EDE8] transition-colors mb-3"
           >
             <ArrowLeft size={14} />
             Analyses
           </button>
-          <h1 className="page-title">
+          <h1 className="text-2xl font-bold text-[#F0EDE8]">
             {characterization.name}
           </h1>
           {characterization.description && (
-            <p className="page-subtitle">
+            <p className="mt-1 text-sm text-[#8A857D]">
               {characterization.description}
             </p>
           )}
@@ -149,8 +150,7 @@ export default function CharacterizationDetailPage() {
             <div className="relative">
               <Database
                 size={12}
-                className="absolute left-3 top-1/2 -translate-y-1/2"
-                style={{ color: "var(--text-ghost)" }}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
               />
               <select
                 value={sourceId ?? ""}
@@ -158,8 +158,10 @@ export default function CharacterizationDetailPage() {
                   setSourceId(Number(e.target.value) || null)
                 }
                 disabled={loadingSources}
-                className="form-input form-select"
-                style={{ paddingLeft: "2rem" }}
+                className={cn(
+                  "appearance-none rounded-lg border border-[#232328] bg-[#0E0E11] pl-8 pr-8 py-2 text-sm",
+                  "text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+                )}
               >
                 <option value="">Source</option>
                 {sources?.map((src) => (
@@ -168,6 +170,10 @@ export default function CharacterizationDetailPage() {
                   </option>
                 ))}
               </select>
+              <ChevronDown
+                size={12}
+                className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
+              />
             </div>
             <button
               type="button"
@@ -177,7 +183,7 @@ export default function CharacterizationDetailPage() {
                 executeMutation.isPending ||
                 isRunning
               }
-              className="btn btn-primary btn-sm"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-[#2DD4BF] px-3 py-2 text-sm font-medium text-[#0E0E11] hover:bg-[#26B8A5] transition-colors disabled:opacity-50"
             >
               {executeMutation.isPending || isRunning ? (
                 <Loader2 size={14} className="animate-spin" />
@@ -192,7 +198,7 @@ export default function CharacterizationDetailPage() {
             type="button"
             onClick={handleDelete}
             disabled={deleteMutation.isPending}
-            className="btn btn-danger btn-sm"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#8A857D] hover:text-[#E85A6B] hover:border-[#E85A6B]/30 transition-colors disabled:opacity-50"
           >
             {deleteMutation.isPending ? (
               <Loader2 size={14} className="animate-spin" />
@@ -205,7 +211,7 @@ export default function CharacterizationDetailPage() {
       </div>
 
       {/* Tab navigation */}
-      <div className="tab-bar">
+      <div className="flex items-center gap-1 border-b border-[#232328]">
         {(
           [
             { key: "design" as const, label: "Design" },
@@ -216,9 +222,17 @@ export default function CharacterizationDetailPage() {
             key={tab.key}
             type="button"
             onClick={() => setActiveTab(tab.key)}
-            className={cn("tab-item", activeTab === tab.key && "active")}
+            className={cn(
+              "relative px-4 py-2.5 text-sm font-medium transition-colors",
+              activeTab === tab.key
+                ? "text-[#2DD4BF]"
+                : "text-[#8A857D] hover:text-[#C5C0B8]",
+            )}
           >
             {tab.label}
+            {activeTab === tab.key && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2DD4BF]" />
+            )}
           </button>
         ))}
       </div>
@@ -232,21 +246,29 @@ export default function CharacterizationDetailPage() {
 
           {executions && executions.length > 0 && (
             <div>
-              <h3 className="panel-title" style={{ fontSize: "var(--text-base)", marginBottom: "var(--space-3)" }}>
+              <h3 className="text-sm font-semibold text-[#F0EDE8] mb-3">
                 Execution History
               </h3>
-              <div className="panel" style={{ padding: 0, overflow: "hidden" }}>
-                <table className="data-table">
+              <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
+                <table className="w-full">
                   <thead>
-                    <tr>
-                      <th>Status</th>
-                      <th>Source</th>
-                      <th>Started</th>
-                      <th>Completed</th>
+                    <tr className="bg-[#1C1C20]">
+                      <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+                        Status
+                      </th>
+                      <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+                        Source
+                      </th>
+                      <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+                        Started
+                      </th>
+                      <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+                        Completed
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
-                    {executions.map((exec) => (
+                    {executions.map((exec, i) => (
                       <tr
                         key={exec.id}
                         onClick={() => {
@@ -255,22 +277,30 @@ export default function CharacterizationDetailPage() {
                           }
                         }}
                         className={cn(
-                          exec.status === "completed" && "clickable",
-                          activeExecId === exec.id && "selected",
+                          "border-t border-[#1C1C20] transition-colors",
+                          exec.status === "completed" &&
+                            "cursor-pointer hover:bg-[#1C1C20]",
+                          i % 2 === 0
+                            ? "bg-[#151518]"
+                            : "bg-[#1A1A1E]",
+                          activeExecId === exec.id &&
+                            "ring-1 ring-inset ring-[#2DD4BF]/30",
                         )}
                       >
-                        <td>
+                        <td className="px-4 py-3">
                           <ExecutionStatusBadge
                             status={exec.status}
                           />
                         </td>
-                        <td>Source #{exec.source_id}</td>
-                        <td>
+                        <td className="px-4 py-3 text-xs text-[#8A857D]">
+                          Source #{exec.source_id}
+                        </td>
+                        <td className="px-4 py-3 text-xs text-[#8A857D]">
                           {exec.started_at
                             ? new Date(exec.started_at).toLocaleString()
                             : "--"}
                         </td>
-                        <td>
+                        <td className="px-4 py-3 text-xs text-[#8A857D]">
                           {exec.completed_at
                             ? new Date(exec.completed_at).toLocaleString()
                             : "--"}

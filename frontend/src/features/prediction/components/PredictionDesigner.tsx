@@ -75,7 +75,16 @@ export function PredictionDesigner({
     if (prediction) {
       setName(prediction.name);
       setDescription(prediction.description ?? "");
-      setDesign(prediction.design_json);
+      const dj = prediction.design_json ?? {};
+      setDesign({
+        ...defaultDesign,
+        ...dj,
+        model: { ...defaultDesign.model, ...(dj.model ?? {}) },
+        timeAtRisk: { ...defaultDesign.timeAtRisk, ...(dj.timeAtRisk ?? {}) },
+        covariateSettings: { ...defaultDesign.covariateSettings, ...(dj.covariateSettings ?? {}) },
+        populationSettings: { ...defaultDesign.populationSettings, ...(dj.populationSettings ?? {}) },
+        splitSettings: { ...defaultDesign.splitSettings, ...(dj.splitSettings ?? {}) },
+      });
     }
   }, [prediction]);
 

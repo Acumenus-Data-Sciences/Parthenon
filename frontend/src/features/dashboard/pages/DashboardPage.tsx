@@ -27,10 +27,11 @@ export function DashboardPage() {
   const { data: stats, isLoading, error } = useDashboardStats();
   const [selectedSourceId, setSelectedSourceId] = useState<number | null>(null);
 
-  // Auto-select first source when stats load
+  // Auto-select default source (or first source) when stats load
   useEffect(() => {
     if (stats?.sources.length && !selectedSourceId) {
-      setSelectedSourceId(stats.sources[0].id);
+      const defaultSrc = stats.sources.find((s: { id: number; is_default?: boolean }) => s.is_default);
+      setSelectedSourceId(defaultSrc ? defaultSrc.id : stats.sources[0].id);
     }
   }, [stats?.sources, selectedSourceId]);
 

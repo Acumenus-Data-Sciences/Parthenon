@@ -54,7 +54,15 @@ export function IncidenceRateDesigner({
     if (analysis) {
       setName(analysis.name);
       setDescription(analysis.description ?? "");
-      setDesign(analysis.design_json);
+      const dj = analysis.design_json ?? {};
+      setDesign({
+        ...defaultDesign,
+        ...dj,
+        timeAtRisk: {
+          start: { ...defaultDesign.timeAtRisk.start, ...(dj.timeAtRisk?.start ?? {}) },
+          end: { ...defaultDesign.timeAtRisk.end, ...(dj.timeAtRisk?.end ?? {}) },
+        },
+      });
     }
   }, [analysis]);
 

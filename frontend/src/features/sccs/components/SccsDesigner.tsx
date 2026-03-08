@@ -59,15 +59,14 @@ export function SccsDesigner({ sccs, isNew, onSaved }: SccsDesignerProps) {
     if (sccs) {
       setName(sccs.name);
       setDescription(sccs.description ?? "");
-      const dj = sccs.design_json;
-      // Normalize: backend may use studyPopulationSettings instead of studyPopulation
+      const dj = sccs.design_json ?? {};
       const studyPop = dj.studyPopulation ?? dj.studyPopulationSettings ?? defaultDesign.studyPopulation;
       setDesign({
         ...defaultDesign,
         ...dj,
         studyPopulation: {
-          naivePeriod: studyPop.naivePeriod ?? studyPop.naive_period ?? 365,
-          firstOutcomeOnly: studyPop.firstOutcomeOnly ?? studyPop.first_outcome_only ?? true,
+          naivePeriod: studyPop?.naivePeriod ?? studyPop?.naive_period ?? 365,
+          firstOutcomeOnly: studyPop?.firstOutcomeOnly ?? studyPop?.first_outcome_only ?? true,
         },
         riskWindows: dj.riskWindows ?? dj.risk_windows ?? defaultDesign.riskWindows,
       });
@@ -295,10 +294,10 @@ export function SccsDesigner({ sccs, isNew, onSaved }: SccsDesignerProps) {
             <input
               type="number"
               min={0}
-              value={design.studyPopulation.naivePeriod}
+              value={design.studyPopulation?.naivePeriod ?? 365}
               onChange={(e) => setDesign((d) => ({
                 ...d,
-                studyPopulation: { ...d.studyPopulation, naivePeriod: Number(e.target.value) },
+                studyPopulation: { ...(d.studyPopulation ?? defaultDesign.studyPopulation), naivePeriod: Number(e.target.value) },
               }))}
               className={inputCls}
             />
@@ -310,16 +309,16 @@ export function SccsDesigner({ sccs, isNew, onSaved }: SccsDesignerProps) {
               type="button"
               onClick={() => setDesign((d) => ({
                 ...d,
-                studyPopulation: { ...d.studyPopulation, firstOutcomeOnly: !d.studyPopulation.firstOutcomeOnly },
+                studyPopulation: { ...(d.studyPopulation ?? defaultDesign.studyPopulation), firstOutcomeOnly: !(d.studyPopulation?.firstOutcomeOnly ?? true) },
               }))}
               className={cn(
                 "relative w-9 h-5 rounded-full transition-colors",
-                design.studyPopulation.firstOutcomeOnly ? "bg-[#2DD4BF]" : "bg-[#323238]",
+                (design.studyPopulation?.firstOutcomeOnly ?? true) ? "bg-[#2DD4BF]" : "bg-[#323238]",
               )}
             >
               <span className={cn(
                 "absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform",
-                design.studyPopulation.firstOutcomeOnly && "translate-x-4",
+                (design.studyPopulation?.firstOutcomeOnly ?? true) && "translate-x-4",
               )} />
             </button>
             First Outcome Only

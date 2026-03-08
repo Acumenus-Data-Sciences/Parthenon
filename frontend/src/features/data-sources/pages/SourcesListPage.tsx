@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { Database, Shield, Upload, ChevronDown, ChevronRight, Plus } from "lucide-react";
+import { Database, Shield, Upload, ChevronDown, ChevronRight, Plus, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useSources } from "../hooks/useSources";
+import { useSources, useSetDefaultSource, useClearDefaultSource } from "../hooks/useSources";
 import { WebApiImportPanel } from "../components/WebApiImportPanel";
 import { SourceAccessControl } from "../components/SourceAccessControl";
 import { HelpButton } from "@/features/help";
@@ -9,9 +9,19 @@ import { AddSourceWizard } from "../components/AddSourceWizard";
 
 export function SourcesListPage() {
   const { data: sources, isLoading, error } = useSources();
-  const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [expandedIds, setExpandedIds] = useState<Set<number>>(new Set());
   const [showImport, setShowImport] = useState(false);
   const [wizardOpen, setWizardOpen] = useState(false);
+  const setDefault = useSetDefaultSource();
+  const clearDefault = useClearDefaultSource();
+
+  const handleToggleDefault = (sourceId: number, currentlyDefault: boolean) => {
+    if (currentlyDefault) {
+      clearDefault.mutate();
+    } else {
+      setDefault.mutate(sourceId);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -69,7 +79,7 @@ export function SourcesListPage() {
       {sources && sources.length > 0 ? (
         <div className="space-y-2">
           {sources.map((source) => {
-            const isExpanded = expandedId === source.id;
+            const isExpanded = expandedIds.has(source.id);
             const isRestricted =
               source.restricted_to_roles && source.restricted_to_roles.length > 0;
 
@@ -79,43 +89,73 @@ export function SourcesListPage() {
                 className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden"
               >
                 {/* Source row */}
-                <button
-                  type="button"
-                  onClick={() => setExpandedId(isExpanded ? null : source.id)}
-                  className="flex items-center gap-3 w-full px-4 py-3 text-left hover:bg-[#1A1A1E] transition-colors"
-                >
-                  {isExpanded ? (
-                    <ChevronDown size={14} className="text-[#5A5650] shrink-0" />
-                  ) : (
-                    <ChevronRight size={14} className="text-[#5A5650] shrink-0" />
-                  )}
-                  <div className="flex-1 min-w-0 grid grid-cols-4 gap-4 items-center">
-                    <div>
-                      <span className="text-sm font-medium text-[#F0EDE8]">
-                        {source.source_name}
-                      </span>
-                      {source.imported_from_webapi && (
-                        <span className="ml-2 inline-flex items-center rounded-full bg-[#818CF8]/10 px-1.5 py-0.5 text-[9px] font-medium text-[#818CF8]">
-                          WebAPI
+                <div className="flex items-center gap-3 w-full px-4 py-3">
+                  <button
+                    type="button"
+                    onClick={() => setExpandedIds((prev) => {
+                      const next = new Set(prev);
+                      if (isExpanded) next.delete(source.id); else next.add(source.id);
+                      return next;
+                    })}
+                    className="flex items-center gap-3 flex-1 min-w-0 text-left hover:bg-[#1A1A1E] transition-colors rounded-md px-1 py-0.5"
+                  >
+                    {isExpanded ? (
+                      <ChevronDown size={14} className="text-[#5A5650] shrink-0" />
+                    ) : (
+                      <ChevronRight size={14} className="text-[#5A5650] shrink-0" />
+                    )}
+                    <div className="flex-1 min-w-0 grid grid-cols-4 gap-4 items-center">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-[#F0EDE8]">
+                          {source.source_name}
                         </span>
-                      )}
-                    </div>
-                    <span className="text-sm font-mono text-[#8A857D]">
-                      {source.source_key}
-                    </span>
-                    <span className="text-sm text-[#8A857D]">
-                      {source.source_dialect}
-                    </span>
-                    <div className="flex items-center gap-2 justify-end">
-                      <span className="text-xs text-[#5A5650]">
-                        {source.daimons?.length ?? 0} daimons
+                        {source.imported_from_webapi && (
+                          <span className="inline-flex items-center rounded-full bg-[#818CF8]/10 px-1.5 py-0.5 text-[9px] font-medium text-[#818CF8]">
+                            WebAPI
+                          </span>
+                        )}
+                        {source.is_default && (
+                          <span className="inline-flex items-center gap-0.5 rounded-full bg-[#C9A227]/10 px-1.5 py-0.5 text-[9px] font-medium text-[#C9A227]">
+                            <Star size={8} className="fill-[#C9A227]" />
+                            Default
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-sm font-mono text-[#8A857D]">
+                        {source.source_key}
                       </span>
-                      {isRestricted && (
-                        <Shield size={12} className="text-[#818CF8]" />
-                      )}
+                      <span className="text-sm text-[#8A857D]">
+                        {source.source_dialect}
+                      </span>
+                      <div className="flex items-center gap-2 justify-end">
+                        <span className="text-xs text-[#5A5650]">
+                          {source.daimons?.length ?? 0} daimons
+                        </span>
+                        {isRestricted && (
+                          <Shield size={12} className="text-[#818CF8]" />
+                        )}
+                      </div>
                     </div>
-                  </div>
-                </button>
+                  </button>
+
+                  {/* Default toggle button */}
+                  <button
+                    type="button"
+                    onClick={() => handleToggleDefault(source.id, source.is_default)}
+                    title={source.is_default ? "Remove as default CDM" : "Set as default CDM"}
+                    className={cn(
+                      "shrink-0 p-1.5 rounded-md transition-colors",
+                      source.is_default
+                        ? "text-[#C9A227] hover:bg-[#C9A227]/10"
+                        : "text-[#3A3A40] hover:text-[#8A857D] hover:bg-[#1A1A1E]",
+                    )}
+                  >
+                    <Star
+                      size={16}
+                      className={source.is_default ? "fill-[#C9A227]" : ""}
+                    />
+                  </button>
+                </div>
 
                 {/* Expanded detail */}
                 {isExpanded && (

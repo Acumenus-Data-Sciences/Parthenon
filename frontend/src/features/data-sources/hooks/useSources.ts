@@ -5,6 +5,8 @@ import {
   createSource,
   updateSource,
   deleteSource,
+  setDefaultSource,
+  clearDefaultSource,
   importFromWebApi,
   fetchWebApiRegistries,
   createWebApiRegistry,
@@ -12,6 +14,7 @@ import {
   deleteWebApiRegistry,
   syncWebApiRegistry,
 } from "../api/sourcesApi";
+import { useSourceStore } from "@/stores/sourceStore";
 
 // ---------------------------------------------------------------------------
 // Source hooks
@@ -59,6 +62,30 @@ export function useDeleteSource() {
   return useMutation({
     mutationFn: (id: number) => deleteSource(id),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["sources"] });
+    },
+  });
+}
+
+export function useSetDefaultSource() {
+  const queryClient = useQueryClient();
+  const setDefaultSourceId = useSourceStore((s) => s.setDefaultSourceId);
+  return useMutation({
+    mutationFn: (id: number) => setDefaultSource(id),
+    onSuccess: (source) => {
+      setDefaultSourceId(source.id);
+      queryClient.invalidateQueries({ queryKey: ["sources"] });
+    },
+  });
+}
+
+export function useClearDefaultSource() {
+  const queryClient = useQueryClient();
+  const setDefaultSourceId = useSourceStore((s) => s.setDefaultSourceId);
+  return useMutation({
+    mutationFn: () => clearDefaultSource(),
+    onSuccess: () => {
+      setDefaultSourceId(null);
       queryClient.invalidateQueries({ queryKey: ["sources"] });
     },
   });

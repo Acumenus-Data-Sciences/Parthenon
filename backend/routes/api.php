@@ -89,6 +89,8 @@ Route::prefix('v1')->group(function () {
         // Sources — custom routes BEFORE apiResource to avoid route shadowing
         Route::post('sources/import-webapi', [SourceController::class, 'importWebApi']);
         Route::post('sources/test-connection', [SourceController::class, 'testConnection']);
+        Route::put('sources/{source}/set-default', [SourceController::class, 'setDefault']);
+        Route::delete('sources/default', [SourceController::class, 'clearDefault']);
         Route::apiResource('sources', SourceController::class);
 
         // Vocabulary

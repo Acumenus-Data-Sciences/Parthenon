@@ -70,7 +70,19 @@ export function EstimationDesigner({
     if (estimation) {
       setName(estimation.name);
       setDescription(estimation.description ?? "");
-      setDesign(estimation.design_json);
+      const dj = estimation.design_json ?? {};
+      setDesign({
+        ...defaultDesign,
+        ...dj,
+        model: { ...defaultDesign.model, ...(dj.model ?? {}) },
+        propensityScore: {
+          ...defaultDesign.propensityScore,
+          ...(dj.propensityScore ?? {}),
+          matching: { ...defaultDesign.propensityScore.matching, ...(dj.propensityScore?.matching ?? {}) },
+          stratification: { ...defaultDesign.propensityScore.stratification, ...(dj.propensityScore?.stratification ?? {}) },
+        },
+        covariateSettings: { ...defaultDesign.covariateSettings, ...(dj.covariateSettings ?? {}) },
+      });
     }
   }, [estimation]);
 

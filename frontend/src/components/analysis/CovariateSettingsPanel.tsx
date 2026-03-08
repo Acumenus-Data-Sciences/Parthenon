@@ -63,6 +63,8 @@ export function CovariateSettingsPanel({
   const extendedOptions = options.filter((o) => o.group === "extended");
   const indexOptions = options.filter((o) => o.group === "index");
 
+  const timeWindows = settings.timeWindows ?? [];
+
   const toggleKey = (key: keyof CovariateSettings) => {
     onChange({ ...settings, [key]: !settings[key] });
   };
@@ -72,7 +74,7 @@ export function CovariateSettingsPanel({
     field: "start" | "end",
     value: number,
   ) => {
-    const newWindows = [...settings.timeWindows];
+    const newWindows = [...timeWindows];
     newWindows[idx] = { ...newWindows[idx], [field]: value };
     onChange({ ...settings, timeWindows: newWindows });
   };
@@ -80,14 +82,14 @@ export function CovariateSettingsPanel({
   const removeWindow = (idx: number) => {
     onChange({
       ...settings,
-      timeWindows: settings.timeWindows.filter((_, i) => i !== idx),
+      timeWindows: timeWindows.filter((_, i) => i !== idx),
     });
   };
 
   const addWindow = () => {
     onChange({
       ...settings,
-      timeWindows: [...settings.timeWindows, { start: -365, end: 0 }],
+      timeWindows: [...timeWindows, { start: -365, end: 0 }],
     });
   };
 
@@ -165,7 +167,7 @@ export function CovariateSettingsPanel({
           <label className="block text-xs font-medium text-[#8A857D] mb-2">
             Time Windows
           </label>
-          {settings.timeWindows.map((tw, idx) => (
+          {timeWindows.map((tw, idx) => (
             <div key={idx} className="flex items-center gap-2 mb-2">
               <input
                 type="number"
@@ -191,7 +193,7 @@ export function CovariateSettingsPanel({
                 )}
               />
               <span className="text-xs text-[#5A5650]">days</span>
-              {settings.timeWindows.length > 1 && (
+              {timeWindows.length > 1 && (
                 <button
                   type="button"
                   onClick={() => removeWindow(idx)}

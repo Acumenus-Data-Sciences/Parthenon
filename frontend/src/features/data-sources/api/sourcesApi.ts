@@ -41,6 +41,15 @@ export async function deleteSource(id: number): Promise<void> {
   await apiClient.delete(`/sources/${id}`);
 }
 
+export async function setDefaultSource(id: number): Promise<Source> {
+  const { data } = await apiClient.put<Source>(`/sources/${id}/set-default`);
+  return data;
+}
+
+export async function clearDefaultSource(): Promise<void> {
+  await apiClient.delete("/sources/default");
+}
+
 // ---------------------------------------------------------------------------
 // §9.5 — WebAPI import
 // ---------------------------------------------------------------------------

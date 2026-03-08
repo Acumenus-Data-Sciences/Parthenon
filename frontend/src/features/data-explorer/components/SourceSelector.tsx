@@ -1,5 +1,6 @@
+import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Database, ChevronDown, Loader2 } from "lucide-react";
+import { Database, ChevronDown, Loader2, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
 
@@ -14,6 +15,15 @@ export function SourceSelector({ value, onChange }: SourceSelectorProps) {
     queryFn: fetchSources,
   });
 
+  // Auto-select default source when no value is set and sources load
+  useEffect(() => {
+    if (value || !sources?.length) return;
+    const defaultSource = sources.find((s) => s.is_default);
+    if (defaultSource) {
+      onChange(defaultSource.id);
+    }
+  }, [value, sources, onChange]);
+
   if (isLoading) {
     return (
       <div className="flex items-center gap-2 rounded-lg border border-[#232328] bg-[#151518] px-4 py-2">
@@ -23,10 +33,16 @@ export function SourceSelector({ value, onChange }: SourceSelectorProps) {
     );
   }
 
+  const selectedSource = sources?.find((s) => s.id === value);
+
   return (
     <div className="relative">
       <div className="flex items-center gap-2">
-        <Database size={14} className="text-[#8A857D]" />
+        {selectedSource?.is_default ? (
+          <Star size={14} className="text-[#C9A227] fill-[#C9A227]" />
+        ) : (
+          <Database size={14} className="text-[#8A857D]" />
+        )}
         <select
           value={value ?? ""}
           onChange={(e) => onChange(Number(e.target.value))}
@@ -41,7 +57,7 @@ export function SourceSelector({ value, onChange }: SourceSelectorProps) {
           </option>
           {sources?.map((source) => (
             <option key={source.id} value={source.id}>
-              {source.source_name}
+              {source.is_default ? "\u2605 " : ""}{source.source_name}
             </option>
           ))}
         </select>

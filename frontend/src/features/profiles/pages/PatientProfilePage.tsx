@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -15,6 +15,10 @@ import {
   AlertTriangle,
   Dna,
   ScanLine,
+  Clock,
+  User,
+  Star,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
@@ -33,6 +37,7 @@ import { ConceptDetailDrawer } from "../components/ConceptDetailDrawer";
 import PrecisionMedicineTab from "@/features/radiogenomics/components/PrecisionMedicineTab";
 import ImagingPatientTimeline from "@/features/imaging/components/PatientTimeline";
 import { usePatientTimeline } from "@/features/imaging/hooks/useImaging";
+import { useProfileStore } from "@/stores/profileStore";
 import type { ClinicalEvent } from "../types/profile";
 
 type ViewMode = "timeline" | "list" | "labs" | "imaging" | "visits" | "eras" | "precision";
@@ -106,6 +111,17 @@ function downloadEventsAsCsv(events: ClinicalEvent[], filename: string) {
   URL.revokeObjectURL(url);
 }
 
+function formatTimeAgo(epochMs: number): string {
+  const diff = Date.now() - epochMs;
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ago`;
+}
+
 export default function PatientProfilePage() {
   const { personId } = useParams<{ personId: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -121,10 +137,24 @@ export default function PatientProfilePage() {
   const [selectedEvent, setSelectedEvent] = useState<ClinicalEvent | null>(null);
   const [groupList, setGroupList] = useState(true);
 
+  const { recentProfiles, addRecentProfile, clearRecentProfiles } = useProfileStore();
+
   const { data: sources, isLoading: loadingSources } = useQuery({
     queryKey: ["sources"],
     queryFn: fetchSources,
   });
+
+  // Auto-select default source when no source is specified
+  useEffect(() => {
+    if (sourceId || !sources?.length) return;
+    const defaultSource = sources.find((s) => s.is_default);
+    if (defaultSource) {
+      setSourceId(defaultSource.id);
+      if (parsedPersonId) {
+        setSearchParams({ sourceId: String(defaultSource.id) });
+      }
+    }
+  }, [sourceId, sources, parsedPersonId, setSearchParams]);
 
   const {
     data: profile,
@@ -133,6 +163,20 @@ export default function PatientProfilePage() {
   } = usePatientProfile(sourceId, parsedPersonId);
 
   const { data: profileStats } = useProfileStats(sourceId, parsedPersonId);
+
+  // Record profile view when profile loads successfully
+  useEffect(() => {
+    if (!profile || !sourceId || !parsedPersonId || !sources) return;
+    const source = sources.find((s) => s.id === sourceId);
+    if (!source) return;
+    addRecentProfile({
+      personId: parsedPersonId,
+      sourceId,
+      sourceName: source.source_name,
+      gender: profile.demographics.gender,
+      yearOfBirth: profile.demographics.year_of_birth,
+    });
+  }, [profile, sourceId, parsedPersonId, sources, addRecentProfile]);
 
   // All events combined + sorted
   const allEvents = useMemo(() => {
@@ -227,7 +271,7 @@ export default function PatientProfilePage() {
     );
   }, [profile, parsedPersonId, allEvents, domainTab]);
 
-  // No personId: show search + cohort member selection
+  // No personId: show search + cohort member selection + recent profiles
   if (!parsedPersonId) {
     return (
       <div className="space-y-6">
@@ -237,6 +281,65 @@ export default function PatientProfilePage() {
             Search by person ID or MRN, or browse cohort members
           </p>
         </div>
+
+        {/* Recent Profiles */}
+        {recentProfiles.length > 0 && (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Clock size={14} className="text-[#8A857D]" />
+                <h2 className="text-sm font-semibold text-[#C5C0B8]">
+                  Recent Profiles
+                </h2>
+                <span className="text-xs text-[#5A5650]">
+                  ({recentProfiles.length})
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={clearRecentProfiles}
+                className="inline-flex items-center gap-1 text-[10px] text-[#5A5650] hover:text-[#8A857D] transition-colors"
+              >
+                <X size={10} />
+                Clear
+              </button>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+              {recentProfiles.map((rp) => (
+                <button
+                  key={`${rp.sourceId}-${rp.personId}`}
+                  type="button"
+                  onClick={() => handleSelectPerson(rp.sourceId, rp.personId)}
+                  className="flex items-center gap-3 rounded-lg border border-[#232328] bg-[#151518] px-3 py-2.5 text-left hover:border-[#2DD4BF]/30 hover:bg-[#1A1A1E] transition-colors group"
+                >
+                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#2DD4BF]/10 shrink-0">
+                    <User size={14} className="text-[#2DD4BF]" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-semibold text-[#2DD4BF] font-['IBM_Plex_Mono',monospace]">
+                        #{rp.personId}
+                      </span>
+                      <span className="text-xs text-[#8A857D]">
+                        {rp.gender} · {new Date().getFullYear() - rp.yearOfBirth} yrs
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <Database size={9} className="text-[#5A5650] shrink-0" />
+                      <span className="text-[10px] text-[#5A5650] truncate">
+                        {rp.sourceName}
+                      </span>
+                      <span className="text-[10px] text-[#3A3A40] shrink-0">
+                        · {formatTimeAgo(rp.viewedAt)}
+                      </span>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         <CohortMemberList onSelectPerson={handleSelectPerson} />
       </div>
     );
@@ -274,10 +377,20 @@ export default function PatientProfilePage() {
 
           {/* Source selector */}
           <div className="relative">
-            <Database
-              size={12}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
-            />
+            {(() => {
+              const selectedSource = sources?.find((s) => s.id === sourceId);
+              return selectedSource?.is_default ? (
+                <Star
+                  size={12}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-[#C9A227] fill-[#C9A227]"
+                />
+              ) : (
+                <Database
+                  size={12}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
+                />
+              );
+            })()}
             <select
               value={sourceId ?? ""}
               onChange={(e) => handleSourceChange(Number(e.target.value) || null)}
@@ -290,7 +403,7 @@ export default function PatientProfilePage() {
               <option value="">Select source...</option>
               {sources?.map((src) => (
                 <option key={src.id} value={src.id}>
-                  {src.source_name}
+                  {src.is_default ? "\u2605 " : ""}{src.source_name}
                 </option>
               ))}
             </select>
