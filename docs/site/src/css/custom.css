@@ -462,3 +462,23 @@
 [data-theme="dark"] [class*="blogPostTitle"] {
   font-family: 'Crimson Pro', Georgia, serif;
 }
+
+/* ── Pinned blog post ────────────────────────────────────────────────── */
+/* Hide the synthetic "December 31, 2099" date on the pinned post */
+article:has(blockquote > strong:first-child) time[datetime^="2099"] {
+  visibility: hidden;
+  font-size: 0;
+  line-height: 0;
+}
+/* Style the "Pinned Post" blockquote as a badge */
+article blockquote:has(> strong:first-child) {
+  background: rgba(201, 162, 39, 0.10);
+  border-left: 4px solid #C9A227;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.85rem;
+}
+[data-theme="dark"] article blockquote:has(> strong:first-child) {
+  color: #C9A227;
+}
