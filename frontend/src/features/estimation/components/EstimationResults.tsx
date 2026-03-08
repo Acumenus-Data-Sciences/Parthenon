@@ -9,6 +9,19 @@ import { PowerTable } from "./PowerTable";
 import type { AnalysisExecution } from "@/features/analyses/types/analysis";
 import type { EstimationResult } from "../types/estimation";
 
+/** Safely format a value that may be "NA", null, or a string-encoded number */
+function fmt(v: unknown, decimals = 3): string {
+  if (v == null || v === "NA" || v === "NaN" || v === "") return "N/A";
+  const n = typeof v === "number" ? v : Number(v);
+  return Number.isFinite(n) ? n.toFixed(decimals) : "N/A";
+}
+
+function num(v: unknown): number {
+  if (v == null || v === "NA" || v === "NaN") return 0;
+  const n = typeof v === "number" ? v : Number(v);
+  return Number.isFinite(n) ? n : 0;
+}
+
 interface EstimationResultsProps {
   execution?: AnalysisExecution | null;
   isLoading?: boolean;
@@ -108,7 +121,7 @@ export function EstimationResults({
         <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
           <p className="text-xs font-medium text-[#8A857D]">Target Count</p>
           <p className="mt-1 font-['IBM_Plex_Mono',monospace] text-lg font-bold text-[#2DD4BF]">
-            {result.summary.target_count.toLocaleString()}
+            {num(result.summary.target_count).toLocaleString()}
           </p>
         </div>
         <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
@@ -116,7 +129,7 @@ export function EstimationResults({
             Comparator Count
           </p>
           <p className="mt-1 font-['IBM_Plex_Mono',monospace] text-lg font-bold text-[#C9A227]">
-            {result.summary.comparator_count.toLocaleString()}
+            {num(result.summary.comparator_count).toLocaleString()}
           </p>
         </div>
         {Object.entries(result.summary.outcome_counts)
@@ -130,7 +143,7 @@ export function EstimationResults({
                 {name}
               </p>
               <p className="mt-1 font-['IBM_Plex_Mono',monospace] text-lg font-bold text-[#F0EDE8]">
-                {count.toLocaleString()}
+                {num(count).toLocaleString()}
               </p>
             </div>
           ))}
@@ -179,7 +192,7 @@ export function EstimationResults({
             </thead>
             <tbody>
               {result.estimates.map((est, i) => {
-                const isSignificant = est.p_value < 0.05;
+                const isSignificant = num(est.p_value) < 0.05;
                 return (
                   <tr
                     key={est.outcome_id}
@@ -194,18 +207,18 @@ export function EstimationResults({
                       <span
                         className={
                           isSignificant
-                            ? est.hazard_ratio < 1
+                            ? num(est.hazard_ratio) < 1
                               ? "text-[#2DD4BF]"
                               : "text-[#E85A6B]"
                             : "text-[#C5C0B8]"
                         }
                       >
-                        {est.hazard_ratio.toFixed(3)}
+                        {fmt(est.hazard_ratio)}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right font-['IBM_Plex_Mono',monospace] text-xs text-[#8A857D]">
-                      {est.ci_95_lower.toFixed(2)} -{" "}
-                      {est.ci_95_upper.toFixed(2)}
+                      {fmt(est.ci_95_lower, 2)} -{" "}
+                      {fmt(est.ci_95_upper, 2)}
                     </td>
                     <td className="px-4 py-3 text-right font-['IBM_Plex_Mono',monospace] text-xs">
                       <span
@@ -215,16 +228,16 @@ export function EstimationResults({
                             : "text-[#5A5650]"
                         }
                       >
-                        {est.p_value < 0.001
+                        {num(est.p_value) < 0.001
                           ? "<0.001"
-                          : est.p_value.toFixed(3)}
+                          : fmt(est.p_value)}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right text-xs text-[#8A857D]">
-                      {est.target_outcomes.toLocaleString()}
+                      {num(est.target_outcomes).toLocaleString()}
                     </td>
                     <td className="px-4 py-3 text-right text-xs text-[#8A857D]">
-                      {est.comparator_outcomes.toLocaleString()}
+                      {num(est.comparator_outcomes).toLocaleString()}
                     </td>
                   </tr>
                 );
@@ -244,7 +257,7 @@ export function EstimationResults({
             <div className="rounded-lg border border-[#232328] bg-[#0E0E11] p-3">
               <p className="text-xs font-medium text-[#8A857D]">PS AUC</p>
               <p className="mt-1 font-['IBM_Plex_Mono',monospace] text-lg font-bold text-[#2DD4BF]">
-                {result.propensity_score.auc.toFixed(3)}
+                {fmt(result.propensity_score.auc)}
               </p>
             </div>
             <div className="rounded-lg border border-[#232328] bg-[#0E0E11] p-3">
@@ -253,11 +266,11 @@ export function EstimationResults({
               </p>
               <p className="mt-1 font-['IBM_Plex_Mono',monospace] text-sm text-[#C5C0B8]">
                 Mean:{" "}
-                {(result.propensity_score.mean_smd_before ?? result.propensity_score.before_matching?.mean_smd ?? 0).toFixed(3)}
+                {fmt(result.propensity_score.mean_smd_before ?? result.propensity_score.before_matching?.mean_smd ?? 0)}
               </p>
               <p className="font-['IBM_Plex_Mono',monospace] text-sm text-[#C5C0B8]">
                 Max:{" "}
-                {(result.propensity_score.max_smd_before ?? result.propensity_score.before_matching?.max_smd ?? 0).toFixed(3)}
+                {fmt(result.propensity_score.max_smd_before ?? result.propensity_score.before_matching?.max_smd ?? 0)}
               </p>
             </div>
             <div className="rounded-lg border border-[#232328] bg-[#0E0E11] p-3">
@@ -266,11 +279,11 @@ export function EstimationResults({
               </p>
               <p className="mt-1 font-['IBM_Plex_Mono',monospace] text-sm text-[#2DD4BF]">
                 Mean:{" "}
-                {(result.propensity_score.mean_smd_after ?? result.propensity_score.after_matching?.mean_smd ?? 0).toFixed(3)}
+                {fmt(result.propensity_score.mean_smd_after ?? result.propensity_score.after_matching?.mean_smd ?? 0)}
               </p>
               <p className="font-['IBM_Plex_Mono',monospace] text-sm text-[#2DD4BF]">
                 Max:{" "}
-                {(result.propensity_score.max_smd_after ?? result.propensity_score.after_matching?.max_smd ?? 0).toFixed(3)}
+                {fmt(result.propensity_score.max_smd_after ?? result.propensity_score.after_matching?.max_smd ?? 0)}
               </p>
             </div>
           </div>
@@ -415,7 +428,7 @@ export function EstimationResults({
                             : "text-[#8A857D]"
                         }
                       >
-                        {cv.smd_before.toFixed(3)}
+                        {fmt(cv.smd_before)}
                       </span>
                     </td>
                     <td className="px-4 py-2.5 text-right font-['IBM_Plex_Mono',monospace] text-xs">
@@ -426,7 +439,7 @@ export function EstimationResults({
                             : "text-[#2DD4BF]"
                         }
                       >
-                        {cv.smd_after.toFixed(3)}
+                        {fmt(cv.smd_after)}
                       </span>
                     </td>
                     <td className="px-4 py-2.5">
@@ -484,7 +497,7 @@ export function EstimationResults({
               <div className="rounded-lg border border-[#232328] bg-[#0E0E11] p-3">
                 <p className="text-xs font-medium text-[#8A857D]">Equipoise</p>
                 <p className="mt-1 font-['IBM_Plex_Mono',monospace] text-lg font-bold text-[#C9A227]">
-                  {(result.diagnostics?.equipoise ?? result.propensity_score?.equipoise ?? 0).toFixed(3)}
+                  {fmt(result.diagnostics?.equipoise ?? result.propensity_score?.equipoise ?? 0)}
                 </p>
               </div>
             )}
@@ -503,7 +516,7 @@ export function EstimationResults({
                         Outcome {outcomeId}
                       </span>
                       <span className="font-['IBM_Plex_Mono',monospace] text-xs text-[#C5C0B8]">
-                        {mdrr.toFixed(3)}
+                        {fmt(mdrr)}
                       </span>
                     </div>
                   ))}
@@ -526,7 +539,7 @@ export function EstimationResults({
                           {name}
                         </span>
                         <span className="font-['IBM_Plex_Mono',monospace] text-xs text-[#C5C0B8]">
-                          {(power * 100).toFixed(1)}%
+                          {fmt(num(power) * 100, 1)}%
                         </span>
                       </div>
                     ),

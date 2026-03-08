@@ -70,18 +70,18 @@ export async function executeCharacterization(
 export async function listExecutions(
   id: number,
 ): Promise<AnalysisExecution[]> {
-  const { data } = await apiClient.get<AnalysisExecution[]>(
+  const { data } = await apiClient.get(
     `${BASE}/${id}/executions`,
   );
-  return data;
+  return data.data ?? data;
 }
 
 export async function getExecution(
   id: number,
   executionId: number,
 ): Promise<AnalysisExecution> {
-  const { data } = await apiClient.get<AnalysisExecution>(
+  const { data } = await apiClient.get(
     `${BASE}/${id}/executions/${executionId}`,
   );
-  return data;
+  return data.data ?? data;
 }

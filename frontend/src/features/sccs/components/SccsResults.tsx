@@ -4,6 +4,19 @@ import { SccsTimeline } from "@/features/estimation/components/SccsTimeline";
 import type { AnalysisExecution } from "@/features/analyses/types/analysis";
 import type { SccsResult } from "../types/sccs";
 
+/** Safely format a value that may be "NA", null, or a string-encoded number */
+function fmt(v: unknown, decimals = 3): string {
+  if (v == null || v === "NA" || v === "NaN" || v === "") return "N/A";
+  const n = typeof v === "number" ? v : Number(v);
+  return Number.isFinite(n) ? n.toFixed(decimals) : "N/A";
+}
+
+function num(v: unknown): number {
+  if (v == null || v === "NA" || v === "NaN") return 0;
+  const n = typeof v === "number" ? v : Number(v);
+  return Number.isFinite(n) ? n : 0;
+}
+
 interface SccsResultsProps {
   execution: AnalysisExecution | null;
   isLoading?: boolean;
@@ -78,7 +91,7 @@ export function SccsResults({ execution, isLoading }: SccsResultsProps) {
               className="rounded-lg border border-[#232328] bg-[#151518] p-4 text-center"
             >
               <p className="text-2xl font-bold text-[#F0EDE8]">
-                {card.value?.toLocaleString() ?? "-"}
+                {num(card.value).toLocaleString()}
               </p>
               <p className="text-xs text-[#8A857D] mt-1">{card.label}</p>
             </div>
@@ -111,14 +124,14 @@ export function SccsResults({ execution, isLoading }: SccsResultsProps) {
                     <td className="px-4 py-2 text-[#F0EDE8]">{est.covariate}</td>
                     <td className={cn(
                       "px-4 py-2 font-mono font-semibold",
-                      est.irr > 1 ? "text-[#E85A6B]" : est.irr < 1 ? "text-[#2DD4BF]" : "text-[#F0EDE8]",
+                      num(est.irr) > 1 ? "text-[#E85A6B]" : num(est.irr) < 1 ? "text-[#2DD4BF]" : "text-[#F0EDE8]",
                     )}>
-                      {est.irr.toFixed(3)}
+                      {fmt(est.irr)}
                     </td>
-                    <td className="px-4 py-2 font-mono text-[#8A857D]">{est.ci_lower.toFixed(3)}</td>
-                    <td className="px-4 py-2 font-mono text-[#8A857D]">{est.ci_upper.toFixed(3)}</td>
-                    <td className="px-4 py-2 font-mono text-[#8A857D]">{est.log_rr.toFixed(4)}</td>
-                    <td className="px-4 py-2 font-mono text-[#8A857D]">{est.se_log_rr.toFixed(4)}</td>
+                    <td className="px-4 py-2 font-mono text-[#8A857D]">{fmt(est.ci_lower)}</td>
+                    <td className="px-4 py-2 font-mono text-[#8A857D]">{fmt(est.ci_upper)}</td>
+                    <td className="px-4 py-2 font-mono text-[#8A857D]">{fmt(est.log_rr, 4)}</td>
+                    <td className="px-4 py-2 font-mono text-[#8A857D]">{fmt(est.se_log_rr, 4)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -142,7 +155,7 @@ export function SccsResults({ execution, isLoading }: SccsResultsProps) {
       {/* Execution Info */}
       {result.elapsed_seconds != null && (
         <p className="text-xs text-[#5A5650]">
-          Completed in {result.elapsed_seconds.toFixed(1)}s
+          Completed in {fmt(result.elapsed_seconds, 1)}s
         </p>
       )}
     </div>

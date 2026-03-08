@@ -4,6 +4,19 @@ import type { AnalysisExecution } from "@/features/analyses/types/analysis";
 import type { EvidenceSynthesisResult } from "../types/evidenceSynthesis";
 import { ForestPlot } from "./ForestPlot";
 
+/** Safely format a value that may be "NA", null, or a string-encoded number */
+function fmt(v: unknown, decimals = 3): string {
+  if (v == null || v === "NA" || v === "NaN" || v === "") return "N/A";
+  const n = typeof v === "number" ? v : Number(v);
+  return Number.isFinite(n) ? n.toFixed(decimals) : "N/A";
+}
+
+function num(v: unknown): number {
+  if (v == null || v === "NA" || v === "NaN") return 0;
+  const n = typeof v === "number" ? v : Number(v);
+  return Number.isFinite(n) ? n : 0;
+}
+
 interface EvidenceSynthesisResultsProps {
   execution: AnalysisExecution | null;
   isLoading?: boolean;
@@ -71,10 +84,10 @@ export function EvidenceSynthesisResults({
       {/* Pooled Summary Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
-          { label: "Pooled HR", value: result.pooled.hr.toFixed(3) },
-          { label: "95% CI", value: `[${result.pooled.ci_lower.toFixed(3)}, ${result.pooled.ci_upper.toFixed(3)}]` },
+          { label: "Pooled HR", value: fmt(result.pooled.hr) },
+          { label: "95% CI", value: `[${fmt(result.pooled.ci_lower)}, ${fmt(result.pooled.ci_upper)}]` },
           { label: "Method", value: result.method === "bayesian" ? "Bayesian RE" : "Fixed Effect" },
-          { label: "Tau (heterogeneity)", value: isNaN(result.pooled.tau) ? "N/A" : result.pooled.tau.toFixed(4) },
+          { label: "Tau (heterogeneity)", value: isNaN(num(result.pooled.tau)) ? "N/A" : fmt(result.pooled.tau, 4) },
         ].map((card) => (
           <div
             key={card.label}
@@ -112,14 +125,14 @@ export function EvidenceSynthesisResults({
                     <td className="px-4 py-2 text-[#F0EDE8]">{site.site_name}</td>
                     <td className={cn(
                       "px-4 py-2 font-mono font-semibold",
-                      site.hr > 1 ? "text-[#E85A6B]" : site.hr < 1 ? "text-[#2DD4BF]" : "text-[#F0EDE8]",
+                      num(site.hr) > 1 ? "text-[#E85A6B]" : num(site.hr) < 1 ? "text-[#2DD4BF]" : "text-[#F0EDE8]",
                     )}>
-                      {site.hr.toFixed(4)}
+                      {fmt(site.hr, 4)}
                     </td>
-                    <td className="px-4 py-2 font-mono text-[#8A857D]">{site.ci_lower.toFixed(4)}</td>
-                    <td className="px-4 py-2 font-mono text-[#8A857D]">{site.ci_upper.toFixed(4)}</td>
-                    <td className="px-4 py-2 font-mono text-[#8A857D]">{site.log_rr.toFixed(4)}</td>
-                    <td className="px-4 py-2 font-mono text-[#8A857D]">{site.se_log_rr.toFixed(4)}</td>
+                    <td className="px-4 py-2 font-mono text-[#8A857D]">{fmt(site.ci_lower, 4)}</td>
+                    <td className="px-4 py-2 font-mono text-[#8A857D]">{fmt(site.ci_upper, 4)}</td>
+                    <td className="px-4 py-2 font-mono text-[#8A857D]">{fmt(site.log_rr, 4)}</td>
+                    <td className="px-4 py-2 font-mono text-[#8A857D]">{fmt(site.se_log_rr, 4)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -131,7 +144,7 @@ export function EvidenceSynthesisResults({
       {/* Timing */}
       {result.elapsed_seconds != null && (
         <p className="text-xs text-[#5A5650]">
-          Completed in {result.elapsed_seconds.toFixed(1)}s
+          Completed in {fmt(result.elapsed_seconds, 1)}s
         </p>
       )}
     </div>

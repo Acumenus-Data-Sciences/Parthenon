@@ -72,18 +72,18 @@ export async function executeEstimation(
 export async function listEstimationExecutions(
   id: number,
 ): Promise<AnalysisExecution[]> {
-  const { data } = await apiClient.get<AnalysisExecution[]>(
+  const { data } = await apiClient.get(
     `${BASE}/${id}/executions`,
   );
-  return data;
+  return data.data ?? data;
 }
 
 export async function getEstimationExecution(
   id: number,
   executionId: number,
 ): Promise<AnalysisExecution> {
-  const { data } = await apiClient.get<AnalysisExecution>(
+  const { data } = await apiClient.get(
     `${BASE}/${id}/executions/${executionId}`,
   );
-  return data;
+  return data.data ?? data;
 }

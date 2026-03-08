@@ -72,18 +72,18 @@ export async function executePrediction(
 export async function listPredictionExecutions(
   id: number,
 ): Promise<AnalysisExecution[]> {
-  const { data } = await apiClient.get<AnalysisExecution[]>(
+  const { data } = await apiClient.get(
     `${BASE}/${id}/executions`,
   );
-  return data;
+  return data.data ?? data;
 }
 
 export async function getPredictionExecution(
   id: number,
   executionId: number,
 ): Promise<AnalysisExecution> {
-  const { data } = await apiClient.get<AnalysisExecution>(
+  const { data } = await apiClient.get(
     `${BASE}/${id}/executions/${executionId}`,
   );
-  return data;
+  return data.data ?? data;
 }

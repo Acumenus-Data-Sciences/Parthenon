@@ -10,6 +10,12 @@ interface SccsEra {
   ci_upper?: number;
 }
 
+function fmt(v: unknown, decimals = 2): string {
+  if (v == null || v === "NA" || v === "NaN" || v === "") return "N/A";
+  const n = typeof v === "number" ? v : Number(v);
+  return Number.isFinite(n) ? n.toFixed(decimals) : "N/A";
+}
+
 interface SccsTimelineProps {
   eras: SccsEra[];
   exposureName?: string;
@@ -148,7 +154,7 @@ export function SccsTimeline({ eras, exposureName }: SccsTimelineProps) {
               >
                 <title>
                   {era.era_name}: {era.event_count} events / {era.person_days.toLocaleString()} person-days
-                  {era.irr != null ? ` (IRR ${era.irr.toFixed(2)})` : ""}
+                  {era.irr != null ? ` (IRR ${fmt(era.irr)})` : ""}
                 </title>
               </rect>
 
@@ -190,7 +196,7 @@ export function SccsTimeline({ eras, exposureName }: SccsTimelineProps) {
                     fontWeight={600}
                     fontFamily="IBM Plex Mono, monospace"
                   >
-                    IRR {era.irr.toFixed(2)}
+                    IRR {fmt(era.irr)}
                   </text>
                   {era.ci_lower != null && era.ci_upper != null && (
                     <text
@@ -201,7 +207,7 @@ export function SccsTimeline({ eras, exposureName }: SccsTimelineProps) {
                       fontSize={8}
                       fontFamily="IBM Plex Mono, monospace"
                     >
-                      ({era.ci_lower.toFixed(2)}-{era.ci_upper.toFixed(2)})
+                      ({fmt(era.ci_lower)}-{fmt(era.ci_upper)})
                     </text>
                   )}
                 </g>

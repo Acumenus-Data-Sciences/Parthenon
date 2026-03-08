@@ -6,6 +6,19 @@ import type {
   IncidenceRateResult,
 } from "../types/analysis";
 
+/** Safely format a value that may be "NA", null, or a string-encoded number */
+function fmt(v: unknown, decimals = 3): string {
+  if (v == null || v === "NA" || v === "NaN" || v === "") return "N/A";
+  const n = typeof v === "number" ? v : Number(v);
+  return Number.isFinite(n) ? n.toFixed(decimals) : "N/A";
+}
+
+function num(v: unknown): number {
+  if (v == null || v === "NA" || v === "NaN") return 0;
+  const n = typeof v === "number" ? v : Number(v);
+  return Number.isFinite(n) ? n : 0;
+}
+
 interface IncidenceRateResultsProps {
   execution?: AnalysisExecution | null;
   isLoading?: boolean;
@@ -27,7 +40,7 @@ function ForestPlot({ results }: { results: IncidenceRateResult[] }) {
   if (results.length === 0) return null;
 
   const maxRate = Math.max(
-    ...results.map((r) => r.rate_95_ci_upper || r.incidence_rate * 1.5),
+    ...results.map((r) => num(r.rate_95_ci_upper) || num(r.incidence_rate) * 1.5),
   );
   const scale = maxRate > 0 ? 100 / maxRate : 1;
 
@@ -54,15 +67,15 @@ function ForestPlot({ results }: { results: IncidenceRateResult[] }) {
               <div
                 className="absolute top-1/2 -translate-y-1/2 h-1.5 rounded"
                 style={{
-                  left: `${r.rate_95_ci_lower * scale}%`,
-                  width: `${Math.max((r.rate_95_ci_upper - r.rate_95_ci_lower) * scale, 1)}%`,
+                  left: `${num(r.rate_95_ci_lower) * scale}%`,
+                  width: `${Math.max((num(r.rate_95_ci_upper) - num(r.rate_95_ci_lower)) * scale, 1)}%`,
                   background: "color-mix(in srgb, var(--primary) 20%, transparent)",
                 }}
               />
               <div
                 className="absolute top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full"
                 style={{
-                  left: `${r.incidence_rate * scale}%`,
+                  left: `${num(r.incidence_rate) * scale}%`,
                   marginLeft: "-5px",
                   background: "var(--primary)",
                   border: "1px solid var(--surface-base)",
@@ -71,11 +84,11 @@ function ForestPlot({ results }: { results: IncidenceRateResult[] }) {
             </div>
             <div className="w-36 shrink-0 text-right">
               <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-xs)", color: "var(--text-secondary)" }}>
-                {r.incidence_rate.toFixed(1)}
+                {fmt(r.incidence_rate, 1)}
                 <span style={{ color: "var(--text-ghost)" }}>
                   {" "}
-                  ({r.rate_95_ci_lower.toFixed(1)}-
-                  {r.rate_95_ci_upper.toFixed(1)})
+                  ({fmt(r.rate_95_ci_lower, 1)}-
+                  {fmt(r.rate_95_ci_upper, 1)})
                 </span>
               </span>
             </div>
@@ -113,24 +126,24 @@ function ExpandableRow({ result }: { result: IncidenceRateResult }) {
           </div>
         </td>
         <td className="px-4 py-3 text-right font-['IBM_Plex_Mono',monospace] text-sm text-[#C5C0B8]">
-          {result.persons_at_risk.toLocaleString()}
+          {num(result.persons_at_risk).toLocaleString()}
         </td>
         <td className="px-4 py-3 text-right font-['IBM_Plex_Mono',monospace] text-sm text-[#C5C0B8]">
-          {result.persons_with_outcome.toLocaleString()}
+          {num(result.persons_with_outcome).toLocaleString()}
         </td>
         <td className="px-4 py-3 text-right font-['IBM_Plex_Mono',monospace] text-sm text-[#C5C0B8]">
-          {result.person_years.toLocaleString(undefined, {
+          {num(result.person_years).toLocaleString(undefined, {
             maximumFractionDigits: 1,
           })}
         </td>
         <td className="px-4 py-3 text-right">
           <span className="font-['IBM_Plex_Mono',monospace] text-sm font-medium text-[#2DD4BF]">
-            {result.incidence_rate.toFixed(2)}
+            {fmt(result.incidence_rate, 2)}
           </span>
         </td>
         <td className="px-4 py-3 text-right font-['IBM_Plex_Mono',monospace] text-xs text-[#8A857D]">
-          ({result.rate_95_ci_lower.toFixed(2)} -{" "}
-          {result.rate_95_ci_upper.toFixed(2)})
+          ({fmt(result.rate_95_ci_lower, 2)} -{" "}
+          {fmt(result.rate_95_ci_upper, 2)})
         </td>
       </tr>
       {expanded &&
@@ -145,18 +158,18 @@ function ExpandableRow({ result }: { result: IncidenceRateResult }) {
               </span>
             </td>
             <td className="px-4 py-2 text-right font-['IBM_Plex_Mono',monospace] text-xs text-[#8A857D]">
-              {s.persons_at_risk.toLocaleString()}
+              {num(s.persons_at_risk).toLocaleString()}
             </td>
             <td className="px-4 py-2 text-right font-['IBM_Plex_Mono',monospace] text-xs text-[#8A857D]">
-              {s.persons_with_outcome.toLocaleString()}
+              {num(s.persons_with_outcome).toLocaleString()}
             </td>
             <td className="px-4 py-2 text-right font-['IBM_Plex_Mono',monospace] text-xs text-[#8A857D]">
-              {s.person_years.toLocaleString(undefined, {
+              {num(s.person_years).toLocaleString(undefined, {
                 maximumFractionDigits: 1,
               })}
             </td>
             <td className="px-4 py-2 text-right font-['IBM_Plex_Mono',monospace] text-xs text-[#C5C0B8]">
-              {s.incidence_rate.toFixed(2)}
+              {fmt(s.incidence_rate, 2)}
             </td>
             <td className="px-4 py-2" />
           </tr>

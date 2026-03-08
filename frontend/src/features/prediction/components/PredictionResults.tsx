@@ -14,6 +14,19 @@ interface PredictionResultsProps {
   isLoading?: boolean;
 }
 
+/** Safely format a value that may be "NA", null, or a string-encoded number */
+function fmt(v: unknown, decimals = 3): string {
+  if (v == null || v === "NA" || v === "NaN" || v === "") return "N/A";
+  const n = typeof v === "number" ? v : Number(v);
+  return Number.isFinite(n) ? n.toFixed(decimals) : "N/A";
+}
+
+function num(v: unknown): number {
+  if (v == null || v === "NA" || v === "NaN") return 0;
+  const n = typeof v === "number" ? v : Number(v);
+  return Number.isFinite(n) ? n : 0;
+}
+
 function parseResults(
   execution: AnalysisExecution | null | undefined,
 ): PredictionResult | null {
@@ -100,17 +113,17 @@ export function PredictionResults({
         <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
           <p className="text-xs font-medium text-[#8A857D]">AUC</p>
           <p className="mt-1 font-['IBM_Plex_Mono',monospace] text-lg font-bold text-[#2DD4BF]">
-            {result.performance.auc.toFixed(3)}
+            {fmt(result.performance.auc)}
           </p>
           <p className="text-[10px] text-[#5A5650]">
-            {result.performance.auc_ci_lower.toFixed(3)} -{" "}
-            {result.performance.auc_ci_upper.toFixed(3)}
+            {fmt(result.performance.auc_ci_lower)} -{" "}
+            {fmt(result.performance.auc_ci_upper)}
           </p>
         </div>
         <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
           <p className="text-xs font-medium text-[#8A857D]">Brier Score</p>
           <p className="mt-1 font-['IBM_Plex_Mono',monospace] text-lg font-bold text-[#C9A227]">
-            {result.performance.brier_score.toFixed(4)}
+            {fmt(result.performance.brier_score, 4)}
           </p>
         </div>
         <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
@@ -118,7 +131,7 @@ export function PredictionResults({
             Calibration Slope
           </p>
           <p className="mt-1 font-['IBM_Plex_Mono',monospace] text-lg font-bold text-[#F0EDE8]">
-            {result.performance.calibration_slope.toFixed(3)}
+            {fmt(result.performance.calibration_slope)}
           </p>
         </div>
         <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
@@ -126,7 +139,7 @@ export function PredictionResults({
             Calibration Intercept
           </p>
           <p className="mt-1 font-['IBM_Plex_Mono',monospace] text-lg font-bold text-[#F0EDE8]">
-            {result.performance.calibration_intercept.toFixed(3)}
+            {fmt(result.performance.calibration_intercept)}
           </p>
         </div>
       </div>
@@ -139,7 +152,7 @@ export function PredictionResults({
               Target Population
             </p>
             <p className="mt-1 font-['IBM_Plex_Mono',monospace] text-lg font-bold text-[#2DD4BF]">
-              {result.summary.target_count.toLocaleString()}
+              {num(result.summary.target_count).toLocaleString()}
             </p>
           </div>
           <div>
@@ -147,7 +160,7 @@ export function PredictionResults({
               Outcome Count
             </p>
             <p className="mt-1 font-['IBM_Plex_Mono',monospace] text-lg font-bold text-[#C9A227]">
-              {result.summary.outcome_count.toLocaleString()}
+              {num(result.summary.outcome_count).toLocaleString()}
             </p>
           </div>
           <div>
@@ -155,7 +168,7 @@ export function PredictionResults({
               Outcome Rate
             </p>
             <p className="mt-1 font-['IBM_Plex_Mono',monospace] text-lg font-bold text-[#F0EDE8]">
-              {(result.summary.outcome_rate * 100).toFixed(2)}%
+              {fmt(num(result.summary.outcome_rate) * 100, 2)}%
             </p>
           </div>
         </div>
@@ -172,7 +185,7 @@ export function PredictionResults({
             <div className="flex justify-center">
               <RocCurve
                 data={result.roc_curve}
-                auc={result.performance.auc}
+                auc={num(result.performance.auc)}
               />
             </div>
           </div>
@@ -187,8 +200,8 @@ export function PredictionResults({
             <div className="flex justify-center">
               <CalibrationPlot
                 data={result.calibration}
-                slope={result.performance.calibration_slope}
-                intercept={result.performance.calibration_intercept}
+                slope={num(result.performance.calibration_slope)}
+                intercept={num(result.performance.calibration_intercept)}
               />
             </div>
           </div>
@@ -201,7 +214,7 @@ export function PredictionResults({
           <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
             <h3 className="text-sm font-semibold text-[#F0EDE8] mb-4">Precision-Recall Curve</h3>
             <div className="flex justify-center">
-              <PrecisionRecallCurve data={result.precision_recall_curve} auprc={result.performance.auprc ?? 0} />
+              <PrecisionRecallCurve data={result.precision_recall_curve} auprc={num(result.performance.auprc)} />
             </div>
           </div>
         )}
@@ -242,14 +255,14 @@ export function PredictionResults({
           <ExternalValidationComparison
             development={{
               database_name: "Development",
-              auc: result.performance.auc,
-              auc_ci_lower: result.performance.auc_ci_lower,
-              auc_ci_upper: result.performance.auc_ci_upper,
-              brier_score: result.performance.brier_score,
-              calibration_slope: result.performance.calibration_slope,
-              calibration_intercept: result.performance.calibration_intercept,
-              population_size: result.summary.target_count,
-              outcome_count: result.summary.outcome_count,
+              auc: num(result.performance.auc),
+              auc_ci_lower: num(result.performance.auc_ci_lower),
+              auc_ci_upper: num(result.performance.auc_ci_upper),
+              brier_score: num(result.performance.brier_score),
+              calibration_slope: num(result.performance.calibration_slope),
+              calibration_intercept: num(result.performance.calibration_intercept),
+              population_size: num(result.summary.target_count),
+              outcome_count: num(result.summary.outcome_count),
             }}
             validations={result.external_validation}
           />
@@ -280,14 +293,16 @@ export function PredictionResults({
             </thead>
             <tbody>
               {result.top_predictors.map((pred, i) => {
+                const coeff = num(pred.coefficient);
+                const imp = num(pred.importance);
                 const maxImportance = Math.max(
                   ...result.top_predictors.map((p) =>
-                    Math.abs(p.importance),
+                    Math.abs(num(p.importance)),
                   ),
                 );
                 const barWidth =
                   maxImportance > 0
-                    ? (Math.abs(pred.importance) / maxImportance) * 100
+                    ? (Math.abs(imp) / maxImportance) * 100
                     : 0;
 
                 return (
@@ -303,15 +318,15 @@ export function PredictionResults({
                     <td className="px-4 py-3 text-right font-['IBM_Plex_Mono',monospace] text-xs">
                       <span
                         className={
-                          pred.coefficient > 0
+                          coeff > 0
                             ? "text-[#E85A6B]"
-                            : pred.coefficient < 0
+                            : coeff < 0
                               ? "text-[#2DD4BF]"
                               : "text-[#8A857D]"
                         }
                       >
-                        {pred.coefficient > 0 ? "+" : ""}
-                        {pred.coefficient.toFixed(4)}
+                        {coeff > 0 ? "+" : ""}
+                        {fmt(coeff, 4)}
                       </span>
                     </td>
                     <td className="px-4 py-3">
@@ -323,7 +338,7 @@ export function PredictionResults({
                           />
                         </div>
                         <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#8A857D] w-12 text-right">
-                          {pred.importance.toFixed(3)}
+                          {fmt(imp)}
                         </span>
                       </div>
                     </td>
