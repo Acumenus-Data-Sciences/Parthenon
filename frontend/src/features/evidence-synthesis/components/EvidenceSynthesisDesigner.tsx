@@ -45,9 +45,9 @@ export function EvidenceSynthesisDesigner({
 
   useEffect(() => {
     if (analysis) {
-      setName(analysis.name);
+      setName(analysis.name ?? "");
       setDescription(analysis.description ?? "");
-      setDesign(analysis.design_json);
+      setDesign(analysis.design_json ?? defaultDesign);
     }
   }, [analysis]);
 
@@ -128,7 +128,7 @@ export function EvidenceSynthesisDesigner({
       <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 space-y-3">
         <h3 className="text-sm font-semibold text-[#F0EDE8]">Meta-Analysis Method</h3>
         <select
-          value={design.method}
+          value={design?.method ?? "bayesian"}
           onChange={(e) => setDesign((d) => ({ ...d, method: e.target.value as "bayesian" | "fixed" }))}
           className={inputCls}
         >
@@ -136,7 +136,7 @@ export function EvidenceSynthesisDesigner({
           <option value="fixed">Fixed-Effect (Inverse Variance)</option>
         </select>
 
-        {design.method === "bayesian" && (
+        {(design?.method ?? "bayesian") === "bayesian" && (
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3">
             <div>
               <label className="block text-[10px] text-[#5A5650] mb-1">Chain Length</label>
@@ -194,7 +194,7 @@ export function EvidenceSynthesisDesigner({
             <span />
           </div>
 
-          {design.estimates.map((est, idx) => (
+          {(design?.estimates ?? []).map((est, idx) => (
             <div key={idx} className="grid grid-cols-[1fr_120px_120px_32px] gap-2 items-center">
               <input
                 type="text"
@@ -218,7 +218,7 @@ export function EvidenceSynthesisDesigner({
                 onChange={(e) => updateEstimate(idx, { seLogRr: Number(e.target.value) })}
                 className={inputCls}
               />
-              {design.estimates.length > 2 ? (
+              {(design?.estimates?.length ?? 0) > 2 ? (
                 <button
                   type="button"
                   onClick={() => removeEstimate(idx)}
@@ -239,7 +239,7 @@ export function EvidenceSynthesisDesigner({
             HR Preview (exp(logRR))
           </p>
           <div className="flex flex-wrap gap-2">
-            {design.estimates.map((est, idx) => (
+            {(design?.estimates ?? []).map((est, idx) => (
               <span
                 key={idx}
                 className="inline-flex items-center rounded-full bg-[#232328] px-2.5 py-1 text-xs text-[#C5C0B8]"
@@ -256,7 +256,7 @@ export function EvidenceSynthesisDesigner({
         <button
           type="button"
           onClick={handleSave}
-          disabled={isSaving || !name.trim() || design.estimates.length < 2}
+          disabled={isSaving || !(name ?? "").trim() || (design?.estimates?.length ?? 0) < 2}
           className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-5 py-2.5 text-sm font-medium text-[#0E0E11] hover:bg-[#26B8A5] transition-colors disabled:opacity-50"
         >
           {isSaving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}

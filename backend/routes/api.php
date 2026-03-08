@@ -248,10 +248,11 @@ Route::prefix('v1')->group(function () {
         Route::get('sccs/{scc}/executions/{execution}', [SccsController::class, 'showExecution']);
 
         // Evidence Synthesis (Meta-Analysis)
-        Route::apiResource('evidence-synthesis', EvidenceSynthesisController::class);
-        Route::post('evidence-synthesis/{evidence_synthesis}/execute', [EvidenceSynthesisController::class, 'execute']);
-        Route::get('evidence-synthesis/{evidence_synthesis}/executions', [EvidenceSynthesisController::class, 'executions']);
-        Route::get('evidence-synthesis/{evidence_synthesis}/executions/{execution}', [EvidenceSynthesisController::class, 'showExecution']);
+        Route::apiResource('evidence-synthesis', EvidenceSynthesisController::class)
+            ->parameters(['evidence-synthesis' => 'evidenceSynthesis']);
+        Route::post('evidence-synthesis/{evidenceSynthesis}/execute', [EvidenceSynthesisController::class, 'execute']);
+        Route::get('evidence-synthesis/{evidenceSynthesis}/executions', [EvidenceSynthesisController::class, 'executions']);
+        Route::get('evidence-synthesis/{evidenceSynthesis}/executions/{execution}', [EvidenceSynthesisController::class, 'showExecution']);
 
         // Studies
         Route::get('studies/stats', StudyStatsController::class);
