@@ -138,22 +138,35 @@ export function SourcesListPage() {
                     </div>
                   </button>
 
-                  {/* Default toggle button */}
+                  {/* Default CDM toggle */}
                   <button
                     type="button"
                     onClick={() => handleToggleDefault(source.id, source.is_default)}
                     title={source.is_default ? "Remove as default CDM" : "Set as default CDM"}
                     className={cn(
-                      "shrink-0 p-1.5 rounded-md transition-colors",
+                      "shrink-0 inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium transition-all border",
                       source.is_default
-                        ? "text-[#C9A227] hover:bg-[#C9A227]/10"
-                        : "text-[#3A3A40] hover:text-[#8A857D] hover:bg-[#1A1A1E]",
+                        ? "border-[#C9A227]/40 bg-[#C9A227]/10 text-[#C9A227]"
+                        : "border-[#232328] text-[#5A5650] hover:text-[#8A857D] hover:border-[#323238] hover:bg-[#1A1A1E]",
                     )}
                   >
-                    <Star
-                      size={16}
-                      className={source.is_default ? "fill-[#C9A227]" : ""}
-                    />
+                    {/* Toggle track */}
+                    <div
+                      className={cn(
+                        "relative w-7 h-4 rounded-full transition-colors",
+                        source.is_default ? "bg-[#C9A227]" : "bg-[#323238]",
+                      )}
+                    >
+                      <div
+                        className={cn(
+                          "absolute top-0.5 w-3 h-3 rounded-full transition-all",
+                          source.is_default
+                            ? "left-3.5 bg-[#0E0E11]"
+                            : "left-0.5 bg-[#5A5650]",
+                        )}
+                      />
+                    </div>
+                    Default
                   </button>
                 </div>
 
