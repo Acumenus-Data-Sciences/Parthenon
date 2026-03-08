@@ -32,20 +32,7 @@
 | CKD Progression Risk Model | Prediction #1 | 3 completed | Working — AUC shows N/A (R returned "NA"), no crash |
 | NSAID and Acute Kidney Injury | SCCS #1 | 2 completed | Working — IRR table, timeline rendering |
 
-### Need execution (0 runs):
-| Analysis | Type | R Backend |
-|----------|------|-----------|
-| ACE-I vs ARB for Hypertension | Estimation #2 | Ready |
-| Statin Effect on CAD Outcomes | Estimation #3 | Ready |
-| Heart Failure Readmission Risk | Prediction #2 | Ready |
-| CKD Progression Risk Model | Prediction #3 | Ready |
-| Statin Exposure and Myopathy | SCCS #2 | Ready |
-| NSAID Exposure and GI Bleeding | SCCS #3 | Ready |
-| New-Onset CKD in T2DM Patients | Incidence Rate #1 | Ready (StudyBridge) |
-| Heart Failure Hospitalization Rate | Incidence Rate #2 | Ready (StudyBridge) |
-| Meta-Analysis: Statin Cardioprotection | Evidence Synthesis #1 | Ready |
-| Antihypertensive Treatment Pathway | Pathways #1 | **NO R backend** |
-| T2DM Medication Escalation | Pathways #2 | **NO R backend** |
+### All analyses now have completed executions on Acumenus CDM (1M patients) ✅
 
 ---
 
@@ -78,29 +65,26 @@ export function fmtPct(v: unknown, decimals = 1): string { ... }
 export function fmtCompact(n: number): string { ... }  // 1.2M, 3.4K
 ```
 
-### Phase 2: Pathways R Backend (Priority: High)
+### Phase 2: Pathways R Backend (Priority: High) — **SKIPPED (Not Needed)**
 
-Currently the only analysis type with NO R runtime implementation.
+Pathways are fully handled by PHP `PathwayService` — no R runtime needed. Both pathway analyses execute successfully via the `analysis` queue.
 
-**2.1 — R endpoint for treatment pathways**
-- Add `POST /pathway/execute` to `r-runtime/plumber_api.R`
-- Use HADES `TreatmentPatterns` package (already installed in R container)
-- Input: target cohort ID, event cohort IDs, min cell count
-- Output: Sankey flow data + pathway table with percentages
+### Phase 3: Execution Coverage (Priority: Medium) — **COMPLETED**
 
-**2.2 — Laravel controller integration**
-- Add `PathwayAnalysisController::execute()` to call R runtime
-- Store results in `analysis_executions.result_json`
+All 13 seeded analyses executed against Acumenus CDM (1M patients):
+- ✅ Estimation #1 (Lisinopril vs ARB, HR=1.02, PS AUC=0.95)
+- ✅ Estimation #2 (ACE-I vs ARB, demographics-only PS, HR=0.26 CAD, HR=8.15 AMI)
+- ✅ Estimation #3 (Lisinopril vs ARB, matching PS)
+- ✅ Prediction #1 (LASSO, 30 predictors, 200pt ROC)
+- ✅ Prediction #2 (Gradient boosting / xgboost, 30 predictors)
+- ✅ Prediction #3 (LASSO logistic regression)
+- ✅ SCCS #1 (IRR=93.0 primary window), SCCS #2, SCCS #3
+- ✅ Evidence Synthesis (Bayesian meta-analysis, pooled HR=0.72, τ=0.077)
+- ✅ Pathway #1, #2 (PHP-based)
+- ✅ Characterization #1, #2 (PHP-based)
+- ✅ Incidence Rate #1, #2 (PHP-based)
 
-### Phase 3: Execution Coverage (Priority: Medium)
-
-Run all remaining seeded analyses to populate results:
-1. Execute Estimation #2, #3 against Acumenus CDM
-2. Execute Prediction #2, #3
-3. Execute SCCS #2, #3
-4. Execute Incidence Rate #1, #2
-5. Execute Evidence Synthesis #1
-6. Execute Pathways #1, #2 (after Phase 2)
+See `docs/devlog/analyses-v2-phase3-execution-coverage.md` for details.
 
 ### Phase 4: Results UX Improvements (Priority: Medium)
 

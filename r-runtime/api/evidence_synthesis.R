@@ -28,14 +28,28 @@ function(req, res) {
 
   safe_execute(res, logger, {
     # Build data frame from site estimates
-    site_data <- data.frame(
-      logRr   = sapply(spec$estimates, function(e) as.numeric(e$log_rr %||% e$logRr)),
-      seLogRr = sapply(spec$estimates, function(e) as.numeric(e$se_log_rr %||% e$seLogRr)),
-      site    = sapply(seq_along(spec$estimates), function(i) {
-        spec$estimates[[i]]$site_name %||% spec$estimates[[i]]$siteName %||% paste0("Site ", i)
-      }),
-      stringsAsFactors = FALSE
-    )
+    # Note: plumber/jsonlite may convert homogeneous arrays-of-objects into
+    # a data.frame instead of a list of lists. Handle both cases.
+    estimates <- spec$estimates
+    if (is.data.frame(estimates)) {
+      # Already a data.frame — access columns directly
+      site_data <- data.frame(
+        logRr   = as.numeric(estimates$logRr %||% estimates$log_rr),
+        seLogRr = as.numeric(estimates$seLogRr %||% estimates$se_log_rr %||% estimates$seLogRr),
+        site    = as.character(estimates$siteName %||% estimates$site_name %||% paste0("Site ", seq_len(nrow(estimates)))),
+        stringsAsFactors = FALSE
+      )
+    } else {
+      # List of lists — iterate elements
+      site_data <- data.frame(
+        logRr   = sapply(estimates, function(e) as.numeric(e$log_rr %||% e$logRr)),
+        seLogRr = sapply(estimates, function(e) as.numeric(e$se_log_rr %||% e$seLogRr)),
+        site    = sapply(seq_along(estimates), function(i) {
+          estimates[[i]]$site_name %||% estimates[[i]]$siteName %||% paste0("Site ", i)
+        }),
+        stringsAsFactors = FALSE
+      )
+    }
 
     # Remove rows with NA
     valid_rows <- complete.cases(site_data[, c("logRr", "seLogRr")])
