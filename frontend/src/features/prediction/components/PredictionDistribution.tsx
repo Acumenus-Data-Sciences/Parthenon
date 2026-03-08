@@ -1,3 +1,5 @@
+import { fmt } from "@/lib/formatters";
+
 interface PredictionDistributionProps {
   bins: { binStart: number; binEnd: number; outcomeCount: number; noOutcomeCount: number }[];
 }
@@ -74,7 +76,7 @@ export function PredictionDistribution({ bins }: PredictionDistributionProps) {
                 rx={1}
               >
                 <title>
-                  {bin.binStart.toFixed(2)}-{bin.binEnd.toFixed(2)}: {bin.noOutcomeCount} without outcome
+                  {fmt(bin.binStart, 2)}-{fmt(bin.binEnd, 2)}: {bin.noOutcomeCount} without outcome
                 </title>
               </rect>
               {/* Outcome (top, stacked) */}
@@ -88,7 +90,7 @@ export function PredictionDistribution({ bins }: PredictionDistributionProps) {
                 rx={1}
               >
                 <title>
-                  {bin.binStart.toFixed(2)}-{bin.binEnd.toFixed(2)}: {bin.outcomeCount} with outcome
+                  {fmt(bin.binStart, 2)}-{fmt(bin.binEnd, 2)}: {bin.outcomeCount} with outcome
                 </title>
               </rect>
             </g>

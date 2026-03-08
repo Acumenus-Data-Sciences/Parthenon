@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { fmt } from "@/lib/formatters";
 import type { PerSiteResult, PooledEstimate } from "../types/evidenceSynthesis";
 
 interface ForestPlotProps {
@@ -75,7 +76,7 @@ export function ForestPlot({ perSite, pooled, className }: ForestPlotProps) {
                 />
                 {/* HR label */}
                 <text x={550} y={y + 4} fill="#8A857D" fontSize={10} fontFamily="monospace" textAnchor="end">
-                  {site.hr.toFixed(2)} [{site.ci_lower.toFixed(2)}, {site.ci_upper.toFixed(2)}]
+                  {fmt(site.hr, 2)} [{fmt(site.ci_lower, 2)}, {fmt(site.ci_upper, 2)}]
                 </text>
               </g>
             );
@@ -101,7 +102,7 @@ export function ForestPlot({ perSite, pooled, className }: ForestPlotProps) {
                   opacity={0.8}
                 />
                 <text x={550} y={y + 4} fill="#C9A227" fontSize={10} fontFamily="monospace" fontWeight="bold" textAnchor="end">
-                  {pooled.hr.toFixed(2)} [{pooled.ci_lower.toFixed(2)}, {pooled.ci_upper.toFixed(2)}]
+                  {fmt(pooled.hr, 2)} [{fmt(pooled.ci_lower, 2)}, {fmt(pooled.ci_upper, 2)}]
                 </text>
               </g>
             );

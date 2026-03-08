@@ -5,19 +5,7 @@ import type {
   AnalysisExecution,
   IncidenceRateResult,
 } from "../types/analysis";
-
-/** Safely format a value that may be "NA", null, or a string-encoded number */
-function fmt(v: unknown, decimals = 3): string {
-  if (v == null || v === "NA" || v === "NaN" || v === "") return "N/A";
-  const n = typeof v === "number" ? v : Number(v);
-  return Number.isFinite(n) ? n.toFixed(decimals) : "N/A";
-}
-
-function num(v: unknown): number {
-  if (v == null || v === "NA" || v === "NaN") return 0;
-  const n = typeof v === "number" ? v : Number(v);
-  return Number.isFinite(n) ? n : 0;
-}
+import { fmt, num } from "@/lib/formatters";
 
 interface IncidenceRateResultsProps {
   execution?: AnalysisExecution | null;

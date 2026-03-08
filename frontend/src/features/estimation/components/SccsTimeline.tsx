@@ -10,11 +10,7 @@ interface SccsEra {
   ci_upper?: number;
 }
 
-function fmt(v: unknown, decimals = 2): string {
-  if (v == null || v === "NA" || v === "NaN" || v === "") return "N/A";
-  const n = typeof v === "number" ? v : Number(v);
-  return Number.isFinite(n) ? n.toFixed(decimals) : "N/A";
-}
+import { fmt } from "@/lib/formatters";
 
 interface SccsTimelineProps {
   eras: SccsEra[];

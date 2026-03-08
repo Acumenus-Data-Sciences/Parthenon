@@ -1,3 +1,5 @@
+import { fmt } from "@/lib/formatters";
+
 interface RocCurveProps {
   data: { fpr: number; tpr: number }[];
   auc: number;
@@ -144,7 +146,7 @@ export function RocCurve({ data, auc }: RocCurveProps) {
         fontWeight={700}
         fontFamily="IBM Plex Mono, monospace"
       >
-        AUC = {auc.toFixed(3)}
+        AUC = {fmt(auc)}
       </text>
 
       {/* Axis labels */}

@@ -1,3 +1,5 @@
+import { fmt } from "@/lib/formatters";
+
 interface NegativeControlOutcome {
   outcome_name: string;
   log_rr: number;
@@ -160,8 +162,8 @@ export function SystematicErrorPlot({
             strokeWidth={0.5}
           >
             <title>
-              {nc.outcome_name}: log(RR)={nc.log_rr.toFixed(3)}, SE=
-              {nc.se_log_rr.toFixed(3)}
+              {nc.outcome_name}: log(RR)={fmt(nc.log_rr)}, SE=
+              {fmt(nc.se_log_rr)}
             </title>
           </circle>
         ))}
@@ -179,8 +181,8 @@ export function SystematicErrorPlot({
             strokeWidth={0.5}
           >
             <title>
-              {pc.outcome_name}: log(RR)={pc.log_rr.toFixed(3)}, SE=
-              {pc.se_log_rr.toFixed(3)}
+              {pc.outcome_name}: log(RR)={fmt(pc.log_rr)}, SE=
+              {fmt(pc.se_log_rr)}
             </title>
           </circle>
         ))}

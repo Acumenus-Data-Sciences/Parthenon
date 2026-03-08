@@ -8,23 +8,11 @@ import { PredictionDistribution } from "./PredictionDistribution";
 import { ExternalValidationComparison } from "./ExternalValidationComparison";
 import type { AnalysisExecution } from "@/features/analyses/types/analysis";
 import type { PredictionResult } from "../types/prediction";
+import { fmt, num } from "@/lib/formatters";
 
 interface PredictionResultsProps {
   execution?: AnalysisExecution | null;
   isLoading?: boolean;
-}
-
-/** Safely format a value that may be "NA", null, or a string-encoded number */
-function fmt(v: unknown, decimals = 3): string {
-  if (v == null || v === "NA" || v === "NaN" || v === "") return "N/A";
-  const n = typeof v === "number" ? v : Number(v);
-  return Number.isFinite(n) ? n.toFixed(decimals) : "N/A";
-}
-
-function num(v: unknown): number {
-  if (v == null || v === "NA" || v === "NaN") return 0;
-  const n = typeof v === "number" ? v : Number(v);
-  return Number.isFinite(n) ? n : 0;
 }
 
 function parseResults(

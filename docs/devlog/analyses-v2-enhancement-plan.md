@@ -51,25 +51,27 @@
 
 ## v2 Enhancement Plan
 
-### Phase 1: Remaining Crash Hardening (Priority: Critical)
+### Phase 1: Remaining Crash Hardening (Priority: Critical) — **COMPLETED**
 
-**1.1 — Sub-component `.toFixed()` hardening**
-The parent results components are now safe, but several child chart/plot components still call `.toFixed()` directly on props that could be `"NA"`:
-- `ForestPlot.tsx` (estimation) — `entry.hazard_ratio.toFixed(2)`, `entry.p_value.toFixed(3)`
-- `LovePlot.tsx` — `entry.smd_before.toFixed(3)`, `entry.smd_after.toFixed(3)`
-- `PropensityScorePlot.tsx` — `auc.toFixed(3)`
-- `SystematicErrorPlot.tsx` — `nc.log_rr.toFixed(3)`, `nc.se_log_rr.toFixed(3)`
-- `PowerTable.tsx` — `entry.mdrr.toFixed(2)`, `entry.power_at_1_5`, `entry.power_at_2_0`
-- `KaplanMeierPlot.tsx` — `logRankPValue.toFixed(3)`
-- `ExternalValidationComparison.tsx` — `db.auc.toFixed(3)`, `db.brier_score.toFixed(4)`
-- `EvidenceSynthesis/ForestPlot.tsx` — `site.hr.toFixed(2)`, `pooled.hr.toFixed(2)`
-- `FeatureComparisonTable.tsx` — `row.smd.toFixed(3)`
+**1.1 — Sub-component `.toFixed()` hardening** ✅
+All child chart/plot components hardened with defensive `fmt()`/`num()` calls:
+- `ForestPlot.tsx` (estimation) — ✅
+- `LovePlot.tsx` — ✅
+- `PropensityScorePlot.tsx` — ✅
+- `SystematicErrorPlot.tsx` — ✅
+- `PowerTable.tsx` — ✅
+- `KaplanMeierPlot.tsx` — ✅
+- `CalibrationPlot.tsx` — ✅
+- `RocCurve.tsx` — ✅
+- `PrecisionRecallCurve.tsx` — ✅
+- `PredictionDistribution.tsx` — ✅
+- `ExternalValidationComparison.tsx` — ✅
+- `EvidenceSynthesis/ForestPlot.tsx` — ✅
+- `FeatureComparisonTable.tsx` — ✅
 
-**Action:** Extract `fmt()`/`num()` into a shared `@/lib/formatters.ts` utility and import across all components. Eliminates duplication (currently 6 copies of the same helpers).
-
-**1.2 — Shared formatters module**
+**1.2 — Shared formatters module** ✅
 ```typescript
-// frontend/src/lib/formatters.ts
+// frontend/src/lib/formatters.ts — created and imported across all 18+ components
 export function fmt(v: unknown, decimals = 3): string { ... }
 export function num(v: unknown): number { ... }
 export function fmtPct(v: unknown, decimals = 1): string { ... }
@@ -137,7 +139,7 @@ CharacterizationResults currently renders a FeatureComparisonTable. Add:
 
 ## Technical Debt
 
-1. **6 copies of `fmt()`/`num()`** — Extract to shared module
+1. ~~**6 copies of `fmt()`/`num()`** — Extract to shared module~~ ✅ Done — `@/lib/formatters.ts`
 2. **IncidenceRateResults uses CSS component classes** — The `ForestPlot` sub-component uses `panel`, `panel-title` CSS classes. Migrate to inline Tailwind
 3. **No loading state for execution history** — When switching between executions, there's no visual feedback
 4. **Execution polling interval** — 2s may be too aggressive for production. Consider adaptive polling (2s → 5s → 10s)

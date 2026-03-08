@@ -1,3 +1,5 @@
+import { fmt } from "@/lib/formatters";
+
 interface PrecisionRecallCurveProps {
   data: { recall: number; precision: number }[];
   auprc: number;
@@ -36,7 +38,7 @@ export function PrecisionRecallCurve({ data, auprc }: PrecisionRecallCurveProps)
       viewBox={`0 0 ${size} ${size}`}
       className="text-[#F0EDE8]"
       role="img"
-      aria-label={`Precision-Recall curve, AUPRC = ${auprc.toFixed(3)}`}
+      aria-label={`Precision-Recall curve, AUPRC = ${fmt(auprc)}`}
     >
       <rect width={size} height={size} fill="#151518" rx={8} />
 
@@ -67,7 +69,7 @@ export function PrecisionRecallCurve({ data, auprc }: PrecisionRecallCurveProps)
       <g transform={`translate(${padding.left + plotW - 130}, ${padding.top + 8})`}>
         <rect x={0} y={0} width={120} height={24} rx={4} fill="#0E0E11" stroke="#232328" strokeWidth={1} />
         <text x={10} y={16} fill="#2DD4BF" fontSize={10} fontFamily="IBM Plex Mono, monospace" fontWeight={600}>
-          AUPRC = {auprc.toFixed(3)}
+          AUPRC = {fmt(auprc)}
         </text>
       </g>
 

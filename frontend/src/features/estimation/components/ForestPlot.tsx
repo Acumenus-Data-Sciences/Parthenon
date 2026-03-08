@@ -1,4 +1,5 @@
 import type { EstimateEntry } from "../types/estimation";
+import { fmt, num } from "@/lib/formatters";
 
 interface ForestPlotProps {
   estimates: EstimateEntry[];
@@ -18,9 +19,9 @@ export function ForestPlot({ estimates }: ForestPlotProps) {
 
   // Compute logarithmic scale bounds
   const allValues = estimates.flatMap((e) => [
-    Math.log(e.ci_95_lower || 0.01),
-    Math.log(e.ci_95_upper || 100),
-    Math.log(e.hazard_ratio || 1),
+    Math.log(num(e.ci_95_lower) || 0.01),
+    Math.log(num(e.ci_95_upper) || 100),
+    Math.log(num(e.hazard_ratio) || 1),
   ]);
   const logMin = Math.min(...allValues, Math.log(0.1));
   const logMax = Math.max(...allValues, Math.log(10));
@@ -156,12 +157,12 @@ export function ForestPlot({ estimates }: ForestPlotProps) {
         {/* Data rows */}
         {estimates.map((entry, idx) => {
           const y = headerHeight + idx * rowHeight + rowHeight / 2;
-          const hrX = toX(entry.hazard_ratio);
-          const ciLowX = toX(Math.max(entry.ci_95_lower, 0.001));
-          const ciHighX = toX(Math.min(entry.ci_95_upper, 1000));
-          const isSignificant = entry.p_value < 0.05;
+          const hrX = toX(num(entry.hazard_ratio) || 1);
+          const ciLowX = toX(Math.max(num(entry.ci_95_lower), 0.001));
+          const ciHighX = toX(Math.min(num(entry.ci_95_upper), 1000));
+          const isSignificant = num(entry.p_value) < 0.05;
           const color = isSignificant
-            ? entry.hazard_ratio < 1
+            ? num(entry.hazard_ratio) < 1
               ? "#2DD4BF"
               : "#E85A6B"
             : "#8A857D";
@@ -225,8 +226,8 @@ export function ForestPlot({ estimates }: ForestPlotProps) {
                 fontSize={10}
                 fontFamily="IBM Plex Mono, monospace"
               >
-                {entry.hazard_ratio.toFixed(2)} (
-                {entry.ci_95_lower.toFixed(2)}-{entry.ci_95_upper.toFixed(2)})
+                {fmt(entry.hazard_ratio, 2)} (
+                {fmt(entry.ci_95_lower, 2)}-{fmt(entry.ci_95_upper, 2)})
               </text>
               <text
                 x={width - 40}
@@ -236,9 +237,9 @@ export function ForestPlot({ estimates }: ForestPlotProps) {
                 fontFamily="IBM Plex Mono, monospace"
                 textAnchor="end"
               >
-                {entry.p_value < 0.001
+                {num(entry.p_value) < 0.001
                   ? "<0.001"
-                  : `p=${entry.p_value.toFixed(3)}`}
+                  : `p=${fmt(entry.p_value)}`}
               </text>
             </g>
           );

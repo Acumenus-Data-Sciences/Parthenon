@@ -1,4 +1,5 @@
 import type { ValidationMetrics } from "../types/prediction";
+import { fmt, num } from "@/lib/formatters";
 
 interface ExternalValidationComparisonProps {
   development: ValidationMetrics;
@@ -152,7 +153,7 @@ export function ExternalValidationComparison({
                   fontFamily="IBM Plex Mono, monospace"
                   fontWeight={600}
                 >
-                  {db.auc.toFixed(3)}
+                  {fmt(db.auc)}
                 </text>
               </g>
             );
@@ -231,29 +232,29 @@ export function ExternalValidationComparison({
                     )}
                   </td>
                   <td className="px-3 py-3 text-right font-['IBM_Plex_Mono',monospace] text-xs text-[#C5C0B8]">
-                    {db.population_size.toLocaleString()}
+                    {num(db.population_size).toLocaleString()}
                   </td>
                   <td className="px-3 py-3 text-right font-['IBM_Plex_Mono',monospace] text-xs text-[#C5C0B8]">
-                    {db.outcome_count.toLocaleString()}
+                    {num(db.outcome_count).toLocaleString()}
                   </td>
                   <td className="px-3 py-3 text-right font-['IBM_Plex_Mono',monospace] text-xs">
                     <span style={{ color: aucColor(db.auc) }}>
-                      {db.auc.toFixed(3)}
+                      {fmt(db.auc)}
                     </span>
                     <span className="text-[#5A5650] ml-1">
-                      ({db.auc_ci_lower.toFixed(2)}-{db.auc_ci_upper.toFixed(2)})
+                      ({fmt(db.auc_ci_lower, 2)}-{fmt(db.auc_ci_upper, 2)})
                     </span>
                   </td>
                   <td className="px-3 py-3 text-right font-['IBM_Plex_Mono',monospace] text-xs text-[#C5C0B8]">
-                    {db.brier_score.toFixed(4)}
+                    {fmt(db.brier_score, 4)}
                   </td>
                   <td className="px-3 py-3 text-right font-['IBM_Plex_Mono',monospace] text-xs">
                     <span style={{ color: calSlopeColor(db.calibration_slope) }}>
-                      {db.calibration_slope.toFixed(3)}
+                      {fmt(db.calibration_slope)}
                     </span>
                   </td>
                   <td className="px-3 py-3 text-right font-['IBM_Plex_Mono',monospace] text-xs text-[#C5C0B8]">
-                    {db.calibration_intercept.toFixed(3)}
+                    {fmt(db.calibration_intercept)}
                   </td>
                 </tr>
               );

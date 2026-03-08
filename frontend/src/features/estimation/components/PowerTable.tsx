@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { PowerEntry } from "../types/estimation";
+import { fmt, num } from "@/lib/formatters";
 
 interface PowerTableProps {
   entries: PowerEntry[];
@@ -111,7 +112,7 @@ export function PowerTable({ entries }: PowerTableProps) {
                 <td className="px-4 py-3 text-right font-['IBM_Plex_Mono',monospace] text-sm font-medium"
                   style={{ color: mdrrColor(entry.mdrr) }}
                 >
-                  {entry.mdrr.toFixed(2)}
+                  {fmt(entry.mdrr, 2)}
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex-1 h-2 rounded-full bg-[#0E0E11]">
@@ -127,14 +128,14 @@ export function PowerTable({ entries }: PowerTableProps) {
                 {entries.some((e) => e.power_at_1_5 != null) && (
                   <td className="px-4 py-3 text-right font-['IBM_Plex_Mono',monospace] text-xs text-[#C5C0B8]">
                     {entry.power_at_1_5 != null
-                      ? `${(entry.power_at_1_5 * 100).toFixed(1)}%`
+                      ? `${(num(entry.power_at_1_5) * 100).toFixed(1)}%`
                       : "—"}
                   </td>
                 )}
                 {entries.some((e) => e.power_at_2_0 != null) && (
                   <td className="px-4 py-3 text-right font-['IBM_Plex_Mono',monospace] text-xs text-[#C5C0B8]">
                     {entry.power_at_2_0 != null
-                      ? `${(entry.power_at_2_0 * 100).toFixed(1)}%`
+                      ? `${(num(entry.power_at_2_0) * 100).toFixed(1)}%`
                       : "—"}
                   </td>
                 )}

@@ -1,4 +1,5 @@
 import type { CovariateBalanceEntry } from "../types/estimation";
+import { fmt, num } from "@/lib/formatters";
 
 interface LovePlotProps {
   data: CovariateBalanceEntry[];
@@ -122,7 +123,7 @@ export function LovePlot({ data, maxDisplay = 200 }: LovePlotProps) {
                 opacity={0.7}
               >
                 <title>
-                  {entry.covariate_name}: Before SMD = {entry.smd_before.toFixed(3)}
+                  {entry.covariate_name}: Before SMD = {fmt(entry.smd_before)}
                 </title>
               </circle>
               {/* After matching (filled circle) */}
@@ -135,7 +136,7 @@ export function LovePlot({ data, maxDisplay = 200 }: LovePlotProps) {
                 opacity={0.8}
               >
                 <title>
-                  {entry.covariate_name}: After SMD = {entry.smd_after.toFixed(3)}
+                  {entry.covariate_name}: After SMD = {fmt(entry.smd_after)}
                 </title>
               </circle>
             </g>

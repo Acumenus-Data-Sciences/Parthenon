@@ -1,3 +1,5 @@
+import { fmt } from "@/lib/formatters";
+
 interface CalibrationPlotProps {
   data: { predicted: number; observed: number }[];
   slope: number;
@@ -145,7 +147,7 @@ export function CalibrationPlot({
         fontSize={10}
         fontFamily="IBM Plex Mono, monospace"
       >
-        Slope: {slope.toFixed(3)}
+        Slope: {fmt(slope)}
       </text>
       <text
         x={padding.left + 16}
@@ -154,7 +156,7 @@ export function CalibrationPlot({
         fontSize={10}
         fontFamily="IBM Plex Mono, monospace"
       >
-        Intercept: {intercept.toFixed(3)}
+        Intercept: {fmt(intercept)}
       </text>
 
       {/* Axis labels */}

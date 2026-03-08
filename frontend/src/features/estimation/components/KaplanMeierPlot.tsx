@@ -1,3 +1,5 @@
+import { fmt } from "@/lib/formatters";
+
 interface KaplanMeierPoint {
   time: number;
   surv: number;
@@ -284,7 +286,7 @@ export function KaplanMeierPlot({
               fontSize={10}
               fontFamily="IBM Plex Mono, monospace"
             >
-              Log-rank p={logRankPValue < 0.001 ? "<0.001" : logRankPValue.toFixed(3)}
+              Log-rank p={logRankPValue < 0.001 ? "<0.001" : fmt(logRankPValue)}
             </text>
           )}
         </g>

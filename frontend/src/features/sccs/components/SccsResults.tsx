@@ -3,19 +3,7 @@ import { cn } from "@/lib/utils";
 import { SccsTimeline } from "@/features/estimation/components/SccsTimeline";
 import type { AnalysisExecution } from "@/features/analyses/types/analysis";
 import type { SccsResult } from "../types/sccs";
-
-/** Safely format a value that may be "NA", null, or a string-encoded number */
-function fmt(v: unknown, decimals = 3): string {
-  if (v == null || v === "NA" || v === "NaN" || v === "") return "N/A";
-  const n = typeof v === "number" ? v : Number(v);
-  return Number.isFinite(n) ? n.toFixed(decimals) : "N/A";
-}
-
-function num(v: unknown): number {
-  if (v == null || v === "NA" || v === "NaN") return 0;
-  const n = typeof v === "number" ? v : Number(v);
-  return Number.isFinite(n) ? n : 0;
-}
+import { fmt, num } from "@/lib/formatters";
 
 interface SccsResultsProps {
   execution: AnalysisExecution | null;

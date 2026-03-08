@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { ArrowUpDown, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { fmt } from "@/lib/formatters";
 import type { FeatureResult } from "../types/analysis";
 
 interface FeatureComparisonTableProps {
@@ -256,7 +257,7 @@ export function FeatureComparisonTable({
                         />
                       </div>
                       <span className="font-['IBM_Plex_Mono',monospace] text-sm text-[#C5C0B8] w-14 text-right">
-                        {row.target_percent.toFixed(1)}%
+                        {fmt(row.target_percent, 1)}%
                       </span>
                     </div>
                   </td>
@@ -276,7 +277,7 @@ export function FeatureComparisonTable({
                             />
                           </div>
                           <span className="font-['IBM_Plex_Mono',monospace] text-sm text-[#C5C0B8] w-14 text-right">
-                            {row.comparator_percent.toFixed(1)}%
+                            {fmt(row.comparator_percent, 1)}%
                           </span>
                         </div>
                       </td>
@@ -292,7 +293,7 @@ export function FeatureComparisonTable({
                                   : "text-[#C5C0B8]",
                             )}
                           >
-                            {row.smd.toFixed(3)}
+                            {fmt(row.smd)}
                           </span>
                         ) : (
                           <span className="text-xs text-[#5A5650]">

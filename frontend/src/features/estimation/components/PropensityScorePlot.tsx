@@ -1,3 +1,5 @@
+import { fmt } from "@/lib/formatters";
+
 interface PSDistributionPoint {
   score: number;
   targetCount: number;
@@ -200,7 +202,7 @@ export function PropensityScorePlot({
               fontSize={10}
               fontFamily="IBM Plex Mono, monospace"
             >
-              PS AUC = {auc.toFixed(3)}
+              PS AUC = {fmt(auc)}
             </text>
           )}
         </g>
