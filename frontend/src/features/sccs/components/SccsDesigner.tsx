@@ -59,7 +59,18 @@ export function SccsDesigner({ sccs, isNew, onSaved }: SccsDesignerProps) {
     if (sccs) {
       setName(sccs.name);
       setDescription(sccs.description ?? "");
-      setDesign(sccs.design_json);
+      const dj = sccs.design_json;
+      // Normalize: backend may use studyPopulationSettings instead of studyPopulation
+      const studyPop = dj.studyPopulation ?? dj.studyPopulationSettings ?? defaultDesign.studyPopulation;
+      setDesign({
+        ...defaultDesign,
+        ...dj,
+        studyPopulation: {
+          naivePeriod: studyPop.naivePeriod ?? studyPop.naive_period ?? 365,
+          firstOutcomeOnly: studyPop.firstOutcomeOnly ?? studyPop.first_outcome_only ?? true,
+        },
+        riskWindows: dj.riskWindows ?? dj.risk_windows ?? defaultDesign.riskWindows,
+      });
     }
   }, [sccs]);
 
