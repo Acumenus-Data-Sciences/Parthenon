@@ -11,3 +11,6 @@ ollama==0.4.*
 transformers==5.*
 torch==2.*
 pandas==2.*
+chromadb==1.*
+sentence-transformers==4.*
+langchain-text-splitters==0.*
