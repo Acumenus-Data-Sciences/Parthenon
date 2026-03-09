@@ -143,6 +143,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      chromadb:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 10s
@@ -153,6 +155,28 @@ services:
       resources:
         limits:
           memory: 4G
+    networks:
+      - parthenon
+    restart: unless-stopped
+
+  chromadb:
+    container_name: parthenon-chromadb
+    image: chromadb/chroma:latest
+    volumes:
+      - chromadb-data:/chroma/chroma
+    environment:
+      - IS_PERSISTENT=TRUE
+      - ANONYMIZED_TELEMETRY=FALSE
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/heartbeat"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
     networks:
       - parthenon
     restart: unless-stopped
@@ -314,6 +338,7 @@ volumes:
   redis-data:
   solr_data:
   orthanc-data:
+  chromadb-data:
   ohif-dist:
 
 networks:

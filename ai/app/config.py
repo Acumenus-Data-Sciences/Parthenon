@@ -11,6 +11,10 @@ class Settings(BaseSettings):
     ollama_model: str = "MedAIBase/MedGemma1.5:4b"
     ollama_timeout: int = 120
 
+    # ChromaDB configuration
+    chroma_host: str = "chromadb"
+    chroma_port: int = 8000
+
     # SapBERT model (for Phase 2+ embedding generation)
     sapbert_model: str = "cambridgeltl/SapBERT-from-PubMedBERT-fulltext"
 
