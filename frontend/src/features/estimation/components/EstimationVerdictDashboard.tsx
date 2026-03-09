@@ -34,7 +34,7 @@ export function EstimationVerdictDashboard({
   const nntValue = nntResult.value;
 
   // Calibrated p-value from negative controls (if available)
-  const calibratedP = getCalbratedP(result);
+  const calibratedP = getCalibratedP(result);
 
   // Direction arrow
   const directionArrow =
@@ -203,7 +203,7 @@ function computeNNTFromKM(result: EstimationResult): {
  * Uses the mean calibrated log-RR from the primary outcome's negative control
  * analysis. Returns null if no calibrated values are available.
  */
-function getCalbratedP(result: EstimationResult): number | null {
+function getCalibratedP(result: EstimationResult): number | null {
   if (!result.negative_controls?.length) return null;
 
   const withCalibrated = result.negative_controls.filter(
