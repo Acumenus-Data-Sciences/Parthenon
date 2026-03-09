@@ -30,6 +30,17 @@ RUN apk add --no-cache --virtual .build-deps $PHPIZE_DEPS \
     && docker-php-ext-enable redis \
     && apk del .build-deps
 
+# GD extension (PhpWord image support)
+RUN apk add --no-cache freetype-dev libjpeg-turbo-dev libpng-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install gd
+
+# Imagick for SVG→PNG conversion (publication exports)
+RUN apk add --no-cache imagemagick imagemagick-dev autoconf g++ make \
+    && pecl install imagick \
+    && docker-php-ext-enable imagick \
+    && apk del autoconf g++ make
+
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
