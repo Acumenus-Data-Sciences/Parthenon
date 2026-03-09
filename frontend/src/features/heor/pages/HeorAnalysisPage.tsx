@@ -21,6 +21,10 @@ import {
   useDeleteParameter,
 } from "../hooks/useHeor";
 import type { HeorResult, HeorCostParameter, TornadoEntry } from "../types";
+import CostEffectivenessPlane from "../components/CostEffectivenessPlane";
+import TornadoDiagram from "../components/TornadoDiagram";
+import BudgetImpactChart from "../components/BudgetImpactChart";
+import ScenarioComparisonChart from "../components/ScenarioComparisonChart";
 
 const PARAM_TYPE_LABELS: Record<string, string> = {
   drug_cost: "Drug Cost",
@@ -437,11 +441,31 @@ export default function HeorAnalysisPage() {
 
       {/* Results */}
       {results && results.length > 0 && (
-        <div className="space-y-3">
+        <div className="space-y-6">
           <h2 className="text-sm font-semibold text-[#F0EDE8] flex items-center gap-2">
             <TrendingUp size={14} className="text-[#F59E0B]" />
             Results
           </h2>
+
+          {/* Visualization Charts */}
+          <div className="grid grid-cols-2 gap-4">
+            <CostEffectivenessPlane
+              results={results}
+              wtp={results[0]?.willingness_to_pay_threshold ?? 50000}
+            />
+            <TornadoDiagram
+              tornadoData={
+                results.find((r) => r.tornado_data && r.tornado_data.length > 0)?.tornado_data ?? []
+              }
+              baseIcer={results.find((r) => r.icer !== null)?.icer}
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <BudgetImpactChart results={results} />
+            <ScenarioComparisonChart results={results} />
+          </div>
+
+          {/* Per-Scenario Result Cards */}
           <div className="grid grid-cols-2 gap-4">
             {results.map((r: HeorResult) => (
               <ResultCard key={r.id} result={r} />

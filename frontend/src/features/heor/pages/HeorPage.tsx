@@ -10,6 +10,7 @@ import {
   Loader2,
   CheckCircle2,
   FileText,
+  Search,
 } from "lucide-react";
 import {
   useHeorStats,
@@ -22,10 +23,12 @@ import {
 } from "../hooks/useHeor";
 import type { HeorAnalysis, HeorValueContract } from "../types";
 import { HelpButton } from "@/features/help";
+import ClaimsExplorer from "../components/ClaimsExplorer";
 
 const TABS = [
   { id: "analyses", label: "Economic Analyses", icon: BarChart2 },
   { id: "contracts", label: "Value Contracts", icon: Handshake },
+  { id: "claims", label: "Claims Explorer", icon: Search },
 ] as const;
 type Tab = (typeof TABS)[number]["id"];
 
@@ -478,6 +481,7 @@ export default function HeorPage() {
 
       {tab === "analyses" && <AnalysesTab />}
       {tab === "contracts" && <ContractsTab />}
+      {tab === "claims" && <ClaimsExplorer />}
     </div>
   );
 }
