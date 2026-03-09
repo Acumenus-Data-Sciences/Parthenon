@@ -35,3 +35,59 @@ export function fmtCompact(n: number): string {
   if (abs >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
   return n.toString();
 }
+
+// ── Clinical metric utilities ───────────────────────────────────────────────
+
+/**
+ * Compute Number Needed to Treat from absolute survival proportions.
+ * NNT = 1 / ARR where ARR = targetSurvival - comparatorSurvival.
+ * Positive = benefit (target better), negative = harm.
+ * Returns Infinity when ARR is zero (no difference).
+ */
+export function computeNNT(
+  targetSurvival: number,
+  comparatorSurvival: number,
+): number {
+  const arr = targetSurvival - comparatorSurvival;
+  if (arr === 0) return Infinity;
+  return 1 / arr;
+}
+
+/**
+ * Compute Incidence Rate Difference with approximate 95% CI.
+ * Uses normal approximation: SE = sqrt(rate1/py + rate2/py).
+ */
+export function computeRateDifference(
+  rate1: number,
+  rate2: number,
+  personYears: number,
+): { ird: number; ciLower: number; ciUpper: number } {
+  const ird = rate1 - rate2;
+  const se = Math.sqrt(rate1 / personYears + rate2 / personYears);
+  return {
+    ird,
+    ciLower: ird - 1.96 * se,
+    ciUpper: ird + 1.96 * se,
+  };
+}
+
+/** Classify I² heterogeneity: <25 Low, 25–75 Moderate, >75 High */
+export function heterogeneityLabel(
+  iSquared: number,
+): "Low" | "Moderate" | "High" {
+  if (iSquared < 25) return "Low";
+  if (iSquared <= 75) return "Moderate";
+  return "High";
+}
+
+/**
+ * Format a p-value for display.
+ * - p < 0.001 → "<0.001"
+ * - p < 0.01  → 3 decimal places
+ * - otherwise → 2 decimal places
+ */
+export function fmtP(p: number): string {
+  if (p < 0.001) return "<0.001";
+  if (p < 0.01) return p.toFixed(3);
+  return p.toFixed(2);
+}
