@@ -54,4 +54,19 @@ describe("CIBar", () => {
     expect(nullLine.getAttribute("stroke")).toBe("#C9A227");
     expect(nullLine.getAttribute("stroke-dasharray")).toBe("3,3");
   });
+
+  it("renders without errors when logScale is true", () => {
+    render(<CIBar estimate={0.8} ciLower={0.5} ciUpper={1.2} logScale />);
+    const svg = screen.getByTestId("ci-bar");
+    expect(svg.tagName).toBe("svg");
+  });
+
+  it("handles zero/negative values with logScale without NaN", () => {
+    render(<CIBar estimate={0} ciLower={-0.5} ciUpper={1.5} logScale />);
+    const svg = screen.getByTestId("ci-bar");
+    // All SVG positions should be finite (no NaN from log(0) or log(negative))
+    const circle = svg.querySelector("circle");
+    const cx = Number(circle?.getAttribute("cx"));
+    expect(Number.isFinite(cx)).toBe(true);
+  });
 });

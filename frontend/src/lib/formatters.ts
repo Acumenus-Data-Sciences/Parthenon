@@ -48,22 +48,30 @@ export function computeNNT(
   targetSurvival: number,
   comparatorSurvival: number,
 ): number {
+  if (!Number.isFinite(targetSurvival) || !Number.isFinite(comparatorSurvival)) {
+    return Infinity;
+  }
   const arr = targetSurvival - comparatorSurvival;
-  if (arr === 0) return Infinity;
+  if (Math.abs(arr) < 1e-10) return Infinity;
   return 1 / arr;
 }
 
 /**
  * Compute Incidence Rate Difference with approximate 95% CI.
- * Uses normal approximation: SE = sqrt(rate1/py + rate2/py).
+ * Uses normal approximation: SE = sqrt(rate1/py1 + rate2/py2).
+ * Returns zero-width CI at 0 when either person-years is zero.
  */
 export function computeRateDifference(
   rate1: number,
   rate2: number,
-  personYears: number,
+  personYears1: number,
+  personYears2: number,
 ): { ird: number; ciLower: number; ciUpper: number } {
+  if (personYears1 === 0 || personYears2 === 0) {
+    return { ird: 0, ciLower: 0, ciUpper: 0 };
+  }
   const ird = rate1 - rate2;
-  const se = Math.sqrt(rate1 / personYears + rate2 / personYears);
+  const se = Math.sqrt(rate1 / personYears1 + rate2 / personYears2);
   return {
     ird,
     ciLower: ird - 1.96 * se,
@@ -87,6 +95,7 @@ export function heterogeneityLabel(
  * - otherwise → 2 decimal places
  */
 export function fmtP(p: number): string {
+  if (!Number.isFinite(p) || p < 0) return "N/A";
   if (p < 0.001) return "<0.001";
   if (p < 0.01) return p.toFixed(3);
   return p.toFixed(2);

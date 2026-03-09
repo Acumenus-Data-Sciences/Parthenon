@@ -44,4 +44,23 @@ describe("InterpretationTooltip", () => {
     const trigger = screen.getByTestId("interpretation-tooltip-trigger");
     expect(trigger.getAttribute("aria-label")).toBe("What does Hazard Ratio mean?");
   });
+
+  it("closes popover on outside click", () => {
+    render(<InterpretationTooltip {...defaultProps} />);
+    fireEvent.click(screen.getByTestId("interpretation-tooltip-trigger"));
+    expect(screen.getByTestId("interpretation-tooltip-popover")).toBeInTheDocument();
+
+    // Click outside the component
+    fireEvent.mouseDown(document.body);
+    expect(screen.queryByTestId("interpretation-tooltip-popover")).not.toBeInTheDocument();
+  });
+
+  it("closes popover on Escape key", () => {
+    render(<InterpretationTooltip {...defaultProps} />);
+    fireEvent.click(screen.getByTestId("interpretation-tooltip-trigger"));
+    expect(screen.getByTestId("interpretation-tooltip-popover")).toBeInTheDocument();
+
+    fireEvent.keyDown(document, { key: "Escape" });
+    expect(screen.queryByTestId("interpretation-tooltip-popover")).not.toBeInTheDocument();
+  });
 });

@@ -26,7 +26,10 @@ export function CIBar({
   height = 32,
   className,
 }: CIBarProps) {
-  const transform = logScale ? Math.log : (v: number) => v;
+  const LOG_FLOOR = 0.001;
+  const transform = logScale
+    ? (v: number) => Math.log(Math.max(v, LOG_FLOOR))
+    : (v: number) => v;
 
   const tLower = transform(ciLower);
   const tUpper = transform(ciUpper);

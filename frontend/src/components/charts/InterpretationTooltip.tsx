@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { HelpCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -16,9 +16,33 @@ export function InterpretationTooltip({
   className,
 }: InterpretationTooltipProps) {
   const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLSpanElement>(null);
+
+  const close = useCallback(() => setOpen(false), []);
+
+  useEffect(() => {
+    if (!open) return;
+
+    const handleClickOutside = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        close();
+      }
+    };
+
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") close();
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [open, close]);
 
   return (
-    <span className={cn("relative inline-block", className)}>
+    <span ref={containerRef} className={cn("relative inline-block", className)}>
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
