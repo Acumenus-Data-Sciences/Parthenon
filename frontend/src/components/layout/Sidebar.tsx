@@ -24,6 +24,7 @@ import {
   Dna,
   ScanLine,
   TrendingUp,
+  FileOutput,
   HelpCircle,
 } from "lucide-react";
 import { HelpSlideOver } from "@/features/help/components/HelpSlideOver";
@@ -53,6 +54,7 @@ const navItems: NavItem[] = [
   { path: "/concept-sets", label: "Concept Sets", icon: FlaskConical },
   { path: "/analyses", label: "Analyses", icon: Workflow },
   { path: "/studies", label: "Studies", icon: Briefcase },
+  { path: "/publish", label: "Publish", icon: FileOutput },
   { path: "/profiles", label: "Patient Profiles", icon: UserCircle },
   { path: "/genomics", label: "Genomics", icon: Dna },
   { path: "/imaging", label: "Imaging", icon: ScanLine },
@@ -82,6 +84,7 @@ const routeHelpKeys: Record<string, string> = {
   "/concept-sets": "concept-set-builder",
   "/analyses": "analyses",
   "/studies": "studies",
+  "/publish": "publish",
   "/profiles": "patient-timeline",
   "/genomics": "genomics",
   "/imaging": "imaging",

@@ -35,3 +35,93 @@ export function fmtCompact(n: number): string {
   if (abs >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
   return n.toString();
 }
+
+// ── Clinical metric utilities ───────────────────────────────────────────────
+
+/**
+ * Compute Number Needed to Treat from absolute survival proportions.
+ * NNT = 1 / ARR where ARR = targetSurvival - comparatorSurvival.
+ * Positive = benefit (target better), negative = harm.
+ * Returns Infinity when ARR is zero (no difference).
+ */
+export function computeNNT(
+  targetSurvival: number,
+  comparatorSurvival: number,
+): number {
+  if (!Number.isFinite(targetSurvival) || !Number.isFinite(comparatorSurvival)) {
+    return Infinity;
+  }
+  const arr = targetSurvival - comparatorSurvival;
+  if (Math.abs(arr) < 1e-10) return Infinity;
+  return 1 / arr;
+}
+
+/**
+ * Compute Incidence Rate Difference with approximate 95% CI.
+ * Uses normal approximation: SE = sqrt(rate1/py1 + rate2/py2).
+ * Returns zero-width CI at 0 when either person-years is zero.
+ */
+export function computeRateDifference(
+  rate1: number,
+  rate2: number,
+  personYears1: number,
+  personYears2: number,
+): { ird: number; ciLower: number; ciUpper: number } {
+  if (personYears1 === 0 || personYears2 === 0) {
+    return { ird: 0, ciLower: 0, ciUpper: 0 };
+  }
+  const ird = rate1 - rate2;
+  const se = Math.sqrt(rate1 / personYears1 + rate2 / personYears2);
+  return {
+    ird,
+    ciLower: ird - 1.96 * se,
+    ciUpper: ird + 1.96 * se,
+  };
+}
+
+/**
+ * Compute Incidence Rate Ratio with approximate 95% CI.
+ * Uses log-normal approximation: SE(log(IRR)) = sqrt(1/events1 + 1/events2).
+ * Returns null when either rate is zero.
+ */
+export function computeRateRatio(
+  rate1: number,
+  rate2: number,
+  personYears1: number,
+  personYears2: number,
+): { irr: number; ciLower: number; ciUpper: number } | null {
+  if (rate2 === 0 || personYears1 === 0 || personYears2 === 0) return null;
+  const irr = rate1 / rate2;
+  const events1 = (rate1 / 1000) * personYears1;
+  const events2 = (rate2 / 1000) * personYears2;
+  if (events1 <= 0 || events2 <= 0) return null;
+  const seLogIrr = Math.sqrt(1 / events1 + 1 / events2);
+  const logIrr = Math.log(irr);
+  return {
+    irr,
+    ciLower: Math.exp(logIrr - 1.96 * seLogIrr),
+    ciUpper: Math.exp(logIrr + 1.96 * seLogIrr),
+  };
+}
+
+/** Classify I² heterogeneity: <25 Low, 25–75 Moderate, >75 High */
+export function heterogeneityLabel(
+  iSquared: number,
+): "Low" | "Moderate" | "High" {
+  if (iSquared < 25) return "Low";
+  if (iSquared <= 75) return "Moderate";
+  return "High";
+}
+
+/**
+ * Format a p-value for display.
+ * - p < 0.001 → "<0.001"
+ * - p < 0.01  → 3 decimal places
+ * - otherwise → 2 decimal places
+ */
+export function fmtP(p: number): string {
+  if (!Number.isFinite(p) || p < 0) return "N/A";
+  if (p < 0.001) return "<0.001";
+  if (p < 0.01) return p.toFixed(3);
+  return p.toFixed(2);
+}

@@ -243,6 +243,13 @@ export const router = createBrowserRouter(
         ],
       },
       {
+        path: "publish",
+        lazy: () =>
+          import("@/features/publish/pages/PublishPage").then((m) => ({
+            Component: m.default,
+          })),
+      },
+      {
         path: "profiles",
         children: [
           {

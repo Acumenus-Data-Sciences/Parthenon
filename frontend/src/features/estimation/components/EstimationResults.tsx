@@ -6,6 +6,7 @@ import { PropensityScorePlot } from "./PropensityScorePlot";
 import { LovePlot } from "./LovePlot";
 import { SystematicErrorPlot } from "./SystematicErrorPlot";
 import { PowerTable } from "./PowerTable";
+import { EstimationVerdictDashboard } from "./EstimationVerdictDashboard";
 import type { AnalysisExecution } from "@/features/analyses/types/analysis";
 import type { EstimationResult } from "../types/estimation";
 
@@ -105,6 +106,11 @@ export function EstimationResults({
 
   return (
     <div className="space-y-6">
+      {/* Verdict Dashboard */}
+      {result.estimates.length > 0 && (
+        <EstimationVerdictDashboard result={result} />
+      )}
+
       {/* Summary Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">

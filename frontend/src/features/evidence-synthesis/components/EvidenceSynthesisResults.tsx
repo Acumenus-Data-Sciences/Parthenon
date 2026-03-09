@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import type { AnalysisExecution } from "@/features/analyses/types/analysis";
 import type { EvidenceSynthesisResult } from "../types/evidenceSynthesis";
 import { ForestPlot } from "./ForestPlot";
+import { EvidenceSynthesisVerdictDashboard } from "./EvidenceSynthesisVerdictDashboard";
 import { fmt, num } from "@/lib/formatters";
 
 interface EvidenceSynthesisResultsProps {
@@ -69,6 +70,9 @@ export function EvidenceSynthesisResults({
 
   return (
     <div className="space-y-6">
+      {/* Verdict Dashboard */}
+      <EvidenceSynthesisVerdictDashboard result={result} />
+
       {/* Pooled Summary Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[

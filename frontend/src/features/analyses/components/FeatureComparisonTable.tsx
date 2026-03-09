@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { ArrowUpDown, Search } from "lucide-react";
+import { ArrowUpDown, Search, ChevronRight, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { fmt } from "@/lib/formatters";
 import type { FeatureResult } from "../types/analysis";
@@ -22,6 +22,7 @@ type SortDir = "asc" | "desc";
 
 interface MergedRow {
   feature_name: string;
+  category: string;
   target_count: number;
   target_percent: number;
   comparator_count: number;
@@ -29,17 +30,61 @@ interface MergedRow {
   smd: number | null;
 }
 
-function computeSMD(
-  p1: number,
-  p2: number,
-): number | null {
-  // Standardized Mean Difference for proportions
-  const denom = Math.sqrt(
-    (p1 * (1 - p1) + p2 * (1 - p2)) / 2,
-  );
+interface DomainGroup {
+  domain: string;
+  rows: MergedRow[];
+  meanAbsSmd: number | null;
+}
+
+// ---------------------------------------------------------------------------
+// Domain classification
+// ---------------------------------------------------------------------------
+
+const DOMAIN_ORDER = [
+  "Demographics",
+  "Conditions",
+  "Drugs",
+  "Procedures",
+  "Measurements",
+  "Visits",
+  "Other",
+];
+
+function classifyDomain(category: string, featureName: string): string {
+  const catLower = category.toLowerCase();
+  const nameLower = featureName.toLowerCase();
+
+  if (catLower === "demographics" || catLower === "demographic") return "Demographics";
+  if (catLower === "conditions" || catLower === "condition") return "Conditions";
+  if (catLower === "drugs" || catLower === "drug" || catLower === "medication") return "Drugs";
+  if (catLower === "procedures" || catLower === "procedure") return "Procedures";
+  if (catLower === "measurements" || catLower === "measurement") return "Measurements";
+  if (catLower === "visits" || catLower === "visit") return "Visits";
+
+  // Fallback: try to infer from feature name
+  if (nameLower.includes("age") || nameLower.includes("gender") || nameLower.includes("sex") || nameLower.includes("race") || nameLower.includes("ethnicity")) return "Demographics";
+  if (nameLower.includes("condition") || nameLower.includes("diagnosis")) return "Conditions";
+  if (nameLower.includes("drug") || nameLower.includes("medication")) return "Drugs";
+  if (nameLower.includes("procedure")) return "Procedures";
+  if (nameLower.includes("measurement") || nameLower.includes("lab")) return "Measurements";
+  if (nameLower.includes("visit")) return "Visits";
+
+  return "Other";
+}
+
+// ---------------------------------------------------------------------------
+// SMD computation
+// ---------------------------------------------------------------------------
+
+function computeSMD(p1: number, p2: number): number | null {
+  const denom = Math.sqrt((p1 * (1 - p1) + p2 * (1 - p2)) / 2);
   if (denom === 0) return null;
   return Math.abs(p1 - p2) / denom;
 }
+
+// ---------------------------------------------------------------------------
+// Component
+// ---------------------------------------------------------------------------
 
 export function FeatureComparisonTable({
   targetFeatures,
@@ -50,6 +95,9 @@ export function FeatureComparisonTable({
   const [sortField, setSortField] = useState<SortField>("target_percent");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [search, setSearch] = useState("");
+  const [collapsedDomains, setCollapsedDomains] = useState<Set<string>>(
+    () => new Set(),
+  );
 
   const hasComparator =
     comparatorFeatures !== undefined && comparatorFeatures.length > 0;
@@ -60,6 +108,7 @@ export function FeatureComparisonTable({
     for (const f of targetFeatures) {
       map.set(f.feature_name, {
         feature_name: f.feature_name,
+        category: f.category,
         target_count: f.count,
         target_percent: f.percent,
         comparator_count: 0,
@@ -81,6 +130,7 @@ export function FeatureComparisonTable({
         } else {
           map.set(f.feature_name, {
             feature_name: f.feature_name,
+            category: f.category,
             target_count: 0,
             target_percent: 0,
             comparator_count: f.count,
@@ -99,12 +149,10 @@ export function FeatureComparisonTable({
 
     if (search.trim()) {
       const q = search.toLowerCase();
-      rows = rows.filter((r) =>
-        r.feature_name.toLowerCase().includes(q),
-      );
+      rows = rows.filter((r) => r.feature_name.toLowerCase().includes(q));
     }
 
-    rows.sort((a, b) => {
+    rows = [...rows].sort((a, b) => {
       const getValue = (row: MergedRow): string | number => {
         switch (sortField) {
           case "feature_name":
@@ -131,6 +179,35 @@ export function FeatureComparisonTable({
     return rows;
   }, [mergedRows, search, sortField, sortDir]);
 
+  // Group by domain
+  const domainGroups = useMemo<DomainGroup[]>(() => {
+    const groupMap = new Map<string, MergedRow[]>();
+
+    for (const row of filteredAndSorted) {
+      const domain = classifyDomain(row.category, row.feature_name);
+      const existing = groupMap.get(domain);
+      if (existing) {
+        existing.push(row);
+      } else {
+        groupMap.set(domain, [row]);
+      }
+    }
+
+    return DOMAIN_ORDER.filter((d) => groupMap.has(d)).map((domain) => {
+      const rows = groupMap.get(domain) ?? [];
+      const smdValues = rows
+        .map((r) => r.smd)
+        .filter((v): v is number => v !== null);
+      const meanAbsSmd =
+        smdValues.length > 0
+          ? smdValues.reduce((sum, v) => sum + Math.abs(v), 0) /
+            smdValues.length
+          : null;
+
+      return { domain, rows, meanAbsSmd };
+    });
+  }, [filteredAndSorted]);
+
   const handleSort = (field: SortField) => {
     if (sortField === field) {
       setSortDir((d) => (d === "asc" ? "desc" : "asc"));
@@ -138,6 +215,18 @@ export function FeatureComparisonTable({
       setSortField(field);
       setSortDir("desc");
     }
+  };
+
+  const toggleDomain = (domain: string) => {
+    setCollapsedDomains((prev) => {
+      const next = new Set(prev);
+      if (next.has(domain)) {
+        next.delete(domain);
+      } else {
+        next.add(domain);
+      }
+      return next;
+    });
   };
 
   const SortableHeader = ({
@@ -167,6 +256,8 @@ export function FeatureComparisonTable({
       </span>
     </th>
   );
+
+  const colSpan = hasComparator ? 6 : 3;
 
   return (
     <div className="space-y-3">
@@ -232,83 +323,23 @@ export function FeatureComparisonTable({
               </tr>
             </thead>
             <tbody>
-              {filteredAndSorted.map((row, i) => (
-                <tr
-                  key={row.feature_name}
-                  className={cn(
-                    "border-t border-[#1C1C20] transition-colors",
-                    i % 2 === 0 ? "bg-[#151518]" : "bg-[#1A1A1E]",
-                  )}
-                >
-                  <td className="px-4 py-2.5 text-sm text-[#F0EDE8]">
-                    {row.feature_name}
-                  </td>
-                  <td className="px-4 py-2.5 text-right font-['IBM_Plex_Mono',monospace] text-sm text-[#C5C0B8]">
-                    {row.target_count.toLocaleString()}
-                  </td>
-                  <td className="px-4 py-2.5 text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <div className="w-16 h-1.5 rounded-full bg-[#232328] overflow-hidden">
-                        <div
-                          className="h-full rounded-full bg-[#2DD4BF]"
-                          style={{
-                            width: `${Math.min(row.target_percent, 100)}%`,
-                          }}
-                        />
-                      </div>
-                      <span className="font-['IBM_Plex_Mono',monospace] text-sm text-[#C5C0B8] w-14 text-right">
-                        {fmt(row.target_percent, 1)}%
-                      </span>
-                    </div>
-                  </td>
-                  {hasComparator && (
-                    <>
-                      <td className="px-4 py-2.5 text-right font-['IBM_Plex_Mono',monospace] text-sm text-[#C5C0B8]">
-                        {row.comparator_count.toLocaleString()}
-                      </td>
-                      <td className="px-4 py-2.5 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <div className="w-16 h-1.5 rounded-full bg-[#232328] overflow-hidden">
-                            <div
-                              className="h-full rounded-full bg-[#C9A227]"
-                              style={{
-                                width: `${Math.min(row.comparator_percent, 100)}%`,
-                              }}
-                            />
-                          </div>
-                          <span className="font-['IBM_Plex_Mono',monospace] text-sm text-[#C5C0B8] w-14 text-right">
-                            {fmt(row.comparator_percent, 1)}%
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-2.5 text-right">
-                        {row.smd !== null ? (
-                          <span
-                            className={cn(
-                              "font-['IBM_Plex_Mono',monospace] text-sm font-medium",
-                              row.smd > 0.2
-                                ? "text-[#E85A6B]"
-                                : row.smd > 0.1
-                                  ? "text-[#F59E0B]"
-                                  : "text-[#C5C0B8]",
-                            )}
-                          >
-                            {fmt(row.smd)}
-                          </span>
-                        ) : (
-                          <span className="text-xs text-[#5A5650]">
-                            --
-                          </span>
-                        )}
-                      </td>
-                    </>
-                  )}
-                </tr>
-              ))}
+              {domainGroups.map((group) => {
+                const isCollapsed = collapsedDomains.has(group.domain);
+                return (
+                  <DomainGroupRows
+                    key={group.domain}
+                    group={group}
+                    isCollapsed={isCollapsed}
+                    onToggle={() => toggleDomain(group.domain)}
+                    hasComparator={hasComparator}
+                    colSpan={colSpan}
+                  />
+                );
+              })}
               {filteredAndSorted.length === 0 && (
                 <tr>
                   <td
-                    colSpan={hasComparator ? 6 : 3}
+                    colSpan={colSpan}
                     className="px-4 py-8 text-center text-sm text-[#5A5650]"
                   >
                     No features found
@@ -322,9 +353,149 @@ export function FeatureComparisonTable({
 
       <p className="text-[10px] text-[#5A5650]">
         Showing {filteredAndSorted.length} of {mergedRows.length} features
+        {" across "}
+        {domainGroups.length} domains
         {hasComparator &&
           " | SMD > 0.1 highlighted orange, > 0.2 highlighted red"}
       </p>
     </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Domain group rows sub-component
+// ---------------------------------------------------------------------------
+
+function DomainGroupRows({
+  group,
+  isCollapsed,
+  onToggle,
+  hasComparator,
+  colSpan,
+}: {
+  group: DomainGroup;
+  isCollapsed: boolean;
+  onToggle: () => void;
+  hasComparator: boolean;
+  colSpan: number;
+}) {
+  return (
+    <>
+      {/* Domain header row */}
+      <tr
+        className="bg-[#1A1A1E] cursor-pointer hover:bg-[#1E1E24] transition-colors"
+        onClick={onToggle}
+        data-testid={`domain-group-${group.domain}`}
+      >
+        <td
+          colSpan={colSpan}
+          className="px-4 py-2"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              {isCollapsed ? (
+                <ChevronRight size={14} className="text-[#5A5650]" />
+              ) : (
+                <ChevronDown size={14} className="text-[#5A5650]" />
+              )}
+              <span className="text-xs font-semibold text-[#C5C0B8]">
+                {group.domain}
+              </span>
+              <span className="text-[10px] text-[#5A5650]">
+                ({group.rows.length} covariates)
+              </span>
+            </div>
+            {hasComparator && group.meanAbsSmd !== null && (
+              <span
+                className={cn(
+                  "font-['IBM_Plex_Mono',monospace] text-[11px] font-medium",
+                  group.meanAbsSmd > 0.2
+                    ? "text-[#E85A6B]"
+                    : group.meanAbsSmd > 0.1
+                      ? "text-[#F59E0B]"
+                      : "text-[#C5C0B8]",
+                )}
+              >
+                Mean |SMD|: {fmt(group.meanAbsSmd)}
+              </span>
+            )}
+          </div>
+        </td>
+      </tr>
+
+      {/* Data rows */}
+      {!isCollapsed &&
+        group.rows.map((row, i) => (
+          <tr
+            key={row.feature_name}
+            className={cn(
+              "border-t border-[#1C1C20] transition-colors",
+              i % 2 === 0 ? "bg-[#151518]" : "bg-[#1A1A1E]",
+            )}
+          >
+            <td className="px-4 py-2.5 text-sm text-[#F0EDE8] pl-10">
+              {row.feature_name}
+            </td>
+            <td className="px-4 py-2.5 text-right font-['IBM_Plex_Mono',monospace] text-sm text-[#C5C0B8]">
+              {row.target_count.toLocaleString()}
+            </td>
+            <td className="px-4 py-2.5 text-right">
+              <div className="flex items-center justify-end gap-2">
+                <div className="w-16 h-1.5 rounded-full bg-[#232328] overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-[#2DD4BF]"
+                    style={{
+                      width: `${Math.min(row.target_percent, 100)}%`,
+                    }}
+                  />
+                </div>
+                <span className="font-['IBM_Plex_Mono',monospace] text-sm text-[#C5C0B8] w-14 text-right">
+                  {fmt(row.target_percent, 1)}%
+                </span>
+              </div>
+            </td>
+            {hasComparator && (
+              <>
+                <td className="px-4 py-2.5 text-right font-['IBM_Plex_Mono',monospace] text-sm text-[#C5C0B8]">
+                  {row.comparator_count.toLocaleString()}
+                </td>
+                <td className="px-4 py-2.5 text-right">
+                  <div className="flex items-center justify-end gap-2">
+                    <div className="w-16 h-1.5 rounded-full bg-[#232328] overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-[#C9A227]"
+                        style={{
+                          width: `${Math.min(row.comparator_percent, 100)}%`,
+                        }}
+                      />
+                    </div>
+                    <span className="font-['IBM_Plex_Mono',monospace] text-sm text-[#C5C0B8] w-14 text-right">
+                      {fmt(row.comparator_percent, 1)}%
+                    </span>
+                  </div>
+                </td>
+                <td className="px-4 py-2.5 text-right">
+                  {row.smd !== null ? (
+                    <span
+                      className={cn(
+                        "font-['IBM_Plex_Mono',monospace] text-sm font-medium",
+                        row.smd > 0.2
+                          ? "text-[#E85A6B]"
+                          : row.smd > 0.1
+                            ? "text-[#F59E0B]"
+                            : "text-[#C5C0B8]",
+                      )}
+                    >
+                      {fmt(row.smd)}
+                    </span>
+                  ) : (
+                    <span className="text-xs text-[#5A5650]">--</span>
+                  )}
+                </td>
+              </>
+            )}
+          </tr>
+        ))}
+    </>
   );
 }
