@@ -78,10 +78,88 @@ interface PatientTimelineProps {
 }
 
 const LANE_HEIGHT = 28;
-const EVENT_HEIGHT = 6;
+const EVENT_HEIGHT = 8;
+const EVENT_GAP = 3;
 const MIN_EVENT_WIDTH = 4;
+const MAX_ROWS = 12;
 const TIMELINE_PADDING = 60;
 const LABEL_WIDTH = 148;
+
+// ---------------------------------------------------------------------------
+// Lane packing — greedy interval scheduling to avoid overlap
+// ---------------------------------------------------------------------------
+
+interface PackedEvent {
+  event: ClinicalEvent;
+  row: number;
+  startMs: number;
+  endMs: number;
+}
+
+/**
+ * Pack events into non-overlapping rows using greedy interval scheduling.
+ * Events are sorted by start time, then assigned to the first row where they
+ * don't overlap with any existing event. A minimum time gap prevents point
+ * events from stacking on top of each other visually.
+ */
+function packDomainEvents(
+  events: ClinicalEvent[],
+  timeRange: number,
+): { packed: PackedEvent[]; rowCount: number } {
+  if (events.length === 0) return { packed: [], rowCount: 0 };
+
+  // Minimum gap in ms — ensures point events don't overlap visually.
+  // ~0.8% of total time range ≈ MIN_EVENT_WIDTH at 1x zoom on a typical screen.
+  const minGapMs = timeRange * 0.008;
+
+  const items = events.map((ev) => ({
+    event: ev,
+    startMs: parseDate(ev.start_date),
+    endMs: ev.end_date ? parseDate(ev.end_date) : parseDate(ev.start_date),
+  }));
+  // Sort by start time, ties broken by shorter events first (point events before spans)
+  items.sort((a, b) => a.startMs - b.startMs || (a.endMs - a.startMs) - (b.endMs - b.startMs));
+
+  // rowEnds[r] = the effective end time of the last event placed in row r
+  const rowEnds: number[] = [];
+  const packed: PackedEvent[] = [];
+
+  for (const item of items) {
+    const effectiveEnd = Math.max(item.endMs, item.startMs + minGapMs);
+    let assignedRow = -1;
+
+    // Find first row where this event doesn't overlap
+    for (let r = 0; r < rowEnds.length; r++) {
+      if (rowEnds[r] <= item.startMs) {
+        assignedRow = r;
+        break;
+      }
+    }
+
+    // No existing row fits — create a new one if under MAX_ROWS
+    if (assignedRow === -1) {
+      if (rowEnds.length < MAX_ROWS) {
+        assignedRow = rowEnds.length;
+        rowEnds.push(0);
+      } else {
+        // Overflow: assign to row with the earliest end time (least-recently-used)
+        assignedRow = 0;
+        let minEnd = rowEnds[0];
+        for (let r = 1; r < MAX_ROWS; r++) {
+          if (rowEnds[r] < minEnd) {
+            minEnd = rowEnds[r];
+            assignedRow = r;
+          }
+        }
+      }
+    }
+
+    rowEnds[assignedRow] = effectiveEnd;
+    packed.push({ ...item, row: assignedRow });
+  }
+
+  return { packed, rowCount: rowEnds.length };
+}
 
 export function PatientTimeline({ events, observationPeriods = [], onEventClick }: PatientTimelineProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -229,6 +307,24 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
     [events],
   );
 
+  // Pre-compute packed layouts per domain — row assignments + actual row count
+  const packedLayouts = useMemo(() => {
+    const layouts: Record<ClinicalDomain, { packed: PackedEvent[]; rowCount: number }> = {
+      condition: { packed: [], rowCount: 0 },
+      drug: { packed: [], rowCount: 0 },
+      procedure: { packed: [], rowCount: 0 },
+      measurement: { packed: [], rowCount: 0 },
+      observation: { packed: [], rowCount: 0 },
+      visit: { packed: [], rowCount: 0 },
+    };
+    for (const domain of ALL_DOMAINS) {
+      if (domainEvents[domain].length > 0) {
+        layouts[domain] = packDomainEvents(domainEvents[domain], timeRange);
+      }
+    }
+    return layouts;
+  }, [domainEvents, timeRange]);
+
   const toggleCollapse = (domain: ClinicalDomain) => {
     setCollapsedDomains((prev) => {
       const next = new Set(prev);
@@ -251,9 +347,9 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
   const lanePositions: { domain: ClinicalDomain; y: number; height: number }[] = [];
   for (const domain of activeDomains) {
     const isCollapsed = collapsedDomains.has(domain);
-    const eventCount = domainEvents[domain].length;
-    const rows = isCollapsed ? 0 : Math.min(Math.ceil(eventCount / 4), 10);
-    const height = isCollapsed ? LANE_HEIGHT : LANE_HEIGHT + rows * (EVENT_HEIGHT + 2);
+    // Use actual row count from packing algorithm instead of guessing
+    const rows = isCollapsed ? 0 : packedLayouts[domain].rowCount;
+    const height = isCollapsed ? LANE_HEIGHT : LANE_HEIGHT + rows * (EVENT_HEIGHT + EVENT_GAP);
     lanePositions.push({ domain, y: yOffset, height });
     yOffset += height + 2;
   }
@@ -794,17 +890,17 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
                   </text>
                 </g>
 
-                {/* Events */}
+                {/* Events — rendered from packed layout (non-overlapping rows) */}
                 {!isCollapsed && (
                   <g clipPath={`url(#${clipId})`}>
-                    {domEvts.map((ev, evIdx) => {
-                      const startX = timeToX(parseDate(ev.start_date));
+                    {packedLayouts[domain].packed.map((pe, peIdx) => {
+                      const ev = pe.event;
+                      const startX = timeToX(pe.startMs);
                       const endX = ev.end_date
-                        ? timeToX(parseDate(ev.end_date))
+                        ? timeToX(pe.endMs)
                         : startX + MIN_EVENT_WIDTH;
                       const w = Math.max(endX - startX, MIN_EVENT_WIDTH);
-                      const row = evIdx % 10;
-                      const evY = y + LANE_HEIGHT + row * (EVENT_HEIGHT + 2);
+                      const evY = y + LANE_HEIGHT + pe.row * (EVENT_HEIGHT + EVENT_GAP);
 
                       const isSingleDay = !ev.end_date || w <= MIN_EVENT_WIDTH + 2;
                       const isMatch =
@@ -817,12 +913,12 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
                           : 0.15
                         : 0.75;
 
-                      // Hit target padding — expands the hoverable area
-                      const HIT_PAD = 6;
+                      // Hit target: use full row height for easier hovering
+                      const hitH = EVENT_HEIGHT + EVENT_GAP;
 
                       return (
                         <g
-                          key={evIdx}
+                          key={peIdx}
                           onMouseEnter={(e) => {
                             if (isDragging.current) return;
                             const rect = containerRef.current?.getBoundingClientRect();
@@ -850,23 +946,14 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
                           className="cursor-pointer"
                           opacity={opacity}
                         >
-                          {/* Invisible expanded hit target for easier hovering */}
-                          {isSingleDay ? (
-                            <circle
-                              cx={startX}
-                              cy={evY + EVENT_HEIGHT / 2}
-                              r={EVENT_HEIGHT / 2 + HIT_PAD}
-                              fill="transparent"
-                            />
-                          ) : (
-                            <rect
-                              x={startX - HIT_PAD}
-                              y={evY - HIT_PAD}
-                              width={w + HIT_PAD * 2}
-                              height={EVENT_HEIGHT + HIT_PAD * 2}
-                              fill="transparent"
-                            />
-                          )}
+                          {/* Invisible hit target — full row height, wider than visible shape */}
+                          <rect
+                            x={startX - 4}
+                            y={evY - 1}
+                            width={Math.max(w + 8, 16)}
+                            height={hitH}
+                            fill="transparent"
+                          />
                           {/* Visible event shape */}
                           {isSingleDay ? (
                             <circle
