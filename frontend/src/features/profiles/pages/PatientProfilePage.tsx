@@ -19,6 +19,7 @@ import {
   User,
   Star,
   X,
+  FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
@@ -34,13 +35,14 @@ import { PatientLabPanel } from "../components/PatientLabPanel";
 import { PatientVisitView } from "../components/PatientVisitView";
 import { PatientSearchPanel } from "../components/PatientSearchPanel";
 import { ConceptDetailDrawer } from "../components/ConceptDetailDrawer";
+import { PatientNotesTab } from "../components/PatientNotesTab";
 import PrecisionMedicineTab from "@/features/radiogenomics/components/PrecisionMedicineTab";
 import ImagingPatientTimeline from "@/features/imaging/components/PatientTimeline";
 import { usePatientTimeline } from "@/features/imaging/hooks/useImaging";
 import { useProfileStore } from "@/stores/profileStore";
 import type { ClinicalEvent } from "../types/profile";
 
-type ViewMode = "timeline" | "list" | "labs" | "imaging" | "visits" | "eras" | "precision";
+type ViewMode = "timeline" | "list" | "labs" | "imaging" | "visits" | "notes" | "eras" | "precision";
 
 type DomainTab =
   | "all"
@@ -71,6 +73,7 @@ const VIEW_BUTTONS: {
   { mode: "labs", icon: <FlaskConical size={12} />, label: "Labs" },
   { mode: "imaging", icon: <ScanLine size={12} />, label: "Imaging" },
   { mode: "visits", icon: <Hospital size={12} />, label: "Visits" },
+  { mode: "notes", icon: <FileText size={12} />, label: "Notes" },
   { mode: "eras", icon: <GitBranch size={12} />, label: "Eras" },
   { mode: "precision", icon: <Dna size={12} />, label: "Precision Medicine" },
 ];
@@ -547,6 +550,11 @@ export default function PatientProfilePage() {
           {/* Visits view */}
           {viewMode === "visits" && (
             <PatientVisitView events={allEvents} />
+          )}
+
+          {/* Notes view */}
+          {viewMode === "notes" && parsedPersonId && sourceId && (
+            <PatientNotesTab personId={parsedPersonId} sourceId={sourceId} />
           )}
 
           {/* Eras view */}

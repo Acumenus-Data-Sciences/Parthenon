@@ -79,6 +79,100 @@ class PatientProfileService
     }
 
     /**
+     * Get paginated clinical notes for a person.
+     *
+     * @return array{data: list<array<string, mixed>>, meta: array<string, int>}
+     */
+    public function getNotes(int $personId, Source $source, int $page = 1, int $perPage = 50): array
+    {
+        $source->load('daimons');
+        $cdmSchema = $source->getTableQualifier(DaimonType::CDM);
+        $vocabSchema = $source->getTableQualifier(DaimonType::Vocabulary) ?? $cdmSchema;
+
+        if ($cdmSchema === null) {
+            throw new \RuntimeException('Source is missing required CDM schema configuration.');
+        }
+
+        $dialect = $source->source_dialect ?? 'postgresql';
+        $connectionName = $source->source_connection ?? 'cdm';
+
+        $params = [
+            'cdmSchema' => $cdmSchema,
+            'vocabSchema' => $vocabSchema,
+        ];
+
+        $offset = ($page - 1) * $perPage;
+
+        // Count total notes for this person
+        $countSql = "
+            SELECT COUNT(*) AS total_count
+            FROM {@cdmSchema}.note
+            WHERE person_id = {$personId}
+        ";
+
+        $renderedCountSql = $this->sqlRenderer->render($countSql, $params, $dialect);
+
+        $conn = DB::connection($connectionName);
+        $conn->statement('SET enable_seqscan = off');
+        $conn->statement('SET statement_timeout = 10000');
+
+        try {
+            $countResult = $conn->select($renderedCountSql);
+            $totalCount = ! empty($countResult) ? (int) $countResult[0]->total_count : 0;
+
+            $lastPage = max(1, (int) ceil($totalCount / $perPage));
+
+            $notesSql = "
+                SELECT
+                    n.note_id,
+                    n.person_id,
+                    n.note_date,
+                    n.note_datetime,
+                    n.note_title,
+                    n.note_text,
+                    n.note_source_value,
+                    n.visit_occurrence_id,
+                    n.provider_id,
+                    COALESCE(tc.concept_name, 'Unknown') AS note_type,
+                    COALESCE(cc.concept_name, 'Unknown') AS note_class,
+                    COALESCE(ec.concept_name, 'Unknown') AS encoding,
+                    COALESCE(lc.concept_name, 'Unknown') AS language
+                FROM {@cdmSchema}.note n
+                LEFT JOIN {@vocabSchema}.concept tc
+                    ON n.note_type_concept_id = tc.concept_id
+                LEFT JOIN {@vocabSchema}.concept cc
+                    ON n.note_class_concept_id = cc.concept_id
+                LEFT JOIN {@vocabSchema}.concept ec
+                    ON n.encoding_concept_id = ec.concept_id
+                LEFT JOIN {@vocabSchema}.concept lc
+                    ON n.language_concept_id = lc.concept_id
+                WHERE n.person_id = {$personId}
+                ORDER BY n.note_date DESC, n.note_id DESC
+                LIMIT {$perPage} OFFSET {$offset}
+            ";
+
+            $renderedNotesSql = $this->sqlRenderer->render($notesSql, $params, $dialect);
+            $rows = $conn->select($renderedNotesSql);
+        } finally {
+            try {
+                $conn->statement('SET enable_seqscan = on');
+                $conn->statement('SET statement_timeout = 0');
+            } catch (\Throwable) {
+            }
+        }
+
+        return [
+            'data' => array_map(fn ($row) => (array) $row, $rows),
+            'meta' => [
+                'current_page' => $page,
+                'last_page' => $lastPage,
+                'per_page' => $perPage,
+                'total' => $totalCount,
+            ],
+        ];
+    }
+
+    /**
      * Get the full clinical profile for a single person.
      *
      * @return array<string, mixed>

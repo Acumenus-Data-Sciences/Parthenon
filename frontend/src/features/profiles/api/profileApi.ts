@@ -1,5 +1,5 @@
 import apiClient from "@/lib/api-client";
-import type { PatientProfile, CohortMember } from "../types/profile";
+import type { PatientProfile, CohortMember, ClinicalNote } from "../types/profile";
 
 // ---------------------------------------------------------------------------
 // Patient profile
@@ -67,6 +67,32 @@ export async function getProfileStats(
     `/sources/${sourceId}/profiles/${personId}/stats`,
   );
   return data.data;
+}
+
+// ---------------------------------------------------------------------------
+// Patient notes
+// ---------------------------------------------------------------------------
+
+export interface NotesPaginatedResponse {
+  data: ClinicalNote[];
+  meta: {
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+  };
+}
+
+export async function getPatientNotes(
+  sourceId: number,
+  personId: number,
+  params?: { page?: number; per_page?: number },
+): Promise<NotesPaginatedResponse> {
+  const { data } = await apiClient.get<NotesPaginatedResponse>(
+    `/sources/${sourceId}/profiles/${personId}/notes`,
+    { params },
+  );
+  return data;
 }
 
 // ---------------------------------------------------------------------------

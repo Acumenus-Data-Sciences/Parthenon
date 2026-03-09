@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { getPatientProfile, getCohortMembers, searchPersons, getProfileStats } from "../api/profileApi";
+import { getPatientProfile, getCohortMembers, searchPersons, getProfileStats, getPatientNotes } from "../api/profileApi";
 
 export function usePersonSearch(sourceId: number | null, query: string) {
   const [debouncedQuery, setDebouncedQuery] = useState(query);
@@ -39,6 +39,19 @@ export function useProfileStats(sourceId: number | null, personId: number | null
     queryFn: () => getProfileStats(sourceId!, personId!),
     enabled: sourceId != null && sourceId > 0 && personId != null && personId > 0,
     staleTime: 60_000,
+  });
+}
+
+export function usePatientNotes(
+  sourceId: number | null,
+  personId: number | null,
+  page = 1,
+  perPage = 50,
+) {
+  return useQuery({
+    queryKey: ["patient-notes", sourceId, personId, { page, perPage }],
+    queryFn: () => getPatientNotes(sourceId!, personId!, { page, per_page: perPage }),
+    enabled: sourceId != null && sourceId > 0 && personId != null && personId > 0,
   });
 }
 

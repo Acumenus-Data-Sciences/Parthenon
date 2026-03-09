@@ -81,6 +81,22 @@ export interface DrugEra {
   gap_days: number;
 }
 
+export interface ClinicalNote {
+  note_id: number;
+  person_id: number;
+  note_date: string;
+  note_datetime: string | null;
+  note_title: string | null;
+  note_text: string;
+  note_source_value: string | null;
+  visit_occurrence_id: number | null;
+  provider_id: number | null;
+  note_type: string;
+  note_class: string;
+  encoding: string;
+  language: string;
+}
+
 export interface PatientProfile {
   demographics: PatientDemographics;
   observation_periods: ObservationPeriod[];

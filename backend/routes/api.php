@@ -317,6 +317,7 @@ Route::prefix('v1')->group(function () {
         Route::get('clinical/search', [PatientProfileController::class, 'searchClinical']);
         Route::get('sources/{source}/persons/search', [PatientProfileController::class, 'search']);
         Route::get('sources/{source}/profiles/{personId}/stats', [PatientProfileController::class, 'stats']);
+        Route::get('sources/{source}/profiles/{personId}/notes', [PatientProfileController::class, 'notes']);
         Route::get('sources/{source}/profiles/{personId}', [PatientProfileController::class, 'show']);
         Route::get('sources/{source}/cohorts/{cohortDefinitionId}/members', [PatientProfileController::class, 'members']);
 

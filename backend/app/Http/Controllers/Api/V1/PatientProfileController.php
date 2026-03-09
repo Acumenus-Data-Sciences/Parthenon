@@ -95,6 +95,25 @@ class PatientProfileController extends Controller
     }
 
     /**
+     * GET /v1/sources/{source}/profiles/{personId}/notes
+     *
+     * Get clinical notes for a single person (paginated, max 100 per page).
+     */
+    public function notes(Request $request, Source $source, int $personId): JsonResponse
+    {
+        try {
+            $page = max(1, $request->integer('page', 1));
+            $perPage = max(1, min($request->integer('per_page', 50), 100));
+
+            $result = $this->patientProfileService->getNotes($personId, $source, $page, $perPage);
+
+            return response()->json($result);
+        } catch (\Throwable $e) {
+            return $this->errorResponse('Failed to retrieve patient notes', $e);
+        }
+    }
+
+    /**
      * GET /v1/sources/{source}/profiles/{personId}
      *
      * Get the full clinical profile for a single person.
