@@ -14,6 +14,7 @@ function ServiceCard({ service }: { service: SystemHealthService }) {
   const { badge, dot } = STATUS_MAP[service.status] ?? STATUS_MAP.down;
   const queueDetails = service.details as { pending?: number; failed?: number } | undefined;
   const solrDetails = service.details as { cores?: number; documents?: number } | undefined;
+  const orthancDetails = service.details as { studies?: number; instances?: number; disk_size_mb?: number; patients?: number } | undefined;
 
   return (
     <Link to={`/admin/system-health/${service.key}`}>
@@ -55,6 +56,27 @@ function ServiceCard({ service }: { service: SystemHealthService }) {
             <span className="text-muted-foreground">
               Documents:{" "}
               <span className="font-medium text-foreground">{solrDetails.documents?.toLocaleString() ?? 0}</span>
+            </span>
+          </div>
+        )}
+
+        {service.key === "orthanc" && orthancDetails?.studies !== undefined && (
+          <div className="mt-3 flex gap-4 text-sm">
+            <span className="text-muted-foreground">
+              Studies:{" "}
+              <span className="font-medium text-foreground">{orthancDetails.studies?.toLocaleString()}</span>
+            </span>
+            <span className="text-muted-foreground">
+              Instances:{" "}
+              <span className="font-medium text-foreground">{orthancDetails.instances?.toLocaleString()}</span>
+            </span>
+            <span className="text-muted-foreground">
+              Disk:{" "}
+              <span className="font-medium text-foreground">
+                {(orthancDetails.disk_size_mb ?? 0) >= 1024
+                  ? `${((orthancDetails.disk_size_mb ?? 0) / 1024).toFixed(1)} GB`
+                  : `${orthancDetails.disk_size_mb} MB`}
+              </span>
             </span>
           </div>
         )}
@@ -123,7 +145,7 @@ export default function SystemHealthPage() {
       {/* Service cards */}
       {isLoading ? (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {Array.from({ length: 6 }).map((_, i) => (
+          {Array.from({ length: 7 }).map((_, i) => (
             <div key={i} className="h-24 animate-pulse rounded-lg border border-border bg-muted" />
           ))}
         </div>

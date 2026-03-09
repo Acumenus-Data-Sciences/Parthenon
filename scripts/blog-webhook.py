@@ -64,11 +64,16 @@ class WebhookHandler(BaseHTTPRequestHandler):
         self.wfile.write(json.dumps(data, default=str).encode())
 
     def do_GET(self):
-        if self.path == "/health":
+        from urllib.parse import urlparse, parse_qs
+        parsed = urlparse(self.path)
+        qs = parse_qs(parsed.query)
+
+        if parsed.path == "/health":
             self._respond(200, {"status": "ok"})
-        elif self.path == "/git-logs":
-            self._handle_git_logs()
-        elif self.path == "/codebase-state":
+        elif parsed.path == "/git-logs":
+            repo_filter = qs.get("repos", [None])[0]
+            self._handle_git_logs(repo_filter=repo_filter)
+        elif parsed.path == "/codebase-state":
             self._handle_codebase_state()
         else:
             self._respond(404, {"error": "not found"})
@@ -88,11 +93,21 @@ class WebhookHandler(BaseHTTPRequestHandler):
 
     # ── GET /git-logs ────────────────────────────────────────────────
 
-    def _handle_git_logs(self):
-        """Gather git logs from all repos for the last 24 hours."""
+    def _handle_git_logs(self, repo_filter=None):
+        """Gather git logs from repos for the last 24 hours.
+
+        Args:
+            repo_filter: Comma-separated repo names to include (e.g. "Parthenon,MediCosts").
+                         If None, returns all repos.
+        """
+        repos_to_scan = REPOS
+        if repo_filter:
+            allowed = [r.strip() for r in repo_filter.split(",")]
+            repos_to_scan = [r for r in REPOS if r in allowed]
+
         logs = {}
         total = 0
-        for repo in REPOS:
+        for repo in repos_to_scan:
             repo_dir = REPOS_DIR / repo
             if not (repo_dir / ".git").exists():
                 continue

@@ -4,6 +4,7 @@ namespace App\Services\Imaging;
 
 use App\Models\App\ImagingSeries;
 use App\Models\App\ImagingStudy;
+use App\Models\App\PacsConnection;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -33,6 +34,21 @@ class DicomwebService
         $this->baseUrl = rtrim(config('services.dicomweb.base_url', 'http://localhost:8042'), '/');
         $this->username = config('services.dicomweb.username');
         $this->password = config('services.dicomweb.password');
+    }
+
+    /**
+     * Create a DicomwebService configured from a PacsConnection model.
+     */
+    public static function forConnection(PacsConnection $conn): self
+    {
+        $instance = new self();
+        $instance->baseUrl = rtrim($conn->base_url, '/');
+
+        $creds = $conn->credentials ?? [];
+        $instance->username = $creds['username'] ?? null;
+        $instance->password = $creds['password'] ?? null;
+
+        return $instance;
     }
 
     /**

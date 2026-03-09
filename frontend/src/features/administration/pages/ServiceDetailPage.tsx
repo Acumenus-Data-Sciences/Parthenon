@@ -1,7 +1,19 @@
+import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, RefreshCw } from "lucide-react";
+import { ArrowLeft, RefreshCw, Plus } from "lucide-react";
 import { Panel, Badge, StatusDot, Button, type BadgeVariant, type StatusDotVariant } from "@/components/ui";
 import { useServiceDetail } from "../hooks/useAiProviders";
+import {
+  usePacsConnections,
+  useTestPacsConnection,
+  useRefreshPacsStats,
+  useDeletePacsConnection,
+  useSetDefaultPacs,
+} from "../hooks/usePacsConnections";
+import PacsConnectionCard from "../components/PacsConnectionCard";
+import PacsConnectionFormModal from "../components/PacsConnectionFormModal";
+import PacsStudyBrowser from "../components/PacsStudyBrowser";
+import type { PacsConnection } from "../api/pacsApi";
 
 const STATUS_MAP: Record<string, { badge: BadgeVariant; dot: StatusDotVariant }> = {
   healthy:  { badge: "success",  dot: "healthy" },
@@ -142,6 +154,9 @@ export default function ServiceDetailPage() {
         </div>
       )}
 
+      {/* Orthanc PACS management */}
+      {key === "orthanc" && <PacsManagementSection />}
+
       {/* Logs */}
       <div>
         <h2 className="mb-3 text-lg font-semibold text-foreground">
@@ -168,6 +183,89 @@ export default function ServiceDetailPage() {
           </Panel>
         )}
       </div>
+    </div>
+  );
+}
+
+function PacsManagementSection() {
+  const { data: connections, isLoading } = usePacsConnections();
+  const testMut = useTestPacsConnection();
+  const refreshMut = useRefreshPacsStats();
+  const deleteMut = useDeletePacsConnection();
+  const setDefaultMut = useSetDefaultPacs();
+
+  const [editConn, setEditConn] = useState<PacsConnection | null | undefined>(null);
+  const [browseConn, setBrowseConn] = useState<PacsConnection | null>(null);
+  const [testingId, setTestingId] = useState<number | null>(null);
+  const [refreshingId, setRefreshingId] = useState<number | null>(null);
+
+  async function handleTest(id: number) {
+    setTestingId(id);
+    try {
+      await testMut.mutateAsync(id);
+    } finally {
+      setTestingId(null);
+    }
+  }
+
+  async function handleRefresh(id: number) {
+    setRefreshingId(id);
+    try {
+      await refreshMut.mutateAsync(id);
+    } finally {
+      setRefreshingId(null);
+    }
+  }
+
+  return (
+    <div>
+      <div className="mb-3 flex items-center justify-between">
+        <h2 className="text-lg font-semibold text-foreground">PACS Connections</h2>
+        <Button variant="primary" size="sm" onClick={() => setEditConn(undefined)}>
+          <Plus className="mr-1 h-4 w-4" />
+          Add Connection
+        </Button>
+      </div>
+
+      {isLoading ? (
+        <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+          {[1, 2].map((n) => (
+            <div key={n} className="h-36 animate-pulse rounded-xl border border-border bg-muted" />
+          ))}
+        </div>
+      ) : connections && connections.length > 0 ? (
+        <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+          {connections.map((conn) => (
+            <PacsConnectionCard
+              key={conn.id}
+              connection={conn}
+              onTest={handleTest}
+              onRefresh={handleRefresh}
+              onEdit={(c) => setEditConn(c)}
+              onDelete={(id) => deleteMut.mutate(id)}
+              onBrowse={(c) => setBrowseConn(c)}
+              onSetDefault={(id) => setDefaultMut.mutate(id)}
+              isTesting={testingId === conn.id}
+              isRefreshing={refreshingId === conn.id}
+            />
+          ))}
+        </div>
+      ) : (
+        <Panel>
+          <p className="text-sm text-muted-foreground">No PACS connections configured.</p>
+        </Panel>
+      )}
+
+      <PacsConnectionFormModal
+        isOpen={editConn !== null}
+        onClose={() => setEditConn(null)}
+        editConnection={editConn === undefined ? null : (editConn ?? null)}
+      />
+
+      <PacsStudyBrowser
+        connection={browseConn}
+        onClose={() => setBrowseConn(null)}
+      />
     </div>
   );
 }

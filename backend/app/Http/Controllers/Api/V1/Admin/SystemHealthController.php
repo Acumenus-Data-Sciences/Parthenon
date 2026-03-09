@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\App\PacsConnection;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -23,6 +24,7 @@ class SystemHealthController extends Controller
             'ai' => fn () => $this->checkAiService(),
             'r' => fn () => $this->checkRRuntime(),
             'solr' => fn () => $this->checkSolr(),
+            'orthanc' => fn () => $this->checkOrthanc(),
             'queue' => fn () => $this->checkQueue(),
         ];
     }
@@ -69,6 +71,7 @@ class SystemHealthController extends Controller
             'ai' => $this->getServiceHttpLogs('ai'),
             'r' => $this->getServiceHttpLogs('r'),
             'solr' => $this->getSolrLogs(),
+            'orthanc' => $this->getServiceHttpLogs('orthanc'),
             'queue' => $this->getQueueLogs(),
             default => [],
         };
@@ -85,6 +88,7 @@ class SystemHealthController extends Controller
             'ai' => $this->getAiMetrics(),
             'r' => $this->getRMetrics(),
             'solr' => $this->getSolrMetrics(),
+            'orthanc' => $this->getOrthancMetrics(),
             'queue' => $this->getQueueMetrics(),
             default => [],
         };
@@ -158,7 +162,7 @@ class SystemHealthController extends Controller
         $url = rtrim(config('services.r.url', env('R_PLUMBER_URL', 'http://r-runtime:8787')), '/');
 
         try {
-            $response = Http::timeout(3)->get("{$url}/healthz");
+            $response = Http::timeout(3)->get("{$url}/health");
 
             if ($response->successful()) {
                 return [
@@ -260,6 +264,62 @@ class SystemHealthController extends Controller
         }
     }
 
+    private function checkOrthanc(): array
+    {
+        $conn = PacsConnection::where('is_default', true)->first();
+
+        if (! $conn) {
+            return [
+                'name' => 'Orthanc PACS',
+                'key' => 'orthanc',
+                'status' => 'down',
+                'message' => 'No default PACS connection configured.',
+            ];
+        }
+
+        $baseUrl = rtrim(str_replace('/dicom-web', '', $conn->base_url), '/');
+
+        try {
+            $response = Http::timeout(5)->get("{$baseUrl}/statistics");
+
+            if ($response->successful()) {
+                $stats = $response->json();
+                $studies = $stats['CountStudies'] ?? 0;
+                $instances = $stats['CountInstances'] ?? 0;
+                $diskMb = round(($stats['TotalDiskSizeMB'] ?? 0), 1);
+
+                return [
+                    'name' => 'Orthanc PACS',
+                    'key' => 'orthanc',
+                    'status' => 'healthy',
+                    'message' => "{$studies} studies, {$instances} instances, {$diskMb} MB on disk.",
+                    'details' => [
+                        'connection_name' => $conn->name,
+                        'studies' => $studies,
+                        'series' => $stats['CountSeries'] ?? 0,
+                        'instances' => $instances,
+                        'patients' => $stats['CountPatients'] ?? 0,
+                        'disk_size_mb' => $diskMb,
+                    ],
+                ];
+            }
+
+            return [
+                'name' => 'Orthanc PACS',
+                'key' => 'orthanc',
+                'status' => 'degraded',
+                'message' => "Orthanc returned HTTP {$response->status()}.",
+            ];
+        } catch (\Throwable $e) {
+            return [
+                'name' => 'Orthanc PACS',
+                'key' => 'orthanc',
+                'status' => 'down',
+                'message' => $e->getMessage(),
+            ];
+        }
+    }
+
     // ── Log Retrieval ────────────────────────────────────────────────────
 
     /**
@@ -341,6 +401,7 @@ class SystemHealthController extends Controller
         $keyword = match ($service) {
             'ai' => 'python-ai|AI Service|abby|ollama|MedGemma',
             'r' => 'r-runtime|R Plumber|plumber|HADES',
+            'orthanc' => 'orthanc|PACS|DICOMweb|dicom-web',
             default => $service,
         };
 
@@ -489,7 +550,7 @@ class SystemHealthController extends Controller
         $url = rtrim(config('services.r.url', env('R_PLUMBER_URL', 'http://r-runtime:8787')), '/');
 
         try {
-            $response = Http::timeout(3)->get("{$url}/healthz");
+            $response = Http::timeout(3)->get("{$url}/health");
 
             return $response->successful() ? ($response->json() ?? []) : [];
         } catch (\Throwable) {
@@ -534,6 +595,43 @@ class SystemHealthController extends Controller
             ];
         } catch (\Throwable) {
             return ['enabled' => true];
+        }
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function getOrthancMetrics(): array
+    {
+        $conn = PacsConnection::where('is_default', true)->first();
+
+        if (! $conn) {
+            return ['configured' => false];
+        }
+
+        $baseUrl = rtrim(str_replace('/dicom-web', '', $conn->base_url), '/');
+
+        try {
+            $response = Http::timeout(5)->get("{$baseUrl}/system");
+
+            if ($response->successful()) {
+                $sys = $response->json();
+
+                return [
+                    'configured' => true,
+                    'connection_name' => $conn->name,
+                    'base_url' => $conn->base_url,
+                    'version' => $sys['Version'] ?? 'unknown',
+                    'database_version' => $sys['DatabaseVersion'] ?? 'unknown',
+                    'dicom_aet' => $sys['DicomAet'] ?? 'unknown',
+                    'plugins_enabled' => $sys['PluginsEnabled'] ?? false,
+                    'overwrite_instances' => $sys['OverwriteInstances'] ?? false,
+                ];
+            }
+
+            return ['configured' => true, 'connection_name' => $conn->name];
+        } catch (\Throwable) {
+            return ['configured' => true, 'connection_name' => $conn->name];
         }
     }
 

@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\V1\Admin\AiProviderController;
 use App\Http\Controllers\Api\V1\Admin\AtlasMigrationController;
 use App\Http\Controllers\Api\V1\Admin\AuthProviderController;
 use App\Http\Controllers\Api\V1\Admin\FhirConnectionController;
+use App\Http\Controllers\Api\V1\Admin\PacsConnectionController;
 use App\Http\Controllers\Api\V1\Admin\RoleController;
 use App\Http\Controllers\Api\V1\Admin\SolrAdminController;
 use App\Http\Controllers\Api\V1\Admin\SystemHealthController;
@@ -483,6 +484,19 @@ Route::prefix('v1')->group(function () {
             // ── FHIR Sync Dashboard (super-admin only) ──────────────────
             Route::middleware('role:super-admin')
                 ->get('/fhir-sync/dashboard', [FhirConnectionController::class, 'syncDashboard']);
+
+            // ── PACS Connections (super-admin only) ───────────────────────
+            Route::middleware('role:super-admin')->prefix('pacs-connections')->group(function () {
+                Route::get('/', [PacsConnectionController::class, 'index']);
+                Route::post('/', [PacsConnectionController::class, 'store']);
+                Route::get('/{pacsConnection}', [PacsConnectionController::class, 'show']);
+                Route::put('/{pacsConnection}', [PacsConnectionController::class, 'update']);
+                Route::delete('/{pacsConnection}', [PacsConnectionController::class, 'destroy']);
+                Route::post('/{pacsConnection}/test', [PacsConnectionController::class, 'test']);
+                Route::post('/{pacsConnection}/refresh-stats', [PacsConnectionController::class, 'refreshStats']);
+                Route::get('/{pacsConnection}/studies', [PacsConnectionController::class, 'studies']);
+                Route::post('/{pacsConnection}/set-default', [PacsConnectionController::class, 'setDefault']);
+            });
 
             // ── Solr Admin (super-admin only) ──────────────────────────
             Route::middleware('role:super-admin')->prefix('solr')->group(function () {

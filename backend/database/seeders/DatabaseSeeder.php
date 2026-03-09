@@ -52,6 +52,9 @@ class DatabaseSeeder extends Seeder
         // ── HEOR analyses with scenarios, parameters, and value contracts ──
         $this->call(HeorSeeder::class);
 
+        // ── PACS connections ────────────────────────────────────────────
+        $this->call(PacsConnectionSeeder::class);
+
         // ── Sample studies ────────────────────────────────────────────
         $this->call(StudySeeder::class);
     }
