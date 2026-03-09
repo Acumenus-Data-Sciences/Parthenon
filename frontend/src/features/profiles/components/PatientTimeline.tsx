@@ -1,5 +1,5 @@
-import { useState, useMemo, useRef, useCallback, useEffect } from "react";
-import { Search, X } from "lucide-react";
+import { useState, useMemo, useRef, useCallback, useEffect, useId } from "react";
+import { Search, X, ZoomIn, ZoomOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { ClinicalEvent, ClinicalDomain, ObservationPeriod } from "../types/profile";
 
@@ -51,6 +51,22 @@ function formatTooltipDate(d: string): string {
   });
 }
 
+/** Human-readable duration between two ISO date strings */
+function formatDuration(startDate: string, endDate: string): string {
+  const startMs = new Date(startDate).getTime();
+  const endMs = new Date(endDate).getTime();
+  const diffMs = endMs - startMs;
+  if (diffMs <= 0) return "";
+  const days = Math.round(diffMs / (24 * 60 * 60 * 1000));
+  if (days === 0) return "same day";
+  if (days === 1) return "1 day";
+  if (days < 30) return `${days} days`;
+  const months = Math.round(days / 30.44);
+  if (months < 12) return months === 1 ? "1 month" : `${months} months`;
+  const years = Math.round(days / 365.25);
+  return years === 1 ? "1 year" : `${years} years`;
+}
+
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
@@ -78,6 +94,11 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
   } | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
+  // Unique IDs for SVG defs to avoid conflicts with multiple instances
+  const instanceId = useId();
+  const clipId = `chart-clip-${instanceId}`;
+  const hatchId = `gap-hatch-${instanceId}`;
+
   // Zoom and pan state
   const [zoom, setZoom] = useState(1);
   const [panOffset, setPanOffset] = useState(0);
@@ -85,6 +106,23 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
   const dragStart = useRef(0);
   const panStart = useRef(0);
   const hasSetInitialView = useRef(false);
+
+  // Responsive SVG width via ResizeObserver
+  const [containerWidth, setContainerWidth] = useState(0);
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        setContainerWidth(entry.contentRect.width);
+      }
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  // Use measured width if available, otherwise fallback
+  const svgWidth = containerWidth > 0 ? Math.round(containerWidth) : 900;
+  const chartWidth = svgWidth - LABEL_WIDTH - TIMELINE_PADDING;
 
   // Keyboard navigation
   useEffect(() => {
@@ -209,10 +247,6 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
     });
   };
 
-  // SVG dimensions
-  const svgWidth = 900;
-  const chartWidth = svgWidth - LABEL_WIDTH - TIMELINE_PADDING;
-
   let yOffset = 34; // Space for time axis
   const lanePositions: { domain: ClinicalDomain; y: number; height: number }[] = [];
   for (const domain of activeDomains) {
@@ -289,7 +323,7 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
       x1: LABEL_WIDTH + leftNorm * chartWidth,
       x2: LABEL_WIDTH + rightNorm * chartWidth,
     };
-  }, [zoom, panOffset]);
+  }, [zoom, panOffset, chartWidth]);
 
   // Click on minimap to center that time position in the main view
   const handleMinimapClick = useCallback((e: React.MouseEvent<SVGSVGElement>) => {
@@ -299,7 +333,7 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
     if (norm < 0 || norm > 1) return;
     const targetPanX = norm * chartWidth * zoom;
     setPanOffset(chartWidth / 2 - targetPanX);
-  }, [zoom]);
+  }, [zoom, svgWidth, chartWidth]);
 
   const jumpToYear = (year: number) => {
     const yearMs = new Date(`${year}-01-01`).getTime();
@@ -337,8 +371,9 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
     return set;
   }, [events, searchQuery]);
 
-  // Wheel zoom
+  // Wheel zoom — only when Ctrl/Cmd is held; otherwise let the page scroll
   const handleWheel = (e: React.WheelEvent) => {
+    if (!e.ctrlKey && !e.metaKey) return; // let normal scroll bubble up
     e.preventDefault();
     const delta = e.deltaY > 0 ? 0.9 : 1.1;
     const newZoom = Math.max(0.5, Math.min(10, zoom * delta));
@@ -351,11 +386,17 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
     setZoom(newZoom);
   };
 
+  // Toolbar zoom in/out buttons
+  const handleZoomIn = () => setZoom((z) => Math.min(10, z * 1.3));
+  const handleZoomOut = () => setZoom((z) => Math.max(0.5, z / 1.3));
+
   // Drag pan
   const handleMouseDown = (e: React.MouseEvent) => {
     isDragging.current = true;
     dragStart.current = e.clientX;
     panStart.current = panOffset;
+    // Hide tooltip while dragging
+    setTooltip(null);
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
@@ -417,7 +458,30 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
             )}
           </div>
 
-          {/* Zoom display + reset */}
+          {/* Zoom controls: -, percentage, +, Reset */}
+          <div className="flex items-center gap-0.5 rounded-md border border-[#323238] bg-[#0E0E11]">
+            <button
+              type="button"
+              onClick={handleZoomOut}
+              disabled={zoom <= 0.5}
+              className="p-1.5 text-[#8A857D] hover:text-[#F0EDE8] disabled:text-[#323238] disabled:cursor-not-allowed transition-colors"
+              title="Zoom out"
+            >
+              <ZoomOut size={12} />
+            </button>
+            <span className="text-[10px] text-[#5A5650] w-8 text-center tabular-nums">
+              {Math.round(zoom * 100)}%
+            </span>
+            <button
+              type="button"
+              onClick={handleZoomIn}
+              disabled={zoom >= 10}
+              className="p-1.5 text-[#8A857D] hover:text-[#F0EDE8] disabled:text-[#323238] disabled:cursor-not-allowed transition-colors"
+              title="Zoom in"
+            >
+              <ZoomIn size={12} />
+            </button>
+          </div>
           <button
             type="button"
             onClick={() => { setZoom(1); setPanOffset(0); }}
@@ -425,9 +489,6 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
           >
             Reset
           </button>
-          <span className="text-[10px] text-[#5A5650] w-8 text-right">
-            {Math.round(zoom * 100)}%
-          </span>
         </div>
       </div>
 
@@ -550,7 +611,7 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
           className="select-none"
         >
           <defs>
-            <clipPath id="chart-clip">
+            <clipPath id={clipId}>
               <rect
                 x={LABEL_WIDTH}
                 y={0}
@@ -560,7 +621,7 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
             </clipPath>
             {/* Hatch pattern for gaps between obs periods */}
             <pattern
-              id="gap-hatch"
+              id={hatchId}
               width={6}
               height={6}
               patternUnits="userSpaceOnUse"
@@ -578,7 +639,7 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
           </defs>
 
           {/* Observation period bands (behind everything) */}
-          <g clipPath="url(#chart-clip)">
+          <g clipPath={`url(#${clipId})`}>
             {obsPeriodBands.map((band, i) => {
               const bw = Math.max(band.x2 - band.x1, 2);
               return (
@@ -596,7 +657,7 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
           </g>
 
           {/* Time axis */}
-          <g clipPath="url(#chart-clip)">
+          <g clipPath={`url(#${clipId})`}>
             <line
               x1={LABEL_WIDTH}
               x2={svgWidth}
@@ -735,7 +796,7 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
 
                 {/* Events */}
                 {!isCollapsed && (
-                  <g clipPath="url(#chart-clip)">
+                  <g clipPath={`url(#${clipId})`}>
                     {domEvts.map((ev, evIdx) => {
                       const startX = timeToX(parseDate(ev.start_date));
                       const endX = ev.end_date
@@ -756,10 +817,25 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
                           : 0.15
                         : 0.75;
 
+                      // Hit target padding — expands the hoverable area
+                      const HIT_PAD = 6;
+
                       return (
                         <g
                           key={evIdx}
                           onMouseEnter={(e) => {
+                            if (isDragging.current) return;
+                            const rect = containerRef.current?.getBoundingClientRect();
+                            if (rect) {
+                              setTooltip({
+                                event: ev,
+                                x: e.clientX - rect.left,
+                                y: e.clientY - rect.top,
+                              });
+                            }
+                          }}
+                          onMouseMove={(e) => {
+                            if (isDragging.current) return;
                             const rect = containerRef.current?.getBoundingClientRect();
                             if (rect) {
                               setTooltip({
@@ -774,6 +850,24 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
                           className="cursor-pointer"
                           opacity={opacity}
                         >
+                          {/* Invisible expanded hit target for easier hovering */}
+                          {isSingleDay ? (
+                            <circle
+                              cx={startX}
+                              cy={evY + EVENT_HEIGHT / 2}
+                              r={EVENT_HEIGHT / 2 + HIT_PAD}
+                              fill="transparent"
+                            />
+                          ) : (
+                            <rect
+                              x={startX - HIT_PAD}
+                              y={evY - HIT_PAD}
+                              width={w + HIT_PAD * 2}
+                              height={EVENT_HEIGHT + HIT_PAD * 2}
+                              fill="transparent"
+                            />
+                          )}
+                          {/* Visible event shape */}
                           {isSingleDay ? (
                             <circle
                               cx={startX}
@@ -827,7 +921,7 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
           })}
 
           {/* Obs period border lines (on top) */}
-          <g clipPath="url(#chart-clip)">
+          <g clipPath={`url(#${clipId})`}>
             {obsPeriodBands.map((band, i) => (
               <g key={i}>
                 <line
@@ -856,44 +950,66 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
         </svg>
       </div>
 
-      {/* Tooltip */}
-      {tooltip && (
-        <div
-          className="absolute pointer-events-none z-50"
-          style={{ left: tooltip.x + 12, top: tooltip.y - 10 }}
-        >
-          <div className="rounded-lg bg-[#0E0E11] border border-[#323238] px-3 py-2 shadow-xl max-w-xs">
-            <p className="text-xs font-semibold text-[#F0EDE8]">
-              {tooltip.event.concept_name}
-            </p>
-            <div className="mt-1 space-y-0.5">
-              <p className="text-[10px] text-[#8A857D]">
-                <span
-                  className="inline-block w-2 h-2 rounded-sm mr-1"
-                  style={{ backgroundColor: DOMAIN_CONFIG[tooltip.event.domain].color }}
-                />
-                {DOMAIN_CONFIG[tooltip.event.domain].label}
+      {/* Tooltip — clamped to stay within the container */}
+      {tooltip && !isDragging.current && (() => {
+        const ev = tooltip.event;
+        const TOOLTIP_W = 260;
+        const TOOLTIP_OFFSET = 14;
+        const containerW = containerRef.current?.clientWidth ?? svgWidth;
+        const leftPos = tooltip.x + TOOLTIP_OFFSET + TOOLTIP_W > containerW
+          ? tooltip.x - TOOLTIP_W - TOOLTIP_OFFSET
+          : tooltip.x + TOOLTIP_OFFSET;
+        const duration = ev.end_date && ev.end_date !== ev.start_date
+          ? formatDuration(ev.start_date, ev.end_date)
+          : null;
+        return (
+          <div
+            className="absolute pointer-events-none z-50"
+            style={{ left: Math.max(4, leftPos), top: tooltip.y - 10 }}
+          >
+            <div className="rounded-lg bg-[#0E0E11] border border-[#323238] px-3 py-2 shadow-xl" style={{ maxWidth: TOOLTIP_W }}>
+              <p className="text-xs font-semibold text-[#F0EDE8]">
+                {ev.concept_name}
               </p>
-              <p className="text-[10px] text-[#8A857D]">
-                {formatTooltipDate(tooltip.event.start_date)}
-                {tooltip.event.end_date &&
-                  ` – ${formatTooltipDate(tooltip.event.end_date)}`}
-              </p>
-              {tooltip.event.value != null && (
-                <p className="text-[10px] text-[#C9A227]">
-                  {String(tooltip.event.value)}
-                  {tooltip.event.unit ? ` ${tooltip.event.unit}` : ""}
+              <div className="mt-1 space-y-0.5">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-[10px] text-[#8A857D]">
+                    <span
+                      className="inline-block w-2 h-2 rounded-sm mr-1"
+                      style={{ backgroundColor: DOMAIN_CONFIG[ev.domain].color }}
+                    />
+                    {DOMAIN_CONFIG[ev.domain].label}
+                  </p>
+                  {ev.concept_id != null && (
+                    <p className="text-[10px] text-[#3A3A40] font-mono tabular-nums">
+                      #{ev.concept_id}
+                    </p>
+                  )}
+                </div>
+                <p className="text-[10px] text-[#8A857D]">
+                  {formatTooltipDate(ev.start_date)}
+                  {ev.end_date && ev.end_date !== ev.start_date &&
+                    ` \u2013 ${formatTooltipDate(ev.end_date)}`}
+                  {duration && (
+                    <span className="ml-1 text-[#5A5650]">({duration})</span>
+                  )}
                 </p>
-              )}
-              {tooltip.event.vocabulary && (
-                <p className="text-[10px] text-[#5A5650]">
-                  {tooltip.event.vocabulary}
-                </p>
-              )}
+                {ev.value != null && (
+                  <p className="text-[10px] text-[#C9A227]">
+                    {String(ev.value)}
+                    {ev.unit ? ` ${ev.unit}` : ""}
+                  </p>
+                )}
+                {ev.vocabulary && (
+                  <p className="text-[10px] text-[#5A5650]">
+                    {ev.vocabulary}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* Legend + keyboard hint */}
       <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-2 border-t border-[#232328] bg-[#1C1C20]">
@@ -920,7 +1036,7 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
           )}
         </div>
         <span className="text-[10px] text-[#3A3A40]">
-          Scroll to zoom · Drag to pan · ←→ keys · +/- keys
+          Ctrl+scroll to zoom · Drag to pan · Arrow keys · +/- keys · Click event for details
         </span>
       </div>
     </div>
