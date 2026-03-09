@@ -44,6 +44,7 @@ use App\Http\Controllers\Api\V1\OnboardingController;
 use App\Http\Controllers\Api\V1\PathwayController;
 use App\Http\Controllers\Api\V1\PatientProfileController;
 use App\Http\Controllers\Api\V1\PopulationCharacterizationController;
+use App\Http\Controllers\Api\V1\PublicationController;
 use App\Http\Controllers\Api\V1\PopulationRiskScoreController;
 use App\Http\Controllers\Api\V1\PredictionController;
 use App\Http\Controllers\Api\V1\SccsController;
@@ -392,6 +393,10 @@ Route::prefix('v1')->group(function () {
         // Abby Conversations (persistence)
         Route::apiResource('abby/conversations', AbbyConversationController::class)
             ->only(['index', 'store', 'show', 'destroy']);
+
+        // Publication / Export
+        Route::post('publish/narrative', [PublicationController::class, 'narrative']);
+        Route::post('publish/export', [PublicationController::class, 'export']);
 
         // ── Admin panel (requires admin or super-admin role) ───────────────
         Route::prefix('admin')->middleware('role:admin|super-admin')->group(function () {
