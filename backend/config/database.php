@@ -149,6 +149,21 @@ return [
             'sslmode' => 'prefer',
         ],
 
+        // Docker PostgreSQL — used by db:sync command to mirror app tables
+        // between the local PG (source of truth) and the Docker container PG.
+        'docker_pg' => [
+            'driver' => 'pgsql',
+            'host' => env('DOCKER_DB_HOST', 'postgres'),
+            'port' => env('DOCKER_DB_PORT', '5432'),
+            'database' => env('DOCKER_DB_DATABASE', 'parthenon'),
+            'username' => env('DOCKER_DB_USERNAME', 'parthenon'),
+            'password' => env('DOCKER_DB_PASSWORD', 'secret'),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'search_path' => 'app,public',
+            'sslmode' => 'prefer',
+        ],
+
         // Eunomia GiBleed demo dataset — lives in the Docker postgres (same DB as
         // the app) in the 'eunomia' schema. The schema is populated by pg_restore
         // during Phase 5 of the installer. search_path is set statically here and
