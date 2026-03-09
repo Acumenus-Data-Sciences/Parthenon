@@ -4,6 +4,7 @@
 
 export interface PatientDemographics {
   person_id: number;
+  patient_name?: string | null;
   gender: string;
   year_of_birth: number;
   month_of_birth: number | null;
@@ -15,6 +16,8 @@ export interface PatientDemographics {
   state?: string | null;
   zip?: string | null;
   county?: string | null;
+  death_date?: string | null;
+  cause_of_death?: string | null;
 }
 
 export type ClinicalDomain =

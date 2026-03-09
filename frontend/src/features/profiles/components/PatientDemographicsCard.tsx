@@ -46,7 +46,9 @@ export function PatientDemographicsCard({
   demographics,
   observationPeriods,
 }: PatientDemographicsCardProps) {
-  const age = computeAge(demographics.year_of_birth);
+  const age = demographics.death_date
+    ? new Date(demographics.death_date).getFullYear() - demographics.year_of_birth
+    : computeAge(demographics.year_of_birth);
 
   // Build location string
   const locationParts = [
@@ -73,11 +75,22 @@ export function PatientDemographicsCard({
         <div className="flex items-center justify-center w-10 h-10 rounded-full bg-[#2DD4BF]/10">
           <User size={18} className="text-[#2DD4BF]" />
         </div>
-        <div>
-          <h2 className="text-lg font-bold text-[#F0EDE8]">
-            Person #{demographics.person_id}
-          </h2>
-          <p className="text-xs text-[#8A857D]">Patient Demographics</p>
+        <div className="flex-1">
+          <div className="flex items-center gap-3">
+            <h2 className="text-lg font-bold text-[#F0EDE8]">
+              {demographics.patient_name || `Person #${demographics.person_id}`}
+            </h2>
+            {demographics.death_date && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-[#E85A6B]/10 px-2.5 py-0.5 text-[10px] font-semibold text-[#E85A6B] border border-[#E85A6B]/20">
+                Deceased
+              </span>
+            )}
+          </div>
+          <p className="text-xs text-[#8A857D]">
+            {demographics.patient_name
+              ? `Person #${demographics.person_id} · Patient Demographics`
+              : "Patient Demographics"}
+          </p>
         </div>
       </div>
 
@@ -91,7 +104,9 @@ export function PatientDemographicsCard({
         <Field
           icon={<Calendar size={10} />}
           label="Age / Birth Year"
-          value={`${age} yrs (${demographics.year_of_birth})`}
+          value={demographics.death_date
+            ? `${age} yrs at death (${demographics.year_of_birth})`
+            : `${age} yrs (${demographics.year_of_birth})`}
         />
         <Field
           icon={<Globe size={10} />}
@@ -103,6 +118,22 @@ export function PatientDemographicsCard({
           label="Ethnicity"
           value={demographics.ethnicity || "Unknown"}
         />
+        {demographics.death_date && (
+          <Field
+            icon={<Calendar size={10} />}
+            label="Date of Death"
+            value={
+              <span className="text-[#E85A6B]">
+                {formatDate(demographics.death_date)}
+                {demographics.cause_of_death && (
+                  <span className="block text-[11px] text-[#8A857D] font-normal mt-0.5">
+                    {demographics.cause_of_death}
+                  </span>
+                )}
+              </span>
+            }
+          />
+        )}
       </div>
 
       {/* Location + observation periods */}

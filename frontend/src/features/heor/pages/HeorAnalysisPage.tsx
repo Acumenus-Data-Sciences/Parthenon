@@ -455,7 +455,7 @@ export default function HeorAnalysisPage() {
             />
             <TornadoDiagram
               tornadoData={
-                results.find((r) => r.tornado_data && r.tornado_data.length > 0)?.tornado_data ?? []
+                results.find((r) => r.tornado_data?.some((t) => t.range > 0))?.tornado_data ?? []
               }
               baseIcer={results.find((r) => r.icer !== null)?.icer}
             />

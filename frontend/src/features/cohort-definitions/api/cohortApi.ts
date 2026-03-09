@@ -77,20 +77,21 @@ export async function generateCohort(
 export async function getCohortGenerations(
   id: number,
 ): Promise<CohortGeneration[]> {
-  const { data } = await apiClient.get<CohortGeneration[]>(
+  const { data } = await apiClient.get(
     `${BASE}/${id}/generations`,
   );
-  return data;
+  const items = data.data ?? data;
+  return Array.isArray(items) ? items : [];
 }
 
 export async function getCohortGeneration(
   defId: number,
   genId: number,
 ): Promise<CohortGeneration> {
-  const { data } = await apiClient.get<CohortGeneration>(
+  const { data } = await apiClient.get(
     `${BASE}/${defId}/generations/${genId}`,
   );
-  return data;
+  return data.data ?? data;
 }
 
 // ---------------------------------------------------------------------------
@@ -101,11 +102,11 @@ export async function previewCohortSql(
   id: number,
   payload: { source_id: number },
 ): Promise<{ sql: string }> {
-  const { data } = await apiClient.get<{ sql: string }>(
+  const { data } = await apiClient.get(
     `${BASE}/${id}/sql`,
     { params: payload },
   );
-  return data;
+  return data.data ?? data;
 }
 
 // ---------------------------------------------------------------------------

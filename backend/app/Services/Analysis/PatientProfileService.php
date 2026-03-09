@@ -406,13 +406,17 @@ class PatientProfileService
                 p.year_of_birth,
                 p.month_of_birth,
                 p.day_of_birth,
+                p.gender_concept_id,
+                p.person_source_value,
                 COALESCE(gc.concept_name, 'Unknown') AS gender,
                 COALESCE(rc.concept_name, 'Unknown') AS race,
                 COALESCE(ec.concept_name, 'Unknown') AS ethnicity,
                 loc.city,
                 loc.state,
                 loc.zip,
-                loc.county
+                loc.county,
+                d.death_date,
+                COALESCE(dc.concept_name, d.cause_source_value) AS cause_of_death
             FROM {@cdmSchema}.person p
             LEFT JOIN {@vocabSchema}.concept gc
                 ON p.gender_concept_id = gc.concept_id
@@ -422,13 +426,74 @@ class PatientProfileService
                 ON p.ethnicity_concept_id = ec.concept_id
             LEFT JOIN {@cdmSchema}.location loc
                 ON p.location_id = loc.location_id
+            LEFT JOIN {@cdmSchema}.death d
+                ON p.person_id = d.person_id
+            LEFT JOIN {@vocabSchema}.concept dc
+                ON d.cause_concept_id = dc.concept_id
             WHERE p.person_id = {$personId}
         ";
 
         $renderedSql = $this->sqlRenderer->render($sql, $params, $dialect);
         $rows = DB::connection($connectionName)->select($renderedSql);
 
-        return ! empty($rows) ? (array) $rows[0] : [];
+        if (empty($rows)) {
+            return [];
+        }
+
+        $demo = (array) $rows[0];
+
+        // Resolve patient name: try person_source_value first (real patients),
+        // then fall back to extracting from note text (synthetic patients)
+        $psv = $demo['person_source_value'] ?? null;
+        $isHumanName = $psv && ! preg_match('/^[0-9a-f]{8}-/', $psv) && ! preg_match('/^MBU-/', $psv);
+
+        if ($isHumanName) {
+            $demo['patient_name'] = $psv;
+        } else {
+            $demo['patient_name'] = $this->extractPatientName(
+                $personId,
+                $params,
+                $dialect,
+                $connectionName,
+            );
+        }
+
+        // Remove internal fields from response
+        unset($demo['gender_concept_id'], $demo['person_source_value']);
+
+        return $demo;
+    }
+
+    /**
+     * Extract patient name from the first clinical note's text.
+     * Notes contain "Patient: FirstName LastName" in the header.
+     */
+    private function extractPatientName(
+        int $personId,
+        array $params,
+        string $dialect,
+        string $connectionName,
+    ): ?string {
+        $sql = "
+            SELECT SUBSTRING(n.note_text FROM 'Patient: ([^\n]+)') AS patient_name
+            FROM {@cdmSchema}.note n
+            WHERE n.person_id = {$personId}
+            LIMIT 1
+        ";
+
+        $renderedSql = $this->sqlRenderer->render($sql, $params, $dialect);
+
+        try {
+            $rows = DB::connection($connectionName)->select($renderedSql);
+
+            if (! empty($rows) && $rows[0]->patient_name) {
+                return trim($rows[0]->patient_name);
+            }
+        } catch (\Throwable) {
+            // No notes or regex didn't match — return null
+        }
+
+        return null;
     }
 
     /**

@@ -40,8 +40,18 @@ export default function TornadoDiagram({ tornadoData, baseIcer }: Props) {
     );
   }
 
-  // Take top 10 parameters sorted by range (already sorted from backend)
-  const top = tornadoData.slice(0, 10);
+  // Filter to parameters with actual ICER impact, take top 10
+  const top = tornadoData.filter((t) => t.range > 0 && (t.low_icer !== null || t.high_icer !== null)).slice(0, 10);
+
+  if (top.length === 0) {
+    return (
+      <ChartCard title="Sensitivity Analysis" subtitle="Tornado diagram — ICER impact by parameter">
+        <div className="h-64 flex items-center justify-center text-sm text-[#5A5650]">
+          No parameters with measurable ICER impact.
+        </div>
+      </ChartCard>
+    );
+  }
 
   // Build chart data: each bar shows low_icer → high_icer range
   const chartData = top.map((t) => {
@@ -65,15 +75,14 @@ export default function TornadoDiagram({ tornadoData, baseIcer }: Props) {
   // Reverse so widest bar is at top
   chartData.reverse();
 
-  const barHeight = Math.max(280, chartData.length * 36);
-
   return (
     <ChartCard
       title="Sensitivity Analysis"
       subtitle="Tornado diagram — ICER impact by parameter variation"
     >
-      <ResponsiveContainer width="100%" height={barHeight}>
-        <BarChart data={chartData} layout="vertical" margin={{ top: 8, right: 24, bottom: 8, left: 120 }}>
+      <div className="w-full" style={{ aspectRatio: "560 / 400" }}>
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart data={chartData} layout="vertical" margin={{ top: 24, right: 24, bottom: 8, left: 120 }}>
           <CartesianGrid horizontal={false} stroke={CHART.grid} strokeDasharray="3 3" />
           <XAxis
             type="number"
@@ -134,6 +143,7 @@ export default function TornadoDiagram({ tornadoData, baseIcer }: Props) {
           </Bar>
         </BarChart>
       </ResponsiveContainer>
+      </div>
 
       {/* Legend */}
       <div className="flex flex-wrap gap-3 mt-2 px-1">
