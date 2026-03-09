@@ -1,13 +1,14 @@
 {
   "key": "data-ingestion",
   "title": "Data Ingestion",
-  "description": "The Data Ingestion module guides data engineers and analysts through the process of uploading raw source data, mapping it to the OMOP Common Data Model schema, and resolving source codes to standard vocabulary concepts. A structured pipeline approach ensures that incoming data meets quality thresholds before it is made available for cohort building and analysis.",
+  "description": "The Data Ingestion module enables research teams to upload, map, and transform source data into the OMOP Common Data Model. Use this workflow to bring external datasets into Parthenon by uploading raw files, defining schema mappings to align source fields with OMOP domains, and resolving concept mappings to standardize vocabularies before data becomes available for cohort building and analysis.",
   "docs_url": "/docs/part5-ingestion/15-uploading-data",
   "video_url": null,
   "tips": [
-    "Upload a representative sample of your source data first to validate schema and concept mappings before committing the full dataset.",
-    "Review the concept mapping suggestions carefully and resolve unmapped codes before finalizing ingestion, as unmapped concepts will be excluded from standard vocabulary queries.",
-    "Keep source file naming conventions consistent across ingestion runs to simplify auditing and reprocessing when source data is corrected upstream.",
-    "Check the Jobs queue after submitting an ingestion pipeline to monitor progress and catch errors early before they propagate to downstream analyses."
+    "Begin with the Upload step to validate file format and row counts before proceeding to schema mapping, catching structural issues early.",
+    "Use the schema mapping editor to preview how source columns align to OMOP domains; unmapped fields are highlighted in amber for quick identification.",
+    "Concept mapping can be seeded automatically from the platform vocabulary; review auto-suggestions carefully and manually resolve any low-confidence matches.",
+    "Run a dry-run ingestion to generate a validation report without committing data, allowing QA review before final load.",
+    "Check the Jobs panel after submitting an ingestion run to monitor progress and download detailed error logs if any records fail to load."
   ]
 }

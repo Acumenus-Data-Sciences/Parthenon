@@ -1,14 +1,14 @@
 {
   "key": "vocabulary-search",
-  "title": "Vocabulary Browser",
-  "description": "The Vocabulary Browser provides a searchable interface to the OMOP standardized vocabularies, enabling researchers to explore concept hierarchies, identify standard and source codes, and assemble concept sets for use in cohort definitions and analyses. Understanding vocabulary structure is fundamental to building precise, reproducible phenotypes in the OMOP ecosystem.",
+  "title": "Vocabulary Search",
+  "description": "The Vocabulary Search module provides a comprehensive browser for exploring the OMOP standardized vocabularies, including concepts, domains, concept classes, and hierarchical relationships. Researchers can search for clinical terms across vocabularies such as SNOMED, RxNorm, LOINC, and ICD, review concept details, and add concepts directly to concept sets for use in cohort definitions and analyses.",
   "docs_url": "/docs/part2-vocabulary/03-vocabulary-browser",
   "video_url": null,
   "tips": [
-    "Use the Standard Concept filter to restrict search results to concepts that are valid as criteria in cohort definitions and analyses.",
-    "Explore the hierarchy view for a selected concept to discover broader and narrower terms that may need to be included or excluded from your concept set.",
-    "Search by source code (e.g., ICD-10, NDC, LOINC) when you have a specific code from an EHR extract and need to find its mapped standard concept.",
-    "Save frequently used concepts directly to an existing concept set from the search results page to avoid redundant lookups across sessions.",
-    "Check the concept's domain and vocabulary fields before adding it to a concept set to ensure it will match the correct OMOP domain table in your queries."
+    "Use the Domain and Vocabulary filters together to narrow large result sets; for example, filter to the Drug domain and RxNorm vocabulary when searching for medication ingredients.",
+    "Switch to the Hierarchy tab on any concept record to explore ancestor and descendant relationships, which is essential for building inclusive cohort criteria.",
+    "The Standard Concept filter limits results to concepts that are valid for use in cohort expressions; non-standard concepts can be used for source mapping only.",
+    "Select multiple concepts from search results and use Add to Concept Set to batch-add terms, then review the set before saving.",
+    "Bookmark frequently referenced concepts using the star icon so they appear in your Recents panel across sessions."
   ]
 }
