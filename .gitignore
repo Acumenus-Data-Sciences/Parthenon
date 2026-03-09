@@ -65,8 +65,14 @@ vcf/
 .resendapikey
 *.apikey
 
-# E2E tests
-e2e/
+# E2E test artifacts (keep test files, ignore runtime output)
+e2e/node_modules/
+e2e/test-results/
+e2e/playwright-report/
+e2e/results*.json
+e2e/.auth/
+e2e/report/
+e2e/screenshots/
 
 # Environment
 .env
