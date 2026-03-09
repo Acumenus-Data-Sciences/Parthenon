@@ -1,16 +1,14 @@
 {
   "key": "vocabulary-search",
   "title": "Vocabulary Browser",
-  "description": "The Vocabulary Browser lets you search the full OMOP vocabulary across all domains — conditions, drugs, procedures, measurements, observations, and more. You can explore concept hierarchies, relationships, and mappings directly in Parthenon.",
+  "description": "The Vocabulary Browser provides a searchable interface to the OMOP standardized vocabularies, enabling researchers to explore concept hierarchies, identify standard and source codes, and assemble concept sets for use in cohort definitions and analyses. Understanding vocabulary structure is fundamental to building precise, reproducible phenotypes in the OMOP ecosystem.",
   "docs_url": "/docs/part2-vocabulary/03-vocabulary-browser",
   "video_url": null,
   "tips": [
-    "Use the Domain filter to narrow results to the clinical domain you care about.",
-    "Standard concepts (standard_concept = 'S') are what appear in CDM clinical tables.",
-    "Non-standard concepts can be browsed as source codes but won't appear in cohort queries directly.",
-    "The Hierarchy tab shows ancestors and descendants — useful for understanding how broad a concept is.",
-    "Semantic search (AI-powered) can find concepts by clinical description when exact name matching fails.",
-    "Search is powered by Apache Solr when available — faceted counts update instantly as you type. If Solr is unavailable, search falls back to PostgreSQL.",
-    "Use the autocomplete (Solr suggest) for fast type-ahead concept lookup when adding concepts to concept sets or cohort definitions."
+    "Use the Standard Concept filter to restrict search results to concepts that are valid as criteria in cohort definitions and analyses.",
+    "Explore the hierarchy view for a selected concept to discover broader and narrower terms that may need to be included or excluded from your concept set.",
+    "Search by source code (e.g., ICD-10, NDC, LOINC) when you have a specific code from an EHR extract and need to find its mapped standard concept.",
+    "Save frequently used concepts directly to an existing concept set from the search results page to avoid redundant lookups across sessions.",
+    "Check the concept's domain and vocabulary fields before adding it to a concept set to ensure it will match the correct OMOP domain table in your queries."
   ]
 }

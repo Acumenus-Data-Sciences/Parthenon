@@ -1,0 +1,13 @@
+{
+  "key": "publish",
+  "title": "Publish & Export",
+  "description": "The Publish module enables research teams to package and export cohort definitions, concept sets, analyses, and study artifacts for sharing with collaborators or submission to external repositories. Finalized research objects can be versioned, annotated with provenance metadata, and distributed in standard formats compatible with the broader OMOP ecosystem.",
+  "docs_url": "/docs/part4-analyses/14-studies",
+  "video_url": null,
+  "tips": [
+    "Review all dependent concept sets and cohort definitions before publishing to ensure the exported package is self-contained.",
+    "Add descriptive version notes at publish time to make it easier for collaborators to understand what changed between iterations.",
+    "Use the validation step to confirm that all referenced data source connections resolve correctly before finalizing the export.",
+    "Published artifacts retain their original identifiers, so importing teams can reconcile them against their local Parthenon instance without conflicts."
+  ]
+}

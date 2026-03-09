@@ -1,15 +1,13 @@
 {
   "key": "care-gaps",
-  "title": "Care Bundles & Gaps",
-  "description": "Care Bundles group clinical quality measures (care gaps) targeting a specific patient population. Evaluating a bundle identifies which patients are out-of-compliance with each measure, enabling population health management and quality improvement workflows.",
-  "docs_url": "/docs/part11-heor/29-heor-overview",
+  "title": "Care Gaps",
+  "description": "The Care Gaps module identifies populations of patients who have not received recommended preventive services, screenings, or treatments as defined by clinical quality measures. Researchers and care managers can use this feature to prioritize outreach, close quality gaps, and monitor improvement over time against standardized benchmarks.",
+  "docs_url": "/docs/part3-cohorts/05-cohort-expressions",
   "video_url": null,
   "tips": [
-    "Select a data source, then use 'New Bundle' to create a disease-specific care bundle grouping related quality measures.",
-    "The Disease Bundles tab lists all care bundles. Each bundle contains measures with denominator (eligible) and numerator (compliant) cohort definitions.",
-    "Gap rate = 1 minus (numerator count / denominator count). A lower gap rate means better compliance.",
-    "The Population Overview tab provides aggregate compliance metrics across all bundles for the selected source.",
-    "Overlap rules detect patients with conflicting or redundant measure assignments across bundles.",
-    "Evaluation results can be exported to drive clinical outreach workflows and measure improvement over time."
+    "Define your eligible population cohort precisely before configuring a care gap measure to avoid including patients who are genuinely exempt from the recommendation.",
+    "Leverage existing concept sets for procedure and observation criteria to keep care gap definitions consistent with other analyses in your study.",
+    "Run care gap analyses across multiple data sources to understand whether gaps reflect true clinical patterns or data completeness issues at a particular site.",
+    "Schedule recurring gap evaluations on a fixed cadence so that trend data accumulates and improvement over time can be quantified."
   ]
 }

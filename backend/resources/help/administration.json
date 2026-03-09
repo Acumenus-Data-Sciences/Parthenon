@@ -1,0 +1,13 @@
+{
+  "key": "administration",
+  "title": "Administration",
+  "description": "The Administration section provides platform administrators with centralized controls for managing users, roles, authentication providers, system notifications, and search infrastructure. Proper configuration of these settings is essential for maintaining security, auditability, and performance across the Parthenon deployment.",
+  "docs_url": "/docs/part8-administration/22-user-management",
+  "video_url": null,
+  "tips": [
+    "Periodically audit user accounts and disable credentials for team members who no longer require access to maintain a least-privilege posture.",
+    "Configure at least one backup authentication provider to prevent lockout scenarios if the primary identity provider becomes unavailable.",
+    "Use the audit log to investigate unexpected data access patterns and to satisfy compliance reporting requirements.",
+    "Schedule Solr index rebuilds during off-peak hours to avoid impacting vocabulary search performance for active researchers."
+  ]
+}

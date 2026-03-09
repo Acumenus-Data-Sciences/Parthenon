@@ -1,0 +1,13 @@
+{
+  "key": "profiles",
+  "title": "Patient Profiles",
+  "description": "The Patient Profiles module presents a longitudinal, person-level view of clinical events drawn from the OMOP data model, including conditions, drug exposures, procedures, measurements, and observations. Researchers use patient timelines to validate cohort definitions, investigate individual records for data quality issues, and develop intuition about the clinical journeys represented in a dataset.",
+  "docs_url": "/docs/part7-patient-profiles/21-patient-timelines",
+  "video_url": null,
+  "tips": [
+    "Use the domain filter panel to focus the timeline on clinically relevant event types and reduce visual clutter when reviewing complex patient histories.",
+    "Cross-reference the patient timeline against your cohort inclusion criteria to verify that index events and washout periods are being captured as expected.",
+    "Avoid using patient profiles for any purpose that requires re-identification; always work within your institution's data governance and IRB guidelines.",
+    "The timeline view respects your current data source selection, so switch data sources from the top navigation if a patient's record does not appear as expected."
+  ]
+}
