@@ -79,6 +79,31 @@ export function computeRateDifference(
   };
 }
 
+/**
+ * Compute Incidence Rate Ratio with approximate 95% CI.
+ * Uses log-normal approximation: SE(log(IRR)) = sqrt(1/events1 + 1/events2).
+ * Returns null when either rate is zero.
+ */
+export function computeRateRatio(
+  rate1: number,
+  rate2: number,
+  personYears1: number,
+  personYears2: number,
+): { irr: number; ciLower: number; ciUpper: number } | null {
+  if (rate2 === 0 || personYears1 === 0 || personYears2 === 0) return null;
+  const irr = rate1 / rate2;
+  const events1 = (rate1 / 1000) * personYears1;
+  const events2 = (rate2 / 1000) * personYears2;
+  if (events1 <= 0 || events2 <= 0) return null;
+  const seLogIrr = Math.sqrt(1 / events1 + 1 / events2);
+  const logIrr = Math.log(irr);
+  return {
+    irr,
+    ciLower: Math.exp(logIrr - 1.96 * seLogIrr),
+    ciUpper: Math.exp(logIrr + 1.96 * seLogIrr),
+  };
+}
+
 /** Classify I² heterogeneity: <25 Low, 25–75 Moderate, >75 High */
 export function heterogeneityLabel(
   iSquared: number,

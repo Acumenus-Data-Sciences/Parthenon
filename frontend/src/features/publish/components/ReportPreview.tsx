@@ -1,0 +1,65 @@
+// ---------------------------------------------------------------------------
+// ReportPreview — Full report preview with toggle and reorder controls
+// ---------------------------------------------------------------------------
+
+import { ReportSectionCard } from "./ReportSection";
+import type { ReportSection } from "../types/publish";
+
+interface ReportPreviewProps {
+  sections: ReportSection[];
+  onToggle: (id: string) => void;
+  onReorder: (id: string, direction: "up" | "down") => void;
+}
+
+/**
+ * Renders the full report preview in a white-background "paper" container
+ * with toggleable and reorderable sections.
+ */
+export function ReportPreview({
+  sections,
+  onToggle,
+  onReorder,
+}: ReportPreviewProps) {
+  return (
+    <div data-testid="report-preview" className="space-y-4">
+      {/* Paper container */}
+      <div
+        id="publish-report-preview"
+        className="rounded-xl border border-[#232328] bg-[#0E0E11] p-6 shadow-xl"
+      >
+        {/* Report header */}
+        <div className="mb-6 pb-4 border-b border-[#232328]">
+          <h2 className="text-lg font-bold text-[#F0EDE8]">
+            Study Report Preview
+          </h2>
+          <p className="text-xs text-[#F0EDE8]/40 mt-1">
+            Toggle sections on/off and reorder using the controls. Only
+            included sections will appear in the export.
+          </p>
+        </div>
+
+        {/* Sections */}
+        <div className="space-y-3">
+          {sections.map((section, index) => (
+            <ReportSectionCard
+              key={section.id}
+              section={section}
+              included={section.included}
+              isFirst={index === 0}
+              isLast={index === sections.length - 1}
+              onToggle={() => onToggle(section.id)}
+              onMoveUp={() => onReorder(section.id, "up")}
+              onMoveDown={() => onReorder(section.id, "down")}
+            />
+          ))}
+        </div>
+
+        {sections.length === 0 && (
+          <p className="text-center text-sm text-[#F0EDE8]/40 py-8">
+            No sections to preview. Go back and select analysis executions.
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}

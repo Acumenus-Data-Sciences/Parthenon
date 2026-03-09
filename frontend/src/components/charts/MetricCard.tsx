@@ -5,6 +5,8 @@ export interface ChartMetricCardProps {
   label: string;
   value: string | number;
   subtitle?: string;
+  subValue?: string;
+  badge?: ReactNode;
   color?: "teal" | "gold" | "crimson" | "default";
   className?: string;
   children?: ReactNode;
@@ -21,6 +23,8 @@ export function ChartMetricCard({
   label,
   value,
   subtitle,
+  subValue,
+  badge,
   color = "default",
   className,
   children,
@@ -33,12 +37,20 @@ export function ChartMetricCard({
         className,
       )}
     >
-      <span className="text-xs font-medium uppercase tracking-wider text-[#8A857D]">
-        {label}
-      </span>
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-medium uppercase tracking-wider text-[#8A857D]">
+          {label}
+        </span>
+        {badge}
+      </div>
       <div className={cn("mt-1 text-2xl font-bold", COLOR_MAP[color])}>
         {value}
       </div>
+      {subValue && (
+        <span className="mt-0.5 block text-xs text-[#5A5650] font-['IBM_Plex_Mono',monospace]">
+          {subValue}
+        </span>
+      )}
       {subtitle && (
         <span className="mt-0.5 block text-xs text-[#5A5650]">{subtitle}</span>
       )}

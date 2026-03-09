@@ -1,12 +1,28 @@
 import { cn } from "@/lib/utils";
 
-export interface TrafficLightBadgeProps {
+export type TrafficLightColor = "green" | "amber" | "red";
+
+/** Threshold-based props: compute color from value */
+interface ThresholdProps {
   value: number;
   thresholds: { green: number; amber: number };
   label: string;
   higherIsBetter?: boolean;
+  color?: never;
   className?: string;
 }
+
+/** Direct color props: color is provided directly */
+interface DirectColorProps {
+  color: TrafficLightColor;
+  label: string;
+  value?: never;
+  thresholds?: never;
+  higherIsBetter?: never;
+  className?: string;
+}
+
+export type TrafficLightBadgeProps = ThresholdProps | DirectColorProps;
 
 export type TrafficLevel = "green" | "amber" | "red";
 
@@ -52,14 +68,12 @@ export function getLevel(
   return "red";
 }
 
-export function TrafficLightBadge({
-  value,
-  thresholds,
-  label,
-  higherIsBetter = true,
-  className,
-}: TrafficLightBadgeProps) {
-  const level = getLevel(value, thresholds, higherIsBetter);
+export function TrafficLightBadge(props: TrafficLightBadgeProps) {
+  const { label, className } = props;
+  const level: TrafficLevel =
+    "color" in props && props.color != null
+      ? props.color
+      : getLevel(props.value, props.thresholds, props.higherIsBetter ?? true);
   const config = LEVEL_CONFIG[level];
 
   return (
@@ -72,7 +86,7 @@ export function TrafficLightBadge({
     >
       <span className={cn("h-2.5 w-2.5 rounded-full", config.dot)} />
       <span className={cn("font-medium", config.text)}>
-        {label}: {config.verdict}
+        {"color" in props && props.color != null ? label : `${label}: ${config.verdict}`}
       </span>
     </span>
   );
