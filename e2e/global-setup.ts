@@ -3,7 +3,7 @@ import * as path from "path";
 import * as fs from "fs";
 
 const BASE = process.env.PLAYWRIGHT_BASE_URL ?? "http://192.168.1.33:8082";
-const EMAIL = process.env.PLAYWRIGHT_EMAIL ?? "admin@parthenon.local";
+const EMAIL = process.env.PLAYWRIGHT_EMAIL ?? "admin@acumenus.net";
 const PASSWORD = process.env.PLAYWRIGHT_PASSWORD ?? "superuser";
 export const AUTH_FILE = path.join(__dirname, ".auth/user.json");
 export const TOKEN_FILE = path.join(__dirname, ".auth/token.json");
@@ -50,6 +50,23 @@ export default async function globalSetup(_config: FullConfig) {
   await page.waitForURL((url) => !url.pathname.includes("/login"), {
     timeout: 20_000,
   });
+
+  // Mark onboarding as completed so the modal doesn't block tests
+  const onboardingResp = await context.request.put(
+    `${BASE}/api/v1/user/onboarding`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    },
+  );
+  if (onboardingResp.ok()) {
+    console.log(`  ✓ Onboarding marked complete`);
+  } else {
+    console.log(`  ⚠ Could not complete onboarding (${onboardingResp.status()}) — modal may block tests`);
+  }
 
   console.log(`\n  ✓ Logged in as ${EMAIL}, session + token saved`);
   console.log(`  Token: ${token.slice(0, 12)}...`);

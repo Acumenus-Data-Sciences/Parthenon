@@ -92,6 +92,9 @@ export async function assertPageLoads(
   await page.goto(`${BASE}${path}`, { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(waitMs);
 
+  // Dismiss any modals that may block interaction (onboarding, setup wizard)
+  await dismissModals(page);
+
   // Must not redirect to login
   const url = page.url();
   if (url.includes("/login")) {
@@ -134,8 +137,20 @@ export async function assertPageLoads(
 
 /** Dismiss modals/overlays that may block interaction. */
 export async function dismissModals(page: Page) {
+  // Try clicking the close button on any modal-container (onboarding, setup wizard, etc.)
+  const modalClose = page
+    .locator('.modal-container .modal-close, .modal-container button[aria-label="Close"]')
+    .first();
+  if ((await modalClose.count()) > 0) {
+    await modalClose.click({ force: true });
+    await page.waitForTimeout(500);
+  }
+
+  // Fallback: press Escape to close remaining dialogs
   await page.keyboard.press("Escape");
   await page.waitForTimeout(300);
+
+  // Try generic close/dismiss buttons in modals or dialogs
   const closeBtn = page
     .locator('[class*="modal"] button, [role="dialog"] button')
     .filter({ hasText: /close|dismiss|got it|ok|skip/i })

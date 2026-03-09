@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { BASE, assertPageLoads, collectErrors } from "./helpers";
+import { BASE, assertPageLoads, collectErrors, dismissModals } from "./helpers";
 
 test.describe("Help System", () => {
   test("help button visible in sidebar", async ({ page }) => {
@@ -23,6 +23,7 @@ test.describe("Help System", () => {
 
     await page.goto(`${BASE}/`, { waitUntil: "domcontentloaded" });
     await page.waitForTimeout(3000);
+    await dismissModals(page);
 
     // Click help button
     const helpBtn = page.locator(
@@ -59,6 +60,7 @@ test.describe("Help System", () => {
     // Navigate to studies page and open help
     await page.goto(`${BASE}/studies`, { waitUntil: "domcontentloaded" });
     await page.waitForTimeout(3000);
+    await dismissModals(page);
 
     const helpBtn = page.locator(
       '[aria-label="Open contextual help"], button[title="Help"]',
@@ -82,6 +84,7 @@ test.describe("Help System", () => {
     // Navigate to data-sources and open help
     await page.goto(`${BASE}/data-sources`, { waitUntil: "domcontentloaded" });
     await page.waitForTimeout(3000);
+    await dismissModals(page);
 
     const helpBtn2 = page.locator(
       '[aria-label="Open contextual help"], button[title="Help"]',
@@ -115,6 +118,7 @@ test.describe("Help System", () => {
   test("close help dismisses slide-over", async ({ page }) => {
     await page.goto(`${BASE}/`, { waitUntil: "domcontentloaded" });
     await page.waitForTimeout(3000);
+    await dismissModals(page);
 
     // Open help
     const helpBtn = page.locator(
@@ -134,10 +138,9 @@ test.describe("Help System", () => {
     await page.waitForTimeout(1000);
 
     // Slide-over should be gone or hidden
-    // Check if dialog is still visible
-    const visibleDialogs = page.locator('[role="dialog"]:visible');
-    const count = await visibleDialogs.count();
-    // Either no visible dialogs, or the slide-over has been dismissed
-    expect(count).toBeLessThanOrEqual(0);
+    // The Drawer component unmounts from DOM when closed, so no role="dialog" should remain
+    // (unless the onboarding modal is present — which global-setup should have dismissed)
+    const dialogCount = await page.locator('[role="dialog"]').count();
+    expect(dialogCount, "Help dialog should be dismissed after Escape").toBe(0);
   });
 });

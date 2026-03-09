@@ -58,6 +58,7 @@ test.describe("Publish & Export — 3-Step Wizard", () => {
     }
 
     await assertPageLoads(page, "/publish");
+    await dismissModals(page);
 
     // Click the first study card
     const firstStudyCard = page
@@ -111,6 +112,7 @@ test.describe("Publish & Export — 3-Step Wizard", () => {
     const errors = collectErrors(page);
     await page.goto(`${BASE}/publish`, { waitUntil: "domcontentloaded" });
     await page.waitForTimeout(3000);
+    await dismissModals(page);
 
     // Click the first study
     const studyCards = page.locator('[data-testid="study-selector"] button');

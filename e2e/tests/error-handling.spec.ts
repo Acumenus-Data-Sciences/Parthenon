@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { BASE, collectErrors, authHeaders } from "./helpers";
+import { BASE, collectErrors, authHeaders, dismissModals } from "./helpers";
 
 test.describe("Error Handling & Edge Cases", () => {
   test("404: /nonexistent-page shows 404 or redirects (not crash)", async ({
@@ -25,15 +25,20 @@ test.describe("Error Handling & Edge Cases", () => {
     expect(crashes.length, `JS crashes: ${crashes.join("; ")}`).toBe(0);
   });
 
-  test("expired session: clearing cookies redirects to /login", async ({
+  test("expired session: clearing cookies and storage redirects to /login", async ({
     page,
   }) => {
     // First navigate to a page to confirm we're logged in
     await page.goto(`${BASE}/`, { waitUntil: "domcontentloaded" });
     await page.waitForTimeout(2000);
 
-    // Clear all cookies to simulate session expiry
+    // Clear all cookies AND localStorage to simulate session expiry
+    // (auth state is persisted in localStorage via Zustand persist)
     await page.context().clearCookies();
+    await page.evaluate(() => {
+      localStorage.removeItem("parthenon-auth");
+      localStorage.clear();
+    });
 
     // Navigate to a protected route
     await page.goto(`${BASE}/studies`, { waitUntil: "domcontentloaded" });
@@ -61,7 +66,8 @@ test.describe("Error Handling & Edge Cases", () => {
     const errors = collectErrors(page);
 
     await page.goto(`${BASE}/studies`, { waitUntil: "domcontentloaded" });
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(3000);
+    await dismissModals(page);
 
     // Click a nav link to studies again
     const studiesLink = page

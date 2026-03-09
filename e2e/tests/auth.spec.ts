@@ -28,13 +28,13 @@ test.describe("Auth — Unauthenticated", () => {
     await page.goto(`${BASE}/register`, { waitUntil: "domcontentloaded" });
     await page.waitForTimeout(2000);
 
-    // Name field
+    // Name field (id="name", type="text", placeholder="Jane Smith")
     await expect(
-      page.locator('input[name="name"], input[placeholder*="name" i]')
+      page.locator('input#name, input[name="name"], input[placeholder*="name" i]')
     ).toBeVisible();
     // Email field
     await expect(
-      page.locator('input[type="email"], input[name="email"]')
+      page.locator('input#email, input[type="email"], input[name="email"]')
     ).toBeVisible();
   });
 
@@ -125,33 +125,31 @@ test.describe("Auth — Authenticated", () => {
   test("logout clears session", async ({ page }) => {
     // Navigate to dashboard first
     await page.goto(`${BASE}/`, { waitUntil: "domcontentloaded" });
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(3000);
 
-    // Look for a logout button / user menu
-    const userMenu = page
-      .locator('button:has-text("logout"), button:has-text("sign out"), [aria-label*="user" i], [aria-label*="account" i], [aria-label*="profile" i]')
+    // Dismiss any modals that may block interaction (onboarding, setup wizard)
+    const modalClose = page.locator('.modal-container .modal-close, .modal-container button[aria-label="Close"]').first();
+    if ((await modalClose.count()) > 0) {
+      await modalClose.click({ force: true });
+      await page.waitForTimeout(500);
+    }
+    await page.keyboard.press("Escape");
+    await page.waitForTimeout(300);
+
+    // The Logout button is directly in the header (not behind a dropdown)
+    const logoutBtn = page
+      .locator('button:has-text("Logout"), button:has-text("Sign out"), a:has-text("Logout")')
       .first();
 
-    if ((await userMenu.count()) > 0) {
-      await userMenu.click();
-      await page.waitForTimeout(500);
-
-      const logoutBtn = page
-        .locator('button:has-text("logout"), button:has-text("sign out"), a:has-text("logout"), a:has-text("sign out")')
-        .first();
-
-      if ((await logoutBtn.count()) > 0) {
-        await logoutBtn.click();
-        await page.waitForTimeout(3000);
-        // After logout, should be on login page or login should be accessible
-        const url = page.url();
-        const onLoginOrHome = url.includes("/login") || url.endsWith("/");
-        expect(onLoginOrHome).toBeTruthy();
-      } else {
-        test.skip(true, "No logout button found in user menu");
-      }
+    if ((await logoutBtn.count()) > 0) {
+      await logoutBtn.click();
+      await page.waitForTimeout(3000);
+      // After logout, should be on login page or login should be accessible
+      const url = page.url();
+      const onLoginOrHome = url.includes("/login") || url.endsWith("/");
+      expect(onLoginOrHome).toBeTruthy();
     } else {
-      test.skip(true, "No user menu / logout button found on page");
+      test.skip(true, "No logout button found on page");
     }
   });
 });
