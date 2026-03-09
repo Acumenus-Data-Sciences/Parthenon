@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Loader2, Download, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FeatureComparisonTable } from "./FeatureComparisonTable";
+import { CharacterizationVerdictDashboard } from "./CharacterizationVerdictDashboard";
 import { LovePlot } from "@/features/estimation/components/LovePlot";
 import type { CovariateBalanceEntry } from "@/features/estimation/types/estimation";
 import type {
@@ -210,6 +211,15 @@ export function CharacterizationResults({
           </button>
         </div>
       </div>
+
+      {/* Verdict Dashboard (when comparator present) */}
+      {balanceEntries.length > 0 && (
+        <CharacterizationVerdictDashboard
+          balanceEntries={balanceEntries}
+          targetLabel={target.cohort_name}
+          comparatorLabel={comparator?.cohort_name}
+        />
+      )}
 
       {/* Covariate Balance Love Plot (when comparator present) */}
       {balanceEntries.length > 0 && (
