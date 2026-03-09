@@ -42,6 +42,12 @@
   <field name="unit" type="string" indexed="true" stored="true"/>
   <field name="type_concept_name" type="string" indexed="true" stored="true"/>
 
+  <!-- Clinical note fields -->
+  <field name="note_title" type="text_general" indexed="true" stored="true"/>
+  <field name="note_text" type="text_general" indexed="true" stored="true"/>
+  <field name="note_class" type="string" indexed="true" stored="true"/>
+  <field name="provider_id" type="plong" indexed="true" stored="true"/>
+
   <!-- Required by Solr -->
   <field name="_version_" type="plong" indexed="false" stored="false"/>
 

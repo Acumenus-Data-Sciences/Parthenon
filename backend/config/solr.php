@@ -19,6 +19,7 @@ return [
         'mappings' => env('SOLR_CORE_MAPPINGS', 'mappings'),
         'clinical' => env('SOLR_CORE_CLINICAL', 'clinical'),
         'imaging' => env('SOLR_CORE_IMAGING', 'imaging'),
+        'claims' => env('SOLR_CORE_CLAIMS', 'claims'),
     ],
 
     'circuit_breaker' => [

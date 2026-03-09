@@ -26,6 +26,7 @@ use App\Http\Controllers\Api\V1\DataQualityController;
 use App\Http\Controllers\Api\V1\EstimationController;
 use App\Http\Controllers\Api\V1\EvidenceSynthesisController;
 use App\Http\Controllers\Api\V1\GenomicsController;
+use App\Http\Controllers\Api\V1\ClaimsSearchController;
 use App\Http\Controllers\Api\V1\GlobalSearchController;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\HelpController;
@@ -82,6 +83,9 @@ Route::prefix('v1')->group(function () {
 
         // Global search (across Solr cores: vocabulary, cohorts, studies)
         Route::get('/search', [GlobalSearchController::class, 'search']);
+
+        // Claims search (Solr-powered)
+        Route::get('/claims/search', [ClaimsSearchController::class, 'search']);
 
         // Achilles analysis search (across all sources, Solr-powered)
         Route::get('/analyses/search', [AchillesController::class, 'searchAnalyses']);

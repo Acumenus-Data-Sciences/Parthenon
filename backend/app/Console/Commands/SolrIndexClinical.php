@@ -14,7 +14,7 @@ class SolrIndexClinical extends Command
     protected $signature = 'solr:index-clinical
         {--source= : Only index events for a specific source ID}
         {--fresh : Delete all documents before indexing}
-        {--domain= : Only index a specific domain (condition/drug/procedure/measurement/observation/visit)}
+        {--domain= : Only index a specific domain (condition/drug/procedure/measurement/observation/visit/note)}
         {--limit=0 : Maximum events per domain per source (0=unlimited)}';
 
     protected $description = 'Index clinical events from CDM tables into the Solr clinical core';
@@ -75,6 +75,7 @@ class SolrIndexClinical extends Command
             'type_col' => 'visit_type_concept_id',
             'extra_cols' => [],
         ],
+        'note' => null, // Handled separately via indexNotes()
     ];
 
     public function handle(SolrClientWrapper $solr, SqlRendererService $sqlRenderer): int
@@ -136,6 +137,33 @@ class SolrIndexClinical extends Command
                 : $this->domains;
 
             foreach ($domainsToIndex as $domainName => $domainConfig) {
+                if ($domainName === 'note') {
+                    // Notes use a separate indexing path (free text, not concept-based)
+                    $this->line('  Indexing note...');
+
+                    try {
+                        [$indexed, $errors] = $this->indexNotes(
+                            $solr,
+                            $sqlRenderer,
+                            $core,
+                            $source,
+                            $cdmSchema,
+                            $vocabSchema,
+                            $connectionName,
+                            $dialect,
+                            $maxLimit,
+                        );
+                        $totalIndexed += $indexed;
+                        $totalErrors += $errors;
+                        $this->line("    {$indexed} notes indexed.");
+                    } catch (\Throwable $e) {
+                        $this->warn("    Failed: {$e->getMessage()}");
+                        $totalErrors++;
+                    }
+
+                    continue;
+                }
+
                 if (! $domainConfig) {
                     $this->warn("  Unknown domain: {$domainName}");
 
@@ -324,6 +352,108 @@ class SolrIndexClinical extends Command
         }
 
         // Flush remaining batch
+        if (! empty($batch)) {
+            if ($solr->addDocuments($core, $batch)) {
+                $indexed += count($batch);
+            } else {
+                $errors += count($batch);
+            }
+        }
+
+        $conn->statement('SET statement_timeout = 0');
+
+        return [$indexed, $errors];
+    }
+
+    /**
+     * Index clinical notes from the OMOP note table.
+     *
+     * @return array{0: int, 1: int}
+     */
+    private function indexNotes(
+        SolrClientWrapper $solr,
+        SqlRendererService $sqlRenderer,
+        string $core,
+        Source $source,
+        string $cdmSchema,
+        string $vocabSchema,
+        string $connectionName,
+        string $dialect,
+        int $maxLimit,
+    ): array {
+        $limitClause = $maxLimit > 0 ? "LIMIT {$maxLimit}" : '';
+
+        $sql = "
+            SELECT
+                n.note_id,
+                n.person_id,
+                n.note_date,
+                n.note_title,
+                n.note_text,
+                n.provider_id,
+                n.visit_occurrence_id,
+                COALESCE(tc.concept_name, '') AS note_type_name,
+                COALESCE(cc.concept_name, '') AS note_class_name
+            FROM {@cdmSchema}.note n
+            LEFT JOIN {@vocabSchema}.concept tc ON n.note_type_concept_id = tc.concept_id
+            LEFT JOIN {@vocabSchema}.concept cc ON n.note_class_concept_id = cc.concept_id
+            ORDER BY n.note_id
+            {$limitClause}
+        ";
+
+        $params = ['cdmSchema' => $cdmSchema, 'vocabSchema' => $vocabSchema];
+        $renderedSql = $sqlRenderer->render($sql, $params, $dialect);
+
+        $conn = DB::connection($connectionName);
+        $conn->statement('SET statement_timeout = 300000');
+
+        $indexed = 0;
+        $errors = 0;
+        $batch = [];
+        $batchSize = 500;
+
+        $cursor = $conn->cursor($renderedSql);
+
+        foreach ($cursor as $row) {
+            $row = (array) $row;
+
+            $doc = [
+                'event_id' => "note_{$source->id}_{$row['note_id']}",
+                'event_type' => 'note',
+                'person_id' => (int) $row['person_id'],
+                'concept_id' => 0,
+                'concept_name' => $row['note_title'] ?? 'Clinical Note',
+                'domain_id' => 'Note',
+                'vocabulary_id' => '',
+                'source_id' => $source->id,
+                'source_name' => $source->source_name,
+                'type_concept_name' => $row['note_type_name'] ?? '',
+                'note_title' => $row['note_title'] ?? '',
+                'note_text' => $row['note_text'] ?? '',
+                'note_class' => $row['note_class_name'] ?? '',
+                'provider_id' => (int) ($row['provider_id'] ?? 0),
+            ];
+
+            if (! empty($row['note_date'])) {
+                $doc['event_date'] = date('Y-m-d\TH:i:s\Z', strtotime((string) $row['note_date']));
+            }
+
+            $batch[] = $doc;
+
+            if (count($batch) >= $batchSize) {
+                if ($solr->addDocuments($core, $batch)) {
+                    $indexed += count($batch);
+                } else {
+                    $errors += count($batch);
+                }
+                $batch = [];
+
+                if ($indexed % 5000 === 0 && $indexed > 0) {
+                    $this->line("    ... {$indexed} notes indexed so far");
+                }
+            }
+        }
+
         if (! empty($batch)) {
             if ($solr->addDocuments($core, $batch)) {
                 $indexed += count($batch);
