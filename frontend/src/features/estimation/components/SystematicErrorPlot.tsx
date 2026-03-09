@@ -13,11 +13,13 @@ interface NegativeControlOutcome {
 interface SystematicErrorPlotProps {
   negativeControls: NegativeControlOutcome[];
   positiveControls?: NegativeControlOutcome[];
+  showCalibration?: boolean;
 }
 
 export function SystematicErrorPlot({
   negativeControls,
   positiveControls,
+  showCalibration = false,
 }: SystematicErrorPlotProps) {
   if (negativeControls.length === 0) return null;
 
@@ -28,15 +30,42 @@ export function SystematicErrorPlot({
   const plotH = height - padding.top - padding.bottom;
 
   const NC_COLOR = "#2DD4BF";
+  const NC_CALIBRATED_COLOR = "#2DD4BF";
   const PC_COLOR = "#C9A227";
   const FUNNEL_COLOR = "#E85A6B";
+  const ARROW_COLOR = "#8A857D";
+
+  // Determine if calibrated data is available
+  const hasCalibrated =
+    showCalibration &&
+    negativeControls.some(
+      (nc) =>
+        nc.calibrated_log_rr !== undefined &&
+        nc.calibrated_se_log_rr !== undefined,
+    );
 
   const allPoints = [
     ...negativeControls,
     ...(positiveControls ?? []),
   ];
-  const allLogRR = allPoints.map((p) => p.log_rr);
-  const allSE = allPoints.map((p) => p.se_log_rr);
+
+  // Include calibrated positions in scale computation
+  const allLogRR = [
+    ...allPoints.map((p) => p.log_rr),
+    ...(hasCalibrated
+      ? negativeControls
+          .filter((nc) => nc.calibrated_log_rr !== undefined)
+          .map((nc) => nc.calibrated_log_rr!)
+      : []),
+  ];
+  const allSE = [
+    ...allPoints.map((p) => p.se_log_rr),
+    ...(hasCalibrated
+      ? negativeControls
+          .filter((nc) => nc.calibrated_se_log_rr !== undefined)
+          .map((nc) => nc.calibrated_se_log_rr!)
+      : []),
+  ];
 
   const maxAbsLogRR = Math.max(...allLogRR.map(Math.abs), 0.5);
   const maxSE = Math.max(...allSE, 0.5);
@@ -45,10 +74,9 @@ export function SystematicErrorPlot({
 
   const toX = (logRR: number) =>
     padding.left + ((logRR + xRange) / (2 * xRange)) * plotW;
-  const toY = (se: number) =>
-    padding.top + (se / yMax) * plotH;
+  const toY = (se: number) => padding.top + (se / yMax) * plotH;
 
-  // Funnel bounds: at each SE level, 95% CI is ±1.96*SE
+  // Funnel bounds
   const funnelPoints: string[] = [];
   const funnelSteps = 50;
   for (let i = 0; i <= funnelSteps; i++) {
@@ -70,9 +98,17 @@ export function SystematicErrorPlot({
     yTicks.push(Math.round(t * 10) / 10);
   }
 
+  // Legend height depends on controls + calibration
+  const legendRows =
+    1 +
+    (positiveControls && positiveControls.length > 0 ? 1 : 0) +
+    (hasCalibrated ? 2 : 0);
+  const legendH = legendRows * 20 + 6;
+
   return (
     <div className="overflow-x-auto">
       <svg
+        data-testid="systematic-error-plot"
         width={width}
         height={height}
         viewBox={`0 0 ${width} ${height}`}
@@ -149,17 +185,65 @@ export function SystematicErrorPlot({
           opacity={0.6}
         />
 
-        {/* Negative control points */}
+        {/* Calibration arrows (from original to calibrated) */}
+        {hasCalibrated &&
+          negativeControls
+            .filter(
+              (nc) =>
+                nc.calibrated_log_rr !== undefined &&
+                nc.calibrated_se_log_rr !== undefined,
+            )
+            .map((nc, i) => {
+              const x1 = toX(nc.log_rr);
+              const y1 = toY(nc.se_log_rr);
+              const x2 = toX(nc.calibrated_log_rr!);
+              const y2 = toY(nc.calibrated_se_log_rr!);
+
+              // Arrow head direction
+              const dx = x2 - x1;
+              const dy = y2 - y1;
+              const len = Math.sqrt(dx * dx + dy * dy);
+              if (len < 1) return null;
+
+              const arrowLen = 5;
+              const ux = dx / len;
+              const uy = dy / len;
+              const ax = x2 - arrowLen * ux;
+              const ay = y2 - arrowLen * uy;
+              const px = -uy * 3;
+              const py = ux * 3;
+
+              return (
+                <g key={`arrow-${i}`} data-testid="calibration-arrow">
+                  <line
+                    x1={x1}
+                    y1={y1}
+                    x2={x2}
+                    y2={y2}
+                    stroke={ARROW_COLOR}
+                    strokeWidth={1}
+                    opacity={0.5}
+                  />
+                  <polygon
+                    points={`${x2},${y2} ${ax + px},${ay + py} ${ax - px},${ay - py}`}
+                    fill={ARROW_COLOR}
+                    opacity={0.5}
+                  />
+                </g>
+              );
+            })}
+
+        {/* Negative control points — original (open circles when calibration shown) */}
         {negativeControls.map((nc, i) => (
           <circle
             key={`nc-${i}`}
             cx={toX(nc.log_rr)}
             cy={toY(nc.se_log_rr)}
             r={4}
-            fill={NC_COLOR}
+            fill={hasCalibrated ? "none" : NC_COLOR}
+            stroke={NC_COLOR}
+            strokeWidth={hasCalibrated ? 1.5 : 0.5}
             opacity={0.7}
-            stroke="#151518"
-            strokeWidth={0.5}
           >
             <title>
               {nc.outcome_name}: log(RR)={fmt(nc.log_rr)}, SE=
@@ -167,6 +251,33 @@ export function SystematicErrorPlot({
             </title>
           </circle>
         ))}
+
+        {/* Calibrated negative control points (filled circles) */}
+        {hasCalibrated &&
+          negativeControls
+            .filter(
+              (nc) =>
+                nc.calibrated_log_rr !== undefined &&
+                nc.calibrated_se_log_rr !== undefined,
+            )
+            .map((nc, i) => (
+              <circle
+                key={`cal-${i}`}
+                data-testid="calibrated-point"
+                cx={toX(nc.calibrated_log_rr!)}
+                cy={toY(nc.calibrated_se_log_rr!)}
+                r={4}
+                fill={NC_CALIBRATED_COLOR}
+                stroke="#151518"
+                strokeWidth={0.5}
+                opacity={0.9}
+              >
+                <title>
+                  {nc.outcome_name} (cal): log(RR)={fmt(nc.calibrated_log_rr)},
+                  SE={fmt(nc.calibrated_se_log_rr)}
+                </title>
+              </circle>
+            ))}
 
         {/* Positive control points */}
         {positiveControls?.map((pc, i) => (
@@ -199,16 +310,56 @@ export function SystematicErrorPlot({
         />
 
         {/* Legend */}
-        <g transform={`translate(${padding.left + plotW - 200}, ${padding.top + 8})`}>
-          <rect x={0} y={0} width={190} height={positiveControls ? 42 : 22} rx={4} fill="#0E0E11" stroke="#232328" strokeWidth={1} />
-          <circle cx={14} cy={12} r={3} fill={NC_COLOR} />
-          <text x={24} y={16} fill="#C5C0B8" fontSize={10}>
-            Negative Controls ({negativeControls.length})
-          </text>
+        <g
+          transform={`translate(${padding.left + plotW - 210}, ${padding.top + 8})`}
+        >
+          <rect
+            x={0}
+            y={0}
+            width={200}
+            height={legendH}
+            rx={4}
+            fill="#0E0E11"
+            stroke="#232328"
+            strokeWidth={1}
+          />
+          {hasCalibrated ? (
+            <>
+              <circle cx={14} cy={14} r={3} fill="none" stroke={NC_COLOR} strokeWidth={1.5} />
+              <text x={24} y={18} fill="#C5C0B8" fontSize={10}>
+                Pre-calibration ({negativeControls.length})
+              </text>
+              <circle cx={14} cy={34} r={3} fill={NC_CALIBRATED_COLOR} />
+              <text x={24} y={38} fill="#C5C0B8" fontSize={10}>
+                Post-calibration
+              </text>
+              <line x1={8} y1={50} x2={20} y2={50} stroke={ARROW_COLOR} strokeWidth={1} opacity={0.6} />
+              <text x={24} y={54} fill="#C5C0B8" fontSize={10}>
+                Calibration shift
+              </text>
+            </>
+          ) : (
+            <>
+              <circle cx={14} cy={12} r={3} fill={NC_COLOR} />
+              <text x={24} y={16} fill="#C5C0B8" fontSize={10}>
+                Negative Controls ({negativeControls.length})
+              </text>
+            </>
+          )}
           {positiveControls && positiveControls.length > 0 && (
             <>
-              <circle cx={14} cy={32} r={3} fill={PC_COLOR} />
-              <text x={24} y={36} fill="#C5C0B8" fontSize={10}>
+              <circle
+                cx={14}
+                cy={hasCalibrated ? legendH - 8 : 32}
+                r={3}
+                fill={PC_COLOR}
+              />
+              <text
+                x={24}
+                y={hasCalibrated ? legendH - 4 : 36}
+                fill="#C5C0B8"
+                fontSize={10}
+              >
                 Positive Controls ({positiveControls.length})
               </text>
             </>

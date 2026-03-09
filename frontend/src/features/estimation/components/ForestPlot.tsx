@@ -1,21 +1,38 @@
 import type { EstimateEntry } from "../types/estimation";
-import { fmt, num } from "@/lib/formatters";
+import { fmt, num, computeNNT } from "@/lib/formatters";
 
-interface ForestPlotProps {
-  estimates: EstimateEntry[];
+interface ForestPlotEstimate extends EstimateEntry {
+  weight?: number;
 }
 
-export function ForestPlot({ estimates }: ForestPlotProps) {
+interface ForestPlotProps {
+  estimates: ForestPlotEstimate[];
+  showNNT?: boolean;
+  predictionInterval?: { lower: number; upper: number };
+}
+
+export function ForestPlot({
+  estimates,
+  showNNT = false,
+  predictionInterval,
+}: ForestPlotProps) {
   if (estimates.length === 0) return null;
 
-  const width = 800;
+  const width = showNNT ? 880 : 800;
   const rowHeight = 40;
   const headerHeight = 50;
   const footerHeight = 40;
   const leftLabelWidth = 200;
-  const rightLabelWidth = 220;
+  const nntColumnWidth = showNNT ? 80 : 0;
+  const rightLabelWidth = 220 + nntColumnWidth;
   const plotWidth = width - leftLabelWidth - rightLabelWidth;
   const height = headerHeight + estimates.length * rowHeight + footerHeight;
+
+  // Weight encoding — find max weight for proportional sizing
+  const hasWeights = estimates.some((e) => e.weight != null && e.weight > 0);
+  const maxWeight = hasWeights
+    ? Math.max(...estimates.map((e) => e.weight ?? 0))
+    : 1;
 
   // Compute logarithmic scale bounds
   const allValues = estimates.flatMap((e) => [
@@ -23,6 +40,15 @@ export function ForestPlot({ estimates }: ForestPlotProps) {
     Math.log(num(e.ci_95_upper) || 100),
     Math.log(num(e.hazard_ratio) || 1),
   ]);
+
+  // Include prediction interval in scale if provided
+  if (predictionInterval) {
+    allValues.push(
+      Math.log(Math.max(predictionInterval.lower, 0.001)),
+      Math.log(Math.max(predictionInterval.upper, 0.001)),
+    );
+  }
+
   const logMin = Math.min(...allValues, Math.log(0.1));
   const logMax = Math.max(...allValues, Math.log(10));
   const logPadding = (logMax - logMin) * 0.1;
@@ -44,9 +70,30 @@ export function ForestPlot({ estimates }: ForestPlotProps) {
     (t) => Math.log(t) >= scaleMin && Math.log(t) <= scaleMax,
   );
 
+  // Compute NNT for each estimate if needed
+  const nntValues = showNNT
+    ? estimates.map((e) => {
+        const hr = num(e.hazard_ratio);
+        if (hr <= 0 || hr === 1) return { label: "-", value: "-" };
+        // Approximate from HR: NNT ~ 1/|1-HR| * baseCER scaled
+        // Use simpler approach: compute from outcomes
+        const totalOutcomes = num(e.target_outcomes) + num(e.comparator_outcomes);
+        if (totalOutcomes === 0) return { label: "-", value: "-" };
+        const targetRate = num(e.target_outcomes) / Math.max(totalOutcomes, 1);
+        const compRate = num(e.comparator_outcomes) / Math.max(totalOutcomes, 1);
+        const nnt = computeNNT(1 - targetRate, 1 - compRate);
+        if (!Number.isFinite(nnt)) return { label: "-", value: "\u221E" };
+        const absNNT = Math.round(Math.abs(nnt));
+        return nnt > 0
+          ? { label: "NNT", value: absNNT.toString() }
+          : { label: "NNH", value: absNNT.toString() };
+      })
+    : [];
+
   return (
     <div className="overflow-x-auto">
       <svg
+        data-testid="forest-plot"
         width={width}
         height={height}
         viewBox={`0 0 ${width} ${height}`}
@@ -93,7 +140,7 @@ export function ForestPlot({ estimates }: ForestPlotProps) {
           Favors Target | Favors Comparator
         </text>
         <text
-          x={width - rightLabelWidth / 2}
+          x={leftLabelWidth + plotWidth + 110}
           y={30}
           textAnchor="middle"
           fill="#8A857D"
@@ -102,6 +149,18 @@ export function ForestPlot({ estimates }: ForestPlotProps) {
         >
           HR (95% CI) p-value
         </text>
+        {showNNT && (
+          <text
+            x={width - nntColumnWidth / 2}
+            y={30}
+            textAnchor="middle"
+            fill="#8A857D"
+            fontSize={11}
+            fontWeight={600}
+          >
+            NNT/NNH
+          </text>
+        )}
 
         {/* Reference line at HR=1.0 */}
         <line
@@ -114,6 +173,29 @@ export function ForestPlot({ estimates }: ForestPlotProps) {
           strokeDasharray="4 4"
           opacity={0.6}
         />
+
+        {/* Prediction interval on last (pooled) row */}
+        {predictionInterval && estimates.length > 0 && (
+          <line
+            data-testid="prediction-interval"
+            x1={toX(Math.max(predictionInterval.lower, 0.001))}
+            y1={
+              headerHeight +
+              (estimates.length - 1) * rowHeight +
+              rowHeight / 2
+            }
+            x2={toX(Math.min(predictionInterval.upper, 1000))}
+            y2={
+              headerHeight +
+              (estimates.length - 1) * rowHeight +
+              rowHeight / 2
+            }
+            stroke="#C9A227"
+            strokeWidth={1}
+            strokeDasharray="6 3"
+            opacity={0.6}
+          />
+        )}
 
         {/* Grid lines */}
         {ticks.map((tick) => {
@@ -167,6 +249,13 @@ export function ForestPlot({ estimates }: ForestPlotProps) {
               : "#E85A6B"
             : "#8A857D";
 
+          // Weight-proportional square size (default 7 half-size)
+          const baseSize = 7;
+          const squareSize =
+            hasWeights && entry.weight != null && entry.weight > 0
+              ? Math.max(3, baseSize * Math.sqrt(entry.weight / maxWeight))
+              : baseSize;
+
           return (
             <g key={entry.outcome_id}>
               {/* Outcome name */}
@@ -210,17 +299,29 @@ export function ForestPlot({ estimates }: ForestPlotProps) {
                 strokeWidth={1.5}
               />
 
-              {/* Diamond for point estimate */}
-              <polygon
-                points={`${hrX},${y - 7} ${hrX + 5},${y} ${hrX},${y + 7} ${hrX - 5},${y}`}
-                fill={color}
-                stroke="#0E0E11"
-                strokeWidth={0.5}
-              />
+              {/* Point estimate — square sized by weight if available, diamond otherwise */}
+              {hasWeights ? (
+                <rect
+                  x={hrX - squareSize}
+                  y={y - squareSize}
+                  width={squareSize * 2}
+                  height={squareSize * 2}
+                  fill={color}
+                  stroke="#0E0E11"
+                  strokeWidth={0.5}
+                />
+              ) : (
+                <polygon
+                  points={`${hrX},${y - baseSize} ${hrX + 5},${y} ${hrX},${y + baseSize} ${hrX - 5},${y}`}
+                  fill={color}
+                  stroke="#0E0E11"
+                  strokeWidth={0.5}
+                />
+              )}
 
               {/* Right labels: HR (CI), p-value */}
               <text
-                x={width - rightLabelWidth + 8}
+                x={leftLabelWidth + plotWidth + 8}
                 y={y + 4}
                 fill="#C5C0B8"
                 fontSize={10}
@@ -230,7 +331,7 @@ export function ForestPlot({ estimates }: ForestPlotProps) {
                 {fmt(entry.ci_95_lower, 2)}-{fmt(entry.ci_95_upper, 2)})
               </text>
               <text
-                x={width - 40}
+                x={leftLabelWidth + plotWidth + 180}
                 y={y + 4}
                 fill={isSignificant ? color : "#5A5650"}
                 fontSize={10}
@@ -241,6 +342,28 @@ export function ForestPlot({ estimates }: ForestPlotProps) {
                   ? "<0.001"
                   : `p=${fmt(entry.p_value)}`}
               </text>
+
+              {/* NNT/NNH column */}
+              {showNNT && nntValues[idx] && (
+                <text
+                  x={width - nntColumnWidth / 2}
+                  y={y + 4}
+                  textAnchor="middle"
+                  fill={
+                    nntValues[idx].label === "NNT"
+                      ? "#2DD4BF"
+                      : nntValues[idx].label === "NNH"
+                        ? "#E85A6B"
+                        : "#5A5650"
+                  }
+                  fontSize={10}
+                  fontFamily="IBM Plex Mono, monospace"
+                >
+                  {nntValues[idx].value === "-"
+                    ? "-"
+                    : `${nntValues[idx].label} ${nntValues[idx].value}`}
+                </text>
+              )}
             </g>
           );
         })}
