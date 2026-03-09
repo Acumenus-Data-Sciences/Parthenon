@@ -1,3 +1,6 @@
+import { useState, useCallback } from "react";
+import { fmt, num } from "@/lib/formatters";
+
 interface SccsEra {
   era_name: string;
   era_type: "pre-exposure" | "exposure" | "post-exposure" | "control";
@@ -9,8 +12,6 @@ interface SccsEra {
   ci_lower?: number;
   ci_upper?: number;
 }
-
-import { fmt } from "@/lib/formatters";
 
 interface SccsTimelineProps {
   eras: SccsEra[];
@@ -24,11 +25,33 @@ const ERA_COLORS: Record<string, string> = {
   control: "#323238",
 };
 
+interface TooltipState {
+  x: number;
+  y: number;
+  era: SccsEra;
+}
+
 export function SccsTimeline({ eras, exposureName }: SccsTimelineProps) {
+  const [tooltip, setTooltip] = useState<TooltipState | null>(null);
+
+  const handleMouseEnter = useCallback((e: React.MouseEvent<SVGGElement>, era: SccsEra) => {
+    const rect = (e.currentTarget.closest("svg") as SVGSVGElement)?.getBoundingClientRect();
+    if (!rect) return;
+    setTooltip({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top - 10,
+      era,
+    });
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    setTooltip(null);
+  }, []);
+
   if (eras.length === 0) return null;
 
   const width = 800;
-  const height = 220;
+  const height = 260;
   const padding = { top: 50, right: 30, bottom: 50, left: 30 };
   const plotW = width - padding.left - padding.right;
   const barArea = height - padding.top - padding.bottom;
@@ -38,16 +61,28 @@ export function SccsTimeline({ eras, exposureName }: SccsTimelineProps) {
   const maxDay = Math.max(...allDays);
   const dayRange = maxDay - minDay || 1;
 
-  const maxRate = Math.max(
-    ...eras.map((e) => (e.person_days > 0 ? e.event_count / e.person_days : 0)),
-    0.001,
+  // IRR magnitude encoding: block height proportional to log(IRR)
+  const maxLogIrr = Math.max(
+    ...eras.map((e) => (e.irr != null ? Math.abs(Math.log(Math.max(num(e.irr), 0.01))) : 0)),
+    0.1,
   );
 
   const toX = (day: number) =>
     padding.left + ((day - minDay) / dayRange) * plotW;
-  const toH = (events: number, personDays: number) => {
-    const rate = personDays > 0 ? events / personDays : 0;
-    return (rate / maxRate) * barArea * 0.8;
+
+  const toH = (era: SccsEra): number => {
+    if (era.irr != null) {
+      // Height proportional to |log(IRR)|, creating a "risk landscape"
+      const logIrr = Math.abs(Math.log(Math.max(num(era.irr), 0.01)));
+      return Math.max((logIrr / maxLogIrr) * barArea * 0.7, 12);
+    }
+    // Fallback to event rate for eras without IRR
+    const maxRate = Math.max(
+      ...eras.map((e) => (e.person_days > 0 ? e.event_count / e.person_days : 0)),
+      0.001,
+    );
+    const rate = era.person_days > 0 ? era.event_count / era.person_days : 0;
+    return Math.max((rate / maxRate) * barArea * 0.7, 12);
   };
 
   // Day axis ticks
@@ -60,8 +95,29 @@ export function SccsTimeline({ eras, exposureName }: SccsTimelineProps) {
 
   const baseY = padding.top + barArea;
 
+  // Generate pseudo-random event dots within each era for density overlay
+  function generateEventDots(era: SccsEra, x1: number, x2: number): Array<{ cx: number; cy: number }> {
+    const dots: Array<{ cx: number; cy: number }> = [];
+    const blockH = toH(era);
+    const count = Math.min(era.event_count, 30); // Cap at 30 dots for readability
+    const blockW = x2 - x1;
+    if (blockW < 2 || count === 0) return dots;
+
+    // Deterministic distribution based on era start_day
+    for (let i = 0; i < count; i++) {
+      const frac = count === 1 ? 0.5 : i / (count - 1);
+      const jitterX = ((((era.start_day * 17 + i * 31) % 100) / 100) - 0.5) * blockW * 0.15;
+      const jitterY = ((((era.start_day * 13 + i * 23) % 100) / 100) - 0.5) * blockH * 0.4;
+      dots.push({
+        cx: x1 + frac * blockW + jitterX,
+        cy: baseY - blockH / 2 + jitterY,
+      });
+    }
+    return dots;
+  }
+
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto relative">
       <svg
         width={width}
         height={height}
@@ -131,19 +187,26 @@ export function SccsTimeline({ eras, exposureName }: SccsTimelineProps) {
           const x1 = toX(era.start_day);
           const x2 = toX(era.end_day);
           const blockW = Math.max(x2 - x1, 2);
-          const blockH = Math.max(toH(era.event_count, era.person_days), 8);
+          const blockH = toH(era);
           const color = ERA_COLORS[era.era_type] ?? "#323238";
+          const dots = generateEventDots(era, x1, x1 + blockW);
 
           return (
-            <g key={i}>
-              {/* Block */}
+            <g
+              key={i}
+              onMouseEnter={(e) => handleMouseEnter(e, era)}
+              onMouseLeave={handleMouseLeave}
+              style={{ cursor: "pointer" }}
+              data-testid={`era-block-${i}`}
+            >
+              {/* Block with IRR-proportional height */}
               <rect
                 x={x1}
                 y={baseY - blockH}
                 width={blockW}
                 height={blockH}
                 fill={color}
-                opacity={0.6}
+                opacity={0.5}
                 stroke={color}
                 strokeWidth={1}
                 rx={2}
@@ -153,6 +216,63 @@ export function SccsTimeline({ eras, exposureName }: SccsTimelineProps) {
                   {era.irr != null ? ` (IRR ${fmt(era.irr)})` : ""}
                 </title>
               </rect>
+
+              {/* Event density dots */}
+              {dots.map((dot, di) => (
+                <circle
+                  key={di}
+                  cx={dot.cx}
+                  cy={dot.cy}
+                  r={1.5}
+                  fill="#F0EDE8"
+                  opacity={0.4}
+                />
+              ))}
+
+              {/* CI whiskers */}
+              {era.irr != null && era.ci_lower != null && era.ci_upper != null && (
+                (() => {
+                  const midX = x1 + blockW / 2;
+                  const logLower = Math.abs(Math.log(Math.max(num(era.ci_lower), 0.01)));
+                  const logUpper = Math.abs(Math.log(Math.max(num(era.ci_upper), 0.01)));
+                  // Whisker heights relative to the same scale
+                  const hLower = Math.max((logLower / maxLogIrr) * barArea * 0.7, 4);
+                  const hUpper = Math.max((logUpper / maxLogIrr) * barArea * 0.7, 4);
+                  const whiskerTop = baseY - Math.max(hUpper, hLower, blockH) - 2;
+                  const whiskerBottom = baseY - Math.min(hLower, hUpper) + 4;
+                  return (
+                    <g>
+                      <line
+                        x1={midX}
+                        y1={whiskerTop}
+                        x2={midX}
+                        y2={whiskerBottom}
+                        stroke={color}
+                        strokeWidth={1}
+                        opacity={0.7}
+                      />
+                      <line
+                        x1={midX - 3}
+                        y1={whiskerTop}
+                        x2={midX + 3}
+                        y2={whiskerTop}
+                        stroke={color}
+                        strokeWidth={1}
+                        opacity={0.7}
+                      />
+                      <line
+                        x1={midX - 3}
+                        y1={whiskerBottom}
+                        x2={midX + 3}
+                        y2={whiskerBottom}
+                        stroke={color}
+                        strokeWidth={1}
+                        opacity={0.7}
+                      />
+                    </g>
+                  );
+                })()
+              )}
 
               {/* Label inside block */}
               {blockW > 50 && (
@@ -224,6 +344,32 @@ export function SccsTimeline({ eras, exposureName }: SccsTimelineProps) {
           ))}
         </g>
       </svg>
+
+      {/* Interactive tooltip overlay */}
+      {tooltip && (
+        <div
+          className="absolute pointer-events-none z-10 rounded-lg border border-[#232328] bg-[#1A1A1E] p-3 shadow-lg text-xs"
+          style={{
+            left: Math.min(tooltip.x, width - 200),
+            top: Math.max(tooltip.y - 80, 0),
+          }}
+          data-testid="timeline-tooltip"
+        >
+          <p className="font-semibold text-[#F0EDE8] mb-1">{tooltip.era.era_name}</p>
+          {tooltip.era.irr != null && (
+            <p className="font-mono text-[#2DD4BF]">
+              IRR: {fmt(tooltip.era.irr)}{" "}
+              {tooltip.era.ci_lower != null && tooltip.era.ci_upper != null && (
+                <span className="text-[#8A857D]">
+                  [{fmt(tooltip.era.ci_lower)} - {fmt(tooltip.era.ci_upper)}]
+                </span>
+              )}
+            </p>
+          )}
+          <p className="text-[#8A857D]">Events: {tooltip.era.event_count}</p>
+          <p className="text-[#8A857D]">Person-time: {tooltip.era.person_days.toLocaleString()} days</p>
+        </div>
+      )}
     </div>
   );
 }
