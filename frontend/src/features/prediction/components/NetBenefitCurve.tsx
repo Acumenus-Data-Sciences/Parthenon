@@ -1,3 +1,6 @@
+import { useMemo } from "react";
+import { fmt } from "@/lib/formatters";
+
 interface NetBenefitCurveProps {
   data: { threshold: number; model: number; treatAll: number; treatNone: number }[];
 }
@@ -30,6 +33,77 @@ export function NetBenefitCurve({ data }: NetBenefitCurveProps) {
   const modelPath = buildPath(data.map((d) => d.model));
   const treatAllPath = buildPath(data.map((d) => d.treatAll));
 
+  // Compute shaded benefit region: where model > max(treatAll, treatNone)
+  const benefitFillD = useMemo(() => {
+    // Find segments where model exceeds both treatAll (=treatNone is 0 by definition)
+    const segments: { startIdx: number; endIdx: number }[] = [];
+    let segStart: number | null = null;
+
+    for (let i = 0; i < data.length; i++) {
+      const modelAboveBoth =
+        data[i].model > data[i].treatAll && data[i].model > data[i].treatNone;
+      if (modelAboveBoth && segStart === null) {
+        segStart = i;
+      } else if (!modelAboveBoth && segStart !== null) {
+        segments.push({ startIdx: segStart, endIdx: i - 1 });
+        segStart = null;
+      }
+    }
+    if (segStart !== null) {
+      segments.push({ startIdx: segStart, endIdx: data.length - 1 });
+    }
+
+    // Build fill paths for each segment
+    return segments.map((seg) => {
+      const points: string[] = [];
+      // Top edge: model values
+      for (let i = seg.startIdx; i <= seg.endIdx; i++) {
+        const prefix = i === seg.startIdx ? "M" : "L";
+        points.push(`${prefix} ${toX(data[i].threshold)} ${toY(data[i].model)}`);
+      }
+      // Bottom edge: max(treatAll, treatNone) in reverse
+      for (let i = seg.endIdx; i >= seg.startIdx; i--) {
+        const baseline = Math.max(data[i].treatAll, data[i].treatNone);
+        points.push(`L ${toX(data[i].threshold)} ${toY(baseline)}`);
+      }
+      points.push("Z");
+      return points.join(" ");
+    });
+  }, [data]);
+
+  // Find crossover points: where model crosses treatAll or treatNone
+  const crossoverPoints = useMemo(() => {
+    const points: { threshold: number; y: number; label: string }[] = [];
+
+    for (let i = 1; i < data.length; i++) {
+      const prev = data[i - 1];
+      const curr = data[i];
+
+      // Model crosses treat-all
+      const prevDiffAll = prev.model - prev.treatAll;
+      const currDiffAll = curr.model - curr.treatAll;
+      if (prevDiffAll * currDiffAll < 0) {
+        // Linear interpolation for crossover threshold
+        const t = Math.abs(prevDiffAll) / (Math.abs(prevDiffAll) + Math.abs(currDiffAll));
+        const crossThreshold = prev.threshold + t * (curr.threshold - prev.threshold);
+        const crossValue = prev.model + t * (curr.model - prev.model);
+        points.push({ threshold: crossThreshold, y: crossValue, label: "Treat All" });
+      }
+
+      // Model crosses treat-none (y=0)
+      const prevDiffNone = prev.model - prev.treatNone;
+      const currDiffNone = curr.model - curr.treatNone;
+      if (prevDiffNone * currDiffNone < 0) {
+        const t = Math.abs(prevDiffNone) / (Math.abs(prevDiffNone) + Math.abs(currDiffNone));
+        const crossThreshold = prev.threshold + t * (curr.threshold - prev.threshold);
+        const crossValue = prev.model + t * (curr.model - prev.model);
+        points.push({ threshold: crossThreshold, y: crossValue, label: "Treat None" });
+      }
+    }
+
+    return points;
+  }, [data]);
+
   const xTicks = [0, 0.2, 0.4, 0.6, 0.8, 1.0];
   const yRange = yHigh - yLow;
   const yStep = Math.pow(10, Math.floor(Math.log10(yRange))) / 2;
@@ -47,6 +121,7 @@ export function NetBenefitCurve({ data }: NetBenefitCurveProps) {
         className="text-[#F0EDE8]"
         role="img"
         aria-label="Decision curve analysis showing net benefit vs threshold probability"
+        data-testid="net-benefit-curve-svg"
       >
         <rect width={width} height={height} fill="#151518" rx={8} />
 
@@ -81,6 +156,17 @@ export function NetBenefitCurve({ data }: NetBenefitCurveProps) {
           />
         )}
 
+        {/* Shaded benefit region */}
+        {benefitFillD.map((d, i) => (
+          <path
+            key={`benefit-${i}`}
+            d={d}
+            fill="#2DD4BF"
+            opacity={0.12}
+            data-testid="benefit-region"
+          />
+        ))}
+
         {/* Treat None (y=0 line) */}
         <line
           x1={padding.left}
@@ -98,6 +184,30 @@ export function NetBenefitCurve({ data }: NetBenefitCurveProps) {
 
         {/* Model */}
         <path d={modelPath} fill="none" stroke="#2DD4BF" strokeWidth={2} />
+
+        {/* Crossover labels */}
+        {crossoverPoints.map((pt, i) => (
+          <g key={`crossover-${i}`} data-testid="crossover-label">
+            <circle
+              cx={toX(pt.threshold)}
+              cy={toY(pt.y)}
+              r={4}
+              fill="#E85A6B"
+              stroke="#0E0E11"
+              strokeWidth={1.5}
+            />
+            <text
+              x={toX(pt.threshold)}
+              y={toY(pt.y) - 10}
+              textAnchor="middle"
+              fill="#E85A6B"
+              fontSize={8}
+              fontFamily="IBM Plex Mono, monospace"
+            >
+              {fmt(pt.threshold, 2)} ({pt.label})
+            </text>
+          </g>
+        ))}
 
         {/* Plot boundary */}
         <rect x={padding.left} y={padding.top} width={plotW} height={plotH} fill="none" stroke="#323238" strokeWidth={1} />

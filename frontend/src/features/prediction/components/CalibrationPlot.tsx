@@ -1,19 +1,23 @@
+import { useMemo } from "react";
 import { fmt } from "@/lib/formatters";
 
 interface CalibrationPlotProps {
   data: { predicted: number; observed: number }[];
   slope: number;
   intercept: number;
+  populationBins?: { binStart: number; binEnd: number; count: number }[];
 }
 
 export function CalibrationPlot({
   data,
   slope,
   intercept,
+  populationBins,
 }: CalibrationPlotProps) {
   const width = 400;
-  const height = 400;
-  const padding = { top: 30, right: 30, bottom: 50, left: 55 };
+  const height = 440; // Extra 40px for marginal histogram
+  const barAreaH = 40;
+  const padding = { top: 30, right: 30, bottom: 50 + barAreaH, left: 55 };
   const plotW = width - padding.left - padding.right;
   const plotH = height - padding.top - padding.bottom;
 
@@ -22,12 +26,47 @@ export function CalibrationPlot({
 
   const gridLines = [0, 0.2, 0.4, 0.6, 0.8, 1.0];
 
+  // Compute ICI and E-max from calibration data
+  const calibrationMetrics = useMemo(() => {
+    if (data.length === 0) return { ici: 0, emax: 0 };
+    const diffs = data.map((pt) => Math.abs(pt.observed - pt.predicted));
+    const ici = diffs.reduce((sum, d) => sum + d, 0) / diffs.length;
+    const emax = Math.max(...diffs);
+    return { ici, emax };
+  }, [data]);
+
+  // Auto-generate decile bins from calibration data if not provided
+  const decileBins = useMemo(() => {
+    if (populationBins && populationBins.length > 0) return populationBins;
+    // Create bins from calibration points spread across 10 deciles
+    if (data.length === 0) return [];
+    const numBins = 10;
+    const bins: { binStart: number; binEnd: number; count: number }[] = [];
+    for (let i = 0; i < numBins; i++) {
+      const binStart = i / numBins;
+      const binEnd = (i + 1) / numBins;
+      const count = data.filter(
+        (pt) => pt.predicted >= binStart && pt.predicted < binEnd,
+      ).length;
+      bins.push({ binStart, binEnd, count });
+    }
+    return bins;
+  }, [data, populationBins]);
+
+  const maxBinCount = useMemo(
+    () => Math.max(...decileBins.map((b) => b.count), 1),
+    [decileBins],
+  );
+
+  const barAreaTop = padding.top + plotH + 20;
+
   return (
     <svg
       width={width}
       height={height}
       viewBox={`0 0 ${width} ${height}`}
       className="text-[#F0EDE8]"
+      data-testid="calibration-plot-svg"
     >
       {/* Background */}
       <rect width={width} height={height} fill="#151518" rx={8} />
@@ -129,7 +168,7 @@ export function CalibrationPlot({
         strokeWidth={1}
       />
 
-      {/* Annotation */}
+      {/* Slope/Intercept Annotation */}
       <rect
         x={padding.left + 8}
         y={padding.top + 8}
@@ -159,10 +198,75 @@ export function CalibrationPlot({
         Intercept: {fmt(intercept)}
       </text>
 
+      {/* ICI and E-max Annotation */}
+      <rect
+        x={padding.left + plotW - 120}
+        y={padding.top + 8}
+        width={112}
+        height={40}
+        rx={4}
+        fill="#0E0E11"
+        stroke="#232328"
+        strokeWidth={1}
+        data-testid="ici-emax-annotation"
+      />
+      <text
+        x={padding.left + plotW - 112}
+        y={padding.top + 24}
+        fill="#2DD4BF"
+        fontSize={10}
+        fontFamily="IBM Plex Mono, monospace"
+        data-testid="ici-value"
+      >
+        ICI: {fmt(calibrationMetrics.ici, 4)}
+      </text>
+      <text
+        x={padding.left + plotW - 112}
+        y={padding.top + 40}
+        fill="#E85A6B"
+        fontSize={10}
+        fontFamily="IBM Plex Mono, monospace"
+        data-testid="emax-value"
+      >
+        E-max: {fmt(calibrationMetrics.emax, 4)}
+      </text>
+
+      {/* Decile population bars (marginal histogram) */}
+      {decileBins.length > 0 && (
+        <g data-testid="decile-bars">
+          {decileBins.map((bin, i) => {
+            const barX = toX(bin.binStart) + 1;
+            const barW = Math.max(1, toX(bin.binEnd) - toX(bin.binStart) - 2);
+            const barH = maxBinCount > 0 ? (bin.count / maxBinCount) * (barAreaH - 4) : 0;
+            return (
+              <rect
+                key={i}
+                x={barX}
+                y={barAreaTop + (barAreaH - 4) - barH}
+                width={barW}
+                height={barH}
+                fill="#2DD4BF"
+                opacity={0.3}
+                rx={1}
+              />
+            );
+          })}
+          <text
+            x={padding.left + plotW / 2}
+            y={barAreaTop + barAreaH + 4}
+            textAnchor="middle"
+            fill="#5A5650"
+            fontSize={8}
+          >
+            Patient count per predicted probability bin
+          </text>
+        </g>
+      )}
+
       {/* Axis labels */}
       <text
         x={padding.left + plotW / 2}
-        y={height - 8}
+        y={barAreaTop - 6}
         textAnchor="middle"
         fill="#8A857D"
         fontSize={11}

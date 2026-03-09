@@ -6,6 +6,7 @@ import { DiscriminationBoxPlot } from "./DiscriminationBoxPlot";
 import { NetBenefitCurve } from "./NetBenefitCurve";
 import { PredictionDistribution } from "./PredictionDistribution";
 import { ExternalValidationComparison } from "./ExternalValidationComparison";
+import { PredictionVerdictDashboard } from "./PredictionVerdictDashboard";
 import type { AnalysisExecution } from "@/features/analyses/types/analysis";
 import type { PredictionResult } from "../types/prediction";
 import { fmt, num } from "@/lib/formatters";
@@ -96,6 +97,9 @@ export function PredictionResults({
 
   return (
     <div className="space-y-6">
+      {/* Verdict Dashboard */}
+      <PredictionVerdictDashboard result={result} />
+
       {/* Performance Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
