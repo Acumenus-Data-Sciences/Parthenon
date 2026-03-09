@@ -57,6 +57,7 @@ docker/redis-data/
 *.gz
 *.iso
 *.pdf
+*.txt
 vcf/
 
 # Secrets
