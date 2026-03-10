@@ -1,176 +1,266 @@
 // ---------------------------------------------------------------------------
-// PublishPage — 3-step publish & export flow
+// PublishPage — 4-step publish & export wizard
 // ---------------------------------------------------------------------------
 
-import { useState, useCallback } from "react";
-import { FileOutput, ChevronLeft } from "lucide-react";
-import { StudySelector } from "../components/StudySelector";
-import { ReportPreview } from "../components/ReportPreview";
-import { ExportControls } from "../components/ExportControls";
-import {
-  exportAsPdf,
-  exportAsImageBundle,
-  exportPlaceholder,
-  useStudyWithAnalyses,
-} from "../api/publishApi";
+import { useReducer, useCallback } from "react";
+import { FileOutput, Check } from "lucide-react";
+import UnifiedAnalysisPicker from "../components/UnifiedAnalysisPicker";
+import DocumentConfigurator from "../components/DocumentConfigurator";
+import DocumentPreview from "../components/DocumentPreview";
+import ExportPanel from "../components/ExportPanel";
+import { useGenerateNarrative } from "../hooks/useNarrativeGeneration";
 import type {
-  ExportFormat,
-  PublishState,
   ReportSection,
+  SelectedExecution,
+  NarrativeState,
+  DiagramType,
 } from "../types/publish";
 
-const STEP_LABELS = ["Select Study", "Build Report", "Export"] as const;
+// ── Step labels ─────────────────────────────────────────────────────────────
 
-/**
- * Main publish page with a 3-step wizard:
- * 1. Study & execution selector
- * 2. Report builder / preview
- * 3. Export controls
- */
-export default function PublishPage() {
-  const [state, setState] = useState<PublishState>({
-    step: 1,
-    studyId: null,
-    selectedExecutionIds: [],
-    sections: [],
-    exportFormat: "pdf",
+const STEPS = [
+  { num: 1 as const, label: "Select Analyses" },
+  { num: 2 as const, label: "Configure" },
+  { num: 3 as const, label: "Preview" },
+  { num: 4 as const, label: "Export" },
+];
+
+// ── State & Reducer ─────────────────────────────────────────────────────────
+
+interface WizardState {
+  step: 1 | 2 | 3 | 4;
+  selectedExecutions: SelectedExecution[];
+  sections: ReportSection[];
+  title: string;
+  authors: string[];
+  template: string;
+}
+
+type Action =
+  | { type: "SET_STEP"; step: 1 | 2 | 3 | 4 }
+  | { type: "SET_SELECTIONS"; selections: SelectedExecution[] }
+  | { type: "SET_SECTIONS"; sections: ReportSection[] }
+  | { type: "SET_TITLE"; title: string }
+  | { type: "SET_AUTHORS"; authors: string[] }
+  | { type: "UPDATE_SECTION"; id: string; updates: Partial<ReportSection> };
+
+function wizardReducer(state: WizardState, action: Action): WizardState {
+  switch (action.type) {
+    case "SET_STEP":
+      return { ...state, step: action.step };
+    case "SET_SELECTIONS":
+      return { ...state, selectedExecutions: action.selections };
+    case "SET_SECTIONS":
+      return { ...state, sections: action.sections };
+    case "SET_TITLE":
+      return { ...state, title: action.title };
+    case "SET_AUTHORS":
+      return { ...state, authors: action.authors };
+    case "UPDATE_SECTION":
+      return {
+        ...state,
+        sections: state.sections.map((s) =>
+          s.id === action.id ? { ...s, ...action.updates } : s,
+        ),
+      };
+    default:
+      return state;
+  }
+}
+
+const initialState: WizardState = {
+  step: 1,
+  selectedExecutions: [],
+  sections: [],
+  title: "",
+  authors: [],
+  template: "generic-ohdsi",
+};
+
+// ── Section generation helpers ──────────────────────────────────────────────
+
+function diagramTypeForAnalysis(analysisType: string): DiagramType | null {
+  const normalized = analysisType.toLowerCase().replace(/[-_\s]/g, "");
+  if (normalized.includes("estimation") || normalized.includes("sccs")) {
+    return "forest_plot";
+  }
+  if (normalized.includes("prediction")) {
+    return "kaplan_meier";
+  }
+  if (normalized.includes("characterization")) {
+    return "attrition";
+  }
+  if (normalized.includes("evidencesynthesis")) {
+    return "forest_plot";
+  }
+  return null;
+}
+
+function buildSectionsFromExecutions(
+  executions: SelectedExecution[],
+): ReportSection[] {
+  const sections: ReportSection[] = [];
+
+  // One "methods" section per unique analysis type
+  const seenTypes = new Set<string>();
+  for (const exec of executions) {
+    if (!seenTypes.has(exec.analysisType)) {
+      seenTypes.add(exec.analysisType);
+      sections.push({
+        id: `methods-${exec.analysisType}`,
+        title: `Methods: ${exec.analysisType.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}`,
+        type: "methods",
+        analysisType: exec.analysisType,
+        included: true,
+        content: "",
+        narrativeState: "idle",
+      });
+    }
+  }
+
+  // One "results" section per execution + optional diagram
+  for (const exec of executions) {
+    sections.push({
+      id: `results-${exec.executionId}`,
+      title: `Results: ${exec.analysisName}`,
+      type: "results",
+      analysisType: exec.analysisType,
+      executionId: exec.executionId,
+      included: true,
+      content: "",
+      narrativeState: "idle",
+    });
+
+    const diagType = diagramTypeForAnalysis(exec.analysisType);
+    if (diagType) {
+      sections.push({
+        id: `diagram-${exec.executionId}`,
+        title: `${diagType.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}: ${exec.analysisName}`,
+        type: "diagram",
+        analysisType: exec.analysisType,
+        executionId: exec.executionId,
+        diagramType: diagType,
+        diagramData: (exec.resultJson as Record<string, unknown>) ?? undefined,
+        included: true,
+        content: "",
+        narrativeState: "idle",
+      });
+    }
+  }
+
+  // Discussion section at the end
+  sections.push({
+    id: "discussion",
+    title: "Discussion",
+    type: "discussion",
+    included: true,
+    content: "",
+    narrativeState: "idle",
   });
 
-  const { data: studyDetail } = useStudyWithAnalyses(state.studyId);
+  return sections;
+}
 
-  // ── Step 1 → Step 2 ─────────────────────────────────────────────────────
-  const handleStudySelect = useCallback(
-    (studyId: number, executionIds: number[]) => {
-      // Build report sections from selected executions
-      const sections: ReportSection[] = [];
+// ── Component ───────────────────────────────────────────────────────────────
 
-      // Methods section (always first)
-      sections.push({
-        id: "methods",
-        title: "Methods",
-        type: "methods",
-        included: true,
-        content: studyDetail
-          ? {
-              study_design: studyDetail.study_design,
-              hypothesis: studyDetail.hypothesis,
-              primary_objective: studyDetail.primary_objective,
-              scientific_rationale: studyDetail.scientific_rationale,
-            }
-          : null,
-      });
+export default function PublishPage() {
+  const [state, dispatch] = useReducer(wizardReducer, initialState);
+  const narrativeMutation = useGenerateNarrative();
 
-      // Results sections (one per selected execution)
-      const analyses = studyDetail?.analyses ?? [];
-      for (const execId of executionIds) {
-        const entry = analyses.find(
-          (a) => a.analysis?.latest_execution?.id === execId,
-        );
-        const execution = entry?.analysis?.latest_execution;
-
-        sections.push({
-          id: `results-${execId}`,
-          title: entry
-            ? `${entry.analysis_type} — ${entry.analysis?.name ?? `#${entry.analysis_id}`}`
-            : `Execution #${execId}`,
-          type: "results",
-          analysisType: entry?.analysis_type,
-          executionId: execId,
-          included: true,
-          content: execution?.result_json ?? null,
-        });
-      }
-
-      // Diagnostics section (off by default)
-      sections.push({
-        id: "diagnostics",
-        title: "Diagnostics",
-        type: "diagnostics",
-        included: false,
-        content: null,
-      });
-
-      setState({
-        step: 2,
-        studyId: studyId,
-        selectedExecutionIds: executionIds,
-        sections,
-        exportFormat: "pdf",
-      });
-    },
-    [studyDetail],
-  );
-
-  // ── Section toggle ───────────────────────────────────────────────────────
-  const handleToggle = useCallback((sectionId: string) => {
-    setState((prev) => ({
-      ...prev,
-      sections: prev.sections.map((s) =>
-        s.id === sectionId ? { ...s, included: !s.included } : s,
-      ),
-    }));
-  }, []);
-
-  // ── Section reorder ──────────────────────────────────────────────────────
-  const handleReorder = useCallback(
-    (sectionId: string, direction: "up" | "down") => {
-      setState((prev) => {
-        const idx = prev.sections.findIndex((s) => s.id === sectionId);
-        if (idx < 0) return prev;
-
-        const swapIdx = direction === "up" ? idx - 1 : idx + 1;
-        if (swapIdx < 0 || swapIdx >= prev.sections.length) return prev;
-
-        const next = [...prev.sections];
-        const temp = next[idx];
-        next[idx] = next[swapIdx];
-        next[swapIdx] = temp;
-
-        return { ...prev, sections: next };
-      });
+  // ── Step 1 handlers ─────────────────────────────────────────────────────
+  const handleSelectionsChange = useCallback(
+    (selections: SelectedExecution[]) => {
+      dispatch({ type: "SET_SELECTIONS", selections });
     },
     [],
   );
 
-  // ── Export ───────────────────────────────────────────────────────────────
-  const [isExporting, setIsExporting] = useState(false);
+  const handleStep1Next = useCallback(() => {
+    const sections = buildSectionsFromExecutions(state.selectedExecutions);
+    const defaultTitle =
+      state.selectedExecutions.length > 0
+        ? state.selectedExecutions[0].analysisName
+        : "Untitled Document";
 
-  const handleExport = useCallback((format: ExportFormat) => {
-    setIsExporting(true);
+    dispatch({ type: "SET_SECTIONS", sections });
+    dispatch({ type: "SET_TITLE", title: state.title || defaultTitle });
+    dispatch({ type: "SET_STEP", step: 2 });
+  }, [state.selectedExecutions, state.title]);
 
-    try {
-      switch (format) {
-        case "pdf":
-          exportAsPdf("publish-report-preview");
-          break;
-        case "png":
-          exportAsImageBundle("publish-report-preview", "png");
-          break;
-        case "svg":
-          exportAsImageBundle("publish-report-preview", "svg");
-          break;
-        case "docx":
-          exportPlaceholder("docx");
-          break;
-        case "xlsx":
-          exportPlaceholder("xlsx");
-          break;
-      }
-    } finally {
-      setTimeout(() => setIsExporting(false), 1000);
-    }
+  // ── Step 2 handlers ─────────────────────────────────────────────────────
+  const handleSectionsChange = useCallback((sections: ReportSection[]) => {
+    dispatch({ type: "SET_SECTIONS", sections });
   }, []);
 
-  // ── Navigation ───────────────────────────────────────────────────────────
-  const goBack = useCallback(() => {
-    setState((prev) => ({
-      ...prev,
-      step: Math.max(1, prev.step - 1) as 1 | 2 | 3,
-    }));
+  const handleTitleChange = useCallback((title: string) => {
+    dispatch({ type: "SET_TITLE", title });
   }, []);
 
-  const goToExport = useCallback(() => {
-    setState((prev) => ({ ...prev, step: 3 }));
+  const handleAuthorsChange = useCallback((authors: string[]) => {
+    dispatch({ type: "SET_AUTHORS", authors });
+  }, []);
+
+  // ── Narrative generation ────────────────────────────────────────────────
+  const handleGenerateNarrative = useCallback(
+    (section: ReportSection) => {
+      // Find the matching execution for context
+      const exec = state.selectedExecutions.find(
+        (e) => e.executionId === section.executionId,
+      );
+
+      dispatch({
+        type: "UPDATE_SECTION",
+        id: section.id,
+        updates: { narrativeState: "generating" as NarrativeState },
+      });
+
+      const sectionType = section.type === "diagram" ? "caption" : section.type;
+      const validTypes = ["methods", "results", "discussion", "caption"] as const;
+      const mappedType = validTypes.includes(sectionType as typeof validTypes[number])
+        ? (sectionType as "methods" | "results" | "discussion" | "caption")
+        : "results";
+
+      narrativeMutation.mutate(
+        {
+          section_type: mappedType,
+          analysis_id: exec?.analysisId,
+          execution_id: exec?.executionId,
+          context: {
+            analysisType: section.analysisType,
+            designJson: exec?.designJson ?? {},
+            resultJson: exec?.resultJson ?? {},
+          },
+        },
+        {
+          onSuccess: (data) => {
+            dispatch({
+              type: "UPDATE_SECTION",
+              id: section.id,
+              updates: {
+                content: data.text,
+                narrativeState: "draft" as NarrativeState,
+              },
+            });
+          },
+          onError: () => {
+            dispatch({
+              type: "UPDATE_SECTION",
+              id: section.id,
+              updates: { narrativeState: "idle" as NarrativeState },
+            });
+          },
+        },
+      );
+    },
+    [state.selectedExecutions, narrativeMutation],
+  );
+
+  // Keep handleGenerateNarrative in scope for DocumentConfigurator
+  void handleGenerateNarrative;
+
+  // ── Navigation helpers ──────────────────────────────────────────────────
+  const goToStep = useCallback((step: 1 | 2 | 3 | 4) => {
+    dispatch({ type: "SET_STEP", step });
   }, []);
 
   return (
@@ -179,50 +269,51 @@ export default function PublishPage() {
       <div className="flex items-center gap-3">
         <FileOutput size={22} className="text-[#2DD4BF]" />
         <div>
-          <h1 className="text-xl font-bold text-[#F0EDE8]">
-            Publish & Export
-          </h1>
+          <h1 className="text-xl font-bold text-[#F0EDE8]">Publish</h1>
           <p className="text-sm text-[#F0EDE8]/50">
-            Generate publication-ready reports from study results
+            Create publication-ready manuscripts from your analyses
           </p>
         </div>
       </div>
 
-      {/* Step indicator */}
+      {/* Progress bar */}
       <div className="flex items-center gap-2" data-testid="step-indicator">
-        {STEP_LABELS.map((label, i) => {
-          const stepNum = (i + 1) as 1 | 2 | 3;
-          const isActive = state.step === stepNum;
-          const isCompleted = state.step > stepNum;
+        {STEPS.map(({ num, label }, i) => {
+          const isActive = state.step === num;
+          const isCompleted = state.step > num;
 
           return (
-            <div key={label} className="flex items-center gap-2">
+            <div key={num} className="flex items-center gap-2">
               {i > 0 && (
                 <div
                   className={`h-px w-8 ${
-                    isCompleted ? "bg-[#2DD4BF]" : "bg-[#232328]"
+                    isCompleted ? "bg-[#C9A227]" : "bg-[#232328]"
                   }`}
                 />
               )}
               <div
                 className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
                   isActive
-                    ? "bg-[#2DD4BF]/15 text-[#2DD4BF]"
+                    ? "bg-[#C9A227]/15 text-[#C9A227]"
                     : isCompleted
-                      ? "bg-[#2DD4BF]/5 text-[#2DD4BF]/60"
+                      ? "bg-[#C9A227]/5 text-[#C9A227]/60"
                       : "bg-[#151518] text-[#F0EDE8]/30"
                 }`}
               >
                 <span
                   className={`flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold ${
                     isActive
-                      ? "bg-[#2DD4BF] text-[#0E0E11]"
+                      ? "bg-[#C9A227] text-[#0E0E11]"
                       : isCompleted
-                        ? "bg-[#2DD4BF]/40 text-[#0E0E11]"
+                        ? "bg-[#C9A227]/40 text-[#0E0E11]"
                         : "bg-[#232328] text-[#F0EDE8]/40"
                   }`}
                 >
-                  {stepNum}
+                  {isCompleted ? (
+                    <Check className="h-3 w-3" />
+                  ) : (
+                    num
+                  )}
                 </span>
                 {label}
               </div>
@@ -234,54 +325,44 @@ export default function PublishPage() {
       {/* Step content */}
       <div className="rounded-xl border border-[#232328] bg-[#151518] p-6">
         {state.step === 1 && (
-          <StudySelector onSelect={handleStudySelect} />
+          <UnifiedAnalysisPicker
+            selections={state.selectedExecutions}
+            onSelectionsChange={handleSelectionsChange}
+            onNext={handleStep1Next}
+          />
         )}
 
         {state.step === 2 && (
-          <div className="space-y-6">
-            <ReportPreview
-              sections={state.sections}
-              onToggle={handleToggle}
-              onReorder={handleReorder}
-            />
-
-            {/* Navigation */}
-            <div className="flex items-center justify-between pt-2">
-              <button
-                type="button"
-                onClick={goBack}
-                className="flex items-center gap-1.5 text-sm text-[#F0EDE8]/50 hover:text-[#F0EDE8] transition-colors"
-              >
-                <ChevronLeft size={16} />
-                Back
-              </button>
-              <button
-                type="button"
-                onClick={goToExport}
-                disabled={state.sections.filter((s) => s.included).length === 0}
-                className="flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-5 py-2.5 text-sm font-semibold text-[#0E0E11] hover:bg-[#2DD4BF]/90 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-              >
-                Export
-              </button>
-            </div>
-          </div>
+          <DocumentConfigurator
+            sections={state.sections}
+            title={state.title}
+            authors={state.authors}
+            onSectionsChange={handleSectionsChange}
+            onTitleChange={handleTitleChange}
+            onAuthorsChange={handleAuthorsChange}
+            onNext={() => goToStep(3)}
+            onBack={() => goToStep(1)}
+          />
         )}
 
         {state.step === 3 && (
-          <div className="space-y-6">
-            <ExportControls onExport={handleExport} isExporting={isExporting} />
+          <DocumentPreview
+            sections={state.sections}
+            title={state.title}
+            authors={state.authors}
+            onBack={() => goToStep(2)}
+            onNext={() => goToStep(4)}
+          />
+        )}
 
-            <div className="pt-2">
-              <button
-                type="button"
-                onClick={goBack}
-                className="flex items-center gap-1.5 text-sm text-[#F0EDE8]/50 hover:text-[#F0EDE8] transition-colors"
-              >
-                <ChevronLeft size={16} />
-                Back to Preview
-              </button>
-            </div>
-          </div>
+        {state.step === 4 && (
+          <ExportPanel
+            sections={state.sections}
+            title={state.title}
+            authors={state.authors}
+            template={state.template}
+            onBack={() => goToStep(3)}
+          />
         )}
       </div>
     </div>
