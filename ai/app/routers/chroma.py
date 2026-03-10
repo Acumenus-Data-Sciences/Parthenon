@@ -6,6 +6,7 @@ from fastapi import APIRouter
 
 from app.chroma.client import check_health
 from app.chroma.ingestion import ingest_docs_directory
+from app.chroma.faq import promote_frequent_questions
 from app.chroma.memory import prune_old_conversations
 
 logger = logging.getLogger(__name__)
@@ -32,3 +33,9 @@ async def prune_conversations(user_id: int, ttl_days: int = 90) -> dict:
     """Prune conversation memory older than ttl_days for a user."""
     removed = prune_old_conversations(user_id, ttl_days)
     return {"user_id": user_id, "removed": removed, "ttl_days": ttl_days}
+
+
+@router.post("/promote-faq")
+async def promote_faq(days: int = 7) -> dict:
+    """Run FAQ promotion on recent conversations."""
+    return promote_frequent_questions(days)
