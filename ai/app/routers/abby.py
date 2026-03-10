@@ -20,6 +20,7 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
+from app.chroma.retrieval import build_rag_context
 from app.config import settings
 
 logger = logging.getLogger(__name__)
@@ -96,6 +97,10 @@ class ChatRequest(BaseModel):
     user_profile: UserProfile | None = Field(
         default=None,
         description="Current user info for personalized responses"
+    )
+    user_id: int | None = Field(
+        default=None,
+        description="Current user ID for personalized conversation memory"
     )
 
 
@@ -465,7 +470,7 @@ async def parse_cohort(request: CohortParseRequest) -> CohortParseResponse:
 
 
 def _build_chat_system_prompt(request: ChatRequest) -> str:
-    """Build the system prompt for a chat request, including page context and user profile."""
+    """Build the system prompt for a chat request, including page context, user profile, and RAG."""
     system_prompt = PAGE_SYSTEM_PROMPTS.get(
         request.page_context, PAGE_SYSTEM_PROMPTS["general"]
     )
@@ -474,6 +479,18 @@ def _build_chat_system_prompt(request: ChatRequest) -> str:
     help_context = _get_help_context(request.page_context)
     if help_context:
         system_prompt += help_context
+
+    # Inject RAG context from ChromaDB
+    try:
+        rag_context = build_rag_context(
+            query=request.message,
+            page_context=request.page_context,
+            user_id=request.user_id,
+        )
+        if rag_context:
+            system_prompt += rag_context
+    except Exception as e:
+        logger.warning("RAG context retrieval failed: %s", e)
 
     # Inject user profile
     if request.user_profile and request.user_profile.name:
