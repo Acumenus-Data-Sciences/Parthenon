@@ -130,12 +130,16 @@ services:
     volumes:
       - ./ai:/app
       - ./backend/resources/help:/var/www/html/resources/help:ro
+      - ./docs:/app/docs:ro
     environment:
       - DATABASE_URL=postgresql://parthenon:${DB_PASSWORD:-secret}@postgres:5432/parthenon
       - REDIS_URL=redis://redis:6379/2
       - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
       - OLLAMA_MODEL=${OLLAMA_MODEL:-MedAIBase/MedGemma1.5:4b}
       - HELP_DIR=/var/www/html/resources/help
+      - DOCS_DIR=/app/docs
+      - CHROMA_HOST=chromadb
+      - CHROMA_PORT=8000
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
