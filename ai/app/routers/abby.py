@@ -20,6 +20,7 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
+from app.chroma.memory import store_conversation_turn
 from app.chroma.retrieval import build_rag_context
 from app.config import settings
 
@@ -555,6 +556,19 @@ async def chat(request: ChatRequest) -> ChatResponse:
     )
 
     reply, suggestions = _extract_suggestions(raw)
+
+    # Store conversation in memory (fire-and-forget, don't block response)
+    if request.user_id is not None:
+        try:
+            store_conversation_turn(
+                user_id=request.user_id,
+                question=request.message,
+                answer=reply,
+                page_context=request.page_context,
+            )
+        except Exception as e:
+            logger.warning("Failed to store conversation memory: %s", e)
+
     return ChatResponse(reply=reply, suggestions=suggestions)
 
 
