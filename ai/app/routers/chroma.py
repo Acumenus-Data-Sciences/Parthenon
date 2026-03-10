@@ -6,6 +6,7 @@ from fastapi import APIRouter
 
 from app.chroma.client import check_health
 from app.chroma.ingestion import ingest_docs_directory
+from app.chroma.memory import prune_old_conversations
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -24,3 +25,10 @@ async def ingest_docs() -> dict:
     """Trigger documentation ingestion into ChromaDB."""
     stats = ingest_docs_directory(DOCS_DIR)
     return stats
+
+
+@router.post("/prune-conversations/{user_id}")
+async def prune_conversations(user_id: int, ttl_days: int = 90) -> dict:
+    """Prune conversation memory older than ttl_days for a user."""
+    removed = prune_old_conversations(user_id, ttl_days)
+    return {"user_id": user_id, "removed": removed, "ttl_days": ttl_days}
