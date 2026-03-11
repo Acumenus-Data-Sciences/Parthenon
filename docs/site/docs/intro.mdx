@@ -51,6 +51,7 @@ graph LR
     Redis["Redis 7\n(cache / queues)"]
     Horizon["Laravel Horizon\n(queue workers)"]
     AI["Python FastAPI\n(Ollama / MedGemma)"]
+    ChromaDB["ChromaDB\n(vector knowledge base)"]
     R["R Plumber\n(HADES analytics)"]
     Docs["Docusaurus\n(/docs/)"]
     FHIR["FHIR R4\n(EHR systems)"]
@@ -68,6 +69,7 @@ graph LR
     PHP -->|"HADES jobs"| R
     PHP -->|"Bulk export"| FHIR
     PHP -->|"DICOM retrieve"| PACS
+    AI --> ChromaDB
     Horizon --> PG2
 ```
 

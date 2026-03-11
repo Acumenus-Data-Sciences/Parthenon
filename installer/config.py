@@ -228,7 +228,7 @@ def collect(resume_data: dict[str, Any] | None = None) -> dict[str, Any]:
     ).ask()
 
     ollama_url = questionary.text(
-        "Ollama base URL (leave blank to skip AI features)",
+        "Ollama base URL (leave blank to skip AI features; enables ChromaDB vector database)",
         default=defaults.get("ollama_url", "http://host.docker.internal:11434"),
     ).ask()
 

@@ -46,7 +46,7 @@ const WELCOME_MESSAGE: Message = {
   id: "welcome",
   role: "assistant",
   content:
-    "Hello! I'm Abby, your AI research assistant powered by MedGemma. I can help with concept mapping, cohort design, data quality questions, and OMOP CDM guidance. How can I help?",
+    "Hello! I'm Abby, your AI research assistant powered by MedGemma and backed by a knowledge base of 39,000+ documentation chunks. I remember our past conversations and can help with concept mapping, cohort design, data quality, clinical analytics, and OMOP CDM guidance. How can I help?",
   timestamp: new Date(),
 };
 

@@ -125,6 +125,8 @@ def _print_summary(cfg: dict[str, Any]) -> None:
     if cfg.get("enable_solr", True):
         solr_port = cfg.get("solr_port", 8983)
         lines.append(f"  [green]Solr:[/green]     http://localhost:{solr_port}/solr/")
+    if cfg.get("ollama_url"):
+        lines.append(f"  [green]ChromaDB:[/green] http://localhost:8000 (vector database)")
 
     next_steps = [
         f"  • Open {display_url} to log in",

@@ -93,6 +93,7 @@ const CONTEXT_SUGGESTIONS: Record<string, string[]> = {
     "How do I configure authentication providers?",
     "How do I manage user roles and permissions?",
     "How do I check system health?",
+    "How is the ChromaDB knowledge base performing?",
   ],
   patient_profiles: [
     "How do I interpret a patient's clinical timeline?",
@@ -115,6 +116,7 @@ const CONTEXT_SUGGESTIONS: Record<string, string[]> = {
     "What can you help me with?",
     "Explain the OMOP Common Data Model",
     "How do I get started with cohort building?",
+    "What documentation do you have about cohort building?",
   ],
 };
 

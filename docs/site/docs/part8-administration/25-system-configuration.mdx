@@ -92,6 +92,7 @@ Navigate to **Admin > System > Health** to monitor the real-time status of all P
 | **AI Service** | HTTP GET to Python FastAPI `/health` endpoint | 200 OK with service version |
 | **R Runtime** | HTTP GET to Plumber `/health` endpoint | 200 OK |
 | **Node (Frontend)** | Container health check (127.0.0.1) | Process alive |
+| **ChromaDB** | HTTP GET to ChromaDB health endpoint | 200 OK with collection counts and vector totals |
 | **Horizon** | Queue worker process status | Workers running, no stuck jobs |
 
 ### Status Indicators

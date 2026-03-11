@@ -79,6 +79,7 @@ const sidebars: SidebarsConfig = {
         "part8-administration/25-system-configuration",
         "part8-administration/26-audit-log",
         "part8-administration/27-solr-administration",
+        "part8-administration/28-abby-ai-assistant",
       ],
     },
     {

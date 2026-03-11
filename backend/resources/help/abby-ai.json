@@ -1,0 +1,14 @@
+{
+  "key": "abby-ai",
+  "title": "Abby AI Assistant",
+  "description": "Abby is your AI research assistant powered by MedGemma with a ChromaDB vector knowledge base. The knowledge base contains 39,000+ documentation chunks that inform every response. Abby provides documentation-informed answers, per-user conversation memory that remembers your previous questions, a shared FAQ system where common questions get faster and better answers, and clinical reference context on medical pages.",
+  "docs_url": "/docs/part8-administration/28-abby-ai-assistant",
+  "video_url": null,
+  "tips": [
+    "Abby adapts to the page you're on — ask context-specific questions for more relevant answers.",
+    "Your conversation history helps Abby give personalized answers over time.",
+    "Use the streaming chat for real-time responses as Abby generates her answer.",
+    "Abby can help with cohort design, vocabulary search, data quality, clinical analytics, and more.",
+    "Admins can trigger knowledge base updates from the ChromaDB management API."
+  ]
+}

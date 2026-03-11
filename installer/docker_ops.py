@@ -27,6 +27,7 @@ BASE_SERVICES = [
 ]
 
 SOLR_SERVICE = ("solr", "parthenon-solr", 60)
+CHROMADB_SERVICE = ("chromadb", "parthenon-chromadb", 60)
 
 # Default for backward compat (used when run() called without config)
 SERVICES = BASE_SERVICES
@@ -72,10 +73,13 @@ def _poll_service(container: str, timeout: int) -> str:
 
 
 def _get_services(cfg: dict[str, Any] | None = None) -> list[tuple[str, str, int]]:
-    """Return list of services to poll, including Solr if enabled."""
+    """Return list of services to poll, including Solr and ChromaDB if enabled."""
     services = list(BASE_SERVICES)
     if cfg is None or cfg.get("enable_solr", True):
         services.append(SOLR_SERVICE)
+    # ChromaDB is automatically included with the AI service
+    if cfg is None or cfg.get("ollama_url"):
+        services.append(CHROMADB_SERVICE)
     return services
 
 
