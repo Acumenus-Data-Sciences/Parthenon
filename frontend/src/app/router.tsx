@@ -368,6 +368,19 @@ export const router = createBrowserRouter(
           },
         ],
       },
+      // ── GIS Explorer ────────────────────────────────────────────────
+      {
+        path: "gis",
+        children: [
+          {
+            index: true,
+            lazy: () =>
+              import("@/features/gis/pages/GisPage").then(
+                (m) => ({ Component: m.default }),
+              ),
+          },
+        ],
+      },
       // ── Administration ────────────────────────────────────────────────
       {
         path: "admin",

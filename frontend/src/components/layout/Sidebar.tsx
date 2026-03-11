@@ -26,6 +26,7 @@ import {
   TrendingUp,
   FileOutput,
   HelpCircle,
+  Globe,
 } from "lucide-react";
 import { HelpSlideOver } from "@/features/help/components/HelpSlideOver";
 
@@ -59,6 +60,7 @@ const navItems: NavItem[] = [
   { path: "/genomics", label: "Genomics", icon: Dna },
   { path: "/imaging", label: "Imaging", icon: ScanLine },
   { path: "/heor", label: "HEOR", icon: TrendingUp },
+  { path: "/gis", label: "GIS Explorer", icon: Globe },
   { path: "/jobs", label: "Jobs", icon: Briefcase, section: "System" },
   {
     path: "/admin",
@@ -88,6 +90,7 @@ const routeHelpKeys: Record<string, string> = {
   "/data-explorer": "data-explorer",
   "/data-sources": "data-sources",
   "/genomics": "genomics",
+  "/gis": "gis",
   "/heor": "heor",
   "/imaging": "imaging",
   "/ingestion": "data-ingestion",
