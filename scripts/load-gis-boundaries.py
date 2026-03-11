@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 import time
 from pathlib import Path
@@ -44,9 +45,9 @@ LOCAL_DB_PARAMS = {
 DOCKER_DB_PARAMS = {
     "dbname": "parthenon",
     "user": "parthenon",
-    "password": "secret",
+    "password": os.environ.get("DOCKER_DB_PASSWORD", "secret"),
     "host": "localhost",
-    "port": "5480",
+    "port": os.environ.get("DOCKER_DB_PORT", "5480"),
     "options": "-c search_path=app,public",
 }
 
