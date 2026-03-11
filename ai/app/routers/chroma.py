@@ -8,6 +8,7 @@ from app.chroma.client import check_health
 from app.chroma.ingestion import ingest_docs_directory
 from app.chroma.faq import promote_frequent_questions
 from app.chroma.memory import prune_old_conversations
+from app.chroma.clinical import ingest_clinical_concepts
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -39,3 +40,9 @@ async def prune_conversations(user_id: int, ttl_days: int = 90) -> dict:
 async def promote_faq(days: int = 7) -> dict:
     """Run FAQ promotion on recent conversations."""
     return promote_frequent_questions(days)
+
+
+@router.post("/ingest-clinical")
+async def ingest_clinical(limit: int | None = None) -> dict:
+    """Trigger clinical concept ingestion from OMOP vocabulary."""
+    return ingest_clinical_concepts(limit=limit)
