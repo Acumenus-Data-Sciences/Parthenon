@@ -96,6 +96,42 @@ Laravel API -> Python AI Service -> ChromaDB (8000)
 - First doc ingestion downloads `all-MiniLM-L6-v2` model (~90MB), subsequent runs use cache
 - Doc ingestion is content-hash based — only re-embeds changed files on restart
 
+### Documentation, Help & Installer Integration
+
+After the core ChromaDB brain was deployed and tested, a second pass added end-user documentation, in-app help, frontend awareness, and installer support.
+
+#### Docusaurus Documentation
+
+Created `docs/site/docs/part8-administration/28-abby-ai-assistant.mdx` — a comprehensive reference page covering:
+- All four knowledge layers with property tables
+- RAG query flow explained with Mermaid sequence diagram
+- Page-aware context system (22 page contexts)
+- Dual embedding model rationale (sentence-transformers vs SapBERT)
+- Five management endpoints with curl usage examples
+- System health monitoring and graceful degradation behavior
+- Air-gapped deployment callout (no data leaves infrastructure)
+
+Supporting changes:
+- `docs/site/sidebars.ts` — Added entry to Part VIII Administration sidebar
+- `docs/site/docs/intro.mdx` — Added ChromaDB node to Mermaid architecture diagram
+- `docs/site/docs/part8-administration/25-system-configuration.mdx` — Added ChromaDB to health dashboard monitored services table
+
+#### In-App Help & Frontend
+
+| File | Change |
+|------|--------|
+| `backend/resources/help/abby-ai.json` | New help JSON — describes ChromaDB brain, links to docs page, 5 contextual tips |
+| `frontend/src/stores/abbyStore.ts` | Updated WELCOME_MESSAGE to mention ChromaDB knowledge base |
+| `frontend/src/components/layout/AbbyPanel.tsx` | Added ChromaDB-related suggestions to administration and general contexts |
+
+#### Installer Updates
+
+| File | Change |
+|------|--------|
+| `installer/docker_ops.py` | Added `CHROMADB_SERVICE` constant, included in `_get_services()` when AI is configured |
+| `installer/cli.py` | Added ChromaDB line to `_print_summary()` deployment banner |
+| `installer/config.py` | Updated Ollama URL prompt to mention ChromaDB is bundled |
+
 ### Design Documents
 
 - `docs/plans/2026-03-09-chromadb-abby-brain-design.md` — Approved design spec
