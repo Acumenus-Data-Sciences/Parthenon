@@ -75,7 +75,9 @@ services:
 
   postgres:
     container_name: parthenon-postgres
-    image: pgvector/pgvector:pg16
+    build:
+      context: .
+      dockerfile: docker/postgres/Dockerfile
     ports:
       - "${POSTGRES_PORT:-5480}:5432"
     environment:
