@@ -132,6 +132,27 @@ Supporting changes:
 | `installer/cli.py` | Added ChromaDB line to `_print_summary()` deployment banner |
 | `installer/config.py` | Updated Ollama URL prompt to mention ChromaDB is bundled |
 
+### Post-Deployment Fix: AI Service Stability
+
+**Symptom:** System Health panel showed AI and ChromaDB services as "down." Docker reported `parthenon-ai` as `unhealthy` with 71 consecutive healthcheck failures.
+
+**Investigation:** The AI container was running but unresponsive. Docker logs showed `/health` returning 200 to internal requests, yet `curl` from both the host and the PHP container timed out. Inspecting `/proc/net/tcp` inside the container revealed dozens of CLOSE_WAIT connections from the PHP container (172.20.0.10) that were never being cleaned up.
+
+**Root causes (two issues):**
+
+1. **Uvicorn running with `--reload` and a single worker.** The `--reload` flag starts a file watcher process that consumes resources, and a single worker can't handle concurrent health check polling from Docker (every 10s), PHP/frontend (every 30s), and real traffic. Connections piled up as CLOSE_WAIT until the worker became unresponsive.
+
+2. **Docker healthcheck using `localhost` instead of `127.0.0.1`.** Inside the container, `localhost` can resolve to `::1` (IPv6) while uvicorn listens on `0.0.0.0` (IPv4 only). This caused the healthcheck `curl` to timeout even when the service was responding normally on IPv4.
+
+**Fixes applied:**
+
+| File | Change |
+|------|--------|
+| `docker/python/Dockerfile` | Removed `--reload`, added `--workers 2 --timeout-keep-alive 5` |
+| `docker-compose.yml` | Changed healthcheck from `localhost` to `127.0.0.1`, increased timeout from 5s to 10s, interval from 10s to 30s |
+
+**Result:** All 8 services report healthy in both Docker (`docker compose ps`) and the System Health panel. The AI container now handles concurrent requests without connection exhaustion.
+
 ### Design Documents
 
 - `docs/plans/2026-03-09-chromadb-abby-brain-design.md` — Approved design spec
