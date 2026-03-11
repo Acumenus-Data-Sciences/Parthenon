@@ -57,5 +57,8 @@ class DatabaseSeeder extends Seeder
 
         // ── Sample studies ────────────────────────────────────────────
         $this->call(StudySeeder::class);
+
+        // ── GIS boundary levels ─────────────────────────────────────────
+        $this->call(GisBoundaryLevelSeeder::class);
     }
 }
