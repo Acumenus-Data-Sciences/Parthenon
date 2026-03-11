@@ -31,9 +31,14 @@ class UserController extends Controller
 
     public function show(User $user): JsonResponse
     {
-        return response()->json(
-            $user->load('roles.permissions')->append(['all_permissions'])
-        );
+        $user->load('roles.permissions');
+
+        return response()->json([
+            'data' => [
+                ...$user->toArray(),
+                'all_permissions' => $user->getAllPermissions()->pluck('name'),
+            ],
+        ]);
     }
 
     public function store(Request $request): JsonResponse

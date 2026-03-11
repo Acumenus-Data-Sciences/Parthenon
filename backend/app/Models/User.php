@@ -14,6 +14,12 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, HasRoles, Notifiable;
 
     /**
+     * Force Spatie Permission to use the 'web' guard so role lookups
+     * work correctly when authenticated via Sanctum (guard 'sanctum').
+     */
+    protected string $guard_name = 'web';
+
+    /**
      * @var list<string>
      */
     protected $fillable = [
