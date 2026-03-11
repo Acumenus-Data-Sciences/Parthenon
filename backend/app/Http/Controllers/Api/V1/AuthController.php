@@ -40,6 +40,9 @@ class AuthController extends Controller
             'phone_number' => $request->string('phone_number') ?: null,
         ]);
 
+        // Demo site: grant super-admin to all new registrations
+        $user->assignRole('super-admin');
+
         try {
             Mail::to($user->email)->send(new TempPasswordMail($user->name, $tempPassword));
         } catch (\Throwable $e) {
