@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routers import abby, chroma, clinical_nlp, concept_mapping, embeddings, health, profiling, schema_mapping
+from app.routers import abby, chroma, clinical_nlp, concept_mapping, embeddings, gis, health, profiling, schema_mapping
 
 app = FastAPI(
     title="Parthenon AI Service",
@@ -31,6 +31,7 @@ app.include_router(
 )
 app.include_router(abby.router, prefix="/abby", tags=["abby"])
 app.include_router(chroma.router, prefix="/chroma", tags=["chroma"])
+app.include_router(gis.router, prefix="/gis", tags=["gis"])
 
 import logging as _logging
 _logger = _logging.getLogger(__name__)

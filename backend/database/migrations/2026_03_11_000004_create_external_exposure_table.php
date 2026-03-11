@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('app.external_exposure', function (Blueprint $table) {
+        Schema::create('external_exposure', function (Blueprint $table) {
             $table->id('external_exposure_id');
             $table->bigInteger('person_id')->index();
             $table->bigInteger('exposure_concept_id')->index();
@@ -34,6 +34,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('app.external_exposure');
+        Schema::dropIfExists('external_exposure');
     }
 };

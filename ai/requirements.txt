@@ -14,3 +14,10 @@ pandas==2.*
 chromadb==1.*
 sentence-transformers==4.*
 langchain-text-splitters==0.*
+
+# GIS / Spatial
+geopandas>=1.0.0
+shapely>=2.0.0
+fiona>=1.10.0
+pyproj>=3.7.0
+asyncpg>=0.30.0

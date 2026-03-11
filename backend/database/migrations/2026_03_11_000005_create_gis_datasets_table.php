@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('app.gis_datasets', function (Blueprint $table) {
+        Schema::create('gis_datasets', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->string('slug')->unique();
@@ -29,6 +29,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('app.gis_datasets');
+        Schema::dropIfExists('gis_datasets');
     }
 };

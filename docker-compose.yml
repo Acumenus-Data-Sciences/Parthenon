@@ -133,6 +133,7 @@ services:
       - ./ai:/app
       - ./backend/resources/help:/var/www/html/resources/help:ro
       - ./docs:/app/docs:ro
+      - ./GIS:/app/gis_data:ro
     environment:
       - DATABASE_URL=postgresql://parthenon:${DB_PASSWORD:-secret}@postgres:5432/parthenon
       - REDIS_URL=redis://redis:6379/2
