@@ -27,6 +27,7 @@ use App\Http\Controllers\Api\V1\DataQualityController;
 use App\Http\Controllers\Api\V1\EstimationController;
 use App\Http\Controllers\Api\V1\EvidenceSynthesisController;
 use App\Http\Controllers\Api\V1\GenomicsController;
+use App\Http\Controllers\Api\V1\GisController;
 use App\Http\Controllers\Api\V1\ClaimsSearchController;
 use App\Http\Controllers\Api\V1\GlobalSearchController;
 use App\Http\Controllers\Api\V1\HealthController;
@@ -626,6 +627,19 @@ Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
     Route::prefix('radiogenomics')->group(function () {
         Route::get('/patients/{personId}', [RadiogenomicsController::class, 'patientPanel']);
         Route::get('/variant-drug-interactions', [RadiogenomicsController::class, 'variantDrugInteractions']);
+    });
+});
+
+// ── GIS Epidemiology ────────────────────────────────────────────────────────
+Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
+    Route::prefix('gis')->group(function () {
+        Route::get('/boundaries', [GisController::class, 'boundaries']);
+        Route::get('/boundaries/{id}', [GisController::class, 'boundaryDetail']);
+        Route::get('/stats', [GisController::class, 'stats']);
+        Route::post('/choropleth', [GisController::class, 'choropleth']);
+        Route::get('/countries', [GisController::class, 'countries']);
+        Route::get('/datasets', [GisController::class, 'datasets']);
+        Route::post('/load', [GisController::class, 'loadDataset'])->middleware('role:super-admin');
     });
 });
 
