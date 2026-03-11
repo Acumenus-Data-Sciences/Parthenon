@@ -26,6 +26,7 @@ class SystemHealthController extends Controller
             'solr' => fn () => $this->checkSolr(),
             'orthanc' => fn () => $this->checkOrthanc(),
             'queue' => fn () => $this->checkQueue(),
+            'chromadb' => fn () => $this->checkChromaDb(),
         ];
     }
 
@@ -73,6 +74,7 @@ class SystemHealthController extends Controller
             'solr' => $this->getSolrLogs(),
             'orthanc' => $this->getServiceHttpLogs('orthanc'),
             'queue' => $this->getQueueLogs(),
+            'chromadb' => $this->getServiceHttpLogs('chromadb'),
             default => [],
         };
     }
@@ -90,6 +92,7 @@ class SystemHealthController extends Controller
             'solr' => $this->getSolrMetrics(),
             'orthanc' => $this->getOrthancMetrics(),
             'queue' => $this->getQueueMetrics(),
+            'chromadb' => $this->getChromaDbMetrics(),
             default => [],
         };
     }
@@ -320,6 +323,41 @@ class SystemHealthController extends Controller
         }
     }
 
+    private function checkChromaDb(): array
+    {
+        $url = rtrim(config('services.ai.url', env('AI_SERVICE_URL', 'http://python-ai:8000')), '/');
+
+        try {
+            $response = Http::timeout(5)->get("{$url}/chroma/health");
+
+            if ($response->successful() && $response->json('status') === 'ok') {
+                return [
+                    'name' => 'ChromaDB',
+                    'key' => 'chromadb',
+                    'status' => 'healthy',
+                    'message' => 'Vector database operational.',
+                    'details' => [
+                        'heartbeat' => $response->json('heartbeat'),
+                    ],
+                ];
+            }
+
+            return [
+                'name' => 'ChromaDB',
+                'key' => 'chromadb',
+                'status' => 'degraded',
+                'message' => 'ChromaDB responding but unhealthy.',
+            ];
+        } catch (\Throwable $e) {
+            return [
+                'name' => 'ChromaDB',
+                'key' => 'chromadb',
+                'status' => 'down',
+                'message' => $e->getMessage(),
+            ];
+        }
+    }
+
     // ── Log Retrieval ────────────────────────────────────────────────────
 
     /**
@@ -402,6 +440,7 @@ class SystemHealthController extends Controller
             'ai' => 'python-ai|AI Service|abby|ollama|MedGemma',
             'r' => 'r-runtime|R Plumber|plumber|HADES',
             'orthanc' => 'orthanc|PACS|DICOMweb|dicom-web',
+            'chromadb' => 'chroma|ChromaDB|vector',
             default => $service,
         };
 
@@ -632,6 +671,22 @@ class SystemHealthController extends Controller
             return ['configured' => true, 'connection_name' => $conn->name];
         } catch (\Throwable) {
             return ['configured' => true, 'connection_name' => $conn->name];
+        }
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function getChromaDbMetrics(): array
+    {
+        $url = rtrim(config('services.ai.url', env('AI_SERVICE_URL', 'http://python-ai:8000')), '/');
+
+        try {
+            $response = Http::timeout(5)->get("{$url}/chroma/health");
+
+            return $response->successful() ? ($response->json() ?? []) : [];
+        } catch (\Throwable) {
+            return [];
         }
     }
 
