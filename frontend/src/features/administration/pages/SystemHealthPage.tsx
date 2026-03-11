@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Panel, Badge, StatusDot, Button, type BadgeVariant, type StatusDotVariant } from "@/components/ui";
 import type { SystemHealthService } from "@/types/models";
 import { useSystemHealth } from "../hooks/useAiProviders";
+import { GisDataPanel } from "../components/GisDataPanel";
 
 const STATUS_MAP: Record<string, { badge: BadgeVariant; dot: StatusDotVariant }> = {
   healthy:  { badge: "success",  dot: "healthy" },
@@ -156,6 +157,14 @@ export default function SystemHealthPage() {
           ))}
         </div>
       )}
+
+      {/* GIS Data Management */}
+      <div>
+        <h2 className="mb-3 text-lg font-semibold text-foreground">
+          GIS Data Management
+        </h2>
+        <GisDataPanel />
+      </div>
     </div>
   );
 }

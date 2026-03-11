@@ -127,6 +127,7 @@ def _print_summary(cfg: dict[str, Any]) -> None:
         lines.append(f"  [green]Solr:[/green]     http://localhost:{solr_port}/solr/")
     if cfg.get("ollama_url"):
         lines.append(f"  [green]ChromaDB:[/green] http://localhost:8000 (vector database)")
+    lines.append(f"  [green]GIS:[/green]      PostGIS spatial queries enabled")
 
     next_steps = [
         f"  • Open {display_url} to log in",
@@ -141,6 +142,9 @@ def _print_summary(cfg: dict[str, Any]) -> None:
         next_steps.append(
             "  • Re-index Solr cores: Admin → System Health → Solr → Manage Solr Cores"
         )
+    next_steps.append(
+        "  • Load GIS boundaries: Admin → System Health → GIS Data Management"
+    )
 
     lines += ["", "  [bold]Next steps:[/bold]"] + next_steps
 

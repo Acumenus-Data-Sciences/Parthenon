@@ -6,6 +6,7 @@ import {
   fetchChoropleth,
   fetchCountries,
   loadGisDataset,
+  fetchDatasetStatus,
 } from "../api";
 import type { AdminLevel, ChoroplethParams } from "../types";
 
@@ -65,6 +66,18 @@ export function useLoadDataset() {
     mutationFn: loadGisDataset,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["gis"] });
+    },
+  });
+}
+
+export function useDatasetStatus(id: number | null) {
+  return useQuery({
+    queryKey: ["gis", "dataset", id],
+    queryFn: () => fetchDatasetStatus(id!),
+    enabled: id !== null,
+    refetchInterval: (query) => {
+      const status = query.state.data?.status;
+      return status === "running" || status === "pending" ? 2000 : false;
     },
   });
 }

@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import asyncio
 import logging
 import os
+from functools import partial
 from pathlib import Path
 
 import geopandas as gpd
@@ -25,12 +27,16 @@ LEVEL_LABELS = {
     "ADM5": "Local Area",
 }
 
-DATABASE_URL = os.getenv("DATABASE_URL", "")
-ASYNC_DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://")
+GIS_DATABASE_URL = os.getenv("GIS_DATABASE_URL", os.getenv("DATABASE_URL", ""))
+ASYNC_DATABASE_URL = GIS_DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://")
 
 
 def get_engine():
-    return create_async_engine(ASYNC_DATABASE_URL, pool_size=5)
+    return create_async_engine(
+        ASYNC_DATABASE_URL,
+        pool_size=5,
+        connect_args={"server_settings": {"search_path": "app,public"}},
+    )
 
 
 async def ensure_boundary_levels(session: AsyncSession) -> dict[str, int]:
@@ -53,18 +59,61 @@ async def ensure_boundary_levels(session: AsyncSession) -> dict[str, int]:
     return existing
 
 
+def _build_gadm_sql(level_num: int, country_codes: list[str] | None = None) -> str:
+    """Build SQL to extract a specific admin level from the GADM GeoPackage.
+
+    GADM stores every feature at the finest granularity. Each row has GID_0
+    through GID_5. To get ADM0 countries we GROUP BY GID_0; for ADM1 we
+    GROUP BY GID_1, etc. The GROUP BY collapses duplicates and picks one
+    geometry per distinct admin unit.
+    """
+    gid_col = f"GID_{level_num}"
+    name_col = f"NAME_{level_num}"
+
+    # Columns we always need
+    select_cols = [f"GID_0", f"NAME_0", f"{gid_col}", f"{name_col}", "geom"]
+
+    # Optional columns per level
+    if level_num >= 1:
+        select_cols.extend([f"VARNAME_{level_num}", f"ENGTYPE_{level_num}"])
+        if level_num == 1:
+            select_cols.append("ISO_1")
+        # Parent GID for non-country levels
+        select_cols.append(f"GID_{level_num - 1}")
+
+    where_parts = [f"{gid_col} IS NOT NULL", f"{gid_col} != ''"]
+
+    if country_codes:
+        codes_str = ", ".join(f"'{c}'" for c in country_codes)
+        where_parts.append(f"GID_0 IN ({codes_str})")
+
+    where_clause = " AND ".join(where_parts)
+    cols = ", ".join(select_cols)
+
+    return f"SELECT {cols} FROM gadm_410 WHERE {where_clause} GROUP BY {gid_col}"
+
+
+def _read_gadm_level(gpkg_path: str, level_num: int, country_codes: list[str] | None) -> gpd.GeoDataFrame:
+    """Read a single admin level from GADM GeoPackage using SQL filter.
+
+    This avoids loading the entire 2.7GB file into memory — only the
+    features for the requested level are read (~15-30s per level).
+    """
+    sql = _build_gadm_sql(level_num, country_codes)
+    logger.info("Reading GADM level ADM%d with SQL filter", level_num)
+    gdf = gpd.read_file(gpkg_path, sql=sql)
+    logger.info("Read %d ADM%d features from GADM", len(gdf), level_num)
+    return gdf
+
+
 async def load_gadm(
     levels: list[BoundaryLevel],
     country_codes: list[str] | None = None,
-    batch_size: int = 500,
+    batch_size: int = 200,
 ) -> int:
     gpkg_path = GIS_DATA_DIR / "gadm_410.gpkg"
     if not gpkg_path.exists():
         raise FileNotFoundError(f"GADM file not found: {gpkg_path}")
-
-    logger.info("Reading GADM GeoPackage from %s", gpkg_path)
-    gdf = gpd.read_file(str(gpkg_path))
-    logger.info("GADM loaded: %d features", len(gdf))
 
     engine = get_engine()
     async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
@@ -78,21 +127,21 @@ async def load_gadm(
             gid_col = f"GID_{level_num}"
             name_col = f"NAME_{level_num}"
 
-            if gid_col not in gdf.columns:
-                logger.warning("Column %s not in GADM, skipping level %s", gid_col, level)
+            # Read from GeoPackage in a thread to avoid blocking the event loop
+            loop = asyncio.get_running_loop()
+            gdf = await loop.run_in_executor(
+                None,
+                partial(_read_gadm_level, str(gpkg_path), level_num, country_codes),
+            )
+
+            if gdf.empty:
+                logger.warning("No features found for level %s", level.value)
                 continue
 
-            level_df = gdf[gdf[gid_col].notna()].copy()
-
-            if country_codes:
-                level_df = level_df[level_df["GID_0"].isin(country_codes)]
-
-            level_df = level_df.drop_duplicates(subset=[gid_col])
-
-            logger.info("Loading %d %s boundaries", len(level_df), level.value)
+            logger.info("Loading %d %s boundaries into PostGIS", len(gdf), level.value)
 
             rows = []
-            for _, row in level_df.iterrows():
+            for _, row in gdf.iterrows():
                 geom = row.geometry
                 if geom is None:
                     continue
@@ -104,15 +153,18 @@ async def load_gadm(
                     parent_col = f"GID_{level_num - 1}"
                     parent_gid = row.get(parent_col)
 
+                varname_col = f"VARNAME_{level_num}"
+                engtype_col = f"ENGTYPE_{level_num}"
+
                 rows.append({
                     "gid": str(row[gid_col]),
                     "name": str(row[name_col]) if row[name_col] else "Unknown",
-                    "name_variant": str(row.get(f"VARNAME_{level_num}", "") or ""),
+                    "name_variant": str(row.get(varname_col, "") or ""),
                     "country_code": str(row["GID_0"]),
                     "country_name": str(row["NAME_0"]),
                     "boundary_level_id": level_map[level.value],
                     "parent_gid": str(parent_gid) if parent_gid else None,
-                    "type_en": str(row.get(f"ENGTYPE_{level_num}", "") or ""),
+                    "type_en": str(row.get(engtype_col, "") or ""),
                     "iso_code": str(row.get("ISO_1", "") or "") if level_num == 1 else None,
                     "source": "gadm",
                     "source_version": "4.1.0",
@@ -146,7 +198,7 @@ async def load_gadm(
 
 async def load_geoboundaries(
     levels: list[BoundaryLevel],
-    batch_size: int = 500,
+    batch_size: int = 200,
 ) -> int:
     engine = get_engine()
     async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
@@ -162,8 +214,12 @@ async def load_geoboundaries(
                 logger.warning("File not found: %s, skipping", geojson_path)
                 continue
 
-            logger.info("Reading %s", geojson_path)
-            gdf = gpd.read_file(str(geojson_path))
+            # Read in a thread to avoid blocking
+            loop = asyncio.get_running_loop()
+            gdf = await loop.run_in_executor(
+                None,
+                partial(gpd.read_file, str(geojson_path)),
+            )
             logger.info("Loaded %d features from %s", len(gdf), filename)
 
             for i in range(0, len(gdf), batch_size):

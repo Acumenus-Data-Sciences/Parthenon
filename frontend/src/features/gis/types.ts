@@ -79,6 +79,21 @@ export interface GisDataset {
   loaded_at: string | null;
 }
 
+export interface GisDatasetJob {
+  id: number;
+  name: string;
+  slug: string;
+  source: string;
+  status: "pending" | "running" | "completed" | "failed";
+  progress_percentage: number;
+  log_output: string | null;
+  error_message: string | null;
+  feature_count: number;
+  levels_requested: string[] | null;
+  started_at: string | null;
+  completed_at: string | null;
+}
+
 export type AdminLevel = "ADM0" | "ADM1" | "ADM2" | "ADM3" | "ADM4" | "ADM5";
 
 export type ChoroplethMetric =

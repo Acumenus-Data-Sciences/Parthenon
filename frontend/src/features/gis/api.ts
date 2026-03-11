@@ -5,6 +5,7 @@ import type {
   ChoroplethDataPoint,
   ChoroplethParams,
   Country,
+  GisDatasetJob,
   GisStats,
   RegionDetail,
 } from "./types";
@@ -45,8 +46,12 @@ export async function fetchCountries(): Promise<Country[]> {
 export async function loadGisDataset(params: {
   source: string;
   levels?: AdminLevel[];
-  country_codes?: string[];
-}): Promise<{ features_loaded: number }> {
+}): Promise<{ dataset: GisDatasetJob; cli_command: string }> {
   const { data } = await apiClient.post("/gis/load", params);
+  return { dataset: data.data, cli_command: data.cli_command };
+}
+
+export async function fetchDatasetStatus(id: number): Promise<GisDatasetJob> {
+  const { data } = await apiClient.get(`/gis/datasets/${id}`);
   return data.data;
 }

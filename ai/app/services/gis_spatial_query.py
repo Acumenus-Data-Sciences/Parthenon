@@ -11,12 +11,16 @@ from app.models.gis import BoundaryLevel, ChoroplethMetric
 
 logger = logging.getLogger(__name__)
 
-DATABASE_URL = os.getenv("DATABASE_URL", "")
-ASYNC_DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://")
+GIS_DATABASE_URL = os.getenv("GIS_DATABASE_URL", os.getenv("DATABASE_URL", ""))
+GIS_ASYNC_DATABASE_URL = GIS_DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://")
 
 
 def get_engine():
-    return create_async_engine(ASYNC_DATABASE_URL, pool_size=5)
+    return create_async_engine(
+        GIS_ASYNC_DATABASE_URL,
+        pool_size=5,
+        connect_args={"server_settings": {"search_path": "app,public"}},
+    )
 
 
 async def get_boundaries_geojson(

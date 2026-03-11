@@ -115,6 +115,20 @@ def run_laravel_bootstrap() -> None:
         check=False, capture=True
     )
 
+    # PostGIS verification — non-fatal, informational only
+    console.print("  [cyan]▶[/cyan] Verifying PostGIS extension…", end=" ", flush=True)
+    result = utils.run(
+        ["docker", "compose", "exec", "-T", "postgres",
+         "psql", "-U", "parthenon", "-d", "parthenon", "-tAc",
+         "SELECT extversion FROM pg_extension WHERE extname = 'postgis';"],
+        capture=True, check=False, cwd=utils.REPO_ROOT,
+    )
+    postgis_version = (result.stdout or "").strip()
+    if postgis_version:
+        console.print(f"[green]v{postgis_version}[/green]")
+    else:
+        console.print("[yellow]not found (GIS features will be unavailable)[/yellow]")
+
     console.print("[green]✓ Laravel bootstrap complete.[/green]\n")
 
 

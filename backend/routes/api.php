@@ -639,6 +639,7 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         Route::post('/choropleth', [GisController::class, 'choropleth']);
         Route::get('/countries', [GisController::class, 'countries']);
         Route::get('/datasets', [GisController::class, 'datasets']);
+        Route::get('/datasets/{id}', [GisController::class, 'datasetStatus']);
         Route::post('/load', [GisController::class, 'loadDataset'])->middleware('role:super-admin');
     });
 });

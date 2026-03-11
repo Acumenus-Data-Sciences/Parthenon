@@ -5,11 +5,13 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\GisBoundaryRequest;
 use App\Http\Requests\GisChoroplethRequest;
+use App\Jobs\Gis\LoadGisBoundariesJob;
 use App\Models\App\GisDataset;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class GisController extends Controller
 {
@@ -86,13 +88,38 @@ class GisController extends Controller
             'country_codes.*' => ['string', 'size:3'],
         ]);
 
-        $response = Http::timeout(300)->post("{$this->aiServiceUrl}/gis/load", $validated);
+        $source = $validated['source'];
+        $levels = $validated['levels'] ?? ['ADM0'];
+        $countryCodes = $validated['country_codes'] ?? null;
 
-        if ($response->failed()) {
-            return response()->json(['error' => 'Dataset load failed', 'detail' => $response->body()], $response->status());
-        }
+        $dataset = GisDataset::create([
+            'name' => ucfirst($source) . ' ' . implode('+', $levels),
+            'slug' => Str::slug($source . '-' . implode('-', $levels) . '-' . now()->timestamp),
+            'source' => $source,
+            'data_type' => 'boundary',
+            'status' => 'pending',
+            'levels_requested' => $levels,
+            'user_id' => $request->user()?->id,
+        ]);
 
-        return response()->json(['data' => $response->json()]);
+        // Build the CLI command for host-side execution.
+        // GIS data loads to local PG 17 (not Docker) via Python/geopandas.
+        $levelsStr = implode(' ', $levels);
+        $cliCommand = "python3 scripts/load-gis-boundaries.py --source {$source} --levels {$levelsStr} --dataset-id {$dataset->id}";
+
+        $dataset->appendLog("Run on host: {$cliCommand}");
+
+        return response()->json([
+            'data' => $dataset,
+            'cli_command' => $cliCommand,
+        ]);
+    }
+
+    public function datasetStatus(int $id): JsonResponse
+    {
+        $dataset = GisDataset::findOrFail($id);
+
+        return response()->json(['data' => $dataset]);
     }
 
     public function datasets(): JsonResponse

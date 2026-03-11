@@ -1,5 +1,6 @@
 import { useState, useCallback, useMemo } from "react";
-import { Globe, Database, Loader2, AlertCircle, RefreshCw } from "lucide-react";
+import { Globe, AlertCircle, RefreshCw, Search, FlaskConical } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { GisMap } from "../components/GisMap";
 import { LayerControls } from "../components/LayerControls";
 import { LegendPanel } from "../components/LegendPanel";
@@ -10,13 +11,13 @@ import {
   useBoundaryDetail,
   useChoropleth,
   useCountries,
-  useLoadDataset,
 } from "../hooks/useGis";
 import { useMapViewport } from "../hooks/useMapViewport";
 import type { AdminLevel, ChoroplethMetric, ChoroplethParams } from "../types";
 import { HelpButton } from "@/features/help";
 
 export default function GisPage() {
+  const navigate = useNavigate();
   const { viewport, onViewportChange, resetViewport } = useMapViewport();
 
   const [level, setLevel] = useState<AdminLevel>("ADM0");
@@ -27,6 +28,8 @@ export default function GisPage() {
 
   const { data: stats, isLoading: statsLoading } = useGisStats();
   const { data: countries } = useCountries();
+  const hasBoundaries = (stats?.total_boundaries ?? 0) > 0;
+
   const {
     data: boundaries,
     isLoading: boundariesLoading,
@@ -35,22 +38,20 @@ export default function GisPage() {
     level,
     country_code: countryCode ?? undefined,
     simplify: level === "ADM0" ? 0.1 : level === "ADM1" ? 0.01 : 0.001,
-    enabled: (stats?.total_boundaries ?? 0) > 0,
+    enabled: hasBoundaries,
   });
 
   const choroplethParams: ChoroplethParams | null = useMemo(
     () =>
-      (stats?.total_boundaries ?? 0) > 0
+      hasBoundaries
         ? { level, metric, country_code: countryCode ?? undefined }
         : null,
-    [level, metric, countryCode, stats]
+    [level, metric, countryCode, hasBoundaries]
   );
   const { data: choroplethData } = useChoropleth(choroplethParams);
 
   const { data: regionDetail, isLoading: detailLoading } =
     useBoundaryDetail(selectedRegionId);
-
-  const loadMutation = useLoadDataset();
 
   const handleRegionClick = useCallback((id: number, _name: string) => {
     setSelectedRegionId(id);
@@ -75,16 +76,12 @@ export default function GisPage() {
     [level]
   );
 
-  const handleLoadData = useCallback(() => {
-    loadMutation.mutate({ source: "gadm", levels: ["ADM0", "ADM1"] });
-  }, [loadMutation]);
-
   const maxChoroplethValue = useMemo(() => {
     if (!choroplethData?.length) return 0;
     return Math.max(...choroplethData.map((d) => d.value));
   }, [choroplethData]);
 
-  const isEmpty = !statsLoading && (stats?.total_boundaries ?? 0) === 0;
+  const isEmpty = !statsLoading && !hasBoundaries;
 
   return (
     <div className="flex h-[calc(100vh-4rem)] flex-col">
@@ -97,7 +94,7 @@ export default function GisPage() {
               GIS Explorer
             </h1>
             <p className="text-xs text-[#5A5650]">
-              Geographic epidemiology and exposure analysis
+              Select geographic regions for epidemiological studies
             </p>
           </div>
         </div>
@@ -105,7 +102,7 @@ export default function GisPage() {
           {hoveredRegion && (
             <span className="text-xs text-[#8A857D]">{hoveredRegion}</span>
           )}
-          {stats && (
+          {stats && !isEmpty && (
             <span className="text-xs text-[#5A5650]">
               {stats.total_boundaries.toLocaleString()} boundaries ·{" "}
               {stats.total_countries} countries
@@ -121,46 +118,18 @@ export default function GisPage() {
         <div className="relative flex-1">
           {isEmpty ? (
             <div className="flex h-full flex-col items-center justify-center gap-4 bg-[#0E0E11]">
-              <Database className="h-12 w-12 text-[#5A5650]" />
+              <Globe className="h-12 w-12 text-[#5A5650]" />
               <div className="text-center">
                 <p className="text-sm text-[#E8E4DC]">
-                  No geographic boundaries loaded
+                  No geographic boundaries available
                 </p>
                 <p className="mt-1 text-xs text-[#5A5650]">
-                  Load GADM or geoBoundaries data to begin exploring
+                  An administrator needs to load boundary data from the System Health panel.
+                </p>
+                <p className="mt-1 text-xs text-[#5A5650]">
+                  Go to Administration → System Health → GIS Data to load boundaries.
                 </p>
               </div>
-              <button
-                onClick={handleLoadData}
-                disabled={loadMutation.isPending}
-                className="flex items-center gap-2 rounded bg-[#9B1B30] px-4 py-2 text-sm text-white hover:bg-[#B22040] disabled:opacity-50"
-              >
-                {loadMutation.isPending ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Loading boundaries...
-                  </>
-                ) : (
-                  <>
-                    <Database className="h-4 w-4" />
-                    Load GADM Boundaries (ADM0 + ADM1)
-                  </>
-                )}
-              </button>
-              {loadMutation.isSuccess && (
-                <p className="text-xs text-[#2DD4BF]">
-                  Loaded {loadMutation.data.features_loaded.toLocaleString()}{" "}
-                  features
-                </p>
-              )}
-              {loadMutation.isError && (
-                <p className="text-xs text-[#E85A6B]">
-                  Load failed:{" "}
-                  {loadMutation.error instanceof Error
-                    ? loadMutation.error.message
-                    : "Unknown error"}
-                </p>
-              )}
             </div>
           ) : (
             <GisMap
@@ -183,7 +152,7 @@ export default function GisPage() {
           )}
         </div>
 
-        {/* Right sidebar */}
+        {/* Right sidebar — research controls */}
         {!isEmpty && (
           <div className="flex w-72 flex-col gap-3 overflow-y-auto border-l border-[#232328] bg-[#0E0E11] p-3">
             <LayerControls
@@ -208,10 +177,39 @@ export default function GisPage() {
               onDrillDown={handleDrillDown}
             />
 
+            {/* Research actions for selected region */}
+            {regionDetail && (
+              <div className="rounded-lg border border-[#232328] bg-[#141418] p-3">
+                <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-[#5A5650]">
+                  Research Actions
+                </h3>
+                <div className="space-y-2">
+                  <button
+                    onClick={() =>
+                      navigate(`/studies/create?region=${regionDetail.gid}&region_name=${encodeURIComponent(regionDetail.name)}`)
+                    }
+                    className="flex w-full items-center gap-2 rounded border border-[#232328] bg-[#0E0E11] px-3 py-2 text-xs text-[#C9A227] hover:border-[#C9A227]/50"
+                  >
+                    <FlaskConical className="h-3 w-3" />
+                    Create Study for {regionDetail.name}
+                  </button>
+                  <button
+                    onClick={() =>
+                      navigate(`/cohort-definitions?region=${regionDetail.gid}`)
+                    }
+                    className="flex w-full items-center gap-2 rounded border border-[#232328] bg-[#0E0E11] px-3 py-2 text-xs text-[#2DD4BF] hover:border-[#2DD4BF]/50"
+                  >
+                    <Search className="h-3 w-3" />
+                    Browse Cohorts in Region
+                  </button>
+                </div>
+              </div>
+            )}
+
             {stats && (
               <div className="rounded-lg border border-[#232328] bg-[#141418] p-3">
                 <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-[#5A5650]">
-                  Loaded Data
+                  Available Data
                 </h3>
                 <div className="space-y-1">
                   {stats.levels

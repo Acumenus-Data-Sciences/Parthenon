@@ -1,0 +1,236 @@
+---
+id: 31-gis-explorer
+title: "31. GIS Explorer"
+sidebar_label: "31. GIS Explorer"
+slug: /gis-explorer
+---
+
+# GIS Explorer
+
+Parthenon's **GIS Explorer** enables geographic analysis of health outcomes data across administrative boundaries. Built on PostGIS for spatial indexing and deck.gl for WebGL-accelerated rendering, the module lets researchers overlay clinical metrics as choropleth maps, drill into regional population statistics, and launch outcomes studies directly from geographic selections.
+
+Supported boundary datasets include **GADM v4.1** (Global Administrative Areas) and **geoBoundaries CGAZ**, providing coverage from national borders down to municipality and settlement level in over 200 countries.
+
+## Module Architecture
+
+The GIS pipeline connects boundary data ingestion to real-time map rendering:
+
+```
+GADM / geoBoundaries
+        |
+        v
+  Python Loader         <-- downloads and parses GeoJSON / Shapefile
+        |
+        v
+    PostGIS             <-- geometry stored as WKB, spatial indexes on admin_level + country
+        |
+        v
+Spatial Query Service   <-- PHP service layer: bounding box, choropleth aggregation
+        |
+        v
+  Laravel Proxy         <-- REST API, GeoJSON serialisation, query caching (Redis)
+        |
+        v
+  React + deck.gl       <-- GeoJsonLayer / PolygonLayer, choropleth colour ramp, tooltip
+```
+
+The React frontend fetches boundaries as GeoJSON from the Laravel API and renders them with deck.gl's `GeoJsonLayer`. Choropleth colour intensity is computed client-side from the metric values returned by the `/choropleth` endpoint.
+
+## Data Sources
+
+| Source | Description | Coverage | Approx. Size |
+|--------|-------------|----------|--------------|
+| **GADM v4.1** | Global Administrative Areas — 356 000 boundaries across 6 admin levels | Global | ~2.6 GB |
+| **geoBoundaries CGAZ** | Simplified boundaries optimised for cartographic consistency | ADM0–ADM2 | ~1.2 GB |
+
+:::info Choosing a dataset
+Use **GADM** when you need sub-district or municipality granularity, or when working with countries that have complex administrative hierarchies. Use **geoBoundaries CGAZ** for high-performance national and state/province overlays where simplified geometry is sufficient.
+:::
+
+## Administrative Levels
+
+| Level | Label | Description |
+|-------|-------|-------------|
+| **ADM0** | Country | National boundaries |
+| **ADM1** | State / Province | First-level subdivisions |
+| **ADM2** | District / County | Second-level subdivisions |
+| **ADM3** | Sub-district | Third-level subdivisions |
+| **ADM4** | Municipality | Fourth-level (GADM only) |
+| **ADM5** | Settlement | Fifth-level (GADM only) |
+
+Both GADM and geoBoundaries encode a hierarchical `gid` path (e.g., `USA.5.12_1`) that Parthenon uses to resolve parent–child relationships and power the drill-down interaction in the Explorer.
+
+## Loading Boundary Data (Admin)
+
+Boundary data is loaded once per environment by a super-admin, then cached in PostGIS for all users.
+
+1. Navigate to **Administration → System Health → GIS Data Management**.
+2. Select a **Source** (GADM or geoBoundaries).
+3. Select one or more **Admin Levels** to load (ADM0–ADM5 for GADM; ADM0–ADM2 for geoBoundaries).
+4. Optionally restrict to specific **Countries** to reduce storage and load time.
+5. Click **Load Boundaries**.
+
+The loader streams the GeoJSON/Shapefile from the provider, inserts geometries into the `gis.boundaries` PostGIS table, and builds spatial indexes automatically.
+
+:::info Permissions and timing
+Only **super-admin** users can load boundary data. Loading GADM at all levels globally may take **10–30 minutes** depending on hardware. Loading a single country at ADM0–ADM3 typically completes in under two minutes. Progress is streamed to the admin panel via server-sent events.
+:::
+
+You can also trigger a load via the Artisan CLI:
+
+```bash
+# Load GADM ADM0–ADM2 for United States and Canada
+php artisan gis:load-boundaries \
+  --source=gadm \
+  --levels=0,1,2 \
+  --countries=USA,CAN
+
+# Load all geoBoundaries CGAZ levels globally
+php artisan gis:load-boundaries \
+  --source=geoboundaries \
+  --levels=0,1,2
+```
+
+:::tip Incremental loading
+The loader checks for existing geometries by `gid` before inserting. Running the command again with the same parameters is idempotent — it will skip already-loaded boundaries and only add missing ones.
+:::
+
+## Using the GIS Explorer
+
+### Navigating to the Explorer
+
+Select **GIS Explorer** from the main navigation sidebar. The module opens to a full-viewport map centred on the world extent, with the Layer Controls panel docked on the left.
+
+### Layer Controls
+
+The **Layer Controls** panel exposes four settings:
+
+| Control | Description |
+|---------|-------------|
+| **Admin Level** | Select ADM0 through ADM5 (only levels with loaded data are enabled) |
+| **Metric** | Choose the choropleth metric (patient count, condition count, avg age, etc.) |
+| **Country Filter** | Restrict visible boundaries to one or more countries |
+| **Data Source** | Select the OMOP source used to compute metric values |
+
+Changes to any control re-fetch boundary and metric data and re-render the choropleth in place without a full page reload.
+
+### Interacting with Regions
+
+- **Click a region** to open its **Detail Panel** on the right side, showing area, parent region, child region count, and all available metric values for that region.
+- **Hover** over a region to see a tooltip with the region name and current metric value.
+- **Scroll to zoom** and **drag to pan** the map. Double-click zooms to fit the clicked region.
+- Use **"Drill Down"** in the Detail Panel to zoom into a region and switch the admin level to its immediate children.
+
+### Legend
+
+The **Legend** at the bottom-right of the map shows the colour ramp for the current metric. Colour intensity is a sequential scale: lighter shades represent lower values, darker shades represent higher values. The scale adjusts dynamically to the min/max values visible in the current viewport.
+
+### Research Actions
+
+From the Detail Panel, two action buttons connect the GIS Explorer to Parthenon's research workflows:
+
+- **Create Study for {Region}** — opens the New Study form pre-filled with the selected region name and bounding box as the geographic constraint.
+- **Browse Cohorts in Region** — opens the Cohort Definitions list filtered to cohorts whose patients have `location` records intersecting the selected region's geometry.
+
+## Choropleth Metrics
+
+| Metric | Description |
+|--------|-------------|
+| `patient_count` | Number of distinct patients (persons) with a location record within the region |
+| `condition_count` | Total condition occurrences for patients in the region |
+| `avg_age` | Average age of patients in the region (computed at observation end) |
+| `visit_count` | Total visit occurrences for patients in the region |
+| `drug_exposure_count` | Total drug exposure records for patients in the region |
+| `measurement_count` | Total measurement records for patients in the region |
+
+:::tip Extending metrics
+Additional metrics can be registered by implementing the `GisChoroplethMetric` interface in `app/Services/Gis/Metrics/` and adding an entry to the `gis.choropleth_metrics` config key. The API and frontend layer controls update automatically.
+:::
+
+## OHDSI CDM Extensions
+
+The GIS module introduces two CDM-adjacent tables to the `gis` schema that extend standard OMOP location data:
+
+### `gis.location_history`
+
+Tracks a patient's location over time, allowing time-windowed spatial queries (e.g., "where did this patient live during their observation period?"):
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `location_history_id` | bigint | Primary key |
+| `person_id` | bigint | Foreign key to `cdm.person` |
+| `location_id` | bigint | Foreign key to `cdm.location` |
+| `start_date` | date | Start of residency at this location |
+| `end_date` | date | End of residency (NULL = current) |
+| `boundary_gid` | text | Resolved GADM/geoBoundaries `gid` |
+
+### `gis.external_exposure`
+
+Records environmental or contextual exposures derived from geospatial data (air quality, flood zones, heat index):
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `exposure_id` | bigint | Primary key |
+| `person_id` | bigint | Foreign key to `cdm.person` |
+| `boundary_gid` | text | Boundary where exposure was measured |
+| `exposure_concept_id` | integer | OMOP concept for the exposure type |
+| `exposure_value` | numeric | Measured value |
+| `exposure_date` | date | Date of exposure measurement |
+| `unit_concept_id` | integer | Unit of measure concept |
+
+These tables are created by the `gis:install` Artisan command and are optional — the core GIS Explorer functions without them, but choropleth metrics that aggregate `location_history` data require population.
+
+## Research Workflow
+
+A typical GIS-driven research workflow proceeds as follows:
+
+1. **Identify a region of interest** — use the Layer Controls to select an admin level and metric. Regions with elevated `condition_count` or unusual demographic patterns will stand out on the choropleth.
+2. **Drill down** — click the region to open its Detail Panel, then use "Drill Down" to examine sub-regions within it.
+3. **Create a geographically-scoped study** — click **Create Study for {Region}** to open the New Study form pre-populated with the region's name and bounding box. Complete the study configuration and submit.
+4. **Review existing cohorts** — click **Browse Cohorts in Region** to find existing cohort definitions whose membership intersects the selected region. These can be used as comparator or target populations in a new analysis.
+5. **Launch an analysis** — from the study created in step 3, add a population-level effect estimation or characterisation analysis scoped to the region's patient population.
+
+:::tip Combining with Cohort Builder criteria
+Geographic region selections from the GIS Explorer can be saved as **Location Criteria** and referenced in the Cohort Builder. Navigate to **Cohorts → New Criterion → Location**, paste the `boundary_gid` value from the GIS Detail Panel, and the cohort will automatically include only patients whose `location_history` intersects that boundary.
+:::
+
+:::warning Research use only
+The GIS Explorer is designed for population health research and epidemiological investigation. Geographic data derived from clinical records is subject to re-identification risk at high administrative resolution (ADM4/ADM5). Follow your institution's data governance policies before sharing region-level analyses at sub-district granularity. The module does not apply k-anonymity suppression by default — configure minimum cell size thresholds in **Administration → GIS Settings** if required by your data use agreement.
+:::
+
+## API Reference
+
+Key GIS API endpoints:
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/v1/gis/stats` | GET | Summary statistics: loaded boundary counts by level and dataset |
+| `/api/v1/gis/boundaries` | GET | Fetch boundaries as GeoJSON; query params: `level`, `country`, `bbox` |
+| `/api/v1/gis/boundaries/{id}` | GET | Region detail: geometry, parent, children, metric values |
+| `/api/v1/gis/choropleth` | POST | Choropleth values for a metric across all visible boundaries |
+| `/api/v1/gis/countries` | GET | List of countries with loaded boundary data |
+| `/api/v1/gis/load` | POST | Trigger boundary dataset load (super-admin only) |
+| `/api/v1/gis/datasets` | GET | List loaded datasets with level coverage and row counts |
+
+### Query Parameters — `/api/v1/gis/boundaries`
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `level` | integer | Admin level (0–5) |
+| `country` | string | ISO 3166-1 alpha-3 country code (e.g., `USA`) |
+| `bbox` | string | Bounding box as `minLng,minLat,maxLng,maxLat` |
+| `source` | string | Dataset source: `gadm` or `geoboundaries` |
+| `format` | string | `geojson` (default) or `topojson` |
+
+### Request Body — `/api/v1/gis/choropleth`
+
+```json
+{
+  "metric": "patient_count",
+  "level": 1,
+  "country": "USA",
+  "omop_source_id": 1
+}
+```
+
+Response returns an object keyed by `boundary_gid` with the computed metric value for each region, suitable for direct lookup during client-side choropleth rendering.

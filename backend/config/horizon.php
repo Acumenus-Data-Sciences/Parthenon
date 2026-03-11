@@ -266,6 +266,20 @@ return [
             'timeout' => 14400,
             'nice' => 0,
         ],
+
+        'gis' => [
+            'connection' => 'redis',
+            'queue' => ['gis'],
+            'balance' => 'auto',
+            'autoScalingStrategy' => 'time',
+            'maxProcesses' => 1,
+            'maxTime' => 0,
+            'maxJobs' => 0,
+            'memory' => 512,
+            'tries' => 1,
+            'timeout' => 1800,
+            'nice' => 0,
+        ],
     ],
 
     'environments' => [
@@ -298,6 +312,10 @@ return [
                 'memory' => 512,
                 'tries' => 1,
             ],
+            'gis' => [
+                'maxProcesses' => 1,
+                'timeout' => 1800,
+            ],
         ],
 
         'local' => [
@@ -326,6 +344,10 @@ return [
                 'timeout' => 14400,
                 'memory' => 512,
                 'tries' => 1,
+            ],
+            'gis' => [
+                'maxProcesses' => 1,
+                'timeout' => 1800,
             ],
         ],
     ],

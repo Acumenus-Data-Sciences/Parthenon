@@ -16,3 +16,4 @@ export { EmptyState, type EmptyStateProps } from "./EmptyState";
 export { CodeBlock, type CodeBlockProps } from "./CodeBlock";
 export { Breadcrumb, type BreadcrumbItem, type BreadcrumbProps } from "./Breadcrumb";
 export { DataTable, type DataTableProps, type Column } from "./DataTable";
+export { JobProgressModal, type JobProgressModalProps } from "./JobProgressModal";

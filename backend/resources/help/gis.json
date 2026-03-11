@@ -1,0 +1,17 @@
+{
+  "key": "gis",
+  "title": "GIS Explorer",
+  "description": "The GIS Explorer enables researchers to explore epidemiological patterns across geographic regions. It provides interactive choropleth maps of clinical metrics (patient count, condition prevalence, average age) overlaid on administrative boundaries from GADM and geoBoundaries datasets. Researchers can select regions to create studies or browse cohorts by geography. Built on PostGIS spatial queries with deck.gl WebGL-accelerated rendering.",
+  "docs_url": "/docs/gis-explorer",
+  "video_url": null,
+  "tips": [
+    "Boundary data must be loaded first by an admin before the map will display regions. Go to Administration → System Health → GIS Data Management to import GADM or geoBoundaries shapefiles.",
+    "Use the Admin Level dropdown to switch between countries (ADM0), states/provinces (ADM1), districts (ADM2), and sub-districts (ADM3) depending on the geographic granularity you need.",
+    "Select a choropleth metric — patient count, condition count, or average age — to color-code regions by clinical data intensity and reveal geographic patterns in your cohort.",
+    "Filter by country to focus the map on a specific nation's sub-regions, which improves rendering performance when working with high-resolution ADM2 or ADM3 boundaries.",
+    "Click any region to open its detail panel, which shows area, child region counts, and exposure summaries for the patients whose records fall within that boundary.",
+    "Use 'Create Study for {Region}' in the detail panel to start a new study pre-filled with the selected geographic area as a spatial inclusion criterion.",
+    "Use 'Browse Cohorts in Region' to find existing cohort definitions whose patient populations intersect the selected administrative boundary.",
+    "The legend panel shows the color gradient scale for the active metric — darker colors indicate higher metric values, and the range adjusts dynamically to the visible regions."
+  ]
+}

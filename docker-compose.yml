@@ -136,6 +136,7 @@ services:
       - ./GIS:/app/gis_data:ro
     environment:
       - DATABASE_URL=postgresql://parthenon:${DB_PASSWORD:-secret}@postgres:5432/parthenon
+      - GIS_DATABASE_URL=postgresql://smudoshi:gis_dev_local@host.docker.internal:5432/ohdsi
       - REDIS_URL=redis://redis:6379/2
       - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
       - OLLAMA_MODEL=${OLLAMA_MODEL:-MedAIBase/MedGemma1.5:4b}

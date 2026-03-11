@@ -104,6 +104,11 @@ const sidebars: SidebarsConfig = {
     },
     {
       type: "category",
+      label: "Part XIII — GIS Explorer",
+      items: ["part13-gis/31-gis-explorer"],
+    },
+    {
+      type: "category",
       label: "Migration Guide (Atlas → Parthenon)",
       items: [
         "migration/00-overview",
