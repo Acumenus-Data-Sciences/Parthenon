@@ -21,3 +21,4 @@ shapely>=2.0.0
 fiona>=1.10.0
 pyproj>=3.7.0
 asyncpg>=0.30.0
+pysolr>=3.10.0
