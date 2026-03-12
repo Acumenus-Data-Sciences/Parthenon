@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { createPortal } from "react-dom";
 import { Maximize2, Minimize2, Loader2, WifiOff } from "lucide-react";
 import { Panel } from "@/components/ui";
 import type { CollectionOverview } from "../../api/chromaStudioApi";
@@ -88,8 +89,8 @@ export default function VectorExplorer({ collectionName, overview }: VectorExplo
   );
 
   if (isExpanded) {
-    return (
-      <div className="fixed inset-0 z-50 flex bg-[#0A0A0F]">
+    return createPortal(
+      <div className="fixed inset-0 flex bg-[#0A0A0F]" style={{ zIndex: 200 }}>
         <div className="flex flex-1 flex-col">
           <div className="flex items-center justify-between border-b border-[#232328] bg-[#0E0E11] px-4 py-2">
             <div className="flex items-center gap-4">
@@ -198,7 +199,8 @@ export default function VectorExplorer({ collectionName, overview }: VectorExplo
             </div>
           )}
         </div>
-      </div>
+      </div>,
+      document.body,
     );
   }
 
