@@ -2,34 +2,51 @@ import { useState, useCallback, useMemo } from "react";
 import { Globe, AlertCircle, RefreshCw, Search, FlaskConical } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { GisMap } from "../components/GisMap";
+import { DiseaseSelector } from "../components/DiseaseSelector";
+import { DiseaseSummaryBar } from "../components/DiseaseSummaryBar";
 import { LayerControls } from "../components/LayerControls";
 import { LegendPanel } from "../components/LegendPanel";
 import { RegionDetail } from "../components/RegionDetail";
+import { MetricSelector } from "../components/MetricSelector";
+import { TimeSlider } from "../components/TimeSlider";
+import { CountyDetail } from "../components/CountyDetail";
 import {
   useGisStats,
   useBoundaries,
   useBoundaryDetail,
   useChoropleth,
   useCountries,
+  useCdmChoropleth,
 } from "../hooks/useGis";
 import { useMapViewport } from "../hooks/useMapViewport";
-import type { AdminLevel, ChoroplethMetric, ChoroplethParams } from "../types";
+import type { AdminLevel, CdmMetricType, ChoroplethMetric, ChoroplethParams } from "../types";
 import { HelpButton } from "@/features/help";
 
 export default function GisPage() {
   const navigate = useNavigate();
   const { viewport, onViewportChange, resetViewport } = useMapViewport();
 
-  const [level, setLevel] = useState<AdminLevel>("ADM0");
+  // GIS Explorer mode
+  const [level, setLevel] = useState<AdminLevel>("ADM2");
   const [metric, setMetric] = useState<ChoroplethMetric>("patient_count");
-  const [countryCode, setCountryCode] = useState<string | null>(null);
+  const [countryCode, setCountryCode] = useState<string | null>("USA");
   const [selectedRegionId, setSelectedRegionId] = useState<number | null>(null);
   const [hoveredRegion, setHoveredRegion] = useState<string | null>(null);
+
+  // Disease selection (v2)
+  const [selectedConceptId, setSelectedConceptId] = useState<number | null>(null);
+  const [selectedDiseaseName, setSelectedDiseaseName] = useState<string | null>(null);
+
+  // CDM Explorer state
+  const [cdmMetric, setCdmMetric] = useState<CdmMetricType>("cases");
+  const [timePeriod, setTimePeriod] = useState<string | null>(null);
+  const [selectedCountyGid, setSelectedCountyGid] = useState<string | null>(null);
 
   const { data: stats, isLoading: statsLoading } = useGisStats();
   const { data: countries } = useCountries();
   const hasBoundaries = (stats?.total_boundaries ?? 0) > 0;
 
+  // Load PA county boundaries
   const {
     data: boundaries,
     isLoading: boundariesLoading,
@@ -37,7 +54,8 @@ export default function GisPage() {
   } = useBoundaries({
     level,
     country_code: countryCode ?? undefined,
-    simplify: level === "ADM0" ? 0.1 : level === "ADM1" ? 0.01 : 0.001,
+    parent_gid: "USA.39_1",
+    simplify: 0.001,
     enabled: hasBoundaries,
   });
 
@@ -50,12 +68,43 @@ export default function GisPage() {
   );
   const { data: choroplethData } = useChoropleth(choroplethParams);
 
+  // CDM choropleth data (parameterized by selected disease)
+  const cdmChoroplethParams = useMemo(
+    () => {
+      if (!selectedConceptId) return null;
+      const base = {
+        metric: cdmMetric === "cases_monthly" ? "cases_monthly" as CdmMetricType : cdmMetric,
+        concept_id: selectedConceptId,
+      };
+      if (timePeriod) {
+        return { ...base, metric: "cases_monthly" as CdmMetricType, time_period: timePeriod };
+      }
+      return base;
+    },
+    [cdmMetric, timePeriod, selectedConceptId]
+  );
+  const { data: cdmChoroplethData } = useCdmChoropleth(cdmChoroplethParams);
+
   const { data: regionDetail, isLoading: detailLoading } =
     useBoundaryDetail(selectedRegionId);
 
+  const handleDiseaseSelect = useCallback((conceptId: number, name: string) => {
+    setSelectedConceptId(conceptId);
+    setSelectedDiseaseName(name);
+    setTimePeriod(null);
+    setSelectedCountyGid(null);
+    setSelectedRegionId(null);
+  }, []);
+
   const handleRegionClick = useCallback((id: number, _name: string) => {
     setSelectedRegionId(id);
-  }, []);
+    if (boundaries?.features) {
+      const feature = boundaries.features.find((f) => f.id === id);
+      if (feature?.properties?.gid) {
+        setSelectedCountyGid(feature.properties.gid);
+      }
+    }
+  }, [boundaries]);
 
   const handleRegionHover = useCallback(
     (_id: number | null, name: string | null) => {
@@ -91,10 +140,12 @@ export default function GisPage() {
           <Globe className="h-5 w-5 text-[#C9A227]" />
           <div>
             <h1 className="text-lg font-semibold text-[#E8E4DC]">
-              GIS Explorer
+              GIS Explorer{selectedDiseaseName ? ` — ${selectedDiseaseName}` : ""}
             </h1>
             <p className="text-xs text-[#5A5650]">
-              Select geographic regions for epidemiological studies
+              {selectedDiseaseName
+                ? "County-level spatial surveillance from OMOP CDM data"
+                : "Select a disease to begin spatial analysis"}
             </p>
           </div>
         </div>
@@ -111,6 +162,13 @@ export default function GisPage() {
           <HelpButton helpKey="gis" />
         </div>
       </div>
+
+      {/* Disease Summary Bar */}
+      {!isEmpty && selectedConceptId && (
+        <div className="border-b border-[#232328] bg-[#0E0E11] px-6 py-2">
+          <DiseaseSummaryBar conceptId={selectedConceptId} />
+        </div>
+      )}
 
       {/* Main content */}
       <div className="flex flex-1 overflow-hidden">
@@ -152,14 +210,73 @@ export default function GisPage() {
           )}
         </div>
 
-        {/* Right sidebar — research controls */}
+        {/* Right sidebar */}
         {!isEmpty && (
           <div className="flex w-72 flex-col gap-3 overflow-y-auto border-l border-[#232328] bg-[#0E0E11] p-3">
+            <DiseaseSelector
+              selectedConceptId={selectedConceptId}
+              onSelect={handleDiseaseSelect}
+            />
+
+            {selectedConceptId && (
+              <>
+                <MetricSelector value={cdmMetric} onChange={setCdmMetric} />
+
+                <TimeSlider
+                  value={timePeriod}
+                  onChange={setTimePeriod}
+                  conceptId={selectedConceptId}
+                />
+
+                {selectedCountyGid && (
+                  <CountyDetail
+                    gadmGid={selectedCountyGid}
+                    conceptId={selectedConceptId}
+                    onClose={() => {
+                      setSelectedCountyGid(null);
+                      setSelectedRegionId(null);
+                    }}
+                  />
+                )}
+
+                {/* Top Counties from CDM choropleth */}
+                {cdmChoroplethData && cdmChoroplethData.length > 0 && (
+                  <div className="rounded-lg border border-[#232328] bg-[#141418] p-3">
+                    <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-[#5A5650]">
+                      Top Counties
+                    </h3>
+                    <div className="space-y-1">
+                      {cdmChoroplethData.slice(0, 8).map((c) => (
+                        <button
+                          key={c.gid}
+                          onClick={() => {
+                            setSelectedCountyGid(c.gid);
+                            const feature = boundaries?.features.find(
+                              (f) => f.properties.gid === c.gid
+                            );
+                            if (feature) setSelectedRegionId(feature.id);
+                          }}
+                          className="flex w-full items-center justify-between rounded px-2 py-1 text-xs hover:bg-[#232328]"
+                        >
+                          <span className="text-[#8A857D]">{c.name}</span>
+                          <span className="font-medium text-[#E8E4DC]">
+                            {c.value.toLocaleString()}
+                            {c.rate !== null ? ` (${c.rate}%)` : ""}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+
             <LayerControls
               level={level}
               onLevelChange={(l) => {
                 setLevel(l);
                 setSelectedRegionId(null);
+                setSelectedCountyGid(null);
               }}
               metric={metric}
               onMetricChange={setMetric}
@@ -170,14 +287,16 @@ export default function GisPage() {
 
             <LegendPanel metric={metric} maxValue={maxChoroplethValue} />
 
-            <RegionDetail
-              detail={regionDetail ?? null}
-              loading={detailLoading}
-              onClose={() => setSelectedRegionId(null)}
-              onDrillDown={handleDrillDown}
-            />
+            {!selectedCountyGid && regionDetail && (
+              <RegionDetail
+                detail={regionDetail}
+                loading={detailLoading}
+                onClose={() => setSelectedRegionId(null)}
+                onDrillDown={handleDrillDown}
+              />
+            )}
 
-            {/* Research actions for selected region */}
+            {/* Research actions */}
             {regionDetail && (
               <div className="rounded-lg border border-[#232328] bg-[#141418] p-3">
                 <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-[#5A5650]">
@@ -202,29 +321,6 @@ export default function GisPage() {
                     <Search className="h-3 w-3" />
                     Browse Cohorts in Region
                   </button>
-                </div>
-              </div>
-            )}
-
-            {stats && (
-              <div className="rounded-lg border border-[#232328] bg-[#141418] p-3">
-                <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-[#5A5650]">
-                  Available Data
-                </h3>
-                <div className="space-y-1">
-                  {stats.levels
-                    .filter((l) => l.count > 0)
-                    .map((l) => (
-                      <div
-                        key={l.code}
-                        className="flex items-center justify-between text-xs"
-                      >
-                        <span className="text-[#8A857D]">{l.label}</span>
-                        <span className="text-[#E8E4DC]">
-                          {l.count.toLocaleString()}
-                        </span>
-                      </div>
-                    ))}
                 </div>
               </div>
             )}
