@@ -3,21 +3,20 @@ set -e
 
 echo "=== StudyAgent Entrypoint ==="
 
-# Install StudyAgent packages from mounted submodule if not already installed
+# Set PYTHONPATH to include all StudyAgent source directories
+# (Avoids pip install issues with upstream pyproject.toml missing subpackages)
+export PYTHONPATH="/opt/study-agent/core:/opt/study-agent/mcp_server:/opt/study-agent/acp_agent${PYTHONPATH:+:$PYTHONPATH}"
+
+# Verify packages are importable
 if ! python -c "import study_agent_core" 2>/dev/null; then
-    echo "Installing StudyAgent packages from submodule..."
-    pip install --no-cache-dir \
-        -e /opt/study-agent/core/ \
-        -e /opt/study-agent/mcp_server/ \
-        -e /opt/study-agent/acp_agent/ \
-        2>/dev/null
+    echo "ERROR: StudyAgent packages not importable. Check submodule mount at /opt/study-agent/"
+    exit 1
 fi
 
 # Build phenotype index if it doesn't exist
 PHENOTYPE_INDEX_FILE="${PHENOTYPE_INDEX_DIR:-/data/phenotype-index}/dense.index"
 if [ ! -f "$PHENOTYPE_INDEX_FILE" ]; then
     echo "Building phenotype index (first run)..."
-    cd /opt/study-agent/mcp_server
     python -m study_agent_mcp.retrieval.build_phenotype_index 2>/dev/null || \
         echo "Warning: Phenotype index build skipped (embedding service may not be ready)"
 fi
@@ -27,7 +26,7 @@ echo "Starting MCP server on port ${MCP_PORT:-3000}..."
 MCP_TRANSPORT=http \
 MCP_HOST=0.0.0.0 \
 MCP_PORT=${MCP_PORT:-3000} \
-study-agent-mcp &
+python -m study_agent_mcp.server &
 MCP_PID=$!
 
 # Poll until MCP server is ready (max 30 attempts, 1s apart)
@@ -35,10 +34,12 @@ echo "Waiting for MCP server to be ready..."
 MCP_READY=0
 for i in $(seq 1 30); do
     if python -c "
-import urllib.request, sys
+import urllib.request, urllib.error, sys
 try:
-    urllib.request.urlopen('http://127.0.0.1:${MCP_PORT:-3000}/mcp', timeout=1)
+    urllib.request.urlopen('http://127.0.0.1:${MCP_PORT:-3000}/mcp', timeout=2)
     sys.exit(0)
+except urllib.error.HTTPError:
+    sys.exit(0)  # Any HTTP response (including 406) means server is up
 except Exception:
     sys.exit(1)
 " 2>/dev/null; then
@@ -59,7 +60,7 @@ echo "Starting ACP server on port ${STUDY_AGENT_PORT:-8765}..."
 STUDY_AGENT_HOST=0.0.0.0 \
 STUDY_AGENT_PORT=${STUDY_AGENT_PORT:-8765} \
 STUDY_AGENT_MCP_URL="http://127.0.0.1:${MCP_PORT:-3000}/mcp" \
-study-agent-acp &
+python -m study_agent_acp.server &
 ACP_PID=$!
 
 echo "StudyAgent services started (MCP PID=$MCP_PID, ACP PID=$ACP_PID)"
