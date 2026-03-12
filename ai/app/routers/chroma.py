@@ -266,13 +266,33 @@ async def project_collection(name: str, body: ProjectionInput) -> dict:
     if cached is not None:
         return _result_to_dict(cached)
 
-    # Fetch all embeddings for sampling
-    all_data = col.get(limit=total_count, include=["embeddings", "metadatas"])
-    all_ids = all_data.get("ids", [])
-    all_embeddings = all_data.get("embeddings")
-    all_metadatas = all_data.get("metadatas") or [{}] * len(all_ids)
+    # Fetch embeddings in batches (ChromaDB/SQLite has ~999 variable limit)
+    BATCH_SIZE = 500
+    all_ids: list = []
+    all_embeddings: list = []
+    all_metadatas: list = []
+    offset = 0
+    while offset < total_count:
+        batch = col.get(
+            limit=min(BATCH_SIZE, total_count - offset),
+            offset=offset,
+            include=["embeddings", "metadatas"],
+        )
+        batch_ids = batch.get("ids", [])
+        if not batch_ids:
+            break
+        all_ids.extend(batch_ids)
+        batch_embs = batch.get("embeddings")
+        if batch_embs is not None:
+            all_embeddings.extend(batch_embs)
+        batch_metas = batch.get("metadatas")
+        if batch_metas is not None:
+            all_metadatas.extend(batch_metas)
+        else:
+            all_metadatas.extend([{}] * len(batch_ids))
+        offset += len(batch_ids)
 
-    if all_embeddings is None or len(all_embeddings) == 0:
+    if not all_embeddings:
         raise HTTPException(status_code=400, detail="Collection has no embeddings.")
 
     # Sample deterministically
