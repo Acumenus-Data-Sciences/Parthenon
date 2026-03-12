@@ -35,8 +35,11 @@ class PhenotypeSync extends Command
         }
 
         $csv = $response->body();
+        // Strip UTF-8 BOM that OHDSI CSV files include
+        $csv = preg_replace('/^\xEF\xBB\xBF/', '', $csv);
         $lines = explode("\n", $csv);
         $headers = str_getcsv(array_shift($lines));
+        $headerCount = count($headers);
 
         $synced = 0;
         $errors = 0;
@@ -48,7 +51,13 @@ class PhenotypeSync extends Command
             if (empty(trim($line))) continue;
 
             $row = str_getcsv($line);
-            if (count($row) < count($headers)) continue;
+            // Pad row with empty strings if fewer columns than headers
+            // (trailing empty CSV fields get dropped by str_getcsv)
+            if (count($row) < $headerCount) {
+                $row = array_pad($row, $headerCount, '');
+            } elseif (count($row) > $headerCount) {
+                $row = array_slice($row, 0, $headerCount);
+            }
 
             $entry = array_combine($headers, $row);
             $cohortId = (int) ($entry['cohortId'] ?? $entry['id'] ?? 0);

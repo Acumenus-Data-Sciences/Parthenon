@@ -45,9 +45,16 @@ The Sidebar was refactored (by linter) into accordion-grouped navigation:
 - **Tools** group: Query Assistant, Publish, Jobs
 - **Administration** group: Users, Roles & Permissions, Auth Providers, Notifications
 
+### Sidebar Fix: Missing Admin Pages
+
+During the accordion group refactoring, the **Admin Dashboard** (`/admin`) and **System Health** (`/admin/system-health`) entries were inadvertently dropped from the Administration group's children array. Both were restored with their original icons (Settings and Activity respectively).
+
+Updated **Administration** group now includes:
+- Admin Dashboard, System Health, Users, Roles & Permissions, Auth Providers, Notifications
+
 ## Files Changed
 
 - `frontend/src/features/etl/pages/SourceProfilerPage.tsx` — new (standalone page)
 - `frontend/src/features/etl/pages/FhirIngestionPage.tsx` — new (standalone page)
 - `frontend/src/app/router.tsx` — added `/source-profiler` and `/fhir-ingestion` routes
-- `frontend/src/components/layout/Sidebar.tsx` — added nav items + refactored to accordion groups
+- `frontend/src/components/layout/Sidebar.tsx` — added nav items, refactored to accordion groups, restored missing admin entries
