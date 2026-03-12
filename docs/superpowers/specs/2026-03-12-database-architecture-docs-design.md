@@ -5,7 +5,7 @@
 
 ## Goal
 
-A new developer cloning Parthenon should be able to understand — within 15 minutes — why there are two PostgreSQL databases, which data lives where, how Laravel connections route queries, and how to verify their own environment is set up correctly.
+A new developer cloning Parthenon should be able to understand — within 15 minutes — why there are two PostgreSQL databases, how Solr accelerates read-heavy queries, which data lives where, how Laravel connections route queries, and how to verify their own environment is set up correctly.
 
 ## Context: The Dual-Database Decision
 
@@ -16,6 +16,31 @@ Parthenon deliberately splits data across two PostgreSQL instances:
 - **External PG 17** (`ohdsi` database, port 5432) — Operational data store. The real OMOP CDM with 1M+ patients and 1.8B+ clinical observations. Vocabulary tables (7.2M concepts). Achilles characterization results. GIS extension tables. This data is massive (hundreds of GB), ETL'd from claims/EHR sources, and would be absurd to containerize.
 
 This is not a bug or technical debt — it's the standard OHDSI deployment pattern. Atlas/WebAPI does the same thing: the app tier is separate from the CDM tier. Parthenon just makes it explicit with named Laravel connections.
+
+## Context: Solr as Read-Optimized Accelerator
+
+In addition to the two PostgreSQL instances, Parthenon runs **Solr 9.7** as a read-optimized search layer. Solr does not replace PostgreSQL — it mirrors subsets of PG data into purpose-built indices for sub-200ms full-text search, faceted filtering, and typeahead. PostgreSQL remains the system of record; Solr is eventually consistent via queue jobs and Eloquent observers.
+
+**9 Solr cores:**
+
+| Core | Accelerates | Source Data | Scale |
+|------|-------------|-------------|-------|
+| `vocabulary` | Concept search + typeahead + facets | `omop.concept` + synonyms | 7.2M docs |
+| `cohorts` | Cohort/study discovery | `app.cohort_definitions` + studies | Thousands |
+| `analyses` | Cross-source analysis search | Analysis metadata | Hundreds |
+| `mappings` | ETL mapping review | `app.concept_mappings` | Variable |
+| `clinical` | Patient timeline search | 7 CDM event tables | 710M+ events |
+| `imaging` | DICOM study discovery | `app.imaging_studies` | Thousands |
+| `claims` | Billing record search | `omop.claims` + transactions | Variable |
+| `gis_spatial` | Choropleth disease maps | Condition-county aggregates | 500+ pairs |
+| `vector_explorer` | 3D embedding visualization | ChromaDB projections | 43K+ points |
+
+**Key architectural points:**
+- **Gated by `SOLR_ENABLED=true`** in `.env` — all search services fall back to PostgreSQL `ILIKE` when Solr is unavailable
+- **Circuit breaker** pattern: after 5 failures, Solr queries fail-fast for 30s (tracked in Redis)
+- **Real-time sync**: Eloquent observers on `CohortDefinition` and `Study` dispatch `SolrUpdateCohortJob` to Horizon queue
+- **Batch indexing**: 9 `solr:index-*` Artisan commands for full reindex with `--fresh` option
+- **48x speedup** measured for Vector Explorer (168ms Solr vs 8s live UMAP computation)
 
 ## Deliverable 1: Architecture Guide
 
@@ -39,6 +64,7 @@ Browser → Laravel PHP → [pgsql]   Docker PG (app schema)
                        → [vocab]  Docker PG (eunomia schema)
                        → [results] Docker PG (eunomia schema)
                        → [eunomia] Docker PG (eunomia schema)
+                       → [Solr]   9 cores (vocabulary, cohorts, clinical, ...)
          Python AI    → Docker PG (eunomia schema, pgvector)
          R Runtime    → Docker PG (eunomia schema)
 ```
@@ -51,7 +77,9 @@ Browser → Laravel PHP → [pgsql]   External PG (app schema, ohdsi DB)
                        → [results] External PG (achilles_results schema)
                        → [gis]   External PG (gis schema)
                        → [eunomia] Docker PG (eunomia schema)
+                       → [Solr]   9 cores (vocabulary, cohorts, clinical, gis_spatial, ...)
          Python AI    → External PG (omop schema, pgvector)
+                       → Solr (gis_spatial, vector_explorer cores — direct writes)
          R Runtime    → Docker PG (eunomia schema) OR External PG
          Hecate       → External PG (omop schema)
 ```
@@ -109,19 +137,30 @@ Table documenting all 7 connections: name, default host/database, search_path, w
 - Env var naming is inconsistent across connections: CDM uses `CDM_DB_*`, vocab uses `DB_VOCAB_*`, results uses `RESULTS_DB_*` — document all prefixes in the Connection Reference table
 - On Acumenus, `pgsql` defaults to External PG (`ohdsi` DB, `DB_DATABASE=ohdsi`) — NOT Docker PG. Only `docker_pg` always targets Docker PG. On Docker-only installs, both point to the same database.
 
-#### 7. Deployment Profiles
+#### 7. Solr Acceleration Layer
+- Why Solr exists alongside PostgreSQL (read-optimized search vs system of record)
+- The 9 cores: what each one indexes, where source data lives, approximate scale
+- Data flow: PG → Artisan indexer / Horizon queue → Solr → API search endpoint → frontend
+- Fallback pattern: `SOLR_ENABLED` gate + circuit breaker → graceful degradation to PG `ILIKE`
+- Real-time sync: Eloquent observers → queue jobs for cohorts/studies; batch `solr:index-*` commands for everything else
+- Python AI service writes directly to `gis_spatial` and `vector_explorer` cores (bypasses Laravel)
+- Solr Admin page: per-core doc counts, reindex triggers, health status
+
+#### 8. Deployment Profiles
 Two documented configurations:
 
 **Docker-only (new installs):**
-- All connections point to Docker PG
+- All PG connections point to Docker PG
 - Eunomia demo dataset for CDM/vocab/results
 - 2,694 patients, sufficient for development
+- Solr optional (`SOLR_ENABLED=false` by default) — search falls back to PG `ILIKE`
 
 **Acumenus (production):**
 - `pgsql` → External PG 17 (`ohdsi` DB, `app` schema) — NOT Docker PG
 - `docker_pg` → Docker PG 16 (`parthenon` DB) — used only by audit/comparison
 - CDM/vocab/results/GIS → External PG 17 (`ohdsi` DB, various schemas)
 - `eunomia` → Docker PG 16 (demo data)
+- Solr enabled (`SOLR_ENABLED=true`) — 9 cores indexed, 48x search acceleration
 - 1M patients, full Athena vocabulary, real Achilles results
 
 ## Deliverable 2: Domain ERDs
@@ -161,17 +200,22 @@ Note: Extension tables span multiple schemas and databases. Each sub-diagram sho
 **Command:** `php artisan db:audit`
 
 ### Behavior
-1. Iterates over configured connections: `pgsql`, `cdm`, `vocab`, `results`, `gis`, `eunomia`, `docker_pg`
-2. For each connection:
+1. Iterates over configured PostgreSQL connections: `pgsql`, `cdm`, `vocab`, `results`, `gis`, `eunomia`, `docker_pg`
+2. For each PG connection:
    - Tests connectivity (catch and report failures gracefully)
    - Queries `pg_tables` for schema/table inventory
    - Queries `pg_stat_user_tables` for row counts
-3. Outputs a formatted console table grouped by connection
-4. Highlights discrepancies:
+3. If `SOLR_ENABLED=true`, audits Solr:
+   - Pings each of the 9 cores
+   - Reports document count per core
+   - Flags cores with 0 documents that should have data (e.g., `vocabulary` core empty = warning)
+4. Outputs a formatted console table grouped by connection/service
+5. Highlights discrepancies:
    - Empty schemas that should have data (yellow warning)
-   - Connections that fail (red error)
+   - Connections/cores that fail (red error)
    - Table count differences between `pgsql` and `docker_pg` (info)
-5. Exits with status 0 (informational tool, not a gate)
+   - Solr cores out of sync with PG (e.g., vocabulary core docs << concept table rows)
+6. Exits with status 0 (informational tool, not a gate)
 
 ### Options
 - `--json` — output as JSON (for CI/scripting)
@@ -193,6 +237,13 @@ Note: Extension tables span multiple schemas and databases. Each sub-diagram sho
 │ ⚠ docker_pg │ vocab      │ 0 tables   │ Empty schema │
 │ ⚠ docker_pg │ cdm        │ 0 tables   │ Empty schema │
 │ ⚠ docker_pg │ achilles_* │ 0 tables   │ Empty schema │
+├─────────────┼────────────┼────────────┼──────────────┤
+│ Solr        │ vocabulary │ 1 core     │ 7,234,891    │
+│ Solr        │ cohorts    │ 1 core     │ 1,204        │
+│ Solr        │ clinical   │ 1 core     │ 710,432,100  │
+│ Solr        │ gis_spatial│ 1 core     │ 542          │
+│ Solr        │ vector_exp │ 1 core     │ 43,291       │
+│ Solr        │ (4 more)   │ 4 cores    │ ...          │
 └─────────────┴────────────┴────────────┴──────────────┘
 ```
 
