@@ -21,7 +21,7 @@ class FhirBulkMapper
     private const GENDER_MAP = [
         'male' => 8507,
         'female' => 8532,
-        'other' => 8521,
+        'other' => 44814653,
         'unknown' => 8551,
     ];
 
@@ -55,13 +55,13 @@ class FhirBulkMapper
     ) {}
 
     /**
-     * Map a FHIR resource to an OMOP CDM row.
+     * Map a FHIR resource to one or more OMOP CDM rows.
      *
-     * @return array{cdm_table: string, data: array<string, mixed>, fhir_resource_type: string, fhir_resource_id: string}|null
+     * @return list<array{cdm_table: string, data: array<string, mixed>, fhir_resource_type: string, fhir_resource_id: string}>
      */
-    public function mapResource(array $resource, string $siteKey): ?array
+    public function mapResource(array $resource, string $siteKey): array
     {
-        $mapped = match ($resource['resourceType'] ?? null) {
+        $result = match ($resource['resourceType'] ?? null) {
             'Patient' => $this->mapPatient($resource, $siteKey),
             'Encounter' => $this->mapEncounter($resource, $siteKey),
             'Condition' => $this->mapCondition($resource, $siteKey),
@@ -75,12 +75,25 @@ class FhirBulkMapper
             default => null,
         };
 
-        if ($mapped !== null) {
-            $mapped['fhir_resource_type'] = $resource['resourceType'];
-            $mapped['fhir_resource_id'] = $resource['id'] ?? '';
+        if ($result === null || isset($result['__skip'])) {
+            return [];
         }
 
-        return $mapped;
+        $fhirType = $resource['resourceType'];
+        $fhirId = $resource['id'] ?? '';
+
+        // Normalize: if result has 'cdm_table' key, it's a single row — wrap in array
+        if (isset($result['cdm_table'])) {
+            $result = [$result];
+        }
+
+        // Stamp each row with FHIR metadata
+        foreach ($result as &$row) {
+            $row['fhir_resource_type'] = $fhirType;
+            $row['fhir_resource_id'] = $fhirId;
+        }
+
+        return $result;
     }
 
     // ──────────────────────────────────────────────────────────────────────────
@@ -97,7 +110,7 @@ class FhirBulkMapper
             'cdm_table' => 'person',
             'data' => [
                 'person_id' => $personId,
-                'gender_concept_id' => self::GENDER_MAP[$r['gender'] ?? 'unknown'] ?? 8551,
+                'gender_concept_id' => self::GENDER_MAP[$r['gender'] ?? ''] ?? 0,
                 'gender_source_value' => $r['gender'] ?? null,
                 'year_of_birth' => $birthDate?->year,
                 'month_of_birth' => $birthDate?->month,

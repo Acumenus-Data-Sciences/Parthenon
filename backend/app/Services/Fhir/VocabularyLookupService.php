@@ -34,6 +34,7 @@ class VocabularyLookupService
         'http://www.cms.gov/Medicare/Coding/HCPCSReleaseCodeSets' => 'HCPCS',
         'urn:oid:2.16.840.1.113883.6.238' => 'Race',
         'urn:oid:2.16.840.1.113883.6.12' => 'CPT4',
+        'http://unitsofmeasure.org' => 'UCUM',
     ];
 
     /** Priority vocabularies — direct standard matches preferred. */
@@ -160,6 +161,18 @@ class VocabularyLookupService
     public function domainToTable(string $domainId): ?string
     {
         return self::DOMAIN_TABLE[$domainId] ?? null;
+    }
+
+    /**
+     * Resolve a UCUM unit code to an OMOP concept_id.
+     *
+     * @return int The concept_id for the UCUM unit, or 0 if not found.
+     */
+    public function resolveUcumUnit(string $ucumCode): int
+    {
+        $concept = $this->lookupConcept('UCUM', $ucumCode);
+
+        return $concept ? (int) $concept['concept_id'] : 0;
     }
 
     /**

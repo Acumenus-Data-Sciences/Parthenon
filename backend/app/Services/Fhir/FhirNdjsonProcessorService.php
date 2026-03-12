@@ -164,12 +164,14 @@ class FhirNdjsonProcessorService
 
             $stats['extracted']++;
 
-            // Map FHIR resource to OMOP CDM row
-            $mapped = $this->mapper->mapResource($resource, $siteKey);
-            if ($mapped === null) {
+            // Map FHIR resource to OMOP CDM row(s)
+            $mappedRows = $this->mapper->mapResource($resource, $siteKey);
+            if ($mappedRows === []) {
                 continue;
             }
 
+            // Process each mapped row (typically one, but some resources produce multiple)
+            foreach ($mappedRows as $mapped) {
             $cdmTable = $mapped['cdm_table'];
             $data = $mapped['data'];
             $fhirType = $mapped['fhir_resource_type'] ?? '';
@@ -212,6 +214,7 @@ class FhirNdjsonProcessorService
                 $stats['by_table'][$cdmTable] = ($stats['by_table'][$cdmTable] ?? 0) + $written;
                 $buffers[$cdmTable] = [];
             }
+            } // end foreach mappedRows
         }
 
         fclose($handle);
