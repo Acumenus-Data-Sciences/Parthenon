@@ -11,6 +11,8 @@ beforeEach(function () {
     $this->withoutMiddleware(\Illuminate\Routing\Middleware\ThrottleRequests::class);
     // Fake mail so registration doesn't need a real mail driver
     Mail::fake();
+    // Seed roles/permissions required by registration flow
+    $this->seed(\Database\Seeders\RolePermissionSeeder::class);
 });
 
 test('user can register', function () {
