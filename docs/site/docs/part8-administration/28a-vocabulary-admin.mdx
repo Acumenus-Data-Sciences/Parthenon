@@ -1,0 +1,104 @@
+---
+id: 28a-vocabulary-admin
+title: "28a. Vocabulary Administration"
+sidebar_label: "28a. Vocabulary Admin"
+slug: /vocabulary-admin
+---
+
+# Vocabulary Administration
+
+The **Vocabulary Management** page allows administrators to update the OMOP standardized vocabularies that power concept searches, cohort definitions, and clinical data mapping throughout Parthenon. Navigate to **Admin > System > Vocabulary** to access this feature.
+
+## How It Works
+
+Parthenon uses the OMOP vocabulary tables (concept, concept_relationship, concept_ancestor, vocabulary, domain, etc.) as the foundation for all clinical terminology operations. These vocabularies are maintained by the OHDSI community and distributed through the [Athena](https://athena.ohdsi.org/) portal. When new vocabulary releases become available, administrators upload the Athena download ZIP through this page, and Parthenon processes it as a background job.
+
+## Obtaining an Athena Vocabulary ZIP
+
+The page includes step-by-step instructions for downloading vocabularies:
+
+1. Visit **athena.ohdsi.org** and sign in with your OHDSI credentials.
+2. Select the vocabulary domains and versions you need (e.g., SNOMED, RxNorm, LOINC, ICD10CM).
+3. Click **Download Vocabularies** -- Athena will email you a download link when the bundle is ready.
+4. Download the ZIP file (typically 500 MB to 3 GB depending on selected vocabularies).
+
+## Uploading a Vocabulary ZIP
+
+### Upload Zone
+
+The upload interface provides a drag-and-drop zone that accepts `.zip` files:
+
+- **Drag and drop** an Athena ZIP file onto the upload area, or **click to browse** your local filesystem.
+- Once a file is selected, the zone displays the filename and file size with a confirmation indicator.
+- Click **Remove** to clear the selection and choose a different file.
+
+Files up to **5 GB** are supported.
+
+### Target CDM Source
+
+An optional **Target CDM Source** dropdown lets you select which data source's vocabulary schema the import will populate. If no source is selected, the import targets the default `vocab` connection schema. This is useful in multi-source deployments where different CDM sources may have independent vocabulary schemas.
+
+### Starting the Import
+
+Click **Start Import** to upload the ZIP and queue a background import job. The upload progress is displayed in real time. After the upload completes, the page shows a success confirmation and the import job enters the queue.
+
+:::warning One import at a time
+Only one vocabulary import can run at a time. While an import is in progress, the upload zone is hidden and replaced with a notice indicating that a job is currently running. Wait for the active import to complete before starting another.
+:::
+
+## Import History
+
+Below the upload zone, the **Import History** section lists all past and current imports in reverse chronological order. Each import card displays:
+
+| Field | Description |
+|-------|-------------|
+| **Filename** | The name of the uploaded ZIP file |
+| **File Size** | Size of the uploaded archive |
+| **Status** | Queued, Running, Completed, or Failed |
+| **Target Schema** | The database schema being populated |
+| **Source** | The CDM source associated with the import (if any) |
+| **Rows Loaded** | Total number of vocabulary rows loaded into the database |
+| **Duration** | Time elapsed from start to completion |
+| **User** | The administrator who initiated the import |
+| **Timestamp** | When the import was created |
+
+### Status Indicators
+
+- **Queued** (amber clock) -- the job is waiting in the queue for a worker.
+- **Running** (blue spinner) -- the job is actively processing. A progress bar shows the percentage complete.
+- **Completed** (green checkmark) -- the import finished successfully.
+- **Failed** (red X) -- the import encountered an error. An error message panel is displayed with details.
+
+### Live Log Viewer
+
+Each import card includes an expandable **Import Log** panel that streams the job's output in real time. The log auto-scrolls to the latest entry and auto-refreshes every 3 seconds while the job is active. This provides visibility into which vocabulary tables are being loaded, row counts, and any warnings.
+
+### Deleting Import Records
+
+Completed or failed import records can be removed from the history by clicking **Remove** on the card. This deletes the import metadata only -- it does not roll back any loaded vocabulary data.
+
+:::tip Schedule vocabulary updates during maintenance windows
+Vocabulary imports can take 15 to 60 minutes depending on the size of the download and the number of vocabulary tables being refreshed. During this time, the target vocabulary tables are locked for writes. Plan imports during periods of low platform activity to minimize impact on researchers.
+:::
+
+:::warning Review concept sets after vocabulary updates
+Vocabulary updates may deprecate concepts or change relationships. After completing an import, review existing concept sets and cohort definitions to ensure they still reference valid, standard concepts. The Concept Set editor highlights any deprecated concepts for easy identification.
+:::
+
+## Refresh Button
+
+A **Refresh** button in the page header allows you to manually reload the import history list. This is useful if you are monitoring a running import and want to check for status changes without waiting for the automatic 10-second polling interval.
+
+## Multi-Source Vocabulary Management
+
+In deployments with multiple CDM sources, each source may maintain its own vocabulary schema. The target source selector in the upload form ensures vocabulary updates are directed to the correct schema. Keep the following in mind:
+
+- If you have a shared vocabulary schema used by multiple sources, updating it once is sufficient.
+- If sources use isolated schemas (e.g., separate clinical data feeds from different institutions), you may need to run the import once per source.
+- The default option (no source selected) targets the platform's primary `vocab` connection schema.
+
+## Related Pages
+
+- [Vocabulary Browser](/vocabulary-browser) -- search and explore OMOP concepts
+- [Concept Sets](/concept-sets) -- create and manage concept sets using the loaded vocabularies
+- [System Configuration](/system-configuration) -- overall platform administration

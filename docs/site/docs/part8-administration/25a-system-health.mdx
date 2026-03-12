@@ -1,0 +1,112 @@
+---
+id: 25a-system-health
+title: "25a. System Health"
+sidebar_label: "25a. System Health"
+slug: /system-health
+---
+
+# System Health
+
+The **System Health** dashboard provides a centralized, real-time view of every service powering your Parthenon deployment. Navigate to **Admin > System > Health** to monitor infrastructure status at a glance. Only users with the `super-admin` role can access this page.
+
+## Overview Banner
+
+At the top of the page, an overall status banner summarizes the health of the entire platform:
+
+- **Healthy** -- all services are responding normally.
+- **Needs Attention** -- one or more services are degraded or unreachable.
+
+The banner also displays the timestamp of the most recent health check, so you always know how current the information is.
+
+## Service Cards
+
+Each monitored service is represented by a card in a two-column grid. Every card displays:
+
+| Element | Description |
+|---------|-------------|
+| **Status Dot** | Color-coded indicator: green (healthy), yellow (degraded), red (down) |
+| **Service Name** | The human-readable service label |
+| **Message** | A brief status message from the health check (e.g., version number, latency) |
+| **Status Badge** | `healthy`, `degraded`, or `down` |
+
+### Monitored Services
+
+Parthenon checks the following services:
+
+| Service | What Is Checked |
+|---------|-----------------|
+| **PHP-FPM** | Laravel application bootstrap and response |
+| **PostgreSQL (App)** | Connection to the application database |
+| **PostgreSQL (CDM)** | Connection to the clinical data database |
+| **Redis** | Cache and queue broker PING/PONG |
+| **AI Service** | Python FastAPI `/health` endpoint |
+| **R Runtime** | Plumber API `/health` endpoint |
+| **Horizon (Queue)** | Worker process status, pending and failed job counts |
+| **Solr** | Core count and total indexed documents |
+| **Orthanc** | DICOM server study count, instance count, and disk usage |
+
+### Service-Specific Details
+
+Some cards display additional inline metrics depending on the service type:
+
+- **Horizon** -- shows the number of **pending** jobs and **failed** jobs. Failed counts above zero are highlighted in red to draw attention.
+- **Solr** -- shows the number of indexed **cores** and total **documents**.
+- **Orthanc** -- shows the number of DICOM **studies**, **instances**, and total **disk usage** (displayed in MB or GB as appropriate).
+
+### Drill-Down
+
+Click any service card to navigate to a detail page (`/admin/system-health/{service-key}`) where you can view response time history, recent error messages, configuration details, and restart actions.
+
+## Auto-Refresh
+
+The dashboard automatically refreshes every **30 seconds**. A manual **Refresh** button is available in the page header if you need to check status immediately. While a refresh is in progress, the button icon spins to indicate activity.
+
+### Loading States
+
+When the page first loads, skeleton placeholders are shown in the service card grid while health check data is being fetched. This prevents layout shift and provides immediate visual feedback that data is loading.
+
+## Understanding Status Levels
+
+The system uses a three-tier status model:
+
+| Status | Color | Meaning |
+|--------|-------|---------|
+| **Healthy** | Green | Service is responding within expected latency with no errors |
+| **Degraded** | Yellow | Service is responding but with elevated latency, partial errors, or reduced capacity |
+| **Down** | Red | Service is unreachable, returning errors, or failing health checks entirely |
+
+The overall platform status is determined by the worst individual service status. If any service is `down`, the overall banner shows "Needs Attention." If all services are healthy, the banner shows "Healthy."
+
+## GIS Data Management
+
+Below the service cards, a **GIS Data Management** panel provides controls for loading and managing geographic boundary datasets used by the GIS Explorer module. This panel supports loading datasets from two sources:
+
+- **GADM v4.1** -- Global Administrative Areas with 356K boundaries across 6 administrative levels (approximately 2.6 GB).
+- **geoBoundaries CGAZ** -- Simplified boundaries for cartographic consistency at ADM0 through ADM2 (approximately 1.2 GB).
+
+Administrators can select the desired administrative levels (countries, states/provinces, districts/counties, or sub-districts) and initiate a data load. Progress is tracked via a job progress modal, and the panel displays statistics about currently loaded boundary counts.
+
+:::tip Monitoring during deployments
+After deploying a new version or restarting Docker containers, visit the System Health page to confirm all services have come back online. Pay particular attention to the R Runtime service, which can take up to 60 seconds to initialize due to HADES package loading.
+:::
+
+:::warning Critical service failures
+If **PHP-FPM**, **PostgreSQL (App)**, or **Redis** show a `down` status, the platform may be partially or completely unavailable to end users. Investigate these immediately by checking Docker container logs with `docker compose logs -f <service>`.
+:::
+
+## Troubleshooting
+
+| Symptom | Likely Cause | Resolution |
+|---------|-------------|------------|
+| All services show `down` | Docker Compose not running | Run `docker compose up -d` and wait for health checks |
+| AI Service degraded | Ollama model not loaded | Pull the model: `ollama pull MedAIBase/MedGemma1.5:4b` |
+| Horizon shows high failed count | Job handler error or resource exhaustion | Check failed jobs in **Admin > Jobs** and review error messages |
+| Solr shows 0 documents | Index not built after vocabulary load | Trigger a Solr reindex from Solr Administration |
+| Orthanc shows `down` | DICOM server not running or not configured | Verify the Orthanc container is running and the connection URL is correct |
+| Redis degraded | High memory usage or eviction policy triggered | Check Redis memory with `redis-cli info memory` and review eviction settings |
+
+## Related Pages
+
+- [System Configuration](/system-configuration) -- platform-wide settings, mail, and infrastructure controls
+- [AI Provider Configuration](/ai-providers) -- manage AI backends for the Abby assistant
+- [Jobs Monitoring](/jobs-monitoring) -- detailed view of background job status and queue depths

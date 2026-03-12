@@ -1,0 +1,17 @@
+{
+  "key": "sccs",
+  "title": "Self-Controlled Case Series (SCCS)",
+  "description": "SCCS is a within-person study design used for drug safety surveillance. Each patient serves as their own control, eliminating time-invariant confounding. You define an exposure cohort, an outcome cohort, and one or more risk windows to estimate the relative incidence of the outcome during exposed versus unexposed time periods.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Select an exposure cohort (e.g., a drug of interest) and an outcome cohort (e.g., an adverse event) from your existing cohort definitions.",
+    "Configure risk windows with start/end offsets anchored to era start or era end to capture the biologically plausible risk period.",
+    "Set a naive period (default 365 days) in Study Population settings to ensure patients have sufficient observation time before first exposure.",
+    "Enable 'First outcome only' to restrict the analysis to patients' first occurrence of the outcome, which is standard for acute events.",
+    "Choose between simple and weighted SCCS models depending on whether you need to account for event-dependent observation periods.",
+    "Add covariate settings for conditions, drugs, or procedures to adjust for time-varying confounders within the observation period.",
+    "After saving the design, select a CDM data source and click Execute to run the analysis against real patient data.",
+    "Review execution history in the Results tab to compare runs across different data sources or parameter configurations."
+  ]
+}

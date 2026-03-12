@@ -1,0 +1,173 @@
+---
+id: 17a-source-profiler
+title: "17a. Source Profiler"
+sidebar_label: "17a. Source Profiler"
+slug: /source-profiler
+---
+
+# Source Profiler
+
+The Source Profiler is a WhiteRabbit-based database scanning tool that profiles your source data before and after ETL. It inspects every table and column in a data source, measuring row counts, null fractions, distinct value counts, data types, and sample values. The output is a comprehensive quality assessment that helps you identify data completeness issues, empty tables, and low-cardinality columns that may require attention during the ETL mapping process.
+
+## Prerequisites
+
+The Source Profiler requires the WhiteRabbit service to be running. A health indicator at the top of the page shows whether the service is available, along with its version number. If the service is offline, scans will fail.
+
+:::warning WhiteRabbit Service Required
+The scan operation connects to your data source through the WhiteRabbit backend service. Ensure the service is healthy before initiating large scans. Check the health badge at the top of the profiler page.
+:::
+
+## Running a Scan
+
+### Step 1: Select a Data Source
+
+Choose a configured data source from the **Data Source** dropdown. All sources registered in Parthenon are available for scanning.
+
+### Step 2: Apply a Table Filter (Optional)
+
+Enter a comma-separated list of table names in the **Table Filter** field to restrict the scan to specific tables. For example: `person, visit_occurrence, condition_occurrence`. Leave this field empty to scan all tables in the source.
+
+### Step 3: Execute the Scan
+
+Click **Scan Database** to begin profiling. A loading indicator shows scan progress. Large databases with hundreds of tables and millions of rows may take several minutes to complete.
+
+## Scan Results
+
+After a successful scan, the profiler displays results in several sections.
+
+### Summary Cards
+
+Four metric cards appear at the top of the results:
+
+| Metric | Description |
+|--------|-------------|
+| **Tables Scanned** | Number of tables profiled |
+| **Total Columns** | Sum of columns across all scanned tables |
+| **Total Rows** | Sum of row counts across all tables |
+| **Scan Time** | Wall-clock duration of the scan in seconds |
+
+### Data Quality Scorecard
+
+The scorecard provides a letter grade (A through F) representing overall data completeness, calculated from the average null fraction across all columns and tables. Individual quality checks include:
+
+| Check | Threshold | Severity |
+|-------|-----------|----------|
+| High-null columns | > 50% null | Warning |
+| Nearly-empty columns | > 99% null | Error |
+| Low cardinality | < 5 distinct values (in tables with > 100 rows) | Info |
+| Single-value columns | Exactly 1 distinct value | Warning |
+| Empty tables | 0 rows | Error |
+
+Each check shows a count-of-total ratio (e.g., "3/42") indicating how many columns or tables trigger the condition.
+
+### Completeness Heatmap
+
+The heatmap displays a matrix of tables (rows) versus columns (columns), color-coded by null fraction:
+
+- **Green** (< 1% null) — Excellent completeness
+- **Light green** (1-10% null) — Good completeness
+- **Gold** (10-25% null) — Moderate gaps
+- **Dark gold** (25-50% null) — Significant gaps
+- **Red** (> 50% null) — Poor completeness
+- **Dark** — Column not present in that table
+
+Hover over any cell to see the exact table, column, and null percentage. Up to 30 columns are displayed; export the full report for complete coverage.
+
+### Table Size Distribution
+
+A horizontal bar chart shows the top 20 tables by row count. Each bar includes the table's quality grade badge (A-F) based on its average null fraction.
+
+### Table Detail Accordion
+
+Below the charts, each scanned table appears as a collapsible accordion row. The header shows the table name, row count, column count, and badges for high-null and low-cardinality column counts. Expand a table to see a detailed column-level breakdown:
+
+| Column Info | Description |
+|-------------|-------------|
+| **Column Name** | The column name, with a warning icon if null fraction > 50% |
+| **Type** | The database data type, color-coded by category (text, integer, numeric, date, boolean) |
+| **Null %** | A progress bar and percentage showing the fraction of null values |
+| **Distinct** | Count of distinct non-null values |
+| **Sample Values** | Up to 5 most frequent values with their occurrence counts |
+
+## View Modes
+
+Toggle between two view modes using the icons in the results toolbar:
+
+- **List View** — The default accordion-based table list with expandable column details
+- **Heatmap View** — The completeness heatmap visualization for a cross-table overview
+
+## Scan History
+
+The profiler persists scan results in browser local storage (up to 20 entries). The **Scan History** panel lists previous scans with their source name, timestamp, table count, row count, scan time, and overall grade. Click any history entry to restore its results without re-scanning. Delete individual entries or clear all history using the provided controls.
+
+:::tip Scan Before and After ETL
+Run the profiler on your source data before beginning ETL mapping to establish a baseline. After loading data into the CDM, run it again on the target source to verify that null rates and row counts match expectations.
+:::
+
+## Exporting Results
+
+Click **Export Report** to download the complete scan results as a JSON file. The export includes all table profiles, column-level statistics, null fractions, distinct counts, and sample values. This file can be shared with data engineers for offline review or archived for audit purposes.
+
+## Sorting and Filtering
+
+Within the results view, tables can be sorted by:
+
+- **Name** — Alphabetical table name
+- **Rows** — Row count (ascending or descending)
+- **Columns** — Column count
+- **Null Score** — Average null fraction
+- **Grade** — Quality letter grade
+
+A search field allows filtering tables by name to quickly locate specific tables in large scans.
+
+## API Reference
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/v1/etl/white-rabbit/scan` | POST | Initiate a database scan for a given source |
+| `/api/v1/etl/white-rabbit/health` | GET | Check WhiteRabbit service availability |
+
+### Scan Request
+
+```json
+{
+  "source_id": 1,
+  "tables": ["person", "visit_occurrence"]
+}
+```
+
+The `tables` parameter is optional. When omitted, all tables in the source are scanned.
+
+## Quality Grade Scale
+
+The Source Profiler assigns letter grades based on the average null fraction across a table's columns:
+
+| Grade | Null Fraction | Interpretation |
+|-------|---------------|----------------|
+| **A** | 0 - 5% | Excellent data completeness |
+| **B** | 5 - 15% | Good completeness with minor gaps |
+| **C** | 15 - 30% | Moderate completeness; review recommended |
+| **D** | 30 - 50% | Significant gaps; likely needs ETL attention |
+| **F** | > 50% | Poor completeness; major data quality concerns |
+
+The overall grade is the average of all table-level grades. Individual table grades appear as colored badges next to each table name in the accordion and bar chart views.
+
+## Performance Considerations
+
+Scan duration depends on the number of tables and their row counts. General guidelines:
+
+- **Small sources** (< 20 tables, < 1M total rows): Scans complete in under 30 seconds
+- **Medium sources** (20-100 tables, 1-50M rows): Expect 1-5 minutes
+- **Large sources** (100+ tables, 50M+ rows): May take 5-15 minutes or more
+
+Use the **Table Filter** to restrict scans to specific tables when you need quick feedback on a subset of your data.
+
+:::tip Scan Specific CDM Tables
+For routine quality checks after ETL, scan only the core CDM tables: `person, visit_occurrence, condition_occurrence, drug_exposure, procedure_occurrence, measurement, observation`. This keeps scan times short while covering the most critical data.
+:::
+
+## Related Documentation
+
+- [ETL Tools](./17c-etl-tools) — Unified ETL workspace with profiler, Synthea, and FHIR tabs
+- [Data Quality Dashboard](/data-quality-dashboard) — Achilles-based data quality checks
+- [Schema Mapping](./16-schema-mapping) — Map source schemas to the OMOP CDM

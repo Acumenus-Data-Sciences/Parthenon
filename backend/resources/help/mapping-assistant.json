@@ -1,0 +1,17 @@
+{
+  "key": "mapping-assistant",
+  "title": "Mapping Assistant (Ariadne)",
+  "description": "The Mapping Assistant uses the Ariadne service to map source terms from your raw data to OMOP standard concepts. It supports three matching strategies: verbatim (exact text match), vector (semantic embedding similarity), and LLM (large language model reasoning). You can review candidates, accept or reject mappings, and export results as CSV.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Enter source terms one per line in the text area, or upload a CSV file where the first column contains the terms to map.",
+    "Use the Target Vocabulary filter to restrict results to specific vocabularies like SNOMED CT, ICD-10-CM, RxNorm, or LOINC.",
+    "Use the Target Domain filter to narrow results to Condition, Drug, Procedure, Measurement, or other OMOP domains.",
+    "After mapping, review the confidence score for each result. Scores above 80% are high confidence; lower scores need manual review.",
+    "Click any result row to expand and see all candidate matches, not just the best match, along with their confidence and match type.",
+    "Use the Accept/Reject buttons on each row to curate your mappings. Your decisions are included when you export to CSV.",
+    "The Term Cleanup section (collapsible) normalizes messy abbreviations and shorthand before mapping, improving match quality.",
+    "Export your finalized mappings as CSV using the Export CSV button for use in ETL pipelines or documentation."
+  ]
+}

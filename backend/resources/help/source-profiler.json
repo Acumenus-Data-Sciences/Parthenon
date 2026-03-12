@@ -1,0 +1,17 @@
+{
+  "key": "source-profiler",
+  "title": "Source Profiler",
+  "description": "The Source Profiler scans a CDM data source to generate a detailed profile of every table and column, similar to WhiteRabbit. It reports row counts, column counts, null percentages, and data quality grades for each table. Use it to assess the completeness and quality of a data source before running analyses.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Select a CDM data source from the dropdown and click Scan to begin profiling. Scan time depends on database size.",
+    "Review the table-level summary showing row counts, column counts, null scores, and overall quality grades (A through F).",
+    "Click any table row to expand it and see column-level detail including data types, null percentages, and distinct value counts.",
+    "Switch between list view and heatmap view to visualize data quality patterns across your entire database at a glance.",
+    "Use the search bar to quickly find specific tables by name within the scan results.",
+    "Sort results by name, row count, column count, null score, or grade to identify the most and least complete tables.",
+    "Scan results are saved to local history so you can compare profiles over time as data quality improves.",
+    "Export the scan report using the Download button for sharing with data stewards or including in ETL documentation."
+  ]
+}

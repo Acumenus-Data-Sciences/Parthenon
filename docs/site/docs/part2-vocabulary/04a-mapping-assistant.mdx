@@ -1,0 +1,160 @@
+---
+id: 04a-mapping-assistant
+title: "4a. Mapping Assistant (Ariadne)"
+sidebar_label: "4a. Mapping Assistant"
+slug: /mapping-assistant
+---
+
+# Mapping Assistant (Ariadne)
+
+The Mapping Assistant is an AI-powered tool that maps non-standard source terms to OMOP standard concepts. Powered by the Ariadne service, it combines three complementary matching strategies — verbatim lookup, vector similarity search, and LLM-based reasoning — to find the best candidate concept for each source term you provide. This is particularly useful during ETL development, when you need to map thousands of local codes or free-text descriptions to the OMOP Vocabulary.
+
+## Matching Strategies
+
+Ariadne applies three matching strategies to each source term, then selects the candidate with the highest confidence across all strategies:
+
+### Verbatim Matching
+
+An exact or near-exact string match against concept names in the OMOP Vocabulary. Verbatim matches are fastest and produce the highest confidence scores. When a source term is spelled identically (or nearly so) to a standard concept name, verbatim matching returns a result instantly.
+
+### Vector Similarity Search
+
+If no verbatim match is found, Ariadne queries a pgvector embedding index of OMOP concept names. This strategy captures semantic similarity — for example, mapping "heart attack" to "Acute myocardial infarction" even though the strings share no words. Vector matches typically produce moderate-to-high confidence scores.
+
+### LLM-Based Matching
+
+For ambiguous or abbreviated terms (e.g., "CABG x2", "HTN w/ CKD"), Ariadne invokes a large language model to reason about the clinical intent and suggest the best OMOP concept. LLM matches are the most flexible but may produce lower confidence scores that warrant manual review.
+
+## Mapping Workflow
+
+### Step 1: Enter Source Terms
+
+Navigate to **Vocabulary > Mapping Assistant**. In the **Source Terms** text area, enter your terms one per line. You can type terms manually or upload a CSV file using the **Upload CSV** button. When uploading a CSV, the first column of each row is extracted as a source term.
+
+### Step 2: Configure Target Filters
+
+Optionally narrow the search space using the filter controls below the text area:
+
+- **Target Vocabulary** — Restrict candidates to specific vocabularies such as SNOMED CT, ICD-10-CM, RxNorm, LOINC, ICD-9-CM, CPT-4, HCPCS, or MedDRA. Select one or more, or leave empty for all vocabularies.
+- **Target Domain** — Restrict candidates to specific OMOP domains: Condition, Drug, Procedure, Measurement, Observation, or Device.
+
+### Step 3: Run Mapping
+
+Click **Map Terms** to submit the batch. Ariadne processes all terms and returns results in a table with the following columns:
+
+| Column | Description |
+|--------|-------------|
+| **Source Term** | The original term you entered |
+| **Best Match** | The highest-confidence OMOP concept candidate |
+| **Confidence** | A 0-100% score with a color-coded bar (green >= 80%, gold >= 50%, red < 50%) |
+| **Match Type** | Badge indicating which strategy produced the best match (`verbatim`, `vector`, or `llm`) |
+| **Vocabulary** | The vocabulary of the best match (e.g., SNOMED, RxNorm) |
+| **Actions** | Accept or reject buttons for each mapping |
+
+### Step 4: Review Candidates
+
+Click any row to expand it and see **all candidates** returned by Ariadne, not just the best match. Each candidate shows its concept ID, concept name, vocabulary, domain, match type, and confidence score. This lets you select an alternative mapping if the best match is incorrect.
+
+### Step 5: Accept or Reject
+
+Use the checkmark and X buttons on each row to mark mappings as accepted or rejected. These decisions are tracked in the results summary and included in the CSV export.
+
+## Summary Statistics
+
+After mapping completes, four summary cards appear above the results table:
+
+- **Terms Mapped** — Number of terms that received at least one candidate
+- **High Confidence** — Terms with a best-match confidence >= 80%
+- **Need Review** — Terms with a best-match confidence < 80%
+- **No Match** — Terms where no candidate was found
+
+An accepted-mappings counter also appears when you begin accepting results.
+
+## Term Cleanup
+
+The collapsible **Term Cleanup** section (below the mapping controls) helps you normalize messy source terms before mapping. Enter abbreviated or misspelled terms one per line (e.g., "t2dm", "HTN w/ CKD stage 3", "AF/aflutter"), then click **Clean Terms**. Ariadne returns a cleaned version of each term that is more likely to produce a high-confidence match.
+
+:::tip Use Term Cleanup Before Mapping
+Running cleanup on abbreviated clinical terms before mapping significantly improves match quality. For example, "t2dm" cleaned to "type 2 diabetes mellitus" produces a verbatim match instead of requiring LLM inference.
+:::
+
+## CSV Import and Export
+
+### Import
+
+Click **Upload CSV** to load terms from a file. The importer reads the first column of each row as a source term. Header rows are included, so ensure your first row is a term or skip it manually.
+
+### Export
+
+Click **Export CSV** (available in the header and at the bottom of results) to download the mapping results. The exported file includes columns for source term, concept ID, concept name, vocabulary, domain, confidence, match type, and your accept/reject decision.
+
+:::warning Review Low-Confidence Mappings
+Mappings with confidence below 50% (shown in red) should always be reviewed manually. Automated matching may produce incorrect results for highly abbreviated terms, misspellings, or terms that span multiple clinical concepts.
+:::
+
+## API Reference
+
+The Mapping Assistant uses the Ariadne API endpoints. These can also be called programmatically for batch integration.
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/v1/ariadne/map` | POST | Map an array of source terms to OMOP concepts |
+| `/api/v1/ariadne/clean-terms` | POST | Normalize messy source terms |
+| `/api/v1/ariadne/vector-search` | POST | Perform vector similarity search against concept embeddings |
+
+### Map Terms Request
+
+```json
+{
+  "terms": ["type 2 diabetes mellitus", "HTN", "CABG"],
+  "target_vocabularies": ["SNOMED", "RxNorm"],
+  "target_domains": ["Condition", "Procedure"]
+}
+```
+
+### Map Terms Response
+
+Each result includes the source term, a `best_match` object (or null), and a `candidates` array of all matches. Each candidate contains `concept_id`, `concept_name`, `vocabulary_id`, `domain_id`, `match_type`, and a `confidence` score between 0 and 1.
+
+:::tip Batch Size
+For large mapping jobs (thousands of terms), consider splitting your input into batches of 100-200 terms. This keeps response times manageable and allows you to review results incrementally.
+:::
+
+## Supported Vocabularies
+
+The target vocabulary filter supports the following standard vocabularies:
+
+| Vocabulary | Common Use |
+|------------|------------|
+| SNOMED CT | Conditions, procedures, observations |
+| ICD-10-CM | Diagnosis codes |
+| RxNorm | Drug ingredients and clinical drugs |
+| LOINC | Laboratory measurements |
+| ICD-9-CM | Legacy diagnosis codes |
+| CPT-4 | Procedure billing codes |
+| HCPCS | Healthcare common procedure codes |
+| MedDRA | Adverse event reporting |
+
+## Confidence Score Interpretation
+
+The confidence score (0-100%) reflects how closely a candidate matches the source term across all three strategies. The color-coded bar provides a quick visual assessment:
+
+| Range | Color | Interpretation |
+|-------|-------|----------------|
+| 80-100% | Green | High confidence. Likely correct; safe to auto-accept in most cases. |
+| 50-79% | Gold | Moderate confidence. Manual review recommended. The match may be semantically close but not exact. |
+| 0-49% | Red | Low confidence. Likely requires manual mapping or term cleanup before re-mapping. |
+
+When the best match has low confidence, expand the row to review all candidates. A better match may exist further down the candidate list.
+
+## Permissions and Service Requirements
+
+The Mapping Assistant requires the Ariadne backend service to be running. If the service is unavailable, mapping and cleanup operations will fail with an error message: "Mapping failed. Verify the Ariadne service is running and reachable."
+
+Access to the Mapping Assistant requires the `vocabulary:manage` permission. Standard researcher accounts have read-only access to the vocabulary browser but may not have mapping permissions. Contact your administrator to request access.
+
+## Related Documentation
+
+- [Concept Sets](./04-concept-sets) — Create reusable concept sets from your mapping results
+- [Vocabulary Browser](./03-vocabulary-browser) — Browse and search the OMOP Vocabulary
+- [Concept Mapping](../part5-ingestion/17-concept-mapping) — ETL-stage concept mapping workflow

@@ -1,0 +1,17 @@
+{
+  "key": "study-designer",
+  "title": "Study Designer (AI)",
+  "description": "The Study Designer uses AI to help you formulate observational study protocols. Describe your research question in plain language and the system will split it into a target population and outcome, then recommend validated phenotype definitions from the OHDSI Phenotype Library. It also includes a cohort definition linter to catch common design errors.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Start on the Study Intent tab by describing your research question in natural language, such as 'Compare heart failure risk in patients on SGLT2 inhibitors vs DPP-4 inhibitors with type 2 diabetes.'",
+    "Click 'Analyze Study Intent' to have the AI split your description into a target population and an outcome.",
+    "Review the AI-ranked phenotype recommendations, which are scored by relevance to your stated intent.",
+    "Use the Phenotype Search tab to manually search the OHDSI library for specific conditions, drugs, or procedures.",
+    "The Cohort Lint tab accepts a cohort definition JSON and checks for issues like missing washout periods, empty concept sets, and inverted time windows.",
+    "Phenotype recommendations include a rationale explaining why each definition was suggested for your study.",
+    "Recommendations and search results display cohort IDs that you can use to look up full definitions in the Phenotype Library.",
+    "Use the linter before finalizing any cohort definition to catch design issues early in the study development process."
+  ]
+}

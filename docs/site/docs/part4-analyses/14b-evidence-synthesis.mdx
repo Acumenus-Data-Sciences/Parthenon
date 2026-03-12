@@ -1,0 +1,152 @@
+---
+id: 14b-evidence-synthesis
+title: "14b. Evidence Synthesis"
+sidebar_label: "14b. Evidence Synthesis"
+slug: /evidence-synthesis
+---
+
+# Evidence Synthesis
+
+**Evidence Synthesis** implements meta-analytic methods for combining effect estimates across multiple databases or study sites. When the same analysis (e.g., a cohort method estimation or SCCS) is run against several CDM data sources, evidence synthesis pools the site-level results into a single summary estimate with appropriate uncertainty quantification and heterogeneity assessment.
+
+Parthenon supports both Bayesian random-effects and fixed-effect (inverse variance) meta-analysis, aligned with the OHDSI EvidenceSynthesis R package. This is a critical step in the OHDSI evidence generation pipeline, as regulatory submissions and clinical guideline development increasingly require evidence from multiple independent data sources rather than single-site studies.
+
+---
+
+## Module Architecture
+
+```
+EvidenceSynthesisDetailPage
+ |
+ |-- Header (name, description, back navigation)
+ |-- Execute button + Delete button
+ |
+ |-- Tab: Design
+ |    |-- EvidenceSynthesisDesigner
+ |         |-- Basic Information (name, description)
+ |         |-- Meta-Analysis Method selector
+ |         |    |-- Bayesian: chain length, burn-in, sub-sample
+ |         |    |-- Fixed: inverse variance weighting
+ |         |-- Site Estimates table
+ |         |    |-- Per-site: site name, log(RR), SE(log RR)
+ |         |    |-- HR Preview (exp(logRR))
+ |         |-- Save / Create button
+ |
+ |-- Tab: Results
+ |    |-- EvidenceSynthesisResults
+ |    |    |-- EvidenceSynthesisVerdictDashboard
+ |    |    |-- Pooled Summary Cards (HR, 95% CI, method, tau)
+ |    |    |-- ForestPlot (graphical per-site + pooled)
+ |    |    |-- Per-Site Results table
+ |    |    |-- Execution timing
+ |    |
+ |    |-- Execution History table
+```
+
+---
+
+## Feature Walkthrough
+
+### Creating an Evidence Synthesis
+
+1. Navigate to **Analyses** and click **New Analysis**, then select **Evidence Synthesis**.
+2. Provide a **name** and optional **description**.
+3. Select a **meta-analysis method**.
+4. Enter **site-level estimates** (minimum two sites required).
+5. Click **Create** to save.
+
+### Meta-Analysis Method
+
+Two methods are available:
+
+| Method | Description | When to Use |
+|---|---|---|
+| **Bayesian Random-Effects** | MCMC-based random-effects model that accounts for between-site heterogeneity | Default. Use when expecting variation across sites due to population differences, coding practices, or data quality. |
+| **Fixed-Effect (Inverse Variance)** | Assumes a single true effect size; weights sites by inverse variance | Use when sites are highly homogeneous and you believe the true effect is constant. |
+
+When Bayesian random-effects is selected, three MCMC parameters become configurable:
+
+| Parameter | Description | Default |
+|---|---|---|
+| **Chain Length** | Total MCMC iterations | 1,100,000 |
+| **Burn-in** | Iterations discarded before sampling | 100,000 |
+| **Sub-sample** | Thinning interval for posterior samples | 100 |
+
+:::tip
+The default MCMC parameters are suitable for most analyses. Increase chain length and burn-in only if you observe convergence warnings in the results.
+:::
+
+### Entering Site Estimates
+
+Each site estimate requires three fields:
+
+| Field | Description | Example |
+|---|---|---|
+| **Site Name** | Label identifying the database or study site | "Optum EHR" |
+| **Log(RR)** | Natural log of the relative risk or hazard ratio | -0.30 |
+| **SE(Log RR)** | Standard error of the log relative risk | 0.15 |
+
+A live **HR Preview** section below the estimates table displays the exponentiated hazard ratio (`exp(logRR)`) for each site, allowing quick verification before saving.
+
+You can add additional sites with the **Add Site** button. A minimum of two sites is required; the save button is disabled until this threshold is met. Sites can be removed when more than two exist.
+
+:::warning
+Ensure that all site estimates use the same outcome definition and time-at-risk settings. Combining estimates from incompatible study designs will produce misleading pooled results.
+:::
+
+### Executing the Synthesis
+
+1. Click **Execute** in the page header. Evidence synthesis does not require selecting a source because it operates on the pre-entered site estimates.
+2. The R runtime runs the EvidenceSynthesis package to compute pooled results.
+3. The page switches to the **Results** tab upon execution.
+
+### Viewing Results
+
+The results tab presents:
+
+**Verdict Dashboard** -- an interpretive summary of the synthesis outcome.
+
+**Pooled Summary Cards** -- four metric cards:
+
+| Card | Description |
+|---|---|
+| **Pooled HR** | The meta-analytic hazard ratio |
+| **95% CI** | Confidence interval for the pooled estimate |
+| **Method** | Bayesian RE or Fixed Effect |
+| **Tau (heterogeneity)** | Between-site heterogeneity parameter (Bayesian only) |
+
+**Forest Plot** -- a graphical forest plot rendered via the `ForestPlot` component. Each site is shown as a point estimate with confidence interval, and the pooled diamond appears at the bottom.
+
+**Per-Site Results Table** -- a detailed table with columns: Site, HR, 95% CI Lower, 95% CI Upper, Log(RR), SE. Hazard ratios above 1.0 are highlighted in red and below 1.0 in teal.
+
+**Execution History** -- a list of all prior executions. Click a completed row to view its results.
+
+### Interpreting Forest Plots
+
+The forest plot is the primary visualization for evidence synthesis results. Key elements to understand:
+
+- **Individual site estimates** are shown as points (squares) with horizontal lines representing 95% confidence intervals. Larger points indicate greater statistical weight.
+- **The pooled estimate** appears as a diamond at the bottom of the plot. The diamond width spans the pooled confidence interval.
+- **The vertical reference line at HR = 1.0** represents the null hypothesis (no effect). Estimates entirely to the left suggest a protective effect; estimates to the right suggest increased risk.
+- **Heterogeneity (tau)** quantifies between-site variation. A tau value near zero indicates consistent results across sites.
+
+---
+
+## API Reference
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `GET /api/v1/analyses/evidence-synthesis/{id}` | GET | Fetch analysis with design and executions |
+| `POST /api/v1/analyses/evidence-synthesis` | POST | Create a new evidence synthesis |
+| `PUT /api/v1/analyses/evidence-synthesis/{id}` | PUT | Update design and metadata |
+| `DELETE /api/v1/analyses/evidence-synthesis/{id}` | DELETE | Delete an evidence synthesis |
+| `POST /api/v1/analyses/evidence-synthesis/{id}/execute` | POST | Run the meta-analysis |
+| `GET /api/v1/analyses/evidence-synthesis/{id}/executions/{execId}` | GET | Fetch execution results |
+
+---
+
+## Related Pages
+
+- [Population-Level Estimation](/population-level-estimation) -- source analyses that feed into evidence synthesis
+- [SCCS](/sccs) -- self-controlled case series results can be pooled here
+- [Studies](/studies) -- multi-database study orchestration

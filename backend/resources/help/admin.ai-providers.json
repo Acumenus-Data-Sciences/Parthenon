@@ -1,0 +1,17 @@
+{
+  "key": "admin.ai-providers",
+  "title": "AI Provider Configuration",
+  "description": "Configure which AI/LLM backend powers Abby, the platform's AI assistant. Supports 8 providers including local Ollama, Anthropic, OpenAI, Gemini, DeepSeek, Qwen, Moonshot, and Mistral. Only one provider can be active at a time, and all API keys are stored encrypted.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Only one AI provider can be active at a time. Click 'Set as Active' on a provider card to switch the backend that powers Abby.",
+    "Use the enable/disable toggle to control which providers are available without removing their configuration.",
+    "Ollama runs locally and does not require an API key, only a base URL (default: http://localhost:11434). It ships with MedGemma for clinical use.",
+    "API keys are stored encrypted in the database. Use the eye icon to toggle visibility when entering or verifying a key.",
+    "Always click 'Test Connection' after configuring a provider to verify that the API key and model are working correctly.",
+    "Each provider shows a region badge (US, EU, China, or Local) to help you make data residency decisions for your organization.",
+    "The active provider banner at the top of the page shows which provider and model Abby is currently using.",
+    "Remember to click Save after changing the model or API key; unsaved changes are indicated by the Save button appearing."
+  ]
+}

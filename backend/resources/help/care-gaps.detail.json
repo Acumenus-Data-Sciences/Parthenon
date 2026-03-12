@@ -1,0 +1,17 @@
+{
+  "key": "care-gaps.detail",
+  "title": "Care Gap Bundle Detail",
+  "description": "View and manage a care gap condition bundle with three tabs: Design for configuring the bundle's measures, Compliance Results for evaluating patient compliance against a data source, and Overlap Rules for defining how measures interact. Includes an overall compliance ring and full evaluation history.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "The Design tab lets you configure the measures and criteria that define this care gap bundle using the Bundle Designer.",
+    "Use the Compliance Results tab to evaluate the bundle against a specific data source. Select a source and click Evaluate to run the analysis.",
+    "Compliance results show an overall compliance percentage, total patients, gaps met, open gaps, and excluded patient counts.",
+    "The compliance ring in the header gives you an at-a-glance view of the latest evaluation's overall compliance percentage.",
+    "The Measure Compliance Table breaks down compliance by individual measure so you can identify which specific gaps need attention.",
+    "The Overlap Rules tab lets you define how multiple measures within the bundle interact and handle patient overlap scenarios.",
+    "Every evaluation is saved in the Evaluation History section. Click any past evaluation to review its results without re-running.",
+    "Disease category and bundle code badges in the header help you quickly identify and categorize the condition bundle."
+  ]
+}

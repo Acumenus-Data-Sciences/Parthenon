@@ -1,0 +1,118 @@
+---
+id: 18-jobs-monitoring
+title: "18. Jobs Monitoring"
+sidebar_label: "18. Jobs Monitoring"
+slug: /jobs-monitoring
+---
+
+# Jobs Monitoring
+
+The **Jobs** page provides a centralized dashboard for monitoring all background tasks running on the Parthenon platform. Navigate to **Jobs** in the main navigation to view queue status, track progress, and manage job lifecycle.
+
+## Background Jobs in Parthenon
+
+Many operations in Parthenon run asynchronously as background jobs processed by Laravel Horizon. These include long-running tasks that would otherwise block the user interface:
+
+| Job Type | Icon | Description |
+|----------|------|-------------|
+| **Cohort Generation** | Users | Building patient cohorts from cohort definitions |
+| **Achilles** | Bar Chart | Running Achilles characterization analyses |
+| **DQD** | Shield | Data Quality Dashboard checks |
+| **Characterization** | Flask | Cohort characterization analyses |
+| **Incidence Rate** | Flask | Incidence rate calculations |
+| **Pathway** | Git Fork | Treatment pathway analyses |
+| **Estimation** | Flask | Population-level effect estimation |
+| **Prediction** | Flask | Patient-level prediction models |
+| **Ingestion** | Upload | Data file parsing and loading |
+| **Vocabulary Load** | Book | Vocabulary ZIP import and processing |
+
+## Filtering Jobs
+
+A row of filter chips at the top of the page lets you narrow the job list by status:
+
+- **All** -- shows every job regardless of status
+- **Running** -- currently executing jobs
+- **Failed** -- jobs that terminated with an error
+- **Completed** -- successfully finished jobs
+- **Queued** -- jobs waiting for a worker to pick them up
+
+Click any filter chip to toggle it. The active filter is visually highlighted.
+
+## Jobs Table
+
+Jobs are displayed in a sortable table with the following columns:
+
+| Column | Description |
+|--------|-------------|
+| **Job** | The job name (e.g., "Generate Cohort: Diabetes Type 2") |
+| **Type** | Job type with an icon indicator (e.g., "cohort generation") |
+| **Source** | The CDM data source the job operates against, if applicable |
+| **Started** | Relative time since the job began (e.g., "5m ago", "2h ago") |
+| **Duration** | Elapsed time displayed in monospace (e.g., "3m 42s") |
+| **Status** | Status indicator with badge (see below) |
+| **Actions** | Context-sensitive action buttons |
+
+### Status Indicators
+
+Each job status is represented by a distinct icon and badge:
+
+- **Queued / Pending** (clock icon) -- waiting in the queue for an available worker.
+- **Running** (spinner icon) -- actively executing. A progress bar is displayed inline when the job reports percentage progress.
+- **Completed** (green checkmark) -- finished successfully.
+- **Failed** (red X) -- terminated with an error.
+- **Cancelled** (ban icon) -- manually cancelled by a user.
+
+## Job Actions
+
+Actions are available directly in the table row, depending on job status:
+
+| Action | Available When | Effect |
+|--------|---------------|--------|
+| **Retry** | Failed | Re-queues the job for another execution attempt |
+| **Cancel** | Running or Queued | Terminates the job and marks it as cancelled |
+
+Action buttons are isolated from row clicks -- clicking an action button does not open the detail drawer.
+
+## Job Detail Drawer
+
+Click any job row to open a detail drawer on the right side of the screen. The drawer provides comprehensive information about the selected job:
+
+### Status and Progress
+
+The drawer header shows the job name, current status badge, and a progress bar (for running jobs).
+
+### Metadata Grid
+
+| Field | Description |
+|-------|-------------|
+| **Type** | The job type (formatted with spaces, e.g., "cohort generation") |
+| **Source** | The CDM data source name |
+| **Triggered By** | The user who initiated the job |
+| **Duration** | Elapsed time from start to completion |
+
+### Error Messages
+
+For failed jobs, a red alert card displays the error message. This is the primary diagnostic tool for understanding why a job failed.
+
+### Log Output
+
+If the job produces log output, it is displayed in a formatted code block at the bottom of the drawer. This includes detailed processing logs, row counts, SQL statements, and any warnings emitted during execution.
+
+### Drawer Actions
+
+The same **Retry** and **Cancel** actions available in the table are also accessible from the drawer, providing a convenient way to take action after reviewing job details.
+
+## Empty States
+
+When no jobs match the current filter, an empty state message is shown:
+
+- With a status filter active: "No \{status\} jobs. Try a different filter."
+- With no filter: "Background jobs will appear here when analyses run."
+
+:::tip Monitoring long-running analyses
+Cohort generation, Achilles, and population-level estimation jobs can run for several minutes to hours depending on dataset size. Use the Jobs page to monitor progress and check for failures rather than waiting on the analysis page. The progress bar provides real-time percentage updates for supported job types.
+:::
+
+:::warning Failed job investigation
+When a job fails, always check the **error message** and **log output** in the detail drawer before retrying. Common causes include database connection timeouts, insufficient memory for large cohorts, and missing vocabulary mappings. Retrying without addressing the root cause will produce the same failure.
+:::

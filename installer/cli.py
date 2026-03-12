@@ -127,6 +127,16 @@ def _print_summary(cfg: dict[str, Any]) -> None:
         lines.append(f"  [green]Solr:[/green]     http://localhost:{solr_port}/solr/")
     if cfg.get("ollama_url"):
         lines.append(f"  [green]ChromaDB:[/green] http://localhost:8000 (vector database)")
+    if cfg.get("enable_study_agent"):
+        lines.append(f"  [green]Study AI:[/green] http://localhost:8765 (study designer)")
+    if cfg.get("enable_whiterabbit"):
+        lines.append(f"  [green]Profiler:[/green] http://localhost:8090 (WhiteRabbit)")
+    if cfg.get("enable_fhir_to_cdm"):
+        lines.append(f"  [green]FHIR CDM:[/green] http://localhost:8091 (FHIR-to-CDM)")
+    if cfg.get("enable_hecate"):
+        lines.append(f"  [green]Hecate:[/green]   http://localhost:8080 (concept search)")
+    if cfg.get("enable_orthanc"):
+        lines.append(f"  [green]Orthanc:[/green]  http://localhost:8042 (DICOM server)")
     lines.append(f"  [green]GIS:[/green]      PostGIS spatial queries enabled")
 
     next_steps = [

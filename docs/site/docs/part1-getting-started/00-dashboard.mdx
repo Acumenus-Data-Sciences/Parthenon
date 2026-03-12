@@ -1,0 +1,150 @@
+---
+id: 00-dashboard
+title: "Dashboard"
+sidebar_label: "Dashboard"
+slug: /dashboard
+---
+
+# Dashboard
+
+The **Dashboard** is the landing page after login and serves as the operational command center for Parthenon. It provides a unified view of your CDM data sources, active research activities, cohort definitions, and data quality status — all in a single screen. From here, researchers can assess the health of connected databases, monitor running jobs, and navigate directly to any feature module.
+
+The dashboard is designed for rapid situational awareness. A research coordinator opening Parthenon at the start of the day can immediately see how many sources are connected, whether any jobs are running, and if data quality issues require attention — without navigating to individual modules.
+
+---
+
+## Module Architecture
+
+```
+DashboardPage
+ |
+ |-- Metric Cards Row
+ |    |-- CDM Sources (count of connected databases)
+ |    |-- Active Cohorts (defined cohort count)
+ |    |-- Running Jobs (queued or executing)
+ |    |-- DQD Failures (data quality check failures)
+ |    |-- Concept Sets (saved concept set count)
+ |
+ |-- CDM Characterization Section
+ |    |-- SourceSelector (dropdown to pick active source)
+ |    |-- CdmMetricCard x4 (Persons, Median Obs Duration, Total Events, Completeness)
+ |    |-- ProportionalBar (gender distribution)
+ |    |-- DemographicsPyramid (age-by-gender pyramid)
+ |    |-- Sparkline (observation start trends)
+ |
+ |-- Two-Column Panel Row 1
+ |    |-- Source Health (table: source name, dialect, status)
+ |    |-- Active Jobs (table: job name, type, status)
+ |
+ |-- Two-Column Panel Row 2
+ |    |-- Recent Cohort Activity (table: cohort name, subjects, status)
+ |    |-- Quick Actions (links to key workflows)
+```
+
+Data flows through two hook layers:
+
+- **`useDashboardStats`** fetches aggregate platform statistics (sources, cohorts, jobs, DQD failures, concept sets) via TanStack Query.
+- **Achilles hooks** (`useRecordCounts`, `useDemographics`, `useObservationPeriods`) fetch CDM characterization data for the currently selected source.
+
+---
+
+## Feature Walkthrough
+
+### Metric Cards
+
+The top row displays five summary metric cards that load from a single API call:
+
+| Metric | Description | Visual Indicator |
+|---|---|---|
+| **CDM Sources** | Number of connected OMOP databases | Database icon |
+| **Active Cohorts** | Total defined cohort definitions | Users icon |
+| **Running Jobs** | Jobs currently queued or executing | Blue info variant when > 0 |
+| **DQD Failures** | Data Quality Dashboard check failures | Red critical variant when > 0, green when 0 |
+| **Concept Sets** | Saved concept sets in the system | Flask icon |
+
+### CDM Characterization
+
+Below the metric cards, the CDM Characterization section provides a clinical data profile for a selected source. A **Source Selector** dropdown lets you switch between connected databases. The system auto-selects the default source (or the first available source) on initial load.
+
+Four CDM metric cards are displayed in a grid:
+
+| Card | Data Source | Notes |
+|---|---|---|
+| **Persons** | `person` table record count | Includes a sparkline showing observation start trends by year |
+| **Median Obs Duration** | Observation period duration distribution | Displayed in days |
+| **Total Events** | Sum of all clinical event table counts | Excludes `person` and `observation_period` |
+| **Data Completeness** | Percentage of CDM tables with data | Shows `N/M tables` subtitle |
+
+Below the metric cards, the section renders:
+
+- **Gender Distribution** -- a proportional bar chart with color-coded segments for each gender concept.
+- **Demographics Pyramid** -- an age-by-gender population pyramid visualization.
+
+A "View Full" link navigates to the Data Explorer for deeper characterization.
+
+### Source Health Panel
+
+Displays a table of up to five connected data sources showing source name, SQL dialect, and connection health status. A "View All" link navigates to the Data Sources management page. When no sources are configured, an empty state prompts the user to connect a CDM database.
+
+### Active Jobs Panel
+
+Lists recent jobs with their name, type (shown as a badge), and execution status. Running jobs display an animated spinner. When no jobs are active, an informational empty state is shown.
+
+### Recent Cohort Activity Panel
+
+Shows recently modified cohort definitions with subject counts and status badges (active, error, or draft). Provides a direct link to the Cohort Definitions list page.
+
+### Quick Actions
+
+Four shortcut buttons for common workflows:
+
+- **Connect a Data Source** -- navigate to data source configuration
+- **Create Cohort Definition** -- start building a new cohort
+- **Build Concept Set** -- open the concept set builder
+- **Explore Data Quality** -- navigate to the Data Explorer
+
+---
+
+## Loading States and Error Handling
+
+The dashboard implements comprehensive loading and error states to provide a responsive experience:
+
+- **Skeleton loading** -- while the dashboard stats API call is in flight, all metric cards and panels render animated skeleton placeholders that match the final layout dimensions. This prevents layout shift when data arrives.
+- **CDM section loading** -- the four CDM metric cards and chart panels each display independent skeletons while Achilles data loads for the selected source.
+- **API unavailable** -- if the stats API call fails, a warning alert banner appears below the metric cards with a message indicating that cached data may be shown. The alert includes an icon and descriptive text to guide the researcher.
+- **Empty states** -- each panel (Source Health, Active Jobs, Recent Cohorts) renders a dedicated empty state component with an icon, title, message, and (where applicable) a call-to-action button. For example, when no data sources are configured, the Source Health panel displays a "No data sources" message with an "Add Source" button.
+- **No source selected** -- if no CDM source is available or selected, the characterization section shows a centered database icon with a prompt to select a data source.
+
+:::tip
+If you notice stale data on the dashboard, TanStack Query automatically re-fetches on window focus. You can also navigate away and return to trigger a fresh load.
+:::
+
+---
+
+## API Reference
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `GET /api/v1/dashboard/stats` | GET | Returns aggregated dashboard statistics (sources, cohort count, job count, DQD failures, concept sets, recent cohorts, recent jobs) |
+| `GET /api/v1/achilles/{sourceId}/record-counts` | GET | Record counts per CDM table for a source |
+| `GET /api/v1/achilles/{sourceId}/demographics` | GET | Gender and age distribution for a source |
+| `GET /api/v1/achilles/{sourceId}/observation-periods` | GET | Observation period duration and start date distributions |
+
+:::tip
+The dashboard auto-selects the default source on load. If you have configured a source with `is_default: true`, it will be pre-selected in the CDM Characterization section without manual intervention.
+:::
+
+:::warning
+If the API is unavailable, the dashboard displays a warning alert and attempts to show cached data. Ensure your backend services are running and healthy before relying on the displayed metrics for research decisions.
+:::
+
+---
+
+## Related Pages
+
+- [Data Sources](/data-sources) -- configure and manage CDM database connections
+- [Data Explorer](/characterization-achilles) -- full CDM characterization with Achilles
+- [Cohort Definitions](/building-cohorts) -- create and manage cohort definitions
+- [Concept Sets](/concept-sets) -- build and maintain concept sets
+- [Data Quality Dashboard](/data-quality-dashboard) -- detailed data quality assessment
+- [User Management](/user-management) -- manage team members and access

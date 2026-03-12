@@ -1,0 +1,17 @@
+{
+  "key": "query-assistant",
+  "title": "Query Assistant",
+  "description": "The Query Assistant translates natural language questions about your clinical data into SQL queries against the OMOP CDM. Type a question in plain English, and the AI generates the corresponding SQL with an explanation, safety classification, and list of referenced tables. You can also validate the generated SQL and browse the OMOP schema for reference.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Type a question like 'How many patients have diabetes?' and press Ctrl+Enter or click Generate SQL to produce the query.",
+    "Try the example question chips below the input for quick demonstrations of what the assistant can do.",
+    "Every generated query is classified as SAFE (read-only) or UNSAFE so you can verify it will not modify data before running it.",
+    "Click 'Validate SQL' after generation to check the query for syntax correctness, complexity level, and referenced tables.",
+    "Expand the OMOP CDM Schema Browser on the results panel to see available clinical and vocabulary tables with their columns and common joins.",
+    "Your last 10 queries are saved in Query History on the left panel. Click any previous query to reload it.",
+    "The explanation section describes in plain language what the generated SQL does, which is helpful for learning OMOP CDM query patterns.",
+    "Tables Referenced tags show exactly which OMOP tables the query uses, helping you understand the data model."
+  ]
+}

@@ -1,0 +1,153 @@
+---
+id: 14d-study-packages
+title: "14d. Study Packages (Strategus)"
+sidebar_label: "14d. Study Packages"
+slug: /study-packages
+---
+
+# Study Packages (Strategus)
+
+**Study Packages** enable researchers to build and execute multi-analysis OHDSI study packages using the Strategus framework. Strategus orchestrates the execution of multiple HADES analysis modules (CohortMethod, PatientLevelPrediction, SCCS, etc.) as a single coordinated study against one or more CDM data sources. Each module runs independently and writes results to a shared output directory.
+
+Parthenon provides a 5-step wizard for assembling study packages, a validation engine, and an execution interface with progress tracking.
+
+---
+
+## Module Architecture
+
+```
+StudyPackagePage
+ |
+ |-- Header (Package icon, Import/Export JSON buttons)
+ |
+ |-- Step Indicator (5 steps, clickable breadcrumb)
+ |
+ |-- Step 1: Study Info
+ |    |-- Study Name (required)
+ |    |-- Description (optional)
+ |
+ |-- Step 2: Select Modules
+ |    |-- Grid of OHDSI analysis modules
+ |    |-- CohortGenerator always included (required)
+ |    |-- Toggle selection per module
+ |
+ |-- Step 3: Shared Cohorts
+ |    |-- Assigned cohorts list (with role badges)
+ |    |-- Role selector (target / comparator / outcome)
+ |    |-- Cohort picker (searchable, from existing definitions)
+ |
+ |-- Step 4: Review & Validate
+ |    |-- Study Package Summary
+ |    |-- "Run Validation" button
+ |    |-- Validation result (passed/failed, issues, warnings)
+ |
+ |-- Step 5: Execute
+ |    |-- Target data source selector
+ |    |-- "Execute Study Package" button
+ |    |-- Progress indicator
+ |    |-- Execution result (status, modules run, output dir)
+ |
+ |-- Navigation (Back / Next)
+```
+
+---
+
+## Feature Walkthrough
+
+### Step 1: Study Info
+
+Provide a **Study Name** (required) and an optional **Description**. The name is used as the filename for JSON export and identifies the study package in execution results.
+
+### Step 2: Select Modules
+
+Choose which OHDSI analysis modules to include in the study package. Modules are displayed in a selectable grid with descriptions:
+
+| Module | Package | Description |
+|---|---|---|
+| **Cohort Generator** | CohortGenerator | Generates cohorts from definitions. Always included. |
+| **Cohort Method** | CohortMethod | Population-level effect estimation using comparative cohort design |
+| **Patient Level Prediction** | PatientLevelPrediction | Builds prediction models for patient-level outcomes using ML |
+| **Self-Controlled Case Series** | SelfControlledCaseSeries | Estimates incidence rate ratios using SCCS design |
+| **Cohort Diagnostics** | CohortDiagnostics | Evaluates phenotype algorithms and characterizes cohorts |
+| **Characterization** | Characterization | Computes baseline characteristics across cohorts |
+| **Cohort Incidence** | CohortIncidence | Calculates incidence rates of outcomes in target populations |
+| **Evidence Synthesis** | EvidenceSynthesis | Meta-analysis across data sources |
+
+CohortGenerator is always included and cannot be deselected. Modules not installed on the R runtime server are shown as disabled.
+
+:::tip
+For a standard comparative effectiveness study, select CohortGenerator + CohortMethod + CohortDiagnostics + Characterization at minimum. Add PatientLevelPrediction if you also need risk prediction models.
+:::
+
+### Step 3: Shared Cohorts
+
+Add cohort definitions that are shared across all analysis modules. Each cohort is assigned a **role**:
+
+| Role | Color | Purpose |
+|---|---|---|
+| **Target** | Teal | The primary treatment or exposure cohort |
+| **Comparator** | Gold | The comparison treatment cohort |
+| **Outcome** | Crimson | The clinical event being measured |
+
+Use the **Add Cohort** button to open a searchable picker that lists existing cohort definitions from your Parthenon instance. Already-assigned cohorts are grayed out. Cohorts can be removed with the X button.
+
+:::warning
+Most analysis modules require at least one target cohort. CohortMethod additionally requires at least one comparator and one outcome. The validation step (Step 4) will flag missing cohort assignments.
+:::
+
+### Step 4: Review & Validate
+
+A summary card displays the full study package configuration: study name, description, selected modules, and assigned cohorts with their roles.
+
+Click **Run Validation** to check the analysis specification for configuration issues. The validator returns one of two statuses:
+
+- **Passed** (teal) -- the specification is valid and ready for execution.
+- **Failed** (red) -- issues were found that must be resolved.
+
+Issues are displayed with severity levels (error or warning) and indicate which module is affected.
+
+### Step 5: Execute
+
+Select a **Target Data Source** from the dropdown (lists all configured CDM sources). Click **Execute Study Package** to begin.
+
+During execution:
+- A progress bar and animated indicator show that the package is running.
+- The page displays an estimate that execution may take several minutes depending on dataset size and module count.
+
+Upon completion, the result panel shows:
+- **Status** -- overall execution status
+- **Modules Run** -- list of successfully executed modules
+- **Result Files** -- count of output files generated
+- **Output Directory** -- filesystem path to results
+- **Elapsed Time** -- total execution duration
+
+### Import / Export
+
+The page header provides two buttons:
+
+- **Import JSON** -- load a previously exported Strategus analysis specification from a `.json` file. Module selections and cohort assignments are restored from the imported spec.
+- **Export JSON** -- download the current specification as a JSON file named after the study.
+
+:::tip
+Use Import/Export to share study packages between Parthenon instances or to version-control study designs alongside your research protocol documentation.
+:::
+
+---
+
+## API Reference
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `GET /api/v1/strategus/modules` | GET | List available Strategus modules on the R runtime |
+| `GET /api/v1/strategus/sources` | GET | List CDM sources available for execution |
+| `POST /api/v1/strategus/validate` | POST | Validate an analysis specification |
+| `POST /api/v1/strategus/execute` | POST | Execute a study package against a source |
+
+---
+
+## Related Pages
+
+- [Studies](/studies) -- high-level study orchestration
+- [Population-Level Estimation](/population-level-estimation) -- CohortMethod analysis design
+- [SCCS](/sccs) -- self-controlled case series design
+- [Patient-Level Prediction](/patient-level-prediction) -- prediction model design

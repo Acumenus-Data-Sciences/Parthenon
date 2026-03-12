@@ -1,0 +1,17 @@
+{
+  "key": "admin.fhir-connections",
+  "title": "FHIR Connections",
+  "description": "Configure SMART Backend Services connections for FHIR R4 Bulk Data extraction from EHR systems like Epic, Cerner, and other FHIR R4 endpoints. Each connection stores OAuth2 credentials, an RSA private key for JWT authentication, and supports both incremental and full sync modes.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Each connection requires a FHIR base URL, token endpoint, client ID, and RSA private key (PEM format) for SMART Backend Services JWT authentication.",
+    "Supported EHR vendors include Epic, Cerner (Oracle Health), and any other FHIR R4 compliant system.",
+    "Enable incremental sync to only pull new or updated data since the last sync. Use 'Force Full Sync' to re-download all data when needed.",
+    "Use the 'Test Connection' button (play icon) to validate OAuth2 token exchange, FHIR endpoint reachability, and bulk export capability before syncing.",
+    "The test results show a step-by-step breakdown of the connection validation: token exchange, metadata retrieval, and export support checks.",
+    "Configure which FHIR resource types to export (e.g. Patient, Condition, Encounter) or leave blank to export all supported types.",
+    "The Sync History panel on each connection card shows detailed run metrics including records extracted, mapped, written, and failed.",
+    "Click the Sync Monitor link in the top-right to view a cross-connection dashboard with pipeline throughput and sync activity trends."
+  ]
+}

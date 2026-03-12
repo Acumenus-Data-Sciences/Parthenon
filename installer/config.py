@@ -237,6 +237,46 @@ def collect(resume_data: dict[str, Any] | None = None) -> dict[str, Any]:
         default=defaults.get("enable_solr", True),
     ).ask()
 
+    # --- Optional sidecar services ---
+    console.print()
+    console.print(
+        Panel(
+            "[bold]Optional services extend Parthenon with additional capabilities.[/bold]\n"
+            "[dim]All are optional — you can enable them later by editing .env and "
+            "running docker compose up -d.[/dim]",
+            title="Optional Services",
+            border_style="cyan",
+            padding=(1, 2),
+        )
+    )
+
+    enable_study_agent = questionary.confirm(
+        "Enable Study Designer (AI-assisted study protocol builder)?",
+        default=defaults.get("enable_study_agent", bool(ollama_url)),
+    ).ask()
+
+    enable_whiterabbit = questionary.confirm(
+        "Enable WhiteRabbit (source database profiling)?",
+        default=defaults.get("enable_whiterabbit", True),
+    ).ask()
+
+    enable_fhir_to_cdm = questionary.confirm(
+        "Enable FHIR-to-CDM (FHIR R4 ingestion to OMOP)?",
+        default=defaults.get("enable_fhir_to_cdm", True),
+    ).ask()
+
+    enable_hecate = questionary.confirm(
+        "Enable Hecate (vector concept search)?",
+        default=defaults.get("enable_hecate", bool(ollama_url)),
+    ).ask()
+
+    enable_qdrant = enable_hecate  # Qdrant is required by Hecate
+
+    enable_orthanc = questionary.confirm(
+        "Enable Orthanc (DICOM medical imaging server)?",
+        default=defaults.get("enable_orthanc", False),
+    ).ask()
+
     show_advanced = questionary.confirm("Configure advanced port settings?", default=False).ask()
 
     nginx_port = 8082
@@ -256,25 +296,31 @@ def collect(resume_data: dict[str, Any] | None = None) -> dict[str, Any]:
             solr_java_mem = questionary.text("SOLR_JAVA_MEM", default=solr_java_mem).ask()
 
     return {
-        "experience":     experience,
-        "vocab_zip_path": vocab_zip_path,
-        "cdm_dialect":    cdm_dialect,
-        "app_url":        app_url,
-        "env":            env,
-        "db_password":    db_password,
-        "admin_email":    admin_email,
-        "admin_name":     admin_name,
-        "admin_password": admin_password,
-        "timezone":       timezone,
-        "include_eunomia": include_eunomia,
-        "ollama_url":     ollama_url,
-        "enable_solr":    enable_solr,
-        "nginx_port":     nginx_port,
-        "postgres_port":  postgres_port,
-        "redis_port":     redis_port,
-        "ai_port":        ai_port,
-        "solr_port":      solr_port,
-        "solr_java_mem":  solr_java_mem,
+        "experience":        experience,
+        "vocab_zip_path":    vocab_zip_path,
+        "cdm_dialect":       cdm_dialect,
+        "app_url":           app_url,
+        "env":               env,
+        "db_password":       db_password,
+        "admin_email":       admin_email,
+        "admin_name":        admin_name,
+        "admin_password":    admin_password,
+        "timezone":          timezone,
+        "include_eunomia":   include_eunomia,
+        "ollama_url":        ollama_url,
+        "enable_solr":       enable_solr,
+        "enable_study_agent": enable_study_agent,
+        "enable_whiterabbit": enable_whiterabbit,
+        "enable_fhir_to_cdm": enable_fhir_to_cdm,
+        "enable_hecate":     enable_hecate,
+        "enable_qdrant":     enable_qdrant,
+        "enable_orthanc":    enable_orthanc,
+        "nginx_port":        nginx_port,
+        "postgres_port":     postgres_port,
+        "redis_port":        redis_port,
+        "ai_port":           ai_port,
+        "solr_port":         solr_port,
+        "solr_java_mem":     solr_java_mem,
     }
 
 
@@ -304,6 +350,24 @@ def build_root_env(cfg: dict[str, Any]) -> str:
         f"OLLAMA_BASE_URL={cfg['ollama_url'] or 'http://host.docker.internal:11434'}",
         f"OLLAMA_MODEL=MedAIBase/MedGemma1.5:4b",
     ]
+
+    # Optional sidecar service ports
+    lines.append("")
+    lines.append("# Optional sidecar services")
+    if cfg.get("enable_study_agent"):
+        lines.append("STUDY_AGENT_PORT=8765")
+        lines.append("LLM_MODEL=gemma3:4b")
+        lines.append("EMBED_MODEL=nomic-embed-text")
+    if cfg.get("enable_whiterabbit"):
+        lines.append("WHITERABBIT_PORT=8090")
+    if cfg.get("enable_fhir_to_cdm"):
+        lines.append("FHIR_TO_CDM_PORT=8091")
+    if cfg.get("enable_hecate"):
+        lines.append("HECATE_PORT=8080")
+    if cfg.get("enable_qdrant"):
+        lines.append("QDRANT_PORT=6333")
+    if cfg.get("enable_orthanc"):
+        lines.append("ORTHANC_PORT=8042")
 
     return "\n".join(lines) + "\n"
 
@@ -389,6 +453,15 @@ def build_backend_env(cfg: dict[str, Any]) -> str:
         f"SOLR_CORE_ANALYSES=analyses\n"
         f"SOLR_CORE_MAPPINGS=mappings\n"
         f"SOLR_CORE_CLINICAL=clinical\n"
+        f"SOLR_CORE_IMAGING=imaging\n"
+        f"SOLR_CORE_CLAIMS=claims\n"
+        f"SOLR_CORE_GIS_SPATIAL=gis_spatial\n"
+        f"\n"
+        f"# Optional sidecar service URLs\n"
+        f"WHITERABBIT_URL={'http://whiterabbit:8090' if cfg.get('enable_whiterabbit') else ''}\n"
+        f"FHIR_TO_CDM_URL={'http://fhir-to-cdm:8091' if cfg.get('enable_fhir_to_cdm') else ''}\n"
+        f"HECATE_URL={'http://hecate:8080' if cfg.get('enable_hecate') else ''}\n"
+        f"ORTHANC_URL={'http://orthanc:8042' if cfg.get('enable_orthanc') else ''}\n"
     )
 
 
@@ -420,9 +493,11 @@ def write(cfg: dict[str, Any]) -> None:
     # screen knows the actual admin credentials chosen during this install.
     # *.local is gitignored; Vite bakes these values into the JS bundle at
     # Phase 6 build time.  If the file is absent, the button is hidden.
+    study_agent_line = f"VITE_STUDY_AGENT_ENABLED={'true' if cfg.get('enable_study_agent') else 'false'}\n"
     frontend_env_local = (
         f"VITE_DEMO_EMAIL={cfg['admin_email']}\n"
         f"VITE_DEMO_PASSWORD={cfg['admin_password']}\n"
+        f"{study_agent_line}"
     )
     (REPO_ROOT / "frontend" / ".env.local").write_text(frontend_env_local)
 

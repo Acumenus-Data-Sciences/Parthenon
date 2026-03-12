@@ -1,0 +1,16 @@
+{
+  "key": "admin.system-health",
+  "title": "System Health",
+  "description": "A real-time monitoring dashboard showing the live status of all Parthenon services. Each service reports as healthy, degraded, or down, with an overall server status banner at the top. The dashboard auto-refreshes every 30 seconds and includes a GIS Data Management section.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "The dashboard auto-refreshes every 30 seconds, but you can click the Refresh button at any time to get an immediate status update.",
+    "The overall server status shows 'Needs Attention' if any individual service is degraded or down.",
+    "Click on any service card to view its detailed status page with additional diagnostics.",
+    "Queue services display pending and failed job counts directly on the card so you can spot backlogs at a glance.",
+    "The Solr service card shows core count and total indexed documents when available.",
+    "The Orthanc DICOM service card displays study count, instance count, and disk usage metrics.",
+    "The GIS Data Management panel at the bottom provides tools for managing geographic information system data."
+  ]
+}

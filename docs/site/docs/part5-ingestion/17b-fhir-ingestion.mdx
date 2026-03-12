@@ -1,0 +1,151 @@
+---
+id: 17b-fhir-ingestion
+title: "17b. FHIR Ingestion"
+sidebar_label: "17b. FHIR Ingestion"
+slug: /fhir-ingestion
+---
+
+# FHIR Ingestion
+
+The FHIR Ingestion tool converts HL7 FHIR R4 resources into OMOP CDM records. You can paste a FHIR Bundle (JSON) or upload FHIR NDJSON files, preview the resource breakdown before ingestion, and then load the data directly into your CDM tables. The tool handles resource-to-CDM mapping, tracks mapping coverage metrics, and logs any errors encountered during the conversion process.
+
+## Supported Input Formats
+
+The ingestion tool accepts two input formats:
+
+- **FHIR Bundle (JSON)** — A standard FHIR R4 Bundle resource with a `type` of `transaction`, `batch`, or `collection`. Paste the JSON directly into the editor or upload a `.json` file.
+- **FHIR NDJSON** — Newline-delimited JSON where each line is a standalone FHIR resource. Upload an `.ndjson` or `.jsonl` file, or paste the content directly.
+
+## Supported FHIR Resource Types
+
+The following FHIR resource types are recognized and mapped to OMOP CDM tables:
+
+| FHIR Resource | OMOP CDM Table(s) |
+|---------------|-------------------|
+| Patient | person |
+| Encounter | visit_occurrence |
+| Condition | condition_occurrence |
+| MedicationRequest | drug_exposure |
+| Procedure | procedure_occurrence |
+| Observation | measurement, observation |
+| DiagnosticReport | measurement |
+| Immunization | drug_exposure |
+| AllergyIntolerance | observation |
+| CarePlan | observation |
+| Claim | cost |
+| Device | device_exposure |
+
+## Ingestion Workflow
+
+### Step 1: Check Service Health
+
+A health badge in the page header shows whether the FHIR ingestion backend service is online or offline. Verify the service is available before attempting ingestion.
+
+### Step 2: Enter FHIR Data
+
+Choose your input mode:
+
+- **JSON Editor** — Paste a FHIR Bundle or individual resource JSON into the text area. An example Bundle is available via the **Load Example** button, demonstrating the expected structure with Patient, Condition, and MedicationRequest resources.
+- **File Upload** — Click **Upload File** and select a `.json`, `.ndjson`, or `.jsonl` file from your filesystem.
+
+### Step 3: Preview Resources
+
+Before ingestion, the **Resource Preview** panel automatically analyzes your input and displays:
+
+- The total number of FHIR resources detected
+- A breakdown by resource type with counts
+- The percentage of resources that have an `id` field
+- The percentage of resources that have coded fields (e.g., `code.coding`)
+
+This preview helps you verify the data structure and completeness before committing to ingestion.
+
+:::tip Validate Before Ingesting
+Always check the Resource Preview before clicking Ingest. Missing IDs or low coding percentages indicate data quality issues that may result in unmapped records or ingestion errors.
+:::
+
+### Step 4: Ingest
+
+Click **Ingest Bundle** (for JSON) or **Ingest Batch** (for NDJSON) to begin the conversion. The tool sends the data to the backend, which maps each FHIR resource to the corresponding OMOP CDM table and inserts the records.
+
+## Results Dashboard
+
+After ingestion completes, the results section displays several components.
+
+### Summary Cards
+
+Three summary cards show key metrics:
+
+| Metric | Description |
+|--------|-------------|
+| **Resources Processed** | Total FHIR resources submitted |
+| **CDM Records Created** | Total rows inserted across all CDM tables |
+| **Elapsed Time** | Wall-clock duration of the ingestion |
+
+### CDM Records Bar Chart
+
+A color-coded horizontal bar chart shows the number of records created in each CDM table. Tables are ordered by the standard CDM convention (person, visit_occurrence, condition_occurrence, etc.) and color-coded for visual distinction. Tables with zero records are omitted.
+
+### Mapping Coverage
+
+The Mapping Coverage card provides three quality metrics:
+
+- **CDM records / FHIR resource** — The ratio of CDM records created per input resource. A ratio of 1.0 or higher indicates that resources are mapping to at least one CDM record on average.
+- **Success rate** — The percentage of resources that were processed without errors.
+- **CDM tables populated** — The count of distinct CDM tables that received at least one record.
+
+### Error Log
+
+If any resources failed to map, an expandable **Error Log** panel appears with a red border. Errors are grouped by FHIR resource type, showing the specific error message for each failure. For large error sets (more than 5), a search field allows filtering errors by resource type or message text.
+
+:::warning Review All Errors
+Ingestion errors often indicate missing required fields, unrecognized coding systems, or vocabulary mismatches. Review the error log carefully and correct your FHIR data before re-ingesting.
+:::
+
+## Ingestion History
+
+The tool persists ingestion results in browser local storage (up to 30 entries). The **History** panel lists previous ingestion runs with:
+
+- Timestamp and input mode (JSON or file)
+- File name (for file uploads)
+- Resource count and record count
+- Error count and overall status
+- Elapsed time
+
+Click any history entry to restore its results for review. Individual entries can be deleted, or the entire history can be cleared.
+
+## Exporting Results
+
+Click **Export Results** to download the ingestion results as a JSON file. The export includes the complete records-created breakdown, error list, resource counts, and timing information.
+
+## API Reference
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/v1/fhir/ingest` | POST | Ingest a FHIR Bundle (JSON body) |
+| `/api/v1/fhir/ingest-batch` | POST | Ingest FHIR NDJSON (multipart file upload) |
+| `/api/v1/fhir/health` | GET | Check FHIR ingestion service health |
+
+### Ingest Bundle Request
+
+Send the FHIR Bundle as the JSON request body:
+
+```json
+{
+  "resourceType": "Bundle",
+  "type": "transaction",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "example-1",
+        "gender": "female",
+        "birthDate": "1985-04-12"
+      }
+    }
+  ]
+}
+```
+
+### Ingest Response
+
+The response includes `resources_processed`, `records_created` (an object mapping CDM table names to row counts), `errors` (an array of `{ resource_type, message }` objects), and `elapsed_seconds`.

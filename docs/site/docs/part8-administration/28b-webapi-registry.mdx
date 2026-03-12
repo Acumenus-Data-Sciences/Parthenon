@@ -1,0 +1,112 @@
+---
+id: 28b-webapi-registry
+title: "28b. WebAPI Registry"
+sidebar_label: "28b. WebAPI Registry"
+slug: /webapi-registry
+---
+
+# WebAPI Registry
+
+The **Legacy WebAPI Registry** page enables administrators to register connections to existing OHDSI WebAPI instances for source migration and backward compatibility. Navigate to **Data Sources > WebAPI Registry** to manage these connections.
+
+## Purpose
+
+Organizations migrating from the traditional OHDSI Atlas/WebAPI stack to Parthenon can register their existing WebAPI instances here. This allows Parthenon to discover and import data source configurations from legacy WebAPI deployments, streamlining the migration process without manual re-entry of source connection details.
+
+## Adding a Registry
+
+1. Click **Add Registry** in the top-right corner of the page.
+2. Fill in the registration form:
+
+| Field | Description | Example |
+|-------|-------------|---------|
+| **Name** | A human-readable label for this WebAPI instance | "Production WebAPI" |
+| **Base URL** | The root URL of the WebAPI deployment | `https://webapi.example.com/WebAPI` |
+| **Auth Type** | Authentication method required by the WebAPI | None, Basic Auth, or Bearer Token |
+| **Credentials** | Authentication credentials (shown only when auth type is not "None") | `user:password` for Basic Auth, or a token for Bearer |
+
+3. Click **Create** to save the registry entry.
+
+:::tip Authentication options
+Most WebAPI installations require no authentication for their REST endpoints. If your WebAPI is behind an authentication proxy, select **Basic Auth** and provide credentials in `user:password` format, or select **Bearer Token** and paste the token value. Credentials are stored securely.
+:::
+
+## Registry List
+
+Each registered WebAPI instance is displayed as a card showing:
+
+- **Name** and **Base URL** (displayed in monospace for clarity)
+- **Status badge** -- Active (teal) or Inactive (gray)
+- **Auth type** -- the configured authentication method
+- **Last synced** -- timestamp of the most recent successful source synchronization
+
+## Syncing Sources
+
+Click **Sync Sources** on any registry card to trigger an import of data source configurations from that WebAPI instance. Parthenon will:
+
+1. Query the WebAPI's `/source` endpoint to retrieve all configured data sources.
+2. For each discovered source, attempt to create a corresponding source record in Parthenon.
+3. Return a summary of results.
+
+### Sync Results
+
+After a sync completes, a results panel appears on the registry card showing:
+
+| Metric | Description |
+|--------|-------------|
+| **Imported** | Number of new sources successfully created in Parthenon |
+| **Skipped** | Number of sources that were not imported (e.g., already exist with the same source key) |
+
+Below the summary counts, each individual source is listed with its **source key** and import **status**, providing full transparency into what was discovered and how each source was handled.
+
+## Deleting a Registry
+
+Click **Delete** on a registry card to remove it. A confirmation dialog is shown before deletion proceeds. Deleting a registry removes the connection configuration only -- any sources that were previously synced from this registry remain in Parthenon.
+
+:::warning Verify synced sources
+After syncing sources from a legacy WebAPI, review the imported source configurations in the **Data Sources** section. You may need to update connection credentials, daimon mappings, or schema qualifiers to match your Parthenon database architecture. WebAPI source configurations often use different schema naming conventions.
+:::
+
+## Migration Workflow
+
+A typical migration workflow using the WebAPI Registry:
+
+1. **Register** your production WebAPI instance.
+2. **Sync Sources** to import all source configurations.
+3. Review imported sources in **Data Sources** and update connection details as needed.
+4. **Test** each source by running a simple query or Achilles analysis.
+5. Once verified, begin migrating cohort definitions and concept sets using the import tools described in the [Migration Guide](/migration/overview).
+
+:::tip Multiple WebAPI instances
+If your organization operates multiple WebAPI instances (e.g., development, staging, production), you can register all of them and sync sources selectively. Each registry operates independently, so syncing one does not affect the others.
+:::
+
+## Empty State
+
+If no registries have been configured, the page displays a placeholder prompting you to add a legacy WebAPI instance. This is expected for new Parthenon installations that are not migrating from an existing Atlas/WebAPI deployment.
+
+## Authentication Details
+
+The WebAPI Registry supports three authentication modes to accommodate different WebAPI deployment configurations:
+
+| Auth Type | When to Use | Credential Format |
+|-----------|-------------|-------------------|
+| **None** | WebAPI endpoints with no authentication (common for internal-only deployments) | No credentials required |
+| **Basic Auth** | WebAPI behind HTTP Basic authentication | `username:password` |
+| **Bearer Token** | WebAPI secured with token-based auth (e.g., OAuth2 access tokens) | Raw token string |
+
+Credentials are submitted securely and stored encrypted. The password/token input field uses a masked input to prevent shoulder surfing.
+
+## Sync Behavior
+
+When syncing sources from a WebAPI instance, Parthenon matches sources by their `source_key` field. This means:
+
+- **New sources** (source keys not present in Parthenon) are imported with their full configuration.
+- **Existing sources** (matching source keys already in Parthenon) are skipped to prevent overwriting customized settings.
+- The sync is additive -- it never deletes or modifies existing Parthenon source records.
+
+## Related Pages
+
+- [Data Sources](/data-sources) -- manage all CDM data source connections
+- [Migration Guide](/migration/overview) -- full guide for migrating from Atlas/WebAPI to Parthenon
+- [System Configuration](/system-configuration) -- platform-wide administration settings

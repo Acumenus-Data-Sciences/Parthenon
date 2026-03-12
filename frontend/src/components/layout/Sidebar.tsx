@@ -141,25 +141,47 @@ const navItems: NavItem[] = [
 const routeHelpKeys: Record<string, string> = {
   "/": "dashboard",
   "/admin": "administration",
+  "/admin/ai-providers": "admin.ai-providers",
   "/admin/auth-providers": "admin.auth-providers",
+  "/admin/fhir-connections": "admin.fhir-connections",
+  "/admin/fhir-export": "admin.fhir-export",
+  "/admin/fhir-sync-monitor": "admin.fhir-sync-monitor",
   "/admin/notifications": "admin.notifications",
   "/admin/roles": "admin.roles",
+  "/admin/system-health": "admin.system-health",
   "/admin/users": "admin.users",
+  "/admin/vocabulary": "admin.vocabulary",
+  "/admin/webapi-registry": "admin.webapi-registry",
   "/analyses": "analyses",
+  "/analyses/characterizations": "characterization",
+  "/analyses/estimations": "estimation",
+  "/analyses/evidence-synthesis": "evidence-synthesis",
+  "/analyses/incidence-rates": "incidence-rates",
+  "/analyses/pathways": "treatment-pathways",
+  "/analyses/predictions": "prediction",
+  "/analyses/sccs": "sccs",
   "/care-gaps": "care-gaps",
   "/cohort-definitions": "cohort-builder",
   "/concept-sets": "concept-set-builder",
   "/data-explorer": "data-explorer",
   "/data-sources": "data-sources",
+  "/etl-tools": "etl-tools",
+  "/fhir-ingestion": "fhir-ingestion",
   "/genomics": "genomics",
   "/gis": "gis",
   "/heor": "heor",
   "/imaging": "imaging",
   "/ingestion": "data-ingestion",
   "/jobs": "jobs",
+  "/mapping-assistant": "mapping-assistant",
+  "/phenotype-library": "phenotype-library",
   "/profiles": "profiles",
   "/publish": "publish",
+  "/query-assistant": "query-assistant",
+  "/source-profiler": "source-profiler",
   "/studies": "studies",
+  "/study-designer": "study-designer",
+  "/study-packages": "study-packages",
   "/vocabulary": "vocabulary-search",
 };
 
@@ -177,8 +199,8 @@ export function Sidebar() {
   const { sidebarOpen, toggleSidebar } = useUiStore();
   const { isAdmin, isSuperAdmin } = useAuthStore();
   const [helpOpen, setHelpOpen] = useState(false);
-  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
-  const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
+  const [manualOpen, setManualOpen] = useState<Set<string>>(new Set());
+  const [manualClosed, setManualClosed] = useState<Set<string>>(new Set());
 
   const isActive = (path: string) =>
     path === "/" ? location.pathname === "/" : location.pathname.startsWith(path);
@@ -189,23 +211,30 @@ export function Sidebar() {
   };
 
   const toggleGroup = (path: string) => {
-    setExpandedGroups((prev) => {
-      const next = new Set(prev);
-      if (next.has(path)) next.delete(path);
-      else next.add(path);
-      return next;
-    });
-    setCollapsedGroups((prev) => {
-      const next = new Set(prev);
-      if (next.has(path)) next.delete(path);
-      else next.add(path);
-      return next;
-    });
+    const groupActive = navItems.find((i) => i.path === path)?.children?.some((c) => isActive(c.path)) ?? false;
+
+    if (groupActive) {
+      // Active group: toggle in/out of manualClosed
+      setManualClosed((prev) => {
+        const next = new Set(prev);
+        if (next.has(path)) next.delete(path);
+        else next.add(path);
+        return next;
+      });
+    } else {
+      // Inactive group: toggle in/out of manualOpen
+      setManualOpen((prev) => {
+        const next = new Set(prev);
+        if (next.has(path)) next.delete(path);
+        else next.add(path);
+        return next;
+      });
+    }
   };
 
   const isExpanded = (item: NavItem) => {
-    if (collapsedGroups.has(item.path)) return false;
-    return expandedGroups.has(item.path) || isGroupActive(item);
+    if (manualClosed.has(item.path)) return false;
+    return manualOpen.has(item.path) || isGroupActive(item);
   };
 
   const visibleItems = navItems.filter((item) => {

@@ -1,0 +1,17 @@
+{
+  "key": "study-packages",
+  "title": "Study Packages (Strategus)",
+  "description": "Study Packages lets you build and execute multi-analysis OHDSI study packages using Strategus. A guided 5-step wizard walks you through naming your study, selecting analysis modules (CohortGenerator, CohortMethod, PatientLevelPrediction, etc.), assigning shared cohorts, validating the specification, and executing against a CDM data source.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "CohortGenerator is always included automatically as it is required to instantiate cohorts before any analysis module can run.",
+    "In the Select Modules step, choose from available OHDSI analysis modules like CohortMethod, PatientLevelPrediction, SelfControlledCaseSeries, and more.",
+    "Add shared cohorts in the Shared Cohorts step, assigning each a role of target, comparator, or outcome. Most modules require at least one target cohort.",
+    "Use the Review & Validate step to check your specification for configuration issues before committing to execution.",
+    "Import a previously exported Strategus JSON specification using the Import JSON button in the page header to restore a saved study design.",
+    "Export your current specification as JSON at any time using the Export JSON button for sharing with collaborators or archival.",
+    "In the Execute step, select a CDM data source and monitor the progress bar while Strategus orchestrates module execution.",
+    "After execution completes, review the summary showing modules executed, elapsed time, result file count, and output directory."
+  ]
+}

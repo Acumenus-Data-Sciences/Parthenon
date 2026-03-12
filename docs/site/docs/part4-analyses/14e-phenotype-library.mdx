@@ -1,0 +1,170 @@
+---
+id: 14e-phenotype-library
+title: "14e. Phenotype Library"
+sidebar_label: "14e. Phenotype Library"
+slug: /phenotype-library
+---
+
+# Phenotype Library
+
+The **Phenotype Library** provides access to a catalog of 300+ curated OHDSI phenotype definitions. Researchers can browse, search, filter, and import validated phenotype definitions directly into Parthenon as cohort definitions with a single click, eliminating the need to rebuild common clinical phenotypes from scratch.
+
+Each entry in the library includes metadata such as clinical domain, severity classification, tags, a logic description, and (where available) a machine-readable cohort expression that can be imported.
+
+---
+
+## Module Architecture
+
+```
+PhenotypeLibraryPage
+ |
+ |-- Header (Library icon, subtitle)
+ |
+ |-- Stats Cards Row
+ |    |-- Total Phenotypes (count)
+ |    |-- With Expression (count with importable JSON)
+ |    |-- Domains Covered (distinct domain count)
+ |    |-- Imported (count already imported to this instance)
+ |
+ |-- Search + Filter Bar
+ |    |-- Search input (debounced, 350ms)
+ |    |-- Domain filter dropdown
+ |
+ |-- Result Count + Clear Filters
+ |
+ |-- Phenotype Table
+ |    |-- Columns: Name, Domain, Severity, Tags, Action
+ |    |-- Expandable rows (description, logic)
+ |    |-- Import button or "Imported" link per row
+ |
+ |-- Pagination (page number pills, prev/next)
+```
+
+Data is fetched via three queries:
+
+- **Stats** -- aggregate counts (total, with expression, domains, imported)
+- **Domains** -- distinct domain values for the filter dropdown
+- **List** -- paginated phenotype entries with search and domain filters
+
+---
+
+## Feature Walkthrough
+
+### Stats Overview
+
+Four summary cards at the top of the page provide an at-a-glance view of the library:
+
+| Card | Description |
+|---|---|
+| **Total Phenotypes** | Total number of phenotype definitions in the catalog |
+| **With Expression** | Phenotypes that include a machine-readable cohort expression (importable) |
+| **Domains Covered** | Number of distinct clinical domains represented |
+| **Imported** | Count of phenotypes already imported into this Parthenon instance |
+
+### Searching and Filtering
+
+**Text Search** -- Type in the search box to filter by phenotype name or description. Search is debounced (350ms delay) to avoid excessive API calls. The page resets to page 1 on each search change.
+
+**Domain Filter** -- Click the domain dropdown to filter by clinical domain. Available domains are loaded from the API and may include:
+
+| Domain | Color Code |
+|---|---|
+| Condition | Teal |
+| Drug | Gold |
+| Measurement | Crimson |
+| Procedure | Violet |
+| Observation | Blue |
+| Device | Green |
+
+Active filters are indicated visually (teal border on the domain button). A **Clear filters** link appears when any filter is active.
+
+### Browsing the Table
+
+The phenotype table displays five columns:
+
+| Column | Description |
+|---|---|
+| **Name** | Phenotype name with cohort ID shown below in monospace |
+| **Domain** | Clinical domain badge (color-coded) |
+| **Severity** | Severity classification badge (acute, chronic, subacute) |
+| **Tags** | Up to 3 tag pills displayed; overflow shown as "+N" |
+| **Action** | Import button or "Imported" link |
+
+Click any row to expand it and reveal additional details:
+
+- **Description** -- a narrative description of the phenotype definition
+- **Logic** -- the phenotyping algorithm logic in monospace text
+
+### Importing Phenotypes
+
+Each phenotype row has an action button:
+
+- **Import** (crimson button) -- available when the phenotype has a cohort expression JSON. Clicking it creates a new cohort definition in Parthenon based on the phenotype's expression.
+- **Imported** (teal badge) -- shown when the phenotype has already been imported. Clicking it navigates to the corresponding cohort definition page.
+
+:::tip
+Only phenotypes with a cohort expression JSON can be imported. Phenotypes without an expression show a disabled import button with a "No expression available" tooltip.
+:::
+
+:::warning
+Importing a phenotype creates a new cohort definition in your Parthenon instance. Review the imported definition before generating the cohort against a CDM source, as the phenotype may need adaptation for your specific data characteristics.
+:::
+
+### Pagination
+
+Results are paginated at 25 entries per page. Navigation controls include:
+
+- **Previous / Next** buttons
+- **Page number pills** (up to 7 visible, with smart windowing around the current page)
+- **Page N of M** indicator
+
+---
+
+## API Reference
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `GET /api/v1/phenotype-library` | GET | List phenotypes with pagination, search, and domain filter |
+| `GET /api/v1/phenotype-library/stats` | GET | Aggregate statistics (total, with expression, domains, imported) |
+| `GET /api/v1/phenotype-library/domains` | GET | List distinct clinical domains |
+| `POST /api/v1/phenotype-library/{cohortId}/import` | POST | Import a phenotype as a cohort definition |
+
+Query parameters for the list endpoint:
+
+| Parameter | Type | Description |
+|---|---|---|
+| `search` | string | Filter by name or description (optional) |
+| `domain` | string | Filter by clinical domain (optional) |
+| `page` | integer | Page number (default: 1) |
+| `per_page` | integer | Results per page (default: 25) |
+
+---
+
+## Best Practices
+
+### Evaluating Phenotypes Before Import
+
+Not every phenotype definition in the OHDSI library is appropriate for every dataset or study. Before importing, consider the following:
+
+1. **Review the logic description** -- expand the row and read the phenotyping algorithm. Ensure it aligns with your study's clinical definition of the condition.
+2. **Check domain relevance** -- a phenotype tagged as "Condition" may rely on diagnosis codes that are not consistently captured in your CDM source (e.g., outpatient vs. inpatient data).
+3. **Assess severity classification** -- acute, chronic, and subacute phenotypes may have different washout period and observation requirements.
+4. **Verify concept set coverage** -- after importing, open the cohort definition and inspect the concept sets. Confirm that the included concepts are present in your vocabulary and that descendant inclusion is appropriate.
+
+### Building a Phenotype Workflow
+
+A recommended workflow for using the Phenotype Library in a research study:
+
+1. Start with the [Study Designer](/study-designer) to get AI-recommended phenotypes based on your study intent.
+2. Search the Phenotype Library for additional candidates.
+3. Import the most relevant phenotypes as cohort definitions.
+4. Run Cohort Diagnostics on imported definitions to assess feasibility in your CDM source.
+5. Refine definitions as needed using the Cohort Builder.
+
+---
+
+## Related Pages
+
+- [Study Designer (AI)](/study-designer) -- AI-powered phenotype search and recommendations
+- [Building Cohorts](/building-cohorts) -- manually create cohort definitions
+- [Concept Sets](/concept-sets) -- build concept sets used in phenotype expressions

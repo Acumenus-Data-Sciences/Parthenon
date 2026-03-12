@@ -1,0 +1,17 @@
+{
+  "key": "phenotype-library",
+  "title": "Phenotype Library",
+  "description": "The Phenotype Library provides access to over 300 curated OHDSI phenotype definitions that you can browse, search, filter by domain, and import into your workspace as cohort definitions with a single click. Each phenotype includes metadata such as domain, severity, tags, and a detailed logic description.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Use the search bar to find phenotypes by name or description, such as 'type 2 diabetes' or 'heart failure'.",
+    "Filter by clinical domain (Condition, Drug, Measurement, Procedure, Observation, Device) using the domain dropdown.",
+    "Click any row to expand it and view the full description and logic details for that phenotype definition.",
+    "Click the Import button to create a local cohort definition from any phenotype that has an expression JSON available.",
+    "Once imported, the row shows an 'Imported' badge linking directly to your local cohort definition for further editing.",
+    "The stats cards at the top show total phenotypes, how many have computable expressions, domains covered, and how many you have already imported.",
+    "Phenotypes without an expression JSON (grayed-out Import button) are descriptive only and cannot be imported as executable cohort definitions.",
+    "Use pagination at the bottom to browse through the full library, or narrow results with search and domain filters first."
+  ]
+}

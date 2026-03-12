@@ -1,0 +1,17 @@
+{
+  "key": "etl-tools",
+  "title": "ETL Tools",
+  "description": "A unified ETL toolkit with three capabilities: profile source databases using WhiteRabbit to inspect table structures and data quality, generate synthetic OMOP CDM data from Synthea CSV files, and ingest FHIR resources directly into your CDM. These tools help you understand your data before mapping and provide synthetic datasets for testing.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Use the Source Profiler tab to scan any configured data source and get column-level statistics including data types, null percentages, distinct counts, and sample values.",
+    "Filter your scan to specific tables by entering a comma-separated list (e.g. person, visit_occurrence) to speed up profiling on large databases.",
+    "Columns with more than 50% null values are flagged automatically in the scan results, helping you identify data quality issues early.",
+    "Export your scan report as JSON for offline review or to share with your ETL team.",
+    "The Synthea Generator loads pre-generated Synthea CSV files into OMOP CDM format. You must have the CSV files on a path accessible to the R runtime container before running the ETL.",
+    "Patient counts for Synthea generation range from 1 to 100,000. Start small to verify your pipeline before scaling up.",
+    "The FHIR Ingestion tab lets you load FHIR resources directly into your CDM without an intermediate CSV step.",
+    "Check the service health indicator at the top of each tab to confirm WhiteRabbit or Synthea services are available before starting a job."
+  ]
+}

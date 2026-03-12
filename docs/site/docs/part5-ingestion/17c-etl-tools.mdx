@@ -1,0 +1,144 @@
+---
+id: 17c-etl-tools
+title: "17c. ETL Tools"
+sidebar_label: "17c. ETL Tools"
+slug: /etl-tools
+---
+
+# ETL Tools
+
+The ETL Tools page is a unified workspace that brings together three data ingestion capabilities under a single tabbed interface. It provides tools for profiling source databases, generating synthetic OMOP data, and ingesting FHIR resources into the CDM. Each tab operates independently, allowing you to switch between workflows without losing state.
+
+## Accessing ETL Tools
+
+Navigate to **Ingestion > ETL Tools** from the main navigation. The page displays three tabs:
+
+1. **Source Profiler** — WhiteRabbit-based database profiling
+2. **Synthea Generator** — Synthetic patient data generation
+3. **FHIR Ingestion** — FHIR R4 resource ingestion
+
+## Tab 1: Source Profiler
+
+The Source Profiler tab provides a streamlined version of the [full Source Profiler](./17a-source-profiler) for quick database scanning. It connects to the WhiteRabbit service to scan your data source and produce a table-by-table quality report.
+
+### Usage
+
+1. Verify the **WhiteRabbit service** health indicator shows "available" at the top of the tab.
+2. Select a **Data Source** from the dropdown (all registered Parthenon sources are listed).
+3. Optionally enter a **Table Filter** — a comma-separated list of table names to restrict the scan scope.
+4. Click **Scan Database** and wait for the scan to complete.
+
+### Results
+
+After scanning, the tab displays:
+
+- **Summary cards** — Tables scanned, total columns, total rows, and scan time
+- **Data Quality Flags** — A warning list of tables that have columns with > 50% null values, identifying specific column names
+- **Table accordions** — Collapsible rows for each table showing column name, data type (color-coded badge), null percentage bar, distinct value count, and top-5 sample values
+
+Click **Export Report** to download the scan results as a JSON file.
+
+:::tip Quick Scan vs Full Profiler
+The Source Profiler tab here provides the essential scanning workflow. For advanced features like the completeness heatmap, data quality scorecard with letter grades, table size distribution chart, scan history, and sorting/filtering controls, use the dedicated [Source Profiler page](./17a-source-profiler).
+:::
+
+## Tab 2: Synthea Generator
+
+The Synthea Generator loads pre-generated Synthea CSV files into an OMOP CDM source, converting synthetic patient records into properly structured CDM tables.
+
+### Configuration
+
+| Field | Description |
+|-------|-------------|
+| **Target Source** | The registered data source where CDM records will be inserted |
+| **Patient Count** | Number of synthetic patients to load (1 to 100,000) |
+| **Synthea CSV Output Folder** | Absolute filesystem path to the directory containing Synthea CSV output files (e.g., `patients.csv`, `encounters.csv`). This path must be accessible from the R runtime container. |
+| **CDM Version** | Target OMOP CDM version: 5.4 (default) or 5.3 |
+
+### Running the Generator
+
+1. Verify the **Synthea ETL service** health indicator shows "available." The status also displays the service version and supported capabilities.
+2. Select a target source, set the patient count, and provide the CSV folder path.
+3. Click **Generate** to start the ETL process.
+
+:::warning CSV Files Must Exist First
+The Synthea Generator does not generate the Synthea CSV files itself. You must run Synthea separately to produce the CSV output, then point this tool at the output directory. The generator reads the CSVs and loads them into the CDM.
+:::
+
+### Results
+
+After generation completes, the tab shows:
+
+- **Persons Generated** — Number of person records created
+- **Total Rows Inserted** — Sum of all CDM records across tables
+- **Elapsed Time** — Duration of the ETL process
+- **Per-Table Row Counts** — A bar chart showing the number of rows inserted into each CDM table, sorted by count
+
+## Tab 3: FHIR Ingestion
+
+The FHIR Ingestion tab provides an embedded version of the [FHIR Ingestion tool](./17b-fhir-ingestion) for converting FHIR R4 resources into OMOP CDM records. It supports both JSON Bundle paste and NDJSON file upload, with resource preview, mapping coverage metrics, and error logging.
+
+For complete documentation of the FHIR ingestion workflow, resource type mappings, and API reference, see the [dedicated FHIR Ingestion page](./17b-fhir-ingestion).
+
+## Common Workflow: Profile, Generate, Verify
+
+A typical workflow using all three tabs:
+
+1. **Profile your target source** using the Source Profiler tab to establish a baseline. Note any existing tables and row counts.
+2. **Generate synthetic data** using the Synthea Generator tab (or ingest real data via FHIR) to populate the CDM.
+3. **Profile again** after loading to verify that expected tables are populated, null rates are acceptable, and row counts match expectations.
+
+:::tip Use for Development and Testing
+The ETL Tools are particularly useful during development. Generate a Synthea dataset for your test environment, then use the Source Profiler to verify the data loaded correctly before running Achilles characterization or cohort generation.
+:::
+
+## Service Dependencies
+
+The ETL Tools page depends on several backend services:
+
+| Service | Required By | Health Check |
+|---------|-------------|--------------|
+| WhiteRabbit | Source Profiler tab | Shown as status badge |
+| Synthea ETL (R Runtime) | Synthea Generator tab | Shown as status badge |
+| FHIR Ingestion Service | FHIR Ingestion tab | Shown as status badge |
+
+If a service is unavailable, its corresponding tab will display a warning and operations will fail. Check the [System Health Dashboard](/administration/system-health) for service status details.
+
+## Data Type Color Coding
+
+Both the Source Profiler and Synthea results use color-coded type badges to help you quickly identify column categories:
+
+| Data Type | Color |
+|-----------|-------|
+| varchar, text | Blue |
+| integer, int, bigint | Teal |
+| numeric, float, double | Gold |
+| date, datetime, timestamp | Purple |
+| boolean, bool | Orange |
+
+## Error Handling
+
+Each tab handles errors independently. When a scan, generation, or ingestion fails:
+
+- An error banner appears with a red background showing the failure reason
+- The operation can be retried without losing your configuration
+- Previous successful results remain visible until you clear them
+
+:::tip Check Service Logs for Detailed Errors
+The error messages shown in the UI are summaries. For detailed stack traces and debugging information, check the Docker service logs:
+- WhiteRabbit: `docker compose logs -f php`
+- Synthea ETL: `docker compose logs -f r-runtime`
+- FHIR Ingestion: `docker compose logs -f php`
+:::
+
+## Permissions
+
+Access to the ETL Tools page requires the `etl:manage` permission. By default, this permission is granted to users with the `data-engineer` or `super-admin` role. Standard researcher accounts do not have access to ETL operations. Contact your system administrator to request access if needed.
+
+## Related Documentation
+
+- [Source Profiler (full)](./17a-source-profiler) — Advanced profiling with heatmap, scorecard, and history
+- [FHIR Ingestion (full)](./17b-fhir-ingestion) — Complete FHIR workflow with API reference
+- [Schema Mapping](./16-schema-mapping) — Mapping source schemas to OMOP CDM
+- [Concept Mapping](./17-concept-mapping) — Mapping source codes to OMOP concepts
+- [Mapping Assistant (Ariadne)](/mapping-assistant) — AI-powered concept mapping

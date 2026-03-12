@@ -1,0 +1,153 @@
+---
+id: 14a-sccs
+title: "14a. Self-Controlled Case Series (SCCS)"
+sidebar_label: "14a. SCCS"
+slug: /sccs
+---
+
+# Self-Controlled Case Series (SCCS)
+
+The **Self-Controlled Case Series** (SCCS) module implements a within-person study design where each patient serves as their own control. This eliminates time-invariant confounding (genetics, chronic conditions, socioeconomic factors) by comparing outcome rates during exposed risk windows versus unexposed periods within the same individual's observation time.
+
+SCCS is particularly suited for studying the association between transient drug exposures and acute adverse events. Parthenon provides a full design form, configurable risk windows, model selection, covariate settings, and a results view with incidence rate ratio (IRR) estimates, forest plots, and era timelines.
+
+---
+
+## Module Architecture
+
+```
+SccsDetailPage
+ |
+ |-- Header (name, description, back navigation)
+ |-- Source Selector + Execute button
+ |-- Delete button
+ |
+ |-- Tab: Design
+ |    |-- SccsDesigner
+ |         |-- Basic Information (name, description)
+ |         |-- Exposure Cohort selector
+ |         |-- Outcome Cohort selector
+ |         |-- Risk Windows (multiple, configurable)
+ |         |-- Model & Population settings
+ |         |-- CovariateSettingsPanel
+ |         |-- Save / Create button
+ |
+ |-- Tab: Results
+ |    |-- SccsResults
+ |    |    |-- SccsVerdictDashboard (summary verdict)
+ |    |    |-- Population Summary (cases, outcomes, observation periods)
+ |    |    |-- IRR Estimates Table (sortable, with inline forest plots)
+ |    |    |-- SccsTimeline (risk window era visualization)
+ |    |    |-- Execution timing
+ |    |
+ |    |-- Execution History table
+```
+
+---
+
+## Feature Walkthrough
+
+### Creating an SCCS Analysis
+
+1. Navigate to **Analyses** and click **New Analysis**, then select **SCCS**.
+2. Fill in the **Basic Information** section with a name and optional description.
+3. Select an **Exposure Cohort** (the drug or intervention under study).
+4. Select an **Outcome Cohort** (the adverse event to measure).
+5. Configure one or more **Risk Windows**.
+6. Choose a **Model Type** and set population parameters.
+7. Optionally configure **Covariate Settings**.
+8. Click **Create** to save the analysis.
+
+### Configuring Risk Windows
+
+Risk windows define the time periods relative to the exposure era where outcome risk is assessed. Each window has four parameters:
+
+| Parameter | Description | Options |
+|---|---|---|
+| **Start Day** | Offset in days from the anchor point | Integer (e.g., `0`) |
+| **Start Anchor** | Reference point for the start offset | `Era Start` or `Era End` |
+| **End Day** | Offset in days from the anchor point | Integer (e.g., `30`) |
+| **End Anchor** | Reference point for the end offset | `Era Start` or `Era End` |
+
+You can add multiple risk windows to study different exposure periods (e.g., 0-30 days post-exposure, 31-60 days post-exposure). Each window has an editable label. At least one risk window is required.
+
+:::tip
+A typical pharmacovigilance study uses a risk window of 0 to 30 days anchored to the era start. For persistent effects, consider extending the end day or anchoring to era end.
+:::
+
+### Model & Population Settings
+
+| Setting | Description | Default |
+|---|---|---|
+| **Model Type** | Statistical model for rate estimation | Simple (no adjustments) |
+| **Naive Period** | Minimum observation time (days) before first exposure to exclude prevalent users | 365 days |
+| **First Outcome Only** | Restrict to first occurrence of the outcome per patient | Enabled |
+
+Available model types:
+
+- **Simple** -- no covariate adjustments; estimates raw IRRs.
+- **Age-adjusted** -- adjusts for age as a time-varying covariate.
+- **Season-adjusted** -- adjusts for seasonal patterns in outcome rates.
+- **Age + Season adjusted** -- adjusts for both age and seasonality.
+
+### Covariate Settings
+
+The shared `CovariateSettingsPanel` allows toggling which baseline features are included as covariates:
+
+| Covariate | Description |
+|---|---|
+| **Demographics** | Age, gender |
+| **Condition Occurrence** | Prior conditions in the lookback window |
+| **Drug Exposure** | Concomitant medications |
+| **Procedure Occurrence** | Prior procedures |
+| **Measurement** | Lab results and vitals |
+
+A configurable time window (default: -365 to 0 days) defines the lookback period for baseline covariates.
+
+### Executing an Analysis
+
+1. Select a **CDM data source** from the dropdown in the page header.
+2. Click **Execute**. The analysis is queued and runs via the R runtime (HADES SelfControlledCaseSeries package).
+3. The page automatically switches to the **Results** tab when execution begins.
+
+:::warning
+Execution requires a connected CDM data source with Achilles results. The R runtime container must be healthy and the JDBC driver must be available at `/opt/jdbc/` inside the container.
+:::
+
+### Viewing Results
+
+The results tab displays several sections:
+
+**Verdict Dashboard** -- a summary panel providing an at-a-glance assessment of the SCCS results.
+
+**Population Summary** -- three metric cards showing:
+- **Cases** -- number of patients with both exposure and outcome
+- **Outcomes** -- total outcome events observed
+- **Observation Periods** -- number of observation periods analyzed
+
+**IRR Estimates Table** -- a sortable table with columns for covariate name, incidence rate ratio (IRR), 95% confidence interval bounds, log(RR), standard error, and an inline mini forest plot. IRR values above 1.0 are highlighted in red (elevated risk), and values below 1.0 in teal (protective effect).
+
+**Risk Window Timeline** -- a visual timeline rendering the SCCS eras (exposure periods, risk windows, and observation time) using the `SccsTimeline` component.
+
+**Execution History** -- a table listing all prior executions with status, source, start time, and completion time. Click a completed execution to load its results.
+
+---
+
+## API Reference
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `GET /api/v1/analyses/sccs/{id}` | GET | Fetch SCCS analysis with design and executions |
+| `POST /api/v1/analyses/sccs` | POST | Create a new SCCS analysis |
+| `PUT /api/v1/analyses/sccs/{id}` | PUT | Update an existing SCCS analysis |
+| `DELETE /api/v1/analyses/sccs/{id}` | DELETE | Delete an SCCS analysis |
+| `POST /api/v1/analyses/sccs/{id}/execute` | POST | Execute against a source (body: `{ source_id }`) |
+| `GET /api/v1/analyses/sccs/{id}/executions/{execId}` | GET | Fetch execution results |
+
+---
+
+## Related Pages
+
+- [Population-Level Estimation](/population-level-estimation) -- overview of all estimation methods
+- [Evidence Synthesis](/evidence-synthesis) -- combine SCCS results across databases
+- [Studies](/studies) -- organize analyses into multi-database studies

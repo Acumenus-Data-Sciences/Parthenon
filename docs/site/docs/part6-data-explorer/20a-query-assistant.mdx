@@ -1,0 +1,169 @@
+---
+id: 20a-query-assistant
+title: "20a. Query Assistant"
+sidebar_label: "20a. Query Assistant"
+slug: /query-assistant
+---
+
+# Query Assistant
+
+The Query Assistant is a natural-language-to-SQL tool that lets clinical researchers ask questions about their OMOP CDM data in plain English. Powered by the Parthenon AI service, it translates your question into a SQL query, classifies its safety, explains the logic, and lets you validate the result before execution. No SQL expertise is required — type a question like "How many patients have diabetes?" and receive a ready-to-use query.
+
+## Asking a Question
+
+### Step 1: Enter Your Question
+
+Navigate to **Data Explorer > Query Assistant**. The left panel contains a text area labeled **Natural Language Question**. Type your clinical question in plain English. Press **Ctrl+Enter** (or **Cmd+Enter** on macOS) to submit, or click the **Generate SQL** button.
+
+### Step 2: Use Example Questions
+
+Below the text area, a set of example question chips provides starting points:
+
+- "How many patients have diabetes?"
+- "What are the top 10 conditions by prevalence?"
+- "Average age of patients with heart failure"
+- "Drug exposure counts for statins in 2024"
+
+Click any example to populate the question field, then click **Generate SQL** to execute.
+
+### Step 3: Review Generated SQL
+
+The right panel displays the generated SQL query in a formatted code block with syntax highlighting and a **Copy** button. The SQL is designed to be read-only and safe to execute against your CDM.
+
+## Safety Classification
+
+Every generated query receives a safety classification badge:
+
+| Classification | Meaning |
+|----------------|---------|
+| **SAFE -- Read Only** | The query contains only SELECT statements and is safe to execute. Shown with a green shield badge. |
+| **UNSAFE** | The query contains statements that could modify data (INSERT, UPDATE, DELETE, DROP). Shown with a red shield badge. Do not execute without careful review. |
+
+:::warning Never Execute Unsafe Queries
+If a query is classified as UNSAFE, do not execute it against production data. The AI may occasionally generate queries with side effects when the question is ambiguous. Always review the SQL before running it.
+:::
+
+## Query Metadata
+
+Below the SQL block, the assistant displays metadata about the generated query:
+
+- **Safety badge** — Read-only or unsafe classification
+- **Aggregate badge** — Appears when the query uses aggregate functions (COUNT, SUM, AVG, etc.)
+- **Tables Referenced** — A list of CDM and vocabulary tables used in the query, shown as monospaced chips
+
+## Explanation
+
+When available, the assistant provides a plain-English explanation of the generated SQL. This section describes the query logic, the tables and joins used, and any assumptions made during translation. This is especially useful for complex queries involving multiple joins or subqueries.
+
+## SQL Validation
+
+After reviewing the generated query, click **Validate SQL** to run a structural validation check. The validation result panel shows:
+
+| Field | Description |
+|-------|-------------|
+| **Valid / Invalid** | Whether the SQL parses correctly |
+| **Read Only** | Confirms the query contains no write operations |
+| **Estimated Complexity** | Low, medium, or high — based on join count, subqueries, and aggregation |
+| **Tables** | List of tables referenced in the query |
+| **Warnings** | Any potential issues such as missing WHERE clauses, Cartesian joins, or large table scans |
+
+:::tip Validate Before Executing
+Always validate generated SQL before running it against large datasets. The complexity indicator helps you anticipate query execution time — high-complexity queries on multi-million-row tables may require optimization.
+:::
+
+## Schema Browser
+
+The collapsible **OMOP CDM Schema Browser** panel appears in the right column below the results. It provides a reference of all CDM tables and their columns, organized into two sections:
+
+- **Clinical Tables** — person, visit_occurrence, condition_occurrence, drug_exposure, procedure_occurrence, measurement, observation, etc.
+- **Vocabulary Tables** — concept, concept_relationship, concept_ancestor, vocabulary, domain, etc.
+
+Each table can be expanded to show its columns with name, data type, and description. A **Common Joins** section lists frequently used join patterns (e.g., joining condition_occurrence to concept on concept_id).
+
+The schema browser loads on demand when expanded, with a 10-minute cache to avoid repeated API calls.
+
+## Query History
+
+The left panel includes a **Query History** section that stores your recent questions and their generated SQL (up to 10 entries, persisted in browser local storage). Each entry shows the question text and timestamp. Click an entry to restore the question and its SQL output. Use the **Clear** button to remove all history.
+
+## Two-Column Layout
+
+The page uses a responsive two-column layout:
+
+- **Left column** — Question input, example chips, generate button, and query history
+- **Right column** — Generated SQL, metadata badges, explanation, validation, and schema browser
+
+On screens narrower than 900px, the layout collapses to a single column.
+
+## API Reference
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/v1/text-to-sql/generate` | POST | Generate SQL from a natural language question |
+| `/api/v1/text-to-sql/validate` | POST | Validate a SQL query for safety and correctness |
+| `/api/v1/text-to-sql/schema` | GET | Retrieve the OMOP CDM schema for the browser |
+
+### Generate Request
+
+```json
+{
+  "question": "How many patients have diabetes?",
+  "cdm_schema": "cdm"
+}
+```
+
+### Generate Response
+
+```json
+{
+  "sql": "SELECT COUNT(DISTINCT p.person_id) ...",
+  "explanation": "This query counts distinct patients ...",
+  "tables_referenced": ["person", "condition_occurrence", "concept"],
+  "is_aggregate": true,
+  "safety": "safe"
+}
+```
+
+### Validate Request
+
+```json
+{
+  "sql": "SELECT COUNT(*) FROM cdm.person",
+  "cdm_schema": "cdm"
+}
+```
+
+### Validate Response
+
+```json
+{
+  "valid": true,
+  "read_only": true,
+  "tables": ["person"],
+  "warnings": [],
+  "estimated_complexity": "low"
+}
+```
+
+## Best Practices
+
+### Writing Effective Questions
+
+The AI performs best with clear, specific questions. Follow these guidelines:
+
+- **Be specific about the clinical concept.** "How many patients have type 2 diabetes?" is better than "How many diabetics?"
+- **Specify time ranges when relevant.** "Drug exposures for statins in 2024" produces a more targeted query than "statin prescriptions."
+- **Use OMOP terminology when possible.** Terms like "condition_occurrence," "drug_exposure," and "concept_id" help the AI generate more accurate queries.
+- **One question at a time.** Compound questions like "How many patients have diabetes and what are their average ages?" may produce incomplete results. Ask each question separately.
+
+### Limitations
+
+- The Query Assistant generates SQL but does not execute it. Copy the SQL and run it through your preferred database tool or the Parthenon SQL console.
+- Complex analytical queries involving temporal patterns, nested cohort logic, or multi-step calculations may require manual refinement of the generated SQL.
+- The AI uses the OMOP CDM schema structure. Questions about application-level data (users, studies, cohort definitions) are outside its scope.
+
+## Related Documentation
+
+- [Population Statistics](/population-stats) — Pre-built population-level queries and visualizations
+- [Characterization (Achilles)](/characterization-achilles) — Automated CDM characterization
+- [Vocabulary Browser](/vocabulary-browser) — Look up concept IDs referenced in generated queries

@@ -1,0 +1,152 @@
+---
+id: 30a-fhir-admin
+title: "30a. FHIR Administration"
+sidebar_label: "30a. FHIR Administration"
+slug: /fhir-admin
+---
+
+# FHIR Administration
+
+Parthenon provides three administrative interfaces for managing FHIR EHR integrations: **FHIR EHR Connections** for configuring endpoints, the **Sync Monitor** for operational oversight, and **FHIR Bulk Export** for exporting OMOP data as FHIR NDJSON. This chapter covers all three.
+
+## FHIR EHR Connections
+
+Navigate to **Admin > FHIR Connections** to manage connections to EHR systems via FHIR R4 Bulk Data.
+
+### Summary Metrics
+
+Four metric cards at the top of the page provide an at-a-glance overview:
+
+| Metric | Description |
+|--------|-------------|
+| **Total Connections** | Number of configured FHIR endpoints |
+| **Active** | Connections currently enabled for syncing |
+| **Keys Configured** | Connections that have a private key uploaded |
+| **Last Sync** | Timestamp of the most recent sync across all connections |
+
+### Adding a Connection
+
+Click **Add Connection** to open the configuration dialog. Each connection represents a SMART Backend Services integration with an EHR FHIR R4 endpoint.
+
+| Field | Description |
+|-------|-------------|
+| **Site Name** | Human-readable label (e.g., "Johns Hopkins Epic") |
+| **Site Key** | URL-safe slug identifier (e.g., `jhu-epic`) |
+| **EHR Vendor** | Epic, Cerner (Oracle Health), or Other FHIR R4 |
+| **FHIR Base URL** | The EHR's FHIR R4 endpoint |
+| **Token Endpoint** | OAuth 2.0 token endpoint for SMART Backend Services |
+| **Client ID** | The registered SMART application client identifier |
+| **RSA Private Key (PEM)** | Private key for JWT assertion signing (stored encrypted) |
+| **Scopes** | OAuth scopes (default: `system/*.read`) |
+| **Group ID** | FHIR Group resource ID for bulk export targeting |
+| **Export Resource Types** | Comma-separated list (blank for all supported types) |
+| **Active** | Whether the connection is enabled |
+| **Incremental Sync** | Whether to use `_since` parameter for delta syncs |
+
+### Connection Cards
+
+Each connection is displayed as a card showing the site name, EHR vendor, FHIR base URL, and current status. The card provides:
+
+- **Key status** -- whether an RSA private key has been uploaded (required for syncing).
+- **Last sync timestamp** and status badge (completed, running, pending, failed, etc.).
+- **Record count** from the most recent sync.
+
+### Testing a Connection
+
+Click the **play button** on a connection card to run a multi-step connectivity test:
+
+1. **JWT Assertion** -- builds and signs a JWT using the stored private key.
+2. **Token Exchange** -- exchanges the JWT for a Bearer token at the token endpoint.
+3. **FHIR Metadata** -- fetches the server's capability statement.
+
+Each step reports success, warning, or failure with elapsed time and diagnostic details.
+
+### Starting a Sync
+
+The **Sync** button triggers a FHIR Bulk Data `$export` operation. A dropdown menu offers:
+
+- **Incremental Sync** -- only fetches data created or updated since the last successful sync (uses the `_since` parameter). Available when incremental mode is enabled and a previous sync exists.
+- **Force Full Sync** -- re-downloads all data, deduplicating on write.
+
+:::warning Prerequisites for syncing
+A connection must be **active** and have a **private key uploaded** before syncing is allowed. The sync button is disabled with a tooltip explaining which prerequisite is missing.
+:::
+
+### Sync History
+
+Click **Sync History** on any connection card to view a table of past sync runs with columns for status, start time, duration, and record metrics (extracted, mapped, written, and failed counts). Mapping coverage percentage is shown when available.
+
+## Sync Monitor Dashboard
+
+Navigate to **Admin > FHIR Sync Monitor** (accessible via the "Sync Monitor" button on the connections page) for a unified operational dashboard across all FHIR connections.
+
+### Aggregate Metrics
+
+Six metric cards summarize the overall pipeline:
+
+| Metric | Description |
+|--------|-------------|
+| **Connections** | Active / total connection count |
+| **Total Runs** | Cumulative sync run count |
+| **Completed** | Successfully completed runs |
+| **Failed** | Runs that terminated with errors |
+| **Records Written** | Total records loaded into CDM tables |
+| **Avg Coverage** | Average FHIR-to-OMOP mapping coverage |
+
+### Pipeline Throughput
+
+A visual funnel displays all-time record counts at each stage of the ETL pipeline:
+
+- **Extracted** -- FHIR resources downloaded via Bulk Data
+- **Mapped** -- Resources successfully mapped to OMOP concepts
+- **Written** -- Records inserted or updated in CDM tables
+- **Failed** -- Records that could not be processed
+
+An average mapping coverage bar provides a quick quality indicator.
+
+### 30-Day Timeline
+
+A stacked bar chart shows daily sync activity over the last 30 days. Each bar is split between completed (teal) and failed (red) runs. Hover over any bar to see exact counts for that day.
+
+### Connection Health
+
+A sidebar panel lists all connections with their current status, run count, last sync timestamp, and an active/inactive indicator. Click any row to navigate to the connections page.
+
+### Recent Runs
+
+A detailed table of the 20 most recent sync runs across all connections, showing status, connection name, start time, duration, record metrics (extracted, written, failed), mapping coverage bar, and the user who triggered the run. Failed runs display an expandable error message.
+
+The dashboard auto-refreshes every **10 seconds** when active runs are detected, and every **60 seconds** otherwise.
+
+## FHIR Bulk Export
+
+Navigate to **Admin > FHIR Export** to export OMOP CDM data as FHIR R4 NDJSON files for interoperability with external systems.
+
+### Configuring an Export
+
+1. Enter the **Source ID** of the CDM source to export from.
+2. Select the **Resource Types** to include. Available types:
+   - Patient, Condition, Encounter, Observation, MedicationStatement, Procedure, Immunization, AllergyIntolerance
+3. Use the **Select All / Deselect All** toggle for convenience.
+4. Click **Start Export**.
+
+### Monitoring Export Progress
+
+After starting an export, a status panel appears showing:
+
+- **Job ID** -- unique identifier for the export job.
+- **Status badge** -- pending, processing, completed, or failed (with auto-polling every 3 seconds while active).
+- **Timestamps** -- start and finish times.
+- **Error details** -- displayed if the export fails.
+
+### Downloading Results
+
+When the export completes, a list of downloadable NDJSON files appears, one per resource type. Each file link shows the resource type name and the number of resources it contains. Files are downloaded directly from the API endpoint.
+
+:::tip FHIR export for data sharing
+FHIR Bulk Export is useful for sharing CDM data with collaborators or external systems that consume FHIR R4 NDJSON. Each file contains one JSON object per line, following the FHIR Bulk Data specification. This is a one-way export -- it does not modify source data.
+:::
+
+:::warning Export size considerations
+Large CDM sources with millions of patients can produce very large NDJSON files. Ensure adequate disk space on the server and consider exporting specific resource types rather than all types at once for very large datasets.
+:::

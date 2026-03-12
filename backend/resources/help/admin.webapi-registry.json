@@ -1,0 +1,15 @@
+{
+  "key": "admin.webapi-registry",
+  "title": "WebAPI Registry",
+  "description": "Manage connections to legacy OHDSI WebAPI instances for source migration and backward compatibility. You can register multiple WebAPI endpoints, configure authentication, and sync data sources from the remote WebAPI into Parthenon.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Click 'Add Registry' to connect a legacy OHDSI WebAPI instance by providing its name and base URL (e.g. https://webapi.example.com/WebAPI).",
+    "Three authentication types are supported: None, Basic Auth (user:pass), and Bearer Token. Choose the method your WebAPI instance requires.",
+    "Use the 'Sync Sources' button to import data sources from a registered WebAPI into Parthenon. The sync results show how many sources were imported and how many were skipped.",
+    "Each registry card shows its active/inactive status, authentication type, and the timestamp of the last successful sync.",
+    "You can delete a registry at any time, but this only removes the connection configuration, not any sources that were already imported.",
+    "Registry sync results include per-source status details so you can see exactly which sources were imported and which were skipped or failed."
+  ]
+}

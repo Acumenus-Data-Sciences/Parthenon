@@ -1,0 +1,188 @@
+---
+id: 21a-care-gaps
+title: "21a. Care Gaps"
+sidebar_label: "21a. Care Gaps"
+slug: /care-gaps
+---
+
+# Care Gaps
+
+The Care Gaps module enables clinical researchers and quality teams to define condition-based care bundles, attach quality measures, evaluate compliance against a patient population, and analyze measure overlap across bundles. It provides a structured framework for identifying patients who are missing recommended screenings, treatments, or follow-up care based on their conditions and clinical history.
+
+## Core Concepts
+
+### Condition Bundles
+
+A **condition bundle** groups a clinical condition with its associated quality measures. For example, a "Type 2 Diabetes" bundle might include measures for HbA1c screening, annual eye exam, and statin therapy. Each bundle is defined by:
+
+- **Bundle Code** — A short identifier (e.g., `T2DM`, `CHF`, `COPD`)
+- **Condition Name** — Descriptive name of the clinical condition
+- **Description** — Optional documentation of the bundle's clinical rationale
+- **Disease Category** — Optional classification (e.g., Endocrine, Cardiovascular)
+- **ICD-10 Patterns** — ICD-10-CM code patterns used to identify the condition population
+- **OMOP Concept IDs** — Standard OMOP concept IDs for the condition
+- **eCQM References** — Optional links to electronic Clinical Quality Measure identifiers
+
+### Quality Measures
+
+Each bundle contains one or more **quality measures** that define specific care expectations. A measure includes:
+
+| Field | Description |
+|-------|-------------|
+| **Measure Code** | Short identifier (e.g., `HBA1C-SCREEN`, `EYE-EXAM`) |
+| **Measure Name** | Human-readable name |
+| **Measure Type** | `preventive`, `chronic`, or `behavioral` |
+| **Domain** | OMOP domain the measure queries: condition, drug, procedure, measurement, or observation |
+| **Concept Set** | Optional link to an existing concept set that defines the measure criteria |
+| **Frequency** | Expected cadence (e.g., "annual", "quarterly") |
+
+### Overlap Rules
+
+When a patient has multiple conditions with overlapping care requirements (e.g., both a diabetes bundle and a cardiovascular bundle require statin therapy), **overlap rules** prevent double-counting. A rule specifies a shared domain, lists the applicable bundle codes, and designates a canonical measure code that satisfies the requirement for all overlapping bundles.
+
+## Care Gaps Page
+
+Navigate to **Patient Profiles > Care Gaps** to access the module. The page has two tabs.
+
+### Disease Bundles Tab
+
+The default tab displays a list of all condition bundles. Each bundle card shows:
+
+- Bundle code and condition name
+- Disease category badge
+- Measure count
+- Latest evaluation status (if available)
+- Overall compliance percentage (if evaluated)
+
+Click **New Bundle** in the top-right corner to create a new condition bundle. This creates an untitled bundle and navigates you to the Bundle Detail page for configuration.
+
+### Population Overview Tab
+
+The Population Overview tab displays an aggregate compliance dashboard across all bundles for a selected data source. Use the **source selector** in the header to choose which CDM source to analyze. The dashboard shows total bundles, total patients, average compliance, and a per-bundle breakdown with patient counts, compliance percentages, and open/closed gap totals.
+
+## Bundle Detail Page
+
+Click any bundle from the list to open its detail page. The page header displays the bundle name, code, description, disease category, and the latest evaluation status. If a completed evaluation exists, a compliance ring visualization shows the overall compliance percentage.
+
+The detail page has three tabs:
+
+### Design Tab
+
+The Design tab contains the **Bundle Designer**, where you configure the bundle's clinical definition:
+
+- Edit the bundle code, condition name, and description
+- Add or remove ICD-10 patterns and OMOP concept IDs
+- Set the disease category and eCQM references
+- Attach quality measures with their codes, names, types, domains, and frequencies
+
+### Compliance Results Tab
+
+The Compliance Results tab is where you execute and review evaluations.
+
+#### Running an Evaluation
+
+1. Select a **data source** from the source selector dropdown.
+2. Click **Evaluate** to submit the bundle for compliance evaluation against the selected source.
+3. The evaluation runs asynchronously. Status badges track progress: Pending, Running, Completed, or Failed.
+
+#### Reviewing Results
+
+Once an evaluation completes, the results section displays:
+
+- **Compliance Ring** — A circular visualization showing the overall compliance percentage
+- **Summary Metrics** — Total patients, gaps met, open gaps, and excluded patients
+- **Measure Compliance Table** — A per-measure breakdown showing eligible count, met count, not-met count, excluded count, and compliance percentage. Measures that have been deduplicated via overlap rules are flagged.
+
+:::tip Compare Evaluations Over Time
+The evaluation history at the bottom of the tab lists all past evaluations with their status, source, patient count, compliance percentage, and date. Click any entry to view its results, enabling you to track compliance trends over time.
+:::
+
+### Overlap Rules Tab
+
+The Overlap Rules tab displays the **Overlap Rules Panel**, which shows all rules that apply to the current bundle. Each rule lists:
+
+- Rule code and description
+- Shared domain (e.g., drug, procedure)
+- Applicable bundle codes
+- Canonical measure code that satisfies the overlap
+
+Overlap rules ensure that when a patient meets a shared requirement (like statin therapy), it counts toward compliance for all applicable bundles without inflating the gap count.
+
+:::warning Configure Overlap Rules for Multi-Morbidity
+Patients with multiple chronic conditions often share care requirements across bundles. Without overlap rules, compliance calculations may undercount by treating shared measures as separate gaps. Always define overlap rules when bundles share clinical domains.
+:::
+
+## Evaluation Statuses
+
+| Status | Description |
+|--------|-------------|
+| **Pending** | Evaluation has been queued but not yet started |
+| **Running** | Evaluation is actively processing against the CDM |
+| **Completed** | Evaluation finished successfully with results available |
+| **Failed** | Evaluation encountered an error; check the failure message |
+
+## Compliance Scoring
+
+Compliance is calculated at both the measure level and the bundle level:
+
+- **Measure compliance** = (met / eligible) * 100, excluding patients marked as excluded
+- **Overall bundle compliance** = weighted average across all measures, accounting for overlap deductions
+
+The compliance ring uses color coding:
+- Green (>= 80%) — Good compliance
+- Gold (>= 50%) — Moderate compliance
+- Red (< 50%) — Poor compliance
+
+## API Reference
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/v1/care-gaps/bundles` | GET | List all condition bundles (supports search, category filter, pagination) |
+| `/api/v1/care-gaps/bundles` | POST | Create a new condition bundle |
+| `/api/v1/care-gaps/bundles/{id}` | GET | Retrieve a single bundle with its measures |
+| `/api/v1/care-gaps/bundles/{id}` | PUT | Update a bundle |
+| `/api/v1/care-gaps/bundles/{id}` | DELETE | Delete a bundle |
+| `/api/v1/care-gaps/bundles/{id}/evaluate` | POST | Execute a compliance evaluation |
+| `/api/v1/care-gaps/bundles/{id}/evaluations` | GET | List evaluation history for a bundle |
+| `/api/v1/care-gaps/bundles/{id}/evaluations/{evalId}` | GET | Retrieve a specific evaluation result |
+| `/api/v1/care-gaps/population-summary` | GET | Population-level compliance summary |
+
+### Create Bundle Request
+
+```json
+{
+  "bundle_code": "T2DM",
+  "condition_name": "Type 2 Diabetes Mellitus",
+  "description": "Comprehensive diabetes care bundle",
+  "icd10_patterns": ["E11%"],
+  "omop_concept_ids": [201826],
+  "disease_category": "Endocrine",
+  "ecqm_references": ["CMS122v12"],
+  "is_active": true
+}
+```
+
+### Evaluate Request
+
+```json
+POST /api/v1/care-gaps/bundles/1/evaluate
+
+{
+  "source_id": 1
+}
+```
+
+The evaluation runs asynchronously and returns immediately with a pending evaluation record. Poll the evaluations endpoint or check the UI for completion.
+
+## Best Practices
+
+- **Start with a single condition bundle** and validate its measures against a known patient cohort before creating additional bundles.
+- **Use eCQM references** to link bundles to official quality measure specifications, ensuring alignment with regulatory reporting requirements.
+- **Review overlap rules** whenever you add a new bundle that shares clinical domains (drug, procedure, measurement) with existing bundles.
+- **Re-evaluate periodically** as new clinical data flows into the CDM. Compliance percentages change as patients receive care over time.
+
+## Related Documentation
+
+- [Patient Timelines](./21-patient-timelines) — View individual patient clinical histories
+- [Concept Sets](/concept-sets) — Define the clinical criteria used by quality measures
+- [Cohort Definitions](/building-cohorts) — Build patient cohorts for targeted compliance analysis

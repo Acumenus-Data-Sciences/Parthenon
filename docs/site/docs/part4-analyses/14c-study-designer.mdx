@@ -1,0 +1,164 @@
+---
+id: 14c-study-designer
+title: "14c. Study Designer (AI)"
+sidebar_label: "14c. Study Designer (AI)"
+slug: /study-designer
+---
+
+# Study Designer (AI)
+
+The **Study Designer** is an AI-assisted tool powered by the OHDSI StudyAgent that helps researchers translate natural language study descriptions into structured study components. It provides four capabilities: intent splitting, phenotype search, AI-ranked phenotype recommendations, and cohort definition linting.
+
+This module bridges the gap between a researcher's clinical question and the technical artifacts needed to execute the study in Parthenon.
+
+---
+
+## Module Architecture
+
+```
+StudyDesignerPage
+ |
+ |-- Header (Brain icon, "Study Designer" title)
+ |
+ |-- Tab Bar
+ |    |-- Study Intent  (Target icon)
+ |    |-- Phenotype Search  (Search icon)
+ |    |-- Recommendations  (Sparkles icon)
+ |    |-- Cohort Lint  (AlertTriangle icon)
+ |
+ |-- Tab: Study Intent
+ |    |-- Natural language text area
+ |    |-- "Analyze Study Intent" button
+ |    |-- Intent Split Results (target population + outcome)
+ |    |-- Recommended Phenotypes list (scored, ranked)
+ |
+ |-- Tab: Phenotype Search
+ |    |-- Search input + Search button
+ |    |-- Results list (cohort ID, name, description, score)
+ |
+ |-- Tab: Recommendations
+ |    |-- Prompt to use Study Intent tab first
+ |
+ |-- Tab: Cohort Lint
+ |    |-- JSON text area for cohort definition
+ |    |-- "Run Lint" button
+ |    |-- Lint results (severity-coded warnings/errors)
+```
+
+All API calls route through the backend to the Python AI service (`/api/v1/study-agent/*`).
+
+---
+
+## Feature Walkthrough
+
+### Study Intent Tab
+
+The primary workflow starts here. Enter a natural language description of your study:
+
+> *"Compare the risk of heart failure in patients newly prescribed SGLT2 inhibitors vs DPP-4 inhibitors among adults with type 2 diabetes"*
+
+Click **Analyze Study Intent** to trigger two parallel AI operations:
+
+1. **Intent Splitting** -- The AI parses your description into a structured **target population** and **outcome**. Results appear in a two-column card layout:
+   - **Target Population** (teal) -- the patient group under study
+   - **Outcome** (gold) -- the clinical event being measured
+
+2. **Phenotype Recommendations** -- The AI searches the OHDSI Phenotype Library and returns ranked phenotype definitions relevant to your study intent. Each recommendation shows:
+   - A numbered rank
+   - Phenotype name
+   - Rationale explaining why it was selected
+   - Relevance score
+
+:::tip
+Write your study intent in plain clinical language. The AI performs best with descriptions that clearly specify the intervention, population, and outcome. Include details like age ranges, disease context, and specific drug classes when possible.
+:::
+
+### Phenotype Search Tab
+
+A direct search interface for the OHDSI Phenotype Library. Enter a clinical term (e.g., "type 2 diabetes", "heart failure", "COPD") and press Enter or click **Search**.
+
+Results display in a list showing:
+- **Cohort ID** -- the OHDSI phenotype library identifier
+- **Name** -- the phenotype definition name
+- **Description** -- truncated phenotype description
+- **Score** -- semantic similarity score from the search
+
+:::tip
+Phenotype search uses vector similarity (pgvector embeddings) rather than keyword matching. Searches like "T2DM" and "type 2 diabetes mellitus" will return equivalent results.
+:::
+
+### Recommendations Tab
+
+This tab serves as a pointer to the Study Intent tab. Phenotype recommendations are generated as a side effect of analyzing a study intent and appear inline on that tab. Navigate to the Study Intent tab and submit your study description to populate recommendations.
+
+### Cohort Lint Tab
+
+The cohort linter analyzes a cohort definition JSON for common design issues. Paste a full cohort definition JSON (the `ConceptSets`, `PrimaryCriteria`, etc.) into the text area and click **Run Lint**.
+
+The linter checks for issues such as:
+- Missing washout periods
+- Empty concept sets
+- Inverted time windows
+- Missing inclusion criteria
+- Overly broad primary criteria
+
+Results are displayed with severity-coded cards:
+
+| Severity | Color | Meaning |
+|---|---|---|
+| **Error** | Red | Critical design flaw that will likely produce incorrect results |
+| **Warning** | Yellow | Potential issue that warrants review |
+| **Info** | Gray | Suggestion for improvement |
+
+:::warning
+The cohort linter requires valid JSON input. If the JSON is malformed, the lint operation will fail with an error message. Ensure your cohort definition is well-formed before running the lint check.
+:::
+
+---
+
+## API Reference
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `GET /api/v1/study-agent/health` | GET | Check AI service availability |
+| `POST /api/v1/study-agent/intent/split` | POST | Split natural language intent into target + outcome |
+| `POST /api/v1/study-agent/phenotype/search` | POST | Search phenotype library by semantic query |
+| `POST /api/v1/study-agent/phenotype/recommend` | POST | Get AI-ranked phenotype recommendations for a study intent |
+| `POST /api/v1/study-agent/cohort/lint` | POST | Lint a cohort definition JSON for design issues |
+| `POST /api/v1/study-agent/concept-set/review` | POST | Review a concept set for completeness |
+| `POST /api/v1/study-agent/phenotype/improve` | POST | Suggest improvements to a phenotype definition |
+
+:::warning
+The Study Designer requires the Python AI service to be running and healthy. If the AI service is unavailable, all tabs will return errors. Check the service at `http://localhost:8002/health` or via the System Health dashboard in Administration.
+:::
+
+---
+
+## Best Practices
+
+### Writing Effective Study Intents
+
+For optimal intent splitting and phenotype recommendations, follow these guidelines:
+
+1. **Be specific about the intervention** -- name the drug class or procedure, not just "treatment." For example: "SGLT2 inhibitors" rather than "diabetes medication."
+2. **Define the population clearly** -- include age ranges, disease context, and any relevant inclusion criteria. For example: "adults over 18 with established type 2 diabetes."
+3. **State the outcome explicitly** -- use standard clinical terminology for the event being measured. For example: "hospitalization for heart failure" rather than "heart problems."
+4. **Include the comparator when applicable** -- if your study compares two treatments, name both. For example: "SGLT2 inhibitors vs DPP-4 inhibitors."
+
+### Using Lint Results Effectively
+
+The cohort linter is most valuable when used iteratively:
+
+1. Build or import a cohort definition.
+2. Run the lint check to identify potential design issues.
+3. Address any errors (critical flaws) before proceeding.
+4. Review warnings to determine if they apply to your specific study context.
+5. Re-lint after making changes to confirm all issues are resolved.
+
+---
+
+## Related Pages
+
+- [Phenotype Library](/phenotype-library) -- browse and import the full OHDSI phenotype catalog
+- [Building Cohorts](/building-cohorts) -- manually build cohort definitions
+- [Concept Sets](/concept-sets) -- create concept sets referenced by cohort definitions

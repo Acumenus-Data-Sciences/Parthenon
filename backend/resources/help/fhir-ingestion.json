@@ -1,0 +1,17 @@
+{
+  "key": "fhir-ingestion",
+  "title": "FHIR Ingestion",
+  "description": "FHIR Ingestion converts FHIR R4 resources into the OMOP CDM format and loads them into your database. You can upload a single FHIR Bundle JSON file or batch-process multiple NDJSON files. The system maps FHIR resources (Patient, Condition, MedicationRequest, etc.) to the corresponding OMOP CDM tables and reports detailed per-table row counts.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Upload a FHIR R4 Bundle JSON file using the file upload area, or drag and drop for convenience.",
+    "For large datasets, use the batch mode to upload multiple NDJSON files which are processed in parallel.",
+    "After ingestion, review the per-table breakdown showing how many rows were inserted into each CDM table (person, condition_occurrence, drug_exposure, etc.).",
+    "Check the health status indicator to verify the FHIR ingestion service is running before attempting an upload.",
+    "Ingestion history is stored locally so you can review past imports including timestamps, file names, and row counts.",
+    "Use the search and filter controls in the results panel to find specific FHIR resource types or CDM tables.",
+    "Failed or partially failed ingestions show detailed error information to help you identify and fix issues in your FHIR data.",
+    "Export the ingestion report for documentation or to track data lineage from FHIR source to OMOP CDM destination."
+  ]
+}

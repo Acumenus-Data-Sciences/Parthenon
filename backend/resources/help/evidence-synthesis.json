@@ -1,0 +1,17 @@
+{
+  "key": "evidence-synthesis",
+  "title": "Evidence Synthesis",
+  "description": "Evidence Synthesis combines effect estimates from multiple data sources or study sites into a single pooled result. This is essential for OHDSI network studies where each site runs the same analysis independently. You enter log relative risk (logRR) and standard error values per site, then execute a meta-analysis to produce a combined effect estimate.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Add one row per study site, entering the site name, log relative risk (logRR), and standard error of the logRR.",
+    "Choose between Bayesian and frequentist synthesis methods depending on your study protocol requirements.",
+    "Use negative logRR values to represent protective effects and positive values to represent harmful effects.",
+    "You can add or remove site estimates at any time before executing the synthesis.",
+    "After execution, review the pooled effect estimate and confidence intervals in the Results tab.",
+    "Click on any completed execution in the Execution History table to re-examine its results.",
+    "Evidence synthesis is typically the final step after running comparative analyses (e.g., CohortMethod or SCCS) across multiple databases.",
+    "Save your analysis design so it can be re-executed as new site-level estimates become available."
+  ]
+}

@@ -12,6 +12,7 @@ const sidebars: SidebarsConfig = {
       label: "Part I — Getting Started",
       collapsed: false,
       items: [
+        "part1-getting-started/00-dashboard",
         "part1-getting-started/01-introduction",
         "part1-getting-started/02-data-sources",
       ],
@@ -22,6 +23,7 @@ const sidebars: SidebarsConfig = {
       items: [
         "part2-vocabulary/03-vocabulary-browser",
         "part2-vocabulary/04-concept-sets",
+        "part2-vocabulary/04a-mapping-assistant",
       ],
     },
     {
@@ -36,7 +38,7 @@ const sidebars: SidebarsConfig = {
     },
     {
       type: "category",
-      label: "Part IV — Analyses",
+      label: "Part IV — Analyses & Studies",
       items: [
         "part4-analyses/09-characterization",
         "part4-analyses/10-incidence-rates",
@@ -44,15 +46,24 @@ const sidebars: SidebarsConfig = {
         "part4-analyses/12-population-level-estimation",
         "part4-analyses/13-patient-level-prediction",
         "part4-analyses/14-studies",
+        "part4-analyses/14a-sccs",
+        "part4-analyses/14b-evidence-synthesis",
+        "part4-analyses/14c-study-designer",
+        "part4-analyses/14d-study-packages",
+        "part4-analyses/14e-phenotype-library",
       ],
     },
     {
       type: "category",
-      label: "Part V — Data Ingestion",
+      label: "Part V — Data Ingestion & ETL",
       items: [
         "part5-ingestion/15-uploading-data",
         "part5-ingestion/16-schema-mapping",
         "part5-ingestion/17-concept-mapping",
+        "part5-ingestion/17a-source-profiler",
+        "part5-ingestion/17b-fhir-ingestion",
+        "part5-ingestion/17c-etl-tools",
+        "part5-ingestion/18-jobs-monitoring",
       ],
     },
     {
@@ -62,12 +73,16 @@ const sidebars: SidebarsConfig = {
         "part6-data-explorer/18-characterization-achilles",
         "part6-data-explorer/19-data-quality-dashboard",
         "part6-data-explorer/20-population-stats",
+        "part6-data-explorer/20a-query-assistant",
       ],
     },
     {
       type: "category",
-      label: "Part VII — Patient Profiles",
-      items: ["part7-patient-profiles/21-patient-timelines"],
+      label: "Part VII — Patient Profiles & Care Gaps",
+      items: [
+        "part7-patient-profiles/21-patient-timelines",
+        "part7-patient-profiles/21a-care-gaps",
+      ],
     },
     {
       type: "category",
@@ -77,9 +92,13 @@ const sidebars: SidebarsConfig = {
         "part8-administration/23-roles-permissions",
         "part8-administration/24-authentication-providers",
         "part8-administration/25-system-configuration",
+        "part8-administration/25a-system-health",
+        "part8-administration/25b-ai-providers",
         "part8-administration/26-audit-log",
         "part8-administration/27-solr-administration",
         "part8-administration/28-abby-ai-assistant",
+        "part8-administration/28a-vocabulary-admin",
+        "part8-administration/28b-webapi-registry",
       ],
     },
     {
@@ -100,7 +119,10 @@ const sidebars: SidebarsConfig = {
     {
       type: "category",
       label: "Part XII — FHIR EHR Integration",
-      items: ["part12-fhir/30-fhir-ehr-integration"],
+      items: [
+        "part12-fhir/30-fhir-ehr-integration",
+        "part12-fhir/30a-fhir-admin",
+      ],
     },
     {
       type: "category",

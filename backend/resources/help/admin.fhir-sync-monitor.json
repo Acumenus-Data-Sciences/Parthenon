@@ -1,0 +1,17 @@
+{
+  "key": "admin.fhir-sync-monitor",
+  "title": "FHIR Sync Monitor",
+  "description": "A real-time ETL pipeline monitoring dashboard that aggregates sync activity across all FHIR connections. Shows pipeline throughput, sync activity trends over the last 30 days, per-connection health status, and detailed metrics for recent sync runs.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "The dashboard auto-refreshes every 10 seconds when there are active sync runs, and every 60 seconds when idle.",
+    "Six top-level metric cards show total connections (active/total), run counts, records written, and average mapping coverage at a glance.",
+    "The Pipeline Throughput panel shows all-time totals across four stages: extracted, mapped, written, and failed records.",
+    "The Sync Activity chart visualizes completed and failed runs over the last 30 days. Hover over any bar to see the exact breakdown for that day.",
+    "The Connection Health panel lists each FHIR connection with its last sync status, run count, and timestamp. Click a connection to navigate to its detail page.",
+    "The Recent Sync Runs table shows the last 20 runs across all connections with status, duration, record counts, and mapping coverage.",
+    "Mapping coverage is shown as a color-coded progress bar: green for 80% or above, amber for 50-79%, and red below 50%.",
+    "Click the error icon on any failed run to expand and view the full error message for troubleshooting."
+  ]
+}
