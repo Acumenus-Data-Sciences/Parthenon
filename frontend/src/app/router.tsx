@@ -412,6 +412,22 @@ export const router = createBrowserRouter(
             "@/features/text-to-sql/pages/QueryAssistantPage"
           ).then((m) => ({ Component: m.default })),
       },
+      // ── Source Profiler (WhiteRabbit) ────────────────────────────────
+      {
+        path: "source-profiler",
+        lazy: () =>
+          import("@/features/etl/pages/SourceProfilerPage").then((m) => ({
+            Component: m.default,
+          })),
+      },
+      // ── FHIR Ingestion ──────────────────────────────────────────────
+      {
+        path: "fhir-ingestion",
+        lazy: () =>
+          import("@/features/etl/pages/FhirIngestionPage").then((m) => ({
+            Component: m.default,
+          })),
+      },
       // ── ETL Tools (WhiteRabbit + Synthea) ────────────────────────────
       {
         path: "etl-tools",
