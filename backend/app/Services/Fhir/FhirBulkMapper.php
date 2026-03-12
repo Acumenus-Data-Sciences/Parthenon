@@ -236,23 +236,44 @@ class FhirBulkMapper
         $resolved = $this->vocab->resolve($codings);
         $personId = $this->resolveSubjectPersonId($r, $siteKey);
         $visitId = $this->resolveEncounterVisitId($r, $siteKey);
-        $authored = $r['authoredOn'] ?? null;
 
-        $typeConceptId = ($r['resourceType'] ?? '') === 'MedicationStatement' ? 32865 : 32817;
+        // Conditional date extraction based on resource type
+        if (($r['resourceType'] ?? '') === 'MedicationStatement') {
+            $startDate = $r['effectiveDateTime'] ?? $r['effectivePeriod']['start'] ?? null;
+            $endDate = $r['effectivePeriod']['end'] ?? $startDate;
+            $typeConceptId = 32865; // Patient Self-Reported
+        } else {
+            // MedicationRequest
+            $startDate = $r['authoredOn'] ?? null;
+            $duration = $r['dispenseRequest']['expectedSupplyDuration']['value'] ?? null;
+            $durationUnit = $r['dispenseRequest']['expectedSupplyDuration']['unit'] ?? 'days';
+            $endDate = ($startDate && $duration)
+                ? Carbon::parse($startDate)->add($durationUnit, (int) $duration)->toDateString()
+                : $startDate;
+            $typeConceptId = 32817; // EHR
+        }
+
+        // Route concept resolution
+        $routeCodings = $r['dosageInstruction'][0]['route']['coding'] ?? [];
+        $routeResolved = ! empty($routeCodings) ? $this->vocab->resolve($routeCodings) : null;
 
         return [
             'cdm_table' => 'drug_exposure',
             'data' => [
                 'person_id' => $personId,
                 'drug_concept_id' => $resolved['concept_id'],
-                'drug_exposure_start_date' => $this->parseDate($authored),
-                'drug_exposure_start_datetime' => $this->parseDatetime($authored),
-                'drug_exposure_end_date' => $this->parseDate($authored),
+                'drug_exposure_start_date' => $this->parseDate($startDate),
+                'drug_exposure_start_datetime' => $this->parseDatetime($startDate),
+                'drug_exposure_end_date' => $this->parseDate($endDate),
                 'drug_type_concept_id' => $typeConceptId,
                 'drug_source_value' => $resolved['source_value'],
                 'drug_source_concept_id' => $resolved['source_concept_id'],
                 'visit_occurrence_id' => $visitId,
                 'quantity' => $this->extractQuantity($r),
+                'sig' => isset($r['dosageInstruction'][0]['text'])
+                    ? substr($r['dosageInstruction'][0]['text'], 0, 2000)
+                    : null,
+                'route_concept_id' => $routeResolved ? $routeResolved['concept_id'] : 0,
                 'route_source_value' => $this->extractRoute($r),
             ],
         ];

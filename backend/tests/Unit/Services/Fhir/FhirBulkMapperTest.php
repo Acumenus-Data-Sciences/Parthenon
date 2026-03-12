@@ -215,4 +215,55 @@ class FhirBulkMapperTest extends TestCase
 
         $this->assertEquals(9202, $visitRow['data']['visit_concept_id']);
     }
+
+    public function test_medication_statement_uses_effective_period(): void
+    {
+        $this->crosswalk->shouldReceive('resolvePersonId')->andReturn(1);
+        $this->crosswalk->shouldReceive('lookupVisitId')->andReturn(null);
+        $this->vocab->shouldReceive('resolve')->andReturn([
+            'concept_id' => 789, 'domain_id' => 'Drug', 'source_concept_id' => 789,
+            'source_value' => 'rxnorm|789', 'cdm_table' => 'drug_exposure', 'mapping_type' => 'direct_standard',
+        ]);
+
+        $resource = [
+            'resourceType' => 'MedicationStatement',
+            'id' => 'med-1',
+            'medicationCodeableConcept' => ['coding' => [['system' => 'http://www.nlm.nih.gov/research/umls/rxnorm', 'code' => '789']]],
+            'subject' => ['reference' => 'Patient/patient-1'],
+            'effectivePeriod' => ['start' => '2025-01-01', 'end' => '2025-01-30'],
+            'dosageInstruction' => [['text' => 'Take 1 tablet daily', 'route' => ['coding' => [['code' => 'oral', 'display' => 'Oral']]]]],
+        ];
+
+        $rows = $this->mapper->mapResource($resource, 'test-site');
+        $drugRow = collect($rows)->firstWhere('cdm_table', 'drug_exposure');
+
+        $this->assertEquals('2025-01-01', $drugRow['data']['drug_exposure_start_date']);
+        $this->assertEquals('2025-01-30', $drugRow['data']['drug_exposure_end_date']);
+        $this->assertEquals('Take 1 tablet daily', $drugRow['data']['sig']);
+    }
+
+    public function test_medication_request_uses_authored_on(): void
+    {
+        $this->crosswalk->shouldReceive('resolvePersonId')->andReturn(1);
+        $this->crosswalk->shouldReceive('lookupVisitId')->andReturn(null);
+        $this->vocab->shouldReceive('resolve')->andReturn([
+            'concept_id' => 101, 'domain_id' => 'Drug', 'source_concept_id' => 101,
+            'source_value' => 'rxnorm|101', 'cdm_table' => 'drug_exposure', 'mapping_type' => 'direct_standard',
+        ]);
+
+        $resource = [
+            'resourceType' => 'MedicationRequest',
+            'id' => 'med-2',
+            'medicationCodeableConcept' => ['coding' => [['system' => 'http://www.nlm.nih.gov/research/umls/rxnorm', 'code' => '101']]],
+            'subject' => ['reference' => 'Patient/patient-1'],
+            'authoredOn' => '2025-03-01',
+            'dispenseRequest' => ['expectedSupplyDuration' => ['value' => 30, 'unit' => 'days']],
+        ];
+
+        $rows = $this->mapper->mapResource($resource, 'test-site');
+        $drugRow = collect($rows)->firstWhere('cdm_table', 'drug_exposure');
+
+        $this->assertEquals('2025-03-01', $drugRow['data']['drug_exposure_start_date']);
+        $this->assertEquals('2025-03-31', $drugRow['data']['drug_exposure_end_date']);
+    }
 }
