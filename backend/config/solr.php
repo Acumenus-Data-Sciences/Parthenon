@@ -20,6 +20,7 @@ return [
         'clinical' => env('SOLR_CORE_CLINICAL', 'clinical'),
         'imaging' => env('SOLR_CORE_IMAGING', 'imaging'),
         'claims' => env('SOLR_CORE_CLAIMS', 'claims'),
+        'gis_spatial' => env('SOLR_CORE_GIS_SPATIAL', 'gis_spatial'),
     ],
 
     'circuit_breaker' => [
