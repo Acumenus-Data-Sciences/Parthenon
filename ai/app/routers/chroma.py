@@ -114,7 +114,7 @@ async def collection_overview(name: str, include_embeddings: bool = False) -> di
 
     # Detect dimension from first embedding
     dimension = None
-    if embeddings and len(embeddings) > 0:
+    if embeddings is not None and len(embeddings) > 0:
         first_emb = embeddings[0]
         if first_emb is not None:
             emb_list = first_emb.tolist() if hasattr(first_emb, "tolist") else first_emb  # type: ignore[union-attr]
@@ -124,7 +124,7 @@ async def collection_overview(name: str, include_embeddings: bool = False) -> di
         # Fetch just one embedding for dimension detection
         probe = col.get(limit=1, include=["embeddings"])
         probe_embs = probe.get("embeddings")
-        if probe_embs and len(probe_embs) > 0 and probe_embs[0] is not None:
+        if probe_embs is not None and len(probe_embs) > 0 and probe_embs[0] is not None:
             p = probe_embs[0]
             emb_list = p.tolist() if hasattr(p, "tolist") else p  # type: ignore[union-attr]
             if isinstance(emb_list, list):

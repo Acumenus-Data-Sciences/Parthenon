@@ -2,22 +2,15 @@ import { useEffect, useMemo, useState } from "react";
 import {
   Search,
   Database,
-  Filter,
-  Layers3,
-  Binary,
-  FileText,
-  CircleDot,
   Loader2,
   AlertCircle,
   BarChart3,
   Radar,
   Eye,
-  Wand2,
   Upload,
-  Sparkles,
-  BookOpen,
   Stethoscope,
   MessageSquare,
+  RefreshCw,
 } from "lucide-react";
 import { Panel, Button, Badge } from "@/components/ui";
 import {
@@ -36,13 +29,24 @@ import {
   type Json,
 } from "../api/chromaStudioApi";
 
-// ── Admin Actions ────────────────────────────────────────────────────────────
+// ── Constants ────────────────────────────────────────────────────────────────
 
 const ADMIN_ACTIONS = [
   { key: "ingest-docs", label: "Ingest Docs", icon: Upload, fn: () => ingestDocs() },
   { key: "ingest-clinical", label: "Ingest Clinical", icon: Stethoscope, fn: () => ingestClinical() },
   { key: "promote-faq", label: "Promote FAQ", icon: MessageSquare, fn: () => promoteFaq() },
 ] as const;
+
+const TABS = [
+  { key: "overview" as const, label: "Overview", icon: BarChart3 },
+  { key: "search" as const, label: "Retrieval", icon: Eye },
+  { key: "map" as const, label: "Semantic Map", icon: Radar },
+] as const;
+
+const PALETTE_COLORS = [
+  "#9B1B30", "#2DD4BF", "#C9A227", "#60a5fa", "#a78bfa",
+  "#f472b6", "#f59e0b", "#34d399", "#fb7185", "#38bdf8",
+];
 
 // ── Main Component ───────────────────────────────────────────────────────────
 
@@ -101,7 +105,7 @@ export default function ChromaStudioPanel() {
     return () => { cancelled = true; };
   }, [selectedCollection]);
 
-  // Embeddings are fetched on-demand only when the Map tab is active
+  // Embeddings fetched on-demand only when map tab is active
   const [embeddingRecords, setEmbeddingRecords] = useState<CollectionOverview["sampleRecords"]>([]);
   const [embeddingsLoaded, setEmbeddingsLoaded] = useState(false);
 
@@ -115,11 +119,10 @@ export default function ChromaStudioPanel() {
           setEmbeddingsLoaded(true);
         }
       })
-      .catch(() => { /* overview already loaded, map just won't render */ });
+      .catch(() => { /* overview loaded, map won't render */ });
     return () => { cancelled = true; };
   }, [activeTab, selectedCollection, embeddingsLoaded]);
 
-  // Reset embedding cache when collection changes
   useEffect(() => {
     setEmbeddingsLoaded(false);
     setEmbeddingRecords([]);
@@ -167,7 +170,6 @@ export default function ChromaStudioPanel() {
     try {
       const result = await fn();
       setActionResult(`${action}: ${JSON.stringify(result)}`);
-      // Refresh collections after action
       const data = await fetchCollections();
       setCollections(data);
       if (selectedCollection) {
@@ -181,31 +183,33 @@ export default function ChromaStudioPanel() {
     }
   }
 
-  const tabs = [
-    { key: "overview" as const, label: "Overview", icon: <BarChart3 className="h-4 w-4" /> },
-    { key: "search" as const, label: "Retrieval Inspector", icon: <Eye className="h-4 w-4" /> },
-    { key: "map" as const, label: "Semantic Map", icon: <Radar className="h-4 w-4" /> },
-  ];
+  const hasCollections = collections.length > 0;
 
   return (
-    <div className="space-y-5">
-      {/* Header */}
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
-            <Sparkles className="h-3.5 w-3.5" />
-            Vector Knowledge Base
+    <div className="space-y-4">
+      {/* Header row — matches GisDataPanel pattern */}
+      <Panel>
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <Database className="h-5 w-5 text-[#2DD4BF]" />
+            <div>
+              <p className="font-semibold text-[#F0EDE8]">Chroma Collection Studio</p>
+              <p className="mt-0.5 text-sm text-[#8A857D]">
+                Inspect vector collections, run semantic queries, and manage ingestion
+              </p>
+            </div>
           </div>
-          <h2 className="text-xl font-semibold text-foreground">Chroma Collection Studio</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Inspect embeddings, retrieval quality, metadata health, and semantic topology.
-          </p>
+          <Badge variant={hasCollections ? "success" : "warning"}>
+            {hasCollections ? `${collections.length} collections` : "loading"}
+          </Badge>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
+
+        {/* Collection selector + actions */}
+        <div className="mt-3 flex flex-wrap items-center gap-2">
           <select
             value={selectedCollection}
             onChange={(e) => setSelectedCollection(e.target.value)}
-            className="rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground outline-none transition focus:border-primary/50"
+            className="rounded border border-[#232328] bg-[#0E0E11] px-2.5 py-1.5 text-sm text-[#E8E4DC] outline-none transition focus:border-[#C9A227]/50"
           >
             {loadingCollections ? <option>Loading...</option> : null}
             {collections.map((c) => (
@@ -214,299 +218,258 @@ export default function ChromaStudioPanel() {
               </option>
             ))}
           </select>
+
           {ADMIN_ACTIONS.map((action) => (
-            <Button
+            <button
               key={action.key}
-              variant="secondary"
-              size="sm"
               onClick={() => runAction(action.key, action.fn)}
               disabled={actionLoading !== null}
+              className="inline-flex items-center gap-1 rounded px-2 py-1 text-xs text-[#8A857D] hover:text-[#F0EDE8] hover:bg-[#232328] transition-colors disabled:opacity-40"
             >
               {actionLoading === action.key
-                ? <Loader2 className="mr-1 h-4 w-4 animate-spin" />
-                : <action.icon className="mr-1 h-4 w-4" />}
+                ? <Loader2 size={12} className="animate-spin" />
+                : <action.icon size={12} />}
               {action.label}
-            </Button>
+            </button>
           ))}
         </div>
-      </div>
 
-      {/* Action result */}
+        {/* Stats row — inline like GIS/PACS */}
+        {stats && (
+          <div className="mt-3 grid grid-cols-4 gap-2">
+            {[
+              { label: "Vectors", value: fmt(stats.totalVectors) },
+              { label: "Sampled", value: fmt(stats.sampleCount) },
+              { label: "Dimensions", value: stats.dimension ? fmt(stats.dimension) : "--" },
+              { label: "Meta Fields", value: fmt(stats.metadataFieldCount) },
+            ].map((cell) => (
+              <div key={cell.label} className="rounded-lg bg-[#0E0E11] px-2.5 py-2 text-center">
+                <div className="text-xs font-medium text-[#F0EDE8] font-['IBM_Plex_Mono',monospace]">
+                  {cell.value}
+                </div>
+                <div className="text-[10px] text-[#5A5650]">{cell.label}</div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {loadingOverview && (
+          <div className="mt-3 flex items-center gap-2 text-sm text-[#8A857D]">
+            <Loader2 className="h-3 w-3 animate-spin" />
+            Loading collection data...
+          </div>
+        )}
+      </Panel>
+
+      {/* Feedback messages */}
       {actionResult && (
-        <div className="flex items-center gap-2 rounded-lg border border-green-500/20 bg-green-500/10 px-4 py-2 text-sm text-green-300">
-          <Sparkles className="h-4 w-4 shrink-0" />
+        <div className="flex items-center gap-2 rounded border border-[#2DD4BF]/20 bg-[#2DD4BF]/5 px-3 py-2 text-xs text-[#2DD4BF]">
+          <RefreshCw size={12} />
           {actionResult}
         </div>
       )}
 
-      {/* Error */}
       {error && (
-        <div className="flex items-start gap-3 rounded-lg border border-destructive/20 bg-destructive/10 p-4 text-destructive">
-          <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" />
-          <div>
-            <div className="font-medium">Something went wrong</div>
-            <div className="mt-1 text-sm opacity-90">{error}</div>
-          </div>
+        <div className="flex items-center gap-2 rounded border border-[#E85A6B]/20 bg-[#E85A6B]/5 px-3 py-2 text-xs text-[#E85A6B]">
+          <AlertCircle size={12} />
+          {error}
         </div>
       )}
 
       {/* Tab bar + search */}
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex gap-1 rounded-lg border border-border bg-card p-1">
-          {tabs.map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition ${
-                activeTab === tab.key
-                  ? "bg-primary/15 text-primary"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
-              }`}
-            >
-              {tab.icon}
-              {tab.label}
-            </button>
-          ))}
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="relative flex-1 lg:w-80">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <input
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && runQuery()}
-              placeholder="Semantic query..."
-              className="w-full rounded-lg border border-border bg-card py-2 pl-9 pr-3 text-sm text-foreground outline-none transition focus:border-primary/50"
-            />
-          </div>
-          <div className="flex items-center gap-1">
-            <label className="text-xs text-muted-foreground">K:</label>
-            <input
-              type="number"
-              min={1}
-              max={50}
-              value={nResults}
-              onChange={(e) => setNResults(Math.max(1, Math.min(50, Number(e.target.value) || 1)))}
-              className="w-14 rounded-lg border border-border bg-card px-2 py-2 text-center text-sm text-foreground outline-none transition focus:border-primary/50"
-            />
-          </div>
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={runQuery}
-            disabled={queryLoading || !selectedCollection || !searchText.trim()}
-          >
-            {queryLoading ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <Search className="mr-1 h-4 w-4" />}
-            Query
-          </Button>
-        </div>
-      </div>
-
-      {/* Content */}
-      {loadingOverview ? (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="h-28 animate-pulse rounded-lg border border-border bg-muted" />
-          ))}
-        </div>
-      ) : !overview || !stats ? (
-        <Panel>
-          <div className="flex flex-col items-center justify-center gap-4 py-16 text-center">
-            <Database className="h-8 w-8 text-muted-foreground" />
-            <div>
-              <h3 className="text-lg font-medium text-foreground">No collection selected</h3>
-              <p className="mt-1 text-sm text-muted-foreground">Select a collection to explore its contents.</p>
+      {overview && (
+        <div className="space-y-4">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex gap-1 rounded border border-[#232328] bg-[#0E0E11] p-1">
+              {TABS.map((tab) => (
+                <button
+                  key={tab.key}
+                  onClick={() => setActiveTab(tab.key)}
+                  className={`flex items-center gap-1.5 rounded px-2.5 py-1.5 text-xs font-medium transition ${
+                    activeTab === tab.key
+                      ? "bg-[#C9A227]/15 text-[#C9A227]"
+                      : "text-[#5A5650] hover:text-[#8A857D]"
+                  }`}
+                >
+                  <tab.icon size={12} />
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="relative flex-1 lg:w-64">
+                <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#5A5650]" />
+                <input
+                  value={searchText}
+                  onChange={(e) => setSearchText(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && runQuery()}
+                  placeholder="Semantic query..."
+                  className="w-full rounded border border-[#232328] bg-[#0E0E11] py-1.5 pl-8 pr-2.5 text-sm text-[#E8E4DC] outline-none transition focus:border-[#C9A227]/50"
+                />
+              </div>
+              <div className="flex items-center gap-1">
+                <span className="text-[10px] text-[#5A5650]">K:</span>
+                <input
+                  type="number"
+                  min={1}
+                  max={50}
+                  value={nResults}
+                  onChange={(e) => setNResults(Math.max(1, Math.min(50, Number(e.target.value) || 1)))}
+                  className="w-12 rounded border border-[#232328] bg-[#0E0E11] px-1.5 py-1.5 text-center text-xs text-[#E8E4DC] outline-none transition focus:border-[#C9A227]/50"
+                />
+              </div>
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={runQuery}
+                disabled={queryLoading || !selectedCollection || !searchText.trim()}
+              >
+                {queryLoading ? <Loader2 className="mr-1 h-3 w-3 animate-spin" /> : <Search className="mr-1 h-3 w-3" />}
+                Query
+              </Button>
             </div>
           </div>
-        </Panel>
-      ) : (
-        <>
-          {activeTab === "overview" && <OverviewTab overview={overview} stats={stats} />}
-          {activeTab === "search" && (
-            <SearchTab
-              searchResults={searchResults}
-              queryLoading={queryLoading}
-              searchText={searchText}
-              onRunQuery={runQuery}
-            />
-          )}
-          {activeTab === "map" && (
-            <MapTab points={computedPoints} overview={overview} />
-          )}
-        </>
+
+          {/* Tab content */}
+          {activeTab === "overview" && <OverviewSection overview={overview} />}
+          {activeTab === "search" && <SearchSection searchResults={searchResults} queryLoading={queryLoading} searchText={searchText} />}
+          {activeTab === "map" && <MapSection points={computedPoints} overview={overview} />}
+        </div>
       )}
     </div>
   );
 }
 
-// ── Overview Tab ─────────────────────────────────────────────────────────────
+// ── Overview Section ─────────────────────────────────────────────────────────
 
-function OverviewTab({ overview, stats }: { overview: CollectionOverview; stats: { totalVectors: number; sampleCount: number; dimension: number | null; metadataFieldCount: number; avgDocLength: number } }) {
+function OverviewSection({ overview }: { overview: CollectionOverview }) {
   return (
-    <div className="space-y-5">
-      {/* Stats cards */}
-      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Total vectors" value={fmt(stats.totalVectors)} icon={<Binary className="h-4 w-4" />} />
-        <StatCard label="Sampled" value={fmt(stats.sampleCount)} icon={<CircleDot className="h-4 w-4" />} />
-        <StatCard label="Dimensions" value={stats.dimension ? fmt(stats.dimension) : "—"} icon={<Radar className="h-4 w-4" />} />
-        <StatCard label="Metadata fields" value={fmt(stats.metadataFieldCount)} icon={<Filter className="h-4 w-4" />} />
-      </div>
-
-      {/* Facets + health */}
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1.2fr)_380px]">
+    <div className="space-y-4">
+      {/* Facets */}
+      {overview.facets.length > 0 && (
         <Panel>
-          <SectionTitle icon={<BarChart3 className="h-4 w-4" />}>Facet Distribution</SectionTitle>
-          {overview.facets.length === 0 ? (
-            <p className="py-4 text-sm text-muted-foreground">No metadata facets found in sample.</p>
-          ) : (
-            <div className="mt-3 grid gap-4 md:grid-cols-2">
-              {overview.facets.map((facet) => (
-                <FacetCard key={facet.key} facet={facet} />
-              ))}
-            </div>
-          )}
-        </Panel>
-
-        <Panel>
-          <SectionTitle icon={<Wand2 className="h-4 w-4" />}>Health Summary</SectionTitle>
-          <div className="mt-3 space-y-3">
-            <InsightRow title="Collection size" description={`${fmt(stats.totalVectors)} total vectors with ${fmt(stats.sampleCount)} sampled for diagnostics.`} />
-            <InsightRow title="Embedding footprint" description={stats.dimension ? `${fmt(stats.dimension)}-dimensional embeddings.` : "Dimension not available."} />
-            <InsightRow title="Metadata richness" description={`${stats.metadataFieldCount} metadata field${stats.metadataFieldCount !== 1 ? "s" : ""} across the sample set.`} />
-            <InsightRow title="Chunk profile" description={`Average document length: ${fmt(stats.avgDocLength)} characters.`} />
+          <h3 className="mb-3 text-sm font-semibold text-[#F0EDE8]">Facet Distribution</h3>
+          <div className="grid gap-3 md:grid-cols-2">
+            {overview.facets.map((facet) => (
+              <FacetCard key={facet.key} facet={facet} />
+            ))}
           </div>
         </Panel>
-      </div>
+      )}
 
-      {/* Sample records + collection metadata */}
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
-        <Panel>
-          <SectionTitle icon={<FileText className="h-4 w-4" />}>Sample Records</SectionTitle>
-          <div className="mt-3 space-y-3">
+      {/* Sample records */}
+      <Panel>
+        <h3 className="mb-3 text-sm font-semibold text-[#F0EDE8]">
+          Sample Records
+          <span className="ml-2 text-xs font-normal text-[#5A5650]">
+            ({overview.sampleRecords.length} sampled)
+          </span>
+        </h3>
+        {overview.sampleRecords.length === 0 ? (
+          <p className="text-sm text-[#5A5650]">No records in this collection.</p>
+        ) : (
+          <div className="space-y-2">
             {overview.sampleRecords.slice(0, 8).map((record) => (
               <RecordCard key={record.id} record={record} />
             ))}
-            {overview.sampleRecords.length === 0 && (
-              <p className="py-4 text-sm text-muted-foreground">No records in this collection.</p>
-            )}
           </div>
-        </Panel>
+        )}
+      </Panel>
 
+      {/* Collection metadata */}
+      {Object.keys(overview.collectionMetadata ?? {}).length > 0 && (
         <Panel>
-          <SectionTitle icon={<Layers3 className="h-4 w-4" />}>Collection Metadata</SectionTitle>
-          <div className="mt-3 space-y-2 text-sm">
-            {Object.entries(overview.collectionMetadata ?? {}).length ? (
-              Object.entries(overview.collectionMetadata ?? {}).map(([k, v]) => (
-                <div key={k} className="flex items-start justify-between gap-3 rounded-lg border border-border bg-card/50 px-3 py-2.5">
-                  <span className="shrink-0 font-mono text-xs text-primary">{k}</span>
-                  <span className="min-w-0 text-right text-muted-foreground">{typeof v === "string" ? v : JSON.stringify(v)}</span>
-                </div>
-              ))
-            ) : (
-              <div className="rounded-lg border border-dashed border-border px-3 py-6 text-center text-muted-foreground">
-                No collection metadata available.
+          <h3 className="mb-3 text-sm font-semibold text-[#F0EDE8]">Collection Metadata</h3>
+          <div className="space-y-1.5">
+            {Object.entries(overview.collectionMetadata ?? {}).map(([k, v]) => (
+              <div key={k} className="flex items-center justify-between rounded bg-[#0E0E11] px-2.5 py-1.5 text-xs">
+                <span className="font-['IBM_Plex_Mono',monospace] text-[#2DD4BF]">{k}</span>
+                <span className="text-[#8A857D]">{typeof v === "string" ? v : JSON.stringify(v)}</span>
               </div>
-            )}
+            ))}
           </div>
         </Panel>
-      </div>
+      )}
     </div>
   );
 }
 
-// ── Search Tab ───────────────────────────────────────────────────────────────
+// ── Search Section ───────────────────────────────────────────────────────────
 
-function SearchTab({ searchResults, queryLoading, searchText, onRunQuery }: {
+function SearchSection({ searchResults, queryLoading, searchText }: {
   searchResults: QueryResponse | null;
   queryLoading: boolean;
   searchText: string;
-  onRunQuery: () => void;
 }) {
   if (!searchResults && !queryLoading) {
     return (
       <Panel>
-        <div className="flex flex-col items-center justify-center gap-4 py-16 text-center">
-          <div className="rounded-full border border-primary/20 bg-primary/10 p-4 text-primary">
-            <Search className="h-6 w-6" />
-          </div>
-          <div>
-            <h3 className="text-lg font-medium text-foreground">Run a retrieval inspection</h3>
-            <p className="mt-2 max-w-xl text-sm text-muted-foreground">
-              Execute a semantic query and inspect returned chunks, metadata, and distance scores.
-            </p>
-          </div>
-          <Button variant="primary" size="sm" onClick={onRunQuery}>
-            <Search className="mr-1 h-4 w-4" /> Run Query
-          </Button>
+        <div className="flex flex-col items-center gap-3 py-8 text-center">
+          <Search className="h-6 w-6 text-[#5A5650]" />
+          <p className="text-sm text-[#8A857D]">Enter a query above and click Query to inspect retrieval results.</p>
         </div>
       </Panel>
     );
   }
 
   return (
-    <div className="space-y-5">
-      {/* Query summary */}
-      <Panel>
-        <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-          <div>
-            <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Query</div>
-            <div className="mt-1 text-lg font-medium text-foreground">{searchText}</div>
-          </div>
-          <div className="flex items-center gap-2">
-            {queryLoading && <Loader2 className="h-4 w-4 animate-spin text-primary" />}
-            <Badge variant="default">{searchResults?.elapsedMs ? `${searchResults.elapsedMs} ms` : "—"}</Badge>
-            <Badge variant="default">{searchResults?.items.length ?? 0} results</Badge>
-          </div>
+    <div className="space-y-3">
+      {/* Summary */}
+      {searchResults && (
+        <div className="flex items-center gap-3 text-xs text-[#8A857D]">
+          <span>Query: <span className="text-[#E8E4DC]">{searchText}</span></span>
+          <span className="rounded bg-[#0E0E11] px-1.5 py-0.5 font-['IBM_Plex_Mono',monospace] text-[#2DD4BF]">
+            {searchResults.elapsedMs ?? "--"} ms
+          </span>
+          <span>{searchResults.items.length} results</span>
         </div>
-      </Panel>
+      )}
 
-      {/* Results */}
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
-        <div className="space-y-3">
-          {(searchResults?.items ?? []).map((item, index) => (
-            <Panel key={`${item.id}_${index}`}>
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <div className="mb-2 flex flex-wrap items-center gap-2">
-                    <Badge variant="success">rank {index + 1}</Badge>
-                    <span className="font-mono text-xs text-muted-foreground">{item.id}</span>
-                  </div>
-                  <p className="text-sm leading-relaxed text-foreground/90">
-                    {item.document || "No document returned."}
-                  </p>
-                </div>
-                <div className="shrink-0 rounded-lg border border-border bg-card px-3 py-2 text-right">
-                  <div className="text-[10px] uppercase tracking-wider text-muted-foreground">distance</div>
-                  <div className="mt-1 text-base font-semibold text-foreground">
-                    {typeof item.distance === "number" ? item.distance.toFixed(4) : "—"}
-                  </div>
-                </div>
-              </div>
-              <div className="mt-3 flex flex-wrap gap-1.5">
-                {Object.entries(item.metadata ?? {}).map(([k, v]) => (
-                  <MetadataTag key={k} k={k} v={v} />
-                ))}
-              </div>
-            </Panel>
-          ))}
+      {queryLoading && (
+        <div className="flex items-center gap-2 text-sm text-[#8A857D]">
+          <Loader2 className="h-3 w-3 animate-spin" />
+          Querying...
         </div>
+      )}
 
-        <Panel>
-          <SectionTitle icon={<BookOpen className="h-4 w-4" />}>Interpretation Guide</SectionTitle>
-          <div className="mt-3 space-y-3">
-            <InsightRow title="Distance inspection" description="Lower distances indicate tighter semantic matches. Track spread across top-k to detect ambiguous retrieval." />
-            <InsightRow title="Metadata alignment" description="Check whether returned chunks share expected source, topic, or cohort tags." />
-            <InsightRow title="Chunk quality" description="If relevant passages mix with unrelated text, improve chunking before changing ranking." />
+      {/* Result cards */}
+      {(searchResults?.items ?? []).map((item, index) => (
+        <Panel key={`${item.id}_${index}`}>
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <div className="mb-1.5 flex items-center gap-2">
+                <span className="rounded bg-[#2DD4BF]/15 px-1.5 py-0.5 text-[10px] font-medium text-[#2DD4BF]">
+                  #{index + 1}
+                </span>
+                <span className="truncate font-['IBM_Plex_Mono',monospace] text-[10px] text-[#5A5650]">{item.id}</span>
+              </div>
+              <p className="line-clamp-3 text-sm leading-relaxed text-[#C5C0B8]">
+                {item.document || "No document returned."}
+              </p>
+            </div>
+            <div className="shrink-0 rounded bg-[#0E0E11] px-2.5 py-1.5 text-center">
+              <div className="text-[10px] text-[#5A5650]">distance</div>
+              <div className="font-['IBM_Plex_Mono',monospace] text-sm font-medium text-[#F0EDE8]">
+                {typeof item.distance === "number" ? item.distance.toFixed(4) : "--"}
+              </div>
+            </div>
           </div>
+          {item.metadata && Object.keys(item.metadata).length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-1">
+              {Object.entries(item.metadata).map(([k, v]) => (
+                <MetadataTag key={k} k={k} v={v} />
+              ))}
+            </div>
+          )}
         </Panel>
-      </div>
+      ))}
     </div>
   );
 }
 
-// ── Map Tab ──────────────────────────────────────────────────────────────────
+// ── Map Section ──────────────────────────────────────────────────────────────
 
-function MapTab({ points, overview }: { points: ProjectionPoint[]; overview: CollectionOverview }) {
+function MapSection({ points, overview }: { points: ProjectionPoint[]; overview: CollectionOverview }) {
   const [colorKey, setColorKey] = useState<string>(overview.metadataKeys[0] ?? "");
   const palette = useMemo(() => buildPalette(points, colorKey), [points, colorKey]);
   const [selectedPoint, setSelectedPoint] = useState<ProjectionPoint | null>(null);
@@ -518,12 +481,14 @@ function MapTab({ points, overview }: { points: ProjectionPoint[]; overview: Col
   if (points.length < 3) {
     return (
       <Panel>
-        <div className="flex flex-col items-center justify-center gap-4 py-16 text-center">
-          <Radar className="h-8 w-8 text-muted-foreground" />
+        <div className="flex flex-col items-center gap-3 py-8 text-center">
+          <Radar className="h-6 w-6 text-[#5A5650]" />
           <div>
-            <h3 className="text-lg font-medium text-foreground">Insufficient embeddings</h3>
-            <p className="mt-1 text-sm text-muted-foreground">
-              At least 3 records with embeddings are needed for UMAP projection.
+            <p className="text-sm font-medium text-[#8A857D]">Insufficient embeddings</p>
+            <p className="mt-1 text-xs text-[#5A5650]">
+              {points.length === 0
+                ? "Loading embeddings for UMAP projection..."
+                : "At least 3 records with embeddings needed."}
             </p>
           </div>
         </div>
@@ -532,22 +497,17 @@ function MapTab({ points, overview }: { points: ProjectionPoint[]; overview: Col
   }
 
   return (
-    <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
+    <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_280px]">
       <Panel>
-        <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <div>
-            <SectionTitle icon={<Radar className="h-4 w-4" />}>2D Semantic Map</SectionTitle>
-            <p className="mt-1 text-sm text-muted-foreground">
-              UMAP projection of sampled embeddings. Color by metadata to spot clusters.
-            </p>
-          </div>
+        <div className="mb-3 flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-[#F0EDE8]">2D Semantic Map</h3>
           {overview.metadataKeys.length > 0 && (
-            <div className="w-full md:w-48">
-              <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-muted-foreground">Color by</label>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-[#5A5650]">Color by</span>
               <select
                 value={colorKey}
                 onChange={(e) => setColorKey(e.target.value)}
-                className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground outline-none transition focus:border-primary/50"
+                className="rounded border border-[#232328] bg-[#0E0E11] px-2 py-1 text-xs text-[#E8E4DC] outline-none focus:border-[#C9A227]/50"
               >
                 {overview.metadataKeys.map((key) => (
                   <option key={key} value={key}>{key}</option>
@@ -559,40 +519,42 @@ function MapTab({ points, overview }: { points: ProjectionPoint[]; overview: Col
         <ScatterPlot points={points} colorKey={colorKey} palette={palette} onSelect={setSelectedPoint} />
       </Panel>
 
-      <div className="space-y-5">
+      <div className="space-y-4">
+        {/* Legend */}
         <Panel>
-          <SectionTitle icon={<Layers3 className="h-4 w-4" />}>Legend</SectionTitle>
-          <div className="mt-3 space-y-2">
+          <h3 className="mb-2 text-xs font-semibold text-[#8A857D]">Legend</h3>
+          <div className="space-y-1.5">
             {palette.map((entry) => (
-              <div key={entry.label} className="flex items-center justify-between rounded-lg border border-border bg-card/50 px-3 py-2 text-sm">
-                <div className="flex items-center gap-2 text-foreground">
-                  <span className="h-3 w-3 rounded-full" style={{ background: entry.color }} />
+              <div key={entry.label} className="flex items-center justify-between text-xs">
+                <div className="flex items-center gap-1.5 text-[#C5C0B8]">
+                  <span className="h-2.5 w-2.5 rounded-full" style={{ background: entry.color }} />
                   <span className="truncate">{entry.label}</span>
                 </div>
-                <span className="text-muted-foreground">{entry.count}</span>
+                <span className="font-['IBM_Plex_Mono',monospace] text-[#5A5650]">{entry.count}</span>
               </div>
             ))}
           </div>
         </Panel>
 
+        {/* Selected point */}
         <Panel>
-          <SectionTitle icon={<CircleDot className="h-4 w-4" />}>Selected Point</SectionTitle>
+          <h3 className="mb-2 text-xs font-semibold text-[#8A857D]">Selected Point</h3>
           {selectedPoint ? (
-            <div className="mt-3 space-y-3">
-              <div className="font-mono text-xs text-primary">{selectedPoint.id}</div>
-              <p className="text-sm leading-relaxed text-foreground/90">
+            <div className="space-y-2">
+              <div className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#2DD4BF]">{selectedPoint.id}</div>
+              <p className="line-clamp-4 text-xs leading-relaxed text-[#C5C0B8]">
                 {selectedPoint.document || "No document available."}
               </p>
-              <div className="flex flex-wrap gap-1.5">
-                {Object.entries(selectedPoint.metadata ?? {}).map(([k, v]) => (
-                  <MetadataTag key={k} k={k} v={v} />
-                ))}
-              </div>
+              {selectedPoint.metadata && Object.keys(selectedPoint.metadata).length > 0 && (
+                <div className="flex flex-wrap gap-1">
+                  {Object.entries(selectedPoint.metadata).map(([k, v]) => (
+                    <MetadataTag key={k} k={k} v={v} />
+                  ))}
+                </div>
+              )}
             </div>
           ) : (
-            <div className="mt-3 rounded-lg border border-dashed border-border px-3 py-6 text-center text-sm text-muted-foreground">
-              Click a point on the map to inspect it.
-            </div>
+            <p className="text-xs text-[#5A5650]">Click a point on the map to inspect.</p>
           )}
         </Panel>
       </div>
@@ -608,9 +570,9 @@ function ScatterPlot({ points, colorKey, palette, onSelect }: {
   palette: Array<{ label: string; color: string; count: number }>;
   onSelect: (point: ProjectionPoint) => void;
 }) {
-  const width = 980;
-  const height = 560;
-  const padding = 32;
+  const width = 900;
+  const height = 480;
+  const padding = 28;
   const [hovered, setHovered] = useState<ProjectionPoint | null>(null);
 
   const xVals = points.map((p) => p.x);
@@ -624,24 +586,23 @@ function ScatterPlot({ points, colorKey, palette, onSelect }: {
   const colorMap = new Map(palette.map((p) => [p.label, p.color]));
 
   return (
-    <div className="relative overflow-hidden rounded-lg border border-border bg-[#0A0A0F]">
-      {/* Grid background */}
+    <div className="relative overflow-hidden rounded-lg border border-[#232328] bg-[#0A0A0F]">
       <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:32px_32px] opacity-60" />
-      <svg viewBox={`0 0 ${width} ${height}`} className="relative z-10 h-[560px] w-full">
+      <svg viewBox={`0 0 ${width} ${height}`} className="relative z-10 h-[480px] w-full">
         {points.map((point, idx) => {
           const value = compact(point.metadata?.[colorKey] ?? "unknown");
-          const fill = colorMap.get(value) ?? "#94a3b8";
+          const fill = colorMap.get(value) ?? "#5A5650";
           const isHovered = hovered?.id === point.id;
           return (
             <circle
               key={`${point.id}_${idx}`}
               cx={xScale(point.x)}
               cy={yScale(point.y)}
-              r={5.5}
+              r={5}
               fill={fill}
-              fillOpacity={isHovered ? 1 : 0.8}
-              stroke={isHovered ? "white" : "rgba(255,255,255,0.15)"}
-              strokeWidth={isHovered ? 2 : 1}
+              fillOpacity={isHovered ? 1 : 0.75}
+              stroke={isHovered ? "#F0EDE8" : "rgba(255,255,255,0.1)"}
+              strokeWidth={isHovered ? 2 : 0.5}
               className="cursor-pointer transition-all duration-150"
               onMouseEnter={() => setHovered(point)}
               onMouseLeave={() => setHovered(null)}
@@ -650,11 +611,10 @@ function ScatterPlot({ points, colorKey, palette, onSelect }: {
           );
         })}
       </svg>
-      {/* Hover tooltip */}
       {hovered && (
-        <div className="pointer-events-none absolute left-4 top-4 z-20 max-w-sm rounded-lg border border-border bg-card/95 p-3 shadow-2xl backdrop-blur">
-          <div className="font-mono text-xs text-primary">{hovered.id}</div>
-          <div className="mt-1 line-clamp-3 text-sm text-foreground/90">{hovered.document || "No document."}</div>
+        <div className="pointer-events-none absolute left-3 top-3 z-20 max-w-xs rounded border border-[#232328] bg-[#151518]/95 p-2.5 shadow-xl backdrop-blur">
+          <div className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#2DD4BF]">{hovered.id}</div>
+          <div className="mt-1 line-clamp-2 text-xs text-[#C5C0B8]">{hovered.document || "No document."}</div>
         </div>
       )}
     </div>
@@ -678,7 +638,6 @@ function useUmapProjection(records: SampleRecord[]): ProjectionPoint[] {
       return;
     }
 
-    // Dynamic import to avoid bundling umap-js if unused
     import("umap-js")
       .then(({ UMAP }) => {
         if (!active) return;
@@ -700,31 +659,13 @@ function useUmapProjection(records: SampleRecord[]): ProjectionPoint[] {
             }))
           );
         } catch {
-          // Fallback: circular layout
           if (!active) return;
-          setPoints(
-            withEmbeddings.map((r, i) => ({
-              id: r.id,
-              x: Math.cos((i * 2 * Math.PI) / withEmbeddings.length),
-              y: Math.sin((i * 2 * Math.PI) / withEmbeddings.length),
-              document: r.document,
-              metadata: r.metadata,
-            }))
-          );
+          setPoints(circularLayout(withEmbeddings));
         }
       })
       .catch(() => {
-        // umap-js not installed — use circular fallback
         if (!active) return;
-        setPoints(
-          withEmbeddings.map((r, i) => ({
-            id: r.id,
-            x: Math.cos((i * 2 * Math.PI) / withEmbeddings.length),
-            y: Math.sin((i * 2 * Math.PI) / withEmbeddings.length),
-            document: r.document,
-            metadata: r.metadata,
-          }))
-        );
+        setPoints(circularLayout(withEmbeddings));
       });
 
     return () => { active = false; };
@@ -733,46 +674,23 @@ function useUmapProjection(records: SampleRecord[]): ProjectionPoint[] {
   return points;
 }
 
-// ── Shared Sub-Components ────────────────────────────────────────────────────
-
-function SectionTitle({ icon, children }: { icon: React.ReactNode; children: React.ReactNode }) {
-  return (
-    <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-      <span className="text-primary">{icon}</span>
-      {children}
-    </div>
-  );
-}
-
-function StatCard({ label, value, icon }: { label: string; value: string; icon: React.ReactNode }) {
-  return (
-    <Panel>
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{label}</div>
-          <div className="mt-2 text-2xl font-semibold tracking-tight text-foreground">{value}</div>
-        </div>
-        <div className="rounded-lg border border-primary/20 bg-primary/10 p-2.5 text-primary">{icon}</div>
-      </div>
-    </Panel>
-  );
-}
+// ── Sub-Components ───────────────────────────────────────────────────────────
 
 function FacetCard({ facet }: { facet: MetadataFacet }) {
   const max = Math.max(...facet.values.map((v) => v.count), 1);
   return (
-    <div className="rounded-lg border border-border bg-card/50 p-4">
-      <div className="mb-3 text-sm font-medium text-foreground">{facet.key}</div>
-      <div className="space-y-2.5">
+    <div className="rounded border border-[#232328] bg-[#0E0E11] p-3">
+      <div className="mb-2 text-xs font-medium text-[#C5C0B8]">{facet.key}</div>
+      <div className="space-y-2">
         {facet.values.map((entry) => (
           <div key={entry.label}>
-            <div className="mb-1 flex items-center justify-between text-xs text-muted-foreground">
+            <div className="mb-0.5 flex items-center justify-between text-[10px] text-[#5A5650]">
               <span className="truncate">{entry.label}</span>
               <span>{entry.count}</span>
             </div>
-            <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+            <div className="h-1 overflow-hidden rounded-full bg-[#232328]">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-primary/80 to-[#2DD4BF]"
+                className="h-full rounded-full bg-gradient-to-r from-[#9B1B30] to-[#2DD4BF]"
                 style={{ width: `${(entry.count / max) * 100}%` }}
               />
             </div>
@@ -783,41 +701,33 @@ function FacetCard({ facet }: { facet: MetadataFacet }) {
   );
 }
 
-function InsightRow({ title, description }: { title: string; description: string }) {
-  return (
-    <div className="rounded-lg border border-border bg-card/50 p-3">
-      <div className="text-sm font-medium text-foreground">{title}</div>
-      <div className="mt-1 text-sm text-muted-foreground">{description}</div>
-    </div>
-  );
-}
-
 function RecordCard({ record }: { record: SampleRecord }) {
   return (
-    <div className="rounded-lg border border-border bg-card/50 p-4">
-      <div className="mb-2 flex items-center justify-between gap-3">
-        <div className="min-w-0 truncate font-mono text-xs text-primary">{record.id}</div>
-        <Badge variant="default">sample</Badge>
+    <div className="rounded border border-[#232328] bg-[#0E0E11] p-3">
+      <div className="mb-1.5 font-['IBM_Plex_Mono',monospace] text-[10px] text-[#2DD4BF] truncate">
+        {record.id}
       </div>
-      <p className="line-clamp-3 text-sm leading-relaxed text-foreground/90">
+      <p className="line-clamp-2 text-xs leading-relaxed text-[#8A857D]">
         {record.document || "No document text available."}
       </p>
-      <div className="mt-3 flex flex-wrap gap-1.5">
-        {Object.entries(record.metadata ?? {})
-          .slice(0, 5)
-          .map(([k, v]) => (
-            <MetadataTag key={k} k={k} v={v} />
-          ))}
-      </div>
+      {record.metadata && Object.keys(record.metadata).length > 0 && (
+        <div className="mt-2 flex flex-wrap gap-1">
+          {Object.entries(record.metadata)
+            .slice(0, 5)
+            .map(([k, v]) => (
+              <MetadataTag key={k} k={k} v={v} />
+            ))}
+        </div>
+      )}
     </div>
   );
 }
 
 function MetadataTag({ k, v }: { k: string; v: Json }) {
   return (
-    <span className="inline-flex rounded-md border border-border bg-card px-2 py-0.5 text-xs text-muted-foreground">
-      <span className="font-medium text-foreground/80">{k}:</span>
-      <span className="ml-1 truncate max-w-[200px]">{compact(v)}</span>
+    <span className="inline-flex rounded bg-[#232328] px-1.5 py-0.5 text-[10px] text-[#5A5650]">
+      <span className="text-[#8A857D]">{k}:</span>
+      <span className="ml-0.5 truncate max-w-[150px]">{compact(v)}</span>
     </span>
   );
 }
@@ -841,18 +751,15 @@ function fmt(value: number): string {
   return new Intl.NumberFormat().format(value);
 }
 
-const PALETTE_COLORS = [
-  "#9B1B30", // crimson (brand)
-  "#2DD4BF", // teal (brand)
-  "#C9A227", // gold (brand)
-  "#60a5fa", // blue
-  "#a78bfa", // purple
-  "#f472b6", // pink
-  "#f59e0b", // amber
-  "#34d399", // emerald
-  "#fb7185", // rose
-  "#38bdf8", // sky
-];
+function circularLayout(records: Array<{ id: string; document?: string | null; metadata?: Record<string, Json> | null }>): ProjectionPoint[] {
+  return records.map((r, i) => ({
+    id: r.id,
+    x: Math.cos((i * 2 * Math.PI) / records.length),
+    y: Math.sin((i * 2 * Math.PI) / records.length),
+    document: r.document,
+    metadata: r.metadata,
+  }));
+}
 
 function buildPalette(points: ProjectionPoint[], colorKey: string) {
   const counts = new Map<string, number>();
