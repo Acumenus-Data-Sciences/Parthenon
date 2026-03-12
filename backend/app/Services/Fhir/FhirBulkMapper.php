@@ -39,6 +39,22 @@ class FhirBulkMapper
         '2186-5' => 38003564, // Not Hispanic or Latino
     ];
 
+    /** FHIR Condition.clinicalStatus → OMOP condition_status_concept_id. */
+    private const CONDITION_STATUS_MAP = [
+        'active' => 4230359,
+        'recurrence' => 4230359,
+        'relapse' => 4230359,
+        'inactive' => 4201906,
+        'remission' => 4201906,
+        'resolved' => 4201906,
+    ];
+
+    /** FHIR Condition.category → OMOP condition_type_concept_id. */
+    private const CONDITION_CATEGORY_MAP = [
+        'encounter-diagnosis' => 32817,
+        'problem-list-item' => 32840,
+    ];
+
     /** FHIR Encounter.class → OMOP visit_concept_id. */
     private const VISIT_CLASS_MAP = [
         'AMB' => 9202,    // Outpatient
@@ -193,7 +209,9 @@ class FhirBulkMapper
                 'condition_start_datetime' => $this->parseDatetime($onset),
                 'condition_end_date' => $this->parseDate($abatement),
                 'condition_end_datetime' => $this->parseDatetime($abatement),
-                'condition_type_concept_id' => 32817,
+                'condition_type_concept_id' => self::CONDITION_CATEGORY_MAP[$this->extractConditionCategory($r) ?? ''] ?? 32817,
+                'condition_status_concept_id' => self::CONDITION_STATUS_MAP[$this->extractConditionStatus($r) ?? ''] ?? 0,
+                'condition_status_source_value' => $this->extractConditionStatus($r),
                 'condition_source_value' => $resolved['source_value'],
                 'condition_source_concept_id' => $resolved['source_concept_id'],
                 'visit_occurrence_id' => $visitId,
@@ -405,6 +423,16 @@ class FhirBulkMapper
     // ──────────────────────────────────────────────────────────────────────────
     // Helper methods
     // ──────────────────────────────────────────────────────────────────────────
+
+    private function extractConditionStatus(array $r): ?string
+    {
+        return $r['clinicalStatus']['coding'][0]['code'] ?? null;
+    }
+
+    private function extractConditionCategory(array $r): ?string
+    {
+        return $r['category'][0]['coding'][0]['code'] ?? null;
+    }
 
     private function resolveSubjectPersonId(array $r, string $siteKey, string $field = 'subject'): int
     {

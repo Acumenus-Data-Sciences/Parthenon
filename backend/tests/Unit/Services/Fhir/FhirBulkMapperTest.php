@@ -92,4 +92,65 @@ class FhirBulkMapperTest extends TestCase
         $this->assertIsArray($rows);
         $this->assertEmpty($rows);
     }
+
+    public function test_condition_active_status_maps_to_concept(): void
+    {
+        $this->crosswalk->shouldReceive('resolvePersonId')->andReturn(1);
+        $this->crosswalk->shouldReceive('lookupVisitId')->andReturn(null);
+        $this->vocab->shouldReceive('resolve')->andReturn([
+            'concept_id' => 123,
+            'domain_id' => 'Condition',
+            'source_concept_id' => 123,
+            'source_value' => 'http://snomed.info/sct|123',
+            'cdm_table' => 'condition_occurrence',
+            'mapping_type' => 'direct_standard',
+        ]);
+
+        $resource = [
+            'resourceType' => 'Condition',
+            'id' => 'cond-1',
+            'code' => ['coding' => [['system' => 'http://snomed.info/sct', 'code' => '123']]],
+            'subject' => ['reference' => 'Patient/patient-1'],
+            'clinicalStatus' => ['coding' => [['code' => 'active']]],
+            'category' => [['coding' => [['code' => 'problem-list-item']]]],
+            'onsetDateTime' => '2025-01-01',
+        ];
+
+        $rows = $this->mapper->mapResource($resource, 'test-site');
+        $condRow = collect($rows)->firstWhere('cdm_table', 'condition_occurrence');
+
+        $this->assertEquals(4230359, $condRow['data']['condition_status_concept_id']);
+        $this->assertEquals('active', $condRow['data']['condition_status_source_value']);
+        $this->assertEquals(32840, $condRow['data']['condition_type_concept_id']);
+    }
+
+    public function test_condition_resolved_status_maps_to_concept(): void
+    {
+        $this->crosswalk->shouldReceive('resolvePersonId')->andReturn(1);
+        $this->crosswalk->shouldReceive('lookupVisitId')->andReturn(null);
+        $this->vocab->shouldReceive('resolve')->andReturn([
+            'concept_id' => 456,
+            'domain_id' => 'Condition',
+            'source_concept_id' => 456,
+            'source_value' => 'http://snomed.info/sct|456',
+            'cdm_table' => 'condition_occurrence',
+            'mapping_type' => 'direct_standard',
+        ]);
+
+        $resource = [
+            'resourceType' => 'Condition',
+            'id' => 'cond-2',
+            'code' => ['coding' => [['system' => 'http://snomed.info/sct', 'code' => '456']]],
+            'subject' => ['reference' => 'Patient/patient-1'],
+            'clinicalStatus' => ['coding' => [['code' => 'resolved']]],
+            'category' => [['coding' => [['code' => 'encounter-diagnosis']]]],
+            'onsetDateTime' => '2025-01-01',
+        ];
+
+        $rows = $this->mapper->mapResource($resource, 'test-site');
+        $condRow = collect($rows)->firstWhere('cdm_table', 'condition_occurrence');
+
+        $this->assertEquals(4201906, $condRow['data']['condition_status_concept_id']);
+        $this->assertEquals(32817, $condRow['data']['condition_type_concept_id']);
+    }
 }
