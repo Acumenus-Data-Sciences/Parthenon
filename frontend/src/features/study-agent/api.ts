@@ -4,6 +4,8 @@ import type {
   PhenotypeRecommendation,
   IntentSplitResult,
   LintWarning,
+  CombinedLintResult,
+  ConceptSetFinding,
   StudyAgentHealth,
 } from "./types";
 
@@ -12,6 +14,8 @@ export type {
   PhenotypeRecommendation,
   IntentSplitResult,
   LintWarning,
+  CombinedLintResult,
+  ConceptSetFinding,
   StudyAgentHealth,
 };
 

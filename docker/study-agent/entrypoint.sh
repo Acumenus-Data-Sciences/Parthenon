@@ -17,7 +17,7 @@ fi
 PHENOTYPE_INDEX_FILE="${PHENOTYPE_INDEX_DIR:-/data/phenotype-index}/dense.index"
 if [ ! -f "$PHENOTYPE_INDEX_FILE" ]; then
     echo "Building phenotype index (first run)..."
-    cd /app/study-agent/mcp_server
+    cd /opt/study-agent/mcp_server
     python -m study_agent_mcp.retrieval.build_phenotype_index 2>/dev/null || \
         echo "Warning: Phenotype index build skipped (embedding service may not be ready)"
 fi
