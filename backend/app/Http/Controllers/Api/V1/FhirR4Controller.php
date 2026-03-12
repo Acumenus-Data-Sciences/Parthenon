@@ -113,6 +113,76 @@ class FhirR4Controller extends Controller
     }
 
     /**
+     * Start a bulk FHIR export.
+     */
+    public function startExport(Request $request): JsonResponse
+    {
+        $request->validate([
+            'source_id' => ['required', 'integer'],
+            'resource_types' => ['sometimes', 'array'],
+            'resource_types.*' => ['string'],
+            'patient_ids' => ['sometimes', 'array'],
+            'patient_ids.*' => ['integer'],
+        ]);
+
+        $job = \App\Models\App\FhirExportJob::create([
+            'source_id' => $request->input('source_id'),
+            'resource_types' => $request->input('resource_types', [
+                'Patient', 'Condition', 'Encounter', 'Observation',
+                'MedicationStatement', 'Procedure', 'Immunization', 'AllergyIntolerance',
+            ]),
+            'patient_ids' => $request->input('patient_ids'),
+            'user_id' => $request->user()->id,
+        ]);
+
+        \App\Jobs\Fhir\RunFhirExportJob::dispatch($job->id);
+
+        return response()->json([
+            'id' => $job->id,
+            'status' => 'pending',
+            'message' => 'Export started',
+        ], 202)
+            ->header('Content-Location', "/api/v1/fhir/\$export/{$job->id}");
+    }
+
+    /**
+     * Check bulk export status.
+     */
+    public function exportStatus(string $id): JsonResponse
+    {
+        $job = \App\Models\App\FhirExportJob::findOrFail($id);
+
+        return response()->json([
+            'id' => $job->id,
+            'status' => $job->status,
+            'resource_types' => $job->resource_types,
+            'files' => $job->files,
+            'started_at' => $job->started_at?->toIso8601String(),
+            'finished_at' => $job->finished_at?->toIso8601String(),
+            'error_message' => $job->error_message,
+        ]);
+    }
+
+    /**
+     * Download an exported NDJSON file.
+     */
+    public function downloadExportFile(string $id, string $file): \Symfony\Component\HttpFoundation\StreamedResponse
+    {
+        $job = \App\Models\App\FhirExportJob::findOrFail($id);
+        $path = "fhir-exports/{$id}/{$file}.ndjson";
+
+        if (! \Illuminate\Support\Facades\Storage::disk('local')->exists($path)) {
+            abort(404, 'Export file not found');
+        }
+
+        return \Illuminate\Support\Facades\Storage::disk('local')->download(
+            $path,
+            "{$file}.ndjson",
+            ['Content-Type' => 'application/fhir+ndjson'],
+        );
+    }
+
+    /**
      * Get FHIR search parameters for a resource type.
      *
      * @return list<array{name: string, type: string}>

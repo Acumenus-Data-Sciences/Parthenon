@@ -15,4 +15,9 @@ Route::middleware(['auth:sanctum', 'throttle:fhir'])->prefix('fhir')->group(func
         Route::get($type, [FhirR4Controller::class, 'search'])->defaults('type', $type);
         Route::get("{$type}/{id}", [FhirR4Controller::class, 'read'])->defaults('type', $type);
     }
+
+    // Bulk export
+    Route::post('$export', [FhirR4Controller::class, 'startExport']);
+    Route::get('$export/{id}', [FhirR4Controller::class, 'exportStatus']);
+    Route::get('$export/{id}/download/{file}', [FhirR4Controller::class, 'downloadExportFile']);
 });
