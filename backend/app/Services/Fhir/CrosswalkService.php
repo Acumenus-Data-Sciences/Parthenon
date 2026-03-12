@@ -23,6 +23,12 @@ class CrosswalkService
     /** @var array<string, int> in-memory cache: "site|fhirId" => providerId */
     private array $providerCache = [];
 
+    /** @var array<string, int> */
+    private array $locationCache = [];
+
+    /** @var array<string, int> */
+    private array $careSiteCache = [];
+
     /**
      * Get or create a person_id for a FHIR Patient.
      */
@@ -127,6 +133,74 @@ class CrosswalkService
     }
 
     /**
+     * Get or create a location_id for a FHIR Location.
+     */
+    public function resolveLocationId(string $siteKey, string $fhirLocationId): int
+    {
+        $cacheKey = "{$siteKey}|{$fhirLocationId}";
+
+        if (isset($this->locationCache[$cacheKey])) {
+            return $this->locationCache[$cacheKey];
+        }
+
+        $row = DB::table('fhir_location_crosswalk')
+            ->where('site_key', $siteKey)
+            ->where('fhir_location_id', $fhirLocationId)
+            ->first();
+
+        if ($row) {
+            $this->locationCache[$cacheKey] = (int) $row->location_id;
+
+            return (int) $row->location_id;
+        }
+
+        $locationId = DB::table('fhir_location_crosswalk')->insertGetId([
+            'site_key' => $siteKey,
+            'fhir_location_id' => $fhirLocationId,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ], 'location_id');
+
+        $this->locationCache[$cacheKey] = (int) $locationId;
+
+        return (int) $locationId;
+    }
+
+    /**
+     * Get or create a care_site_id for a FHIR Organization.
+     */
+    public function resolveCareSiteId(string $siteKey, string $fhirOrganizationId): int
+    {
+        $cacheKey = "{$siteKey}|{$fhirOrganizationId}";
+
+        if (isset($this->careSiteCache[$cacheKey])) {
+            return $this->careSiteCache[$cacheKey];
+        }
+
+        $row = DB::table('fhir_caresite_crosswalk')
+            ->where('site_key', $siteKey)
+            ->where('fhir_organization_id', $fhirOrganizationId)
+            ->first();
+
+        if ($row) {
+            $this->careSiteCache[$cacheKey] = (int) $row->care_site_id;
+
+            return (int) $row->care_site_id;
+        }
+
+        $careSiteId = DB::table('fhir_caresite_crosswalk')->insertGetId([
+            'site_key' => $siteKey,
+            'fhir_organization_id' => $fhirOrganizationId,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ], 'care_site_id');
+
+        $this->careSiteCache[$cacheKey] = (int) $careSiteId;
+
+        return (int) $careSiteId;
+    }
+
+    /**
      * Lookup person_id without creating — returns null if not found.
      */
     public function lookupPersonId(string $siteKey, string $fhirPatientId): ?int
@@ -184,5 +258,7 @@ class CrosswalkService
         $this->patientCache = [];
         $this->encounterCache = [];
         $this->providerCache = [];
+        $this->locationCache = [];
+        $this->careSiteCache = [];
     }
 }
