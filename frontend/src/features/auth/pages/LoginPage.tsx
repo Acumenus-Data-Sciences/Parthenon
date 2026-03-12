@@ -226,6 +226,10 @@ export function LoginPage() {
               "Estimation",
               "Prediction",
               "Pathways",
+              "Genomics",
+              "Imaging",
+              "HEOR",
+              "GIS",
             ].map((label) => (
               <span
                 key={label}
@@ -246,31 +250,65 @@ export function LoginPage() {
             ))}
           </div>
 
-          {/* Blog link */}
-          <a
-            href="/docs/blog"
+          {/* Blog + Discord links */}
+          <div
             style={{
-              display: "inline-flex",
+              display: "flex",
+              flexDirection: "column",
               alignItems: "center",
-              gap: "6px",
-              fontFamily: "var(--font-mono)",
-              fontSize: "var(--text-xs)",
-              color: "var(--accent)",
-              textDecoration: "none",
-              borderBottom: "1px solid var(--accent-muted)",
-              letterSpacing: "0.3px",
-              transition: "color 200ms",
+              gap: "var(--space-2)",
               marginTop: "var(--space-5)",
             }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.color = "var(--accent-light)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.color = "var(--accent)";
-            }}
           >
-            Read our Development Blog &rarr;
-          </a>
+            <a
+              href="/docs/blog"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "6px",
+                fontFamily: "var(--font-mono)",
+                fontSize: "var(--text-xs)",
+                color: "var(--accent)",
+                textDecoration: "none",
+                borderBottom: "1px solid var(--accent-muted)",
+                letterSpacing: "0.3px",
+                transition: "color 200ms",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = "var(--accent-light)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = "var(--accent)";
+              }}
+            >
+              Read our Development Blog &rarr;
+            </a>
+            <a
+              href="https://discord.gg/GkkT7dzmwf"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "6px",
+                fontFamily: "var(--font-mono)",
+                fontSize: "var(--text-xs)",
+                color: "var(--accent)",
+                textDecoration: "none",
+                borderBottom: "1px solid var(--accent-muted)",
+                letterSpacing: "0.3px",
+                transition: "color 200ms",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = "var(--accent-light)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = "var(--accent)";
+              }}
+            >
+              Join our Discord Community &rarr;
+            </a>
+          </div>
 
           {/* Version + Acumenus */}
           <div
