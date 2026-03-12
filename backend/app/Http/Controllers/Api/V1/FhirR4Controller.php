@@ -56,7 +56,7 @@ class FhirR4Controller extends Controller
             ],
             'implementation' => [
                 'description' => 'Parthenon OMOP-to-FHIR R4 Bridge',
-                'url' => config('app.url') . '/api/v1/fhir',
+                'url' => config('app.url').'/api/v1/fhir',
             ],
             'fhirVersion' => '4.0.1',
             'format' => ['json'],

@@ -24,7 +24,7 @@ class PatientBuilder
      *
      * @param  object  $person  OMOP person row (stdClass)
      * @param  object|null  $death  OMOP death row if deceased
-     * @return array<string, mixed>  FHIR R4 Patient resource
+     * @return array<string, mixed> FHIR R4 Patient resource
      */
     public function build(object $person, ?object $death = null): array
     {

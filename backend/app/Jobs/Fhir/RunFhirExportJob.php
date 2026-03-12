@@ -19,6 +19,7 @@ class RunFhirExportJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public int $timeout = 3600;
+
     public int $tries = 1;
 
     public function __construct(
@@ -57,7 +58,7 @@ class RunFhirExportJob implements ShouldQueue
                 $filename = "fhir-exports/{$job->id}/{$type}.ndjson";
                 $ndjson = '';
                 foreach ($resources as $resource) {
-                    $ndjson .= json_encode($resource, JSON_UNESCAPED_SLASHES) . "\n";
+                    $ndjson .= json_encode($resource, JSON_UNESCAPED_SLASHES)."\n";
                 }
 
                 Storage::disk('local')->put($filename, $ndjson);

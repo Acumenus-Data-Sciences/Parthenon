@@ -25,7 +25,7 @@ class ConditionBuilder
     /**
      * Build a FHIR Condition resource from an OMOP condition_occurrence row.
      *
-     * @return array<string, mixed>  FHIR R4 Condition resource
+     * @return array<string, mixed> FHIR R4 Condition resource
      */
     public function build(object $row): array
     {

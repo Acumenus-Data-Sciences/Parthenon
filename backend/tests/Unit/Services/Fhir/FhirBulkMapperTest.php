@@ -13,7 +13,9 @@ use Tests\TestCase;
 class FhirBulkMapperTest extends TestCase
 {
     private FhirBulkMapper $mapper;
+
     private VocabularyLookupService $vocab;
+
     private CrosswalkService $crosswalk;
 
     protected function setUp(): void

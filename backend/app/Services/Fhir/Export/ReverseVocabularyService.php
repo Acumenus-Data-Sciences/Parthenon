@@ -9,18 +9,18 @@ use Illuminate\Support\Facades\DB;
 class ReverseVocabularyService
 {
     private const VOCAB_TO_SYSTEM = [
-        'SNOMED'  => 'http://snomed.info/sct',
-        'LOINC'   => 'http://loinc.org',
-        'RxNorm'  => 'http://www.nlm.nih.gov/research/umls/rxnorm',
+        'SNOMED' => 'http://snomed.info/sct',
+        'LOINC' => 'http://loinc.org',
+        'RxNorm' => 'http://www.nlm.nih.gov/research/umls/rxnorm',
         'ICD10CM' => 'http://hl7.org/fhir/sid/icd-10-cm',
-        'ICD10'   => 'http://hl7.org/fhir/sid/icd-10',
-        'ICD9CM'  => 'http://hl7.org/fhir/sid/icd-9-cm',
-        'CPT4'    => 'http://www.ama-assn.org/go/cpt',
-        'NDC'     => 'http://hl7.org/fhir/sid/ndc',
-        'CVX'     => 'http://hl7.org/fhir/sid/cvx',
-        'HCPCS'   => 'http://www.cms.gov/Medicare/Coding/HCPCSReleaseCodeSets',
-        'Race'    => 'urn:oid:2.16.840.1.113883.6.238',
-        'UCUM'    => 'http://unitsofmeasure.org',
+        'ICD10' => 'http://hl7.org/fhir/sid/icd-10',
+        'ICD9CM' => 'http://hl7.org/fhir/sid/icd-9-cm',
+        'CPT4' => 'http://www.ama-assn.org/go/cpt',
+        'NDC' => 'http://hl7.org/fhir/sid/ndc',
+        'CVX' => 'http://hl7.org/fhir/sid/cvx',
+        'HCPCS' => 'http://www.cms.gov/Medicare/Coding/HCPCSReleaseCodeSets',
+        'Race' => 'urn:oid:2.16.840.1.113883.6.238',
+        'UCUM' => 'http://unitsofmeasure.org',
     ];
 
     private const MAX_CACHE = 50000;
