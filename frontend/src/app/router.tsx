@@ -242,6 +242,34 @@ export const router = createBrowserRouter(
           },
         ],
       },
+      // ── Study Designer (OHDSI StudyAgent) ───────────────────────────────
+      ...(import.meta.env.VITE_STUDY_AGENT_ENABLED === "true"
+        ? [
+            {
+              path: "study-designer",
+              lazy: () =>
+                import("@/features/study-agent/pages/StudyDesignerPage").then(
+                  (m) => ({ Component: m.default }),
+                ),
+            },
+          ]
+        : []),
+      // ── Strategus Study Packages ─────────────────────────────────────────
+      {
+        path: "study-packages",
+        lazy: () =>
+          import("@/features/strategus/pages/StudyPackagePage").then(
+            (m) => ({ Component: m.default }),
+          ),
+      },
+      // ── Phenotype Library ────────────────────────────────────────────────
+      {
+        path: "phenotype-library",
+        lazy: () =>
+          import(
+            "@/features/phenotype-library/pages/PhenotypeLibraryPage"
+          ).then((m) => ({ Component: m.default })),
+      },
       {
         path: "publish",
         lazy: () =>

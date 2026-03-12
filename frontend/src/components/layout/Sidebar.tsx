@@ -27,6 +27,9 @@ import {
   FileOutput,
   HelpCircle,
   Globe,
+  Brain,
+  Library,
+  Package,
 } from "lucide-react";
 import { HelpSlideOver } from "@/features/help/components/HelpSlideOver";
 
@@ -55,6 +58,11 @@ const navItems: NavItem[] = [
   { path: "/concept-sets", label: "Concept Sets", icon: FlaskConical },
   { path: "/analyses", label: "Analyses", icon: Workflow },
   { path: "/studies", label: "Studies", icon: Briefcase },
+  ...(import.meta.env.VITE_STUDY_AGENT_ENABLED === "true"
+    ? [{ path: "/study-designer", label: "Study Designer", icon: Brain }]
+    : []),
+  { path: "/study-packages", label: "Study Packages", icon: Package },
+  { path: "/phenotype-library", label: "Phenotype Library", icon: Library },
   { path: "/publish", label: "Publish", icon: FileOutput },
   { path: "/profiles", label: "Patient Profiles", icon: UserCircle },
   { path: "/genomics", label: "Genomics", icon: Dna },
