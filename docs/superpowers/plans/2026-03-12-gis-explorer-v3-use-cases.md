@@ -4765,7 +4765,7 @@ Create `frontend/src/features/gis/layers/rucc/RuccAnalysisPanel.tsx`:
 
 ```typescript
 import { useQuery } from "@tanstack/react-query";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { fetchRuccOutcomeComparison } from "./api";
 import type { LayerAnalysisProps } from "../types";
 
@@ -4800,7 +4800,7 @@ export function RuccAnalysisPanel({ conceptId, metric }: LayerAnalysisProps) {
         <Tooltip contentStyle={{ backgroundColor: "#141418", border: "1px solid #232328", borderRadius: 8, fontSize: 11 }} />
         <Bar dataKey="rate" radius={[2, 2, 0, 0]}>
           {chartData.map((entry, i) => (
-            <rect key={i} fill={entry.fill} />
+            <Cell key={i} fill={entry.fill} />
           ))}
         </Bar>
       </BarChart>
@@ -6045,10 +6045,10 @@ Expected: `{"status": "ok", ...}`
 docker compose exec node sh -c "cd /app && npx vite build"
 ```
 
-- [ ] **Step 5: Final commit**
+- [ ] **Step 5: Final commit (stage only known files)**
 
 ```bash
-git add -A
+git add ai/app/routers/gis_analytics.py ai/app/services/spatial_stats.py ai/app/main.py ai/requirements.txt frontend/src/features/gis/ backend/app/Services/GIS/ backend/app/Http/Controllers/Api/V1/Gis*.php backend/routes/api.php backend/config/database.php scripts/gis/
 git commit -m "feat(gis): GIS Explorer v3 — 5 use case layers complete"
 ```
 
