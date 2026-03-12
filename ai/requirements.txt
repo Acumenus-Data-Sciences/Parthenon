@@ -6,7 +6,7 @@ httpx==0.28.*
 sqlalchemy==2.*
 psycopg2-binary==2.9.*
 pgvector==0.4.*
-numpy==1.*
+numpy==2.*
 ollama==0.4.*
 transformers>=4.41,<5
 torch==2.*
