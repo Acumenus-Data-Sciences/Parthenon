@@ -1,136 +1,69 @@
 import { useState, useCallback, useMemo } from "react";
-import { Globe, AlertCircle, RefreshCw, Search, FlaskConical } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { GisMap } from "../components/GisMap";
-import { DiseaseSelector } from "../components/DiseaseSelector";
+import { createPortal } from "react-dom";
+import { Globe, RefreshCw, Maximize2, Minimize2 } from "lucide-react";
+import DeckGL from "@deck.gl/react";
+import { Map } from "react-map-gl/maplibre";
+import "maplibre-gl/dist/maplibre-gl.css";
+import "../layers/init"; // triggers all layer registrations (separate from registry to avoid circular deps)
+import { getLayers } from "../layers/registry";
+import { useLayerStore } from "../stores/layerStore";
+import { LayerPanel } from "../components/LayerPanel";
+import { ContextPanel } from "../components/ContextPanel";
+import { AnalysisDrawer } from "../components/AnalysisDrawer";
+import { CompositeLegend } from "../components/CompositeLegend";
 import { DiseaseSummaryBar } from "../components/DiseaseSummaryBar";
-import { LayerControls } from "../components/LayerControls";
-import { LegendPanel } from "../components/LegendPanel";
-import { RegionDetail } from "../components/RegionDetail";
-import { MetricSelector } from "../components/MetricSelector";
-import { TimeSlider } from "../components/TimeSlider";
-import { CountyDetail } from "../components/CountyDetail";
-import {
-  useGisStats,
-  useBoundaries,
-  useBoundaryDetail,
-  useChoropleth,
-  useCountries,
-  useCdmChoropleth,
-} from "../hooks/useGis";
 import { useMapViewport } from "../hooks/useMapViewport";
-import type { AdminLevel, CdmMetricType, ChoroplethMetric, ChoroplethParams } from "../types";
+import { useActiveMapLayers } from "../hooks/useActiveMapLayers";
 import { HelpButton } from "@/features/help";
 
+const MAP_STYLE = "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json";
+
 export default function GisPage() {
-  const navigate = useNavigate();
   const { viewport, onViewportChange, resetViewport } = useMapViewport();
+  const { activeLayers, selectedFips, setSelectedRegion } = useLayerStore();
+  const layers = getLayers();
 
-  // GIS Explorer mode
-  const [level, setLevel] = useState<AdminLevel>("ADM2");
-  const [metric, setMetric] = useState<ChoroplethMetric>("patient_count");
-  const [countryCode, setCountryCode] = useState<string | null>("USA");
-  const [selectedRegionId, setSelectedRegionId] = useState<number | null>(null);
-  const [hoveredRegion, setHoveredRegion] = useState<string | null>(null);
-
-  // Disease selection (v2)
+  // Disease selection
   const [selectedConceptId, setSelectedConceptId] = useState<number | null>(null);
   const [selectedDiseaseName, setSelectedDiseaseName] = useState<string | null>(null);
-
-  // CDM Explorer state
-  const [cdmMetric, setCdmMetric] = useState<CdmMetricType>("cases");
-  const [timePeriod, setTimePeriod] = useState<string | null>(null);
-  const [selectedCountyGid, setSelectedCountyGid] = useState<string | null>(null);
-
-  const { data: stats, isLoading: statsLoading } = useGisStats();
-  const { data: countries } = useCountries();
-  const hasBoundaries = (stats?.total_boundaries ?? 0) > 0;
-
-  // Load PA county boundaries
-  const {
-    data: boundaries,
-    isLoading: boundariesLoading,
-    error: boundariesError,
-  } = useBoundaries({
-    level,
-    country_code: countryCode ?? undefined,
-    parent_gid: "USA.39_1",
-    simplify: 0.001,
-    enabled: hasBoundaries,
-  });
-
-  const choroplethParams: ChoroplethParams | null = useMemo(
-    () =>
-      hasBoundaries
-        ? { level, metric, country_code: countryCode ?? undefined }
-        : null,
-    [level, metric, countryCode, hasBoundaries]
-  );
-  const { data: choroplethData } = useChoropleth(choroplethParams);
-
-  // CDM choropleth data (parameterized by selected disease)
-  const cdmChoroplethParams = useMemo(
-    () => {
-      if (!selectedConceptId) return null;
-      const base = {
-        metric: cdmMetric === "cases_monthly" ? "cases_monthly" as CdmMetricType : cdmMetric,
-        concept_id: selectedConceptId,
-      };
-      if (timePeriod) {
-        return { ...base, metric: "cases_monthly" as CdmMetricType, time_period: timePeriod };
-      }
-      return base;
-    },
-    [cdmMetric, timePeriod, selectedConceptId]
-  );
-  const { data: cdmChoroplethData } = useCdmChoropleth(cdmChoroplethParams);
-
-  const { data: regionDetail, isLoading: detailLoading } =
-    useBoundaryDetail(selectedRegionId);
+  const [cdmMetric] = useState("cases");
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const handleDiseaseSelect = useCallback((conceptId: number, name: string) => {
     setSelectedConceptId(conceptId);
     setSelectedDiseaseName(name);
-    setTimePeriod(null);
-    setSelectedCountyGid(null);
-    setSelectedRegionId(null);
-  }, []);
+    setSelectedRegion(null, null);
+  }, [setSelectedRegion]);
 
-  const handleRegionClick = useCallback((id: number, _name: string) => {
-    setSelectedRegionId(id);
-    if (boundaries?.features) {
-      const feature = boundaries.features.find((f) => f.id === id);
-      if (feature?.properties?.gid) {
-        setSelectedCountyGid(feature.properties.gid);
-      }
-    }
-  }, [boundaries]);
+  const handleRegionClick = useCallback(
+    (fips: string, name: string) => {
+      setSelectedRegion(fips, name);
+    },
+    [setSelectedRegion]
+  );
 
   const handleRegionHover = useCallback(
-    (_id: number | null, name: string | null) => {
-      setHoveredRegion(name);
+    (_fips: string | null, _name: string | null) => {
+      // Future: tooltip aggregation
     },
     []
   );
 
-  const handleDrillDown = useCallback(
-    (_gid: string) => {
-      const levels: AdminLevel[] = ["ADM0", "ADM1", "ADM2", "ADM3", "ADM4", "ADM5"];
-      const idx = levels.indexOf(level);
-      if (idx < levels.length - 1) {
-        setLevel(levels[idx + 1]);
-        setSelectedRegionId(null);
-      }
-    },
-    [level]
+  // Collect active use-case layers (for UI state)
+  const activeLayerList = useMemo(
+    () => layers.filter((l) => activeLayers.has(l.id)),
+    [layers, activeLayers]
   );
 
-  const maxChoroplethValue = useMemo(() => {
-    if (!choroplethData?.length) return 0;
-    return Math.max(...choroplethData.map((d) => d.value));
-  }, [choroplethData]);
+  const hasActiveLayers = activeLayerList.length > 0;
 
-  const isEmpty = !statsLoading && !hasBoundaries;
+  // Build deck.gl Layer objects from active map overlays
+  const deckLayers = useActiveMapLayers({
+    conceptId: selectedConceptId,
+    selectedFips,
+    onRegionClick: handleRegionClick,
+    onRegionHover: handleRegionHover,
+  });
 
   return (
     <div className="flex h-[calc(100vh-4rem)] flex-col">
@@ -143,198 +76,154 @@ export default function GisPage() {
               GIS Explorer{selectedDiseaseName ? ` — ${selectedDiseaseName}` : ""}
             </h1>
             <p className="text-xs text-[#5A5650]">
-              {selectedDiseaseName
-                ? "County-level spatial surveillance from OMOP CDM data"
-                : "Select a disease to begin spatial analysis"}
+              {hasActiveLayers
+                ? `${activeLayerList.length} analysis layer${activeLayerList.length !== 1 ? "s" : ""} active`
+                : selectedDiseaseName
+                  ? "Enable analysis layers in the left panel"
+                  : "Select a disease to begin spatial analysis"}
             </p>
           </div>
         </div>
         <div className="flex items-center gap-3">
-          {hoveredRegion && (
-            <span className="text-xs text-[#8A857D]">{hoveredRegion}</span>
-          )}
-          {stats && !isEmpty && (
-            <span className="text-xs text-[#5A5650]">
-              {stats.total_boundaries.toLocaleString()} boundaries ·{" "}
-              {stats.total_countries} countries
-            </span>
-          )}
+          <button
+            onClick={resetViewport}
+            className="flex items-center gap-1.5 rounded border border-[#232328] bg-[#0E0E11] px-2 py-1 text-xs text-[#8A857D] hover:border-[#5A5650]"
+          >
+            <RefreshCw className="h-3 w-3" />
+            Reset
+          </button>
+          <button
+            onClick={() => setIsExpanded(true)}
+            className="flex items-center gap-1.5 rounded bg-[#232328] px-2 py-1 text-xs text-[#C9A227] hover:bg-[#232328]/80"
+          >
+            <Maximize2 className="h-3 w-3" />
+            Expand
+          </button>
           <HelpButton helpKey="gis" />
         </div>
       </div>
 
-      {/* Disease Summary Bar */}
-      {!isEmpty && selectedConceptId && (
+      {/* Disease summary bar */}
+      {selectedConceptId && (
         <div className="border-b border-[#232328] bg-[#0E0E11] px-6 py-2">
           <DiseaseSummaryBar conceptId={selectedConceptId} />
         </div>
       )}
 
-      {/* Main content */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* Map */}
-        <div className="relative flex-1">
-          {isEmpty ? (
-            <div className="flex h-full flex-col items-center justify-center gap-4 bg-[#0E0E11]">
-              <Globe className="h-12 w-12 text-[#5A5650]" />
-              <div className="text-center">
-                <p className="text-sm text-[#E8E4DC]">
-                  No geographic boundaries available
-                </p>
-                <p className="mt-1 text-xs text-[#5A5650]">
-                  An administrator needs to load boundary data from the System Health panel.
-                </p>
-                <p className="mt-1 text-xs text-[#5A5650]">
-                  Go to Administration → System Health → GIS Data to load boundaries.
-                </p>
-              </div>
+      {/* Fullscreen portal */}
+      {isExpanded && createPortal(
+        <div className="fixed inset-0 flex flex-col bg-[#0A0A0F]" style={{ zIndex: 200 }}>
+          {/* Fullscreen header */}
+          <div className="flex items-center justify-between border-b border-[#232328] bg-[#0E0E11] px-4 py-2">
+            <div className="flex items-center gap-3">
+              <Globe className="h-5 w-5 text-[#C9A227]" />
+              <h2 className="text-sm font-semibold text-[#F0EDE8]">
+                GIS Explorer{selectedDiseaseName ? ` — ${selectedDiseaseName}` : ""}
+              </h2>
+              {hasActiveLayers && (
+                <span className="rounded bg-[#2DD4BF]/10 px-2 py-0.5 text-xs text-[#2DD4BF]">
+                  {activeLayerList.length} layer{activeLayerList.length !== 1 ? "s" : ""}
+                </span>
+              )}
             </div>
-          ) : (
-            <GisMap
-              viewport={viewport}
-              onViewportChange={onViewportChange}
-              boundaries={boundaries ?? null}
-              choroplethData={choroplethData ?? null}
-              selectedRegionId={selectedRegionId}
-              onRegionClick={handleRegionClick}
-              onRegionHover={handleRegionHover}
-              loading={boundariesLoading}
-            />
-          )}
-
-          {boundariesError && (
-            <div className="absolute bottom-4 left-4 flex items-center gap-2 rounded bg-[#E85A6B]/15 px-3 py-2 text-xs text-[#E85A6B]">
-              <AlertCircle className="h-3 w-3" />
-              Failed to load boundaries
+            <div className="flex items-center gap-2">
+              <button
+                onClick={resetViewport}
+                className="flex items-center gap-1.5 rounded border border-[#232328] bg-[#0E0E11] px-2 py-1 text-xs text-[#8A857D] hover:border-[#5A5650]"
+              >
+                <RefreshCw className="h-3 w-3" />
+                Reset
+              </button>
+              <button
+                onClick={() => setIsExpanded(false)}
+                className="rounded p-1.5 text-[#8A857D] hover:bg-[#151518] hover:text-[#F0EDE8]"
+              >
+                <Minimize2 className="h-4 w-4" />
+              </button>
             </div>
-          )}
-        </div>
+          </div>
 
-        {/* Right sidebar */}
-        {!isEmpty && (
-          <div className="flex w-72 flex-col gap-3 overflow-y-auto border-l border-[#232328] bg-[#0E0E11] p-3">
-            <DiseaseSelector
+          {/* Fullscreen map */}
+          <div className="flex flex-1 overflow-hidden">
+            <LayerPanel
               selectedConceptId={selectedConceptId}
-              onSelect={handleDiseaseSelect}
+              onDiseaseSelect={handleDiseaseSelect}
             />
-
-            {selectedConceptId && (
-              <>
-                <MetricSelector value={cdmMetric} onChange={setCdmMetric} />
-
-                <TimeSlider
-                  value={timePeriod}
-                  onChange={setTimePeriod}
-                  conceptId={selectedConceptId}
-                />
-
-                {selectedCountyGid && (
-                  <CountyDetail
-                    gadmGid={selectedCountyGid}
-                    conceptId={selectedConceptId}
-                    onClose={() => {
-                      setSelectedCountyGid(null);
-                      setSelectedRegionId(null);
-                    }}
-                  />
-                )}
-
-                {/* Top Counties from CDM choropleth */}
-                {cdmChoroplethData && cdmChoroplethData.length > 0 && (
-                  <div className="rounded-lg border border-[#232328] bg-[#141418] p-3">
-                    <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-[#5A5650]">
-                      Top Counties
-                    </h3>
-                    <div className="space-y-1">
-                      {cdmChoroplethData.slice(0, 8).map((c) => (
-                        <button
-                          key={c.gid}
-                          onClick={() => {
-                            setSelectedCountyGid(c.gid);
-                            const feature = boundaries?.features.find(
-                              (f) => f.properties.gid === c.gid
-                            );
-                            if (feature) setSelectedRegionId(feature.id);
-                          }}
-                          className="flex w-full items-center justify-between rounded px-2 py-1 text-xs hover:bg-[#232328]"
-                        >
-                          <span className="text-[#8A857D]">{c.name}</span>
-                          <span className="font-medium text-[#E8E4DC]">
-                            {c.value.toLocaleString()}
-                            {c.rate !== null ? ` (${c.rate}%)` : ""}
-                          </span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </>
-            )}
-
-            <LayerControls
-              level={level}
-              onLevelChange={(l) => {
-                setLevel(l);
-                setSelectedRegionId(null);
-                setSelectedCountyGid(null);
-              }}
-              metric={metric}
-              onMetricChange={setMetric}
-              countryCode={countryCode}
-              onCountryChange={setCountryCode}
-              countries={countries ?? []}
-            />
-
-            <LegendPanel metric={metric} maxValue={maxChoroplethValue} />
-
-            {!selectedCountyGid && regionDetail && (
-              <RegionDetail
-                detail={regionDetail}
-                loading={detailLoading}
-                onClose={() => setSelectedRegionId(null)}
-                onDrillDown={handleDrillDown}
+            <div className="flex flex-1 flex-col">
+              <div className="relative flex-1">
+                <DeckGL
+                  viewState={viewport}
+                  onViewStateChange={((params: { viewState: typeof viewport }) =>
+                    onViewportChange({ viewState: params.viewState })) as React.ComponentProps<typeof DeckGL>["onViewStateChange"]}
+                  layers={deckLayers}
+                  controller
+                  getCursor={({ isHovering }: { isHovering: boolean }) =>
+                    isHovering ? "pointer" : "grab"
+                  }
+                >
+                  <Map mapStyle={MAP_STYLE} />
+                </DeckGL>
+                <CompositeLegend />
+              </div>
+              {selectedConceptId && hasActiveLayers && (
+                <AnalysisDrawer conceptId={selectedConceptId} metric={cdmMetric} />
+              )}
+            </div>
+            {selectedConceptId && selectedDiseaseName && (
+              <ContextPanel
+                conceptId={selectedConceptId}
+                diseaseName={selectedDiseaseName}
               />
             )}
-
-            {/* Research actions */}
-            {regionDetail && (
-              <div className="rounded-lg border border-[#232328] bg-[#141418] p-3">
-                <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-[#5A5650]">
-                  Research Actions
-                </h3>
-                <div className="space-y-2">
-                  <button
-                    onClick={() =>
-                      navigate(`/studies/create?region=${regionDetail.gid}&region_name=${encodeURIComponent(regionDetail.name)}`)
-                    }
-                    className="flex w-full items-center gap-2 rounded border border-[#232328] bg-[#0E0E11] px-3 py-2 text-xs text-[#C9A227] hover:border-[#C9A227]/50"
-                  >
-                    <FlaskConical className="h-3 w-3" />
-                    Create Study for {regionDetail.name}
-                  </button>
-                  <button
-                    onClick={() =>
-                      navigate(`/cohort-definitions?region=${regionDetail.gid}`)
-                    }
-                    className="flex w-full items-center gap-2 rounded border border-[#232328] bg-[#0E0E11] px-3 py-2 text-xs text-[#2DD4BF] hover:border-[#2DD4BF]/50"
-                  >
-                    <Search className="h-3 w-3" />
-                    Browse Cohorts in Region
-                  </button>
-                </div>
-              </div>
-            )}
-
-            <button
-              onClick={resetViewport}
-              className="flex items-center justify-center gap-1.5 rounded border border-[#232328] bg-[#0E0E11] px-3 py-1.5 text-xs text-[#8A857D] hover:border-[#5A5650]"
-            >
-              <RefreshCw className="h-3 w-3" />
-              Reset View
-            </button>
           </div>
-        )}
-      </div>
+        </div>,
+        document.body,
+      )}
+
+      {/* Main 3-panel layout — unmounted when fullscreen portal is active */}
+      {!isExpanded && (
+        <div className="flex flex-1 overflow-hidden">
+          {/* Left: Layer controls */}
+          <LayerPanel
+            selectedConceptId={selectedConceptId}
+            onDiseaseSelect={handleDiseaseSelect}
+          />
+
+          {/* Center: Map + drawer */}
+          <div className="flex flex-1 flex-col">
+            <div className="relative flex-1">
+              <DeckGL
+                viewState={viewport}
+                onViewStateChange={((params: { viewState: typeof viewport }) =>
+                  onViewportChange({ viewState: params.viewState })) as React.ComponentProps<typeof DeckGL>["onViewStateChange"]}
+                layers={deckLayers}
+                controller
+                getCursor={({ isHovering }: { isHovering: boolean }) =>
+                  isHovering ? "pointer" : "grab"
+                }
+              >
+                <Map mapStyle={MAP_STYLE} />
+              </DeckGL>
+
+              {/* Composite legend overlay */}
+              <CompositeLegend />
+            </div>
+
+            {/* Bottom: Analysis drawer */}
+            {selectedConceptId && hasActiveLayers && (
+              <AnalysisDrawer conceptId={selectedConceptId} metric={cdmMetric} />
+            )}
+          </div>
+
+          {/* Right: Context panel */}
+          {selectedConceptId && selectedDiseaseName && (
+            <ContextPanel
+              conceptId={selectedConceptId}
+              diseaseName={selectedDiseaseName}
+            />
+          )}
+        </div>
+      )}
     </div>
   );
 }
