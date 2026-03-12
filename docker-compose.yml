@@ -144,6 +144,7 @@ services:
       - DOCS_DIR=/app/docs
       - CHROMA_HOST=chromadb
       - CHROMA_PORT=8000
+      - STUDY_AGENT_URL=http://study-agent:8765
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
@@ -185,6 +186,46 @@ services:
       resources:
         limits:
           memory: 1G
+    networks:
+      - parthenon
+    restart: unless-stopped
+
+  study-agent:
+    container_name: parthenon-study-agent
+    build:
+      context: .
+      dockerfile: docker/study-agent/Dockerfile
+    ports:
+      - "${STUDY_AGENT_PORT:-8765}:8765"
+    volumes:
+      - study-agent-data:/data/phenotype-index
+      - ./study-agent:/opt/study-agent:ro
+    environment:
+      - LLM_API_URL=${LLM_API_URL:-http://host.docker.internal:11434/v1/chat/completions}
+      - LLM_API_KEY=${LLM_API_KEY:-ollama}
+      - LLM_MODEL=${LLM_MODEL:-gemma3:4b}
+      - EMBED_URL=${EMBED_URL:-http://host.docker.internal:11434/api/embed}
+      - EMBED_MODEL=${EMBED_MODEL:-nomic-embed-text}
+      - PHENOTYPE_INDEX_DIR=/data/phenotype-index
+      - MCP_PORT=3000
+      - STUDY_AGENT_PORT=8765
+      - MCP_TRANSPORT=http
+      - MCP_HOST=0.0.0.0
+      - STUDY_AGENT_HOST=0.0.0.0
+      - STUDY_AGENT_THREADING=1
+      - STUDY_AGENT_ALLOW_CORE_FALLBACK=1
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8765/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+    deploy:
+      resources:
+        limits:
+          memory: 2G
     networks:
       - parthenon
     restart: unless-stopped
@@ -348,6 +389,7 @@ volumes:
   solr_data:
   orthanc-data:
   chromadb-data:
+  study-agent-data:
   ohif-dist:
 
 networks:
