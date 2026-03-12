@@ -305,11 +305,21 @@ class FhirBulkMapper
 
     private function mapProcedure(array $r, string $siteKey): array
     {
+        // Status filter: only completed procedures per IG
+        if (($r['status'] ?? '') !== 'completed') {
+            return ['__skip' => true];
+        }
+
         $codings = $this->extractCodings($r['code'] ?? []);
         $resolved = $this->vocab->resolve($codings);
         $personId = $this->resolveSubjectPersonId($r, $siteKey);
         $visitId = $this->resolveEncounterVisitId($r, $siteKey, 'encounter');
         $performed = $r['performedDateTime'] ?? $r['performedPeriod']['start'] ?? null;
+        $performedEnd = $r['performedPeriod']['end'] ?? null;
+
+        // Provider from performer
+        $providerRef = $this->extractRef($r['performer'][0]['actor'] ?? []);
+        $providerId = $providerRef ? $this->crosswalk->resolveProviderId($siteKey, $providerRef) : null;
 
         return [
             'cdm_table' => $resolved['cdm_table'] ?? 'procedure_occurrence',
@@ -318,10 +328,13 @@ class FhirBulkMapper
                 'procedure_concept_id' => $resolved['concept_id'],
                 'procedure_date' => $this->parseDate($performed),
                 'procedure_datetime' => $this->parseDatetime($performed),
+                'procedure_end_date' => $this->parseDate($performedEnd),
+                'procedure_end_datetime' => $this->parseDatetime($performedEnd),
                 'procedure_type_concept_id' => 32817,
                 'procedure_source_value' => $resolved['source_value'],
                 'procedure_source_concept_id' => $resolved['source_concept_id'],
                 'visit_occurrence_id' => $visitId,
+                'provider_id' => $providerId,
             ],
         ];
     }

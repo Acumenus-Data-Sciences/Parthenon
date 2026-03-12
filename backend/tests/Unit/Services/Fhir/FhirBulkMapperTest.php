@@ -266,4 +266,48 @@ class FhirBulkMapperTest extends TestCase
         $this->assertEquals('2025-03-01', $drugRow['data']['drug_exposure_start_date']);
         $this->assertEquals('2025-03-31', $drugRow['data']['drug_exposure_end_date']);
     }
+
+    public function test_procedure_extracts_end_date_and_provider(): void
+    {
+        $this->crosswalk->shouldReceive('resolvePersonId')->andReturn(1);
+        $this->crosswalk->shouldReceive('lookupVisitId')->andReturn(null);
+        $this->crosswalk->shouldReceive('resolveProviderId')->andReturn(25);
+        $this->vocab->shouldReceive('resolve')->andReturn([
+            'concept_id' => 500, 'domain_id' => 'Procedure', 'source_concept_id' => 500,
+            'source_value' => 'cpt4|500', 'cdm_table' => 'procedure_occurrence', 'mapping_type' => 'direct_standard',
+        ]);
+
+        $resource = [
+            'resourceType' => 'Procedure',
+            'id' => 'proc-1',
+            'status' => 'completed',
+            'code' => ['coding' => [['system' => 'http://www.ama-assn.org/go/cpt', 'code' => '500']]],
+            'subject' => ['reference' => 'Patient/patient-1'],
+            'performedPeriod' => ['start' => '2025-01-01T10:00:00Z', 'end' => '2025-01-01T11:30:00Z'],
+            'performer' => [['actor' => ['reference' => 'Practitioner/prac-1']]],
+        ];
+
+        $rows = $this->mapper->mapResource($resource, 'test-site');
+        $procRow = collect($rows)->firstWhere('cdm_table', 'procedure_occurrence');
+
+        $this->assertNotNull($procRow);
+        $this->assertEquals('2025-01-01', $procRow['data']['procedure_end_date']);
+        $this->assertNotNull($procRow['data']['procedure_end_datetime']);
+        $this->assertEquals(25, $procRow['data']['provider_id']);
+    }
+
+    public function test_procedure_non_completed_is_skipped(): void
+    {
+        $resource = [
+            'resourceType' => 'Procedure',
+            'id' => 'proc-2',
+            'status' => 'preparation',
+            'code' => ['coding' => [['system' => 'http://www.ama-assn.org/go/cpt', 'code' => '123']]],
+            'subject' => ['reference' => 'Patient/patient-1'],
+        ];
+
+        $rows = $this->mapper->mapResource($resource, 'test-site');
+
+        $this->assertEmpty($rows);
+    }
 }
