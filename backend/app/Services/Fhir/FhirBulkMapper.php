@@ -75,7 +75,7 @@ class FhirBulkMapper
             default => null,
         };
 
-        if ($result === null || isset($result['__skip'])) {
+        if ($result === null || isset($result['__skip'])) { // Used by mapProcedure/mapImmunization status filters (Tasks 5/6)
             return [];
         }
 

@@ -171,50 +171,56 @@ class FhirNdjsonProcessorService
             }
 
             // Process each mapped row (typically one, but some resources produce multiple)
+            $resourceHasMappedConcept = false;
             foreach ($mappedRows as $mapped) {
-            $cdmTable = $mapped['cdm_table'];
-            $data = $mapped['data'];
-            $fhirType = $mapped['fhir_resource_type'] ?? '';
-            $fhirId = $mapped['fhir_resource_id'] ?? '';
+                $cdmTable = $mapped['cdm_table'];
+                $data = $mapped['data'];
+                $fhirType = $mapped['fhir_resource_type'] ?? '';
+                $fhirId = $mapped['fhir_resource_id'] ?? '';
 
-            // Track whether this resource got a meaningful concept mapping
-            if ($this->hasMappedConcept($data)) {
+                // Track whether this resource got a meaningful concept mapping
+                if ($this->hasMappedConcept($data)) {
+                    $resourceHasMappedConcept = true;
+                }
+
+                // Incremental dedup check
+                if ($this->incrementalMode && $fhirId !== '') {
+                    $dedupStatus = $this->dedup->checkStatus($siteKey, $fhirType, $fhirId, $data);
+
+                    if ($dedupStatus === 'unchanged') {
+                        $stats['skipped']++;
+
+                        continue;
+                    }
+
+                    if ($dedupStatus === 'changed') {
+                        $this->dedup->deleteOldRow($siteKey, $fhirType, $fhirId);
+                        $stats['updated']++;
+                    }
+                }
+
+                // Add to buffer with FHIR metadata for tracking
+                $buffers[$cdmTable] = $buffers[$cdmTable] ?? [];
+                $buffers[$cdmTable][] = [
+                    'data' => $data,
+                    'fhir_type' => $fhirType,
+                    'fhir_id' => $fhirId,
+                ];
+
+                // Flush if buffer is full
+                if (count($buffers[$cdmTable]) >= self::BATCH_SIZE) {
+                    $written = $this->flushBuffer($cdmTable, $buffers[$cdmTable]);
+                    $stats['written'] += $written;
+                    $stats['failed'] += count($buffers[$cdmTable]) - $written;
+                    $stats['by_table'][$cdmTable] = ($stats['by_table'][$cdmTable] ?? 0) + $written;
+                    $buffers[$cdmTable] = [];
+                }
+            } // end foreach mappedRows
+
+            // Increment mapped once per FHIR resource (not once per CDM row)
+            if ($resourceHasMappedConcept) {
                 $stats['mapped']++;
             }
-
-            // Incremental dedup check
-            if ($this->incrementalMode && $fhirId !== '') {
-                $dedupStatus = $this->dedup->checkStatus($siteKey, $fhirType, $fhirId, $data);
-
-                if ($dedupStatus === 'unchanged') {
-                    $stats['skipped']++;
-
-                    continue;
-                }
-
-                if ($dedupStatus === 'changed') {
-                    $this->dedup->deleteOldRow($siteKey, $fhirType, $fhirId);
-                    $stats['updated']++;
-                }
-            }
-
-            // Add to buffer with FHIR metadata for tracking
-            $buffers[$cdmTable] = $buffers[$cdmTable] ?? [];
-            $buffers[$cdmTable][] = [
-                'data' => $data,
-                'fhir_type' => $fhirType,
-                'fhir_id' => $fhirId,
-            ];
-
-            // Flush if buffer is full
-            if (count($buffers[$cdmTable]) >= self::BATCH_SIZE) {
-                $written = $this->flushBuffer($cdmTable, $buffers[$cdmTable]);
-                $stats['written'] += $written;
-                $stats['failed'] += count($buffers[$cdmTable]) - $written;
-                $stats['by_table'][$cdmTable] = ($stats['by_table'][$cdmTable] ?? 0) + $written;
-                $buffers[$cdmTable] = [];
-            }
-            } // end foreach mappedRows
         }
 
         fclose($handle);
