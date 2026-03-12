@@ -255,7 +255,7 @@ export default function VectorExplorer({ collectionName, overview }: VectorExplo
           {error}
         </div>
       )}
-      <div className="h-[300px] overflow-hidden rounded-lg border border-[#232328]">
+      <div className="h-[500px] rounded-lg border border-[#232328]">
         {sceneContent}
       </div>
     </Panel>

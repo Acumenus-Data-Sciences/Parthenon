@@ -117,7 +117,7 @@ function PointCloud({
     colorAttrRef.current.needsUpdate = true;
   });
 
-  const handlePointerOver = useCallback(
+  const handlePointerMove = useCallback(
     (e: ThreeEvent<PointerEvent>) => {
       e.stopPropagation();
       if (e.instanceId !== undefined && e.instanceId < points.length) {
@@ -147,7 +147,7 @@ function PointCloud({
     <instancedMesh
       ref={meshRef}
       args={[undefined, undefined, points.length]}
-      onPointerOver={handlePointerOver}
+      onPointerMove={handlePointerMove}
       onPointerOut={handlePointerOut}
       onClick={handleClick}
     >

@@ -68,9 +68,19 @@ export function useVectorExplorer(collectionName: string | null) {
           clusterVisibility: visibility,
         }));
       } catch (err: unknown) {
-        if (err instanceof DOMException && err.name === "AbortError") return;
+        // Axios throws CanceledError (not DOMException) when AbortController fires
+        const isCanceled =
+          (err instanceof DOMException && err.name === "AbortError") ||
+          (err !== null && typeof err === "object" && "code" in err && (err as { code: string }).code === "ERR_CANCELED");
+        if (isCanceled) return;
 
         console.error("[VectorExplorer] Projection request failed:", err);
+
+        // Extract actual error details for debugging
+        const axiosErr = err as { response?: { status?: number; data?: { error?: string } }; message?: string };
+        const status = axiosErr?.response?.status;
+        const detail = axiosErr?.response?.data?.error || axiosErr?.message || "Unknown error";
+        const errorMsg = status ? `Projection failed (HTTP ${status}): ${detail}` : `Projection failed: ${detail}`;
 
         // Client-side fallback using umap-js
         try {
@@ -105,7 +115,7 @@ export function useVectorExplorer(collectionName: string | null) {
               },
               isLoading: false,
               isFallback: true,
-              error: "AI service unavailable. Showing basic 2D scatter (no clusters/QA).",
+              error: errorMsg + " — Showing basic 2D scatter.",
             }));
             return;
           }
@@ -116,7 +126,7 @@ export function useVectorExplorer(collectionName: string | null) {
           ...s,
           isLoading: false,
           isFallback: true,
-          error: "AI service unavailable. Could not load fallback view.",
+          error: errorMsg,
         }));
       }
     },

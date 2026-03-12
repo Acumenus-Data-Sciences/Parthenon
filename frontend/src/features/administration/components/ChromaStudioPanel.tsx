@@ -5,7 +5,6 @@ import {
   Loader2,
   AlertCircle,
   BarChart3,
-  Radar,
   Eye,
   Upload,
   Stethoscope,
@@ -42,7 +41,6 @@ const ADMIN_ACTIONS = [
 const TABS = [
   { key: "overview" as const, label: "Overview", icon: BarChart3 },
   { key: "search" as const, label: "Retrieval", icon: Eye },
-  { key: "map" as const, label: "Semantic Map", icon: Radar },
 ] as const;
 
 // ── Main Component ───────────────────────────────────────────────────────────
@@ -54,7 +52,7 @@ export default function ChromaStudioPanel() {
   const [loadingCollections, setLoadingCollections] = useState(true);
   const [loadingOverview, setLoadingOverview] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"overview" | "search" | "map">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "search">("overview");
   const [searchText, setSearchText] = useState("");
   const [searchResults, setSearchResults] = useState<QueryResponse | null>(null);
   const [queryLoading, setQueryLoading] = useState(false);
@@ -173,6 +171,11 @@ export default function ChromaStudioPanel() {
 
   return (
     <div className="space-y-4">
+      {/* 3D Semantic Map — front and center */}
+      {overview && overview.count > 0 && (
+        <VectorExplorer collectionName={selectedCollection} overview={overview} />
+      )}
+
       {/* Header row — matches GisDataPanel pattern */}
       <Panel>
         <div className="flex items-start justify-between gap-3">
@@ -373,7 +376,6 @@ export default function ChromaStudioPanel() {
           {/* Tab content */}
           {activeTab === "overview" && <OverviewSection overview={overview} />}
           {activeTab === "search" && <SearchSection searchResults={searchResults} queryLoading={queryLoading} searchText={searchText} />}
-          {activeTab === "map" && <VectorExplorer collectionName={selectedCollection} overview={overview} />}
         </div>
       )}
     </div>
