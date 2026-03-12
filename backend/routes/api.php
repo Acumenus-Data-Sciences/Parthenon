@@ -641,6 +641,19 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         Route::get('/datasets', [GisController::class, 'datasets']);
         Route::get('/datasets/{id}', [GisController::class, 'datasetStatus']);
         Route::post('/load', [GisController::class, 'loadDataset'])->middleware('role:super-admin');
+
+        // CDM Spatial (COVID explorer)
+        Route::post('/cdm/choropleth', [GisController::class, 'cdmChoropleth']);
+        Route::get('/cdm/time-periods', [GisController::class, 'cdmTimePeriods']);
+        Route::get('/cdm/covid-summary', [GisController::class, 'covidSummary']);
+        Route::get('/cdm/county/{gadmGid}', [GisController::class, 'countyDetail'])->where('gadmGid', '.*');
+        Route::post('/cdm/refresh', [GisController::class, 'refreshCdmStats'])->middleware('role:super-admin');
+
+        // CDM Spatial v2 (disease-agnostic)
+        Route::get('/cdm/conditions', [GisController::class, 'cdmConditions']);
+        Route::get('/cdm/conditions/categories', [GisController::class, 'cdmConditionCategories']);
+        Route::get('/cdm/summary', [GisController::class, 'cdmSummary']);
+        Route::post('/cdm/reindex-all', [GisController::class, 'cdmReindexAll'])->middleware('role:super-admin');
     });
 });
 
