@@ -71,6 +71,49 @@ export interface IngestResult {
   promoted?: number;
 }
 
+// ── Projection Types ────────────────────────────────────────────────────────
+
+export interface ProjectedPoint3D {
+  id: string;
+  x: number;
+  y: number;
+  z: number;
+  metadata: Record<string, unknown>;
+  cluster_id: number;
+}
+
+export interface ClusterInfo {
+  id: number;
+  label: string;
+  centroid: [number, number, number];
+  size: number;
+}
+
+export interface QualityReport {
+  outlier_ids: string[];
+  duplicate_pairs: [string, string][];
+  orphan_ids: string[];
+}
+
+export interface ProjectionStats {
+  total_vectors: number;
+  sampled: number;
+  projection_time_ms: number;
+}
+
+export interface ProjectionResponse {
+  points: ProjectedPoint3D[];
+  clusters: ClusterInfo[];
+  quality: QualityReport;
+  stats: ProjectionStats;
+}
+
+export interface ProjectionRequest {
+  sample_size: number;
+  method: "pca-umap";
+  dimensions: 2 | 3;
+}
+
 // ── API Functions ────────────────────────────────────────────────────────────
 
 export const fetchCollections = () =>
@@ -99,4 +142,12 @@ export const ingestClinical = (limit?: number) =>
 export const promoteFaq = (days = 7) =>
   apiClient
     .post<IngestResult>("/admin/chroma-studio/promote-faq", null, { params: { days } })
+    .then((r) => r.data);
+
+export const fetchProjection = (name: string, request: ProjectionRequest, signal?: AbortSignal) =>
+  apiClient
+    .post<ProjectionResponse>(`/admin/chroma-studio/collections/${encodeURIComponent(name)}/project`, request, {
+      signal,
+      timeout: 130_000,
+    })
     .then((r) => r.data);
