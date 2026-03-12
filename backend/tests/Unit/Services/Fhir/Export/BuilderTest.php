@@ -450,4 +450,59 @@ class BuilderTest extends TestCase
         $this->assertInstanceOf(\App\Services\Fhir\Export\Builders\ProcedureBuilder::class, $factory->forTable('procedure_occurrence'));
         $this->assertNull($factory->forTable('unknown_table'));
     }
+
+    public function test_immunization_builder_with_lot_and_dose(): void
+    {
+        $this->vocab->shouldReceive('buildCodeableConcept')
+            ->andReturn(['coding' => [['system' => 'http://hl7.org/fhir/sid/cvx', 'code' => '207', 'display' => 'COVID-19']]]);
+
+        $row = (object) [
+            'drug_exposure_id' => 500,
+            'person_id' => 1,
+            'drug_concept_id' => 600,
+            'drug_source_concept_id' => 600,
+            'drug_source_value' => 'cvx|207',
+            'drug_exposure_start_date' => '2025-06-01',
+            'drug_exposure_start_datetime' => null,
+            'drug_exposure_end_date' => '2025-06-01',
+            'lot_number' => 'LOT123ABC',
+            'route_source_value' => 'Intramuscular',
+            'quantity' => 0.5,
+            'dose_unit_source_value' => 'mL',
+        ];
+
+        $builder = new \App\Services\Fhir\Export\Builders\ImmunizationBuilder($this->vocab);
+        $resource = $builder->build($row);
+
+        $this->assertEquals('Immunization', $resource['resourceType']);
+        $this->assertEquals('completed', $resource['status']);
+        $this->assertEquals('LOT123ABC', $resource['lotNumber']);
+        $this->assertEquals(0.5, $resource['doseQuantity']['value']);
+        $this->assertEquals('mL', $resource['doseQuantity']['unit']);
+        $this->assertEquals('Intramuscular', $resource['route']['text']);
+    }
+
+    public function test_allergy_builder_with_category(): void
+    {
+        $this->vocab->shouldReceive('buildCodeableConcept')
+            ->andReturn(['coding' => [['system' => 'http://snomed.info/sct', 'code' => '372687004', 'display' => 'Amoxicillin']]]);
+
+        $row = (object) [
+            'observation_id' => 600,
+            'person_id' => 1,
+            'observation_concept_id' => 439224,
+            'observation_source_concept_id' => 1500,
+            'observation_source_value' => 'snomed|372687004',
+            'observation_date' => '2025-01-01',
+            'observation_datetime' => null,
+            'value_as_concept_id' => 1500,
+        ];
+
+        $builder = new \App\Services\Fhir\Export\Builders\AllergyBuilder($this->vocab);
+        $resource = $builder->build($row);
+
+        $this->assertEquals('AllergyIntolerance', $resource['resourceType']);
+        $this->assertEquals(['medication'], $resource['category']);
+        $this->assertEquals('2025-01-01', $resource['recordedDate']);
+    }
 }

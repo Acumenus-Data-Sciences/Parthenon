@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Services\Fhir\Export;
 
+use App\Services\Fhir\Export\Builders\AllergyBuilder;
 use App\Services\Fhir\Export\Builders\ConditionBuilder;
 use App\Services\Fhir\Export\Builders\EncounterBuilder;
+use App\Services\Fhir\Export\Builders\ImmunizationBuilder;
 use App\Services\Fhir\Export\Builders\MeasurementBuilder;
 use App\Services\Fhir\Export\Builders\MedicationBuilder;
 use App\Services\Fhir\Export\Builders\ObservationBuilder;
@@ -53,8 +55,20 @@ class FhirResourceBuilderFactory
         return new ProcedureBuilder($this->vocab);
     }
 
+    public function immunization(): ImmunizationBuilder
+    {
+        return new ImmunizationBuilder($this->vocab);
+    }
+
+    public function allergy(): AllergyBuilder
+    {
+        return new AllergyBuilder($this->vocab);
+    }
+
     /**
      * Get builder by CDM table name.
+     * Note: immunization and allergy share tables with other resources;
+     * use forResourceType() when the FHIR resource type is known.
      */
     public function forTable(string $cdmTable): ?object
     {
@@ -66,6 +80,24 @@ class FhirResourceBuilderFactory
             'measurement' => $this->measurement(),
             'drug_exposure' => $this->medication(),
             'procedure_occurrence' => $this->procedure(),
+            default => null,
+        };
+    }
+
+    /**
+     * Get builder by FHIR resource type name.
+     */
+    public function forResourceType(string $resourceType): ?object
+    {
+        return match ($resourceType) {
+            'Patient' => $this->patient(),
+            'Condition' => $this->condition(),
+            'Encounter' => $this->encounter(),
+            'Observation' => $this->observation(),
+            'MedicationStatement' => $this->medication(),
+            'Procedure' => $this->procedure(),
+            'Immunization' => $this->immunization(),
+            'AllergyIntolerance' => $this->allergy(),
             default => null,
         };
     }
