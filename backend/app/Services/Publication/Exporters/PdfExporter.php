@@ -21,7 +21,7 @@ class PdfExporter
 
         // Try DOMPDF if available
         if (class_exists(\Dompdf\Dompdf::class)) {
-            $dompdf = new \Dompdf\Dompdf();
+            $dompdf = new \Dompdf\Dompdf;
             $dompdf->loadHtml($html);
             $dompdf->setPaper('letter', 'portrait');
             $dompdf->render();

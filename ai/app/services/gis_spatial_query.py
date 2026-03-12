@@ -3,9 +3,10 @@ from __future__ import annotations
 import logging
 import os
 
+from typing import Any
+
 from sqlalchemy import text
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
 
 from app.models.gis import BoundaryLevel, ChoroplethMetric
 
@@ -15,7 +16,7 @@ GIS_DATABASE_URL = os.getenv("GIS_DATABASE_URL", os.getenv("DATABASE_URL", ""))
 GIS_ASYNC_DATABASE_URL = GIS_DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://")
 
 
-def get_engine():
+def get_engine() -> AsyncEngine:
     return create_async_engine(
         GIS_ASYNC_DATABASE_URL,
         pool_size=5,
@@ -29,12 +30,12 @@ async def get_boundaries_geojson(
     parent_gid: str | None = None,
     bbox: str | None = None,
     simplify_tolerance: float = 0.01,
-) -> dict:
+) -> dict[str, Any]:
     engine = get_engine()
-    async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+    async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
     conditions = ["bl.code = :level"]
-    params: dict = {"level": level.value, "tol": simplify_tolerance}
+    params: dict[str, Any] = {"level": level.value, "tol": simplify_tolerance}
 
     if country_code:
         conditions.append("b.country_code = :cc")
@@ -104,9 +105,9 @@ async def get_choropleth_data(
     concept_id: int | None = None,
     date_from: str | None = None,
     date_to: str | None = None,
-) -> list[dict]:
+) -> list[dict[str, Any]]:
     engine = get_engine()
-    async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+    async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
     if metric == ChoroplethMetric.PATIENT_COUNT:
         query = text("""
@@ -126,7 +127,7 @@ async def get_choropleth_data(
             GROUP BY b.id, b.gid, b.name, b.country_code
             ORDER BY value DESC
         """)
-        params = {"level": level.value, "cc": country_code}
+        params: dict[str, Any] = {"level": level.value, "cc": country_code}
     elif metric == ChoroplethMetric.EXPOSURE_VALUE:
         query = text("""
             SELECT
@@ -144,7 +145,7 @@ async def get_choropleth_data(
             HAVING AVG(ee.value_as_number) IS NOT NULL
             ORDER BY value DESC
         """)
-        params = {
+        params: dict[str, Any] = {
             "level": level.value, "cc": country_code,
             "concept_id": concept_id, "date_from": date_from, "date_to": date_to,
         }
@@ -164,9 +165,9 @@ async def get_choropleth_data(
     ]
 
 
-async def get_region_detail(boundary_id: int) -> dict | None:
+async def get_region_detail(boundary_id: int) -> dict[str, Any] | None:
     engine = get_engine()
-    async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+    async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
     async with async_session() as session:
         result = await session.execute(
@@ -221,9 +222,9 @@ async def get_region_detail(boundary_id: int) -> dict | None:
     }
 
 
-async def get_boundary_stats() -> dict:
+async def get_boundary_stats() -> dict[str, Any]:
     engine = get_engine()
-    async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+    async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
     async with async_session() as session:
         result = await session.execute(text("""

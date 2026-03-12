@@ -61,7 +61,7 @@ return [
 
     // FhirToCdm: OHDSI FHIR R4 → OMOP CDM conversion sidecar (Python/dotnet wrapper)
     'fhir_to_cdm' => [
-        'url'     => env('FHIR_TO_CDM_URL', 'http://fhir-to-cdm:8091'),
+        'url' => env('FHIR_TO_CDM_URL', 'http://fhir-to-cdm:8091'),
         'timeout' => env('FHIR_TO_CDM_TIMEOUT', 300),
     ],
 

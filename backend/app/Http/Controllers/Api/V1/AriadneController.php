@@ -38,11 +38,11 @@ class AriadneController extends Controller
             if ($response->failed()) {
                 Log::warning('Ariadne map failed', [
                     'status' => $response->status(),
-                    'body'   => $response->body(),
+                    'body' => $response->body(),
                 ]);
 
                 return response()->json([
-                    'error'  => 'Concept mapping failed',
+                    'error' => 'Concept mapping failed',
                     'detail' => $response->json('detail') ?? $response->body(),
                 ], $response->status() ?: 502);
             }
@@ -53,7 +53,7 @@ class AriadneController extends Controller
             Log::error('AriadneController::map exception', ['message' => $e->getMessage()]);
 
             return response()->json([
-                'error'   => 'Ariadne service unavailable',
+                'error' => 'Ariadne service unavailable',
                 'message' => $e->getMessage(),
             ], 503);
         }
@@ -77,11 +77,11 @@ class AriadneController extends Controller
             if ($response->failed()) {
                 Log::warning('Ariadne cleanTerms failed', [
                     'status' => $response->status(),
-                    'body'   => $response->body(),
+                    'body' => $response->body(),
                 ]);
 
                 return response()->json([
-                    'error'  => 'Term cleaning failed',
+                    'error' => 'Term cleaning failed',
                     'detail' => $response->json('detail') ?? $response->body(),
                 ], $response->status() ?: 502);
             }
@@ -92,7 +92,7 @@ class AriadneController extends Controller
             Log::error('AriadneController::cleanTerms exception', ['message' => $e->getMessage()]);
 
             return response()->json([
-                'error'   => 'Ariadne service unavailable',
+                'error' => 'Ariadne service unavailable',
                 'message' => $e->getMessage(),
             ], 503);
         }
@@ -116,11 +116,11 @@ class AriadneController extends Controller
             if ($response->failed()) {
                 Log::warning('Ariadne vectorSearch failed', [
                     'status' => $response->status(),
-                    'body'   => $response->body(),
+                    'body' => $response->body(),
                 ]);
 
                 return response()->json([
-                    'error'  => 'Vector search failed',
+                    'error' => 'Vector search failed',
                     'detail' => $response->json('detail') ?? $response->body(),
                 ], $response->status() ?: 502);
             }
@@ -131,7 +131,7 @@ class AriadneController extends Controller
             Log::error('AriadneController::vectorSearch exception', ['message' => $e->getMessage()]);
 
             return response()->json([
-                'error'   => 'Ariadne service unavailable',
+                'error' => 'Ariadne service unavailable',
                 'message' => $e->getMessage(),
             ], 503);
         }

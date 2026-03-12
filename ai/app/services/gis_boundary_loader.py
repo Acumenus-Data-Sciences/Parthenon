@@ -9,8 +9,7 @@ from pathlib import Path
 import geopandas as gpd
 from shapely.geometry import MultiPolygon
 from sqlalchemy import text
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
 
 from app.models.gis import BoundaryLevel
 
@@ -31,7 +30,7 @@ GIS_DATABASE_URL = os.getenv("GIS_DATABASE_URL", os.getenv("DATABASE_URL", ""))
 ASYNC_DATABASE_URL = GIS_DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://")
 
 
-def get_engine():
+def get_engine() -> AsyncEngine:
     return create_async_engine(
         ASYNC_DATABASE_URL,
         pool_size=5,
@@ -116,7 +115,7 @@ async def load_gadm(
         raise FileNotFoundError(f"GADM file not found: {gpkg_path}")
 
     engine = get_engine()
-    async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+    async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
     total_loaded = 0
     async with async_session() as session:
@@ -201,7 +200,7 @@ async def load_geoboundaries(
     batch_size: int = 200,
 ) -> int:
     engine = get_engine()
-    async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+    async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
     total_loaded = 0
     async with async_session() as session:

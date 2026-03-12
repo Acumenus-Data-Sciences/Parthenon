@@ -84,21 +84,21 @@ class PublicationController extends Controller
         $contextJson = json_encode($context, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 
         return match ($sectionType) {
-            'methods' => "You are a medical research writer drafting the Methods section of an observational study manuscript. "
-                ."Write 2-3 paragraphs in passive voice, past tense. Do not make causal claims. Do not fabricate citations. "
+            'methods' => 'You are a medical research writer drafting the Methods section of an observational study manuscript. '
+                .'Write 2-3 paragraphs in passive voice, past tense. Do not make causal claims. Do not fabricate citations. '
                 ."Describe the study design, data source, cohort definitions, covariates, and statistical methods based on the following context:\n\n{$contextJson}",
 
-            'results' => "You are a medical research writer drafting the Results section of an observational study manuscript. "
+            'results' => 'You are a medical research writer drafting the Results section of an observational study manuscript. '
                 ."Write 1-2 paragraphs reporting exact statistics from the analysis output. Use hedging language (e.g., 'was associated with' rather than 'caused'). "
                 ."Report confidence intervals and p-values where available. Base your narrative on the following context:\n\n{$contextJson}",
 
-            'discussion' => "You are a medical research writer drafting the Discussion section of an observational study manuscript. "
-                ."Write 2-3 paragraphs discussing clinical significance of the findings, comparison with prior literature, study limitations "
-                ."(including unmeasured confounding, selection bias, and generalizability), and future research directions. "
+            'discussion' => 'You are a medical research writer drafting the Discussion section of an observational study manuscript. '
+                .'Write 2-3 paragraphs discussing clinical significance of the findings, comparison with prior literature, study limitations '
+                .'(including unmeasured confounding, selection bias, and generalizability), and future research directions. '
                 ."Base your narrative on the following context:\n\n{$contextJson}",
 
-            'caption' => "You are a medical research writer. Write a single-sentence figure caption that concisely describes "
-                ."the visualization shown. Be specific about what is plotted, the axes, and the key takeaway. "
+            'caption' => 'You are a medical research writer. Write a single-sentence figure caption that concisely describes '
+                .'the visualization shown. Be specific about what is plotted, the axes, and the key takeaway. '
                 ."Base your caption on the following context:\n\n{$contextJson}",
 
             default => "Summarize the following research context:\n\n{$contextJson}",

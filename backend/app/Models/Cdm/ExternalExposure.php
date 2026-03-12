@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class ExternalExposure extends Model
 {
     protected $table = 'app.external_exposure';
+
     protected $primaryKey = 'external_exposure_id';
 
     protected $fillable = [

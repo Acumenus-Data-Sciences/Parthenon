@@ -46,7 +46,7 @@ class SyncDatabaseCommand extends Command
         $toLabel = $reverse ? 'Local PG' : 'Docker PG';
         $dryRun = $this->option('dry-run');
 
-        $this->info("db:sync — {$fromLabel} → {$toLabel}" . ($dryRun ? ' [DRY RUN]' : ''));
+        $this->info("db:sync — {$fromLabel} → {$toLabel}".($dryRun ? ' [DRY RUN]' : ''));
         $this->newLine();
 
         // Test connections
@@ -56,6 +56,7 @@ class SyncDatabaseCommand extends Command
                 $this->info("  {$label}: connected");
             } catch (\Throwable $e) {
                 $this->error("  {$label}: FAILED — {$e->getMessage()}");
+
                 return 1;
             }
         }
@@ -68,20 +69,22 @@ class SyncDatabaseCommand extends Command
         $tables = $this->resolveTables($fromConn);
         if (empty($tables)) {
             $this->warn('No tables to sync.');
+
             return 0;
         }
 
-        $this->info('Tables: ' . count($tables));
+        $this->info('Tables: '.count($tables));
 
         if ($dryRun) {
             foreach ($tables as $t) {
                 $count = DB::connection($fromConn)->table($t)->count();
                 $this->line("  {$t}: {$count} rows");
             }
+
             return 0;
         }
 
-        if (!$this->option('force') && !$this->confirm("REPLACE all data in {$toLabel}?")) {
+        if (! $this->option('force') && ! $this->confirm("REPLACE all data in {$toLabel}?")) {
             return 0;
         }
 
@@ -132,19 +135,21 @@ class SyncDatabaseCommand extends Command
         // Re-enable FK checks
         DB::connection($toConn)->statement('SET session_replication_role = DEFAULT');
 
-        $this->info("Synced: {$synced} tables, {$totalRows} rows" . ($skipped ? " ({$skipped} skipped — missing on target)" : ''));
+        $this->info("Synced: {$synced} tables, {$totalRows} rows".($skipped ? " ({$skipped} skipped — missing on target)" : ''));
 
-        if (!empty($errors)) {
+        if (! empty($errors)) {
             $this->newLine();
-            $this->warn('Errors (' . count($errors) . '):');
+            $this->warn('Errors ('.count($errors).'):');
             foreach ($errors as $table => $msg) {
                 $shortMsg = mb_substr($msg, 0, 120);
                 $this->error("  {$table}: {$shortMsg}");
             }
+
             return 1;
         }
 
         $this->info('Sync complete.');
+
         return 0;
     }
 
@@ -195,7 +200,7 @@ class SyncDatabaseCommand extends Command
 
         return array_values(array_filter(
             $all,
-            fn (string $t) => !in_array($t, self::SKIP_TABLES, true),
+            fn (string $t) => ! in_array($t, self::SKIP_TABLES, true),
         ));
     }
 
@@ -205,7 +210,7 @@ class SyncDatabaseCommand extends Command
             SELECT 1 FROM pg_tables WHERE schemaname = 'app' AND tablename = ?
         ", [$table]);
 
-        return !empty($result);
+        return ! empty($result);
     }
 
     /**
@@ -283,13 +288,13 @@ class SyncDatabaseCommand extends Command
             WHERE i.indisprimary AND c.relname = ? AND n.nspname = 'app'
         ", [$table]);
 
-        return !empty($result) ? $result[0]->attname : null;
+        return ! empty($result) ? $result[0]->attname : null;
     }
 
     private function resetSequence(string $table, string $conn): void
     {
         $pk = $this->getPrimaryKey($table, $conn);
-        if (!$pk) {
+        if (! $pk) {
             return;
         }
 
@@ -304,7 +309,7 @@ class SyncDatabaseCommand extends Command
                     "SELECT COALESCE(MAX(\"{$pk}\"), 0) AS v FROM app.\"{$table}\""
                 );
                 DB::connection($conn)->statement(
-                    "SELECT setval('{$seq->seq}', " . (($max->v ?? 0) + 1) . ', false)'
+                    "SELECT setval('{$seq->seq}', ".(($max->v ?? 0) + 1).', false)'
                 );
             }
         } catch (\Throwable) {

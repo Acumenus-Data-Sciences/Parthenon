@@ -22,7 +22,7 @@ class FiguresExporter
             throw new \RuntimeException('Failed to create temporary file.');
         }
 
-        $zip = new ZipArchive();
+        $zip = new ZipArchive;
         $openResult = $zip->open($tempZip, ZipArchive::CREATE | ZipArchive::OVERWRITE);
         if ($openResult !== true) {
             throw new \RuntimeException('Failed to create ZIP archive.');

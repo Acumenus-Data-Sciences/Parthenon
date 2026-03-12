@@ -102,10 +102,8 @@ function buildStrataComparisons(
 export function IncidenceRateVerdictDashboard({
   results,
 }: IncidenceRateVerdictDashboardProps) {
-  if (results.length === 0) return null;
-
   const isComparative = results.length >= 2;
-  const r1 = results[0];
+  const r1 = results[0] as IncidenceRateResult | undefined;
   const r2 = isComparative ? results[1] : null;
 
   const comparison = useMemo(() => {
@@ -132,6 +130,8 @@ export function IncidenceRateVerdictDashboard({
 
     return { diff, ratio, verdict, strataComparisons };
   }, [r1, r2]);
+
+  if (results.length === 0 || !r1) return null;
 
   // Single-result mode: just show summary metrics
   if (!isComparative || !comparison) {

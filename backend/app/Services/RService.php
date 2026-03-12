@@ -53,7 +53,7 @@ class RService
 
         return $response->json() ?? [
             'status' => 'error',
-            'message' => 'R runtime returned empty response (HTTP ' . $response->status() . ')',
+            'message' => 'R runtime returned empty response (HTTP '.$response->status().')',
         ];
     }
 

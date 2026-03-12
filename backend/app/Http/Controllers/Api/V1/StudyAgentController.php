@@ -67,6 +67,7 @@ class StudyAgentController extends Controller
 
         if ($response->failed()) {
             Log::error('Phenotype search failed', ['status' => $response->status()]);
+
             return response()->json(['error' => 'Phenotype search failed'], $response->status());
         }
 
@@ -86,6 +87,7 @@ class StudyAgentController extends Controller
 
         if ($response->failed()) {
             Log::error('Phenotype recommend failed', ['status' => $response->status()]);
+
             return response()->json(['error' => 'Phenotype recommendation failed'], $response->status());
         }
 
@@ -103,6 +105,7 @@ class StudyAgentController extends Controller
 
         if ($response->failed()) {
             Log::error('Phenotype improve failed', ['status' => $response->status()]);
+
             return response()->json(['error' => 'Phenotype improvement failed'], $response->status());
         }
 
@@ -123,6 +126,7 @@ class StudyAgentController extends Controller
 
         if ($response->failed()) {
             Log::error('Intent split failed', ['status' => $response->status()]);
+
             return response()->json(['error' => 'Intent splitting failed'], $response->status());
         }
 
@@ -143,6 +147,7 @@ class StudyAgentController extends Controller
 
         if ($response->failed()) {
             Log::error('Cohort lint failed', ['status' => $response->status()]);
+
             return response()->json(['error' => 'Cohort linting failed'], $response->status());
         }
 
@@ -160,6 +165,7 @@ class StudyAgentController extends Controller
 
         if ($response->failed()) {
             Log::error('Concept set review failed', ['status' => $response->status()]);
+
             return response()->json(['error' => 'Concept set review failed'], $response->status());
         }
 
@@ -180,6 +186,7 @@ class StudyAgentController extends Controller
 
         if ($response->failed()) {
             Log::error('Combined lint failed', ['status' => $response->status()]);
+
             return response()->json(['error' => 'Combined lint failed'], $response->status());
         }
 
@@ -200,6 +207,7 @@ class StudyAgentController extends Controller
 
         if ($response->failed()) {
             Log::error('Recommend phenotypes failed', ['status' => $response->status()]);
+
             return response()->json(['error' => 'Phenotype recommendation failed'], $response->status());
         }
 

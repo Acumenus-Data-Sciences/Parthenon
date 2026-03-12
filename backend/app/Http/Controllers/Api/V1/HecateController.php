@@ -47,11 +47,11 @@ class HecateController extends Controller
             if ($response->failed()) {
                 Log::warning('Hecate search failed', [
                     'status' => $response->status(),
-                    'body'   => $response->body(),
+                    'body' => $response->body(),
                 ]);
 
                 return response()->json([
-                    'error'  => 'Semantic search failed',
+                    'error' => 'Semantic search failed',
                     'detail' => $response->json('message') ?? $response->body(),
                 ], $response->status() ?: 502);
             }
@@ -62,7 +62,7 @@ class HecateController extends Controller
             Log::error('HecateController::search exception', ['message' => $e->getMessage()]);
 
             return response()->json([
-                'error'   => 'Hecate service unavailable',
+                'error' => 'Hecate service unavailable',
                 'message' => $e->getMessage(),
             ], 503);
         }
@@ -96,11 +96,11 @@ class HecateController extends Controller
             if ($response->failed()) {
                 Log::warning('Hecate searchStandard failed', [
                     'status' => $response->status(),
-                    'body'   => $response->body(),
+                    'body' => $response->body(),
                 ]);
 
                 return response()->json([
-                    'error'  => 'Standard concept search failed',
+                    'error' => 'Standard concept search failed',
                     'detail' => $response->json('message') ?? $response->body(),
                 ], $response->status() ?: 502);
             }
@@ -111,7 +111,7 @@ class HecateController extends Controller
             Log::error('HecateController::searchStandard exception', ['message' => $e->getMessage()]);
 
             return response()->json([
-                'error'   => 'Hecate service unavailable',
+                'error' => 'Hecate service unavailable',
                 'message' => $e->getMessage(),
             ], 503);
         }
@@ -132,7 +132,7 @@ class HecateController extends Controller
 
             if ($response->failed()) {
                 return response()->json([
-                    'error'  => 'Failed to retrieve concept relationships',
+                    'error' => 'Failed to retrieve concept relationships',
                     'detail' => $response->json('message') ?? $response->body(),
                 ], $response->status() ?: 502);
             }
@@ -143,7 +143,7 @@ class HecateController extends Controller
             Log::error('HecateController::conceptRelationships exception', ['message' => $e->getMessage()]);
 
             return response()->json([
-                'error'   => 'Hecate service unavailable',
+                'error' => 'Hecate service unavailable',
                 'message' => $e->getMessage(),
             ], 503);
         }
@@ -164,7 +164,7 @@ class HecateController extends Controller
 
             if ($response->failed()) {
                 return response()->json([
-                    'error'  => 'Failed to retrieve PHOEBE recommendations',
+                    'error' => 'Failed to retrieve PHOEBE recommendations',
                     'detail' => $response->json('message') ?? $response->body(),
                 ], $response->status() ?: 502);
             }
@@ -175,7 +175,7 @@ class HecateController extends Controller
             Log::error('HecateController::conceptPhoebe exception', ['message' => $e->getMessage()]);
 
             return response()->json([
-                'error'   => 'Hecate service unavailable',
+                'error' => 'Hecate service unavailable',
                 'message' => $e->getMessage(),
             ], 503);
         }
@@ -196,7 +196,7 @@ class HecateController extends Controller
 
             if ($response->failed()) {
                 return response()->json([
-                    'error'  => 'Failed to retrieve concept definition',
+                    'error' => 'Failed to retrieve concept definition',
                     'detail' => $response->json('message') ?? $response->body(),
                 ], $response->status() ?: 502);
             }
@@ -207,7 +207,7 @@ class HecateController extends Controller
             Log::error('HecateController::conceptDefinition exception', ['message' => $e->getMessage()]);
 
             return response()->json([
-                'error'   => 'Hecate service unavailable',
+                'error' => 'Hecate service unavailable',
                 'message' => $e->getMessage(),
             ], 503);
         }
@@ -228,7 +228,7 @@ class HecateController extends Controller
 
             if ($response->failed()) {
                 return response()->json([
-                    'error'  => 'Failed to expand concept',
+                    'error' => 'Failed to expand concept',
                     'detail' => $response->json('message') ?? $response->body(),
                 ], $response->status() ?: 502);
             }
@@ -239,7 +239,7 @@ class HecateController extends Controller
             Log::error('HecateController::conceptExpand exception', ['message' => $e->getMessage()]);
 
             return response()->json([
-                'error'   => 'Hecate service unavailable',
+                'error' => 'Hecate service unavailable',
                 'message' => $e->getMessage(),
             ], 503);
         }
@@ -263,7 +263,7 @@ class HecateController extends Controller
 
             if ($response->failed()) {
                 return response()->json([
-                    'error'  => 'Autocomplete request failed',
+                    'error' => 'Autocomplete request failed',
                     'detail' => $response->json('message') ?? $response->body(),
                 ], $response->status() ?: 502);
             }
@@ -274,7 +274,7 @@ class HecateController extends Controller
             Log::error('HecateController::autocomplete exception', ['message' => $e->getMessage()]);
 
             return response()->json([
-                'error'   => 'Hecate service unavailable',
+                'error' => 'Hecate service unavailable',
                 'message' => $e->getMessage(),
             ], 503);
         }

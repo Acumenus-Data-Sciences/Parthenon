@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from typing import Any
 
 from fastapi import APIRouter, HTTPException, Query
 
@@ -29,7 +30,7 @@ async def boundaries(
     parent_gid: str | None = Query(None),
     bbox: str | None = Query(None),
     simplify: float = Query(0.01, ge=0.0, le=1.0),
-):
+) -> dict[str, Any]:
     return await get_boundaries_geojson(
         level=level, country_code=country_code, parent_gid=parent_gid,
         bbox=bbox, simplify_tolerance=simplify,
@@ -37,7 +38,7 @@ async def boundaries(
 
 
 @router.get("/boundaries/{boundary_id}")
-async def boundary_detail(boundary_id: int):
+async def boundary_detail(boundary_id: int) -> dict[str, Any]:
     detail = await get_region_detail(boundary_id)
     if detail is None:
         raise HTTPException(status_code=404, detail="Boundary not found")
@@ -45,12 +46,12 @@ async def boundary_detail(boundary_id: int):
 
 
 @router.get("/stats")
-async def stats():
+async def stats() -> dict[str, Any]:
     return await get_boundary_stats()
 
 
 @router.post("/choropleth")
-async def choropleth(request: ChoroplethRequest):
+async def choropleth(request: ChoroplethRequest) -> list[dict[str, Any]]:
     return await get_choropleth_data(
         level=request.level, metric=request.metric,
         country_code=request.country_code, concept_id=request.concept_id,
@@ -60,7 +61,7 @@ async def choropleth(request: ChoroplethRequest):
 
 
 @router.post("/load")
-async def load_dataset(request: LoadDatasetRequest):
+async def load_dataset(request: LoadDatasetRequest) -> dict[str, Any]:
     try:
         if request.source == "gadm":
             count = await load_gadm(levels=request.levels, country_codes=request.country_codes)
@@ -77,7 +78,7 @@ async def load_dataset(request: LoadDatasetRequest):
 
 
 @router.get("/countries")
-async def list_countries():
+async def list_countries() -> list[dict[str, Any]]:
     from sqlalchemy import text as sql_text
     from app.services.gis_spatial_query import get_engine
     from sqlalchemy.ext.asyncio import AsyncSession

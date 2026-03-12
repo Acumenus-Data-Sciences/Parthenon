@@ -41,7 +41,7 @@ class DicomwebService
      */
     public static function forConnection(PacsConnection $conn): self
     {
-        $instance = new self();
+        $instance = new self;
         $instance->baseUrl = rtrim($conn->base_url, '/');
 
         $creds = $conn->credentials ?? [];

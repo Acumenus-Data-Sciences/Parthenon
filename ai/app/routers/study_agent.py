@@ -32,7 +32,8 @@ async def _proxy_get(path: str, timeout: float = _TIMEOUT_HEALTH) -> dict[str, A
     try:
         resp = await _client.get(path, timeout=timeout)
         resp.raise_for_status()
-        return resp.json()
+        result: dict[str, Any] = resp.json()
+        return result
     except httpx.ConnectError:
         raise HTTPException(status_code=503, detail="StudyAgent service unavailable")
     except httpx.HTTPStatusError as e:
@@ -44,7 +45,8 @@ async def _proxy_post(path: str, payload: dict[str, Any], timeout: float = _TIME
     try:
         resp = await _client.post(path, json=payload, timeout=timeout)
         resp.raise_for_status()
-        return resp.json()
+        result: dict[str, Any] = resp.json()
+        return result
     except httpx.ConnectError:
         raise HTTPException(status_code=503, detail="StudyAgent service unavailable")
     except httpx.HTTPStatusError as e:

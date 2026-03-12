@@ -58,7 +58,7 @@ class LoadGisBoundariesJob implements ShouldQueue
             'started_at' => now(),
         ]);
         $this->dataset->appendLog('Starting GIS boundary load via local script...');
-        $this->dataset->appendLog("Source: {$this->source} | Levels: " . implode(', ', $this->levels));
+        $this->dataset->appendLog("Source: {$this->source} | Levels: ".implode(', ', $this->levels));
 
         $command = ['python3', $scriptPath, '--source', $this->source, '--levels', ...$this->levels];
 
@@ -106,7 +106,7 @@ class LoadGisBoundariesJob implements ShouldQueue
                 $stderr = $process->getErrorOutput();
                 $this->dataset->appendLog("Script exited with code {$exitCode}");
                 if ($stderr) {
-                    $this->dataset->appendLog("stderr: " . substr($stderr, 0, 2000));
+                    $this->dataset->appendLog('stderr: '.substr($stderr, 0, 2000));
                 }
                 $this->dataset->update([
                     'status' => 'failed',
@@ -135,7 +135,7 @@ class LoadGisBoundariesJob implements ShouldQueue
                 'error' => $e->getMessage(),
             ]);
 
-            $this->dataset->appendLog('Error: ' . $e->getMessage());
+            $this->dataset->appendLog('Error: '.$e->getMessage());
             $this->dataset->update([
                 'status' => 'failed',
                 'error_message' => $e->getMessage(),
@@ -151,7 +151,7 @@ class LoadGisBoundariesJob implements ShouldQueue
     {
         switch ($event['event']) {
             case 'start':
-                $this->dataset->appendLog("Starting {$event['source']} load for levels: " . implode(', ', $event['levels']));
+                $this->dataset->appendLog("Starting {$event['source']} load for levels: ".implode(', ', $event['levels']));
                 break;
 
             case 'reading':
@@ -223,6 +223,6 @@ class LoadGisBoundariesJob implements ShouldQueue
             'error_message' => $e->getMessage(),
             'completed_at' => now(),
         ]);
-        $this->dataset->appendLog('Job failed: ' . $e->getMessage());
+        $this->dataset->appendLog('Job failed: '.$e->getMessage());
     }
 }

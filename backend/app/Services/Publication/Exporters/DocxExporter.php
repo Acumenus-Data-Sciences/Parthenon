@@ -15,7 +15,7 @@ class DocxExporter
      */
     public function export(array $document): StreamedResponse
     {
-        $phpWord = new PhpWord();
+        $phpWord = new PhpWord;
 
         // Default font
         $phpWord->setDefaultFontName('Times New Roman');
@@ -176,7 +176,7 @@ class DocxExporter
             try {
                 $tempPng = tempnam(sys_get_temp_dir(), 'pub_png_');
                 if ($tempPng !== false) {
-                    $imagick = new \Imagick();
+                    $imagick = new \Imagick;
                     $imagick->setResolution(300, 300);
                     $imagick->readImageBlob($svg);
                     $imagick->setImageFormat('png');

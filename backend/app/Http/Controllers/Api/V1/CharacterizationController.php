@@ -272,45 +272,45 @@ class CharacterizationController extends Controller
     public function runDirect(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'source_id'    => 'required|integer|exists:sources,id',
-            'target_ids'   => 'required|array|min:1',
+            'source_id' => 'required|integer|exists:sources,id',
+            'target_ids' => 'required|array|min:1',
             'target_ids.*' => 'integer',
-            'outcome_ids'   => 'required|array|min:1',
+            'outcome_ids' => 'required|array|min:1',
             'outcome_ids.*' => 'integer',
-            'analyses'                         => 'sometimes|array',
-            'analyses.aggregate_covariates'    => 'sometimes|boolean',
+            'analyses' => 'sometimes|array',
+            'analyses.aggregate_covariates' => 'sometimes|boolean',
             'analyses.dechallenge_rechallenge' => 'sometimes|boolean',
-            'analyses.time_to_event'           => 'sometimes|boolean',
-            'time_windows'                     => 'sometimes|array',
-            'min_cell_count'                   => 'sometimes|integer|min:1|max:100',
-            'min_prior_observation'            => 'sometimes|integer|min:0',
+            'analyses.time_to_event' => 'sometimes|boolean',
+            'time_windows' => 'sometimes|array',
+            'min_cell_count' => 'sometimes|integer|min:1|max:100',
+            'min_prior_observation' => 'sometimes|integer|min:0',
         ]);
 
         try {
             /** @var Source $source */
             $source = Source::with('daimons')->findOrFail($validated['source_id']);
 
-            $cdmSchema     = $source->getTableQualifier(DaimonType::CDM) ?? 'cdm';
+            $cdmSchema = $source->getTableQualifier(DaimonType::CDM) ?? 'cdm';
             $resultsSchema = $source->getTableQualifier(DaimonType::Results) ?? 'public';
 
             $rRuntimeUrl = rtrim(config('services.r_runtime.url', 'http://r-runtime:8787'), '/');
 
             $spec = [
-                'connection'              => HadesBridgeService::buildSourceSpec($source),
-                'target_ids'              => $validated['target_ids'],
-                'outcome_ids'             => $validated['outcome_ids'],
-                'cdm_database_schema'     => $cdmSchema,
-                'cohort_database_schema'  => $resultsSchema,
-                'cohort_table'            => 'cohort',
-                'min_cell_count'          => $validated['min_cell_count'] ?? 5,
-                'min_prior_observation'   => $validated['min_prior_observation'] ?? 365,
-                'analyses'                => $validated['analyses'] ?? [],
-                'time_windows'            => $validated['time_windows'] ?? [],
+                'connection' => HadesBridgeService::buildSourceSpec($source),
+                'target_ids' => $validated['target_ids'],
+                'outcome_ids' => $validated['outcome_ids'],
+                'cdm_database_schema' => $cdmSchema,
+                'cohort_database_schema' => $resultsSchema,
+                'cohort_table' => 'cohort',
+                'min_cell_count' => $validated['min_cell_count'] ?? 5,
+                'min_prior_observation' => $validated['min_prior_observation'] ?? 365,
+                'analyses' => $validated['analyses'] ?? [],
+                'time_windows' => $validated['time_windows'] ?? [],
             ];
 
             Log::info('Characterization runDirect started', [
                 'target_ids' => $validated['target_ids'],
-                'source_id'  => $validated['source_id'],
+                'source_id' => $validated['source_id'],
             ]);
 
             $response = Http::timeout(600)->post(
@@ -321,11 +321,11 @@ class CharacterizationController extends Controller
             if ($response->failed()) {
                 Log::error('Characterization R call failed', [
                     'status' => $response->status(),
-                    'body'   => $response->body(),
+                    'body' => $response->body(),
                 ]);
 
                 return response()->json([
-                    'error'  => 'Characterization execution failed',
+                    'error' => 'Characterization execution failed',
                     'detail' => $response->json('message') ?? $response->body(),
                 ], $response->status() ?: 502);
             }
@@ -338,7 +338,7 @@ class CharacterizationController extends Controller
             ]);
 
             return response()->json([
-                'error'   => 'Failed to run characterization',
+                'error' => 'Failed to run characterization',
                 'message' => $e->getMessage(),
             ], 500);
         }

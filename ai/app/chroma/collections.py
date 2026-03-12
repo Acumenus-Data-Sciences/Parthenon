@@ -18,7 +18,7 @@ def get_docs_collection() -> Collection:
     client = get_chroma_client()
     return client.get_or_create_collection(
         name="docs",
-        embedding_function=get_general_embedder(),
+        embedding_function=get_general_embedder(),  # type: ignore[arg-type]
         metadata={"hnsw:space": "cosine"},
     )
 
@@ -28,7 +28,7 @@ def get_user_conversation_collection(user_id: int) -> Collection:
     client = get_chroma_client()
     return client.get_or_create_collection(
         name=f"conversations_user_{user_id}",
-        embedding_function=get_general_embedder(),
+        embedding_function=get_general_embedder(),  # type: ignore[arg-type]
         metadata={"hnsw:space": "cosine"},
     )
 
@@ -38,7 +38,7 @@ def get_faq_collection() -> Collection:
     client = get_chroma_client()
     return client.get_or_create_collection(
         name="faq_shared",
-        embedding_function=get_general_embedder(),
+        embedding_function=get_general_embedder(),  # type: ignore[arg-type]
         metadata={"hnsw:space": "cosine"},
     )
 
@@ -48,6 +48,6 @@ def get_clinical_collection() -> Collection:
     client = get_chroma_client()
     return client.get_or_create_collection(
         name="clinical_reference",
-        embedding_function=get_clinical_embedder(),
+        embedding_function=get_clinical_embedder(),  # type: ignore[arg-type]
         metadata={"hnsw:space": "cosine"},
     )

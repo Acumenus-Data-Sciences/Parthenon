@@ -42,7 +42,7 @@ class GisDataset extends Model
     {
         $timestamp = now()->format('H:i:s');
         $this->update([
-            'log_output' => ($this->log_output ? $this->log_output . "\n" : '') . "[{$timestamp}] {$line}",
+            'log_output' => ($this->log_output ? $this->log_output."\n" : '')."[{$timestamp}] {$line}",
         ]);
         $this->refresh();
     }

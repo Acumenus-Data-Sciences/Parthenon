@@ -22,7 +22,7 @@ class PhenotypeLibraryController extends Controller
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('cohort_name', 'ilike', "%{$search}%")
-                  ->orWhere('description', 'ilike', "%{$search}%");
+                    ->orWhere('description', 'ilike', "%{$search}%");
             });
         }
 
@@ -46,6 +46,7 @@ class PhenotypeLibraryController extends Controller
     public function show(int $cohortId): JsonResponse
     {
         $entry = PhenotypeLibraryEntry::where('cohort_id', $cohortId)->firstOrFail();
+
         return response()->json(['data' => $entry]);
     }
 
@@ -56,7 +57,7 @@ class PhenotypeLibraryController extends Controller
     {
         $entry = PhenotypeLibraryEntry::where('cohort_id', $cohortId)->firstOrFail();
 
-        if (!$entry->expression_json) {
+        if (! $entry->expression_json) {
             return response()->json([
                 'error' => 'No cohort expression available for this phenotype',
             ], 422);
@@ -64,7 +65,7 @@ class PhenotypeLibraryController extends Controller
 
         $cohort = CohortDefinition::create([
             'name' => $entry->cohort_name,
-            'description' => "Imported from OHDSI PhenotypeLibrary (ID: {$entry->cohort_id}). " . ($entry->description ?? ''),
+            'description' => "Imported from OHDSI PhenotypeLibrary (ID: {$entry->cohort_id}). ".($entry->description ?? ''),
             'expression_json' => $entry->expression_json,
             'created_by' => $request->user()?->id,
         ]);

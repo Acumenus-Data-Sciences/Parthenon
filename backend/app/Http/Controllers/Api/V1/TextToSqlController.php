@@ -37,11 +37,11 @@ class TextToSqlController extends Controller
             if ($response->failed()) {
                 Log::warning('TextToSql generate failed', [
                     'status' => $response->status(),
-                    'body'   => $response->body(),
+                    'body' => $response->body(),
                 ]);
 
                 return response()->json([
-                    'error'  => 'SQL generation failed',
+                    'error' => 'SQL generation failed',
                     'detail' => $response->json('detail') ?? $response->body(),
                 ], $response->status() ?: 502);
             }
@@ -52,7 +52,7 @@ class TextToSqlController extends Controller
             Log::error('TextToSqlController::generate exception', ['message' => $e->getMessage()]);
 
             return response()->json([
-                'error'   => 'Text-to-SQL service unavailable',
+                'error' => 'Text-to-SQL service unavailable',
                 'message' => $e->getMessage(),
             ], 503);
         }
@@ -76,11 +76,11 @@ class TextToSqlController extends Controller
             if ($response->failed()) {
                 Log::warning('TextToSql validate failed', [
                     'status' => $response->status(),
-                    'body'   => $response->body(),
+                    'body' => $response->body(),
                 ]);
 
                 return response()->json([
-                    'error'  => 'SQL validation failed',
+                    'error' => 'SQL validation failed',
                     'detail' => $response->json('detail') ?? $response->body(),
                 ], $response->status() ?: 502);
             }
@@ -91,7 +91,7 @@ class TextToSqlController extends Controller
             Log::error('TextToSqlController::validate exception', ['message' => $e->getMessage()]);
 
             return response()->json([
-                'error'   => 'Text-to-SQL service unavailable',
+                'error' => 'Text-to-SQL service unavailable',
                 'message' => $e->getMessage(),
             ], 503);
         }
@@ -113,7 +113,7 @@ class TextToSqlController extends Controller
 
             if ($response->failed()) {
                 return response()->json([
-                    'error'  => 'Failed to retrieve SQL schema context',
+                    'error' => 'Failed to retrieve SQL schema context',
                     'detail' => $response->json('detail') ?? $response->body(),
                 ], $response->status() ?: 502);
             }
@@ -124,7 +124,7 @@ class TextToSqlController extends Controller
             Log::error('TextToSqlController::schema exception', ['message' => $e->getMessage()]);
 
             return response()->json([
-                'error'   => 'Text-to-SQL service unavailable',
+                'error' => 'Text-to-SQL service unavailable',
                 'message' => $e->getMessage(),
             ], 503);
         }

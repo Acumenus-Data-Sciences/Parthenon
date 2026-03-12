@@ -10,10 +10,13 @@ use Illuminate\Support\Facades\Log;
 class PhenotypeSync extends Command
 {
     protected $signature = 'phenotype:sync {--fresh : Delete existing entries before syncing}';
+
     protected $description = 'Sync OHDSI PhenotypeLibrary definitions from GitHub';
 
     private const METADATA_URL = 'https://raw.githubusercontent.com/OHDSI/PhenotypeLibrary/main/inst/cohorts/';
+
     private const COHORT_LIST_URL = 'https://api.github.com/repos/OHDSI/PhenotypeLibrary/contents/inst/cohorts';
+
     private const METADATA_CSV_URL = 'https://raw.githubusercontent.com/OHDSI/PhenotypeLibrary/main/inst/Cohorts.csv';
 
     public function handle(): int
@@ -30,7 +33,8 @@ class PhenotypeSync extends Command
         $response = Http::timeout(60)->get(self::METADATA_CSV_URL);
 
         if ($response->failed()) {
-            $this->error('Failed to fetch metadata CSV: ' . $response->status());
+            $this->error('Failed to fetch metadata CSV: '.$response->status());
+
             return Command::FAILURE;
         }
 
@@ -48,7 +52,9 @@ class PhenotypeSync extends Command
         foreach ($lines as $line) {
             $bar->advance();
 
-            if (empty(trim($line))) continue;
+            if (empty(trim($line))) {
+                continue;
+            }
 
             $row = str_getcsv($line);
             // Pad row with empty strings if fewer columns than headers
@@ -63,11 +69,13 @@ class PhenotypeSync extends Command
             $cohortId = (int) ($entry['cohortId'] ?? $entry['id'] ?? 0);
             $cohortName = $entry['cohortName'] ?? $entry['name'] ?? '';
 
-            if (!$cohortId || !$cohortName) continue;
+            if (! $cohortId || ! $cohortName) {
+                continue;
+            }
 
             try {
                 // Fetch cohort definition JSON
-                $jsonUrl = self::METADATA_URL . $cohortId . '.json';
+                $jsonUrl = self::METADATA_URL.$cohortId.'.json';
                 $jsonResponse = Http::timeout(30)->get($jsonUrl);
 
                 $expressionJson = null;
@@ -90,14 +98,14 @@ class PhenotypeSync extends Command
                 $synced++;
             } catch (\Throwable $e) {
                 $errors++;
-                Log::warning("Failed to sync phenotype $cohortId: " . $e->getMessage());
+                Log::warning("Failed to sync phenotype $cohortId: ".$e->getMessage());
             }
         }
 
         $bar->finish();
         $this->newLine(2);
         $this->info("Synced $synced phenotypes ($errors errors).");
-        $this->info('Total in library: ' . PhenotypeLibraryEntry::count());
+        $this->info('Total in library: '.PhenotypeLibraryEntry::count());
 
         return Command::SUCCESS;
     }

@@ -6,35 +6,24 @@ interface NetBenefitCurveProps {
 }
 
 export function NetBenefitCurve({ data }: NetBenefitCurveProps) {
-  if (data.length === 0) return null;
-
-  const width = 500;
-  const height = 350;
-  const padding = { top: 30, right: 30, bottom: 50, left: 60 };
-  const plotW = width - padding.left - padding.right;
-  const plotH = height - padding.top - padding.bottom;
-
-  const allValues = data.flatMap((d) => [d.model, d.treatAll, d.treatNone]);
-  const yMin = Math.min(...allValues, 0);
-  const yMax = Math.max(...allValues, 0.1);
-  const yPad = (yMax - yMin) * 0.1;
-  const yLow = yMin - yPad;
-  const yHigh = yMax + yPad;
-
-  const toX = (v: number) => padding.left + v * plotW;
-  const toY = (v: number) =>
-    padding.top + ((yHigh - v) / (yHigh - yLow)) * plotH;
-
-  const buildPath = (values: number[]) =>
-    data
-      .map((d, i) => `${i === 0 ? "M" : "L"} ${toX(d.threshold)} ${toY(values[i])}`)
-      .join(" ");
-
-  const modelPath = buildPath(data.map((d) => d.model));
-  const treatAllPath = buildPath(data.map((d) => d.treatAll));
-
   // Compute shaded benefit region: where model > max(treatAll, treatNone)
   const benefitFillD = useMemo(() => {
+    if (data.length === 0) return [];
+
+    const width = 500;
+    const padding = { top: 30, right: 30, bottom: 50, left: 60 };
+    const plotW = width - padding.left - padding.right;
+    const plotH = 350 - padding.top - padding.bottom;
+
+    const allValues = data.flatMap((d) => [d.model, d.treatAll, d.treatNone]);
+    const yMin = Math.min(...allValues, 0);
+    const yMax = Math.max(...allValues, 0.1);
+    const yPad = (yMax - yMin) * 0.1;
+    const yLow = yMin - yPad;
+    const yHigh = yMax + yPad;
+
+    const localToX = (v: number) => padding.left + v * plotW;
+    const localToY = (v: number) => padding.top + ((yHigh - v) / (yHigh - yLow)) * plotH;
     // Find segments where model exceeds both treatAll (=treatNone is 0 by definition)
     const segments: { startIdx: number; endIdx: number }[] = [];
     let segStart: number | null = null;

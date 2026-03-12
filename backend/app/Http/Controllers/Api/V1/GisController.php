@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\GisBoundaryRequest;
 use App\Http\Requests\GisChoroplethRequest;
-use App\Jobs\Gis\LoadGisBoundariesJob;
 use App\Models\App\GisDataset;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -28,6 +27,7 @@ class GisController extends Controller
 
         if ($response->failed()) {
             Log::error('GIS boundary request failed', ['status' => $response->status(), 'body' => $response->body()]);
+
             return response()->json(['error' => 'Failed to fetch boundaries'], $response->status());
         }
 
@@ -93,8 +93,8 @@ class GisController extends Controller
         $countryCodes = $validated['country_codes'] ?? null;
 
         $dataset = GisDataset::create([
-            'name' => ucfirst($source) . ' ' . implode('+', $levels),
-            'slug' => Str::slug($source . '-' . implode('-', $levels) . '-' . now()->timestamp),
+            'name' => ucfirst($source).' '.implode('+', $levels),
+            'slug' => Str::slug($source.'-'.implode('-', $levels).'-'.now()->timestamp),
             'source' => $source,
             'data_type' => 'boundary',
             'status' => 'pending',
@@ -125,6 +125,7 @@ class GisController extends Controller
     public function datasets(): JsonResponse
     {
         $datasets = GisDataset::orderBy('name')->get();
+
         return response()->json(['data' => $datasets]);
     }
 
@@ -134,6 +135,7 @@ class GisController extends Controller
         if ($response->failed()) {
             return response()->json(['error' => 'CDM choropleth query failed'], $response->status());
         }
+
         return response()->json(['data' => $response->json()]);
     }
 
@@ -144,6 +146,7 @@ class GisController extends Controller
         if ($response->failed()) {
             return response()->json(['error' => 'Failed to fetch time periods'], 500);
         }
+
         return response()->json(['data' => $response->json()]);
     }
 
@@ -153,6 +156,7 @@ class GisController extends Controller
         if ($response->failed()) {
             return response()->json(['error' => 'Failed to fetch COVID summary'], 500);
         }
+
         return response()->json(['data' => $response->json()]);
     }
 
@@ -163,16 +167,18 @@ class GisController extends Controller
         if ($response->failed()) {
             return response()->json(['error' => 'County not found'], $response->status());
         }
+
         return response()->json(['data' => $response->json()]);
     }
 
     public function refreshCdmStats(Request $request): JsonResponse
     {
         $params = $request->only(['concept_id']);
-        $response = Http::timeout(120)->post("{$this->aiServiceUrl}/cdm-spatial/refresh?" . http_build_query($params));
+        $response = Http::timeout(120)->post("{$this->aiServiceUrl}/cdm-spatial/refresh?".http_build_query($params));
         if ($response->failed()) {
             return response()->json(['error' => 'Refresh failed'], 500);
         }
+
         return response()->json(['data' => $response->json()]);
     }
 
@@ -183,6 +189,7 @@ class GisController extends Controller
         if ($response->failed()) {
             return response()->json(['error' => 'Failed to fetch conditions'], $response->status());
         }
+
         return response()->json(['data' => $response->json()]);
     }
 
@@ -192,6 +199,7 @@ class GisController extends Controller
         if ($response->failed()) {
             return response()->json(['error' => 'Failed to fetch categories'], 500);
         }
+
         return response()->json(['data' => $response->json()]);
     }
 
@@ -202,6 +210,7 @@ class GisController extends Controller
         if ($response->failed()) {
             return response()->json(['error' => 'Failed to fetch summary'], $response->status());
         }
+
         return response()->json(['data' => $response->json()]);
     }
 
@@ -211,6 +220,7 @@ class GisController extends Controller
         if ($response->failed()) {
             return response()->json(['error' => 'Reindex failed'], 500);
         }
+
         return response()->json(['data' => $response->json()]);
     }
 }

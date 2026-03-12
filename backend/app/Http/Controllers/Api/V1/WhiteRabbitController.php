@@ -33,25 +33,25 @@ class WhiteRabbitController extends Controller
     {
         $validated = $request->validate([
             // Option A — resolve connection from Sources registry
-            'source_id'      => 'nullable|integer|exists:sources,id',
+            'source_id' => 'nullable|integer|exists:sources,id',
 
             // Option B — raw connection parameters
-            'dbms'           => 'nullable|string|max:64',
-            'server'         => 'nullable|string|max:255',
-            'port'           => 'nullable|integer|min:1|max:65535',
-            'user'           => 'nullable|string|max:255',
-            'password'       => 'nullable|string|max:255',
-            'schema'         => 'nullable|string|max:255',
+            'dbms' => 'nullable|string|max:64',
+            'server' => 'nullable|string|max:255',
+            'port' => 'nullable|integer|min:1|max:65535',
+            'user' => 'nullable|string|max:255',
+            'password' => 'nullable|string|max:255',
+            'schema' => 'nullable|string|max:255',
 
             // Common options
-            'tables'         => 'nullable|array',
-            'tables.*'       => 'string|max:255',
+            'tables' => 'nullable|array',
+            'tables.*' => 'string|max:255',
         ]);
 
         // Require either source_id OR raw connection params
         if (empty($validated['source_id']) && empty($validated['server'])) {
             return response()->json([
-                'error'   => 'Validation failed',
+                'error' => 'Validation failed',
                 'message' => 'Provide either source_id or raw connection parameters (dbms, server, user, password, schema).',
             ], 422);
         }
@@ -66,12 +66,12 @@ class WhiteRabbitController extends Controller
                 $payload['connection'] = HadesBridgeService::buildSourceSpec($source);
             } else {
                 $payload['connection'] = [
-                    'dbms'     => $validated['dbms'] ?? 'postgresql',
-                    'server'   => $validated['server'],
-                    'port'     => $validated['port'] ?? 5432,
-                    'user'     => $validated['user'],
+                    'dbms' => $validated['dbms'] ?? 'postgresql',
+                    'server' => $validated['server'],
+                    'port' => $validated['port'] ?? 5432,
+                    'user' => $validated['user'],
                     'password' => $validated['password'],
-                    'schema'   => $validated['schema'] ?? 'public',
+                    'schema' => $validated['schema'] ?? 'public',
                 ];
             }
 
@@ -81,7 +81,7 @@ class WhiteRabbitController extends Controller
 
             Log::info('WhiteRabbit scan started', [
                 'source_id' => $validated['source_id'] ?? null,
-                'server'    => $payload['connection']['server'] ?? null,
+                'server' => $payload['connection']['server'] ?? null,
             ]);
 
             // Scans can take many minutes on large databases
@@ -93,11 +93,11 @@ class WhiteRabbitController extends Controller
             if ($response->failed()) {
                 Log::error('WhiteRabbit scan failed', [
                     'status' => $response->status(),
-                    'body'   => $response->body(),
+                    'body' => $response->body(),
                 ]);
 
                 return response()->json([
-                    'error'  => 'WhiteRabbit scan failed',
+                    'error' => 'WhiteRabbit scan failed',
                     'detail' => $response->json('message') ?? $response->body(),
                 ], $response->status() ?: 502);
             }
@@ -110,7 +110,7 @@ class WhiteRabbitController extends Controller
             ]);
 
             return response()->json([
-                'error'   => 'Failed to run WhiteRabbit scan',
+                'error' => 'Failed to run WhiteRabbit scan',
                 'message' => $e->getMessage(),
             ], 500);
         }
@@ -139,7 +139,7 @@ class WhiteRabbitController extends Controller
 
         } catch (\Throwable $e) {
             return response()->json([
-                'error'   => 'WhiteRabbit service unreachable',
+                'error' => 'WhiteRabbit service unreachable',
                 'message' => $e->getMessage(),
             ], 503);
         }

@@ -31,11 +31,11 @@ class SyntheaController extends Controller
     public function generate(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'source_id'           => 'required|integer|exists:sources,id',
-            'patient_count'       => 'required|integer|min:1|max:100000',
-            'synthea_csv_folder'  => 'required|string|max:512',
-            'cdm_version'         => 'nullable|string|max:16',
-            'skip_cdm_create'     => 'nullable|boolean',
+            'source_id' => 'required|integer|exists:sources,id',
+            'patient_count' => 'required|integer|min:1|max:100000',
+            'synthea_csv_folder' => 'required|string|max:512',
+            'cdm_version' => 'nullable|string|max:16',
+            'skip_cdm_create' => 'nullable|boolean',
             'skip_synthea_create' => 'nullable|boolean',
         ]);
 
@@ -44,16 +44,16 @@ class SyntheaController extends Controller
             $source = Source::with('daimons')->findOrFail($validated['source_id']);
 
             $payload = [
-                'connection'          => HadesBridgeService::buildSourceSpec($source),
-                'patient_count'       => $validated['patient_count'],
-                'synthea_csv_folder'  => $validated['synthea_csv_folder'],
-                'cdm_version'         => $validated['cdm_version'] ?? '5.4',
-                'skip_cdm_create'     => $validated['skip_cdm_create'] ?? false,
+                'connection' => HadesBridgeService::buildSourceSpec($source),
+                'patient_count' => $validated['patient_count'],
+                'synthea_csv_folder' => $validated['synthea_csv_folder'],
+                'cdm_version' => $validated['cdm_version'] ?? '5.4',
+                'skip_cdm_create' => $validated['skip_cdm_create'] ?? false,
                 'skip_synthea_create' => $validated['skip_synthea_create'] ?? false,
             ];
 
             Log::info('Synthea generation started', [
-                'source_id'     => $validated['source_id'],
+                'source_id' => $validated['source_id'],
                 'patient_count' => $validated['patient_count'],
             ]);
 
@@ -66,11 +66,11 @@ class SyntheaController extends Controller
             if ($response->failed()) {
                 Log::error('Synthea generation failed', [
                     'status' => $response->status(),
-                    'body'   => $response->body(),
+                    'body' => $response->body(),
                 ]);
 
                 return response()->json([
-                    'error'  => 'Synthea generation failed',
+                    'error' => 'Synthea generation failed',
                     'detail' => $response->json('message') ?? $response->body(),
                 ], $response->status() ?: 502);
             }
@@ -83,7 +83,7 @@ class SyntheaController extends Controller
             ]);
 
             return response()->json([
-                'error'   => 'Failed to run Synthea generation',
+                'error' => 'Failed to run Synthea generation',
                 'message' => $e->getMessage(),
             ], 500);
         }
@@ -112,7 +112,7 @@ class SyntheaController extends Controller
 
         } catch (\Throwable $e) {
             return response()->json([
-                'error'   => 'R runtime service unreachable',
+                'error' => 'R runtime service unreachable',
                 'message' => $e->getMessage(),
             ], 503);
         }

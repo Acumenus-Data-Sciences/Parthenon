@@ -11,9 +11,10 @@ from __future__ import annotations
 import logging
 import os
 
+from typing import Any
+
 from sqlalchemy import text
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +37,7 @@ SNOMED_CATEGORIES: dict[int, str] = {
 }
 
 
-def get_engine():
+def get_engine() -> AsyncEngine:
     return create_async_engine(
         ASYNC_DATABASE_URL,
         pool_size=5,
@@ -44,10 +45,10 @@ def get_engine():
     )
 
 
-async def get_all_conditions() -> list[dict]:
+async def get_all_conditions() -> list[dict[str, Any]]:
     """Get all distinct conditions in the CDM with patient counts and SNOMED categories."""
     engine = get_engine()
-    async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+    async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
     async with async_session() as session:
         result = await session.execute(text("""
@@ -97,12 +98,12 @@ async def get_all_conditions() -> list[dict]:
     ]
 
 
-async def refresh_county_stats(concept_id: int) -> dict:
+async def refresh_county_stats(concept_id: int) -> dict[str, Any]:
     """Rebuild county-level aggregates for a single condition."""
     engine = get_engine()
-    async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+    async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
-    stats = {"metrics_computed": 0, "concept_id": concept_id}
+    stats: dict[str, Any] = {"metrics_computed": 0, "concept_id": concept_id}
 
     async with async_session() as session:
         await session.execute(
@@ -237,7 +238,7 @@ async def refresh_county_stats(concept_id: int) -> dict:
     await engine.dispose()
 
     # Build Solr documents: one per county
-    county_data: dict[str, dict] = {}
+    county_data: dict[str, dict[str, Any]] = {}
     for row in rows:
         gid = row.gadm_gid
         if gid not in county_data:
@@ -294,7 +295,7 @@ async def refresh_county_stats(concept_id: int) -> dict:
 async def refresh_patient_counts() -> int:
     """Rebuild patient_count per county (population baseline). Returns count."""
     engine = get_engine()
-    async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+    async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
     async with async_session() as session:
         await session.execute(text(
@@ -320,13 +321,13 @@ async def get_county_choropleth(
     metric_type: str,
     concept_id: int | None = None,
     time_period: str | None = None,
-) -> list[dict]:
+) -> list[dict[str, Any]]:
     """Read pre-computed county stats for choropleth rendering."""
     engine = get_engine()
-    async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+    async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
     conditions = ["cs.metric_type = :metric"]
-    params: dict = {"metric": metric_type}
+    params: dict[str, Any] = {"metric": metric_type}
 
     if concept_id:
         conditions.append("cs.concept_id = :concept_id")
@@ -372,10 +373,10 @@ async def get_available_time_periods(
 ) -> list[str]:
     """Return sorted list of available YYYY-MM periods."""
     engine = get_engine()
-    async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+    async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
     conditions = ["metric_type = :metric", "time_period IS NOT NULL"]
-    params: dict = {"metric": metric_type}
+    params: dict[str, Any] = {"metric": metric_type}
 
     if concept_id:
         conditions.append("concept_id = :concept_id")
@@ -396,10 +397,10 @@ async def get_available_time_periods(
     return periods
 
 
-async def get_disease_summary(concept_id: int) -> dict:
+async def get_disease_summary(concept_id: int) -> dict[str, Any]:
     """Return summary stats for any condition."""
     engine = get_engine()
-    async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+    async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
     async with async_session() as session:
         name_result = await session.execute(text(
@@ -461,10 +462,10 @@ async def get_disease_summary(concept_id: int) -> dict:
     }
 
 
-async def get_county_detail(gadm_gid: str, concept_id: int) -> dict | None:
+async def get_county_detail(gadm_gid: str, concept_id: int) -> dict[str, Any] | None:
     """Get detailed stats for a single county for a specific condition."""
     engine = get_engine()
-    async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+    async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
     async with async_session() as session:
         result = await session.execute(text("""

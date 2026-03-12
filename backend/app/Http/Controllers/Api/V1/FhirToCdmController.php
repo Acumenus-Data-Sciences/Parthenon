@@ -33,14 +33,14 @@ class FhirToCdmController extends Controller
 
             if (empty($body)) {
                 return response()->json([
-                    'error'   => 'Validation failed',
+                    'error' => 'Validation failed',
                     'message' => 'Request body must contain a FHIR Bundle JSON document.',
                 ], 422);
             }
 
             Log::info('FhirToCdm ingest started', [
                 'content_length' => strlen($body),
-                'content_type'   => $request->header('Content-Type'),
+                'content_type' => $request->header('Content-Type'),
             ]);
 
             $response = Http::timeout(300)
@@ -50,11 +50,11 @@ class FhirToCdmController extends Controller
             if ($response->failed()) {
                 Log::error('FhirToCdm ingest failed', [
                     'status' => $response->status(),
-                    'body'   => $response->body(),
+                    'body' => $response->body(),
                 ]);
 
                 return response()->json([
-                    'error'  => 'FHIR ingestion failed',
+                    'error' => 'FHIR ingestion failed',
                     'detail' => $response->json('message') ?? $response->body(),
                 ], $response->status() ?: 502);
             }
@@ -67,7 +67,7 @@ class FhirToCdmController extends Controller
             ]);
 
             return response()->json([
-                'error'   => 'Failed to ingest FHIR Bundle',
+                'error' => 'Failed to ingest FHIR Bundle',
                 'message' => $e->getMessage(),
             ], 500);
         }
@@ -87,7 +87,7 @@ class FhirToCdmController extends Controller
 
             if (empty($body)) {
                 return response()->json([
-                    'error'   => 'Validation failed',
+                    'error' => 'Validation failed',
                     'message' => 'Request body must contain FHIR NDJSON content.',
                 ], 422);
             }
@@ -103,11 +103,11 @@ class FhirToCdmController extends Controller
             if ($response->failed()) {
                 Log::error('FhirToCdm batch failed', [
                     'status' => $response->status(),
-                    'body'   => $response->body(),
+                    'body' => $response->body(),
                 ]);
 
                 return response()->json([
-                    'error'  => 'FHIR batch ingestion failed',
+                    'error' => 'FHIR batch ingestion failed',
                     'detail' => $response->json('message') ?? $response->body(),
                 ], $response->status() ?: 502);
             }
@@ -120,7 +120,7 @@ class FhirToCdmController extends Controller
             ]);
 
             return response()->json([
-                'error'   => 'Failed to process FHIR batch',
+                'error' => 'Failed to process FHIR batch',
                 'message' => $e->getMessage(),
             ], 500);
         }
@@ -149,7 +149,7 @@ class FhirToCdmController extends Controller
 
         } catch (\Throwable $e) {
             return response()->json([
-                'error'   => 'FhirToCdm service unreachable',
+                'error' => 'FhirToCdm service unreachable',
                 'message' => $e->getMessage(),
             ], 503);
         }

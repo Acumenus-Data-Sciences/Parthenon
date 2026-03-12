@@ -2,8 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -26,7 +26,7 @@ return new class extends Migration
             $table->string('country_code', 3)->index();
             $table->string('country_name');
             $table->foreignId('boundary_level_id')
-                  ->constrained('gis_boundary_levels');
+                ->constrained('gis_boundary_levels');
             $table->string('parent_gid', 50)->nullable()->index();
             $table->string('type')->nullable();
             $table->string('type_en')->nullable();

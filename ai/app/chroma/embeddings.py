@@ -23,9 +23,12 @@ class GeneralEmbedder(EmbeddingFunction[Documents]):
 
     def __call__(self, input: Documents) -> Embeddings:
         embeddings = self._model.encode(input, convert_to_numpy=True)
+        result: Embeddings
         if isinstance(embeddings, np.ndarray):
-            return embeddings.tolist()
-        return [e.tolist() if hasattr(e, "tolist") else list(e) for e in embeddings]
+            result = embeddings.tolist()
+        else:
+            result = [e.tolist() if hasattr(e, "tolist") else list(e) for e in embeddings]  # type: ignore[misc]
+        return result
 
 
 class ClinicalEmbedder(EmbeddingFunction[Documents]):
@@ -38,7 +41,8 @@ class ClinicalEmbedder(EmbeddingFunction[Documents]):
         logger.info("Clinical embedder using SapBERT service")
 
     def __call__(self, input: Documents) -> Embeddings:
-        return self._service.encode(list(input))
+        result: Embeddings = self._service.encode(list(input))  # type: ignore[assignment]
+        return result
 
 
 @lru_cache(maxsize=1)

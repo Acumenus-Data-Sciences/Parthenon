@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class LocationHistory extends Model
 {
     protected $table = 'app.location_history';
+
     protected $primaryKey = 'location_history_id';
 
     protected $fillable = [

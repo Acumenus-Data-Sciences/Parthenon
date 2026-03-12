@@ -20,7 +20,7 @@ class PacsConnectionService
             $start = microtime(true);
 
             $response = $this->resolveClient($conn)
-                ->get(rtrim($conn->base_url, '/') . '/studies?limit=1');
+                ->get(rtrim($conn->base_url, '/').'/studies?limit=1');
 
             $latencyMs = round((microtime(true) - $start) * 1000);
 
@@ -127,7 +127,7 @@ class PacsConnectionService
             }
 
             $response = $this->resolveClient($conn)
-                ->get(rtrim($conn->base_url, '/') . '/studies', $queryParams);
+                ->get(rtrim($conn->base_url, '/').'/studies', $queryParams);
 
             if (! $response->successful()) {
                 return [
@@ -194,7 +194,7 @@ class PacsConnectionService
         $orthancBase = preg_replace('#/dicom-web/?$#i', '', rtrim($conn->base_url, '/'));
 
         $response = Http::timeout(15)
-            ->get($orthancBase . '/statistics');
+            ->get($orthancBase.'/statistics');
 
         if (! $response->successful()) {
             return [
@@ -232,7 +232,7 @@ class PacsConnectionService
     private function refreshDicomwebStats(PacsConnection $conn): array
     {
         $response = $this->resolveClient($conn)
-            ->get(rtrim($conn->base_url, '/') . '/studies', ['limit' => 0]);
+            ->get(rtrim($conn->base_url, '/').'/studies', ['limit' => 0]);
 
         $countStudies = null;
 

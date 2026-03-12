@@ -31,8 +31,8 @@ class StrategusController extends Controller
     public function execute(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'source_id'     => 'required|integer|exists:sources,id',
-            'study_name'    => 'required|string|max:255',
+            'source_id' => 'required|integer|exists:sources,id',
+            'study_name' => 'required|string|max:255',
             'analysis_spec' => 'required|array',
         ]);
 
@@ -40,22 +40,22 @@ class StrategusController extends Controller
             /** @var Source $source */
             $source = Source::with('daimons')->findOrFail($validated['source_id']);
 
-            $cdmSchema     = $source->getTableQualifier(DaimonType::CDM) ?? 'cdm';
+            $cdmSchema = $source->getTableQualifier(DaimonType::CDM) ?? 'cdm';
             $resultsSchema = $source->getTableQualifier(DaimonType::Results) ?? 'public';
 
             $spec = [
-                'connection'              => HadesBridgeService::buildSourceSpec($source),
-                'cdm_database_schema'     => $cdmSchema,
-                'cohort_database_schema'  => $resultsSchema,
-                'cohort_table'            => 'cohort',
+                'connection' => HadesBridgeService::buildSourceSpec($source),
+                'cdm_database_schema' => $cdmSchema,
+                'cohort_database_schema' => $resultsSchema,
+                'cohort_table' => 'cohort',
                 'results_database_schema' => $resultsSchema,
-                'study_name'              => $validated['study_name'],
-                'analysis_spec'           => $validated['analysis_spec'],
+                'study_name' => $validated['study_name'],
+                'analysis_spec' => $validated['analysis_spec'],
             ];
 
             Log::info('Strategus execution started', [
                 'study_name' => $validated['study_name'],
-                'source_id'  => $validated['source_id'],
+                'source_id' => $validated['source_id'],
             ]);
 
             // Strategus studies can run for 30+ minutes
@@ -67,11 +67,11 @@ class StrategusController extends Controller
             if ($response->failed()) {
                 Log::error('Strategus R call failed', [
                     'status' => $response->status(),
-                    'body'   => $response->body(),
+                    'body' => $response->body(),
                 ]);
 
                 return response()->json([
-                    'error'  => 'Strategus execution failed',
+                    'error' => 'Strategus execution failed',
                     'detail' => $response->json('message') ?? $response->body(),
                 ], $response->status() ?: 502);
             }
@@ -84,7 +84,7 @@ class StrategusController extends Controller
             ]);
 
             return response()->json([
-                'error'   => 'Failed to execute Strategus study',
+                'error' => 'Failed to execute Strategus study',
                 'message' => $e->getMessage(),
             ], 500);
         }
@@ -109,7 +109,7 @@ class StrategusController extends Controller
 
             if ($response->failed()) {
                 return response()->json([
-                    'error'  => 'Strategus validation failed',
+                    'error' => 'Strategus validation failed',
                     'detail' => $response->json('message') ?? $response->body(),
                 ], $response->status() ?: 502);
             }
@@ -118,7 +118,7 @@ class StrategusController extends Controller
 
         } catch (\Throwable $e) {
             return response()->json([
-                'error'   => 'Failed to validate Strategus spec',
+                'error' => 'Failed to validate Strategus spec',
                 'message' => $e->getMessage(),
             ], 500);
         }
@@ -146,7 +146,7 @@ class StrategusController extends Controller
 
         } catch (\Throwable $e) {
             return response()->json([
-                'error'   => 'R runtime unavailable',
+                'error' => 'R runtime unavailable',
                 'message' => $e->getMessage(),
             ], 503);
         }

@@ -41,6 +41,7 @@ class CirceController extends Controller
 
         if ($response->failed()) {
             Log::error('Circe compile failed', ['status' => $response->status(), 'body' => $response->body()]);
+
             return response()->json(['error' => 'Failed to compile cohort definition', 'detail' => $response->json('detail')], $response->status());
         }
 
@@ -63,6 +64,7 @@ class CirceController extends Controller
 
         if ($response->failed()) {
             Log::error('Circe validate failed', ['status' => $response->status(), 'body' => $response->body()]);
+
             return response()->json(['error' => 'Failed to validate cohort definition'], $response->status());
         }
 
@@ -84,6 +86,7 @@ class CirceController extends Controller
 
         if ($response->failed()) {
             Log::error('Circe render failed', ['status' => $response->status(), 'body' => $response->body()]);
+
             return response()->json(['error' => 'Failed to render cohort definition'], $response->status());
         }
 

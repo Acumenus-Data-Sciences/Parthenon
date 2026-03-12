@@ -277,45 +277,45 @@ class IncidenceRateController extends Controller
     public function calculateDirect(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'source_id'                   => 'required|integer|exists:sources,id',
-            'targets'                     => 'required|array|min:1',
-            'targets.*.cohort_id'         => 'required|integer',
-            'targets.*.cohort_name'       => 'required|string',
-            'outcomes'                    => 'required|array|min:1',
-            'outcomes.*.cohort_id'        => 'required|integer',
-            'outcomes.*.cohort_name'      => 'required|string',
-            'outcomes.*.clean_window'     => 'sometimes|integer|min:0',
-            'time_at_risk'                => 'required|array|min:1',
+            'source_id' => 'required|integer|exists:sources,id',
+            'targets' => 'required|array|min:1',
+            'targets.*.cohort_id' => 'required|integer',
+            'targets.*.cohort_name' => 'required|string',
+            'outcomes' => 'required|array|min:1',
+            'outcomes.*.cohort_id' => 'required|integer',
+            'outcomes.*.cohort_name' => 'required|string',
+            'outcomes.*.clean_window' => 'sometimes|integer|min:0',
+            'time_at_risk' => 'required|array|min:1',
             'time_at_risk.*.start_offset' => 'required|integer',
             'time_at_risk.*.start_anchor' => 'required|string|in:era_start,era_end',
-            'time_at_risk.*.end_offset'   => 'required|integer',
-            'time_at_risk.*.end_anchor'   => 'required|string|in:era_start,era_end',
-            'strata'                      => 'sometimes|array',
-            'strata.by_age'               => 'sometimes|boolean',
-            'strata.by_gender'            => 'sometimes|boolean',
-            'strata.by_year'              => 'sometimes|boolean',
-            'strata.age_breaks'           => 'sometimes|array',
-            'min_cell_count'              => 'sometimes|integer|min:1|max:100',
+            'time_at_risk.*.end_offset' => 'required|integer',
+            'time_at_risk.*.end_anchor' => 'required|string|in:era_start,era_end',
+            'strata' => 'sometimes|array',
+            'strata.by_age' => 'sometimes|boolean',
+            'strata.by_gender' => 'sometimes|boolean',
+            'strata.by_year' => 'sometimes|boolean',
+            'strata.age_breaks' => 'sometimes|array',
+            'min_cell_count' => 'sometimes|integer|min:1|max:100',
         ]);
 
         try {
             /** @var Source $source */
             $source = Source::with('daimons')->findOrFail($validated['source_id']);
 
-            $cdmSchema     = $source->getTableQualifier(DaimonType::CDM) ?? 'cdm';
+            $cdmSchema = $source->getTableQualifier(DaimonType::CDM) ?? 'cdm';
             $resultsSchema = $source->getTableQualifier(DaimonType::Results) ?? 'public';
 
             $rRuntimeUrl = rtrim(config('services.r_runtime.url', 'http://r-runtime:8787'), '/');
 
             $spec = [
-                'connection'             => HadesBridgeService::buildSourceSpec($source),
-                'targets'                => $validated['targets'],
-                'outcomes'               => $validated['outcomes'],
-                'time_at_risk'           => $validated['time_at_risk'],
-                'cdm_database_schema'    => $cdmSchema,
+                'connection' => HadesBridgeService::buildSourceSpec($source),
+                'targets' => $validated['targets'],
+                'outcomes' => $validated['outcomes'],
+                'time_at_risk' => $validated['time_at_risk'],
+                'cdm_database_schema' => $cdmSchema,
                 'cohort_database_schema' => $resultsSchema,
-                'cohort_table'           => 'cohort',
-                'min_cell_count'         => $validated['min_cell_count'] ?? 5,
+                'cohort_table' => 'cohort',
+                'min_cell_count' => $validated['min_cell_count'] ?? 5,
             ];
 
             if (isset($validated['strata'])) {
@@ -336,11 +336,11 @@ class IncidenceRateController extends Controller
             if ($response->failed()) {
                 Log::error('CohortIncidence R call failed', [
                     'status' => $response->status(),
-                    'body'   => $response->body(),
+                    'body' => $response->body(),
                 ]);
 
                 return response()->json([
-                    'error'  => 'CohortIncidence calculation failed',
+                    'error' => 'CohortIncidence calculation failed',
                     'detail' => $response->json('message') ?? $response->body(),
                 ], $response->status() ?: 502);
             }
@@ -353,7 +353,7 @@ class IncidenceRateController extends Controller
             ]);
 
             return response()->json([
-                'error'   => 'Failed to calculate incidence rates',
+                'error' => 'Failed to calculate incidence rates',
                 'message' => $e->getMessage(),
             ], 500);
         }

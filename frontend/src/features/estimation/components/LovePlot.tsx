@@ -48,6 +48,78 @@ export function LovePlot({
   const [isBrushing, setIsBrushing] = useState(false);
   const svgRef = useRef<SVGSVGElement>(null);
 
+  // Brush helpers — hooks must be called before any early return
+  const getSvgPoint = useCallback(
+    (e: React.MouseEvent<SVGSVGElement>) => {
+      if (!svgRef.current) return { x: 0, y: 0 };
+      const rect = svgRef.current.getBoundingClientRect();
+      return {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top,
+      };
+    },
+    [],
+  );
+
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent<SVGSVGElement>) => {
+      if (!enableBrush) return;
+      const pt = getSvgPoint(e);
+      setBrushStart(pt);
+      setBrushEnd(pt);
+      setIsBrushing(true);
+    },
+    [enableBrush, getSvgPoint],
+  );
+
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent<SVGSVGElement>) => {
+      if (!isBrushing) return;
+      setBrushEnd(getSvgPoint(e));
+    },
+    [isBrushing, getSvgPoint],
+  );
+
+  const handleMouseUp = useCallback(() => {
+    if (!isBrushing || !brushStart || !brushEnd || !onBrushSelect) {
+      setIsBrushing(false);
+      setBrushStart(null);
+      setBrushEnd(null);
+      return;
+    }
+
+    // Recompute layout values inline so the hook doesn't depend on post-return variables
+    const dd = data.slice(0, maxDisplay);
+    const allSmds = dd.flatMap((d) => [Math.abs(d.smd_before), Math.abs(d.smd_after)]);
+    const sMax = Math.ceil(Math.max(...allSmds, 0.15) * 10) / 10;
+    const pLeft = 55;
+    const pTop = 30;
+    const pW = 600 - pLeft - 30;
+    const pH = 400 + 30 - pTop - (50 + 30);
+    const localToX = (smd: number) => pLeft + (Math.abs(smd) / sMax) * pW;
+    const localToY = (index: number) => pTop + ((index + 0.5) / dd.length) * pH;
+
+    const minX = Math.min(brushStart.x, brushEnd.x);
+    const maxX = Math.max(brushStart.x, brushEnd.x);
+    const minY = Math.min(brushStart.y, brushEnd.y);
+    const maxY = Math.max(brushStart.y, brushEnd.y);
+
+    // Filter points within brush rectangle
+    const selected = dd.filter((_, i) => {
+      const cx = localToX(dd[i].smd_after);
+      const cy = localToY(i);
+      return cx >= minX && cx <= maxX && cy >= minY && cy <= maxY;
+    });
+
+    if (selected.length > 0) {
+      onBrushSelect(selected);
+    }
+
+    setIsBrushing(false);
+    setBrushStart(null);
+    setBrushEnd(null);
+  }, [isBrushing, brushStart, brushEnd, data, maxDisplay, onBrushSelect]);
+
   if (data.length === 0) return null;
 
   const DENSITY_HEIGHT = 30;
@@ -94,68 +166,6 @@ export function LovePlot({
   const plotLeft = padding.left;
   const plotRight = padding.left + plotW;
   const plotTop = padding.top;
-  const plotBottom = padding.top + plotH;
-
-  // Brush helpers
-  const getSvgPoint = useCallback(
-    (e: React.MouseEvent<SVGSVGElement>) => {
-      if (!svgRef.current) return { x: 0, y: 0 };
-      const rect = svgRef.current.getBoundingClientRect();
-      return {
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-      };
-    },
-    [],
-  );
-
-  const handleMouseDown = useCallback(
-    (e: React.MouseEvent<SVGSVGElement>) => {
-      if (!enableBrush) return;
-      const pt = getSvgPoint(e);
-      setBrushStart(pt);
-      setBrushEnd(pt);
-      setIsBrushing(true);
-    },
-    [enableBrush, getSvgPoint],
-  );
-
-  const handleMouseMove = useCallback(
-    (e: React.MouseEvent<SVGSVGElement>) => {
-      if (!isBrushing) return;
-      setBrushEnd(getSvgPoint(e));
-    },
-    [isBrushing, getSvgPoint],
-  );
-
-  const handleMouseUp = useCallback(() => {
-    if (!isBrushing || !brushStart || !brushEnd || !onBrushSelect) {
-      setIsBrushing(false);
-      setBrushStart(null);
-      setBrushEnd(null);
-      return;
-    }
-
-    const minX = Math.min(brushStart.x, brushEnd.x);
-    const maxX = Math.max(brushStart.x, brushEnd.x);
-    const minY = Math.min(brushStart.y, brushEnd.y);
-    const maxY = Math.max(brushStart.y, brushEnd.y);
-
-    // Filter points within brush rectangle
-    const selected = displayData.filter((_, i) => {
-      const cx = toX(displayData[i].smd_after);
-      const cy = toY(i);
-      return cx >= minX && cx <= maxX && cy >= minY && cy <= maxY;
-    });
-
-    if (selected.length > 0) {
-      onBrushSelect(selected);
-    }
-
-    setIsBrushing(false);
-    setBrushStart(null);
-    setBrushEnd(null);
-  }, [isBrushing, brushStart, brushEnd, displayData, onBrushSelect, toX, toY]);
 
   // Brush rectangle
   const brushRect =

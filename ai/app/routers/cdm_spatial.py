@@ -1,3 +1,5 @@
+from typing import Any
+
 from fastapi import APIRouter, HTTPException, Query, BackgroundTasks
 
 from app.models.cdm_spatial import (
@@ -34,7 +36,7 @@ async def conditions(
     search: str | None = Query(default=None, description="Fuzzy search term"),
     category: str | None = Query(default=None, description="SNOMED category filter"),
     limit: int = Query(default=50, le=500),
-):
+) -> list[dict[str, Any]]:
     """Get available conditions with patient counts. Uses Solr if available, PG fallback."""
     if solr_available():
         return await solr_get_conditions(search=search, category=category, limit=limit)
@@ -49,13 +51,13 @@ async def conditions(
 
 
 @router.get("/conditions/categories", response_model=list[ConditionCategory])
-async def condition_categories():
+async def condition_categories() -> list[dict[str, Any]]:
     """Get curated SNOMED category list with condition counts."""
     if solr_available():
         return await solr_get_categories()
     # Fallback: compute from PG
     all_conds = await get_all_conditions()
-    cat_map: dict[str, dict] = {}
+    cat_map: dict[str, dict[str, Any]] = {}
     for c in all_conds:
         cat = c["snomed_category"]
         if cat not in cat_map:
@@ -66,7 +68,7 @@ async def condition_categories():
 
 
 @router.post("/choropleth", response_model=list[CountyChoroplethItem])
-async def choropleth(req: CdmChoroplethRequest):
+async def choropleth(req: CdmChoroplethRequest) -> list[dict[str, Any]]:
     """Get county-level choropleth data for a given condition + metric."""
     return await get_county_choropleth(
         metric_type=req.metric.value,
@@ -76,7 +78,7 @@ async def choropleth(req: CdmChoroplethRequest):
 
 
 @router.get("/summary")
-async def disease_summary(concept_id: int = Query(description="OMOP condition concept ID")):
+async def disease_summary(concept_id: int = Query(description="OMOP condition concept ID")) -> dict[str, Any]:
     """Get summary statistics for a condition. Uses Solr if available, PG fallback."""
     if solr_available():
         try:
@@ -90,7 +92,7 @@ async def disease_summary(concept_id: int = Query(description="OMOP condition co
 async def time_periods(
     concept_id: int = Query(description="OMOP condition concept ID"),
     metric: str = "cases_monthly",
-):
+) -> list[str]:
     """Get available YYYY-MM time periods for a condition."""
     if solr_available():
         try:
@@ -104,7 +106,7 @@ async def time_periods(
 async def county_detail(
     gadm_gid: str,
     concept_id: int = Query(description="OMOP condition concept ID"),
-):
+) -> dict[str, Any]:
     """Get detailed stats for a specific county and condition."""
     result = await get_county_detail(gadm_gid, concept_id)
     if result is None:
@@ -115,7 +117,7 @@ async def county_detail(
 @router.post("/refresh", response_model=RefreshResult)
 async def refresh(
     concept_id: int = Query(description="OMOP condition concept ID"),
-):
+) -> dict[str, Any]:
     """Rebuild county-level aggregates for one condition and push to Solr."""
     await refresh_patient_counts()
     stats = await refresh_county_stats(concept_id)
@@ -123,9 +125,9 @@ async def refresh(
 
 
 @router.post("/reindex-all")
-async def reindex_all(background_tasks: BackgroundTasks):
+async def reindex_all(background_tasks: BackgroundTasks) -> dict[str, str]:
     """Full rebuild across all conditions. Runs asynchronously."""
-    async def _reindex():
+    async def _reindex() -> None:
         from app.services.cdm_spatial_query import get_all_conditions as _get_all
         conditions = await _get_all()
         await refresh_patient_counts()
@@ -142,6 +144,6 @@ async def reindex_all(background_tasks: BackgroundTasks):
 
 # Legacy endpoint (v1 compat)
 @router.get("/covid-summary")
-async def covid_summary():
+async def covid_summary() -> dict[str, Any]:
     """Legacy endpoint — redirects to generalized summary with COVID concept."""
     return await get_disease_summary(37311061)
