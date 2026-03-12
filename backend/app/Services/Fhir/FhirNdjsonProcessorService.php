@@ -98,6 +98,9 @@ class FhirNdjsonProcessorService
         }
         $this->flushAllBuffers($buffers, $stats);
 
+        // Generate observation periods from all mapped events (spec B5)
+        $this->generateObservationPeriods($siteKey);
+
         // Calculate mapping coverage
         $run->update([
             'records_extracted' => $stats['extracted'],
@@ -259,6 +262,60 @@ class FhirNdjsonProcessorService
             }
         }
         $buffers = [];
+    }
+
+    /**
+     * Generate observation_period rows from the min/max event dates per person.
+     * Called after all resource processing completes (spec B5).
+     */
+    private function generateObservationPeriods(string $siteKey): void
+    {
+        // Find all person_ids with events, scoped to this site via dedup tracking
+        $personIds = DB::table('fhir_dedup_tracking')
+            ->where('site_key', $siteKey)
+            ->where('cdm_table', 'person')
+            ->pluck('cdm_row_id');
+
+        if ($personIds->isEmpty()) {
+            return;
+        }
+
+        $tables = [
+            'condition_occurrence' => ['start' => 'condition_start_date', 'end' => 'condition_start_date'],
+            'drug_exposure' => ['start' => 'drug_exposure_start_date', 'end' => 'drug_exposure_end_date'],
+            'measurement' => ['start' => 'measurement_date', 'end' => 'measurement_date'],
+            'observation' => ['start' => 'observation_date', 'end' => 'observation_date'],
+            'procedure_occurrence' => ['start' => 'procedure_date', 'end' => 'procedure_date'],
+            'visit_occurrence' => ['start' => 'visit_start_date', 'end' => 'visit_end_date'],
+        ];
+
+        // Build UNION ALL query across all tables grouped by person_id (avoids N+1)
+        $personIdList = $personIds->implode(',');
+        $unions = [];
+        foreach ($tables as $table => $cols) {
+            $unions[] = "SELECT person_id, MIN({$cols['start']}) as min_date, MAX({$cols['end']}) as max_date FROM {$table} WHERE person_id IN ({$personIdList}) GROUP BY person_id";
+        }
+
+        $unionSql = implode(' UNION ALL ', $unions);
+        $aggregated = DB::connection('cdm')
+            ->select("SELECT person_id, MIN(min_date) as earliest, MAX(max_date) as latest FROM ({$unionSql}) sub GROUP BY person_id");
+
+        foreach ($aggregated as $row) {
+            if ($row->earliest && $row->latest) {
+                DB::connection('cdm')->table('observation_period')->updateOrInsert(
+                    ['person_id' => $row->person_id, 'period_type_concept_id' => 32817],
+                    [
+                        'observation_period_start_date' => $row->earliest,
+                        'observation_period_end_date' => $row->latest,
+                    ],
+                );
+            }
+        }
+
+        Log::info('FHIR observation periods generated', [
+            'site_key' => $siteKey,
+            'person_count' => $personIds->count(),
+        ]);
     }
 
     /**
