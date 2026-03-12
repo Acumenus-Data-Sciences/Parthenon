@@ -1,14 +1,14 @@
 {
   "key": "vocabulary-search",
   "title": "Vocabulary Search",
-  "description": "The Vocabulary Search module provides a comprehensive browser for exploring the OMOP standardized vocabularies, including concepts, domains, concept classes, and hierarchical relationships. Researchers can search for clinical terms across vocabularies such as SNOMED, RxNorm, LOINC, and ICD, review concept details, and add concepts directly to concept sets for use in cohort definitions and analyses.",
+  "description": "The Vocabulary Search module provides full-text and hierarchical browsing across OMOP standardized vocabularies, including SNOMED CT, RxNorm, LOINC, ICD-10, and many others. Researchers can explore concept relationships, review domain and vocabulary metadata, and identify the precise standard concepts needed to define clinically rigorous cohort criteria and concept sets.",
   "docs_url": "/docs/part2-vocabulary/03-vocabulary-browser",
   "video_url": null,
   "tips": [
-    "Use the Domain and Vocabulary filters together to narrow large result sets; for example, filter to the Drug domain and RxNorm vocabulary when searching for medication ingredients.",
-    "Switch to the Hierarchy tab on any concept record to explore ancestor and descendant relationships, which is essential for building inclusive cohort criteria.",
-    "The Standard Concept filter limits results to concepts that are valid for use in cohort expressions; non-standard concepts can be used for source mapping only.",
-    "Select multiple concepts from search results and use Add to Concept Set to batch-add terms, then review the set before saving.",
-    "Bookmark frequently referenced concepts using the star icon so they appear in your Recents panel across sessions."
+    "Use the domain and vocabulary filters together to narrow large result sets when searching for broad clinical terms such as 'diabetes' or 'infection'.",
+    "Examine the concept hierarchy view to discover descendant concepts you may want to include in a concept set via the 'Include Descendants' option in the Concept Set Builder.",
+    "Standard concepts are marked with a green indicator; prefer these when building cohort criteria to ensure cross-database compatibility.",
+    "Copy a concept ID directly from the search results to quickly locate it in the Concept Set Builder or Cohort Expression editor.",
+    "Refer to the OMOP Domains appendix for a structured overview of how concepts are organized across clinical domains within the CDM."
   ]
 }

@@ -1,14 +1,14 @@
 {
   "key": "data-ingestion",
   "title": "Data Ingestion",
-  "description": "The Data Ingestion module enables research teams to upload, map, and transform source data into the OMOP Common Data Model. Use this workflow to bring external datasets into Parthenon by uploading raw files, defining schema mappings to align source fields with OMOP domains, and resolving concept mappings to standardize vocabularies before data becomes available for cohort building and analysis.",
+  "description": "The Data Ingestion module enables research teams to upload, map, and transform source data into the OMOP Common Data Model. From flat-file uploads through schema mapping to concept standardization, the ingestion pipeline ensures that incoming datasets are validated and harmonized before being made available for cohort building, analyses, and exploration across the Parthenon platform.",
   "docs_url": "/docs/part5-ingestion/15-uploading-data",
   "video_url": null,
   "tips": [
-    "Begin with the Upload step to validate file format and row counts before proceeding to schema mapping, catching structural issues early.",
-    "Use the schema mapping editor to preview how source columns align to OMOP domains; unmapped fields are highlighted in amber for quick identification.",
-    "Concept mapping can be seeded automatically from the platform vocabulary; review auto-suggestions carefully and manually resolve any low-confidence matches.",
-    "Run a dry-run ingestion to generate a validation report without committing data, allowing QA review before final load.",
-    "Check the Jobs panel after submitting an ingestion run to monitor progress and download detailed error logs if any records fail to load."
+    "Review your source schema against the OMOP domain definitions before beginning a mapping session to reduce back-and-forth corrections.",
+    "Use the concept mapping step to resolve unmapped source codes early; unresolved codes will be excluded from cohort and analysis results.",
+    "Upload a small representative sample first to validate your schema mapping configuration before submitting the full dataset.",
+    "Monitor the Jobs queue after submission to track ingestion progress and review any row-level validation warnings or errors.",
+    "Consult the OMOP Domains appendix for guidance on which source fields map to each standard domain and vocabulary."
   ]
 }
