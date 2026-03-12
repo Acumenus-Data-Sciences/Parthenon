@@ -161,6 +161,8 @@ class FhirBulkMapper
 
     private function mapEncounter(array $r, string $siteKey): array
     {
+        // Sub-encounter detection: partOf → visit_detail (spec B6) — to be added in Task 14b
+
         $fhirId = $r['id'] ?? '';
         $patientRef = $this->extractRef($r['subject'] ?? []);
         $personId = $patientRef ? $this->crosswalk->resolvePersonId($siteKey, $patientRef) : 0;
@@ -173,7 +175,57 @@ class FhirBulkMapper
             ? $r['class']['code']
             : ($r['class'][0]['coding'][0]['code'] ?? '');
 
-        return [
+        $rows = [];
+
+        // Provider row (spec B3)
+        $providerRef = $this->extractRef($r['participant'][0]['individual'] ?? []);
+        $providerId = null;
+        if ($providerRef) {
+            $providerId = $this->crosswalk->resolveProviderId($siteKey, $providerRef);
+            $rows[] = [
+                'cdm_table' => 'provider',
+                'data' => [
+                    'provider_id' => $providerId,
+                    'provider_name' => $r['participant'][0]['individual']['display'] ?? null,
+                    'provider_source_value' => $providerRef,
+                    'specialty_concept_id' => 0,
+                ],
+            ];
+        }
+
+        // Location row (spec B4)
+        $locationRef = $this->extractRef($r['location'][0]['location'] ?? []);
+        $locationId = null;
+        if ($locationRef) {
+            $locationId = $this->crosswalk->resolveLocationId($siteKey, $locationRef);
+            $rows[] = [
+                'cdm_table' => 'location',
+                'data' => [
+                    'location_id' => $locationId,
+                    'location_source_value' => $locationRef,
+                ],
+            ];
+        }
+
+        // CareSite row (spec B4)
+        $orgRef = $this->extractRef($r['serviceProvider'] ?? []);
+        $careSiteId = null;
+        if ($orgRef) {
+            $careSiteId = $this->crosswalk->resolveCareSiteId($siteKey, $orgRef);
+            $rows[] = [
+                'cdm_table' => 'care_site',
+                'data' => [
+                    'care_site_id' => $careSiteId,
+                    'care_site_name' => $r['serviceProvider']['display'] ?? null,
+                    'care_site_source_value' => $orgRef,
+                    'location_id' => $locationId,
+                    'place_of_service_concept_id' => self::VISIT_CLASS_MAP[strtoupper($classCode)] ?? 0,
+                ],
+            ];
+        }
+
+        // Visit occurrence row (main)
+        $rows[] = [
             'cdm_table' => 'visit_occurrence',
             'data' => [
                 'visit_occurrence_id' => $visitId,
@@ -183,7 +235,7 @@ class FhirBulkMapper
                 'visit_start_datetime' => $this->parseDatetime($period['start'] ?? null),
                 'visit_end_date' => $this->parseDate($period['end'] ?? null),
                 'visit_end_datetime' => $this->parseDatetime($period['end'] ?? null),
-                'visit_type_concept_id' => 32817, // EHR
+                'visit_type_concept_id' => 32817,
                 'visit_source_value' => $classCode,
                 'admitted_from_concept_id' => $this->resolveAdmitSource($r),
                 'admitted_from_source_value' => $r['hospitalization']['admitSource']['text']
@@ -191,9 +243,12 @@ class FhirBulkMapper
                 'discharged_to_concept_id' => $this->resolveDischargeDisposition($r),
                 'discharged_to_source_value' => $r['hospitalization']['dischargeDisposition']['text']
                     ?? $r['hospitalization']['dischargeDisposition']['coding'][0]['display'] ?? null,
-                'provider_id' => $this->resolveEncounterProvider($r, $siteKey),
+                'provider_id' => $providerId,
+                'care_site_id' => $careSiteId,
             ],
         ];
+
+        return $rows;
     }
 
     private function mapCondition(array $r, string $siteKey): array
@@ -549,13 +604,6 @@ class FhirBulkMapper
         $resolved = $this->vocab->resolve($codings);
 
         return $resolved['concept_id'];
-    }
-
-    private function resolveEncounterProvider(array $r, string $siteKey): ?int
-    {
-        $ref = $this->extractRef($r['participant'][0]['individual'] ?? []);
-
-        return $ref ? $this->crosswalk->resolveProviderId($siteKey, $ref) : null;
     }
 
     private function extractConditionStatus(array $r): ?string

@@ -464,4 +464,44 @@ class FhirBulkMapperTest extends TestCase
         $this->assertEquals(439224, $obsRow['data']['observation_concept_id']); // Drug allergy category
         $this->assertEquals(1500, $obsRow['data']['value_as_concept_id']); // Specific substance
     }
+
+    public function test_encounter_generates_provider_and_caresite_rows(): void
+    {
+        $this->crosswalk->shouldReceive('resolvePersonId')->andReturn(1);
+        $this->crosswalk->shouldReceive('resolveVisitId')->andReturn(100);
+        $this->crosswalk->shouldReceive('resolveProviderId')->andReturn(50);
+        $this->crosswalk->shouldReceive('resolveCareSiteId')->andReturn(10);
+        $this->crosswalk->shouldReceive('resolveLocationId')->andReturn(5);
+
+        $resource = [
+            'resourceType' => 'Encounter',
+            'id' => 'enc-multi',
+            'class' => ['code' => 'IMP'],
+            'subject' => ['reference' => 'Patient/patient-1'],
+            'period' => ['start' => '2025-01-01', 'end' => '2025-01-05'],
+            'participant' => [
+                ['individual' => ['reference' => 'Practitioner/prac-1', 'display' => 'Dr. Smith']],
+            ],
+            'serviceProvider' => ['reference' => 'Organization/org-1', 'display' => 'General Hospital'],
+            'location' => [['location' => ['reference' => 'Location/loc-1']]],
+        ];
+
+        $rows = $this->mapper->mapResource($resource, 'test-site');
+
+        $visitRow = collect($rows)->firstWhere('cdm_table', 'visit_occurrence');
+        $providerRow = collect($rows)->firstWhere('cdm_table', 'provider');
+        $careSiteRow = collect($rows)->firstWhere('cdm_table', 'care_site');
+
+        $this->assertNotNull($visitRow);
+        $this->assertEquals(50, $visitRow['data']['provider_id']);
+        $this->assertEquals(10, $visitRow['data']['care_site_id']);
+
+        $this->assertNotNull($providerRow);
+        $this->assertEquals(50, $providerRow['data']['provider_id']);
+        $this->assertEquals('Dr. Smith', $providerRow['data']['provider_name']);
+
+        $this->assertNotNull($careSiteRow);
+        $this->assertEquals(10, $careSiteRow['data']['care_site_id']);
+        $this->assertEquals('General Hospital', $careSiteRow['data']['care_site_name']);
+    }
 }
