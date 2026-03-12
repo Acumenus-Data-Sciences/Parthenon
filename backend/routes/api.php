@@ -2,12 +2,11 @@
 
 use App\Http\Controllers\Api\V1\AbbyAiController;
 use App\Http\Controllers\Api\V1\AbbyConversationController;
-use App\Http\Controllers\Api\V1\AriadneController;
 use App\Http\Controllers\Api\V1\AchillesController;
-use App\Http\Controllers\Api\V1\RadiogenomicsController;
 use App\Http\Controllers\Api\V1\Admin\AiProviderController;
 use App\Http\Controllers\Api\V1\Admin\AtlasMigrationController;
 use App\Http\Controllers\Api\V1\Admin\AuthProviderController;
+use App\Http\Controllers\Api\V1\Admin\ChromaStudioController;
 use App\Http\Controllers\Api\V1\Admin\FhirConnectionController;
 use App\Http\Controllers\Api\V1\Admin\PacsConnectionController;
 use App\Http\Controllers\Api\V1\Admin\RoleController;
@@ -17,23 +16,27 @@ use App\Http\Controllers\Api\V1\Admin\UserController;
 use App\Http\Controllers\Api\V1\Admin\VocabularyController as AdminVocabularyController;
 use App\Http\Controllers\Api\V1\Admin\WebApiRegistryController;
 use App\Http\Controllers\Api\V1\AnalysisStatsController;
+use App\Http\Controllers\Api\V1\AriadneController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CareGapController;
 use App\Http\Controllers\Api\V1\CharacterizationController;
+use App\Http\Controllers\Api\V1\CirceController;
+use App\Http\Controllers\Api\V1\ClaimsSearchController;
 use App\Http\Controllers\Api\V1\ClinicalCoherenceController;
 use App\Http\Controllers\Api\V1\CohortDefinitionController;
+use App\Http\Controllers\Api\V1\CohortDiagnosticsController;
 use App\Http\Controllers\Api\V1\ConceptSetController;
 use App\Http\Controllers\Api\V1\DashboardController;
 use App\Http\Controllers\Api\V1\DataQualityController;
 use App\Http\Controllers\Api\V1\EstimationController;
 use App\Http\Controllers\Api\V1\EvidenceSynthesisController;
+use App\Http\Controllers\Api\V1\FhirToCdmController;
 use App\Http\Controllers\Api\V1\GenomicsController;
 use App\Http\Controllers\Api\V1\GisController;
-use App\Http\Controllers\Api\V1\ClaimsSearchController;
 use App\Http\Controllers\Api\V1\GlobalSearchController;
 use App\Http\Controllers\Api\V1\HealthController;
-use App\Http\Controllers\Api\V1\HelpController;
 use App\Http\Controllers\Api\V1\HecateController;
+use App\Http\Controllers\Api\V1\HelpController;
 use App\Http\Controllers\Api\V1\HeorController;
 use App\Http\Controllers\Api\V1\ImagingController;
 use App\Http\Controllers\Api\V1\ImagingTimelineController;
@@ -48,20 +51,15 @@ use App\Http\Controllers\Api\V1\PathwayController;
 use App\Http\Controllers\Api\V1\PatientProfileController;
 use App\Http\Controllers\Api\V1\PhenotypeLibraryController;
 use App\Http\Controllers\Api\V1\PopulationCharacterizationController;
-use App\Http\Controllers\Api\V1\PublicationController;
 use App\Http\Controllers\Api\V1\PopulationRiskScoreController;
 use App\Http\Controllers\Api\V1\PredictionController;
-use App\Http\Controllers\Api\V1\CirceController;
-use App\Http\Controllers\Api\V1\CohortDiagnosticsController;
+use App\Http\Controllers\Api\V1\PublicationController;
+use App\Http\Controllers\Api\V1\RadiogenomicsController;
 use App\Http\Controllers\Api\V1\SccsController;
 use App\Http\Controllers\Api\V1\SourceController;
-use App\Http\Controllers\Api\V1\FhirToCdmController;
 use App\Http\Controllers\Api\V1\StrategusController;
-use App\Http\Controllers\Api\V1\SyntheaController;
-use App\Http\Controllers\Api\V1\WhiteRabbitController;
-use App\Http\Controllers\Api\V1\TextToSqlController;
-use App\Http\Controllers\Api\V1\StudyAgentController;
 use App\Http\Controllers\Api\V1\StudyActivityController;
+use App\Http\Controllers\Api\V1\StudyAgentController;
 use App\Http\Controllers\Api\V1\StudyArtifactController;
 use App\Http\Controllers\Api\V1\StudyCohortController;
 use App\Http\Controllers\Api\V1\StudyController;
@@ -71,7 +69,10 @@ use App\Http\Controllers\Api\V1\StudySiteController;
 use App\Http\Controllers\Api\V1\StudyStatsController;
 use App\Http\Controllers\Api\V1\StudySynthesisController;
 use App\Http\Controllers\Api\V1\StudyTeamController;
+use App\Http\Controllers\Api\V1\SyntheaController;
+use App\Http\Controllers\Api\V1\TextToSqlController;
 use App\Http\Controllers\Api\V1\VocabularyController;
+use App\Http\Controllers\Api\V1\WhiteRabbitController;
 use Illuminate\Support\Facades\Route;
 
 // Public health check
@@ -424,17 +425,17 @@ Route::prefix('v1')->group(function () {
         Route::prefix('study-agent')
             ->middleware(['role:researcher|super-admin', 'throttle:10,1'])
             ->group(function () {
-            Route::get('/health', [StudyAgentController::class, 'health']);
-            Route::get('/tools', [StudyAgentController::class, 'tools']);
-            Route::post('/phenotype/search', [StudyAgentController::class, 'phenotypeSearch']);
-            Route::post('/phenotype/recommend', [StudyAgentController::class, 'phenotypeRecommend']);
-            Route::post('/phenotype/improve', [StudyAgentController::class, 'phenotypeImprove']);
-            Route::post('/intent/split', [StudyAgentController::class, 'intentSplit']);
-            Route::post('/cohort/lint', [StudyAgentController::class, 'cohortLint']);
-            Route::post('/concept-set/review', [StudyAgentController::class, 'conceptSetReview']);
-            Route::post('/lint-cohort', [StudyAgentController::class, 'lintCohortCombined']);
-            Route::post('/recommend-phenotypes', [StudyAgentController::class, 'recommendPhenotypes']);
-        });
+                Route::get('/health', [StudyAgentController::class, 'health']);
+                Route::get('/tools', [StudyAgentController::class, 'tools']);
+                Route::post('/phenotype/search', [StudyAgentController::class, 'phenotypeSearch']);
+                Route::post('/phenotype/recommend', [StudyAgentController::class, 'phenotypeRecommend']);
+                Route::post('/phenotype/improve', [StudyAgentController::class, 'phenotypeImprove']);
+                Route::post('/intent/split', [StudyAgentController::class, 'intentSplit']);
+                Route::post('/cohort/lint', [StudyAgentController::class, 'cohortLint']);
+                Route::post('/concept-set/review', [StudyAgentController::class, 'conceptSetReview']);
+                Route::post('/lint-cohort', [StudyAgentController::class, 'lintCohortCombined']);
+                Route::post('/recommend-phenotypes', [StudyAgentController::class, 'recommendPhenotypes']);
+            });
 
         // Publication / Export
         Route::post('publish/narrative', [PublicationController::class, 'narrative']);
@@ -538,6 +539,16 @@ Route::prefix('v1')->group(function () {
             // ── System health (admin+) ────────────────────────────────────
             Route::get('/system-health', [SystemHealthController::class, 'index']);
             Route::get('/system-health/{key}', [SystemHealthController::class, 'show']);
+
+            // ── ChromaDB Studio (admin+) ──────────────────────────────────
+            Route::prefix('chroma-studio')->group(function () {
+                Route::get('/collections', [ChromaStudioController::class, 'collections']);
+                Route::get('/collections/{name}/overview', [ChromaStudioController::class, 'collectionOverview']);
+                Route::post('/query', [ChromaStudioController::class, 'query']);
+                Route::post('/ingest-docs', [ChromaStudioController::class, 'ingestDocs']);
+                Route::post('/ingest-clinical', [ChromaStudioController::class, 'ingestClinical']);
+                Route::post('/promote-faq', [ChromaStudioController::class, 'promoteFaq']);
+            });
 
             // ── Vocabulary management (super-admin only) ──────────────────
             Route::middleware('role:super-admin')->prefix('vocabulary')->group(function () {

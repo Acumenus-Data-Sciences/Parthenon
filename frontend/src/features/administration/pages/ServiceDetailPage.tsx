@@ -13,6 +13,7 @@ import {
 import PacsConnectionCard from "../components/PacsConnectionCard";
 import PacsConnectionFormModal from "../components/PacsConnectionFormModal";
 import PacsStudyBrowser from "../components/PacsStudyBrowser";
+import ChromaStudioPanel from "../components/ChromaStudioPanel";
 import type { PacsConnection } from "../api/pacsApi";
 
 const STATUS_MAP: Record<string, { badge: BadgeVariant; dot: StatusDotVariant }> = {
@@ -156,6 +157,9 @@ export default function ServiceDetailPage() {
 
       {/* Orthanc PACS management */}
       {key === "orthanc" && <PacsManagementSection />}
+
+      {/* ChromaDB Studio */}
+      {key === "chromadb" && <ChromaStudioPanel />}
 
       {/* Logs */}
       <div>
