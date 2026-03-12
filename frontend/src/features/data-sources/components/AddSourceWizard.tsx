@@ -156,6 +156,7 @@ export function AddSourceWizard({ onClose }: Props) {
         source_dialect: state.dialect,
         source_connection: c.source_connection || undefined,
         is_cache_enabled: c.is_cache_enabled,
+        is_default: false,
         db_host: c.db_host || undefined,
         db_port: c.db_port ? parseInt(c.db_port) : undefined,
         db_database: c.db_database || undefined,

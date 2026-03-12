@@ -1,4 +1,4 @@
-import { Activity, Skull, Building2, MapPin, Users } from "lucide-react";
+import { Activity, Skull, MapPin, Users } from "lucide-react";
 import { useDiseaseSummary } from "../hooks/useGis";
 
 interface DiseaseSummaryBarProps {

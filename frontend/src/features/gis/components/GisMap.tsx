@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import { useMemo } from "react";
 import DeckGL from "@deck.gl/react";
 import { GeoJsonLayer } from "@deck.gl/layers";
 import { Map } from "react-map-gl/maplibre";
@@ -114,7 +114,7 @@ export function GisMap({
     <div className="relative h-full w-full">
       <DeckGL
         viewState={viewport}
-        onViewStateChange={onViewportChange}
+        onViewStateChange={((params: { viewState: MapViewport }) => onViewportChange({ viewState: params.viewState })) as React.ComponentProps<typeof DeckGL>["onViewStateChange"]}
         layers={layers}
         controller
         getCursor={({ isHovering }: { isHovering: boolean }) =>

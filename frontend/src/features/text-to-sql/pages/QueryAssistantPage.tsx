@@ -775,7 +775,6 @@ export default function QueryAssistantPage() {
                       flexDirection: "column",
                       gap: "3px",
                       padding: "10px 16px",
-                      borderBottom: "1px solid #232328",
                       background: "none",
                       border: "none",
                       borderBottom: "1px solid #232328",

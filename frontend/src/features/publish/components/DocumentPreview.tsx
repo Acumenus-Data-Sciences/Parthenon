@@ -167,7 +167,7 @@ export default function DocumentPreview({
                     className="text-sm leading-relaxed text-gray-800"
                     style={{ fontSize: "11pt", lineHeight: 1.7 }}
                   >
-                    {section.content.split("\n").map((paragraph, i) => (
+                    {(typeof section.content === "string" ? section.content : JSON.stringify(section.content)).split("\n").map((paragraph: string, i: number) => (
                       <p key={i} className={i > 0 ? "mt-3" : ""}>
                         {paragraph}
                       </p>

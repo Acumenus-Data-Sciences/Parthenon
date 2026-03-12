@@ -166,7 +166,7 @@ export default function SectionEditor({
           )
         ) : viewMode === "ai" ? (
           <AiNarrativeBlock
-            content={section.content}
+            content={typeof section.content === "string" ? section.content : (section.content ? JSON.stringify(section.content) : "")}
             narrativeState={section.narrativeState}
             onGenerate={() => onGenerateNarrative(section)}
             onContentChange={(content) => onContentChange(section.id, content)}

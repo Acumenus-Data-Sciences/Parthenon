@@ -17,7 +17,6 @@ import {
   lintCohort,
   type PhenotypeSearchResult,
   type PhenotypeRecommendation,
-  type IntentSplitResult,
   type LintWarning,
 } from "../api";
 

@@ -206,6 +206,7 @@ function makeSections(): ReportSection[] {
       type: "methods",
       included: true,
       content: { study_design: "cohort", hypothesis: "Test hypothesis" },
+      narrativeState: "idle",
     },
     {
       id: "results-1001",
@@ -215,6 +216,7 @@ function makeSections(): ReportSection[] {
       executionId: 1001,
       included: true,
       content: { hazard_ratio: 1.45, ci_lower: 1.1, ci_upper: 1.9 },
+      narrativeState: "idle",
     },
     {
       id: "diagnostics",
@@ -222,6 +224,7 @@ function makeSections(): ReportSection[] {
       type: "diagnostics",
       included: false,
       content: null,
+      narrativeState: "idle",
     },
   ];
 }
@@ -418,6 +421,7 @@ describe("ReportSectionCard", () => {
     type: "methods",
     included: true,
     content: { study_design: "cohort" },
+    narrativeState: "idle",
   };
 
   it("renders section title", () => {
@@ -611,6 +615,7 @@ describe("MethodsSection", () => {
             hypothesis: "Drug A increases risk",
             primary_objective: "Estimate OR",
           },
+          narrativeState: "idle",
         }}
       />,
     );
@@ -628,6 +633,7 @@ describe("MethodsSection", () => {
           type: "methods",
           included: true,
           content: null,
+          narrativeState: "idle",
         }}
       />,
     );
@@ -643,6 +649,7 @@ describe("MethodsSection", () => {
           type: "methods",
           included: true,
           content: {},
+          narrativeState: "idle",
         }}
       />,
     );
@@ -666,6 +673,7 @@ describe("ResultsSummarySection", () => {
           executionId: 1,
           included: true,
           content: { hazard_ratio: 0.85, ci_lower: 0.7, ci_upper: 1.0 },
+          narrativeState: "idle",
         }}
       />,
     );
@@ -683,6 +691,7 @@ describe("ResultsSummarySection", () => {
           executionId: 1,
           included: true,
           content: null,
+          narrativeState: "idle",
         }}
       />,
     );
@@ -706,6 +715,7 @@ describe("ResultsSummarySection", () => {
             target_count: 500,
             comparator_count: 500,
           },
+          narrativeState: "idle",
         }}
       />,
     );
@@ -726,6 +736,7 @@ describe("ResultsSummarySection", () => {
           executionId: 2,
           included: true,
           content: { auc: 0.82, brier_score: 0.15 },
+          narrativeState: "idle",
         }}
       />,
     );
@@ -744,6 +755,7 @@ describe("ResultsSummarySection", () => {
           executionId: 3,
           included: true,
           content: { metric_a: 42, metric_b: "high" },
+          narrativeState: "idle",
         }}
       />,
     );

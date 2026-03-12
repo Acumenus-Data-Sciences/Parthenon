@@ -64,9 +64,7 @@ export default function CostEffectivenessPlane({ results, wtp = 50000 }: Props) 
 
   // WTP line: y = wtp * x (from bottom-left to top-right of visible area)
   const wtpX1 = -padX;
-  const wtpY1 = wtp * wtpX1;
   const wtpX2 = padX;
-  const wtpY2 = wtp * wtpX2;
 
   // Clip WTP line to visible area
   const clipWtpY = (x: number) => Math.max(-padY, Math.min(padY, wtp * x));

@@ -223,7 +223,7 @@ export function PredictionVerdictDashboard({ result }: PredictionVerdictDashboar
               : "No decision curve data available"
           }
           badge={
-            <InterpretationTooltip text="Net benefit measures the clinical value of using the model at a given threshold, accounting for the relative harms of false positives and false negatives." />
+            <InterpretationTooltip metric="Net Benefit" plain="Measures the clinical value of using the model at a given threshold." technical="Net benefit accounts for the relative harms of false positives and false negatives at the chosen decision threshold." />
           }
         />
       </div>
@@ -235,7 +235,7 @@ export function PredictionVerdictDashboard({ result }: PredictionVerdictDashboar
             <h4 className="text-sm font-semibold text-[#F0EDE8]">
               Clinical Utility Threshold Selector
             </h4>
-            <InterpretationTooltip text="Adjust the threshold probability to see how sensitivity, specificity, PPV, and NPV change. Lower thresholds catch more true positives but increase false positives." />
+            <InterpretationTooltip metric="Threshold" plain="Adjust the threshold probability to see how sensitivity, specificity, PPV, and NPV change." technical="Lower thresholds catch more true positives but increase false positives." />
           </div>
 
           {/* Slider */}

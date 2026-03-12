@@ -57,6 +57,8 @@ const defaultIRDesign: IncidenceRateDesign = {
     start: { dateField: "StartDate", offset: 0 },
     end: { dateField: "EndDate", offset: 0 },
   },
+  tarConfigs: [],
+  stratification: { by_age: false, by_gender: false, by_year: false, age_breaks: [] },
   stratifyByGender: false,
   stratifyByAge: false,
   ageGroups: [],

@@ -22,7 +22,7 @@ function getControlEra(eras: SccsEra[]): SccsEra | null {
   return eras.find((e) => e.era_type === "control") ?? null;
 }
 
-function isSignificant(irr: number, ciLower?: number, ciUpper?: number): boolean {
+function isSignificant(_irr: number, ciLower?: number, ciUpper?: number): boolean {
   if (ciLower == null || ciUpper == null) return false;
   return num(ciLower) > 1 || num(ciUpper) < 1;
 }
@@ -37,12 +37,6 @@ function directionArrow(irr: number): string {
   if (irr > 1.05) return "\u2191"; // up arrow
   if (irr < 0.95) return "\u2193"; // down arrow
   return "\u2194"; // left-right arrow (neutral)
-}
-
-function irrBadgeColor(irr: number): string {
-  if (irr > 1.05) return "bg-[#E85A6B]/15 text-[#E85A6B] border-[#E85A6B]/30";
-  if (irr < 0.95) return "bg-[#2DD4BF]/15 text-[#2DD4BF] border-[#2DD4BF]/30";
-  return "bg-[#8A857D]/15 text-[#8A857D] border-[#8A857D]/30";
 }
 
 function irrBlockColor(irr: number): string {

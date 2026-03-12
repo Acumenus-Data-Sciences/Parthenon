@@ -7,8 +7,6 @@ import {
   Code,
   AlertTriangle,
   FileText,
-  ChevronDown,
-  ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import apiClient from "@/lib/api-client";

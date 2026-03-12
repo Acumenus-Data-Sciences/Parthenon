@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, HardDrive, Loader2, AlertCircle } from "lucide-react";
+import { Plus, HardDrive, AlertCircle } from "lucide-react";
 import {
   usePacsConnections,
   useTestPacsConnection,
@@ -24,7 +24,7 @@ export default function PacsConnectionsPage() {
   const [browseConn, setBrowseConn] = useState<PacsConnection | null>(null);
   const [testingId, setTestingId] = useState<number | null>(null);
   const [refreshingId, setRefreshingId] = useState<number | null>(null);
-  const [testResults, setTestResults] = useState<Record<number, PacsTestResult>>({});
+  const [_testResults, setTestResults] = useState<Record<number, PacsTestResult>>({});
 
   async function handleTest(id: number) {
     setTestingId(id);

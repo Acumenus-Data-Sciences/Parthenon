@@ -2,9 +2,9 @@
 // Publish & Export Types (v2 — Pre-Publication Document Generator)
 // ---------------------------------------------------------------------------
 
-export type ExportFormat = "docx" | "pdf" | "figures-zip" | "png" | "svg";
+export type ExportFormat = "docx" | "pdf" | "figures-zip" | "png" | "svg" | "xlsx";
 
-export type SectionType = "title" | "methods" | "results" | "diagram" | "discussion";
+export type SectionType = "title" | "methods" | "results" | "diagram" | "discussion" | "diagnostics";
 
 export type DiagramType = "consort" | "forest_plot" | "kaplan_meier" | "attrition";
 
@@ -17,7 +17,7 @@ export interface ReportSection {
   analysisType?: string;
   executionId?: number;
   included: boolean;
-  content: string;
+  content: string | Record<string, unknown> | null;
   narrativeState: NarrativeState;
   diagramType?: DiagramType;
   diagramData?: Record<string, unknown>;

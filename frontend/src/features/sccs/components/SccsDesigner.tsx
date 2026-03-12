@@ -59,16 +59,17 @@ export function SccsDesigner({ sccs, isNew, onSaved }: SccsDesignerProps) {
     if (sccs) {
       setName(sccs.name);
       setDescription(sccs.description ?? "");
-      const dj = sccs.design_json ?? {};
-      const studyPop = dj.studyPopulation ?? dj.studyPopulationSettings ?? defaultDesign.studyPopulation;
+      // design_json may arrive from API in snake_case or camelCase — cast to Record for safe access
+      const dj = (sccs.design_json ?? {}) as unknown as Record<string, unknown>;
+      const studyPop = (dj.studyPopulation ?? dj.studyPopulationSettings ?? defaultDesign.studyPopulation) as Record<string, unknown>;
       setDesign({
         ...defaultDesign,
-        ...dj,
+        ...(sccs.design_json ?? {}),
         studyPopulation: {
-          naivePeriod: studyPop?.naivePeriod ?? studyPop?.naive_period ?? 365,
-          firstOutcomeOnly: studyPop?.firstOutcomeOnly ?? studyPop?.first_outcome_only ?? true,
+          naivePeriod: (studyPop?.naivePeriod ?? studyPop?.naive_period ?? 365) as number,
+          firstOutcomeOnly: (studyPop?.firstOutcomeOnly ?? studyPop?.first_outcome_only ?? true) as boolean,
         },
-        riskWindows: dj.riskWindows ?? dj.risk_windows ?? defaultDesign.riskWindows,
+        riskWindows: (dj.riskWindows ?? dj.risk_windows ?? defaultDesign.riskWindows) as SccsDesign["riskWindows"],
       });
     }
   }, [sccs]);

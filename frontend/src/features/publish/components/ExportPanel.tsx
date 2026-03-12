@@ -91,7 +91,7 @@ export default function ExportPanel({
     const exportSections: ExportRequest["sections"] = includedSections.map(
       (section) => ({
         type: section.type,
-        content: section.content || undefined,
+        content: typeof section.content === "string" ? section.content : (section.content ? JSON.stringify(section.content) : undefined),
         included: section.included,
         svg:
           section.svgMarkup ??

@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { SccsTimeline } from "@/features/estimation/components/SccsTimeline";
 import { SccsVerdictDashboard, InlineMiniForestPlot } from "./SccsVerdictDashboard";
 import type { AnalysisExecution } from "@/features/analyses/types/analysis";
-import type { SccsResult, SccsEstimate } from "../types/sccs";
+import type { SccsResult } from "../types/sccs";
 import { fmt, num } from "@/lib/formatters";
 
 interface SccsResultsProps {

@@ -107,7 +107,7 @@ export function IncidenceRateVerdictDashboard({
   const r2 = isComparative ? results[1] : null;
 
   const comparison = useMemo(() => {
-    if (!r2) return null;
+    if (!r1 || !r2) return null;
 
     const rate1 = num(r1.incidence_rate);
     const rate2 = num(r2.incidence_rate);
@@ -180,6 +180,8 @@ export function IncidenceRateVerdictDashboard({
 
   const { diff, ratio, verdict, strataComparisons } = comparison;
   const verdictConfig = VERDICT_CONFIG[verdict];
+  // r2 is guaranteed non-null when comparison is computed (guarded in useMemo)
+  const c2 = r2!;
 
   return (
     <div
@@ -215,19 +217,19 @@ export function IncidenceRateVerdictDashboard({
         {/* Cohort 2 */}
         <div className="flex-1 min-w-[200px]">
           <span className="text-xs font-medium uppercase tracking-wider text-[#8A857D]">
-            {r2.outcome_cohort_name}
+            {c2.outcome_cohort_name}
           </span>
           <div className="mt-1 flex items-baseline gap-2">
             <span
               data-testid="verdict-ir-value-2"
               className="font-['IBM_Plex_Mono',monospace] text-3xl font-bold text-[#C9A227]"
             >
-              {fmt(r2.incidence_rate, 2)}
+              {fmt(c2.incidence_rate, 2)}
             </span>
             <span className="text-xs text-[#8A857D]">per 1,000 PY</span>
           </div>
           <span className="text-xs text-[#5A5650]">
-            {num(r2.persons_with_outcome).toLocaleString()} events | {num(r2.person_years).toLocaleString(undefined, { maximumFractionDigits: 1 })} PY
+            {num(c2.persons_with_outcome).toLocaleString()} events | {num(c2.person_years).toLocaleString(undefined, { maximumFractionDigits: 1 })} PY
           </span>
         </div>
       </div>
@@ -297,7 +299,7 @@ export function IncidenceRateVerdictDashboard({
                 key={sc.stratumLabel}
                 comparison={sc}
                 cohort1Name={r1.outcome_cohort_name}
-                cohort2Name={r2.outcome_cohort_name}
+                cohort2Name={c2.outcome_cohort_name}
               />
             ))}
           </div>

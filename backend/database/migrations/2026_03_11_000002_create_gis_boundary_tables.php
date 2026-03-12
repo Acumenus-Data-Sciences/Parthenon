@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -39,8 +40,13 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        DB::statement("SELECT AddGeometryColumn('app', 'gis_admin_boundaries', 'geom', 4326, 'MULTIPOLYGON', 2)");
-        DB::statement('CREATE INDEX idx_gis_boundaries_geom ON gis_admin_boundaries USING GIST (geom)');
+        if ($this->postgisAvailable()) {
+            DB::statement("SELECT AddGeometryColumn('app', 'gis_admin_boundaries', 'geom', 4326, 'MULTIPOLYGON', 2)");
+            DB::statement('CREATE INDEX idx_gis_boundaries_geom ON gis_admin_boundaries USING GIST (geom)');
+        } else {
+            Log::warning('PostGIS not available — skipping geometry column and GIST index on gis_admin_boundaries. GIS features will be limited.');
+        }
+
         DB::statement('CREATE INDEX idx_gis_boundaries_level_country ON gis_admin_boundaries (boundary_level_id, country_code)');
     }
 
@@ -48,5 +54,16 @@ return new class extends Migration
     {
         Schema::dropIfExists('gis_admin_boundaries');
         Schema::dropIfExists('gis_boundary_levels');
+    }
+
+    private function postgisAvailable(): bool
+    {
+        try {
+            $result = DB::selectOne("SELECT COUNT(*) AS cnt FROM pg_extension WHERE extname = 'postgis'");
+
+            return $result !== null && (int) $result->cnt > 0;
+        } catch (\Throwable) {
+            return false;
+        }
     }
 };

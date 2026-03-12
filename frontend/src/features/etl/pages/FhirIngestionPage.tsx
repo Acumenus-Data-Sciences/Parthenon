@@ -13,7 +13,6 @@ import {
   ChevronUp,
   ArrowRight,
   RefreshCw,
-  Activity,
   Clock,
   Trash2,
   Download,
