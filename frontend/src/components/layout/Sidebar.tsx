@@ -17,6 +17,7 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   KeyRound,
   ShieldCheck,
   UsersRound,
@@ -32,50 +33,95 @@ import {
   Package,
   ArrowLeftRight,
   MessageSquareCode,
+  ScanSearch,
+  GitMerge,
   Wrench,
+  FlaskRound,
+  Microscope,
+  Activity,
 } from "lucide-react";
 import { HelpSlideOver } from "@/features/help/components/HelpSlideOver";
+
+interface NavChild {
+  path: string;
+  label: string;
+  icon: React.ElementType;
+  superAdminOnly?: boolean;
+}
 
 interface NavItem {
   path: string;
   label: string;
   icon: React.ElementType;
-  section?: string;
   adminOnly?: boolean;
   superAdminOnly?: boolean;
-  children?: Array<{
-    path: string;
-    label: string;
-    icon: React.ElementType;
-    superAdminOnly?: boolean;
-  }>;
+  children?: NavChild[];
 }
 
+const studyAgentEnabled = import.meta.env.VITE_STUDY_AGENT_ENABLED === "true";
+
 const navItems: NavItem[] = [
-  { path: "/", label: "Dashboard", icon: LayoutDashboard, section: "Overview" },
-  { path: "/data-sources", label: "Data Sources", icon: Database, section: "Data" },
-  { path: "/ingestion", label: "Data Ingestion", icon: Upload },
-  { path: "/data-explorer", label: "Data Explorer", icon: BarChart3 },
-  { path: "/vocabulary", label: "Vocabulary", icon: BookOpen, section: "Research" },
-  { path: "/cohort-definitions", label: "Cohort Definitions", icon: Users },
-  { path: "/concept-sets", label: "Concept Sets", icon: FlaskConical },
-  { path: "/analyses", label: "Analyses", icon: Workflow },
-  { path: "/studies", label: "Studies", icon: Briefcase },
-  ...(import.meta.env.VITE_STUDY_AGENT_ENABLED === "true"
-    ? [{ path: "/study-designer", label: "Study Designer", icon: Brain }]
-    : []),
-  { path: "/study-packages", label: "Study Packages", icon: Package },
-  { path: "/phenotype-library", label: "Phenotype Library", icon: Library },
-  { path: "/mapping-assistant", label: "Mapping Assistant", icon: ArrowLeftRight },
-  { path: "/query-assistant", label: "Query Assistant", icon: MessageSquareCode },
-  { path: "/etl-tools", label: "ETL Tools", icon: Wrench },
-  { path: "/publish", label: "Publish", icon: FileOutput },
-  { path: "/profiles", label: "Patient Profiles", icon: UserCircle },
-  { path: "/genomics", label: "Genomics", icon: Dna },
-  { path: "/imaging", label: "Imaging", icon: ScanLine },
-  { path: "/heor", label: "HEOR", icon: TrendingUp },
-  { path: "/gis", label: "GIS Explorer", icon: Globe },
-  { path: "/jobs", label: "Jobs", icon: Briefcase, section: "System" },
+  { path: "/", label: "Dashboard", icon: LayoutDashboard },
+  {
+    path: "/data-sources",
+    label: "Data",
+    icon: Database,
+    children: [
+      { path: "/data-sources", label: "Data Sources", icon: Database },
+      { path: "/ingestion", label: "Data Ingestion", icon: Upload },
+      { path: "/data-explorer", label: "Data Explorer", icon: BarChart3 },
+      { path: "/source-profiler", label: "Source Profiler", icon: ScanSearch },
+      { path: "/fhir-ingestion", label: "FHIR Ingestion", icon: GitMerge },
+      { path: "/etl-tools", label: "ETL Tools", icon: Wrench },
+    ],
+  },
+  {
+    path: "/vocabulary",
+    label: "Vocabulary",
+    icon: BookOpen,
+    children: [
+      { path: "/vocabulary", label: "Vocabulary Search", icon: BookOpen },
+      { path: "/mapping-assistant", label: "Mapping Assistant", icon: ArrowLeftRight },
+    ],
+  },
+  {
+    path: "/cohort-definitions",
+    label: "Research",
+    icon: FlaskRound,
+    children: [
+      { path: "/cohort-definitions", label: "Cohort Definitions", icon: Users },
+      { path: "/concept-sets", label: "Concept Sets", icon: FlaskConical },
+      { path: "/analyses", label: "Analyses", icon: Workflow },
+      { path: "/studies", label: "Studies", icon: Briefcase },
+      ...(studyAgentEnabled
+        ? [{ path: "/study-designer", label: "Study Designer", icon: Brain }]
+        : []),
+      { path: "/study-packages", label: "Study Packages", icon: Package },
+      { path: "/phenotype-library", label: "Phenotype Library", icon: Library },
+    ],
+  },
+  {
+    path: "/profiles",
+    label: "Evidence",
+    icon: Microscope,
+    children: [
+      { path: "/profiles", label: "Patient Profiles", icon: UserCircle },
+      { path: "/genomics", label: "Genomics", icon: Dna },
+      { path: "/imaging", label: "Imaging", icon: ScanLine },
+      { path: "/heor", label: "HEOR", icon: TrendingUp },
+      { path: "/gis", label: "GIS Explorer", icon: Globe },
+    ],
+  },
+  {
+    path: "/query-assistant",
+    label: "Tools",
+    icon: Activity,
+    children: [
+      { path: "/query-assistant", label: "Query Assistant", icon: MessageSquareCode },
+      { path: "/publish", label: "Publish", icon: FileOutput },
+      { path: "/jobs", label: "Jobs", icon: Briefcase },
+    ],
+  },
   {
     path: "/admin",
     label: "Administration",
@@ -129,17 +175,36 @@ export function Sidebar() {
   const { sidebarOpen, toggleSidebar } = useUiStore();
   const { isAdmin, isSuperAdmin } = useAuthStore();
   const [helpOpen, setHelpOpen] = useState(false);
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
 
   const isActive = (path: string) =>
     path === "/" ? location.pathname === "/" : location.pathname.startsWith(path);
+
+  const isGroupActive = (item: NavItem) => {
+    if (!item.children) return isActive(item.path);
+    return item.children.some((child) => isActive(child.path));
+  };
+
+  const toggleGroup = (path: string) => {
+    setExpandedGroups((prev) => {
+      const next = new Set(prev);
+      if (next.has(path)) {
+        next.delete(path);
+      } else {
+        next.add(path);
+      }
+      return next;
+    });
+  };
+
+  const isExpanded = (item: NavItem) =>
+    expandedGroups.has(item.path) || isGroupActive(item);
 
   const visibleItems = navItems.filter((item) => {
     if (item.superAdminOnly) return isSuperAdmin();
     if (item.adminOnly) return isAdmin();
     return true;
   });
-
-  let lastSection: string | undefined;
 
   return (
     <aside className={cn("app-sidebar", !sidebarOpen && "collapsed")} data-tour="sidebar">
@@ -159,18 +224,42 @@ export function Sidebar() {
       {/* Navigation */}
       <nav className="sidebar-nav" style={{ flex: 1 }}>
         {visibleItems.map((item) => {
-          const active = isActive(item.path);
-          const showSection = sidebarOpen && item.section && item.section !== lastSection;
-          if (item.section) lastSection = item.section;
+          const hasChildren = item.children && item.children.length > 0;
+          const groupActive = isGroupActive(item);
+          const expanded = hasChildren && isExpanded(item);
 
+          if (!hasChildren) {
+            // Simple link (Dashboard)
+            return (
+              <div key={item.path}>
+                <Link
+                  to={item.path}
+                  className={cn("nav-item", isActive(item.path) && "active")}
+                  title={!sidebarOpen ? item.label : undefined}
+                  data-tour={
+                    item.path === "/data-sources"
+                      ? "data-sources"
+                      : item.path === "/cohort-definitions"
+                        ? "cohort-definitions"
+                        : item.path === "/vocabulary"
+                          ? "vocabulary"
+                          : undefined
+                  }
+                >
+                  <item.icon size={18} className="nav-icon" />
+                  {sidebarOpen && <span className="nav-label">{item.label}</span>}
+                </Link>
+              </div>
+            );
+          }
+
+          // Group with children (accordion)
           return (
             <div key={item.path}>
-              {showSection && (
-                <div className="sidebar-section-label">{item.section}</div>
-              )}
-              <Link
-                to={item.path}
-                className={cn("nav-item", active && "active")}
+              <button
+                type="button"
+                onClick={() => toggleGroup(item.path)}
+                className={cn("nav-item", groupActive && "active")}
                 title={!sidebarOpen ? item.label : undefined}
                 data-tour={
                   item.path === "/data-sources"
@@ -183,13 +272,24 @@ export function Sidebar() {
                 }
               >
                 <item.icon size={18} className="nav-icon" />
-                {sidebarOpen && <span className="nav-label">{item.label}</span>}
-              </Link>
+                {sidebarOpen && (
+                  <>
+                    <span className="nav-label">{item.label}</span>
+                    <ChevronDown
+                      size={14}
+                      className={cn(
+                        "ml-auto shrink-0 transition-transform duration-200",
+                        expanded && "rotate-180",
+                      )}
+                    />
+                  </>
+                )}
+              </button>
 
-              {/* Admin sub-navigation */}
-              {sidebarOpen && active && item.children && (
+              {/* Expanded children */}
+              {sidebarOpen && expanded && (
                 <div>
-                  {item.children
+                  {item.children!
                     .filter((child) => !child.superAdminOnly || isSuperAdmin())
                     .map((child) => (
                       <Link
