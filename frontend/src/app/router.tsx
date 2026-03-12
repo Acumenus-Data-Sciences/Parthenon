@@ -504,6 +504,13 @@ export const router = createBrowserRouter(
                 "@/features/settings/pages/NotificationSettingsPage"
               ).then((m) => ({ Component: m.default })),
           },
+          {
+            path: "fhir-export",
+            lazy: () =>
+              import(
+                "@/features/administration/pages/FhirExportPage"
+              ).then((m) => ({ Component: m.default })),
+          },
         ],
       },
     ],
