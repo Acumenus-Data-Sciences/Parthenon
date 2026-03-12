@@ -184,7 +184,7 @@ class LoadGisBoundariesJob implements ShouldQueue
 
             case 'level_done':
                 $count = $event['count'] ?? 0;
-                $totalFeatures += $count;
+                $totalFeatures += (int) $count;
                 $completedLevels++;
                 $overallProgress = ($completedLevels / $totalLevels) * 100;
                 $this->dataset->update([

@@ -173,6 +173,9 @@ vi.mock("../../api/publishApi", () => ({
     },
     isLoading: false,
   })),
+  fetchAllAnalyses: vi.fn(async () => []),
+  generateNarrative: vi.fn(async () => ({ narrative: "" })),
+  exportDocument: vi.fn(async () => new Blob()),
   exportAsPdf: vi.fn(),
   exportAsImageBundle: vi.fn(),
   exportPlaceholder: vi.fn(),
@@ -224,7 +227,7 @@ function makeSections(): ReportSection[] {
 }
 
 // ---------------------------------------------------------------------------
-// PublishPage — 3-step flow
+// PublishPage — 4-step flow
 // ---------------------------------------------------------------------------
 
 describe("PublishPage", () => {
@@ -234,25 +237,25 @@ describe("PublishPage", () => {
 
   it("renders the page header", () => {
     renderWithProviders(<PublishPage />);
-    expect(screen.getByText("Publish & Export")).toBeInTheDocument();
+    expect(screen.getByText("Publish")).toBeInTheDocument();
   });
 
-  it("renders step indicator with 3 steps", () => {
+  it("renders step indicator with 4 steps", () => {
     renderWithProviders(<PublishPage />);
-    expect(screen.getByText("Select Study")).toBeInTheDocument();
-    expect(screen.getByText("Build Report")).toBeInTheDocument();
+    expect(screen.getByText("Select Analyses")).toBeInTheDocument();
+    expect(screen.getByText("Configure")).toBeInTheDocument();
+    expect(screen.getByText("Preview")).toBeInTheDocument();
     expect(screen.getByText("Export")).toBeInTheDocument();
   });
 
-  it("starts on step 1 with study selector visible", () => {
+  it("starts on step 1 with step indicator visible", () => {
     renderWithProviders(<PublishPage />);
-    expect(screen.getByTestId("study-selector")).toBeInTheDocument();
+    expect(screen.getByTestId("step-indicator")).toBeInTheDocument();
   });
 
-  it("shows study cards from API", () => {
+  it("shows the analysis picker on step 1", () => {
     renderWithProviders(<PublishPage />);
-    expect(screen.getByText("GiBleed Study")).toBeInTheDocument();
-    expect(screen.getByText("Hypertension RWE")).toBeInTheDocument();
+    expect(screen.getByText("Select Analyses")).toBeInTheDocument();
   });
 });
 

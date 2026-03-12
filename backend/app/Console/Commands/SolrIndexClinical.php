@@ -19,7 +19,7 @@ class SolrIndexClinical extends Command
 
     protected $description = 'Index clinical events from CDM tables into the Solr clinical core';
 
-    /** @var array<string, array{table: string, id_col: string, concept_col: string, start_col: string, end_col: string|null, extra_cols: list<string>}> */
+    /** @var array<string, array{table: string, id_col: string, concept_col: string, start_col: string, end_col: string|null, extra_cols: list<string>}|null> */
     private array $domains = [
         'condition' => [
             'table' => 'condition_occurrence',
