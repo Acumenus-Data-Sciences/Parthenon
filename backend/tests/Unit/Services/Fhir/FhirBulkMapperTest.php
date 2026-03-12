@@ -153,4 +153,66 @@ class FhirBulkMapperTest extends TestCase
         $this->assertEquals(4201906, $condRow['data']['condition_status_concept_id']);
         $this->assertEquals(32817, $condRow['data']['condition_type_concept_id']);
     }
+
+    public function test_encounter_maps_admission_discharge_provider(): void
+    {
+        $this->crosswalk->shouldReceive('resolvePersonId')->andReturn(1);
+        $this->crosswalk->shouldReceive('resolveVisitId')->andReturn(100);
+        $this->crosswalk->shouldReceive('resolveProviderId')->andReturn(50);
+        $this->vocab->shouldReceive('resolve')
+            ->with([['system' => 'http://snomed.info/sct', 'code' => 'admit-src']])
+            ->andReturn(['concept_id' => 8717, 'domain_id' => 'Visit', 'source_concept_id' => 8717, 'source_value' => 'admit-src', 'cdm_table' => null, 'mapping_type' => 'direct_standard']);
+        $this->vocab->shouldReceive('resolve')
+            ->with([['system' => 'http://snomed.info/sct', 'code' => 'disch-disp']])
+            ->andReturn(['concept_id' => 8536, 'domain_id' => 'Visit', 'source_concept_id' => 8536, 'source_value' => 'disch-disp', 'cdm_table' => null, 'mapping_type' => 'direct_standard']);
+
+        $resource = [
+            'resourceType' => 'Encounter',
+            'id' => 'enc-1',
+            'class' => ['code' => 'IMP'],
+            'subject' => ['reference' => 'Patient/patient-1'],
+            'period' => ['start' => '2025-01-01', 'end' => '2025-01-05'],
+            'hospitalization' => [
+                'admitSource' => [
+                    'coding' => [['system' => 'http://snomed.info/sct', 'code' => 'admit-src']],
+                    'text' => 'Emergency Room',
+                ],
+                'dischargeDisposition' => [
+                    'coding' => [['system' => 'http://snomed.info/sct', 'code' => 'disch-disp']],
+                    'text' => 'Home',
+                ],
+            ],
+            'participant' => [
+                ['individual' => ['reference' => 'Practitioner/prac-1', 'display' => 'Dr. Smith']],
+            ],
+        ];
+
+        $rows = $this->mapper->mapResource($resource, 'test-site');
+        $visitRow = collect($rows)->firstWhere('cdm_table', 'visit_occurrence');
+
+        $this->assertEquals(8717, $visitRow['data']['admitted_from_concept_id']);
+        $this->assertEquals('Emergency Room', $visitRow['data']['admitted_from_source_value']);
+        $this->assertEquals(8536, $visitRow['data']['discharged_to_concept_id']);
+        $this->assertEquals('Home', $visitRow['data']['discharged_to_source_value']);
+        $this->assertEquals(50, $visitRow['data']['provider_id']);
+    }
+
+    public function test_encounter_r5_class_format(): void
+    {
+        $this->crosswalk->shouldReceive('resolvePersonId')->andReturn(1);
+        $this->crosswalk->shouldReceive('resolveVisitId')->andReturn(100);
+
+        $resource = [
+            'resourceType' => 'Encounter',
+            'id' => 'enc-r5',
+            'class' => [['coding' => [['code' => 'AMB']]]],
+            'subject' => ['reference' => 'Patient/patient-1'],
+            'period' => ['start' => '2025-01-01'],
+        ];
+
+        $rows = $this->mapper->mapResource($resource, 'test-site');
+        $visitRow = collect($rows)->firstWhere('cdm_table', 'visit_occurrence');
+
+        $this->assertEquals(9202, $visitRow['data']['visit_concept_id']);
+    }
 }

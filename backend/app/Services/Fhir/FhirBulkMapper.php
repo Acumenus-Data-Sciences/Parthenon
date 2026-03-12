@@ -149,7 +149,11 @@ class FhirBulkMapper
         $visitId = $this->crosswalk->resolveVisitId($siteKey, $fhirId, $personId);
 
         $period = $r['period'] ?? [];
-        $classCode = $r['class']['code'] ?? '';
+
+        // R4: class is Coding {code: "AMB"}; R5: class is CodeableConcept[] [{coding: [{code: "AMB"}]}]
+        $classCode = isset($r['class']['code'])
+            ? $r['class']['code']
+            : ($r['class'][0]['coding'][0]['code'] ?? '');
 
         return [
             'cdm_table' => 'visit_occurrence',
@@ -163,6 +167,13 @@ class FhirBulkMapper
                 'visit_end_datetime' => $this->parseDatetime($period['end'] ?? null),
                 'visit_type_concept_id' => 32817, // EHR
                 'visit_source_value' => $classCode,
+                'admitted_from_concept_id' => $this->resolveAdmitSource($r),
+                'admitted_from_source_value' => $r['hospitalization']['admitSource']['text']
+                    ?? $r['hospitalization']['admitSource']['coding'][0]['display'] ?? null,
+                'discharged_to_concept_id' => $this->resolveDischargeDisposition($r),
+                'discharged_to_source_value' => $r['hospitalization']['dischargeDisposition']['text']
+                    ?? $r['hospitalization']['dischargeDisposition']['coding'][0]['display'] ?? null,
+                'provider_id' => $this->resolveEncounterProvider($r, $siteKey),
             ],
         ];
     }
@@ -423,6 +434,35 @@ class FhirBulkMapper
     // ──────────────────────────────────────────────────────────────────────────
     // Helper methods
     // ──────────────────────────────────────────────────────────────────────────
+
+    private function resolveAdmitSource(array $r): int
+    {
+        $codings = $r['hospitalization']['admitSource']['coding'] ?? [];
+        if (empty($codings)) {
+            return 0;
+        }
+        $resolved = $this->vocab->resolve($codings);
+
+        return $resolved['concept_id'];
+    }
+
+    private function resolveDischargeDisposition(array $r): int
+    {
+        $codings = $r['hospitalization']['dischargeDisposition']['coding'] ?? [];
+        if (empty($codings)) {
+            return 0;
+        }
+        $resolved = $this->vocab->resolve($codings);
+
+        return $resolved['concept_id'];
+    }
+
+    private function resolveEncounterProvider(array $r, string $siteKey): ?int
+    {
+        $ref = $this->extractRef($r['participant'][0]['individual'] ?? []);
+
+        return $ref ? $this->crosswalk->resolveProviderId($siteKey, $ref) : null;
+    }
 
     private function extractConditionStatus(array $r): ?string
     {
