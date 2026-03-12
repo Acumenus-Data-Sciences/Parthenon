@@ -67,8 +67,6 @@
 
   <!-- Copy fields for search/suggest -->
   <copyField source="condition_name" dest="condition_name_suggest"/>
-  <copyField source="condition_name" dest="condition_name_exact"/>
-  <copyField source="county_name" dest="county_name_exact"/>
 
   <!-- Required by Solr -->
   <field name="_version_" type="plong" indexed="false" stored="false"/>

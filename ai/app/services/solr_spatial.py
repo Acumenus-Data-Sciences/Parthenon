@@ -52,11 +52,11 @@ async def get_conditions(
         "q": f"condition_name:{search}*" if search else "*:*",
         "rows": 0,
         "facet": "true",
-        "facet.pivot": "condition_concept_id,condition_name_exact,snomed_category",
+        "facet.pivot": "{!stats=cases_sum}condition_concept_id,condition_name_exact,snomed_category",
         "facet.pivot.mincount": 1,
         "facet.limit": limit,
         "stats": "true",
-        "stats.field": "cases",
+        "stats.field": "{!tag=cases_sum sum=true}cases",
     }
 
     if category:
@@ -78,10 +78,13 @@ async def get_conditions(
             if pivot.get("pivot") and pivot["pivot"][0].get("pivot")
             else "Other"
         )
+        # Use stats sum of cases if available, otherwise fall back to pivot count
+        stats_fields = pivot.get("stats", {}).get("stats_fields", {})
+        cases_sum = int(stats_fields.get("cases", {}).get("sum", 0)) if stats_fields.get("cases") else pivot["count"]
         conditions.append({
             "concept_id": concept_id,
             "name": name,
-            "patient_count": pivot["count"],
+            "patient_count": cases_sum,
             "snomed_category": cat,
         })
 
