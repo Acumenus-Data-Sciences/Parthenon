@@ -128,6 +128,8 @@ const navItems: NavItem[] = [
     icon: Settings,
     adminOnly: true,
     children: [
+      { path: "/admin", label: "Admin Dashboard", icon: Settings },
+      { path: "/admin/system-health", label: "System Health", icon: Activity },
       { path: "/admin/users", label: "Users", icon: UsersRound },
       { path: "/admin/roles", label: "Roles & Permissions", icon: ShieldCheck, superAdminOnly: true },
       { path: "/admin/auth-providers", label: "Auth Providers", icon: KeyRound, superAdminOnly: true },
