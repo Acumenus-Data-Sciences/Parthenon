@@ -138,10 +138,10 @@ async def collection_overview(name: str, include_embeddings: bool = False) -> di
     for i, doc_id in enumerate(ids):
         record: dict = {
             "id": doc_id,
-            "document": documents[i] if documents else None,
-            "metadata": metadatas[i] if metadatas else None,
+            "document": documents[i] if documents is not None and i < len(documents) else None,
+            "metadata": metadatas[i] if metadatas is not None and i < len(metadatas) else None,
         }
-        if include_embeddings and embeddings and i < len(embeddings):
+        if include_embeddings and embeddings is not None and i < len(embeddings):
             raw = embeddings[i]
             record["embedding"] = raw.tolist() if hasattr(raw, "tolist") else raw  # type: ignore[union-attr]
         records.append(record)
