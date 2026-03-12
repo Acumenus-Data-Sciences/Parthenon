@@ -30,18 +30,33 @@ This is not a bug or technical debt — it's the standard OHDSI deployment patte
 - What happens after `docker compose up` (Docker PG has app tables + empty OMOP schemas; external PG has the real data)
 
 #### 2. Connection Topology (Mermaid diagram)
-A directed graph showing:
+Two side-by-side directed graphs — one per deployment profile — showing how each named connection routes to a database:
+
+**Docker-only profile:**
 ```
-Browser → Laravel PHP → [pgsql] Docker PG (app schema)
-                       → [cdm]  External PG (omop schema)
-                       → [vocab] External PG (omop schema)
+Browser → Laravel PHP → [pgsql]   Docker PG (app schema)
+                       → [cdm]    Docker PG (eunomia schema)
+                       → [vocab]  Docker PG (eunomia schema)
+                       → [results] Docker PG (eunomia schema)
+                       → [eunomia] Docker PG (eunomia schema)
+         Python AI    → Docker PG (eunomia schema, pgvector)
+         R Runtime    → Docker PG (eunomia schema)
+```
+
+**Acumenus profile:**
+```
+Browser → Laravel PHP → [pgsql]   External PG (app schema, ohdsi DB)
+                       → [cdm]    External PG (omop schema)
+                       → [vocab]  External PG (omop schema)
                        → [results] External PG (achilles_results schema)
-                       → [gis] External PG (gis schema)
+                       → [gis]   External PG (gis schema)
                        → [eunomia] Docker PG (eunomia schema)
          Python AI    → External PG (omop schema, pgvector)
          R Runtime    → Docker PG (eunomia schema) OR External PG
          Hecate       → External PG (omop schema)
 ```
+
+Note: On Acumenus, `pgsql` points to External PG (`ohdsi` database), NOT Docker PG. The `docker_pg` connection always points to Docker PG regardless of profile. On Docker-only installs, `pgsql` and `docker_pg` point to the same database — the audit command should detect and report this overlap.
 
 #### 3. Schema Inventory
 
@@ -49,8 +64,8 @@ Browser → Laravel PHP → [pgsql] Docker PG (app schema)
 | Schema | Tables | Purpose | Row Scale |
 |--------|--------|---------|-----------|
 | `omop` | 48 | Combined CDM v5.4 + vocabulary (Atlas/ETL convention) | 1.8B+ |
-| `achilles_results` | 8 | Achilles characterization + DQD | 1.6M |
-| `app` | 112 | Application tables (mirror of Docker, kept in sync) | Thousands |
+| `achilles_results` | 8 | Achilles characterization + DQD | 1.8M |
+| `app` | 112 | Application tables (mirror of Docker + 8 extra tables including genomic_variants, gis_admin_boundaries not managed by Laravel migrations) | Thousands |
 | `gis` | 5 | GIS extension (geographic_location, external_exposure, hospitals) | Thousands |
 | `eunomia` | 20 | GiBleed demo CDM (2,694 patients) | 343K |
 | `eunomia_results` | 4 | Achilles results for Eunomia | 64K |
@@ -91,6 +106,8 @@ Table documenting all 7 connections: name, default host/database, search_path, w
 - After `migrate:fresh`, sources/cohorts are gone — re-seed with `admin:seed` + `eunomia:seed-source`
 - The `omop` schema has ETL-specific tables (claims, claims_transactions, states_map) not in standard OMOP CDM
 - Legacy `webapi`/`basicauth` schemas are read-only artifacts from Atlas migration
+- Env var naming is inconsistent across connections: CDM uses `CDM_DB_*`, vocab uses `DB_VOCAB_*`, results uses `RESULTS_DB_*` — document all prefixes in the Connection Reference table
+- On Acumenus, `pgsql` defaults to External PG (`ohdsi` DB, `DB_DATABASE=ohdsi`) — NOT Docker PG. Only `docker_pg` always targets Docker PG. On Docker-only installs, both point to the same database.
 
 #### 7. Deployment Profiles
 Two documented configurations:
@@ -101,8 +118,10 @@ Two documented configurations:
 - 2,694 patients, sufficient for development
 
 **Acumenus (production):**
-- App connection → Docker PG
-- CDM/vocab/results/GIS → Local PG 17 (`ohdsi`)
+- `pgsql` → External PG 17 (`ohdsi` DB, `app` schema) — NOT Docker PG
+- `docker_pg` → Docker PG 16 (`parthenon` DB) — used only by audit/comparison
+- CDM/vocab/results/GIS → External PG 17 (`ohdsi` DB, various schemas)
+- `eunomia` → Docker PG 16 (demo data)
 - 1M patients, full Athena vocabulary, real Achilles results
 
 ## Deliverable 2: Domain ERDs
@@ -127,13 +146,15 @@ Standard clinical tables with `person` at center:
 `concept` ↔ `concept_relationship` ↔ `concept_ancestor`
 `vocabulary`, `domain`, `concept_class`, `relationship`
 `concept_synonym`, `drug_strength`, `source_to_concept_map`
-`concept_embeddings` (pgvector, 768-dim)
+`concept_embeddings` (pgvector, 768-dim — lives in vocab connection's schema, created by Laravel migration)
 
 ### ERD 5: Extensions
-**GIS:** `geographic_location` → `location_geography` → `external_exposure`, `geography_summary`, `gis_hospital`
-**Genomics:** `genomic_uploads` → `genomic_variants` → `genomic_cohort_criteria`
-**Imaging:** `imaging_studies` → `imaging_series` → `imaging_instances`, `imaging_measurements`, `imaging_features`
-**HEOR:** `heor_analyses` → `heor_scenarios` → `heor_cost_parameters`, `heor_results`
+Note: Extension tables span multiple schemas and databases. Each sub-diagram should indicate the schema/connection.
+
+**GIS** (External PG, `gis` schema): `geographic_location` → `location_geography` → `external_exposure`, `geography_summary`, `gis_hospital`
+**Genomics** (Docker PG, `app` schema): `genomic_uploads` → `genomic_variants` → `genomic_cohort_criteria`
+**Imaging** (Docker PG, `app` schema): `imaging_studies` → `imaging_series` → `imaging_instances`, `imaging_measurements`, `imaging_features`
+**HEOR** (Docker PG, `app` schema): `heor_analyses` → `heor_scenarios` → `heor_cost_parameters`, `heor_results`
 
 ## Deliverable 3: Audit Command
 
