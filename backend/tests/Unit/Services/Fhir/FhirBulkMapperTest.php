@@ -504,4 +504,47 @@ class FhirBulkMapperTest extends TestCase
         $this->assertEquals(10, $careSiteRow['data']['care_site_id']);
         $this->assertEquals('General Hospital', $careSiteRow['data']['care_site_name']);
     }
+
+    public function test_deceased_patient_generates_death_row(): void
+    {
+        $this->crosswalk->shouldReceive('resolvePersonId')->andReturn(1);
+
+        $resource = [
+            'resourceType' => 'Patient',
+            'id' => 'patient-deceased',
+            'gender' => 'female',
+            'birthDate' => '1950-03-15',
+            'deceasedDateTime' => '2025-06-01T14:30:00Z',
+        ];
+
+        $rows = $this->mapper->mapResource($resource, 'test-site');
+
+        $personRow = collect($rows)->firstWhere('cdm_table', 'person');
+        $deathRow = collect($rows)->firstWhere('cdm_table', 'death');
+
+        $this->assertNotNull($personRow);
+        $this->assertNotNull($deathRow);
+        $this->assertEquals(1, $deathRow['data']['person_id']);
+        $this->assertEquals('2025-06-01', $deathRow['data']['death_date']);
+        $this->assertEquals(32817, $deathRow['data']['death_type_concept_id']);
+    }
+
+    public function test_deceased_boolean_patient_generates_death_row_without_date(): void
+    {
+        $this->crosswalk->shouldReceive('resolvePersonId')->andReturn(1);
+
+        $resource = [
+            'resourceType' => 'Patient',
+            'id' => 'patient-deceased-bool',
+            'gender' => 'male',
+            'birthDate' => '1960-01-01',
+            'deceasedBoolean' => true,
+        ];
+
+        $rows = $this->mapper->mapResource($resource, 'test-site');
+        $deathRow = collect($rows)->firstWhere('cdm_table', 'death');
+
+        $this->assertNotNull($deathRow);
+        $this->assertNull($deathRow['data']['death_date']);
+    }
 }

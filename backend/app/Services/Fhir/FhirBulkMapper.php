@@ -140,23 +140,45 @@ class FhirBulkMapper
         $personId = $this->crosswalk->resolvePersonId($siteKey, $fhirId);
         $birthDate = isset($r['birthDate']) ? Carbon::parse($r['birthDate']) : null;
 
-        return [
-            'cdm_table' => 'person',
-            'data' => [
-                'person_id' => $personId,
-                'gender_concept_id' => self::GENDER_MAP[$r['gender'] ?? ''] ?? 0,
-                'gender_source_value' => $r['gender'] ?? null,
-                'year_of_birth' => $birthDate?->year,
-                'month_of_birth' => $birthDate?->month,
-                'day_of_birth' => $birthDate?->day,
-                'birth_datetime' => $birthDate?->toDateTimeString(),
-                'race_concept_id' => $this->extractRaceConcept($r),
-                'race_source_value' => $this->extractExtensionText($r, 'us-core-race'),
-                'ethnicity_concept_id' => $this->extractEthnicityConcept($r),
-                'ethnicity_source_value' => $this->extractExtensionText($r, 'us-core-ethnicity'),
-                'person_source_value' => $fhirId,
+        $rows = [
+            [
+                'cdm_table' => 'person',
+                'data' => [
+                    'person_id' => $personId,
+                    'gender_concept_id' => self::GENDER_MAP[$r['gender'] ?? ''] ?? 0,
+                    'gender_source_value' => $r['gender'] ?? null,
+                    'year_of_birth' => $birthDate?->year,
+                    'month_of_birth' => $birthDate?->month,
+                    'day_of_birth' => $birthDate?->day,
+                    'birth_datetime' => $birthDate?->toDateTimeString(),
+                    'race_concept_id' => $this->extractRaceConcept($r),
+                    'race_source_value' => $this->extractExtensionText($r, 'us-core-race'),
+                    'ethnicity_concept_id' => $this->extractEthnicityConcept($r),
+                    'ethnicity_source_value' => $this->extractExtensionText($r, 'us-core-ethnicity'),
+                    'person_source_value' => $fhirId,
+                ],
             ],
         ];
+
+        // Death row if deceased (spec B2)
+        $deceasedDt = $r['deceasedDateTime'] ?? null;
+        $deceasedBool = $r['deceasedBoolean'] ?? false;
+
+        if ($deceasedDt || $deceasedBool) {
+            $rows[] = [
+                'cdm_table' => 'death',
+                'data' => [
+                    'person_id' => $personId,
+                    'death_date' => $this->parseDate($deceasedDt),
+                    'death_datetime' => $this->parseDatetime($deceasedDt),
+                    'death_type_concept_id' => 32817,
+                    'cause_concept_id' => 0,
+                    'cause_source_value' => null,
+                ],
+            ];
+        }
+
+        return $rows;
     }
 
     private function mapEncounter(array $r, string $siteKey): array
