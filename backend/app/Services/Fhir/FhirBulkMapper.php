@@ -75,6 +75,14 @@ class FhirBulkMapper
         'LL' => 4267416,   // Critically low → Low
     ];
 
+    /** FHIR AllergyIntolerance.category → OMOP observation_concept_id (Value-as-Concept). */
+    private const ALLERGY_CATEGORY_MAP = [
+        'medication' => 439224,     // Drug allergy
+        'food' => 4166257,          // Food allergy
+        'environment' => 4196403,   // Environmental allergy
+        'biologic' => 439224,       // Fallback to drug allergy
+    ];
+
     public function __construct(
         private readonly VocabularyLookupService $vocab,
         private readonly CrosswalkService $crosswalk,
@@ -498,15 +506,19 @@ class FhirBulkMapper
         $personId = $this->resolveSubjectPersonId($r, $siteKey, 'patient');
         $recorded = $r['recordedDate'] ?? $r['onsetDateTime'] ?? null;
 
+        // Value-as-Concept: category → observation_concept_id, substance → value_as_concept_id
+        $category = $r['category'][0] ?? '';
+        $categoryConceptId = self::ALLERGY_CATEGORY_MAP[$category] ?? 439224;
+
         return [
             'cdm_table' => 'observation',
             'data' => [
                 'person_id' => $personId,
-                'observation_concept_id' => $resolved['concept_id'],
+                'observation_concept_id' => $categoryConceptId,
                 'observation_date' => $this->parseDate($recorded),
                 'observation_datetime' => $this->parseDatetime($recorded),
                 'observation_type_concept_id' => 32817,
-                'value_as_string' => $r['type'] ?? null,
+                'value_as_concept_id' => $resolved['concept_id'],
                 'observation_source_value' => $resolved['source_value'],
                 'observation_source_concept_id' => $resolved['source_concept_id'],
             ],

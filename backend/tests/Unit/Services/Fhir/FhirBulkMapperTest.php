@@ -438,4 +438,30 @@ class FhirBulkMapperTest extends TestCase
 
         $this->assertEquals(4181412, $obsRow['data']['value_as_concept_id']);
     }
+
+    public function test_allergy_uses_value_as_concept_pattern(): void
+    {
+        $this->crosswalk->shouldReceive('resolvePersonId')->andReturn(1);
+        $this->vocab->shouldReceive('resolve')
+            ->with([['system' => 'http://snomed.info/sct', 'code' => '372687004']])
+            ->andReturn([
+                'concept_id' => 1500, 'domain_id' => 'Drug', 'source_concept_id' => 1500,
+                'source_value' => 'snomed|372687004', 'cdm_table' => 'drug_exposure', 'mapping_type' => 'direct_standard',
+            ]);
+
+        $resource = [
+            'resourceType' => 'AllergyIntolerance',
+            'id' => 'allergy-1',
+            'code' => ['coding' => [['system' => 'http://snomed.info/sct', 'code' => '372687004']]],
+            'patient' => ['reference' => 'Patient/patient-1'],
+            'recordedDate' => '2025-01-01',
+            'category' => ['medication'],
+        ];
+
+        $rows = $this->mapper->mapResource($resource, 'test-site');
+        $obsRow = collect($rows)->firstWhere('cdm_table', 'observation');
+
+        $this->assertEquals(439224, $obsRow['data']['observation_concept_id']); // Drug allergy category
+        $this->assertEquals(1500, $obsRow['data']['value_as_concept_id']); // Specific substance
+    }
 }
