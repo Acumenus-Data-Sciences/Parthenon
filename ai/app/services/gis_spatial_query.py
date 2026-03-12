@@ -145,7 +145,7 @@ async def get_choropleth_data(
             HAVING AVG(ee.value_as_number) IS NOT NULL
             ORDER BY value DESC
         """)
-        params: dict[str, Any] = {
+        params = {
             "level": level.value, "cc": country_code,
             "concept_id": concept_id, "date_from": date_from, "date_to": date_to,
         }

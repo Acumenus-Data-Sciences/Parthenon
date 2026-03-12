@@ -80,12 +80,11 @@ async def load_dataset(request: LoadDatasetRequest) -> dict[str, Any]:
 @router.get("/countries")
 async def list_countries() -> list[dict[str, Any]]:
     from sqlalchemy import text as sql_text
+    from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
     from app.services.gis_spatial_query import get_engine
-    from sqlalchemy.ext.asyncio import AsyncSession
-    from sqlalchemy.orm import sessionmaker
 
     engine = get_engine()
-    async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+    async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
     async with async_session() as session:
         result = await session.execute(sql_text("""

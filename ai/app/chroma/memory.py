@@ -39,9 +39,12 @@ def prune_old_conversations(user_id: int, ttl_days: int = 90) -> int:
     cutoff = (datetime.now(timezone.utc) - timedelta(days=ttl_days)).isoformat()
 
     all_entries = collection.get(include=["metadatas"])
-    old_ids = []
-    for entry_id, meta in zip(all_entries["ids"], all_entries["metadatas"]):
-        ts = meta.get("timestamp", "")
+    old_ids: list[str] = []
+    metadatas = all_entries.get("metadatas")
+    if metadatas is None:
+        return 0
+    for entry_id, meta in zip(all_entries["ids"], metadatas):
+        ts = str(meta.get("timestamp", ""))
         if ts and ts < cutoff:
             old_ids.append(entry_id)
 

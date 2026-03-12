@@ -142,7 +142,7 @@ async def render_cohort(request: RenderRequest) -> RenderResponse:
 
         expression = CohortExpression.model_validate(request.expression)
         renderer = MarkdownRender()
-        markdown = renderer.render(expression)
+        markdown = renderer.render_cohort_expression(expression)
 
         return RenderResponse(markdown=markdown)
     except Exception as e:

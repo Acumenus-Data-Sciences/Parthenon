@@ -43,7 +43,7 @@ _logger = _logging.getLogger(__name__)
 
 
 @app.on_event("startup")
-async def startup_ingest_docs():
+async def startup_ingest_docs() -> None:
     """Auto-ingest documentation on service startup."""
     import asyncio
     from app.routers.chroma import DOCS_DIR

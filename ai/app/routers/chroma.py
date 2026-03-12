@@ -96,7 +96,9 @@ async def collection_overview(name: str, include_embeddings: bool = False) -> di
             "collectionMetadata": col.metadata or {},
         }
 
-    include = ["documents", "metadatas"]
+    from typing import Literal, cast
+    IncludeType = Literal["documents", "embeddings", "metadatas", "distances", "uris", "data"]
+    include: list[IncludeType] = ["documents", "metadatas"]
     if include_embeddings:
         include.append("embeddings")
 
@@ -106,8 +108,8 @@ async def collection_overview(name: str, include_embeddings: bool = False) -> di
     )
 
     ids = sample.get("ids", [])
-    documents = sample.get("documents") or [None] * len(ids)
-    metadatas = sample.get("metadatas") or [None] * len(ids)
+    documents: list[str | None] = sample.get("documents") or [None] * len(ids)  # type: ignore[assignment]
+    metadatas: list[dict[str, object] | None] = sample.get("metadatas") or [None] * len(ids)  # type: ignore[assignment]
     embeddings = sample.get("embeddings") if include_embeddings else None
 
     # Detect dimension from first embedding
@@ -115,7 +117,7 @@ async def collection_overview(name: str, include_embeddings: bool = False) -> di
     if embeddings and len(embeddings) > 0:
         first_emb = embeddings[0]
         if first_emb is not None:
-            emb_list = first_emb.tolist() if hasattr(first_emb, "tolist") else first_emb
+            emb_list = first_emb.tolist() if hasattr(first_emb, "tolist") else first_emb  # type: ignore[union-attr]
             if isinstance(emb_list, list):
                 dimension = len(emb_list)
     elif not include_embeddings and count > 0:
@@ -124,7 +126,7 @@ async def collection_overview(name: str, include_embeddings: bool = False) -> di
         probe_embs = probe.get("embeddings")
         if probe_embs and len(probe_embs) > 0 and probe_embs[0] is not None:
             p = probe_embs[0]
-            emb_list = p.tolist() if hasattr(p, "tolist") else p
+            emb_list = p.tolist() if hasattr(p, "tolist") else p  # type: ignore[union-attr]
             if isinstance(emb_list, list):
                 dimension = len(emb_list)
 
@@ -138,7 +140,7 @@ async def collection_overview(name: str, include_embeddings: bool = False) -> di
         }
         if include_embeddings and embeddings and i < len(embeddings):
             raw = embeddings[i]
-            record["embedding"] = raw.tolist() if hasattr(raw, "tolist") else raw
+            record["embedding"] = raw.tolist() if hasattr(raw, "tolist") else raw  # type: ignore[union-attr]
         records.append(record)
 
     # Compute facets from metadata

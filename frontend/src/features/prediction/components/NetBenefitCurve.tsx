@@ -10,11 +10,6 @@ export function NetBenefitCurve({ data }: NetBenefitCurveProps) {
   const benefitFillD = useMemo(() => {
     if (data.length === 0) return [];
 
-    const width = 500;
-    const padding = { top: 30, right: 30, bottom: 50, left: 60 };
-    const plotW = width - padding.left - padding.right;
-    const plotH = 350 - padding.top - padding.bottom;
-
     const allValues = data.flatMap((d) => [d.model, d.treatAll, d.treatNone]);
     const yMin = Math.min(...allValues, 0);
     const yMax = Math.max(...allValues, 0.1);
@@ -22,8 +17,12 @@ export function NetBenefitCurve({ data }: NetBenefitCurveProps) {
     const yLow = yMin - yPad;
     const yHigh = yMax + yPad;
 
-    const localToX = (v: number) => padding.left + v * plotW;
-    const localToY = (v: number) => padding.top + ((yHigh - v) / (yHigh - yLow)) * plotH;
+    const pad = { top: 30, right: 30, bottom: 50, left: 60 };
+    const pW = 500 - pad.left - pad.right;
+    const pH = 350 - pad.top - pad.bottom;
+    const lToX = (v: number) => pad.left + v * pW;
+    const lToY = (v: number) => pad.top + ((yHigh - v) / (yHigh - yLow)) * pH;
+
     // Find segments where model exceeds both treatAll (=treatNone is 0 by definition)
     const segments: { startIdx: number; endIdx: number }[] = [];
     let segStart: number | null = null;
@@ -48,12 +47,12 @@ export function NetBenefitCurve({ data }: NetBenefitCurveProps) {
       // Top edge: model values
       for (let i = seg.startIdx; i <= seg.endIdx; i++) {
         const prefix = i === seg.startIdx ? "M" : "L";
-        points.push(`${prefix} ${toX(data[i].threshold)} ${toY(data[i].model)}`);
+        points.push(`${prefix} ${lToX(data[i].threshold)} ${lToY(data[i].model)}`);
       }
       // Bottom edge: max(treatAll, treatNone) in reverse
       for (let i = seg.endIdx; i >= seg.startIdx; i--) {
         const baseline = Math.max(data[i].treatAll, data[i].treatNone);
-        points.push(`L ${toX(data[i].threshold)} ${toY(baseline)}`);
+        points.push(`L ${lToX(data[i].threshold)} ${lToY(baseline)}`);
       }
       points.push("Z");
       return points.join(" ");
@@ -92,6 +91,33 @@ export function NetBenefitCurve({ data }: NetBenefitCurveProps) {
 
     return points;
   }, [data]);
+
+  if (data.length === 0) return null;
+
+  const width = 500;
+  const height = 350;
+  const padding = { top: 30, right: 30, bottom: 50, left: 60 };
+  const plotW = width - padding.left - padding.right;
+  const plotH = height - padding.top - padding.bottom;
+
+  const allValues = data.flatMap((d) => [d.model, d.treatAll, d.treatNone]);
+  const yMin = Math.min(...allValues, 0);
+  const yMax = Math.max(...allValues, 0.1);
+  const yPad = (yMax - yMin) * 0.1;
+  const yLow = yMin - yPad;
+  const yHigh = yMax + yPad;
+
+  const toX = (v: number) => padding.left + v * plotW;
+  const toY = (v: number) =>
+    padding.top + ((yHigh - v) / (yHigh - yLow)) * plotH;
+
+  const buildPath = (values: number[]) =>
+    data
+      .map((d, i) => `${i === 0 ? "M" : "L"} ${toX(d.threshold)} ${toY(values[i])}`)
+      .join(" ");
+
+  const modelPath = buildPath(data.map((d) => d.model));
+  const treatAllPath = buildPath(data.map((d) => d.treatAll));
 
   const xTicks = [0, 0.2, 0.4, 0.6, 0.8, 1.0];
   const yRange = yHigh - yLow;

@@ -135,7 +135,7 @@ export default function StudyBrowser({ studies, isLoading, onCompareSelect, titl
   }, [studies]);
 
   const filtered = useMemo(() => {
-    let result = modalityFilter === "all"
+    const result = modalityFilter === "all"
       ? [...studies]
       : studies.filter((s) => s.modality === modalityFilter);
 

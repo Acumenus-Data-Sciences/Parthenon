@@ -202,10 +202,9 @@ function regularizedGammaLower(a: number, x: number): number {
 
 /** Regularized upper incomplete gamma via continued fraction (Lentz) */
 function regularizedGammaUpper(a: number, x: number): number {
-  let f = 1e-30;
   let c = 1e-30;
   let d = 1 / (x + 1 - a);
-  f = d;
+  let f = d;
 
   for (let n = 1; n < 200; n++) {
     const an = n * (a - n);

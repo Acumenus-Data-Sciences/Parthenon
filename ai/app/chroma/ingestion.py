@@ -102,7 +102,7 @@ def ingest_docs_directory(docs_dir: str) -> dict[str, int]:
             continue
 
         ids = [f"{relative_path}::{i}::{file_hash}" for i in range(len(chunks))]
-        metadatas = [
+        metadatas: list[dict[str, str | int | float | bool]] = [
             {
                 "source": relative_path,
                 "chunk_index": i,
@@ -114,7 +114,7 @@ def ingest_docs_directory(docs_dir: str) -> dict[str, int]:
         collection.upsert(
             ids=ids,
             documents=chunks,
-            metadatas=metadatas,
+            metadatas=metadatas,  # type: ignore[arg-type]
         )
 
         stats["ingested"] += 1

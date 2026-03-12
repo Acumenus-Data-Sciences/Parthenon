@@ -6,6 +6,7 @@ and promotes clusters that meet the threshold (>= 5 occurrences, >= 3 distinct u
 import logging
 import uuid
 from datetime import datetime, timedelta, timezone
+from typing import Any
 
 from app.chroma.collections import get_faq_collection
 from app.chroma.client import get_chroma_client
@@ -33,11 +34,14 @@ def _scan_recent_conversations(days: int = 7) -> list[dict]:
             continue
 
         entries = coll.get(include=["documents", "metadatas"])
-        for doc, meta in zip(entries.get("documents", []), entries.get("metadatas", [])):
-            ts = meta.get("timestamp", "")
+        docs_list = entries.get("documents") or []
+        meta_list = entries.get("metadatas") or []
+        for doc, meta in zip(docs_list, meta_list):
+            ts = str(meta.get("timestamp", ""))
             if ts >= cutoff:
-                lines = doc.split("\n", 1)
-                question = lines[0].removeprefix("Q: ") if lines else doc
+                doc_str = doc if doc is not None else ""
+                lines = doc_str.split("\n", 1)
+                question = lines[0].removeprefix("Q: ") if lines else doc_str
                 answer = lines[1].removeprefix("A: ") if len(lines) > 1 else ""
                 recent_pairs.append({
                     "question": question,
@@ -62,7 +66,7 @@ def promote_frequent_questions(days: int = 7) -> dict[str, int]:
     faq_collection = get_faq_collection()
 
     # Simple clustering: group by first question, then check similarity
-    clusters: list[dict] = []
+    clusters: list[dict[str, Any]] = []
 
     for pair in pairs:
         matched = False
@@ -73,7 +77,8 @@ def promote_frequent_questions(days: int = 7) -> dict[str, int]:
                     query_texts=[pair["question"]],
                     n_results=1,
                 )
-                if results["distances"][0] and results["distances"][0][0] < (1 - SIMILARITY_THRESHOLD):
+                distances = results.get("distances")
+                if distances and distances[0] and distances[0][0] < (1 - SIMILARITY_THRESHOLD):
                     cluster["answers"].append(pair["answer"])
                     cluster["user_ids"].add(pair["user_id"])
                     matched = True

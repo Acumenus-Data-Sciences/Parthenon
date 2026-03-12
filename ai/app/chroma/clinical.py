@@ -4,6 +4,7 @@ Queries vocab.concept for high-value domains (Condition, Drug, Procedure, Measur
 and upserts into the clinical_reference collection.
 """
 import logging
+from typing import Any
 
 from sqlalchemy import text
 
@@ -52,7 +53,7 @@ def ingest_clinical_concepts(
         """)
 
     with get_session() as session:
-        params = {"domains": TARGET_DOMAINS}
+        params: dict[str, Any] = {"domains": TARGET_DOMAINS}
         if limit:
             params["limit"] = limit
         rows = session.execute(query, params).fetchall()
@@ -63,7 +64,7 @@ def ingest_clinical_concepts(
         batch = rows[i:i + batch_size]
         ids = [f"concept_{row[0]}" for row in batch]
         documents = [row[1] for row in batch]
-        metadatas = [
+        metadatas: list[dict[str, Any]] = [
             {
                 "concept_id": row[0],
                 "domain": row[2],
@@ -75,7 +76,7 @@ def ingest_clinical_concepts(
         collection.upsert(
             ids=ids,
             documents=documents,
-            metadatas=metadatas,
+            metadatas=metadatas,  # type: ignore[arg-type]
         )
 
         stats["batches"] += 1

@@ -5,6 +5,8 @@ for injection into Abby's system prompt.
 """
 import logging
 
+from chromadb.api.types import QueryResult
+
 from app.chroma.collections import (
     get_docs_collection,
     get_faq_collection,
@@ -46,6 +48,29 @@ def _convert_distances_to_results(
     return sorted(results, key=lambda r: r["score"], reverse=True)
 
 
+def _extract_query_results(
+    results: QueryResult,
+    threshold: float,
+) -> list[dict[str, object]]:
+    """Safely extract query results from ChromaDB response with None checks."""
+    documents = results.get("documents")
+    distances = results.get("distances")
+    metadatas = results.get("metadatas")
+    if documents is None or distances is None or metadatas is None:
+        return []
+    docs_list: list[list[str]] = documents  # type: ignore[assignment]
+    dist_list: list[list[float]] = distances  # type: ignore[assignment]
+    meta_list: list[list[dict[str, object]]] = metadatas  # type: ignore[assignment]
+    if not docs_list or not dist_list or not meta_list:
+        return []
+    return _convert_distances_to_results(
+        docs_list[0],
+        dist_list[0],
+        meta_list[0],
+        threshold,
+    )
+
+
 def query_docs(
     query: str,
     top_k: int = DEFAULT_TOP_K,
@@ -55,12 +80,7 @@ def query_docs(
     try:
         collection = get_docs_collection()
         results = collection.query(query_texts=[query], n_results=top_k)
-        return _convert_distances_to_results(
-            results["documents"][0],
-            results["distances"][0],
-            results["metadatas"][0],
-            threshold,
-        )
+        return _extract_query_results(results, threshold)
     except Exception as e:
         logger.warning("Docs query failed: %s", e)
         return []
@@ -76,12 +96,7 @@ def query_user_conversations(
     try:
         collection = get_user_conversation_collection(user_id)
         results = collection.query(query_texts=[query], n_results=top_k)
-        return _convert_distances_to_results(
-            results["documents"][0],
-            results["distances"][0],
-            results["metadatas"][0],
-            threshold,
-        )
+        return _extract_query_results(results, threshold)
     except Exception as e:
         logger.warning("Conversation query failed for user %s: %s", user_id, e)
         return []
@@ -96,12 +111,7 @@ def query_faq(
     try:
         collection = get_faq_collection()
         results = collection.query(query_texts=[query], n_results=top_k)
-        return _convert_distances_to_results(
-            results["documents"][0],
-            results["distances"][0],
-            results["metadatas"][0],
-            threshold,
-        )
+        return _extract_query_results(results, threshold)
     except Exception as e:
         logger.warning("FAQ query failed: %s", e)
         return []
@@ -117,12 +127,7 @@ def query_clinical(
         from app.chroma.collections import get_clinical_collection
         collection = get_clinical_collection()
         results = collection.query(query_texts=[query], n_results=top_k)
-        return _convert_distances_to_results(
-            results["documents"][0],
-            results["distances"][0],
-            results["metadatas"][0],
-            threshold,
-        )
+        return _extract_query_results(results, threshold)
     except Exception as e:
         logger.warning("Clinical query failed: %s", e)
         return []
