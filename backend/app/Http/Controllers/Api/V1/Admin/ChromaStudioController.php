@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Services\Solr\VectorExplorerSearchService;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -128,12 +129,27 @@ class ChromaStudioController extends Controller
         return response()->json($response->json());
     }
 
-    /** Compute 3D projection for a collection's embeddings. */
-    public function projectCollection(Request $request, string $name): JsonResponse
+    /**
+     * Get 3D projection for a collection's embeddings.
+     *
+     * Tries pre-computed Solr index first (<500ms), falls back to
+     * live PCA→UMAP computation via AI service (~8-10s).
+     */
+    public function projectCollection(Request $request, string $name, VectorExplorerSearchService $solrSearch): JsonResponse
     {
+        $forceRefresh = $request->boolean('refresh');
+
+        // Try Solr first (pre-computed, fast)
+        if (! $forceRefresh && $solrSearch->isAvailable()) {
+            $solrResult = $solrSearch->getProjection($name);
+            if ($solrResult !== null) {
+                return response()->json($solrResult);
+            }
+        }
+
+        // Fall back to live computation via AI service
         $sampleSize = $request->integer('sample_size', 5000);
 
-        // sample_size must be 0 (all) or 500-100000
         if ($sampleSize !== 0 && ($sampleSize < 500 || $sampleSize > 100000)) {
             return response()->json(
                 ['error' => 'sample_size must be 0 (all) or between 500 and 100000.'],

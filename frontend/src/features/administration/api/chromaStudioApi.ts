@@ -144,7 +144,11 @@ export const promoteFaq = (days = 7) =>
     .post<IngestResult>("/admin/chroma-studio/promote-faq", null, { params: { days } })
     .then((r) => r.data);
 
-export const fetchProjection = (name: string, request: ProjectionRequest, signal?: AbortSignal) =>
+export const fetchProjection = (
+  name: string,
+  request: ProjectionRequest & { refresh?: boolean },
+  signal?: AbortSignal,
+) =>
   apiClient
     .post<ProjectionResponse>(`/admin/chroma-studio/collections/${encodeURIComponent(name)}/project`, request, {
       signal,

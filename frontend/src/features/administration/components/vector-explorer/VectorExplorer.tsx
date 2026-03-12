@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { createPortal } from "react-dom";
-import { Maximize2, Minimize2, Loader2, WifiOff } from "lucide-react";
+import { Maximize2, Minimize2, Loader2, WifiOff, RefreshCw } from "lucide-react";
 import { Panel } from "@/components/ui";
 import type { CollectionOverview } from "../../api/chromaStudioApi";
 import { useVectorExplorer } from "./useVectorExplorer";
@@ -191,11 +191,27 @@ export default function VectorExplorer({ collectionName, overview }: VectorExplo
                 </span>
               </div>
               <div className="flex justify-between text-xs">
-                <span className="text-[#5A5650]">Projection time</span>
+                <span className="text-[#5A5650]">Source</span>
                 <span className="font-['IBM_Plex_Mono',monospace] text-[#8A857D]">
-                  {(stats.projection_time_ms / 1000).toFixed(1)}s
+                  {(stats as Record<string, unknown>).source === "solr" ? "Solr (cached)" : "Live UMAP"}
                 </span>
               </div>
+              {(stats as Record<string, unknown>).source !== "solr" && (
+                <div className="flex justify-between text-xs">
+                  <span className="text-[#5A5650]">Projection time</span>
+                  <span className="font-['IBM_Plex_Mono',monospace] text-[#8A857D]">
+                    {(stats.projection_time_ms / 1000).toFixed(1)}s
+                  </span>
+                </div>
+              )}
+              {(stats as Record<string, unknown>).indexed_at && (
+                <div className="flex justify-between text-xs">
+                  <span className="text-[#5A5650]">Indexed</span>
+                  <span className="font-['IBM_Plex_Mono',monospace] text-[#8A857D]">
+                    {new Date(String((stats as Record<string, unknown>).indexed_at)).toLocaleDateString()}
+                  </span>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -211,10 +227,19 @@ export default function VectorExplorer({ collectionName, overview }: VectorExplo
         <div className="flex items-center gap-2">
           {stats && (
             <span className="text-xs text-[#5A5650]">
-              {stats.sampled.toLocaleString()} pts · {(stats.projection_time_ms / 1000).toFixed(1)}s
+              {stats.sampled.toLocaleString()} pts
+              {(stats as Record<string, unknown>).source === "solr" ? " · cached" : ` · ${(stats.projection_time_ms / 1000).toFixed(1)}s`}
             </span>
           )}
           {isLoading && <Loader2 className="h-3 w-3 animate-spin text-[#C9A227]" />}
+          <button
+            onClick={explorer.refresh}
+            disabled={isLoading}
+            title="Re-compute projection"
+            className="rounded p-1 text-[#5A5650] hover:bg-[#232328] hover:text-[#C9A227] disabled:opacity-40"
+          >
+            <RefreshCw className="h-3 w-3" />
+          </button>
           <button
             onClick={() => explorer.setExpanded(true)}
             className="flex items-center gap-1 rounded bg-[#232328] px-2 py-1 text-xs text-[#C9A227] hover:bg-[#232328]/80"

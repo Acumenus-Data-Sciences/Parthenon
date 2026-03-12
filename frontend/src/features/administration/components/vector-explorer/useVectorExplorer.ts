@@ -70,6 +70,8 @@ export function useVectorExplorer(collectionName: string | null) {
       } catch (err: unknown) {
         if (err instanceof DOMException && err.name === "AbortError") return;
 
+        console.error("[VectorExplorer] Projection request failed:", err);
+
         // Client-side fallback using umap-js
         try {
           const { fetchCollectionOverview } = await import("../../api/chromaStudioApi");

@@ -305,9 +305,10 @@ services:
       - ./solr/configsets/imaging:/opt/solr/server/solr/configsets/imaging:ro
       - ./solr/configsets/claims:/opt/solr/server/solr/configsets/claims:ro
       - ./solr/configsets/gis_spatial:/opt/solr/server/solr/configsets/gis_spatial:ro
+      - ./solr/configsets/vector_explorer:/opt/solr/server/solr/configsets/vector_explorer:ro
     environment:
       - SOLR_JAVA_MEM=-Xms512m -Xmx2g
-    command: bash -c "precreate-core vocabulary /opt/solr/server/solr/configsets/vocabulary; precreate-core cohorts /opt/solr/server/solr/configsets/cohorts; precreate-core analyses /opt/solr/server/solr/configsets/analyses; precreate-core mappings /opt/solr/server/solr/configsets/mappings; precreate-core clinical /opt/solr/server/solr/configsets/clinical; precreate-core imaging /opt/solr/server/solr/configsets/imaging; precreate-core claims /opt/solr/server/solr/configsets/claims; precreate-core gis_spatial /opt/solr/server/solr/configsets/gis_spatial; exec solr-foreground"
+    command: bash -c "precreate-core vocabulary /opt/solr/server/solr/configsets/vocabulary; precreate-core cohorts /opt/solr/server/solr/configsets/cohorts; precreate-core analyses /opt/solr/server/solr/configsets/analyses; precreate-core mappings /opt/solr/server/solr/configsets/mappings; precreate-core clinical /opt/solr/server/solr/configsets/clinical; precreate-core imaging /opt/solr/server/solr/configsets/imaging; precreate-core claims /opt/solr/server/solr/configsets/claims; precreate-core gis_spatial /opt/solr/server/solr/configsets/gis_spatial; precreate-core vector_explorer /opt/solr/server/solr/configsets/vector_explorer; exec solr-foreground"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8983/solr/vocabulary/admin/ping"]
       interval: 30s
