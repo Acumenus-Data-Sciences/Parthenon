@@ -1,9 +1,13 @@
-name: Auto-Fix CI Failures
+name: Auto-Fix CI Failures (DISABLED)
 
+# Disabled — replaced by local n8n CI fixer (5am daily cron).
+# The workflow_run trigger caused cascading failures and burned API credits.
+# To re-enable, uncomment the trigger below.
 on:
-  workflow_run:
-    workflows: [CI]
-    types: [completed]
+  workflow_dispatch: {}
+  # workflow_run:
+  #   workflows: [CI]
+  #   types: [completed]
 
 permissions:
   contents: write

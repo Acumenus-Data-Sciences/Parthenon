@@ -50,6 +50,9 @@ r-runtime/.RData
 docker/postgres-data/
 docker/redis-data/
 
+# GIS data
+GIS/
+
 # Data files
 *.zip
 *.vcf
@@ -99,3 +102,4 @@ docs/site/.docusaurus/
 # OpenAPI / generated types
 backend/api.json
 frontend/src/types/api.generated.ts
+.superpowers/

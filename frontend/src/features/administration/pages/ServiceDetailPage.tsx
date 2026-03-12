@@ -101,6 +101,23 @@ export default function ServiceDetailPage() {
         </div>
       </Panel>
 
+      {/* Solr manage link */}
+      {key === "solr" && (
+        <div>
+          <Link to="/admin/solr">
+            <Button variant="primary" size="sm">
+              Manage Solr Cores
+            </Button>
+          </Link>
+        </div>
+      )}
+
+      {/* Orthanc PACS management */}
+      {key === "orthanc" && <PacsManagementSection />}
+
+      {/* ChromaDB Studio */}
+      {key === "chromadb" && <ChromaStudioPanel />}
+
       {/* Metrics */}
       {metricEntries.length > 0 && (
         <div>
@@ -143,23 +160,6 @@ export default function ServiceDetailPage() {
           </div>
         </div>
       ))}
-
-      {/* Solr manage link */}
-      {key === "solr" && (
-        <div>
-          <Link to="/admin/solr">
-            <Button variant="primary" size="sm">
-              Manage Solr Cores
-            </Button>
-          </Link>
-        </div>
-      )}
-
-      {/* Orthanc PACS management */}
-      {key === "orthanc" && <PacsManagementSection />}
-
-      {/* ChromaDB Studio */}
-      {key === "chromadb" && <ChromaStudioPanel />}
 
       {/* Logs */}
       <div>
