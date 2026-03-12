@@ -178,6 +178,7 @@ export function Sidebar() {
   const { isAdmin, isSuperAdmin } = useAuthStore();
   const [helpOpen, setHelpOpen] = useState(false);
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
+  const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
 
   const isActive = (path: string) =>
     path === "/" ? location.pathname === "/" : location.pathname.startsWith(path);
@@ -190,17 +191,22 @@ export function Sidebar() {
   const toggleGroup = (path: string) => {
     setExpandedGroups((prev) => {
       const next = new Set(prev);
-      if (next.has(path)) {
-        next.delete(path);
-      } else {
-        next.add(path);
-      }
+      if (next.has(path)) next.delete(path);
+      else next.add(path);
+      return next;
+    });
+    setCollapsedGroups((prev) => {
+      const next = new Set(prev);
+      if (next.has(path)) next.delete(path);
+      else next.add(path);
       return next;
     });
   };
 
-  const isExpanded = (item: NavItem) =>
-    expandedGroups.has(item.path) || isGroupActive(item);
+  const isExpanded = (item: NavItem) => {
+    if (collapsedGroups.has(item.path)) return false;
+    return expandedGroups.has(item.path) || isGroupActive(item);
+  };
 
   const visibleItems = navItems.filter((item) => {
     if (item.superAdminOnly) return isSuperAdmin();
