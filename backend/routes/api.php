@@ -548,6 +548,7 @@ Route::prefix('v1')->group(function () {
                 Route::post('/ingest-docs', [ChromaStudioController::class, 'ingestDocs']);
                 Route::post('/ingest-clinical', [ChromaStudioController::class, 'ingestClinical']);
                 Route::post('/promote-faq', [ChromaStudioController::class, 'promoteFaq']);
+                Route::post('/collections/{name}/project', [ChromaStudioController::class, 'projectCollection']);
             });
 
             // ── Vocabulary management (super-admin only) ──────────────────

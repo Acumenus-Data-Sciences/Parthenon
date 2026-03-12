@@ -127,4 +127,36 @@ class ChromaStudioController extends Controller
 
         return response()->json($response->json());
     }
+
+    /** Compute 3D projection for a collection's embeddings. */
+    public function projectCollection(Request $request, string $name): JsonResponse
+    {
+        $sampleSize = $request->integer('sample_size', 5000);
+
+        // sample_size must be 0 (all) or 500-100000
+        if ($sampleSize !== 0 && ($sampleSize < 500 || $sampleSize > 100000)) {
+            return response()->json(
+                ['error' => 'sample_size must be 0 (all) or between 500 and 100000.'],
+                422,
+            );
+        }
+
+        $validated = $request->validate([
+            'method' => 'required|string|in:pca-umap',
+            'dimensions' => 'required|integer|in:2,3',
+        ]);
+        $validated['sample_size'] = $sampleSize;
+
+        $response = Http::timeout(120)
+            ->post("{$this->aiUrl()}/chroma/collections/{$name}/project", $validated);
+
+        if (! $response->successful()) {
+            return response()->json(
+                ['error' => $response->json('detail') ?? 'Projection failed.'],
+                $response->status() ?: 502,
+            );
+        }
+
+        return response()->json($response->json());
+    }
 }

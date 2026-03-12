@@ -1,4 +1,6 @@
 """ChromaDB management endpoints for ingestion, health checks, and Studio inspection."""
+from __future__ import annotations
+
 import logging
 import os
 import time
@@ -12,6 +14,7 @@ from app.chroma.ingestion import ingest_docs_directory
 from app.chroma.faq import promote_frequent_questions
 from app.chroma.memory import prune_old_conversations
 from app.chroma.clinical import ingest_clinical_concepts
+from app.services.projection import ProjectionResult
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -222,3 +225,98 @@ async def query_collection(body: QueryInput) -> dict:
         })
 
     return {"items": items, "elapsedMs": elapsed_ms}
+
+
+class ProjectionInput(BaseModel):
+    sample_size: int = 5000
+    method: str = "pca-umap"
+    dimensions: int = 3
+
+
+@router.post("/collections/{name}/project")
+async def project_collection(name: str, body: ProjectionInput) -> dict:
+    """Compute 3D projection with clustering and quality analysis."""
+    if body.method != "pca-umap":
+        raise HTTPException(status_code=400, detail="Only 'pca-umap' method is supported.")
+    if body.dimensions not in (2, 3):
+        raise HTTPException(status_code=400, detail="Dimensions must be 2 or 3.")
+    if body.sample_size != 0 and (body.sample_size < 500 or body.sample_size > 100000):
+        raise HTTPException(status_code=400, detail="sample_size must be 0 (all) or 500-100000.")
+
+    from app.services.projection import (
+        cache_result,
+        compute_projection,
+        get_cached_projection,
+        sample_deterministic,
+    )
+    import numpy as np
+
+    client = get_chroma_client()
+    try:
+        col = client.get_collection(name=name)
+    except Exception:
+        raise HTTPException(status_code=404, detail=f"Collection '{name}' not found.")
+
+    total_count = col.count()
+    if total_count == 0:
+        raise HTTPException(status_code=400, detail="Collection is empty.")
+
+    # Check cache
+    cached = get_cached_projection(name, body.sample_size, total_count)
+    if cached is not None:
+        return _result_to_dict(cached)
+
+    # Fetch all embeddings for sampling
+    all_data = col.get(limit=total_count, include=["embeddings", "metadatas"])
+    all_ids = all_data.get("ids", [])
+    all_embeddings = all_data.get("embeddings")
+    all_metadatas = all_data.get("metadatas") or [{}] * len(all_ids)
+
+    if all_embeddings is None or len(all_embeddings) == 0:
+        raise HTTPException(status_code=400, detail="Collection has no embeddings.")
+
+    # Sample deterministically
+    indices = sample_deterministic(all_ids, body.sample_size, name, total_count)
+
+    ids = [all_ids[i] for i in indices]
+    raw_embeddings = [all_embeddings[i] for i in indices]
+    metadatas = [all_metadatas[i] or {} for i in indices]
+
+    embeddings_array = np.array(
+        [e.tolist() if hasattr(e, "tolist") else e for e in raw_embeddings],
+        dtype=np.float32,
+    )
+
+    if len(ids) < 3:
+        raise HTTPException(status_code=400, detail="Need at least 3 vectors for projection.")
+
+    result = compute_projection(ids, embeddings_array, metadatas, body.dimensions)
+
+    # Update stats with total
+    result.stats["total_vectors"] = total_count
+    result.stats["sampled"] = len(ids)
+
+    # Cache
+    cache_result(name, body.sample_size, total_count, result)
+
+    return _result_to_dict(result)
+
+
+def _result_to_dict(result: ProjectionResult) -> dict:
+    """Convert ProjectionResult dataclass to JSON-safe dict."""
+    return {
+        "points": [
+            {"id": p.id, "x": p.x, "y": p.y, "z": p.z, "metadata": p.metadata, "cluster_id": p.cluster_id}
+            for p in result.points
+        ],
+        "clusters": [
+            {"id": c.id, "label": c.label, "centroid": c.centroid, "size": c.size}
+            for c in result.clusters
+        ],
+        "quality": {
+            "outlier_ids": result.quality.outlier_ids,
+            "duplicate_pairs": [list(p) for p in result.quality.duplicate_pairs],
+            "orphan_ids": result.quality.orphan_ids,
+        },
+        "stats": result.stats,
+    }
