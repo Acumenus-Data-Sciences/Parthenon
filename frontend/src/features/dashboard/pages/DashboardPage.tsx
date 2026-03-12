@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Database,
   Users,
@@ -25,6 +25,7 @@ import { HelpButton } from "@/features/help";
 
 export function DashboardPage() {
   const { data: stats, isLoading, error } = useDashboardStats();
+  const navigate = useNavigate();
   const [selectedSourceId, setSelectedSourceId] = useState<number | null>(null);
 
   // Auto-select default source (or first source) when stats load
@@ -95,12 +96,14 @@ export function DashboardPage() {
             value={stats?.sources.length ?? 0}
             description="Connected databases"
             icon={<Database size={18} />}
+            to="/data-sources"
           />
           <MetricCard
             label="Active Cohorts"
             value={stats?.cohortCount ?? 0}
             description="Defined cohorts"
             icon={<Users size={18} />}
+            to="/cohort-definitions"
           />
           <MetricCard
             label="Running Jobs"
@@ -108,6 +111,7 @@ export function DashboardPage() {
             description="Queued or executing"
             icon={<Briefcase size={18} />}
             variant={stats?.activeJobCount ? "info" : "default"}
+            to="/jobs"
           />
           <MetricCard
             label="DQD Failures"
@@ -115,12 +119,14 @@ export function DashboardPage() {
             description="Quality check failures"
             icon={<AlertTriangle size={18} />}
             variant={stats?.dqdFailures ? "critical" : "success"}
+            to="/data-explorer"
           />
           <MetricCard
             label="Concept Sets"
             value={stats?.conceptSetCount ?? 0}
             description="Saved concept sets"
             icon={<FlaskConical size={18} />}
+            to="/concept-sets"
           />
         </div>
       )}
@@ -176,22 +182,26 @@ export function DashboardPage() {
                   value={formatCompact(personCount)}
                   sparkline={sparklineValues}
                   sparkColor="#2DD4BF"
+                  onClick={() => navigate(`/data-explorer/${sourceId}`)}
                 />
                 <CdmMetricCard
                   icon={<Clock size={16} className="text-[#C9A227]" />}
                   label="Median Obs Duration"
                   value={`${formatCompact(medianObsDuration)} days`}
+                  onClick={() => navigate(`/data-explorer/${sourceId}`)}
                 />
                 <CdmMetricCard
                   icon={<BarChart3 size={16} className="text-[#60A5FA]" />}
                   label="Total Events"
                   value={formatCompact(totalEvents)}
+                  onClick={() => navigate(`/data-explorer/${sourceId}`)}
                 />
                 <CdmMetricCard
                   icon={<CheckCircle2 size={16} className="text-[#2DD4BF]" />}
                   label="Data Completeness"
                   value={`${completeness}%`}
                   sub={`${tablesWithData}/${totalTables} tables`}
+                  onClick={() => navigate(`/data-explorer/${sourceId}`)}
                 />
               </div>
             )}
@@ -258,7 +268,7 @@ export function DashboardPage() {
               </thead>
               <tbody>
                 {stats.sources.slice(0, 5).map((source) => (
-                  <tr key={source.id}>
+                  <tr key={source.id} onClick={() => navigate(`/data-explorer/${source.id}`)} style={{ cursor: "pointer" }} className="clickable">
                     <td style={{ fontWeight: 500, color: "var(--text-primary)" }}>
                       {source.source_name}
                     </td>
@@ -370,7 +380,7 @@ export function DashboardPage() {
               </thead>
               <tbody>
                 {stats.recentCohorts.map((cohort) => (
-                  <tr key={cohort.id} className="clickable">
+                  <tr key={cohort.id} className="clickable" onClick={() => navigate(`/cohort-definitions/${cohort.id}`)} style={{ cursor: "pointer" }}>
                     <td style={{ color: "var(--text-primary)" }}>{cohort.name}</td>
                     <td className="mono">
                       {cohort.person_count != null ? cohort.person_count.toLocaleString() : "—"}
@@ -436,6 +446,7 @@ function CdmMetricCard({
   sub,
   sparkline,
   sparkColor,
+  onClick,
 }: {
   icon: React.ReactNode;
   label: string;
@@ -443,9 +454,17 @@ function CdmMetricCard({
   sub?: string;
   sparkline?: number[];
   sparkColor?: string;
+  onClick?: () => void;
 }) {
   return (
-    <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
+    <div
+      className="rounded-lg border border-[#232328] bg-[#151518] p-4 transition-colors hover:border-[#3A3A40]"
+      onClick={onClick}
+      style={onClick ? { cursor: "pointer" } : undefined}
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={onClick ? (e) => { if (e.key === "Enter" || e.key === " ") onClick(); } : undefined}
+    >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           {icon}

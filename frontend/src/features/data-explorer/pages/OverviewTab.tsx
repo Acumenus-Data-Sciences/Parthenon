@@ -83,6 +83,7 @@ interface MetricCardProps {
   sub?: string;
   sparkData?: number[];
   sparkColor?: string;
+  onClick?: () => void;
 }
 
 function MetricCard({
@@ -92,9 +93,17 @@ function MetricCard({
   sub,
   sparkData,
   sparkColor,
+  onClick,
 }: MetricCardProps) {
   return (
-    <div className="rounded-xl border border-[#232328] bg-[#151518] p-5">
+    <div
+      className="rounded-xl border border-[#232328] bg-[#151518] p-5 transition-colors hover:border-[#3A3A40]"
+      onClick={onClick}
+      style={onClick ? { cursor: "pointer" } : undefined}
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={onClick ? (e) => { if (e.key === "Enter" || e.key === " ") onClick(); } : undefined}
+    >
       <div className="mb-2 flex items-center gap-2">
         <Icon size={14} className="text-[#8A857D]" />
         <span className="text-xs font-semibold uppercase tracking-wider text-[#8A857D]">
@@ -309,24 +318,28 @@ export default function OverviewTab({
               sub={`${personCount.toLocaleString()} total`}
               sparkData={obsSparkData}
               sparkColor={CHART.accent}
+              onClick={() => onNavigateToDomain?.("person")}
             />
             <MetricCard
               icon={Calendar}
               label="Median Obs Duration"
               value={`${Math.round(avgObsPeriod).toLocaleString()} days`}
               sub={`${obsCount.toLocaleString()} observation periods`}
+              onClick={() => onNavigateToDomain?.("observation_period")}
             />
             <MetricCard
               icon={Activity}
               label="Total Events"
               value={formatCompact(totalEvents)}
               sub="Across all CDM tables"
+              onClick={() => onNavigateToDomain?.("condition")}
             />
             <MetricCard
               icon={CheckCircle2}
               label="Data Completeness"
               value={`${completeness}%`}
               sub={`${recordCounts.data?.filter((d) => d.count > 0).length ?? 0}/${recordCounts.data?.length ?? 0} tables populated`}
+              onClick={() => onNavigateToDomain?.("condition")}
             />
           </div>
         )}

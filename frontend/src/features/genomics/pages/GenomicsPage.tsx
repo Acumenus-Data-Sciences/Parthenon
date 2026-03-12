@@ -170,13 +170,25 @@ function ClinVarPanel() {
           </div>
         ) : status ? (
           <div className="mt-3 grid grid-cols-3 gap-3">
-            <div className="rounded-md border border-[#232328] bg-[#1A1A1F] px-3 py-2">
+            <div
+              className="rounded-md border border-[#232328] bg-[#1A1A1F] px-3 py-2 transition-colors hover:border-[#3A3A40] cursor-pointer"
+              onClick={() => { setSearchQ(""); setGene(""); setSig(""); setPathogenicOnly(false); setPage(1); }}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { setSearchQ(""); setGene(""); setSig(""); setPathogenicOnly(false); setPage(1); } }}
+            >
               <p className="text-xs text-[#5A5650] uppercase tracking-wider">Total Variants</p>
               <p className="text-base font-semibold font-['IBM_Plex_Mono',monospace] text-[#F0EDE8] mt-0.5">
                 {status.total_variants.toLocaleString()}
               </p>
             </div>
-            <div className="rounded-md border border-[#232328] bg-[#1A1A1F] px-3 py-2">
+            <div
+              className="rounded-md border border-[#232328] bg-[#1A1A1F] px-3 py-2 transition-colors hover:border-[#3A3A40] cursor-pointer"
+              onClick={() => { setPathogenicOnly(true); setSig(""); setSearchQ(""); setGene(""); setPage(1); }}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { setPathogenicOnly(true); setSig(""); setSearchQ(""); setGene(""); setPage(1); } }}
+            >
               <p className="text-xs text-[#5A5650] uppercase tracking-wider">Pathogenic / LP</p>
               <p className="text-base font-semibold font-['IBM_Plex_Mono',monospace] text-[#E85A6B] mt-0.5">
                 {status.pathogenic_count.toLocaleString()}

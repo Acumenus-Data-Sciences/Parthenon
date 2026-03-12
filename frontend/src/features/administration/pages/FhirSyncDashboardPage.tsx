@@ -394,31 +394,37 @@ export default function FhirSyncDashboardPage() {
           label="Connections"
           value={`${s.active_connections}/${s.total_connections}`}
           icon={<Server size={16} />}
+          to="/admin/fhir-connections"
         />
         <MetricCard
           label="Total Runs"
           value={s.total_runs}
           icon={<Activity size={16} />}
+          to="/admin/fhir-connections"
         />
         <MetricCard
           label="Completed"
           value={s.completed_runs}
           icon={<CheckCircle2 size={16} />}
+          to="/admin/fhir-connections"
         />
         <MetricCard
           label="Failed"
           value={s.failed_runs}
           icon={<XCircle size={16} />}
+          to="/admin/fhir-connections"
         />
         <MetricCard
           label="Records Written"
           value={formatNumber(s.total_written)}
           icon={<Database size={16} />}
+          to="/admin/fhir-connections"
         />
         <MetricCard
           label="Avg Coverage"
           value={s.avg_coverage != null ? `${s.avg_coverage}%` : "--"}
           icon={<TrendingUp size={16} />}
+          to="/admin/fhir-connections"
         />
       </div>
 

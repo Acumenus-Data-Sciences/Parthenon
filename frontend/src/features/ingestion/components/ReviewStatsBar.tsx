@@ -2,6 +2,7 @@ import type { MappingStats } from "@/types/ingestion";
 
 interface ReviewStatsBarProps {
   stats: MappingStats;
+  onSegmentClick?: (segment: string) => void;
 }
 
 const SEGMENTS: {
@@ -15,7 +16,7 @@ const SEGMENTS: {
   { key: "unmappable", label: "Unmappable", color: "#5A5650" },
 ];
 
-export function ReviewStatsBar({ stats }: ReviewStatsBarProps) {
+export function ReviewStatsBar({ stats, onSegmentClick }: ReviewStatsBarProps) {
   const total = stats.total || 1;
 
   return (
@@ -58,7 +59,14 @@ export function ReviewStatsBar({ stats }: ReviewStatsBarProps) {
       {/* Legend */}
       <div className="flex flex-wrap items-center gap-x-5 gap-y-1">
         {SEGMENTS.map(({ key, label, color }) => (
-          <div key={key} className="flex items-center gap-1.5 text-xs">
+          <div
+            key={key}
+            className="flex items-center gap-1.5 text-xs transition-colors hover:text-[#F0EDE8] cursor-pointer"
+            onClick={() => onSegmentClick?.(key)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onSegmentClick?.(key); }}
+          >
             <span
               className="inline-block h-2.5 w-2.5 rounded-sm shrink-0"
               style={{ backgroundColor: color }}

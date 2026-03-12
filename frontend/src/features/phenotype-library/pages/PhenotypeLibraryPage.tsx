@@ -62,14 +62,23 @@ function StatCard({
   value,
   icon: Icon,
   accent,
+  onClick,
 }: {
   label: string;
   value: number | string;
   icon: React.ElementType;
   accent: string;
+  onClick?: () => void;
 }) {
   return (
-    <div className="rounded-lg border border-[#232328] bg-[#151518] px-5 py-4 flex items-center gap-4">
+    <div
+      className="rounded-lg border border-[#232328] bg-[#151518] px-5 py-4 flex items-center gap-4 transition-colors hover:border-[#3A3A40]"
+      onClick={onClick}
+      style={onClick ? { cursor: "pointer" } : undefined}
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={onClick ? (e) => { if (e.key === "Enter" || e.key === " ") onClick(); } : undefined}
+    >
       <div
         className={cn(
           "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg",
@@ -239,24 +248,28 @@ export default function PhenotypeLibraryPage() {
           value={stats?.total ?? "—"}
           icon={BookOpen}
           accent="bg-[#2DD4BF]/15 text-[#2DD4BF]"
+          onClick={() => { setSearch(""); setDomain(""); setPage(1); }}
         />
         <StatCard
           label="With Expression"
           value={stats?.with_expression ?? "—"}
           icon={Layers}
           accent="bg-[#C9A227]/15 text-[#C9A227]"
+          onClick={() => { setSearch(""); setDomain(""); setPage(1); }}
         />
         <StatCard
           label="Domains Covered"
           value={stats?.domains ?? "—"}
           icon={Filter}
           accent="bg-[#A78BFA]/15 text-[#A78BFA]"
+          onClick={() => { setSearch(""); setDomain(""); setPage(1); }}
         />
         <StatCard
           label="Imported"
           value={stats?.imported ?? "—"}
           icon={CheckCircle2}
           accent="bg-[#9B1B30]/15 text-[#E85A6B]"
+          onClick={() => { setSearch(""); setDomain(""); setPage(1); }}
         />
       </div>
 

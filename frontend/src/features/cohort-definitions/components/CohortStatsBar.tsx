@@ -1,20 +1,21 @@
 import { Layers, CheckCircle2, Globe } from "lucide-react";
 import { useCohortStats } from "../hooks/useCohortDefinitions";
 
-export function CohortStatsBar() {
+export function CohortStatsBar({ onStatClick }: { onStatClick?: (key: string) => void } = {}) {
   const { data: stats } = useCohortStats();
 
   if (!stats) return null;
 
   const metrics = [
-    { label: "Total", value: stats.total, icon: Layers, color: "#C5C0B8" },
+    { label: "Total", key: "total", value: stats.total, icon: Layers, color: "#C5C0B8" },
     {
       label: "Generated",
+      key: "generated",
       value: stats.with_generations,
       icon: CheckCircle2,
       color: "#2DD4BF",
     },
-    { label: "Public", value: stats.public, icon: Globe, color: "#60A5FA" },
+    { label: "Public", key: "public", value: stats.public, icon: Globe, color: "#60A5FA" },
   ];
 
   return (
@@ -22,7 +23,11 @@ export function CohortStatsBar() {
       {metrics.map((m) => (
         <div
           key={m.label}
-          className="flex items-center gap-3 rounded-lg border border-[#232328] bg-[#151518] px-4 py-3"
+          className="flex items-center gap-3 rounded-lg border border-[#232328] bg-[#151518] px-4 py-3 transition-colors hover:border-[#3A3A40] cursor-pointer"
+          onClick={() => onStatClick?.(m.key)}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onStatClick?.(m.key); }}
         >
           <div
             className="flex items-center justify-center w-8 h-8 rounded-md"

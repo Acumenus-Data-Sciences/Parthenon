@@ -28,14 +28,23 @@ function SummaryCard({
   label,
   value,
   color,
+  onClick,
 }: {
   icon: typeof Users;
   label: string;
   value: string;
   color: string;
+  onClick?: () => void;
 }) {
   return (
-    <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
+    <div
+      className="rounded-lg border border-[#232328] bg-[#151518] p-4 transition-colors hover:border-[#3A3A40]"
+      onClick={onClick}
+      style={onClick ? { cursor: "pointer" } : undefined}
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={onClick ? (e) => { if (e.key === "Enter" || e.key === " ") onClick(); } : undefined}
+    >
       <div className="flex items-center gap-2 mb-2">
         <Icon size={14} style={{ color }} />
         <span className="text-xs font-medium text-[#8A857D]">{label}</span>
@@ -123,12 +132,14 @@ export function PopulationComplianceDashboard({
           label="Total Bundles"
           value={data.total_bundles.toLocaleString()}
           color="#2DD4BF"
+          onClick={() => setCategoryFilter("All")}
         />
         <SummaryCard
           icon={Users}
           label="Total Patients"
           value={data.total_patients.toLocaleString()}
           color="#818CF8"
+          onClick={() => setCategoryFilter("All")}
         />
         <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 flex items-center gap-4">
           <ComplianceRing
@@ -142,6 +153,7 @@ export function PopulationComplianceDashboard({
           label="Total Open Gaps"
           value={totalOpenGaps.toLocaleString()}
           color="#9B1B30"
+          onClick={() => setCategoryFilter("All")}
         />
       </div>
 

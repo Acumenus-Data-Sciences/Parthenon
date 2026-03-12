@@ -104,23 +104,27 @@ export default function AdminDashboardPage() {
           label="Total Users"
           value={usersPage?.total ?? "—"}
           icon={<Users size={16} />}
+          to="/admin/users"
         />
         <MetricCard
           label="Roles Defined"
           value={roles?.length ?? "—"}
           icon={<ShieldCheck size={16} />}
+          to="/admin/roles"
         />
         <MetricCard
           label="Auth Providers"
           value={enabledProviders}
           description={`${enabledProviders} enabled`}
           icon={<KeyRound size={16} />}
+          to="/admin/auth-providers"
         />
         <MetricCard
           label="Active AI"
           value={activeAiProvider?.display_name ?? "—"}
           description={activeAiProvider?.model}
           icon={<Bot size={16} />}
+          to="/admin/ai-providers"
         />
       </div>
 
