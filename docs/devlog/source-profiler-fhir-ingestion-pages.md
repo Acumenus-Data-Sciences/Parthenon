@@ -52,9 +52,24 @@ During the accordion group refactoring, the **Admin Dashboard** (`/admin`) and *
 Updated **Administration** group now includes:
 - Admin Dashboard, System Health, Users, Roles & Permissions, Auth Providers, Notifications
 
+### Phenotype Library Sync Fix
+
+The `phenotype:sync` Artisan command was syncing 0 phenotypes despite fetching 1,101 CSV lines from the OHDSI PhenotypeLibrary GitHub repository. Two bugs in `PhenotypeSync.php`:
+
+1. **UTF-8 BOM in CSV header** — The OHDSI `Cohorts.csv` file includes a UTF-8 BOM (`\xEF\xBB\xBF`) prefix. PHP's `str_getcsv()` preserves it, producing a header key `\xEF\xBB\xBFcohortId` instead of `cohortId`. Every row's `$entry['cohortId']` lookup returned null, setting `$cohortId = 0`, which triggered the skip condition on every single row.
+
+2. **Column count mismatch** — The CSV has 80+ columns. Rows with trailing empty fields get those fields dropped by `str_getcsv()`, making `count($row) < count($headers)` true and skipping most rows.
+
+**Fixes applied:**
+- `preg_replace('/^\xEF\xBB\xBF/', '', $csv)` strips the BOM before parsing
+- `array_pad($row, $headerCount, '')` pads short rows; `array_slice()` trims excess columns
+
+After fix: `phenotype:sync --fresh` successfully synced all **1,100 phenotypes** with 0 errors. The Phenotype Library page at `/phenotype-library` now displays the full OHDSI catalog.
+
 ## Files Changed
 
 - `frontend/src/features/etl/pages/SourceProfilerPage.tsx` — new (standalone page)
 - `frontend/src/features/etl/pages/FhirIngestionPage.tsx` — new (standalone page)
 - `frontend/src/app/router.tsx` — added `/source-profiler` and `/fhir-ingestion` routes
 - `frontend/src/components/layout/Sidebar.tsx` — added nav items, refactored to accordion groups, restored missing admin entries
+- `backend/app/Console/Commands/PhenotypeSync.php` — fixed BOM and column count bugs preventing phenotype sync
