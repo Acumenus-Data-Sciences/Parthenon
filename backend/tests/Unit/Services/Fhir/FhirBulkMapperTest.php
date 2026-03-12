@@ -310,4 +310,72 @@ class FhirBulkMapperTest extends TestCase
 
         $this->assertEmpty($rows);
     }
+
+    public function test_immunization_maps_lot_route_quantity(): void
+    {
+        $this->crosswalk->shouldReceive('resolvePersonId')->andReturn(1);
+        $this->vocab->shouldReceive('resolve')->andReturn([
+            'concept_id' => 600, 'domain_id' => 'Drug', 'source_concept_id' => 600,
+            'source_value' => 'cvx|600', 'cdm_table' => 'drug_exposure', 'mapping_type' => 'direct_standard',
+        ]);
+
+        $resource = [
+            'resourceType' => 'Immunization',
+            'id' => 'imm-1',
+            'status' => 'completed',
+            'vaccineCode' => ['coding' => [['system' => 'http://hl7.org/fhir/sid/cvx', 'code' => '600']]],
+            'patient' => ['reference' => 'Patient/patient-1'],
+            'occurrenceDateTime' => '2025-06-01',
+            'lotNumber' => 'LOT123ABC',
+            'route' => ['coding' => [['code' => 'IM', 'display' => 'Intramuscular']], 'text' => 'Intramuscular'],
+            'doseQuantity' => ['value' => 0.5, 'unit' => 'mL'],
+        ];
+
+        $rows = $this->mapper->mapResource($resource, 'test-site');
+        $drugRow = collect($rows)->firstWhere('cdm_table', 'drug_exposure');
+
+        $this->assertEquals('LOT123ABC', $drugRow['data']['lot_number']);
+        $this->assertEquals(0.5, $drugRow['data']['quantity']);
+        $this->assertEquals('mL', $drugRow['data']['dose_unit_source_value']);
+        $this->assertEquals('Intramuscular', $drugRow['data']['route_source_value']);
+    }
+
+    public function test_immunization_not_done_routes_to_observation(): void
+    {
+        $this->crosswalk->shouldReceive('resolvePersonId')->andReturn(1);
+        $this->vocab->shouldReceive('resolve')->andReturn([
+            'concept_id' => 999, 'domain_id' => 'Drug', 'source_concept_id' => 999,
+            'source_value' => 'cvx|999', 'cdm_table' => 'drug_exposure', 'mapping_type' => 'direct_standard',
+        ]);
+
+        $resource = [
+            'resourceType' => 'Immunization',
+            'id' => 'imm-2',
+            'status' => 'not-done',
+            'vaccineCode' => ['coding' => [['system' => 'http://hl7.org/fhir/sid/cvx', 'code' => '999']]],
+            'patient' => ['reference' => 'Patient/patient-1'],
+            'occurrenceDateTime' => '2025-06-01',
+        ];
+
+        $rows = $this->mapper->mapResource($resource, 'test-site');
+        $obsRow = collect($rows)->firstWhere('cdm_table', 'observation');
+
+        $this->assertNotNull($obsRow, 'not-done immunization should route to observation table per IG');
+        $this->assertEquals(1, $obsRow['data']['person_id']);
+    }
+
+    public function test_immunization_entered_in_error_is_skipped(): void
+    {
+        $resource = [
+            'resourceType' => 'Immunization',
+            'id' => 'imm-3',
+            'status' => 'entered-in-error',
+            'vaccineCode' => ['coding' => [['system' => 'http://hl7.org/fhir/sid/cvx', 'code' => '999']]],
+            'patient' => ['reference' => 'Patient/patient-1'],
+        ];
+
+        $rows = $this->mapper->mapResource($resource, 'test-site');
+
+        $this->assertEmpty($rows);
+    }
 }

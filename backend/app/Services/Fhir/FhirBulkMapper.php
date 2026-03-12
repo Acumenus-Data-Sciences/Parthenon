@@ -423,10 +423,41 @@ class FhirBulkMapper
 
     private function mapImmunization(array $r, string $siteKey): array
     {
+        // Status filter per IG: completed/in-progress → drug_exposure, not-done → observation, else skip
+        $status = $r['status'] ?? '';
+        if (! in_array($status, ['completed', 'in-progress', 'not-done'], true)) {
+            return ['__skip' => true];
+        }
+
+        // not-done immunizations route to observation table per IG
+        if ($status === 'not-done') {
+            $codings = $this->extractCodings($r['vaccineCode'] ?? []);
+            $resolved = $this->vocab->resolve($codings);
+            $personId = $this->resolveSubjectPersonId($r, $siteKey, 'patient');
+            $occurrence = $r['occurrenceDateTime'] ?? $r['occurrenceString'] ?? null;
+
+            return [
+                'cdm_table' => 'observation',
+                'data' => [
+                    'person_id' => $personId,
+                    'observation_concept_id' => $resolved['concept_id'],
+                    'observation_date' => $this->parseDate($occurrence),
+                    'observation_datetime' => $this->parseDatetime($occurrence),
+                    'observation_type_concept_id' => 32817,
+                    'observation_source_value' => $resolved['source_value'],
+                    'observation_source_concept_id' => $resolved['source_concept_id'],
+                ],
+            ];
+        }
+
         $codings = $this->extractCodings($r['vaccineCode'] ?? []);
         $resolved = $this->vocab->resolve($codings);
         $personId = $this->resolveSubjectPersonId($r, $siteKey, 'patient');
         $occurrence = $r['occurrenceDateTime'] ?? $r['occurrenceString'] ?? null;
+
+        // Route concept resolution
+        $routeCodings = $r['route']['coding'] ?? [];
+        $routeResolved = ! empty($routeCodings) ? $this->vocab->resolve($routeCodings) : null;
 
         return [
             'cdm_table' => 'drug_exposure',
@@ -439,6 +470,11 @@ class FhirBulkMapper
                 'drug_type_concept_id' => 32817,
                 'drug_source_value' => $resolved['source_value'],
                 'drug_source_concept_id' => $resolved['source_concept_id'],
+                'lot_number' => $r['lotNumber'] ?? null,
+                'route_concept_id' => $routeResolved ? $routeResolved['concept_id'] : 0,
+                'route_source_value' => $r['route']['text'] ?? $r['route']['coding'][0]['display'] ?? null,
+                'quantity' => isset($r['doseQuantity']['value']) ? (float) $r['doseQuantity']['value'] : null,
+                'dose_unit_source_value' => $r['doseQuantity']['unit'] ?? null,
             ],
         ];
     }
