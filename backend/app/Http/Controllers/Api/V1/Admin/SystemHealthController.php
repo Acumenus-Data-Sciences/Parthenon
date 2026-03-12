@@ -27,6 +27,7 @@ class SystemHealthController extends Controller
             'orthanc' => fn () => $this->checkOrthanc(),
             'queue' => fn () => $this->checkQueue(),
             'chromadb' => fn () => $this->checkChromaDb(),
+            'study-agent' => fn () => $this->checkStudyAgent(),
         ];
     }
 
@@ -75,6 +76,7 @@ class SystemHealthController extends Controller
             'orthanc' => $this->getServiceHttpLogs('orthanc'),
             'queue' => $this->getQueueLogs(),
             'chromadb' => $this->getServiceHttpLogs('chromadb'),
+            'study-agent' => [],
             default => [],
         };
     }
@@ -93,6 +95,7 @@ class SystemHealthController extends Controller
             'orthanc' => $this->getOrthancMetrics(),
             'queue' => $this->getQueueMetrics(),
             'chromadb' => $this->getChromaDbMetrics(),
+            'study-agent' => [],
             default => [],
         };
     }
@@ -354,6 +357,41 @@ class SystemHealthController extends Controller
                 'key' => 'chromadb',
                 'status' => 'down',
                 'message' => $e->getMessage(),
+            ];
+        }
+    }
+
+    private function checkStudyAgent(): array
+    {
+        $url = rtrim(config('services.ai.url', env('AI_SERVICE_URL', 'http://python-ai:8000')), '/');
+
+        try {
+            $response = Http::timeout(5)->get("{$url}/study-agent/health");
+
+            if ($response->successful()) {
+                $data = $response->json();
+
+                return [
+                    'key' => 'study-agent',
+                    'name' => 'Study Agent',
+                    'status' => 'healthy',
+                    'message' => 'OHDSI StudyAgent is running',
+                    'details' => $data,
+                ];
+            }
+
+            return [
+                'key' => 'study-agent',
+                'name' => 'Study Agent',
+                'status' => 'degraded',
+                'message' => 'StudyAgent returned HTTP '.$response->status(),
+            ];
+        } catch (\Throwable $e) {
+            return [
+                'key' => 'study-agent',
+                'name' => 'Study Agent',
+                'status' => 'down',
+                'message' => 'StudyAgent unavailable: '.$e->getMessage(),
             ];
         }
     }
