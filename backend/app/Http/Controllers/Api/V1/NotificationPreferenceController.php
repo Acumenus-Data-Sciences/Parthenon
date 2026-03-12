@@ -18,12 +18,14 @@ class NotificationPreferenceController extends Controller
             'notification_email' => $user->notification_email,
             'notification_sms' => $user->notification_sms,
             'phone_number' => $user->phone_number,
-            'notification_preferences' => $user->notification_preferences ?? [
+            'notification_preferences' => array_merge([
                 'analysis_completed' => true,
                 'analysis_failed' => true,
                 'cohort_generated' => true,
                 'study_completed' => true,
-            ],
+                'daily_digest' => true,
+                'daily_digest_mode' => 'always',
+            ], $user->notification_preferences ?? []),
         ]);
     }
 
@@ -38,6 +40,8 @@ class NotificationPreferenceController extends Controller
             'notification_preferences.analysis_failed' => 'sometimes|boolean',
             'notification_preferences.cohort_generated' => 'sometimes|boolean',
             'notification_preferences.study_completed' => 'sometimes|boolean',
+            'notification_preferences.daily_digest' => 'sometimes|boolean',
+            'notification_preferences.daily_digest_mode' => 'sometimes|string|in:always,alerts_only',
         ]);
 
         $request->user()->update($validated);

@@ -7,5 +7,7 @@ export interface NotificationPreferences {
     analysis_failed: boolean;
     cohort_generated: boolean;
     study_completed: boolean;
+    daily_digest: boolean;
+    daily_digest_mode: 'always' | 'alerts_only';
   };
 }

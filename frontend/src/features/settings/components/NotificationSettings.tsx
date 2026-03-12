@@ -45,6 +45,12 @@ const GRANULAR_LABELS: {
     label: "Study Completed",
     description: "Receive a notification when a study run finishes",
   },
+  {
+    key: "daily_digest",
+    label: "Daily Ops Digest",
+    description:
+      "Receive a daily morning email with CI status, service health, data quality, and changelog",
+  },
 ];
 
 export function NotificationSettings() {
@@ -60,6 +66,8 @@ export function NotificationSettings() {
       analysis_failed: true,
       cohort_generated: true,
       study_completed: true,
+      daily_digest: true,
+      daily_digest_mode: "always",
     },
   });
 
@@ -161,7 +169,12 @@ export function NotificationSettings() {
                 className="flex items-start gap-3 cursor-pointer group"
               >
                 <ToggleSwitch
-                  checked={form.notification_preferences[item.key]}
+                  checked={
+                    typeof form.notification_preferences[item.key] ===
+                    "boolean"
+                      ? (form.notification_preferences[item.key] as boolean)
+                      : false
+                  }
                   onChange={() => handleGranularToggle(item.key)}
                   size="sm"
                 />
@@ -173,6 +186,60 @@ export function NotificationSettings() {
                 </div>
               </label>
             ))}
+
+            {/* Daily digest mode selector */}
+            {form.notification_preferences.daily_digest && (
+              <div className="mt-3 ml-1 space-y-2">
+                <p className="text-xs font-semibold uppercase tracking-wider text-[#8A857D]">
+                  Digest Frequency
+                </p>
+                {(
+                  [
+                    {
+                      value: "always",
+                      label: "Every morning",
+                      desc: "Full summary at 9am daily",
+                    },
+                    {
+                      value: "alerts_only",
+                      label: "Alerts only",
+                      desc: "Only when something needs attention",
+                    },
+                  ] as const
+                ).map((opt) => (
+                  <label
+                    key={opt.value}
+                    className="flex items-start gap-3 cursor-pointer group"
+                  >
+                    <input
+                      type="radio"
+                      name="daily_digest_mode"
+                      value={opt.value}
+                      checked={
+                        form.notification_preferences.daily_digest_mode ===
+                        opt.value
+                      }
+                      onChange={() =>
+                        setForm((prev) => ({
+                          ...prev,
+                          notification_preferences: {
+                            ...prev.notification_preferences,
+                            daily_digest_mode: opt.value,
+                          },
+                        }))
+                      }
+                      className="mt-0.5 accent-[#2DD4BF]"
+                    />
+                    <div>
+                      <span className="text-sm text-[#C5C0B8] group-hover:text-[#F0EDE8] transition-colors">
+                        {opt.label}
+                      </span>
+                      <p className="text-xs text-[#5A5650]">{opt.desc}</p>
+                    </div>
+                  </label>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </section>
