@@ -2,12 +2,15 @@
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Mail;
 
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
     // Prevent rate-limiter interference across parallel tests
     $this->withoutMiddleware(\Illuminate\Routing\Middleware\ThrottleRequests::class);
+    // Fake mail so registration doesn't need a real mail driver
+    Mail::fake();
 });
 
 test('user can register', function () {
