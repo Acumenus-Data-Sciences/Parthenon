@@ -547,4 +547,31 @@ class FhirBulkMapperTest extends TestCase
         $this->assertNotNull($deathRow);
         $this->assertNull($deathRow['data']['death_date']);
     }
+
+    public function test_encounter_with_partof_maps_to_visit_detail(): void
+    {
+        $this->crosswalk->shouldReceive('resolvePersonId')->andReturn(1);
+        $this->crosswalk->shouldReceive('resolveVisitId')
+            ->with('test-site', 'enc-parent', Mockery::any())
+            ->andReturn(100);
+        $this->crosswalk->shouldReceive('resolveVisitId')
+            ->with('test-site', 'enc-child', Mockery::any())
+            ->andReturn(101);
+
+        $resource = [
+            'resourceType' => 'Encounter',
+            'id' => 'enc-child',
+            'class' => ['code' => 'AMB'],
+            'subject' => ['reference' => 'Patient/patient-1'],
+            'period' => ['start' => '2025-01-01T10:00:00Z', 'end' => '2025-01-01T11:00:00Z'],
+            'partOf' => ['reference' => 'Encounter/enc-parent'],
+        ];
+
+        $rows = $this->mapper->mapResource($resource, 'test-site');
+        $visitDetailRow = collect($rows)->firstWhere('cdm_table', 'visit_detail');
+
+        $this->assertNotNull($visitDetailRow, 'Encounter with partOf should map to visit_detail');
+        $this->assertEquals(100, $visitDetailRow['data']['visit_occurrence_id']);
+        $this->assertEquals(9202, $visitDetailRow['data']['visit_detail_concept_id']);
+    }
 }

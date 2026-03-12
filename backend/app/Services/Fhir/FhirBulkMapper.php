@@ -183,7 +183,10 @@ class FhirBulkMapper
 
     private function mapEncounter(array $r, string $siteKey): array
     {
-        // Sub-encounter detection: partOf → visit_detail (spec B6) — to be added in Task 14b
+        // Sub-encounter detection: partOf → visit_detail instead of visit_occurrence (spec B6)
+        if (isset($r['partOf']['reference'])) {
+            return $this->mapVisitDetail($r, $siteKey);
+        }
 
         $fhirId = $r['id'] ?? '';
         $patientRef = $this->extractRef($r['subject'] ?? []);
@@ -271,6 +274,35 @@ class FhirBulkMapper
         ];
 
         return $rows;
+    }
+
+    private function mapVisitDetail(array $r, string $siteKey): array
+    {
+        $classCode = isset($r['class']['code'])
+            ? $r['class']['code']
+            : ($r['class'][0]['coding'][0]['code'] ?? '');
+
+        $personId = $this->resolveSubjectPersonId($r, $siteKey);
+        $fhirId = $r['id'] ?? '';
+        $parentRef = $this->extractRef($r['partOf']);
+        $parentVisitId = $parentRef ? $this->crosswalk->resolveVisitId($siteKey, $parentRef, $personId) : null;
+        $visitDetailId = $this->crosswalk->resolveVisitId($siteKey, $fhirId, $personId);
+
+        return [
+            'cdm_table' => 'visit_detail',
+            'data' => [
+                'visit_detail_id' => $visitDetailId,
+                'person_id' => $personId,
+                'visit_detail_concept_id' => self::VISIT_CLASS_MAP[strtoupper($classCode)] ?? 0,
+                'visit_detail_start_date' => $this->parseDate($r['period']['start'] ?? null),
+                'visit_detail_start_datetime' => $this->parseDatetime($r['period']['start'] ?? null),
+                'visit_detail_end_date' => $this->parseDate($r['period']['end'] ?? null),
+                'visit_detail_end_datetime' => $this->parseDatetime($r['period']['end'] ?? null),
+                'visit_detail_type_concept_id' => 32817,
+                'visit_occurrence_id' => $parentVisitId,
+                'visit_detail_source_value' => $classCode,
+            ],
+        ];
     }
 
     private function mapCondition(array $r, string $siteKey): array
