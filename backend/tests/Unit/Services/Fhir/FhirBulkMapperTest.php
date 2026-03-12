@@ -378,4 +378,64 @@ class FhirBulkMapperTest extends TestCase
 
         $this->assertEmpty($rows);
     }
+
+    public function test_measurement_resolves_unit_concept_id(): void
+    {
+        $this->crosswalk->shouldReceive('resolvePersonId')->andReturn(1);
+        $this->crosswalk->shouldReceive('lookupVisitId')->andReturn(null);
+        $this->vocab->shouldReceive('resolve')->andReturn([
+            'concept_id' => 3000963, 'domain_id' => 'Measurement', 'source_concept_id' => 3000963,
+            'source_value' => 'loinc|2345-7', 'cdm_table' => 'measurement', 'mapping_type' => 'direct_standard',
+        ]);
+        $this->vocab->shouldReceive('resolveUcumUnit')->with('mg/dL')->andReturn(8840);
+
+        $resource = [
+            'resourceType' => 'Observation',
+            'id' => 'obs-1',
+            'code' => ['coding' => [['system' => 'http://loinc.org', 'code' => '2345-7']]],
+            'subject' => ['reference' => 'Patient/patient-1'],
+            'effectiveDateTime' => '2025-01-01',
+            'category' => [['coding' => [['code' => 'laboratory']]]],
+            'valueQuantity' => ['value' => 95.5, 'unit' => 'mg/dL', 'code' => 'mg/dL'],
+        ];
+
+        $rows = $this->mapper->mapResource($resource, 'test-site');
+        $measRow = collect($rows)->firstWhere('cdm_table', 'measurement');
+
+        $this->assertEquals(8840, $measRow['data']['unit_concept_id']);
+        $this->assertEquals('mg/dL', $measRow['data']['unit_source_value']);
+    }
+
+    public function test_observation_maps_value_as_concept_id(): void
+    {
+        $this->crosswalk->shouldReceive('resolvePersonId')->andReturn(1);
+        $this->crosswalk->shouldReceive('lookupVisitId')->andReturn(null);
+        $this->vocab->shouldReceive('resolve')
+            ->with([['system' => 'http://snomed.info/sct', 'code' => '365980008']])
+            ->andReturn([
+                'concept_id' => 4275495, 'domain_id' => 'Observation', 'source_concept_id' => 4275495,
+                'source_value' => 'snomed|365980008', 'cdm_table' => 'observation', 'mapping_type' => 'direct_standard',
+            ]);
+        $this->vocab->shouldReceive('resolve')
+            ->with([['system' => 'http://snomed.info/sct', 'code' => '260373001']])
+            ->andReturn([
+                'concept_id' => 4181412, 'domain_id' => 'Meas Value', 'source_concept_id' => 4181412,
+                'source_value' => 'snomed|260373001', 'cdm_table' => null, 'mapping_type' => 'direct_standard',
+            ]);
+
+        $resource = [
+            'resourceType' => 'Observation',
+            'id' => 'obs-2',
+            'code' => ['coding' => [['system' => 'http://snomed.info/sct', 'code' => '365980008']]],
+            'subject' => ['reference' => 'Patient/patient-1'],
+            'effectiveDateTime' => '2025-01-01',
+            'category' => [['coding' => [['code' => 'social-history']]]],
+            'valueCodeableConcept' => ['coding' => [['system' => 'http://snomed.info/sct', 'code' => '260373001']]],
+        ];
+
+        $rows = $this->mapper->mapResource($resource, 'test-site');
+        $obsRow = collect($rows)->firstWhere('cdm_table', 'observation');
+
+        $this->assertEquals(4181412, $obsRow['data']['value_as_concept_id']);
+    }
 }

@@ -65,6 +65,16 @@ class FhirBulkMapper
         'SS' => 9202,    // Short stay → Outpatient
     ];
 
+    /** FHIR Observation.interpretation → OMOP value_as_concept_id. */
+    private const INTERPRETATION_MAP = [
+        'H' => 4328749,    // High
+        'L' => 4267416,    // Low
+        'N' => 4069590,    // Normal
+        'A' => 4135422,    // Abnormal
+        'HH' => 4328749,   // Critically high → High
+        'LL' => 4267416,   // Critically low → Low
+    ];
+
     public function __construct(
         private readonly VocabularyLookupService $vocab,
         private readonly CrosswalkService $crosswalk,
@@ -371,6 +381,7 @@ class FhirBulkMapper
                     'value_as_number' => $this->extractNumericValue($r),
                     'value_as_concept_id' => $this->extractValueConceptId($r),
                     'unit_source_value' => $this->extractUnit($r),
+                    'unit_concept_id' => $this->vocab->resolveUcumUnit($r['valueQuantity']['code'] ?? ''),
                     'range_low' => $r['referenceRange'][0]['low']['value'] ?? null,
                     'range_high' => $r['referenceRange'][0]['high']['value'] ?? null,
                     'measurement_source_value' => $resolved['source_value'],
@@ -390,6 +401,7 @@ class FhirBulkMapper
                 'observation_type_concept_id' => 32817,
                 'value_as_string' => $this->extractValueString($r),
                 'value_as_number' => $this->extractNumericValue($r),
+                'value_as_concept_id' => $this->extractValueConceptId($r) ?: $this->extractInterpretation($r),
                 'observation_source_value' => $resolved['source_value'],
                 'observation_source_concept_id' => $resolved['source_concept_id'],
                 'visit_occurrence_id' => $visitId,
@@ -615,6 +627,13 @@ class FhirBulkMapper
         }
 
         return 0;
+    }
+
+    private function extractInterpretation(array $r): int
+    {
+        $code = $r['interpretation'][0]['coding'][0]['code'] ?? '';
+
+        return self::INTERPRETATION_MAP[$code] ?? 0;
     }
 
     private function extractValueString(array $r): ?string
