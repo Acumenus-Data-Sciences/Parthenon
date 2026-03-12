@@ -26,10 +26,10 @@ import {
   type CollectionOverview,
   type QueryResponse,
   type MetadataFacet,
-  type ProjectionPoint,
   type SampleRecord,
   type Json,
 } from "../api/chromaStudioApi";
+import VectorExplorer from "./vector-explorer/VectorExplorer";
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
@@ -44,11 +44,6 @@ const TABS = [
   { key: "search" as const, label: "Retrieval", icon: Eye },
   { key: "map" as const, label: "Semantic Map", icon: Radar },
 ] as const;
-
-const PALETTE_COLORS = [
-  "#9B1B30", "#2DD4BF", "#C9A227", "#60a5fa", "#a78bfa",
-  "#f472b6", "#f59e0b", "#34d399", "#fb7185", "#38bdf8",
-];
 
 // ── Main Component ───────────────────────────────────────────────────────────
 
@@ -112,36 +107,6 @@ export default function ChromaStudioPanel() {
       });
     return () => { cancelled = true; };
   }, [selectedCollection]);
-
-  // Embeddings fetched on-demand only when map tab is active
-  const [embeddingRecords, setEmbeddingRecords] = useState<CollectionOverview["sampleRecords"]>([]);
-  const [embeddingsLoaded, setEmbeddingsLoaded] = useState(false);
-  const [loadingEmbeddings, setLoadingEmbeddings] = useState(false);
-
-  useEffect(() => {
-    if (activeTab !== "map" || !selectedCollection || embeddingsLoaded) return;
-    let cancelled = false;
-    setLoadingEmbeddings(true);
-    fetchCollectionOverview(selectedCollection, true)
-      .then((data) => {
-        if (!cancelled) {
-          setEmbeddingRecords(data.sampleRecords);
-          setEmbeddingsLoaded(true);
-        }
-      })
-      .catch(() => { /* overview loaded, map won't render */ })
-      .finally(() => {
-        if (!cancelled) setLoadingEmbeddings(false);
-      });
-    return () => { cancelled = true; };
-  }, [activeTab, selectedCollection, embeddingsLoaded]);
-
-  useEffect(() => {
-    setEmbeddingsLoaded(false);
-    setEmbeddingRecords([]);
-  }, [selectedCollection]);
-
-  const computedPoints = useUmapProjection(embeddingRecords);
 
   const stats = useMemo(() => {
     if (!overview) return null;
@@ -408,7 +373,7 @@ export default function ChromaStudioPanel() {
           {/* Tab content */}
           {activeTab === "overview" && <OverviewSection overview={overview} />}
           {activeTab === "search" && <SearchSection searchResults={searchResults} queryLoading={queryLoading} searchText={searchText} />}
-          {activeTab === "map" && <MapSection points={computedPoints} overview={overview} loadingEmbeddings={loadingEmbeddings} />}
+          {activeTab === "map" && <VectorExplorer collectionName={selectedCollection} overview={overview} />}
         </div>
       )}
     </div>
@@ -542,225 +507,6 @@ function SearchSection({ searchResults, queryLoading, searchText }: {
   );
 }
 
-// ── Map Section ──────────────────────────────────────────────────────────────
-
-function MapSection({ points, overview, loadingEmbeddings }: { points: ProjectionPoint[]; overview: CollectionOverview; loadingEmbeddings: boolean }) {
-  const [colorKey, setColorKey] = useState<string>(overview.metadataKeys[0] ?? "");
-  const palette = useMemo(() => buildPalette(points, colorKey), [points, colorKey]);
-  const [selectedPoint, setSelectedPoint] = useState<ProjectionPoint | null>(null);
-
-  useEffect(() => {
-    if (!overview.metadataKeys.includes(colorKey)) setColorKey(overview.metadataKeys[0] ?? "");
-  }, [overview.metadataKeys, colorKey]);
-
-  if (loadingEmbeddings || points.length < 3) {
-    return (
-      <Panel>
-        <div className="flex flex-col items-center gap-3 py-8 text-center">
-          {loadingEmbeddings ? (
-            <>
-              <Loader2 className="h-6 w-6 animate-spin text-[#C9A227]" />
-              <div>
-                <p className="text-sm font-medium text-[#C5C0B8]">Loading embeddings</p>
-                <p className="mt-1 text-sm text-[#5A5650]">
-                  Fetching vectors for UMAP projection...
-                </p>
-              </div>
-            </>
-          ) : (
-            <>
-              <Radar className="h-6 w-6 text-[#5A5650]" />
-              <div>
-                <p className="text-sm font-medium text-[#8A857D]">Insufficient embeddings</p>
-                <p className="mt-1 text-sm text-[#5A5650]">
-                  At least 3 records with embeddings needed for UMAP projection.
-                </p>
-              </div>
-            </>
-          )}
-        </div>
-      </Panel>
-    );
-  }
-
-  return (
-    <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_280px]">
-      <Panel>
-        <div className="mb-3 flex items-center justify-between">
-          <h3 className="text-base font-semibold text-[#F0EDE8]">2D Semantic Map</h3>
-          {overview.metadataKeys.length > 0 && (
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-[#5A5650]">Color by</span>
-              <select
-                value={colorKey}
-                onChange={(e) => setColorKey(e.target.value)}
-                className="rounded border border-[#232328] bg-[#0E0E11] px-2 py-1 text-sm text-[#E8E4DC] outline-none focus:border-[#C9A227]/50"
-              >
-                {overview.metadataKeys.map((key) => (
-                  <option key={key} value={key}>{key}</option>
-                ))}
-              </select>
-            </div>
-          )}
-        </div>
-        <ScatterPlot points={points} colorKey={colorKey} palette={palette} onSelect={setSelectedPoint} />
-      </Panel>
-
-      <div className="space-y-4">
-        {/* Legend */}
-        <Panel>
-          <h3 className="mb-2 text-sm font-semibold text-[#8A857D]">Legend</h3>
-          <div className="space-y-1.5">
-            {palette.map((entry) => (
-              <div key={entry.label} className="flex items-center justify-between text-sm">
-                <div className="flex items-center gap-1.5 text-[#C5C0B8]">
-                  <span className="h-2.5 w-2.5 rounded-full" style={{ background: entry.color }} />
-                  <span className="truncate">{entry.label}</span>
-                </div>
-                <span className="font-['IBM_Plex_Mono',monospace] text-[#5A5650]">{entry.count}</span>
-              </div>
-            ))}
-          </div>
-        </Panel>
-
-        {/* Selected point */}
-        <Panel>
-          <h3 className="mb-2 text-sm font-semibold text-[#8A857D]">Selected Point</h3>
-          {selectedPoint ? (
-            <div className="space-y-2">
-              <div className="font-['IBM_Plex_Mono',monospace] text-xs text-[#2DD4BF]">{selectedPoint.id}</div>
-              <p className="line-clamp-4 text-sm leading-relaxed text-[#C5C0B8]">
-                {selectedPoint.document || "No document available."}
-              </p>
-              {selectedPoint.metadata && Object.keys(selectedPoint.metadata).length > 0 && (
-                <div className="flex flex-wrap gap-1">
-                  {Object.entries(selectedPoint.metadata).map(([k, v]) => (
-                    <MetadataTag key={k} k={k} v={v} />
-                  ))}
-                </div>
-              )}
-            </div>
-          ) : (
-            <p className="text-sm text-[#5A5650]">Click a point on the map to inspect.</p>
-          )}
-        </Panel>
-      </div>
-    </div>
-  );
-}
-
-// ── Scatter Plot ─────────────────────────────────────────────────────────────
-
-function ScatterPlot({ points, colorKey, palette, onSelect }: {
-  points: ProjectionPoint[];
-  colorKey: string;
-  palette: Array<{ label: string; color: string; count: number }>;
-  onSelect: (point: ProjectionPoint) => void;
-}) {
-  const width = 900;
-  const height = 480;
-  const padding = 28;
-  const [hovered, setHovered] = useState<ProjectionPoint | null>(null);
-
-  const xVals = points.map((p) => p.x);
-  const yVals = points.map((p) => p.y);
-  const minX = Math.min(...xVals, 0);
-  const maxX = Math.max(...xVals, 1);
-  const minY = Math.min(...yVals, 0);
-  const maxY = Math.max(...yVals, 1);
-  const xScale = (x: number) => padding + ((x - minX) / Math.max(1e-8, maxX - minX)) * (width - padding * 2);
-  const yScale = (y: number) => height - padding - ((y - minY) / Math.max(1e-8, maxY - minY)) * (height - padding * 2);
-  const colorMap = new Map(palette.map((p) => [p.label, p.color]));
-
-  return (
-    <div className="relative overflow-hidden rounded-lg border border-[#232328] bg-[#0A0A0F]">
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:32px_32px] opacity-60" />
-      <svg viewBox={`0 0 ${width} ${height}`} className="relative z-10 h-[480px] w-full">
-        {points.map((point, idx) => {
-          const value = compact(point.metadata?.[colorKey] ?? "unknown");
-          const fill = colorMap.get(value) ?? "#5A5650";
-          const isHovered = hovered?.id === point.id;
-          return (
-            <circle
-              key={`${point.id}_${idx}`}
-              cx={xScale(point.x)}
-              cy={yScale(point.y)}
-              r={5}
-              fill={fill}
-              fillOpacity={isHovered ? 1 : 0.75}
-              stroke={isHovered ? "#F0EDE8" : "rgba(255,255,255,0.1)"}
-              strokeWidth={isHovered ? 2 : 0.5}
-              className="cursor-pointer transition-all duration-150"
-              onMouseEnter={() => setHovered(point)}
-              onMouseLeave={() => setHovered(null)}
-              onClick={() => onSelect(point)}
-            />
-          );
-        })}
-      </svg>
-      {hovered && (
-        <div className="pointer-events-none absolute left-3 top-3 z-20 max-w-xs rounded border border-[#232328] bg-[#151518]/95 p-2.5 shadow-xl backdrop-blur">
-          <div className="font-['IBM_Plex_Mono',monospace] text-xs text-[#2DD4BF]">{hovered.id}</div>
-          <div className="mt-1 line-clamp-2 text-sm text-[#C5C0B8]">{hovered.document || "No document."}</div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ── UMAP Hook ────────────────────────────────────────────────────────────────
-
-function useUmapProjection(records: SampleRecord[]): ProjectionPoint[] {
-  const [points, setPoints] = useState<ProjectionPoint[]>([]);
-
-  useEffect(() => {
-    let active = true;
-    const withEmbeddings = records.filter(
-      (r): r is SampleRecord & { embedding: number[] } =>
-        Array.isArray(r.embedding) && r.embedding.length > 1
-    );
-
-    if (withEmbeddings.length < 3) {
-      setPoints([]);
-      return;
-    }
-
-    import("umap-js")
-      .then(({ UMAP }) => {
-        if (!active) return;
-        try {
-          const umap = new UMAP({
-            nNeighbors: Math.min(12, withEmbeddings.length - 1),
-            minDist: 0.18,
-            nComponents: 2,
-          });
-          const projection = umap.fit(withEmbeddings.map((r) => r.embedding));
-          if (!active) return;
-          setPoints(
-            projection.map((coords: number[], i: number) => ({
-              id: withEmbeddings[i].id,
-              x: coords[0],
-              y: coords[1],
-              document: withEmbeddings[i].document,
-              metadata: withEmbeddings[i].metadata,
-            }))
-          );
-        } catch {
-          if (!active) return;
-          setPoints(circularLayout(withEmbeddings));
-        }
-      })
-      .catch(() => {
-        if (!active) return;
-        setPoints(circularLayout(withEmbeddings));
-      });
-
-    return () => { active = false; };
-  }, [records]);
-
-  return points;
-}
-
 // ── Sub-Components ───────────────────────────────────────────────────────────
 
 function FacetCard({ facet }: { facet: MetadataFacet }) {
@@ -836,29 +582,4 @@ function compact(value: unknown): string {
 
 function fmt(value: number): string {
   return new Intl.NumberFormat().format(value);
-}
-
-function circularLayout(records: Array<{ id: string; document?: string | null; metadata?: Record<string, Json> | null }>): ProjectionPoint[] {
-  return records.map((r, i) => ({
-    id: r.id,
-    x: Math.cos((i * 2 * Math.PI) / records.length),
-    y: Math.sin((i * 2 * Math.PI) / records.length),
-    document: r.document,
-    metadata: r.metadata,
-  }));
-}
-
-function buildPalette(points: ProjectionPoint[], colorKey: string) {
-  const counts = new Map<string, number>();
-  for (const point of points) {
-    const label = compact(point.metadata?.[colorKey] ?? "unknown");
-    counts.set(label, (counts.get(label) ?? 0) + 1);
-  }
-  return [...counts.entries()]
-    .sort((a, b) => b[1] - a[1])
-    .map(([label, count], index) => ({
-      label,
-      count,
-      color: PALETTE_COLORS[index % PALETTE_COLORS.length],
-    }));
 }
