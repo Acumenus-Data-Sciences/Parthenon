@@ -145,6 +145,7 @@ services:
       - CHROMA_HOST=chromadb
       - CHROMA_PORT=8000
       - STUDY_AGENT_URL=http://study-agent:8765
+      - HECATE_URL=http://hecate:8080
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
@@ -230,6 +231,65 @@ services:
       - parthenon
     restart: unless-stopped
 
+  qdrant:
+    container_name: parthenon-qdrant
+    image: qdrant/qdrant:v1.12.4
+    volumes:
+      - qdrant-data:/qdrant/storage
+    healthcheck:
+      test: ["CMD-SHELL", "wget --spider -q http://localhost:6333/healthz || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+    networks:
+      - parthenon
+    restart: unless-stopped
+
+  hecate:
+    container_name: parthenon-hecate
+    build:
+      context: .
+      dockerfile: docker/hecate/Dockerfile
+    ports:
+      - "${HECATE_PORT:-8080}:8080"
+    environment:
+      - SERVER_ADDR=0.0.0.0:8080
+      - QDRANT_URI=http://qdrant:6334
+      - PG__USER=${HECATE_PG_USER:-smudoshi}
+      - PG__PASSWORD=${HECATE_PG_PASSWORD:-}
+      - PG__HOST=host.docker.internal
+      - PG__PORT=5432
+      - PG__DBNAME=${HECATE_PG_DBNAME:-ohdsi}
+      - PG__POOL_MAX_SIZE=16
+      - VOCAB_SCHEMA=omop
+      - CACHE_MAX_CAPACITY=32
+      - CACHE_TTL_DAYS=10
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      qdrant:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f 'http://localhost:8080/api/search?q=test' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+    networks:
+      - parthenon
+    restart: unless-stopped
+
   solr:
     container_name: parthenon-solr
     image: solr:9.7
@@ -258,6 +318,29 @@ services:
       resources:
         limits:
           memory: 3G
+    networks:
+      - parthenon
+    restart: unless-stopped
+
+  whiterabbit:
+    container_name: parthenon-whiterabbit
+    build:
+      context: .
+      dockerfile: docker/whiterabbit/Dockerfile
+    ports:
+      - "${WHITERABBIT_PORT:-8090}:8090"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8090/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          memory: 2G
     networks:
       - parthenon
     restart: unless-stopped
@@ -383,6 +466,41 @@ services:
     profiles:
       - docs
 
+  fhir-to-cdm:
+    container_name: parthenon-fhir-to-cdm
+    build:
+      context: .
+      dockerfile: docker/fhir-to-cdm/Dockerfile
+    ports:
+      - "${FHIR_TO_CDM_PORT:-8091}:8091"
+    environment:
+      - PG_HOST=host.docker.internal
+      - PG_PORT=5432
+      - PG_DATABASE=${FHIR_CDM_PG_DATABASE:-ohdsi}
+      - PG_USER=${FHIR_CDM_PG_USER:-smudoshi}
+      - PG_PASSWORD=${FHIR_CDM_PG_PASSWORD:-}
+      - CDM_SCHEMA=${FHIR_CDM_SCHEMA:-cdm}
+      - VOCAB_SCHEMA=${FHIR_VOCAB_SCHEMA:-omop}
+      - FHIR_CDM_BINARY=/app/dotnet/FHIRtoCDM
+      - FHIR_INPUT_DIR=/tmp/fhir_input
+      - CDM_OUTPUT_DIR=/tmp/cdm_output
+      - FHIR_CDM_TIMEOUT=300
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8091/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+    networks:
+      - parthenon
+    restart: unless-stopped
+
 volumes:
   postgres-data:
   redis-data:
@@ -390,6 +508,8 @@ volumes:
   orthanc-data:
   chromadb-data:
   study-agent-data:
+  qdrant-data:
+  hecate-data:
   ohif-dist:
 
 networks:

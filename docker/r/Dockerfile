@@ -94,12 +94,65 @@ RUN R -e " \
   if (!requireNamespace('PatientLevelPrediction', quietly = TRUE)) stop('PLP failed'); \
 "
 
+## Layer 5 — Phase B: Cohort diagnostics + deep learning prediction
+## CohortDiagnostics: phenotype evaluation (incidence, orphan concepts, temporal characterization)
+## DeepPatientLevelPrediction: neural network models (Transformer, ResNet, MLP) for PLP
+RUN R -e " \
+  options(repos = c( \
+    OHDSI = 'https://ohdsi.r-universe.dev', \
+    CRAN  = 'https://cloud.r-project.org' \
+  )); \
+  remotes::install_github(c( \
+    'OHDSI/CohortDiagnostics@v3.4.2', \
+    'OHDSI/DeepPatientLevelPrediction@v2.3.0' \
+  ), upgrade = FALSE); \
+  if (!requireNamespace('CohortDiagnostics',          quietly = TRUE)) stop('CohortDiagnostics failed'); \
+  if (!requireNamespace('DeepPatientLevelPrediction', quietly = TRUE)) stop('DeepPLP failed'); \
+"
+
+## Layer 6 — Phase C: Study orchestration, incidence, characterization
+## Strategus: coordinated multi-analysis study execution
+## CohortIncidence: epidemiological incidence rate calculations
+## Characterization: standardized baseline characterization with Table 1 + SMD
+RUN R -e " \
+  options(repos = c( \
+    OHDSI = 'https://ohdsi.r-universe.dev', \
+    CRAN  = 'https://cloud.r-project.org' \
+  )); \
+  remotes::install_github(c( \
+    'OHDSI/CohortIncidence@v4.1.1', \
+    'OHDSI/Characterization@v2.2.0' \
+  ), upgrade = FALSE); \
+  if (!requireNamespace('CohortIncidence',   quietly = TRUE)) stop('CohortIncidence failed'); \
+  if (!requireNamespace('Characterization',  quietly = TRUE)) stop('Characterization failed'); \
+  remotes::install_github('OHDSI/Strategus@v1.4.1', upgrade = FALSE); \
+  if (!requireNamespace('Strategus', quietly = TRUE)) stop('Strategus failed'); \
+"
+
+## Layer 7 — Phase E: ETL tools
+## ETL-Synthea: Synthea CSV → OMOP CDM converter for synthetic data generation
+RUN R -e " \
+  options(repos = c( \
+    OHDSI = 'https://ohdsi.r-universe.dev', \
+    CRAN  = 'https://cloud.r-project.org' \
+  )); \
+  remotes::install_github('OHDSI/ETL-Synthea@v2.1.0', upgrade = FALSE); \
+  if (!requireNamespace('ETLSyntheaBuilder', quietly = TRUE)) stop('ETLSyntheaBuilder failed'); \
+"
+
 # Python packages for PLP sklearn-based models — pinned versions
+# + PyTorch and deps for DeepPatientLevelPrediction (via reticulate)
 RUN pip3 install --break-system-packages \
     scikit-learn==1.6.1 \
     numpy==2.2.3 \
     xgboost==2.1.4 \
-    lightgbm==4.6.0
+    lightgbm==4.6.0 \
+    torch>=2.7 \
+    polars>=1.31.0 \
+    pyarrow \
+    duckdb \
+    tqdm \
+    nvidia-ml-py
 
 # Download PostgreSQL JDBC driver for DatabaseConnector.
 # IMPORTANT: must live outside /app because docker-compose mounts ./r-runtime:/app

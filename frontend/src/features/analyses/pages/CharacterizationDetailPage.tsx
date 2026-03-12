@@ -21,6 +21,7 @@ import {
   useCharacterizationExecutions,
   useCharacterizationExecution,
 } from "../hooks/useCharacterizations";
+import type { DirectRunResult } from "../types/analysis";
 
 type Tab = "design" | "results";
 
@@ -42,6 +43,7 @@ export default function CharacterizationDetailPage() {
   const [activeTab, setActiveTab] = useState<Tab>("design");
   const [sourceId, setSourceId] = useState<number | null>(null);
   const [activeExecId, setActiveExecId] = useState<number | null>(null);
+  const [directResult, setDirectResult] = useState<DirectRunResult | null>(null);
 
   const { data: sources, isLoading: loadingSources } = useQuery({
     queryKey: ["sources"],
@@ -88,6 +90,11 @@ export default function CharacterizationDetailPage() {
         },
       },
     );
+  };
+
+  const handleDirectResult = (result: DirectRunResult) => {
+    setDirectResult(result);
+    setActiveTab("results");
   };
 
   const isRunning =
@@ -215,7 +222,10 @@ export default function CharacterizationDetailPage() {
         {(
           [
             { key: "design" as const, label: "Design" },
-            { key: "results" as const, label: "Results" },
+            {
+              key: "results" as const,
+              label: directResult ? "Results (Direct)" : "Results",
+            },
           ]
         ).map((tab) => (
           <button
@@ -239,12 +249,33 @@ export default function CharacterizationDetailPage() {
 
       {/* Tab content */}
       {activeTab === "design" ? (
-        <CharacterizationDesigner characterization={characterization} />
+        <CharacterizationDesigner
+          characterization={characterization}
+          sourceId={sourceId}
+          onDirectResult={handleDirectResult}
+        />
       ) : (
         <div className="space-y-6">
-          <CharacterizationResults execution={activeExec} />
+          <CharacterizationResults
+            execution={directResult ? undefined : activeExec}
+            directResult={directResult}
+          />
 
-          {executions && executions.length > 0 && (
+          {/* Clear direct result to fall back to execution history */}
+          {directResult && (
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setDirectResult(null)}
+                className="text-xs transition-colors"
+                style={{ color: "#8A857D" }}
+              >
+                Clear direct result — show execution history
+              </button>
+            </div>
+          )}
+
+          {!directResult && executions && executions.length > 0 && (
             <div>
               <h3 className="text-sm font-semibold text-[#F0EDE8] mb-3">
                 Execution History

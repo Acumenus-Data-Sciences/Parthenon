@@ -14,6 +14,9 @@ pandas==2.*
 chromadb==1.*
 sentence-transformers==4.*
 langchain-text-splitters==0.*
+ohdsi-circe-python-alpha>=0.2.0
+ariadne @ git+https://github.com/OHDSI/Ariadne.git
+spacy>=3.5.0
 
 # GIS / Spatial
 geopandas>=1.0.0

@@ -15,8 +15,14 @@ class Settings(BaseSettings):
     chroma_host: str = "chromadb"
     chroma_port: int = 8000
 
+    # StudyAgent configuration
+    study_agent_url: str = "http://study-agent:8765"
+
     # SapBERT model (for Phase 2+ embedding generation)
     sapbert_model: str = "cambridgeltl/SapBERT-from-PubMedBERT-fulltext"
+
+    # Ariadne concept mapping configuration
+    ariadne_vocab_schema: str = "omop"
 
     class Config:
         env_file = ".env"

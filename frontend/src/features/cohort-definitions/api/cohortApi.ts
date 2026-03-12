@@ -10,6 +10,8 @@ import type {
   NegativeControlSuggestion,
   NegativeControlValidation,
   CohortDiagnosticsResult,
+  RDiagnosticsResponse,
+  RunCohortDiagnosticsPayload,
 } from "../types/cohortExpression";
 
 const BASE = "/cohort-definitions";
@@ -227,6 +229,17 @@ export async function runCohortDiagnostics(
     `${BASE}/${id}/diagnostics`,
     payload,
   );
+  return data.data ?? data;
+}
+
+/**
+ * Run full CohortDiagnostics via the R Plumber proxy.
+ * POST /api/v1/cohort-diagnostics/run
+ */
+export async function runRCohortDiagnostics(
+  payload: RunCohortDiagnosticsPayload,
+): Promise<RDiagnosticsResponse> {
+  const { data } = await apiClient.post("/cohort-diagnostics/run", payload);
   return data.data ?? data;
 }
 

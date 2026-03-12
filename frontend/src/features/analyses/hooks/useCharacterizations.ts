@@ -8,8 +8,9 @@ import {
   executeCharacterization,
   listExecutions,
   getExecution,
+  runDirectCharacterization,
 } from "../api/characterizationApi";
-import type { CharacterizationDesign } from "../types/analysis";
+import type { CharacterizationDesign, DirectRunRequest } from "../types/analysis";
 
 // ---------------------------------------------------------------------------
 // Query hooks
@@ -129,5 +130,12 @@ export function useExecuteCharacterization() {
         queryKey: ["characterizations", variables.id],
       });
     },
+  });
+}
+
+export function useRunDirectCharacterization() {
+  return useMutation({
+    mutationFn: (payload: DirectRunRequest) =>
+      runDirectCharacterization(payload),
   });
 }

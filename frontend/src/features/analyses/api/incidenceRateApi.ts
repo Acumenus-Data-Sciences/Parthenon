@@ -4,6 +4,8 @@ import type {
   IncidenceRateDesign,
   AnalysisExecution,
   PaginatedResponse,
+  DirectCalcRequest,
+  DirectCalcResponse,
 } from "../types/analysis";
 
 const BASE = "/incidence-rates";
@@ -82,6 +84,20 @@ export async function getIRExecution(
 ): Promise<AnalysisExecution> {
   const { data } = await apiClient.get(
     `${BASE}/${id}/executions/${executionId}`,
+  );
+  return data.data ?? data;
+}
+
+// ---------------------------------------------------------------------------
+// Direct CohortIncidence calculation via R runtime
+// ---------------------------------------------------------------------------
+
+export async function calculateDirectIncidenceRate(
+  payload: DirectCalcRequest,
+): Promise<DirectCalcResponse> {
+  const { data } = await apiClient.post(
+    `${BASE}/calculate-direct`,
+    payload,
   );
   return data.data ?? data;
 }

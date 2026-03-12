@@ -8,8 +8,9 @@ import {
   executeIncidenceRate,
   listIRExecutions,
   getIRExecution,
+  calculateDirectIncidenceRate,
 } from "../api/incidenceRateApi";
-import type { IncidenceRateDesign } from "../types/analysis";
+import type { IncidenceRateDesign, DirectCalcRequest } from "../types/analysis";
 
 // ---------------------------------------------------------------------------
 // Query hooks
@@ -129,5 +130,12 @@ export function useExecuteIncidenceRate() {
         queryKey: ["incidence-rates", variables.id],
       });
     },
+  });
+}
+
+export function useCalculateDirectIncidenceRate() {
+  return useMutation({
+    mutationFn: (payload: DirectCalcRequest) =>
+      calculateDirectIncidenceRate(payload),
   });
 }

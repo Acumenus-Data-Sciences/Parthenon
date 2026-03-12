@@ -30,6 +30,9 @@ import {
   Brain,
   Library,
   Package,
+  ArrowLeftRight,
+  MessageSquareCode,
+  Wrench,
 } from "lucide-react";
 import { HelpSlideOver } from "@/features/help/components/HelpSlideOver";
 
@@ -63,6 +66,9 @@ const navItems: NavItem[] = [
     : []),
   { path: "/study-packages", label: "Study Packages", icon: Package },
   { path: "/phenotype-library", label: "Phenotype Library", icon: Library },
+  { path: "/mapping-assistant", label: "Mapping Assistant", icon: ArrowLeftRight },
+  { path: "/query-assistant", label: "Query Assistant", icon: MessageSquareCode },
+  { path: "/etl-tools", label: "ETL Tools", icon: Wrench },
   { path: "/publish", label: "Publish", icon: FileOutput },
   { path: "/profiles", label: "Patient Profiles", icon: UserCircle },
   { path: "/genomics", label: "Genomics", icon: Dna },

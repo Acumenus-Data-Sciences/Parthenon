@@ -1,17 +1,39 @@
 import { useState, useMemo } from "react";
-import { Loader2, AlertCircle, ChevronDown, ChevronRight, ArrowUpDown } from "lucide-react";
+import {
+  Loader2,
+  AlertCircle,
+  ChevronDown,
+  ChevronRight,
+  ArrowUpDown,
+  Users,
+  Clock,
+  Activity,
+  Zap,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import type {
   AnalysisExecution,
   IncidenceRateResult,
+  DirectCalcResponse,
+  DirectCalcRateRow,
 } from "../types/analysis";
 import { fmt, num } from "@/lib/formatters";
 import { IncidenceRateVerdictDashboard } from "./IncidenceRateVerdictDashboard";
 
+// ---------------------------------------------------------------------------
+// Props
+// ---------------------------------------------------------------------------
+
 interface IncidenceRateResultsProps {
   execution?: AnalysisExecution | null;
   isLoading?: boolean;
+  /** When set, renders direct-calc results instead of queue-based execution */
+  directResults?: DirectCalcResponse | null;
 }
+
+// ---------------------------------------------------------------------------
+// Sorting
+// ---------------------------------------------------------------------------
 
 type SortField =
   | "outcome"
@@ -23,6 +45,10 @@ type SortField =
 
 type SortDir = "asc" | "desc";
 
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
 function parseResults(
   execution: AnalysisExecution | null | undefined,
 ): IncidenceRateResult[] {
@@ -33,6 +59,30 @@ function parseResults(
     return (json as { results: IncidenceRateResult[] }).results;
   }
   return [];
+}
+
+/** Convert DirectCalcRateRow[] to IncidenceRateResult[] for existing components */
+function directRowsToResults(rows: DirectCalcRateRow[]): IncidenceRateResult[] {
+  return rows.map((row) => ({
+    outcome_cohort_id: row.outcome_cohort_id,
+    outcome_cohort_name: row.outcome_cohort_name,
+    persons_at_risk: row.persons_at_risk,
+    persons_with_outcome: row.persons_with_outcome,
+    person_years: row.person_years,
+    incidence_rate: row.incidence_rate,
+    rate_95_ci_lower: row.rate_95_ci_lower,
+    rate_95_ci_upper: row.rate_95_ci_upper,
+    strata: row.strata.map((s) => ({
+      stratum_name: s.stratum_name,
+      stratum_value: s.stratum_value,
+      persons_at_risk: s.persons_at_risk,
+      persons_with_outcome: s.persons_with_outcome,
+      person_years: s.person_years,
+      incidence_rate: s.incidence_rate,
+      rate_95_ci_lower: s.rate_95_ci_lower,
+      rate_95_ci_upper: s.rate_95_ci_upper,
+    })),
+  }));
 }
 
 /**
@@ -60,14 +110,13 @@ function irCellStyle(
   precision: "narrow" | "medium" | "wide",
 ): React.CSSProperties {
   const intensity = maxIR > 0 ? Math.min(num(ir) / maxIR, 1) : 0;
-  const alpha = 0.05 + intensity * 0.15; // 5% to 20% opacity
+  const alpha = 0.05 + intensity * 0.15;
 
-  // Precision-based border coloring
   let borderColor: string;
   if (precision === "narrow") {
-    borderColor = `rgba(45, 212, 191, ${alpha + 0.1})`; // teal
+    borderColor = `rgba(45, 212, 191, ${alpha + 0.1})`;
   } else if (precision === "wide") {
-    borderColor = `rgba(201, 162, 39, ${alpha + 0.1})`; // amber/gold
+    borderColor = `rgba(201, 162, 39, ${alpha + 0.1})`;
   } else {
     borderColor = "transparent";
   }
@@ -83,7 +132,7 @@ function sortResults(
   field: SortField,
   dir: SortDir,
 ): IncidenceRateResult[] {
-  const sorted = [...results].sort((a, b) => {
+  return [...results].sort((a, b) => {
     let cmp = 0;
     switch (field) {
       case "outcome":
@@ -110,8 +159,307 @@ function sortResults(
     }
     return dir === "asc" ? cmp : -cmp;
   });
-  return sorted;
 }
+
+// ---------------------------------------------------------------------------
+// Summary Cards
+// ---------------------------------------------------------------------------
+
+function SummaryCards({
+  results,
+  totalPersons,
+  totalPersonYears,
+  totalOutcomes,
+  isDirectCalc,
+}: {
+  results: IncidenceRateResult[];
+  totalPersons?: number;
+  totalPersonYears?: number;
+  totalOutcomes?: number;
+  isDirectCalc?: boolean;
+}) {
+  const computedPersons = totalPersons ?? Math.max(...results.map((r) => num(r.persons_at_risk)), 0);
+  const computedPY = totalPersonYears ?? results.reduce((sum, r) => sum + num(r.person_years), 0);
+  const computedOutcomes = totalOutcomes ?? results.reduce((s, r) => s + num(r.persons_with_outcome), 0);
+  const avgIR =
+    results.length > 0
+      ? results.reduce((s, r) => s + num(r.incidence_rate), 0) / results.length
+      : 0;
+
+  const cards = [
+    {
+      label: "Persons at Risk",
+      value: computedPersons.toLocaleString(),
+      icon: Users,
+      color: "#2DD4BF",
+    },
+    {
+      label: "Person-Years",
+      value:
+        computedPY >= 1000
+          ? `${(computedPY / 1000).toLocaleString(undefined, { maximumFractionDigits: 1 })}K`
+          : computedPY.toLocaleString(undefined, { maximumFractionDigits: 1 }),
+      icon: Clock,
+      color: "#C9A227",
+    },
+    {
+      label: "Total Outcome Events",
+      value: computedOutcomes.toLocaleString(),
+      icon: Activity,
+      color: "#9B1B30",
+    },
+    {
+      label: "Avg IR / 1000 PY",
+      value: fmt(avgIR, 2),
+      icon: Zap,
+      color: isDirectCalc ? "#2DD4BF" : "#8A857D",
+    },
+  ];
+
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      {cards.map((card) => (
+        <div
+          key={card.label}
+          className="rounded-lg border border-[#232328] bg-[#151518] px-4 py-3"
+        >
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
+              {card.label}
+            </span>
+            <card.icon size={13} style={{ color: card.color }} />
+          </div>
+          <p
+            className="text-xl font-semibold font-['IBM_Plex_Mono',monospace]"
+            style={{ color: card.color }}
+          >
+            {card.value}
+          </p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// CIBar — inline CI visualization bar
+// ---------------------------------------------------------------------------
+
+function CIBar({
+  ir,
+  ciLower,
+  ciUpper,
+  maxRate,
+}: {
+  ir: number;
+  ciLower: number;
+  ciUpper: number;
+  maxRate: number;
+}) {
+  const scale = maxRate > 0 ? 100 / maxRate : 1;
+  const leftPct = num(ciLower) * scale;
+  const widthPct = Math.max((num(ciUpper) - num(ciLower)) * scale, 0.5);
+  const dotPct = num(ir) * scale;
+
+  return (
+    <div className="relative w-24 h-4 shrink-0" aria-label={`CI bar: ${fmt(ciLower, 1)}–${fmt(ciUpper, 1)}`}>
+      <div className="absolute inset-y-0 left-0 right-0 flex items-center">
+        <div className="w-full h-px" style={{ background: "var(--border-subtle)" }} />
+      </div>
+      <div
+        className="absolute top-1/2 -translate-y-1/2 h-1.5 rounded"
+        style={{
+          left: `${leftPct}%`,
+          width: `${widthPct}%`,
+          background: "color-mix(in srgb, #2DD4BF 25%, transparent)",
+        }}
+      />
+      <div
+        className="absolute top-1/2 -translate-y-1/2 w-2 h-2 rounded-full"
+        style={{
+          left: `${dotPct}%`,
+          marginLeft: "-4px",
+          background: "#2DD4BF",
+          border: "1px solid var(--surface-base)",
+        }}
+      />
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Stratified breakdown panels
+// ---------------------------------------------------------------------------
+
+function StratifiedBreakdown({
+  results,
+}: {
+  results: IncidenceRateResult[];
+}) {
+  // Collect all unique stratum names across all results
+  const stratumNames = useMemo(() => {
+    const names = new Set<string>();
+    results.forEach((r) => {
+      r.strata?.forEach((s) => names.add(s.stratum_name));
+    });
+    return [...names];
+  }, [results]);
+
+  if (stratumNames.length === 0) return null;
+
+  return (
+    <div className="space-y-4">
+      {stratumNames.map((name) => (
+        <StratumPanel key={name} stratumName={name} results={results} />
+      ))}
+    </div>
+  );
+}
+
+function StratumPanel({
+  stratumName,
+  results,
+}: {
+  stratumName: string;
+  results: IncidenceRateResult[];
+}) {
+  // For each outcome × stratum value, collect the stratum row
+  const rows = useMemo(() => {
+    return results.flatMap((r) => {
+      const matching = (r.strata ?? []).filter((s) => s.stratum_name === stratumName);
+      return matching.map((s) => ({ outcome: r.outcome_cohort_name, stratum: s }));
+    });
+  }, [results, stratumName]);
+
+  if (rows.length === 0) return null;
+
+  const maxIR = Math.max(...rows.map((r) => num(r.stratum.incidence_rate)), 1);
+
+  const isGender = stratumName.toLowerCase().includes("gender");
+  const isAge = stratumName.toLowerCase().includes("age");
+
+  return (
+    <div className="panel" style={{ padding: 0, overflow: "hidden" }}>
+      <div className="px-4 py-3 border-b border-[#232328]">
+        <h4 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
+          {isGender ? "Gender Breakdown" : isAge ? "Age Group Breakdown" : `${stratumName} Breakdown`}
+        </h4>
+      </div>
+
+      {/* Bar chart visualization */}
+      <div className="px-4 py-3 space-y-2">
+        {rows.map((row, i) => {
+          const barWidth = maxIR > 0 ? (num(row.stratum.incidence_rate) / maxIR) * 100 : 0;
+          const barColor = isGender
+            ? row.stratum.stratum_value.toLowerCase().includes("female")
+              ? "#9B1B30"
+              : "#2DD4BF"
+            : "#C9A227";
+
+          return (
+            <div key={i} className="space-y-0.5">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span
+                    className="text-xs truncate"
+                    style={{ color: "var(--text-muted)", minWidth: "6rem" }}
+                  >
+                    {row.stratum.stratum_value}
+                  </span>
+                  {results.length > 1 && (
+                    <span
+                      className="text-xs truncate"
+                      style={{ color: "var(--text-ghost)" }}
+                    >
+                      ({row.outcome})
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <span
+                    className="text-xs font-mono"
+                    style={{ color: "var(--text-secondary)" }}
+                  >
+                    {fmt(row.stratum.incidence_rate, 2)}/1000PY
+                  </span>
+                  {row.stratum.rate_95_ci_lower != null &&
+                    row.stratum.rate_95_ci_upper != null && (
+                      <span
+                        className="text-xs font-mono"
+                        style={{ color: "var(--text-ghost)" }}
+                      >
+                        [{fmt(row.stratum.rate_95_ci_lower, 2)},
+                        {fmt(row.stratum.rate_95_ci_upper, 2)}]
+                      </span>
+                    )}
+                </div>
+              </div>
+              <div className="h-2 rounded-full overflow-hidden" style={{ background: "#1C1C20" }}>
+                <div
+                  className="h-full rounded-full transition-all duration-300"
+                  style={{ width: `${barWidth}%`, background: barColor }}
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Detail table */}
+      <table className="data-table text-xs">
+        <thead>
+          <tr>
+            <th style={{ textAlign: "left" }}>
+              {stratumName}
+            </th>
+            {results.length > 1 && <th style={{ textAlign: "left" }}>Outcome</th>}
+            <th style={{ textAlign: "right" }}>Persons at Risk</th>
+            <th style={{ textAlign: "right" }}>Person-Years</th>
+            <th style={{ textAlign: "right" }}>With Outcome</th>
+            <th style={{ textAlign: "right" }}>IR / 1000 PY</th>
+            <th style={{ textAlign: "right" }}>95% CI</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row, i) => (
+            <tr key={i} className="border-t border-[#1C1C20]">
+              <td className="px-4 py-2 text-[#C5C0B8]">{row.stratum.stratum_value}</td>
+              {results.length > 1 && (
+                <td className="px-4 py-2 text-[#8A857D] truncate max-w-[10rem]">
+                  {row.outcome}
+                </td>
+              )}
+              <td className="px-4 py-2 text-right font-mono text-[#C5C0B8]">
+                {num(row.stratum.persons_at_risk).toLocaleString()}
+              </td>
+              <td className="px-4 py-2 text-right font-mono text-[#C5C0B8]">
+                {num(row.stratum.person_years).toLocaleString(undefined, {
+                  maximumFractionDigits: 1,
+                })}
+              </td>
+              <td className="px-4 py-2 text-right font-mono text-[#C5C0B8]">
+                {num(row.stratum.persons_with_outcome).toLocaleString()}
+              </td>
+              <td className="px-4 py-2 text-right font-mono font-medium" style={{ color: "#2DD4BF" }}>
+                {fmt(row.stratum.incidence_rate, 2)}
+              </td>
+              <td className="px-4 py-2 text-right font-mono text-[#8A857D]">
+                {row.stratum.rate_95_ci_lower != null &&
+                row.stratum.rate_95_ci_upper != null
+                  ? `(${fmt(row.stratum.rate_95_ci_lower, 2)} – ${fmt(row.stratum.rate_95_ci_upper, 2)})`
+                  : "—"}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Forest Plot
+// ---------------------------------------------------------------------------
 
 function ForestPlot({ results }: { results: IncidenceRateResult[] }) {
   if (results.length === 0) return null;
@@ -137,10 +485,7 @@ function ForestPlot({ results }: { results: IncidenceRateResult[] }) {
                 : "var(--primary)";
 
           return (
-            <div
-              key={r.outcome_cohort_id}
-              className="flex items-center gap-3"
-            >
+            <div key={r.outcome_cohort_id} className="flex items-center gap-3">
               <div className="w-40 shrink-0">
                 <p className="text-xs truncate" style={{ color: "var(--text-secondary)" }}>
                   {r.outcome_cohort_name}
@@ -174,12 +519,17 @@ function ForestPlot({ results }: { results: IncidenceRateResult[] }) {
                 />
               </div>
               <div className="w-36 shrink-0 text-right">
-                <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--text-xs)", color: "var(--text-secondary)" }}>
+                <span
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "var(--text-xs)",
+                    color: "var(--text-secondary)",
+                  }}
+                >
                   {fmt(r.incidence_rate, 1)}
                   <span style={{ color: "var(--text-ghost)" }}>
                     {" "}
-                    ({fmt(r.rate_95_ci_lower, 1)}-
-                    {fmt(r.rate_95_ci_upper, 1)})
+                    ({fmt(r.rate_95_ci_lower, 1)}-{fmt(r.rate_95_ci_upper, 1)})
                   </span>
                 </span>
               </div>
@@ -190,6 +540,57 @@ function ForestPlot({ results }: { results: IncidenceRateResult[] }) {
     </div>
   );
 }
+
+// ---------------------------------------------------------------------------
+// Sortable header
+// ---------------------------------------------------------------------------
+
+function SortableHeader({
+  label,
+  field,
+  currentField,
+  currentDir,
+  onSort,
+  align = "left",
+}: {
+  label: string;
+  field: SortField;
+  currentField: SortField;
+  currentDir: SortDir;
+  onSort: (field: SortField) => void;
+  align?: "left" | "right";
+}) {
+  const isActive = currentField === field;
+  return (
+    <th
+      style={{ textAlign: align, cursor: "pointer", userSelect: "none" }}
+      onClick={() => onSort(field)}
+      className="group"
+    >
+      <span className="inline-flex items-center gap-1">
+        {label}
+        <ArrowUpDown
+          size={12}
+          className={cn(
+            "transition-opacity",
+            isActive
+              ? "opacity-100 text-[#2DD4BF]"
+              : "opacity-30 group-hover:opacity-60",
+          )}
+          style={
+            isActive
+              ? { transform: currentDir === "desc" ? "scaleY(-1)" : undefined }
+              : undefined
+          }
+        />
+      </span>
+    </th>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Expandable row (with CI visualization)
+// ---------------------------------------------------------------------------
 
 function ExpandableRow({
   result,
@@ -223,9 +624,7 @@ function ExpandableRow({
               ) : (
                 <ChevronRight size={12} className="text-[#8A857D]" />
               ))}
-            <span className="text-sm text-[#F0EDE8]">
-              {result.outcome_cohort_name}
-            </span>
+            <span className="text-sm text-[#F0EDE8]">{result.outcome_cohort_name}</span>
           </div>
         </td>
         <td className="px-4 py-3 text-right font-['IBM_Plex_Mono',monospace] text-sm text-[#C5C0B8]">
@@ -235,9 +634,7 @@ function ExpandableRow({
           {num(result.persons_with_outcome).toLocaleString()}
         </td>
         <td className="px-4 py-3 text-right font-['IBM_Plex_Mono',monospace] text-sm text-[#C5C0B8]">
-          {num(result.person_years).toLocaleString(undefined, {
-            maximumFractionDigits: 1,
-          })}
+          {num(result.person_years).toLocaleString(undefined, { maximumFractionDigits: 1 })}
         </td>
         <td
           className="px-4 py-3 text-right"
@@ -257,9 +654,19 @@ function ExpandableRow({
             />
           )}
         </td>
-        <td className="px-4 py-3 text-right font-['IBM_Plex_Mono',monospace] text-xs text-[#8A857D]">
-          ({fmt(result.rate_95_ci_lower, 2)} -{" "}
-          {fmt(result.rate_95_ci_upper, 2)})
+        {/* Inline CI bar + numeric */}
+        <td className="px-4 py-3">
+          <div className="flex items-center justify-end gap-2">
+            <CIBar
+              ir={num(result.incidence_rate)}
+              ciLower={num(result.rate_95_ci_lower)}
+              ciUpper={num(result.rate_95_ci_upper)}
+              maxRate={maxIR}
+            />
+            <span className="font-['IBM_Plex_Mono',monospace] text-xs text-[#8A857D] whitespace-nowrap">
+              ({fmt(result.rate_95_ci_lower, 2)} – {fmt(result.rate_95_ci_upper, 2)})
+            </span>
+          </div>
         </td>
       </tr>
       {expanded &&
@@ -280,143 +687,91 @@ function ExpandableRow({
               {num(s.persons_with_outcome).toLocaleString()}
             </td>
             <td className="px-4 py-2 text-right font-['IBM_Plex_Mono',monospace] text-xs text-[#8A857D]">
-              {num(s.person_years).toLocaleString(undefined, {
-                maximumFractionDigits: 1,
-              })}
+              {num(s.person_years).toLocaleString(undefined, { maximumFractionDigits: 1 })}
             </td>
             <td className="px-4 py-2 text-right font-['IBM_Plex_Mono',monospace] text-xs text-[#C5C0B8]">
               {fmt(s.incidence_rate, 2)}
             </td>
-            <td className="px-4 py-2" />
+            <td className="px-4 py-2 text-right font-['IBM_Plex_Mono',monospace] text-xs text-[#8A857D]">
+              {s.rate_95_ci_lower != null && s.rate_95_ci_upper != null
+                ? `(${fmt(s.rate_95_ci_lower, 2)} – ${fmt(s.rate_95_ci_upper, 2)})`
+                : "—"}
+            </td>
           </tr>
         ))}
     </>
   );
 }
 
-function SortableHeader({
-  label,
-  field,
-  currentField,
-  currentDir,
-  onSort,
-  align = "left",
+// ---------------------------------------------------------------------------
+// Direct-calc multi-TAR selector
+// ---------------------------------------------------------------------------
+
+function TarSelector({
+  rows,
+  selectedTarId,
+  onSelect,
 }: {
-  label: string;
-  field: SortField;
-  currentField: SortField;
-  currentDir: SortDir;
-  onSort: (field: SortField) => void;
-  align?: "left" | "right";
+  rows: DirectCalcRateRow[];
+  selectedTarId: number | null;
+  onSelect: (id: number) => void;
 }) {
-  const isActive = currentField === field;
+  const tarOptions = useMemo(() => {
+    const seen = new Map<number, string>();
+    rows.forEach((r) => seen.set(r.tar_id, r.tar_label));
+    return [...seen.entries()].map(([id, label]) => ({ id, label }));
+  }, [rows]);
+
+  if (tarOptions.length <= 1) return null;
+
   return (
-    <th
-      style={{ textAlign: align, cursor: "pointer", userSelect: "none" }}
-      onClick={() => onSort(field)}
-      className="group"
-    >
-      <span className="inline-flex items-center gap-1">
-        {label}
-        <ArrowUpDown
-          size={12}
-          className={cn(
-            "transition-opacity",
-            isActive ? "opacity-100 text-[#2DD4BF]" : "opacity-30 group-hover:opacity-60",
-          )}
-          style={
-            isActive
-              ? { transform: currentDir === "desc" ? "scaleY(-1)" : undefined }
-              : undefined
-          }
-        />
+    <div className="flex items-center gap-2 flex-wrap">
+      <span className="text-xs" style={{ color: "var(--text-muted)" }}>
+        Time-at-Risk:
       </span>
-    </th>
+      {tarOptions.map((opt) => (
+        <button
+          key={opt.id}
+          type="button"
+          onClick={() => onSelect(opt.id)}
+          className={cn(
+            "rounded-md px-2.5 py-1 text-xs font-medium border transition-colors",
+            selectedTarId === opt.id
+              ? "border-[#2DD4BF]/50 bg-[#2DD4BF]/10 text-[#2DD4BF]"
+              : "border-[#232328] bg-[#151518] text-[#8A857D] hover:text-[#C5C0B8]",
+          )}
+        >
+          {opt.label}
+        </button>
+      ))}
+    </div>
   );
 }
 
-export function IncidenceRateResults({
-  execution,
-  isLoading,
-}: IncidenceRateResultsProps) {
-  const [sortField, setSortField] = useState<SortField>("incidence_rate");
-  const [sortDir, setSortDir] = useState<SortDir>("desc");
+// ---------------------------------------------------------------------------
+// Inner renderer (shared between queue-based and direct calc)
+// ---------------------------------------------------------------------------
 
-  const handleSort = (field: SortField) => {
-    if (field === sortField) {
-      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
-    } else {
-      setSortField(field);
-      setSortDir("desc");
-    }
-  };
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-16">
-        <Loader2 size={24} className="animate-spin text-[#8A857D]" />
-      </div>
-    );
-  }
-
-  if (!execution || execution.status !== "completed") {
-    return (
-      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-16">
-        <AlertCircle size={24} className="text-[#323238] mb-3" />
-        <h3 className="text-sm font-semibold text-[#F0EDE8]">
-          No results available
-        </h3>
-        <p className="mt-1 text-xs text-[#8A857D]">
-          {execution
-            ? `Execution status: ${execution.status}`
-            : "Execute the analysis to generate results."}
-        </p>
-        {execution?.fail_message && (
-          <p className="mt-2 text-xs text-[#E85A6B] max-w-md text-center">
-            {execution.fail_message}
-          </p>
-        )}
-      </div>
-    );
-  }
-
-  const results = parseResults(execution);
-
-  if (results.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-16">
-        <AlertCircle size={24} className="text-[#323238] mb-3" />
-        <p className="text-sm text-[#8A857D]">
-          Execution completed but no results were returned.
-        </p>
-      </div>
-    );
-  }
-
-  return (
-    <IncidenceRateResultsInner
-      results={results}
-      sortField={sortField}
-      sortDir={sortDir}
-      onSort={handleSort}
-    />
-  );
-}
-
-/**
- * Inner component that renders results content.
- * Extracted to allow useMemo on sorted results without conditional hook issues.
- */
 function IncidenceRateResultsInner({
   results,
   sortField,
   sortDir,
   onSort,
+  summaryTotalPersons,
+  summaryTotalPY,
+  summaryTotalOutcomes,
+  isDirectCalc,
+  metadataLine,
 }: {
   results: IncidenceRateResult[];
   sortField: SortField;
   sortDir: SortDir;
   onSort: (field: SortField) => void;
+  summaryTotalPersons?: number;
+  summaryTotalPY?: number;
+  summaryTotalOutcomes?: number;
+  isDirectCalc?: boolean;
+  metadataLine?: string;
 }) {
   const sortedResults = useMemo(
     () => sortResults(results, sortField, sortDir),
@@ -430,8 +785,35 @@ function IncidenceRateResultsInner({
 
   return (
     <div className="space-y-6">
+      {/* Badge for direct calc */}
+      {isDirectCalc && (
+        <div className="flex items-center gap-2">
+          <span
+            className="inline-flex items-center gap-1.5 rounded-md border border-[#2DD4BF]/30 bg-[#2DD4BF]/5 px-2.5 py-1 text-xs font-medium"
+            style={{ color: "#2DD4BF" }}
+          >
+            <Zap size={11} />
+            OHDSI CohortIncidence — Direct Result
+          </span>
+          {metadataLine && (
+            <span className="text-xs" style={{ color: "var(--text-muted)" }}>
+              {metadataLine}
+            </span>
+          )}
+        </div>
+      )}
+
       {/* Verdict Dashboard */}
       <IncidenceRateVerdictDashboard results={results} />
+
+      {/* Summary Cards */}
+      <SummaryCards
+        results={results}
+        totalPersons={summaryTotalPersons}
+        totalPersonYears={summaryTotalPY}
+        totalOutcomes={summaryTotalOutcomes}
+        isDirectCalc={isDirectCalc}
+      />
 
       {/* Summary Table */}
       <div className="panel" style={{ padding: 0, overflow: "hidden" }}>
@@ -489,11 +871,7 @@ function IncidenceRateResultsInner({
           </thead>
           <tbody>
             {sortedResults.map((r) => (
-              <ExpandableRow
-                key={r.outcome_cohort_id}
-                result={r}
-                maxIR={maxIR}
-              />
+              <ExpandableRow key={r.outcome_cohort_id} result={r} maxIR={maxIR} />
             ))}
           </tbody>
         </table>
@@ -501,6 +879,174 @@ function IncidenceRateResultsInner({
 
       {/* Forest Plot */}
       <ForestPlot results={sortedResults} />
+
+      {/* Stratified breakdowns */}
+      <StratifiedBreakdown results={results} />
     </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Direct calc results panel
+// ---------------------------------------------------------------------------
+
+function DirectCalcResultsPanel({
+  directResults,
+  sortField,
+  sortDir,
+  onSort,
+}: {
+  directResults: DirectCalcResponse;
+  sortField: SortField;
+  sortDir: SortDir;
+  onSort: (f: SortField) => void;
+}) {
+  const allRows = directResults.incidence_rates;
+
+  const tarIds = useMemo(() => {
+    const seen = new Map<number, string>();
+    allRows.forEach((r) => seen.set(r.tar_id, r.tar_label));
+    return [...seen.entries()].map(([id]) => id);
+  }, [allRows]);
+
+  const [selectedTarId, setSelectedTarId] = useState<number>(tarIds[0] ?? 0);
+
+  const filteredRows = useMemo(
+    () => allRows.filter((r) => r.tar_id === selectedTarId),
+    [allRows, selectedTarId],
+  );
+
+  const results = useMemo(() => directRowsToResults(filteredRows), [filteredRows]);
+
+  const metadataLine = useMemo(() => {
+    const { metadata, summary } = directResults;
+    const parts: string[] = [];
+    if (metadata?.executed_at) {
+      parts.push(`Executed ${new Date(metadata.executed_at).toLocaleString()}`);
+    }
+    if (metadata?.duration_seconds != null) {
+      parts.push(`${metadata.duration_seconds.toFixed(1)}s`);
+    }
+    if (metadata?.r_version) {
+      parts.push(`R ${metadata.r_version}`);
+    }
+    if (summary?.sources_used?.length) {
+      parts.push(`Source: ${summary.sources_used.join(", ")}`);
+    }
+    return parts.join(" · ");
+  }, [directResults]);
+
+  return (
+    <div className="space-y-4">
+      <TarSelector
+        rows={allRows}
+        selectedTarId={selectedTarId}
+        onSelect={setSelectedTarId}
+      />
+      <IncidenceRateResultsInner
+        results={results}
+        sortField={sortField}
+        sortDir={sortDir}
+        onSort={onSort}
+        summaryTotalPersons={directResults.summary?.total_persons}
+        summaryTotalPY={directResults.summary?.total_person_years}
+        summaryTotalOutcomes={directResults.summary?.total_outcomes}
+        isDirectCalc
+        metadataLine={metadataLine}
+      />
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Public component
+// ---------------------------------------------------------------------------
+
+export function IncidenceRateResults({
+  execution,
+  isLoading,
+  directResults,
+}: IncidenceRateResultsProps) {
+  const [sortField, setSortField] = useState<SortField>("incidence_rate");
+  const [sortDir, setSortDir] = useState<SortDir>("desc");
+
+  const handleSort = (field: SortField) => {
+    if (field === sortField) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortField(field);
+      setSortDir("desc");
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-16">
+        <Loader2 size={24} className="animate-spin text-[#8A857D]" />
+      </div>
+    );
+  }
+
+  // Direct calc results take priority
+  if (directResults) {
+    if (directResults.incidence_rates.length === 0) {
+      return (
+        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-16">
+          <AlertCircle size={24} className="text-[#323238] mb-3" />
+          <p className="text-sm text-[#8A857D]">
+            CohortIncidence completed but returned no results.
+          </p>
+        </div>
+      );
+    }
+    return (
+      <DirectCalcResultsPanel
+        directResults={directResults}
+        sortField={sortField}
+        sortDir={sortDir}
+        onSort={handleSort}
+      />
+    );
+  }
+
+  if (!execution || execution.status !== "completed") {
+    return (
+      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-16">
+        <AlertCircle size={24} className="text-[#323238] mb-3" />
+        <h3 className="text-sm font-semibold text-[#F0EDE8]">No results available</h3>
+        <p className="mt-1 text-xs text-[#8A857D]">
+          {execution
+            ? `Execution status: ${execution.status}`
+            : "Execute the analysis to generate results."}
+        </p>
+        {execution?.fail_message && (
+          <p className="mt-2 text-xs text-[#E85A6B] max-w-md text-center">
+            {execution.fail_message}
+          </p>
+        )}
+      </div>
+    );
+  }
+
+  const results = parseResults(execution);
+
+  if (results.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-16">
+        <AlertCircle size={24} className="text-[#323238] mb-3" />
+        <p className="text-sm text-[#8A857D]">
+          Execution completed but no results were returned.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <IncidenceRateResultsInner
+      results={results}
+      sortField={sortField}
+      sortDir={sortDir}
+      onSort={handleSort}
+    />
   );
 }

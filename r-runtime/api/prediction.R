@@ -11,6 +11,15 @@ source("/app/R/covariates.R")
 source("/app/R/progress.R")
 source("/app/R/results.R")
 
+# DeepPatientLevelPrediction — optional; provides Transformer, ResNet, MLP deep models.
+# These models use reticulate + PyTorch under the hood. The container runs PyTorch on
+# CPU by default (no GPU). Set CUDA_VISIBLE_DEVICES in the container environment to
+# enable GPU acceleration when an NVIDIA device is available.
+.deep_plp_available <- requireNamespace("DeepPatientLevelPrediction", quietly = TRUE)
+if (.deep_plp_available) {
+  library(DeepPatientLevelPrediction)
+}
+
 #* Run patient-level prediction via PatientLevelPrediction
 #* @post /run
 #* @serializer unboxedJSON
@@ -138,6 +147,55 @@ function(req, res) {
           PatientLevelPrediction::setLassoLogisticRegression(seed = seed_val)
         }
       },
+
+      # ── Deep learning models (DeepPatientLevelPrediction) ─────────────────────
+      # All three use reticulate + PyTorch; CPU-only by default in this container.
+      # Pass numeric hyper-parameters via spec$model$hyper_parameters to override
+      # the package defaults (numBlocks, dimToken, dimFFN, etc.).
+
+      "transformer" = {
+        if (.deep_plp_available) {
+          logger$info("Using DeepPatientLevelPrediction Transformer (CPU)")
+          DeepPatientLevelPrediction::setDefaultTransformer(
+            # setDefaultTransformer() accepts no required args; all defaults are
+            # sensible for a first run. Pass seed via estimatorSettings if needed.
+          )
+        } else {
+          logger$warn("DeepPatientLevelPrediction not available, falling back to Gradient Boosting")
+          PatientLevelPrediction::setGradientBoostingMachine(seed = seed_val)
+        }
+      },
+
+      "resnet" = {
+        if (.deep_plp_available) {
+          logger$info("Using DeepPatientLevelPrediction ResNet (CPU)")
+          DeepPatientLevelPrediction::setDefaultResNet(
+            # setDefaultResNet() accepts no required args; package defaults used.
+          )
+        } else {
+          logger$warn("DeepPatientLevelPrediction not available, falling back to Gradient Boosting")
+          PatientLevelPrediction::setGradientBoostingMachine(seed = seed_val)
+        }
+      },
+
+      "deep_mlp" = {
+        # "deep_mlp" distinguishes the DeepPLP multi-layer perceptron from the
+        # legacy PatientLevelPrediction::setMLP() (keyed as "mlp" above).
+        if (.deep_plp_available) {
+          logger$info("Using DeepPatientLevelPrediction MLP (CPU)")
+          DeepPatientLevelPrediction::setMultiLayerPerceptron(
+            numLayers  = as.integer(hp$numLayers   %||% hp$num_layers   %||% c(1L, 2L, 3L)),
+            sizeHidden = as.integer(hp$sizeHidden  %||% hp$size_hidden  %||% c(128L, 256L)),
+            dropout    = as.numeric(hp$dropout     %||% 0.0),
+            sizeEmbedding = as.integer(hp$sizeEmbedding %||% hp$size_embedding %||% 256L),
+            seed       = seed_val
+          )
+        } else {
+          logger$warn("DeepPatientLevelPrediction not available, falling back to Gradient Boosting")
+          PatientLevelPrediction::setGradientBoostingMachine(seed = seed_val)
+        }
+      },
+
       {
         logger$warn(sprintf("Unknown model type '%s', defaulting to LASSO LR", model_type))
         PatientLevelPrediction::setLassoLogisticRegression(seed = seed_val)

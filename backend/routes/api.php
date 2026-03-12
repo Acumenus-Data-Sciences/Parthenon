@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\AbbyAiController;
 use App\Http\Controllers\Api\V1\AbbyConversationController;
+use App\Http\Controllers\Api\V1\AriadneController;
 use App\Http\Controllers\Api\V1\AchillesController;
 use App\Http\Controllers\Api\V1\RadiogenomicsController;
 use App\Http\Controllers\Api\V1\Admin\AiProviderController;
@@ -32,6 +33,7 @@ use App\Http\Controllers\Api\V1\ClaimsSearchController;
 use App\Http\Controllers\Api\V1\GlobalSearchController;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\HelpController;
+use App\Http\Controllers\Api\V1\HecateController;
 use App\Http\Controllers\Api\V1\HeorController;
 use App\Http\Controllers\Api\V1\ImagingController;
 use App\Http\Controllers\Api\V1\ImagingTimelineController;
@@ -53,7 +55,11 @@ use App\Http\Controllers\Api\V1\CirceController;
 use App\Http\Controllers\Api\V1\CohortDiagnosticsController;
 use App\Http\Controllers\Api\V1\SccsController;
 use App\Http\Controllers\Api\V1\SourceController;
+use App\Http\Controllers\Api\V1\FhirToCdmController;
 use App\Http\Controllers\Api\V1\StrategusController;
+use App\Http\Controllers\Api\V1\SyntheaController;
+use App\Http\Controllers\Api\V1\WhiteRabbitController;
+use App\Http\Controllers\Api\V1\TextToSqlController;
 use App\Http\Controllers\Api\V1\StudyAgentController;
 use App\Http\Controllers\Api\V1\StudyActivityController;
 use App\Http\Controllers\Api\V1\StudyArtifactController;
@@ -434,6 +440,22 @@ Route::prefix('v1')->group(function () {
         Route::post('publish/narrative', [PublicationController::class, 'narrative']);
         Route::post('publish/export', [PublicationController::class, 'export']);
 
+        // ETL Tools
+        Route::prefix('etl')->group(function () {
+            // WhiteRabbit Database Profiler
+            Route::post('/scan', [WhiteRabbitController::class, 'scan']);
+            Route::get('/scan/health', [WhiteRabbitController::class, 'health']);
+
+            // Synthea Data Generation
+            Route::post('/synthea/generate', [SyntheaController::class, 'generate']);
+            Route::get('/synthea/status', [SyntheaController::class, 'status']);
+
+            // FHIR → CDM Conversion
+            Route::post('/fhir/ingest', [FhirToCdmController::class, 'ingest']);
+            Route::post('/fhir/batch', [FhirToCdmController::class, 'batch']);
+            Route::get('/fhir/health', [FhirToCdmController::class, 'health']);
+        });
+
         // Strategus Study Orchestration
         Route::prefix('strategus')->group(function () {
             Route::post('/execute', [StrategusController::class, 'execute']);
@@ -743,6 +765,37 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         Route::put('/contracts/{contract}', [HeorController::class, 'updateContract']);
         Route::delete('/contracts/{contract}', [HeorController::class, 'destroyContract']);
         Route::post('/contracts/{contract}/simulate-rebate', [HeorController::class, 'simulateRebate']);
+    });
+});
+
+// ── Hecate Semantic Vocabulary Search ────────────────────────────────────────
+Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
+    Route::prefix('vocabulary/semantic')->group(function () {
+        Route::get('/search', [HecateController::class, 'search']);
+        Route::get('/search/standard', [HecateController::class, 'searchStandard']);
+        Route::get('/concepts/{id}/relationships', [HecateController::class, 'conceptRelationships']);
+        Route::get('/concepts/{id}/phoebe', [HecateController::class, 'conceptPhoebe']);
+        Route::get('/concepts/{id}/definition', [HecateController::class, 'conceptDefinition']);
+        Route::get('/concepts/{id}/expand', [HecateController::class, 'conceptExpand']);
+        Route::get('/autocomplete', [HecateController::class, 'autocomplete']);
+    });
+});
+
+// ── Ariadne Concept Mapping ───────────────────────────────────────────────────
+Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
+    Route::prefix('ariadne')->group(function () {
+        Route::post('/map', [AriadneController::class, 'map']);
+        Route::post('/clean-terms', [AriadneController::class, 'cleanTerms']);
+        Route::post('/vector-search', [AriadneController::class, 'vectorSearch']);
+    });
+});
+
+// ── Text-to-SQL ───────────────────────────────────────────────────────────────
+Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
+    Route::prefix('text-to-sql')->group(function () {
+        Route::post('/generate', [TextToSqlController::class, 'generate']);
+        Route::post('/validate', [TextToSqlController::class, 'validate']);
+        Route::get('/schema', [TextToSqlController::class, 'schema']);
     });
 });
 

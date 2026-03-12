@@ -25,6 +25,7 @@ import { GenerationHistoryTable } from "../components/GenerationHistoryTable";
 import { AttritionChart } from "../components/AttritionChart";
 import { CohortDiagnosticsPanel } from "../components/CohortDiagnosticsPanel";
 import { CohortOverlapPanel } from "../components/CohortOverlapPanel";
+import { CirceSqlPanel } from "../components/CirceSqlPanel";
 import {
   useCohortDefinition,
   useUpdateCohortDefinition,
@@ -531,6 +532,7 @@ export default function CohortDefinitionDetailPage() {
         <div className="space-y-6">
           <CohortGenerationPanel definitionId={cohortId} />
           <CohortSqlPreview definitionId={cohortId} />
+          <CirceSqlPanel definitionId={cohortId} />
           <div>
             <h3 className="text-sm font-semibold text-[#F0EDE8] mb-3">
               Generation History

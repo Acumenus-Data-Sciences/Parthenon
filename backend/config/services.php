@@ -54,4 +54,20 @@ return [
         'timeout' => env('AI_SERVICE_TIMEOUT', 30),
     ],
 
+    // Hecate: OHDSI semantic vocabulary search engine (Rust/actix-web + Qdrant)
+    'hecate' => [
+        'url' => env('HECATE_URL', 'http://hecate:8080'),
+    ],
+
+    // FhirToCdm: OHDSI FHIR R4 → OMOP CDM conversion sidecar (Python/dotnet wrapper)
+    'fhir_to_cdm' => [
+        'url'     => env('FHIR_TO_CDM_URL', 'http://fhir-to-cdm:8091'),
+        'timeout' => env('FHIR_TO_CDM_TIMEOUT', 300),
+    ],
+
+    // WhiteRabbit: OHDSI source database profiler (Java CLI wrapped in Python HTTP server)
+    'whiterabbit' => [
+        'url' => env('WHITERABBIT_URL', 'http://whiterabbit:8090'),
+    ],
+
 ];

@@ -270,6 +270,14 @@ export const router = createBrowserRouter(
             "@/features/phenotype-library/pages/PhenotypeLibraryPage"
           ).then((m) => ({ Component: m.default })),
       },
+      // ── Mapping Assistant (Ariadne) ──────────────────────────────────────
+      {
+        path: "mapping-assistant",
+        lazy: () =>
+          import(
+            "@/features/vocabulary/pages/MappingAssistantPage"
+          ).then((m) => ({ Component: m.default })),
+      },
       {
         path: "publish",
         lazy: () =>
@@ -395,6 +403,22 @@ export const router = createBrowserRouter(
               ),
           },
         ],
+      },
+      // ── Query Assistant (Text-to-SQL) ────────────────────────────────
+      {
+        path: "query-assistant",
+        lazy: () =>
+          import(
+            "@/features/text-to-sql/pages/QueryAssistantPage"
+          ).then((m) => ({ Component: m.default })),
+      },
+      // ── ETL Tools (WhiteRabbit + Synthea) ────────────────────────────
+      {
+        path: "etl-tools",
+        lazy: () =>
+          import("@/features/etl/pages/EtlToolsPage").then((m) => ({
+            Component: m.default,
+          })),
       },
       // ── GIS Explorer ────────────────────────────────────────────────
       {

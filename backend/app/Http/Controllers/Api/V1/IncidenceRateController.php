@@ -2,15 +2,19 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Enums\DaimonType;
 use App\Enums\ExecutionStatus;
 use App\Http\Controllers\Controller;
 use App\Jobs\Analysis\RunIncidenceRateJob;
 use App\Models\App\AnalysisExecution;
 use App\Models\App\IncidenceRateAnalysis;
 use App\Models\App\Source;
+use App\Services\Analysis\HadesBridgeService;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 #[Group('Incidence Rates', weight: 70)]
 class IncidenceRateController extends Controller
@@ -260,6 +264,98 @@ class IncidenceRateController extends Controller
             ]);
         } catch (\Throwable $e) {
             return $this->errorResponse('Failed to retrieve execution', $e);
+        }
+    }
+
+    /**
+     * POST /v1/incidence-rates/calculate-direct
+     *
+     * Run OHDSI CohortIncidence package directly against a source,
+     * returning real-time results (no queue). Proxies to R Plumber
+     * at /analysis/cohort-incidence/calculate.
+     */
+    public function calculateDirect(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'source_id'                   => 'required|integer|exists:sources,id',
+            'targets'                     => 'required|array|min:1',
+            'targets.*.cohort_id'         => 'required|integer',
+            'targets.*.cohort_name'       => 'required|string',
+            'outcomes'                    => 'required|array|min:1',
+            'outcomes.*.cohort_id'        => 'required|integer',
+            'outcomes.*.cohort_name'      => 'required|string',
+            'outcomes.*.clean_window'     => 'sometimes|integer|min:0',
+            'time_at_risk'                => 'required|array|min:1',
+            'time_at_risk.*.start_offset' => 'required|integer',
+            'time_at_risk.*.start_anchor' => 'required|string|in:era_start,era_end',
+            'time_at_risk.*.end_offset'   => 'required|integer',
+            'time_at_risk.*.end_anchor'   => 'required|string|in:era_start,era_end',
+            'strata'                      => 'sometimes|array',
+            'strata.by_age'               => 'sometimes|boolean',
+            'strata.by_gender'            => 'sometimes|boolean',
+            'strata.by_year'              => 'sometimes|boolean',
+            'strata.age_breaks'           => 'sometimes|array',
+            'min_cell_count'              => 'sometimes|integer|min:1|max:100',
+        ]);
+
+        try {
+            /** @var Source $source */
+            $source = Source::with('daimons')->findOrFail($validated['source_id']);
+
+            $cdmSchema     = $source->getTableQualifier(DaimonType::CDM) ?? 'cdm';
+            $resultsSchema = $source->getTableQualifier(DaimonType::Results) ?? 'public';
+
+            $rRuntimeUrl = rtrim(config('services.r_runtime.url', 'http://r-runtime:8787'), '/');
+
+            $spec = [
+                'connection'             => HadesBridgeService::buildSourceSpec($source),
+                'targets'                => $validated['targets'],
+                'outcomes'               => $validated['outcomes'],
+                'time_at_risk'           => $validated['time_at_risk'],
+                'cdm_database_schema'    => $cdmSchema,
+                'cohort_database_schema' => $resultsSchema,
+                'cohort_table'           => 'cohort',
+                'min_cell_count'         => $validated['min_cell_count'] ?? 5,
+            ];
+
+            if (isset($validated['strata'])) {
+                $spec['strata'] = $validated['strata'];
+            }
+
+            Log::info('CohortIncidence calculateDirect started', [
+                'targets' => count($validated['targets']),
+                'outcomes' => count($validated['outcomes']),
+                'source_id' => $validated['source_id'],
+            ]);
+
+            $response = Http::timeout(300)->post(
+                "{$rRuntimeUrl}/analysis/cohort-incidence/calculate",
+                $spec
+            );
+
+            if ($response->failed()) {
+                Log::error('CohortIncidence R call failed', [
+                    'status' => $response->status(),
+                    'body'   => $response->body(),
+                ]);
+
+                return response()->json([
+                    'error'  => 'CohortIncidence calculation failed',
+                    'detail' => $response->json('message') ?? $response->body(),
+                ], $response->status() ?: 502);
+            }
+
+            return response()->json(['data' => $response->json()]);
+
+        } catch (\Throwable $e) {
+            Log::error('IncidenceRateController::calculateDirect exception', [
+                'message' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'error'   => 'Failed to calculate incidence rates',
+                'message' => $e->getMessage(),
+            ], 500);
         }
     }
 

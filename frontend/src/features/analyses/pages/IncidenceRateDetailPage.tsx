@@ -8,6 +8,7 @@ import {
   Play,
   Database,
   ChevronDown,
+  Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
@@ -21,6 +22,7 @@ import {
   useIncidenceRateExecutions,
   useIncidenceRateExecution,
 } from "../hooks/useIncidenceRates";
+import type { DirectCalcResponse } from "../types/analysis";
 
 type Tab = "design" | "results";
 
@@ -42,6 +44,7 @@ export default function IncidenceRateDetailPage() {
   const [activeTab, setActiveTab] = useState<Tab>("design");
   const [sourceId, setSourceId] = useState<number | null>(null);
   const [activeExecId, setActiveExecId] = useState<number | null>(null);
+  const [directResults, setDirectResults] = useState<DirectCalcResponse | null>(null);
 
   const { data: sources, isLoading: loadingSources } = useQuery({
     queryKey: ["sources"],
@@ -79,6 +82,8 @@ export default function IncidenceRateDetailPage() {
 
   const handleExecute = () => {
     if (!irId || !sourceId) return;
+    // Clear any direct results when queueing a job-based execution
+    setDirectResults(null);
     executeMutation.mutate(
       { id: irId, sourceId },
       {
@@ -88,6 +93,11 @@ export default function IncidenceRateDetailPage() {
         },
       },
     );
+  };
+
+  const handleDirectResults = (results: DirectCalcResponse) => {
+    setDirectResults(results);
+    setActiveTab("results");
   };
 
   const isRunning =
@@ -184,6 +194,7 @@ export default function IncidenceRateDetailPage() {
                 isRunning
               }
               className="inline-flex items-center gap-1.5 rounded-lg bg-[#2DD4BF] px-3 py-2 text-sm font-medium text-[#0E0E11] hover:bg-[#26B8A5] transition-colors disabled:opacity-50"
+              title="Queue analysis as a background job"
             >
               {executeMutation.isPending || isRunning ? (
                 <Loader2 size={14} className="animate-spin" />
@@ -193,6 +204,16 @@ export default function IncidenceRateDetailPage() {
               Execute
             </button>
           </div>
+          {directResults && (
+            <span
+              className="inline-flex items-center gap-1.5 rounded-md border border-[#2DD4BF]/30 bg-[#2DD4BF]/5 px-2.5 py-1 text-xs font-medium"
+              style={{ color: "#2DD4BF" }}
+              title="Direct CohortIncidence results are shown"
+            >
+              <Zap size={11} />
+              Direct result
+            </span>
+          )}
 
           <button
             type="button"
@@ -239,10 +260,17 @@ export default function IncidenceRateDetailPage() {
 
       {/* Tab content */}
       {activeTab === "design" ? (
-        <IncidenceRateDesigner analysis={analysis} />
+        <IncidenceRateDesigner
+          analysis={analysis}
+          sourceId={sourceId}
+          onDirectResults={handleDirectResults}
+        />
       ) : (
         <div className="space-y-6">
-          <IncidenceRateResults execution={activeExec} />
+          <IncidenceRateResults
+            execution={directResults ? undefined : activeExec}
+            directResults={directResults}
+          />
 
           {executions && executions.length > 0 && (
             <div>

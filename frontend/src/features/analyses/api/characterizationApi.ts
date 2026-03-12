@@ -4,6 +4,8 @@ import type {
   CharacterizationDesign,
   AnalysisExecution,
   PaginatedResponse,
+  DirectRunRequest,
+  DirectRunResult,
 } from "../types/analysis";
 
 const BASE = "/characterizations";
@@ -83,5 +85,16 @@ export async function getExecution(
   const { data } = await apiClient.get(
     `${BASE}/${id}/executions/${executionId}`,
   );
+  return data.data ?? data;
+}
+
+// ---------------------------------------------------------------------------
+// Direct Run (OHDSI Characterization R endpoint)
+// ---------------------------------------------------------------------------
+
+export async function runDirectCharacterization(
+  payload: DirectRunRequest,
+): Promise<DirectRunResult> {
+  const { data } = await apiClient.post(`${BASE}/run-direct`, payload);
   return data.data ?? data;
 }

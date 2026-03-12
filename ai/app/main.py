@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routers import abby, cdm_spatial, chroma, clinical_nlp, concept_mapping, embeddings, gis, health, profiling, schema_mapping
+from app.routers import abby, ariadne, cdm_spatial, chroma, circe, clinical_nlp, concept_mapping, embeddings, gis, health, profiling, schema_mapping, study_agent, text_to_sql
 
 app = FastAPI(
     title="Parthenon AI Service",
@@ -33,6 +33,10 @@ app.include_router(abby.router, prefix="/abby", tags=["abby"])
 app.include_router(chroma.router, prefix="/chroma", tags=["chroma"])
 app.include_router(gis.router, prefix="/gis", tags=["gis"])
 app.include_router(cdm_spatial.router, tags=["cdm-spatial"])
+app.include_router(circe.router, prefix="/circe", tags=["circe"])
+app.include_router(study_agent.router, prefix="/study-agent", tags=["study-agent"])
+app.include_router(ariadne.router, prefix="/ariadne", tags=["ariadne"])
+app.include_router(text_to_sql.router, prefix="/text-to-sql", tags=["text-to-sql"])
 
 import logging as _logging
 _logger = _logging.getLogger(__name__)

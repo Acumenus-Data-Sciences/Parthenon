@@ -304,7 +304,7 @@ export interface NegativeControlValidation {
 }
 
 // ---------------------------------------------------------------------------
-// §9.4 — Cohort Diagnostics types
+// §9.4 — Cohort Diagnostics types (legacy simple shape)
 // ---------------------------------------------------------------------------
 
 export interface CohortDiagnosticsResult {
@@ -324,4 +324,109 @@ export interface CohortDiagnosticsResult {
     p75_after?: number;
   };
   age_at_index: { age_group: number; person_count: number }[];
+}
+
+// ---------------------------------------------------------------------------
+// CohortDiagnostics R-runtime response shapes
+// ---------------------------------------------------------------------------
+
+export interface IncidenceRateRow {
+  cohortId: number;
+  cleanWindowDays?: number;
+  ageGroup?: string;
+  gender?: string;
+  calendarYear?: string | number;
+  incidenceRate100kpy?: number;
+  incidenceProportionP100p?: number;
+  cohortCount?: number;
+  personYears?: number;
+  [key: string]: unknown;
+}
+
+export interface OrphanConceptRow {
+  cohortId: number;
+  conceptId: number;
+  conceptName?: string;
+  conceptCount?: number;
+  databaseId?: string;
+  [key: string]: unknown;
+}
+
+export interface IndexEventBreakdownRow {
+  cohortId: number;
+  conceptId?: number;
+  conceptName?: string;
+  conceptCount?: number;
+  subjectCount?: number;
+  domainField?: string;
+  [key: string]: unknown;
+}
+
+export interface VisitContextRow {
+  cohortId: number;
+  visitConceptId?: number;
+  visitConceptName?: string;
+  subjectCount?: number;
+  visitContext?: string;
+  [key: string]: unknown;
+}
+
+export interface InclusionStatRow {
+  cohortId: number;
+  ruleSequence?: number;
+  ruleName?: string;
+  meetSubjects?: number;
+  gainSubjects?: number;
+  totalSubjects?: number;
+  [key: string]: unknown;
+}
+
+export interface TemporalCharacterizationRow {
+  cohortId: number;
+  covariateId?: number;
+  covariateName?: string;
+  mean?: number;
+  sd?: number;
+  timeId?: number;
+  [key: string]: unknown;
+}
+
+export interface CohortCountRow {
+  cohortId: number;
+  cohortEntries?: number;
+  cohortSubjects?: number;
+  [key: string]: unknown;
+}
+
+export interface RDiagnosticsResults {
+  cohort_counts?: CohortCountRow[];
+  incidence_rates?: IncidenceRateRow[];
+  orphan_concepts?: OrphanConceptRow[];
+  index_event_breakdown?: IndexEventBreakdownRow[];
+  visit_context?: VisitContextRow[];
+  inclusion_statistics?: InclusionStatRow[];
+  temporal_characterization?: TemporalCharacterizationRow[];
+}
+
+export interface RDiagnosticsResponse {
+  status: "completed" | "error";
+  database_id?: string;
+  cohort_count?: number;
+  results: RDiagnosticsResults;
+  logs?: { level: string; message: string; timestamp?: string }[];
+  elapsed_seconds?: number;
+  message?: string;
+}
+
+// Request payload shape for the Laravel proxy
+export interface RunCohortDiagnosticsPayload {
+  cohort_definition_ids: number[];
+  source_id: number;
+  run_incidence_rate?: boolean;
+  run_orphan_concepts?: boolean;
+  run_breakdown_index_events?: boolean;
+  run_visit_context?: boolean;
+  run_inclusion_statistics?: boolean;
+  run_temporal_characterization?: boolean;
+  min_cell_count?: number;
 }

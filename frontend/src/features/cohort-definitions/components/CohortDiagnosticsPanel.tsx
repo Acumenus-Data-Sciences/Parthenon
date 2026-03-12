@@ -1,190 +1,813 @@
 import { useState } from "react";
-import { Loader2, Activity } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
-import { runCohortDiagnostics } from "../api/cohortApi";
-import type { CohortDiagnosticsResult } from "../types/cohortExpression";
+import { useQuery } from "@tanstack/react-query";
+import {
+  Activity,
+  Loader2,
+  ChevronDown,
+  ChevronRight,
+  AlertCircle,
+  Check,
+  Info,
+  RefreshCw,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { runRCohortDiagnostics } from "../api/cohortApi";
+import { fetchSources } from "@/features/data-sources/api/sourcesApi";
+import type {
+  RDiagnosticsResponse,
+  RDiagnosticsResults,
+  IncidenceRateRow,
+  OrphanConceptRow,
+  IndexEventBreakdownRow,
+  VisitContextRow,
+  InclusionStatRow,
+  TemporalCharacterizationRow,
+  RunCohortDiagnosticsPayload,
+} from "../types/cohortExpression";
 
-interface CohortDiagnosticsPanelProps {
-  definitionId: number;
+// ---------------------------------------------------------------------------
+// Toggle config
+// ---------------------------------------------------------------------------
+
+interface DiagnosticToggle {
+  key: keyof Omit<RunCohortDiagnosticsPayload, "cohort_definition_ids" | "source_id" | "min_cell_count">;
+  label: string;
+  description: string;
+  defaultOn: boolean;
+  expensive?: boolean;
 }
 
-function VisitContextChart({ data }: { data: { visit_type: string; person_count: number }[] }) {
-  if (data.length === 0) return null;
-  const maxCount = Math.max(...data.map((d) => d.person_count), 1);
+const DIAGNOSTIC_TOGGLES: DiagnosticToggle[] = [
+  {
+    key: "run_incidence_rate",
+    label: "Incidence Rate",
+    description: "Rates per 1,000 person-years by age, gender, and calendar year",
+    defaultOn: true,
+  },
+  {
+    key: "run_orphan_concepts",
+    label: "Orphan Concepts",
+    description: "Concepts used in the cohort definition not in standard hierarchy",
+    defaultOn: true,
+  },
+  {
+    key: "run_breakdown_index_events",
+    label: "Index Event Breakdown",
+    description: "Distribution of index event source concepts",
+    defaultOn: true,
+  },
+  {
+    key: "run_visit_context",
+    label: "Visit Context",
+    description: "Visit type at time of cohort entry",
+    defaultOn: true,
+  },
+  {
+    key: "run_inclusion_statistics",
+    label: "Inclusion Statistics",
+    description: "Attrition funnel for each inclusion rule",
+    defaultOn: true,
+  },
+  {
+    key: "run_temporal_characterization",
+    label: "Temporal Characterization",
+    description: "Time-windowed covariate prevalence (slow — adds several minutes)",
+    defaultOn: false,
+    expensive: true,
+  },
+];
 
+// ---------------------------------------------------------------------------
+// Sub-components
+// ---------------------------------------------------------------------------
+
+function SectionHeader({
+  title,
+  count,
+  open,
+  onToggle,
+}: {
+  title: string;
+  count?: number;
+  open: boolean;
+  onToggle: () => void;
+}) {
   return (
-    <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
-      <h4 className="text-sm font-semibold text-[#F0EDE8] mb-3">Visit Context at Index</h4>
-      <div className="space-y-2">
-        {data.map((d) => (
-          <div key={d.visit_type} className="flex items-center gap-3">
-            <span className="text-xs text-[#C5C0B8] w-36 shrink-0 truncate">{d.visit_type}</span>
-            <div className="flex-1 h-5 bg-[#0E0E11] rounded overflow-hidden">
-              <div
-                className="h-full bg-[#2DD4BF] rounded"
-                style={{ width: `${(d.person_count / maxCount) * 100}%`, minWidth: d.person_count > 0 ? 2 : 0 }}
-              />
-            </div>
-            <span className="font-['IBM_Plex_Mono',monospace] text-xs text-[#8A857D] w-16 text-right">
-              {d.person_count.toLocaleString()}
-            </span>
-          </div>
-        ))}
+    <button
+      type="button"
+      onClick={onToggle}
+      className="flex w-full items-center justify-between px-4 py-3 bg-[#1C1C20] hover:bg-[#232328] transition-colors"
+    >
+      <div className="flex items-center gap-2">
+        {open ? (
+          <ChevronDown size={14} className="text-[#5A5650]" />
+        ) : (
+          <ChevronRight size={14} className="text-[#5A5650]" />
+        )}
+        <span className="text-sm font-semibold text-[#F0EDE8]">{title}</span>
+        {count !== undefined && (
+          <span className="rounded px-1.5 py-0.5 text-[9px] font-medium bg-[#2DD4BF]/15 text-[#2DD4BF]">
+            {count.toLocaleString()}
+          </span>
+        )}
       </div>
-    </div>
+    </button>
   );
 }
 
-function AgeAtIndexChart({ data }: { data: { age_group: number; person_count: number }[] }) {
-  if (data.length === 0) return null;
-
-  const width = 400;
-  const height = 220;
-  const padding = { top: 20, right: 20, bottom: 40, left: 50 };
-  const plotW = width - padding.left - padding.right;
-  const plotH = height - padding.top - padding.bottom;
-
-  const maxCount = Math.max(...data.map((d) => d.person_count), 1);
-  const barW = plotW / data.length;
-
+function EmptySection({ message }: { message: string }) {
   return (
-    <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
-      <h4 className="text-sm font-semibold text-[#F0EDE8] mb-3">Age at Index</h4>
-      <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Age distribution at index date">
-        <rect width={width} height={height} fill="#151518" rx={8} />
-        {data.map((d, i) => {
-          const barH = (d.person_count / maxCount) * plotH;
-          const x = padding.left + i * barW;
-          const y = padding.top + plotH - barH;
-          return (
-            <g key={d.age_group}>
-              <rect x={x + 2} y={y} width={barW - 4} height={barH} fill="#C9A227" opacity={0.7} rx={2}>
-                <title>{d.age_group}-{d.age_group + 9}: {d.person_count.toLocaleString()} persons</title>
-              </rect>
-              <text x={x + barW / 2} y={padding.top + plotH + 16} textAnchor="middle" fill="#5A5650" fontSize={9}>
-                {d.age_group}-{d.age_group + 9}
-              </text>
-            </g>
-          );
-        })}
-        <rect x={padding.left} y={padding.top} width={plotW} height={plotH} fill="none" stroke="#323238" strokeWidth={1} />
-        <text x={padding.left + plotW / 2} y={height - 4} textAnchor="middle" fill="#8A857D" fontSize={10} fontWeight={600}>
-          Age Group
-        </text>
-      </svg>
+    <div className="flex items-center gap-2 px-4 py-6 text-xs text-[#5A5650]">
+      <Info size={12} />
+      {message}
     </div>
   );
 }
 
-function TimeDistributionCard({ label, p25, median, p75 }: { label: string; p25?: number; median?: number; p75?: number }) {
-  if (median == null) return null;
+// ---- Incidence Rate ----
 
-  return (
-    <div className="rounded-lg border border-[#232328] bg-[#0E0E11] p-3">
-      <p className="text-xs font-medium text-[#8A857D]">{label}</p>
-      <p className="mt-1 font-['IBM_Plex_Mono',monospace] text-lg font-bold text-[#F0EDE8]">
-        {Math.round(median).toLocaleString()} <span className="text-xs font-normal text-[#5A5650]">days</span>
-      </p>
-      <p className="text-[10px] text-[#5A5650]">
-        IQR: {Math.round(p25 ?? 0).toLocaleString()} - {Math.round(p75 ?? 0).toLocaleString()}
-      </p>
-    </div>
-  );
-}
-
-export function CohortDiagnosticsPanel({ definitionId }: CohortDiagnosticsPanelProps) {
-  const [result, setResult] = useState<CohortDiagnosticsResult | null>(null);
-
-  const mutation = useMutation({
-    mutationFn: () => runCohortDiagnostics(definitionId, { source_id: 1 }),
-    onSuccess: (data) => setResult(data),
-  });
-
-  if (!result && !mutation.isPending) {
+function IncidenceRateSection({ rows }: { rows: IncidenceRateRow[] }) {
+  const [open, setOpen] = useState(true);
+  if (rows.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed border-[#323238] bg-[#151518] p-6 text-center">
-        <Activity size={24} className="mx-auto text-[#323238] mb-3" />
-        <h3 className="text-sm font-semibold text-[#F0EDE8]">Cohort Diagnostics</h3>
-        <p className="mt-1 text-xs text-[#8A857D]">
-          Run diagnostics to see visit context, observation time, and age distribution.
-        </p>
-        <button
-          type="button"
-          onClick={() => mutation.mutate()}
-          className="mt-4 px-4 py-2 rounded-lg bg-[#2DD4BF]/10 text-[#2DD4BF] text-sm font-medium hover:bg-[#2DD4BF]/20 transition-colors"
-        >
-          Run Diagnostics
-        </button>
-        {mutation.isError && (
-          <p className="mt-2 text-xs text-[#E85A6B]">
-            {mutation.error instanceof Error ? mutation.error.message : "Failed to run diagnostics"}
-          </p>
+      <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
+        <SectionHeader title="Incidence Rate" open={open} onToggle={() => setOpen(!open)} />
+        {open && <EmptySection message="No incidence rate data returned." />}
+      </div>
+    );
+  }
+
+  // Show top 50 rows
+  const display = rows.slice(0, 50);
+
+  return (
+    <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
+      <SectionHeader
+        title="Incidence Rate"
+        count={rows.length}
+        open={open}
+        onToggle={() => setOpen(!open)}
+      />
+      {open && (
+        <div className="overflow-x-auto max-h-72 overflow-y-auto">
+          <table className="w-full text-xs">
+            <thead className="sticky top-0 bg-[#18181C]">
+              <tr>
+                <th className="px-3 py-2 text-left font-medium text-[#8A857D]">Cohort ID</th>
+                <th className="px-3 py-2 text-left font-medium text-[#8A857D]">Age Group</th>
+                <th className="px-3 py-2 text-left font-medium text-[#8A857D]">Gender</th>
+                <th className="px-3 py-2 text-left font-medium text-[#8A857D]">Calendar Year</th>
+                <th className="px-3 py-2 text-right font-medium text-[#8A857D]">Rate / 1K py</th>
+                <th className="px-3 py-2 text-right font-medium text-[#8A857D]">Cohort Count</th>
+                <th className="px-3 py-2 text-right font-medium text-[#8A857D]">Person Years</th>
+              </tr>
+            </thead>
+            <tbody>
+              {display.map((row, i) => (
+                <tr
+                  key={i}
+                  className="border-t border-[#1A1A1F] hover:bg-[#1C1C20] transition-colors"
+                >
+                  <td className="px-3 py-2 font-['IBM_Plex_Mono',monospace] text-[#C5C0B8]">
+                    {row.cohortId}
+                  </td>
+                  <td className="px-3 py-2 text-[#C5C0B8]">{row.ageGroup ?? "—"}</td>
+                  <td className="px-3 py-2 text-[#C5C0B8]">{row.gender ?? "—"}</td>
+                  <td className="px-3 py-2 text-[#C5C0B8]">{row.calendarYear ?? "—"}</td>
+                  <td className="px-3 py-2 text-right font-['IBM_Plex_Mono',monospace] text-[#2DD4BF]">
+                    {row.incidenceRate100kpy != null
+                      ? Number(row.incidenceRate100kpy).toFixed(2)
+                      : "—"}
+                  </td>
+                  <td className="px-3 py-2 text-right font-['IBM_Plex_Mono',monospace] text-[#F0EDE8]">
+                    {row.cohortCount?.toLocaleString() ?? "—"}
+                  </td>
+                  <td className="px-3 py-2 text-right font-['IBM_Plex_Mono',monospace] text-[#8A857D]">
+                    {row.personYears != null
+                      ? Number(row.personYears).toLocaleString(undefined, { maximumFractionDigits: 0 })
+                      : "—"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {rows.length > 50 && (
+            <p className="px-4 py-2 text-[10px] text-[#5A5650]">
+              Showing first 50 of {rows.length.toLocaleString()} rows.
+            </p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ---- Orphan Concepts ----
+
+function OrphanConceptsSection({ rows }: { rows: OrphanConceptRow[] }) {
+  const [open, setOpen] = useState(true);
+  if (rows.length === 0) {
+    return (
+      <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
+        <SectionHeader title="Orphan Concepts" open={open} onToggle={() => setOpen(!open)} />
+        {open && (
+          <div className="flex items-center gap-2 px-4 py-6 text-xs text-[#2DD4BF]">
+            <Check size={12} />
+            No orphan concepts found.
+          </div>
         )}
       </div>
     );
   }
 
-  if (mutation.isPending) {
+  return (
+    <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
+      <SectionHeader
+        title="Orphan Concepts"
+        count={rows.length}
+        open={open}
+        onToggle={() => setOpen(!open)}
+      />
+      {open && (
+        <div className="overflow-x-auto max-h-64 overflow-y-auto">
+          <table className="w-full text-xs">
+            <thead className="sticky top-0 bg-[#18181C]">
+              <tr>
+                <th className="px-3 py-2 text-left font-medium text-[#8A857D]">Concept ID</th>
+                <th className="px-3 py-2 text-left font-medium text-[#8A857D]">Concept Name</th>
+                <th className="px-3 py-2 text-right font-medium text-[#8A857D]">Record Count</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row, i) => (
+                <tr
+                  key={i}
+                  className="border-t border-[#1A1A1F] hover:bg-[#1C1C20] transition-colors"
+                >
+                  <td className="px-3 py-2 font-['IBM_Plex_Mono',monospace] text-[#C9A227]">
+                    {row.conceptId}
+                  </td>
+                  <td className="px-3 py-2 text-[#C5C0B8]">{row.conceptName ?? "—"}</td>
+                  <td className="px-3 py-2 text-right font-['IBM_Plex_Mono',monospace] text-[#F0EDE8]">
+                    {row.conceptCount?.toLocaleString() ?? "—"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ---- Index Event Breakdown ----
+
+function IndexEventBreakdownSection({ rows }: { rows: IndexEventBreakdownRow[] }) {
+  const [open, setOpen] = useState(true);
+  if (rows.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 gap-3">
-        <Loader2 size={24} className="animate-spin text-[#2DD4BF]" />
-        <p className="text-sm text-[#8A857D]">Running cohort diagnostics...</p>
+      <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
+        <SectionHeader
+          title="Index Event Breakdown"
+          open={open}
+          onToggle={() => setOpen(!open)}
+        />
+        {open && <EmptySection message="No index event breakdown data returned." />}
       </div>
     );
   }
 
-  if (!result) return null;
+  const totalSubjects = rows.reduce((s, r) => s + (r.subjectCount ?? 0), 0) || 1;
+
+  return (
+    <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
+      <SectionHeader
+        title="Index Event Breakdown"
+        count={rows.length}
+        open={open}
+        onToggle={() => setOpen(!open)}
+      />
+      {open && (
+        <div className="p-4 space-y-2 max-h-72 overflow-y-auto">
+          {rows.map((row, i) => {
+            const pct = ((row.subjectCount ?? 0) / totalSubjects) * 100;
+            return (
+              <div key={i} className="space-y-1">
+                <div className="flex items-center justify-between text-[10px]">
+                  <span className="text-[#C5C0B8] truncate max-w-xs">
+                    {row.conceptName ?? `Concept ${row.conceptId}`}
+                  </span>
+                  <span className="font-['IBM_Plex_Mono',monospace] text-[#8A857D] ml-2 shrink-0">
+                    {row.subjectCount?.toLocaleString() ?? 0} ({pct.toFixed(1)}%)
+                  </span>
+                </div>
+                <div className="h-4 bg-[#0E0E11] rounded overflow-hidden">
+                  <div
+                    className="h-full bg-[#9B1B30] rounded transition-all"
+                    style={{ width: `${Math.max(pct, 0.5)}%` }}
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ---- Visit Context ----
+
+function VisitContextSection({ rows }: { rows: VisitContextRow[] }) {
+  const [open, setOpen] = useState(true);
+  if (rows.length === 0) {
+    return (
+      <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
+        <SectionHeader title="Visit Context" open={open} onToggle={() => setOpen(!open)} />
+        {open && <EmptySection message="No visit context data returned." />}
+      </div>
+    );
+  }
+
+  const maxCount = Math.max(...rows.map((r) => r.subjectCount ?? 0), 1);
+
+  return (
+    <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
+      <SectionHeader
+        title="Visit Context"
+        count={rows.length}
+        open={open}
+        onToggle={() => setOpen(!open)}
+      />
+      {open && (
+        <div className="p-4 space-y-2">
+          {rows.map((row, i) => (
+            <div key={i} className="flex items-center gap-3">
+              <span className="text-xs text-[#C5C0B8] w-44 shrink-0 truncate">
+                {row.visitConceptName ?? row.visitContext ?? `Visit ${row.visitConceptId}`}
+              </span>
+              <div className="flex-1 h-5 bg-[#0E0E11] rounded overflow-hidden">
+                <div
+                  className="h-full bg-[#2DD4BF] rounded"
+                  style={{
+                    width: `${((row.subjectCount ?? 0) / maxCount) * 100}%`,
+                    minWidth: (row.subjectCount ?? 0) > 0 ? 2 : 0,
+                  }}
+                />
+              </div>
+              <span className="font-['IBM_Plex_Mono',monospace] text-xs text-[#8A857D] w-16 text-right">
+                {row.subjectCount?.toLocaleString() ?? "—"}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ---- Inclusion Statistics ----
+
+function InclusionStatisticsSection({ rows }: { rows: InclusionStatRow[] }) {
+  const [open, setOpen] = useState(true);
+  if (rows.length === 0) {
+    return (
+      <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
+        <SectionHeader
+          title="Inclusion Statistics"
+          open={open}
+          onToggle={() => setOpen(!open)}
+        />
+        {open && <EmptySection message="No inclusion statistics returned." />}
+      </div>
+    );
+  }
+
+  const maxTotal = Math.max(...rows.map((r) => r.totalSubjects ?? 0), 1);
+
+  return (
+    <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
+      <SectionHeader
+        title="Inclusion Statistics"
+        count={rows.length}
+        open={open}
+        onToggle={() => setOpen(!open)}
+      />
+      {open && (
+        <div className="p-4 space-y-3">
+          {rows.map((row, i) => {
+            const pct = ((row.meetSubjects ?? 0) / maxTotal) * 100;
+            return (
+              <div key={i} className="space-y-1">
+                <div className="flex items-center justify-between text-[10px]">
+                  <span className="text-[#C5C0B8]">
+                    <span className="font-['IBM_Plex_Mono',monospace] text-[#5A5650] mr-1.5">
+                      #{row.ruleSequence ?? i + 1}
+                    </span>
+                    {row.ruleName ?? `Rule ${(row.ruleSequence ?? i) + 1}`}
+                  </span>
+                  <div className="flex items-center gap-3 ml-2 shrink-0">
+                    <span className="text-[#2DD4BF] font-['IBM_Plex_Mono',monospace]">
+                      {row.meetSubjects?.toLocaleString() ?? "—"} meet
+                    </span>
+                    <span className="text-[#8A857D] font-['IBM_Plex_Mono',monospace]">
+                      {row.gainSubjects?.toLocaleString() ?? "—"} gain
+                    </span>
+                  </div>
+                </div>
+                <div className="h-3 bg-[#0E0E11] rounded overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-[#2DD4BF] to-[#C9A227] rounded transition-all"
+                    style={{ width: `${Math.max(pct, 0.5)}%` }}
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ---- Temporal Characterization ----
+
+function TemporalCharacterizationSection({
+  rows,
+}: {
+  rows: TemporalCharacterizationRow[];
+}) {
+  const [open, setOpen] = useState(false);
+  if (rows.length === 0) {
+    return (
+      <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
+        <SectionHeader
+          title="Temporal Characterization"
+          open={open}
+          onToggle={() => setOpen(!open)}
+        />
+        {open && <EmptySection message="No temporal characterization data returned." />}
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
+      <SectionHeader
+        title="Temporal Characterization"
+        count={rows.length}
+        open={open}
+        onToggle={() => setOpen(!open)}
+      />
+      {open && (
+        <div className="overflow-x-auto max-h-64 overflow-y-auto">
+          <table className="w-full text-xs">
+            <thead className="sticky top-0 bg-[#18181C]">
+              <tr>
+                <th className="px-3 py-2 text-left font-medium text-[#8A857D]">Covariate</th>
+                <th className="px-3 py-2 text-right font-medium text-[#8A857D]">Time Window</th>
+                <th className="px-3 py-2 text-right font-medium text-[#8A857D]">Mean</th>
+                <th className="px-3 py-2 text-right font-medium text-[#8A857D]">SD</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row, i) => (
+                <tr
+                  key={i}
+                  className="border-t border-[#1A1A1F] hover:bg-[#1C1C20] transition-colors"
+                >
+                  <td className="px-3 py-2 text-[#C5C0B8] max-w-xs truncate">
+                    {row.covariateName ?? `Covariate ${row.covariateId}`}
+                  </td>
+                  <td className="px-3 py-2 text-right font-['IBM_Plex_Mono',monospace] text-[#8A857D]">
+                    {row.timeId ?? "—"}
+                  </td>
+                  <td className="px-3 py-2 text-right font-['IBM_Plex_Mono',monospace] text-[#C9A227]">
+                    {row.mean != null ? Number(row.mean).toFixed(4) : "—"}
+                  </td>
+                  <td className="px-3 py-2 text-right font-['IBM_Plex_Mono',monospace] text-[#8A857D]">
+                    {row.sd != null ? Number(row.sd).toFixed(4) : "—"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ---- Results renderer ----
+
+function DiagnosticsResults({
+  response,
+  enabledToggles: _enabledToggles,
+}: {
+  response: RDiagnosticsResponse;
+  enabledToggles: Set<string>;
+}) {
+  const r: RDiagnosticsResults = response.results ?? {};
 
   return (
     <div className="space-y-4">
-      {/* Counts */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 text-center">
-          <p className="text-2xl font-bold text-[#F0EDE8] font-['IBM_Plex_Mono',monospace]">
-            {result.counts.distinct_persons.toLocaleString()}
-          </p>
-          <p className="text-xs text-[#8A857D] mt-1">Distinct Persons</p>
+      {/* Summary bar */}
+      <div className="flex flex-wrap items-center gap-3 rounded-lg border border-[#232328] bg-[#151518] px-4 py-3">
+        <div className="flex items-center gap-2">
+          <Check size={14} className="text-[#2DD4BF]" />
+          <span className="text-xs font-medium text-[#F0EDE8]">
+            Diagnostics completed
+          </span>
         </div>
-        <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 text-center">
-          <p className="text-2xl font-bold text-[#C9A227] font-['IBM_Plex_Mono',monospace]">
-            {result.counts.total_records.toLocaleString()}
+        {response.cohort_count != null && (
+          <span className="text-xs text-[#8A857D]">
+            {response.cohort_count} cohort{response.cohort_count !== 1 ? "s" : ""}
+          </span>
+        )}
+        {response.elapsed_seconds != null && (
+          <span className="text-xs text-[#5A5650] font-['IBM_Plex_Mono',monospace]">
+            {response.elapsed_seconds.toFixed(1)}s
+          </span>
+        )}
+        {response.database_id && (
+          <span className="rounded px-1.5 py-0.5 text-[9px] bg-[#1A1A1F] border border-[#232328] text-[#8A857D] font-['IBM_Plex_Mono',monospace]">
+            {response.database_id}
+          </span>
+        )}
+      </div>
+
+      {/* Cohort counts */}
+      {r.cohort_counts && r.cohort_counts.length > 0 && (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {r.cohort_counts.map((cc, i) => (
+            <div
+              key={i}
+              className="rounded-lg border border-[#232328] bg-[#151518] p-3 text-center"
+            >
+              <p className="font-['IBM_Plex_Mono',monospace] text-lg font-bold text-[#F0EDE8]">
+                {(cc.cohortSubjects ?? 0).toLocaleString()}
+              </p>
+              <p className="text-[10px] text-[#8A857D]">Subjects</p>
+              <p className="text-[10px] text-[#5A5650] font-['IBM_Plex_Mono',monospace]">
+                Cohort {cc.cohortId}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Individual result sections */}
+      {r.incidence_rates && (
+        <IncidenceRateSection rows={r.incidence_rates} />
+      )}
+
+      {r.orphan_concepts && (
+        <OrphanConceptsSection rows={r.orphan_concepts} />
+      )}
+
+      {r.index_event_breakdown && (
+        <IndexEventBreakdownSection rows={r.index_event_breakdown} />
+      )}
+
+      {r.visit_context && (
+        <VisitContextSection rows={r.visit_context} />
+      )}
+
+      {r.inclusion_statistics && (
+        <InclusionStatisticsSection rows={r.inclusion_statistics} />
+      )}
+
+      {r.temporal_characterization && (
+        <TemporalCharacterizationSection rows={r.temporal_characterization} />
+      )}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Main panel
+// ---------------------------------------------------------------------------
+
+interface CohortDiagnosticsPanelProps {
+  definitionId: number;
+}
+
+export function CohortDiagnosticsPanel({
+  definitionId,
+}: CohortDiagnosticsPanelProps) {
+  // ---- State ----
+  const [result, setResult] = useState<RDiagnosticsResponse | null>(null);
+  const [sourceId, setSourceId] = useState<number | "">("");
+  const [toggles, setToggles] = useState<Record<string, boolean>>(() =>
+    Object.fromEntries(DIAGNOSTIC_TOGGLES.map((t) => [t.key, t.defaultOn]))
+  );
+
+  // ---- Data ----
+  const { data: sources, isLoading: sourcesLoading } = useQuery({
+    queryKey: ["sources"],
+    queryFn: fetchSources,
+  });
+
+  // Auto-select first source
+  if (!sourceId && sources && sources.length > 0 && sources[0]) {
+    const def = sources.find((s) => s.is_default) ?? sources[0];
+    setSourceId(def.id);
+  }
+
+  const mutation = useMutation({
+    mutationFn: (payload: RunCohortDiagnosticsPayload) =>
+      runRCohortDiagnostics(payload),
+    onSuccess: (data) => setResult(data),
+  });
+
+  const handleRun = () => {
+    if (!sourceId) return;
+    const payload: RunCohortDiagnosticsPayload = {
+      cohort_definition_ids: [definitionId],
+      source_id: sourceId as number,
+      ...Object.fromEntries(
+        DIAGNOSTIC_TOGGLES.map((t) => [t.key, toggles[t.key] ?? t.defaultOn])
+      ),
+    };
+    mutation.mutate(payload);
+  };
+
+  const enabledToggles = new Set(
+    DIAGNOSTIC_TOGGLES.filter((t) => toggles[t.key]).map((t) => t.key)
+  );
+
+  // ---- Loading state ----
+  if (mutation.isPending) {
+    return (
+      <div className="rounded-lg border border-[#232328] bg-[#151518] p-8">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 size={28} className="animate-spin text-[#2DD4BF]" />
+          <p className="text-sm font-medium text-[#F0EDE8]">Running diagnostics…</p>
+          <p className="text-xs text-[#8A857D]">
+            This may take several minutes depending on cohort size and selected analyses.
           </p>
-          <p className="text-xs text-[#8A857D] mt-1">Total Records</p>
         </div>
       </div>
+    );
+  }
 
-      {/* Time Distributions */}
-      <div className="grid grid-cols-2 gap-4">
-        <TimeDistributionCard
-          label="Observation Before Index"
-          p25={result.time_distributions.p25_before}
-          median={result.time_distributions.median_before}
-          p75={result.time_distributions.p75_before}
-        />
-        <TimeDistributionCard
-          label="Observation After Index"
-          p25={result.time_distributions.p25_after}
-          median={result.time_distributions.median_after}
-          p75={result.time_distributions.p75_after}
-        />
+  // ---- Results view ----
+  if (result) {
+    return (
+      <div className="space-y-4">
+        {/* Re-run controls */}
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-[#F0EDE8]">
+            Cohort Diagnostics Results
+          </h3>
+          <button
+            type="button"
+            onClick={() => setResult(null)}
+            className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs text-[#8A857D] hover:text-[#F0EDE8] hover:bg-[#232328] transition-colors"
+          >
+            <RefreshCw size={12} />
+            Re-configure
+          </button>
+        </div>
+
+        <DiagnosticsResults response={result} enabledToggles={enabledToggles} />
       </div>
+    );
+  }
 
-      {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <VisitContextChart data={result.visit_context} />
-        <AgeAtIndexChart data={result.age_at_index} />
-      </div>
+  // ---- Configuration / idle view ----
+  return (
+    <div className="space-y-4">
+      {/* Panel header */}
+      <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
+        <div className="flex items-center gap-2 px-4 py-3 bg-[#1C1C20]">
+          <Activity size={14} className="text-[#9B1B30]" />
+          <h4 className="text-sm font-semibold text-[#F0EDE8]">Cohort Diagnostics</h4>
+          <span className="rounded px-1.5 py-0.5 text-[9px] font-medium bg-[#9B1B30]/15 text-[#9B1B30]">
+            R / HADES
+          </span>
+        </div>
 
-      {/* Re-run button */}
-      <div className="text-right">
-        <button
-          type="button"
-          onClick={() => mutation.mutate()}
-          disabled={mutation.isPending}
-          className="px-3 py-1.5 rounded text-xs text-[#8A857D] hover:text-[#F0EDE8] transition-colors"
-        >
-          Re-run diagnostics
-        </button>
+        <div className="p-4 space-y-5">
+          {/* Source selector */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-medium text-[#8A857D]">
+              Data Source
+            </label>
+            {sourcesLoading ? (
+              <div className="flex items-center gap-2 text-xs text-[#5A5650]">
+                <Loader2 size={12} className="animate-spin" />
+                Loading sources…
+              </div>
+            ) : !sources || sources.length === 0 ? (
+              <div className="flex items-center gap-2 text-xs text-[#E85A6B]">
+                <AlertCircle size={12} />
+                No data sources configured. Add one in Admin &rarr; Sources.
+              </div>
+            ) : (
+              <select
+                value={sourceId}
+                onChange={(e) => setSourceId(Number(e.target.value))}
+                className={cn(
+                  "w-full rounded-md border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm text-[#F0EDE8]",
+                  "focus:outline-none focus:border-[#2DD4BF] transition-colors"
+                )}
+              >
+                <option value="" disabled>
+                  Select a source…
+                </option>
+                {sources.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.source_name}
+                    {s.is_default ? " (default)" : ""}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
+
+          {/* Diagnostic toggles */}
+          <div className="space-y-1.5">
+            <p className="text-xs font-medium text-[#8A857D]">Diagnostic Analyses</p>
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              {DIAGNOSTIC_TOGGLES.map((toggle) => (
+                <label
+                  key={toggle.key}
+                  className={cn(
+                    "flex items-start gap-2.5 rounded-md border px-3 py-2.5 cursor-pointer transition-colors",
+                    toggles[toggle.key]
+                      ? "border-[#2DD4BF]/30 bg-[#2DD4BF]/5"
+                      : "border-[#232328] bg-[#0E0E11] hover:border-[#323238]"
+                  )}
+                >
+                  <input
+                    type="checkbox"
+                    checked={toggles[toggle.key] ?? toggle.defaultOn}
+                    onChange={(e) =>
+                      setToggles((prev) => ({
+                        ...prev,
+                        [toggle.key]: e.target.checked,
+                      }))
+                    }
+                    className="mt-0.5 h-3.5 w-3.5 rounded border-[#5A5650] bg-[#0E0E11] accent-[#2DD4BF]"
+                  />
+                  <div className="min-w-0">
+                    <p className="text-xs font-medium text-[#F0EDE8] flex items-center gap-1.5">
+                      {toggle.label}
+                      {toggle.expensive && (
+                        <span className="text-[9px] text-[#C9A227] bg-[#C9A227]/10 rounded px-1 py-0.5">
+                          slow
+                        </span>
+                      )}
+                    </p>
+                    <p className="text-[10px] text-[#5A5650] leading-snug">
+                      {toggle.description}
+                    </p>
+                  </div>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Error display */}
+          {mutation.isError && (
+            <div className="flex items-start gap-2 rounded-md border border-red-800/50 bg-red-900/20 px-3 py-2.5 text-xs text-red-300">
+              <AlertCircle size={12} className="shrink-0 mt-0.5" />
+              <span>
+                {mutation.error instanceof Error
+                  ? mutation.error.message
+                  : "Failed to run diagnostics. Check R runtime is healthy."}
+              </span>
+            </div>
+          )}
+
+          {/* Run button */}
+          <button
+            type="button"
+            onClick={handleRun}
+            disabled={!sourceId || mutation.isPending}
+            className={cn(
+              "w-full inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors",
+              sourceId && !mutation.isPending
+                ? "bg-[#9B1B30] text-white hover:bg-[#9B1B30]/80"
+                : "bg-[#1A1A1F] text-[#5A5650] cursor-not-allowed border border-[#232328]"
+            )}
+          >
+            {mutation.isPending ? (
+              <Loader2 size={14} className="animate-spin" />
+            ) : (
+              <Activity size={14} />
+            )}
+            Run Diagnostics
+          </button>
+
+          <p className="text-[10px] text-[#5A5650] text-center">
+            Diagnostics run directly against the CDM and may take 1–5 minutes.
+            Results are not persisted.
+          </p>
+        </div>
       </div>
     </div>
   );
