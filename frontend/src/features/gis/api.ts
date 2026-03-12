@@ -2,9 +2,15 @@ import apiClient from "@/lib/api-client";
 import type {
   AdminLevel,
   BoundaryCollection,
+  CdmChoroplethParams,
   ChoroplethDataPoint,
   ChoroplethParams,
+  ConditionCategory,
+  ConditionItem,
   Country,
+  CountyChoroplethItem,
+  CountyDetailData,
+  DiseaseSummary,
   GisDatasetJob,
   GisStats,
   RegionDetail,
@@ -53,5 +59,61 @@ export async function loadGisDataset(params: {
 
 export async function fetchDatasetStatus(id: number): Promise<GisDatasetJob> {
   const { data } = await apiClient.get(`/gis/datasets/${id}`);
+  return data.data;
+}
+
+// CDM Spatial API functions (v2 — disease-agnostic)
+
+export async function fetchConditions(params?: {
+  search?: string;
+  category?: string;
+  limit?: number;
+}): Promise<ConditionItem[]> {
+  const { data } = await apiClient.get("/gis/cdm/conditions", { params });
+  return data.data;
+}
+
+export async function fetchConditionCategories(): Promise<ConditionCategory[]> {
+  const { data } = await apiClient.get("/gis/cdm/conditions/categories");
+  return data.data;
+}
+
+export async function fetchCdmChoropleth(
+  params: CdmChoroplethParams
+): Promise<CountyChoroplethItem[]> {
+  const { data } = await apiClient.post("/gis/cdm/choropleth", params);
+  return data.data;
+}
+
+export async function fetchTimePeriods(conceptId: number): Promise<string[]> {
+  const { data } = await apiClient.get("/gis/cdm/time-periods", {
+    params: { concept_id: conceptId },
+  });
+  return data.data;
+}
+
+export async function fetchDiseaseSummary(conceptId: number): Promise<DiseaseSummary> {
+  const { data } = await apiClient.get("/gis/cdm/summary", {
+    params: { concept_id: conceptId },
+  });
+  return data.data;
+}
+
+export async function fetchCountyDetail(
+  gadmGid: string,
+  conceptId: number
+): Promise<CountyDetailData> {
+  const { data } = await apiClient.get(`/gis/cdm/county/${gadmGid}`, {
+    params: { concept_id: conceptId },
+  });
+  return data.data;
+}
+
+export async function refreshCdmStats(
+  conceptId: number
+): Promise<{ status: string; metrics_computed: number }> {
+  const { data } = await apiClient.post("/gis/cdm/refresh", null, {
+    params: { concept_id: conceptId },
+  });
   return data.data;
 }
