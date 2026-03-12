@@ -190,6 +190,49 @@ The original OHDSI Atlas codebase is archived at the `archive/legacy` branch.
 
 ---
 
+<!-- AUTO-STATS -->
+## Platform Stats
+
+> Auto-updated by the Parthenon docs-sync automation.
+
+| Metric | Count |
+|---|---|
+| **Frontend features** | 33 modules |
+| **Frontend pages** | 65 page components |
+| **API controllers** | 81 |
+| **API routes** | 434+ registered |
+| **Docker services** | 18 containers |
+| **Test files** | 2528 (21 PHP, 38 TS, 2444 Python, 25 E2E) |
+
+### Frontend Feature Modules
+
+`abby-ai`, `administration`, `analyses`, `auth`, `care-gaps`, `cohort-definitions`, `concept-sets`, `dashboard`, `data-explorer`, `data-sources`, `estimation`, `etl`, `evidence-synthesis`, `genomics`, `gis`, `help`, `heor`, `imaging`, `ingestion`, `jobs`, `pathways`, `phenotype-library`, `prediction`, `profiles`, `publish`, `radiogenomics`, `sccs`, `settings`, `strategus`, `studies`, `study-agent`, `text-to-sql`, `vocabulary`
+
+### Docker Services
+
+| Service | Ports |
+|---|---|
+| nginx | ${NGINX_PORT:-8082}:80 |
+| php | internal |
+| node | ${VITE_PORT:-5175}:5173 |
+| postgres | ${POSTGRES_PORT:-5480}:5432 |
+| redis | ${REDIS_PORT:-6381}:6379 |
+| python-ai | ${AI_PORT:-8002}:8000 |
+| chromadb | internal |
+| study-agent | ${STUDY_AGENT_PORT:-8765}:8765 |
+| qdrant | internal |
+| hecate | ${HECATE_PORT:-8080}:8080 |
+| solr | ${SOLR_PORT:-8983}:8983 |
+| whiterabbit | ${WHITERABBIT_PORT:-8090}:8090 |
+| r-runtime | ${R_PORT:-8787}:8787 |
+| horizon | internal |
+| orthanc | ${ORTHANC_PORT:-8042}:8042 |
+| ohif-build | internal |
+| docs-build | internal |
+| fhir-to-cdm | ${FHIR_TO_CDM_PORT:-8091}:8091 |
+
+<!-- /AUTO-STATS -->
+
 ## License
 
 Apache License 2.0 — see [LICENSE](LICENSE) for details.

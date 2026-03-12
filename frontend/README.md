@@ -1,73 +1,88 @@
-# React + TypeScript + Vite
+# Parthenon Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React 19 SPA for the Parthenon outcomes research platform.
 
-Currently, two official plugins are available:
+## Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **React 19** + TypeScript strict mode
+- **Vite 7** build tooling
+- **Tailwind CSS 4** with dark clinical theme
+- **Zustand** for state management
+- **TanStack Query** for server state / caching
+- **TanStack Table** for data grids
 
-## React Compiler
+## Feature Modules (33)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- `abby-ai`
+- `administration`
+- `analyses`
+- `auth`
+- `care-gaps`
+- `cohort-definitions`
+- `concept-sets`
+- `dashboard`
+- `data-explorer`
+- `data-sources`
+- `estimation`
+- `etl`
+- `evidence-synthesis`
+- `genomics`
+- `gis`
+- `help`
+- `heor`
+- `imaging`
+- `ingestion`
+- `jobs`
+- `pathways`
+- `phenotype-library`
+- `prediction`
+- `profiles`
+- `publish`
+- `radiogenomics`
+- `sccs`
+- `settings`
+- `strategus`
+- `studies`
+- `study-agent`
+- `text-to-sql`
+- `vocabulary`
 
-## Expanding the ESLint configuration
+## Stats
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **65** page components
+- **38** test files
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Development
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install --legacy-peer-deps   # Required for react-joyride peer dep
+npm run dev                      # Vite dev server (port 5175)
+npx vitest run                   # Run tests
+npx tsc --noEmit                 # Type check
+npx eslint .                     # Lint
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Design System
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Dark clinical theme colors:
+- `#0E0E11` — base background
+- `#9B1B30` — crimson accent
+- `#C9A227` — gold highlight
+- `#2DD4BF` — teal positive
+- `#F0EDE8` — primary text
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Directory Structure
+
+```
+src/
+  features/        # Feature modules (cohort-definitions/, analyses/, etc.)
+    {feature}/
+      pages/       # Route-level page components
+      components/  # Feature-specific components
+      hooks/       # Custom React hooks
+      api.ts       # TanStack Query hooks
+  components/      # Shared UI components
+  stores/          # Zustand stores
+  types/           # TypeScript types
+  lib/             # Utilities, API client
 ```
