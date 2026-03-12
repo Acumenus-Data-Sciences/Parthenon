@@ -44,12 +44,17 @@ use App\Http\Controllers\Api\V1\NotificationPreferenceController;
 use App\Http\Controllers\Api\V1\OnboardingController;
 use App\Http\Controllers\Api\V1\PathwayController;
 use App\Http\Controllers\Api\V1\PatientProfileController;
+use App\Http\Controllers\Api\V1\PhenotypeLibraryController;
 use App\Http\Controllers\Api\V1\PopulationCharacterizationController;
 use App\Http\Controllers\Api\V1\PublicationController;
 use App\Http\Controllers\Api\V1\PopulationRiskScoreController;
 use App\Http\Controllers\Api\V1\PredictionController;
+use App\Http\Controllers\Api\V1\CirceController;
+use App\Http\Controllers\Api\V1\CohortDiagnosticsController;
 use App\Http\Controllers\Api\V1\SccsController;
 use App\Http\Controllers\Api\V1\SourceController;
+use App\Http\Controllers\Api\V1\StrategusController;
+use App\Http\Controllers\Api\V1\StudyAgentController;
 use App\Http\Controllers\Api\V1\StudyActivityController;
 use App\Http\Controllers\Api\V1\StudyArtifactController;
 use App\Http\Controllers\Api\V1\StudyCohortController;
@@ -223,12 +228,14 @@ Route::prefix('v1')->group(function () {
         Route::post('characterizations/{characterization}/execute', [CharacterizationController::class, 'execute']);
         Route::get('characterizations/{characterization}/executions', [CharacterizationController::class, 'executions']);
         Route::get('characterizations/{characterization}/executions/{execution}', [CharacterizationController::class, 'showExecution']);
+        Route::post('characterizations/run-direct', [CharacterizationController::class, 'runDirect']);
 
         // Incidence Rates
         Route::apiResource('incidence-rates', IncidenceRateController::class);
         Route::post('incidence-rates/{incidenceRate}/execute', [IncidenceRateController::class, 'execute']);
         Route::get('incidence-rates/{incidenceRate}/executions', [IncidenceRateController::class, 'executions']);
         Route::get('incidence-rates/{incidenceRate}/executions/{execution}', [IncidenceRateController::class, 'showExecution']);
+        Route::post('incidence-rates/calculate-direct', [IncidenceRateController::class, 'calculateDirect']);
 
         // Pathways
         Route::apiResource('pathways', PathwayController::class);
@@ -395,9 +402,53 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('abby/conversations', AbbyConversationController::class)
             ->only(['index', 'store', 'show', 'destroy']);
 
+        // Circe Cohort Compiler
+        Route::prefix('circe')->group(function () {
+            Route::post('/compile', [CirceController::class, 'compile']);
+            Route::post('/validate', [CirceController::class, 'validate']);
+            Route::post('/render', [CirceController::class, 'render']);
+        });
+
+        // Cohort Diagnostics (R Plumber proxy)
+        Route::prefix('cohort-diagnostics')->group(function () {
+            Route::post('/run', [CohortDiagnosticsController::class, 'run']);
+        });
+
+        // StudyAgent AI Assistant
+        Route::prefix('study-agent')
+            ->middleware(['role:researcher|super-admin', 'throttle:10,1'])
+            ->group(function () {
+            Route::get('/health', [StudyAgentController::class, 'health']);
+            Route::get('/tools', [StudyAgentController::class, 'tools']);
+            Route::post('/phenotype/search', [StudyAgentController::class, 'phenotypeSearch']);
+            Route::post('/phenotype/recommend', [StudyAgentController::class, 'phenotypeRecommend']);
+            Route::post('/phenotype/improve', [StudyAgentController::class, 'phenotypeImprove']);
+            Route::post('/intent/split', [StudyAgentController::class, 'intentSplit']);
+            Route::post('/cohort/lint', [StudyAgentController::class, 'cohortLint']);
+            Route::post('/concept-set/review', [StudyAgentController::class, 'conceptSetReview']);
+            Route::post('/lint-cohort', [StudyAgentController::class, 'lintCohortCombined']);
+            Route::post('/recommend-phenotypes', [StudyAgentController::class, 'recommendPhenotypes']);
+        });
+
         // Publication / Export
         Route::post('publish/narrative', [PublicationController::class, 'narrative']);
         Route::post('publish/export', [PublicationController::class, 'export']);
+
+        // Strategus Study Orchestration
+        Route::prefix('strategus')->group(function () {
+            Route::post('/execute', [StrategusController::class, 'execute']);
+            Route::post('/validate', [StrategusController::class, 'validate']);
+            Route::get('/modules', [StrategusController::class, 'modules']);
+        });
+
+        // Phenotype Library
+        Route::prefix('phenotype-library')->group(function () {
+            Route::get('/', [PhenotypeLibraryController::class, 'index']);
+            Route::get('/stats', [PhenotypeLibraryController::class, 'stats']);
+            Route::get('/domains', [PhenotypeLibraryController::class, 'domains']);
+            Route::get('/{cohortId}', [PhenotypeLibraryController::class, 'show']);
+            Route::post('/{cohortId}/import', [PhenotypeLibraryController::class, 'import']);
+        });
 
         // ── Admin panel (requires admin or super-admin role) ───────────────
         Route::prefix('admin')->middleware('role:admin|super-admin')->group(function () {
