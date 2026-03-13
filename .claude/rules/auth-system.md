@@ -10,6 +10,7 @@ The following authentication system is production-deployed and MUST NOT be overw
   - `login()` — Returns must_change_password flag, updates last_login_at
   - `changePassword()` — Forced password change, sets must_change_password=false
   - `user()` — Returns current user with roles/permissions
+  - `forgotPassword()` — Public endpoint, generates new temp password, revokes tokens, emails via TempPasswordMail, sets must_change_password=true
   - `logout()` — Deletes current access token
 - `backend/app/Mail/TempPasswordMail.php` — Mailable class for temp password delivery
 - `backend/resources/views/emails/temp-password.blade.php` — Branded HTML email template
@@ -17,7 +18,8 @@ The following authentication system is production-deployed and MUST NOT be overw
 - `backend/routes/api.php` — Auth routes under /api/v1/auth with rate limiting
 
 ### Frontend (React SPA)
-- `frontend/src/features/auth/pages/LoginPage.tsx` — Login form with "Request access" link to /register
+- `frontend/src/features/auth/pages/LoginPage.tsx` — Login form with "Request access" link to /register and "Forgot password?" link
+- `frontend/src/features/auth/components/ForgotPasswordModal.tsx` — Email input modal for password reset requests
 - `frontend/src/features/auth/pages/RegisterPage.tsx` — Registration form (name, email, phone)
 - `frontend/src/features/auth/components/ChangePasswordModal.tsx` — Non-dismissable forced password change modal
 - `frontend/src/features/auth/components/SetupWizard.tsx` — Superadmin onboarding wizard (includes password change step)
@@ -32,6 +34,7 @@ The following authentication system is production-deployed and MUST NOT be overw
 ## Enforced Auth Flow (MediCosts Paradigm)
 
 1. Visitor clicks "Request access" on login page
+1b. Existing user who forgot password clicks "Forgot password?" on login page → enters email → receives new temp password → flow continues from step 5
 2. Enters: name, email, phone (optional) — NO password field
 3. Backend generates 12-char temp password (excludes I, l, O, 0)
 4. Temp password emailed via Resend (MAIL_MAILER=resend in .env)
