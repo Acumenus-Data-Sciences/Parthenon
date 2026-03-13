@@ -57,6 +57,7 @@ use App\Http\Controllers\Api\V1\NetworkAnalysisController;
 use App\Http\Controllers\Api\V1\NotificationPreferenceController;
 use App\Http\Controllers\Api\V1\OnboardingController;
 use App\Http\Controllers\Api\V1\PathwayController;
+use App\Http\Controllers\Api\V1\UserProfileController;
 use App\Http\Controllers\Api\V1\PatientProfileController;
 use App\Http\Controllers\Api\V1\PhenotypeLibraryController;
 use App\Http\Controllers\Api\V1\PopulationCharacterizationController;
@@ -361,6 +362,14 @@ Route::prefix('v1')->group(function () {
 
         // Onboarding
         Route::put('user/onboarding', [OnboardingController::class, 'complete']);
+
+        // User Profile
+        Route::put('user/profile', [UserProfileController::class, 'update'])
+            ->middleware('throttle:10,1');
+        Route::post('user/avatar', [UserProfileController::class, 'uploadAvatar'])
+            ->middleware('throttle:10,1');
+        Route::delete('user/avatar', [UserProfileController::class, 'deleteAvatar'])
+            ->middleware('throttle:10,1');
 
         // Help & Changelog (§9.12)
         Route::get('/help/{key}', [HelpController::class, 'help']);
