@@ -4,6 +4,10 @@ export interface User {
   email: string;
   avatar: string | null;
   phone_number: string | null;
+  job_title: string | null;
+  department: string | null;
+  organization: string | null;
+  bio: string | null;
   must_change_password: boolean;
   onboarding_completed: boolean;
   last_login_at: string | null;
