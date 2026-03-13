@@ -1,12 +1,15 @@
+import { useState } from "react";
 import { useAuthStore } from "@/stores/authStore";
 import { useUiStore } from "@/stores/uiStore";
 import { useAbbyStore } from "@/stores/abbyStore";
 import { LogOut, User, Search, Sparkles, Bell } from "lucide-react";
+import { AboutAbbyModal } from "./AboutAbbyModal";
 
 export function Header() {
   const { user, isAuthenticated, logout } = useAuthStore();
   const { setCommandPaletteOpen } = useUiStore();
   const togglePanel = useAbbyStore((s) => s.togglePanel);
+  const [aboutAbbyOpen, setAboutAbbyOpen] = useState(false);
 
   return (
     <header className="app-topbar">
@@ -29,6 +32,21 @@ export function Header() {
         {isAuthenticated && user ? (
           <>
             <button
+              className="btn btn-ghost btn-sm"
+              onClick={() => setAboutAbbyOpen(true)}
+              style={{
+                color: "#C9A227",
+                fontWeight: 600,
+                fontSize: "var(--text-sm)",
+                gap: "var(--space-1)",
+              }}
+              aria-label="About Abby"
+              title="About Abby"
+            >
+              About Abby
+            </button>
+
+            <button
               className="btn btn-ghost btn-icon btn-sm"
               onClick={togglePanel}
               aria-label="AI Assistant"
@@ -36,6 +54,11 @@ export function Header() {
             >
               <Sparkles size={18} />
             </button>
+
+            <AboutAbbyModal
+              open={aboutAbbyOpen}
+              onClose={() => setAboutAbbyOpen(false)}
+            />
 
             <button
               className="btn btn-ghost btn-icon btn-sm"
