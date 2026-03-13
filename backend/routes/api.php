@@ -32,8 +32,17 @@ use App\Http\Controllers\Api\V1\EstimationController;
 use App\Http\Controllers\Api\V1\EvidenceSynthesisController;
 use App\Http\Controllers\Api\V1\FhirToCdmController;
 use App\Http\Controllers\Api\V1\GenomicsController;
+use App\Http\Controllers\Api\V1\GisAirQualityController;
+use App\Http\Controllers\Api\V1\GisComorbidityController;
 use App\Http\Controllers\Api\V1\GisController;
+use App\Http\Controllers\Api\V1\GisEtlController;
+use App\Http\Controllers\Api\V1\GisGeographyController;
+use App\Http\Controllers\Api\V1\GisImportController;
+use App\Http\Controllers\Api\V1\GisHospitalController;
+use App\Http\Controllers\Api\V1\GisRuccController;
+use App\Http\Controllers\Api\V1\GisSviController;
 use App\Http\Controllers\Api\V1\GlobalSearchController;
+use App\Services\GIS\SpatialStatsProxy;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\HecateController;
 use App\Http\Controllers\Api\V1\HelpController;
@@ -740,6 +749,88 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         Route::get('/cdm/summary', [GisController::class, 'cdmSummary']);
         Route::post('/cdm/reindex-all', [GisController::class, 'cdmReindexAll'])->middleware('role:super-admin');
     });
+});
+
+// ── GIS Use Case Layers (v3) ───────────────────────────────────────────────
+Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
+    Route::prefix('gis')->group(function () {
+        // Geography & layers
+        Route::get('/layers', [GisGeographyController::class, 'layers']);
+        Route::get('/geography/counties', [GisGeographyController::class, 'counties']);
+        Route::get('/geography/tracts', [GisGeographyController::class, 'tracts']);
+
+        // SVI (Use Case 1)
+        Route::prefix('svi')->group(function () {
+            Route::get('/choropleth', [GisSviController::class, 'choropleth']);
+            Route::get('/quartile-analysis', [GisSviController::class, 'quartileAnalysis']);
+            Route::get('/theme-correlations', [GisSviController::class, 'themeCorrelations']);
+            Route::get('/tract-detail/{fips}', [GisSviController::class, 'tractDetail']);
+        });
+
+        // RUCC (Use Case 2)
+        Route::prefix('rucc')->group(function () {
+            Route::get('/choropleth', [GisRuccController::class, 'choropleth']);
+            Route::get('/outcome-comparison', [GisRuccController::class, 'outcomeComparison']);
+            Route::get('/county-detail/{fips}', [GisRuccController::class, 'countyDetail']);
+        });
+
+        // Comorbidity (Use Case 3)
+        Route::prefix('comorbidity')->group(function () {
+            Route::get('/choropleth', [GisComorbidityController::class, 'choropleth']);
+            Route::get('/hotspots', [GisComorbidityController::class, 'hotspots']);
+            Route::get('/burden-score', [GisComorbidityController::class, 'burdenScore']);
+        });
+
+        // Air Quality (Use Case 4)
+        Route::prefix('air-quality')->group(function () {
+            Route::get('/choropleth', [GisAirQualityController::class, 'choropleth']);
+            Route::get('/respiratory-outcomes', [GisAirQualityController::class, 'respiratoryOutcomes']);
+            Route::get('/county-detail/{fips}', [GisAirQualityController::class, 'countyDetail']);
+        });
+
+        // Hospital Access (Use Case 5)
+        Route::prefix('hospitals')->group(function () {
+            Route::get('/map-data', [GisHospitalController::class, 'mapData']);
+            Route::get('/access-analysis', [GisHospitalController::class, 'accessAnalysis']);
+            Route::get('/deserts', [GisHospitalController::class, 'deserts']);
+        });
+
+        // Spatial statistics (proxy to Python)
+        Route::post('/spatial-stats', function (\Illuminate\Http\Request $request) {
+            $request->validate([
+                'analysis_type' => 'required|in:morans_i,hotspots,regression,correlation,drive_time',
+                'variable' => 'required|string',
+                'geography_level' => 'required|in:census_tract,county',
+            ]);
+            $proxy = app(SpatialStatsProxy::class);
+            return response()->json(['data' => $proxy->compute($request->all())]);
+        });
+
+        // ETL Admin (super-admin only)
+        Route::prefix('etl')->middleware('role:super-admin')->group(function () {
+            Route::post('/load/{step}', [GisEtlController::class, 'load'])
+                ->where('step', 'svi|rucc|air-quality|hospitals|crosswalk|all');
+            Route::get('/status', [GisEtlController::class, 'status']);
+        });
+    });
+});
+
+// ── GIS Data Import (v2) ─────────────────────────────────────────────────────
+Route::prefix('v1/gis/import')->middleware(['auth:sanctum', 'permission:gis.import', 'throttle:5,60'])->group(function () {
+    // Non-parameterized routes FIRST (before {import} wildcard)
+    Route::get('/history', [GisImportController::class, 'history']);
+    Route::post('/upload', [GisImportController::class, 'upload']);
+
+    // Parameterized routes
+    Route::post('/{import}/analyze', [GisImportController::class, 'analyze']);
+    Route::post('/{import}/ask', [GisImportController::class, 'ask']);
+    Route::put('/{import}/mapping', [GisImportController::class, 'saveMapping']);
+    Route::put('/{import}/config', [GisImportController::class, 'saveConfig']);
+    Route::post('/{import}/validate', [GisImportController::class, 'validateImport']);
+    Route::post('/{import}/execute', [GisImportController::class, 'execute']);
+    Route::post('/{import}/learn', [GisImportController::class, 'learn']);
+    Route::get('/{import}/status', [GisImportController::class, 'status']);
+    Route::delete('/{import}', [GisImportController::class, 'rollback']);
 });
 
 // ── Phase 17: HEOR ───────────────────────────────────────────────────────────
