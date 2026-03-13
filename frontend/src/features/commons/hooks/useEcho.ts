@@ -18,6 +18,7 @@ export function useChannelSubscription(
     if (!channelId || subscribedRef.current === channelId) return;
 
     const echo = getEcho();
+    if (!echo) return;
 
     // Leave the previous channel if we switched
     if (subscribedRef.current !== null) {

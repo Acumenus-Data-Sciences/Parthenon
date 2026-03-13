@@ -7,26 +7,36 @@ import { useAuthStore } from "@/stores/authStore";
 
 let echoInstance: Echo | null = null;
 
-export function getEcho(): Echo {
+export function getEcho(): Echo | null {
   if (!echoInstance) {
-    // Read token directly from Zustand auth store (no localStorage parsing needed)
+    const key = import.meta.env.VITE_REVERB_APP_KEY;
+    if (!key) {
+      console.warn("[Echo] VITE_REVERB_APP_KEY not set — real-time disabled");
+      return null;
+    }
+
     const token = useAuthStore.getState().token ?? "";
 
-    echoInstance = new Echo({
-      broadcaster: "reverb",
-      key: import.meta.env.VITE_REVERB_APP_KEY,
-      wsHost: import.meta.env.VITE_REVERB_HOST ?? "localhost",
-      wsPort: Number(import.meta.env.VITE_REVERB_PORT ?? 8080),
-      wssPort: Number(import.meta.env.VITE_REVERB_PORT ?? 8080),
-      forceTLS: import.meta.env.VITE_REVERB_SCHEME === "https",
-      enabledTransports: ["ws", "wss"],
-      authEndpoint: "/broadcasting/auth",
-      auth: {
-        headers: {
-          Authorization: `Bearer ${token}`,
+    try {
+      echoInstance = new Echo({
+        broadcaster: "reverb",
+        key,
+        wsHost: import.meta.env.VITE_REVERB_HOST ?? "localhost",
+        wsPort: Number(import.meta.env.VITE_REVERB_PORT ?? 8080),
+        wssPort: Number(import.meta.env.VITE_REVERB_PORT ?? 8080),
+        forceTLS: import.meta.env.VITE_REVERB_SCHEME === "https",
+        enabledTransports: ["ws", "wss"],
+        authEndpoint: "/broadcasting/auth",
+        auth: {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         },
-      },
-    });
+      });
+    } catch (err) {
+      console.error("[Echo] Failed to initialize:", err);
+      return null;
+    }
   }
   return echoInstance;
 }

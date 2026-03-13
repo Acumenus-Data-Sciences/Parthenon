@@ -12,6 +12,7 @@ export function usePresence(): PresenceUser[] {
 
   useEffect(() => {
     const echo = getEcho();
+    if (!echo) return;
 
     echo
       .join("commons.online")
