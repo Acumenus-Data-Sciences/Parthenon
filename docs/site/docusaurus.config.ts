@@ -117,6 +117,11 @@ const config: Config = {
           position: "left",
         },
         {
+          to: "/database-architecture",
+          label: "DB Architecture",
+          position: "left",
+        },
+        {
           to: "blog",
           label: "Dev Blog",
           position: "left",
