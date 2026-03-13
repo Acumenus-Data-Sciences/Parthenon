@@ -3,6 +3,7 @@ import { Globe, Database, Loader2, RefreshCw, Terminal, Copy, Check } from "luci
 import { Panel, Badge, Button, JobProgressModal } from "@/components/ui";
 import { useGisStats, useLoadDataset, useDatasetStatus } from "@/features/gis/hooks/useGis";
 import type { AdminLevel } from "@/features/gis/types";
+import { ImportWizard } from "./gis-import/ImportWizard";
 
 const SOURCES = [
   {
@@ -30,6 +31,7 @@ export function GisDataPanel() {
   const { data: stats, isLoading: statsLoading, refetch } = useGisStats();
   const loadMutation = useLoadDataset();
 
+  const [activeTab, setActiveTab] = useState<"boundaries" | "import">("boundaries");
   const [selectedSource, setSelectedSource] = useState<string>("gadm");
   const [selectedLevels, setSelectedLevels] = useState<AdminLevel[]>(["ADM0", "ADM1"]);
   const [activeJobId, setActiveJobId] = useState<number | null>(null);
@@ -97,6 +99,38 @@ export function GisDataPanel() {
         </Badge>
       </div>
 
+      {/* Tab navigation */}
+      <div className="mt-4 flex border-b border-[#232328]">
+        <button
+          onClick={() => setActiveTab("boundaries")}
+          className={`px-4 py-2 text-sm font-medium transition-colors ${
+            activeTab === "boundaries"
+              ? "border-b-2 border-[#C9A227] text-[#C9A227]"
+              : "text-[#5A5650] hover:text-[#8A857D]"
+          }`}
+        >
+          Boundaries
+        </button>
+        <button
+          onClick={() => setActiveTab("import")}
+          className={`px-4 py-2 text-sm font-medium transition-colors ${
+            activeTab === "import"
+              ? "border-b-2 border-[#C9A227] text-[#C9A227]"
+              : "text-[#5A5650] hover:text-[#8A857D]"
+          }`}
+        >
+          Data Import
+        </button>
+      </div>
+
+      {activeTab === "import" && (
+        <div className="mt-4">
+          <ImportWizard />
+        </div>
+      )}
+
+      {activeTab === "boundaries" && (
+        <>
       {/* Current stats */}
       {statsLoading ? (
         <div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
@@ -282,6 +316,8 @@ export function GisDataPanel() {
           completedAt={job.completed_at}
           errorMessage={job.error_message}
         />
+      )}
+        </>
       )}
     </Panel>
   );
