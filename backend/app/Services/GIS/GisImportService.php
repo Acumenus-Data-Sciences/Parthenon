@@ -56,6 +56,11 @@ class GisImportService
             $headers = array_map(fn ($h) => mb_convert_encoding($h, 'UTF-8', $encoding), $headers);
         }
 
+        // Strip UTF-8 BOM (EF BB BF) from the first header if present
+        if (!empty($headers[0]) && str_starts_with($headers[0], "\xEF\xBB\xBF")) {
+            $headers[0] = substr($headers[0], 3);
+        }
+
         $rowNum = 0;
         while (($row = fgetcsv($handle, 0, $delimiter)) !== false) {
             if ($encoding && $encoding !== 'UTF-8') {
@@ -87,6 +92,11 @@ class GisImportService
 
         if ($encoding && $encoding !== 'UTF-8') {
             $headers = array_map(fn ($h) => mb_convert_encoding($h, 'UTF-8', $encoding), $headers);
+        }
+
+        // Strip UTF-8 BOM (EF BB BF) from the first header if present
+        if (!empty($headers[0]) && str_starts_with($headers[0], "\xEF\xBB\xBF")) {
+            $headers[0] = substr($headers[0], 3);
         }
 
         $rows = [];
