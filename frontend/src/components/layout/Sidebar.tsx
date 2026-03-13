@@ -39,6 +39,7 @@ import {
   FlaskRound,
   Microscope,
   Activity,
+  MessageSquare,
 } from "lucide-react";
 import { HelpSlideOver } from "@/features/help/components/HelpSlideOver";
 
@@ -62,6 +63,7 @@ const studyAgentEnabled = import.meta.env.VITE_STUDY_AGENT_ENABLED === "true";
 
 const navItems: NavItem[] = [
   { path: "/", label: "Dashboard", icon: LayoutDashboard },
+  { path: "/commons", label: "Commons", icon: MessageSquare },
   {
     path: "/data-sources",
     label: "Data",

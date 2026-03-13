@@ -34,6 +34,25 @@ export const router = createBrowserRouter(
     element: <ProtectedLayout />,
     children: [
       { index: true, element: <DashboardPage /> },
+      {
+        path: "commons",
+        children: [
+          {
+            index: true,
+            lazy: () =>
+              import("@/features/commons/pages/CommonsPage").then((m) => ({
+                Component: m.default,
+              })),
+          },
+          {
+            path: ":slug",
+            lazy: () =>
+              import("@/features/commons/pages/CommonsPage").then((m) => ({
+                Component: m.default,
+              })),
+          },
+        ],
+      },
       { path: "data-sources", element: <SourcesListPage /> },
       {
         path: "ingestion",
