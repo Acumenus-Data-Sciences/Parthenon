@@ -131,6 +131,11 @@ const sidebars: SidebarsConfig = {
     },
     {
       type: "category",
+      label: "Architecture",
+      items: ["architecture/database-architecture"],
+    },
+    {
+      type: "category",
       label: "Migration Guide (Atlas → Parthenon)",
       items: [
         "migration/00-overview",
