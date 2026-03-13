@@ -63,9 +63,14 @@ RUN composer install --no-scripts --no-autoloader --prefer-dist
 COPY backend/ .
 RUN composer dump-autoload --optimize
 
-# Set permissions
+# Set permissions (build-time — overridden by bind mount, but kept for non-mount deploys)
 RUN mkdir -p storage/logs storage/framework/cache storage/framework/sessions storage/framework/views bootstrap/cache \
     && chown -R www-data:www-data storage bootstrap/cache
 
+# Entrypoint fixes storage permissions after bind mount overwrites ownership
+COPY docker/php/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
 EXPOSE 9000
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["php-fpm"]
