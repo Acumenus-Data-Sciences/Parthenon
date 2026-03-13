@@ -127,6 +127,14 @@ fi
 # ── Database migrations ───────────────────────────────────────────────────────
 if $DO_DB; then
   echo ""
+  echo "── DB: pre-migration backup ──"
+  if bash "$( cd "$(dirname "${BASH_SOURCE[0]}")" && pwd )/scripts/db-backup.sh"; then
+    ok "Pre-migration backup saved"
+  else
+    warn "Pre-migration backup failed (continuing anyway)"
+  fi
+
+  echo ""
   echo "── DB: running migrations ──"
   if docker compose exec php php artisan migrate --force; then
     ok "Migrations applied"

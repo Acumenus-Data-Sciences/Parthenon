@@ -50,6 +50,9 @@ r-runtime/.RData
 docker/postgres-data/
 docker/redis-data/
 
+# Database backups
+backups/
+
 # GIS data (root-level raw data directory, not service code)
 /GIS/
 

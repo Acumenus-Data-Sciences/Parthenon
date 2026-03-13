@@ -8,11 +8,14 @@ use App\Http\Requests\Commons\UpdateMessageRequest;
 use App\Models\Commons\Channel;
 use App\Models\Commons\Message;
 use App\Services\Commons\MessageService;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class MessageController extends Controller
 {
+    use AuthorizesRequests;
+
     public function __construct(private MessageService $messageService) {}
 
     public function index(Request $request, string $slug): JsonResponse

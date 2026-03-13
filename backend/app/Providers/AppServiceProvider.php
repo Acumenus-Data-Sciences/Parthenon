@@ -38,6 +38,7 @@ use App\Services\Cohort\Criteria\CriteriaBuilderRegistry;
 use App\Services\Cohort\Criteria\DemographicCriteriaBuilder;
 use App\Services\Cohort\Schema\CohortExpressionSchema;
 use App\Services\SqlRenderer\SqlRendererService;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -141,6 +142,10 @@ class AppServiceProvider extends ServiceProvider
                 'services.resend.key' => $key,
             ]);
         }
+
+        // Commons policies
+        Gate::policy(\App\Models\Commons\Channel::class, \App\Policies\Commons\ChannelPolicy::class);
+        Gate::policy(\App\Models\Commons\Message::class, \App\Policies\Commons\MessagePolicy::class);
 
         // Model observers — activity logging + Solr delta indexing
         CohortDefinition::observe(CohortDefinitionObserver::class);
