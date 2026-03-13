@@ -117,6 +117,11 @@ if $DO_PHP; then
     fail "Cache clear failed"
     ERRORS=$((ERRORS + 1))
   fi
+
+  echo "── Laravel: creating storage symlink ──"
+  if docker compose exec php php artisan storage:link 2>/dev/null || true; then
+    ok "Storage symlink created"
+  fi
 fi
 
 # ── Database migrations ───────────────────────────────────────────────────────
