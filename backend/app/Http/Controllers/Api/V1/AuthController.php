@@ -94,7 +94,7 @@ class AuthController extends Controller
     {
         $request->validate([
             'current_password' => 'required|string',
-            'new_password' => 'required|string|min:8',
+            'new_password' => 'required|string|min:8|confirmed',
         ]);
 
         /** @var User $user */
@@ -133,7 +133,8 @@ class AuthController extends Controller
         $user->loadMissing('roles.permissions');
 
         return [
-            ...$user->only(['id', 'name', 'email', 'avatar', 'phone_number', 'last_login_at',
+            ...$user->only(['id', 'name', 'email', 'avatar', 'phone_number', 'job_title',
+                'department', 'organization', 'bio', 'last_login_at',
                 'must_change_password', 'onboarding_completed', 'created_at', 'updated_at']),
             'roles' => $user->getRoleNames(),
             'permissions' => $user->getAllPermissions()->pluck('name'),
