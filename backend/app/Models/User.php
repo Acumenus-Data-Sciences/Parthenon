@@ -36,6 +36,10 @@ class User extends Authenticatable
         'notification_sms',
         'phone_number',
         'notification_preferences',
+        'job_title',
+        'department',
+        'organization',
+        'bio',
     ];
 
     /**
