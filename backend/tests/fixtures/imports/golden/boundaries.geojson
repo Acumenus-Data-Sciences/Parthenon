@@ -1,0 +1,15 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {"FIPS": "42001", "NAME": "Adams", "STATE": "PA"},
+      "geometry": {"type": "Polygon", "coordinates": [[[-77.5, 39.7], [-77.0, 39.7], [-77.0, 40.0], [-77.5, 40.0], [-77.5, 39.7]]]}
+    },
+    {
+      "type": "Feature",
+      "properties": {"FIPS": "42003", "NAME": "Allegheny", "STATE": "PA"},
+      "geometry": {"type": "Polygon", "coordinates": [[[-80.2, 40.3], [-79.7, 40.3], [-79.7, 40.7], [-80.2, 40.7], [-80.2, 40.3]]]}
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+patient_id,date_of_birth,gender,condition_code,condition_name,visit_date,provider_id
+P001,1985-03-15,M,E11.9,Type 2 diabetes mellitus,2024-01-15,DR001
+P002,1972-08-22,F,I10,Essential hypertension,2024-02-20,DR002
+P003,1990-11-05,M,J45.20,Mild intermittent asthma,2024-03-10,DR001
+P004,1965-04-30,F,E78.5,Hyperlipidemia,2024-01-25,DR003
+P005,1988-07-12,M,F32.9,Major depressive disorder,2024-04-05,DR002

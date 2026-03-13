@@ -1,0 +1,9 @@
+{
+  "mappings": [
+    {"source": "patient_id", "target": "person_id", "target_table": "person", "confidence": 0.97, "reasoning": "Patient identifier maps to person_id"},
+    {"source": "condition_code", "target": "condition_source_value", "target_table": "condition_occurrence", "confidence": 0.93, "reasoning": "ICD-10 condition code"},
+    {"source": "date_of_birth", "target": "birth_datetime", "target_table": "person", "confidence": 0.95, "reasoning": "Date of birth field"},
+    {"source": "visit_date", "target": "condition_start_date", "target_table": "condition_occurrence", "confidence": 0.72, "reasoning": "Visit date likely maps to condition start"},
+    {"source": "gender", "target": "gender_source_value", "target_table": "person", "confidence": 0.88, "reasoning": "Gender/sex field"}
+  ]
+}

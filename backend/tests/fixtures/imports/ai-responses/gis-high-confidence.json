@@ -1,0 +1,8 @@
+{
+  "columns": [
+    {"name": "FIPS", "purpose": "geographic_code", "geo_type": "fips_county", "confidence": 0.95, "reasoning": "5-digit FIPS county code pattern"},
+    {"name": "RPL_THEMES", "purpose": "value", "exposure_type": "svi_overall", "confidence": 0.92, "reasoning": "CDC SVI ranking percentile"},
+    {"name": "County", "purpose": "geography_name", "confidence": 0.98, "reasoning": "County name text field"}
+  ],
+  "summary": "I found 3 columns: a FIPS county code, an SVI score value, and county names."
+}

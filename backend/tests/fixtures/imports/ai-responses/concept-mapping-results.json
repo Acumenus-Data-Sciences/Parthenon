@@ -1,0 +1,8 @@
+{
+  "mappings": [
+    {"source_code": "E11.9", "source_vocabulary": "ICD10CM", "target_concept_id": 201826, "target_concept_name": "Type 2 diabetes mellitus", "confidence": 0.98, "strategy": "exact_code_match"},
+    {"source_code": "I10", "source_vocabulary": "ICD10CM", "target_concept_id": 320128, "target_concept_name": "Essential hypertension", "confidence": 0.96, "strategy": "exact_code_match"},
+    {"source_code": "heart attack", "source_vocabulary": "free_text", "target_concept_id": 4329847, "target_concept_name": "Myocardial infarction", "confidence": 0.78, "strategy": "sapbert_similarity"},
+    {"source_code": "DM", "source_vocabulary": "abbreviation", "target_concept_id": 201826, "target_concept_name": "Type 2 diabetes mellitus", "confidence": 0.45, "strategy": "llm_reasoning"}
+  ]
+}

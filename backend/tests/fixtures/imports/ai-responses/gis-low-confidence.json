@@ -1,0 +1,8 @@
+{
+  "columns": [
+    {"name": "col_a", "purpose": "skip", "confidence": 0.20, "reasoning": "Cannot determine purpose from name or values"},
+    {"name": "col_b", "purpose": "skip", "confidence": 0.15, "reasoning": "Mixed data types, unclear purpose"},
+    {"name": "col_c", "purpose": "value", "exposure_type": "unknown", "confidence": 0.30, "reasoning": "Numeric but purpose unclear"}
+  ],
+  "summary": "I'm having trouble identifying the columns in this file. The column names don't match any known patterns."
+}

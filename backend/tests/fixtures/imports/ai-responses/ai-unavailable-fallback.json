@@ -1,0 +1,9 @@
+{
+  "error": "AI service unavailable",
+  "fallback": true,
+  "regex_patterns_used": 117,
+  "mappings": [
+    {"source": "patient_id", "target": "person_id", "confidence": 0.85, "method": "regex_pattern_match"},
+    {"source": "condition_code", "target": "condition_source_value", "confidence": 0.80, "method": "regex_pattern_match"}
+  ]
+}

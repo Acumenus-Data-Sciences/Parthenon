@@ -1,0 +1,3 @@
+"id","'; DROP TABLE users;--","value","<script>alert(1)</script>"
+1,test,100,safe
+2,data,200,clean

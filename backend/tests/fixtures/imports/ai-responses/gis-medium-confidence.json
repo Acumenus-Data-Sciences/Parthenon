@@ -1,0 +1,8 @@
+{
+  "columns": [
+    {"name": "code", "purpose": "geographic_code", "geo_type": "custom", "confidence": 0.65, "reasoning": "Could be a geographic code but format is ambiguous"},
+    {"name": "metric_1", "purpose": "value", "exposure_type": "unknown_metric", "confidence": 0.55, "reasoning": "Numeric column, unclear what it measures"},
+    {"name": "label", "purpose": "metadata", "confidence": 0.70, "reasoning": "Descriptive text field"}
+  ],
+  "summary": "I found some patterns but I'm not fully confident. The 'code' column might be geographic but the format isn't standard."
+}

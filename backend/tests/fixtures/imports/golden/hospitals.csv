@@ -1,0 +1,6 @@
+facility_id,facility_name,latitude,longitude,type,bed_count
+H001,General Hospital,40.7128,-74.0060,general,350
+H002,County Medical Center,34.0522,-118.2437,teaching,520
+H003,Rural Health Clinic,41.8781,-87.6298,rural,45
+H004,Veterans Hospital,38.9072,-77.0369,va,280
+H005,Children's Medical,42.3601,-71.0589,pediatric,200
