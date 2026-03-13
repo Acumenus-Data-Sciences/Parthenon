@@ -149,6 +149,22 @@ return [
             'sslmode' => 'prefer',
         ],
 
+        // GIS schema connection — connects to local PG 17 (ohdsi database)
+        // for OHDSI GIS extension tables (geographic_location, external_exposure, etc.)
+        // Used by GIS use-case services. On Docker installs, set GIS_DB_* env vars.
+        'gis' => [
+            'driver' => 'pgsql',
+            'host' => env('GIS_DB_HOST', env('CDM_DB_HOST', '127.0.0.1')),
+            'port' => env('GIS_DB_PORT', env('CDM_DB_PORT', '5432')),
+            'database' => env('GIS_DB_DATABASE', env('CDM_DB_DATABASE', 'ohdsi')),
+            'username' => env('GIS_DB_USERNAME', env('CDM_DB_USERNAME', 'smudoshi')),
+            'password' => env('GIS_DB_PASSWORD', env('CDM_DB_PASSWORD', '')),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'search_path' => env('GIS_DB_SEARCH_PATH', 'gis,omop,public,app'),
+            'sslmode' => 'prefer',
+        ],
+
         // Docker PostgreSQL — used by db:sync command to mirror app tables
         // between the local PG (source of truth) and the Docker container PG.
         'docker_pg' => [

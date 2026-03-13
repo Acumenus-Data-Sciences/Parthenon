@@ -2,9 +2,9 @@ import { useState, useCallback } from "react";
 import type { MapViewport } from "../types";
 
 const INITIAL_VIEWPORT: MapViewport = {
-  longitude: 0,
-  latitude: 20,
-  zoom: 1.5,
+  longitude: -77.6,
+  latitude: 40.9,
+  zoom: 7,
   pitch: 0,
   bearing: 0,
 };

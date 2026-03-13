@@ -1,5 +1,4 @@
-import { useState, useCallback, useMemo } from "react";
-import { createPortal } from "react-dom";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { Globe, RefreshCw, Maximize2, Minimize2 } from "lucide-react";
 import DeckGL from "@deck.gl/react";
 import { Map } from "react-map-gl/maplibre";
@@ -28,6 +27,19 @@ export default function GisPage() {
   const [selectedDiseaseName, setSelectedDiseaseName] = useState<string | null>(null);
   const [cdmMetric] = useState("cases");
   const [isExpanded, setIsExpanded] = useState(false);
+
+  // Suppress deck.gl v9 ResizeObserver race condition (maxTextureDimension2D)
+  // This is a known timing bug where ResizeObserver fires before GPU device init
+  useEffect(() => {
+    const origError = window.onerror;
+    window.onerror = (msg, _src, _line, _col, err) => {
+      if (err instanceof TypeError && String(msg).includes("maxTextureDimension2D")) {
+        return true; // swallow — harmless race condition
+      }
+      return origError ? origError(msg as string, _src, _line, _col, err) : false;
+    };
+    return () => { window.onerror = origError; };
+  }, []);
 
   const handleDiseaseSelect = useCallback((conceptId: number, name: string) => {
     setSelectedConceptId(conceptId);
@@ -65,8 +77,13 @@ export default function GisPage() {
     onRegionHover: handleRegionHover,
   });
 
+  // Fullscreen uses fixed positioning over everything — single DeckGL instance, no remount
+  const containerClass = isExpanded
+    ? "fixed inset-0 flex flex-col bg-[#0A0A0F]"
+    : "flex h-[calc(100vh-4rem)] flex-col";
+
   return (
-    <div className="flex h-[calc(100vh-4rem)] flex-col">
+    <div className={containerClass} style={isExpanded ? { zIndex: 200 } : undefined}>
       {/* Header */}
       <div className="flex items-center justify-between border-b border-[#232328] bg-[#0E0E11] px-6 py-3">
         <div className="flex items-center gap-3">
@@ -93,137 +110,74 @@ export default function GisPage() {
             Reset
           </button>
           <button
-            onClick={() => setIsExpanded(true)}
+            onClick={() => setIsExpanded((v) => !v)}
             className="flex items-center gap-1.5 rounded bg-[#232328] px-2 py-1 text-xs text-[#C9A227] hover:bg-[#232328]/80"
           >
-            <Maximize2 className="h-3 w-3" />
-            Expand
+            {isExpanded ? (
+              <>
+                <Minimize2 className="h-3 w-3" />
+                Collapse
+              </>
+            ) : (
+              <>
+                <Maximize2 className="h-3 w-3" />
+                Expand
+              </>
+            )}
           </button>
-          <HelpButton helpKey="gis" />
+          {!isExpanded && <HelpButton helpKey="gis" />}
         </div>
       </div>
 
       {/* Disease summary bar */}
-      {selectedConceptId && (
+      {selectedConceptId && !isExpanded && (
         <div className="border-b border-[#232328] bg-[#0E0E11] px-6 py-2">
           <DiseaseSummaryBar conceptId={selectedConceptId} />
         </div>
       )}
 
-      {/* Fullscreen portal */}
-      {isExpanded && createPortal(
-        <div className="fixed inset-0 flex flex-col bg-[#0A0A0F]" style={{ zIndex: 200 }}>
-          {/* Fullscreen header */}
-          <div className="flex items-center justify-between border-b border-[#232328] bg-[#0E0E11] px-4 py-2">
-            <div className="flex items-center gap-3">
-              <Globe className="h-5 w-5 text-[#C9A227]" />
-              <h2 className="text-sm font-semibold text-[#F0EDE8]">
-                GIS Explorer{selectedDiseaseName ? ` — ${selectedDiseaseName}` : ""}
-              </h2>
-              {hasActiveLayers && (
-                <span className="rounded bg-[#2DD4BF]/10 px-2 py-0.5 text-xs text-[#2DD4BF]">
-                  {activeLayerList.length} layer{activeLayerList.length !== 1 ? "s" : ""}
-                </span>
-              )}
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={resetViewport}
-                className="flex items-center gap-1.5 rounded border border-[#232328] bg-[#0E0E11] px-2 py-1 text-xs text-[#8A857D] hover:border-[#5A5650]"
-              >
-                <RefreshCw className="h-3 w-3" />
-                Reset
-              </button>
-              <button
-                onClick={() => setIsExpanded(false)}
-                className="rounded p-1.5 text-[#8A857D] hover:bg-[#151518] hover:text-[#F0EDE8]"
-              >
-                <Minimize2 className="h-4 w-4" />
-              </button>
-            </div>
+      {/* Single 3-panel layout with one DeckGL instance */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Left: Layer controls */}
+        <LayerPanel
+          selectedConceptId={selectedConceptId}
+          onDiseaseSelect={handleDiseaseSelect}
+        />
+
+        {/* Center: Map + drawer */}
+        <div className="flex flex-1 flex-col">
+          <div className="relative flex-1">
+            <DeckGL
+              viewState={viewport}
+              onViewStateChange={((params: { viewState: typeof viewport }) =>
+                onViewportChange({ viewState: params.viewState })) as React.ComponentProps<typeof DeckGL>["onViewStateChange"]}
+              layers={deckLayers}
+              controller
+              getCursor={({ isHovering }: { isHovering: boolean }) =>
+                isHovering ? "pointer" : "grab"
+              }
+            >
+              <Map mapStyle={MAP_STYLE} />
+            </DeckGL>
+
+            {/* Composite legend overlay */}
+            <CompositeLegend />
           </div>
 
-          {/* Fullscreen map */}
-          <div className="flex flex-1 overflow-hidden">
-            <LayerPanel
-              selectedConceptId={selectedConceptId}
-              onDiseaseSelect={handleDiseaseSelect}
-            />
-            <div className="flex flex-1 flex-col">
-              <div className="relative flex-1">
-                <DeckGL
-                  viewState={viewport}
-                  onViewStateChange={((params: { viewState: typeof viewport }) =>
-                    onViewportChange({ viewState: params.viewState })) as React.ComponentProps<typeof DeckGL>["onViewStateChange"]}
-                  layers={deckLayers}
-                  controller
-                  getCursor={({ isHovering }: { isHovering: boolean }) =>
-                    isHovering ? "pointer" : "grab"
-                  }
-                >
-                  <Map mapStyle={MAP_STYLE} />
-                </DeckGL>
-                <CompositeLegend />
-              </div>
-              {selectedConceptId && hasActiveLayers && (
-                <AnalysisDrawer conceptId={selectedConceptId} metric={cdmMetric} />
-              )}
-            </div>
-            {selectedConceptId && selectedDiseaseName && (
-              <ContextPanel
-                conceptId={selectedConceptId}
-                diseaseName={selectedDiseaseName}
-              />
-            )}
-          </div>
-        </div>,
-        document.body,
-      )}
-
-      {/* Main 3-panel layout — unmounted when fullscreen portal is active */}
-      {!isExpanded && (
-        <div className="flex flex-1 overflow-hidden">
-          {/* Left: Layer controls */}
-          <LayerPanel
-            selectedConceptId={selectedConceptId}
-            onDiseaseSelect={handleDiseaseSelect}
-          />
-
-          {/* Center: Map + drawer */}
-          <div className="flex flex-1 flex-col">
-            <div className="relative flex-1">
-              <DeckGL
-                viewState={viewport}
-                onViewStateChange={((params: { viewState: typeof viewport }) =>
-                  onViewportChange({ viewState: params.viewState })) as React.ComponentProps<typeof DeckGL>["onViewStateChange"]}
-                layers={deckLayers}
-                controller
-                getCursor={({ isHovering }: { isHovering: boolean }) =>
-                  isHovering ? "pointer" : "grab"
-                }
-              >
-                <Map mapStyle={MAP_STYLE} />
-              </DeckGL>
-
-              {/* Composite legend overlay */}
-              <CompositeLegend />
-            </div>
-
-            {/* Bottom: Analysis drawer */}
-            {selectedConceptId && hasActiveLayers && (
-              <AnalysisDrawer conceptId={selectedConceptId} metric={cdmMetric} />
-            )}
-          </div>
-
-          {/* Right: Context panel */}
-          {selectedConceptId && selectedDiseaseName && (
-            <ContextPanel
-              conceptId={selectedConceptId}
-              diseaseName={selectedDiseaseName}
-            />
+          {/* Bottom: Analysis drawer */}
+          {selectedConceptId && hasActiveLayers && (
+            <AnalysisDrawer conceptId={selectedConceptId} metric={cdmMetric} />
           )}
         </div>
-      )}
+
+        {/* Right: Context panel */}
+        {selectedConceptId && selectedDiseaseName && (
+          <ContextPanel
+            conceptId={selectedConceptId}
+            diseaseName={selectedDiseaseName}
+          />
+        )}
+      </div>
     </div>
   );
 }
