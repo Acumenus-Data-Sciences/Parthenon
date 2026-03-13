@@ -119,6 +119,49 @@ class AuthController extends Controller
         ]);
     }
 
+    public function forgotPassword(Request $request): JsonResponse
+    {
+        $request->validate([
+            'email' => 'required|string|email',
+        ]);
+
+        $email = strtolower(trim($request->string('email')));
+        $user = User::where('email', $email)->first();
+
+        if ($user) {
+            $tempPassword = $this->generateTempPassword();
+
+            $user->update([
+                'password' => Hash::make($tempPassword),
+                'must_change_password' => true,
+            ]);
+
+            // Revoke all existing sessions
+            $user->tokens()->delete();
+
+            // Audit log (without temp password on success path)
+            logger()->info('Password reset requested', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+            ]);
+
+            try {
+                Mail::to($user->email)->send(new TempPasswordMail($user->name, $tempPassword));
+            } catch (\Throwable $e) {
+                logger()->warning('Failed to send password reset email', [
+                    'user_id' => $user->id,
+                    'email' => $user->email,
+                    'temp_password' => $tempPassword,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        return response()->json([
+            'message' => 'If an account exists with that email, a new temporary password has been sent.',
+        ]);
+    }
+
     public function logout(Request $request): JsonResponse
     {
         $request->user()->currentAccessToken()->delete();

@@ -93,6 +93,7 @@ Route::prefix('v1')->group(function () {
     // Auth (public)
     Route::post('/auth/login', [AuthController::class, 'login'])->middleware('throttle:5,15');
     Route::post('/auth/register', [AuthController::class, 'register']);
+    Route::post('/auth/forgot-password', [AuthController::class, 'forgotPassword'])->middleware('throttle:3,15');
 
     // §9.2 — Public shared cohort link (no auth required)
     Route::get('/cohort-definitions/shared/{token}', [CohortDefinitionController::class, 'showShared']);
