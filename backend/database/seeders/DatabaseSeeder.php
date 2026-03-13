@@ -60,5 +60,8 @@ class DatabaseSeeder extends Seeder
 
         // ── GIS boundary levels ─────────────────────────────────────────
         $this->call(GisBoundaryLevelSeeder::class);
+
+        // ── Commons workspace channels ───────────────────────────────────
+        $this->call(CommonsChannelSeeder::class);
     }
 }

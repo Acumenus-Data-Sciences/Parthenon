@@ -912,6 +912,28 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     });
 });
 
+// ── Commons Workspace ──────────────────────────────────────────────────────────
+Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
+    Route::prefix('commons')->group(function () {
+        Route::get('channels', [App\Http\Controllers\Api\V1\Commons\ChannelController::class, 'index']);
+        Route::post('channels', [App\Http\Controllers\Api\V1\Commons\ChannelController::class, 'store']);
+        Route::get('channels/{slug}', [App\Http\Controllers\Api\V1\Commons\ChannelController::class, 'show']);
+        Route::patch('channels/{slug}', [App\Http\Controllers\Api\V1\Commons\ChannelController::class, 'update']);
+        Route::post('channels/{slug}/archive', [App\Http\Controllers\Api\V1\Commons\ChannelController::class, 'archive']);
+
+        Route::get('channels/{slug}/messages', [App\Http\Controllers\Api\V1\Commons\MessageController::class, 'index']);
+        Route::post('channels/{slug}/messages', [App\Http\Controllers\Api\V1\Commons\MessageController::class, 'store'])
+            ->middleware('throttle:60,1');
+        Route::patch('messages/{id}', [App\Http\Controllers\Api\V1\Commons\MessageController::class, 'update']);
+        Route::delete('messages/{id}', [App\Http\Controllers\Api\V1\Commons\MessageController::class, 'destroy']);
+
+        Route::get('channels/{slug}/members', [App\Http\Controllers\Api\V1\Commons\MemberController::class, 'index']);
+        Route::post('channels/{slug}/members', [App\Http\Controllers\Api\V1\Commons\MemberController::class, 'store']);
+        Route::delete('channels/{slug}/members/{memberId}', [App\Http\Controllers\Api\V1\Commons\MemberController::class, 'destroy']);
+        Route::post('channels/{slug}/read', [App\Http\Controllers\Api\V1\Commons\MemberController::class, 'markRead']);
+    });
+});
+
 // Catch-all for unknown API routes
 Route::fallback(function () {
     return response()->json(['message' => 'Not Found'], 404);
