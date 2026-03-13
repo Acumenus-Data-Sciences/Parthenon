@@ -61,7 +61,7 @@ class RoleController extends Controller
             'permissions.*' => 'string|exists:permissions,name',
         ]);
 
-        if (isset($validated['name']) && in_array($role->name, self::PROTECTED)) {
+        if (isset($validated['name']) && $validated['name'] !== $role->name && in_array($role->name, self::PROTECTED)) {
             return response()->json(['message' => "The '{$role->name}' role name cannot be changed."], 422);
         }
 
