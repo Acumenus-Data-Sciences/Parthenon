@@ -4,6 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { Loader2, AlertCircle, Lock, Mail } from "lucide-react";
 import { useAuthStore } from "@/stores/authStore";
 import { ConstellationBackground } from "../components/ConstellationBackground";
+import { ForgotPasswordModal } from "../components/ForgotPasswordModal";
 import axios from "axios";
 import apiClient from "@/lib/api-client";
 import { queryClient } from "@/lib/query-client";
@@ -17,6 +18,7 @@ export function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [forgotOpen, setForgotOpen] = useState(false);
 
   // Prefetch CSRF cookie on mount — eliminates a round-trip at submit time
   const csrfReady = useRef<Promise<void> | null>(null);
@@ -563,7 +565,7 @@ export function LoginPage() {
             </div>
 
             {/* Password field */}
-            <div style={{ marginBottom: "var(--space-6)" }}>
+            <div style={{ marginBottom: "var(--space-3)" }}>
               <label
                 htmlFor="password"
                 style={{
@@ -621,6 +623,37 @@ export function LoginPage() {
                   }}
                 />
               </div>
+            </div>
+
+            {/* Forgot password link */}
+            <div
+              style={{
+                textAlign: "right",
+                marginBottom: "var(--space-4)",
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => setForgotOpen(true)}
+                style={{
+                  background: "none",
+                  border: "none",
+                  padding: 0,
+                  fontFamily: "var(--font-body)",
+                  fontSize: "var(--text-sm)",
+                  color: "var(--text-muted)",
+                  cursor: "pointer",
+                  transition: "color 200ms",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = "var(--accent)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = "var(--text-muted)";
+                }}
+              >
+                Forgot password?
+              </button>
             </div>
 
             {/* Demo login shortcut — only rendered when installer wrote VITE_DEMO_* vars */}
@@ -761,6 +794,11 @@ export function LoginPage() {
           </div>
         </div>
       </div>
+      <ForgotPasswordModal
+        isOpen={forgotOpen}
+        onClose={() => setForgotOpen(false)}
+        defaultEmail={email}
+      />
     </div>
   );
 }
