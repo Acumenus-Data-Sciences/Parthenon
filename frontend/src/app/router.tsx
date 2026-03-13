@@ -449,6 +449,14 @@ export const router = createBrowserRouter(
           },
         ],
       },
+      // ── User Settings ────────────────────────────────────────────────
+      {
+        path: "settings",
+        lazy: () =>
+          import("@/features/settings/pages/SettingsPage").then((m) => ({
+            Component: m.default,
+          })),
+      },
       // ── Administration ────────────────────────────────────────────────
       {
         path: "admin",
