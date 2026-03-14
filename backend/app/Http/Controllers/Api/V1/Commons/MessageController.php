@@ -7,6 +7,7 @@ use App\Http\Requests\Commons\SendMessageRequest;
 use App\Http\Requests\Commons\UpdateMessageRequest;
 use App\Models\Commons\Channel;
 use App\Models\Commons\Message;
+use App\Models\Commons\ObjectReference;
 use App\Services\Commons\MessageService;
 use App\Services\Commons\ReactionService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -30,7 +31,7 @@ class MessageController extends Controller
         $query = Message::where('channel_id', $channel->id)
             ->whereNull('deleted_at')
             ->whereNull('parent_id')
-            ->with('user:id,name')
+            ->with(['user:id,name', 'objectReferences'])
             ->withCount('replies')
             ->withMax('replies', 'created_at')
             ->orderByDesc('id');
@@ -72,6 +73,22 @@ class MessageController extends Controller
             $request->validated('body'),
             $request->validated('parent_id'),
         );
+
+        // Save object references if provided
+        $refs = $request->input('references', []);
+        if (is_array($refs)) {
+            foreach ($refs as $ref) {
+                if (isset($ref['type'], $ref['id'], $ref['name'])) {
+                    ObjectReference::create([
+                        'message_id' => $message->id,
+                        'referenceable_type' => $ref['type'],
+                        'referenceable_id' => (int) $ref['id'],
+                        'display_name' => $ref['name'],
+                    ]);
+                }
+            }
+            $message->load('objectReferences');
+        }
 
         return response()->json(['data' => $message], 201);
     }

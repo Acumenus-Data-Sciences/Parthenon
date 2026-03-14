@@ -11,6 +11,7 @@ import { EditMessageInline } from "./EditMessageInline";
 import { DeleteConfirmation } from "./DeleteConfirmation";
 import { ThreadView } from "./ThreadView";
 import { ReactionPills } from "./ReactionPills";
+import { ObjectReferenceCard } from "./ObjectReferenceCard";
 
 interface MessageItemProps {
   message: Message;
@@ -93,6 +94,15 @@ export function MessageItem({
               >
                 {message.body}
               </ReactMarkdown>
+            </div>
+          )}
+
+          {/* Object references */}
+          {!isDeleted && !editing && message.object_references && message.object_references.length > 0 && (
+            <div className="mt-1 flex flex-wrap gap-1.5">
+              {message.object_references.map((ref) => (
+                <ObjectReferenceCard key={ref.id} reference={ref} />
+              ))}
             </div>
           )}
 

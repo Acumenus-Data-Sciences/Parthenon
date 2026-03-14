@@ -50,6 +50,25 @@ export interface ReactionEntry {
 
 export type ReactionSummary = Record<string, ReactionEntry>;
 
+export type ReferenceType = "cohort_definition" | "concept_set" | "study" | "source";
+
+export interface ObjectReference {
+  id: number;
+  message_id: number;
+  referenceable_type: ReferenceType;
+  referenceable_id: number;
+  display_name: string;
+}
+
+export interface ObjectSearchResult {
+  type: ReferenceType;
+  id: number;
+  name: string;
+  description: string | null;
+  url: string;
+  status?: string;
+}
+
 export interface Message {
   id: number;
   channel_id: number;
@@ -65,6 +84,7 @@ export interface Message {
   reply_count?: number;
   latest_reply_at?: string | null;
   reactions?: ReactionSummary;
+  object_references?: ObjectReference[];
 }
 
 export interface PresenceUser {

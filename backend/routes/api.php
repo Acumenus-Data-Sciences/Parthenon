@@ -948,6 +948,10 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         // Direct messages
         Route::get('dm', [App\Http\Controllers\Api\V1\Commons\DirectMessageController::class, 'index']);
         Route::post('dm', [App\Http\Controllers\Api\V1\Commons\DirectMessageController::class, 'store']);
+
+        // Object references
+        Route::get('objects/search', [App\Http\Controllers\Api\V1\Commons\ObjectReferenceController::class, 'search']);
+        Route::get('objects/{type}/{id}/discussions', [App\Http\Controllers\Api\V1\Commons\ObjectReferenceController::class, 'discussions']);
     });
 });
 

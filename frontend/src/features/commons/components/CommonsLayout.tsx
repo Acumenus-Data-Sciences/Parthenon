@@ -45,8 +45,8 @@ export function CommonsLayout() {
     }
   }, [slug, channels, navigate]);
 
-  function handleSend(body: string) {
-    sendMessage.mutate({ slug: activeSlug, body });
+  function handleSend(body: string, references?: { type: string; id: number; name: string }[]) {
+    sendMessage.mutate({ slug: activeSlug, body, references });
   }
 
   // Check if current user is admin/owner in this channel

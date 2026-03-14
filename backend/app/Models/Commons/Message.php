@@ -64,6 +64,12 @@ class Message extends Model
         return $this->hasMany(Reaction::class, 'message_id');
     }
 
+    /** @return HasMany<ObjectReference, $this> */
+    public function objectReferences(): HasMany
+    {
+        return $this->hasMany(ObjectReference::class, 'message_id');
+    }
+
     public function isDeleted(): bool
     {
         return $this->deleted_at !== null;

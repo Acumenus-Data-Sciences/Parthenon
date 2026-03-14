@@ -6,6 +6,7 @@ import type {
   CreateChannelPayload,
   DirectMessage,
   Message,
+  ObjectSearchResult,
   PinnedMessage,
   ReactionSummary,
   SearchResult,
@@ -57,10 +58,11 @@ async function sendMessage(
   slug: string,
   body: string,
   parentId?: number,
+  references?: { type: string; id: number; name: string }[],
 ): Promise<Message> {
   const { data } = await apiClient.post<{ data: Message }>(
     `/commons/channels/${slug}/messages`,
-    { body, parent_id: parentId ?? null },
+    { body, parent_id: parentId ?? null, references: references ?? [] },
   );
   return data.data;
 }
@@ -216,11 +218,13 @@ export function useSendMessage() {
       slug,
       body,
       parentId,
+      references,
     }: {
       slug: string;
       body: string;
       parentId?: number;
-    }) => sendMessage(slug, body, parentId),
+      references?: { type: string; id: number; name: string }[];
+    }) => sendMessage(slug, body, parentId, references),
     onSuccess: (_data, variables) => {
       void qc.invalidateQueries({ queryKey: [MESSAGES_KEY, variables.slug] });
     },
@@ -399,5 +403,30 @@ export function useCreateDirectMessage() {
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: [DM_KEY] });
     },
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Object References
+// ---------------------------------------------------------------------------
+
+async function searchObjects(
+  query: string,
+  type?: string,
+): Promise<ObjectSearchResult[]> {
+  const params = new URLSearchParams({ q: query });
+  if (type) params.set("type", type);
+  const { data } = await apiClient.get<{ data: ObjectSearchResult[] }>(
+    `/commons/objects/search?${params.toString()}`,
+  );
+  return data.data;
+}
+
+export function useSearchObjects(query: string, type?: string) {
+  return useQuery({
+    queryKey: ["commons-objects", query, type],
+    queryFn: () => searchObjects(query, type),
+    enabled: query.length >= 2,
+    staleTime: 30_000,
   });
 }

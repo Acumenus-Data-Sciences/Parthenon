@@ -1,11 +1,12 @@
 import { useState, useRef, useEffect, type KeyboardEvent } from "react";
-import { Bold, Italic, Code, Paperclip } from "lucide-react";
-import type { ChannelMember } from "../../types";
+import { Bold, Italic, Code, Paperclip, Link, X } from "lucide-react";
+import type { ChannelMember, ObjectSearchResult } from "../../types";
 import { avatarColor } from "../../utils/avatarColor";
+import { ReferencePicker } from "./ReferencePicker";
 
 interface MessageComposerProps {
   channelName: string;
-  onSend: (body: string) => void;
+  onSend: (body: string, references?: { type: string; id: number; name: string }[]) => void;
   disabled?: boolean;
   onKeyDown?: () => void;
   members?: ChannelMember[];
@@ -14,6 +15,10 @@ interface MessageComposerProps {
 export function MessageComposer({ channelName, onSend, disabled, onKeyDown, members = [] }: MessageComposerProps) {
   const [body, setBody] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Object references state
+  const [attachedRefs, setAttachedRefs] = useState<ObjectSearchResult[]>([]);
+  const [showRefPicker, setShowRefPicker] = useState(false);
 
   // @mentions state
   const [mentionQuery, setMentionQuery] = useState<string | null>(null);
@@ -65,11 +70,27 @@ export function MessageComposer({ channelName, onSend, disabled, onKeyDown, memb
     });
   }
 
+  function handleAddRef(result: ObjectSearchResult) {
+    if (!attachedRefs.some((r) => r.type === result.type && r.id === result.id)) {
+      setAttachedRefs((prev) => [...prev, result]);
+    }
+    setShowRefPicker(false);
+    textareaRef.current?.focus();
+  }
+
+  function handleRemoveRef(type: string, id: number) {
+    setAttachedRefs((prev) => prev.filter((r) => !(r.type === type && r.id === id)));
+  }
+
   function handleSubmit() {
     const trimmed = body.trim();
     if (!trimmed) return;
-    onSend(trimmed);
+    const refs = attachedRefs.length > 0
+      ? attachedRefs.map((r) => ({ type: r.type, id: r.id, name: r.name }))
+      : undefined;
+    onSend(trimmed, refs);
     setBody("");
+    setAttachedRefs([]);
     setMentionQuery(null);
     textareaRef.current?.focus();
   }
@@ -127,6 +148,34 @@ export function MessageComposer({ channelName, onSend, disabled, onKeyDown, memb
           Message #{channelName} — Markdown supported
         </div>
 
+        {/* Attached reference pills */}
+        {attachedRefs.length > 0 && (
+          <div className="flex flex-wrap gap-1 mb-2">
+            {attachedRefs.map((ref) => (
+              <span
+                key={`${ref.type}-${ref.id}`}
+                className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[11px] text-primary"
+              >
+                {ref.name}
+                <button
+                  onClick={() => handleRemoveRef(ref.type, ref.id)}
+                  className="ml-0.5 rounded-full hover:bg-primary/20"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </span>
+            ))}
+          </div>
+        )}
+
+        {/* Reference picker popup */}
+        {showRefPicker && (
+          <ReferencePicker
+            onSelect={handleAddRef}
+            onClose={() => setShowRefPicker(false)}
+          />
+        )}
+
         {/* @mention autocomplete dropdown */}
         {mentionQuery !== null && mentionResults.length > 0 && (
           <div className="absolute bottom-full left-0 mb-1 w-64 rounded-md border border-border bg-card py-1 shadow-lg z-20">
@@ -171,6 +220,7 @@ export function MessageComposer({ channelName, onSend, disabled, onKeyDown, memb
             <ToolbarButton icon={Bold} title="Bold" onClick={() => wrapSelection("**", "**")} />
             <ToolbarButton icon={Italic} title="Italic" onClick={() => wrapSelection("*", "*")} />
             <ToolbarButton icon={Code} title="Code" onClick={() => wrapSelection("`", "`")} />
+            <ToolbarButton icon={Link} title="Reference object" onClick={() => setShowRefPicker(!showRefPicker)} />
             <ToolbarButton icon={Paperclip} title="Attach file" onClick={() => {}} />
           </div>
           <button
