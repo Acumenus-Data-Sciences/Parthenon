@@ -98,7 +98,14 @@ export function CommonsLayout() {
       </div>
 
       {/* Right panel */}
-      <RightPanel slug={activeSlug} activeTab={rightTab} onTabChange={setRightTab} members={members} />
+      <RightPanel
+        slug={activeSlug}
+        activeTab={rightTab}
+        onTabChange={setRightTab}
+        members={members}
+        channel={channel}
+        currentMember={currentMember}
+      />
     </div>
   );
 }

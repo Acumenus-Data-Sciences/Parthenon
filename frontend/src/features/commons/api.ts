@@ -137,6 +137,29 @@ async function unpinMessage(slug: string, pinId: number): Promise<void> {
   await apiClient.delete(`/commons/channels/${slug}/pins/${pinId}`);
 }
 
+async function updateChannel(
+  slug: string,
+  payload: { name?: string; description?: string },
+): Promise<Channel> {
+  const { data } = await apiClient.patch<{ data: Channel }>(
+    `/commons/channels/${slug}`,
+    payload,
+  );
+  return data.data;
+}
+
+async function updateNotificationPreference(
+  slug: string,
+  memberId: number,
+  preference: "all" | "mentions" | "none",
+): Promise<ChannelMember> {
+  const { data } = await apiClient.patch<{ data: ChannelMember }>(
+    `/commons/channels/${slug}/members/${memberId}`,
+    { notification_preference: preference },
+  );
+  return data.data;
+}
+
 async function searchMessages(
   query: string,
   channel?: string,
@@ -306,5 +329,40 @@ export function useSearchMessages(query: string, channel?: string) {
     queryFn: () => searchMessages(query, channel),
     enabled: query.length >= 2,
     staleTime: 30_000,
+  });
+}
+
+export function useUpdateChannel() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      slug,
+      payload,
+    }: {
+      slug: string;
+      payload: { name?: string; description?: string };
+    }) => updateChannel(slug, payload),
+    onSuccess: (_data, variables) => {
+      void qc.invalidateQueries({ queryKey: [CHANNELS_KEY] });
+      void qc.invalidateQueries({ queryKey: [CHANNELS_KEY, variables.slug] });
+    },
+  });
+}
+
+export function useUpdateNotificationPreference() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      slug,
+      memberId,
+      preference,
+    }: {
+      slug: string;
+      memberId: number;
+      preference: "all" | "mentions" | "none";
+    }) => updateNotificationPreference(slug, memberId, preference),
+    onSuccess: (_data, variables) => {
+      void qc.invalidateQueries({ queryKey: [MEMBERS_KEY, variables.slug] });
+    },
   });
 }

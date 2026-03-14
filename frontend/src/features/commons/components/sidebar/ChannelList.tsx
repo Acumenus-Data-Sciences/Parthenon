@@ -1,8 +1,10 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Plus } from "lucide-react";
 import type { Channel } from "../../types";
 import { useUnreadCounts } from "../../api";
 import { ChannelSearch } from "./ChannelSearch";
+import { CreateChannelModal } from "./CreateChannelModal";
 
 interface ChannelListProps {
   channels: Channel[];
@@ -20,6 +22,7 @@ export function ChannelList({ channels, activeSlug }: ChannelListProps) {
     return channels.filter((c) => c.name.toLowerCase().includes(q));
   }, [channels, search]);
 
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const topicChannels = filtered.filter((c) => c.type === "topic" || c.type === "custom");
   const studyChannels = filtered.filter((c) => c.type === "study");
 
@@ -29,7 +32,18 @@ export function ChannelList({ channels, activeSlug }: ChannelListProps) {
         <ChannelSearch onSearch={setSearch} />
       </div>
 
-      <SectionLabel>Channels</SectionLabel>
+      <div className="flex items-center justify-between px-4 pt-4 pb-1">
+        <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+          Channels
+        </p>
+        <button
+          onClick={() => setShowCreateModal(true)}
+          title="Create channel"
+          className="rounded p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+        >
+          <Plus className="h-3.5 w-3.5" />
+        </button>
+      </div>
       {topicChannels.map((ch) => (
         <ChannelItem
           key={ch.id}
@@ -56,7 +70,11 @@ export function ChannelList({ channels, activeSlug }: ChannelListProps) {
       )}
 
       <SectionLabel>Direct Messages</SectionLabel>
-      <p className="px-4 text-xs italic text-muted-foreground">Phase 2</p>
+      <p className="px-4 text-xs italic text-muted-foreground/60">Coming soon</p>
+
+      {showCreateModal && (
+        <CreateChannelModal onClose={() => setShowCreateModal(false)} />
+      )}
     </div>
   );
 }

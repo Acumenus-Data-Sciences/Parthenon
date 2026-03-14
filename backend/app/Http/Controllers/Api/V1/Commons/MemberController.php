@@ -67,6 +67,27 @@ class MemberController extends Controller
         return response()->json(null, 204);
     }
 
+    public function updatePreference(Request $request, string $slug, int $memberId): JsonResponse
+    {
+        $channel = Channel::where('slug', $slug)->firstOrFail();
+        $member = ChannelMember::where('channel_id', $channel->id)
+            ->findOrFail($memberId);
+
+        // Can only update own preference
+        if ($member->user_id !== $request->user()->id) {
+            abort(403);
+        }
+
+        $request->validate([
+            'notification_preference' => 'required|string|in:all,mentions,none',
+        ]);
+
+        $member->update(['notification_preference' => $request->input('notification_preference')]);
+        $member->load('user:id,name,email');
+
+        return response()->json(['data' => $member]);
+    }
+
     public function markRead(Request $request, string $slug, UnreadService $unreadService): JsonResponse
     {
         $channel = Channel::where('slug', $slug)->firstOrFail();

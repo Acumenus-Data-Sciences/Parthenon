@@ -1,4 +1,4 @@
-import { Pin, Users, Search } from "lucide-react";
+import { Pin, Users, Search, Settings } from "lucide-react";
 import type { Channel } from "../../types";
 
 interface ChannelHeaderProps {
@@ -19,6 +19,7 @@ export function ChannelHeader({ channel, onToggleTab }: ChannelHeaderProps) {
         <HeaderButton icon={Pin} label="Pins" onClick={() => onToggleTab?.("pinned")} />
         <HeaderButton icon={Search} label="Search" onClick={() => onToggleTab?.("search")} />
         <HeaderButton icon={Users} label={String(channel.members_count)} onClick={() => onToggleTab?.("members")} />
+        <HeaderButton icon={Settings} label="" onClick={() => onToggleTab?.("settings")} />
       </div>
     </div>
   );

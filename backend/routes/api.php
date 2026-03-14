@@ -935,6 +935,7 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         Route::get('channels/{slug}/members', [App\Http\Controllers\Api\V1\Commons\MemberController::class, 'index']);
         Route::post('channels/{slug}/members', [App\Http\Controllers\Api\V1\Commons\MemberController::class, 'store']);
         Route::delete('channels/{slug}/members/{memberId}', [App\Http\Controllers\Api\V1\Commons\MemberController::class, 'destroy']);
+        Route::patch('channels/{slug}/members/{memberId}', [App\Http\Controllers\Api\V1\Commons\MemberController::class, 'updatePreference']);
         Route::post('channels/{slug}/read', [App\Http\Controllers\Api\V1\Commons\MemberController::class, 'markRead']);
         Route::post('messages/{id}/reactions', [App\Http\Controllers\Api\V1\Commons\ReactionController::class, 'toggle'])
             ->middleware('throttle:30,1');
