@@ -1,13 +1,25 @@
 import { useEffect, useRef } from "react";
 import type { Message } from "../../types";
 import { MessageItem } from "./MessageItem";
+import { TypingIndicator } from "./TypingIndicator";
 
 interface MessageListProps {
   messages: Message[];
   isLoading: boolean;
+  slug: string;
+  currentUserId: number;
+  isAdmin?: boolean;
+  isTyping?: boolean;
 }
 
-export function MessageList({ messages, isLoading }: MessageListProps) {
+export function MessageList({
+  messages,
+  isLoading,
+  slug,
+  currentUserId,
+  isAdmin = false,
+  isTyping = false,
+}: MessageListProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const prevCountRef = useRef(messages.length);
@@ -56,10 +68,17 @@ export function MessageList({ messages, isLoading }: MessageListProps) {
       ) : (
         <div className="py-4">
           {sorted.map((msg) => (
-            <MessageItem key={msg.id} message={msg} />
+            <MessageItem
+              key={msg.id}
+              message={msg}
+              slug={slug}
+              currentUserId={currentUserId}
+              isAdmin={isAdmin}
+            />
           ))}
         </div>
       )}
+      <TypingIndicator isTyping={isTyping} />
       <div ref={bottomRef} />
     </div>
   );
