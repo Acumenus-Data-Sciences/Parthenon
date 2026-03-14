@@ -1,0 +1,152 @@
+---
+id: abby-rag-pipeline
+title: "RAG Pipeline"
+sidebar_label: "RAG Pipeline"
+---
+
+# Retrieval-Augmented Generation
+
+Retrieval-Augmented Generation (RAG) is the technique that connects Abby's knowledge base to the language model. Rather than relying solely on the model's training data, Abby retrieves relevant knowledge before generating each response — ensuring answers are grounded in Parthenon documentation, OHDSI literature, and clinical reference data.
+
+## How RAG Works
+
+The RAG pipeline executes in five stages for every user query:
+
+### Stage 1: Page Context Detection
+
+When a question arrives, the AI service identifies the current page context (e.g., `cohort_builder`, `estimation`, `vocabulary`). This determines:
+
+- Which **persona** Abby adopts (specialist framing for the response)
+- Whether **clinical collections** are queried (only on clinical pages)
+- Which **help content** is injected into the system prompt
+
+### Stage 2: Parallel Retrieval
+
+The query is embedded and searched against multiple collections simultaneously:
+
+| Collection | When Queried | Embedder | Top-K | Threshold |
+|-----------|-------------|----------|-------|-----------|
+| `docs` | Always | MiniLM (384-dim) | 3 | 0.3 cosine distance |
+| `conversations\_user\_\{id\}` | If user authenticated | MiniLM (384-dim) | 3 | 0.3 |
+| `faq_shared` | Always | MiniLM (384-dim) | 3 | 0.3 |
+| `ohdsi_papers` | Clinical pages only | SapBERT (768-dim) | 3 | 0.3 |
+| `clinical_reference` | Clinical pages only | SapBERT (768-dim) | 3 | 0.3 |
+
+**Clinical pages** include: Cohort Builder, Vocabulary, Data Explorer, Data Quality, Analyses, Incidence Rates, Estimation, Prediction, Genomics, Imaging, Patient Profiles, and Care Gaps.
+
+The threshold of 0.3 cosine distance means only chunks with 70%+ similarity are included. This prevents irrelevant noise from entering the prompt.
+
+### Stage 3: Context Assembly
+
+Retrieved chunks are formatted into a structured context block:
+
+```
+KNOWLEDGE BASE (use this context to inform your response):
+
+Documentation:
+- [chunk from platform docs]
+- [chunk from platform docs]
+
+Previous conversations:
+- [relevant prior Q&A from this user]
+
+Common questions:
+- [relevant shared FAQ entry]
+
+OHDSI research literature:
+- [chunk from research paper or Book of OHDSI]
+- [chunk from HADES vignette]
+
+Clinical reference:
+- [relevant OMOP concept description]
+```
+
+This context block is injected into the system prompt alongside the page-specific persona instructions and any help content for the current page.
+
+### Stage 4: Generation
+
+The assembled prompt is sent to **MedGemma 1.5 (4B)** via Ollama. MedGemma is a medical domain LLM from Google, purpose-built for clinical and biomedical text generation. It runs entirely locally — no API calls to external services.
+
+The model receives:
+1. **System prompt** — page persona + behavioral instructions
+2. **RAG context** — retrieved knowledge from all collections
+3. **Help content** — structured feature documentation for the current page
+4. **User message** — the actual question
+
+### Stage 5: Memory Storage
+
+After generating the response, the Q&A pair is embedded and stored in the user's conversation memory collection. This is a fire-and-forget operation (non-blocking) to avoid adding latency to the response.
+
+## Page Personas
+
+Abby maintains **22 specialized personas** that activate based on the current page:
+
+| Page | Persona Focus |
+|------|--------------|
+| **Cohort Builder** | Inclusion/exclusion criteria, cohort expressions, temporal logic, era settings |
+| **Vocabulary Browser** | Concept search, hierarchy navigation, domain filtering, semantic matching |
+| **Concept Set Builder** | Descendant flags, exclude flags, concept mapping strategies |
+| **Population-Level Estimation** | Propensity scores, negative controls, study diagnostics, IPTW vs matching |
+| **Patient-Level Prediction** | Feature selection, model evaluation (AUROC, calibration), external validation |
+| **Characterization** | Covariate selection, baseline characteristics, feature extraction settings |
+| **Incidence Rates** | Rate calculation, time-at-risk, age/sex stratification |
+| **Treatment Pathways** | Event sequencing, pathway analysis design, sunburst interpretation |
+| **Data Explorer** | Achilles results, data quality metrics, population distributions |
+| **Data Quality** | DQD check interpretation, threshold configuration, remediation guidance |
+| **Data Ingestion** | Schema mapping, concept mapping, file format handling, ETL guidance |
+| **Genomics** | VCF interpretation, ClinVar annotations, variant pathogenicity, tumor boards |
+| **Imaging** | DICOM viewer, modality guidance, PACS connectivity, NLP extraction |
+| **HEOR** | Cost-effectiveness, care gap analysis, economic modeling |
+| **FHIR Integration** | SMART auth, bulk export, FHIR-to-OMOP mapping, IG compliance |
+| **GIS Explorer** | Spatial analysis, geographic health disparities, SVI data |
+| **Administration** | System configuration, user management, health monitoring |
+| **SCCS** | Self-controlled case series design, risk windows, age/season adjustment |
+| **Evidence Synthesis** | Meta-analysis, forest plots, heterogeneity assessment |
+| **Studies** | Study packages, protocol design, network study coordination |
+| **Patient Profiles** | Timeline navigation, encounter details, longitudinal patient view |
+| **General** | Broad platform knowledge (fallback when no specific page detected) |
+
+## Retrieval Quality
+
+### Cosine Similarity Scoring
+
+ChromaDB returns results ranked by cosine distance (0 = identical, 2 = opposite). Abby converts this to a similarity score:
+
+```
+similarity = 1.0 - cosine_distance
+```
+
+Only results with `cosine_distance <= 0.3` (similarity >= 0.70) are included. This threshold was tuned to balance recall (finding relevant content) against precision (excluding noise).
+
+### Multi-Collection Deduplication
+
+When the same content appears in multiple collections (e.g., a concept appears in both documentation and clinical reference), the retrieval pipeline deduplicates by text content to avoid injecting redundant context into the prompt.
+
+### Source Attribution
+
+Each retrieved chunk carries metadata about its source:
+
+```json
+{
+  "source": "ohdsi_corpus",
+  "title": "Large-scale propensity score analysis...",
+  "doi": "10.1038/s12345",
+  "year": 2023,
+  "chunk_index": 4,
+  "total_chunks": 12
+}
+```
+
+This metadata enables future enhancements like **citation grounding** — including DOI references in Abby's responses so researchers can verify claims against the source literature.
+
+## Performance
+
+| Metric | Typical Value |
+|--------|--------------|
+| Retrieval (5 collections) | 50-150ms |
+| Prompt assembly | under 10ms |
+| MedGemma generation | 2-8 seconds |
+| Memory storage | under 50ms (async) |
+| **Total response time** | **3-9 seconds** |
+
+The Solr acceleration layer for the 3D vector explorer reduces projection queries from ~8-10 seconds (live PCA+UMAP) to under 500ms (pre-computed).

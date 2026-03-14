@@ -1,0 +1,164 @@
+---
+id: abby-knowledge-base
+title: "Knowledge Base"
+sidebar_label: "Knowledge Base"
+---
+
+# Abby's Knowledge Base
+
+Abby's intelligence comes from six ChromaDB vector collections totaling over **125,000 embedded vectors**. Each collection serves a distinct purpose and uses the embedding model best suited to its content type.
+
+## Collections Overview
+
+| Collection | Vectors | Dimensions | Embedder | Content |
+|-----------|---------|------------|----------|---------|
+| `docs` | 46,271 | 384 | sentence-transformers | Platform documentation |
+| `ohdsi_papers` | 79,070 | 768 | SapBERT | Research papers, Book of OHDSI, HADES vignettes, forum Q&A |
+| `conversations\_user\_\{id\}` | varies | 384 | sentence-transformers | Per-user Q&A memory |
+| `faq_shared` | varies | 384 | sentence-transformers | Promoted community questions |
+| `clinical_reference` | varies | 768 | SapBERT | OMOP concept embeddings |
+
+## Platform Documentation (`docs`)
+
+The `docs` collection contains the entire Parthenon documentation set, auto-ingested on AI service startup.
+
+**Ingestion process:**
+1. All `.md` and `.mdx` files in the documentation directory are discovered
+2. Each file is split using markdown-aware chunking that respects header boundaries
+3. Chunks are SHA-256 hashed for deduplication — unchanged files are skipped on re-ingestion
+4. Embeddings are generated with `all-MiniLM-L6-v2` (384 dimensions)
+5. Chunks are upserted into ChromaDB with source metadata
+
+**Chunk parameters:**
+- Size: 512 tokens
+- Overlap: 64 tokens
+- Splitting: Header-aware (respects `#`, `##`, `###` boundaries)
+
+**When to re-ingest:** After updating documentation, trigger re-ingestion via the Admin panel or `POST /chroma/ingest-docs`.
+
+## OHDSI Research Knowledge (`ohdsi_papers`)
+
+The `ohdsi_papers` collection is Abby's research library — the largest and most distinctive component of her knowledge base. It contains four curated sources embedded with SapBERT for biomedical semantic matching.
+
+### Source 1: Research Papers (74,539 chunks)
+
+**2,233 open-access publications** by OHDSI community members, harvested from:
+- **OpenAlex** — Author resolution and publication discovery for 48 workgroup leads
+- **PubMed/PMC** — Free full-text identification via PMCID lookup
+- **Unpaywall** — Legal open-access PDF discovery
+
+Key authors include George Hripcsak, Patrick Ryan, Marc Suchard, Martijn Schuemie, and 44 other workgroup leads spanning the full OHDSI analytical ecosystem.
+
+**Processing pipeline:**
+1. PDFs extracted with `pymupdf` (text-layer extraction)
+2. Text chunked at 1,500 characters with 200-character overlap
+3. Chunks under 200 characters discarded (image-heavy pages, headers)
+4. Embedded with SapBERT (768 dimensions)
+5. Metadata attached: DOI, title, year, source file
+
+### Source 2: Book of OHDSI (773 chunks)
+
+The [Book of OHDSI](https://ohdsi.github.io/TheBookOfOhdsi/) is the canonical reference for OMOP methodology. All **26 chapters** are ingested, covering:
+
+- OMOP Common Data Model architecture
+- Standardized vocabularies and concept hierarchies
+- Cohort definition best practices
+- Population-level estimation methodology
+- Patient-level prediction framework
+- Data quality and characterization
+- Study design and network research
+
+R code blocks are stripped during ingestion — only explanatory methodology text is embedded.
+
+### Source 3: HADES Vignettes (1,134 chunks)
+
+**136 vignettes and READMEs** from **30 HADES R packages** — the actual analytical tools researchers use daily:
+
+| Package Category | Packages |
+|-----------------|----------|
+| **Estimation** | CohortMethod, SelfControlledCaseSeries, EvidenceSynthesis |
+| **Prediction** | PatientLevelPrediction, DeepPatientLevelPrediction |
+| **Cohort Building** | CohortGenerator, Capr, CirceR, PhenotypeLibrary, PheValuator |
+| **Data Quality** | Achilles, DataQualityDashboard |
+| **Feature Extraction** | FeatureExtraction, Andromeda |
+| **Infrastructure** | DatabaseConnector, SqlRender, Strategus, Eunomia |
+
+Each vignette is tagged with the package name and last-updated date for recency-aware retrieval.
+
+### Source 4: OHDSI Forums (2,624 chunks)
+
+**429 high-quality threads** from [forums.ohdsi.org](https://forums.ohdsi.org), filtered for knowledge value:
+
+- **Engagement threshold:** 3+ replies or 200+ views
+- **Solved preference:** Threads with accepted answers scored higher
+- **Recency weighting:** Post-2022 content weighted 2-3x over older posts
+- **Category focus:** Cohort definitions, CDM building, vocabulary, estimation, prediction
+- **Quality scoring:** Composite of views, likes, replies, solved status, and recency
+
+Year distribution (skewed recent for current methodology):
+- 2024-2026: 197 threads
+- 2022-2023: 142 threads
+- Pre-2022: 90 threads
+
+### Data Quality Safeguards
+
+OHDSI methods evolve. Old forum answers may reference deprecated approaches, and early papers may use outdated methodology. The following safeguards prevent stale knowledge from degrading responses:
+
+1. **Recency metadata** on every chunk enables retrieval-time boosting of recent content
+2. **Source priority tags**: `high` (Book, papers) > `medium` (forums) > `low` (deprecated)
+3. **Quality scores** on forum posts for ranked retrieval
+4. **Content deduplication** via SHA-256 hashing prevents duplicate ingestion
+5. **R code stripping** from Book/vignettes keeps only explanatory text
+6. **Minimum length filters** discard fragments under 200 characters
+
+## Conversation Memory (`conversations\_user\_\{id\}`)
+
+Each user gets a private vector collection storing their Q&A history with Abby. This enables:
+
+- **Session continuity** — Abby remembers what you discussed yesterday
+- **Follow-up context** — "What about the second criterion?" works because Abby retrieves the prior exchange
+- **Learning patterns** — Repeated questions about the same topic trigger increasingly refined responses
+
+**Properties:**
+- TTL: 90 days (configurable, auto-pruned)
+- Stored as: `"Q: {question}\nA: {answer}"` embeddings
+- Privacy: Completely isolated per user — no cross-user leakage
+
+## Shared FAQ (`faq_shared`)
+
+When multiple users ask semantically similar questions, those Q&A pairs can be promoted into the shared FAQ:
+
+**Promotion criteria:**
+- Question asked 5+ times
+- By 3+ distinct users
+- Semantic similarity threshold: 0.85
+
+**Promotion can be triggered:**
+- Manually via Admin panel ("Promote FAQ" button)
+- Via API: `POST /chroma/promote-faq`
+
+:::tip Building institutional knowledge
+The shared FAQ grows organically as your team uses Abby. Common questions about your specific CDM configuration, local data quirks, or institutional workflows get captured and reused — reducing repetitive support requests.
+:::
+
+## Clinical Reference (`clinical_reference`)
+
+OMOP standard concepts embedded with SapBERT for semantic clinical search. This enables Abby to understand that "heart attack" and "acute myocardial infarction" are the same concept, even when the exact string doesn't appear in vocabulary tables.
+
+**Embedding:** SapBERT (768-dim), trained on UMLS concept pairs
+**Domains:** Condition, Drug, Procedure, Measurement
+**Ingestion:** `POST /chroma/ingest-clinical` or Admin panel button
+
+## Management
+
+All collections can be managed from the **ChromaDB Studio** panel in **Admin > Services > ChromaDB**:
+
+| Action | Button | Effect |
+|--------|--------|--------|
+| Ingest Docs | "Ingest Docs" | Re-embeds platform documentation |
+| Ingest Clinical | "Ingest Clinical" | Embeds OMOP concepts with SapBERT |
+| Promote FAQ | "Promote FAQ" | Promotes frequent questions to shared FAQ |
+| Ingest OHDSI Papers | "Ingest OHDSI Papers" | Embeds research PDFs into knowledge base |
+| Ingest OHDSI Knowledge | "Ingest OHDSI Knowledge" | Embeds Book, HADES vignettes, and forums |
+
+The Studio also provides collection inspection (vector counts, facet distributions, sample records) and a 3D semantic map powered by Solr-accelerated PCA+UMAP projections.

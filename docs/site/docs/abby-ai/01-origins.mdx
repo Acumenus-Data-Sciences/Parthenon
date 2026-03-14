@@ -1,0 +1,70 @@
+---
+id: abby-origins
+title: "Meet Abby"
+sidebar_label: "Meet Abby"
+---
+
+# Meet Abby
+
+![Abby AI](/img/Abby-AI.png)
+
+**Abby** is Parthenon's AI-powered outcomes research assistant — a context-aware, privacy-preserving assistant that lives inside every page of the platform and speaks the language of OHDSI.
+
+## Why Abby Exists
+
+Outcomes research on the OMOP Common Data Model is powerful but complex. Researchers face a steep learning curve across vocabulary navigation, cohort expression logic, estimation methodology, and data quality interpretation. Traditional documentation helps, but it can't answer questions like:
+
+- *"What's the right approach for handling time-at-risk in a self-controlled case series?"*
+- *"My propensity score distribution looks bimodal — what does that mean?"*
+- *"How do I map this local drug code to a standard OMOP concept?"*
+
+These questions require **contextual expertise** — knowledge of both the methodology and the specific state of the user's work. Abby was built to provide that expertise in real time, grounded in peer-reviewed literature and official OHDSI documentation.
+
+## Design Philosophy
+
+Abby was designed around four principles:
+
+### 1. Privacy First
+
+Abby runs entirely on-premises. The language model (MedGemma 1.5 via Ollama), the vector database (ChromaDB), and all embeddings are local services. **No data ever leaves your infrastructure.** This makes Abby suitable for air-gapped healthcare environments, HIPAA-regulated deployments, and organizations with strict data governance requirements.
+
+### 2. Grounded in Evidence
+
+Every response Abby generates is informed by a retrieval-augmented generation (RAG) pipeline that pulls relevant context from:
+
+- **79,070 vectors** of OHDSI research literature (2,258 peer-reviewed papers, the Book of OHDSI, HADES package documentation, and community forum Q&A)
+- **46,271 vectors** of Parthenon platform documentation
+- Per-user conversation memory and shared FAQ
+
+Abby doesn't hallucinate methodology — she cites it.
+
+### 3. Page-Aware Context
+
+Abby knows where you are in the platform. When you ask a question on the Cohort Builder page, she responds as a cohort expression expert. On the Population-Level Estimation page, she becomes a propensity score specialist. This page-aware persona system spans **22 distinct contexts** across the entire platform.
+
+### 4. Learns from Your Organization
+
+Through conversation memory and FAQ auto-promotion, Abby builds institutional knowledge over time. Common questions about your specific CDM configuration, local data quirks, or organizational workflows get captured and reused — reducing repetitive support requests and onboarding friction.
+
+## The Name
+
+Abby is named in the tradition of clinical research assistants — approachable, knowledgeable, always available. She's the colleague who's read every OHDSI paper and remembers every forum thread.
+
+## What Abby Can Do
+
+| Capability | Description |
+|-----------|-------------|
+| **Concept Search** | Semantic vocabulary search using SapBERT clinical embeddings |
+| **Cohort Guidance** | Help building inclusion/exclusion criteria and temporal logic |
+| **Method Selection** | Compare estimation approaches, explain negative controls |
+| **Result Interpretation** | Explain Achilles results, DQD findings, and analysis outputs |
+| **Variant Summarization** | Interpret genomic variants with ClinVar context |
+| **Schema Mapping** | Suggest OMOP concept mappings during data ingestion |
+| **Platform Navigation** | Guide users through features and workflows |
+| **Literature Grounding** | Answer methodology questions with references to OHDSI publications |
+
+## Quick Start
+
+Abby is available on every page of Parthenon via the chat panel in the bottom-right corner. You can also find her in the **Commons** workspace as a dedicated channel (`#ask-abby`) or by mentioning `@Abby` in any conversation.
+
+No configuration is required for basic use — Abby is active by default on all Parthenon deployments with the AI service running.

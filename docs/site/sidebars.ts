@@ -131,6 +131,18 @@ const sidebars: SidebarsConfig = {
     },
     {
       type: "category",
+      label: "Abby AI",
+      items: [
+        "abby-ai/abby-origins",
+        "abby-ai/abby-architecture",
+        "abby-ai/abby-knowledge-base",
+        "abby-ai/abby-rag-pipeline",
+        "abby-ai/abby-commons-integration",
+        "abby-ai/abby-administration",
+      ],
+    },
+    {
+      type: "category",
       label: "Architecture",
       items: ["architecture/database-architecture"],
     },

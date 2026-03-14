@@ -1,0 +1,197 @@
+---
+id: abby-administration
+title: "Administration"
+sidebar_label: "Administration"
+---
+
+# Administering Abby
+
+This guide covers day-to-day management of Abby's knowledge base, health monitoring, and the ChromaDB Studio admin panel.
+
+## ChromaDB Studio
+
+The ChromaDB Studio is accessible at **Admin > Services > ChromaDB**. It provides:
+
+### Collection Overview
+
+A dropdown selector lists all ChromaDB collections with vector counts. Selecting a collection shows:
+
+- **Vector count** — total embedded chunks
+- **Dimensions** — embedding size (384 or 768)
+- **Metadata fields** — available filter keys
+- **Facet distribution** — breakdown of metadata values (source, year, package, etc.)
+- **Sample records** — preview of stored chunks with metadata tags
+
+### Ingestion Actions
+
+Five action buttons trigger knowledge base updates:
+
+| Button | Endpoint | What It Does | Duration |
+|--------|----------|-------------|----------|
+| **Ingest Docs** | `POST /chroma/ingest-docs` | Re-embeds platform documentation | ~1 min |
+| **Ingest Clinical** | `POST /chroma/ingest-clinical` | Embeds OMOP concepts with SapBERT | ~5 min |
+| **Promote FAQ** | `POST /chroma/promote-faq` | Promotes frequent user questions | ~30s |
+| **Ingest OHDSI Papers** | `POST /chroma/ingest-ohdsi-papers` | Embeds research PDFs | ~15-30 min |
+| **Ingest OHDSI Knowledge** | `POST /chroma/ingest-ohdsi-knowledge` | Embeds Book, HADES vignettes, forums | ~2-5 min |
+
+:::warning Ingestion timing
+Paper ingestion processes 2,000+ PDFs with SapBERT embeddings and can take 15-30 minutes. Run during maintenance windows. All other ingestions are idempotent — unchanged content is skipped via content hashing.
+:::
+
+### Semantic Search
+
+The **Retrieval** tab lets you test semantic queries against any collection:
+
+1. Select a collection from the dropdown
+2. Enter a natural language query
+3. Adjust K (number of results, 1-50)
+4. Results show matched chunks with cosine distance scores and metadata
+
+This is useful for verifying that Abby's knowledge base contains the content you expect and that retrieval quality is adequate.
+
+### 3D Vector Explorer
+
+The **Semantic Map** visualizes the vector space as an interactive 3D point cloud:
+
+- Points colored by cluster assignment
+- Rotate, zoom, and pan with mouse controls
+- Click points to inspect metadata
+- Outlier and duplicate detection highlighted
+- Powered by PCA+UMAP projection, accelerated by Solr pre-computation
+
+## Solr Acceleration
+
+The 3D vector explorer uses Apache Solr to cache pre-computed projections. Without Solr, each projection request requires ~8-10 seconds of live PCA+UMAP computation. With Solr, cached projections load in under 500ms.
+
+### Updating the Solr Index
+
+After ingesting new content, update the Solr index:
+
+```bash
+# Index a specific collection
+docker compose exec php php artisan solr:index-vector-explorer --collection=ohdsi_papers
+
+# Index all collections
+docker compose exec php php artisan solr:index-vector-explorer
+
+# Fresh re-index (delete existing, then index)
+docker compose exec php php artisan solr:index-vector-explorer --fresh
+
+# Custom sample size (default: 5000 vectors)
+docker compose exec php php artisan solr:index-vector-explorer --sample-size=10000
+```
+
+### Solr Core Schema
+
+The `vector_explorer` Solr core stores:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `point_id` | string | `collection:chroma_id` (composite key) |
+| `collection_name` | string | ChromaDB collection name |
+| `x`, `y`, `z` | float | 3D projected coordinates |
+| `cluster_id` | int | HDBSCAN cluster assignment |
+| `cluster_label` | string | Auto-generated cluster label |
+| `is_outlier` | boolean | Outlier flag from HDBSCAN |
+| `source` | string | Content source tag |
+| `title` | string | Document/paper title |
+| `meta_s_*` | dynamic string | String metadata fields |
+| `meta_i_*` | dynamic int | Integer metadata fields |
+| `meta_f_*` | dynamic float | Float metadata fields |
+
+## Health Monitoring
+
+Abby's components are monitored on the **System Health** dashboard:
+
+| Component | Check | Healthy | Degraded |
+|-----------|-------|---------|----------|
+| **ChromaDB** | HTTP heartbeat | Connected, collections queryable | Timeout or connection refused |
+| **Ollama** | Model availability | MedGemma loaded and responsive | Model not found or OOM |
+| **Solr** | Core ping | `vector_explorer` core reachable | Core missing or Solr down |
+| **Redis** | Connection test | Connected | Connection refused |
+
+## Conversation Memory Management
+
+### Pruning Old Conversations
+
+Conversation memory entries older than the TTL (default: 90 days) can be pruned per-user:
+
+```bash
+# Prune conversations older than 90 days for user ID 1
+curl -X POST "http://localhost:8002/chroma/prune-conversations/1?ttl_days=90"
+
+# Custom TTL
+curl -X POST "http://localhost:8002/chroma/prune-conversations/1?ttl_days=30"
+```
+
+### FAQ Promotion
+
+The FAQ promotion algorithm scans all user conversation collections and promotes questions meeting the criteria:
+
+- **Frequency**: Asked 5+ times
+- **Breadth**: By 3+ distinct users
+- **Similarity**: 0.85 cosine similarity threshold for grouping
+
+```bash
+# Promote FAQ from last 7 days of conversations
+curl -X POST "http://localhost:8002/chroma/promote-faq?days=7"
+
+# Promote from last 30 days
+curl -X POST "http://localhost:8002/chroma/promote-faq?days=30"
+```
+
+## Updating the Knowledge Base
+
+### After Documentation Changes
+
+```bash
+# Rebuild docs and re-ingest
+./deploy.sh --docs
+curl -X POST http://localhost:8002/chroma/ingest-docs
+```
+
+### After Vocabulary Updates
+
+```bash
+curl -X POST http://localhost:8002/chroma/ingest-clinical
+```
+
+### Harvesting New Research Papers
+
+```bash
+cd OHDSI-scraper
+
+# Run the full harvester (scrapes new papers since last run)
+python3 harvester.py --email your@email.com
+
+# Then ingest into ChromaDB
+curl -X POST http://localhost:8002/chroma/ingest-ohdsi-papers
+```
+
+### Refreshing Forum Content
+
+```bash
+cd OHDSI-scraper
+python3 scrape_forums.py
+curl -X POST http://localhost:8002/chroma/ingest-ohdsi-knowledge
+```
+
+### After Any Ingestion: Update Solr
+
+```bash
+docker compose exec php php artisan solr:index-vector-explorer --fresh
+```
+
+## Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `CHROMA_HOST` | `chromadb` | ChromaDB hostname |
+| `CHROMA_PORT` | `8000` | ChromaDB port |
+| `OLLAMA_BASE_URL` | `http://host.docker.internal:11434` | Ollama API base URL |
+| `OLLAMA_MODEL` | `MedAIBase/MedGemma1.5:4b` | LLM model identifier |
+| `OHDSI_CORPUS_DIR` | `/app/ohdsi_corpus` | Path to harvested PDF corpus |
+| `OHDSI_BOOK_DIR` | `/app/book_of_ohdsi` | Path to Book of OHDSI chapters |
+| `OHDSI_VIGNETTES_DIR` | `/app/hades_vignettes` | Path to HADES vignettes |
+| `OHDSI_FORUMS_DIR` | `/app/ohdsi_forums` | Path to forum threads |
+| `DOCS_DIR` | `/app/docs` | Path to platform documentation |
