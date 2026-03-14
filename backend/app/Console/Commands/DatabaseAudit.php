@@ -16,12 +16,12 @@ class DatabaseAudit extends Command
 
     /** Connections to audit and the schemas we expect to find data in. */
     private const PG_CONNECTIONS = [
-        'pgsql'     => ['label' => 'App (pgsql)',     'expect_data' => true],
-        'cdm'       => ['label' => 'CDM',             'expect_data' => true],
-        'vocab'     => ['label' => 'Vocabulary',       'expect_data' => true],
-        'results'   => ['label' => 'Results',          'expect_data' => true],
-        'gis'       => ['label' => 'GIS',              'expect_data' => false],
-        'eunomia'   => ['label' => 'Eunomia',          'expect_data' => false],
+        'pgsql' => ['label' => 'App (pgsql)',     'expect_data' => true],
+        'cdm' => ['label' => 'CDM',             'expect_data' => true],
+        'vocab' => ['label' => 'Vocabulary',       'expect_data' => true],
+        'results' => ['label' => 'Results',          'expect_data' => true],
+        'gis' => ['label' => 'GIS',              'expect_data' => false],
+        'eunomia' => ['label' => 'Eunomia',          'expect_data' => false],
         'docker_pg' => ['label' => 'Docker PG',        'expect_data' => true],
     ];
 
@@ -69,10 +69,10 @@ class DatabaseAudit extends Command
         } catch (\Throwable $e) {
             return [
                 'connection' => $name,
-                'schema'     => '—',
-                'tables'     => '—',
-                'rows'       => '—',
-                'status'     => 'FAIL: ' . $this->truncate($e->getMessage(), 60),
+                'schema' => '—',
+                'tables' => '—',
+                'rows' => '—',
+                'status' => 'FAIL: '.$this->truncate($e->getMessage(), 60),
             ];
         }
 
@@ -99,10 +99,10 @@ class DatabaseAudit extends Command
 
         return [
             'connection' => $name,
-            'schema'     => $schema,
-            'tables'     => $tables,
-            'rows'       => $rowCount,
-            'status'     => $status,
+            'schema' => $schema,
+            'tables' => $tables,
+            'rows' => $rowCount,
+            'status' => $status,
         ];
     }
 
@@ -116,10 +116,10 @@ class DatabaseAudit extends Command
         if (! config('solr.enabled', false)) {
             $rows[] = [
                 'connection' => 'Solr',
-                'schema'     => '—',
-                'tables'     => '—',
-                'rows'       => '—',
-                'status'     => 'DISABLED (SOLR_ENABLED=false)',
+                'schema' => '—',
+                'tables' => '—',
+                'rows' => '—',
+                'status' => 'DISABLED (SOLR_ENABLED=false)',
             ];
 
             return $rows;
@@ -135,10 +135,10 @@ class DatabaseAudit extends Command
             if (! $ping) {
                 $rows[] = [
                     'connection' => 'Solr',
-                    'schema'     => $coreName,
-                    'tables'     => '1 core',
-                    'rows'       => '—',
-                    'status'     => 'FAIL: unreachable',
+                    'schema' => $coreName,
+                    'tables' => '1 core',
+                    'rows' => '—',
+                    'status' => 'FAIL: unreachable',
                 ];
 
                 continue;
@@ -152,10 +152,10 @@ class DatabaseAudit extends Command
 
             $rows[] = [
                 'connection' => 'Solr',
-                'schema'     => $coreName,
-                'tables'     => '1 core',
-                'rows'       => $count ?? 0,
-                'status'     => $status,
+                'schema' => $coreName,
+                'tables' => '1 core',
+                'rows' => $count ?? 0,
+                'status' => $status,
             ];
         }
 
@@ -198,6 +198,6 @@ class DatabaseAudit extends Command
 
     private function truncate(string $text, int $length): string
     {
-        return strlen($text) > $length ? substr($text, 0, $length) . '…' : $text;
+        return strlen($text) > $length ? substr($text, 0, $length).'…' : $text;
     }
 }

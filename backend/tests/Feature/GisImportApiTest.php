@@ -28,16 +28,17 @@ function gisUser(string $role = 'researcher'): User
 {
     $user = User::factory()->create();
     $user->assignRole($role);
+
     return $user;
 }
 
 function makeGisImport(User $user, array $overrides = []): GisImport
 {
     return GisImport::create(array_merge([
-        'user_id'     => $user->id,
-        'filename'    => 'test.csv',
+        'user_id' => $user->id,
+        'filename' => 'test.csv',
         'import_mode' => 'tabular_geocode',
-        'status'      => 'uploaded',
+        'status' => 'uploaded',
     ], $overrides));
 }
 
@@ -50,8 +51,8 @@ function mockImportService(\Illuminate\Contracts\Foundation\Application $app): v
     $app->bind(GisImportService::class, function () {
         $mock = Mockery::mock(GisImportService::class)->makePartial();
         $mock->shouldReceive('previewFile')->andReturn([
-            'headers'   => ['FIPS', 'County', 'SVI_Score'],
-            'rows'      => [
+            'headers' => ['FIPS', 'County', 'SVI_Score'],
+            'rows' => [
                 ['FIPS' => '42001', 'County' => 'Adams', 'SVI_Score' => '0.45'],
                 ['FIPS' => '42003', 'County' => 'Allegheny', 'SVI_Score' => '0.62'],
             ],
@@ -61,11 +62,12 @@ function mockImportService(\Illuminate\Contracts\Foundation\Application $app): v
         $mock->shouldReceive('columnStats')->andReturn([]);
         $mock->shouldReceive('detectGeoCodeType')->andReturn('fips_county');
         $mock->shouldReceive('matchGeographies')->andReturn([
-            'matched'       => [],
-            'unmatched'     => [],
-            'match_rate'    => 0.0,
+            'matched' => [],
+            'unmatched' => [],
+            'match_rate' => 0.0,
             'location_type' => 'fips_county',
         ]);
+
         return $mock;
     });
 }
@@ -90,7 +92,7 @@ test('unauthenticated history returns 401', function () {
 
 test('viewer cannot upload', function () {
     $viewer = gisUser('viewer');
-    $file   = UploadedFile::fake()->create('county-svi.csv', 10, 'text/csv');
+    $file = UploadedFile::fake()->create('county-svi.csv', 10, 'text/csv');
 
     $this->actingAs($viewer)
         ->postJson('/api/v1/gis/import/upload', ['file' => $file])
@@ -102,7 +104,7 @@ test('researcher can upload', function () {
     Storage::fake('local');
 
     $researcher = gisUser('researcher');
-    $file       = UploadedFile::fake()->createWithContent(
+    $file = UploadedFile::fake()->createWithContent(
         'county-svi.csv',
         "FIPS,County,SVI_Score\n42001,Adams,0.45\n"
     );
@@ -127,7 +129,7 @@ test('researcher cannot see other users imports', function () {
 });
 
 test('admin can see all imports', function () {
-    $admin      = gisUser('admin');
+    $admin = gisUser('admin');
     $researcher = gisUser('researcher');
 
     makeGisImport($researcher);
@@ -150,8 +152,8 @@ test('upload valid csv returns 201', function () {
     Storage::fake('local');
 
     $researcher = gisUser('researcher');
-    $csvPath    = base_path('tests/fixtures/imports/golden/county-svi.csv');
-    $file       = new UploadedFile($csvPath, 'county-svi.csv', 'text/csv', null, true);
+    $csvPath = base_path('tests/fixtures/imports/golden/county-svi.csv');
+    $file = new UploadedFile($csvPath, 'county-svi.csv', 'text/csv', null, true);
 
     $this->actingAs($researcher)
         ->postJson('/api/v1/gis/import/upload', ['file' => $file])
@@ -165,7 +167,7 @@ test('upload returns preview data', function () {
     Storage::fake('local');
 
     $researcher = gisUser('researcher');
-    $file       = UploadedFile::fake()->createWithContent(
+    $file = UploadedFile::fake()->createWithContent(
         'county-svi.csv',
         "FIPS,County,SVI_Score\n42001,Adams,0.45\n"
     );
@@ -181,8 +183,8 @@ test('upload returns preview data', function () {
 
 test('upload empty file returns 422', function () {
     $researcher = gisUser('researcher');
-    $emptyPath  = base_path('tests/fixtures/imports/adversarial/empty.csv');
-    $file       = new UploadedFile($emptyPath, 'empty.csv', 'text/csv', null, true);
+    $emptyPath = base_path('tests/fixtures/imports/adversarial/empty.csv');
+    $file = new UploadedFile($emptyPath, 'empty.csv', 'text/csv', null, true);
 
     // An empty file (0 bytes) fails Laravel's 'file' validation rule or the service throws.
     $response = $this->actingAs($researcher)
@@ -193,7 +195,7 @@ test('upload empty file returns 422', function () {
 
 test('upload invalid mime returns 422', function () {
     $researcher = gisUser('researcher');
-    $file       = UploadedFile::fake()->create('evil.php', 5, 'text/plain');
+    $file = UploadedFile::fake()->create('evil.php', 5, 'text/plain');
 
     $this->actingAs($researcher)
         ->postJson('/api/v1/gis/import/upload', ['file' => $file])
@@ -216,7 +218,7 @@ test('status returns import state', function () {
     Redis::shouldReceive('get')->once()->andReturn(null);
 
     $researcher = gisUser('researcher');
-    $import     = makeGisImport($researcher, ['status' => 'uploaded', 'progress_percentage' => 0]);
+    $import = makeGisImport($researcher, ['status' => 'uploaded', 'progress_percentage' => 0]);
 
     $this->actingAs($researcher)
         ->getJson("/api/v1/gis/import/{$import->id}/status")
@@ -228,12 +230,12 @@ test('status returns import state', function () {
 
 test('save mapping updates import', function () {
     $researcher = gisUser('researcher');
-    $import     = makeGisImport($researcher);
+    $import = makeGisImport($researcher);
 
     $mapping = [
-        'FIPS'      => ['purpose' => 'geography_code', 'geo_type' => 'fips_county'],
+        'FIPS' => ['purpose' => 'geography_code', 'geo_type' => 'fips_county'],
         'SVI_Score' => ['purpose' => 'value'],
-        'County'    => ['purpose' => 'metadata'],
+        'County' => ['purpose' => 'metadata'],
     ];
 
     $this->actingAs($researcher)
@@ -248,14 +250,14 @@ test('save mapping updates import', function () {
 
 test('save config updates import', function () {
     $researcher = gisUser('researcher');
-    $import     = makeGisImport($researcher);
+    $import = makeGisImport($researcher);
 
     $config = [
-        'layer_name'      => 'SVI 2022',
-        'exposure_type'   => 'social_vulnerability',
+        'layer_name' => 'SVI 2022',
+        'exposure_type' => 'social_vulnerability',
         'geography_level' => 'county',
-        'value_type'      => 'continuous',
-        'aggregation'     => 'mean',
+        'value_type' => 'continuous',
+        'aggregation' => 'mean',
     ];
 
     $this->actingAs($researcher)
@@ -270,7 +272,7 @@ test('save config updates import', function () {
 
 test('execute requires configured status', function () {
     $researcher = gisUser('researcher');
-    $import     = makeGisImport($researcher, ['status' => 'uploaded']);
+    $import = makeGisImport($researcher, ['status' => 'uploaded']);
 
     $this->actingAs($researcher)
         ->postJson("/api/v1/gis/import/{$import->id}/execute")
@@ -352,11 +354,11 @@ test('rollback requires ownership or manage permission', function () {
 });
 
 test('admin can rollback any import', function () {
-    $admin      = gisUser('admin');
+    $admin = gisUser('admin');
     $researcher = gisUser('researcher');
 
     $import = makeGisImport($researcher, [
-        'status'           => 'complete',
+        'status' => 'complete',
         'summary_snapshot' => [],
     ]);
 
@@ -367,11 +369,12 @@ test('admin can rollback any import', function () {
         $mock->shouldReceive('columnStats')->andReturn([]);
         $mock->shouldReceive('detectGeoCodeType')->andReturn('custom');
         $mock->shouldReceive('matchGeographies')->andReturn([
-            'matched'       => [],
-            'unmatched'     => [],
-            'match_rate'    => 0.0,
+            'matched' => [],
+            'unmatched' => [],
+            'match_rate' => 0.0,
             'location_type' => 'custom',
         ]);
+
         return $mock;
     });
 

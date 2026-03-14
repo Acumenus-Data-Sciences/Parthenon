@@ -15,7 +15,7 @@ class HospitalAccessService
      */
     public function mapData(): array
     {
-        return DB::connection('gis')->select("
+        return DB::connection('gis')->select('
             SELECT
                 h.hospital_id,
                 h.cms_provider_id,
@@ -29,7 +29,7 @@ class HospitalAccessService
                 h.bed_count
             FROM gis.gis_hospital h
             ORDER BY h.bed_count DESC
-        ");
+        ');
     }
 
     /**

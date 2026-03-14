@@ -7,9 +7,8 @@ use App\Jobs\Ingestion\ProfileSourceJob;
 use App\Models\App\ConceptMapping;
 use App\Models\App\IngestionJob;
 use App\Models\App\SchemaMapping;
-use App\Models\App\SourceProfile;
-use App\Models\App\ValidationResult;
 use App\Models\App\Source;
+use App\Models\App\SourceProfile;
 use App\Models\User;
 use App\Services\AiService;
 use App\Services\Ingestion\FileUploadService;
@@ -52,21 +51,21 @@ function makeSource(): Source
 function makeIngestionJob(User $user, array $overrides = []): IngestionJob
 {
     return IngestionJob::create(array_merge([
-        'source_id'           => makeSource()->id,
-        'status'              => ExecutionStatus::Pending,
-        'current_step'        => IngestionStep::Profiling,
+        'source_id' => makeSource()->id,
+        'status' => ExecutionStatus::Pending,
+        'current_step' => IngestionStep::Profiling,
         'progress_percentage' => 0,
-        'created_by'          => $user->id,
+        'created_by' => $user->id,
     ], $overrides));
 }
 
 function makeProfile(IngestionJob $job, array $overrides = []): SourceProfile
 {
     return $job->profiles()->create(array_merge([
-        'file_name'       => 'test.csv',
-        'file_format'     => 'csv',
-        'file_size'       => 1024,
-        'storage_path'    => '1/test.csv',
+        'file_name' => 'test.csv',
+        'file_format' => 'csv',
+        'file_size' => 1024,
+        'storage_path' => '1/test.csv',
         'format_metadata' => ['format' => 'csv', 'delimiter' => ','],
     ], $overrides));
 }
@@ -74,27 +73,27 @@ function makeProfile(IngestionJob $job, array $overrides = []): SourceProfile
 function makeConceptMapping(IngestionJob $job, array $overrides = []): ConceptMapping
 {
     return $job->conceptMappings()->create(array_merge([
-        'source_code'          => 'ICD10:A01',
-        'source_description'   => 'Typhoid fever',
+        'source_code' => 'ICD10:A01',
+        'source_description' => 'Typhoid fever',
         'source_vocabulary_id' => 'ICD10',
-        'target_concept_id'    => 4112343,
-        'confidence'           => '0.9500',
-        'strategy'             => 'exact_match',
-        'is_reviewed'          => false,
-        'review_tier'          => ReviewTier::QuickReview,
+        'target_concept_id' => 4112343,
+        'confidence' => '0.9500',
+        'strategy' => 'exact_match',
+        'is_reviewed' => false,
+        'review_tier' => ReviewTier::QuickReview,
     ], $overrides));
 }
 
 function makeSchemaMapping(IngestionJob $job, array $overrides = []): SchemaMapping
 {
     return $job->schemaMappings()->create(array_merge([
-        'source_table'  => 'test',
+        'source_table' => 'test',
         'source_column' => 'patient_id',
-        'cdm_table'     => 'person',
-        'cdm_column'    => 'person_id',
-        'confidence'    => '0.8500',
+        'cdm_table' => 'person',
+        'cdm_column' => 'person_id',
+        'confidence' => '0.8500',
         'mapping_logic' => 'direct',
-        'is_confirmed'  => false,
+        'is_confirmed' => false,
     ], $overrides));
 }
 
@@ -103,10 +102,10 @@ function mockFileUploadService(\Illuminate\Contracts\Foundation\Application $app
     $app->bind(FileUploadService::class, function () {
         $mock = Mockery::mock(FileUploadService::class);
         $mock->shouldReceive('store')->andReturn([
-            'file_name'       => 'test.csv',
-            'file_format'     => 'csv',
-            'file_size'       => 1024,
-            'storage_path'    => '1/test.csv',
+            'file_name' => 'test.csv',
+            'file_format' => 'csv',
+            'file_size' => 1024,
+            'storage_path' => '1/test.csv',
             'format_metadata' => ['format' => 'csv', 'delimiter' => ','],
         ]);
         $mock->shouldReceive('delete')->andReturn(null);
@@ -137,14 +136,14 @@ test('upload valid csv returns 201 with job id', function () {
     Bus::fake();
     mockFileUploadService($this->app);
 
-    $user   = ingestionUser();
+    $user = ingestionUser();
     $source = makeSource();
 
     $file = UploadedFile::fake()->createWithContent('patients.csv', "person_id,gender\n1,M\n2,F\n");
 
     $response = $this->actingAs($user)
         ->postJson('/api/v1/ingestion/upload', [
-            'file'      => $file,
+            'file' => $file,
             'source_id' => $source->id,
         ]);
 
@@ -155,7 +154,7 @@ test('upload valid csv returns 201 with job id', function () {
 });
 
 test('upload without file returns 422', function () {
-    $user   = ingestionUser();
+    $user = ingestionUser();
     $source = makeSource();
 
     $this->actingAs($user)
@@ -178,20 +177,20 @@ test('upload creates ingestion job in database', function () {
     Bus::fake();
     mockFileUploadService($this->app);
 
-    $user   = ingestionUser();
+    $user = ingestionUser();
     $source = makeSource();
-    $file   = UploadedFile::fake()->createWithContent('patients.csv', "person_id,gender\n1,M\n");
+    $file = UploadedFile::fake()->createWithContent('patients.csv', "person_id,gender\n1,M\n");
 
     $this->actingAs($user)
         ->postJson('/api/v1/ingestion/upload', [
-            'file'      => $file,
+            'file' => $file,
             'source_id' => $source->id,
         ])
         ->assertStatus(201);
 
     $this->assertDatabaseHas('ingestion_jobs', [
         'created_by' => $user->id,
-        'source_id'  => $source->id,
+        'source_id' => $source->id,
     ]);
 });
 
@@ -199,13 +198,13 @@ test('upload dispatches profile source job', function () {
     Bus::fake();
     mockFileUploadService($this->app);
 
-    $user   = ingestionUser();
+    $user = ingestionUser();
     $source = makeSource();
-    $file   = UploadedFile::fake()->createWithContent('patients.csv', "id\n1\n");
+    $file = UploadedFile::fake()->createWithContent('patients.csv', "id\n1\n");
 
     $this->actingAs($user)
         ->postJson('/api/v1/ingestion/upload', [
-            'file'      => $file,
+            'file' => $file,
             'source_id' => $source->id,
         ])
         ->assertStatus(201);
@@ -218,7 +217,7 @@ test('upload dispatches profile source job', function () {
 // ---------------------------------------------------------------------------
 
 test('jobs index returns jobs for authenticated user', function () {
-    $user  = ingestionUser();
+    $user = ingestionUser();
     $other = ingestionUser();
 
     makeIngestionJob($user);
@@ -250,7 +249,7 @@ test('jobs index supports status filter', function () {
 
 test('show returns job details with profiles and fields', function () {
     $user = ingestionUser();
-    $job  = makeIngestionJob($user);
+    $job = makeIngestionJob($user);
     makeProfile($job);
 
     $response = $this->actingAs($user)
@@ -263,7 +262,7 @@ test('show returns job details with profiles and fields', function () {
 
 test('destroy deletes job and returns 204', function () {
     $user = ingestionUser();
-    $job  = makeIngestionJob($user);
+    $job = makeIngestionJob($user);
 
     $app = $this->app;
     $app->bind(FileUploadService::class, function () {
@@ -284,9 +283,9 @@ test('retry requeues failed job', function () {
     Bus::fake();
 
     $user = ingestionUser();
-    $job  = makeIngestionJob($user, [
-        'status'        => ExecutionStatus::Failed,
-        'current_step'  => IngestionStep::Profiling,
+    $job = makeIngestionJob($user, [
+        'status' => ExecutionStatus::Failed,
+        'current_step' => IngestionStep::Profiling,
         'error_message' => 'Connection timed out',
     ]);
 
@@ -297,8 +296,8 @@ test('retry requeues failed job', function () {
         ->assertJsonPath('data.status', 'pending');
 
     $this->assertDatabaseHas('ingestion_jobs', [
-        'id'            => $job->id,
-        'status'        => 'pending',
+        'id' => $job->id,
+        'status' => 'pending',
         'error_message' => null,
     ]);
 
@@ -310,21 +309,21 @@ test('retry requeues failed job', function () {
 // ---------------------------------------------------------------------------
 
 test('profile returns column statistics for job', function () {
-    $user    = ingestionUser();
-    $job     = makeIngestionJob($user);
+    $user = ingestionUser();
+    $job = makeIngestionJob($user);
     $profile = makeProfile($job);
 
     // Add a field profile
     $profile->fields()->create([
-        'column_name'       => 'person_id',
-        'column_index'      => 0,
-        'inferred_type'     => 'integer',
-        'non_null_count'    => 100,
-        'null_count'        => 0,
-        'null_percentage'   => '0.00',
-        'distinct_count'    => 100,
+        'column_name' => 'person_id',
+        'column_index' => 0,
+        'inferred_type' => 'integer',
+        'non_null_count' => 100,
+        'null_count' => 0,
+        'null_percentage' => '0.00',
+        'distinct_count' => 100,
         'distinct_percentage' => '100.00',
-        'sample_values'     => [1, 2, 3],
+        'sample_values' => [1, 2, 3],
     ]);
 
     $response = $this->actingAs($user)
@@ -336,7 +335,7 @@ test('profile returns column statistics for job', function () {
 
 test('profile returns 404 when no profile exists', function () {
     $user = ingestionUser();
-    $job  = makeIngestionJob($user);
+    $job = makeIngestionJob($user);
 
     $this->actingAs($user)
         ->getJson("/api/v1/ingestion/jobs/{$job->id}/profile")
@@ -348,20 +347,20 @@ test('profile returns 404 when no profile exists', function () {
 // ---------------------------------------------------------------------------
 
 test('suggest schema mapping returns suggestions from ai service', function () {
-    $user    = ingestionUser();
-    $job     = makeIngestionJob($user);
+    $user = ingestionUser();
+    $job = makeIngestionJob($user);
     $profile = makeProfile($job);
 
     $profile->fields()->create([
-        'column_name'         => 'patient_id',
-        'column_index'        => 0,
-        'inferred_type'       => 'integer',
-        'non_null_count'      => 50,
-        'null_count'          => 0,
-        'null_percentage'     => '0.00',
-        'distinct_count'      => 50,
+        'column_name' => 'patient_id',
+        'column_index' => 0,
+        'inferred_type' => 'integer',
+        'non_null_count' => 50,
+        'null_count' => 0,
+        'null_percentage' => '0.00',
+        'distinct_count' => 50,
         'distinct_percentage' => '100.00',
-        'sample_values'       => [1, 2, 3],
+        'sample_values' => [1, 2, 3],
     ]);
 
     $this->app->bind(AiService::class, function () {
@@ -369,11 +368,11 @@ test('suggest schema mapping returns suggestions from ai service', function () {
         $mock->shouldReceive('suggestSchemaMapping')->andReturn([
             'suggestions' => [
                 [
-                    'source_table'  => 'test.csv',
+                    'source_table' => 'test.csv',
                     'source_column' => 'patient_id',
-                    'cdm_table'     => 'person',
-                    'cdm_column'    => 'person_id',
-                    'confidence'    => 0.95,
+                    'cdm_table' => 'person',
+                    'cdm_column' => 'person_id',
+                    'confidence' => 0.95,
                     'mapping_logic' => 'direct',
                 ],
             ],
@@ -393,7 +392,7 @@ test('suggest schema mapping returns suggestions from ai service', function () {
 
 test('suggest schema mapping returns 404 when no profile', function () {
     $user = ingestionUser();
-    $job  = makeIngestionJob($user);
+    $job = makeIngestionJob($user);
 
     $this->actingAs($user)
         ->postJson("/api/v1/ingestion/jobs/{$job->id}/schema-mapping/suggest")
@@ -402,7 +401,7 @@ test('suggest schema mapping returns 404 when no profile', function () {
 
 test('get schema mapping returns current mappings and cdm tables', function () {
     $user = ingestionUser();
-    $job  = makeIngestionJob($user);
+    $job = makeIngestionJob($user);
     makeSchemaMapping($job);
 
     $response = $this->actingAs($user)
@@ -415,17 +414,17 @@ test('get schema mapping returns current mappings and cdm tables', function () {
 });
 
 test('update schema mapping saves changes and returns updated mappings', function () {
-    $user    = ingestionUser();
-    $job     = makeIngestionJob($user);
+    $user = ingestionUser();
+    $job = makeIngestionJob($user);
     $mapping = makeSchemaMapping($job, ['cdm_table' => null, 'cdm_column' => null]);
 
     $response = $this->actingAs($user)
         ->putJson("/api/v1/ingestion/jobs/{$job->id}/schema-mapping", [
             'mappings' => [
                 [
-                    'id'            => $mapping->id,
-                    'cdm_table'     => 'condition_occurrence',
-                    'cdm_column'    => 'condition_concept_id',
+                    'id' => $mapping->id,
+                    'cdm_table' => 'condition_occurrence',
+                    'cdm_column' => 'condition_concept_id',
                     'mapping_logic' => 'direct',
                 ],
             ],
@@ -435,14 +434,14 @@ test('update schema mapping saves changes and returns updated mappings', functio
         ->assertJsonPath('updated', 1);
 
     $this->assertDatabaseHas('schema_mappings', [
-        'id'        => $mapping->id,
+        'id' => $mapping->id,
         'cdm_table' => 'condition_occurrence',
     ]);
 });
 
 test('update schema mapping validates required fields', function () {
     $user = ingestionUser();
-    $job  = makeIngestionJob($user);
+    $job = makeIngestionJob($user);
 
     $this->actingAs($user)
         ->putJson("/api/v1/ingestion/jobs/{$job->id}/schema-mapping", [])
@@ -452,7 +451,7 @@ test('update schema mapping validates required fields', function () {
 
 test('confirm schema mapping locks confirmed mappings', function () {
     $user = ingestionUser();
-    $job  = makeIngestionJob($user);
+    $job = makeIngestionJob($user);
 
     makeSchemaMapping($job, ['cdm_table' => 'person', 'cdm_column' => 'person_id', 'is_confirmed' => false]);
     makeSchemaMapping($job, ['source_column' => 'gender_cd', 'cdm_table' => 'person', 'cdm_column' => 'gender_concept_id', 'is_confirmed' => false]);
@@ -464,14 +463,14 @@ test('confirm schema mapping locks confirmed mappings', function () {
         ->assertJsonPath('confirmed', 2);
 
     $this->assertDatabaseHas('ingestion_jobs', [
-        'id'                  => $job->id,
+        'id' => $job->id,
         'progress_percentage' => 33,
     ]);
 });
 
 test('confirm schema mapping returns 422 when no cdm tables assigned', function () {
     $user = ingestionUser();
-    $job  = makeIngestionJob($user);
+    $job = makeIngestionJob($user);
 
     // Schema mapping with no CDM table assigned
     makeSchemaMapping($job, ['cdm_table' => null, 'cdm_column' => null]);
@@ -487,7 +486,7 @@ test('confirm schema mapping returns 422 when no cdm tables assigned', function 
 
 test('mappings index returns concept mappings for job', function () {
     $user = ingestionUser();
-    $job  = makeIngestionJob($user);
+    $job = makeIngestionJob($user);
 
     makeConceptMapping($job);
     makeConceptMapping($job, ['source_code' => 'ICD10:B02', 'source_description' => 'Zoster']);
@@ -502,7 +501,7 @@ test('mappings index returns concept mappings for job', function () {
 
 test('mappings index supports review tier filter', function () {
     $user = ingestionUser();
-    $job  = makeIngestionJob($user);
+    $job = makeIngestionJob($user);
 
     makeConceptMapping($job, ['review_tier' => ReviewTier::AutoAccepted]);
     makeConceptMapping($job, ['source_code' => 'ICD10:B02', 'review_tier' => ReviewTier::FullReview]);
@@ -518,7 +517,7 @@ test('mappings index supports review tier filter', function () {
 
 test('mappings stats returns counts by status', function () {
     $user = ingestionUser();
-    $job  = makeIngestionJob($user);
+    $job = makeIngestionJob($user);
 
     makeConceptMapping($job, ['review_tier' => ReviewTier::AutoAccepted, 'is_reviewed' => true]);
     makeConceptMapping($job, ['source_code' => 'ICD10:B02', 'review_tier' => ReviewTier::QuickReview]);
@@ -544,8 +543,8 @@ test('mappings stats returns counts by status', function () {
 });
 
 test('review approve updates mapping status', function () {
-    $user    = ingestionUser();
-    $job     = makeIngestionJob($user);
+    $user = ingestionUser();
+    $job = makeIngestionJob($user);
     $mapping = makeConceptMapping($job, ['is_reviewed' => false]);
 
     $response = $this->actingAs($user)
@@ -557,58 +556,58 @@ test('review approve updates mapping status', function () {
         ->assertJsonPath('data.is_reviewed', true);
 
     $this->assertDatabaseHas('concept_mappings', [
-        'id'          => $mapping->id,
+        'id' => $mapping->id,
         'is_reviewed' => true,
         'reviewer_id' => $user->id,
     ]);
 
     $this->assertDatabaseHas('mapping_reviews', [
         'concept_mapping_id' => $mapping->id,
-        'reviewer_id'        => $user->id,
+        'reviewer_id' => $user->id,
     ]);
 });
 
 test('review reject sets target concept to zero', function () {
-    $user    = ingestionUser();
-    $job     = makeIngestionJob($user);
+    $user = ingestionUser();
+    $job = makeIngestionJob($user);
     $mapping = makeConceptMapping($job);
 
     $this->actingAs($user)
         ->postJson("/api/v1/ingestion/jobs/{$job->id}/mappings/{$mapping->id}/review", [
-            'action'  => 'reject',
+            'action' => 'reject',
             'comment' => 'No valid mapping exists',
         ])
         ->assertStatus(200);
 
     $this->assertDatabaseHas('concept_mappings', [
-        'id'               => $mapping->id,
-        'target_concept_id'=> 0,
-        'is_reviewed'      => true,
+        'id' => $mapping->id,
+        'target_concept_id' => 0,
+        'is_reviewed' => true,
     ]);
 });
 
 test('review remap sets custom target concept', function () {
-    $user    = ingestionUser();
-    $job     = makeIngestionJob($user);
+    $user = ingestionUser();
+    $job = makeIngestionJob($user);
     $mapping = makeConceptMapping($job);
 
     $this->actingAs($user)
         ->postJson("/api/v1/ingestion/jobs/{$job->id}/mappings/{$mapping->id}/review", [
-            'action'            => 'remap',
+            'action' => 'remap',
             'target_concept_id' => 99999,
         ])
         ->assertStatus(200);
 
     $this->assertDatabaseHas('concept_mappings', [
-        'id'               => $mapping->id,
-        'target_concept_id'=> 99999,
-        'is_reviewed'      => true,
+        'id' => $mapping->id,
+        'target_concept_id' => 99999,
+        'is_reviewed' => true,
     ]);
 });
 
 test('review validates action field', function () {
-    $user    = ingestionUser();
-    $job     = makeIngestionJob($user);
+    $user = ingestionUser();
+    $job = makeIngestionJob($user);
     $mapping = makeConceptMapping($job);
 
     $this->actingAs($user)
@@ -629,7 +628,7 @@ test('mappings search returns results from database when solr unavailable', func
     });
 
     $user = ingestionUser();
-    $job  = makeIngestionJob($user);
+    $job = makeIngestionJob($user);
     makeConceptMapping($job, ['source_description' => 'Typhoid fever']);
 
     $response = $this->actingAs($user)
@@ -641,27 +640,27 @@ test('mappings search returns results from database when solr unavailable', func
 });
 
 test('candidates returns candidates for mapping ordered by rank', function () {
-    $user    = ingestionUser();
-    $job     = makeIngestionJob($user);
+    $user = ingestionUser();
+    $job = makeIngestionJob($user);
     $mapping = makeConceptMapping($job);
 
     $mapping->candidates()->create([
         'target_concept_id' => 4112343,
-        'concept_name'      => 'Typhoid fever',
-        'domain_id'         => 'Condition',
-        'vocabulary_id'     => 'SNOMED',
-        'strategy'          => 'exact_match',
-        'rank'              => 1,
-        'score'             => '0.9500',
+        'concept_name' => 'Typhoid fever',
+        'domain_id' => 'Condition',
+        'vocabulary_id' => 'SNOMED',
+        'strategy' => 'exact_match',
+        'rank' => 1,
+        'score' => '0.9500',
     ]);
     $mapping->candidates()->create([
         'target_concept_id' => 4298431,
-        'concept_name'      => 'Enteric fever',
-        'domain_id'         => 'Condition',
-        'vocabulary_id'     => 'SNOMED',
-        'strategy'          => 'synonym_match',
-        'rank'              => 2,
-        'score'             => '0.7800',
+        'concept_name' => 'Enteric fever',
+        'domain_id' => 'Condition',
+        'vocabulary_id' => 'SNOMED',
+        'strategy' => 'synonym_match',
+        'rank' => 2,
+        'score' => '0.7800',
     ]);
 
     $response = $this->actingAs($user)
@@ -681,30 +680,30 @@ test('candidates returns candidates for mapping ordered by rank', function () {
 
 test('validation returns check results grouped by category', function () {
     $user = ingestionUser();
-    $job  = makeIngestionJob($user);
+    $job = makeIngestionJob($user);
 
     $job->validationResults()->create([
-        'check_name'     => 'person_id_not_null',
+        'check_name' => 'person_id_not_null',
         'check_category' => 'completeness',
-        'cdm_table'      => 'person',
-        'cdm_column'     => 'person_id',
-        'severity'       => 'error',
-        'passed'         => true,
-        'violated_rows'  => 0,
-        'total_rows'     => 100,
-        'description'    => 'Person ID should not be null',
+        'cdm_table' => 'person',
+        'cdm_column' => 'person_id',
+        'severity' => 'error',
+        'passed' => true,
+        'violated_rows' => 0,
+        'total_rows' => 100,
+        'description' => 'Person ID should not be null',
     ]);
 
     $job->validationResults()->create([
-        'check_name'     => 'gender_valid_concept',
+        'check_name' => 'gender_valid_concept',
         'check_category' => 'conformance',
-        'cdm_table'      => 'person',
-        'cdm_column'     => 'gender_concept_id',
-        'severity'       => 'warning',
-        'passed'         => false,
-        'violated_rows'  => 5,
-        'total_rows'     => 100,
-        'description'    => 'Gender concept must be a valid OMOP concept',
+        'cdm_table' => 'person',
+        'cdm_column' => 'gender_concept_id',
+        'severity' => 'warning',
+        'passed' => false,
+        'violated_rows' => 5,
+        'total_rows' => 100,
+        'description' => 'Gender concept must be a valid OMOP concept',
     ]);
 
     $response = $this->actingAs($user)
@@ -720,39 +719,39 @@ test('validation returns check results grouped by category', function () {
 
 test('validation summary returns aggregated pass fail counts', function () {
     $user = ingestionUser();
-    $job  = makeIngestionJob($user);
+    $job = makeIngestionJob($user);
 
     $job->validationResults()->create([
-        'check_name'     => 'check_1',
+        'check_name' => 'check_1',
         'check_category' => 'completeness',
-        'cdm_table'      => 'person',
-        'severity'       => 'error',
-        'passed'         => true,
-        'violated_rows'  => 0,
-        'total_rows'     => 100,
-        'description'    => 'First check',
+        'cdm_table' => 'person',
+        'severity' => 'error',
+        'passed' => true,
+        'violated_rows' => 0,
+        'total_rows' => 100,
+        'description' => 'First check',
     ]);
 
     $job->validationResults()->create([
-        'check_name'     => 'check_2',
+        'check_name' => 'check_2',
         'check_category' => 'completeness',
-        'cdm_table'      => 'person',
-        'severity'       => 'error',
-        'passed'         => false,
-        'violated_rows'  => 10,
-        'total_rows'     => 100,
-        'description'    => 'Second check',
+        'cdm_table' => 'person',
+        'severity' => 'error',
+        'passed' => false,
+        'violated_rows' => 10,
+        'total_rows' => 100,
+        'description' => 'Second check',
     ]);
 
     $job->validationResults()->create([
-        'check_name'     => 'check_3',
+        'check_name' => 'check_3',
         'check_category' => 'conformance',
-        'cdm_table'      => 'visit_occurrence',
-        'severity'       => 'warning',
-        'passed'         => false,
-        'violated_rows'  => 2,
-        'total_rows'     => 100,
-        'description'    => 'Third check',
+        'cdm_table' => 'visit_occurrence',
+        'severity' => 'warning',
+        'passed' => false,
+        'violated_rows' => 2,
+        'total_rows' => 100,
+        'description' => 'Third check',
     ]);
 
     $response = $this->actingAs($user)
@@ -776,7 +775,7 @@ test('validation summary returns aggregated pass fail counts', function () {
 
 test('validation summary returns zero pass rate when no results', function () {
     $user = ingestionUser();
-    $job  = makeIngestionJob($user);
+    $job = makeIngestionJob($user);
 
     $response = $this->actingAs($user)
         ->getJson("/api/v1/ingestion/jobs/{$job->id}/validation/summary");
@@ -809,9 +808,9 @@ test('user cannot access another users job', function () {
 });
 
 test('viewer role cannot delete jobs', function () {
-    $viewer  = ingestionUser('viewer');
+    $viewer = ingestionUser('viewer');
     $steward = ingestionUser();
-    $job     = makeIngestionJob($steward);
+    $job = makeIngestionJob($steward);
 
     // Viewer does not have ingestion.delete permission
     // Routes don't have explicit permission middleware so this tests the scoping
@@ -828,12 +827,12 @@ test('data steward can upload files', function () {
     mockFileUploadService($this->app);
 
     $steward = ingestionUser('data-steward');
-    $source  = makeSource();
-    $file    = UploadedFile::fake()->createWithContent('data.csv', "id,value\n1,100\n");
+    $source = makeSource();
+    $file = UploadedFile::fake()->createWithContent('data.csv', "id,value\n1,100\n");
 
     $this->actingAs($steward)
         ->postJson('/api/v1/ingestion/upload', [
-            'file'      => $file,
+            'file' => $file,
             'source_id' => $source->id,
         ])
         ->assertStatus(201);
@@ -841,7 +840,7 @@ test('data steward can upload files', function () {
 
 test('batch review processes multiple mappings', function () {
     $user = ingestionUser();
-    $job  = makeIngestionJob($user);
+    $job = makeIngestionJob($user);
 
     $mapping1 = makeConceptMapping($job, ['source_code' => 'ICD10:A01']);
     $mapping2 = makeConceptMapping($job, ['source_code' => 'ICD10:A02', 'source_description' => 'Paratyphoid']);
@@ -859,12 +858,12 @@ test('batch review processes multiple mappings', function () {
         ->assertJsonPath('data.rejected', 1);
 
     $this->assertDatabaseHas('concept_mappings', [
-        'id'          => $mapping1->id,
+        'id' => $mapping1->id,
         'is_reviewed' => true,
     ]);
     $this->assertDatabaseHas('concept_mappings', [
-        'id'               => $mapping2->id,
-        'target_concept_id'=> 0,
-        'is_reviewed'      => true,
+        'id' => $mapping2->id,
+        'target_concept_id' => 0,
+        'is_reviewed' => true,
     ]);
 });

@@ -95,17 +95,19 @@ class GeographyService
     private function hasExposureData(string $exposureType): bool
     {
         $row = DB::connection('gis')->selectOne(
-            "SELECT EXISTS(SELECT 1 FROM gis.external_exposure WHERE exposure_type = ? LIMIT 1) AS has_data",
+            'SELECT EXISTS(SELECT 1 FROM gis.external_exposure WHERE exposure_type = ? LIMIT 1) AS has_data',
             [$exposureType]
         );
+
         return $row->has_data ?? false;
     }
 
     private function hasHospitalData(): bool
     {
         $row = DB::connection('gis')->selectOne(
-            "SELECT EXISTS(SELECT 1 FROM gis.gis_hospital LIMIT 1) AS has_data"
+            'SELECT EXISTS(SELECT 1 FROM gis.gis_hospital LIMIT 1) AS has_data'
         );
+
         return $row->has_data ?? false;
     }
 }

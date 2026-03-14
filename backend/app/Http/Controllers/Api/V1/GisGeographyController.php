@@ -27,6 +27,7 @@ class GisGeographyController extends Controller
     {
         $request->validate(['county' => 'required|string|size:5']);
         $tracts = $this->geographyService->tractsByCounty($request->input('county'));
+
         return response()->json(['data' => $tracts]);
     }
 }

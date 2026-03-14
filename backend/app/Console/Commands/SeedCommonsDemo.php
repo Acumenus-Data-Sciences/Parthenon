@@ -2,13 +2,14 @@
 
 namespace App\Console\Commands;
 
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 class SeedCommonsDemo extends Command
 {
     protected $signature = 'commons:seed-demo {--fresh : Clear existing commons data first}';
+
     protected $description = 'Seed Commons workspace with realistic demo data';
 
     public function handle(): int
@@ -35,6 +36,7 @@ class SeedCommonsDemo extends Command
 
         if (count($userIds) < 3) {
             $this->error('Need at least 3 users. Run admin:seed first.');
+
             return 1;
         }
 
@@ -98,8 +100,8 @@ class SeedCommonsDemo extends Command
         $generalId = $channelIds['general'];
         DB::table('commons_messages')->where('channel_id', $generalId)->delete();
 
-        $u = fn(int $idx) => $demoUsers[$idx % count($demoUsers)];
-        $uName = fn(int $id) => $users[$id]->name ?? 'User';
+        $u = fn (int $idx) => $demoUsers[$idx % count($demoUsers)];
+        $uName = fn (int $id) => $users[$id]->name ?? 'User';
 
         $generalMessages = [
             [
@@ -133,7 +135,7 @@ class SeedCommonsDemo extends Command
                 'at' => $dayAgo,
             ],
             [
-                'user_id' => $u(2), 'body' => "Just tried @Abby — asked about heart failure concept sets and she pulled up three different sets with validation stats from previous discussions. This is incredibly useful for institutional memory.",
+                'user_id' => $u(2), 'body' => 'Just tried @Abby — asked about heart failure concept sets and she pulled up three different sets with validation stats from previous discussions. This is incredibly useful for institutional memory.',
                 'at' => $dayAgo->copy()->addHours(3),
             ],
             [
@@ -151,7 +153,7 @@ class SeedCommonsDemo extends Command
                 'parent_idx' => 8,
             ],
             [
-                'user_id' => $u(3 % count($demoUsers)), 'body' => "Achilles run complete. Results are in the data explorer. Summary: **2,694 patients**, measurement completeness at 89%, condition mapping rate 97%. One concern: 12% of drug exposures have overlapping eras which may indicate ETL issues.",
+                'user_id' => $u(3 % count($demoUsers)), 'body' => 'Achilles run complete. Results are in the data explorer. Summary: **2,694 patients**, measurement completeness at 89%, condition mapping rate 97%. One concern: 12% of drug exposures have overlapping eras which may indicate ETL issues.',
                 'at' => $now->copy()->subHours(8),
             ],
             [
@@ -311,7 +313,7 @@ class SeedCommonsDemo extends Command
                 'channel_id' => null,
                 'user_id' => $u(0),
                 'title' => 'Achilles Characterization Complete — Review Results',
-                'body' => "Fresh Achilles characterization results are now available in the Data Explorer for the Acumenus CDM. Please review the data quality metrics for your study cohorts and flag any concerns in the #data-quality channel.",
+                'body' => 'Fresh Achilles characterization results are now available in the Data Explorer for the Acumenus CDM. Please review the data quality metrics for your study cohorts and flag any concerns in the #data-quality channel.',
                 'category' => 'data_update',
                 'is_pinned' => false,
                 'created_at' => $now->copy()->subHours(8),

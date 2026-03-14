@@ -81,7 +81,7 @@ class RuccAnalysisService
     /**
      * Full 9-category RUCC breakdown.
      */
-    public function countyDetail(string $fips): array|null
+    public function countyDetail(string $fips): ?array
     {
         $row = DB::connection('gis')->selectOne("
             SELECT
@@ -95,7 +95,9 @@ class RuccAnalysisService
             WHERE gl.geographic_code = ? AND gs.exposure_type = 'rucc'
         ", [$fips]);
 
-        if (!$row) return null;
+        if (! $row) {
+            return null;
+        }
 
         $result = (array) $row;
         $code = (int) $row->rucc_code;

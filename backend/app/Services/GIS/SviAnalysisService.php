@@ -18,7 +18,7 @@ class SviAnalysisService
         $exposureType = $theme === 'overall' ? 'svi_overall' : "svi_theme{$theme}";
         $locationType = $level === 'tract' ? 'census_tract' : 'county';
 
-        return DB::connection('gis')->select("
+        return DB::connection('gis')->select('
             SELECT
                 gl.geographic_location_id,
                 gl.location_name,
@@ -33,7 +33,7 @@ class SviAnalysisService
             WHERE gs.exposure_type = ?
               AND gl.location_type = ?
             ORDER BY gs.avg_value DESC
-        ", [$exposureType, $locationType]);
+        ', [$exposureType, $locationType]);
     }
 
     /**
@@ -116,7 +116,7 @@ class SviAnalysisService
     /**
      * Detail for a single tract.
      */
-    public function tractDetail(string $fips): array|null
+    public function tractDetail(string $fips): ?array
     {
         $locationType = strlen($fips) <= 5 ? 'county' : 'census_tract';
 

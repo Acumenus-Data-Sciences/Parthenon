@@ -7,7 +7,6 @@ use App\Events\Commons\MessageUpdated;
 use App\Models\Commons\Channel;
 use App\Models\Commons\ChannelMember;
 use App\Models\Commons\Message;
-use App\Services\Commons\UnreadService;
 use League\CommonMark\Environment\Environment;
 use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
 use League\CommonMark\Extension\DisallowedRawHtml\DisallowedRawHtmlExtension;
@@ -25,9 +24,9 @@ class MessageService
                 'disallowed_tags' => [],
             ],
         ]);
-        $environment->addExtension(new CommonMarkCoreExtension());
-        $environment->addExtension(new GithubFlavoredMarkdownExtension());
-        $environment->addExtension(new DisallowedRawHtmlExtension());
+        $environment->addExtension(new CommonMarkCoreExtension);
+        $environment->addExtension(new GithubFlavoredMarkdownExtension);
+        $environment->addExtension(new DisallowedRawHtmlExtension);
 
         $this->converter = new MarkdownConverter($environment);
     }

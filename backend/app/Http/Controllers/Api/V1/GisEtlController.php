@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Process;
 
 class GisEtlController extends Controller
 {
@@ -26,18 +26,19 @@ class GisEtlController extends Controller
      */
     public function load(Request $request, string $step): JsonResponse
     {
-        if (!isset(self::VALID_STEPS[$step])) {
+        if (! isset(self::VALID_STEPS[$step])) {
             return response()->json(['error' => "Invalid ETL step: {$step}"], 422);
         }
 
-        $script = self::SCRIPTS_DIR . '/' . self::VALID_STEPS[$step];
+        $script = self::SCRIPTS_DIR.'/'.self::VALID_STEPS[$step];
 
-        Log::info("GIS ETL triggered", ['step' => $step, 'script' => $script]);
+        Log::info('GIS ETL triggered', ['step' => $step, 'script' => $script]);
 
         $result = Process::timeout(600)->run("python3 {$script}");
 
         if ($result->failed()) {
-            Log::error("GIS ETL failed", ['step' => $step, 'output' => $result->errorOutput()]);
+            Log::error('GIS ETL failed', ['step' => $step, 'output' => $result->errorOutput()]);
+
             return response()->json([
                 'error' => 'ETL step failed',
                 'step' => $step,
@@ -59,7 +60,7 @@ class GisEtlController extends Controller
      */
     public function status(): JsonResponse
     {
-        $script = self::SCRIPTS_DIR . '/load_all.py';
+        $script = self::SCRIPTS_DIR.'/load_all.py';
         $result = Process::timeout(30)->run("python3 {$script} --step 5");
 
         return response()->json([

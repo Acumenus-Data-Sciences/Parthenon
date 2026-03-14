@@ -70,7 +70,7 @@ class DirectMessageController extends Controller
         // Find existing DM channel
         $channel = Channel::where('slug', $slug)->first();
 
-        if (!$channel) {
+        if (! $channel) {
             $channel = Channel::create([
                 'name' => "DM: {$currentUser->name} & {$targetUser->name}",
                 'slug' => $slug,

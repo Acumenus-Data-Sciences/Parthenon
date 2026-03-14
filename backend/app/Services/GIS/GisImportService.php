@@ -36,7 +36,7 @@ class GisImportService
 
         $delimiter = $format === 'tsv' ? "\t" : ',';
         $handle = fopen($path, 'r');
-        if (!$handle) {
+        if (! $handle) {
             throw new \RuntimeException("Cannot open file: {$path}");
         }
 
@@ -57,7 +57,7 @@ class GisImportService
         }
 
         // Strip UTF-8 BOM (EF BB BF) from the first header if present
-        if (!empty($headers[0]) && str_starts_with($headers[0], "\xEF\xBB\xBF")) {
+        if (! empty($headers[0]) && str_starts_with($headers[0], "\xEF\xBB\xBF")) {
             $headers[0] = substr($headers[0], 3);
         }
 
@@ -78,7 +78,7 @@ class GisImportService
     private function previewCsv(string $path, string $delimiter, int $maxRows): array
     {
         $handle = fopen($path, 'r');
-        if (!$handle) {
+        if (! $handle) {
             throw new \RuntimeException("Cannot open file: {$path}");
         }
 
@@ -95,7 +95,7 @@ class GisImportService
         }
 
         // Strip UTF-8 BOM (EF BB BF) from the first header if present
-        if (!empty($headers[0]) && str_starts_with($headers[0], "\xEF\xBB\xBF")) {
+        if (! empty($headers[0]) && str_starts_with($headers[0], "\xEF\xBB\xBF")) {
             $headers[0] = substr($headers[0], 3);
         }
 

@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\Services\GIS\GisImportService;
-use Illuminate\Http\UploadedFile;
 use Tests\TestCase;
 
 class GisImportTest extends TestCase
@@ -348,11 +347,11 @@ class GisImportTest extends TestCase
     public function test_preview_respects_max_rows_limit(): void
     {
         // Build a CSV with 100 data rows
-        $lines = ["col_a,col_b,col_c"];
+        $lines = ['col_a,col_b,col_c'];
         for ($i = 1; $i <= 100; $i++) {
             $lines[] = "{$i},value_{$i},extra_{$i}";
         }
-        $csv = implode("\n", $lines) . "\n";
+        $csv = implode("\n", $lines)."\n";
         $path = tempnam(sys_get_temp_dir(), 'gis_maxrows_');
         file_put_contents($path, $csv);
 

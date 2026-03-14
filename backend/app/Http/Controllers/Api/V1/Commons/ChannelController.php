@@ -7,13 +7,14 @@ use App\Http\Requests\Commons\CreateChannelRequest;
 use App\Http\Requests\Commons\UpdateChannelRequest;
 use App\Models\Commons\Channel;
 use App\Models\Commons\ChannelMember;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class ChannelController extends Controller
 {
     use AuthorizesRequests;
+
     public function index(Request $request): JsonResponse
     {
         $user = $request->user();

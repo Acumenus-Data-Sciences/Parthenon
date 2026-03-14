@@ -28,7 +28,7 @@ class ObjectReferenceController extends Controller
         $type = $request->input('type');
         $results = [];
 
-        if (!$type || $type === 'cohort_definition') {
+        if (! $type || $type === 'cohort_definition') {
             $cohorts = CohortDefinition::where('name', 'ilike', "%{$q}%")
                 ->limit(5)
                 ->get(['id', 'name', 'description', 'created_at']);
@@ -44,7 +44,7 @@ class ObjectReferenceController extends Controller
             }
         }
 
-        if (!$type || $type === 'concept_set') {
+        if (! $type || $type === 'concept_set') {
             $conceptSets = ConceptSet::where('name', 'ilike', "%{$q}%")
                 ->limit(5)
                 ->get(['id', 'name', 'description', 'created_at']);
@@ -60,7 +60,7 @@ class ObjectReferenceController extends Controller
             }
         }
 
-        if (!$type || $type === 'study') {
+        if (! $type || $type === 'study') {
             $studies = Study::where('title', 'ilike', "%{$q}%")
                 ->limit(5)
                 ->get(['id', 'title', 'description', 'status', 'created_at']);
@@ -77,7 +77,7 @@ class ObjectReferenceController extends Controller
             }
         }
 
-        if (!$type || $type === 'source') {
+        if (! $type || $type === 'source') {
             $sources = Source::where('source_name', 'ilike', "%{$q}%")
                 ->limit(5)
                 ->get(['source_id', 'source_name', 'source_key']);

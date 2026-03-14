@@ -11,7 +11,7 @@ from typing import Any
 import numpy as np
 
 
-def _lazy_import_pysal():
+def _lazy_import_pysal() -> tuple[Any, Any, Any, Any]:
     """Import PySAL modules on first call."""
     import libpysal
     from esda.moran import Moran

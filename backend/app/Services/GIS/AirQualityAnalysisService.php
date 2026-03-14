@@ -75,7 +75,7 @@ class AirQualityAnalysisService
     /**
      * County detail with both pollutant values.
      */
-    public function countyDetail(string $fips): array|null
+    public function countyDetail(string $fips): ?array
     {
         $row = DB::connection('gis')->selectOne("
             SELECT

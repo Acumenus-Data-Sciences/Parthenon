@@ -15,7 +15,7 @@ class ReactionUpdated implements ShouldBroadcast
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     /**
-     * @param array<string, array{count: int, users: list<array{id: int, name: string}>}> $summary
+     * @param  array<string, array{count: int, users: list<array{id: int, name: string}>}>  $summary
      */
     public function __construct(
         public Message $message,

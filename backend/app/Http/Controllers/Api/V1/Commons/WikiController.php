@@ -56,7 +56,7 @@ class WikiController extends Controller
         $baseSlug = $slug;
         $counter = 1;
         while (WikiArticle::where('slug', $slug)->exists()) {
-            $slug = $baseSlug . '-' . $counter++;
+            $slug = $baseSlug.'-'.$counter++;
         }
 
         $article = WikiArticle::create([

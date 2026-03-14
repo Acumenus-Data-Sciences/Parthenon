@@ -314,7 +314,7 @@ class IngestionPipelineTest extends TestCase
         }
 
         $path = tempnam(sys_get_temp_dir(), 'profiler_wide_');
-        file_put_contents($path, implode("\n", $lines) . "\n");
+        file_put_contents($path, implode("\n", $lines)."\n");
 
         $start = microtime(true);
         $result = $this->profiler->profile($path);

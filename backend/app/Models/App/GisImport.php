@@ -50,7 +50,7 @@ class GisImport extends Model
     {
         $timestamp = now()->format('H:i:s');
         $current = $this->log_output ?? '';
-        $this->update(['log_output' => $current . "[{$timestamp}] {$line}\n"]);
+        $this->update(['log_output' => $current."[{$timestamp}] {$line}\n"]);
     }
 
     public function markStatus(string $status, array $extra = []): void

@@ -17,6 +17,7 @@ class GisImportJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public int $timeout = 1800;
+
     public int $tries = 1;
 
     public function __construct(
@@ -35,7 +36,7 @@ class GisImportJob implements ShouldQueue
             $config = $this->import->config;
             $filePath = storage_path("app/gis-imports/{$this->import->id}/{$this->import->filename}");
 
-            if (!file_exists($filePath)) {
+            if (! file_exists($filePath)) {
                 throw new \RuntimeException("Import file not found: {$filePath}");
             }
 
@@ -47,12 +48,18 @@ class GisImportJob implements ShouldQueue
             $geoNameCol = null;
             $valueCol = null;
             foreach ($mapping as $col => $target) {
-                if ($target['purpose'] === 'geography_code') $geoCodeCol = $col;
-                if ($target['purpose'] === 'geography_name') $geoNameCol = $col;
-                if ($target['purpose'] === 'value') $valueCol = $col;
+                if ($target['purpose'] === 'geography_code') {
+                    $geoCodeCol = $col;
+                }
+                if ($target['purpose'] === 'geography_name') {
+                    $geoNameCol = $col;
+                }
+                if ($target['purpose'] === 'value') {
+                    $valueCol = $col;
+                }
             }
 
-            if (!$geoCodeCol) {
+            if (! $geoCodeCol) {
                 throw new \RuntimeException('No geography code column mapped');
             }
 
@@ -65,7 +72,7 @@ class GisImportJob implements ShouldQueue
                 $code = $row[$geoCodeCol] ?? '';
                 if ($code) {
                     $codes[$code] = true;
-                    if ($geoNameCol && !empty($row[$geoNameCol])) {
+                    if ($geoNameCol && ! empty($row[$geoNameCol])) {
                         $nameMap[$code] = $row[$geoNameCol];
                     }
                 }
@@ -73,7 +80,7 @@ class GisImportJob implements ShouldQueue
             }
             $uniqueCodes = array_keys($codes);
             $this->import->update(['row_count' => $totalRows]);
-            $this->import->appendLog("Found {$totalRows} rows, " . count($uniqueCodes) . " unique geographies");
+            $this->import->appendLog("Found {$totalRows} rows, ".count($uniqueCodes).' unique geographies');
 
             // Match geographies
             $geoType = $mapping[$geoCodeCol]['geo_type'] ?? 'custom';
@@ -88,7 +95,7 @@ class GisImportJob implements ShouldQueue
 
             // Create stubs for unmatched
             $stubs = [];
-            if (!empty($matchResult['unmatched'])) {
+            if (! empty($matchResult['unmatched'])) {
                 $stubs = $importService->createStubs(
                     $matchResult['unmatched'],
                     $matchResult['location_type'],
@@ -116,13 +123,15 @@ class GisImportJob implements ShouldQueue
             foreach ($importService->iterateFile($filePath, $format) as $row) {
                 $code = $row[$geoCodeCol] ?? '';
                 $geoId = $allGeoMap[$code] ?? null;
-                if (!$geoId) continue;
+                if (! $geoId) {
+                    continue;
+                }
 
                 if ($valueCol) {
                     $value = is_numeric($row[$valueCol]) ? (float) $row[$valueCol] : null;
                     $exposureType = $config['exposure_type'] ?? $valueCol;
 
-                    if (!isset($summaryRows[$code])) {
+                    if (! isset($summaryRows[$code])) {
                         $summaryRows[$code] = [
                             'geographic_location_id' => $geoId,
                             'exposure_type' => $exposureType,
@@ -152,7 +161,7 @@ class GisImportJob implements ShouldQueue
             }
 
             // Batch insert summaries
-            if (!empty($summaryRows)) {
+            if (! empty($summaryRows)) {
                 $inserted = $importService->insertGeographySummary(
                     array_values($summaryRows),
                     $this->import->id

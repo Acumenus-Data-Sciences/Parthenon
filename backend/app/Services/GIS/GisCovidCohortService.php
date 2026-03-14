@@ -2,8 +2,6 @@
 
 namespace App\Services\GIS;
 
-use Illuminate\Support\Facades\DB;
-
 class GisCovidCohortService
 {
     private const COVID_CONCEPT_ID = 37311061;
@@ -17,12 +15,12 @@ class GisCovidCohortService
     public function covidDiagnosisCte(int $conceptId = self::COVID_CONCEPT_ID): array
     {
         return [
-            'sql' => "covid_dx AS (
+            'sql' => 'covid_dx AS (
                 SELECT DISTINCT co.person_id,
                        co.condition_start_date AS index_date
                 FROM omop.condition_occurrence co
                 WHERE co.condition_concept_id = ?
-            )",
+            )',
             'bindings' => [$conceptId],
         ];
     }
@@ -79,7 +77,7 @@ class GisCovidCohortService
             $this->mortalityCte(),
         ];
 
-        $sql = "WITH " . implode(",\n", array_column($parts, 'sql'));
+        $sql = 'WITH '.implode(",\n", array_column($parts, 'sql'));
         $bindings = array_merge(...array_column($parts, 'bindings'));
 
         return ['sql' => $sql, 'bindings' => $bindings];

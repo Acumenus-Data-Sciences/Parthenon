@@ -146,7 +146,7 @@ class MessageController extends Controller
         $replies = Message::where('channel_id', $channel->id)
             ->where(function ($q) use ($parent, $childIds) {
                 $q->where('parent_id', $parent->id)
-                  ->orWhereIn('parent_id', $childIds);
+                    ->orWhereIn('parent_id', $childIds);
             })
             ->with('user:id,name')
             ->orderBy('created_at', 'asc')

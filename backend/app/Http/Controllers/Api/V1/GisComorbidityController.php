@@ -22,6 +22,7 @@ class GisComorbidityController extends Controller
     {
         $request->validate(['concept_id' => 'required|integer']);
         $data = $this->comorbidityService->hotspots((int) $request->input('concept_id'));
+
         return response()->json(['data' => $data]);
     }
 

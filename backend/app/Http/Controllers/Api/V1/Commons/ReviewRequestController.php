@@ -6,9 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Commons\Channel;
 use App\Models\Commons\Message;
 use App\Models\Commons\ReviewRequest;
+use App\Services\Commons\NotificationService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
-use App\Services\Commons\NotificationService;
 use Illuminate\Http\Request;
 
 class ReviewRequestController extends Controller

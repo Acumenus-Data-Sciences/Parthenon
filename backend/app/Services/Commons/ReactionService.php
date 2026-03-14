@@ -70,7 +70,7 @@ class ReactionService
      * Batch-load reaction summaries for a collection of messages.
      * Returns [message_id => summary].
      *
-     * @param Collection<int, Message> $messages
+     * @param  Collection<int, Message>  $messages
      * @return array<int, array<string, array{count: int, users: list<array{id: int, name: string}>}>>
      */
     public function getReactionSummaryForMessages(Collection $messages, ?User $currentUser): array
@@ -99,7 +99,7 @@ class ReactionService
     }
 
     /**
-     * @param Collection<int, Reaction> $reactions
+     * @param  Collection<int, Reaction>  $reactions
      * @return array<string, mixed>
      */
     private function buildSummary(Collection $reactions, ?User $currentUser): array

@@ -29,9 +29,11 @@ class AbbyGisService
             }
 
             Log::warning('Abby GIS analysis failed', ['status' => $response->status(), 'body' => $response->body()]);
+
             return $this->fallbackAnalysis($headers, $stats);
         } catch (\Throwable $e) {
             Log::warning('Abby GIS analysis error', ['error' => $e->getMessage()]);
+
             return $this->fallbackAnalysis($headers, $stats);
         }
     }
@@ -73,8 +75,8 @@ class AbbyGisService
             ->attach('file', file_get_contents($filePath), basename($filePath))
             ->post("{$this->aiServiceUrl}/gis-import/convert");
 
-        if (!$response->successful()) {
-            throw new \RuntimeException('Geo file conversion failed: ' . $response->body());
+        if (! $response->successful()) {
+            throw new \RuntimeException('Geo file conversion failed: '.$response->body());
         }
 
         return $response->json();

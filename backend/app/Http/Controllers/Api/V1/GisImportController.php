@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\GisImportUploadRequest;
-use App\Http\Requests\GisImportMappingRequest;
 use App\Http\Requests\GisImportConfigRequest;
+use App\Http\Requests\GisImportMappingRequest;
+use App\Http\Requests\GisImportUploadRequest;
 use App\Jobs\GisImportJob;
 use App\Models\App\GisImport;
 use App\Services\GIS\AbbyGisService;
@@ -159,7 +159,7 @@ class GisImportController extends Controller
             }
         }
 
-        if (!$geoCodeCol) {
+        if (! $geoCodeCol) {
             return response()->json(['error' => 'No geography code column mapped'], 422);
         }
 
@@ -188,7 +188,7 @@ class GisImportController extends Controller
     {
         $this->authorizeImport($import);
 
-        if (!in_array($import->status, ['configured', 'mapped'])) {
+        if (! in_array($import->status, ['configured', 'mapped'])) {
             return response()->json(['error' => 'Import must be configured before execution'], 422);
         }
 
@@ -224,7 +224,7 @@ class GisImportController extends Controller
      */
     public function rollback(GisImport $import): JsonResponse
     {
-        if (!request()->user()->can('gis.import.manage') && $import->user_id !== request()->user()->id) {
+        if (! request()->user()->can('gis.import.manage') && $import->user_id !== request()->user()->id) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -260,7 +260,7 @@ class GisImportController extends Controller
         $query = GisImport::with('user:id,name')
             ->orderByDesc('created_at');
 
-        if (!$request->user()->can('gis.import.manage')) {
+        if (! $request->user()->can('gis.import.manage')) {
             $query->where('user_id', $request->user()->id);
         }
 
@@ -273,7 +273,7 @@ class GisImportController extends Controller
 
     private function authorizeImport(GisImport $import): void
     {
-        if ($import->user_id !== request()->user()->id && !request()->user()->can('gis.import.manage')) {
+        if ($import->user_id !== request()->user()->id && ! request()->user()->can('gis.import.manage')) {
             abort(403, 'Unauthorized');
         }
     }

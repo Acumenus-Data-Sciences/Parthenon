@@ -37,12 +37,11 @@ use App\Http\Controllers\Api\V1\GisComorbidityController;
 use App\Http\Controllers\Api\V1\GisController;
 use App\Http\Controllers\Api\V1\GisEtlController;
 use App\Http\Controllers\Api\V1\GisGeographyController;
-use App\Http\Controllers\Api\V1\GisImportController;
 use App\Http\Controllers\Api\V1\GisHospitalController;
+use App\Http\Controllers\Api\V1\GisImportController;
 use App\Http\Controllers\Api\V1\GisRuccController;
 use App\Http\Controllers\Api\V1\GisSviController;
 use App\Http\Controllers\Api\V1\GlobalSearchController;
-use App\Services\GIS\SpatialStatsProxy;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\HecateController;
 use App\Http\Controllers\Api\V1\HelpController;
@@ -57,7 +56,6 @@ use App\Http\Controllers\Api\V1\NetworkAnalysisController;
 use App\Http\Controllers\Api\V1\NotificationPreferenceController;
 use App\Http\Controllers\Api\V1\OnboardingController;
 use App\Http\Controllers\Api\V1\PathwayController;
-use App\Http\Controllers\Api\V1\UserProfileController;
 use App\Http\Controllers\Api\V1\PatientProfileController;
 use App\Http\Controllers\Api\V1\PhenotypeLibraryController;
 use App\Http\Controllers\Api\V1\PopulationCharacterizationController;
@@ -81,8 +79,10 @@ use App\Http\Controllers\Api\V1\StudySynthesisController;
 use App\Http\Controllers\Api\V1\StudyTeamController;
 use App\Http\Controllers\Api\V1\SyntheaController;
 use App\Http\Controllers\Api\V1\TextToSqlController;
+use App\Http\Controllers\Api\V1\UserProfileController;
 use App\Http\Controllers\Api\V1\VocabularyController;
 use App\Http\Controllers\Api\V1\WhiteRabbitController;
+use App\Services\GIS\SpatialStatsProxy;
 use Illuminate\Support\Facades\Route;
 
 // Public health check
@@ -813,6 +813,7 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
                 'geography_level' => 'required|in:census_tract,county',
             ]);
             $proxy = app(SpatialStatsProxy::class);
+
             return response()->json(['data' => $proxy->compute($request->all())]);
         });
 

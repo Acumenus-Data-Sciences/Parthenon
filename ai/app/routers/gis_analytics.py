@@ -6,6 +6,8 @@ PySAL is lazy-loaded on first request to avoid startup penalty.
 
 from __future__ import annotations
 
+from typing import Any
+
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
@@ -41,7 +43,7 @@ class RegressionRequest(BaseModel):
 
 
 @router.post("/morans-i")
-async def morans_i(req: MoransIRequest):
+async def morans_i(req: MoransIRequest) -> dict[str, Any]:
     """Compute Moran's I spatial autocorrelation statistic."""
     if len(req.values) != len(req.coordinates):
         raise HTTPException(400, "values and coordinates must have same length")
@@ -55,7 +57,7 @@ async def morans_i(req: MoransIRequest):
 
 
 @router.post("/hotspots")
-async def hotspots(req: HotspotsRequest):
+async def hotspots(req: HotspotsRequest) -> dict[str, Any]:
     """Compute Getis-Ord Gi* hotspot analysis."""
     if len(req.values) != len(req.coordinates) or len(req.values) != len(req.fips_codes):
         raise HTTPException(400, "values, coordinates, and fips_codes must have same length")
@@ -69,7 +71,7 @@ async def hotspots(req: HotspotsRequest):
 
 
 @router.post("/correlation")
-async def correlation(req: CorrelationRequest):
+async def correlation(req: CorrelationRequest) -> dict[str, Any]:
     """Compute Pearson correlation between two variables."""
     if len(req.x_values) != len(req.y_values):
         raise HTTPException(400, "x_values and y_values must have same length")
@@ -83,7 +85,7 @@ async def correlation(req: CorrelationRequest):
 
 
 @router.post("/regression")
-async def regression(req: RegressionRequest):
+async def regression(req: RegressionRequest) -> dict[str, Any]:
     """OLS regression with spatial diagnostics."""
     if len(req.y_values) != len(req.x_matrix) or len(req.y_values) != len(req.coordinates):
         raise HTTPException(400, "y_values, x_matrix, and coordinates must have same length")
@@ -97,7 +99,7 @@ async def regression(req: RegressionRequest):
 
 
 @router.post("/drive-time")
-async def drive_time():
+async def drive_time() -> dict[str, Any]:
     """Drive-time isochrone computation (deferred — returns Haversine only)."""
     return {
         "data": {

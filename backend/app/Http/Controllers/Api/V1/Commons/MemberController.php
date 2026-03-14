@@ -6,13 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Models\Commons\Channel;
 use App\Models\Commons\ChannelMember;
 use App\Services\Commons\UnreadService;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class MemberController extends Controller
 {
     use AuthorizesRequests;
+
     public function index(string $slug): JsonResponse
     {
         $channel = Channel::where('slug', $slug)->firstOrFail();

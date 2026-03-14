@@ -40,10 +40,10 @@ class ImportSecurityTest extends TestCase
     private function makeGisImport(User $user, array $overrides = []): GisImport
     {
         return GisImport::create(array_merge([
-            'user_id'     => $user->id,
-            'filename'    => 'test.csv',
+            'user_id' => $user->id,
+            'filename' => 'test.csv',
             'import_mode' => 'tabular_geocode',
-            'status'      => 'uploaded',
+            'status' => 'uploaded',
         ], $overrides));
     }
 
@@ -52,18 +52,18 @@ class ImportSecurityTest extends TestCase
         $this->app->bind(GisImportService::class, function () {
             $mock = \Mockery::mock(GisImportService::class)->makePartial();
             $mock->shouldReceive('previewFile')->andReturn([
-                'headers'   => ['col1', 'col2'],
-                'rows'      => [['col1' => 'a', 'col2' => 'b']],
+                'headers' => ['col1', 'col2'],
+                'rows' => [['col1' => 'a', 'col2' => 'b']],
                 'row_count' => 1,
-                'encoding'  => 'UTF-8',
+                'encoding' => 'UTF-8',
             ]);
             $mock->shouldReceive('rollback')->andReturn(null);
             $mock->shouldReceive('columnStats')->andReturn([]);
             $mock->shouldReceive('detectGeoCodeType')->andReturn('custom');
             $mock->shouldReceive('matchGeographies')->andReturn([
-                'matched'       => [],
-                'unmatched'     => [],
-                'match_rate'    => 0.0,
+                'matched' => [],
+                'unmatched' => [],
+                'match_rate' => 0.0,
                 'location_type' => 'custom',
             ]);
 
@@ -253,11 +253,11 @@ class ImportSecurityTest extends TestCase
 
         $response = $this->actingAs($researcher)
             ->putJson("/api/v1/gis/import/{$import->id}/config", [
-                'layer_name'      => $xssPayload,
-                'exposure_type'   => 'social_vulnerability',
+                'layer_name' => $xssPayload,
+                'exposure_type' => 'social_vulnerability',
                 'geography_level' => 'county',
-                'value_type'      => 'continuous',
-                'aggregation'     => 'mean',
+                'value_type' => 'continuous',
+                'aggregation' => 'mean',
             ]);
 
         // layer_name max:100 — xss payload is short enough to pass length validation
@@ -296,7 +296,7 @@ class ImportSecurityTest extends TestCase
             ->putJson("/api/v1/gis/import/{$import->id}/mapping", [
                 'mapping' => [
                     $sqlPayload => ['purpose' => 'value'],
-                    'FIPS'      => ['purpose' => 'geography_code', 'geo_type' => 'fips_county'],
+                    'FIPS' => ['purpose' => 'geography_code', 'geo_type' => 'fips_county'],
                 ],
             ]);
 
@@ -442,7 +442,7 @@ class ImportSecurityTest extends TestCase
 
         $response = $this->actingAs($dataSteward)
             ->postJson('/api/v1/ingestion/upload', [
-                'file'      => $file,
+                'file' => $file,
                 'source_id' => $source->id,
             ]);
 
@@ -521,7 +521,7 @@ class ImportSecurityTest extends TestCase
 
         // Admin can rollback another user's completed import
         $researcherImport = $this->makeGisImport($researcher, [
-            'status'           => 'complete',
+            'status' => 'complete',
             'summary_snapshot' => [],
         ]);
 

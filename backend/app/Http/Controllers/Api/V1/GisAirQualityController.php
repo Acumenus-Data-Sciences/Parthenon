@@ -17,6 +17,7 @@ class GisAirQualityController extends Controller
     {
         $request->validate(['pollutant' => 'sometimes|in:pm25,ozone']);
         $data = $this->airQualityService->choropleth($request->input('pollutant', 'pm25'));
+
         return response()->json(['data' => $data]);
     }
 
