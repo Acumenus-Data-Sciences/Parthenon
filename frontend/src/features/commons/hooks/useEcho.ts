@@ -1,7 +1,8 @@
 import { useEffect, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { getEcho } from "@/lib/echo";
-import type { Message } from "../types";
+import { useAuthStore } from "@/stores/authStore";
+import type { Message, ReactionSummary } from "../types";
 
 const MESSAGES_KEY = "commons-messages";
 
@@ -71,6 +72,54 @@ export function useChannelSubscription(
               m.id === event.message.id ? { ...m, ...event.message } : m,
             );
           });
+        },
+      )
+      .listen(
+        "ReactionUpdated",
+        (event: {
+          message_id: number;
+          emoji: string;
+          user: { id: number; name: string };
+          action: "added" | "removed";
+          summary: Record<string, { count: number; users: { id: number; name: string }[] }>;
+        }) => {
+          const currentUserId = useAuthStore.getState().user?.id;
+
+          // Derive `reacted` for each emoji locally
+          const enrichedSummary: ReactionSummary = {};
+          for (const [emoji, data] of Object.entries(event.summary)) {
+            enrichedSummary[emoji] = {
+              ...data,
+              reacted: data.users.some((u) => u.id === currentUserId),
+            };
+          }
+
+          // Patch main message list
+          qc.setQueryData<Message[]>([MESSAGES_KEY, slug], (old) => {
+            if (!old) return old;
+            return old.map((m) =>
+              m.id === event.message_id
+                ? { ...m, reactions: enrichedSummary }
+                : m,
+            );
+          });
+
+          // Patch thread reply cache (for reactions on replies)
+          qc.getQueriesData<Message[]>({ queryKey: [MESSAGES_KEY, slug, "replies"] })
+            .forEach(([queryKey, data]) => {
+              if (!data) return;
+              const hasMessage = data.some((m) => m.id === event.message_id);
+              if (hasMessage) {
+                qc.setQueryData<Message[]>(queryKey, (old) => {
+                  if (!old) return old;
+                  return old.map((m) =>
+                    m.id === event.message_id
+                      ? { ...m, reactions: enrichedSummary }
+                      : m,
+                  );
+                });
+              }
+            });
         },
       );
 
