@@ -23,6 +23,61 @@ const defaultExpression: CohortExpression = {
   CollapseSettings: { CollapseType: "ERA", EraPad: 0 },
 };
 
+function normalizeCriteriaGroup(group?: CriteriaGroup): CriteriaGroup | undefined {
+  if (!group) return undefined;
+
+  return {
+    Type: group.Type ?? "ALL",
+    CriteriaList: group.CriteriaList ?? [],
+    Groups: (group.Groups ?? [])
+      .filter(Boolean)
+      .map((nested) => normalizeCriteriaGroup(nested) ?? {
+        Type: "ALL",
+        CriteriaList: [],
+        Groups: [],
+      }),
+  };
+}
+
+export function normalizeCohortExpression(
+  expression?: Partial<CohortExpression> | null,
+): CohortExpression {
+  const input = expression ?? {};
+  const conceptSets = (input.ConceptSets ?? [])
+    .filter(Boolean)
+    .map((conceptSet, index) => ({
+      ...conceptSet,
+      id: conceptSet.id ?? index,
+      name: conceptSet.name ?? `Concept Set ${index + 1}`,
+      expression: {
+        items: conceptSet.expression?.items ?? [],
+      },
+    }));
+
+  return {
+    ...defaultExpression,
+    ...input,
+    ConceptSets: conceptSets,
+    PrimaryCriteria: {
+      ...defaultExpression.PrimaryCriteria,
+      ...(input.PrimaryCriteria ?? {}),
+      CriteriaList: input.PrimaryCriteria?.CriteriaList ?? [],
+      ObservationWindow: {
+        ...defaultExpression.PrimaryCriteria.ObservationWindow,
+        ...(input.PrimaryCriteria?.ObservationWindow ?? {}),
+      },
+    },
+    AdditionalCriteria: normalizeCriteriaGroup(input.AdditionalCriteria),
+    CensoringCriteria: input.CensoringCriteria ?? [],
+    DemographicCriteria: input.DemographicCriteria ?? [],
+    GenomicCriteria: input.GenomicCriteria ?? [],
+    ImagingCriteria: input.ImagingCriteria ?? [],
+    QualifiedLimit: input.QualifiedLimit ?? defaultExpression.QualifiedLimit,
+    ExpressionLimit: input.ExpressionLimit ?? defaultExpression.ExpressionLimit,
+    CollapseSettings: input.CollapseSettings ?? defaultExpression.CollapseSettings,
+  };
+}
+
 interface CohortExpressionStore {
   expression: CohortExpression;
   isDirty: boolean;
@@ -301,13 +356,13 @@ export const useCohortExpressionStore = create<CohortExpressionStore>()(
     // -----------------------------------------------------------------------
     reset: (expression) =>
       set({
-        expression: expression ?? { ...defaultExpression },
+        expression: normalizeCohortExpression(expression),
         isDirty: false,
       }),
 
     loadExpression: (expression) =>
       set({
-        expression,
+        expression: normalizeCohortExpression(expression),
         isDirty: false,
       }),
   }),
