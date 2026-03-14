@@ -8,6 +8,7 @@ use App\Models\App\AnalysisExecution;
 use App\Models\App\Characterization;
 use App\Models\App\ExecutionLog;
 use App\Models\App\Source;
+use App\Support\CharacterizationResultNormalizer;
 use App\Services\Analysis\Features\ConditionFeatureBuilder;
 use App\Services\Analysis\Features\DemographicFeatureBuilder;
 use App\Services\Analysis\Features\DrugFeatureBuilder;
@@ -148,7 +149,7 @@ class CharacterizationService
             $execution->update([
                 'status' => ExecutionStatus::Completed,
                 'completed_at' => now(),
-                'result_json' => $results,
+                'result_json' => CharacterizationResultNormalizer::normalize($results),
             ]);
 
             $this->log($execution, 'info', 'Characterization execution completed');

@@ -4,6 +4,7 @@ import { LoginPage } from "@/features/auth/pages/LoginPage";
 import { RegisterPage } from "@/features/auth/pages/RegisterPage";
 import { DashboardPage } from "@/features/dashboard/pages/DashboardPage";
 import { SourcesListPage } from "@/features/data-sources/pages/SourcesListPage";
+import { AnalysisRouteError } from "@/features/analyses/components/AnalysisRouteError";
 import { useAuthStore } from "@/stores/authStore";
 
 function ProtectedLayout() {
@@ -186,6 +187,7 @@ export const router = createBrowserRouter(
           },
           {
             path: "characterizations/:id",
+            errorElement: <AnalysisRouteError title="Characterization" />,
             lazy: () =>
               import(
                 "@/features/analyses/pages/CharacterizationDetailPage"
@@ -193,6 +195,7 @@ export const router = createBrowserRouter(
           },
           {
             path: "incidence-rates/:id",
+            errorElement: <AnalysisRouteError title="Incidence Rate Analysis" />,
             lazy: () =>
               import(
                 "@/features/analyses/pages/IncidenceRateDetailPage"
@@ -200,6 +203,7 @@ export const router = createBrowserRouter(
           },
           {
             path: "pathways/:id",
+            errorElement: <AnalysisRouteError title="Pathway Analysis" />,
             lazy: () =>
               import(
                 "@/features/pathways/pages/PathwayDetailPage"
@@ -207,6 +211,7 @@ export const router = createBrowserRouter(
           },
           {
             path: "estimations/:id",
+            errorElement: <AnalysisRouteError title="Estimation Analysis" />,
             lazy: () =>
               import(
                 "@/features/estimation/pages/EstimationDetailPage"
@@ -214,6 +219,7 @@ export const router = createBrowserRouter(
           },
           {
             path: "predictions/:id",
+            errorElement: <AnalysisRouteError title="Prediction Analysis" />,
             lazy: () =>
               import(
                 "@/features/prediction/pages/PredictionDetailPage"
@@ -221,6 +227,7 @@ export const router = createBrowserRouter(
           },
           {
             path: "sccs/:id",
+            errorElement: <AnalysisRouteError title="SCCS Analysis" />,
             lazy: () =>
               import(
                 "@/features/sccs/pages/SccsDetailPage"
@@ -228,6 +235,7 @@ export const router = createBrowserRouter(
           },
           {
             path: "evidence-synthesis/:id",
+            errorElement: <AnalysisRouteError title="Evidence Synthesis Analysis" />,
             lazy: () =>
               import(
                 "@/features/evidence-synthesis/pages/EvidenceSynthesisDetailPage"

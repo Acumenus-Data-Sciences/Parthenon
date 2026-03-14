@@ -8,6 +8,7 @@ use App\Models\App\AnalysisExecution;
 use App\Models\App\ExecutionLog;
 use App\Models\App\PredictionAnalysis;
 use App\Models\App\Source;
+use App\Support\PredictionResultNormalizer;
 use App\Services\RService;
 use App\Services\SqlRenderer\SqlRendererService;
 use Illuminate\Support\Facades\Log;
@@ -97,7 +98,7 @@ class PredictionService
                 $execution->update([
                     'status' => ExecutionStatus::Completed,
                     'completed_at' => now(),
-                    'result_json' => [
+                    'result_json' => PredictionResultNormalizer::normalize([
                         'status' => 'r_not_implemented',
                         'message' => 'R PatientLevelPrediction package not yet configured. Results will be available once the R sidecar is fully implemented.',
                         'design_validated' => true,
@@ -110,7 +111,7 @@ class PredictionService
                             'test_fraction' => $splitSettings['testFraction'] ?? 0.25,
                             'covariate_count' => count(array_filter($covariateSettings, fn ($v) => $v === true)),
                         ],
-                    ],
+                    ]),
                 ]);
 
                 $this->log($execution, 'info', 'Prediction execution completed with placeholder result');
@@ -122,7 +123,7 @@ class PredictionService
             $execution->update([
                 'status' => ExecutionStatus::Completed,
                 'completed_at' => now(),
-                'result_json' => $result,
+                'result_json' => PredictionResultNormalizer::normalize($result),
             ]);
 
             $this->log($execution, 'info', 'Prediction execution completed');

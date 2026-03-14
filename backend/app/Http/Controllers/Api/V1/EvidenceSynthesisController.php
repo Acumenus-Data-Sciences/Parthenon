@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Jobs\Analysis\RunEvidenceSynthesisJob;
 use App\Models\App\AnalysisExecution;
 use App\Models\App\EvidenceSynthesisAnalysis;
+use App\Support\EvidenceSynthesisResultNormalizer;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -230,6 +231,10 @@ class EvidenceSynthesisController extends Controller
             $execution->load([
                 'logs' => fn ($q) => $q->orderBy('created_at'),
             ]);
+
+            if (is_array($execution->result_json)) {
+                $execution->result_json = EvidenceSynthesisResultNormalizer::normalize($execution->result_json);
+            }
 
             return response()->json([
                 'data' => $execution,

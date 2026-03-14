@@ -8,6 +8,7 @@ use App\Models\App\AnalysisExecution;
 use App\Models\App\ExecutionLog;
 use App\Models\App\SccsAnalysis;
 use App\Models\App\Source;
+use App\Support\SccsResultNormalizer;
 use App\Services\RService;
 use Illuminate\Support\Facades\Log;
 
@@ -84,11 +85,11 @@ class SccsService
                 $execution->update([
                     'status' => ExecutionStatus::Completed,
                     'completed_at' => now(),
-                    'result_json' => [
+                    'result_json' => SccsResultNormalizer::normalize([
                         'status' => 'r_not_implemented',
                         'message' => 'R SelfControlledCaseSeries package not yet configured.',
                         'design_validated' => true,
-                    ],
+                    ]),
                 ]);
 
                 return;
@@ -97,7 +98,7 @@ class SccsService
             $execution->update([
                 'status' => ExecutionStatus::Completed,
                 'completed_at' => now(),
-                'result_json' => $result,
+                'result_json' => SccsResultNormalizer::normalize($result),
             ]);
 
             $this->log($execution, 'info', 'SCCS execution completed');

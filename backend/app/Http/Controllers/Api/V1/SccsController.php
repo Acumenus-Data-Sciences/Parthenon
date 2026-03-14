@@ -8,6 +8,7 @@ use App\Jobs\Analysis\RunSccsJob;
 use App\Models\App\AnalysisExecution;
 use App\Models\App\SccsAnalysis;
 use App\Models\App\Source;
+use App\Support\SccsResultNormalizer;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -256,6 +257,10 @@ class SccsController extends Controller
                 'source:id,source_name,source_key',
                 'logs' => fn ($q) => $q->orderBy('created_at'),
             ]);
+
+            if (is_array($execution->result_json)) {
+                $execution->result_json = SccsResultNormalizer::normalize($execution->result_json);
+            }
 
             return response()->json([
                 'data' => $execution,

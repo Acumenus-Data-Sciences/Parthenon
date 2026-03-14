@@ -7,6 +7,7 @@ use App\Models\App\AnalysisExecution;
 use App\Models\App\EvidenceSynthesisAnalysis;
 use App\Models\App\ExecutionLog;
 use App\Services\RService;
+use App\Support\EvidenceSynthesisResultNormalizer;
 use Illuminate\Support\Facades\Log;
 
 class EvidenceSynthesisService
@@ -59,11 +60,11 @@ class EvidenceSynthesisService
                 $execution->update([
                     'status' => ExecutionStatus::Completed,
                     'completed_at' => now(),
-                    'result_json' => [
+                    'result_json' => EvidenceSynthesisResultNormalizer::normalize([
                         'status' => 'r_not_implemented',
                         'message' => 'R EvidenceSynthesis package not yet configured.',
                         'design_validated' => true,
-                    ],
+                    ]),
                 ]);
 
                 return;
@@ -72,7 +73,7 @@ class EvidenceSynthesisService
             $execution->update([
                 'status' => ExecutionStatus::Completed,
                 'completed_at' => now(),
-                'result_json' => $result,
+                'result_json' => EvidenceSynthesisResultNormalizer::normalize($result),
             ]);
 
             $this->log($execution, 'info', 'Evidence synthesis execution completed');

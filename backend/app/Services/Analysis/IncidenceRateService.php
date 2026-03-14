@@ -8,6 +8,7 @@ use App\Models\App\AnalysisExecution;
 use App\Models\App\ExecutionLog;
 use App\Models\App\IncidenceRateAnalysis;
 use App\Models\App\Source;
+use App\Support\IncidenceRateResultNormalizer;
 use App\Services\SqlRenderer\SqlRendererService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -95,7 +96,7 @@ class IncidenceRateService
             $execution->update([
                 'status' => ExecutionStatus::Completed,
                 'completed_at' => now(),
-                'result_json' => $results,
+                'result_json' => IncidenceRateResultNormalizer::normalize($results),
             ]);
 
             $this->log($execution, 'info', 'Incidence rate execution completed');

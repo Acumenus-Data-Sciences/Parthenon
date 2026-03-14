@@ -10,6 +10,7 @@ use App\Models\App\AnalysisExecution;
 use App\Models\App\IncidenceRateAnalysis;
 use App\Models\App\Source;
 use App\Services\Analysis\HadesBridgeService;
+use App\Support\IncidenceRateResultNormalizer;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -258,6 +259,10 @@ class IncidenceRateController extends Controller
                 'source:id,source_name,source_key',
                 'logs' => fn ($q) => $q->orderBy('created_at'),
             ]);
+
+            if (is_array($execution->result_json)) {
+                $execution->result_json = IncidenceRateResultNormalizer::normalize($execution->result_json);
+            }
 
             return response()->json([
                 'data' => $execution,

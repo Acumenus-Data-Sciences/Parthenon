@@ -11,6 +11,7 @@ use App\Models\App\Characterization;
 use App\Models\App\Source;
 use App\Services\Analysis\CharacterizationService;
 use App\Services\Analysis\HadesBridgeService;
+use App\Support\CharacterizationResultNormalizer;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -253,6 +254,10 @@ class CharacterizationController extends Controller
                 'source:id,source_name,source_key',
                 'logs' => fn ($q) => $q->orderBy('created_at'),
             ]);
+
+            if (is_array($execution->result_json)) {
+                $execution->result_json = CharacterizationResultNormalizer::normalize($execution->result_json);
+            }
 
             return response()->json([
                 'data' => $execution,

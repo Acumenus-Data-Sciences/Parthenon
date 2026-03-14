@@ -8,6 +8,7 @@ use App\Jobs\Analysis\RunPredictionJob;
 use App\Models\App\AnalysisExecution;
 use App\Models\App\PredictionAnalysis;
 use App\Models\App\Source;
+use App\Support\PredictionResultNormalizer;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -274,6 +275,10 @@ class PredictionController extends Controller
                 'source:id,source_name,source_key',
                 'logs' => fn ($q) => $q->orderBy('created_at'),
             ]);
+
+            if (is_array($execution->result_json)) {
+                $execution->result_json = PredictionResultNormalizer::normalize($execution->result_json);
+            }
 
             return response()->json([
                 'data' => $execution,
