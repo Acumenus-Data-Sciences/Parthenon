@@ -16,6 +16,77 @@ interface PredictionResultsProps {
   isLoading?: boolean;
 }
 
+function normalizeResult(result: PredictionResult): PredictionResult {
+  return {
+    ...result,
+    summary: {
+      target_count: result.summary?.target_count ?? 0,
+      outcome_count: result.summary?.outcome_count ?? 0,
+      outcome_rate: result.summary?.outcome_rate ?? 0,
+    },
+    performance: {
+      auc: result.performance?.auc ?? 0,
+      auc_ci_lower: result.performance?.auc_ci_lower ?? 0,
+      auc_ci_upper: result.performance?.auc_ci_upper ?? 0,
+      brier_score: result.performance?.brier_score ?? 0,
+      calibration_slope: result.performance?.calibration_slope ?? 0,
+      calibration_intercept: result.performance?.calibration_intercept ?? 0,
+      auprc: result.performance?.auprc,
+    },
+    top_predictors: Array.isArray(result.top_predictors)
+      ? result.top_predictors.map((predictor, index) => ({
+          covariate_name:
+            predictor?.covariate_name ?? `Predictor ${index + 1}`,
+          coefficient: predictor?.coefficient ?? 0,
+          importance: predictor?.importance ?? 0,
+        }))
+      : [],
+    roc_curve: Array.isArray(result.roc_curve) ? result.roc_curve : [],
+    precision_recall_curve: Array.isArray(result.precision_recall_curve)
+      ? result.precision_recall_curve
+      : [],
+    calibration: Array.isArray(result.calibration) ? result.calibration : [],
+    discrimination: result.discrimination
+      ? {
+          outcome_group: {
+            min: result.discrimination.outcome_group?.min ?? 0,
+            q1: result.discrimination.outcome_group?.q1 ?? 0,
+            median: result.discrimination.outcome_group?.median ?? 0,
+            q3: result.discrimination.outcome_group?.q3 ?? 0,
+            max: result.discrimination.outcome_group?.max ?? 0,
+            mean: result.discrimination.outcome_group?.mean ?? 0,
+          },
+          no_outcome_group: {
+            min: result.discrimination.no_outcome_group?.min ?? 0,
+            q1: result.discrimination.no_outcome_group?.q1 ?? 0,
+            median: result.discrimination.no_outcome_group?.median ?? 0,
+            q3: result.discrimination.no_outcome_group?.q3 ?? 0,
+            max: result.discrimination.no_outcome_group?.max ?? 0,
+            mean: result.discrimination.no_outcome_group?.mean ?? 0,
+          },
+        }
+      : undefined,
+    net_benefit: Array.isArray(result.net_benefit) ? result.net_benefit : [],
+    prediction_distribution: Array.isArray(result.prediction_distribution)
+      ? result.prediction_distribution
+      : [],
+    external_validation: Array.isArray(result.external_validation)
+      ? result.external_validation.map((validation, index) => ({
+          ...validation,
+          database_name: validation?.database_name ?? `Validation ${index + 1}`,
+          auc: validation?.auc ?? 0,
+          auc_ci_lower: validation?.auc_ci_lower ?? 0,
+          auc_ci_upper: validation?.auc_ci_upper ?? 0,
+          brier_score: validation?.brier_score ?? 0,
+          calibration_slope: validation?.calibration_slope ?? 0,
+          calibration_intercept: validation?.calibration_intercept ?? 0,
+          population_size: validation?.population_size ?? 0,
+          outcome_count: validation?.outcome_count ?? 0,
+        }))
+      : [],
+  };
+}
+
 function parseResults(
   execution: AnalysisExecution | null | undefined,
 ): PredictionResult | null {
@@ -63,7 +134,8 @@ export function PredictionResults({
     );
   }
 
-  const result = parseResults(execution);
+  const parsed = parseResults(execution);
+  const result = parsed ? normalizeResult(parsed) : null;
   if (!result) {
     return (
       <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-16">

@@ -43,11 +43,41 @@ function parseResults(
 ): CharacterizationResult[] {
   if (!execution?.result_json) return [];
   const json = execution.result_json;
-  if (Array.isArray(json)) return json as CharacterizationResult[];
+  if (Array.isArray(json)) return normalizeResults(json);
   if (typeof json === "object" && "results" in json) {
-    return (json as { results: CharacterizationResult[] }).results;
+    return normalizeResults((json as { results: CharacterizationResult[] }).results);
   }
   return [];
+}
+
+function normalizeResults(results: CharacterizationResult[]): CharacterizationResult[] {
+  if (!Array.isArray(results)) return [];
+
+  return results.map((result, index) => {
+    const features = result?.features ?? {};
+    const normalizedFeatures = Object.fromEntries(
+      Object.entries(features).map(([key, values]) => [
+        key,
+        Array.isArray(values)
+          ? values.map((feature, featureIndex) => ({
+              ...feature,
+              feature_name: feature?.feature_name ?? `Unnamed feature ${featureIndex + 1}`,
+              category: feature?.category ?? "",
+              count: feature?.count ?? 0,
+              percent: feature?.percent ?? 0,
+            }))
+          : [],
+      ]),
+    ) as Record<FeatureType, FeatureResult[]>;
+
+    return {
+      ...result,
+      cohort_id: result?.cohort_id ?? index,
+      cohort_name: result?.cohort_name ?? `Cohort #${result?.cohort_id ?? index}`,
+      person_count: result?.person_count ?? 0,
+      features: normalizedFeatures,
+    };
+  });
 }
 
 function getAvailableFeatureTypes(
@@ -110,7 +140,7 @@ function downloadCSV(results: CharacterizationResult[]) {
     for (const [type, features] of Object.entries(result.features)) {
       for (const f of features as FeatureResult[]) {
         rows.push(
-          `"${result.cohort_name}","${type}","${f.feature_name.replace(/"/g, '""')}",${f.count},${f.percent}`,
+          `"${result.cohort_name}","${type}","${(f.feature_name ?? "Unnamed feature").replace(/"/g, '""')}",${f.count ?? 0},${f.percent ?? 0}`,
         );
       }
     }
@@ -147,7 +177,7 @@ function Table1View({
     if (search.trim()) {
       const q = search.toLowerCase();
       data = data.filter((r) =>
-        r.covariate_name.toLowerCase().includes(q),
+        (r.covariate_name ?? "").toLowerCase().includes(q),
       );
     }
 
@@ -423,7 +453,7 @@ function TimeToEventSection({
           first.outcome_cohort_name ?? `Outcome #${first.outcome_cohort_id}`,
         ].join(" ");
 
-        const maxEvents = Math.max(...pairRows.map((r) => r.num_events), 1);
+        const maxEvents = pairRows.length > 0 ? Math.max(...pairRows.map((r) => r.num_events ?? 0), 1) : 1;
 
         return (
           <div key={key}>

@@ -54,11 +54,75 @@ function parseResults(
 ): IncidenceRateResult[] {
   if (!execution?.result_json) return [];
   const json = execution.result_json;
-  if (Array.isArray(json)) return json as IncidenceRateResult[];
+  if (Array.isArray(json)) return normalizeIncidenceRateResults(json);
   if (typeof json === "object" && "results" in json) {
-    return (json as { results: IncidenceRateResult[] }).results;
+    return normalizeIncidenceRateResults((json as { results: IncidenceRateResult[] }).results);
   }
   return [];
+}
+
+function normalizeIncidenceRateResults(
+  results: IncidenceRateResult[] | null | undefined,
+): IncidenceRateResult[] {
+  if (!Array.isArray(results)) return [];
+
+  return results.map((row, index) => ({
+    ...row,
+    outcome_cohort_id: row?.outcome_cohort_id ?? index,
+    outcome_cohort_name:
+      row?.outcome_cohort_name ?? `Outcome #${row?.outcome_cohort_id ?? index}`,
+    persons_at_risk: row?.persons_at_risk ?? 0,
+    persons_with_outcome: row?.persons_with_outcome ?? 0,
+    person_years: row?.person_years ?? 0,
+    incidence_rate: row?.incidence_rate ?? 0,
+    rate_95_ci_lower: row?.rate_95_ci_lower ?? 0,
+    rate_95_ci_upper: row?.rate_95_ci_upper ?? 0,
+    strata: Array.isArray(row?.strata)
+      ? row.strata.map((stratum) => ({
+          ...stratum,
+          stratum_name: stratum?.stratum_name ?? "Unknown stratum",
+          stratum_value: stratum?.stratum_value ?? "Unknown value",
+          persons_at_risk: stratum?.persons_at_risk ?? 0,
+          persons_with_outcome: stratum?.persons_with_outcome ?? 0,
+          person_years: stratum?.person_years ?? 0,
+          incidence_rate: stratum?.incidence_rate ?? 0,
+          rate_95_ci_lower: stratum?.rate_95_ci_lower ?? 0,
+          rate_95_ci_upper: stratum?.rate_95_ci_upper ?? 0,
+        }))
+      : [],
+  }));
+}
+
+function normalizeDirectCalcResponse(
+  directResults: DirectCalcResponse,
+): DirectCalcResponse {
+  return {
+    ...directResults,
+    incidence_rates: Array.isArray(directResults?.incidence_rates)
+      ? directResults.incidence_rates.map((row) => ({
+          ...row,
+          target_cohort_name:
+            row?.target_cohort_name ?? `Target #${row?.target_cohort_id ?? "?"}`,
+          outcome_cohort_name:
+            row?.outcome_cohort_name ?? `Outcome #${row?.outcome_cohort_id ?? "?"}`,
+          tar_label: row?.tar_label ?? `TAR #${row?.tar_id ?? "?"}`,
+          strata: Array.isArray(row?.strata) ? row.strata : [],
+        }))
+      : [],
+    summary: {
+      total_persons: directResults?.summary?.total_persons ?? 0,
+      total_person_years: directResults?.summary?.total_person_years ?? 0,
+      total_outcomes: directResults?.summary?.total_outcomes ?? 0,
+      sources_used: Array.isArray(directResults?.summary?.sources_used)
+        ? directResults.summary.sources_used
+        : [],
+    },
+    metadata: {
+      executed_at: directResults?.metadata?.executed_at ?? "",
+      duration_seconds: directResults?.metadata?.duration_seconds ?? 0,
+      r_version: directResults?.metadata?.r_version,
+    },
+  };
 }
 
 /** Convert DirectCalcRateRow[] to IncidenceRateResult[] for existing components */
@@ -72,7 +136,7 @@ function directRowsToResults(rows: DirectCalcRateRow[]): IncidenceRateResult[] {
     incidence_rate: row.incidence_rate,
     rate_95_ci_lower: row.rate_95_ci_lower,
     rate_95_ci_upper: row.rate_95_ci_upper,
-    strata: row.strata.map((s) => ({
+    strata: (row.strata ?? []).map((s) => ({
       stratum_name: s.stratum_name,
       stratum_value: s.stratum_value,
       persons_at_risk: s.persons_at_risk,
@@ -335,8 +399,9 @@ function StratumPanel({
 
   const maxIR = Math.max(...rows.map((r) => num(r.stratum.incidence_rate)), 1);
 
-  const isGender = stratumName.toLowerCase().includes("gender");
-  const isAge = stratumName.toLowerCase().includes("age");
+  const normalizedStratumName = (stratumName ?? "").toLowerCase();
+  const isGender = normalizedStratumName.includes("gender");
+  const isAge = normalizedStratumName.includes("age");
 
   return (
     <div className="panel" style={{ padding: 0, overflow: "hidden" }}>
@@ -351,7 +416,7 @@ function StratumPanel({
         {rows.map((row, i) => {
           const barWidth = maxIR > 0 ? (num(row.stratum.incidence_rate) / maxIR) * 100 : 0;
           const barColor = isGender
-            ? row.stratum.stratum_value.toLowerCase().includes("female")
+            ? (row.stratum.stratum_value ?? "").toLowerCase().includes("female")
               ? "#9B1B30"
               : "#2DD4BF"
             : "#C9A227";
@@ -989,7 +1054,8 @@ export function IncidenceRateResults({
 
   // Direct calc results take priority
   if (directResults) {
-    if (directResults.incidence_rates.length === 0) {
+    const normalizedDirectResults = normalizeDirectCalcResponse(directResults);
+    if (normalizedDirectResults.incidence_rates.length === 0) {
       return (
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-16">
           <AlertCircle size={24} className="text-[#323238] mb-3" />
@@ -1001,7 +1067,7 @@ export function IncidenceRateResults({
     }
     return (
       <DirectCalcResultsPanel
-        directResults={directResults}
+        directResults={normalizedDirectResults}
         sortField={sortField}
         sortDir={sortDir}
         onSort={handleSort}

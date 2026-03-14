@@ -51,8 +51,8 @@ const DOMAIN_ORDER = [
 ];
 
 function classifyDomain(category: string, featureName: string): string {
-  const catLower = category.toLowerCase();
-  const nameLower = featureName.toLowerCase();
+  const catLower = (category ?? "").toLowerCase();
+  const nameLower = (featureName ?? "").toLowerCase();
 
   if (catLower === "demographics" || catLower === "demographic") return "Demographics";
   if (catLower === "conditions" || catLower === "condition") return "Conditions";
@@ -105,12 +105,13 @@ export function FeatureComparisonTable({
   const mergedRows = useMemo<MergedRow[]>(() => {
     const map = new Map<string, MergedRow>();
 
-    for (const f of targetFeatures) {
-      map.set(f.feature_name, {
-        feature_name: f.feature_name,
-        category: f.category,
-        target_count: f.count,
-        target_percent: f.percent,
+    for (const f of targetFeatures ?? []) {
+      const featureName = f.feature_name ?? "Unnamed feature";
+      map.set(featureName, {
+        feature_name: featureName,
+        category: f.category ?? "",
+        target_count: f.count ?? 0,
+        target_percent: f.percent ?? 0,
         comparator_count: 0,
         comparator_percent: 0,
         smd: null,
@@ -119,22 +120,23 @@ export function FeatureComparisonTable({
 
     if (comparatorFeatures) {
       for (const f of comparatorFeatures) {
-        const existing = map.get(f.feature_name);
+        const featureName = f.feature_name ?? "Unnamed feature";
+        const existing = map.get(featureName);
         if (existing) {
-          existing.comparator_count = f.count;
-          existing.comparator_percent = f.percent;
+          existing.comparator_count = f.count ?? 0;
+          existing.comparator_percent = f.percent ?? 0;
           existing.smd = computeSMD(
             existing.target_percent / 100,
-            f.percent / 100,
+            (f.percent ?? 0) / 100,
           );
         } else {
-          map.set(f.feature_name, {
-            feature_name: f.feature_name,
-            category: f.category,
+          map.set(featureName, {
+            feature_name: featureName,
+            category: f.category ?? "",
             target_count: 0,
             target_percent: 0,
-            comparator_count: f.count,
-            comparator_percent: f.percent,
+            comparator_count: f.count ?? 0,
+            comparator_percent: f.percent ?? 0,
             smd: null,
           });
         }
@@ -149,7 +151,9 @@ export function FeatureComparisonTable({
 
     if (search.trim()) {
       const q = search.toLowerCase();
-      rows = rows.filter((r) => r.feature_name.toLowerCase().includes(q));
+      rows = rows.filter((r) =>
+        (r.feature_name ?? "").toLowerCase().includes(q),
+      );
     }
 
     rows = [...rows].sort((a, b) => {
