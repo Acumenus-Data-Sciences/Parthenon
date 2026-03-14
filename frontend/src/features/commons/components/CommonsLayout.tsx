@@ -1,8 +1,10 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
-import { useChannels, useChannel, useMessages, useSendMessage, useMarkRead } from "../api";
+import { useChannels, useChannel, useMessages, useSendMessage, useMarkRead, useMembers } from "../api";
 import { usePresence } from "../hooks/usePresence";
 import { useChannelSubscription } from "../hooks/useEcho";
+import { useTypingIndicator } from "../hooks/useTypingIndicator";
+import { useAuthStore } from "@/stores/authStore";
 import { ChannelList } from "./sidebar/ChannelList";
 import { OnlineUsers } from "./sidebar/OnlineUsers";
 import { ChannelHeader } from "./chat/ChannelHeader";
@@ -14,13 +16,16 @@ export function CommonsLayout() {
   const { slug } = useParams<{ slug?: string }>();
   const navigate = useNavigate();
   const activeSlug = slug ?? "general";
+  const user = useAuthStore((s) => s.user);
 
   const { data: channels = [], isLoading: channelsLoading } = useChannels();
   const { data: channel } = useChannel(activeSlug);
   const { data: messages = [], isLoading: messagesLoading } = useMessages(activeSlug);
+  const { data: members = [] } = useMembers(activeSlug);
   const sendMessage = useSendMessage();
   const markRead = useMarkRead();
   const onlineUsers = usePresence();
+  const { isTyping, sendTypingWhisper } = useTypingIndicator(channel?.id);
 
   // Subscribe to real-time events for the active channel
   useChannelSubscription(channel?.id, activeSlug);
@@ -43,6 +48,10 @@ export function CommonsLayout() {
     sendMessage.mutate({ slug: activeSlug, body });
   }
 
+  // Check if current user is admin/owner in this channel
+  const currentMember = members.find((m) => m.user_id === user?.id);
+  const isAdmin = currentMember?.role === "admin" || currentMember?.role === "owner";
+
   return (
     <div className="flex h-[calc(100vh-64px)]">
       {/* Left sidebar */}
@@ -63,12 +72,20 @@ export function CommonsLayout() {
       {/* Center chat area */}
       <div className="flex flex-1 flex-col">
         {channel && <ChannelHeader channel={channel} />}
-        <MessageList messages={messages} isLoading={messagesLoading} />
+        <MessageList
+          messages={messages}
+          isLoading={messagesLoading}
+          slug={activeSlug}
+          currentUserId={user?.id ?? 0}
+          isAdmin={isAdmin}
+          isTyping={isTyping}
+        />
         {channel && (
           <MessageComposer
             channelName={channel.slug}
             onSend={handleSend}
             disabled={sendMessage.isPending}
+            onKeyDown={sendTypingWhisper}
           />
         )}
       </div>

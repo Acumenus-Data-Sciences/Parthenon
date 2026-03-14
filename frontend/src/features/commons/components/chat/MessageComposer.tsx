@@ -5,9 +5,10 @@ interface MessageComposerProps {
   channelName: string;
   onSend: (body: string) => void;
   disabled?: boolean;
+  onKeyDown?: () => void;
 }
 
-export function MessageComposer({ channelName, onSend, disabled }: MessageComposerProps) {
+export function MessageComposer({ channelName, onSend, disabled, onKeyDown }: MessageComposerProps) {
   const [body, setBody] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -20,6 +21,7 @@ export function MessageComposer({ channelName, onSend, disabled }: MessageCompos
   }
 
   function handleKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
+    onKeyDown?.();
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSubmit();
