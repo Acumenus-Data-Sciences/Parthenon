@@ -12,6 +12,8 @@ import {
   RefreshCw,
   Clock,
   X,
+  BookOpen,
+  FileText,
 } from "lucide-react";
 import { Panel, Button, Badge } from "@/components/ui";
 import {
@@ -21,6 +23,8 @@ import {
   ingestDocs,
   ingestClinical,
   promoteFaq,
+  ingestOhdsiPapers,
+  ingestOhdsiKnowledge,
   type CollectionSummary,
   type CollectionOverview,
   type QueryResponse,
@@ -36,6 +40,8 @@ const ADMIN_ACTIONS = [
   { key: "ingest-docs", label: "Ingest Docs", icon: Upload, fn: () => ingestDocs() },
   { key: "ingest-clinical", label: "Ingest Clinical", icon: Stethoscope, fn: () => ingestClinical() },
   { key: "promote-faq", label: "Promote FAQ", icon: MessageSquare, fn: () => promoteFaq() },
+  { key: "ingest-ohdsi-papers", label: "Ingest OHDSI Papers", icon: FileText, fn: () => ingestOhdsiPapers() },
+  { key: "ingest-ohdsi-knowledge", label: "Ingest OHDSI Knowledge", icon: BookOpen, fn: () => ingestOhdsiKnowledge() },
 ] as const;
 
 const TABS = [

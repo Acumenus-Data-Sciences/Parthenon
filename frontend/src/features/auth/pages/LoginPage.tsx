@@ -202,7 +202,7 @@ export function LoginPage() {
           >
             Open source on{" "}
             <a
-              href="https://github.com/acumenus/parthenon"
+              href="https://github.com/sudoshi/Parthenon"
               target="_blank"
               rel="noopener noreferrer"
               style={{ color: "var(--text-muted)", textDecoration: "none", borderBottom: "1px solid var(--text-ghost)" }}

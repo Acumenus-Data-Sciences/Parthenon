@@ -144,6 +144,12 @@ export const promoteFaq = (days = 7) =>
     .post<IngestResult>("/admin/chroma-studio/promote-faq", null, { params: { days } })
     .then((r) => r.data);
 
+export const ingestOhdsiPapers = () =>
+  apiClient.post<IngestResult>("/admin/chroma-studio/ingest-ohdsi-papers").then((r) => r.data);
+
+export const ingestOhdsiKnowledge = () =>
+  apiClient.post<Record<string, IngestResult>>("/admin/chroma-studio/ingest-ohdsi-knowledge").then((r) => r.data);
+
 export const fetchProjection = (
   name: string,
   request: ProjectionRequest & { refresh?: boolean },

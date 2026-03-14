@@ -70,4 +70,4 @@ We're deep in the foundation and core analytics phases right now, shipping featu
 
 ---
 
-*Parthenon is open-source and available at [github.com/acumenus/parthenon](https://github.com/acumenus/parthenon). Built by [Acumenus Data Sciences](https://www.acumenus.io).*
+*Parthenon is open-source and available at [github.com/sudoshi/Parthenon](https://github.com/sudoshi/Parthenon). Built by [Acumenus Data Sciences](https://www.acumenus.io).*

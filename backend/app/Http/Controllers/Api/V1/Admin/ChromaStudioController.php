@@ -129,6 +129,36 @@ class ChromaStudioController extends Controller
         return response()->json($response->json());
     }
 
+    /** Trigger OHDSI research paper ingestion (PDFs). */
+    public function ingestOhdsiPapers(): JsonResponse
+    {
+        $response = Http::timeout(600)->post("{$this->aiUrl()}/chroma/ingest-ohdsi-papers");
+
+        if (! $response->successful()) {
+            return response()->json(
+                ['error' => $response->json('detail') ?? 'OHDSI paper ingestion failed.'],
+                $response->status() ?: 502,
+            );
+        }
+
+        return response()->json($response->json());
+    }
+
+    /** Trigger OHDSI knowledge ingestion (Book, HADES, Forums). */
+    public function ingestOhdsiKnowledge(): JsonResponse
+    {
+        $response = Http::timeout(600)->post("{$this->aiUrl()}/chroma/ingest-ohdsi-knowledge");
+
+        if (! $response->successful()) {
+            return response()->json(
+                ['error' => $response->json('detail') ?? 'OHDSI knowledge ingestion failed.'],
+                $response->status() ?: 502,
+            );
+        }
+
+        return response()->json($response->json());
+    }
+
     /**
      * Get 3D projection for a collection's embeddings.
      *

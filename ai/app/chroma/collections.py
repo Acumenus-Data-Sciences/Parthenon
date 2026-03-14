@@ -51,3 +51,17 @@ def get_clinical_collection() -> Collection:
         embedding_function=get_clinical_embedder(),  # type: ignore[arg-type]
         metadata={"hnsw:space": "cosine"},
     )
+
+
+def get_ohdsi_papers_collection() -> Collection:
+    """OHDSI research papers collection using SapBERT (768-dim).
+
+    Contains chunked text from open-access publications by OHDSI community
+    members, used to ground Abby's responses in peer-reviewed literature.
+    """
+    client = get_chroma_client()
+    return client.get_or_create_collection(
+        name="ohdsi_papers",
+        embedding_function=get_clinical_embedder(),  # type: ignore[arg-type]
+        metadata={"hnsw:space": "cosine"},
+    )

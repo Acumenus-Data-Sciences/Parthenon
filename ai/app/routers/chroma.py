@@ -10,7 +10,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 from app.chroma.client import check_health, get_chroma_client
-from app.chroma.ingestion import ingest_docs_directory
+from app.chroma.ingestion import ingest_docs_directory, ingest_ohdsi_corpus, ingest_ohdsi_knowledge
 from app.chroma.faq import promote_frequent_questions
 from app.chroma.memory import prune_old_conversations
 from app.chroma.clinical import ingest_clinical_concepts
@@ -52,6 +52,39 @@ async def promote_faq(days: int = 7) -> dict:
 async def ingest_clinical(limit: int | None = None) -> dict:
     """Trigger clinical concept ingestion from OMOP vocabulary."""
     return ingest_clinical_concepts(limit=limit)
+
+
+OHDSI_CORPUS_DIR = os.environ.get("OHDSI_CORPUS_DIR", "/app/ohdsi_corpus")
+
+
+@router.post("/ingest-ohdsi-papers")
+async def ingest_ohdsi_papers(corpus_dir: str | None = None) -> dict:
+    """Ingest OHDSI research papers from harvested PDF corpus.
+
+    Extracts text from PDFs, chunks, and embeds with SapBERT into
+    the ohdsi_papers collection for RAG retrieval on clinical pages.
+    """
+    target_dir = corpus_dir or OHDSI_CORPUS_DIR
+    return ingest_ohdsi_corpus(target_dir)
+
+
+OHDSI_BOOK_DIR = os.environ.get("OHDSI_BOOK_DIR", "/app/book_of_ohdsi")
+OHDSI_VIGNETTES_DIR = os.environ.get("OHDSI_VIGNETTES_DIR", "/app/hades_vignettes")
+OHDSI_FORUMS_DIR = os.environ.get("OHDSI_FORUMS_DIR", "/app/ohdsi_forums")
+
+
+@router.post("/ingest-ohdsi-knowledge")
+async def ingest_knowledge() -> dict:
+    """Ingest supplementary OHDSI knowledge sources.
+
+    Ingests Book of OHDSI, HADES vignettes, and forum threads into
+    the ohdsi_papers collection for comprehensive RAG retrieval.
+    """
+    return ingest_ohdsi_knowledge(
+        book_dir=OHDSI_BOOK_DIR,
+        vignettes_dir=OHDSI_VIGNETTES_DIR,
+        forums_dir=OHDSI_FORUMS_DIR,
+    )
 
 
 # ── Studio Inspection Endpoints ──────────────────────────────────────────────

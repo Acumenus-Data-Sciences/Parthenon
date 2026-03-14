@@ -133,6 +133,24 @@ def query_clinical(
         return []
 
 
+def query_ohdsi_papers(
+    query: str,
+    top_k: int = DEFAULT_TOP_K,
+    threshold: float = DEFAULT_THRESHOLD,
+) -> list[dict[str, object]]:
+    """Query the OHDSI research papers collection (SapBERT embeddings)."""
+    try:
+        from app.chroma.collections import get_ohdsi_papers_collection
+        collection = get_ohdsi_papers_collection()
+        if collection.count() == 0:
+            return []
+        results = collection.query(query_texts=[query], n_results=top_k)
+        return _extract_query_results(results, threshold)
+    except Exception as e:
+        logger.warning("OHDSI papers query failed: %s", e)
+        return []
+
+
 def build_rag_context(
     query: str,
     page_context: str,
@@ -166,6 +184,16 @@ def build_rag_context(
         if clinical_results:
             clin_texts = "\n".join(f"- {r['text']}" for r in clinical_results[:3])
             sections.append(f"Clinical reference:\n{clin_texts}")
+
+        ohdsi_results = query_ohdsi_papers(query)
+        if ohdsi_results:
+            paper_texts = []
+            for r in ohdsi_results[:3]:
+                title = r.get("source", "")
+                if isinstance(r.get("text"), str):
+                    paper_texts.append(f"- {r['text']}")
+            if paper_texts:
+                sections.append(f"OHDSI research literature:\n" + "\n".join(paper_texts))
 
     if not sections:
         return ""

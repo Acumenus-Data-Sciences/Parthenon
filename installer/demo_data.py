@@ -98,7 +98,7 @@ GIAB_SAMPLES: dict[str, dict[str, str]] = {
 # Download via TCIA REST API or NBIA Data Retriever
 DICOM_DATASETS: dict[str, dict[str, Any]] = {
     "class3-malocclusion": {
-        "url": "https://github.com/acumenus/parthenon-demo-data/releases/download/v1.0/class3-malocclusion.tar.gz",
+        "url": "https://github.com/sudoshi/parthenon-demo-data/releases/download/v1.0/class3-malocclusion.tar.gz",
         "filename": "class3-malocclusion.tar.gz",
         "extract_to": "dicom_samples/Class-3-malocclusion",
         "size_mb": 23,

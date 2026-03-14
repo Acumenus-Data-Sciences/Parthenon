@@ -106,3 +106,11 @@ docs/site/.docusaurus/
 backend/api.json
 frontend/src/types/api.generated.ts
 .superpowers/
+
+# OHDSI Scraper corpus data (large, generated locally)
+OHDSI-scraper/ohdsi_corpus/
+OHDSI-scraper/book_of_ohdsi/
+OHDSI-scraper/hades_vignettes/
+OHDSI-scraper/ohdsi_forums/
+OHDSI-scraper/harvester.log
+OHDSI-scraper/*.env

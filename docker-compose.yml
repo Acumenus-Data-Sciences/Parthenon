@@ -134,6 +134,10 @@ services:
       - ./backend/resources/help:/var/www/html/resources/help:ro
       - ./docs:/app/docs:ro
       - ./GIS:/app/gis_data:ro
+      - ./OHDSI-scraper/ohdsi_corpus:/app/ohdsi_corpus:ro
+      - ./OHDSI-scraper/book_of_ohdsi:/app/book_of_ohdsi:ro
+      - ./OHDSI-scraper/hades_vignettes:/app/hades_vignettes:ro
+      - ./OHDSI-scraper/ohdsi_forums:/app/ohdsi_forums:ro
     environment:
       - DATABASE_URL=postgresql://parthenon:${DB_PASSWORD:-secret}@postgres:5432/parthenon
       - GIS_DATABASE_URL=postgresql://smudoshi:acumenus@host.docker.internal:5432/ohdsi
