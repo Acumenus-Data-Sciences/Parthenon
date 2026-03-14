@@ -917,6 +917,7 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     Route::prefix('commons')->group(function () {
         Route::get('channels', [App\Http\Controllers\Api\V1\Commons\ChannelController::class, 'index']);
         Route::post('channels', [App\Http\Controllers\Api\V1\Commons\ChannelController::class, 'store']);
+        Route::get('channels/unread', [App\Http\Controllers\Api\V1\Commons\MemberController::class, 'unreadCounts']);
         Route::get('channels/{slug}', [App\Http\Controllers\Api\V1\Commons\ChannelController::class, 'show']);
         Route::patch('channels/{slug}', [App\Http\Controllers\Api\V1\Commons\ChannelController::class, 'update']);
         Route::post('channels/{slug}/archive', [App\Http\Controllers\Api\V1\Commons\ChannelController::class, 'archive']);
@@ -932,6 +933,8 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         Route::post('channels/{slug}/members', [App\Http\Controllers\Api\V1\Commons\MemberController::class, 'store']);
         Route::delete('channels/{slug}/members/{memberId}', [App\Http\Controllers\Api\V1\Commons\MemberController::class, 'destroy']);
         Route::post('channels/{slug}/read', [App\Http\Controllers\Api\V1\Commons\MemberController::class, 'markRead']);
+        Route::post('messages/{id}/reactions', [App\Http\Controllers\Api\V1\Commons\ReactionController::class, 'toggle'])
+            ->middleware('throttle:30,1');
     });
 });
 

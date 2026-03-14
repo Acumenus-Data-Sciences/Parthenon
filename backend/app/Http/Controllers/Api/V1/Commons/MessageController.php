@@ -8,6 +8,7 @@ use App\Http\Requests\Commons\UpdateMessageRequest;
 use App\Models\Commons\Channel;
 use App\Models\Commons\Message;
 use App\Services\Commons\MessageService;
+use App\Services\Commons\ReactionService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -16,7 +17,10 @@ class MessageController extends Controller
 {
     use AuthorizesRequests;
 
-    public function __construct(private MessageService $messageService) {}
+    public function __construct(
+        private MessageService $messageService,
+        private ReactionService $reactionService,
+    ) {}
 
     public function index(Request $request, string $slug): JsonResponse
     {
@@ -43,6 +47,15 @@ class MessageController extends Controller
         $messages->each(function ($msg) {
             $msg->setAttribute('latest_reply_at', $msg->getAttribute('replies_max_created_at'));
             unset($msg->replies_max_created_at);
+        });
+
+        // Attach reaction summaries
+        $reactionSummaries = $this->reactionService->getReactionSummaryForMessages(
+            $messages,
+            $request->user(),
+        );
+        $messages->each(function ($msg) use ($reactionSummaries) {
+            $msg->setAttribute('reactions', $reactionSummaries[$msg->id] ?? (object) []);
         });
 
         return response()->json(['data' => $messages]);
@@ -86,7 +99,7 @@ class MessageController extends Controller
         return response()->json(['data' => $message]);
     }
 
-    public function replies(string $slug, int $messageId): JsonResponse
+    public function replies(Request $request, string $slug, int $messageId): JsonResponse
     {
         $channel = Channel::where('slug', $slug)->firstOrFail();
         $this->authorize('view', $channel);
@@ -108,6 +121,15 @@ class MessageController extends Controller
             ->with('user:id,name')
             ->orderBy('created_at', 'asc')
             ->get();
+
+        // Attach reaction summaries to replies
+        $reactionSummaries = $this->reactionService->getReactionSummaryForMessages(
+            $replies,
+            $request->user(),
+        );
+        $replies->each(function ($msg) use ($reactionSummaries) {
+            $msg->setAttribute('reactions', $reactionSummaries[$msg->id] ?? (object) []);
+        });
 
         return response()->json(['data' => $replies]);
     }

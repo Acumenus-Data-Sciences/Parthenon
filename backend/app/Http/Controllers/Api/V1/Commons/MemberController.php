@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1\Commons;
 use App\Http\Controllers\Controller;
 use App\Models\Commons\Channel;
 use App\Models\Commons\ChannelMember;
+use App\Services\Commons\UnreadService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
@@ -66,7 +67,7 @@ class MemberController extends Controller
         return response()->json(null, 204);
     }
 
-    public function markRead(Request $request, string $slug): JsonResponse
+    public function markRead(Request $request, string $slug, UnreadService $unreadService): JsonResponse
     {
         $channel = Channel::where('slug', $slug)->firstOrFail();
 
@@ -74,6 +75,15 @@ class MemberController extends Controller
             ->where('user_id', $request->user()->id)
             ->update(['last_read_at' => now()]);
 
+        $unreadService->invalidateCache($request->user());
+
         return response()->json(['status' => 'ok']);
+    }
+
+    public function unreadCounts(Request $request, UnreadService $unreadService): JsonResponse
+    {
+        $counts = $unreadService->getUnreadCounts($request->user());
+
+        return response()->json(['data' => $counts]);
     }
 }

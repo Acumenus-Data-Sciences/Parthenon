@@ -58,6 +58,12 @@ class Message extends Model
         return $this->hasMany(Message::class, 'parent_id');
     }
 
+    /** @return HasMany<Reaction, $this> */
+    public function reactions(): HasMany
+    {
+        return $this->hasMany(Reaction::class, 'message_id');
+    }
+
     public function isDeleted(): bool
     {
         return $this->deleted_at !== null;

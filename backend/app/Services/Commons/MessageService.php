@@ -7,6 +7,7 @@ use App\Events\Commons\MessageUpdated;
 use App\Models\Commons\Channel;
 use App\Models\Commons\ChannelMember;
 use App\Models\Commons\Message;
+use App\Services\Commons\UnreadService;
 use League\CommonMark\Environment\Environment;
 use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
 use League\CommonMark\Extension\DisallowedRawHtml\DisallowedRawHtmlExtension;
@@ -17,7 +18,7 @@ class MessageService
 {
     private MarkdownConverter $converter;
 
-    public function __construct()
+    public function __construct(private UnreadService $unreadService)
     {
         $environment = new Environment([
             'disallowed_raw_html' => [
@@ -70,6 +71,15 @@ class MessageService
         }
 
         broadcast(new MessageSent($message))->toOthers();
+
+        // Invalidate unread caches for all channel members (except the sender)
+        $memberUserIds = ChannelMember::where('channel_id', $channel->id)
+            ->where('user_id', '!=', $userId)
+            ->pluck('user_id');
+
+        foreach ($memberUserIds as $memberId) {
+            $this->unreadService->invalidateCacheForUserId($memberId);
+        }
 
         return $message;
     }
