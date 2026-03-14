@@ -38,10 +38,23 @@ class MessageService
 
     public function createMessage(Channel $channel, int $userId, string $body, ?int $parentId = null): Message
     {
+        $depth = 0;
+        if ($parentId !== null) {
+            $parent = Message::where('id', $parentId)
+                ->where('channel_id', $channel->id)
+                ->firstOrFail();
+
+            if ($parent->depth >= 2) {
+                abort(422, 'Maximum thread depth exceeded.');
+            }
+            $depth = $parent->depth + 1;
+        }
+
         $message = Message::create([
             'channel_id' => $channel->id,
             'user_id' => $userId,
             'parent_id' => $parentId,
+            'depth' => $depth,
             'body' => $body,
             'body_html' => $this->renderMarkdown($body),
         ]);
@@ -81,7 +94,12 @@ class MessageService
             'deleted_at' => now(),
         ]);
 
-        broadcast(new MessageUpdated($message, 'deleted'))->toOthers();
+        // Null out body before broadcasting for privacy
+        $broadcastMessage = clone $message;
+        $broadcastMessage->body = null;
+        $broadcastMessage->body_html = null;
+
+        broadcast(new MessageUpdated($broadcastMessage, 'deleted'))->toOthers();
 
         return $message;
     }

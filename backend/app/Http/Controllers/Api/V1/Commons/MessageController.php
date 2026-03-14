@@ -48,6 +48,7 @@ class MessageController extends Controller
             $channel,
             $request->user()->id,
             $request->validated('body'),
+            $request->validated('parent_id'),
         );
 
         return response()->json(['data' => $message], 201);
