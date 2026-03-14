@@ -17,6 +17,57 @@ interface EstimationResultsProps {
   isLoading?: boolean;
 }
 
+function normalizeResult(result: EstimationResult): EstimationResult {
+  return {
+    ...result,
+    summary: {
+      target_count: result.summary?.target_count ?? 0,
+      comparator_count: result.summary?.comparator_count ?? 0,
+      outcome_counts: result.summary?.outcome_counts ?? {},
+    },
+    estimates: Array.isArray(result.estimates) ? result.estimates : [],
+    propensity_score: result.propensity_score
+      ? {
+          ...result.propensity_score,
+          distribution: result.propensity_score.distribution
+            ? {
+                target: Array.isArray(result.propensity_score.distribution.target)
+                  ? result.propensity_score.distribution.target
+                  : [],
+                comparator: Array.isArray(result.propensity_score.distribution.comparator)
+                  ? result.propensity_score.distribution.comparator
+                  : [],
+              }
+            : undefined,
+        }
+      : undefined,
+    covariate_balance: Array.isArray(result.covariate_balance)
+      ? result.covariate_balance
+      : [],
+    kaplan_meier: result.kaplan_meier
+      ? {
+          target: Array.isArray(result.kaplan_meier.target)
+            ? result.kaplan_meier.target
+            : [],
+          comparator: Array.isArray(result.kaplan_meier.comparator)
+            ? result.kaplan_meier.comparator
+            : [],
+        }
+      : undefined,
+    attrition: Array.isArray(result.attrition) ? result.attrition : [],
+    mdrr:
+      result.mdrr && typeof result.mdrr === "object" && !Array.isArray(result.mdrr)
+        ? result.mdrr
+        : {},
+    negative_controls: Array.isArray(result.negative_controls)
+      ? result.negative_controls
+      : [],
+    power_analysis: Array.isArray(result.power_analysis)
+      ? result.power_analysis
+      : [],
+  };
+}
+
 function parseResults(
   execution: AnalysisExecution | null | undefined,
 ): EstimationResult | null {
@@ -64,7 +115,8 @@ export function EstimationResults({
     );
   }
 
-  const result = parseResults(execution);
+  const parsed = parseResults(execution);
+  const result = parsed ? normalizeResult(parsed) : null;
   if (!result) {
     return (
       <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-16">
@@ -104,10 +156,20 @@ export function EstimationResults({
     );
   }
 
+  // Defensive: ensure all arrays/objects exist even if API returned partial results
+  const estimates = result.estimates ?? [];
+  const attrition = result.attrition ?? [];
+  const km = result.kaplan_meier ?? { target: [], comparator: [] };
+  const ps = result.propensity_score ?? {} as NonNullable<typeof result.propensity_score>;
+  const covBalance = result.covariate_balance ?? [];
+  const mdrr = result.mdrr ?? {};
+  const negControls = result.negative_controls ?? [];
+  const summary = result.summary ?? { target_count: 0, comparator_count: 0, outcome_counts: {} };
+
   return (
     <div className="space-y-6">
       {/* Verdict Dashboard */}
-      {result.estimates.length > 0 && (
+      {(estimates ?? []).length > 0 && (
         <EstimationVerdictDashboard result={result} />
       )}
 
@@ -116,7 +178,7 @@ export function EstimationResults({
         <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
           <p className="text-xs font-medium text-[#8A857D]">Target Count</p>
           <p className="mt-1 font-['IBM_Plex_Mono',monospace] text-lg font-bold text-[#2DD4BF]">
-            {num(result.summary.target_count).toLocaleString()}
+            {num(summary.target_count).toLocaleString()}
           </p>
         </div>
         <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
@@ -124,10 +186,10 @@ export function EstimationResults({
             Comparator Count
           </p>
           <p className="mt-1 font-['IBM_Plex_Mono',monospace] text-lg font-bold text-[#C9A227]">
-            {num(result.summary.comparator_count).toLocaleString()}
+            {num(summary.comparator_count).toLocaleString()}
           </p>
         </div>
-        {Object.entries(result.summary.outcome_counts)
+        {Object.entries(summary.outcome_counts)
           .slice(0, 2)
           .map(([name, count]) => (
             <div
@@ -145,17 +207,17 @@ export function EstimationResults({
       </div>
 
       {/* Forest Plot */}
-      {result.estimates.length > 0 && (
+      {estimates.length > 0 && (
         <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
           <h3 className="text-sm font-semibold text-[#F0EDE8] mb-4">
             Forest Plot
           </h3>
-          <ForestPlot estimates={result.estimates} />
+          <ForestPlot estimates={estimates} />
         </div>
       )}
 
       {/* Estimates Table */}
-      {result.estimates.length > 0 && (
+      {estimates.length > 0 && (
         <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
           <div className="p-4 border-b border-[#232328]">
             <h3 className="text-sm font-semibold text-[#F0EDE8]">
@@ -186,7 +248,7 @@ export function EstimationResults({
               </tr>
             </thead>
             <tbody>
-              {result.estimates.map((est, i) => {
+              {estimates.map((est, i) => {
                 const isSignificant = num(est.p_value) < 0.05;
                 return (
                   <tr
@@ -243,7 +305,7 @@ export function EstimationResults({
       )}
 
       {/* Propensity Score Diagnostics */}
-      {result.propensity_score && (
+      {ps && (
         <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 space-y-4">
           <h3 className="text-sm font-semibold text-[#F0EDE8]">
             Propensity Score Diagnostics
@@ -252,7 +314,7 @@ export function EstimationResults({
             <div className="rounded-lg border border-[#232328] bg-[#0E0E11] p-3">
               <p className="text-xs font-medium text-[#8A857D]">PS AUC</p>
               <p className="mt-1 font-['IBM_Plex_Mono',monospace] text-lg font-bold text-[#2DD4BF]">
-                {fmt(result.propensity_score.auc)}
+                {fmt(ps.auc)}
               </p>
             </div>
             <div className="rounded-lg border border-[#232328] bg-[#0E0E11] p-3">
@@ -261,11 +323,11 @@ export function EstimationResults({
               </p>
               <p className="mt-1 font-['IBM_Plex_Mono',monospace] text-sm text-[#C5C0B8]">
                 Mean:{" "}
-                {fmt(result.propensity_score.mean_smd_before ?? result.propensity_score.before_matching?.mean_smd ?? 0)}
+                {fmt(ps.mean_smd_before ?? ps.before_matching?.mean_smd ?? 0)}
               </p>
               <p className="font-['IBM_Plex_Mono',monospace] text-sm text-[#C5C0B8]">
                 Max:{" "}
-                {fmt(result.propensity_score.max_smd_before ?? result.propensity_score.before_matching?.max_smd ?? 0)}
+                {fmt(ps.max_smd_before ?? ps.before_matching?.max_smd ?? 0)}
               </p>
             </div>
             <div className="rounded-lg border border-[#232328] bg-[#0E0E11] p-3">
@@ -274,31 +336,31 @@ export function EstimationResults({
               </p>
               <p className="mt-1 font-['IBM_Plex_Mono',monospace] text-sm text-[#2DD4BF]">
                 Mean:{" "}
-                {fmt(result.propensity_score.mean_smd_after ?? result.propensity_score.after_matching?.mean_smd ?? 0)}
+                {fmt(ps.mean_smd_after ?? ps.after_matching?.mean_smd ?? 0)}
               </p>
               <p className="font-['IBM_Plex_Mono',monospace] text-sm text-[#2DD4BF]">
                 Max:{" "}
-                {fmt(result.propensity_score.max_smd_after ?? result.propensity_score.after_matching?.max_smd ?? 0)}
+                {fmt(ps.max_smd_after ?? ps.after_matching?.max_smd ?? 0)}
               </p>
             </div>
           </div>
 
           {/* PS Distribution Plot */}
-          {result.propensity_score.distribution && (
+          {ps.distribution && (
             <div className="mt-4">
               <h4 className="text-xs font-semibold text-[#8A857D] mb-3">
                 Propensity Score Distribution
               </h4>
               <PropensityScorePlot
-                data={result.propensity_score.distribution.target.map(
+                data={ps.distribution.target.map(
                   (t, i) => ({
                     score: t.x,
                     targetCount: t.y,
                     comparatorCount:
-                      result.propensity_score!.distribution!.comparator[i]?.y ?? 0,
+                      ps!.distribution!.comparator[i]?.y ?? 0,
                   }),
                 )}
-                auc={result.propensity_score.auc}
+                auc={ps.auc}
               />
             </div>
           )}
@@ -306,15 +368,15 @@ export function EstimationResults({
       )}
 
       {/* Kaplan-Meier Survival Curves */}
-      {result.kaplan_meier &&
-        result.kaplan_meier.target &&
-        result.kaplan_meier.target.length > 0 && (
+      {km &&
+        km.target &&
+        km.target.length > 0 && (
           <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
             <h3 className="text-sm font-semibold text-[#F0EDE8] mb-4">
               Kaplan-Meier Survival Curves
             </h3>
             <KaplanMeierPlot
-              targetCurve={result.kaplan_meier.target.map((p) => ({
+              targetCurve={km.target.map((p) => ({
                 time: p.time,
                 surv: p.survival,
                 survLower: p.lower,
@@ -323,7 +385,7 @@ export function EstimationResults({
                 nEvents: 0,
                 nCensored: 0,
               }))}
-              comparatorCurve={(result.kaplan_meier.comparator ?? []).map(
+              comparatorCurve={(km.comparator ?? []).map(
                 (p) => ({
                   time: p.time,
                   surv: p.survival,
@@ -339,17 +401,17 @@ export function EstimationResults({
         )}
 
       {/* Attrition Diagram */}
-      {result.attrition && result.attrition.length > 0 && (
+      {attrition && attrition.length > 0 && (
         <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
           <h3 className="text-sm font-semibold text-[#F0EDE8] mb-4">
             Attrition Diagram
           </h3>
           <AttritionDiagram
-            targetSteps={result.attrition.map((s) => ({
+            targetSteps={attrition.map((s) => ({
               description: s.step,
               subjectsCount: s.target,
             }))}
-            comparatorSteps={result.attrition.map((s) => ({
+            comparatorSteps={attrition.map((s) => ({
               description: s.step,
               subjectsCount: s.comparator,
             }))}
@@ -358,17 +420,17 @@ export function EstimationResults({
       )}
 
       {/* Love Plot (Covariate Balance Scatter) */}
-      {result.covariate_balance && result.covariate_balance.length > 0 && (
+      {covBalance && covBalance.length > 0 && (
         <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
           <h3 className="text-sm font-semibold text-[#F0EDE8] mb-4">
             Covariate Balance — Love Plot
           </h3>
-          <LovePlot data={result.covariate_balance} />
+          <LovePlot data={covBalance} />
         </div>
       )}
 
       {/* Covariate Balance Table */}
-      {result.covariate_balance && result.covariate_balance.length > 0 && (
+      {covBalance && covBalance.length > 0 && (
         <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
           <div className="p-4 border-b border-[#232328]">
             <h3 className="text-sm font-semibold text-[#F0EDE8]">
@@ -393,11 +455,11 @@ export function EstimationResults({
               </tr>
             </thead>
             <tbody>
-              {result.covariate_balance.slice(0, 30).map((cv, i) => {
+              {covBalance.slice(0, 30).map((cv, i) => {
                 const absBefore = Math.abs(cv.smd_before);
                 const absAfter = Math.abs(cv.smd_after);
                 const maxSmd = Math.max(
-                  ...result.covariate_balance!.map((c) =>
+                  ...covBalance!.map((c) =>
                     Math.max(Math.abs(c.smd_before), Math.abs(c.smd_after)),
                   ),
                   0.1,
@@ -460,13 +522,13 @@ export function EstimationResults({
       )}
 
       {/* Negative Control / Systematic Error Plot */}
-      {result.negative_controls && result.negative_controls.length > 0 && (
+      {negControls && negControls.length > 0 && (
         <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
           <h3 className="text-sm font-semibold text-[#F0EDE8] mb-4">
             Empirical Calibration — Systematic Error
           </h3>
           <div className="flex justify-center">
-            <SystematicErrorPlot negativeControls={result.negative_controls} />
+            <SystematicErrorPlot negativeControls={negControls} />
           </div>
         </div>
       )}
@@ -482,27 +544,27 @@ export function EstimationResults({
       )}
 
       {/* Diagnostics / MDRR */}
-      {(result.diagnostics || result.mdrr || result.propensity_score?.equipoise) && (
+      {(result.diagnostics || mdrr || ps?.equipoise) && (
         <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 space-y-4">
           <h3 className="text-sm font-semibold text-[#F0EDE8]">
             Diagnostics
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {(result.diagnostics?.equipoise ?? result.propensity_score?.equipoise) != null && (
+            {(result.diagnostics?.equipoise ?? ps?.equipoise) != null && (
               <div className="rounded-lg border border-[#232328] bg-[#0E0E11] p-3">
                 <p className="text-xs font-medium text-[#8A857D]">Equipoise</p>
                 <p className="mt-1 font-['IBM_Plex_Mono',monospace] text-lg font-bold text-[#C9A227]">
-                  {fmt(result.diagnostics?.equipoise ?? result.propensity_score?.equipoise ?? 0)}
+                  {fmt(result.diagnostics?.equipoise ?? ps?.equipoise ?? 0)}
                 </p>
               </div>
             )}
-            {result.mdrr && Object.keys(result.mdrr).length > 0 && (
+            {mdrr && Object.keys(mdrr).length > 0 && (
               <div className="rounded-lg border border-[#232328] bg-[#0E0E11] p-3">
                 <p className="text-xs font-medium text-[#8A857D]">
                   Min Detectable Relative Risk
                 </p>
                 <div className="mt-1 space-y-1">
-                  {Object.entries(result.mdrr).map(([outcomeId, mdrr]) => (
+                  {Object.entries(mdrr).map(([outcomeId, mdrr]) => (
                     <div
                       key={outcomeId}
                       className="flex items-center justify-between"

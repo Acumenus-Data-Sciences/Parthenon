@@ -355,10 +355,14 @@ function(req, res) {
       createStudyPopulationArgs = summaryPopArgs
     ))
 
-    # Build outcome_counts map
+    # Build outcome_counts map keyed by display name for frontend summary cards
     outcome_counts <- list()
     for (est in estimates_list) {
-      outcome_counts[[as.character(est$outcome_id)]] <- est$target_events + est$comparator_events
+      outcome_key <- est$outcome_name %||% as.character(est$outcome_id)
+      prior_count <- outcome_counts[[outcome_key]] %||% 0L
+      target_count <- est$target_outcomes %||% 0L
+      comparator_count <- est$comparator_outcomes %||% 0L
+      outcome_counts[[outcome_key]] <- as.integer(prior_count + target_count + comparator_count)
     }
 
     logger$info("Estimation pipeline complete", list(

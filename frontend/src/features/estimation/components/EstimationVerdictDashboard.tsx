@@ -19,7 +19,14 @@ interface EstimationVerdictDashboardProps {
 export function EstimationVerdictDashboard({
   result,
 }: EstimationVerdictDashboardProps) {
-  const primary = result.estimates[0];
+  const estimates = Array.isArray(result.estimates) ? result.estimates : [];
+  const summary = result.summary ?? {
+    target_count: 0,
+    comparator_count: 0,
+    outcome_counts: {},
+  };
+
+  const primary = estimates[0];
   if (!primary) return null;
 
   const hr = num(primary.hazard_ratio);
@@ -47,7 +54,7 @@ export function EstimationVerdictDashboard({
         : "text-[#8A857D]";
 
   // Total target events across all outcomes
-  const targetEvents = result.estimates.reduce(
+  const targetEvents = estimates.reduce(
     (sum, e) => sum + num(e.target_outcomes),
     0,
   );
@@ -135,12 +142,12 @@ export function EstimationVerdictDashboard({
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <ChartMetricCard
           label="Target Cohort"
-          value={num(result.summary.target_count).toLocaleString()}
+          value={num(summary.target_count).toLocaleString()}
           color="teal"
         />
         <ChartMetricCard
           label="Comparator Cohort"
-          value={num(result.summary.comparator_count).toLocaleString()}
+          value={num(summary.comparator_count).toLocaleString()}
           color="gold"
         />
         <ChartMetricCard
@@ -176,12 +183,16 @@ function computeNNTFromKM(result: EstimationResult): {
     return { label: "NNT/NNH", value: "N/A" };
   }
 
-  const targetSorted = [...result.kaplan_meier.target].sort(
+  const targetSorted = [...(result.kaplan_meier?.target ?? [])].sort(
     (a, b) => b.time - a.time,
   );
-  const compSorted = [...result.kaplan_meier.comparator].sort(
+  const compSorted = [...(result.kaplan_meier?.comparator ?? [])].sort(
     (a, b) => b.time - a.time,
   );
+
+  if (targetSorted.length === 0 || compSorted.length === 0) {
+    return { label: "NNT/NNH", value: "N/A" };
+  }
 
   const targetSurv = num(targetSorted[0].survival);
   const compSurv = num(compSorted[0].survival);

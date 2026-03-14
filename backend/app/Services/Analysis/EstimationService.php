@@ -9,6 +9,7 @@ use App\Models\App\EstimationAnalysis;
 use App\Models\App\ExecutionLog;
 use App\Models\App\Source;
 use App\Services\RService;
+use App\Support\EstimationResultNormalizer;
 use App\Services\SqlRenderer\SqlRendererService;
 use Illuminate\Support\Facades\Log;
 
@@ -130,7 +131,7 @@ class EstimationService
             $execution->update([
                 'status' => ExecutionStatus::Completed,
                 'completed_at' => now(),
-                'result_json' => $result,
+                'result_json' => EstimationResultNormalizer::normalize($result),
             ]);
 
             $this->log($execution, 'info', 'Estimation execution completed');

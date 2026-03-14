@@ -8,6 +8,7 @@ use App\Jobs\Analysis\RunEstimationJob;
 use App\Models\App\AnalysisExecution;
 use App\Models\App\EstimationAnalysis;
 use App\Models\App\Source;
+use App\Support\EstimationResultNormalizer;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -276,6 +277,10 @@ class EstimationController extends Controller
                 'source:id,source_name,source_key',
                 'logs' => fn ($q) => $q->orderBy('created_at'),
             ]);
+
+            if (is_array($execution->result_json)) {
+                $execution->result_json = EstimationResultNormalizer::normalize($execution->result_json);
+            }
 
             return response()->json([
                 'data' => $execution,
