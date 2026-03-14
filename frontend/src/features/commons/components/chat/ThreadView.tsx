@@ -5,6 +5,7 @@ import rehypeSanitize from "rehype-sanitize";
 import { Send } from "lucide-react";
 import { useReplies, useSendMessage } from "../../api";
 import type { Message } from "../../types";
+import { ReactionPills } from "./ReactionPills";
 
 interface ThreadViewProps {
   parentMessage: Message;
@@ -72,6 +73,12 @@ export function ThreadView({ parentMessage, slug, currentUserId }: ThreadViewPro
                     {reply.body}
                   </ReactMarkdown>
                 </div>
+                {reply.reactions && (
+                  <ReactionPills
+                    messageId={reply.id}
+                    reactions={reply.reactions}
+                  />
+                )}
               </>
             )}
           </div>
