@@ -42,6 +42,8 @@ export interface AbbyQueryRequest {
   parent_message_id?: string;
   object_type?: string;
   object_id?: string;
+  conversation_id?: number;
+  page_context?: string;
 }
 
 export interface AbbyQueryResponse {
@@ -52,6 +54,7 @@ export interface AbbyQueryResponse {
   collections_searched: string[];
   retrieval_time_ms: number;
   generation_time_ms: number;
+  conversation_id?: number;
 }
 
 export interface AbbySource {
@@ -183,6 +186,21 @@ export interface AbbyMentionHandlerProps {
 
 export interface AskAbbyChannelProps {
   className?: string;
+}
+
+export interface AbbyConversationSummary {
+  id: number;
+  title: string | null;
+  page_context: string;
+  updated_at: string;
+}
+
+export interface AbbyConversationMessage {
+  id: number;
+  role: "user" | "assistant";
+  content: string;
+  metadata: Record<string, unknown> | null;
+  created_at: string;
 }
 
 export interface AbbyAvatarProps {

@@ -1,12 +1,19 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useLayoutEffect } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import AbbyAvatar from "./AbbyAvatar";
 import AbbyTypingIndicator from "./AbbyTypingIndicator";
 import AbbySourceAttribution from "./AbbySourceAttribution";
 import AbbyFeedback from "./AbbyFeedback";
 import { useAbbyQuery } from "../../hooks/useAbby";
-import { submitFeedback } from "../../services/abbyService";
+import {
+  fetchAbbyConversation,
+  listAbbyConversations,
+  submitFeedback,
+} from "../../services/abbyService";
 import { useAuthStore } from "@/stores/authStore";
 import type {
+  AbbyConversationMessage,
   AbbyFeedbackRequest,
   AbbyQueryResponse,
   ObjectReference,
@@ -130,8 +137,12 @@ function AbbyBubble({
         </div>
 
         {/* Response body */}
-        <div className="px-3.5 py-2.5 rounded-2xl rounded-bl-sm bg-muted text-[13px] text-foreground leading-relaxed whitespace-pre-wrap">
-          {entry.response ? entry.response.content : entry.content}
+        <div className="px-3.5 py-2.5 rounded-2xl rounded-bl-sm bg-muted">
+          <div className="prose prose-sm prose-invert max-w-none text-[13px] text-foreground leading-relaxed [&_p]:my-1 [&_ul]:my-2 [&_ol]:my-2 [&_li]:my-0.5 [&_pre]:bg-[#13131a] [&_pre]:border [&_pre]:border-white/[0.06] [&_pre]:rounded-md [&_pre]:p-3 [&_code]:text-teal-400">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {entry.response ? entry.response.content : entry.content}
+            </ReactMarkdown>
+          </div>
         </div>
 
         {/* Object references */}
@@ -172,7 +183,9 @@ function AbbyBubble({
 
 export default function AskAbbyChannel() {
   const [conversation, setConversation] = useState<ConversationEntry[]>([]);
+  const [conversationId, setConversationId] = useState<number | null>(null);
   const [inputValue, setInputValue] = useState("");
+  const [hasLoadedConversation, setHasLoadedConversation] = useState(false);
   const { response, pipelineState, isLoading, sendQuery } = useAbbyQuery();
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -186,16 +199,73 @@ export default function AskAbbyChannel() {
     .toUpperCase()
     .slice(0, 2);
 
-  // Auto-scroll on new messages
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
-  }, [conversation, isLoading]);
+    let cancelled = false;
+
+    const loadLatestConversation = async () => {
+      try {
+        const conversations = await listAbbyConversations();
+        const latestCommonsConversation = conversations.find(
+          (item) => item.page_context === "commons_ask_abby"
+        );
+
+        if (!latestCommonsConversation) {
+          if (!cancelled) {
+            setHasLoadedConversation(true);
+          }
+          return;
+        }
+
+        const loadedConversation = await fetchAbbyConversation(
+          latestCommonsConversation.id
+        );
+
+        if (cancelled) {
+          return;
+        }
+
+        setConversationId(loadedConversation.id);
+        setConversation(
+          loadedConversation.messages.map((message) =>
+            mapConversationMessage(message, userName)
+          )
+        );
+      } catch (error) {
+        console.error("Failed to load Ask Abby conversation:", error);
+      } finally {
+        if (!cancelled) {
+          setHasLoadedConversation(true);
+        }
+      }
+    };
+
+    void loadLatestConversation();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [userName]);
+
+  // Auto-scroll on new messages and typing state changes.
+  useLayoutEffect(() => {
+    const container = scrollRef.current;
+    if (!container) return;
+
+    requestAnimationFrame(() => {
+      container.scrollTo({
+        top: container.scrollHeight,
+        behavior: "smooth",
+      });
+    });
+  }, [conversation.length, isLoading, pipelineState.stage]);
 
   // Append Abby's response when query completes
   useEffect(() => {
     if (response) {
+      if (typeof response.conversation_id === "number") {
+        setConversationId(response.conversation_id);
+      }
+
       setConversation((prev) => [
         ...prev,
         {
@@ -233,9 +303,11 @@ export default function AskAbbyChannel() {
         channel_id: "ask-abby",
         channel_name: "ask-abby",
         user_name: userName,
+        page_context: "commons_ask_abby",
+        conversation_id: conversationId ?? undefined,
       });
     },
-    [inputValue, isLoading, userName, sendQuery]
+    [conversationId, inputValue, isLoading, userName, sendQuery]
   );
 
   const handleFeedback = useCallback(
@@ -260,7 +332,7 @@ export default function AskAbbyChannel() {
   );
 
   return (
-    <div className="flex flex-1 flex-col">
+    <div className="flex flex-1 min-h-0 flex-col">
       {/* Channel header */}
       <div className="flex items-center gap-3 px-5 py-3 border-b border-white/[0.06] shrink-0 bg-gradient-to-r from-emerald-900/[0.04] to-transparent">
         <AbbyAvatar size="lg" showStatus />
@@ -279,9 +351,9 @@ export default function AskAbbyChannel() {
       {/* Conversation area */}
       <div
         ref={scrollRef}
-        className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-4"
+        className="flex flex-1 min-h-0 flex-col gap-4 overflow-y-auto px-4 py-4"
       >
-        {conversation.length === 0 && (
+        {hasLoadedConversation && conversation.length === 0 && (
           <WelcomeCard onPromptClick={(prompt) => handleSend(prompt)} />
         )}
 
@@ -340,4 +412,17 @@ function formatTime(iso: string): string {
     hour: "numeric",
     minute: "2-digit",
   });
+}
+
+function mapConversationMessage(
+  message: AbbyConversationMessage,
+  userName: string
+): ConversationEntry {
+  return {
+    id: String(message.id),
+    role: message.role === "assistant" ? "abby" : "user",
+    content: message.content,
+    timestamp: message.created_at,
+    userName: message.role === "user" ? userName : undefined,
+  };
 }

@@ -22,12 +22,14 @@ export function CommonsLayout() {
   const { slug } = useParams<{ slug?: string }>();
   const navigate = useNavigate();
   const activeSlug = slug ?? "general";
+  const isAskAbby = activeSlug === "ask-abby";
+  const channelSlug = isAskAbby ? "" : activeSlug;
   const user = useAuthStore((s) => s.user);
 
   const { data: channels = [], isLoading: channelsLoading } = useChannels();
-  const { data: channel } = useChannel(activeSlug);
-  const { data: messages = [], isLoading: messagesLoading } = useMessages(activeSlug);
-  const { data: members = [] } = useMembers(activeSlug);
+  const { data: channel } = useChannel(channelSlug);
+  const { data: messages = [], isLoading: messagesLoading } = useMessages(channelSlug);
+  const { data: members = [] } = useMembers(channelSlug);
   const sendMessage = useSendMessage();
   const uploadAttachment = useUploadAttachment();
   const markRead = useMarkRead();
@@ -37,14 +39,14 @@ export function CommonsLayout() {
   const [view, setView] = useState<"chat" | "announcements" | "wiki">("chat");
 
   // Subscribe to real-time events for the active channel
-  useChannelSubscription(channel?.id, activeSlug);
+  useChannelSubscription(channel?.id, channelSlug);
 
   // Mark channel as read when viewed
   useEffect(() => {
-    if (activeSlug) {
+    if (channelSlug) {
       markRead.mutate(activeSlug);
     }
-  }, [activeSlug]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [activeSlug, channelSlug]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Redirect to /commons/general if no slug
   useEffect(() => {
@@ -118,7 +120,7 @@ export function CommonsLayout() {
 
       {/* Center content area */}
       <div className="flex flex-1 flex-col">
-        {activeSlug === "ask-abby" ? (
+        {isAskAbby ? (
           <AskAbbyChannel />
         ) : view === "announcements" ? (
           <AnnouncementBoard channelSlug={activeSlug} />
@@ -161,7 +163,7 @@ export function CommonsLayout() {
       </div>
 
       {/* Right panel — hidden when Ask Abby is active */}
-      {activeSlug !== "ask-abby" && (
+      {!isAskAbby && (
         <RightPanel
           slug={activeSlug}
           activeTab={rightTab}
