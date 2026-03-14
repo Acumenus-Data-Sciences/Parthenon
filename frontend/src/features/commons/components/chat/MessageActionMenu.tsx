@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
-import { MoreHorizontal, Pencil, Trash2, Reply } from "lucide-react";
+import { MoreHorizontal, Pencil, Trash2, Reply, SmilePlus } from "lucide-react";
+import { EmojiPicker } from "./EmojiPicker";
 
 interface MessageActionMenuProps {
   isAuthor: boolean;
@@ -7,6 +8,7 @@ interface MessageActionMenuProps {
   onReply: () => void;
   onEdit: () => void;
   onDelete: () => void;
+  onReact: (emoji: string) => void;
 }
 
 export function MessageActionMenu({
@@ -15,8 +17,10 @@ export function MessageActionMenu({
   onReply,
   onEdit,
   onDelete,
+  onReact,
 }: MessageActionMenuProps) {
   const [open, setOpen] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -41,6 +45,14 @@ export function MessageActionMenu({
 
       {open && (
         <div className="absolute right-0 top-full z-10 mt-1 min-w-[140px] rounded-md border border-border bg-card py-1 shadow-lg">
+          <button
+            onClick={() => { setShowEmojiPicker(true); setOpen(false); }}
+            className="flex w-full items-center gap-2 px-3 py-1.5 text-sm text-foreground hover:bg-muted"
+          >
+            <SmilePlus className="h-3.5 w-3.5" />
+            React
+          </button>
+
           <button
             onClick={() => { onReply(); setOpen(false); }}
             className="flex w-full items-center gap-2 px-3 py-1.5 text-sm text-foreground hover:bg-muted"
@@ -68,6 +80,18 @@ export function MessageActionMenu({
               Delete
             </button>
           )}
+        </div>
+      )}
+
+      {showEmojiPicker && (
+        <div className="absolute right-0 top-full z-20 mt-1">
+          <EmojiPicker
+            onSelect={(emoji) => {
+              onReact(emoji);
+              setShowEmojiPicker(false);
+            }}
+            onClose={() => setShowEmojiPicker(false)}
+          />
         </div>
       )}
     </div>
