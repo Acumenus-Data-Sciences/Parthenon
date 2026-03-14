@@ -42,16 +42,16 @@ export function MessageActionMenu({
     <div ref={menuRef} className="relative">
       <button
         onClick={() => setOpen(!open)}
-        className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+        className="rounded-md p-1 text-muted-foreground/60 hover:bg-white/[0.06] hover:text-foreground transition-all"
       >
         <MoreHorizontal className="h-4 w-4" />
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-10 mt-1 min-w-[140px] rounded-md border border-border bg-card py-1 shadow-lg">
+        <div className="absolute right-0 top-full z-10 mt-1 min-w-[160px] rounded-lg border border-white/[0.08] bg-[#1a1a24] py-1.5 shadow-[0_8px_30px_rgba(0,0,0,0.5)] backdrop-blur-xl">
           <button
             onClick={() => { setShowEmojiPicker(true); setOpen(false); }}
-            className="flex w-full items-center gap-2 px-3 py-1.5 text-sm text-foreground hover:bg-muted"
+            className="flex w-full items-center gap-2 px-3 py-1.5 text-[13px] text-foreground/90 hover:bg-white/[0.06] transition-colors"
           >
             <SmilePlus className="h-3.5 w-3.5" />
             React
@@ -59,7 +59,7 @@ export function MessageActionMenu({
 
           <button
             onClick={() => { onReply(); setOpen(false); }}
-            className="flex w-full items-center gap-2 px-3 py-1.5 text-sm text-foreground hover:bg-muted"
+            className="flex w-full items-center gap-2 px-3 py-1.5 text-[13px] text-foreground/90 hover:bg-white/[0.06] transition-colors"
           >
             <Reply className="h-3.5 w-3.5" />
             Reply
@@ -67,7 +67,7 @@ export function MessageActionMenu({
 
           <button
             onClick={() => { onPin(); setOpen(false); }}
-            className="flex w-full items-center gap-2 px-3 py-1.5 text-sm text-foreground hover:bg-muted"
+            className="flex w-full items-center gap-2 px-3 py-1.5 text-[13px] text-foreground/90 hover:bg-white/[0.06] transition-colors"
           >
             <Pin className="h-3.5 w-3.5" />
             Pin
@@ -76,7 +76,7 @@ export function MessageActionMenu({
           {onRequestReview && (
             <button
               onClick={() => { onRequestReview(); setOpen(false); }}
-              className="flex w-full items-center gap-2 px-3 py-1.5 text-sm text-foreground hover:bg-muted"
+              className="flex w-full items-center gap-2 px-3 py-1.5 text-[13px] text-foreground/90 hover:bg-white/[0.06] transition-colors"
             >
               <ClipboardCheck className="h-3.5 w-3.5" />
               Request Review
@@ -86,7 +86,7 @@ export function MessageActionMenu({
           {isAuthor && (
             <button
               onClick={() => { onEdit(); setOpen(false); }}
-              className="flex w-full items-center gap-2 px-3 py-1.5 text-sm text-foreground hover:bg-muted"
+              className="flex w-full items-center gap-2 px-3 py-1.5 text-[13px] text-foreground/90 hover:bg-white/[0.06] transition-colors"
             >
               <Pencil className="h-3.5 w-3.5" />
               Edit
@@ -96,7 +96,7 @@ export function MessageActionMenu({
           {(isAuthor || isAdmin) && (
             <button
               onClick={() => { onDelete(); setOpen(false); }}
-              className="flex w-full items-center gap-2 px-3 py-1.5 text-sm text-red-400 hover:bg-muted"
+              className="flex w-full items-center gap-2 px-3 py-1.5 text-[13px] text-red-400 hover:bg-white/[0.06] transition-colors"
             >
               <Trash2 className="h-3.5 w-3.5" />
               Delete

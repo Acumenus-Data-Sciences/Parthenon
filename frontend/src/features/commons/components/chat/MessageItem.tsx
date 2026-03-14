@@ -2,7 +2,7 @@ import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeSanitize from "rehype-sanitize";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, SmilePlus, Reply, Pin } from "lucide-react";
 import type { Message } from "../../types";
 import { useToggleReaction, usePinMessage, useCreateReviewRequest } from "../../api";
 import { avatarColor } from "../../utils/avatarColor";
@@ -44,7 +44,27 @@ export function MessageItem({
 
   return (
     <>
-      <div className="group flex gap-2.5 px-5 py-3 hover:bg-white/[0.02] transition-colors duration-150">
+      <div className="group relative flex gap-2.5 px-5 py-3 hover:bg-white/[0.02] transition-colors duration-150">
+          {/* Floating action bar — appears on hover */}
+          {!isDeleted && (
+            <div className="absolute -top-3.5 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-10">
+              <div className="flex items-center gap-0.5 rounded-lg border border-white/[0.08] bg-[#1a1a24] px-1 py-0.5 shadow-[0_4px_20px_rgba(0,0,0,0.4)] backdrop-blur-xl">
+                <ActionBarButton icon={SmilePlus} label="React" onClick={() => {}} />
+                <ActionBarButton icon={Reply} label="Reply" onClick={() => setShowThread(true)} />
+                <ActionBarButton icon={Pin} label="Pin" onClick={() => pinMessage.mutate({ slug, messageId: message.id })} />
+                <MessageActionMenu
+                  isAuthor={isAuthor}
+                  isAdmin={isAdmin}
+                  onReply={() => setShowThread(true)}
+                  onEdit={() => setEditing(true)}
+                  onDelete={() => setShowDeleteConfirm(true)}
+                  onReact={(emoji) => toggleReaction.mutate({ messageId: message.id, emoji })}
+                  onPin={() => pinMessage.mutate({ slug, messageId: message.id })}
+                  onRequestReview={() => createReview.mutate({ slug, messageId: message.id })}
+                />
+              </div>
+            </div>
+          )}
         <div
           className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white"
           style={{ backgroundColor: avatarColor(message.user.id) }}
@@ -59,21 +79,6 @@ export function MessageItem({
             <span className="ml-1 text-[11px] text-muted-foreground">{time}</span>
             {message.is_edited && !isDeleted && (
               <span className="text-xs text-muted-foreground">(edited)</span>
-            )}
-            {/* Action menu — visible on hover */}
-            {!isDeleted && (
-              <div className="ml-auto opacity-0 group-hover:opacity-100">
-                <MessageActionMenu
-                  isAuthor={isAuthor}
-                  isAdmin={isAdmin}
-                  onReply={() => setShowThread(true)}
-                  onEdit={() => setEditing(true)}
-                  onDelete={() => setShowDeleteConfirm(true)}
-                  onReact={(emoji) => toggleReaction.mutate({ messageId: message.id, emoji })}
-                  onPin={() => pinMessage.mutate({ slug, messageId: message.id })}
-                  onRequestReview={() => createReview.mutate({ slug, messageId: message.id })}
-                />
-              </div>
             )}
           </div>
 
@@ -129,14 +134,24 @@ export function MessageItem({
             />
           )}
 
-          {/* Reply count link */}
+          {/* Thread preview — stacked avatars + reply count */}
           {(message.reply_count ?? 0) > 0 && !showThread && (
             <button
               onClick={() => setShowThread(true)}
-              className="mt-1 flex items-center gap-1 text-xs text-primary hover:underline"
+              className="mt-2 flex items-center gap-2 rounded-md border border-white/[0.04] bg-white/[0.02] px-2.5 py-1.5 text-xs text-primary hover:bg-white/[0.04] hover:border-white/[0.08] transition-all duration-150 group/thread"
             >
-              <ChevronDown className="h-3 w-3" />
-              {message.reply_count} {message.reply_count === 1 ? "reply" : "replies"}
+              <div className="flex -space-x-1.5">
+                <div className="h-5 w-5 rounded-full bg-primary/20 border border-[#0e0e11] flex items-center justify-center text-[7px] font-semibold text-primary">
+                  {message.reply_count}
+                </div>
+              </div>
+              <span>
+                {message.reply_count} {message.reply_count === 1 ? "reply" : "replies"}
+              </span>
+              <span className="text-muted-foreground/50 group-hover/thread:text-muted-foreground transition-colors">
+                View thread
+              </span>
+              <ChevronDown className="h-3 w-3 text-muted-foreground/40" />
             </button>
           )}
         </div>
@@ -160,6 +175,18 @@ export function MessageItem({
         />
       )}
     </>
+  );
+}
+
+function ActionBarButton({ icon: Icon, label, onClick }: { icon: React.ComponentType<{ className?: string }>; label: string; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      title={label}
+      className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground/60 hover:bg-white/[0.08] hover:text-foreground transition-colors"
+    >
+      <Icon className="h-3.5 w-3.5" />
+    </button>
   );
 }
 

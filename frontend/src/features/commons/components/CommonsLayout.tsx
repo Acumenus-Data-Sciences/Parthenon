@@ -139,6 +139,7 @@ export function CommonsLayout() {
               currentUserId={user?.id ?? 0}
               isAdmin={isAdmin}
               isTyping={isTyping}
+              lastReadAt={currentMember?.last_read_at}
             />
             {channel && (
               <AbbyMentionHandler
