@@ -971,6 +971,21 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         // Activity feed
         Route::get('activities', [App\Http\Controllers\Api\V1\Commons\ActivityController::class, 'global']);
         Route::get('channels/{slug}/activities', [App\Http\Controllers\Api\V1\Commons\ActivityController::class, 'index']);
+
+        // Announcements
+        Route::get('announcements', [App\Http\Controllers\Api\V1\Commons\AnnouncementController::class, 'index']);
+        Route::post('announcements', [App\Http\Controllers\Api\V1\Commons\AnnouncementController::class, 'store']);
+        Route::patch('announcements/{id}', [App\Http\Controllers\Api\V1\Commons\AnnouncementController::class, 'update']);
+        Route::delete('announcements/{id}', [App\Http\Controllers\Api\V1\Commons\AnnouncementController::class, 'destroy']);
+        Route::post('announcements/{id}/bookmark', [App\Http\Controllers\Api\V1\Commons\AnnouncementController::class, 'bookmark']);
+
+        // Wiki / Knowledge Base
+        Route::get('wiki', [App\Http\Controllers\Api\V1\Commons\WikiController::class, 'index']);
+        Route::post('wiki', [App\Http\Controllers\Api\V1\Commons\WikiController::class, 'store']);
+        Route::get('wiki/{slug}', [App\Http\Controllers\Api\V1\Commons\WikiController::class, 'show']);
+        Route::patch('wiki/{slug}', [App\Http\Controllers\Api\V1\Commons\WikiController::class, 'update']);
+        Route::delete('wiki/{slug}', [App\Http\Controllers\Api\V1\Commons\WikiController::class, 'destroy']);
+        Route::get('wiki/{slug}/revisions', [App\Http\Controllers\Api\V1\Commons\WikiController::class, 'revisions']);
     });
 });
 

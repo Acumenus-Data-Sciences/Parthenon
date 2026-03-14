@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { Megaphone, BookOpen } from "lucide-react";
 import { useChannels, useChannel, useMessages, useSendMessage, useMarkRead, useMembers, useUploadAttachment } from "../api";
 import { usePresence } from "../hooks/usePresence";
 import { useChannelSubscription } from "../hooks/useEcho";
@@ -12,6 +13,8 @@ import { MessageList } from "./chat/MessageList";
 import { MessageComposer } from "./chat/MessageComposer";
 import { RightPanel } from "./rightpanel/RightPanel";
 import { NotificationBell } from "./sidebar/NotificationBell";
+import { AnnouncementBoard } from "./announcements/AnnouncementBoard";
+import { WikiPage } from "./wiki/WikiPage";
 
 export function CommonsLayout() {
   const { slug } = useParams<{ slug?: string }>();
@@ -29,6 +32,7 @@ export function CommonsLayout() {
   const onlineUsers = usePresence();
   const { isTyping, sendTypingWhisper } = useTypingIndicator(channel?.id);
   const [rightTab, setRightTab] = useState("pinned");
+  const [view, setView] = useState<"chat" | "announcements" | "wiki">("chat");
 
   // Subscribe to real-time events for the active channel
   useChannelSubscription(channel?.id, activeSlug);
@@ -84,34 +88,64 @@ export function CommonsLayout() {
           ) : (
             <ChannelList channels={channels} activeSlug={activeSlug} />
           )}
+          <button
+            onClick={() => setView(view === "announcements" ? "chat" : "announcements")}
+            className={`mx-2 mt-2 flex w-[calc(100%-16px)] items-center gap-2 rounded px-3 py-1.5 text-xs transition-colors ${
+              view === "announcements"
+                ? "bg-primary/10 text-primary"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Megaphone className="h-3.5 w-3.5" />
+            Announcements
+          </button>
+          <button
+            onClick={() => setView(view === "wiki" ? "chat" : "wiki")}
+            className={`mx-2 mt-1 flex w-[calc(100%-16px)] items-center gap-2 rounded px-3 py-1.5 text-xs transition-colors ${
+              view === "wiki"
+                ? "bg-primary/10 text-primary"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <BookOpen className="h-3.5 w-3.5" />
+            Knowledge Base
+          </button>
         </div>
         <OnlineUsers users={onlineUsers} />
       </div>
 
-      {/* Center chat area */}
+      {/* Center content area */}
       <div className="flex flex-1 flex-col">
-        {channel && (
-          <ChannelHeader
-            channel={channel}
-            onToggleTab={(tab) => setRightTab(rightTab === tab ? tab : tab)}
-          />
-        )}
-        <MessageList
-          messages={messages}
-          isLoading={messagesLoading}
-          slug={activeSlug}
-          currentUserId={user?.id ?? 0}
-          isAdmin={isAdmin}
-          isTyping={isTyping}
-        />
-        {channel && (
-          <MessageComposer
-            channelName={channel.slug}
-            onSend={handleSend}
-            disabled={sendMessage.isPending}
-            onKeyDown={sendTypingWhisper}
-            members={members}
-          />
+        {view === "announcements" ? (
+          <AnnouncementBoard channelSlug={activeSlug} />
+        ) : view === "wiki" ? (
+          <WikiPage />
+        ) : (
+          <>
+            {channel && (
+              <ChannelHeader
+                channel={channel}
+                onToggleTab={(tab) => setRightTab(rightTab === tab ? tab : tab)}
+              />
+            )}
+            <MessageList
+              messages={messages}
+              isLoading={messagesLoading}
+              slug={activeSlug}
+              currentUserId={user?.id ?? 0}
+              isAdmin={isAdmin}
+              isTyping={isTyping}
+            />
+            {channel && (
+              <MessageComposer
+                channelName={channel.slug}
+                onSend={handleSend}
+                disabled={sendMessage.isPending}
+                onKeyDown={sendTypingWhisper}
+                members={members}
+              />
+            )}
+          </>
         )}
       </div>
 

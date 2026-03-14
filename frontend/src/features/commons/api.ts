@@ -2,6 +2,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import apiClient from "@/lib/api-client";
 import type {
   ActivityItem,
+  Announcement,
+  WikiArticle,
+  WikiRevision,
   Attachment,
   Channel,
   ChannelMember,
@@ -624,5 +627,196 @@ export function useActivities(slug: string) {
     queryFn: () => fetchActivities(slug),
     enabled: !!slug,
     staleTime: 30_000,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Announcements
+// ---------------------------------------------------------------------------
+
+const ANNOUNCEMENTS_KEY = "commons-announcements";
+
+async function fetchAnnouncements(
+  channelSlug?: string,
+  category?: string,
+): Promise<Announcement[]> {
+  const params = new URLSearchParams();
+  if (channelSlug) params.set("channel", channelSlug);
+  if (category) params.set("category", category);
+  const { data } = await apiClient.get<{ data: Announcement[] }>(
+    `/commons/announcements?${params.toString()}`,
+  );
+  return data.data;
+}
+
+async function createAnnouncement(payload: {
+  title: string;
+  body: string;
+  category?: string;
+  channel_slug?: string;
+  is_pinned?: boolean;
+  expires_at?: string;
+}): Promise<Announcement> {
+  const { data } = await apiClient.post<{ data: Announcement }>(
+    "/commons/announcements",
+    payload,
+  );
+  return data.data;
+}
+
+async function updateAnnouncement(
+  id: number,
+  payload: { title?: string; body?: string; category?: string; is_pinned?: boolean; expires_at?: string | null },
+): Promise<Announcement> {
+  const { data } = await apiClient.patch<{ data: Announcement }>(
+    `/commons/announcements/${id}`,
+    payload,
+  );
+  return data.data;
+}
+
+async function deleteAnnouncement(id: number): Promise<void> {
+  await apiClient.delete(`/commons/announcements/${id}`);
+}
+
+async function toggleBookmark(id: number): Promise<{ bookmarked: boolean }> {
+  const { data } = await apiClient.post<{ data: { bookmarked: boolean } }>(
+    `/commons/announcements/${id}/bookmark`,
+  );
+  return data.data;
+}
+
+export function useAnnouncements(channelSlug?: string, category?: string) {
+  return useQuery({
+    queryKey: [ANNOUNCEMENTS_KEY, channelSlug, category],
+    queryFn: () => fetchAnnouncements(channelSlug, category),
+  });
+}
+
+export function useCreateAnnouncement() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: createAnnouncement,
+    onSuccess: () => void qc.invalidateQueries({ queryKey: [ANNOUNCEMENTS_KEY] }),
+  });
+}
+
+export function useUpdateAnnouncement() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, ...payload }: { id: number; title?: string; body?: string; category?: string; is_pinned?: boolean; expires_at?: string | null }) =>
+      updateAnnouncement(id, payload),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: [ANNOUNCEMENTS_KEY] }),
+  });
+}
+
+export function useDeleteAnnouncement() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: deleteAnnouncement,
+    onSuccess: () => void qc.invalidateQueries({ queryKey: [ANNOUNCEMENTS_KEY] }),
+  });
+}
+
+export function useToggleBookmark() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: toggleBookmark,
+    onSuccess: () => void qc.invalidateQueries({ queryKey: [ANNOUNCEMENTS_KEY] }),
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Wiki / Knowledge Base
+// ---------------------------------------------------------------------------
+
+const WIKI_KEY = "commons-wiki";
+
+async function fetchWikiArticles(query?: string, tag?: string): Promise<WikiArticle[]> {
+  const params = new URLSearchParams();
+  if (query) params.set("q", query);
+  if (tag) params.set("tag", tag);
+  const { data } = await apiClient.get<{ data: WikiArticle[] }>(
+    `/commons/wiki?${params.toString()}`,
+  );
+  return data.data;
+}
+
+async function fetchWikiArticle(slug: string): Promise<WikiArticle> {
+  const { data } = await apiClient.get<{ data: WikiArticle }>(`/commons/wiki/${slug}`);
+  return data.data;
+}
+
+async function createWikiArticle(payload: {
+  title: string;
+  body: string;
+  tags?: string[];
+}): Promise<WikiArticle> {
+  const { data } = await apiClient.post<{ data: WikiArticle }>("/commons/wiki", payload);
+  return data.data;
+}
+
+async function updateWikiArticle(
+  slug: string,
+  payload: { title?: string; body?: string; tags?: string[]; edit_summary?: string },
+): Promise<WikiArticle> {
+  const { data } = await apiClient.patch<{ data: WikiArticle }>(`/commons/wiki/${slug}`, payload);
+  return data.data;
+}
+
+async function deleteWikiArticle(slug: string): Promise<void> {
+  await apiClient.delete(`/commons/wiki/${slug}`);
+}
+
+async function fetchWikiRevisions(slug: string): Promise<WikiRevision[]> {
+  const { data } = await apiClient.get<{ data: WikiRevision[] }>(`/commons/wiki/${slug}/revisions`);
+  return data.data;
+}
+
+export function useWikiArticles(query?: string, tag?: string) {
+  return useQuery({
+    queryKey: [WIKI_KEY, "list", query, tag],
+    queryFn: () => fetchWikiArticles(query, tag),
+  });
+}
+
+export function useWikiArticle(slug: string) {
+  return useQuery({
+    queryKey: [WIKI_KEY, slug],
+    queryFn: () => fetchWikiArticle(slug),
+    enabled: !!slug,
+  });
+}
+
+export function useCreateWikiArticle() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: createWikiArticle,
+    onSuccess: () => void qc.invalidateQueries({ queryKey: [WIKI_KEY] }),
+  });
+}
+
+export function useUpdateWikiArticle() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ slug, ...payload }: { slug: string; title?: string; body?: string; tags?: string[]; edit_summary?: string }) =>
+      updateWikiArticle(slug, payload),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: [WIKI_KEY] }),
+  });
+}
+
+export function useDeleteWikiArticle() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: deleteWikiArticle,
+    onSuccess: () => void qc.invalidateQueries({ queryKey: [WIKI_KEY] }),
+  });
+}
+
+export function useWikiRevisions(slug: string) {
+  return useQuery({
+    queryKey: [WIKI_KEY, slug, "revisions"],
+    queryFn: () => fetchWikiRevisions(slug),
+    enabled: !!slug,
   });
 }

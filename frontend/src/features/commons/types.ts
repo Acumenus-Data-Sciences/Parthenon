@@ -174,6 +174,47 @@ export interface ActivityItem {
   channel?: { id: number; slug: string; name: string } | null;
 }
 
+export interface Announcement {
+  id: number;
+  channel_id: number | null;
+  user_id: number;
+  title: string;
+  body: string;
+  body_html: string | null;
+  category: "general" | "study_recruitment" | "data_update" | "milestone" | "policy";
+  is_pinned: boolean;
+  expires_at: string | null;
+  created_at: string;
+  updated_at: string;
+  user?: ChannelUser;
+  is_bookmarked?: boolean;
+}
+
+export interface WikiArticle {
+  id: number;
+  title: string;
+  slug: string;
+  body: string;
+  body_html: string | null;
+  tags: string[];
+  created_by: number;
+  last_edited_by: number | null;
+  created_at: string;
+  updated_at: string;
+  author?: ChannelUser;
+  last_editor?: ChannelUser | null;
+}
+
+export interface WikiRevision {
+  id: number;
+  article_id: number;
+  body: string;
+  edited_by: number;
+  edit_summary: string | null;
+  created_at: string;
+  editor?: ChannelUser;
+}
+
 export interface CreateChannelPayload {
   name: string;
   slug: string;
