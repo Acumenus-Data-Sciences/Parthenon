@@ -1,4 +1,4 @@
-import { Hash, Users } from "lucide-react";
+import { Pin, Users, Zap } from "lucide-react";
 import type { Channel } from "../../types";
 
 interface ChannelHeaderProps {
@@ -9,16 +9,25 @@ export function ChannelHeader({ channel }: ChannelHeaderProps) {
   return (
     <div className="flex items-center justify-between border-b border-border px-5 py-3">
       <div className="flex items-center gap-2">
-        <Hash className="h-5 w-5 text-muted-foreground" />
-        <h2 className="text-base font-semibold text-foreground">{channel.name}</h2>
+        <span className="text-[15px] font-semibold text-foreground"># {channel.name}</span>
         {channel.description && (
-          <span className="text-sm text-muted-foreground">{channel.description}</span>
+          <span className="text-xs text-muted-foreground ml-1">{channel.description}</span>
         )}
       </div>
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <Users className="h-4 w-4" />
-        <span>{channel.members_count}</span>
+      <div className="flex items-center gap-2">
+        <HeaderButton icon={Pin} label="Pins" />
+        <HeaderButton icon={Users} label={String(channel.members_count)} />
+        <HeaderButton icon={Zap} label="Activity" />
       </div>
     </div>
+  );
+}
+
+function HeaderButton({ icon: Icon, label }: { icon: React.ComponentType<{ className?: string }>; label: string }) {
+  return (
+    <button className="flex items-center gap-1 rounded px-2 py-1 text-xs text-muted-foreground border border-border hover:bg-muted hover:text-foreground transition-colors">
+      <Icon className="h-3.5 w-3.5" />
+      <span>{label}</span>
+    </button>
   );
 }

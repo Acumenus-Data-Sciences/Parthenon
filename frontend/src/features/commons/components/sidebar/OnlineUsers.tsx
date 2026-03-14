@@ -1,4 +1,5 @@
 import type { PresenceUser } from "../../types";
+import { avatarColor } from "../../utils/avatarColor";
 
 interface OnlineUsersProps {
   users: PresenceUser[];
@@ -7,7 +8,7 @@ interface OnlineUsersProps {
 export function OnlineUsers({ users }: OnlineUsersProps) {
   return (
     <div className="border-t border-border px-3 py-3">
-      <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+      <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
         Online — {users.length}
       </p>
       <div className="flex flex-wrap gap-1.5">
@@ -15,10 +16,11 @@ export function OnlineUsers({ users }: OnlineUsersProps) {
           <div
             key={user.id}
             title={user.name}
-            className="relative flex h-7 w-7 items-center justify-center rounded-full bg-primary text-[10px] font-medium text-primary-foreground"
+            className="relative flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-medium text-white"
+            style={{ backgroundColor: avatarColor(user.id) }}
           >
             {getInitials(user.name)}
-            <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-background bg-green-500" />
+            <span className="absolute -bottom-px -right-px h-2 w-2 rounded-full border-2 border-card bg-green-500" />
           </div>
         ))}
       </div>

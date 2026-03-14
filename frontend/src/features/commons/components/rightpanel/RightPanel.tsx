@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { Activity, Pin, FileText } from "lucide-react";
+import { Zap, Pin, FileText } from "lucide-react";
 
 const TABS = [
-  { key: "activity", label: "Activity", icon: Activity },
-  { key: "pinned", label: "Pinned", icon: Pin },
-  { key: "files", label: "Files", icon: FileText },
+  { key: "activity", label: "Activity", icon: Zap, placeholder: "Activity Feed" },
+  { key: "pinned", label: "Pinned", icon: Pin, placeholder: "Pinned Messages" },
+  { key: "files", label: "Files", icon: FileText, placeholder: "Shared Files" },
 ] as const;
 
 export function RightPanel() {
@@ -28,10 +28,10 @@ export function RightPanel() {
           </button>
         ))}
       </div>
-      <div className="flex flex-1 flex-col items-center justify-center gap-2 text-muted-foreground">
-        <active.icon className="h-8 w-8" />
-        <p className="text-sm font-medium">{active.label}</p>
-        <p className="text-xs">Coming in a future update</p>
+      <div className="flex flex-1 flex-col items-center justify-center gap-3 px-5 text-center">
+        <active.icon className="h-8 w-8 text-muted-foreground/50" />
+        <p className="text-[13px] font-medium text-muted-foreground">{active.placeholder}</p>
+        <p className="text-xs text-muted-foreground/60">Coming in a future update</p>
       </div>
     </div>
   );

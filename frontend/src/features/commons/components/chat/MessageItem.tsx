@@ -5,6 +5,7 @@ import rehypeSanitize from "rehype-sanitize";
 import { ChevronDown } from "lucide-react";
 import type { Message } from "../../types";
 import { useToggleReaction } from "../../api";
+import { avatarColor } from "../../utils/avatarColor";
 import { MessageActionMenu } from "./MessageActionMenu";
 import { EditMessageInline } from "./EditMessageInline";
 import { DeleteConfirmation } from "./DeleteConfirmation";
@@ -39,8 +40,11 @@ export function MessageItem({
 
   return (
     <>
-      <div className="group flex gap-3 px-5 py-2 hover:bg-muted/30">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground">
+      <div className="group flex gap-2.5 px-5 py-2.5 hover:bg-muted/30">
+        <div
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white"
+          style={{ backgroundColor: avatarColor(message.user.id) }}
+        >
           {getInitials(message.user.name)}
         </div>
         <div className="min-w-0 flex-1">
@@ -48,7 +52,7 @@ export function MessageItem({
             <span className="text-sm font-semibold text-foreground">
               {message.user.name}
             </span>
-            <span className="text-xs text-muted-foreground">{time}</span>
+            <span className="ml-1 text-[11px] text-muted-foreground">{time}</span>
             {message.is_edited && !isDeleted && (
               <span className="text-xs text-muted-foreground">(edited)</span>
             )}
@@ -80,7 +84,7 @@ export function MessageItem({
               onSaved={() => setEditing(false)}
             />
           ) : (
-            <div className="prose prose-sm prose-invert max-w-none text-foreground [&_pre]:bg-muted [&_pre]:border [&_pre]:border-border [&_pre]:rounded-md [&_code]:text-teal-400">
+            <div className="prose prose-sm prose-invert max-w-none text-[#ccc] leading-relaxed [&_p]:my-1 [&_pre]:bg-[#1a1a22] [&_pre]:border [&_pre]:border-border [&_pre]:rounded-md [&_pre]:p-3 [&_code]:text-teal-400">
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 rehypePlugins={[rehypeSanitize]}

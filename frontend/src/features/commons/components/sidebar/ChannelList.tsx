@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { Hash } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import type { Channel } from "../../types";
 import { useUnreadCounts } from "../../api";
@@ -64,7 +63,7 @@ export function ChannelList({ channels, activeSlug }: ChannelListProps) {
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <p className="px-4 pt-4 pb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+    <p className="px-4 pt-4 pb-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
       {children}
     </p>
   );
@@ -87,20 +86,19 @@ function ChannelItem({
   return (
     <button
       onClick={onClick}
-      className={`mx-2 flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors ${
+      className={`flex items-center justify-between py-1.5 px-4 text-[13px] transition-colors ${
         isActive
-          ? "bg-primary text-primary-foreground"
+          ? "border-l-2 border-primary bg-primary/15 text-foreground"
           : hasUnread
-            ? "text-foreground hover:bg-muted"
-            : "text-muted-foreground hover:bg-muted hover:text-foreground"
+            ? "border-l-2 border-transparent text-foreground hover:bg-muted/50"
+            : "border-l-2 border-transparent text-muted-foreground hover:bg-muted/50 hover:text-foreground"
       }`}
     >
-      <Hash className="h-4 w-4 shrink-0" />
-      <span className={`truncate ${hasUnread ? "font-semibold" : ""}`}>
-        {channel.slug}
+      <span className={`truncate ${hasUnread ? "font-bold" : ""}`}>
+        # {channel.slug}
       </span>
       {hasUnread && (
-        <span className="ml-auto shrink-0 rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-semibold leading-none text-primary-foreground">
+        <span className="ml-auto shrink-0 rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-semibold leading-none text-primary-foreground min-w-[18px] text-center">
           {displayCount}
         </span>
       )}

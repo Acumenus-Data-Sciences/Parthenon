@@ -130,6 +130,13 @@
   max-width: var(--content-max-width);
 }
 
+/* Full-bleed pages (e.g. Commons) bypass padding + max-width */
+.content-main:has(.layout-full-bleed) {
+  padding: 0;
+  max-width: none;
+  overflow: hidden;
+}
+
 /* Page header */
 .page-header {
   margin-bottom: var(--space-6);

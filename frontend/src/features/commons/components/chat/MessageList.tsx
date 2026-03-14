@@ -66,7 +66,7 @@ export function MessageList({
           </p>
         </div>
       ) : (
-        <div className="py-4">
+        <div className="py-4 space-y-1">
           {sorted.map((msg) => (
             <MessageItem
               key={msg.id}
