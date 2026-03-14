@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useChannels, useChannel, useMessages, useSendMessage, useMarkRead, useMembers } from "../api";
 import { usePresence } from "../hooks/usePresence";
 import { useChannelSubscription } from "../hooks/useEcho";
@@ -26,6 +26,7 @@ export function CommonsLayout() {
   const markRead = useMarkRead();
   const onlineUsers = usePresence();
   const { isTyping, sendTypingWhisper } = useTypingIndicator(channel?.id);
+  const [rightTab, setRightTab] = useState("pinned");
 
   // Subscribe to real-time events for the active channel
   useChannelSubscription(channel?.id, activeSlug);
@@ -71,7 +72,12 @@ export function CommonsLayout() {
 
       {/* Center chat area */}
       <div className="flex flex-1 flex-col">
-        {channel && <ChannelHeader channel={channel} />}
+        {channel && (
+          <ChannelHeader
+            channel={channel}
+            onToggleTab={(tab) => setRightTab(rightTab === tab ? tab : tab)}
+          />
+        )}
         <MessageList
           messages={messages}
           isLoading={messagesLoading}
@@ -86,12 +92,13 @@ export function CommonsLayout() {
             onSend={handleSend}
             disabled={sendMessage.isPending}
             onKeyDown={sendTypingWhisper}
+            members={members}
           />
         )}
       </div>
 
       {/* Right panel */}
-      <RightPanel slug={activeSlug} />
+      <RightPanel slug={activeSlug} activeTab={rightTab} onTabChange={setRightTab} members={members} />
     </div>
   );
 }

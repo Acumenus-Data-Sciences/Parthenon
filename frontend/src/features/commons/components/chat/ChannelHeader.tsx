@@ -1,11 +1,12 @@
-import { Pin, Users, Zap } from "lucide-react";
+import { Pin, Users, Search } from "lucide-react";
 import type { Channel } from "../../types";
 
 interface ChannelHeaderProps {
   channel: Channel;
+  onToggleTab?: (tab: string) => void;
 }
 
-export function ChannelHeader({ channel }: ChannelHeaderProps) {
+export function ChannelHeader({ channel, onToggleTab }: ChannelHeaderProps) {
   return (
     <div className="flex items-center justify-between border-b border-border px-5 py-3">
       <div className="flex items-center gap-2">
@@ -15,17 +16,20 @@ export function ChannelHeader({ channel }: ChannelHeaderProps) {
         )}
       </div>
       <div className="flex items-center gap-2">
-        <HeaderButton icon={Pin} label="Pins" />
-        <HeaderButton icon={Users} label={String(channel.members_count)} />
-        <HeaderButton icon={Zap} label="Activity" />
+        <HeaderButton icon={Pin} label="Pins" onClick={() => onToggleTab?.("pinned")} />
+        <HeaderButton icon={Search} label="Search" onClick={() => onToggleTab?.("search")} />
+        <HeaderButton icon={Users} label={String(channel.members_count)} onClick={() => onToggleTab?.("members")} />
       </div>
     </div>
   );
 }
 
-function HeaderButton({ icon: Icon, label }: { icon: React.ComponentType<{ className?: string }>; label: string }) {
+function HeaderButton({ icon: Icon, label, onClick }: { icon: React.ComponentType<{ className?: string }>; label: string; onClick?: () => void }) {
   return (
-    <button className="flex items-center gap-1 rounded px-2 py-1 text-xs text-muted-foreground border border-border hover:bg-muted hover:text-foreground transition-colors">
+    <button
+      onClick={onClick}
+      className="flex items-center gap-1 rounded px-2 py-1 text-xs text-muted-foreground border border-border hover:bg-muted hover:text-foreground transition-colors"
+    >
       <Icon className="h-3.5 w-3.5" />
       <span>{label}</span>
     </button>

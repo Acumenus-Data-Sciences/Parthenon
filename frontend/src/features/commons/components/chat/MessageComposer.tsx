@@ -1,26 +1,104 @@
-import { useState, useRef, type KeyboardEvent } from "react";
+import { useState, useRef, useEffect, type KeyboardEvent } from "react";
 import { Bold, Italic, Code, Paperclip } from "lucide-react";
+import type { ChannelMember } from "../../types";
+import { avatarColor } from "../../utils/avatarColor";
 
 interface MessageComposerProps {
   channelName: string;
   onSend: (body: string) => void;
   disabled?: boolean;
   onKeyDown?: () => void;
+  members?: ChannelMember[];
 }
 
-export function MessageComposer({ channelName, onSend, disabled, onKeyDown }: MessageComposerProps) {
+export function MessageComposer({ channelName, onSend, disabled, onKeyDown, members = [] }: MessageComposerProps) {
   const [body, setBody] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // @mentions state
+  const [mentionQuery, setMentionQuery] = useState<string | null>(null);
+  const [mentionIndex, setMentionIndex] = useState(0);
+  const [mentionStart, setMentionStart] = useState(0);
+
+  const mentionResults = mentionQuery !== null
+    ? members.filter((m) =>
+        m.user.name.toLowerCase().includes(mentionQuery.toLowerCase())
+      ).slice(0, 6)
+    : [];
+
+  useEffect(() => {
+    setMentionIndex(0);
+  }, [mentionQuery]);
+
+  function handleChange(value: string) {
+    setBody(value);
+
+    const ta = textareaRef.current;
+    if (!ta) return;
+
+    const cursor = ta.selectionStart;
+    const textBeforeCursor = value.slice(0, cursor);
+
+    // Detect @mention trigger: @ at start or after whitespace
+    const match = textBeforeCursor.match(/(^|\s)@(\w*)$/);
+    if (match) {
+      setMentionQuery(match[2]);
+      setMentionStart(cursor - match[2].length - 1); // position of @
+    } else {
+      setMentionQuery(null);
+    }
+  }
+
+  function insertMention(member: ChannelMember) {
+    const before = body.slice(0, mentionStart);
+    const after = body.slice(mentionStart + (mentionQuery?.length ?? 0) + 1);
+    const newBody = `${before}@${member.user.name} ${after}`;
+    setBody(newBody);
+    setMentionQuery(null);
+    requestAnimationFrame(() => {
+      const ta = textareaRef.current;
+      if (ta) {
+        const pos = mentionStart + member.user.name.length + 2;
+        ta.focus();
+        ta.setSelectionRange(pos, pos);
+      }
+    });
+  }
 
   function handleSubmit() {
     const trimmed = body.trim();
     if (!trimmed) return;
     onSend(trimmed);
     setBody("");
+    setMentionQuery(null);
     textareaRef.current?.focus();
   }
 
   function handleKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
+    // Handle mention navigation
+    if (mentionQuery !== null && mentionResults.length > 0) {
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        setMentionIndex((i) => Math.min(i + 1, mentionResults.length - 1));
+        return;
+      }
+      if (e.key === "ArrowUp") {
+        e.preventDefault();
+        setMentionIndex((i) => Math.max(i - 1, 0));
+        return;
+      }
+      if (e.key === "Enter" || e.key === "Tab") {
+        e.preventDefault();
+        insertMention(mentionResults[mentionIndex]);
+        return;
+      }
+      if (e.key === "Escape") {
+        e.preventDefault();
+        setMentionQuery(null);
+        return;
+      }
+    }
+
     onKeyDown?.();
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -44,14 +122,44 @@ export function MessageComposer({ channelName, onSend, disabled, onKeyDown }: Me
 
   return (
     <div className="border-t border-border px-5 py-3">
-      <div className="rounded-lg border border-border bg-[#1a1a22] p-3">
+      <div className="relative rounded-lg border border-border bg-[#1a1a22] p-3">
         <div className="text-xs text-muted-foreground mb-2">
           Message #{channelName} — Markdown supported
         </div>
+
+        {/* @mention autocomplete dropdown */}
+        {mentionQuery !== null && mentionResults.length > 0 && (
+          <div className="absolute bottom-full left-0 mb-1 w-64 rounded-md border border-border bg-card py-1 shadow-lg z-20">
+            {mentionResults.map((member, i) => (
+              <button
+                key={member.id}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  insertMention(member);
+                }}
+                className={`flex w-full items-center gap-2 px-3 py-1.5 text-sm ${
+                  i === mentionIndex ? "bg-muted text-foreground" : "text-foreground hover:bg-muted"
+                }`}
+              >
+                <div
+                  className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[8px] font-semibold text-white"
+                  style={{ backgroundColor: avatarColor(member.user_id) }}
+                >
+                  {member.user.name.split(" ").map((p) => p[0]).join("").toUpperCase().slice(0, 2)}
+                </div>
+                <span>{member.user.name}</span>
+                {member.role !== "member" && (
+                  <span className="ml-auto text-[10px] text-muted-foreground">{member.role}</span>
+                )}
+              </button>
+            ))}
+          </div>
+        )}
+
         <textarea
           ref={textareaRef}
           value={body}
-          onChange={(e) => setBody(e.target.value)}
+          onChange={(e) => handleChange(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="Write a message..."
           rows={1}
