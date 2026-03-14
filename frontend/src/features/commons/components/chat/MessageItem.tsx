@@ -4,10 +4,12 @@ import remarkGfm from "remark-gfm";
 import rehypeSanitize from "rehype-sanitize";
 import { ChevronDown } from "lucide-react";
 import type { Message } from "../../types";
+import { useToggleReaction } from "../../api";
 import { MessageActionMenu } from "./MessageActionMenu";
 import { EditMessageInline } from "./EditMessageInline";
 import { DeleteConfirmation } from "./DeleteConfirmation";
 import { ThreadView } from "./ThreadView";
+import { ReactionPills } from "./ReactionPills";
 
 interface MessageItemProps {
   message: Message;
@@ -25,6 +27,7 @@ export function MessageItem({
   const [editing, setEditing] = useState(false);
   const [showThread, setShowThread] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const toggleReaction = useToggleReaction();
 
   const time = new Date(message.created_at).toLocaleTimeString([], {
     hour: "2-digit",
@@ -58,6 +61,7 @@ export function MessageItem({
                   onReply={() => setShowThread(true)}
                   onEdit={() => setEditing(true)}
                   onDelete={() => setShowDeleteConfirm(true)}
+                  onReact={(emoji) => toggleReaction.mutate({ messageId: message.id, emoji })}
                 />
               </div>
             )}
@@ -85,6 +89,14 @@ export function MessageItem({
               </ReactMarkdown>
             </div>
           )}
+
+            {/* Reaction pills */}
+            {!isDeleted && !editing && message.reactions && (
+              <ReactionPills
+                messageId={message.id}
+                reactions={message.reactions}
+              />
+            )}
 
           {/* Reply count link */}
           {(message.reply_count ?? 0) > 0 && !showThread && (
