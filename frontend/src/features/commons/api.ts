@@ -45,10 +45,14 @@ async function fetchMessages(slug: string, before?: number): Promise<Message[]> 
   return data.data;
 }
 
-async function sendMessage(slug: string, body: string): Promise<Message> {
+async function sendMessage(
+  slug: string,
+  body: string,
+  parentId?: number,
+): Promise<Message> {
   const { data } = await apiClient.post<{ data: Message }>(
     `/commons/channels/${slug}/messages`,
-    { body },
+    { body, parent_id: parentId ?? null },
   );
   return data.data;
 }
@@ -63,6 +67,13 @@ async function updateMessage(id: number, body: string): Promise<Message> {
 
 async function deleteMessage(id: number): Promise<void> {
   await apiClient.delete(`/commons/messages/${id}`);
+}
+
+async function fetchReplies(slug: string, messageId: number): Promise<Message[]> {
+  const { data } = await apiClient.get<{ data: Message[] }>(
+    `/commons/channels/${slug}/messages/${messageId}/replies`,
+  );
+  return data.data;
 }
 
 async function fetchMembers(slug: string): Promise<ChannelMember[]> {
@@ -110,11 +121,26 @@ export function useMessages(slug: string) {
   });
 }
 
+export function useReplies(slug: string, messageId: number | null) {
+  return useQuery({
+    queryKey: [MESSAGES_KEY, slug, "replies", messageId],
+    queryFn: () => fetchReplies(slug, messageId!),
+    enabled: !!slug && messageId !== null,
+  });
+}
+
 export function useSendMessage() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ slug, body }: { slug: string; body: string }) =>
-      sendMessage(slug, body),
+    mutationFn: ({
+      slug,
+      body,
+      parentId,
+    }: {
+      slug: string;
+      body: string;
+      parentId?: number;
+    }) => sendMessage(slug, body, parentId),
     onSuccess: (_data, variables) => {
       void qc.invalidateQueries({ queryKey: [MESSAGES_KEY, variables.slug] });
     },
@@ -140,11 +166,11 @@ export function useJoinChannel() {
 export function useUpdateMessage() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, body }: { id: number; body: string }) =>
+    mutationFn: ({ id, body, slug }: { id: number; body: string; slug: string }) =>
       updateMessage(id, body),
-    onSuccess: (updated) => {
+    onSuccess: (_updated, variables) => {
       void qc.invalidateQueries({
-        queryKey: [MESSAGES_KEY, String(updated.channel_id)],
+        queryKey: [MESSAGES_KEY, variables.slug],
       });
     },
   });
