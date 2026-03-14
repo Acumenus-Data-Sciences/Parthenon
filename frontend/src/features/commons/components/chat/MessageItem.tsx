@@ -44,7 +44,7 @@ export function MessageItem({
 
   return (
     <>
-      <div className="group flex gap-2.5 px-5 py-2.5 hover:bg-muted/30">
+      <div className="group flex gap-2.5 px-5 py-3 hover:bg-white/[0.02] transition-colors duration-150">
         <div
           className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white"
           style={{ backgroundColor: avatarColor(message.user.id) }}
@@ -53,7 +53,7 @@ export function MessageItem({
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-baseline gap-2">
-            <span className="text-sm font-semibold text-foreground">
+            <span className="text-[13px] font-semibold text-foreground">
               {message.user.name}
             </span>
             <span className="ml-1 text-[11px] text-muted-foreground">{time}</span>
@@ -90,7 +90,7 @@ export function MessageItem({
               onSaved={() => setEditing(false)}
             />
           ) : (
-            <div className="prose prose-sm prose-invert max-w-none text-[#ccc] leading-relaxed [&_p]:my-1 [&_pre]:bg-[#1a1a22] [&_pre]:border [&_pre]:border-border [&_pre]:rounded-md [&_pre]:p-3 [&_code]:text-teal-400">
+            <div className="prose prose-sm prose-invert max-w-none text-[#b8b8c0] leading-relaxed [&_p]:my-1 [&_pre]:bg-[#13131a] [&_pre]:border [&_pre]:border-white/[0.06] [&_pre]:rounded-md [&_pre]:p-3 [&_code]:text-teal-400">
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 rehypePlugins={[rehypeSanitize]}

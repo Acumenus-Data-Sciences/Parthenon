@@ -8,9 +8,9 @@ interface ChannelHeaderProps {
 
 export function ChannelHeader({ channel, onToggleTab }: ChannelHeaderProps) {
   return (
-    <div className="flex items-center justify-between border-b border-border px-5 py-3">
+    <div className="flex items-center justify-between border-b border-white/[0.06] px-5 py-3 bg-gradient-to-r from-transparent via-white/[0.01] to-transparent">
       <div className="flex items-center gap-2">
-        <span className="text-[15px] font-medium text-foreground">
+        <span className="text-[15px] font-semibold text-foreground tracking-tight">
           {channel.type === "dm" ? channel.name.replace(/^DM:\s*/, "") : `# ${channel.name}`}
         </span>
         {channel.description && (
@@ -32,7 +32,7 @@ function HeaderButton({ icon: Icon, label, onClick }: { icon: React.ComponentTyp
     <button
       onClick={onClick}
       title={label}
-      className="flex h-[30px] w-[30px] items-center justify-center rounded border border-border text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+      className="flex h-[30px] w-[30px] items-center justify-center rounded-md border border-white/[0.06] bg-white/[0.02] text-sm text-muted-foreground hover:bg-white/[0.06] hover:text-foreground transition-all duration-150"
     >
       <Icon className="h-3.5 w-3.5" />
     </button>

@@ -175,8 +175,8 @@ export function MessageComposer({ channelName, onSend, disabled, onKeyDown, memb
   }
 
   return (
-    <div className="border-t border-border px-5 py-3">
-      <div className="relative rounded-lg border border-border bg-[#1a1a22] p-3">
+    <div className="border-t border-white/[0.06] px-5 py-3 bg-gradient-to-t from-black/20 to-transparent">
+      <div className="relative rounded-lg border border-white/[0.08] bg-[#13131a] p-3 shadow-[0_-4px_20px_rgba(0,0,0,0.15)]">
         <div className="text-xs text-muted-foreground mb-2">
           Message #{channelName} — Markdown supported
         </div>
@@ -291,7 +291,7 @@ export function MessageComposer({ channelName, onSend, disabled, onKeyDown, memb
           <button
             onClick={handleSubmit}
             disabled={disabled || (!body.trim() && pendingFiles.length === 0)}
-            className="rounded bg-primary px-4 py-1 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
+            className="rounded-md bg-primary px-4 py-1.5 text-xs font-medium text-primary-foreground transition-all duration-150 hover:bg-primary/90 hover:shadow-[0_0_12px_rgba(155,27,48,0.3)] disabled:opacity-40"
           >
             Send
           </button>

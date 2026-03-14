@@ -27,8 +27,8 @@ interface RightPanelProps {
 
 export function RightPanel({ slug, activeTab, onTabChange, members, channel, currentMember }: RightPanelProps) {
   return (
-    <div className="flex w-[280px] shrink-0 flex-col border-l border-border bg-card">
-      <div className="flex border-b border-border">
+    <div className="flex w-[280px] shrink-0 flex-col border-l border-white/[0.04] bg-[#0c0c10]">
+      <div className="flex border-b border-white/[0.06]">
         {TABS.map((tab) => {
           const Icon = tab.icon;
           return (

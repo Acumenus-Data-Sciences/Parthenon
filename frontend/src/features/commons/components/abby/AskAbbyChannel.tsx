@@ -262,7 +262,7 @@ export default function AskAbbyChannel() {
   return (
     <div className="flex flex-1 flex-col">
       {/* Channel header */}
-      <div className="flex items-center gap-3 px-4 py-3 border-b border-border shrink-0">
+      <div className="flex items-center gap-3 px-5 py-3 border-b border-white/[0.06] shrink-0 bg-gradient-to-r from-emerald-900/[0.04] to-transparent">
         <AbbyAvatar size="lg" showStatus />
         <div className="flex-1 min-w-0">
           <h2 className="text-sm font-medium text-foreground">Ask Abby</h2>
@@ -308,7 +308,7 @@ export default function AskAbbyChannel() {
       </div>
 
       {/* Composer */}
-      <div className="shrink-0 px-4 py-3 border-t border-border">
+      <div className="shrink-0 px-4 py-3 border-t border-white/[0.06] bg-gradient-to-t from-black/20 to-transparent">
         <div className="flex gap-2">
           <input
             ref={inputRef}
@@ -318,12 +318,12 @@ export default function AskAbbyChannel() {
             onKeyDown={handleKeyDown}
             placeholder="Ask Abby anything about your research network..."
             disabled={isLoading}
-            className="flex-1 h-10 px-3.5 text-[13px] bg-muted/50 border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 disabled:opacity-60 transition-all duration-150"
+            className="flex-1 h-10 px-3.5 text-[13px] bg-[#13131a] border border-white/[0.08] rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/30 disabled:opacity-60 transition-all duration-150"
           />
           <button
             onClick={() => handleSend()}
             disabled={!inputValue.trim() || isLoading}
-            className="h-10 px-5 rounded-lg text-[13px] font-medium bg-emerald-600 hover:bg-emerald-700 text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors duration-150 cursor-pointer"
+            className="h-10 px-5 rounded-lg text-[13px] font-medium bg-emerald-600 hover:bg-emerald-500 text-white disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-150 cursor-pointer hover:shadow-[0_0_16px_rgba(16,185,129,0.25)]"
           >
             Ask
           </button>

@@ -148,12 +148,12 @@ function ChannelItem({
   return (
     <button
       onClick={onClick}
-      className={`flex items-center justify-between py-1.5 px-4 text-[13px] transition-colors ${
+      className={`flex items-center justify-between py-1.5 px-4 text-[13px] transition-all duration-150 ${
         isActive
-          ? "border-l-2 border-primary bg-primary/15 text-foreground"
+          ? "border-l-2 border-primary bg-primary/10 text-foreground shadow-[inset_0_0_20px_rgba(155,27,48,0.06)]"
           : hasUnread
-            ? "border-l-2 border-transparent text-foreground hover:bg-muted/50"
-            : "border-l-2 border-transparent text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+            ? "border-l-2 border-transparent text-foreground hover:bg-white/[0.04]"
+            : "border-l-2 border-transparent text-muted-foreground/70 hover:bg-white/[0.04] hover:text-foreground"
       }`}
     >
       <span className={`truncate ${hasUnread ? "font-bold" : ""}`}>

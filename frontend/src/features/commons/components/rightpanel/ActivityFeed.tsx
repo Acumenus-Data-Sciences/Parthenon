@@ -41,12 +41,16 @@ export function ActivityFeed({ slug }: ActivityFeedProps) {
 
   if (activities.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center gap-2 p-6 text-center">
-        <Zap className="h-8 w-8 text-muted-foreground/40" />
-        <p className="text-sm text-muted-foreground">No activity yet</p>
-        <p className="text-xs text-muted-foreground/60">
-          Channel events will appear here
-        </p>
+      <div className="flex flex-col items-center justify-center gap-3 p-8 text-center">
+        <div className="rounded-full bg-white/[0.03] p-4">
+          <Zap className="h-6 w-6 text-muted-foreground/30" />
+        </div>
+        <div>
+          <p className="text-[13px] text-muted-foreground/70">No activity yet</p>
+          <p className="text-[11px] text-muted-foreground/40 mt-1">
+            Channel events will appear here
+          </p>
+        </div>
       </div>
     );
   }

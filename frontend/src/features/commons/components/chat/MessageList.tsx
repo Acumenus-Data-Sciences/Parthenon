@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { Hash } from "lucide-react";
 import type { Message } from "../../types";
 import { MessageItem } from "./MessageItem";
 import { TypingIndicator } from "./TypingIndicator";
@@ -60,10 +61,14 @@ export function MessageList({
   return (
     <div ref={containerRef} className="flex-1 overflow-y-auto">
       {sorted.length === 0 ? (
-        <div className="flex h-full items-center justify-center">
-          <p className="text-sm text-muted-foreground">
-            No messages yet. Start the conversation!
-          </p>
+        <div className="flex h-full flex-col items-center justify-center gap-3">
+          <div className="rounded-full bg-white/[0.03] p-5">
+            <Hash className="h-8 w-8 text-muted-foreground/20" />
+          </div>
+          <div className="text-center">
+            <p className="text-[13px] text-muted-foreground/70">No messages yet</p>
+            <p className="text-[11px] text-muted-foreground/40 mt-1">Be the first to say something</p>
+          </div>
         </div>
       ) : (
         <div className="py-4 space-y-1">

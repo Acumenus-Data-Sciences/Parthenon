@@ -71,3 +71,48 @@ Compared the live production Commons workspace (`/commons/general` and `/commons
 
 **Before:** ~80%
 **After:** ~95% — remaining 5% is cosmetic (0.5px hairline borders vs 1px Tailwind default, which is negligible at screen resolution).
+
+---
+
+## Round 2: Visual Overhaul + Demo Data Seeding
+
+### Problem
+
+The workspace looked flat, monochrome, and lifeless — every panel was the same dark gray with no depth or atmosphere. The #general channel had 5 test messages from one user.
+
+### Visual Depth Pass (9 files)
+
+Applied layered depth treatment across all Commons panels:
+
+- **CommonsLayout sidebar** — darker `#101014` bg, hairline `white/[0.04]` borders
+- **ChannelList** — active channel gets subtle inset crimson glow, inactive items use `white/[0.04]` hover
+- **ChannelHeader** — subtle horizontal gradient, refined header buttons with glass-like fills
+- **MessageItem** — softer body text (`#b8b8c0`), gentler hover (`white/[0.02]`), darker code blocks
+- **MessageComposer** — gradient fade from bottom, shadow lift, crimson glow on Send hover
+- **RightPanel** — darker `#0c0c10` bg for contrast against center area
+- **ActivityFeed** — refined empty state with circular icon container
+- **MessageList** — refined empty state with hash icon
+- **AskAbbyChannel** — emerald gradient header tint, elevated input styling, green glow on Ask hover
+
+### Demo Data Seeder (`commons:seed-demo`)
+
+Created `backend/app/Console/Commands/SeedCommonsDemo.php` — comprehensive Artisan command that populates:
+
+| Content | Count | Details |
+|---------|-------|---------|
+| Channels | 5 | general, data-quality, concept-sets, t2dm-cohort-study, ckd-progression |
+| Members | 6/channel | Real users from the system with owner/admin/member roles |
+| Messages | 16 | Multi-user conversations with markdown, threads, edits |
+| Reactions | 10 | thumbsup, heart, eyes, celebrate across messages |
+| Pins | 2 | Welcome message and Phase 2 announcement |
+| Reviews | 1 | Pending peer review for multi-site execution |
+| Activities | 6 | member_joined, message_pinned, review_created, channel_created |
+| Announcements | 3 | Milestone, data update, methods meeting |
+| Wiki Articles | 3 | Cohort best practices, washout periods, Eunomia limitations |
+| Object References | 2 | Cohort definition and study analysis linked in messages |
+
+Messages reference real research scenarios (T2DM cohort refinement, Achilles characterization, washout period standardization) with realistic timestamps spread across 3 days.
+
+### Result
+
+The workspace now shows a vibrant research collaboration space with diverse user avatars, rich conversations with threads, emoji reactions, object reference chips, review requests, and a populated activity feed — matching the visual density and character of the HTML prototypes.
