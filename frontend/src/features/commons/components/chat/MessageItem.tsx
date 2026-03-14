@@ -12,6 +12,7 @@ import { DeleteConfirmation } from "./DeleteConfirmation";
 import { ThreadView } from "./ThreadView";
 import { ReactionPills } from "./ReactionPills";
 import { ObjectReferenceCard } from "./ObjectReferenceCard";
+import { AttachmentDisplay } from "./AttachmentDisplay";
 
 interface MessageItemProps {
   message: Message;
@@ -95,6 +96,11 @@ export function MessageItem({
                 {message.body}
               </ReactMarkdown>
             </div>
+          )}
+
+          {/* File attachments */}
+          {!isDeleted && !editing && message.attachments && message.attachments.length > 0 && (
+            <AttachmentDisplay attachments={message.attachments} />
           )}
 
           {/* Object references */}

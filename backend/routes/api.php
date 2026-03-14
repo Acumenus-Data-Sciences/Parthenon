@@ -952,6 +952,11 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         // Object references
         Route::get('objects/search', [App\Http\Controllers\Api\V1\Commons\ObjectReferenceController::class, 'search']);
         Route::get('objects/{type}/{id}/discussions', [App\Http\Controllers\Api\V1\Commons\ObjectReferenceController::class, 'discussions']);
+
+        // File attachments
+        Route::post('channels/{slug}/attachments', [App\Http\Controllers\Api\V1\Commons\AttachmentController::class, 'store']);
+        Route::get('attachments/{id}/download', [App\Http\Controllers\Api\V1\Commons\AttachmentController::class, 'download']);
+        Route::delete('attachments/{id}', [App\Http\Controllers\Api\V1\Commons\AttachmentController::class, 'destroy']);
     });
 });
 

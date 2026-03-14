@@ -70,6 +70,12 @@ class Message extends Model
         return $this->hasMany(ObjectReference::class, 'message_id');
     }
 
+    /** @return HasMany<Attachment, $this> */
+    public function attachments(): HasMany
+    {
+        return $this->hasMany(Attachment::class, 'message_id');
+    }
+
     public function isDeleted(): bool
     {
         return $this->deleted_at !== null;

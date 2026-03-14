@@ -31,7 +31,7 @@ class MessageController extends Controller
         $query = Message::where('channel_id', $channel->id)
             ->whereNull('deleted_at')
             ->whereNull('parent_id')
-            ->with(['user:id,name', 'objectReferences'])
+            ->with(['user:id,name', 'objectReferences', 'attachments'])
             ->withCount('replies')
             ->withMax('replies', 'created_at')
             ->orderByDesc('id');

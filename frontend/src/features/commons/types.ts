@@ -69,6 +69,17 @@ export interface ObjectSearchResult {
   status?: string;
 }
 
+export interface Attachment {
+  id: number;
+  message_id: number;
+  user_id: number;
+  original_name: string;
+  stored_path: string;
+  mime_type: string;
+  size_bytes: number;
+  created_at: string;
+}
+
 export interface Message {
   id: number;
   channel_id: number;
@@ -85,6 +96,7 @@ export interface Message {
   latest_reply_at?: string | null;
   reactions?: ReactionSummary;
   object_references?: ObjectReference[];
+  attachments?: Attachment[];
 }
 
 export interface PresenceUser {

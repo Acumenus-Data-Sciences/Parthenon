@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { useChannels, useChannel, useMessages, useSendMessage, useMarkRead, useMembers } from "../api";
+import { useChannels, useChannel, useMessages, useSendMessage, useMarkRead, useMembers, useUploadAttachment } from "../api";
 import { usePresence } from "../hooks/usePresence";
 import { useChannelSubscription } from "../hooks/useEcho";
 import { useTypingIndicator } from "../hooks/useTypingIndicator";
@@ -23,6 +23,7 @@ export function CommonsLayout() {
   const { data: messages = [], isLoading: messagesLoading } = useMessages(activeSlug);
   const { data: members = [] } = useMembers(activeSlug);
   const sendMessage = useSendMessage();
+  const uploadAttachment = useUploadAttachment();
   const markRead = useMarkRead();
   const onlineUsers = usePresence();
   const { isTyping, sendTypingWhisper } = useTypingIndicator(channel?.id);
@@ -45,8 +46,23 @@ export function CommonsLayout() {
     }
   }, [slug, channels, navigate]);
 
-  function handleSend(body: string, references?: { type: string; id: number; name: string }[]) {
-    sendMessage.mutate({ slug: activeSlug, body, references });
+  function handleSend(body: string, references?: { type: string; id: number; name: string }[], files?: File[]) {
+    sendMessage.mutate(
+      { slug: activeSlug, body, references },
+      {
+        onSuccess: (message) => {
+          if (files && files.length > 0) {
+            for (const file of files) {
+              uploadAttachment.mutate({
+                slug: activeSlug,
+                messageId: message.id,
+                file,
+              });
+            }
+          }
+        },
+      },
+    );
   }
 
   // Check if current user is admin/owner in this channel

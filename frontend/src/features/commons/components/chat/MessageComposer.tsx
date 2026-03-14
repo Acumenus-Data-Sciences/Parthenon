@@ -6,7 +6,7 @@ import { ReferencePicker } from "./ReferencePicker";
 
 interface MessageComposerProps {
   channelName: string;
-  onSend: (body: string, references?: { type: string; id: number; name: string }[]) => void;
+  onSend: (body: string, references?: { type: string; id: number; name: string }[], files?: File[]) => void;
   disabled?: boolean;
   onKeyDown?: () => void;
   members?: ChannelMember[];
@@ -19,6 +19,10 @@ export function MessageComposer({ channelName, onSend, disabled, onKeyDown, memb
   // Object references state
   const [attachedRefs, setAttachedRefs] = useState<ObjectSearchResult[]>([]);
   const [showRefPicker, setShowRefPicker] = useState(false);
+
+  // File attachments state
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // @mentions state
   const [mentionQuery, setMentionQuery] = useState<string | null>(null);
@@ -82,15 +86,39 @@ export function MessageComposer({ channelName, onSend, disabled, onKeyDown, memb
     setAttachedRefs((prev) => prev.filter((r) => !(r.type === type && r.id === id)));
   }
 
+  function handleFileSelect() {
+    fileInputRef.current?.click();
+  }
+
+  function handleFilesChosen(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []);
+    // Max 10 MB per file
+    const valid = files.filter((f) => f.size <= 10 * 1024 * 1024);
+    setPendingFiles((prev) => [...prev, ...valid]);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }
+
+  function handleRemoveFile(index: number) {
+    setPendingFiles((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  function formatFileSize(bytes: number): string {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  }
+
   function handleSubmit() {
     const trimmed = body.trim();
-    if (!trimmed) return;
+    if (!trimmed && pendingFiles.length === 0) return;
     const refs = attachedRefs.length > 0
       ? attachedRefs.map((r) => ({ type: r.type, id: r.id, name: r.name }))
       : undefined;
-    onSend(trimmed, refs);
+    const files = pendingFiles.length > 0 ? [...pendingFiles] : undefined;
+    onSend(trimmed || "(file attachment)", refs, files);
     setBody("");
     setAttachedRefs([]);
+    setPendingFiles([]);
     setMentionQuery(null);
     textareaRef.current?.focus();
   }
@@ -147,6 +175,38 @@ export function MessageComposer({ channelName, onSend, disabled, onKeyDown, memb
         <div className="text-xs text-muted-foreground mb-2">
           Message #{channelName} — Markdown supported
         </div>
+
+        {/* Hidden file input */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          multiple
+          onChange={handleFilesChosen}
+          className="hidden"
+          accept="image/*,.pdf,.csv,.json,.txt,.xlsx,.docx"
+        />
+
+        {/* Pending file pills */}
+        {pendingFiles.length > 0 && (
+          <div className="flex flex-wrap gap-1 mb-2">
+            {pendingFiles.map((file, i) => (
+              <span
+                key={`${file.name}-${i}`}
+                className="inline-flex items-center gap-1 rounded-full border border-border bg-muted px-2 py-0.5 text-[11px] text-foreground"
+              >
+                <Paperclip className="h-3 w-3 text-muted-foreground" />
+                <span className="max-w-[120px] truncate">{file.name}</span>
+                <span className="text-muted-foreground">({formatFileSize(file.size)})</span>
+                <button
+                  onClick={() => handleRemoveFile(i)}
+                  className="ml-0.5 rounded-full hover:bg-muted-foreground/20"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </span>
+            ))}
+          </div>
+        )}
 
         {/* Attached reference pills */}
         {attachedRefs.length > 0 && (
@@ -221,11 +281,11 @@ export function MessageComposer({ channelName, onSend, disabled, onKeyDown, memb
             <ToolbarButton icon={Italic} title="Italic" onClick={() => wrapSelection("*", "*")} />
             <ToolbarButton icon={Code} title="Code" onClick={() => wrapSelection("`", "`")} />
             <ToolbarButton icon={Link} title="Reference object" onClick={() => setShowRefPicker(!showRefPicker)} />
-            <ToolbarButton icon={Paperclip} title="Attach file" onClick={() => {}} />
+            <ToolbarButton icon={Paperclip} title="Attach file" onClick={handleFileSelect} />
           </div>
           <button
             onClick={handleSubmit}
-            disabled={disabled || !body.trim()}
+            disabled={disabled || (!body.trim() && pendingFiles.length === 0)}
             className="rounded bg-primary px-4 py-1 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
           >
             Send
