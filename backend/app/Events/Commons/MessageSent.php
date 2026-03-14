@@ -35,6 +35,7 @@ class MessageSent implements ShouldBroadcast
                 'body' => $this->message->body,
                 'body_html' => $this->message->body_html,
                 'parent_id' => $this->message->parent_id,
+                'depth' => $this->message->depth,
                 'is_edited' => $this->message->is_edited,
                 'created_at' => $this->message->created_at->toISOString(),
             ],
