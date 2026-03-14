@@ -5,6 +5,7 @@ import type {
   ChannelMember,
   CreateChannelPayload,
   Message,
+  ReactionSummary,
 } from "./types";
 
 const CHANNELS_KEY = "commons-channels";
@@ -92,6 +93,24 @@ async function joinChannel(slug: string): Promise<ChannelMember> {
 
 async function markChannelRead(slug: string): Promise<void> {
   await apiClient.post(`/commons/channels/${slug}/read`);
+}
+
+async function toggleReaction(
+  messageId: number,
+  emoji: string,
+): Promise<ReactionSummary> {
+  const { data } = await apiClient.post<{ data: ReactionSummary }>(
+    `/commons/messages/${messageId}/reactions`,
+    { emoji },
+  );
+  return data.data;
+}
+
+async function fetchUnreadCounts(): Promise<Record<string, number>> {
+  const { data } = await apiClient.get<{ data: Record<string, number> }>(
+    "/commons/channels/unread",
+  );
+  return data.data;
 }
 
 // ---------------------------------------------------------------------------
@@ -192,4 +211,26 @@ export function useMembers(slug: string) {
 
 export function useMarkRead() {
   return useMutation({ mutationFn: markChannelRead });
+}
+
+const UNREAD_KEY = "commons-unread";
+
+export function useToggleReaction() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ messageId, emoji }: { messageId: number; emoji: string }) =>
+      toggleReaction(messageId, emoji),
+    onSuccess: (_data, variables) => {
+      // Invalidate all message caches to refresh reaction summaries
+      void qc.invalidateQueries({ queryKey: [MESSAGES_KEY] });
+    },
+  });
+}
+
+export function useUnreadCounts() {
+  return useQuery({
+    queryKey: [UNREAD_KEY],
+    queryFn: fetchUnreadCounts,
+    refetchInterval: 60_000,
+  });
 }
