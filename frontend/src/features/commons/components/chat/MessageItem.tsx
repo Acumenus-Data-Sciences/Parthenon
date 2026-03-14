@@ -4,7 +4,7 @@ import remarkGfm from "remark-gfm";
 import rehypeSanitize from "rehype-sanitize";
 import { ChevronDown } from "lucide-react";
 import type { Message } from "../../types";
-import { useToggleReaction, usePinMessage } from "../../api";
+import { useToggleReaction, usePinMessage, useCreateReviewRequest } from "../../api";
 import { avatarColor } from "../../utils/avatarColor";
 import { MessageActionMenu } from "./MessageActionMenu";
 import { EditMessageInline } from "./EditMessageInline";
@@ -32,6 +32,7 @@ export function MessageItem({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const toggleReaction = useToggleReaction();
   const pinMessage = usePinMessage();
+  const createReview = useCreateReviewRequest();
 
   const time = new Date(message.created_at).toLocaleTimeString([], {
     hour: "2-digit",
@@ -70,6 +71,7 @@ export function MessageItem({
                   onDelete={() => setShowDeleteConfirm(true)}
                   onReact={(emoji) => toggleReaction.mutate({ messageId: message.id, emoji })}
                   onPin={() => pinMessage.mutate({ slug, messageId: message.id })}
+                  onRequestReview={() => createReview.mutate({ slug, messageId: message.id })}
                 />
               </div>
             )}

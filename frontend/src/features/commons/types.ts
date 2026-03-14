@@ -124,6 +124,26 @@ export interface SearchResult {
   created_at: string;
 }
 
+export interface ReviewRequest {
+  id: number;
+  message_id: number;
+  channel_id: number;
+  requested_by: number;
+  reviewer_id: number | null;
+  status: "pending" | "approved" | "changes_requested";
+  comment: string | null;
+  resolved_at: string | null;
+  created_at: string;
+  message?: {
+    id: number;
+    body: string;
+    user: ChannelUser;
+    created_at: string;
+  };
+  requester?: ChannelUser;
+  reviewer?: ChannelUser | null;
+}
+
 export interface CreateChannelPayload {
   name: string;
   slug: string;

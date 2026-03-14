@@ -1,13 +1,15 @@
-import { Pin, FileText, Search, Users, Settings } from "lucide-react";
+import { Pin, Search, Users, Settings, ClipboardCheck } from "lucide-react";
 import type { Channel, ChannelMember } from "../../types";
 import { PinnedList } from "./PinnedList";
 import { SearchPanel } from "./SearchPanel";
 import { MemberList } from "./MemberList";
 import { ChannelSettings } from "./ChannelSettings";
+import { ReviewList } from "./ReviewList";
 
 const TABS = [
   { key: "pinned", label: "Pinned", icon: Pin },
   { key: "search", label: "Search", icon: Search },
+  { key: "reviews", label: "Reviews", icon: ClipboardCheck },
   { key: "members", label: "Members", icon: Users },
   { key: "settings", label: "Settings", icon: Settings },
 ] as const;
@@ -41,6 +43,7 @@ export function RightPanel({ slug, activeTab, onTabChange, members, channel, cur
       </div>
       {activeTab === "pinned" && <PinnedList slug={slug} />}
       {activeTab === "search" && <SearchPanel slug={slug} />}
+      {activeTab === "reviews" && <ReviewList slug={slug} />}
       {activeTab === "members" && <MemberList members={members} />}
       {activeTab === "settings" && channel && (
         <ChannelSettings channel={channel} currentMember={currentMember} slug={slug} />

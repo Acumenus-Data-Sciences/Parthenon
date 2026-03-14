@@ -957,6 +957,11 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         Route::post('channels/{slug}/attachments', [App\Http\Controllers\Api\V1\Commons\AttachmentController::class, 'store']);
         Route::get('attachments/{id}/download', [App\Http\Controllers\Api\V1\Commons\AttachmentController::class, 'download']);
         Route::delete('attachments/{id}', [App\Http\Controllers\Api\V1\Commons\AttachmentController::class, 'destroy']);
+
+        // Review requests
+        Route::get('channels/{slug}/reviews', [App\Http\Controllers\Api\V1\Commons\ReviewRequestController::class, 'index']);
+        Route::post('channels/{slug}/reviews', [App\Http\Controllers\Api\V1\Commons\ReviewRequestController::class, 'store']);
+        Route::patch('reviews/{id}/resolve', [App\Http\Controllers\Api\V1\Commons\ReviewRequestController::class, 'resolve']);
     });
 });
 
