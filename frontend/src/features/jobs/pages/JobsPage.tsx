@@ -54,6 +54,11 @@ const statusIcons: Record<JobStatus, React.ElementType> = {
   cancelled: Ban,
 };
 
+function formatJobType(type: JobType | string | null | undefined): string {
+  if (!type) return "analysis";
+  return String(type).replace(/_/g, " ");
+}
+
 function formatDuration(started: string | null, completed: string | null): string {
   if (!started) return "—";
   const start = new Date(started).getTime();
@@ -165,7 +170,7 @@ export default function JobsPage() {
                     <td>
                       <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-1)" }}>
                         <TypeIcon size={14} />
-                        <span>{job.type.replace(/_/g, " ")}</span>
+                        <span>{formatJobType(job.type)}</span>
                       </span>
                     </td>
                     <td>{job.source_name ?? "—"}</td>
@@ -268,7 +273,7 @@ export default function JobsPage() {
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-3)" }}>
               <div>
                 <div className="text-label">Type</div>
-                <div style={{ color: "var(--text-secondary)", fontSize: "var(--text-sm)" }}>{selectedJob.type.replace(/_/g, " ")}</div>
+                <div style={{ color: "var(--text-secondary)", fontSize: "var(--text-sm)" }}>{formatJobType(selectedJob.type)}</div>
               </div>
               <div>
                 <div className="text-label">Source</div>
