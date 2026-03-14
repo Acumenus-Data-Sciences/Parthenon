@@ -1,13 +1,14 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import AbbyAvatar from "./AbbyAvatar";
 import AbbyTypingIndicator from "./AbbyTypingIndicator";
+import AbbySourceAttribution from "./AbbySourceAttribution";
+import AbbyFeedback from "./AbbyFeedback";
 import { useAbbyQuery } from "../../hooks/useAbby";
 import { submitFeedback } from "../../services/abbyService";
 import { useAuthStore } from "@/stores/authStore";
 import type {
   AbbyFeedbackRequest,
   AbbyQueryResponse,
-  AbbySource,
   ObjectReference,
 } from "../../types/abby";
 
@@ -39,12 +40,17 @@ function WelcomeCard({
   onPromptClick: (prompt: string) => void;
 }) {
   return (
-    <div className="rounded-xl p-5 mb-4 border border-emerald-800/40 bg-gradient-to-br from-emerald-900/20 to-teal-900/20">
-      <div className="flex items-center gap-3 mb-3">
-        <AbbyAvatar size="lg" />
-        <h3 className="text-sm font-medium text-foreground">
-          Hi! I'm Abby, your research companion.
-        </h3>
+    <div className="rounded-xl p-5 mb-4 border border-emerald-700/30 bg-gradient-to-br from-emerald-900/15 via-transparent to-teal-900/15 shadow-[inset_0_1px_0_0_rgba(16,185,129,0.1)]">
+      <div className="flex items-start gap-3 mb-3">
+        <AbbyAvatar size="lg" showStatus />
+        <div>
+          <h3 className="text-sm font-medium text-foreground">
+            Hi! I'm Abby, your research companion.
+          </h3>
+          <p className="text-[11px] text-emerald-400/80 mt-0.5">
+            AI assistant · MedGemma 1.5 · Institutional memory
+          </p>
+        </div>
       </div>
 
       <p className="text-[13px] text-muted-foreground leading-relaxed mb-4">
@@ -106,18 +112,24 @@ function AbbyBubble({
   onFeedback: (feedback: AbbyFeedbackRequest) => void;
 }) {
   return (
-    <div className="flex gap-2">
-      <AbbyAvatar size="sm" />
+    <div className="flex gap-2.5">
+      <AbbyAvatar size="md" />
       <div className="max-w-[85%] min-w-0">
+        {/* Header: Name + AI badge + model + timestamp */}
         <div className="flex items-center gap-1.5 mb-1">
+          <span className="text-[13px] font-medium text-foreground">Abby</span>
           <span className="text-[9px] px-1.5 py-px rounded bg-emerald-500/15 text-emerald-400 font-medium">
-            AI
+            AI assistant
           </span>
           <span className="text-[10px] text-muted-foreground">
+            MedGemma 1.5 · 4B
+          </span>
+          <span className="text-[10px] text-muted-foreground ml-auto">
             {formatTime(entry.timestamp)}
           </span>
         </div>
 
+        {/* Response body */}
         <div className="px-3.5 py-2.5 rounded-2xl rounded-bl-sm bg-muted text-[13px] text-foreground leading-relaxed whitespace-pre-wrap">
           {entry.response ? entry.response.content : entry.content}
         </div>
@@ -128,74 +140,28 @@ function AbbyBubble({
             {entry.response.object_references.map((ref: ObjectReference) => (
               <button
                 key={ref.id}
-                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-primary/10 text-[11px] text-primary hover:bg-primary/20 transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-border/50 bg-muted/50 text-[11px] hover:border-border transition-colors cursor-pointer"
               >
                 <span className="text-[9px] opacity-60">◆</span>
-                {ref.display_name}
+                <span className="text-[9px] text-muted-foreground uppercase tracking-wide">
+                  {ref.type.replace(/_/g, " ")}
+                </span>
+                <span className="text-primary font-medium">
+                  {ref.display_name}
+                </span>
               </button>
             ))}
           </div>
         )}
 
-        {/* Sources */}
+        {/* Sources — collapsible with numbered cards and relevance bars */}
         {entry.response && entry.response.sources.length > 0 && (
-          <div className="mt-2 p-2.5 bg-card rounded-lg border border-border">
-            <p className="text-[10px] text-muted-foreground mb-1.5">
-              Sources from institutional memory
-            </p>
-            <div className="flex flex-col gap-1">
-              {entry.response.sources.slice(0, 4).map((source: AbbySource) => (
-                <div
-                  key={source.document_id}
-                  className="flex items-start gap-1.5 text-[11px] text-muted-foreground"
-                >
-                  <span className="w-1 h-1 rounded-full bg-muted-foreground/50 shrink-0 mt-[5px]" />
-                  <span className="line-clamp-1">
-                    {source.metadata.channel_name && (
-                      <span className="text-primary font-medium">
-                        #{source.metadata.channel_name}
-                      </span>
-                    )}
-                    {source.metadata.user_name &&
-                      ` · ${source.metadata.user_name}`}
-                    {source.metadata.created_at && (
-                      <span>
-                        {" · "}
-                        {new Date(source.metadata.created_at).toLocaleDateString(
-                          "en-US",
-                          { month: "short", day: "numeric" }
-                        )}
-                      </span>
-                    )}
-                    {" — "}
-                    <span className="italic">{source.snippet}</span>
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
+          <AbbySourceAttribution sources={entry.response.sources} />
         )}
 
-        {/* Feedback buttons */}
+        {/* Feedback — full expansion with categories for negative */}
         {entry.response && (
-          <div className="flex gap-1.5 mt-2">
-            <button
-              className="px-2 py-0.5 rounded text-[10px] text-muted-foreground border border-border hover:bg-emerald-500/15 hover:text-emerald-400 hover:border-transparent transition-all duration-150 cursor-pointer"
-              onClick={() =>
-                onFeedback({ message_id: entry.id, rating: "helpful" })
-              }
-            >
-              ▲ Helpful
-            </button>
-            <button
-              className="px-2 py-0.5 rounded text-[10px] text-muted-foreground border border-border hover:bg-red-500/15 hover:text-red-400 hover:border-transparent transition-all duration-150 cursor-pointer"
-              onClick={() =>
-                onFeedback({ message_id: entry.id, rating: "not_helpful" })
-              }
-            >
-              ▼
-            </button>
-          </div>
+          <AbbyFeedback messageId={entry.id} onSubmit={onFeedback} />
         )}
       </div>
     </div>

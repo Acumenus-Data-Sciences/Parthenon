@@ -24,15 +24,23 @@ export function OnlineUsers({ users }: OnlineUsersProps) {
       <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
         Online — {users.length}
       </p>
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-0.5">
         {users.map((user) => (
           <button
             key={user.id}
             title={`Message ${user.name}`}
             onClick={() => handleClick(user.id)}
-            className="flex items-center gap-2 px-1 py-0.5 text-[13px] rounded hover:bg-muted/50 transition-colors"
+            className="flex items-center gap-2 px-1 py-1 text-[13px] rounded hover:bg-muted/50 transition-colors"
           >
-            <span className="h-[7px] w-[7px] shrink-0 rounded-full bg-green-500" />
+            <div className="relative shrink-0">
+              <div
+                className="flex h-6 w-6 items-center justify-center rounded-full text-[8px] font-semibold text-white"
+                style={{ backgroundColor: avatarColor(user.id) }}
+              >
+                {getInitials(user.name)}
+              </div>
+              <span className="absolute -bottom-px -right-px h-[7px] w-[7px] rounded-full bg-green-500 ring-1 ring-card" />
+            </div>
             <span className="truncate text-foreground">{user.name}</span>
             {user.activity && (
               <span className="ml-auto shrink-0 text-[11px] text-muted-foreground">
