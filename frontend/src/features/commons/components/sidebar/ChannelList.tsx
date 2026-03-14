@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Hash } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import type { Channel } from "../../types";
+import { useUnreadCounts } from "../../api";
 import { ChannelSearch } from "./ChannelSearch";
 
 interface ChannelListProps {
@@ -12,6 +13,7 @@ interface ChannelListProps {
 export function ChannelList({ channels, activeSlug }: ChannelListProps) {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
+  const { data: unreadCounts = {} } = useUnreadCounts();
 
   const filtered = useMemo(() => {
     if (!search) return channels;
@@ -35,6 +37,7 @@ export function ChannelList({ channels, activeSlug }: ChannelListProps) {
           channel={ch}
           isActive={ch.slug === activeSlug}
           onClick={() => navigate(`/commons/${ch.slug}`)}
+          unreadCount={unreadCounts[ch.slug] ?? 0}
         />
       ))}
 
@@ -47,6 +50,7 @@ export function ChannelList({ channels, activeSlug }: ChannelListProps) {
               channel={ch}
               isActive={ch.slug === activeSlug}
               onClick={() => navigate(`/commons/${ch.slug}`)}
+              unreadCount={unreadCounts[ch.slug] ?? 0}
             />
           ))}
         </>
@@ -70,22 +74,36 @@ function ChannelItem({
   channel,
   isActive,
   onClick,
+  unreadCount = 0,
 }: {
   channel: Channel;
   isActive: boolean;
   onClick: () => void;
+  unreadCount?: number;
 }) {
+  const hasUnread = unreadCount > 0 && !isActive;
+  const displayCount = unreadCount > 99 ? "99+" : String(unreadCount);
+
   return (
     <button
       onClick={onClick}
       className={`mx-2 flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors ${
         isActive
           ? "bg-primary text-primary-foreground"
-          : "text-muted-foreground hover:bg-muted hover:text-foreground"
+          : hasUnread
+            ? "text-foreground hover:bg-muted"
+            : "text-muted-foreground hover:bg-muted hover:text-foreground"
       }`}
     >
       <Hash className="h-4 w-4 shrink-0" />
-      <span className="truncate">{channel.slug}</span>
+      <span className={`truncate ${hasUnread ? "font-semibold" : ""}`}>
+        {channel.slug}
+      </span>
+      {hasUnread && (
+        <span className="ml-auto shrink-0 rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-semibold leading-none text-primary-foreground">
+          {displayCount}
+        </span>
+      )}
     </button>
   );
 }
