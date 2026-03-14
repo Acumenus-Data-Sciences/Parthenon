@@ -3,6 +3,7 @@ import { Bold, Italic, Code, Paperclip, Link, X } from "lucide-react";
 import type { ChannelMember, ObjectSearchResult } from "../../types";
 import { avatarColor } from "../../utils/avatarColor";
 import { ReferencePicker } from "./ReferencePicker";
+import { dispatchAbbyMentionEvent } from "../abby/AbbyMentionHandler";
 
 interface MessageComposerProps {
   channelName: string;
@@ -116,6 +117,10 @@ export function MessageComposer({ channelName, onSend, disabled, onKeyDown, memb
       : undefined;
     const files = pendingFiles.length > 0 ? [...pendingFiles] : undefined;
     onSend(trimmed || "(file attachment)", refs, files);
+    // Dispatch @Abby mention event if the message contains @Abby
+    if (trimmed) {
+      dispatchAbbyMentionEvent(trimmed, "current-user");
+    }
     setBody("");
     setAttachedRefs([]);
     setPendingFiles([]);

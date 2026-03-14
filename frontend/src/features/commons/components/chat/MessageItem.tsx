@@ -114,6 +114,13 @@ export function MessageItem({
             </div>
           )}
 
+          {/* Review status badge */}
+          {!isDeleted && message.review_status === "requested" && (
+            <span className="inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 rounded-md bg-amber-500/15 text-[11px] font-medium text-amber-400">
+              Review requested
+            </span>
+          )}
+
           {/* Reaction pills */}
           {!isDeleted && !editing && message.reactions && (
             <ReactionPills

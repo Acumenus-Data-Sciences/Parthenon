@@ -15,6 +15,8 @@ import { RightPanel } from "./rightpanel/RightPanel";
 import { NotificationBell } from "./sidebar/NotificationBell";
 import { AnnouncementBoard } from "./announcements/AnnouncementBoard";
 import { WikiPage } from "./wiki/WikiPage";
+import AskAbbyChannel from "./abby/AskAbbyChannel";
+import AbbyMentionHandler from "./abby/AbbyMentionHandler";
 
 export function CommonsLayout() {
   const { slug } = useParams<{ slug?: string }>();
@@ -31,7 +33,7 @@ export function CommonsLayout() {
   const markRead = useMarkRead();
   const onlineUsers = usePresence();
   const { isTyping, sendTypingWhisper } = useTypingIndicator(channel?.id);
-  const [rightTab, setRightTab] = useState("pinned");
+  const [rightTab, setRightTab] = useState("activity");
   const [view, setView] = useState<"chat" | "announcements" | "wiki">("chat");
 
   // Subscribe to real-time events for the active channel
@@ -116,7 +118,9 @@ export function CommonsLayout() {
 
       {/* Center content area */}
       <div className="flex flex-1 flex-col">
-        {view === "announcements" ? (
+        {activeSlug === "ask-abby" ? (
+          <AskAbbyChannel />
+        ) : view === "announcements" ? (
           <AnnouncementBoard channelSlug={activeSlug} />
         ) : view === "wiki" ? (
           <WikiPage />
@@ -137,6 +141,12 @@ export function CommonsLayout() {
               isTyping={isTyping}
             />
             {channel && (
+              <AbbyMentionHandler
+                channelId={String(channel.id)}
+                channelName={channel.name}
+              />
+            )}
+            {channel && (
               <MessageComposer
                 channelName={channel.slug}
                 onSend={handleSend}
@@ -149,15 +159,17 @@ export function CommonsLayout() {
         )}
       </div>
 
-      {/* Right panel */}
-      <RightPanel
-        slug={activeSlug}
-        activeTab={rightTab}
-        onTabChange={setRightTab}
-        members={members}
-        channel={channel}
-        currentMember={currentMember}
-      />
+      {/* Right panel — hidden when Ask Abby is active */}
+      {activeSlug !== "ask-abby" && (
+        <RightPanel
+          slug={activeSlug}
+          activeTab={rightTab}
+          onTabChange={setRightTab}
+          members={members}
+          channel={channel}
+          currentMember={currentMember}
+        />
+      )}
     </div>
   );
 }

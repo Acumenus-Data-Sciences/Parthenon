@@ -35,58 +35,67 @@ export function ThreadView({ parentMessage, slug, currentUserId }: ThreadViewPro
   }
 
   return (
-    <div className="ml-12 border-l-2 border-border pl-4">
-      {isLoading ? (
-        <p className="py-2 text-xs text-muted-foreground">Loading replies...</p>
-      ) : (
-        replies.map((reply) => (
-          <div
-            key={reply.id}
-            className="py-1.5"
-            style={{ paddingLeft: reply.depth === 2 ? 24 : 0 }}
-          >
-            {reply.deleted_at ? (
-              <p className="text-xs italic text-muted-foreground">
-                [message deleted]
-              </p>
-            ) : (
-              <>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-xs font-semibold text-foreground">
-                    {reply.user.name}
-                  </span>
-                  <span className="text-xs text-muted-foreground">
-                    {new Date(reply.created_at).toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </span>
-                  {reply.is_edited && (
-                    <span className="text-xs text-muted-foreground">(edited)</span>
+    <div className="ml-[58px] mr-4 mb-3 rounded-md border border-border bg-card/50 overflow-hidden">
+      <div className="flex items-center gap-1.5 px-3 py-2 border-b border-border text-[11px] text-muted-foreground">
+        <span>Thread</span>
+        <span className="opacity-50">·</span>
+        <span>
+          {isLoading
+            ? "Loading..."
+            : `${replies.length} ${replies.length === 1 ? "reply" : "replies"}`}
+        </span>
+      </div>
+
+      <div className="divide-y divide-border">
+        {!isLoading &&
+          replies.map((reply) => (
+            <div
+              key={reply.id}
+              className="px-3 py-2"
+              style={{ paddingLeft: reply.depth === 2 ? 36 : 12 }}
+            >
+              {reply.deleted_at ? (
+                <p className="text-xs italic text-muted-foreground">
+                  [message deleted]
+                </p>
+              ) : (
+                <>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-xs font-semibold text-foreground">
+                      {reply.user.name}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {new Date(reply.created_at).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </span>
+                    {reply.is_edited && (
+                      <span className="text-xs text-muted-foreground">(edited)</span>
+                    )}
+                  </div>
+                  <div className="prose prose-sm prose-invert max-w-none text-sm text-foreground">
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      rehypePlugins={[rehypeSanitize]}
+                    >
+                      {reply.body}
+                    </ReactMarkdown>
+                  </div>
+                  {reply.reactions && (
+                    <ReactionPills
+                      messageId={reply.id}
+                      reactions={reply.reactions}
+                    />
                   )}
-                </div>
-                <div className="prose prose-sm prose-invert max-w-none text-sm text-foreground">
-                  <ReactMarkdown
-                    remarkPlugins={[remarkGfm]}
-                    rehypePlugins={[rehypeSanitize]}
-                  >
-                    {reply.body}
-                  </ReactMarkdown>
-                </div>
-                {reply.reactions && (
-                  <ReactionPills
-                    messageId={reply.id}
-                    reactions={reply.reactions}
-                  />
-                )}
-              </>
-            )}
-          </div>
-        ))
-      )}
+                </>
+              )}
+            </div>
+          ))}
+      </div>
 
       {/* Compact reply composer */}
-      <div className="mt-2 flex gap-2">
+      <div className="flex gap-2 px-3 py-2 border-t border-border">
         <textarea
           value={replyBody}
           onChange={(e) => setReplyBody(e.target.value)}

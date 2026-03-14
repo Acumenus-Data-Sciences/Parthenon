@@ -8,9 +8,9 @@ import { ReviewList } from "./ReviewList";
 import { ActivityFeed } from "./ActivityFeed";
 
 const TABS = [
+  { key: "activity", label: "Activity", icon: Zap },
   { key: "pinned", label: "Pinned", icon: Pin },
   { key: "search", label: "Search", icon: Search },
-  { key: "activity", label: "Activity", icon: Zap },
   { key: "reviews", label: "Reviews", icon: ClipboardCheck },
   { key: "members", label: "Members", icon: Users },
   { key: "settings", label: "Settings", icon: Settings },

@@ -31,46 +31,32 @@ export function PinnedList({ slug }: PinnedListProps) {
 
   return (
     <div className="flex-1 overflow-y-auto">
-      {pins.map((pin) => (
-        <div
-          key={pin.id}
-          className="group border-b border-border px-4 py-3 hover:bg-muted/30"
-        >
-          <div className="flex items-start gap-2">
-            <div
-              className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[9px] font-semibold text-white"
-              style={{ backgroundColor: avatarColor(pin.message.user.id) }}
-            >
-              {pin.message.user.name
-                .split(" ")
-                .map((p) => p[0])
-                .join("")
-                .toUpperCase()
-                .slice(0, 2)}
+      <div className="p-3 space-y-2">
+        {pins.map((pin) => (
+          <div
+            key={pin.id}
+            className="group relative rounded-md border border-border bg-card p-2.5"
+          >
+            <div className="text-xs font-medium text-foreground line-clamp-2">
+              {pin.message.body}
             </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-baseline gap-1.5">
-                <span className="text-xs font-semibold text-foreground">
-                  {pin.message.user.name}
-                </span>
-                <span className="text-[10px] text-muted-foreground">
-                  {new Date(pin.message.created_at).toLocaleDateString()}
-                </span>
-              </div>
-              <p className="mt-0.5 text-xs text-muted-foreground line-clamp-3">
-                {pin.message.body}
-              </p>
+            <div className="text-[11px] text-muted-foreground mt-1">
+              {pin.message.user.name} · Pinned{" "}
+              {new Date(pin.pinned_at).toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+              })}
             </div>
             <button
               onClick={() => unpin.mutate({ slug, pinId: pin.id })}
               title="Unpin"
-              className="shrink-0 rounded p-0.5 text-muted-foreground opacity-0 group-hover:opacity-100 hover:bg-muted hover:text-foreground transition-all"
+              className="absolute top-1.5 right-1.5 shrink-0 rounded p-0.5 text-muted-foreground opacity-0 group-hover:opacity-100 hover:bg-muted hover:text-foreground transition-all"
             >
               <X className="h-3 w-3" />
             </button>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }

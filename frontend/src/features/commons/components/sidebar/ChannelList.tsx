@@ -56,6 +56,20 @@ export function ChannelList({ channels, activeSlug }: ChannelListProps) {
         />
       ))}
 
+      {/* AI Assistant */}
+      <SectionLabel>AI Assistant</SectionLabel>
+      <button
+        onClick={() => navigate("/commons/ask-abby")}
+        className={`flex items-center gap-2 py-1.5 px-4 text-[13px] transition-colors ${
+          activeSlug === "ask-abby"
+            ? "border-l-2 border-emerald-500 bg-emerald-500/15 text-foreground"
+            : "border-l-2 border-transparent text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+        }`}
+      >
+        <span className="text-emerald-500">✦</span>
+        ask-abby
+      </button>
+
       {studyChannels.length > 0 && (
         <>
           <SectionLabel>Study Channels</SectionLabel>

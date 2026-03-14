@@ -97,11 +97,13 @@ export interface Message {
   reactions?: ReactionSummary;
   object_references?: ObjectReference[];
   attachments?: Attachment[];
+  review_status?: "requested" | "approved" | "rejected" | null;
 }
 
 export interface PresenceUser {
   id: number;
   name: string;
+  activity?: string;
 }
 
 export interface PinnedMessage {
