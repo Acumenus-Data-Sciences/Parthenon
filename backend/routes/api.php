@@ -50,6 +50,7 @@ use App\Http\Controllers\Api\V1\ImagingController;
 use App\Http\Controllers\Api\V1\ImagingTimelineController;
 use App\Http\Controllers\Api\V1\IncidenceRateController;
 use App\Http\Controllers\Api\V1\IngestionController;
+use App\Http\Controllers\Api\V1\JobController;
 use App\Http\Controllers\Api\V1\MappingReviewController;
 use App\Http\Controllers\Api\V1\NegativeControlController;
 use App\Http\Controllers\Api\V1\NetworkAnalysisController;
@@ -106,6 +107,12 @@ Route::prefix('v1')->group(function () {
 
         // Dashboard (unified stats — single call replaces 3+N frontend requests)
         Route::get('/dashboard/stats', [DashboardController::class, 'stats']);
+
+        // Jobs
+        Route::get('/jobs', [JobController::class, 'index']);
+        Route::get('/jobs/{job}', [JobController::class, 'show']);
+        Route::post('/jobs/{job}/retry', [JobController::class, 'retry']);
+        Route::post('/jobs/{job}/cancel', [JobController::class, 'cancel']);
 
         // Global search (across Solr cores: vocabulary, cohorts, studies)
         Route::get('/search', [GlobalSearchController::class, 'search']);

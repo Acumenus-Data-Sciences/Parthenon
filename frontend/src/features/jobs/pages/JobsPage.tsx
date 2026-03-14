@@ -38,8 +38,11 @@ const typeIcons: Partial<Record<JobType, React.ElementType>> = {
   pathway: GitFork,
   estimation: FlaskConical,
   prediction: FlaskConical,
+  sccs: FlaskConical,
+  evidence_synthesis: BarChart2,
   ingestion: Upload,
   vocabulary_load: BookOpen,
+  analysis: Wand2,
 };
 
 const statusIcons: Record<JobStatus, React.ElementType> = {

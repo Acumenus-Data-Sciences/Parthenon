@@ -1,7 +1,20 @@
 import apiClient from "@/lib/api-client";
 
 export type JobStatus = "pending" | "queued" | "running" | "completed" | "failed" | "cancelled";
-export type JobType = "cohort_generation" | "achilles" | "dqd" | "characterization" | "incidence_rate" | "pathway" | "estimation" | "prediction" | "ingestion" | "vocabulary_load";
+export type JobType =
+  | "cohort_generation"
+  | "achilles"
+  | "dqd"
+  | "characterization"
+  | "incidence_rate"
+  | "pathway"
+  | "estimation"
+  | "prediction"
+  | "sccs"
+  | "evidence_synthesis"
+  | "ingestion"
+  | "vocabulary_load"
+  | "analysis";
 
 export interface Job {
   id: number;
@@ -40,6 +53,9 @@ export async function fetchJobs(params?: {
 }
 
 export async function fetchJob(id: number): Promise<Job> {
+  if (id == null) {
+    throw new Error("Job id is required");
+  }
   const { data } = await apiClient.get<Job>(`/jobs/${id}`);
   return data;
 }
