@@ -1,0 +1,246 @@
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.sheet { padding: 8px 0; }
+.section { margin-bottom: 20px; }
+.sec-label { font-size: 10px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 8px; padding-left: 2px; }
+.card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; }
+
+/* Abby response card */
+.abby-card { padding: 14px 16px; }
+.abby-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.abby-av { width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg, #1D9E75, #0F6E56); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; flex-shrink: 0; }
+.abby-name { font-size: 13px; font-weight: 500; color: var(--color-text-primary); }
+.abby-badge { font-size: 9px; background: var(--color-background-success); color: var(--color-text-success); padding: 1px 6px; border-radius: 4px; font-weight: 500; }
+.abby-model { font-size: 10px; color: var(--color-text-tertiary); }
+.abby-time { font-size: 11px; color: var(--color-text-tertiary); margin-left: auto; }
+.abby-body { font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; }
+.abby-body strong { color: var(--color-text-primary); font-weight: 500; }
+
+/* Object references */
+.obj-refs { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+.obj-ref { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 6px; font-size: 11px; cursor: pointer; border: 0.5px solid var(--color-border-tertiary); background: var(--color-background-secondary); transition: all 0.15s; }
+.obj-ref:hover { border-color: var(--color-border-secondary); }
+.obj-ref-icon { font-size: 9px; opacity: 0.6; }
+.obj-ref-type { font-size: 9px; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.3px; }
+.obj-ref-name { color: var(--color-text-info); font-weight: 500; }
+
+/* Sources panel */
+.sources-panel { margin-top: 10px; border-top: 0.5px solid var(--color-border-tertiary); padding-top: 10px; }
+.sources-toggle { font-size: 11px; color: var(--color-text-tertiary); cursor: pointer; display: flex; align-items: center; gap: 5px; user-select: none; }
+.sources-toggle:hover { color: var(--color-text-secondary); }
+.sources-expanded { margin-top: 8px; display: flex; flex-direction: column; gap: 6px; }
+.source-card { display: flex; gap: 8px; padding: 8px 10px; background: var(--color-background-secondary); border-radius: 6px; align-items: flex-start; }
+.source-rank { width: 18px; height: 18px; border-radius: 50%; background: var(--color-background-tertiary); display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 500; color: var(--color-text-tertiary); flex-shrink: 0; }
+.source-content { flex: 1; min-width: 0; }
+.source-origin { font-size: 10px; color: var(--color-text-tertiary); display: flex; align-items: center; gap: 4px; }
+.source-origin-channel { color: var(--color-text-info); font-weight: 500; }
+.source-snippet { font-size: 11px; color: var(--color-text-secondary); line-height: 1.4; margin-top: 2px; font-style: italic; }
+.source-relevance { font-size: 9px; color: var(--color-text-tertiary); margin-top: 2px; }
+.rel-bar { display: inline-block; width: 40px; height: 3px; background: var(--color-background-tertiary); border-radius: 2px; vertical-align: middle; margin-left: 4px; position: relative; overflow: hidden; }
+.rel-fill { height: 100%; border-radius: 2px; background: var(--color-text-success); }
+
+/* Feedback */
+.feedback { display: flex; align-items: center; gap: 8px; margin-top: 10px; padding-top: 10px; border-top: 0.5px solid var(--color-border-tertiary); }
+.fb-btn { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--color-text-tertiary); padding: 3px 10px; border-radius: 5px; border: 0.5px solid var(--color-border-tertiary); background: none; cursor: pointer; transition: all 0.15s; }
+.fb-btn:hover { background: var(--color-background-secondary); }
+.fb-btn.up-active { background: var(--color-background-success); color: var(--color-text-success); border-color: transparent; }
+.fb-btn.down-active { background: var(--color-background-danger); color: var(--color-text-danger); border-color: transparent; }
+.fb-comment { flex: 1; font-size: 11px; color: var(--color-text-tertiary); text-align: right; }
+
+/* Thinking indicator */
+.thinking-card { padding: 14px 16px; display: flex; align-items: center; gap: 10px; }
+.thinking-stages { display: flex; flex-direction: column; gap: 4px; }
+.thinking-stage { display: flex; align-items: center; gap: 6px; font-size: 11px; }
+.thinking-stage.done { color: var(--color-text-success); }
+.thinking-stage.active { color: var(--color-text-primary); font-weight: 500; }
+.thinking-stage.pending { color: var(--color-text-tertiary); }
+.stage-check { font-size: 10px; width: 14px; text-align: center; }
+.stage-spinner { width: 12px; height: 12px; border: 1.5px solid var(--color-border-tertiary); border-top-color: var(--color-text-info); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.stage-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--color-border-tertiary); margin: 0 3px; }
+
+/* Annotation pointers */
+.annotate { position: relative; }
+.ann-line { position: absolute; border-left: 1.5px dashed var(--color-border-secondary); }
+.ann-label { position: absolute; font-size: 9px; color: var(--color-text-info); font-weight: 500; background: var(--color-background-info); padding: 1px 6px; border-radius: 3px; white-space: nowrap; }
+</style>
+
+<div class="sheet">
+
+<!-- STATE 1: Full response with expanded sources -->
+<div class="section">
+  <div class="sec-label">AbbyResponseCard — expanded sources</div>
+  <div class="card">
+    <div class="abby-card">
+      <div class="abby-header">
+        <div class="abby-av">Ab</div>
+        <div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span class="abby-name">Abby</span>
+            <span class="abby-badge">AI assistant</span>
+            <span class="abby-model">MedGemma 1.5 · 4B</span>
+          </div>
+        </div>
+        <span class="abby-time">2:14 PM</span>
+      </div>
+
+      <div class="abby-body">
+        Your network has three concept sets for heart failure. The most widely used is <strong>HF Broad (SNOMED + ICD-10)</strong>, which Dr. Torres built for the CKD study — it includes 84 concepts covering both HFrEF and HFpEF with ICD-10 crosswalks. Dr. Patel's <strong>HFrEF Specific</strong> set (23 concepts) is narrower, targeting only reduced ejection fraction, and was validated against echo data at Site B with 91% PPV. There's also a legacy <strong>CHF DRG-based</strong> set from early platform setup that several team members have flagged as too broad for research use.
+      </div>
+
+      <div class="obj-refs">
+        <div class="obj-ref">
+          <span class="obj-ref-icon">◆</span>
+          <span class="obj-ref-type">Concept set</span>
+          <span class="obj-ref-name">HF Broad (SNOMED + ICD-10)</span>
+        </div>
+        <div class="obj-ref">
+          <span class="obj-ref-icon">◆</span>
+          <span class="obj-ref-type">Concept set</span>
+          <span class="obj-ref-name">HFrEF Specific v1.2</span>
+        </div>
+        <div class="obj-ref">
+          <span class="obj-ref-icon">◆</span>
+          <span class="obj-ref-type">Concept set</span>
+          <span class="obj-ref-name">CHF DRG-based (legacy)</span>
+        </div>
+      </div>
+
+      <div class="sources-panel">
+        <div class="sources-toggle">▾ 5 sources from institutional memory</div>
+        <div class="sources-expanded">
+          <div class="source-card">
+            <div class="source-rank">1</div>
+            <div class="source-content">
+              <div class="source-origin"><span class="source-origin-channel">#concept-sets</span> · Dr. Torres · Oct 15</div>
+              <div class="source-snippet">"Finalized the broad HF set with 84 concepts — includes both systolic and diastolic codes with ICD-10 crosswalks for sites still on older vocabularies"</div>
+              <div class="source-relevance">Relevance <span class="rel-bar"><span class="rel-fill" style="width:95%"></span></span></div>
+            </div>
+          </div>
+          <div class="source-card">
+            <div class="source-rank">2</div>
+            <div class="source-content">
+              <div class="source-origin"><span class="source-origin-channel">#ckd-progression</span> · Dr. Patel · Nov 12</div>
+              <div class="source-snippet">"Validated HFrEF set against echo EF data at Site B — PPV 91%, sensitivity 78%. Good enough for exposure definition, not for outcome."</div>
+              <div class="source-relevance">Relevance <span class="rel-bar"><span class="rel-fill" style="width:88%"></span></span></div>
+            </div>
+          </div>
+          <div class="source-card">
+            <div class="source-rank">3</div>
+            <div class="source-content">
+              <div class="source-origin"><span class="source-origin-channel">Wiki</span> · Concept set design patterns · Feb 22</div>
+              <div class="source-snippet">HF concept sets section describing the three available sets and recommended use cases</div>
+              <div class="source-relevance">Relevance <span class="rel-bar"><span class="rel-fill" style="width:82%"></span></span></div>
+            </div>
+          </div>
+          <div class="source-card">
+            <div class="source-rank">4</div>
+            <div class="source-content">
+              <div class="source-origin"><span class="source-origin-channel">#data-quality</span> · Dr. Udoshi · Jan 5</div>
+              <div class="source-snippet">"The DRG-based CHF set is pulling in way too many non-HF admissions. Don't use it for new studies."</div>
+              <div class="source-relevance">Relevance <span class="rel-bar"><span class="rel-fill" style="width:71%"></span></span></div>
+            </div>
+          </div>
+          <div class="source-card">
+            <div class="source-rank">5</div>
+            <div class="source-content">
+              <div class="source-origin"><span class="source-origin-channel">Review #31</span> · HFrEF concept set approval · Nov 20</div>
+              <div class="source-snippet">Approved by Dr. Chen and Dr. Udoshi for use in CKD secondary analysis</div>
+              <div class="source-relevance">Relevance <span class="rel-bar"><span class="rel-fill" style="width:64%"></span></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="feedback">
+        <button class="fb-btn up-active" onclick="this.classList.toggle('up-active')">▲ Helpful</button>
+        <button class="fb-btn" onclick="this.classList.toggle('down-active')">▼ Not helpful</button>
+        <span class="fb-comment">Thank you for your feedback</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STATE 2: Thinking / processing indicator -->
+<div class="section">
+  <div class="sec-label">AbbyTypingIndicator — RAG pipeline stages</div>
+  <div class="card">
+    <div class="thinking-card">
+      <div class="abby-av" style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#1D9E75,#0F6E56);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0">Ab</div>
+      <div class="thinking-stages">
+        <div class="thinking-stage done">
+          <span class="stage-check">✓</span>
+          <span>Analyzing your question</span>
+        </div>
+        <div class="thinking-stage done">
+          <span class="stage-check">✓</span>
+          <span>Searching 4 knowledge collections</span>
+        </div>
+        <div class="thinking-stage active">
+          <span class="stage-spinner"></span>
+          <span>Reading 12 relevant sources</span>
+        </div>
+        <div class="thinking-stage pending">
+          <span class="stage-dot"></span>
+          <span>Composing response</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STATE 3: Compact response (collapsed sources) -->
+<div class="section">
+  <div class="sec-label">AbbyResponseCard — compact (sources collapsed)</div>
+  <div class="card">
+    <div class="abby-card">
+      <div class="abby-header">
+        <div class="abby-av" style="width:26px;height:26px;font-size:10px;border-radius:50%;background:linear-gradient(135deg,#1D9E75,#0F6E56);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:500;flex-shrink:0">Ab</div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span class="abby-name" style="font-size:12px">Abby</span>
+          <span class="abby-badge">AI</span>
+        </div>
+        <span class="abby-time">11:03 AM</span>
+      </div>
+      <div class="abby-body" style="font-size:12px">
+        Yes — Dr. Torres confirmed in the #data-quality channel on Feb 8 that the Achilles heel results for Measurement table completeness at Site C improved from 72% to 94% after the February data refresh. The remaining gaps are in lab result units (UCUM standardization).
+      </div>
+      <div class="obj-refs" style="margin-top:8px">
+        <div class="obj-ref" style="font-size:10px;padding:3px 8px">
+          <span class="obj-ref-icon">◆</span>
+          <span class="obj-ref-name">DQ Report: Site C Feb 2026</span>
+        </div>
+      </div>
+      <div style="margin-top:8px;display:flex;align-items:center;justify-content:space-between">
+        <div class="sources-toggle" onclick="this.textContent=this.textContent.includes('▸')?'▾ 2 sources':'▸ 2 sources'">▸ 2 sources</div>
+        <div style="display:flex;gap:4px">
+          <button class="fb-btn" style="padding:2px 6px;font-size:10px">▲</button>
+          <button class="fb-btn" style="padding:2px 6px;font-size:10px">▼</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STATE 4: Not-helpful feedback with comment -->
+<div class="section">
+  <div class="sec-label">Feedback state — not helpful with comment input</div>
+  <div class="card" style="padding:12px 16px">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+      <button class="fb-btn">▲ Helpful</button>
+      <button class="fb-btn down-active">▼ Not helpful</button>
+    </div>
+    <div style="background:var(--color-background-secondary);border-radius:6px;padding:8px 10px">
+      <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px">What could be improved?</div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">
+        <span style="font-size:10px;padding:3px 8px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);cursor:pointer;color:var(--color-text-secondary);background:var(--color-background-primary)">Inaccurate recall</span>
+        <span style="font-size:10px;padding:3px 8px;border-radius:4px;border:0.5px solid transparent;cursor:pointer;color:var(--color-text-danger);background:var(--color-background-danger)">Wrong source cited</span>
+        <span style="font-size:10px;padding:3px 8px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);cursor:pointer;color:var(--color-text-secondary);background:var(--color-background-primary)">Missing context</span>
+        <span style="font-size:10px;padding:3px 8px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);cursor:pointer;color:var(--color-text-secondary);background:var(--color-background-primary)">Too verbose</span>
+      </div>
+      <input type="text" placeholder="Optional: add a note..." style="width:100%;font-size:11px;height:30px" />
+    </div>
+  </div>
+</div>
+
+</div>

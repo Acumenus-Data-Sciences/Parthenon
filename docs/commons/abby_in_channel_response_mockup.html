@@ -1,0 +1,130 @@
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.mock-wrap { background: var(--color-background-secondary); border-radius: var(--border-radius-lg); padding: 16px; }
+.channel-bar { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--color-background-primary); border-radius: var(--border-radius-md); margin-bottom: 12px; border: 0.5px solid var(--color-border-tertiary); }
+.channel-name { font-size: 14px; font-weight: 500; color: var(--color-text-primary); }
+.channel-hash { font-size: 16px; color: var(--color-text-tertiary); }
+.channel-desc { font-size: 11px; color: var(--color-text-tertiary); margin-left: 4px; }
+.msgs { background: var(--color-background-primary); border-radius: var(--border-radius-lg); border: 0.5px solid var(--color-border-tertiary); overflow: hidden; }
+.msg { display: flex; gap: 10px; padding: 12px 16px; }
+.msg + .msg { border-top: 0.5px solid var(--color-border-tertiary); }
+.msg-avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; flex-shrink: 0; }
+.msg-body { flex: 1; min-width: 0; }
+.msg-header { display: flex; align-items: center; gap: 6px; margin-bottom: 3px; }
+.msg-name { font-size: 13px; font-weight: 500; color: var(--color-text-primary); }
+.msg-time { font-size: 11px; color: var(--color-text-tertiary); }
+.msg-text { font-size: 13px; color: var(--color-text-secondary); line-height: 1.55; }
+.msg-ref { display: inline-flex; align-items: center; gap: 5px; background: var(--color-background-info); color: var(--color-text-info); font-size: 12px; padding: 3px 10px; border-radius: var(--border-radius-md); margin-top: 6px; cursor: pointer; }
+.msg-ref-icon { font-size: 10px; opacity: 0.7; }
+.thread-link { font-size: 11px; color: var(--color-text-info); cursor: pointer; margin-top: 5px; display: flex; align-items: center; gap: 4px; }
+.thread-link:hover { text-decoration: underline; }
+.abby-badge { display: inline-flex; align-items: center; gap: 4px; background: var(--color-background-success); color: var(--color-text-success); font-size: 10px; font-weight: 500; padding: 1px 6px; border-radius: 6px; }
+.abby-avatar { background: linear-gradient(135deg, #1D9E75, #0F6E56); color: #fff; }
+.thread-container { background: var(--color-background-secondary); margin: 0 16px 12px 58px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-tertiary); overflow: hidden; }
+.thread-header { font-size: 11px; color: var(--color-text-tertiary); padding: 8px 12px; border-bottom: 0.5px solid var(--color-border-tertiary); display: flex; align-items: center; gap: 6px; }
+.thread-msg { display: flex; gap: 8px; padding: 10px 12px; }
+.thread-msg .msg-avatar { width: 24px; height: 24px; font-size: 9px; }
+.abby-response { background: var(--color-background-primary); }
+.abby-sources { margin-top: 8px; }
+.source-toggle { font-size: 11px; color: var(--color-text-tertiary); cursor: pointer; display: flex; align-items: center; gap: 4px; }
+.source-toggle:hover { color: var(--color-text-secondary); }
+.source-list { margin-top: 6px; display: flex; flex-direction: column; gap: 4px; }
+.source-item { display: flex; align-items: flex-start; gap: 6px; font-size: 11px; color: var(--color-text-tertiary); padding: 4px 8px; background: var(--color-background-secondary); border-radius: 4px; line-height: 1.4; }
+.source-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--color-text-tertiary); flex-shrink: 0; margin-top: 5px; opacity: 0.5; }
+.feedback-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+.feedback-btn { display: flex; align-items: center; gap: 3px; font-size: 11px; color: var(--color-text-tertiary); cursor: pointer; padding: 2px 8px; border-radius: 4px; border: 0.5px solid var(--color-border-tertiary); background: none; transition: all 0.15s; }
+.feedback-btn:hover { background: var(--color-background-secondary); color: var(--color-text-secondary); }
+.feedback-btn.active-up { background: var(--color-background-success); color: var(--color-text-success); border-color: transparent; }
+.mention-tag { color: var(--color-text-info); font-weight: 500; }
+.thinking-dots { display: inline-flex; gap: 3px; margin-left: 2px; }
+.thinking-dots span { width: 4px; height: 4px; border-radius: 50%; background: var(--color-text-success); animation: pulse 1.2s ease-in-out infinite; }
+.thinking-dots span:nth-child(2) { animation-delay: 0.2s; }
+.thinking-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes pulse { 0%,80%,100% { opacity: 0.3; transform: scale(0.8); } 40% { opacity: 1; transform: scale(1); } }
+.label-tag { font-size: 10px; padding: 1px 5px; border-radius: 3px; display: inline-block; margin-top: 3px; }
+</style>
+
+<div class="mock-wrap">
+  <div class="channel-bar">
+    <span class="channel-hash">#</span>
+    <span class="channel-name">t2dm-cohort-study</span>
+    <span class="channel-desc">Type 2 diabetes mellitus cohort refinement</span>
+  </div>
+
+  <div class="msgs">
+    <!-- Human message that triggers @Abby -->
+    <div class="msg">
+      <div class="msg-avatar" style="background:var(--color-background-info);color:var(--color-text-info)">LC</div>
+      <div class="msg-body">
+        <div class="msg-header">
+          <span class="msg-name">Dr. L. Chen</span>
+          <span class="msg-time">2:14 PM</span>
+        </div>
+        <div class="msg-text">I'm thinking about adding a 90-day washout period before index for the GLP-1 RA exposure cohort. <span class="mention-tag">@Abby</span> have we used washout periods like this in any of our other drug exposure studies? What worked?</div>
+        <div class="msg-ref"><span class="msg-ref-icon">◆</span> Cohort: GLP-1 RA Exposure v2.1</div>
+        <div class="thread-link">▸ 1 reply</div>
+      </div>
+    </div>
+
+    <!-- Thread opens with Abby's response -->
+    <div class="thread-container">
+      <div class="thread-header">
+        <span>Thread</span>
+        <span style="opacity:0.5">·</span>
+        <span>1 reply</span>
+      </div>
+      <div class="thread-msg abby-response">
+        <div class="msg-avatar abby-avatar" style="font-size:11px">Ab</div>
+        <div class="msg-body">
+          <div class="msg-header">
+            <span class="msg-name">Abby</span>
+            <span class="abby-badge">AI assistant</span>
+            <span class="msg-time">2:14 PM</span>
+          </div>
+          <div class="msg-text">
+            Good question. You've used washout periods in three prior studies on this network:
+            <br><br>
+            <strong>1. SGLT2 Outcomes Study</strong> — Dr. Torres used a 180-day washout for SGLT2i exposure. In the review thread from January, she noted that 90 days was initially considered but rejected because refill gaps in claims data created false washout periods. The team settled on 180 days after checking refill patterns.
+            <br><br>
+            <strong>2. CKD Progression Study</strong> — 90-day washout was used for ACE inhibitor exposure and worked well. However, that cohort used pharmacy dispensing records (more precise) rather than claims, so refill gap issues were less relevant.
+            <br><br>
+            <strong>3. HTN Phenotyping</strong> — No washout was used; the team decided persistent exposure was the better design for that question.
+            <br><br>
+            Given that the GLP-1 RA cohort is likely built on claims data, the SGLT2 team's experience suggests 90 days may be too short. I'd recommend reviewing the refill gap distribution first — Dr. Udoshi's data quality checks in the <span style="color:var(--color-text-info);cursor:pointer">DQ dashboard</span> can show you the typical gap between GLP-1 RA fills.
+          </div>
+          <div class="msg-ref"><span class="msg-ref-icon">◆</span> Study: SGLT2 Outcomes v1.4</div>
+          <div style="display:inline-flex;gap:4px;margin-top:2px">
+            <div class="msg-ref"><span class="msg-ref-icon">◆</span> Study: CKD Progression v3.0</div>
+          </div>
+
+          <div class="abby-sources">
+            <div class="source-toggle" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'flex':'none'">▸ 4 sources from institutional memory</div>
+            <div class="source-list" style="display:none">
+              <div class="source-item"><span class="source-dot"></span><span>#sglt2-outcomes · Dr. Torres · Jan 12 — "We tried 90 days initially but the refill gap..."</span></div>
+              <div class="source-item"><span class="source-dot"></span><span>#sglt2-outcomes · Review decision · Jan 18 — Approved with 180-day washout</span></div>
+              <div class="source-item"><span class="source-dot"></span><span>#ckd-progression · Dr. Patel · Nov 3 — "90-day washout clean with dispensing data"</span></div>
+              <div class="source-item"><span class="source-dot"></span><span>Wiki: Drug exposure cohort patterns — Updated Feb 22</span></div>
+            </div>
+          </div>
+
+          <div class="feedback-row">
+            <button class="feedback-btn active-up" onclick="this.classList.toggle('active-up')">▲ Helpful</button>
+            <button class="feedback-btn">▼ Not helpful</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Next human message (conversation continues normally) -->
+    <div class="msg">
+      <div class="msg-avatar" style="background:var(--color-background-warning);color:var(--color-text-warning)">SU</div>
+      <div class="msg-body">
+        <div class="msg-header">
+          <span class="msg-name">Dr. S. Udoshi</span>
+          <span class="msg-time">2:18 PM</span>
+        </div>
+        <div class="msg-text">That's exactly right — I remember the SGLT2 discussion. Let me pull up the refill gap distribution for GLP-1 RAs before we commit to a number.</div>
+      </div>
+    </div>
+  </div>
+</div>

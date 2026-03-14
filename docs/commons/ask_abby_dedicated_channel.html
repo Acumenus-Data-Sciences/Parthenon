@@ -1,0 +1,171 @@
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.wrap { background: var(--color-background-secondary); border-radius: var(--border-radius-lg); padding: 12px; }
+.layout { display: grid; grid-template-columns: 200px minmax(0,1fr); gap: 0; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; min-height: 580px; }
+.sidebar { background: var(--color-background-secondary); border-right: 0.5px solid var(--color-border-tertiary); padding: 12px; font-size: 12px; }
+.main { background: var(--color-background-primary); display: flex; flex-direction: column; }
+.slbl { font-size: 10px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.5px; margin: 12px 0 6px; }
+.slbl:first-child { margin-top: 0; }
+.sch { display: flex; align-items: center; gap: 6px; padding: 5px 7px; border-radius: 6px; cursor: pointer; font-size: 12px; color: var(--color-text-secondary); }
+.sch:hover { background: var(--color-background-tertiary); }
+.sch.act { background: var(--color-background-success); color: var(--color-text-success); font-weight: 500; }
+.sch-hash { opacity: 0.5; font-size: 13px; }
+.sch-badge { margin-left: auto; background: var(--color-background-danger); color: #fff; font-size: 9px; padding: 0 5px; border-radius: 8px; font-weight: 500; }
+.abby-head { padding: 14px 16px; border-bottom: 0.5px solid var(--color-border-tertiary); display: flex; align-items: center; gap: 10px; }
+.abby-av-lg { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #1D9E75, #0F6E56); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 500; flex-shrink: 0; }
+.abby-title { font-size: 14px; font-weight: 500; color: var(--color-text-primary); }
+.abby-sub { font-size: 11px; color: var(--color-text-tertiary); }
+.abby-status { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--color-text-success); margin-left: auto; }
+.abby-status-dot { width: 6px; height: 6px; border-radius: 50%; background: #1D9E75; }
+.conv-area { flex: 1; padding: 12px 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; }
+.conv-msg { display: flex; gap: 8px; max-width: 92%; }
+.conv-msg.user { align-self: flex-end; flex-direction: row-reverse; }
+.conv-av { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 500; flex-shrink: 0; }
+.conv-bubble { padding: 8px 12px; border-radius: 12px; font-size: 13px; line-height: 1.5; }
+.conv-msg.abby .conv-bubble { background: var(--color-background-secondary); color: var(--color-text-primary); border-bottom-left-radius: 4px; }
+.conv-msg.user .conv-bubble { background: var(--color-background-info); color: var(--color-text-info); border-bottom-right-radius: 4px; }
+.conv-time { font-size: 10px; color: var(--color-text-tertiary); margin-top: 3px; }
+.conv-msg.user .conv-time { text-align: right; }
+.conv-src { margin-top: 6px; padding: 6px 8px; background: var(--color-background-primary); border-radius: 6px; border: 0.5px solid var(--color-border-tertiary); }
+.conv-src-title { font-size: 10px; color: var(--color-text-tertiary); margin-bottom: 3px; }
+.conv-src-item { font-size: 11px; color: var(--color-text-tertiary); padding: 2px 0; display: flex; align-items: flex-start; gap: 4px; }
+.conv-src-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--color-text-tertiary); opacity: 0.4; margin-top: 5px; flex-shrink: 0; }
+.conv-ref { display: inline-flex; align-items: center; gap: 4px; background: var(--color-background-info); color: var(--color-text-info); font-size: 11px; padding: 2px 8px; border-radius: 5px; margin-top: 4px; cursor: pointer; }
+.conv-fb { display: flex; gap: 6px; margin-top: 6px; }
+.conv-fb-btn { font-size: 10px; color: var(--color-text-tertiary); padding: 2px 6px; border-radius: 4px; border: 0.5px solid var(--color-border-tertiary); cursor: pointer; background: none; }
+.conv-fb-btn:hover { background: var(--color-background-secondary); }
+.conv-fb-btn.on { background: var(--color-background-success); color: var(--color-text-success); border-color: transparent; }
+.compose-bar { display: flex; align-items: center; gap: 8px; padding: 10px 16px; border-top: 0.5px solid var(--color-border-tertiary); }
+.compose-bar input { flex: 1; font-size: 13px; height: 36px; }
+.compose-bar button { height: 36px; padding: 0 14px; font-size: 12px; background: #1D9E75; color: #fff; border: none; border-radius: var(--border-radius-md); cursor: pointer; font-weight: 500; }
+.welcome-card { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 14px 16px; margin-bottom: 10px; border: 0.5px solid var(--color-border-tertiary); }
+.welcome-title { font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+.welcome-text { font-size: 12px; color: var(--color-text-secondary); line-height: 1.5; }
+.welcome-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.welcome-chip { font-size: 11px; color: var(--color-text-secondary); padding: 4px 10px; border-radius: 14px; border: 0.5px solid var(--color-border-secondary); cursor: pointer; background: var(--color-background-primary); }
+.welcome-chip:hover { background: var(--color-background-tertiary); }
+.thinking { display: flex; gap: 8px; align-items: flex-start; }
+.thinking-bubble { padding: 10px 14px; background: var(--color-background-secondary); border-radius: 12px; border-bottom-left-radius: 4px; display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--color-text-tertiary); }
+.tdot { width: 5px; height: 5px; border-radius: 50%; background: var(--color-text-success); animation: blink 1.4s infinite both; }
+.tdot:nth-child(2) { animation-delay: 0.2s; }
+.tdot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes blink { 0%,80%,100% { opacity: 0.25; } 40% { opacity: 1; } }
+.ai-lbl { font-size: 9px; background: var(--color-background-success); color: var(--color-text-success); padding: 1px 5px; border-radius: 4px; font-weight: 500; }
+.divider { text-align: center; font-size: 10px; color: var(--color-text-tertiary); padding: 4px 0; }
+</style>
+
+<div class="wrap">
+<div class="layout">
+  <div class="sidebar">
+    <div class="slbl">Channels</div>
+    <div class="sch"><span class="sch-hash">#</span> general</div>
+    <div class="sch"><span class="sch-hash">#</span> t2dm-cohort-study <span class="sch-badge">3</span></div>
+    <div class="sch"><span class="sch-hash">#</span> data-quality</div>
+    <div class="sch"><span class="sch-hash">#</span> concept-sets</div>
+    <div class="slbl">AI assistant</div>
+    <div class="sch act"><span class="sch-hash">✦</span> ask-abby</div>
+    <div class="slbl">Studies</div>
+    <div class="sch"><span class="sch-hash">#</span> ckd-progression</div>
+    <div class="sch"><span class="sch-hash">#</span> sglt2-outcomes</div>
+    <div class="slbl">Direct messages</div>
+    <div class="sch"><span style="width:6px;height:6px;border-radius:50%;background:#1D9E75;flex-shrink:0"></span> Dr. L. Chen</div>
+    <div class="sch"><span style="width:6px;height:6px;border-radius:50%;background:var(--color-border-secondary);flex-shrink:0"></span> Dr. K. Patel</div>
+  </div>
+
+  <div class="main">
+    <div class="abby-head">
+      <div class="abby-av-lg">Ab</div>
+      <div>
+        <div class="abby-title">Ask Abby</div>
+        <div class="abby-sub">AI research companion · MedGemma · Institutional memory</div>
+      </div>
+      <div class="abby-status"><span class="abby-status-dot"></span> Online</div>
+    </div>
+
+    <div class="conv-area">
+      <!-- Welcome card -->
+      <div class="welcome-card">
+        <div class="welcome-title">Hi! I'm Abby, your research companion.</div>
+        <div class="welcome-text">I have access to this network's institutional memory — past discussions, cohort designs, study outcomes, and review decisions. Ask me anything about your research, and I'll draw on what this team has learned.</div>
+        <div class="welcome-chips">
+          <div class="welcome-chip" onclick="sendPrompt('What cohort patterns have worked for diabetes studies?')">Diabetes cohort patterns</div>
+          <div class="welcome-chip" onclick="sendPrompt('Summarize recent review decisions')">Recent review decisions</div>
+          <div class="welcome-chip" onclick="sendPrompt('What concept sets exist for heart failure?')">Heart failure concept sets</div>
+          <div class="welcome-chip" onclick="sendPrompt('Help me design a new study')">Study design help</div>
+        </div>
+      </div>
+
+      <div class="divider">Today</div>
+
+      <!-- User question -->
+      <div class="conv-msg user">
+        <div class="conv-av" style="background:var(--color-background-warning);color:var(--color-text-warning)">RN</div>
+        <div>
+          <div class="conv-bubble">I'm new to the team. Can you catch me up on the CKD Progression study — what's the current status and any key decisions I should know about?</div>
+          <div class="conv-time">10:22 AM · Dr. R. Nakamura</div>
+        </div>
+      </div>
+
+      <!-- Abby's response -->
+      <div class="conv-msg abby">
+        <div class="conv-av" style="background:linear-gradient(135deg,#1D9E75,#0F6E56);color:#fff;font-size:10px">Ab</div>
+        <div>
+          <div style="display:flex;align-items:center;gap:5px;margin-bottom:4px"><span class="ai-lbl">AI</span><span style="font-size:10px;color:var(--color-text-tertiary)">10:22 AM</span></div>
+          <div class="conv-bubble">
+            Welcome to the team! Here's a summary of the CKD Progression study:
+            <br><br>
+            <strong>Status:</strong> Active — currently in multi-site execution across 4 of 6 enrolled sites. Sites A, B, D, and E are running; Site C is pending IRB amendment approval, Site F completed data quality checks last week.
+            <br><br>
+            <strong>Key design decisions:</strong>
+            <br>• The team chose a 90-day washout for ACE inhibitor exposure based on dispensing data precision (Dr. Patel led this, Nov 3 discussion in #ckd-progression)
+            <br>• eGFR slope was selected as the primary outcome over time-to-ESKD after a review in December — the rationale was statistical power with the available follow-up period
+            <br>• Patients with AKI events in the 30 days pre-index are excluded (added after Dr. Torres flagged confounding in the initial results)
+            <br><br>
+            <strong>Open items:</strong> There's an active review request from Dr. Chen for adding a secondary analysis of SGLT2i co-exposure. Two reviewers have approved; waiting on Dr. Udoshi.
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px">
+            <div class="conv-ref"><span style="font-size:9px;opacity:0.7">◆</span> Study: CKD Progression v3.0</div>
+            <div class="conv-ref"><span style="font-size:9px;opacity:0.7">◆</span> Cohort: CKD Stage 3-4 v2.7</div>
+          </div>
+          <div class="conv-src">
+            <div class="conv-src-title">Sources from institutional memory</div>
+            <div class="conv-src-item"><span class="conv-src-dot"></span> #ckd-progression · Dr. Patel · Nov 3 — Washout period discussion</div>
+            <div class="conv-src-item"><span class="conv-src-dot"></span> #ckd-progression · Review decision · Dec 14 — eGFR slope approved as primary</div>
+            <div class="conv-src-item"><span class="conv-src-dot"></span> #ckd-progression · Dr. Torres · Jan 8 — AKI exclusion flag</div>
+            <div class="conv-src-item"><span class="conv-src-dot"></span> Review #47 · SGLT2i co-exposure analysis — Pending (2/3 approved)</div>
+          </div>
+          <div class="conv-fb">
+            <button class="conv-fb-btn on">▲ Helpful</button>
+            <button class="conv-fb-btn">▼</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Follow-up -->
+      <div class="conv-msg user">
+        <div class="conv-av" style="background:var(--color-background-warning);color:var(--color-text-warning)">RN</div>
+        <div>
+          <div class="conv-bubble">That's incredibly helpful. What concept sets are being used for the CKD staging?</div>
+          <div class="conv-time">10:24 AM · Dr. R. Nakamura</div>
+        </div>
+      </div>
+
+      <!-- Abby thinking state -->
+      <div class="thinking">
+        <div class="conv-av" style="background:linear-gradient(135deg,#1D9E75,#0F6E56);color:#fff;font-size:10px">Ab</div>
+        <div class="thinking-bubble">
+          <span>Searching institutional memory</span>
+          <span class="tdot"></span>
+          <span class="tdot"></span>
+          <span class="tdot"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="compose-bar">
+      <input type="text" placeholder="Ask Abby anything about your research network..." />
+      <button>Ask</button>
+    </div>
+  </div>
+</div>
+</div>

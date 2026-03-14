@@ -1,0 +1,159 @@
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); }
+.layout { display: grid; grid-template-columns: 240px minmax(0, 1fr) 280px; gap: 0; min-height: 620px; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; }
+.panel { padding: 16px; }
+.panel-left { background: var(--color-background-secondary); border-right: 0.5px solid var(--color-border-tertiary); }
+.panel-center { background: var(--color-background-primary); }
+.panel-right { background: var(--color-background-secondary); border-left: 0.5px solid var(--color-border-tertiary); }
+.section-label { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.5px; margin: 16px 0 8px; }
+.section-label:first-child { margin-top: 0; }
+.channel { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: var(--border-radius-md); cursor: pointer; font-size: 13px; color: var(--color-text-secondary); transition: background 0.15s; }
+.channel:hover { background: var(--color-background-tertiary); }
+.channel.active { background: var(--color-background-info); color: var(--color-text-info); font-weight: 500; }
+.channel-hash { font-size: 15px; opacity: 0.5; }
+.badge { background: var(--color-background-danger); color: #fff; font-size: 10px; font-weight: 500; padding: 1px 6px; border-radius: 10px; margin-left: auto; }
+.user-row { display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-radius: var(--border-radius-md); font-size: 13px; color: var(--color-text-primary); cursor: pointer; }
+.user-row:hover { background: var(--color-background-tertiary); }
+.avatar { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; flex-shrink: 0; }
+.online-dot { width: 7px; height: 7px; border-radius: 50%; background: #1D9E75; flex-shrink: 0; }
+.offline-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--color-border-secondary); flex-shrink: 0; }
+.user-meta { font-size: 11px; color: var(--color-text-tertiary); }
+.header-bar { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 0.5px solid var(--color-border-tertiary); margin: -16px -16px 16px; }
+.header-title { font-size: 15px; font-weight: 500; color: var(--color-text-primary); }
+.header-desc { font-size: 12px; color: var(--color-text-tertiary); margin-left: 8px; }
+.header-actions { margin-left: auto; display: flex; gap: 8px; }
+.icon-btn { width: 30px; height: 30px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-tertiary); background: var(--color-background-primary); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 14px; color: var(--color-text-secondary); }
+.messages { flex: 1; display: flex; flex-direction: column; gap: 16px; padding: 8px 0; overflow-y: auto; max-height: 420px; }
+.msg { display: flex; gap: 10px; }
+.msg-body { flex: 1; }
+.msg-name { font-size: 13px; font-weight: 500; color: var(--color-text-primary); }
+.msg-time { font-size: 11px; color: var(--color-text-tertiary); margin-left: 6px; font-weight: 400; }
+.msg-text { font-size: 13px; color: var(--color-text-secondary); line-height: 1.5; margin-top: 2px; }
+.msg-ref { display: inline-flex; align-items: center; gap: 4px; background: var(--color-background-info); color: var(--color-text-info); font-size: 12px; padding: 2px 8px; border-radius: var(--border-radius-md); margin-top: 4px; cursor: pointer; }
+.msg-thread { font-size: 11px; color: var(--color-text-info); cursor: pointer; margin-top: 4px; }
+.compose { display: flex; gap: 8px; padding: 12px 16px; border-top: 0.5px solid var(--color-border-tertiary); margin: auto -16px -16px; align-items: center; }
+.compose input { flex: 1; font-size: 13px; height: 36px; }
+.compose button { height: 36px; padding: 0 16px; font-size: 13px; background: var(--color-text-info); color: #fff; border: none; border-radius: var(--border-radius-md); cursor: pointer; }
+.right-section { margin-bottom: 16px; }
+.activity-item { display: flex; gap: 8px; padding: 6px 0; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.activity-item:last-child { border-bottom: none; }
+.activity-icon { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; }
+.activity-text { font-size: 12px; color: var(--color-text-secondary); line-height: 1.4; }
+.activity-text strong { color: var(--color-text-primary); font-weight: 500; }
+.activity-time { font-size: 10px; color: var(--color-text-tertiary); }
+.pin-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 10px; margin-bottom: 8px; }
+.pin-title { font-size: 12px; font-weight: 500; color: var(--color-text-primary); }
+.pin-meta { font-size: 11px; color: var(--color-text-tertiary); margin-top: 2px; }
+.rfr-badge { display: inline-flex; align-items: center; gap: 4px; background: var(--color-background-warning); color: var(--color-text-warning); font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: var(--border-radius-md); }
+.tab-bar { display: flex; gap: 0; margin: 0 -16px 12px; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.tab { padding: 8px 14px; font-size: 12px; color: var(--color-text-tertiary); cursor: pointer; border-bottom: 2px solid transparent; }
+.tab.active { color: var(--color-text-info); border-bottom-color: var(--color-text-info); font-weight: 500; }
+</style>
+<div class="layout">
+  <div class="panel panel-left">
+    <div class="section-label">Channels</div>
+    <div class="channel active"><span class="channel-hash">#</span> t2dm-cohort-study <span class="badge">3</span></div>
+    <div class="channel"><span class="channel-hash">#</span> general</div>
+    <div class="channel"><span class="channel-hash">#</span> data-quality</div>
+    <div class="channel"><span class="channel-hash">#</span> concept-sets</div>
+    <div class="channel"><span class="channel-hash">#</span> onboarding</div>
+    <div class="section-label">Studies</div>
+    <div class="channel"><span class="channel-hash">#</span> ckd-progression <span class="badge">1</span></div>
+    <div class="channel"><span class="channel-hash">#</span> sglt2-outcomes</div>
+    <div class="channel"><span class="channel-hash">#</span> htn-phenotyping</div>
+    <div class="section-label">Direct messages</div>
+    <div class="user-row"><div class="avatar" style="background:var(--color-background-info);color:var(--color-text-info)">LC</div><div>Dr. L. Chen <div class="user-meta">Typing...</div></div></div>
+    <div class="user-row"><div class="avatar" style="background:var(--color-background-success);color:var(--color-text-success)">KP</div><div>Dr. K. Patel</div></div>
+    <div class="section-label">Online now — 8</div>
+    <div class="user-row"><span class="online-dot"></span> Dr. S. Udoshi <span class="user-meta" style="margin-left:auto">Cohort builder</span></div>
+    <div class="user-row"><span class="online-dot"></span> Dr. L. Chen <span class="user-meta" style="margin-left:auto">Results viewer</span></div>
+    <div class="user-row"><span class="online-dot"></span> Dr. M. Torres <span class="user-meta" style="margin-left:auto">Studies</span></div>
+    <div class="user-row"><span class="online-dot"></span> J. Williams <span class="user-meta" style="margin-left:auto">Data quality</span></div>
+    <div class="user-row"><span class="offline-dot"></span> <span style="opacity:0.5">Dr. R. Nakamura</span> <span class="user-meta" style="margin-left:auto">Away</span></div>
+  </div>
+  <div class="panel panel-center" style="display:flex;flex-direction:column;">
+    <div class="header-bar">
+      <span class="header-title"># t2dm-cohort-study</span>
+      <span class="header-desc">Type 2 diabetes mellitus cohort refinement</span>
+      <div class="header-actions">
+        <div class="icon-btn" title="Pin">P</div>
+        <div class="icon-btn" title="Search">S</div>
+        <div class="icon-btn" title="Members">4</div>
+      </div>
+    </div>
+    <div class="messages">
+      <div class="msg">
+        <div class="avatar" style="background:var(--color-background-success);color:var(--color-text-success)">MT</div>
+        <div class="msg-body">
+          <div class="msg-name">Dr. M. Torres <span class="msg-time">10:42 AM</span></div>
+          <div class="msg-text">I updated the T2DM inclusion criteria to require HbA1c >= 6.5% on two separate dates. The cohort dropped from 42,310 to 38,871 patients.</div>
+          <div class="msg-ref" onclick="sendPrompt('Show me the T2DM cohort definition')">Cohort: T2DM Primary v3.2</div>
+          <div class="msg-thread">4 replies — last from Dr. Chen 11:15 AM</div>
+        </div>
+      </div>
+      <div class="msg">
+        <div class="avatar" style="background:var(--color-background-info);color:var(--color-text-info)">LC</div>
+        <div class="msg-body">
+          <div class="msg-name">Dr. L. Chen <span class="msg-time">11:22 AM</span></div>
+          <div class="msg-text">The survival curves look much cleaner now. Median follow-up is 3.2 years. I think we're ready for multi-site execution — requesting review.</div>
+          <div class="msg-ref" onclick="sendPrompt('Show the T2DM survival analysis results')">Analysis: KM Survival — T2DM v3.2</div>
+          <div><span class="rfr-badge">Review requested</span></div>
+        </div>
+      </div>
+      <div class="msg">
+        <div class="avatar" style="background:var(--color-background-warning);color:var(--color-text-warning)">SU</div>
+        <div class="msg-body">
+          <div class="msg-name">Dr. S. Udoshi <span class="msg-time">11:35 AM</span></div>
+          <div class="msg-text">Looks great. I'll review the cohort logic this afternoon. @Dr. Torres — can you also add a sensitivity analysis excluding patients with prior GLP-1 RA use?</div>
+        </div>
+      </div>
+    </div>
+    <div class="compose">
+      <input type="text" placeholder="Message #t2dm-cohort-study — attach files, reference objects..." />
+      <button>Send</button>
+    </div>
+  </div>
+  <div class="panel panel-right">
+    <div class="tab-bar">
+      <div class="tab active">Activity</div>
+      <div class="tab">Pinned</div>
+      <div class="tab">Reviews</div>
+      <div class="tab">Files</div>
+    </div>
+    <div class="right-section">
+      <div class="section-label">Recent activity</div>
+      <div class="activity-item">
+        <div class="activity-icon" style="background:var(--color-background-success);color:var(--color-text-success)">C</div>
+        <div><div class="activity-text"><strong>Cohort updated</strong> — T2DM Primary v3.2 modified by Dr. Torres</div><div class="activity-time">10:40 AM</div></div>
+      </div>
+      <div class="activity-item">
+        <div class="activity-icon" style="background:var(--color-background-info);color:var(--color-text-info)">A</div>
+        <div><div class="activity-text"><strong>Analysis complete</strong> — KM Survival finished for T2DM v3.2</div><div class="activity-time">11:18 AM</div></div>
+      </div>
+      <div class="activity-item">
+        <div class="activity-icon" style="background:var(--color-background-warning);color:var(--color-text-warning)">R</div>
+        <div><div class="activity-text"><strong>Review requested</strong> — Dr. Chen requests peer review for multi-site execution</div><div class="activity-time">11:22 AM</div></div>
+      </div>
+      <div class="activity-item">
+        <div class="activity-icon" style="background:var(--color-background-secondary);color:var(--color-text-secondary)">I</div>
+        <div><div class="activity-text"><strong>IRB status</strong> — Site B approved protocol amendment #2</div><div class="activity-time">Yesterday</div></div>
+      </div>
+    </div>
+    <div class="right-section">
+      <div class="section-label">Pinned resources</div>
+      <div class="pin-card">
+        <div class="pin-title">Study protocol v2.1</div>
+        <div class="pin-meta">PDF — Pinned by Dr. Udoshi, Mar 8</div>
+      </div>
+      <div class="pin-card">
+        <div class="pin-title">Concept set: T2DM diagnosis codes</div>
+        <div class="pin-meta">OMOP concept set — 47 concepts</div>
+      </div>
+      <div class="pin-card">
+        <div class="pin-title">Site enrollment tracker</div>
+        <div class="pin-meta">4 of 6 sites active</div>
+      </div>
+    </div>
+  </div>
+</div>
