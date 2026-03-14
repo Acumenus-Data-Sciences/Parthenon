@@ -150,6 +150,9 @@ export const ingestOhdsiPapers = () =>
 export const ingestOhdsiKnowledge = () =>
   apiClient.post<Record<string, IngestResult>>("/admin/chroma-studio/ingest-ohdsi-knowledge").then((r) => r.data);
 
+export const ingestTextbooks = () =>
+  apiClient.post<IngestResult>("/admin/chroma-studio/ingest-textbooks").then((r) => r.data);
+
 export const fetchProjection = (
   name: string,
   request: ProjectionRequest & { refresh?: boolean },

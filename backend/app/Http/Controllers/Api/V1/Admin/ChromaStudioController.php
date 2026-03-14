@@ -159,6 +159,21 @@ class ChromaStudioController extends Controller
         return response()->json($response->json());
     }
 
+    /** Trigger medical textbook ingestion. */
+    public function ingestTextbooks(): JsonResponse
+    {
+        $response = Http::timeout(600)->post("{$this->aiUrl()}/chroma/ingest-textbooks");
+
+        if (! $response->successful()) {
+            return response()->json(
+                ['error' => $response->json('detail') ?? 'Textbook ingestion failed.'],
+                $response->status() ?: 502,
+            );
+        }
+
+        return response()->json($response->json());
+    }
+
     /**
      * Get 3D projection for a collection's embeddings.
      *

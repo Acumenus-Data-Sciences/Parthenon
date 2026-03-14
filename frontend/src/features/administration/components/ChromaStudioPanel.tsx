@@ -25,6 +25,7 @@ import {
   promoteFaq,
   ingestOhdsiPapers,
   ingestOhdsiKnowledge,
+  ingestTextbooks,
   type CollectionSummary,
   type CollectionOverview,
   type QueryResponse,
@@ -42,6 +43,7 @@ const ADMIN_ACTIONS = [
   { key: "promote-faq", label: "Promote FAQ", icon: MessageSquare, fn: () => promoteFaq() },
   { key: "ingest-ohdsi-papers", label: "Ingest OHDSI Papers", icon: FileText, fn: () => ingestOhdsiPapers() },
   { key: "ingest-ohdsi-knowledge", label: "Ingest OHDSI Knowledge", icon: BookOpen, fn: () => ingestOhdsiKnowledge() },
+  { key: "ingest-textbooks", label: "Ingest Textbooks", icon: BookOpen, fn: () => ingestTextbooks() },
 ] as const;
 
 const TABS = [

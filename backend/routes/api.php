@@ -569,6 +569,7 @@ Route::prefix('v1')->group(function () {
                 Route::post('/promote-faq', [ChromaStudioController::class, 'promoteFaq']);
                 Route::post('/ingest-ohdsi-papers', [ChromaStudioController::class, 'ingestOhdsiPapers']);
                 Route::post('/ingest-ohdsi-knowledge', [ChromaStudioController::class, 'ingestOhdsiKnowledge']);
+                Route::post('/ingest-textbooks', [ChromaStudioController::class, 'ingestTextbooks']);
                 Route::post('/collections/{name}/project', [ChromaStudioController::class, 'projectCollection']);
             });
 
