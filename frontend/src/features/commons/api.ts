@@ -11,6 +11,7 @@ import type {
 const CHANNELS_KEY = "commons-channels";
 const MESSAGES_KEY = "commons-messages";
 const MEMBERS_KEY = "commons-members";
+const UNREAD_KEY = "commons-unread";
 
 // ---------------------------------------------------------------------------
 // API functions
@@ -213,14 +214,12 @@ export function useMarkRead() {
   return useMutation({ mutationFn: markChannelRead });
 }
 
-const UNREAD_KEY = "commons-unread";
-
 export function useToggleReaction() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ messageId, emoji }: { messageId: number; emoji: string }) =>
       toggleReaction(messageId, emoji),
-    onSuccess: (_data, variables) => {
+    onSuccess: () => {
       // Invalidate all message caches to refresh reaction summaries
       void qc.invalidateQueries({ queryKey: [MESSAGES_KEY] });
     },
@@ -232,5 +231,6 @@ export function useUnreadCounts() {
     queryKey: [UNREAD_KEY],
     queryFn: fetchUnreadCounts,
     refetchInterval: 60_000,
+    staleTime: 60_000,
   });
 }

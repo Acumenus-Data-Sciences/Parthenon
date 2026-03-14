@@ -56,7 +56,7 @@ export interface Message {
   created_at: string;
   reply_count?: number;
   latest_reply_at?: string | null;
-  reactions: ReactionSummary;
+  reactions?: ReactionSummary;
 }
 
 export interface PresenceUser {
