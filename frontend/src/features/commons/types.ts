@@ -36,10 +36,13 @@ export interface Message {
   body: string;
   body_html: string | null;
   parent_id: number | null;
+  depth: number;
   is_edited: boolean;
   edited_at: string | null;
   deleted_at: string | null;
   created_at: string;
+  reply_count?: number;
+  latest_reply_at?: string | null;
 }
 
 export interface PresenceUser {
