@@ -27,6 +27,8 @@ class MessageController extends Controller
             ->whereNull('deleted_at')
             ->whereNull('parent_id')
             ->with('user:id,name')
+            ->withCount('replies')
+            ->withMax('replies', 'created_at')
             ->orderByDesc('id');
 
         if ($request->has('before')) {
@@ -35,6 +37,13 @@ class MessageController extends Controller
 
         $limit = min((int) $request->input('limit', 50), 100);
         $messages = $query->limit($limit)->get();
+
+        // Rename the withMax column for cleaner JSON
+        // Must use setAttribute() so it goes into the attributes array and appears in JSON
+        $messages->each(function ($msg) {
+            $msg->setAttribute('latest_reply_at', $msg->getAttribute('replies_max_created_at'));
+            unset($msg->replies_max_created_at);
+        });
 
         return response()->json(['data' => $messages]);
     }
@@ -75,5 +84,31 @@ class MessageController extends Controller
         $this->messageService->deleteMessage($message);
 
         return response()->json(['data' => $message]);
+    }
+
+    public function replies(string $slug, int $messageId): JsonResponse
+    {
+        $channel = Channel::where('slug', $slug)->firstOrFail();
+        $this->authorize('view', $channel);
+
+        $parent = Message::where('id', $messageId)
+            ->where('channel_id', $channel->id)
+            ->firstOrFail();
+
+        // Fetch depth-1 children and depth-2 grandchildren (max depth = 2)
+        // Note: soft-deleted replies are included — they render as "[message deleted]"
+        $childIds = Message::where('parent_id', $parent->id)
+            ->pluck('id');
+
+        $replies = Message::where('channel_id', $channel->id)
+            ->where(function ($q) use ($parent, $childIds) {
+                $q->where('parent_id', $parent->id)
+                  ->orWhereIn('parent_id', $childIds);
+            })
+            ->with('user:id,name')
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        return response()->json(['data' => $replies]);
     }
 }
