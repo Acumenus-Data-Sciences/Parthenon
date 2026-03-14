@@ -114,3 +114,13 @@ OHDSI-scraper/hades_vignettes/
 OHDSI-scraper/ohdsi_forums/
 OHDSI-scraper/harvester.log
 OHDSI-scraper/*.env
+
+# AI models (large, downloaded locally)
+ai/models/
+
+# ChromaDB data (generated locally)
+chroma/
+
+# Python cache (scripts)
+scripts/__pycache__/
+scripts/**/__pycache__/
