@@ -19,6 +19,7 @@ class ChannelController extends Controller
         $user = $request->user();
 
         $channels = Channel::whereNull('archived_at')
+            ->where('type', '!=', 'dm')
             ->where(function ($query) use ($user) {
                 $query->where('visibility', 'public')
                     ->orWhereHas('members', fn ($q) => $q->where('user_id', $user->id));

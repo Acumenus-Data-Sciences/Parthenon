@@ -944,6 +944,10 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         Route::get('channels/{slug}/pins', [App\Http\Controllers\Api\V1\Commons\PinController::class, 'index']);
         Route::post('channels/{slug}/pins', [App\Http\Controllers\Api\V1\Commons\PinController::class, 'store']);
         Route::delete('channels/{slug}/pins/{pinId}', [App\Http\Controllers\Api\V1\Commons\PinController::class, 'destroy']);
+
+        // Direct messages
+        Route::get('dm', [App\Http\Controllers\Api\V1\Commons\DirectMessageController::class, 'index']);
+        Route::post('dm', [App\Http\Controllers\Api\V1\Commons\DirectMessageController::class, 'store']);
     });
 });
 

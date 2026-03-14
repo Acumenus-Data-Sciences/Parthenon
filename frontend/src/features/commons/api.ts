@@ -4,6 +4,7 @@ import type {
   Channel,
   ChannelMember,
   CreateChannelPayload,
+  DirectMessage,
   Message,
   PinnedMessage,
   ReactionSummary,
@@ -16,6 +17,7 @@ const MEMBERS_KEY = "commons-members";
 const UNREAD_KEY = "commons-unread";
 const PINS_KEY = "commons-pins";
 const SEARCH_KEY = "commons-search";
+const DM_KEY = "commons-dm";
 
 // ---------------------------------------------------------------------------
 // API functions
@@ -363,6 +365,39 @@ export function useUpdateNotificationPreference() {
     }) => updateNotificationPreference(slug, memberId, preference),
     onSuccess: (_data, variables) => {
       void qc.invalidateQueries({ queryKey: [MEMBERS_KEY, variables.slug] });
+    },
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Direct Messages
+// ---------------------------------------------------------------------------
+
+async function fetchDirectMessages(): Promise<DirectMessage[]> {
+  const { data } = await apiClient.get<{ data: DirectMessage[] }>("/commons/dm");
+  return data.data;
+}
+
+async function createDirectMessage(userId: number): Promise<Channel> {
+  const { data } = await apiClient.post<{ data: Channel }>("/commons/dm", {
+    user_id: userId,
+  });
+  return data.data;
+}
+
+export function useDirectMessages() {
+  return useQuery({
+    queryKey: [DM_KEY],
+    queryFn: fetchDirectMessages,
+  });
+}
+
+export function useCreateDirectMessage() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: createDirectMessage,
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: [DM_KEY] });
     },
   });
 }

@@ -2,7 +2,8 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Plus } from "lucide-react";
 import type { Channel } from "../../types";
-import { useUnreadCounts } from "../../api";
+import { useUnreadCounts, useDirectMessages } from "../../api";
+import { avatarColor } from "../../utils/avatarColor";
 import { ChannelSearch } from "./ChannelSearch";
 import { CreateChannelModal } from "./CreateChannelModal";
 
@@ -15,6 +16,7 @@ export function ChannelList({ channels, activeSlug }: ChannelListProps) {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const { data: unreadCounts = {} } = useUnreadCounts();
+  const { data: dms = [] } = useDirectMessages();
 
   const filtered = useMemo(() => {
     if (!search) return channels;
@@ -70,7 +72,35 @@ export function ChannelList({ channels, activeSlug }: ChannelListProps) {
       )}
 
       <SectionLabel>Direct Messages</SectionLabel>
-      <p className="px-4 text-xs italic text-muted-foreground/60">Coming soon</p>
+      {dms.length === 0 ? (
+        <p className="px-4 text-xs italic text-muted-foreground/60">
+          Click a user to start a conversation
+        </p>
+      ) : (
+        dms.map((dm) => (
+          <button
+            key={dm.id}
+            onClick={() => navigate(`/commons/${dm.slug}`)}
+            className={`flex items-center gap-2 py-1.5 px-4 text-[13px] transition-colors border-l-2 ${
+              dm.slug === activeSlug
+                ? "border-primary bg-primary/15 text-foreground"
+                : "border-transparent text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+            }`}
+          >
+            {dm.other_user && (
+              <div
+                className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[8px] font-semibold text-white"
+                style={{ backgroundColor: avatarColor(dm.other_user.id) }}
+              >
+                {dm.other_user.name.split(" ").map((p) => p[0]).join("").toUpperCase().slice(0, 2)}
+              </div>
+            )}
+            <span className="truncate">
+              {dm.other_user?.name ?? "Unknown"}
+            </span>
+          </button>
+        ))
+      )}
 
       {showCreateModal && (
         <CreateChannelModal onClose={() => setShowCreateModal(false)} />

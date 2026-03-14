@@ -3,12 +3,20 @@ export interface ChannelUser {
   name: string;
 }
 
+export interface DirectMessage {
+  id: number;
+  slug: string;
+  other_user: ChannelUser | null;
+  last_message_at: string | null;
+  members_count: number;
+}
+
 export interface Channel {
   id: number;
   name: string;
   slug: string;
   description: string | null;
-  type: "topic" | "study" | "custom";
+  type: "topic" | "study" | "custom" | "dm";
   visibility: "public" | "private";
   study_id: number | null;
   created_by: number;

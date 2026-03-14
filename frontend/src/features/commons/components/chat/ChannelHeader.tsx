@@ -10,7 +10,9 @@ export function ChannelHeader({ channel, onToggleTab }: ChannelHeaderProps) {
   return (
     <div className="flex items-center justify-between border-b border-border px-5 py-3">
       <div className="flex items-center gap-2">
-        <span className="text-[15px] font-semibold text-foreground"># {channel.name}</span>
+        <span className="text-[15px] font-semibold text-foreground">
+          {channel.type === "dm" ? channel.name.replace(/^DM:\s*/, "") : `# ${channel.name}`}
+        </span>
         {channel.description && (
           <span className="text-xs text-muted-foreground ml-1">{channel.description}</span>
         )}
