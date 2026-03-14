@@ -90,13 +90,13 @@ export function MessageItem({
             </div>
           )}
 
-            {/* Reaction pills */}
-            {!isDeleted && !editing && message.reactions && (
-              <ReactionPills
-                messageId={message.id}
-                reactions={message.reactions}
-              />
-            )}
+          {/* Reaction pills */}
+          {!isDeleted && !editing && message.reactions && (
+            <ReactionPills
+              messageId={message.id}
+              reactions={message.reactions}
+            />
+          )}
 
           {/* Reply count link */}
           {(message.reply_count ?? 0) > 0 && !showThread && (

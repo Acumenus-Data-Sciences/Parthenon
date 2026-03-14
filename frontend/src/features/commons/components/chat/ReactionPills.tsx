@@ -56,6 +56,7 @@ export function ReactionPills({ messageId, reactions }: ReactionPillsProps) {
       <div className="relative">
         <button
           onClick={() => setShowPicker(!showPicker)}
+          aria-label="Add reaction"
           className="inline-flex h-6 w-7 items-center justify-center rounded-full border border-dashed border-border/50 text-muted-foreground hover:bg-muted hover:text-foreground"
         >
           <Plus className="h-3 w-3" />
