@@ -29,6 +29,19 @@ export interface ChannelMember {
   user: ChannelUser;
 }
 
+export interface ReactionUser {
+  id: number;
+  name: string;
+}
+
+export interface ReactionEntry {
+  count: number;
+  users: ReactionUser[];
+  reacted: boolean;
+}
+
+export type ReactionSummary = Record<string, ReactionEntry>;
+
 export interface Message {
   id: number;
   channel_id: number;
@@ -43,6 +56,7 @@ export interface Message {
   created_at: string;
   reply_count?: number;
   latest_reply_at?: string | null;
+  reactions: ReactionSummary;
 }
 
 export interface PresenceUser {
