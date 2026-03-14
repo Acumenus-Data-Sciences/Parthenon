@@ -465,6 +465,112 @@ def _load_manifest_metadata(source_dir: Path) -> dict[str, dict]:
         return {}
 
 
+def ingest_medical_textbooks(
+    textbooks_dir: str,
+    batch_size: int = 32,
+) -> dict[str, int]:
+    """Ingest pre-extracted medical textbook JSONL files into ohdsi_papers.
+
+    Expects JSONL files produced by ingest_textbooks.py, each line containing:
+    {"text": "...", "metadata": {"source": "medical_textbook", "title": "...", ...}}
+
+    Returns stats: {"ingested": N, "skipped": N, "chunks": N, "errors": N}
+    """
+    collection = get_ohdsi_papers_collection()
+    tb_path = Path(textbooks_dir)
+    stats = {"ingested": 0, "skipped": 0, "chunks": 0, "errors": 0}
+
+    if not tb_path.exists():
+        logger.warning("Textbooks directory not found: %s", tb_path)
+        return stats
+
+    jsonl_files = sorted(tb_path.glob("*.jsonl"))
+    logger.info("Found %d textbook JSONL files in %s", len(jsonl_files), tb_path)
+
+    batch_ids: list[str] = []
+    batch_docs: list[str] = []
+    batch_metas: list[dict[str, str | int | float | bool]] = []
+
+    for filepath in jsonl_files:
+        try:
+            file_text = filepath.read_text(encoding="utf-8")
+            file_hash = content_hash(file_text)
+
+            # Dedup check
+            source_key = filepath.stem
+            existing = collection.get(
+                where={"source_file": source_key},
+                include=[],
+            )
+            existing_ids = existing.get("ids", [])
+            if existing_ids and any(file_hash in eid for eid in existing_ids):
+                stats["skipped"] += 1
+                continue
+
+            if existing_ids:
+                collection.delete(ids=existing_ids)
+
+            lines = [ln for ln in file_text.strip().split("\n") if ln.strip()]
+            chunk_count = 0
+
+            for line in lines:
+                try:
+                    doc = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+
+                text = doc.get("text", "")
+                meta = doc.get("metadata", {})
+                if len(text) < 100:
+                    continue
+
+                chunk_id = f"textbook::{source_key}::{meta.get('chunk_index', chunk_count)}::{file_hash}"
+                chunk_meta: dict[str, str | int | float | bool] = {
+                    "source_file": source_key,
+                    "source": "medical_textbook",
+                    "chunk_index": meta.get("chunk_index", chunk_count),
+                    "total_chunks": meta.get("total_chunks", len(lines)),
+                    "version": file_hash[:8],
+                    "priority": meta.get("priority", "medium"),
+                }
+                if meta.get("title"):
+                    chunk_meta["title"] = str(meta["title"])[:500]
+                if meta.get("category"):
+                    chunk_meta["category"] = str(meta["category"])
+
+                batch_ids.append(chunk_id)
+                batch_docs.append(text)
+                batch_metas.append(chunk_meta)
+                chunk_count += 1
+
+                if len(batch_ids) >= batch_size:
+                    collection.upsert(
+                        ids=batch_ids,
+                        documents=batch_docs,
+                        metadatas=batch_metas,  # type: ignore[arg-type]
+                    )
+                    batch_ids, batch_docs, batch_metas = [], [], []
+
+            stats["ingested"] += 1
+            stats["chunks"] += chunk_count
+            logger.info("Ingested %s: %d chunks", filepath.name, chunk_count)
+
+        except Exception as e:
+            logger.warning("Error processing %s: %s", filepath.name, e)
+            stats["errors"] += 1
+
+    # Flush remaining
+    if batch_ids:
+        collection.upsert(
+            ids=batch_ids,
+            documents=batch_docs,
+            metadatas=batch_metas,  # type: ignore[arg-type]
+        )
+
+    logger.info("Medical textbook ingestion complete: %s", stats)
+    return stats
+
+
 def _load_harvester_metadata(metadata_dir: Path) -> dict[str, dict]:
     """Load paper metadata from harvester state files, keyed by PDF filename."""
     papers_by_filename: dict[str, dict] = {}

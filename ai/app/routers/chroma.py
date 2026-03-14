@@ -10,7 +10,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 from app.chroma.client import check_health, get_chroma_client
-from app.chroma.ingestion import ingest_docs_directory, ingest_ohdsi_corpus, ingest_ohdsi_knowledge
+from app.chroma.ingestion import ingest_docs_directory, ingest_ohdsi_corpus, ingest_ohdsi_knowledge, ingest_medical_textbooks
 from app.chroma.faq import promote_frequent_questions
 from app.chroma.memory import prune_old_conversations
 from app.chroma.clinical import ingest_clinical_concepts
@@ -66,6 +66,15 @@ async def ingest_ohdsi_papers(corpus_dir: str | None = None) -> dict:
     """
     target_dir = corpus_dir or OHDSI_CORPUS_DIR
     return ingest_ohdsi_corpus(target_dir)
+
+
+TEXTBOOKS_DIR = os.environ.get("TEXTBOOKS_DIR", "/app/medical_textbooks")
+
+
+@router.post("/ingest-textbooks")
+async def ingest_textbooks_endpoint() -> dict:
+    """Ingest pre-extracted medical textbook JSONL into ohdsi_papers collection."""
+    return ingest_medical_textbooks(TEXTBOOKS_DIR)
 
 
 OHDSI_BOOK_DIR = os.environ.get("OHDSI_BOOK_DIR", "/app/book_of_ohdsi")
