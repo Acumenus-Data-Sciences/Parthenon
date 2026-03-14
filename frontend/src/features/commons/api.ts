@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import apiClient from "@/lib/api-client";
 import type {
+  ActivityItem,
   Attachment,
   Channel,
   ChannelMember,
@@ -601,5 +602,27 @@ export function useMarkNotificationsRead() {
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: [NOTIFICATIONS_KEY] });
     },
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Activity Feed
+// ---------------------------------------------------------------------------
+
+const ACTIVITIES_KEY = "commons-activities";
+
+async function fetchActivities(slug: string): Promise<ActivityItem[]> {
+  const { data } = await apiClient.get<{ data: ActivityItem[] }>(
+    `/commons/channels/${slug}/activities`,
+  );
+  return data.data;
+}
+
+export function useActivities(slug: string) {
+  return useQuery({
+    queryKey: [ACTIVITIES_KEY, slug],
+    queryFn: () => fetchActivities(slug),
+    enabled: !!slug,
+    staleTime: 30_000,
   });
 }

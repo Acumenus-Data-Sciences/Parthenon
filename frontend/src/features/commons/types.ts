@@ -159,6 +159,21 @@ export interface CommonsNotification {
   channel?: { id: number; slug: string; name: string } | null;
 }
 
+export interface ActivityItem {
+  id: number;
+  channel_id: number | null;
+  user_id: number | null;
+  event_type: string;
+  title: string;
+  description: string | null;
+  referenceable_type: string | null;
+  referenceable_id: number | null;
+  metadata: Record<string, unknown> | null;
+  created_at: string;
+  user?: ChannelUser | null;
+  channel?: { id: number; slug: string; name: string } | null;
+}
+
 export interface CreateChannelPayload {
   name: string;
   slug: string;

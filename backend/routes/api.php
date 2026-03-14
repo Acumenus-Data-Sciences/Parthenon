@@ -967,6 +967,10 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         Route::get('notifications', [App\Http\Controllers\Api\V1\Commons\NotificationController::class, 'index']);
         Route::get('notifications/unread-count', [App\Http\Controllers\Api\V1\Commons\NotificationController::class, 'unreadCount']);
         Route::post('notifications/mark-read', [App\Http\Controllers\Api\V1\Commons\NotificationController::class, 'markRead']);
+
+        // Activity feed
+        Route::get('activities', [App\Http\Controllers\Api\V1\Commons\ActivityController::class, 'global']);
+        Route::get('channels/{slug}/activities', [App\Http\Controllers\Api\V1\Commons\ActivityController::class, 'index']);
     });
 });
 
