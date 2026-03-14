@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { MoreHorizontal, Pencil, Trash2, Reply, SmilePlus } from "lucide-react";
+import { MoreHorizontal, Pencil, Trash2, Reply, SmilePlus, Pin } from "lucide-react";
 import { EmojiPicker } from "./EmojiPicker";
 
 interface MessageActionMenuProps {
@@ -9,6 +9,7 @@ interface MessageActionMenuProps {
   onEdit: () => void;
   onDelete: () => void;
   onReact: (emoji: string) => void;
+  onPin: () => void;
 }
 
 export function MessageActionMenu({
@@ -18,6 +19,7 @@ export function MessageActionMenu({
   onEdit,
   onDelete,
   onReact,
+  onPin,
 }: MessageActionMenuProps) {
   const [open, setOpen] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -59,6 +61,14 @@ export function MessageActionMenu({
           >
             <Reply className="h-3.5 w-3.5" />
             Reply
+          </button>
+
+          <button
+            onClick={() => { onPin(); setOpen(false); }}
+            className="flex w-full items-center gap-2 px-3 py-1.5 text-sm text-foreground hover:bg-muted"
+          >
+            <Pin className="h-3.5 w-3.5" />
+            Pin
           </button>
 
           {isAuthor && (

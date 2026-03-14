@@ -925,6 +925,9 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         Route::get('channels/{slug}/messages', [App\Http\Controllers\Api\V1\Commons\MessageController::class, 'index']);
         Route::post('channels/{slug}/messages', [App\Http\Controllers\Api\V1\Commons\MessageController::class, 'store'])
             ->middleware('throttle:60,1');
+        // Message search (must be before messages/{id} to avoid route conflict)
+        Route::get('messages/search', [App\Http\Controllers\Api\V1\Commons\MessageController::class, 'search']);
+
         Route::patch('messages/{id}', [App\Http\Controllers\Api\V1\Commons\MessageController::class, 'update']);
         Route::delete('messages/{id}', [App\Http\Controllers\Api\V1\Commons\MessageController::class, 'destroy']);
         Route::get('channels/{slug}/messages/{messageId}/replies', [App\Http\Controllers\Api\V1\Commons\MessageController::class, 'replies']);
@@ -935,6 +938,11 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         Route::post('channels/{slug}/read', [App\Http\Controllers\Api\V1\Commons\MemberController::class, 'markRead']);
         Route::post('messages/{id}/reactions', [App\Http\Controllers\Api\V1\Commons\ReactionController::class, 'toggle'])
             ->middleware('throttle:30,1');
+
+        // Pinned messages
+        Route::get('channels/{slug}/pins', [App\Http\Controllers\Api\V1\Commons\PinController::class, 'index']);
+        Route::post('channels/{slug}/pins', [App\Http\Controllers\Api\V1\Commons\PinController::class, 'store']);
+        Route::delete('channels/{slug}/pins/{pinId}', [App\Http\Controllers\Api\V1\Commons\PinController::class, 'destroy']);
     });
 });
 

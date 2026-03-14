@@ -1,15 +1,20 @@
 import { useState } from "react";
-import { Zap, Pin, FileText } from "lucide-react";
+import { Zap, Pin, FileText, Search } from "lucide-react";
+import { PinnedList } from "./PinnedList";
+import { SearchPanel } from "./SearchPanel";
 
 const TABS = [
-  { key: "activity", label: "Activity", icon: Zap, placeholder: "Activity Feed" },
-  { key: "pinned", label: "Pinned", icon: Pin, placeholder: "Pinned Messages" },
-  { key: "files", label: "Files", icon: FileText, placeholder: "Shared Files" },
+  { key: "pinned", label: "Pinned", icon: Pin },
+  { key: "search", label: "Search", icon: Search },
+  { key: "files", label: "Files", icon: FileText },
 ] as const;
 
-export function RightPanel() {
-  const [activeTab, setActiveTab] = useState<string>("activity");
-  const active = TABS.find((t) => t.key === activeTab) ?? TABS[0];
+interface RightPanelProps {
+  slug: string;
+}
+
+export function RightPanel({ slug }: RightPanelProps) {
+  const [activeTab, setActiveTab] = useState<string>("pinned");
 
   return (
     <div className="flex w-[280px] shrink-0 flex-col border-l border-border bg-card">
@@ -28,11 +33,15 @@ export function RightPanel() {
           </button>
         ))}
       </div>
-      <div className="flex flex-1 flex-col items-center justify-center gap-3 px-5 text-center">
-        <active.icon className="h-8 w-8 text-muted-foreground/50" />
-        <p className="text-[13px] font-medium text-muted-foreground">{active.placeholder}</p>
-        <p className="text-xs text-muted-foreground/60">Coming in a future update</p>
-      </div>
+      {activeTab === "pinned" && <PinnedList slug={slug} />}
+      {activeTab === "search" && <SearchPanel slug={slug} />}
+      {activeTab === "files" && (
+        <div className="flex flex-1 flex-col items-center justify-center gap-3 px-5 text-center">
+          <FileText className="h-8 w-8 text-muted-foreground/50" />
+          <p className="text-[13px] font-medium text-muted-foreground">Shared Files</p>
+          <p className="text-xs text-muted-foreground/60">Coming in a future update</p>
+        </div>
+      )}
     </div>
   );
 }

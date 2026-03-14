@@ -133,4 +133,30 @@ class MessageController extends Controller
 
         return response()->json(['data' => $replies]);
     }
+
+    public function search(Request $request): JsonResponse
+    {
+        $request->validate([
+            'q' => 'required|string|min:2|max:200',
+            'channel' => 'nullable|string',
+        ]);
+
+        $query = Message::whereNull('deleted_at')
+            ->whereNull('parent_id')
+            ->whereRaw("to_tsvector('english', body) @@ plainto_tsquery('english', ?)", [$request->input('q')])
+            ->with(['user:id,name', 'channel:id,slug,name'])
+            ->orderByDesc('created_at')
+            ->limit(50);
+
+        if ($request->filled('channel')) {
+            $channel = Channel::where('slug', $request->input('channel'))->first();
+            if ($channel) {
+                $query->where('channel_id', $channel->id);
+            }
+        }
+
+        $messages = $query->get();
+
+        return response()->json(['data' => $messages]);
+    }
 }

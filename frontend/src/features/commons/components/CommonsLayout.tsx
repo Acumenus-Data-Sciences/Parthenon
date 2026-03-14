@@ -91,7 +91,7 @@ export function CommonsLayout() {
       </div>
 
       {/* Right panel */}
-      <RightPanel />
+      <RightPanel slug={activeSlug} />
     </div>
   );
 }

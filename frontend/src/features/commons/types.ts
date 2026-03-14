@@ -64,6 +64,26 @@ export interface PresenceUser {
   name: string;
 }
 
+export interface PinnedMessage {
+  id: number;
+  message: {
+    id: number;
+    body: string;
+    user: ChannelUser;
+    created_at: string;
+  };
+  pinned_by: ChannelUser;
+  pinned_at: string;
+}
+
+export interface SearchResult {
+  id: number;
+  body: string;
+  user: ChannelUser;
+  channel: { id: number; slug: string; name: string };
+  created_at: string;
+}
+
 export interface CreateChannelPayload {
   name: string;
   slug: string;

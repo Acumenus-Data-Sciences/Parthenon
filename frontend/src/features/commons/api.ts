@@ -5,13 +5,17 @@ import type {
   ChannelMember,
   CreateChannelPayload,
   Message,
+  PinnedMessage,
   ReactionSummary,
+  SearchResult,
 } from "./types";
 
 const CHANNELS_KEY = "commons-channels";
 const MESSAGES_KEY = "commons-messages";
 const MEMBERS_KEY = "commons-members";
 const UNREAD_KEY = "commons-unread";
+const PINS_KEY = "commons-pins";
+const SEARCH_KEY = "commons-search";
 
 // ---------------------------------------------------------------------------
 // API functions
@@ -110,6 +114,37 @@ async function toggleReaction(
 async function fetchUnreadCounts(): Promise<Record<string, number>> {
   const { data } = await apiClient.get<{ data: Record<string, number> }>(
     "/commons/channels/unread",
+  );
+  return data.data;
+}
+
+async function fetchPins(slug: string): Promise<PinnedMessage[]> {
+  const { data } = await apiClient.get<{ data: PinnedMessage[] }>(
+    `/commons/channels/${slug}/pins`,
+  );
+  return data.data;
+}
+
+async function pinMessage(slug: string, messageId: number): Promise<PinnedMessage> {
+  const { data } = await apiClient.post<{ data: PinnedMessage }>(
+    `/commons/channels/${slug}/pins`,
+    { message_id: messageId },
+  );
+  return data.data;
+}
+
+async function unpinMessage(slug: string, pinId: number): Promise<void> {
+  await apiClient.delete(`/commons/channels/${slug}/pins/${pinId}`);
+}
+
+async function searchMessages(
+  query: string,
+  channel?: string,
+): Promise<SearchResult[]> {
+  const params = new URLSearchParams({ q: query });
+  if (channel) params.set("channel", channel);
+  const { data } = await apiClient.get<{ data: SearchResult[] }>(
+    `/commons/messages/search?${params.toString()}`,
   );
   return data.data;
 }
@@ -232,5 +267,44 @@ export function useUnreadCounts() {
     queryFn: fetchUnreadCounts,
     refetchInterval: 60_000,
     staleTime: 60_000,
+  });
+}
+
+export function usePins(slug: string) {
+  return useQuery({
+    queryKey: [PINS_KEY, slug],
+    queryFn: () => fetchPins(slug),
+    enabled: !!slug,
+  });
+}
+
+export function usePinMessage() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ slug, messageId }: { slug: string; messageId: number }) =>
+      pinMessage(slug, messageId),
+    onSuccess: (_data, variables) => {
+      void qc.invalidateQueries({ queryKey: [PINS_KEY, variables.slug] });
+    },
+  });
+}
+
+export function useUnpinMessage() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ slug, pinId }: { slug: string; pinId: number }) =>
+      unpinMessage(slug, pinId),
+    onSuccess: (_data, variables) => {
+      void qc.invalidateQueries({ queryKey: [PINS_KEY, variables.slug] });
+    },
+  });
+}
+
+export function useSearchMessages(query: string, channel?: string) {
+  return useQuery({
+    queryKey: [SEARCH_KEY, query, channel],
+    queryFn: () => searchMessages(query, channel),
+    enabled: query.length >= 2,
+    staleTime: 30_000,
   });
 }
