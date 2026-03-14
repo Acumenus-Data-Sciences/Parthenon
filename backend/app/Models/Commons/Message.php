@@ -15,6 +15,7 @@ class Message extends Model
         'channel_id',
         'user_id',
         'parent_id',
+        'depth',
         'body',
         'body_html',
         'is_edited',
@@ -26,6 +27,7 @@ class Message extends Model
     protected function casts(): array
     {
         return [
+            'depth' => 'integer',
             'is_edited' => 'boolean',
             'edited_at' => 'datetime',
             'deleted_at' => 'datetime',
