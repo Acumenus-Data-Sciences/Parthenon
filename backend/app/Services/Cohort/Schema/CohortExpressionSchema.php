@@ -59,7 +59,11 @@ class CohortExpressionSchema
             ];
         }
 
-        // Normalize conceptSets (optional)
+        // Normalize conceptSets (optional) — accept Atlas-style "ConceptSets" too
+        if (! isset($expression['conceptSets']) && isset($expression['ConceptSets'])) {
+            $expression['conceptSets'] = $expression['ConceptSets'];
+            unset($expression['ConceptSets']);
+        }
         if (! isset($expression['conceptSets'])) {
             $expression['conceptSets'] = [];
         }

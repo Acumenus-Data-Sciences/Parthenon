@@ -105,9 +105,9 @@ export function CriteriaGroupEditor({
       </div>
 
       {/* Criteria list */}
-      {group.CriteriaList.length > 0 && (
+      {(group.CriteriaList ?? []).length > 0 && (
         <div className="space-y-2">
-          {group.CriteriaList.map((rule, i) => (
+          {(group.CriteriaList ?? []).map((rule, i) => (
             <InclusionRuleEditor
               key={i}
               rule={rule}
@@ -120,9 +120,9 @@ export function CriteriaGroupEditor({
       )}
 
       {/* Nested groups */}
-      {group.Groups.length > 0 && (
+      {(group.Groups ?? []).length > 0 && (
         <div className="space-y-2">
-          {group.Groups.map((nested, i) => (
+          {(group.Groups ?? []).map((nested, i) => (
             <div key={i} className="relative">
               <CriteriaGroupEditor
                 group={nested}
@@ -142,7 +142,7 @@ export function CriteriaGroupEditor({
       )}
 
       {/* Empty state */}
-      {group.CriteriaList.length === 0 && group.Groups.length === 0 && (
+      {(group.CriteriaList ?? []).length === 0 && (group.Groups ?? []).length === 0 && (
         <div className="flex items-center justify-center py-6 text-xs text-[#5A5650]">
           No criteria in this group. Add rules or nested groups below.
         </div>

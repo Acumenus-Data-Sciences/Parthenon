@@ -20,7 +20,7 @@ export function PrimaryCriteriaPanel() {
   } = useCohortExpressionStore();
 
   const [showAdd, setShowAdd] = useState(false);
-  const { CriteriaList, ObservationWindow } = expression.PrimaryCriteria;
+  const { CriteriaList = [], ObservationWindow = { PriorDays: 0, PostDays: 0 } } = expression.PrimaryCriteria ?? {};
 
   const handleAdd = (
     domain: DomainCriterionType,

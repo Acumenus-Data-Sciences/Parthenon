@@ -47,7 +47,52 @@ function parseResults(
   if (typeof json === "object" && "results" in json) {
     return normalizeResults((json as { results: CharacterizationResult[] }).results);
   }
+  // Handle {targetCohorts: {id: {domain: rows}}, comparatorCohorts: ...} format
+  if (typeof json === "object" && "targetCohorts" in json) {
+    return parseTargetComparatorFormat(json as Record<string, unknown>);
+  }
   return [];
+}
+
+function parseTargetComparatorFormat(json: Record<string, unknown>): CharacterizationResult[] {
+  const results: CharacterizationResult[] = [];
+  const targetCohorts = (json.targetCohorts ?? {}) as Record<string, Record<string, unknown[]>>;
+
+  for (const [cohortId, domainData] of Object.entries(targetCohorts)) {
+    if (typeof domainData !== "object" || domainData === null) continue;
+    const features: Record<string, FeatureResult[]> = {};
+    for (const [domain, rows] of Object.entries(domainData)) {
+      if (Array.isArray(rows)) {
+        features[domain] = rows.map((r: Record<string, unknown>) => ({
+          covariate_id: Number(r.covariate_id ?? r.concept_id ?? 0),
+          covariate_name: String(r.covariate_name ?? r.concept_name ?? r.feature_name ?? domain),
+          mean: Number(r.mean ?? r.percent_value ?? 0) / (r.percent_value != null ? 100 : 1),
+          count: Number(r.count ?? r.person_count ?? r.count_value ?? 0),
+          category: String(r.category ?? domain),
+        })) as FeatureResult[];
+      }
+    }
+    // Estimate person_count from demographics or largest feature count
+    let personCount = 0;
+    const demoRows = features["demographics"] ?? [];
+    if (demoRows.length > 0) {
+      personCount = Math.max(...demoRows.map((r) => r.count), 0);
+    } else {
+      for (const rows of Object.values(features)) {
+        if (rows.length > 0) {
+          personCount = Math.max(personCount, ...rows.map((r) => r.count));
+        }
+      }
+    }
+
+    results.push({
+      cohort_id: Number(cohortId),
+      cohort_name: `Cohort #${cohortId}`,
+      person_count: personCount,
+      features,
+    });
+  }
+  return results;
 }
 
 function normalizeResults(results: CharacterizationResult[]): CharacterizationResult[] {

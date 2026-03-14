@@ -96,7 +96,13 @@ export function CharacterizationDesigner({
     if (characterization) {
       setName(characterization.name);
       setDescription(characterization.description ?? "");
-      setDesign(characterization.design_json);
+      setDesign({
+        ...defaultDesign,
+        ...characterization.design_json,
+        targetCohortIds: characterization.design_json?.targetCohortIds ?? defaultDesign.targetCohortIds,
+        comparatorCohortIds: characterization.design_json?.comparatorCohortIds ?? defaultDesign.comparatorCohortIds,
+        featureTypes: characterization.design_json?.featureTypes ?? characterization.design_json?.featureAnalyses ?? defaultDesign.featureTypes,
+      });
     }
   }, [characterization]);
 

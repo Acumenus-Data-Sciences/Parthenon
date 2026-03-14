@@ -54,7 +54,7 @@ export function CalibrationPlot({
   }, [data, populationBins]);
 
   const maxBinCount = useMemo(
-    () => Math.max(...decileBins.map((b) => b.count), 1),
+    () => decileBins.length > 0 ? Math.max(...decileBins.map((b) => b.count), 1) : 1,
     [decileBins],
   );
 

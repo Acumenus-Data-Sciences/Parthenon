@@ -32,6 +32,13 @@ import type {
   ImagingCriterion,
 } from "../types/cohortExpression";
 
+/** Normalize DemographicCriteria to always be an array. It can be undefined, an object, or an array. */
+function asDemographicArray(dc: unknown): DemographicFilter[] {
+  if (Array.isArray(dc)) return dc;
+  if (dc && typeof dc === "object") return [dc as DemographicFilter];
+  return [];
+}
+
 interface SectionProps {
   title: string;
   icon: React.ElementType;
@@ -100,29 +107,29 @@ export function CohortExpressionEditor() {
   const [showAddGenomic, setShowAddGenomic] = useState(false);
   const [showAddImaging, setShowAddImaging] = useState(false);
 
-  const primaryCount = expression.PrimaryCriteria.CriteriaList.length;
+  const primaryCount = expression.PrimaryCriteria?.CriteriaList?.length ?? 0;
   const inclusionCount =
-    (expression.AdditionalCriteria?.CriteriaList.length ?? 0) +
-    (expression.AdditionalCriteria?.Groups.length ?? 0);
+    (expression.AdditionalCriteria?.CriteriaList?.length ?? 0) +
+    (expression.AdditionalCriteria?.Groups?.length ?? 0);
   const censorCount = expression.CensoringCriteria?.length ?? 0;
-  const conceptSetCount = expression.ConceptSets.length;
-  const demographicCount = expression.DemographicCriteria?.length ?? 0;
+  const conceptSetCount = (expression.ConceptSets ?? expression.conceptSets)?.length ?? 0;
+  const demographicCount = Array.isArray(expression.DemographicCriteria) ? expression.DemographicCriteria.length : (expression.DemographicCriteria ? 1 : 0);
   const genomicCount = expression.GenomicCriteria?.length ?? 0;
   const imagingCount = expression.ImagingCriteria?.length ?? 0;
 
   const handleAddDemographic = () => {
-    const current = expression.DemographicCriteria ?? [];
+    const current = asDemographicArray(expression.DemographicCriteria);
     setDemographicCriteria([...current, {}]);
   };
 
   const handleUpdateDemographic = (index: number, filter: DemographicFilter) => {
-    const current = [...(expression.DemographicCriteria ?? [])];
+    const current = [...(asDemographicArray(expression.DemographicCriteria))];
     current[index] = filter;
     setDemographicCriteria(current);
   };
 
   const handleRemoveDemographic = (index: number) => {
-    const current = [...(expression.DemographicCriteria ?? [])];
+    const current = [...(asDemographicArray(expression.DemographicCriteria))];
     current.splice(index, 1);
     setDemographicCriteria(current);
   };
@@ -317,7 +324,7 @@ export function CohortExpressionEditor() {
             ethnicity).
           </p>
 
-          {(expression.DemographicCriteria ?? []).map((filter, i) => (
+          {(asDemographicArray(expression.DemographicCriteria)).map((filter, i) => (
             <DemographicFilterEditor
               key={i}
               value={filter}
