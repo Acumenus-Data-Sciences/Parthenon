@@ -113,6 +113,7 @@ OHDSI-scraper/ohdsi_corpus/
 OHDSI-scraper/book_of_ohdsi/
 OHDSI-scraper/hades_vignettes/
 OHDSI-scraper/ohdsi_forums/
+OHDSI-scraper/medical_textbooks_extracted/
 OHDSI-scraper/harvester.log
 OHDSI-scraper/*.env
 

@@ -85,7 +85,8 @@ services:
       POSTGRES_USER: parthenon
       POSTGRES_PASSWORD: ${DB_PASSWORD:-secret}
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      # Bind mount instead of named volume — survives `docker compose down -v`
+      - ${POSTGRES_DATA_DIR:-/home/smudoshi/parthenon-pgdata}:/var/lib/postgresql/data
       - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
       - ./docker/fixtures:/fixtures:ro
     healthcheck:
@@ -140,7 +141,7 @@ services:
       - ./OHDSI-scraper/ohdsi_forums:/app/ohdsi_forums:ro
       - ./OHDSI-scraper/medical_textbooks_extracted:/app/medical_textbooks:ro
     environment:
-      - DATABASE_URL=postgresql://parthenon:${DB_PASSWORD:-secret}@postgres:5432/parthenon
+      - DATABASE_URL=postgresql://smudoshi:acumenus@host.docker.internal:5432/ohdsi
       - GIS_DATABASE_URL=postgresql://smudoshi:acumenus@host.docker.internal:5432/ohdsi
       - REDIS_URL=redis://redis:6379/2
       - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
@@ -363,7 +364,7 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     environment:
-      - DATABASE_URL=postgresql://parthenon:${DB_PASSWORD:-secret}@postgres:5432/parthenon
+      - DATABASE_URL=postgresql://smudoshi:acumenus@host.docker.internal:5432/ohdsi
     depends_on:
       postgres:
         condition: service_healthy
@@ -532,7 +533,7 @@ services:
     restart: unless-stopped
 
 volumes:
-  postgres-data:
+  # postgres-data removed — using host bind mount instead (survives docker compose down -v)
   redis-data:
   solr_data:
   orthanc-data:
