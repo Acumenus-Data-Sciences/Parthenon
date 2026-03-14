@@ -16,6 +16,7 @@ class SendMessageRequest extends FormRequest
     {
         return [
             'body' => 'required|string|max:10000',
+            'parent_id' => 'nullable|integer|exists:commons_messages,id',
         ];
     }
 }
