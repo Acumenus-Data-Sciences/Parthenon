@@ -11,6 +11,7 @@ import { ChannelHeader } from "./chat/ChannelHeader";
 import { MessageList } from "./chat/MessageList";
 import { MessageComposer } from "./chat/MessageComposer";
 import { RightPanel } from "./rightpanel/RightPanel";
+import { NotificationBell } from "./sidebar/NotificationBell";
 
 export function CommonsLayout() {
   const { slug } = useParams<{ slug?: string }>();
@@ -73,8 +74,9 @@ export function CommonsLayout() {
     <div className="layout-full-bleed flex h-full">
       {/* Left sidebar */}
       <div className="flex w-60 shrink-0 flex-col border-r border-border bg-card">
-        <div className="shrink-0 border-b border-border px-4 py-4">
+        <div className="flex shrink-0 items-center justify-between border-b border-border px-4 py-4">
           <h1 className="text-base font-bold text-foreground">Commons</h1>
+          <NotificationBell />
         </div>
         <div className="flex-1 overflow-y-auto">
           {channelsLoading ? (

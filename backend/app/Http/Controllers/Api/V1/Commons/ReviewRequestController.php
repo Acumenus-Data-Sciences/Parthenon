@@ -8,11 +8,16 @@ use App\Models\Commons\Message;
 use App\Models\Commons\ReviewRequest;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
+use App\Services\Commons\NotificationService;
 use Illuminate\Http\Request;
 
 class ReviewRequestController extends Controller
 {
     use AuthorizesRequests;
+
+    public function __construct(
+        private NotificationService $notificationService,
+    ) {}
 
     public function index(string $slug): JsonResponse
     {
@@ -61,6 +66,16 @@ class ReviewRequestController extends Controller
 
         $review->load(['requester:id,name', 'reviewer:id,name']);
 
+        // Notify the assigned reviewer (or message author if no specific reviewer)
+        $notifyUserId = $request->input('reviewer_id') ?? $message->user_id;
+        $this->notificationService->notifyReviewRequested(
+            (int) $notifyUserId,
+            $request->user()->id,
+            $request->user()->name,
+            $channel->id,
+            $message->id,
+        );
+
         return response()->json(['data' => $review], 201);
     }
 
@@ -81,6 +96,16 @@ class ReviewRequestController extends Controller
         ]);
 
         $review->load(['requester:id,name', 'reviewer:id,name']);
+
+        // Notify the requester
+        $this->notificationService->notifyReviewResolved(
+            (int) $review->requested_by,
+            $request->user()->id,
+            $request->user()->name,
+            $request->input('status'),
+            (int) $review->channel_id,
+            (int) $review->message_id,
+        );
 
         return response()->json(['data' => $review]);
     }

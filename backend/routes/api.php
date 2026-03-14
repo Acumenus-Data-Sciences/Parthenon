@@ -962,6 +962,11 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         Route::get('channels/{slug}/reviews', [App\Http\Controllers\Api\V1\Commons\ReviewRequestController::class, 'index']);
         Route::post('channels/{slug}/reviews', [App\Http\Controllers\Api\V1\Commons\ReviewRequestController::class, 'store']);
         Route::patch('reviews/{id}/resolve', [App\Http\Controllers\Api\V1\Commons\ReviewRequestController::class, 'resolve']);
+
+        // Notifications
+        Route::get('notifications', [App\Http\Controllers\Api\V1\Commons\NotificationController::class, 'index']);
+        Route::get('notifications/unread-count', [App\Http\Controllers\Api\V1\Commons\NotificationController::class, 'unreadCount']);
+        Route::post('notifications/mark-read', [App\Http\Controllers\Api\V1\Commons\NotificationController::class, 'markRead']);
     });
 });
 

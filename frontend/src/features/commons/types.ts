@@ -144,6 +144,21 @@ export interface ReviewRequest {
   reviewer?: ChannelUser | null;
 }
 
+export interface CommonsNotification {
+  id: number;
+  user_id: number;
+  type: "mention" | "dm" | "review_assigned" | "review_resolved" | "thread_reply";
+  title: string;
+  body: string | null;
+  channel_id: number | null;
+  message_id: number | null;
+  actor_id: number | null;
+  read_at: string | null;
+  created_at: string;
+  actor?: ChannelUser | null;
+  channel?: { id: number; slug: string; name: string } | null;
+}
+
 export interface CreateChannelPayload {
   name: string;
   slug: string;

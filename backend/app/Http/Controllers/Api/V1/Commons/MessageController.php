@@ -9,6 +9,7 @@ use App\Models\Commons\Channel;
 use App\Models\Commons\Message;
 use App\Models\Commons\ObjectReference;
 use App\Services\Commons\MessageService;
+use App\Services\Commons\NotificationService;
 use App\Services\Commons\ReactionService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
@@ -21,6 +22,7 @@ class MessageController extends Controller
     public function __construct(
         private MessageService $messageService,
         private ReactionService $reactionService,
+        private NotificationService $notificationService,
     ) {}
 
     public function index(Request $request, string $slug): JsonResponse
@@ -88,6 +90,17 @@ class MessageController extends Controller
                 }
             }
             $message->load('objectReferences');
+        }
+
+        // Fire notifications
+        $message->load('user:id,name');
+        if ($channel->type === 'dm') {
+            $this->notificationService->notifyDirectMessage($message, $channel->id);
+        } else {
+            $this->notificationService->notifyMentions($message, $channel->id);
+        }
+        if ($message->parent_id) {
+            $this->notificationService->notifyThreadReply($message, $channel->id);
         }
 
         return response()->json(['data' => $message], 201);
