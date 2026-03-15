@@ -20,9 +20,10 @@ class CommonsChannelSeeder extends Seeder
         }
 
         $channels = [
-            ['name' => 'General', 'slug' => 'general', 'description' => 'General discussion for the team'],
-            ['name' => 'Data Quality', 'slug' => 'data-quality', 'description' => 'Data quality discussions and DQD results'],
-            ['name' => 'Concept Sets', 'slug' => 'concept-sets', 'description' => 'Concept set design and review'],
+            ['name' => 'General',       'slug' => 'general',       'description' => 'General discussion for the team'],
+            ['name' => 'Data Quality',  'slug' => 'data-quality',  'description' => 'Data quality discussions and DQD results'],
+            ['name' => 'Concept Sets',  'slug' => 'concept-sets',  'description' => 'Concept set design and review'],
+            ['name' => 'Announcements', 'slug' => 'announcements', 'description' => 'Platform announcements and updates'],
         ];
 
         foreach ($channels as $channelData) {
@@ -50,6 +51,6 @@ class CommonsChannelSeeder extends Seeder
             }
         }
 
-        $this->command->info('Commons channels seeded: general, data-quality, concept-sets');
+        $this->command->info('Commons channels seeded: general, data-quality, concept-sets, announcements');
     }
 }
