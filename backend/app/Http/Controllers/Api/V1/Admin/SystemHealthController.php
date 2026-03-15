@@ -401,7 +401,7 @@ class SystemHealthController extends Controller
 
     private function checkGrafana(): array
     {
-        $url = rtrim(env('GRAFANA_URL', 'http://grafana:3000'), '/');
+        $url = rtrim(config('services.grafana.url', 'http://grafana:3000'), '/');
 
         try {
             $response = Http::timeout(3)->get("{$url}/api/health");
@@ -438,7 +438,7 @@ class SystemHealthController extends Controller
      */
     private function getGrafanaMetrics(): array
     {
-        $url = rtrim(env('GRAFANA_URL', 'http://grafana:3000'), '/');
+        $url = rtrim(config('services.grafana.url', 'http://grafana:3000'), '/');
 
         try {
             $response = Http::timeout(3)->get("{$url}/api/health");

@@ -70,4 +70,9 @@ return [
         'url' => env('WHITERABBIT_URL', 'http://whiterabbit:8090'),
     ],
 
+    // Grafana: Metrics and monitoring dashboard
+    'grafana' => [
+        'url' => env('GRAFANA_URL', 'http://grafana:3000'),
+    ],
+
 ];
