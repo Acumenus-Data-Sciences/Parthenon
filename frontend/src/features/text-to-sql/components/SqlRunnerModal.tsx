@@ -47,6 +47,160 @@ function stateLabel(state: string): string {
   return labels[state] ?? state;
 }
 
+interface ErrorHint {
+  title: string;
+  suggestions: string[];
+}
+
+function diagnoseError(error: string): ErrorHint | null {
+  const lower = error.toLowerCase();
+
+  if (
+    lower.includes("must begin with select or with") ||
+    lower.includes("not sql") ||
+    (!lower.includes("syntax error") && /^[a-z]/.test(error) && !lower.startsWith("select") && !lower.startsWith("with"))
+  ) {
+    return {
+      title: "The AI returned an explanation instead of SQL",
+      suggestions: [
+        "Try rephrasing your question to be more specific",
+        "Use the Query Library tab to find a pre-built template",
+        "Specify the exact tables and columns you want to query",
+      ],
+    };
+  }
+
+  if (lower.includes("backtick")) {
+    return {
+      title: "MySQL-style backticks are not supported",
+      suggestions: [
+        "PostgreSQL uses double quotes for identifiers: \"column_name\"",
+        "Most OMOP column names don\u2019t need quoting at all",
+        "Try regenerating the query \u2014 the AI sometimes uses MySQL syntax",
+      ],
+    };
+  }
+
+  if (lower.includes("syntax error")) {
+    const match = error.match(/at or near "([^"]+)"/);
+    const near = match?.[1];
+    return {
+      title: near ? `Syntax error near "${near}"` : "SQL syntax error",
+      suggestions: [
+        "The generated SQL has a syntax issue \u2014 try regenerating with a clearer question",
+        "Check for mismatched parentheses, missing commas, or extra keywords",
+        "Use the Validate SQL button first to catch issues before running",
+      ],
+    };
+  }
+
+  if (lower.includes("statement timeout") || lower.includes("canceling statement")) {
+    return {
+      title: "Query timed out (120s limit)",
+      suggestions: [
+        "Add more specific WHERE conditions to reduce the data scanned",
+        "Add a LIMIT clause to cap the result set",
+        "Avoid SELECT * \u2014 select only the columns you need",
+        "Consider filtering by date range to narrow the dataset",
+      ],
+    };
+  }
+
+  if (lower.includes("relation") && lower.includes("does not exist")) {
+    const match = error.match(/relation "([^"]+)" does not exist/);
+    const table = match?.[1];
+    return {
+      title: table ? `Table "${table}" not found` : "Table not found",
+      suggestions: [
+        "OMOP tables must be schema-qualified: omop.person, omop.condition_occurrence",
+        "Use the Schema Browser at the bottom of the page to verify table names",
+        "Check spelling \u2014 common tables: person, condition_occurrence, drug_exposure, measurement",
+      ],
+    };
+  }
+
+  if (lower.includes("column") && lower.includes("does not exist")) {
+    const match = error.match(/column "([^"]+)" does not exist/);
+    const col = match?.[1];
+    return {
+      title: col ? `Column "${col}" not found` : "Column not found",
+      suggestions: [
+        "Expand the table in the Schema Browser to see available columns",
+        "OMOP column names use underscores: person_id, condition_start_date",
+        "Check if you need a JOIN to another table that has this column",
+      ],
+    };
+  }
+
+  if (lower.includes("permission denied") || lower.includes("only administrators")) {
+    return {
+      title: "Insufficient permissions",
+      suggestions: [
+        "This query was not classified as \u201csafe\u201d (read-only)",
+        "Only administrators can run queries that aren\u2019t marked safe",
+        "Use the Validate SQL button to check the safety classification",
+      ],
+    };
+  }
+
+  return null;
+}
+
+function ErrorGuidance({ error }: { error: string | null }) {
+  if (!error) return null;
+  const hint = diagnoseError(error);
+  if (!hint) return null;
+
+  return (
+    <div
+      style={{
+        marginTop: "10px",
+        padding: "12px 14px",
+        borderRadius: "8px",
+        border: "1px solid #C9A22730",
+        background: "#C9A22708",
+      }}
+    >
+      <div
+        style={{
+          fontSize: "12px",
+          fontWeight: 600,
+          color: "#C9A227",
+          marginBottom: "8px",
+          display: "flex",
+          alignItems: "center",
+          gap: "6px",
+        }}
+      >
+        <AlertTriangle size={13} />
+        {hint.title}
+      </div>
+      <ul
+        style={{
+          margin: 0,
+          paddingLeft: "18px",
+          display: "flex",
+          flexDirection: "column",
+          gap: "4px",
+        }}
+      >
+        {hint.suggestions.map((s, i) => (
+          <li
+            key={i}
+            style={{
+              fontSize: "12px",
+              color: "#C5C0B8",
+              lineHeight: "1.5",
+            }}
+          >
+            {s}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 export function SqlRunnerModal({
   open,
   onClose,
@@ -349,7 +503,7 @@ export function SqlRunnerModal({
 
           {isError && !isComplete && (
             <>
-              <XCircle size={18} style={{ color: "#F87171" }} />
+              <XCircle size={18} style={{ color: "#F87171", flexShrink: 0 }} />
               <div style={{ flex: 1 }}>
                 <div
                   style={{
@@ -371,6 +525,7 @@ export function SqlRunnerModal({
                 >
                   {error}
                 </div>
+                <ErrorGuidance error={error} />
               </div>
             </>
           )}
