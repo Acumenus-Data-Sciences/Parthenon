@@ -24,6 +24,7 @@ services:
       dockerfile: docker/php/Dockerfile
     volumes:
       - ./backend:/var/www/html
+      - ./external/finngen:/opt/finngen:ro
       - ./dicom_samples:/var/www/html/dicom_samples:ro
       - ./.resendapikey:/var/www/.resendapikey:ro
     env_file:
@@ -221,6 +222,10 @@ services:
       - STUDY_AGENT_HOST=0.0.0.0
       - STUDY_AGENT_THREADING=1
       - STUDY_AGENT_ALLOW_CORE_FALLBACK=1
+      - FINNGEN_COHORT_OPERATIONS_ENABLED=1
+      - FINNGEN_CO2_ANALYSIS_ENABLED=1
+      - FINNGEN_HADES_EXTRAS_ENABLED=1
+      - FINNGEN_ROMOPAPI_ENABLED=1
     extra_hosts:
       - "host.docker.internal:host-gateway"
     healthcheck:
@@ -233,6 +238,37 @@ services:
       resources:
         limits:
           memory: 2G
+    networks:
+      - parthenon
+    restart: unless-stopped
+
+  finngen-runner:
+    container_name: parthenon-finngen-runner
+    build:
+      context: .
+      dockerfile: docker/finngen-runner/Dockerfile
+    ports:
+      - "${FINNGEN_RUNNER_PORT:-8786}:8786"
+    volumes:
+      - ./external/finngen:/opt/finngen:ro
+      - finngen-runner-state:/opt/runner-state
+      - finngen-runner-r-lib:/usr/local/lib/R/site-library
+    environment:
+      - MAKEFLAGS=-j1
+      - MAKE=make -j1
+      - CMAKE_BUILD_PARALLEL_LEVEL=1
+      - R_REMOTES_UPGRADE=never
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8786/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20m
+    mem_limit: 24g
+    deploy:
+      resources:
+        limits:
+          memory: 24G
     networks:
       - parthenon
     restart: unless-stopped
@@ -312,9 +348,10 @@ services:
       - ./solr/configsets/claims:/opt/solr/server/solr/configsets/claims:ro
       - ./solr/configsets/gis_spatial:/opt/solr/server/solr/configsets/gis_spatial:ro
       - ./solr/configsets/vector_explorer:/opt/solr/server/solr/configsets/vector_explorer:ro
+      - ./solr/configsets/query_library:/opt/solr/server/solr/configsets/query_library:ro
     environment:
       - SOLR_JAVA_MEM=-Xms512m -Xmx2g
-    command: bash -c "precreate-core vocabulary /opt/solr/server/solr/configsets/vocabulary; precreate-core cohorts /opt/solr/server/solr/configsets/cohorts; precreate-core analyses /opt/solr/server/solr/configsets/analyses; precreate-core mappings /opt/solr/server/solr/configsets/mappings; precreate-core clinical /opt/solr/server/solr/configsets/clinical; precreate-core imaging /opt/solr/server/solr/configsets/imaging; precreate-core claims /opt/solr/server/solr/configsets/claims; precreate-core gis_spatial /opt/solr/server/solr/configsets/gis_spatial; precreate-core vector_explorer /opt/solr/server/solr/configsets/vector_explorer; exec solr-foreground"
+    command: bash -c "precreate-core vocabulary /opt/solr/server/solr/configsets/vocabulary; precreate-core cohorts /opt/solr/server/solr/configsets/cohorts; precreate-core analyses /opt/solr/server/solr/configsets/analyses; precreate-core mappings /opt/solr/server/solr/configsets/mappings; precreate-core clinical /opt/solr/server/solr/configsets/clinical; precreate-core imaging /opt/solr/server/solr/configsets/imaging; precreate-core claims /opt/solr/server/solr/configsets/claims; precreate-core gis_spatial /opt/solr/server/solr/configsets/gis_spatial; precreate-core vector_explorer /opt/solr/server/solr/configsets/vector_explorer; precreate-core query_library /opt/solr/server/solr/configsets/query_library; exec solr-foreground"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8983/solr/vocabulary/admin/ping"]
       interval: 30s
@@ -532,6 +569,135 @@ services:
       - parthenon
     restart: unless-stopped
 
+  # ── Monitoring Stack ─────────────────────────────────────────────────────
+
+  grafana:
+    container_name: parthenon-grafana
+    image: grafana/grafana:11.4.0
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
+      - GF_SERVER_ROOT_URL=https://parthenon.acumenus.net/grafana
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-changeme}
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:3000/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - parthenon
+    depends_on:
+      - prometheus
+      - loki
+    restart: unless-stopped
+
+  prometheus:
+    container_name: parthenon-prometheus
+    image: prom/prometheus:v3.1.0
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=15d'
+      - '--web.enable-lifecycle'
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:9090/-/healthy || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    networks:
+      - parthenon
+    restart: unless-stopped
+
+  cadvisor:
+    container_name: parthenon-cadvisor
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8080/healthz || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    networks:
+      - parthenon
+    restart: unless-stopped
+
+  node-exporter:
+    container_name: parthenon-node-exporter
+    image: prom/node-exporter:v1.8.2
+    network_mode: host
+    pid: host
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:9100/metrics || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+
+  loki:
+    container_name: parthenon-loki
+    image: grafana/loki:3.0.0
+    command: -config.file=/etc/loki/loki-config.yml
+    volumes:
+      - ./monitoring/loki/loki-config.yml:/etc/loki/loki-config.yml:ro
+      - loki_data:/loki
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:3100/ready || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - parthenon
+    restart: unless-stopped
+
+  promtail:
+    container_name: parthenon-promtail
+    image: grafana/promtail:3.0.0
+    command: -config.file=/etc/promtail/promtail-config.yml
+    volumes:
+      - ./monitoring/promtail/promtail-config.yml:/etc/promtail/promtail-config.yml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:9080/ready || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    networks:
+      - parthenon
+    depends_on:
+      - loki
+    restart: unless-stopped
+
 volumes:
   # postgres-data removed — using host bind mount instead (survives docker compose down -v)
   redis-data:
@@ -540,8 +706,13 @@ volumes:
   chromadb-data:
   study-agent-data:
   qdrant-data:
+  finngen-runner-state:
+  finngen-runner-r-lib:
   hecate-data:
   ohif-dist:
+  grafana_data:
+  prometheus_data:
+  loki_data:
 
 networks:
   parthenon:
