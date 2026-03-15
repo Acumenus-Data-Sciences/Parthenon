@@ -34,6 +34,25 @@ Added a "Run SQL" button to the SqlBlock toolbar that launches a modal with live
   - Truncation warning badge when results capped at 10K rows
   - Non-dismissable while query is running
 
+## Bugfixes (same session)
+
+1. **Trailing semicolons** — User SQL often ends with `;`, which caused syntax errors when wrapped in `SELECT * FROM (...) AS _q LIMIT 10001`. Fixed by stripping trailing semicolons before wrapping.
+2. **AI returning prose instead of SQL** — The AI service sometimes returns reasoning text in the `sql` field. Added early rejection: query must begin with `SELECT` or `WITH`, and backtick-quoted identifiers (MySQL syntax) are rejected with a helpful message.
+
+## Contextual Error Guidance
+
+When a query fails, the modal now shows a gold guidance panel with actionable suggestions tailored to the error type:
+
+| Error Type | Guidance |
+|---|---|
+| AI returned prose | Rephrase question, use Query Library, be specific about tables |
+| MySQL backticks | PostgreSQL uses double quotes, most OMOP columns don't need quoting |
+| Syntax errors | Regenerate, check parentheses/commas, validate first |
+| Statement timeout | Add WHERE conditions, LIMIT, date ranges, avoid SELECT * |
+| Table not found | Schema-qualify with `omop.`, check Schema Browser |
+| Column not found | Expand table in Schema Browser, check OMOP naming conventions |
+| Permission denied | Explains safety classification, suggests Validate button |
+
 ## Files Changed
 
 - `backend/app/Http/Controllers/Api/V1/TextToSqlController.php` — 3 new methods
