@@ -1,0 +1,16 @@
+{
+    "id": 1,
+    "name": "Diabetes Conditions",
+    "description": "All diabetes-related conditions",
+    "expression_json": null,
+    "author_id": 17,
+    "is_public": true,
+    "tags": [
+        "diabetes",
+        "endocrine"
+    ],
+    "created_at": "2026-03-15T20:12:25.000000Z",
+    "updated_at": "2026-03-15T20:12:25.000000Z",
+    "deleted_at": null,
+    "items": []
+}

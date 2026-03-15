@@ -1,0 +1,22 @@
+{
+    "id": 3,
+    "name": "Antihypertensive Treatment Pathway",
+    "description": "Treatment pathway analysis for hypertension patients showing sequences of antihypertensive drug classes (ACE inhibitors, ARBs, beta-blockers, CCBs, thiazides).",
+    "design_json": {
+        "maxDepth": 5,
+        "minCellCount": 5,
+        "maxPathLength": 5,
+        "eventCohortIds": [
+            66
+        ],
+        "targetCohortId": 66,
+        "combinationWindow": 1,
+        "drugConceptSetIds": [
+            58
+        ]
+    },
+    "author_id": 117,
+    "created_at": "2026-03-15T02:58:11.000000Z",
+    "updated_at": "2026-03-15T02:58:11.000000Z",
+    "deleted_at": null
+}

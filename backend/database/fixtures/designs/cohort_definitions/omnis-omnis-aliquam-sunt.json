@@ -1,0 +1,33 @@
+{
+    "id": 11,
+    "name": "Omnis omnis aliquam sunt.",
+    "description": "Culpa ipsam veniam error non. Et quo accusantium ipsum voluptate saepe. Est et numquam enim similique voluptatem perspiciatis dolores. Voluptas non a ea aut nobis beatae ut doloremque.",
+    "expression_json": {
+        "conceptSets": [],
+        "QualifiedLimit": {
+            "Type": "First"
+        },
+        "PrimaryCriteria": {
+            "CriteriaList": [
+                {
+                    "ConditionOccurrence": {
+                        "CodesetId": 0
+                    }
+                }
+            ],
+            "ObservationWindow": {
+                "PostDays": 0,
+                "PriorDays": 0
+            }
+        }
+    },
+    "author_id": 15,
+    "is_public": false,
+    "version": 1,
+    "created_at": "2026-03-15T19:54:25.000000Z",
+    "updated_at": "2026-03-15T19:54:25.000000Z",
+    "deleted_at": null,
+    "tags": null,
+    "share_token": null,
+    "share_expires_at": null
+}

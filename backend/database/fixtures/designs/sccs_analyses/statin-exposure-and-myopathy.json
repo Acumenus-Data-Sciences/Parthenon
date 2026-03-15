@@ -1,0 +1,33 @@
+{
+    "id": 4,
+    "name": "Statin Exposure and Myopathy",
+    "description": "Self-controlled case series analysis of statin therapy and myopathy\/rhabdomyolysis risk using age-adjusted conditional Poisson regression.",
+    "design_json": {
+        "model": {
+            "type": "age_adjusted"
+        },
+        "riskWindows": [
+            {
+                "end": 90,
+                "label": "Risk window (1-90 days)",
+                "start": 1,
+                "endAnchor": "era_start",
+                "startAnchor": "era_start"
+            }
+        ],
+        "conceptSetIds": [
+            60
+        ],
+        "outcomeCohortId": 0,
+        "studyPopulation": {
+            "minAge": 40,
+            "naivePeriod": 365,
+            "firstOutcomeOnly": true
+        },
+        "exposureCohortId": 0
+    },
+    "author_id": 117,
+    "created_at": "2026-03-15T02:58:11.000000Z",
+    "updated_at": "2026-03-15T02:58:11.000000Z",
+    "deleted_at": null
+}

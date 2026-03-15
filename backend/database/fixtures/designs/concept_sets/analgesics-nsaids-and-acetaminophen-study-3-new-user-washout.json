@@ -1,0 +1,152 @@
+{
+    "id": 81,
+    "name": "Analgesics — NSAIDs and Acetaminophen (Study 3 New-User Washout)",
+    "description": "All systemic analgesic\/antipyretic agents for new-user washout. Both arms must have no prior NSAID or acetaminophen use in 365 days before index date.",
+    "expression_json": {
+        "items": []
+    },
+    "author_id": 117,
+    "is_public": true,
+    "tags": [
+        "study-3",
+        "analgesics",
+        "washout",
+        "NSAIDs",
+        "acetaminophen"
+    ],
+    "created_at": null,
+    "updated_at": null,
+    "deleted_at": null,
+    "items": [
+        {
+            "id": 189,
+            "concept_set_id": 81,
+            "concept_id": 1177480,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": null,
+            "updated_at": null
+        },
+        {
+            "id": 190,
+            "concept_set_id": 81,
+            "concept_id": 1115008,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": null,
+            "updated_at": null
+        },
+        {
+            "id": 191,
+            "concept_set_id": 81,
+            "concept_id": 1118084,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": null,
+            "updated_at": null
+        },
+        {
+            "id": 192,
+            "concept_set_id": 81,
+            "concept_id": 1124300,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": null,
+            "updated_at": null
+        },
+        {
+            "id": 193,
+            "concept_set_id": 81,
+            "concept_id": 1195492,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": null,
+            "updated_at": null
+        },
+        {
+            "id": 194,
+            "concept_set_id": 81,
+            "concept_id": 1178663,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": null,
+            "updated_at": null
+        },
+        {
+            "id": 195,
+            "concept_set_id": 81,
+            "concept_id": 1136980,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": null,
+            "updated_at": null
+        },
+        {
+            "id": 196,
+            "concept_set_id": 81,
+            "concept_id": 1150345,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": null,
+            "updated_at": null
+        },
+        {
+            "id": 197,
+            "concept_set_id": 81,
+            "concept_id": 1113648,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": null,
+            "updated_at": null
+        },
+        {
+            "id": 198,
+            "concept_set_id": 81,
+            "concept_id": 1146810,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": null,
+            "updated_at": null
+        },
+        {
+            "id": 199,
+            "concept_set_id": 81,
+            "concept_id": 1236607,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": null,
+            "updated_at": null
+        },
+        {
+            "id": 200,
+            "concept_set_id": 81,
+            "concept_id": 1112807,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": null,
+            "updated_at": null
+        },
+        {
+            "id": 201,
+            "concept_set_id": 81,
+            "concept_id": 1125315,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": null,
+            "updated_at": null
+        }
+    ]
+}

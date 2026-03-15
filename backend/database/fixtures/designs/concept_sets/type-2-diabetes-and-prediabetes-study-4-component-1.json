@@ -1,0 +1,42 @@
+{
+    "id": 82,
+    "name": "Type 2 Diabetes and Prediabetes (Study 4 Component 1)",
+    "description": "Hyperglycemia spectrum from prediabetes to established T2DM as cardiometabolic burden component.",
+    "expression_json": {
+        "items": []
+    },
+    "author_id": 117,
+    "is_public": true,
+    "tags": [
+        "study-4",
+        "T2DM",
+        "prediabetes",
+        "hyperglycemia",
+        "metabolic-syndrome"
+    ],
+    "created_at": null,
+    "updated_at": null,
+    "deleted_at": null,
+    "items": [
+        {
+            "id": 202,
+            "concept_set_id": 82,
+            "concept_id": 201826,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": null,
+            "updated_at": null
+        },
+        {
+            "id": 203,
+            "concept_set_id": 82,
+            "concept_id": 37018196,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": null,
+            "updated_at": null
+        }
+    ]
+}

@@ -1,0 +1,31 @@
+{
+    "id": 36,
+    "name": "Study 5: Recurrent MACE Incidence by Sex — Clopidogrel Arm",
+    "description": "Sex-stratified MACE recurrence rates in post-MI clopidogrel initiators.",
+    "design_json": {
+        "timeAtRisk": {
+            "end": {
+                "offset": 365,
+                "dateField": "index_date"
+            },
+            "start": {
+                "offset": 1,
+                "dateField": "index_date"
+            }
+        },
+        "description": "Sex-stratified recurrent MACE incidence rates in post-MI clopidogrel initiators. Sex differences in antiplatelet efficacy and platelet reactivity are documented — this analysis estimates whether the protective effect varies by sex.",
+        "analysisType": "IncidenceRate",
+        "minCellCount": 5,
+        "stratifyByAge": false,
+        "targetCohortId": 82,
+        "outcomeCohortIds": [
+            84
+        ],
+        "stratifyByGender": true,
+        "stratifyByCalendarYear": false
+    },
+    "author_id": 117,
+    "created_at": null,
+    "updated_at": null,
+    "deleted_at": null
+}

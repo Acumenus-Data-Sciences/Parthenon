@@ -1,0 +1,51 @@
+{
+    "id": 79,
+    "name": "CKD Stages 1-3 — Enrollment Criterion (Study 3)",
+    "description": "Chronic kidney disease Stages 1, 2, and 3 for study enrollment. Patients must have mild-to-moderate CKD at baseline to assess analgesic-associated progression risk.",
+    "expression_json": {
+        "items": []
+    },
+    "author_id": 117,
+    "is_public": true,
+    "tags": [
+        "study-3",
+        "CKD",
+        "enrollment",
+        "stages-1-3"
+    ],
+    "created_at": null,
+    "updated_at": null,
+    "deleted_at": null,
+    "items": [
+        {
+            "id": 183,
+            "concept_set_id": 79,
+            "concept_id": 443614,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": null,
+            "updated_at": null
+        },
+        {
+            "id": 184,
+            "concept_set_id": 79,
+            "concept_id": 443601,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": null,
+            "updated_at": null
+        },
+        {
+            "id": 185,
+            "concept_set_id": 79,
+            "concept_id": 443597,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": null,
+            "updated_at": null
+        }
+    ]
+}

@@ -1,0 +1,32 @@
+{
+    "id": 35,
+    "name": "Study 4: MACE Incidence by Sex — Triad vs Dyad Comparison",
+    "description": "Sex-stratified MACE rates comparing cardiometabolic triad vs dyad cohorts.",
+    "design_json": {
+        "timeAtRisk": {
+            "end": {
+                "offset": 1825,
+                "dateField": "index_date"
+            },
+            "start": {
+                "offset": 1,
+                "dateField": "index_date"
+            }
+        },
+        "description": "Sex-stratified MACE incidence rates in both triad and dyad cardiometabolic cohorts. Sex differences in MACE risk are well-established; this analysis assesses whether the cardiometabolic burden-MACE relationship is modified by sex.",
+        "analysisType": "IncidenceRate",
+        "minCellCount": 5,
+        "stratifyByAge": false,
+        "targetCohortId": 79,
+        "outcomeCohortIds": [
+            81
+        ],
+        "stratifyByGender": true,
+        "comparatorCohortId": 80,
+        "stratifyByCalendarYear": false
+    },
+    "author_id": 117,
+    "created_at": null,
+    "updated_at": null,
+    "deleted_at": null
+}

@@ -1,0 +1,123 @@
+{
+    "id": 81,
+    "name": "Major Adverse Cardiovascular Events — MI or Stroke First Occurrence (Study 4)",
+    "description": "MACE composite outcome for Study 4: First occurrence of myocardial infarction (STEMI, NSTEMI, or unspecified MI) or cerebrovascular accident. Represents the primary hard cardiovascular endpoint.",
+    "expression_json": {
+        "ConceptSets": [
+            {
+                "id": 0,
+                "name": "MACE — MI and Stroke",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Condition",
+                                "CONCEPT_ID": 4329847,
+                                "CONCEPT_CODE": "22298006",
+                                "CONCEPT_NAME": "Myocardial infarction",
+                                "VOCABULARY_ID": "SNOMED",
+                                "INVALID_REASON": "V",
+                                "CONCEPT_CLASS_ID": "Clinical Finding",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Condition",
+                                "CONCEPT_ID": 4270024,
+                                "CONCEPT_CODE": "401303003",
+                                "CONCEPT_NAME": "Acute non-ST segment elevation myocardial infarction",
+                                "VOCABULARY_ID": "SNOMED",
+                                "INVALID_REASON": "V",
+                                "CONCEPT_CLASS_ID": "Clinical Finding",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Condition",
+                                "CONCEPT_ID": 4296653,
+                                "CONCEPT_CODE": "401303003",
+                                "CONCEPT_NAME": "Acute ST segment elevation myocardial infarction",
+                                "VOCABULARY_ID": "SNOMED",
+                                "INVALID_REASON": "V",
+                                "CONCEPT_CLASS_ID": "Clinical Finding",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Condition",
+                                "CONCEPT_ID": 381316,
+                                "CONCEPT_CODE": "230690007",
+                                "CONCEPT_NAME": "Cerebrovascular accident",
+                                "VOCABULARY_ID": "SNOMED",
+                                "INVALID_REASON": "V",
+                                "CONCEPT_CLASS_ID": "Clinical Finding",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            }
+        ],
+        "CensorWindow": [],
+        "InclusionRules": [],
+        "QualifiedLimit": {
+            "Type": "First"
+        },
+        "ExpressionLimit": {
+            "Type": "First"
+        },
+        "PrimaryCriteria": {
+            "CriteriaList": [
+                {
+                    "ConditionOccurrence": {
+                        "First": true,
+                        "CodesetId": 0
+                    }
+                }
+            ],
+            "ObservationWindow": {
+                "PostDays": 0,
+                "PriorDays": 0
+            },
+            "PrimaryCriteriaLimit": {
+                "Type": "First"
+            }
+        },
+        "CollapseSettings": {
+            "EraPad": 0,
+            "CollapseType": "ERA"
+        },
+        "CensoringCriteria": []
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": null,
+    "updated_at": null,
+    "deleted_at": null,
+    "tags": [
+        "study-4",
+        "MACE",
+        "MI",
+        "stroke",
+        "cardiovascular",
+        "outcome"
+    ],
+    "share_token": null,
+    "share_expires_at": null
+}
