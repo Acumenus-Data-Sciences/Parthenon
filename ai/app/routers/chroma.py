@@ -11,8 +11,8 @@ from pydantic import BaseModel
 
 from app.chroma.client import check_health, get_chroma_client
 from app.chroma.ingestion import ingest_docs_directory, ingest_ohdsi_corpus, ingest_ohdsi_knowledge, ingest_medical_textbooks
-from app.chroma.faq import promote_frequent_questions
-from app.chroma.memory import prune_old_conversations
+from app.chroma.faq import promote_frequent_questions, seed_demo_faqs
+from app.chroma.memory import aggregate_conversations, delete_commons_message, prune_old_conversations, store_commons_message
 from app.chroma.clinical import ingest_clinical_concepts
 from app.services.projection import ProjectionResult
 
@@ -52,6 +52,48 @@ async def promote_faq(days: int = 7) -> dict:
 async def ingest_clinical(limit: int | None = None) -> dict:
     """Trigger clinical concept ingestion from OMOP vocabulary."""
     return ingest_clinical_concepts(limit=limit)
+
+
+@router.post("/seed-faq")
+async def seed_faq() -> dict:
+    """Seed the FAQ collection with representative OHDSI Q&A pairs."""
+    return seed_demo_faqs()
+
+
+@router.post("/aggregate-conversations")
+async def aggregate_convos() -> dict:
+    """Backfill: merge all per-user conversation collections into unified collection."""
+    return aggregate_conversations()
+
+
+class CommonsMessageInput(BaseModel):
+    user_id: int
+    user_name: str
+    channel_name: str
+    message_id: int
+    body: str
+    parent_id: int | None = None
+
+
+@router.post("/index-commons-message")
+async def index_commons_msg(body: CommonsMessageInput) -> dict:
+    """Index a Commons discussion message into the unified conversations collection."""
+    store_commons_message(
+        user_id=body.user_id,
+        user_name=body.user_name,
+        channel_name=body.channel_name,
+        message_id=body.message_id,
+        body=body.body,
+        parent_id=body.parent_id,
+    )
+    return {"indexed": True, "message_id": body.message_id}
+
+
+@router.delete("/index-commons-message/{message_id}")
+async def delete_commons_msg(message_id: int) -> dict:
+    """Remove a deleted Commons message from the conversations collection."""
+    delete_commons_message(message_id)
+    return {"deleted": True, "message_id": message_id}
 
 
 OHDSI_CORPUS_DIR = os.environ.get("OHDSI_CORPUS_DIR", "/app/ohdsi_corpus")
@@ -105,10 +147,17 @@ async def list_collections() -> list[dict]:
     client = get_chroma_client()
     result = []
     for col in client.list_collections():
+        try:
+            count = col.count()
+            error = None
+        except Exception as e:
+            count = -1
+            error = str(e)[:200]
         result.append({
             "name": col.name,
-            "count": col.count(),
+            "count": count,
             "metadata": col.metadata or {},
+            "error": error,
         })
     return result
 
