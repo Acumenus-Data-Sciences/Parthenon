@@ -4,6 +4,7 @@ import { Panel, Badge, StatusDot, Button, type BadgeVariant, type StatusDotVaria
 import type { SystemHealthService } from "@/types/models";
 import { useSystemHealth } from "../hooks/useAiProviders";
 import { GisDataPanel } from "../components/GisDataPanel";
+import { GrafanaLaunchCard } from "../components/GrafanaLaunchCard";
 
 const STATUS_MAP: Record<string, { badge: BadgeVariant; dot: StatusDotVariant }> = {
   healthy:  { badge: "success",  dot: "healthy" },
@@ -152,9 +153,17 @@ export default function SystemHealthPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {(data?.services ?? []).map((s) => (
-            <ServiceCard key={s.key} service={s} />
-          ))}
+          {(data?.services ?? []).map((s) =>
+            s.key === "grafana" ? (
+              <GrafanaLaunchCard
+                key={s.key}
+                service={s}
+                grafanaUrl="/grafana"
+              />
+            ) : (
+              <ServiceCard key={s.key} service={s} />
+            )
+          )}
         </div>
       )}
 
