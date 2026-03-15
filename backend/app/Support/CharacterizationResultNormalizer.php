@@ -113,7 +113,9 @@ final class CharacterizationResultNormalizer
      */
     private static function normalizeFeatureRows(array $rows, string $featureType, int $cohortId): array
     {
-        return array_values(array_map(function (mixed $row, int $index) use ($featureType, $cohortId): array {
+        $i = 0;
+        return array_values(array_map(function (mixed $row) use ($featureType, $cohortId, &$i): array {
+            $index = $i++;
             $data = is_array($row) ? $row : [];
 
             return [
@@ -132,7 +134,7 @@ final class CharacterizationResultNormalizer
                 'cohort_id' => self::intValue($data['cohort_id'] ?? $cohortId),
                 'cohort_name' => isset($data['cohort_name']) ? self::stringValue($data['cohort_name']) : null,
             ];
-        }, $rows, array_keys($rows)));
+        }, $rows));
     }
 
     private static function intValue(mixed $value): int

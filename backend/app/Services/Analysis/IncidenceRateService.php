@@ -388,12 +388,24 @@ class IncidenceRateService
         $cases = [];
 
         foreach ($ageGroups as $group) {
+            // OHDSI object format: {"minAge": 18, "maxAge": 39}
+            if (is_array($group)) {
+                $minAge = (int) ($group['minAge'] ?? 0);
+                $maxAge = (int) ($group['maxAge'] ?? 999);
+                $label = $maxAge >= 120 ? "{$minAge}+" : "{$minAge}-{$maxAge}";
+                if ($maxAge >= 120) {
+                    $cases[] = "WHEN (EXTRACT(YEAR FROM target.cohort_start_date) - p.year_of_birth) >= {$minAge} THEN '{$label}'";
+                } else {
+                    $cases[] = "WHEN (EXTRACT(YEAR FROM target.cohort_start_date) - p.year_of_birth) BETWEEN {$minAge} AND {$maxAge} THEN '{$label}'";
+                }
+                continue;
+            }
+
+            // String format: "65+" or "18-34"
             if (str_contains($group, '+')) {
-                // e.g. "65+"
                 $lower = (int) str_replace('+', '', $group);
                 $cases[] = "WHEN (EXTRACT(YEAR FROM target.cohort_start_date) - p.year_of_birth) >= {$lower} THEN '{$group}'";
             } elseif (str_contains($group, '-')) {
-                // e.g. "18-34"
                 [$lower, $upper] = explode('-', $group);
                 $cases[] = 'WHEN (EXTRACT(YEAR FROM target.cohort_start_date) - p.year_of_birth) BETWEEN '.(int) $lower.' AND '.(int) $upper." THEN '{$group}'";
             }
