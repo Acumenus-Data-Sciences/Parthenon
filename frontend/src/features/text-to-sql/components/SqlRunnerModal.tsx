@@ -207,6 +207,9 @@ function ErrorGuidance({ error }: { error: string | null }) {
   );
 }
 
+// Lazy import to avoid circular deps
+import { ConceptSearchInput } from "./ConceptSearchInput";
+
 export function SqlRunnerModal({
   open,
   onClose,
@@ -529,42 +532,37 @@ export function SqlRunnerModal({
                   >
                     {param.label}
                   </span>
-                  <input
-                    type={
-                      param.type === "number"
-                        ? "number"
-                        : param.type === "date"
-                          ? "date"
-                          : "text"
-                    }
-                    value={paramValues[param.key] ?? ""}
-                    onChange={(e) => handleParamChange(param, e.target.value)}
-                    placeholder={param.default ?? ""}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        handleRunWithParams();
+                  {param.type === "date" ? (
+                    <input
+                      type="date"
+                      value={paramValues[param.key] ?? ""}
+                      onChange={(e) =>
+                        handleParamChange(param, e.target.value)
                       }
-                    }}
-                    style={{
-                      width: "100%",
-                      background: "#0E0E11",
-                      border: "1px solid #232328",
-                      borderRadius: "8px",
-                      padding: "10px 12px",
-                      color: "#F0EDE8",
-                      fontSize: "13px",
-                      boxSizing: "border-box",
-                      outline: "none",
-                      transition: "border-color 150ms",
-                    }}
-                    onFocus={(e) => {
-                      e.currentTarget.style.borderColor = "#9B1B30";
-                    }}
-                    onBlur={(e) => {
-                      e.currentTarget.style.borderColor = "#232328";
-                    }}
-                  />
+                      style={{
+                        width: "100%",
+                        background: "#0E0E11",
+                        border: "1px solid #232328",
+                        borderRadius: "8px",
+                        padding: "10px 12px",
+                        color: "#F0EDE8",
+                        fontSize: "13px",
+                        boxSizing: "border-box",
+                        outline: "none",
+                      }}
+                    />
+                  ) : (
+                    <ConceptSearchInput
+                      value={paramValues[param.key] ?? ""}
+                      onChange={(val) => handleParamChange(param, val)}
+                      paramType={param.type}
+                      placeholder={
+                        param.default
+                          ? `${param.default} \u2014 type to search OMOP concepts`
+                          : "Type to search OMOP concepts\u2026"
+                      }
+                    />
+                  )}
                   {param.description && (
                     <span
                       style={{
