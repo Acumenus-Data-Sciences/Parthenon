@@ -333,16 +333,22 @@ export function QueryLibraryTab() {
         style={{
           display: "grid",
           gridTemplateColumns: result
-            ? "minmax(0, 1fr) minmax(0, 1.3fr)"
-            : "repeat(auto-fill, minmax(320px, 1fr))",
-          gap: "16px",
+            ? "minmax(0, 1fr) minmax(0, 1fr)"
+            : "1fr",
+          gap: "20px",
           alignItems: "start",
         }}
         className="library-grid"
       >
-        {/* Cards column */}
+        {/* Cards column — always 3-col grid */}
         <div
-          style={{ display: "flex", flexDirection: "column", gap: "10px" }}
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+            gap: "12px",
+            alignItems: "start",
+          }}
+          className="library-cards-grid"
         >
           {entries.map((entry) => (
             <QueryLibraryCard
@@ -356,6 +362,7 @@ export function QueryLibraryTab() {
           {!libraryQuery.isLoading && entries.length === 0 && (
             <div
               style={{
+                gridColumn: "1 / -1",
                 padding: "24px",
                 borderRadius: "8px",
                 border: "1px dashed #232328",
@@ -381,6 +388,7 @@ export function QueryLibraryTab() {
             <button
               onClick={() => setLimit((c) => Math.min(c + 8, 20))}
               style={{
+                gridColumn: "1 / -1",
                 padding: "9px 12px",
                 borderRadius: "8px",
                 border: "1px solid #232328",
@@ -428,8 +436,16 @@ export function QueryLibraryTab() {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
         }
+        @media (max-width: 1200px) {
+          .library-cards-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+          }
+        }
         @media (max-width: 900px) {
           .library-grid {
+            grid-template-columns: 1fr !important;
+          }
+          .library-cards-grid {
             grid-template-columns: 1fr !important;
           }
         }
