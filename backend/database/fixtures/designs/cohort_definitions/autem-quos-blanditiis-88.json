@@ -1,0 +1,33 @@
+{
+    "id": 88,
+    "name": "Autem quos blanditiis.",
+    "description": "Facilis iste perspiciatis eum est. Ex facere qui laudantium fugit rem sapiente quasi. Minima et est voluptatem voluptatem. Nobis porro exercitationem sit quis non.",
+    "expression_json": {
+        "conceptSets": [],
+        "QualifiedLimit": {
+            "Type": "First"
+        },
+        "PrimaryCriteria": {
+            "CriteriaList": [
+                {
+                    "ConditionOccurrence": {
+                        "CodesetId": 0
+                    }
+                }
+            ],
+            "ObservationWindow": {
+                "PostDays": 0,
+                "PriorDays": 0
+            }
+        }
+    },
+    "author_id": 117,
+    "is_public": false,
+    "version": 1,
+    "created_at": "2026-03-15T20:43:17.000000Z",
+    "updated_at": "2026-03-15T20:43:17.000000Z",
+    "deleted_at": null,
+    "tags": null,
+    "share_token": null,
+    "share_expires_at": null
+}

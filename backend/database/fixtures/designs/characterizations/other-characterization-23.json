@@ -1,0 +1,17 @@
+{
+    "id": 23,
+    "name": "Other Characterization",
+    "description": "Odio tenetur et voluptatem praesentium. Quam necessitatibus suscipit officiis hic asperiores voluptatum. Cupiditate et dolores ut voluptas dolorum neque. Doloribus sed quia voluptate eos et. Ea labore nostrum aliquam ut ut.",
+    "design_json": {
+        "featureTypes": [
+            "demographics",
+            "conditions",
+            "drugs"
+        ],
+        "targetCohortIds": []
+    },
+    "author_id": 117,
+    "created_at": "2026-03-15T20:43:19.000000Z",
+    "updated_at": "2026-03-15T20:43:19.000000Z",
+    "deleted_at": null
+}

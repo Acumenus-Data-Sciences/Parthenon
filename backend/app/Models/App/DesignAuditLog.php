@@ -28,7 +28,18 @@ class DesignAuditLog extends Model
 
     protected $table = 'design_audit_log';
 
-    protected $guarded = [];
+    protected $fillable = [
+        'entity_type',
+        'entity_id',
+        'entity_name',
+        'action',
+        'actor_id',
+        'actor_email',
+        'old_json',
+        'new_json',
+        'changed_fields',
+        'ip_address',
+    ];
 
     /** @return array<string, string> */
     protected function casts(): array

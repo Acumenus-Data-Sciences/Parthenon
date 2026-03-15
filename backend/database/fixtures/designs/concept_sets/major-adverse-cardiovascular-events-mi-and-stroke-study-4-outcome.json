@@ -20,44 +20,44 @@
     "deleted_at": null,
     "items": [
         {
-            "id": 206,
+            "id": 330,
             "concept_set_id": 85,
             "concept_id": 4329847,
             "is_excluded": false,
             "include_descendants": true,
             "include_mapped": false,
-            "created_at": null,
-            "updated_at": null
+            "created_at": "2026-03-15T20:43:19.000000Z",
+            "updated_at": "2026-03-15T20:43:19.000000Z"
         },
         {
-            "id": 207,
+            "id": 331,
             "concept_set_id": 85,
             "concept_id": 4270024,
             "is_excluded": false,
             "include_descendants": true,
             "include_mapped": false,
-            "created_at": null,
-            "updated_at": null
+            "created_at": "2026-03-15T20:43:19.000000Z",
+            "updated_at": "2026-03-15T20:43:19.000000Z"
         },
         {
-            "id": 208,
+            "id": 332,
             "concept_set_id": 85,
             "concept_id": 4296653,
             "is_excluded": false,
             "include_descendants": true,
             "include_mapped": false,
-            "created_at": null,
-            "updated_at": null
+            "created_at": "2026-03-15T20:43:19.000000Z",
+            "updated_at": "2026-03-15T20:43:19.000000Z"
         },
         {
-            "id": 209,
+            "id": 333,
             "concept_set_id": 85,
             "concept_id": 381316,
             "is_excluded": false,
             "include_descendants": true,
             "include_mapped": false,
-            "created_at": null,
-            "updated_at": null
+            "created_at": "2026-03-15T20:43:19.000000Z",
+            "updated_at": "2026-03-15T20:43:19.000000Z"
         }
     ]
 }
