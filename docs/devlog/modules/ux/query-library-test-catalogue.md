@@ -5,12 +5,25 @@
 
 ## Summary
 
+### After OhdsiSqlTranslator (current)
+
+| Status | Count | % |
+|--------|-------|---|
+| Has results | 134 | 67% |
+| No results (valid SQL, empty dataset) | 50 | 25% |
+| SQL errors | 15 | 7% |
+| Skipped (not SELECT) | 2 | 1% |
+
+### Before translator
+
 | Status | Count | % |
 |--------|-------|---|
 | Has results | 66 | 33% |
 | No results (valid SQL, empty dataset) | 26 | 13% |
 | SQL errors | 107 | 53% |
 | Skipped (not SELECT) | 2 | 1% |
+
+**Improvement: 91 queries fixed by dialect translation (85% error reduction)**
 
 ## Error Categories
 
@@ -84,10 +97,32 @@ These 66 queries return results successfully with default parameters against Eun
 | 30 | CE08 Number of comorbidity for patients with condition | Template doesn't start with SELECT |
 | 137 | DEX19 People taking drug for indication | Template doesn't start with SELECT |
 
-## Recommendations
+## Remaining Errors (15)
 
-1. **Dialect translation (107 queries):** Create a PostgreSQL dialect translator that converts T-SQL functions to PostgreSQL equivalents. This is a one-time bulk operation — the error patterns are repetitive and well-defined.
+| Count | Category | Examples |
+|-------|----------|----------|
+| 6 | Statement timeout (30s test limit) | DEX14, DEX26, DEX27, DEX29, COC08, OP10 |
+| 5 | Complex DATEADD/DATEFROMPARTS edge cases | CE11, CE12, CO12, CO13, OP11, OP13 |
+| 2 | Template-specific column issues | DEX10 (start_date), O01 (my_date) |
+| 1 | CHARINDEX translation edge case | D22 |
+| 1 | Template syntax error (AND WHERE) | P02 — fixed in translator but template has deeper issue |
 
-2. **No-results queries (26):** These are valid queries that just need richer data. They will return results when connected to a production CDM with real clinical data (e.g., the Acumenus dataset with 1M patients).
+## Multi-Database Compliance
 
-3. **Skipped queries (2):** These templates need reformatting to start with SELECT/WITH.
+The `OhdsiSqlTranslator` supports all 11 HADES-compliant databases:
+
+| Dialect | Status | Notes |
+|---------|--------|-------|
+| PostgreSQL | Active | Primary target, fully tested |
+| SQL Server | Passthrough | Templates are already in T-SQL |
+| Oracle | Implemented | MONTHS_BETWEEN, ADD_MONTHS, TRUNC(SYSDATE) |
+| Redshift | Implemented | Same as PostgreSQL |
+| BigQuery | Implemented | DATE_ADD/DATE_DIFF with INTERVAL syntax |
+| Snowflake | Implemented | Native DATEADD/DATEDIFF, EXTRACT |
+| Synapse | Passthrough | Same as SQL Server |
+| Spark/Databricks | Implemented | DATE_ADD, EXTRACT |
+| Hive | Implemented | Same as Spark |
+| Impala | Implemented | Same as Spark |
+| Netezza | Implemented | Same as PostgreSQL |
+
+Templates are stored in OHDSI SQL (T-SQL) and translated at render time. No template modification needed.
