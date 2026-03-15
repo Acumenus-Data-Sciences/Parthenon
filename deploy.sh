@@ -89,6 +89,26 @@ else
   ERRORS=$((ERRORS + 1))
 fi
 
+if docker compose config --services 2>/dev/null | grep -q "^finngen-runner$"; then
+  if is_running finngen-runner; then
+    ok "FINNGEN runner is running"
+  else
+    warn "FINNGEN runner is not running — attempting to build and start it"
+    if docker compose up -d --build finngen-runner 2>&1 | sed 's/^/   /'; then
+      sleep 5
+      if is_running finngen-runner; then
+        ok "FINNGEN runner started successfully"
+      else
+        warn "FINNGEN runner did not stay up"
+        ERRORS=$((ERRORS + 1))
+      fi
+    else
+      warn "FINNGEN runner build/start failed"
+      ERRORS=$((ERRORS + 1))
+    fi
+  fi
+fi
+
 # ── PHP / Laravel ────────────────────────────────────────────────────────────
 if $DO_PHP; then
   echo ""
@@ -132,6 +152,21 @@ if $DO_DB; then
     ok "Pre-migration backup saved"
   else
     warn "Pre-migration backup failed (continuing anyway)"
+  fi
+
+  echo ""
+  echo "── DB: exporting design fixtures to git ──"
+  if docker compose exec -T php php artisan parthenon:export-designs; then
+    # Commit on the host — PHP container cannot see .git
+    git add backend/database/fixtures/designs/
+    if ! git diff --cached --quiet; then
+      git commit -m "chore: auto-export design fixtures [skip ci]"
+      ok "Design fixtures committed"
+    else
+      ok "No fixture changes to commit"
+    fi
+  else
+    warn "Design fixture export failed (continuing anyway)"
   fi
 
   echo ""
