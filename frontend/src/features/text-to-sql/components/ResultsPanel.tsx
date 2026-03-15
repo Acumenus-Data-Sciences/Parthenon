@@ -121,6 +121,7 @@ interface ResultsPanelProps {
   onRerenderLibrary: () => void;
   isRenderPending: boolean;
   renderError: unknown;
+  dialect?: string;
 }
 
 export function ResultsPanel({
@@ -131,6 +132,7 @@ export function ResultsPanel({
   onRerenderLibrary,
   isRenderPending,
   renderError,
+  dialect,
 }: ResultsPanelProps) {
   const [validation, setValidation] = useState<ValidateResponse | null>(null);
   const [renderSuccess, setRenderSuccess] = useState(false);
@@ -333,7 +335,7 @@ export function ResultsPanel({
               {isRenderPending ? "Rendering\u2026" : renderSuccess ? "SQL Updated" : "Render Template"}
             </button>
           </div>
-          {renderError && (
+          {typeof renderError === "string" && renderError && (
             <div
               style={{
                 padding: "10px 12px",
@@ -367,7 +369,7 @@ export function ResultsPanel({
         >
           Generated SQL
         </div>
-        <SqlBlock sql={result.sql} safety={result.safety} libraryEntry={selectedLibrary} libraryParams={libraryParams} />
+        <SqlBlock sql={result.sql} safety={result.safety} libraryEntry={selectedLibrary} libraryParams={libraryParams} dialect={dialect} />
       </div>
 
       {/* Metadata row */}

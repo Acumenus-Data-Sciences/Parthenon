@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\V1\AbbyAiController;
 use App\Http\Controllers\Api\V1\AbbyConversationController;
 use App\Http\Controllers\Api\V1\AchillesController;
 use App\Http\Controllers\Api\V1\Admin\AiProviderController;
+use App\Http\Controllers\Api\V1\Admin\AppSettingsController;
 use App\Http\Controllers\Api\V1\Admin\AtlasMigrationController;
 use App\Http\Controllers\Api\V1\Admin\AuthProviderController;
 use App\Http\Controllers\Api\V1\Admin\ChromaStudioController;
@@ -578,6 +579,8 @@ Route::prefix('v1')->group(function () {
                 Route::post('/ingest-ohdsi-papers', [ChromaStudioController::class, 'ingestOhdsiPapers']);
                 Route::post('/ingest-ohdsi-knowledge', [ChromaStudioController::class, 'ingestOhdsiKnowledge']);
                 Route::post('/ingest-textbooks', [ChromaStudioController::class, 'ingestTextbooks']);
+                Route::post('/seed-faq', [ChromaStudioController::class, 'seedFaq']);
+                Route::post('/aggregate-conversations', [ChromaStudioController::class, 'aggregateConversations']);
                 Route::post('/collections/{name}/project', [ChromaStudioController::class, 'projectCollection']);
             });
 
@@ -913,6 +916,12 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         Route::post('/clean-terms', [AriadneController::class, 'cleanTerms']);
         Route::post('/vector-search', [AriadneController::class, 'vectorSearch']);
     });
+});
+
+// ── App Settings ─────────────────────────────────────────────────────────────
+Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
+    Route::get('/app-settings', [AppSettingsController::class, 'index']);
+    Route::patch('/app-settings', [AppSettingsController::class, 'update'])->middleware('role:super-admin');
 });
 
 // ── Text-to-SQL ───────────────────────────────────────────────────────────────

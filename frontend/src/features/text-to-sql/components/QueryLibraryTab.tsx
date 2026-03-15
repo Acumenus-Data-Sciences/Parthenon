@@ -99,7 +99,7 @@ function QueryLibraryCard({
   );
 }
 
-export function QueryLibraryTab() {
+export function QueryLibraryTab({ dialect = "postgresql" }: { dialect?: string }) {
   const [search, setSearch] = useState("");
   const [domain, setDomain] = useState("all");
   const [limit, setLimit] = useState(12);
@@ -128,7 +128,7 @@ export function QueryLibraryTab() {
     }: {
       id: number;
       params: Record<string, string>;
-    }) => renderQueryLibraryEntry(id, { dialect: "postgresql", params }),
+    }) => renderQueryLibraryEntry(id, { dialect, params }),
     onSuccess: (data) => {
       setResult(data);
     },
@@ -420,6 +420,7 @@ export function QueryLibraryTab() {
               onLibraryParamChange={handleParamChange}
               onRerenderLibrary={handleRerender}
               isRenderPending={renderMutation.isPending}
+              dialect={dialect}
               renderError={
                 renderMutation.isError ? renderMutation.error : null
               }

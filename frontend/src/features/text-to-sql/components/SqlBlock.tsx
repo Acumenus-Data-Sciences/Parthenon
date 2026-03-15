@@ -8,9 +8,10 @@ interface SqlBlockProps {
   safety?: string;
   libraryEntry?: QueryLibraryEntry | null;
   libraryParams?: Record<string, string>;
+  dialect?: string;
 }
 
-export function SqlBlock({ sql, safety, libraryEntry, libraryParams }: SqlBlockProps) {
+export function SqlBlock({ sql, safety, libraryEntry, libraryParams, dialect }: SqlBlockProps) {
   const [copied, setCopied] = useState(false);
   const [runnerOpen, setRunnerOpen] = useState(false);
 
@@ -132,6 +133,7 @@ export function SqlBlock({ sql, safety, libraryEntry, libraryParams }: SqlBlockP
         safety={safety}
         libraryEntry={libraryEntry}
         initialParams={libraryParams}
+        dialect={dialect}
       />
     </>
   );

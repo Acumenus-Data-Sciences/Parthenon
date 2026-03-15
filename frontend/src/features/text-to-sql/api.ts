@@ -241,3 +241,33 @@ export function downloadExecutionCsv(executionId: string): void {
   const url = `${baseUrl}/text-to-sql/execute/${executionId}/download`;
   window.open(url, "_blank");
 }
+
+// ── App Settings (dialect) ───────────────────────────────────────────────────
+
+export interface DialectOption {
+  value: string;
+  label: string;
+}
+
+export interface AppSettings {
+  default_sql_dialect: string;
+  available_dialects: DialectOption[];
+  updated_at: string;
+}
+
+export async function fetchAppSettings(): Promise<AppSettings> {
+  const { data } = await apiClient.get<{ data: AppSettings }>(
+    "/app-settings",
+  );
+  return data.data;
+}
+
+export async function updateAppSettings(
+  settings: Partial<Pick<AppSettings, "default_sql_dialect">>,
+): Promise<AppSettings> {
+  const { data } = await apiClient.patch<{ data: AppSettings }>(
+    "/app-settings",
+    settings,
+  );
+  return data.data;
+}

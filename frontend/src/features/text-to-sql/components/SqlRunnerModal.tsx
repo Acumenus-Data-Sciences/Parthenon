@@ -28,6 +28,7 @@ interface SqlRunnerModalProps {
   safety?: string;
   libraryEntry?: QueryLibraryEntry | null;
   initialParams?: Record<string, string>;
+  dialect?: string;
 }
 
 function formatElapsed(ms: number): string {
@@ -217,6 +218,7 @@ export function SqlRunnerModal({
   safety = "unknown",
   libraryEntry,
   initialParams,
+  dialect = "postgresql",
 }: SqlRunnerModalProps) {
   const hasParams = (libraryEntry?.parameters ?? []).length > 0;
 
@@ -264,7 +266,7 @@ export function SqlRunnerModal({
   const renderMutation = useMutation({
     mutationFn: () =>
       renderQueryLibraryEntry(libraryEntry!.id, {
-        dialect: "postgresql",
+        dialect,
         params: paramValues,
       }),
     onSuccess: (data) => {
