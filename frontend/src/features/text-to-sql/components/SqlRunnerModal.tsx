@@ -27,6 +27,7 @@ interface SqlRunnerModalProps {
   sql: string;
   safety?: string;
   libraryEntry?: QueryLibraryEntry | null;
+  initialParams?: Record<string, string>;
 }
 
 function formatElapsed(ms: number): string {
@@ -212,6 +213,7 @@ export function SqlRunnerModal({
   sql,
   safety = "unknown",
   libraryEntry,
+  initialParams,
 }: SqlRunnerModalProps) {
   const hasParams = (libraryEntry?.parameters ?? []).length > 0;
 
@@ -318,14 +320,14 @@ export function SqlRunnerModal({
     [],
   );
 
-  // Initialize param defaults when modal opens
+  // Initialize param values when modal opens — use parent's values if provided
   useEffect(() => {
     if (open) {
       if (hasParams && libraryEntry?.parameters) {
         const defaults = Object.fromEntries(
           libraryEntry.parameters.map((p) => [p.key, p.default ?? ""]),
         );
-        setParamValues(defaults);
+        setParamValues({ ...defaults, ...initialParams });
         setPhase("params");
       } else {
         setPhase("executing");
