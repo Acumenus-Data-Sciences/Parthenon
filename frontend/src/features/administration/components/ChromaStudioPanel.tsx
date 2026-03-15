@@ -76,10 +76,15 @@ export default function ChromaStudioPanel() {
       const data = await fetchCollections();
       setCollections(data);
       if (data.length > 0 && !selectedCollection) {
-        // Auto-select the largest collection by count
-        const largest = data.reduce((max, c) =>
-          (c.count ?? 0) > (max.count ?? 0) ? c : max, data[0]);
-        setSelectedCollection(largest.name);
+        // Prefer "docs" collection, fall back to largest by count
+        const docs = data.find((c) => c.name === "docs");
+        if (docs) {
+          setSelectedCollection(docs.name);
+        } else {
+          const largest = data.reduce((max, c) =>
+            (c.count ?? 0) > (max.count ?? 0) ? c : max, data[0]);
+          setSelectedCollection(largest.name);
+        }
       }
       return data;
     } catch (e) {

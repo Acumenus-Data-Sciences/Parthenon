@@ -179,8 +179,13 @@ export default function ThreeScene(props: ThreeSceneProps) {
         const point = props.points.find((p) => p.id === props.hoveredPoint);
         if (!point) return null;
         return (
-          <Html position={[point.x, point.y, point.z]} distanceFactor={5}>
-            <div className="pointer-events-none rounded border border-[#232328] bg-[#151518]/95 px-2 py-1 text-xs shadow-xl backdrop-blur">
+          <Html
+            position={[point.x, point.y + 0.15, point.z]}
+            center
+            zIndexRange={[100, 0]}
+            style={{ pointerEvents: "none" }}
+          >
+            <div className="pointer-events-none whitespace-nowrap rounded border border-[#232328] bg-[#151518]/95 px-2 py-1 text-xs shadow-xl backdrop-blur">
               <div className="font-['IBM_Plex_Mono',monospace] text-[#2DD4BF]">{point.id}</div>
               {Object.entries(point.metadata).slice(0, 3).map(([k, v]) => (
                 <div key={k} className="text-[#8A857D]">
