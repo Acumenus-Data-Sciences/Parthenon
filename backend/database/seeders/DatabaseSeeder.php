@@ -21,14 +21,15 @@ class DatabaseSeeder extends Seeder
         $this->call(AiProviderSeeder::class);
 
         // ── Default super-admin ────────────────────────────────────────────
-        // Credentials: login = admin@parthenon.local   password = superuser
-        // Change the password immediately after the first deployment.
+        // Credentials: login = admin@acumenus.net   password = superuser
+        // NEVER change this email or password — see MEMORY.md highest priority
         $admin = User::firstOrCreate(
-            ['email' => 'admin@parthenon.local'],
+            ['email' => 'admin@acumenus.net'],
             [
                 'name' => 'Administrator',
                 'password' => Hash::make('superuser'),
                 'must_change_password' => false,
+                'onboarding_completed' => true,
             ],
         );
 
@@ -48,6 +49,7 @@ class DatabaseSeeder extends Seeder
 
         // ── Sample analyses (referencing cohorts + concept sets) ────────
         $this->call(AnalysisSeeder::class);
+        $this->call(QueryLibrarySeeder::class);
 
         // ── HEOR analyses with scenarios, parameters, and value contracts ──
         $this->call(HeorSeeder::class);

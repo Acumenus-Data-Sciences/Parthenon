@@ -14,7 +14,7 @@ class ConceptSetSeeder extends Seeder
      */
     public function run(): void
     {
-        $adminId = User::where('email', 'admin@parthenon.local')->value('id');
+        $adminId = User::where('email', 'admin@acumenus.net')->value('id');
         if (! $adminId) {
             $this->command->warn('Admin user not found — skipping concept set seeding.');
 
