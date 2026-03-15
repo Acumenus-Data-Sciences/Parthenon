@@ -91,7 +91,6 @@ final class IncidenceRateResultNormalizer
     }
 
     /**
-     * @param  mixed  $row
      * @return array<string, mixed>
      */
     private static function normalizeResultRow(mixed $row, int $index): array
@@ -102,7 +101,7 @@ final class IncidenceRateResultNormalizer
         return [
             ...$data,
             'outcome_cohort_id' => self::intValue($data['outcome_cohort_id'] ?? $index),
-            'outcome_cohort_name' => self::stringValue($data['outcome_cohort_name'] ?? "Outcome #".self::intValue($data['outcome_cohort_id'] ?? $index)),
+            'outcome_cohort_name' => self::stringValue($data['outcome_cohort_name'] ?? 'Outcome #'.self::intValue($data['outcome_cohort_id'] ?? $index)),
             'persons_at_risk' => self::intValue($data['persons_at_risk'] ?? 0),
             'persons_with_outcome' => self::intValue($data['persons_with_outcome'] ?? 0),
             'person_years' => self::floatValue($data['person_years'] ?? 0),

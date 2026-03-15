@@ -1,6 +1,7 @@
 import os
 import logging
 from importlib import import_module
+from typing import Any
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -24,7 +25,7 @@ app.add_middleware(
 app.include_router(health.router, tags=["health"])
 _logger = logging.getLogger(__name__)
 
-OPTIONAL_ROUTERS = [
+OPTIONAL_ROUTERS: list[tuple[str, dict[str, Any]]] = [
     ("app.routers.embeddings", {"prefix": "/embeddings", "tags": ["embeddings"]}),
     ("app.routers.concept_mapping", {"prefix": "/concept-mapping", "tags": ["concept-mapping"]}),
     ("app.routers.clinical_nlp", {"prefix": "/clinical-nlp", "tags": ["clinical-nlp"]}),

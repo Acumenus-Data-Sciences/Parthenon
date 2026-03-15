@@ -5,6 +5,8 @@ import logging
 from typing import Any
 
 import chromadb
+from chromadb.api import ClientAPI
+from chromadb.api.types import Metadata
 import httpx
 
 logger = logging.getLogger(__name__)
@@ -36,12 +38,12 @@ Respond ONLY with a JSON object:
 {{"suggestions": [{{"column": "...", "purpose": "...", "geo_type": null, "exposure_type": null, "confidence": 0.9, "reasoning": "..."}}]}}"""
 
 
-def _get_chroma_client() -> chromadb.Client:
+def _get_chroma_client() -> ClientAPI:
     """Get or create ChromaDB client (persistent storage)."""
     return chromadb.PersistentClient(path="/app/data/chromadb")
 
 
-def _get_collection(client: chromadb.Client) -> chromadb.Collection:
+def _get_collection(client: ClientAPI) -> chromadb.Collection:
     """Get or create the GIS import mappings collection."""
     return client.get_or_create_collection(
         name=CHROMA_COLLECTION,
@@ -64,8 +66,9 @@ def search_similar_mappings(headers: list[str]) -> list[dict[str, Any]]:
         )
 
         mappings = []
-        if results and results.get("documents"):
-            for docs in results["documents"]:
+        documents = results.get("documents") if results else None
+        if documents:
+            for docs in documents:
                 for doc in docs:
                     try:
                         mappings.append(json.loads(doc))
@@ -160,19 +163,19 @@ def store_confirmed_mappings(mappings: list[dict[str, Any]]) -> int:
         client = _get_chroma_client()
         collection = _get_collection(client)
 
-        ids = []
-        documents = []
-        metadatas = []
+        ids: list[str] = []
+        documents: list[str] = []
+        metadatas: list[Metadata] = []
 
         for m in mappings:
-            col_name = m.get("column_name", "")
+            col_name = str(m.get("column_name", ""))
             doc = json.dumps(m)
             ids.append(f"mapping_{col_name}")
             documents.append(doc)
             metadatas.append({
                 "column_name": col_name,
-                "mapped_to": m.get("mapped_to", ""),
-                "data_type": m.get("data_type", ""),
+                "mapped_to": str(m.get("mapped_to", "")),
+                "data_type": str(m.get("data_type", "")),
             })
 
         collection.upsert(ids=ids, documents=documents, metadatas=metadatas)

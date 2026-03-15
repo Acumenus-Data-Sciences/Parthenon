@@ -39,6 +39,7 @@ class OhdsiQueryLibraryImporter
             $entry = $this->parseMarkdownFile($file->getPathname(), $queriesPath);
             if ($entry === null) {
                 $skipped++;
+
                 continue;
             }
 

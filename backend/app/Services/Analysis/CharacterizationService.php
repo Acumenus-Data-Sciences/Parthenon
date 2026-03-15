@@ -8,7 +8,6 @@ use App\Models\App\AnalysisExecution;
 use App\Models\App\Characterization;
 use App\Models\App\ExecutionLog;
 use App\Models\App\Source;
-use App\Support\CharacterizationResultNormalizer;
 use App\Services\Analysis\Features\ConditionFeatureBuilder;
 use App\Services\Analysis\Features\DemographicFeatureBuilder;
 use App\Services\Analysis\Features\DrugFeatureBuilder;
@@ -17,6 +16,7 @@ use App\Services\Analysis\Features\MeasurementFeatureBuilder;
 use App\Services\Analysis\Features\ProcedureFeatureBuilder;
 use App\Services\Analysis\Features\VisitFeatureBuilder;
 use App\Services\SqlRenderer\SqlRendererService;
+use App\Support\CharacterizationResultNormalizer;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 

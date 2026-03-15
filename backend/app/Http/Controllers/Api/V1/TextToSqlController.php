@@ -224,7 +224,7 @@ class TextToSqlController extends Controller
             $connection->statement("SET statement_timeout = '120s'");
 
             $startTime = microtime(true);
-            $wrappedSql = "SELECT * FROM ({$sql}) AS _q LIMIT " . ($maxRows + 1);
+            $wrappedSql = "SELECT * FROM ({$sql}) AS _q LIMIT ".($maxRows + 1);
             $rows = $connection->select($wrappedSql);
             $elapsedMs = round((microtime(true) - $startTime) * 1000);
 
@@ -297,10 +297,10 @@ class TextToSqlController extends Controller
 
         try {
             $stat = DB::connection('cdm')->selectOne(
-                "SELECT state, wait_event_type, wait_event,
+                'SELECT state, wait_event_type, wait_event,
                         EXTRACT(EPOCH FROM (now() - query_start)) * 1000 AS elapsed_ms
                  FROM pg_stat_activity
-                 WHERE pid = ?",
+                 WHERE pid = ?',
                 [$pid]
             );
 

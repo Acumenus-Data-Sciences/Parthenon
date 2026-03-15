@@ -55,7 +55,7 @@ final class PredictionResultNormalizer
 
             return [
                 ...$data,
-                'covariate_name' => self::stringValue($data['covariate_name'] ?? "Predictor ".($index + 1)),
+                'covariate_name' => self::stringValue($data['covariate_name'] ?? 'Predictor '.($index + 1)),
                 'coefficient' => self::floatValue($data['coefficient'] ?? 0),
                 'importance' => self::floatValue($data['importance'] ?? 0),
             ];

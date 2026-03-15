@@ -4,7 +4,6 @@ namespace App\Services\QueryLibrary;
 
 use App\Models\App\QueryLibraryEntry;
 use App\Services\Solr\SolrClientWrapper;
-use Illuminate\Support\Collection;
 
 class QueryLibrarySearchService
 {
@@ -38,12 +37,12 @@ class QueryLibrarySearchService
 
         return [
             'items' => $query
-            ->orderBy('domain')
-            ->orderBy('name')
-            ->limit($limit)
-            ->get()
-            ->map(fn (QueryLibraryEntry $entry) => $this->serializeEntry($entry))
-            ->all(),
+                ->orderBy('domain')
+                ->orderBy('name')
+                ->limit($limit)
+                ->get()
+                ->map(fn (QueryLibraryEntry $entry) => $this->serializeEntry($entry))
+                ->all(),
             'total' => (clone $query)->count(),
         ];
     }

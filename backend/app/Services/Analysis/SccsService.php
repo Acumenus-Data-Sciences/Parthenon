@@ -8,8 +8,8 @@ use App\Models\App\AnalysisExecution;
 use App\Models\App\ExecutionLog;
 use App\Models\App\SccsAnalysis;
 use App\Models\App\Source;
-use App\Support\SccsResultNormalizer;
 use App\Services\RService;
+use App\Support\SccsResultNormalizer;
 use Illuminate\Support\Facades\Log;
 
 class SccsService

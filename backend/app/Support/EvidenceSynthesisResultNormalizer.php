@@ -51,7 +51,7 @@ final class EvidenceSynthesisResultNormalizer
 
             return [
                 ...$data,
-                'site_name' => self::stringValue($data['site_name'] ?? "Site ".($index + 1)),
+                'site_name' => self::stringValue($data['site_name'] ?? 'Site '.($index + 1)),
                 'log_rr' => self::floatValue($data['log_rr'] ?? 0),
                 'se_log_rr' => self::floatValue($data['se_log_rr'] ?? 0),
                 'hr' => self::floatValue($data['hr'] ?? 0),

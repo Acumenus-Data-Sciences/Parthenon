@@ -1,19 +1,32 @@
 """Clinical reference ingestion — embeds OMOP concepts via SapBERT into ChromaDB.
 
-Queries vocab.concept for high-value domains (Condition, Drug, Procedure, Measurement)
-and upserts into the clinical_reference collection.
+Queries the OMOP vocabulary concept table for high-value domains
+(Condition, Drug, Procedure, Measurement) and upserts into the
+clinical_reference collection.
 """
 import logging
+import os
 from typing import Any
 
-from sqlalchemy import text
+from sqlalchemy import create_engine, text
+from sqlalchemy.engine import Engine
 
 from app.chroma.collections import get_clinical_collection
-from app.db import get_session
+from app.config import settings
 
 logger = logging.getLogger(__name__)
 
 TARGET_DOMAINS = ("Condition", "Drug", "Procedure", "Measurement")
+
+
+def _get_vocab_engine() -> Engine:
+    """Get engine for the database containing OMOP vocabulary data.
+
+    Uses GIS_DATABASE_URL (local PG with omop schema) if available,
+    otherwise falls back to the default DATABASE_URL.
+    """
+    url = os.getenv("GIS_DATABASE_URL", settings.database_url)
+    return create_engine(url, pool_size=2, pool_pre_ping=True)
 
 
 def ingest_clinical_concepts(
@@ -22,7 +35,7 @@ def ingest_clinical_concepts(
 ) -> dict[str, int]:
     """Ingest standard OMOP concepts into the clinical reference collection.
 
-    Queries vocab.concept for standard concepts in target domains,
+    Queries the OMOP concept table for standard concepts in target domains,
     embeds concept names via SapBERT, and upserts into ChromaDB.
 
     Returns stats: {"total": N, "batches": N}
@@ -30,33 +43,26 @@ def ingest_clinical_concepts(
     collection = get_clinical_collection()
     stats = {"total": 0, "batches": 0}
 
-    if limit:
-        query = text("""
-            SELECT concept_id, concept_name, domain_id, vocabulary_id
-            FROM vocab.concept
-            WHERE standard_concept = 'S'
-            AND domain_id IN :domains
-            AND concept_name IS NOT NULL
-            AND LENGTH(concept_name) > 2
-            ORDER BY concept_id
-            LIMIT :limit
-        """)
-    else:
-        query = text("""
-            SELECT concept_id, concept_name, domain_id, vocabulary_id
-            FROM vocab.concept
-            WHERE standard_concept = 'S'
-            AND domain_id IN :domains
-            AND concept_name IS NOT NULL
-            AND LENGTH(concept_name) > 2
-            ORDER BY concept_id
-        """)
+    schema = settings.ariadne_vocab_schema  # typically "omop"
 
-    with get_session() as session:
+    base_query = f"""
+        SELECT concept_id, concept_name, domain_id, vocabulary_id
+        FROM {schema}.concept
+        WHERE standard_concept = 'S'
+        AND domain_id IN :domains
+        AND concept_name IS NOT NULL
+        AND LENGTH(concept_name) > 2
+        ORDER BY concept_id
+    """
+    if limit:
+        base_query += " LIMIT :limit"
+
+    engine = _get_vocab_engine()
+    with engine.connect() as conn:
         params: dict[str, Any] = {"domains": TARGET_DOMAINS}
         if limit:
             params["limit"] = limit
-        rows = session.execute(query, params).fetchall()
+        rows = conn.execute(text(base_query), params).fetchall()
 
     logger.info("Found %d concepts to ingest", len(rows))
 

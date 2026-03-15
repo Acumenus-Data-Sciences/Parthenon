@@ -8,8 +8,8 @@ use App\Models\App\AnalysisExecution;
 use App\Models\App\ExecutionLog;
 use App\Models\App\IncidenceRateAnalysis;
 use App\Models\App\Source;
-use App\Support\IncidenceRateResultNormalizer;
 use App\Services\SqlRenderer\SqlRendererService;
+use App\Support\IncidenceRateResultNormalizer;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 

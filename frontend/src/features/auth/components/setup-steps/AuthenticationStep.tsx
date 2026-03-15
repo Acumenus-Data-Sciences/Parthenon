@@ -26,6 +26,13 @@ import type { AuthProviderSetting, AuthProviderType } from "@/types/models";
 import type { TestResult } from "@/features/administration/api/adminApi";
 import { cn } from "@/lib/utils";
 
+interface ConfigFormProps {
+  settings: AuthProviderSetting["settings"];
+  onSave: (settings: Record<string, unknown>) => void;
+  isPending: boolean;
+  saveSuccess: boolean;
+}
+
 interface Props {
   onConfigured: () => void;
 }
@@ -66,10 +73,10 @@ const CONFIG_FORMS: Record<AuthProviderType, React.ComponentType<{
   isPending: boolean;
   saveSuccess: boolean;
 }>> = {
-  ldap: LdapConfigForm as React.ComponentType<any>,
-  oauth2: OAuth2ConfigForm as React.ComponentType<any>,
-  saml2: Saml2ConfigForm as React.ComponentType<any>,
-  oidc: OidcConfigForm as React.ComponentType<any>,
+  ldap: LdapConfigForm as React.ComponentType<ConfigFormProps>,
+  oauth2: OAuth2ConfigForm as React.ComponentType<ConfigFormProps>,
+  saml2: Saml2ConfigForm as React.ComponentType<ConfigFormProps>,
+  oidc: OidcConfigForm as React.ComponentType<ConfigFormProps>,
 };
 
 function ProviderCard({

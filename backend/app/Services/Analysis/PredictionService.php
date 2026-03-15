@@ -8,9 +8,9 @@ use App\Models\App\AnalysisExecution;
 use App\Models\App\ExecutionLog;
 use App\Models\App\PredictionAnalysis;
 use App\Models\App\Source;
-use App\Support\PredictionResultNormalizer;
 use App\Services\RService;
 use App\Services\SqlRenderer\SqlRendererService;
+use App\Support\PredictionResultNormalizer;
 use Illuminate\Support\Facades\Log;
 
 class PredictionService

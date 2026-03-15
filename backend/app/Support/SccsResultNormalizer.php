@@ -41,7 +41,7 @@ final class SccsResultNormalizer
 
             return [
                 ...$data,
-                'covariate' => self::stringValue($data['covariate'] ?? $data['name'] ?? "Covariate ".($index + 1)),
+                'covariate' => self::stringValue($data['covariate'] ?? $data['name'] ?? 'Covariate '.($index + 1)),
                 'irr' => self::floatValue($data['irr'] ?? 0),
                 'ci_lower' => self::floatValue($data['ci_lower'] ?? 0),
                 'ci_upper' => self::floatValue($data['ci_upper'] ?? 0),

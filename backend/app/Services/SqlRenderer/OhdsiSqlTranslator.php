@@ -180,33 +180,33 @@ class OhdsiSqlTranslator
 
         // DATEADD(interval, number, date) → dialect-specific
         $sql = (string) preg_replace_callback(
-            '/\bDATEADD\s*\(\s*(\w+)\s*,\s*([^,]+?)\s*,\s*(' . $this->nestedParenPattern() . ')\s*\)/i',
+            '/\bDATEADD\s*\(\s*(\w+)\s*,\s*([^,]+?)\s*,\s*('.$this->nestedParenPattern().')\s*\)/i',
             fn (array $m) => $this->dateAdd($dialect, strtolower(trim($m[1])), trim($m[2]), trim($m[3])),
             $sql
         );
 
         // DATEDIFF(interval, start, end) → dialect-specific
         $sql = (string) preg_replace_callback(
-            '/\bDATEDIFF\s*\(\s*(\w+)\s*,\s*([^,]+?)\s*,\s*(' . $this->nestedParenPattern() . ')\s*\)/i',
+            '/\bDATEDIFF\s*\(\s*(\w+)\s*,\s*([^,]+?)\s*,\s*('.$this->nestedParenPattern().')\s*\)/i',
             fn (array $m) => $this->dateDiff($dialect, strtolower(trim($m[1])), trim($m[2]), trim($m[3])),
             $sql
         );
 
         // YEAR(date), MONTH(date), DAY(date) → EXTRACT
         $sql = (string) preg_replace_callback(
-            '/\bYEAR\s*\(\s*(' . $this->nestedParenPattern() . ')\s*\)/i',
+            '/\bYEAR\s*\(\s*('.$this->nestedParenPattern().')\s*\)/i',
             fn (array $m) => $this->extractPart($dialect, 'YEAR', trim($m[1])),
             $sql
         );
 
         $sql = (string) preg_replace_callback(
-            '/\bMONTH\s*\(\s*(' . $this->nestedParenPattern() . ')\s*\)/i',
+            '/\bMONTH\s*\(\s*('.$this->nestedParenPattern().')\s*\)/i',
             fn (array $m) => $this->extractPart($dialect, 'MONTH', trim($m[1])),
             $sql
         );
 
         $sql = (string) preg_replace_callback(
-            '/\bDAY\s*\(\s*(' . $this->nestedParenPattern() . ')\s*\)/i',
+            '/\bDAY\s*\(\s*('.$this->nestedParenPattern().')\s*\)/i',
             fn (array $m) => $this->extractPart($dialect, 'DAY', trim($m[1])),
             $sql
         );
@@ -228,7 +228,7 @@ class OhdsiSqlTranslator
         // CONVERT(date, expr, style) → CAST
         $sql = (string) preg_replace_callback(
             '/\bCONVERT\s*\(\s*date\s*,\s*([^,)]+)\s*(?:,\s*\d+\s*)?\)/i',
-            fn (array $m) => "CAST(" . trim($m[1]) . " AS DATE)",
+            fn (array $m) => 'CAST('.trim($m[1]).' AS DATE)',
             $sql
         );
 
@@ -351,7 +351,7 @@ class OhdsiSqlTranslator
         if (in_array($dialect, ['postgresql', 'redshift', 'netezza'], true)) {
             $sql = (string) preg_replace_callback(
                 '/\bCHARINDEX\s*\(\s*([^,]+)\s*,\s*([^)]+)\s*\)/i',
-                fn (array $m) => "POSITION(" . trim($m[1]) . " IN " . trim($m[2]) . ")",
+                fn (array $m) => 'POSITION('.trim($m[1]).' IN '.trim($m[2]).')',
                 $sql
             );
         }
@@ -382,7 +382,7 @@ class OhdsiSqlTranslator
         if (in_array($dialect, ['postgresql', 'redshift', 'netezza'], true)) {
             $sql = (string) preg_replace_callback(
                 '/\bCONVERT\s*\(\s*(\w+)\s*,\s*([^,)]+)\s*\)/i',
-                fn (array $m) => "CAST(" . trim($m[2]) . " AS " . trim($m[1]) . ")",
+                fn (array $m) => 'CAST('.trim($m[2]).' AS '.trim($m[1]).')',
                 $sql
             );
         }

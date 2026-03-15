@@ -82,7 +82,6 @@ final class CharacterizationResultNormalizer
     }
 
     /**
-     * @param  mixed  $row
      * @return array<string, mixed>
      */
     private static function normalizeResultRow(mixed $row, int $index): array
@@ -102,7 +101,7 @@ final class CharacterizationResultNormalizer
         return [
             ...$data,
             'cohort_id' => self::intValue($data['cohort_id'] ?? $index),
-            'cohort_name' => self::stringValue($data['cohort_name'] ?? "Cohort #".self::intValue($data['cohort_id'] ?? $index)),
+            'cohort_name' => self::stringValue($data['cohort_name'] ?? 'Cohort #'.self::intValue($data['cohort_id'] ?? $index)),
             'person_count' => self::intValue($data['person_count'] ?? 0),
             'features' => $normalizedFeatures,
         ];
@@ -123,7 +122,7 @@ final class CharacterizationResultNormalizer
                     $data['feature_name']
                     ?? $data['covariate_name']
                     ?? $data['concept_name']
-                    ?? "Feature ".($index + 1)
+                    ?? 'Feature '.($index + 1)
                 ),
                 'category' => self::stringValue($data['category'] ?? $featureType),
                 'count' => self::intValue($data['count'] ?? $data['person_count'] ?? $data['count_value'] ?? 0),

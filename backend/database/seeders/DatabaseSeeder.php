@@ -53,7 +53,7 @@ class DatabaseSeeder extends Seeder
         if ($realUserCount > 0) {
             $this->command?->info(
                 "Skipping sample data seeders — {$realUserCount} real user(s) detected. "
-                . 'Run individual seeders with --class= if needed.'
+                .'Run individual seeders with --class= if needed.'
             );
 
             // Only run seeders that are safe for production (no truncate, no FK risk)
