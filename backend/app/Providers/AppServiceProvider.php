@@ -2,7 +2,16 @@
 
 namespace App\Providers;
 
+use App\Models\App\Characterization;
 use App\Models\App\CohortDefinition;
+use App\Models\App\ConceptSet;
+use App\Models\App\EstimationAnalysis;
+use App\Models\App\EvidenceSynthesisAnalysis;
+use App\Models\App\HeorAnalysis;
+use App\Models\App\IncidenceRateAnalysis;
+use App\Models\App\PathwayAnalysis;
+use App\Models\App\PredictionAnalysis;
+use App\Models\App\SccsAnalysis;
 use App\Models\App\Study;
 use App\Models\App\StudyArtifact;
 use App\Models\App\StudyCohort;
@@ -166,5 +175,17 @@ class AppServiceProvider extends ServiceProvider
         foreach ($subResourceModels as $model) {
             $model::observe(StudySubResourceObserver::class);
         }
+
+        // Design Protection observers — audit log + fixture export for all 10 design entity types
+        CohortDefinition::observe(\App\Observers\DesignProtection\CohortDefinitionProtectionObserver::class);
+        ConceptSet::observe(\App\Observers\DesignProtection\ConceptSetProtectionObserver::class);
+        Characterization::observe(\App\Observers\DesignProtection\CharacterizationProtectionObserver::class);
+        EstimationAnalysis::observe(\App\Observers\DesignProtection\EstimationAnalysisProtectionObserver::class);
+        PredictionAnalysis::observe(\App\Observers\DesignProtection\PredictionAnalysisProtectionObserver::class);
+        SccsAnalysis::observe(\App\Observers\DesignProtection\SccsAnalysisProtectionObserver::class);
+        IncidenceRateAnalysis::observe(\App\Observers\DesignProtection\IncidenceRateAnalysisProtectionObserver::class);
+        PathwayAnalysis::observe(\App\Observers\DesignProtection\PathwayAnalysisProtectionObserver::class);
+        EvidenceSynthesisAnalysis::observe(\App\Observers\DesignProtection\EvidenceSynthesisAnalysisProtectionObserver::class);
+        HeorAnalysis::observe(\App\Observers\DesignProtection\HeorAnalysisProtectionObserver::class);
     }
 }
