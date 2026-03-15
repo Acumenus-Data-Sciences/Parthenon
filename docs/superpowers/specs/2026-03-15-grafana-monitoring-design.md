@@ -194,13 +194,11 @@ Browser → Apache2 (:443) → Docker nginx (:8082) → grafana container (:3000
 `mod_proxy_wstunnel` must be enabled (`a2enmod proxy_wstunnel`). Add inside the `<VirtualHost *:443>` block:
 
 ```apache
-# Grafana metrics dashboard
-ProxyPass /grafana/ http://127.0.0.1:8082/grafana/
-ProxyPassReverse /grafana/ http://127.0.0.1:8082/grafana/
-
-# WebSocket for Grafana Live (requires mod_proxy_wstunnel)
+# Grafana metrics dashboard — WebSocket MUST come before HTTP so Apache matches more-specific path first
 ProxyPass /grafana/api/live/ws ws://127.0.0.1:8082/grafana/api/live/ws
 ProxyPassReverse /grafana/api/live/ws ws://127.0.0.1:8082/grafana/api/live/ws
+ProxyPass /grafana/ http://127.0.0.1:8082/grafana/
+ProxyPassReverse /grafana/ http://127.0.0.1:8082/grafana/
 ```
 
 `RewriteEngine On` is already present in this vhost (used for the HTTP redirect in the companion HTTP vhost; the SSL vhost itself does not need it). WebSocket proxying uses `ProxyPass ws://` via `mod_proxy_wstunnel` — no `RewriteRule` needed.
@@ -271,11 +269,12 @@ A `grafana` entry is added to the services map, pinging `http://grafana:3000/api
 
 ## 11. Named Volumes
 
-Two new named volumes declared in the top-level `volumes:` section of `docker-compose.yml`:
+Three new named volumes declared in the top-level `volumes:` section of `docker-compose.yml`:
 
 ```yaml
 volumes:
   grafana_data:
+  prometheus_data:
   loki_data:
 ```
 
