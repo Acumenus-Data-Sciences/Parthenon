@@ -12,7 +12,10 @@ export interface GenerateResponse {
   explanation: string;
   tables_referenced: string[];
   is_aggregate: boolean;
-  safety: "safe" | "unsafe";
+  safety: "safe" | "unsafe" | "unknown";
+  source_type?: "library" | "generated";
+  template_name?: string;
+  query?: QueryLibraryEntry;
 }
 
 export interface ValidateResponse {
@@ -41,6 +44,95 @@ export interface SchemaResponse {
   common_joins: string[];
 }
 
+export interface QueryLibraryParameter {
+  key: string;
+  label: string;
+  type: string;
+  default?: string;
+  description?: string;
+}
+
+export interface QueryLibraryEntry {
+  id: number;
+  slug: string;
+  name: string;
+  domain: string;
+  category: string;
+  summary: string;
+  description?: string;
+  parameters?: QueryLibraryParameter[];
+  tags: string[];
+  example_questions?: string[];
+  source: string;
+  is_aggregate: boolean;
+  safety: "safe" | "unsafe" | "unknown";
+}
+
+export interface QueryLibrarySearchMeta {
+  query: string;
+  domain?: string | null;
+  count: number;
+  total: number;
+  indexed_total: number;
+  domain_counts: Array<{
+    domain: string;
+    count: number;
+  }>;
+}
+
+export interface QueryLibrarySearchResponse {
+  data: QueryLibraryEntry[];
+  meta: QueryLibrarySearchMeta;
+}
+
+interface RawSchemaColumn {
+  name: string;
+  type: string;
+  description?: string;
+  note?: string;
+}
+
+interface RawSchemaTable {
+  name: string;
+  description: string;
+  columns?: RawSchemaColumn[];
+  key_columns?: RawSchemaColumn[];
+}
+
+interface RawJoinPattern {
+  name?: string;
+  sql?: string;
+}
+
+interface RawSchemaResponse {
+  clinical_tables?: RawSchemaTable[];
+  vocabulary_tables?: RawSchemaTable[];
+  common_joins?: string[];
+  common_join_patterns?: RawJoinPattern[];
+}
+
+export function normalizeSchemaResponse(raw: RawSchemaResponse): SchemaResponse {
+  const normalizeTable = (table: RawSchemaTable): SchemaTable => ({
+    name: table.name,
+    description: table.description,
+    columns: (table.columns ?? table.key_columns ?? []).map((column) => ({
+      name: column.name,
+      type: column.type,
+      description: column.description ?? column.note ?? "",
+    })),
+  });
+
+  return {
+    clinical_tables: (raw.clinical_tables ?? []).map(normalizeTable),
+    vocabulary_tables: (raw.vocabulary_tables ?? []).map(normalizeTable),
+    common_joins:
+      raw.common_joins ??
+      (raw.common_join_patterns ?? [])
+        .map((pattern) => pattern.sql ?? "")
+        .filter((pattern): pattern is string => pattern.length > 0),
+  };
+}
+
 // ── API functions ─────────────────────────────────────────────────────────────
 
 export async function generateSql(req: GenerateRequest): Promise<GenerateResponse> {
@@ -63,8 +155,45 @@ export async function validateSql(
 }
 
 export async function fetchSchema(): Promise<SchemaResponse> {
-  const { data } = await apiClient.get<{ data: SchemaResponse }>(
+  const { data } = await apiClient.get<{ data: RawSchemaResponse }>(
     "/text-to-sql/schema",
   );
+  return normalizeSchemaResponse(data.data ?? {});
+}
+
+export async function searchQueryLibrary(params?: {
+  q?: string;
+  domain?: string;
+  limit?: number;
+}): Promise<QueryLibrarySearchResponse> {
+  const { data } = await apiClient.get<{
+    data: QueryLibraryEntry[];
+    meta: QueryLibrarySearchMeta;
+  }>("/query-library", { params });
+
+  return {
+    data: data.data ?? [],
+    meta: data.meta ?? {
+      query: params?.q ?? "",
+      domain: params?.domain ?? null,
+      count: 0,
+      total: 0,
+      indexed_total: 0,
+      domain_counts: [],
+    },
+  };
+}
+
+export async function renderQueryLibraryEntry(
+  id: number,
+  params?: {
+    dialect?: string;
+    params?: Record<string, string>;
+  },
+): Promise<GenerateResponse> {
+  const { data } = await apiClient.post<{
+    data: GenerateResponse;
+  }>(`/query-library/${id}/render`, params ?? {});
+
   return data.data;
 }
