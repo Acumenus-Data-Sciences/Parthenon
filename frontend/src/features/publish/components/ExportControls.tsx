@@ -3,7 +3,7 @@
 // ---------------------------------------------------------------------------
 
 import { useState } from "react";
-import { Download, FileText, FileSpreadsheet, Image, Code } from "lucide-react";
+import { Download, FileText, FileSpreadsheet, Image, Code, type LucideIcon } from "lucide-react";
 import type { ExportFormat } from "../types/publish";
 
 interface ExportControlsProps {
@@ -15,7 +15,7 @@ const FORMAT_OPTIONS: {
   value: ExportFormat;
   label: string;
   description: string;
-  icon: React.ElementType;
+  icon: LucideIcon;
   available: boolean;
 }[] = [
   {

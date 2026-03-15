@@ -14,6 +14,7 @@ import {
   Dna,
   ScanLine,
   X,
+  type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PrimaryCriteriaPanel } from "./PrimaryCriteriaPanel";
@@ -41,7 +42,7 @@ function asDemographicArray(dc: unknown): DemographicFilter[] {
 
 interface SectionProps {
   title: string;
-  icon: React.ElementType;
+  icon: LucideIcon;
   iconColor?: string;
   badge?: string | number;
   children: React.ReactNode;

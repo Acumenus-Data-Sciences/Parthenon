@@ -8,7 +8,7 @@
  */
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Dna, BarChart3, Grid3X3, Activity, Loader2, AlertCircle } from "lucide-react";
+import { Dna, BarChart3, Grid3X3, Activity, Loader2, AlertCircle, type LucideIcon } from "lucide-react";
 import apiClient from "@/lib/api-client";
 
 // ── Survival data types ──────────────────────────────────────────────────────
@@ -233,7 +233,7 @@ export default function GenomicAnalysisPage() {
     enabled: tab === "characterization",
   });
 
-  const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
+  const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
     { id: "survival", label: "Mutation-Survival", icon: Activity },
     { id: "matrix", label: "Treatment-Variant Matrix", icon: Grid3X3 },
     { id: "characterization", label: "Genomic Characterization", icon: BarChart3 },

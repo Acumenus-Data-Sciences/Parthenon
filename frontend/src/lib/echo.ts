@@ -5,7 +5,7 @@ import { useAuthStore } from "@/stores/authStore";
 // Pusher must be on window for Echo to find it
 (window as unknown as { Pusher: typeof Pusher }).Pusher = Pusher;
 
-let echoInstance: Echo | null = null;
+let echoInstance: Echo<"reverb"> | null = null;
 let warnedInvalidHost = false;
 let warnedMissingKey = false;
 
@@ -40,7 +40,7 @@ function resolveEchoConfig() {
   };
 }
 
-export function getEcho(): Echo | null {
+export function getEcho(): Echo<"reverb"> | null {
   if (!echoInstance) {
     const key = import.meta.env.VITE_REVERB_APP_KEY;
     if (!key) {

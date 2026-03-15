@@ -10,10 +10,10 @@
  * - treatment_episode: HemOnc chemotherapy regimen (maps to EPISODE table)
  */
 import { useState } from "react";
-import { Dna, FlaskConical, Zap, Blend, ShieldAlert, Pill, X, Check } from "lucide-react";
+import { Dna, FlaskConical, Zap, Blend, ShieldAlert, Pill, X, Check, type LucideIcon } from "lucide-react";
 import type { GenomicCriterion, GenomicCriteriaType } from "../../cohort-definitions/types/cohortExpression";
 
-const CRITERIA_TYPES: { value: GenomicCriteriaType; label: string; icon: React.ElementType; color: string; desc: string }[] = [
+const CRITERIA_TYPES: { value: GenomicCriteriaType; label: string; icon: LucideIcon; color: string; desc: string }[] = [
   { value: "gene_mutation", label: "Gene Mutation", icon: Dna, color: "#A78BFA", desc: "e.g. EGFR L858R, KRAS G12D" },
   { value: "tmb", label: "Tumor Mutational Burden", icon: FlaskConical, color: "#2DD4BF", desc: "TMB-High / TMB-Low threshold" },
   { value: "msi", label: "Microsatellite Instability", icon: Zap, color: "#F59E0B", desc: "MSI-H, MSI-L, or MSS" },

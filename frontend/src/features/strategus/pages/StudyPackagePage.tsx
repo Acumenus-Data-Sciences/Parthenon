@@ -22,6 +22,7 @@ import {
   Plus,
   X,
   Check,
+  type LucideIcon,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -41,7 +42,7 @@ import { getCohortDefinitions } from "@/features/cohort-definitions/api/cohortAp
 // Helpers
 // ---------------------------------------------------------------------------
 
-const MODULE_ICONS: Record<string, React.ElementType> = {
+const MODULE_ICONS: Record<string, LucideIcon> = {
   Users,
   GitCompare,
   TrendingUp,

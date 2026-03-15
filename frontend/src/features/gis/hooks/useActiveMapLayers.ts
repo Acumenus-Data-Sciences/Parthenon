@@ -30,7 +30,7 @@ export function useActiveMapLayers({
   selectedFips,
   onRegionClick,
   onRegionHover,
-}: UseActiveMapLayersProps): Layer[] {
+}: UseActiveMapLayersProps): Array<Layer | null> {
   const { activeLayers } = useLayerStore();
 
   const params = { conceptId, selectedFips, metric: "cases" };
@@ -83,7 +83,5 @@ export function useActiveMapLayers({
     visible: activeLayers.has("hospital-access"),
   });
 
-  return [sviLayer, ruccLayer, comorbidityLayer, airQualityLayer, hospitalLayer].filter(
-    (l): l is Layer => l !== null
-  );
+  return [sviLayer, ruccLayer, comorbidityLayer, airQualityLayer, hospitalLayer].filter(Boolean);
 }

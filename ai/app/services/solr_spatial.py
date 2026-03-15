@@ -8,19 +8,25 @@ from __future__ import annotations
 
 import logging
 import os
+from typing import Any
 
-import pysolr
+try:
+    import pysolr
+except ImportError:  # pragma: no cover - exercised in minimal test envs
+    pysolr = None
 
 logger = logging.getLogger(__name__)
 
 SOLR_URL = os.getenv("SOLR_URL", "http://solr:8983/solr")
 SOLR_CORE = "gis_spatial"
 
-_solr: pysolr.Solr | None = None
+_solr: Any | None = None
 
 
-def get_solr() -> pysolr.Solr:
+def get_solr() -> Any:
     global _solr
+    if pysolr is None:
+        raise RuntimeError("pysolr is not installed")
     if _solr is None:
         _solr = pysolr.Solr(
             f"{SOLR_URL}/{SOLR_CORE}",
@@ -31,6 +37,8 @@ def get_solr() -> pysolr.Solr:
 
 
 def solr_available() -> bool:
+    if pysolr is None:
+        return False
     try:
         get_solr().ping()
         return True

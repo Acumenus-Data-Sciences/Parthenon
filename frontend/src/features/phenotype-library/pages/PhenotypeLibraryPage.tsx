@@ -15,6 +15,7 @@ import {
   BookOpen,
   Tag,
   Layers,
+  type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -66,7 +67,7 @@ function StatCard({
 }: {
   label: string;
   value: number | string;
-  icon: React.ElementType;
+  icon: LucideIcon;
   accent: string;
   onClick?: () => void;
 }) {

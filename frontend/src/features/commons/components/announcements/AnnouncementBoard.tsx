@@ -5,7 +5,6 @@ import {
   Bookmark,
   Plus,
   Trash2,
-  Edit2,
   X,
 } from "lucide-react";
 import {

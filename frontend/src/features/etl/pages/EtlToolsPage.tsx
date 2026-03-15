@@ -15,6 +15,7 @@ import {
   Columns3,
   RefreshCw,
   GitMerge,
+  type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
@@ -809,7 +810,7 @@ type Tab = "profiler" | "synthea" | "fhir";
 export default function EtlToolsPage() {
   const [activeTab, setActiveTab] = useState<Tab>("profiler");
 
-  const tabs: { id: Tab; label: string; icon: React.ElementType }[] = [
+  const tabs: { id: Tab; label: string; icon: LucideIcon }[] = [
     { id: "profiler", label: "Source Profiler", icon: ScanSearch },
     { id: "synthea", label: "Synthea Generator", icon: RefreshCw },
     { id: "fhir", label: "FHIR Ingestion", icon: GitMerge },

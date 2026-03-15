@@ -1,4 +1,4 @@
-import { Activity, Skull, MapPin, Users } from "lucide-react";
+import { Activity, Skull, MapPin, Users, type LucideIcon } from "lucide-react";
 import { useDiseaseSummary } from "../hooks/useGis";
 
 interface DiseaseSummaryBarProps {
@@ -56,7 +56,7 @@ function Stat({
   value,
   color,
 }: {
-  icon: React.ElementType;
+  icon: LucideIcon;
   label: string;
   value: string;
   color: string;

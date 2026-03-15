@@ -9,13 +9,13 @@
  * - dose: radiation dose constraint (max Gy)
  */
 import { useState } from "react";
-import { ScanLine, MapPin, BarChart2, Brain, Zap, X, Check } from "lucide-react";
+import { ScanLine, MapPin, BarChart2, Brain, Zap, X, Check, type LucideIcon } from "lucide-react";
 import type { ImagingCriterion, ImagingCriteriaType } from "../../cohort-definitions/types/cohortExpression";
 
 const CRITERIA_TYPES: {
   value: ImagingCriteriaType;
   label: string;
-  icon: React.ElementType;
+  icon: LucideIcon;
   color: string;
   desc: string;
 }[] = [

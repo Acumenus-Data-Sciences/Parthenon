@@ -40,20 +40,21 @@ import {
   Microscope,
   Activity,
   MessageSquare,
+  type LucideIcon,
 } from "lucide-react";
 import { HelpSlideOver } from "@/features/help/components/HelpSlideOver";
 
 interface NavChild {
   path: string;
   label: string;
-  icon: React.ElementType;
+  icon: LucideIcon;
   superAdminOnly?: boolean;
 }
 
 interface NavItem {
   path: string;
   label: string;
-  icon: React.ElementType;
+  icon: LucideIcon;
   adminOnly?: boolean;
   superAdminOnly?: boolean;
   children?: NavChild[];

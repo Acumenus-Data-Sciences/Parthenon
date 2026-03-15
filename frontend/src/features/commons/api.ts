@@ -257,7 +257,7 @@ export function useJoinChannel() {
 export function useUpdateMessage() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, body, slug }: { id: number; body: string; slug: string }) =>
+    mutationFn: ({ id, body }: { id: number; body: string; slug: string }) =>
       updateMessage(id, body),
     onSuccess: (_updated, variables) => {
       void qc.invalidateQueries({

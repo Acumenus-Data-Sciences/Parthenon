@@ -14,6 +14,7 @@ import {
   BookOpen,
   GitFork,
   Wand2,
+  type LucideIcon,
 } from "lucide-react";
 import { FilterChip, Badge, StatusDot, Progress, EmptyState, Drawer, CodeBlock } from "@/components/ui";
 import { useJobs, useJob, useRetryJob, useCancelJob } from "../hooks/useJobs";
@@ -29,7 +30,7 @@ const statusFilters: Array<{ label: string; value: JobStatus | "all" }> = [
   { label: "Queued", value: "queued" },
 ];
 
-const typeIcons: Partial<Record<JobType, React.ElementType>> = {
+const typeIcons: Partial<Record<JobType, LucideIcon>> = {
   cohort_generation: UsersRound,
   achilles: BarChart2,
   dqd: ShieldCheck,
@@ -45,7 +46,7 @@ const typeIcons: Partial<Record<JobType, React.ElementType>> = {
   analysis: Wand2,
 };
 
-const statusIcons: Record<JobStatus, React.ElementType> = {
+const statusIcons: Record<JobStatus, LucideIcon> = {
   pending: Clock,
   queued: Clock,
   running: Loader2,

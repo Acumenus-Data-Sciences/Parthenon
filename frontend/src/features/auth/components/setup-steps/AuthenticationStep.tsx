@@ -10,6 +10,7 @@ import {
   FlaskConical,
   CheckCircle2,
   XCircle,
+  type LucideIcon,
 } from "lucide-react";
 import {
   useAuthProviders,
@@ -31,7 +32,7 @@ interface Props {
 
 const META: Record<
   AuthProviderType,
-  { label: string; icon: React.ElementType; description: string; color: string }
+  { label: string; icon: LucideIcon; description: string; color: string }
 > = {
   ldap: {
     label: "LDAP / Active Directory",
@@ -60,15 +61,15 @@ const META: Record<
 };
 
 const CONFIG_FORMS: Record<AuthProviderType, React.ComponentType<{
-  settings: never;
+  settings: AuthProviderSetting["settings"];
   onSave: (settings: Record<string, unknown>) => void;
   isPending: boolean;
   saveSuccess: boolean;
 }>> = {
-  ldap: LdapConfigForm as never,
-  oauth2: OAuth2ConfigForm as never,
-  saml2: Saml2ConfigForm as never,
-  oidc: OidcConfigForm as never,
+  ldap: LdapConfigForm as React.ComponentType<any>,
+  oauth2: OAuth2ConfigForm as React.ComponentType<any>,
+  saml2: Saml2ConfigForm as React.ComponentType<any>,
+  oidc: OidcConfigForm as React.ComponentType<any>,
 };
 
 function ProviderCard({
@@ -171,7 +172,7 @@ function ProviderCard({
       {open && (
         <div className="border-t border-[#232328] px-5 pb-5 pt-4">
           <ConfigForm
-            settings={provider.settings as never}
+            settings={provider.settings}
             onSave={handleSave}
             isPending={update.isPending}
             saveSuccess={saveSuccess}

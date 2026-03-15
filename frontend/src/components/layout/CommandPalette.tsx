@@ -22,6 +22,7 @@ import {
   FileText,
   GitMerge,
   HeartPulse,
+  type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -29,7 +30,7 @@ interface CommandItem {
   id: string;
   label: string;
   group: string;
-  icon: React.ElementType;
+  icon: LucideIcon;
   action: () => void;
   shortcut?: string;
   keywords?: string;

@@ -14,6 +14,7 @@ export async function queryAbby(
     reply?: string;
     message?: string;
     suggestions?: string[];
+    conversation_id?: number | null;
   }>(
     "/abby/chat",
     {

@@ -3,6 +3,7 @@ import {
   Server, Globe, FileKey, Fingerprint,
   ChevronDown, ChevronUp, CheckCircle2, XCircle,
   Loader2, FlaskConical,
+  type LucideIcon,
 } from "lucide-react";
 import { Panel, Badge, Button } from "@/components/ui";
 import { useAuthProviders, useToggleAuthProvider, useUpdateAuthProvider, useTestAuthProvider } from "../hooks/useAuthProviders";
@@ -15,7 +16,7 @@ import type { TestResult } from "../api/adminApi";
 
 const META: Record<AuthProviderType, {
   label: string;
-  icon: React.ElementType;
+  icon: LucideIcon;
   description: string;
   color: string;
 }> = {

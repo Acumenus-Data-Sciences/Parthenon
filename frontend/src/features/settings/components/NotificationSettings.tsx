@@ -96,11 +96,13 @@ export function NotificationSettings() {
   const handleGranularToggle = (
     key: keyof NotificationPreferences["notification_preferences"],
   ) => {
+    const current = form.notification_preferences[key];
+    if (typeof current !== "boolean") return;
     setForm((prev) => ({
       ...prev,
       notification_preferences: {
         ...prev.notification_preferences,
-        [key]: !prev.notification_preferences[key],
+        [key]: !current,
       },
     }));
   };
@@ -291,11 +293,16 @@ export function NotificationSettings() {
                   key={item.key}
                   className="flex items-start gap-3 cursor-pointer group"
                 >
+                  {(() => {
+                    const checkedValue = form.notification_preferences[item.key];
+                    return (
                   <ToggleSwitch
-                    checked={form.notification_preferences[item.key]}
+                    checked={typeof checkedValue === "boolean" ? checkedValue : false}
                     onChange={() => handleGranularToggle(item.key)}
                     size="sm"
                   />
+                    );
+                  })()}
                   <div>
                     <span className="text-sm text-[#C5C0B8] group-hover:text-[#F0EDE8] transition-colors">
                       {item.label}

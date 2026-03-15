@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Collection;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
@@ -150,6 +151,7 @@ class RolePermissionSeeder extends Seeder
                 );
             }
         }
+        $all = (new Collection($all))->unique('id')->values();
 
         // ── Create roles and assign permissions ───────────────────────────
         foreach (self::ROLES as $roleName => $permNames) {
@@ -164,7 +166,9 @@ class RolePermissionSeeder extends Seeder
                 $role->syncPermissions(
                     Permission::whereIn('name', $permNames)
                         ->where('guard_name', 'web')
-                        ->get(),
+                        ->get()
+                        ->unique('id')
+                        ->values(),
                 );
             }
         }

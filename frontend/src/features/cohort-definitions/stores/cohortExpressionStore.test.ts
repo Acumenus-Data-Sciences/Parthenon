@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import type { CohortExpression } from "../types/cohortExpression";
 import { normalizeCohortExpression } from "./cohortExpressionStore";
 
 describe("normalizeCohortExpression", () => {
@@ -17,7 +18,7 @@ describe("normalizeCohortExpression", () => {
           expression: undefined as never,
         },
       ] as never,
-    });
+    } as unknown as Partial<CohortExpression>);
 
     expect(normalized.ConceptSets).toHaveLength(1);
     expect(normalized.ConceptSets[0]?.expression.items).toEqual([]);

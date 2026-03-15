@@ -39,6 +39,7 @@ export interface CharacterizationDesign {
   targetCohortIds: number[];
   comparatorCohortIds: number[];
   featureTypes: FeatureType[];
+  featureAnalyses?: FeatureType[];
   stratifyByGender: boolean;
   stratifyByAge: boolean;
   topN: number;

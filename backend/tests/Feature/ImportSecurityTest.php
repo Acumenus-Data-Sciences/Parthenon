@@ -546,7 +546,7 @@ class ImportSecurityTest extends TestCase
         $researcher = $this->createUser('researcher');
 
         // Clear any existing rate limiter state for this user
-        RateLimiter::clear('gis-import');
+        RateLimiter::clear(sha1((string) $researcher->getAuthIdentifier()));
 
         // Make 5 allowed requests
         for ($i = 1; $i <= 5; $i++) {
@@ -585,7 +585,8 @@ class ImportSecurityTest extends TestCase
         $researcher2 = $this->createUser('researcher');
 
         // Clear rate limiter state
-        RateLimiter::clear('gis-import');
+        RateLimiter::clear(sha1((string) $researcher1->getAuthIdentifier()));
+        RateLimiter::clear(sha1((string) $researcher2->getAuthIdentifier()));
 
         // Exhaust researcher1's rate limit (5 requests)
         for ($i = 1; $i <= 5; $i++) {

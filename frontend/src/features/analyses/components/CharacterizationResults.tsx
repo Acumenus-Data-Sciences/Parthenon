@@ -63,13 +63,18 @@ function parseTargetComparatorFormat(json: Record<string, unknown>): Characteriz
     const features: Record<string, FeatureResult[]> = {};
     for (const [domain, rows] of Object.entries(domainData)) {
       if (Array.isArray(rows)) {
-        features[domain] = rows.map((r: Record<string, unknown>) => ({
-          covariate_id: Number(r.covariate_id ?? r.concept_id ?? 0),
-          covariate_name: String(r.covariate_name ?? r.concept_name ?? r.feature_name ?? domain),
-          mean: Number(r.mean ?? r.percent_value ?? 0) / (r.percent_value != null ? 100 : 1),
-          count: Number(r.count ?? r.person_count ?? r.count_value ?? 0),
-          category: String(r.category ?? domain),
-        })) as FeatureResult[];
+        features[domain] = rows.map((row) => {
+          const r = (row ?? {}) as Record<string, unknown>;
+          const percentValue = Number(r.percent_value ?? r.mean ?? 0);
+          return {
+            feature_name: String(r.covariate_name ?? r.concept_name ?? r.feature_name ?? domain),
+            cohort_id: Number(cohortId),
+            cohort_name: `Cohort #${cohortId}`,
+            count: Number(r.count ?? r.person_count ?? r.count_value ?? 0),
+            percent: r.percent != null ? Number(r.percent) : percentValue,
+            category: String(r.category ?? domain),
+          };
+        });
       }
     }
     // Estimate person_count from demographics or largest feature count

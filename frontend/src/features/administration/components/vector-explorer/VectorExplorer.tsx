@@ -193,10 +193,10 @@ export default function VectorExplorer({ collectionName, overview }: VectorExplo
               <div className="flex justify-between text-xs">
                 <span className="text-[#5A5650]">Source</span>
                 <span className="font-['IBM_Plex_Mono',monospace] text-[#8A857D]">
-                  {(stats as Record<string, unknown>).source === "solr" ? "Solr (cached)" : "Live UMAP"}
+                  {stats.source === "solr" ? "Solr (cached)" : "Live UMAP"}
                 </span>
               </div>
-              {(stats as Record<string, unknown>).source !== "solr" && (
+              {stats.source !== "solr" && (
                 <div className="flex justify-between text-xs">
                   <span className="text-[#5A5650]">Projection time</span>
                   <span className="font-['IBM_Plex_Mono',monospace] text-[#8A857D]">
@@ -204,11 +204,11 @@ export default function VectorExplorer({ collectionName, overview }: VectorExplo
                   </span>
                 </div>
               )}
-              {(stats as Record<string, unknown>).indexed_at && (
+              {stats.indexed_at && (
                 <div className="flex justify-between text-xs">
                   <span className="text-[#5A5650]">Indexed</span>
                   <span className="font-['IBM_Plex_Mono',monospace] text-[#8A857D]">
-                    {new Date(String((stats as Record<string, unknown>).indexed_at)).toLocaleDateString()}
+                    {new Date(stats.indexed_at).toLocaleDateString()}
                   </span>
                 </div>
               )}
@@ -228,7 +228,7 @@ export default function VectorExplorer({ collectionName, overview }: VectorExplo
           {stats && (
             <span className="text-xs text-[#5A5650]">
               {stats.sampled.toLocaleString()} pts
-              {(stats as Record<string, unknown>).source === "solr" ? " · cached" : ` · ${(stats.projection_time_ms / 1000).toFixed(1)}s`}
+              {stats.source === "solr" ? " · cached" : ` · ${(stats.projection_time_ms / 1000).toFixed(1)}s`}
             </span>
           )}
           {isLoading && <Loader2 className="h-3 w-3 animate-spin text-[#C9A227]" />}

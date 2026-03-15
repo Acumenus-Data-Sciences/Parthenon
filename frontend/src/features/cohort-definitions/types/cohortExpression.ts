@@ -174,6 +174,7 @@ export interface ImagingCriterion {
 
 export interface CohortExpression {
   ConceptSets: ConceptSetExpression[];
+  conceptSets?: ConceptSetExpression[];
   PrimaryCriteria: {
     CriteriaList: Partial<Record<DomainCriterionType, DomainCriterion>>[];
     ObservationWindow: { PriorDays: number; PostDays: number };

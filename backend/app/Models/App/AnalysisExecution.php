@@ -3,6 +3,7 @@
 namespace App\Models\App;
 
 use App\Enums\ExecutionStatus;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -10,6 +11,8 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class AnalysisExecution extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'analysis_type',
         'analysis_id',

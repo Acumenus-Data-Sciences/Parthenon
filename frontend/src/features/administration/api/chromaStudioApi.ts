@@ -99,6 +99,8 @@ export interface ProjectionStats {
   total_vectors: number;
   sampled: number;
   projection_time_ms: number;
+  source?: "solr" | "live" | string;
+  indexed_at?: string | null;
 }
 
 export interface ProjectionResponse {
@@ -152,6 +154,12 @@ export const ingestOhdsiKnowledge = () =>
 
 export const ingestTextbooks = () =>
   apiClient.post<IngestResult>("/admin/chroma-studio/ingest-textbooks").then((r) => r.data);
+
+export const seedFaq = () =>
+  apiClient.post<Record<string, number>>("/admin/chroma-studio/seed-faq").then((r) => r.data);
+
+export const aggregateConversations = () =>
+  apiClient.post<Record<string, number>>("/admin/chroma-studio/aggregate-conversations").then((r) => r.data);
 
 export const fetchProjection = (
   name: string,

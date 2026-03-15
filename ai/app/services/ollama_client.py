@@ -1,3 +1,6 @@
+import os
+from urllib.parse import urlparse
+
 from typing import Any
 
 import httpx
@@ -20,8 +23,13 @@ Respond in this exact JSON format:
 
 async def check_ollama_health() -> str:
     """Check if Ollama is reachable and the model is available."""
+    parsed = urlparse(settings.ollama_base_url)
+    if parsed.hostname == "host.docker.internal" and not os.path.exists("/.dockerenv"):
+        return "unavailable"
+
     try:
-        async with httpx.AsyncClient(timeout=5.0) as client:
+        timeout = httpx.Timeout(0.5, connect=0.5)
+        async with httpx.AsyncClient(timeout=timeout, trust_env=False) as client:
             response = await client.get(f"{settings.ollama_base_url}/api/tags")
             if response.status_code == 200:
                 tags = response.json()

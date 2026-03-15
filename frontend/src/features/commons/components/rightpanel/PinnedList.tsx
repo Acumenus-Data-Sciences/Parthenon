@@ -1,6 +1,5 @@
 import { X } from "lucide-react";
 import { usePins, useUnpinMessage } from "../../api";
-import { avatarColor } from "../../utils/avatarColor";
 
 interface PinnedListProps {
   slug: string;

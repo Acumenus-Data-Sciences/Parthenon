@@ -14,6 +14,7 @@ interface ThreadViewProps {
 }
 
 export function ThreadView({ parentMessage, slug, currentUserId }: ThreadViewProps) {
+  void currentUserId;
   const { data: replies = [], isLoading } = useReplies(slug, parentMessage.id);
   const sendMessage = useSendMessage();
   const [replyBody, setReplyBody] = useState("");

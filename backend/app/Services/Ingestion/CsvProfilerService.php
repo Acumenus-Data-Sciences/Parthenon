@@ -46,7 +46,7 @@ class CsvProfilerService
 
         $file = new SplFileObject($filePath, 'r');
         $file->setFlags(SplFileObject::READ_CSV | SplFileObject::SKIP_EMPTY | SplFileObject::DROP_NEW_LINE);
-        $file->setCsvControl($delimiter);
+        $file->setCsvControl($delimiter, '"', '\\');
 
         // Read header row
         $headers = $file->current();

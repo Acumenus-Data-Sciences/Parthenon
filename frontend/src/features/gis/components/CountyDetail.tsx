@@ -1,4 +1,4 @@
-import { X, Users, Activity, Skull, Building2 } from "lucide-react";
+import { X, Users, Activity, Skull, Building2, type LucideIcon } from "lucide-react";
 import { useCountyDetail } from "../hooks/useGis";
 
 interface CountyDetailProps {
@@ -131,7 +131,7 @@ function MetricCard({
   value,
   color,
 }: {
-  icon: React.ElementType;
+  icon: LucideIcon;
   label: string;
   value: number | string;
   color: string;

@@ -6,11 +6,6 @@ from dataclasses import dataclass
 
 import numpy as np
 from numpy.typing import NDArray
-from sklearn.cluster import KMeans
-from sklearn.decomposition import PCA
-from sklearn.ensemble import IsolationForest
-from sklearn.metrics import silhouette_score
-from sklearn.metrics.pairwise import cosine_similarity
 
 logger = logging.getLogger(__name__)
 
@@ -93,6 +88,8 @@ def compute_projection(
     n_samples, n_features = embeddings.shape
 
     # Step 1: PCA to 50 dims (or less if features < 50)
+    from sklearn.decomposition import PCA
+
     pca_dims = min(50, n_features, n_samples)
     pca = PCA(n_components=pca_dims)
     reduced = pca.fit_transform(embeddings)
@@ -109,6 +106,10 @@ def compute_projection(
         random_state=42,
     )
     projected = reducer.fit_transform(reduced)
+
+    # Step 2b: Robust percentile normalization to tame outliers
+    # Clamp to [1st, 99th] percentile per axis, then scale to [-1, 1]
+    projected = _normalize_coordinates(projected)
 
     # Step 3: K-means clustering with auto-k
     clusters = _compute_clusters(projected, ids, metadatas)
@@ -150,10 +151,34 @@ def compute_projection(
     )
 
 
+def _normalize_coordinates(projected: NDArray[np.float32]) -> NDArray[np.float32]:
+    """Robust percentile normalization: clamp to [1st, 99th] then scale to [-1, 1].
+
+    This prevents far outliers from compressing the main cluster into an
+    invisible dot while preserving the relative structure of the data.
+    """
+    result = projected.copy()
+    for axis in range(projected.shape[1]):
+        col = projected[:, axis]
+        p1, p99 = np.percentile(col, [1, 99])
+        # Clamp
+        clamped = np.clip(col, p1, p99)
+        # Scale to [-1, 1]
+        span = p99 - p1
+        if span > 1e-8:
+            result[:, axis] = 2.0 * (clamped - p1) / span - 1.0
+        else:
+            result[:, axis] = 0.0
+    return result
+
+
 def _compute_clusters(
     projected: NDArray, ids: list[str], metadatas: list[dict]
 ) -> list[Cluster]:
     """K-means with auto-k via silhouette score, capped at 20."""
+    from sklearn.cluster import KMeans
+    from sklearn.metrics import silhouette_score
+
     n = len(ids)
     if n < 4:
         return []
@@ -213,6 +238,9 @@ def _detect_quality_issues(
     clusters: list[Cluster],
 ) -> QualityReport:
     """Detect outliers, duplicates, and orphans."""
+    from sklearn.ensemble import IsolationForest
+    from sklearn.metrics.pairwise import cosine_similarity
+
     n = len(ids)
 
     # Outliers via isolation forest

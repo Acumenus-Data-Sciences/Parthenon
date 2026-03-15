@@ -7,6 +7,7 @@ import {
   Eye,
   Building2,
   Skull,
+  type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ConceptSetPicker } from "./ConceptSetPicker";
@@ -18,7 +19,7 @@ import type {
 const DOMAIN_OPTIONS: {
   value: DomainCriterionType;
   label: string;
-  icon: React.ElementType;
+  icon: LucideIcon;
   color: string;
 }[] = [
   {
