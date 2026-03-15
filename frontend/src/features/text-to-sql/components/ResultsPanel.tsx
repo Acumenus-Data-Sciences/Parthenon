@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   ShieldCheck,
   ShieldAlert,
@@ -6,6 +6,7 @@ import {
   Database,
   Play,
   Zap,
+  CheckCircle2,
 } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import {
@@ -132,6 +133,17 @@ export function ResultsPanel({
   renderError,
 }: ResultsPanelProps) {
   const [validation, setValidation] = useState<ValidateResponse | null>(null);
+  const [renderSuccess, setRenderSuccess] = useState(false);
+  const prevRenderPending = useRef(isRenderPending);
+
+  useEffect(() => {
+    if (prevRenderPending.current && !isRenderPending && !renderError) {
+      setRenderSuccess(true);
+      const timer = setTimeout(() => setRenderSuccess(false), 2500);
+      return () => clearTimeout(timer);
+    }
+    prevRenderPending.current = isRenderPending;
+  }, [isRenderPending, renderError]);
 
   const validateMutation = useMutation({
     mutationFn: ({ sql, schema }: { sql: string; schema?: string }) =>
@@ -300,11 +312,12 @@ export function ResultsPanel({
                 gap: "8px",
                 padding: "8px 16px",
                 borderRadius: "8px",
-                border: "1px solid #232328",
-                background: "#1C1C20",
-                color: "#C5C0B8",
+                border: `1px solid ${renderSuccess ? "#2DD4BF40" : "#232328"}`,
+                background: renderSuccess ? "#2DD4BF12" : "#1C1C20",
+                color: renderSuccess ? "#2DD4BF" : "#C5C0B8",
                 fontSize: "13px",
                 cursor: isRenderPending ? "not-allowed" : "pointer",
+                transition: "all 300ms",
               }}
             >
               {isRenderPending ? (
@@ -312,10 +325,12 @@ export function ResultsPanel({
                   size={14}
                   style={{ animation: "spin 1s linear infinite" }}
                 />
+              ) : renderSuccess ? (
+                <CheckCircle2 size={14} />
               ) : (
                 <Play size={14} />
               )}
-              {isRenderPending ? "Rendering\u2026" : "Render Template"}
+              {isRenderPending ? "Rendering\u2026" : renderSuccess ? "SQL Updated" : "Render Template"}
             </button>
           </div>
           {renderError && (
