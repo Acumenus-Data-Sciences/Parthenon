@@ -16,6 +16,8 @@ class SqlRendererService
      */
     private array $dialects = [];
 
+    private OhdsiSqlTranslator $translator;
+
     public function __construct()
     {
         $this->dialects = [
@@ -24,6 +26,8 @@ class SqlRendererService
             'oracle' => new OracleDialect,
             'spanner' => new SpannerDialect,
         ];
+
+        $this->translator = new OhdsiSqlTranslator;
     }
 
     /**
@@ -39,13 +43,15 @@ class SqlRendererService
     }
 
     /**
-     * Render a parameterized SQL template.
+     * Render a parameterized OHDSI SQL template.
+     *
+     * 1. Substitute parameter placeholders ({@paramName})
+     * 2. Translate OHDSI SQL (T-SQL) to the target dialect
      *
      * @param  array<string, string>  $params
      */
     public function render(string $template, array $params, string $dialectName = 'postgresql'): string
     {
-        $dialect = $this->dialect($dialectName);
         $sql = $template;
 
         // Replace parameter placeholders {@paramName}
@@ -53,31 +59,19 @@ class SqlRendererService
             $sql = str_replace("{@{$key}}", $value, $sql);
         }
 
-        // Replace dialect-specific function calls
-        $sql = $this->replaceDialectFunctions($sql, $dialect);
+        // Translate OHDSI SQL (T-SQL) to target dialect
+        $sql = $this->translator->translate($sql, $dialectName);
 
         return $sql;
     }
 
     /**
-     * Replace dialect function placeholders in SQL.
+     * Get the list of supported HADES-compliant dialects.
+     *
+     * @return list<string>
      */
-    private function replaceDialectFunctions(string $sql, DialectInterface $dialect): string
+    public function supportedDialects(): array
     {
-        // Replace DATEADD({column}, {days})
-        $sql = (string) preg_replace_callback(
-            '/DATEADD\(([^,]+),\s*(-?\d+)\)/',
-            fn (array $matches) => $dialect->dateAdd(trim($matches[1]), (int) $matches[2]),
-            $sql
-        );
-
-        // Replace DATEDIFF({start}, {end})
-        $sql = (string) preg_replace_callback(
-            '/DATEDIFF\(([^,]+),\s*([^)]+)\)/',
-            fn (array $matches) => $dialect->dateDiff(trim($matches[1]), trim($matches[2])),
-            $sql
-        );
-
-        return $sql;
+        return $this->translator->supportedDialects();
     }
 }
