@@ -279,6 +279,17 @@ export const router = createBrowserRouter(
                   (m) => ({ Component: m.default }),
                 ),
             },
+            {
+              path: "workbench",
+              lazy: () =>
+                import("@/features/finngen/pages/FinnGenToolsPage").then(
+                  (m) => ({ Component: m.default }),
+                ),
+            },
+            {
+              path: "finngen-tools",
+              element: <Navigate to="/workbench" replace />,
+            },
           ]
         : []),
       // ── Strategus Study Packages ─────────────────────────────────────────
@@ -499,6 +510,13 @@ export const router = createBrowserRouter(
             path: "users",
             lazy: () =>
               import("@/features/administration/pages/UsersPage").then(
+                (m) => ({ Component: m.default }),
+              ),
+          },
+          {
+            path: "user-audit",
+            lazy: () =>
+              import("@/features/administration/pages/UserAuditPage").then(
                 (m) => ({ Component: m.default }),
               ),
           },

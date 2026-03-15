@@ -40,6 +40,8 @@ import {
   Microscope,
   Activity,
   MessageSquare,
+  PanelsTopLeft,
+  ScrollText,
   type LucideIcon,
 } from "lucide-react";
 import { HelpSlideOver } from "@/features/help/components/HelpSlideOver";
@@ -120,6 +122,9 @@ const navItems: NavItem[] = [
     label: "Tools",
     icon: Activity,
     children: [
+      ...(studyAgentEnabled
+        ? [{ path: "/workbench", label: "Workbench", icon: PanelsTopLeft }]
+        : []),
       { path: "/query-assistant", label: "Query Assistant", icon: MessageSquareCode },
       { path: "/publish", label: "Publish", icon: FileOutput },
       { path: "/jobs", label: "Jobs", icon: Briefcase },
@@ -134,6 +139,7 @@ const navItems: NavItem[] = [
       { path: "/admin", label: "Admin Dashboard", icon: Settings },
       { path: "/admin/system-health", label: "System Health", icon: Activity },
       { path: "/admin/users", label: "Users", icon: UsersRound },
+      { path: "/admin/user-audit", label: "Audit Log", icon: ScrollText },
       { path: "/admin/roles", label: "Roles & Permissions", icon: ShieldCheck, superAdminOnly: true },
       { path: "/admin/auth-providers", label: "Auth Providers", icon: KeyRound, superAdminOnly: true },
       { path: "/admin/notifications", label: "Notifications", icon: Bell },
@@ -184,6 +190,8 @@ const routeHelpKeys: Record<string, string> = {
   "/source-profiler": "source-profiler",
   "/studies": "studies",
   "/study-designer": "study-designer",
+  "/workbench": "study-designer",
+  "/finngen-tools": "study-designer",
   "/study-packages": "study-packages",
   "/vocabulary": "vocabulary-search",
 };

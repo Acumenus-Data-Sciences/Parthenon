@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\LoginRequest;
 use App\Mail\TempPasswordMail;
+use App\Models\App\UserAuditLog;
 use App\Models\User;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
@@ -71,10 +72,14 @@ class AuthController extends Controller
 
         $token = $user->createToken('auth-token')->plainTextToken;
 
-        // Defer last_login_at update until after response is sent
-        dispatch(function () use ($user) {
-            $user->updateQuietly(['last_login_at' => now()]);
-        })->afterResponse();
+        // Record login timestamp and audit entry
+        $user->updateQuietly(['last_login_at' => now()]);
+        UserAuditLog::create([
+            'user_id'    => $user->id,
+            'action'     => 'login',
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
 
         return response()->json([
             'token' => $token,
@@ -111,6 +116,13 @@ class AuthController extends Controller
         $user->update([
             'password' => Hash::make($request->new_password),
             'must_change_password' => false,
+        ]);
+
+        UserAuditLog::create([
+            'user_id'    => $user->id,
+            'action'     => 'password_changed',
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
         ]);
 
         return response()->json([
@@ -164,7 +176,17 @@ class AuthController extends Controller
 
     public function logout(Request $request): JsonResponse
     {
-        $request->user()->currentAccessToken()->delete();
+        /** @var User $user */
+        $user = $request->user();
+
+        UserAuditLog::create([
+            'user_id'    => $user->id,
+            'action'     => 'logout',
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
+
+        $user->currentAccessToken()->delete();
 
         return response()->json(['message' => 'Logged out']);
     }

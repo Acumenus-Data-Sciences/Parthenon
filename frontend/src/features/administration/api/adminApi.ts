@@ -327,3 +327,49 @@ export interface FhirSyncDashboard {
 
 export const fetchFhirSyncDashboard = () =>
   apiClient.get<{ data: FhirSyncDashboard }>("/admin/fhir-sync/dashboard").then((r) => r.data.data);
+
+// ── User Audit Log ─────────────────────────────────────────────────────────────
+
+export interface UserAuditEntry {
+  id: number;
+  user_id: number | null;
+  user_name: string | null;
+  user_email: string | null;
+  action: string;
+  feature: string | null;
+  ip_address: string | null;
+  user_agent: string | null;
+  metadata: Record<string, string> | null;
+  occurred_at: string;
+}
+
+export interface PaginatedAuditLog {
+  data: UserAuditEntry[];
+  meta: { total: number; per_page: number; current_page: number; last_page: number };
+}
+
+export interface AuditSummary {
+  logins_today: number;
+  active_users_week: number;
+  top_features: Array<{ feature: string; count: number }>;
+  recent_logins: UserAuditEntry[];
+}
+
+export interface AuditFilters {
+  user_id?: number;
+  action?: string;
+  feature?: string;
+  date_from?: string;
+  date_to?: string;
+  page?: number;
+  per_page?: number;
+}
+
+export const fetchAuditLog = (filters: AuditFilters = {}) =>
+  apiClient.get<PaginatedAuditLog>("/admin/user-audit", { params: filters }).then((r) => r.data);
+
+export const fetchAuditSummary = () =>
+  apiClient.get<AuditSummary>("/admin/user-audit/summary").then((r) => r.data);
+
+export const fetchUserAuditLog = (userId: number, params?: { per_page?: number; page?: number }) =>
+  apiClient.get<PaginatedAuditLog>(`/admin/users/${userId}/audit`, { params }).then((r) => r.data);

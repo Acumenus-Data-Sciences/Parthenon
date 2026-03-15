@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\V1\Admin\PacsConnectionController;
 use App\Http\Controllers\Api\V1\Admin\RoleController;
 use App\Http\Controllers\Api\V1\Admin\SolrAdminController;
 use App\Http\Controllers\Api\V1\Admin\SystemHealthController;
+use App\Http\Controllers\Api\V1\Admin\UserAuditController;
 use App\Http\Controllers\Api\V1\Admin\UserController;
 use App\Http\Controllers\Api\V1\Admin\VocabularyController as AdminVocabularyController;
 use App\Http\Controllers\Api\V1\Admin\WebApiRegistryController;
@@ -455,6 +456,7 @@ Route::prefix('v1')->group(function () {
             ->group(function () {
                 Route::get('/health', [StudyAgentController::class, 'health']);
                 Route::get('/tools', [StudyAgentController::class, 'tools']);
+                Route::get('/services', [StudyAgentController::class, 'services']);
                 Route::post('/phenotype/search', [StudyAgentController::class, 'phenotypeSearch']);
                 Route::post('/phenotype/recommend', [StudyAgentController::class, 'phenotypeRecommend']);
                 Route::post('/phenotype/improve', [StudyAgentController::class, 'phenotypeImprove']);
@@ -463,6 +465,14 @@ Route::prefix('v1')->group(function () {
                 Route::post('/concept-set/review', [StudyAgentController::class, 'conceptSetReview']);
                 Route::post('/lint-cohort', [StudyAgentController::class, 'lintCohortCombined']);
                 Route::post('/recommend-phenotypes', [StudyAgentController::class, 'recommendPhenotypes']);
+                Route::post('/finngen/cohort-operations', [StudyAgentController::class, 'finngenCohortOperations']);
+                Route::post('/finngen/co2-analysis', [StudyAgentController::class, 'finngenCo2Analysis']);
+                Route::post('/finngen/hades-extras', [StudyAgentController::class, 'finngenHadesExtras']);
+                Route::post('/finngen/romopapi', [StudyAgentController::class, 'finngenRomopapi']);
+                Route::get('/finngen/runs', [StudyAgentController::class, 'finngenRuns']);
+                Route::get('/finngen/runs/{runId}', [StudyAgentController::class, 'finngenRun']);
+                Route::post('/finngen/runs/{runId}/replay', [StudyAgentController::class, 'replayFinnGenRun']);
+                Route::get('/finngen/runs/{runId}/export', [StudyAgentController::class, 'exportFinnGenRun']);
             });
 
         // Publication / Export
@@ -512,6 +522,13 @@ Route::prefix('v1')->group(function () {
             Route::put('/users/{user}', [UserController::class, 'update']);
             Route::delete('/users/{user}', [UserController::class, 'destroy']);
             Route::put('/users/{user}/roles', [UserController::class, 'syncRoles']);
+            Route::get('/users/{user}/audit', [UserAuditController::class, 'forUser']);
+
+            // ── User Audit Log ─────────────────────────────────────────────
+            Route::prefix('user-audit')->group(function () {
+                Route::get('/', [UserAuditController::class, 'index']);
+                Route::get('/summary', [UserAuditController::class, 'summary']);
+            });
 
             // ── Role & permission management (super-admin only) ────────────
             Route::middleware('role:super-admin')->group(function () {
