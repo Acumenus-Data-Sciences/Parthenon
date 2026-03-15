@@ -63,6 +63,7 @@ use App\Http\Controllers\Api\V1\PopulationCharacterizationController;
 use App\Http\Controllers\Api\V1\PopulationRiskScoreController;
 use App\Http\Controllers\Api\V1\PredictionController;
 use App\Http\Controllers\Api\V1\PublicationController;
+use App\Http\Controllers\Api\V1\QueryLibraryController;
 use App\Http\Controllers\Api\V1\RadiogenomicsController;
 use App\Http\Controllers\Api\V1\SccsController;
 use App\Http\Controllers\Api\V1\SourceController;
@@ -920,6 +921,15 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         Route::post('/generate', [TextToSqlController::class, 'generate']);
         Route::post('/validate', [TextToSqlController::class, 'validate']);
         Route::get('/schema', [TextToSqlController::class, 'schema']);
+        Route::post('/execute', [TextToSqlController::class, 'execute']);
+        Route::get('/execute/{executionId}/status', [TextToSqlController::class, 'executionStatus']);
+        Route::get('/execute/{executionId}/download', [TextToSqlController::class, 'executionDownload']);
+    });
+
+    Route::prefix('query-library')->group(function () {
+        Route::get('/', [QueryLibraryController::class, 'index']);
+        Route::get('/{queryLibrary}', [QueryLibraryController::class, 'show']);
+        Route::post('/{queryLibrary}/render', [QueryLibraryController::class, 'render']);
     });
 });
 

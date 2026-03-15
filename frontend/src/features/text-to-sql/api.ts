@@ -197,3 +197,47 @@ export async function renderQueryLibraryEntry(
 
   return data.data;
 }
+
+// ── SQL Execution ────────────────────────────────────────────────────────────
+
+export interface ExecuteResponse {
+  execution_id: string;
+  columns: string[];
+  rows: unknown[][];
+  row_count: number;
+  elapsed_ms: number;
+  truncated: boolean;
+}
+
+export interface ExecutionStatus {
+  active: boolean;
+  state: string;
+  wait_event: string | null;
+  elapsed_ms: number;
+}
+
+export async function executeSql(
+  sql: string,
+  safety: string = "unknown",
+): Promise<ExecuteResponse> {
+  const { data } = await apiClient.post<{ data: ExecuteResponse }>(
+    "/text-to-sql/execute",
+    { sql, safety },
+  );
+  return data.data;
+}
+
+export async function getExecutionStatus(
+  executionId: string,
+): Promise<ExecutionStatus> {
+  const { data } = await apiClient.get<{ data: ExecutionStatus }>(
+    `/text-to-sql/execute/${executionId}/status`,
+  );
+  return data.data;
+}
+
+export function downloadExecutionCsv(executionId: string): void {
+  const baseUrl = apiClient.defaults.baseURL ?? "";
+  const url = `${baseUrl}/text-to-sql/execute/${executionId}/download`;
+  window.open(url, "_blank");
+}
