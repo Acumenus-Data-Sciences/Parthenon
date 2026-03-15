@@ -99,23 +99,32 @@ class QueryLibrarySearchService
             return null;
         }
 
+        // Get IDs from Solr, then hydrate full entries from DB (for parameters, etc.)
+        $solrIds = collect($result['response']['docs'] ?? [])
+            ->pluck('id')
+            ->filter()
+            ->map(fn ($id) => (int) $id)
+            ->all();
+
+        if ($solrIds === []) {
+            return ['items' => [], 'total' => (int) ($result['response']['numFound'] ?? 0)];
+        }
+
+        $entries = QueryLibraryEntry::query()
+            ->whereIn('id', $solrIds)
+            ->get()
+            ->keyBy('id');
+
+        // Preserve Solr relevance ordering
+        $items = collect($solrIds)
+            ->map(fn (int $id) => $entries->get($id))
+            ->filter()
+            ->map(fn (QueryLibraryEntry $entry) => $this->serializeEntry($entry))
+            ->values()
+            ->all();
+
         return [
-            'items' => collect($result['response']['docs'] ?? [])
-                ->map(fn (array $doc) => [
-                    'id' => $doc['id'] ?? null,
-                    'slug' => $doc['slug'] ?? '',
-                    'name' => $doc['name'] ?? '',
-                    'domain' => $doc['domain'] ?? '',
-                    'category' => $doc['category'] ?? '',
-                    'summary' => $doc['summary'] ?? '',
-                    'tags' => array_values(array_filter((array) ($doc['tags'] ?? []), 'is_string')),
-                    'source' => $doc['source'] ?? 'parthenon_curated',
-                    'is_aggregate' => (bool) ($doc['is_aggregate'] ?? false),
-                    'safety' => $doc['safety'] ?? 'safe',
-                ])
-                ->filter(fn (array $doc) => ! empty($doc['id']))
-                ->values()
-                ->all(),
+            'items' => $items,
             'total' => (int) ($result['response']['numFound'] ?? 0),
         ];
     }
@@ -238,7 +247,10 @@ class QueryLibrarySearchService
             'domain' => $entry->domain,
             'category' => $entry->category,
             'summary' => $entry->summary,
+            'description' => $entry->description,
+            'parameters' => $entry->parameters_json ?? [],
             'tags' => $entry->tags_json ?? [],
+            'example_questions' => $entry->example_questions_json ?? [],
             'source' => $entry->source,
             'is_aggregate' => $entry->is_aggregate,
             'safety' => $entry->safety,
