@@ -11,11 +11,11 @@ it('logs a created action when a cohort definition is made', function () {
     $user = User::factory()->create();
 
     $cohort = CohortDefinition::create([
-        'name'            => 'T2DM Cohort',
-        'description'     => 'Type 2 diabetes patients',
+        'name' => 'T2DM Cohort',
+        'description' => 'Type 2 diabetes patients',
         'expression_json' => ['PrimaryCriteria' => []],
-        'author_id'       => $user->id,
-        'is_public'       => false,
+        'author_id' => $user->id,
+        'is_public' => false,
     ]);
 
     $log = DesignAuditLog::where('entity_type', 'cohort_definition')
@@ -33,11 +33,11 @@ it('logs an updated action with before/after state', function () {
     $user = User::factory()->create();
 
     $cohort = CohortDefinition::create([
-        'name'            => 'Original Name',
-        'description'     => 'desc',
+        'name' => 'Original Name',
+        'description' => 'desc',
         'expression_json' => [],
-        'author_id'       => $user->id,
-        'is_public'       => false,
+        'author_id' => $user->id,
+        'is_public' => false,
     ]);
 
     $cohort->update(['name' => 'Updated Name']);
@@ -57,10 +57,10 @@ it('logs a deleted action when a cohort is soft-deleted', function () {
     $user = User::factory()->create();
 
     $cohort = CohortDefinition::create([
-        'name'            => 'To Delete',
+        'name' => 'To Delete',
         'expression_json' => [],
-        'author_id'       => $user->id,
-        'is_public'       => false,
+        'author_id' => $user->id,
+        'is_public' => false,
     ]);
 
     $cohort->delete();
@@ -81,10 +81,10 @@ it('captures actor when authenticated', function () {
     $this->actingAs($user);
 
     $cohort = CohortDefinition::create([
-        'name'            => 'Authenticated Cohort',
+        'name' => 'Authenticated Cohort',
         'expression_json' => [],
-        'author_id'       => $user->id,
-        'is_public'       => false,
+        'author_id' => $user->id,
+        'is_public' => false,
     ]);
 
     $log = DesignAuditLog::where('entity_type', 'cohort_definition')
@@ -101,10 +101,10 @@ it('sets actor to null for seeder/system creates', function () {
     $user = User::factory()->create();
 
     $cohort = CohortDefinition::create([
-        'name'            => 'Seeded Cohort',
+        'name' => 'Seeded Cohort',
         'expression_json' => [],
-        'author_id'       => $user->id,
-        'is_public'       => false,
+        'author_id' => $user->id,
+        'is_public' => false,
     ]);
 
     $log = DesignAuditLog::where('entity_type', 'cohort_definition')

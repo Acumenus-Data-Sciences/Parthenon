@@ -9,10 +9,10 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    config(['design_fixtures.path' => sys_get_temp_dir() . '/parthenon-import-test-' . uniqid()]);
+    config(['design_fixtures.path' => sys_get_temp_dir().'/parthenon-import-test-'.uniqid()]);
     mkdir(config('design_fixtures.path'), 0755, true);
-    mkdir(config('design_fixtures.path') . '/cohort_definitions', 0755, true);
-    mkdir(config('design_fixtures.path') . '/concept_sets', 0755, true);
+    mkdir(config('design_fixtures.path').'/cohort_definitions', 0755, true);
+    mkdir(config('design_fixtures.path').'/concept_sets', 0755, true);
 });
 
 afterEach(function () {
@@ -29,7 +29,7 @@ afterEach(function () {
 
 function writeFixture(string $entityType, array $data): void
 {
-    $dir = config('design_fixtures.path') . "/{$entityType}";
+    $dir = config('design_fixtures.path')."/{$entityType}";
     if (! is_dir($dir)) {
         mkdir($dir, 0755, true);
     }
@@ -41,15 +41,15 @@ it('imports a cohort definition from fixture files', function () {
     $admin = User::factory()->create(['email' => 'admin@acumenus.net']);
 
     writeFixture('cohort_definitions', [
-        'id'             => 99,
-        'name'           => 'Imported Cohort',
-        'description'    => 'Imported from fixture',
-        'expression_json'=> ['PrimaryCriteria' => []],
-        'author_id'      => $admin->id,
-        'is_public'      => true,
-        'version'        => 1,
-        'tags'           => ['imported'],
-        'deleted_at'     => null,
+        'id' => 99,
+        'name' => 'Imported Cohort',
+        'description' => 'Imported from fixture',
+        'expression_json' => ['PrimaryCriteria' => []],
+        'author_id' => $admin->id,
+        'is_public' => true,
+        'version' => 1,
+        'tags' => ['imported'],
+        'deleted_at' => null,
     ]);
 
     $this->artisan('parthenon:import-designs')->assertSuccessful();
@@ -61,14 +61,14 @@ it('is idempotent — running twice does not duplicate rows', function () {
     $admin = User::factory()->create(['email' => 'admin@acumenus.net']);
 
     writeFixture('cohort_definitions', [
-        'id'             => 99,
-        'name'           => 'Idempotent Cohort',
-        'expression_json'=> [],
-        'author_id'      => $admin->id,
-        'is_public'      => false,
-        'version'        => 1,
-        'tags'           => null,
-        'deleted_at'     => null,
+        'id' => 99,
+        'name' => 'Idempotent Cohort',
+        'expression_json' => [],
+        'author_id' => $admin->id,
+        'is_public' => false,
+        'version' => 1,
+        'tags' => null,
+        'deleted_at' => null,
     ]);
 
     $this->artisan('parthenon:import-designs')->assertSuccessful();
@@ -81,14 +81,14 @@ it('remaps author_id to admin when original author is missing', function () {
     $admin = User::factory()->create(['email' => 'admin@acumenus.net']);
 
     writeFixture('cohort_definitions', [
-        'id'             => 99,
-        'name'           => 'Orphaned Cohort',
-        'expression_json'=> [],
-        'author_id'      => 99999, // non-existent user
-        'is_public'      => false,
-        'version'        => 1,
-        'tags'           => null,
-        'deleted_at'     => null,
+        'id' => 99,
+        'name' => 'Orphaned Cohort',
+        'expression_json' => [],
+        'author_id' => 99999, // non-existent user
+        'is_public' => false,
+        'version' => 1,
+        'tags' => null,
+        'deleted_at' => null,
     ]);
 
     $this->artisan('parthenon:import-designs')->assertSuccessful();
@@ -102,14 +102,14 @@ it('imports concept set items from nested items array', function () {
     $admin = User::factory()->create(['email' => 'admin@acumenus.net']);
 
     writeFixture('concept_sets', [
-        'id'          => 50,
-        'name'        => 'Metformin Drugs',
+        'id' => 50,
+        'name' => 'Metformin Drugs',
         'description' => 'Metformin ingredients',
-        'author_id'   => $admin->id,
-        'is_public'   => true,
-        'tags'        => null,
-        'deleted_at'  => null,
-        'items'       => [
+        'author_id' => $admin->id,
+        'is_public' => true,
+        'tags' => null,
+        'deleted_at' => null,
+        'items' => [
             ['concept_id' => 1503297, 'is_excluded' => false, 'include_descendants' => true, 'include_mapped' => false],
         ],
     ]);
