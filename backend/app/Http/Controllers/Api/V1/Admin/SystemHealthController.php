@@ -28,6 +28,7 @@ class SystemHealthController extends Controller
             'queue' => fn () => $this->checkQueue(),
             'chromadb' => fn () => $this->checkChromaDb(),
             'study-agent' => fn () => $this->checkStudyAgent(),
+            'grafana'      => fn () => $this->checkGrafana(),
         ];
     }
 
@@ -77,6 +78,7 @@ class SystemHealthController extends Controller
             'queue' => $this->getQueueLogs(),
             'chromadb' => $this->getServiceHttpLogs('chromadb'),
             'study-agent' => [],
+            'grafana'      => [],
             default => [],
         };
     }
@@ -96,6 +98,7 @@ class SystemHealthController extends Controller
             'queue' => $this->getQueueMetrics(),
             'chromadb' => $this->getChromaDbMetrics(),
             'study-agent' => [],
+            'grafana'      => $this->getGrafanaMetrics(),
             default => [],
         };
     }
@@ -393,6 +396,56 @@ class SystemHealthController extends Controller
                 'status' => 'down',
                 'message' => 'StudyAgent unavailable: '.$e->getMessage(),
             ];
+        }
+    }
+
+    private function checkGrafana(): array
+    {
+        $url = rtrim(env('GRAFANA_URL', 'http://grafana:3000'), '/');
+
+        try {
+            $response = Http::timeout(3)->get("{$url}/api/health");
+
+            if ($response->successful()) {
+                $version = $response->json('version', 'unknown');
+
+                return [
+                    'name'    => 'Grafana',
+                    'key'     => 'grafana',
+                    'status'  => 'healthy',
+                    'message' => "Grafana {$version} is running.",
+                ];
+            }
+
+            return [
+                'name'    => 'Grafana',
+                'key'     => 'grafana',
+                'status'  => 'degraded',
+                'message' => "Grafana returned HTTP {$response->status()}.",
+            ];
+        } catch (\Throwable $e) {
+            return [
+                'name'    => 'Grafana',
+                'key'     => 'grafana',
+                'status'  => 'down',
+                'message' => $e->getMessage(),
+            ];
+        }
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function getGrafanaMetrics(): array
+    {
+        $url = rtrim(env('GRAFANA_URL', 'http://grafana:3000'), '/');
+
+        try {
+            $response = Http::timeout(3)->get("{$url}/api/health");
+
+            return $response->successful() ? ($response->json() ?? []) : [];
+        } catch (\Throwable) {
+            return [];
         }
     }
 
