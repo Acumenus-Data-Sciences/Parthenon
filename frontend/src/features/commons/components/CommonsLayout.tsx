@@ -8,7 +8,6 @@ import { useTypingIndicator } from "../hooks/useTypingIndicator";
 import { useAuthStore } from "@/stores/authStore";
 import { ChannelList } from "./sidebar/ChannelList";
 import { OnlineUsers } from "./sidebar/OnlineUsers";
-import { ChannelHeader } from "./chat/ChannelHeader";
 import { MessageList } from "./chat/MessageList";
 import { MessageComposer } from "./chat/MessageComposer";
 import { RightPanel } from "./rightpanel/RightPanel";
@@ -128,12 +127,6 @@ export function CommonsLayout() {
           <WikiPage />
         ) : (
           <>
-            {channel && (
-              <ChannelHeader
-                channel={channel}
-                onToggleTab={(tab) => setRightTab(rightTab === tab ? tab : tab)}
-              />
-            )}
             <MessageList
               messages={messages}
               isLoading={messagesLoading}
