@@ -164,6 +164,7 @@ class TextToSqlController extends Controller
         $request->validate(['sql' => 'required|string|max:10000']);
 
         $sql = trim($request->input('sql'));
+        $sql = rtrim($sql, "; \t\n\r\0\x0B");
         $safety = $request->input('safety', 'unknown');
 
         // Read-only enforcement
