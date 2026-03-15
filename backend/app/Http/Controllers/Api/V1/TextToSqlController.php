@@ -167,6 +167,13 @@ class TextToSqlController extends Controller
         $sql = rtrim($sql, "; \t\n\r\0\x0B");
         $safety = $request->input('safety', 'unknown');
 
+        // Reject if the content is clearly not SQL (e.g., AI returned prose)
+        if (! preg_match('/^\s*(SELECT|WITH)\b/i', $sql)) {
+            return response()->json([
+                'error' => 'Query must begin with SELECT or WITH.',
+            ], 422);
+        }
+
         // Read-only enforcement
         $normalized = preg_replace('/\s+/', ' ', Str::upper($sql)) ?? '';
         $normalized = preg_replace('/--.*$/m', '', $normalized) ?? $normalized;
@@ -181,9 +188,10 @@ class TextToSqlController extends Controller
             }
         }
 
-        if (! preg_match('/^\s*(SELECT|WITH)\b/i', $sql)) {
+        // Reject backtick-quoted identifiers (MySQL syntax, not PostgreSQL)
+        if (str_contains($sql, '`')) {
             return response()->json([
-                'error' => 'Query must begin with SELECT or WITH.',
+                'error' => 'Backtick-quoted identifiers are not supported in PostgreSQL. Use double quotes for identifiers.',
             ], 422);
         }
 
