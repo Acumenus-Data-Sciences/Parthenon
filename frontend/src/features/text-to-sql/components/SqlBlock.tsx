@@ -1,13 +1,15 @@
 import { useState, useCallback } from "react";
 import { Copy, Check, Play } from "lucide-react";
 import { SqlRunnerModal } from "./SqlRunnerModal";
+import type { QueryLibraryEntry } from "../api";
 
 interface SqlBlockProps {
   sql: string;
   safety?: string;
+  libraryEntry?: QueryLibraryEntry | null;
 }
 
-export function SqlBlock({ sql, safety }: SqlBlockProps) {
+export function SqlBlock({ sql, safety, libraryEntry }: SqlBlockProps) {
   const [copied, setCopied] = useState(false);
   const [runnerOpen, setRunnerOpen] = useState(false);
 
@@ -127,6 +129,7 @@ export function SqlBlock({ sql, safety }: SqlBlockProps) {
         onClose={() => setRunnerOpen(false)}
         sql={sql}
         safety={safety}
+        libraryEntry={libraryEntry}
       />
     </>
   );

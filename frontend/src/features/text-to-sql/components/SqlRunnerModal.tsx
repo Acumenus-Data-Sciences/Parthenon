@@ -8,13 +8,17 @@ import {
   X,
   Database,
   AlertTriangle,
+  Play,
 } from "lucide-react";
 import {
   executeSql,
   getExecutionStatus,
   downloadExecutionCsv,
+  renderQueryLibraryEntry,
   type ExecuteResponse,
   type ExecutionStatus,
+  type QueryLibraryEntry,
+  type QueryLibraryParameter,
 } from "../api";
 
 interface SqlRunnerModalProps {
@@ -22,6 +26,7 @@ interface SqlRunnerModalProps {
   onClose: () => void;
   sql: string;
   safety?: string;
+  libraryEntry?: QueryLibraryEntry | null;
 }
 
 function formatElapsed(ms: number): string {
@@ -206,7 +211,17 @@ export function SqlRunnerModal({
   onClose,
   sql,
   safety = "unknown",
+  libraryEntry,
 }: SqlRunnerModalProps) {
+  const hasParams = (libraryEntry?.parameters ?? []).length > 0;
+
+  // Phase: "params" (show form first) or "executing" (running/done)
+  const [phase, setPhase] = useState<"params" | "executing">(
+    hasParams ? "params" : "executing",
+  );
+  const [paramValues, setParamValues] = useState<Record<string, string>>({});
+  const [activeSql, setActiveSql] = useState(sql);
+
   const [status, setStatus] = useState<ExecutionStatus | null>(null);
   const [result, setResult] = useState<ExecuteResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -217,7 +232,7 @@ export function SqlRunnerModal({
   const executionIdRef = useRef<string | null>(null);
 
   const executeMutation = useMutation({
-    mutationFn: () => executeSql(sql, safety),
+    mutationFn: () => executeSql(activeSql, safety),
     onSuccess: (data) => {
       setResult(data);
       setError(null);
@@ -241,6 +256,30 @@ export function SqlRunnerModal({
     },
   });
 
+  const renderMutation = useMutation({
+    mutationFn: () =>
+      renderQueryLibraryEntry(libraryEntry!.id, {
+        dialect: "postgresql",
+        params: paramValues,
+      }),
+    onSuccess: (data) => {
+      setActiveSql(data.sql);
+      setPhase("executing");
+    },
+    onError: (err: unknown) => {
+      const e = err as {
+        response?: { data?: { error?: string; message?: string } };
+        message?: string;
+      };
+      setError(
+        e.response?.data?.message ??
+          e.response?.data?.error ??
+          e.message ??
+          "Failed to render template",
+      );
+    },
+  });
+
   const stopPolling = useCallback(() => {
     if (pollingRef.current) {
       clearInterval(pollingRef.current);
@@ -259,7 +298,6 @@ export function SqlRunnerModal({
     setLocalElapsed(0);
     startTimeRef.current = Date.now();
 
-    // Local elapsed timer
     timerRef.current = setInterval(() => {
       setLocalElapsed(Date.now() - startTimeRef.current);
     }, 100);
@@ -267,14 +305,47 @@ export function SqlRunnerModal({
     executeMutation.mutate();
   }, [executeMutation]);
 
-  // Start on open
+  const handleRunWithParams = useCallback(() => {
+    if (libraryEntry) {
+      renderMutation.mutate();
+    }
+  }, [libraryEntry, renderMutation]);
+
+  const handleParamChange = useCallback(
+    (param: QueryLibraryParameter, value: string) => {
+      setParamValues((prev) => ({ ...prev, [param.key]: value }));
+    },
+    [],
+  );
+
+  // Initialize param defaults when modal opens
   useEffect(() => {
-    if (open && sql) {
-      startExecution();
+    if (open) {
+      if (hasParams && libraryEntry?.parameters) {
+        const defaults = Object.fromEntries(
+          libraryEntry.parameters.map((p) => [p.key, p.default ?? ""]),
+        );
+        setParamValues(defaults);
+        setPhase("params");
+      } else {
+        setPhase("executing");
+      }
+      setActiveSql(sql);
+      setResult(null);
+      setError(null);
+      setStatus(null);
     }
     return () => stopPolling();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
+
+  // Auto-execute when phase transitions to "executing"
+  useEffect(() => {
+    if (open && phase === "executing" && !executeMutation.isPending && !result && !error) {
+      startExecution();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase, open]);
 
   // Poll status while executing
   useEffect(() => {
@@ -398,7 +469,178 @@ export function SqlRunnerModal({
           </button>
         </div>
 
+        {/* Parameter form (shown before execution for library queries) */}
+        {phase === "params" && hasParams && libraryEntry?.parameters && (
+          <div
+            style={{
+              padding: "20px",
+              borderBottom: "1px solid #232328",
+              display: "flex",
+              flexDirection: "column",
+              gap: "16px",
+            }}
+          >
+            <div>
+              <div
+                style={{
+                  fontSize: "14px",
+                  fontWeight: 600,
+                  color: "#F0EDE8",
+                  marginBottom: "4px",
+                }}
+              >
+                {libraryEntry.name}
+              </div>
+              <div
+                style={{
+                  fontSize: "12px",
+                  color: "#8A857D",
+                  lineHeight: "1.5",
+                }}
+              >
+                {libraryEntry.summary}
+              </div>
+            </div>
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+                gap: "12px",
+              }}
+            >
+              {libraryEntry.parameters.map((param) => (
+                <label
+                  key={param.key}
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "6px",
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: "12px",
+                      fontWeight: 600,
+                      color: "#C5C0B8",
+                    }}
+                  >
+                    {param.label}
+                  </span>
+                  <input
+                    type={
+                      param.type === "number"
+                        ? "number"
+                        : param.type === "date"
+                          ? "date"
+                          : "text"
+                    }
+                    value={paramValues[param.key] ?? ""}
+                    onChange={(e) => handleParamChange(param, e.target.value)}
+                    placeholder={param.default ?? ""}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleRunWithParams();
+                      }
+                    }}
+                    style={{
+                      width: "100%",
+                      background: "#0E0E11",
+                      border: "1px solid #232328",
+                      borderRadius: "8px",
+                      padding: "10px 12px",
+                      color: "#F0EDE8",
+                      fontSize: "13px",
+                      boxSizing: "border-box",
+                      outline: "none",
+                      transition: "border-color 150ms",
+                    }}
+                    onFocus={(e) => {
+                      e.currentTarget.style.borderColor = "#9B1B30";
+                    }}
+                    onBlur={(e) => {
+                      e.currentTarget.style.borderColor = "#232328";
+                    }}
+                  />
+                  {param.description && (
+                    <span
+                      style={{
+                        fontSize: "11px",
+                        color: "#8A857D",
+                        lineHeight: "1.4",
+                      }}
+                    >
+                      {param.description}
+                    </span>
+                  )}
+                </label>
+              ))}
+            </div>
+
+            {error && (
+              <div
+                style={{
+                  padding: "10px 12px",
+                  borderRadius: "6px",
+                  border: "1px solid #9B1B3040",
+                  background: "#9B1B3015",
+                  color: "#F87171",
+                  fontSize: "12px",
+                }}
+              >
+                {error}
+              </div>
+            )}
+
+            <div style={{ display: "flex", gap: "10px" }}>
+              <button
+                onClick={handleRunWithParams}
+                disabled={renderMutation.isPending}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  padding: "10px 22px",
+                  borderRadius: "8px",
+                  border: "none",
+                  background: renderMutation.isPending ? "#4A1020" : "#9B1B30",
+                  color: renderMutation.isPending ? "#C5C0B855" : "#F0EDE8",
+                  fontSize: "14px",
+                  fontWeight: 600,
+                  cursor: renderMutation.isPending ? "not-allowed" : "pointer",
+                  transition: "background 150ms",
+                  fontFamily: "inherit",
+                }}
+                onMouseEnter={(e) => {
+                  if (!renderMutation.isPending) {
+                    e.currentTarget.style.background = "#B52238";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!renderMutation.isPending) {
+                    e.currentTarget.style.background = "#9B1B30";
+                  }
+                }}
+              >
+                {renderMutation.isPending ? (
+                  <Loader2
+                    size={16}
+                    style={{ animation: "spin 1s linear infinite" }}
+                  />
+                ) : (
+                  <Play size={15} />
+                )}
+                {renderMutation.isPending
+                  ? "Preparing\u2026"
+                  : "Run Query"}
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Status section */}
+        {phase === "executing" && (
         <div
           style={{
             padding: "16px 20px",
@@ -530,6 +772,7 @@ export function SqlRunnerModal({
             </>
           )}
         </div>
+        )}
 
         {/* Data preview */}
         {isComplete && result.columns.length > 0 && (

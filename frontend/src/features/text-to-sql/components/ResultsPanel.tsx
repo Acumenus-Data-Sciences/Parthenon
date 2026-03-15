@@ -352,7 +352,7 @@ export function ResultsPanel({
         >
           Generated SQL
         </div>
-        <SqlBlock sql={result.sql} safety={result.safety} />
+        <SqlBlock sql={result.sql} safety={result.safety} libraryEntry={selectedLibrary} />
       </div>
 
       {/* Metadata row */}
