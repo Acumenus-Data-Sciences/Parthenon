@@ -1,12 +1,9 @@
 <?php
 
-namespace Tests\Feature\Commons;
-
 use App\Models\Commons\Channel;
 use App\Models\User;
 use Database\Seeders\CommonsChannelSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
 
 uses(RefreshDatabase::class);
 
@@ -28,8 +25,8 @@ test('seeder is idempotent — running twice does not duplicate channels', funct
     expect(Channel::count())->toBe(4);
 });
 
-test('seeder does not delete channels that already exist with messages', function () {
-    $admin = User::factory()->create(['email' => 'admin@acumenus.net']);
+test('seeder preserves the primary key of existing channels', function () {
+    User::factory()->create(['email' => 'admin@acumenus.net']);
 
     $this->seed(CommonsChannelSeeder::class);
 
