@@ -7,9 +7,10 @@ scrape_configs:
     static_configs:
       - targets: ['cadvisor:8080']
     metric_relabel_configs:
-      # Derive a short "name" label from the Docker cgroup id path.
-      # Format: /system.slice/docker-<64hex>.scope  → name = container_id[:12]
-      # This allows dashboard queries to filter docker containers by id prefix.
+      # Extract the full 64-hex container ID from the cgroup path and store it as
+      # a `container_id` label.  This label is not used by the Parthenon dashboards
+      # (which filter by the Docker-assigned `name` label) but is available for
+      # ad-hoc PromQL queries.
       - source_labels: [id]
         regex: '/system\.slice/docker-([0-9a-f]{64})\.scope'
         target_label: container_id

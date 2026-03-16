@@ -18,11 +18,11 @@ LOKI_DS = {"type": "loki",       "uid": "loki-parthenon"}
 
 # Service groups: (display name, container name regex)
 GROUPS = [
-    ("Core Infrastructure", "parthenon-(php|nginx|postgres|redis|node|horizon|reverb)-.*"),
-    ("AI & Analytics",      "parthenon-(ai|r)-.*"),
-    ("Search & Databases",  "parthenon-(solr|chromadb)-.*"),
-    ("Integrations",        "parthenon-(orthanc|study-agent|finngen-runner)-.*"),
-    ("Monitoring Stack",    "parthenon-(grafana|prometheus|cadvisor|loki|promtail)-.*"),
+    ("Core Infrastructure", "parthenon-(php|nginx|postgres|redis|node|horizon|reverb)"),
+    ("AI & Analytics",      "parthenon-(ai|r)"),
+    ("Search & Databases",  "parthenon-(solr|chromadb)"),
+    ("Integrations",        "parthenon-(orthanc|study-agent|finngen-runner)"),
+    ("Monitoring Stack",    "parthenon-(grafana|prometheus|cadvisor|loki|promtail)"),
 ]
 
 THRESHOLDS_PCT = {
@@ -133,8 +133,8 @@ def table_panel(pid, title, pattern, y):
             target("NETTX",
                 f'sum by (name)(rate(container_network_transmit_bytes_total{{name=~"{pattern}",job="cadvisor"}}[$interval]))'),
             target("RESTARTS",
-                # Intentional: restarts shown as 24-hour rolling total, not a per-interval rate
-                f'sum by (name)(increase(container_restarts_total{{name=~"{pattern}",job="cadvisor"}}[24h]))'),
+                # container_restarts_total not available in cAdvisor v0.51; using OOM events as a proxy
+                f'sum by (name)(increase(container_oom_events_total{{name=~"{pattern}",job="cadvisor"}}[24h]))'),
         ],
         "transformations": [
             {"id": "merge", "options": {}},

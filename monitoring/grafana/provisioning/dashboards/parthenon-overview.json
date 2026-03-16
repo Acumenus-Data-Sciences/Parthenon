@@ -355,7 +355,7 @@
             "type": "prometheus",
             "uid": "prometheus-parthenon"
           },
-          "expr": "sum by (name)(rate(container_cpu_usage_seconds_total{name=~\"parthenon-(php|nginx|postgres|redis|node|horizon|reverb)-.*\",job=\"cadvisor\"}[$interval])) * 100",
+          "expr": "sum by (name)(rate(container_cpu_usage_seconds_total{name=~\"parthenon-(php|nginx|postgres|redis|node|horizon|reverb)\",job=\"cadvisor\"}[$interval])) * 100",
           "instant": true,
           "range": false,
           "legendFormat": "{{name}}"
@@ -366,7 +366,7 @@
             "type": "prometheus",
             "uid": "prometheus-parthenon"
           },
-          "expr": "sum by (name)(container_memory_working_set_bytes{name=~\"parthenon-(php|nginx|postgres|redis|node|horizon|reverb)-.*\",job=\"cadvisor\"})",
+          "expr": "sum by (name)(container_memory_working_set_bytes{name=~\"parthenon-(php|nginx|postgres|redis|node|horizon|reverb)\",job=\"cadvisor\"})",
           "instant": true,
           "range": false,
           "legendFormat": "{{name}}"
@@ -377,7 +377,7 @@
             "type": "prometheus",
             "uid": "prometheus-parthenon"
           },
-          "expr": "sum by (name)(container_memory_working_set_bytes{name=~\"parthenon-(php|nginx|postgres|redis|node|horizon|reverb)-.*\",job=\"cadvisor\"}) / sum by (name)(container_spec_memory_limit_bytes{name=~\"parthenon-(php|nginx|postgres|redis|node|horizon|reverb)-.*\",job=\"cadvisor\"} != 0) * 100",
+          "expr": "sum by (name)(container_memory_working_set_bytes{name=~\"parthenon-(php|nginx|postgres|redis|node|horizon|reverb)\",job=\"cadvisor\"}) / sum by (name)(container_spec_memory_limit_bytes{name=~\"parthenon-(php|nginx|postgres|redis|node|horizon|reverb)\",job=\"cadvisor\"} != 0) * 100",
           "instant": true,
           "range": false,
           "legendFormat": "{{name}}"
@@ -388,7 +388,7 @@
             "type": "prometheus",
             "uid": "prometheus-parthenon"
           },
-          "expr": "sum by (name)(rate(container_network_receive_bytes_total{name=~\"parthenon-(php|nginx|postgres|redis|node|horizon|reverb)-.*\",job=\"cadvisor\"}[$interval]))",
+          "expr": "sum by (name)(rate(container_network_receive_bytes_total{name=~\"parthenon-(php|nginx|postgres|redis|node|horizon|reverb)\",job=\"cadvisor\"}[$interval]))",
           "instant": true,
           "range": false,
           "legendFormat": "{{name}}"
@@ -399,7 +399,7 @@
             "type": "prometheus",
             "uid": "prometheus-parthenon"
           },
-          "expr": "sum by (name)(rate(container_network_transmit_bytes_total{name=~\"parthenon-(php|nginx|postgres|redis|node|horizon|reverb)-.*\",job=\"cadvisor\"}[$interval]))",
+          "expr": "sum by (name)(rate(container_network_transmit_bytes_total{name=~\"parthenon-(php|nginx|postgres|redis|node|horizon|reverb)\",job=\"cadvisor\"}[$interval]))",
           "instant": true,
           "range": false,
           "legendFormat": "{{name}}"
@@ -410,7 +410,7 @@
             "type": "prometheus",
             "uid": "prometheus-parthenon"
           },
-          "expr": "sum by (name)(increase(container_restarts_total{name=~\"parthenon-(php|nginx|postgres|redis|node|horizon|reverb)-.*\",job=\"cadvisor\"}[24h]))",
+          "expr": "sum by (name)(increase(container_oom_events_total{name=~\"parthenon-(php|nginx|postgres|redis|node|horizon|reverb)\",job=\"cadvisor\"}[24h]))",
           "instant": true,
           "range": false,
           "legendFormat": "{{name}}"
@@ -653,7 +653,7 @@
             "type": "prometheus",
             "uid": "prometheus-parthenon"
           },
-          "expr": "sum by (name)(rate(container_cpu_usage_seconds_total{name=~\"parthenon-(ai|r)-.*\",job=\"cadvisor\"}[$interval])) * 100",
+          "expr": "sum by (name)(rate(container_cpu_usage_seconds_total{name=~\"parthenon-(ai|r)\",job=\"cadvisor\"}[$interval])) * 100",
           "instant": true,
           "range": false,
           "legendFormat": "{{name}}"
@@ -664,7 +664,7 @@
             "type": "prometheus",
             "uid": "prometheus-parthenon"
           },
-          "expr": "sum by (name)(container_memory_working_set_bytes{name=~\"parthenon-(ai|r)-.*\",job=\"cadvisor\"})",
+          "expr": "sum by (name)(container_memory_working_set_bytes{name=~\"parthenon-(ai|r)\",job=\"cadvisor\"})",
           "instant": true,
           "range": false,
           "legendFormat": "{{name}}"
@@ -675,7 +675,7 @@
             "type": "prometheus",
             "uid": "prometheus-parthenon"
           },
-          "expr": "sum by (name)(container_memory_working_set_bytes{name=~\"parthenon-(ai|r)-.*\",job=\"cadvisor\"}) / sum by (name)(container_spec_memory_limit_bytes{name=~\"parthenon-(ai|r)-.*\",job=\"cadvisor\"} != 0) * 100",
+          "expr": "sum by (name)(container_memory_working_set_bytes{name=~\"parthenon-(ai|r)\",job=\"cadvisor\"}) / sum by (name)(container_spec_memory_limit_bytes{name=~\"parthenon-(ai|r)\",job=\"cadvisor\"} != 0) * 100",
           "instant": true,
           "range": false,
           "legendFormat": "{{name}}"
@@ -686,7 +686,7 @@
             "type": "prometheus",
             "uid": "prometheus-parthenon"
           },
-          "expr": "sum by (name)(rate(container_network_receive_bytes_total{name=~\"parthenon-(ai|r)-.*\",job=\"cadvisor\"}[$interval]))",
+          "expr": "sum by (name)(rate(container_network_receive_bytes_total{name=~\"parthenon-(ai|r)\",job=\"cadvisor\"}[$interval]))",
           "instant": true,
           "range": false,
           "legendFormat": "{{name}}"
@@ -697,7 +697,7 @@
             "type": "prometheus",
             "uid": "prometheus-parthenon"
           },
-          "expr": "sum by (name)(rate(container_network_transmit_bytes_total{name=~\"parthenon-(ai|r)-.*\",job=\"cadvisor\"}[$interval]))",
+          "expr": "sum by (name)(rate(container_network_transmit_bytes_total{name=~\"parthenon-(ai|r)\",job=\"cadvisor\"}[$interval]))",
           "instant": true,
           "range": false,
           "legendFormat": "{{name}}"
@@ -708,7 +708,7 @@
             "type": "prometheus",
             "uid": "prometheus-parthenon"
           },
-          "expr": "sum by (name)(increase(container_restarts_total{name=~\"parthenon-(ai|r)-.*\",job=\"cadvisor\"}[24h]))",
+          "expr": "sum by (name)(increase(container_oom_events_total{name=~\"parthenon-(ai|r)\",job=\"cadvisor\"}[24h]))",
           "instant": true,
           "range": false,
           "legendFormat": "{{name}}"
@@ -951,7 +951,7 @@
             "type": "prometheus",
             "uid": "prometheus-parthenon"
           },
-          "expr": "sum by (name)(rate(container_cpu_usage_seconds_total{name=~\"parthenon-(solr|chromadb)-.*\",job=\"cadvisor\"}[$interval])) * 100",
+          "expr": "sum by (name)(rate(container_cpu_usage_seconds_total{name=~\"parthenon-(solr|chromadb)\",job=\"cadvisor\"}[$interval])) * 100",
           "instant": true,
           "range": false,
           "legendFormat": "{{name}}"
@@ -962,7 +962,7 @@
             "type": "prometheus",
             "uid": "prometheus-parthenon"
           },
-          "expr": "sum by (name)(container_memory_working_set_bytes{name=~\"parthenon-(solr|chromadb)-.*\",job=\"cadvisor\"})",
+          "expr": "sum by (name)(container_memory_working_set_bytes{name=~\"parthenon-(solr|chromadb)\",job=\"cadvisor\"})",
           "instant": true,
           "range": false,
           "legendFormat": "{{name}}"
@@ -973,7 +973,7 @@
             "type": "prometheus",
             "uid": "prometheus-parthenon"
           },
-          "expr": "sum by (name)(container_memory_working_set_bytes{name=~\"parthenon-(solr|chromadb)-.*\",job=\"cadvisor\"}) / sum by (name)(container_spec_memory_limit_bytes{name=~\"parthenon-(solr|chromadb)-.*\",job=\"cadvisor\"} != 0) * 100",
+          "expr": "sum by (name)(container_memory_working_set_bytes{name=~\"parthenon-(solr|chromadb)\",job=\"cadvisor\"}) / sum by (name)(container_spec_memory_limit_bytes{name=~\"parthenon-(solr|chromadb)\",job=\"cadvisor\"} != 0) * 100",
           "instant": true,
           "range": false,
           "legendFormat": "{{name}}"
@@ -984,7 +984,7 @@
             "type": "prometheus",
             "uid": "prometheus-parthenon"
           },
-          "expr": "sum by (name)(rate(container_network_receive_bytes_total{name=~\"parthenon-(solr|chromadb)-.*\",job=\"cadvisor\"}[$interval]))",
+          "expr": "sum by (name)(rate(container_network_receive_bytes_total{name=~\"parthenon-(solr|chromadb)\",job=\"cadvisor\"}[$interval]))",
           "instant": true,
           "range": false,
           "legendFormat": "{{name}}"
@@ -995,7 +995,7 @@
             "type": "prometheus",
             "uid": "prometheus-parthenon"
           },
-          "expr": "sum by (name)(rate(container_network_transmit_bytes_total{name=~\"parthenon-(solr|chromadb)-.*\",job=\"cadvisor\"}[$interval]))",
+          "expr": "sum by (name)(rate(container_network_transmit_bytes_total{name=~\"parthenon-(solr|chromadb)\",job=\"cadvisor\"}[$interval]))",
           "instant": true,
           "range": false,
           "legendFormat": "{{name}}"
@@ -1006,7 +1006,7 @@
             "type": "prometheus",
             "uid": "prometheus-parthenon"
           },
-          "expr": "sum by (name)(increase(container_restarts_total{name=~\"parthenon-(solr|chromadb)-.*\",job=\"cadvisor\"}[24h]))",
+          "expr": "sum by (name)(increase(container_oom_events_total{name=~\"parthenon-(solr|chromadb)\",job=\"cadvisor\"}[24h]))",
           "instant": true,
           "range": false,
           "legendFormat": "{{name}}"
@@ -1249,7 +1249,7 @@
             "type": "prometheus",
             "uid": "prometheus-parthenon"
           },
-          "expr": "sum by (name)(rate(container_cpu_usage_seconds_total{name=~\"parthenon-(orthanc|study-agent|finngen-runner)-.*\",job=\"cadvisor\"}[$interval])) * 100",
+          "expr": "sum by (name)(rate(container_cpu_usage_seconds_total{name=~\"parthenon-(orthanc|study-agent|finngen-runner)\",job=\"cadvisor\"}[$interval])) * 100",
           "instant": true,
           "range": false,
           "legendFormat": "{{name}}"
@@ -1260,7 +1260,7 @@
             "type": "prometheus",
             "uid": "prometheus-parthenon"
           },
-          "expr": "sum by (name)(container_memory_working_set_bytes{name=~\"parthenon-(orthanc|study-agent|finngen-runner)-.*\",job=\"cadvisor\"})",
+          "expr": "sum by (name)(container_memory_working_set_bytes{name=~\"parthenon-(orthanc|study-agent|finngen-runner)\",job=\"cadvisor\"})",
           "instant": true,
           "range": false,
           "legendFormat": "{{name}}"
@@ -1271,7 +1271,7 @@
             "type": "prometheus",
             "uid": "prometheus-parthenon"
           },
-          "expr": "sum by (name)(container_memory_working_set_bytes{name=~\"parthenon-(orthanc|study-agent|finngen-runner)-.*\",job=\"cadvisor\"}) / sum by (name)(container_spec_memory_limit_bytes{name=~\"parthenon-(orthanc|study-agent|finngen-runner)-.*\",job=\"cadvisor\"} != 0) * 100",
+          "expr": "sum by (name)(container_memory_working_set_bytes{name=~\"parthenon-(orthanc|study-agent|finngen-runner)\",job=\"cadvisor\"}) / sum by (name)(container_spec_memory_limit_bytes{name=~\"parthenon-(orthanc|study-agent|finngen-runner)\",job=\"cadvisor\"} != 0) * 100",
           "instant": true,
           "range": false,
           "legendFormat": "{{name}}"
@@ -1282,7 +1282,7 @@
             "type": "prometheus",
             "uid": "prometheus-parthenon"
           },
-          "expr": "sum by (name)(rate(container_network_receive_bytes_total{name=~\"parthenon-(orthanc|study-agent|finngen-runner)-.*\",job=\"cadvisor\"}[$interval]))",
+          "expr": "sum by (name)(rate(container_network_receive_bytes_total{name=~\"parthenon-(orthanc|study-agent|finngen-runner)\",job=\"cadvisor\"}[$interval]))",
           "instant": true,
           "range": false,
           "legendFormat": "{{name}}"
@@ -1293,7 +1293,7 @@
             "type": "prometheus",
             "uid": "prometheus-parthenon"
           },
-          "expr": "sum by (name)(rate(container_network_transmit_bytes_total{name=~\"parthenon-(orthanc|study-agent|finngen-runner)-.*\",job=\"cadvisor\"}[$interval]))",
+          "expr": "sum by (name)(rate(container_network_transmit_bytes_total{name=~\"parthenon-(orthanc|study-agent|finngen-runner)\",job=\"cadvisor\"}[$interval]))",
           "instant": true,
           "range": false,
           "legendFormat": "{{name}}"
@@ -1304,7 +1304,7 @@
             "type": "prometheus",
             "uid": "prometheus-parthenon"
           },
-          "expr": "sum by (name)(increase(container_restarts_total{name=~\"parthenon-(orthanc|study-agent|finngen-runner)-.*\",job=\"cadvisor\"}[24h]))",
+          "expr": "sum by (name)(increase(container_oom_events_total{name=~\"parthenon-(orthanc|study-agent|finngen-runner)\",job=\"cadvisor\"}[24h]))",
           "instant": true,
           "range": false,
           "legendFormat": "{{name}}"
@@ -1547,7 +1547,7 @@
             "type": "prometheus",
             "uid": "prometheus-parthenon"
           },
-          "expr": "sum by (name)(rate(container_cpu_usage_seconds_total{name=~\"parthenon-(grafana|prometheus|cadvisor|loki|promtail)-.*\",job=\"cadvisor\"}[$interval])) * 100",
+          "expr": "sum by (name)(rate(container_cpu_usage_seconds_total{name=~\"parthenon-(grafana|prometheus|cadvisor|loki|promtail)\",job=\"cadvisor\"}[$interval])) * 100",
           "instant": true,
           "range": false,
           "legendFormat": "{{name}}"
@@ -1558,7 +1558,7 @@
             "type": "prometheus",
             "uid": "prometheus-parthenon"
           },
-          "expr": "sum by (name)(container_memory_working_set_bytes{name=~\"parthenon-(grafana|prometheus|cadvisor|loki|promtail)-.*\",job=\"cadvisor\"})",
+          "expr": "sum by (name)(container_memory_working_set_bytes{name=~\"parthenon-(grafana|prometheus|cadvisor|loki|promtail)\",job=\"cadvisor\"})",
           "instant": true,
           "range": false,
           "legendFormat": "{{name}}"
@@ -1569,7 +1569,7 @@
             "type": "prometheus",
             "uid": "prometheus-parthenon"
           },
-          "expr": "sum by (name)(container_memory_working_set_bytes{name=~\"parthenon-(grafana|prometheus|cadvisor|loki|promtail)-.*\",job=\"cadvisor\"}) / sum by (name)(container_spec_memory_limit_bytes{name=~\"parthenon-(grafana|prometheus|cadvisor|loki|promtail)-.*\",job=\"cadvisor\"} != 0) * 100",
+          "expr": "sum by (name)(container_memory_working_set_bytes{name=~\"parthenon-(grafana|prometheus|cadvisor|loki|promtail)\",job=\"cadvisor\"}) / sum by (name)(container_spec_memory_limit_bytes{name=~\"parthenon-(grafana|prometheus|cadvisor|loki|promtail)\",job=\"cadvisor\"} != 0) * 100",
           "instant": true,
           "range": false,
           "legendFormat": "{{name}}"
@@ -1580,7 +1580,7 @@
             "type": "prometheus",
             "uid": "prometheus-parthenon"
           },
-          "expr": "sum by (name)(rate(container_network_receive_bytes_total{name=~\"parthenon-(grafana|prometheus|cadvisor|loki|promtail)-.*\",job=\"cadvisor\"}[$interval]))",
+          "expr": "sum by (name)(rate(container_network_receive_bytes_total{name=~\"parthenon-(grafana|prometheus|cadvisor|loki|promtail)\",job=\"cadvisor\"}[$interval]))",
           "instant": true,
           "range": false,
           "legendFormat": "{{name}}"
@@ -1591,7 +1591,7 @@
             "type": "prometheus",
             "uid": "prometheus-parthenon"
           },
-          "expr": "sum by (name)(rate(container_network_transmit_bytes_total{name=~\"parthenon-(grafana|prometheus|cadvisor|loki|promtail)-.*\",job=\"cadvisor\"}[$interval]))",
+          "expr": "sum by (name)(rate(container_network_transmit_bytes_total{name=~\"parthenon-(grafana|prometheus|cadvisor|loki|promtail)\",job=\"cadvisor\"}[$interval]))",
           "instant": true,
           "range": false,
           "legendFormat": "{{name}}"
@@ -1602,7 +1602,7 @@
             "type": "prometheus",
             "uid": "prometheus-parthenon"
           },
-          "expr": "sum by (name)(increase(container_restarts_total{name=~\"parthenon-(grafana|prometheus|cadvisor|loki|promtail)-.*\",job=\"cadvisor\"}[24h]))",
+          "expr": "sum by (name)(increase(container_oom_events_total{name=~\"parthenon-(grafana|prometheus|cadvisor|loki|promtail)\",job=\"cadvisor\"}[24h]))",
           "instant": true,
           "range": false,
           "legendFormat": "{{name}}"
