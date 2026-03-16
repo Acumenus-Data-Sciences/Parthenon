@@ -1,7 +1,7 @@
 {
   "uid": "parthenon",
   "title": "Parthenon",
-  "description": "Unified observability dashboard for the Parthenon platform.",
+  "description": "Log-centric observability dashboard for the Parthenon platform.",
   "tags": [
     "parthenon"
   ],
@@ -24,10 +24,10 @@
           "type": "prometheus",
           "uid": "prometheus-parthenon"
         },
-        "definition": "label_values(container_memory_working_set_bytes{name=~\"parthenon-.*\",job=\"cadvisor\"}, name)",
+        "definition": "label_values(container_memory_working_set_bytes{name=~\"parthenon-(php|nginx|ai|postgres)\",job=\"cadvisor\"}, name)",
         "query": {
           "qryType": 1,
-          "query": "label_values(container_memory_working_set_bytes{name=~\"parthenon-.*\",job=\"cadvisor\"}, name)"
+          "query": "label_values(container_memory_working_set_bytes{name=~\"parthenon-(php|nginx|ai|postgres)\",job=\"cadvisor\"}, name)"
         },
         "regex": "",
         "current": {
@@ -40,7 +40,7 @@
           ]
         },
         "includeAll": true,
-        "allValue": "parthenon-.*",
+        "allValue": "parthenon-(php|nginx|ai|postgres)",
         "multi": true,
         "options": [],
         "refresh": 2,
@@ -91,6 +91,149 @@
         "skipUrlSync": false
       },
       {
+        "name": "service",
+        "type": "custom",
+        "label": "Service",
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "options": [
+          {
+            "selected": true,
+            "text": "All",
+            "value": "$__all"
+          },
+          {
+            "selected": false,
+            "text": "horizon",
+            "value": "parthenon-horizon"
+          },
+          {
+            "selected": false,
+            "text": "redis",
+            "value": "parthenon-redis"
+          },
+          {
+            "selected": false,
+            "text": "solr",
+            "value": "parthenon-solr"
+          },
+          {
+            "selected": false,
+            "text": "r-runtime",
+            "value": "parthenon-r"
+          },
+          {
+            "selected": false,
+            "text": "chromadb",
+            "value": "parthenon-chromadb"
+          },
+          {
+            "selected": false,
+            "text": "study-agent",
+            "value": "parthenon-study-agent"
+          },
+          {
+            "selected": false,
+            "text": "reverb",
+            "value": "parthenon-reverb"
+          },
+          {
+            "selected": false,
+            "text": "node",
+            "value": "parthenon-node"
+          },
+          {
+            "selected": false,
+            "text": "orthanc",
+            "value": "parthenon-orthanc"
+          },
+          {
+            "selected": false,
+            "text": "finngen-runner",
+            "value": "parthenon-finngen-runner"
+          },
+          {
+            "selected": false,
+            "text": "qdrant",
+            "value": "parthenon-qdrant"
+          }
+        ],
+        "query": "parthenon-horizon,parthenon-redis,parthenon-solr,parthenon-r,parthenon-chromadb,parthenon-study-agent,parthenon-reverb,parthenon-node,parthenon-orthanc,parthenon-finngen-runner,parthenon-qdrant",
+        "hide": 0,
+        "multi": true,
+        "includeAll": true,
+        "allValue": "parthenon-(horizon|redis|solr|r|chromadb|study-agent|reverb|node|orthanc|finngen-runner|qdrant)",
+        "skipUrlSync": false
+      },
+      {
+        "name": "status_code",
+        "type": "custom",
+        "label": "Status Code",
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": ".*"
+        },
+        "options": [
+          {
+            "selected": true,
+            "text": "All",
+            "value": ".*"
+          },
+          {
+            "selected": false,
+            "text": "2xx",
+            "value": "2\\d\\d"
+          },
+          {
+            "selected": false,
+            "text": "3xx",
+            "value": "3\\d\\d"
+          },
+          {
+            "selected": false,
+            "text": "4xx",
+            "value": "4\\d\\d"
+          },
+          {
+            "selected": false,
+            "text": "5xx",
+            "value": "5\\d\\d"
+          }
+        ],
+        "query": ".*,2\\d\\d,3\\d\\d,4\\d\\d,5\\d\\d",
+        "hide": 0,
+        "multi": false,
+        "includeAll": false,
+        "skipUrlSync": false
+      },
+      {
+        "name": "search",
+        "type": "textbox",
+        "label": "Log Search",
+        "current": {
+          "selected": false,
+          "text": "",
+          "value": ""
+        },
+        "options": [
+          {
+            "selected": false,
+            "text": "",
+            "value": ""
+          }
+        ],
+        "hide": 0,
+        "skipUrlSync": false
+      },
+      {
         "name": "interval",
         "type": "interval",
         "label": "Interval",
@@ -123,25 +266,6 @@
         ],
         "hide": 0,
         "refresh": 2,
-        "skipUrlSync": false
-      },
-      {
-        "name": "search",
-        "type": "textbox",
-        "label": "Log Search",
-        "current": {
-          "selected": false,
-          "text": "",
-          "value": ""
-        },
-        "options": [
-          {
-            "selected": false,
-            "text": "",
-            "value": ""
-          }
-        ],
-        "hide": 0,
         "skipUrlSync": false
       }
     ]
@@ -261,7 +385,7 @@
     {
       "id": 2,
       "type": "stat",
-      "title": "Containers Up",
+      "title": "Last Restart",
       "gridPos": {
         "x": 4,
         "y": 0,
@@ -279,1306 +403,7 @@
             "type": "prometheus",
             "uid": "prometheus-parthenon"
           },
-          "expr": "count(container_memory_working_set_bytes{name=~\"parthenon-.*\",job=\"cadvisor\"} > 0)",
-          "legendFormat": "__auto",
-          "instant": false,
-          "range": true
-        }
-      ],
-      "options": {
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "orientation": "auto",
-        "textMode": "auto",
-        "colorMode": "background",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "wideLayout": true
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "unit": "short",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "description": "Number of Parthenon containers currently reporting metrics"
-    },
-    {
-      "id": 3,
-      "type": "gauge",
-      "title": "Host CPU",
-      "gridPos": {
-        "x": 8,
-        "y": 0,
-        "w": 4,
-        "h": 5
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-parthenon"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-parthenon"
-          },
-          "expr": "100 - (avg(rate(node_cpu_seconds_total{mode=\"idle\"}[$interval])) * 100)",
-          "instant": true,
-          "range": false,
-          "legendFormat": "__auto"
-        }
-      ],
-      "options": {
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "orientation": "auto"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "unit": "percent",
-          "min": 0,
-          "max": 100,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "#C9A227",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 70
-              },
-              {
-                "color": "red",
-                "value": 85
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "description": "Host CPU utilization percentage"
-    },
-    {
-      "id": 4,
-      "type": "gauge",
-      "title": "Host Memory",
-      "gridPos": {
-        "x": 12,
-        "y": 0,
-        "w": 4,
-        "h": 5
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-parthenon"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-parthenon"
-          },
-          "expr": "100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)",
-          "instant": true,
-          "range": false,
-          "legendFormat": "__auto"
-        }
-      ],
-      "options": {
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "orientation": "auto"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "unit": "percent",
-          "min": 0,
-          "max": 100,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "#C9A227",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 70
-              },
-              {
-                "color": "red",
-                "value": 85
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "description": "Host memory utilization percentage"
-    },
-    {
-      "id": 5,
-      "type": "gauge",
-      "title": "Host Disk",
-      "gridPos": {
-        "x": 16,
-        "y": 0,
-        "w": 4,
-        "h": 5
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-parthenon"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-parthenon"
-          },
-          "expr": "avg(100 * (1 - node_filesystem_avail_bytes{mountpoint=\"/\"} / node_filesystem_size_bytes{mountpoint=\"/\"}))",
-          "instant": true,
-          "range": false,
-          "legendFormat": "__auto"
-        }
-      ],
-      "options": {
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "orientation": "auto"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "unit": "percent",
-          "min": 0,
-          "max": 100,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "#C9A227",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 70
-              },
-              {
-                "color": "red",
-                "value": 85
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "description": "Root filesystem usage percentage"
-    },
-    {
-      "id": 6,
-      "type": "stat",
-      "title": "Error Rate",
-      "gridPos": {
-        "x": 20,
-        "y": 0,
-        "w": 4,
-        "h": 5
-      },
-      "datasource": {
-        "type": "loki",
-        "uid": "loki-parthenon"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "loki",
-            "uid": "loki-parthenon"
-          },
-          "expr": "sum(count_over_time({job=\"docker\", container_name=~\"parthenon-.*\"} |~ \"(?i)error\" [$__interval]))",
-          "legendFormat": "__auto",
-          "instant": false,
-          "range": true
-        }
-      ],
-      "options": {
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "orientation": "auto",
-        "textMode": "auto",
-        "colorMode": "background",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "wideLayout": true
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "unit": "short",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 1
-              },
-              {
-                "color": "red",
-                "value": 10
-              }
-            ]
-          },
-          "noValue": "0"
-        },
-        "overrides": []
-      },
-      "description": "Log lines matching error patterns across all containers"
-    },
-    {
-      "id": 7,
-      "type": "row",
-      "title": "Container Status",
-      "gridPos": {
-        "x": 0,
-        "y": 5,
-        "w": 24,
-        "h": 1
-      },
-      "collapsed": false,
-      "panels": []
-    },
-    {
-      "id": 8,
-      "type": "state-timeline",
-      "title": "Container Health Timeline",
-      "gridPos": {
-        "x": 0,
-        "y": 6,
-        "w": 16,
-        "h": 8
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-parthenon"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-parthenon"
-          },
-          "expr": "clamp_max(container_memory_working_set_bytes{name=~\"parthenon-.*\",job=\"cadvisor\"}, 1)",
-          "legendFormat": "{{name}}",
-          "instant": false,
-          "range": true
-        }
-      ],
-      "options": {
-        "showValue": "auto",
-        "mergeValues": true,
-        "alignValue": "left",
-        "rowHeight": 0.8,
-        "tooltip": {
-          "mode": "single"
-        },
-        "legend": {
-          "showLegend": false
-        }
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [
-            {
-              "type": "value",
-              "options": {
-                "1": {
-                  "text": "Running",
-                  "color": "green",
-                  "index": 0
-                }
-              }
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red",
-                "value": null
-              },
-              {
-                "color": "green",
-                "value": 1
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "description": "Running state of all Parthenon containers over time"
-    },
-    {
-      "id": 9,
-      "type": "bargauge",
-      "title": "OOM Events (24h)",
-      "gridPos": {
-        "x": 16,
-        "y": 6,
-        "w": 8,
-        "h": 8
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-parthenon"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-parthenon"
-          },
-          "expr": "sum by (name)(increase(container_oom_events_total{name=~\"$container\",job=\"cadvisor\"}[24h]))",
-          "instant": true,
-          "range": false,
-          "legendFormat": "{{name}}"
-        }
-      ],
-      "options": {
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "orientation": "horizontal",
-        "displayMode": "lcd",
-        "showUnfilled": true,
-        "valueMode": "color",
-        "namePlacement": "auto",
-        "sizing": "auto"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "unit": "short",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 1
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "description": "Out-of-memory events per container in the last 24 hours"
-    },
-    {
-      "id": 10,
-      "type": "table",
-      "title": "Container Details",
-      "gridPos": {
-        "x": 0,
-        "y": 14,
-        "w": 24,
-        "h": 6
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-parthenon"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-parthenon"
-          },
-          "expr": "sum by (name)(rate(container_cpu_usage_seconds_total{name=~\"$container\",job=\"cadvisor\"}[$interval])) * 100",
-          "legendFormat": "{{name}}",
-          "instant": true,
-          "range": false,
-          "format": "table"
-        },
-        {
-          "refId": "B",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-parthenon"
-          },
-          "expr": "sum by (name)(container_memory_working_set_bytes{name=~\"$container\",job=\"cadvisor\"})",
-          "legendFormat": "{{name}}",
-          "instant": true,
-          "range": false,
-          "format": "table"
-        },
-        {
-          "refId": "C",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-parthenon"
-          },
-          "expr": "sum by (name)(container_spec_memory_limit_bytes{name=~\"$container\",job=\"cadvisor\"})",
-          "legendFormat": "{{name}}",
-          "instant": true,
-          "range": false,
-          "format": "table"
-        },
-        {
-          "refId": "D",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-parthenon"
-          },
-          "expr": "sum by (name)(rate(container_network_receive_bytes_total{name=~\"$container\",job=\"cadvisor\"}[$interval]))",
-          "legendFormat": "{{name}}",
-          "instant": true,
-          "range": false,
-          "format": "table"
-        },
-        {
-          "refId": "E",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-parthenon"
-          },
-          "expr": "sum by (name)(rate(container_network_transmit_bytes_total{name=~\"$container\",job=\"cadvisor\"}[$interval]))",
-          "legendFormat": "{{name}}",
-          "instant": true,
-          "range": false,
-          "format": "table"
-        }
-      ],
-      "options": {
-        "showHeader": true,
-        "cellHeight": "sm",
-        "footer": {
-          "show": false
-        }
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "CPU %"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "percent"
-              },
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "type": "color-background"
-                }
-              },
-              {
-                "id": "thresholds",
-                "value": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "green",
-                      "value": null
-                    },
-                    {
-                      "color": "yellow",
-                      "value": 50
-                    },
-                    {
-                      "color": "red",
-                      "value": 80
-                    }
-                  ]
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Memory"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "bytes"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Memory Limit"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "bytes"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Net RX/s"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "Bps"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Net TX/s"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "Bps"
-              }
-            ]
-          }
-        ]
-      },
-      "transformations": [
-        {
-          "id": "merge",
-          "options": {}
-        },
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {
-              "Time": true,
-              "__name__": true,
-              "job": true
-            },
-            "renameByName": {
-              "name": "Container",
-              "Value #A": "CPU %",
-              "Value #B": "Memory",
-              "Value #C": "Memory Limit",
-              "Value #D": "Net RX/s",
-              "Value #E": "Net TX/s"
-            },
-            "indexByName": {
-              "name": 0,
-              "Value #A": 1,
-              "Value #B": 2,
-              "Value #C": 3,
-              "Value #D": 4,
-              "Value #E": 5
-            }
-          }
-        }
-      ],
-      "description": "Resource usage per container \u2014 CPU, memory, and network"
-    },
-    {
-      "id": 11,
-      "type": "row",
-      "title": "Host Infrastructure",
-      "gridPos": {
-        "x": 0,
-        "y": 20,
-        "w": 24,
-        "h": 1
-      },
-      "collapsed": false,
-      "panels": []
-    },
-    {
-      "id": 12,
-      "type": "gauge",
-      "title": "CPU Utilization",
-      "gridPos": {
-        "x": 0,
-        "y": 21,
-        "w": 4,
-        "h": 5
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-parthenon"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-parthenon"
-          },
-          "expr": "100 - (avg(rate(node_cpu_seconds_total{mode=\"idle\"}[$interval])) * 100)",
-          "instant": true,
-          "range": false,
-          "legendFormat": "__auto"
-        }
-      ],
-      "options": {
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "orientation": "auto"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "unit": "percent",
-          "min": 0,
-          "max": 100,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 70
-              },
-              {
-                "color": "red",
-                "value": 85
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "description": "Host CPU busy percentage (100% - idle)"
-    },
-    {
-      "id": 13,
-      "type": "timeseries",
-      "title": "CPU Load (Saturation)",
-      "gridPos": {
-        "x": 4,
-        "y": 21,
-        "w": 8,
-        "h": 5
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-parthenon"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-parthenon"
-          },
-          "expr": "node_load1",
-          "legendFormat": "1m"
-        },
-        {
-          "refId": "B",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-parthenon"
-          },
-          "expr": "node_load5",
-          "legendFormat": "5m"
-        },
-        {
-          "refId": "C",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-parthenon"
-          },
-          "expr": "node_load15",
-          "legendFormat": "15m"
-        }
-      ],
-      "options": {
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        },
-        "legend": {
-          "showLegend": true,
-          "displayMode": "list",
-          "placement": "bottom"
-        }
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 25,
-            "gradientMode": "opacity",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "smooth",
-            "lineStyle": {
-              "fill": "solid"
-            },
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "description": "System load average \u2014 values above CPU count indicate saturation"
-    },
-    {
-      "id": 14,
-      "type": "gauge",
-      "title": "Memory Utilization",
-      "gridPos": {
-        "x": 12,
-        "y": 21,
-        "w": 4,
-        "h": 5
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-parthenon"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-parthenon"
-          },
-          "expr": "100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)",
-          "instant": true,
-          "range": false,
-          "legendFormat": "__auto"
-        }
-      ],
-      "options": {
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "orientation": "auto"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "unit": "percent",
-          "min": 0,
-          "max": 100,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 70
-              },
-              {
-                "color": "red",
-                "value": 85
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "description": "Host memory usage excluding caches and buffers"
-    },
-    {
-      "id": 15,
-      "type": "timeseries",
-      "title": "Memory Swap",
-      "gridPos": {
-        "x": 16,
-        "y": 21,
-        "w": 8,
-        "h": 5
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-parthenon"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-parthenon"
-          },
-          "expr": "node_memory_SwapTotal_bytes - node_memory_SwapFree_bytes",
-          "legendFormat": "Swap Used"
-        }
-      ],
-      "options": {
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        },
-        "legend": {
-          "showLegend": true,
-          "displayMode": "list",
-          "placement": "bottom"
-        }
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 25,
-            "gradientMode": "opacity",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "smooth",
-            "lineStyle": {
-              "fill": "solid"
-            },
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "unit": "bytes"
-        },
-        "overrides": []
-      },
-      "description": "Swap space in use \u2014 any swap usage indicates memory pressure"
-    },
-    {
-      "id": 16,
-      "type": "bargauge",
-      "title": "Disk Usage",
-      "gridPos": {
-        "x": 0,
-        "y": 26,
-        "w": 6,
-        "h": 5
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-parthenon"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-parthenon"
-          },
-          "expr": "100 * (1 - node_filesystem_avail_bytes{fstype!~\"tmpfs|overlay\"} / node_filesystem_size_bytes{fstype!~\"tmpfs|overlay\"})",
-          "instant": true,
-          "range": false,
-          "legendFormat": "{{name}}"
-        }
-      ],
-      "options": {
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "orientation": "horizontal",
-        "displayMode": "lcd",
-        "showUnfilled": true,
-        "valueMode": "color",
-        "namePlacement": "auto",
-        "sizing": "auto"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "unit": "percent",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 70
-              },
-              {
-                "color": "red",
-                "value": 85
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "description": "Filesystem usage per mount point"
-    },
-    {
-      "id": 17,
-      "type": "timeseries",
-      "title": "Disk I/O",
-      "gridPos": {
-        "x": 6,
-        "y": 26,
-        "w": 6,
-        "h": 5
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-parthenon"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-parthenon"
-          },
-          "expr": "rate(node_disk_read_bytes_total[$interval])",
-          "legendFormat": "Read"
-        },
-        {
-          "refId": "B",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-parthenon"
-          },
-          "expr": "rate(node_disk_written_bytes_total[$interval])",
-          "legendFormat": "Write"
-        }
-      ],
-      "options": {
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        },
-        "legend": {
-          "showLegend": true,
-          "displayMode": "list",
-          "placement": "bottom"
-        }
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 25,
-            "gradientMode": "opacity",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "smooth",
-            "lineStyle": {
-              "fill": "solid"
-            },
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "unit": "Bps"
-        },
-        "overrides": []
-      },
-      "description": "Disk read and write throughput"
-    },
-    {
-      "id": 18,
-      "type": "timeseries",
-      "title": "Network Traffic",
-      "gridPos": {
-        "x": 12,
-        "y": 26,
-        "w": 8,
-        "h": 5
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-parthenon"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-parthenon"
-          },
-          "expr": "rate(node_network_receive_bytes_total{device!~\"lo|veth.*|docker.*|br-.*\"}[$interval])",
-          "legendFormat": "RX"
-        },
-        {
-          "refId": "B",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-parthenon"
-          },
-          "expr": "rate(node_network_transmit_bytes_total{device!~\"lo|veth.*|docker.*|br-.*\"}[$interval])",
-          "legendFormat": "TX"
-        }
-      ],
-      "options": {
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        },
-        "legend": {
-          "showLegend": true,
-          "displayMode": "list",
-          "placement": "bottom"
-        }
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 25,
-            "gradientMode": "opacity",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "smooth",
-            "lineStyle": {
-              "fill": "solid"
-            },
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "unit": "Bps"
-        },
-        "overrides": []
-      },
-      "description": "Host network receive and transmit throughput"
-    },
-    {
-      "id": 19,
-      "type": "stat",
-      "title": "Network Errors",
-      "gridPos": {
-        "x": 20,
-        "y": 26,
-        "w": 4,
-        "h": 5
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-parthenon"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-parthenon"
-          },
-          "expr": "sum(increase(node_network_receive_errs_total[$interval])) + sum(increase(node_network_transmit_errs_total[$interval]))",
+          "expr": "max(changes(container_start_time_seconds{name=~\"parthenon-.*\"}[1h]))",
           "legendFormat": "__auto",
           "instant": true,
           "range": false
@@ -1613,636 +438,29 @@
                 "value": null
               },
               {
-                "color": "red",
+                "color": "yellow",
                 "value": 1
-              }
-            ]
-          },
-          "noValue": "0"
-        },
-        "overrides": []
-      },
-      "description": "Network interface errors \u2014 any value above 0 needs investigation"
-    },
-    {
-      "id": 20,
-      "type": "row",
-      "title": "Container Resources",
-      "gridPos": {
-        "x": 0,
-        "y": 31,
-        "w": 24,
-        "h": 1
-      },
-      "collapsed": false,
-      "panels": []
-    },
-    {
-      "id": 21,
-      "type": "bargauge",
-      "title": "CPU by Container",
-      "gridPos": {
-        "x": 0,
-        "y": 32,
-        "w": 12,
-        "h": 10
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-parthenon"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-parthenon"
-          },
-          "expr": "sum by (name)(rate(container_cpu_usage_seconds_total{name=~\"$container\",job=\"cadvisor\"}[$interval])) * 100",
-          "instant": true,
-          "range": false,
-          "legendFormat": "{{name}}"
-        }
-      ],
-      "options": {
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "orientation": "horizontal",
-        "displayMode": "lcd",
-        "showUnfilled": true,
-        "valueMode": "color",
-        "namePlacement": "auto",
-        "sizing": "auto"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "unit": "percent",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 50
               },
               {
                 "color": "red",
-                "value": 80
+                "value": 3
               }
             ]
           }
         },
         "overrides": []
       },
-      "description": "Container CPU usage ranked highest to lowest"
+      "description": "Container restarts in the last hour"
     },
     {
-      "id": 22,
-      "type": "bargauge",
-      "title": "Memory by Container",
-      "gridPos": {
-        "x": 12,
-        "y": 32,
-        "w": 12,
-        "h": 10
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-parthenon"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-parthenon"
-          },
-          "expr": "sum by (name)(container_memory_working_set_bytes{name=~\"$container\",job=\"cadvisor\"})",
-          "instant": true,
-          "range": false,
-          "legendFormat": "{{name}}"
-        }
-      ],
-      "options": {
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "orientation": "horizontal",
-        "displayMode": "lcd",
-        "showUnfilled": true,
-        "valueMode": "color",
-        "namePlacement": "auto",
-        "sizing": "auto"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "unit": "bytes",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 524288000
-              },
-              {
-                "color": "red",
-                "value": 2147483648
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "description": "Container memory usage ranked highest to lowest"
-    },
-    {
-      "id": 23,
-      "type": "timeseries",
-      "title": "Network by Container",
-      "gridPos": {
-        "x": 0,
-        "y": 42,
-        "w": 24,
-        "h": 8
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-parthenon"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-parthenon"
-          },
-          "expr": "sum by (name)(rate(container_network_receive_bytes_total{name=~\"$container\",job=\"cadvisor\"}[$interval]))",
-          "legendFormat": "{{name}} RX"
-        },
-        {
-          "refId": "B",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus-parthenon"
-          },
-          "expr": "sum by (name)(rate(container_network_transmit_bytes_total{name=~\"$container\",job=\"cadvisor\"}[$interval]))",
-          "legendFormat": "{{name}} TX"
-        }
-      ],
-      "options": {
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        },
-        "legend": {
-          "showLegend": true,
-          "displayMode": "list",
-          "placement": "bottom"
-        }
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 25,
-            "gradientMode": "opacity",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "smooth",
-            "lineStyle": {
-              "fill": "solid"
-            },
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "unit": "Bps"
-        },
-        "overrides": []
-      },
-      "description": "Per-container network throughput (RX and TX)"
-    },
-    {
-      "id": 24,
-      "type": "row",
-      "title": "Log Volume & Errors",
-      "gridPos": {
-        "x": 0,
-        "y": 50,
-        "w": 24,
-        "h": 1
-      },
-      "collapsed": false,
-      "panels": []
-    },
-    {
-      "id": 25,
-      "type": "timeseries",
-      "title": "Log Volume by Level",
-      "gridPos": {
-        "x": 0,
-        "y": 51,
-        "w": 12,
-        "h": 8
-      },
-      "datasource": {
-        "type": "loki",
-        "uid": "loki-parthenon"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "loki",
-            "uid": "loki-parthenon"
-          },
-          "expr": "sum by (detected_level)(count_over_time({job=\"docker\", container_name=~\"$container\"} [$__auto]))",
-          "legendFormat": "{{detected_level}}"
-        }
-      ],
-      "options": {
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        },
-        "legend": {
-          "showLegend": true,
-          "displayMode": "list",
-          "placement": "bottom"
-        }
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "bars",
-            "fillOpacity": 80,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineStyle": {
-              "fill": "solid"
-            },
-            "lineWidth": 0,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "normal"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "unit": "short"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "debug"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#8AB8FF",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "info"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#73BF69",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "warn"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#FADE2A",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "warning"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#FADE2A",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "error"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#F2495C",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "critical"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#FF4040",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "fatal"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#C4162A",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "description": "Log line count over time, stacked by severity level. Requires Loki automatic level detection (detected_level label)."
-    },
-    {
-      "id": 26,
-      "type": "timeseries",
-      "title": "Log Volume by Container",
-      "gridPos": {
-        "x": 12,
-        "y": 51,
-        "w": 12,
-        "h": 8
-      },
-      "datasource": {
-        "type": "loki",
-        "uid": "loki-parthenon"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "loki",
-            "uid": "loki-parthenon"
-          },
-          "expr": "sum by (container_name)(count_over_time({job=\"docker\", container_name=~\"$container\"} [$__auto]))",
-          "legendFormat": "{{container_name}}"
-        }
-      ],
-      "options": {
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        },
-        "legend": {
-          "showLegend": true,
-          "displayMode": "list",
-          "placement": "bottom"
-        }
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "bars",
-            "fillOpacity": 80,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineStyle": {
-              "fill": "solid"
-            },
-            "lineWidth": 0,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "normal"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "description": "Log line count over time, stacked by container"
-    },
-    {
-      "id": 27,
-      "type": "timeseries",
-      "title": "Error Rate Trend",
-      "gridPos": {
-        "x": 0,
-        "y": 59,
-        "w": 8,
-        "h": 8
-      },
-      "datasource": {
-        "type": "loki",
-        "uid": "loki-parthenon"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "loki",
-            "uid": "loki-parthenon"
-          },
-          "expr": "sum(rate({job=\"docker\", container_name=~\"$container\"} |~ \"(?i)(error|critical|fatal)\" [$__auto]))",
-          "legendFormat": "errors/s"
-        }
-      ],
-      "options": {
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        },
-        "legend": {
-          "showLegend": true,
-          "displayMode": "list",
-          "placement": "bottom"
-        }
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "fixed",
-            "fixedColor": "#F2495C"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 20,
-            "gradientMode": "opacity",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "smooth",
-            "lineStyle": {
-              "fill": "solid"
-            },
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "unit": "ops"
-        },
-        "overrides": []
-      },
-      "description": "Error log lines per second over time"
-    },
-    {
-      "id": 28,
-      "type": "piechart",
-      "title": "Log Level Distribution",
+      "id": 3,
+      "type": "stat",
+      "title": "Error Count",
       "gridPos": {
         "x": 8,
-        "y": 59,
-        "w": 8,
-        "h": 8
+        "y": 0,
+        "w": 4,
+        "h": 5
       },
       "datasource": {
         "type": "loki",
@@ -2255,258 +473,10 @@
             "type": "loki",
             "uid": "loki-parthenon"
           },
-          "expr": "sum by (detected_level)(count_over_time({job=\"docker\", container_name=~\"$container\"} [$__auto]))",
+          "expr": "sum(count_over_time({container_name=~\"parthenon-.*\"} |~ \"(?i)error|exception|fatal\" [$__range]))",
           "legendFormat": "__auto",
-          "instant": false,
-          "range": true
-        }
-      ],
-      "options": {
-        "pieType": "donut",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        },
-        "legend": {
-          "showLegend": true,
-          "displayMode": "table",
-          "placement": "right",
-          "values": [
-            "value",
-            "percent"
-          ]
-        }
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "debug"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#8AB8FF",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "info"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#73BF69",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "warn"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#FADE2A",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "warning"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#FADE2A",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "error"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#F2495C",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "critical"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#FF4040",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "fatal"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#C4162A",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "description": "Proportional breakdown of log levels. Requires Loki automatic level detection (detected_level label)."
-    },
-    {
-      "id": 29,
-      "type": "timeseries",
-      "title": "Log Throughput",
-      "gridPos": {
-        "x": 16,
-        "y": 59,
-        "w": 8,
-        "h": 8
-      },
-      "datasource": {
-        "type": "loki",
-        "uid": "loki-parthenon"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "loki",
-            "uid": "loki-parthenon"
-          },
-          "expr": "sum(rate({job=\"docker\", container_name=~\"$container\"} [$__auto]))",
-          "legendFormat": "lines/s"
-        }
-      ],
-      "options": {
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        },
-        "legend": {
-          "showLegend": true,
-          "displayMode": "list",
-          "placement": "bottom"
-        }
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 25,
-            "gradientMode": "opacity",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "smooth",
-            "lineStyle": {
-              "fill": "solid"
-            },
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "description": "Total log lines per second across all containers"
-    },
-    {
-      "id": 30,
-      "type": "bargauge",
-      "title": "Top Error Services",
-      "gridPos": {
-        "x": 0,
-        "y": 67,
-        "w": 12,
-        "h": 8
-      },
-      "datasource": {
-        "type": "loki",
-        "uid": "loki-parthenon"
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "loki",
-            "uid": "loki-parthenon"
-          },
-          "expr": "topk(10, sum by (container_name)(count_over_time({job=\"docker\", container_name=~\"$container\"} |~ \"(?i)(error|critical|fatal)\" [$__auto])))",
-          "instant": false,
-          "range": true,
-          "legendFormat": "{{container_name}}"
+          "instant": true,
+          "range": false
         }
       ],
       "options": {
@@ -2517,12 +487,12 @@
           "fields": "",
           "values": false
         },
-        "orientation": "horizontal",
-        "displayMode": "lcd",
-        "showUnfilled": true,
-        "valueMode": "color",
-        "namePlacement": "auto",
-        "sizing": "auto"
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "wideLayout": true
       },
       "fieldConfig": {
         "defaults": {
@@ -2539,32 +509,29 @@
               },
               {
                 "color": "yellow",
-                "value": 10
-              },
-              {
-                "color": "orange",
-                "value": 50
+                "value": 1
               },
               {
                 "color": "red",
-                "value": 100
+                "value": 10
               }
             ]
-          }
+          },
+          "noValue": "0"
         },
         "overrides": []
       },
-      "description": "Containers producing the most error logs"
+      "description": "Total error log lines across all containers in selected time range"
     },
     {
-      "id": 31,
-      "type": "table",
-      "title": "Top Error Patterns",
+      "id": 4,
+      "type": "stat",
+      "title": "Error Rate",
       "gridPos": {
         "x": 12,
-        "y": 67,
-        "w": 12,
-        "h": 8
+        "y": 0,
+        "w": 4,
+        "h": 5
       },
       "datasource": {
         "type": "loki",
@@ -2577,144 +544,3201 @@
             "type": "loki",
             "uid": "loki-parthenon"
           },
-          "expr": "topk(10, sum by (container_name)(count_over_time({job=\"docker\", container_name=~\"$container\"} |~ \"(?i)(error|critical|fatal|exception)\" [$__auto])))",
-          "legendFormat": "{{container_name}}",
-          "instant": true,
-          "range": false,
-          "format": "table"
+          "expr": "sum(rate({container_name=~\"parthenon-.*\"} |~ \"(?i)error|exception|fatal\" [5m])) * 60",
+          "legendFormat": "__auto",
+          "instant": false,
+          "range": true
         }
       ],
       "options": {
-        "showHeader": true,
-        "cellHeight": "sm",
-        "footer": {
-          "show": false
-        }
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "wideLayout": true
       },
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "thresholds"
           },
+          "unit": "short",
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
                 "color": "green",
                 "value": null
-              }
-            ]
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Count"
-            },
-            "properties": [
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "type": "color-background"
-                }
               },
               {
-                "id": "thresholds",
-                "value": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "green",
-                      "value": null
-                    },
-                    {
-                      "color": "yellow",
-                      "value": 10
-                    },
-                    {
-                      "color": "orange",
-                      "value": 50
-                    },
-                    {
-                      "color": "red",
-                      "value": 100
-                    }
-                  ]
-                }
+                "color": "yellow",
+                "value": 0.1
+              },
+              {
+                "color": "red",
+                "value": 1
               }
             ]
-          }
-        ]
+          },
+          "noValue": "0"
+        },
+        "overrides": []
       },
-      "transformations": [
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {
-              "Time": true,
-              "__name__": true,
-              "job": true
-            },
-            "renameByName": {
-              "container_name": "Container",
-              "Value": "Count"
-            }
-          }
-        }
-      ],
-      "description": "Most frequent error-producing containers"
+      "description": "Errors per minute (5m rolling average)"
     },
     {
-      "id": 32,
-      "type": "row",
-      "title": "Log Stream",
+      "id": 5,
+      "type": "stat",
+      "title": "CPU Usage",
       "gridPos": {
-        "x": 0,
-        "y": 75,
-        "w": 24,
-        "h": 1
-      },
-      "collapsed": false,
-      "panels": []
-    },
-    {
-      "id": 33,
-      "type": "logs",
-      "title": "Log Stream",
-      "gridPos": {
-        "x": 0,
-        "y": 76,
-        "w": 24,
-        "h": 14
+        "x": 16,
+        "y": 0,
+        "w": 4,
+        "h": 5
       },
       "datasource": {
-        "type": "loki",
-        "uid": "loki-parthenon"
+        "type": "prometheus",
+        "uid": "prometheus-parthenon"
       },
       "targets": [
         {
           "refId": "A",
           "datasource": {
-            "type": "loki",
-            "uid": "loki-parthenon"
+            "type": "prometheus",
+            "uid": "prometheus-parthenon"
           },
-          "expr": "{job=\"docker\", container_name=~\"$container\"} | json | line_format \"{{.log}}\" |~ \"(?i)$log_level\" |= \"$search\"",
-          "legendFormat": "",
-          "maxLines": 1000
+          "expr": "avg(sum(rate(container_cpu_usage_seconds_total{name=~\"parthenon-.*\"}[5m])) by (name)) * 100",
+          "legendFormat": "__auto",
+          "instant": true,
+          "range": false
         }
       ],
       "options": {
-        "dedupStrategy": "signature",
-        "enableLogDetails": true,
-        "prettifyLogMessage": true,
-        "showCommonLabels": false,
-        "showLabels": true,
-        "showTime": true,
-        "sortOrder": "Descending",
-        "wrapLogMessage": true
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "wideLayout": true
       },
-      "description": "Live log stream filtered by container, level, and search text"
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "unit": "percent",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 85
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "description": "Average CPU usage across all Parthenon containers"
+    },
+    {
+      "id": 6,
+      "type": "stat",
+      "title": "Memory Usage",
+      "gridPos": {
+        "x": 20,
+        "y": 0,
+        "w": 4,
+        "h": 5
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-parthenon"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-parthenon"
+          },
+          "expr": "sum(container_memory_working_set_bytes{name=~\"parthenon-.*\",job=\"cadvisor\"}) / sum(machine_memory_bytes{job=\"node-exporter\"}) * 100",
+          "legendFormat": "__auto",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "wideLayout": true
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "unit": "percent",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 85
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "description": "Total container memory as percentage of host memory"
+    },
+    {
+      "id": 15,
+      "type": "row",
+      "title": "Tier 1 Container Resources",
+      "gridPos": {
+        "x": 0,
+        "y": 5,
+        "w": 24,
+        "h": 1
+      },
+      "collapsed": true,
+      "panels": [
+        {
+          "id": 7,
+          "type": "timeseries",
+          "title": "CPU by Service",
+          "gridPos": {
+            "x": 0,
+            "y": 0,
+            "w": 6,
+            "h": 8
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-parthenon"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus-parthenon"
+              },
+              "expr": "sum(rate(container_cpu_usage_seconds_total{name=~\"parthenon-(php|nginx|ai|postgres)\"}[5m])) by (name) * 100",
+              "legendFormat": "{{name}}"
+            }
+          ],
+          "options": {
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            },
+            "legend": {
+              "showLegend": true,
+              "displayMode": "list",
+              "placement": "bottom"
+            }
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 25,
+                "gradientMode": "opacity",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "smooth",
+                "lineStyle": {
+                  "fill": "solid"
+                },
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "normal"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "unit": "percent"
+            },
+            "overrides": []
+          },
+          "description": "CPU usage per Tier 1 service"
+        },
+        {
+          "id": 8,
+          "type": "timeseries",
+          "title": "Memory by Service",
+          "gridPos": {
+            "x": 6,
+            "y": 0,
+            "w": 6,
+            "h": 8
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-parthenon"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus-parthenon"
+              },
+              "expr": "container_memory_working_set_bytes{name=~\"parthenon-(php|nginx|ai|postgres)\"}",
+              "legendFormat": "{{name}}"
+            }
+          ],
+          "options": {
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            },
+            "legend": {
+              "showLegend": true,
+              "displayMode": "list",
+              "placement": "bottom"
+            }
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 25,
+                "gradientMode": "opacity",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "smooth",
+                "lineStyle": {
+                  "fill": "solid"
+                },
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "normal"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "unit": "bytes"
+            },
+            "overrides": []
+          },
+          "description": "Working set memory per Tier 1 service"
+        },
+        {
+          "id": 9,
+          "type": "bargauge",
+          "title": "Memory vs Limit",
+          "gridPos": {
+            "x": 12,
+            "y": 0,
+            "w": 6,
+            "h": 8
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-parthenon"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus-parthenon"
+              },
+              "expr": "container_memory_working_set_bytes{name=~\"parthenon-(php|nginx|ai|postgres)\"} / container_spec_memory_limit_bytes{name=~\"parthenon-(php|nginx|ai|postgres)\"} * 100",
+              "instant": true,
+              "range": false,
+              "legendFormat": "{{name}}"
+            }
+          ],
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "orientation": "horizontal",
+            "displayMode": "lcd",
+            "showUnfilled": true,
+            "valueMode": "color",
+            "namePlacement": "auto",
+            "sizing": "auto"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "unit": "percent",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "yellow",
+                    "value": 70
+                  },
+                  {
+                    "color": "red",
+                    "value": 85
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "description": "Memory usage as percentage of container limit"
+        },
+        {
+          "id": 10,
+          "type": "stat",
+          "title": "Restarts (24h)",
+          "gridPos": {
+            "x": 18,
+            "y": 0,
+            "w": 6,
+            "h": 8
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-parthenon"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus-parthenon"
+              },
+              "expr": "changes(container_start_time_seconds{name=~\"parthenon-(php|nginx|ai|postgres)\"}[24h])",
+              "legendFormat": "__auto",
+              "instant": false,
+              "range": true
+            }
+          ],
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "orientation": "auto",
+            "textMode": "auto",
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "wideLayout": true
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "unit": "short",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 1
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "description": "Container restart count in the last 24 hours"
+        },
+        {
+          "id": 11,
+          "type": "timeseries",
+          "title": "Network RX",
+          "gridPos": {
+            "x": 0,
+            "y": 8,
+            "w": 6,
+            "h": 8
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-parthenon"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus-parthenon"
+              },
+              "expr": "sum(rate(container_network_receive_bytes_total{name=~\"parthenon-(php|nginx|ai|postgres)\"}[5m])) by (name)",
+              "legendFormat": "{{name}}"
+            }
+          ],
+          "options": {
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            },
+            "legend": {
+              "showLegend": true,
+              "displayMode": "list",
+              "placement": "bottom"
+            }
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 25,
+                "gradientMode": "opacity",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "smooth",
+                "lineStyle": {
+                  "fill": "solid"
+                },
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "unit": "Bps"
+            },
+            "overrides": []
+          },
+          "description": "Network receive rate per Tier 1 service"
+        },
+        {
+          "id": 12,
+          "type": "timeseries",
+          "title": "Network TX",
+          "gridPos": {
+            "x": 6,
+            "y": 8,
+            "w": 6,
+            "h": 8
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-parthenon"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus-parthenon"
+              },
+              "expr": "sum(rate(container_network_transmit_bytes_total{name=~\"parthenon-(php|nginx|ai|postgres)\"}[5m])) by (name)",
+              "legendFormat": "{{name}}"
+            }
+          ],
+          "options": {
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            },
+            "legend": {
+              "showLegend": true,
+              "displayMode": "list",
+              "placement": "bottom"
+            }
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 25,
+                "gradientMode": "opacity",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "smooth",
+                "lineStyle": {
+                  "fill": "solid"
+                },
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "unit": "Bps"
+            },
+            "overrides": []
+          },
+          "description": "Network transmit rate per Tier 1 service"
+        },
+        {
+          "id": 13,
+          "type": "timeseries",
+          "title": "Disk I/O Read",
+          "gridPos": {
+            "x": 12,
+            "y": 8,
+            "w": 6,
+            "h": 8
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-parthenon"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus-parthenon"
+              },
+              "expr": "sum(rate(container_fs_reads_bytes_total{name=~\"parthenon-(php|nginx|ai|postgres)\"}[5m])) by (name)",
+              "legendFormat": "{{name}}"
+            }
+          ],
+          "options": {
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            },
+            "legend": {
+              "showLegend": true,
+              "displayMode": "list",
+              "placement": "bottom"
+            }
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 25,
+                "gradientMode": "opacity",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "smooth",
+                "lineStyle": {
+                  "fill": "solid"
+                },
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "unit": "Bps"
+            },
+            "overrides": []
+          },
+          "description": "Disk read rate per Tier 1 service"
+        },
+        {
+          "id": 14,
+          "type": "timeseries",
+          "title": "Disk I/O Write",
+          "gridPos": {
+            "x": 18,
+            "y": 8,
+            "w": 6,
+            "h": 8
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-parthenon"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus-parthenon"
+              },
+              "expr": "sum(rate(container_fs_writes_bytes_total{name=~\"parthenon-(php|nginx|ai|postgres)\"}[5m])) by (name)",
+              "legendFormat": "{{name}}"
+            }
+          ],
+          "options": {
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            },
+            "legend": {
+              "showLegend": true,
+              "displayMode": "list",
+              "placement": "bottom"
+            }
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 25,
+                "gradientMode": "opacity",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "smooth",
+                "lineStyle": {
+                  "fill": "solid"
+                },
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "unit": "Bps"
+            },
+            "overrides": []
+          },
+          "description": "Disk write rate per Tier 1 service"
+        }
+      ]
+    },
+    {
+      "id": 22,
+      "type": "row",
+      "title": "Apache Host Logs",
+      "gridPos": {
+        "x": 0,
+        "y": 6,
+        "w": 24,
+        "h": 1
+      },
+      "collapsed": true,
+      "panels": [
+        {
+          "id": 16,
+          "type": "timeseries",
+          "title": "Request Rate by Status",
+          "gridPos": {
+            "x": 0,
+            "y": 0,
+            "w": 12,
+            "h": 8
+          },
+          "datasource": {
+            "type": "loki",
+            "uid": "loki-parthenon"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "loki",
+                "uid": "loki-parthenon"
+              },
+              "expr": "sum by(status) (count_over_time({job=\"apache\", log_type=\"access\"} | pattern `<ip> - <_> [<_>] \"<method> <path> <_>\" <status> <bytes>` [$__interval]))",
+              "legendFormat": "{{status}}"
+            }
+          ],
+          "options": {
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            },
+            "legend": {
+              "showLegend": true,
+              "displayMode": "list",
+              "placement": "bottom"
+            }
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 25,
+                "gradientMode": "opacity",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "smooth",
+                "lineStyle": {
+                  "fill": "solid"
+                },
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "normal"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "unit": "short"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": "/^2/"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#2DD4BF",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": "/^3/"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#6E9FFF",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": "/^4/"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#C9A227",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": "/^5/"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#9B1B30",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "description": "HTTP request rate grouped by status code"
+        },
+        {
+          "id": 17,
+          "type": "piechart",
+          "title": "Status Code Distribution",
+          "gridPos": {
+            "x": 12,
+            "y": 0,
+            "w": 6,
+            "h": 8
+          },
+          "datasource": {
+            "type": "loki",
+            "uid": "loki-parthenon"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "loki",
+                "uid": "loki-parthenon"
+              },
+              "expr": "sum by(status) (count_over_time({job=\"apache\", log_type=\"access\"} | pattern `<ip> - <_> [<_>] \"<method> <path> <_>\" <status> <bytes>` [$__range]))",
+              "legendFormat": "__auto",
+              "instant": false,
+              "range": true
+            }
+          ],
+          "options": {
+            "pieType": "donut",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            },
+            "legend": {
+              "showLegend": true,
+              "displayMode": "table",
+              "placement": "right",
+              "values": [
+                "value",
+                "percent"
+              ]
+            }
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": "/^2/"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#2DD4BF",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": "/^3/"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#6E9FFF",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": "/^4/"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#C9A227",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": "/^5/"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#9B1B30",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "description": "Proportional breakdown of HTTP status codes"
+        },
+        {
+          "id": 18,
+          "type": "bargauge",
+          "title": "Top 10 Paths",
+          "gridPos": {
+            "x": 18,
+            "y": 0,
+            "w": 6,
+            "h": 8
+          },
+          "datasource": {
+            "type": "loki",
+            "uid": "loki-parthenon"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "loki",
+                "uid": "loki-parthenon"
+              },
+              "expr": "topk(10, sum by(path) (count_over_time({job=\"apache\", log_type=\"access\"} | pattern `<ip> - <_> [<_>] \"<method> <path> <_>\" <status> <bytes>` [$__range])))",
+              "instant": false,
+              "range": true,
+              "legendFormat": "{{path}}"
+            }
+          ],
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "orientation": "horizontal",
+            "displayMode": "lcd",
+            "showUnfilled": true,
+            "valueMode": "color",
+            "namePlacement": "auto",
+            "sizing": "auto"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "unit": "short",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "yellow",
+                    "value": 50
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "description": "Most frequently requested URL paths"
+        },
+        {
+          "id": 19,
+          "type": "table",
+          "title": "Top Error Paths",
+          "gridPos": {
+            "x": 0,
+            "y": 8,
+            "w": 12,
+            "h": 8
+          },
+          "datasource": {
+            "type": "loki",
+            "uid": "loki-parthenon"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "loki",
+                "uid": "loki-parthenon"
+              },
+              "expr": "topk(10, sum by(path, status) (count_over_time({job=\"apache\", log_type=\"access\"} | pattern `<ip> - <_> [<_>] \"<method> <path> <_>\" <status> <bytes>` | status >= 400 [$__range])))",
+              "legendFormat": "",
+              "instant": true,
+              "range": false,
+              "format": "table"
+            }
+          ],
+          "options": {
+            "showHeader": true,
+            "cellHeight": "sm",
+            "footer": {
+              "show": false
+            }
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "status"
+                },
+                "properties": [
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-background"
+                    }
+                  },
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "#C9A227",
+                          "value": null
+                        },
+                        {
+                          "color": "#9B1B30",
+                          "value": 500
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "description": "URL paths returning 4xx/5xx status codes"
+        },
+        {
+          "id": 20,
+          "type": "logs",
+          "title": "Apache Error Log",
+          "gridPos": {
+            "x": 12,
+            "y": 8,
+            "w": 12,
+            "h": 8
+          },
+          "datasource": {
+            "type": "loki",
+            "uid": "loki-parthenon"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "loki",
+                "uid": "loki-parthenon"
+              },
+              "expr": "{job=\"apache\", log_type=\"error\"} |~ \"$search\"",
+              "legendFormat": "",
+              "maxLines": 1000
+            }
+          ],
+          "options": {
+            "dedupStrategy": "signature",
+            "enableLogDetails": true,
+            "prettifyLogMessage": true,
+            "showCommonLabels": false,
+            "showLabels": true,
+            "showTime": true,
+            "sortOrder": "Descending",
+            "wrapLogMessage": true
+          },
+          "description": "Apache error log stream, filtered by search text"
+        },
+        {
+          "id": 21,
+          "type": "logs",
+          "title": "Apache Access Log",
+          "gridPos": {
+            "x": 0,
+            "y": 16,
+            "w": 24,
+            "h": 10
+          },
+          "datasource": {
+            "type": "loki",
+            "uid": "loki-parthenon"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "loki",
+                "uid": "loki-parthenon"
+              },
+              "expr": "{job=\"apache\", log_type=\"access\"} |~ \"$search\" | pattern `<ip> - <_> [<_>] \"<method> <path> <_>\" <status> <bytes>` | status =~ \"$status_code\"",
+              "legendFormat": "",
+              "maxLines": 1000
+            }
+          ],
+          "options": {
+            "dedupStrategy": "signature",
+            "enableLogDetails": true,
+            "prettifyLogMessage": true,
+            "showCommonLabels": false,
+            "showLabels": true,
+            "showTime": true,
+            "sortOrder": "Descending",
+            "wrapLogMessage": true
+          },
+          "description": "Apache access log stream, filtered by search text and status code"
+        }
+      ]
+    },
+    {
+      "id": 28,
+      "type": "row",
+      "title": "PHP / Laravel Logs",
+      "gridPos": {
+        "x": 0,
+        "y": 7,
+        "w": 24,
+        "h": 1
+      },
+      "collapsed": true,
+      "panels": [
+        {
+          "id": 23,
+          "type": "timeseries",
+          "title": "Error Rate by Level",
+          "gridPos": {
+            "x": 0,
+            "y": 0,
+            "w": 12,
+            "h": 8
+          },
+          "datasource": {
+            "type": "loki",
+            "uid": "loki-parthenon"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "loki",
+                "uid": "loki-parthenon"
+              },
+              "expr": "sum by(level) (count_over_time({container_name=\"parthenon-php\"} | regexp `\\[\\d{4}-\\d{2}-\\d{2}[^\\]]+\\] \\w+\\.(?P<level>\\w+):` | level=~\"ERROR|CRITICAL|ALERT|EMERGENCY\" [$__interval]))",
+              "legendFormat": "{{level}}"
+            }
+          ],
+          "options": {
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            },
+            "legend": {
+              "showLegend": true,
+              "displayMode": "list",
+              "placement": "bottom"
+            }
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 25,
+                "gradientMode": "opacity",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "smooth",
+                "lineStyle": {
+                  "fill": "solid"
+                },
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "normal"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "unit": "short"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "debug"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#6E9FFF",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "DEBUG"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#6E9FFF",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "info"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#2DD4BF",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "INFO"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#2DD4BF",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "warn"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#C9A227",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "WARNING"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#C9A227",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "error"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#9B1B30",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "ERROR"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#9B1B30",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "critical"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#6B0F1A",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "CRITICAL"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#6B0F1A",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "fatal"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#6B0F1A",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "FATAL"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#6B0F1A",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "PANIC"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#6B0F1A",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "description": "Laravel error log lines by severity level"
+        },
+        {
+          "id": 24,
+          "type": "bargauge",
+          "title": "Top 10 Exceptions",
+          "gridPos": {
+            "x": 12,
+            "y": 0,
+            "w": 12,
+            "h": 8
+          },
+          "datasource": {
+            "type": "loki",
+            "uid": "loki-parthenon"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "loki",
+                "uid": "loki-parthenon"
+              },
+              "expr": "topk(10, sum by(exception_class) (count_over_time({container_name=\"parthenon-php\"} |~ \"Exception\" | regexp `(?P<exception_class>[A-Z]\\w+Exception)` [$__range])))",
+              "instant": false,
+              "range": true,
+              "legendFormat": "{{exception_class}}"
+            }
+          ],
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "orientation": "horizontal",
+            "displayMode": "lcd",
+            "showUnfilled": true,
+            "valueMode": "color",
+            "namePlacement": "auto",
+            "sizing": "auto"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "unit": "short",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "yellow",
+                    "value": 50
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "description": "Most frequently thrown exception types"
+        },
+        {
+          "id": 25,
+          "type": "timeseries",
+          "title": "Log Volume by Level",
+          "gridPos": {
+            "x": 0,
+            "y": 8,
+            "w": 12,
+            "h": 8
+          },
+          "datasource": {
+            "type": "loki",
+            "uid": "loki-parthenon"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "loki",
+                "uid": "loki-parthenon"
+              },
+              "expr": "sum by(level) (count_over_time({container_name=\"parthenon-php\"} | regexp `\\w+\\.(?P<level>\\w+):` [$__interval]))",
+              "legendFormat": "{{level}}"
+            }
+          ],
+          "options": {
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            },
+            "legend": {
+              "showLegend": true,
+              "displayMode": "list",
+              "placement": "bottom"
+            }
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 25,
+                "gradientMode": "opacity",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "smooth",
+                "lineStyle": {
+                  "fill": "solid"
+                },
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "normal"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "unit": "short"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "debug"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#6E9FFF",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "DEBUG"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#6E9FFF",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "info"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#2DD4BF",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "INFO"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#2DD4BF",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "warn"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#C9A227",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "WARNING"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#C9A227",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "error"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#9B1B30",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "ERROR"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#9B1B30",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "critical"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#6B0F1A",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "CRITICAL"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#6B0F1A",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "fatal"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#6B0F1A",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "FATAL"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#6B0F1A",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "PANIC"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#6B0F1A",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "description": "All PHP log lines grouped by level"
+        },
+        {
+          "id": 26,
+          "type": "table",
+          "title": "Recent Errors",
+          "gridPos": {
+            "x": 12,
+            "y": 8,
+            "w": 12,
+            "h": 8
+          },
+          "datasource": {
+            "type": "loki",
+            "uid": "loki-parthenon"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "loki",
+                "uid": "loki-parthenon"
+              },
+              "expr": "{container_name=\"parthenon-php\"} | regexp `\\[(?P<timestamp>[^\\]]+)\\] (?P<env>\\w+)\\.(?P<level>\\w+): (?P<message>.*)` | level=~\"ERROR|CRITICAL\"",
+              "legendFormat": "",
+              "instant": true,
+              "range": false,
+              "format": "table"
+            }
+          ],
+          "options": {
+            "showHeader": true,
+            "cellHeight": "sm",
+            "footer": {
+              "show": false
+            }
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "description": "Latest ERROR and CRITICAL log entries with message"
+        },
+        {
+          "id": 27,
+          "type": "logs",
+          "title": "Live Log Stream",
+          "gridPos": {
+            "x": 0,
+            "y": 16,
+            "w": 24,
+            "h": 12
+          },
+          "datasource": {
+            "type": "loki",
+            "uid": "loki-parthenon"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "loki",
+                "uid": "loki-parthenon"
+              },
+              "expr": "{container_name=\"parthenon-php\"} |~ \"$search\" | regexp `\\w+\\.(?P<level>\\w+):` | level=~\"$log_level\"",
+              "legendFormat": "",
+              "maxLines": 1000
+            }
+          ],
+          "options": {
+            "dedupStrategy": "signature",
+            "enableLogDetails": true,
+            "prettifyLogMessage": true,
+            "showCommonLabels": false,
+            "showLabels": true,
+            "showTime": true,
+            "sortOrder": "Descending",
+            "wrapLogMessage": true
+          },
+          "description": "PHP/Laravel log stream filtered by level and search text"
+        }
+      ]
+    },
+    {
+      "id": 34,
+      "type": "row",
+      "title": "AI Service / FastAPI Logs",
+      "gridPos": {
+        "x": 0,
+        "y": 8,
+        "w": 24,
+        "h": 1
+      },
+      "collapsed": true,
+      "panels": [
+        {
+          "id": 29,
+          "type": "timeseries",
+          "title": "Request Rate by Status",
+          "gridPos": {
+            "x": 0,
+            "y": 0,
+            "w": 12,
+            "h": 8
+          },
+          "datasource": {
+            "type": "loki",
+            "uid": "loki-parthenon"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "loki",
+                "uid": "loki-parthenon"
+              },
+              "expr": "sum by(status) (count_over_time({container_name=\"parthenon-ai\"} | pattern `<_> - \"<method> <path> <_>\" <status> <_>` [$__interval]))",
+              "legendFormat": "{{status}}"
+            }
+          ],
+          "options": {
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            },
+            "legend": {
+              "showLegend": true,
+              "displayMode": "list",
+              "placement": "bottom"
+            }
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 25,
+                "gradientMode": "opacity",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "smooth",
+                "lineStyle": {
+                  "fill": "solid"
+                },
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "normal"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "unit": "short"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": "/^2/"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#2DD4BF",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": "/^3/"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#6E9FFF",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": "/^4/"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#C9A227",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": "/^5/"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#9B1B30",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "description": "Uvicorn request rate by HTTP status code"
+        },
+        {
+          "id": 30,
+          "type": "timeseries",
+          "title": "Error Rate",
+          "gridPos": {
+            "x": 12,
+            "y": 0,
+            "w": 12,
+            "h": 8
+          },
+          "datasource": {
+            "type": "loki",
+            "uid": "loki-parthenon"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "loki",
+                "uid": "loki-parthenon"
+              },
+              "expr": "sum(count_over_time({container_name=\"parthenon-ai\"} |~ \"(?i)error|exception|traceback|fatal\" [$__interval]))",
+              "legendFormat": "errors"
+            }
+          ],
+          "options": {
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            },
+            "legend": {
+              "showLegend": true,
+              "displayMode": "list",
+              "placement": "bottom"
+            }
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "#9B1B30"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 25,
+                "gradientMode": "opacity",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "smooth",
+                "lineStyle": {
+                  "fill": "solid"
+                },
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "description": "Error log line frequency for the AI service"
+        },
+        {
+          "id": 31,
+          "type": "table",
+          "title": "Top Error Patterns",
+          "gridPos": {
+            "x": 0,
+            "y": 8,
+            "w": 12,
+            "h": 8
+          },
+          "datasource": {
+            "type": "loki",
+            "uid": "loki-parthenon"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "loki",
+                "uid": "loki-parthenon"
+              },
+              "expr": "topk(10, sum by(message) (count_over_time({container_name=\"parthenon-ai\"} |~ \"(?i)error|exception\" | regexp `(?P<message>(?:Error|Exception|Traceback)[^\\n]{0,120})` [$__range])))",
+              "legendFormat": "",
+              "instant": true,
+              "range": false,
+              "format": "table"
+            }
+          ],
+          "options": {
+            "showHeader": true,
+            "cellHeight": "sm",
+            "footer": {
+              "show": false
+            }
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "description": "Most frequent error patterns (Ollama, RAG, SapBERT, etc.)"
+        },
+        {
+          "id": 32,
+          "type": "timeseries",
+          "title": "Ollama & RAG Activity",
+          "gridPos": {
+            "x": 12,
+            "y": 8,
+            "w": 12,
+            "h": 8
+          },
+          "datasource": {
+            "type": "loki",
+            "uid": "loki-parthenon"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "loki",
+                "uid": "loki-parthenon"
+              },
+              "expr": "sum by(type) (count_over_time({container_name=\"parthenon-ai\"} |~ \"ollama|chroma|embeddi|retriev\" | regexp `(?P<type>ollama|chroma|embed|retriev)` [$__interval]))",
+              "legendFormat": "{{type}}"
+            }
+          ],
+          "options": {
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            },
+            "legend": {
+              "showLegend": true,
+              "displayMode": "list",
+              "placement": "bottom"
+            }
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 25,
+                "gradientMode": "opacity",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "smooth",
+                "lineStyle": {
+                  "fill": "solid"
+                },
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "description": "RAG pipeline component activity over time"
+        },
+        {
+          "id": 33,
+          "type": "logs",
+          "title": "Live Log Stream",
+          "gridPos": {
+            "x": 0,
+            "y": 16,
+            "w": 24,
+            "h": 12
+          },
+          "datasource": {
+            "type": "loki",
+            "uid": "loki-parthenon"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "loki",
+                "uid": "loki-parthenon"
+              },
+              "expr": "{container_name=\"parthenon-ai\"} |~ \"$search\" | regexp `(?P<level>INFO|WARNING|ERROR|CRITICAL|DEBUG)` | level=~\"$log_level\"",
+              "legendFormat": "",
+              "maxLines": 1000
+            }
+          ],
+          "options": {
+            "dedupStrategy": "signature",
+            "enableLogDetails": true,
+            "prettifyLogMessage": true,
+            "showCommonLabels": false,
+            "showLabels": true,
+            "showTime": true,
+            "sortOrder": "Descending",
+            "wrapLogMessage": true
+          },
+          "description": "AI service log stream filtered by level and search text"
+        }
+      ]
+    },
+    {
+      "id": 40,
+      "type": "row",
+      "title": "PostgreSQL Logs",
+      "gridPos": {
+        "x": 0,
+        "y": 9,
+        "w": 24,
+        "h": 1
+      },
+      "collapsed": true,
+      "panels": [
+        {
+          "id": 35,
+          "type": "timeseries",
+          "title": "Slow Queries (>100ms)",
+          "gridPos": {
+            "x": 0,
+            "y": 0,
+            "w": 12,
+            "h": 8
+          },
+          "datasource": {
+            "type": "loki",
+            "uid": "loki-parthenon"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "loki",
+                "uid": "loki-parthenon"
+              },
+              "expr": "count_over_time({job=\"postgresql\"} |= \"duration:\" | regexp `duration: (?P<duration>\\d+\\.\\d+) ms` | duration > 100 [$__interval])",
+              "legendFormat": "slow queries"
+            }
+          ],
+          "options": {
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            },
+            "legend": {
+              "showLegend": true,
+              "displayMode": "list",
+              "placement": "bottom"
+            }
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "fixed",
+                "fixedColor": "#C9A227"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 25,
+                "gradientMode": "opacity",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "smooth",
+                "lineStyle": {
+                  "fill": "solid"
+                },
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "description": "Count of queries taking >100ms (requires log_min_duration_statement=100)"
+        },
+        {
+          "id": 36,
+          "type": "table",
+          "title": "Top Slow Queries",
+          "gridPos": {
+            "x": 12,
+            "y": 0,
+            "w": 12,
+            "h": 8
+          },
+          "datasource": {
+            "type": "loki",
+            "uid": "loki-parthenon"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "loki",
+                "uid": "loki-parthenon"
+              },
+              "expr": "topk(10, avg_over_time({job=\"postgresql\"} |= \"duration:\" | regexp `duration: (?P<duration>\\d+\\.\\d+) ms\\s+statement: (?P<query>.+)` | unwrap duration [$__range]) by (query))",
+              "legendFormat": "",
+              "instant": true,
+              "range": false,
+              "format": "table"
+            }
+          ],
+          "options": {
+            "showHeader": true,
+            "cellHeight": "sm",
+            "footer": {
+              "show": false
+            }
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "description": "Queries ranked by average execution time"
+        },
+        {
+          "id": 37,
+          "type": "timeseries",
+          "title": "Database Errors",
+          "gridPos": {
+            "x": 0,
+            "y": 8,
+            "w": 12,
+            "h": 8
+          },
+          "datasource": {
+            "type": "loki",
+            "uid": "loki-parthenon"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "loki",
+                "uid": "loki-parthenon"
+              },
+              "expr": "sum by(level) (count_over_time({job=\"postgresql\"} | regexp `(?P<level>ERROR|FATAL|PANIC|WARNING):` [$__interval]))",
+              "legendFormat": "{{level}}"
+            }
+          ],
+          "options": {
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            },
+            "legend": {
+              "showLegend": true,
+              "displayMode": "list",
+              "placement": "bottom"
+            }
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 25,
+                "gradientMode": "opacity",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "smooth",
+                "lineStyle": {
+                  "fill": "solid"
+                },
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "normal"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "unit": "short"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "debug"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#6E9FFF",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "DEBUG"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#6E9FFF",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "info"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#2DD4BF",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "INFO"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#2DD4BF",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "warn"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#C9A227",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "WARNING"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#C9A227",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "error"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#9B1B30",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "ERROR"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#9B1B30",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "critical"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#6B0F1A",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "CRITICAL"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#6B0F1A",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "fatal"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#6B0F1A",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "FATAL"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#6B0F1A",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "PANIC"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#6B0F1A",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "description": "PostgreSQL error and warning frequency"
+        },
+        {
+          "id": 38,
+          "type": "logs",
+          "title": "Docker Postgres Log",
+          "gridPos": {
+            "x": 12,
+            "y": 8,
+            "w": 12,
+            "h": 8
+          },
+          "datasource": {
+            "type": "loki",
+            "uid": "loki-parthenon"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "loki",
+                "uid": "loki-parthenon"
+              },
+              "expr": "{container_name=\"parthenon-postgres\"} |~ \"$search\"",
+              "legendFormat": "",
+              "maxLines": 1000
+            }
+          ],
+          "options": {
+            "dedupStrategy": "signature",
+            "enableLogDetails": true,
+            "prettifyLogMessage": true,
+            "showCommonLabels": false,
+            "showLabels": true,
+            "showTime": true,
+            "sortOrder": "Descending",
+            "wrapLogMessage": true
+          },
+          "description": "Docker PostgreSQL container log stream"
+        },
+        {
+          "id": 39,
+          "type": "logs",
+          "title": "Host PG17 Log",
+          "gridPos": {
+            "x": 0,
+            "y": 16,
+            "w": 24,
+            "h": 12
+          },
+          "datasource": {
+            "type": "loki",
+            "uid": "loki-parthenon"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "loki",
+                "uid": "loki-parthenon"
+              },
+              "expr": "{job=\"postgresql\"} |~ \"$search\"",
+              "legendFormat": "",
+              "maxLines": 1000
+            }
+          ],
+          "options": {
+            "dedupStrategy": "signature",
+            "enableLogDetails": true,
+            "prettifyLogMessage": true,
+            "showCommonLabels": false,
+            "showLabels": true,
+            "showTime": true,
+            "sortOrder": "Descending",
+            "wrapLogMessage": true
+          },
+          "description": "Host PostgreSQL 17 log stream (production database)"
+        }
+      ]
+    },
+    {
+      "id": 44,
+      "type": "row",
+      "title": "Tier 2 Services",
+      "gridPos": {
+        "x": 0,
+        "y": 10,
+        "w": 24,
+        "h": 1
+      },
+      "collapsed": true,
+      "panels": [
+        {
+          "id": 41,
+          "type": "bargauge",
+          "title": "Error Count by Service",
+          "gridPos": {
+            "x": 0,
+            "y": 0,
+            "w": 12,
+            "h": 8
+          },
+          "datasource": {
+            "type": "loki",
+            "uid": "loki-parthenon"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "loki",
+                "uid": "loki-parthenon"
+              },
+              "expr": "sum by(container_name) (count_over_time({container_name=~\"parthenon-(horizon|redis|solr|r|chromadb|study-agent|reverb|node|orthanc|finngen-runner|qdrant)\"} |~ \"(?i)error|exception|fatal\" [$__range]))",
+              "instant": false,
+              "range": true,
+              "legendFormat": "{{container_name}}"
+            }
+          ],
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "orientation": "horizontal",
+            "displayMode": "lcd",
+            "showUnfilled": true,
+            "valueMode": "color",
+            "namePlacement": "auto",
+            "sizing": "auto"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "unit": "short",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "yellow",
+                    "value": 1
+                  },
+                  {
+                    "color": "red",
+                    "value": 10
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "description": "Error count per Tier 2 service in selected time range"
+        },
+        {
+          "id": 42,
+          "type": "timeseries",
+          "title": "Log Volume by Service",
+          "gridPos": {
+            "x": 12,
+            "y": 0,
+            "w": 12,
+            "h": 8
+          },
+          "datasource": {
+            "type": "loki",
+            "uid": "loki-parthenon"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "loki",
+                "uid": "loki-parthenon"
+              },
+              "expr": "sum by(container_name) (count_over_time({container_name=~\"parthenon-(horizon|redis|solr|r|chromadb|study-agent|reverb|node|orthanc|finngen-runner|qdrant)\"} [$__interval]))",
+              "legendFormat": "{{container_name}}"
+            }
+          ],
+          "options": {
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            },
+            "legend": {
+              "showLegend": true,
+              "displayMode": "list",
+              "placement": "bottom"
+            }
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 25,
+                "gradientMode": "opacity",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "smooth",
+                "lineStyle": {
+                  "fill": "solid"
+                },
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "normal"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "description": "Log line volume per Tier 2 service"
+        },
+        {
+          "id": 43,
+          "type": "logs",
+          "title": "Live Log Stream",
+          "gridPos": {
+            "x": 0,
+            "y": 8,
+            "w": 24,
+            "h": 12
+          },
+          "datasource": {
+            "type": "loki",
+            "uid": "loki-parthenon"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "loki",
+                "uid": "loki-parthenon"
+              },
+              "expr": "{container_name=~\"$service\"} |~ \"$search\" |~ \"(?i)$log_level\"",
+              "legendFormat": "",
+              "maxLines": 1000
+            }
+          ],
+          "options": {
+            "dedupStrategy": "signature",
+            "enableLogDetails": true,
+            "prettifyLogMessage": true,
+            "showCommonLabels": false,
+            "showLabels": true,
+            "showTime": true,
+            "sortOrder": "Descending",
+            "wrapLogMessage": true
+          },
+          "description": "Tier 2 service logs filtered by service selector, level, and search text"
+        }
+      ]
     }
   ],
   "links": [],
