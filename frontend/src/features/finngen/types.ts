@@ -57,6 +57,7 @@ export interface FinnGenSelectedCohort {
   id: number;
   name: string;
   description?: string | null;
+  role?: string;
 }
 
 export interface FinnGenRuntime {
@@ -158,8 +159,13 @@ export interface FinnGenHadesExtrasResult {
   runtime: FinnGenRuntime;
   source: Record<string, unknown>;
   package_setup?: Record<string, unknown>;
+  config_yaml?: string;
   render_summary: Record<string, unknown>;
   config_summary?: Record<string, unknown>;
+  config_exports?: {
+    yaml?: string;
+    json?: Record<string, unknown>;
+  };
   sql_preview: { template: string; rendered: string };
   artifact_pipeline: Array<{ name: string; status: string }>;
   artifacts: FinnGenArtifact[];
@@ -180,6 +186,9 @@ export interface FinnGenRomopapiResult {
   runtime: FinnGenRuntime;
   source: Record<string, unknown>;
   query_controls?: Record<string, unknown>;
+  execution_summary?: Record<string, unknown>;
+  endpoint_manifest?: Array<{ name: string; method: string; path: string; summary?: string }>;
+  cache_status?: Array<{ label: string; value: string; detail?: string }>;
   metadata_summary: Record<string, unknown>;
   schema_nodes: Array<{ name: string; group: string; connections: number; estimated_rows?: number }>;
   lineage_trace: Array<{ step: number; label: string; detail: string }>;
@@ -195,6 +204,7 @@ export interface FinnGenRomopapiResult {
   report_content?: {
     markdown?: string;
     html?: string;
+    format?: string;
     manifest?: Array<{ name: string; kind: string; summary?: string }>;
   };
   report_artifacts?: FinnGenArtifact[];

@@ -271,8 +271,10 @@ class StudyAgentController extends Controller
             'selected_cohort_ids.*' => ['integer'],
             'selected_cohort_labels' => ['sometimes', 'array'],
             'selected_cohort_labels.*' => ['string'],
+            'primary_cohort_id' => ['sometimes', 'nullable', 'integer'],
             'matching_enabled' => ['sometimes', 'boolean'],
             'matching_strategy' => ['sometimes', 'string'],
+            'matching_target' => ['sometimes', 'string'],
             'matching_covariates' => ['sometimes', 'array'],
             'matching_covariates.*' => ['string'],
             'matching_ratio' => ['sometimes', 'numeric'],
@@ -292,8 +294,10 @@ class StudyAgentController extends Controller
                 'cohort_table_name' => $validated['cohort_table_name'] ?? '',
                 'selected_cohort_ids' => $validated['selected_cohort_ids'] ?? [],
                 'selected_cohort_labels' => $validated['selected_cohort_labels'] ?? [],
+                'primary_cohort_id' => $validated['primary_cohort_id'] ?? null,
                 'matching_enabled' => $validated['matching_enabled'] ?? true,
                 'matching_strategy' => $validated['matching_strategy'] ?? 'nearest-neighbor',
+                'matching_target' => $validated['matching_target'] ?? 'primary_vs_comparators',
                 'matching_covariates' => $validated['matching_covariates'] ?? [],
                 'matching_ratio' => $validated['matching_ratio'] ?? 1,
                 'matching_caliper' => $validated['matching_caliper'] ?? 0.2,
@@ -320,6 +324,10 @@ class StudyAgentController extends Controller
             'burden_domain' => ['sometimes', 'string'],
             'exposure_window' => ['sometimes', 'string'],
             'stratify_by' => ['sometimes', 'string'],
+            'time_window_unit' => ['sometimes', 'string'],
+            'time_window_count' => ['sometimes', 'numeric'],
+            'gwas_trait' => ['sometimes', 'string'],
+            'gwas_method' => ['sometimes', 'string'],
         ]);
 
         $source = $this->resolveSource((int) data_get($validated, 'source.id'), $request);
@@ -335,6 +343,10 @@ class StudyAgentController extends Controller
                 'burden_domain' => $validated['burden_domain'] ?? '',
                 'exposure_window' => $validated['exposure_window'] ?? '',
                 'stratify_by' => $validated['stratify_by'] ?? '',
+                'time_window_unit' => $validated['time_window_unit'] ?? '',
+                'time_window_count' => $validated['time_window_count'] ?? null,
+                'gwas_trait' => $validated['gwas_trait'] ?? '',
+                'gwas_method' => $validated['gwas_method'] ?? '',
             ],
         );
 
@@ -354,6 +366,7 @@ class StudyAgentController extends Controller
             'artifact_mode' => ['sometimes', 'string'],
             'package_skeleton' => ['sometimes', 'string'],
             'cohort_table' => ['sometimes', 'string'],
+            'config_yaml' => ['sometimes', 'string'],
         ]);
 
         $source = $this->resolveSource((int) data_get($validated, 'source.id'), $request);
@@ -367,6 +380,7 @@ class StudyAgentController extends Controller
                 'artifact_mode' => $validated['artifact_mode'] ?? '',
                 'package_skeleton' => $validated['package_skeleton'] ?? '',
                 'cohort_table' => $validated['cohort_table'] ?? '',
+                'config_yaml' => $validated['config_yaml'] ?? '',
             ],
         );
 
@@ -385,6 +399,10 @@ class StudyAgentController extends Controller
             'stratify_by' => ['sometimes', 'string'],
             'result_limit' => ['sometimes', 'integer'],
             'lineage_depth' => ['sometimes', 'integer'],
+            'request_method' => ['sometimes', 'string'],
+            'response_format' => ['sometimes', 'string'],
+            'cache_mode' => ['sometimes', 'string'],
+            'report_format' => ['sometimes', 'string'],
         ]);
 
         $source = $this->resolveSource((int) data_get($validated, 'source.id'), $request);
@@ -397,6 +415,10 @@ class StudyAgentController extends Controller
                 'stratify_by' => $validated['stratify_by'] ?? '',
                 'result_limit' => $validated['result_limit'] ?? null,
                 'lineage_depth' => $validated['lineage_depth'] ?? null,
+                'request_method' => $validated['request_method'] ?? '',
+                'response_format' => $validated['response_format'] ?? '',
+                'cache_mode' => $validated['cache_mode'] ?? '',
+                'report_format' => $validated['report_format'] ?? '',
             ],
         );
 
@@ -448,8 +470,10 @@ class StudyAgentController extends Controller
                     'cohort_table_name' => $payload['cohort_table_name'] ?? '',
                     'selected_cohort_ids' => is_array($payload['selected_cohort_ids'] ?? null) ? $payload['selected_cohort_ids'] : [],
                     'selected_cohort_labels' => is_array($payload['selected_cohort_labels'] ?? null) ? $payload['selected_cohort_labels'] : [],
+                    'primary_cohort_id' => $payload['primary_cohort_id'] ?? null,
                     'matching_enabled' => $payload['matching_enabled'] ?? true,
                     'matching_strategy' => $payload['matching_strategy'] ?? 'nearest-neighbor',
+                    'matching_target' => $payload['matching_target'] ?? 'primary_vs_comparators',
                     'matching_covariates' => is_array($payload['matching_covariates'] ?? null) ? $payload['matching_covariates'] : [],
                     'matching_ratio' => $payload['matching_ratio'] ?? 1,
                     'matching_caliper' => $payload['matching_caliper'] ?? 0.2,
@@ -469,6 +493,10 @@ class StudyAgentController extends Controller
                     'burden_domain' => $payload['burden_domain'] ?? '',
                     'exposure_window' => $payload['exposure_window'] ?? '',
                     'stratify_by' => $payload['stratify_by'] ?? '',
+                    'time_window_unit' => $payload['time_window_unit'] ?? '',
+                    'time_window_count' => $payload['time_window_count'] ?? null,
+                    'gwas_trait' => $payload['gwas_trait'] ?? '',
+                    'gwas_method' => $payload['gwas_method'] ?? '',
                 ],
             ),
             'finngen_hades_extras' => $workbench->hadesExtras(
@@ -481,6 +509,7 @@ class StudyAgentController extends Controller
                     'artifact_mode' => $payload['artifact_mode'] ?? '',
                     'package_skeleton' => $payload['package_skeleton'] ?? '',
                     'cohort_table' => $payload['cohort_table'] ?? '',
+                    'config_yaml' => $payload['config_yaml'] ?? '',
                 ],
             ),
             'finngen_romopapi' => $workbench->romopapi(
@@ -492,6 +521,10 @@ class StudyAgentController extends Controller
                     'stratify_by' => $payload['stratify_by'] ?? '',
                     'result_limit' => $payload['result_limit'] ?? null,
                     'lineage_depth' => $payload['lineage_depth'] ?? null,
+                    'request_method' => $payload['request_method'] ?? '',
+                    'response_format' => $payload['response_format'] ?? '',
+                    'cache_mode' => $payload['cache_mode'] ?? '',
+                    'report_format' => $payload['report_format'] ?? '',
                 ],
             ),
             default => throw new \InvalidArgumentException('Unsupported FINNGEN run type.'),

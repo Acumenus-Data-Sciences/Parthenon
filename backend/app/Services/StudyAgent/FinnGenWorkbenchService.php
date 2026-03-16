@@ -43,9 +43,13 @@ class FinnGenWorkbenchService
             is_array($options['selected_cohort_labels'] ?? null) ? $options['selected_cohort_labels'] : [],
             static fn ($value) => is_string($value) && trim($value) !== ''
         ));
+        $primaryCohortId = isset($options['primary_cohort_id']) && is_numeric($options['primary_cohort_id'])
+            ? (int) $options['primary_cohort_id']
+            : null;
         $userId = isset($options['user_id']) && is_numeric($options['user_id']) ? (int) $options['user_id'] : null;
         $matchingEnabled = (bool) ($options['matching_enabled'] ?? true);
         $matchingStrategy = trim((string) ($options['matching_strategy'] ?? 'nearest-neighbor')) ?: 'nearest-neighbor';
+        $matchingTarget = trim((string) ($options['matching_target'] ?? 'primary_vs_comparators')) ?: 'primary_vs_comparators';
         $matchingCovariates = array_values(array_filter(
             is_array($options['matching_covariates'] ?? null) ? $options['matching_covariates'] : [],
             static fn ($value) => is_string($value) && trim($value) !== ''
@@ -70,8 +74,10 @@ class FinnGenWorkbenchService
                 'cohort_table_name' => $cohortTableName,
                 'selected_cohort_ids' => $selectedCohortIds,
                 'selected_cohort_labels' => $selectedCohortLabels,
+                'primary_cohort_id' => $primaryCohortId,
                 'matching_enabled' => $matchingEnabled,
                 'matching_strategy' => $matchingStrategy,
+                'matching_target' => $matchingTarget,
                 'matching_covariates' => $matchingCovariates,
                 'matching_ratio' => $matchingRatio,
                 'matching_caliper' => $matchingCaliper,
@@ -132,7 +138,7 @@ class FinnGenWorkbenchService
         $additionalCount = count(($cohortDefinition['AdditionalCriteria']['CriteriaList'] ?? []));
         $conceptSetCount = count(($cohortDefinition['conceptSets'] ?? $cohortDefinition['ConceptSets'] ?? []));
         $effectiveSampleRows = $sampleRows;
-        $selectedCohorts = $this->buildSelectedCohortSummary($selectedCohortIds, $selectedCohortLabels);
+        $selectedCohorts = $this->buildSelectedCohortSummary($selectedCohortIds, $selectedCohortLabels, $primaryCohortId);
         $atlasImportedCohorts = [];
         $atlasWarnings = [];
 
@@ -153,7 +159,7 @@ class FinnGenWorkbenchService
             }
         }
         $selectedCohortSizes = $this->estimateSelectedCohortSizes($selectedCohorts, $criteriaCount, $conceptSetCount);
-        $operationMetrics = $this->buildOperationMetrics($operationType, $selectedCohortSizes, $matchingEnabled);
+        $operationMetrics = $this->buildOperationMetrics($operationType, $selectedCohortSizes, $matchingEnabled, $matchingTarget);
         $operationComparison = $this->buildOperationComparison($selectedCohorts, $operationMetrics, null);
 
         if ($importMode === 'parthenon' && count($selectedCohorts) >= 2) {
@@ -162,7 +168,7 @@ class FinnGenWorkbenchService
                     array_map(static fn (array $cohort) => (int) $cohort['id'], $selectedCohorts),
                     $source,
                 );
-                $operationMetrics = $this->mergeOperationMetricsWithOverlap($operationType, $selectedCohorts, $operationMetrics, $overlap);
+                $operationMetrics = $this->mergeOperationMetricsWithOverlap($operationType, $selectedCohorts, $operationMetrics, $overlap, $matchingTarget);
                 $operationComparison = $this->buildOperationComparison($selectedCohorts, $operationMetrics, $overlap);
             } catch (\Throwable $e) {
                 $runtime['notes'][] = 'Parthenon overlap evidence was unavailable; operation metrics are using the synthetic preview path.';
@@ -251,6 +257,7 @@ class FinnGenWorkbenchService
                 'selected_cohort_count' => count($selectedCohorts),
                 'matching_enabled' => $matchingEnabled,
                 'matching_strategy' => $matchingStrategy,
+                'matching_target' => $matchingTarget,
                 'matching_covariates' => implode(', ', $matchingCovariates),
                 'matching_ratio' => number_format($matchingRatio, 1).' : 1',
                 'matching_caliper' => number_format($matchingCaliper, 2),
@@ -270,6 +277,8 @@ class FinnGenWorkbenchService
             'operation_summary' => [
                 'operation_type' => $operationType,
                 'selected_cohort_count' => count($selectedCohorts),
+                'primary_cohort' => $this->primaryCohortName($selectedCohorts),
+                'comparator_cohort_count' => max(count($selectedCohorts) - 1, 0),
                 'selected_cohort_names' => implode(', ', array_map(static fn (array $cohort) => (string) $cohort['name'], $selectedCohorts)),
                 'operation_phrase' => $operationMetrics['operation_phrase'],
                 'candidate_rows' => (int) $operationMetrics['candidate_rows'],
@@ -277,11 +286,14 @@ class FinnGenWorkbenchService
                 'retained_ratio' => $operationMetrics['retained_ratio'].'%',
                 'derived_cohort_label' => $operationMetrics['derived_label'],
                 'matching_enabled' => $matchingEnabled ? 'Yes' : 'No',
+                'matching_target' => str_replace('_', ' ', $matchingTarget),
                 'matching_covariates' => $matchingCovariates !== [] ? implode(', ', $matchingCovariates) : 'Default demographic balance',
                 'matching_ratio' => number_format($matchingRatio, 1).' : 1',
                 'matching_caliper' => number_format($matchingCaliper, 2),
             ],
             'operation_evidence' => [
+                ['label' => 'Primary cohort rows', 'value' => (int) ($operationMetrics['primary_rows'] ?? 0), 'emphasis' => 'source'],
+                ['label' => 'Comparator cohort rows', 'value' => (int) ($operationMetrics['comparator_rows'] ?? 0), 'emphasis' => 'delta'],
                 ['label' => 'Input cohort rows', 'value' => (int) $operationMetrics['candidate_rows'], 'emphasis' => 'source'],
                 ['label' => 'Rows retained after '.strtolower($operationType), 'value' => (int) $operationMetrics['result_rows'], 'emphasis' => 'result'],
                 ['label' => 'Rows excluded by operation', 'value' => (int) $operationMetrics['excluded_rows'], 'emphasis' => 'delta'],
@@ -334,16 +346,19 @@ class FinnGenWorkbenchService
                 'excluded_rows' => $matchingEnabled ? (int) $operationMetrics['match_excluded_rows'] : (int) $operationMetrics['excluded_rows'],
                 'matching_enabled' => $matchingEnabled,
                 'match_strategy' => $matchingStrategy,
+                'match_target' => $matchingTarget,
+                'primary_cohort' => $this->primaryCohortName($selectedCohorts),
                 'match_covariates' => $matchingCovariates,
                 'match_ratio' => $matchingRatio,
                 'match_caliper' => $matchingCaliper,
                 'balance_score' => $matchingEnabled ? round(max(0.71, min(0.98, 1 - ($matchingCaliper * 0.18) + (($matchingRatio - 1) * 0.03))), 2) : 1.0,
             ],
             'matching_review' => [
-                'matched_samples' => $this->buildMatchingSamples($selectedCohorts, $matchingCovariates, $matchingRatio, 'matched'),
-                'excluded_samples' => $this->buildMatchingSamples($selectedCohorts, $matchingCovariates, $matchingRatio, 'excluded'),
+                'matched_samples' => $this->buildMatchingSamples($selectedCohorts, $matchingCovariates, $matchingRatio, 'matched', $matchingTarget),
+                'excluded_samples' => $this->buildMatchingSamples($selectedCohorts, $matchingCovariates, $matchingRatio, 'excluded', $matchingTarget),
                 'balance_notes' => [
                     'Matching evidence is aligned to the selected operation builder settings.',
+                    'Primary-cohort anchoring changes how subtract and pairwise balance previews retain comparator rows.',
                     'Use ratio and caliper together to trade match density against balance strictness.',
                     count($selectedCohorts) >= 2
                         ? 'Set-operation evidence is anchored to Parthenon cohort overlap when results tables are available.'
@@ -494,6 +509,10 @@ SQL;
         $burdenDomain = trim((string) ($options['burden_domain'] ?? ''));
         $exposureWindow = trim((string) ($options['exposure_window'] ?? ''));
         $stratifyBy = trim((string) ($options['stratify_by'] ?? ''));
+        $timeWindowUnit = trim((string) ($options['time_window_unit'] ?? ''));
+        $timeWindowCount = max(1, (int) ($options['time_window_count'] ?? 0));
+        $gwasTrait = trim((string) ($options['gwas_trait'] ?? ''));
+        $gwasMethod = trim((string) ($options['gwas_method'] ?? ''));
         $cohortContext = is_array($options['cohort_context'] ?? null) ? $options['cohort_context'] : [];
 
         try {
@@ -508,6 +527,10 @@ SQL;
                 'burden_domain' => $burdenDomain,
                 'exposure_window' => $exposureWindow,
                 'stratify_by' => $stratifyBy,
+                'time_window_unit' => $timeWindowUnit,
+                'time_window_count' => $timeWindowCount,
+                'gwas_trait' => $gwasTrait,
+                'gwas_method' => $gwasMethod,
             ]);
 
             if (is_array($external) && $external !== []) {
@@ -534,6 +557,10 @@ SQL;
             $burdenDomain,
             $exposureWindow,
             $stratifyBy,
+            $timeWindowUnit,
+            $timeWindowCount,
+            $gwasTrait,
+            $gwasMethod,
         );
         $derivedCohortContext = $this->buildCo2CohortContext($cohortLabel, $cohortContext);
         $isDrugModule = str_contains(strtolower($selectedModule), 'drug') || str_contains(strtolower($outcomeName), 'drug');
@@ -665,6 +692,10 @@ SQL;
                 'burden_domain' => $moduleSetup['burden_domain'] ?? null,
                 'exposure_window' => $moduleSetup['exposure_window'] ?? null,
                 'stratify_by' => $moduleSetup['stratify_by'] ?? null,
+                'time_window_unit' => $moduleSetup['time_window_unit'] ?? null,
+                'time_window_count' => $moduleSetup['time_window_count'] ?? null,
+                'gwas_trait' => $moduleSetup['gwas_trait'] ?? null,
+                'gwas_method' => $moduleSetup['gwas_method'] ?? null,
                 'source_key' => $summary['source_key'],
                 'person_count' => $analysisPersonCount,
                 'source_person_count' => $personCount,
@@ -686,9 +717,11 @@ SQL;
             'module_gallery' => [
                 ['name' => $selectedModule, 'family' => $moduleFamily, 'status' => 'selected'],
                 ['name' => 'codewas_preview', 'family' => 'code_scan', 'status' => 'available'],
+                ['name' => 'timecodewas_preview', 'family' => 'timecodewas', 'status' => 'available'],
                 ['name' => 'condition_burden', 'family' => 'descriptive', 'status' => 'available'],
                 ['name' => 'cohort_demographics_preview', 'family' => 'demographics', 'status' => 'available'],
                 ['name' => 'drug_utilization', 'family' => 'utilization', 'status' => 'available'],
+                ['name' => 'gwas_preview', 'family' => 'gwas', 'status' => 'available'],
                 ['name' => 'sex_stratified_preview', 'family' => 'stratified', 'status' => 'available'],
             ],
             'forest_plot' => $forestPlot,
@@ -717,12 +750,13 @@ SQL;
         $artifactMode = trim((string) ($options['artifact_mode'] ?? ''));
         $packageSkeleton = trim((string) ($options['package_skeleton'] ?? ''));
         $cohortTable = trim((string) ($options['cohort_table'] ?? ''));
+        $configYaml = trim((string) ($options['config_yaml'] ?? ''));
         $runtime = $this->runtimeMetadata('hades_extras', [
             'supports_external_adapter' => true,
             'supports_source_preview' => true,
             'supports_sql_render' => true,
         ]);
-        $packageSetup = $this->buildHadesPackageSetup($summary, $target, $packageName, $configProfile, $artifactMode, $packageSkeleton, $cohortTable);
+        $packageSetup = $this->buildHadesPackageSetup($summary, $target, $packageName, $configProfile, $artifactMode, $packageSkeleton, $cohortTable, $configYaml);
 
         try {
             $external = $this->externalAdapters->execute('hades_extras', [
@@ -734,6 +768,7 @@ SQL;
                 'artifact_mode' => $artifactMode,
                 'package_skeleton' => $packageSkeleton,
                 'cohort_table' => $cohortTable,
+                'config_yaml' => $configYaml,
             ]);
 
             if (is_array($external) && $external !== []) {
@@ -767,12 +802,14 @@ SQL;
         $packageEntries = $this->buildHadesPackageEntries($package, $target, $packageSetup);
         $artifactPipeline = $this->buildHadesArtifactPipeline($artifactMode, ! empty($explain));
         $sqlLineage = $this->buildHadesSqlLineage($summary['source_key'], $package, $packageSetup);
+        $configExports = $this->buildHadesConfigExports($packageSetup);
 
         return [
             'status' => 'ok',
             'runtime' => $runtime,
             'source' => $summary,
             'package_setup' => $packageSetup,
+            'config_yaml' => $configExports['yaml'],
             'render_summary' => [
                 'package_name' => $package,
                 'render_target' => $target,
@@ -807,6 +844,7 @@ SQL;
                 'package_skeleton' => $packageSetup['package_skeleton'],
                 'cohort_table' => $packageSetup['cohort_table'],
             ],
+            'config_exports' => $configExports,
             'sql_lineage' => $sqlLineage,
             'cohort_summary' => [
                 ['label' => 'Target cohort table', 'value' => $packageSetup['cohort_table']],
@@ -826,6 +864,10 @@ SQL;
         $stratifyBy = trim((string) ($options['stratify_by'] ?? ''));
         $resultLimit = max(1, min(500, (int) ($options['result_limit'] ?? 25)));
         $lineageDepth = max(1, min(12, (int) ($options['lineage_depth'] ?? 3)));
+        $requestMethod = trim((string) ($options['request_method'] ?? ''));
+        $responseFormat = trim((string) ($options['response_format'] ?? ''));
+        $cacheMode = trim((string) ($options['cache_mode'] ?? ''));
+        $reportFormat = trim((string) ($options['report_format'] ?? ''));
         $runtime = $this->runtimeMetadata('romopapi', [
             'supports_external_adapter' => true,
             'supports_source_preview' => true,
@@ -841,6 +883,10 @@ SQL;
                 'stratify_by' => $stratifyBy,
                 'result_limit' => $resultLimit,
                 'lineage_depth' => $lineageDepth,
+                'request_method' => $requestMethod,
+                'response_format' => $responseFormat,
+                'cache_mode' => $cacheMode,
+                'report_format' => $reportFormat,
             ]);
 
             if (is_array($external) && $external !== []) {
@@ -899,15 +945,40 @@ SQL;
             'stratify_by' => $stratifyBy !== '' ? $stratifyBy : 'overall',
             'result_limit' => $resultLimit,
             'lineage_depth' => $lineageDepth,
+            'request_method' => $requestMethod !== '' ? strtoupper($requestMethod) : 'POST',
+            'response_format' => $responseFormat !== '' ? $responseFormat : 'json',
+            'cache_mode' => $cacheMode !== '' ? $cacheMode : 'memoized_preview',
+            'report_format' => $reportFormat !== '' ? $reportFormat : 'markdown_html',
         ];
         $limitedNodes = array_slice($schemaNodes, 0, $resultLimit);
         $lineageNodes = array_slice($schemaNodes, 0, $lineageDepth);
+        $executionSummary = [
+            'request_method' => $queryControls['request_method'],
+            'response_format' => $queryControls['response_format'],
+            'cache_mode' => $queryControls['cache_mode'],
+            'report_format' => $queryControls['report_format'],
+            'estimated_latency_ms' => max(24, 12 + (count($limitedNodes) * 4) + ($lineageDepth * 6)),
+            'api_surface' => '/romopapi/v1/code-counts',
+        ];
+        $endpointManifest = [
+            ['name' => 'code_counts', 'method' => (string) $queryControls['request_method'], 'path' => '/romopapi/v1/code-counts', 'summary' => 'Concept and code count retrieval'],
+            ['name' => 'hierarchy', 'method' => 'GET', 'path' => '/romopapi/v1/hierarchy', 'summary' => 'Concept lineage traversal'],
+            ['name' => 'report', 'method' => 'POST', 'path' => '/romopapi/v1/report', 'summary' => 'Narrative report generation'],
+        ];
+        $cacheStatus = [
+            ['label' => 'Cache mode', 'value' => (string) $queryControls['cache_mode'], 'detail' => 'Selected query execution cache strategy'],
+            ['label' => 'Cache key', 'value' => sprintf('%s:%s:%s', $summary['source_key'], $schema, $queryControls['concept_domain']), 'detail' => 'Projected memoization key'],
+            ['label' => 'Freshness window', 'value' => $queryControls['cache_mode'] === 'bypass' ? 'none' : '15m', 'detail' => 'Preview freshness target'],
+        ];
 
         return [
             'status' => 'ok',
             'runtime' => $runtime,
             'source' => $summary,
             'query_controls' => $queryControls,
+            'execution_summary' => $executionSummary,
+            'endpoint_manifest' => $endpointManifest,
+            'cache_status' => $cacheStatus,
             'metadata_summary' => [
                 'schema_scope' => $schema,
                 'source_key' => $summary['source_key'],
@@ -935,6 +1006,8 @@ SQL;
                 'estimated_rows' => $limitedNodes[0]['estimated_rows'] ?? 0,
                 'lineage_depth' => $lineageDepth,
                 'result_limit' => $resultLimit,
+                'request_method' => $queryControls['request_method'],
+                'response_format' => $queryControls['response_format'],
             ],
             'code_counts' => array_map(
                 static fn (array $node) => [
@@ -957,16 +1030,19 @@ SQL;
             'report_content' => [
                 'markdown' => $this->buildRomopapiMarkdownReport($summary, $schema, $queryTemplate, $limitedNodes, $queryControls),
                 'html' => $this->buildRomopapiHtmlReport($summary, $schema, $queryTemplate, $limitedNodes, $queryControls),
+                'format' => (string) $queryControls['report_format'],
                 'manifest' => [
                     ['name' => "{$summary['source_key']}-{$schema}-report.md", 'kind' => 'markdown', 'summary' => 'Narrative ROMOPAPI report'],
                     ['name' => "{$summary['source_key']}-{$schema}-report.html", 'kind' => 'html', 'summary' => 'Rendered ROMOPAPI report'],
                     ['name' => "{$summary['source_key']}-{$schema}-counts.csv", 'kind' => 'csv', 'summary' => 'Code-count style export'],
+                    ['name' => "{$summary['source_key']}-{$schema}-manifest.json", 'kind' => 'json', 'summary' => 'API request and artifact manifest'],
                 ],
             ],
             'report_artifacts' => [
                 ['name' => "{$summary['source_key']}-{$schema}-report.md", 'type' => 'markdown', 'summary' => 'Narrative ROMOPAPI report'],
                 ['name' => "{$summary['source_key']}-{$schema}-report.html", 'type' => 'html', 'summary' => 'Rendered ROMOPAPI report'],
                 ['name' => "{$summary['source_key']}-{$schema}-counts.csv", 'type' => 'csv', 'summary' => 'Code-count style export'],
+                ['name' => "{$summary['source_key']}-{$schema}-manifest.json", 'type' => 'json', 'summary' => 'API request and artifact manifest'],
             ],
             'result_profile' => [
                 ['label' => 'Schema', 'value' => $schema],
@@ -1101,6 +1177,7 @@ SQL;
             'runtime' => $runtime,
             'source' => $summary,
             'package_setup' => is_array($external['package_setup'] ?? null) ? $external['package_setup'] : $packageSetup,
+            'config_yaml' => is_string($external['config_yaml'] ?? null) ? $external['config_yaml'] : null,
             'render_summary' => is_array($external['render_summary'] ?? null)
                 ? $external['render_summary']
                 : [
@@ -1109,6 +1186,7 @@ SQL;
                     'source_key' => $summary['source_key'],
                 ],
             'config_summary' => is_array($external['config_summary'] ?? null) ? $external['config_summary'] : [],
+            'config_exports' => is_array($external['config_exports'] ?? null) ? $external['config_exports'] : [],
             'sql_preview' => [
                 'template' => (string) ($sqlPreview['template'] ?? $template),
                 'rendered' => (string) ($sqlPreview['rendered'] ?? $external['rendered_sql'] ?? ''),
@@ -1154,7 +1232,14 @@ SQL;
                     'stratify_by' => (string) ($options['stratify_by'] ?? 'overall'),
                     'result_limit' => (int) ($options['result_limit'] ?? 25),
                     'lineage_depth' => (int) ($options['lineage_depth'] ?? 3),
+                    'request_method' => strtoupper((string) ($options['request_method'] ?? 'POST')),
+                    'response_format' => (string) ($options['response_format'] ?? 'json'),
+                    'cache_mode' => (string) ($options['cache_mode'] ?? 'memoized_preview'),
+                    'report_format' => (string) ($options['report_format'] ?? 'markdown_html'),
                 ],
+            'execution_summary' => is_array($external['execution_summary'] ?? null) ? $external['execution_summary'] : [],
+            'endpoint_manifest' => is_array($external['endpoint_manifest'] ?? null) ? $external['endpoint_manifest'] : [],
+            'cache_status' => is_array($external['cache_status'] ?? null) ? $external['cache_status'] : [],
             'metadata_summary' => is_array($external['metadata_summary'] ?? null)
                 ? $external['metadata_summary']
                 : [
@@ -1247,9 +1332,9 @@ SQL;
 
     /**
      * @param  list<array{id:int,name:string,size:int}>  $selectedCohortSizes
-     * @return array{candidate_rows:int,result_rows:int,excluded_rows:int,matched_rows:int,match_excluded_rows:int,retained_ratio:string,operation_phrase:string,derived_label:string}
+     * @return array{candidate_rows:int,result_rows:int,excluded_rows:int,matched_rows:int,match_excluded_rows:int,retained_ratio:string,operation_phrase:string,derived_label:string,primary_rows:int,comparator_rows:int}
      */
-    private function buildOperationMetrics(string $operationType, array $selectedCohortSizes, bool $matchingEnabled): array
+    private function buildOperationMetrics(string $operationType, array $selectedCohortSizes, bool $matchingEnabled, string $matchingTarget): array
     {
         if ($selectedCohortSizes === []) {
             return [
@@ -1261,10 +1346,14 @@ SQL;
                 'retained_ratio' => '0.0',
                 'operation_phrase' => 'direct definition preview',
                 'derived_label' => 'Workbench cohort preview',
+                'primary_rows' => 0,
+                'comparator_rows' => 0,
             ];
         }
 
         $sizes = array_map(static fn (array $item) => (int) $item['size'], $selectedCohortSizes);
+        $primaryRows = (int) ($sizes[0] ?? 0);
+        $comparatorRows = (int) array_sum(array_slice($sizes, 1));
         $candidateRows = array_sum($sizes);
         $baseName = count($selectedCohortSizes) > 1
             ? (string) $selectedCohortSizes[0]['name'].' + '.(count($selectedCohortSizes) - 1).' more'
@@ -1277,7 +1366,8 @@ SQL;
         };
 
         $excludedRows = max($candidateRows - $resultRows, 0);
-        $matchedRows = $matchingEnabled ? (int) max(round($resultRows * 0.84), 0) : 0;
+        $matchFactor = $matchingTarget === 'pairwise_balance' ? 0.78 : 0.84;
+        $matchedRows = $matchingEnabled ? (int) max(round($resultRows * $matchFactor), 0) : 0;
         $matchExcludedRows = $matchingEnabled ? max($resultRows - $matchedRows, 0) : 0;
 
         return [
@@ -1289,7 +1379,7 @@ SQL;
             'retained_ratio' => number_format(($candidateRows > 0 ? ($resultRows / $candidateRows) * 100 : 0), 1),
             'operation_phrase' => match ($operationType) {
                 'intersect' => 'only the overlapping members retained',
-                'subtract' => 'subtracting comparator cohorts from the primary cohort',
+                'subtract' => 'subtracting comparator cohorts from the anchored primary cohort',
                 default => 'union semantics across the selected cohorts',
             },
             'derived_label' => match ($operationType) {
@@ -1297,6 +1387,8 @@ SQL;
                 'subtract' => "Subtracted {$baseName}",
                 default => "Unioned {$baseName}",
             },
+            'primary_rows' => $primaryRows,
+            'comparator_rows' => $comparatorRows,
         ];
     }
 
@@ -1305,25 +1397,27 @@ SQL;
      * @param  list<string>  $matchingCovariates
      * @return list<array<string, int|string|float>>
      */
-    private function buildMatchingSamples(array $selectedCohorts, array $matchingCovariates, float $matchingRatio, string $mode): array
+    private function buildMatchingSamples(array $selectedCohorts, array $matchingCovariates, float $matchingRatio, string $mode, string $matchingTarget): array
     {
         if ($selectedCohorts === []) {
             return [];
         }
 
         return array_map(
-            static function (array $cohort, int $index) use ($matchingCovariates, $matchingRatio, $mode): array {
+            static function (array $cohort, int $index) use ($matchingCovariates, $matchingRatio, $mode, $matchingTarget): array {
                 $age = 44 + ($index * 7) + ($mode === 'excluded' ? 5 : 0);
                 $score = max(0.61, min(0.99, 0.92 - ($index * 0.04) - ($mode === 'excluded' ? 0.11 : 0)));
 
                 return [
                     'person_id' => ($mode === 'matched' ? 81000 : 91000) + $index,
                     'cohort_name' => $cohort['name'],
+                    'cohort_role' => (string) ($cohort['role'] ?? 'selected'),
                     'match_group' => $mode,
                     'age' => $age,
                     'sex' => $index % 2 === 0 ? 'Female' : 'Male',
                     'propensity_score' => round($score, 2),
                     'match_ratio' => number_format($matchingRatio, 1).' : 1',
+                    'matching_target' => str_replace('_', ' ', $matchingTarget),
                     'covariates' => $matchingCovariates !== [] ? implode(', ', array_slice($matchingCovariates, 0, 3)) : 'age, sex, index year',
                 ];
             },
@@ -1351,6 +1445,8 @@ SQL;
         if ($firstPair !== null) {
             $comparison[] = ['label' => 'Pairwise overlap', 'value' => (int) ($firstPair['overlap_count'] ?? 0)];
             $comparison[] = ['label' => 'Jaccard index', 'value' => (float) ($firstPair['jaccard_index'] ?? 0)];
+            $comparison[] = ['label' => 'Primary-only rows', 'value' => (int) ($firstPair['only_a'] ?? 0)];
+            $comparison[] = ['label' => 'Comparator-only rows', 'value' => (int) ($firstPair['only_b'] ?? 0)];
         }
 
         return $comparison;
@@ -1362,7 +1458,7 @@ SQL;
      * @param  array<string,mixed>  $overlap
      * @return array<string,mixed>
      */
-    private function mergeOperationMetricsWithOverlap(string $operationType, array $selectedCohorts, array $operationMetrics, array $overlap): array
+    private function mergeOperationMetricsWithOverlap(string $operationType, array $selectedCohorts, array $operationMetrics, array $overlap, string $matchingTarget): array
     {
         $counts = is_array($overlap['cohort_counts'] ?? null) ? $overlap['cohort_counts'] : [];
         $pairs = is_array($overlap['pairs'] ?? null) ? $overlap['pairs'] : [];
@@ -1390,7 +1486,12 @@ SQL;
             ? sprintf('%s %s', ucfirst($operationType), implode(' + ', array_map(static fn (array $cohort) => (string) $cohort['name'], array_slice($selectedCohorts, 0, 2))))
             : (string) ($operationMetrics['derived_label'] ?? 'Derived cohort');
         $operationMetrics['matched_rows'] = min((int) round($operationMetrics['result_rows'] * 0.86), (int) $operationMetrics['result_rows']);
+        if ($matchingTarget === 'pairwise_balance') {
+            $operationMetrics['matched_rows'] = min((int) round($operationMetrics['result_rows'] * 0.78), (int) $operationMetrics['result_rows']);
+        }
         $operationMetrics['match_excluded_rows'] = max((int) $operationMetrics['result_rows'] - (int) $operationMetrics['matched_rows'], 0);
+        $operationMetrics['primary_rows'] = (int) ($counts[(string) ($selectedCohorts[0]['id'] ?? '')] ?? ($operationMetrics['primary_rows'] ?? 0));
+        $operationMetrics['comparator_rows'] = max($candidateRows - (int) $operationMetrics['primary_rows'], 0);
 
         return $operationMetrics;
     }
@@ -1467,6 +1568,10 @@ SQL;
                     (string) ($options['burden_domain'] ?? ''),
                     (string) ($options['exposure_window'] ?? ''),
                     (string) ($options['stratify_by'] ?? ''),
+                    (string) ($options['time_window_unit'] ?? ''),
+                    (int) ($options['time_window_count'] ?? 0),
+                    (string) ($options['gwas_trait'] ?? ''),
+                    (string) ($options['gwas_method'] ?? ''),
                 ),
             'module_family' => (string) ($external['module_family'] ?? ''),
             'family_evidence' => is_array($external['family_evidence'] ?? null) ? $external['family_evidence'] : [],
@@ -1498,6 +1603,10 @@ SQL;
         string $burdenDomain,
         string $exposureWindow,
         string $stratifyBy,
+        string $timeWindowUnit,
+        int $timeWindowCount,
+        string $gwasTrait,
+        string $gwasMethod,
     ): array {
         return match ($this->co2ModuleFamily($moduleKey)) {
             'codewas' => [
@@ -1505,6 +1614,12 @@ SQL;
                 'outcome_name' => $outcomeName !== '' ? $outcomeName : 'CodeWAS scan',
                 'comparator_label' => $comparatorLabel !== '' ? $comparatorLabel : 'Background phenotype frame',
                 'sensitivity_label' => $sensitivityLabel !== '' ? $sensitivityLabel : 'Adjusted phenotype frame',
+            ],
+            'timecodewas' => [
+                'cohort_label' => $cohortLabel !== '' ? $cohortLabel : 'Selected source cohort',
+                'outcome_name' => $outcomeName !== '' ? $outcomeName : 'Phenotype trajectory',
+                'time_window_unit' => $timeWindowUnit !== '' ? $timeWindowUnit : 'months',
+                'time_window_count' => max(1, $timeWindowCount ?: 3),
             ],
             'condition_burden' => [
                 'cohort_label' => $cohortLabel !== '' ? $cohortLabel : 'Selected source cohort',
@@ -1525,6 +1640,12 @@ SQL;
                 'cohort_label' => $cohortLabel !== '' ? $cohortLabel : 'Selected source cohort',
                 'outcome_name' => $outcomeName !== '' ? $outcomeName : 'Condition burden',
                 'stratify_by' => $stratifyBy !== '' ? $stratifyBy : 'sex',
+            ],
+            'gwas' => [
+                'cohort_label' => $cohortLabel !== '' ? $cohortLabel : 'Selected source cohort',
+                'outcome_name' => $outcomeName !== '' ? $outcomeName : 'Genome-wide association',
+                'gwas_trait' => $gwasTrait !== '' ? $gwasTrait : 'Type 2 diabetes',
+                'gwas_method' => $gwasMethod !== '' ? $gwasMethod : 'regenie',
             ],
             default => [
                 'cohort_label' => $cohortLabel !== '' ? $cohortLabel : 'Selected source cohort',
@@ -1616,9 +1737,11 @@ SQL;
         return match ($moduleKey) {
             'comparative_effectiveness' => 'comparative_effectiveness',
             'codewas_preview' => 'codewas',
+            'timecodewas_preview' => 'timecodewas',
             'condition_burden' => 'condition_burden',
             'cohort_demographics_preview' => 'cohort_demographics',
             'drug_utilization' => 'drug_utilization',
+            'gwas_preview' => 'gwas',
             'sex_stratified_preview' => 'sex_stratified',
             default => 'comparative_effectiveness',
         };
@@ -1647,6 +1770,11 @@ SQL;
                 ['label' => 'Significant phenotypes', 'value' => $conditionPersons, 'emphasis' => 'result'],
                 ['label' => 'Lead code signal', 'value' => (string) (($signalRows[0]['label'] ?? 'Unknown concept')), 'emphasis' => 'source'],
                 ['label' => 'Scan cohort', 'value' => $cohortLabel !== '' ? $cohortLabel : 'Selected source cohort'],
+            ],
+            'timecodewas' => [
+                ['label' => 'Time-sliced phenotypes', 'value' => $conditionPersons, 'emphasis' => 'result'],
+                ['label' => 'Lead temporal signal', 'value' => (string) (($signalRows[0]['label'] ?? 'Unknown concept')), 'emphasis' => 'source'],
+                ['label' => 'Windowed cohort', 'value' => $cohortLabel !== '' ? $cohortLabel : 'Selected source cohort'],
             ],
             'condition_burden' => [
                 ['label' => 'Condition-positive persons', 'value' => $conditionPersons, 'emphasis' => 'result'],
@@ -1686,6 +1814,10 @@ SQL;
                 'CodeWAS preview emphasizes phenotype-wide signal ranking across the derived cohort.',
                 'Use this lane to scan prominent coded phenotypes before narrower module follow-up.',
             ],
+            'timecodewas' => [
+                'timeCodeWAS emphasizes temporal movement in coded phenotypes across repeated windows.',
+                'Use this lane to inspect when signals emerge, intensify, or decay after cohort handoff.',
+            ],
             'condition_burden' => [
                 'Condition burden emphasizes prevalence and leading concept load within the selected cohort.',
                 'Use this module to inspect descriptive condition density before comparative modeling.',
@@ -1701,6 +1833,10 @@ SQL;
             'sex_stratified' => [
                 'Sex-stratified preview splits the selected cohort into female and male evidence lanes.',
                 'Use this view when the cohort handoff suggests subgroup imbalance risk.',
+            ],
+            'gwas' => [
+                'GWAS preview emphasizes trait framing, association lane setup, and lead locus plausibility.',
+                'Use this lane to review trait and method setup before a full upstream GWAS pipeline.',
             ],
             default => [
                 'Comparative effectiveness emphasizes outcome, comparator, and sensitivity estimates.',
@@ -1758,6 +1894,27 @@ SQL;
                     ['label' => 'Lead vs adjusted', 'value' => $personCount > 0 ? round($drugPersons / $personCount, 2) : 0],
                     ['label' => 'Lead vs control', 'value' => $personCount > 0 ? round($procedurePersons / $personCount, 2) : 0],
                     ['label' => 'Signal density', 'value' => $personCount > 0 ? round($conditionPersons / $personCount, 2) : 0],
+                ],
+                $baseTopSignals,
+                $baseTrend,
+            ],
+            'timecodewas' => [
+                [
+                    $toEffect('Early window signal', $conditionPersons, $personCount),
+                    $toEffect('Mid window signal', (int) round($conditionPersons * 0.74), $personCount),
+                    $toEffect('Late window signal', (int) round($conditionPersons * 0.52), $personCount),
+                ],
+                $baseHeatmap,
+                [
+                    ['label' => 'Window 1', 'count' => (int) round($conditionPersons * 0.31)],
+                    ['label' => 'Window 2', 'count' => (int) round($conditionPersons * 0.52)],
+                    ['label' => 'Window 3', 'count' => (int) round($conditionPersons * 0.67)],
+                    ['label' => 'Window 4', 'count' => (int) round($conditionPersons * 0.43)],
+                ],
+                [
+                    ['label' => 'Early vs mid', 'value' => $personCount > 0 ? round((($conditionPersons * 0.31) / $personCount), 2) : 0],
+                    ['label' => 'Mid vs late', 'value' => $personCount > 0 ? round((($conditionPersons * 0.24) / $personCount), 2) : 0],
+                    ['label' => 'Temporal concentration', 'value' => $personCount > 0 ? round($conditionPersons / $personCount, 2) : 0],
                 ],
                 $baseTopSignals,
                 $baseTrend,
@@ -1854,6 +2011,29 @@ SQL;
                 ],
                 $baseTrend,
             ],
+            'gwas' => [
+                [
+                    $toEffect('Lead locus signal', $conditionPersons, $personCount),
+                    $toEffect('Secondary locus signal', (int) round($conditionPersons * 0.61), $personCount),
+                    $toEffect('Null control frame', $procedurePersons, $personCount),
+                ],
+                [
+                    ['label' => 'Chr 1', 'value' => 0.28],
+                    ['label' => 'Chr 6', 'value' => 0.51],
+                    ['label' => 'Chr 12', 'value' => 0.21],
+                ],
+                [
+                    ['label' => 'Discovery pass', 'count' => (int) round($conditionPersons * 0.38)],
+                    ['label' => 'Inflation review', 'count' => (int) round($conditionPersons * 0.24)],
+                    ['label' => 'Lead loci', 'count' => (int) round($conditionPersons * 0.17)],
+                ],
+                [
+                    ['label' => 'Lead vs secondary', 'value' => $personCount > 0 ? round(($conditionPersons / $personCount), 2) : 0],
+                    ['label' => 'Lead vs null', 'value' => $personCount > 0 ? round(($procedurePersons / $personCount), 2) : 0],
+                ],
+                $baseTopSignals,
+                $baseTrend,
+            ],
             default => [
                 [
                     $toEffect('Primary outcome', $conditionPersons, $personCount),
@@ -1901,6 +2081,13 @@ SQL;
                 'comparator_label' => $moduleSetup['comparator_label'] ?? 'Background phenotype frame',
                 'sensitivity_label' => $moduleSetup['sensitivity_label'] ?? 'Adjusted phenotype frame',
             ],
+            'timecodewas' => [
+                'focus' => 'timeCodeWAS scan',
+                'primary_output' => 'Temporal phenotype ranking',
+                'outcome_name' => $outcomeName !== '' ? $outcomeName : 'Phenotype trajectory',
+                'time_window_unit' => $moduleSetup['time_window_unit'] ?? 'months',
+                'time_window_count' => $moduleSetup['time_window_count'] ?? 3,
+            ],
             'condition_burden' => [
                 'focus' => 'Descriptive burden',
                 'primary_output' => 'Condition prevalence summary',
@@ -1926,6 +2113,13 @@ SQL;
                 'male_persons' => $malePersons,
                 'stratify_by' => $moduleSetup['stratify_by'] ?? 'sex',
             ],
+            'gwas' => [
+                'focus' => 'GWAS preview',
+                'primary_output' => 'Lead locus plausibility board',
+                'gwas_trait' => $moduleSetup['gwas_trait'] ?? 'Type 2 diabetes',
+                'gwas_method' => $moduleSetup['gwas_method'] ?? 'regenie',
+                'cohort_label' => $cohortLabel !== '' ? $cohortLabel : 'Selected source cohort',
+            ],
             default => [
                 'focus' => 'Comparative effectiveness',
                 'primary_output' => 'Comparator and sensitivity estimate set',
@@ -1942,6 +2136,16 @@ SQL;
                     'phenotype_label' => (string) ($row['label'] ?? 'Unknown'),
                     'signal_count' => (int) ($row['signal_count'] ?? 0),
                     'tier' => $index === 0 ? 'lead' : 'supporting',
+                ],
+                array_slice($signalRows, 0, 4),
+                array_keys(array_slice($signalRows, 0, 4))
+            ),
+            'timecodewas' => array_map(
+                static fn (array $row, int $index) => [
+                    'window' => 'Window '.($index + 1),
+                    'phenotype_label' => (string) ($row['label'] ?? 'Unknown'),
+                    'signal_count' => (int) ($row['signal_count'] ?? 0),
+                    'trend' => $index === 0 ? 'emergent' : ($index === 1 ? 'peaking' : 'settling'),
                 ],
                 array_slice($signalRows, 0, 4),
                 array_keys(array_slice($signalRows, 0, 4))
@@ -1971,6 +2175,20 @@ SQL;
                 ['subgroup' => 'Female', 'persons' => $femalePersons, 'share' => '55.3%'],
                 ['subgroup' => 'Male', 'persons' => $malePersons, 'share' => '44.7%'],
             ],
+            'gwas' => [
+                [
+                    'locus' => 'chr6:32544123',
+                    'trait' => (string) ($moduleSetup['gwas_trait'] ?? 'Type 2 diabetes'),
+                    'method' => (string) ($moduleSetup['gwas_method'] ?? 'regenie'),
+                    'p_value_band' => '1e-7',
+                ],
+                [
+                    'locus' => 'chr12:11223344',
+                    'trait' => (string) ($moduleSetup['gwas_trait'] ?? 'Type 2 diabetes'),
+                    'method' => (string) ($moduleSetup['gwas_method'] ?? 'regenie'),
+                    'p_value_band' => '4e-6',
+                ],
+            ],
             default => [
                 [
                     'contrast' => sprintf(
@@ -1999,6 +2217,11 @@ SQL;
                 ['label' => 'Comparator frame', 'value' => (string) ($moduleSetup['comparator_label'] ?? 'Background phenotype frame')],
                 ['label' => 'Sensitivity frame', 'value' => (string) ($moduleSetup['sensitivity_label'] ?? 'Adjusted phenotype frame')],
             ],
+            'timecodewas' => [
+                ['label' => 'Temporal scan', 'value' => $outcomeName !== '' ? $outcomeName : 'Phenotype trajectory'],
+                ['label' => 'Window unit', 'value' => (string) ($moduleSetup['time_window_unit'] ?? 'months')],
+                ['label' => 'Window count', 'value' => (string) ($moduleSetup['time_window_count'] ?? 3)],
+            ],
             'sex_stratified' => [
                 ['label' => 'Female lane', 'value' => "{$femalePersons} persons"],
                 ['label' => 'Male lane', 'value' => "{$malePersons} persons"],
@@ -2008,6 +2231,11 @@ SQL;
                 ['label' => 'Cohort lane', 'value' => $cohortLabel !== '' ? $cohortLabel : 'Selected source cohort'],
                 ['label' => 'Primary stratifier', 'value' => (string) ($moduleSetup['stratify_by'] ?? 'age_band')],
                 ['label' => 'Outcome frame', 'value' => $outcomeName !== '' ? $outcomeName : 'Cohort demographics'],
+            ],
+            'gwas' => [
+                ['label' => 'Trait', 'value' => (string) ($moduleSetup['gwas_trait'] ?? 'Type 2 diabetes')],
+                ['label' => 'Method', 'value' => (string) ($moduleSetup['gwas_method'] ?? 'regenie')],
+                ['label' => 'Cohort lane', 'value' => $cohortLabel !== '' ? $cohortLabel : 'Selected source cohort'],
             ],
             'drug_utilization' => [
                 ['label' => 'Exposure frame', 'value' => $outcomeName !== '' ? $outcomeName : 'Drug utilization'],
@@ -2042,6 +2270,11 @@ SQL;
                 ['label' => 'Signal density', 'value' => (int) ($signalRows[0]['signal_count'] ?? 0), 'detail' => 'Lead phenotype event count'],
                 ['label' => 'Adjustment frame', 'value' => (string) ($moduleSetup['sensitivity_label'] ?? 'Adjusted phenotype frame')],
             ],
+            'timecodewas' => [
+                ['label' => 'Lead temporal phenotype', 'value' => (string) ($signalRows[0]['label'] ?? 'Unknown code'), 'detail' => 'Highest time-sliced phenotype signal'],
+                ['label' => 'Peak window', 'value' => (string) ($trendRows[0]['bucket'] ?? 'window 1')],
+                ['label' => 'Window plan', 'value' => sprintf('%s %s', (string) ($moduleSetup['time_window_count'] ?? 3), (string) ($moduleSetup['time_window_unit'] ?? 'months'))],
+            ],
             'condition_burden' => [
                 ['label' => 'Dominant burden concept', 'value' => (string) ($signalRows[0]['label'] ?? 'Unknown concept'), 'detail' => 'Highest burden-driving concept in the current cohort'],
                 ['label' => 'Burden direction', 'value' => 'Prevalence-heavy', 'detail' => 'Use this lane before comparative modeling'],
@@ -2062,6 +2295,11 @@ SQL;
                 ['label' => 'Male lane', 'value' => $malePersons, 'detail' => 'Male subgroup size after handoff'],
                 ['label' => 'Balance gap', 'value' => abs($femalePersons - $malePersons)],
             ],
+            'gwas' => [
+                ['label' => 'Lead trait', 'value' => (string) ($moduleSetup['gwas_trait'] ?? 'Type 2 diabetes'), 'detail' => 'Trait currently staged for GWAS preview'],
+                ['label' => 'Method lane', 'value' => (string) ($moduleSetup['gwas_method'] ?? 'regenie')],
+                ['label' => 'Lead locus', 'value' => 'chr6:32544123'],
+            ],
             default => [
                 ['label' => 'Primary contrast', 'value' => sprintf('%s vs %s', $moduleSetup['cohort_label'] ?? ($cohortLabel !== '' ? $cohortLabel : 'Target cohort'), $moduleSetup['comparator_label'] ?? 'Standard care comparator')],
                 ['label' => 'Sensitivity contrast', 'value' => sprintf('%s vs %s', $moduleSetup['cohort_label'] ?? ($cohortLabel !== '' ? $cohortLabel : 'Target cohort'), $moduleSetup['sensitivity_label'] ?? 'Sensitivity exposure')],
@@ -2074,6 +2312,11 @@ SQL;
                 ['label' => 'Discovery lane', 'count' => (int) round(($signalRows[0]['signal_count'] ?? 0) * 0.49), 'share' => 0.49],
                 ['label' => 'Replication lane', 'count' => (int) round(($signalRows[1]['signal_count'] ?? 0) * 0.33), 'share' => 0.33],
                 ['label' => 'Control lane', 'count' => (int) round(($signalRows[2]['signal_count'] ?? 0) * 0.18), 'share' => 0.18],
+            ],
+            'timecodewas' => [
+                ['label' => 'Early window', 'count' => (int) round(($signalRows[0]['signal_count'] ?? 0) * 0.28), 'share' => 0.28],
+                ['label' => 'Middle window', 'count' => (int) round(($signalRows[0]['signal_count'] ?? 0) * 0.44), 'share' => 0.44],
+                ['label' => 'Late window', 'count' => (int) round(($signalRows[0]['signal_count'] ?? 0) * 0.28), 'share' => 0.28],
             ],
             'condition_burden' => [
                 ['label' => 'High burden', 'count' => (int) round(($signalRows[0]['signal_count'] ?? 0) * 0.52), 'share' => 0.52],
@@ -2094,6 +2337,11 @@ SQL;
                 ['label' => 'Female subgroup', 'count' => $femalePersons, 'share' => ($femalePersons + $malePersons) > 0 ? round($femalePersons / ($femalePersons + $malePersons), 3) : 0.0],
                 ['label' => 'Male subgroup', 'count' => $malePersons, 'share' => ($femalePersons + $malePersons) > 0 ? round($malePersons / ($femalePersons + $malePersons), 3) : 0.0],
             ],
+            'gwas' => [
+                ['label' => 'Genome-wide baseline', 'count' => (int) round(($signalRows[0]['signal_count'] ?? 0) * 0.63), 'share' => 0.63],
+                ['label' => 'Lead loci', 'count' => (int) round(($signalRows[1]['signal_count'] ?? 0) * 0.22), 'share' => 0.22],
+                ['label' => 'Replication loci', 'count' => (int) round(($signalRows[2]['signal_count'] ?? 0) * 0.15), 'share' => 0.15],
+            ],
             default => [
                 ['label' => 'Target lane', 'count' => (int) round(($signalRows[0]['signal_count'] ?? 0) * 0.48), 'share' => 0.48],
                 ['label' => 'Comparator lane', 'count' => (int) round(($signalRows[1]['signal_count'] ?? 0) * 0.32), 'share' => 0.32],
@@ -2109,19 +2357,48 @@ SQL;
      * @param  list<string>  $labels
      * @return list<array{id:int,name:string,description:?string}>
      */
-    private function buildSelectedCohortSummary(array $ids, array $labels): array
+    private function buildSelectedCohortSummary(array $ids, array $labels, ?int $primaryCohortId = null): array
     {
         $items = [];
 
         foreach (array_values($ids) as $index => $id) {
+            $cohortId = (int) $id;
             $items[] = [
-                'id' => (int) $id,
+                'id' => $cohortId,
                 'name' => trim((string) ($labels[$index] ?? "Cohort {$id}")) ?: "Cohort {$id}",
                 'description' => null,
+                'role' => $primaryCohortId !== null && $cohortId === $primaryCohortId ? 'primary' : 'comparator',
             ];
         }
 
+        if ($items !== []) {
+            $hasPrimary = false;
+            foreach ($items as $item) {
+                if (($item['role'] ?? '') === 'primary') {
+                    $hasPrimary = true;
+                    break;
+                }
+            }
+            if (! $hasPrimary) {
+                $items[0]['role'] = 'primary';
+            }
+        }
+
         return $items;
+    }
+
+    /**
+     * @param  list<array{id:int,name:string,description:?string,role?:string}>  $selectedCohorts
+     */
+    private function primaryCohortName(array $selectedCohorts): string
+    {
+        foreach ($selectedCohorts as $cohort) {
+            if (($cohort['role'] ?? '') === 'primary') {
+                return (string) $cohort['name'];
+            }
+        }
+
+        return (string) ($selectedCohorts[0]['name'] ?? 'Selected source cohort');
     }
 
     /**
@@ -2211,6 +2488,7 @@ HTML;
         string $artifactMode,
         string $packageSkeleton,
         string $cohortTable,
+        string $configYaml,
     ): array {
         return [
             'package_name' => $packageName !== '' ? $packageName : 'AcumenusFinnGenPackage',
@@ -2219,6 +2497,43 @@ HTML;
             'artifact_mode' => $artifactMode !== '' ? $artifactMode : 'full_bundle',
             'package_skeleton' => $packageSkeleton !== '' ? $packageSkeleton : 'ohdsi_study',
             'cohort_table' => $cohortTable !== '' ? $cohortTable : (($summary['results_schema'] ?: 'results').'.cohort'),
+            'config_yaml' => $configYaml,
+        ];
+    }
+
+    /**
+     * @param  array<string, string>  $packageSetup
+     * @return array{yaml:string,json:array<string,string>}
+     */
+    private function buildHadesConfigExports(array $packageSetup): array
+    {
+        $json = [
+            'package_name' => (string) ($packageSetup['package_name'] ?? 'AcumenusFinnGenPackage'),
+            'render_target' => (string) ($packageSetup['render_target'] ?? 'postgresql'),
+            'config_profile' => (string) ($packageSetup['config_profile'] ?? 'acumenus_default'),
+            'artifact_mode' => (string) ($packageSetup['artifact_mode'] ?? 'full_bundle'),
+            'package_skeleton' => (string) ($packageSetup['package_skeleton'] ?? 'ohdsi_study'),
+            'cohort_table' => (string) ($packageSetup['cohort_table'] ?? 'results.cohort'),
+        ];
+
+        $yaml = trim((string) ($packageSetup['config_yaml'] ?? ''));
+        if ($yaml === '') {
+            $yaml = implode("\n", [
+                'package:',
+                '  name: '.$json['package_name'],
+                '  profile: '.$json['config_profile'],
+                'render:',
+                '  target: '.$json['render_target'],
+                '  artifact_mode: '.$json['artifact_mode'],
+                '  skeleton: '.$json['package_skeleton'],
+                'cohort:',
+                '  table: '.$json['cohort_table'],
+            ]);
+        }
+
+        return [
+            'yaml' => $yaml,
+            'json' => $json,
         ];
     }
 

@@ -165,8 +165,10 @@ def build_cohort_operations(payload: dict[str, Any], source_key: str, dialect: s
     cohort_table_name = payload.get("cohort_table_name") or ""
     selected_cohort_ids = payload.get("selected_cohort_ids") or []
     selected_cohort_labels = payload.get("selected_cohort_labels") or []
+    primary_cohort_id = int(payload.get("primary_cohort_id") or 0) or None
     matching_enabled = bool(payload.get("matching_enabled", True))
     matching_strategy = payload.get("matching_strategy") or "nearest-neighbor"
+    matching_target = payload.get("matching_target") or "primary_vs_comparators"
     matching_covariates = payload.get("matching_covariates") or []
     matching_ratio = max(1.0, float(payload.get("matching_ratio") or 1.0))
     matching_caliper = max(0.01, float(payload.get("matching_caliper") or 0.2))
@@ -257,17 +259,24 @@ def build_cohort_operations(payload: dict[str, Any], source_key: str, dialect: s
             "id": int(selected_cohort_ids[index]) if index < len(selected_cohort_ids) else 5000 + index,
             "name": str(label),
             "description": None,
+            "role": "primary"
+            if ((int(selected_cohort_ids[index]) if index < len(selected_cohort_ids) else 5000 + index) == primary_cohort_id)
+            else "comparator",
         }
         for index, label in enumerate(selected_cohort_labels or [])
     ]
+    if selected_cohorts and not any(item.get("role") == "primary" for item in selected_cohorts):
+        selected_cohorts[0]["role"] = "primary"
     candidate_rows = sum(row.get("cohort_size", 0) for row in sample_rows) if import_mode == "parthenon" else cohort_count
     if import_mode == "parthenon":
+        primary_rows = int(sample_rows[0].get("cohort_size", 0)) if sample_rows else 0
+        comparator_rows = max(candidate_rows - primary_rows, 0)
         excluded_rows = max(candidate_rows - cohort_count, 0)
         retained_ratio = f"{((cohort_count / candidate_rows) * 100):.1f}" if candidate_rows else "0.0"
         operation_phrase = (
             "only the overlapping members retained"
             if operation_type == "intersect"
-            else "subtracting comparator cohorts from the primary cohort"
+            else "subtracting comparator cohorts from the anchored primary cohort"
             if operation_type == "subtract"
             else "union semantics across the selected cohorts"
         )
@@ -283,10 +292,14 @@ def build_cohort_operations(payload: dict[str, Any], source_key: str, dialect: s
             else "Workbench cohort preview"
         )
     else:
+        primary_rows = cohort_count
+        comparator_rows = 0
         excluded_rows = 0
         retained_ratio = "100.0"
         operation_phrase = "direct definition preview"
         derived_label = selected_cohorts[0]["name"] if selected_cohorts else "Workbench cohort preview"
+    matched_rows = int(cohort_count * (0.78 if matching_target == "pairwise_balance" else 0.84)) if matching_enabled else 0
+    match_excluded_rows = cohort_count - matched_rows if matching_enabled else excluded_rows
 
     return {
         "status": "ok",
@@ -301,8 +314,11 @@ def build_cohort_operations(payload: dict[str, Any], source_key: str, dialect: s
             "dialect": dialect,
             "source_key": source_key,
             "selected_cohort_count": len(selected_cohorts),
+            "primary_cohort": next((item["name"] for item in selected_cohorts if item.get("role") == "primary"), (selected_cohorts[0]["name"] if selected_cohorts else "")),
+            "comparator_cohort_count": max(len(selected_cohorts) - 1, 0),
             "matching_enabled": matching_enabled,
             "matching_strategy": matching_strategy,
+            "matching_target": matching_target.replace("_", " "),
             "matching_covariates": ", ".join(str(item) for item in matching_covariates),
             "matching_ratio": f"{matching_ratio:.1f} : 1",
             "matching_caliper": f"{matching_caliper:.2f}",
@@ -344,6 +360,8 @@ def build_cohort_operations(payload: dict[str, Any], source_key: str, dialect: s
             "matching_caliper": f"{matching_caliper:.2f}",
         },
         "operation_evidence": [
+            {"label": "Primary cohort rows", "value": primary_rows, "emphasis": "source"},
+            {"label": "Comparator cohort rows", "value": comparator_rows, "emphasis": "delta"},
             {"label": "Input cohort rows", "value": candidate_rows, "emphasis": "source"},
             {"label": f"Rows retained after {operation_type}", "value": cohort_count, "emphasis": "result"},
             {"label": "Rows excluded by operation", "value": excluded_rows, "emphasis": "delta"},
@@ -353,6 +371,8 @@ def build_cohort_operations(payload: dict[str, Any], source_key: str, dialect: s
             {"label": "Candidate rows", "value": candidate_rows},
             {"label": "Derived rows", "value": cohort_count},
             {"label": "Retained ratio", "value": f"{retained_ratio}%"},
+            {"label": "Primary-only rows", "value": max(primary_rows - round(comparator_rows * 0.34), 0)},
+            {"label": "Comparator-only rows", "value": max(comparator_rows - round(primary_rows * 0.18), 0)},
             {"label": "Pairwise overlap", "value": max(int(cohort_count * 0.42), 0)},
         ],
         "import_review": [
@@ -396,10 +416,12 @@ def build_cohort_operations(payload: dict[str, Any], source_key: str, dialect: s
         "cohort_table_summary": cohort_table_summary,
         "matching_summary": {
             "eligible_rows": cohort_count,
-            "matched_rows": int(cohort_count * 0.84) if matching_enabled else 0,
-            "excluded_rows": cohort_count - int(cohort_count * 0.84) if matching_enabled else excluded_rows,
+            "matched_rows": matched_rows,
+            "excluded_rows": match_excluded_rows,
             "matching_enabled": matching_enabled,
             "match_strategy": matching_strategy,
+            "match_target": matching_target,
+            "primary_cohort": next((item["name"] for item in selected_cohorts if item.get("role") == "primary"), (selected_cohorts[0]["name"] if selected_cohorts else "")),
             "match_covariates": matching_covariates,
             "match_ratio": matching_ratio,
             "match_caliper": matching_caliper,
@@ -410,11 +432,13 @@ def build_cohort_operations(payload: dict[str, Any], source_key: str, dialect: s
                 {
                     "person_id": 81000 + index,
                     "cohort_name": item["name"],
+                    "cohort_role": item.get("role", "selected"),
                     "match_group": "matched",
                     "age": 46 + (index * 7),
                     "sex": "Female" if index % 2 == 0 else "Male",
                     "propensity_score": round(max(0.66, 0.93 - (index * 0.05)), 2),
                     "match_ratio": f"{matching_ratio:.1f} : 1",
+                    "matching_target": matching_target.replace("_", " "),
                     "covariates": ", ".join(str(value) for value in matching_covariates[:3]) or "age, sex, index year",
                 }
                 for index, item in enumerate(selected_cohorts)
@@ -423,17 +447,20 @@ def build_cohort_operations(payload: dict[str, Any], source_key: str, dialect: s
                 {
                     "person_id": 91000 + index,
                     "cohort_name": item["name"],
+                    "cohort_role": item.get("role", "selected"),
                     "match_group": "excluded",
                     "age": 52 + (index * 5),
                     "sex": "Male" if index % 2 == 0 else "Female",
                     "propensity_score": round(max(0.41, 0.78 - (index * 0.08)), 2),
                     "match_ratio": f"{matching_ratio:.1f} : 1",
+                    "matching_target": matching_target.replace("_", " "),
                     "covariates": ", ".join(str(value) for value in matching_covariates[:3]) or "age, sex, index year",
                 }
                 for index, item in enumerate(selected_cohorts[: max(1, min(len(selected_cohorts), 2))])
             ],
             "balance_notes": [
                 "Matching evidence is aligned to the selected operation builder settings.",
+                "Primary-cohort anchoring changes how subtract and pairwise balance previews retain comparator rows.",
                 "Use ratio and caliper together to trade match density against balance strictness.",
             ],
         },
@@ -491,12 +518,18 @@ def build_co2_analysis(payload: dict[str, Any], source_key: str) -> dict[str, An
     burden_domain = payload.get("burden_domain") or "condition_occurrence"
     exposure_window = payload.get("exposure_window") or "90 days"
     stratify_by = payload.get("stratify_by") or "sex"
+    time_window_unit = payload.get("time_window_unit") or "months"
+    time_window_count = max(1, int(payload.get("time_window_count") or 3))
+    gwas_trait = payload.get("gwas_trait") or "Type 2 diabetes"
+    gwas_method = payload.get("gwas_method") or "regenie"
     module_family = {
         "comparative_effectiveness": "comparative_effectiveness",
         "codewas_preview": "codewas",
+        "timecodewas_preview": "timecodewas",
         "condition_burden": "condition_burden",
         "cohort_demographics_preview": "cohort_demographics",
         "drug_utilization": "drug_utilization",
+        "gwas_preview": "gwas",
         "sex_stratified_preview": "sex_stratified",
     }.get(module_key, "comparative_effectiveness")
     result_rows = int(cohort_context.get("result_rows") or 0)
@@ -530,6 +563,13 @@ def build_co2_analysis(payload: dict[str, Any], source_key: str) -> dict[str, An
         else {
             "cohort_label": cohort_label,
             "outcome_name": outcome_name,
+            "time_window_unit": time_window_unit,
+            "time_window_count": time_window_count,
+        }
+        if module_family == "timecodewas"
+        else {
+            "cohort_label": cohort_label,
+            "outcome_name": outcome_name,
             "burden_domain": burden_domain,
         }
         if module_family == "condition_burden"
@@ -548,6 +588,13 @@ def build_co2_analysis(payload: dict[str, Any], source_key: str) -> dict[str, An
         else {
             "cohort_label": cohort_label,
             "outcome_name": outcome_name,
+            "gwas_trait": gwas_trait,
+            "gwas_method": gwas_method,
+        }
+        if module_family == "gwas"
+        else {
+            "cohort_label": cohort_label,
+            "outcome_name": outcome_name,
             "stratify_by": stratify_by,
         }
     )
@@ -562,6 +609,11 @@ def build_co2_analysis(payload: dict[str, Any], source_key: str) -> dict[str, An
             {"label": "Significant phenotypes", "value": condition_persons, "emphasis": "result"},
             {"label": "Lead code signal", "value": "Type 2 diabetes mellitus", "emphasis": "source"},
             {"label": "Scan cohort", "value": cohort_label},
+        ],
+        "timecodewas": [
+            {"label": "Time-sliced phenotypes", "value": condition_persons, "emphasis": "result"},
+            {"label": "Lead temporal signal", "value": "Type 2 diabetes mellitus", "emphasis": "source"},
+            {"label": "Window plan", "value": f"{time_window_count} {time_window_unit}"},
         ],
         "condition_burden": [
             {"label": "Condition-positive persons", "value": condition_persons, "emphasis": "result"},
@@ -583,6 +635,11 @@ def build_co2_analysis(payload: dict[str, Any], source_key: str) -> dict[str, An
             {"label": "Male persons", "value": male_persons, "emphasis": "source"},
             {"label": "Sex balance delta", "value": abs(female_persons - male_persons), "emphasis": "delta"},
         ],
+        "gwas": [
+            {"label": "Trait frame", "value": gwas_trait, "emphasis": "source"},
+            {"label": "Lead loci", "value": round(condition_persons * 0.18), "emphasis": "result"},
+            {"label": "Method lane", "value": gwas_method},
+        ],
     }[module_family]
 
     family_notes = {
@@ -593,6 +650,10 @@ def build_co2_analysis(payload: dict[str, Any], source_key: str) -> dict[str, An
         "codewas": [
             "CodeWAS preview emphasizes phenotype-wide signal ranking across the derived cohort.",
             "Use this lane to scan coded phenotypes before narrower module follow-up.",
+        ],
+        "timecodewas": [
+            "timeCodeWAS preview emphasizes temporal phenotype movement across repeated windows.",
+            "Use this lane to inspect how coded signals evolve after cohort handoff.",
         ],
         "condition_burden": [
             "Condition burden emphasizes prevalence and leading concept load within the selected cohort.",
@@ -610,6 +671,10 @@ def build_co2_analysis(payload: dict[str, Any], source_key: str) -> dict[str, An
             "Sex-stratified preview splits the selected cohort into female and male evidence lanes.",
             "Use this view when the cohort handoff suggests subgroup imbalance risk.",
         ],
+        "gwas": [
+            "GWAS preview emphasizes trait framing and lead-locus plausibility before full upstream execution.",
+            "Use this lane to review trait and method choices before promoting to a genomic pipeline.",
+        ],
     }[module_family]
 
     handoff_impact = [
@@ -624,12 +689,16 @@ def build_co2_analysis(payload: dict[str, Any], source_key: str) -> dict[str, An
             "label": (
                 "Burden lane"
                 if module_family == "condition_burden"
+                else "timeCodeWAS lane"
+                if module_family == "timecodewas"
                 else "CodeWAS lane"
                 if module_family == "codewas"
                 else "Demographics lane"
                 if module_family == "cohort_demographics"
                 else "Utilization lane"
                 if module_family == "drug_utilization"
+                else "GWAS lane"
+                if module_family == "gwas"
                 else "Stratified lane"
                 if module_family == "sex_stratified"
                 else "Comparative lane"
@@ -692,6 +761,34 @@ def build_co2_analysis(payload: dict[str, Any], source_key: str) -> dict[str, An
                 {"label": "Type 2 diabetes mellitus", "count": condition_persons},
                 {"label": "Heart failure", "count": round(condition_persons * 0.5)},
                 {"label": "Acute kidney injury", "count": round(condition_persons * 0.22)},
+            ],
+        },
+        "timecodewas": {
+            "forest_plot": [
+                {"label": "Early window signal", "effect": round(condition_persons / analysis_person_count, 2), "lower": round((condition_persons / analysis_person_count) * 0.84, 2), "upper": round(min(1, (condition_persons / analysis_person_count) * 1.08 + 0.02), 2)},
+                {"label": "Mid window signal", "effect": round((condition_persons * 0.74) / analysis_person_count, 2), "lower": round(((condition_persons * 0.74) / analysis_person_count) * 0.86, 2), "upper": round(min(1, ((condition_persons * 0.74) / analysis_person_count) * 1.08 + 0.02), 2)},
+                {"label": "Late window signal", "effect": round((condition_persons * 0.52) / analysis_person_count, 2), "lower": round(((condition_persons * 0.52) / analysis_person_count) * 0.88, 2), "upper": round(min(1, ((condition_persons * 0.52) / analysis_person_count) * 1.08 + 0.02), 2)},
+            ],
+            "heatmap": [
+                {"label": "Window 1", "value": 0.24},
+                {"label": "Window 2", "value": 0.52},
+                {"label": "Window 3", "value": 0.41},
+            ],
+            "time_profile": [
+                {"label": "Window 1", "count": round(condition_persons * 0.31)},
+                {"label": "Window 2", "count": round(condition_persons * 0.52)},
+                {"label": "Window 3", "count": round(condition_persons * 0.67)},
+                {"label": "Window 4", "count": round(condition_persons * 0.43)},
+            ],
+            "overlap_matrix": [
+                {"label": "Early vs mid", "value": round((condition_persons * 0.31) / analysis_person_count, 2)},
+                {"label": "Mid vs late", "value": round((condition_persons * 0.24) / analysis_person_count, 2)},
+                {"label": "Temporal concentration", "value": round(condition_persons / analysis_person_count, 2)},
+            ],
+            "top_signals": [
+                {"label": "Type 2 diabetes mellitus", "count": condition_persons},
+                {"label": "Chronic kidney disease", "count": round(condition_persons * 0.44)},
+                {"label": "Retinopathy", "count": round(condition_persons * 0.29)},
             ],
         },
         "condition_burden": {
@@ -798,6 +895,32 @@ def build_co2_analysis(payload: dict[str, Any], source_key: str) -> dict[str, An
                 {"label": "Male-leading signal", "count": round(condition_persons * 0.44)},
             ],
         },
+        "gwas": {
+            "forest_plot": [
+                {"label": "Lead locus signal", "effect": round(condition_persons / analysis_person_count, 2), "lower": round((condition_persons / analysis_person_count) * 0.84, 2), "upper": round(min(1, (condition_persons / analysis_person_count) * 1.08 + 0.02), 2)},
+                {"label": "Secondary locus signal", "effect": round((condition_persons * 0.61) / analysis_person_count, 2), "lower": round(((condition_persons * 0.61) / analysis_person_count) * 0.88, 2), "upper": round(min(1, ((condition_persons * 0.61) / analysis_person_count) * 1.08 + 0.02), 2)},
+                {"label": "Null control frame", "effect": round(procedure_persons / analysis_person_count, 2), "lower": round((procedure_persons / analysis_person_count) * 0.88, 2), "upper": round(min(1, (procedure_persons / analysis_person_count) * 1.08 + 0.02), 2)},
+            ],
+            "heatmap": [
+                {"label": "Chr 1", "value": 0.28},
+                {"label": "Chr 6", "value": 0.51},
+                {"label": "Chr 12", "value": 0.21},
+            ],
+            "time_profile": [
+                {"label": "Discovery pass", "count": round(condition_persons * 0.38)},
+                {"label": "Inflation review", "count": round(condition_persons * 0.24)},
+                {"label": "Lead loci", "count": round(condition_persons * 0.17)},
+            ],
+            "overlap_matrix": [
+                {"label": "Lead vs secondary", "value": round(condition_persons / analysis_person_count, 2)},
+                {"label": "Lead vs null", "value": round(procedure_persons / analysis_person_count, 2)},
+            ],
+            "top_signals": [
+                {"label": "chr6:32544123", "count": round(condition_persons * 0.18)},
+                {"label": "chr12:11223344", "count": round(condition_persons * 0.11)},
+                {"label": "chr1:99887766", "count": round(condition_persons * 0.07)},
+            ],
+        },
     }[module_family]
 
     return {
@@ -815,6 +938,10 @@ def build_co2_analysis(payload: dict[str, Any], source_key: str) -> dict[str, An
             "burden_domain": module_setup.get("burden_domain"),
             "exposure_window": module_setup.get("exposure_window"),
             "stratify_by": module_setup.get("stratify_by"),
+            "time_window_unit": module_setup.get("time_window_unit"),
+            "time_window_count": module_setup.get("time_window_count"),
+            "gwas_trait": module_setup.get("gwas_trait"),
+            "gwas_method": module_setup.get("gwas_method"),
             "source_key": source_key,
             "person_count": analysis_person_count,
             "source_person_count": 18452,
@@ -1035,9 +1162,11 @@ def build_co2_analysis(payload: dict[str, Any], source_key: str) -> dict[str, An
         "module_gallery": [
             {"name": module_key, "family": module_family, "status": "selected"},
             {"name": "codewas_preview", "family": "code_scan", "status": "available"},
+            {"name": "timecodewas_preview", "family": "timecodewas", "status": "available"},
             {"name": "condition_burden", "family": "descriptive", "status": "available"},
             {"name": "cohort_demographics_preview", "family": "demographics", "status": "available"},
             {"name": "drug_utilization", "family": "utilization", "status": "available"},
+            {"name": "gwas_preview", "family": "gwas", "status": "available"},
             {"name": "sex_stratified_preview", "family": "stratified", "status": "available"},
         ],
         "forest_plot": family_views["forest_plot"],
@@ -1070,13 +1199,37 @@ def build_hades_extras(payload: dict[str, Any], source_key: str, dialect: str) -
     artifact_mode = payload.get("artifact_mode") or "full_bundle"
     package_skeleton = payload.get("package_skeleton") or "ohdsi_study"
     cohort_table = payload.get("cohort_table") or f"{source_key}.results.cohort"
+    config_yaml = payload.get("config_yaml") or ""
+    render_target = payload.get("render_target") or dialect
     rendered = template.replace("@cdm_schema", f"{source_key}.cdm")
+    config_json = {
+        "package_name": package_name,
+        "render_target": render_target,
+        "config_profile": config_profile,
+        "artifact_mode": artifact_mode,
+        "package_skeleton": package_skeleton,
+        "cohort_table": cohort_table,
+    }
+    exported_yaml = config_yaml.strip() or "\n".join(
+        [
+            "package:",
+            f"  name: {package_name}",
+            f"  profile: {config_profile}",
+            "render:",
+            f"  target: {render_target}",
+            f"  artifact_mode: {artifact_mode}",
+            f"  skeleton: {package_skeleton}",
+            "cohort:",
+            f"  table: {cohort_table}",
+        ]
+    )
     manifest = [
         {"path": f"{package_name}/DESCRIPTION", "kind": "package", "summary": "Package metadata"},
         {"path": f"{package_name}/inst/sql/{dialect}/analysis.sql", "kind": "sql", "summary": "Rendered SQL entrypoint"},
     ]
     if artifact_mode != "sql_only":
         manifest.append({"path": f"{package_name}/inst/settings.json", "kind": "manifest", "summary": "Render settings"})
+        manifest.append({"path": f"{package_name}/inst/settings/config.yaml", "kind": "config", "summary": "YAML render configuration"})
     if artifact_mode == "full_bundle":
         manifest.append({"path": f"{package_name}/inst/cohorts/{cohort_table.replace('.', '_')}.csv", "kind": "csv", "summary": "Cohort artifact export"})
     if package_skeleton == "finngen_extension":
@@ -1086,15 +1239,16 @@ def build_hades_extras(payload: dict[str, Any], source_key: str, dialect: str) -
         "status": "ok",
         "package_setup": {
             "package_name": package_name,
-            "render_target": payload.get("render_target") or dialect,
+            "render_target": render_target,
             "config_profile": config_profile,
             "artifact_mode": artifact_mode,
             "package_skeleton": package_skeleton,
             "cohort_table": cohort_table,
         },
+        "config_yaml": exported_yaml,
         "render_summary": {
             "package_name": package_name,
-            "render_target": payload.get("render_target") or dialect,
+            "render_target": render_target,
             "source_key": source_key,
             "adapter": "repo-aware-runner",
             "artifact_mode": artifact_mode,
@@ -1107,13 +1261,18 @@ def build_hades_extras(payload: dict[str, Any], source_key: str, dialect: str) -
         "config_summary": {
             "source_key": source_key,
             "dialect": dialect,
-            "render_target": payload.get("render_target") or dialect,
+            "render_target": render_target,
             "cohort_table": cohort_table,
             "config_profile": config_profile,
             "artifact_mode": artifact_mode,
             "package_skeleton": package_skeleton,
         },
+        "config_exports": {
+            "yaml": exported_yaml,
+            "json": config_json,
+        },
         "artifact_pipeline": [
+            {"name": "Config import", "status": "ready"},
             {"name": "Runner SQL render", "status": "ready"},
             {"name": "Manifest build", "status": "skipped" if artifact_mode == "sql_only" else "ready"},
             {"name": "Explain capture", "status": "ready"},
@@ -1131,6 +1290,7 @@ def build_hades_extras(payload: dict[str, Any], source_key: str, dialect: str) -
         },
         "sql_lineage": [
             {"stage": "Template ingest", "detail": "Accepted SQL template from Workbench payload"},
+            {"stage": "Config import", "detail": "Parsed Workbench YAML configuration into package settings"},
             {"stage": "Schema substitution", "detail": f"Resolved @cdm_schema tokens for {source_key}.cdm using {config_profile}"},
             {"stage": "Skeleton selection", "detail": f"Prepared {package_skeleton} package skeleton"},
             {"stage": "Artifact emit", "detail": f"Prepared {artifact_mode} artifacts for {package_name}"},
@@ -1155,6 +1315,10 @@ def build_romopapi(payload: dict[str, Any], source_key: str, dialect: str) -> di
     stratify_by = payload.get("stratify_by") or "overall"
     result_limit = int(payload.get("result_limit") or 25)
     lineage_depth = int(payload.get("lineage_depth") or 3)
+    request_method = str(payload.get("request_method") or "POST").upper()
+    response_format = payload.get("response_format") or "json"
+    cache_mode = payload.get("cache_mode") or "memoized_preview"
+    report_format = payload.get("report_format") or "markdown_html"
     code_counts = [
         {"concept": "Type 2 diabetes mellitus", "count": 812, "domain": "Condition", "stratum": "overall"},
         {"concept": "Heart failure", "count": 403, "domain": "Condition", "stratum": "overall"},
@@ -1174,7 +1338,29 @@ def build_romopapi(payload: dict[str, Any], source_key: str, dialect: str) -> di
             "stratify_by": stratify_by,
             "result_limit": result_limit,
             "lineage_depth": lineage_depth,
+            "request_method": request_method,
+            "response_format": response_format,
+            "cache_mode": cache_mode,
+            "report_format": report_format,
         },
+        "execution_summary": {
+            "request_method": request_method,
+            "response_format": response_format,
+            "cache_mode": cache_mode,
+            "report_format": report_format,
+            "estimated_latency_ms": 42 + lineage_depth * 9,
+            "api_surface": "/romopapi/v1/code-counts",
+        },
+        "endpoint_manifest": [
+            {"name": "code_counts", "method": request_method, "path": "/romopapi/v1/code-counts", "summary": "Concept and code count retrieval"},
+            {"name": "hierarchy", "method": "GET", "path": "/romopapi/v1/hierarchy", "summary": "Concept lineage traversal"},
+            {"name": "report", "method": "POST", "path": "/romopapi/v1/report", "summary": "Narrative report generation"},
+        ],
+        "cache_status": [
+            {"label": "Cache mode", "value": cache_mode, "detail": "Selected query execution cache strategy"},
+            {"label": "Cache key", "value": f"{source_key}:{schema}:{concept_domain}", "detail": "Projected memoization key"},
+            {"label": "Freshness window", "value": "none" if cache_mode == "bypass" else "15m", "detail": "Preview freshness target"},
+        ],
         "metadata_summary": {
             "schema_scope": schema,
             "source_key": source_key,
@@ -1202,6 +1388,8 @@ def build_romopapi(payload: dict[str, Any], source_key: str, dialect: str) -> di
             "estimated_rows": 18452,
             "result_limit": result_limit,
             "lineage_depth": lineage_depth,
+            "request_method": request_method,
+            "response_format": response_format,
         },
         "code_counts": [
             {
@@ -1231,6 +1419,9 @@ def build_romopapi(payload: dict[str, Any], source_key: str, dialect: str) -> di
                     f"- Stratify by: {stratify_by}",
                     f"- Result limit: {result_limit}",
                     f"- Lineage depth: {lineage_depth}",
+                    f"- Request method: {request_method}",
+                    f"- Response format: {response_format}",
+                    f"- Cache mode: {cache_mode}",
                     "",
                     "## Code Count Highlights",
                     "- Type 2 diabetes mellitus: 812",
@@ -1245,6 +1436,7 @@ def build_romopapi(payload: dict[str, Any], source_key: str, dialect: str) -> di
     <p>Source: {source_key} · Schema: {schema} · Dialect: {dialect}</p>
     <p>Query template: {template}</p>
     <p>Concept domain: {concept_domain} · Stratify by: {stratify_by} · Result limit: {result_limit} · Lineage depth: {lineage_depth}</p>
+    <p>Method: {request_method} · Response: {response_format} · Cache: {cache_mode}</p>
     <ul>
       <li>Type 2 diabetes mellitus: 812</li>
       <li>Heart failure: 403</li>
@@ -1253,16 +1445,19 @@ def build_romopapi(payload: dict[str, Any], source_key: str, dialect: str) -> di
   </body>
 </html>
 """.strip(),
+            "format": report_format,
             "manifest": [
                 {"name": f"{source_key}-{schema}-report.md", "kind": "markdown", "summary": "Narrative ROMOPAPI report"},
                 {"name": f"{source_key}-{schema}-report.html", "kind": "html", "summary": "Rendered ROMOPAPI report"},
                 {"name": f"{source_key}-{schema}-counts.csv", "kind": "csv", "summary": "Code-count style export"},
+                {"name": f"{source_key}-{schema}-manifest.json", "kind": "json", "summary": "API request and artifact manifest"},
             ],
         },
         "report_artifacts": [
             {"name": f"{source_key}-{schema}-report.md", "type": "markdown", "summary": "Narrative ROMOPAPI report"},
             {"name": f"{source_key}-{schema}-report.html", "type": "html", "summary": "ROMOPAPI report preview"},
             {"name": f"{source_key}-{schema}-counts.csv", "type": "csv", "summary": "Concept code count extract"},
+            {"name": f"{source_key}-{schema}-manifest.json", "type": "json", "summary": "API request and artifact manifest"},
         ],
         "result_profile": [
             {"label": "Schema", "value": schema},
@@ -1270,6 +1465,8 @@ def build_romopapi(payload: dict[str, Any], source_key: str, dialect: str) -> di
             {"label": "Runner source", "value": source_key},
             {"label": "Concept domain", "value": concept_domain},
             {"label": "Stratify by", "value": stratify_by},
+            {"label": "Request method", "value": request_method},
+            {"label": "Response format", "value": response_format},
         ],
     }
 

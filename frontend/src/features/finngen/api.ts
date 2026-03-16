@@ -34,8 +34,10 @@ export async function previewFinnGenCohortOperations(payload: {
   cohort_table_name?: string;
   selected_cohort_ids?: number[];
   selected_cohort_labels?: string[];
+  primary_cohort_id?: number | null;
   matching_enabled?: boolean;
   matching_strategy?: string;
+  matching_target?: string;
   matching_covariates?: string[];
   matching_ratio?: number;
   matching_caliper?: number;
@@ -56,6 +58,10 @@ export async function previewFinnGenCo2Analysis(payload: {
   burden_domain?: string;
   exposure_window?: string;
   stratify_by?: string;
+  time_window_unit?: string;
+  time_window_count?: number;
+  gwas_trait?: string;
+  gwas_method?: string;
 }): Promise<FinnGenCo2AnalysisResult> {
   const { data } = await apiClient.post("/study-agent/finngen/co2-analysis", payload);
   return data.data ?? data;
@@ -70,6 +76,7 @@ export async function previewFinnGenHadesExtras(payload: {
   artifact_mode?: string;
   package_skeleton?: string;
   cohort_table?: string;
+  config_yaml?: string;
 }): Promise<FinnGenHadesExtrasResult> {
   const { data } = await apiClient.post("/study-agent/finngen/hades-extras", payload);
   return data.data ?? data;
@@ -83,6 +90,10 @@ export async function previewFinnGenRomopapi(payload: {
   stratify_by?: string;
   result_limit?: number;
   lineage_depth?: number;
+  request_method?: string;
+  response_format?: string;
+  cache_mode?: string;
+  report_format?: string;
 }): Promise<FinnGenRomopapiResult> {
   const { data } = await apiClient.post("/study-agent/finngen/romopapi", payload);
   return data.data ?? data;
