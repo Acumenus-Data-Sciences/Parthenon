@@ -1192,6 +1192,11 @@ SQL;
             ['name' => "{$summary['source_key']}-{$schema}-counts.csv", 'kind' => 'csv', 'summary' => 'Code-count style export'],
             ['name' => "{$summary['source_key']}-{$schema}-manifest.json", 'kind' => 'json', 'summary' => 'API request and artifact manifest'],
         ];
+        $cdmSchemaName = $summary['cdm_schema'] ?: 'public';
+        $vocabSchemaName = $summary['vocabulary_schema'] ?: $cdmSchemaName;
+        $codeCounts = $this->queryCdmCodeCounts($connection, $cdmSchemaName, $vocabSchemaName, $conceptDomain, $resultLimit);
+        $stratifiedCounts = $this->queryCdmStratifiedCounts($connection, $cdmSchemaName, $vocabSchemaName, $stratifyBy, $resultLimit);
+
         $result = [
             'status' => 'ok',
             'runtime' => $runtime,
@@ -1208,6 +1213,8 @@ SQL;
                 'table_count_estimate' => count($limitedNodes),
                 'concept_domain' => $queryControls['concept_domain'],
                 'stratify_by' => $queryControls['stratify_by'],
+                'code_count_rows' => count($codeCounts),
+                'stratified_count_rows' => count($stratifiedCounts),
             ],
             'schema_nodes' => $limitedNodes,
             'lineage_trace' => array_map(
@@ -1231,26 +1238,10 @@ SQL;
                 'request_method' => $queryControls['request_method'],
                 'response_format' => $queryControls['response_format'],
             ],
-            'code_counts' => array_map(
-                static fn (array $node) => [
-                    'concept' => (string) $node['name'],
-                    'count' => (int) ($node['estimated_rows'] ?? 0),
-                    'domain' => $conceptDomain !== '' && $conceptDomain !== 'all' ? $conceptDomain : 'Table',
-                    'stratum' => $stratifyBy !== '' ? $stratifyBy : 'schema',
-                ],
-                array_slice($limitedNodes, 0, min($resultLimit, 5))
-            ),
-            'stratified_counts' => array_map(
-                static fn (array $node, int $index) => [
-                    'label' => (string) $node['name'],
-                    'count' => (int) ($node['estimated_rows'] ?? 0),
-                    'percent' => round((float) (($node['connections'] ?? 0) * 10 + $index), 1),
-                ],
-                array_slice($limitedNodes, 0, min($resultLimit, 5)),
-                array_keys(array_slice($limitedNodes, 0, min($resultLimit, 5)))
-            ),
+            'code_counts' => $codeCounts,
+            'stratified_counts' => $stratifiedCounts,
             'report_content' => [
-                'markdown' => $this->buildRomopapiMarkdownReport($summary, $schema, $queryTemplate, $limitedNodes, $queryControls),
+                'markdown' => $this->buildRomopapiMarkdownReport($summary, $schema, $queryTemplate, $limitedNodes, $queryControls, $codeCounts),
                 'html' => $this->buildRomopapiHtmlReport($summary, $schema, $queryTemplate, $limitedNodes, $queryControls),
                 'format' => (string) $queryControls['report_format'],
                 'manifest' => $reportManifest,
@@ -2711,10 +2702,10 @@ SQL;
     /**
      * @param  array<int,array<string,mixed>>  $schemaNodes
      */
-    private function buildRomopapiMarkdownReport(array $summary, string $schema, string $queryTemplate, array $schemaNodes, array $queryControls = []): string
+    private function buildRomopapiMarkdownReport(array $summary, string $schema, string $queryTemplate, array $schemaNodes, array $queryControls = [], array $codeCounts = []): string
     {
         $rows = array_slice($schemaNodes, 0, 5);
-        $body = array_map(
+        $tableBody = array_map(
             static fn (array $node) => sprintf(
                 '- `%s`: connections=%d, estimated_rows=%d',
                 (string) $node['name'],
@@ -2723,8 +2714,17 @@ SQL;
             ),
             $rows,
         );
+        $countBody = array_map(
+            static fn (array $c) => sprintf(
+                '- %s (%s): %s',
+                (string) $c['concept'],
+                (string) ($c['domain'] ?? 'unknown'),
+                number_format((int) ($c['count'] ?? 0)),
+            ),
+            array_slice($codeCounts, 0, 10),
+        );
 
-        return implode("\n", [
+        $sections = [
             '# ROMOPAPI Report',
             '',
             '- Source: '.($summary['source_key'] ?? 'unknown'),
@@ -2737,8 +2737,15 @@ SQL;
             '- Lineage depth: '.((string) ($queryControls['lineage_depth'] ?? 3)),
             '',
             '## Surfaced Tables',
-            ...$body,
-        ]);
+            ...$tableBody,
+        ];
+        if ($countBody !== []) {
+            $sections[] = '';
+            $sections[] = '## Top Concept Counts';
+            array_push($sections, ...$countBody);
+        }
+
+        return implode("\n", $sections);
     }
 
     /**
@@ -3057,5 +3064,129 @@ HTML;
             ['step' => 'Artifact pipeline', 'status' => collect($artifactPipeline)->contains(fn (array $item) => ($item['status'] ?? '') === 'ready') ? 'ready' : 'review', 'detail' => sprintf('Prepared %d pipeline stages for manifest and bundle generation', count($artifactPipeline))],
             ['step' => 'Explain capture', 'status' => $hasExplain ? 'ready' : 'review', 'detail' => $hasExplain ? 'Explain output is available for SQL inspection.' : 'Explain output was not generated for this render.'],
         ];
+    }
+
+    // ── ROMOPAPI: Real CDM queries ───────────────────────────────
+
+    /**
+     * Query real concept code counts from the CDM.
+     *
+     * @return array<int, array{concept:string, count:int, domain:string, stratum:string}>
+     */
+    private function queryCdmCodeCounts(string $connection, string $cdmSchema, string $vocabSchema, string $conceptDomain, int $resultLimit): array
+    {
+        $domainTables = [
+            'Condition' => ['table' => 'condition_occurrence', 'concept_col' => 'condition_concept_id'],
+            'Drug' => ['table' => 'drug_exposure', 'concept_col' => 'drug_concept_id'],
+            'Measurement' => ['table' => 'measurement', 'concept_col' => 'measurement_concept_id'],
+            'Procedure' => ['table' => 'procedure_occurrence', 'concept_col' => 'procedure_concept_id'],
+            'Observation' => ['table' => 'observation', 'concept_col' => 'observation_concept_id'],
+        ];
+
+        $domains = $conceptDomain !== '' && $conceptDomain !== 'all' && isset($domainTables[$conceptDomain])
+            ? [$conceptDomain => $domainTables[$conceptDomain]]
+            : array_slice($domainTables, 0, 3);
+
+        $results = [];
+
+        foreach ($domains as $domain => $mapping) {
+            $table = "{$cdmSchema}.{$mapping['table']}";
+            $col = $mapping['concept_col'];
+
+            try {
+                $rows = DB::connection($connection)->select("
+                    SELECT
+                        c.concept_name AS concept,
+                        COUNT(*) AS cnt,
+                        c.domain_id AS domain
+                    FROM {$table} t
+                    JOIN {$vocabSchema}.concept c ON c.concept_id = t.{$col}
+                    WHERE c.concept_name IS NOT NULL
+                      AND c.concept_name != ''
+                    GROUP BY c.concept_name, c.domain_id
+                    ORDER BY cnt DESC
+                    LIMIT ?
+                ", [$resultLimit]);
+
+                foreach ($rows as $row) {
+                    $r = (array) $row;
+                    $results[] = [
+                        'concept' => (string) $r['concept'],
+                        'count' => (int) $r['cnt'],
+                        'domain' => (string) ($r['domain'] ?? $domain),
+                        'stratum' => 'overall',
+                    ];
+                }
+            } catch (\Throwable) {
+                // Domain table may not exist in this CDM — skip silently
+            }
+        }
+
+        usort($results, static fn (array $a, array $b) => $b['count'] <=> $a['count']);
+
+        return array_slice($results, 0, $resultLimit);
+    }
+
+    /**
+     * Query real stratified counts from the CDM person table.
+     *
+     * @return array<int, array{label:string, count:int, percent:float|null}>
+     */
+    private function queryCdmStratifiedCounts(string $connection, string $cdmSchema, string $vocabSchema, string $stratifyBy, int $resultLimit): array
+    {
+        try {
+            if ($stratifyBy === 'sex') {
+                $rows = DB::connection($connection)->select("
+                    SELECT
+                        COALESCE(c.concept_name, 'Unknown') AS label,
+                        COUNT(*) AS cnt
+                    FROM {$cdmSchema}.person p
+                    LEFT JOIN {$vocabSchema}.concept c ON c.concept_id = p.gender_concept_id
+                    GROUP BY c.concept_name
+                    ORDER BY cnt DESC
+                    LIMIT ?
+                ", [$resultLimit]);
+            } elseif ($stratifyBy === 'age_band') {
+                $rows = DB::connection($connection)->select("
+                    SELECT
+                        CONCAT(FLOOR((EXTRACT(YEAR FROM CURRENT_DATE) - p.year_of_birth) / 10) * 10, '-',
+                               FLOOR((EXTRACT(YEAR FROM CURRENT_DATE) - p.year_of_birth) / 10) * 10 + 9) AS label,
+                        COUNT(*) AS cnt
+                    FROM {$cdmSchema}.person p
+                    WHERE p.year_of_birth IS NOT NULL
+                    GROUP BY FLOOR((EXTRACT(YEAR FROM CURRENT_DATE) - p.year_of_birth) / 10)
+                    ORDER BY FLOOR((EXTRACT(YEAR FROM CURRENT_DATE) - p.year_of_birth) / 10)
+                    LIMIT ?
+                ", [$resultLimit]);
+            } elseif ($stratifyBy === 'care_site') {
+                $rows = DB::connection($connection)->select("
+                    SELECT
+                        COALESCE(cs.care_site_name, 'Unknown') AS label,
+                        COUNT(*) AS cnt
+                    FROM {$cdmSchema}.person p
+                    LEFT JOIN {$cdmSchema}.care_site cs ON cs.care_site_id = p.care_site_id
+                    GROUP BY cs.care_site_name
+                    ORDER BY cnt DESC
+                    LIMIT ?
+                ", [$resultLimit]);
+            } else {
+                return [];
+            }
+
+            $total = array_sum(array_map(static fn ($r) => (int) ((array) $r)['cnt'], $rows));
+
+            return array_map(static function ($row) use ($total) {
+                $r = (array) $row;
+                $count = (int) $r['cnt'];
+
+                return [
+                    'label' => (string) $r['label'],
+                    'count' => $count,
+                    'percent' => $total > 0 ? round($count / $total, 4) : null,
+                ];
+            }, $rows);
+        } catch (\Throwable) {
+            return [];
+        }
     }
 }
