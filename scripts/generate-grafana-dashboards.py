@@ -11,7 +11,7 @@ Writes:
 import json
 import pathlib
 
-OUT = pathlib.Path("monitoring/grafana/provisioning/dashboards")
+OUT = pathlib.Path(__file__).parent.parent / "monitoring/grafana/provisioning/dashboards"
 
 PROM_DS = {"type": "prometheus", "uid": "prometheus-parthenon"}
 LOKI_DS = {"type": "loki",       "uid": "loki-parthenon"}
@@ -48,19 +48,29 @@ THRESHOLDS_HOST = {
 # Panel builders
 # ---------------------------------------------------------------------------
 
-def stat_panel(pid, title, expr, unit="percent", thresholds=None, x=0, y=0, w=6, h=4):
+def stat_panel(pid, title, expr, unit="percent", thresholds=None, x=0, y=0, w=6, h=4,
+               datasource=None, no_value=None):
     if thresholds is None:
         thresholds = THRESHOLDS_HOST
+    if datasource is None:
+        datasource = PROM_DS
+    defaults = {
+        "color": {"mode": "thresholds"},
+        "unit": unit,
+        "thresholds": thresholds,
+    }
+    if no_value is not None:
+        defaults["noValue"] = no_value
     return {
         "id": pid,
         "type": "stat",
         "title": title,
         "gridPos": {"x": x, "y": y, "w": w, "h": h},
-        "datasource": PROM_DS,
+        "datasource": datasource,
         "targets": [
             {
                 "refId": "A",
-                "datasource": PROM_DS,
+                "datasource": datasource,
                 "expr": expr,
                 "instant": True,
                 "range": False,
@@ -76,11 +86,7 @@ def stat_panel(pid, title, expr, unit="percent", thresholds=None, x=0, y=0, w=6,
             "justifyMode": "auto",
         },
         "fieldConfig": {
-            "defaults": {
-                "color": {"mode": "thresholds"},
-                "unit": unit,
-                "thresholds": thresholds,
-            },
+            "defaults": defaults,
             "overrides": [],
         },
     }
@@ -127,6 +133,7 @@ def table_panel(pid, title, pattern, y):
             target("NETTX",
                 f'sum by (name)(rate(container_network_transmit_bytes_total{{name=~"{pattern}",job="cadvisor"}}[$interval]))'),
             target("RESTARTS",
+                # Intentional: restarts shown as 24-hour rolling total, not a per-interval rate
                 f'sum by (name)(increase(container_restarts_total{{name=~"{pattern}",job="cadvisor"}}[24h]))'),
         ],
         "transformations": [
@@ -329,85 +336,23 @@ def make_logs():
         },
     })
 
-    # Errors stat (top right, 6 wide)
-    panels.append({
-        "id": 2,
-        "type": "stat",
-        "title": "Errors (1h)",
-        "gridPos": {"x": 12, "y": 0, "w": 6, "h": 6},
-        "datasource": LOKI_DS,
-        "targets": [
-            {
-                "refId": "A",
-                "datasource": LOKI_DS,
-                "expr": 'sum(count_over_time({job="docker", container_name=~"parthenon-.*"} |~ "(?i)error" [1h]))',
-                "legendFormat": "",
-            }
-        ],
-        "options": {
-            "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": False},
-            "colorMode": "background",
-            "graphMode": "none",
-            "justifyMode": "auto",
-            "textMode": "auto",
-            "orientation": "auto",
-        },
-        "fieldConfig": {
-            "defaults": {
-                "color": {"mode": "thresholds"},
-                "unit": "short",
-                "noValue": "0",
-                "thresholds": {
-                    "mode": "absolute",
-                    "steps": [
-                        {"color": "green", "value": None},
-                        {"color": "red",   "value": 1},
-                    ],
-                },
-            },
-            "overrides": [],
-        },
-    })
+    # Errors stat (x=12, y=0, w=6, h=6)
+    panels.append(stat_panel(2, "Errors (1h)",
+        'sum(count_over_time({job="docker", container_name=~"parthenon-.*"} |~ "(?i)error" [1h]))',
+        unit="short",
+        thresholds={"mode": "absolute", "steps": [{"color": "green", "value": None}, {"color": "red", "value": 1}]},
+        x=12, y=0, w=6, h=6,
+        datasource=LOKI_DS,
+        no_value="0"))
 
-    # Warnings stat (top far-right, 6 wide)
-    panels.append({
-        "id": 3,
-        "type": "stat",
-        "title": "Warnings (1h)",
-        "gridPos": {"x": 18, "y": 0, "w": 6, "h": 6},
-        "datasource": LOKI_DS,
-        "targets": [
-            {
-                "refId": "A",
-                "datasource": LOKI_DS,
-                "expr": 'sum(count_over_time({job="docker", container_name=~"parthenon-.*"} |~ "(?i)warn" [1h]))',
-                "legendFormat": "",
-            }
-        ],
-        "options": {
-            "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": False},
-            "colorMode": "background",
-            "graphMode": "none",
-            "justifyMode": "auto",
-            "textMode": "auto",
-            "orientation": "auto",
-        },
-        "fieldConfig": {
-            "defaults": {
-                "color": {"mode": "thresholds"},
-                "unit": "short",
-                "noValue": "0",
-                "thresholds": {
-                    "mode": "absolute",
-                    "steps": [
-                        {"color": "green",  "value": None},
-                        {"color": "yellow", "value": 1},
-                    ],
-                },
-            },
-            "overrides": [],
-        },
-    })
+    # Warnings stat (x=18, y=0, w=6, h=6)
+    panels.append(stat_panel(3, "Warnings (1h)",
+        'sum(count_over_time({job="docker", container_name=~"parthenon-.*"} |~ "(?i)warn" [1h]))',
+        unit="short",
+        thresholds={"mode": "absolute", "steps": [{"color": "green", "value": None}, {"color": "yellow", "value": 1}]},
+        x=18, y=0, w=6, h=6,
+        datasource=LOKI_DS,
+        no_value="0"))
 
     # Log stream panel (full width, below stats)
     panels.append({

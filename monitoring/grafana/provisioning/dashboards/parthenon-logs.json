@@ -158,7 +158,9 @@
             "uid": "loki-parthenon"
           },
           "expr": "sum(count_over_time({job=\"docker\", container_name=~\"parthenon-.*\"} |~ \"(?i)error\" [1h]))",
-          "legendFormat": ""
+          "instant": true,
+          "range": false,
+          "legendFormat": "__auto"
         }
       ],
       "options": {
@@ -169,11 +171,11 @@
           "fields": "",
           "values": false
         },
+        "orientation": "auto",
+        "textMode": "auto",
         "colorMode": "background",
         "graphMode": "none",
-        "justifyMode": "auto",
-        "textMode": "auto",
-        "orientation": "auto"
+        "justifyMode": "auto"
       },
       "fieldConfig": {
         "defaults": {
@@ -181,7 +183,6 @@
             "mode": "thresholds"
           },
           "unit": "short",
-          "noValue": "0",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -194,7 +195,8 @@
                 "value": 1
               }
             ]
-          }
+          },
+          "noValue": "0"
         },
         "overrides": []
       }
@@ -221,7 +223,9 @@
             "uid": "loki-parthenon"
           },
           "expr": "sum(count_over_time({job=\"docker\", container_name=~\"parthenon-.*\"} |~ \"(?i)warn\" [1h]))",
-          "legendFormat": ""
+          "instant": true,
+          "range": false,
+          "legendFormat": "__auto"
         }
       ],
       "options": {
@@ -232,11 +236,11 @@
           "fields": "",
           "values": false
         },
+        "orientation": "auto",
+        "textMode": "auto",
         "colorMode": "background",
         "graphMode": "none",
-        "justifyMode": "auto",
-        "textMode": "auto",
-        "orientation": "auto"
+        "justifyMode": "auto"
       },
       "fieldConfig": {
         "defaults": {
@@ -244,7 +248,6 @@
             "mode": "thresholds"
           },
           "unit": "short",
-          "noValue": "0",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -257,7 +260,8 @@
                 "value": 1
               }
             ]
-          }
+          },
+          "noValue": "0"
         },
         "overrides": []
       }
