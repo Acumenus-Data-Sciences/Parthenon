@@ -475,7 +475,7 @@ describe("FinnGenToolsPage", () => {
     fireEvent.change(screen.getByLabelText(/Result limit/i), { target: { value: "10" } });
     fireEvent.change(screen.getByLabelText(/Lineage depth/i), { target: { value: "4" } });
     fireEvent.click(screen.getByRole("button", { name: /Run Query Plan Preview/i }));
-    expect(await screen.findByText(/Query Controls/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Metadata Summary/i)).toBeInTheDocument();
     expect(apiMocks.previewFinnGenRomopapi).toHaveBeenCalledWith(
       expect.objectContaining({
         concept_domain: "Drug",

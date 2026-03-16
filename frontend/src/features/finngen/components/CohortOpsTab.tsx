@@ -1423,23 +1423,11 @@ export function CohortOpsTab({
   // ── Render ───────────────────────────────────────────────────────
   const isLoading = cohortMutation.isPending;
   const result = cohortMutation.data;
+  const handoffReady = Boolean(result?.export_summary?.handoff_ready);
 
   return (
     <div className="space-y-4">
-      {/* ── Prominent handoff button when export_summary exists ─── */}
-      {result?.export_summary ? (
-        <button
-          type="button"
-          onClick={handleHandoff}
-          disabled={!result.export_summary.handoff_ready}
-          className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#9B1B30] px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-[#9B1B30]/80 disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          <ArrowUpRight className="h-4 w-4" />
-          Hand Off To CO2 Modules
-        </button>
-      ) : null}
-
-      {/* ── Operation Builder card ──────────────────────────────── */}
+      {/* ── Controls: Operation Builder card ────────────────────── */}
       <button
         type="button"
         onClick={() => setOperationBuilderOpen(true)}
@@ -1472,43 +1460,61 @@ export function CohortOpsTab({
         </div>
       </button>
 
-      {/* ── Selected cohorts summary inline ─────────────────────── */}
+      {/* ── Controls: Selected cohorts chips ─────────────────────── */}
       {selectedCohortLabels.length > 0 ? (
-        <div className="rounded-lg border border-zinc-800 bg-zinc-950/70 p-4">
-          <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-500">
-            Selected Cohorts
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {selectedCohortDefinitions.map((cohort) => (
-              <span
-                key={cohort.id}
-                className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium ${
-                  primaryCohortId === cohort.id
-                    ? "border-[#C9A227]/40 bg-[#C9A227]/10 text-[#F2DEA3]"
-                    : "border-zinc-700 bg-zinc-900 text-zinc-300"
-                }`}
-              >
-                {cohort.name}
-                {primaryCohortId === cohort.id ? (
-                  <span className="text-[10px] uppercase tracking-wide">
-                    primary
-                  </span>
-                ) : null}
-              </span>
-            ))}
-          </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+            Selected:
+          </span>
+          {selectedCohortDefinitions.map((cohort) => (
+            <span
+              key={cohort.id}
+              className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium ${
+                primaryCohortId === cohort.id
+                  ? "border-[#C9A227]/40 bg-[#C9A227]/10 text-[#F2DEA3]"
+                  : "border-zinc-700 bg-zinc-900 text-zinc-300"
+              }`}
+            >
+              {cohort.name}
+              {primaryCohortId === cohort.id ? (
+                <span className="text-[10px] uppercase tracking-wide">
+                  primary
+                </span>
+              ) : null}
+            </span>
+          ))}
           {primaryCohortId ? (
-            <div className="mt-2 text-xs text-zinc-500">
-              Matching target:{" "}
+            <span className="text-xs text-zinc-500">
+              Target:{" "}
               {cohortMatchingTargets.find(
                 (target) => target.value === matchingTarget,
               )?.label}
-            </div>
+            </span>
           ) : null}
         </div>
       ) : null}
 
-      {/* ── Raw JSON Definition (collapsed) ─────────────────────── */}
+      {/* ── Controls: Run button ─────────────────────────────────── */}
+      <ActionButton
+        label="Run Cohort Preview"
+        onClick={() => cohortMutation.mutate()}
+        loading={isLoading}
+        disabled={
+          !selectedSource ||
+          (cohortImportMode === "parthenon" && selectedCohortIds.length === 0)
+        }
+      />
+
+      {/* ── Loading hint for Parthenon cohort definition ────────── */}
+      {cohortImportMode === "parthenon" &&
+      selectedPrimaryCohortQuery.isLoading ? (
+        <div className="rounded-lg border border-zinc-800 bg-zinc-950/70 px-3 py-2 text-xs text-zinc-400">
+          Loading the primary Parthenon cohort definition for preview
+          compilation.
+        </div>
+      ) : null}
+
+      {/* ── Controls: Raw JSON Definition (collapsed) ────────────── */}
       <CollapsibleSection title="Raw JSON Definition">
         <div className="space-y-3">
           <div className="flex flex-wrap gap-2">
@@ -1532,35 +1538,29 @@ export function CohortOpsTab({
         </div>
       </CollapsibleSection>
 
-      {/* ── Loading hint for Parthenon cohort definition ────────── */}
-      {cohortImportMode === "parthenon" &&
-      selectedPrimaryCohortQuery.isLoading ? (
-        <div className="rounded-lg border border-zinc-800 bg-zinc-950/70 px-3 py-2 text-xs text-zinc-400">
-          Loading the primary Parthenon cohort definition for preview
-          compilation.
-        </div>
-      ) : null}
-
-      {/* ── Run button ──────────────────────────────────────────── */}
-      <ActionButton
-        label="Run Cohort Preview"
-        onClick={() => cohortMutation.mutate()}
-        loading={isLoading}
-        disabled={
-          !selectedSource ||
-          (cohortImportMode === "parthenon" && selectedCohortIds.length === 0)
-        }
-      />
+      {/* ── Error banner ─────────────────────────────────────────── */}
       {cohortMutation.isError ? (
         <ErrorBanner message={getErrorMessage(cohortMutation.error)} />
       ) : null}
 
-      {/* ── Pre-run empty state ─────────────────────────────────── */}
+      {/* ── Pre-run empty state ──────────────────────────────────── */}
       {!result && !isLoading ? (
-        <EmptyState label="Select cohorts via the Operation Builder and click Run to see results." />
+        <EmptyState label="Select cohorts and run a preview." />
       ) : null}
 
-      {/* ── Result panels (only render when data exists) ────────── */}
+      {/* ── Handoff button (top of results, only when ready) ─────── */}
+      {result?.export_summary && handoffReady ? (
+        <button
+          type="button"
+          onClick={handleHandoff}
+          className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#9B1B30] px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-[#9B1B30]/80"
+        >
+          <ArrowUpRight className="h-4 w-4" />
+          Hand Off To CO2 Modules
+        </button>
+      ) : null}
+
+      {/* ── Key Result 1: Compile Summary ────────────────────────── */}
       <ResultSection
         title="Compile Summary"
         data={result?.compile_summary}
@@ -1569,6 +1569,7 @@ export function CohortOpsTab({
         <KeyValueGrid data={result?.compile_summary ?? {}} />
       </ResultSection>
 
+      {/* ── Key Result 2: Attrition Funnel ───────────────────────── */}
       <ResultSection
         title="Attrition Funnel"
         data={result?.attrition}
@@ -1577,149 +1578,32 @@ export function CohortOpsTab({
         {result ? <AttritionView result={result} /> : null}
       </ResultSection>
 
+      {/* ── Key Result 3: Export & Handoff ───────────────────────── */}
       <ResultSection
-        title="Criteria Timeline"
-        data={result?.criteria_timeline?.length}
+        title="Export & Handoff"
+        data={result?.export_summary}
         loading={isLoading}
       >
-        {result ? <TimelineView items={result.criteria_timeline} /> : null}
-      </ResultSection>
-
-      <div className="grid gap-4 lg:grid-cols-2">
-        <ResultSection
-          title="Import & Export"
-          data={result}
-          loading={isLoading}
-        >
-          {result ? (
-            <ImportExportView
-              importMode={cohortImportMode}
-              onImportModeChange={setCohortImportMode}
-              result={result}
-            />
-          ) : null}
-        </ResultSection>
-
-        <ResultSection
-          title="Matching Review"
-          data={result}
-          loading={isLoading}
-        >
-          {result ? <MatchingReviewView result={result} /> : null}
-        </ResultSection>
-      </div>
-
-      <div className="grid gap-4 lg:grid-cols-2">
-        <ResultSection
-          title="Operation Summary"
-          data={result?.operation_summary}
-          loading={isLoading}
-        >
-          <KeyValueGrid data={result?.operation_summary ?? {}} />
-        </ResultSection>
-
-        <ResultSection
-          title="Operation Evidence"
-          data={result?.operation_evidence?.length}
-          loading={isLoading}
-        >
-          {result ? <OperationEvidenceView result={result} /> : null}
-        </ResultSection>
-      </div>
-
-      <ResultSection
-        title="Operation Comparison"
-        data={result?.operation_comparison?.length}
-        loading={isLoading}
-      >
-        <LabelValueList
-          items={(result?.operation_comparison ?? []).map((item) => ({
-            label: item.label,
-            value: String(item.value),
-          }))}
-        />
-      </ResultSection>
-
-      <div className="grid gap-4 lg:grid-cols-2">
-        <ResultSection
-          title="Selected Cohorts"
-          data={result?.selected_cohorts?.length}
-          loading={isLoading}
-        >
-          <SelectedCohortsView cohorts={result?.selected_cohorts ?? []} />
-        </ResultSection>
-      </div>
-
-      <div className="grid gap-4 lg:grid-cols-2">
-        <ResultSection
-          title="Import Review"
-          data={result?.import_review?.length}
-          loading={isLoading}
-        >
-          <StatusListView items={result?.import_review ?? []} />
-        </ResultSection>
-
-        <ResultSection
-          title="Cohort Table Summary"
-          data={
-            result?.cohort_table_summary &&
-            Object.keys(result.cohort_table_summary).length
-          }
-          loading={isLoading}
-        >
-          <KeyValueGrid data={result?.cohort_table_summary ?? {}} />
-        </ResultSection>
-      </div>
-
-      <div className="grid gap-4 lg:grid-cols-2">
-        <ResultSection
-          title="Atlas Concept Set Remap"
-          data={result?.atlas_concept_set_summary?.length}
-          loading={isLoading}
-        >
-          <RecordTable
-            rows={
-              (result?.atlas_concept_set_summary ?? []) as Array<Record<string, unknown>>
-            }
-          />
-        </ResultSection>
-
-        <ResultSection
-          title="Atlas Import Diagnostics"
-          data={
-            result?.atlas_import_diagnostics &&
-            Object.keys(result.atlas_import_diagnostics).length
-          }
-          loading={isLoading}
-        >
-          <KeyValueGrid data={result?.atlas_import_diagnostics ?? {}} />
-        </ResultSection>
-      </div>
-
-      <div className="grid gap-4 lg:grid-cols-2">
-        <ResultSection
-          title="File Import Summary"
-          data={
-            result?.file_import_summary &&
-            Object.keys(result.file_import_summary).length
-          }
-          loading={isLoading}
-        >
-          <KeyValueGrid data={result?.file_import_summary ?? {}} />
-        </ResultSection>
-
-        <ResultSection
-          title="Export Bundle"
-          data={
-            result?.export_bundle &&
-            Object.keys(result.export_bundle).length
-          }
-          loading={isLoading}
-        >
-          {result?.export_bundle ? (
-            <div className="space-y-4">
-              <KeyValueGrid data={result.export_bundle} />
-              <div className="flex flex-wrap gap-2">
+        {result?.export_summary ? (
+          <div className="space-y-4">
+            <button
+              type="button"
+              onClick={handleHandoff}
+              disabled={!handoffReady}
+              className="inline-flex items-center gap-2 rounded-lg border border-[#9B1B30]/30 bg-[#9B1B30]/10 px-3 py-2 text-sm font-medium text-[#F0EDE8] transition-colors hover:bg-[#9B1B30]/20 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <ArrowUpRight className="h-4 w-4" />
+              Hand Off To CO2 Modules
+            </button>
+            <KeyValueGrid data={result.export_summary} />
+            {result.export_manifest?.length ? (
+              <RecordTable
+                rows={result.export_manifest as Array<Record<string, unknown>>}
+              />
+            ) : null}
+            {result.export_bundle && Object.keys(result.export_bundle).length ? (
+              <div className="space-y-3">
+                <KeyValueGrid data={result.export_bundle} />
                 <ActionButton
                   label="Download bundle"
                   onClick={() =>
@@ -1731,64 +1615,164 @@ export function CohortOpsTab({
                   }
                 />
               </div>
-            </div>
-          ) : null}
-        </ResultSection>
-      </div>
-
-      <ResultSection
-        title="Export Summary"
-        data={result?.export_summary}
-        loading={isLoading}
-      >
-        {result?.export_summary ? (
-          <CohortHandoffView
-            exportSummary={result.export_summary}
-            onHandoff={handleHandoff}
-          />
+            ) : null}
+          </div>
         ) : null}
       </ResultSection>
 
-      <ResultSection
-        title="Export Manifest"
-        data={result?.export_manifest?.length}
-        loading={isLoading}
-      >
-        <RecordTable
-          rows={(result?.export_manifest ?? []) as Array<Record<string, unknown>>}
-        />
-      </ResultSection>
+      {/* ── Detailed Results (collapsed) ─────────────────────────── */}
+      <CollapsibleSection title="Detailed Results">
+        <div className="space-y-4">
+          <ResultSection
+            title="Criteria Timeline"
+            data={result?.criteria_timeline?.length}
+            loading={isLoading}
+          >
+            {result ? <TimelineView items={result.criteria_timeline} /> : null}
+          </ResultSection>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <ResultSection
-          title="Compiled SQL"
-          data={result?.sql_preview}
-          loading={isLoading}
-        >
-          <CodeBlock
-            title="Preview SQL"
-            code={result?.sql_preview ?? ""}
-          />
-        </ResultSection>
+          <ResultSection
+            title="Import & Export"
+            data={result}
+            loading={isLoading}
+          >
+            {result ? (
+              <ImportExportView
+                importMode={cohortImportMode}
+                onImportModeChange={setCohortImportMode}
+                result={result}
+              />
+            ) : null}
+          </ResultSection>
 
-        <ResultSection
-          title="Sample Rows"
-          data={result?.sample_rows?.length}
-          loading={isLoading}
-        >
-          <RecordTable rows={result?.sample_rows ?? []} />
-        </ResultSection>
-      </div>
+          <ResultSection
+            title="Matching Review"
+            data={result}
+            loading={isLoading}
+          >
+            {result ? <MatchingReviewView result={result} /> : null}
+          </ResultSection>
 
-      <ResultSection
-        title="Plausibility Sample"
-        data={result}
-        loading={isLoading}
-      >
-        {result ? <CohortPlausibilityView result={result} /> : null}
-      </ResultSection>
+          <ResultSection
+            title="Operation Summary"
+            data={result?.operation_summary}
+            loading={isLoading}
+          >
+            <KeyValueGrid data={result?.operation_summary ?? {}} />
+          </ResultSection>
 
-      {/* ── Run History (collapsed at bottom) ───────────────────── */}
+          <ResultSection
+            title="Operation Evidence"
+            data={result?.operation_evidence?.length}
+            loading={isLoading}
+          >
+            {result ? <OperationEvidenceView result={result} /> : null}
+          </ResultSection>
+
+          <ResultSection
+            title="Operation Comparison"
+            data={result?.operation_comparison?.length}
+            loading={isLoading}
+          >
+            <LabelValueList
+              items={(result?.operation_comparison ?? []).map((item) => ({
+                label: item.label,
+                value: String(item.value),
+              }))}
+            />
+          </ResultSection>
+
+          <ResultSection
+            title="Selected Cohorts"
+            data={result?.selected_cohorts?.length}
+            loading={isLoading}
+          >
+            <SelectedCohortsView cohorts={result?.selected_cohorts ?? []} />
+          </ResultSection>
+
+          <ResultSection
+            title="Import Review"
+            data={result?.import_review?.length}
+            loading={isLoading}
+          >
+            <StatusListView items={result?.import_review ?? []} />
+          </ResultSection>
+
+          <ResultSection
+            title="Cohort Table Summary"
+            data={
+              result?.cohort_table_summary &&
+              Object.keys(result.cohort_table_summary).length
+            }
+            loading={isLoading}
+          >
+            <KeyValueGrid data={result?.cohort_table_summary ?? {}} />
+          </ResultSection>
+
+          <ResultSection
+            title="Atlas Concept Set Remap"
+            data={result?.atlas_concept_set_summary?.length}
+            loading={isLoading}
+          >
+            <RecordTable
+              rows={
+                (result?.atlas_concept_set_summary ?? []) as Array<Record<string, unknown>>
+              }
+            />
+          </ResultSection>
+
+          <ResultSection
+            title="Atlas Import Diagnostics"
+            data={
+              result?.atlas_import_diagnostics &&
+              Object.keys(result.atlas_import_diagnostics).length
+            }
+            loading={isLoading}
+          >
+            <KeyValueGrid data={result?.atlas_import_diagnostics ?? {}} />
+          </ResultSection>
+
+          <ResultSection
+            title="File Import Summary"
+            data={
+              result?.file_import_summary &&
+              Object.keys(result.file_import_summary).length
+            }
+            loading={isLoading}
+          >
+            <KeyValueGrid data={result?.file_import_summary ?? {}} />
+          </ResultSection>
+
+          <ResultSection
+            title="Compiled SQL"
+            data={result?.sql_preview}
+            loading={isLoading}
+          >
+            <CodeBlock
+              title="Preview SQL"
+              code={result?.sql_preview ?? ""}
+            />
+          </ResultSection>
+
+          <ResultSection
+            title="Sample Rows"
+            data={result?.sample_rows?.length}
+            loading={isLoading}
+          >
+            <RecordTable rows={result?.sample_rows ?? []} />
+          </ResultSection>
+
+          <ResultSection
+            title="Plausibility Sample"
+            data={result}
+            loading={isLoading}
+          >
+            {result ? <CohortPlausibilityView result={result} /> : null}
+          </ResultSection>
+        </div>
+      </CollapsibleSection>
+
+      {/* ── Run History (collapsed at bottom) ────────────────────── */}
       <CollapsibleSection title="Run History">
         <div className="space-y-4">
           {runsQuery.isLoading ? (
@@ -1850,12 +1834,12 @@ export function CohortOpsTab({
               ) : null}
             </>
           ) : (
-            <EmptyState label="Run history for Cohort Ops will appear here once executions are persisted." />
+            <EmptyState label="Run history will appear here once executions are persisted." />
           )}
         </div>
       </CollapsibleSection>
 
-      {/* ── Diagnostics (collapsed at bottom) ───────────────────── */}
+      {/* ── Diagnostics (collapsed at bottom) ────────────────────── */}
       <CollapsibleSection title="Diagnostics">
         <RuntimePanel runtime={result?.runtime} />
         {!result?.runtime ? (
@@ -1863,7 +1847,7 @@ export function CohortOpsTab({
         ) : null}
       </CollapsibleSection>
 
-      {/* ── Operation Builder Modal ─────────────────────────────── */}
+      {/* ── Operation Builder Modal ──────────────────────────────── */}
       <OperationBuilderModal
         open={operationBuilderOpen}
         onClose={() => setOperationBuilderOpen(false)}

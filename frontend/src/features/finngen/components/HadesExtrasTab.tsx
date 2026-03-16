@@ -8,24 +8,20 @@ import {
   KeyValueGrid,
   LabelValueList,
   MiniMetric,
-  ProgressRow,
   CodeBlock,
   ErrorBanner,
   EmptyState,
   RuntimePanel,
   RecordTable,
   ArtifactList,
-  JsonPreview,
   RecentRunsView,
   RunInspectorView,
   RunComparisonPanel,
   requireSource,
   getErrorMessage,
-  formatValue,
   downloadText,
   downloadJson,
   collectSqlSubstitutions,
-  formatTimestamp,
   hadesConfigProfiles,
   hadesArtifactModes,
   hadesPackageSkeletons,
@@ -140,7 +136,7 @@ function CohortTableLifecycleView({ result }: { result: FinnGenHadesExtrasResult
       ))}
     </div>
   ) : (
-    <EmptyState label="Cohort table lifecycle details will appear here when available." />
+    <EmptyState label="No data yet." />
   );
 }
 
@@ -162,7 +158,7 @@ function HelperLogsView({ result }: { result: FinnGenHadesExtrasResult }) {
       ))}
     </div>
   ) : (
-    <EmptyState label="Structured helper logs will appear here when available." />
+    <EmptyState label="No data yet." />
   );
 }
 
@@ -219,7 +215,7 @@ function PackageBundleView({ result }: { result: FinnGenHadesExtrasResult }) {
   const bundle = result.package_bundle;
 
   if (!bundle) {
-    return <EmptyState label="No package bundle metadata was returned." />;
+    return <EmptyState label="No data yet." />;
   }
 
   return (
@@ -295,7 +291,7 @@ function PersistedHadesArtifactsView({
           {cohortTableLifecycle.length ? (
             <RecordTable rows={cohortTableLifecycle} />
           ) : (
-            <EmptyState label="Persisted cohort-table lifecycle details will appear here when a run stores them." />
+            <EmptyState label="No data yet." />
           )}
         </div>
         <div className="rounded-lg border border-zinc-800 bg-zinc-950/70 p-4">
@@ -303,7 +299,7 @@ function PersistedHadesArtifactsView({
           {helperLogs.length ? (
             <RecordTable rows={helperLogs} />
           ) : (
-            <EmptyState label="Persisted helper logs will appear here when a run stores them." />
+            <EmptyState label="No data yet." />
           )}
         </div>
       </div>
@@ -323,7 +319,7 @@ function PersistedHadesArtifactsView({
             />
           </div>
         ) : (
-          <EmptyState label="Persisted HADES bundle metadata will appear here when a run stores it." />
+          <EmptyState label="No data yet." />
         )}
       </div>
       <div className="rounded-lg border border-zinc-800 bg-zinc-950/70 p-4">
@@ -367,7 +363,7 @@ function PersistedHadesArtifactsView({
             </div>
           </div>
         ) : (
-          <EmptyState label="Persisted HADES manifest entries will appear here when a run stores them." />
+          <EmptyState label="No data yet." />
         )}
       </div>
     </div>
@@ -534,17 +530,17 @@ export function HadesExtrasTab({
   const loading = hadesMutation.isPending;
 
   return (
-    <div className="grid gap-4 xl:grid-cols-[0.9fr_1.1fr]">
-      {/* ── Left column: Controls ───────────────────────────────────── */}
-      <div className="space-y-4">
-        <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-6">
-          <div>
-            <div className="text-sm font-medium text-white">Render Preview</div>
-            <p className="mt-1 text-sm leading-6 text-zinc-400">
-              Render SQL and package artifacts for the selected source.
-            </p>
-          </div>
+    <div className="space-y-4">
+      {/* ── Controls ──────────────────────────────────────────────────── */}
+      <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-6 space-y-4">
+        <div>
+          <div className="text-sm font-medium text-white">Render Preview</div>
+          <p className="mt-1 text-sm leading-6 text-zinc-400">
+            Render SQL and package artifacts for the selected source.
+          </p>
+        </div>
 
+        <div className="grid gap-4 md:grid-cols-2">
           <FormField label="Package name">
             <input
               value={packageName}
@@ -552,182 +548,156 @@ export function HadesExtrasTab({
               className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 focus:border-[#9B1B30] focus:outline-none"
             />
           </FormField>
-
-          <FormField label="SQL template">
-            <textarea
-              value={sqlTemplate}
-              onChange={(e) => setSqlTemplate(e.target.value)}
-              rows={12}
-              className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-3 font-mono text-sm text-zinc-100 focus:border-[#9B1B30] focus:outline-none"
+          <div className="flex items-end">
+            <ActionButton
+              label="Render Preview"
+              onClick={() => hadesMutation.mutate()}
+              loading={loading}
+              disabled={!selectedSource}
             />
-          </FormField>
-
-          <ActionButton
-            label="Render Preview"
-            onClick={() => hadesMutation.mutate()}
-            loading={loading}
-            disabled={!selectedSource}
-          />
-
-          {hadesMutation.isError ? <ErrorBanner message={getErrorMessage(hadesMutation.error)} /> : null}
+          </div>
         </div>
 
-        <CollapsibleSection title="Advanced Options">
-          <div className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              <FormField label="Config profile">
-                <select
-                  value={hadesConfigProfile}
-                  onChange={(e) => setHadesConfigProfile(e.target.value as (typeof hadesConfigProfiles)[number]["value"])}
-                  className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 focus:border-[#9B1B30] focus:outline-none"
-                >
-                  {hadesConfigProfiles.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </FormField>
-              <FormField label="Artifact mode">
-                <select
-                  value={hadesArtifactMode}
-                  onChange={(e) => setHadesArtifactMode(e.target.value as (typeof hadesArtifactModes)[number]["value"])}
-                  className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 focus:border-[#9B1B30] focus:outline-none"
-                >
-                  {hadesArtifactModes.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </FormField>
-            </div>
-            <div className="grid gap-4 md:grid-cols-2">
-              <FormField label="Package skeleton">
-                <select
-                  value={hadesPackageSkeleton}
-                  onChange={(e) => setHadesPackageSkeleton(e.target.value as (typeof hadesPackageSkeletons)[number]["value"])}
-                  className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 focus:border-[#9B1B30] focus:outline-none"
-                >
-                  {hadesPackageSkeletons.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </FormField>
-              <FormField label="Cohort table">
-                <input
-                  value={hadesCohortTable}
-                  onChange={(e) => setHadesCohortTable(e.target.value)}
-                  className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 focus:border-[#9B1B30] focus:outline-none"
-                />
-              </FormField>
-            </div>
-            <FormField label="YAML config">
-              <textarea
-                value={hadesConfigYaml}
-                onChange={(e) => setHadesConfigYaml(e.target.value)}
-                rows={10}
-                className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-3 font-mono text-sm text-zinc-100 focus:border-[#9B1B30] focus:outline-none"
+        <FormField label="SQL template">
+          <textarea
+            value={sqlTemplate}
+            onChange={(e) => setSqlTemplate(e.target.value)}
+            rows={6}
+            className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-3 font-mono text-sm text-zinc-100 focus:border-[#9B1B30] focus:outline-none"
+          />
+        </FormField>
+
+        {hadesMutation.isError ? <ErrorBanner message={getErrorMessage(hadesMutation.error)} /> : null}
+      </div>
+
+      <CollapsibleSection title="Advanced Options">
+        <div className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            <FormField label="Config profile">
+              <select
+                value={hadesConfigProfile}
+                onChange={(e) => setHadesConfigProfile(e.target.value as (typeof hadesConfigProfiles)[number]["value"])}
+                className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 focus:border-[#9B1B30] focus:outline-none"
+              >
+                {hadesConfigProfiles.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </FormField>
+            <FormField label="Artifact mode">
+              <select
+                value={hadesArtifactMode}
+                onChange={(e) => setHadesArtifactMode(e.target.value as (typeof hadesArtifactModes)[number]["value"])}
+                className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 focus:border-[#9B1B30] focus:outline-none"
+              >
+                {hadesArtifactModes.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </FormField>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            <FormField label="Package skeleton">
+              <select
+                value={hadesPackageSkeleton}
+                onChange={(e) => setHadesPackageSkeleton(e.target.value as (typeof hadesPackageSkeletons)[number]["value"])}
+                className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 focus:border-[#9B1B30] focus:outline-none"
+              >
+                {hadesPackageSkeletons.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </FormField>
+            <FormField label="Cohort table">
+              <input
+                value={hadesCohortTable}
+                onChange={(e) => setHadesCohortTable(e.target.value)}
+                className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 focus:border-[#9B1B30] focus:outline-none"
               />
             </FormField>
           </div>
-        </CollapsibleSection>
-      </div>
+          <FormField label="YAML config">
+            <textarea
+              value={hadesConfigYaml}
+              onChange={(e) => setHadesConfigYaml(e.target.value)}
+              rows={10}
+              className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-3 font-mono text-sm text-zinc-100 focus:border-[#9B1B30] focus:outline-none"
+            />
+          </FormField>
+        </div>
+      </CollapsibleSection>
 
-      {/* ── Right column: Results ───────────────────────────────────── */}
-      <div className="space-y-4">
-        {!data && !loading ? (
-          <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-6">
-            <div className="py-8 text-center text-sm text-zinc-500">
-              Configure inputs and click Render to see results.
-            </div>
+      {/* ── Pre-run empty state ───────────────────────────────────────── */}
+      {!data && !loading ? (
+        <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-6">
+          <div className="py-4 text-center text-sm text-zinc-500">
+            Render a preview to inspect SQL and package artifacts.
           </div>
-        ) : null}
+        </div>
+      ) : null}
 
-        <ResultSection title="Package Setup" data={data?.package_setup} loading={loading}>
-          <KeyValueGrid data={data?.package_setup ?? {}} />
-        </ResultSection>
+      {/* ── Key Results (3 hero panels) ───────────────────────────────── */}
+      <ResultSection title="Render Summary" data={data?.render_summary} loading={loading}>
+        <KeyValueGrid data={data?.render_summary ?? {}} />
+      </ResultSection>
 
-        <ResultSection title="Render Summary" data={data?.render_summary} loading={loading}>
-          <KeyValueGrid data={data?.render_summary ?? {}} />
-        </ResultSection>
+      <ResultSection title="SQL Preview" data={data?.sql_preview} loading={loading}>
+        {data ? <SqlPreviewView result={data} /> : null}
+      </ResultSection>
 
-        {data || loading ? (
-          <div className="grid gap-4 lg:grid-cols-2">
-            <ResultSection title="Connection Context" data={data?.source} loading={loading}>
-              <KeyValueGrid data={data?.source ?? {}} />
-            </ResultSection>
-            <ResultSection title="SQL Diff Lens" data={data?.sql_preview} loading={loading}>
-              {data ? <SqlDiffView result={data} /> : null}
-            </ResultSection>
-          </div>
-        ) : null}
+      <ResultSection title="Package Bundle" data={data?.package_bundle} loading={loading}>
+        {data ? <PackageBundleView result={data} /> : null}
+      </ResultSection>
 
-        {data || loading ? (
-          <div className="grid gap-4 lg:grid-cols-2">
-            <ResultSection title="Config Summary" data={data?.config_summary} loading={loading}>
-              <KeyValueGrid data={data?.config_summary ?? {}} />
+      {/* ── Detailed Results ──────────────────────────────────────────── */}
+      {data ? (
+        <CollapsibleSection title="Detailed Results">
+          <div className="space-y-4">
+            <ResultSection title="Package Setup" data={data.package_setup} loading={false}>
+              <KeyValueGrid data={data.package_setup ?? {}} />
             </ResultSection>
-            <ResultSection title="Config Import" data={data?.config_import_summary} loading={loading}>
-              <KeyValueGrid data={data?.config_import_summary ?? {}} />
-            </ResultSection>
-          </div>
-        ) : null}
 
-        {data || loading ? (
-          <div className="grid gap-4 lg:grid-cols-2">
-            <ResultSection title="Config Validation" data={data?.config_validation?.length ? data.config_validation : null} loading={loading}>
-              <LabelValueList items={(data?.config_validation ?? []).map((item) => ({
-                label: item.label,
-                value: item.status,
-                detail: item.detail,
-              }))} />
+            <ResultSection title="Connection Context" data={data.source} loading={false}>
+              <KeyValueGrid data={data.source ?? {}} />
             </ResultSection>
-            <ResultSection title="Cohort Summary" data={data?.cohort_summary?.length ? data.cohort_summary : null} loading={loading}>
-              <LabelValueList items={data?.cohort_summary ?? []} />
-            </ResultSection>
-          </div>
-        ) : null}
 
-        {data || loading ? (
-          <div className="grid gap-4 lg:grid-cols-2">
-            <ResultSection title="Cohort Table Lifecycle" data={data?.cohort_table_lifecycle?.length ? data.cohort_table_lifecycle : null} loading={loading}>
-              {data ? <CohortTableLifecycleView result={data} /> : null}
+            <ResultSection title="SQL Diff Lens" data={data.sql_preview} loading={false}>
+              <SqlDiffView result={data} />
             </ResultSection>
-            <ResultSection title="Helper Logs" data={data?.helper_logs?.length ? data.helper_logs : null} loading={loading}>
-              {data ? <HelperLogsView result={data} /> : null}
-            </ResultSection>
-          </div>
-        ) : null}
 
-        {data || loading ? (
-          <div className="grid gap-4 lg:grid-cols-2">
-            <ResultSection title="Config YAML" data={data?.config_yaml} loading={loading}>
-              <pre className="overflow-x-auto rounded-lg border border-zinc-800 bg-zinc-950/70 p-3 text-xs text-zinc-300">
-                {data?.config_yaml}
-              </pre>
+            <ResultSection title="Config Summary" data={data.config_summary} loading={false}>
+              <KeyValueGrid data={data.config_summary ?? {}} />
             </ResultSection>
-            <ResultSection title="Config Export" data={data?.config_exports} loading={loading}>
+
+            <ResultSection title="Cohort Summary" data={data.cohort_summary?.length ? data.cohort_summary : null} loading={false}>
+              <LabelValueList items={data.cohort_summary ?? []} />
+            </ResultSection>
+
+            <ResultSection title="Config Export" data={data.config_exports} loading={false}>
               <div className="space-y-3">
-                {data?.config_exports?.json ? (
+                {data.config_exports?.json ? (
                   <KeyValueGrid data={data.config_exports.json} />
                 ) : null}
                 <div className="flex flex-wrap gap-2">
-                  {data?.config_exports?.yaml ? (
+                  {data.config_exports?.yaml ? (
                     <button
                       type="button"
-                      onClick={() => downloadText("hades-config.yaml", data?.config_exports?.yaml ?? "")}
+                      onClick={() => downloadText("hades-config.yaml", data.config_exports?.yaml ?? "")}
                       className="rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-200 transition-colors hover:border-[#9B1B30]/40 hover:text-white"
                     >
                       Download YAML
                     </button>
                   ) : null}
-                  {data?.config_exports?.json ? (
+                  {data.config_exports?.json ? (
                     <button
                       type="button"
-                      onClick={() => downloadJson("hades-config.json", data?.config_exports?.json ?? {})}
+                      onClick={() => downloadJson("hades-config.json", data.config_exports?.json ?? {})}
                       className="rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-200 transition-colors hover:border-[#9B1B30]/40 hover:text-white"
                     >
                       Download JSON
@@ -736,95 +706,100 @@ export function HadesExtrasTab({
                 </div>
               </div>
             </ResultSection>
-          </div>
-        ) : null}
 
-        <ResultSection title="Operation Lineage" data={data} loading={loading}>
-          {data ? <OperationLineageView result={data} /> : null}
-        </ResultSection>
-
-        <ResultSection title="SQL Preview" data={data?.sql_preview} loading={loading}>
-          {data ? <SqlPreviewView result={data} /> : null}
-        </ResultSection>
-
-        <ResultSection title="Artifact Pipeline" data={data?.artifact_pipeline?.length ? data.artifact_pipeline : null} loading={loading}>
-          {data ? <PipelineView result={data} /> : null}
-        </ResultSection>
-
-        {data || loading ? (
-          <div className="grid gap-4 lg:grid-cols-2">
-            <ResultSection title="Package Manifest" data={data?.package_manifest?.length ? data.package_manifest : null} loading={loading}>
-              {data ? <PackageManifestView result={data} /> : null}
+            <ResultSection title="Operation Lineage" data={data} loading={false}>
+              <OperationLineageView result={data} />
             </ResultSection>
-            <ResultSection title="Package Bundle" data={data?.package_bundle} loading={loading}>
-              {data ? <PackageBundleView result={data} /> : null}
+
+            <ResultSection title="Artifact Pipeline" data={data.artifact_pipeline?.length ? data.artifact_pipeline : null} loading={false}>
+              <PipelineView result={data} />
             </ResultSection>
-          </div>
-        ) : null}
 
-        <ResultSection title="Plausibility Sample" data={data} loading={loading}>
-          {data ? <PlausibilityView result={data} /> : null}
-        </ResultSection>
+            <ResultSection title="Package Manifest" data={data.package_manifest?.length ? data.package_manifest : null} loading={false}>
+              <PackageManifestView result={data} />
+            </ResultSection>
 
-        {/* ── Run History ─────────────────────────────────────────── */}
-        <CollapsibleSection title="Run History">
-          <div className="space-y-4">
-            {runsQuery.isLoading ? (
-              <EmptyState label="Loading run history..." />
-            ) : runsQuery.data?.length ? (
-              <RecentRunsView
-                runs={runsQuery.data}
-                selectedRunId={selectedRunId}
-                onSelect={setSelectedRunId}
-              />
-            ) : (
-              <EmptyState label="Run history for the active tool and source will appear here once executions are persisted." />
-            )}
+            <ResultSection title="Plausibility Sample" data={data} loading={false}>
+              <PlausibilityView result={data} />
+            </ResultSection>
 
-            {runDetailQuery.isLoading ? (
-              <EmptyState label="Loading run details..." />
-            ) : runDetailQuery.data ? (
-              <>
-                <PersistedHadesArtifactsView
-                  resultPayload={(runDetailQuery.data.result_payload ?? {}) as Record<string, unknown>}
-                  exportPayload={exportBundleQuery.data ?? null}
-                />
-                <RunInspectorView
-                  run={runDetailQuery.data}
-                  onReplay={() => replayRunMutation.mutate(runDetailQuery.data?.id ?? 0)}
-                  onExport={async () => {
-                    const bundle = await exportFinnGenRun(runDetailQuery.data?.id ?? 0);
-                    if (bundle) {
-                      downloadJson(`finngen-run-${runDetailQuery.data?.id}-bundle.json`, bundle);
-                    }
-                  }}
-                  replaying={replayRunMutation.isPending}
-                />
-              </>
-            ) : runsQuery.data?.length ? (
-              <EmptyState label="Select a persisted run to inspect its request, runtime, artifacts, and stored result payload." />
-            ) : null}
+            <ResultSection title="Config Validation" data={data.config_validation?.length ? data.config_validation : null} loading={false}>
+              <LabelValueList items={(data.config_validation ?? []).map((item) => ({
+                label: item.label,
+                value: item.status,
+                detail: item.detail,
+              }))} />
+            </ResultSection>
 
-            {runDetailQuery.data ? (
-              <RunComparisonPanel
-                runs={runsQuery.data ?? []}
-                selectedRun={runDetailQuery.data}
-                compareRun={compareRunDetailQuery.data}
-                compareRunId={compareRunId}
-                onCompareRunChange={setCompareRunId}
-              />
-            ) : null}
+            <ResultSection title="Cohort Table Lifecycle" data={data.cohort_table_lifecycle?.length ? data.cohort_table_lifecycle : null} loading={false}>
+              <CohortTableLifecycleView result={data} />
+            </ResultSection>
+
+            <ResultSection title="Helper Logs" data={data.helper_logs?.length ? data.helper_logs : null} loading={false}>
+              <HelperLogsView result={data} />
+            </ResultSection>
           </div>
         </CollapsibleSection>
+      ) : null}
 
-        {/* ── Diagnostics ─────────────────────────────────────────── */}
-        <CollapsibleSection title="Diagnostics">
-          <RuntimePanel runtime={data?.runtime} />
-          {!data?.runtime ? (
-            <EmptyState label="Runtime diagnostics will appear here after a render is executed." />
+      {/* ── Run History ────────────────────────────────────────────────── */}
+      <CollapsibleSection title="Run History">
+        <div className="space-y-4">
+          {runsQuery.isLoading ? (
+            <EmptyState label="Loading run history..." />
+          ) : runsQuery.data?.length ? (
+            <RecentRunsView
+              runs={runsQuery.data}
+              selectedRunId={selectedRunId}
+              onSelect={setSelectedRunId}
+            />
+          ) : (
+            <EmptyState label="No data yet." />
+          )}
+
+          {runDetailQuery.isLoading ? (
+            <EmptyState label="Loading run details..." />
+          ) : runDetailQuery.data ? (
+            <>
+              <PersistedHadesArtifactsView
+                resultPayload={(runDetailQuery.data.result_payload ?? {}) as Record<string, unknown>}
+                exportPayload={exportBundleQuery.data ?? null}
+              />
+              <RunInspectorView
+                run={runDetailQuery.data}
+                onReplay={() => replayRunMutation.mutate(runDetailQuery.data?.id ?? 0)}
+                onExport={async () => {
+                  const bundle = await exportFinnGenRun(runDetailQuery.data?.id ?? 0);
+                  if (bundle) {
+                    downloadJson(`finngen-run-${runDetailQuery.data?.id}-bundle.json`, bundle);
+                  }
+                }}
+                replaying={replayRunMutation.isPending}
+              />
+            </>
+          ) : runsQuery.data?.length ? (
+            <EmptyState label="Select a run to inspect its details." />
           ) : null}
-        </CollapsibleSection>
-      </div>
+
+          {runDetailQuery.data ? (
+            <RunComparisonPanel
+              runs={runsQuery.data ?? []}
+              selectedRun={runDetailQuery.data}
+              compareRun={compareRunDetailQuery.data}
+              compareRunId={compareRunId}
+              onCompareRunChange={setCompareRunId}
+            />
+          ) : null}
+        </div>
+      </CollapsibleSection>
+
+      {/* ── Diagnostics ────────────────────────────────────────────────── */}
+      <CollapsibleSection title="Diagnostics">
+        <RuntimePanel runtime={data?.runtime} />
+        {!data?.runtime ? (
+          <EmptyState label="No data yet." />
+        ) : null}
+      </CollapsibleSection>
     </div>
   );
 }

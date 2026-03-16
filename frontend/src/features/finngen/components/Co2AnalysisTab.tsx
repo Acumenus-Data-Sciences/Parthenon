@@ -683,7 +683,7 @@ export function Co2AnalysisTab({
   // ── Render ──────────────────────────────────────────────────────────
   return (
     <div className="space-y-6">
-      {/* ── Lead: controls ───────────────────────────────────────────── */}
+      {/* ── Controls ───────────────────────────────────────────────── */}
       <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-6">
         <FormField label="Module key">
           <select
@@ -870,23 +870,27 @@ export function Co2AnalysisTab({
           </FormField>
         ) : null}
 
-        {/* Cohort context info badge */}
+        {/* Cohort context info line */}
         {cohortContext.co2CohortContext ? (
-          <div className="mt-4 flex items-start gap-2 rounded-lg border border-[#2DD4BF]/20 bg-[#2DD4BF]/5 px-3 py-2">
-            <Info className="mt-0.5 h-4 w-4 shrink-0 text-[#2DD4BF]" />
-            <div className="text-sm text-[#7CE8D5]">
-              <span className="font-medium">Received from Cohort Ops</span>
-              <span className="ml-2 text-zinc-400">
-                {Object.keys(cohortContext.co2CohortContext).length} keys
-                {typeof (cohortContext.co2CohortContext as Record<string, unknown>)
-                  .person_count === "number"
-                  ? ` · ${formatValue(
-                      (cohortContext.co2CohortContext as Record<string, unknown>)
-                        .person_count,
-                    )} persons`
-                  : ""}
-              </span>
-            </div>
+          <div className="mt-4 flex items-center gap-2 text-xs text-zinc-500">
+            <Info className="h-3.5 w-3.5 shrink-0 text-[#2DD4BF]" />
+            <span>
+              Received from Cohort Ops
+              {typeof (cohortContext.co2CohortContext as Record<string, unknown>)
+                .person_count === "number"
+                ? ` · ${formatValue(
+                    (cohortContext.co2CohortContext as Record<string, unknown>)
+                      .person_count,
+                  )} rows`
+                : ""}
+              {typeof (cohortContext.co2CohortContext as Record<string, unknown>)
+                .operation_type === "string"
+                ? ` · ${String(
+                    (cohortContext.co2CohortContext as Record<string, unknown>)
+                      .operation_type,
+                  )}`
+                : ""}
+            </span>
           </div>
         ) : null}
 
@@ -904,140 +908,136 @@ export function Co2AnalysisTab({
       {/* ── Pre-run empty state ──────────────────────────────────────── */}
       {!data && !loading ? (
         <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 px-6 py-10 text-center text-sm text-zinc-500">
-          Select a module and click Run to see analysis results.
+          Select a module and run the preview.
         </div>
       ) : null}
 
-      {/* ── Result panels (only when data exists) ────────────────────── */}
-      <ResultSection title="Derived Cohort Context" data={data?.cohort_context ?? cohortContext.co2CohortContext} loading={loading}>
-        {data?.cohort_context ? (
-          <KeyValueGrid data={data.cohort_context} />
-        ) : cohortContext.co2CohortContext ? (
-          <KeyValueGrid data={cohortContext.co2CohortContext} />
-        ) : null}
-      </ResultSection>
-
-      <ResultSection title="Module Setup" data={data?.module_setup} loading={loading}>
-        <KeyValueGrid data={data?.module_setup ?? {}} />
-      </ResultSection>
-
+      {/* ── Key Results (3 hero panels) ──────────────────────────────── */}
       <ResultSection title="Analysis Summary" data={data} loading={loading}>
         <KeyValueGrid data={data?.analysis_summary ?? {}} />
       </ResultSection>
-
-      <div className="grid gap-4 lg:grid-cols-2">
-        <ResultSection title="Job Summary" data={data?.job_summary} loading={loading}>
-          <KeyValueGrid data={data?.job_summary ?? {}} />
-        </ResultSection>
-        <ResultSection title="Analysis Artifacts" data={data?.analysis_artifacts?.length} loading={loading}>
-          <RecordTable rows={data?.analysis_artifacts ?? []} />
-        </ResultSection>
-      </div>
-
-      <ResultSection title="Result Validation" data={data?.result_validation?.length} loading={loading}>
-        <StatusListView items={data?.result_validation ?? []} />
-      </ResultSection>
-
-      <ResultSection title="Handoff Impact" data={data?.handoff_impact?.length} loading={loading}>
-        {data ? (
-          <Co2FamilyEvidenceView
-            result={{
-              ...data,
-              family_evidence: data.handoff_impact ?? [],
-            }}
-          />
-        ) : null}
-      </ResultSection>
-
-      <div className="grid gap-4 lg:grid-cols-2">
-        <ResultSection title="Family Evidence" data={data?.family_evidence?.length} loading={loading}>
-          <Co2FamilyEvidenceView result={data!} />
-        </ResultSection>
-        <ResultSection title="Family Notes" data={data?.family_notes?.length} loading={loading}>
-          <Co2FamilyNotesView result={data!} />
-        </ResultSection>
-      </div>
-
-      <div className="grid gap-4 lg:grid-cols-2">
-        <ResultSection title="Family Result Summary" data={data?.family_result_summary} loading={loading}>
-          <KeyValueGrid data={data?.family_result_summary ?? {}} />
-        </ResultSection>
-        <ResultSection title="Family Result Table" data={data?.result_table?.length} loading={loading}>
-          <RecordTable rows={data?.result_table ?? []} />
-        </ResultSection>
-      </div>
-
-      <div className="grid gap-4 lg:grid-cols-2">
-        <ResultSection title="Family Spotlight" data={data?.family_spotlight?.length} loading={loading}>
-          <Co2SpotlightView result={data!} />
-        </ResultSection>
-        <ResultSection title="Family Segments" data={data?.family_segments?.length} loading={loading}>
-          <Co2SegmentsView result={data!} />
-        </ResultSection>
-      </div>
 
       <ResultSection title="Forest Plot" data={data?.forest_plot?.length} loading={loading}>
         <ForestPlotView result={data!} />
       </ResultSection>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <ResultSection title="Module Gallery" data={data?.module_gallery?.length} loading={loading}>
-          <ModuleGalleryView result={data!} />
-        </ResultSection>
-        <ResultSection title="Heatmap" data={data?.heatmap?.length} loading={loading}>
-          <HeatmapView result={data!} />
-        </ResultSection>
-      </div>
-
-      <div className="grid gap-4 lg:grid-cols-2">
-        <ResultSection title="Subgroup Balance" data={data?.heatmap?.length} loading={loading}>
-          <SubgroupBalanceView result={data!} />
-        </ResultSection>
-        <ResultSection title="Phenotype Scoring Lens" data={data?.top_signals?.length} loading={loading}>
-          <PhenotypeScoringView result={data!} />
-        </ResultSection>
-      </div>
-
-      <div className="grid gap-4 lg:grid-cols-2">
-        <ResultSection title="Module Validation" data={data?.module_validation?.length} loading={loading}>
-          <StatusListView items={data?.module_validation ?? []} />
-        </ResultSection>
-        <ResultSection title="Overlap Matrix" data={data?.overlap_matrix?.length} loading={loading}>
-          <OverlapMatrixView result={data!} />
-        </ResultSection>
-      </div>
-
-      <ResultSection title="Time Profile" data={data?.time_profile?.length} loading={loading}>
-        <TimeProfileView result={data!} />
+      <ResultSection title="Top Signals" data={data?.top_signals?.length} loading={loading}>
+        <TopSignalsView result={data!} />
       </ResultSection>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <ResultSection title="Subgroup Summary" data={data?.subgroup_summary?.length} loading={loading}>
-          <LabelValueList items={data?.subgroup_summary ?? []} />
-        </ResultSection>
-        <ResultSection title="Temporal Windows" data={data?.temporal_windows?.length} loading={loading}>
-          <TemporalWindowsView result={data!} />
-        </ResultSection>
-      </div>
+      {/* ── Detailed Results ─────────────────────────────────────────── */}
+      {data ? (
+        <CollapsibleSection title="Detailed Results">
+          <div className="space-y-4">
+            <ResultSection title="Derived Cohort Context" data={data?.cohort_context ?? cohortContext.co2CohortContext} loading={false}>
+              {data?.cohort_context ? (
+                <KeyValueGrid data={data.cohort_context} />
+              ) : cohortContext.co2CohortContext ? (
+                <KeyValueGrid data={cohortContext.co2CohortContext} />
+              ) : null}
+            </ResultSection>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <ResultSection title="Utilization Trend" data={data?.utilization_trend?.length} loading={loading}>
-          <TrendView result={data!} />
-        </ResultSection>
-        <ResultSection title="Top Signals" data={data?.top_signals?.length} loading={loading}>
-          <TopSignalsView result={data!} />
-        </ResultSection>
-      </div>
+            <ResultSection title="Module Setup" data={data?.module_setup} loading={false}>
+              <KeyValueGrid data={data?.module_setup ?? {}} />
+            </ResultSection>
 
-      <ResultSection title="Plausibility Sample" data={data} loading={loading}>
-        <Co2PlausibilityView result={data!} />
-      </ResultSection>
+            <ResultSection title="Handoff Impact" data={data?.handoff_impact?.length} loading={false}>
+              <Co2FamilyEvidenceView
+                result={{
+                  ...data,
+                  family_evidence: data.handoff_impact ?? [],
+                }}
+              />
+            </ResultSection>
 
-      <ResultSection title="Execution Timeline" data={data?.execution_timeline?.length} loading={loading}>
-        <ExecutionTimelineView result={data!} />
-      </ResultSection>
+            <ResultSection title="Family Evidence" data={data?.family_evidence?.length} loading={false}>
+              <Co2FamilyEvidenceView result={data} />
+            </ResultSection>
 
-      {/* ── Run History (bottom, collapsible) ─────────────────────────── */}
+            <ResultSection title="Family Notes" data={data?.family_notes?.length} loading={false}>
+              <Co2FamilyNotesView result={data} />
+            </ResultSection>
+
+            <ResultSection title="Family Result Summary" data={data?.family_result_summary} loading={false}>
+              <KeyValueGrid data={data?.family_result_summary ?? {}} />
+            </ResultSection>
+
+            <ResultSection title="Family Result Table" data={data?.result_table?.length} loading={false}>
+              <RecordTable rows={data?.result_table ?? []} />
+            </ResultSection>
+
+            <ResultSection title="Family Spotlight" data={data?.family_spotlight?.length} loading={false}>
+              <Co2SpotlightView result={data} />
+            </ResultSection>
+
+            <ResultSection title="Family Segments" data={data?.family_segments?.length} loading={false}>
+              <Co2SegmentsView result={data} />
+            </ResultSection>
+
+            <ResultSection title="Module Gallery" data={data?.module_gallery?.length} loading={false}>
+              <ModuleGalleryView result={data} />
+            </ResultSection>
+
+            <ResultSection title="Heatmap" data={data?.heatmap?.length} loading={false}>
+              <HeatmapView result={data} />
+            </ResultSection>
+
+            <ResultSection title="Subgroup Balance" data={data?.heatmap?.length} loading={false}>
+              <SubgroupBalanceView result={data} />
+            </ResultSection>
+
+            <ResultSection title="Phenotype Scoring Lens" data={data?.top_signals?.length} loading={false}>
+              <PhenotypeScoringView result={data} />
+            </ResultSection>
+
+            <ResultSection title="Module Validation" data={data?.module_validation?.length} loading={false}>
+              <StatusListView items={data?.module_validation ?? []} />
+            </ResultSection>
+
+            <ResultSection title="Overlap Matrix" data={data?.overlap_matrix?.length} loading={false}>
+              <OverlapMatrixView result={data} />
+            </ResultSection>
+
+            <ResultSection title="Time Profile" data={data?.time_profile?.length} loading={false}>
+              <TimeProfileView result={data} />
+            </ResultSection>
+
+            <ResultSection title="Subgroup Summary" data={data?.subgroup_summary?.length} loading={false}>
+              <LabelValueList items={data?.subgroup_summary ?? []} />
+            </ResultSection>
+
+            <ResultSection title="Temporal Windows" data={data?.temporal_windows?.length} loading={false}>
+              <TemporalWindowsView result={data} />
+            </ResultSection>
+
+            <ResultSection title="Utilization Trend" data={data?.utilization_trend?.length} loading={false}>
+              <TrendView result={data} />
+            </ResultSection>
+
+            <ResultSection title="Execution Timeline" data={data?.execution_timeline?.length} loading={false}>
+              <ExecutionTimelineView result={data} />
+            </ResultSection>
+
+            <ResultSection title="Job Summary" data={data?.job_summary} loading={false}>
+              <KeyValueGrid data={data?.job_summary ?? {}} />
+            </ResultSection>
+
+            <ResultSection title="Analysis Artifacts" data={data?.analysis_artifacts?.length} loading={false}>
+              <RecordTable rows={data?.analysis_artifacts ?? []} />
+            </ResultSection>
+
+            <ResultSection title="Result Validation" data={data?.result_validation?.length} loading={false}>
+              <StatusListView items={data?.result_validation ?? []} />
+            </ResultSection>
+
+            <ResultSection title="Plausibility Sample" data={data} loading={false}>
+              <Co2PlausibilityView result={data} />
+            </ResultSection>
+          </div>
+        </CollapsibleSection>
+      ) : null}
+
+      {/* ── Run History ──────────────────────────────────────────────── */}
       <CollapsibleSection title="Run History">
         <div className="space-y-4">
           {runsQuery.isLoading ? (
@@ -1177,7 +1177,7 @@ export function Co2AnalysisTab({
         </div>
       </CollapsibleSection>
 
-      {/* ── Diagnostics (bottom, collapsible) ─────────────────────────── */}
+      {/* ── Diagnostics ──────────────────────────────────────────────── */}
       <CollapsibleSection title="Diagnostics">
         <RuntimePanel runtime={data?.runtime} />
         {!data?.runtime ? (
