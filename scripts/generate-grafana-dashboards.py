@@ -1,40 +1,25 @@
 #!/usr/bin/env python3
-"""Generate Grafana provisioned dashboard JSON files for Parthenon.
+"""Generate unified Grafana dashboard JSON for Parthenon.
 
-Run from project root:
+Run from any directory:
     python3 scripts/generate-grafana-dashboards.py
 
 Writes:
+    monitoring/grafana/provisioning/dashboards/parthenon.json
+
+Also removes the old split dashboards if they exist:
     monitoring/grafana/provisioning/dashboards/parthenon-overview.json
     monitoring/grafana/provisioning/dashboards/parthenon-logs.json
 """
 import json
 import pathlib
 
-OUT = pathlib.Path(__file__).parent.parent / "monitoring/grafana/provisioning/dashboards"
+OUT = pathlib.Path(__file__).parent.parent / "monitoring" / "grafana" / "provisioning" / "dashboards"
 
 PROM_DS = {"type": "prometheus", "uid": "prometheus-parthenon"}
 LOKI_DS = {"type": "loki",       "uid": "loki-parthenon"}
 
-# Service groups: (display name, container name regex)
-GROUPS = [
-    ("Core Infrastructure", "parthenon-(php|nginx|postgres|redis|node|horizon|reverb)"),
-    ("AI & Analytics",      "parthenon-(ai|r)"),
-    ("Search & Databases",  "parthenon-(solr|chromadb)"),
-    ("Integrations",        "parthenon-(orthanc|study-agent|finngen-runner)"),
-    ("Monitoring Stack",    "parthenon-(grafana|prometheus|cadvisor|loki|promtail)"),
-]
-
-THRESHOLDS_PCT = {
-    "mode": "absolute",
-    "steps": [
-        {"color": "green",  "value": None},
-        {"color": "yellow", "value": 50},
-        {"color": "red",    "value": 80},
-    ],
-}
-
-THRESHOLDS_HOST = {
+THRESH_HOST = {
     "mode": "absolute",
     "steps": [
         {"color": "green",  "value": None},
@@ -42,18 +27,45 @@ THRESHOLDS_HOST = {
         {"color": "red",    "value": 85},
     ],
 }
+THRESH_PCT = {
+    "mode": "absolute",
+    "steps": [
+        {"color": "green",  "value": None},
+        {"color": "yellow", "value": 50},
+        {"color": "red",    "value": 80},
+    ],
+}
+THRESH_ZERO = {
+    "mode": "absolute",
+    "steps": [
+        {"color": "green", "value": None},
+        {"color": "red",   "value": 1},
+    ],
+}
+
+# ---------------------------------------------------------------------------
+# Auto-incrementing panel ID
+# ---------------------------------------------------------------------------
+_pid_counter = 0
+
+
+def _next_id():
+    global _pid_counter
+    _pid_counter += 1
+    return _pid_counter
 
 
 # ---------------------------------------------------------------------------
 # Panel builders
 # ---------------------------------------------------------------------------
 
-def stat_panel(pid, title, expr, unit="percent", thresholds=None, x=0, y=0, w=6, h=4,
-               datasource=None, no_value=None):
-    if thresholds is None:
-        thresholds = THRESHOLDS_HOST
+def stat_panel(title, expr, x, y, w=4, h=4, *,
+               unit="short", thresholds=None, datasource=None, no_value=None,
+               graph_mode="none", value_mappings=None, instant=True):
     if datasource is None:
         datasource = PROM_DS
+    if thresholds is None:
+        thresholds = THRESH_HOST
     defaults = {
         "color": {"mode": "thresholds"},
         "unit": unit,
@@ -61,221 +73,435 @@ def stat_panel(pid, title, expr, unit="percent", thresholds=None, x=0, y=0, w=6,
     }
     if no_value is not None:
         defaults["noValue"] = no_value
+    if value_mappings:
+        defaults["mappings"] = value_mappings
+    target = {
+        "refId": "A", "datasource": datasource, "expr": expr,
+        "legendFormat": "__auto",
+    }
+    if instant:
+        target["instant"] = True
+        target["range"] = False
+    else:
+        target["instant"] = False
+        target["range"] = True
     return {
-        "id": pid,
-        "type": "stat",
-        "title": title,
+        "id": _next_id(), "type": "stat", "title": title,
         "gridPos": {"x": x, "y": y, "w": w, "h": h},
         "datasource": datasource,
-        "targets": [
-            {
-                "refId": "A",
-                "datasource": datasource,
-                "expr": expr,
-                "instant": True,
-                "range": False,
-                "legendFormat": "__auto",
-            }
-        ],
+        "targets": [target],
         "options": {
             "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": False},
-            "orientation": "auto",
-            "textMode": "auto",
-            "colorMode": "background",
-            "graphMode": "none",
+            "orientation": "auto", "textMode": "auto",
+            "colorMode": "background", "graphMode": graph_mode,
             "justifyMode": "auto",
         },
+        "fieldConfig": {"defaults": defaults, "overrides": []},
+    }
+
+
+def gauge_panel(title, expr, x, y, w=4, h=5, *,
+                unit="percent", thresholds=None, min_val=0, max_val=100):
+    if thresholds is None:
+        thresholds = THRESH_HOST
+    return {
+        "id": _next_id(), "type": "gauge", "title": title,
+        "gridPos": {"x": x, "y": y, "w": w, "h": h},
+        "datasource": PROM_DS,
+        "targets": [{
+            "refId": "A", "datasource": PROM_DS, "expr": expr,
+            "instant": True, "range": False, "legendFormat": "__auto",
+        }],
+        "options": {
+            "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": False},
+            "showThresholdLabels": False, "showThresholdMarkers": True,
+            "orientation": "auto",
+        },
         "fieldConfig": {
-            "defaults": defaults,
+            "defaults": {
+                "color": {"mode": "thresholds"},
+                "unit": unit, "min": min_val, "max": max_val,
+                "thresholds": thresholds,
+            },
             "overrides": [],
         },
     }
 
 
-def row_panel(pid, title, y):
+def bar_gauge_panel(title, expr, x, y, w=12, h=10, *,
+                    unit="percent", thresholds=None,
+                    orientation="horizontal", display_mode="gradient"):
+    if thresholds is None:
+        thresholds = THRESH_PCT
     return {
-        "id": pid,
-        "type": "row",
-        "title": title,
-        "gridPos": {"x": 0, "y": y, "w": 24, "h": 1},
-        "collapsed": False,
-        "panels": [],
-    }
-
-
-def table_panel(pid, title, pattern, y):
-    def target(ref_id, expr):
-        return {
-            "refId": ref_id,
-            "datasource": PROM_DS,
-            "expr": expr,
-            "instant": True,
-            "range": False,
-            "legendFormat": "{{name}}",
-        }
-
-    return {
-        "id": pid,
-        "type": "table",
-        "title": title,
-        "gridPos": {"x": 0, "y": y, "w": 24, "h": 7},
+        "id": _next_id(), "type": "bargauge", "title": title,
+        "gridPos": {"x": x, "y": y, "w": w, "h": h},
         "datasource": PROM_DS,
-        "targets": [
-            target("CPU",
-                f'sum by (name)(rate(container_cpu_usage_seconds_total{{name=~"{pattern}",job="cadvisor"}}[$interval])) * 100'),
-            target("RAM",
-                f'sum by (name)(container_memory_working_set_bytes{{name=~"{pattern}",job="cadvisor"}})'),
-            target("RAMPCT",
-                f'sum by (name)(container_memory_working_set_bytes{{name=~"{pattern}",job="cadvisor"}})'
-                f' / sum by (name)(container_spec_memory_limit_bytes{{name=~"{pattern}",job="cadvisor"}} != 0) * 100'),
-            target("NETRX",
-                f'sum by (name)(rate(container_network_receive_bytes_total{{name=~"{pattern}",job="cadvisor"}}[$interval]))'),
-            target("NETTX",
-                f'sum by (name)(rate(container_network_transmit_bytes_total{{name=~"{pattern}",job="cadvisor"}}[$interval]))'),
-            target("RESTARTS",
-                # container_restarts_total not available in cAdvisor v0.51; using OOM events as a proxy
-                f'sum by (name)(increase(container_oom_events_total{{name=~"{pattern}",job="cadvisor"}}[24h]))'),
-        ],
-        "transformations": [
-            {"id": "merge", "options": {}},
-            {
-                "id": "organize",
-                "options": {
-                    "excludeByName": {"Time": True},
-                    "renameByName": {
-                        "name":             "Container",
-                        "Value #CPU":       "CPU %",
-                        "Value #RAM":       "RAM",
-                        "Value #RAMPCT":    "RAM %",
-                        "Value #NETRX":     "Net RX/s",
-                        "Value #NETTX":     "Net TX/s",
-                        "Value #RESTARTS":  "Restarts",
-                    },
-                    "indexByName": {
-                        "name":            0,
-                        "Value #CPU":      1,
-                        "Value #RAM":      2,
-                        "Value #RAMPCT":   3,
-                        "Value #NETRX":    4,
-                        "Value #NETTX":    5,
-                        "Value #RESTARTS": 6,
-                    },
-                },
-            },
-        ],
+        "targets": [{
+            "refId": "A", "datasource": PROM_DS, "expr": expr,
+            "instant": True, "range": False, "legendFormat": "{{name}}",
+        }],
         "options": {
-            "sortBy": [{"displayName": "CPU %", "desc": True}],
-            "cellHeight": "sm",
+            "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": False},
+            "orientation": orientation, "displayMode": display_mode,
+            "showUnfilled": True, "valueMode": "color",
+            "namePlacement": "auto", "sizing": "auto",
         },
         "fieldConfig": {
             "defaults": {
-                "color": {"mode": "fixed"},
-                "custom": {"align": "auto", "displayMode": "auto"},
+                "color": {"mode": "thresholds"},
+                "unit": unit,
+                "thresholds": thresholds,
             },
-            "overrides": [
-                {
-                    "matcher": {"id": "byName", "options": "CPU %"},
-                    "properties": [
-                        {"id": "unit", "value": "percent"},
-                        {"id": "decimals", "value": 2},
-                        {"id": "thresholds", "value": THRESHOLDS_PCT},
-                        {"id": "custom.displayMode", "value": "color-background"},
-                    ],
-                },
-                {
-                    "matcher": {"id": "byName", "options": "RAM"},
-                    "properties": [{"id": "unit", "value": "bytes"}],
-                },
-                {
-                    "matcher": {"id": "byName", "options": "RAM %"},
-                    "properties": [
-                        {"id": "unit", "value": "percent"},
-                        {"id": "decimals", "value": 1},
-                        {"id": "thresholds", "value": THRESHOLDS_PCT},
-                        {"id": "custom.displayMode", "value": "color-background"},
-                    ],
-                },
-                {
-                    "matcher": {"id": "byName", "options": "Net RX/s"},
-                    "properties": [{"id": "unit", "value": "Bps"}],
-                },
-                {
-                    "matcher": {"id": "byName", "options": "Net TX/s"},
-                    "properties": [{"id": "unit", "value": "Bps"}],
-                },
-                {
-                    "matcher": {"id": "byName", "options": "Restarts"},
-                    "properties": [
-                        {"id": "unit", "value": "short"},
-                        {"id": "thresholds", "value": {
-                            "mode": "absolute",
-                            "steps": [
-                                {"color": "green", "value": None},
-                                {"color": "red",   "value": 1},
-                            ],
-                        }},
-                        {"id": "custom.displayMode", "value": "color-background"},
-                    ],
-                },
-            ],
+            "overrides": [],
         },
     }
 
 
-# ---------------------------------------------------------------------------
-# Dashboard builders
-# ---------------------------------------------------------------------------
-
-def make_overview():
-    panels = []
-    pid = 1
-
-    # Row 0 — Host stats banner (4 stat panels, y=0, h=4)
-    panels.append(stat_panel(pid, "Running Containers",
-        'count(container_memory_working_set_bytes{name=~"parthenon-.*",job="cadvisor"} > 0)',
-        unit="short",
-        thresholds={"mode": "absolute", "steps": [{"color": "green", "value": None}]},
-        x=0, y=0))
-    pid += 1
-
-    panels.append(stat_panel(pid, "Host CPU %",
-        '100 - (avg by(instance)(rate(node_cpu_seconds_total{mode="idle"}[$interval])) * 100)',
-        x=6, y=0))
-    pid += 1
-
-    panels.append(stat_panel(pid, "Host RAM %",
-        '100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)',
-        x=12, y=0))
-    pid += 1
-
-    panels.append(stat_panel(pid, "Host Disk %",
-        'avg(100 * (1 - node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}))',
-        x=18, y=0))
-    pid += 1
-
-    # Rows 1-5 — one collapsible row + table per service group
-    # Each block: 1 row header (h=1) + 7 table (h=7) = 8 units tall
-    y = 4
-    for group_name, pattern in GROUPS:
-        panels.append(row_panel(pid, group_name, y))
-        pid += 1
-        panels.append(table_panel(pid, group_name, pattern, y + 1))
-        pid += 1
-        y += 8
-
+def time_series_panel(title, targets_spec, x, y, w=12, h=5, *,
+                      unit="short", datasource=None, fill_opacity=10,
+                      draw_style="line", stack=False,
+                      legend_mode="list", legend_placement="bottom",
+                      threshold_steps=None):
+    """targets_spec: list of (expr, legend, refId) tuples."""
+    if datasource is None:
+        datasource = PROM_DS
+    targets = []
+    for expr, legend, ref_id in targets_spec:
+        targets.append({
+            "refId": ref_id, "datasource": datasource,
+            "expr": expr, "legendFormat": legend,
+        })
+    custom = {
+        "lineWidth": 1, "fillOpacity": fill_opacity,
+        "drawStyle": draw_style, "pointSize": 5,
+        "showPoints": "auto", "stacking": {"mode": "normal" if stack else "none"},
+        "spanNulls": False,
+    }
+    defaults = {
+        "color": {"mode": "palette-classic"},
+        "custom": custom,
+        "unit": unit,
+    }
+    if threshold_steps:
+        defaults["thresholds"] = {"mode": "absolute", "steps": threshold_steps}
+        custom["thresholdsStyle"] = {"mode": "line"}
     return {
-        "uid": "parthenon-overview",
-        "title": "Parthenon Overview",
-        "description": "Resource usage for all Parthenon containers, grouped by function.",
+        "id": _next_id(), "type": "timeseries", "title": title,
+        "gridPos": {"x": x, "y": y, "w": w, "h": h},
+        "datasource": datasource,
+        "targets": targets,
+        "options": {
+            "tooltip": {"mode": "multi", "sort": "desc"},
+            "legend": {"showLegend": True, "displayMode": legend_mode,
+                       "placement": legend_placement},
+        },
+        "fieldConfig": {"defaults": defaults, "overrides": []},
+    }
+
+
+def state_timeline_panel(title, expr, x, y, w=16, h=8, *, value_mappings=None):
+    if value_mappings is None:
+        value_mappings = [{"type": "value", "options": {
+            "1": {"text": "Running", "color": "green", "index": 0},
+        }}]
+    return {
+        "id": _next_id(), "type": "state-timeline", "title": title,
+        "gridPos": {"x": x, "y": y, "w": w, "h": h},
+        "datasource": PROM_DS,
+        "targets": [{
+            "refId": "A", "datasource": PROM_DS, "expr": expr,
+            "legendFormat": "{{name}}", "instant": False, "range": True,
+        }],
+        "options": {
+            "showValue": "auto", "mergeValues": True,
+            "alignValue": "left", "rowHeight": 0.8,
+            "tooltip": {"mode": "single"},
+            "legend": {"showLegend": False},
+        },
+        "fieldConfig": {
+            "defaults": {
+                "color": {"mode": "thresholds"},
+                "mappings": value_mappings,
+                "thresholds": {"mode": "absolute", "steps": [
+                    {"color": "red", "value": None},
+                    {"color": "green", "value": 1},
+                ]},
+            },
+            "overrides": [],
+        },
+    }
+
+
+def logs_panel(title, expr, x, y, w=24, h=8, *, max_lines=500):
+    return {
+        "id": _next_id(), "type": "logs", "title": title,
+        "gridPos": {"x": x, "y": y, "w": w, "h": h},
+        "datasource": LOKI_DS,
+        "targets": [{
+            "refId": "A", "datasource": LOKI_DS,
+            "expr": expr, "legendFormat": "", "maxLines": max_lines,
+        }],
+        "options": {
+            "dedupStrategy": "signature", "enableLogDetails": True,
+            "prettifyLogMessage": False, "showCommonLabels": False,
+            "showLabels": True, "showTime": True,
+            "sortOrder": "Descending", "wrapLogMessage": True,
+        },
+    }
+
+
+def row_panel(title, y, *, collapsed=False, repeat=None, panels=None):
+    r = {
+        "id": _next_id(), "type": "row", "title": title,
+        "gridPos": {"x": 0, "y": y, "w": 24, "h": 1},
+        "collapsed": collapsed,
+        "panels": panels or [],
+    }
+    if repeat:
+        r["repeat"] = repeat
+        r["repeatDirection"] = "v"
+    return r
+
+
+# ---------------------------------------------------------------------------
+# Dashboard builder
+# ---------------------------------------------------------------------------
+
+def make_parthenon():
+    panels = []
+    y = 0
+
+    # ===================================================================
+    # Row 0 — Platform Health Summary (always visible, no row header)
+    # ===================================================================
+    panels.append(stat_panel("Platform Status",
+        'count(container_memory_working_set_bytes{name=~"parthenon-.*",job="cadvisor"} > 0)',
+        x=0, y=y, w=4, h=4, unit="short",
+        thresholds={"mode": "absolute", "steps": [
+            {"color": "red",    "value": None},
+            {"color": "yellow", "value": 15},
+            {"color": "green",  "value": 18},
+        ]},
+        value_mappings=[
+            {"type": "range", "options": {"from": 18, "to": 999, "result": {"text": "HEALTHY", "color": "green", "index": 0}}},
+            {"type": "range", "options": {"from": 15, "to": 17,  "result": {"text": "DEGRADED", "color": "yellow", "index": 1}}},
+            {"type": "range", "options": {"from": 0,  "to": 14,  "result": {"text": "CRITICAL", "color": "red", "index": 2}}},
+        ]))
+    panels.append(stat_panel("Containers Up",
+        'count(container_memory_working_set_bytes{name=~"parthenon-.*",job="cadvisor"} > 0)',
+        x=4, y=y, w=4, h=4, unit="short",
+        thresholds={"mode": "absolute", "steps": [{"color": "green", "value": None}]},
+        graph_mode="area", instant=False))
+    panels.append(gauge_panel("Host CPU",
+        '100 - (avg(rate(node_cpu_seconds_total{mode="idle"}[$interval])) * 100)',
+        x=8, y=y, w=4, h=4))
+    panels.append(gauge_panel("Host Memory",
+        '100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)',
+        x=12, y=y, w=4, h=4))
+    panels.append(gauge_panel("Host Disk",
+        'avg(100 * (1 - node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}))',
+        x=16, y=y, w=4, h=4))
+    panels.append(stat_panel("Error Rate",
+        'sum(count_over_time({job="docker", container_name=~"parthenon-.*"} |~ "(?i)error" [$__interval]))',
+        x=20, y=y, w=4, h=4, unit="short", datasource=LOKI_DS,
+        thresholds={"mode": "absolute", "steps": [
+            {"color": "green",  "value": None},
+            {"color": "yellow", "value": 1},
+            {"color": "red",    "value": 10},
+        ]},
+        graph_mode="area", instant=False, no_value="0"))
+    y += 4
+
+    # ===================================================================
+    # Row 1 — Container Status
+    # ===================================================================
+    panels.append(row_panel("Container Status", y))
+    y += 1
+    panels.append(state_timeline_panel("Container Health Timeline",
+        'clamp_max(container_memory_working_set_bytes{name=~"$container",job="cadvisor"}, 1)',
+        x=0, y=y, w=16, h=8))
+    panels.append(bar_gauge_panel("OOM Events (24h)",
+        'sum by (name)(increase(container_oom_events_total{name=~"$container",job="cadvisor"}[24h]))',
+        x=16, y=y, w=8, h=8, unit="short", thresholds=THRESH_ZERO))
+    y += 8
+
+    # ===================================================================
+    # Row 2 — Host Infrastructure (USE Method)
+    # ===================================================================
+    panels.append(row_panel("Host Infrastructure", y))
+    y += 1
+
+    # Sub-row A: CPU + Memory
+    panels.append(gauge_panel("CPU Utilization",
+        '100 - (avg(rate(node_cpu_seconds_total{mode="idle"}[$interval])) * 100)',
+        x=0, y=y, w=4, h=5))
+    panels.append(time_series_panel("CPU Load (Saturation)", [
+            ('node_load1', '1m', 'A'),
+            ('node_load5', '5m', 'B'),
+            ('node_load15', '15m', 'C'),
+        ], x=4, y=y, w=8, h=5, unit="short"))
+    panels.append(gauge_panel("Memory Utilization",
+        '100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)',
+        x=12, y=y, w=4, h=5))
+    panels.append(time_series_panel("Memory Swap", [
+            ('node_memory_SwapTotal_bytes - node_memory_SwapFree_bytes', 'Swap Used', 'A'),
+        ], x=16, y=y, w=8, h=5, unit="bytes"))
+    y += 5
+
+    # Sub-row B: Disk + Network
+    panels.append(bar_gauge_panel("Disk Usage",
+        '100 * (1 - node_filesystem_avail_bytes{fstype!~"tmpfs|overlay"} / node_filesystem_size_bytes{fstype!~"tmpfs|overlay"})',
+        x=0, y=y, w=6, h=5, unit="percent", thresholds=THRESH_HOST))
+    panels.append(time_series_panel("Disk I/O", [
+            ('rate(node_disk_read_bytes_total[$interval])', 'Read', 'A'),
+            ('rate(node_disk_written_bytes_total[$interval])', 'Write', 'B'),
+        ], x=6, y=y, w=6, h=5, unit="Bps"))
+    panels.append(time_series_panel("Network Traffic", [
+            ('rate(node_network_receive_bytes_total{device!~"lo|veth.*|docker.*|br-.*"}[$interval])', 'RX', 'A'),
+            ('rate(node_network_transmit_bytes_total{device!~"lo|veth.*|docker.*|br-.*"}[$interval])', 'TX', 'B'),
+        ], x=12, y=y, w=6, h=5, unit="Bps"))
+    panels.append(stat_panel("Network Errors",
+        'sum(increase(node_network_receive_errs_total[$interval])) + sum(increase(node_network_transmit_errs_total[$interval]))',
+        x=18, y=y, w=6, h=5, unit="short", thresholds=THRESH_ZERO, no_value="0"))
+    y += 5
+
+    # ===================================================================
+    # Row 3 — Container Resource Comparison
+    # ===================================================================
+    panels.append(row_panel("Container Resource Comparison", y))
+    y += 1
+    panels.append(bar_gauge_panel("CPU by Container",
+        'sum by (name)(rate(container_cpu_usage_seconds_total{name=~"$container",job="cadvisor"}[$interval])) * 100',
+        x=0, y=y, w=12, h=10, unit="percent", thresholds=THRESH_PCT))
+    panels.append(bar_gauge_panel("Memory by Container",
+        'sum by (name)(container_memory_working_set_bytes{name=~"$container",job="cadvisor"})',
+        x=12, y=y, w=12, h=10, unit="bytes",
+        thresholds={"mode": "absolute", "steps": [
+            {"color": "green",  "value": None},
+            {"color": "yellow", "value": 500 * 1024 * 1024},   # 500 MB
+            {"color": "red",    "value": 2 * 1024 * 1024 * 1024},  # 2 GB
+        ]}))
+    y += 10
+    panels.append(time_series_panel("Network RX by Container", [
+            ('sum by (name)(rate(container_network_receive_bytes_total{name=~"$container",job="cadvisor"}[$interval]))', '{{name}}', 'A'),
+        ], x=0, y=y, w=12, h=8, unit="Bps"))
+    panels.append(time_series_panel("Network TX by Container", [
+            ('sum by (name)(rate(container_network_transmit_bytes_total{name=~"$container",job="cadvisor"}[$interval]))', '{{name}}', 'A'),
+        ], x=12, y=y, w=12, h=8, unit="Bps"))
+    y += 8
+
+    # ===================================================================
+    # Row 4 — Per-Container Detail (collapsed, repeating)
+    # ===================================================================
+    # Panels inside a collapsed repeating row go in the row's panels array
+    # with y positions relative to the row
+    detail_panels = []
+    ry = y + 1  # relative y for child panels
+    detail_panels.append(stat_panel("Status",
+        'clamp_max(container_memory_working_set_bytes{name="$container",job="cadvisor"}, 1)',
+        x=0, y=ry, w=3, h=6, unit="short",
+        thresholds={"mode": "absolute", "steps": [
+            {"color": "red",   "value": None},
+            {"color": "green", "value": 1},
+        ]},
+        no_value="DOWN",
+        value_mappings=[
+            {"type": "value", "options": {"1": {"text": "UP", "color": "green", "index": 0}}},
+        ]))
+    detail_panels.append(time_series_panel("CPU", [
+            ('sum(rate(container_cpu_usage_seconds_total{name="$container",job="cadvisor"}[$interval])) * 100', 'CPU %', 'A'),
+        ], x=3, y=ry, w=7, h=6, unit="percent",
+        threshold_steps=[{"color": "green", "value": None}, {"color": "yellow", "value": 50}, {"color": "red", "value": 80}]))
+    detail_panels.append(time_series_panel("Memory", [
+            ('sum(container_memory_working_set_bytes{name="$container",job="cadvisor"})', 'Used', 'A'),
+        ], x=10, y=ry, w=7, h=6, unit="bytes"))
+    detail_panels.append(time_series_panel("Network", [
+            ('sum(rate(container_network_receive_bytes_total{name="$container",job="cadvisor"}[$interval]))', 'RX', 'A'),
+            ('sum(rate(container_network_transmit_bytes_total{name="$container",job="cadvisor"}[$interval]))', 'TX', 'B'),
+        ], x=17, y=ry, w=7, h=6, unit="Bps"))
+    ry += 6
+    detail_panels.append(logs_panel("Logs",
+        '{job="docker", container_name=~"$container"} | json | line_format "{{.log}}" |~ "(?i)$log_level" |= "$search"',
+        x=0, y=ry, w=24, h=8, max_lines=200))
+
+    panels.append(row_panel("$container", y, collapsed=True,
+                            repeat="container", panels=detail_panels))
+    y += 15  # row header + child panels height
+
+    # ===================================================================
+    # Row 5 — Centralized Log Explorer (collapsed)
+    # ===================================================================
+    log_panels = []
+    ly = y + 1
+    log_panels.append(time_series_panel("Log Volume by Container", [
+            ('sum by (container_name)(count_over_time({job="docker", container_name=~"$container"}[$__interval]))', '{{container_name}}', 'A'),
+        ], x=0, y=ly, w=24, h=6, unit="short", datasource=LOKI_DS,
+        draw_style="bars", stack=True, fill_opacity=80, legend_placement="right"))
+    ly += 6
+    log_panels.append(time_series_panel("Error Volume", [
+            ('sum by (container_name)(count_over_time({job="docker", container_name=~"$container"} |~ "(?i)error" [$__interval]))', '{{container_name}}', 'A'),
+        ], x=0, y=ly, w=24, h=4, unit="short", datasource=LOKI_DS,
+        draw_style="bars", stack=True, fill_opacity=80))
+    ly += 4
+    log_panels.append(logs_panel("Log Stream",
+        '{job="docker", container_name=~"$container"} | json | line_format "{{.log}}" |~ "(?i)$log_level" |= "$search"',
+        x=0, y=ly, w=24, h=16, max_lines=1000))
+
+    panels.append(row_panel("Log Explorer", y, collapsed=True, panels=log_panels))
+
+    # ===================================================================
+    # Assemble dashboard
+    # ===================================================================
+    return {
+        "uid": "parthenon",
+        "title": "Parthenon",
+        "description": "Unified observability dashboard for the Parthenon platform.",
         "tags": ["parthenon"],
         "timezone": "browser",
-        "refresh": "30s",
+        "refresh": "15s",
         "schemaVersion": 39,
         "version": 1,
         "time": {"from": "now-1h", "to": "now"},
         "timepicker": {},
         "templating": {
             "list": [
+                {
+                    "name": "container",
+                    "type": "query",
+                    "label": "Container",
+                    "datasource": PROM_DS,
+                    "definition": 'label_values(container_memory_working_set_bytes{name=~"parthenon-.*",job="cadvisor"}, name)',
+                    "query": {
+                        "qryType": 1,
+                        "query": 'label_values(container_memory_working_set_bytes{name=~"parthenon-.*",job="cadvisor"}, name)',
+                    },
+                    "regex": "",
+                    "current": {"selected": True, "text": ["All"], "value": ["$__all"]},
+                    "includeAll": True,
+                    "allValue": "parthenon-.*",
+                    "multi": True,
+                    "options": [],
+                    "refresh": 2,
+                    "sort": 1,
+                    "hide": 0,
+                    "skipUrlSync": False,
+                },
+                {
+                    "name": "log_level",
+                    "type": "custom",
+                    "label": "Log Level",
+                    "current": {"selected": True, "text": "all", "value": ".*"},
+                    "options": [
+                        {"selected": True,  "text": "all",   "value": ".*"},
+                        {"selected": False, "text": "error", "value": "error"},
+                        {"selected": False, "text": "warn",  "value": "warn"},
+                        {"selected": False, "text": "info",  "value": "info"},
+                    ],
+                    "query": ".*,error,warn,info",
+                    "hide": 0, "multi": False, "includeAll": False,
+                    "skipUrlSync": False,
+                },
                 {
                     "name": "interval",
                     "type": "interval",
@@ -287,159 +513,15 @@ def make_overview():
                         {"selected": False, "text": "15m", "value": "15m"},
                         {"selected": False, "text": "30m", "value": "30m"},
                     ],
-                    "hide": 0,
-                    "refresh": 2,
-                    "skipUrlSync": False,
-                }
-            ]
-        },
-        "annotations": {"list": []},
-        "panels": panels,
-        "links": [],
-        "editable": True,
-        "fiscalYearStartMonth": 0,
-        "graphTooltip": 0,
-        "liveNow": False,
-        "weekStart": "",
-    }
-
-
-def make_logs():
-    panels = []
-
-    # Log rate timeseries (left, 12 wide)
-    panels.append({
-        "id": 1,
-        "type": "timeseries",
-        "title": "Log Rate / min",
-        "gridPos": {"x": 0, "y": 0, "w": 12, "h": 6},
-        "datasource": LOKI_DS,
-        "targets": [
-            {
-                "refId": "A",
-                "datasource": LOKI_DS,
-                "expr": 'sum(rate({job="docker", container_name=~"parthenon-.*"}[1m]))',
-                "legendFormat": "logs/s",
-            }
-        ],
-        "options": {
-            "tooltip": {"mode": "single", "sort": "none"},
-            "legend": {"showLegend": False},
-        },
-        "fieldConfig": {
-            "defaults": {
-                "color": {"mode": "palette-classic"},
-                "custom": {"lineWidth": 2, "fillOpacity": 10},
-                "unit": "short",
-            },
-            "overrides": [],
-        },
-    })
-
-    # Errors stat (x=12, y=0, w=6, h=6)
-    panels.append(stat_panel(2, "Errors (1h)",
-        'sum(count_over_time({job="docker", container_name=~"parthenon-.*"} |~ "(?i)error" [1h]))',
-        unit="short",
-        thresholds={"mode": "absolute", "steps": [{"color": "green", "value": None}, {"color": "red", "value": 1}]},
-        x=12, y=0, w=6, h=6,
-        datasource=LOKI_DS,
-        no_value="0"))
-
-    # Warnings stat (x=18, y=0, w=6, h=6)
-    panels.append(stat_panel(3, "Warnings (1h)",
-        'sum(count_over_time({job="docker", container_name=~"parthenon-.*"} |~ "(?i)warn" [1h]))',
-        unit="short",
-        thresholds={"mode": "absolute", "steps": [{"color": "green", "value": None}, {"color": "yellow", "value": 1}]},
-        x=18, y=0, w=6, h=6,
-        datasource=LOKI_DS,
-        no_value="0"))
-
-    # Log stream panel (full width, below stats)
-    panels.append({
-        "id": 4,
-        "type": "logs",
-        "title": "Log Stream",
-        "gridPos": {"x": 0, "y": 6, "w": 24, "h": 18},
-        "datasource": LOKI_DS,
-        "targets": [
-            {
-                "refId": "A",
-                "datasource": LOKI_DS,
-                "expr": '{job="docker", container_name=~"$container"} | json | line_format "{{.log}}" |~ "(?i)$level"',
-                "legendFormat": "",
-                "maxLines": 500,
-            }
-        ],
-        "options": {
-            "dedupStrategy": "signature",
-            "enableLogDetails": True,
-            "prettifyLogMessage": False,
-            "showCommonLabels": False,
-            "showLabels": True,
-            "showTime": True,
-            "sortOrder": "Descending",
-            "wrapLogMessage": True,
-        },
-    })
-
-    return {
-        "uid": "parthenon-logs",
-        "title": "Parthenon Logs",
-        "description": "Log stream and error/warning rates for all Parthenon containers.",
-        "tags": ["parthenon", "logs"],
-        "timezone": "browser",
-        "refresh": "30s",
-        "schemaVersion": 39,
-        "version": 1,
-        "time": {"from": "now-1h", "to": "now"},
-        "timepicker": {},
-        "templating": {
-            "list": [
-                {
-                    # Loki label-values variable — uses Grafana's native Loki query type
-                    # NOT label_values() which is Prometheus-only syntax
-                    "name": "container",
-                    "type": "query",
-                    "label": "Container",
-                    "datasource": LOKI_DS,
-                    "definition": '{job="docker"}',
-                    "query": {
-                        "label": "container_name",
-                        "stream": '{job="docker"}',
-                        "type": 2,          # 2 = Label values in Grafana's Loki variable
-                    },
-                    "regex": "/parthenon-.*/",   # filter dropdown to parthenon-* only
-                    "current": {
-                        "selected": False,
-                        "text": "parthenon-.*",
-                        "value": "parthenon-.*",
-                    },
-                    "includeAll": False,
-                    "multi": False,
-                    "options": [],
-                    "refresh": 2,           # refresh on time-range change
-                    "sort": 1,
-                    "hide": 0,
-                    "skipUrlSync": False,
+                    "hide": 0, "refresh": 2, "skipUrlSync": False,
                 },
                 {
-                    # Custom variable for log level filtering
-                    # $level is used as |~ "(?i)$level" — valid LogQL for all values
-                    "name": "level",
-                    "type": "custom",
-                    "label": "Level",
-                    "current": {"selected": True, "text": "all", "value": ".*"},
-                    "options": [
-                        {"selected": True,  "text": "all",   "value": ".*"},
-                        {"selected": False, "text": "error", "value": "error"},
-                        {"selected": False, "text": "warn",  "value": "warn"},
-                        {"selected": False, "text": "info",  "value": "info"},
-                    ],
-                    "query": ".*,error,warn,info",
-                    "hide": 0,
-                    "multi": False,
-                    "includeAll": False,
-                    "skipUrlSync": False,
+                    "name": "search",
+                    "type": "textbox",
+                    "label": "Log Search",
+                    "current": {"selected": False, "text": "", "value": ""},
+                    "options": [{"selected": False, "text": "", "value": ""}],
+                    "hide": 0, "skipUrlSync": False,
                 },
             ]
         },
@@ -448,7 +530,7 @@ def make_logs():
         "links": [],
         "editable": True,
         "fiscalYearStartMonth": 0,
-        "graphTooltip": 0,
+        "graphTooltip": 1,  # shared crosshair
         "liveNow": False,
         "weekStart": "",
     }
@@ -460,10 +542,16 @@ def make_logs():
 
 if __name__ == "__main__":
     OUT.mkdir(parents=True, exist_ok=True)
-    for fname, data in [
-        ("parthenon-overview.json", make_overview()),
-        ("parthenon-logs.json",     make_logs()),
-    ]:
-        path = OUT / fname
-        path.write_text(json.dumps(data, indent=2))
-        print(f"Wrote {path}  ({path.stat().st_size} bytes)")
+
+    # Remove old split dashboards
+    for old in ("parthenon-overview.json", "parthenon-logs.json"):
+        old_path = OUT / old
+        if old_path.exists():
+            old_path.unlink()
+            print(f"Deleted {old_path}")
+
+    # Generate unified dashboard
+    dashboard = make_parthenon()
+    path = OUT / "parthenon.json"
+    path.write_text(json.dumps(dashboard, indent=2))
+    print(f"Wrote {path}  ({path.stat().st_size} bytes)")
