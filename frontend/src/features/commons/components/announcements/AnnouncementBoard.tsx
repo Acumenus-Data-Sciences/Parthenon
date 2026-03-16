@@ -108,7 +108,7 @@ function AnnouncementCard({
       {/* Body — rendered HTML from the backend */}
       {announcement.body_html ? (
         <div
-          className="prose-sm"
+          className="body-html"
           style={{ marginTop: "var(--space-1)", fontSize: "var(--text-xs)", color: "var(--text-muted)", lineHeight: 1.6 }}
           dangerouslySetInnerHTML={{ __html: announcement.body_html }}
         />

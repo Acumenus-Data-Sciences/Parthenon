@@ -121,6 +121,19 @@
   color: var(--accent-light);
 }
 
+/* ── Commons: rendered HTML body (announcements, wiki) ─────────────────── */
+.body-html a {
+  color: var(--accent-light);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color var(--duration-fast);
+}
+.body-html a:hover {
+  color: var(--accent);
+}
+.body-html p { margin-bottom: var(--space-2); }
+.body-html p:last-child { margin-bottom: 0; }
+
 /* ── Commons: mention chip ─────────────────────────────────────────────── */
 /* Applied to <span class="mention"> elements inside body_html */
 .mention {
