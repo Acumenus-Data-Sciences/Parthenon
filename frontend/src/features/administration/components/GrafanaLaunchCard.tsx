@@ -17,7 +17,7 @@ export function GrafanaLaunchCard({ service, grafanaUrl }: GrafanaLaunchCardProp
   const { badge, dot } = STATUS_MAP[service.status] ?? STATUS_MAP.down;
 
   return (
-    <Panel>
+    <Panel className="h-full">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
           <StatusDot status={dot} />

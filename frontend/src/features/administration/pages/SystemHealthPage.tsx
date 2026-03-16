@@ -20,7 +20,7 @@ function ServiceCard({ service }: { service: SystemHealthService }) {
 
   return (
     <Link to={`/admin/system-health/${service.key}`}>
-      <Panel className="group cursor-pointer transition-colors hover:border-primary/50">
+      <Panel className="group h-full cursor-pointer transition-colors hover:border-primary/50">
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3">
             <StatusDot status={dot} />
