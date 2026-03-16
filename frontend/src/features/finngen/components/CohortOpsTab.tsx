@@ -1,0 +1,1509 @@
+import { useEffect, useMemo, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ArrowUpRight, Blocks, Loader2 } from "lucide-react";
+import { Modal } from "@/components/ui/Modal";
+import {
+  useCohortDefinition,
+  useCohortDefinitions,
+} from "@/features/cohort-definitions/hooks/useCohortDefinitions";
+import type { CohortDefinition } from "@/features/cohort-definitions/types/cohortExpression";
+import {
+  previewFinnGenCohortOperations,
+  fetchFinnGenRuns,
+  fetchFinnGenRun,
+  exportFinnGenRun,
+  replayFinnGenRun,
+} from "../api";
+import type {
+  FinnGenCohortOperationsResult,
+  FinnGenSource,
+  FinnGenRuntime,
+  FinnGenMetricPoint,
+  FinnGenTimelineStep,
+  FinnGenArtifact,
+} from "../types";
+import {
+  FormField,
+  ActionButton,
+  ResultSection,
+  KeyValueGrid,
+  RecordTable,
+  LabelValueList,
+  StatusListView,
+  MiniMetric,
+  ProgressRow,
+  CodeBlock,
+  ErrorBanner,
+  EmptyState,
+  RuntimePanel,
+  RecentRunsView,
+  RunInspectorView,
+  RunComparisonPanel,
+  PlausibilityBadge,
+  requireSource,
+  getErrorMessage,
+  safeParseJson,
+  parseIntegerList,
+  parseStringList,
+  formatValue,
+  downloadJson,
+  formatTimestamp,
+  cohortPresets,
+  cohortImportModes,
+  cohortOperationTypes,
+  cohortMatchingStrategies,
+  cohortMatchingTargets,
+  defaultMatchingCovariates,
+} from "./workbenchShared";
+import { CollapsibleSection } from "./CollapsibleSection";
+
+// ── Cohort-specific view components ──────────────────────────────────
+
+function AttritionView({ result }: { result: FinnGenCohortOperationsResult }) {
+  const maxCount = Math.max(
+    ...result.attrition.map((item) => item.count ?? 0),
+    1,
+  );
+
+  return (
+    <div className="space-y-4">
+      {result.attrition.map((item) => (
+        <div key={item.label}>
+          <div className="mb-1 flex items-center justify-between text-sm">
+            <span className="text-zinc-200">{item.label}</span>
+            <span className="text-zinc-400">
+              {item.count?.toLocaleString()} · {item.percent}%
+            </span>
+          </div>
+          <div className="h-3 rounded-full bg-zinc-800">
+            <div
+              className="h-3 rounded-full bg-[#9B1B30] transition-all"
+              style={{
+                width: `${((item.count ?? 0) / maxCount) * 100}%`,
+              }}
+            />
+          </div>
+        </div>
+      ))}
+      <div className="rounded-lg border border-zinc-800 bg-zinc-950/70 p-4">
+        <div className="mb-2 text-xs uppercase tracking-wide text-zinc-500">
+          Artifacts
+        </div>
+        <div className="space-y-2 text-sm text-zinc-300">
+          {result.artifacts.map((artifact) => (
+            <div key={artifact.name}>
+              {artifact.name} · {artifact.summary}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TimelineView({
+  items,
+}: {
+  items: FinnGenCohortOperationsResult["criteria_timeline"];
+}) {
+  return (
+    <div className="space-y-3">
+      {items.map((item) => (
+        <div
+          key={`${item.step}-${item.title}`}
+          className="rounded-lg border border-zinc-800 bg-zinc-950/70 p-4"
+        >
+          <div className="flex items-center justify-between">
+            <div className="text-sm font-medium text-zinc-100">
+              {item.title}
+            </div>
+            <span className="rounded px-1.5 py-0.5 text-[10px] font-medium bg-[#C9A227]/15 text-[#C9A227]">
+              {item.status}
+            </span>
+          </div>
+          <div className="mt-1 text-sm text-zinc-400">{item.window}</div>
+          <div className="mt-2 text-sm text-zinc-300">{item.detail}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ImportExportView({
+  importMode,
+  onImportModeChange,
+  result,
+}: {
+  importMode: (typeof cohortImportModes)[number]["value"];
+  onImportModeChange: (
+    value: (typeof cohortImportModes)[number]["value"],
+  ) => void;
+  result: FinnGenCohortOperationsResult;
+}) {
+  const sourceKey = String(
+    result.compile_summary.source_key ??
+      result.source.source_key ??
+      "source",
+  );
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap gap-2">
+        {cohortImportModes.map((mode) => (
+          <button
+            key={mode.value}
+            type="button"
+            onClick={() => onImportModeChange(mode.value)}
+            className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+              importMode === mode.value
+                ? "border-[#9B1B30]/40 bg-[#9B1B30]/10 text-[#E85A6B]"
+                : "border-zinc-800 bg-zinc-950 text-zinc-300 hover:border-[#9B1B30]/30 hover:text-white"
+            }`}
+          >
+            {mode.label}
+          </button>
+        ))}
+      </div>
+      <div className="rounded-lg border border-zinc-800 bg-zinc-950/70 p-4 text-sm text-zinc-300">
+        {importMode === "parthenon"
+          ? "Existing Parthenon cohorts are active. This preview now uses the selected cohort set and the chosen operation semantics before exporting the derived cohort and handoff artifacts."
+          : importMode === "atlas"
+            ? `Atlas/WebAPI import is the target parity path. This preview is compiled for ${sourceKey} and can already be exported as SQL and sample artifacts.`
+            : importMode === "cohort_table"
+              ? "Cohort-table import is now validating the selected table against the source and exposing discovered cohort IDs, row counts, and downstream artifacts."
+              : "JSON definition import is active now. This preview uses the current definition payload and returns the first exportable artifacts below."}
+      </div>
+      <div className="space-y-2">
+        {result.artifacts.map((artifact) => (
+          <div
+            key={artifact.name}
+            className="flex items-center justify-between gap-3 rounded-lg border border-zinc-800 bg-zinc-950/70 p-3"
+          >
+            <div className="min-w-0">
+              <div className="truncate text-sm font-medium text-zinc-100">
+                {artifact.name}
+              </div>
+              <div className="mt-1 text-xs text-zinc-500">
+                {artifact.summary ?? artifact.type ?? "Artifact"}
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() =>
+                downloadJson(
+                  `${artifact.name.replaceAll("/", "_")}.json`,
+                  artifact,
+                )
+              }
+              className="rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-xs font-medium text-zinc-200 transition-colors hover:border-[#9B1B30]/30 hover:text-white"
+            >
+              Export
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function CohortHandoffView({
+  exportSummary,
+  onHandoff,
+}: {
+  exportSummary: Record<string, unknown>;
+  onHandoff: () => void;
+}) {
+  const handoffReady = Boolean(exportSummary.handoff_ready);
+
+  return (
+    <div className="space-y-4">
+      <KeyValueGrid data={exportSummary} />
+      <button
+        type="button"
+        onClick={onHandoff}
+        disabled={!handoffReady}
+        className="inline-flex items-center gap-2 rounded-lg border border-[#9B1B30]/30 bg-[#9B1B30]/10 px-3 py-2 text-sm font-medium text-[#F0EDE8] transition-colors hover:bg-[#9B1B30]/20 disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        <ArrowUpRight className="h-4 w-4" />
+        Hand Off To CO2 Modules
+      </button>
+    </div>
+  );
+}
+
+function MatchingReviewView({
+  result,
+}: {
+  result: FinnGenCohortOperationsResult;
+}) {
+  const compiled = Number(result.compile_summary.criteria_count ?? 0);
+  const additional = Number(
+    result.compile_summary.additional_criteria_count ?? 0,
+  );
+  const baseline = Math.max(
+    Number(
+      result.matching_summary?.eligible_rows ??
+        result.compile_summary.cohort_count ??
+        0,
+    ),
+    1,
+  );
+  const matched = Math.max(
+    0,
+    Number(
+      result.matching_summary?.matched_rows ?? Math.round(baseline * 0.84),
+    ),
+  );
+  const excluded = Math.max(
+    0,
+    Number(result.matching_summary?.excluded_rows ?? baseline - matched),
+  );
+  const strategy = String(
+    result.matching_summary?.match_strategy ?? "nearest-neighbor preview",
+  );
+  const ratio = String(result.matching_summary?.match_ratio ?? "1.0");
+  const caliper = String(result.matching_summary?.match_caliper ?? "0.20");
+  const balanceScore = Number(result.matching_summary?.balance_score ?? 0);
+  const operationType = String(
+    result.operation_summary?.operation_type ??
+      result.compile_summary.operation_type ??
+      "union",
+  );
+  const operationPhrase = String(
+    result.operation_summary?.operation_phrase ?? "set-operation preview",
+  );
+  const matchedSamples = Array.isArray(result.matching_review?.matched_samples)
+    ? (result.matching_review?.matched_samples ?? [])
+    : [];
+  const excludedSamples = Array.isArray(
+    result.matching_review?.excluded_samples,
+  )
+    ? (result.matching_review?.excluded_samples ?? [])
+    : [];
+  const balanceNotes = Array.isArray(result.matching_review?.balance_notes)
+    ? (result.matching_review?.balance_notes ?? [])
+    : [];
+
+  return (
+    <div className="space-y-4">
+      <div className="grid gap-3 md:grid-cols-5">
+        <MiniMetric label="Primary rules" value={String(compiled)} />
+        <MiniMetric label="Additional rules" value={String(additional)} />
+        <MiniMetric label="Matched rows" value={matched.toLocaleString()} />
+        <MiniMetric label="Ratio" value={ratio} />
+        <MiniMetric label="Caliper" value={caliper} />
+      </div>
+      <div className="space-y-3">
+        <ProgressRow
+          label="Eligible set"
+          value={baseline}
+          total={baseline}
+          color="#60A5FA"
+        />
+        <ProgressRow
+          label="Matched set"
+          value={matched}
+          total={baseline}
+          color="#2DD4BF"
+        />
+        <ProgressRow
+          label="Excluded in review"
+          value={excluded}
+          total={baseline}
+          color="#C9A227"
+        />
+      </div>
+      {balanceScore > 0 ? (
+        <div className="rounded-lg border border-zinc-800 bg-zinc-950/70 p-4">
+          <div className="mb-2 text-xs uppercase tracking-wide text-zinc-500">
+            Balance score
+          </div>
+          <ProgressRow
+            label="Estimated balance"
+            value={Math.round(balanceScore * 100)}
+            total={100}
+            color="#2DD4BF"
+          />
+        </div>
+      ) : null}
+      <div className="rounded-lg border border-zinc-800 bg-zinc-950/70 p-4 text-sm text-zinc-300">
+        {operationType.toUpperCase()} preview with {operationPhrase}. Matching
+        strategy: {strategy}.
+      </div>
+      {balanceNotes.length ? (
+        <div className="rounded-lg border border-zinc-800 bg-zinc-950/70 p-4">
+          <div className="mb-2 text-xs uppercase tracking-wide text-zinc-500">
+            Balance notes
+          </div>
+          <div className="space-y-2 text-sm text-zinc-300">
+            {balanceNotes.map((note) => (
+              <div key={note}>{note}</div>
+            ))}
+          </div>
+        </div>
+      ) : null}
+      <div className="grid gap-4 lg:grid-cols-2">
+        <div className="rounded-lg border border-zinc-800 bg-zinc-950/70 p-4">
+          <div className="mb-3 text-sm font-medium text-zinc-100">
+            Matched samples
+          </div>
+          {matchedSamples.length ? (
+            <RecordTable rows={matchedSamples} />
+          ) : (
+            <EmptyState label="Matched sample evidence will appear here." />
+          )}
+        </div>
+        <div className="rounded-lg border border-zinc-800 bg-zinc-950/70 p-4">
+          <div className="mb-3 text-sm font-medium text-zinc-100">
+            Excluded samples
+          </div>
+          {excludedSamples.length ? (
+            <RecordTable rows={excludedSamples} />
+          ) : (
+            <EmptyState label="Excluded sample evidence will appear here." />
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function OperationEvidenceView({
+  result,
+}: {
+  result: FinnGenCohortOperationsResult;
+}) {
+  const evidence = result.operation_evidence ?? [];
+
+  return (
+    <div className="space-y-3">
+      {evidence.map((item) => (
+        <ProgressRow
+          key={item.label}
+          label={item.label}
+          value={Number(item.value ?? 0)}
+          total={Math.max(
+            Number(
+              result.operation_summary?.candidate_rows ??
+                evidence[0]?.value ??
+                1,
+            ),
+            1,
+          )}
+          color={
+            item.emphasis === "result"
+              ? "#2DD4BF"
+              : item.emphasis === "delta"
+                ? "#C9A227"
+                : "#60A5FA"
+          }
+        />
+      ))}
+      <div className="rounded-lg border border-zinc-800 bg-zinc-950/70 p-4 text-sm text-zinc-300">
+        Derived cohort:{" "}
+        {String(
+          result.operation_summary?.derived_cohort_label ??
+            result.export_summary?.cohort_reference ??
+            "Workbench cohort preview",
+        )}
+      </div>
+    </div>
+  );
+}
+
+function SelectedCohortsView({
+  cohorts,
+}: {
+  cohorts: Array<{ id: number; name: string; description?: string | null }>;
+}) {
+  return (
+    <div className="space-y-2">
+      {cohorts.map((cohort) => (
+        <div
+          key={cohort.id}
+          className="rounded-lg border border-zinc-800 bg-zinc-950/70 px-3 py-3"
+        >
+          <div className="text-sm font-medium text-zinc-100">{cohort.name}</div>
+          <div className="mt-1 text-xs text-zinc-500">
+            Parthenon cohort #{cohort.id}
+          </div>
+          {cohort.description ? (
+            <div className="mt-2 text-sm text-zinc-400">
+              {cohort.description}
+            </div>
+          ) : null}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function CohortPlausibilityView({
+  result,
+}: {
+  result: FinnGenCohortOperationsResult;
+}) {
+  const sampleRows = Array.isArray(result.sample_rows) ? result.sample_rows : [];
+  const compileSummary = result.compile_summary ?? {};
+  const cohortCount = Number(compileSummary.cohort_count ?? 0);
+  const conceptSetCount = Number(compileSummary.concept_set_count ?? 0);
+
+  return (
+    <div className="space-y-4">
+      <div className="grid gap-3 md:grid-cols-3">
+        <PlausibilityBadge
+          label="Rows surfaced"
+          value={
+            sampleRows.length
+              ? `${sampleRows.length} sample rows`
+              : "No samples"
+          }
+          tone={sampleRows.length ? "good" : "warn"}
+        />
+        <PlausibilityBadge
+          label="Cohort scale"
+          value={
+            cohortCount > 0 ? cohortCount.toLocaleString() : "Unavailable"
+          }
+          tone={cohortCount > 0 ? "good" : "warn"}
+        />
+        <PlausibilityBadge
+          label="Concept framing"
+          value={
+            conceptSetCount > 0
+              ? `${conceptSetCount} concept sets`
+              : "No concept sets"
+          }
+          tone={conceptSetCount > 0 ? "good" : "warn"}
+        />
+      </div>
+      {sampleRows.length ? (
+        <RecordTable
+          rows={sampleRows.slice(0, 3) as Array<Record<string, unknown>>}
+        />
+      ) : (
+        <EmptyState label="Live cohort sample rows will appear here when the CDM preview returns them." />
+      )}
+    </div>
+  );
+}
+
+// ── Operation Builder Modal ──────────────────────────────────────────
+
+interface OperationBuilderModalProps {
+  open: boolean;
+  onClose: () => void;
+  cohortDefinitions: CohortDefinition[];
+  selectedCohortIds: number[];
+  onToggleCohort: (cohortId: number) => void;
+  primaryCohortId: number | null;
+  onPrimaryCohortChange: (cohortId: number | null) => void;
+  searchValue: string;
+  onSearchChange: (value: string) => void;
+  importMode: (typeof cohortImportModes)[number]["value"];
+  onImportModeChange: (
+    value: (typeof cohortImportModes)[number]["value"],
+  ) => void;
+  operationType: (typeof cohortOperationTypes)[number]["value"];
+  onOperationTypeChange: (
+    value: (typeof cohortOperationTypes)[number]["value"],
+  ) => void;
+  matchingEnabled: boolean;
+  onMatchingEnabledChange: (value: boolean) => void;
+  matchingStrategy: (typeof cohortMatchingStrategies)[number]["value"];
+  onMatchingStrategyChange: (
+    value: (typeof cohortMatchingStrategies)[number]["value"],
+  ) => void;
+  matchingTarget: (typeof cohortMatchingTargets)[number]["value"];
+  onMatchingTargetChange: (
+    value: (typeof cohortMatchingTargets)[number]["value"],
+  ) => void;
+  matchingCovariates: string;
+  onMatchingCovariatesChange: (value: string) => void;
+  matchingRatio: string;
+  onMatchingRatioChange: (value: string) => void;
+  matchingCaliper: string;
+  onMatchingCaliperChange: (value: string) => void;
+  atlasCohortIds: string;
+  onAtlasCohortIdsChange: (value: string) => void;
+  cohortTableName: string;
+  onCohortTableNameChange: (value: string) => void;
+  exportTarget: string;
+  onExportTargetChange: (value: string) => void;
+}
+
+function OperationBuilderModal({
+  open,
+  onClose,
+  cohortDefinitions,
+  selectedCohortIds,
+  onToggleCohort,
+  primaryCohortId,
+  onPrimaryCohortChange,
+  searchValue,
+  onSearchChange,
+  importMode,
+  onImportModeChange,
+  operationType,
+  onOperationTypeChange,
+  matchingEnabled,
+  onMatchingEnabledChange,
+  matchingStrategy,
+  onMatchingStrategyChange,
+  matchingTarget,
+  onMatchingTargetChange,
+  matchingCovariates,
+  onMatchingCovariatesChange,
+  matchingRatio,
+  onMatchingRatioChange,
+  matchingCaliper,
+  onMatchingCaliperChange,
+  atlasCohortIds,
+  onAtlasCohortIdsChange,
+  cohortTableName,
+  onCohortTableNameChange,
+  exportTarget,
+  onExportTargetChange,
+}: OperationBuilderModalProps) {
+  return (
+    <Modal
+      open={open}
+      onClose={onClose}
+      title="Operation Builder"
+      size="xl"
+      footer={
+        <div className="flex w-full items-center justify-between gap-3">
+          <div className="text-xs text-zinc-500">
+            Builder choices are stored with the FINNGEN run and reused on
+            replay.
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="inline-flex items-center gap-2 rounded-lg bg-[#9B1B30] px-4 py-2 text-sm font-medium text-[#F0EDE8] transition-colors hover:bg-[#7F1526]"
+          >
+            Apply Builder
+          </button>
+        </div>
+      }
+    >
+      <div className="space-y-5">
+        <div className="grid gap-4 lg:grid-cols-2">
+          <label className="block">
+            <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-zinc-500">
+              Import path
+            </span>
+            <select
+              value={importMode}
+              onChange={(e) =>
+                onImportModeChange(
+                  e.target.value as (typeof cohortImportModes)[number]["value"],
+                )
+              }
+              className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 focus:border-[#9B1B30] focus:outline-none"
+            >
+              {cohortImportModes.map((mode) => (
+                <option key={mode.value} value={mode.value}>
+                  {mode.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="block">
+            <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-zinc-500">
+              Operation type
+            </span>
+            <select
+              value={operationType}
+              onChange={(e) =>
+                onOperationTypeChange(
+                  e.target
+                    .value as (typeof cohortOperationTypes)[number]["value"],
+                )
+              }
+              className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 focus:border-[#9B1B30] focus:outline-none"
+            >
+              {cohortOperationTypes.map((mode) => (
+                <option key={mode.value} value={mode.value}>
+                  {mode.label}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+
+        <div className="rounded-lg border border-zinc-800 bg-zinc-950/70 p-4">
+          <div className="mb-3 text-sm font-medium text-zinc-100">
+            Existing Parthenon Cohorts
+          </div>
+          <input
+            value={searchValue}
+            onChange={(e) => onSearchChange(e.target.value)}
+            placeholder="Filter cohorts by name or description..."
+            className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-[#9B1B30] focus:outline-none"
+          />
+          <div className="mt-3 max-h-72 space-y-2 overflow-y-auto">
+            {cohortDefinitions.map((cohort) => {
+              const selected = selectedCohortIds.includes(cohort.id);
+              const primary = primaryCohortId === cohort.id;
+              return (
+                <label
+                  key={cohort.id}
+                  className={`flex cursor-pointer items-start gap-3 rounded-lg border px-3 py-3 transition-colors ${
+                    selected
+                      ? "border-[#9B1B30]/40 bg-[#9B1B30]/10"
+                      : "border-zinc-800 bg-zinc-950/70 hover:border-zinc-700"
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={selected}
+                    onChange={() => onToggleCohort(cohort.id)}
+                    className="mt-1 h-4 w-4 rounded border-zinc-600 bg-zinc-950 text-[#9B1B30] focus:ring-[#9B1B30]"
+                  />
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 text-sm font-medium text-zinc-100">
+                      <span>{cohort.name}</span>
+                      {primary ? (
+                        <span className="rounded-full border border-[#C9A227]/40 bg-[#C9A227]/10 px-2 py-0.5 text-[10px] uppercase tracking-wide text-[#F2DEA3]">
+                          Primary
+                        </span>
+                      ) : null}
+                    </div>
+                    <div className="mt-1 flex items-center gap-3 text-xs text-zinc-500">
+                      <span>Cohort #{cohort.id}</span>
+                      {selected ? (
+                        <button
+                          type="button"
+                          onClick={(event) => {
+                            event.preventDefault();
+                            onPrimaryCohortChange(primary ? null : cohort.id);
+                          }}
+                          className="rounded-full border border-zinc-700 px-2 py-0.5 text-[10px] uppercase tracking-wide text-zinc-300 transition-colors hover:border-[#9B1B30]/40 hover:text-white"
+                        >
+                          {primary ? "Unset primary" : "Set primary"}
+                        </button>
+                      ) : null}
+                    </div>
+                    {cohort.description ? (
+                      <div className="mt-2 text-sm text-zinc-400">
+                        {cohort.description}
+                      </div>
+                    ) : null}
+                  </div>
+                </label>
+              );
+            })}
+            {!cohortDefinitions.length ? (
+              <div className="rounded-lg border border-zinc-800 bg-zinc-950/70 px-3 py-4 text-sm text-zinc-500">
+                No visible Parthenon cohorts match this filter.
+              </div>
+            ) : null}
+          </div>
+        </div>
+
+        <div className="grid gap-4 lg:grid-cols-2">
+          <label className="block">
+            <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-zinc-500">
+              Atlas cohort IDs
+            </span>
+            <input
+              value={atlasCohortIds}
+              onChange={(e) => onAtlasCohortIdsChange(e.target.value)}
+              className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 focus:border-[#9B1B30] focus:outline-none"
+            />
+          </label>
+          <label className="block">
+            <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-zinc-500">
+              Cohort table name
+            </span>
+            <input
+              value={cohortTableName}
+              onChange={(e) => onCohortTableNameChange(e.target.value)}
+              className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 focus:border-[#9B1B30] focus:outline-none"
+            />
+          </label>
+        </div>
+
+        <div className="rounded-lg border border-zinc-800 bg-zinc-950/70 p-4">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <div className="text-sm font-medium text-zinc-100">Matching</div>
+              <div className="mt-1 text-xs text-zinc-500">
+                Use the same guided setup style as the rest of Parthenon for
+                matching and balance inputs.
+              </div>
+            </div>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={matchingEnabled}
+              onClick={() => onMatchingEnabledChange(!matchingEnabled)}
+              className={`inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                matchingEnabled ? "bg-[#9B1B30]" : "bg-zinc-700"
+              }`}
+            >
+              <span
+                className={`ml-1 h-4 w-4 rounded-full bg-white transition-transform ${
+                  matchingEnabled ? "translate-x-5" : "translate-x-0"
+                }`}
+              />
+            </button>
+          </div>
+          <div className="mt-4 grid gap-4 lg:grid-cols-2">
+            <label className="block">
+              <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                Matching strategy
+              </span>
+              <select
+                value={matchingStrategy}
+                onChange={(e) =>
+                  onMatchingStrategyChange(
+                    e.target
+                      .value as (typeof cohortMatchingStrategies)[number]["value"],
+                  )
+                }
+                disabled={!matchingEnabled}
+                className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 focus:border-[#9B1B30] focus:outline-none disabled:opacity-50"
+              >
+                {cohortMatchingStrategies.map((strategy) => (
+                  <option key={strategy.value} value={strategy.value}>
+                    {strategy.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="block">
+              <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                Matching target
+              </span>
+              <select
+                value={matchingTarget}
+                onChange={(e) =>
+                  onMatchingTargetChange(
+                    e.target
+                      .value as (typeof cohortMatchingTargets)[number]["value"],
+                  )
+                }
+                disabled={!matchingEnabled}
+                className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 focus:border-[#9B1B30] focus:outline-none disabled:opacity-50"
+              >
+                {cohortMatchingTargets.map((target) => (
+                  <option key={target.value} value={target.value}>
+                    {target.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+          <div className="mt-4 grid gap-4 lg:grid-cols-2">
+            <label className="block">
+              <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                Matching covariates
+              </span>
+              <input
+                value={matchingCovariates}
+                onChange={(e) => onMatchingCovariatesChange(e.target.value)}
+                disabled={!matchingEnabled}
+                className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 focus:border-[#9B1B30] focus:outline-none disabled:opacity-50"
+              />
+            </label>
+          </div>
+          <div className="mt-4 grid gap-4 lg:grid-cols-2">
+            <label className="block">
+              <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                Match ratio
+              </span>
+              <input
+                value={matchingRatio}
+                onChange={(e) => onMatchingRatioChange(e.target.value)}
+                disabled={!matchingEnabled}
+                className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 focus:border-[#9B1B30] focus:outline-none disabled:opacity-50"
+              />
+            </label>
+            <label className="block">
+              <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                Caliper
+              </span>
+              <input
+                value={matchingCaliper}
+                onChange={(e) => onMatchingCaliperChange(e.target.value)}
+                disabled={!matchingEnabled}
+                className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 focus:border-[#9B1B30] focus:outline-none disabled:opacity-50"
+              />
+            </label>
+          </div>
+        </div>
+
+        <label className="block">
+          <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-zinc-500">
+            Export target / handoff
+          </span>
+          <input
+            value={exportTarget}
+            onChange={(e) => onExportTargetChange(e.target.value)}
+            className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 focus:border-[#9B1B30] focus:outline-none"
+          />
+        </label>
+      </div>
+    </Modal>
+  );
+}
+
+// ── Main CohortOpsTab component ──────────────────────────────────────
+
+export function CohortOpsTab({
+  selectedSource,
+  onHandoffToCo2,
+}: {
+  selectedSource: FinnGenSource | null;
+  onHandoffToCo2: (
+    context: Record<string, unknown>,
+    cohortLabel: string,
+    outcomeName: string,
+  ) => void;
+}) {
+  const queryClient = useQueryClient();
+
+  // ── Local state ──────────────────────────────────────────────────
+  const [cohortJson, setCohortJson] = useState<string>(
+    JSON.stringify(
+      {
+        conceptSets: [],
+        PrimaryCriteria: {
+          CriteriaList: [
+            {
+              ConditionOccurrence: {
+                CodesetId: null,
+                ConditionTypeExclude: false,
+              },
+            },
+          ],
+          ObservationWindow: { PriorDays: 0, PostDays: 0 },
+        },
+        AdditionalCriteria: null,
+        QualifiedLimit: { Type: "First" },
+        ExpressionLimit: { Type: "First" },
+      },
+      null,
+      2,
+    ),
+  );
+  const [cohortLabel, setCohortLabel] = useState("Acumenus diabetes cohort");
+  const [operationBuilderOpen, setOperationBuilderOpen] = useState(false);
+  const [cohortSearch, setCohortSearch] = useState("");
+  const [cohortImportMode, setCohortImportMode] =
+    useState<(typeof cohortImportModes)[number]["value"]>("parthenon");
+  const [operationType, setOperationType] =
+    useState<(typeof cohortOperationTypes)[number]["value"]>("union");
+  const [selectedCohortIds, setSelectedCohortIds] = useState<number[]>([]);
+  const [primaryCohortId, setPrimaryCohortId] = useState<number | null>(null);
+  const [atlasCohortIds, setAtlasCohortIds] = useState("101, 202");
+  const [cohortTableName, setCohortTableName] = useState("results.cohort");
+  const [matchingEnabled, setMatchingEnabled] = useState(true);
+  const [matchingStrategy, setMatchingStrategy] =
+    useState<(typeof cohortMatchingStrategies)[number]["value"]>(
+      "nearest-neighbor",
+    );
+  const [matchingTarget, setMatchingTarget] =
+    useState<(typeof cohortMatchingTargets)[number]["value"]>(
+      "primary_vs_comparators",
+    );
+  const [matchingCovariates, setMatchingCovariates] = useState<string>(
+    defaultMatchingCovariates.join(", "),
+  );
+  const [matchingRatio, setMatchingRatio] = useState("1.0");
+  const [matchingCaliper, setMatchingCaliper] = useState("0.20");
+  const [exportTarget, setExportTarget] = useState(
+    "results.finngen_cohort_preview",
+  );
+  const [selectedRunId, setSelectedRunId] = useState<number | null>(null);
+  const [compareRunId, setCompareRunId] = useState<number | null>(null);
+
+  // ── Queries ──────────────────────────────────────────────────────
+  const cohortDefinitionsQuery = useCohortDefinitions({ limit: 50 });
+  const selectedPrimaryCohortId = selectedCohortIds[0] ?? null;
+  const selectedPrimaryCohortQuery = useCohortDefinition(
+    selectedPrimaryCohortId,
+  );
+
+  const runsQuery = useQuery({
+    queryKey: [
+      "finngen-runs",
+      "finngen_cohort_operations",
+      selectedSource?.id,
+    ],
+    queryFn: () =>
+      fetchFinnGenRuns({
+        service_name: "finngen_cohort_operations",
+        source_id: selectedSource?.id ?? undefined,
+        limit: 8,
+      }),
+    enabled: Boolean(selectedSource?.id),
+  });
+
+  const runDetailQuery = useQuery({
+    queryKey: ["finngen-run", selectedRunId],
+    queryFn: () => fetchFinnGenRun(selectedRunId as number),
+    enabled: Boolean(selectedRunId),
+  });
+
+  const compareRunDetailQuery = useQuery({
+    queryKey: ["finngen-run-compare", compareRunId],
+    queryFn: () => fetchFinnGenRun(compareRunId as number),
+    enabled: Boolean(compareRunId),
+  });
+
+  // ── Derived data ─────────────────────────────────────────────────
+  const cohortDefinitions = cohortDefinitionsQuery.data?.items ?? [];
+  const filteredCohorts = cohortDefinitions.filter((cohort) => {
+    const search = cohortSearch.trim().toLowerCase();
+    if (!search) return true;
+    return (
+      cohort.name.toLowerCase().includes(search) ||
+      (cohort.description ?? "").toLowerCase().includes(search)
+    );
+  });
+
+  const selectedCohortDefinitions = selectedCohortIds
+    .map((id) => cohortDefinitions.find((cohort) => cohort.id === id))
+    .filter((cohort): cohort is CohortDefinition => Boolean(cohort));
+  const selectedCohortLabels = selectedCohortDefinitions.map(
+    (cohort) => cohort.name,
+  );
+
+  const effectiveCohortDefinition = useMemo(() => {
+    if (
+      cohortImportMode === "parthenon" &&
+      selectedPrimaryCohortQuery.data?.expression_json
+    ) {
+      return selectedPrimaryCohortQuery.data
+        .expression_json as Record<string, unknown>;
+    }
+    return safeParseJson(cohortJson);
+  }, [cohortImportMode, selectedPrimaryCohortQuery.data, cohortJson]);
+
+  // ── Effects ──────────────────────────────────────────────────────
+  useEffect(() => {
+    setSelectedRunId(null);
+    setCompareRunId(null);
+  }, [selectedSource?.id]);
+
+  useEffect(() => {
+    const runs = runsQuery.data ?? [];
+    if (!runs.length) return;
+    setSelectedRunId((current) =>
+      runs.some((run) => run.id === current) ? current : (runs[0]?.id ?? null),
+    );
+  }, [runsQuery.data]);
+
+  useEffect(() => {
+    if (!selectedCohortIds.length) {
+      setPrimaryCohortId(null);
+      return;
+    }
+    setPrimaryCohortId((current) =>
+      current && selectedCohortIds.includes(current)
+        ? current
+        : selectedCohortIds[0],
+    );
+  }, [selectedCohortIds]);
+
+  // ── Mutations ────────────────────────────────────────────────────
+  const cohortMutation = useMutation({
+    mutationFn: () =>
+      previewFinnGenCohortOperations({
+        source: requireSource(selectedSource),
+        cohort_definition: effectiveCohortDefinition,
+        import_mode: cohortImportMode,
+        operation_type: operationType,
+        atlas_cohort_ids: parseIntegerList(atlasCohortIds),
+        cohort_table_name: cohortTableName,
+        selected_cohort_ids: selectedCohortIds,
+        selected_cohort_labels: selectedCohortLabels,
+        primary_cohort_id: primaryCohortId,
+        matching_enabled: matchingEnabled,
+        matching_strategy: matchingStrategy,
+        matching_target: matchingTarget,
+        matching_covariates: parseStringList(matchingCovariates),
+        matching_ratio: Number.parseFloat(matchingRatio) || 1,
+        matching_caliper: Number.parseFloat(matchingCaliper) || 0.2,
+        export_target: exportTarget,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [
+          "finngen-runs",
+          "finngen_cohort_operations",
+          selectedSource?.id,
+        ],
+      });
+    },
+  });
+
+  const replayRunMutation = useMutation({
+    mutationFn: (runId: number) => replayFinnGenRun(runId),
+    onSuccess: async (run) => {
+      await queryClient.invalidateQueries({
+        queryKey: [
+          "finngen-runs",
+          "finngen_cohort_operations",
+          selectedSource?.id,
+        ],
+      });
+      if (run?.id) {
+        setSelectedRunId(run.id);
+        setCompareRunId(null);
+        queryClient.invalidateQueries({
+          queryKey: ["finngen-run", run.id],
+        });
+      }
+    },
+  });
+
+  // ── Handoff helper ───────────────────────────────────────────────
+  const handleHandoff = () => {
+    const exportSummary = cohortMutation.data?.export_summary ?? {};
+    const operationSummary = cohortMutation.data?.operation_summary ?? {};
+    const matchingSummary = cohortMutation.data?.matching_summary ?? {};
+    const compileSummary = cohortMutation.data?.compile_summary ?? {};
+    const selectedCohorts = cohortMutation.data?.selected_cohorts ?? [];
+
+    const derivedCohortLabel = String(
+      exportSummary?.cohort_reference ??
+        exportSummary?.export_target ??
+        exportTarget,
+    );
+    const derivedOutcomeName = `${String(exportSummary?.operation_type ?? operationType)} cohort outcome`;
+
+    const cohortContext: Record<string, unknown> = {
+      cohort_reference: exportSummary?.cohort_reference ?? null,
+      export_target: exportSummary?.export_target ?? null,
+      operation_type: exportSummary?.operation_type ?? operationType,
+      result_rows:
+        exportSummary?.result_rows ??
+        operationSummary?.result_rows ??
+        matchingSummary?.matched_rows ??
+        compileSummary?.derived_result_rows ??
+        null,
+      retained_ratio:
+        operationSummary?.retained_ratio ??
+        (typeof matchingSummary?.matched_rows === "number" &&
+        typeof matchingSummary?.eligible_rows === "number" &&
+        (matchingSummary.eligible_rows as number) > 0
+          ? Number(
+              (
+                (matchingSummary.matched_rows as number) /
+                (matchingSummary.eligible_rows as number)
+              ).toFixed(3),
+            )
+          : null),
+      selected_cohorts: selectedCohorts.map((cohort) => cohort.name),
+    };
+
+    onHandoffToCo2(cohortContext, derivedCohortLabel, derivedOutcomeName);
+  };
+
+  // ── Render ───────────────────────────────────────────────────────
+  const isLoading = cohortMutation.isPending;
+  const result = cohortMutation.data;
+
+  return (
+    <div className="space-y-4">
+      {/* ── Prominent handoff button when export_summary exists ─── */}
+      {result?.export_summary ? (
+        <button
+          type="button"
+          onClick={handleHandoff}
+          disabled={!result.export_summary.handoff_ready}
+          className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#9B1B30] px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-[#9B1B30]/80 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          <ArrowUpRight className="h-4 w-4" />
+          Hand Off To CO2 Modules
+        </button>
+      ) : null}
+
+      {/* ── Operation Builder card ──────────────────────────────── */}
+      <button
+        type="button"
+        onClick={() => setOperationBuilderOpen(true)}
+        className="flex w-full items-start gap-4 rounded-lg border border-zinc-800 bg-zinc-900/50 p-5 text-left transition-colors hover:border-[#9B1B30]/40"
+      >
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#9B1B30]/15">
+          <Blocks className="h-5 w-5 text-[#9B1B30]" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="text-sm font-medium text-white">
+            Operation Builder
+          </div>
+          <p className="mt-1 text-sm leading-6 text-zinc-400">
+            Configure import path, operation type, cohort selection, matching
+            strategy, and export target. Click to open the builder dialog.
+          </p>
+          <div className="mt-2 text-xs text-zinc-500">
+            {cohortImportModes.find((mode) => mode.value === cohortImportMode)
+              ?.label}{" "}
+            ·{" "}
+            {cohortOperationTypes.find((mode) => mode.value === operationType)
+              ?.label}{" "}
+            ·{" "}
+            {matchingEnabled
+              ? cohortMatchingStrategies.find(
+                  (strategy) => strategy.value === matchingStrategy,
+                )?.label
+              : "Matching disabled"}
+          </div>
+        </div>
+      </button>
+
+      {/* ── Selected cohorts summary inline ─────────────────────── */}
+      {selectedCohortLabels.length > 0 ? (
+        <div className="rounded-lg border border-zinc-800 bg-zinc-950/70 p-4">
+          <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-500">
+            Selected Cohorts
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {selectedCohortDefinitions.map((cohort) => (
+              <span
+                key={cohort.id}
+                className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium ${
+                  primaryCohortId === cohort.id
+                    ? "border-[#C9A227]/40 bg-[#C9A227]/10 text-[#F2DEA3]"
+                    : "border-zinc-700 bg-zinc-900 text-zinc-300"
+                }`}
+              >
+                {cohort.name}
+                {primaryCohortId === cohort.id ? (
+                  <span className="text-[10px] uppercase tracking-wide">
+                    primary
+                  </span>
+                ) : null}
+              </span>
+            ))}
+          </div>
+          {primaryCohortId ? (
+            <div className="mt-2 text-xs text-zinc-500">
+              Matching target:{" "}
+              {cohortMatchingTargets.find(
+                (target) => target.value === matchingTarget,
+              )?.label}
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+
+      {/* ── Raw JSON Definition (collapsed) ─────────────────────── */}
+      <CollapsibleSection title="Raw JSON Definition">
+        <div className="space-y-3">
+          <div className="flex flex-wrap gap-2">
+            {cohortPresets.map((preset) => (
+              <button
+                key={preset.label}
+                type="button"
+                onClick={() => setCohortJson(preset.value)}
+                className="rounded-full border border-zinc-800 bg-zinc-950 px-3 py-1.5 text-xs font-medium text-zinc-300 transition-colors hover:border-[#9B1B30]/40 hover:text-white"
+              >
+                {preset.label}
+              </button>
+            ))}
+          </div>
+          <textarea
+            value={cohortJson}
+            onChange={(e) => setCohortJson(e.target.value)}
+            rows={16}
+            className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-3 font-mono text-sm text-zinc-100 focus:border-[#9B1B30] focus:outline-none"
+          />
+        </div>
+      </CollapsibleSection>
+
+      {/* ── Loading hint for Parthenon cohort definition ────────── */}
+      {cohortImportMode === "parthenon" &&
+      selectedPrimaryCohortQuery.isLoading ? (
+        <div className="rounded-lg border border-zinc-800 bg-zinc-950/70 px-3 py-2 text-xs text-zinc-400">
+          Loading the primary Parthenon cohort definition for preview
+          compilation.
+        </div>
+      ) : null}
+
+      {/* ── Run button ──────────────────────────────────────────── */}
+      <ActionButton
+        label="Run Cohort Preview"
+        onClick={() => cohortMutation.mutate()}
+        loading={isLoading}
+        disabled={
+          !selectedSource ||
+          (cohortImportMode === "parthenon" && selectedCohortIds.length === 0)
+        }
+      />
+      {cohortMutation.isError ? (
+        <ErrorBanner message={getErrorMessage(cohortMutation.error)} />
+      ) : null}
+
+      {/* ── Pre-run empty state ─────────────────────────────────── */}
+      {!result && !isLoading ? (
+        <EmptyState label="Select cohorts via the Operation Builder and click Run to see results." />
+      ) : null}
+
+      {/* ── Result panels (only render when data exists) ────────── */}
+      <ResultSection
+        title="Compile Summary"
+        data={result?.compile_summary}
+        loading={isLoading}
+      >
+        <KeyValueGrid data={result?.compile_summary ?? {}} />
+      </ResultSection>
+
+      <ResultSection
+        title="Attrition Funnel"
+        data={result?.attrition}
+        loading={isLoading}
+      >
+        {result ? <AttritionView result={result} /> : null}
+      </ResultSection>
+
+      <ResultSection
+        title="Criteria Timeline"
+        data={result?.criteria_timeline?.length}
+        loading={isLoading}
+      >
+        {result ? <TimelineView items={result.criteria_timeline} /> : null}
+      </ResultSection>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <ResultSection
+          title="Import & Export"
+          data={result}
+          loading={isLoading}
+        >
+          {result ? (
+            <ImportExportView
+              importMode={cohortImportMode}
+              onImportModeChange={setCohortImportMode}
+              result={result}
+            />
+          ) : null}
+        </ResultSection>
+
+        <ResultSection
+          title="Matching Review"
+          data={result}
+          loading={isLoading}
+        >
+          {result ? <MatchingReviewView result={result} /> : null}
+        </ResultSection>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <ResultSection
+          title="Operation Summary"
+          data={result?.operation_summary}
+          loading={isLoading}
+        >
+          <KeyValueGrid data={result?.operation_summary ?? {}} />
+        </ResultSection>
+
+        <ResultSection
+          title="Operation Evidence"
+          data={result?.operation_evidence?.length}
+          loading={isLoading}
+        >
+          {result ? <OperationEvidenceView result={result} /> : null}
+        </ResultSection>
+      </div>
+
+      <ResultSection
+        title="Operation Comparison"
+        data={result?.operation_comparison?.length}
+        loading={isLoading}
+      >
+        <LabelValueList
+          items={(result?.operation_comparison ?? []).map((item) => ({
+            label: item.label,
+            value: String(item.value),
+          }))}
+        />
+      </ResultSection>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <ResultSection
+          title="Selected Cohorts"
+          data={result?.selected_cohorts?.length}
+          loading={isLoading}
+        >
+          <SelectedCohortsView cohorts={result?.selected_cohorts ?? []} />
+        </ResultSection>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <ResultSection
+          title="Import Review"
+          data={result?.import_review?.length}
+          loading={isLoading}
+        >
+          <StatusListView items={result?.import_review ?? []} />
+        </ResultSection>
+
+        <ResultSection
+          title="Cohort Table Summary"
+          data={
+            result?.cohort_table_summary &&
+            Object.keys(result.cohort_table_summary).length
+          }
+          loading={isLoading}
+        >
+          <KeyValueGrid data={result?.cohort_table_summary ?? {}} />
+        </ResultSection>
+      </div>
+
+      <ResultSection
+        title="Export Summary"
+        data={result?.export_summary}
+        loading={isLoading}
+      >
+        {result?.export_summary ? (
+          <CohortHandoffView
+            exportSummary={result.export_summary}
+            onHandoff={handleHandoff}
+          />
+        ) : null}
+      </ResultSection>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <ResultSection
+          title="Compiled SQL"
+          data={result?.sql_preview}
+          loading={isLoading}
+        >
+          <CodeBlock
+            title="Preview SQL"
+            code={result?.sql_preview ?? ""}
+          />
+        </ResultSection>
+
+        <ResultSection
+          title="Sample Rows"
+          data={result?.sample_rows?.length}
+          loading={isLoading}
+        >
+          <RecordTable rows={result?.sample_rows ?? []} />
+        </ResultSection>
+      </div>
+
+      <ResultSection
+        title="Plausibility Sample"
+        data={result}
+        loading={isLoading}
+      >
+        {result ? <CohortPlausibilityView result={result} /> : null}
+      </ResultSection>
+
+      {/* ── Run History (collapsed at bottom) ───────────────────── */}
+      <CollapsibleSection title="Run History">
+        <div className="space-y-4">
+          {runsQuery.isLoading ? (
+            <div className="flex items-center gap-2 py-4 text-sm text-zinc-400">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Loading runs...
+            </div>
+          ) : runsQuery.data?.length ? (
+            <>
+              <RecentRunsView
+                runs={runsQuery.data}
+                selectedRunId={selectedRunId}
+                onSelect={setSelectedRunId}
+              />
+              {runDetailQuery.isLoading ? (
+                <div className="flex items-center gap-2 py-4 text-sm text-zinc-400">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Loading run details...
+                </div>
+              ) : runDetailQuery.data ? (
+                <RunInspectorView
+                  run={runDetailQuery.data}
+                  onReplay={() =>
+                    replayRunMutation.mutate(runDetailQuery.data?.id ?? 0)
+                  }
+                  onExport={async () => {
+                    const bundle = await exportFinnGenRun(
+                      runDetailQuery.data?.id ?? 0,
+                    );
+                    if (bundle) {
+                      downloadJson(
+                        `finngen-run-${runDetailQuery.data?.id}-bundle.json`,
+                        bundle,
+                      );
+                    }
+                  }}
+                  replaying={replayRunMutation.isPending}
+                />
+              ) : (
+                <EmptyState label="Select a persisted run to inspect its request, runtime, artifacts, and stored result payload." />
+              )}
+              {runDetailQuery.data ? (
+                <RunComparisonPanel
+                  runs={runsQuery.data ?? []}
+                  selectedRun={runDetailQuery.data}
+                  compareRun={compareRunDetailQuery.data}
+                  compareRunId={compareRunId}
+                  onCompareRunChange={setCompareRunId}
+                />
+              ) : null}
+            </>
+          ) : (
+            <EmptyState label="Run history for Cohort Ops will appear here once executions are persisted." />
+          )}
+        </div>
+      </CollapsibleSection>
+
+      {/* ── Diagnostics (collapsed at bottom) ───────────────────── */}
+      <CollapsibleSection title="Diagnostics">
+        <RuntimePanel runtime={result?.runtime} />
+        {!result?.runtime ? (
+          <EmptyState label="Runtime diagnostics will appear after a preview run." />
+        ) : null}
+      </CollapsibleSection>
+
+      {/* ── Operation Builder Modal ─────────────────────────────── */}
+      <OperationBuilderModal
+        open={operationBuilderOpen}
+        onClose={() => setOperationBuilderOpen(false)}
+        cohortDefinitions={filteredCohorts}
+        selectedCohortIds={selectedCohortIds}
+        onToggleCohort={(cohortId) => {
+          setSelectedCohortIds((current) =>
+            current.includes(cohortId)
+              ? current.filter((id) => id !== cohortId)
+              : [...current, cohortId],
+          );
+          setCohortImportMode("parthenon");
+        }}
+        primaryCohortId={primaryCohortId}
+        onPrimaryCohortChange={setPrimaryCohortId}
+        searchValue={cohortSearch}
+        onSearchChange={setCohortSearch}
+        importMode={cohortImportMode}
+        onImportModeChange={setCohortImportMode}
+        operationType={operationType}
+        onOperationTypeChange={setOperationType}
+        matchingEnabled={matchingEnabled}
+        onMatchingEnabledChange={setMatchingEnabled}
+        matchingStrategy={matchingStrategy}
+        onMatchingStrategyChange={setMatchingStrategy}
+        matchingTarget={matchingTarget}
+        onMatchingTargetChange={setMatchingTarget}
+        matchingCovariates={matchingCovariates}
+        onMatchingCovariatesChange={setMatchingCovariates}
+        matchingRatio={matchingRatio}
+        onMatchingRatioChange={setMatchingRatio}
+        matchingCaliper={matchingCaliper}
+        onMatchingCaliperChange={setMatchingCaliper}
+        atlasCohortIds={atlasCohortIds}
+        onAtlasCohortIdsChange={setAtlasCohortIds}
+        cohortTableName={cohortTableName}
+        onCohortTableNameChange={setCohortTableName}
+        exportTarget={exportTarget}
+        onExportTargetChange={setExportTarget}
+      />
+    </div>
+  );
+}
