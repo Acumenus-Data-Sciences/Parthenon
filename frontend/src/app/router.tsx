@@ -287,6 +287,13 @@ export const router = createBrowserRouter(
                 ),
             },
             {
+              path: "workbench/community-sdk-demo",
+              lazy: () =>
+                import("@/features/community-workbench-sdk/pages/CommunityWorkbenchSdkDemoPage").then(
+                  (m) => ({ Component: m.default }),
+                ),
+            },
+            {
               path: "finngen-tools",
               element: <Navigate to="/workbench" replace />,
             },
@@ -609,5 +616,10 @@ export const router = createBrowserRouter(
     ],
   },
   ],
-  {}
+  {
+    future: {
+      v7_startTransition: true,
+      v7_relativeSplatPath: true,
+    },
+  }
 );
