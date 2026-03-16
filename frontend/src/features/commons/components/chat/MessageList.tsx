@@ -1,4 +1,5 @@
-import { useEffect, useRef, useMemo } from "react";
+import { useEffect, useRef, useMemo, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Hash } from "lucide-react";
 import type { Message } from "../../types";
 import { MessageItem } from "./MessageItem";
@@ -65,6 +66,17 @@ export function MessageList({
   const bottomRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const prevCountRef = useRef(messages.length);
+  const msgRefs = useRef<Map<number, HTMLDivElement>>(new Map());
+  const [searchParams, setSearchParams] = useSearchParams();
+  const highlightId = searchParams.get("highlight") ? Number(searchParams.get("highlight")) : null;
+
+  const setMsgRef = useCallback((id: number) => (el: HTMLDivElement | null) => {
+    if (el) {
+      msgRefs.current.set(id, el);
+    } else {
+      msgRefs.current.delete(id);
+    }
+  }, []);
 
   // Auto-scroll to bottom when new messages arrive (if already at bottom)
   useEffect(() => {
@@ -87,6 +99,21 @@ export function MessageList({
       bottomRef.current?.scrollIntoView();
     }
   }, [isLoading]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Scroll to and briefly highlight the target message from ?highlight= param
+  useEffect(() => {
+    if (!highlightId || isLoading) return;
+    const el = msgRefs.current.get(highlightId);
+    if (!el) return;
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+    el.classList.add("msg-highlight");
+    const timer = setTimeout(() => {
+      el.classList.remove("msg-highlight");
+      // Remove the param from the URL so refreshing doesn't re-highlight
+      setSearchParams((prev) => { prev.delete("highlight"); return prev; }, { replace: true });
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [highlightId, isLoading, setSearchParams]);
 
   // Messages come from API in descending order — reverse for display
   const sorted = useMemo(() => [...messages].reverse(), [messages]);
@@ -125,7 +152,7 @@ export function MessageList({
             const showUnread = unreadIndex === i && i > 0;
 
             return (
-              <div key={msg.id}>
+              <div key={msg.id} ref={setMsgRef(msg.id)}>
                 {showDateSep && <DateSeparator label={formatDateLabel(msg.created_at)} />}
                 {showUnread && <UnreadDivider />}
                 <MessageItem

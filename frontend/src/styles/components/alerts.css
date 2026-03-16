@@ -107,6 +107,45 @@
 .toast-error   { border-left: 3px solid var(--critical); }
 .toast-info    { border-left: 3px solid var(--info); }
 
+/* Toast action button */
+.toast .toast-action {
+  flex-shrink: 0;
+  cursor: pointer;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--accent);
+  transition: color var(--duration-fast);
+  white-space: nowrap;
+}
+.toast .toast-action:hover {
+  color: var(--accent-light);
+}
+
+/* ── Commons: mention chip ─────────────────────────────────────────────── */
+/* Applied to <span class="mention"> elements inside body_html */
+.mention {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 4px;
+  background: rgba(45, 212, 191, 0.1);  /* teal-400/10 */
+  color: rgb(94, 234, 212);              /* teal-300 */
+  font-size: 0.85em;
+  font-weight: 500;
+  padding: 1px 5px;
+  cursor: default;
+}
+
+/* ── Commons: message highlight (from ?highlight= param) ───────────────── */
+@keyframes msgHighlightFade {
+  0%   { background-color: rgba(201, 162, 39, 0.18); }   /* gold */
+  60%  { background-color: rgba(201, 162, 39, 0.12); }
+  100% { background-color: transparent; }
+}
+.msg-highlight {
+  animation: msgHighlightFade 2s ease-out forwards;
+  border-radius: 4px;
+}
+
 /* Progress bar (§9.10) */
 .progress-track {
   width: 100%;

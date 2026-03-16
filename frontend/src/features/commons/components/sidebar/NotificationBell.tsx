@@ -32,8 +32,13 @@ export function NotificationBell() {
   }
 
   function handleClick(n: CommonsNotification) {
+    // Mark just this notification as read
+    if (!n.read_at) {
+      markRead.mutate([n.id]);
+    }
     if (n.channel) {
-      navigate(`/commons/${n.channel.slug}`);
+      const url = `/commons/${n.channel.slug}${n.message_id ? `?highlight=${n.message_id}` : ""}`;
+      navigate(url);
     }
     setOpen(false);
   }

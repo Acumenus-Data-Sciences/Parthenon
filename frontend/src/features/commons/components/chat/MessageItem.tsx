@@ -14,6 +14,11 @@ import { ReactionPills } from "./ReactionPills";
 import { ObjectReferenceCard } from "./ObjectReferenceCard";
 import { AttachmentDisplay } from "./AttachmentDisplay";
 
+/** Convert @[id:name] mention tokens to backtick-wrapped @name for markdown rendering. */
+function processMentions(body: string): string {
+  return body.replace(/@\[(\d+):([^\]]+)\]/g, (_match, _id, name: string) => `\`@${name}\``);
+}
+
 interface MessageItemProps {
   message: Message;
   slug: string;
@@ -95,12 +100,26 @@ export function MessageItem({
               onSaved={() => setEditing(false)}
             />
           ) : (
-            <div className="prose prose-sm prose-invert max-w-none text-[#b8b8c0] leading-relaxed [&_p]:my-1 [&_pre]:bg-[#13131a] [&_pre]:border [&_pre]:border-white/[0.06] [&_pre]:rounded-md [&_pre]:p-3 [&_code]:text-teal-400">
+            <div className="prose prose-sm prose-invert max-w-none text-[#b8b8c0] leading-relaxed [&_p]:my-1 [&_pre]:bg-[#13131a] [&_pre]:border [&_pre]:border-white/[0.06] [&_pre]:rounded-md [&_pre]:p-3 [&_code]:text-teal-400 [&_code.mention]:rounded [&_code.mention]:border-0 [&_code.mention]:bg-teal-500/10 [&_code.mention]:text-teal-300 [&_code.mention]:px-1 [&_code.mention]:py-0.5">
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 rehypePlugins={[rehypeSanitize]}
+                components={{
+                  code: ({ children, className, ...rest }) => (
+                    <code
+                      className={
+                        typeof children === "string" && children.startsWith("@")
+                          ? `mention ${className ?? ""}`
+                          : className
+                      }
+                      {...rest}
+                    >
+                      {children}
+                    </code>
+                  ),
+                }}
               >
-                {message.body}
+                {processMentions(message.body)}
               </ReactMarkdown>
             </div>
           )}

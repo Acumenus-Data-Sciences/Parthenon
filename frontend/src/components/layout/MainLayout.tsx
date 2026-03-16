@@ -16,6 +16,7 @@ import { useUiStore } from "@/stores/uiStore";
 import { useAuthStore } from "@/stores/authStore";
 import { useGlobalKeyboard } from "@/hooks/useGlobalKeyboard";
 import { useGlobalPresence } from "@/features/commons/hooks/usePresence";
+import { useNotificationListener } from "@/features/commons/hooks/useNotificationListener";
 import { cn } from "@/lib/utils";
 
 export function MainLayout() {
@@ -37,6 +38,9 @@ export function MainLayout() {
   // Join the global presence channel so this user appears online app-wide,
   // not just when they have the Commons page open.
   useGlobalPresence();
+
+  // Listen for real-time notifications on the user's private channel.
+  useNotificationListener();
 
   const showWizard = wizardOpen && isSuperAdmin;
 

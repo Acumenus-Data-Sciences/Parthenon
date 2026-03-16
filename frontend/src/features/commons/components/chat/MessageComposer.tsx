@@ -62,13 +62,14 @@ export function MessageComposer({ channelName, onSend, disabled, onKeyDown, memb
   function insertMention(member: ChannelMember) {
     const before = body.slice(0, mentionStart);
     const after = body.slice(mentionStart + (mentionQuery?.length ?? 0) + 1);
-    const newBody = `${before}@${member.user.name} ${after}`;
+    const token = `@[${member.user_id}:${member.user.name}] `;
+    const newBody = `${before}${token}${after}`;
     setBody(newBody);
     setMentionQuery(null);
     requestAnimationFrame(() => {
       const ta = textareaRef.current;
       if (ta) {
-        const pos = mentionStart + member.user.name.length + 2;
+        const pos = mentionStart + token.length;
         ta.focus();
         ta.setSelectionRange(pos, pos);
       }
