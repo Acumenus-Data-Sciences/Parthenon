@@ -2,14 +2,23 @@
 
 - GeneralEmbedder: sentence-transformers/all-MiniLM-L6-v2 (384-dim) for docs/conversations/FAQ
 - ClinicalEmbedder: SapBERT (768-dim) for clinical reference content
+
+Note: uvicorn --workers=N forks the parent process. PyTorch models loaded
+in the parent become corrupt in child workers. These embedders use PID-aware
+caching to detect forks and reinitialize fresh models per-worker.
 """
 import logging
-from functools import lru_cache
+import os
+import threading
 
 import numpy as np
 from chromadb.api.types import EmbeddingFunction, Documents, Embeddings
 
 logger = logging.getLogger(__name__)
+
+# Lock to serialize model loading — concurrent SentenceTransformer/torch
+# initialization causes meta tensor errors (torch 2.10 race condition).
+_embedder_lock = threading.Lock()
 
 
 class GeneralEmbedder(EmbeddingFunction[Documents]):
@@ -18,8 +27,9 @@ class GeneralEmbedder(EmbeddingFunction[Documents]):
     def __init__(self, model_name: str = "all-MiniLM-L6-v2") -> None:
         from sentence_transformers import SentenceTransformer
 
-        self._model = SentenceTransformer(model_name)
-        logger.info("Loaded general embedder: %s", model_name)
+        self._model = SentenceTransformer(model_name, device="cpu")
+        self._pid = os.getpid()
+        logger.info("Loaded general embedder: %s (pid=%d)", model_name, self._pid)
 
     def __call__(self, input: Documents) -> Embeddings:
         embeddings = self._model.encode(input, convert_to_numpy=True)
@@ -38,20 +48,48 @@ class ClinicalEmbedder(EmbeddingFunction[Documents]):
         from app.services.sapbert import get_sapbert_service
 
         self._service = get_sapbert_service()
-        logger.info("Clinical embedder using SapBERT service")
+        self._pid = os.getpid()
+        logger.info("Clinical embedder using SapBERT service (pid=%d)", self._pid)
 
     def __call__(self, input: Documents) -> Embeddings:
         result: Embeddings = self._service.encode(list(input))  # type: ignore[assignment]
         return result
 
 
-@lru_cache(maxsize=1)
+# PID-aware singleton cache: detects fork and re-creates embedders
+_general_embedder: GeneralEmbedder | None = None
+_general_pid: int = 0
+_clinical_embedder: ClinicalEmbedder | None = None
+_clinical_pid: int = 0
+
+
 def get_general_embedder() -> GeneralEmbedder:
-    """Singleton general embedder."""
-    return GeneralEmbedder()
+    """Get or create general embedder, reinitializing after fork.
+
+    Uses lock to prevent concurrent torch model initialization which
+    causes meta tensor errors in torch 2.10.
+    """
+    global _general_embedder, _general_pid
+    pid = os.getpid()
+    if _general_embedder is None or _general_pid != pid:
+        with _embedder_lock:
+            # Double-check after acquiring lock
+            if _general_embedder is None or _general_pid != pid:
+                _general_embedder = GeneralEmbedder()
+                _general_pid = pid
+    return _general_embedder
 
 
-@lru_cache(maxsize=1)
 def get_clinical_embedder() -> ClinicalEmbedder:
-    """Singleton clinical embedder."""
-    return ClinicalEmbedder()
+    """Get or create clinical embedder, reinitializing after fork.
+
+    Uses lock to prevent concurrent torch model initialization.
+    """
+    global _clinical_embedder, _clinical_pid
+    pid = os.getpid()
+    if _clinical_embedder is None or _clinical_pid != pid:
+        with _embedder_lock:
+            if _clinical_embedder is None or _clinical_pid != pid:
+                _clinical_embedder = ClinicalEmbedder()
+                _clinical_pid = pid
+    return _clinical_embedder

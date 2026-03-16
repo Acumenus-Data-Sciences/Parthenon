@@ -107,7 +107,16 @@ class SapBERTService:
         return 768
 
 
-@lru_cache(maxsize=1)
+_sapbert_service: SapBERTService | None = None
+_sapbert_pid: int = 0
+
+
 def get_sapbert_service() -> SapBERTService:
-    """Get or create the singleton SapBERT service."""
-    return SapBERTService()
+    """Get or create the SapBERT service, reinitializing after fork."""
+    global _sapbert_service, _sapbert_pid
+    import os
+    pid = os.getpid()
+    if _sapbert_service is None or _sapbert_pid != pid:
+        _sapbert_service = SapBERTService()
+        _sapbert_pid = pid
+    return _sapbert_service

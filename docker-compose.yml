@@ -153,6 +153,8 @@ services:
       - CHROMA_PORT=8000
       - STUDY_AGENT_URL=http://study-agent:8765
       - HECATE_URL=http://hecate:8080
+      - CUDA_VISIBLE_DEVICES=
+      - TORCH_DEVICE=cpu
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:

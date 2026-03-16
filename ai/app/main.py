@@ -3,6 +3,17 @@ import logging
 from importlib import import_module
 from typing import Any
 
+# Force CPU-only mode — prevents meta tensor errors in uvicorn workers.
+# torch 2.10+cu128 auto-detects CUDA at import which causes SentenceTransformer
+# to use meta tensors during model loading. Disabling CUDA built-in check
+# forces pure CPU path, which works correctly in forked workers.
+try:
+    import torch
+    torch.set_default_device("cpu")
+    torch.backends.cuda.is_built = lambda: False  # type: ignore[assignment]
+except ImportError:
+    pass
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -76,12 +87,12 @@ async def startup_ingest_docs() -> None:
 
 @app.on_event("startup")
 async def startup_warm_embedders() -> None:
-    """Eagerly load SapBERT model so first Abby clinical query is fast.
+    """Clear stale lru_cache embedder singletons inherited from pre-fork parent,
+    then eagerly load fresh instances in this worker process.
 
-    SapBERT takes 2-5s to load from disk on first use; loading at startup
-    eliminates that cold-start penalty from the user's first chat.
-    The general embedder (MiniLM) loads quickly and is warmed via ChromaDB
-    collection access, so we only need to pre-warm SapBERT here.
+    uvicorn --workers=2 forks from a parent that may have loaded models.
+    Those forked PyTorch/SentenceTransformer objects are corrupt across
+    process boundaries, so we must clear and reload per-worker.
     """
     import asyncio
 
@@ -91,11 +102,13 @@ async def startup_warm_embedders() -> None:
     async def _warm() -> None:
         loop = asyncio.get_event_loop()
         try:
-            from app.services.sapbert import get_sapbert_service
-            svc = get_sapbert_service()
-            await loop.run_in_executor(None, svc.encode, ["warmup"])
-            _logger.info("SapBERT embedder warmed up")
+            # PID-aware singletons auto-detect fork and reinitialize
+            from app.chroma.embeddings import get_general_embedder, get_clinical_embedder
+            await loop.run_in_executor(None, get_general_embedder)
+            _logger.info("General embedder (MiniLM) warmed up in worker %d", os.getpid())
+            await loop.run_in_executor(None, get_clinical_embedder)
+            _logger.info("Clinical embedder (SapBERT) warmed up in worker %d", os.getpid())
         except Exception as e:
-            _logger.warning("SapBERT warmup failed (non-fatal): %s", e)
+            _logger.warning("Embedder warmup failed (non-fatal): %s", e)
 
     asyncio.create_task(_warm())
