@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://parthenon.local/schemas/community-workbench-sdk/result-envelope.schema.json",
+  "title": "Workbench Result Envelope",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "status",
+    "runtime",
+    "summary",
+    "panels",
+    "artifacts",
+    "warnings",
+    "next_actions"
+  ],
+  "properties": {
+    "status": {
+      "type": "string"
+    },
+    "runtime": {
+      "$ref": "./runtime-metadata.schema.json"
+    },
+    "source": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "summary": {
+      "type": "object"
+    },
+    "panels": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true
+      }
+    },
+    "artifacts": {
+      "$ref": "./artifact-manifest.schema.json"
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "next_actions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

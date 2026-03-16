@@ -1,0 +1,23 @@
+{
+  "service_name": "genomics_variant_browser",
+  "display_name": "Variant Browser",
+  "description": "Explore cohort-scoped genomic variants through a Parthenon workbench.",
+  "version": "0.1.0",
+  "mode": "external-adapter",
+  "enabled": true,
+  "healthy": true,
+  "unavailability_reason": null,
+  "ui_hints": {
+    "title": "Variant Browser",
+    "summary": "Explore cohort-scoped genomic variants through a Parthenon workbench.",
+    "accent": "slate",
+    "workspace": "genomics-workbench",
+    "repository": null
+  },
+  "capabilities": {
+    "source_scoped": true,
+    "replay_supported": true,
+    "export_supported": true,
+    "write_operations": false
+  }
+}

@@ -3,11 +3,15 @@
 namespace App\Models\Commons;
 
 use App\Models\User;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ChannelMember extends Model
 {
+    /** @use HasFactory<\Database\Factories\Commons\ChannelMemberFactory> */
+    use HasFactory;
+
     public $timestamps = false;
 
     protected $table = 'commons_channel_members';

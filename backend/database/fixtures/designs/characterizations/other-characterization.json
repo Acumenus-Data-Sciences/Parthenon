@@ -1,7 +1,7 @@
 {
     "id": 2,
     "name": "Other Characterization",
-    "description": "Odio tenetur et voluptatem praesentium. Quam necessitatibus suscipit officiis hic asperiores voluptatum. Cupiditate et dolores ut voluptas dolorum neque. Doloribus sed quia voluptate eos et. Ea labore nostrum aliquam ut ut.",
+    "description": "Eveniet labore enim pariatur aut et reprehenderit architecto. Rerum incidunt in eaque mollitia eum nihil magni. Autem maiores sequi dolor sit et reiciendis.",
     "design_json": {
         "featureTypes": [
             "demographics",
@@ -10,8 +10,8 @@
         ],
         "targetCohortIds": []
     },
-    "author_id": 112,
-    "created_at": "2026-03-15T20:13:26.000000Z",
-    "updated_at": "2026-03-15T20:13:26.000000Z",
+    "author_id": 70,
+    "created_at": "2026-03-16T01:54:31.000000Z",
+    "updated_at": "2026-03-16T01:54:31.000000Z",
     "deleted_at": null
 }

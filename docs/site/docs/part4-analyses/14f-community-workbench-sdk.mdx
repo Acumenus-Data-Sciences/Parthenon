@@ -1,0 +1,154 @@
+---
+id: 14f-community-workbench-sdk
+title: "14f. Community Workbench SDK"
+sidebar_label: "14f. Community Workbench SDK"
+slug: /community-workbench-sdk
+---
+
+# Community Workbench SDK
+
+The **Community Workbench SDK** is Parthenon's starter kit for building optional workbench tools that feel native inside the platform while preserving clean architectural boundaries.
+
+It exists to help:
+
+- community developers build new workbench tools
+- partner teams modernize existing research applications into Parthenon
+- internal teams scaffold new optional tool domains consistently
+- AI coding assistants work from explicit contracts instead of inferred conventions
+
+---
+
+## What The SDK Includes
+
+The SDK ships with four kinds of assets:
+
+1. **Contract schemas**
+   - JSON Schemas for service descriptors, runtime metadata, result envelopes, and artifact manifests
+2. **Tokenized templates**
+   - starter files for StudyAgent MCP tools, Laravel controllers/services, and frontend workbench pages
+3. **Generation and packaging scripts**
+   - a scaffold generator for new tools and a packaging script for creating a distributable `.zip`
+4. **Detailed documentation**
+   - onboarding guides, an asset index, AI assistant guidance, release process documentation, and example payloads
+
+---
+
+## Why This Matters
+
+Without a starter kit, adding a new workbench tool requires reverse-engineering several layers at once:
+
+- service discovery metadata
+- conditional tool registration
+- backend orchestration
+- persisted run shaping
+- runtime diagnostics
+- frontend workbench UX
+
+The SDK reduces that friction by turning the FINNGEN integration pattern into a reusable, documented template.
+
+---
+
+## Architectural Pattern
+
+Generated workbench tools are expected to preserve these responsibilities:
+
+- **StudyAgent** handles tool registration and discovery
+- **Laravel** handles request validation, permissions, source scoping, audit, and persistence
+- **Frontend workbench UI** handles execution flows, diagnostics, and result presentation
+- **Native logic or an external adapter** handles domain execution
+
+That separation keeps optional tools isolated, reviewable, and removable.
+
+---
+
+## Supported Modes
+
+### External Adapter Mode
+
+Use this mode when the tool already exists outside Parthenon, such as:
+
+- a Shiny app
+- a Python or R API
+- a pipeline runner
+- a legacy analytics service
+
+Parthenon becomes the orchestration and UX layer, while the upstream system remains the execution engine.
+
+### Native Mode
+
+Use this mode when the tool can be implemented directly inside Parthenon-owned services while still honoring the same discovery, result, and UX contracts.
+
+---
+
+## Included Assets
+
+The canonical SDK lives in the repository under:
+
+```text
+community-workbench-sdk/
+```
+
+Key assets include:
+
+- `README.md`
+- `docs/START_HERE.md`
+- `docs/AI_ASSISTANT_GUIDE.md`
+- `docs/ASSET_INDEX.md`
+- `docs/RELEASE_PROCESS.md`
+- `contracts/*.schema.json`
+- `examples/*.json`
+- `templates/*.tpl`
+- `scripts/new-workbench-tool.sh`
+- `scripts/verify-contracts.py`
+- `scripts/package-release.sh`
+
+---
+
+## Recommended Workflow
+
+1. Generate a scaffold into a scratch directory.
+2. Review the generated files.
+3. Wire the service into the host repo deliberately.
+4. Replace placeholder payloads with domain-specific logic.
+5. Validate example and real payloads against the SDK schemas.
+6. Add tests and persisted run handling when required.
+7. Package the starter into a versioned `.zip` when distributing it externally.
+
+---
+
+## AI Assistant Support
+
+The SDK was written to be usable by AI coding assistants as well as humans.
+
+It explicitly identifies:
+
+- the normative files
+- the required contracts
+- token placeholders
+- host repo integration boundaries
+- common failure modes to avoid
+
+That reduces ad hoc scaffolding and makes AI-assisted generation more predictable and reviewable.
+
+---
+
+## Relationship To The Workbench
+
+The current FINNGEN Workbench is the reference pattern that inspired this SDK. The goal is to let other domains follow the same model:
+
+- optional by default
+- health-gated
+- source-aware
+- contract-driven
+- documented
+- testable
+
+---
+
+## Where To Find It
+
+In the repository:
+
+- `community-workbench-sdk/`
+
+For maintainers, the release packaging workflow is documented in the SDK's `RELEASE_PROCESS.md`, and CI now validates the SDK contracts, smoke-tests scaffold generation, and builds a release artifact.

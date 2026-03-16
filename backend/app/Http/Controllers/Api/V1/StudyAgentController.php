@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Models\App\Source;
 use App\Http\Requests\StudyAgent\CohortLintRequest;
 use App\Http\Requests\StudyAgent\ConceptSetReviewRequest;
 use App\Http\Requests\StudyAgent\IntentSplitRequest;
@@ -11,7 +12,11 @@ use App\Http\Requests\StudyAgent\PhenotypeImproveRequest;
 use App\Http\Requests\StudyAgent\PhenotypeRecommendRequest;
 use App\Http\Requests\StudyAgent\PhenotypeSearchRequest;
 use App\Http\Requests\StudyAgent\RecommendPhenotypesRequest;
+use App\Services\StudyAgent\CommunityWorkbenchSdkDemoService;
+use App\Services\StudyAgent\FinnGenRunService;
+use App\Services\StudyAgent\FinnGenWorkbenchService;
 use Dedoc\Scramble\Attributes\Group;
+use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -52,6 +57,43 @@ class StudyAgentController extends Controller
         }
 
         return response()->json(['data' => $response->json()]);
+    }
+
+    public function services(CommunityWorkbenchSdkDemoService $demoService): JsonResponse
+    {
+        $services = [];
+        $warnings = [];
+
+        try {
+            $response = Http::timeout(10)->get("{$this->aiServiceUrl}/study-agent/services");
+            if ($response->successful()) {
+                $payload = $response->json();
+                $services = is_array($payload['services'] ?? null) ? $payload['services'] : [];
+                $warnings = is_array($payload['warnings'] ?? null) ? $payload['warnings'] : [];
+            } else {
+                $warnings[] = 'StudyAgent service registry proxy was unavailable; using Laravel fallback service registry.';
+            }
+        } catch (\Throwable $e) {
+            $warnings[] = 'StudyAgent service registry proxy was unavailable; using Laravel fallback service registry.';
+        }
+
+        if ($services === []) {
+            $services = $this->fallbackFinnGenServices();
+        }
+
+        $services = $this->appendServiceEntry($services, $demoService->serviceEntry());
+
+        return response()->json([
+            'data' => [
+                'services' => array_values($services),
+                'warnings' => $warnings,
+            ],
+        ]);
+    }
+
+    public function communityWorkbenchSdkDemo(CommunityWorkbenchSdkDemoService $demoService): JsonResponse
+    {
+        return response()->json(['data' => $demoService->payload()]);
     }
 
     /**
@@ -212,5 +254,321 @@ class StudyAgentController extends Controller
         }
 
         return response()->json(['data' => $response->json()]);
+    }
+
+    public function finngenCohortOperations(Request $request, FinnGenWorkbenchService $workbench, FinnGenRunService $runs): JsonResponse
+    {
+        $validated = $request->validate([
+            'source.id' => ['required', 'integer'],
+            'cohort_definition' => ['required', 'array'],
+            'execution_mode' => ['sometimes', 'string'],
+            'import_mode' => ['sometimes', 'string'],
+            'operation_type' => ['sometimes', 'string'],
+            'atlas_cohort_ids' => ['sometimes', 'array'],
+            'atlas_cohort_ids.*' => ['integer'],
+            'cohort_table_name' => ['sometimes', 'string'],
+            'selected_cohort_ids' => ['sometimes', 'array'],
+            'selected_cohort_ids.*' => ['integer'],
+            'selected_cohort_labels' => ['sometimes', 'array'],
+            'selected_cohort_labels.*' => ['string'],
+            'matching_enabled' => ['sometimes', 'boolean'],
+            'matching_strategy' => ['sometimes', 'string'],
+            'matching_covariates' => ['sometimes', 'array'],
+            'matching_covariates.*' => ['string'],
+            'matching_ratio' => ['sometimes', 'numeric'],
+            'matching_caliper' => ['sometimes', 'numeric'],
+            'export_target' => ['sometimes', 'string'],
+        ]);
+
+        $source = $this->resolveSource((int) data_get($validated, 'source.id'), $request);
+        $result = $workbench->cohortOperations(
+            $source,
+            $validated['cohort_definition'],
+            (string) ($validated['execution_mode'] ?? 'preview'),
+            [
+                'import_mode' => $validated['import_mode'] ?? 'json',
+                'operation_type' => $validated['operation_type'] ?? 'union',
+                'atlas_cohort_ids' => $validated['atlas_cohort_ids'] ?? [],
+                'cohort_table_name' => $validated['cohort_table_name'] ?? '',
+                'selected_cohort_ids' => $validated['selected_cohort_ids'] ?? [],
+                'selected_cohort_labels' => $validated['selected_cohort_labels'] ?? [],
+                'matching_enabled' => $validated['matching_enabled'] ?? true,
+                'matching_strategy' => $validated['matching_strategy'] ?? 'nearest-neighbor',
+                'matching_covariates' => $validated['matching_covariates'] ?? [],
+                'matching_ratio' => $validated['matching_ratio'] ?? 1,
+                'matching_caliper' => $validated['matching_caliper'] ?? 0.2,
+                'export_target' => $validated['export_target'] ?? '',
+                'user_id' => $request->user()?->id,
+            ],
+        );
+
+        $runs->record('finngen_cohort_operations', $source, $request->user(), $validated, $result);
+
+        return response()->json(['data' => $result]);
+    }
+
+    public function finngenCo2Analysis(Request $request, FinnGenWorkbenchService $workbench, FinnGenRunService $runs): JsonResponse
+    {
+        $validated = $request->validate([
+            'source.id' => ['required', 'integer'],
+            'module_key' => ['required', 'string'],
+            'cohort_label' => ['sometimes', 'string'],
+            'outcome_name' => ['sometimes', 'string'],
+            'cohort_context' => ['sometimes', 'array'],
+            'comparator_label' => ['sometimes', 'string'],
+            'sensitivity_label' => ['sometimes', 'string'],
+            'burden_domain' => ['sometimes', 'string'],
+            'exposure_window' => ['sometimes', 'string'],
+            'stratify_by' => ['sometimes', 'string'],
+        ]);
+
+        $source = $this->resolveSource((int) data_get($validated, 'source.id'), $request);
+        $result = $workbench->co2Analysis(
+            $source,
+            (string) $validated['module_key'],
+            (string) ($validated['cohort_label'] ?? ''),
+            (string) ($validated['outcome_name'] ?? ''),
+            [
+                'cohort_context' => is_array($validated['cohort_context'] ?? null) ? $validated['cohort_context'] : [],
+                'comparator_label' => $validated['comparator_label'] ?? '',
+                'sensitivity_label' => $validated['sensitivity_label'] ?? '',
+                'burden_domain' => $validated['burden_domain'] ?? '',
+                'exposure_window' => $validated['exposure_window'] ?? '',
+                'stratify_by' => $validated['stratify_by'] ?? '',
+            ],
+        );
+
+        $runs->record('finngen_co2_analysis', $source, $request->user(), $validated, $result);
+
+        return response()->json(['data' => $result]);
+    }
+
+    public function finngenHadesExtras(Request $request, FinnGenWorkbenchService $workbench, FinnGenRunService $runs): JsonResponse
+    {
+        $validated = $request->validate([
+            'source.id' => ['required', 'integer'],
+            'sql_template' => ['required', 'string'],
+            'package_name' => ['sometimes', 'string'],
+            'render_target' => ['sometimes', 'string'],
+            'config_profile' => ['sometimes', 'string'],
+            'artifact_mode' => ['sometimes', 'string'],
+            'package_skeleton' => ['sometimes', 'string'],
+            'cohort_table' => ['sometimes', 'string'],
+        ]);
+
+        $source = $this->resolveSource((int) data_get($validated, 'source.id'), $request);
+        $result = $workbench->hadesExtras(
+            $source,
+            (string) $validated['sql_template'],
+            (string) ($validated['package_name'] ?? ''),
+            (string) ($validated['render_target'] ?? ''),
+            [
+                'config_profile' => $validated['config_profile'] ?? '',
+                'artifact_mode' => $validated['artifact_mode'] ?? '',
+                'package_skeleton' => $validated['package_skeleton'] ?? '',
+                'cohort_table' => $validated['cohort_table'] ?? '',
+            ],
+        );
+
+        $runs->record('finngen_hades_extras', $source, $request->user(), $validated, $result);
+
+        return response()->json(['data' => $result]);
+    }
+
+    public function finngenRomopapi(Request $request, FinnGenWorkbenchService $workbench, FinnGenRunService $runs): JsonResponse
+    {
+        $validated = $request->validate([
+            'source.id' => ['required', 'integer'],
+            'schema_scope' => ['sometimes', 'string'],
+            'query_template' => ['sometimes', 'string'],
+            'concept_domain' => ['sometimes', 'string'],
+            'stratify_by' => ['sometimes', 'string'],
+            'result_limit' => ['sometimes', 'integer'],
+            'lineage_depth' => ['sometimes', 'integer'],
+        ]);
+
+        $source = $this->resolveSource((int) data_get($validated, 'source.id'), $request);
+        $result = $workbench->romopapi(
+            $source,
+            (string) ($validated['schema_scope'] ?? ''),
+            (string) ($validated['query_template'] ?? ''),
+            [
+                'concept_domain' => $validated['concept_domain'] ?? '',
+                'stratify_by' => $validated['stratify_by'] ?? '',
+                'result_limit' => $validated['result_limit'] ?? null,
+                'lineage_depth' => $validated['lineage_depth'] ?? null,
+            ],
+        );
+
+        $runs->record('finngen_romopapi', $source, $request->user(), $validated, $result);
+
+        return response()->json(['data' => $result]);
+    }
+
+    public function finngenRuns(Request $request, FinnGenRunService $runs): JsonResponse
+    {
+        $validated = $request->validate([
+            'service_name' => ['sometimes', 'string'],
+            'source_id' => ['sometimes', 'integer'],
+            'limit' => ['sometimes', 'integer', 'min:1', 'max:50'],
+        ]);
+
+        return response()->json([
+            'data' => [
+                'runs' => $runs->recent(
+                    $validated['service_name'] ?? null,
+                    isset($validated['source_id']) ? (int) $validated['source_id'] : null,
+                    (int) ($validated['limit'] ?? 12),
+                )->values()->all(),
+            ],
+        ]);
+    }
+
+    public function finngenRun(int $runId, FinnGenRunService $runs): JsonResponse
+    {
+        return response()->json(['data' => ['run' => $runs->detail($runId)]]);
+    }
+
+    public function replayFinnGenRun(int $runId, Request $request, FinnGenRunService $runs, FinnGenWorkbenchService $workbench): JsonResponse
+    {
+        $run = $runs->findModel($runId);
+        $payload = is_array($run->request_payload ?? null) ? $run->request_payload : [];
+        $sourceId = (int) data_get($payload, 'source.id', $run->source_id);
+        $source = $this->resolveSource($sourceId, $request);
+
+        $result = match ($run->service_name) {
+            'finngen_cohort_operations' => $workbench->cohortOperations(
+                $source,
+                is_array($payload['cohort_definition'] ?? null) ? $payload['cohort_definition'] : [],
+                (string) ($payload['execution_mode'] ?? 'preview'),
+                [
+                    'import_mode' => $payload['import_mode'] ?? 'json',
+                    'operation_type' => $payload['operation_type'] ?? 'union',
+                    'atlas_cohort_ids' => is_array($payload['atlas_cohort_ids'] ?? null) ? $payload['atlas_cohort_ids'] : [],
+                    'cohort_table_name' => $payload['cohort_table_name'] ?? '',
+                    'selected_cohort_ids' => is_array($payload['selected_cohort_ids'] ?? null) ? $payload['selected_cohort_ids'] : [],
+                    'selected_cohort_labels' => is_array($payload['selected_cohort_labels'] ?? null) ? $payload['selected_cohort_labels'] : [],
+                    'matching_enabled' => $payload['matching_enabled'] ?? true,
+                    'matching_strategy' => $payload['matching_strategy'] ?? 'nearest-neighbor',
+                    'matching_covariates' => is_array($payload['matching_covariates'] ?? null) ? $payload['matching_covariates'] : [],
+                    'matching_ratio' => $payload['matching_ratio'] ?? 1,
+                    'matching_caliper' => $payload['matching_caliper'] ?? 0.2,
+                    'export_target' => $payload['export_target'] ?? '',
+                    'user_id' => $request->user()?->id,
+                ],
+            ),
+            'finngen_co2_analysis' => $workbench->co2Analysis(
+                $source,
+                (string) ($payload['module_key'] ?? 'comparative_effectiveness'),
+                (string) ($payload['cohort_label'] ?? ''),
+                (string) ($payload['outcome_name'] ?? ''),
+                [
+                    'cohort_context' => is_array($payload['cohort_context'] ?? null) ? $payload['cohort_context'] : [],
+                    'comparator_label' => $payload['comparator_label'] ?? '',
+                    'sensitivity_label' => $payload['sensitivity_label'] ?? '',
+                    'burden_domain' => $payload['burden_domain'] ?? '',
+                    'exposure_window' => $payload['exposure_window'] ?? '',
+                    'stratify_by' => $payload['stratify_by'] ?? '',
+                ],
+            ),
+            'finngen_hades_extras' => $workbench->hadesExtras(
+                $source,
+                (string) ($payload['sql_template'] ?? ''),
+                (string) ($payload['package_name'] ?? ''),
+                (string) ($payload['render_target'] ?? ''),
+                [
+                    'config_profile' => $payload['config_profile'] ?? '',
+                    'artifact_mode' => $payload['artifact_mode'] ?? '',
+                    'package_skeleton' => $payload['package_skeleton'] ?? '',
+                    'cohort_table' => $payload['cohort_table'] ?? '',
+                ],
+            ),
+            'finngen_romopapi' => $workbench->romopapi(
+                $source,
+                (string) ($payload['schema_scope'] ?? ''),
+                (string) ($payload['query_template'] ?? ''),
+                [
+                    'concept_domain' => $payload['concept_domain'] ?? '',
+                    'stratify_by' => $payload['stratify_by'] ?? '',
+                    'result_limit' => $payload['result_limit'] ?? null,
+                    'lineage_depth' => $payload['lineage_depth'] ?? null,
+                ],
+            ),
+            default => throw new \InvalidArgumentException('Unsupported FINNGEN run type.'),
+        };
+
+        $replayed = $runs->record($run->service_name, $source, $request->user(), $payload, $result);
+
+        return response()->json(['data' => ['run' => $runs->detailForModel($replayed)]]);
+    }
+
+    public function exportFinnGenRun(int $runId, FinnGenRunService $runs): JsonResponse
+    {
+        return response()->json(['data' => $runs->exportBundle($runId)]);
+    }
+
+    private function resolveSource(int $sourceId, Request $request): Source
+    {
+        $query = Source::query()->with('daimons');
+        if ($request->user() !== null) {
+            $query->visibleToUser($request->user());
+        }
+
+        return $query->findOrFail($sourceId);
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    private function fallbackFinnGenServices(): array
+    {
+        return [
+            [
+                'name' => 'finngen_romopapi',
+                'endpoint' => '/study-agent/finngen/romopapi',
+                'description' => 'OMOP hierarchy and code count exploration.',
+                'implemented' => true,
+                'ui_hints' => ['title' => 'ROMOPAPI', 'summary' => 'OMOP query exploration.', 'repository' => 'https://github.com/FinnGen/ROMOPAPI'],
+            ],
+            [
+                'name' => 'finngen_hades_extras',
+                'endpoint' => '/study-agent/finngen/hades-extras',
+                'description' => 'Shared OHDSI/HADES utility workflows.',
+                'implemented' => true,
+                'ui_hints' => ['title' => 'HADES Extras', 'summary' => 'SQL rendering and package workflows.', 'repository' => 'https://github.com/FinnGen/HadesExtras'],
+            ],
+            [
+                'name' => 'finngen_cohort_operations',
+                'endpoint' => '/study-agent/finngen/cohort-operations',
+                'description' => 'Cohort import, operations, matching, and export.',
+                'implemented' => true,
+                'ui_hints' => ['title' => 'Cohort Operations', 'summary' => 'Cohort workbench and matching.', 'repository' => 'https://github.com/FinnGen/CohortOperations2'],
+            ],
+            [
+                'name' => 'finngen_co2_analysis',
+                'endpoint' => '/study-agent/finngen/co2-analysis',
+                'description' => 'CO2 modular analysis workbench.',
+                'implemented' => true,
+                'ui_hints' => ['title' => 'CO2 Analysis Modules', 'summary' => 'CodeWAS, burden, demographics, utilization, and subgroup analysis.', 'repository' => 'https://github.com/FinnGen/CO2AnalysisModules'],
+            ],
+        ];
+    }
+
+    /**
+     * @param  list<array<string,mixed>>  $services
+     * @param  array<string,mixed>  $entry
+     * @return list<array<string,mixed>>
+     */
+    private function appendServiceEntry(array $services, array $entry): array
+    {
+        foreach ($services as $service) {
+            if (($service['name'] ?? null) === ($entry['name'] ?? null)) {
+                return $services;
+            }
+        }
+
+        $services[] = $entry;
+
+        return $services;
     }
 }

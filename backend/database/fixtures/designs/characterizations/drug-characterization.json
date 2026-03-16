@@ -1,7 +1,7 @@
 {
     "id": 3,
     "name": "Drug Characterization",
-    "description": "Amet perspiciatis molestiae est placeat unde. Rerum aut expedita et. Quos ullam eos facilis labore impedit aut. Voluptatum veritatis ea ut dolores.",
+    "description": "Sint quod aut vel dolore molestiae quia ut. Provident qui asperiores sequi aperiam qui. Sed quaerat rerum quaerat vitae voluptates. Est consequatur et cupiditate eveniet ab eligendi tempore.",
     "design_json": {
         "featureTypes": [
             "demographics",
@@ -10,8 +10,8 @@
         ],
         "targetCohortIds": []
     },
-    "author_id": 113,
-    "created_at": "2026-03-15T20:13:26.000000Z",
-    "updated_at": "2026-03-15T20:13:26.000000Z",
+    "author_id": 71,
+    "created_at": "2026-03-16T01:54:31.000000Z",
+    "updated_at": "2026-03-16T01:54:31.000000Z",
     "deleted_at": null
 }
