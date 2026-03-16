@@ -22,11 +22,12 @@ Rough parity at the time of writing (initial):
 
 Updated estimates (2026-03-16) after parity closure work:
 
-- `ROMOPAPI`: `93%` — real CDM code counts, stratified counts, dynamic reports, cache lifecycle
-- `HADES Extras`: `92%` — real cohort table lifecycle queries, YAML validation, connection validation
-- `CohortOperations2`: `88%` — real matching samples from CDM, CohortOverlapService integration
-- `CO2AnalysisModules`: `92%` — result validation wired, timeCodeWAS respects parameters, CDM-backed metrics
-- Cross-tool: `85%` — ROMOPAPI→HADES→CohortOps→CO2 handoff chain complete
+- `ROMOPAPI`: `96%` — real CDM code counts, stratified counts, dynamic reports, cache lifecycle, R package wiring
+- `HADES Extras`: `95%` — real cohort table lifecycle queries, YAML validation, connection validation, R package wiring
+- `CohortOperations2`: `94%` — real matching samples, CohortOverlapService integration, drag/drop reordering, file import
+- `CO2AnalysisModules`: `95%` — result validation wired, timeCodeWAS/GWAS parameters, CDM-backed metrics, R package wiring
+- Cross-tool: `96%` — ROMOPAPI→HADES→CohortOps→CO2 handoff chain complete, artifact downloads functional, run replay/export/compare consistent
+- Acceptance tests: 28-test matrix documented in `finngen-acceptance-test-matrix.md`
 
 What is already materially complete:
 
