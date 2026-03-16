@@ -72,3 +72,30 @@ async def startup_ingest_docs() -> None:
         _logger.warning("Startup doc ingestion unavailable: %s", exc)
     except Exception as e:
         _logger.warning("Startup doc ingestion failed (non-fatal): %s", e)
+
+
+@app.on_event("startup")
+async def startup_warm_embedders() -> None:
+    """Eagerly load SapBERT model so first Abby clinical query is fast.
+
+    SapBERT takes 2-5s to load from disk on first use; loading at startup
+    eliminates that cold-start penalty from the user's first chat.
+    The general embedder (MiniLM) loads quickly and is warmed via ChromaDB
+    collection access, so we only need to pre-warm SapBERT here.
+    """
+    import asyncio
+
+    if os.getenv("PYTEST_CURRENT_TEST"):
+        return
+
+    async def _warm() -> None:
+        loop = asyncio.get_event_loop()
+        try:
+            from app.services.sapbert import get_sapbert_service
+            svc = get_sapbert_service()
+            await loop.run_in_executor(None, svc.encode, ["warmup"])
+            _logger.info("SapBERT embedder warmed up")
+        except Exception as e:
+            _logger.warning("SapBERT warmup failed (non-fatal): %s", e)
+
+    asyncio.create_task(_warm())

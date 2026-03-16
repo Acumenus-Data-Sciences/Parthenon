@@ -146,7 +146,7 @@ services:
       - GIS_DATABASE_URL=postgresql://smudoshi:acumenus@host.docker.internal:5432/ohdsi
       - REDIS_URL=redis://redis:6379/2
       - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
-      - OLLAMA_MODEL=${OLLAMA_MODEL:-MedAIBase/MedGemma1.5:4b}
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-medgemma-q8}
       - HELP_DIR=/var/www/html/resources/help
       - DOCS_DIR=/app/docs
       - CHROMA_HOST=chromadb

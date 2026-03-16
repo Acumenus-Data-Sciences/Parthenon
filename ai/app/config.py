@@ -8,8 +8,8 @@ class Settings(BaseSettings):
 
     # Ollama configuration (for MedGemma and other LLMs)
     ollama_base_url: str = "http://host.docker.internal:11434"
-    ollama_model: str = "MedAIBase/MedGemma1.5:4b"
-    ollama_timeout: int = 240
+    ollama_model: str = "medgemma-q8"
+    ollama_timeout: int = 120
 
     # ChromaDB configuration
     chroma_host: str = "chromadb"

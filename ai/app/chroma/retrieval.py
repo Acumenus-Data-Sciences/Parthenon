@@ -1,9 +1,10 @@
 """RAG retrieval from ChromaDB collections.
 
 Queries relevant collections based on page context, assembles context
-for injection into Abby's system prompt.
+for injection into Abby's system prompt. Uses concurrent thread pool queries.
 """
 import logging
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from chromadb.api.types import QueryResult
 
@@ -14,6 +15,9 @@ from app.chroma.collections import (
 )
 
 logger = logging.getLogger(__name__)
+
+# Shared thread pool for parallel ChromaDB queries
+_query_pool = ThreadPoolExecutor(max_workers=5, thread_name_prefix="chroma-rag")
 
 CLINICAL_PAGES = {
     "cohort_builder", "vocabulary", "data_explorer", "data_quality",
@@ -158,42 +162,54 @@ def build_rag_context(
 ) -> str:
     """Build RAG context string for injection into Abby's system prompt.
 
-    Queries relevant collections and assembles a formatted context block.
-    Returns empty string if no relevant results found.
+    Queries relevant collections IN PARALLEL via thread pool and assembles
+    a formatted context block. Returns empty string if no relevant results found.
     """
+    is_clinical = page_context in CLINICAL_PAGES
+
+    # Submit all queries concurrently to thread pool
+    futures = {
+        "docs": _query_pool.submit(query_docs, query),
+        "faq": _query_pool.submit(query_faq, query),
+    }
+    if user_id is not None:
+        futures["conv"] = _query_pool.submit(query_user_conversations, query, user_id)
+    if is_clinical:
+        futures["clinical"] = _query_pool.submit(query_clinical, query)
+        futures["ohdsi"] = _query_pool.submit(query_ohdsi_papers, query)
+
+    # Collect all results (blocks until all done, but they run in parallel)
+    results: dict[str, list] = {}
+    for key, future in futures.items():
+        try:
+            results[key] = future.result(timeout=10)
+        except Exception as e:
+            logger.warning("RAG query '%s' failed: %s", key, e)
+            results[key] = []
+
+    # Assemble context from results
     sections: list[str] = []
 
-    doc_results = query_docs(query)
-    if doc_results:
-        doc_texts = "\n".join(f"- {r['text']}" for r in doc_results[:3])
+    if results.get("docs"):
+        doc_texts = "\n".join(f"- {r['text']}" for r in results["docs"][:3])
         sections.append(f"Documentation:\n{doc_texts}")
 
-    if user_id is not None:
-        conv_results = query_user_conversations(query, user_id)
-        if conv_results:
-            conv_texts = "\n".join(f"- {r['text']}" for r in conv_results[:3])
-            sections.append(f"Previous conversations:\n{conv_texts}")
+    if results.get("conv"):
+        conv_texts = "\n".join(f"- {r['text']}" for r in results["conv"][:3])
+        sections.append(f"Previous conversations:\n{conv_texts}")
 
-    faq_results = query_faq(query)
-    if faq_results:
-        faq_texts = "\n".join(f"- {r['text']}" for r in faq_results[:3])
+    if results.get("faq"):
+        faq_texts = "\n".join(f"- {r['text']}" for r in results["faq"][:3])
         sections.append(f"Common questions:\n{faq_texts}")
 
-    if page_context in CLINICAL_PAGES:
-        clinical_results = query_clinical(query)
-        if clinical_results:
-            clin_texts = "\n".join(f"- {r['text']}" for r in clinical_results[:3])
-            sections.append(f"Clinical reference:\n{clin_texts}")
+    if results.get("clinical"):
+        clin_texts = "\n".join(f"- {r['text']}" for r in results["clinical"][:3])
+        sections.append(f"Clinical reference:\n{clin_texts}")
 
-        ohdsi_results = query_ohdsi_papers(query)
-        if ohdsi_results:
-            paper_texts = []
-            for r in ohdsi_results[:3]:
-                title = r.get("source", "")
-                if isinstance(r.get("text"), str):
-                    paper_texts.append(f"- {r['text']}")
-            if paper_texts:
-                sections.append(f"OHDSI research literature:\n" + "\n".join(paper_texts))
+    if results.get("ohdsi"):
+        paper_texts = [f"- {r['text']}" for r in results["ohdsi"][:3] if isinstance(r.get("text"), str)]
+        if paper_texts:
+            sections.append(f"OHDSI research literature:\n" + "\n".join(paper_texts))
 
     if not sections:
         return ""

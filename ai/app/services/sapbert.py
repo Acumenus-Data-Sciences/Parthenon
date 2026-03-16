@@ -51,7 +51,10 @@ class SapBERTService:
         self._model = AutoModel.from_pretrained(
             settings.sapbert_model,
             cache_dir=settings.model_cache_dir,
-        ).to(self._device)
+            low_cpu_mem_usage=False,
+        )
+        if self._device != "cpu":
+            self._model = self._model.to(self._device)
         self._model.eval()  # type: ignore[union-attr, attr-defined]
 
         logger.info("SapBERT model loaded successfully")
