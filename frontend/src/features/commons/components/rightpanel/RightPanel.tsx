@@ -16,10 +16,12 @@ const TABS = [
   { key: "settings", label: "Settings", icon: Settings },
 ] as const;
 
+type TabKey = (typeof TABS)[number]["key"];
+
 interface RightPanelProps {
   slug: string;
-  activeTab: string;
-  onTabChange: (tab: string) => void;
+  activeTab: TabKey;
+  onTabChange: (tab: TabKey) => void;
   members: ChannelMember[];
   channel?: Channel;
   currentMember?: ChannelMember;
@@ -62,6 +64,7 @@ export function RightPanel({
               const Icon = tab.icon;
               return (
                 <button
+                  type="button"
                   key={tab.key}
                   onClick={() => onTabChange(tab.key)}
                   title={tab.label}
