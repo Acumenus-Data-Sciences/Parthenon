@@ -374,25 +374,41 @@ async def call_ollama(system_prompt: str, user_message: str,
 
     messages.append({"role": "user", "content": user_message})
 
-    try:
-        async with httpx.AsyncClient(timeout=settings.ollama_timeout) as client:
-            resp = await client.post(
-                f"{settings.ollama_base_url}/api/chat",
-                json={
-                    "model": settings.ollama_model,
-                    "messages": messages,
-                    "stream": False,
-                    "options": {"temperature": temperature},
-                },
-            )
-            resp.raise_for_status()
-            data = resp.json()
-            return data["message"]["content"]  # type: ignore[no-any-return]
-    except httpx.TimeoutException:
-        raise HTTPException(status_code=504, detail="LLM service timed out.")
-    except Exception as e:
-        logger.error("Ollama call failed: %s", e)
-        raise HTTPException(status_code=503, detail=f"LLM service unavailable: {e}")
+    # Retry with shorter per-attempt timeout — catches intermittent GPU stalls
+    # without making the user wait the full 120s.
+    attempt_timeout = 30
+    max_retries = 2
+
+    for attempt in range(max_retries + 1):
+        try:
+            async with httpx.AsyncClient(timeout=attempt_timeout) as client:
+                resp = await client.post(
+                    f"{settings.ollama_base_url}/api/chat",
+                    json={
+                        "model": settings.ollama_model,
+                        "messages": messages,
+                        "stream": False,
+                        "options": {"temperature": temperature},
+                    },
+                )
+                resp.raise_for_status()
+                data = resp.json()
+                return data["message"]["content"]  # type: ignore[no-any-return]
+        except httpx.TimeoutException:
+            if attempt < max_retries:
+                logger.warning("Ollama attempt %d/%d timed out, retrying...", attempt + 1, max_retries + 1)
+                continue
+            raise HTTPException(status_code=504, detail="LLM service timed out after retries.")
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code == 500 and attempt < max_retries:
+                logger.warning("Ollama returned 500 on attempt %d, retrying...", attempt + 1)
+                continue
+            raise HTTPException(status_code=503, detail=f"LLM service error: {e}")
+        except Exception as e:
+            logger.error("Ollama call failed: %s", e)
+            raise HTTPException(status_code=503, detail=f"LLM service unavailable: {e}")
+
+    raise HTTPException(status_code=503, detail="LLM service unavailable: all retries exhausted")
 
 
 # ── Endpoints ────────────────────────────────────────────────────────────────
