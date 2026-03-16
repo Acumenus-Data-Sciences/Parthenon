@@ -1148,9 +1148,11 @@ function OperationBuilderModal({
 
 export function CohortOpsTab({
   selectedSource,
+  cohortOpsContext,
   onHandoffToCo2,
 }: {
   selectedSource: FinnGenSource | null;
+  cohortOpsContext?: Record<string, unknown> | null;
   onHandoffToCo2: (
     context: Record<string, unknown>,
     cohortLabel: string,
@@ -1224,6 +1226,17 @@ export function CohortOpsTab({
   );
   const [selectedRunId, setSelectedRunId] = useState<number | null>(null);
   const [compareRunId, setCompareRunId] = useState<number | null>(null);
+
+  // Apply HADES handoff context
+  useEffect(() => {
+    if (!cohortOpsContext) return;
+    if (typeof cohortOpsContext.cohort_table === "string") {
+      setCohortTableName(cohortOpsContext.cohort_table);
+    }
+    if (typeof cohortOpsContext.package_name === "string") {
+      setExportTarget(`results.finngen_${String(cohortOpsContext.package_name).toLowerCase()}_preview`);
+    }
+  }, [cohortOpsContext]);
 
   // ── Queries ──────────────────────────────────────────────────────
   const cohortDefinitionsQuery = useCohortDefinitions({ limit: 50 });

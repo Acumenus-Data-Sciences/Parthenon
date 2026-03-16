@@ -435,8 +435,12 @@ function PlausibilityBadge({
 
 export function HadesExtrasTab({
   selectedSource,
+  hadesContext,
+  onHandoffToCohortOps,
 }: {
   selectedSource: FinnGenSource | null;
+  hadesContext?: Record<string, unknown> | null;
+  onHandoffToCohortOps?: (context: Record<string, unknown>) => void;
 }) {
   const queryClient = useQueryClient();
   const selectedSourceId = selectedSource?.id ?? null;
@@ -456,6 +460,18 @@ export function HadesExtrasTab({
 
   const [selectedRunId, setSelectedRunId] = useState<number | null>(null);
   const [compareRunId, setCompareRunId] = useState<number | null>(null);
+
+  // Apply ROMOPAPI handoff context
+  useEffect(() => {
+    if (!hadesContext) return;
+    if (hadesContext.schema_scope) {
+      setSqlTemplate((prev) =>
+        prev.includes("@cdm_schema")
+          ? prev
+          : `SELECT person_id, COUNT(*) AS cnt\nFROM ${String(hadesContext.schema_scope)}.condition_occurrence\nGROUP BY person_id\nLIMIT 100;`,
+      );
+    }
+  }, [hadesContext]);
 
   const hadesMutation = useMutation({
     mutationFn: () =>
@@ -654,6 +670,23 @@ export function HadesExtrasTab({
       <ResultSection title="Package Bundle" data={data?.package_bundle} loading={loading}>
         {data ? <PackageBundleView result={data} /> : null}
       </ResultSection>
+
+      {/* ── Cross-tool handoff ────────────────────────────────────────── */}
+      {data && onHandoffToCohortOps ? (
+        <button
+          type="button"
+          onClick={() =>
+            onHandoffToCohortOps({
+              cohort_table: hadesCohortTable,
+              package_name: packageName,
+              rendered_sql: data.sql_preview?.rendered,
+            })
+          }
+          className="flex w-full items-center justify-center gap-2 rounded-lg border border-[#2DD4BF]/30 bg-[#2DD4BF]/10 px-4 py-2.5 text-sm font-medium text-[#B9FFF1] transition-colors hover:bg-[#2DD4BF]/20"
+        >
+          Use in Cohort Ops →
+        </button>
+      ) : null}
 
       {/* ── Detailed Results ──────────────────────────────────────────── */}
       {data ? (

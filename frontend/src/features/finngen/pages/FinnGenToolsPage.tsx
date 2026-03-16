@@ -32,13 +32,15 @@ export default function FinnGenToolsPage() {
   const [activeService, setActiveService] =
     useState<ServiceName>("finngen_romopapi");
 
-  // ── CO2 handoff state (passed from CohortOps → CO2) ───────────
+  // ── Cross-tool handoff state ────────────────────────────────────
   const [co2CohortContext, setCo2CohortContext] = useState<Record<
     string,
     unknown
   > | null>(null);
   const [cohortLabel, setCohortLabel] = useState("Acumenus diabetes cohort");
   const [outcomeName, setOutcomeName] = useState("Heart failure");
+  const [hadesContext, setHadesContext] = useState<Record<string, unknown> | null>(null);
+  const [cohortOpsContext, setCohortOpsContext] = useState<Record<string, unknown> | null>(null);
 
   // ── Track completed workflow steps ─────────────────────────────
   const [completedSteps, setCompletedSteps] = useState<Set<ServiceName>>(
@@ -94,6 +96,32 @@ export default function FinnGenToolsPage() {
     sources[0] ??
     null;
   const warningCount = data?.warnings.length ?? 0;
+
+  const handleHandoffToHades = useCallback(
+    (context: Record<string, unknown>) => {
+      setHadesContext(context);
+      setCompletedSteps((prev) => {
+        const next = new Set(prev);
+        next.add("finngen_romopapi");
+        return next;
+      });
+      setActiveService("finngen_hades_extras");
+    },
+    [],
+  );
+
+  const handleHandoffToCohortOps = useCallback(
+    (context: Record<string, unknown>) => {
+      setCohortOpsContext(context);
+      setCompletedSteps((prev) => {
+        const next = new Set(prev);
+        next.add("finngen_hades_extras");
+        return next;
+      });
+      setActiveService("finngen_cohort_operations");
+    },
+    [],
+  );
 
   const handleHandoffToCo2 = useCallback(
     (
@@ -238,14 +266,22 @@ export default function FinnGenToolsPage() {
       {hasActiveServices ? (
         <>
           {activeService === "finngen_romopapi" ? (
-            <RomopapiTab selectedSource={selectedSource} />
+            <RomopapiTab
+              selectedSource={selectedSource}
+              onHandoffToHades={handleHandoffToHades}
+            />
           ) : null}
           {activeService === "finngen_hades_extras" ? (
-            <HadesExtrasTab selectedSource={selectedSource} />
+            <HadesExtrasTab
+              selectedSource={selectedSource}
+              hadesContext={hadesContext}
+              onHandoffToCohortOps={handleHandoffToCohortOps}
+            />
           ) : null}
           {activeService === "finngen_cohort_operations" ? (
             <CohortOpsTab
               selectedSource={selectedSource}
+              cohortOpsContext={cohortOpsContext}
               onHandoffToCo2={handleHandoffToCo2}
             />
           ) : null}

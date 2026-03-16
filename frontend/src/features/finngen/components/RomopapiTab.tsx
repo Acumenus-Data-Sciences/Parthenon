@@ -436,8 +436,10 @@ function RomopapiPlausibilityView({ result }: { result: FinnGenRomopapiResult })
 
 export function RomopapiTab({
   selectedSource,
+  onHandoffToHades,
 }: {
   selectedSource: FinnGenSource | null;
+  onHandoffToHades?: (context: Record<string, unknown>) => void;
 }) {
   const queryClient = useQueryClient();
   const selectedSourceId = selectedSource?.id ?? null;
@@ -727,6 +729,24 @@ export function RomopapiTab({
           <ResultSection title="Report Preview" data={data} loading={isPending}>
             <ReportPreviewView result={data as FinnGenRomopapiResult} />
           </ResultSection>
+
+          {/* ── Cross-tool handoff ────────────────────────────────────── */}
+          {data && onHandoffToHades ? (
+            <button
+              type="button"
+              onClick={() =>
+                onHandoffToHades({
+                  schema_scope: schemaScope,
+                  query_template: queryTemplate,
+                  concept_domain: conceptDomain,
+                  source_key: selectedSource?.source_key,
+                })
+              }
+              className="flex w-full items-center justify-center gap-2 rounded-lg border border-[#2DD4BF]/30 bg-[#2DD4BF]/10 px-4 py-2.5 text-sm font-medium text-[#B9FFF1] transition-colors hover:bg-[#2DD4BF]/20"
+            >
+              Use in HADES Extras →
+            </button>
+          ) : null}
 
           {/* ── Detailed Results ─────────────────────────────────────── */}
           <CollapsibleSection title="Detailed Results">
