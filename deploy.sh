@@ -178,13 +178,14 @@ if $DO_DB; then
     ERRORS=$((ERRORS + 1))
   fi
 
-  echo "── DB: running seeders (idempotent) ──"
-  if docker compose exec php php artisan db:seed --force; then
-    ok "Seeders completed"
-  else
-    fail "Seeders failed"
-    ERRORS=$((ERRORS + 1))
-  fi
+  # SEEDERS INTENTIONALLY REMOVED FROM DEPLOY — 2026-03-15
+  # db:seed wiped 16 real production users TWICE because deploy.sh
+  # ran on every push. Seeders must NEVER run automatically in deploy.
+  # To seed infrastructure (roles, providers) on a fresh install only:
+  #   php artisan db:seed --class=RolePermissionSeeder
+  #   php artisan db:seed --class=AiProviderSeeder
+  #   php artisan db:seed --class=AuthProviderSeeder
+  #   php artisan admin:seed
 fi
 
 # ── Frontend production build ─────────────────────────────────────────────────
