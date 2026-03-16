@@ -14,8 +14,8 @@ Artisan::command('inspire', function () {
 |--------------------------------------------------------------------------
 */
 
-// Sync @OHDSI X/Twitter posts to #announcements every 15 minutes.
-// Requires X_BEARER_TOKEN in .env. Exits silently when token is absent.
+// Sync OHDSI Discourse RSS to the Commons Announcement Board every 15 minutes.
+// Public feed — no API key required. Announcements expire after 30 days.
 Schedule::command('commons:sync-ohdsi-announcements')
     ->everyFifteenMinutes()
     ->withoutOverlapping()

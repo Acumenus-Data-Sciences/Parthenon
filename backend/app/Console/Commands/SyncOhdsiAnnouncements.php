@@ -2,9 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Events\Commons\MessageSent;
-use App\Models\Commons\Channel;
-use App\Models\Commons\Message;
+use App\Models\Commons\Announcement;
 use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
@@ -13,23 +11,25 @@ use Illuminate\Support\Facades\Log;
 use League\CommonMark\GithubFlavoredMarkdownConverter;
 
 /**
- * Polls the OHDSI Discourse RSS feed for new topics and publishes them
- * as messages in the #announcements Commons channel.
+ * Polls the OHDSI Discourse RSS feed and creates Announcement records
+ * so new topics appear in the Commons Announcement Board automatically.
  *
  * No API key required — forums.ohdsi.org is public Discourse.
  *
  * Schedule: every 15 minutes (registered in routes/console.php)
  *
  * On first run (cold start) only items from the last 24 hours are posted
- * to avoid flooding the channel with historical topics.
+ * to avoid flooding the board with historical topics.
+ *
+ * Announcements expire after 30 days and are auto-excluded by the index query.
  */
 class SyncOhdsiAnnouncements extends Command
 {
     protected $signature = 'commons:sync-ohdsi-announcements
-                            {--dry-run   : Print topics that would be posted without creating messages}
+                            {--dry-run   : Print topics that would be posted without creating announcements}
                             {--backfill= : Post topics from the last N hours (overrides the 24h cold-start limit)}';
 
-    protected $description = 'Sync new OHDSI Discourse forum topics to the #announcements channel';
+    protected $description = 'Sync new OHDSI Discourse forum topics to the Commons Announcement Board';
 
     private const RSS_URL = 'https://forums.ohdsi.org/latest.rss';
 
@@ -39,16 +39,11 @@ class SyncOhdsiAnnouncements extends Command
     /** Cache key: flag set after first successful run */
     private const CACHE_KEY_INITIALIZED = 'ohdsi_rss_initialized';
 
+    /** How many days before an RSS-sourced announcement auto-expires */
+    private const EXPIRE_DAYS = 30;
+
     public function handle(): int
     {
-        $channel = Channel::where('slug', 'announcements')->first();
-
-        if (! $channel) {
-            $this->error('#announcements channel not found. Run CommonsChannelSeeder first.');
-
-            return self::FAILURE;
-        }
-
         $poster = User::where('email', 'admin@acumenus.net')->first();
 
         if (! $poster) {
@@ -79,7 +74,7 @@ class SyncOhdsiAnnouncements extends Command
         $posted = 0;
 
         foreach ($items as $item) {
-            $guid = (string) ($item->guid ?? $item->link ?? '');
+            $guid    = (string) ($item->guid ?? $item->link ?? '');
             $pubDate = isset($item->pubDate) ? \Carbon\Carbon::parse((string) $item->pubDate) : now();
 
             if (in_array($guid, $seenGuids, true)) {
@@ -87,18 +82,19 @@ class SyncOhdsiAnnouncements extends Command
             }
 
             if ($cutoff && $pubDate->lt($cutoff)) {
-                $this->line("Skipping old item ({$pubDate->toDateString()}): ".$this->truncate((string) $item->title, 60));
+                $this->line('Skipping old item ('.$pubDate->toDateString().'): '.$this->truncate((string) $item->title, 60));
                 $seenGuids[] = $guid;
 
                 continue;
             }
 
-            $body = $this->formatItemAsMarkdown($item, $pubDate);
+            $title = $this->parseTitle($item);
+            $body  = $this->formatBody($item, $pubDate);
 
             if ($this->option('dry-run')) {
-                $this->line("---\n{$body}\n");
+                $this->line("---\n**{$title}**\n{$body}\n");
             } else {
-                $this->postToChannel($channel, $poster, $body);
+                $this->createAnnouncement($poster, $title, $body, $pubDate);
                 $posted++;
             }
 
@@ -113,7 +109,9 @@ class SyncOhdsiAnnouncements extends Command
         if (! $this->option('dry-run')) {
             Cache::forever(self::CACHE_KEY_SEEN, $seenGuids);
             Cache::forever(self::CACHE_KEY_INITIALIZED, true);
-            $this->info($posted > 0 ? "Posted {$posted} new OHDSI topic(s) to #announcements." : 'No new topics since last run.');
+            $this->info($posted > 0
+                ? "Published {$posted} new OHDSI topic(s) to the Announcement Board."
+                : 'No new topics since last run.');
         }
 
         return self::SUCCESS;
@@ -145,45 +143,51 @@ class SyncOhdsiAnnouncements extends Command
         return iterator_to_array($xml->channel->item, false);
     }
 
-    private function formatItemAsMarkdown(\SimpleXMLElement $item, \Carbon\Carbon $pubDate): string
+    private function parseTitle(\SimpleXMLElement $item): string
     {
-        $title = html_entity_decode(strip_tags((string) $item->title), ENT_QUOTES | ENT_HTML5);
-        $link = (string) $item->link;
-        $author = (string) ($item->children('dc', true)->creator ?? '');
-        $category = (string) ($item->category ?? 'General');
+        return $this->truncate(
+            html_entity_decode(strip_tags((string) $item->title), ENT_QUOTES | ENT_HTML5),
+            250
+        );
+    }
+
+    private function formatBody(\SimpleXMLElement $item, \Carbon\Carbon $pubDate): string
+    {
+        $link     = (string) $item->link;
+        $author   = (string) ($item->children('dc', true)->creator ?? '');
+        $category = (string) ($item->category ?? '');
 
         // Strip HTML from the description, collapse whitespace, truncate
         $descRaw = html_entity_decode(strip_tags((string) $item->description), ENT_QUOTES | ENT_HTML5);
-        $excerpt = $this->truncate(trim(preg_replace('/\s+/', ' ', $descRaw) ?? ''), 280);
+        $excerpt = $this->truncate(trim(preg_replace('/\s+/', ' ', $descRaw) ?? ''), 400);
 
-        $byLine = $author ? " · by **{$author}**" : '';
+        $meta = array_filter([
+            $category ?: null,
+            $author ? "by {$author}" : null,
+            $pubDate->format('M j, Y'),
+        ]);
 
         return implode("\n\n", array_filter([
-            "📣 **[{$title}]({$link})**",
-            "`{$category}`{$byLine} · {$pubDate->format('M j, Y')}",
+            implode(' · ', $meta),
             $excerpt ?: null,
             "[Read on OHDSI Forums →]({$link})",
         ]));
     }
 
-    private function postToChannel(Channel $channel, User $poster, string $body): void
+    private function createAnnouncement(User $poster, string $title, string $body, \Carbon\Carbon $pubDate): void
     {
         $bodyHtml = (new GithubFlavoredMarkdownConverter)->convert($body)->getContent();
 
-        $message = Message::create([
-            'channel_id' => $channel->id,
-            'user_id' => $poster->id,
-            'body' => $body,
-            'body_html' => $bodyHtml,
-            'depth' => 0,
-            'is_edited' => false,
+        Announcement::create([
+            'user_id'    => $poster->id,
+            'channel_id' => null,          // global — visible on all channels' boards
+            'title'      => $title,
+            'body'       => $body,
+            'body_html'  => $bodyHtml,
+            'category'   => 'general',
+            'is_pinned'  => false,
+            'expires_at' => $pubDate->copy()->addDays(self::EXPIRE_DAYS),
         ]);
-
-        try {
-            broadcast(new MessageSent($message))->toOthers();
-        } catch (\Throwable $e) {
-            Log::warning('OHDSI sync: broadcast failed (non-fatal)', ['error' => $e->getMessage()]);
-        }
     }
 
     private function truncate(string $text, int $limit): string
