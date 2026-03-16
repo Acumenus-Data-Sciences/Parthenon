@@ -3,6 +3,22 @@ import { getEcho } from "@/lib/echo";
 import type { PresenceUser } from "../types";
 
 /**
+ * Join the presence channel without tracking state.
+ * Mount this in MainLayout so every authenticated user registers as online
+ * regardless of which page they are viewing.
+ */
+export function useGlobalPresence(): void {
+  useEffect(() => {
+    const echo = getEcho();
+    if (!echo) return;
+    echo.join("commons.online");
+    return () => {
+      echo.leave("commons.online");
+    };
+  }, []);
+}
+
+/**
  * Subscribe to the global Commons presence channel.
  * Returns the list of currently online users, updating in real time as
  * users join or leave.
