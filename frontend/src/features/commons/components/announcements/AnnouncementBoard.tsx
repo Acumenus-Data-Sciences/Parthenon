@@ -11,6 +11,11 @@ import type { Announcement } from "../../types";
 import { useAuthStore } from "@/stores/authStore";
 import { Modal } from "@/components/ui/Modal";
 
+/** Ensure all links in server-rendered HTML open in a new tab. */
+function externalLinks(html: string): string {
+  return html.replace(/<a /g, '<a target="_blank" rel="noopener noreferrer" ');
+}
+
 // ---------------------------------------------------------------------------
 // Category config — maps to design-system badge variants
 // ---------------------------------------------------------------------------
@@ -110,7 +115,7 @@ function AnnouncementCard({
         <div
           className="body-html"
           style={{ marginTop: "var(--space-1)", fontSize: "var(--text-xs)", color: "var(--text-muted)", lineHeight: 1.6 }}
-          dangerouslySetInnerHTML={{ __html: announcement.body_html }}
+          dangerouslySetInnerHTML={{ __html: externalLinks(announcement.body_html) }}
         />
       ) : (
         <p style={{
