@@ -43,7 +43,9 @@ class SyncOhdsiAnnouncements extends Command
 
     public function handle(): int
     {
-        $token = config('services.twitter.bearer_token');
+        $raw = config('services.twitter.bearer_token');
+        // URL-decode in case the token was pasted from a browser URL bar
+        $token = $raw ? urldecode($raw) : null;
 
         if (empty($token)) {
             $this->warn('X_BEARER_TOKEN not set — skipping OHDSI announcement sync.');
