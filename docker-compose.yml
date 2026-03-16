@@ -681,20 +681,29 @@ services:
       - parthenon
     restart: unless-stopped
 
-  promtail:
-    container_name: parthenon-promtail
-    image: grafana/promtail:3.0.0
-    command: -config.file=/etc/promtail/promtail-config.yml
+  alloy:
+    container_name: parthenon-alloy
+    image: grafana/alloy:v1.8.0
+    command:
+      - run
+      - /etc/alloy/config.alloy
+      - --server.http.listen-addr=0.0.0.0:12345
+      - --storage.path=/var/lib/alloy/data
     volumes:
-      - ./monitoring/promtail/promtail-config.yml:/etc/promtail/promtail-config.yml:ro
+      - ./monitoring/alloy/config.alloy:/etc/alloy/config.alloy:ro
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/log/apache2:/var/log/apache2:ro
+      - /var/log/postgresql:/var/log/postgresql:ro
+      - alloy_data:/var/lib/alloy/data
+    ports:
+      - "12345:12345"
     healthcheck:
-      test: ["CMD", "/bin/bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/9080 && printf 'GET /ready HTTP/1.0\\r\\nHost: localhost\\r\\n\\r\\n' >&3 && timeout 5 cat <&3 | grep -q 'Ready'"]
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:12345/ready || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 30s
     networks:
       - parthenon
     depends_on:
@@ -716,6 +725,7 @@ volumes:
   grafana_data:
   prometheus_data:
   loki_data:
+  alloy_data:
 
 networks:
   parthenon:
