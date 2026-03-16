@@ -32,11 +32,11 @@ We instrumented every step of Abby's response path to build a latency map:
 
 | Step | Component | Latency | % of Total |
 |------|-----------|---------|-----------|
-| Frontend → Nginx → PHP → Python | Network hops | <50ms | <1% |
+| Frontend → Nginx → PHP → Python | Network hops | &lt;50ms | &lt;1% |
 | ChromaDB RAG retrieval | 5 sequential queries | 300-500ms | 3-5% |
 | SapBERT cold start | Model loading | 2,000-5,000ms | First call only |
 | **Ollama LLM inference** | **MedGemma F16 on Vulkan** | **5,000-25,000ms** | **80-90%** |
-| Response parsing + storage | Post-processing | <100ms | <1% |
+| Response parsing + storage | Post-processing | &lt;100ms | &lt;1% |
 
 The bottleneck was clear: Ollama inference dominated everything. But fixing it required understanding *why* it was slow.
 
@@ -194,7 +194,7 @@ None of these people exist in the OHDSI community. The investigation found **eig
 4. **Fixed-order results**: Documents assembled in section order (docs → FAQ → clinical → OHDSI) regardless of relevance scores
 5. **No cross-collection ranking**: A 0.95-score OHDSI paper could be ranked below a 0.6-score doc chunk
 6. **No source attribution**: The model couldn't distinguish between sources or cite them
-7. **Thinking token leak**: MedGemma's `<unused94>thought...` chain-of-thought tokens were being shown to users
+7. **Thinking token leak**: MedGemma's `\<unused94\>thought...` chain-of-thought tokens were being shown to users
 8. **Loose threshold**: Cosine distance threshold of 0.3 was accepting low-relevance results
 
 ### The Fix: Grounding Rules + Cross-Collection Ranking
@@ -228,7 +228,7 @@ Metformin seems to affect multiple key processes related to cell growth...
 
 **Additional fixes**:
 - Temperature lowered from 0.3 to 0.15 (less "creative" hallucination)
-- Thinking tokens stripped via regex: `<unused94>.*?<unused95>`
+- Thinking tokens stripped via regex: `\<unused94\>.*?\<unused95\>`
 - Distance threshold corrected from 0.3 to 0.5
 - TOP_K increased from 3 to 5 per collection for better candidate pool
 - Chunk truncation at 600 chars to keep context window reasonable
@@ -304,7 +304,7 @@ Combined with a retry mechanism in the Python AI service (3 attempts at 30s each
 6. **System prompt**: Grounding rules prevent hallucination, KB-empty signal for transparency
 7. **Cross-collection ranking**: Results sorted by relevance, not source order
 8. **Source attribution**: Every KB result tagged with origin and relevance score
-9. **Thinking tokens**: MedGemma `<unused94>thought...` stripped from output
+9. **Thinking tokens**: MedGemma `\<unused94\>thought...` stripped from output
 10. **Temperature**: 0.3 → 0.15 for more factual responses
 11. **Retry logic**: 3 attempts at 30s catches intermittent GPU stalls
 12. **Flash attention**: Enabled for faster inference and lower VRAM usage
