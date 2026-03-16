@@ -482,6 +482,7 @@ def _build_chat_system_prompt(request: ChatRequest) -> str:
         system_prompt += help_context
 
     # Inject RAG context from ChromaDB
+    rag_context = ""
     try:
         rag_context = build_rag_context(
             query=request.message,
@@ -512,20 +513,51 @@ def _build_chat_system_prompt(request: ChatRequest) -> str:
         if context_lines:
             system_prompt += "\n\nCURRENT PAGE CONTEXT:\n" + "\n".join(context_lines)
 
+    # RAG grounding rules — prevent hallucination
+    if rag_context:
+        system_prompt += (
+            "\n\nGROUNDING RULES:"
+            "\n- Base your answer PRIMARILY on the KNOWLEDGE BASE content provided above."
+            "\n- When citing specific studies, papers, researchers, or statistics, use ONLY information from the KNOWLEDGE BASE. Do NOT invent paper titles, author names, or study details."
+            "\n- If the KNOWLEDGE BASE does not contain enough information to fully answer the question, say so explicitly: 'Based on available sources, I can tell you...' and then share what IS available."
+            "\n- You MAY use your general medical training knowledge for explanations, definitions, and context — but NEVER fabricate specific claims (names, dates, statistics, paper titles)."
+        )
+    else:
+        system_prompt += (
+            "\n\nNOTE: No relevant documents were found in the knowledge base for this query. "
+            "Answer using your general knowledge but be transparent about limitations. "
+            "Do NOT fabricate specific paper titles, researcher names, or study details."
+        )
+
     system_prompt += (
-        "\n\nIMPORTANT: Keep replies concise (under 300 words). "
-        "Use markdown formatting for headers, lists, and code blocks. "
-        "End your reply with 1–3 brief follow-up suggestions the user might want "
+        "\n\nRESPONSE FORMAT:"
+        "\n- Keep replies concise (under 300 words)."
+        "\n- Use markdown formatting for headers, lists, and code blocks."
+        "\n- End your reply with 1–3 brief follow-up suggestions the user might want "
         'to ask, formatted as a JSON array on the last line: SUGGESTIONS: ["...", "..."]'
     )
 
     return system_prompt
 
 
+def _strip_thinking_tokens(text: str) -> str:
+    """Strip MedGemma's internal thinking/reasoning tokens from output.
+
+    MedGemma uses <unused94>thought...content<unused95> for chain-of-thought.
+    These tokens should never reach the user.
+    """
+    import re
+    # Remove <unused94>thought....<unused95> blocks (thinking tokens)
+    text = re.sub(r"<unused94>.*?<unused95>", "", text, flags=re.DOTALL)
+    # Remove orphaned thinking markers
+    text = re.sub(r"<unused\d+>", "", text)
+    return text.strip()
+
+
 def _extract_suggestions(raw: str) -> tuple[str, list[str]]:
-    """Extract suggestion chips from the LLM reply."""
+    """Extract suggestion chips from the LLM reply and clean output."""
     suggestions: list[str] = []
-    reply = raw.strip()
+    reply = _strip_thinking_tokens(raw.strip())
 
     if "SUGGESTIONS:" in reply:
         parts = reply.rsplit("SUGGESTIONS:", 1)
@@ -552,7 +584,7 @@ async def chat(request: ChatRequest) -> ChatResponse:
         system_prompt=system_prompt,
         user_message=request.message,
         history=request.history,
-        temperature=0.3,
+        temperature=0.15,
     )
 
     reply, suggestions = _extract_suggestions(raw)
