@@ -13,45 +13,34 @@ use Illuminate\Support\Facades\Log;
 use League\CommonMark\GithubFlavoredMarkdownConverter;
 
 /**
- * Polls the X (Twitter) API for new @OHDSI posts and publishes them
+ * Polls the OHDSI Discourse RSS feed for new topics and publishes them
  * as messages in the #announcements Commons channel.
  *
- * Requires X_BEARER_TOKEN in .env. If the token is absent the command
- * exits silently so the scheduler never fails in environments without
- * the credential configured.
+ * No API key required — forums.ohdsi.org is public Discourse.
  *
  * Schedule: every 15 minutes (registered in routes/console.php)
+ *
+ * On first run (cold start) only items from the last 24 hours are posted
+ * to avoid flooding the channel with historical topics.
  */
 class SyncOhdsiAnnouncements extends Command
 {
     protected $signature = 'commons:sync-ohdsi-announcements
-                            {--dry-run : Print tweets that would be posted without creating messages}
-                            {--since= : Override the since_id (useful for backfill)}';
+                            {--dry-run   : Print topics that would be posted without creating messages}
+                            {--backfill= : Post topics from the last N hours (overrides the 24h cold-start limit)}';
 
-    protected $description = 'Sync recent @OHDSI X/Twitter posts to the #announcements channel';
+    protected $description = 'Sync new OHDSI Discourse forum topics to the #announcements channel';
 
-    private const OHDSI_USERNAME = 'OHDSI';
+    private const RSS_URL = 'https://forums.ohdsi.org/latest.rss';
 
-    private const CACHE_KEY_USER_ID = 'ohdsi_twitter_user_id';
+    /** Cache key: array of already-posted topic GUIDs (bounded to last 500) */
+    private const CACHE_KEY_SEEN = 'ohdsi_rss_seen_guids';
 
-    private const CACHE_KEY_LAST_TWEET_ID = 'ohdsi_twitter_last_tweet_id';
-
-    /** Redis set key that tracks individual posted tweet IDs for idempotency */
-    private const CACHE_KEY_POSTED_IDS = 'ohdsi_twitter_posted_ids';
-
-    private const X_API_BASE = 'https://api.twitter.com/2';
+    /** Cache key: flag set after first successful run */
+    private const CACHE_KEY_INITIALIZED = 'ohdsi_rss_initialized';
 
     public function handle(): int
     {
-        $raw = config('services.twitter.bearer_token');
-        // URL-decode in case the token was pasted from a browser URL bar
-        $token = $raw ? urldecode($raw) : null;
-
-        if (empty($token)) {
-            $this->warn('X_BEARER_TOKEN not set — skipping OHDSI announcement sync.');
-            return self::SUCCESS;
-        }
-
         $channel = Channel::where('slug', 'announcements')->first();
 
         if (! $channel) {
@@ -66,153 +55,137 @@ class SyncOhdsiAnnouncements extends Command
             return self::FAILURE;
         }
 
-        $userId = $this->resolveOhdsiUserId($token);
+        $items = $this->fetchRssItems();
 
-        if (! $userId) {
+        if ($items === null) {
             return self::FAILURE;
         }
 
-        $sinceId = $this->option('since') ?: Cache::get(self::CACHE_KEY_LAST_TWEET_ID);
-
-        $tweets = $this->fetchTweets($token, $userId, $sinceId);
-
-        if (empty($tweets)) {
-            $this->info('No new @OHDSI tweets found.');
+        if (empty($items)) {
+            $this->info('RSS feed returned no items.');
             return self::SUCCESS;
         }
 
-        // Tweets are returned newest-first; reverse so we post oldest first
-        $tweets = array_reverse($tweets);
+        $seenGuids = Cache::get(self::CACHE_KEY_SEEN, []);
+        $isFirstRun = ! Cache::has(self::CACHE_KEY_INITIALIZED);
 
-        foreach ($tweets as $tweet) {
-            $body = $this->formatTweetAsMarkdown($tweet);
+        // On first run cap to items from the last 24 h (or --backfill=N hours)
+        $backfillHours = $this->option('backfill') ? (int) $this->option('backfill') : ($isFirstRun ? 24 : null);
+        $cutoff = $backfillHours ? now()->subHours($backfillHours) : null;
 
-            if ($this->option('dry-run')) {
-                $this->line("---\n{$body}\n");
+        $posted = 0;
+
+        foreach ($items as $item) {
+            $guid = (string) ($item->guid ?? $item->link ?? '');
+            $pubDate = isset($item->pubDate) ? \Carbon\Carbon::parse((string) $item->pubDate) : now();
+
+            if (in_array($guid, $seenGuids, true)) {
                 continue;
             }
 
-            $this->postToChannel($channel, $poster, $tweet, $body);
+            if ($cutoff && $pubDate->lt($cutoff)) {
+                $this->line("Skipping old item ({$pubDate->toDateString()}): " . $this->truncate((string) $item->title, 60));
+                $seenGuids[] = $guid;
+                continue;
+            }
+
+            $body = $this->formatItemAsMarkdown($item, $pubDate);
+
+            if ($this->option('dry-run')) {
+                $this->line("---\n{$body}\n");
+            } else {
+                $this->postToChannel($channel, $poster, $body);
+                $posted++;
+            }
+
+            $seenGuids[] = $guid;
         }
 
-        // Persist the newest tweet ID (last element after reversal)
+        // Keep the seen list bounded
+        if (count($seenGuids) > 500) {
+            $seenGuids = array_slice($seenGuids, -500);
+        }
+
         if (! $this->option('dry-run')) {
-            $newest = end($tweets);
-            Cache::forever(self::CACHE_KEY_LAST_TWEET_ID, $newest['id']);
-            $this->info(sprintf('Synced %d tweet(s). Last tweet ID: %s', count($tweets), $newest['id']));
+            Cache::forever(self::CACHE_KEY_SEEN, $seenGuids);
+            Cache::forever(self::CACHE_KEY_INITIALIZED, true);
+            $this->info($posted > 0 ? "Posted {$posted} new OHDSI topic(s) to #announcements." : 'No new topics since last run.');
         }
 
         return self::SUCCESS;
     }
 
-    private function resolveOhdsiUserId(string $token): ?string
+    /** @return array<int, \SimpleXMLElement>|null */
+    private function fetchRssItems(): ?array
     {
-        // Cache the user ID indefinitely — @OHDSI's numeric ID never changes
-        return Cache::rememberForever(self::CACHE_KEY_USER_ID, function () use ($token) {
-            $response = Http::withToken($token)
-                ->timeout(10)
-                ->get(self::X_API_BASE . '/users/by/username/' . self::OHDSI_USERNAME, [
-                    'user.fields' => 'id,name',
-                ]);
-
-            if (! $response->successful()) {
-                Log::error('X API: failed to resolve @OHDSI user ID', [
-                    'status' => $response->status(),
-                    'body' => $response->body(),
-                ]);
-                $this->error('X API error resolving @OHDSI user ID: ' . $response->status());
-                return null;
-            }
-
-            return $response->json('data.id');
-        });
-    }
-
-    /** @return array<int, array{id: string, text: string, created_at: string}> */
-    private function fetchTweets(string $token, string $userId, ?string $sinceId): array
-    {
-        $params = [
-            'max_results' => 10,
-            'tweet.fields' => 'created_at,text',
-            'exclude' => 'retweets,replies', // only original OHDSI posts
-        ];
-
-        if ($sinceId) {
-            $params['since_id'] = $sinceId;
-        }
-
-        $response = Http::withToken($token)
-            ->timeout(15)
-            ->get(self::X_API_BASE . "/users/{$userId}/tweets", $params);
-
-        if ($response->status() === 429) {
-            $this->warn('X API rate limit reached — will retry next run.');
-            Log::warning('X API rate limit reached during OHDSI sync.');
-            return [];
-        }
+        $response = Http::timeout(15)
+            ->withHeaders(['Accept' => 'application/rss+xml, application/xml'])
+            ->get(self::RSS_URL);
 
         if (! $response->successful()) {
-            Log::error('X API: failed to fetch @OHDSI tweets', [
-                'status' => $response->status(),
-                'body' => $response->body(),
-            ]);
-            $this->error('X API error fetching tweets: ' . $response->status());
-            return [];
+            Log::error('OHDSI RSS fetch failed', ['status' => $response->status()]);
+            $this->error('Failed to fetch OHDSI RSS feed: HTTP ' . $response->status());
+            return null;
         }
 
-        return $response->json('data') ?? [];
-    }
+        $xml = @simplexml_load_string($response->body());
 
-    /** @param array{id: string, text: string, created_at: string} $tweet */
-    private function formatTweetAsMarkdown(array $tweet): string
-    {
-        $tweetUrl = 'https://x.com/' . self::OHDSI_USERNAME . '/status/' . $tweet['id'];
-        $text = $tweet['text'];
-
-        $date = isset($tweet['created_at'])
-            ? date('M j, Y', strtotime($tweet['created_at']))
-            : date('M j, Y');
-
-        return "📣 **OHDSI Update** _{$date}_\n\n{$text}\n\n[View on X →]({$tweetUrl})";
-    }
-
-    /** @param array{id: string, text: string, created_at: string} $tweet */
-    private function postToChannel(Channel $channel, User $poster, array $tweet, string $body): void
-    {
-        // Idempotency: skip if this tweet ID has already been posted
-        $postedIds = Cache::get(self::CACHE_KEY_POSTED_IDS, []);
-
-        if (in_array($tweet['id'], $postedIds, true)) {
-            $this->line("Skipping already-posted tweet {$tweet['id']}.");
-            return;
+        if ($xml === false) {
+            Log::error('OHDSI RSS parse failed', ['body_preview' => substr($response->body(), 0, 200)]);
+            $this->error('Failed to parse OHDSI RSS feed.');
+            return null;
         }
 
+        return iterator_to_array($xml->channel->item, false);
+    }
+
+    private function formatItemAsMarkdown(\SimpleXMLElement $item, \Carbon\Carbon $pubDate): string
+    {
+        $title    = html_entity_decode(strip_tags((string) $item->title), ENT_QUOTES | ENT_HTML5);
+        $link     = (string) $item->link;
+        $author   = (string) ($item->children('dc', true)->creator ?? '');
+        $category = (string) ($item->category ?? 'General');
+
+        // Strip HTML from the description, collapse whitespace, truncate
+        $descRaw = html_entity_decode(strip_tags((string) $item->description), ENT_QUOTES | ENT_HTML5);
+        $excerpt = $this->truncate(trim(preg_replace('/\s+/', ' ', $descRaw) ?? ''), 280);
+
+        $byLine = $author ? " · by **{$author}**" : '';
+
+        return implode("\n\n", array_filter([
+            "📣 **[{$title}]({$link})**",
+            "`{$category}`{$byLine} · {$pubDate->format('M j, Y')}",
+            $excerpt ?: null,
+            "[Read on OHDSI Forums →]({$link})",
+        ]));
+    }
+
+    private function postToChannel(Channel $channel, User $poster, string $body): void
+    {
         $bodyHtml = (new GithubFlavoredMarkdownConverter)->convert($body)->getContent();
 
         $message = Message::create([
             'channel_id' => $channel->id,
-            'user_id' => $poster->id,
-            'body' => $body,
-            'body_html' => $bodyHtml,
-            'depth' => 0,
-            'is_edited' => false,
+            'user_id'    => $poster->id,
+            'body'       => $body,
+            'body_html'  => $bodyHtml,
+            'depth'      => 0,
+            'is_edited'  => false,
         ]);
 
-        // Record tweet ID so future runs skip it
-        $postedIds[] = $tweet['id'];
-        // Keep the list bounded to the last 1000 tweet IDs
-        if (count($postedIds) > 1000) {
-            $postedIds = array_slice($postedIds, -1000);
-        }
-        Cache::forever(self::CACHE_KEY_POSTED_IDS, $postedIds);
-
-        // Broadcast to any open Commons WebSocket connections
         try {
             broadcast(new MessageSent($message))->toOthers();
         } catch (\Throwable $e) {
             Log::warning('OHDSI sync: broadcast failed (non-fatal)', ['error' => $e->getMessage()]);
         }
+    }
 
-        $this->line("Posted tweet {$tweet['id']} as message #{$message->id}.");
+    private function truncate(string $text, int $limit): string
+    {
+        if (mb_strlen($text) <= $limit) {
+            return $text;
+        }
+
+        return rtrim(mb_substr($text, 0, $limit)) . '…';
     }
 }

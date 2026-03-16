@@ -75,9 +75,4 @@ return [
         'url' => env('GRAFANA_URL', 'http://grafana:3000'),
     ],
 
-    // X (Twitter) API v2 — used by commons:sync-ohdsi-announcements
-    'twitter' => [
-        'bearer_token' => env('X_BEARER_TOKEN'),
-    ],
-
 ];
