@@ -18,6 +18,22 @@ use Illuminate\Support\Facades\Log;
 
 class DesignFixtureExporter
 {
+    /**
+     * Common Latin words produced by PHP Faker's Lorem provider.
+     * If a name+description contains ≥3 of these, the record is faker junk.
+     */
+    private const FAKER_LATIN_WORDS = [
+        'voluptas', 'voluptatem', 'dolorem', 'doloremque', 'quibusdam',
+        'molestiae', 'perspiciatis', 'occaecati', 'laborum', 'rerum',
+        'maiores', 'nulla', 'nostrum', 'placeat', 'deserunt',
+        'blanditiis', 'adipisci', 'consequuntur', 'accusantium', 'laudantium',
+        'aperiam', 'beatae', 'inventore', 'veritatis', 'architecto',
+        'explicabo', 'aspernatur', 'reprehenderit', 'voluptate', 'sequi',
+        'nesciunt', 'sapiente', 'delectus', 'exercitationem', 'praesentium',
+        'cupiditate', 'similique', 'provident', 'suscipit', 'laboriosam',
+        'necessitatibus', 'repellendus', 'temporibus', 'quaerat', 'libero',
+    ];
+
     /** Map entity_type → Eloquent model class */
     private const ENTITY_MAP = [
         'cohort_definition' => CohortDefinition::class,
@@ -54,14 +70,14 @@ class DesignFixtureExporter
             ?? base_path('database/fixtures/designs');
     }
 
-    /** Export a single entity to its fixture file. */
-    public function exportEntity(string $entityType, int $entityId): void
+    /** Export a single entity to its fixture file. Returns true if written, false if skipped/missing. */
+    public function exportEntity(string $entityType, int $entityId): bool
     {
         $modelClass = self::ENTITY_MAP[$entityType] ?? null;
         if ($modelClass === null) {
             Log::warning("DesignFixtureExporter: unknown entity_type '{$entityType}'");
 
-            return;
+            return false;
         }
 
         // Load with soft-deleted rows too (we export deleted_at state as-is)
@@ -71,7 +87,16 @@ class DesignFixtureExporter
             : $modelClass::find($entityId);
 
         if ($model === null) {
-            return;
+            return false;
+        }
+
+        $name = (string) ($model->getAttribute('name') ?? '');
+        $description = (string) ($model->getAttribute('description') ?? '');
+
+        if ($this->isFakerGenerated($name, $description)) {
+            Log::info("DesignFixtureExporter: skipping faker-generated {$entityType}#{$entityId} '{$name}'");
+
+            return false;
         }
 
         $data = $model->toArray();
@@ -82,10 +107,12 @@ class DesignFixtureExporter
         }
 
         $dir = $this->ensureDir($entityType);
-        $filename = $this->resolveFilename($entityType, $entityId, $model->getAttribute('name') ?? '');
+        $filename = $this->resolveFilename($entityType, $entityId, $name);
         $path = $dir.'/'.$filename;
 
         file_put_contents($path, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+
+        return true;
     }
 
     /** Remove the fixture file for a hard-deleted entity. */
@@ -119,8 +146,8 @@ class DesignFixtureExporter
 
                 foreach ($models as $model) {
                     try {
-                        $this->exportEntity($entityType, (int) $model->getKey());
-                        $summary = $summary->addWritten();
+                        $written = $this->exportEntity($entityType, (int) $model->getKey());
+                        $summary = $written ? $summary->addWritten() : $summary->addSkipped();
                     } catch (\Throwable $e) {
                         $summary = $summary->withError("{$entityType}#{$model->getKey()}: {$e->getMessage()}");
                     }
@@ -166,6 +193,27 @@ class DesignFixtureExporter
         }
 
         return $candidate;
+    }
+
+    /**
+     * Detect faker-generated Latin lorem text.
+     * Returns true if the combined name+description contains ≥3 known faker Latin words.
+     */
+    private function isFakerGenerated(string $name, string $description): bool
+    {
+        $text = strtolower($name.' '.$description);
+        $hits = 0;
+
+        foreach (self::FAKER_LATIN_WORDS as $word) {
+            if (str_contains($text, $word)) {
+                $hits++;
+                if ($hits >= 3) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     private function slugify(string $name, int $id, string $entityType, int $maxLength = 100): string

@@ -7,28 +7,34 @@ final class ExportSummary
     public function __construct(
         public readonly int $written,
         public readonly int $deleted,
+        public readonly int $skipped,
         /** @var list<string> */
         public readonly array $errors,
     ) {}
 
     public static function empty(): self
     {
-        return new self(0, 0, []);
+        return new self(0, 0, 0, []);
     }
 
     public function withWritten(int $written): self
     {
-        return new self($written, $this->deleted, $this->errors);
+        return new self($written, $this->deleted, $this->skipped, $this->errors);
     }
 
     public function withDeleted(int $deleted): self
     {
-        return new self($this->written, $deleted, $this->errors);
+        return new self($this->written, $deleted, $this->skipped, $this->errors);
+    }
+
+    public function withSkipped(int $skipped): self
+    {
+        return new self($this->written, $this->deleted, $skipped, $this->errors);
     }
 
     public function withError(string $error): self
     {
-        return new self($this->written, $this->deleted, [...$this->errors, $error]);
+        return new self($this->written, $this->deleted, $this->skipped, [...$this->errors, $error]);
     }
 
     public function addWritten(int $count = 1): self
@@ -39,5 +45,10 @@ final class ExportSummary
     public function addDeleted(int $count = 1): self
     {
         return $this->withDeleted($this->deleted + $count);
+    }
+
+    public function addSkipped(int $count = 1): self
+    {
+        return $this->withSkipped($this->skipped + $count);
     }
 }

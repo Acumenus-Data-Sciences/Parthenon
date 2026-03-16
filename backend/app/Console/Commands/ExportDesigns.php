@@ -17,7 +17,7 @@ class ExportDesigns extends Command
 
         $summary = $exporter->exportAll();
 
-        $this->info("Exported {$summary->written} files, deleted {$summary->deleted} files.");
+        $this->info("Exported {$summary->written} files, deleted {$summary->deleted} files, skipped {$summary->skipped} faker-generated.");
 
         if (! empty($summary->errors)) {
             foreach ($summary->errors as $error) {
