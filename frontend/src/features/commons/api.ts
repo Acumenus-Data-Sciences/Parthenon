@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import apiClient from "@/lib/api-client";
+import { listAbbyConversations } from "./services/abbyService";
 import type {
   ActivityItem,
   Announcement,
@@ -818,5 +819,17 @@ export function useWikiRevisions(slug: string) {
     queryKey: [WIKI_KEY, slug, "revisions"],
     queryFn: () => fetchWikiRevisions(slug),
     enabled: !!slug,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Abby AI Conversations
+// ---------------------------------------------------------------------------
+
+export function useAbbyConversations() {
+  return useQuery({
+    queryKey: ["abby", "conversations"],
+    queryFn: listAbbyConversations,
+    staleTime: 60_000,
   });
 }
