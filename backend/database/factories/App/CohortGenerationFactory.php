@@ -18,7 +18,7 @@ class CohortGenerationFactory extends Factory
     {
         return [
             'cohort_definition_id' => CohortDefinition::factory(),
-            'source_id' => Source::factory(),
+            'source_id' => null, // must be provided explicitly — never auto-create a fake source
             'status' => ExecutionStatus::Pending,
             'started_at' => null,
             'completed_at' => null,

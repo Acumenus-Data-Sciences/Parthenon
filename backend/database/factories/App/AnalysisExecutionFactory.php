@@ -19,7 +19,7 @@ class AnalysisExecutionFactory extends Factory
         return [
             'analysis_type' => Characterization::class,
             'analysis_id' => Characterization::factory(),
-            'source_id' => Source::factory(),
+            'source_id' => null, // must be provided explicitly — never auto-create a fake source
             'status' => ExecutionStatus::Pending,
             'started_at' => null,
             'completed_at' => null,
