@@ -158,7 +158,7 @@
         "x": 0,
         "y": 0,
         "w": 4,
-        "h": 4
+        "h": 5
       },
       "datasource": {
         "type": "prometheus",
@@ -255,7 +255,8 @@
           ]
         },
         "overrides": []
-      }
+      },
+      "description": "Overall platform health based on running container count"
     },
     {
       "id": 2,
@@ -265,7 +266,7 @@
         "x": 4,
         "y": 0,
         "w": 4,
-        "h": 4
+        "h": 5
       },
       "datasource": {
         "type": "prometheus",
@@ -316,7 +317,8 @@
           }
         },
         "overrides": []
-      }
+      },
+      "description": "Number of Parthenon containers currently reporting metrics"
     },
     {
       "id": 3,
@@ -369,7 +371,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "#C9A227",
                 "value": null
               },
               {
@@ -384,7 +386,8 @@
           }
         },
         "overrides": []
-      }
+      },
+      "description": "Host CPU utilization percentage"
     },
     {
       "id": 4,
@@ -437,7 +440,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "#C9A227",
                 "value": null
               },
               {
@@ -452,7 +455,8 @@
           }
         },
         "overrides": []
-      }
+      },
+      "description": "Host memory utilization percentage"
     },
     {
       "id": 5,
@@ -505,7 +509,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "#C9A227",
                 "value": null
               },
               {
@@ -520,7 +524,8 @@
           }
         },
         "overrides": []
-      }
+      },
+      "description": "Root filesystem usage percentage"
     },
     {
       "id": 6,
@@ -530,7 +535,7 @@
         "x": 20,
         "y": 0,
         "w": 4,
-        "h": 4
+        "h": 5
       },
       "datasource": {
         "type": "loki",
@@ -590,7 +595,8 @@
           "noValue": "0"
         },
         "overrides": []
-      }
+      },
+      "description": "Log lines matching error patterns across all containers"
     },
     {
       "id": 7,
@@ -626,7 +632,7 @@
             "type": "prometheus",
             "uid": "prometheus-parthenon"
           },
-          "expr": "clamp_max(container_memory_working_set_bytes{name=~\"$container\",job=\"cadvisor\"}, 1)",
+          "expr": "clamp_max(container_memory_working_set_bytes{name=~\"parthenon-.*\",job=\"cadvisor\"}, 1)",
           "legendFormat": "{{name}}",
           "instant": false,
           "range": true
@@ -676,7 +682,8 @@
           }
         },
         "overrides": []
-      }
+      },
+      "description": "Running state of all Parthenon containers over time"
     },
     {
       "id": 9,
@@ -741,15 +748,237 @@
           }
         },
         "overrides": []
-      }
+      },
+      "description": "Out-of-memory events per container in the last 24 hours"
     },
     {
       "id": 10,
+      "type": "table",
+      "title": "Container Details",
+      "gridPos": {
+        "x": 0,
+        "y": 14,
+        "w": 24,
+        "h": 6
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-parthenon"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-parthenon"
+          },
+          "expr": "sum by (name)(rate(container_cpu_usage_seconds_total{name=~\"$container\",job=\"cadvisor\"}[$interval])) * 100",
+          "legendFormat": "{{name}}",
+          "instant": true,
+          "range": false,
+          "format": "table"
+        },
+        {
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-parthenon"
+          },
+          "expr": "sum by (name)(container_memory_working_set_bytes{name=~\"$container\",job=\"cadvisor\"})",
+          "legendFormat": "{{name}}",
+          "instant": true,
+          "range": false,
+          "format": "table"
+        },
+        {
+          "refId": "C",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-parthenon"
+          },
+          "expr": "sum by (name)(container_spec_memory_limit_bytes{name=~\"$container\",job=\"cadvisor\"})",
+          "legendFormat": "{{name}}",
+          "instant": true,
+          "range": false,
+          "format": "table"
+        },
+        {
+          "refId": "D",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-parthenon"
+          },
+          "expr": "sum by (name)(rate(container_network_receive_bytes_total{name=~\"$container\",job=\"cadvisor\"}[$interval]))",
+          "legendFormat": "{{name}}",
+          "instant": true,
+          "range": false,
+          "format": "table"
+        },
+        {
+          "refId": "E",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-parthenon"
+          },
+          "expr": "sum by (name)(rate(container_network_transmit_bytes_total{name=~\"$container\",job=\"cadvisor\"}[$interval]))",
+          "legendFormat": "{{name}}",
+          "instant": true,
+          "range": false,
+          "format": "table"
+        }
+      ],
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "CPU %"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 50
+                    },
+                    {
+                      "color": "red",
+                      "value": 80
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Memory"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Memory Limit"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Net RX/s"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "Bps"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Net TX/s"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "Bps"
+              }
+            ]
+          }
+        ]
+      },
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "__name__": true,
+              "job": true
+            },
+            "renameByName": {
+              "name": "Container",
+              "Value #A": "CPU %",
+              "Value #B": "Memory",
+              "Value #C": "Memory Limit",
+              "Value #D": "Net RX/s",
+              "Value #E": "Net TX/s"
+            },
+            "indexByName": {
+              "name": 0,
+              "Value #A": 1,
+              "Value #B": 2,
+              "Value #C": 3,
+              "Value #D": 4,
+              "Value #E": 5
+            }
+          }
+        }
+      ],
+      "description": "Resource usage per container \u2014 CPU, memory, and network"
+    },
+    {
+      "id": 11,
       "type": "row",
       "title": "Host Infrastructure",
       "gridPos": {
         "x": 0,
-        "y": 14,
+        "y": 20,
         "w": 24,
         "h": 1
       },
@@ -757,12 +986,12 @@
       "panels": []
     },
     {
-      "id": 11,
+      "id": 12,
       "type": "gauge",
       "title": "CPU Utilization",
       "gridPos": {
         "x": 0,
-        "y": 15,
+        "y": 21,
         "w": 4,
         "h": 5
       },
@@ -822,15 +1051,16 @@
           }
         },
         "overrides": []
-      }
+      },
+      "description": "Host CPU busy percentage (100% - idle)"
     },
     {
-      "id": 12,
+      "id": 13,
       "type": "timeseries",
       "title": "CPU Load (Saturation)",
       "gridPos": {
         "x": 4,
-        "y": 15,
+        "y": 21,
         "w": 8,
         "h": 5
       },
@@ -921,15 +1151,16 @@
           "unit": "short"
         },
         "overrides": []
-      }
+      },
+      "description": "System load average \u2014 values above CPU count indicate saturation"
     },
     {
-      "id": 13,
+      "id": 14,
       "type": "gauge",
       "title": "Memory Utilization",
       "gridPos": {
         "x": 12,
-        "y": 15,
+        "y": 21,
         "w": 4,
         "h": 5
       },
@@ -989,15 +1220,16 @@
           }
         },
         "overrides": []
-      }
+      },
+      "description": "Host memory usage excluding caches and buffers"
     },
     {
-      "id": 14,
+      "id": 15,
       "type": "timeseries",
       "title": "Memory Swap",
       "gridPos": {
         "x": 16,
-        "y": 15,
+        "y": 21,
         "w": 8,
         "h": 5
       },
@@ -1070,15 +1302,16 @@
           "unit": "bytes"
         },
         "overrides": []
-      }
+      },
+      "description": "Swap space in use \u2014 any swap usage indicates memory pressure"
     },
     {
-      "id": 15,
+      "id": 16,
       "type": "bargauge",
       "title": "Disk Usage",
       "gridPos": {
         "x": 0,
-        "y": 20,
+        "y": 26,
         "w": 6,
         "h": 5
       },
@@ -1139,15 +1372,16 @@
           }
         },
         "overrides": []
-      }
+      },
+      "description": "Filesystem usage per mount point"
     },
     {
-      "id": 16,
+      "id": 17,
       "type": "timeseries",
       "title": "Disk I/O",
       "gridPos": {
         "x": 6,
-        "y": 20,
+        "y": 26,
         "w": 6,
         "h": 5
       },
@@ -1229,16 +1463,17 @@
           "unit": "Bps"
         },
         "overrides": []
-      }
+      },
+      "description": "Disk read and write throughput"
     },
     {
-      "id": 17,
+      "id": 18,
       "type": "timeseries",
       "title": "Network Traffic",
       "gridPos": {
         "x": 12,
-        "y": 20,
-        "w": 6,
+        "y": 26,
+        "w": 8,
         "h": 5
       },
       "datasource": {
@@ -1319,16 +1554,17 @@
           "unit": "Bps"
         },
         "overrides": []
-      }
+      },
+      "description": "Host network receive and transmit throughput"
     },
     {
-      "id": 18,
+      "id": 19,
       "type": "stat",
       "title": "Network Errors",
       "gridPos": {
-        "x": 18,
-        "y": 20,
-        "w": 6,
+        "x": 20,
+        "y": 26,
+        "w": 4,
         "h": 5
       },
       "datasource": {
@@ -1385,15 +1621,16 @@
           "noValue": "0"
         },
         "overrides": []
-      }
+      },
+      "description": "Network interface errors \u2014 any value above 0 needs investigation"
     },
     {
-      "id": 19,
+      "id": 20,
       "type": "row",
       "title": "Container Resources",
       "gridPos": {
         "x": 0,
-        "y": 25,
+        "y": 31,
         "w": 24,
         "h": 1
       },
@@ -1401,12 +1638,12 @@
       "panels": []
     },
     {
-      "id": 20,
+      "id": 21,
       "type": "bargauge",
       "title": "CPU by Container",
       "gridPos": {
         "x": 0,
-        "y": 26,
+        "y": 32,
         "w": 12,
         "h": 10
       },
@@ -1467,15 +1704,16 @@
           }
         },
         "overrides": []
-      }
+      },
+      "description": "Container CPU usage ranked highest to lowest"
     },
     {
-      "id": 21,
+      "id": 22,
       "type": "bargauge",
       "title": "Memory by Container",
       "gridPos": {
         "x": 12,
-        "y": 26,
+        "y": 32,
         "w": 12,
         "h": 10
       },
@@ -1536,16 +1774,17 @@
           }
         },
         "overrides": []
-      }
+      },
+      "description": "Container memory usage ranked highest to lowest"
     },
     {
-      "id": 22,
+      "id": 23,
       "type": "timeseries",
-      "title": "Network RX by Container",
+      "title": "Network by Container",
       "gridPos": {
         "x": 0,
-        "y": 36,
-        "w": 12,
+        "y": 42,
+        "w": 24,
         "h": 8
       },
       "datasource": {
@@ -1560,88 +1799,16 @@
             "uid": "prometheus-parthenon"
           },
           "expr": "sum by (name)(rate(container_network_receive_bytes_total{name=~\"$container\",job=\"cadvisor\"}[$interval]))",
-          "legendFormat": "{{name}}"
-        }
-      ],
-      "options": {
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
+          "legendFormat": "{{name}} RX"
         },
-        "legend": {
-          "showLegend": true,
-          "displayMode": "list",
-          "placement": "bottom"
-        }
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 25,
-            "gradientMode": "opacity",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "smooth",
-            "lineStyle": {
-              "fill": "solid"
-            },
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "unit": "Bps"
-        },
-        "overrides": []
-      }
-    },
-    {
-      "id": 23,
-      "type": "timeseries",
-      "title": "Network TX by Container",
-      "gridPos": {
-        "x": 12,
-        "y": 36,
-        "w": 12,
-        "h": 8
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus-parthenon"
-      },
-      "targets": [
         {
-          "refId": "A",
+          "refId": "B",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus-parthenon"
           },
           "expr": "sum by (name)(rate(container_network_transmit_bytes_total{name=~\"$container\",job=\"cadvisor\"}[$interval]))",
-          "legendFormat": "{{name}}"
+          "legendFormat": "{{name}} TX"
         }
       ],
       "options": {
@@ -1698,7 +1865,8 @@
           "unit": "Bps"
         },
         "overrides": []
-      }
+      },
+      "description": "Per-container network throughput (RX and TX)"
     },
     {
       "id": 24,
@@ -1706,7 +1874,7 @@
       "title": "Log Volume & Errors",
       "gridPos": {
         "x": 0,
-        "y": 44,
+        "y": 50,
         "w": 24,
         "h": 1
       },
@@ -1719,7 +1887,7 @@
       "title": "Log Volume by Level",
       "gridPos": {
         "x": 0,
-        "y": 45,
+        "y": 51,
         "w": 12,
         "h": 8
       },
@@ -1898,7 +2066,8 @@
             ]
           }
         ]
-      }
+      },
+      "description": "Log line count over time, stacked by severity level. Requires Loki automatic level detection (detected_level label)."
     },
     {
       "id": 26,
@@ -1906,7 +2075,7 @@
       "title": "Log Volume by Container",
       "gridPos": {
         "x": 12,
-        "y": 45,
+        "y": 51,
         "w": 12,
         "h": 8
       },
@@ -1979,7 +2148,8 @@
           "unit": "short"
         },
         "overrides": []
-      }
+      },
+      "description": "Log line count over time, stacked by container"
     },
     {
       "id": 27,
@@ -1987,8 +2157,8 @@
       "title": "Error Rate Trend",
       "gridPos": {
         "x": 0,
-        "y": 53,
-        "w": 12,
+        "y": 59,
+        "w": 8,
         "h": 8
       },
       "datasource": {
@@ -2061,15 +2231,264 @@
           "unit": "ops"
         },
         "overrides": []
-      }
+      },
+      "description": "Error log lines per second over time"
     },
     {
       "id": 28,
+      "type": "piechart",
+      "title": "Log Level Distribution",
+      "gridPos": {
+        "x": 8,
+        "y": 59,
+        "w": 8,
+        "h": 8
+      },
+      "datasource": {
+        "type": "loki",
+        "uid": "loki-parthenon"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki-parthenon"
+          },
+          "expr": "sum by (detected_level)(count_over_time({job=\"docker\", container_name=~\"$container\"} [$__auto]))",
+          "legendFormat": "__auto",
+          "instant": false,
+          "range": true
+        }
+      ],
+      "options": {
+        "pieType": "donut",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        },
+        "legend": {
+          "showLegend": true,
+          "displayMode": "table",
+          "placement": "right",
+          "values": [
+            "value",
+            "percent"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "debug"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#8AB8FF",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "info"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#73BF69",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "warn"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#FADE2A",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "warning"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#FADE2A",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "error"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#F2495C",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "critical"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#FF4040",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "fatal"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#C4162A",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "description": "Proportional breakdown of log levels. Requires Loki automatic level detection (detected_level label)."
+    },
+    {
+      "id": 29,
+      "type": "timeseries",
+      "title": "Log Throughput",
+      "gridPos": {
+        "x": 16,
+        "y": 59,
+        "w": 8,
+        "h": 8
+      },
+      "datasource": {
+        "type": "loki",
+        "uid": "loki-parthenon"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki-parthenon"
+          },
+          "expr": "sum(rate({job=\"docker\", container_name=~\"$container\"} [$__auto]))",
+          "legendFormat": "lines/s"
+        }
+      ],
+      "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        },
+        "legend": {
+          "showLegend": true,
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 25,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "description": "Total log lines per second across all containers"
+    },
+    {
+      "id": 30,
       "type": "bargauge",
       "title": "Top Error Services",
       "gridPos": {
-        "x": 12,
-        "y": 53,
+        "x": 0,
+        "y": 67,
         "w": 12,
         "h": 8
       },
@@ -2134,15 +2553,125 @@
           }
         },
         "overrides": []
-      }
+      },
+      "description": "Containers producing the most error logs"
     },
     {
-      "id": 29,
+      "id": 31,
+      "type": "table",
+      "title": "Top Error Patterns",
+      "gridPos": {
+        "x": 12,
+        "y": 67,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "loki",
+        "uid": "loki-parthenon"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki-parthenon"
+          },
+          "expr": "topk(10, sum by (container_name)(count_over_time({job=\"docker\", container_name=~\"$container\"} |~ \"(?i)(error|critical|fatal|exception)\" [$__auto])))",
+          "legendFormat": "{{container_name}}",
+          "instant": true,
+          "range": false,
+          "format": "table"
+        }
+      ],
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Count"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 10
+                    },
+                    {
+                      "color": "orange",
+                      "value": 50
+                    },
+                    {
+                      "color": "red",
+                      "value": 100
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "__name__": true,
+              "job": true
+            },
+            "renameByName": {
+              "container_name": "Container",
+              "Value": "Count"
+            }
+          }
+        }
+      ],
+      "description": "Most frequent error-producing containers"
+    },
+    {
+      "id": 32,
       "type": "row",
       "title": "Log Stream",
       "gridPos": {
         "x": 0,
-        "y": 61,
+        "y": 75,
         "w": 24,
         "h": 1
       },
@@ -2150,14 +2679,14 @@
       "panels": []
     },
     {
-      "id": 30,
+      "id": 33,
       "type": "logs",
       "title": "Log Stream",
       "gridPos": {
         "x": 0,
-        "y": 62,
+        "y": 76,
         "w": 24,
-        "h": 20
+        "h": 14
       },
       "datasource": {
         "type": "loki",
@@ -2184,7 +2713,8 @@
         "showTime": true,
         "sortOrder": "Descending",
         "wrapLogMessage": true
-      }
+      },
+      "description": "Live log stream filtered by container, level, and search text"
     }
   ],
   "links": [],
