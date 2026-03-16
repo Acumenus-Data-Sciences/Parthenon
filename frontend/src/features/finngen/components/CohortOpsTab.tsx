@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowUpRight, Blocks, Loader2 } from "lucide-react";
+import { ArrowUpRight, Blocks, GripVertical, Loader2 } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import {
   useCohortDefinition,
@@ -654,6 +654,7 @@ interface OperationBuilderModalProps {
   cohortDefinitions: CohortDefinition[];
   selectedCohortIds: number[];
   onToggleCohort: (cohortId: number) => void;
+  onReorderCohorts: (reordered: number[]) => void;
   primaryCohortId: number | null;
   onPrimaryCohortChange: (cohortId: number | null) => void;
   searchValue: string;
@@ -710,6 +711,7 @@ function OperationBuilderModal({
   cohortDefinitions,
   selectedCohortIds,
   onToggleCohort,
+  onReorderCohorts,
   primaryCohortId,
   onPrimaryCohortChange,
   searchValue,
@@ -949,6 +951,61 @@ function OperationBuilderModal({
             ) : null}
           </div>
         </div>
+
+        {/* ── Selected cohort order (drag to reorder) ─────────────── */}
+        {selectedCohortIds.length > 1 ? (
+          <div className="rounded-lg border border-zinc-800 bg-zinc-950/70 p-4">
+            <div className="mb-3 text-sm font-medium text-zinc-100">
+              Cohort Order (drag to reorder)
+            </div>
+            <div className="space-y-1.5">
+              {selectedCohortIds.map((id, index) => {
+                const cohort = cohortDefinitions.find((c) => c.id === id);
+                return (
+                  <div
+                    key={id}
+                    draggable
+                    onDragStart={(e) => {
+                      e.dataTransfer.effectAllowed = "move";
+                      e.dataTransfer.setData("text/plain", String(index));
+                    }}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      e.dataTransfer.dropEffect = "move";
+                    }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      const fromIndex = Number(e.dataTransfer.getData("text/plain"));
+                      const toIndex = index;
+                      if (fromIndex === toIndex) return;
+                      const reordered = [...selectedCohortIds];
+                      const [moved] = reordered.splice(fromIndex, 1);
+                      reordered.splice(toIndex, 0, moved);
+                      onReorderCohorts(reordered);
+                    }}
+                    className="flex cursor-grab items-center gap-2 rounded-lg border border-zinc-800 bg-zinc-900/60 px-3 py-2 text-sm text-zinc-200 transition-colors hover:border-zinc-700 active:cursor-grabbing"
+                  >
+                    <GripVertical className="h-3.5 w-3.5 shrink-0 text-zinc-600" />
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-zinc-800 text-[10px] font-semibold text-zinc-400">
+                      {index + 1}
+                    </span>
+                    <span className="min-w-0 truncate">
+                      {cohort?.name ?? `Cohort #${id}`}
+                    </span>
+                    {primaryCohortId === id ? (
+                      <span className="ml-auto rounded-full border border-[#C9A227]/40 bg-[#C9A227]/10 px-2 py-0.5 text-[10px] uppercase tracking-wide text-[#F2DEA3]">
+                        Primary
+                      </span>
+                    ) : null}
+                  </div>
+                );
+              })}
+            </div>
+            <div className="mt-2 text-[11px] text-zinc-600">
+              The first cohort becomes the anchor for subtract operations.
+            </div>
+          </div>
+        ) : null}
 
         <div className="grid gap-4 lg:grid-cols-2">
           <label className="block">
@@ -1874,6 +1931,7 @@ export function CohortOpsTab({
           );
           setCohortImportMode("parthenon");
         }}
+        onReorderCohorts={setSelectedCohortIds}
         primaryCohortId={primaryCohortId}
         onPrimaryCohortChange={setPrimaryCohortId}
         searchValue={cohortSearch}
