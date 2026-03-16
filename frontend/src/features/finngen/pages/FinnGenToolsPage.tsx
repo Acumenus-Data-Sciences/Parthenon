@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ArrowUpRight, CircleAlert, PanelsTopLeft, RefreshCw } from "lucide-react";
+import { ArrowUpRight, CircleAlert, HelpCircle, PanelsTopLeft, RefreshCw } from "lucide-react";
+import { Link } from "react-router-dom";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
 import { useFinnGenServices } from "../hooks/useFinnGenServices";
 import { WorkflowStepper } from "../components/WorkflowStepper";
@@ -131,16 +132,25 @@ export default function FinnGenToolsPage() {
           <PanelsTopLeft size={20} style={{ color: "#9B1B30" }} />
         </div>
         <div className="min-w-0 flex-1">
-          <h1
-            style={{
-              fontSize: "20px",
-              fontWeight: 700,
-              color: "#F0EDE8",
-              margin: 0,
-            }}
-          >
-            Workbench
-          </h1>
+          <div className="flex items-center gap-2">
+            <h1
+              style={{
+                fontSize: "20px",
+                fontWeight: 700,
+                color: "#F0EDE8",
+                margin: 0,
+              }}
+            >
+              Workbench
+            </h1>
+            <Link
+              to="/workbench/help"
+              className="flex h-6 w-6 items-center justify-center rounded-md text-zinc-600 transition-colors hover:bg-zinc-800 hover:text-zinc-400"
+              title="Workbench Help"
+            >
+              <HelpCircle size={15} />
+            </Link>
+          </div>
         </div>
 
         {/* SDK link */}
