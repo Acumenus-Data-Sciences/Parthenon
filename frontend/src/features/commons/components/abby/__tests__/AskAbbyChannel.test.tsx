@@ -25,6 +25,8 @@ beforeEach(() => {
   localStorage.clear();
   // jsdom does not implement scrollTo — mock it to avoid unhandled exceptions
   window.HTMLElement.prototype.scrollTo = () => {};
+  // Default mock so TanStack Query never receives undefined from the history hook
+  vi.mocked(abbyService.listAbbyConversations).mockResolvedValue([]);
 });
 
 describe('AskAbbyChannel', () => {
