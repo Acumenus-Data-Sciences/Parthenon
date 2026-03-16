@@ -1,12 +1,5 @@
 import { useState } from "react";
-import {
-  Megaphone,
-  Pin,
-  Bookmark,
-  Plus,
-  Trash2,
-  X,
-} from "lucide-react";
+import { Megaphone, Pin, Bookmark, Plus, Trash2 } from "lucide-react";
 import {
   useAnnouncements,
   useCreateAnnouncement,
@@ -16,22 +9,31 @@ import {
 import { avatarColor } from "../../utils/avatarColor";
 import type { Announcement } from "../../types";
 import { useAuthStore } from "@/stores/authStore";
+import { Modal } from "@/components/ui/Modal";
+
+// ---------------------------------------------------------------------------
+// Category config — maps to design-system badge variants
+// ---------------------------------------------------------------------------
 
 const CATEGORIES = [
-  { value: "general", label: "General", color: "bg-blue-400/10 text-blue-400" },
-  { value: "study_recruitment", label: "Study Recruitment", color: "bg-green-400/10 text-green-400" },
-  { value: "data_update", label: "Data Update", color: "bg-amber-400/10 text-amber-400" },
-  { value: "milestone", label: "Milestone", color: "bg-purple-400/10 text-purple-400" },
-  { value: "policy", label: "Policy", color: "bg-red-400/10 text-red-400" },
+  { value: "general",          label: "General",          badge: "badge-info"     },
+  { value: "study_recruitment",label: "Study Recruitment",badge: "badge-success"  },
+  { value: "data_update",      label: "Data Update",      badge: "badge-warning"  },
+  { value: "milestone",        label: "Milestone",        badge: "badge-accent"   },
+  { value: "policy",           label: "Policy",           badge: "badge-critical" },
 ] as const;
 
-function getCategoryStyle(category: string): string {
-  return CATEGORIES.find((c) => c.value === category)?.color ?? "bg-muted text-muted-foreground";
+function getCategoryBadge(category: string): string {
+  return CATEGORIES.find((c) => c.value === category)?.badge ?? "badge-default";
 }
 
 function getCategoryLabel(category: string): string {
   return CATEGORIES.find((c) => c.value === category)?.label ?? category;
 }
+
+// ---------------------------------------------------------------------------
+// Announcement Card
+// ---------------------------------------------------------------------------
 
 interface AnnouncementCardProps {
   announcement: Announcement;
@@ -40,7 +42,12 @@ interface AnnouncementCardProps {
   onBookmark: (id: number) => void;
 }
 
-function AnnouncementCard({ announcement, currentUserId, onDelete, onBookmark }: AnnouncementCardProps) {
+function AnnouncementCard({
+  announcement,
+  currentUserId,
+  onDelete,
+  onBookmark,
+}: AnnouncementCardProps) {
   const time = new Date(announcement.created_at).toLocaleDateString([], {
     month: "short",
     day: "numeric",
@@ -48,56 +55,110 @@ function AnnouncementCard({ announcement, currentUserId, onDelete, onBookmark }:
   });
 
   return (
-    <div className="rounded-lg border border-border bg-card p-4">
-      <div className="flex items-start justify-between gap-2">
-        <div className="flex items-center gap-2">
+    <div className="panel" style={{ padding: "var(--space-4)" }}>
+      {/* Top row: pin + category + actions */}
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "var(--space-2)" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
           {announcement.is_pinned && (
-            <Pin className="h-3.5 w-3.5 text-amber-400" />
+            <Pin size={13} style={{ color: "var(--warning)", flexShrink: 0 }} />
           )}
-          <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${getCategoryStyle(announcement.category)}`}>
+          <span className={`badge ${getCategoryBadge(announcement.category)}`}>
             {getCategoryLabel(announcement.category)}
           </span>
         </div>
-        <div className="flex items-center gap-1">
+
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--space-1)" }}>
           <button
             onClick={() => onBookmark(announcement.id)}
             title={announcement.is_bookmarked ? "Remove bookmark" : "Bookmark"}
-            className="rounded p-1 text-muted-foreground hover:text-foreground"
+            className="btn btn-ghost btn-icon btn-sm"
           >
             <Bookmark
-              className={`h-3.5 w-3.5 ${announcement.is_bookmarked ? "fill-amber-400 text-amber-400" : ""}`}
+              size={13}
+              style={
+                announcement.is_bookmarked
+                  ? { fill: "var(--warning)", color: "var(--warning)" }
+                  : {}
+              }
             />
           </button>
+
           {announcement.user_id === currentUserId && (
             <button
               onClick={() => onDelete(announcement.id)}
               title="Delete"
-              className="rounded p-1 text-muted-foreground hover:text-red-400"
+              className="btn btn-ghost btn-icon btn-sm"
             >
-              <Trash2 className="h-3.5 w-3.5" />
+              <Trash2 size={13} />
             </button>
           )}
         </div>
       </div>
-      <h3 className="mt-2 text-sm font-semibold text-foreground">{announcement.title}</h3>
-      <p className="mt-1 whitespace-pre-wrap text-xs text-muted-foreground leading-relaxed">
-        {announcement.body}
-      </p>
-      <div className="mt-3 flex items-center gap-2">
+
+      {/* Title */}
+      <h3 style={{
+        marginTop: "var(--space-2)",
+        fontSize: "var(--text-sm)",
+        fontWeight: 600,
+        color: "var(--text-primary)",
+      }}>
+        {announcement.title}
+      </h3>
+
+      {/* Body — rendered HTML from the backend */}
+      {announcement.body_html ? (
+        <div
+          className="prose-sm"
+          style={{ marginTop: "var(--space-1)", fontSize: "var(--text-xs)", color: "var(--text-muted)", lineHeight: 1.6 }}
+          dangerouslySetInnerHTML={{ __html: announcement.body_html }}
+        />
+      ) : (
+        <p style={{
+          marginTop: "var(--space-1)",
+          fontSize: "var(--text-xs)",
+          color: "var(--text-muted)",
+          lineHeight: 1.6,
+          whiteSpace: "pre-wrap",
+        }}>
+          {announcement.body}
+        </p>
+      )}
+
+      {/* Footer: author + date + expiry */}
+      <div style={{
+        marginTop: "var(--space-3)",
+        display: "flex",
+        alignItems: "center",
+        gap: "var(--space-2)",
+        flexWrap: "wrap",
+      }}>
         {announcement.user && (
           <>
             <div
-              className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[9px] font-semibold text-white"
-              style={{ backgroundColor: avatarColor(announcement.user.id) }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 20,
+                height: 20,
+                borderRadius: "50%",
+                fontSize: 9,
+                fontWeight: 600,
+                color: "#fff",
+                flexShrink: 0,
+                backgroundColor: avatarColor(announcement.user.id),
+              }}
             >
               {announcement.user.name[0]?.toUpperCase()}
             </div>
-            <span className="text-[11px] text-muted-foreground">{announcement.user.name}</span>
+            <span style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)" }}>
+              {announcement.user.name}
+            </span>
           </>
         )}
-        <span className="text-[11px] text-muted-foreground/60">{time}</span>
+        <span style={{ fontSize: "var(--text-xs)", color: "var(--text-ghost)" }}>{time}</span>
         {announcement.expires_at && (
-          <span className="text-[10px] text-amber-400/70">
+          <span className="badge badge-warning" style={{ fontSize: 10 }}>
             Expires {new Date(announcement.expires_at).toLocaleDateString()}
           </span>
         )}
@@ -106,94 +167,119 @@ function AnnouncementCard({ announcement, currentUserId, onDelete, onBookmark }:
   );
 }
 
-interface CreateAnnouncementFormProps {
+// ---------------------------------------------------------------------------
+// Create Announcement Modal
+// ---------------------------------------------------------------------------
+
+interface CreateAnnouncementModalProps {
+  open: boolean;
   onClose: () => void;
   channelSlug?: string;
 }
 
-function CreateAnnouncementForm({ onClose, channelSlug }: CreateAnnouncementFormProps) {
+function CreateAnnouncementModal({ open, onClose, channelSlug }: CreateAnnouncementModalProps) {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [category, setCategory] = useState("general");
   const [isPinned, setIsPinned] = useState(false);
   const createMutation = useCreateAnnouncement();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!title.trim() || !body.trim()) return;
     createMutation.mutate(
+      { title: title.trim(), body: body.trim(), category, channel_slug: channelSlug, is_pinned: isPinned },
       {
-        title: title.trim(),
-        body: body.trim(),
-        category,
-        channel_slug: channelSlug,
-        is_pinned: isPinned,
+        onSuccess: () => {
+          setTitle("");
+          setBody("");
+          setCategory("general");
+          setIsPinned(false);
+          onClose();
+        },
       },
-      { onSuccess: () => onClose() },
     );
-  };
+  }
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-lg border border-border bg-card p-4">
-      <div className="mb-3 flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-foreground">New Announcement</h3>
-        <button type="button" onClick={onClose} className="text-muted-foreground hover:text-foreground">
-          <X className="h-4 w-4" />
-        </button>
-      </div>
-      <input
-        type="text"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        placeholder="Title"
-        className="mb-2 w-full rounded border border-border bg-[#1a1a22] px-3 py-1.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
-      />
-      <textarea
-        value={body}
-        onChange={(e) => setBody(e.target.value)}
-        placeholder="Announcement body..."
-        rows={4}
-        className="mb-2 w-full resize-none rounded border border-border bg-[#1a1a22] px-3 py-1.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
-      />
-      <div className="mb-3 flex flex-wrap items-center gap-2">
-        <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          className="rounded border border-border bg-[#1a1a22] px-2 py-1 text-xs text-foreground"
-        >
-          {CATEGORIES.map((c) => (
-            <option key={c.value} value={c.value}>{c.label}</option>
-          ))}
-        </select>
-        <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
+    <Modal
+      open={open}
+      onClose={onClose}
+      title="New Announcement"
+      size="md"
+      footer={
+        <>
+          <button type="button" className="btn btn-ghost" onClick={onClose}>
+            Cancel
+          </button>
+          <button
+            type="submit"
+            form="create-announcement-form"
+            className="btn btn-primary"
+            disabled={!title.trim() || !body.trim() || createMutation.isPending}
+          >
+            {createMutation.isPending ? "Posting…" : "Post Announcement"}
+          </button>
+        </>
+      }
+    >
+      <form id="create-announcement-form" onSubmit={handleSubmit}>
+        <div className="form-group">
+          <label className="form-label">Title</label>
           <input
-            type="checkbox"
-            checked={isPinned}
-            onChange={(e) => setIsPinned(e.target.checked)}
-            className="rounded"
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Announcement title"
+            autoFocus
+            className="form-input"
           />
-          Pin to top
-        </label>
-      </div>
-      <div className="flex justify-end gap-2">
-        <button
-          type="button"
-          onClick={onClose}
-          className="rounded px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground"
-        >
-          Cancel
-        </button>
-        <button
-          type="submit"
-          disabled={!title.trim() || !body.trim() || createMutation.isPending}
-          className="rounded bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground disabled:opacity-50"
-        >
-          {createMutation.isPending ? "Posting..." : "Post"}
-        </button>
-      </div>
-    </form>
+        </div>
+
+        <div className="form-group">
+          <label className="form-label">Body</label>
+          <textarea
+            value={body}
+            onChange={(e) => setBody(e.target.value)}
+            placeholder="Write your announcement…"
+            rows={5}
+            className="form-input form-textarea"
+          />
+        </div>
+
+        <div style={{ display: "flex", gap: "var(--space-4)" }}>
+          <div className="form-group" style={{ flex: 1 }}>
+            <label className="form-label">Category</label>
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="form-input form-select"
+            >
+              {CATEGORIES.map((c) => (
+                <option key={c.value} value={c.value}>{c.label}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="form-group" style={{ display: "flex", alignItems: "flex-end", paddingBottom: "var(--space-4)" }}>
+            <label className="form-check">
+              <input
+                type="checkbox"
+                checked={isPinned}
+                onChange={(e) => setIsPinned(e.target.checked)}
+              />
+              <span>Pin to top</span>
+            </label>
+          </div>
+        </div>
+      </form>
+    </Modal>
   );
 }
+
+// ---------------------------------------------------------------------------
+// Announcement Board (top-level)
+// ---------------------------------------------------------------------------
 
 interface AnnouncementBoardProps {
   channelSlug?: string;
@@ -202,57 +288,77 @@ interface AnnouncementBoardProps {
 export function AnnouncementBoard({ channelSlug }: AnnouncementBoardProps) {
   const [showCreate, setShowCreate] = useState(false);
   const [filterCategory, setFilterCategory] = useState<string>("");
-  const { data: announcements = [], isLoading } = useAnnouncements(channelSlug, filterCategory || undefined);
+  const { data: announcements = [], isLoading } = useAnnouncements(
+    channelSlug,
+    filterCategory || undefined,
+  );
   const deleteMutation = useDeleteAnnouncement();
   const bookmarkMutation = useToggleBookmark();
   const user = useAuthStore((s) => s.user);
   const currentUserId = user?.id ?? 0;
 
   return (
-    <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between border-b border-border px-4 py-3">
-        <div className="flex items-center gap-2">
-          <Megaphone className="h-4 w-4 text-primary" />
-          <h2 className="text-sm font-semibold text-foreground">Announcements</h2>
+    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+      {/* Header */}
+      <div style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        padding: "var(--space-3) var(--space-4)",
+        borderBottom: "1px solid var(--border-default)",
+        flexShrink: 0,
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
+          <Megaphone size={15} style={{ color: "var(--primary)" }} />
+          <span style={{ fontSize: "var(--text-sm)", fontWeight: 600, color: "var(--text-primary)" }}>
+            Announcements
+          </span>
         </div>
-        <div className="flex items-center gap-2">
+
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
           <select
             value={filterCategory}
             onChange={(e) => setFilterCategory(e.target.value)}
-            className="rounded border border-border bg-[#1a1a22] px-2 py-1 text-[11px] text-foreground"
+            className="form-input form-select"
+            style={{ minHeight: 30, fontSize: "var(--text-xs)", padding: "var(--space-1) var(--space-6) var(--space-1) var(--space-2)" }}
           >
             <option value="">All categories</option>
             {CATEGORIES.map((c) => (
               <option key={c.value} value={c.value}>{c.label}</option>
             ))}
           </select>
+
           <button
             onClick={() => setShowCreate(true)}
-            className="flex items-center gap-1 rounded bg-primary px-2 py-1 text-xs font-medium text-primary-foreground"
+            className="btn btn-primary btn-sm"
+            style={{ display: "flex", alignItems: "center", gap: "var(--space-1)" }}
           >
-            <Plus className="h-3 w-3" />
+            <Plus size={13} />
             New
           </button>
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
-        {showCreate && (
-          <CreateAnnouncementForm
-            onClose={() => setShowCreate(false)}
-            channelSlug={channelSlug}
-          />
-        )}
-
+      {/* List */}
+      <div style={{ flex: 1, overflowY: "auto", padding: "var(--space-4)", display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
         {isLoading && (
-          <p className="text-sm text-muted-foreground">Loading...</p>
+          <p style={{ fontSize: "var(--text-sm)", color: "var(--text-muted)" }}>Loading…</p>
         )}
 
-        {!isLoading && announcements.length === 0 && !showCreate && (
-          <div className="flex flex-col items-center justify-center gap-2 py-12 text-center">
-            <Megaphone className="h-10 w-10 text-muted-foreground/30" />
-            <p className="text-sm text-muted-foreground">No announcements yet</p>
-            <p className="text-xs text-muted-foreground/60">
+        {!isLoading && announcements.length === 0 && (
+          <div style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "var(--space-2)",
+            paddingTop: "var(--space-12)",
+            paddingBottom: "var(--space-12)",
+            textAlign: "center",
+          }}>
+            <Megaphone size={40} style={{ color: "var(--text-ghost)", opacity: 0.4 }} />
+            <p style={{ fontSize: "var(--text-sm)", color: "var(--text-muted)" }}>No announcements yet</p>
+            <p style={{ fontSize: "var(--text-xs)", color: "var(--text-ghost)" }}>
               Post updates, study recruitment notices, and milestones
             </p>
           </div>
@@ -268,6 +374,12 @@ export function AnnouncementBoard({ channelSlug }: AnnouncementBoardProps) {
           />
         ))}
       </div>
+
+      <CreateAnnouncementModal
+        open={showCreate}
+        onClose={() => setShowCreate(false)}
+        channelSlug={channelSlug}
+      />
     </div>
   );
 }
