@@ -5,16 +5,14 @@ Medical Textbook Selective Ingestion
 Extracts text from high-value medical textbooks and prepares them
 for ingestion into Abby's ohdsi_papers ChromaDB collection.
 
-Only processes textbooks directly relevant to outcomes research:
-- Epidemiology & biostatistics
-- Pharmacology
-- Pathology & pathophysiology
-- Clinical trials & systematic reviews
-- Medical physiology
-- Healthcare operations & HEOR
+Priority tiers for Abby (NL → OMOP cohort translation):
+  Tier 1 — Core domain: OHDSI methodology, physiology, pathology, clinical reference, pharmacology
+  Tier 2 — Clinical breadth: specialty references, oncology, critical care, pediatrics
+  Tier 3 — Methodology: epidemiology, biostatistics, clinical trials
+  Tier 4 — Infectious disease (selective: major virology texts only)
 
-Skips anatomy atlases, surgery texts, basic science, physics/math,
-and image-heavy references that produce poor text extraction.
+Skips: anatomy atlases, surgery texts, basic molecular biology, physics/math,
+healthcare operations, and image-heavy references with poor text extraction.
 """
 
 import json
@@ -37,229 +35,251 @@ except ImportError:
 OUTPUT_DIR = Path("medical_textbooks_extracted")
 TEXTS_DIR = Path("Medical Texts")
 
-# High-value textbooks for outcomes research — substring matches against filenames
+# High-value textbooks for Abby (NL → OMOP cohort translation).
+# Patterns match against filenames — all regex, case-insensitive.
+# Duplicates are handled by title: first match wins, subsequent files skipped.
 HIGH_VALUE_BOOKS = [
+    # ── TIER 1: Core domain ─────────────────────────────────────────────────
     {
-        "pattern": "Cochrane-Hand",
-        "title": "Cochrane Handbook for Systematic Reviews of Interventions",
-        "category": "systematic_reviews",
-        "priority": "high",
+        "pattern": r"TheBookOfOhdsi|Book.of.OHDSI",
+        "title": "The Book of OHDSI",
+        "category": "ohdsi_methodology",
+        "priority": "critical",
+        "tier": 1,
     },
     {
-        "pattern": "Kestenbaum",
-        "title": "Epidemiology and Biostatistics: An Introduction to Clinical Research",
-        "category": "epidemiology",
-        "priority": "high",
-    },
-    {
-        "pattern": "Biostatistical-Methods-in-Epidemiology",
-        "title": "Biostatistical Methods in Epidemiology",
-        "category": "biostatistics",
-        "priority": "high",
-    },
-    {
-        "pattern": "Applied-Longitudinal-Data-Ana",
-        "title": "Applied Longitudinal Data Analysis",
-        "category": "biostatistics",
-        "priority": "high",
-    },
-    {
-        "pattern": "Clinical-Trials",
-        "title": "Clinical Trials: Study Design, Endpoints and Biomarkers",
-        "category": "clinical_trials",
-        "priority": "high",
-    },
-    {
-        "pattern": "Pagano.*Principle",
-        "title": "Principles of Biostatistics",
-        "category": "biostatistics",
-        "priority": "high",
-    },
-    {
-        "pattern": "Storytelling-with-Dat",
-        "title": "Storytelling with Data",
-        "category": "data_visualization",
-        "priority": "medium",
-    },
-    {
-        "pattern": "Guyton-and-Hall",
+        "pattern": r"Guyton.and.Hall",
         "title": "Guyton and Hall Textbook of Medical Physiology",
         "category": "physiology",
         "priority": "high",
+        "tier": 1,
     },
     {
-        "pattern": "Robb.*Kumar.*Abbas.*Aster",
-        "title": "Robbins Pathologic Basis of Disease",
+        "pattern": r"Vinay.Kumar.*Abbas.*Aster|Kumar.*Abbas.*Aster.*Robb",
+        "title": "Robbins and Cotran Pathologic Basis of Disease",
         "category": "pathology",
         "priority": "high",
+        "tier": 1,
     },
     {
-        "pattern": "Lippincott.*Pharmacology",
-        "title": "Lippincott Illustrated Reviews: Pharmacology",
-        "category": "pharmacology",
-        "priority": "high",
-    },
-    {
-        "pattern": "Abbas.*Lichtman",
-        "title": "Cellular and Molecular Immunology",
-        "category": "immunology",
-        "priority": "medium",
-    },
-    {
-        "pattern": "COVID-19-Prevention-and-Treatment",
-        "title": "Handbook of COVID-19 Prevention and Treatment",
-        "category": "infectious_disease",
-        "priority": "medium",
-    },
-    {
-        "pattern": "Patient-Flow",
-        "title": "Patient Flow: Reducing Delay in Healthcare Delivery",
-        "category": "healthcare_operations",
-        "priority": "medium",
-    },
-    {
-        "pattern": "PROCESS-REDESIGN",
-        "title": "Process Redesign for Health Care Using Lean Thinking",
-        "category": "healthcare_operations",
-        "priority": "medium",
-    },
-    {
-        "pattern": "Human-factors-in-healthcare",
-        "title": "Human Factors in Healthcare",
-        "category": "healthcare_operations",
-        "priority": "medium",
-    },
-    {
-        "pattern": "Nurse-Led-Health",
-        "title": "Nurse-Led Health Clinics: Operations, Policy, and Opportunities",
-        "category": "healthcare_operations",
-        "priority": "low",
-    },
-    {
-        "pattern": "Leadership-for-Smooth-Patient",
-        "title": "Leadership for Smooth Patient Flow",
-        "category": "healthcare_operations",
-        "priority": "medium",
-    },
-    {
-        "pattern": "Goldberger.*A.L",
-        "title": "Goldberger's Clinical Electrocardiography",
-        "category": "cardiology",
-        "priority": "medium",
-    },
-    {
-        "pattern": "Interpreting-Che",
-        "title": "Interpreting Chest X-Rays",
-        "category": "diagnostics",
-        "priority": "low",
-    },
-    {
-        "pattern": "Delves.*Martin.*Roitt",
-        "title": "Roitt's Essential Immunology",
-        "category": "immunology",
-        "priority": "medium",
-    },
-    {
-        "pattern": "Kim-E.-Barrett.*Ganong",
-        "title": "Ganong's Review of Medical Physiology",
-        "category": "physiology",
-        "priority": "medium",
-    },
-    {
-        "pattern": "Papadakis.*McPhee",
+        "pattern": r"Papadakis.*McPhee",
         "title": "Current Medical Diagnosis and Treatment",
         "category": "clinical_medicine",
         "priority": "high",
+        "tier": 1,
     },
     {
-        "pattern": "Hutchisons",
-        "title": "Hutchison's Clinical Methods",
-        "category": "clinical_medicine",
-        "priority": "medium",
+        "pattern": r"Karen.Whalen.*Lippincott|Lippincott.Illustrated.Reviews",
+        "title": "Lippincott Illustrated Reviews: Pharmacology",
+        "category": "pharmacology",
+        "priority": "high",
+        "tier": 1,
+    },
+    # ── TIER 2: Clinical breadth ─────────────────────────────────────────────
+    {
+        "pattern": r"Kim.E..Barrett.*Barman|Kim.E..Barrett.*Ganong",
+        "title": "Ganong's Review of Medical Physiology",
+        "category": "physiology",
+        "priority": "high",
+        "tier": 2,
     },
     {
-        "pattern": "250-cases-in-clinical",
-        "title": "250 Cases in Clinical Medicine",
-        "category": "clinical_medicine",
-        "priority": "medium",
+        "pattern": r"Jean.Louis.Vincent.*Abraham|Vincent.*Abraham.*Patrick",
+        "title": "Textbook of Critical Care",
+        "category": "critical_care",
+        "priority": "high",
+        "tier": 2,
     },
     {
-        "pattern": "Parks-Textbook-of-Preventive",
+        "pattern": r"DeVita.*Rosenberg|Vincent.T..DeVita",
+        "title": "DeVita, Hellman, and Rosenberg's Cancer: Principles & Practice of Oncology",
+        "category": "oncology",
+        "priority": "high",
+        "tier": 2,
+    },
+    {
+        "pattern": r"Parks.Textbook.of.Preventive|K..Park.*Preventive",
         "title": "Park's Textbook of Preventive and Social Medicine",
         "category": "preventive_medicine",
         "priority": "high",
+        "tier": 2,
     },
     {
-        "pattern": "Nelson-e.*Kliegman",
+        "pattern": r"Kliegman.*Marcdante.*Nelson|Kliegman.*Nelson.e",
         "title": "Nelson Essentials of Pediatrics",
         "category": "pediatrics",
         "priority": "medium",
+        "tier": 2,
     },
     {
-        "pattern": "Rodwell.*Bender.*Harper",
-        "title": "Harper's Illustrated Biochemistry",
-        "category": "biochemistry",
-        "priority": "low",
-    },
-    {
-        "pattern": "DeVita.*Rosenberg.*Cancer",
-        "title": "DeVita, Hellman, and Rosenberg's Cancer",
-        "category": "oncology",
-        "priority": "high",
-    },
-    {
-        "pattern": "Mendelsohn.*Howley.*Molecular-Biology.*Cancer",
-        "title": "The Molecular Basis of Cancer",
-        "category": "oncology",
-        "priority": "medium",
-    },
-    {
-        "pattern": "Butterfield.*Cancer-Immunotherapy",
-        "title": "Cancer Immunotherapy Principles and Practice",
-        "category": "oncology",
-        "priority": "medium",
-    },
-    {
-        "pattern": "Pecorino.*Molecular-Biology-of-Cancer",
-        "title": "Molecular Biology of Cancer",
-        "category": "oncology",
-        "priority": "medium",
-    },
-    {
-        "pattern": "atlas-of-clinical-diagnosis",
-        "title": "Atlas of Clinical Diagnosis",
+        "pattern": r"Hutchisons|Michael.Glynn.*Drake",
+        "title": "Hutchison's Clinical Methods",
         "category": "clinical_medicine",
-        "priority": "low",
+        "priority": "medium",
+        "tier": 2,
     },
     {
-        "pattern": "Sonpal.*August.*Fischer",
+        "pattern": r"250.cases.in.clinical|R..R.Baliga.*250",
+        "title": "250 Cases in Clinical Medicine",
+        "category": "clinical_medicine",
+        "priority": "medium",
+        "tier": 2,
+    },
+    {
+        "pattern": r"Sonpal.*August.*Fischer",
         "title": "Master the Boards: Internal Medicine",
         "category": "clinical_medicine",
         "priority": "medium",
+        "tier": 2,
     },
     {
-        "pattern": "Karl-Disque.*ACLS",
-        "title": "Advanced Cardiac Life Support Provider Manual",
-        "category": "emergency_medicine",
-        "priority": "low",
-    },
-    {
-        "pattern": "Radiology-101",
+        "pattern": r"Radiology.101|Wilbur.L..Smith.*Radiology",
         "title": "Radiology 101: The Basics and Fundamentals of Imaging",
         "category": "radiology",
         "priority": "medium",
+        "tier": 2,
     },
     {
-        "pattern": "Conti.*Netter.*Cardiovascular",
-        "title": "Netter Collection: Cardiovascular System",
+        "pattern": r"Goldberger.*A\.L|Goldberger.*Clinical.Electrocardiography",
+        "title": "Goldberger's Clinical Electrocardiography",
         "category": "cardiology",
         "priority": "medium",
+        "tier": 2,
     },
     {
-        "pattern": "Vincent.*Abraham.*Textbook.*Critical-Care",
-        "title": "Textbook of Critical Care",
-        "category": "critical_care",
+        "pattern": r"Abbas.*Lichtman",
+        "title": "Cellular and Molecular Immunology",
+        "category": "immunology",
         "priority": "medium",
+        "tier": 2,
+    },
+    {
+        "pattern": r"Peter.J..Delves.*Martin|Delves.*Martin.*Dennis",
+        "title": "Roitt's Essential Immunology",
+        "category": "immunology",
+        "priority": "medium",
+        "tier": 2,
+    },
+    {
+        "pattern": r"Mendelsohn.*Howley",
+        "title": "The Molecular Basis of Cancer",
+        "category": "oncology",
+        "priority": "medium",
+        "tier": 2,
+    },
+    {
+        "pattern": r"Butterfield.*Kaufman|Lisa.H..Butterfield",
+        "title": "Cancer Immunotherapy Principles and Practice",
+        "category": "oncology",
+        "priority": "medium",
+        "tier": 2,
+    },
+    {
+        "pattern": r"Pecorino.*Molecular.Biology.of.Cancer",
+        "title": "Molecular Biology of Cancer",
+        "category": "oncology",
+        "priority": "medium",
+        "tier": 2,
+    },
+    # ── TIER 3: Epidemiology & methodology ───────────────────────────────────
+    {
+        "pattern": r"Cochrane.Hand|Julian.P.T.Higgins",
+        "title": "Cochrane Handbook for Systematic Reviews of Interventions",
+        "category": "systematic_reviews",
+        "priority": "high",
+        "tier": 3,
+    },
+    {
+        "pattern": r"Kestenbaum.*Epidemiology|Bryan.Kestenbaum",
+        "title": "Epidemiology and Biostatistics: An Introduction to Clinical Research",
+        "category": "epidemiology",
+        "priority": "high",
+        "tier": 3,
+    },
+    {
+        "pattern": r"Biostatistical.Methods.in.Epidemiology|Stephen.C..Newman",
+        "title": "Biostatistical Methods in Epidemiology",
+        "category": "biostatistics",
+        "priority": "high",
+        "tier": 3,
+    },
+    {
+        "pattern": r"Applied.Longitudinal.Data|Jos.W..R..Twisk",
+        "title": "Applied Longitudinal Data Analysis",
+        "category": "biostatistics",
+        "priority": "high",
+        "tier": 3,
+    },
+    {
+        "pattern": r"Tom.Brody.*Clinical.Trials|Clinical.Trials.*Second.Edition",
+        "title": "Clinical Trials: Study Design, Endpoints and Biomarkers",
+        "category": "clinical_trials",
+        "priority": "high",
+        "tier": 3,
+    },
+    {
+        "pattern": r"Marcello.Pagano.*Gauvreau|Pagano.*Principle.*Biostatistics",
+        "title": "Principles of Biostatistics",
+        "category": "biostatistics",
+        "priority": "high",
+        "tier": 3,
+    },
+    # ── TIER 4: Infectious disease (selective) ───────────────────────────────
+    {
+        "pattern": r"Knipe.*Fields.Virology|Fields.Virology.*Knipe",
+        "title": "Fields Virology",
+        "category": "virology",
+        "priority": "high",
+        "tier": 4,
+    },
+    {
+        "pattern": r"J.Flint.*Racaniello|Flint.*Rall.*Skalka.*Principles.of.Virology",
+        "title": "Principles of Virology",
+        "category": "virology",
+        "priority": "high",
+        "tier": 4,
+    },
+    {
+        "pattern": r"Essential.Human.Virology|Jennifer.Louten",
+        "title": "Essential Human Virology",
+        "category": "virology",
+        "priority": "medium",
+        "tier": 4,
+    },
+    {
+        "pattern": r"Handbook.of.COVID.19.Prevention|COVID.19.Prevention.and.Treatment.*Zhejiang",
+        "title": "Handbook of COVID-19 Prevention and Treatment",
+        "category": "infectious_disease",
+        "priority": "medium",
+        "tier": 4,
+    },
+    {
+        "pattern": r"Introduction.to.Clinical.Infectious.Diseases|Joseph.Domachowske",
+        "title": "Introduction to Clinical Infectious Diseases: A Problem-Based Approach",
+        "category": "infectious_disease",
+        "priority": "medium",
+        "tier": 4,
+    },
+    {
+        "pattern": r"Infectious.Diseases.*Microbiology.*Virology.*QA|Moore.*Hatcher.*Infectious",
+        "title": "Infectious Diseases, Microbiology and Virology: A QA Approach",
+        "category": "infectious_disease",
+        "priority": "medium",
+        "tier": 4,
+    },
+    {
+        "pattern": r"Joanne.Willey.*Sherwood|Prescott.*Microbiology|Willey.*Sherwood.*Woolverton",
+        "title": "Prescott's Microbiology",
+        "category": "microbiology",
+        "priority": "medium",
+        "tier": 4,
+    },
+    {
+        "pattern": r"Stephen.Gillespie.*Hawkey|Principles.of.Medical.Microbiology.*Gillespie",
+        "title": "Principles of Medical Microbiology",
+        "category": "microbiology",
+        "priority": "medium",
+        "tier": 4,
     },
 ]
 
@@ -344,11 +364,17 @@ def main():
 
     matched = []
     skipped = []
+    seen_titles: set[str] = set()
 
-    for pdf in pdf_files:
+    for pdf in sorted(pdf_files):
         book = match_book(pdf.name)
         if book:
-            matched.append((pdf, book))
+            if book["title"] in seen_titles:
+                log.info("  Dedup skip (already matched): %s", pdf.name)
+                skipped.append(pdf.name)
+            else:
+                matched.append((pdf, book))
+                seen_titles.add(book["title"])
         else:
             skipped.append(pdf.name)
 
@@ -385,6 +411,7 @@ def main():
                             "title": book_meta["title"],
                             "category": book_meta["category"],
                             "priority": book_meta["priority"],
+                            "tier": book_meta.get("tier", 3),
                             "chunk_index": j,
                             "total_chunks": len(chunks),
                             "filename": pdf_path.name,
@@ -396,6 +423,7 @@ def main():
                 "title": book_meta["title"],
                 "category": book_meta["category"],
                 "priority": book_meta["priority"],
+                "tier": book_meta.get("tier", 3),
                 "filename": pdf_path.name,
                 "output_file": str(output_file),
                 "char_count": len(text),

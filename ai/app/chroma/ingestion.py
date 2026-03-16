@@ -537,6 +537,8 @@ def ingest_medical_textbooks(
                     chunk_meta["title"] = str(meta["title"])[:500]
                 if meta.get("category"):
                     chunk_meta["category"] = str(meta["category"])
+                if meta.get("tier") is not None:
+                    chunk_meta["tier"] = int(meta["tier"])
 
                 batch_ids.append(chunk_id)
                 batch_docs.append(text)
