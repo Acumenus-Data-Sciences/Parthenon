@@ -622,7 +622,8 @@ services:
 
   cadvisor:
     container_name: parthenon-cadvisor
-    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    image: gcr.io/cadvisor/cadvisor:v0.51.0
+    privileged: true
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
