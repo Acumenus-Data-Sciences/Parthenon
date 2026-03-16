@@ -125,7 +125,7 @@ Requires `pg_ctl reload` or `SELECT pg_reload_conf()`. No restart needed.
 |---|-------|------|--------|-------|------------|
 | 1 | Platform Status | Stat | Prometheus | `count(container_memory_working_set_bytes{name=~"parthenon-.*",job="cadvisor"} > 0)` with value mappings: ≥18="HEALTHY", 15-17="DEGRADED", <15="CRITICAL" | ≥18 green, ≥15 yellow, <15 red |
 | 2 | Last Restart | Stat | Prometheus | `max(changes(container_start_time_seconds{name=~"parthenon-.*"}[1h]))` — shows how many container restarts in the last hour | 0 green, ≥1 yellow, ≥3 red |
-| 3 | Error Count (1h) | Stat | Loki | `sum(count_over_time({container_name=~"parthenon-.*"} \|~ "(?i)error\|exception\|fatal" [$__range]))` | 0 green, ≥1 yellow, ≥10 red |
+| 3 | Error Count | Stat | Loki | `sum(count_over_time({container_name=~"parthenon-.*"} \|~ "(?i)error\|exception\|fatal" [$__range]))` | 0 green, ≥1 yellow, ≥10 red |
 | 4 | Error Rate | Stat | Loki | `sum(rate({container_name=~"parthenon-.*"} \|~ "(?i)error\|exception\|fatal" [5m])) * 60` (errors per minute) | <0.1/min green, <1/min yellow, ≥1/min red |
 | 5 | CPU Usage | Stat | Prometheus | `avg(sum(rate(container_cpu_usage_seconds_total{name=~"parthenon-.*"}[5m])) by (name)) * 100` | <70% green, <85% yellow, ≥85% red |
 | 6 | Memory Usage | Stat | Prometheus | `sum(container_memory_working_set_bytes{name=~"parthenon-.*",job="cadvisor"}) / sum(machine_memory_bytes{job="node-exporter"}) * 100` (percentage of host memory) | <70% green, <85% yellow, ≥85% red |
