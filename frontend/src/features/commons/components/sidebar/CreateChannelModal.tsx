@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from "react";
-import { X } from "lucide-react";
 import { useCreateChannel } from "../../api";
 import { useNavigate } from "react-router-dom";
+import { Modal } from "@/components/ui/Modal";
 
 interface CreateChannelModalProps {
   onClose: () => void;
@@ -45,98 +45,85 @@ export function CreateChannelModal({ onClose }: CreateChannelModalProps) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-      <div className="w-full max-w-md rounded-lg border border-border bg-card shadow-xl">
-        <div className="flex items-center justify-between border-b border-border px-5 py-4">
-          <h2 className="text-sm font-semibold text-foreground">Create Channel</h2>
-          <button
-            onClick={onClose}
-            className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
-          >
-            <X className="h-4 w-4" />
+    <Modal
+      open
+      onClose={onClose}
+      title="Create Channel"
+      size="sm"
+      footer={
+        <>
+          <button type="button" className="btn btn-ghost" onClick={onClose}>
+            Cancel
           </button>
+          <button
+            type="submit"
+            form="create-channel-form"
+            className="btn btn-primary"
+            disabled={!slug || createChannel.isPending}
+          >
+            {createChannel.isPending ? "Creating…" : "Create Channel"}
+          </button>
+        </>
+      }
+    >
+      <form id="create-channel-form" onSubmit={handleSubmit}>
+        <div className="form-group">
+          <label className="form-label">Channel Name</label>
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="e.g. data-quality"
+            autoFocus
+            className="form-input"
+          />
+          {slug && (
+            <p className="form-helper">
+              Slug: <span className="font-mono">#{slug}</span>
+            </p>
+          )}
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 px-5 py-4">
-          <div>
-            <label className="mb-1 block text-xs font-medium text-foreground">
-              Channel Name
-            </label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. data-quality"
-              autoFocus
-              className="w-full rounded-md border border-border bg-muted px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-            />
-            {slug && (
-              <p className="mt-1 text-[11px] text-muted-foreground">
-                Slug: <span className="font-mono">#{slug}</span>
-              </p>
-            )}
-          </div>
+        <div className="form-group">
+          <label className="form-label">
+            Description <span style={{ color: "var(--text-ghost)" }}>(optional)</span>
+          </label>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="What is this channel about?"
+            rows={2}
+            className="form-input form-textarea"
+          />
+        </div>
 
-          <div>
-            <label className="mb-1 block text-xs font-medium text-foreground">
-              Description <span className="text-muted-foreground">(optional)</span>
-            </label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="What is this channel about?"
-              rows={2}
-              className="w-full resize-none rounded-md border border-border bg-muted px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-            />
-          </div>
-
-          <div className="flex gap-4">
-            <div className="flex-1">
-              <label className="mb-1 block text-xs font-medium text-foreground">Type</label>
-              <select
-                value={type}
-                onChange={(e) => setType(e.target.value as "topic" | "custom")}
-                className="w-full rounded-md border border-border bg-muted px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-              >
-                <option value="topic">Topic</option>
-                <option value="custom">Custom</option>
-              </select>
-            </div>
-            <div className="flex-1">
-              <label className="mb-1 block text-xs font-medium text-foreground">Visibility</label>
-              <select
-                value={visibility}
-                onChange={(e) => setVisibility(e.target.value as "public" | "private")}
-                className="w-full rounded-md border border-border bg-muted px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-              >
-                <option value="public">Public</option>
-                <option value="private">Private</option>
-              </select>
-            </div>
-          </div>
-
-          {error && (
-            <p className="text-xs text-red-400">{error}</p>
-          )}
-
-          <div className="flex justify-end gap-2 pt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded px-4 py-2 text-xs font-medium text-muted-foreground hover:text-foreground"
+        <div style={{ display: "flex", gap: "var(--space-4)" }}>
+          <div className="form-group" style={{ flex: 1 }}>
+            <label className="form-label">Type</label>
+            <select
+              value={type}
+              onChange={(e) => setType(e.target.value as "topic" | "custom")}
+              className="form-input form-select"
             >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={!slug || createChannel.isPending}
-              className="rounded bg-primary px-4 py-2 text-xs font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
-            >
-              {createChannel.isPending ? "Creating..." : "Create Channel"}
-            </button>
+              <option value="topic">Topic</option>
+              <option value="custom">Custom</option>
+            </select>
           </div>
-        </form>
-      </div>
-    </div>
+          <div className="form-group" style={{ flex: 1 }}>
+            <label className="form-label">Visibility</label>
+            <select
+              value={visibility}
+              onChange={(e) => setVisibility(e.target.value as "public" | "private")}
+              className="form-input form-select"
+            >
+              <option value="public">Public</option>
+              <option value="private">Private</option>
+            </select>
+          </div>
+        </div>
+
+        {error && <p className="form-error">{error}</p>}
+      </form>
+    </Modal>
   );
 }
