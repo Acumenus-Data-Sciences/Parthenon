@@ -158,7 +158,7 @@ export default function SystemHealthPage() {
               <GrafanaLaunchCard
                 key={s.key}
                 service={s}
-                grafanaUrl="/grafana"
+                grafanaUrl="/grafana/d/parthenon/parthenon"
               />
             ) : (
               <ServiceCard key={s.key} service={s} />
