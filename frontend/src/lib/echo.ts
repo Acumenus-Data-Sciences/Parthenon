@@ -66,7 +66,7 @@ export function getEcho(): Echo<"reverb"> | null {
         wssPort: config.port,
         forceTLS: config.forceTLS,
         enabledTransports: ["ws", "wss"],
-        authEndpoint: "/broadcasting/auth",
+        authEndpoint: "/api/broadcasting/auth",
         auth: {
           headers: {
             Authorization: `Bearer ${token}`,

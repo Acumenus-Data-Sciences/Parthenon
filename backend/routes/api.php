@@ -92,6 +92,12 @@ use Illuminate\Support\Facades\Route;
 // Public health check
 Route::get('/health', [HealthController::class, 'index']);
 
+// Broadcasting auth — registered under Sanctum so SPA bearer tokens work.
+// Must use /api/broadcasting/auth path; Echo is configured to match.
+Route::post('/broadcasting/auth', function (\Illuminate\Http\Request $request) {
+    return \Illuminate\Support\Facades\Broadcast::auth($request);
+})->middleware('auth:sanctum');
+
 // API v1
 Route::prefix('v1')->group(function () {
     // Auth (public)
@@ -457,6 +463,7 @@ Route::prefix('v1')->group(function () {
                 Route::get('/health', [StudyAgentController::class, 'health']);
                 Route::get('/tools', [StudyAgentController::class, 'tools']);
                 Route::get('/services', [StudyAgentController::class, 'services']);
+                Route::get('/community-workbench-sdk/demo', [StudyAgentController::class, 'communityWorkbenchSdkDemo']);
                 Route::post('/phenotype/search', [StudyAgentController::class, 'phenotypeSearch']);
                 Route::post('/phenotype/recommend', [StudyAgentController::class, 'phenotypeRecommend']);
                 Route::post('/phenotype/improve', [StudyAgentController::class, 'phenotypeImprove']);
