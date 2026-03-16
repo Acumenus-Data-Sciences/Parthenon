@@ -237,7 +237,7 @@ export function AbbyPanel() {
         }));
         // Replace messages in store
         useAbbyStore.setState({ messages: loaded });
-        setConversationId(String(data.data.id));
+        setConversationId(data.data.id);
         setHistoryOpen(false);
       } catch {
         // Failed to load conversation
@@ -255,7 +255,7 @@ export function AbbyPanel() {
         await apiClient.delete(`/abby/conversations/${convId}`);
         setConversationList(conversationList.filter((c) => c.id !== convId));
         // If the deleted conversation is the active one, clear it
-        if (conversationId === String(convId)) {
+        if (conversationId === convId) {
           clearMessages();
         }
       } catch {
@@ -344,7 +344,7 @@ export function AbbyPanel() {
                     const parsed = JSON.parse(data) as {
                       token?: string;
                       suggestions?: string[];
-                      conversation_id?: string;
+                      conversation_id?: number;
                       error?: string;
                     };
                     if (parsed.token) {
@@ -377,7 +377,7 @@ export function AbbyPanel() {
           const { data } = await apiClient.post<{
             reply: string;
             suggestions: string[];
-            conversation_id?: string;
+            conversation_id?: number;
           }>("/abby/chat", {
             message: msgText,
             page_context: pageContext,
@@ -410,7 +410,7 @@ export function AbbyPanel() {
           const { data } = await apiClient.post<{
             reply: string;
             suggestions: string[];
-            conversation_id?: string;
+            conversation_id?: number;
           }>("/abby/chat", {
             message: msgText,
             page_context: pageContext,
@@ -583,14 +583,14 @@ export function AbbyPanel() {
                       cursor: "pointer",
                       borderBottom: "1px solid var(--border-default)",
                       transition: "background 0.15s",
-                      background: conversationId === String(conv.id) ? "var(--surface-overlay)" : "transparent",
+                      background: conversationId === conv.id ? "var(--surface-overlay)" : "transparent",
                     }}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.background = "var(--surface-overlay)";
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.background =
-                        conversationId === String(conv.id) ? "var(--surface-overlay)" : "transparent";
+                        conversationId === conv.id ? "var(--surface-overlay)" : "transparent";
                     }}
                   >
                     <MessageSquare size={14} style={{ color: "var(--text-muted)", flexShrink: 0 }} />
