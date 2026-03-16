@@ -20,7 +20,7 @@ class UserAuditController extends Controller
             ->when($request->action, fn ($q) => $q->where('action', $request->string('action')->toString()))
             ->when($request->feature, fn ($q) => $q->where('feature', $request->string('feature')->toString()))
             ->when($request->date_from, fn ($q) => $q->where('occurred_at', '>=', $request->string('date_from')->toString()))
-            ->when($request->date_to, fn ($q) => $q->where('occurred_at', '<=', $request->string('date_to')->toString() . ' 23:59:59'))
+            ->when($request->date_to, fn ($q) => $q->where('occurred_at', '<=', $request->string('date_to')->toString().' 23:59:59'))
             ->orderByDesc('occurred_at');
 
         $perPage = $request->integer('per_page', 50);
@@ -29,10 +29,10 @@ class UserAuditController extends Controller
         return response()->json([
             'data' => $logs->getCollection()->map(fn (UserAuditLog $log) => $this->formatLog($log))->values(),
             'meta' => [
-                'total'        => $logs->total(),
-                'per_page'     => $logs->perPage(),
+                'total' => $logs->total(),
+                'per_page' => $logs->perPage(),
                 'current_page' => $logs->currentPage(),
-                'last_page'    => $logs->lastPage(),
+                'last_page' => $logs->lastPage(),
             ],
         ]);
     }
@@ -47,10 +47,10 @@ class UserAuditController extends Controller
         return response()->json([
             'data' => $logs->getCollection()->map(fn (UserAuditLog $log) => $this->formatLog($log))->values(),
             'meta' => [
-                'total'        => $logs->total(),
-                'per_page'     => $logs->perPage(),
+                'total' => $logs->total(),
+                'per_page' => $logs->perPage(),
                 'current_page' => $logs->currentPage(),
-                'last_page'    => $logs->lastPage(),
+                'last_page' => $logs->lastPage(),
             ],
         ]);
     }
@@ -87,25 +87,25 @@ class UserAuditController extends Controller
             ->map(fn (UserAuditLog $log) => $this->formatLog($log));
 
         return response()->json([
-            'logins_today'      => $loginsToday,
+            'logins_today' => $loginsToday,
             'active_users_week' => $activeUsersWeek,
-            'top_features'      => $topFeatures,
-            'recent_logins'     => $recentLogins,
+            'top_features' => $topFeatures,
+            'recent_logins' => $recentLogins,
         ]);
     }
 
     private function formatLog(UserAuditLog $log): array
     {
         return [
-            'id'          => $log->id,
-            'user_id'     => $log->user_id,
-            'user_name'   => $log->user?->name,
-            'user_email'  => $log->user?->email,
-            'action'      => $log->action,
-            'feature'     => $log->feature,
-            'ip_address'  => $log->ip_address,
-            'user_agent'  => $log->user_agent,
-            'metadata'    => $log->metadata,
+            'id' => $log->id,
+            'user_id' => $log->user_id,
+            'user_name' => $log->user?->name,
+            'user_email' => $log->user?->email,
+            'action' => $log->action,
+            'feature' => $log->feature,
+            'ip_address' => $log->ip_address,
+            'user_agent' => $log->user_agent,
+            'metadata' => $log->metadata,
             'occurred_at' => $log->occurred_at?->toIso8601String(),
         ];
     }

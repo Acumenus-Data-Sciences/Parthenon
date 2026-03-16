@@ -28,7 +28,7 @@ class SystemHealthController extends Controller
             'queue' => fn () => $this->checkQueue(),
             'chromadb' => fn () => $this->checkChromaDb(),
             'study-agent' => fn () => $this->checkStudyAgent(),
-            'grafana'      => fn () => $this->checkGrafana(),
+            'grafana' => fn () => $this->checkGrafana(),
         ];
     }
 
@@ -78,7 +78,7 @@ class SystemHealthController extends Controller
             'queue' => $this->getQueueLogs(),
             'chromadb' => $this->getServiceHttpLogs('chromadb'),
             'study-agent' => [],
-            'grafana'      => [],
+            'grafana' => [],
             default => [],
         };
     }
@@ -98,7 +98,7 @@ class SystemHealthController extends Controller
             'queue' => $this->getQueueMetrics(),
             'chromadb' => $this->getChromaDbMetrics(),
             'study-agent' => [],
-            'grafana'      => $this->getGrafanaMetrics(),
+            'grafana' => $this->getGrafanaMetrics(),
             default => [],
         };
     }
@@ -410,24 +410,24 @@ class SystemHealthController extends Controller
                 $version = $response->json('version', 'unknown');
 
                 return [
-                    'name'    => 'Grafana',
-                    'key'     => 'grafana',
-                    'status'  => 'healthy',
+                    'name' => 'Grafana',
+                    'key' => 'grafana',
+                    'status' => 'healthy',
                     'message' => "Grafana {$version} is running.",
                 ];
             }
 
             return [
-                'name'    => 'Grafana',
-                'key'     => 'grafana',
-                'status'  => 'degraded',
+                'name' => 'Grafana',
+                'key' => 'grafana',
+                'status' => 'degraded',
                 'message' => "Grafana returned HTTP {$response->status()}.",
             ];
         } catch (\Throwable $e) {
             return [
-                'name'    => 'Grafana',
-                'key'     => 'grafana',
-                'status'  => 'down',
+                'name' => 'Grafana',
+                'key' => 'grafana',
+                'status' => 'down',
                 'message' => $e->getMessage(),
             ];
         }

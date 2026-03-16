@@ -75,8 +75,8 @@ class AuthController extends Controller
         // Record login timestamp and audit entry
         $user->updateQuietly(['last_login_at' => now()]);
         UserAuditLog::create([
-            'user_id'    => $user->id,
-            'action'     => 'login',
+            'user_id' => $user->id,
+            'action' => 'login',
             'ip_address' => $request->ip(),
             'user_agent' => $request->userAgent(),
         ]);
@@ -119,8 +119,8 @@ class AuthController extends Controller
         ]);
 
         UserAuditLog::create([
-            'user_id'    => $user->id,
-            'action'     => 'password_changed',
+            'user_id' => $user->id,
+            'action' => 'password_changed',
             'ip_address' => $request->ip(),
             'user_agent' => $request->userAgent(),
         ]);
@@ -180,8 +180,8 @@ class AuthController extends Controller
         $user = $request->user();
 
         UserAuditLog::create([
-            'user_id'    => $user->id,
-            'action'     => 'logout',
+            'user_id' => $user->id,
+            'action' => 'logout',
             'ip_address' => $request->ip(),
             'user_agent' => $request->userAgent(),
         ]);

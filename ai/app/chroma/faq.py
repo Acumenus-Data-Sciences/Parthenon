@@ -116,3 +116,72 @@ def promote_frequent_questions(days: int = 7) -> dict[str, int]:
             logger.info("Promoted FAQ: %s (freq=%d, users=%d)", cluster["question"][:50], freq, user_count)
 
     return stats
+
+
+def seed_demo_faqs() -> dict[str, int]:
+    """Seed the FAQ collection with representative OHDSI Q&A pairs.
+
+    Provides initial FAQ entries so the collection is useful before
+    enough organic conversations accumulate for auto-promotion.
+    Returns stats: {"seeded": N, "skipped": N}
+    """
+    faq_collection = get_faq_collection()
+    stats = {"seeded": 0, "skipped": 0}
+
+    demo_faqs = [
+        {
+            "question": "What is the OMOP Common Data Model?",
+            "answer": "The OMOP CDM is a standardized data model for observational health data. It maps diverse source data into a common format with standard vocabularies, enabling consistent analytics across institutions.",
+        },
+        {
+            "question": "How do I create a cohort definition?",
+            "answer": "Use the Cohort Builder to define inclusion/exclusion criteria. Start with an initial event (e.g., condition occurrence), add qualifying criteria, and set observation period requirements. The definition is stored as a JSON expression.",
+        },
+        {
+            "question": "What is the difference between a concept and a concept_id?",
+            "answer": "A concept_id is the numeric identifier for a concept in the OMOP vocabulary. A concept includes the id plus its name, domain, vocabulary, class, and standard/non-standard status.",
+        },
+        {
+            "question": "How do I map source codes to standard concepts?",
+            "answer": "Use the Concept Mapping tool. Upload your source codes and Abby will suggest OMOP standard concept mappings with confidence scores. Review and approve the mappings, then apply them to your ETL.",
+        },
+        {
+            "question": "What are HADES packages?",
+            "answer": "HADES (Health Analytics Data-to-Evidence Suite) is a set of R packages by OHDSI for large-scale analytics: CohortMethod for causal inference, PatientLevelPrediction for ML models, CohortDiagnostics for cohort evaluation, and more.",
+        },
+        {
+            "question": "How do I run a characterization analysis?",
+            "answer": "Go to Analyses, create a new characterization study, select your target cohort, choose the features to characterize (demographics, conditions, drugs, etc.), and execute. Results appear in the Results Explorer.",
+        },
+        {
+            "question": "What is Achilles and what does it do?",
+            "answer": "Achilles generates descriptive statistics for your OMOP CDM database — record counts, distributions, data quality checks. It runs automated analyses across all CDM tables and stores results for the Data Quality Dashboard.",
+        },
+        {
+            "question": "How do I check data quality?",
+            "answer": "The Data Quality Dashboard (DQD) runs automated checks on your CDM data: completeness, conformance, plausibility, and temporal checks. Run Achilles first, then DQD to identify issues.",
+        },
+    ]
+
+    for faq in demo_faqs:
+        doc_id = f"faq_seed_{faq['question'][:30].replace(' ', '_').lower()}"
+        existing = faq_collection.get(ids=[doc_id], include=[])
+        if existing.get("ids"):
+            stats["skipped"] += 1
+            continue
+
+        doc = f"Q: {faq['question']}\nA: {faq['answer']}"
+        faq_collection.upsert(
+            ids=[doc_id],
+            documents=[doc],
+            metadatas=[{
+                "frequency": 0,
+                "source_users_count": 0,
+                "last_seen": datetime.now(timezone.utc).isoformat(),
+                "source": "seed",
+            }],
+        )
+        stats["seeded"] += 1
+
+    logger.info("FAQ seeding complete: %s", stats)
+    return stats

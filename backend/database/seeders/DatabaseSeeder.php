@@ -31,6 +31,7 @@ class DatabaseSeeder extends Seeder
                 'BLOCKED: DatabaseSeeder refuses to run in production. '
                 .'Use individual --class= seeders explicitly.'
             );
+
             return;
         }
 
@@ -68,6 +69,7 @@ class DatabaseSeeder extends Seeder
             );
             $this->call(ConditionBundleSeeder::class);
             $this->call(GisBoundaryLevelSeeder::class);
+
             return;
         }
 

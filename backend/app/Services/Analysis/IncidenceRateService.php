@@ -398,6 +398,7 @@ class IncidenceRateService
                 } else {
                     $cases[] = "WHEN (EXTRACT(YEAR FROM target.cohort_start_date) - p.year_of_birth) BETWEEN {$minAge} AND {$maxAge} THEN '{$label}'";
                 }
+
                 continue;
             }
 

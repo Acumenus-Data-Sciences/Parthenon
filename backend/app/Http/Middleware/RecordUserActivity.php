@@ -15,36 +15,36 @@ class RecordUserActivity
 {
     /** API path prefixes → feature slugs */
     private const FEATURE_MAP = [
-        'admin/users'             => 'admin.users',
-        'admin/roles'             => 'admin.roles',
-        'admin/system-health'     => 'admin.system-health',
-        'admin/ai-providers'      => 'admin.ai-providers',
-        'admin/auth-providers'    => 'admin.auth-providers',
-        'admin/vocabulary'        => 'admin.vocabulary',
-        'admin/user-audit'        => 'admin.user-audit',
-        'admin'                   => 'admin',
-        'cohort-definitions'      => 'cohort-definitions',
-        'concept-sets'            => 'concept-sets',
-        'studies'                 => 'studies',
+        'admin/users' => 'admin.users',
+        'admin/roles' => 'admin.roles',
+        'admin/system-health' => 'admin.system-health',
+        'admin/ai-providers' => 'admin.ai-providers',
+        'admin/auth-providers' => 'admin.auth-providers',
+        'admin/vocabulary' => 'admin.vocabulary',
+        'admin/user-audit' => 'admin.user-audit',
+        'admin' => 'admin',
+        'cohort-definitions' => 'cohort-definitions',
+        'concept-sets' => 'concept-sets',
+        'studies' => 'studies',
         'analyses/characterization' => 'analyses.characterization',
         'analyses/incidence-rate' => 'analyses.incidence-rate',
-        'analyses/estimation'     => 'analyses.estimation',
-        'analyses/prediction'     => 'analyses.prediction',
-        'analyses/sccs'           => 'analyses.sccs',
+        'analyses/estimation' => 'analyses.estimation',
+        'analyses/prediction' => 'analyses.prediction',
+        'analyses/sccs' => 'analyses.sccs',
         'analyses/evidence-synthesis' => 'analyses.evidence-synthesis',
-        'analyses'                => 'analyses',
-        'jobs'                    => 'jobs',
-        'sources'                 => 'sources',
-        'data-explorer'           => 'data-explorer',
-        'results'                 => 'results',
-        'genomics'                => 'genomics',
-        'gis'                     => 'gis',
-        'fhir'                    => 'fhir',
-        'heor'                    => 'heor',
-        'commons'                 => 'commons',
-        'phenotypes'              => 'phenotypes',
-        'mappings'                => 'mappings',
-        'vocabulary'              => 'vocabulary',
+        'analyses' => 'analyses',
+        'jobs' => 'jobs',
+        'sources' => 'sources',
+        'data-explorer' => 'data-explorer',
+        'results' => 'results',
+        'genomics' => 'genomics',
+        'gis' => 'gis',
+        'fhir' => 'fhir',
+        'heor' => 'heor',
+        'commons' => 'commons',
+        'phenotypes' => 'phenotypes',
+        'mappings' => 'mappings',
+        'vocabulary' => 'vocabulary',
     ];
 
     public function handle(Request $request, Closure $next): Response
@@ -72,21 +72,21 @@ class RecordUserActivity
         }
 
         // Throttle: one entry per (user, feature) per hour to avoid log flood
-        $recentKey = "audit:{$user->id}:{$feature}:" . now()->format('Y-m-d-H');
+        $recentKey = "audit:{$user->id}:{$feature}:".now()->format('Y-m-d-H');
         if (cache()->has($recentKey)) {
             return $response;
         }
         cache()->put($recentKey, 1, 3600);
 
         UserAuditLog::create([
-            'user_id'    => $user->id,
-            'action'     => 'api_access',
-            'feature'    => $feature,
+            'user_id' => $user->id,
+            'action' => 'api_access',
+            'feature' => $feature,
             'ip_address' => $request->ip(),
             'user_agent' => $request->userAgent(),
-            'metadata'   => [
+            'metadata' => [
                 'method' => $request->method(),
-                'path'   => $request->path(),
+                'path' => $request->path(),
             ],
         ]);
 

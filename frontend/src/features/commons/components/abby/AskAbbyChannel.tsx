@@ -227,7 +227,7 @@ export default function AskAbbyChannel() {
     return () => {
       cancelled = true;
     };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps — intentionally runs once on mount
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Auto-scroll on new messages and typing state changes.
   useLayoutEffect(() => {

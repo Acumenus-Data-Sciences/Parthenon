@@ -6,6 +6,7 @@ import { createElement } from 'react';
 import AskAbbyChannel from '../AskAbbyChannel';
 import { useAbbyStore } from '@/stores/abbyStore';
 import * as abbyService from '../../../services/abbyService';
+import type { AbbyConversationMessage, AbbyConversationSummary } from '../../../types/abby';
 
 vi.mock('../../../services/abbyService');
 vi.mock('@/stores/abbyStore', async (importOriginal) => {
@@ -44,10 +45,10 @@ describe('AskAbbyChannel', () => {
       title: null,
       page_context: 'commons_ask_abby',
       messages: [
-        { id: 1, role: 'user', content: 'Hello Abby', created_at: new Date().toISOString(), metadata: {} },
-        { id: 2, role: 'assistant', content: 'Hello researcher', created_at: new Date().toISOString(), metadata: {} },
+        { id: 1, role: 'user', content: 'Hello Abby', created_at: new Date().toISOString(), metadata: {} } satisfies AbbyConversationMessage,
+        { id: 2, role: 'assistant', content: 'Hello researcher', created_at: new Date().toISOString(), metadata: {} } satisfies AbbyConversationMessage,
       ],
-    } as any);
+    });
 
     useAbbyStore.setState({ conversationId: 7 });
     render(<AskAbbyChannel />, { wrapper: makeWrapper() });
@@ -74,8 +75,8 @@ describe('AskAbbyChannel', () => {
 
   it('shows history panel when history button is clicked', async () => {
     vi.mocked(abbyService.listAbbyConversations).mockResolvedValue([
-      { id: 1, title: 'T2DM study', page_context: 'commons_ask_abby', created_at: '2026-03-15T00:00:00Z', updated_at: '2026-03-15T00:00:00Z', messages_count: 3 },
-    ] as any);
+      { id: 1, title: 'T2DM study', page_context: 'commons_ask_abby', created_at: '2026-03-15T00:00:00Z', updated_at: '2026-03-15T00:00:00Z', messages_count: 3 } satisfies AbbyConversationSummary,
+    ]);
 
     render(<AskAbbyChannel />, { wrapper: makeWrapper() });
 
@@ -92,12 +93,12 @@ describe('AskAbbyChannel', () => {
       title: null,
       page_context: 'commons_ask_abby',
       messages: [],
-    } as any);
+    });
 
     render(<AskAbbyChannel />, { wrapper: makeWrapper() });
 
     // Open history to access "New chat" button
-    vi.mocked(abbyService.listAbbyConversations).mockResolvedValue([] as any);
+    vi.mocked(abbyService.listAbbyConversations).mockResolvedValue([]);
     await userEvent.click(screen.getByTitle('Conversation history'));
     await userEvent.click(screen.getByText('New chat'));
 

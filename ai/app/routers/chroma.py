@@ -357,41 +357,89 @@ async def project_collection(name: str, body: ProjectionInput) -> dict:
     if cached is not None:
         return _result_to_dict(cached)
 
-    # Fetch embeddings in batches (ChromaDB/SQLite has ~999 variable limit)
+    # For large collections, fetch only IDs first then sample before fetching embeddings.
+    # This prevents OOM on collections with 100K+ vectors.
     BATCH_SIZE = 500
-    all_ids: list = []
-    all_embeddings: list = []
-    all_metadatas: list = []
-    offset = 0
-    while offset < total_count:
-        batch = col.get(
-            limit=min(BATCH_SIZE, total_count - offset),
-            offset=offset,
-            include=["embeddings", "metadatas"],
-        )
-        batch_ids = batch.get("ids", [])
-        if not batch_ids:
-            break
-        all_ids.extend(batch_ids)
-        batch_embs = batch.get("embeddings")
-        if batch_embs is not None:
-            all_embeddings.extend(batch_embs)
-        batch_metas = batch.get("metadatas")
-        if batch_metas is not None:
-            all_metadatas.extend(batch_metas)
-        else:
-            all_metadatas.extend([{}] * len(batch_ids))
-        offset += len(batch_ids)
+    effective_sample = body.sample_size if body.sample_size > 0 else total_count
 
-    if not all_embeddings:
+    if total_count > effective_sample * 2:
+        # Large collection: fetch IDs only (large batches), sample, then fetch embeddings
+        ID_BATCH = 10000
+        all_ids: list = []
+        offset = 0
+        while offset < total_count:
+            batch = col.get(
+                limit=min(ID_BATCH, total_count - offset),
+                offset=offset,
+                include=[],
+            )
+            batch_ids = batch.get("ids", [])
+            if not batch_ids:
+                break
+            all_ids.extend(batch_ids)
+            offset += len(batch_ids)
+
+        if not all_ids:
+            raise HTTPException(status_code=400, detail="Collection has no entries.")
+
+        indices = sample_deterministic(all_ids, body.sample_size, name, total_count)
+        sampled_ids = [all_ids[i] for i in indices]
+
+        # Fetch embeddings + metadata only for sampled IDs
+        ids: list = []
+        raw_embeddings: list = []
+        metadatas: list = []
+        for i in range(0, len(sampled_ids), BATCH_SIZE):
+            batch_ids_slice = sampled_ids[i:i + BATCH_SIZE]
+            batch = col.get(
+                ids=batch_ids_slice,
+                include=["embeddings", "metadatas"],
+            )
+            ids.extend(batch.get("ids", []))
+            batch_embs = batch.get("embeddings")
+            if batch_embs is not None:
+                raw_embeddings.extend(batch_embs)
+            batch_metas = batch.get("metadatas")
+            if batch_metas is not None:
+                metadatas.extend(batch_metas)
+            else:
+                metadatas.extend([{}] * len(batch_ids_slice))
+    else:
+        # Small collection: fetch everything directly
+        all_ids_full: list = []
+        all_embeddings: list = []
+        all_metadatas: list = []
+        offset = 0
+        while offset < total_count:
+            batch = col.get(
+                limit=min(BATCH_SIZE, total_count - offset),
+                offset=offset,
+                include=["embeddings", "metadatas"],
+            )
+            batch_ids = batch.get("ids", [])
+            if not batch_ids:
+                break
+            all_ids_full.extend(batch_ids)
+            batch_embs = batch.get("embeddings")
+            if batch_embs is not None:
+                all_embeddings.extend(batch_embs)
+            batch_metas = batch.get("metadatas")
+            if batch_metas is not None:
+                all_metadatas.extend(batch_metas)
+            else:
+                all_metadatas.extend([{}] * len(batch_ids))
+            offset += len(batch_ids)
+
+        if not all_embeddings:
+            raise HTTPException(status_code=400, detail="Collection has no embeddings.")
+
+        indices = sample_deterministic(all_ids_full, body.sample_size, name, total_count)
+        ids = [all_ids_full[i] for i in indices]
+        raw_embeddings = [all_embeddings[i] for i in indices]
+        metadatas = [all_metadatas[i] or {} for i in indices]
+
+    if not raw_embeddings:
         raise HTTPException(status_code=400, detail="Collection has no embeddings.")
-
-    # Sample deterministically
-    indices = sample_deterministic(all_ids, body.sample_size, name, total_count)
-
-    ids = [all_ids[i] for i in indices]
-    raw_embeddings = [all_embeddings[i] for i in indices]
-    metadatas = [all_metadatas[i] or {} for i in indices]
 
     embeddings_array = np.array(
         [e.tolist() if hasattr(e, "tolist") else e for e in raw_embeddings],

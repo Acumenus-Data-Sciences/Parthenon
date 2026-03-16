@@ -45,6 +45,7 @@ class SyncOhdsiAnnouncements extends Command
 
         if (! $channel) {
             $this->error('#announcements channel not found. Run CommonsChannelSeeder first.');
+
             return self::FAILURE;
         }
 
@@ -52,6 +53,7 @@ class SyncOhdsiAnnouncements extends Command
 
         if (! $poster) {
             $this->error('admin@acumenus.net user not found. Run php artisan admin:seed first.');
+
             return self::FAILURE;
         }
 
@@ -63,6 +65,7 @@ class SyncOhdsiAnnouncements extends Command
 
         if (empty($items)) {
             $this->info('RSS feed returned no items.');
+
             return self::SUCCESS;
         }
 
@@ -84,8 +87,9 @@ class SyncOhdsiAnnouncements extends Command
             }
 
             if ($cutoff && $pubDate->lt($cutoff)) {
-                $this->line("Skipping old item ({$pubDate->toDateString()}): " . $this->truncate((string) $item->title, 60));
+                $this->line("Skipping old item ({$pubDate->toDateString()}): ".$this->truncate((string) $item->title, 60));
                 $seenGuids[] = $guid;
+
                 continue;
             }
 
@@ -124,7 +128,8 @@ class SyncOhdsiAnnouncements extends Command
 
         if (! $response->successful()) {
             Log::error('OHDSI RSS fetch failed', ['status' => $response->status()]);
-            $this->error('Failed to fetch OHDSI RSS feed: HTTP ' . $response->status());
+            $this->error('Failed to fetch OHDSI RSS feed: HTTP '.$response->status());
+
             return null;
         }
 
@@ -133,6 +138,7 @@ class SyncOhdsiAnnouncements extends Command
         if ($xml === false) {
             Log::error('OHDSI RSS parse failed', ['body_preview' => substr($response->body(), 0, 200)]);
             $this->error('Failed to parse OHDSI RSS feed.');
+
             return null;
         }
 
@@ -141,9 +147,9 @@ class SyncOhdsiAnnouncements extends Command
 
     private function formatItemAsMarkdown(\SimpleXMLElement $item, \Carbon\Carbon $pubDate): string
     {
-        $title    = html_entity_decode(strip_tags((string) $item->title), ENT_QUOTES | ENT_HTML5);
-        $link     = (string) $item->link;
-        $author   = (string) ($item->children('dc', true)->creator ?? '');
+        $title = html_entity_decode(strip_tags((string) $item->title), ENT_QUOTES | ENT_HTML5);
+        $link = (string) $item->link;
+        $author = (string) ($item->children('dc', true)->creator ?? '');
         $category = (string) ($item->category ?? 'General');
 
         // Strip HTML from the description, collapse whitespace, truncate
@@ -166,11 +172,11 @@ class SyncOhdsiAnnouncements extends Command
 
         $message = Message::create([
             'channel_id' => $channel->id,
-            'user_id'    => $poster->id,
-            'body'       => $body,
-            'body_html'  => $bodyHtml,
-            'depth'      => 0,
-            'is_edited'  => false,
+            'user_id' => $poster->id,
+            'body' => $body,
+            'body_html' => $bodyHtml,
+            'depth' => 0,
+            'is_edited' => false,
         ]);
 
         try {
@@ -186,6 +192,6 @@ class SyncOhdsiAnnouncements extends Command
             return $text;
         }
 
-        return rtrim(mb_substr($text, 0, $limit)) . '…';
+        return rtrim(mb_substr($text, 0, $limit)).'…';
     }
 }

@@ -45,11 +45,11 @@ return new class extends Migration
             \$\$
         ");
 
-        DB::statement("
+        DB::statement('
             CREATE TRIGGER design_audit_log_no_update_delete
             BEFORE UPDATE OR DELETE ON app.design_audit_log
             FOR EACH ROW EXECUTE FUNCTION app.design_audit_log_immutable()
-        ");
+        ');
     }
 
     public function down(): void

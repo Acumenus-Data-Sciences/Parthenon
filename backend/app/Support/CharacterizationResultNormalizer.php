@@ -114,6 +114,7 @@ final class CharacterizationResultNormalizer
     private static function normalizeFeatureRows(array $rows, string $featureType, int $cohortId): array
     {
         $i = 0;
+
         return array_values(array_map(function (mixed $row) use ($featureType, $cohortId, &$i): array {
             $index = $i++;
             $data = is_array($row) ? $row : [];
