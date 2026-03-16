@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 export interface Message {
   id: string;
@@ -25,8 +26,8 @@ interface AbbyState {
   addMessage: (msg: Message) => void;
   clearMessages: () => void;
 
-  conversationId: string | null;
-  setConversationId: (id: string | null) => void;
+  conversationId: number | null;             // was string | null
+  setConversationId: (id: number | null) => void;
 
   conversationList: ConversationSummary[];
   setConversationList: (list: ConversationSummary[]) => void;
@@ -50,29 +51,37 @@ const WELCOME_MESSAGE: Message = {
   timestamp: new Date(),
 };
 
-export const useAbbyStore = create<AbbyState>()((set) => ({
-  panelOpen: false,
-  togglePanel: () => set((s) => ({ panelOpen: !s.panelOpen })),
-  setPanelOpen: (open) => set({ panelOpen: open }),
+export const useAbbyStore = create<AbbyState>()(
+  persist(
+    (set) => ({
+      panelOpen: false,
+      togglePanel: () => set((s) => ({ panelOpen: !s.panelOpen })),
+      setPanelOpen: (open) => set({ panelOpen: open }),
 
-  messages: [WELCOME_MESSAGE],
-  addMessage: (msg) => set((s) => ({ messages: [...s.messages, msg] })),
-  clearMessages: () => set({ messages: [WELCOME_MESSAGE], conversationId: null }),
+      messages: [WELCOME_MESSAGE],
+      addMessage: (msg) => set((s) => ({ messages: [...s.messages, msg] })),
+      clearMessages: () => set({ messages: [WELCOME_MESSAGE], conversationId: null }),
 
-  conversationId: null,
-  setConversationId: (id) => set({ conversationId: id }),
+      conversationId: null,
+      setConversationId: (id) => set({ conversationId: id }),
 
-  conversationList: [],
-  setConversationList: (list) => set({ conversationList: list }),
+      conversationList: [],
+      setConversationList: (list) => set({ conversationList: list }),
 
-  pageContext: "general",
-  setPageContext: (ctx) => set({ pageContext: ctx }),
+      pageContext: "general",
+      setPageContext: (ctx) => set({ pageContext: ctx }),
 
-  isStreaming: false,
-  setIsStreaming: (streaming) => set({ isStreaming: streaming }),
+      isStreaming: false,
+      setIsStreaming: (streaming) => set({ isStreaming: streaming }),
 
-  streamingContent: "",
-  setStreamingContent: (content) => set({ streamingContent: content }),
-  appendStreamingContent: (chunk) =>
-    set((s) => ({ streamingContent: s.streamingContent + chunk })),
-}));
+      streamingContent: "",
+      setStreamingContent: (content) => set({ streamingContent: content }),
+      appendStreamingContent: (chunk) =>
+        set((s) => ({ streamingContent: s.streamingContent + chunk })),
+    }),
+    {
+      name: "parthenon-abby",
+      partialize: (state) => ({ conversationId: state.conversationId }),
+    },
+  ),
+);
