@@ -11,25 +11,36 @@ class DatabaseSeeder extends Seeder
     /**
      * Seed the application's database.
      *
-     * SAFETY: Detects whether the database has real (non-factory) users.
-     * If real users exist, only infrastructure seeders run (roles, providers).
-     * Sample data seeders (cohorts, analyses, studies) are SKIPPED to prevent
-     * overwriting or cascading destruction of production data.
-     *
-     * This was learned the hard way on 2026-03-15 when db:seed wiped 16
-     * real registered users via TRUNCATE CASCADE.
+     * SAFETY HISTORY:
+     * - 2026-03-15: db:seed wiped 16 real production users TWICE because
+     *   deploy.sh was calling this seeder on every push.
+     * - db:seed has been PERMANENTLY REMOVED from deploy.sh.
+     * - This seeder now hard-blocks in production environment.
+     * - Sample data seeders only run on fresh/demo databases with no real users.
      */
     public function run(): void
     {
-        // ── Infrastructure seeders (ALWAYS safe to run) ──────────────────────
-        // These use firstOrCreate / updateOrCreate and never truncate.
+        // ── Hard production block ────────────────────────────────────────────
+        // The production APP_ENV must be 'local' or 'testing' for seeders to run.
+        // If you are seeing this message in production, do NOT force past it.
+        // Use individual artisan commands instead:
+        //   php artisan db:seed --class=RolePermissionSeeder
+        //   php artisan admin:seed
+        if (app()->environment('production')) {
+            $this->command?->error(
+                'BLOCKED: DatabaseSeeder refuses to run in production. '
+                .'Use individual --class= seeders explicitly.'
+            );
+            return;
+        }
+
+        // ── Infrastructure seeders (always safe — use firstOrCreate, never truncate) ─
         $this->call(RolePermissionSeeder::class);
         $this->call(AuthProviderSeeder::class);
         $this->call(AiProviderSeeder::class);
 
         // ── Super-admin account ──────────────────────────────────────────────
         // Credentials: admin@acumenus.net / superuser
-        // NEVER change this email or password.
         $admin = User::firstOrCreate(
             ['email' => 'admin@acumenus.net'],
             [
@@ -43,23 +54,20 @@ class DatabaseSeeder extends Seeder
         $admin->assignRole('super-admin');
 
         // ── Detect real users ────────────────────────────────────────────────
-        // If any non-admin, non-factory users exist, skip sample data seeders.
+        // Skip sample data if any non-admin, non-factory users exist.
         $realUserCount = User::query()
             ->where('email', '!=', 'admin@acumenus.net')
             ->where('email', 'NOT LIKE', '%@example.%')
             ->where('email', 'NOT LIKE', '%@parthenon.local')
+            ->where('email', 'NOT LIKE', 'test-%')
             ->count();
 
         if ($realUserCount > 0) {
             $this->command?->info(
-                "Skipping sample data seeders — {$realUserCount} real user(s) detected. "
-                .'Run individual seeders with --class= if needed.'
+                "Skipping sample data seeders — {$realUserCount} real user(s) detected."
             );
-
-            // Only run seeders that are safe for production (no truncate, no FK risk)
             $this->call(ConditionBundleSeeder::class);
             $this->call(GisBoundaryLevelSeeder::class);
-
             return;
         }
 
