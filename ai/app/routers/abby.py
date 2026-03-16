@@ -487,17 +487,24 @@ async def parse_cohort(request: CohortParseRequest) -> CohortParseResponse:
 
 
 def _build_chat_system_prompt(request: ChatRequest) -> str:
-    """Build the system prompt for a chat request, including page context, user profile, and RAG."""
+    """Build the system prompt for a chat request.
+
+    Four context enrichment steps (each only injected when relevant):
+      1. Help knowledge — static help docs for the current page context
+      2. RAG retrieval — ChromaDB semantic search across knowledge base
+      3. Live database — real-time query of Parthenon's concept sets, cohorts, analyses
+      4. Page data — entity-specific data passed from the frontend
+    """
     system_prompt = PAGE_SYSTEM_PROMPTS.get(
         request.page_context, PAGE_SYSTEM_PROMPTS["general"]
     )
 
-    # Inject help knowledge for this page context
+    # ── Step 1: Help knowledge (static, page-specific) ──────────────────────
     help_context = _get_help_context(request.page_context)
     if help_context:
         system_prompt += help_context
 
-    # Inject RAG context from ChromaDB
+    # ── Step 2: RAG retrieval (ChromaDB semantic search) ─────────────────────
     rag_context = ""
     try:
         rag_context = build_rag_context(
@@ -510,7 +517,17 @@ def _build_chat_system_prompt(request: ChatRequest) -> str:
     except Exception as e:
         logger.warning("RAG context retrieval failed: %s", e)
 
-    # Inject user profile
+    # ── Step 3: Live database context (only when query needs it) ─────────────
+    live_context = ""
+    try:
+        from app.chroma.live_context import query_live_context
+        live_context = query_live_context(request.message, request.page_context)
+        if live_context:
+            system_prompt += live_context
+    except Exception as e:
+        logger.warning("Live database context failed: %s", e)
+
+    # ── Step 4: Page data (entity-specific frontend context) ─────────────────
     if request.user_profile and request.user_profile.name:
         role_str = ", ".join(request.user_profile.roles) if request.user_profile.roles else "researcher"
         system_prompt += (
@@ -518,7 +535,6 @@ def _build_chat_system_prompt(request: ChatRequest) -> str:
             f"who has roles: {role_str}."
         )
 
-    # Enrich with page-specific data context
     if request.page_data:
         context_lines = []
         for key, val in request.page_data.items():
@@ -529,20 +545,22 @@ def _build_chat_system_prompt(request: ChatRequest) -> str:
         if context_lines:
             system_prompt += "\n\nCURRENT PAGE CONTEXT:\n" + "\n".join(context_lines)
 
-    # RAG grounding rules — prevent hallucination
-    if rag_context:
+    # ── Grounding rules ──────────────────────────────────────────────────────
+    has_context = bool(rag_context or live_context)
+    if has_context:
         system_prompt += (
             "\n\nGROUNDING RULES:"
-            "\n- Base your answer PRIMARILY on the KNOWLEDGE BASE content provided above."
-            "\n- When citing specific studies, papers, researchers, or statistics, use ONLY information from the KNOWLEDGE BASE. Do NOT invent paper titles, author names, or study details."
-            "\n- If the KNOWLEDGE BASE does not contain enough information to fully answer the question, say so explicitly: 'Based on available sources, I can tell you...' and then share what IS available."
-            "\n- You MAY use your general medical training knowledge for explanations, definitions, and context — but NEVER fabricate specific claims (names, dates, statistics, paper titles)."
+            "\n- Base your answer PRIMARILY on the KNOWLEDGE BASE and LIVE PLATFORM DATA provided above."
+            "\n- When citing specific concept sets, cohort definitions, or analyses, use ONLY the data from LIVE PLATFORM DATA. These are real entities in the user's Parthenon instance."
+            "\n- When citing studies, papers, or researchers, use ONLY information from the KNOWLEDGE BASE. Do NOT invent paper titles, author names, or study details."
+            "\n- If the provided context does not contain enough information, say so explicitly."
+            "\n- You MAY use your general medical training knowledge for explanations, definitions, and context — but NEVER fabricate specific claims."
         )
     else:
         system_prompt += (
-            "\n\nNOTE: No relevant documents were found in the knowledge base for this query. "
+            "\n\nNOTE: No relevant documents or platform data were found for this query. "
             "Answer using your general knowledge but be transparent about limitations. "
-            "Do NOT fabricate specific paper titles, researcher names, or study details."
+            "Do NOT fabricate specific paper titles, researcher names, concept sets, or study details."
         )
 
     system_prompt += (
