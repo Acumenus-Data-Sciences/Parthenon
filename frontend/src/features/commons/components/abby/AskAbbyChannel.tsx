@@ -8,10 +8,11 @@ import AbbyFeedback from "./AbbyFeedback";
 import { useAbbyQuery } from "../../hooks/useAbby";
 import {
   fetchAbbyConversation,
-  listAbbyConversations,
   submitFeedback,
 } from "../../services/abbyService";
 import { useAuthStore } from "@/stores/authStore";
+import { useAbbyStore } from "@/stores/abbyStore";
+import { useAbbyConversations } from "../../api";
 import type {
   AbbyConversationMessage,
   AbbyFeedbackRequest,
@@ -183,9 +184,8 @@ function AbbyBubble({
 
 export default function AskAbbyChannel() {
   const [conversation, setConversation] = useState<ConversationEntry[]>([]);
-  const [conversationId, setConversationId] = useState<number | null>(null);
   const [inputValue, setInputValue] = useState("");
-  const [hasLoadedConversation, setHasLoadedConversation] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
   const { response, pipelineState, isLoading, sendQuery } = useAbbyQuery();
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -199,52 +199,35 @@ export default function AskAbbyChannel() {
     .toUpperCase()
     .slice(0, 2);
 
+  const conversationId = useAbbyStore((s) => s.conversationId);
+  const setConversationId = useAbbyStore((s) => s.setConversationId);
+
+  const { data: conversationHistory = [] } = useAbbyConversations();
+
+  // On mount: if store has a conversationId, restore that conversation from the API.
+  // Runs once — deliberately ignores userName in deps to avoid re-fetching on user load.
   useEffect(() => {
+    if (!conversationId) return;
     let cancelled = false;
 
-    const loadLatestConversation = async () => {
-      try {
-        const conversations = await listAbbyConversations();
-        const latestCommonsConversation = conversations.find(
-          (item) => item.page_context === "commons_ask_abby"
-        );
-
-        if (!latestCommonsConversation) {
-          if (!cancelled) {
-            setHasLoadedConversation(true);
-          }
-          return;
-        }
-
-        const loadedConversation = await fetchAbbyConversation(
-          latestCommonsConversation.id
-        );
-
-        if (cancelled) {
-          return;
-        }
-
-        setConversationId(loadedConversation.id);
+    fetchAbbyConversation(conversationId)
+      .then((conv) => {
+        if (cancelled) return;
         setConversation(
-          loadedConversation.messages.map((message) =>
-            mapConversationMessage(message, userName)
-          )
+          conv.messages.map((m) => mapConversationMessage(m, userName))
         );
-      } catch (error) {
-        console.error("Failed to load Ask Abby conversation:", error);
-      } finally {
+      })
+      .catch(() => {
         if (!cancelled) {
-          setHasLoadedConversation(true);
+          setConversationId(null);
+          setConversation([]);
         }
-      }
-    };
-
-    void loadLatestConversation();
+      });
 
     return () => {
       cancelled = true;
     };
-  }, [userName]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps — intentionally runs once on mount
 
   // Auto-scroll on new messages and typing state changes.
   useLayoutEffect(() => {
@@ -277,7 +260,7 @@ export default function AskAbbyChannel() {
         },
       ]);
     }
-  }, [response]);
+  }, [response, setConversationId]);
 
   const handleSend = useCallback(
     (text?: string) => {
@@ -331,74 +314,155 @@ export default function AskAbbyChannel() {
     [handleSend]
   );
 
+  const loadConversation = useCallback(
+    async (id: number) => {
+      try {
+        const conv = await fetchAbbyConversation(id);
+        setConversation(conv.messages.map((m) => mapConversationMessage(m, userName)));
+        setConversationId(id);
+        setHistoryOpen(false);
+      } catch {
+        // Failed to load — leave current conversation
+      }
+    },
+    [userName, setConversationId]
+  );
+
+  const handleNewChat = useCallback(() => {
+    setConversationId(null);
+    setConversation([]);
+    setHistoryOpen(false);
+  }, [setConversationId]);
+
   return (
-    <div className="flex flex-1 min-h-0 flex-col">
-      {/* Channel header */}
-      <div className="flex items-center gap-3 px-5 py-3 border-b border-white/[0.06] shrink-0 bg-gradient-to-r from-emerald-900/[0.04] to-transparent">
-        <AbbyAvatar size="lg" showStatus />
-        <div className="flex-1 min-w-0">
-          <h2 className="text-sm font-medium text-foreground">Ask Abby</h2>
-          <p className="text-[11px] text-muted-foreground">
-            AI research companion · MedGemma · Institutional memory
-          </p>
+    <div className="flex flex-1 min-h-0">
+      {/* History sidebar */}
+      {historyOpen && (
+        <div className="flex w-[220px] shrink-0 flex-col border-r border-white/[0.04] bg-[#101014]">
+          <div className="flex items-center justify-between border-b border-white/[0.06] px-3 py-2.5">
+            <span className="text-[12px] font-semibold text-foreground">History</span>
+            <button
+              type="button"
+              onClick={handleNewChat}
+              className="rounded px-2 py-1 text-[11px] text-muted-foreground hover:bg-white/[0.05] hover:text-foreground transition-colors"
+            >
+              New chat
+            </button>
+          </div>
+          <div className="flex-1 overflow-y-auto py-1">
+            {conversationHistory.length === 0 ? (
+              <p className="px-3 py-4 text-center text-[11px] text-muted-foreground">
+                No past conversations
+              </p>
+            ) : (
+              conversationHistory.map((conv) => (
+                <button
+                  type="button"
+                  key={conv.id}
+                  onClick={() => loadConversation(conv.id)}
+                  className={`w-full px-3 py-2 text-left transition-colors hover:bg-white/[0.04] ${
+                    conversationId === conv.id ? "bg-white/[0.06]" : ""
+                  }`}
+                >
+                  <p className="truncate text-[12px] text-foreground">
+                    {conv.title || `Conversation — ${new Date(conv.created_at).toLocaleDateString()}`}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">
+                    {new Date(conv.created_at).toLocaleDateString()} · {conv.messages_count} messages
+                  </p>
+                </button>
+              ))
+            )}
+          </div>
         </div>
-        <div className="flex items-center gap-1.5 text-[11px] text-emerald-400">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-          Online
-        </div>
-      </div>
+      )}
 
-      {/* Conversation area */}
-      <div
-        ref={scrollRef}
-        className="flex flex-1 min-h-0 flex-col gap-4 overflow-y-auto px-4 py-4"
-      >
-        {hasLoadedConversation && conversation.length === 0 && (
-          <WelcomeCard onPromptClick={(prompt) => handleSend(prompt)} />
-        )}
-
-        {conversation.map((entry) =>
-          entry.role === "user" ? (
-            <UserBubble key={entry.id} entry={entry} initials={userInitials} />
-          ) : (
-            <AbbyBubble
-              key={entry.id}
-              entry={entry}
-              onFeedback={handleFeedback}
-            />
-          )
-        )}
-
-        {isLoading && (
-          <div className="flex gap-2">
-            <AbbyAvatar size="sm" />
-            <div className="px-3.5 py-2.5 rounded-2xl rounded-bl-sm bg-muted">
-              <AbbyTypingIndicator pipelineState={pipelineState} />
+      {/* Main Abby area */}
+      <div className="flex flex-1 min-h-0 flex-col">
+        {/* Channel header */}
+        <div className="flex items-center gap-3 px-5 py-3 border-b border-white/[0.06] shrink-0 bg-gradient-to-r from-emerald-900/[0.04] to-transparent">
+          <AbbyAvatar size="lg" showStatus />
+          <div className="flex-1 min-w-0">
+            <h2 className="text-sm font-medium text-foreground">Ask Abby</h2>
+            <p className="text-[11px] text-muted-foreground">
+              AI research companion · MedGemma · Institutional memory
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setHistoryOpen((o) => !o)}
+              title="Conversation history"
+              className={`flex h-7 w-7 items-center justify-center rounded transition-colors ${
+                historyOpen
+                  ? "bg-white/[0.08] text-foreground"
+                  : "text-muted-foreground hover:bg-white/[0.05] hover:text-foreground"
+              }`}
+            >
+              {/* Clock icon */}
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6l4 2m6-2a10 10 0 11-20 0 10 10 0 0120 0z" />
+              </svg>
+            </button>
+            <div className="flex items-center gap-1.5 text-[11px] text-emerald-400">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              Online
             </div>
           </div>
-        )}
-      </div>
+        </div>
 
-      {/* Composer */}
-      <div className="shrink-0 px-4 py-3 border-t border-white/[0.06] bg-gradient-to-t from-black/20 to-transparent">
-        <div className="flex gap-2">
-          <input
-            ref={inputRef}
-            type="text"
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Ask Abby anything about your research network..."
-            disabled={isLoading}
-            className="flex-1 h-10 px-3.5 text-[13px] bg-[#13131a] border border-white/[0.08] rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/30 disabled:opacity-60 transition-all duration-150"
-          />
-          <button
-            onClick={() => handleSend()}
-            disabled={!inputValue.trim() || isLoading}
-            className="h-10 px-5 rounded-lg text-[13px] font-medium bg-emerald-600 hover:bg-emerald-500 text-white disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-150 cursor-pointer hover:shadow-[0_0_16px_rgba(16,185,129,0.25)]"
-          >
-            Ask
-          </button>
+        {/* Conversation area */}
+        <div
+          ref={scrollRef}
+          className="flex flex-1 min-h-0 flex-col gap-4 overflow-y-auto px-4 py-4"
+        >
+          {conversation.length === 0 && (
+            <WelcomeCard onPromptClick={(prompt) => handleSend(prompt)} />
+          )}
+
+          {conversation.map((entry) =>
+            entry.role === "user" ? (
+              <UserBubble key={entry.id} entry={entry} initials={userInitials} />
+            ) : (
+              <AbbyBubble
+                key={entry.id}
+                entry={entry}
+                onFeedback={handleFeedback}
+              />
+            )
+          )}
+
+          {isLoading && (
+            <div className="flex gap-2">
+              <AbbyAvatar size="sm" />
+              <div className="px-3.5 py-2.5 rounded-2xl rounded-bl-sm bg-muted">
+                <AbbyTypingIndicator pipelineState={pipelineState} />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Composer */}
+        <div className="shrink-0 px-4 py-3 border-t border-white/[0.06] bg-gradient-to-t from-black/20 to-transparent">
+          <div className="flex gap-2">
+            <input
+              ref={inputRef}
+              type="text"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Ask Abby anything about your research network..."
+              disabled={isLoading}
+              className="flex-1 h-10 px-3.5 text-[13px] bg-[#13131a] border border-white/[0.08] rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/30 disabled:opacity-60 transition-all duration-150"
+            />
+            <button
+              onClick={() => handleSend()}
+              disabled={!inputValue.trim() || isLoading}
+              className="h-10 px-5 rounded-lg text-[13px] font-medium bg-emerald-600 hover:bg-emerald-500 text-white disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-150 cursor-pointer hover:shadow-[0_0_16px_rgba(16,185,129,0.25)]"
+            >
+              Ask
+            </button>
+          </div>
         </div>
       </div>
     </div>

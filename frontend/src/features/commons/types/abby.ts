@@ -193,6 +193,8 @@ export interface AbbyConversationSummary {
   title: string | null;
   page_context: string;
   updated_at: string;
+  created_at: string;
+  messages_count: number;
 }
 
 export interface AbbyConversationMessage {
