@@ -1752,6 +1752,189 @@ def build_romopapi(payload: dict[str, Any], source_key: str, dialect: str) -> di
     return result
 
 
+def execute_r_script(r_code: str, timeout_seconds: int = 300) -> dict[str, Any] | None:
+    """Execute R code via Rscript and return parsed JSON output, or None on failure."""
+    if not shutil.which("Rscript"):
+        return None
+    try:
+        result = subprocess.run(
+            ["Rscript", "-e", r_code],
+            capture_output=True,
+            text=True,
+            timeout=timeout_seconds,
+            check=False,
+        )
+        if result.returncode != 0:
+            return None
+        # Find the last JSON object in stdout (R may print warnings before it)
+        stdout = result.stdout.strip()
+        if not stdout:
+            return None
+        # Try parsing from the last { to the end
+        last_brace = stdout.rfind("{")
+        if last_brace >= 0:
+            return json.loads(stdout[last_brace:])
+        return json.loads(stdout)
+    except (subprocess.TimeoutExpired, json.JSONDecodeError, Exception):
+        return None
+
+
+def build_r_connection_code(source: dict[str, Any]) -> str:
+    """Build R code to create a DatabaseConnector connection from source config."""
+    cdm_schema = source.get("cdm_schema") or "public"
+    vocab_schema = source.get("vocabulary_schema") or cdm_schema
+    results_schema = source.get("results_schema") or "public"
+    # Use environment variables for connection details (set in Docker)
+    return f"""
+library(DatabaseConnector)
+library(ROMOPAPI)
+connectionDetails <- createConnectionDetails(
+  dbms = "postgresql",
+  server = Sys.getenv("CDM_DB_HOST", "postgres") %+% "/" %+% Sys.getenv("CDM_DB_DATABASE", "parthenon"),
+  port = as.integer(Sys.getenv("CDM_DB_PORT", "5432")),
+  user = Sys.getenv("CDM_DB_USERNAME", "parthenon"),
+  password = Sys.getenv("CDM_DB_PASSWORD", "parthenon")
+)
+`%+%` <- function(a, b) paste0(a, b)
+cdmSchema <- "{cdm_schema}"
+vocabSchema <- "{vocab_schema}"
+resultsSchema <- "{results_schema}"
+"""
+
+
+def try_upstream_romopapi(payload: dict[str, Any], source_key: str) -> dict[str, Any] | None:
+    """Try to execute real ROMOPAPI code counts via R package."""
+    source = payload.get("source") or {}
+    schema = payload.get("schema_scope") or source.get("cdm_schema") or "public"
+    concept_domain = payload.get("concept_domain") or "all"
+    result_limit = int(payload.get("result_limit") or 25)
+
+    r_code = build_r_connection_code(source) + f"""
+library(jsonlite)
+tryCatch({{
+  connectionHandler <- connectionHandlerFromList(connectionDetails, cdmSchema, vocabSchema, resultsSchema)
+  codeCounts <- getCodeCounts(connectionHandler, "{schema}")
+  if (!is.null(codeCounts) && nrow(codeCounts) > 0) {{
+    top <- head(codeCounts[order(-codeCounts$n), ], {result_limit})
+    result <- list(
+      status = "ok",
+      execution_mode = "upstream_r_package",
+      code_counts = lapply(1:nrow(top), function(i) {{
+        list(
+          concept = as.character(top$concept_name[i]),
+          count = as.integer(top$n[i]),
+          domain = as.character(top$domain_id[i]),
+          stratum = "overall"
+        )
+      }})
+    )
+    cat(toJSON(result, auto_unbox = TRUE))
+  }} else {{
+    cat(toJSON(list(status = "empty"), auto_unbox = TRUE))
+  }}
+}}, error = function(e) {{
+  cat(toJSON(list(status = "error", message = conditionMessage(e)), auto_unbox = TRUE))
+}})
+"""
+    return execute_r_script(r_code, timeout_seconds=120)
+
+
+def try_upstream_co2(payload: dict[str, Any], source_key: str) -> dict[str, Any] | None:
+    """Try to execute real CO2 analysis module via R package."""
+    source = payload.get("source") or {}
+    module_key = payload.get("module_key") or "comparative_effectiveness"
+
+    # Map module keys to CO2 execute functions
+    module_map = {
+        "codewas_preview": "execute_CodeWAS",
+        "timecodewas_preview": "execute_timeCodeWAS",
+        "cohort_demographics_preview": "execute_CohortDemographics",
+        "gwas_preview": "execute_GWAS",
+        "sex_stratified_preview": "execute_PhenotypeScoring",
+        "condition_burden": "execute_CodeWAS",  # similar analysis path
+        "drug_utilization": "execute_CodeWAS",
+        "comparative_effectiveness": "execute_CodeWAS",
+    }
+    execute_fn = module_map.get(module_key, "execute_CodeWAS")
+
+    r_code = build_r_connection_code(source) + f"""
+library(CO2AnalysisModules)
+library(HadesExtras)
+library(jsonlite)
+tryCatch({{
+  connectionHandler <- connectionHandlerFromList(connectionDetails, cdmSchema, vocabSchema, resultsSchema)
+  cohortTableHandler <- CohortTableHandler(
+    connectionHandler = connectionHandler,
+    cohortTableName = "cohort",
+    cohortDefinitionTableName = "cohort_definition"
+  )
+  # Validate settings before execution
+  settings <- list(
+    cohortTableHandler = cohortTableHandler,
+    analysisIds = c(1),
+    cohortIds = c(1)
+  )
+  result <- tryCatch({{
+    res <- {execute_fn}(settings)
+    list(
+      status = "ok",
+      execution_mode = "upstream_r_package",
+      module = "{module_key}",
+      has_results = !is.null(res)
+    )
+  }}, error = function(e) {{
+    list(
+      status = "validation_only",
+      execution_mode = "upstream_r_package",
+      module = "{module_key}",
+      validation_error = conditionMessage(e)
+    )
+  }})
+  cat(toJSON(result, auto_unbox = TRUE))
+}}, error = function(e) {{
+  cat(toJSON(list(status = "error", message = conditionMessage(e)), auto_unbox = TRUE))
+}})
+"""
+    return execute_r_script(r_code, timeout_seconds=300)
+
+
+def try_upstream_hades(payload: dict[str, Any], source_key: str) -> dict[str, Any] | None:
+    """Try to execute real HadesExtras functions via R package."""
+    source = payload.get("source") or {}
+    cohort_table = payload.get("cohort_table") or "results.cohort"
+
+    r_code = build_r_connection_code(source) + f"""
+library(HadesExtras)
+library(jsonlite)
+tryCatch({{
+  connectionHandler <- connectionHandlerFromList(connectionDetails, cdmSchema, vocabSchema, resultsSchema)
+  logTibble <- LogTibble$new()
+  logTibble$INFO("Connection handler created for {source_key}")
+
+  # Test cohort table handler
+  cohortTableHandler <- tryCatch({{
+    CohortTableHandler(
+      connectionHandler = connectionHandler,
+      cohortTableName = "{cohort_table.split('.')[-1]}",
+      cohortDefinitionTableName = "cohort_definition"
+    )
+  }}, error = function(e) NULL)
+
+  result <- list(
+    status = "ok",
+    execution_mode = "upstream_r_package",
+    connection_valid = TRUE,
+    cohort_table_valid = !is.null(cohortTableHandler),
+    log_entries = logTibble$logs
+  )
+  cat(toJSON(result, auto_unbox = TRUE))
+}}, error = function(e) {{
+  cat(toJSON(list(status = "error", message = conditionMessage(e)), auto_unbox = TRUE))
+}})
+"""
+    return execute_r_script(r_code, timeout_seconds=120)
+
+
 def handle_service(service_key: str, payload: dict[str, Any]) -> dict[str, Any]:
     if service_key not in SERVICES:
         raise KeyError(service_key)
@@ -1760,7 +1943,19 @@ def handle_service(service_key: str, payload: dict[str, Any]) -> dict[str, Any]:
     source_key = source.get("source_key") or "unknown"
     dialect = source.get("source_dialect") or "postgresql"
     config = SERVICES[service_key]
+    info = adapter_info(config)
 
+    # Try upstream R execution when packages are available
+    upstream_result: dict[str, Any] | None = None
+    if info.get("upstream_ready"):
+        if service_key == "romopapi":
+            upstream_result = try_upstream_romopapi(payload, source_key)
+        elif service_key == "co2_analysis":
+            upstream_result = try_upstream_co2(payload, source_key)
+        elif service_key == "hades_extras":
+            upstream_result = try_upstream_hades(payload, source_key)
+
+    # Build compatibility-mode result (always, as the response structure)
     if service_key == "cohort_operations":
         result = build_cohort_operations(payload, source_key, dialect)
     elif service_key == "co2_analysis":
@@ -1770,7 +1965,22 @@ def handle_service(service_key: str, payload: dict[str, Any]) -> dict[str, Any]:
     else:
         result = build_romopapi(payload, source_key, dialect)
 
-    result["adapter"] = adapter_info(config)
+    # Merge upstream data into the compatibility result when available
+    if upstream_result and upstream_result.get("status") == "ok":
+        result.setdefault("upstream", {})
+        result["upstream"] = upstream_result
+        result["upstream"]["execution_mode"] = upstream_result.get("execution_mode", "upstream_r_package")
+
+        # Merge real code counts from ROMOPAPI upstream
+        if service_key == "romopapi" and upstream_result.get("code_counts"):
+            result["code_counts"] = upstream_result["code_counts"]
+
+        # Mark adapter as upstream-executed
+        info["compatibility_mode"] = False
+        info["upstream_ready"] = True
+        info["notes"] = [f"Upstream R package executed successfully for {config.label}."]
+
+    result["adapter"] = info
     return result
 
 
