@@ -1,0 +1,198 @@
+// =============================================================================
+// Grafana Alloy Configuration for Parthenon
+// Replaces Promtail — collects Docker container logs + host Apache/PG17 logs
+// =============================================================================
+
+// ---------------------------------------------------------------------------
+// Source A: Docker container logs (migrated from Promtail)
+// ---------------------------------------------------------------------------
+
+discovery.docker "containers" {
+  host = "unix:///var/run/docker.sock"
+  refresh_interval = "5s"
+  filter {
+    name   = "label"
+    values = ["com.docker.compose.project=parthenon"]
+  }
+}
+
+discovery.relabel "containers" {
+  targets = discovery.docker.containers.targets
+
+  // Use docker compose service name as "service" label
+  rule {
+    source_labels = ["__meta_docker_container_label_com_docker_compose_service"]
+    target_label  = "service"
+  }
+
+  // Use container name (e.g. parthenon-nginx) as "container_name" label
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    regex         = "/(.*)"
+    target_label  = "container_name"
+  }
+
+  // Set job label
+  rule {
+    target_label = "job"
+    replacement  = "docker"
+  }
+}
+
+loki.source.docker "containers" {
+  host       = "unix:///var/run/docker.sock"
+  targets    = discovery.relabel.containers.output
+  forward_to = [loki.process.docker.receiver]
+
+  refresh_interval = "5s"
+}
+
+loki.process "docker" {
+  // Docker JSON log driver wraps logs — extract the log field
+  stage.json {
+    expressions = {
+      log    = "log",
+      stream = "stream",
+      time   = "time",
+    }
+  }
+
+  stage.timestamp {
+    source = "time"
+    format = "RFC3339Nano"
+  }
+
+  stage.labels {
+    values = {
+      stream = "",
+    }
+  }
+
+  stage.output {
+    source = "log"
+  }
+
+  forward_to = [loki.write.default.receiver]
+}
+
+// ---------------------------------------------------------------------------
+// Source B: Apache host logs (Parthenon only — no OHDSI)
+// ---------------------------------------------------------------------------
+
+local.file_match "apache_access" {
+  path_targets = [{
+    __path__  = "/var/log/apache2/parthenon-access.log",
+    job       = "apache",
+    log_type  = "access",
+  }]
+}
+
+loki.source.file "apache_access" {
+  targets    = local.file_match.apache_access.targets
+  forward_to = [loki.process.apache_access.receiver]
+}
+
+loki.process "apache_access" {
+  // Apache combined log format:
+  // 1.2.3.4 - - [16/Mar/2026:12:00:00 +0000] "GET /api/v1/health HTTP/1.1" 200 15 "-" "curl/7.68"
+  stage.regex {
+    expression = "^(?P<remote_addr>\\S+) - (?P<remote_user>\\S+) \\[(?P<timestamp>[^\\]]+)\\] \"(?P<method>\\S+) (?P<path>\\S+) (?P<protocol>\\S+)\" (?P<status>\\d+) (?P<bytes_sent>\\d+)"
+  }
+
+  stage.labels {
+    values = {
+      method = "",
+      status = "",
+    }
+  }
+
+  stage.timestamp {
+    source = "timestamp"
+    format = "02/Jan/2006:15:04:05 -0700"
+  }
+
+  forward_to = [loki.write.default.receiver]
+}
+
+local.file_match "apache_error" {
+  path_targets = [{
+    __path__  = "/var/log/apache2/parthenon-error.log",
+    job       = "apache",
+    log_type  = "error",
+  }]
+}
+
+loki.source.file "apache_error" {
+  targets    = local.file_match.apache_error.targets
+  forward_to = [loki.process.apache_error.receiver]
+}
+
+loki.process "apache_error" {
+  // Apache error log format:
+  // [Sun Mar 16 12:00:00.123456 2026] [proxy:error] [pid 1234] AH01114: ...
+  stage.regex {
+    expression = "^\\[[^\\]]+\\] \\[(?P<module>[^:]+):(?P<level>\\w+)\\]"
+  }
+
+  stage.labels {
+    values = {
+      level  = "",
+      module = "",
+    }
+  }
+
+  forward_to = [loki.write.default.receiver]
+}
+
+// ---------------------------------------------------------------------------
+// Source C: PostgreSQL 17 host logs
+// ---------------------------------------------------------------------------
+
+local.file_match "postgresql" {
+  path_targets = [{
+    __path__ = "/var/log/postgresql/postgresql-17-main.log",
+    job      = "postgresql",
+  }]
+}
+
+loki.source.file "postgresql" {
+  targets    = local.file_match.postgresql.targets
+  forward_to = [loki.process.postgresql.receiver]
+}
+
+loki.process "postgresql" {
+  // PostgreSQL log lines start with timestamp — multiline for stack traces
+  stage.multiline {
+    firstline     = "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}"
+    max_wait_time = "3s"
+  }
+
+  // Format: 2026-03-16 12:00:00.123 EDT [1234] user@database LOG:  message
+  stage.regex {
+    expression = "^(?P<timestamp>\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d+ \\w+) \\[(?P<pid>\\d+)\\] (?P<user>\\S+)@(?P<database>\\S+) (?P<level>\\w+):"
+  }
+
+  stage.labels {
+    values = {
+      level    = "",
+      database = "",
+    }
+  }
+
+  stage.timestamp {
+    source = "timestamp"
+    format = "2006-01-02 15:04:05.000 MST"
+  }
+
+  forward_to = [loki.write.default.receiver]
+}
+
+// ---------------------------------------------------------------------------
+// Write destination: Loki
+// ---------------------------------------------------------------------------
+
+loki.write "default" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}
