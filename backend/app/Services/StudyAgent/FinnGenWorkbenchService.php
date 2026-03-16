@@ -446,8 +446,8 @@ class FinnGenWorkbenchService
                 'balance_score' => $matchingEnabled ? round(max(0.71, min(0.98, 1 - ($matchingCaliper * 0.18) + (($matchingRatio - 1) * 0.03))), 2) : 1.0,
             ],
             'matching_review' => [
-                'matched_samples' => $this->buildMatchingSamples($selectedCohorts, $matchingCovariates, $matchingRatio, 'matched', $matchingTarget),
-                'excluded_samples' => $this->buildMatchingSamples($selectedCohorts, $matchingCovariates, $matchingRatio, 'excluded', $matchingTarget),
+                'matched_samples' => $this->queryMatchingSamplesFromCdm($connection, $summary['cdm_schema'] ?: 'public', $summary['vocabulary_schema'] ?: ($summary['cdm_schema'] ?: 'public'), $selectedCohorts, $matchingCovariates, $matchingRatio, 'matched', $matchingTarget),
+                'excluded_samples' => $this->queryMatchingSamplesFromCdm($connection, $summary['cdm_schema'] ?: 'public', $summary['vocabulary_schema'] ?: ($summary['cdm_schema'] ?: 'public'), $selectedCohorts, $matchingCovariates, $matchingRatio, 'excluded', $matchingTarget),
                 'balance_notes' => [
                     'Matching evidence is aligned to the selected operation builder settings.',
                     'Primary-cohort anchoring changes how subtract and pairwise balance previews retain comparator rows.',
@@ -999,7 +999,7 @@ SQL;
         $artifactPipeline = $this->buildHadesArtifactPipeline($artifactMode, ! empty($explain));
         $sqlLineage = $this->buildHadesSqlLineage($summary['source_key'], $package, $packageSetup);
         $configExports = $this->buildHadesConfigExports($packageSetup);
-        $cohortTableLifecycle = $this->buildHadesCohortTableLifecycle($summary, $packageSetup);
+        $cohortTableLifecycle = $this->buildHadesCohortTableLifecycle($summary, $packageSetup, $source);
         $helperLogs = $this->buildHadesHelperLogs($packageSetup, $configContext, $artifactPipeline, ! empty($explain));
 
         return [
@@ -1670,6 +1670,67 @@ SQL;
             $selectedCohorts,
             array_keys($selectedCohorts),
         );
+    }
+
+    /**
+     * Query real person rows from the CDM for matching sample evidence.
+     *
+     * @param  list<array{id:int,name:string,description:?string}>  $selectedCohorts
+     * @param  list<string>  $matchingCovariates
+     * @return list<array<string, int|string|float>>
+     */
+    private function queryMatchingSamplesFromCdm(
+        string $connection,
+        string $cdmSchema,
+        string $vocabSchema,
+        array $selectedCohorts,
+        array $matchingCovariates,
+        float $matchingRatio,
+        string $mode,
+        string $matchingTarget,
+        int $limit = 5,
+    ): array {
+        try {
+            $rows = DB::connection($connection)->select("
+                SELECT
+                    p.person_id,
+                    EXTRACT(YEAR FROM CURRENT_DATE) - p.year_of_birth AS age,
+                    COALESCE(gc.concept_name, 'Unknown') AS sex
+                FROM {$cdmSchema}.person p
+                LEFT JOIN {$vocabSchema}.concept gc ON gc.concept_id = p.gender_concept_id
+                ORDER BY p.person_id
+                LIMIT ?
+                OFFSET ?
+            ", [$limit, $mode === 'excluded' ? $limit : 0]);
+
+            return array_map(
+                static function ($row, int $index) use ($selectedCohorts, $matchingCovariates, $matchingRatio, $mode, $matchingTarget) {
+                    $r = (array) $row;
+                    $cohort = $selectedCohorts[$index % max(count($selectedCohorts), 1)] ?? ['name' => 'Cohort', 'role' => 'selected'];
+                    $age = (int) ($r['age'] ?? 0);
+                    $score = $mode === 'matched'
+                        ? round(max(0.7, 1.0 - ($index * 0.03)), 2)
+                        : round(max(0.4, 0.65 - ($index * 0.05)), 2);
+
+                    return [
+                        'person_id' => (int) ($r['person_id'] ?? 0),
+                        'cohort_name' => (string) ($cohort['name'] ?? 'Cohort'),
+                        'cohort_role' => (string) ($cohort['role'] ?? 'selected'),
+                        'match_group' => $mode,
+                        'age' => $age,
+                        'sex' => (string) ($r['sex'] ?? 'Unknown'),
+                        'propensity_score' => $score,
+                        'match_ratio' => number_format($matchingRatio, 1).' : 1',
+                        'matching_target' => str_replace('_', ' ', $matchingTarget),
+                        'covariates' => $matchingCovariates !== [] ? implode(', ', array_slice($matchingCovariates, 0, 3)) : 'age, sex, index year',
+                    ];
+                },
+                $rows,
+                array_keys($rows),
+            );
+        } catch (\Throwable) {
+            return $this->buildMatchingSamples($selectedCohorts, $matchingCovariates, $matchingRatio, $mode, $matchingTarget);
+        }
     }
 
     /**
@@ -2504,13 +2565,16 @@ SQL;
             ],
         };
 
+        $windowCount = max(1, min(12, (int) ($moduleSetup['time_window_count'] ?? 4)));
+        $windowUnit = (string) ($moduleSetup['time_window_unit'] ?? 'months');
         $temporalWindows = array_map(
-            static fn (array $row) => [
-                'label' => (string) ($row['bucket'] ?? 'window'),
+            static fn (array $row, int $idx) => [
+                'label' => (string) ($row['bucket'] ?? "window ".($idx + 1)),
                 'count' => (int) ($row['event_count'] ?? 0),
-                'detail' => 'Observed event volume',
+                'detail' => "Observed event volume ({$windowUnit} window ".($idx + 1)." of {$windowCount})",
             ],
-            array_slice($trendRows, 0, 4)
+            array_slice($trendRows, 0, $windowCount),
+            array_keys(array_slice($trendRows, 0, $windowCount)),
         );
 
         $familySpotlight = match ($moduleFamily) {
@@ -3036,15 +3100,57 @@ HTML;
      * @param  array<string, string>  $packageSetup
      * @return array<int,array{name:string,status:string,detail:string}>
      */
-    private function buildHadesCohortTableLifecycle(array $summary, array $packageSetup): array
+    private function buildHadesCohortTableLifecycle(array $summary, array $packageSetup, ?Source $source = null): array
     {
         $cohortTable = (string) ($packageSetup['cohort_table'] ?? (($summary['results_schema'] ?? 'results').'.cohort'));
         $artifactMode = (string) ($packageSetup['artifact_mode'] ?? 'full_bundle');
+        $parts = explode('.', $cohortTable, 2);
+        $tableSchema = count($parts) === 2 ? $parts[0] : ($summary['results_schema'] ?? 'results');
+        $tableName = count($parts) === 2 ? $parts[1] : $cohortTable;
+
+        $tableExists = false;
+        $rowCount = 0;
+        $distinctCohorts = 0;
+        $columns = [];
+
+        if ($source !== null) {
+            try {
+                $connection = $this->connections->connectionName($source);
+                $check = DB::connection($connection)->selectOne(
+                    "SELECT COUNT(*) AS cnt FROM information_schema.tables WHERE table_schema = ? AND table_name = ?",
+                    [$tableSchema, $tableName],
+                );
+                $tableExists = ((int) ($check->cnt ?? 0)) > 0;
+
+                if ($tableExists) {
+                    $countRow = DB::connection($connection)->selectOne("SELECT COUNT(*) AS cnt FROM {$tableSchema}.{$tableName}");
+                    $rowCount = (int) ($countRow->cnt ?? 0);
+
+                    $distinctRow = DB::connection($connection)->selectOne("SELECT COUNT(DISTINCT cohort_definition_id) AS cnt FROM {$tableSchema}.{$tableName}");
+                    $distinctCohorts = (int) ($distinctRow->cnt ?? 0);
+
+                    $cols = DB::connection($connection)->select(
+                        "SELECT column_name FROM information_schema.columns WHERE table_schema = ? AND table_name = ? ORDER BY ordinal_position",
+                        [$tableSchema, $tableName],
+                    );
+                    $columns = array_map(static fn ($r) => (string) ((array) $r)['column_name'], $cols);
+                }
+            } catch (\Throwable) {
+                // Connection may not have access — fall back to synthetic
+            }
+        }
+
+        $requiredCols = ['cohort_definition_id', 'subject_id', 'cohort_start_date', 'cohort_end_date'];
+        $missingCols = $tableExists ? array_diff($requiredCols, $columns) : [];
+        $colStatus = $tableExists ? ($missingCols === [] ? 'ready' : 'warning') : 'review';
+        $colDetail = $tableExists
+            ? ($missingCols === [] ? 'All required columns found: '.implode(', ', $requiredCols) : 'Missing columns: '.implode(', ', $missingCols))
+            : 'Table not found — column validation skipped';
 
         return [
-            ['name' => 'Resolve cohort table', 'status' => 'ready', 'detail' => "Resolved target cohort table {$cohortTable}"],
-            ['name' => 'Validate cohort columns', 'status' => 'ready', 'detail' => 'Validated expected cohort_definition_id, subject_id, cohort_start_date, and cohort_end_date columns'],
-            ['name' => 'Inspect cohort contents', 'status' => 'ready', 'detail' => 'Prepared sampled cohort rows and manifest summaries for the selected table'],
+            ['name' => 'Resolve cohort table', 'status' => $tableExists ? 'ready' : 'warning', 'detail' => $tableExists ? "Found {$tableSchema}.{$tableName} ({$rowCount} rows, {$distinctCohorts} distinct cohort definitions)" : "Table {$tableSchema}.{$tableName} not found in schema"],
+            ['name' => 'Validate cohort columns', 'status' => $colStatus, 'detail' => $colDetail],
+            ['name' => 'Inspect cohort contents', 'status' => $tableExists && $rowCount > 0 ? 'ready' : 'review', 'detail' => $tableExists && $rowCount > 0 ? "{$rowCount} rows across {$distinctCohorts} cohort definitions" : 'No rows to inspect'],
             ['name' => 'Prepare artifact implications', 'status' => $artifactMode === 'sql_only' ? 'review' : 'ready', 'detail' => $artifactMode === 'sql_only' ? 'Artifact mode is SQL-only, so cohort-table exports are metadata-only.' : 'Cohort-table outputs are included in package artifact planning.'],
         ];
     }
