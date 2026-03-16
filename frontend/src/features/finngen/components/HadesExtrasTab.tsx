@@ -122,6 +122,50 @@ function OperationLineageView({ result }: { result: FinnGenHadesExtrasResult }) 
   );
 }
 
+function CohortTableLifecycleView({ result }: { result: FinnGenHadesExtrasResult }) {
+  const lifecycle = result.cohort_table_lifecycle ?? [];
+
+  return lifecycle.length ? (
+    <div className="space-y-3">
+      {lifecycle.map((item, index) => (
+        <div key={`${item.name}-${index}`} className="rounded-lg border border-zinc-800 bg-zinc-950/70 p-4">
+          <div className="flex items-center justify-between gap-3">
+            <div className="text-sm font-medium text-zinc-100">{item.name}</div>
+            <span className="rounded px-1.5 py-0.5 text-[10px] font-medium bg-zinc-800 text-zinc-300">
+              {item.status}
+            </span>
+          </div>
+          {item.detail ? <div className="mt-2 text-xs text-zinc-500">{item.detail}</div> : null}
+        </div>
+      ))}
+    </div>
+  ) : (
+    <EmptyState label="Cohort table lifecycle details will appear here when available." />
+  );
+}
+
+function HelperLogsView({ result }: { result: FinnGenHadesExtrasResult }) {
+  const logs = result.helper_logs ?? [];
+
+  return logs.length ? (
+    <div className="space-y-3">
+      {logs.map((log, index) => (
+        <div key={`${log.step}-${index}`} className="rounded-lg border border-zinc-800 bg-zinc-950/70 p-4">
+          <div className="flex items-center justify-between gap-3">
+            <div className="text-sm font-medium text-zinc-100">{log.step}</div>
+            <span className="rounded px-1.5 py-0.5 text-[10px] font-medium bg-zinc-800 text-zinc-300">
+              {log.status}
+            </span>
+          </div>
+          <div className="mt-2 text-xs text-zinc-500">{log.detail}</div>
+        </div>
+      ))}
+    </div>
+  ) : (
+    <EmptyState label="Structured helper logs will appear here when available." />
+  );
+}
+
 function PipelineView({ result }: { result: FinnGenHadesExtrasResult }) {
   return (
     <div className="space-y-3">
@@ -211,6 +255,120 @@ function PackageBundleView({ result }: { result: FinnGenHadesExtrasResult }) {
             Download Package Manifest
           </button>
         ) : null}
+      </div>
+    </div>
+  );
+}
+
+function PersistedHadesArtifactsView({
+  resultPayload,
+  exportPayload,
+}: {
+  resultPayload: Record<string, unknown>;
+  exportPayload: Record<string, unknown> | null;
+}) {
+  const packageBundle =
+    resultPayload.package_bundle && typeof resultPayload.package_bundle === "object"
+      ? (resultPayload.package_bundle as Record<string, unknown>)
+      : {};
+  const packageManifest = Array.isArray(resultPayload.package_manifest)
+    ? (resultPayload.package_manifest as Array<Record<string, unknown>>)
+    : [];
+  const cohortTableLifecycle = Array.isArray(resultPayload.cohort_table_lifecycle)
+    ? (resultPayload.cohort_table_lifecycle as Array<Record<string, unknown>>)
+    : [];
+  const helperLogs = Array.isArray(resultPayload.helper_logs)
+    ? (resultPayload.helper_logs as Array<Record<string, unknown>>)
+    : [];
+  const artifactPayloads = Array.isArray(exportPayload?.artifact_payloads)
+    ? (exportPayload.artifact_payloads as Array<Record<string, unknown>>)
+    : [];
+  const artifactPayloadByName = new Map(
+    artifactPayloads.map((item) => [String(item.name ?? ""), item]),
+  );
+
+  return (
+    <div className="space-y-4">
+      <div className="grid gap-4 lg:grid-cols-2">
+        <div className="rounded-lg border border-zinc-800 bg-zinc-950/70 p-4">
+          <div className="mb-3 text-sm font-medium text-zinc-100">Persisted Cohort Table Lifecycle</div>
+          {cohortTableLifecycle.length ? (
+            <RecordTable rows={cohortTableLifecycle} />
+          ) : (
+            <EmptyState label="Persisted cohort-table lifecycle details will appear here when a run stores them." />
+          )}
+        </div>
+        <div className="rounded-lg border border-zinc-800 bg-zinc-950/70 p-4">
+          <div className="mb-3 text-sm font-medium text-zinc-100">Persisted Helper Logs</div>
+          {helperLogs.length ? (
+            <RecordTable rows={helperLogs} />
+          ) : (
+            <EmptyState label="Persisted helper logs will appear here when a run stores them." />
+          )}
+        </div>
+      </div>
+      <div className="rounded-lg border border-zinc-800 bg-zinc-950/70 p-4">
+        <div className="mb-3 text-sm font-medium text-zinc-100">Persisted Package Bundle</div>
+        {Object.keys(packageBundle).length ? (
+          <div className="space-y-4">
+            <KeyValueGrid data={packageBundle} />
+            <ActionButton
+              label="Download stored bundle"
+              onClick={() =>
+                downloadJson(
+                  String(packageBundle.download_name ?? "hades-package-bundle.json"),
+                  packageBundle,
+                )
+              }
+            />
+          </div>
+        ) : (
+          <EmptyState label="Persisted HADES bundle metadata will appear here when a run stores it." />
+        )}
+      </div>
+      <div className="rounded-lg border border-zinc-800 bg-zinc-950/70 p-4">
+        <div className="mb-3 text-sm font-medium text-zinc-100">Persisted Package Manifest</div>
+        {packageManifest.length ? (
+          <div className="space-y-3">
+            <RecordTable rows={packageManifest} />
+            <div className="space-y-2">
+              {packageManifest.map((entry) => {
+                const path = String(entry.path ?? "artifact");
+                const payload = artifactPayloadByName.get(path);
+                return (
+                  <div key={path} className="flex items-center justify-between gap-3 rounded-lg border border-zinc-800 bg-zinc-950/70 p-3">
+                    <div className="min-w-0">
+                      <div className="truncate text-sm font-medium text-zinc-100">{path}</div>
+                      <div className="mt-1 text-xs text-zinc-500">
+                        {String(entry.summary ?? entry.kind ?? "Artifact")}
+                      </div>
+                    </div>
+                    <ActionButton
+                      label="Download entry"
+                      onClick={() => {
+                        if (!payload) return;
+                        const blob = new Blob([String(payload.content ?? "")], {
+                          type: String(payload.mime_type ?? "application/json"),
+                        });
+                        const url = URL.createObjectURL(blob);
+                        const anchor = document.createElement("a");
+                        anchor.href = url;
+                        anchor.download = String(payload.download_name ?? payload.name ?? path);
+                        document.body.appendChild(anchor);
+                        anchor.click();
+                        anchor.remove();
+                        URL.revokeObjectURL(url);
+                      }}
+                      disabled={!payload}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ) : (
+          <EmptyState label="Persisted HADES manifest entries will appear here when a run stores them." />
+        )}
       </div>
     </div>
   );
@@ -342,6 +500,11 @@ export function HadesExtrasTab({
     queryKey: ["finngen-run-compare", compareRunId],
     queryFn: () => fetchFinnGenRun(compareRunId as number),
     enabled: Boolean(compareRunId),
+  });
+  const exportBundleQuery = useQuery({
+    queryKey: ["finngen-run-export", "hades", selectedRunId],
+    queryFn: () => exportFinnGenRun(selectedRunId as number),
+    enabled: Boolean(selectedRunId),
   });
 
   const replayRunMutation = useMutation({
@@ -507,8 +670,34 @@ export function HadesExtrasTab({
             <ResultSection title="Config Summary" data={data?.config_summary} loading={loading}>
               <KeyValueGrid data={data?.config_summary ?? {}} />
             </ResultSection>
+            <ResultSection title="Config Import" data={data?.config_import_summary} loading={loading}>
+              <KeyValueGrid data={data?.config_import_summary ?? {}} />
+            </ResultSection>
+          </div>
+        ) : null}
+
+        {data || loading ? (
+          <div className="grid gap-4 lg:grid-cols-2">
+            <ResultSection title="Config Validation" data={data?.config_validation?.length ? data.config_validation : null} loading={loading}>
+              <LabelValueList items={(data?.config_validation ?? []).map((item) => ({
+                label: item.label,
+                value: item.status,
+                detail: item.detail,
+              }))} />
+            </ResultSection>
             <ResultSection title="Cohort Summary" data={data?.cohort_summary?.length ? data.cohort_summary : null} loading={loading}>
               <LabelValueList items={data?.cohort_summary ?? []} />
+            </ResultSection>
+          </div>
+        ) : null}
+
+        {data || loading ? (
+          <div className="grid gap-4 lg:grid-cols-2">
+            <ResultSection title="Cohort Table Lifecycle" data={data?.cohort_table_lifecycle?.length ? data.cohort_table_lifecycle : null} loading={loading}>
+              {data ? <CohortTableLifecycleView result={data} /> : null}
+            </ResultSection>
+            <ResultSection title="Helper Logs" data={data?.helper_logs?.length ? data.helper_logs : null} loading={loading}>
+              {data ? <HelperLogsView result={data} /> : null}
             </ResultSection>
           </div>
         ) : null}
@@ -595,17 +784,23 @@ export function HadesExtrasTab({
             {runDetailQuery.isLoading ? (
               <EmptyState label="Loading run details..." />
             ) : runDetailQuery.data ? (
-              <RunInspectorView
-                run={runDetailQuery.data}
-                onReplay={() => replayRunMutation.mutate(runDetailQuery.data?.id ?? 0)}
-                onExport={async () => {
-                  const bundle = await exportFinnGenRun(runDetailQuery.data?.id ?? 0);
-                  if (bundle) {
-                    downloadJson(`finngen-run-${runDetailQuery.data?.id}-bundle.json`, bundle);
-                  }
-                }}
-                replaying={replayRunMutation.isPending}
-              />
+              <>
+                <PersistedHadesArtifactsView
+                  resultPayload={(runDetailQuery.data.result_payload ?? {}) as Record<string, unknown>}
+                  exportPayload={exportBundleQuery.data ?? null}
+                />
+                <RunInspectorView
+                  run={runDetailQuery.data}
+                  onReplay={() => replayRunMutation.mutate(runDetailQuery.data?.id ?? 0)}
+                  onExport={async () => {
+                    const bundle = await exportFinnGenRun(runDetailQuery.data?.id ?? 0);
+                    if (bundle) {
+                      downloadJson(`finngen-run-${runDetailQuery.data?.id}-bundle.json`, bundle);
+                    }
+                  }}
+                  replaying={replayRunMutation.isPending}
+                />
+              </>
             ) : runsQuery.data?.length ? (
               <EmptyState label="Select a persisted run to inspect its request, runtime, artifacts, and stored result payload." />
             ) : null}

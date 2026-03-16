@@ -136,6 +136,7 @@ function ReportPreviewView({ result }: { result: FinnGenRomopapiResult }) {
     ].join("\n");
   const htmlReport = result.report_content?.html;
   const manifest = Array.isArray(result.report_content?.manifest) ? result.report_content.manifest : [];
+  const reportBundle = result.report_bundle ?? {};
 
   return (
     <div className="space-y-3">
@@ -191,6 +192,20 @@ function ReportPreviewView({ result }: { result: FinnGenRomopapiResult }) {
             Download Manifest
           </button>
         ) : null}
+        {Object.keys(reportBundle).length ? (
+          <button
+            type="button"
+            onClick={() =>
+              downloadJson(
+                String(reportBundle.download_name ?? "romopapi-report-bundle.json"),
+                reportBundle,
+              )
+            }
+            className="rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-xs font-medium text-zinc-200 transition-colors hover:border-[#60A5FA]/40 hover:text-white"
+          >
+            Download Bundle Metadata
+          </button>
+        ) : null}
         <button
           type="button"
           onClick={() => downloadJson("romopapi-result.json", result)}
@@ -207,6 +222,103 @@ function ReportPreviewView({ result }: { result: FinnGenRomopapiResult }) {
             Download Artifact Index
           </button>
         ) : null}
+      </div>
+    </div>
+  );
+}
+
+function PersistedRomopapiArtifactsView({
+  resultPayload,
+  exportPayload,
+}: {
+  resultPayload: Record<string, unknown>;
+  exportPayload: Record<string, unknown> | null;
+}) {
+  const reportBundle =
+    resultPayload.report_bundle && typeof resultPayload.report_bundle === "object"
+      ? (resultPayload.report_bundle as Record<string, unknown>)
+      : {};
+  const reportArtifacts = Array.isArray(resultPayload.report_artifacts)
+    ? (resultPayload.report_artifacts as Array<Record<string, unknown>>)
+    : [];
+  const artifactPayloads = Array.isArray(exportPayload?.artifact_payloads)
+    ? (exportPayload.artifact_payloads as Array<Record<string, unknown>>)
+    : [];
+  const artifactPayloadByName = new Map(
+    artifactPayloads.map((item) => [String(item.name ?? ""), item]),
+  );
+
+  return (
+    <div className="space-y-4">
+      <div className="rounded-lg border border-zinc-800 bg-zinc-950/70 p-4">
+        <div className="mb-3 text-sm font-medium text-zinc-100">Persisted Report Bundle</div>
+        {Object.keys(reportBundle).length ? (
+          <div className="space-y-4">
+            <KeyValueGrid data={reportBundle} />
+            <div className="flex flex-wrap gap-2">
+              <ActionButton
+                label="Download stored bundle"
+                onClick={() =>
+                  downloadJson(
+                    String(reportBundle.download_name ?? "romopapi-report-bundle.json"),
+                    reportBundle,
+                  )
+                }
+              />
+            </div>
+          </div>
+        ) : (
+          <EmptyState label="Persisted ROMOPAPI bundle metadata will appear here when a run stores it." />
+        )}
+      </div>
+      <div className="rounded-lg border border-zinc-800 bg-zinc-950/70 p-4">
+        <div className="mb-3 text-sm font-medium text-zinc-100">Persisted Report Artifacts</div>
+        {reportArtifacts.length ? (
+          <div className="space-y-3">
+            <RecordTable rows={reportArtifacts} />
+            <div className="space-y-2">
+              {reportArtifacts.map((entry) => {
+                const name = String(entry.name ?? "artifact");
+                const payload = artifactPayloadByName.get(name);
+                return (
+                  <div
+                    key={name}
+                    className="flex items-center justify-between gap-3 rounded-lg border border-zinc-800 bg-zinc-950/70 p-3"
+                  >
+                    <div className="min-w-0">
+                      <div className="truncate text-sm font-medium text-zinc-100">{name}</div>
+                      <div className="mt-1 text-xs text-zinc-500">
+                        {String(entry.summary ?? entry.type ?? "Artifact")}
+                      </div>
+                    </div>
+                    <ActionButton
+                      label="Download entry"
+                      onClick={() => {
+                        if (!payload) return;
+                        const blob = new Blob([String(payload.content ?? "")], {
+                          type: String(payload.mime_type ?? "application/json"),
+                        });
+                        const url = URL.createObjectURL(blob);
+                        const anchor = document.createElement("a");
+                        anchor.href = url;
+                        anchor.download = String(
+                          payload.download_name ?? payload.name ?? name,
+                        );
+                        document.body.appendChild(anchor);
+                        anchor.click();
+                        anchor.remove();
+                        URL.revokeObjectURL(url);
+                      }}
+                      disabled={!payload}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ) : (
+          <EmptyState label="Persisted ROMOPAPI report artifacts will appear here when a run stores them." />
+        )}
       </div>
     </div>
   );
@@ -413,6 +525,11 @@ export function RomopapiTab({
     queryFn: () => fetchFinnGenRun(compareRunId as number),
     enabled: Boolean(compareRunId),
   });
+  const exportBundleQuery = useQuery({
+    queryKey: ["finngen-run-export", "romopapi", selectedRunId],
+    queryFn: () => exportFinnGenRun(selectedRunId as number),
+    enabled: Boolean(selectedRunId),
+  });
 
   const replayRunMutation = useMutation({
     mutationFn: (runId: number) => replayFinnGenRun(runId),
@@ -614,6 +731,10 @@ export function RomopapiTab({
               <KeyValueGrid data={data?.query_controls ?? {}} />
             </ResultSection>
 
+            <ResultSection title="Request Envelope" data={data?.request_envelope} loading={isPending}>
+              <KeyValueGrid data={data?.request_envelope ?? {}} />
+            </ResultSection>
+
             <div className="grid gap-4 lg:grid-cols-2">
               <ResultSection title="Execution Summary" data={data?.execution_summary} loading={isPending}>
                 <KeyValueGrid data={data?.execution_summary ?? {}} />
@@ -648,6 +769,10 @@ export function RomopapiTab({
                 <ReportPreviewView result={data as FinnGenRomopapiResult} />
               </ResultSection>
             </div>
+
+            <ResultSection title="Report Bundle" data={data?.report_bundle} loading={isPending}>
+              <KeyValueGrid data={data?.report_bundle ?? {}} />
+            </ResultSection>
 
             <div className="grid gap-4 lg:grid-cols-2">
               <ResultSection title="Code Counts" data={data?.code_counts?.length} loading={isPending}>
@@ -700,6 +825,18 @@ export function RomopapiTab({
                 />
                 {selectedRunId && runDetailQuery.data ? (
                   <>
+                    <div className="rounded-lg border border-zinc-800 bg-zinc-950/70 p-4">
+                      <div className="mb-3 text-sm font-medium text-zinc-100">Persisted Request Envelope</div>
+                      {runDetailQuery.data.result_payload && typeof runDetailQuery.data.result_payload === "object" && (runDetailQuery.data.result_payload as Record<string, unknown>).request_envelope ? (
+                        <KeyValueGrid data={((runDetailQuery.data.result_payload as Record<string, unknown>).request_envelope ?? {}) as Record<string, unknown>} />
+                      ) : (
+                        <EmptyState label="Persisted ROMOPAPI request envelopes will appear here when the run stores them." />
+                      )}
+                    </div>
+                    <PersistedRomopapiArtifactsView
+                      resultPayload={(runDetailQuery.data.result_payload ?? {}) as Record<string, unknown>}
+                      exportPayload={exportBundleQuery.data ?? null}
+                    />
                     <RunInspectorView
                       run={runDetailQuery.data}
                       onReplay={() => replayRunMutation.mutate(selectedRunId)}

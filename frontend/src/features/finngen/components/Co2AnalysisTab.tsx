@@ -618,6 +618,11 @@ export function Co2AnalysisTab({
     queryFn: () => fetchFinnGenRun(compareRunId as number),
     enabled: Boolean(compareRunId),
   });
+  const exportBundleQuery = useQuery({
+    queryKey: ["finngen-run-export", "co2", selectedRunId],
+    queryFn: () => exportFinnGenRun(selectedRunId as number),
+    enabled: Boolean(selectedRunId),
+  });
 
   useEffect(() => {
     setSelectedRunId(null);
@@ -920,6 +925,19 @@ export function Co2AnalysisTab({
         <KeyValueGrid data={data?.analysis_summary ?? {}} />
       </ResultSection>
 
+      <div className="grid gap-4 lg:grid-cols-2">
+        <ResultSection title="Job Summary" data={data?.job_summary} loading={loading}>
+          <KeyValueGrid data={data?.job_summary ?? {}} />
+        </ResultSection>
+        <ResultSection title="Analysis Artifacts" data={data?.analysis_artifacts?.length} loading={loading}>
+          <RecordTable rows={data?.analysis_artifacts ?? []} />
+        </ResultSection>
+      </div>
+
+      <ResultSection title="Result Validation" data={data?.result_validation?.length} loading={loading}>
+        <StatusListView items={data?.result_validation ?? []} />
+      </ResultSection>
+
       <ResultSection title="Handoff Impact" data={data?.handoff_impact?.length} loading={loading}>
         {data ? (
           <Co2FamilyEvidenceView
@@ -1034,24 +1052,112 @@ export function Co2AnalysisTab({
               {runDetailQuery.isLoading ? (
                 <EmptyState label="Loading run details..." />
               ) : runDetailQuery.data ? (
-                <RunInspectorView
-                  run={runDetailQuery.data}
-                  onReplay={() =>
-                    replayRunMutation.mutate(runDetailQuery.data?.id ?? 0)
-                  }
-                  onExport={async () => {
-                    const bundle = await exportFinnGenRun(
-                      runDetailQuery.data?.id ?? 0,
-                    );
-                    if (bundle) {
-                      downloadJson(
-                        `finngen-run-${runDetailQuery.data?.id}-bundle.json`,
-                        bundle,
-                      );
+                <>
+                  <div className="grid gap-4 lg:grid-cols-2">
+                    <div className="rounded-lg border border-zinc-800 bg-zinc-950/70 p-4">
+                      <div className="mb-3 text-sm font-medium text-zinc-100">
+                        Persisted Job Summary
+                      </div>
+                      <KeyValueGrid
+                        data={
+                          (((runDetailQuery.data.result_payload as Record<string, unknown> | undefined)
+                            ?.job_summary ?? {}) as Record<string, unknown>)
+                        }
+                      />
+                    </div>
+                    <div className="rounded-lg border border-zinc-800 bg-zinc-950/70 p-4">
+                      <div className="mb-3 text-sm font-medium text-zinc-100">
+                        Persisted Analysis Artifacts
+                      </div>
+                      <div className="space-y-3">
+                        <RecordTable
+                          rows={
+                            ((((runDetailQuery.data.result_payload as Record<string, unknown> | undefined)
+                              ?.analysis_artifacts ?? []) as Array<Record<string, unknown>>)
+                            )
+                          }
+                        />
+                        {Array.isArray(exportBundleQuery.data?.artifact_payloads) ? (
+                          <div className="space-y-2">
+                            {(exportBundleQuery.data?.artifact_payloads as Array<Record<string, unknown>>).map(
+                              (artifact) => (
+                                <div
+                                  key={String(artifact.name ?? "artifact")}
+                                  className="flex items-center justify-between gap-3 rounded-lg border border-zinc-800 bg-zinc-950/70 p-3"
+                                >
+                                  <div className="min-w-0">
+                                    <div className="truncate text-sm font-medium text-zinc-100">
+                                      {String(artifact.name ?? "artifact")}
+                                    </div>
+                                    <div className="mt-1 text-xs text-zinc-500">
+                                      {String(artifact.mime_type ?? "application/json")}
+                                    </div>
+                                  </div>
+                                  <ActionButton
+                                    label="Download entry"
+                                    onClick={() => {
+                                      const blob = new Blob(
+                                        [String(artifact.content ?? "")],
+                                        {
+                                          type: String(
+                                            artifact.mime_type ??
+                                              "application/json",
+                                          ),
+                                        },
+                                      );
+                                      const url = URL.createObjectURL(blob);
+                                      const anchor =
+                                        document.createElement("a");
+                                      anchor.href = url;
+                                      anchor.download = String(
+                                        artifact.download_name ??
+                                          artifact.name ??
+                                          "artifact.json",
+                                      );
+                                      document.body.appendChild(anchor);
+                                      anchor.click();
+                                      anchor.remove();
+                                      URL.revokeObjectURL(url);
+                                    }}
+                                  />
+                                </div>
+                              ),
+                            )}
+                          </div>
+                        ) : null}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="rounded-lg border border-zinc-800 bg-zinc-950/70 p-4">
+                    <div className="mb-3 text-sm font-medium text-zinc-100">
+                      Persisted Result Validation
+                    </div>
+                    <StatusListView
+                      items={
+                        ((((runDetailQuery.data.result_payload as Record<string, unknown> | undefined)
+                          ?.result_validation ?? []) as Array<{ label: string; status: string; detail: string }>))
+                      }
+                    />
+                  </div>
+                  <RunInspectorView
+                    run={runDetailQuery.data}
+                    onReplay={() =>
+                      replayRunMutation.mutate(runDetailQuery.data?.id ?? 0)
                     }
-                  }}
-                  replaying={replayRunMutation.isPending}
-                />
+                    onExport={async () => {
+                      const bundle = await exportFinnGenRun(
+                        runDetailQuery.data?.id ?? 0,
+                      );
+                      if (bundle) {
+                        downloadJson(
+                          `finngen-run-${runDetailQuery.data?.id}-bundle.json`,
+                          bundle,
+                        );
+                      }
+                    }}
+                    replaying={replayRunMutation.isPending}
+                  />
+                </>
               ) : (
                 <EmptyState label="Select a persisted run to inspect its request, runtime, artifacts, and stored result payload." />
               )}

@@ -50,6 +50,7 @@ import {
   formatTimestamp,
   cohortPresets,
   cohortImportModes,
+  cohortAtlasImportBehaviorOptions,
   cohortOperationTypes,
   cohortMatchingStrategies,
   cohortMatchingTargets,
@@ -171,6 +172,8 @@ function ImportExportView({
             ? `Atlas/WebAPI import is the target parity path. This preview is compiled for ${sourceKey} and can already be exported as SQL and sample artifacts.`
             : importMode === "cohort_table"
               ? "Cohort-table import is now validating the selected table against the source and exposing discovered cohort IDs, row counts, and downstream artifacts."
+              : importMode === "file"
+                ? "File import is active. This preview now treats the uploaded-style cohort file as the source framing and includes file-aware export artifacts below."
               : "JSON definition import is active now. This preview uses the current definition payload and returns the first exportable artifacts below."}
       </div>
       <div className="space-y-2">
@@ -227,6 +230,161 @@ function CohortHandoffView({
         <ArrowUpRight className="h-4 w-4" />
         Hand Off To CO2 Modules
       </button>
+    </div>
+  );
+}
+
+function PersistedCohortRunArtifacts({
+  resultPayload,
+  exportPayload,
+}: {
+  resultPayload: Record<string, unknown>;
+  exportPayload: Record<string, unknown> | null;
+}) {
+  const fileImportSummary =
+    resultPayload.file_import_summary &&
+    typeof resultPayload.file_import_summary === "object"
+      ? (resultPayload.file_import_summary as Record<string, unknown>)
+      : {};
+  const exportBundle =
+    resultPayload.export_bundle &&
+    typeof resultPayload.export_bundle === "object"
+      ? (resultPayload.export_bundle as Record<string, unknown>)
+      : {};
+  const atlasConceptSetSummary = Array.isArray(resultPayload.atlas_concept_set_summary)
+    ? (resultPayload.atlas_concept_set_summary as Array<Record<string, unknown>>)
+    : [];
+  const atlasImportDiagnostics =
+    resultPayload.atlas_import_diagnostics &&
+    typeof resultPayload.atlas_import_diagnostics === "object"
+      ? (resultPayload.atlas_import_diagnostics as Record<string, unknown>)
+      : {};
+  const exportManifest = Array.isArray(resultPayload.export_manifest)
+    ? (resultPayload.export_manifest as Array<Record<string, unknown>>)
+    : [];
+  const artifactPayloads = Array.isArray(exportPayload?.artifact_payloads)
+    ? (exportPayload?.artifact_payloads as Array<Record<string, unknown>>)
+    : [];
+  const artifactPayloadByName = new Map(
+    artifactPayloads.map((item) => [String(item.name ?? ""), item]),
+  );
+
+  return (
+    <div className="space-y-4">
+      <div className="grid gap-4 lg:grid-cols-2">
+        <div className="rounded-lg border border-zinc-800 bg-zinc-950/70 p-4">
+          <div className="mb-3 text-sm font-medium text-zinc-100">
+            Persisted Atlas Concept Set Remap
+          </div>
+          {atlasConceptSetSummary.length ? (
+            <RecordTable rows={atlasConceptSetSummary} />
+          ) : (
+            <EmptyState label="Persisted Atlas concept-set remap details will appear here for Atlas-backed runs." />
+          )}
+        </div>
+        <div className="rounded-lg border border-zinc-800 bg-zinc-950/70 p-4">
+          <div className="mb-3 text-sm font-medium text-zinc-100">
+            Persisted Atlas Import Diagnostics
+          </div>
+          {Object.keys(atlasImportDiagnostics).length ? (
+            <KeyValueGrid data={atlasImportDiagnostics} />
+          ) : (
+            <EmptyState label="Persisted Atlas import diagnostics will appear here for Atlas-backed runs." />
+          )}
+        </div>
+        <div className="rounded-lg border border-zinc-800 bg-zinc-950/70 p-4">
+          <div className="mb-3 text-sm font-medium text-zinc-100">
+            Persisted File Import Summary
+          </div>
+          {Object.keys(fileImportSummary).length ? (
+            <KeyValueGrid data={fileImportSummary} />
+          ) : (
+            <EmptyState label="Persisted file import details will appear here when a run stores them." />
+          )}
+        </div>
+        <div className="rounded-lg border border-zinc-800 bg-zinc-950/70 p-4">
+          <div className="mb-3 text-sm font-medium text-zinc-100">
+            Persisted Export Bundle
+          </div>
+          {Object.keys(exportBundle).length ? (
+            <div className="space-y-4">
+              <KeyValueGrid data={exportBundle} />
+              <div className="flex flex-wrap gap-2">
+                <ActionButton
+                  label="Download stored bundle"
+                  onClick={() =>
+                    downloadJson(
+                      String(
+                        exportBundle.download_name ??
+                          "cohort-ops-export-bundle.json",
+                      ),
+                      exportBundle,
+                    )
+                  }
+                />
+              </div>
+            </div>
+          ) : (
+            <EmptyState label="Persisted export bundle metadata will appear here when a run stores it." />
+          )}
+        </div>
+      </div>
+      <div className="rounded-lg border border-zinc-800 bg-zinc-950/70 p-4">
+        <div className="mb-3 text-sm font-medium text-zinc-100">
+          Persisted Export Manifest
+        </div>
+        {exportManifest.length ? (
+          <div className="space-y-3">
+            <RecordTable rows={exportManifest} />
+            <div className="space-y-2">
+              {exportManifest.map((entry) => {
+                const name = String(entry.name ?? "artifact");
+                const payload = artifactPayloadByName.get(name);
+                return (
+                  <div
+                    key={name}
+                    className="flex items-center justify-between gap-3 rounded-lg border border-zinc-800 bg-zinc-950/70 p-3"
+                  >
+                    <div className="min-w-0">
+                      <div className="truncate text-sm font-medium text-zinc-100">
+                        {name}
+                      </div>
+                      <div className="mt-1 text-xs text-zinc-500">
+                        {String(entry.summary ?? entry.type ?? "Artifact")}
+                      </div>
+                    </div>
+                    <ActionButton
+                      label="Download entry"
+                      onClick={() => {
+                        if (!payload) return;
+                        const filename = String(
+                          payload.download_name ?? payload.name ?? name,
+                        );
+                        const mimeType = String(
+                          payload.mime_type ?? "application/json",
+                        );
+                        const content = String(payload.content ?? "");
+                        const blob = new Blob([content], { type: mimeType });
+                        const url = URL.createObjectURL(blob);
+                        const anchor = document.createElement("a");
+                        anchor.href = url;
+                        anchor.download = filename;
+                        document.body.appendChild(anchor);
+                        anchor.click();
+                        anchor.remove();
+                        URL.revokeObjectURL(url);
+                      }}
+                      disabled={!payload}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ) : (
+          <EmptyState label="Persisted export manifest entries will appear here when a run stores them." />
+        )}
+      </div>
     </div>
   );
 }
@@ -526,8 +684,22 @@ interface OperationBuilderModalProps {
   onMatchingCaliperChange: (value: string) => void;
   atlasCohortIds: string;
   onAtlasCohortIdsChange: (value: string) => void;
+  atlasImportBehavior: (typeof cohortAtlasImportBehaviorOptions)[number]["value"];
+  onAtlasImportBehaviorChange: (
+    value: (typeof cohortAtlasImportBehaviorOptions)[number]["value"],
+  ) => void;
   cohortTableName: string;
   onCohortTableNameChange: (value: string) => void;
+  fileName: string;
+  onFileNameChange: (value: string) => void;
+  fileFormat: string;
+  onFileFormatChange: (value: string) => void;
+  fileRowCount: string;
+  onFileRowCountChange: (value: string) => void;
+  fileColumns: string;
+  onFileColumnsChange: (value: string) => void;
+  fileContents: string;
+  onFileContentsChange: (value: string) => void;
   exportTarget: string;
   onExportTargetChange: (value: string) => void;
 }
@@ -560,8 +732,20 @@ function OperationBuilderModal({
   onMatchingCaliperChange,
   atlasCohortIds,
   onAtlasCohortIdsChange,
+  atlasImportBehavior,
+  onAtlasImportBehaviorChange,
   cohortTableName,
   onCohortTableNameChange,
+  fileName,
+  onFileNameChange,
+  fileFormat,
+  onFileFormatChange,
+  fileRowCount,
+  onFileRowCountChange,
+  fileColumns,
+  onFileColumnsChange,
+  fileContents,
+  onFileContentsChange,
   exportTarget,
   onExportTargetChange,
 }: OperationBuilderModalProps) {
@@ -629,6 +813,70 @@ function OperationBuilderModal({
                 </option>
               ))}
             </select>
+          </label>
+        </div>
+
+        <div className="grid gap-4 lg:grid-cols-2">
+          <label className="block">
+            <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-zinc-500">
+              Atlas import behavior
+            </span>
+            <select
+              value={atlasImportBehavior}
+              onChange={(e) =>
+                onAtlasImportBehaviorChange(
+                  e.target
+                    .value as (typeof cohortAtlasImportBehaviorOptions)[number]["value"],
+                )
+              }
+              className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 focus:border-[#9B1B30] focus:outline-none"
+            >
+              {cohortAtlasImportBehaviorOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+
+        <div className="rounded-lg border border-zinc-800 bg-zinc-950/70 p-4">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <div>
+              <div className="text-sm font-medium text-zinc-100">
+                File payload
+              </div>
+              <div className="mt-1 text-xs text-zinc-500">
+                Upload a CSV or JSON cohort file, or paste its contents directly.
+              </div>
+            </div>
+            <input
+              type="file"
+              accept=".csv,.json,text/csv,application/json"
+              onChange={async (event) => {
+                const file = event.target.files?.[0];
+                if (!file) return;
+                onFileNameChange(file.name);
+                const extension = file.name.split(".").pop()?.toLowerCase();
+                onFileFormatChange(extension || fileFormat || "csv");
+                const text = await file.text();
+                onFileContentsChange(text);
+                const inferredRows = Math.max(text.split(/\r\n|\n|\r/).filter(Boolean).length - 1, 1);
+                onFileRowCountChange(String(inferredRows));
+              }}
+              className="block text-xs text-zinc-400 file:mr-3 file:rounded-lg file:border-0 file:bg-[#9B1B30]/15 file:px-3 file:py-2 file:text-xs file:font-medium file:text-[#F0EDE8] hover:file:bg-[#9B1B30]/25"
+            />
+          </div>
+          <label className="block">
+            <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-zinc-500">
+              File contents
+            </span>
+            <textarea
+              value={fileContents}
+              onChange={(e) => onFileContentsChange(e.target.value)}
+              rows={8}
+              className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 font-mono text-xs text-zinc-100 focus:border-[#9B1B30] focus:outline-none"
+            />
           </label>
         </div>
 
@@ -720,6 +968,52 @@ function OperationBuilderModal({
             <input
               value={cohortTableName}
               onChange={(e) => onCohortTableNameChange(e.target.value)}
+              className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 focus:border-[#9B1B30] focus:outline-none"
+            />
+          </label>
+        </div>
+
+        <div className="grid gap-4 lg:grid-cols-2">
+          <label className="block">
+            <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-zinc-500">
+              File name
+            </span>
+            <input
+              value={fileName}
+              onChange={(e) => onFileNameChange(e.target.value)}
+              className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 focus:border-[#9B1B30] focus:outline-none"
+            />
+          </label>
+          <label className="block">
+            <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-zinc-500">
+              File format
+            </span>
+            <input
+              value={fileFormat}
+              onChange={(e) => onFileFormatChange(e.target.value)}
+              className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 focus:border-[#9B1B30] focus:outline-none"
+            />
+          </label>
+        </div>
+
+        <div className="grid gap-4 lg:grid-cols-2">
+          <label className="block">
+            <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-zinc-500">
+              Estimated row count
+            </span>
+            <input
+              value={fileRowCount}
+              onChange={(e) => onFileRowCountChange(e.target.value)}
+              className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 focus:border-[#9B1B30] focus:outline-none"
+            />
+          </label>
+          <label className="block">
+            <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-zinc-500">
+              Columns
+            </span>
+            <input
+              value={fileColumns}
+              onChange={(e) => onFileColumnsChange(e.target.value)}
               className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 focus:border-[#9B1B30] focus:outline-none"
             />
           </label>
@@ -899,7 +1193,18 @@ export function CohortOpsTab({
   const [selectedCohortIds, setSelectedCohortIds] = useState<number[]>([]);
   const [primaryCohortId, setPrimaryCohortId] = useState<number | null>(null);
   const [atlasCohortIds, setAtlasCohortIds] = useState("101, 202");
+  const [atlasImportBehavior, setAtlasImportBehavior] =
+    useState<(typeof cohortAtlasImportBehaviorOptions)[number]["value"]>("auto");
   const [cohortTableName, setCohortTableName] = useState("results.cohort");
+  const [fileName, setFileName] = useState("cohort-import.csv");
+  const [fileFormat, setFileFormat] = useState("csv");
+  const [fileRowCount, setFileRowCount] = useState("128");
+  const [fileColumns, setFileColumns] = useState(
+    "person_id, cohort_start_date, concept_id",
+  );
+  const [fileContents, setFileContents] = useState(
+    "person_id,cohort_start_date,concept_id\n1001,2025-01-15,201826\n1044,2025-02-03,319835\n",
+  );
   const [matchingEnabled, setMatchingEnabled] = useState(true);
   const [matchingStrategy, setMatchingStrategy] =
     useState<(typeof cohortMatchingStrategies)[number]["value"]>(
@@ -952,6 +1257,11 @@ export function CohortOpsTab({
     queryKey: ["finngen-run-compare", compareRunId],
     queryFn: () => fetchFinnGenRun(compareRunId as number),
     enabled: Boolean(compareRunId),
+  });
+  const exportBundleQuery = useQuery({
+    queryKey: ["finngen-run-export", selectedRunId],
+    queryFn: () => exportFinnGenRun(selectedRunId as number),
+    enabled: Boolean(selectedRunId),
   });
 
   // ── Derived data ─────────────────────────────────────────────────
@@ -1018,7 +1328,13 @@ export function CohortOpsTab({
         import_mode: cohortImportMode,
         operation_type: operationType,
         atlas_cohort_ids: parseIntegerList(atlasCohortIds),
+        atlas_import_behavior: atlasImportBehavior,
         cohort_table_name: cohortTableName,
+        file_name: fileName,
+        file_format: fileFormat,
+        file_row_count: Number.parseInt(fileRowCount, 10) || 0,
+        file_columns: parseStringList(fileColumns),
+        file_contents: fileContents,
         selected_cohort_ids: selectedCohortIds,
         selected_cohort_labels: selectedCohortLabels,
         primary_cohort_id: primaryCohortId,
@@ -1355,6 +1671,71 @@ export function CohortOpsTab({
         </ResultSection>
       </div>
 
+      <div className="grid gap-4 lg:grid-cols-2">
+        <ResultSection
+          title="Atlas Concept Set Remap"
+          data={result?.atlas_concept_set_summary?.length}
+          loading={isLoading}
+        >
+          <RecordTable
+            rows={
+              (result?.atlas_concept_set_summary ?? []) as Array<Record<string, unknown>>
+            }
+          />
+        </ResultSection>
+
+        <ResultSection
+          title="Atlas Import Diagnostics"
+          data={
+            result?.atlas_import_diagnostics &&
+            Object.keys(result.atlas_import_diagnostics).length
+          }
+          loading={isLoading}
+        >
+          <KeyValueGrid data={result?.atlas_import_diagnostics ?? {}} />
+        </ResultSection>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <ResultSection
+          title="File Import Summary"
+          data={
+            result?.file_import_summary &&
+            Object.keys(result.file_import_summary).length
+          }
+          loading={isLoading}
+        >
+          <KeyValueGrid data={result?.file_import_summary ?? {}} />
+        </ResultSection>
+
+        <ResultSection
+          title="Export Bundle"
+          data={
+            result?.export_bundle &&
+            Object.keys(result.export_bundle).length
+          }
+          loading={isLoading}
+        >
+          {result?.export_bundle ? (
+            <div className="space-y-4">
+              <KeyValueGrid data={result.export_bundle} />
+              <div className="flex flex-wrap gap-2">
+                <ActionButton
+                  label="Download bundle"
+                  onClick={() =>
+                    downloadJson(
+                      result.export_bundle?.download_name ??
+                        "cohort-ops-export-bundle.json",
+                      result.export_bundle,
+                    )
+                  }
+                />
+              </div>
+            </div>
+          ) : null}
+        </ResultSection>
+      </div>
+
       <ResultSection
         title="Export Summary"
         data={result?.export_summary}
@@ -1366,6 +1747,16 @@ export function CohortOpsTab({
             onHandoff={handleHandoff}
           />
         ) : null}
+      </ResultSection>
+
+      <ResultSection
+        title="Export Manifest"
+        data={result?.export_manifest?.length}
+        loading={isLoading}
+      >
+        <RecordTable
+          rows={(result?.export_manifest ?? []) as Array<Record<string, unknown>>}
+        />
       </ResultSection>
 
       <div className="grid gap-4 lg:grid-cols-2">
@@ -1418,24 +1809,33 @@ export function CohortOpsTab({
                   Loading run details...
                 </div>
               ) : runDetailQuery.data ? (
-                <RunInspectorView
-                  run={runDetailQuery.data}
-                  onReplay={() =>
-                    replayRunMutation.mutate(runDetailQuery.data?.id ?? 0)
-                  }
-                  onExport={async () => {
-                    const bundle = await exportFinnGenRun(
-                      runDetailQuery.data?.id ?? 0,
-                    );
-                    if (bundle) {
-                      downloadJson(
-                        `finngen-run-${runDetailQuery.data?.id}-bundle.json`,
-                        bundle,
-                      );
+                <>
+                  <PersistedCohortRunArtifacts
+                    resultPayload={
+                      (runDetailQuery.data.result_payload ??
+                        {}) as Record<string, unknown>
                     }
-                  }}
-                  replaying={replayRunMutation.isPending}
-                />
+                    exportPayload={exportBundleQuery.data ?? null}
+                  />
+                  <RunInspectorView
+                    run={runDetailQuery.data}
+                    onReplay={() =>
+                      replayRunMutation.mutate(runDetailQuery.data?.id ?? 0)
+                    }
+                    onExport={async () => {
+                      const bundle = await exportFinnGenRun(
+                        runDetailQuery.data?.id ?? 0,
+                      );
+                      if (bundle) {
+                        downloadJson(
+                          `finngen-run-${runDetailQuery.data?.id}-bundle.json`,
+                          bundle,
+                        );
+                      }
+                    }}
+                    replaying={replayRunMutation.isPending}
+                  />
+                </>
               ) : (
                 <EmptyState label="Select a persisted run to inspect its request, runtime, artifacts, and stored result payload." />
               )}
@@ -1499,8 +1899,20 @@ export function CohortOpsTab({
         onMatchingCaliperChange={setMatchingCaliper}
         atlasCohortIds={atlasCohortIds}
         onAtlasCohortIdsChange={setAtlasCohortIds}
+        atlasImportBehavior={atlasImportBehavior}
+        onAtlasImportBehaviorChange={setAtlasImportBehavior}
         cohortTableName={cohortTableName}
         onCohortTableNameChange={setCohortTableName}
+        fileName={fileName}
+        onFileNameChange={setFileName}
+        fileFormat={fileFormat}
+        onFileFormatChange={setFileFormat}
+        fileRowCount={fileRowCount}
+        onFileRowCountChange={setFileRowCount}
+        fileColumns={fileColumns}
+        onFileColumnsChange={setFileColumns}
+        fileContents={fileContents}
+        onFileContentsChange={setFileContents}
         exportTarget={exportTarget}
         onExportTargetChange={setExportTarget}
       />

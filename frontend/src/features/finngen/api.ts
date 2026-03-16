@@ -31,7 +31,13 @@ export async function previewFinnGenCohortOperations(payload: {
   import_mode?: string;
   operation_type?: string;
   atlas_cohort_ids?: number[];
+  atlas_import_behavior?: string;
   cohort_table_name?: string;
+  file_name?: string;
+  file_format?: string;
+  file_row_count?: number;
+  file_columns?: string[];
+  file_contents?: string;
   selected_cohort_ids?: number[];
   selected_cohort_labels?: string[];
   primary_cohort_id?: number | null;

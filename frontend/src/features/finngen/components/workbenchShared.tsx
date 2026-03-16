@@ -192,6 +192,7 @@ export const cohortImportModes = [
   { value: "parthenon", label: "Parthenon cohorts" },
   { value: "atlas", label: "Atlas/WebAPI" },
   { value: "cohort_table", label: "Cohort table" },
+  { value: "file", label: "File import" },
   { value: "json", label: "JSON definition" },
 ] as const;
 
@@ -210,6 +211,12 @@ export const cohortMatchingStrategies = [
 export const cohortMatchingTargets = [
   { value: "primary_vs_comparators", label: "Primary vs comparators" },
   { value: "pairwise_balance", label: "Pairwise balance" },
+] as const;
+
+export const cohortAtlasImportBehaviorOptions = [
+  { value: "auto", label: "Auto reuse" },
+  { value: "reuse_existing", label: "Reuse existing" },
+  { value: "reimport", label: "Re-import" },
 ] as const;
 
 export const defaultMatchingCovariates = ["age", "sex", "index year"] as const;

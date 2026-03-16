@@ -120,7 +120,23 @@ export interface FinnGenCohortOperationsResult {
     excluded_samples?: Array<Record<string, unknown>>;
     balance_notes?: string[];
   };
+  atlas_concept_set_summary?: Array<{
+    atlas_id: number;
+    parthenon_id?: number | null;
+    name: string;
+    status: string;
+    item_count?: number;
+  }>;
+  atlas_import_diagnostics?: Record<string, unknown>;
+  file_import_summary?: Record<string, unknown>;
   export_summary?: Record<string, unknown>;
+  export_bundle?: {
+    name?: string;
+    format?: string;
+    entries?: string[];
+    download_name?: string;
+  };
+  export_manifest?: Array<{ name: string; type?: string; summary?: string }>;
   artifacts: FinnGenArtifact[];
   sql_preview?: string;
   sample_rows?: Array<Record<string, unknown>>;
@@ -141,6 +157,9 @@ export interface FinnGenCo2AnalysisResult {
   family_segments?: Array<{ label: string; count: number; share?: number }>;
   module_validation?: Array<{ label: string; status: string; detail: string }>;
   family_result_summary?: Record<string, unknown>;
+  job_summary?: Record<string, unknown>;
+  analysis_artifacts?: Array<{ name: string; type?: string; summary?: string }>;
+  result_validation?: Array<{ label: string; status: string; detail: string }>;
   result_table?: Array<Record<string, unknown>>;
   subgroup_summary?: Array<{ label: string; value: string }>;
   temporal_windows?: Array<{ label: string; count: number; detail?: string }>;
@@ -162,6 +181,8 @@ export interface FinnGenHadesExtrasResult {
   config_yaml?: string;
   render_summary: Record<string, unknown>;
   config_summary?: Record<string, unknown>;
+  config_import_summary?: Record<string, unknown>;
+  config_validation?: Array<{ label: string; status: string; detail: string }>;
   config_exports?: {
     yaml?: string;
     json?: Record<string, unknown>;
@@ -177,6 +198,8 @@ export interface FinnGenHadesExtrasResult {
     download_name?: string;
   };
   sql_lineage?: Array<{ stage: string; detail: string }>;
+  cohort_table_lifecycle?: Array<{ name: string; status: string; detail?: string }>;
+  helper_logs?: Array<{ step: string; status: string; detail: string }>;
   cohort_summary?: Array<{ label: string; value: string }>;
   explain_plan?: Array<Record<string, string | number>>;
 }
@@ -186,6 +209,7 @@ export interface FinnGenRomopapiResult {
   runtime: FinnGenRuntime;
   source: Record<string, unknown>;
   query_controls?: Record<string, unknown>;
+  request_envelope?: Record<string, unknown>;
   execution_summary?: Record<string, unknown>;
   endpoint_manifest?: Array<{ name: string; method: string; path: string; summary?: string }>;
   cache_status?: Array<{ label: string; value: string; detail?: string }>;
@@ -206,6 +230,12 @@ export interface FinnGenRomopapiResult {
     html?: string;
     format?: string;
     manifest?: Array<{ name: string; kind: string; summary?: string }>;
+  };
+  report_bundle?: {
+    name?: string;
+    format?: string;
+    entries?: string[];
+    download_name?: string;
   };
   report_artifacts?: FinnGenArtifact[];
   result_profile: Array<{ label: string; value: string }>;

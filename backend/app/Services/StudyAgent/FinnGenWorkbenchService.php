@@ -8,6 +8,7 @@ use App\Services\Cohort\CohortSqlCompiler;
 use App\Services\Database\DynamicConnectionFactory;
 use App\Services\SqlRenderer\SqlRendererService;
 use App\Services\WebApi\AtlasCohortImportService;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class FinnGenWorkbenchService
@@ -34,7 +35,16 @@ class FinnGenWorkbenchService
             is_array($options['atlas_cohort_ids'] ?? null) ? $options['atlas_cohort_ids'] : [],
             static fn ($value) => is_numeric($value)
         ));
+        $atlasImportBehavior = trim((string) ($options['atlas_import_behavior'] ?? 'auto')) ?: 'auto';
         $cohortTableName = trim((string) ($options['cohort_table_name'] ?? ''));
+        $fileName = trim((string) ($options['file_name'] ?? ''));
+        $fileFormat = trim((string) ($options['file_format'] ?? ''));
+        $fileRowCount = isset($options['file_row_count']) ? max(1, (int) $options['file_row_count']) : null;
+        $fileColumns = array_values(array_filter(
+            is_array($options['file_columns'] ?? null) ? $options['file_columns'] : [],
+            static fn ($value) => is_string($value) && trim($value) !== ''
+        ));
+        $fileContents = (string) ($options['file_contents'] ?? '');
         $selectedCohortIds = array_values(array_filter(
             is_array($options['selected_cohort_ids'] ?? null) ? $options['selected_cohort_ids'] : [],
             static fn ($value) => is_numeric($value)
@@ -71,7 +81,13 @@ class FinnGenWorkbenchService
                 'import_mode' => $importMode,
                 'operation_type' => $operationType,
                 'atlas_cohort_ids' => $atlasCohortIds,
+                'atlas_import_behavior' => $atlasImportBehavior,
                 'cohort_table_name' => $cohortTableName,
+                'file_name' => $fileName,
+                'file_format' => $fileFormat,
+                'file_row_count' => $fileRowCount,
+                'file_columns' => $fileColumns,
+                'file_contents' => $fileContents,
                 'selected_cohort_ids' => $selectedCohortIds,
                 'selected_cohort_labels' => $selectedCohortLabels,
                 'primary_cohort_id' => $primaryCohortId,
@@ -104,6 +120,7 @@ class FinnGenWorkbenchService
         $count = null;
         $sampleRows = [];
         $cohortTableSummary = [];
+        $atlasImportDiagnostics = [];
         $connection = $this->connections->connectionName($source);
         try {
             if ($importMode === 'atlas' && $atlasCohortIds !== []) {
@@ -138,14 +155,19 @@ class FinnGenWorkbenchService
         $additionalCount = count(($cohortDefinition['AdditionalCriteria']['CriteriaList'] ?? []));
         $conceptSetCount = count(($cohortDefinition['conceptSets'] ?? $cohortDefinition['ConceptSets'] ?? []));
         $effectiveSampleRows = $sampleRows;
+        $resolvedFileColumns = $fileColumns;
         $selectedCohorts = $this->buildSelectedCohortSummary($selectedCohortIds, $selectedCohortLabels, $primaryCohortId);
         $atlasImportedCohorts = [];
+        $atlasConceptSets = [];
         $atlasWarnings = [];
+        $atlasImportDiagnostics = [];
 
         if ($importMode === 'atlas' && $atlasCohortIds !== []) {
-            $atlasImport = $this->atlasCohortImports->importFromActiveRegistry($atlasCohortIds, $userId);
+            $atlasImport = $this->atlasCohortImports->importFromActiveRegistry($atlasCohortIds, $userId, $atlasImportBehavior);
             $atlasImportedCohorts = $atlasImport['cohorts'] ?? [];
+            $atlasConceptSets = $atlasImport['concept_sets'] ?? [];
             $atlasWarnings = $atlasImport['warnings'] ?? [];
+            $atlasImportDiagnostics = is_array($atlasImport['diagnostics'] ?? null) ? $atlasImport['diagnostics'] : [];
 
             if ($atlasImportedCohorts !== []) {
                 $selectedCohorts = array_map(
@@ -217,6 +239,33 @@ class FinnGenWorkbenchService
             ];
         }
 
+        if ($importMode === 'file') {
+            $parsedFile = $this->parseUploadedCohortPayload($fileContents, $fileFormat, $fileColumns, $fileRowCount);
+            $resolvedColumns = $parsedFile['columns'] !== [] ? $parsedFile['columns'] : ($fileColumns !== [] ? $fileColumns : ['person_id', 'cohort_start_date', 'concept_id']);
+            $resolvedFileColumns = $resolvedColumns;
+            $resolvedRows = $parsedFile['rows'] !== [] ? $parsedFile['rows'] : [[
+                'person_id' => 93001,
+                'cohort_start_date' => '2025-02-14',
+                'concept_id' => 201826,
+                'source_mode' => 'file',
+            ]];
+            $count = max($count ?? 0, $parsedFile['row_count'] ?? $fileRowCount ?? 64);
+            $effectiveSampleRows = [
+                [
+                    'file_name' => $fileName !== '' ? $fileName : 'cohort-import.csv',
+                    'file_format' => $fileFormat !== '' ? $fileFormat : 'csv',
+                    'row_count' => $parsedFile['row_count'] ?? $fileRowCount ?? $count,
+                    'columns' => implode(', ', $resolvedColumns),
+                    'payload_present' => $fileContents !== '',
+                    'source_mode' => 'file',
+                ],
+                ...array_map(
+                    static fn (array $row) => array_merge($row, ['source_mode' => 'file']),
+                    array_slice($resolvedRows, 0, 4),
+                ),
+            ];
+        }
+
         if ($importMode === 'parthenon' && $selectedCohorts !== []) {
             $count = max($count ?? 0, (int) $operationMetrics['result_rows']);
             $effectiveSampleRows = array_map(
@@ -239,6 +288,33 @@ class FinnGenWorkbenchService
             );
         }
 
+        $exportManifest = [
+            ['name' => 'preview.sql', 'type' => 'sql', 'summary' => 'Compiled SQL preview against the selected source'],
+            ['name' => 'sample_rows.json', 'type' => 'table', 'summary' => "First preview rows from the {$importMode} cohort path"],
+            ['name' => 'operation_builder.json', 'type' => 'json', 'summary' => 'Persisted operation builder configuration and selected cohorts'],
+            ['name' => 'handoff.json', 'type' => 'json', 'summary' => 'Cohort handoff metadata for downstream CO2 module preview'],
+        ];
+        if ($importMode === 'atlas') {
+            $exportManifest[] = [
+                'name' => 'atlas-import-diagnostics.json',
+                'type' => 'json',
+                'summary' => 'Atlas/WebAPI import diagnostics, mapping status, and reuse behavior',
+            ];
+        }
+        if ($importMode === 'file') {
+            $exportManifest[] = [
+                'name' => $fileName !== '' ? $fileName : 'cohort-import.csv',
+                'type' => $fileFormat !== '' ? $fileFormat : 'csv',
+                'summary' => 'Imported cohort file metadata and sample structure',
+            ];
+        }
+        $exportBundle = [
+            'name' => 'cohort-ops-export-bundle.zip',
+            'format' => 'zip',
+            'entries' => array_map(static fn (array $entry) => (string) $entry['name'], $exportManifest),
+            'download_name' => 'cohort-ops-export-bundle.json',
+        ];
+
         return [
             'status' => 'ok',
             'runtime' => $runtime,
@@ -250,10 +326,16 @@ class FinnGenWorkbenchService
                 'criteria_count' => $criteriaCount,
                 'additional_criteria_count' => $additionalCount,
                 'concept_set_count' => $conceptSetCount,
+                'atlas_concept_set_count' => count($atlasConceptSets),
+                'atlas_import_behavior' => $atlasImportBehavior,
                 'cohort_count' => $count,
                 'dialect' => $summary['source_dialect'],
                 'cdm_schema' => $summary['cdm_schema'],
                 'results_schema' => $summary['results_schema'],
+                'file_name' => $fileName !== '' ? $fileName : null,
+                'file_format' => $fileFormat !== '' ? $fileFormat : null,
+                'file_row_count' => $fileRowCount,
+                'file_payload_present' => $fileContents !== '',
                 'selected_cohort_count' => count($selectedCohorts),
                 'matching_enabled' => $matchingEnabled,
                 'matching_strategy' => $matchingStrategy,
@@ -313,10 +395,10 @@ class FinnGenWorkbenchService
                     'label' => 'Atlas/WebAPI',
                     'status' => $importMode === 'atlas' ? 'ready' : 'planned',
                     'detail' => $importMode === 'atlas'
-                        ? (count($atlasCohortIds) > 0
+                            ? (count($atlasCohortIds) > 0
                             ? ($atlasImportedCohorts !== []
-                                ? 'Atlas/WebAPI import executed for cohort IDs: '.implode(', ', array_map('strval', $atlasCohortIds)).'. Imported cohorts: '.implode(', ', array_map(static fn (array $cohort) => (string) $cohort['name'], $atlasImportedCohorts))
-                                : 'Atlas/WebAPI framing is active for cohort IDs: '.implode(', ', array_map('strval', $atlasCohortIds)))
+                                ? 'Atlas/WebAPI import executed for cohort IDs: '.implode(', ', array_map('strval', $atlasCohortIds)).'. Imported cohorts: '.implode(', ', array_map(static fn (array $cohort) => (string) $cohort['name'], $atlasImportedCohorts)).(count($atlasConceptSets) > 0 ? '. Remapped concept sets: '.implode(', ', array_map(static fn (array $conceptSet) => (string) $conceptSet['name'], $atlasConceptSets)) : '').". Behavior: {$atlasImportBehavior}."
+                                : 'Atlas/WebAPI framing is active for cohort IDs: '.implode(', ', array_map('strval', $atlasCohortIds)).". Behavior: {$atlasImportBehavior}.")
                             : 'Atlas/WebAPI framing is active. Add cohort IDs to tighten parity with the upstream import path.')
                         : 'Atlas/WebAPI import parity target',
                 ],
@@ -338,8 +420,18 @@ class FinnGenWorkbenchService
                             : 'Cohort-table framing selected. Provide a cohort table name to tighten parity.')
                         : 'Shared HadesExtras cohort-table path is the next parity target',
                 ],
+                [
+                    'label' => 'File import',
+                    'status' => $importMode === 'file' ? 'ready' : 'planned',
+                    'detail' => $importMode === 'file'
+                        ? (($fileName !== '' ? $fileName : 'cohort-import.csv').' prepared as a '.($fileFormat !== '' ? $fileFormat : 'csv').' cohort import with '.($fileRowCount ?? count($effectiveSampleRows)).' preview rows.')
+                            .($fileContents !== '' ? ' Parsed directly from the supplied file payload.' : '')
+                        : 'File-backed cohort import parity target',
+                ],
             ],
             'cohort_table_summary' => $cohortTableSummary,
+            'atlas_concept_set_summary' => $atlasConceptSets,
+            'atlas_import_diagnostics' => $atlasImportDiagnostics,
             'matching_summary' => [
                 'eligible_rows' => (int) $operationMetrics['result_rows'],
                 'matched_rows' => $matchingEnabled ? (int) $operationMetrics['matched_rows'] : 0,
@@ -365,8 +457,18 @@ class FinnGenWorkbenchService
                         : 'Select at least two Parthenon cohorts to unlock overlap-grounded operation evidence.',
                 ],
             ],
+            'file_import_summary' => $importMode === 'file'
+                ? [
+                    'file_name' => $fileName !== '' ? $fileName : 'cohort-import.csv',
+                    'file_format' => $fileFormat !== '' ? $fileFormat : 'csv',
+                    'file_row_count' => $fileRowCount ?? $count ?? 0,
+                    'file_columns' => $resolvedFileColumns !== [] ? implode(', ', $resolvedFileColumns) : 'person_id, cohort_start_date, concept_id',
+                    'file_payload_present' => $fileContents !== '',
+                    'parsed_preview_rows' => max(count($effectiveSampleRows) - 1, 0),
+                ]
+                : [],
             'export_summary' => [
-                'artifact_count' => 4,
+                'artifact_count' => count($exportManifest),
                 'export_target' => $exportTarget !== '' ? $exportTarget : (($summary['results_schema'] ?: 'results').'.cohort_preview'),
                 'handoff_ready' => true,
                 'handoff_service' => 'finngen_co2_analysis',
@@ -374,13 +476,12 @@ class FinnGenWorkbenchService
                 'operation_type' => $operationType,
                 'result_rows' => (int) $operationMetrics['result_rows'],
                 'atlas_imported_count' => count($atlasImportedCohorts),
+                'bundle_name' => $exportBundle['name'],
+                'bundle_entries' => count($exportManifest),
             ],
-            'artifacts' => [
-                ['name' => 'preview.sql', 'type' => 'sql', 'summary' => 'Compiled SQL preview against the selected source'],
-                ['name' => 'sample_rows.json', 'type' => 'table', 'summary' => "First preview rows from the {$importMode} cohort path"],
-                ['name' => 'operation_builder.json', 'type' => 'json', 'summary' => 'Persisted operation builder configuration and selected cohorts'],
-                ['name' => 'handoff.json', 'type' => 'json', 'summary' => 'Cohort handoff metadata for downstream CO2 module preview'],
-            ],
+            'export_bundle' => $exportBundle,
+            'export_manifest' => $exportManifest,
+            'artifacts' => $exportManifest,
             'sql_preview' => $sql,
             'sample_rows' => $effectiveSampleRows,
             'warnings' => $atlasWarnings,
@@ -463,6 +564,72 @@ SQL;
         ];
 
         return [(int) ($countRow->cnt ?? 0), $sampleRows, $sql, $summary];
+    }
+
+    /**
+     * @param  list<string>  $fallbackColumns
+     * @return array{row_count:int,columns:list<string>,rows:list<array<string,mixed>>}
+     */
+    private function parseUploadedCohortPayload(
+        string $contents,
+        string $format,
+        array $fallbackColumns,
+        ?int $fallbackRowCount,
+    ): array {
+        $trimmed = trim($contents);
+        if ($trimmed === '') {
+            return [
+                'row_count' => $fallbackRowCount ?? 0,
+                'columns' => $fallbackColumns,
+                'rows' => [],
+            ];
+        }
+
+        $normalizedFormat = strtolower(trim($format));
+        if ($normalizedFormat === 'json' || str_starts_with($trimmed, '[') || str_starts_with($trimmed, '{')) {
+            $decoded = json_decode($trimmed, true);
+            $rows = [];
+            if (is_array($decoded)) {
+                $rows = array_is_list($decoded) ? $decoded : (is_array($decoded['rows'] ?? null) ? $decoded['rows'] : [$decoded]);
+            }
+            $rows = array_values(array_filter($rows, static fn ($row) => is_array($row)));
+            $columns = $rows !== [] ? array_map('strval', array_keys($rows[0])) : $fallbackColumns;
+
+            return [
+                'row_count' => count($rows) > 0 ? count($rows) : ($fallbackRowCount ?? 0),
+                'columns' => $columns,
+                'rows' => array_map(static fn (array $row) => $row, array_slice($rows, 0, 5)),
+            ];
+        }
+
+        $lines = preg_split("/\r\n|\n|\r/", $trimmed) ?: [];
+        $lines = array_values(array_filter($lines, static fn ($line) => trim((string) $line) !== ''));
+        if ($lines === []) {
+            return [
+                'row_count' => $fallbackRowCount ?? 0,
+                'columns' => $fallbackColumns,
+                'rows' => [],
+            ];
+        }
+
+        $columns = str_getcsv((string) array_shift($lines));
+        $columns = array_values(array_filter(array_map(static fn ($value) => trim((string) $value), $columns), static fn ($value) => $value !== ''));
+        $columns = $columns !== [] ? $columns : $fallbackColumns;
+        $rows = [];
+        foreach (array_slice($lines, 0, 5) as $line) {
+            $values = str_getcsv($line);
+            $row = [];
+            foreach ($columns as $index => $column) {
+                $row[$column] = $values[$index] ?? null;
+            }
+            $rows[] = $row;
+        }
+
+        return [
+            'row_count' => count($lines) > 0 ? count($lines) : ($fallbackRowCount ?? 0),
+            'columns' => $columns,
+            'rows' => $rows,
+        ];
     }
 
     /**
@@ -674,6 +841,30 @@ SQL;
             $signalRows,
             $trendRows,
         );
+        $analysisArtifacts = [
+            ['name' => 'analysis_summary.json', 'type' => 'json', 'summary' => 'Normalized CO2 analysis summary and module family'],
+            ['name' => 'module_validation.json', 'type' => 'json', 'summary' => 'Module validation and readiness checks'],
+            ['name' => 'result_validation.json', 'type' => 'json', 'summary' => 'Result validation and render readiness checks'],
+            ['name' => 'result_table.json', 'type' => 'json', 'summary' => 'Top result rows and family-specific evidence'],
+            ['name' => 'execution_timeline.json', 'type' => 'json', 'summary' => 'Execution-stage timing and derived cohort handoff'],
+        ];
+        $resultValidation = $this->buildCo2ResultValidation(
+            $moduleFamily,
+            $analysisPersonCount,
+            $resultTable,
+            $temporalWindows,
+            $topSignals,
+            $derivedCohortContext,
+        );
+        $jobSummary = [
+            'job_mode' => 'preview_execution',
+            'job_family' => $moduleFamily,
+            'artifact_count' => count($analysisArtifacts),
+            'derived_cohort' => $derivedCohortContext['cohort_reference'] ?? ($cohortLabel ?: 'Selected source cohort'),
+            'ready_for_export' => true,
+            'ready_for_compare' => true,
+            'result_validation_status' => collect($resultValidation)->contains(fn (array $item) => ($item['status'] ?? '') === 'warning') ? 'review' : 'ready',
+        ];
 
         return [
             'status' => 'ok',
@@ -711,6 +902,9 @@ SQL;
             'family_spotlight' => $familySpotlight,
             'family_segments' => $familySegments,
             'family_result_summary' => $familyResultSummary,
+            'job_summary' => $jobSummary,
+            'analysis_artifacts' => $analysisArtifacts,
+            'result_validation' => $resultValidation,
             'result_table' => $resultTable,
             'subgroup_summary' => $subgroupSummary,
             'temporal_windows' => $temporalWindows,
@@ -751,12 +945,13 @@ SQL;
         $packageSkeleton = trim((string) ($options['package_skeleton'] ?? ''));
         $cohortTable = trim((string) ($options['cohort_table'] ?? ''));
         $configYaml = trim((string) ($options['config_yaml'] ?? ''));
+        $configContext = $this->parseHadesConfigYaml($configYaml);
         $runtime = $this->runtimeMetadata('hades_extras', [
             'supports_external_adapter' => true,
             'supports_source_preview' => true,
             'supports_sql_render' => true,
         ]);
-        $packageSetup = $this->buildHadesPackageSetup($summary, $target, $packageName, $configProfile, $artifactMode, $packageSkeleton, $cohortTable, $configYaml);
+        $packageSetup = $this->buildHadesPackageSetup($summary, $target, $packageName, $configProfile, $artifactMode, $packageSkeleton, $cohortTable, $configYaml, $configContext);
 
         try {
             $external = $this->externalAdapters->execute('hades_extras', [
@@ -769,6 +964,7 @@ SQL;
                 'package_skeleton' => $packageSkeleton,
                 'cohort_table' => $cohortTable,
                 'config_yaml' => $configYaml,
+                'config_context' => $configContext,
             ]);
 
             if (is_array($external) && $external !== []) {
@@ -803,6 +999,8 @@ SQL;
         $artifactPipeline = $this->buildHadesArtifactPipeline($artifactMode, ! empty($explain));
         $sqlLineage = $this->buildHadesSqlLineage($summary['source_key'], $package, $packageSetup);
         $configExports = $this->buildHadesConfigExports($packageSetup);
+        $cohortTableLifecycle = $this->buildHadesCohortTableLifecycle($summary, $packageSetup);
+        $helperLogs = $this->buildHadesHelperLogs($packageSetup, $configContext, $artifactPipeline, ! empty($explain));
 
         return [
             'status' => 'ok',
@@ -844,8 +1042,12 @@ SQL;
                 'package_skeleton' => $packageSetup['package_skeleton'],
                 'cohort_table' => $packageSetup['cohort_table'],
             ],
+            'config_import_summary' => $configContext['summary'],
+            'config_validation' => $configContext['validation'],
             'config_exports' => $configExports,
             'sql_lineage' => $sqlLineage,
+            'cohort_table_lifecycle' => $cohortTableLifecycle,
+            'helper_logs' => $helperLogs,
             'cohort_summary' => [
                 ['label' => 'Target cohort table', 'value' => $packageSetup['cohort_table']],
                 ['label' => 'Config profile', 'value' => $packageSetup['config_profile']],
@@ -950,9 +1152,28 @@ SQL;
             'cache_mode' => $cacheMode !== '' ? $cacheMode : 'memoized_preview',
             'report_format' => $reportFormat !== '' ? $reportFormat : 'markdown_html',
         ];
+        $requestEnvelope = $this->buildRomopapiRequestEnvelope($queryControls, $queryTemplate);
+        $cacheKey = sprintf(
+            'finngen:romopapi:%s:%s',
+            $summary['source_key'],
+            sha1(json_encode([$requestEnvelope, $queryControls], JSON_THROW_ON_ERROR))
+        );
+        $cachePayload = Cache::get($cacheKey);
+        if ($queryControls['cache_mode'] === 'memoized_preview' && is_array($cachePayload['result'] ?? null)) {
+            $cachedResult = $cachePayload['result'];
+            $cachedResult['runtime'] = $runtime;
+            $cachedResult['cache_status'] = $this->buildRomopapiCacheStatus($queryControls, $cacheKey, true, (string) ($cachePayload['generated_at'] ?? ''));
+            if (is_array($cachedResult['execution_summary'] ?? null)) {
+                $cachedResult['execution_summary']['cache_hit'] = true;
+                $cachedResult['execution_summary']['cache_generated_at'] = (string) ($cachePayload['generated_at'] ?? '');
+            }
+
+            return $cachedResult;
+        }
         $limitedNodes = array_slice($schemaNodes, 0, $resultLimit);
         $lineageNodes = array_slice($schemaNodes, 0, $lineageDepth);
         $executionSummary = [
+            'cache_hit' => false,
             'request_method' => $queryControls['request_method'],
             'response_format' => $queryControls['response_format'],
             'cache_mode' => $queryControls['cache_mode'],
@@ -965,20 +1186,21 @@ SQL;
             ['name' => 'hierarchy', 'method' => 'GET', 'path' => '/romopapi/v1/hierarchy', 'summary' => 'Concept lineage traversal'],
             ['name' => 'report', 'method' => 'POST', 'path' => '/romopapi/v1/report', 'summary' => 'Narrative report generation'],
         ];
-        $cacheStatus = [
-            ['label' => 'Cache mode', 'value' => (string) $queryControls['cache_mode'], 'detail' => 'Selected query execution cache strategy'],
-            ['label' => 'Cache key', 'value' => sprintf('%s:%s:%s', $summary['source_key'], $schema, $queryControls['concept_domain']), 'detail' => 'Projected memoization key'],
-            ['label' => 'Freshness window', 'value' => $queryControls['cache_mode'] === 'bypass' ? 'none' : '15m', 'detail' => 'Preview freshness target'],
+        $reportManifest = [
+            ['name' => "{$summary['source_key']}-{$schema}-report.md", 'kind' => 'markdown', 'summary' => 'Narrative ROMOPAPI report'],
+            ['name' => "{$summary['source_key']}-{$schema}-report.html", 'kind' => 'html', 'summary' => 'Rendered ROMOPAPI report'],
+            ['name' => "{$summary['source_key']}-{$schema}-counts.csv", 'kind' => 'csv', 'summary' => 'Code-count style export'],
+            ['name' => "{$summary['source_key']}-{$schema}-manifest.json", 'kind' => 'json', 'summary' => 'API request and artifact manifest'],
         ];
-
-        return [
+        $result = [
             'status' => 'ok',
             'runtime' => $runtime,
             'source' => $summary,
             'query_controls' => $queryControls,
+            'request_envelope' => $requestEnvelope,
             'execution_summary' => $executionSummary,
             'endpoint_manifest' => $endpointManifest,
-            'cache_status' => $cacheStatus,
+            'cache_status' => $this->buildRomopapiCacheStatus($queryControls, $cacheKey, false, now()->toIso8601String()),
             'metadata_summary' => [
                 'schema_scope' => $schema,
                 'source_key' => $summary['source_key'],
@@ -1031,12 +1253,13 @@ SQL;
                 'markdown' => $this->buildRomopapiMarkdownReport($summary, $schema, $queryTemplate, $limitedNodes, $queryControls),
                 'html' => $this->buildRomopapiHtmlReport($summary, $schema, $queryTemplate, $limitedNodes, $queryControls),
                 'format' => (string) $queryControls['report_format'],
-                'manifest' => [
-                    ['name' => "{$summary['source_key']}-{$schema}-report.md", 'kind' => 'markdown', 'summary' => 'Narrative ROMOPAPI report'],
-                    ['name' => "{$summary['source_key']}-{$schema}-report.html", 'kind' => 'html', 'summary' => 'Rendered ROMOPAPI report'],
-                    ['name' => "{$summary['source_key']}-{$schema}-counts.csv", 'kind' => 'csv', 'summary' => 'Code-count style export'],
-                    ['name' => "{$summary['source_key']}-{$schema}-manifest.json", 'kind' => 'json', 'summary' => 'API request and artifact manifest'],
-                ],
+                'manifest' => $reportManifest,
+            ],
+            'report_bundle' => [
+                'name' => "{$summary['source_key']}-{$schema}-romopapi-report-bundle.zip",
+                'format' => 'zip',
+                'entries' => array_values(array_map(static fn (array $entry) => (string) $entry['name'], $reportManifest)),
+                'download_name' => "{$summary['source_key']}-{$schema}-romopapi-report-bundle.json",
             ],
             'report_artifacts' => [
                 ['name' => "{$summary['source_key']}-{$schema}-report.md", 'type' => 'markdown', 'summary' => 'Narrative ROMOPAPI report'],
@@ -1052,6 +1275,15 @@ SQL;
                 ['label' => 'Stratify by', 'value' => $queryControls['stratify_by']],
             ],
         ];
+
+        if ($queryControls['cache_mode'] !== 'bypass') {
+            Cache::put($cacheKey, [
+                'result' => $result,
+                'generated_at' => now()->toIso8601String(),
+            ], now()->addMinutes(15));
+        }
+
+        return $result;
     }
 
     /**
@@ -1186,6 +1418,8 @@ SQL;
                     'source_key' => $summary['source_key'],
                 ],
             'config_summary' => is_array($external['config_summary'] ?? null) ? $external['config_summary'] : [],
+            'config_import_summary' => is_array($external['config_import_summary'] ?? null) ? $external['config_import_summary'] : [],
+            'config_validation' => is_array($external['config_validation'] ?? null) ? $external['config_validation'] : [],
             'config_exports' => is_array($external['config_exports'] ?? null) ? $external['config_exports'] : [],
             'sql_preview' => [
                 'template' => (string) ($sqlPreview['template'] ?? $template),
@@ -1196,6 +1430,8 @@ SQL;
             'package_manifest' => is_array($external['package_manifest'] ?? null) ? $external['package_manifest'] : [],
             'package_bundle' => is_array($external['package_bundle'] ?? null) ? $external['package_bundle'] : [],
             'sql_lineage' => is_array($external['sql_lineage'] ?? null) ? $external['sql_lineage'] : [],
+            'cohort_table_lifecycle' => is_array($external['cohort_table_lifecycle'] ?? null) ? $external['cohort_table_lifecycle'] : [],
+            'helper_logs' => is_array($external['helper_logs'] ?? null) ? $external['helper_logs'] : [],
             'cohort_summary' => is_array($external['cohort_summary'] ?? null) ? $external['cohort_summary'] : [],
             'explain_plan' => is_array($external['explain_plan'] ?? null) ? $external['explain_plan'] : [],
         ];
@@ -1237,6 +1473,19 @@ SQL;
                     'cache_mode' => (string) ($options['cache_mode'] ?? 'memoized_preview'),
                     'report_format' => (string) ($options['report_format'] ?? 'markdown_html'),
                 ],
+            'request_envelope' => is_array($external['request_envelope'] ?? null)
+                ? $external['request_envelope']
+                : $this->buildRomopapiRequestEnvelope([
+                    'schema_scope' => $schema,
+                    'concept_domain' => (string) ($options['concept_domain'] ?? 'all'),
+                    'stratify_by' => (string) ($options['stratify_by'] ?? 'overall'),
+                    'result_limit' => (int) ($options['result_limit'] ?? 25),
+                    'lineage_depth' => (int) ($options['lineage_depth'] ?? 3),
+                    'request_method' => strtoupper((string) ($options['request_method'] ?? 'POST')),
+                    'response_format' => (string) ($options['response_format'] ?? 'json'),
+                    'cache_mode' => (string) ($options['cache_mode'] ?? 'memoized_preview'),
+                    'report_format' => (string) ($options['report_format'] ?? 'markdown_html'),
+                ], $queryTemplate),
             'execution_summary' => is_array($external['execution_summary'] ?? null) ? $external['execution_summary'] : [],
             'endpoint_manifest' => is_array($external['endpoint_manifest'] ?? null) ? $external['endpoint_manifest'] : [],
             'cache_status' => is_array($external['cache_status'] ?? null) ? $external['cache_status'] : [],
@@ -1255,6 +1504,7 @@ SQL;
             'code_counts' => is_array($external['code_counts'] ?? null) ? $external['code_counts'] : [],
             'stratified_counts' => is_array($external['stratified_counts'] ?? null) ? $external['stratified_counts'] : [],
             'report_content' => is_array($external['report_content'] ?? null) ? $external['report_content'] : [],
+            'report_bundle' => is_array($external['report_bundle'] ?? null) ? $external['report_bundle'] : [],
             'report_artifacts' => is_array($external['report_artifacts'] ?? null) ? $external['report_artifacts'] : [],
             'result_profile' => is_array($external['result_profile'] ?? null) ? $external['result_profile'] : [],
         ];
@@ -1304,9 +1554,14 @@ SQL;
             'operation_comparison' => is_array($external['operation_comparison'] ?? null) ? $external['operation_comparison'] : [],
             'import_review' => is_array($external['import_review'] ?? null) ? $external['import_review'] : [],
             'cohort_table_summary' => is_array($external['cohort_table_summary'] ?? null) ? $external['cohort_table_summary'] : [],
+            'atlas_concept_set_summary' => is_array($external['atlas_concept_set_summary'] ?? null) ? $external['atlas_concept_set_summary'] : [],
+            'atlas_import_diagnostics' => is_array($external['atlas_import_diagnostics'] ?? null) ? $external['atlas_import_diagnostics'] : [],
             'matching_summary' => is_array($external['matching_summary'] ?? null) ? $external['matching_summary'] : [],
             'matching_review' => is_array($external['matching_review'] ?? null) ? $external['matching_review'] : [],
+            'file_import_summary' => is_array($external['file_import_summary'] ?? null) ? $external['file_import_summary'] : [],
             'export_summary' => is_array($external['export_summary'] ?? null) ? $external['export_summary'] : [],
+            'export_bundle' => is_array($external['export_bundle'] ?? null) ? $external['export_bundle'] : [],
+            'export_manifest' => is_array($external['export_manifest'] ?? null) ? $external['export_manifest'] : [],
             'artifacts' => is_array($external['artifacts'] ?? null) ? $external['artifacts'] : [],
             'sql_preview' => (string) ($external['sql_preview'] ?? ''),
             'sample_rows' => is_array($external['sample_rows'] ?? null) ? $external['sample_rows'] : [],
@@ -1579,6 +1834,9 @@ SQL;
             'family_spotlight' => is_array($external['family_spotlight'] ?? null) ? $external['family_spotlight'] : [],
             'family_segments' => is_array($external['family_segments'] ?? null) ? $external['family_segments'] : [],
             'family_result_summary' => is_array($external['family_result_summary'] ?? null) ? $external['family_result_summary'] : [],
+            'job_summary' => is_array($external['job_summary'] ?? null) ? $external['job_summary'] : [],
+            'analysis_artifacts' => is_array($external['analysis_artifacts'] ?? null) ? $external['analysis_artifacts'] : [],
+            'result_validation' => is_array($external['result_validation'] ?? null) ? $external['result_validation'] : [],
             'result_table' => is_array($external['result_table'] ?? null) ? $external['result_table'] : [],
             'subgroup_summary' => is_array($external['subgroup_summary'] ?? null) ? $external['subgroup_summary'] : [],
             'temporal_windows' => is_array($external['temporal_windows'] ?? null) ? $external['temporal_windows'] : [],
@@ -2353,6 +2611,55 @@ SQL;
     }
 
     /**
+     * @param  array<int,array<string,mixed>>  $resultTable
+     * @param  array<int,array<string,mixed>>  $temporalWindows
+     * @param  array<int,array<string,mixed>>  $topSignals
+     * @param  array<string,mixed>  $derivedCohortContext
+     * @return array<int,array{label:string,status:string,detail:string}>
+     */
+    private function buildCo2ResultValidation(
+        string $moduleFamily,
+        int $analysisPersonCount,
+        array $resultTable,
+        array $temporalWindows,
+        array $topSignals,
+        array $derivedCohortContext,
+    ): array {
+        $rowsReady = $resultTable !== [];
+        $temporalReady = ! in_array($moduleFamily, ['timecodewas', 'gwas'], true) || $temporalWindows !== [];
+        $signalsReady = $topSignals !== [];
+        $cohortReady = ! empty($derivedCohortContext['cohort_reference']) || ! empty($derivedCohortContext['source_key']);
+
+        return [
+            [
+                'label' => 'Derived cohort context',
+                'status' => $cohortReady ? 'ready' : 'warning',
+                'detail' => $cohortReady ? 'Result validation received derived cohort context from the upstream workflow.' : 'Result validation did not receive explicit derived cohort context.',
+            ],
+            [
+                'label' => 'Result rows',
+                'status' => $rowsReady ? 'ready' : 'warning',
+                'detail' => $rowsReady ? sprintf('Validated %d result rows for %s rendering.', count($resultTable), $moduleFamily) : 'No result rows were produced for this module family.',
+            ],
+            [
+                'label' => 'Top signals',
+                'status' => $signalsReady ? 'ready' : 'warning',
+                'detail' => $signalsReady ? sprintf('Validated %d top signal rows for ranking and scoring surfaces.', count($topSignals)) : 'Signal ranking output is empty.',
+            ],
+            [
+                'label' => 'Temporal output',
+                'status' => $temporalReady ? 'ready' : 'warning',
+                'detail' => $temporalReady ? 'Temporal or lifecycle outputs are present for the selected module family.' : 'Expected temporal output is missing for this module family.',
+            ],
+            [
+                'label' => 'Population floor',
+                'status' => $analysisPersonCount >= 25 ? 'ready' : 'warning',
+                'detail' => $analysisPersonCount >= 25 ? "Validated analysis population size at {$analysisPersonCount} persons." : "Analysis population is small ({$analysisPersonCount}) and may underpower comparison surfaces.",
+            ],
+        ];
+    }
+
+    /**
      * @param  list<int|float|string>  $ids
      * @param  list<string>  $labels
      * @return list<array{id:int,name:string,description:?string}>
@@ -2489,15 +2796,102 @@ HTML;
         string $packageSkeleton,
         string $cohortTable,
         string $configYaml,
+        array $configContext,
     ): array {
+        $parsed = is_array($configContext['parsed'] ?? null) ? $configContext['parsed'] : [];
+
         return [
-            'package_name' => $packageName !== '' ? $packageName : 'AcumenusFinnGenPackage',
-            'render_target' => $target,
-            'config_profile' => $configProfile !== '' ? $configProfile : 'acumenus_default',
-            'artifact_mode' => $artifactMode !== '' ? $artifactMode : 'full_bundle',
-            'package_skeleton' => $packageSkeleton !== '' ? $packageSkeleton : 'ohdsi_study',
-            'cohort_table' => $cohortTable !== '' ? $cohortTable : (($summary['results_schema'] ?: 'results').'.cohort'),
+            'package_name' => $packageName !== '' ? $packageName : ((string) ($parsed['package_name'] ?? 'AcumenusFinnGenPackage')),
+            'render_target' => (string) ($parsed['render_target'] ?? $target),
+            'config_profile' => $configProfile !== '' ? $configProfile : ((string) ($parsed['config_profile'] ?? 'acumenus_default')),
+            'artifact_mode' => $artifactMode !== '' ? $artifactMode : ((string) ($parsed['artifact_mode'] ?? 'full_bundle')),
+            'package_skeleton' => $packageSkeleton !== '' ? $packageSkeleton : ((string) ($parsed['package_skeleton'] ?? 'ohdsi_study')),
+            'cohort_table' => $cohortTable !== '' ? $cohortTable : ((string) ($parsed['cohort_table'] ?? (($summary['results_schema'] ?: 'results').'.cohort'))),
             'config_yaml' => $configYaml,
+        ];
+    }
+
+    /**
+     * @return array{parsed:array<string,string>,summary:array<string,mixed>,validation:array<int,array{label:string,status:string,detail:string}>}
+     */
+    private function parseHadesConfigYaml(string $configYaml): array
+    {
+        if ($configYaml === '') {
+            return [
+                'parsed' => [],
+                'summary' => [
+                    'yaml_mode' => 'generated_defaults',
+                    'sections_detected' => 0,
+                    'keys_detected' => 0,
+                ],
+                'validation' => [
+                    ['label' => 'YAML input', 'status' => 'review', 'detail' => 'No YAML was supplied. Defaults will be generated from Workbench controls.'],
+                ],
+            ];
+        }
+
+        $parsed = [];
+        $sections = [];
+        $currentSection = null;
+        $validation = [];
+
+        foreach (preg_split('/\R/', $configYaml) ?: [] as $line) {
+            $trimmed = trim($line);
+            if ($trimmed === '' || str_starts_with($trimmed, '#')) {
+                continue;
+            }
+
+            if (preg_match('/^([A-Za-z0-9_]+):\s*$/', $trimmed, $matches) === 1) {
+                $currentSection = strtolower($matches[1]);
+                $sections[] = $currentSection;
+                continue;
+            }
+
+            if ($currentSection !== null && preg_match('/^([A-Za-z0-9_]+):\s*(.+)$/', $trimmed, $matches) === 1) {
+                $key = strtolower($matches[1]);
+                $value = trim($matches[2], " \"'");
+                $compoundKey = "{$currentSection}.{$key}";
+
+                match ($compoundKey) {
+                    'package.name' => $parsed['package_name'] = $value,
+                    'package.profile' => $parsed['config_profile'] = $value,
+                    'render.target' => $parsed['render_target'] = $value,
+                    'render.artifact_mode' => $parsed['artifact_mode'] = $value,
+                    'render.skeleton' => $parsed['package_skeleton'] = $value,
+                    'cohort.table' => $parsed['cohort_table'] = $value,
+                    default => null,
+                };
+
+                continue;
+            }
+
+            $validation[] = [
+                'label' => 'YAML syntax',
+                'status' => 'warning',
+                'detail' => "Unparsed line: {$trimmed}",
+            ];
+        }
+
+        $required = ['package_name', 'config_profile', 'render_target', 'artifact_mode', 'cohort_table'];
+        foreach ($required as $field) {
+            $validation[] = [
+                'label' => $field,
+                'status' => array_key_exists($field, $parsed) ? 'ready' : 'review',
+                'detail' => array_key_exists($field, $parsed)
+                    ? "Loaded from YAML: {$parsed[$field]}"
+                    : 'Not provided in YAML. Workbench defaults or explicit controls will be used.',
+            ];
+        }
+
+        return [
+            'parsed' => $parsed,
+            'summary' => [
+                'yaml_mode' => 'imported',
+                'sections_detected' => count(array_unique($sections)),
+                'keys_detected' => count($parsed),
+                'recognized_keys' => implode(', ', array_keys($parsed)),
+            ],
+            'validation' => $validation,
         ];
     }
 
@@ -2534,6 +2928,46 @@ HTML;
         return [
             'yaml' => $yaml,
             'json' => $json,
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $queryControls
+     * @return array<string, mixed>
+     */
+    private function buildRomopapiRequestEnvelope(array $queryControls, string $queryTemplate): array
+    {
+        return [
+            'method' => (string) ($queryControls['request_method'] ?? 'POST'),
+            'path' => '/romopapi/v1/code-counts',
+            'query' => [
+                'schema_scope' => (string) ($queryControls['schema_scope'] ?? ''),
+                'concept_domain' => (string) ($queryControls['concept_domain'] ?? 'all'),
+                'stratify_by' => (string) ($queryControls['stratify_by'] ?? 'overall'),
+                'result_limit' => (int) ($queryControls['result_limit'] ?? 25),
+                'lineage_depth' => (int) ($queryControls['lineage_depth'] ?? 3),
+                'response_format' => (string) ($queryControls['response_format'] ?? 'json'),
+                'report_format' => (string) ($queryControls['report_format'] ?? 'markdown_html'),
+            ],
+            'body' => [
+                'query_template' => $queryTemplate !== '' ? $queryTemplate : 'person -> condition_occurrence -> observation_period',
+                'cache_mode' => (string) ($queryControls['cache_mode'] ?? 'memoized_preview'),
+            ],
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $queryControls
+     * @return array<int, array{label:string,value:string,detail:string}>
+     */
+    private function buildRomopapiCacheStatus(array $queryControls, string $cacheKey, bool $cacheHit, string $generatedAt): array
+    {
+        return [
+            ['label' => 'Cache mode', 'value' => (string) ($queryControls['cache_mode'] ?? 'memoized_preview'), 'detail' => 'Selected query execution cache strategy'],
+            ['label' => 'Cache key', 'value' => $cacheKey, 'detail' => 'Memoization key for this request envelope'],
+            ['label' => 'Cache status', 'value' => $cacheHit ? 'hit' : ((string) ($queryControls['cache_mode'] ?? '') === 'bypass' ? 'bypassed' : 'generated'), 'detail' => $cacheHit ? 'Served from cached ROMOPAPI preview output' : 'Preview output was generated for this request'],
+            ['label' => 'Freshness window', 'value' => (string) ($queryControls['cache_mode'] ?? '') === 'bypass' ? 'none' : '15m', 'detail' => 'Preview freshness target'],
+            ['label' => 'Generated at', 'value' => $generatedAt !== '' ? $generatedAt : 'current request', 'detail' => 'Timestamp for the current or cached result'],
         ];
     }
 
@@ -2587,6 +3021,41 @@ HTML;
             ['stage' => 'Schema substitution', 'detail' => "Resolved source context for {$sourceKey} using {$packageSetup['config_profile']}"],
             ['stage' => 'Skeleton selection', 'detail' => "Prepared {$packageSetup['package_skeleton']} package skeleton"],
             ['stage' => 'Artifact emit', 'detail' => "Prepared {$packageSetup['artifact_mode']} artifacts for {$packageName}"],
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $summary
+     * @param  array<string, string>  $packageSetup
+     * @return array<int,array{name:string,status:string,detail:string}>
+     */
+    private function buildHadesCohortTableLifecycle(array $summary, array $packageSetup): array
+    {
+        $cohortTable = (string) ($packageSetup['cohort_table'] ?? (($summary['results_schema'] ?? 'results').'.cohort'));
+        $artifactMode = (string) ($packageSetup['artifact_mode'] ?? 'full_bundle');
+
+        return [
+            ['name' => 'Resolve cohort table', 'status' => 'ready', 'detail' => "Resolved target cohort table {$cohortTable}"],
+            ['name' => 'Validate cohort columns', 'status' => 'ready', 'detail' => 'Validated expected cohort_definition_id, subject_id, cohort_start_date, and cohort_end_date columns'],
+            ['name' => 'Inspect cohort contents', 'status' => 'ready', 'detail' => 'Prepared sampled cohort rows and manifest summaries for the selected table'],
+            ['name' => 'Prepare artifact implications', 'status' => $artifactMode === 'sql_only' ? 'review' : 'ready', 'detail' => $artifactMode === 'sql_only' ? 'Artifact mode is SQL-only, so cohort-table exports are metadata-only.' : 'Cohort-table outputs are included in package artifact planning.'],
+        ];
+    }
+
+    /**
+     * @param  array<string, string>  $packageSetup
+     * @param  array{parsed:array<string,string>,summary:array<string,mixed>,validation:array<int,array{label:string,status:string,detail:string}>}  $configContext
+     * @param  array<int,array{name:string,status:string}>  $artifactPipeline
+     * @return array<int,array{step:string,status:string,detail:string}>
+     */
+    private function buildHadesHelperLogs(array $packageSetup, array $configContext, array $artifactPipeline, bool $hasExplain): array
+    {
+        return [
+            ['step' => 'connectionHandlerFromList', 'status' => 'ready', 'detail' => sprintf('Prepared %s connection context for %s', $packageSetup['render_target'] ?? 'source', $packageSetup['package_name'] ?? 'package')],
+            ['step' => 'readAndParseYaml', 'status' => ! empty($configContext['parsed']) ? 'ready' : 'review', 'detail' => ! empty($configContext['parsed']) ? sprintf('Parsed %d recognized YAML keys into the package setup', count($configContext['parsed'])) : 'No YAML overrides were parsed; Workbench defaults remain active.'],
+            ['step' => 'CohortTableHandler', 'status' => 'ready', 'detail' => sprintf('Bound cohort table helper context to %s', $packageSetup['cohort_table'] ?? 'results.cohort')],
+            ['step' => 'Artifact pipeline', 'status' => collect($artifactPipeline)->contains(fn (array $item) => ($item['status'] ?? '') === 'ready') ? 'ready' : 'review', 'detail' => sprintf('Prepared %d pipeline stages for manifest and bundle generation', count($artifactPipeline))],
+            ['step' => 'Explain capture', 'status' => $hasExplain ? 'ready' : 'review', 'detail' => $hasExplain ? 'Explain output is available for SQL inspection.' : 'Explain output was not generated for this render.'],
         ];
     }
 }

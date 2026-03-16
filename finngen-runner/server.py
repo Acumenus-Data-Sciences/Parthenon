@@ -5,6 +5,7 @@ import os
 import re
 import shutil
 import subprocess
+from datetime import datetime, timezone
 from dataclasses import dataclass
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -14,6 +15,7 @@ from typing import Any
 REPO_ROOT = Path("/opt/finngen")
 HOST = os.environ.get("FINNGEN_RUNNER_HOST", "0.0.0.0")
 PORT = int(os.environ.get("FINNGEN_RUNNER_PORT", "8786"))
+ROMOPAPI_CACHE: dict[str, dict[str, Any]] = {}
 
 
 @dataclass(frozen=True)
@@ -157,12 +159,77 @@ def adapter_info(config: ServiceConfig) -> dict[str, Any]:
     }
 
 
+def parse_uploaded_cohort_payload(
+    contents: str,
+    file_format: str,
+    fallback_columns: list[str],
+    fallback_row_count: int | None,
+) -> dict[str, Any]:
+    trimmed = (contents or "").strip()
+    if not trimmed:
+        return {
+            "row_count": fallback_row_count or 0,
+            "columns": fallback_columns,
+            "rows": [],
+        }
+
+    normalized_format = (file_format or "").strip().lower()
+    if normalized_format == "json" or trimmed.startswith("[") or trimmed.startswith("{"):
+        try:
+            decoded = json.loads(trimmed)
+        except json.JSONDecodeError:
+            decoded = []
+        rows: list[dict[str, Any]] = []
+        if isinstance(decoded, list):
+            rows = [item for item in decoded if isinstance(item, dict)]
+        elif isinstance(decoded, dict):
+            nested_rows = decoded.get("rows")
+            if isinstance(nested_rows, list):
+                rows = [item for item in nested_rows if isinstance(item, dict)]
+            else:
+                rows = [decoded]
+        columns = list(rows[0].keys()) if rows else fallback_columns
+        return {
+            "row_count": len(rows) or fallback_row_count or 0,
+            "columns": columns,
+            "rows": rows[:5],
+        }
+
+    lines = [line for line in re.split(r"\r\n|\n|\r", trimmed) if line.strip()]
+    if not lines:
+        return {
+            "row_count": fallback_row_count or 0,
+            "columns": fallback_columns,
+            "rows": [],
+        }
+
+    header = [item.strip() for item in lines[0].split(",") if item.strip()]
+    columns = header or fallback_columns
+    rows: list[dict[str, Any]] = []
+    for line in lines[1:6]:
+        values = [item.strip() for item in line.split(",")]
+        row = {column: (values[index] if index < len(values) else None) for index, column in enumerate(columns)}
+        rows.append(row)
+
+    return {
+        "row_count": max(len(lines) - 1, 0) or fallback_row_count or 0,
+        "columns": columns,
+        "rows": rows,
+    }
+
+
 def build_cohort_operations(payload: dict[str, Any], source_key: str, dialect: str) -> dict[str, Any]:
     cohort_definition = payload.get("cohort_definition") or {}
     import_mode = payload.get("import_mode") or "json"
     operation_type = payload.get("operation_type") or "union"
     atlas_cohort_ids = payload.get("atlas_cohort_ids") or []
+    atlas_import_behavior = payload.get("atlas_import_behavior") or "auto"
     cohort_table_name = payload.get("cohort_table_name") or ""
+    file_name = payload.get("file_name") or ""
+    file_format = payload.get("file_format") or ""
+    file_row_count = int(payload.get("file_row_count") or 0) or None
+    file_columns = payload.get("file_columns") or []
+    file_contents = payload.get("file_contents") or ""
     selected_cohort_ids = payload.get("selected_cohort_ids") or []
     selected_cohort_labels = payload.get("selected_cohort_labels") or []
     primary_cohort_id = int(payload.get("primary_cohort_id") or 0) or None
@@ -224,6 +291,27 @@ def build_cohort_operations(payload: dict[str, Any], source_key: str, dialect: s
             "available_columns": "cohort_definition_id, subject_id, cohort_start_date, cohort_end_date",
             "missing_columns": "",
         }
+    elif import_mode == "file":
+        parsed_file = parse_uploaded_cohort_payload(file_contents, file_format, file_columns, file_row_count)
+        resolved_columns = parsed_file["columns"] or file_columns or ["person_id", "cohort_start_date", "concept_id"]
+        resolved_rows = parsed_file["rows"] or [
+            {"person_id": 93001, "cohort_start_date": "2025-02-14", "concept_id": 201826}
+        ]
+        cohort_count = max(cohort_count, parsed_file["row_count"] or file_row_count or 64)
+        sample_rows = [
+            {
+                "file_name": file_name or "cohort-import.csv",
+                "file_format": file_format or "csv",
+                "row_count": parsed_file["row_count"] or file_row_count or cohort_count,
+                "columns": ", ".join(str(item) for item in resolved_columns) or "person_id, cohort_start_date, concept_id",
+                "payload_present": bool(file_contents),
+                "source_mode": "file",
+            },
+            *[
+                {**row, "source_mode": "file"}
+                for row in resolved_rows[:4]
+            ],
+        ]
     elif import_mode == "parthenon":
         labels = selected_cohort_labels or [f"Cohort {item}" for item in selected_cohort_ids] or ["Acumenus diabetes cohort"]
         cohort_sizes = [
@@ -300,6 +388,48 @@ def build_cohort_operations(payload: dict[str, Any], source_key: str, dialect: s
         derived_label = selected_cohorts[0]["name"] if selected_cohorts else "Workbench cohort preview"
     matched_rows = int(cohort_count * (0.78 if matching_target == "pairwise_balance" else 0.84)) if matching_enabled else 0
     match_excluded_rows = cohort_count - matched_rows if matching_enabled else excluded_rows
+    export_manifest = [
+        {"name": "adapter-preview.sql", "type": "sql", "summary": "Repo-aware external adapter SQL preview"},
+        {"name": "adapter-attrition.json", "type": "json", "summary": "Repo-aware external adapter attrition summary"},
+        {"name": "operation-builder.json", "type": "json", "summary": "Selected Parthenon cohorts and operation builder configuration"},
+        {"name": "adapter-handoff.json", "type": "json", "summary": "Downstream CO2 handoff metadata"},
+    ]
+    if import_mode == "atlas":
+        export_manifest.append(
+            {
+                "name": "atlas-import-diagnostics.json",
+                "type": "json",
+                "summary": "Atlas/WebAPI import diagnostics, mapping status, and reuse behavior",
+            }
+        )
+    if import_mode == "file":
+        export_manifest.append(
+            {
+                "name": file_name or "cohort-import.csv",
+                "type": file_format or "csv",
+                "summary": "Imported cohort file metadata and sample structure",
+            }
+        )
+    export_bundle = {
+        "name": "cohort-ops-export-bundle.zip",
+        "format": "zip",
+        "entries": [str(item["name"]) for item in export_manifest],
+        "download_name": "cohort-ops-export-bundle.json",
+    }
+    atlas_concept_set_summary = (
+        [
+            {
+                "atlas_id": int(cohort_id) * 10 + index + 1,
+                "parthenon_id": 20000 + index,
+                "name": f"Atlas concept set {int(cohort_id) * 10 + index + 1}",
+                "status": "imported" if index % 2 == 0 else "matched_by_name",
+                "item_count": 6 + index,
+            }
+            for index, cohort_id in enumerate(atlas_cohort_ids or [101])
+        ]
+        if import_mode == "atlas"
+        else []
+    )
 
     return {
         "status": "ok",
@@ -307,12 +437,17 @@ def build_cohort_operations(payload: dict[str, Any], source_key: str, dialect: s
             "execution_mode": payload.get("execution_mode") or "preview",
             "import_mode": import_mode,
             "operation_type": operation_type,
+            "atlas_import_behavior": atlas_import_behavior,
             "criteria_count": criteria_count,
             "additional_criteria_count": additional_count,
             "concept_set_count": concept_set_count,
             "cohort_count": cohort_count,
             "dialect": dialect,
             "source_key": source_key,
+            "file_name": file_name or None,
+            "file_format": file_format or None,
+            "file_row_count": file_row_count,
+            "file_payload_present": bool(file_contents),
             "selected_cohort_count": len(selected_cohorts),
             "primary_cohort": next((item["name"] for item in selected_cohorts if item.get("role") == "primary"), (selected_cohorts[0]["name"] if selected_cohorts else "")),
             "comparator_cohort_count": max(len(selected_cohorts) - 1, 0),
@@ -345,6 +480,17 @@ def build_cohort_operations(payload: dict[str, Any], source_key: str, dialect: s
             {"step": 3, "title": "Execution preview", "status": "ready", "window": "Acumenus source", "detail": f"Estimated {cohort_count} cohort rows on {source_key} via {import_mode} with {operation_phrase}"},
         ],
         "selected_cohorts": selected_cohorts,
+        "atlas_concept_set_summary": atlas_concept_set_summary,
+        "atlas_import_diagnostics": {
+            "import_behavior": atlas_import_behavior,
+            "requested_cohort_ids": ", ".join(str(item) for item in atlas_cohort_ids),
+            "imported_count": len(atlas_cohort_ids) if import_mode == "atlas" else 0,
+            "reused_count": max(len(atlas_cohort_ids) - 1, 0) if import_mode == "atlas" and atlas_import_behavior != "reimport" else 0,
+            "failed_count": 0,
+            "mapping_statuses": ", ".join(
+                f"{item['name']} ({item['status']})" for item in atlas_concept_set_summary
+            ) if atlas_concept_set_summary else "",
+        },
         "operation_summary": {
             "operation_type": operation_type,
             "selected_cohort_count": len(selected_cohorts),
@@ -390,6 +536,7 @@ def build_cohort_operations(payload: dict[str, Any], source_key: str, dialect: s
                 "status": "ready" if import_mode == "atlas" else "planned",
                 "detail": (
                     f"Atlas/WebAPI framing active for cohort IDs: {', '.join(str(item) for item in atlas_cohort_ids)}"
+                    + f". Behavior: {atlas_import_behavior}."
                     if import_mode == "atlas" and atlas_cohort_ids
                     else "Atlas import parity target"
                 ),
@@ -410,6 +557,16 @@ def build_cohort_operations(payload: dict[str, Any], source_key: str, dialect: s
                     )
                     if import_mode == "cohort_table" and cohort_table_name
                     else "Shared HadesExtras table path pending"
+                ),
+            },
+            {
+                "label": "File import",
+                "status": "ready" if import_mode == "file" else "planned",
+                "detail": (
+                    f"{file_name or 'cohort-import.csv'} prepared as a {file_format or 'csv'} cohort import with {file_row_count or cohort_count} preview rows."
+                    + (" Parsed directly from the supplied file payload." if file_contents else "")
+                    if import_mode == "file"
+                    else "File-backed cohort import parity target"
                 ),
             },
         ],
@@ -464,21 +621,30 @@ def build_cohort_operations(payload: dict[str, Any], source_key: str, dialect: s
                 "Use ratio and caliper together to trade match density against balance strictness.",
             ],
         },
+        "file_import_summary": {
+            "file_name": file_name or "cohort-import.csv",
+            "file_format": file_format or "csv",
+            "file_row_count": parsed_file["row_count"] if import_mode == "file" else (file_row_count or cohort_count),
+            "file_columns": ", ".join(str(item) for item in (parsed_file["columns"] if import_mode == "file" else file_columns)) or "person_id, cohort_start_date, concept_id",
+            "file_payload_present": bool(file_contents),
+            "parsed_preview_rows": max(len(sample_rows) - 1, 0) if import_mode == "file" else 0,
+        }
+        if import_mode == "file"
+        else {},
         "export_summary": {
-            "artifact_count": 4,
+            "artifact_count": len(export_manifest),
             "export_target": export_target,
             "handoff_ready": True,
             "handoff_service": "finngen_co2_analysis",
             "cohort_reference": derived_label,
             "operation_type": operation_type,
             "result_rows": cohort_count,
+            "bundle_name": export_bundle["name"],
+            "bundle_entries": len(export_manifest),
         },
-        "artifacts": [
-            {"name": "adapter-preview.sql", "type": "sql", "summary": "Repo-aware external adapter SQL preview"},
-            {"name": "adapter-attrition.json", "type": "json", "summary": "Repo-aware external adapter attrition summary"},
-            {"name": "operation-builder.json", "type": "json", "summary": "Selected Parthenon cohorts and operation builder configuration"},
-            {"name": "adapter-handoff.json", "type": "json", "summary": "Downstream CO2 handoff metadata"},
-        ],
+        "export_bundle": export_bundle,
+        "export_manifest": export_manifest,
+        "artifacts": export_manifest,
         "sql_preview": (
             (
                 "\nINTERSECT\n".join(
@@ -676,6 +842,29 @@ def build_co2_analysis(payload: dict[str, Any], source_key: str) -> dict[str, An
             "Use this lane to review trait and method choices before promoting to a genomic pipeline.",
         ],
     }[module_family]
+    analysis_artifacts = [
+        {"name": "analysis_summary.json", "type": "json", "summary": "Normalized CO2 analysis summary and module family"},
+        {"name": "module_validation.json", "type": "json", "summary": "Module validation and readiness checks"},
+        {"name": "result_validation.json", "type": "json", "summary": "Result validation and render readiness checks"},
+        {"name": "result_table.json", "type": "json", "summary": "Top result rows and family-specific evidence"},
+        {"name": "execution_timeline.json", "type": "json", "summary": "Execution-stage timing and derived cohort handoff"},
+    ]
+    result_validation = [
+        {"label": "Derived cohort context", "status": "ready" if cohort_context else "warning", "detail": "Runner received derived cohort context from the upstream workflow." if cohort_context else "No derived cohort context was supplied."},
+        {"label": "Result rows", "status": "ready", "detail": f"Prepared family-specific result rows for {module_family} rendering."},
+        {"label": "Top signals", "status": "ready" if top_signals else "warning", "detail": f"Prepared {len(top_signals)} top-signal rows for scoring and ranking surfaces." if top_signals else "Top-signal output is empty."},
+        {"label": "Temporal output", "status": "ready", "detail": "Temporal or lifecycle outputs are available for the selected family."},
+        {"label": "Population floor", "status": "ready" if analysis_person_count >= 25 else "warning", "detail": f"Validated analysis population size at {analysis_person_count} persons." if analysis_person_count >= 25 else f"Analysis population is small ({analysis_person_count}) and may underpower comparison surfaces."},
+    ]
+    job_summary = {
+        "job_mode": "preview_execution",
+        "job_family": module_family,
+        "artifact_count": len(analysis_artifacts),
+        "derived_cohort": cohort_context.get("cohort_reference") or cohort_label,
+        "ready_for_export": True,
+        "ready_for_compare": True,
+        "result_validation_status": "review" if any(item["status"] == "warning" for item in result_validation) else "ready",
+    }
 
     handoff_impact = [
         {"label": "Derived cohort rows", "value": result_rows or analysis_person_count, "emphasis": "result"},
@@ -1070,6 +1259,9 @@ def build_co2_analysis(payload: dict[str, Any], source_key: str) -> dict[str, An
                 else comparator_label
             ),
         },
+        "job_summary": job_summary,
+        "analysis_artifacts": analysis_artifacts,
+        "result_validation": result_validation,
         "result_table": (
             [
                 {"phenotype_code": "P001", "phenotype_label": "Type 2 diabetes mellitus", "signal_count": condition_persons, "tier": "lead"},
@@ -1200,7 +1392,15 @@ def build_hades_extras(payload: dict[str, Any], source_key: str, dialect: str) -
     package_skeleton = payload.get("package_skeleton") or "ohdsi_study"
     cohort_table = payload.get("cohort_table") or f"{source_key}.results.cohort"
     config_yaml = payload.get("config_yaml") or ""
+    config_context = payload.get("config_context") or {}
+    parsed = config_context.get("parsed") or {}
+    package_name = parsed.get("package_name") or package_name
+    config_profile = parsed.get("config_profile") or config_profile
+    artifact_mode = parsed.get("artifact_mode") or artifact_mode
+    package_skeleton = parsed.get("package_skeleton") or package_skeleton
+    cohort_table = parsed.get("cohort_table") or cohort_table
     render_target = payload.get("render_target") or dialect
+    render_target = parsed.get("render_target") or render_target
     rendered = template.replace("@cdm_schema", f"{source_key}.cdm")
     config_json = {
         "package_name": package_name,
@@ -1234,6 +1434,19 @@ def build_hades_extras(payload: dict[str, Any], source_key: str, dialect: str) -
         manifest.append({"path": f"{package_name}/inst/cohorts/{cohort_table.replace('.', '_')}.csv", "kind": "csv", "summary": "Cohort artifact export"})
     if package_skeleton == "finngen_extension":
         manifest.append({"path": f"{package_name}/R/finngen_hooks.R", "kind": "r", "summary": "FINNGEN extension hooks"})
+    cohort_table_lifecycle = [
+        {"name": "Resolve cohort table", "status": "ready", "detail": f"Resolved target cohort table {cohort_table}"},
+        {"name": "Validate cohort columns", "status": "ready", "detail": "Validated cohort_definition_id, subject_id, cohort_start_date, and cohort_end_date"},
+        {"name": "Inspect cohort contents", "status": "ready", "detail": "Prepared sampled cohort rows and manifest implications for the selected table"},
+        {"name": "Prepare artifact implications", "status": "review" if artifact_mode == "sql_only" else "ready", "detail": "Artifact planning reflects the selected cohort table and artifact mode"},
+    ]
+    helper_logs = [
+        {"step": "connectionHandlerFromList", "status": "ready", "detail": f"Prepared {render_target} connection context for {package_name}"},
+        {"step": "readAndParseYaml", "status": "ready" if parsed else "review", "detail": f"Recognized {len(parsed)} YAML-backed config keys"},
+        {"step": "CohortTableHandler", "status": "ready", "detail": f"Bound cohort helper context to {cohort_table}"},
+        {"step": "Artifact pipeline", "status": "ready", "detail": f"Prepared {len(manifest)} manifest entries for export"},
+        {"step": "Explain capture", "status": "ready", "detail": "Compatibility runner emitted explain-plan metadata"},
+    ]
 
     return {
         "status": "ok",
@@ -1267,12 +1480,28 @@ def build_hades_extras(payload: dict[str, Any], source_key: str, dialect: str) -
             "artifact_mode": artifact_mode,
             "package_skeleton": package_skeleton,
         },
+        "config_import_summary": config_context.get("summary")
+        or {
+            "yaml_mode": "generated_defaults" if not config_yaml.strip() else "imported",
+            "sections_detected": 3 if config_yaml.strip() else 0,
+            "keys_detected": len(parsed),
+        },
+        "config_validation": config_context.get("validation")
+        or [
+            {
+                "label": "YAML input",
+                "status": "review" if not config_yaml.strip() else "ready",
+                "detail": "No YAML was supplied. Defaults will be generated from Workbench controls."
+                if not config_yaml.strip()
+                else "YAML configuration was accepted by the runner.",
+            }
+        ],
         "config_exports": {
             "yaml": exported_yaml,
             "json": config_json,
         },
         "artifact_pipeline": [
-            {"name": "Config import", "status": "ready"},
+            {"name": "Config import", "status": "ready" if config_yaml.strip() else "review"},
             {"name": "Runner SQL render", "status": "ready"},
             {"name": "Manifest build", "status": "skipped" if artifact_mode == "sql_only" else "ready"},
             {"name": "Explain capture", "status": "ready"},
@@ -1295,6 +1524,8 @@ def build_hades_extras(payload: dict[str, Any], source_key: str, dialect: str) -
             {"stage": "Skeleton selection", "detail": f"Prepared {package_skeleton} package skeleton"},
             {"stage": "Artifact emit", "detail": f"Prepared {artifact_mode} artifacts for {package_name}"},
         ],
+        "cohort_table_lifecycle": cohort_table_lifecycle,
+        "helper_logs": helper_logs,
         "cohort_summary": [
             {"label": "Target cohort table", "value": cohort_table},
             {"label": "Render dialect", "value": payload.get("render_target") or dialect},
@@ -1319,6 +1550,37 @@ def build_romopapi(payload: dict[str, Any], source_key: str, dialect: str) -> di
     response_format = payload.get("response_format") or "json"
     cache_mode = payload.get("cache_mode") or "memoized_preview"
     report_format = payload.get("report_format") or "markdown_html"
+    request_envelope = {
+        "method": request_method,
+        "path": "/romopapi/v1/code-counts",
+        "query": {
+            "schema_scope": schema,
+            "concept_domain": concept_domain,
+            "stratify_by": stratify_by,
+            "result_limit": result_limit,
+            "lineage_depth": lineage_depth,
+            "response_format": response_format,
+            "report_format": report_format,
+        },
+        "body": {
+            "query_template": template,
+            "cache_mode": cache_mode,
+        },
+    }
+    cache_key = f"{source_key}:{schema}:{concept_domain}:{stratify_by}:{result_limit}:{lineage_depth}:{request_method}:{response_format}:{report_format}:{template}"
+    cached_entry = ROMOPAPI_CACHE.get(cache_key)
+    if cache_mode == "memoized_preview" and cached_entry:
+        cached_result = json.loads(json.dumps(cached_entry["result"]))
+        cached_result["cache_status"] = [
+            {"label": "Cache mode", "value": cache_mode, "detail": "Selected query execution cache strategy"},
+            {"label": "Cache key", "value": cache_key, "detail": "Memoization key for this request envelope"},
+            {"label": "Cache status", "value": "hit", "detail": "Served from cached ROMOPAPI preview output"},
+            {"label": "Freshness window", "value": "15m", "detail": "Preview freshness target"},
+            {"label": "Generated at", "value": cached_entry["generated_at"], "detail": "Timestamp for the cached result"},
+        ]
+        cached_result["execution_summary"]["cache_hit"] = True
+        cached_result["execution_summary"]["cache_generated_at"] = cached_entry["generated_at"]
+        return cached_result
     code_counts = [
         {"concept": "Type 2 diabetes mellitus", "count": 812, "domain": "Condition", "stratum": "overall"},
         {"concept": "Heart failure", "count": 403, "domain": "Condition", "stratum": "overall"},
@@ -1330,7 +1592,8 @@ def build_romopapi(payload: dict[str, Any], source_key: str, dialect: str) -> di
         {"label": "Age 65+", "count": 209, "percent": 0.31},
     ]
 
-    return {
+    generated_at = datetime.now(timezone.utc).isoformat()
+    result = {
         "status": "ok",
         "query_controls": {
             "schema_scope": schema,
@@ -1343,7 +1606,9 @@ def build_romopapi(payload: dict[str, Any], source_key: str, dialect: str) -> di
             "cache_mode": cache_mode,
             "report_format": report_format,
         },
+        "request_envelope": request_envelope,
         "execution_summary": {
+            "cache_hit": False,
             "request_method": request_method,
             "response_format": response_format,
             "cache_mode": cache_mode,
@@ -1358,8 +1623,10 @@ def build_romopapi(payload: dict[str, Any], source_key: str, dialect: str) -> di
         ],
         "cache_status": [
             {"label": "Cache mode", "value": cache_mode, "detail": "Selected query execution cache strategy"},
-            {"label": "Cache key", "value": f"{source_key}:{schema}:{concept_domain}", "detail": "Projected memoization key"},
+            {"label": "Cache key", "value": cache_key, "detail": "Memoization key for this request envelope"},
+            {"label": "Cache status", "value": "bypassed" if cache_mode == "bypass" else ("refreshed" if cache_mode == "refresh" else "generated"), "detail": "Preview output generation state for this request"},
             {"label": "Freshness window", "value": "none" if cache_mode == "bypass" else "15m", "detail": "Preview freshness target"},
+            {"label": "Generated at", "value": generated_at, "detail": "Timestamp for the current result"},
         ],
         "metadata_summary": {
             "schema_scope": schema,
@@ -1453,6 +1720,17 @@ def build_romopapi(payload: dict[str, Any], source_key: str, dialect: str) -> di
                 {"name": f"{source_key}-{schema}-manifest.json", "kind": "json", "summary": "API request and artifact manifest"},
             ],
         },
+        "report_bundle": {
+            "name": f"{source_key}-{schema}-romopapi-report-bundle.zip",
+            "format": "zip",
+            "entries": [
+                f"{source_key}-{schema}-report.md",
+                f"{source_key}-{schema}-report.html",
+                f"{source_key}-{schema}-counts.csv",
+                f"{source_key}-{schema}-manifest.json",
+            ],
+            "download_name": f"{source_key}-{schema}-romopapi-report-bundle.json",
+        },
         "report_artifacts": [
             {"name": f"{source_key}-{schema}-report.md", "type": "markdown", "summary": "Narrative ROMOPAPI report"},
             {"name": f"{source_key}-{schema}-report.html", "type": "html", "summary": "ROMOPAPI report preview"},
@@ -1469,6 +1747,9 @@ def build_romopapi(payload: dict[str, Any], source_key: str, dialect: str) -> di
             {"label": "Response format", "value": response_format},
         ],
     }
+    if cache_mode != "bypass":
+        ROMOPAPI_CACHE[cache_key] = {"result": result, "generated_at": generated_at}
+    return result
 
 
 def handle_service(service_key: str, payload: dict[str, Any]) -> dict[str, Any]:
