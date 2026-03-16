@@ -72,7 +72,7 @@ class SolrIndexVectorExplorer extends Command
             }
 
             // Call the projection endpoint on the AI service
-            $projResponse = Http::timeout(300)->post("{$aiUrl}/chroma/collections/{$name}/project", [
+            $projResponse = Http::timeout(900)->post("{$aiUrl}/chroma/collections/{$name}/project", [
                 'sample_size' => $sampleSize,
                 'method' => 'pca-umap',
                 'dimensions' => 3,

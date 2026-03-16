@@ -180,7 +180,7 @@ services:
     container_name: parthenon-chromadb
     image: chromadb/chroma:latest
     volumes:
-      - chromadb-data:/chroma/chroma
+      - chromadb-data:/data
     environment:
       - IS_PERSISTENT=TRUE
       - ANONYMIZED_TELEMETRY=FALSE
@@ -193,7 +193,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 1G
+          memory: 6G
     networks:
       - parthenon
     restart: unless-stopped

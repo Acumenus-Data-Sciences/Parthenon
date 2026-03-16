@@ -45,6 +45,9 @@ def ingest_clinical_concepts(
 
     schema = settings.ariadne_vocab_schema  # typically "omop"
 
+    # Exclude RxNorm Extension (1.87M NDC/pack variants) — too many for HNSW,
+    # and Abby doesn't need NDC-level granularity for cohort expression translation.
+    # RxNorm core (153K ingredients/clinical drugs/branded drugs) is sufficient.
     base_query = f"""
         SELECT concept_id, concept_name, domain_id, vocabulary_id
         FROM {schema}.concept
@@ -52,6 +55,7 @@ def ingest_clinical_concepts(
         AND domain_id IN :domains
         AND concept_name IS NOT NULL
         AND LENGTH(concept_name) > 2
+        AND vocabulary_id != 'RxNorm Extension'
         ORDER BY concept_id
     """
     if limit:
