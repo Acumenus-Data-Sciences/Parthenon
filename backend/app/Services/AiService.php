@@ -169,7 +169,7 @@ class AiService
         array $pageData = [],
         array $history = [],
     ): array {
-        $response = Http::timeout(120)
+        $response = Http::timeout(300)
             ->post("{$this->baseUrl}/abby/chat", [
                 'message' => $message,
                 'page_context' => $pageContext,
