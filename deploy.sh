@@ -169,6 +169,34 @@ if $DO_DB; then
     warn "Design fixture export failed (continuing anyway)"
   fi
 
+  # ── TRIPWIRE: verify real users exist before touching the DB ──────────────
+  # If user count drops to 0, something catastrophic has already happened.
+  # Abort immediately rather than making it worse.
+  echo ""
+  echo "── DB: tripwire — verifying production users ──"
+  ENV_FILE="$( cd "$(dirname "${BASH_SOURCE[0]}")" && pwd )/backend/.env"
+  if [ -f "$ENV_FILE" ]; then
+    PG_HOST="$(  grep '^DB_HOST='     "$ENV_FILE" | cut -d= -f2- | tr -d '"' | tr -d "'")"
+    PG_PORT="$(  grep '^DB_PORT='     "$ENV_FILE" | cut -d= -f2- | tr -d '"' | tr -d "'")"
+    PG_DB="$(    grep '^DB_DATABASE=' "$ENV_FILE" | cut -d= -f2- | tr -d '"' | tr -d "'")"
+    PG_USER="$(  grep '^DB_USERNAME=' "$ENV_FILE" | cut -d= -f2- | tr -d '"' | tr -d "'")"
+    PG_PASS="$(  grep '^DB_PASSWORD=' "$ENV_FILE" | cut -d= -f2- | tr -d '"' | tr -d "'")"
+    PG_PORT="${PG_PORT:-5432}"
+    REAL_USERS="$(PGPASSWORD="$PG_PASS" psql -h "$PG_HOST" -p "$PG_PORT" -U "$PG_USER" -d "$PG_DB" \
+      -tAc "SELECT COUNT(*) FROM app.users WHERE email NOT LIKE '%@example.%' AND email NOT LIKE 'test-%'" 2>/dev/null || echo "ERROR")"
+    if [ "$REAL_USERS" = "ERROR" ] || [ -z "$REAL_USERS" ]; then
+      warn "Could not query user count — proceeding with caution"
+    elif [ "$REAL_USERS" -eq 0 ]; then
+      fail "TRIPWIRE: 0 real users found in production DB — this is wrong."
+      fail "Database may have been wiped. ABORTING migrations."
+      fail "Run: psql -h $PG_HOST -U $PG_USER -d $PG_DB -c 'SELECT COUNT(*) FROM app.users'"
+      fail "If truly fresh install, seed manually: php artisan admin:seed"
+      exit 1
+    else
+      ok "Tripwire passed — ${REAL_USERS} real user(s) in production DB"
+    fi
+  fi
+
   echo ""
   echo "── DB: running migrations ──"
   if docker compose exec php php artisan migrate --force; then
