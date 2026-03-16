@@ -57,6 +57,12 @@ export function getEcho(): Echo<"reverb"> | null {
       return null;
     }
 
+    // Sanctum's stateful middleware requires the XSRF token even on API routes
+    // when the request originates from the same domain.
+    const xsrfToken = decodeURIComponent(
+      document.cookie.match(/XSRF-TOKEN=([^;]+)/)?.[1] ?? "",
+    );
+
     try {
       echoInstance = new Echo({
         broadcaster: "reverb",
@@ -70,6 +76,7 @@ export function getEcho(): Echo<"reverb"> | null {
         auth: {
           headers: {
             Authorization: `Bearer ${token}`,
+            ...(xsrfToken ? { "X-XSRF-TOKEN": xsrfToken } : {}),
           },
         },
       });
