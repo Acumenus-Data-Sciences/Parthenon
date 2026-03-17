@@ -52,6 +52,13 @@ class Settings(BaseSettings):
     cloud_budget_alert_thresholds: list[float] = [0.50, 0.80, 0.95]
     cloud_budget_cutoff_threshold: float = 0.95
 
+    # Knowledge graph (Phase 3)
+    knowledge_cache_ttl: int = 3600
+    knowledge_cache_prefix: str = "abby:kg:"
+    knowledge_max_traversal_depth: int = 5
+    knowledge_vocab_schema: str = "vocab"
+    knowledge_cdm_schema: str = "cdm"
+
     class Config:
         env_file = ".env"
 
