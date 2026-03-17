@@ -48,7 +48,7 @@ class FAQPromoter:
     def check_and_promote(self, question: str, answer: str) -> bool:
         """Check if *question* has been asked enough times to warrant FAQ promotion.
 
-        Counts distinct users in ``app.abby_conversation_memory`` whose stored
+        Counts distinct users in ``app.abby_messages`` (joined to conversations) whose
         question is similar to *question* (case-insensitive substring match via
         ILIKE).  If the count meets or exceeds :attr:`_threshold`, inserts a new
         ``faq`` artifact into ``app.abby_knowledge_artifacts``.
@@ -73,9 +73,11 @@ class FAQPromoter:
                 row = conn.execute(
                     text(
                         """
-                        SELECT COUNT(DISTINCT user_id)
-                        FROM app.abby_conversation_memory
-                        WHERE question ILIKE :pattern
+                        SELECT COUNT(DISTINCT c.user_id)
+                        FROM app.abby_messages m
+                        JOIN app.abby_conversations c ON c.id = m.conversation_id
+                        WHERE m.role = 'user'
+                          AND m.content ILIKE :pattern
                         """
                     ),
                     {"pattern": pattern},
@@ -102,6 +104,7 @@ class FAQPromoter:
                         "summary": answer[:1000],
                     },
                 )
+                conn.commit()
             logger.info(
                 "FAQ promoted: question=%r (asked by %d distinct users)",
                 question[:80],
