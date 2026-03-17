@@ -629,6 +629,45 @@ def _build_chat_system_prompt(request: ChatRequest) -> str:
         if context_lines:
             system_prompt += "\n\nCURRENT PAGE CONTEXT:\n" + "\n".join(context_lines)
 
+    # ── Step 5: Data quality warnings (safety-critical, always when relevant) ──
+    try:
+        from app.knowledge.data_profile import DataProfileService
+        from sqlalchemy import create_engine
+        import redis as redis_lib
+
+        _dq_engine = create_engine(settings.database_url)
+        try:
+            _dq_redis = redis_lib.from_url(settings.redis_url)
+        except Exception:
+            _dq_redis = None
+
+        profile_service = DataProfileService(engine=_dq_engine, redis_client=_dq_redis)
+
+        # Gather metrics then detect gaps (API requires explicit arguments)
+        person_count = profile_service.get_person_count()
+        domain_density = profile_service.get_domain_density()
+        temporal_coverage = profile_service.get_temporal_coverage()
+        warnings = profile_service.detect_data_gaps(
+            person_count=person_count,
+            domain_density=domain_density,
+            temporal_coverage=temporal_coverage,
+        )
+
+        # Filter to warnings relevant to the current query
+        relevant_warnings = []
+        msg_lower = request.message.lower()
+        for w in warnings:
+            if w.severity == "critical":
+                relevant_warnings.append(w)
+            elif w.domain.lower() in msg_lower or w.domain == "all":
+                relevant_warnings.append(w)
+
+        if relevant_warnings:
+            warning_text = profile_service.format_warnings(relevant_warnings)
+            system_prompt += f"\n\n{warning_text}"
+    except Exception as e:
+        logger.warning("Data quality warning injection failed: %s", e)
+
     # ── Grounding rules ──────────────────────────────────────────────────────
     has_context = bool(rag_context or live_context)
     if has_context:
