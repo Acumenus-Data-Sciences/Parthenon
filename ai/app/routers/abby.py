@@ -690,6 +690,20 @@ def _build_chat_system_prompt(request: ChatRequest) -> str:
     except Exception as e:
         logger.warning("Data quality warning injection failed: %s", e)
 
+    # ── Step 6: Institutional knowledge surfacing ─────────────────────────
+    try:
+        from app.institutional.knowledge_capture import KnowledgeCapture
+        from app.institutional.knowledge_surfacing import KnowledgeSurfacer
+        from sqlalchemy import create_engine
+        engine = create_engine(settings.database_url)
+        kc = KnowledgeCapture(engine=engine)
+        surfacer = KnowledgeSurfacer(knowledge_capture=kc)
+        suggestions = surfacer.suggest(request.message)
+        if suggestions:
+            system_prompt += "\n\n" + surfacer.format_for_prompt(suggestions)
+    except Exception as e:
+        logger.warning("Knowledge surfacing failed: %s", e)
+
     # ── Grounding rules ──────────────────────────────────────────────────────
     has_context = bool(rag_context or live_context)
     if has_context:
@@ -922,6 +936,16 @@ async def chat(request: ChatRequest) -> ChatResponse:
             _save_user_profile(request.user_id, updated_profile.to_dict())
         except Exception:
             logger.exception("Profile learning failed (non-blocking)")
+
+    # Check for FAQ promotion (non-blocking)
+    try:
+        from app.institutional.faq_promoter import FAQPromoter
+        from sqlalchemy import create_engine
+        engine = create_engine(settings.database_url)
+        faq = FAQPromoter(engine=engine)
+        faq.check_and_promote(question=request.message, answer=reply)
+    except Exception:
+        logger.debug("FAQ promotion check failed (non-blocking)")
 
     # Confidence indicator
     confidence = "medium"
