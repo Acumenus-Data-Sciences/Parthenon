@@ -42,9 +42,14 @@ _CLOUD_ACTION_WORDS = re.compile(
 # Clause markers used to detect structurally complex messages
 _CLAUSE_MARKERS = re.compile(r"[,;]|\b(?:and|but|or)\b", re.IGNORECASE)
 
-# Greetings and acknowledgements → local
+# Greetings and acknowledgements → local.
+# Matches pure greetings (with optional "Abby" address) and social filler
+# continuations such as "how are you?" or "how's it going?".
 _LOCAL_GREETINGS = re.compile(
-    r"^(?:hi|hello|hey|thanks?|thank\s+you|ok|okay|sure|got\s+it|sounds\s+good)[!.,]?\s*(?:abby)?[!.,]?$",
+    r"^(?:hi|hello|hey|thanks?|thank\s+you|ok|okay|sure|got\s+it|sounds\s+good)"
+    r"[!.,]?\s*(?:abby)?[!.,]?"
+    r"(?:\s*,?\s*how(?:'s|\s+are|\s+is|\s+do)\s+(?:you|it|things|everything)"
+    r"[\w\s?!.]*)?$",
     re.IGNORECASE,
 )
 
