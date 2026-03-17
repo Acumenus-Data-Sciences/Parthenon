@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback, useLayoutEffect } from "react";
 import { AbbyProfilePanel } from '../../../abby-ai/components/AbbyProfilePanel';
+import AbbyPlanCard from '../../../abby-ai/components/AbbyPlanCard';
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import AbbyAvatar from "./AbbyAvatar";
@@ -10,6 +11,7 @@ import { useAbbyQuery } from "../../hooks/useAbby";
 import {
   fetchAbbyConversation,
   submitFeedback,
+  executePlan,
 } from "../../services/abbyService";
 import { useAuthStore } from "@/stores/authStore";
 import { useAbbyStore } from "@/stores/abbyStore";
@@ -20,6 +22,7 @@ import type {
   AbbyQueryResponse,
   ObjectReference,
 } from "../../types/abby";
+import type { ActionPlan } from '../../../abby-ai/types/agency';
 
 // ─── Types ──────────────────────────────────────────────────────
 
@@ -188,6 +191,7 @@ export default function AskAbbyChannel() {
   const [inputValue, setInputValue] = useState("");
   const [historyOpen, setHistoryOpen] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  const [activePlan, setActivePlan] = useState<ActionPlan | null>(null);
   const { response, pipelineState, isLoading, sendQuery } = useAbbyQuery();
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -305,6 +309,19 @@ export default function AskAbbyChannel() {
     },
     []
   );
+
+  const handleApprovePlan = useCallback(async (planId: string) => {
+    try {
+      const result = await executePlan(planId);
+      setActivePlan(result.plan);
+    } catch (err) {
+      console.error("Failed to execute plan:", err);
+    }
+  }, []);
+
+  const handleCancelPlan = useCallback(() => {
+    setActivePlan(null);
+  }, []);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -457,6 +474,16 @@ export default function AskAbbyChannel() {
               <div className="px-3.5 py-2.5 rounded-2xl rounded-bl-sm bg-muted">
                 <AbbyTypingIndicator pipelineState={pipelineState} />
               </div>
+            </div>
+          )}
+
+          {activePlan && (
+            <div className="px-1">
+              <AbbyPlanCard
+                plan={activePlan}
+                onApprove={handleApprovePlan}
+                onCancel={handleCancelPlan}
+              />
             </div>
           )}
         </div>

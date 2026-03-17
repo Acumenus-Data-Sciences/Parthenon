@@ -7,6 +7,7 @@ import type {
   AbbyConversationMessage,
 } from "../types/abby";
 import type { AbbyProfileResponse, AbbyProfileUpdateRequest } from '../../abby-ai/types/memory';
+import type { ExecutePlanResponse } from '../../abby-ai/types/agency';
 
 export async function queryAbby(
   request: AbbyQueryRequest
@@ -107,4 +108,9 @@ export async function updateAbbyProfile(
 
 export async function resetAbbyProfile(): Promise<void> {
   await apiClient.post('/api/v1/abby/profile/reset');
+}
+
+export async function executePlan(planId: string): Promise<ExecutePlanResponse> {
+  const response = await apiClient.post('/api/v1/abby/execute-plan', { plan_id: planId });
+  return response.data;
 }

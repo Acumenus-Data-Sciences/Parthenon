@@ -174,3 +174,35 @@ def test_data_profile_format_warnings():
     text = service.format_warnings(warnings)
     assert "Measurement" in text
     assert "DATA QUALITY" in text
+
+
+def test_tool_registry_has_phase4_tools():
+    from app.agency.tool_registry import ToolRegistry
+    registry = ToolRegistry.default()
+    assert registry.get("create_concept_set") is not None
+    assert registry.get("create_cohort_definition") is not None
+    assert registry.get("generate_cohort") is not None
+
+
+def test_plan_engine_creates_valid_plan():
+    from app.agency.plan_engine import PlanEngine, PlanStep, PlanStatus
+    from unittest.mock import MagicMock
+    engine = PlanEngine(action_logger=MagicMock(), api_client=MagicMock(), db_engine=MagicMock())
+    plan = engine.create_plan(user_id=1, description="Test", steps=[
+        {"tool_name": "create_concept_set", "parameters": {"name": "Test"}},
+    ], auth_token="test-token")
+    assert plan.status == PlanStatus.PENDING
+    assert len(plan.steps) == 1
+
+
+def test_action_logger_records_action():
+    from app.agency.action_logger import ActionLogger
+    from unittest.mock import MagicMock
+    mock_engine = MagicMock()
+    mock_conn = MagicMock()
+    mock_engine.connect.return_value.__enter__ = MagicMock(return_value=mock_conn)
+    mock_engine.connect.return_value.__exit__ = MagicMock(return_value=False)
+    mock_conn.execute.return_value.fetchone.return_value = (42,)
+    al = ActionLogger(engine=mock_engine)
+    result = al.log_action(user_id=1, action_type="create", tool_name="create_concept_set", risk_level="medium", parameters={"name": "Test"})
+    assert result == 42

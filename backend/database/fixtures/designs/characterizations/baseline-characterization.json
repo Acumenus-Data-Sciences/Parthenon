@@ -1,0 +1,17 @@
+{
+    "id": 1,
+    "name": "Baseline Characterization",
+    "description": "Maxime velit nisi voluptas. Dolores velit cum quae et omnis error qui amet. Voluptatibus eaque in aperiam illum odio id.",
+    "design_json": {
+        "featureTypes": [
+            "demographics",
+            "conditions",
+            "drugs"
+        ],
+        "targetCohortIds": []
+    },
+    "author_id": 194,
+    "created_at": "2026-03-17T03:24:50.000000Z",
+    "updated_at": "2026-03-17T03:24:50.000000Z",
+    "deleted_at": null
+}

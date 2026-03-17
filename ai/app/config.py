@@ -59,6 +59,13 @@ class Settings(BaseSettings):
     knowledge_vocab_schema: str = "vocab"
     knowledge_cdm_schema: str = "cdm"
 
+    # Agency (Phase 4)
+    agency_api_base_url: str = "http://nginx:80"
+    agency_plan_expiry_seconds: int = 600
+    agency_rate_limit_low: int = 20
+    agency_rate_limit_medium: int = 10
+    agency_rate_limit_high: int = 3
+
     class Config:
         env_file = ".env"
 

@@ -33,8 +33,30 @@ from app.routing.phi_sanitizer import PHISanitizer
 from app.routing.cloud_safety import CloudSafetyFilter
 from app.routing.cost_tracker import CostTracker
 
+from app.agency.plan_engine import PlanEngine, PlanStep, ActionPlan
+from app.agency.api_client import AgencyApiClient
+from app.agency.action_logger import ActionLogger
+from app.agency.tool_registry import ToolRegistry
+
 logger = logging.getLogger(__name__)
 router = APIRouter()
+
+# ── Agency plan engine (lazy-init) ───────────────────────────────────────────
+
+_plan_engine: PlanEngine | None = None
+
+
+def _get_plan_engine() -> PlanEngine:
+    global _plan_engine
+    if _plan_engine is None:
+        from sqlalchemy import create_engine
+        engine = create_engine(settings.database_url)
+        _plan_engine = PlanEngine(
+            action_logger=ActionLogger(engine=engine),
+            api_client=AgencyApiClient(),
+            db_engine=engine,
+        )
+    return _plan_engine
 
 
 # ── Session-scoped working memory (in-memory, cleared on service restart) ────
@@ -923,6 +945,21 @@ async def chat(request: ChatRequest) -> ChatResponse:
         confidence=confidence,
         sources=[],  # Will be populated when context assembler is fully integrated
     )
+
+
+@router.post("/execute-plan")
+async def execute_plan_endpoint(request: dict) -> dict:
+    """Execute an approved agency plan by plan_id."""
+    plan_id = request.get("plan_id")
+    if not plan_id:
+        raise HTTPException(status_code=400, detail="plan_id is required")
+    engine = _get_plan_engine()
+    plan = engine.get_plan(plan_id)
+    if not plan:
+        raise HTTPException(status_code=404, detail="Plan not found or expired")
+    engine.approve_plan(plan)
+    result = await engine.execute_plan(plan)
+    return result.to_dict()
 
 
 async def _stream_ollama(system_prompt: str, user_message: str,
