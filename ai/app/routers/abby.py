@@ -23,9 +23,31 @@ from pydantic import BaseModel, Field
 from app.chroma.memory import store_conversation_turn
 from app.chroma.retrieval import build_rag_context
 from app.config import settings
+from app.memory.context_assembler import ContextAssembler, ContextPiece, ContextTier
+from app.memory.intent_stack import IntentStack
+from app.memory.scratch_pad import ScratchPad
+from app.memory.profile_learner import ProfileLearner, UserProfile as MemoryUserProfile
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
+
+
+# ── Session-scoped working memory (in-memory, cleared on service restart) ────
+
+_session_state: dict[int, dict] = {}
+
+
+def _get_session(conversation_id: int | None) -> dict:
+    """Get or create session state for a conversation."""
+    if conversation_id is None:
+        return {"intent_stack": IntentStack(), "scratch_pad": ScratchPad(), "turn": 0}
+    if conversation_id not in _session_state:
+        _session_state[conversation_id] = {
+            "intent_stack": IntentStack(),
+            "scratch_pad": ScratchPad(),
+            "turn": 0,
+        }
+    return _session_state[conversation_id]
 
 
 # ── Pydantic models ──────────────────────────────────────────────────────────
@@ -76,9 +98,19 @@ class ChatMessage(BaseModel):
     content: str
 
 
+class ResearchProfile(BaseModel):
+    """Learned research profile from the profile_learner module."""
+    research_interests: list[str] = []
+    expertise_domains: dict[str, float] = {}
+    interaction_preferences: dict = {}
+    frequently_used: dict = {}
+    interaction_count: int = 0
+
+
 class UserProfile(BaseModel):
     name: str = ""
     roles: list[str] = []
+    research_profile: ResearchProfile = ResearchProfile()
 
 
 class ChatRequest(BaseModel):
@@ -102,6 +134,10 @@ class ChatRequest(BaseModel):
     user_id: int | None = Field(
         default=None,
         description="Current user ID for personalized conversation memory"
+    )
+    conversation_id: int | None = Field(
+        default=None,
+        description="Conversation ID for session memory tracking"
     )
 
 
@@ -535,6 +571,14 @@ def _build_chat_system_prompt(request: ChatRequest) -> str:
             f"who has roles: {role_str}."
         )
 
+    # User research profile context (from memory learning)
+    if request.user_profile and request.user_profile.research_profile:
+        rp = request.user_profile.research_profile
+        profile = MemoryUserProfile.from_dict(rp.model_dump())
+        profile_context = profile.get_context_string()
+        if profile_context:
+            system_prompt += f"\n\nUSER RESEARCH PROFILE: {profile_context}"
+
     if request.page_data:
         context_lines = []
         for key, val in request.page_data.items():
@@ -606,6 +650,65 @@ def _extract_suggestions(raw: str) -> tuple[str, list[str]]:
     return reply, suggestions[:3]
 
 
+def _fetch_user_profile(user_id: int) -> dict | None:
+    """Fetch user's research profile from PostgreSQL."""
+    try:
+        from sqlalchemy import create_engine, text
+        engine = create_engine(settings.database_url)
+        with engine.connect() as conn:
+            row = conn.execute(
+                text("""
+                    SELECT research_interests, expertise_domains,
+                           interaction_preferences, frequently_used
+                    FROM app.abby_user_profiles WHERE user_id = :uid
+                """),
+                {"uid": user_id},
+            ).fetchone()
+            if row:
+                return {
+                    "research_interests": row[0] or [],
+                    "expertise_domains": row[1] or {},
+                    "interaction_preferences": row[2] or {},
+                    "frequently_used": row[3] or {},
+                }
+    except Exception:
+        logger.exception("Failed to fetch user profile")
+    return None
+
+
+def _save_user_profile(user_id: int, profile_data: dict) -> None:
+    """Upsert user's research profile to PostgreSQL."""
+    try:
+        import json as json_mod
+        from sqlalchemy import create_engine, text
+        engine = create_engine(settings.database_url)
+        with engine.connect() as conn:
+            conn.execute(
+                text("""
+                    INSERT INTO app.abby_user_profiles (user_id, research_interests,
+                        expertise_domains, interaction_preferences, frequently_used, updated_at)
+                    VALUES (:uid, :interests::text[], :expertise::jsonb,
+                            :prefs::jsonb, :freq::jsonb, NOW())
+                    ON CONFLICT (user_id) DO UPDATE SET
+                        research_interests = EXCLUDED.research_interests,
+                        expertise_domains = EXCLUDED.expertise_domains,
+                        interaction_preferences = EXCLUDED.interaction_preferences,
+                        frequently_used = EXCLUDED.frequently_used,
+                        updated_at = NOW()
+                """),
+                {
+                    "uid": user_id,
+                    "interests": profile_data.get("research_interests", []),
+                    "expertise": json_mod.dumps(profile_data.get("expertise_domains", {})),
+                    "prefs": json_mod.dumps(profile_data.get("interaction_preferences", {})),
+                    "freq": json_mod.dumps(profile_data.get("frequently_used", {})),
+                },
+            )
+            conn.commit()
+    except Exception:
+        logger.exception("Failed to save user profile")
+
+
 @router.post("/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest) -> ChatResponse:
     """
@@ -613,6 +716,20 @@ async def chat(request: ChatRequest) -> ChatResponse:
     based on the current UI page and any entity data passed from the frontend.
     """
     system_prompt = _build_chat_system_prompt(request)
+
+    # Working memory: track intent and update turn counter
+    session = _get_session(request.conversation_id)
+    session["turn"] += 1
+    turn = session["turn"]
+    session["intent_stack"].prune(current_turn=turn)
+
+    # Extract topic using domain keywords
+    from app.memory.profile_learner import DOMAIN_KEYWORDS
+    msg_lower = request.message.lower()
+    detected_topics = [domain for domain, keywords in DOMAIN_KEYWORDS.items()
+                       if any(kw in msg_lower for kw in keywords)]
+    topic = detected_topics[0] if detected_topics else request.message[:80]
+    session["intent_stack"].push(topic, turn=turn)
 
     raw = await call_ollama(
         system_prompt=system_prompt,
@@ -634,6 +751,21 @@ async def chat(request: ChatRequest) -> ChatResponse:
             )
         except Exception as e:
             logger.warning("Failed to store conversation memory: %s", e)
+
+    # Learn from this conversation turn (non-blocking)
+    if request.user_id is not None:
+        try:
+            learner = ProfileLearner()
+            profile_data = _fetch_user_profile(request.user_id)
+            profile = MemoryUserProfile.from_dict(profile_data) if profile_data else MemoryUserProfile()
+            messages_for_learning = [
+                {"role": "user", "content": request.message},
+                {"role": "assistant", "content": reply},
+            ]
+            updated_profile = learner.learn_from_conversation(profile, messages_for_learning)
+            _save_user_profile(request.user_id, updated_profile.to_dict())
+        except Exception:
+            logger.exception("Profile learning failed (non-blocking)")
 
     return ChatResponse(reply=reply, suggestions=suggestions)
 
