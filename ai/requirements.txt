@@ -35,3 +35,4 @@ scikit-learn>=1.5.0
 libpysal>=4.9
 esda>=2.5
 spreg>=1.4
+redis>=5.0.0
