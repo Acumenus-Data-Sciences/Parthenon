@@ -14,6 +14,8 @@ from sqlalchemy.engine import Engine
 
 logger = logging.getLogger(__name__)
 
+ALLOWED_SCHEMAS = {"vocab", "cdm", "omop", "eunomia", "public", "achilles_results"}
+
 
 class KnowledgeGraphService:
     """Traverse OMOP concept hierarchies with Redis-backed caching."""
@@ -26,9 +28,12 @@ class KnowledgeGraphService:
         cache_ttl: int = 3600,
         cache_prefix: str = "abby:kg:",
     ) -> None:
+        schema = vocab_schema
+        if schema not in ALLOWED_SCHEMAS:
+            raise ValueError(f"Invalid schema name: {schema!r}. Allowed: {ALLOWED_SCHEMAS}")
         self.engine = engine
         self.redis_client = redis_client
-        self.vocab_schema = vocab_schema
+        self.vocab_schema = schema
         self.cache_ttl = cache_ttl
         self.cache_prefix = cache_prefix
 

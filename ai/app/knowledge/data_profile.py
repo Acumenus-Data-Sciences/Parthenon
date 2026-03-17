@@ -15,6 +15,8 @@ from sqlalchemy.engine import Engine
 
 logger = logging.getLogger(__name__)
 
+ALLOWED_SCHEMAS = {"vocab", "cdm", "omop", "eunomia", "public", "achilles_results"}
+
 # Ordered list of CDM domain tables to profile
 _DOMAIN_TABLES = [
     "condition_occurrence",
@@ -50,9 +52,12 @@ class DataProfileService:
         redis_client: Any,
         cdm_schema: str = "cdm",
     ) -> None:
+        schema = cdm_schema
+        if schema not in ALLOWED_SCHEMAS:
+            raise ValueError(f"Invalid schema name: {schema!r}. Allowed: {ALLOWED_SCHEMAS}")
         self.engine = engine
         self.redis_client = redis_client
-        self.cdm_schema = cdm_schema
+        self.cdm_schema = schema
 
     # ------------------------------------------------------------------
     # Core metrics

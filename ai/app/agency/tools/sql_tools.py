@@ -36,16 +36,20 @@ DANGEROUS_PATTERNS: list[re.Pattern[str]] = [
     re.compile(r"\bGRANT\b", re.IGNORECASE),
     re.compile(r"\bREVOKE\b", re.IGNORECASE),
     re.compile(r"\bCOPY\b", re.IGNORECASE),
+    re.compile(r"\bDO\b", re.IGNORECASE),
     re.compile(r"\bpg_", re.IGNORECASE),
     re.compile(r"\binformation_schema\b", re.IGNORECASE),
 ]
 
 
 def validate_sql_safety(sql: str) -> bool:
-    """Return True if *sql* is safe (pure SELECT), False otherwise.
+    """Return True if *sql* is safe (pure SELECT or WITH…SELECT), False otherwise.
 
-    Safety is determined by scanning for any of the :data:`DANGEROUS_PATTERNS`
-    and confirming that the trimmed, normalised statement starts with SELECT.
+    Safety is determined by:
+    1. Stripping SQL comments (-- and /* */) to prevent bypass via comment injection.
+    2. Rejecting multi-statement queries (semicolons mid-query).
+    3. Confirming the cleaned statement starts with SELECT or WITH.
+    4. Scanning for any of the :data:`DANGEROUS_PATTERNS`.
 
     Parameters
     ----------
@@ -56,22 +60,34 @@ def validate_sql_safety(sql: str) -> bool:
     -------
     bool
         ``True`` if the query passes all safety checks; ``False`` if any
-        dangerous pattern is detected or the query does not start with SELECT.
+        dangerous pattern is detected or the query does not start with SELECT/WITH.
     """
     if not sql or not sql.strip():
         return False
 
-    # Reject if any dangerous pattern is present anywhere in the query.
+    # Strip single-line comments (-- ...) and block comments (/* ... */)
+    cleaned = re.sub(r"--.*$", "", sql, flags=re.MULTILINE)
+    cleaned = re.sub(r"/\*.*?\*/", "", cleaned, flags=re.DOTALL)
+    cleaned = cleaned.strip()
+
+    if not cleaned:
+        return False
+
+    # Block multi-statement queries: reject any semicolon that is not a trailing one
+    if ";" in cleaned.rstrip(";"):
+        logger.warning("SQL safety check failed — multi-statement query detected")
+        return False
+
+    # The query must begin with SELECT or WITH (CTEs are allowed)
+    if not re.match(r"^\s*(SELECT|WITH)\b", cleaned, re.IGNORECASE):
+        logger.warning("SQL safety check failed — query does not start with SELECT or WITH")
+        return False
+
+    # Reject if any dangerous pattern is present in the cleaned query.
     for pattern in DANGEROUS_PATTERNS:
-        if pattern.search(sql):
+        if pattern.search(cleaned):
             logger.warning("SQL safety check failed — dangerous pattern detected: %s", pattern.pattern)
             return False
-
-    # The query must begin with SELECT (after stripping whitespace/comments).
-    normalised = sql.strip()
-    if not re.match(r"^\s*SELECT\b", normalised, re.IGNORECASE):
-        logger.warning("SQL safety check failed — query does not start with SELECT")
-        return False
 
     return True
 

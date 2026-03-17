@@ -62,6 +62,7 @@ def _get_plan_engine() -> PlanEngine:
 # ── Session-scoped working memory (in-memory, cleared on service restart) ────
 
 _session_state: dict[int, dict] = {}
+_SESSION_MAX_SIZE = 1000
 
 # ── Phase 2: Routing components ──────────────────────────────────────────────
 
@@ -101,6 +102,10 @@ def _get_session(conversation_id: int | None) -> dict:
     if conversation_id is None:
         return {"intent_stack": IntentStack(), "scratch_pad": ScratchPad(), "turn": 0}
     if conversation_id not in _session_state:
+        # Evict oldest entry if at capacity
+        if len(_session_state) >= _SESSION_MAX_SIZE:
+            oldest_key = next(iter(_session_state))
+            del _session_state[oldest_key]
         _session_state[conversation_id] = {
             "intent_stack": IntentStack(),
             "scratch_pad": ScratchPad(),

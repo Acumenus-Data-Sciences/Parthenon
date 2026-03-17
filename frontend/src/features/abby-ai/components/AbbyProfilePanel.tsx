@@ -1,12 +1,20 @@
 import { useAbbyProfile } from '../hooks/useAbbyProfile';
 
 export function AbbyProfilePanel() {
-  const { profile, isLoading, resetProfile } = useAbbyProfile();
+  const { profile, isLoading, error, resetProfile } = useAbbyProfile();
 
   if (isLoading) {
     return (
       <div className="p-4 text-muted-foreground text-sm">
         Loading profile...
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-4 text-red-400 text-sm">
+        Failed to load profile
       </div>
     );
   }
