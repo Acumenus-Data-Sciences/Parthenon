@@ -211,6 +211,7 @@ class AbbyAiService
      * Page-aware conversational chat. Delegates to MedGemma via the AI service.
      *
      * @param  array<array{role: string, content: string}>  $history
+     * @param  array<string, mixed>  $userProfile
      * @return array{reply: string, suggestions: string[]}
      */
     public function chat(
@@ -218,8 +219,19 @@ class AbbyAiService
         string $pageContext = 'general',
         array $pageData = [],
         array $history = [],
+        array $userProfile = [],
+        ?int $userId = null,
+        ?int $conversationId = null,
     ): array {
-        return $this->aiService->abbyChat($message, $pageContext, $pageData, $history);
+        return $this->aiService->abbyChat(
+            $message,
+            $pageContext,
+            $pageData,
+            $history,
+            $userProfile,
+            $userId,
+            $conversationId,
+        );
     }
 
     /**

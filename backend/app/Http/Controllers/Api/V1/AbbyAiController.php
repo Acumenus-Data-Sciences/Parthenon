@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Models\App\AbbyConversation;
 use App\Models\App\AbbyMessage;
+use App\Models\App\AbbyUserProfile;
 use App\Services\AI\AbbyAiService;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
@@ -93,16 +94,25 @@ class AbbyAiController extends Controller
             'conversation_id' => 'sometimes|nullable|integer|exists:abby_conversations,id',
         ]);
 
+        $user = $request->user();
+        $abbyProfile = $user ? AbbyUserProfile::where('user_id', $user->id)->first() : null;
+        $profileData = $abbyProfile ? $abbyProfile->toArray() : [];
+
+        $userProfilePayload = $validated['user_profile'] ?? [];
+        $userProfilePayload['research_profile'] = $profileData;
+
         $result = $this->abbyAi->chat(
             message: $validated['message'],
             pageContext: $validated['page_context'] ?? 'general',
             pageData: $validated['page_data'] ?? [],
             history: $validated['history'] ?? [],
+            userProfile: $userProfilePayload,
+            userId: $user?->id,
+            conversationId: $validated['conversation_id'] ?? null,
         );
 
         // Persist messages to conversation
         $conversationId = $validated['conversation_id'] ?? null;
-        $user = $request->user();
 
         if ($user) {
             try {
@@ -170,6 +180,12 @@ class AbbyAiController extends Controller
         $aiBaseUrl = config('services.ai.base_url', 'http://python-ai:8000');
         $user = $request->user();
 
+        // Load user research profile for stream payload
+        $abbyProfile = $user ? AbbyUserProfile::where('user_id', $user->id)->first() : null;
+        $profileData = $abbyProfile ? $abbyProfile->toArray() : [];
+        $userProfilePayload = $validated['user_profile'] ?? [];
+        $userProfilePayload['research_profile'] = $profileData;
+
         // Resolve or create conversation before streaming
         $conversationId = $validated['conversation_id'] ?? null;
         $conversation = null;
@@ -201,7 +217,7 @@ class AbbyAiController extends Controller
 
         $resolvedConversation = $conversation;
 
-        return new StreamedResponse(function () use ($validated, $aiBaseUrl, $resolvedConversation): void {
+        return new StreamedResponse(function () use ($validated, $aiBaseUrl, $resolvedConversation, $userProfilePayload, $user): void {
             $ch = curl_init("{$aiBaseUrl}/abby/chat/stream");
             if ($ch === false) {
                 echo 'data: '.json_encode(['error' => 'Failed to connect to AI service'])."\n\n";
@@ -219,7 +235,9 @@ class AbbyAiController extends Controller
                     'page_context' => $validated['page_context'] ?? 'general',
                     'page_data' => empty($pageData) ? (object) [] : $pageData,
                     'history' => $validated['history'] ?? [],
-                    'user_profile' => $validated['user_profile'] ?? null,
+                    'user_profile' => $userProfilePayload ?: null,
+                    'user_id' => $user?->id,
+                    'conversation_id' => $resolvedConversation?->id,
                 ]),
                 CURLOPT_HTTPHEADER => [
                     'Content-Type: application/json',
