@@ -41,8 +41,11 @@ return new class extends Migration
         });
 
         if ($this->postgisAvailable()) {
-            DB::statement("SELECT AddGeometryColumn('app', 'gis_admin_boundaries', 'geom', 4326, 'MULTIPOLYGON', 2)");
-            DB::statement('CREATE INDEX idx_gis_boundaries_geom ON gis_admin_boundaries USING GIST (geom)');
+            // Use ALTER TABLE directly instead of AddGeometryColumn() — the legacy
+            // function fails when PostGIS is installed in a non-public schema because
+            // it can't find spatial_ref_sys without the correct search_path.
+            DB::statement('ALTER TABLE app.gis_admin_boundaries ADD COLUMN geom geometry(MultiPolygon, 4326)');
+            DB::statement('CREATE INDEX idx_gis_boundaries_geom ON app.gis_admin_boundaries USING GIST (geom)');
         } else {
             Log::warning('PostGIS not available — skipping geometry column and GIST index on gis_admin_boundaries. GIS features will be limited.');
         }
