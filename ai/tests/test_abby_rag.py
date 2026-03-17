@@ -148,3 +148,29 @@ def test_context_assembler_claude_profile_accepts_large_context():
     ]
     result = assembler.assemble(pieces)
     assert len(result) == 3
+
+
+def test_knowledge_graph_service_format_hierarchy():
+    from app.knowledge.graph_service import KnowledgeGraphService
+    from unittest.mock import MagicMock
+    service = KnowledgeGraphService(engine=MagicMock(), redis_client=MagicMock())
+    hierarchy = [
+        {"concept_id": 4008576, "concept_name": "Diabetes mellitus", "domain_id": "Condition", "min_separation": 2},
+        {"concept_id": 201820, "concept_name": "Type 2 DM", "domain_id": "Condition", "min_separation": 1},
+    ]
+    text = service.format_hierarchy(hierarchy, direction="ancestors")
+    assert "Diabetes mellitus" in text
+    assert "Type 2 DM" in text
+
+
+def test_data_profile_format_warnings():
+    from app.knowledge.data_profile import DataProfileService, DataGapWarning
+    from unittest.mock import MagicMock
+    service = DataProfileService(engine=MagicMock(), redis_client=MagicMock())
+    warnings = [
+        DataGapWarning(gap_type="sparse_domain", domain="Measurement",
+                       severity="warning", message="Measurement has sparse data"),
+    ]
+    text = service.format_warnings(warnings)
+    assert "Measurement" in text
+    assert "DATA QUALITY" in text
