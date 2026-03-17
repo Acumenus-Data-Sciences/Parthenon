@@ -27,6 +27,11 @@ from app.memory.context_assembler import ContextAssembler, ContextPiece, Context
 from app.memory.intent_stack import IntentStack
 from app.memory.scratch_pad import ScratchPad
 from app.memory.profile_learner import ProfileLearner, UserProfile as MemoryUserProfile
+from app.routing.rule_router import RuleRouter, RoutingDecision
+from app.routing.claude_client import ClaudeClient
+from app.routing.phi_sanitizer import PHISanitizer
+from app.routing.cloud_safety import CloudSafetyFilter
+from app.routing.cost_tracker import CostTracker
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -35,6 +40,38 @@ router = APIRouter()
 # ── Session-scoped working memory (in-memory, cleared on service restart) ────
 
 _session_state: dict[int, dict] = {}
+
+# ── Phase 2: Routing components ──────────────────────────────────────────────
+
+_router = RuleRouter()
+_phi_sanitizer = PHISanitizer(use_ner=True)
+_cloud_safety = CloudSafetyFilter()
+_claude_client: ClaudeClient | None = None
+_cost_tracker: CostTracker | None = None
+
+
+def _get_claude_client() -> ClaudeClient | None:
+    global _claude_client
+    if _claude_client is None and settings.claude_api_key:
+        try:
+            _claude_client = ClaudeClient()
+        except ValueError:
+            logger.warning("Claude API key not configured, cloud routing disabled")
+    return _claude_client
+
+
+def _get_cost_tracker() -> CostTracker:
+    global _cost_tracker
+    if _cost_tracker is None:
+        from sqlalchemy import create_engine
+        engine = create_engine(settings.database_url)
+        _cost_tracker = CostTracker(
+            engine=engine,
+            monthly_budget=settings.cloud_monthly_budget_usd,
+            cutoff_threshold=settings.cloud_budget_cutoff_threshold,
+            alert_thresholds=settings.cloud_budget_alert_thresholds,
+        )
+    return _cost_tracker
 
 
 def _get_session(conversation_id: int | None) -> dict:
@@ -144,6 +181,9 @@ class ChatRequest(BaseModel):
 class ChatResponse(BaseModel):
     reply: str
     suggestions: list[str] = []   # quick-action prompts the UI can surface as chips
+    routing: dict = {}
+    confidence: str = ""
+    sources: list[dict] = []
 
 
 # ── Ollama helpers ───────────────────────────────────────────────────────────
@@ -714,6 +754,9 @@ async def chat(request: ChatRequest) -> ChatResponse:
     """
     Page-aware conversational endpoint. Abby adapts her persona and focus
     based on the current UI page and any entity data passed from the frontend.
+
+    Phase 2: Routes to Claude (cloud) or MedGemma (local) based on message
+    complexity, budget status, and PHI safety checks.
     """
     system_prompt = _build_chat_system_prompt(request)
 
@@ -731,14 +774,66 @@ async def chat(request: ChatRequest) -> ChatResponse:
     topic = detected_topics[0] if detected_topics else request.message[:80]
     session["intent_stack"].push(topic, turn=turn)
 
-    raw = await call_ollama(
-        system_prompt=system_prompt,
-        user_message=request.message,
-        history=request.history,
-        temperature=0.15,
-    )
+    # Phase 2: Route to appropriate model
+    cost_tracker = _get_cost_tracker()
+    budget_exhausted = cost_tracker.is_budget_exhausted()
+    routing = _router.route(request.message, budget_exhausted=budget_exhausted)
 
-    reply, suggestions = _extract_suggestions(raw)
+    reply = ""
+    suggestions: list[str] = []
+
+    if routing.model == "claude" and _get_claude_client() is None:
+        # Claude requested but no API key configured — fall back to local silently
+        logger.debug("Claude routed but no client available, falling back to local")
+        routing = RoutingDecision(model="local", stage=0, reason="claude_unavailable", confidence=1.0)
+
+    if routing.model == "claude" and _get_claude_client() is not None:
+        # Cloud path: PHI sanitization + cloud safety filter
+        phi_result = _phi_sanitizer.scan(system_prompt)
+
+        if phi_result.phi_detected and settings.phi_block_on_detection:
+            logger.warning(
+                "PHI detected in cloud-bound prompt, falling back to local. "
+                "Redactions: %d", phi_result.redaction_count,
+            )
+            routing = RoutingDecision(model="local", stage=0, reason="phi_blocked", confidence=1.0)
+        else:
+            # Safe to send to Claude
+            claude_client = _get_claude_client()
+            history_dicts = [{"role": m.role, "content": m.content} for m in request.history]
+            try:
+                claude_response = claude_client.chat(
+                    system_prompt=phi_result.redacted_text,
+                    message=request.message,
+                    history=history_dicts,
+                )
+                reply = claude_response.reply
+
+                # Record usage
+                cost_tracker.record_usage(
+                    user_id=request.user_id,
+                    tokens_in=claude_response.tokens_in,
+                    tokens_out=claude_response.tokens_out,
+                    cost_usd=claude_response.cost_usd,
+                    model=claude_response.model,
+                    request_hash=claude_response.request_hash,
+                    redaction_count=phi_result.redaction_count,
+                    route_reason=routing.reason,
+                )
+                reply, suggestions = _extract_suggestions(reply)
+            except Exception:
+                logger.exception("Claude API call failed, falling back to local")
+                routing = RoutingDecision(model="local", stage=0, reason="claude_error", confidence=1.0)
+
+    if routing.model == "local":
+        # Local path: MedGemma via Ollama (existing behavior)
+        raw = await call_ollama(
+            system_prompt=system_prompt,
+            user_message=request.message,
+            history=request.history,
+            temperature=0.15,
+        )
+        reply, suggestions = _extract_suggestions(raw)
 
     # Store conversation in memory (fire-and-forget, don't block response)
     if request.user_id is not None:
@@ -767,7 +862,28 @@ async def chat(request: ChatRequest) -> ChatResponse:
         except Exception:
             logger.exception("Profile learning failed (non-blocking)")
 
-    return ChatResponse(reply=reply, suggestions=suggestions)
+    # Confidence indicator
+    confidence = "medium"
+    if routing.model == "claude":
+        confidence = "high"
+    elif routing.reason == "budget_exhausted":
+        confidence = "low"
+        reply = (
+            "*Note: This response was generated locally due to usage limits. "
+            "For a more thorough analysis, try again later.*\n\n" + reply
+        )
+
+    return ChatResponse(
+        reply=reply,
+        suggestions=suggestions,
+        routing={
+            "model": routing.model,
+            "reason": routing.reason,
+            "stage": routing.stage,
+        },
+        confidence=confidence,
+        sources=[],  # Will be populated when context assembler is fully integrated
+    )
 
 
 async def _stream_ollama(system_prompt: str, user_message: str,

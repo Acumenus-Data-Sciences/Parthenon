@@ -99,3 +99,52 @@ def test_profile_learner_end_to_end():
     assert "diabetes" in updated.research_interests
     assert updated.interaction_preferences.get("verbosity") == "terse"
     assert updated.interaction_count == 2  # 2 user messages in the conversation
+
+
+def test_rule_router_action_word_routes_to_cloud():
+    from app.routing.rule_router import RuleRouter
+    router = RuleRouter()
+    result = router.route("Create a concept set for diabetes medications")
+    assert result.model == "claude"
+    assert result.stage == 1
+
+def test_rule_router_greeting_routes_to_local():
+    from app.routing.rule_router import RuleRouter
+    router = RuleRouter()
+    result = router.route("Hello Abby, how are you?")
+    assert result.model == "local"
+
+def test_phi_sanitizer_blocks_ssn():
+    from app.routing.phi_sanitizer import PHISanitizer
+    sanitizer = PHISanitizer(use_ner=False)
+    result = sanitizer.scan("Patient SSN is 123-45-6789")
+    assert result.phi_detected is True
+    assert "123-45-6789" not in result.redacted_text
+
+def test_phi_sanitizer_allows_clinical_content():
+    from app.routing.phi_sanitizer import PHISanitizer
+    sanitizer = PHISanitizer(use_ner=False)
+    result = sanitizer.scan("What is the prevalence of Type 2 diabetes in patients over 65?")
+    assert result.phi_detected is False
+
+def test_cloud_safety_blocks_individual_data():
+    from app.routing.cloud_safety import CloudSafetyFilter
+    from app.memory.context_assembler import ContextPiece, ContextTier
+    safety = CloudSafetyFilter()
+    piece = ContextPiece(
+        tier=ContextTier.LIVE,
+        content="person_id: 12345, birth_datetime: 1965-03-15",
+        relevance=0.8, tokens=50, source="cdm.person",
+    )
+    assert safety.is_cloud_safe(piece) is False
+
+def test_context_assembler_claude_profile_accepts_large_context():
+    from app.memory.context_assembler import ContextAssembler, ContextPiece, ContextTier
+    assembler = ContextAssembler.for_model("claude")
+    pieces = [
+        ContextPiece(tier=ContextTier.WORKING, content="x" * 4000, relevance=1.0, tokens=4000),
+        ContextPiece(tier=ContextTier.SEMANTIC, content="y" * 3000, relevance=0.7, tokens=3000),
+        ContextPiece(tier=ContextTier.EPISODIC, content="z" * 2000, relevance=0.6, tokens=2000),
+    ]
+    result = assembler.assemble(pieces)
+    assert len(result) == 3

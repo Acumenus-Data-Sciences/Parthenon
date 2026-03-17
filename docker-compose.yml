@@ -155,6 +155,11 @@ services:
       - HECATE_URL=http://hecate:8080
       - CUDA_VISIBLE_DEVICES=
       - TORCH_DEVICE=cpu
+      - CLAUDE_API_KEY=${CLAUDE_API_KEY:-}
+      - CLAUDE_MODEL=${CLAUDE_MODEL:-claude-sonnet-4-20250514}
+      - CLAUDE_TIMEOUT=${CLAUDE_TIMEOUT:-60}
+      - PHI_DETECTION_ENABLED=${PHI_DETECTION_ENABLED:-true}
+      - CLOUD_MONTHLY_BUDGET_USD=${CLOUD_MONTHLY_BUDGET_USD:-500}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
