@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback, useLayoutEffect } from "react";
+import { AbbyProfilePanel } from '../../../abby-ai/components/AbbyProfilePanel';
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import AbbyAvatar from "./AbbyAvatar";
@@ -186,6 +187,7 @@ export default function AskAbbyChannel() {
   const [conversation, setConversation] = useState<ConversationEntry[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
   const { response, pipelineState, isLoading, sendQuery } = useAbbyQuery();
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -404,12 +406,29 @@ export default function AskAbbyChannel() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6l4 2m6-2a10 10 0 11-20 0 10 10 0 0120 0z" />
               </svg>
             </button>
+            <button
+              type="button"
+              onClick={() => setShowProfile((o) => !o)}
+              title="My research profile"
+              className={`flex h-7 w-7 items-center justify-center rounded transition-colors ${
+                showProfile
+                  ? "bg-white/[0.08] text-foreground"
+                  : "text-muted-foreground hover:bg-white/[0.05] hover:text-foreground"
+              }`}
+            >
+              {/* User/profile icon */}
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+              </svg>
+            </button>
             <div className="flex items-center gap-1.5 text-[11px] text-emerald-400">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
               Online
             </div>
           </div>
         </div>
+
+        {showProfile && <AbbyProfilePanel />}
 
         {/* Conversation area */}
         <div

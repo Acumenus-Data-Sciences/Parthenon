@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 class AbbyConversation extends Model
 {
@@ -33,6 +34,21 @@ class AbbyConversation extends Model
     public function messages(): HasMany
     {
         return $this->hasMany(AbbyMessage::class, 'conversation_id')->orderBy('created_at');
+    }
+
+    /**
+     * @return HasOneThrough<AbbyUserProfile, User, $this>
+     */
+    public function userProfile(): HasOneThrough
+    {
+        return $this->hasOneThrough(
+            AbbyUserProfile::class,
+            User::class,
+            'id',        // users.id
+            'user_id',   // abby_user_profiles.user_id
+            'user_id',   // abby_conversations.user_id
+            'id'         // users.id
+        );
     }
 
     /**

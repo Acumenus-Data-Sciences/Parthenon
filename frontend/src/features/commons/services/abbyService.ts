@@ -6,6 +6,7 @@ import type {
   AbbyConversationSummary,
   AbbyConversationMessage,
 } from "../types/abby";
+import type { AbbyProfileResponse, AbbyProfileUpdateRequest } from '../../abby-ai/types/memory';
 
 export async function queryAbby(
   request: AbbyQueryRequest
@@ -90,4 +91,20 @@ export async function fetchAbbyConversation(
   }>(`/abby/conversations/${conversationId}`);
 
   return data.data;
+}
+
+export async function fetchAbbyProfile(): Promise<AbbyProfileResponse> {
+  const response = await apiClient.get('/api/v1/abby/profile');
+  return response.data;
+}
+
+export async function updateAbbyProfile(
+  data: AbbyProfileUpdateRequest
+): Promise<AbbyProfileResponse> {
+  const response = await apiClient.put('/api/v1/abby/profile', data);
+  return response.data;
+}
+
+export async function resetAbbyProfile(): Promise<void> {
+  await apiClient.post('/api/v1/abby/profile/reset');
 }

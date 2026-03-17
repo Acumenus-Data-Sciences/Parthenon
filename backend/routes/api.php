@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\AbbyAiController;
 use App\Http\Controllers\Api\V1\AbbyConversationController;
+use App\Http\Controllers\Api\V1\AbbyProfileController;
 use App\Http\Controllers\Api\V1\AchillesController;
 use App\Http\Controllers\Api\V1\Admin\AiProviderController;
 use App\Http\Controllers\Api\V1\Admin\AppSettingsController;
@@ -443,6 +444,13 @@ Route::prefix('v1')->group(function () {
         // Abby Conversations (persistence)
         Route::apiResource('abby/conversations', AbbyConversationController::class)
             ->only(['index', 'store', 'show', 'destroy']);
+
+        // Abby User Profile
+        Route::prefix('abby/profile')->middleware('auth:sanctum')->group(function () {
+            Route::get('/', [AbbyProfileController::class, 'show']);
+            Route::put('/', [AbbyProfileController::class, 'update']);
+            Route::post('/reset', [AbbyProfileController::class, 'reset']);
+        });
 
         // Circe Cohort Compiler
         Route::prefix('circe')->group(function () {

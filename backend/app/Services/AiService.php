@@ -161,6 +161,7 @@ class AiService
      * Page-aware conversational chat with Abby (MedGemma).
      *
      * @param  array<array{role: string, content: string}>  $history
+     * @param  array<string, mixed>  $userProfile
      * @return array<string, mixed> {reply: string, suggestions: string[]}
      */
     public function abbyChat(
@@ -168,14 +169,31 @@ class AiService
         string $pageContext = 'general',
         array $pageData = [],
         array $history = [],
+        array $userProfile = [],
+        ?int $userId = null,
+        ?int $conversationId = null,
     ): array {
+        $payload = [
+            'message' => $message,
+            'page_context' => $pageContext,
+            'page_data' => $pageData ?: (object) [],
+            'history' => $history,
+        ];
+
+        if (! empty($userProfile)) {
+            $payload['user_profile'] = $userProfile;
+        }
+
+        if ($userId !== null) {
+            $payload['user_id'] = $userId;
+        }
+
+        if ($conversationId !== null) {
+            $payload['conversation_id'] = $conversationId;
+        }
+
         $response = Http::timeout(300)
-            ->post("{$this->baseUrl}/abby/chat", [
-                'message' => $message,
-                'page_context' => $pageContext,
-                'page_data' => $pageData ?: (object) [],
-                'history' => $history,
-            ]);
+            ->post("{$this->baseUrl}/abby/chat", $payload);
 
         return $response->json() ?? ['reply' => 'Abby is unavailable.', 'suggestions' => []];
     }
