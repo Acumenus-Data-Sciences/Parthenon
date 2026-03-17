@@ -16,12 +16,12 @@ class ChannelMemberFactory extends Factory
     public function definition(): array
     {
         return [
-            'channel_id'              => Channel::factory(),
-            'user_id'                 => User::factory(),
-            'role'                    => 'member',
+            'channel_id' => Channel::factory(),
+            'user_id' => User::factory(),
+            'role' => 'member',
             'notification_preference' => 'all',
-            'last_read_at'            => null,
-            'joined_at'               => now(),
+            'last_read_at' => null,
+            'joined_at' => now(),
         ];
     }
 }

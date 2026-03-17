@@ -322,6 +322,8 @@ class KnowledgeCapture:
             return []
 
         embedding = self._embed(query)
+        if embedding is None:
+            return []
         embedding_str = "[" + ",".join(str(v) for v in embedding) + "]"
 
         type_filter = "AND type = :artifact_type" if artifact_type else ""

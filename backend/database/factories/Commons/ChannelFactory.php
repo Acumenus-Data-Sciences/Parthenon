@@ -18,13 +18,13 @@ class ChannelFactory extends Factory
         $name = $this->faker->unique()->words(2, true);
 
         return [
-            'name'        => $name,
-            'slug'        => Str::slug($name) . '-' . $this->faker->randomNumber(4),
+            'name' => $name,
+            'slug' => Str::slug($name).'-'.$this->faker->randomNumber(4),
             'description' => $this->faker->sentence(),
-            'type'        => 'channel',
-            'visibility'  => 'public',
-            'study_id'    => null,
-            'created_by'  => User::factory(),
+            'type' => 'channel',
+            'visibility' => 'public',
+            'study_id' => null,
+            'created_by' => User::factory(),
             'archived_at' => null,
         ];
     }

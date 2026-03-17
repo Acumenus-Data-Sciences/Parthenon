@@ -215,7 +215,11 @@ def build_rag_context(
         return ""
 
     # Sort ALL results by relevance score (cross-collection ranking)
-    all_results.sort(key=lambda r: r.get("score", 0), reverse=True)
+    def _score(r: dict[str, object]) -> float:
+        v = r.get("score", 0)
+        return float(v) if isinstance(v, (int, float, str)) else 0.0
+
+    all_results.sort(key=_score, reverse=True)
 
     # Take top 8 results across all collections (deduplicated by text prefix)
     seen_prefixes: set[str] = set()

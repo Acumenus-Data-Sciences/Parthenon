@@ -50,7 +50,7 @@ class MessageService
     {
         $withMentions = preg_replace_callback(
             self::MENTION_PATTERN,
-            fn ($m) => '<span class="mention" data-user-id="' . $m[1] . '">@' . e($m[2]) . '</span>',
+            fn ($m) => '<span class="mention" data-user-id="'.$m[1].'">@'.e($m[2]).'</span>',
             $body
         );
 
@@ -69,7 +69,7 @@ class MessageService
         $plain = strip_tags((string) $plain);
 
         if (mb_strlen($plain) > 160) {
-            return mb_substr($plain, 0, 160) . '…';
+            return mb_substr($plain, 0, 160).'…';
         }
 
         return $plain;
@@ -117,16 +117,16 @@ class MessageService
         }
 
         $actor = User::find($authorId);
-        $title = ($actor?->name ?? 'Someone') . ' mentioned you';
+        $title = ($actor?->name ?? 'Someone').' mentioned you';
         $excerpt = $this->excerptFromBody($message->body);
 
         foreach ($recipientIds as $userId) {
             $notification = Notification::create([
-                'user_id'    => $userId,
-                'actor_id'   => $authorId,
-                'type'       => 'mention',
-                'title'      => $title,
-                'body'       => $excerpt,
+                'user_id' => $userId,
+                'actor_id' => $authorId,
+                'type' => 'mention',
+                'title' => $title,
+                'body' => $excerpt,
                 'channel_id' => $channelId,
                 'message_id' => $message->id,
             ]);
@@ -156,11 +156,11 @@ class MessageService
 
         $message = Message::create([
             'channel_id' => $channel->id,
-            'user_id'    => $userId,
-            'parent_id'  => $parentId,
-            'depth'      => $depth,
-            'body'       => $body,
-            'body_html'  => $this->renderHtml($body),
+            'user_id' => $userId,
+            'parent_id' => $parentId,
+            'depth' => $depth,
+            'body' => $body,
+            'body_html' => $this->renderHtml($body),
         ]);
 
         $message->load('user');
@@ -197,11 +197,11 @@ class MessageService
 
             foreach ($dmRecipients as $recipientId) {
                 $notification = Notification::create([
-                    'user_id'    => $recipientId,
-                    'actor_id'   => $userId,
-                    'type'       => 'dm',
-                    'title'      => 'New message from ' . ($actor?->name ?? 'Someone'),
-                    'body'       => $this->excerptFromBody($body),
+                    'user_id' => $recipientId,
+                    'actor_id' => $userId,
+                    'type' => 'dm',
+                    'title' => 'New message from '.($actor?->name ?? 'Someone'),
+                    'body' => $this->excerptFromBody($body),
                     'channel_id' => $channel->id,
                     'message_id' => $message->id,
                 ]);
@@ -219,7 +219,7 @@ class MessageService
         $oldMentionIds = $this->extractMentionIds($message->body);
 
         $message->update([
-            'body'      => $body,
+            'body' => $body,
             'body_html' => $this->renderHtml($body),
             'is_edited' => true,
             'edited_at' => now(),

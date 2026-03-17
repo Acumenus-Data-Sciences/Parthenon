@@ -500,7 +500,7 @@ class FinnGenRunService
             return "concept,domain,stratum,count\n";
         }
 
-        $lines = ["concept,domain,stratum,count"];
+        $lines = ['concept,domain,stratum,count'];
         foreach ($rows as $row) {
             $lines[] = implode(',', [
                 $this->csvField((string) ($row['concept'] ?? '')),

@@ -459,11 +459,11 @@ def _tool_get_cdm_summary(engine: Engine) -> str:
         sections.append("\n".join(lines))
 
     # Person count from Achilles
-    r = _exec_one(engine, text(
+    person_row = _exec_one(engine, text(
         "SELECT count_value FROM achilles_results.achilles_results WHERE analysis_id = 1 LIMIT 1"
     ))
-    if r:
-        sections.append(f"**Total Persons in CDM:** {r['count_value']:,}")
+    if person_row:
+        sections.append(f"**Total Persons in CDM:** {person_row['count_value']:,}")
 
     # Domain record counts (from Achilles analysis 200 = visit, 400 = condition, etc.)
     rows = _exec(engine, text("""

@@ -210,7 +210,7 @@ class DAGExecutor:
     ) -> None:
         """Run all steps in *wave* concurrently, respecting prior failures."""
         # Build a set of all currently failed IDs for quick lookup.
-        tasks = []
+        tasks: list[asyncio.Task[Any]] = []
         skipped_steps = []
         active_steps = []
 

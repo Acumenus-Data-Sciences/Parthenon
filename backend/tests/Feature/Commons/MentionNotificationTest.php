@@ -27,7 +27,7 @@ it('broadcasts on the correct private channel', function () {
     $channels = $event->broadcastOn();
     expect($channels)->toHaveCount(1)
         ->and($channels[0])->toBeInstanceOf(PrivateChannel::class)
-        ->and($channels[0]->name)->toContain('App.Models.User.' . $user->id);
+        ->and($channels[0]->name)->toContain('App.Models.User.'.$user->id);
 });
 
 it('broadcasts with the correct payload shape', function () {
@@ -66,7 +66,7 @@ it('excerpts body: tokens become @Username, HTML stripped, truncated at 160', fu
     $method = $reflection->getMethod('excerptFromBody');
     $method->setAccessible(true);
 
-    $body = '@[42:Dr. Smith] said **hello** ' . str_repeat('x', 200);
+    $body = '@[42:Dr. Smith] said **hello** '.str_repeat('x', 200);
     $result = $method->invoke($service, $body);
     expect($result)->toStartWith('@Dr. Smith said')
         ->and(mb_strlen($result))->toBeLessThanOrEqual(161) // 160 + ellipsis char
@@ -97,14 +97,14 @@ it('creates mention notifications for valid mentioned users, excluding author', 
     $service->createMessage($channel, $author->id, "@[{$mentioned->id}:Someone] hello");
 
     $this->assertDatabaseHas('commons_notifications', [
-        'user_id'    => $mentioned->id,
-        'actor_id'   => $author->id,
-        'type'       => 'mention',
+        'user_id' => $mentioned->id,
+        'actor_id' => $author->id,
+        'type' => 'mention',
         'channel_id' => $channel->id,
     ]);
     $this->assertDatabaseMissing('commons_notifications', [
         'user_id' => $author->id,
-        'type'    => 'mention',
+        'type' => 'mention',
     ]);
 });
 
@@ -115,7 +115,7 @@ it('skips mention notification for non-existent user IDs', function () {
     ChannelMember::factory()->create(['channel_id' => $channel->id, 'user_id' => $author->id]);
 
     $service = app(MessageService::class);
-    $service->createMessage($channel, $author->id, "@[99999:Ghost] hello");
+    $service->createMessage($channel, $author->id, '@[99999:Ghost] hello');
 
     $this->assertDatabaseMissing('commons_notifications', ['type' => 'mention']);
 });
@@ -131,7 +131,7 @@ it('caps mention notifications at 20 recipients per message', function () {
         ChannelMember::factory()->create(['channel_id' => $channel->id, 'user_id' => $u->id]);
     }
 
-    $tokens = $users->map(fn($u) => "@[{$u->id}:{$u->name}]")->join(' ');
+    $tokens = $users->map(fn ($u) => "@[{$u->id}:{$u->name}]")->join(' ');
     $service = app(MessageService::class);
     $service->createMessage($channel, $author->id, $tokens);
 
@@ -151,9 +151,9 @@ it('sends dm notification only on first message in a DM channel', function () {
     $service->createMessage($channel, $sender->id, 'Hello!');
 
     $this->assertDatabaseHas('commons_notifications', [
-        'user_id'  => $receiver->id,
+        'user_id' => $receiver->id,
         'actor_id' => $sender->id,
-        'type'     => 'dm',
+        'type' => 'dm',
     ]);
 
     // Second message: no second dm notification
@@ -178,11 +178,11 @@ it('skips dm notification for user not in channel', function () {
 
     $this->assertDatabaseMissing('commons_notifications', [
         'user_id' => $outsider->id,
-        'type'    => 'dm',
+        'type' => 'dm',
     ]);
     $this->assertDatabaseHas('commons_notifications', [
         'user_id' => $receiver->id,
-        'type'    => 'dm',
+        'type' => 'dm',
     ]);
 });
 

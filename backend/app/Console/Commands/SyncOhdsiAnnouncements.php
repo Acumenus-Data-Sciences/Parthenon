@@ -74,7 +74,7 @@ class SyncOhdsiAnnouncements extends Command
         $posted = 0;
 
         foreach ($items as $item) {
-            $guid    = (string) ($item->guid ?? $item->link ?? '');
+            $guid = (string) ($item->guid ?? $item->link ?? '');
             $pubDate = isset($item->pubDate) ? \Carbon\Carbon::parse((string) $item->pubDate) : now();
 
             if (in_array($guid, $seenGuids, true)) {
@@ -89,7 +89,7 @@ class SyncOhdsiAnnouncements extends Command
             }
 
             $title = $this->parseTitle($item);
-            $body  = $this->formatBody($item, $pubDate);
+            $body = $this->formatBody($item, $pubDate);
 
             if ($this->option('dry-run')) {
                 $this->line("---\n**{$title}**\n{$body}\n");
@@ -153,8 +153,8 @@ class SyncOhdsiAnnouncements extends Command
 
     private function formatBody(\SimpleXMLElement $item, \Carbon\Carbon $pubDate): string
     {
-        $link     = (string) $item->link;
-        $author   = (string) ($item->children('dc', true)->creator ?? '');
+        $link = (string) $item->link;
+        $author = (string) ($item->children('dc', true)->creator ?? '');
         $category = (string) ($item->category ?? '');
 
         // Strip HTML from the description, collapse whitespace, truncate
@@ -179,13 +179,13 @@ class SyncOhdsiAnnouncements extends Command
         $bodyHtml = (new GithubFlavoredMarkdownConverter)->convert($body)->getContent();
 
         Announcement::create([
-            'user_id'    => $poster->id,
+            'user_id' => $poster->id,
             'channel_id' => null,          // global — visible on all channels' boards
-            'title'      => $title,
-            'body'       => $body,
-            'body_html'  => $bodyHtml,
-            'category'   => 'general',
-            'is_pinned'  => false,
+            'title' => $title,
+            'body' => $body,
+            'body_html' => $bodyHtml,
+            'category' => 'general',
+            'is_pinned' => false,
             'expires_at' => $pubDate->copy()->addDays(self::EXPIRE_DAYS),
         ]);
     }

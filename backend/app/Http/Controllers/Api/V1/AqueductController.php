@@ -51,7 +51,7 @@ class AqueductController extends Controller
 
         if (! empty($invalid)) {
             return response()->json([
-                'message' => 'Unknown vocabularies: ' . implode(', ', $invalid),
+                'message' => 'Unknown vocabularies: '.implode(', ', $invalid),
             ], 422);
         }
 

@@ -18,7 +18,7 @@ class NotificationSent implements ShouldBroadcast
     /** @return array<int, PrivateChannel> */
     public function broadcastOn(): array
     {
-        return [new PrivateChannel('App.Models.User.' . $this->notification->user_id)];
+        return [new PrivateChannel('App.Models.User.'.$this->notification->user_id)];
     }
 
     public function broadcastAs(): string
@@ -30,16 +30,16 @@ class NotificationSent implements ShouldBroadcast
     public function broadcastWith(): array
     {
         return [
-            'id'         => $this->notification->id,
-            'type'       => $this->notification->type,
-            'title'      => $this->notification->title,
-            'body'       => $this->notification->body,
+            'id' => $this->notification->id,
+            'type' => $this->notification->type,
+            'title' => $this->notification->title,
+            'body' => $this->notification->body,
             'channel_id' => $this->notification->channel_id,
             'message_id' => $this->notification->message_id,
-            'actor'      => $this->notification->actor
+            'actor' => $this->notification->actor
                 ? ['id' => $this->notification->actor->id, 'name' => $this->notification->actor->name]
                 : null,
-            'channel'    => $this->notification->channel
+            'channel' => $this->notification->channel
                 ? ['slug' => $this->notification->channel->slug]
                 : null,
             'created_at' => $this->notification->created_at,

@@ -82,9 +82,10 @@ class DataProfileService:
                 row = result.fetchone()
                 if row is None:
                     return {"min_date": None, "max_date": None}
+                row_mapping = row._mapping
                 return {
-                    "min_date": row["min_date"],
-                    "max_date": row["max_date"],
+                    "min_date": row_mapping["min_date"],
+                    "max_date": row_mapping["max_date"],
                 }
         except Exception:
             logger.exception("get_temporal_coverage failed")

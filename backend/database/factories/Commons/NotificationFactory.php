@@ -16,14 +16,14 @@ class NotificationFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id'    => User::factory(),
-            'actor_id'   => User::factory(),
-            'type'       => $this->faker->randomElement(['mention', 'dm']),
-            'title'      => $this->faker->sentence(6),
-            'body'       => $this->faker->sentence(10),
+            'user_id' => User::factory(),
+            'actor_id' => User::factory(),
+            'type' => $this->faker->randomElement(['mention', 'dm']),
+            'title' => $this->faker->sentence(6),
+            'body' => $this->faker->sentence(10),
             'channel_id' => Channel::factory(),
             'message_id' => null,
-            'read_at'    => null,
+            'read_at' => null,
         ];
     }
 }

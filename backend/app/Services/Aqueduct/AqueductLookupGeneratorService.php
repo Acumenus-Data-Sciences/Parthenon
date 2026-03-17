@@ -43,11 +43,11 @@ class AqueductLookupGeneratorService
     public function assembleLookupSql(string $vocabulary, string $vocabSchema, bool $includeSourceToSource = true): string
     {
         if (! preg_match('/^[a-z0-9_]+$/', $vocabSchema)) {
-            throw new \InvalidArgumentException("Invalid vocab_schema: must be alphanumeric with underscores only.");
+            throw new \InvalidArgumentException('Invalid vocab_schema: must be alphanumeric with underscores only.');
         }
 
         if (! preg_match('/^[a-z0-9]+$/', $vocabulary)) {
-            throw new \InvalidArgumentException("Invalid vocabulary: must be alphanumeric only.");
+            throw new \InvalidArgumentException('Invalid vocabulary: must be alphanumeric only.');
         }
 
         [$conceptFilter, $stcmFilter] = $this->splitFilter('source_to_standard', $vocabulary);
@@ -86,7 +86,7 @@ class AqueductLookupGeneratorService
             $sql = $this->assembleLookupSql($vocabulary, $vocabSchema, $includeSourceToSource);
             $artifacts[] = [
                 'id' => "lookup_{$vocabulary}_sql",
-                'label' => strtoupper($vocabulary) . ' Lookup SQL',
+                'label' => strtoupper($vocabulary).' Lookup SQL',
                 'kind' => 'sql',
                 'content_type' => 'text/sql',
                 'path' => null,

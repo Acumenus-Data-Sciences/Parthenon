@@ -7,7 +7,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        DB::statement("
+        DB::statement('
             CREATE TABLE app.abby_cloud_usage (
                 id BIGSERIAL PRIMARY KEY,
                 user_id BIGINT REFERENCES app.users(id),
@@ -21,7 +21,7 @@ return new class extends Migration
                 route_reason VARCHAR(50),
                 created_at TIMESTAMP DEFAULT NOW()
             )
-        ");
+        ');
         DB::statement('CREATE INDEX idx_abby_cloud_usage_user_id ON app.abby_cloud_usage (user_id)');
         DB::statement('CREATE INDEX idx_abby_cloud_usage_created_at ON app.abby_cloud_usage (created_at)');
     }

@@ -76,7 +76,7 @@ def _get_claude_client() -> ClaudeClient | None:
     global _claude_client
     if _claude_client is None and settings.claude_api_key:
         try:
-            _claude_client = ClaudeClient()
+            _claude_client = ClaudeClient(api_key=settings.claude_api_key)
         except ValueError:
             logger.warning("Claude API key not configured, cloud routing disabled")
     return _claude_client
@@ -875,6 +875,8 @@ async def chat(request: ChatRequest) -> ChatResponse:
         else:
             # Safe to send to Claude
             claude_client = _get_claude_client()
+            if claude_client is None:
+                raise ValueError("Claude API client is not configured")
             history_dicts = [{"role": m.role, "content": m.content} for m in request.history]
             try:
                 claude_response = claude_client.chat(

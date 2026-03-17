@@ -44,7 +44,8 @@ class KnowledgeGraphService:
         try:
             raw = self.redis_client.get(key)
             if raw is not None:
-                return json.loads(raw)
+                result: list[dict[str, Any]] = json.loads(raw)
+                return result
         except Exception:
             logger.exception("Redis get failed for key %s", key)
         return None

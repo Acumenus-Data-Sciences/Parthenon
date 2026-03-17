@@ -2596,7 +2596,7 @@ SQL;
         $windowUnit = (string) ($moduleSetup['time_window_unit'] ?? 'months');
         $temporalWindows = array_map(
             static fn (array $row, int $idx) => [
-                'label' => (string) ($row['bucket'] ?? "window ".($idx + 1)),
+                'label' => (string) ($row['bucket'] ?? 'window '.($idx + 1)),
                 'count' => (int) ($row['event_count'] ?? 0),
                 'detail' => "Observed event volume ({$windowUnit} window ".($idx + 1)." of {$windowCount})",
             ],
@@ -2942,6 +2942,7 @@ HTML;
             if (preg_match('/^([A-Za-z0-9_]+):\s*$/', $trimmed, $matches) === 1) {
                 $currentSection = strtolower($matches[1]);
                 $sections[] = $currentSection;
+
                 continue;
             }
 
@@ -3144,7 +3145,7 @@ HTML;
             try {
                 $connection = $this->connections->connectionName($source);
                 $check = DB::connection($connection)->selectOne(
-                    "SELECT COUNT(*) AS cnt FROM information_schema.tables WHERE table_schema = ? AND table_name = ?",
+                    'SELECT COUNT(*) AS cnt FROM information_schema.tables WHERE table_schema = ? AND table_name = ?',
                     [$tableSchema, $tableName],
                 );
                 $tableExists = ((int) ($check->cnt ?? 0)) > 0;
@@ -3157,7 +3158,7 @@ HTML;
                     $distinctCohorts = (int) ($distinctRow->cnt ?? 0);
 
                     $cols = DB::connection($connection)->select(
-                        "SELECT column_name FROM information_schema.columns WHERE table_schema = ? AND table_name = ? ORDER BY ordinal_position",
+                        'SELECT column_name FROM information_schema.columns WHERE table_schema = ? AND table_name = ? ORDER BY ordinal_position',
                         [$tableSchema, $tableName],
                     );
                     $columns = array_map(static fn ($r) => (string) ((array) $r)['column_name'], $cols);
@@ -3332,7 +3333,7 @@ HTML;
     {
         try {
             $domainFilter = $conceptDomain !== '' && $conceptDomain !== 'all'
-                ? "AND c1.domain_id = ".DB::connection($connection)->getPdo()->quote($conceptDomain)
+                ? 'AND c1.domain_id = '.DB::connection($connection)->getPdo()->quote($conceptDomain)
                 : '';
 
             $rows = DB::connection($connection)->select("
