@@ -864,7 +864,13 @@ async def chat(request: ChatRequest) -> ChatResponse:
 
     if routing.model == "claude" and _get_claude_client() is not None:
         # Cloud path: PHI sanitization + cloud safety filter
-        phi_result = _phi_sanitizer.scan(system_prompt)
+        # Build history_dicts first so we can include history content in PHI scan
+        history_dicts = [{"role": m.role, "content": m.content} for m in request.history]
+        # Combine all text that will be sent to Claude for PHI scanning
+        full_cloud_text = system_prompt + "\n" + request.message
+        for h in history_dicts:
+            full_cloud_text += "\n" + h.get("content", "")
+        phi_result = _phi_sanitizer.scan(full_cloud_text)
 
         if phi_result.phi_detected and settings.phi_block_on_detection:
             logger.warning(
@@ -877,7 +883,6 @@ async def chat(request: ChatRequest) -> ChatResponse:
             claude_client = _get_claude_client()
             if claude_client is None:
                 raise ValueError("Claude API client is not configured")
-            history_dicts = [{"role": m.role, "content": m.content} for m in request.history]
             try:
                 claude_response = claude_client.chat(
                     system_prompt=phi_result.redacted_text,
