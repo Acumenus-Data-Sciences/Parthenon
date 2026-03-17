@@ -101,6 +101,7 @@ class ActionLogger:
                 ),
                 params,
             ).fetchone()
+            conn.commit()
         return int(row[0])
 
     def mark_rolled_back(self, action_id: int) -> None:
@@ -122,6 +123,7 @@ class ActionLogger:
                 ),
                 {"action_id": action_id},
             )
+            conn.commit()
 
     # ------------------------------------------------------------------
     # Read

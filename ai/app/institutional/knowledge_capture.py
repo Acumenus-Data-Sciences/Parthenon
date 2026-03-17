@@ -230,6 +230,7 @@ class KnowledgeCapture:
                 ),
                 params,
             ).fetchone()
+            conn.commit()
         return int(row[0])
 
     def capture_data_finding(
@@ -291,6 +292,7 @@ class KnowledgeCapture:
                 ),
                 params,
             ).fetchone()
+            conn.commit()
         return int(row[0])
 
     def search_similar(
@@ -375,6 +377,7 @@ class KnowledgeCapture:
                 ),
                 {"artifact_id": artifact_id},
             )
+            conn.commit()
 
     # ------------------------------------------------------------------
     # Private helpers
@@ -442,6 +445,7 @@ class KnowledgeCapture:
                 ),
                 params,
             ).fetchone()
+            conn.commit()
         return int(row[0])
 
     def _embed(self, text_input: str) -> Optional[list[float]]:

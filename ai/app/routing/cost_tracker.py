@@ -100,6 +100,7 @@ class CostTracker:
                         "route_reason": route_reason,
                     },
                 )
+                conn.commit()
         except Exception:
             logger.exception(
                 "Failed to record cloud usage: model=%s tokens_in=%d tokens_out=%d",
