@@ -70,6 +70,22 @@ _TOOL_INTENTS: dict[str, list[re.Pattern]] = {
     "analyses": [
         re.compile(r"\b(analys[ei]s|stud(?:y|ies)|characterization|incidence|estimation|prediction|pathway)\b", re.I),
     ],
+    # Knowledge graph intents
+    "graph_ancestors": [
+        re.compile(r'\b(ancestor|parent|broader|hierarchy|supertype|generali[sz]e)\b', re.I),
+    ],
+    "graph_descendants": [
+        re.compile(r'\b(descendant|child|narrower|subtype|speciali[sz]e|specific)\b', re.I),
+    ],
+    "graph_related": [
+        re.compile(r'\b(related|relationship|connected|associated|mapped|linked)\b', re.I),
+    ],
+    "graph_siblings": [
+        re.compile(r'\b(sibling|similar|same\s+(level|category|class)|peer|alternative)\b', re.I),
+    ],
+    "data_profile": [
+        re.compile(r'\b(coverage|data\s+quality|sparse|gap|temporal|how\s+much\s+data|cdm\s+summary)\b', re.I),
+    ],
     # Catch-all for broad existence questions
     "broad_search": [
         re.compile(r"\b(do\s+we\s+have|what.*(?:exist|defined|available|created|built|set\s*up))\b", re.I),
@@ -166,6 +182,18 @@ def query_live_context(message: str, page_context: str) -> str:
             r = _tool_get_analyses(engine, search_terms)
             if r:
                 sections.append(r)
+
+        # Knowledge graph queries
+        if any(intent in intents for intent in ("graph_ancestors", "graph_descendants", "graph_related", "graph_siblings")):
+            r = _tool_graph_query(message)
+            if r:
+                sections.append("\n\nCONCEPT HIERARCHY:\n" + r)
+
+        # CDM data profile
+        if "data_profile" in intents:
+            r = _tool_data_profile(message)
+            if r:
+                sections.append("\n\nCDM DATA PROFILE:\n" + r)
 
     except Exception as e:
         logger.warning("Live database context failed: %s", e)
@@ -502,6 +530,114 @@ def _tool_get_analyses(engine: Engine, keywords: list[str]) -> str:
             lines.append(f"- **{r.get('name', 'Unnamed')}** (type: {r.get('analysis_type', '?')}, status: {r.get('status', '?')})")
         return "\n".join(lines)
     except Exception:
+        return ""
+
+
+# ── Tool 8: Knowledge Graph Query ────────────────────────────────────────────
+
+def _tool_graph_query(query: str) -> str:
+    """Query the OMOP concept hierarchy."""
+    try:
+        from app.knowledge.graph_service import KnowledgeGraphService
+        import redis as redis_lib
+
+        engine = _get_engine()
+        try:
+            redis_client = redis_lib.from_url(settings.redis_url)
+        except Exception:
+            redis_client = None
+
+        service = KnowledgeGraphService(engine=engine, redis_client=redis_client)
+
+        # Extract concept ID from query if present (e.g., "concept 201826")
+        concept_match = re.search(r'\bconcept\s*(?:id\s*)?(\d+)\b', query, re.IGNORECASE)
+        if not concept_match:
+            return ""
+
+        concept_id = int(concept_match.group(1))
+        parts: list[str] = []
+
+        # Determine which graph operation based on query keywords
+        q_lower = query.lower()
+        if any(kw in q_lower for kw in ("ancestor", "parent", "broader", "hierarchy")):
+            ancestors = service.get_ancestors(concept_id, max_levels=3)
+            if ancestors:
+                parts.append(service.format_hierarchy(ancestors, direction="ancestors"))
+
+        if any(kw in q_lower for kw in ("descendant", "child", "narrower", "subtype", "specific")):
+            descendants = service.get_descendants(concept_id, max_levels=2)
+            if descendants:
+                parts.append(service.format_hierarchy(descendants, direction="descendants"))
+
+        if any(kw in q_lower for kw in ("sibling", "similar", "alternative", "peer")):
+            siblings = service.get_siblings(concept_id)
+            if siblings:
+                parts.append(service.format_hierarchy(siblings, direction="siblings"))
+
+        if any(kw in q_lower for kw in ("related", "relationship", "connected")):
+            related = service.find_related(concept_id)
+            if related:
+                parts.append(service.format_related(related))
+
+        # Default: show ancestors + descendants if no specific direction matched
+        if not parts:
+            ancestors = service.get_ancestors(concept_id, max_levels=2)
+            descendants = service.get_descendants(concept_id, max_levels=2)
+            if ancestors:
+                parts.append(service.format_hierarchy(ancestors, direction="ancestors"))
+            if descendants:
+                parts.append(service.format_hierarchy(descendants, direction="descendants"))
+
+        return "\n\n".join(parts) if parts else ""
+    except Exception:
+        logger.exception("Graph query tool failed")
+        return ""
+
+
+# ── Tool 9: Data Profile ──────────────────────────────────────────────────────
+
+def _tool_data_profile(query: str) -> str:  # noqa: ARG001
+    """Get CDM data profile with gap warnings."""
+    try:
+        from app.knowledge.data_profile import DataProfileService
+        import redis as redis_lib
+
+        engine = _get_engine()
+        try:
+            redis_client = redis_lib.from_url(settings.redis_url)
+        except Exception:
+            redis_client = None
+
+        service = DataProfileService(engine=engine, redis_client=redis_client)
+        profile = service.get_profile_summary()
+
+        tc = profile["temporal_coverage"]
+        start_date = tc.get("min_date", "unknown")
+        end_date = tc.get("max_date", "unknown")
+
+        lines = [f"CDM Profile: {profile['person_count']:,} patients"]
+        lines.append(f"Temporal coverage: {start_date} to {end_date}")
+
+        if profile["domain_density"]:
+            lines.append("\nDomain density:")
+            for d in profile["domain_density"][:7]:
+                lines.append(f"  {d['domain']}: {d['record_count']:,} records")
+
+        if profile["warnings"]:
+            lines.append("")
+            for w in profile["warnings"]:
+                severity = w["severity"]
+                if severity == "warning":
+                    icon = "\u26a0\ufe0f"
+                elif severity == "critical":
+                    icon = "\U0001f534"
+                else:
+                    icon = "\u2139\ufe0f"
+                lines.append(f"  {icon} {w['message']}")
+
+        return "\n".join(lines)
+    except Exception:
+        logger.exception("Data profile tool failed")
         return ""
 
 
