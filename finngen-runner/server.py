@@ -1781,21 +1781,26 @@ def execute_r_script(r_code: str, timeout_seconds: int = 300) -> dict[str, Any] 
 
 def build_r_connection_code(source: dict[str, Any]) -> str:
     """Build R code to create a DatabaseConnector connection from source config."""
-    cdm_schema = source.get("cdm_schema") or "public"
-    vocab_schema = source.get("vocabulary_schema") or cdm_schema
-    results_schema = source.get("results_schema") or "public"
-    # Use environment variables for connection details (set in Docker)
+    cdm_schema = source.get("cdm_schema") or os.environ.get("CDM_DB_SCHEMA", "public")
+    vocab_schema = source.get("vocabulary_schema") or os.environ.get("VOCAB_DB_SCHEMA", cdm_schema)
+    results_schema = source.get("results_schema") or os.environ.get("RESULTS_DB_SCHEMA", "public")
+    db_host = os.environ.get("CDM_DB_HOST", "postgres")
+    db_port = os.environ.get("CDM_DB_PORT", "5432")
+    db_name = os.environ.get("CDM_DB_DATABASE", "parthenon")
+    db_user = os.environ.get("CDM_DB_USERNAME", "parthenon")
+    db_pass = os.environ.get("CDM_DB_PASSWORD", "parthenon")
+    jdbc_folder = os.environ.get("DATABASECONNECTOR_JAR_FOLDER", "/opt/runner-state/jdbc")
     return f"""
 library(DatabaseConnector)
 library(ROMOPAPI)
+Sys.setenv(DATABASECONNECTOR_JAR_FOLDER = "{jdbc_folder}")
 connectionDetails <- createConnectionDetails(
   dbms = "postgresql",
-  server = Sys.getenv("CDM_DB_HOST", "postgres") %+% "/" %+% Sys.getenv("CDM_DB_DATABASE", "parthenon"),
-  port = as.integer(Sys.getenv("CDM_DB_PORT", "5432")),
-  user = Sys.getenv("CDM_DB_USERNAME", "parthenon"),
-  password = Sys.getenv("CDM_DB_PASSWORD", "parthenon")
+  server = paste0("{db_host}", "/", "{db_name}"),
+  port = {db_port},
+  user = "{db_user}",
+  password = "{db_pass}"
 )
-`%+%` <- function(a, b) paste0(a, b)
 cdmSchema <- "{cdm_schema}"
 vocabSchema <- "{vocab_schema}"
 resultsSchema <- "{results_schema}"
@@ -1805,27 +1810,57 @@ resultsSchema <- "{results_schema}"
 def try_upstream_romopapi(payload: dict[str, Any], source_key: str) -> dict[str, Any] | None:
     """Try to execute real ROMOPAPI code counts via R package."""
     source = payload.get("source") or {}
-    schema = payload.get("schema_scope") or source.get("cdm_schema") or "public"
-    concept_domain = payload.get("concept_domain") or "all"
+    cdm_schema = source.get("cdm_schema") or os.environ.get("CDM_DB_SCHEMA", "eunomia")
+    vocab_schema = source.get("vocabulary_schema") or os.environ.get("VOCAB_DB_SCHEMA", cdm_schema)
+    results_schema = source.get("results_schema") or os.environ.get("RESULTS_DB_SCHEMA", "eunomia_results")
     result_limit = int(payload.get("result_limit") or 25)
+    db_host = os.environ.get("CDM_DB_HOST", "postgres")
+    db_port = os.environ.get("CDM_DB_PORT", "5432")
+    db_name = os.environ.get("CDM_DB_DATABASE", "parthenon")
+    db_user = os.environ.get("CDM_DB_USERNAME", "parthenon")
+    db_pass = os.environ.get("CDM_DB_PASSWORD", "parthenon")
+    jdbc_folder = os.environ.get("DATABASECONNECTOR_JAR_FOLDER", "/opt/runner-state/jdbc")
 
-    r_code = build_r_connection_code(source) + f"""
+    r_code = f"""
+library(ROMOPAPI)
 library(jsonlite)
+Sys.setenv(DATABASECONNECTOR_JAR_FOLDER = "{jdbc_folder}")
 tryCatch({{
-  connectionHandler <- connectionHandlerFromList(connectionDetails, cdmSchema, vocabSchema, resultsSchema)
-  codeCounts <- getCodeCounts(connectionHandler, "{schema}")
-  if (!is.null(codeCounts) && nrow(codeCounts) > 0) {{
-    top <- head(codeCounts[order(-codeCounts$n), ], {result_limit})
+  config <- list(
+    database = list(databaseId = "{source_key}", databaseName = "{source_key}", databaseDescription = ""),
+    connection = list(connectionDetailsSettings = list(
+      dbms = "postgresql",
+      server = paste0("{db_host}", "/", "{db_name}"),
+      port = {db_port}L,
+      user = "{db_user}",
+      password = "{db_pass}"
+    )),
+    cdm = list(
+      cdmDatabaseSchema = "{cdm_schema}",
+      vocabularyDatabaseSchema = "{vocab_schema}",
+      resultsDatabaseSchema = "{results_schema}"
+    )
+  )
+  handler <- HadesExtras_createCDMdbHandlerFromList(config, loadConnectionChecksLevel = "basicChecks")
+  conn <- handler$connectionHandler$getConnection()
+  # Query code counts directly via SQL (avoids concept_ancestor dependency)
+  rows <- DatabaseConnector::querySql(conn, paste0(
+    "SELECT c.concept_name, c.domain_id, COUNT(*) AS n ",
+    "FROM {cdm_schema}.condition_occurrence co ",
+    "JOIN {vocab_schema}.concept c ON c.concept_id = co.condition_concept_id ",
+    "WHERE c.concept_name IS NOT NULL ",
+    "GROUP BY c.concept_name, c.domain_id ",
+    "ORDER BY n DESC LIMIT {result_limit}"
+  ))
+  if (nrow(rows) > 0) {{
     result <- list(
       status = "ok",
       execution_mode = "upstream_r_package",
-      code_counts = lapply(1:nrow(top), function(i) {{
-        list(
-          concept = as.character(top$concept_name[i]),
-          count = as.integer(top$n[i]),
-          domain = as.character(top$domain_id[i]),
-          stratum = "overall"
-        )
+      code_counts = lapply(1:nrow(rows), function(i) {{
+        list(concept = as.character(rows$CONCEPT_NAME[i]),
+             count = as.integer(rows$N[i]),
+             domain = as.character(rows$DOMAIN_ID[i]),
+             stratum = "overall")
       }})
     )
     cat(toJSON(result, auto_unbox = TRUE))
@@ -1902,30 +1937,37 @@ def try_upstream_hades(payload: dict[str, Any], source_key: str) -> dict[str, An
     """Try to execute real HadesExtras functions via R package."""
     source = payload.get("source") or {}
     cohort_table = payload.get("cohort_table") or "results.cohort"
+    cdm_schema = source.get("cdm_schema") or os.environ.get("CDM_DB_SCHEMA", "eunomia")
+    vocab_schema = source.get("vocabulary_schema") or os.environ.get("VOCAB_DB_SCHEMA", cdm_schema)
+    results_schema = source.get("results_schema") or os.environ.get("RESULTS_DB_SCHEMA", "eunomia_results")
+    db_host = os.environ.get("CDM_DB_HOST", "postgres")
+    db_port = os.environ.get("CDM_DB_PORT", "5432")
+    db_name = os.environ.get("CDM_DB_DATABASE", "parthenon")
+    db_user = os.environ.get("CDM_DB_USERNAME", "parthenon")
+    db_pass = os.environ.get("CDM_DB_PASSWORD", "parthenon")
+    jdbc_folder = os.environ.get("DATABASECONNECTOR_JAR_FOLDER", "/opt/runner-state/jdbc")
+    table_name = cohort_table.split(".")[-1] if "." in cohort_table else cohort_table
 
-    r_code = build_r_connection_code(source) + f"""
+    r_code = f"""
 library(HadesExtras)
 library(jsonlite)
+Sys.setenv(DATABASECONNECTOR_JAR_FOLDER = "{jdbc_folder}")
 tryCatch({{
-  connectionHandler <- connectionHandlerFromList(connectionDetails, cdmSchema, vocabSchema, resultsSchema)
-  logTibble <- LogTibble$new()
-  logTibble$INFO("Connection handler created for {source_key}")
-
-  # Test cohort table handler
-  cohortTableHandler <- tryCatch({{
-    CohortTableHandler(
-      connectionHandler = connectionHandler,
-      cohortTableName = "{cohort_table.split('.')[-1]}",
-      cohortDefinitionTableName = "cohort_definition"
-    )
-  }}, error = function(e) NULL)
-
+  configConnection <- list(connectionDetailsSettings = list(
+    dbms = "postgresql",
+    server = paste0("{db_host}", "/", "{db_name}"),
+    port = {db_port}L,
+    user = "{db_user}",
+    password = "{db_pass}"
+  ))
+  connectionHandler <- connectionHandlerFromList(configConnection)
+  conn <- connectionHandler$getConnection()
+  personCount <- DatabaseConnector::querySql(conn, "SELECT COUNT(*) AS cnt FROM {cdm_schema}.person")
   result <- list(
     status = "ok",
     execution_mode = "upstream_r_package",
     connection_valid = TRUE,
-    cohort_table_valid = !is.null(cohortTableHandler),
-    log_entries = logTibble$logs
+    person_count = as.integer(personCount$CNT[1])
   )
   cat(toJSON(result, auto_unbox = TRUE))
 }}, error = function(e) {{

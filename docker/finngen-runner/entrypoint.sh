@@ -21,4 +21,13 @@ if [ ! -f "$MARKER" ]; then
   fi
 fi
 
+# Download JDBC driver if missing
+JDBC_DIR="${DATABASECONNECTOR_JAR_FOLDER:-/opt/runner-state/jdbc}"
+mkdir -p "$JDBC_DIR"
+if [ ! -f "$JDBC_DIR/postgresql"*.jar ] 2>/dev/null; then
+  echo "[finngen-runner] Downloading PostgreSQL JDBC driver..."
+  Rscript -e "library(DatabaseConnector); downloadJdbcDrivers('postgresql', pathToDriver='$JDBC_DIR')" 2>&1 || echo "[finngen-runner] JDBC download failed; R upstream execution may be unavailable." >&2
+fi
+export DATABASECONNECTOR_JAR_FOLDER="$JDBC_DIR"
+
 exec python /app/server.py

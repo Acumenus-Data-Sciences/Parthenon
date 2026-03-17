@@ -260,6 +260,15 @@ services:
       - MAKE=make -j1
       - CMAKE_BUILD_PARALLEL_LEVEL=1
       - R_REMOTES_UPGRADE=never
+      - DATABASECONNECTOR_JAR_FOLDER=/opt/runner-state/jdbc
+      - CDM_DB_HOST=${DB_HOST:-pgsql.acumenus.net}
+      - CDM_DB_PORT=${DB_PORT:-5432}
+      - CDM_DB_DATABASE=${DB_DATABASE:-ohdsi}
+      - CDM_DB_USERNAME=${DB_USERNAME:-smudoshi}
+      - CDM_DB_PASSWORD=${DB_PASSWORD:-acumenus}
+      - CDM_DB_SCHEMA=${CDM_DB_SEARCH_PATH:-cdm}
+      - VOCAB_DB_SCHEMA=${VOCAB_DB_SEARCH_PATH:-vocab}
+      - RESULTS_DB_SCHEMA=${RESULTS_DB_SEARCH_PATH:-results}
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8786/health')"]
       interval: 30s
