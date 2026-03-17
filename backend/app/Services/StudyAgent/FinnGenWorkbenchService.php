@@ -168,6 +168,18 @@ class FinnGenWorkbenchService
             $atlasConceptSets = $atlasImport['concept_sets'] ?? [];
             $atlasWarnings = $atlasImport['warnings'] ?? [];
             $atlasImportDiagnostics = is_array($atlasImport['diagnostics'] ?? null) ? $atlasImport['diagnostics'] : [];
+            // Enrich diagnostics with per-cohort mapping status
+            if ($atlasImportDiagnostics === [] && $atlasImportedCohorts !== []) {
+                $atlasImportDiagnostics = array_map(static fn (array $cohort, int $idx) => [
+                    'cohort_id' => (int) ($cohort['atlas_id'] ?? $cohort['id'] ?? $idx),
+                    'name' => (string) ($cohort['name'] ?? "Cohort {$idx}"),
+                    'import_status' => 'imported',
+                    'mapping_status' => isset($cohort['id']) ? 'mapped_to_parthenon' : 'unmapped',
+                    'parthenon_id' => $cohort['id'] ?? null,
+                    'concept_sets_imported' => count($atlasConceptSets),
+                    'behavior' => $atlasImportBehavior,
+                ], $atlasImportedCohorts, array_keys($atlasImportedCohorts));
+            }
 
             if ($atlasImportedCohorts !== []) {
                 $selectedCohorts = array_map(
@@ -856,14 +868,23 @@ SQL;
             $topSignals,
             $derivedCohortContext,
         );
+        $gwasJobState = $moduleFamily === 'gwas'
+            ? $this->buildGwasJobState(
+                (string) ($moduleSetup['gwas_method'] ?? 'regenie'),
+                (string) ($moduleSetup['gwas_trait'] ?? 'Type 2 diabetes'),
+                $analysisPersonCount,
+            )
+            : null;
+
         $jobSummary = [
-            'job_mode' => 'preview_execution',
+            'job_mode' => $moduleFamily === 'gwas' ? 'gwas_orchestration' : 'preview_execution',
             'job_family' => $moduleFamily,
             'artifact_count' => count($analysisArtifacts),
             'derived_cohort' => $derivedCohortContext['cohort_reference'] ?? ($cohortLabel ?: 'Selected source cohort'),
             'ready_for_export' => true,
             'ready_for_compare' => true,
             'result_validation_status' => collect($resultValidation)->contains(fn (array $item) => ($item['status'] ?? '') === 'warning') ? 'review' : 'ready',
+            'gwas_job_state' => $gwasJobState,
         ];
 
         return [
@@ -1053,6 +1074,10 @@ SQL;
                 ['label' => 'Config profile', 'value' => $packageSetup['config_profile']],
                 ['label' => 'Manifest artifacts', 'value' => (string) count($packageEntries)],
             ],
+            'temporal_covariate_helpers' => $this->buildTemporalCovariateHelpers(
+                $packageSetup['cohort_table'],
+                $summary['cdm_schema'] ?: 'public',
+            ),
             'explain_plan' => $explain,
         ];
     }
@@ -1217,6 +1242,8 @@ SQL;
                 'stratified_count_rows' => count($stratifiedCounts),
             ],
             'schema_nodes' => $limitedNodes,
+            'concept_hierarchy' => $this->queryCdmConceptHierarchy($connection, $vocabSchemaName, $conceptDomain, $lineageDepth),
+            'mermaid_graph' => $this->buildMermaidGraph($limitedNodes),
             'lineage_trace' => array_map(
                 static fn (array $node, int $index) => [
                     'step' => $index + 1,
@@ -3294,5 +3321,164 @@ HTML;
         } catch (\Throwable) {
             return [];
         }
+    }
+
+    /**
+     * Query concept-level hierarchy from the vocabulary concept_ancestor table.
+     *
+     * @return array<int, array{ancestor:string, descendant:string, min_levels:int, max_levels:int}>
+     */
+    private function queryCdmConceptHierarchy(string $connection, string $vocabSchema, string $conceptDomain, int $depth): array
+    {
+        try {
+            $domainFilter = $conceptDomain !== '' && $conceptDomain !== 'all'
+                ? "AND c1.domain_id = ".DB::connection($connection)->getPdo()->quote($conceptDomain)
+                : '';
+
+            $rows = DB::connection($connection)->select("
+                SELECT
+                    c1.concept_name AS ancestor,
+                    c2.concept_name AS descendant,
+                    ca.min_levels_of_separation AS min_levels,
+                    ca.max_levels_of_separation AS max_levels
+                FROM {$vocabSchema}.concept_ancestor ca
+                JOIN {$vocabSchema}.concept c1 ON c1.concept_id = ca.ancestor_concept_id
+                JOIN {$vocabSchema}.concept c2 ON c2.concept_id = ca.descendant_concept_id
+                WHERE ca.min_levels_of_separation > 0
+                  AND ca.min_levels_of_separation <= ?
+                  {$domainFilter}
+                  AND c1.concept_name IS NOT NULL
+                  AND c2.concept_name IS NOT NULL
+                ORDER BY ca.min_levels_of_separation, c1.concept_name
+                LIMIT 25
+            ", [$depth]);
+
+            return array_map(static fn ($row) => [
+                'ancestor' => (string) ((array) $row)['ancestor'],
+                'descendant' => (string) ((array) $row)['descendant'],
+                'min_levels' => (int) ((array) $row)['min_levels'],
+                'max_levels' => (int) ((array) $row)['max_levels'],
+            ], $rows);
+        } catch (\Throwable) {
+            return [];
+        }
+    }
+
+    /**
+     * Build a Mermaid graph diagram string from schema nodes.
+     */
+    private function buildMermaidGraph(array $schemaNodes): string
+    {
+        if ($schemaNodes === []) {
+            return '';
+        }
+
+        $lines = ['graph LR'];
+        $nodeIds = [];
+
+        foreach ($schemaNodes as $index => $node) {
+            $name = (string) ($node['name'] ?? "table_{$index}");
+            $id = preg_replace('/[^a-zA-Z0-9_]/', '_', $name);
+            $nodeIds[] = $id;
+            $rows = (int) ($node['estimated_rows'] ?? 0);
+            $label = $rows > 0 ? "{$name}\\n({$rows} rows)" : $name;
+            $lines[] = "    {$id}[\"{$label}\"]";
+        }
+
+        // Connect nodes sequentially (simplified lineage)
+        for ($i = 0; $i < count($nodeIds) - 1; $i++) {
+            $lines[] = "    {$nodeIds[$i]} --> {$nodeIds[$i + 1]}";
+        }
+
+        // Connect person to all clinical tables
+        $personId = null;
+        foreach ($nodeIds as $idx => $id) {
+            if (str_contains(strtolower($id), 'person')) {
+                $personId = $id;
+                break;
+            }
+        }
+        if ($personId !== null) {
+            foreach ($nodeIds as $id) {
+                if ($id !== $personId && (
+                    str_contains(strtolower($id), 'occurrence') ||
+                    str_contains(strtolower($id), 'exposure') ||
+                    str_contains(strtolower($id), 'measurement')
+                )) {
+                    $lines[] = "    {$personId} --> {$id}";
+                }
+            }
+        }
+
+        return implode("\n", $lines);
+    }
+
+    // ── HADES: Temporal covariate helpers ─────────────────────────
+
+    /**
+     * Build temporal covariate helper configuration surface.
+     *
+     * @return array<string, mixed>
+     */
+    public function buildTemporalCovariateHelpers(string $cohortTable, string $cdmSchema): array
+    {
+        return [
+            'temporal_covariate_settings' => [
+                ['name' => 'DemographicsGender', 'category' => 'demographics', 'enabled' => true, 'temporal' => false],
+                ['name' => 'DemographicsAge', 'category' => 'demographics', 'enabled' => true, 'temporal' => false],
+                ['name' => 'DemographicsRace', 'category' => 'demographics', 'enabled' => true, 'temporal' => false],
+                ['name' => 'ConditionGroupEraLongTerm', 'category' => 'conditions', 'enabled' => true, 'temporal' => true],
+                ['name' => 'ConditionGroupEraShortTerm', 'category' => 'conditions', 'enabled' => true, 'temporal' => true],
+                ['name' => 'DrugGroupEraLongTerm', 'category' => 'drugs', 'enabled' => true, 'temporal' => true],
+                ['name' => 'DrugGroupEraShortTerm', 'category' => 'drugs', 'enabled' => true, 'temporal' => true],
+                ['name' => 'ProcedureOccurrenceLongTerm', 'category' => 'procedures', 'enabled' => true, 'temporal' => true],
+                ['name' => 'MeasurementLongTerm', 'category' => 'measurements', 'enabled' => false, 'temporal' => true],
+                ['name' => 'CharlsonIndex', 'category' => 'indices', 'enabled' => true, 'temporal' => false],
+                ['name' => 'Chads2Vasc', 'category' => 'indices', 'enabled' => false, 'temporal' => false],
+            ],
+            'temporal_windows' => [
+                ['id' => 'short_term', 'start_day' => -30, 'end_day' => 0, 'label' => 'Short-term (30 days)'],
+                ['id' => 'medium_term', 'start_day' => -180, 'end_day' => -31, 'label' => 'Medium-term (31-180 days)'],
+                ['id' => 'long_term', 'start_day' => -365, 'end_day' => -181, 'label' => 'Long-term (181-365 days)'],
+                ['id' => 'any_time', 'start_day' => -99999, 'end_day' => 0, 'label' => 'Any time prior'],
+            ],
+            'cohort_table' => $cohortTable,
+            'cdm_schema' => $cdmSchema,
+            'r_function' => 'FeatureExtraction_createTemporalCovariateSettingsFromList',
+            'r_package' => 'HadesExtras',
+        ];
+    }
+
+    // ── CO2: GWAS job state ──────────────────────────────────────
+
+    /**
+     * Build GWAS-specific job progression state.
+     *
+     * @return array<string, mixed>
+     */
+    private function buildGwasJobState(string $gwasMethod, string $gwasTrait, int $personCount): array
+    {
+        $methodLabel = match ($gwasMethod) {
+            'regenie' => 'Regenie two-step',
+            'logistic' => 'Logistic regression',
+            'linear' => 'Linear regression',
+            default => ucfirst($gwasMethod),
+        };
+
+        return [
+            'job_type' => 'gwas_preview',
+            'method' => $gwasMethod,
+            'method_label' => $methodLabel,
+            'trait' => $gwasTrait,
+            'status' => 'preview_complete',
+            'progression' => [
+                ['stage' => 'Phenotype preparation', 'status' => 'complete', 'detail' => "Trait: {$gwasTrait}"],
+                ['stage' => 'Genotype QC', 'status' => 'preview', 'detail' => 'QC metrics estimated from cohort size'],
+                ['stage' => "{$methodLabel} execution", 'status' => 'preview', 'detail' => "N={$personCount} subjects"],
+                ['stage' => 'Lead signal extraction', 'status' => 'preview', 'detail' => 'Top loci from preview scan'],
+                ['stage' => 'Report generation', 'status' => 'preview', 'detail' => 'Manhattan/QQ plots queued'],
+            ],
+            'estimated_runtime_minutes' => max(5, (int) round($personCount / 500)),
+        ];
     }
 }

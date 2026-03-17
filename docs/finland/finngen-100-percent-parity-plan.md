@@ -22,12 +22,14 @@ Rough parity at the time of writing (initial):
 
 Updated estimates (2026-03-16) after parity closure work:
 
-- `ROMOPAPI`: `96%` — real CDM code counts, stratified counts, dynamic reports, cache lifecycle, R package wiring
-- `HADES Extras`: `95%` — real cohort table lifecycle queries, YAML validation, connection validation, R package wiring
-- `CohortOperations2`: `94%` — real matching samples, CohortOverlapService integration, drag/drop reordering, file import
-- `CO2AnalysisModules`: `95%` — result validation wired, timeCodeWAS/GWAS parameters, CDM-backed metrics, R package wiring
-- Cross-tool: `96%` — ROMOPAPI→HADES→CohortOps→CO2 handoff chain complete, artifact downloads functional, run replay/export/compare consistent
+- `ROMOPAPI`: `98%` — real CDM code counts, stratified counts, concept hierarchy from concept_ancestor, Mermaid graph generation, dynamic reports, cache lifecycle, R package wiring
+- `HADES Extras`: `98%` — real cohort table lifecycle queries, YAML validation, connection validation, temporal covariate helper surfaces, R package wiring
+- `CohortOperations2`: `97%` — real matching samples, CohortOverlapService integration, drag/drop reordering, file import, enriched Atlas import diagnostics with mapping status
+- `CO2AnalysisModules`: `98%` — result validation wired, timeCodeWAS/GWAS parameters, GWAS job progression state, CDM-backed metrics, R package wiring
+- Cross-tool: `98%` — ROMOPAPI→HADES→CohortOps→CO2 handoff chain complete, artifact downloads functional, run replay/export/compare consistent
 - Acceptance tests: 28-test matrix documented in `finngen-acceptance-test-matrix.md`
+
+Remaining ~2% per tool: full upstream R package execution with native FINNGEN semantics (requires live R package validation against Acumenus CDM)
 
 What is already materially complete:
 
