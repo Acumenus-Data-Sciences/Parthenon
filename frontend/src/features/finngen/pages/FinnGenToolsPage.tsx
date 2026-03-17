@@ -327,6 +327,26 @@ export default function FinnGenToolsPage() {
           </div>
         </div>
       )}
+
+      {/* Aqueduct ETL Workbench */}
+      <div className="rounded-lg border border-[#2DD4BF]/30 bg-[#2DD4BF]/5 p-4">
+        <div className="flex items-center gap-2">
+          <div className="h-2 w-2 rounded-full bg-[#2DD4BF]" />
+          <h3 className="font-semibold text-white">Aqueduct</h3>
+        </div>
+        <p className="mt-2 text-sm text-gray-400">
+          Design and validate ETL mappings from source data to OMOP CDM with
+          concept matching and vocabulary lookup generation.
+        </p>
+        <div className="mt-3 flex gap-2">
+          <Link
+            to="/workbench/aqueduct"
+            className="rounded bg-[#2DD4BF]/20 px-3 py-1 text-xs text-[#2DD4BF] hover:bg-[#2DD4BF]/30"
+          >
+            Open Aqueduct
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }
