@@ -173,3 +173,56 @@ class CostTracker:
             "alert_triggered": self.should_alert(),
             "triggered_thresholds": self.get_triggered_alerts(),
         }
+
+    # ------------------------------------------------------------------
+    # Router calibration feedback loop
+    # ------------------------------------------------------------------
+
+    def get_routing_labels(self, limit: int = 500) -> list[dict]:
+        """Get labeled routing decisions from feedback data for classifier training."""
+        try:
+            with self._engine.connect() as conn:
+                rows = conn.execute(
+                    text("""
+                        SELECT
+                            m_user.content AS message,
+                            m_asst.metadata->>'model' AS routed_model,
+                            m_asst.metadata->>'reason' AS route_reason,
+                            f.rating,
+                            f.category
+                        FROM app.abby_feedback f
+                        JOIN app.abby_messages m_asst ON m_asst.id = f.message_id
+                        JOIN app.abby_messages m_user ON m_user.conversation_id = m_asst.conversation_id
+                            AND m_user.role = 'user'
+                            AND m_user.created_at < m_asst.created_at
+                        WHERE m_asst.metadata->>'model' IS NOT NULL
+                        ORDER BY f.created_at DESC
+                        LIMIT :limit
+                    """),
+                    {"limit": limit},
+                ).fetchall()
+                return [
+                    {"message": row[0], "routed_model": row[1], "route_reason": row[2],
+                     "rating": row[3], "category": row[4]}
+                    for row in rows
+                ]
+        except Exception:
+            logger.exception("Failed to get routing labels")
+            return []
+
+    def get_routing_label_count(self) -> int:
+        """Count available labeled routing decisions. Classifier training threshold: 500+."""
+        try:
+            with self._engine.connect() as conn:
+                row = conn.execute(
+                    text("""
+                        SELECT COUNT(*)
+                        FROM app.abby_feedback f
+                        JOIN app.abby_messages m ON m.id = f.message_id
+                        WHERE m.metadata->>'model' IS NOT NULL
+                    """),
+                ).fetchone()
+                return int(row[0]) if row else 0
+        except Exception:
+            logger.exception("Failed to count routing labels")
+            return 0
