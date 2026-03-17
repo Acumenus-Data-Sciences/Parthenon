@@ -34,3 +34,38 @@ These were created when Laravel factories generated test cohorts in the database
 
 - Existing callers (`DesignAuditObserver`, test file) discard return value, so `void` -> `bool` is backward-compatible.
 - Test assertions on `$summary->written` and `$summary->errors` unaffected by new `skipped` field.
+
+---
+
+## Production Database Cleanup (Late Session)
+
+### Problem
+
+Despite the Fort Knox export fix above, **faker-generated test data was still present in the production `ohdsi` database** on `pgsql.acumenus.net`. The app's Cohort Definitions and Concept Sets pages were full of Latin gibberish entries.
+
+### Scope
+
+| Table | Faker Rows | IDs Deleted | Legitimate Rows Kept |
+|-------|-----------|-------------|---------------------|
+| `app.cohort_definitions` | 64 | 85–148 | 19 (including study cohorts 70–84, COVID-19 #19) |
+| `app.concept_sets` | 42 | 92–133 | 37 (including study concept sets 67–91) |
+
+All faker rows shared the timestamp `2026-03-15 20:43:17–18`, indicating a single Pest test run leaked factory data into production.
+
+### Root Cause
+
+Pest tests using Laravel factories ran against the production `ohdsi` database instead of `parthenon_testing`. The `RefreshDatabase` or `DatabaseTransactions` traits either weren't used or didn't roll back properly.
+
+### Actions Taken
+
+1. Backed up prod DB: `backups/ohdsi-app-20260316-230033.sql`
+2. Verified no FK dependencies (study_cohorts, concept_set_items) on faker rows
+3. Deleted 64 faker cohort_definitions and 42 faker concept_sets via direct SQL
+4. Verified 19 cohorts and 37 concept sets remain (all legitimate)
+5. Added high-priority memory note to prevent recurrence
+
+### Prevention
+
+- `.env.testing` must always point to `parthenon_testing`, never `ohdsi`
+- All test factories must use `RefreshDatabase` or `DatabaseTransactions` traits
+- Spot-check prod tables for Latin faker names after any test run
