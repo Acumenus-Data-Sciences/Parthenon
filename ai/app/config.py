@@ -37,6 +37,21 @@ class Settings(BaseSettings):
     memory_profile_calibration_min_interactions: int = 5
     memory_profile_decay_factor: float = 0.85
 
+    # Claude API (Phase 2 — hybrid LLM routing)
+    claude_api_key: str = ""
+    claude_model: str = "claude-sonnet-4-20250514"
+    claude_max_tokens: int = 4096
+    claude_timeout: int = 60
+
+    # PHI sanitization (Phase 2 — data governance)
+    phi_detection_enabled: bool = True
+    phi_block_on_detection: bool = True
+
+    # Cost controls (Phase 2 — budget enforcement)
+    cloud_monthly_budget_usd: float = 500.0
+    cloud_budget_alert_thresholds: list[float] = [0.50, 0.80, 0.95]
+    cloud_budget_cutoff_threshold: float = 0.95
+
     class Config:
         env_file = ".env"
 
