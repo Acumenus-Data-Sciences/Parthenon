@@ -18,7 +18,7 @@ from typing import Any, AsyncGenerator
 import httpx
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 from app.chroma.memory import store_conversation_turn
 from app.chroma.retrieval import build_rag_context
@@ -164,11 +164,34 @@ class ChatMessage(BaseModel):
 
 class ResearchProfile(BaseModel):
     """Learned research profile from the profile_learner module."""
-    research_interests: list[str] = []
-    expertise_domains: dict[str, float] = {}
-    interaction_preferences: dict = {}
-    frequently_used: dict = {}
-    interaction_count: int = 0
+    research_interests: list[str] | None = []
+    expertise_domains: dict[str, float] | None = {}
+    interaction_preferences: dict | None = {}
+    frequently_used: dict | None = {}
+    interaction_count: int | None = 0
+
+    model_config = {"populate_by_name": True}
+
+    @model_validator(mode="before")
+    @classmethod
+    def coerce_nulls(cls, data: Any) -> Any:
+        """Coerce None/empty-list to correct empty defaults.
+
+        PHP serialises empty arrays as [] regardless of whether the column
+        is a list or a JSON object, so dict fields may arrive as [].
+        """
+        if isinstance(data, dict):
+            dict_fields = {"expertise_domains", "interaction_preferences", "frequently_used"}
+            result = {}
+            for k, v in data.items():
+                if v is None:
+                    result[k] = [] if k == "research_interests" else ({} if k in dict_fields else 0)
+                elif k in dict_fields and isinstance(v, list):
+                    result[k] = {}  # [] → {}
+                else:
+                    result[k] = v
+            return result
+        return data
 
 
 class UserProfile(BaseModel):
