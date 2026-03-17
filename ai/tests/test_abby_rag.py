@@ -265,3 +265,43 @@ def test_workflow_template_generates_steps() -> None:
         drug_concepts=[6809],
     )
     assert len(steps) >= 3
+
+
+# ---------------------------------------------------------------------------
+# Phase 6 integration tests (Task 6)
+# ---------------------------------------------------------------------------
+
+
+def test_knowledge_capture_creates_artifact():
+    from app.institutional.knowledge_capture import KnowledgeCapture
+    from unittest.mock import MagicMock
+    mock_engine = MagicMock()
+    mock_conn = MagicMock()
+    mock_engine.connect.return_value.__enter__ = MagicMock(return_value=mock_conn)
+    mock_engine.connect.return_value.__exit__ = MagicMock(return_value=False)
+    mock_conn.execute.return_value.fetchone.return_value = (1,)
+    kc = KnowledgeCapture(engine=mock_engine, embedder=None)
+    artifact = kc.capture_cohort_creation(user_id=1, cohort_name="Test",
+        concept_ids=[201826], expression_summary="Entry: diabetes")
+    assert artifact.artifact_type == "cohort_pattern"
+
+def test_knowledge_surfacer_formats_suggestions():
+    from app.institutional.knowledge_surfacing import KnowledgeSurfacer
+    from unittest.mock import MagicMock
+    surfacer = KnowledgeSurfacer(knowledge_capture=MagicMock())
+    text = surfacer.format_for_prompt([
+        {"id": 1, "type": "cohort_pattern", "title": "T2DM", "summary": "Diabetes cohort", "usage_count": 3},
+    ])
+    assert "INSTITUTIONAL KNOWLEDGE" in text
+    assert "T2DM" in text
+
+def test_faq_promoter_threshold():
+    from app.institutional.faq_promoter import FAQPromoter
+    from unittest.mock import MagicMock
+    mock_engine = MagicMock()
+    mock_conn = MagicMock()
+    mock_engine.connect.return_value.__enter__ = MagicMock(return_value=mock_conn)
+    mock_engine.connect.return_value.__exit__ = MagicMock(return_value=False)
+    mock_conn.execute.return_value.fetchone.return_value = (1,)
+    faq = FAQPromoter(engine=mock_engine, threshold=3)
+    assert faq.check_and_promote("rare question", "answer") is False

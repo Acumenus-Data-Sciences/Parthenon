@@ -72,8 +72,10 @@ class KnowledgeCapture:
         *,
         user_id: int,
         cohort_name: str,
-        disease_area: str,
-        cohort_data: dict[str, Any],
+        disease_area: str = "",
+        cohort_data: Optional[dict[str, Any]] = None,
+        concept_ids: Optional[list[int]] = None,
+        expression_summary: Optional[str] = None,
         tags: Optional[list[str]] = None,
         source_conversation_id: Optional[int] = None,
     ) -> KnowledgeArtifact:
@@ -99,13 +101,26 @@ class KnowledgeCapture:
         KnowledgeArtifact
             The created artifact with ``artifact_type == "cohort_pattern"``.
         """
+        # Build cohort_data from explicit fields if not provided directly
+        resolved_data: dict[str, Any] = cohort_data or {}
+        if concept_ids is not None:
+            resolved_data = {**resolved_data, "concept_ids": concept_ids}
+        if expression_summary is not None:
+            resolved_data = {**resolved_data, "expression_summary": expression_summary}
+
+        summary = f"Cohort definition for {cohort_name}"
+        if disease_area:
+            summary += f" in {disease_area}"
+        if expression_summary:
+            summary += f". {expression_summary}"
+
         artifact = KnowledgeArtifact(
             artifact_type="cohort_pattern",
             title=cohort_name,
-            summary=f"Cohort definition for {cohort_name} in {disease_area}",
+            summary=summary,
             tags=tags or [],
             disease_area=disease_area,
-            artifact_data=cohort_data,
+            artifact_data=resolved_data,
         )
         self._store(
             artifact=artifact,
