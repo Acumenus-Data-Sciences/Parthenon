@@ -206,3 +206,62 @@ def test_action_logger_records_action():
     al = ActionLogger(engine=mock_engine)
     result = al.log_action(user_id=1, action_type="create", tool_name="create_concept_set", risk_level="medium", parameters={"name": "Test"})
     assert result == 42
+
+
+# ---------------------------------------------------------------------------
+# Phase 5 integration tests (Task 6)
+# ---------------------------------------------------------------------------
+
+
+def test_dag_parallel_waves() -> None:
+    """Two independent steps should form 1 wave; a dependent step forms wave 2."""
+    from app.agency.dag_executor import DAGPlan, DAGStep
+
+    steps = [
+        DAGStep(id="a", tool_name="create_concept_set", parameters={}),
+        DAGStep(id="b", tool_name="create_cohort_definition", parameters={}),
+        DAGStep(id="c", tool_name="generate_cohort", parameters={}, depends_on=["a", "b"]),
+    ]
+    plan = DAGPlan(steps=steps)
+    waves = plan.get_execution_waves()
+
+    assert len(waves) == 2
+    assert {s.id for s in waves[0]} == {"a", "b"}
+    assert {s.id for s in waves[1]} == {"c"}
+
+
+def test_dry_run_simulates_plan() -> None:
+    """DryRunSimulator should mark all steps as simulated=True."""
+    from app.agency.dag_executor import DAGStep
+    from app.agency.dry_run import DryRunSimulator
+
+    steps = [
+        DAGStep(id="s1", tool_name="create_concept_set", parameters={"name": "Diabetes"}),
+        DAGStep(id="s2", tool_name="generate_cohort", parameters={"cohort_id": 1}),
+    ]
+    simulator = DryRunSimulator()
+    results = simulator.simulate_plan(steps)
+
+    assert len(results) == 2
+    assert all(r.get("simulated") is True for r in results)
+
+
+def test_sql_safety_blocks_dml() -> None:
+    """validate_sql_safety should allow SELECT and block DROP."""
+    from app.agency.tools.sql_tools import validate_sql_safety
+
+    assert validate_sql_safety("SELECT * FROM cdm.person LIMIT 10") is True
+    assert validate_sql_safety("DROP TABLE cdm.person") is False
+
+
+def test_workflow_template_generates_steps() -> None:
+    """incident_cohort template should return >= 3 steps."""
+    from app.agency.workflow_templates import WorkflowTemplates
+
+    steps = WorkflowTemplates.incident_cohort(
+        condition_name="Diabetes",
+        condition_concepts=[201826],
+        drug_name="Metformin",
+        drug_concepts=[6809],
+    )
+    assert len(steps) >= 3
