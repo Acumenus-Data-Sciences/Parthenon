@@ -63,7 +63,11 @@ def test_list_by_risk_filters_correctly() -> None:
 
 
 def test_default_has_all_phase4_tools() -> None:
-    """ToolRegistry.default() must contain all 6 Phase 4 tools."""
+    """ToolRegistry.default() must contain all Phase 4 tools (subset check).
+
+    Uses a subset assertion so that additional Phase 5+ tools registered via
+    default() do not cause this test to fail.
+    """
     registry = ToolRegistry.default()
     expected_names = {
         "create_concept_set",
@@ -74,7 +78,22 @@ def test_default_has_all_phase4_tools() -> None:
         "export_results",
     }
     listed_names = {t.name for t in registry.list_tools()}
-    assert expected_names == listed_names
+    assert expected_names.issubset(listed_names)
+
+
+def test_default_has_all_phase5_tools() -> None:
+    """ToolRegistry.default() must contain all 6 Phase 5 tools."""
+    registry = ToolRegistry.default()
+    expected_names = {
+        "modify_concept_set",
+        "modify_cohort_criteria",
+        "execute_sql",
+        "run_characterization",
+        "run_incidence_analysis",
+        "schedule_recurring_analysis",
+    }
+    listed_names = {t.name for t in registry.list_tools()}
+    assert expected_names.issubset(listed_names)
 
 
 def test_format_for_prompt_includes_names_and_risk() -> None:

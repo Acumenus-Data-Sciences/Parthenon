@@ -330,14 +330,30 @@ class PlanEngine:
             execute_generate_cohort,
         )
         from app.agency.tools.query_tools import execute_compare_cohorts, execute_export_results
+        from app.agency.tools.modify_tools import (
+            execute_modify_concept_set,
+            execute_modify_cohort_criteria,
+        )
+        from app.agency.tools.analysis_tools import (
+            execute_run_characterization,
+            execute_run_incidence_analysis,
+        )
+        from app.agency.tools.sql_tools import execute_sql
 
         tool_map = {
+            # Phase 4 tools
             "create_concept_set": execute_create_concept_set,
             "create_cohort_definition": execute_create_cohort_definition,
             "generate_cohort": execute_generate_cohort,
             "clone_cohort": execute_clone_cohort,
             "compare_cohorts": execute_compare_cohorts,
             "export_results": execute_export_results,
+            # Phase 5 tools
+            "modify_concept_set": execute_modify_concept_set,
+            "modify_cohort_criteria": execute_modify_cohort_criteria,
+            "execute_sql": execute_sql,
+            "run_characterization": execute_run_characterization,
+            "run_incidence_analysis": execute_run_incidence_analysis,
         }
 
         executor = tool_map.get(step.tool_name)

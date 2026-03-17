@@ -115,7 +115,7 @@ class ToolRegistry:
 
     @classmethod
     def default(cls) -> "ToolRegistry":
-        """Return a registry pre-loaded with all 6 Phase 4 tools."""
+        """Return a registry pre-loaded with all Phase 4 and Phase 5 tools."""
         registry = cls()
 
         registry.register(ToolDefinition(
@@ -231,6 +231,134 @@ class ToolRegistry:
                     "format": {"type": "string", "enum": ["csv", "json"]},
                 },
                 "required": ["entity_type", "entity_id"],
+            },
+        ))
+
+        # ------------------------------------------------------------------
+        # Phase 5 — high-risk modify, analysis, and SQL tools
+        # ------------------------------------------------------------------
+
+        registry.register(ToolDefinition(
+            name="modify_concept_set",
+            description=(
+                "Add or remove concept items from an existing OMOP concept set. "
+                "Destructive — items cannot easily be recovered once removed."
+            ),
+            risk_level=RiskLevel.HIGH,
+            requires_confirmation=True,
+            rollback_capable=True,
+            parameters_schema={
+                "type": "object",
+                "properties": {
+                    "concept_set_id": {"type": "integer"},
+                    "add_items": {"type": "array", "items": {"type": "object"}},
+                    "remove_item_ids": {"type": "array", "items": {"type": "integer"}},
+                },
+                "required": ["concept_set_id"],
+            },
+        ))
+
+        registry.register(ToolDefinition(
+            name="modify_cohort_criteria",
+            description=(
+                "Update the inclusion/exclusion criteria (expression) of an "
+                "existing cohort definition. Overwrites the existing expression."
+            ),
+            risk_level=RiskLevel.HIGH,
+            requires_confirmation=True,
+            rollback_capable=True,
+            parameters_schema={
+                "type": "object",
+                "properties": {
+                    "cohort_definition_id": {"type": "integer"},
+                    "expression": {"type": "object"},
+                    "name": {"type": "string"},
+                    "description": {"type": "string"},
+                },
+                "required": ["cohort_definition_id", "expression"],
+            },
+        ))
+
+        registry.register(ToolDefinition(
+            name="execute_sql",
+            description=(
+                "Execute a validated read-only SQL query against a CDM data source. "
+                "Only SELECT statements are permitted; DML/DDL is blocked."
+            ),
+            risk_level=RiskLevel.HIGH,
+            requires_confirmation=True,
+            rollback_capable=False,
+            parameters_schema={
+                "type": "object",
+                "properties": {
+                    "query": {"type": "string"},
+                    "source_id": {"type": "integer"},
+                },
+                "required": ["query"],
+            },
+        ))
+
+        registry.register(ToolDefinition(
+            name="run_characterization",
+            description=(
+                "Submit a characterization analysis for a cohort against a CDM "
+                "data source.  Runs asynchronously; returns an analysis ID."
+            ),
+            risk_level=RiskLevel.MEDIUM,
+            requires_confirmation=True,
+            rollback_capable=True,
+            parameters_schema={
+                "type": "object",
+                "properties": {
+                    "cohort_definition_id": {"type": "integer"},
+                    "source_id": {"type": "integer"},
+                    "feature_analyses": {"type": "array"},
+                    "name": {"type": "string"},
+                },
+                "required": ["cohort_definition_id"],
+            },
+        ))
+
+        registry.register(ToolDefinition(
+            name="run_incidence_analysis",
+            description=(
+                "Submit an incidence rate analysis for a target and outcome cohort "
+                "against a CDM data source.  Runs asynchronously."
+            ),
+            risk_level=RiskLevel.MEDIUM,
+            requires_confirmation=True,
+            rollback_capable=True,
+            parameters_schema={
+                "type": "object",
+                "properties": {
+                    "target_cohort_id": {"type": "integer"},
+                    "outcome_cohort_id": {"type": "integer"},
+                    "source_id": {"type": "integer"},
+                    "washout_days": {"type": "integer"},
+                    "name": {"type": "string"},
+                },
+                "required": ["target_cohort_id", "outcome_cohort_id"],
+            },
+        ))
+
+        registry.register(ToolDefinition(
+            name="schedule_recurring_analysis",
+            description=(
+                "Schedule a recurring analysis to run on a defined cadence. "
+                "Creates a persistent schedule entry — remove explicitly to stop."
+            ),
+            risk_level=RiskLevel.HIGH,
+            requires_confirmation=True,
+            rollback_capable=True,
+            parameters_schema={
+                "type": "object",
+                "properties": {
+                    "analysis_id": {"type": "integer"},
+                    "cron_expression": {"type": "string"},
+                    "source_id": {"type": "integer"},
+                    "name": {"type": "string"},
+                },
+                "required": ["analysis_id", "cron_expression"],
             },
         ))
 
