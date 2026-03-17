@@ -94,9 +94,12 @@ INDIVIDUAL_DATA_PATTERNS: list[re.Pattern[str]] = [
 
 def _always_safe_tier(tier_value: str) -> bool:
     """Return True for tiers that are always safe to send to cloud models."""
-    # These tiers never contain raw individual-level CDM data
-    always_safe = {"working", "page", "episodic", "semantic", "institutional"}
-    return tier_value in always_safe
+    # These tiers are structurally safe (no patient data by design)
+    # NOTE: "episodic" is intentionally excluded — episodic memories contain
+    # user conversation history which may include PHI typed by users, so they
+    # require content-level inspection before being sent to cloud models.
+    always_safe_tiers = {"working", "page", "semantic", "institutional"}
+    return tier_value in always_safe_tiers
 
 
 # ---------------------------------------------------------------------------
@@ -110,9 +113,11 @@ class CloudSafetyFilter:
         """Return True if the piece is safe to include in a cloud LLM prompt.
 
         Safety logic:
-        1. Always-safe tiers (WORKING, PAGE, EPISODIC, SEMANTIC, INSTITUTIONAL)
+        1. Always-safe tiers (WORKING, PAGE, SEMANTIC, INSTITUTIONAL)
            pass unconditionally.
-        2. LIVE tier pieces are checked against:
+        2. EPISODIC tier pieces are scanned for individual-level data patterns
+           (conversation history may contain PHI typed by users).
+        3. LIVE tier pieces are checked against:
            a. Blocked source allowlist — any match → False
            b. Explicit safe sources → True
            c. Content pattern scan for individual data identifiers
@@ -123,7 +128,15 @@ class CloudSafetyFilter:
         if _always_safe_tier(tier_value):
             return True
 
-        # Tier 2: LIVE — requires source + content inspection
+        # Tier 2: EPISODIC — conversation history may contain user-typed PHI
+        if tier_value == "episodic":
+            content = piece.content or ""
+            for pattern in INDIVIDUAL_DATA_PATTERNS:
+                if pattern.search(content):
+                    return False
+            return True
+
+        # Tier 3: LIVE — requires source + content inspection
         source = (piece.source or "").strip().lower()
 
         # If source is explicitly blocked, reject immediately
