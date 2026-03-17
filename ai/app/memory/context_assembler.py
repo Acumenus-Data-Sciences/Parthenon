@@ -34,6 +34,15 @@ MEDGEMMA_TIER_BUDGETS = {
     ContextTier.EPISODIC: 400, ContextTier.SEMANTIC: 600, ContextTier.INSTITUTIONAL: 200,
 }
 
+CLAUDE_TIER_BUDGETS = {
+    ContextTier.WORKING: 8000,
+    ContextTier.PAGE: 2000,
+    ContextTier.LIVE: 4000,
+    ContextTier.EPISODIC: 4000,
+    ContextTier.SEMANTIC: 6000,
+    ContextTier.INSTITUTIONAL: 4000,
+}
+
 SAFETY_MINIMUM_TOKENS = 200
 
 
@@ -60,10 +69,12 @@ class ContextAssembler:
 
     @classmethod
     def for_model(cls, model_name: str) -> ContextAssembler:
-        """Factory for model-specific context assembly. Phase 2 will add Claude profile."""
+        """Factory for model-specific context assembly."""
         if model_name == "medgemma":
             return cls.for_medgemma()
-        raise ValueError(f"Unknown model profile: {model_name}. Available: medgemma")
+        if model_name == "claude":
+            return cls(total_budget=28000, tier_budgets=CLAUDE_TIER_BUDGETS)
+        raise ValueError(f"Unknown model profile: {model_name}. Available: medgemma, claude")
 
     def assemble(self, pieces: list[ContextPiece]) -> list[ContextPiece]:
         if not pieces:

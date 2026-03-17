@@ -64,3 +64,18 @@ class TestContextAssembler:
     def test_medgemma_default_budget(self):
         assembler = ContextAssembler.for_medgemma()
         assert assembler.total_budget == 4000
+
+    def test_claude_budget_profile(self):
+        assembler = ContextAssembler.for_model("claude")
+        assert assembler.total_budget == 28000
+        pieces = [
+            ContextPiece(tier=ContextTier.WORKING, content="session " * 500, relevance=1.0, tokens=2000),
+            ContextPiece(tier=ContextTier.SEMANTIC, content="knowledge " * 500, relevance=0.7, tokens=3000),
+            ContextPiece(tier=ContextTier.EPISODIC, content="history " * 500, relevance=0.6, tokens=2000),
+        ]
+        result = assembler.assemble(pieces)
+        assert len(result) == 3
+
+    def test_for_model_invalid_raises(self):
+        with pytest.raises(ValueError):
+            ContextAssembler.for_model("gpt-4")
