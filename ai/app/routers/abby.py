@@ -978,16 +978,20 @@ async def chat(request: ChatRequest) -> ChatResponse:
     )
 
 
+class ExecutePlanRequest(BaseModel):
+    plan_id: str
+    user_id: int
+
+
 @router.post("/execute-plan")
-async def execute_plan_endpoint(request: dict) -> dict:
+async def execute_plan_endpoint(request: ExecutePlanRequest) -> dict:
     """Execute an approved agency plan by plan_id."""
-    plan_id = request.get("plan_id")
-    if not plan_id:
-        raise HTTPException(status_code=400, detail="plan_id is required")
     engine = _get_plan_engine()
-    plan = engine.get_plan(plan_id)
+    plan = engine.get_plan(request.plan_id)
     if not plan:
         raise HTTPException(status_code=404, detail="Plan not found or expired")
+    if plan.user_id != request.user_id:
+        raise HTTPException(status_code=403, detail="Not authorized to execute this plan")
     engine.approve_plan(plan)
     result = await engine.execute_plan(plan)
     return result.to_dict()
