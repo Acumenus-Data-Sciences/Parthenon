@@ -24,6 +24,19 @@ class Settings(BaseSettings):
     # Ariadne concept mapping configuration
     ariadne_vocab_schema: str = "omop"
 
+    # Memory settings
+    memory_intent_stack_max_depth: int = 3
+    memory_intent_expiry_turns: int = 10
+    memory_summarization_threshold: float = 0.7
+    memory_context_budget_working: int = 1500
+    memory_context_budget_page: int = 500
+    memory_context_budget_live: int = 800
+    memory_context_budget_episodic: int = 400
+    memory_context_budget_semantic: int = 600
+    memory_context_budget_institutional: int = 200
+    memory_profile_calibration_min_interactions: int = 5
+    memory_profile_decay_factor: float = 0.85
+
     class Config:
         env_file = ".env"
 
