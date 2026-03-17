@@ -1,9 +1,18 @@
 """Live database context for Abby — queries Parthenon's PostgreSQL backend.
 
-Provides Abby with awareness of what actually exists in the platform:
-concept sets, cohort definitions, analyses, and data sources. Only queries
-when the user's message signals intent to ask about existing data (keyword
-detection), keeping Abby's context window clean for other queries.
+Eight contextual tools that give Abby real-time awareness of the platform:
+
+  1. search_concept_sets    — concept sets with OMOP concept names + descendants
+  2. list_cohort_definitions — cohorts with generation status + patient counts
+  3. get_concept_set_detail  — expand a specific concept set's items
+  4. query_vocabulary        — search OMOP concepts (SNOMED, ICD10, RxNorm, LOINC)
+  5. get_achilles_stats      — CDM characterization: record counts, top conditions/drugs
+  6. get_dqd_summary         — data quality check pass/fail rates
+  7. get_cohort_counts       — patient counts from cohort generations
+  8. get_cdm_summary         — person count, domain record counts, data sources
+
+Each tool is only invoked when the user's message signals relevant intent,
+keeping Abby's context window clean for other queries.
 """
 import logging
 import re
@@ -16,109 +25,84 @@ from app.config import settings
 
 logger = logging.getLogger(__name__)
 
-# Lazy-initialized engine (connection pooled)
 _engine: Engine | None = None
 
 
 def _get_engine() -> Engine:
     global _engine
     if _engine is None:
-        _engine = create_engine(settings.database_url, pool_size=2, pool_pre_ping=True)
+        _engine = create_engine(settings.database_url, pool_size=3, pool_pre_ping=True)
     return _engine
 
 
-# Keywords that signal the user wants to know about existing platform data.
-# If none match, we skip the database query entirely (no context window cost).
-_INTENT_PATTERNS = [
-    # Concept sets
-    re.compile(r"\b(concept\s*set|concept.set)\b", re.I),
-    # Cohorts
-    re.compile(r"\b(cohort|cohort\s*definition)\b", re.I),
-    # Analyses / studies
-    re.compile(r"\b(analys[ei]s|stud(?:y|ies)|characterization|incidence|estimation|prediction|pathway)\b", re.I),
-    # Data sources
-    re.compile(r"\b(data\s*source|database|CDM\s*source|source\s*daimon)\b", re.I),
-    # Existence questions
-    re.compile(r"\b(do\s+we\s+have|what.*(?:exist|defined|available|created|built|set\s*up))\b", re.I),
-    # Listing / searching
-    re.compile(r"\b(list|show|find|search|look\s*up|which|how\s*many)\b.*\b(concept|cohort|analys|stud)", re.I),
-]
+# ── Intent detection ─────────────────────────────────────────────────────────
+# Each tool has its own intent patterns. Only matching tools fire.
+
+_TOOL_INTENTS: dict[str, list[re.Pattern]] = {
+    "concept_sets": [
+        re.compile(r"\b(concept\s*set)", re.I),
+        re.compile(r"\b(do\s+we\s+have|what.*defined|what.*available).*\b(concept|set)\b", re.I),
+    ],
+    "cohort_definitions": [
+        re.compile(r"\b(cohort|cohort\s*definition)", re.I),
+        re.compile(r"\b(do\s+we\s+have|what.*defined).*cohort", re.I),
+    ],
+    "vocabulary": [
+        re.compile(r"\b(vocabulary|concept_id|SNOMED|ICD|RxNorm|LOINC|ATC|CPT)\b", re.I),
+        re.compile(r"\b(search|find|look\s*up).*\b(concept|term|code|drug|condition|procedure|measurement)\b", re.I),
+    ],
+    "achilles": [
+        re.compile(r"\b(achilles|characteriz|distribution|prevalence|top\s+condition|top\s+drug|most\s+common)\b", re.I),
+        re.compile(r"\bhow\s+many\s+(patient|people|person|record)", re.I),
+    ],
+    "dqd": [
+        re.compile(r"\b(data\s*quality|DQD|quality\s*check|plausibility|conformance|completeness)\b", re.I),
+    ],
+    "cohort_counts": [
+        re.compile(r"\bhow\s+many.*(patient|people|person|match).*cohort\b", re.I),
+        re.compile(r"\bcohort.*(count|size|patient|generated|result)\b", re.I),
+    ],
+    "cdm_summary": [
+        re.compile(r"\b(CDM|database|data\s*source|how\s+big|overview|summary)\b.*\b(source|database|CDM|size|record|patient)\b", re.I),
+        re.compile(r"\b(data\s*source|source\s*daimon|which.*database|what.*loaded)\b", re.I),
+        re.compile(r"\bhow\s+many\s+(record|row|observation|total)", re.I),
+    ],
+    "analyses": [
+        re.compile(r"\b(analys[ei]s|stud(?:y|ies)|characterization|incidence|estimation|prediction|pathway)\b", re.I),
+    ],
+    # Catch-all for broad existence questions
+    "broad_search": [
+        re.compile(r"\b(do\s+we\s+have|what.*(?:exist|defined|available|created|built|set\s*up))\b", re.I),
+        re.compile(r"\b(list|show|find|which)\b.*\b(concept|cohort|analys|stud|everything)\b", re.I),
+    ],
+}
 
 
-def _message_needs_db_context(message: str) -> bool:
-    """Check if the user's message signals intent to query platform data."""
-    return any(p.search(message) for p in _INTENT_PATTERNS)
-
-
-def query_live_context(message: str, page_context: str) -> str:
-    """Query the Parthenon database for relevant platform entities.
-
-    Returns a formatted context string for injection into Abby's system prompt,
-    or empty string if the query doesn't need database context.
-    """
-    if not _message_needs_db_context(message):
-        return ""
-
-    sections: list[str] = []
-    keywords = _extract_search_terms(message)
-
-    # Detect "list all" / "show all" intent — query without keyword filter
-    is_list_all = bool(re.search(r"\b(list|show|all)\b.*\b(concept|cohort|analy)", message, re.I))
-
-    try:
-        engine = _get_engine()
-        search_terms = [] if is_list_all else keywords
-
-        # Query concept sets (with item counts and concept names)
-        cs_results = _query_concept_sets(engine, search_terms)
-        if cs_results:
-            sections.append(_format_concept_sets(cs_results))
-
-        # Query cohort definitions
-        cd_results = _query_cohort_definitions(engine, search_terms)
-        if cd_results:
-            sections.append(_format_cohort_definitions(cd_results))
-
-        # Query analysis executions
-        ax_results = _query_analyses(engine, search_terms)
-        if ax_results:
-            sections.append(_format_analyses(ax_results))
-
-    except Exception as e:
-        logger.warning("Live database context query failed: %s", e)
-        return ""
-
-    if not sections:
-        # Signal that we checked but found nothing
-        return (
-            "\n\nLIVE PLATFORM DATA (queried just now):\n"
-            "No matching concept sets, cohort definitions, or analyses found "
-            "in the current Parthenon instance for this query."
-        )
-
-    return (
-        "\n\nLIVE PLATFORM DATA (queried just now from the Parthenon database):\n\n"
-        + "\n\n".join(sections)
-    )
+def _detect_intents(message: str) -> set[str]:
+    """Detect which tools should fire based on message intent."""
+    intents: set[str] = set()
+    for tool, patterns in _TOOL_INTENTS.items():
+        if any(p.search(message) for p in patterns):
+            intents.add(tool)
+    # Broad search triggers the 3 core tools
+    if "broad_search" in intents and len(intents) == 1:
+        intents = {"concept_sets", "cohort_definitions", "analyses"}
+    intents.discard("broad_search")
+    return intents
 
 
 def _extract_search_terms(message: str) -> list[str]:
-    """Extract clinically meaningful search terms from the user's message.
-
-    Strips common filler words and returns terms useful for ILIKE matching.
-    """
-    # Remove common question words and filler
+    """Extract clinically meaningful search terms from the user's message."""
     cleaned = re.sub(
         r"\b(do|we|have|what|which|are|is|the|a|an|any|our|my|"
-        r"can|you|find|show|list|tell|me|about|for|in|on|of|"
+        r"can|you|find|show|list|tell|me|about|for|in|on|of|with|"
         r"related|relevant|defined|existing|available|created|"
-        r"concept\s*sets?|cohort\s*definitions?|cohorts?|analyses)\b",
+        r"concept\s*sets?|cohort\s*definitions?|cohorts?|analyses?|"
+        r"studies|patients?|how\s+many|data\s*base|please)\b",
         " ", message, flags=re.I,
     )
-    # Strip punctuation and keep meaningful words (3+ chars)
     terms = [re.sub(r'[^\w\-]', '', w).strip() for w in cleaned.split()]
     terms = [t for t in terms if len(t) >= 3]
-    # Deduplicate while preserving order
     seen: set[str] = set()
     unique: list[str] = []
     for t in terms:
@@ -126,13 +110,84 @@ def _extract_search_terms(message: str) -> list[str]:
         if lower not in seen:
             seen.add(lower)
             unique.append(t)
-    return unique[:5]  # Cap to avoid overly complex queries
+    return unique[:5]
 
 
-def _query_concept_sets(engine: Engine, keywords: list[str]) -> list[dict[str, Any]]:
-    """Query concept sets matching keywords, with item counts and concept names."""
+# ── Main entry point ─────────────────────────────────────────────────────────
+
+def query_live_context(message: str, page_context: str) -> str:
+    """Query the Parthenon database with only the tools relevant to the user's question.
+
+    Returns formatted context string, or empty string if no tools match.
+    """
+    intents = _detect_intents(message)
+    if not intents:
+        return ""
+
+    keywords = _extract_search_terms(message)
+    is_list_all = bool(re.search(r"\b(list|show|all)\b.*\b(concept|cohort|analy|everything)", message, re.I))
+    search_terms = [] if is_list_all else keywords
+
+    sections: list[str] = []
+    engine = _get_engine()
+
+    try:
+        if "concept_sets" in intents:
+            r = _tool_search_concept_sets(engine, search_terms)
+            if r:
+                sections.append(r)
+
+        if "cohort_definitions" in intents or "cohort_counts" in intents:
+            r = _tool_list_cohort_definitions(engine, search_terms)
+            if r:
+                sections.append(r)
+
+        if "vocabulary" in intents:
+            r = _tool_query_vocabulary(engine, keywords)
+            if r:
+                sections.append(r)
+
+        if "achilles" in intents:
+            r = _tool_get_achilles_stats(engine, keywords)
+            if r:
+                sections.append(r)
+
+        if "dqd" in intents:
+            r = _tool_get_dqd_summary(engine)
+            if r:
+                sections.append(r)
+
+        if "cdm_summary" in intents:
+            r = _tool_get_cdm_summary(engine)
+            if r:
+                sections.append(r)
+
+        if "analyses" in intents:
+            r = _tool_get_analyses(engine, search_terms)
+            if r:
+                sections.append(r)
+
+    except Exception as e:
+        logger.warning("Live database context failed: %s", e)
+        return ""
+
+    if not sections:
+        return (
+            "\n\nLIVE PLATFORM DATA (queried just now):\n"
+            "No matching data found in the Parthenon instance for this query."
+        )
+
+    logger.info("Live context: %d sections for intents %s", len(sections), intents)
+    return (
+        "\n\nLIVE PLATFORM DATA (queried just now from the Parthenon database):\n\n"
+        + "\n\n".join(sections)
+    )
+
+
+# ── Tool 1: Search Concept Sets ──────────────────────────────────────────────
+
+def _tool_search_concept_sets(engine: Engine, keywords: list[str]) -> str:
     if not keywords:
-        # No keywords: return all concept sets (they're few enough)
         query = text("""
             SELECT cs.id, cs.name, cs.description,
                    COUNT(csi.id) as item_count,
@@ -142,135 +197,330 @@ def _query_concept_sets(engine: Engine, keywords: list[str]) -> list[dict[str, A
             LEFT JOIN omop.concept c ON c.concept_id = csi.concept_id
             WHERE cs.deleted_at IS NULL
             GROUP BY cs.id, cs.name, cs.description
-            ORDER BY cs.name
-            LIMIT 20
+            ORDER BY cs.name LIMIT 25
         """)
-        with engine.connect() as conn:
-            return [dict(r._mapping) for r in conn.execute(query)]
+        rows = _exec(engine, query)
+    else:
+        cond = _ilike_or("cs.name", "cs.description", keywords)
+        query = text(f"""
+            SELECT cs.id, cs.name, cs.description,
+                   COUNT(csi.id) as item_count,
+                   STRING_AGG(DISTINCT c.concept_name, ', ' ORDER BY c.concept_name) as concept_names
+            FROM app.concept_sets cs
+            LEFT JOIN app.concept_set_items csi ON csi.concept_set_id = cs.id
+            LEFT JOIN omop.concept c ON c.concept_id = csi.concept_id
+            WHERE cs.deleted_at IS NULL AND ({cond})
+            GROUP BY cs.id, cs.name, cs.description
+            ORDER BY cs.name LIMIT 25
+        """)
+        rows = _exec(engine, query, _kw_params(keywords))
 
-    # Build keyword filter
-    conditions = " OR ".join(
-        f"(cs.name ILIKE :kw{i} OR cs.description ILIKE :kw{i})"
-        for i in range(len(keywords))
-    )
-    params = {f"kw{i}": f"%{kw}%" for i, kw in enumerate(keywords)}
-
-    query = text(f"""
-        SELECT cs.id, cs.name, cs.description,
-               COUNT(csi.id) as item_count,
-               STRING_AGG(DISTINCT c.concept_name, ', ' ORDER BY c.concept_name) as concept_names
-        FROM app.concept_sets cs
-        LEFT JOIN app.concept_set_items csi ON csi.concept_set_id = cs.id
-        LEFT JOIN omop.concept c ON c.concept_id = csi.concept_id
-        WHERE cs.deleted_at IS NULL AND ({conditions})
-        GROUP BY cs.id, cs.name, cs.description
-        ORDER BY cs.name
-        LIMIT 20
-    """)
-    with engine.connect() as conn:
-        return [dict(r._mapping) for r in conn.execute(query, params)]
+    if not rows:
+        return ""
+    lines = [f"**Concept Sets ({len(rows)} found):**"]
+    for r in rows:
+        line = f"- **{r['name']}** (ID: {r['id']}, {r.get('item_count', 0)} concepts)"
+        if r.get("description"):
+            line += f" — {r['description']}"
+        if r.get("concept_names"):
+            line += f"\n  Includes: {r['concept_names']}"
+        lines.append(line)
+    return "\n".join(lines)
 
 
-def _query_cohort_definitions(engine: Engine, keywords: list[str]) -> list[dict[str, Any]]:
-    """Query cohort definitions matching keywords."""
+# ── Tool 2: List Cohort Definitions (with generation counts) ─────────────────
+
+def _tool_list_cohort_definitions(engine: Engine, keywords: list[str]) -> str:
     if not keywords:
         query = text("""
-            SELECT id, name, description, version, created_at
-            FROM app.cohort_definitions
-            WHERE deleted_at IS NULL
-            ORDER BY name
-            LIMIT 20
+            SELECT cd.id, cd.name, cd.description, cd.version,
+                   cg.status as gen_status, cg.person_count, cg.completed_at
+            FROM app.cohort_definitions cd
+            LEFT JOIN LATERAL (
+                SELECT status, person_count, completed_at
+                FROM app.cohort_generations
+                WHERE cohort_definition_id = cd.id
+                ORDER BY completed_at DESC NULLS LAST LIMIT 1
+            ) cg ON true
+            WHERE cd.deleted_at IS NULL
+            ORDER BY cd.name LIMIT 25
         """)
-        with engine.connect() as conn:
-            return [dict(r._mapping) for r in conn.execute(query)]
+        rows = _exec(engine, query)
+    else:
+        cond = _ilike_or("cd.name", "cd.description", keywords)
+        query = text(f"""
+            SELECT cd.id, cd.name, cd.description, cd.version,
+                   cg.status as gen_status, cg.person_count, cg.completed_at
+            FROM app.cohort_definitions cd
+            LEFT JOIN LATERAL (
+                SELECT status, person_count, completed_at
+                FROM app.cohort_generations
+                WHERE cohort_definition_id = cd.id
+                ORDER BY completed_at DESC NULLS LAST LIMIT 1
+            ) cg ON true
+            WHERE cd.deleted_at IS NULL AND ({cond})
+            ORDER BY cd.name LIMIT 25
+        """)
+        rows = _exec(engine, query, _kw_params(keywords))
 
-    conditions = " OR ".join(
-        f"(cd.name ILIKE :kw{i} OR cd.description ILIKE :kw{i})"
-        for i in range(len(keywords))
-    )
-    params = {f"kw{i}": f"%{kw}%" for i, kw in enumerate(keywords)}
+    if not rows:
+        return ""
+    lines = [f"**Cohort Definitions ({len(rows)} found):**"]
+    for r in rows:
+        gen = ""
+        if r.get("gen_status") == "completed" and r.get("person_count") is not None:
+            gen = f", **{r['person_count']:,} patients** matched"
+        elif r.get("gen_status"):
+            gen = f", generation: {r['gen_status']}"
+        line = f"- **{r['name']}** (ID: {r['id']}, v{r.get('version', 1)}{gen})"
+        if r.get("description"):
+            desc = r["description"][:200]
+            line += f"\n  {desc}"
+        lines.append(line)
+    return "\n".join(lines)
 
+
+# ── Tool 3: Query Vocabulary ─────────────────────────────────────────────────
+
+def _tool_query_vocabulary(engine: Engine, keywords: list[str]) -> str:
+    if not keywords:
+        return ""
+    cond = " OR ".join(f"c.concept_name ILIKE :kw{i}" for i in range(len(keywords)))
     query = text(f"""
-        SELECT cd.id, cd.name, cd.description, cd.version, cd.created_at
-        FROM app.cohort_definitions cd
-        WHERE cd.deleted_at IS NULL AND ({conditions})
-        ORDER BY cd.name
-        LIMIT 20
+        SELECT c.concept_id, c.concept_name, c.domain_id, c.vocabulary_id,
+               c.concept_class_id, c.standard_concept
+        FROM omop.concept c
+        WHERE ({cond}) AND c.standard_concept = 'S'
+        ORDER BY c.concept_name
+        LIMIT 15
     """)
-    with engine.connect() as conn:
-        return [dict(r._mapping) for r in conn.execute(query, params)]
+    rows = _exec(engine, query, _kw_params(keywords))
+    if not rows:
+        return ""
+    lines = [f"**OMOP Vocabulary Search ({len(rows)} standard concepts found):**"]
+    for r in rows:
+        std = "Standard" if r.get("standard_concept") == "S" else "Non-standard"
+        lines.append(
+            f"- **{r['concept_name']}** (ID: {r['concept_id']}, "
+            f"{r['domain_id']}, {r['vocabulary_id']}, {r.get('concept_class_id', '')})"
+        )
+    return "\n".join(lines)
 
 
-def _query_analyses(engine: Engine, keywords: list[str]) -> list[dict[str, Any]]:
-    """Query analysis executions matching keywords."""
+# ── Tool 4: Achilles Stats ───────────────────────────────────────────────────
+
+def _tool_get_achilles_stats(engine: Engine, keywords: list[str]) -> str:
+    """Get CDM characterization stats from Achilles results.
+
+    Key analysis IDs:
+      1 = total persons, 113 = persons by gender
+      200 = visit type counts, 400 = condition counts
+      600 = procedure counts, 700 = drug counts
+      800 = observation counts, 900 = drug era counts
+    """
+    sections: list[str] = []
+
+    # Total persons
+    r = _exec_one(engine, text(
+        "SELECT count_value FROM achilles_results.achilles_results WHERE analysis_id = 1 LIMIT 1"
+    ))
+    total_persons = r["count_value"] if r else 0
+
+    if total_persons:
+        sections.append(f"**CDM Summary:** {total_persons:,} total persons")
+
+    # Top conditions (analysis 400 = condition occurrence counts)
+    if not keywords or any(k.lower() in ("condition", "disease", "diagnosis") for k in keywords):
+        rows = _exec(engine, text("""
+            SELECT c.concept_name, ar.count_value
+            FROM achilles_results.achilles_results ar
+            JOIN omop.concept c ON c.concept_id = CAST(ar.stratum_1 AS INTEGER)
+            WHERE ar.analysis_id = 400
+            ORDER BY ar.count_value DESC LIMIT 10
+        """))
+        if rows:
+            lines = ["**Top 10 Conditions by Record Count:**"]
+            for r in rows:
+                lines.append(f"- {r['concept_name']}: {r['count_value']:,}")
+            sections.append("\n".join(lines))
+
+    # Top drugs (analysis 700)
+    if not keywords or any(k.lower() in ("drug", "medication", "prescription", "rx") for k in keywords):
+        rows = _exec(engine, text("""
+            SELECT c.concept_name, ar.count_value
+            FROM achilles_results.achilles_results ar
+            JOIN omop.concept c ON c.concept_id = CAST(ar.stratum_1 AS INTEGER)
+            WHERE ar.analysis_id = 700
+            ORDER BY ar.count_value DESC LIMIT 10
+        """))
+        if rows:
+            lines = ["**Top 10 Drugs by Record Count:**"]
+            for r in rows:
+                lines.append(f"- {r['concept_name']}: {r['count_value']:,}")
+            sections.append("\n".join(lines))
+
+    # If specific keyword, search Achilles for matching concepts
+    if keywords:
+        cond = " OR ".join(f"c.concept_name ILIKE :kw{i}" for i in range(len(keywords)))
+        rows = _exec(engine, text(f"""
+            SELECT c.concept_name, c.domain_id, ar.count_value
+            FROM achilles_results.achilles_results ar
+            JOIN omop.concept c ON c.concept_id = CAST(ar.stratum_1 AS INTEGER)
+            WHERE ar.analysis_id IN (400, 600, 700, 800) AND ({cond})
+            ORDER BY ar.count_value DESC LIMIT 10
+        """), _kw_params(keywords))
+        if rows:
+            lines = [f"**Records matching '{' '.join(keywords)}':**"]
+            for r in rows:
+                lines.append(f"- {r['concept_name']} ({r['domain_id']}): {r['count_value']:,} records")
+            sections.append("\n".join(lines))
+
+    return "\n\n".join(sections) if sections else ""
+
+
+# ── Tool 5: DQD Summary ──────────────────────────────────────────────────────
+
+def _tool_get_dqd_summary(engine: Engine) -> str:
+    try:
+        rows = _exec(engine, text("""
+            SELECT check_name, category, num_violated_rows, num_denominator_rows,
+                   threshold_value, notes_value
+            FROM achilles_results.dqd_results
+            WHERE num_violated_rows > 0
+            ORDER BY num_violated_rows DESC LIMIT 10
+        """))
+        if not rows:
+            # Try alternate table name
+            rows = _exec(engine, text("""
+                SELECT category, count(*) as checks,
+                       SUM(CASE WHEN failed = true THEN 1 ELSE 0 END) as failed_count
+                FROM app.dqd_results
+                GROUP BY category ORDER BY category
+            """))
+
+        if not rows:
+            return ""
+        lines = ["**Data Quality Summary (top issues):**"]
+        for r in rows:
+            if "check_name" in r:
+                lines.append(
+                    f"- {r.get('category', 'Unknown')}/{r['check_name']}: "
+                    f"{r.get('num_violated_rows', 0):,} violations"
+                )
+            else:
+                lines.append(f"- {r['category']}: {r.get('failed_count', 0)} failed / {r.get('checks', 0)} checks")
+        return "\n".join(lines)
+    except Exception:
+        return ""
+
+
+# ── Tool 6: CDM Summary ──────────────────────────────────────────────────────
+
+def _tool_get_cdm_summary(engine: Engine) -> str:
+    sections: list[str] = []
+
+    # Data sources
+    rows = _exec(engine, text("""
+        SELECT s.id, s.source_name, s.source_key
+        FROM app.sources s WHERE s.deleted_at IS NULL ORDER BY s.source_name
+    """))
+    if rows:
+        lines = ["**Data Sources:**"]
+        for r in rows:
+            lines.append(f"- **{r['source_name']}** (key: {r['source_key']})")
+        sections.append("\n".join(lines))
+
+    # Person count from Achilles
+    r = _exec_one(engine, text(
+        "SELECT count_value FROM achilles_results.achilles_results WHERE analysis_id = 1 LIMIT 1"
+    ))
+    if r:
+        sections.append(f"**Total Persons in CDM:** {r['count_value']:,}")
+
+    # Domain record counts (from Achilles analysis 200 = visit, 400 = condition, etc.)
+    rows = _exec(engine, text("""
+        SELECT
+            CASE ar.analysis_id
+                WHEN 200 THEN 'Visits'
+                WHEN 400 THEN 'Conditions'
+                WHEN 600 THEN 'Procedures'
+                WHEN 700 THEN 'Drug Exposures'
+                WHEN 800 THEN 'Observations'
+                WHEN 2100 THEN 'Device Exposures'
+            END as domain,
+            SUM(ar.count_value) as total
+        FROM achilles_results.achilles_results ar
+        WHERE ar.analysis_id IN (200, 400, 600, 700, 800, 2100)
+        GROUP BY ar.analysis_id
+        ORDER BY total DESC
+    """))
+    if rows:
+        lines = ["**Domain Record Counts:**"]
+        for r in rows:
+            if r.get("domain"):
+                lines.append(f"- {r['domain']}: {r['total']:,}")
+        sections.append("\n".join(lines))
+
+    # Vocabulary stats
+    rows = _exec(engine, text("""
+        SELECT domain_id, COUNT(*) as cnt
+        FROM omop.concept WHERE standard_concept = 'S'
+        GROUP BY domain_id ORDER BY cnt DESC LIMIT 8
+    """))
+    if rows:
+        lines = ["**Vocabulary (standard concepts by domain):**"]
+        for r in rows:
+            lines.append(f"- {r['domain_id']}: {r['cnt']:,}")
+        sections.append("\n".join(lines))
+
+    return "\n\n".join(sections) if sections else ""
+
+
+# ── Tool 7: Analyses ─────────────────────────────────────────────────────────
+
+def _tool_get_analyses(engine: Engine, keywords: list[str]) -> str:
     try:
         if not keywords:
             query = text("""
                 SELECT id, name, analysis_type, status, created_at
-                FROM app.analysis_executions
-                WHERE deleted_at IS NULL
-                ORDER BY created_at DESC
-                LIMIT 10
+                FROM app.analysis_executions WHERE deleted_at IS NULL
+                ORDER BY created_at DESC LIMIT 10
             """)
+            rows = _exec(engine, query)
         else:
-            conditions = " OR ".join(
-                f"(name ILIKE :kw{i})" for i in range(len(keywords))
-            )
-            params = {f"kw{i}": f"%{kw}%" for i, kw in enumerate(keywords)}
+            cond = _ilike_or("name", "name", keywords)  # search name only
             query = text(f"""
                 SELECT id, name, analysis_type, status, created_at
-                FROM app.analysis_executions
-                WHERE deleted_at IS NULL AND ({conditions})
-                ORDER BY created_at DESC
-                LIMIT 10
+                FROM app.analysis_executions WHERE deleted_at IS NULL AND ({cond})
+                ORDER BY created_at DESC LIMIT 10
             """)
-
-        with engine.connect() as conn:
-            if keywords:
-                return [dict(r._mapping) for r in conn.execute(query, params)]
-            return [dict(r._mapping) for r in conn.execute(query)]
+            rows = _exec(engine, query, _kw_params(keywords))
+        if not rows:
+            return ""
+        lines = [f"**Analyses ({len(rows)} found):**"]
+        for r in rows:
+            lines.append(f"- **{r.get('name', 'Unnamed')}** (type: {r.get('analysis_type', '?')}, status: {r.get('status', '?')})")
+        return "\n".join(lines)
     except Exception:
-        # Table might not exist yet
-        return []
+        return ""
 
 
-def _format_concept_sets(results: list[dict[str, Any]]) -> str:
-    """Format concept set query results for the system prompt."""
-    lines = ["**Concept Sets in Parthenon:**"]
-    for r in results:
-        name = r["name"]
-        desc = r.get("description", "") or ""
-        count = r.get("item_count", 0)
-        concepts = r.get("concept_names", "") or ""
-        line = f"- **{name}** ({count} concepts)"
-        if desc:
-            line += f" — {desc}"
-        if concepts:
-            line += f"\n  Concepts: {concepts}"
-        lines.append(line)
-    return "\n".join(lines)
+# ── SQL helpers ───────────────────────────────────────────────────────────────
+
+def _exec(engine: Engine, query: Any, params: dict | None = None) -> list[dict[str, Any]]:
+    with engine.connect() as conn:
+        result = conn.execute(query, params or {})
+        return [dict(r._mapping) for r in result]
 
 
-def _format_cohort_definitions(results: list[dict[str, Any]]) -> str:
-    """Format cohort definition results for the system prompt."""
-    lines = ["**Cohort Definitions in Parthenon:**"]
-    for r in results:
-        name = r["name"]
-        desc = r.get("description", "") or ""
-        version = r.get("version", 1)
-        line = f"- **{name}** (v{version})"
-        if desc:
-            line += f" — {desc}"
-        lines.append(line)
-    return "\n".join(lines)
+def _exec_one(engine: Engine, query: Any, params: dict | None = None) -> dict[str, Any] | None:
+    rows = _exec(engine, query, params)
+    return rows[0] if rows else None
 
 
-def _format_analyses(results: list[dict[str, Any]]) -> str:
-    """Format analysis execution results for the system prompt."""
-    lines = ["**Analyses in Parthenon:**"]
-    for r in results:
-        name = r.get("name", "Unnamed")
-        atype = r.get("analysis_type", "unknown")
-        status = r.get("status", "unknown")
-        lines.append(f"- **{name}** (type: {atype}, status: {status})")
-    return "\n".join(lines)
+def _ilike_or(col1: str, col2: str, keywords: list[str]) -> str:
+    return " OR ".join(f"({col1} ILIKE :kw{i} OR {col2} ILIKE :kw{i})" for i in range(len(keywords)))
+
+
+def _kw_params(keywords: list[str]) -> dict[str, str]:
+    return {f"kw{i}": f"%{kw}%" for i, kw in enumerate(keywords)}
