@@ -43,3 +43,59 @@ def test_chat_works_without_rag_context():
     assert resp.status_code == 200
     data = resp.json()
     assert "I can help" in data["reply"]
+
+
+def test_context_assembler_produces_structured_prompt():
+    """Verify the context assembler integrates with the existing RAG pipeline."""
+    from app.memory.context_assembler import ContextAssembler, ContextPiece, ContextTier
+
+    assembler = ContextAssembler.for_medgemma()
+    pieces = [
+        ContextPiece(tier=ContextTier.WORKING, content="User is building a diabetes cohort", relevance=1.0, tokens=50),
+        ContextPiece(tier=ContextTier.SEMANTIC, content="Diabetes mellitus is a metabolic disease", relevance=0.7, tokens=50),
+        ContextPiece(tier=ContextTier.EPISODIC, content="User has expertise in endocrinology", relevance=0.6, tokens=30),
+    ]
+    result = assembler.assemble(pieces)
+    prompt = assembler.format_prompt(result)
+
+    assert "Working Memory" in prompt
+    assert "Domain Knowledge" in prompt
+    assert "User History" in prompt
+    assert "diabetes" in prompt.lower()
+
+
+def test_intent_stack_serialization_across_turns():
+    """Verify intent stack can persist across conversation turns."""
+    from app.memory.intent_stack import IntentStack
+
+    stack = IntentStack(max_depth=3, expiry_turns=10)
+    stack.push("diabetes cohort building", turn=1)
+    stack.push("metformin concept search", turn=2)
+
+    serialized = stack.to_dict()
+    restored = IntentStack.from_dict(serialized)
+
+    assert restored.current_topic() == "metformin concept search"
+    assert len(restored) == 2
+    assert "diabetes" in restored.get_context_string()
+
+
+def test_profile_learner_end_to_end():
+    """Verify profile learner extracts meaningful data from realistic conversation."""
+    from app.memory.profile_learner import ProfileLearner, UserProfile
+
+    learner = ProfileLearner(min_interactions_for_calibration=1)
+    profile = UserProfile()
+
+    messages = [
+        {"role": "user", "content": "I'm building a cohort for incident Type 2 diabetes patients on metformin"},
+        {"role": "assistant", "content": "I can help with that. Let me find the relevant concepts..."},
+        {"role": "user", "content": "Just give me the concept IDs, I don't need the explanation"},
+        {"role": "assistant", "content": "SNOMED 201826, RxNorm 6809..."},
+    ]
+
+    updated = learner.learn_from_conversation(profile, messages)
+
+    assert "diabetes" in updated.research_interests
+    assert updated.interaction_preferences.get("verbosity") == "terse"
+    assert updated.interaction_count == 2  # 2 user messages in the conversation
