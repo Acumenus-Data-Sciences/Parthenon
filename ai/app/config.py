@@ -66,6 +66,11 @@ class Settings(BaseSettings):
     agency_rate_limit_medium: int = 10
     agency_rate_limit_high: int = 3
 
+    # Institutional intelligence (Phase 6)
+    institutional_faq_threshold: int = 3
+    institutional_staleness_days: int = 180
+    institutional_max_suggestions: int = 3
+
     class Config:
         env_file = ".env"
 
