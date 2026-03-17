@@ -17,7 +17,11 @@ except ImportError:
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.config import settings
 from app.routers import health
+
+if not settings.database_url:
+    raise RuntimeError("DATABASE_URL must be set")
 
 app = FastAPI(
     title="Parthenon AI Service",
