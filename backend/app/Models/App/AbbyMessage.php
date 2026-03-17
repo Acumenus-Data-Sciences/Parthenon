@@ -17,6 +17,8 @@ class AbbyMessage extends Model
         'role',
         'content',
         'metadata',
+        'embedding',
+        'embedding_model',
     ];
 
     /**

@@ -8,7 +8,9 @@ use App\Models\App\AbbyUserProfile;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Knuckles\Scribe\Attributes\Group;
 
+#[Group('AI Assistant (Abby)', weight: 212)]
 class AbbyProfileController extends Controller
 {
     public function show(Request $request): JsonResponse
