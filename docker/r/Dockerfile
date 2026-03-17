@@ -21,6 +21,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libdeflate-dev \
     liblzma-dev \
     libbz2-dev \
+    libpng-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Configure Java for rJava — detect JAVA_HOME from the active JDK

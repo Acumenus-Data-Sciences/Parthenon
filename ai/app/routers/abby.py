@@ -477,12 +477,13 @@ async def call_ollama(system_prompt: str, user_message: str,
 
     messages.append({"role": "user", "content": user_message})
 
-    # Retry with shorter per-attempt timeout — catches intermittent GPU stalls
-    # without making the user wait the full 120s.
-    attempt_timeout = 30
+    # First attempt uses a longer timeout to accommodate cold model loads
+    # (~45s to load MedGemma into GPU). Subsequent retries use a shorter
+    # timeout since the model should already be warm.
     max_retries = 2
 
     for attempt in range(max_retries + 1):
+        attempt_timeout = 90 if attempt == 0 else 30
         try:
             async with httpx.AsyncClient(timeout=attempt_timeout) as client:
                 resp = await client.post(

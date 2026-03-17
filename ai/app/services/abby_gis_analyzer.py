@@ -9,9 +9,9 @@ from chromadb.api import ClientAPI
 from chromadb.api.types import Metadata
 import httpx
 
-logger = logging.getLogger(__name__)
+from app.config import settings
 
-OLLAMA_URL = "http://ollama:11434"
+logger = logging.getLogger(__name__)
 CHROMA_COLLECTION = "gis_import_mappings"
 
 ANALYZE_PROMPT = """You are Abby, a GIS data analysis assistant. Analyze these columns from a data file upload.
@@ -103,9 +103,9 @@ async def analyze_columns(
     try:
         async with httpx.AsyncClient(timeout=60.0) as client:
             resp = await client.post(
-                f"{OLLAMA_URL}/api/generate",
+                f"{settings.ollama_base_url}/api/generate",
                 json={
-                    "model": "MedAIBase/MedGemma1.5:4b",
+                    "model": settings.ollama_model,
                     "prompt": prompt,
                     "stream": False,
                     "format": "json",
@@ -144,9 +144,9 @@ Answer concisely and helpfully."""
     try:
         async with httpx.AsyncClient(timeout=30.0) as client:
             resp = await client.post(
-                f"{OLLAMA_URL}/api/generate",
+                f"{settings.ollama_base_url}/api/generate",
                 json={
-                    "model": "MedAIBase/MedGemma1.5:4b",
+                    "model": settings.ollama_model,
                     "prompt": prompt,
                     "stream": False,
                 },
