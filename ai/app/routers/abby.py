@@ -78,8 +78,8 @@ def _get_claude_client() -> ClaudeClient | None:
     if _claude_client is None and settings.claude_api_key:
         try:
             _claude_client = ClaudeClient(api_key=settings.claude_api_key)
-        except ValueError:
-            logger.warning("Claude API key not configured, cloud routing disabled")
+        except (ValueError, RuntimeError):
+            logger.warning("Claude API unavailable (anthropic package not installed or key missing), cloud routing disabled")
     return _claude_client
 
 
@@ -477,13 +477,13 @@ async def call_ollama(system_prompt: str, user_message: str,
 
     messages.append({"role": "user", "content": user_message})
 
-    # First attempt uses a longer timeout to accommodate cold model loads
-    # (~45s to load MedGemma into GPU). Subsequent retries use a shorter
-    # timeout since the model should already be warm.
+    # First attempt uses a longer timeout to accommodate cold model loads or
+    # model swapping (e.g. evicting a large model like gemma3:27b takes >90s).
+    # Subsequent retries use a shorter timeout since the model should be warm.
     max_retries = 2
 
     for attempt in range(max_retries + 1):
-        attempt_timeout = 90 if attempt == 0 else 30
+        attempt_timeout = 180 if attempt == 0 else 60
         try:
             async with httpx.AsyncClient(timeout=attempt_timeout) as client:
                 resp = await client.post(
@@ -492,6 +492,7 @@ async def call_ollama(system_prompt: str, user_message: str,
                         "model": settings.ollama_model,
                         "messages": messages,
                         "stream": False,
+                        "keep_alive": -1,  # pin model in VRAM to avoid eviction
                         "options": {"temperature": temperature},
                     },
                 )
@@ -808,8 +809,8 @@ def _save_user_profile(user_id: int, profile_data: dict) -> None:
                 text("""
                     INSERT INTO app.abby_user_profiles (user_id, research_interests,
                         expertise_domains, interaction_preferences, frequently_used, updated_at)
-                    VALUES (:uid, :interests::text[], :expertise::jsonb,
-                            :prefs::jsonb, :freq::jsonb, NOW())
+                    VALUES (:uid, CAST(:interests AS text[]), CAST(:expertise AS jsonb),
+                            CAST(:prefs AS jsonb), CAST(:freq AS jsonb), NOW())
                     ON CONFLICT (user_id) DO UPDATE SET
                         research_interests = EXCLUDED.research_interests,
                         expertise_domains = EXCLUDED.expertise_domains,

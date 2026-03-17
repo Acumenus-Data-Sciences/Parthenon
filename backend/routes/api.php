@@ -1063,6 +1063,9 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         Route::patch('wiki/{slug}', [App\Http\Controllers\Api\V1\Commons\WikiController::class, 'update']);
         Route::delete('wiki/{slug}', [App\Http\Controllers\Api\V1\Commons\WikiController::class, 'destroy']);
         Route::get('wiki/{slug}/revisions', [App\Http\Controllers\Api\V1\Commons\WikiController::class, 'revisions']);
+
+        // Abby feedback (thumbs up/down on responses)
+        Route::post('abby/feedback', [AbbyAiController::class, 'feedback']);
     });
 });
 

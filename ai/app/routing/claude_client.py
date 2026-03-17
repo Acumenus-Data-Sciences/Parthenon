@@ -7,7 +7,12 @@ import time
 from dataclasses import dataclass, field
 from typing import Optional
 
-import anthropic
+try:
+    import anthropic
+    _ANTHROPIC_AVAILABLE = True
+except ImportError:
+    anthropic = None  # type: ignore[assignment]
+    _ANTHROPIC_AVAILABLE = False
 
 from app.config import settings
 
@@ -57,6 +62,8 @@ class ClaudeClient:
         max_tokens: Optional[int] = None,
         timeout: Optional[int] = None,
     ) -> None:
+        if not _ANTHROPIC_AVAILABLE:
+            raise RuntimeError("anthropic package is not installed; Claude routing is disabled")
         if not api_key:
             raise ValueError("API key must not be empty")
 

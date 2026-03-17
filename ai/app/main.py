@@ -116,3 +116,35 @@ async def startup_warm_embedders() -> None:
             _logger.warning("Embedder warmup failed (non-fatal): %s", e)
 
     asyncio.create_task(_warm())
+
+
+@app.on_event("startup")
+async def startup_warm_ollama() -> None:
+    """Pre-load MedGemma into Ollama at startup with keep_alive=-1 so the
+    model stays pinned in VRAM and doesn't need to be swapped in on first use."""
+    import asyncio
+    import httpx
+    from app.config import settings
+
+    if os.getenv("PYTEST_CURRENT_TEST"):
+        return
+
+    async def _warm_ollama() -> None:
+        try:
+            async with httpx.AsyncClient(timeout=300) as client:
+                resp = await client.post(
+                    f"{settings.ollama_base_url}/api/generate",
+                    json={
+                        "model": settings.ollama_model,
+                        "prompt": "",
+                        "keep_alive": -1,
+                    },
+                )
+                if resp.status_code == 200:
+                    _logger.info("Ollama model %s warmed up and pinned in VRAM", settings.ollama_model)
+                else:
+                    _logger.warning("Ollama warmup returned %d", resp.status_code)
+        except Exception as e:
+            _logger.warning("Ollama warmup failed (non-fatal): %s", e)
+
+    asyncio.create_task(_warm_ollama())

@@ -96,7 +96,7 @@ class AbbyAiController extends Controller
 
         $user = $request->user();
         $abbyProfile = $user ? AbbyUserProfile::where('user_id', $user->id)->first() : null;
-        $profileData = $abbyProfile ? $abbyProfile->toArray() : [];
+        $profileData = $abbyProfile ? $abbyProfile->toArray() : (object) [];
 
         $userProfilePayload = $validated['user_profile'] ?? [];
         $userProfilePayload['research_profile'] = $profileData;
@@ -182,7 +182,7 @@ class AbbyAiController extends Controller
 
         // Load user research profile for stream payload
         $abbyProfile = $user ? AbbyUserProfile::where('user_id', $user->id)->first() : null;
-        $profileData = $abbyProfile ? $abbyProfile->toArray() : [];
+        $profileData = $abbyProfile ? $abbyProfile->toArray() : (object) [];
         $userProfilePayload = $validated['user_profile'] ?? [];
         $userProfilePayload['research_profile'] = $profileData;
 
@@ -359,6 +359,38 @@ class AbbyAiController extends Controller
         );
 
         return response()->json($result);
+    }
+
+    /**
+     * POST /api/v1/commons/abby/feedback
+     * Store thumbs-up/down feedback on an Abby message.
+     */
+    public function feedback(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'message_id' => 'required|string',
+            'rating'     => 'required|string|in:up,down,positive,negative',
+            'categories' => 'sometimes|array',
+            'comment'    => 'sometimes|nullable|string|max:1000',
+        ]);
+
+        // If message_id is numeric, persist feedback to the message's metadata
+        if (ctype_digit((string) $validated['message_id'])) {
+            $message = AbbyMessage::find((int) $validated['message_id']);
+            if ($message) {
+                $meta = $message->metadata ?? [];
+                $meta['feedback'] = [
+                    'rating'     => $validated['rating'],
+                    'categories' => $validated['categories'] ?? [],
+                    'comment'    => $validated['comment'] ?? null,
+                    'submitted_at' => now()->toISOString(),
+                ];
+                $message->metadata = $meta;
+                $message->save();
+            }
+        }
+
+        return response()->json(['status' => 'ok']);
     }
 
     /**

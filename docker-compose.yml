@@ -160,6 +160,8 @@ services:
       - CLAUDE_TIMEOUT=${CLAUDE_TIMEOUT:-60}
       - PHI_DETECTION_ENABLED=${PHI_DETECTION_ENABLED:-true}
       - CLOUD_MONTHLY_BUDGET_USD=${CLOUD_MONTHLY_BUDGET_USD:-500}
+      - KNOWLEDGE_CDM_SCHEMA=omop
+      - KNOWLEDGE_VOCAB_SCHEMA=omop
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
