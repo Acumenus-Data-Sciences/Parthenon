@@ -51,7 +51,7 @@ The following authentication system is production-deployed and MUST NOT be overw
 4. **NEVER remove the SetupWizard for super-admin users**
 5. **NEVER change MAIL_MAILER back to 'log' in production** — must be 'resend'
 6. **NEVER change the email sender from noreply@acumenus.net**
-7. **NEVER hardcode the Resend API key in source code** (use RESEND_API_KEY env var)
+7. **NEVER hardcode the Resend API key in source code** (use RESEND_KEY env var)
 8. **NEVER remove email enumeration prevention** on registration
 9. **NEVER weaken password requirements** (min 8 chars, bcrypt 12 rounds)
 10. **NEVER remove Spatie RBAC** — role/permission system is critical
@@ -62,6 +62,6 @@ The following authentication system is production-deployed and MUST NOT be overw
 
 ## Resend Configuration
 - MAIL_MAILER=resend in backend/.env
-- RESEND_API_KEY in backend/.env
+- RESEND_KEY in backend/.env
 - From: noreply@acumenus.net (MAIL_FROM_ADDRESS)
 - Template: backend/resources/views/emails/temp-password.blade.php
