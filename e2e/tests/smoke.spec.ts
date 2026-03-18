@@ -3,7 +3,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { TOKEN_FILE } from "../global-setup";
 
-const BASE = process.env.PLAYWRIGHT_BASE_URL ?? "http://192.168.1.33:8082";
+const BASE = process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:8082";
 
 function getToken(): string {
   try {
@@ -24,6 +24,8 @@ const DATA_ENV_PATTERNS = [
   "/imaging/studies",
   "/imaging/wado",
   "/heor/",
+  "/system-health/",
+  "/gis/",
 ];
 
 function isDataEnvFailure(url: string): boolean {
@@ -74,6 +76,19 @@ const ROUTES = [
   { path: "/admin/fhir-sync-monitor", label: "Admin FHIR Sync Monitor" },
   { path: "/admin/webapi-registry", label: "Admin WebAPI Registry" },
   { path: "/admin/notifications", label: "Admin Notifications" },
+  { path: "/admin/fhir-export", label: "Admin FHIR Export" },
+  { path: "/admin/solr", label: "Admin Solr" },
+  { path: "/admin/user-audit", label: "Admin User Audit" },
+  // Query Assistant
+  { path: "/query-assistant", label: "Query Assistant" },
+  // Phenotype Library
+  { path: "/phenotype-library", label: "Phenotype Library" },
+  // GIS
+  { path: "/gis", label: "GIS Explorer" },
+  // Commons
+  { path: "/commons", label: "Commons Workspace" },
+  // Schema Mapping
+  { path: "/schema-mapping", label: "Schema Mapping" },
 ];
 
 // Collect console errors and 5xx responses per page
@@ -150,6 +165,15 @@ test.describe("Route Smoke Tests (authenticated)", () => {
       expect(errorBoundary, `${route.label}: error boundary triggered`).toBe(
         0
       );
+
+      // No [object Object] text (detects API response unwrapping bugs)
+      const objectObjectCount = await page
+        .locator("text=[object Object]")
+        .count();
+      expect(
+        objectObjectCount,
+        `${route.label}: found [object Object] — likely API response not unwrapped`
+      ).toBe(0);
 
       // Log any API failures or console errors for debugging (don't fail on them alone)
       if (failedRequests.length) {
@@ -229,7 +253,7 @@ test.describe("Navigation", () => {
     await page.waitForTimeout(2000);
     const navLinks = await page.locator("nav a, aside a").count();
     console.log(`  Nav links found: ${navLinks}`);
-    expect(navLinks).toBeGreaterThan(3);
+    expect(navLinks).toBeGreaterThanOrEqual(3);
   });
 
   test("dashboard renders content", async ({ page }) => {

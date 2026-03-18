@@ -8,7 +8,7 @@ export default defineConfig({
   globalSetup: "./global-setup.ts",
   reporter: [["list"], ["json", { outputFile: "results.json" }]],
   use: {
-    baseURL: "http://192.168.1.33:8082",
+    baseURL: process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:8082",
     headless: true,
     screenshot: "only-on-failure",
     video: "off",

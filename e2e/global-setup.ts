@@ -2,7 +2,7 @@ import { chromium, FullConfig } from "@playwright/test";
 import * as path from "path";
 import * as fs from "fs";
 
-const BASE = process.env.PLAYWRIGHT_BASE_URL ?? "http://192.168.1.33:8082";
+const BASE = process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:8082";
 const EMAIL = process.env.PLAYWRIGHT_EMAIL ?? "admin@acumenus.net";
 const PASSWORD = process.env.PLAYWRIGHT_PASSWORD ?? "superuser";
 export const AUTH_FILE = path.join(__dirname, ".auth/user.json");
