@@ -18,10 +18,10 @@
 
 ### Ingestion API
 
-- [ ] **INGEST-01**: All API functions in `ingestionApi.ts` correctly unwrap Laravel's `{data: T}` response envelope using `data.data ?? data` pattern
-- [ ] **INGEST-02**: Ingestion Dashboard page renders job list correctly (not `[object Object]`)
-- [ ] **INGEST-03**: Upload page correctly receives and navigates to new job after file upload
-- [ ] **INGEST-04**: Job Detail page correctly displays job status, steps, and progress
+- [x] **INGEST-01**: All API functions in `ingestionApi.ts` correctly unwrap Laravel's `{data: T}` response envelope using `data.data ?? data` pattern
+- [x] **INGEST-02**: Ingestion Dashboard page renders job list correctly (not `[object Object]`)
+- [x] **INGEST-03**: Upload page correctly receives and navigates to new job after file upload
+- [x] **INGEST-04**: Job Detail page correctly displays job status, steps, and progress
 
 ## v2 Requirements
 
@@ -69,10 +69,10 @@
 | EMAIL-03 | Phase 1 | Complete |
 | FHIR-01 | Phase 2 | Complete |
 | FHIR-02 | Phase 2 | Complete |
-| INGEST-01 | Phase 3 | Pending |
-| INGEST-02 | Phase 3 | Pending |
-| INGEST-03 | Phase 3 | Pending |
-| INGEST-04 | Phase 3 | Pending |
+| INGEST-01 | Phase 3 | Complete |
+| INGEST-02 | Phase 3 | Complete |
+| INGEST-03 | Phase 3 | Complete |
+| INGEST-04 | Phase 3 | Complete |
 
 **Coverage:**
 - v1 requirements: 9 total
