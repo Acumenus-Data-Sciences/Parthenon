@@ -11,6 +11,8 @@ export interface User {
   must_change_password: boolean;
   onboarding_completed: boolean;
   last_login_at: string | null;
+  last_active_at: string | null;
+  is_active: boolean;
   created_at: string;
   updated_at: string;
   roles?: string[];

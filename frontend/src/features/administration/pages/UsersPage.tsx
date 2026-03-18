@@ -248,8 +248,8 @@ export default function UsersPage() {
             </thead>
             <tbody>
               {users.map((user, i) => {
-                const activeAt = (user as User & { last_active_at?: string | null }).last_active_at;
-                const isActive = (user as User & { is_active?: boolean }).is_active;
+                const activeAt = user.last_active_at;
+                const isActive = user.is_active;
                 return (
                   <tr
                     key={user.id}

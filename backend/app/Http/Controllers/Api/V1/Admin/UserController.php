@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Mail\TempPasswordMail;
+use App\Models\App\UserAuditLog;
 use App\Models\User;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
@@ -18,11 +19,22 @@ class UserController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
+        // Subquery: most recent audit event timestamp for each user (= true "last active")
+        $lastActiveSubquery = UserAuditLog::select('occurred_at')
+            ->whereColumn('user_id', 'users.id')
+            ->orderByDesc('occurred_at')
+            ->limit(1);
+
+        $allowedSorts = ['name', 'email', 'last_active_at', 'created_at'];
+        $sortBy = in_array($request->sort_by, $allowedSorts) ? $request->sort_by : 'created_at';
+        $sortDir = $request->sort_dir === 'asc' ? 'asc' : 'desc';
+
         $query = User::with('roles')
-            ->when($request->search, fn ($q, $s) => $q->where('name', 'ilike', "%{$s}%")
-                ->orWhere('email', 'ilike', "%{$s}%"))
+            ->addSelect(['users.*', 'last_active_at' => $lastActiveSubquery])
+            ->when($request->search, fn ($q, $s) => $q->where('users.name', 'ilike', "%{$s}%")
+                ->orWhere('users.email', 'ilike', "%{$s}%"))
             ->when($request->role, fn ($q, $r) => $q->role($r))
-            ->orderBy($request->sort_by ?? 'created_at', $request->sort_dir ?? 'desc');
+            ->orderBy($sortBy, $sortDir);
 
         return response()->json(
             $query->paginate($request->per_page ?? 25)->through(fn ($user) => $this->formatUser($user))
@@ -86,9 +98,15 @@ class UserController extends Controller
     /** Format a User for API responses — roles as string names, not full objects. */
     private function formatUser(User $user): array
     {
+        // last_active_at is the most recent audit event (or falls back to last_login_at)
+        $lastActive = $user->last_active_at ?? $user->last_login_at;
+        $isActive = $lastActive !== null && $lastActive >= now()->subDays(30);
+
         return [
             ...$user->toArray(),
             'roles' => $user->getRoleNames(),
+            'last_active_at' => $lastActive?->toIso8601String(),
+            'is_active' => $isActive,
         ];
     }
 
