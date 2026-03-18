@@ -13,7 +13,7 @@ Three critical production bugs found during a full-codebase health audit. Each i
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [ ] **Phase 1: Email Delivery** - Fix RESEND_KEY env mismatch so registration and password reset emails send
-- [ ] **Phase 2: FHIR Export** - Make FHIR Export page functional or gracefully disabled
+- [x] **Phase 2: FHIR Export** - Make FHIR Export page functional or gracefully disabled (completed 2026-03-18)
 - [ ] **Phase 3: Ingestion API** - Unwrap Laravel response envelopes so ingestion pages render correctly
 
 ## Phase Details
@@ -65,5 +65,5 @@ Phases execute in numeric order: 1 -> 2 -> 3
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Email Delivery | 0/1 | Not started | - |
-| 2. FHIR Export | 0/1 | Not started | - |
+| 2. FHIR Export | 0/1 | Complete    | 2026-03-18 |
 | 3. Ingestion API | 0/1 | Not started | - |
