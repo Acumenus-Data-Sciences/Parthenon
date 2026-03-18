@@ -1,3 +1,3 @@
 [submodule "study-agent"]
 	path = study-agent
-	url = https://github.com/OHDSI/StudyAgent.git
+	url = https://github.com/sudoshi/StudyAgent.git
