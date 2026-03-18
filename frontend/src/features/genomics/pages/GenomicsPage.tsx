@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Dna,
@@ -79,12 +79,19 @@ function formatDate(iso: string | null): string {
 // ClinVar Panel
 // ──────────────────────────────────────────────────────────────────────────────
 
-function ClinVarPanel() {
-  const [gene, setGene] = useState("");
+function ClinVarPanel({ initialGene }: { initialGene?: string }) {
+  const [gene, setGene] = useState(initialGene ?? "");
   const [sig, setSig] = useState("");
   const [pathogenicOnly, setPathogenicOnly] = useState(false);
   const [searchQ, setSearchQ] = useState("");
   const [page, setPage] = useState(1);
+
+  useEffect(() => {
+    if (initialGene) {
+      setGene(initialGene);
+      setPage(1);
+    }
+  }, [initialGene]);
   const [syncingPapu, setSyncingPapu] = useState(false);
 
   const { data: status, isLoading: statusLoading, refetch: refetchStatus } = useClinVarStatus();
@@ -379,6 +386,7 @@ export default function GenomicsPage() {
   const navigate = useNavigate();
   const [showUpload, setShowUpload] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>("uploads");
+  const [clinvarGeneFilter, setClinvarGeneFilter] = useState("");
 
   const { data: stats, isLoading: statsLoading } = useGenomicsStats();
   const { data: uploadsPage, isLoading: uploadsLoading } = useGenomicUploads({ per_page: 20 });
@@ -490,6 +498,7 @@ export default function GenomicsPage() {
                 key={gene}
                 type="button"
                 onClick={() => {
+                  setClinvarGeneFilter(gene);
                   setActiveTab("clinvar");
                 }}
                 className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#2DD4BF]/10 hover:bg-[#2DD4BF]/20 border border-[#2DD4BF]/30 hover:border-[#2DD4BF]/50 rounded-full text-xs text-[#2DD4BF] transition-colors"
@@ -637,7 +646,7 @@ export default function GenomicsPage() {
       )}
 
       {/* Tab: ClinVar */}
-      {activeTab === "clinvar" && <ClinVarPanel />}
+      {activeTab === "clinvar" && <ClinVarPanel initialGene={clinvarGeneFilter} />}
 
       {showUpload && <UploadDialog onClose={() => setShowUpload(false)} />}
     </div>

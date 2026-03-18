@@ -10,6 +10,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Dna, BarChart3, Grid3X3, Activity, Loader2, AlertCircle, type LucideIcon } from "lucide-react";
 import apiClient from "@/lib/api-client";
+import { SourceSelector } from "@/features/data-explorer/components/SourceSelector";
 
 // ── Survival data types ──────────────────────────────────────────────────────
 
@@ -194,7 +195,8 @@ type Tab = "survival" | "matrix" | "characterization";
 
 export default function GenomicAnalysisPage() {
   const [tab, setTab] = useState<Tab>("survival");
-  const [sourceId] = useState(9); // TODO: source selector
+  const [selectedSourceId, setSelectedSourceId] = useState<number | null>(null);
+  const sourceId = selectedSourceId ?? 0;
   const [gene, setGene] = useState("BRCA2");
   const [hgvs, setHgvs] = useState("");
   const [matrixGenes, setMatrixGenes] = useState("BRCA2,APC,BRCA1,SYNE1");
@@ -207,7 +209,7 @@ export default function GenomicAnalysisPage() {
       });
       return data.data as SurvivalData;
     },
-    enabled: tab === "survival" && !!gene,
+    enabled: tab === "survival" && !!gene && sourceId > 0,
   });
 
   const matrixQuery = useQuery({
@@ -219,7 +221,7 @@ export default function GenomicAnalysisPage() {
       });
       return data.data as MatrixRow[];
     },
-    enabled: tab === "matrix" && !!matrixGenes,
+    enabled: tab === "matrix" && !!matrixGenes && sourceId > 0,
   });
 
   const charQuery = useQuery({
@@ -230,7 +232,7 @@ export default function GenomicAnalysisPage() {
       });
       return data.data as CharData;
     },
-    enabled: tab === "characterization",
+    enabled: tab === "characterization" && sourceId > 0,
   });
 
   const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
@@ -242,16 +244,19 @@ export default function GenomicAnalysisPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-3">
-        <div className="flex items-center justify-center w-9 h-9 rounded-md bg-[#A78BFA]/12 flex-shrink-0">
-          <Dna size={18} style={{ color: "#A78BFA" }} />
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center justify-center w-9 h-9 rounded-md bg-[#A78BFA]/12 flex-shrink-0">
+            <Dna size={18} style={{ color: "#A78BFA" }} />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-[#F0EDE8]">Variant-Outcome Analysis Suite</h1>
+            <p className="text-sm text-[#8A857D]">
+              Population-level genomic analytics linked to OMOP clinical outcomes
+            </p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-2xl font-bold text-[#F0EDE8]">Variant-Outcome Analysis Suite</h1>
-          <p className="text-sm text-[#8A857D]">
-            Population-level genomic analytics linked to OMOP clinical outcomes
-          </p>
-        </div>
+        <SourceSelector value={selectedSourceId} onChange={setSelectedSourceId} />
       </div>
 
       {/* Tab bar */}

@@ -16,6 +16,10 @@ interface HistoryEntry {
   question: string;
   sql: string;
   timestamp: number;
+  explanation?: string;
+  tables_referenced?: string[];
+  is_aggregate?: boolean;
+  safety?: string;
 }
 
 function loadHistory(): HistoryEntry[] {
@@ -73,6 +77,10 @@ export function NaturalLanguageTab() {
         question,
         sql: data.sql,
         timestamp: Date.now(),
+        explanation: data.explanation,
+        tables_referenced: data.tables_referenced,
+        is_aggregate: data.is_aggregate,
+        safety: data.safety,
       };
       setHistory((prev) => {
         const updated = [entry, ...prev].slice(0, MAX_HISTORY);
@@ -101,10 +109,10 @@ export function NaturalLanguageTab() {
     setQuestion(entry.question);
     setResult({
       sql: entry.sql,
-      explanation: "",
-      tables_referenced: [],
-      is_aggregate: false,
-      safety: "safe",
+      explanation: entry.explanation ?? "",
+      tables_referenced: entry.tables_referenced ?? [],
+      is_aggregate: entry.is_aggregate ?? false,
+      safety: entry.safety ?? "safe",
     });
   }, []);
 
