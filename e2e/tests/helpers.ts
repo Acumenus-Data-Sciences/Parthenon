@@ -9,7 +9,7 @@ import * as fs from "fs";
 import { TOKEN_FILE } from "../global-setup";
 
 export const BASE =
-  process.env.PLAYWRIGHT_BASE_URL ?? "http://192.168.1.33:8082";
+  process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:8082";
 
 // ── Auth ──────────────────────────────────────────────────
 
@@ -137,9 +137,9 @@ export async function assertPageLoads(
 
 /** Dismiss modals/overlays that may block interaction. */
 export async function dismissModals(page: Page) {
-  // Try clicking the close button on any modal-container (onboarding, setup wizard, etc.)
+  // Try clicking the close button on any modal-container (onboarding, setup wizard, "What's New", etc.)
   const modalClose = page
-    .locator('.modal-container .modal-close, .modal-container button[aria-label="Close"]')
+    .locator('.modal-container .modal-close, .modal-container button[aria-label="Close"], .modal-container button:has-text("Close"), .modal-container button:has-text("Got it"), .modal-container button:has-text("Dismiss")')
     .first();
   if ((await modalClose.count()) > 0) {
     await modalClose.click({ force: true });
@@ -152,13 +152,24 @@ export async function dismissModals(page: Page) {
 
   // Try generic close/dismiss buttons in modals or dialogs
   const closeBtn = page
-    .locator('[class*="modal"] button, [role="dialog"] button')
-    .filter({ hasText: /close|dismiss|got it|ok|skip/i })
+    .locator('[class*="modal"] button, [role="dialog"] button, .fixed button')
+    .filter({ hasText: /close|dismiss|got it|ok|skip|×/i })
     .first();
   if ((await closeBtn.count()) > 0) {
     await closeBtn.click({ force: true });
     await page.waitForTimeout(500);
   }
+
+  // Last resort: click any backdrop/overlay to dismiss
+  const backdrop = page.locator('.modal-backdrop, .fixed.inset-0.bg-black, [class*="overlay"]').first();
+  if ((await backdrop.count()) > 0) {
+    await backdrop.click({ position: { x: 5, y: 5 }, force: true });
+    await page.waitForTimeout(300);
+  }
+
+  // Final Escape
+  await page.keyboard.press("Escape");
+  await page.waitForTimeout(200);
 }
 
 /** Click a tab by label text and verify no crash. */
