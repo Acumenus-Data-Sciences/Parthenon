@@ -52,10 +52,10 @@ Plans:
   2. Ingestion Dashboard page renders a readable job list (no `[object Object]` text)
   3. Uploading a file on the Upload page creates a job and navigates to the new job detail
   4. Job Detail page displays job status, steps, and progress accurately
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] 03-01: Unwrap response envelopes and verify all ingestion pages
+- [ ] 03-01-PLAN.md -- Add data.data ?? data envelope unwrapping to all ingestion API functions
 
 ## Progress
 
