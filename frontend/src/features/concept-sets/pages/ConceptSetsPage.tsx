@@ -23,6 +23,16 @@ export default function ConceptSetsPage() {
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  // Stats bar quick-filter
+  const [statFilter, setStatFilter] = useState<"with_items" | "public" | null>(null);
+
+  const handleStatClick = (key: string) => {
+    if (key === "total") {
+      setStatFilter(null);
+    } else if (key === "with_items" || key === "public") {
+      setStatFilter((prev) => (prev === key ? null : key));
+    }
+  };
 
   // Debounce search
   useEffect(() => {
@@ -104,7 +114,7 @@ export default function ConceptSetsPage() {
       </div>
 
       {/* Stats Bar */}
-      <ConceptSetStatsBar />
+      <ConceptSetStatsBar onStatClick={handleStatClick} activeKey={statFilter ?? undefined} />
 
       {/* Search + Tag Filters */}
       <div className="space-y-3">
@@ -177,6 +187,8 @@ export default function ConceptSetsPage() {
       <ConceptSetList
         search={search}
         tags={selectedTags}
+        isPublic={statFilter === "public" || undefined}
+        withItems={statFilter === "with_items" || undefined}
         onCreateFromBundle={() => setShowBundle(true)}
       />
 

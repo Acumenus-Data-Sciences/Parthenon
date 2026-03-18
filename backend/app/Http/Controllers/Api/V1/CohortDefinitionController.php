@@ -44,6 +44,8 @@ class CohortDefinitionController extends Controller
             $page = $request->integer('page', 1);
             $offset = ($page - 1) * $perPage;
             $tags = $request->filled('tags') ? (array) $request->input('tags') : [];
+            $filterIsPublic = $request->boolean('is_public');
+            $filterWithGenerations = $request->boolean('with_generations');
 
             // Try Solr when search is active
             if ($search && $this->cohortSearch->isAvailable()) {
@@ -104,6 +106,14 @@ class CohortDefinitionController extends Controller
 
             foreach ($tags as $tag) {
                 $query->whereRaw('tags @> ?::jsonb', [json_encode([$tag])]);
+            }
+
+            if ($filterIsPublic) {
+                $query->where('is_public', true);
+            }
+
+            if ($filterWithGenerations) {
+                $query->whereHas('generations');
             }
 
             $cohortDefinitions = $query->paginate($perPage);

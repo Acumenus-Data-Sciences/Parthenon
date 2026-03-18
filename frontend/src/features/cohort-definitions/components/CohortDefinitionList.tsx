@@ -81,24 +81,28 @@ function LatestGenerationBadge({
 interface Props {
   tags?: string[];
   search?: string;
+  isPublic?: boolean;
+  withGenerations?: boolean;
   onCreateFromBundle?: () => void;
 }
 
-export function CohortDefinitionList({ tags, search, onCreateFromBundle }: Props) {
+export function CohortDefinitionList({ tags, search, isPublic, withGenerations, onCreateFromBundle }: Props) {
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const limit = 20;
 
-  // Reset page when search or tags change
+  // Reset page when filters change
   useEffect(() => {
     setPage(1);
-  }, [search, tags]);
+  }, [search, tags, isPublic, withGenerations]);
 
   const { data, isLoading, error } = useCohortDefinitions({
     page,
     limit,
     tags,
     search,
+    is_public: isPublic || undefined,
+    with_generations: withGenerations || undefined,
   });
 
   if (isLoading) {

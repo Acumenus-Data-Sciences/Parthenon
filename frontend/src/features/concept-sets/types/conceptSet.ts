@@ -50,6 +50,7 @@ export interface ConceptSetListParams {
   search?: string;
   tags?: string[];
   is_public?: boolean;
+  with_items?: boolean;
 }
 
 export interface PaginatedResponse<T> {

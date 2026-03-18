@@ -80,6 +80,17 @@ export default function CohortDefinitionsPage() {
     );
   };
 
+  // Stats bar quick-filter
+  const [statFilter, setStatFilter] = useState<"generated" | "public" | null>(null);
+
+  const handleStatClick = (key: string) => {
+    if (key === "total") {
+      setStatFilter(null);
+    } else if (key === "generated" || key === "public") {
+      setStatFilter((prev) => (prev === key ? null : key));
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -127,7 +138,7 @@ export default function CohortDefinitionsPage() {
       </div>
 
       {/* Stats bar */}
-      <CohortStatsBar />
+      <CohortStatsBar onStatClick={handleStatClick} activeKey={statFilter ?? undefined} />
 
       {/* Search bar */}
       <div className="relative max-w-md">
@@ -227,6 +238,8 @@ export default function CohortDefinitionsPage() {
       <CohortDefinitionList
         tags={activeTags.length > 0 ? activeTags : undefined}
         search={debouncedSearch || undefined}
+        isPublic={statFilter === "public" || undefined}
+        withGenerations={statFilter === "generated" || undefined}
         onCreateFromBundle={() => setShowFromBundle(true)}
       />
 

@@ -241,6 +241,8 @@ export interface CohortDefinitionListParams {
   limit?: number;
   search?: string;
   tags?: string[];
+  is_public?: boolean;
+  with_generations?: boolean;
 }
 
 export interface PaginatedResponse<T> {

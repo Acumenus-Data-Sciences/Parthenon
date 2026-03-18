@@ -24,28 +24,34 @@ function formatDate(iso: string): string {
 interface ConceptSetListProps {
   search?: string;
   tags?: string[];
+  isPublic?: boolean;
+  withItems?: boolean;
   onCreateFromBundle?: () => void;
 }
 
 export function ConceptSetList({
   search,
   tags,
+  isPublic,
+  withItems,
   onCreateFromBundle,
 }: ConceptSetListProps) {
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const limit = 20;
 
-  // Reset page on search/tags change
+  // Reset page on filter change
   useEffect(() => {
     setPage(1);
-  }, [search, tags]);
+  }, [search, tags, isPublic, withItems]);
 
   const { data, isLoading, error } = useConceptSets({
     page,
     limit,
     search: search || undefined,
     tags: tags?.length ? tags : undefined,
+    is_public: isPublic || undefined,
+    with_items: withItems || undefined,
   });
 
   if (isLoading) {

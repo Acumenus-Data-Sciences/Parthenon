@@ -48,6 +48,14 @@ class ConceptSetController extends Controller
                 }
             }
 
+            if ($request->boolean('is_public')) {
+                $query->where('is_public', true);
+            }
+
+            if ($request->boolean('with_items')) {
+                $query->whereHas('items');
+            }
+
             return response()->json($query->paginate($request->integer('per_page', 20)));
         } catch (\Throwable $e) {
             return $this->errorResponse('Failed to retrieve concept sets', $e);

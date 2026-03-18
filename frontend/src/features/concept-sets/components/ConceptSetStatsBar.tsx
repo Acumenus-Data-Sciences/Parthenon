@@ -1,7 +1,7 @@
 import { Layers, CheckCircle2, Globe } from "lucide-react";
 import { useConceptSetStats } from "../hooks/useConceptSets";
 
-export function ConceptSetStatsBar({ onStatClick }: { onStatClick?: (key: string) => void } = {}) {
+export function ConceptSetStatsBar({ onStatClick, activeKey }: { onStatClick?: (key: string) => void; activeKey?: string } = {}) {
   const { data: stats } = useConceptSetStats();
 
   if (!stats) return null;
@@ -23,7 +23,7 @@ export function ConceptSetStatsBar({ onStatClick }: { onStatClick?: (key: string
       {metrics.map((m) => (
         <div
           key={m.label}
-          className="flex items-center gap-3 rounded-lg border border-[#232328] bg-[#151518] px-4 py-3 transition-colors hover:border-[#3A3A40] cursor-pointer"
+          className={`flex items-center gap-3 rounded-lg border px-4 py-3 transition-colors cursor-pointer ${activeKey === m.key ? "border-[#C9A227]/50 bg-[#C9A227]/5" : "border-[#232328] bg-[#151518] hover:border-[#3A3A40]"}`}
           onClick={() => onStatClick?.(m.key)}
           role="button"
           tabIndex={0}

@@ -6,6 +6,9 @@ import { cn } from "@/lib/utils";
 import { SourceSelector } from "../components/SourceSelector";
 import { HelpButton } from "@/features/help";
 import apiClient from "@/lib/api-client";
+import type { Domain } from "../types/dataExplorer";
+
+const VALID_DOMAINS = new Set<Domain>(["condition", "drug", "procedure", "measurement", "observation", "visit"]);
 
 // Lazy-loaded tab content
 const OverviewTab = lazy(() => import("./OverviewTab"));
@@ -36,6 +39,7 @@ export default function DataExplorerPage() {
   const { sourceId: sourceIdParam } = useParams<{ sourceId?: string }>();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<TabId>("overview");
+  const [pendingDomain, setPendingDomain] = useState<Domain | null>(null);
 
   // Derive sourceId from URL param or local state
   const [localSourceId, setLocalSourceId] = useState<number | null>(
@@ -48,8 +52,10 @@ export default function DataExplorerPage() {
     navigate(`/data-explorer/${id}`, { replace: true });
   };
 
-  // Cross-tab navigation (Overview treemap → Domains tab)
-  const handleNavigateToDomain = useCallback((_domain: string) => {
+  // Cross-tab navigation (Overview metric cards → Domains tab)
+  const handleNavigateToDomain = useCallback((domain: string) => {
+    const resolved = VALID_DOMAINS.has(domain as Domain) ? (domain as Domain) : null;
+    setPendingDomain(resolved);
     setActiveTab("domains");
   }, []);
 
@@ -147,7 +153,7 @@ export default function DataExplorerPage() {
       ) : (
         <Suspense fallback={<TabFallback />}>
           {activeTab === "overview" && <OverviewTab sourceId={sourceId} onNavigateToDomain={handleNavigateToDomain} />}
-          {activeTab === "domains" && <DomainTab sourceId={sourceId} />}
+          {activeTab === "domains" && <DomainTab sourceId={sourceId} initialDomain={pendingDomain ?? undefined} />}
           {activeTab === "dqd" && <DqdTab sourceId={sourceId} />}
           {activeTab === "temporal" && <TemporalTab sourceId={sourceId} />}
           {activeTab === "heel" && <HeelTab sourceId={sourceId} />}

@@ -10,6 +10,7 @@ import { DOMAIN_LABELS } from "../types/dataExplorer";
 
 interface DomainTabProps {
   sourceId: number;
+  initialDomain?: Domain;
 }
 
 const DOMAINS: Domain[] = [
@@ -21,8 +22,8 @@ const DOMAINS: Domain[] = [
   "visit",
 ];
 
-export default function DomainTab({ sourceId }: DomainTabProps) {
-  const [activeDomain, setActiveDomain] = useState<Domain>("condition");
+export default function DomainTab({ sourceId, initialDomain }: DomainTabProps) {
+  const [activeDomain, setActiveDomain] = useState<Domain>(initialDomain ?? "condition");
   const [selectedConceptId, setSelectedConceptId] = useState<number | null>(null);
 
   const domainSummary = useDomainSummary(sourceId, activeDomain);
