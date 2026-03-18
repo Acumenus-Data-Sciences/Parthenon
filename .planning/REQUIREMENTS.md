@@ -7,9 +7,9 @@
 
 ### Email Delivery
 
-- [ ] **EMAIL-01**: RESEND_KEY environment variable in `.env` matches what Laravel's `config/services.php` reads via `env('RESEND_KEY')`
-- [ ] **EMAIL-02**: Registration flow successfully sends temp password email via Resend
-- [ ] **EMAIL-03**: Forgot password flow successfully sends new temp password email via Resend
+- [x] **EMAIL-01**: RESEND_KEY environment variable in `.env` matches what Laravel's `config/services.php` reads via `env('RESEND_KEY')`
+- [x] **EMAIL-02**: Registration flow successfully sends temp password email via Resend
+- [x] **EMAIL-03**: Forgot password flow successfully sends new temp password email via Resend
 
 ### FHIR Export
 
@@ -64,9 +64,9 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| EMAIL-01 | Phase 1 | Pending |
-| EMAIL-02 | Phase 1 | Pending |
-| EMAIL-03 | Phase 1 | Pending |
+| EMAIL-01 | Phase 1 | Complete |
+| EMAIL-02 | Phase 1 | Complete |
+| EMAIL-03 | Phase 1 | Complete |
 | FHIR-01 | Phase 2 | Pending |
 | FHIR-02 | Phase 2 | Pending |
 | INGEST-01 | Phase 3 | Pending |
