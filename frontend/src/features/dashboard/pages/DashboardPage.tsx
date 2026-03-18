@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Database,
@@ -12,6 +12,14 @@ import {
   Clock,
   BarChart3,
   CheckCircle2,
+  Pill,
+  Stethoscope,
+  Microscope,
+  Eye,
+  CalendarDays,
+  Skull,
+  HeartPulse,
+  Syringe,
 } from "lucide-react";
 import { MetricCard, Panel, StatusDot, Badge, Skeleton, EmptyState } from "@/components/ui";
 import { useDashboardStats } from "../hooks/useDashboard";
@@ -23,12 +31,25 @@ import { Sparkline } from "@/features/data-explorer/components/charts/Sparkline"
 import { formatCompact, GENDER_COLORS } from "@/features/data-explorer/components/charts/chartUtils";
 import { HelpButton } from "@/features/help";
 
+// Domain table → display config
+const DOMAIN_CONFIG: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
+  condition_occurrence: { label: "Conditions", icon: <HeartPulse size={14} />, color: "#E85A6B" },
+  drug_exposure: { label: "Drug Exposures", icon: <Pill size={14} />, color: "#60A5FA" },
+  procedure_occurrence: { label: "Procedures", icon: <Syringe size={14} />, color: "#C9A227" },
+  measurement: { label: "Measurements", icon: <Microscope size={14} />, color: "#2DD4BF" },
+  observation: { label: "Observations", icon: <Eye size={14} />, color: "#A78BFA" },
+  visit_occurrence: { label: "Visits", icon: <CalendarDays size={14} />, color: "#F97316" },
+  drug_era: { label: "Drug Eras", icon: <Pill size={14} />, color: "#38BDF8" },
+  condition_era: { label: "Condition Eras", icon: <HeartPulse size={14} />, color: "#FB7185" },
+  device_exposure: { label: "Devices", icon: <Stethoscope size={14} />, color: "#4ADE80" },
+  death: { label: "Deaths", icon: <Skull size={14} />, color: "#8A857D" },
+};
+
 export function DashboardPage() {
   const { data: stats, isLoading, error } = useDashboardStats();
   const navigate = useNavigate();
   const [selectedSourceId, setSelectedSourceId] = useState<number | null>(null);
 
-  // Auto-select default source (or first source) when stats load
   useEffect(() => {
     if (stats?.sources.length && !selectedSourceId) {
       const defaultSrc = stats.sources.find((s: { id: number; is_default?: boolean }) => s.is_default);
@@ -51,7 +72,7 @@ export function DashboardPage() {
   const totalTables = recordCounts?.length ?? 1;
   const completeness = Math.round((tablesWithData / totalTables) * 100);
 
-  // Sparkline data from observation start dates (aggregated by year)
+  // Sparkline from observation start dates
   const sparklineData = obsPeriods?.startYearMonth
     ?.reduce<Record<string, number>>((acc, d) => {
       const year = d.year_month.slice(0, 4);
@@ -60,12 +81,22 @@ export function DashboardPage() {
     }, {});
   const sparklineValues = sparklineData ? Object.values(sparklineData) : [];
 
-  // Gender segments for proportional bar
+  // Gender segments
   const genderSegments = demographics?.gender.map((g) => ({
     label: g.concept_name,
     value: g.count,
     color: GENDER_COLORS[g.concept_name] ?? "#8A857D",
   })) ?? [];
+
+  // Domain counts for the CDM breakdown panel
+  const domainCounts = useMemo(() => {
+    if (!recordCounts) return [];
+    return recordCounts
+      .filter((r) => r.table in DOMAIN_CONFIG && r.count > 0)
+      .sort((a, b) => b.count - a.count);
+  }, [recordCounts]);
+
+  const maxDomainCount = domainCounts.length > 0 ? domainCounts[0].count : 1;
 
   const cdmLoading = recordsLoading || demoLoading || obsLoading;
 
@@ -206,29 +237,80 @@ export function DashboardPage() {
               </div>
             )}
 
-            {/* Demographics: Gender bar + Age pyramid */}
+            {/* Demographics + Domain Counts — two column */}
             {cdmLoading ? (
               <div className="grid grid-cols-2 gap-4">
-                <Skeleton height="120px" />
-                <Skeleton height="220px" />
+                <Skeleton height="300px" />
+                <Skeleton height="300px" />
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-4">
+                {/* Left: Gender + Age Pyramid combined */}
                 <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
                   <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[#8A857D]">
-                    Gender Distribution
+                    Demographics
                   </h3>
-                  {genderSegments.length > 0 ? (
-                    <ProportionalBar segments={genderSegments} height={28} />
+
+                  {/* Gender bar */}
+                  {genderSegments.length > 0 && (
+                    <div className="mb-4">
+                      <ProportionalBar segments={genderSegments} height={24} />
+                      <div className="mt-2 flex items-center gap-4">
+                        {genderSegments.map((seg) => (
+                          <div key={seg.label} className="flex items-center gap-1.5 text-xs text-[#8A857D]">
+                            <div className="h-2.5 w-2.5 rounded-sm" style={{ backgroundColor: seg.color }} />
+                            {seg.label}: {formatCompact(seg.value)} ({((seg.value / personCount) * 100).toFixed(1)}%)
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Age pyramid */}
+                  <DemographicsPyramid
+                    gender={demographics?.gender ?? []}
+                    age={demographics?.age ?? []}
+                    height={200}
+                  />
+                </div>
+
+                {/* Right: CDM Domain Counts */}
+                <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
+                  <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[#8A857D]">
+                    CDM Domain Counts
+                  </h3>
+
+                  {domainCounts.length > 0 ? (
+                    <div className="space-y-2.5">
+                      {domainCounts.map((rc) => {
+                        const config = DOMAIN_CONFIG[rc.table];
+                        if (!config) return null;
+                        const pct = (rc.count / maxDomainCount) * 100;
+                        return (
+                          <div key={rc.table}>
+                            <div className="mb-1 flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <span style={{ color: config.color }}>{config.icon}</span>
+                                <span className="text-xs font-medium text-[#C5C0B8]">{config.label}</span>
+                              </div>
+                              <span className="font-['IBM_Plex_Mono',monospace] text-xs text-[#F0EDE8]">
+                                {rc.count.toLocaleString()}
+                              </span>
+                            </div>
+                            <div className="h-1.5 overflow-hidden rounded-full bg-[#232328]">
+                              <div
+                                className="h-full rounded-full transition-all duration-500"
+                                style={{ width: `${pct}%`, backgroundColor: config.color, opacity: 0.7 }}
+                              />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
                   ) : (
-                    <p className="text-sm text-[#5A5650]">No gender data</p>
+                    <p className="text-sm text-[#5A5650]">No domain data available</p>
                   )}
                 </div>
-                <DemographicsPyramid
-                  gender={demographics?.gender ?? []}
-                  age={demographics?.age ?? []}
-                  height={220}
-                />
               </div>
             )}
           </>
@@ -240,9 +322,91 @@ export function DashboardPage() {
         )}
       </div>
 
-      {/* Two-column panels */}
+      {/* Recent Cohorts + Quick Actions */}
       <div className="grid-two" style={{ marginBottom: "var(--space-6)" }}>
-        {/* Source Health Panel */}
+        {/* Recent Cohort Activity */}
+        <Panel
+          header={
+            <>
+              <span className="panel-title">Recent Cohort Activity</span>
+              <Link to="/cohort-definitions" className="btn btn-ghost btn-sm" style={{ gap: "var(--space-1)" }}>
+                View All <ArrowRight size={14} />
+              </Link>
+            </>
+          }
+        >
+          {isLoading ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
+              <Skeleton count={3} />
+            </div>
+          ) : stats?.recentCohorts.length ? (
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Cohort</th>
+                  <th>Subjects</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {stats.recentCohorts.map((cohort) => (
+                  <tr key={cohort.id} className="clickable" onClick={() => navigate(`/cohort-definitions/${cohort.id}`)} style={{ cursor: "pointer" }} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") navigate(`/cohort-definitions/${cohort.id}`); }}>
+                    <td style={{ color: "var(--text-primary)" }}>{cohort.name}</td>
+                    <td className="mono">
+                      {cohort.person_count != null ? cohort.person_count.toLocaleString() : "\u2014"}
+                    </td>
+                    <td>
+                      <Badge
+                        variant={
+                          cohort.status === "active" ? "success" :
+                          cohort.status === "error" ? "critical" :
+                          "default"
+                        }
+                      >
+                        {cohort.status}
+                      </Badge>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <EmptyState
+              icon={<Users size={32} />}
+              title="No cohorts yet"
+              message="Create your first cohort definition to begin research."
+              action={
+                <Link to="/cohort-definitions" className="btn btn-primary btn-sm">
+                  New Cohort
+                </Link>
+              }
+            />
+          )}
+        </Panel>
+
+        {/* Quick Actions */}
+        <Panel
+          header={<span className="panel-title">Quick Actions</span>}
+        >
+          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
+            <Link to="/data-sources" className="btn btn-secondary" style={{ justifyContent: "flex-start" }}>
+              <Database size={16} /> Connect a Data Source
+            </Link>
+            <Link to="/cohort-definitions" className="btn btn-secondary" style={{ justifyContent: "flex-start" }}>
+              <Users size={16} /> Create Cohort Definition
+            </Link>
+            <Link to="/concept-sets" className="btn btn-secondary" style={{ justifyContent: "flex-start" }}>
+              <FlaskConical size={16} /> Build Concept Set
+            </Link>
+            <Link to="/data-explorer" className="btn btn-secondary" style={{ justifyContent: "flex-start" }}>
+              <Database size={16} /> Explore Data Quality
+            </Link>
+          </div>
+        </Panel>
+      </div>
+
+      {/* Source Health + Active Jobs (bottom — generally empty) */}
+      <div className="grid-two">
         <Panel
           header={
             <>
@@ -268,7 +432,7 @@ export function DashboardPage() {
               </thead>
               <tbody>
                 {stats.sources.slice(0, 5).map((source) => (
-                  <tr key={source.id} onClick={() => navigate(`/data-explorer/${source.id}`)} style={{ cursor: "pointer" }} className="clickable">
+                  <tr key={source.id} onClick={() => navigate(`/data-explorer/${source.id}`)} style={{ cursor: "pointer" }} className="clickable" role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") navigate(`/data-explorer/${source.id}`); }}>
                     <td style={{ fontWeight: 500, color: "var(--text-primary)" }}>
                       {source.source_name}
                     </td>
@@ -297,7 +461,6 @@ export function DashboardPage() {
           )}
         </Panel>
 
-        {/* Active Jobs Panel */}
         <Panel
           header={
             <>
@@ -349,89 +512,6 @@ export function DashboardPage() {
               message="Jobs will appear here when analyses are running."
             />
           )}
-        </Panel>
-      </div>
-
-      {/* Second row */}
-      <div className="grid-two">
-        {/* Recent Cohort Activity */}
-        <Panel
-          header={
-            <>
-              <span className="panel-title">Recent Cohort Activity</span>
-              <Link to="/cohort-definitions" className="btn btn-ghost btn-sm" style={{ gap: "var(--space-1)" }}>
-                View All <ArrowRight size={14} />
-              </Link>
-            </>
-          }
-        >
-          {isLoading ? (
-            <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
-              <Skeleton count={3} />
-            </div>
-          ) : stats?.recentCohorts.length ? (
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Cohort</th>
-                  <th>Subjects</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {stats.recentCohorts.map((cohort) => (
-                  <tr key={cohort.id} className="clickable" onClick={() => navigate(`/cohort-definitions/${cohort.id}`)} style={{ cursor: "pointer" }}>
-                    <td style={{ color: "var(--text-primary)" }}>{cohort.name}</td>
-                    <td className="mono">
-                      {cohort.person_count != null ? cohort.person_count.toLocaleString() : "—"}
-                    </td>
-                    <td>
-                      <Badge
-                        variant={
-                          cohort.status === "active" ? "success" :
-                          cohort.status === "error" ? "critical" :
-                          "default"
-                        }
-                      >
-                        {cohort.status}
-                      </Badge>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          ) : (
-            <EmptyState
-              icon={<Users size={32} />}
-              title="No cohorts yet"
-              message="Create your first cohort definition to begin research."
-              action={
-                <Link to="/cohort-definitions" className="btn btn-primary btn-sm">
-                  New Cohort
-                </Link>
-              }
-            />
-          )}
-        </Panel>
-
-        {/* Quick Actions */}
-        <Panel
-          header={<span className="panel-title">Quick Actions</span>}
-        >
-          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
-            <Link to="/data-sources" className="btn btn-secondary" style={{ justifyContent: "flex-start" }}>
-              <Database size={16} /> Connect a Data Source
-            </Link>
-            <Link to="/cohort-definitions" className="btn btn-secondary" style={{ justifyContent: "flex-start" }}>
-              <Users size={16} /> Create Cohort Definition
-            </Link>
-            <Link to="/concept-sets" className="btn btn-secondary" style={{ justifyContent: "flex-start" }}>
-              <FlaskConical size={16} /> Build Concept Set
-            </Link>
-            <Link to="/data-explorer" className="btn btn-secondary" style={{ justifyContent: "flex-start" }}>
-              <Database size={16} /> Explore Data Quality
-            </Link>
-          </div>
         </Panel>
       </div>
     </div>

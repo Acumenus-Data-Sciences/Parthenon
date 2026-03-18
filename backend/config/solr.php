@@ -22,6 +22,7 @@ return [
         'claims' => env('SOLR_CORE_CLAIMS', 'claims'),
         'gis_spatial' => env('SOLR_CORE_GIS_SPATIAL', 'gis_spatial'),
         'vector_explorer' => env('SOLR_CORE_VECTOR_EXPLORER', 'vector_explorer'),
+        'query_library' => env('SOLR_CORE_QUERY_LIBRARY', 'query_library'),
     ],
 
     'circuit_breaker' => [
