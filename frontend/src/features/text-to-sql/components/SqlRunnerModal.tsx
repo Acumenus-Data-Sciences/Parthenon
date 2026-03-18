@@ -20,6 +20,7 @@ import {
   type QueryLibraryEntry,
   type QueryLibraryParameter,
 } from "../api";
+import { getErrorMessage } from "@/lib/error-utils";
 
 interface SqlRunnerModalProps {
   open: boolean;
@@ -246,19 +247,7 @@ export function SqlRunnerModal({
       stopPolling();
     },
     onError: (err: unknown) => {
-      const e = err as {
-        response?: {
-          data?: { error?: string; message?: string };
-          status?: number;
-        };
-        message?: string;
-      };
-      const msg =
-        e.response?.data?.message ??
-        e.response?.data?.error ??
-        e.message ??
-        "Query execution failed";
-      setError(msg);
+      setError(getErrorMessage(err, "Query execution failed"));
       stopPolling();
     },
   });

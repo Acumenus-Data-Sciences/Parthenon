@@ -5,6 +5,7 @@ import { generateSql, type GenerateResponse } from "../api";
 import { ResultsPanel } from "./ResultsPanel";
 import { ResultsSkeleton } from "./ResultsSkeleton";
 import { SchemaBrowser } from "./SchemaBrowser";
+import { getErrorMessage } from "@/lib/error-utils";
 
 // ── Local storage helpers ────────────────────────────────────────────────────
 
@@ -35,21 +36,6 @@ function saveHistory(entries: HistoryEntry[]): void {
   localStorage.setItem(
     HISTORY_KEY,
     JSON.stringify(entries.slice(0, MAX_HISTORY)),
-  );
-}
-
-function getErrorMessage(error: unknown, fallback: string): string {
-  if (!error || typeof error !== "object") return fallback;
-  const e = error as {
-    response?: { data?: { detail?: string; message?: string; error?: string } };
-    message?: string;
-  };
-  return (
-    e.response?.data?.detail ??
-    e.response?.data?.message ??
-    e.response?.data?.error ??
-    e.message ??
-    fallback
   );
 }
 
