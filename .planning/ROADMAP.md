@@ -15,9 +15,9 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 1: Email Delivery** - Fix RESEND_KEY env mismatch so registration and password reset emails send
 - [x] **Phase 2: FHIR Export** - Make FHIR Export page functional or gracefully disabled (completed 2026-03-18)
 - [x] **Phase 3: Ingestion API** - Unwrap Laravel response envelopes so ingestion pages render correctly (completed 2026-03-18)
-- [ ] **Phase 4: HIGH UX Fixes** - Fix broken genomics source selector, gene filter, and query history metadata
-- [ ] **Phase 5: MEDIUM Quality Fixes** - Solr config, accessibility, error states, type safety
-- [ ] **Phase 6: LOW Polish** - Modal consistency, dead code cleanup, empty state guidance
+- [x] **Phase 4: HIGH UX Fixes** - Fix broken genomics source selector, gene filter, and query history metadata (completed 2026-03-18)
+- [x] **Phase 5: MEDIUM Quality Fixes** - Solr config, accessibility, error states, type safety (completed 2026-03-18)
+- [x] **Phase 6: LOW Polish** - Modal consistency, dead code cleanup, empty state guidance (completed 2026-03-18)
 
 ## Phase Details
 
@@ -102,6 +102,6 @@ Phases execute in numeric order: 1 -> 2 -> 3
 | 1. Email Delivery | 0/1 | Not started | - |
 | 2. FHIR Export | 0/1 | Complete    | 2026-03-18 |
 | 3. Ingestion API | 0/1 | Complete    | 2026-03-18 |
-| 4. HIGH UX Fixes | 0/0 | Not started | - |
-| 5. MEDIUM Quality | 0/0 | Not started | - |
-| 6. LOW Polish | 0/0 | Not started | - |
+| 4. HIGH UX Fixes | 0/0 | Complete    | 2026-03-18 |
+| 5. MEDIUM Quality | 0/0 | Complete    | 2026-03-18 |
+| 6. LOW Polish | 0/0 | Complete    | 2026-03-18 |
