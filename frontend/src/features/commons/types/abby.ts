@@ -44,6 +44,7 @@ export interface AbbyQueryRequest {
   object_id?: string;
   conversation_id?: number;
   page_context?: string;
+  history?: Array<{ role: "user" | "assistant"; content: string }>;
 }
 
 export interface AbbyQueryResponse {

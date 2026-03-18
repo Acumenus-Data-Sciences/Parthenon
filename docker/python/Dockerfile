@@ -9,8 +9,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-COPY ai/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY ai/requirements.txt ai/requirements-dev.txt ./
+RUN pip install --no-cache-dir -r requirements.txt -r requirements-dev.txt
 
 COPY ai/ .
 

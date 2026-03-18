@@ -81,7 +81,9 @@ export const useAbbyStore = create<AbbyState>()(
     }),
     {
       name: "parthenon-abby",
-      partialize: (state) => ({ conversationId: state.conversationId }),
+      // Do NOT persist conversationId — stale IDs cause 422 validation failures
+      // after DB restores, and users expect a clean slate on hard refresh.
+      partialize: () => ({}),
     },
   ),
 );

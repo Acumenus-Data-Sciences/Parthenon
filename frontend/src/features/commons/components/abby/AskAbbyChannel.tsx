@@ -192,7 +192,7 @@ export default function AskAbbyChannel() {
   const [historyOpen, setHistoryOpen] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [activePlan, setActivePlan] = useState<ActionPlan | null>(null);
-  const { response, pipelineState, isLoading, sendQuery } = useAbbyQuery();
+  const { response, pipelineState, isLoading, error, sendQuery } = useAbbyQuery();
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -287,6 +287,15 @@ export default function AskAbbyChannel() {
       setInputValue("");
       inputRef.current?.focus();
 
+      // Build history from current conversation state (state not yet updated with
+      // the just-added user message, so this captures all prior turns correctly).
+      const history = conversation.map((entry) => ({
+        role: (entry.role === "abby" ? "assistant" : "user") as
+          | "user"
+          | "assistant",
+        content: entry.content,
+      }));
+
       sendQuery({
         query,
         channel_id: "ask-abby",
@@ -294,6 +303,7 @@ export default function AskAbbyChannel() {
         user_name: userName,
         page_context: "commons_ask_abby",
         conversation_id: conversationId ?? undefined,
+        history,
       });
     },
     [conversationId, inputValue, isLoading, userName, sendQuery]
@@ -473,6 +483,15 @@ export default function AskAbbyChannel() {
               <AbbyAvatar size="sm" />
               <div className="px-3.5 py-2.5 rounded-2xl rounded-bl-sm bg-muted">
                 <AbbyTypingIndicator pipelineState={pipelineState} />
+              </div>
+            </div>
+          )}
+
+          {error && !isLoading && (
+            <div className="flex gap-2.5">
+              <AbbyAvatar size="md" />
+              <div className="max-w-[85%] px-3.5 py-2.5 rounded-2xl rounded-bl-sm bg-red-950/40 border border-red-800/30 text-[13px] text-red-400">
+                Something went wrong — please try again.
               </div>
             </div>
           )}

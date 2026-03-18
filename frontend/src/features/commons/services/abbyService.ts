@@ -33,6 +33,7 @@ export async function queryAbby(
         name: request.user_name,
       },
       conversation_id: request.conversation_id ?? null,
+      history: request.history ?? [],
     }
   );
 
