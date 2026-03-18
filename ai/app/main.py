@@ -120,8 +120,8 @@ async def startup_warm_embedders() -> None:
 
 @app.on_event("startup")
 async def startup_warm_ollama() -> None:
-    """Pre-load MedGemma into Ollama at startup with keep_alive=-1 so the
-    model stays pinned in VRAM and doesn't need to be swapped in on first use."""
+    """Pre-load MedGemma into Ollama at startup with keep_alive=3600 so the
+    model stays warm for 1 hour without pegging the GPU indefinitely."""
     import asyncio
     import httpx
     from app.config import settings
@@ -137,7 +137,7 @@ async def startup_warm_ollama() -> None:
                     json={
                         "model": settings.ollama_model,
                         "prompt": "",
-                        "keep_alive": -1,
+                        "keep_alive": 3600,
                     },
                 )
                 if resp.status_code == 200:

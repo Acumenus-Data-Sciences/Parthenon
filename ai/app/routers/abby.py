@@ -515,7 +515,7 @@ async def call_ollama(system_prompt: str, user_message: str,
                         "model": settings.ollama_model,
                         "messages": messages,
                         "stream": False,
-                        "keep_alive": -1,  # pin model in VRAM to avoid eviction
+                        "keep_alive": 3600,  # keep warm for 1 hour; -1 pegs GPU forever
                         "options": {"temperature": temperature},
                     },
                 )
