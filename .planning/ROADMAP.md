@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [ ] **Phase 1: Email Delivery** - Fix RESEND_KEY env mismatch so registration and password reset emails send
 - [x] **Phase 2: FHIR Export** - Make FHIR Export page functional or gracefully disabled (completed 2026-03-18)
-- [ ] **Phase 3: Ingestion API** - Unwrap Laravel response envelopes so ingestion pages render correctly
+- [x] **Phase 3: Ingestion API** - Unwrap Laravel response envelopes so ingestion pages render correctly (completed 2026-03-18)
 
 ## Phase Details
 
@@ -66,4 +66,4 @@ Phases execute in numeric order: 1 -> 2 -> 3
 |-------|----------------|--------|-----------|
 | 1. Email Delivery | 0/1 | Not started | - |
 | 2. FHIR Export | 0/1 | Complete    | 2026-03-18 |
-| 3. Ingestion API | 0/1 | Not started | - |
+| 3. Ingestion API | 0/1 | Complete    | 2026-03-18 |
