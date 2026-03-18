@@ -49,6 +49,7 @@ export interface AbbyQueryRequest {
 
 export interface AbbyQueryResponse {
   content: string;
+  suggestions: string[];
   sources: AbbySource[];
   object_references: ObjectReference[];
   confidence_score?: number;

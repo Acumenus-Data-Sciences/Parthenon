@@ -778,10 +778,21 @@ def _strip_thinking_tokens(text: str) -> str:
 
 
 def _extract_suggestions(raw: str) -> tuple[str, list[str]]:
-    """Extract suggestion chips from the LLM reply and clean output."""
+    """Extract suggestion chips from the LLM reply and clean output.
+
+    Handles two formats:
+      1. JSON array (instructed format):
+            SUGGESTIONS: ["What next?", "How to fix?"]
+      2. Singular plain-text lines (what MedGemma actually produces):
+            Suggestion: Would you like to explore cohort design?
+            Suggestion: Are you interested in specific medications?
+    """
+    import re
+
     suggestions: list[str] = []
     reply = _strip_thinking_tokens(raw.strip())
 
+    # ── Format 1: SUGGESTIONS: ["...", "..."] ────────────────────────────────
     if "SUGGESTIONS:" in reply:
         parts = reply.rsplit("SUGGESTIONS:", 1)
         reply = parts[0].strip()
@@ -791,6 +802,17 @@ def _extract_suggestions(raw: str) -> tuple[str, list[str]]:
                 suggestions = []
         except (json.JSONDecodeError, IndexError):
             suggestions = []
+        return reply, suggestions[:3]
+
+    # ── Format 2: Suggestion: text  (MedGemma's actual output) ───────────────
+    suggestion_pattern = re.compile(r"Suggestion:\s*(.+?)(?=Suggestion:|$)", re.IGNORECASE | re.DOTALL)
+    matches = suggestion_pattern.findall(reply)
+    if matches:
+        suggestions = [m.strip().rstrip("?. ") + "?" if not m.strip().endswith("?") else m.strip()
+                       for m in matches]
+        # Strip all Suggestion: lines from the reply body
+        reply = re.sub(r"\s*Suggestion:\s*.+?(?=Suggestion:|$)", "", reply,
+                       flags=re.IGNORECASE | re.DOTALL).strip()
 
     return reply, suggestions[:3]
 

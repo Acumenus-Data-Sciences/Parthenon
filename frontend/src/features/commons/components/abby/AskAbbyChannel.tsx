@@ -119,9 +119,11 @@ function UserBubble({
 function AbbyBubble({
   entry,
   onFeedback,
+  onSuggestionClick,
 }: {
   entry: ConversationEntry;
   onFeedback: (feedback: AbbyFeedbackRequest) => void;
+  onSuggestionClick: (suggestion: string) => void;
 }) {
   return (
     <div className="flex gap-2.5">
@@ -149,6 +151,22 @@ function AbbyBubble({
             </ReactMarkdown>
           </div>
         </div>
+
+        {/* Suggestion chips */}
+        {entry.response && entry.response.suggestions.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mt-2">
+            {entry.response.suggestions.map((suggestion) => (
+              <button
+                key={suggestion}
+                type="button"
+                onClick={() => onSuggestionClick(suggestion)}
+                className="px-2.5 py-1 rounded-full text-[11px] text-emerald-400 border border-emerald-700/40 bg-emerald-900/10 hover:bg-emerald-900/25 hover:border-emerald-600/60 transition-all duration-150 cursor-pointer text-left"
+              >
+                {suggestion}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* Object references */}
         {entry.response && entry.response.object_references.length > 0 && (
@@ -474,6 +492,7 @@ export default function AskAbbyChannel() {
                 key={entry.id}
                 entry={entry}
                 onFeedback={handleFeedback}
+                onSuggestionClick={(s) => handleSend(s)}
               />
             )
           )}

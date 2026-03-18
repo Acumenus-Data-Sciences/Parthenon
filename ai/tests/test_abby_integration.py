@@ -461,6 +461,42 @@ class TestExtractSuggestions:
         assert reply == ""
         assert suggestions == []
 
+    def test_parses_medgemma_singular_suggestion_format(self) -> None:
+        """MedGemma outputs 'Suggestion: text' lines instead of JSON array."""
+        raw = (
+            "Answer about heart failure study.\n"
+            "Suggestion: Would you like to explore cohort design?\n"
+            "Suggestion: Are you interested in specific medications?\n"
+            "Suggestion: Do you need help with concept sets?"
+        )
+        reply, suggestions = _extract_suggestions(raw)
+        assert "Suggestion:" not in reply
+        assert len(suggestions) == 3
+        assert "cohort design" in suggestions[0]
+
+    def test_parses_medgemma_inline_suggestion_format(self) -> None:
+        """MedGemma sometimes puts all Suggestion: entries on one line."""
+        raw = (
+            "Answer text. "
+            "Suggestion: First? "
+            "Suggestion: Second? "
+            "Suggestion: Third?"
+        )
+        reply, suggestions = _extract_suggestions(raw)
+        assert len(suggestions) == 3
+        assert "Suggestion:" not in reply
+
+    def test_medgemma_suggestions_capped_at_three(self) -> None:
+        raw = "\n".join([
+            "Body text.",
+            "Suggestion: One?",
+            "Suggestion: Two?",
+            "Suggestion: Three?",
+            "Suggestion: Four?",
+        ])
+        _, suggestions = _extract_suggestions(raw)
+        assert len(suggestions) == 3
+
 
 class TestStripThinkingTokens:
     """_strip_thinking_tokens must remove MedGemma chain-of-thought blocks."""

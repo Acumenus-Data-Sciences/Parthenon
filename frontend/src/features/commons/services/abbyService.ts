@@ -39,6 +39,7 @@ export async function queryAbby(
 
   return {
     content: data.reply ?? data.message ?? "",
+    suggestions: data.suggestions ?? [],
     sources: [],
     object_references: [],
     collections_searched: [],
