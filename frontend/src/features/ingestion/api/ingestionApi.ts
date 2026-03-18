@@ -26,7 +26,7 @@ export async function uploadFile(
       headers: { "Content-Type": "multipart/form-data" },
     },
   );
-  return data;
+  return data.data ?? data;
 }
 
 export async function fetchJobs(params?: {
@@ -36,19 +36,19 @@ export async function fetchJobs(params?: {
   const { data } = await apiClient.get<IngestionJob[]>("/ingestion/jobs", {
     params,
   });
-  return data;
+  return data.data ?? data;
 }
 
 export async function fetchJob(id: number): Promise<IngestionJob> {
   const { data } = await apiClient.get<IngestionJob>(`/ingestion/jobs/${id}`);
-  return data;
+  return data.data ?? data;
 }
 
 export async function fetchProfile(jobId: number): Promise<SourceProfile> {
   const { data } = await apiClient.get<SourceProfile>(
     `/ingestion/jobs/${jobId}/profile`,
   );
-  return data;
+  return data.data ?? data;
 }
 
 export async function deleteJob(id: number): Promise<void> {
@@ -59,7 +59,7 @@ export async function retryJob(id: number): Promise<IngestionJob> {
   const { data } = await apiClient.post<IngestionJob>(
     `/ingestion/jobs/${id}/retry`,
   );
-  return data;
+  return data.data ?? data;
 }
 
 export async function fetchMappings(
@@ -70,14 +70,14 @@ export async function fetchMappings(
     `/ingestion/jobs/${jobId}/mappings`,
     { params },
   );
-  return data;
+  return data.data ?? data;
 }
 
 export async function fetchMappingStats(jobId: number): Promise<MappingStats> {
   const { data } = await apiClient.get<MappingStats>(
     `/ingestion/jobs/${jobId}/mappings/stats`,
   );
-  return data;
+  return data.data ?? data;
 }
 
 export async function submitReview(
@@ -89,7 +89,7 @@ export async function submitReview(
     `/ingestion/jobs/${jobId}/mappings/${mappingId}/review`,
     review,
   );
-  return data;
+  return data.data ?? data;
 }
 
 export async function submitBatchReview(
@@ -100,7 +100,7 @@ export async function submitBatchReview(
     `/ingestion/jobs/${jobId}/mappings/batch-review`,
     reviews,
   );
-  return data;
+  return data.data ?? data;
 }
 
 export async function fetchCandidates(
@@ -110,7 +110,7 @@ export async function fetchCandidates(
   const { data } = await apiClient.get<ConceptMapping["candidates"]>(
     `/ingestion/jobs/${jobId}/mappings/${mappingId}/candidates`,
   );
-  return data;
+  return data.data ?? data;
 }
 
 // Solr-powered mapping search (cross-job)
@@ -128,7 +128,7 @@ export async function searchMappings(
     "/ingestion/mappings/search",
     { params },
   );
-  return data;
+  return data.data ?? data;
 }
 
 // Schema Mapping API
@@ -138,7 +138,7 @@ export async function suggestSchemaMapping(
   const { data } = await apiClient.post<SchemaMapping[]>(
     `/ingestion/jobs/${jobId}/schema-mapping/suggest`,
   );
-  return data;
+  return data.data ?? data;
 }
 
 export async function fetchSchemaMapping(
@@ -147,7 +147,7 @@ export async function fetchSchemaMapping(
   const { data } = await apiClient.get<SchemaMapping[]>(
     `/ingestion/jobs/${jobId}/schema-mapping`,
   );
-  return data;
+  return data.data ?? data;
 }
 
 export async function updateSchemaMapping(
@@ -158,7 +158,7 @@ export async function updateSchemaMapping(
     `/ingestion/jobs/${jobId}/schema-mapping`,
     { mappings },
   );
-  return data;
+  return data.data ?? data;
 }
 
 export async function confirmSchemaMapping(
@@ -167,7 +167,7 @@ export async function confirmSchemaMapping(
   const { data } = await apiClient.post<{ confirmed: number }>(
     `/ingestion/jobs/${jobId}/schema-mapping/confirm`,
   );
-  return data;
+  return data.data ?? data;
 }
 
 // Validation API
@@ -177,7 +177,7 @@ export async function fetchValidation(
   const { data } = await apiClient.get<ValidationResult[]>(
     `/ingestion/jobs/${jobId}/validation`,
   );
-  return data;
+  return data.data ?? data;
 }
 
 export async function fetchValidationSummary(
@@ -186,5 +186,5 @@ export async function fetchValidationSummary(
   const { data } = await apiClient.get<ValidationSummary>(
     `/ingestion/jobs/${jobId}/validation/summary`,
   );
-  return data;
+  return data.data ?? data;
 }
