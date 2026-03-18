@@ -23,33 +23,35 @@
 - [x] **INGEST-03**: Upload page correctly receives and navigates to new job after file upload
 - [x] **INGEST-04**: Job Detail page correctly displays job status, steps, and progress
 
-## v2 Requirements
-
 ### Genomics UX
 
-- **GEN-01**: Genomic Analysis page allows user to select data source (replace hardcoded sourceId=9)
-- **GEN-02**: Top Mutated Genes buttons filter ClinVar search when clicked
+- [ ] **GEN-01**: Genomic Analysis page allows user to select data source (replace hardcoded sourceId=9)
+- [ ] **GEN-02**: Top Mutated Genes buttons filter ClinVar search when clicked
 
 ### Query History
 
-- **HIST-01**: Clicking a history entry in Natural Language tab restores full metadata (explanation, tables_referenced)
+- [ ] **HIST-01**: Clicking a history entry in Natural Language tab restores full metadata (explanation, tables_referenced)
 
 ### Accessibility & Type Safety
 
-- **A11Y-01**: Dashboard table rows have proper `role="button"` and keyboard handlers
-- **TYPE-01**: Imaging page uses type guards instead of unsafe `as` casts
-- **TYPE-02**: GIS viewport handler uses proper typing
+- [ ] **A11Y-01**: Dashboard table rows have proper `role="button"` and keyboard handlers
+- [ ] **TYPE-01**: Imaging page uses type guards instead of unsafe `as` casts
+- [ ] **TYPE-02**: GIS viewport handler uses proper typing
 
 ### Infrastructure
 
-- **INFRA-01**: Solr `query_library` core registered in `backend/config/solr.php`
-- **INFRA-02**: Studies stats bar renders error state on API failure
+- [ ] **INFRA-01**: Solr `query_library` core registered in `backend/config/solr.php`
+- [ ] **INFRA-02**: Studies stats bar renders error state on API failure
 
 ### Code Quality
 
-- **QUAL-01**: ShareCohortModal uses `<Modal>` component for consistency
-- **QUAL-02**: Deduplicate `getErrorMessage()` across text-to-sql components
-- **QUAL-03**: Empty state pages show guidance on importing seed data
+- [ ] **QUAL-01**: ShareCohortModal uses `<Modal>` component for consistency
+- [ ] **QUAL-02**: Deduplicate `getErrorMessage()` across text-to-sql components
+- [ ] **QUAL-03**: Empty state pages show guidance on importing seed data
+
+## v2 Requirements
+
+(None — all promoted to v1)
 
 ## Out of Scope
 
@@ -73,10 +75,21 @@
 | INGEST-02 | Phase 3 | Complete |
 | INGEST-03 | Phase 3 | Complete |
 | INGEST-04 | Phase 3 | Complete |
+| GEN-01 | Phase 4 | Pending |
+| GEN-02 | Phase 4 | Pending |
+| HIST-01 | Phase 4 | Pending |
+| A11Y-01 | Phase 5 | Pending |
+| TYPE-01 | Phase 5 | Pending |
+| TYPE-02 | Phase 5 | Pending |
+| INFRA-01 | Phase 5 | Pending |
+| INFRA-02 | Phase 5 | Pending |
+| QUAL-01 | Phase 6 | Pending |
+| QUAL-02 | Phase 6 | Pending |
+| QUAL-03 | Phase 6 | Pending |
 
 **Coverage:**
-- v1 requirements: 9 total
-- Mapped to phases: 9
+- v1 requirements: 20 total
+- Mapped to phases: 20
 - Unmapped: 0
 
 ---
