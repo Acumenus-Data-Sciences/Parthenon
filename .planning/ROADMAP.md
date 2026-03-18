@@ -26,10 +26,10 @@ Decimal phases appear between their surrounding integers in numeric order.
   1. `.env` variable name matches what `config/services.php` reads via `env()` -- no config mismatch
   2. New user registration triggers a temp password email that arrives in their inbox
   3. Forgot password flow triggers a new temp password email that arrives in their inbox
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] 01-01: Fix env variable and verify email delivery end-to-end
+- [ ] 01-01-PLAN.md -- Fix env variable mismatch and verify email delivery end-to-end
 
 ### Phase 2: FHIR Export
 **Goal**: The FHIR Export admin page works without errors
