@@ -38,10 +38,10 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. Navigating to `/admin/fhir-export` does not produce any runtime errors or blank screens
   2. The page either has working export functionality (backend endpoints respond) or displays a clear "coming soon" message explaining the feature is not yet available
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] 02-01: Implement backend endpoints or disable page with coming-soon state
+- [ ] 02-01-PLAN.md -- Replace broken FHIR Export page with coming-soon state
 
 ### Phase 3: Ingestion API
 **Goal**: All ingestion pages render real data instead of broken object representations
