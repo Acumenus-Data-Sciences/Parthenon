@@ -13,8 +13,8 @@
 
 ### FHIR Export
 
-- [ ] **FHIR-01**: FHIR Export page at `/admin/fhir-export` either has working backend endpoints (`POST /fhir/$export`, `GET /fhir/$export/{id}`) or is disabled with a clear "coming soon" message
-- [ ] **FHIR-02**: No runtime errors when navigating to `/admin/fhir-export`
+- [x] **FHIR-01**: FHIR Export page at `/admin/fhir-export` either has working backend endpoints (`POST /fhir/$export`, `GET /fhir/$export/{id}`) or is disabled with a clear "coming soon" message
+- [x] **FHIR-02**: No runtime errors when navigating to `/admin/fhir-export`
 
 ### Ingestion API
 
@@ -67,8 +67,8 @@
 | EMAIL-01 | Phase 1 | Complete |
 | EMAIL-02 | Phase 1 | Complete |
 | EMAIL-03 | Phase 1 | Complete |
-| FHIR-01 | Phase 2 | Pending |
-| FHIR-02 | Phase 2 | Pending |
+| FHIR-01 | Phase 2 | Complete |
+| FHIR-02 | Phase 2 | Complete |
 | INGEST-01 | Phase 3 | Pending |
 | INGEST-02 | Phase 3 | Pending |
 | INGEST-03 | Phase 3 | Pending |
