@@ -756,8 +756,16 @@ def _build_chat_system_prompt(request: ChatRequest) -> str:
         "\n\nRESPONSE FORMAT:"
         "\n- Keep replies concise (under 300 words)."
         "\n- Use markdown formatting for headers, lists, and code blocks."
-        "\n- End your reply with 1–3 brief follow-up suggestions the user might want "
-        'to ask, formatted as a JSON array on the last line: SUGGESTIONS: ["...", "..."]'
+        "\n- End your reply with 1–3 next-step action prompts the user could send you"
+        " to make progress toward their goal within Parthenon."
+        " These are things the USER would TYPE TO YOU — short imperative commands or"
+        " specific questions directed at you, NOT questions you are asking the user."
+        " Good examples: \"Build the cohort definition for this study\","
+        " \"Show me available heart failure concept sets\","
+        " \"Analyze 30-day readmission rates for this cohort\"."
+        " Bad examples: \"Would you like to explore cohort design?\","
+        " \"Are you interested in specific medications?\" (those are you asking the user)."
+        '\n- Format as a JSON array on the last line: SUGGESTIONS: ["...", "...", "..."]'
     )
 
     return system_prompt
