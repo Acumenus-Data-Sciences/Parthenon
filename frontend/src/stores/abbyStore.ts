@@ -81,9 +81,10 @@ export const useAbbyStore = create<AbbyState>()(
     }),
     {
       name: "parthenon-abby",
-      // Do NOT persist conversationId — stale IDs cause 422 validation failures
-      // after DB restores, and users expect a clean slate on hard refresh.
-      partialize: () => ({}),
+      // Persist only conversationId so users can resume conversations across
+      // page refreshes. Messages are intentionally excluded to avoid stale
+      // rendering and unbounded localStorage growth.
+      partialize: (s) => ({ conversationId: s.conversationId }),
     },
   ),
 );

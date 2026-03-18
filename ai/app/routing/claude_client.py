@@ -9,9 +9,12 @@ from typing import Optional
 
 try:
     import anthropic
+    from anthropic.types import MessageParam, TextBlock
     _ANTHROPIC_AVAILABLE = True
 except ImportError:
     anthropic = None  # type: ignore[assignment]
+    MessageParam = None  # type: ignore[assignment,misc]
+    TextBlock = None  # type: ignore[assignment,misc]
     _ANTHROPIC_AVAILABLE = False
 
 from app.config import settings
@@ -83,7 +86,7 @@ class ClaudeClient:
         *,
         system_prompt: str,
         message: str,
-        history: Optional[list[dict[str, str]]] = None,
+        history: Optional[list["MessageParam"]] = None,
     ) -> ClaudeResponse:
         """Send *message* to Claude and return a :class:`ClaudeResponse`.
 
@@ -96,7 +99,7 @@ class ClaudeClient:
         history:
             Optional list of prior ``{"role": ..., "content": ...}`` turns.
         """
-        messages: list[dict[str, str]] = list(history or [])
+        messages: list["MessageParam"] = list(history or [])
         messages.append({"role": "user", "content": message})
 
         # SHA-256 audit hash of the full request payload (not truncated)
@@ -119,7 +122,11 @@ class ClaudeClient:
 
         latency_ms = (time.monotonic() - start) * 1000.0
 
-        reply_text = response.content[0].text if response.content else ""
+        reply_text = ""
+        if response.content:
+            first_block = response.content[0]
+            if isinstance(first_block, TextBlock):
+                reply_text = first_block.text
         tokens_in: int = response.usage.input_tokens
         tokens_out: int = response.usage.output_tokens
         actual_model: str = response.model
@@ -162,7 +169,7 @@ class ClaudeClient:
     # ------------------------------------------------------------------
 
     @staticmethod
-    def _compute_hash(*, system_prompt: str, messages: list[dict[str, str]]) -> str:
+    def _compute_hash(*, system_prompt: str, messages: list["MessageParam"]) -> str:
         """Compute a full (non-truncated) SHA-256 hex digest of the request."""
         hasher = hashlib.sha256()
         hasher.update(system_prompt.encode())

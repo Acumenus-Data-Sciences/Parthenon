@@ -369,9 +369,9 @@ class AbbyAiController extends Controller
     {
         $validated = $request->validate([
             'message_id' => 'required|string',
-            'rating'     => 'required|string|in:up,down,positive,negative',
+            'rating' => 'required|string|in:up,down,positive,negative',
             'categories' => 'sometimes|array',
-            'comment'    => 'sometimes|nullable|string|max:1000',
+            'comment' => 'sometimes|nullable|string|max:1000',
         ]);
 
         // If message_id is numeric, persist feedback to the message's metadata
@@ -380,9 +380,9 @@ class AbbyAiController extends Controller
             if ($message) {
                 $meta = $message->metadata ?? [];
                 $meta['feedback'] = [
-                    'rating'     => $validated['rating'],
+                    'rating' => $validated['rating'],
                     'categories' => $validated['categories'] ?? [],
-                    'comment'    => $validated['comment'] ?? null,
+                    'comment' => $validated['comment'] ?? null,
                     'submitted_at' => now()->toISOString(),
                 ];
                 $message->metadata = $meta;

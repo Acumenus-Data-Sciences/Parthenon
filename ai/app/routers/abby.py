@@ -182,7 +182,7 @@ class ResearchProfile(BaseModel):
         """
         if isinstance(data, dict):
             dict_fields = {"expertise_domains", "interaction_preferences", "frequently_used"}
-            result = {}
+            result: dict[str, object] = {}
             for k, v in data.items():
                 if v is None:
                     result[k] = [] if k == "research_interests" else ({} if k in dict_fields else 0)
