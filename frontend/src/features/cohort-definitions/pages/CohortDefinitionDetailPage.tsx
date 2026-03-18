@@ -566,9 +566,10 @@ export default function CohortDefinitionDetailPage() {
       />
 
       {/* Share Modal */}
-      {shareOpen && cohortId && (
+      {cohortId && (
         <ShareCohortModal
           cohortId={cohortId}
+          open={shareOpen}
           onClose={() => setShareOpen(false)}
         />
       )}

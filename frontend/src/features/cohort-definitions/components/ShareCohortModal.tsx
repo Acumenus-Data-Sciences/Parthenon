@@ -1,13 +1,15 @@
 import { useState } from "react";
-import { X, Link2, Copy, CheckCheck, Loader2 } from "lucide-react";
+import { Link2, Copy, CheckCheck, Loader2 } from "lucide-react";
+import { Modal } from "@/components/ui";
 import { shareCohortDefinition, type ShareCohortResult } from "../api/cohortApi";
 
 interface Props {
   cohortId: number;
+  open: boolean;
   onClose: () => void;
 }
 
-export function ShareCohortModal({ cohortId, onClose }: Props) {
+export function ShareCohortModal({ cohortId, open, onClose }: Props) {
   const [days, setDays] = useState(30);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ShareCohortResult | null>(null);
@@ -40,92 +42,13 @@ export function ShareCohortModal({ cohortId, onClose }: Props) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="w-full max-w-md rounded-xl bg-[#1A1A1F] border border-[#2A2A30] shadow-2xl">
-        {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[#2A2A30]">
-          <div className="flex items-center gap-2">
-            <Link2 size={16} className="text-[#2DD4BF]" />
-            <h2 className="text-base font-semibold text-[#F0EDE8]">
-              Share Cohort
-            </h2>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-[#8A857D] hover:text-[#F0EDE8] transition-colors"
-          >
-            <X size={18} />
-          </button>
-        </div>
-
-        {/* Body */}
-        <div className="px-5 py-4 space-y-4">
-          <p className="text-xs text-[#8A857D]">
-            Generate a read-only link to share this cohort definition with
-            collaborators. No account required to view.
-          </p>
-
-          {/* Expiry picker */}
-          <div>
-            <label className="block text-xs font-medium text-[#8A857D] mb-1.5">
-              Link expires after
-            </label>
-            <select
-              value={days}
-              onChange={(e) => setDays(Number(e.target.value))}
-              disabled={!!result}
-              className="rounded-lg bg-[#0E0E11] border border-[#2A2A30] px-3 py-2 text-sm text-[#C5C0B8] focus:outline-none focus:border-[#2DD4BF]/50 disabled:opacity-50"
-            >
-              <option value={7}>7 days</option>
-              <option value={14}>14 days</option>
-              <option value={30}>30 days</option>
-              <option value={90}>90 days</option>
-              <option value={365}>1 year</option>
-            </select>
-          </div>
-
-          {/* Generated link */}
-          {result && frontendUrl && (
-            <div className="space-y-2">
-              <label className="block text-xs font-medium text-[#8A857D]">
-                Share link
-              </label>
-              <div className="flex items-center gap-2">
-                <input
-                  readOnly
-                  value={frontendUrl}
-                  className="flex-1 rounded-lg bg-[#0E0E11] border border-[#2A2A30] px-3 py-2 text-xs text-[#C5C0B8] focus:outline-none truncate"
-                />
-                <button
-                  type="button"
-                  onClick={handleCopy}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-[#2A2A30] bg-[#151518] px-3 py-2 text-xs text-[#8A857D] hover:text-[#C5C0B8] transition-colors shrink-0"
-                >
-                  {copied ? (
-                    <CheckCheck size={13} className="text-[#2DD4BF]" />
-                  ) : (
-                    <Copy size={13} />
-                  )}
-                  {copied ? "Copied!" : "Copy"}
-                </button>
-              </div>
-              <p className="text-[10px] text-[#5A5650]">
-                Expires:{" "}
-                {new Date(result.expires_at).toLocaleDateString(undefined, {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
-              </p>
-            </div>
-          )}
-
-          {error && <p className="text-xs text-[#E85A6B]">{error}</p>}
-        </div>
-
-        {/* Footer */}
-        <div className="flex justify-end gap-2 px-5 py-4 border-t border-[#2A2A30]">
+    <Modal
+      open={open}
+      onClose={onClose}
+      title="Share Cohort"
+      size="sm"
+      footer={
+        <div className="flex justify-end gap-2">
           <button
             type="button"
             onClick={onClose}
@@ -145,7 +68,71 @@ export function ShareCohortModal({ cohortId, onClose }: Props) {
             </button>
           )}
         </div>
+      }
+    >
+      <div className="space-y-4">
+        <p className="text-xs text-[#8A857D]">
+          Generate a read-only link to share this cohort definition with
+          collaborators. No account required to view.
+        </p>
+
+        {/* Expiry picker */}
+        <div>
+          <label className="block text-xs font-medium text-[#8A857D] mb-1.5">
+            Link expires after
+          </label>
+          <select
+            value={days}
+            onChange={(e) => setDays(Number(e.target.value))}
+            disabled={!!result}
+            className="rounded-lg bg-[#0E0E11] border border-[#2A2A30] px-3 py-2 text-sm text-[#C5C0B8] focus:outline-none focus:border-[#2DD4BF]/50 disabled:opacity-50"
+          >
+            <option value={7}>7 days</option>
+            <option value={14}>14 days</option>
+            <option value={30}>30 days</option>
+            <option value={90}>90 days</option>
+            <option value={365}>1 year</option>
+          </select>
+        </div>
+
+        {/* Generated link */}
+        {result && frontendUrl && (
+          <div className="space-y-2">
+            <label className="block text-xs font-medium text-[#8A857D]">
+              Share link
+            </label>
+            <div className="flex items-center gap-2">
+              <input
+                readOnly
+                value={frontendUrl}
+                className="flex-1 rounded-lg bg-[#0E0E11] border border-[#2A2A30] px-3 py-2 text-xs text-[#C5C0B8] focus:outline-none truncate"
+              />
+              <button
+                type="button"
+                onClick={handleCopy}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-[#2A2A30] bg-[#151518] px-3 py-2 text-xs text-[#8A857D] hover:text-[#C5C0B8] transition-colors shrink-0"
+              >
+                {copied ? (
+                  <CheckCheck size={13} className="text-[#2DD4BF]" />
+                ) : (
+                  <Copy size={13} />
+                )}
+                {copied ? "Copied!" : "Copy"}
+              </button>
+            </div>
+            <p className="text-[10px] text-[#5A5650]">
+              Expires:{" "}
+              {new Date(result.expires_at).toLocaleDateString(undefined, {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+            </p>
+          </div>
+        )}
+
+        {error && <p className="text-xs text-[#E85A6B]">{error}</p>}
       </div>
-    </div>
+    </Modal>
   );
 }

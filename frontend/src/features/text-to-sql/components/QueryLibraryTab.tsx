@@ -381,6 +381,9 @@ export function QueryLibraryTab({ dialect = "postgresql" }: { dialect?: string }
               <div style={{ fontSize: "12px", marginTop: "4px" }}>
                 Try a different keyword or clear your filters.
               </div>
+              <div style={{ fontSize: "11px", marginTop: "8px", color: "#5A5650" }}>
+                If the library is empty, ask your admin to run: php artisan query-library:import-ohdsi
+              </div>
             </div>
           )}
 

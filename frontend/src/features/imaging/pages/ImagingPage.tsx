@@ -165,14 +165,14 @@ function LocalImportPanel() {
       </div>
       {importMutation.isSuccess && (
         <div className="rounded-lg border border-[#2DD4BF]/30 bg-[#2DD4BF]/10 px-4 py-3 text-sm text-[#2DD4BF]">
-          Import complete — {(importMutation.data as { studies_imported: number }).studies_imported} studies,{" "}
-          {(importMutation.data as { series_imported: number }).series_imported} series,{" "}
-          {(importMutation.data as { instances_imported: number }).instances_imported} instances
+          Import complete — {(importMutation.data as Record<string, number>)?.studies_imported ?? 0} studies,{" "}
+          {(importMutation.data as Record<string, number>)?.series_imported ?? 0} series,{" "}
+          {(importMutation.data as Record<string, number>)?.instances_imported ?? 0} instances
         </div>
       )}
       {importMutation.isError && (
         <div className="rounded-lg border border-[#E85A6B]/30 bg-[#E85A6B]/10 px-4 py-3 text-sm text-[#E85A6B]">
-          Import failed: {(importMutation.error as Error)?.message ?? "Unknown error"}
+          Import failed: {importMutation.error instanceof Error ? importMutation.error.message : "Unknown error"}
         </div>
       )}
       <p className="text-[10px] text-[#5A5650]">

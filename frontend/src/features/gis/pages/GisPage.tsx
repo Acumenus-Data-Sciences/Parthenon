@@ -149,8 +149,8 @@ export default function GisPage() {
           <div className="relative flex-1">
             <DeckGL
               viewState={viewport}
-              onViewStateChange={((params: { viewState: typeof viewport }) =>
-                onViewportChange({ viewState: params.viewState })) as React.ComponentProps<typeof DeckGL>["onViewStateChange"]}
+              onViewStateChange={(params) =>
+                onViewportChange({ viewState: (params as { viewState: typeof viewport }).viewState })}
               layers={deckLayers}
               controller
               getCursor={({ isHovering }: { isHovering: boolean }) =>
