@@ -1,0 +1,19 @@
+{
+    "id": 6,
+    "created_by": 117,
+    "source_id": null,
+    "name": "SGLT2i vs Standard of Care for T2DM with CKD",
+    "analysis_type": "cea",
+    "description": "Cost-effectiveness analysis comparing SGLT2 inhibitor therapy (dapagliflozin) to standard of care in Type 2 Diabetes patients with chronic kidney disease. Based on DAPA-CKD trial outcomes and US payer perspective.",
+    "perspective": "payer",
+    "time_horizon": "10_year",
+    "discount_rate": 0.03,
+    "currency": "USD",
+    "target_cohort_id": 1,
+    "comparator_cohort_id": 5,
+    "status": "completed",
+    "completed_at": "2026-03-15T02:58:12.000000Z",
+    "created_at": "2026-03-15T02:58:11.000000Z",
+    "updated_at": "2026-03-15T02:58:12.000000Z",
+    "deleted_at": null
+}

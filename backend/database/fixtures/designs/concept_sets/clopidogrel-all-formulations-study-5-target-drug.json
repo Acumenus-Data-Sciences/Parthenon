@@ -1,0 +1,32 @@
+{
+    "id": 87,
+    "name": "Clopidogrel All Formulations (Study 5 Target Drug)",
+    "description": "Clopidogrel (P2Y12 receptor antagonist antiplatelet agent) as the index drug for the post-MI secondary prevention target cohort.",
+    "expression_json": {
+        "items": []
+    },
+    "author_id": 117,
+    "is_public": true,
+    "tags": [
+        "study-5",
+        "clopidogrel",
+        "antiplatelet",
+        "P2Y12",
+        "target"
+    ],
+    "created_at": null,
+    "updated_at": null,
+    "deleted_at": null,
+    "items": [
+        {
+            "id": 289,
+            "concept_set_id": 87,
+            "concept_id": 1322184,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-03-15T20:43:19.000000Z",
+            "updated_at": "2026-03-15T20:43:19.000000Z"
+        }
+    ]
+}

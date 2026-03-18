@@ -1,0 +1,28 @@
+{
+    "id": 67,
+    "name": "Prediabetes Conditions",
+    "description": "Prediabetes (impaired fasting glucose, impaired glucose tolerance) using SNOMED standard concept 37018196 with descendants.",
+    "expression_json": null,
+    "author_id": 117,
+    "is_public": true,
+    "tags": [
+        "prediabetes",
+        "glucose",
+        "metabolic"
+    ],
+    "created_at": "2026-03-15T15:15:36.000000Z",
+    "updated_at": "2026-03-15T15:15:36.000000Z",
+    "deleted_at": null,
+    "items": [
+        {
+            "id": 340,
+            "concept_set_id": 67,
+            "concept_id": 37018196,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-03-15T20:43:19.000000Z",
+            "updated_at": "2026-03-15T20:43:19.000000Z"
+        }
+    ]
+}

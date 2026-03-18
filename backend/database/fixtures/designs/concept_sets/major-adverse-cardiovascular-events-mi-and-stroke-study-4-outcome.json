@@ -1,0 +1,63 @@
+{
+    "id": 85,
+    "name": "Major Adverse Cardiovascular Events — MI and Stroke (Study 4 Outcome)",
+    "description": "MACE composite outcome: first myocardial infarction (STEMI, NSTEMI, unspecified MI) or cerebrovascular accident (ischemic stroke\/CVA). Excludes hemorrhagic stroke.",
+    "expression_json": {
+        "items": []
+    },
+    "author_id": 117,
+    "is_public": true,
+    "tags": [
+        "study-4",
+        "MACE",
+        "MI",
+        "stroke",
+        "cardiovascular",
+        "outcome"
+    ],
+    "created_at": null,
+    "updated_at": null,
+    "deleted_at": null,
+    "items": [
+        {
+            "id": 330,
+            "concept_set_id": 85,
+            "concept_id": 4329847,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-03-15T20:43:19.000000Z",
+            "updated_at": "2026-03-15T20:43:19.000000Z"
+        },
+        {
+            "id": 331,
+            "concept_set_id": 85,
+            "concept_id": 4270024,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-03-15T20:43:19.000000Z",
+            "updated_at": "2026-03-15T20:43:19.000000Z"
+        },
+        {
+            "id": 332,
+            "concept_set_id": 85,
+            "concept_id": 4296653,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-03-15T20:43:19.000000Z",
+            "updated_at": "2026-03-15T20:43:19.000000Z"
+        },
+        {
+            "id": 333,
+            "concept_set_id": 85,
+            "concept_id": 381316,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-03-15T20:43:19.000000Z",
+            "updated_at": "2026-03-15T20:43:19.000000Z"
+        }
+    ]
+}

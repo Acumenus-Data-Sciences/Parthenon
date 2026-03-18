@@ -1,0 +1,88 @@
+{
+    "id": 58,
+    "name": "Antihypertensive Medications",
+    "description": "Common antihypertensive drug ingredients: ACE inhibitors, ARBs, beta-blockers, CCBs, thiazides.",
+    "expression_json": null,
+    "author_id": 117,
+    "is_public": true,
+    "tags": [
+        "hypertension",
+        "cardiovascular",
+        "drugs"
+    ],
+    "created_at": "2026-03-15T02:58:11.000000Z",
+    "updated_at": "2026-03-15T02:58:11.000000Z",
+    "deleted_at": null,
+    "items": [
+        {
+            "id": 260,
+            "concept_set_id": 58,
+            "concept_id": 1308216,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-03-15T20:43:18.000000Z",
+            "updated_at": "2026-03-15T20:43:18.000000Z"
+        },
+        {
+            "id": 261,
+            "concept_set_id": 58,
+            "concept_id": 1310756,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-03-15T20:43:18.000000Z",
+            "updated_at": "2026-03-15T20:43:18.000000Z"
+        },
+        {
+            "id": 262,
+            "concept_set_id": 58,
+            "concept_id": 1313200,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-03-15T20:43:18.000000Z",
+            "updated_at": "2026-03-15T20:43:18.000000Z"
+        },
+        {
+            "id": 263,
+            "concept_set_id": 58,
+            "concept_id": 1314002,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-03-15T20:43:18.000000Z",
+            "updated_at": "2026-03-15T20:43:18.000000Z"
+        },
+        {
+            "id": 264,
+            "concept_set_id": 58,
+            "concept_id": 1317640,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-03-15T20:43:18.000000Z",
+            "updated_at": "2026-03-15T20:43:18.000000Z"
+        },
+        {
+            "id": 265,
+            "concept_set_id": 58,
+            "concept_id": 1341927,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-03-15T20:43:18.000000Z",
+            "updated_at": "2026-03-15T20:43:18.000000Z"
+        },
+        {
+            "id": 266,
+            "concept_set_id": 58,
+            "concept_id": 1353776,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-03-15T20:43:18.000000Z",
+            "updated_at": "2026-03-15T20:43:18.000000Z"
+        }
+    ]
+}

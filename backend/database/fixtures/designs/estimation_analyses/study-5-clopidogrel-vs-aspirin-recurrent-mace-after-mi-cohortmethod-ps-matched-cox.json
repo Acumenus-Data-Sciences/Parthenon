@@ -1,0 +1,72 @@
+{
+    "id": 19,
+    "name": "Study 5: Clopidogrel vs Aspirin — Recurrent MACE After MI (CohortMethod PS-Matched Cox)",
+    "description": "Comparative effectiveness of clopidogrel vs aspirin monotherapy for post-MI secondary MACE prevention.",
+    "design_json": {
+        "model": {
+            "type": "cox",
+            "covariateSettings": {
+                "endDays": 0,
+                "useCharlsonIndex": true,
+                "longTermStartDays": -365,
+                "shortTermStartDays": -30,
+                "useDemographicsAge": true,
+                "useDrugEraLongTerm": true,
+                "useDemographicsGender": true,
+                "useMeasurementLongTerm": true,
+                "useConditionEraLongTerm": true,
+                "useDemographicsAgeGroup": true,
+                "useDrugExposureLongTerm": true,
+                "useConditionOccurrenceLongTerm": true,
+                "useProcedureOccurrenceLongTerm": true,
+                "useConditionOccurrenceShortTerm": true
+            }
+        },
+        "timeAtRisk": {
+            "end": {
+                "offset": 365,
+                "dateField": "index_date"
+            },
+            "start": {
+                "offset": 1,
+                "dateField": "index_date"
+            }
+        },
+        "description": "Active comparator new-user cohort study estimating the effect of clopidogrel vs aspirin monotherapy on recurrent MACE (MI + stroke) in post-MI secondary prevention patients. 1:1 PS matching with caliper 0.2 SD logit. Cox proportional hazards, 1-year TAR.",
+        "analysisType": "CohortMethod",
+        "targetCohortId": 82,
+        "propensityScore": {
+            "method": "matching",
+            "matching": {
+                "ratio": 1,
+                "caliper": 0.2,
+                "caliperScale": "standardized logit",
+                "allowReverseMatch": false
+            },
+            "trimming": {
+                "type": "preference_score",
+                "fraction": 0.05
+            }
+        },
+        "studyPopulation": {
+            "minTimeAtRisk": 1,
+            "riskWindowEnd": 365,
+            "washoutPeriod": 0,
+            "riskWindowStart": 1,
+            "requireTimeAtRisk": true,
+            "priorOutcomeLookback": 99999,
+            "removeDuplicateSubjects": "keep first",
+            "removeSubjectsWithPriorOutcome": true
+        },
+        "outcomeCohortIds": [
+            84
+        ],
+        "outcomeOfInterest": 84,
+        "comparatorCohortId": 83,
+        "negativeControlOutcomeIds": []
+    },
+    "author_id": 117,
+    "created_at": null,
+    "updated_at": null,
+    "deleted_at": null
+}

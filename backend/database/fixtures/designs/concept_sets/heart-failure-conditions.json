@@ -1,0 +1,38 @@
+{
+    "id": 61,
+    "name": "Heart Failure Conditions",
+    "description": "Condition concepts for heart failure and congestive heart failure.",
+    "expression_json": null,
+    "author_id": 117,
+    "is_public": true,
+    "tags": [
+        "heart-failure",
+        "cardiovascular",
+        "conditions"
+    ],
+    "created_at": "2026-03-15T02:58:11.000000Z",
+    "updated_at": "2026-03-15T02:58:11.000000Z",
+    "deleted_at": null,
+    "items": [
+        {
+            "id": 319,
+            "concept_set_id": 61,
+            "concept_id": 316139,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-03-15T20:43:19.000000Z",
+            "updated_at": "2026-03-15T20:43:19.000000Z"
+        },
+        {
+            "id": 320,
+            "concept_set_id": 61,
+            "concept_id": 4229440,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-03-15T20:43:19.000000Z",
+            "updated_at": "2026-03-15T20:43:19.000000Z"
+        }
+    ]
+}

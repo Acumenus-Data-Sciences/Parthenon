@@ -1,0 +1,19 @@
+{
+    "id": 4,
+    "name": "T2DM Medication Escalation",
+    "description": "Treatment escalation pathway analysis for Type 2 Diabetes patients showing progression through oral antidiabetics and insulin therapy.",
+    "design_json": {
+        "maxDepth": 4,
+        "minCellCount": 5,
+        "maxPathLength": 4,
+        "eventCohortIds": [
+            0
+        ],
+        "targetCohortId": 0,
+        "combinationWindow": 30
+    },
+    "author_id": 117,
+    "created_at": "2026-03-15T02:58:11.000000Z",
+    "updated_at": "2026-03-15T02:58:11.000000Z",
+    "deleted_at": null
+}

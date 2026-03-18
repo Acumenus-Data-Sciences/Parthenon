@@ -1,0 +1,53 @@
+{
+    "id": 34,
+    "name": "Study 4: MACE Incidence by Age Group — Cardiometabolic Dyad",
+    "description": "Age-stratified MACE event rates in patients with cardiometabolic dyad (DM+HTN) over 5 years.",
+    "design_json": {
+        "ageGroups": [
+            {
+                "maxAge": 44,
+                "minAge": 18
+            },
+            {
+                "maxAge": 54,
+                "minAge": 45
+            },
+            {
+                "maxAge": 64,
+                "minAge": 55
+            },
+            {
+                "maxAge": 74,
+                "minAge": 65
+            },
+            {
+                "maxAge": 120,
+                "minAge": 75
+            }
+        ],
+        "timeAtRisk": {
+            "end": {
+                "offset": 1825,
+                "dateField": "index_date"
+            },
+            "start": {
+                "offset": 1,
+                "dateField": "index_date"
+            }
+        },
+        "description": "MACE (MI + stroke) incidence rate in the cardiometabolic dyad cohort (DM+HTN only), stratified by age. Parallel analysis to the triad cohort to enable dose-response comparison by cardiometabolic burden.",
+        "analysisType": "IncidenceRate",
+        "minCellCount": 5,
+        "stratifyByAge": true,
+        "targetCohortId": 80,
+        "outcomeCohortIds": [
+            81
+        ],
+        "stratifyByGender": false,
+        "stratifyByCalendarYear": false
+    },
+    "author_id": 117,
+    "created_at": null,
+    "updated_at": null,
+    "deleted_at": null
+}

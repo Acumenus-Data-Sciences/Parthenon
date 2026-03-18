@@ -1,0 +1,41 @@
+{
+    "id": 16,
+    "name": "Prediabetes Cohorts: Baseline Characterization (Pre-Index)",
+    "description": "Baseline demographic and clinical characterization of Metformin Initiators vs Watchful Waiting prediabetes cohorts. Covers 365-day pre-index window. Reports top-100 features with standardized mean differences for covariate balance assessment.",
+    "design_json": {
+        "topN": 100,
+        "timeWindows": [
+            {
+                "end": 0,
+                "label": "Baseline (365d pre-index)",
+                "start": -365
+            },
+            {
+                "end": 365,
+                "label": "Follow-up (1yr post-index)",
+                "start": 0
+            }
+        ],
+        "featureTypes": [
+            "demographics",
+            "conditions",
+            "drugs",
+            "measurements",
+            "procedures"
+        ],
+        "minCellCount": 5,
+        "conceptSetIds": [],
+        "stratifyByAge": true,
+        "targetCohortIds": [
+            70
+        ],
+        "stratifyByGender": true,
+        "comparatorCohortIds": [
+            71
+        ]
+    },
+    "author_id": 117,
+    "created_at": "2026-03-15T15:19:40.000000Z",
+    "updated_at": "2026-03-15T15:19:40.000000Z",
+    "deleted_at": null
+}
