@@ -258,7 +258,7 @@ return [
             'queue' => ['r-analysis'],
             'balance' => 'auto',
             'autoScalingStrategy' => 'time',
-            'maxProcesses' => 2,
+            'maxProcesses' => 1, // R plumber is single-threaded — concurrent requests crash it
             'maxTime' => 0,
             'maxJobs' => 0,
             'memory' => 512,

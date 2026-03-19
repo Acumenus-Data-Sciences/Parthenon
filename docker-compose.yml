@@ -421,19 +421,20 @@ services:
       - "host.docker.internal:host-gateway"
     environment:
       - DATABASE_URL=postgresql://smudoshi:acumenus@host.docker.internal:5432/ohdsi
+      - _JAVA_OPTIONS=-Xmx8g -Xms2g
     depends_on:
       postgres:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8787/health"]
-      interval: 10s
-      timeout: 5s
+      interval: 30s
+      timeout: 10s
       retries: 3
-      start_period: 30s
+      start_period: 60s
     deploy:
       resources:
         limits:
-          memory: 4G
+          memory: 32G
     networks:
       - parthenon
     restart: unless-stopped

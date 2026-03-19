@@ -1,3 +1,7 @@
+# Set JVM heap before any JDBC/DatabaseConnector usage
+# Default 256MB is insufficient for CohortMethod on 1M+ patients
+options(java.parameters = c("-Xmx8g", "-Xms2g"))
+
 library(plumber)
 
 # Create the root API with health as the main plumber file
