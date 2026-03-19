@@ -96,7 +96,7 @@ def _parse_and_store(req: ParseRequest) -> ParseResponse:
                         total_variants = :total,
                         mapped_variants = 0,
                         review_required = 0,
-                        parsed_at = NOW()
+                        parsed_at = (NOW() AT TIME ZONE 'UTC')
                     WHERE id = :id
                 """),
                 {"total": result["inserted"], "id": req.upload_id},

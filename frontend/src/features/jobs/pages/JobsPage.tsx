@@ -72,6 +72,7 @@ function formatDuration(started: string | null, completed: string | null): strin
   const start = new Date(started).getTime();
   const end = completed ? new Date(completed).getTime() : Date.now();
   const ms = end - start;
+  if (ms < 0) return "—";
   const secs = Math.floor(ms / 1000);
   if (secs < 60) return `${secs}s`;
   const mins = Math.floor(secs / 60);
@@ -103,6 +104,7 @@ const typeFilters: Array<{ label: string; value: JobType | "all" }> = [
   { label: "FHIR Export", value: "fhir_export" },
   { label: "GIS Import", value: "gis_import" },
   { label: "Vocabulary", value: "vocabulary_load" },
+  { label: "Data Quality", value: "dqd" },
 ];
 
 export default function JobsPage() {
