@@ -211,6 +211,8 @@ export default function JupyterPage() {
           ref={iframeRef}
           src={embedUrl ?? "about:blank"}
           title="Parthenon Jupyter"
+          allow="clipboard-read; clipboard-write"
+          sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-downloads allow-modals"
           style={{ width: "100%", height: frameHeight, border: "none", display: "block" }}
           onLoad={() => {
             if (serverState === "spawning" || serverState === "authenticating") {
