@@ -1,8 +1,12 @@
 """JupyterHub configuration for Parthenon."""
 
 import os
+import sys
 import requests
 from dockerspawner import DockerSpawner
+
+# Ensure the config directory is importable
+sys.path.insert(0, "/srv/jupyterhub")
 
 # ── Authentication ──
 c.JupyterHub.authenticator_class = "parthenon_auth.ParthenonAuthenticator"
@@ -39,26 +43,14 @@ c.DockerSpawner.read_only_volumes = {
     os.environ.get("PARTHENON_REPO_PATH", "/app"): "/home/jovyan/parthenon",
 }
 
-# ── Network: PostgreSQL access via extra_hosts ──
-PARTHENON_DB_HOST = os.environ.get("PARTHENON_DB_HOST_IP", "")
+# ── Network: Database access ──
+# The host PostgreSQL is at pgsql.acumenus.net (not Docker postgres).
+# User containers on the isolated jupyter_users network need extra_hosts to reach it.
+DB_HOST_IP = os.environ.get("PARTHENON_DB_HOST_IP", "")
+DB_HOST_NAME = os.environ.get("PARTHENON_DB_HOST_NAME", "pgsql.acumenus.net")
 
-
-def _resolve_pg_ip():
-    """Resolve PostgreSQL container IP if not explicitly set."""
-    if PARTHENON_DB_HOST:
-        return PARTHENON_DB_HOST
-    try:
-        import docker
-        client = docker.from_env()
-        pg = client.containers.get("parthenon-postgres")
-        network_name = os.environ.get("DOCKER_NETWORK_NAME", "parthenon_default")
-        return pg.attrs["NetworkSettings"]["Networks"][network_name]["IPAddress"]
-    except Exception:
-        return "172.17.0.1"  # Fallback to Docker host
-
-
-PG_IP = _resolve_pg_ip()
-c.DockerSpawner.extra_host_config = {"extra_hosts": [f"postgres:{PG_IP}"]}
+if DB_HOST_IP:
+    c.DockerSpawner.extra_host_config = {"extra_hosts": [f"{DB_HOST_NAME}:{DB_HOST_IP}"]}
 
 # ── Environment injection via pre_spawn_hook ──
 PARTHENON_API_URL = os.environ.get("PARTHENON_API_URL", "http://nginx/api/v1")
@@ -101,7 +93,7 @@ async def pre_spawn_hook(spawner):
         "PARTHENON_USER_ID": str(user_id),
         "PARTHENON_USER_EMAIL": email,
         "PARTHENON_API_BASE_URL": PARTHENON_API_URL,
-        "PARTHENON_DB_HOST": "postgres",
+        "PARTHENON_DB_HOST": DB_HOST_NAME,
         "PARTHENON_DB_PORT": "5432",
         "PARTHENON_DB_NAME": os.environ.get("PARTHENON_DB_NAME", "parthenon"),
         "PARTHENON_DB_USER": db_user,

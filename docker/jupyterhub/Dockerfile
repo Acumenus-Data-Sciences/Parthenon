@@ -5,8 +5,9 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends curl tini \
-    && rm -rf /var/lib/apt/lists/*
+    && apt-get install -y --no-install-recommends curl tini nodejs npm \
+    && npm install -g configurable-http-proxy \
+    && rm -rf /var/lib/apt/lists/* /root/.npm
 
 RUN pip install --no-cache-dir \
     jupyterhub==5.2.1 \

@@ -47,7 +47,7 @@ return new class extends Migration
         // Selective app schema access (exclude auth tables: users, personal_access_tokens, etc.)
         DB::unprepared("
             GRANT SELECT ON app.jupyter_audit_log, app.cohort_definitions, app.studies,
-                app.data_sources, app.analysis_executions, app.concept_sets
+                app.sources, app.analysis_executions, app.concept_sets
                 TO jupyter_admin;
         ");
     }

@@ -266,6 +266,7 @@ services:
       - jupyter-shared:/srv/jupyterhub/shared
       - jupyterhub-data:/srv/jupyterhub/data
     environment:
+      - JUPYTERHUB_CRYPT_KEY=${JUPYTERHUB_CRYPT_KEY}
       - JUPYTER_JWT_SECRET=${JUPYTER_JWT_SECRET}
       - JUPYTER_HUB_API_KEY=${JUPYTER_HUB_API_KEY}
       - PARTHENON_API_URL=http://nginx/api/v1
@@ -278,6 +279,8 @@ services:
       - JUPYTER_DB_RESEARCHER_PASSWORD=${JUPYTER_DB_RESEARCHER_PASSWORD}
       - JUPYTER_DB_ADMIN_PASSWORD=${JUPYTER_DB_ADMIN_PASSWORD}
       - PARTHENON_DB_NAME=parthenon
+      - PARTHENON_DB_HOST_IP=${PARTHENON_DB_HOST_IP:-}
+      - PARTHENON_DB_HOST_NAME=${PARTHENON_DB_HOST_NAME:-pgsql.acumenus.net}
       - PARTHENON_REPO_PATH=${PWD:-.}
     depends_on:
       postgres:
