@@ -67,12 +67,52 @@
         "outcomeCohortIds": [
             75
         ],
+        "covariateSettings": {
+            "useCharlsonIndex": true,
+            "excludedConceptIds": [
+                1308216,
+                1310756,
+                1335471,
+                1334456,
+                1331235,
+                1332418,
+                40226742,
+                1340128,
+                1341927,
+                1363749,
+                1341238,
+                1342439,
+                974166,
+                978555,
+                1307046,
+                1309068,
+                1353776,
+                956874,
+                1346823,
+                1347384,
+                970250,
+                904542,
+                907013,
+                1317640,
+                1318137,
+                1318853,
+                1319880
+            ],
+            "useDemographicsAge": true,
+            "useDemographicsRace": true,
+            "useDemographicsGender": true,
+            "useMeasurementLongTerm": true,
+            "useObservationLongTerm": true,
+            "useDrugExposureLongTerm": true,
+            "useConditionOccurrenceLongTerm": true,
+            "useProcedureOccurrenceLongTerm": true
+        },
         "outcomeOfInterest": 75,
         "comparatorCohortId": 74,
         "negativeControlOutcomeIds": []
     },
     "author_id": 117,
     "created_at": null,
-    "updated_at": null,
+    "updated_at": "2026-03-19T05:45:35.000000Z",
     "deleted_at": null
 }
