@@ -430,14 +430,23 @@ class JobController extends Controller
             $completed = (int) $run->total_checks;
             $passed = (int) $run->passed_count;
             $failed = $completed - $passed;
-            $isRunning = $completed < $totalExpected;
+
+            // A run is "running" only if checks are still being inserted recently.
+            // If the last check was >5 minutes ago and we haven't hit totalExpected,
+            // the run stalled/crashed — mark it completed (partial).
+            $lastCheckAge = $run->completed_at
+                ? abs(now()->diffInSeconds(\Illuminate\Support\Carbon::parse($run->completed_at)))
+                : PHP_INT_MAX;
+            $isRunning = $completed < $totalExpected && $lastCheckAge < 300;
             $pct = $totalExpected > 0 ? round(($completed / $totalExpected) * 100) : 100;
+
+            $status = $isRunning ? 'running' : ($completed >= $totalExpected ? 'completed' : 'completed');
 
             return [
                 'id' => crc32($run->run_id),
                 'type' => 'dqd',
                 'name' => 'Data Quality — '.($source?->source_name ?? 'Unknown source'),
-                'status' => $isRunning ? 'running' : 'completed',
+                'status' => $status,
                 'source_name' => $source?->source_name,
                 'triggered_by' => null,
                 'progress' => $isRunning ? $pct : 100,
@@ -472,9 +481,16 @@ class JobController extends Controller
 
         return $runs->map(function ($run) use ($totalRules) {
             $source = \App\Models\App\Source::find($run->source_id);
-            $rulesCompleted = (int) $run->rules_completed;
-            $isRunning = $rulesCompleted < $totalRules;
-            $pct = $totalRules > 0 ? round(($rulesCompleted / $totalRules) * 100) : 100;
+            $totalResults = (int) $run->total_results;
+            $rulesWithViolations = (int) $run->rules_completed;
+
+            // Heel only stores violation rows — a clean run with 0 violations has 0 rows.
+            // We cannot determine "running" from row count since most rules produce 0 rows.
+            // Instead, use time-based staleness: if the last insert was >2 minutes ago, it's done.
+            $lastResultAge = $run->completed_at
+                ? abs(now()->diffInSeconds(\Illuminate\Support\Carbon::parse($run->completed_at)))
+                : PHP_INT_MAX;
+            $isRunning = $lastResultAge < 120;
 
             return [
                 'id' => crc32($run->run_id),
@@ -483,14 +499,14 @@ class JobController extends Controller
                 'status' => $isRunning ? 'running' : 'completed',
                 'source_name' => $source?->source_name,
                 'triggered_by' => null,
-                'progress' => $isRunning ? $pct : 100,
+                'progress' => $isRunning ? 50 : 100,
                 'started_at' => $run->started_at,
                 'completed_at' => $isRunning ? null : $run->completed_at,
                 'duration' => null,
                 'error_message' => null,
                 'log_output' => $isRunning
-                    ? "{$rulesCompleted}/{$totalRules} rules ({$pct}%)"
-                    : "{$rulesCompleted} rules, {$run->total_results} issues found",
+                    ? "Running {$totalRules} heel rules..."
+                    : "{$totalRules} rules checked, {$totalResults} issues found",
                 'created_at' => $run->started_at,
             ];
         })->when($statusFilter, function (Collection $jobs, string $filter) {
