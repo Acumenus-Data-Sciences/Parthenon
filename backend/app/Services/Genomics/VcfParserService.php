@@ -4,6 +4,7 @@ namespace App\Services\Genomics;
 
 use App\Models\App\GenomicUpload;
 use App\Models\App\GenomicVariant;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -11,9 +12,13 @@ use Illuminate\Support\Facades\Log;
  *
  * Supports VCF 4.1/4.2 with optional SnpEff ANN or VEP CSQ annotation in INFO field.
  * Handles basic MAF (Mutation Annotation Format) tab-delimited files as well.
+ *
+ * Uses batch inserts (1000 rows per INSERT) for performance on large files.
  */
 class VcfParserService
 {
+    private const BATCH_SIZE = 1000;
+
     /**
      * Parse a VCF file and insert variants into genomic_variants.
      *
@@ -44,6 +49,7 @@ class VcfParserService
         $errors = 0;
         $sampleColumns = [];
         $genomeBuild = $upload->genome_build;
+        $batch = [];
 
         try {
             while (($line = fgets($fh)) !== false) {
@@ -82,21 +88,75 @@ class VcfParserService
 
                 try {
                     $record = $this->parseVcfRecord($fields, $sampleColumns, $upload, $genomeBuild);
-                    GenomicVariant::create($record);
-                    $inserted++;
+                    $record['created_at'] = now();
+                    $record['updated_at'] = now();
+                    $record['raw_info'] = isset($record['raw_info']) ? json_encode($record['raw_info']) : null;
+                    $batch[] = $record;
+
+                    if (count($batch) >= self::BATCH_SIZE) {
+                        $inserted += $this->flushBatch($batch);
+                        $batch = [];
+                    }
                 } catch (\Throwable $e) {
                     $errors++;
-                    Log::warning('VcfParserService: variant parse error', [
-                        'line' => $total,
-                        'error' => $e->getMessage(),
-                    ]);
+                    if ($errors <= 20) {
+                        Log::warning('VcfParserService: variant parse error', [
+                            'line' => $total,
+                            'error' => $e->getMessage(),
+                        ]);
+                    }
                 }
+            }
+
+            // Flush remaining
+            if (! empty($batch)) {
+                $inserted += $this->flushBatch($batch);
             }
         } finally {
             fclose($fh);
         }
 
+        if ($errors > 20) {
+            Log::warning("VcfParserService: suppressed " . ($errors - 20) . " additional parse errors");
+        }
+
         return ['total' => $total, 'inserted' => $inserted, 'errors' => $errors];
+    }
+
+    /**
+     * Insert a batch of records using a single INSERT statement.
+     *
+     * @param  list<array<string, mixed>>  $batch
+     */
+    private function flushBatch(array $batch): int
+    {
+        if (empty($batch)) {
+            return 0;
+        }
+
+        try {
+            GenomicVariant::insert($batch);
+
+            return count($batch);
+        } catch (\Throwable $e) {
+            // Fall back to individual inserts to identify bad rows
+            Log::warning('VcfParserService: batch insert failed, falling back to individual', [
+                'error' => $e->getMessage(),
+                'batch_size' => count($batch),
+            ]);
+
+            $inserted = 0;
+            foreach ($batch as $record) {
+                try {
+                    GenomicVariant::insert([$record]);
+                    $inserted++;
+                } catch (\Throwable) {
+                    // Skip bad row
+                }
+            }
+
+            return $inserted;
+        }
     }
 
     /** @param string[] $fields @param string[] $sampleColumns @return array<string, mixed> */
@@ -302,6 +362,7 @@ class VcfParserService
         $inserted = 0;
         $errors = 0;
         $headers = [];
+        $batch = [];
 
         try {
             while (($line = fgets($fh)) !== false) {
@@ -329,15 +390,29 @@ class VcfParserService
 
                 try {
                     $record = $this->mafRowToVariant($row, $upload);
-                    GenomicVariant::create($record);
-                    $inserted++;
+                    $record['created_at'] = now();
+                    $record['updated_at'] = now();
+                    $record['raw_info'] = isset($record['raw_info']) ? json_encode($record['raw_info']) : null;
+                    $batch[] = $record;
+
+                    if (count($batch) >= self::BATCH_SIZE) {
+                        $inserted += $this->flushBatch($batch);
+                        $batch = [];
+                    }
                 } catch (\Throwable $e) {
                     $errors++;
-                    Log::warning('VcfParserService: MAF row error', [
-                        'line' => $total + 1,
-                        'error' => $e->getMessage(),
-                    ]);
+                    if ($errors <= 20) {
+                        Log::warning('VcfParserService: MAF row error', [
+                            'line' => $total + 1,
+                            'error' => $e->getMessage(),
+                        ]);
+                    }
                 }
+            }
+
+            // Flush remaining
+            if (! empty($batch)) {
+                $inserted += $this->flushBatch($batch);
             }
         } finally {
             fclose($fh);
