@@ -18,7 +18,9 @@ RUN pip install --no-cache-dir \
     requests==2.32.3
 
 # Non-root hub user with Docker group access
-RUN groupadd -g 999 docker && \
+# GID must match host's docker group (984 on this host)
+ARG DOCKER_GID=984
+RUN groupadd -g ${DOCKER_GID} docker && \
     useradd -m -s /bin/bash -G docker jupyterhub
 
 COPY docker/jupyterhub/jupyterhub_config.py /srv/jupyterhub/jupyterhub_config.py
