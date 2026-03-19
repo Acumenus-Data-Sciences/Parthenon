@@ -21,16 +21,17 @@ import {
 } from "lucide-react";
 import { FilterChip, Badge, StatusDot, Progress, EmptyState, Drawer, CodeBlock } from "@/components/ui";
 import { useJobs, useJob, useRetryJob, useCancelJob } from "../hooks/useJobs";
-import type { JobStatus, JobType } from "../api/jobsApi";
+import type { JobStatus, JobType, JobScope } from "../api/jobsApi";
 import { cn } from "@/lib/utils";
 import { HelpButton } from "@/features/help";
 
-const statusFilters: Array<{ label: string; value: JobStatus | "all" }> = [
-  { label: "All", value: "all" },
+const statusFilters: Array<{ label: string; value: JobStatus | "all" | "archived" }> = [
+  { label: "All (24h)", value: "all" },
   { label: "Running", value: "running" },
   { label: "Failed", value: "failed" },
   { label: "Completed", value: "completed" },
   { label: "Queued", value: "queued" },
+  { label: "Archived", value: "archived" },
 ];
 
 const typeIcons: Partial<Record<JobType, LucideIcon>> = {
@@ -105,12 +106,18 @@ const typeFilters: Array<{ label: string; value: JobType | "all" }> = [
 ];
 
 export default function JobsPage() {
-  const [statusFilter, setStatusFilter] = useState<JobStatus | "all">("all");
+  const [statusFilter, setStatusFilter] = useState<JobStatus | "all" | "archived">("all");
   const [typeFilter, setTypeFilter] = useState<JobType | "all">("all");
   const [selectedJobId, setSelectedJobId] = useState<number | null>(null);
 
+  // Map the combined status/scope filter to API params
+  const isArchived = statusFilter === "archived";
+  const scope: JobScope = isArchived ? "archived" : "recent";
+  const statusParam = isArchived ? undefined : (statusFilter !== "all" ? statusFilter as JobStatus : undefined);
+
   const { data, isLoading } = useJobs({
-    ...(statusFilter !== "all" ? { status: statusFilter } : {}),
+    scope,
+    ...(statusParam ? { status: statusParam } : {}),
     ...(typeFilter !== "all" ? { type: typeFilter } : {}),
   });
   const { data: selectedJob } = useJob(selectedJobId);
@@ -174,7 +181,11 @@ export default function JobsPage() {
           <EmptyState
             icon={<Clock size={40} />}
             title="No jobs found"
-            message={statusFilter !== "all" ? `No ${statusFilter} jobs. Try a different filter.` : "Background jobs will appear here when analyses run."}
+            message={
+              isArchived ? "No archived jobs older than 24 hours." :
+              statusFilter !== "all" ? `No ${statusFilter} jobs. Try a different filter.` :
+              "No jobs in the last 24 hours. Check Archived for older jobs."
+            }
           />
         ) : (
           <table className="data-table">

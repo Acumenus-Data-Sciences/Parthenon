@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { fetchJobs, fetchJob, retryJob, cancelJob, type JobStatus, type JobType } from "../api/jobsApi";
+import { fetchJobs, fetchJob, retryJob, cancelJob, type JobStatus, type JobType, type JobScope } from "../api/jobsApi";
 
-export function useJobs(params?: { status?: JobStatus; type?: JobType; page?: number }) {
+export function useJobs(params?: { status?: JobStatus; type?: JobType; scope?: JobScope; page?: number }) {
   return useQuery({
     queryKey: ["jobs", params],
     queryFn: () => fetchJobs({ per_page: 50, ...params }),

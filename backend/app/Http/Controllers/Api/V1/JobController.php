@@ -44,12 +44,20 @@ class JobController extends Controller
         EvidenceSynthesisAnalysis::class,
     ];
 
+    /**
+     * List jobs.
+     *
+     * @queryParam scope string  "recent" (default) = last 24h + all non-completed, "archived" = completed >24h ago
+     * @queryParam status string  Filter by normalized status (running, completed, failed, queued, pending)
+     * @queryParam type string    Filter by job type (characterization, genomic_parse, ingestion, etc.)
+     */
     public function index(Request $request): JsonResponse
     {
         $statusFilter = $request->string('status')->toString() ?: null;
         $typeFilter = $request->string('type')->toString() ?: null;
+        $scope = $request->string('scope')->toString() ?: 'recent';
         $userId = $request->user()->id;
-        $perPage = $request->integer('per_page', 20);
+        $perPage = $request->integer('per_page', 50);
 
         $allJobs = collect();
 
@@ -83,6 +91,28 @@ class JobController extends Controller
             $allJobs = $allJobs->merge($this->getVocabularyImportJobs($userId, $statusFilter));
         }
 
+        // Apply scope filter: recent (last 24h + non-completed) vs archived (completed >24h ago)
+        $cutoff = now()->subHours(24)->toIso8601String();
+        $doneStatuses = ['completed', 'failed', 'cancelled'];
+
+        if ($scope === 'archived') {
+            // Only completed/failed/cancelled jobs older than 24h
+            $allJobs = $allJobs->filter(function (array $job) use ($cutoff, $doneStatuses) {
+                return in_array($job['status'], $doneStatuses, true)
+                    && ($job['created_at'] ?? '') < $cutoff;
+            });
+        } elseif ($scope === 'recent') {
+            // All non-completed jobs + completed jobs within last 24h
+            $allJobs = $allJobs->filter(function (array $job) use ($cutoff, $doneStatuses) {
+                if (! in_array($job['status'], $doneStatuses, true)) {
+                    return true; // always show running/queued/pending
+                }
+
+                return ($job['created_at'] ?? '') >= $cutoff;
+            });
+        }
+        // scope=all → no filtering
+
         // Sort all by created_at descending
         $sorted = $allJobs->sortByDesc('created_at')->values();
 
@@ -98,6 +128,7 @@ class JobController extends Controller
                 'per_page' => $perPage,
                 'current_page' => $page,
                 'last_page' => (int) ceil($total / $perPage) ?: 1,
+                'scope' => $scope,
             ],
         ]);
     }

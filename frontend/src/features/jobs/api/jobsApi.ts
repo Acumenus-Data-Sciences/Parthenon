@@ -45,9 +45,12 @@ export interface JobsResponse {
   };
 }
 
+export type JobScope = "recent" | "archived" | "all";
+
 export async function fetchJobs(params?: {
   status?: JobStatus;
   type?: JobType;
+  scope?: JobScope;
   page?: number;
   per_page?: number;
 }): Promise<JobsResponse> {
