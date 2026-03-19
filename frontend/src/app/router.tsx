@@ -176,6 +176,13 @@ export const router = createBrowserRouter(
         ],
       },
       {
+        path: "jupyter",
+        lazy: () =>
+          import("@/features/jupyter/pages/JupyterPage").then((m) => ({
+            Component: m.default,
+          })),
+      },
+      {
         path: "analyses",
         children: [
           {

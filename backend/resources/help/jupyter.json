@@ -1,0 +1,15 @@
+{
+  "key": "jupyter",
+  "title": "Jupyter",
+  "description": "Jupyter embeds a full notebook workbench inside Parthenon for exploratory analysis, custom figures, cohort diagnostics, and study-specific research workflows. The embedded lab mounts a persistent notebook workspace backed by output/jupyter-notebook and provides a starter Parthenon notebook so researchers can move from cohort and study workflows into code without leaving the platform.",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Use the embedded lab for interactive exploration, then open the same workspace in a new tab when you need more screen space.",
+    "The notebook workspace persists in output/jupyter-notebook, so anything you save in Jupyter stays in the repository and can be versioned.",
+    "Start with the seeded Parthenon Research Workbench notebook to verify the environment and pick up the recommended workflow.",
+    "Use Jupyter for custom subgroup checks, sensitivity analyses, GIS joins, and one-off charts that do not justify a dedicated product feature.",
+    "Keep notebooks study-oriented: name files clearly and attach resulting artifacts back to the relevant study or publication workflow.",
+    "The container exposes Parthenon API and database connection hints via environment variables for advanced scripted workflows."
+  ]
+}

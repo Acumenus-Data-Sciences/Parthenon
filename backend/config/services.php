@@ -75,4 +75,10 @@ return [
         'url' => env('GRAFANA_URL', 'http://grafana:3000'),
     ],
 
+    'jupyter' => [
+        'url' => env('JUPYTER_URL', 'http://jupyter:8888'),
+        'base_url' => env('JUPYTER_BASE_URL', '/jupyter'),
+        'token' => env('JUPYTER_TOKEN', 'parthenon-local-jupyter'),
+    ],
+
 ];

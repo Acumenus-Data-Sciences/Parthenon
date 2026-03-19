@@ -13,6 +13,8 @@ services:
     depends_on:
       php:
         condition: service_healthy
+      jupyter:
+        condition: service_healthy
     networks:
       - parthenon
     restart: unless-stopped
@@ -240,6 +242,46 @@ services:
       - "host.docker.internal:host-gateway"
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8765/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+    networks:
+      - parthenon
+    restart: unless-stopped
+
+  jupyter:
+    container_name: parthenon-jupyter
+    build:
+      context: .
+      dockerfile: docker/jupyter/Dockerfile
+    ports:
+      - "${JUPYTER_PORT:-8888}:8888"
+    volumes:
+      - ./output/jupyter-notebook:/workspace/notebooks
+      - ./:/workspace/parthenon:ro
+    environment:
+      - JUPYTER_PORT=8888
+      - JUPYTER_TOKEN=${JUPYTER_TOKEN:-parthenon-local-jupyter}
+      - JUPYTER_BASE_URL=/jupyter
+      - JUPYTER_ROOT_DIR=/workspace/notebooks
+      - PARTHENON_API_BASE_URL=http://nginx/api/v1
+      - PARTHENON_NOTEBOOK_DIR=/workspace/notebooks
+      - PARTHENON_REPO_DIR=/workspace/parthenon
+      - PARTHENON_DB_HOST=postgres
+      - PARTHENON_DB_PORT=5432
+      - PARTHENON_DB_NAME=parthenon
+      - PARTHENON_DB_USER=parthenon
+      - PARTHENON_DB_PASSWORD=${DB_PASSWORD:-secret}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS \"http://127.0.0.1:8888/jupyter/api/status?token=$${JUPYTER_TOKEN}\" >/dev/null"]
       interval: 30s
       timeout: 10s
       retries: 3

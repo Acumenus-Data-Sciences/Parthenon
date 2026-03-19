@@ -42,6 +42,7 @@ import {
   MessageSquare,
   PanelsTopLeft,
   ScrollText,
+  NotebookPen,
   type LucideIcon,
 } from "lucide-react";
 import { HelpSlideOver } from "@/features/help/components/HelpSlideOver";
@@ -122,6 +123,7 @@ const navItems: NavItem[] = [
     label: "Tools",
     icon: Activity,
     children: [
+      { path: "/jupyter", label: "Jupyter", icon: NotebookPen },
       ...(studyAgentEnabled
         ? [{ path: "/workbench", label: "Workbench", icon: PanelsTopLeft }]
         : []),
@@ -181,6 +183,7 @@ const routeHelpKeys: Record<string, string> = {
   "/heor": "heor",
   "/imaging": "imaging",
   "/ingestion": "data-ingestion",
+  "/jupyter": "jupyter",
   "/jobs": "jobs",
   "/mapping-assistant": "mapping-assistant",
   "/phenotype-library": "phenotype-library",

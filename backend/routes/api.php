@@ -55,6 +55,7 @@ use App\Http\Controllers\Api\V1\ImagingTimelineController;
 use App\Http\Controllers\Api\V1\IncidenceRateController;
 use App\Http\Controllers\Api\V1\IngestionController;
 use App\Http\Controllers\Api\V1\JobController;
+use App\Http\Controllers\Api\V1\JupyterController;
 use App\Http\Controllers\Api\V1\MappingReviewController;
 use App\Http\Controllers\Api\V1\NegativeControlController;
 use App\Http\Controllers\Api\V1\NetworkAnalysisController;
@@ -492,6 +493,14 @@ Route::prefix('v1')->group(function () {
                 Route::get('/finngen/runs/{runId}', [StudyAgentController::class, 'finngenRun']);
                 Route::post('/finngen/runs/{runId}/replay', [StudyAgentController::class, 'replayFinnGenRun']);
                 Route::get('/finngen/runs/{runId}/export', [StudyAgentController::class, 'exportFinnGenRun']);
+            });
+
+        // Jupyter workbench
+        Route::prefix('jupyter')
+            ->middleware(['role:researcher|super-admin', 'throttle:10,1'])
+            ->group(function () {
+                Route::get('/health', [JupyterController::class, 'health']);
+                Route::get('/workspace', [JupyterController::class, 'workspace']);
             });
 
         // Publication / Export

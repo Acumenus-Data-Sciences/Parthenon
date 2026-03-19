@@ -31,6 +31,11 @@ export default defineConfig({
         target: "http://nginx:80",
         changeOrigin: true,
       },
+      "/jupyter": {
+        target: "http://nginx:80",
+        changeOrigin: true,
+        ws: true,
+      },
     },
   },
   test: {
