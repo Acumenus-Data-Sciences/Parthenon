@@ -12,6 +12,7 @@ sys.path.insert(0, "/srv/jupyterhub")
 c.JupyterHub.authenticator_class = "parthenon_auth.ParthenonAuthenticator"
 c.Authenticator.enable_auth_state = True
 c.Authenticator.auto_login = True
+c.Authenticator.allow_all = True  # All JWT-authenticated users are allowed
 
 # ── Base URL ──
 c.JupyterHub.base_url = "/jupyter"
