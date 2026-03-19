@@ -1,5 +1,7 @@
 import { useState, useRef } from "react";
 import { X, Upload, AlertCircle, CheckCircle2, Loader2, Dna } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { fetchSources } from "@/features/data-sources/api/sourcesApi";
 import { useUploadVariantFile } from "../hooks/useGenomics";
 import type { FileFormat, GenomeBuild } from "../types";
 
@@ -36,9 +38,17 @@ export function UploadDialog({ onClose, sourceId }: Props) {
   const [format, setFormat] = useState<FileFormat>("vcf");
   const [build, setBuild] = useState<GenomeBuild>("GRCh38");
   const [sampleId, setSampleId] = useState("");
-  const [srcId] = useState<number>(sourceId ?? 2);
+  const [selectedSourceId, setSelectedSourceId] = useState<number | undefined>(sourceId);
   const [dragOver, setDragOver] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  const { data: sources, isLoading: sourcesLoading } = useQuery({
+    queryKey: ["sources"],
+    queryFn: fetchSources,
+    enabled: !sourceId,
+  });
+
+  const resolvedSourceId = selectedSourceId ?? sources?.[0]?.id;
 
   const upload = useUploadVariantFile();
 
@@ -62,9 +72,9 @@ export function UploadDialog({ onClose, sourceId }: Props) {
   };
 
   const handleSubmit = async () => {
-    if (!file) return;
+    if (!file || !resolvedSourceId) return;
     await upload.mutateAsync({
-      source_id: srcId,
+      source_id: resolvedSourceId,
       file,
       file_format: format,
       genome_build: build,
@@ -94,6 +104,22 @@ export function UploadDialog({ onClose, sourceId }: Props) {
         </div>
 
         <div className="p-5 space-y-4">
+          {/* Source selector (when multiple sources exist) */}
+          {!sourceId && sources && sources.length > 1 && (
+            <div>
+              <label className="block text-xs text-[#8A857D] mb-1.5">Data Source</label>
+              <select
+                value={resolvedSourceId ?? ""}
+                onChange={(e) => setSelectedSourceId(Number(e.target.value))}
+                className="w-full rounded-lg bg-[#0E0E11] border border-[#232328] px-3 py-2 text-sm text-[#F0EDE8] focus:outline-none focus:border-[#2DD4BF] transition-colors"
+              >
+                {sources.map((s) => (
+                  <option key={s.id} value={s.id}>{s.source_name}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
           {/* Drop zone */}
           <div
             onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
@@ -199,7 +225,7 @@ export function UploadDialog({ onClose, sourceId }: Props) {
           <button
             type="button"
             onClick={handleSubmit}
-            disabled={!file || upload.isPending}
+            disabled={!file || !resolvedSourceId || upload.isPending || sourcesLoading}
             className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-4 py-2 text-sm font-medium text-[#0E0E11] hover:bg-[#26B8A5] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {upload.isPending ? (
