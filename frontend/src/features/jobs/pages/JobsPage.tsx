@@ -14,6 +14,9 @@ import {
   BookOpen,
   GitFork,
   Wand2,
+  Globe,
+  MapPin,
+  Dna,
   type LucideIcon,
 } from "lucide-react";
 import { FilterChip, Badge, StatusDot, Progress, EmptyState, Drawer, CodeBlock } from "@/components/ui";
@@ -43,6 +46,9 @@ const typeIcons: Partial<Record<JobType, LucideIcon>> = {
   evidence_synthesis: BarChart2,
   ingestion: Upload,
   vocabulary_load: BookOpen,
+  fhir_export: Globe,
+  gis_import: MapPin,
+  genomic_parse: Dna,
   analysis: Wand2,
 };
 

@@ -14,6 +14,9 @@ export type JobType =
   | "evidence_synthesis"
   | "ingestion"
   | "vocabulary_load"
+  | "fhir_export"
+  | "gis_import"
+  | "genomic_parse"
   | "analysis";
 
 export interface Job {
