@@ -49,8 +49,8 @@ class JupyterController extends Controller
     {
         $status = Http::timeout(10)->get($this->statusEndpoint());
         $available = $status->successful();
-        $labUrl = "{$this->baseUrl}/lab/tree?token={$this->token}";
-        $treeUrl = "{$this->baseUrl}/lab/tree?token={$this->token}";
+        $labUrl = "{$this->baseUrl}/lab?token={$this->token}";
+        $treeUrl = "{$this->baseUrl}/tree?token={$this->token}";
         $starterUrl = "{$this->baseUrl}/lab/tree/parthenon-research-workbench.ipynb?token={$this->token}";
 
         return response()->json([
