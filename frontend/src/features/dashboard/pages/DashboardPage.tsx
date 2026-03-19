@@ -255,14 +255,6 @@ export function DashboardPage() {
                   {genderSegments.length > 0 && (
                     <div className="mb-4">
                       <ProportionalBar segments={genderSegments} height={24} />
-                      <div className="mt-2 flex items-center gap-4">
-                        {genderSegments.map((seg) => (
-                          <div key={seg.label} className="flex items-center gap-1.5 text-xs text-[#8A857D]">
-                            <div className="h-2.5 w-2.5 rounded-sm" style={{ backgroundColor: seg.color }} />
-                            {seg.label}: {formatCompact(seg.value)} ({((seg.value / personCount) * 100).toFixed(1)}%)
-                          </div>
-                        ))}
-                      </div>
                     </div>
                   )}
 
