@@ -17,6 +17,7 @@ export type JobType =
   | "fhir_export"
   | "gis_import"
   | "genomic_parse"
+  | "heel"
   | "analysis";
 
 export interface Job {

@@ -25,6 +25,9 @@ use App\Models\App\PredictionAnalysis;
 use App\Models\App\SccsAnalysis;
 use App\Models\App\DqdResult;
 use App\Models\App\VocabularyImport;
+use App\Models\Results\AchillesHeelResult;
+use App\Services\Achilles\Heel\AchillesHeelRuleRegistry;
+use App\Services\Dqd\DqdCheckRegistry;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -95,6 +98,11 @@ class JobController extends Controller
         // 7. DQD runs (system-level, not user-scoped)
         if (! $typeFilter || $typeFilter === 'dqd') {
             $allJobs = $allJobs->merge($this->getDqdJobs($statusFilter));
+        }
+
+        // 8. Heel runs (system-level, not user-scoped)
+        if (! $typeFilter || $typeFilter === 'heel') {
+            $allJobs = $allJobs->merge($this->getHeelJobs($statusFilter));
         }
 
         // Apply scope filter: recent (last 24h + non-completed) vs archived (completed >24h ago)
@@ -360,7 +368,7 @@ class JobController extends Controller
                 'status' => $this->normalizeGenomicStatus($upload->status),
                 'source_name' => $upload->source?->source_name,
                 'triggered_by' => $upload->creator?->name,
-                'progress' => $this->genomicProgress($upload->status),
+                'progress' => $this->genomicProgress($upload->status, $upload->total_variants, $upload->file_size_bytes),
                 'started_at' => $upload->created_at?->toIso8601String(),
                 'completed_at' => $upload->parsed_at?->toIso8601String(),
                 'duration' => null,
@@ -409,41 +417,82 @@ class JobController extends Controller
      */
     private function getDqdJobs(?string $statusFilter): Collection
     {
-        $runs = DqdResult::query()
-            ->selectRaw("run_id, source_id, COUNT(*) as total_checks, SUM(CASE WHEN passed THEN 1 ELSE 0 END) as passed_count, MIN(created_at) as started_at, MAX(created_at) as completed_at, SUM(execution_time_ms) as total_ms")
+        $totalExpected = app(DqdCheckRegistry::class)->count();
+
+        $runs = \Illuminate\Support\Facades\DB::table('app.dqd_results')
+            ->selectRaw("run_id, source_id, COUNT(*) as total_checks, SUM(CASE WHEN passed = true THEN 1 ELSE 0 END)::int as passed_count, MIN(created_at) as started_at, MAX(created_at) as completed_at, SUM(execution_time_ms) as total_ms")
             ->groupBy('run_id', 'source_id')
             ->orderByDesc('started_at')
             ->limit(50)
             ->get();
 
-        return $runs->map(function ($run) {
+        return $runs->map(function ($run) use ($totalExpected) {
             $source = \App\Models\App\Source::find($run->source_id);
-            $total = (int) $run->total_checks;
+            $completed = (int) $run->total_checks;
             $passed = (int) $run->passed_count;
-            $failed = $total - $passed;
+            $failed = $completed - $passed;
+            $isRunning = $completed < $totalExpected;
+            $pct = $totalExpected > 0 ? round(($completed / $totalExpected) * 100) : 100;
 
             return [
-                'id' => crc32($run->run_id), // stable numeric ID from UUID
+                'id' => crc32($run->run_id),
                 'type' => 'dqd',
                 'name' => 'Data Quality — '.($source?->source_name ?? 'Unknown source'),
-                'status' => 'completed',
+                'status' => $isRunning ? 'running' : 'completed',
                 'source_name' => $source?->source_name,
                 'triggered_by' => null,
-                'progress' => 100,
+                'progress' => $isRunning ? $pct : 100,
                 'started_at' => $run->started_at,
-                'completed_at' => $run->completed_at,
+                'completed_at' => $isRunning ? null : $run->completed_at,
                 'duration' => null,
-                'error_message' => $failed > 0 ? "{$failed} of {$total} checks failed" : null,
-                'log_output' => "{$total} checks: {$passed} passed, {$failed} failed",
+                'error_message' => $failed > 0 ? "{$failed} of {$completed} checks failed" : null,
+                'log_output' => $isRunning
+                    ? "{$completed}/{$totalExpected} checks ({$pct}%)"
+                    : "{$completed} checks: {$passed} passed, {$failed} failed",
                 'created_at' => $run->started_at,
-                'meta' => [
-                    'run_id' => $run->run_id,
-                    'source_id' => $run->source_id,
-                    'total_checks' => $total,
-                    'passed' => $passed,
-                    'failed' => $failed,
-                    'total_execution_time_ms' => (int) $run->total_ms,
-                ],
+            ];
+        })->when($statusFilter, function (Collection $jobs, string $filter) {
+            return $jobs->filter(fn (array $job) => $job['status'] === $filter);
+        });
+    }
+
+    /**
+     * @return Collection<int, array<string, mixed>>
+     */
+    private function getHeelJobs(?string $statusFilter): Collection
+    {
+        $totalRules = app(AchillesHeelRuleRegistry::class)->count();
+
+        $runs = \Illuminate\Support\Facades\DB::table('achilles_heel_results')
+            ->whereNotNull('run_id')
+            ->selectRaw("run_id, source_id, COUNT(*) as total_results, COUNT(DISTINCT rule_id) as rules_completed, MIN(created_at) as started_at, MAX(created_at) as completed_at")
+            ->groupBy('run_id', 'source_id')
+            ->orderByDesc('started_at')
+            ->limit(20)
+            ->get();
+
+        return $runs->map(function ($run) use ($totalRules) {
+            $source = \App\Models\App\Source::find($run->source_id);
+            $rulesCompleted = (int) $run->rules_completed;
+            $isRunning = $rulesCompleted < $totalRules;
+            $pct = $totalRules > 0 ? round(($rulesCompleted / $totalRules) * 100) : 100;
+
+            return [
+                'id' => crc32($run->run_id),
+                'type' => 'heel',
+                'name' => 'Heel Checks — '.($source?->source_name ?? 'Unknown source'),
+                'status' => $isRunning ? 'running' : 'completed',
+                'source_name' => $source?->source_name,
+                'triggered_by' => null,
+                'progress' => $isRunning ? $pct : 100,
+                'started_at' => $run->started_at,
+                'completed_at' => $isRunning ? null : $run->completed_at,
+                'duration' => null,
+                'error_message' => null,
+                'log_output' => $isRunning
+                    ? "{$rulesCompleted}/{$totalRules} rules ({$pct}%)"
+                    : "{$rulesCompleted} rules, {$run->total_results} issues found",
+                'created_at' => $run->started_at,
             ];
         })->when($statusFilter, function (Collection $jobs, string $filter) {
             return $jobs->filter(fn (array $job) => $job['status'] === $filter);
@@ -564,11 +613,19 @@ class JobController extends Controller
         };
     }
 
-    private function genomicProgress(?string $status): int
+    private function genomicProgress(?string $status, int $variantsParsed = 0, ?int $fileSize = null): int
     {
+        if ($status === 'parsing' && $fileSize && $fileSize > 0) {
+            // Estimate progress: ~550 bytes per variant line in a VCF
+            $estimatedTotal = max((int) ($fileSize / 550), 1);
+            $pct = min((int) (($variantsParsed / $estimatedTotal) * 100), 99);
+
+            return max($pct, 1); // at least 1% once parsing starts
+        }
+
         return match ($status) {
             'pending' => 0,
-            'parsing' => 50,
+            'parsing' => 1,
             'mapped', 'review', 'imported' => 100,
             'failed' => 0,
             default => 0,

@@ -2,11 +2,13 @@
 
 namespace App\Services\Achilles\Heel;
 
+use App\Enums\DaimonType;
 use App\Models\App\Source;
 use App\Models\Results\AchillesHeelResult;
 use App\Services\SqlRenderer\SqlRendererService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class AchillesHeelService
 {
@@ -20,10 +22,9 @@ class AchillesHeelService
      *
      * @return array{completed: int, failed: int, results: list<array{rule_id: int, status: string, violations: int, error?: string}>}
      */
-    public function run(Source $source): array
+    public function run(Source $source, ?string $runId = null): array
     {
-        // Clear previous results for this source
-        AchillesHeelResult::where('source_id', $source->source_id)->delete();
+        $runId ??= (string) Str::uuid();
 
         $completed = 0;
         $failed = 0;
@@ -31,14 +32,20 @@ class AchillesHeelService
 
         foreach ($this->registry->all() as $rule) {
             try {
-                $sql = $this->sqlRenderer->render($sql = $rule->sqlTemplate(), $source);
+                $params = [
+                    'resultsSchema' => $source->getTableQualifier(DaimonType::Results) ?? 'achilles_results',
+                    'cdmSchema' => $source->getTableQualifier(DaimonType::CDM) ?? 'omop',
+                    'vocabSchema' => $source->getTableQualifier(DaimonType::Vocabulary) ?? 'omop',
+                ];
+                $sql = $this->sqlRenderer->render($rule->sqlTemplate(), $params);
 
                 $rows = DB::select($sql);
 
                 $violations = 0;
                 foreach ($rows as $row) {
                     AchillesHeelResult::create([
-                        'source_id' => $source->source_id,
+                        'source_id' => $source->id,
+                        'run_id' => $runId,
                         'rule_id' => $rule->ruleId(),
                         'rule_name' => $rule->ruleName(),
                         'severity' => $rule->severity(),
@@ -72,14 +79,32 @@ class AchillesHeelService
     }
 
     /**
-     * Return all stored heel results for a source, grouped by severity.
+     * Return stored heel results for a source, grouped by severity.
+     * If runId provided, returns results for that specific run.
+     * Otherwise returns results from the latest run.
      *
      * @return array<string, list<array<string, mixed>>>
      */
-    public function getResults(Source $source): array
+    public function getResults(Source $source, ?string $runId = null): array
     {
-        $rows = AchillesHeelResult::where('source_id', $source->source_id)
-            ->orderBy('severity')
+        $query = AchillesHeelResult::where('source_id', $source->id);
+
+        if ($runId) {
+            $query->where('run_id', $runId);
+        } else {
+            // Get latest run_id
+            $latestRunId = AchillesHeelResult::where('source_id', $source->id)
+                ->orderByDesc('created_at')
+                ->value('run_id');
+
+            if (! $latestRunId) {
+                return ['error' => [], 'warning' => [], 'notification' => []];
+            }
+
+            $query->where('run_id', $latestRunId);
+        }
+
+        $rows = $query->orderBy('severity')
             ->orderBy('rule_id')
             ->get();
 

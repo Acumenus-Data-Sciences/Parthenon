@@ -5,7 +5,13 @@ export function useJobs(params?: { status?: JobStatus; type?: JobType; scope?: J
   return useQuery({
     queryKey: ["jobs", params],
     queryFn: () => fetchJobs({ per_page: 50, ...params }),
-    refetchInterval: 5_000,
+    refetchInterval: (query) => {
+      const jobs = query.state.data?.data;
+      const hasActive = jobs?.some(
+        (j) => j.status === "running" || j.status === "queued" || j.status === "pending",
+      );
+      return hasActive ? 1_000 : 10_000;
+    },
   });
 }
 
@@ -16,7 +22,7 @@ export function useJob(id: number | null) {
     enabled: id != null,
     refetchInterval: (query) => {
       const status = query.state.data?.status;
-      return status === "running" || status === "queued" || status === "pending" ? 2_000 : false;
+      return status === "running" || status === "queued" || status === "pending" ? 1_000 : false;
     },
   });
 }

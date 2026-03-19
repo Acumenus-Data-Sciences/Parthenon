@@ -99,13 +99,15 @@ export interface DistributionEntry extends BoxPlotData {
 // DQD Types
 export interface DqdRun {
   run_id: string;
-  source_id: number;
   total_checks: number;
   passed: number;
   failed: number;
-  error_count: number;
-  warning_count: number;
-  created_at: string;
+  pass_rate: number;
+  started_at: string;
+  completed_at: string;
+  total_execution_time_ms: number;
+  /** Alias used in UI — maps to started_at */
+  created_at?: string;
 }
 
 export interface DqdCategorySummary {

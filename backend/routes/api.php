@@ -187,6 +187,8 @@ Route::prefix('v1')->group(function () {
             Route::get('/performance', [AchillesController::class, 'performance']);
             Route::get('/distributions/{analysisId}', [AchillesController::class, 'distribution']);
             Route::get('/heel', [AchillesController::class, 'heel']);
+            Route::get('/heel/runs', [AchillesController::class, 'heelRuns']);
+            Route::get('/heel/runs/{runId}/progress', [AchillesController::class, 'heelProgress']);
             Route::post('/heel/run', [AchillesController::class, 'runHeel']);
             Route::post('/run', [AchillesController::class, 'run']);
         });
@@ -215,6 +217,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/runs/{runId}/tables/{table}', [DataQualityController::class, 'tableResults']);
             Route::post('/run', [DataQualityController::class, 'dispatch']);
             Route::get('/latest', [DataQualityController::class, 'latest']);
+            Route::get('/runs/{runId}/progress', [DataQualityController::class, 'progress']);
             Route::delete('/runs/{runId}', [DataQualityController::class, 'destroyRun']);
         });
 

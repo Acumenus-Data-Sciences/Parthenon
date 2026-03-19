@@ -4,13 +4,18 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\Achilles\RunAchillesJob;
+use App\Jobs\Achilles\RunHeelJob;
 use App\Models\App\Source;
+use App\Models\Results\AchillesHeelResult;
 use App\Services\Achilles\AchillesResultReaderService;
+use App\Services\Achilles\Heel\AchillesHeelRuleRegistry;
 use App\Services\Achilles\Heel\AchillesHeelService;
 use App\Services\Solr\AnalysesSearchService;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 #[Group('Data Explorer', weight: 160)]
 class AchillesController extends Controller
@@ -18,6 +23,7 @@ class AchillesController extends Controller
     public function __construct(
         private readonly AchillesResultReaderService $reader,
         private readonly AchillesHeelService $heel,
+        private readonly AchillesHeelRuleRegistry $heelRegistry,
         private readonly AnalysesSearchService $analysesSearch,
     ) {}
 
@@ -221,20 +227,112 @@ class AchillesController extends Controller
     /**
      * POST /v1/sources/{source}/achilles/heel/run
      *
-     * Runs all Achilles Heel rules synchronously and returns results.
+     * Dispatches an async Achilles Heel run and returns the run_id for polling.
      */
     public function runHeel(Source $source): JsonResponse
     {
         try {
-            $result = $this->heel->run($source);
+            $runId = (string) Str::uuid();
+
+            RunHeelJob::dispatch($source, $runId);
 
             return response()->json([
-                'data' => $result,
-                'message' => "Heel completed: {$result['completed']} rules passed, {$result['failed']} failed.",
-            ]);
+                'run_id' => $runId,
+                'total_rules' => $this->heelRegistry->count(),
+                'message' => 'Heel run dispatched',
+            ], 202);
         } catch (\Throwable $e) {
-            return $this->errorResponse('Failed to run Achilles Heel', $e);
+            return $this->errorResponse('Failed to dispatch Achilles Heel', $e);
         }
+    }
+
+    /**
+     * GET /v1/sources/{source}/achilles/heel/runs
+     *
+     * List all Heel runs for a source.
+     */
+    public function heelRuns(Source $source): JsonResponse
+    {
+        $runs = DB::table('achilles_heel_results')
+            ->where('source_id', $source->id)
+            ->whereNotNull('run_id')
+            ->selectRaw("run_id, COUNT(*) as total_results, COUNT(DISTINCT rule_id) as rules_completed, MIN(created_at) as started_at, MAX(created_at) as completed_at")
+            ->groupBy('run_id')
+            ->orderByDesc('started_at')
+            ->limit(20)
+            ->get();
+
+        $totalRules = $this->heelRegistry->count();
+
+        return response()->json([
+            'data' => $runs->map(fn ($run) => [
+                'run_id' => $run->run_id,
+                'rules_completed' => (int) $run->rules_completed,
+                'total_rules' => $totalRules,
+                'total_results' => (int) $run->total_results,
+                'started_at' => $run->started_at,
+                'completed_at' => $run->completed_at,
+            ]),
+        ]);
+    }
+
+    /**
+     * GET /v1/sources/{source}/achilles/heel/runs/{runId}/progress
+     *
+     * Lightweight progress endpoint for 1s polling during a running Heel job.
+     */
+    public function heelProgress(Source $source, string $runId): JsonResponse
+    {
+        $totalRules = $this->heelRegistry->count();
+
+        $overall = DB::table('achilles_heel_results')
+            ->where('run_id', $runId)
+            ->where('source_id', $source->id)
+            ->selectRaw("COUNT(DISTINCT rule_id) as rules_completed, COUNT(*) as total_results")
+            ->first();
+
+        $rulesCompleted = (int) ($overall->rules_completed ?? 0);
+        $status = $rulesCompleted === 0 ? 'pending' : ($rulesCompleted >= $totalRules ? 'completed' : 'running');
+
+        $bySeverity = DB::table('achilles_heel_results')
+            ->where('run_id', $runId)
+            ->where('source_id', $source->id)
+            ->selectRaw("severity, COUNT(*) as count, COUNT(DISTINCT rule_id) as rules")
+            ->groupBy('severity')
+            ->get()
+            ->map(fn ($row) => [
+                'severity' => $row->severity,
+                'count' => (int) $row->count,
+                'rules' => (int) $row->rules,
+            ]);
+
+        // Ensure all severities present
+        foreach (['error', 'warning', 'notification'] as $sev) {
+            if (! $bySeverity->contains('severity', $sev)) {
+                $bySeverity->push(['severity' => $sev, 'count' => 0, 'rules' => 0]);
+            }
+        }
+
+        $latestResult = DB::table('achilles_heel_results')
+            ->where('run_id', $runId)
+            ->where('source_id', $source->id)
+            ->orderByDesc('id')
+            ->first(['rule_id', 'rule_name', 'severity']);
+
+        return response()->json([
+            'run_id' => $runId,
+            'status' => $status,
+            'rules_completed' => $rulesCompleted,
+            'total_rules' => $totalRules,
+            'total_results' => (int) ($overall->total_results ?? 0),
+            'percentage' => $totalRules > 0 ? round(($rulesCompleted / $totalRules) * 100, 1) : 0,
+            'by_severity' => $bySeverity->sortBy('severity')->values(),
+            'latest_rule' => $latestResult ? [
+                'rule_id' => $latestResult->rule_id,
+                'rule_name' => $latestResult->rule_name,
+                'severity' => $latestResult->severity,
+            ] : null,
+        ]);
     }
 
     /**

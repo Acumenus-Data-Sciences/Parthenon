@@ -8,6 +8,8 @@ import {
   fetchConceptDrilldown,
   fetchTemporalTrends,
   fetchHeelResults,
+  fetchHeelRuns,
+  fetchHeelProgress,
   runHeel,
 } from "../api/achillesApi";
 import type { Domain } from "../types/dataExplorer";
@@ -15,6 +17,7 @@ import {
   fetchDqdRuns,
   fetchDqdRun,
   fetchDqdResults,
+  fetchDqdProgress,
   fetchLatestDqd,
 } from "../api/dqdApi";
 
@@ -138,6 +141,28 @@ export function useRunHeel(sourceId: number) {
     mutationFn: () => runHeel(sourceId),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["achilles", "heel", sourceId] });
+      qc.invalidateQueries({ queryKey: ["heel", "runs", sourceId] });
+    },
+  });
+}
+
+export function useHeelRuns(sourceId: number) {
+  return useQuery({
+    queryKey: ["heel", "runs", sourceId],
+    queryFn: () => fetchHeelRuns(sourceId),
+    enabled: sourceId > 0,
+  });
+}
+
+export function useHeelProgress(sourceId: number, runId: string | null) {
+  return useQuery({
+    queryKey: ["heel", "progress", sourceId, runId],
+    queryFn: () => fetchHeelProgress(sourceId, runId!),
+    enabled: sourceId > 0 && runId != null,
+    refetchInterval: (query) => {
+      const status = query.state.data?.status;
+      if (status === "completed") return false;
+      return 1000; // 1s polling while running/pending
     },
   });
 }
@@ -171,6 +196,19 @@ export function useDqdResults(
     queryKey: ["dqd", "results", sourceId, runId, params],
     queryFn: () => fetchDqdResults(sourceId, runId!, params),
     enabled: sourceId > 0 && runId != null,
+  });
+}
+
+export function useDqdProgress(sourceId: number, runId: string | null) {
+  return useQuery({
+    queryKey: ["dqd", "progress", sourceId, runId],
+    queryFn: () => fetchDqdProgress(sourceId, runId!),
+    enabled: sourceId > 0 && runId != null,
+    refetchInterval: (query) => {
+      const status = query.state.data?.status;
+      if (status === "completed") return false;
+      return 1000; // 1s polling while running/pending
+    },
   });
 }
 

@@ -8,18 +8,18 @@ import type {
 const BASE = (sourceId: number) => `/sources/${sourceId}/dqd`;
 
 export async function fetchDqdRuns(sourceId: number): Promise<DqdRun[]> {
-  const { data } = await apiClient.get<DqdRun[]>(`${BASE(sourceId)}/runs`);
-  return data;
+  const { data } = await apiClient.get<{ data: DqdRun[] }>(`${BASE(sourceId)}/runs`);
+  return data.data;
 }
 
 export async function fetchDqdRun(
   sourceId: number,
   runId: string,
 ): Promise<DqdRunSummary> {
-  const { data } = await apiClient.get<DqdRunSummary>(
+  const { data } = await apiClient.get<{ data: DqdRunSummary }>(
     `${BASE(sourceId)}/runs/${runId}`,
   );
-  return data;
+  return data.data;
 }
 
 export async function fetchDqdResults(
@@ -51,10 +51,10 @@ export async function fetchDqdSummary(
   sourceId: number,
   runId: string,
 ): Promise<DqdRunSummary> {
-  const { data } = await apiClient.get<DqdRunSummary>(
+  const { data } = await apiClient.get<{ data: DqdRunSummary }>(
     `${BASE(sourceId)}/runs/${runId}/summary`,
   );
-  return data;
+  return data.data;
 }
 
 export async function fetchDqdTableResults(
@@ -62,10 +62,10 @@ export async function fetchDqdTableResults(
   runId: string,
   table: string,
 ): Promise<DqdCheckResult[]> {
-  const { data } = await apiClient.get<DqdCheckResult[]>(
+  const { data } = await apiClient.get<{ data: { results: DqdCheckResult[] } }>(
     `${BASE(sourceId)}/runs/${runId}/tables/${table}`,
   );
-  return data;
+  return data.data.results;
 }
 
 export async function dispatchDqdRun(
@@ -79,14 +79,48 @@ export async function dispatchDqdRun(
   return data;
 }
 
+export interface DqdProgress {
+  run_id: string;
+  status: "pending" | "running" | "completed";
+  completed: number;
+  total: number;
+  passed: number;
+  failed: number;
+  percentage: number;
+  by_category: Array<{
+    category: string;
+    completed: number;
+    total: number;
+    passed: number;
+    failed: number;
+  }>;
+  latest_check: {
+    check_id: string;
+    cdm_table: string;
+    cdm_column: string | null;
+    passed: boolean;
+    category: string;
+  } | null;
+}
+
+export async function fetchDqdProgress(
+  sourceId: number,
+  runId: string,
+): Promise<DqdProgress> {
+  const { data } = await apiClient.get<DqdProgress>(
+    `${BASE(sourceId)}/runs/${runId}/progress`,
+  );
+  return data;
+}
+
 export async function fetchLatestDqd(
   sourceId: number,
 ): Promise<DqdRunSummary | null> {
   try {
-    const { data } = await apiClient.get<DqdRunSummary>(
+    const { data } = await apiClient.get<{ data: DqdRunSummary }>(
       `${BASE(sourceId)}/latest`,
     );
-    return data;
+    return data.data;
   } catch {
     return null;
   }

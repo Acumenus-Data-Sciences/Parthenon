@@ -10,6 +10,7 @@ class AchillesHeelResult extends Model
 
     protected $fillable = [
         'source_id',
+        'run_id',
         'rule_id',
         'rule_name',
         'severity',

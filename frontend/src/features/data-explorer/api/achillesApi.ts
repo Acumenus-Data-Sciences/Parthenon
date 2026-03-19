@@ -112,7 +112,45 @@ export async function fetchHeelResults(
   return unwrap<HeelResultsGrouped>(data);
 }
 
-export async function runHeel(sourceId: number): Promise<HeelRunResult> {
+export async function runHeel(sourceId: number): Promise<{ run_id: string; total_rules: number; message: string }> {
   const { data } = await apiClient.post(`${BASE(sourceId)}/heel/run`);
-  return unwrap<HeelRunResult>(data);
+  return unwrap<{ run_id: string; total_rules: number; message: string }>(data);
+}
+
+export interface HeelRun {
+  run_id: string;
+  rules_completed: number;
+  total_rules: number;
+  total_results: number;
+  started_at: string;
+  completed_at: string;
+}
+
+export interface HeelProgress {
+  run_id: string;
+  status: "pending" | "running" | "completed";
+  rules_completed: number;
+  total_rules: number;
+  total_results: number;
+  percentage: number;
+  by_severity: Array<{
+    severity: string;
+    count: number;
+    rules: number;
+  }>;
+  latest_rule: {
+    rule_id: number;
+    rule_name: string;
+    severity: string;
+  } | null;
+}
+
+export async function fetchHeelRuns(sourceId: number): Promise<HeelRun[]> {
+  const { data } = await apiClient.get(`${BASE(sourceId)}/heel/runs`);
+  return unwrap<HeelRun[]>(data);
+}
+
+export async function fetchHeelProgress(sourceId: number, runId: string): Promise<HeelProgress> {
+  const { data } = await apiClient.get(`${BASE(sourceId)}/heel/runs/${runId}/progress`);
+  return unwrap<HeelProgress>(data);
 }

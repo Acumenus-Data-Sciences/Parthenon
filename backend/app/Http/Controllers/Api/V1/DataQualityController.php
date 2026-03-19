@@ -238,6 +238,77 @@ class DataQualityController extends Controller
     }
 
     /**
+     * Lightweight progress endpoint for 1s polling during a running DQD job.
+     */
+    public function progress(Source $source, string $runId): JsonResponse
+    {
+        $totalExpected = $this->registry->count();
+
+        // Use DB facade to avoid DqdResult model's boolean cast on 'passed' column
+        $overall = \Illuminate\Support\Facades\DB::table('app.dqd_results')
+            ->where('run_id', $runId)
+            ->where('source_id', $source->id)
+            ->selectRaw('COUNT(*) as completed')
+            ->selectRaw('SUM(CASE WHEN passed = true THEN 1 ELSE 0 END)::int as passed_count')
+            ->selectRaw('SUM(CASE WHEN passed = false THEN 1 ELSE 0 END)::int as failed_count')
+            ->first();
+
+        $completed = (int) ($overall->completed ?? 0);
+        $status = $completed === 0 ? 'pending' : ($completed >= $totalExpected ? 'completed' : 'running');
+
+        $byCategory = \Illuminate\Support\Facades\DB::table('app.dqd_results')
+            ->where('run_id', $runId)
+            ->where('source_id', $source->id)
+            ->selectRaw('category, COUNT(*) as completed, SUM(CASE WHEN passed = true THEN 1 ELSE 0 END)::int as passed_count, SUM(CASE WHEN passed = false THEN 1 ELSE 0 END)::int as failed_count')
+            ->groupBy('category')
+            ->get()
+            ->map(fn ($row) => [
+                'category' => $row->category,
+                'completed' => (int) $row->completed,
+                'total' => count($this->registry->byCategory($row->category)),
+                'passed' => (int) $row->passed_count,
+                'failed' => (int) $row->failed_count,
+            ]);
+
+        // Add categories not yet started
+        foreach ($this->registry->categories() as $cat) {
+            if (! $byCategory->contains('category', $cat)) {
+                $byCategory->push([
+                    'category' => $cat,
+                    'completed' => 0,
+                    'total' => count($this->registry->byCategory($cat)),
+                    'passed' => 0,
+                    'failed' => 0,
+                ]);
+            }
+        }
+
+        // Latest check completed (for live feed)
+        $latestCheck = DqdResult::where('run_id', $runId)
+            ->where('source_id', $source->id)
+            ->orderByDesc('id')
+            ->first(['check_id', 'cdm_table', 'cdm_column', 'passed', 'category']);
+
+        return response()->json([
+            'run_id' => $runId,
+            'status' => $status,
+            'completed' => $completed,
+            'total' => $totalExpected,
+            'passed' => (int) ($overall->passed_count ?? 0),
+            'failed' => (int) ($overall->failed_count ?? 0),
+            'percentage' => $totalExpected > 0 ? round(($completed / $totalExpected) * 100, 1) : 0,
+            'by_category' => $byCategory->sortBy('category')->values(),
+            'latest_check' => $latestCheck ? [
+                'check_id' => $latestCheck->check_id,
+                'cdm_table' => $latestCheck->cdm_table,
+                'cdm_column' => $latestCheck->cdm_column,
+                'passed' => $latestCheck->passed,
+                'category' => $latestCheck->category,
+            ] : null,
+        ]);
+    }
+
+    /**
      * Get the most recent run summary for a source.
      */
     public function latest(Source $source): JsonResponse

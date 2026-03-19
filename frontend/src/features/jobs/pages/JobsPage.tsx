@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import {
   RefreshCw,
   Loader2,
@@ -17,6 +17,7 @@ import {
   Globe,
   MapPin,
   Dna,
+  AlertTriangle,
   type LucideIcon,
 } from "lucide-react";
 import { FilterChip, Badge, StatusDot, Progress, EmptyState, Drawer, CodeBlock } from "@/components/ui";
@@ -50,6 +51,7 @@ const typeIcons: Partial<Record<JobType, LucideIcon>> = {
   fhir_export: Globe,
   gis_import: MapPin,
   genomic_parse: Dna,
+  heel: AlertTriangle,
   analysis: Wand2,
 };
 
@@ -82,6 +84,16 @@ function formatDuration(started: string | null, completed: string | null): strin
   return `${hrs}h ${mins % 60}m`;
 }
 
+/** Live elapsed timer that ticks every second for running jobs */
+function LiveTimer({ startedAt }: { startedAt: string }) {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setTick((t) => t + 1), 1000);
+    return () => clearInterval(id);
+  }, []);
+  return <>{formatDuration(startedAt, null)}</>;
+}
+
 function formatRelativeTime(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime();
   const mins = Math.floor(diff / 60000);
@@ -105,6 +117,7 @@ const typeFilters: Array<{ label: string; value: JobType | "all" }> = [
   { label: "GIS Import", value: "gis_import" },
   { label: "Vocabulary", value: "vocabulary_load" },
   { label: "Data Quality", value: "dqd" },
+  { label: "Heel Checks", value: "heel" },
 ];
 
 export default function JobsPage() {
@@ -223,13 +236,25 @@ export default function JobsPage() {
                     </td>
                     <td>{job.source_name ?? "—"}</td>
                     <td>{job.started_at ? formatRelativeTime(job.started_at) : "—"}</td>
-                    <td className="mono">{formatDuration(job.started_at, job.completed_at)}</td>
+                    <td className="mono">
+                      {job.status === "running" && job.started_at ? (
+                        <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                          <span style={{ color: "var(--info)" }}>
+                            <LiveTimer startedAt={job.started_at} />
+                          </span>
+                          {job.progress > 0 && job.progress < 100 && (
+                            <Progress value={job.progress} variant="info" className="max-w-[80px]" />
+                          )}
+                        </div>
+                      ) : (
+                        formatDuration(job.started_at, job.completed_at)
+                      )}
+                    </td>
                     <td>
                       <span style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
                         {job.status === "running" ? (
                           <>
-                            <StatusDot status="running" />
-                            <Progress value={job.progress} variant="info" className="flex-1 max-w-[80px]" />
+                            <Loader2 size={14} style={{ animation: "spin 1s linear infinite", color: "var(--info)" }} />
                           </>
                         ) : (
                           <>
