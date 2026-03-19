@@ -141,6 +141,7 @@ services:
       - ./OHDSI-scraper/hades_vignettes:/app/hades_vignettes:ro
       - ./OHDSI-scraper/ohdsi_forums:/app/ohdsi_forums:ro
       - ./OHDSI-scraper/medical_textbooks_extracted:/app/medical_textbooks:ro
+      - ./backend/storage/app:/var/www/html/storage/app:ro
     environment:
       - DATABASE_URL=postgresql://smudoshi:acumenus@host.docker.internal:5432/ohdsi
       - GIS_DATABASE_URL=postgresql://smudoshi:acumenus@host.docker.internal:5432/ohdsi
