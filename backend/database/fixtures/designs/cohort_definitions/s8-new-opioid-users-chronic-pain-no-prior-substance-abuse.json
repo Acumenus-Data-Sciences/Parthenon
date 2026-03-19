@@ -1,0 +1,240 @@
+{
+    "id": 180,
+    "name": "S8: New Opioid Users — Chronic Pain, No Prior Substance Abuse",
+    "description": "Patients with first opioid exposure (hydrocodone, oxycodone, morphine, fentanyl, or codeine) and chronic pain within ±180 days. Excludes prior drug misuse or dependence. 365-day prior observation required. Target cohort for the Opioid Trajectory study.",
+    "expression_json": {
+        "ConceptSets": [
+            {
+                "id": 0,
+                "name": "Opioid Ingredients",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 1174888,
+                                "CONCEPT_NAME": "hydrocodone",
+                                "VOCABULARY_ID": "RxNorm",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 1124957,
+                                "CONCEPT_NAME": "oxycodone",
+                                "VOCABULARY_ID": "RxNorm",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 1110410,
+                                "CONCEPT_NAME": "morphine",
+                                "VOCABULARY_ID": "RxNorm",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 1154029,
+                                "CONCEPT_NAME": "fentanyl",
+                                "VOCABULARY_ID": "RxNorm",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 1201620,
+                                "CONCEPT_NAME": "codeine",
+                                "VOCABULARY_ID": "RxNorm",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            },
+            {
+                "id": 1,
+                "name": "Chronic Pain",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Condition",
+                                "CONCEPT_ID": 436096,
+                                "CONCEPT_NAME": "Chronic pain",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Clinical Finding",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            },
+            {
+                "id": 2,
+                "name": "Substance Abuse Conditions",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Condition",
+                                "CONCEPT_ID": 4234597,
+                                "CONCEPT_NAME": "Misuses drugs",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Clinical Finding",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Condition",
+                                "CONCEPT_ID": 4275756,
+                                "CONCEPT_NAME": "Dependent drug abuse",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Clinical Finding",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            }
+        ],
+        "InclusionRules": [
+            {
+                "name": "No prior substance abuse",
+                "expression": {
+                    "Type": "ALL",
+                    "Groups": [],
+                    "CriteriaList": [
+                        {
+                            "Criteria": {
+                                "ConditionOccurrence": {
+                                    "CodesetId": 2
+                                }
+                            },
+                            "Occurrence": {
+                                "Type": 0,
+                                "Count": 0
+                            },
+                            "StartWindow": {
+                                "End": {
+                                    "Days": 1,
+                                    "Coeff": -1
+                                },
+                                "Start": {
+                                    "Days": 99999,
+                                    "Coeff": -1
+                                }
+                            },
+                            "RestrictVisit": false,
+                            "IgnoreObservationPeriod": false
+                        }
+                    ]
+                },
+                "description": "Exclude patients with any prior drug misuse or dependence diagnosis in all time prior to index."
+            }
+        ],
+        "QualifiedLimit": {
+            "Type": "First"
+        },
+        "ExpressionLimit": {
+            "Type": "First"
+        },
+        "PrimaryCriteria": {
+            "CriteriaList": [
+                {
+                    "DrugExposure": {
+                        "First": true,
+                        "CodesetId": 0
+                    }
+                }
+            ],
+            "ObservationWindow": {
+                "PostDays": 0,
+                "PriorDays": 365
+            }
+        },
+        "CollapseSettings": {
+            "EraPad": 0,
+            "CollapseType": "ERA"
+        },
+        "CensoringCriteria": [],
+        "AdditionalCriteria": {
+            "Type": "ALL",
+            "Groups": [],
+            "CriteriaList": [
+                {
+                    "Criteria": {
+                        "ConditionOccurrence": {
+                            "CodesetId": 1
+                        }
+                    },
+                    "Occurrence": {
+                        "Type": 2,
+                        "Count": 1
+                    },
+                    "StartWindow": {
+                        "End": {
+                            "Days": 180,
+                            "Coeff": 1
+                        },
+                        "Start": {
+                            "Days": 180,
+                            "Coeff": -1
+                        }
+                    },
+                    "RestrictVisit": false,
+                    "IgnoreObservationPeriod": false
+                }
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-03-19T23:51:25.000000Z",
+    "updated_at": "2026-03-19T23:51:25.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "opioid",
+        "chronic-pain",
+        "target",
+        "s8"
+    ],
+    "share_token": null,
+    "share_expires_at": null
+}

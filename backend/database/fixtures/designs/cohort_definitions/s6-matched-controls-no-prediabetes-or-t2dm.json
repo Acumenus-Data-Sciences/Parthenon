@@ -1,0 +1,157 @@
+{
+    "id": 165,
+    "name": "S6: Matched Controls — No Prediabetes or T2DM",
+    "description": "Control cohort: patients with any visit and 365-day prior observation, excluding anyone with prediabetes or T2DM diagnosis. Age\/sex matching performed at analysis level.",
+    "expression_json": {
+        "ConceptSets": [
+            {
+                "id": 0,
+                "name": "Prediabetes",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Condition",
+                                "CONCEPT_ID": 37018196,
+                                "CONCEPT_NAME": "Prediabetes",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Clinical Finding",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            },
+            {
+                "id": 1,
+                "name": "Type 2 Diabetes Mellitus",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Condition",
+                                "CONCEPT_ID": 201826,
+                                "CONCEPT_NAME": "Type 2 diabetes mellitus",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Clinical Finding",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            }
+        ],
+        "InclusionRules": [
+            {
+                "name": "No prediabetes diagnosis",
+                "expression": {
+                    "Type": "ALL",
+                    "Groups": [],
+                    "CriteriaList": [
+                        {
+                            "Criteria": {
+                                "ConditionOccurrence": {
+                                    "CodesetId": 0
+                                }
+                            },
+                            "Occurrence": {
+                                "Type": 0,
+                                "Count": 0
+                            },
+                            "StartWindow": {
+                                "End": {
+                                    "Days": 1,
+                                    "Coeff": -1
+                                },
+                                "Start": {
+                                    "Days": 99999,
+                                    "Coeff": -1
+                                }
+                            },
+                            "RestrictVisit": false,
+                            "IgnoreObservationPeriod": false
+                        }
+                    ]
+                },
+                "description": "Exclude patients with any prediabetes diagnosis in all time prior to index."
+            },
+            {
+                "name": "No T2DM diagnosis",
+                "expression": {
+                    "Type": "ALL",
+                    "Groups": [],
+                    "CriteriaList": [
+                        {
+                            "Criteria": {
+                                "ConditionOccurrence": {
+                                    "CodesetId": 1
+                                }
+                            },
+                            "Occurrence": {
+                                "Type": 0,
+                                "Count": 0
+                            },
+                            "StartWindow": {
+                                "End": {
+                                    "Days": 1,
+                                    "Coeff": -1
+                                },
+                                "Start": {
+                                    "Days": 99999,
+                                    "Coeff": -1
+                                }
+                            },
+                            "RestrictVisit": false,
+                            "IgnoreObservationPeriod": false
+                        }
+                    ]
+                },
+                "description": "Exclude patients with any type 2 diabetes diagnosis in all time prior to index."
+            }
+        ],
+        "QualifiedLimit": {
+            "Type": "First"
+        },
+        "ExpressionLimit": {
+            "Type": "First"
+        },
+        "PrimaryCriteria": {
+            "CriteriaList": [
+                {
+                    "VisitOccurrence": {
+                        "First": true
+                    }
+                }
+            ],
+            "ObservationWindow": {
+                "PostDays": 0,
+                "PriorDays": 365
+            }
+        },
+        "CollapseSettings": {
+            "EraPad": 0,
+            "CollapseType": "ERA"
+        },
+        "CensoringCriteria": []
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-03-19T23:51:25.000000Z",
+    "updated_at": "2026-03-19T23:51:25.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "cardiorenal",
+        "controls",
+        "comparator",
+        "s6"
+    ],
+    "share_token": null,
+    "share_expires_at": null
+}
