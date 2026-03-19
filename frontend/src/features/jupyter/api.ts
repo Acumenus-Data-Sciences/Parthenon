@@ -10,31 +10,31 @@ export interface JupyterStarterNotebook {
   name: string;
   filename: string;
   description: string;
-  url: string;
 }
 
 export interface JupyterWorkspace {
   available: boolean;
   status: "healthy" | "unavailable";
+  server_status: "running" | "spawning" | "stopped";
   label: string;
   summary: string;
-  embed_url: string;
-  lab_url: string;
-  tree_url: string;
-  starter_notebook_url: string;
-  base_url: string;
   workspace_path: string;
+  shared_path: string;
   repository_path: string;
   mounts: JupyterMount[];
   starter_notebooks: JupyterStarterNotebook[];
-  health: Record<string, unknown> | null;
   hints: string[];
+}
+
+export interface JupyterSession {
+  token: string;
+  login_url: string;
+  expires_in: number;
 }
 
 export interface JupyterHealth {
   available: boolean;
   status: "healthy" | "unavailable";
-  details?: Record<string, unknown>;
 }
 
 export async function fetchJupyterWorkspace(): Promise<JupyterWorkspace> {
@@ -45,4 +45,13 @@ export async function fetchJupyterWorkspace(): Promise<JupyterWorkspace> {
 export async function fetchJupyterHealth(): Promise<JupyterHealth> {
   const { data } = await apiClient.get("/jupyter/health");
   return data.data;
+}
+
+export async function createJupyterSession(): Promise<JupyterSession> {
+  const { data } = await apiClient.post("/jupyter/session");
+  return data.data;
+}
+
+export async function destroyJupyterSession(): Promise<void> {
+  await apiClient.delete("/jupyter/session");
 }

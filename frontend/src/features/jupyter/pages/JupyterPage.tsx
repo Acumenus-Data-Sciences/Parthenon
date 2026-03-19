@@ -1,4 +1,4 @@
-import { useCallback, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   ExternalLink,
   FolderOpen,
@@ -9,18 +9,25 @@ import {
   BookOpenText,
   Lightbulb,
   HelpCircle,
+  AlertCircle,
 } from "lucide-react";
 import { Badge, EmptyState } from "@/components/ui";
 import { Drawer } from "@/components/ui/Drawer";
 import { useJupyterWorkspace } from "../hooks/useJupyterWorkspace";
+import { useJupyterSession } from "../hooks/useJupyterSession";
+
+type ServerState = "idle" | "authenticating" | "spawning" | "running" | "failed";
 
 export default function JupyterPage() {
   const { data, isLoading, isFetching, refetch } = useJupyterWorkspace();
-  const frameRef = useRef<HTMLIFrameElement>(null);
+  const session = useJupyterSession();
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
   const shellRef = useRef<HTMLDivElement>(null);
   const [frameHeight, setFrameHeight] = useState(780);
-  const [frameReady, setFrameReady] = useState(false);
+  const [serverState, setServerState] = useState<ServerState>("idle");
   const [helpOpen, setHelpOpen] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const recalcHeight = useCallback(() => {
     if (!shellRef.current) return;
@@ -35,31 +42,96 @@ export default function JupyterPage() {
     return () => window.removeEventListener("resize", recalcHeight);
   }, [recalcHeight]);
 
-  const starterNotebookHref = data?.available ? data.starter_notebook_url : undefined;
-  const labHref = data?.available ? data.lab_url : undefined;
+  // Auto-authenticate when Hub is available and we're idle
+  useEffect(() => {
+    if (data?.available && serverState === "idle") {
+      launchSession();
+    }
+  }, [data?.available]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const embedUrl = data?.available ? data.embed_url : "about:blank";
+  const launchSession = useCallback(() => {
+    setServerState("authenticating");
+    setErrorMsg(null);
+
+    session.mutate(undefined, {
+      onSuccess: (result) => {
+        // Submit the JWT via hidden form POST targeting the iframe
+        if (formRef.current) {
+          const tokenInput = formRef.current.querySelector<HTMLInputElement>('input[name="token"]');
+          if (tokenInput) {
+            tokenInput.value = result.token;
+            formRef.current.action = result.login_url;
+            formRef.current.submit();
+            setServerState("spawning");
+          }
+        }
+      },
+      onError: (error) => {
+        setServerState("failed");
+        setErrorMsg(error instanceof Error ? error.message : "Failed to create session");
+      },
+    });
+  }, [session]);
+
+  // Poll workspace to detect when server becomes ready
+  useEffect(() => {
+    if (serverState !== "spawning") return;
+    const interval = setInterval(() => {
+      void refetch();
+    }, 2000);
+    return () => clearInterval(interval);
+  }, [serverState, refetch]);
+
+  // Transition from spawning → running when server is ready
+  useEffect(() => {
+    if (serverState === "spawning" && data?.server_status === "running") {
+      setServerState("running");
+    }
+  }, [data?.server_status, serverState]);
+
+  const serverBadge = () => {
+    switch (serverState) {
+      case "idle":
+        return <Badge variant={data?.available ? "success" : "critical"}>{data?.available ? "Hub Online" : "Unavailable"}</Badge>;
+      case "authenticating":
+        return <Badge variant="warning">Authenticating...</Badge>;
+      case "spawning":
+        return <Badge variant="warning">Starting Server...</Badge>;
+      case "running":
+        return <Badge variant="success">Running</Badge>;
+      case "failed":
+        return <Badge variant="critical">Failed</Badge>;
+    }
+  };
 
   return (
     <div>
+      {/* Hidden form for POST-based JWT auth to iframe */}
+      <form
+        ref={formRef}
+        method="POST"
+        target="jupyter-frame"
+        style={{ display: "none" }}
+      >
+        <input type="hidden" name="token" value="" />
+      </form>
+
       {/* ── Page header ── */}
       <div className="page-header" style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
         <div style={{ flex: 1 }}>
           <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
             <h1 className="page-title">Jupyter Workbench</h1>
-            <Badge variant={data?.available ? "success" : "critical"}>
-              {data?.available ? "Online" : "Unavailable"}
-            </Badge>
+            {serverBadge()}
           </div>
           <p className="page-subtitle">
-            Embedded notebook environment for interactive research, custom analyses, and data exploration
+            Your personal notebook environment for interactive research, custom analyses, and data exploration
           </p>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
           <button
             type="button"
             onClick={() => {
-              setFrameReady(false);
+              setServerState("idle");
               void refetch();
             }}
             className="btn btn-secondary"
@@ -67,8 +139,13 @@ export default function JupyterPage() {
             <RefreshCw className={`h-4 w-4 ${isFetching ? "animate-spin" : ""}`} />
             Refresh
           </button>
-          {labHref && (
-            <a href={labHref} target="_blank" rel="noreferrer" className="btn btn-ghost">
+          {serverState === "running" && (
+            <a
+              href="/jupyter/hub/home"
+              target="_blank"
+              rel="noreferrer"
+              className="btn btn-ghost"
+            >
               Open In New Tab
               <ExternalLink className="h-3.5 w-3.5" />
             </a>
@@ -91,41 +168,71 @@ export default function JupyterPage() {
         className="panel"
         style={{ position: "relative", overflow: "hidden", padding: 0 }}
       >
+        {/* Loading Hub */}
         {isLoading && (
           <div style={{ position: "absolute", inset: 0, zIndex: 20, display: "flex", alignItems: "center", justifyContent: "center", background: "var(--color-bg-base)" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", fontSize: "var(--text-sm)", color: "var(--color-text-muted)" }}>
               <Loader2 className="h-5 w-5 animate-spin" style={{ color: "var(--color-teal)" }} />
-              Loading Jupyter workspace...
+              Checking JupyterHub...
             </div>
           </div>
         )}
 
+        {/* Hub unavailable */}
         {!isLoading && !data?.available && (
           <div style={{ position: "absolute", inset: 0, zIndex: 20, display: "flex", alignItems: "center", justifyContent: "center", background: "var(--color-bg-base)" }}>
             <EmptyState
               icon={<ServerCog size={28} />}
-              title="Jupyter is not reachable"
+              title="JupyterHub is not reachable"
               message="The notebook service is currently unavailable. Refresh after the container is healthy."
             />
           </div>
         )}
 
-        {!isLoading && data?.available && !frameReady && (
+        {/* Authenticating / Spawning overlay */}
+        {(serverState === "authenticating" || serverState === "spawning") && (
           <div style={{ position: "absolute", inset: 0, zIndex: 10, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(14,14,17,0.88)", backdropFilter: "blur(4px)" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", fontSize: "var(--text-sm)", color: "var(--color-text-muted)" }}>
-              <Loader2 className="h-4 w-4 animate-spin" style={{ color: "var(--color-teal)" }} />
-              Booting embedded JupyterLab...
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--space-3)" }}>
+              <Loader2 className="h-6 w-6 animate-spin" style={{ color: "var(--color-teal)" }} />
+              <div style={{ fontSize: "var(--text-sm)", color: "var(--color-text-muted)" }}>
+                {serverState === "authenticating" ? "Authenticating..." : "Starting your notebook server..."}
+              </div>
+              <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-ghost)" }}>
+                This may take up to 30 seconds on first launch
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Failed overlay */}
+        {serverState === "failed" && (
+          <div style={{ position: "absolute", inset: 0, zIndex: 10, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(14,14,17,0.88)", backdropFilter: "blur(4px)" }}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--space-3)", maxWidth: 400, textAlign: "center" }}>
+              <AlertCircle className="h-6 w-6" style={{ color: "var(--color-crimson)" }} />
+              <div style={{ fontSize: "var(--text-sm)", color: "var(--color-text-primary)" }}>
+                Failed to start notebook server
+              </div>
+              {errorMsg && (
+                <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)" }}>
+                  {errorMsg}
+                </div>
+              )}
+              <button type="button" onClick={launchSession} className="btn btn-primary" style={{ marginTop: "var(--space-2)" }}>
+                Retry
+              </button>
             </div>
           </div>
         )}
 
         <iframe
-          ref={frameRef}
-          src={embedUrl}
+          ref={iframeRef}
+          name="jupyter-frame"
           title="Parthenon Jupyter"
           style={{ width: "100%", height: frameHeight, border: "none", display: "block" }}
           onLoad={() => {
-            setFrameReady(true);
+            if (serverState === "spawning") {
+              setServerState("running");
+            }
             recalcHeight();
           }}
         />
@@ -154,25 +261,25 @@ export default function JupyterPage() {
                   {data?.label ?? "JupyterLab 4.4"}
                 </div>
                 <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", marginTop: 4 }}>
-                  Python 3.12 with pandas, polars, sqlalchemy, and direct database access.
+                  Python 3.12 with pandas, polars, sqlalchemy, and role-based database access.
                 </div>
               </div>
               <div className="rounded-lg border border-[#232328] bg-[#0E0E11] p-4">
-                <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-ghost)", marginBottom: 2 }}>Workspace Path</div>
+                <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-ghost)", marginBottom: 2 }}>Private Workspace</div>
                 <div style={{ fontSize: "var(--text-sm)", fontWeight: 500, color: "var(--color-text-primary)", fontFamily: "'IBM Plex Mono', monospace" }}>
-                  {data?.workspace_path ?? "output/jupyter-notebook"}
+                  {data?.workspace_path ?? "/home/jovyan/notebooks"}
                 </div>
                 <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", marginTop: 4 }}>
-                  Writable notebook directory persisted in the repository for study-specific analysis.
+                  Your personal notebook directory. Persists across sessions — your work is always saved.
                 </div>
               </div>
               <div className="rounded-lg border border-[#232328] bg-[#0E0E11] p-4">
-                <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-ghost)", marginBottom: 2 }}>Repository Mount</div>
+                <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-ghost)", marginBottom: 2 }}>Shared Folder</div>
                 <div style={{ fontSize: "var(--text-sm)", fontWeight: 500, color: "var(--color-text-primary)", fontFamily: "'IBM Plex Mono', monospace" }}>
-                  {data?.repository_path ?? "/workspace/parthenon"}
+                  {data?.shared_path ?? "/home/jovyan/shared"}
                 </div>
                 <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", marginTop: 4 }}>
-                  Read-only project mount for docs, code, and fixtures.
+                  Copy notebooks here to share with colleagues. All Jupyter users can read this folder.
                 </div>
               </div>
             </div>
@@ -215,29 +322,17 @@ export default function JupyterPage() {
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
               {(data?.starter_notebooks ?? []).map((notebook) => (
-                <a
-                  key={notebook.filename}
-                  href={notebook.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="rounded-lg border border-[#232328] bg-[#0E0E11] p-4 transition-colors hover:border-[#2DD4BF]/35 hover:bg-[#12131A]"
-                  style={{ display: "block", textDecoration: "none" }}
-                >
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "var(--space-3)" }}>
-                    <div>
-                      <div style={{ fontSize: "var(--text-sm)", fontWeight: 500, color: "var(--color-text-primary)" }}>
-                        {notebook.name}
-                      </div>
-                      <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", fontFamily: "'IBM Plex Mono', monospace", marginTop: 2 }}>
-                        {notebook.filename}
-                      </div>
-                    </div>
-                    <ExternalLink size={14} style={{ color: "var(--color-teal)", flexShrink: 0, marginTop: 2 }} />
+                <div key={notebook.filename} className="rounded-lg border border-[#232328] bg-[#0E0E11] p-4">
+                  <div style={{ fontSize: "var(--text-sm)", fontWeight: 500, color: "var(--color-text-primary)" }}>
+                    {notebook.name}
+                  </div>
+                  <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", fontFamily: "'IBM Plex Mono', monospace", marginTop: 2 }}>
+                    {notebook.filename}
                   </div>
                   <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)", lineHeight: 1.6, marginTop: "var(--space-2)" }}>
                     {notebook.description}
                   </p>
-                </a>
+                </div>
               ))}
               {(data?.starter_notebooks ?? []).length === 0 && (
                 <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-ghost)" }}>
@@ -253,7 +348,7 @@ export default function JupyterPage() {
               <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", marginBottom: "var(--space-3)" }}>
                 <Lightbulb size={14} style={{ color: "var(--color-gold)" }} />
                 <span style={{ fontSize: "var(--text-xs)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--color-text-ghost)" }}>
-                  Research Guidance
+                  Tips
                 </span>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
@@ -297,28 +392,15 @@ export default function JupyterPage() {
               </span>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
-              {labHref && (
-                <a
-                  href={labHref}
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-2)", fontSize: "var(--text-sm)", color: "var(--color-teal)", textDecoration: "none" }}
-                >
-                  <ExternalLink size={14} />
-                  Open JupyterLab in new tab
-                </a>
-              )}
-              {starterNotebookHref && (
-                <a
-                  href={starterNotebookHref}
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-2)", fontSize: "var(--text-sm)", color: "var(--color-teal)", textDecoration: "none" }}
-                >
-                  <SquareTerminal size={14} />
-                  Open starter notebook
-                </a>
-              )}
+              <a
+                href="/jupyter/hub/home"
+                target="_blank"
+                rel="noreferrer"
+                style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-2)", fontSize: "var(--text-sm)", color: "var(--color-teal)", textDecoration: "none" }}
+              >
+                <ExternalLink size={14} />
+                Open JupyterHub in new tab
+              </a>
             </div>
           </section>
         </div>
