@@ -17,6 +17,19 @@ c.Authenticator.auto_login = True
 c.JupyterHub.base_url = "/jupyter"
 c.JupyterHub.bind_url = "http://0.0.0.0:8000/jupyter"
 
+# ── Embedding: allow Parthenon to iframe JupyterHub ──
+c.JupyterHub.tornado_settings = {
+    "headers": {
+        "Content-Security-Policy": "frame-ancestors 'self' https://parthenon.acumenus.net",
+        "X-Frame-Options": "ALLOWALL",
+    },
+    "xsrf_cookies": False,  # Disable XSRF — auth is via signed JWT, not cookies
+}
+
+# Allow the login handler to accept POST without XSRF token (JWT auth flow)
+c.JupyterHub.template_vars = {}
+c.Authenticator.auto_login = True
+
 # ── Spawner ──
 c.JupyterHub.spawner_class = DockerSpawner
 c.DockerSpawner.image = os.environ.get("JUPYTER_IMAGE", "parthenon-jupyter-user")
@@ -25,6 +38,11 @@ c.DockerSpawner.network_name = os.environ.get(
 )
 c.DockerSpawner.name_template = "parthenon-jupyter-{username}"
 c.DockerSpawner.remove = True  # Remove stopped containers (volumes persist)
+
+# Allow user notebooks to be iframed by Parthenon
+c.Spawner.args = [
+    "--ServerApp.tornado_settings={\"headers\":{\"Content-Security-Policy\":\"frame-ancestors 'self' https://parthenon.acumenus.net\",\"X-Frame-Options\":\"ALLOWALL\"}}",
+]
 
 # Resource limits
 mem_limit = os.environ.get("JUPYTER_MEM_LIMIT", "2G")

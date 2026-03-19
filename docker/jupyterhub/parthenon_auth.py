@@ -29,6 +29,10 @@ def _post_audit(event: str, user_id: int | None = None, metadata: dict | None = 
 class ParthenonLoginHandler(BaseHandler):
     """Accepts POST with JWT, authenticates, redirects to user server."""
 
+    def check_xsrf_cookie(self):
+        """Disable XSRF for this handler — authentication is via signed JWT."""
+        pass
+
     async def post(self):
         token = self.get_argument("token", default=None)
         if not token:
@@ -52,7 +56,7 @@ class ParthenonAuthenticator(Authenticator):
     _consumed_jtis: dict[str, float] = {}
 
     def get_handlers(self, app):
-        return [("/jupyter/hub/login", ParthenonLoginHandler)]
+        return [("/parthenon-login", ParthenonLoginHandler)]
 
     async def authenticate(self, handler, data):
         token = data.get("token")

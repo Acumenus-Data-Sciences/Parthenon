@@ -77,7 +77,7 @@ class JupyterController extends Controller
         return response()->json([
             'data' => [
                 'token' => $token,
-                'login_url' => "{$this->baseUrl}/hub/login",
+                'login_url' => "{$this->baseUrl}/hub/parthenon-login",
                 'expires_in' => 60,
             ],
         ]);
