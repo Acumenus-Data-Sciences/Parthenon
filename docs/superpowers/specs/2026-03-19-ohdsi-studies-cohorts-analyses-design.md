@@ -3,7 +3,7 @@
 **Date:** 2026-03-19
 **Status:** Approved
 **Author:** Dr. Sanjay Udoshi / Claude
-**Scope:** Phase B — 5 studies (37 cohorts, 28 analyses, 2 full study protocols)
+**Scope:** Phase B — 5 studies (37 cohorts, 29 analyses, 2 full study protocols)
 
 ## Overview
 
@@ -1298,13 +1298,13 @@ The `ImportDesigns` command already handles both `sccs_analyses` and `evidence_s
 |-----------|-------|
 | Cohort definition fixture files | 37 |
 | Characterization fixture files | 5 |
-| Estimation fixture files | 8 |
+| Estimation fixture files | 9 |
 | Prediction fixture files | 5 |
 | Pathway fixture files | 4 |
 | Incidence rate fixture files | 3 |
 | SCCS fixture files | 2 |
 | Evidence synthesis fixture files | 1 |
-| **Total fixture files** | **65** |
+| **Total fixture files** | **66** |
 | Artisan command (study seeder + ID resolution) | 1 |
 | Study records (full protocol) | 2 |
 | Study cohort assignments | 15 |
