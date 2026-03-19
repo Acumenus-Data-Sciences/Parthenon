@@ -16,6 +16,14 @@ c.Authenticator.allow_all = True  # Authorization is handled by Parthenon RBAC
 c.JupyterHub.base_url = "/jupyter"
 c.JupyterHub.bind_url = "http://0.0.0.0:8000/jupyter"
 
+# ── Hub connect URL for spawned containers ──
+# Spawned containers need to reach the Hub API. By default the Hub's internal
+# API binds on 127.0.0.1:8081 which is unreachable from other containers.
+# hub_ip makes the internal API listen on all interfaces so containers can reach it.
+# hub_connect_url tells spawned servers the Hub's address on the Docker network.
+c.JupyterHub.hub_ip = "0.0.0.0"
+c.JupyterHub.hub_connect_url = "http://parthenon-jupyterhub:8081"
+
 # ── Iframe embedding ──
 c.JupyterHub.tornado_settings = {
     "headers": {
@@ -34,7 +42,10 @@ c.DockerSpawner.network_name = os.environ.get(
     "JUPYTER_USER_NETWORK_NAME", "parthenon_jupyter_users"
 )
 c.DockerSpawner.name_template = "parthenon-jupyter-{username}"
-c.DockerSpawner.remove = True  # Remove stopped containers (volumes persist)
+c.DockerSpawner.remove = False  # Keep stopped containers for debugging (set True in production)
+c.DockerSpawner.use_internal_ip = True  # Use container IP on the Docker network
+c.DockerSpawner.start_timeout = 120  # Allow more time for first pull/start
+c.DockerSpawner.debug = True  # Log spawn details
 
 # The user image uses ENTRYPOINT ["tini", "-g", "--"] CMD ["start-singleuser"]
 # DockerSpawner reads Config.Cmd — override to use our wrapper script
