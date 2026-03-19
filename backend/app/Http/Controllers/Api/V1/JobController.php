@@ -23,6 +23,7 @@ use App\Models\App\IngestionJob;
 use App\Models\App\PathwayAnalysis;
 use App\Models\App\PredictionAnalysis;
 use App\Models\App\SccsAnalysis;
+use App\Models\App\DqdResult;
 use App\Models\App\VocabularyImport;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
@@ -89,6 +90,11 @@ class JobController extends Controller
         // 6. Vocabulary import jobs
         if (! $typeFilter || $typeFilter === 'vocabulary_load') {
             $allJobs = $allJobs->merge($this->getVocabularyImportJobs($userId, $statusFilter));
+        }
+
+        // 7. DQD runs (system-level, not user-scoped)
+        if (! $typeFilter || $typeFilter === 'dqd') {
+            $allJobs = $allJobs->merge($this->getDqdJobs($statusFilter));
         }
 
         // Apply scope filter: recent (last 24h + non-completed) vs archived (completed >24h ago)
@@ -303,10 +309,7 @@ class JobController extends Controller
             ->orderByDesc('created_at');
 
         if ($statusFilter) {
-            $mapped = $this->mapGisStatusToFilter($statusFilter);
-            if ($mapped) {
-                $query->whereIn('status', $mapped);
-            }
+            $query->whereIn('status', $this->mapGisStatusToFilter($statusFilter));
         }
 
         return $query->limit(50)->get()->map(function (GisImport $job) {
@@ -339,10 +342,7 @@ class JobController extends Controller
             ->orderByDesc('created_at');
 
         if ($statusFilter) {
-            $mapped = $this->mapGenomicStatusToFilter($statusFilter);
-            if ($mapped) {
-                $query->whereIn('status', $mapped);
-            }
+            $query->whereIn('status', $this->mapGenomicStatusToFilter($statusFilter));
         }
 
         return $query->limit(50)->get()->map(function (GenomicUpload $upload) {
@@ -401,6 +401,52 @@ class JobController extends Controller
                 'log_output' => $job->log_output,
                 'created_at' => $job->created_at?->toIso8601String(),
             ];
+        });
+    }
+
+    /**
+     * @return Collection<int, array<string, mixed>>
+     */
+    private function getDqdJobs(?string $statusFilter): Collection
+    {
+        $runs = DqdResult::query()
+            ->selectRaw("run_id, source_id, COUNT(*) as total_checks, SUM(CASE WHEN passed THEN 1 ELSE 0 END) as passed_count, MIN(created_at) as started_at, MAX(created_at) as completed_at, SUM(execution_time_ms) as total_ms")
+            ->groupBy('run_id', 'source_id')
+            ->orderByDesc('started_at')
+            ->limit(50)
+            ->get();
+
+        return $runs->map(function ($run) {
+            $source = \App\Models\App\Source::find($run->source_id);
+            $total = (int) $run->total_checks;
+            $passed = (int) $run->passed_count;
+            $failed = $total - $passed;
+
+            return [
+                'id' => crc32($run->run_id), // stable numeric ID from UUID
+                'type' => 'dqd',
+                'name' => 'Data Quality — '.($source?->source_name ?? 'Unknown source'),
+                'status' => 'completed',
+                'source_name' => $source?->source_name,
+                'triggered_by' => null,
+                'progress' => 100,
+                'started_at' => $run->started_at,
+                'completed_at' => $run->completed_at,
+                'duration' => null,
+                'error_message' => $failed > 0 ? "{$failed} of {$total} checks failed" : null,
+                'log_output' => "{$total} checks: {$passed} passed, {$failed} failed",
+                'created_at' => $run->started_at,
+                'meta' => [
+                    'run_id' => $run->run_id,
+                    'source_id' => $run->source_id,
+                    'total_checks' => $total,
+                    'passed' => $passed,
+                    'failed' => $failed,
+                    'total_execution_time_ms' => (int) $run->total_ms,
+                ],
+            ];
+        })->when($statusFilter, function (Collection $jobs, string $filter) {
+            return $jobs->filter(fn (array $job) => $job['status'] === $filter);
         });
     }
 
@@ -495,7 +541,7 @@ class JobController extends Controller
     /**
      * @return list<string>|null
      */
-    private function mapGisStatusToFilter(string $filter): ?array
+    private function mapGisStatusToFilter(string $filter): array
     {
         return match ($filter) {
             'running' => ['importing', 'processing'],
@@ -503,7 +549,7 @@ class JobController extends Controller
             'failed' => ['failed', 'error'],
             'pending' => ['pending'],
             'queued' => ['queued'],
-            default => null,
+            default => ['__none__'],
         };
     }
 
@@ -539,7 +585,9 @@ class JobController extends Controller
             'completed' => ['mapped', 'review', 'imported'],
             'failed' => ['failed'],
             'pending' => ['pending'],
-            default => null,
+            'queued' => ['__none__'], // genomic uploads don't have a queued state — return no results
+            'cancelled' => ['__none__'],
+            default => ['__none__'], // unknown filter should match nothing, not everything
         };
     }
 }
