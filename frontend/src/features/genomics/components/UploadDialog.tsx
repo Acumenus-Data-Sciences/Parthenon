@@ -36,7 +36,7 @@ export function UploadDialog({ onClose, sourceId }: Props) {
   const [format, setFormat] = useState<FileFormat>("vcf");
   const [build, setBuild] = useState<GenomeBuild>("GRCh38");
   const [sampleId, setSampleId] = useState("");
-  const [srcId] = useState<number>(sourceId ?? 9);
+  const [srcId] = useState<number>(sourceId ?? 2);
   const [dragOver, setDragOver] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 

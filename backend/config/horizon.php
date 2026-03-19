@@ -280,6 +280,20 @@ return [
             'timeout' => 1800,
             'nice' => 0,
         ],
+
+        'genomics' => [
+            'connection' => 'redis',
+            'queue' => ['genomics'],
+            'balance' => 'auto',
+            'autoScalingStrategy' => 'time',
+            'maxProcesses' => 2,
+            'maxTime' => 0,
+            'maxJobs' => 0,
+            'memory' => 1024,
+            'tries' => 1,
+            'timeout' => 7200,
+            'nice' => 0,
+        ],
     ],
 
     'environments' => [

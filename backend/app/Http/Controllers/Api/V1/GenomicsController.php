@@ -83,7 +83,7 @@ class GenomicsController extends Controller
     {
         $validated = $request->validate([
             'source_id' => 'required|integer|exists:sources,id',
-            'file' => 'required|file|max:204800', // 200 MB
+            'file' => 'required|file|max:5242880', // 5 GB
             'file_format' => 'required|string|in:vcf,maf,cbio_maf,fhir_genomics',
             'genome_build' => 'nullable|string|in:GRCh38,GRCh37,hg38,hg19',
             'sample_id' => 'nullable|string|max:200',
@@ -104,7 +104,7 @@ class GenomicsController extends Controller
             'storage_path' => $path,
         ]);
 
-        // Parse synchronously for files under 10 MB; otherwise dispatch job
+        // Parse synchronously for files under 10 MB; dispatch queue job for larger files
         $absolutePath = Storage::disk('local')->path($path);
         if ($file->getSize() < 10 * 1024 * 1024) {
             try {
@@ -122,6 +122,8 @@ class GenomicsController extends Controller
                     'error_message' => $e->getMessage(),
                 ]);
             }
+        } else {
+            \App\Jobs\ParseGenomicUploadJob::dispatch($upload);
         }
 
         $upload->load('creator:id,name');
