@@ -78,7 +78,10 @@
             ],
             "useDemographicsAge": true,
             "useDemographicsRace": true,
-            "useDemographicsGender": true
+            "useDemographicsGender": true,
+            "useDrugExposureLongTerm": true,
+            "useConditionOccurrenceLongTerm": true,
+            "useProcedureOccurrenceLongTerm": true
         },
         "outcomeOfInterest": 78,
         "comparatorCohortId": 77,
@@ -86,6 +89,6 @@
     },
     "author_id": 117,
     "created_at": null,
-    "updated_at": "2026-03-19T08:22:09.000000Z",
+    "updated_at": "2026-03-19T07:10:01.000000Z",
     "deleted_at": null
 }
