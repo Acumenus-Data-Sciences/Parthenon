@@ -90,13 +90,29 @@ function formatRelativeTime(dateStr: string): string {
   return `${Math.floor(hrs / 24)}d ago`;
 }
 
+const typeFilters: Array<{ label: string; value: JobType | "all" }> = [
+  { label: "All Types", value: "all" },
+  { label: "Characterization", value: "characterization" },
+  { label: "Incidence Rate", value: "incidence_rate" },
+  { label: "Estimation", value: "estimation" },
+  { label: "Prediction", value: "prediction" },
+  { label: "Pathway", value: "pathway" },
+  { label: "Genomic Parse", value: "genomic_parse" },
+  { label: "Ingestion", value: "ingestion" },
+  { label: "FHIR Export", value: "fhir_export" },
+  { label: "GIS Import", value: "gis_import" },
+  { label: "Vocabulary", value: "vocabulary_load" },
+];
+
 export default function JobsPage() {
   const [statusFilter, setStatusFilter] = useState<JobStatus | "all">("all");
+  const [typeFilter, setTypeFilter] = useState<JobType | "all">("all");
   const [selectedJobId, setSelectedJobId] = useState<number | null>(null);
 
-  const { data, isLoading } = useJobs(
-    statusFilter === "all" ? undefined : { status: statusFilter },
-  );
+  const { data, isLoading } = useJobs({
+    ...(statusFilter !== "all" ? { status: statusFilter } : {}),
+    ...(typeFilter !== "all" ? { type: typeFilter } : {}),
+  });
   const { data: selectedJob } = useJob(selectedJobId);
   const retryMutation = useRetryJob();
   const cancelMutation = useCancelJob();
@@ -124,14 +140,26 @@ export default function JobsPage() {
         <HelpButton helpKey="jobs" />
       </div>
 
-      {/* Filter chips */}
-      <div style={{ display: "flex", gap: "var(--space-2)", marginBottom: "var(--space-4)", flexWrap: "wrap" }}>
+      {/* Status filter chips */}
+      <div style={{ display: "flex", gap: "var(--space-2)", marginBottom: "var(--space-2)", flexWrap: "wrap" }}>
         {statusFilters.map((f) => (
           <FilterChip
             key={f.value}
             label={f.label}
             active={statusFilter === f.value}
             onToggle={() => setStatusFilter(f.value)}
+          />
+        ))}
+      </div>
+
+      {/* Type filter chips */}
+      <div style={{ display: "flex", gap: "var(--space-2)", marginBottom: "var(--space-4)", flexWrap: "wrap" }}>
+        {typeFilters.map((f) => (
+          <FilterChip
+            key={f.value}
+            label={f.label}
+            active={typeFilter === f.value}
+            onToggle={() => setTypeFilter(f.value)}
           />
         ))}
       </div>

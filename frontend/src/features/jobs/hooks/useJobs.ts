@@ -4,7 +4,7 @@ import { fetchJobs, fetchJob, retryJob, cancelJob, type JobStatus, type JobType 
 export function useJobs(params?: { status?: JobStatus; type?: JobType; page?: number }) {
   return useQuery({
     queryKey: ["jobs", params],
-    queryFn: () => fetchJobs(params),
+    queryFn: () => fetchJobs({ per_page: 50, ...params }),
     refetchInterval: 5_000,
   });
 }

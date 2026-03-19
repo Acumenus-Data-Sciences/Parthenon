@@ -156,16 +156,25 @@ class DashboardController extends Controller
                 ->orderByDesc('created_at')
                 ->limit($limit)
                 ->get()
-                ->map(fn (GenomicUpload $u) => [
-                    'id' => $u->id,
-                    'name' => 'Genomic Parse — '.($u->filename ?? 'Unknown'),
-                    'type' => 'genomic_parse',
-                    'status' => $this->normalizeGenomicStatus($u->status),
-                    'progress' => $u->status === 'parsing' ? 50 : ($u->status === 'failed' ? 0 : 100),
-                    'started_at' => $u->created_at?->toIso8601String(),
-                    'duration' => null,
-                    'created_at' => $u->created_at?->toIso8601String(),
-                ])
+                ->map(function (GenomicUpload $u) {
+                    $variants = $u->total_variants ?? 0;
+                    $sizeMb = $u->file_size_bytes ? round($u->file_size_bytes / 1024 / 1024, 1) : null;
+                    $name = 'Genomic Parse — '.($u->filename ?? 'Unknown');
+                    if ($variants > 0) {
+                        $name .= ' ('.number_format($variants).' variants)';
+                    }
+
+                    return [
+                        'id' => $u->id,
+                        'name' => $name,
+                        'type' => 'genomic_parse',
+                        'status' => $this->normalizeGenomicStatus($u->status),
+                        'progress' => $u->status === 'parsing' ? 50 : ($u->status === 'failed' ? 0 : 100),
+                        'started_at' => $u->created_at?->toIso8601String(),
+                        'duration' => null,
+                        'created_at' => $u->created_at?->toIso8601String(),
+                    ];
+                })
         );
 
         // FHIR exports

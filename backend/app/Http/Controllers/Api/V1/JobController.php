@@ -315,6 +315,13 @@ class JobController extends Controller
         }
 
         return $query->limit(50)->get()->map(function (GenomicUpload $upload) {
+            $sizeMb = $upload->file_size_bytes ? round($upload->file_size_bytes / 1024 / 1024, 1) : null;
+            $variants = $upload->total_variants ?? 0;
+            $detail = $sizeMb ? "{$sizeMb} MB" : '';
+            if ($variants > 0) {
+                $detail .= ($detail ? ' · ' : '').number_format($variants).' variants';
+            }
+
             return [
                 'id' => $upload->id,
                 'type' => 'genomic_parse',
@@ -327,7 +334,7 @@ class JobController extends Controller
                 'completed_at' => $upload->parsed_at?->toIso8601String(),
                 'duration' => null,
                 'error_message' => $upload->error_message,
-                'log_output' => null,
+                'log_output' => $detail ?: null,
                 'created_at' => $upload->created_at?->toIso8601String(),
             ];
         });
