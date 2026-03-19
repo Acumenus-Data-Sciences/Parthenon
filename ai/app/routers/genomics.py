@@ -150,6 +150,10 @@ def _parse_vcf(req: ParseRequest, engine: Any) -> dict[str, int]:
 
     genome_build = req.genome_build
 
+    # Estimate total variants from file size (~550 bytes per VCF line is typical)
+    file_size = os.path.getsize(req.file_path)
+    estimated_total = max(file_size // 550, 1)
+
     for variant in vcf:
         total += 1
         try:
@@ -160,9 +164,14 @@ def _parse_vcf(req: ParseRequest, engine: Any) -> dict[str, int]:
                 inserted += _flush_batch(batch, engine)
                 batch = []
 
-                # Log progress every 100K variants
-                if total % 100_000 == 0:
-                    logger.info("VCF parse progress: upload=%d variants=%d", req.upload_id, total)
+                # Update progress every 50K variants
+                if total % 50_000 == 0:
+                    pct = min(int((total / estimated_total) * 100), 99)
+                    logger.info(
+                        "VCF parse progress: upload=%d variants=%d/%d (%d%%)",
+                        req.upload_id, total, estimated_total, pct,
+                    )
+                    _update_progress(engine, req.upload_id, total, pct)
 
         except Exception as e:
             errors += 1
@@ -175,6 +184,23 @@ def _parse_vcf(req: ParseRequest, engine: Any) -> dict[str, int]:
 
     vcf.close()
     return {"total": total, "inserted": inserted, "errors": errors}
+
+
+def _update_progress(engine: Any, upload_id: int, variants_parsed: int, pct: int) -> None:
+    """Update the genomic_uploads row with current progress."""
+    try:
+        with engine.connect() as conn:
+            conn.execute(
+                text("""
+                    UPDATE app.genomic_uploads
+                    SET total_variants = :variants
+                    WHERE id = :id AND status = 'parsing'
+                """),
+                {"variants": variants_parsed, "id": upload_id},
+            )
+            conn.commit()
+    except Exception:
+        pass  # Non-critical — progress update failure shouldn't stop parsing
 
 
 def _vcf_variant_to_record(variant: Any, samples: list[str], req: ParseRequest, genome_build: str | None) -> dict[str, Any]:

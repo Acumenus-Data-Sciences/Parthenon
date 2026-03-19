@@ -539,7 +539,7 @@ class JobController extends Controller
             'status' => $execution->status->value,
             'source_name' => $execution->source?->source_name,
             'triggered_by' => $analysis?->author?->name,
-            'progress' => $this->progressForStatus($execution->status),
+            'progress' => $this->analysisProgress($execution),
             'started_at' => $execution->started_at?->toIso8601String(),
             'completed_at' => $execution->completed_at?->toIso8601String(),
             'duration' => null,
@@ -549,11 +549,57 @@ class JobController extends Controller
         ];
     }
 
+    /**
+     * Derive progress from execution status and log step keywords.
+     */
+    private function analysisProgress(AnalysisExecution $execution): int
+    {
+        if ($execution->status !== ExecutionStatus::Running) {
+            return match ($execution->status) {
+                ExecutionStatus::Pending => 0,
+                ExecutionStatus::Queued => 2,
+                ExecutionStatus::Completed => 100,
+                ExecutionStatus::Failed, ExecutionStatus::Cancelled => 0,
+                default => 0,
+            };
+        }
+
+        // For running jobs, derive progress from the last log message
+        $lastLog = ExecutionLog::where('execution_id', $execution->id)
+            ->orderByDesc('id')
+            ->value('message');
+
+        if (! $lastLog) {
+            return 5;
+        }
+
+        $msg = strtolower($lastLog);
+
+        // Estimation pipeline steps (ordered by typical occurrence)
+        if (str_contains($msg, 'connecting')) return 10;
+        if (str_contains($msg, 'covariate')) return 15;
+        if (str_contains($msg, 'extracting')) return 20;
+        if (str_contains($msg, 'extraction complete')) return 35;
+        if (str_contains($msg, 'propensity score')) return 40;
+        if (str_contains($msg, 'balance')) return 60;
+        if (str_contains($msg, 'outcome model') || str_contains($msg, 'fitting')) return 70;
+        if (str_contains($msg, 'processing outcome')) return 55;
+
+        // Characterization steps
+        if (str_contains($msg, 'computing feature')) return 50;
+
+        // Generic steps
+        if (str_contains($msg, 'started')) return 5;
+        if (str_contains($msg, 'calling r')) return 10;
+
+        return 25; // unknown step — at least show some progress
+    }
+
     private function progressForStatus(ExecutionStatus $status): int
     {
         return match ($status) {
             ExecutionStatus::Pending => 0,
-            ExecutionStatus::Queued => 5,
+            ExecutionStatus::Queued => 2,
             ExecutionStatus::Running => 50,
             ExecutionStatus::Completed => 100,
             ExecutionStatus::Failed, ExecutionStatus::Cancelled => 0,
