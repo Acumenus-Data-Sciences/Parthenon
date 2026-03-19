@@ -2,36 +2,32 @@
 
 import os
 import sys
-import requests
-from dockerspawner import DockerSpawner
 
-# Ensure the config directory is importable
+# Ensure the config directory is importable (for parthenon_auth module)
 sys.path.insert(0, "/srv/jupyterhub")
 
 # ── Authentication ──
 c.JupyterHub.authenticator_class = "parthenon_auth.ParthenonAuthenticator"
 c.Authenticator.enable_auth_state = True
 c.Authenticator.auto_login = True
-c.Authenticator.allow_all = True  # All JWT-authenticated users are allowed
+c.Authenticator.allow_all = True  # Authorization is handled by Parthenon RBAC
 
 # ── Base URL ──
 c.JupyterHub.base_url = "/jupyter"
 c.JupyterHub.bind_url = "http://0.0.0.0:8000/jupyter"
 
-# ── Embedding: allow Parthenon to iframe JupyterHub ──
+# ── Iframe embedding ──
 c.JupyterHub.tornado_settings = {
     "headers": {
         "Content-Security-Policy": "frame-ancestors 'self' https://parthenon.acumenus.net",
         "X-Frame-Options": "ALLOWALL",
     },
-    "xsrf_cookies": False,  # Disable XSRF — auth is via signed JWT, not cookies
+    "xsrf_cookies": False,  # Auth is via signed JWT, not cookies
 }
 
-# Allow the login handler to accept POST without XSRF token (JWT auth flow)
-c.JupyterHub.template_vars = {}
-c.Authenticator.auto_login = True
-
 # ── Spawner ──
+from dockerspawner import DockerSpawner
+
 c.JupyterHub.spawner_class = DockerSpawner
 c.DockerSpawner.image = os.environ.get("JUPYTER_IMAGE", "parthenon-jupyter-user")
 c.DockerSpawner.network_name = os.environ.get(
@@ -40,42 +36,31 @@ c.DockerSpawner.network_name = os.environ.get(
 c.DockerSpawner.name_template = "parthenon-jupyter-{username}"
 c.DockerSpawner.remove = True  # Remove stopped containers (volumes persist)
 
-# Allow user notebooks to be iframed by Parthenon
-c.Spawner.args = [
-    "--ServerApp.tornado_settings={\"headers\":{\"Content-Security-Policy\":\"frame-ancestors 'self' https://parthenon.acumenus.net\",\"X-Frame-Options\":\"ALLOWALL\"}}",
-]
+# The user image uses ENTRYPOINT ["tini", "-g", "--"] CMD ["start-singleuser"]
+# DockerSpawner reads Config.Cmd — override to use our wrapper script
+c.DockerSpawner.cmd = ["start-singleuser"]
 
 # Resource limits
-mem_limit = os.environ.get("JUPYTER_MEM_LIMIT", "2G")
-cpu_limit = float(os.environ.get("JUPYTER_CPU_LIMIT", "1.0"))
-c.DockerSpawner.mem_limit = mem_limit
-c.DockerSpawner.cpu_limit = cpu_limit
+c.DockerSpawner.mem_limit = os.environ.get("JUPYTER_MEM_LIMIT", "2G")
+c.DockerSpawner.cpu_limit = float(os.environ.get("JUPYTER_CPU_LIMIT", "1.0"))
 
 # ── Volumes ──
-# {username} is replaced by DockerSpawner with the JupyterHub username
 c.DockerSpawner.volumes = {
     "jupyter-{username}": "/home/jovyan/notebooks",
     "jupyter-shared": "/home/jovyan/shared",
 }
-# Read-only repo bind mount
 c.DockerSpawner.read_only_volumes = {
     os.environ.get("PARTHENON_REPO_PATH", "/app"): "/home/jovyan/parthenon",
 }
 
-# ── Network: Database access ──
-# The host PostgreSQL is at pgsql.acumenus.net (not Docker postgres).
-# User containers on the isolated jupyter_users network need extra_hosts to reach it.
-DB_HOST_IP = os.environ.get("PARTHENON_DB_HOST_IP", "")
+# ── Network: external database access via host-gateway ──
+# User containers reach the host DB via the magic 'host-gateway' hostname
 DB_HOST_NAME = os.environ.get("PARTHENON_DB_HOST_NAME", "pgsql.acumenus.net")
+c.DockerSpawner.extra_host_config = {
+    "extra_hosts": {DB_HOST_NAME: "host-gateway"}
+}
 
-if DB_HOST_IP:
-    c.DockerSpawner.extra_host_config = {"extra_hosts": [f"{DB_HOST_NAME}:{DB_HOST_IP}"]}
-
-# ── Environment injection via pre_spawn_hook ──
-PARTHENON_API_URL = os.environ.get("PARTHENON_API_URL", "http://nginx/api/v1")
-HUB_API_KEY = os.environ.get("JUPYTER_HUB_API_KEY", "")
-
-# Role → DB credential mapping
+# ── Credential injection via auth_state_hook ──
 ROLE_DB_MAP = {
     "super-admin": ("jupyter_admin", os.environ.get("JUPYTER_DB_ADMIN_PASSWORD", "")),
     "admin": ("jupyter_researcher", os.environ.get("JUPYTER_DB_RESEARCHER_PASSWORD", "")),
@@ -83,35 +68,32 @@ ROLE_DB_MAP = {
     "data-steward": ("jupyter_researcher", os.environ.get("JUPYTER_DB_RESEARCHER_PASSWORD", "")),
     "mapping-reviewer": ("jupyter_researcher", os.environ.get("JUPYTER_DB_RESEARCHER_PASSWORD", "")),
 }
-
 ROLE_PRIORITY = ["super-admin", "admin", "researcher", "data-steward", "mapping-reviewer"]
 
 
-async def pre_spawn_hook(spawner):
-    """Inject per-user environment variables before container starts."""
-    auth_state = await spawner.user.get_auth_state()
+def auth_state_hook(spawner, auth_state):
+    """Inject per-user environment from auth_state into spawned container."""
     if not auth_state:
-        raise Exception("No auth state — cannot determine user roles")
+        return
 
-    user_id = auth_state["user_id"]
-    email = auth_state["email"]
+    user_id = auth_state.get("user_id", "")
+    email = auth_state.get("email", "")
     roles = auth_state.get("roles", [])
 
-    # Pick highest-priority role for DB credential — fail closed if no match
-    db_user = None
-    db_password = None
+    # Pick highest-priority role — fail closed
+    db_user, db_password = None, None
     for role in ROLE_PRIORITY:
         if role in roles and role in ROLE_DB_MAP:
             db_user, db_password = ROLE_DB_MAP[role]
             break
 
     if not db_user:
-        raise Exception(f"No Jupyter-eligible role found for user {user_id} (roles: {roles})")
+        raise Exception(f"No Jupyter-eligible role for user {user_id} (roles: {roles})")
 
     spawner.environment.update({
         "PARTHENON_USER_ID": str(user_id),
         "PARTHENON_USER_EMAIL": email,
-        "PARTHENON_API_BASE_URL": PARTHENON_API_URL,
+        "PARTHENON_API_BASE_URL": os.environ.get("PARTHENON_API_URL", "http://nginx/api/v1"),
         "PARTHENON_DB_HOST": DB_HOST_NAME,
         "PARTHENON_DB_PORT": "5432",
         "PARTHENON_DB_NAME": os.environ.get("PARTHENON_DB_NAME", "parthenon"),
@@ -121,42 +103,40 @@ async def pre_spawn_hook(spawner):
         "PARTHENON_REPO_DIR": "/home/jovyan/parthenon",
     })
 
-    # Starter notebook copy and shared dir creation happen in start.sh (inside container)
 
-    # Post audit event
+c.Spawner.auth_state_hook = auth_state_hook
+
+# ── Audit via pre/post spawn hooks ──
+import requests as _requests
+
+_API_URL = os.environ.get("PARTHENON_API_URL", "http://nginx/api/v1")
+_HUB_API_KEY = os.environ.get("JUPYTER_HUB_API_KEY", "")
+
+
+def _audit(event, user_id=None, metadata=None):
     try:
-        requests.post(
-            f"{PARTHENON_API_URL}/jupyter/audit",
-            json={
-                "event": "server.spawn",
-                "user_id": user_id,
-                "metadata": {"email": email, "container": spawner.container_name},
-            },
-            headers={"X-Hub-Api-Key": HUB_API_KEY},
-            timeout=5,
-        )
-    except Exception:
-        pass  # Audit failure should not block spawn
-
-
-async def post_stop_hook(spawner):
-    """Log server stop event to audit trail."""
-    auth_state = await spawner.user.get_auth_state()
-    if not auth_state:
-        return
-    try:
-        requests.post(
-            f"{PARTHENON_API_URL}/jupyter/audit",
-            json={
-                "event": "server.stop",
-                "user_id": auth_state["user_id"],
-                "metadata": {"reason": "idle_cull_or_manual"},
-            },
-            headers={"X-Hub-Api-Key": HUB_API_KEY},
+        _requests.post(
+            f"{_API_URL}/jupyter/audit",
+            json={"event": event, "user_id": user_id, "metadata": metadata or {}},
+            headers={"X-Hub-Api-Key": _HUB_API_KEY},
             timeout=5,
         )
     except Exception:
         pass
+
+
+async def pre_spawn_hook(spawner):
+    auth_state = await spawner.user.get_auth_state()
+    if auth_state:
+        _audit("server.spawn", auth_state.get("user_id"),
+               {"email": auth_state.get("email", ""), "container": spawner.object_name})
+
+
+async def post_stop_hook(spawner):
+    auth_state = await spawner.user.get_auth_state()
+    if auth_state:
+        _audit("server.stop", auth_state.get("user_id"),
+               {"reason": "idle_cull_or_manual"})
 
 
 c.Spawner.pre_spawn_hook = pre_spawn_hook

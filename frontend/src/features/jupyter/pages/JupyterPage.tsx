@@ -22,10 +22,10 @@ export default function JupyterPage() {
   const { data, isLoading, isFetching, refetch } = useJupyterWorkspace();
   const session = useJupyterSession();
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const formRef = useRef<HTMLFormElement>(null);
   const shellRef = useRef<HTMLDivElement>(null);
   const [frameHeight, setFrameHeight] = useState(780);
   const [serverState, setServerState] = useState<ServerState>("idle");
+  const [embedUrl, setEmbedUrl] = useState<string | null>(null);
   const [helpOpen, setHelpOpen] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -55,16 +55,9 @@ export default function JupyterPage() {
 
     session.mutate(undefined, {
       onSuccess: (result) => {
-        // Submit the JWT via hidden form POST targeting the iframe
-        if (formRef.current) {
-          const tokenInput = formRef.current.querySelector<HTMLInputElement>('input[name="token"]');
-          if (tokenInput) {
-            tokenInput.value = result.token;
-            formRef.current.action = result.login_url;
-            formRef.current.submit();
-            setServerState("spawning");
-          }
-        }
+        // Set iframe src to the JWT login URL — Hub validates and redirects to user server
+        setEmbedUrl(result.login_url);
+        setServerState("spawning");
       },
       onError: (error) => {
         setServerState("failed");
@@ -106,16 +99,6 @@ export default function JupyterPage() {
 
   return (
     <div>
-      {/* Hidden form for POST-based JWT auth to iframe */}
-      <form
-        ref={formRef}
-        method="POST"
-        target="jupyter-frame"
-        style={{ display: "none" }}
-      >
-        <input type="hidden" name="token" value="" />
-      </form>
-
       {/* ── Page header ── */}
       <div className="page-header" style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
         <div style={{ flex: 1 }}>
@@ -226,11 +209,11 @@ export default function JupyterPage() {
 
         <iframe
           ref={iframeRef}
-          name="jupyter-frame"
+          src={embedUrl ?? "about:blank"}
           title="Parthenon Jupyter"
           style={{ width: "100%", height: frameHeight, border: "none", display: "block" }}
           onLoad={() => {
-            if (serverState === "spawning") {
+            if (serverState === "spawning" || serverState === "authenticating") {
               setServerState("running");
             }
             recalcHeight();

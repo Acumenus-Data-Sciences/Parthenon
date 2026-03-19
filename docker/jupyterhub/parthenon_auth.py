@@ -1,4 +1,4 @@
-"""ParthenonAuthenticator — validates JWTs minted by Laravel."""
+"""ParthenonAuthenticator — validates JWTs minted by Laravel for seamless SSO."""
 
 import os
 import jwt
@@ -12,42 +12,46 @@ PARTHENON_API_URL = os.environ.get("PARTHENON_API_URL", "http://nginx/api/v1")
 HUB_API_KEY = os.environ.get("JUPYTER_HUB_API_KEY", "")
 
 
-def _post_audit(event: str, user_id: int | None = None, metadata: dict | None = None, ip: str | None = None):
+def _post_audit(event, user_id=None, metadata=None, ip=None):
     """Fire-and-forget audit event to Parthenon."""
     try:
-        payload = {"event": event, "user_id": user_id, "metadata": metadata or {}}
         requests.post(
             f"{PARTHENON_API_URL}/jupyter/audit",
-            json=payload,
+            json={"event": event, "user_id": user_id, "metadata": metadata or {}},
             headers={"X-Hub-Api-Key": HUB_API_KEY},
             timeout=5,
         )
     except Exception:
-        pass  # Audit failure must not block auth flow
+        pass
 
 
 class ParthenonLoginHandler(BaseHandler):
-    """Accepts POST with JWT, authenticates, redirects to user server."""
+    """Accepts GET with ?token=<jwt>, authenticates, redirects to user server.
 
-    def check_xsrf_cookie(self):
-        """Disable XSRF for this handler — authentication is via signed JWT."""
-        pass
+    Used as iframe src: /jupyter/hub/parthenon-login?token=<jwt>&next=/jupyter/hub/
+    The GET approach avoids XSRF issues that plague POST-based flows in iframes.
+    """
 
-    async def post(self):
+    async def get(self):
         token = self.get_argument("token", default=None)
         if not token:
-            raise web.HTTPError(400, "Missing token")
+            raise web.HTTPError(400, "Missing token parameter")
 
         user = await self.login_user({"token": token})
         if user is None:
             _post_audit("auth.failure", metadata={"reason": "invalid_token"}, ip=self.request.remote_ip)
             raise web.HTTPError(401, "Authentication failed")
 
-        # Log successful auth
         auth_state = await user.get_auth_state() or {}
-        _post_audit("auth.login", user_id=auth_state.get("user_id"), metadata={"email": auth_state.get("email", "")}, ip=self.request.remote_ip)
+        _post_audit(
+            "auth.login",
+            user_id=auth_state.get("user_id"),
+            metadata={"email": auth_state.get("email", "")},
+            ip=self.request.remote_ip,
+        )
 
-        self.redirect(self.get_next_url(user))
+        next_url = self.get_argument("next", self.get_next_url(user))
+        self.redirect(next_url)
 
 
 class ParthenonAuthenticator(Authenticator):
@@ -84,10 +88,9 @@ class ParthenonAuthenticator(Authenticator):
             return None
 
         now = time.time()
-        # Clean expired jtis (older than 120s)
+        # Purge expired jtis
         self._consumed_jtis = {
-            k: v for k, v in self._consumed_jtis.items()
-            if now - v < 120
+            k: v for k, v in self._consumed_jtis.items() if now - v < 120
         }
         if jti in self._consumed_jtis:
             self.log.warning("JWT replay attempt: jti=%s", jti)
@@ -102,7 +105,6 @@ class ParthenonAuthenticator(Authenticator):
             self.log.warning("JWT missing sub or email")
             return None
 
-        # Use user_id as the JupyterHub username for container naming
         username = f"user-{user_id}"
 
         return {

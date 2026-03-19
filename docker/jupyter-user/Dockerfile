@@ -38,15 +38,21 @@ RUN JUPYTER_DATA=$(python -c "import jupyter_core.paths; print(jupyter_core.path
       > "${JUPYTER_DATA}/lab/settings/overrides.json" && \
     mkdir -p /home/jovyan/.jupyter/lab/user-settings/@jupyterlab/apputils-extension && \
     echo '{"theme":"JupyterLab Dark"}' \
-      > /home/jovyan/.jupyter/lab/user-settings/@jupyterlab/apputils-extension/themes.jupyterlab-settings && \
-    chown -R jovyan:users /home/jovyan
+      > /home/jovyan/.jupyter/lab/user-settings/@jupyterlab/apputils-extension/themes.jupyterlab-settings
 
+# Server config — allow iframe embedding from Parthenon
+COPY docker/jupyter-user/jupyter_server_config.py /home/jovyan/.jupyter/jupyter_server_config.py
+
+# Startup script for first-spawn initialization
 COPY docker/jupyter-user/start.sh /usr/local/bin/start-singleuser
-RUN chmod +x /usr/local/bin/start-singleuser
+RUN chmod +x /usr/local/bin/start-singleuser && \
+    chown -R jovyan:users /home/jovyan
 
 WORKDIR /home/jovyan/notebooks
 USER jovyan
 
 EXPOSE 8888
 
-ENTRYPOINT ["tini", "--", "/usr/local/bin/start-singleuser"]
+# tini as init, start.sh does first-spawn setup then execs jupyterhub-singleuser
+ENTRYPOINT ["tini", "-g", "--"]
+CMD ["start-singleuser"]
