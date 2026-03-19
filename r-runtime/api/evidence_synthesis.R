@@ -1,6 +1,3 @@
-#* @root /analysis/evidence-synthesis
-NULL
-
 # ──────────────────────────────────────────────────────────────────
 # Evidence Synthesis — Cross-Database Meta-Analysis
 # POST /analysis/evidence-synthesis/run
@@ -11,7 +8,7 @@ source("/app/R/connection.R")
 source("/app/R/progress.R")
 
 #* Run meta-analysis across multiple site estimates
-#* @post /run
+#* @post /analysis/evidence-synthesis/run
 #* @serializer unboxedJSON
 function(body, response) {
   spec   <- body

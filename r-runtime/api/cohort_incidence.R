@@ -1,6 +1,3 @@
-#* @root /analysis/cohort-incidence
-NULL
-
 # ──────────────────────────────────────────────────────────────────
 # CohortIncidence — OHDSI Incidence Rate Analysis
 # POST /analysis/cohort-incidence/calculate
@@ -10,7 +7,7 @@ source("/app/R/connection.R")
 source("/app/R/progress.R")
 
 #* Calculate cohort incidence rates using the OHDSI CohortIncidence package
-#* @post /calculate
+#* @post /analysis/cohort-incidence/calculate
 #* @serializer unboxedJSON
 function(body, response) {
   spec   <- body
@@ -406,12 +403,12 @@ function(body, response) {
 }
 
 #* Health check for the CohortIncidence router
-#* @get /health
+#* @get /analysis/cohort-incidence/health
 #* @serializer unboxedJSON
 function() {
   list(
     status  = "ok",
     service = "cohort-incidence",
-    endpoints = c("POST /calculate")
+    endpoints = c("POST /analysis/cohort-incidence/calculate")
   )
 }

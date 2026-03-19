@@ -1,6 +1,3 @@
-#* @root /analysis/cohort-diagnostics
-NULL
-
 # ── CohortDiagnostics endpoint ──────────────────────────────────────
 # POST /run — Execute cohort diagnostics for specified cohorts
 # Returns: incidence rates, orphan concepts, index event breakdown,
@@ -11,7 +8,7 @@ source("/app/R/connection.R")
 source("/app/R/progress.R")
 
 #* Run cohort diagnostics
-#* @post /run
+#* @post /analysis/cohort-diagnostics/run
 #* @serializer unboxedJSON
 function(body, response) {
   spec <- body

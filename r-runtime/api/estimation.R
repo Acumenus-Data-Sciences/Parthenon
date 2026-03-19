@@ -1,6 +1,3 @@
-#* @root /analysis/estimation
-NULL
-
 # ──────────────────────────────────────────────────────────────────
 # Population-Level Estimation — CohortMethod Pipeline
 # POST /analysis/estimation/run
@@ -15,7 +12,7 @@ source("/app/R/progress.R")
 source("/app/R/results.R")
 
 #* Run population-level estimation via CohortMethod
-#* @post /run
+#* @post /analysis/estimation/run
 #* @serializer unboxedJSON
 function(body, response) {
   spec   <- body

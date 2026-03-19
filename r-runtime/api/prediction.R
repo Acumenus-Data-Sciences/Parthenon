@@ -1,6 +1,3 @@
-#* @root /analysis/prediction
-NULL
-
 # ──────────────────────────────────────────────────────────────────
 # Patient-Level Prediction — PLP Pipeline
 # POST /analysis/prediction/run
@@ -24,7 +21,7 @@ if (.deep_plp_available) {
 }
 
 #* Run patient-level prediction via PatientLevelPrediction
-#* @post /run
+#* @post /analysis/prediction/run
 #* @serializer unboxedJSON
 function(body, response) {
   spec   <- body

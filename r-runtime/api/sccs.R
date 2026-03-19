@@ -1,6 +1,3 @@
-#* @root /analysis/sccs
-NULL
-
 # ──────────────────────────────────────────────────────────────────
 # Self-Controlled Case Series (SCCS) Pipeline
 # POST /analysis/sccs/run
@@ -12,7 +9,7 @@ source("/app/R/connection.R")
 source("/app/R/progress.R")
 
 #* Run Self-Controlled Case Series analysis
-#* @post /run
+#* @post /analysis/sccs/run
 #* @serializer unboxedJSON
 function(body, response) {
   spec   <- body

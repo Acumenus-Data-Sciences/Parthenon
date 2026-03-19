@@ -1,6 +1,3 @@
-#* @root /jobs
-NULL
-
 # ──────────────────────────────────────────────────────────────────
 # Async job management endpoints
 # Mounted at /jobs in plumber_api.R
@@ -10,7 +7,7 @@ source("/app/R/async_jobs.R")
 source("/app/R/connection.R")
 
 #* Submit an async analysis job
-#* @post /submit
+#* @post /jobs/submit
 #* @serializer unboxedJSON
 function(body, response) {
   spec <- body
@@ -76,7 +73,7 @@ function(body, response) {
 }
 
 #* Check job status (and retrieve result if complete)
-#* @get /status/<job_id>
+#* @get /jobs/status/<job_id>
 #* @serializer unboxedJSON
 function(job_id, response) {
   result <- get_job_status(job_id)
@@ -89,7 +86,7 @@ function(job_id, response) {
 }
 
 #* Cancel a running job
-#* @post /cancel/<job_id>
+#* @post /jobs/cancel/<job_id>
 #* @serializer unboxedJSON
 function(job_id, response) {
   result <- cancel_job(job_id)
@@ -102,7 +99,7 @@ function(job_id, response) {
 }
 
 #* List all active jobs
-#* @get /list
+#* @get /jobs/list
 #* @serializer unboxedJSON
 function() {
   list(jobs = list_jobs())

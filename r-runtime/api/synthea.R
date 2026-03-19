@@ -1,6 +1,3 @@
-#* @root /etl/synthea
-NULL
-
 # ──────────────────────────────────────────────────────────────────
 # ETL-Synthea — Synthea CSV → OMOP CDM converter
 # GET  /etl/synthea/status   — package availability + version info
@@ -44,7 +41,7 @@ CDM_EVENT_TABLES <- c(
 # ── GET /status ───────────────────────────────────────────────────────────────
 
 #* Return ETL-Synthea package availability and version info
-#* @get /status
+#* @get /etl/synthea/status
 #* @serializer unboxedJSON
 function() {
   pkg_available <- requireNamespace("ETLSyntheaBuilder", quietly = TRUE)
@@ -89,7 +86,7 @@ function() {
 #*   patient_count      integer — Expected patient count (informational, default: 0)
 #*   skip_cdm_create    boolean — Skip CREATE CDM tables step if tables already exist (default: false)
 #*   skip_synthea_create boolean — Skip CREATE Synthea staging tables step (default: false)
-#* @post /generate
+#* @post /etl/synthea/generate
 #* @serializer unboxedJSON
 function(body, response) {
   spec   <- body

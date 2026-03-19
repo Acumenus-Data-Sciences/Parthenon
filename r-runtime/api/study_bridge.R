@@ -1,6 +1,3 @@
-#* @root /study
-NULL
-
 # ──────────────────────────────────────────────────────────────────
 # Study Bridge — Parthenon Study Orchestrator ↔ HADES
 # These endpoints accept study-level specs from the Laravel backend
@@ -16,7 +13,7 @@ source("/app/R/results.R")
 MIN_CELL_COUNT <- 5L
 
 #* Feasibility check — run cohort counts against a site's CDM
-#* @post /feasibility
+#* @post /study/feasibility
 #* @serializer unboxedJSON
 function(body, response) {
   spec   <- body
@@ -69,7 +66,7 @@ function(body, response) {
 }
 
 #* Characterization — run FeatureExtraction for a target cohort
-#* @post /characterize
+#* @post /study/characterize
 #* @serializer unboxedJSON
 function(body, response) {
   spec   <- body
@@ -145,7 +142,7 @@ function(body, response) {
 }
 
 #* Incidence rate analysis
-#* @post /incidence
+#* @post /study/incidence
 #* @serializer unboxedJSON
 function(body, response) {
   spec   <- body
@@ -219,7 +216,7 @@ function(body, response) {
 }
 
 #* Meta-analysis / evidence synthesis
-#* @post /synthesis
+#* @post /study/synthesis
 #* @serializer unboxedJSON
 function(body, response) {
   spec   <- body
@@ -315,7 +312,7 @@ function(body, response) {
 }
 
 #* Study bridge health check
-#* @get /health
+#* @get /study/health
 #* @serializer unboxedJSON
 function() {
   list(

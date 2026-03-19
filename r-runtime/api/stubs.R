@@ -1,5 +1,5 @@
 #* Run population-level estimation (stub)
-#* @post /estimation
+#* @post /stubs/estimation
 #* @serializer unboxedJSON
 function(req, res) {
   spec <- req$body
@@ -14,7 +14,7 @@ function(req, res) {
 }
 
 #* Run patient-level prediction (stub)
-#* @post /prediction
+#* @post /stubs/prediction
 #* @serializer unboxedJSON
 function(body, response) {
   spec <- body
@@ -29,7 +29,7 @@ function(body, response) {
 }
 
 #* Run feature extraction (stub)
-#* @post /feature-extraction
+#* @post /stubs/feature-extraction
 #* @serializer unboxedJSON
 function(body, response) {
   spec <- body
@@ -44,7 +44,7 @@ function(body, response) {
 }
 
 #* Run self-controlled case series (stub)
-#* @post /self-controlled
+#* @post /stubs/self-controlled
 #* @serializer unboxedJSON
 function(body, response) {
   spec <- body

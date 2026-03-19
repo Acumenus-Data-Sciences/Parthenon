@@ -1,6 +1,3 @@
-#* @root /analysis/characterization
-NULL
-
 # ──────────────────────────────────────────────────────────────────
 # OHDSI Characterization — Full Characterization Package Pipeline
 # POST /analysis/characterization/run
@@ -56,7 +53,7 @@ MIN_PRIOR_OBS_DEFAULT     <- 365L
 }
 
 #* Run OHDSI Characterization analysis (Table 1, Time-to-Event, Dechallenge/Rechallenge)
-#* @post /run
+#* @post /analysis/characterization/run
 #* @serializer unboxedJSON
 function(body, response) {
   spec   <- body
@@ -364,7 +361,7 @@ function(body, response) {
 }
 
 #* Characterization health check
-#* @get /health
+#* @get /analysis/characterization/health
 #* @serializer unboxedJSON
 function() {
   list(

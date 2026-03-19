@@ -1,6 +1,3 @@
-#* @root /strategus
-NULL
-
 # ──────────────────────────────────────────────────────────────────
 # Strategus — OHDSI Study Orchestration API
 #
@@ -107,7 +104,7 @@ existsFunction_safe <- function(ns, fn) {
 #* connection settings.  Executes the study, zips results, and returns
 #* a summary of every module that ran.
 #*
-#* @post /execute
+#* @post /strategus/execute
 #* @serializer unboxedJSON
 #* @param body Parsed request body
 #* @param response Plumber response
@@ -284,7 +281,7 @@ function(body, response) {
 #* is well-formed, and that required fields are present.
 #* Returns a list of issues (empty = all checks passed).
 #*
-#* @post /validate
+#* @post /strategus/validate
 #* @serializer unboxedJSON
 #* @param body Parsed request body
 #* @param response Plumber response
@@ -487,7 +484,7 @@ function(body, response) {
 #* Returns each known module alongside the version of the backing HADES
 #* package that is currently installed in this R environment.
 #*
-#* @get /modules
+#* @get /strategus/modules
 #* @serializer unboxedJSON
 function() {
   strategus_version <- tryCatch(
