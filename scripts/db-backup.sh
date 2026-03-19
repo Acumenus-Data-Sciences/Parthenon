@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
 # db-backup.sh — Dump the PRODUCTION database (pgsql.acumenus.net / ohdsi)
 #
-# Backs up the app schema from the REAL production PostgreSQL 17 instance.
+# Backs up ALL critical schemas from the REAL production PostgreSQL 17 instance.
 # NOT the Docker postgres container, which holds no production data.
+#
+# Schemas backed up:
+#   app              — Application state (users, sources, cohorts, studies, analyses, executions, etc.)
+#   achilles_results — Achilles characterization output, cohort records, DQD results
 #
 # Usage:
 #   ./scripts/db-backup.sh           # manual run
@@ -17,7 +21,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 BACKUP_DIR="$PROJECT_DIR/backups"
 TIMESTAMP="$(date +%Y%m%d-%H%M%S)"
-BACKUP_FILE="ohdsi-app-${TIMESTAMP}.sql"
+BACKUP_FILE="ohdsi-full-${TIMESTAMP}.sql"
 KEEP_COUNT=30
 
 # Production DB credentials from backend/.env
@@ -42,17 +46,18 @@ fi
 mkdir -p "$BACKUP_DIR"
 
 echo "==> Parthenon Production DB Backup"
-echo "    Host:   $PG_HOST:$PG_PORT / $PG_DB"
-echo "    Schema: app (users, sources, cohorts, studies, roles, etc.)"
-echo "    Target: $BACKUP_DIR/$BACKUP_FILE"
+echo "    Host:    $PG_HOST:$PG_PORT / $PG_DB"
+echo "    Schemas: app, achilles_results"
+echo "    Target:  $BACKUP_DIR/$BACKUP_FILE"
 
-# Dump only the app schema — application state, not the massive clinical/vocab data
+# Dump critical schemas: app state + analysis results
 if PGPASSWORD="$PG_PASSWORD" pg_dump \
   -h "$PG_HOST" \
   -p "$PG_PORT" \
   -U "$PG_USER" \
   -d "$PG_DB" \
   --schema=app \
+  --schema=achilles_results \
   --clean \
   --if-exists \
   --no-owner \
@@ -66,20 +71,31 @@ if PGPASSWORD="$PG_PASSWORD" pg_dump \
   fi
 
   SIZE="$(du -h "$BACKUP_DIR/$BACKUP_FILE" | cut -f1)"
-  USER_ROWS="$(PGPASSWORD="$PG_PASSWORD" psql \
-    -h "$PG_HOST" -p "$PG_PORT" -U "$PG_USER" -d "$PG_DB" \
-    -tAc "SELECT COUNT(*) FROM app.users WHERE email NOT LIKE '%@example.%'" 2>/dev/null || echo "?")"
 
-  echo "    Size: $SIZE  |  Real users in DB: $USER_ROWS"
+  # Quick integrity counts
+  COUNTS="$(PGPASSWORD="$PG_PASSWORD" psql \
+    -h "$PG_HOST" -p "$PG_PORT" -U "$PG_USER" -d "$PG_DB" -tAc "
+    SELECT json_build_object(
+      'users', (SELECT COUNT(*) FROM app.users),
+      'sources', (SELECT COUNT(*) FROM app.sources),
+      'cohorts', (SELECT COUNT(*) FROM app.cohort_definitions),
+      'characterizations', (SELECT COUNT(*) FROM app.characterizations),
+      'executions', (SELECT COUNT(*) FROM app.analysis_executions),
+      'cohort_records', (SELECT COUNT(*) FROM achilles_results.cohort)
+    );
+  " 2>/dev/null || echo '{"error":"query failed"}')"
+
+  echo "    Size: $SIZE"
+  echo "    Counts: $COUNTS"
 
   ln -sf "$BACKUP_FILE" "$BACKUP_DIR/latest.sql"
   echo "    Symlink: backups/latest.sql -> $BACKUP_FILE"
 
-  # Prune old backups
+  # Prune old backups (both old naming conventions)
   PRUNED=0
   while IFS= read -r old; do
     rm -f "$old"; PRUNED=$((PRUNED + 1))
-  done < <(ls -1t "$BACKUP_DIR"/ohdsi-app-*.sql 2>/dev/null | tail -n +$((KEEP_COUNT + 1)))
+  done < <(ls -1t "$BACKUP_DIR"/ohdsi-*.sql 2>/dev/null | grep -v latest | tail -n +$((KEEP_COUNT + 1)))
   [ "$PRUNED" -gt 0 ] && echo "    Pruned $PRUNED old backup(s) (keeping last $KEEP_COUNT)"
 
   echo "==> Backup complete."

@@ -28,14 +28,11 @@
         ],
         "analysisType": "Characterization",
         "featureTypes": [
-            "Demographics",
-            "ConditionOccurrence",
-            "DrugExposure",
-            "ProcedureOccurrence",
-            "Measurement",
-            "ConditionEra",
-            "DrugEra",
-            "CharlsonIndex"
+            "demographics",
+            "conditions",
+            "drugs",
+            "procedures",
+            "measurements"
         ],
         "minCellCount": 5,
         "stratifyByAge": true,
@@ -49,6 +46,6 @@
     },
     "author_id": 117,
     "created_at": null,
-    "updated_at": null,
+    "updated_at": "2026-03-19T04:00:15.000000Z",
     "deleted_at": null
 }
