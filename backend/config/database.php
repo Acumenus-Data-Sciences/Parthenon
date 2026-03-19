@@ -82,118 +82,91 @@ return [
             ]) : [],
         ],
 
+        // ────────────────────────────────────────────────────────────────────
+        // SINGLE-DATABASE ARCHITECTURE
+        // All connections point to the same 'parthenon' database.
+        // Schema isolation via search_path:
+        //   pgsql    → app,php      (application tables, Laravel internals)
+        //   omop     → omop,php     (CDM + vocabulary)
+        //   results  → results,php  (Achilles/DQD output)
+        //   gis      → gis,omop,php (geospatial + CDM lookup)
+        //   eunomia  → eunomia,php  (demo dataset)
+        // ────────────────────────────────────────────────────────────────────
+
         'pgsql' => [
             'driver' => 'pgsql',
             'url' => env('DB_URL'),
             'host' => env('DB_HOST', '127.0.0.1'),
             'port' => env('DB_PORT', '5432'),
-            'database' => env('DB_DATABASE', 'ohdsi'),
-            'username' => env('DB_USERNAME', 'smudoshi'),
+            'database' => env('DB_DATABASE', 'parthenon'),
+            'username' => env('DB_USERNAME', 'parthenon'),
             'password' => env('DB_PASSWORD', ''),
             'charset' => env('DB_CHARSET', 'utf8'),
             'prefix' => '',
             'prefix_indexes' => true,
-            'search_path' => env('DB_SEARCH_PATH', 'app,public'),
+            'search_path' => 'app,php',
             'sslmode' => 'prefer',
         ],
 
-        // CDM connection — used by DQD, ingestion, cohort generation, and other
-        // analytical services. On Docker installer deployments this falls back to
-        // the Docker postgres / eunomia schema. On Acumenus dev set CDM_DB_* vars
-        // (host, database, username) and CDM_DB_SEARCH_PATH=omop,public in .env.
-        'cdm' => [
+        // OMOP CDM + Vocabulary — used by DQD, ingestion, cohort generation,
+        // AbbyAI, and all clinical data services. Replaces the old separate
+        // 'cdm' and 'vocab' connections (both now point here).
+        'omop' => [
             'driver' => 'pgsql',
-            'host' => env('CDM_DB_HOST', env('DB_HOST', '127.0.0.1')),
-            'port' => env('CDM_DB_PORT', env('DB_PORT', '5432')),
-            'database' => env('CDM_DB_DATABASE', env('DB_DATABASE', 'parthenon')),
-            'username' => env('CDM_DB_USERNAME', env('DB_USERNAME', 'parthenon')),
-            'password' => env('CDM_DB_PASSWORD', env('DB_PASSWORD', '')),
-            'charset' => 'utf8',
-            'prefix' => '',
-            'search_path' => env('CDM_DB_SEARCH_PATH', 'eunomia,public'),
-            'sslmode' => 'prefer',
-        ],
-
-        // Vocabulary/concept lookup connection. Used by AbbyAiService, AchillesResultReaderService,
-        // and VocabularyModel. On Docker installer deployments the Eunomia CDM (including vocab
-        // tables) is in the 'eunomia' schema of the Docker postgres. On Acumenus dev the vocab
-        // is in the 'omop' schema of local PG 17 — set VOCAB_DB_SEARCH_PATH=omop,public in .env.
-        'vocab' => [
-            'driver' => 'pgsql',
-            'host' => env('DB_VOCAB_HOST', env('DB_HOST', '127.0.0.1')),
-            'port' => env('DB_VOCAB_PORT', env('DB_PORT', '5432')),
-            'database' => env('DB_VOCAB_DATABASE', env('DB_DATABASE', 'parthenon')),
-            'username' => env('DB_VOCAB_USERNAME', env('DB_USERNAME', 'parthenon')),
-            'password' => env('DB_VOCAB_PASSWORD', env('DB_PASSWORD', '')),
-            'charset' => 'utf8',
-            'prefix' => '',
-            'search_path' => env('VOCAB_DB_SEARCH_PATH', 'eunomia,public'),
-            'sslmode' => 'prefer',
-        ],
-
-        // Achilles/DQD results connection. AchillesResultReaderService overrides
-        // search_path per-request based on the source's results daimon table_qualifier
-        // (e.g. 'achilles_results' for Acumenus, 'eunomia_results' for Eunomia).
-        // In Docker installer deployments DB_HOST/DB_DATABASE point to the Docker
-        // postgres, so eunomia_results is reachable without any extra env vars.
-        'results' => [
-            'driver' => 'pgsql',
-            'host' => env('RESULTS_DB_HOST', env('DB_HOST', '127.0.0.1')),
-            'port' => env('RESULTS_DB_PORT', env('DB_PORT', '5432')),
-            'database' => env('RESULTS_DB_DATABASE', env('DB_DATABASE', 'parthenon')),
-            'username' => env('RESULTS_DB_USERNAME', env('DB_USERNAME', 'parthenon')),
-            'password' => env('RESULTS_DB_PASSWORD', env('DB_PASSWORD', '')),
-            'charset' => 'utf8',
-            'prefix' => '',
-            'search_path' => env('RESULTS_DB_SEARCH_PATH', 'eunomia_results,public'),
-            'sslmode' => 'prefer',
-        ],
-
-        // GIS schema connection — connects to local PG 17 (ohdsi database)
-        // for OHDSI GIS extension tables (geographic_location, external_exposure, etc.)
-        // Used by GIS use-case services. On Docker installs, set GIS_DB_* env vars.
-        'gis' => [
-            'driver' => 'pgsql',
-            'host' => env('GIS_DB_HOST', env('CDM_DB_HOST', '127.0.0.1')),
-            'port' => env('GIS_DB_PORT', env('CDM_DB_PORT', '5432')),
-            'database' => env('GIS_DB_DATABASE', env('CDM_DB_DATABASE', 'ohdsi')),
-            'username' => env('GIS_DB_USERNAME', env('CDM_DB_USERNAME', 'smudoshi')),
-            'password' => env('GIS_DB_PASSWORD', env('CDM_DB_PASSWORD', '')),
-            'charset' => 'utf8',
-            'prefix' => '',
-            'search_path' => env('GIS_DB_SEARCH_PATH', 'gis,omop,public,app'),
-            'sslmode' => 'prefer',
-        ],
-
-        // Docker PostgreSQL — used by db:sync command to mirror app tables
-        // between the local PG (source of truth) and the Docker container PG.
-        'docker_pg' => [
-            'driver' => 'pgsql',
-            'host' => env('DOCKER_DB_HOST', 'postgres'),
-            'port' => env('DOCKER_DB_PORT', '5432'),
-            'database' => env('DOCKER_DB_DATABASE', 'parthenon'),
-            'username' => env('DOCKER_DB_USERNAME', 'parthenon'),
-            'password' => env('DOCKER_DB_PASSWORD', 'secret'),
-            'charset' => 'utf8',
-            'prefix' => '',
-            'search_path' => 'app,public',
-            'sslmode' => 'prefer',
-        ],
-
-        // Eunomia GiBleed demo dataset — lives in the Docker postgres (same DB as
-        // the app) in the 'eunomia' schema. The schema is populated by pg_restore
-        // during Phase 5 of the installer. search_path is set statically here and
-        // overridden per-request by AchillesResultReaderService for the results schema.
-        'eunomia' => [
-            'driver' => 'pgsql',
-            'host' => env('DB_HOST', 'postgres'),
+            'host' => env('DB_HOST', '127.0.0.1'),
             'port' => env('DB_PORT', '5432'),
             'database' => env('DB_DATABASE', 'parthenon'),
             'username' => env('DB_USERNAME', 'parthenon'),
             'password' => env('DB_PASSWORD', ''),
             'charset' => 'utf8',
             'prefix' => '',
-            'search_path' => 'eunomia,public',
+            'search_path' => 'omop,php',
+            'sslmode' => 'prefer',
+        ],
+
+        // Achilles/DQD results. AchillesResultReaderService overrides
+        // search_path per-request based on source daimon table_qualifier
+        // (e.g. 'results' for Acumenus, 'eunomia_results' for Eunomia).
+        'results' => [
+            'driver' => 'pgsql',
+            'host' => env('DB_HOST', '127.0.0.1'),
+            'port' => env('DB_PORT', '5432'),
+            'database' => env('DB_DATABASE', 'parthenon'),
+            'username' => env('DB_USERNAME', 'parthenon'),
+            'password' => env('DB_PASSWORD', ''),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'search_path' => 'results,php',
+            'sslmode' => 'prefer',
+        ],
+
+        // GIS extension tables (geographic_location, external_exposure, etc.)
+        // search_path includes omop for CDM lookups within GIS queries.
+        'gis' => [
+            'driver' => 'pgsql',
+            'host' => env('DB_HOST', '127.0.0.1'),
+            'port' => env('DB_PORT', '5432'),
+            'database' => env('DB_DATABASE', 'parthenon'),
+            'username' => env('DB_USERNAME', 'parthenon'),
+            'password' => env('DB_PASSWORD', ''),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'search_path' => 'gis,omop,php',
+            'sslmode' => 'prefer',
+        ],
+
+        // Eunomia GiBleed demo dataset — populated by pg_restore during
+        // installer Phase 5. Used as an alternative CDM source for demos.
+        'eunomia' => [
+            'driver' => 'pgsql',
+            'host' => env('DB_HOST', '127.0.0.1'),
+            'port' => env('DB_PORT', '5432'),
+            'database' => env('DB_DATABASE', 'parthenon'),
+            'username' => env('DB_USERNAME', 'parthenon'),
+            'password' => env('DB_PASSWORD', ''),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'search_path' => 'eunomia,php',
             'sslmode' => 'prefer',
         ],
 

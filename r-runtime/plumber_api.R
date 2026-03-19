@@ -1,24 +1,36 @@
+.r_start_time <- Sys.time()
+
 # Set JVM heap before any JDBC/DatabaseConnector usage
 # Default 256MB is insufficient for CohortMethod on 1M+ patients
 options(java.parameters = c("-Xmx8g", "-Xms2g"))
 
-library(plumber)
+library(plumber2)
 
-# Create the root API with health as the main plumber file
-pr <- plumb("/app/api/health.R")
+# Create the API from all endpoint files.
+# Each file uses @root to define its path prefix.
+pa <- api(
+  "/app/api/health.R",
+  "/app/api/stubs.R",
+  "/app/api/estimation.R",
+  "/app/api/prediction.R",
+  "/app/api/sccs.R",
+  "/app/api/evidence_synthesis.R",
+  "/app/api/cohort_diagnostics.R",
+  "/app/api/cohort_incidence.R",
+  "/app/api/characterization.R",
+  "/app/api/study_bridge.R",
+  "/app/api/strategus.R",
+  "/app/api/synthea.R",
+  "/app/api/jobs.R",
+  host = "0.0.0.0",
+  port = 8787L,
+  default_async = "mirai"
+)
 
-# Mount sub-routers
-pr$mount("/stubs", plumb("/app/api/stubs.R"))
-pr$mount("/analysis/estimation", plumb("/app/api/estimation.R"))
-pr$mount("/analysis/prediction", plumb("/app/api/prediction.R"))
-pr$mount("/analysis/sccs", plumb("/app/api/sccs.R"))
-pr$mount("/analysis/evidence-synthesis", plumb("/app/api/evidence_synthesis.R"))
-pr$mount("/analysis/cohort-diagnostics", plumb("/app/api/cohort_diagnostics.R"))
-pr$mount("/analysis/cohort-incidence", plumb("/app/api/cohort_incidence.R"))
-pr$mount("/analysis/characterization", plumb("/app/api/characterization.R"))
-pr$mount("/study", plumb("/app/api/study_bridge.R"))
-pr$mount("/strategus", plumb("/app/api/strategus.R"))
-pr$mount("/etl/synthea", plumb("/app/api/synthea.R"))
+# Handle process exit for graceful shutdown logging.
+.Last <- function() {
+  cat("[SHUTDOWN] R runtime shutting down\n")
+}
 
-# Start server
-pr$run(host = "0.0.0.0", port = 8787)
+# Start server (blocks in non-interactive/Docker mode)
+pa |> api_run()

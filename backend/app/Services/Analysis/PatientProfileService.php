@@ -29,7 +29,7 @@ class PatientProfileService
         }
 
         $dialect = $source->source_dialect ?? 'postgresql';
-        $connectionName = $source->source_connection ?? 'cdm';
+        $connectionName = $source->source_connection ?? 'omop';
 
         $params = ['cdmSchema' => $cdmSchema];
 
@@ -94,7 +94,7 @@ class PatientProfileService
         }
 
         $dialect = $source->source_dialect ?? 'postgresql';
-        $connectionName = $source->source_connection ?? 'cdm';
+        $connectionName = $source->source_connection ?? 'omop';
 
         $params = [
             'cdmSchema' => $cdmSchema,
@@ -190,7 +190,7 @@ class PatientProfileService
         }
 
         $dialect = $source->source_dialect ?? 'postgresql';
-        $connectionName = $source->source_connection ?? 'cdm';
+        $connectionName = $source->source_connection ?? 'omop';
 
         $params = [
             'cdmSchema' => $cdmSchema,
@@ -271,7 +271,7 @@ class PatientProfileService
         }
 
         $dialect = $source->source_dialect ?? 'postgresql';
-        $connectionName = $source->source_connection ?? 'cdm';
+        $connectionName = $source->source_connection ?? 'omop';
 
         $params = [
             'cdmSchema' => $cdmSchema,
@@ -334,7 +334,7 @@ class PatientProfileService
         }
 
         $dialect = $source->source_dialect ?? 'postgresql';
-        $connectionName = $source->source_connection ?? 'cdm';
+        $connectionName = $source->source_connection ?? 'omop';
         $cohortTable = "{$resultsSchema}.cohort";
 
         $params = [

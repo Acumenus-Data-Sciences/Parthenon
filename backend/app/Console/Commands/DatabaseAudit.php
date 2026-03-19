@@ -17,12 +17,11 @@ class DatabaseAudit extends Command
     /** Connections to audit and the schemas we expect to find data in. */
     private const PG_CONNECTIONS = [
         'pgsql' => ['label' => 'App (pgsql)',     'expect_data' => true],
-        'cdm' => ['label' => 'CDM',             'expect_data' => true],
-        'vocab' => ['label' => 'Vocabulary',       'expect_data' => true],
+        'omop' => ['label' => 'OMOP',             'expect_data' => true],
         'results' => ['label' => 'Results',          'expect_data' => true],
         'gis' => ['label' => 'GIS',              'expect_data' => false],
         'eunomia' => ['label' => 'Eunomia',          'expect_data' => false],
-        'docker_pg' => ['label' => 'Docker PG',        'expect_data' => true],
+        // 'docker_pg' connection removed — single-DB architecture
     ];
 
     public function handle(): int

@@ -1,3 +1,6 @@
+#* @root /analysis/evidence-synthesis
+NULL
+
 # ──────────────────────────────────────────────────────────────────
 # Evidence Synthesis — Cross-Database Meta-Analysis
 # POST /analysis/evidence-synthesis/run
@@ -10,23 +13,23 @@ source("/app/R/progress.R")
 #* Run meta-analysis across multiple site estimates
 #* @post /run
 #* @serializer unboxedJSON
-function(req, res) {
-  spec   <- req$body
+function(body, response) {
+  spec   <- body
   logger <- create_analysis_logger()
 
   if (is.null(spec)) {
-    res$status <- 400L
+    response$status <- 400L
     return(list(status = "error", message = "No specification provided"))
   }
 
   if (is.null(spec$estimates) || length(spec$estimates) < 2) {
-    res$status <- 400L
+    response$status <- 400L
     return(list(status = "error", message = "At least 2 site estimates are required for meta-analysis"))
   }
 
   logger$info("Evidence synthesis started", list(n_sites = length(spec$estimates)))
 
-  safe_execute(res, logger, {
+  safe_execute(response, logger, {
     # Build data frame from site estimates
     # Note: plumber/jsonlite may convert homogeneous arrays-of-objects into
     # a data.frame instead of a list of lists. Handle both cases.
@@ -56,7 +59,7 @@ function(req, res) {
     site_data  <- site_data[valid_rows, ]
 
     if (nrow(site_data) < 2) {
-      res$status <- 400L
+      response$status <- 400L
       return(list(status = "error", message = "Fewer than 2 valid estimates after removing NAs"))
     }
 

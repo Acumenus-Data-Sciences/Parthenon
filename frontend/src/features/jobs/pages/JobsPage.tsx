@@ -252,35 +252,29 @@ export default function JobsPage() {
                     </td>
                     <td>
                       <span style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
-                        {job.status === "running" ? (
-                          <>
-                            <Loader2 size={14} style={{ animation: "spin 1s linear infinite", color: "var(--info)" }} />
-                          </>
-                        ) : (
-                          <>
-                            <StatusIcon
-                              size={14}
-                              className={cn(
-                                job.status === "completed" && "text-success",
-                                job.status === "failed" && "text-critical",
-                              )}
-                              style={{
-                                color: job.status === "completed" ? "var(--success)" :
-                                       job.status === "failed" ? "var(--critical)" :
-                                       "var(--text-muted)",
-                              }}
-                            />
-                            <Badge
-                              variant={
-                                job.status === "completed" ? "success" :
-                                job.status === "failed" ? "critical" :
-                                "default"
-                              }
-                            >
-                              {job.status}
-                            </Badge>
-                          </>
-                        )}
+                        <StatusIcon
+                          size={14}
+                          className={cn(
+                            job.status === "completed" && "text-success",
+                            job.status === "failed" && "text-critical",
+                          )}
+                          style={{
+                            ...(job.status === "running" ? { animation: "spin 1s linear infinite", color: "var(--info)" } :
+                            { color: job.status === "completed" ? "var(--success)" :
+                                     job.status === "failed" ? "var(--critical)" :
+                                     "var(--text-muted)" }),
+                          }}
+                        />
+                        <Badge
+                          variant={
+                            job.status === "completed" ? "success" :
+                            job.status === "failed" ? "critical" :
+                            job.status === "running" ? "info" :
+                            "default"
+                          }
+                        >
+                          {job.status}
+                        </Badge>
                       </span>
                     </td>
                     <td>

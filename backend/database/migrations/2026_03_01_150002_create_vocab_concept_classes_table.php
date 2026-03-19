@@ -8,11 +8,11 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (Schema::connection('vocab')->hasTable('concept_class')) {
+        if (Schema::connection('omop')->hasTable('concept_class')) {
             return;
         }
 
-        Schema::connection('vocab')->create('concept_class', function (Blueprint $table) {
+        Schema::connection('omop')->create('concept_class', function (Blueprint $table) {
             $table->string('concept_class_id', 20)->primary();
             $table->string('concept_class_name', 255);
             $table->integer('concept_class_concept_id');
@@ -21,6 +21,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::connection('vocab')->dropIfExists('concept_class');
+        Schema::connection('omop')->dropIfExists('concept_class');
     }
 };

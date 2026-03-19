@@ -210,7 +210,7 @@ class TextToSqlController extends Controller
         $maxRows = 10_000;
 
         try {
-            $connection = DB::connection('cdm');
+            $connection = DB::connection('omop');
 
             // Get backend PID and cache it for status polling
             $pidResult = $connection->selectOne('SELECT pg_backend_pid() AS pid');
@@ -262,7 +262,7 @@ class TextToSqlController extends Controller
 
             // Reset timeout on error
             try {
-                DB::connection('cdm')->statement("SET statement_timeout = '0'");
+                DB::connection('omop')->statement("SET statement_timeout = '0'");
             } catch (\Throwable) {
                 // Connection may be broken
             }
@@ -296,7 +296,7 @@ class TextToSqlController extends Controller
         }
 
         try {
-            $stat = DB::connection('cdm')->selectOne(
+            $stat = DB::connection('omop')->selectOne(
                 'SELECT state, wait_event_type, wait_event,
                         EXTRACT(EPOCH FROM (now() - query_start)) * 1000 AS elapsed_ms
                  FROM pg_stat_activity

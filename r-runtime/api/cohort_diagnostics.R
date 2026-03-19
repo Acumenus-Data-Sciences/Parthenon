@@ -1,3 +1,6 @@
+#* @root /analysis/cohort-diagnostics
+NULL
+
 # ── CohortDiagnostics endpoint ──────────────────────────────────────
 # POST /run — Execute cohort diagnostics for specified cohorts
 # Returns: incidence rates, orphan concepts, index event breakdown,
@@ -10,16 +13,16 @@ source("/app/R/progress.R")
 #* Run cohort diagnostics
 #* @post /run
 #* @serializer unboxedJSON
-function(req, res) {
-  spec <- req$body
+function(body, response) {
+  spec <- body
   if (is.null(spec)) {
-    res$status <- 400L
+    response$status <- 400L
     return(list(status = "error", message = "Request body required"))
   }
 
   logger <- create_analysis_logger()
 
-  safe_execute(res, logger, {
+  safe_execute(response, logger, {
     logger$info("Starting CohortDiagnostics analysis")
 
     # ── Validate required fields ──

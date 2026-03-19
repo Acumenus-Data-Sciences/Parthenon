@@ -8,11 +8,11 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (Schema::connection('cdm')->hasTable('note_nlp')) {
+        if (Schema::connection('omop')->hasTable('note_nlp')) {
             return;
         }
 
-        Schema::connection('cdm')->create('note_nlp', function (Blueprint $table) {
+        Schema::connection('omop')->create('note_nlp', function (Blueprint $table) {
             $table->bigInteger('note_nlp_id')->primary();
             $table->bigInteger('note_id');
             $table->integer('section_concept_id')->default(0);
@@ -32,6 +32,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::connection('cdm')->dropIfExists('note_nlp');
+        Schema::connection('omop')->dropIfExists('note_nlp');
     }
 };

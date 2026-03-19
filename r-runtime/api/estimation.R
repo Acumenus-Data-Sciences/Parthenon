@@ -1,3 +1,6 @@
+#* @root /analysis/estimation
+NULL
+
 # ──────────────────────────────────────────────────────────────────
 # Population-Level Estimation — CohortMethod Pipeline
 # POST /analysis/estimation/run
@@ -14,20 +17,20 @@ source("/app/R/results.R")
 #* Run population-level estimation via CohortMethod
 #* @post /run
 #* @serializer unboxedJSON
-function(req, res) {
-  spec   <- req$body
+function(body, response) {
+  spec   <- body
   logger <- create_analysis_logger()
 
   # ── Validate input ──────────────────────────────────────────
   if (is.null(spec)) {
-    res$status <- 400L
+    response$status <- 400L
     return(list(status = "error", message = "No specification provided in request body"))
   }
 
   required_keys <- c("source", "cohorts", "model")
   missing <- setdiff(required_keys, names(spec))
   if (length(missing) > 0) {
-    res$status <- 400L
+    response$status <- 400L
     return(list(status = "error", message = paste("Missing required fields:", paste(missing, collapse = ", "))))
   }
 
@@ -38,13 +41,13 @@ function(req, res) {
   ))
 
   # Wrap the entire pipeline in safe_execute for clean error handling
-  safe_execute(res, logger, {
+  safe_execute(response, logger, {
 
     # ── Step 1: Establish database connection ──────────────────
     logger$info("Connecting to CDM database")
     connectionDetails <- create_hades_connection(spec$source)
     connection <- DatabaseConnector::connect(connectionDetails)
-    on.exit(DatabaseConnector::disconnect(connection), add = TRUE)
+    on.exit(safe_disconnect(connection), add = TRUE)
 
     cdmSchema     <- spec$source$cdm_schema
     vocabSchema   <- spec$source$vocab_schema   %||% cdmSchema

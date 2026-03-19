@@ -4,23 +4,14 @@
  */
 import type React from "react";
 import {
-  ArrowUpRight,
-  CheckCircle2,
   Loader2,
   RefreshCw,
   Sparkles,
 } from "lucide-react";
 import type {
-  FinnGenArtifact,
-  FinnGenCo2AnalysisResult,
-  FinnGenCohortOperationsResult,
-  FinnGenHadesExtrasResult,
-  FinnGenMetricPoint,
-  FinnGenRomopapiResult,
   FinnGenRun,
   FinnGenRuntime,
   FinnGenSource,
-  FinnGenTimelineStep,
 } from "../types";
 
 // ── Service name type ────────────────────────────────────────────────
@@ -387,12 +378,12 @@ export function FormField({
 export function ActionButton({
   label,
   onClick,
-  loading,
+  loading = false,
   disabled,
 }: {
   label: string;
   onClick: () => void;
-  loading: boolean;
+  loading?: boolean;
   disabled?: boolean;
 }) {
   return (

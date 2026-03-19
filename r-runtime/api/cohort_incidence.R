@@ -1,3 +1,6 @@
+#* @root /analysis/cohort-incidence
+NULL
+
 # ──────────────────────────────────────────────────────────────────
 # CohortIncidence — OHDSI Incidence Rate Analysis
 # POST /analysis/cohort-incidence/calculate
@@ -9,13 +12,13 @@ source("/app/R/progress.R")
 #* Calculate cohort incidence rates using the OHDSI CohortIncidence package
 #* @post /calculate
 #* @serializer unboxedJSON
-function(req, res) {
-  spec   <- req$body
+function(body, response) {
+  spec   <- body
   logger <- create_analysis_logger()
 
   # ── Validate required fields ────────────────────────────────────
   if (is.null(spec)) {
-    res$status <- 400L
+    response$status <- 400L
     return(list(status = "error", message = "No specification provided in request body"))
   }
 
@@ -23,7 +26,7 @@ function(req, res) {
                      "cdm_database_schema", "cohort_database_schema")
   missing <- setdiff(required_keys, names(spec))
   if (length(missing) > 0) {
-    res$status <- 400L
+    response$status <- 400L
     return(list(
       status  = "error",
       message = paste("Missing required fields:", paste(missing, collapse = ", "))
@@ -31,17 +34,17 @@ function(req, res) {
   }
 
   if (!is.list(spec$targets) || length(spec$targets) == 0) {
-    res$status <- 400L
+    response$status <- 400L
     return(list(status = "error", message = "targets must be a non-empty array of {cohort_id, cohort_name}"))
   }
 
   if (!is.list(spec$outcomes) || length(spec$outcomes) == 0) {
-    res$status <- 400L
+    response$status <- 400L
     return(list(status = "error", message = "outcomes must be a non-empty array of {cohort_id, cohort_name}"))
   }
 
   if (!is.list(spec$time_at_risk) || length(spec$time_at_risk) == 0) {
-    res$status <- 400L
+    response$status <- 400L
     return(list(status = "error", message = "time_at_risk must be a non-empty array of TAR definitions"))
   }
 
@@ -51,7 +54,7 @@ function(req, res) {
     n_tars     = length(spec$time_at_risk)
   ))
 
-  safe_execute(res, logger, {
+  safe_execute(response, logger, {
     library(CohortIncidence)
 
     # ── Parameters ──────────────────────────────────────────────

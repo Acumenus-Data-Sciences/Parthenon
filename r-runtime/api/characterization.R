@@ -1,3 +1,6 @@
+#* @root /analysis/characterization
+NULL
+
 # ──────────────────────────────────────────────────────────────────
 # OHDSI Characterization — Full Characterization Package Pipeline
 # POST /analysis/characterization/run
@@ -55,13 +58,13 @@ MIN_PRIOR_OBS_DEFAULT     <- 365L
 #* Run OHDSI Characterization analysis (Table 1, Time-to-Event, Dechallenge/Rechallenge)
 #* @post /run
 #* @serializer unboxedJSON
-function(req, res) {
-  spec   <- req$body
+function(body, response) {
+  spec   <- body
   logger <- create_analysis_logger()
 
   # ── Input validation ────────────────────────────────────────────
   if (is.null(spec)) {
-    res$status <- 400L
+    response$status <- 400L
     return(list(status = "error", message = "No specification provided in request body"))
   }
 
@@ -69,7 +72,7 @@ function(req, res) {
                      "cdm_database_schema", "cohort_database_schema")
   missing <- setdiff(required_keys, names(spec))
   if (length(missing) > 0) {
-    res$status <- 400L
+    response$status <- 400L
     return(list(status = "error",
                 message = paste("Missing required fields:", paste(missing, collapse = ", "))))
   }
@@ -78,7 +81,7 @@ function(req, res) {
   outcome_ids <- as.integer(spec$outcome_ids)
 
   if (length(target_ids) == 0 || length(outcome_ids) == 0) {
-    res$status <- 400L
+    response$status <- 400L
     return(list(status = "error", message = "target_ids and outcome_ids must each have at least one element"))
   }
 
@@ -87,7 +90,7 @@ function(req, res) {
     n_outcomes = length(outcome_ids)
   ))
 
-  safe_execute(res, logger, {
+  safe_execute(response, logger, {
     library(Characterization)
     library(FeatureExtraction)
     library(DatabaseConnector)
@@ -204,7 +207,7 @@ function(req, res) {
       resultSchema       = "main",
       deleteExistingTables = TRUE
     )
-    DatabaseConnector::disconnect(result_conn)
+    safe_disconnect(result_conn)
 
     # ── Run characterization analyses ─────────────────────────────
     logger$info("Running characterization analyses — this may take several minutes")
@@ -233,7 +236,7 @@ function(req, res) {
     # ── Read results back from SQLite ─────────────────────────────
     logger$info("Reading results from SQLite")
     result_conn2 <- DatabaseConnector::connect(result_conn_details)
-    on.exit(DatabaseConnector::disconnect(result_conn2), add = TRUE)
+    on.exit(safe_disconnect(result_conn2), add = TRUE)
 
     # Cohort counts
     cohort_counts_df <- tryCatch(
@@ -272,7 +275,7 @@ function(req, res) {
       )
     }
 
-    DatabaseConnector::disconnect(result_conn2)
+    safe_disconnect(result_conn2)
 
     # ── Shape aggregate covariate output → Table 1 format ────────
     aggregate_covariates_out <- list()

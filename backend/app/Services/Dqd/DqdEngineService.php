@@ -217,12 +217,12 @@ class DqdEngineService
         try {
             // Run total count query
             $totalSql = $check->sqlTotal($cdmSchema, $vocabSchema);
-            $totalResult = DB::connection('cdm')->select($totalSql);
+            $totalResult = DB::connection('omop')->select($totalSql);
             $totalRows = (int) ($totalResult[0]->count ?? 0);
 
             // Run violation count query
             $violatedSql = $check->sqlViolated($cdmSchema, $vocabSchema);
-            $violatedResult = DB::connection('cdm')->select($violatedSql);
+            $violatedResult = DB::connection('omop')->select($violatedSql);
             $violatedRows = (int) ($violatedResult[0]->count ?? 0);
 
             // Compute violation percentage

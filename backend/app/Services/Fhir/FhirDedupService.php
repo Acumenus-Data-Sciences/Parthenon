@@ -111,7 +111,7 @@ class FhirDedupService
         $pkColumn = $this->getPrimaryKeyColumn($existing['cdm_table']);
 
         try {
-            DB::connection('cdm')
+            DB::connection('omop')
                 ->table($existing['cdm_table'])
                 ->where($pkColumn, $existing['cdm_row_id'])
                 ->delete();

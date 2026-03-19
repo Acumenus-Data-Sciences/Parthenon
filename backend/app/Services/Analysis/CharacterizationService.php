@@ -91,7 +91,7 @@ class CharacterizationService
 
             $dialect = $source->source_dialect ?? 'postgresql';
             $cohortTable = "{$resultsSchema}.cohort";
-            $connectionName = $source->source_connection ?? 'cdm';
+            $connectionName = $source->source_connection ?? 'omop';
 
             $results = [
                 'targetCohorts' => [],

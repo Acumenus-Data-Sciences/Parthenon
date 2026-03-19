@@ -8,7 +8,8 @@ import { useAuditLog, useAuditSummary } from "../hooks/useUserAudit";
 import type { UserAuditEntry, AuditFilters } from "../api/adminApi";
 
 // ── Design tokens ────────────────────────────────────────────────────────────
-const ACTION_CONFIG: Record<string, { color: string; icon: React.ElementType; label: string }> = {
+type LucideIcon = React.ComponentType<{ size?: number; style?: React.CSSProperties; className?: string }>;
+const ACTION_CONFIG: Record<string, { color: string; icon: LucideIcon; label: string }> = {
   login:            { color: "#2DD4BF", icon: LogIn,     label: "Login" },
   logout:           { color: "#8A857D", icon: LogOut,    label: "Logout" },
   password_changed: { color: "#C9A227", icon: KeyRound,  label: "Password Changed" },
@@ -24,7 +25,7 @@ function StatCard({
   label: string;
   value: number | string;
   color?: string;
-  icon: React.ElementType;
+  icon: LucideIcon;
 }) {
   return (
     <div className="flex items-center gap-3 rounded-lg border border-[#232328] bg-[#151518] px-4 py-3">

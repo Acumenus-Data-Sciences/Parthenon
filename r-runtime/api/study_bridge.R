@@ -1,3 +1,6 @@
+#* @root /study
+NULL
+
 # ──────────────────────────────────────────────────────────────────
 # Study Bridge — Parthenon Study Orchestrator ↔ HADES
 # These endpoints accept study-level specs from the Laravel backend
@@ -15,19 +18,19 @@ MIN_CELL_COUNT <- 5L
 #* Feasibility check — run cohort counts against a site's CDM
 #* @post /feasibility
 #* @serializer unboxedJSON
-function(req, res) {
-  spec   <- req$body
+function(body, response) {
+  spec   <- body
   logger <- create_analysis_logger()
 
   if (is.null(spec) || is.null(spec$source) || is.null(spec$cohort_ids)) {
-    res$status <- 400L
+    response$status <- 400L
     return(list(status = "error", message = "Required: source (connection details) + cohort_ids"))
   }
 
-  safe_execute(res, logger, {
+  safe_execute(response, logger, {
     connectionDetails <- create_hades_connection(spec$source)
     connection <- DatabaseConnector::connect(connectionDetails)
-    on.exit(DatabaseConnector::disconnect(connection), add = TRUE)
+    on.exit(safe_disconnect(connection), add = TRUE)
 
     resultsSchema <- spec$source$results_schema
     cohortIds     <- as.integer(spec$cohort_ids)
@@ -68,21 +71,21 @@ function(req, res) {
 #* Characterization — run FeatureExtraction for a target cohort
 #* @post /characterize
 #* @serializer unboxedJSON
-function(req, res) {
-  spec   <- req$body
+function(body, response) {
+  spec   <- body
   logger <- create_analysis_logger()
 
   if (is.null(spec) || is.null(spec$source) || is.null(spec$cohorts)) {
-    res$status <- 400L
+    response$status <- 400L
     return(list(status = "error", message = "Required: source + cohorts (target_cohort_id)"))
   }
 
-  safe_execute(res, logger, {
+  safe_execute(response, logger, {
     library(FeatureExtraction)
 
     connectionDetails <- create_hades_connection(spec$source)
     connection <- DatabaseConnector::connect(connectionDetails)
-    on.exit(DatabaseConnector::disconnect(connection), add = TRUE)
+    on.exit(safe_disconnect(connection), add = TRUE)
 
     cdmSchema     <- spec$source$cdm_schema
     vocabSchema   <- spec$source$vocab_schema   %||% cdmSchema
@@ -144,19 +147,19 @@ function(req, res) {
 #* Incidence rate analysis
 #* @post /incidence
 #* @serializer unboxedJSON
-function(req, res) {
-  spec   <- req$body
+function(body, response) {
+  spec   <- body
   logger <- create_analysis_logger()
 
   if (is.null(spec) || is.null(spec$source) || is.null(spec$cohorts)) {
-    res$status <- 400L
+    response$status <- 400L
     return(list(status = "error", message = "Required: source + cohorts (target_cohort_id, outcome_cohort_id)"))
   }
 
-  safe_execute(res, logger, {
+  safe_execute(response, logger, {
     connectionDetails <- create_hades_connection(spec$source)
     connection <- DatabaseConnector::connect(connectionDetails)
-    on.exit(DatabaseConnector::disconnect(connection), add = TRUE)
+    on.exit(safe_disconnect(connection), add = TRUE)
 
     cdmSchema     <- spec$source$cdm_schema
     resultsSchema <- spec$source$results_schema
@@ -218,16 +221,16 @@ function(req, res) {
 #* Meta-analysis / evidence synthesis
 #* @post /synthesis
 #* @serializer unboxedJSON
-function(req, res) {
-  spec   <- req$body
+function(body, response) {
+  spec   <- body
   logger <- create_analysis_logger()
 
   if (is.null(spec) || is.null(spec$estimates)) {
-    res$status <- 400L
+    response$status <- 400L
     return(list(status = "error", message = "Required: estimates (array of {log_rr, se_log_rr})"))
   }
 
-  safe_execute(res, logger, {
+  safe_execute(response, logger, {
     library(EvidenceSynthesis)
 
     method <- tolower(spec$method %||% "random_effects")
@@ -237,7 +240,7 @@ function(req, res) {
 
     valid <- !is.na(log_rrs) & !is.na(se_log_rrs) & se_log_rrs > 0
     if (sum(valid) < 2) {
-      res$status <- 400L
+      response$status <- 400L
       return(list(status = "error", message = "Need at least 2 valid estimates with non-NA log_rr and se_log_rr"))
     }
 

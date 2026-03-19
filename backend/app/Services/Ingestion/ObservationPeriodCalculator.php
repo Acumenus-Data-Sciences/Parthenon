@@ -36,7 +36,7 @@ class ObservationPeriodCalculator
      */
     public function calculate(): int
     {
-        $cdm = DB::connection('cdm');
+        $cdm = DB::connection('omop');
 
         // Build a UNION query to get min/max dates across all event tables per person
         $unionParts = [];

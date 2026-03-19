@@ -11,20 +11,36 @@ Parthenon is a unified OHDSI outcomes research platform that replaces Atlas, Web
 - **AI Service:** Python 3.12, FastAPI, Ollama (MedGemma), pgvector for embeddings
 - **R Runtime:** R 4.4, Plumber API, HADES packages (CohortMethod, PatientLevelPrediction)
 - **Search:** Solr 9.7 (9 configsets: vocabulary, cohorts, analyses, mappings, clinical, imaging, claims, gis_spatial, vector_explorer)
-- **Database:** PostgreSQL 16 (Docker) + PostgreSQL 17 (host), pgvector, Redis 7
+- **Database:** PostgreSQL 16 (Docker) / PostgreSQL 17 (host) — single `parthenon` DB, schema-isolated, pgvector, Redis 7
 - **Infrastructure:** Docker Compose (16 services), Nginx proxy, deploy.sh
 
-## Database Schemas
+## Database Architecture
 
-Queries MUST specify schema context. The database uses multiple schemas:
+**Single database, schema-isolated.** Every environment uses one `parthenon` database:
 
-- `app` — Application tables (users, roles, cohort_definitions, studies, etc.)
-- `vocab` — OMOP Vocabulary tables (concept, concept_relationship, vocabulary, etc.)
-- `cdm` — OMOP CDM clinical tables (person, visit_occurrence, condition_occurrence, etc.)
-- `achilles_results` — Achilles characterization output tables
-- `public` — Default PostgreSQL schema (migrations, jobs, etc.)
+```
+parthenon
+├── app.*              — Application tables (users, roles, cohorts, sources, studies)
+├── omop.*             — OMOP CDM + Vocabulary (person, concept, visit_occurrence, etc.)
+├── results.*          — Achilles/DQD output
+├── gis.*              — Geospatial tables
+├── eunomia.*          — GiBleed demo dataset
+├── eunomia_results.*  — Demo Achilles results
+├── php.*              — Laravel internals (migrations, jobs, cache)
+└── webapi.*           — Legacy OHDSI WebAPI (Atlas migration)
+```
 
-Example: `DB::table('cdm.person')` not `DB::table('person')`
+**5 Laravel connections** (all same DB, different `search_path`):
+
+| Connection | Search Path | Used By |
+|---|---|---|
+| `pgsql` (default) | `app,php` | App models, auth, Spatie RBAC |
+| `omop` | `omop,php` | CdmModel, VocabularyModel, AbbyAI, DQD, ingestion |
+| `results` | `results,php` | ResultsModel, AchillesResultReaderService |
+| `gis` | `gis,omop,php` | GIS services |
+| `eunomia` | `eunomia,php` | Eunomia demo queries |
+
+**CRITICAL:** There is no `cdm`, `vocab`, or `docker_pg` connection. Use `omop` for CDM and vocabulary queries.
 
 ## Project Structure
 
@@ -193,7 +209,7 @@ After any frontend change, the production build must be rebuilt via `deploy.sh -
 
 ## Common Gotchas
 
-1. Multi-schema DB — always qualify table names with schema prefix
+1. Single `parthenon` DB with schema isolation — use the correct connection (`omop` for CDM/vocab, `results` for Achilles, `gis` for GIS). Never use `cdm`, `vocab`, or `docker_pg` connections (removed).
 2. React 19 strict mode — components render twice in dev, effects must be idempotent
 3. `--legacy-peer-deps` required for `npm install` (react-joyride compatibility)
 4. PHPStan baseline exists at `backend/phpstan-baseline.neon` — check it before adding new ignores

@@ -8,11 +8,11 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (Schema::connection('cdm')->hasTable('metadata')) {
+        if (Schema::connection('omop')->hasTable('metadata')) {
             return;
         }
 
-        Schema::connection('cdm')->create('metadata', function (Blueprint $table) {
+        Schema::connection('omop')->create('metadata', function (Blueprint $table) {
             $table->bigIncrements('metadata_id');
             $table->integer('metadata_concept_id');
             $table->integer('metadata_type_concept_id');
@@ -27,6 +27,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::connection('cdm')->dropIfExists('metadata');
+        Schema::connection('omop')->dropIfExists('metadata');
     }
 };

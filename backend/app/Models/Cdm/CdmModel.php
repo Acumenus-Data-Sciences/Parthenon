@@ -7,7 +7,7 @@ use RuntimeException;
 
 abstract class CdmModel extends Model
 {
-    protected $connection = 'cdm';
+    protected $connection = 'omop';
 
     public $timestamps = false;
 

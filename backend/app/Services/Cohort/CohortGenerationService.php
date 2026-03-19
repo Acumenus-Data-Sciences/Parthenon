@@ -65,7 +65,7 @@ class CohortGenerationService
             );
 
             // Execute the compiled SQL on the source connection
-            $connectionName = $source->source_connection ?? 'cdm';
+            $connectionName = $source->source_connection ?? 'omop';
             DB::connection($connectionName)->unprepared($sql);
 
             // Count distinct persons in the generated cohort
@@ -137,7 +137,7 @@ class CohortGenerationService
 
         $source = $generation->source;
         $resultsSchema = $source->getTableQualifier(DaimonType::Results);
-        $connectionName = $source->source_connection ?? 'cdm';
+        $connectionName = $source->source_connection ?? 'omop';
 
         $query = DB::connection($connectionName)
             ->table("{$resultsSchema}.cohort")

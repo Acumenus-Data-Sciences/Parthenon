@@ -228,7 +228,6 @@ export default function WorkbenchHelpPage() {
 
       {/* ── Step details ─────────────────────────────────────────── */}
       {steps.map((step) => {
-        const Icon = step.icon;
         return (
           <div
             key={step.number}

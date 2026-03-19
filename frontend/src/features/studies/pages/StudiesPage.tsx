@@ -84,7 +84,7 @@ export default function StudiesPage() {
 
   const hasFilters = !!(filterStatus || filterType || filterPriority || filterPhase);
 
-  const { data: stats, error: statsError } = useStudyStats();
+  const { data: stats } = useStudyStats();
   const { data, isLoading, error } = useStudies(page, debouncedSearch, {
     status: filterStatus ?? undefined,
     study_type: filterType ?? undefined,

@@ -26,7 +26,7 @@ class AchillesResultReaderService
     private function setSchemaForSource(Source $source): void
     {
         $daimon = $source->daimons()->where('daimon_type', DaimonType::Results->value)->first();
-        $schema = $daimon?->table_qualifier ?? 'achilles_results';
+        $schema = $daimon?->table_qualifier ?? 'results';
 
         if (! empty($source->db_host)) {
             // Dynamic source — build connection and set search_path
@@ -761,7 +761,7 @@ class AchillesResultReaderService
         }
 
         try {
-            $concept = DB::connection('vocab')
+            $concept = DB::connection('omop')
                 ->table('concept')
                 ->where('concept_id', $conceptId)
                 ->value('concept_name');
@@ -800,7 +800,7 @@ class AchillesResultReaderService
 
         if (! empty($toLookup)) {
             try {
-                $vocabResults = DB::connection('vocab')
+                $vocabResults = DB::connection('omop')
                     ->table('concept')
                     ->whereIn('concept_id', $toLookup)
                     ->pluck('concept_name', 'concept_id')

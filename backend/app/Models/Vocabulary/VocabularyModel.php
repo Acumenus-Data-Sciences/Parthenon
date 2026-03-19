@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 abstract class VocabularyModel extends Model
 {
-    protected $connection = 'vocab';
+    protected $connection = 'omop';
 
     public $timestamps = false;
 

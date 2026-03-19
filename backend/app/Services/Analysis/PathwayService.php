@@ -61,7 +61,7 @@ class PathwayService
 
             $dialect = $source->source_dialect ?? 'postgresql';
             $cohortTable = "{$resultsSchema}.cohort";
-            $connectionName = $source->source_connection ?? 'cdm';
+            $connectionName = $source->source_connection ?? 'omop';
 
             // Step 1: Get target cohort count
             $this->log($execution, 'info', "Counting target cohort members (cohort_id={$targetCohortId})");

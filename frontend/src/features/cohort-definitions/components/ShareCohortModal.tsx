@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link2, Copy, CheckCheck, Loader2 } from "lucide-react";
+import { Copy, CheckCheck, Loader2 } from "lucide-react";
 import { Modal } from "@/components/ui";
 import { shareCohortDefinition, type ShareCohortResult } from "../api/cohortApi";
 

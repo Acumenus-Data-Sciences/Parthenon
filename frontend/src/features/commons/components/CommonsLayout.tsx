@@ -34,7 +34,7 @@ export function CommonsLayout() {
   const markRead = useMarkRead();
   const onlineUsers = usePresence();
   const { isTyping, sendTypingWhisper } = useTypingIndicator(channel?.id);
-  const [rightTab, setRightTab] = useState("activity");
+  const [rightTab, setRightTab] = useState<"search" | "settings" | "members" | "activity" | "pinned" | "reviews">("activity");
   const [view, setView] = useState<"chat" | "announcements" | "wiki">("chat");
 
   // Subscribe to real-time events for the active channel

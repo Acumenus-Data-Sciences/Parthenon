@@ -130,7 +130,7 @@ class ReverseVocabularyService
             return $this->cache[$conceptId] ? ($this->reverseSystemLookup($this->cache[$conceptId]['system']) ?? null) : null;
         }
 
-        $row = DB::connection('vocab')
+        $row = DB::connection('omop')
             ->table("{$this->vocabSchema}.concept")
             ->where('concept_id', $conceptId)
             ->select('vocabulary_id')
@@ -145,7 +145,7 @@ class ReverseVocabularyService
             return $this->cache[$conceptId];
         }
 
-        $row = DB::connection('vocab')
+        $row = DB::connection('omop')
             ->table("{$this->vocabSchema}.concept")
             ->where('concept_id', $conceptId)
             ->select('concept_code', 'vocabulary_id', 'concept_name')

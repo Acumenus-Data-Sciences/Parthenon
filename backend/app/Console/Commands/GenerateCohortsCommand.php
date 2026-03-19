@@ -90,7 +90,7 @@ class GenerateCohortsCommand extends Command
         $cdmSchema = $source->getTableQualifier(DaimonType::CDM);
         $vocabSchema = $source->getTableQualifier(DaimonType::Vocabulary) ?? $cdmSchema;
         $resultsSchema = $source->getTableQualifier(DaimonType::Results);
-        $connectionName = $source->source_connection ?? 'cdm';
+        $connectionName = $source->source_connection ?? 'omop';
 
         if (! $cdmSchema || ! $resultsSchema) {
             $this->error('Source is missing CDM or Results schema daimon configuration.');

@@ -40,7 +40,7 @@ class PostLoadValidationService
      */
     private function runCompletenessChecks(IngestionJob $job, array &$counts): void
     {
-        $cdm = DB::connection('cdm');
+        $cdm = DB::connection('omop');
 
         // person.gender_concept_id IS NOT NULL
         $this->runCheck($job, $counts, [
@@ -296,7 +296,7 @@ class PostLoadValidationService
      */
     private function runCheck(IngestionJob $job, array &$counts, array $check): void
     {
-        $cdm = DB::connection('cdm');
+        $cdm = DB::connection('omop');
 
         try {
             $totalResult = $cdm->selectOne($check['sql_total']);

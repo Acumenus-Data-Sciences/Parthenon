@@ -129,7 +129,7 @@ class SolrIndexClinical extends Command
                 continue;
             }
 
-            $connectionName = $source->source_connection ?? 'cdm';
+            $connectionName = $source->source_connection ?? 'omop';
             $dialect = $source->source_dialect ?? 'postgresql';
 
             $domainsToIndex = $domainFilter

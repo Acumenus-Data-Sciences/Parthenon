@@ -1,3 +1,6 @@
+#* @root /analysis/prediction
+NULL
+
 # ──────────────────────────────────────────────────────────────────
 # Patient-Level Prediction — PLP Pipeline
 # POST /analysis/prediction/run
@@ -23,20 +26,20 @@ if (.deep_plp_available) {
 #* Run patient-level prediction via PatientLevelPrediction
 #* @post /run
 #* @serializer unboxedJSON
-function(req, res) {
-  spec   <- req$body
+function(body, response) {
+  spec   <- body
   logger <- create_analysis_logger()
 
   # ── Validate input ──────────────────────────────────────────
   if (is.null(spec)) {
-    res$status <- 400L
+    response$status <- 400L
     return(list(status = "error", message = "No specification provided in request body"))
   }
 
   required_keys <- c("source", "cohorts", "model")
   missing <- setdiff(required_keys, names(spec))
   if (length(missing) > 0) {
-    res$status <- 400L
+    response$status <- 400L
     return(list(status = "error", message = paste("Missing required fields:", paste(missing, collapse = ", "))))
   }
 
@@ -46,7 +49,7 @@ function(req, res) {
     model   = spec$model$type
   ))
 
-  safe_execute(res, logger, {
+  safe_execute(response, logger, {
 
     # ── Step 1: Establish database connection ──────────────────
     logger$info("Connecting to CDM database")

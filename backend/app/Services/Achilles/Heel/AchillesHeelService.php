@@ -33,7 +33,7 @@ class AchillesHeelService
         foreach ($this->registry->all() as $rule) {
             try {
                 $params = [
-                    'resultsSchema' => $source->getTableQualifier(DaimonType::Results) ?? 'achilles_results',
+                    'resultsSchema' => $source->getTableQualifier(DaimonType::Results) ?? 'results',
                     'cdmSchema' => $source->getTableQualifier(DaimonType::CDM) ?? 'omop',
                     'vocabSchema' => $source->getTableQualifier(DaimonType::Vocabulary) ?? 'omop',
                 ];

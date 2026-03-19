@@ -93,7 +93,7 @@ class SolrIndexClaims extends Command
             {$limitClause}
         ";
 
-        $conn = DB::connection('cdm');
+        $conn = DB::connection('omop');
         $conn->statement('SET statement_timeout = 600000');
 
         $indexed = 0;

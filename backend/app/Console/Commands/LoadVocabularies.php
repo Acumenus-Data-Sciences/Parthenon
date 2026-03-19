@@ -190,7 +190,7 @@ class LoadVocabularies extends Command
 
         foreach ($reverseOrder as $table) {
             if (isset($this->tableConfig[$table])) {
-                DB::connection('vocab')->statement("TRUNCATE TABLE vocab.{$table} CASCADE");
+                DB::connection('omop')->statement("TRUNCATE TABLE vocab.{$table} CASCADE");
             }
         }
     }
@@ -211,7 +211,7 @@ class LoadVocabularies extends Command
         $startTime = microtime(true);
 
         /** @var \PDO $pdo */
-        $pdo = DB::connection('vocab')->getPdo();
+        $pdo = DB::connection('omop')->getPdo();
 
         // Strip header line and write to temp file for COPY FROM
         $tempFile = tempnam(sys_get_temp_dir(), 'vocab_') ?: '/tmp/vocab_temp';
@@ -256,7 +256,7 @@ class LoadVocabularies extends Command
 
         // Get row count
         /** @var object{cnt: string} $result */
-        $result = DB::connection('vocab')->selectOne("SELECT count(*) as cnt FROM vocab.{$table}");
+        $result = DB::connection('omop')->selectOne("SELECT count(*) as cnt FROM vocab.{$table}");
         $count = (int) $result->cnt;
 
         $elapsed = round(microtime(true) - $startTime, 1);
@@ -286,14 +286,14 @@ class LoadVocabularies extends Command
         foreach ($btreeIndexes as [$tableName, $indexName, $column]) {
             $shortTable = str_replace('vocab.', '', $tableName);
             $this->info("  B-tree: {$indexName} on {$shortTable}.{$column}");
-            DB::connection('vocab')->statement(
+            DB::connection('omop')->statement(
                 "CREATE INDEX IF NOT EXISTS {$indexName} ON {$tableName} ({$column})"
             );
         }
 
         // Trigram GIN index for fuzzy concept name search
         $this->info('  GIN trigram: idx_concepts_name_trgm on concepts.concept_name');
-        DB::connection('vocab')->statement(
+        DB::connection('omop')->statement(
             'CREATE INDEX IF NOT EXISTS idx_concepts_name_trgm ON vocab.concepts USING gin (concept_name gin_trgm_ops)'
         );
 
@@ -309,7 +309,7 @@ class LoadVocabularies extends Command
 
         foreach ($tables as $table) {
             if (isset($this->tableConfig[$table])) {
-                DB::connection('vocab')->statement("ANALYZE vocab.{$table}");
+                DB::connection('omop')->statement("ANALYZE vocab.{$table}");
             }
         }
 

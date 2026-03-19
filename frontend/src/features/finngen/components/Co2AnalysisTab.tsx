@@ -9,7 +9,6 @@ import {
   RecordTable,
   LabelValueList,
   StatusListView,
-  MiniMetric,
   ProgressRow,
   ErrorBanner,
   EmptyState,
@@ -21,7 +20,6 @@ import {
   getErrorMessage,
   formatValue,
   downloadJson,
-  formatTimestamp,
   moduleOptions,
   burdenDomainOptions,
   exposureWindowOptions,
@@ -34,9 +32,6 @@ import { CollapsibleSection } from "./CollapsibleSection";
 import type {
   FinnGenCo2AnalysisResult,
   FinnGenSource,
-  FinnGenRuntime,
-  FinnGenMetricPoint,
-  FinnGenTimelineStep,
 } from "../types";
 import {
   previewFinnGenCo2Analysis,
@@ -769,7 +764,7 @@ export function Co2AnalysisTab({
           <FormField label="Stratify by">
             <select
               value={stratifyBy}
-              onChange={(e) => setStratifyBy(e.target.value)}
+              onChange={(e) => setStratifyBy(e.target.value as (typeof stratifyByOptions)[number]["value"])}
               className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 focus:border-[#9B1B30] focus:outline-none"
             >
               {stratifyByOptions.map((option) => (

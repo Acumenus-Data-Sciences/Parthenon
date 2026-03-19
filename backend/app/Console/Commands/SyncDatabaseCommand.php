@@ -6,6 +6,10 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
 /**
+ * @deprecated This command relied on the 'docker_pg' connection which has been removed
+ *             as part of the single-DB architecture migration. Needs rework to use the
+ *             new 'omop' connection or be removed entirely.
+ *
  * Sync app tables between local PostgreSQL and Docker PostgreSQL.
  *
  * Default: Local PG (ohdsi/app) → Docker PG (parthenon/app)
@@ -39,9 +43,14 @@ class SyncDatabaseCommand extends Command
 
     public function handle(): int
     {
+        $this->error('This command is deprecated. The docker_pg connection has been removed (single-DB architecture).');
+
+        return self::FAILURE;
+
+        // @deprecated — docker_pg connection no longer exists
         $reverse = $this->option('reverse');
-        $fromConn = $reverse ? 'docker_pg' : 'pgsql';
-        $toConn = $reverse ? 'pgsql' : 'docker_pg';
+        $fromConn = $reverse ? 'docker_pg' : 'pgsql';  // @deprecated docker_pg removed
+        $toConn = $reverse ? 'pgsql' : 'docker_pg';    // @deprecated docker_pg removed
         $fromLabel = $reverse ? 'Docker PG' : 'Local PG';
         $toLabel = $reverse ? 'Local PG' : 'Docker PG';
         $dryRun = $this->option('dry-run');

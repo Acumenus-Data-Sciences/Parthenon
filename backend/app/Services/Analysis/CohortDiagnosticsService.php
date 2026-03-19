@@ -44,7 +44,7 @@ class CohortDiagnosticsService
         }
 
         $dialect = $source->source_dialect ?? 'postgresql';
-        $connectionName = $source->source_connection ?? 'cdm';
+        $connectionName = $source->source_connection ?? 'omop';
         $cohortTable = "{$resultsSchema}.cohort";
         $cohortId = $cohortDef->id;
 

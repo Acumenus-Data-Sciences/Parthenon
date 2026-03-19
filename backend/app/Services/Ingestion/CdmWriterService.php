@@ -296,7 +296,7 @@ class CdmWriterService
         }
 
         try {
-            DB::connection('cdm')->table($table)->insert($rows);
+            DB::connection('omop')->table($table)->insert($rows);
         } catch (\Exception $e) {
             Log::error("CDM write error for table {$table}: {$e->getMessage()}", [
                 'table' => $table,

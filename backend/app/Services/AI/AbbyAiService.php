@@ -329,7 +329,7 @@ class AbbyAiService
      */
     private function searchConcepts(string $query, ?string $domain = null): array
     {
-        $builder = DB::connection('vocab')
+        $builder = DB::connection('omop')
             ->table('concept')
             ->where('standard_concept', 'S')
             ->where('invalid_reason', null)

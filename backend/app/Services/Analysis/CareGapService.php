@@ -50,7 +50,7 @@ class CareGapService
                 );
             }
 
-            $connectionName = $source->source_connection ?? 'cdm';
+            $connectionName = $source->source_connection ?? 'omop';
             $dialect = $source->source_dialect ?? 'postgresql';
 
             // Step 1: Find patients with the bundle's conditions

@@ -22,7 +22,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     liblzma-dev \
     libbz2-dev \
     libpng-dev \
+    libharfbuzz-dev \
+    libfribidi-dev \
+    libfreetype6-dev \
+    libfontconfig1-dev \
+    libtiff5-dev \
+    libwebp-dev \
     && rm -rf /var/lib/apt/lists/*
+
+# Rust toolchain — required by waysign (plumber2 dependency for cryptographic signing)
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable --profile minimal
+ENV PATH="/root/.cargo/bin:${PATH}"
 
 # Configure Java for rJava — detect JAVA_HOME from the active JDK
 # and bake it into R's Makeconf so rJava can find libjvm at compile time.
@@ -42,11 +52,13 @@ RUN R -e " \
     CRAN  = 'https://cloud.r-project.org' \
   )); \
   install.packages('remotes'); \
-  install.packages(c('plumber', 'jsonlite', 'DBI', 'RPostgres', 'httr2')); \
+  install.packages(c('plumber2', 'mirai', 'nanonext', 'jsonlite', 'DBI', 'RPostgres', 'httr2', 'callr', 'processx')); \
   remotes::install_version('ParallelLogger', version = '3.5.1', repos = c('https://ohdsi.r-universe.dev', 'https://cloud.r-project.org')); \
   install.packages(c('rJava', 'duckdb')); \
-  if (!requireNamespace('rJava',  quietly = TRUE)) stop('rJava failed'); \
-  if (!requireNamespace('duckdb', quietly = TRUE)) stop('duckdb failed'); \
+  if (!requireNamespace('plumber2', quietly = TRUE)) stop('plumber2 failed'); \
+  if (!requireNamespace('mirai',    quietly = TRUE)) stop('mirai failed'); \
+  if (!requireNamespace('rJava',    quietly = TRUE)) stop('rJava failed'); \
+  if (!requireNamespace('duckdb',   quietly = TRUE)) stop('duckdb failed'); \
 "
 
 ## Layer 2 — OHDSI connectivity core (depends on rJava + duckdb from layer 1)
@@ -163,6 +175,30 @@ RUN mkdir -p /opt/jdbc && \
     https://jdbc.postgresql.org/download/postgresql-42.7.3.jar
 ENV DATABASECONNECTOR_JAR_FOLDER=/opt/jdbc
 
+# Pre-warm R namespaces — forces bytecode compilation and DLL loading at build time
+# instead of first-request time. Cuts cold-start from ~60s to ~40s.
+RUN Rscript -e " \
+  options(java.parameters = c('-Xmx2g', '-Xms512m')); \
+  suppressMessages({ \
+    library(rJava); .jinit(); \
+    library(DatabaseConnector); \
+    library(CohortMethod); \
+    library(PatientLevelPrediction); \
+    library(SelfControlledCaseSeries); \
+    library(FeatureExtraction); \
+    library(callr); \
+  }); \
+  cat('[BUILD] All core HADES packages pre-warmed successfully\n'); \
+"
+
+# s6-overlay — lightweight process supervisor for proper PID 1 and crash recovery
+ARG S6_OVERLAY_VERSION=3.2.0.2
+ADD https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-noarch.tar.xz /tmp
+ADD https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-x86_64.tar.xz /tmp
+RUN tar -C / -Jxpf /tmp/s6-overlay-noarch.tar.xz && \
+    tar -C / -Jxpf /tmp/s6-overlay-x86_64.tar.xz && \
+    rm /tmp/s6-overlay-*.tar.xz
+
 ## ──────────────────────────────────────────────────────────────────
 ## Stage 2: Application code (fast layer — changes on every edit)
 ## ──────────────────────────────────────────────────────────────────
@@ -172,5 +208,11 @@ WORKDIR /app
 
 COPY r-runtime/ .
 
+# s6-overlay service registration
+COPY r-runtime/s6/plumber/ /etc/s6-overlay/s6-rc.d/plumber/
+RUN touch /etc/s6-overlay/s6-rc.d/user/contents.d/plumber
+
 EXPOSE 8787
-CMD ["Rscript", "plumber_api.R"]
+
+# s6-overlay as PID 1 — manages Valve which manages Plumber processes
+ENTRYPOINT ["/init"]

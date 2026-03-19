@@ -81,7 +81,7 @@ class CareGapRefreshService
     {
         $bundleStarted = hrtime(true);
 
-        $connectionName = $source->source_connection ?? 'cdm';
+        $connectionName = $source->source_connection ?? 'omop';
         $appConn = DB::connection();  // parthenon app DB
 
         try {

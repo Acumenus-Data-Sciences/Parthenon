@@ -34,8 +34,8 @@ class ProcessClinicalNotesJob implements ShouldQueue
 
         try {
             // Get note records from CDM that need NLP processing
-            $notes = DB::connection('cdm')
-                ->table('cdm.note')
+            $notes = DB::connection('omop')
+                ->table('omop.note')
                 ->whereNull('note_nlp_processed')
                 ->where('note_text', '!=', '')
                 ->limit(1000)
@@ -62,7 +62,7 @@ class ProcessClinicalNotesJob implements ShouldQueue
 
                     foreach ($nlpResult['entities'] as $entity) {
                         // Insert into note_nlp table
-                        DB::connection('cdm')->table('cdm.note_nlp')->insert([
+                        DB::connection('omop')->table('omop.note_nlp')->insert([
                             'note_id' => $note->note_id,
                             'section_concept_id' => 0,
                             'snippet' => $entity['context'] ?? substr($note->note_text, max(0, $entity['start'] - 50), 200),

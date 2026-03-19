@@ -16,12 +16,11 @@ use Illuminate\Console\Command;
  *
  * This command is for the Acumenus production instance only. It registers
  * the local PostgreSQL 17 OHDSI database (omop schema) as a CDM source,
- * with Achilles results in the achilles_results schema.
+ * with Achilles results in the results schema.
  *
- * The 'cdm' Laravel connection is configured via CDM_DB_* env vars in
- * backend/.env (host, database, username, password, search_path=omop,public).
- * The 'results' connection is configured via RESULTS_DB_* env vars
- * (search_path=achilles_results,public).
+ * All connections share the same 'parthenon' database configured via
+ * DB_HOST/DB_DATABASE/DB_USERNAME/DB_PASSWORD in backend/.env.
+ * Schema isolation is via search_path in config/database.php.
  */
 class SeedAcumenusSourceCommand extends Command
 {
@@ -36,16 +35,16 @@ class SeedAcumenusSourceCommand extends Command
             [
                 'source_name' => 'OHDSI Acumenus CDM',
                 'source_dialect' => 'postgresql',
-                'source_connection' => 'cdm',
+                'source_connection' => 'omop',
                 'is_cache_enabled' => false,
             ]
         );
 
-        // CDM and Vocabulary share the omop schema; Results are in achilles_results.
+        // CDM and Vocabulary share the omop schema; Results are in the results schema.
         $daimons = [
-            ['daimon_type' => DaimonType::CDM->value,        'table_qualifier' => 'omop',             'priority' => 0],
-            ['daimon_type' => DaimonType::Vocabulary->value,  'table_qualifier' => 'omop',             'priority' => 0],
-            ['daimon_type' => DaimonType::Results->value,     'table_qualifier' => 'achilles_results', 'priority' => 0],
+            ['daimon_type' => DaimonType::CDM->value,        'table_qualifier' => 'omop',    'priority' => 0],
+            ['daimon_type' => DaimonType::Vocabulary->value,  'table_qualifier' => 'omop',    'priority' => 0],
+            ['daimon_type' => DaimonType::Results->value,     'table_qualifier' => 'results', 'priority' => 0],
         ];
 
         foreach ($daimons as $daimon) {

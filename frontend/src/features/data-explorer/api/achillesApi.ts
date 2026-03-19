@@ -10,7 +10,6 @@ import type {
   PerformanceEntry,
   DistributionEntry,
   HeelResultsGrouped,
-  HeelRunResult,
 } from "../types/dataExplorer";
 
 const BASE = (sourceId: number) => `/sources/${sourceId}/achilles`;

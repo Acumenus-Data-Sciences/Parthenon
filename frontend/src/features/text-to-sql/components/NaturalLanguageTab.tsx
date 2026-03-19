@@ -98,7 +98,7 @@ export function NaturalLanguageTab() {
       explanation: entry.explanation ?? "",
       tables_referenced: entry.tables_referenced ?? [],
       is_aggregate: entry.is_aggregate ?? false,
-      safety: entry.safety ?? "safe",
+      safety: (entry.safety ?? "safe") as "safe" | "unsafe" | "unknown",
     });
   }, []);
 

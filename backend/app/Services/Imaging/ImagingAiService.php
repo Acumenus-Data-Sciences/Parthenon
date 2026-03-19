@@ -169,7 +169,7 @@ class ImagingAiService
         }
 
         try {
-            $note = \DB::connection('cdm')
+            $note = \DB::connection('omop')
                 ->table('note')
                 ->where('person_id', $study->person_id)
                 ->where('note_type_concept_id', 44814637) // Radiology report

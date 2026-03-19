@@ -34,7 +34,7 @@ class VariantOutcomeService
      */
     public function survivalByMutation(int $sourceId, string $gene, ?string $hgvs = null, ?int $cohortId = null): array
     {
-        $conn = DB::connection('cdm');
+        $conn = DB::connection('omop');
         $schema = 'omop';
 
         // Get person_ids with this gene variant
@@ -140,7 +140,7 @@ class VariantOutcomeService
      */
     public function treatmentVariantMatrix(int $sourceId, array $genes, int $limit = 20): array
     {
-        $conn = DB::connection('cdm');
+        $conn = DB::connection('omop');
         $schema = 'omop';
 
         if (empty($genes)) {

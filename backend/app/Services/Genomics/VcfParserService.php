@@ -4,7 +4,6 @@ namespace App\Services\Genomics;
 
 use App\Models\App\GenomicUpload;
 use App\Models\App\GenomicVariant;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -117,7 +116,7 @@ class VcfParserService
         }
 
         if ($errors > 20) {
-            Log::warning("VcfParserService: suppressed " . ($errors - 20) . " additional parse errors");
+            Log::warning('VcfParserService: suppressed '.($errors - 20).' additional parse errors');
         }
 
         return ['total' => $total, 'inserted' => $inserted, 'errors' => $errors];

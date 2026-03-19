@@ -103,7 +103,7 @@ class ImagingTimelineService
      */
     public function getPersonDemographics(int $personId): array
     {
-        $row = DB::connection('cdm')
+        $row = DB::connection('omop')
             ->table('person as p')
             ->leftJoin('concept as gc', 'gc.concept_id', '=', 'p.gender_concept_id')
             ->leftJoin('concept as rc', 'rc.concept_id', '=', 'p.race_concept_id')
@@ -143,7 +143,7 @@ class ImagingTimelineService
      */
     public function getDrugExposures(int $personId, string $windowStart, string $windowEnd): array
     {
-        $rows = DB::connection('cdm')
+        $rows = DB::connection('omop')
             ->table('drug_exposure as de')
             ->join('concept as dc', 'dc.concept_id', '=', 'de.drug_concept_id')
             ->leftJoin('concept_ancestor as ca', function ($join) {
@@ -247,7 +247,7 @@ class ImagingTimelineService
 
         $sourceValues = $unlinked->values()->unique()->all();
 
-        $matches = DB::connection('cdm')
+        $matches = DB::connection('omop')
             ->table('person')
             ->whereIn('person_source_value', $sourceValues)
             ->pluck('person_id', 'person_source_value');
@@ -294,7 +294,7 @@ class ImagingTimelineService
 
         // Get CDM patients with the specified condition (randomized for variety)
         // Use subquery to avoid PostgreSQL "SELECT DISTINCT + ORDER BY RANDOM()" conflict
-        $subquery = DB::connection('cdm')
+        $subquery = DB::connection('omop')
             ->table('condition_occurrence as co')
             ->join('concept as c', 'c.concept_id', '=', 'co.condition_concept_id')
             ->join('person as p', 'p.person_id', '=', 'co.person_id')
@@ -302,7 +302,7 @@ class ImagingTimelineService
             ->select('p.person_id')
             ->distinct();
 
-        $candidates = DB::connection('cdm')
+        $candidates = DB::connection('omop')
             ->query()
             ->fromSub($subquery, 'candidates')
             ->orderByRaw('RANDOM()')

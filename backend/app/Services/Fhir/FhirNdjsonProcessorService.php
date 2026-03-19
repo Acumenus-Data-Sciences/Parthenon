@@ -297,12 +297,12 @@ class FhirNdjsonProcessorService
         }
 
         $unionSql = implode(' UNION ALL ', $unions);
-        $aggregated = DB::connection('cdm')
+        $aggregated = DB::connection('omop')
             ->select("SELECT person_id, MIN(min_date) as earliest, MAX(max_date) as latest FROM ({$unionSql}) sub GROUP BY person_id");
 
         foreach ($aggregated as $row) {
             if ($row->earliest && $row->latest) {
-                DB::connection('cdm')->table('observation_period')->updateOrInsert(
+                DB::connection('omop')->table('observation_period')->updateOrInsert(
                     ['person_id' => $row->person_id, 'period_type_concept_id' => 32817],
                     [
                         'observation_period_start_date' => $row->earliest,
@@ -334,7 +334,7 @@ class FhirNdjsonProcessorService
         $dataRows = array_column($entries, 'data');
 
         try {
-            DB::connection('cdm')->table($table)->insert($dataRows);
+            DB::connection('omop')->table($table)->insert($dataRows);
             $written = count($dataRows);
 
             // Track for dedup if incremental mode
@@ -365,7 +365,7 @@ class FhirNdjsonProcessorService
 
         foreach ($entries as $entry) {
             try {
-                $id = DB::connection('cdm')->table($table)->insertGetId($entry['data']);
+                $id = DB::connection('omop')->table($table)->insertGetId($entry['data']);
                 $written++;
 
                 if ($this->incrementalMode && $entry['fhir_id'] !== '') {

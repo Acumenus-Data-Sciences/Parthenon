@@ -1,0 +1,2 @@
+#!/bin/sh
+exec Rscript /app/valve_launcher.R

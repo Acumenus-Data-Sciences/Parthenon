@@ -16,9 +16,9 @@ function(req, res) {
 #* Run patient-level prediction (stub)
 #* @post /prediction
 #* @serializer unboxedJSON
-function(req, res) {
-  spec <- req$body
-  res$status <- 501L
+function(body, response) {
+  spec <- body
+  response$status <- 501L
   list(
     status = "not_implemented",
     message = "Not yet implemented - requires HADES PatientLevelPrediction package",
@@ -31,9 +31,9 @@ function(req, res) {
 #* Run feature extraction (stub)
 #* @post /feature-extraction
 #* @serializer unboxedJSON
-function(req, res) {
-  spec <- req$body
-  res$status <- 501L
+function(body, response) {
+  spec <- body
+  response$status <- 501L
   list(
     status = "not_implemented",
     message = "Not yet implemented - requires HADES FeatureExtraction package",
@@ -46,9 +46,9 @@ function(req, res) {
 #* Run self-controlled case series (stub)
 #* @post /self-controlled
 #* @serializer unboxedJSON
-function(req, res) {
-  spec <- req$body
-  res$status <- 501L
+function(body, response) {
+  spec <- body
+  response$status <- 501L
   list(
     status = "not_implemented",
     message = "Not yet implemented - requires HADES SelfControlledCaseSeries package",

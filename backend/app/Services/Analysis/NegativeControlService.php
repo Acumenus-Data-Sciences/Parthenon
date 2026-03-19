@@ -44,7 +44,7 @@ class NegativeControlService
         }
 
         $dialect = $source->source_dialect ?? 'postgresql';
-        $connectionName = $source->source_connection ?? 'cdm';
+        $connectionName = $source->source_connection ?? 'omop';
         $params = ['cdmSchema' => $cdmSchema, 'vocabSchema' => $vocabSchema];
 
         $exposureIdList = implode(',', array_map('intval', $exposureConceptIds));
@@ -117,7 +117,7 @@ class NegativeControlService
         $vocabSchema = $source->getTableQualifier(\App\Enums\DaimonType::Vocabulary)
             ?? $source->getTableQualifier(\App\Enums\DaimonType::CDM);
         $dialect = $source->source_dialect ?? 'postgresql';
-        $connectionName = $source->source_connection ?? 'cdm';
+        $connectionName = $source->source_connection ?? 'omop';
         $params = ['vocabSchema' => $vocabSchema];
 
         $exposureIdList = implode(',', array_map('intval', $exposureConceptIds));

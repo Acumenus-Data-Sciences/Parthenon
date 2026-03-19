@@ -37,6 +37,7 @@
         "targetCohortId": 82,
         "propensityScore": {
             "method": "matching",
+            "enabled": true,
             "matching": {
                 "ratio": 1,
                 "caliper": 0.2,
@@ -69,11 +70,7 @@
             ],
             "useDemographicsAge": true,
             "useDemographicsRace": true,
-            "useDemographicsGender": true,
-            "useMeasurementLongTerm": true,
-            "useDrugExposureLongTerm": true,
-            "useConditionOccurrenceLongTerm": true,
-            "useProcedureOccurrenceLongTerm": true
+            "useDemographicsGender": true
         },
         "outcomeOfInterest": 84,
         "comparatorCohortId": 83,
@@ -81,6 +78,6 @@
     },
     "author_id": 117,
     "created_at": null,
-    "updated_at": "2026-03-19T05:45:35.000000Z",
+    "updated_at": "2026-03-19T08:22:10.000000Z",
     "deleted_at": null
 }

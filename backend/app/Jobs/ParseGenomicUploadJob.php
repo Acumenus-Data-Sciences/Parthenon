@@ -36,7 +36,7 @@ class ParseGenomicUploadJob implements ShouldQueue
     {
         $absolutePath = Storage::disk('local')->path($this->upload->storage_path);
 
-        Log::info("ParseGenomicUploadJob: Dispatching to Python parser", [
+        Log::info('ParseGenomicUploadJob: Dispatching to Python parser', [
             'upload_id' => $this->upload->id,
             'filename' => $this->upload->filename,
             'size_mb' => round($this->upload->file_size_bytes / 1024 / 1024, 1),
@@ -58,15 +58,15 @@ class ParseGenomicUploadJob implements ShouldQueue
 
             if ($response->failed()) {
                 throw new \RuntimeException(
-                    "Python parser returned {$response->status()}: " . $response->body()
+                    "Python parser returned {$response->status()}: ".$response->body()
                 );
             }
 
-            Log::info("ParseGenomicUploadJob: Dispatched to Python parser successfully", [
+            Log::info('ParseGenomicUploadJob: Dispatched to Python parser successfully', [
                 'upload_id' => $this->upload->id,
             ]);
         } catch (\Throwable $e) {
-            Log::error("ParseGenomicUploadJob: Failed", [
+            Log::error('ParseGenomicUploadJob: Failed', [
                 'upload_id' => $this->upload->id,
                 'error' => $e->getMessage(),
             ]);

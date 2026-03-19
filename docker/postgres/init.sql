@@ -1,13 +1,20 @@
--- Enable extensions
+-- Parthenon single-database schema initialization
+-- All schemas live in one 'parthenon' database.
+-- This runs once on first container creation (docker-entrypoint-initdb.d).
+
+-- Extensions
 CREATE EXTENSION IF NOT EXISTS vector;
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
--- Create schemas for organization
-CREATE SCHEMA IF NOT EXISTS app;
-CREATE SCHEMA IF NOT EXISTS vocab;
-CREATE SCHEMA IF NOT EXISTS cdm;
-CREATE SCHEMA IF NOT EXISTS achilles_results;
-CREATE SCHEMA IF NOT EXISTS eunomia;
+-- Application schemas
+CREATE SCHEMA IF NOT EXISTS app;           -- Business tables (users, cohorts, sources, studies)
+CREATE SCHEMA IF NOT EXISTS omop;          -- OMOP CDM + Vocabulary
+CREATE SCHEMA IF NOT EXISTS results;       -- Achilles/DQD output
+CREATE SCHEMA IF NOT EXISTS gis;           -- Geospatial tables
+CREATE SCHEMA IF NOT EXISTS eunomia;       -- GiBleed demo dataset
+CREATE SCHEMA IF NOT EXISTS eunomia_results; -- Demo Achilles results
+CREATE SCHEMA IF NOT EXISTS php;           -- Laravel internals (migrations, jobs, cache)
+CREATE SCHEMA IF NOT EXISTS webapi;        -- Legacy OHDSI WebAPI (Atlas migration)
 
--- Grant permissions
-GRANT ALL ON SCHEMA app, vocab, cdm, achilles_results, eunomia TO parthenon;
+-- Grants
+GRANT ALL ON SCHEMA app, omop, results, gis, eunomia, eunomia_results, php, webapi TO parthenon;

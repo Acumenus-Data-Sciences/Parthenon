@@ -10,18 +10,18 @@ beforeEach(function () {
     // Seed minimal vocab data if the concept table is empty (CI environment).
     // In local dev, the omop schema already has 7M+ concepts — skip seeding.
     try {
-        $count = DB::connection('vocab')->table('concept')->count();
+        $count = DB::connection('omop')->table('concept')->count();
         if ($count === 0) {
-            DB::connection('vocab')->table('vocabulary')->insertOrIgnore([
+            DB::connection('omop')->table('vocabulary')->insertOrIgnore([
                 ['vocabulary_id' => 'SNOMED', 'vocabulary_name' => 'Systematic Nomenclature of Medicine', 'vocabulary_reference' => 'SNOMED CT', 'vocabulary_version' => '20230901', 'vocabulary_concept_id' => 44819096],
             ]);
-            DB::connection('vocab')->table('domain')->insertOrIgnore([
+            DB::connection('omop')->table('domain')->insertOrIgnore([
                 ['domain_id' => 'Condition', 'domain_name' => 'Condition', 'domain_concept_id' => 19],
             ]);
-            DB::connection('vocab')->table('concept_class')->insertOrIgnore([
+            DB::connection('omop')->table('concept_class')->insertOrIgnore([
                 ['concept_class_id' => 'Clinical Finding', 'concept_class_name' => 'Clinical Finding', 'concept_class_concept_id' => 44818979],
             ]);
-            DB::connection('vocab')->table('concept')->insertOrIgnore([
+            DB::connection('omop')->table('concept')->insertOrIgnore([
                 ['concept_id' => 201826, 'concept_name' => 'Type 2 diabetes mellitus', 'domain_id' => 'Condition', 'vocabulary_id' => 'SNOMED', 'concept_class_id' => 'Clinical Finding', 'standard_concept' => 'S', 'concept_code' => '44054006', 'valid_start_date' => '1970-01-01', 'valid_end_date' => '2099-12-31', 'invalid_reason' => null],
                 ['concept_id' => 443238, 'concept_name' => 'Diabetic retinopathy', 'domain_id' => 'Condition', 'vocabulary_id' => 'SNOMED', 'concept_class_id' => 'Clinical Finding', 'standard_concept' => 'S', 'concept_code' => '4855003', 'valid_start_date' => '1970-01-01', 'valid_end_date' => '2099-12-31', 'invalid_reason' => null],
                 ['concept_id' => 316139, 'concept_name' => 'Heart failure', 'domain_id' => 'Condition', 'vocabulary_id' => 'SNOMED', 'concept_class_id' => 'Clinical Finding', 'standard_concept' => 'S', 'concept_code' => '84114007', 'valid_start_date' => '1970-01-01', 'valid_end_date' => '2099-12-31', 'invalid_reason' => null],

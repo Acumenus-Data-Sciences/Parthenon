@@ -84,4 +84,57 @@ class RService
 
         return $response->json();
     }
+
+    /**
+     * Submit an analysis job for async execution.
+     *
+     * @param  string  $type  Analysis type: estimation, prediction, sccs
+     * @param  array<string, mixed>  $spec
+     * @return array{status: string, job_id: string}
+     */
+    public function submitAsync(string $type, array $spec): array
+    {
+        try {
+            $response = Http::timeout(30)
+                ->post("{$this->baseUrl}/jobs/submit", array_merge($spec, ['type' => $type]));
+
+            return $response->json() ?? ['status' => 'error', 'message' => 'Empty response'];
+        } catch (\Throwable $e) {
+            return ['status' => 'error', 'message' => 'R runtime unavailable: '.$e->getMessage()];
+        }
+    }
+
+    /**
+     * Poll for async job status/result.
+     *
+     * @return array{status: string, job_id: string, result?: array}
+     */
+    public function pollJob(string $jobId): array
+    {
+        try {
+            $response = Http::timeout(10)
+                ->get("{$this->baseUrl}/jobs/status/{$jobId}");
+
+            return $response->json() ?? ['status' => 'error', 'message' => 'Empty response'];
+        } catch (\Throwable $e) {
+            return ['status' => 'error', 'message' => 'R runtime unavailable: '.$e->getMessage()];
+        }
+    }
+
+    /**
+     * Cancel an async job.
+     *
+     * @return array{status: string, job_id: string}
+     */
+    public function cancelJob(string $jobId): array
+    {
+        try {
+            $response = Http::timeout(10)
+                ->post("{$this->baseUrl}/jobs/cancel/{$jobId}");
+
+            return $response->json() ?? ['status' => 'error', 'message' => 'Empty response'];
+        } catch (\Throwable $e) {
+            return ['status' => 'error', 'message' => 'R runtime unavailable: '.$e->getMessage()];
+        }
+    }
 }

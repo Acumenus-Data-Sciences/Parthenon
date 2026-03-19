@@ -1,3 +1,6 @@
+#* @root /etl/synthea
+NULL
+
 # ──────────────────────────────────────────────────────────────────
 # ETL-Synthea — Synthea CSV → OMOP CDM converter
 # GET  /etl/synthea/status   — package availability + version info
@@ -75,7 +78,7 @@ function() {
 
 #* Convert Synthea CSV output to OMOP CDM via ETL-Synthea
 #*
-#* @param req  Plumber request object. Body fields:
+#* @param body  Parsed request body. Fields:
 #*   connection         object  — Source connection spec (dialect, server, user, password, etc.)
 #*   cdm_database_schema string  — Target schema for OMOP CDM tables (default: "cdm")
 #*   cdm_version        string  — CDM version: "5.3" or "5.4" (default: "5.4")
@@ -88,18 +91,18 @@ function() {
 #*   skip_synthea_create boolean — Skip CREATE Synthea staging tables step (default: false)
 #* @post /generate
 #* @serializer unboxedJSON
-function(req, res) {
-  spec   <- req$body
+function(body, response) {
+  spec   <- body
   logger <- create_analysis_logger()
 
   # ── Input validation ──────────────────────────────────────────────────────
   if (is.null(spec)) {
-    res$status <- 400L
+    response$status <- 400L
     return(list(status = "error", message = "No specification provided in request body"))
   }
 
   if (!requireNamespace("ETLSyntheaBuilder", quietly = TRUE)) {
-    res$status <- 503L
+    response$status <- 503L
     return(list(
       status  = "error",
       message = "ETLSyntheaBuilder package is not installed. Rebuild the R runtime Docker image."
@@ -108,14 +111,14 @@ function(req, res) {
 
   # Require at minimum a connection spec
   if (is.null(spec$connection) && is.null(spec$source)) {
-    res$status <- 400L
+    response$status <- 400L
     return(list(status = "error", message = "Missing required field: connection (or source)"))
   }
 
   # Synthea CSV folder must be provided and must exist
   synthea_csv_folder <- spec$synthea_csv_folder %||% spec$syntheaCsvFolder %||% NULL
   if (is.null(synthea_csv_folder) || !nzchar(synthea_csv_folder)) {
-    res$status <- 400L
+    response$status <- 400L
     return(list(
       status  = "error",
       message = paste(
@@ -126,7 +129,7 @@ function(req, res) {
     ))
   }
   if (!dir.exists(synthea_csv_folder)) {
-    res$status <- 400L
+    response$status <- 400L
     return(list(
       status  = "error",
       message = sprintf("synthea_csv_folder does not exist: %s", synthea_csv_folder)
@@ -148,14 +151,14 @@ function(req, res) {
   valid_cdm_versions     <- c("5.3", "5.4")
   valid_synthea_versions <- c("2.7.0", "3.0.0", "3.1.0", "3.2.0", "3.3.0")
   if (!cdm_version %in% valid_cdm_versions) {
-    res$status <- 400L
+    response$status <- 400L
     return(list(
       status  = "error",
       message = sprintf("cdm_version must be one of: %s", paste(valid_cdm_versions, collapse = ", "))
     ))
   }
   if (!synthea_version %in% valid_synthea_versions) {
-    res$status <- 400L
+    response$status <- 400L
     return(list(
       status  = "error",
       message = sprintf(
@@ -172,13 +175,13 @@ function(req, res) {
     csv_folder      = synthea_csv_folder
   ))
 
-  safe_execute(res, logger, {
+  safe_execute(response, logger, {
 
     # ── Step 1: Establish database connection ─────────────────────────────
     logger$info("Connecting to target database")
     connectionDetails <- create_hades_connection(source_spec)
     connection        <- .etl_dbi_connection(connectionDetails)
-    on.exit(DatabaseConnector::disconnect(connection), add = TRUE)
+    on.exit(safe_disconnect(connection), add = TRUE)
 
     logger$info(sprintf(
       "Connected. CDM schema: %s | Synthea schema: %s", cdm_schema, synthea_schema

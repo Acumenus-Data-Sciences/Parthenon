@@ -1,3 +1,6 @@
+#* @root /strategus
+NULL
+
 # ──────────────────────────────────────────────────────────────────
 # Strategus — OHDSI Study Orchestration API
 #
@@ -106,15 +109,15 @@ existsFunction_safe <- function(ns, fn) {
 #*
 #* @post /execute
 #* @serializer unboxedJSON
-#* @param req Plumber request
-#* @param res Plumber response
-function(req, res) {
-  spec   <- req$body
+#* @param body Parsed request body
+#* @param response Plumber response
+function(body, response) {
+  spec   <- body
   logger <- create_analysis_logger()
 
   # ── Input validation ──────────────────────────────────────────
   if (is.null(spec)) {
-    res$status <- 400L
+    response$status <- 400L
     return(list(status = "error", message = "No request body provided"))
   }
 
@@ -123,7 +126,7 @@ function(req, res) {
                      "analysis_spec", "study_name")
   missing <- setdiff(required_keys, names(spec))
   if (length(missing) > 0) {
-    res$status <- 400L
+    response$status <- 400L
     return(list(
       status  = "error",
       message = paste("Missing required fields:", paste(missing, collapse = ", "))
@@ -134,7 +137,7 @@ function(req, res) {
 
   logger$info("Strategus execute started", list(study = study_name))
 
-  safe_execute(res, logger, {
+  safe_execute(response, logger, {
 
     # ── Step 1: Parse the analysis specification ──────────────
     logger$info("Parsing analysisSpecifications")
@@ -185,7 +188,7 @@ function(req, res) {
     logger$info("Ensuring results data model exists")
     resultsDsn <- tryCatch({
       con <- DatabaseConnector::connect(connectionDetails)
-      on.exit(DatabaseConnector::disconnect(con), add = TRUE)
+      on.exit(safe_disconnect(con), add = TRUE)
       Strategus::createResultDataModel(
         analysisSpecifications   = analysisSpecifications,
         resultsConnectionDetails = connectionDetails,
@@ -283,14 +286,14 @@ function(req, res) {
 #*
 #* @post /validate
 #* @serializer unboxedJSON
-#* @param req Plumber request
-#* @param res Plumber response
-function(req, res) {
-  spec   <- req$body
+#* @param body Parsed request body
+#* @param response Plumber response
+function(body, response) {
+  spec   <- body
   logger <- create_analysis_logger()
 
   if (is.null(spec) || is.null(spec$analysis_spec)) {
-    res$status <- 400L
+    response$status <- 400L
     return(list(
       status  = "error",
       message = "Required: analysis_spec — the Strategus analysisSpecifications JSON"
@@ -299,7 +302,7 @@ function(req, res) {
 
   logger$info("Validating analysisSpecifications")
 
-  safe_execute(res, logger, {
+  safe_execute(response, logger, {
     issues   <- list()
     warnings <- list()
 

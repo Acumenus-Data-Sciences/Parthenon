@@ -15,6 +15,7 @@ use App\Models\App\AnalysisExecution;
 use App\Models\App\Characterization;
 use App\Models\App\EstimationAnalysis;
 use App\Models\App\EvidenceSynthesisAnalysis;
+use App\Models\App\ExecutionLog;
 use App\Models\App\FhirExportJob;
 use App\Models\App\GenomicUpload;
 use App\Models\App\GisImport;
@@ -23,9 +24,7 @@ use App\Models\App\IngestionJob;
 use App\Models\App\PathwayAnalysis;
 use App\Models\App\PredictionAnalysis;
 use App\Models\App\SccsAnalysis;
-use App\Models\App\DqdResult;
 use App\Models\App\VocabularyImport;
-use App\Models\Results\AchillesHeelResult;
 use App\Services\Achilles\Heel\AchillesHeelRuleRegistry;
 use App\Services\Dqd\DqdCheckRegistry;
 use Illuminate\Database\Eloquent\Builder;
@@ -420,7 +419,7 @@ class JobController extends Controller
         $totalExpected = app(DqdCheckRegistry::class)->count();
 
         $runs = \Illuminate\Support\Facades\DB::table('app.dqd_results')
-            ->selectRaw("run_id, source_id, COUNT(*) as total_checks, SUM(CASE WHEN passed = true THEN 1 ELSE 0 END)::int as passed_count, MIN(created_at) as started_at, MAX(created_at) as completed_at, SUM(execution_time_ms) as total_ms")
+            ->selectRaw('run_id, source_id, COUNT(*) as total_checks, SUM(CASE WHEN passed = true THEN 1 ELSE 0 END)::int as passed_count, MIN(created_at) as started_at, MAX(created_at) as completed_at, SUM(execution_time_ms) as total_ms')
             ->groupBy('run_id', 'source_id')
             ->orderByDesc('started_at')
             ->limit(50)
@@ -463,9 +462,9 @@ class JobController extends Controller
     {
         $totalRules = app(AchillesHeelRuleRegistry::class)->count();
 
-        $runs = \Illuminate\Support\Facades\DB::table('achilles_heel_results')
+        $runs = \Illuminate\Support\Facades\DB::table('app.achilles_heel_results')
             ->whereNotNull('run_id')
-            ->selectRaw("run_id, source_id, COUNT(*) as total_results, COUNT(DISTINCT rule_id) as rules_completed, MIN(created_at) as started_at, MAX(created_at) as completed_at")
+            ->selectRaw('run_id, source_id, COUNT(*) as total_results, COUNT(DISTINCT rule_id) as rules_completed, MIN(created_at) as started_at, MAX(created_at) as completed_at')
             ->groupBy('run_id', 'source_id')
             ->orderByDesc('started_at')
             ->limit(20)
@@ -576,21 +575,43 @@ class JobController extends Controller
         $msg = strtolower($lastLog);
 
         // Estimation pipeline steps (ordered by typical occurrence)
-        if (str_contains($msg, 'connecting')) return 10;
-        if (str_contains($msg, 'covariate')) return 15;
-        if (str_contains($msg, 'extracting')) return 20;
-        if (str_contains($msg, 'extraction complete')) return 35;
-        if (str_contains($msg, 'propensity score')) return 40;
-        if (str_contains($msg, 'balance')) return 60;
-        if (str_contains($msg, 'outcome model') || str_contains($msg, 'fitting')) return 70;
-        if (str_contains($msg, 'processing outcome')) return 55;
+        if (str_contains($msg, 'connecting')) {
+            return 10;
+        }
+        if (str_contains($msg, 'covariate')) {
+            return 15;
+        }
+        if (str_contains($msg, 'extracting')) {
+            return 20;
+        }
+        if (str_contains($msg, 'extraction complete')) {
+            return 35;
+        }
+        if (str_contains($msg, 'propensity score')) {
+            return 40;
+        }
+        if (str_contains($msg, 'balance')) {
+            return 60;
+        }
+        if (str_contains($msg, 'outcome model') || str_contains($msg, 'fitting')) {
+            return 70;
+        }
+        if (str_contains($msg, 'processing outcome')) {
+            return 55;
+        }
 
         // Characterization steps
-        if (str_contains($msg, 'computing feature')) return 50;
+        if (str_contains($msg, 'computing feature')) {
+            return 50;
+        }
 
         // Generic steps
-        if (str_contains($msg, 'started')) return 5;
-        if (str_contains($msg, 'calling r')) return 10;
+        if (str_contains($msg, 'started')) {
+            return 5;
+        }
+        if (str_contains($msg, 'calling r')) {
+            return 10;
+        }
 
         return 25; // unknown step — at least show some progress
     }

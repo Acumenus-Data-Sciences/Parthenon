@@ -8,11 +8,11 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (Schema::connection('cdm')->hasTable('payer_plan_period')) {
+        if (Schema::connection('omop')->hasTable('payer_plan_period')) {
             return;
         }
 
-        Schema::connection('cdm')->create('payer_plan_period', function (Blueprint $table) {
+        Schema::connection('omop')->create('payer_plan_period', function (Blueprint $table) {
             $table->bigInteger('payer_plan_period_id')->primary();
             $table->bigInteger('person_id');
             $table->date('payer_plan_period_start_date');
@@ -35,6 +35,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::connection('cdm')->dropIfExists('payer_plan_period');
+        Schema::connection('omop')->dropIfExists('payer_plan_period');
     }
 };

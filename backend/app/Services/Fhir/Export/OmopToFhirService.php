@@ -48,7 +48,7 @@ class OmopToFhirService
         $offset = (int) ($params['_offset'] ?? 0);
         $count = min($count, 100); // Cap at 100
 
-        $query = DB::connection('cdm')->table("{$this->cdmSchema}.{$table}");
+        $query = DB::connection('omop')->table("{$this->cdmSchema}.{$table}");
 
         // Apply resource-specific filters
         $this->applyFilters($query, $resourceType, $params);
@@ -80,7 +80,7 @@ class OmopToFhirService
         }
 
         $pkColumn = $this->getPrimaryKey($table);
-        $row = DB::connection('cdm')
+        $row = DB::connection('omop')
             ->table("{$this->cdmSchema}.{$table}")
             ->where($pkColumn, $id)
             ->first();
@@ -119,7 +119,7 @@ class OmopToFhirService
      */
     private function buildPatient(object $person): array
     {
-        $death = DB::connection('cdm')
+        $death = DB::connection('omop')
             ->table("{$this->cdmSchema}.death")
             ->where('person_id', $person->person_id)
             ->first();

@@ -28,7 +28,7 @@ class ComputeEmbeddings extends Command
         $limit = (int) $this->option('limit');
 
         // Count total standard concepts
-        $totalQuery = DB::connection('vocab')
+        $totalQuery = DB::connection('omop')
             ->table('concepts')
             ->where('standard_concept', 'S');
 
@@ -51,7 +51,7 @@ class ComputeEmbeddings extends Command
             $currentBatchSize = min($batchSize, $total - $processed);
 
             // Fetch batch of concepts
-            $concepts = DB::connection('vocab')
+            $concepts = DB::connection('omop')
                 ->table('concepts')
                 ->where('standard_concept', 'S')
                 ->orderBy('concept_id')
@@ -98,7 +98,7 @@ class ComputeEmbeddings extends Command
                 if (! empty($inserts)) {
                     // Use upsert to handle resume scenarios
                     foreach (array_chunk($inserts, 100) as $chunk) {
-                        DB::connection('vocab')->table('concept_embeddings')->upsert(
+                        DB::connection('omop')->table('concept_embeddings')->upsert(
                             $chunk,
                             ['concept_id'],
                             ['concept_name', 'embedding']
@@ -136,16 +136,16 @@ class ComputeEmbeddings extends Command
         $this->info('Creating HNSW index (this may take several minutes)...');
 
         // Drop existing index if present
-        DB::connection('vocab')->statement(
+        DB::connection('omop')->statement(
             'DROP INDEX IF EXISTS vocab.concept_embeddings_hnsw'
         );
 
         // Create HNSW index for cosine similarity search
-        DB::connection('vocab')->statement(
+        DB::connection('omop')->statement(
             'CREATE INDEX concept_embeddings_hnsw ON vocab.concept_embeddings USING hnsw (embedding vector_cosine_ops) WITH (m = 16, ef_construction = 200)'
         );
 
-        DB::connection('vocab')->statement('ANALYZE vocab.concept_embeddings');
+        DB::connection('omop')->statement('ANALYZE vocab.concept_embeddings');
 
         $this->info('HNSW index created.');
     }

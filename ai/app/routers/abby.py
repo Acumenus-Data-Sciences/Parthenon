@@ -13,7 +13,10 @@ import json
 import logging
 import os
 from pathlib import Path
-from typing import Any, AsyncGenerator
+from typing import TYPE_CHECKING, Any, AsyncGenerator, cast
+
+if TYPE_CHECKING:
+    from anthropic.types import MessageParam
 
 import httpx
 from fastapi import APIRouter, HTTPException
@@ -947,7 +950,7 @@ async def chat(request: ChatRequest) -> ChatResponse:
                 claude_response = claude_client.chat(
                     system_prompt=phi_result.redacted_text,
                     message=request.message,
-                    history=history_dicts,
+                    history=cast(list["MessageParam"], history_dicts),
                 )
                 reply = claude_response.reply
 

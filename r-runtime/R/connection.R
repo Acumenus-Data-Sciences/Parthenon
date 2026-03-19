@@ -42,13 +42,21 @@ create_hades_connection <- function(source_spec) {
 
     dbms <- if (dialect == "redshift") "redshift" else "postgresql"
 
+    # Build JDBC URL with socket/connect timeouts to prevent hung connections
+    parts <- strsplit(server, "/")[[1]]
+    host_part <- parts[1]
+    db_part   <- if (length(parts) > 1) parts[2] else ""
+    jdbc_url  <- sprintf(
+      "jdbc:postgresql://%s:%d/%s?socketTimeout=300&connectTimeout=30&loginTimeout=30&tcpKeepAlive=true",
+      host_part, port, db_part
+    )
+
     return(DatabaseConnector::createConnectionDetails(
-      dbms         = dbms,
-      server       = server,
-      port         = port,
-      user         = user,
-      password     = pw,
-      pathToDriver = jar_dir
+      dbms             = dbms,
+      connectionString = jdbc_url,
+      user             = user,
+      password         = pw,
+      pathToDriver     = jar_dir
     ))
   }
 
@@ -181,6 +189,16 @@ create_hades_connection <- function(source_spec) {
     host     = parts[4],
     port     = as.integer(parts[5]),
     database = parts[6]
+  )
+}
+
+#' Safely disconnect a DatabaseConnector connection, ignoring errors.
+safe_disconnect <- function(connection) {
+  tryCatch(
+    DatabaseConnector::disconnect(connection),
+    error = function(e) {
+      cat(sprintf("[WARN] Disconnect failed (non-fatal): %s\n", e$message))
+    }
   )
 }
 

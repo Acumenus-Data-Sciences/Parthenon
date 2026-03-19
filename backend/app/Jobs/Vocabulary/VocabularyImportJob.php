@@ -218,7 +218,7 @@ class VocabularyImportJob implements ShouldQueue
         $startTime = microtime(true);
 
         /** @var \PDO $pdo */
-        $pdo = DB::connection('vocab')->getPdo();
+        $pdo = DB::connection('omop')->getPdo();
 
         // Apply target schema
         $pdo->exec("SET search_path TO {$schema}, public");
@@ -260,7 +260,7 @@ class VocabularyImportJob implements ShouldQueue
         unlink($tempFile);
 
         /** @var object{cnt: string} $result */
-        $result = DB::connection('vocab')->selectOne("SELECT count(*) as cnt FROM {$schema}.{$table}");
+        $result = DB::connection('omop')->selectOne("SELECT count(*) as cnt FROM {$schema}.{$table}");
         $count = (int) $result->cnt;
 
         $elapsed = round(microtime(true) - $startTime, 1);
@@ -278,7 +278,7 @@ class VocabularyImportJob implements ShouldQueue
 
         foreach ($reverseOrder as $table) {
             try {
-                DB::connection('vocab')->statement("TRUNCATE TABLE {$schema}.{$table} CASCADE");
+                DB::connection('omop')->statement("TRUNCATE TABLE {$schema}.{$table} CASCADE");
                 $import->appendLog("  Truncated {$table}");
             } catch (\Throwable $e) {
                 $import->appendLog("  Skipped truncate on {$table} ({$e->getMessage()})");
@@ -302,7 +302,7 @@ class VocabularyImportJob implements ShouldQueue
 
         foreach ($btreeIndexes as [$tableName, $indexName, $column]) {
             try {
-                DB::connection('vocab')->statement(
+                DB::connection('omop')->statement(
                     "CREATE INDEX IF NOT EXISTS {$indexName} ON {$tableName} ({$column})"
                 );
                 $import->appendLog("  Index: {$indexName}");
@@ -313,7 +313,7 @@ class VocabularyImportJob implements ShouldQueue
 
         // Trigram GIN index for fuzzy concept name search
         try {
-            DB::connection('vocab')->statement(
+            DB::connection('omop')->statement(
                 "CREATE INDEX IF NOT EXISTS idx_{$schema}_concept_name_trgm ON {$schema}.concept USING gin (concept_name gin_trgm_ops)"
             );
             $import->appendLog('  GIN trigram index on concept.concept_name');
@@ -326,7 +326,7 @@ class VocabularyImportJob implements ShouldQueue
     {
         foreach (array_keys($this->tableConfig) as $table) {
             try {
-                DB::connection('vocab')->statement("ANALYZE {$schema}.{$table}");
+                DB::connection('omop')->statement("ANALYZE {$schema}.{$table}");
             } catch (\Throwable $e) {
                 $import->appendLog("  ANALYZE {$table} skipped: {$e->getMessage()}");
             }

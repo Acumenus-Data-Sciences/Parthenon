@@ -174,6 +174,8 @@ class ClaudeClient:
         hasher = hashlib.sha256()
         hasher.update(system_prompt.encode())
         for turn in messages:
-            hasher.update(turn.get("role", "").encode())
-            hasher.update(turn.get("content", "").encode())
+            role = turn.get("role", "")
+            content = turn.get("content", "")
+            hasher.update(str(role).encode())
+            hasher.update(str(content).encode())
         return hasher.hexdigest()

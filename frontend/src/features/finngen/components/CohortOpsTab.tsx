@@ -17,13 +17,8 @@ import {
 import type {
   FinnGenCohortOperationsResult,
   FinnGenSource,
-  FinnGenRuntime,
-  FinnGenMetricPoint,
-  FinnGenTimelineStep,
-  FinnGenArtifact,
 } from "../types";
 import {
-  FormField,
   ActionButton,
   ResultSection,
   KeyValueGrid,
@@ -45,9 +40,7 @@ import {
   safeParseJson,
   parseIntegerList,
   parseStringList,
-  formatValue,
   downloadJson,
-  formatTimestamp,
   cohortPresets,
   cohortImportModes,
   cohortAtlasImportBehaviorOptions,
@@ -209,7 +202,7 @@ function ImportExportView({
   );
 }
 
-function CohortHandoffView({
+export function CohortHandoffView({
   exportSummary,
   onHandoff,
 }: {
@@ -1242,7 +1235,6 @@ export function CohortOpsTab({
       2,
     ),
   );
-  const [cohortLabel, setCohortLabel] = useState("Acumenus diabetes cohort");
   const [operationBuilderOpen, setOperationBuilderOpen] = useState(false);
   const [cohortSearch, setCohortSearch] = useState("");
   const [cohortImportMode, setCohortImportMode] =
@@ -1358,7 +1350,7 @@ export function CohortOpsTab({
       selectedPrimaryCohortQuery.data?.expression_json
     ) {
       return selectedPrimaryCohortQuery.data
-        .expression_json as Record<string, unknown>;
+        .expression_json as unknown as Record<string, unknown>;
     }
     return safeParseJson(cohortJson);
   }, [cohortImportMode, selectedPrimaryCohortQuery.data, cohortJson]);

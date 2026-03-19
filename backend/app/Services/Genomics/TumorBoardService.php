@@ -28,7 +28,7 @@ class TumorBoardService
      */
     public function buildPanel(int $personId, int $sourceId): array
     {
-        $conn = DB::connection('cdm');
+        $conn = DB::connection('omop');
         $schema = 'omop';
 
         // 1. Patient's variants

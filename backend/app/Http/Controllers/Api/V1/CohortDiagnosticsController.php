@@ -62,7 +62,7 @@ class CohortDiagnosticsController extends Controller
             $source = Source::with('daimons')->findOrFail($validated['source_id']);
 
             // Resolve schema names from daimons
-            $cdmSchema = $source->getTableQualifier(DaimonType::CDM) ?? 'cdm';
+            $cdmSchema = $source->getTableQualifier(DaimonType::CDM) ?? 'omop';
             $vocabSchema = $source->getTableQualifier(DaimonType::Vocabulary) ?? $cdmSchema;
             $resultsSchema = $source->getTableQualifier(DaimonType::Results) ?? 'public';
 

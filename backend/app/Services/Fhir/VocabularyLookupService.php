@@ -188,7 +188,7 @@ class VocabularyLookupService
             return $this->conceptCache[$cacheKey];
         }
 
-        $row = DB::connection('vocab')
+        $row = DB::connection('omop')
             ->table("{$this->vocabSchema}.concept")
             ->where('vocabulary_id', $vocabId)
             ->where('concept_code', $code)
@@ -218,7 +218,7 @@ class VocabularyLookupService
             return $this->mapsToCache[$cacheKey];
         }
 
-        $row = DB::connection('vocab')
+        $row = DB::connection('omop')
             ->table("{$this->vocabSchema}.concept_relationship as cr")
             ->join("{$this->vocabSchema}.concept as c", 'c.concept_id', '=', 'cr.concept_id_2')
             ->where('cr.concept_id_1', $sourceConceptId)

@@ -8,11 +8,11 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (Schema::connection('cdm')->hasTable('observation')) {
+        if (Schema::connection('omop')->hasTable('observation')) {
             return;
         }
 
-        Schema::connection('cdm')->create('observation', function (Blueprint $table) {
+        Schema::connection('omop')->create('observation', function (Blueprint $table) {
             $table->bigInteger('observation_id')->primary();
             $table->bigInteger('person_id');
             $table->integer('observation_concept_id');
@@ -39,6 +39,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::connection('cdm')->dropIfExists('observation');
+        Schema::connection('omop')->dropIfExists('observation');
     }
 };

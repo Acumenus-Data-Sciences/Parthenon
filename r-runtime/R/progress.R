@@ -48,12 +48,12 @@ create_analysis_logger <- function() {
 #' @param logger  A logger from create_analysis_logger()
 #' @param expr  An expression to evaluate (use bquote/substitute or just wrap in {})
 #' @return The result of expr, or sets res$status and returns error list
-safe_execute <- function(res, logger, expr) {
+safe_execute <- function(response, logger, expr) {
   tryCatch(
     expr,
     error = function(e) {
       logger$error(conditionMessage(e))
-      res$status <- 500L
+      response$status <- 500L
       list(
         status  = "error",
         message = conditionMessage(e),

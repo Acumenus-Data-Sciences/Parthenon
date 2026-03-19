@@ -1,0 +1,2 @@
+#!/bin/sh
+echo "[S6] Plumber/Valve process exited with code $1, signal $2"

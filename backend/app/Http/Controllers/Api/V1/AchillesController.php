@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Jobs\Achilles\RunAchillesJob;
 use App\Jobs\Achilles\RunHeelJob;
 use App\Models\App\Source;
-use App\Models\Results\AchillesHeelResult;
 use App\Services\Achilles\AchillesResultReaderService;
 use App\Services\Achilles\Heel\AchillesHeelRuleRegistry;
 use App\Services\Achilles\Heel\AchillesHeelService;
@@ -256,7 +255,7 @@ class AchillesController extends Controller
         $runs = DB::table('achilles_heel_results')
             ->where('source_id', $source->id)
             ->whereNotNull('run_id')
-            ->selectRaw("run_id, COUNT(*) as total_results, COUNT(DISTINCT rule_id) as rules_completed, MIN(created_at) as started_at, MAX(created_at) as completed_at")
+            ->selectRaw('run_id, COUNT(*) as total_results, COUNT(DISTINCT rule_id) as rules_completed, MIN(created_at) as started_at, MAX(created_at) as completed_at')
             ->groupBy('run_id')
             ->orderByDesc('started_at')
             ->limit(20)
@@ -288,7 +287,7 @@ class AchillesController extends Controller
         $overall = DB::table('achilles_heel_results')
             ->where('run_id', $runId)
             ->where('source_id', $source->id)
-            ->selectRaw("COUNT(DISTINCT rule_id) as rules_completed, COUNT(*) as total_results")
+            ->selectRaw('COUNT(DISTINCT rule_id) as rules_completed, COUNT(*) as total_results')
             ->first();
 
         $rulesCompleted = (int) ($overall->rules_completed ?? 0);
@@ -297,7 +296,7 @@ class AchillesController extends Controller
         $bySeverity = DB::table('achilles_heel_results')
             ->where('run_id', $runId)
             ->where('source_id', $source->id)
-            ->selectRaw("severity, COUNT(*) as count, COUNT(DISTINCT rule_id) as rules")
+            ->selectRaw('severity, COUNT(*) as count, COUNT(DISTINCT rule_id) as rules')
             ->groupBy('severity')
             ->get()
             ->map(fn ($row) => [

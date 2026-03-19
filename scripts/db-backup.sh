@@ -1,12 +1,11 @@
 #!/usr/bin/env bash
-# db-backup.sh — Dump the PRODUCTION database (pgsql.acumenus.net / ohdsi)
+# db-backup.sh — Dump the parthenon database
 #
-# Backs up ALL critical schemas from the REAL production PostgreSQL 17 instance.
-# NOT the Docker postgres container, which holds no production data.
+# Backs up ALL critical schemas from the parthenon database.
 #
 # Schemas backed up:
-#   app              — Application state (users, sources, cohorts, studies, analyses, executions, etc.)
-#   achilles_results — Achilles characterization output, cohort records, DQD results
+#   app     — Application state (users, sources, cohorts, studies, analyses, executions, etc.)
+#   results — Achilles characterization output, cohort records, DQD results
 #
 # Usage:
 #   ./scripts/db-backup.sh           # manual run
@@ -21,7 +20,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 BACKUP_DIR="$PROJECT_DIR/backups"
 TIMESTAMP="$(date +%Y%m%d-%H%M%S)"
-BACKUP_FILE="ohdsi-full-${TIMESTAMP}.sql"
+BACKUP_FILE="parthenon-full-${TIMESTAMP}.sql"
 KEEP_COUNT=30
 
 # Production DB credentials from backend/.env
@@ -45,9 +44,9 @@ fi
 
 mkdir -p "$BACKUP_DIR"
 
-echo "==> Parthenon Production DB Backup"
+echo "==> Parthenon DB Backup"
 echo "    Host:    $PG_HOST:$PG_PORT / $PG_DB"
-echo "    Schemas: app, achilles_results"
+echo "    Schemas: app, results"
 echo "    Target:  $BACKUP_DIR/$BACKUP_FILE"
 
 # Dump critical schemas: app state + analysis results
@@ -57,7 +56,7 @@ if PGPASSWORD="$PG_PASSWORD" pg_dump \
   -U "$PG_USER" \
   -d "$PG_DB" \
   --schema=app \
-  --schema=achilles_results \
+  --schema=results \
   --clean \
   --if-exists \
   --no-owner \
@@ -81,7 +80,7 @@ if PGPASSWORD="$PG_PASSWORD" pg_dump \
       'cohorts', (SELECT COUNT(*) FROM app.cohort_definitions),
       'characterizations', (SELECT COUNT(*) FROM app.characterizations),
       'executions', (SELECT COUNT(*) FROM app.analysis_executions),
-      'cohort_records', (SELECT COUNT(*) FROM achilles_results.cohort)
+      'cohort_records', (SELECT COUNT(*) FROM results.cohort)
     );
   " 2>/dev/null || echo '{"error":"query failed"}')"
 
@@ -95,7 +94,7 @@ if PGPASSWORD="$PG_PASSWORD" pg_dump \
   PRUNED=0
   while IFS= read -r old; do
     rm -f "$old"; PRUNED=$((PRUNED + 1))
-  done < <(ls -1t "$BACKUP_DIR"/ohdsi-*.sql 2>/dev/null | grep -v latest | tail -n +$((KEEP_COUNT + 1)))
+  done < <(ls -1t "$BACKUP_DIR"/parthenon-full-*.sql "$BACKUP_DIR"/ohdsi-*.sql 2>/dev/null | grep -v latest | tail -n +$((KEEP_COUNT + 1)))
   [ "$PRUNED" -gt 0 ] && echo "    Pruned $PRUNED old backup(s) (keeping last $KEEP_COUNT)"
 
   echo "==> Backup complete."

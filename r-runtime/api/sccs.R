@@ -1,3 +1,6 @@
+#* @root /analysis/sccs
+NULL
+
 # ──────────────────────────────────────────────────────────────────
 # Self-Controlled Case Series (SCCS) Pipeline
 # POST /analysis/sccs/run
@@ -11,28 +14,28 @@ source("/app/R/progress.R")
 #* Run Self-Controlled Case Series analysis
 #* @post /run
 #* @serializer unboxedJSON
-function(req, res) {
-  spec   <- req$body
+function(body, response) {
+  spec   <- body
   logger <- create_analysis_logger()
 
   if (is.null(spec)) {
-    res$status <- 400L
+    response$status <- 400L
     return(list(status = "error", message = "No specification provided"))
   }
 
   required_keys <- c("source", "cohorts")
   missing <- setdiff(required_keys, names(spec))
   if (length(missing) > 0) {
-    res$status <- 400L
+    response$status <- 400L
     return(list(status = "error", message = paste("Missing:", paste(missing, collapse = ", "))))
   }
 
   logger$info("SCCS pipeline started")
 
-  safe_execute(res, logger, {
+  safe_execute(response, logger, {
     connectionDetails <- create_hades_connection(spec$source)
     connection <- DatabaseConnector::connect(connectionDetails)
-    on.exit(DatabaseConnector::disconnect(connection), add = TRUE)
+    on.exit(safe_disconnect(connection), add = TRUE)
 
     cdmSchema     <- spec$source$cdm_schema
     resultsSchema <- spec$source$results_schema

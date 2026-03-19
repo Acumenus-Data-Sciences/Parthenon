@@ -29,7 +29,7 @@ class CohortOverlapService
         }
 
         $dialect = $source->source_dialect ?? 'postgresql';
-        $connectionName = $source->source_connection ?? 'cdm';
+        $connectionName = $source->source_connection ?? 'omop';
         $cohortTable = "{$resultsSchema}.cohort";
 
         $params = ['resultsSchema' => $resultsSchema];
