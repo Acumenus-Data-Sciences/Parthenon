@@ -291,7 +291,25 @@ class AchillesController extends Controller
             ->first();
 
         $rulesCompleted = (int) ($overall->rules_completed ?? 0);
-        $status = $rulesCompleted === 0 ? 'pending' : ($rulesCompleted >= $totalRules ? 'completed' : 'running');
+        $totalResults = (int) ($overall->total_results ?? 0);
+
+        // Heel only stores violation rows — most rules produce 0 rows.
+        // We cannot determine "running" by comparing rules_completed vs totalRules.
+        // Use time-based staleness: if no new results in last 2 minutes, it's done.
+        $lastResult = DB::table('achilles_heel_results')
+            ->where('run_id', $runId)
+            ->where('source_id', $source->id)
+            ->max('created_at');
+
+        $lastAge = $lastResult
+            ? abs(now()->diffInSeconds(\Illuminate\Support\Carbon::parse($lastResult)))
+            : PHP_INT_MAX;
+
+        if ($rulesCompleted === 0 && $totalResults === 0) {
+            $status = $lastAge > 120 ? 'completed' : 'pending';
+        } else {
+            $status = $lastAge < 120 ? 'running' : 'completed';
+        }
 
         $bySeverity = DB::table('achilles_heel_results')
             ->where('run_id', $runId)
@@ -324,7 +342,7 @@ class AchillesController extends Controller
             'rules_completed' => $rulesCompleted,
             'total_rules' => $totalRules,
             'total_results' => (int) ($overall->total_results ?? 0),
-            'percentage' => $totalRules > 0 ? round(($rulesCompleted / $totalRules) * 100, 1) : 0,
+            'percentage' => $status === 'completed' ? 100.0 : ($status === 'pending' ? 0.0 : 50.0),
             'by_severity' => $bySeverity->sortBy('severity')->values(),
             'latest_rule' => $latestResult ? [
                 'rule_id' => $latestResult->rule_id,
