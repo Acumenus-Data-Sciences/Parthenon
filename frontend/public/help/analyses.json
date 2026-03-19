@@ -1,0 +1,14 @@
+{
+  "key": "analyses",
+  "title": "Analyses",
+  "description": "The Analyses section is the primary workspace for designing, executing, and reviewing OHDSI-standard analyses across your observational data. It supports characterization studies, incidence rate calculations, treatment pathway analyses, population-level estimation, patient-level prediction, and the full study lifecycle from design through evidence synthesis and package export.",
+  "docs_url": "/docs/part4-analyses/09-characterization",
+  "video_url": null,
+  "tips": [
+    "Start with a Characterization analysis to understand baseline demographics and clinical features of your cohort before moving to causal or predictive analyses.",
+    "Use the Study Designer to document study objectives, exposure definitions, and outcome definitions in one place before generating analytical packages.",
+    "Population-Level Estimation and Patient-Level Prediction analyses require pre-built cohort definitions \u2014 ensure your cohorts are validated before running these modules.",
+    "Treatment Pathways analyses work best when drug era collapse logic and observation window settings are reviewed against your clinical question.",
+    "Export a Study Package to share a fully reproducible analysis bundle with collaborators who have access to their own OMOP CDM databases."
+  ]
+}

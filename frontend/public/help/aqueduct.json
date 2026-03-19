@@ -1,0 +1,14 @@
+{
+  "key": "aqueduct",
+  "title": "Aqueduct Data Ingestion",
+  "description": "Aqueduct is Parthenon's end-to-end data ingestion pipeline that guides data engineers and analysts through uploading source data, mapping schemas and concepts to the OMOP Common Data Model, running ETL transformations, and monitoring job execution. It supports structured file uploads, FHIR-based ingestion, and integration with external ETL tooling.",
+  "docs_url": "/docs/part5-ingestion/15-uploading-data",
+  "video_url": null,
+  "tips": [
+    "Run the Source Profiler on a new dataset before beginning schema mapping to get an automated assessment of field completeness, data types, and value distributions.",
+    "Use the Concept Mapping screen to resolve unmapped source codes early \u2014 high unmapped-concept rates will reduce the analytical utility of the resulting CDM tables.",
+    "FHIR Ingestion supports R4 resources; confirm your source system's FHIR version and capability statement before initiating a connection.",
+    "Monitor the Jobs screen after submitting an ETL run to track progress and capture error logs without leaving the platform.",
+    "Schema Mapping templates can be saved and reused across data refreshes, reducing manual effort when ingesting updated extracts from the same source system."
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "key": "dashboard",
+  "title": "Dashboard",
+  "description": "The Dashboard is your personalized home screen in Parthenon, providing an at-a-glance summary of recent activity, data source status, pending tasks, and quick-access shortcuts to your most frequently used analytical assets. It is designed to orient both new and returning users to the current state of their research environment.",
+  "docs_url": "/docs/part1-getting-started/00-dashboard",
+  "video_url": null,
+  "tips": [
+    "Pin your most frequently used cohort definitions and concept sets to the Dashboard for one-click access during active research projects.",
+    "The data source status panel surfaces any ingestion failures or connectivity issues \u2014 review it at the start of each session before running analyses.",
+    "Recent activity cards track your last-edited analyses, cohort generations, and study packages, making it easy to resume work across sessions.",
+    "Use the Dashboard notifications area to stay informed about cohort generation completions, scheduled job results, and platform announcements.",
+    "Administrators can customize the default Dashboard layout to surface organization-specific metrics and approved data sources for all users."
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "key": "care-gaps",
+  "title": "Care Gaps",
+  "description": "The Care Gaps module identifies patients who have not received recommended preventive or chronic care services based on configurable clinical quality measures. It surfaces actionable gaps at the patient level, enabling care management teams to prioritize outreach and close gaps in care delivery.",
+  "docs_url": "/docs/part7-patient-profiles/21a-care-gaps",
+  "video_url": null,
+  "tips": [
+    "Care gap measures are driven by cohort definitions \u2014 ensure your numerator and denominator cohorts are clinically validated before publishing results to care teams.",
+    "Filter the care gaps list by measure, care site, or provider to focus outreach efforts on the highest-impact patient segments.",
+    "Use the Patient Timelines view alongside Care Gaps to review a patient's longitudinal history before initiating an outreach workflow.",
+    "Schedule regular care gap refreshes aligned with your data ingestion cadence so that gap lists reflect the most current available data.",
+    "Export gap lists in a structured format for integration with care management platforms or secure messaging systems."
+  ]
+}

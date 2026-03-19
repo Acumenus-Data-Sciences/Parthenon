@@ -1,0 +1,14 @@
+{
+  "key": "etl",
+  "title": "ETL Tools",
+  "description": "The ETL Tools module within Aqueduct provides integrated support for managing and executing Extract, Transform, and Load workflows that convert source healthcare data into the OMOP Common Data Model format. It supports configuration of transformation rules, execution scheduling, error handling, and integration with established OHDSI ETL frameworks.",
+  "docs_url": "/docs/part5-ingestion/17c-etl-tools",
+  "video_url": null,
+  "tips": [
+    "Document your source-to-CDM field mappings in the Schema Mapping module before configuring ETL transformation rules to maintain a clear audit trail of data lineage.",
+    "Validate ETL outputs by running the Achilles characterization tool against the resulting CDM tables and reviewing results in the Data Quality Dashboard.",
+    "Use parameterized ETL configurations so that the same transformation logic can be applied to incremental data refreshes without manual reconfiguration.",
+    "Review the Jobs Monitoring screen after each ETL run to identify and resolve failed transformation steps before they propagate data quality issues downstream.",
+    "Maintain version-controlled ETL scripts alongside your Parthenon configuration so that transformations are reproducible and auditable across platform upgrades."
+  ]
+}

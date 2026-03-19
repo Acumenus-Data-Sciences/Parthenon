@@ -1,0 +1,14 @@
+{
+  "key": "gis",
+  "title": "GIS Explorer",
+  "description": "The GIS Explorer module brings geospatial analysis capabilities to Parthenon, enabling researchers and public health analysts to visualize patient cohort distributions, disease burden, social determinants of health, and clinical outcome metrics across geographic units. It supports choropleth mapping, spatial clustering, and integration with external geospatial reference datasets.",
+  "docs_url": "/docs/part13-gis/31-gis-explorer",
+  "video_url": null,
+  "tips": [
+    "Geospatial analyses require patient address data to be geocoded and stored in compliance with your institution's data governance policies \u2014 confirm data availability and consent scope before proceeding.",
+    "Use area-level social determinants of health (SDOH) layers such as Area Deprivation Index or census tract income data to contextualize clinical outcome disparities across geographies.",
+    "Choropleth maps should use appropriate geographic aggregation levels \u2014 county or ZIP code aggregation is typically sufficient to protect patient re-identification while preserving analytical utility.",
+    "Spatial clustering tools can identify geographic hotspots of disease incidence or care gaps that may warrant targeted public health or care management interventions.",
+    "Export GIS visualizations and underlying aggregated data summaries for inclusion in public health reports, grant applications, or stakeholder presentations."
+  ]
+}
