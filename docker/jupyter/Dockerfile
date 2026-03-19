@@ -27,6 +27,12 @@ COPY docker/jupyter/start.sh /usr/local/bin/parthenon-jupyter-start
 
 RUN chmod +x /usr/local/bin/parthenon-jupyter-start
 
+# Default to dark theme to match Parthenon UI
+RUN JUPYTER_DATA=$(python -c "import jupyter_core.paths; print(jupyter_core.paths.jupyter_data_dir())") && \
+    mkdir -p "${JUPYTER_DATA}/lab/settings" && \
+    echo '{"@jupyterlab/apputils-extension:themes":{"theme":"JupyterLab Dark"}}' \
+      > "${JUPYTER_DATA}/lab/settings/overrides.json"
+
 EXPOSE 8888
 
 ENTRYPOINT ["tini", "--", "/usr/local/bin/parthenon-jupyter-start"]
