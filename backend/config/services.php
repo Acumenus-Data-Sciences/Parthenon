@@ -76,9 +76,12 @@ return [
     ],
 
     'jupyter' => [
-        'url' => env('JUPYTER_URL', 'http://jupyter:8888'),
+        'hub_url' => env('JUPYTER_URL', 'http://jupyterhub:8000'),
         'base_url' => env('JUPYTER_BASE_URL', '/jupyter'),
-        'token' => env('JUPYTER_TOKEN', 'parthenon-local-jupyter'),
+        'jwt_secret' => env('JUPYTER_JWT_SECRET', ''),
+        'hub_api_key' => env('JUPYTER_HUB_API_KEY', ''),
+        'db_researcher_password' => env('JUPYTER_DB_RESEARCHER_PASSWORD', ''),
+        'db_admin_password' => env('JUPYTER_DB_ADMIN_PASSWORD', ''),
     ],
 
 ];

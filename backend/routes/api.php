@@ -496,12 +496,23 @@ Route::prefix('v1')->group(function () {
             });
 
         // Jupyter workbench
-        Route::prefix('jupyter')
-            ->middleware(['role:researcher|super-admin', 'throttle:10,1'])
-            ->group(function () {
-                Route::get('/health', [JupyterController::class, 'health']);
-                Route::get('/workspace', [JupyterController::class, 'workspace']);
-            });
+        Route::prefix('jupyter')->group(function () {
+            // Authenticated endpoints (researcher, data-steward, admin, super-admin — NOT viewer)
+            Route::middleware(['role:researcher|data-steward|admin|super-admin', 'throttle:10,1'])
+                ->group(function () {
+                    Route::get('/health', [JupyterController::class, 'health']);
+                    Route::get('/workspace', [JupyterController::class, 'workspace']);
+                    Route::post('/session', [JupyterController::class, 'session']);
+                    Route::delete('/session', [JupyterController::class, 'destroySession']);
+                });
+
+            // Hub-to-Laravel endpoints (authenticated via X-Hub-Api-Key header, no Sanctum)
+            Route::withoutMiddleware(['auth:sanctum'])
+                ->middleware(['throttle:60,1'])
+                ->group(function () {
+                    Route::post('/audit', [JupyterController::class, 'audit']);
+                });
+        });
 
         // Publication / Export
         Route::post('publish/narrative', [PublicationController::class, 'narrative']);

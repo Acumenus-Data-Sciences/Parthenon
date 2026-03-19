@@ -14,7 +14,7 @@ services:
       php:
         condition: service_healthy
       jupyterhub:
-        condition: service_healthy
+        condition: service_started
     networks:
       - parthenon
     restart: unless-stopped
@@ -280,7 +280,7 @@ services:
       - PARTHENON_DB_NAME=parthenon
       - PARTHENON_REPO_PATH=${PWD:-.}
     depends_on:
-      nginx:
+      postgres:
         condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8000/jupyter/hub/health >/dev/null"]
