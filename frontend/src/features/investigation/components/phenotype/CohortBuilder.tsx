@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import type { Investigation, PhenotypeState, CohortOperationResult } from "../../types";
 import { CohortPicker } from "./CohortPicker";
+import { PhenotypeLibrarySearch } from "./PhenotypeLibrarySearch";
 import { useCohortDefinitions } from "@/features/cohort-definitions/hooks/useCohortDefinitions";
 import { CohortOperationPanel } from "./CohortOperationPanel";
 
@@ -31,7 +32,7 @@ const IMPORT_OPTIONS: ImportOption[] = [
   {
     id: "phenotype_library",
     label: "Phenotype Library",
-    description: "Browse OHDSI phenotype library (coming soon)",
+    description: "Browse OHDSI Phenotype Library (1,100+ validated phenotypes)",
   },
 ];
 
@@ -57,6 +58,10 @@ export function CohortBuilder({ investigation, onStateChange, onPinFinding }: Co
     investigation.phenotype_state.primary_cohort_id ?? null,
   );
   const [atlasJson, setAtlasJson] = useState("");
+  const [atlasParseError, setAtlasParseError] = useState<string | null>(null);
+  const [atlasSummary, setAtlasSummary] = useState<string | null>(null);
+  const [fileInfo, setFileInfo] = useState<{ name: string; size: string; summary: string } | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Resolved cohort objects (name + count) for CohortOperationPanel
   const { data: cohortListData } = useCohortDefinitions({ limit: 200, with_generations: true });
@@ -72,6 +77,82 @@ export function CohortBuilder({ investigation, onStateChange, onPinFinding }: Co
 
   function handleOperationComplete(result: CohortOperationResult) {
     console.log("[CohortBuilder] operation complete:", result);
+  }
+
+  function handleAtlasParse() {
+    setAtlasParseError(null);
+    setAtlasSummary(null);
+    if (!atlasJson.trim()) {
+      setAtlasParseError("Please paste an Atlas JSON definition before parsing.");
+      return;
+    }
+    let parsed: Record<string, unknown>;
+    try {
+      parsed = JSON.parse(atlasJson) as Record<string, unknown>;
+    } catch {
+      setAtlasParseError("Invalid JSON — please check for syntax errors.");
+      return;
+    }
+    const hasExpression = "expression" in parsed;
+    const inner = (hasExpression ? (parsed.expression as Record<string, unknown>) : parsed) ?? {};
+    const conceptSets = Array.isArray(inner.ConceptSets) ? inner.ConceptSets : [];
+    const primaryCriteria = inner.PrimaryCriteria;
+    const hasValidShape = "ConceptSets" in inner || "PrimaryCriteria" in inner || hasExpression;
+    if (!hasValidShape) {
+      setAtlasParseError("Unrecognised format — expected ConceptSets, PrimaryCriteria, or expression keys.");
+      return;
+    }
+    const criteriaCount =
+      Array.isArray((primaryCriteria as Record<string, unknown> | undefined)?.CriteriaList)
+        ? ((primaryCriteria as Record<string, unknown>).CriteriaList as unknown[]).length
+        : primaryCriteria
+        ? 1
+        : 0;
+    setAtlasSummary(
+      `Found ${conceptSets.length} concept set${conceptSets.length !== 1 ? "s" : ""}, ${criteriaCount} criteria`
+    );
+    onStateChange({ cohort_definition: parsed });
+  }
+
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const sizeKB = (file.size / 1024).toFixed(1);
+    const text = await file.text();
+    if (file.name.endsWith(".json")) {
+      let parsed: Record<string, unknown>;
+      try {
+        parsed = JSON.parse(text) as Record<string, unknown>;
+      } catch {
+        setFileInfo({ name: file.name, size: `${sizeKB} KB`, summary: "Invalid JSON file" });
+        return;
+      }
+      const inner = ("expression" in parsed ? (parsed.expression as Record<string, unknown>) : parsed) ?? {};
+      const conceptSets = Array.isArray(inner.ConceptSets) ? inner.ConceptSets : [];
+      setFileInfo({
+        name: file.name,
+        size: `${sizeKB} KB`,
+        summary: `JSON parsed — ${conceptSets.length} concept set${conceptSets.length !== 1 ? "s" : ""}`,
+      });
+      onStateChange({ cohort_definition: parsed });
+    } else if (file.name.endsWith(".csv")) {
+      const rows = text.split("\n").filter((r) => r.trim().length > 0);
+      const dataRows = rows.length > 1 ? rows.length - 1 : rows.length;
+      setFileInfo({
+        name: file.name,
+        size: `${sizeKB} KB`,
+        summary: `Loaded ${dataRows} row${dataRows !== 1 ? "s" : ""} from ${file.name}`,
+      });
+      onStateChange({ cohort_definition: { csv_rows: rows } });
+    } else {
+      setFileInfo({ name: file.name, size: `${sizeKB} KB`, summary: "Unsupported file type" });
+    }
+    // Reset input so same file can be re-selected
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }
+
+  function handlePhenotypeSelect(phenotype: { id: string; name: string; description: string; expression: Record<string, unknown> }) {
+    onStateChange({ cohort_definition: phenotype.expression });
   }
 
   function handleModeChange(mode: ImportMode) {
@@ -106,14 +187,13 @@ export function CohortBuilder({ investigation, onStateChange, onPinFinding }: Co
                 importMode === opt.id
                   ? "border-[#2DD4BF]/50 bg-teal-900/10"
                   : "border-zinc-700/50 bg-zinc-800/40 hover:bg-zinc-800/70"
-              } ${opt.id === "phenotype_library" ? "opacity-50 cursor-not-allowed" : ""}`}
+              }`}
             >
               <input
                 type="radio"
                 name="import_mode"
                 value={opt.id}
                 checked={importMode === opt.id}
-                disabled={opt.id === "phenotype_library"}
                 onChange={() => handleModeChange(opt.id)}
                 className="mt-0.5 accent-[#2DD4BF] shrink-0"
               />
@@ -148,14 +228,32 @@ export function CohortBuilder({ investigation, onStateChange, onPinFinding }: Co
           </p>
           <textarea
             value={atlasJson}
-            onChange={(e) => setAtlasJson(e.target.value)}
+            onChange={(e) => {
+              setAtlasJson(e.target.value);
+              setAtlasParseError(null);
+              setAtlasSummary(null);
+            }}
             rows={10}
-            placeholder='Paste Atlas cohort definition JSON here…\n\n{"ConceptSets": [], "PrimaryCriteria": {...}}'
+            placeholder={'Paste Atlas cohort definition JSON here…\n\n{"ConceptSets": [], "PrimaryCriteria": {...}}'}
             className="w-full bg-zinc-800/60 border border-zinc-700 rounded px-3 py-2 text-xs text-zinc-200 placeholder:text-zinc-500 font-mono focus:outline-none focus:border-[#2DD4BF]/60 resize-y"
           />
-          <p className="text-[11px] text-zinc-500">
-            Export from Atlas: Cohort Definition → Export → JSON
-          </p>
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-[11px] text-zinc-500">
+              Export from Atlas: Cohort Definition → Export → JSON
+            </p>
+            <button
+              onClick={handleAtlasParse}
+              className="shrink-0 px-3 py-1.5 rounded text-xs font-medium bg-[#2DD4BF]/10 text-[#2DD4BF] border border-[#2DD4BF]/30 hover:bg-[#2DD4BF]/20 transition-colors"
+            >
+              Parse &amp; Import
+            </button>
+          </div>
+          {atlasParseError && (
+            <p className="text-[11px] text-[#9B1B30]">{atlasParseError}</p>
+          )}
+          {atlasSummary && (
+            <p className="text-[11px] text-[#2DD4BF]">{atlasSummary} — imported successfully.</p>
+          )}
         </div>
       )}
 
@@ -181,28 +279,26 @@ export function CohortBuilder({ investigation, onStateChange, onPinFinding }: Co
             <span className="text-xs text-zinc-400">
               Drop a CSV or JSON file here, or click to browse
             </span>
-            <input type="file" accept=".csv,.json" className="hidden" />
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".csv,.json"
+              className="hidden"
+              onChange={handleFileChange}
+            />
           </label>
+          {fileInfo && (
+            <div className="rounded border border-zinc-700/50 bg-zinc-800/40 px-3 py-2 flex flex-col gap-0.5">
+              <p className="text-xs text-zinc-300 font-medium">{fileInfo.name}</p>
+              <p className="text-[11px] text-zinc-500">{fileInfo.size}</p>
+              <p className="text-[11px] text-[#2DD4BF]">{fileInfo.summary}</p>
+            </div>
+          )}
         </div>
       )}
 
       {importMode === "phenotype_library" && (
-        <div className="flex flex-col items-center justify-center gap-2 py-10 text-zinc-500">
-          <svg
-            className="w-10 h-10 text-zinc-700"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={1.5}
-              d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-            />
-          </svg>
-          <p className="text-xs">OHDSI Phenotype Library browser coming soon.</p>
-        </div>
+        <PhenotypeLibrarySearch onSelectPhenotype={handlePhenotypeSelect} />
       )}
 
       {/* Selected cohorts summary */}
