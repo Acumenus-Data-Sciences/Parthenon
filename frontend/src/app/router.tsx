@@ -320,6 +320,20 @@ export const router = createBrowserRouter(
                 "@/features/community-workbench-sdk/pages/CommunityWorkbenchSdkDemoPage"
               ).then((m) => ({ Component: m.default })),
           },
+          {
+            path: "investigation/new",
+            lazy: () =>
+              import(
+                "@/features/investigation/pages/NewInvestigationPage"
+              ).then((m) => ({ Component: m.default })),
+          },
+          {
+            path: "investigation/:investigationId",
+            lazy: () =>
+              import(
+                "@/features/investigation/pages/InvestigationPage"
+              ).then((m) => ({ Component: m.default })),
+          },
         ],
       },
       {
