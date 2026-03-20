@@ -337,6 +337,12 @@
                 }
             }
         ],
+        "EndStrategy": {
+            "DateOffset": {
+                "Offset": 0,
+                "DateField": "ObservationPeriodEnd"
+            }
+        },
         "CensorWindow": [],
         "InclusionRules": [
             {
@@ -475,7 +481,7 @@
     "is_public": true,
     "version": 1,
     "created_at": null,
-    "updated_at": null,
+    "updated_at": "2026-03-20T21:27:50.000000Z",
     "deleted_at": null,
     "tags": [
         "study-3",

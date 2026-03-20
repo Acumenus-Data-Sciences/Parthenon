@@ -1,0 +1,77 @@
+{
+    "id": 60,
+    "name": "S9R: Prediabetes Metformin vs No-Metformin — T2DM Progression (PS-Stratified Cox)",
+    "description": "Metformin repurposing redesign: prediabetes patients who initiate metformin vs all prediabetes patients (majority never receive metformin). Tests whether metformin delays T2DM progression. PS stratification avoids drug-class separation.",
+    "design_json": {
+        "model": {
+            "type": "cox",
+            "covariateSettings": {
+                "endDays": 0,
+                "useCharlsonIndex": true,
+                "longTermStartDays": -365,
+                "useDemographicsAge": true,
+                "useDrugEraLongTerm": false,
+                "useDemographicsRace": true,
+                "useDemographicsGender": true,
+                "useDrugExposureLongTerm": false,
+                "useConditionOccurrenceLongTerm": true
+            }
+        },
+        "timeAtRisk": {
+            "end": {
+                "offset": 1825,
+                "dateField": "index_date"
+            },
+            "start": {
+                "offset": 1,
+                "dateField": "index_date"
+            }
+        },
+        "description": "Prediabetes metformin initiators vs base prediabetes population — T2DM progression",
+        "analysisType": "CohortMethod",
+        "targetCohortId": 190,
+        "propensityScore": {
+            "method": "stratification",
+            "enabled": true,
+            "trimming": {
+                "type": "preference_score",
+                "fraction": 0.05
+            },
+            "stratification": {
+                "strata": 5
+            }
+        },
+        "studyPopulation": {
+            "minTimeAtRisk": 1,
+            "riskWindowEnd": 1825,
+            "washoutPeriod": 0,
+            "riskWindowStart": 1,
+            "requireTimeAtRisk": true,
+            "priorOutcomeLookback": 99999,
+            "removeDuplicateSubjects": "keep first",
+            "removeSubjectsWithPriorOutcome": true
+        },
+        "outcomeCohortIds": [
+            158
+        ],
+        "covariateSettings": {
+            "useCharlsonIndex": true,
+            "excludedConceptIds": [
+                1503297
+            ],
+            "useDemographicsAge": true,
+            "useDrugEraLongTerm": false,
+            "useDemographicsRace": true,
+            "useDemographicsGender": true,
+            "useDrugExposureLongTerm": false,
+            "useConditionOccurrenceLongTerm": true
+        },
+        "outcomeOfInterest": 158,
+        "comparatorCohortId": 156,
+        "negativeControlOutcomeIds": []
+    },
+    "author_id": 117,
+    "created_at": "2026-03-20T21:03:31.000000Z",
+    "updated_at": "2026-03-20T21:03:31.000000Z",
+    "deleted_at": null
+}

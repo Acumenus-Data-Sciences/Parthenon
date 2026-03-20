@@ -1,50 +1,21 @@
 {
-    "id": 67,
-    "name": "Coronary Artery Disease with Statin Therapy",
-    "description": "Patients with coronary artery disease or angina who receive statin therapy for secondary prevention of cardiovascular events.",
+    "id": 195,
+    "name": "S7: Statin Users — Secondary Prevention (IHD)",
+    "description": "New statin users who have ischemic heart disease (secondary prevention). Uses the existing simvastatin new-user cohort intersected with IHD diagnosis.",
     "expression_json": {
         "ConceptSets": [
             {
                 "id": 0,
-                "name": "CAD Conditions",
+                "name": "Simvastatin",
                 "expression": {
                     "items": [
                         {
                             "concept": {
-                                "DOMAIN_ID": "Condition",
-                                "CONCEPT_ID": 316139,
-                                "CONCEPT_CODE": "",
-                                "CONCEPT_NAME": "Heart failure",
-                                "VOCABULARY_ID": "SNOMED",
-                                "CONCEPT_CLASS_ID": "Clinical Finding",
-                                "STANDARD_CONCEPT": "S"
-                            },
-                            "isExcluded": false,
-                            "includeMapped": false,
-                            "includeDescendants": true
-                        },
-                        {
-                            "concept": {
-                                "DOMAIN_ID": "Condition",
-                                "CONCEPT_ID": 321318,
-                                "CONCEPT_CODE": "",
-                                "CONCEPT_NAME": "Angina pectoris",
-                                "VOCABULARY_ID": "SNOMED",
-                                "CONCEPT_CLASS_ID": "Clinical Finding",
-                                "STANDARD_CONCEPT": "S"
-                            },
-                            "isExcluded": false,
-                            "includeMapped": false,
-                            "includeDescendants": true
-                        },
-                        {
-                            "concept": {
-                                "DOMAIN_ID": "Condition",
-                                "CONCEPT_ID": 4329847,
-                                "CONCEPT_CODE": "",
-                                "CONCEPT_NAME": "Myocardial infarction",
-                                "VOCABULARY_ID": "SNOMED",
-                                "CONCEPT_CLASS_ID": "Clinical Finding",
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 1539403,
+                                "CONCEPT_NAME": "simvastatin",
+                                "VOCABULARY_ID": "RxNorm",
+                                "CONCEPT_CLASS_ID": "Ingredient",
                                 "STANDARD_CONCEPT": "S"
                             },
                             "isExcluded": false,
@@ -56,43 +27,14 @@
             },
             {
                 "id": 1,
-                "name": "Statin Medications",
+                "name": "All Statins (washout)",
                 "expression": {
                     "items": [
                         {
                             "concept": {
                                 "DOMAIN_ID": "Drug",
-                                "CONCEPT_ID": 1510813,
-                                "CONCEPT_CODE": "",
-                                "CONCEPT_NAME": "Atorvastatin",
-                                "VOCABULARY_ID": "RxNorm",
-                                "CONCEPT_CLASS_ID": "Ingredient",
-                                "STANDARD_CONCEPT": "S"
-                            },
-                            "isExcluded": false,
-                            "includeMapped": false,
-                            "includeDescendants": true
-                        },
-                        {
-                            "concept": {
-                                "DOMAIN_ID": "Drug",
-                                "CONCEPT_ID": 1549686,
-                                "CONCEPT_CODE": "",
-                                "CONCEPT_NAME": "Rosuvastatin",
-                                "VOCABULARY_ID": "RxNorm",
-                                "CONCEPT_CLASS_ID": "Ingredient",
-                                "STANDARD_CONCEPT": "S"
-                            },
-                            "isExcluded": false,
-                            "includeMapped": false,
-                            "includeDescendants": true
-                        },
-                        {
-                            "concept": {
-                                "DOMAIN_ID": "Drug",
-                                "CONCEPT_ID": 1551860,
-                                "CONCEPT_CODE": "",
-                                "CONCEPT_NAME": "Simvastatin",
+                                "CONCEPT_ID": 1539403,
+                                "CONCEPT_NAME": "simvastatin",
                                 "VOCABULARY_ID": "RxNorm",
                                 "CONCEPT_CLASS_ID": "Ingredient",
                                 "STANDARD_CONCEPT": "S"
@@ -105,10 +47,56 @@
                             "concept": {
                                 "DOMAIN_ID": "Drug",
                                 "CONCEPT_ID": 1545958,
-                                "CONCEPT_CODE": "",
-                                "CONCEPT_NAME": "Pravastatin",
+                                "CONCEPT_NAME": "atorvastatin",
                                 "VOCABULARY_ID": "RxNorm",
                                 "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 1510813,
+                                "CONCEPT_NAME": "rosuvastatin",
+                                "VOCABULARY_ID": "RxNorm",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 1551860,
+                                "CONCEPT_NAME": "pravastatin",
+                                "VOCABULARY_ID": "RxNorm",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            },
+            {
+                "id": 2,
+                "name": "Ischemic Heart Disease",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Condition",
+                                "CONCEPT_ID": 4185932,
+                                "CONCEPT_NAME": "Ischemic heart disease",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Clinical Finding",
                                 "STANDARD_CONCEPT": "S"
                             },
                             "isExcluded": false,
@@ -125,6 +113,41 @@
                 "DateField": "ObservationPeriodEnd"
             }
         },
+        "InclusionRules": [
+            {
+                "name": "No prior statin exposure",
+                "expression": {
+                    "Type": "ALL",
+                    "Groups": [],
+                    "CriteriaList": [
+                        {
+                            "Criteria": {
+                                "DrugExposure": {
+                                    "CodesetId": 1
+                                }
+                            },
+                            "Occurrence": {
+                                "Type": 0,
+                                "Count": 0
+                            },
+                            "StartWindow": {
+                                "End": {
+                                    "Days": 1,
+                                    "Coeff": -1
+                                },
+                                "Start": {
+                                    "Days": 99999,
+                                    "Coeff": -1
+                                }
+                            },
+                            "RestrictVisit": false,
+                            "IgnoreObservationPeriod": false
+                        }
+                    ]
+                },
+                "description": "Exclude patients with any statin exposure in all time prior to index. Ensures true new-user design."
+            }
+        ],
         "QualifiedLimit": {
             "Type": "First"
         },
@@ -134,7 +157,7 @@
         "PrimaryCriteria": {
             "CriteriaList": [
                 {
-                    "ConditionOccurrence": {
+                    "DrugExposure": {
                         "First": true,
                         "CodesetId": 0
                     }
@@ -149,14 +172,15 @@
             "EraPad": 0,
             "CollapseType": "ERA"
         },
+        "CensoringCriteria": [],
         "AdditionalCriteria": {
             "Type": "ALL",
             "Groups": [],
             "CriteriaList": [
                 {
                     "Criteria": {
-                        "DrugExposure": {
-                            "CodesetId": 1
+                        "ConditionOccurrence": {
+                            "CodesetId": 2
                         }
                     },
                     "Occurrence": {
@@ -165,11 +189,11 @@
                     },
                     "StartWindow": {
                         "End": {
-                            "Days": 365,
+                            "Days": 0,
                             "Coeff": 1
                         },
                         "Start": {
-                            "Days": 0,
+                            "Days": 99999,
                             "Coeff": -1
                         }
                     }
@@ -180,13 +204,15 @@
     "author_id": 117,
     "is_public": true,
     "version": 1,
-    "created_at": "2026-03-15T02:58:11.000000Z",
-    "updated_at": "2026-03-20T20:54:14.000000Z",
+    "created_at": "2026-03-20T20:58:27.000000Z",
+    "updated_at": "2026-03-20T20:58:27.000000Z",
     "deleted_at": null,
     "tags": [
-        "cad",
-        "cardiovascular",
-        "sample"
+        "statin",
+        "ihd",
+        "secondary-prevention",
+        "target",
+        "s7r"
     ],
     "share_token": null,
     "share_expires_at": null

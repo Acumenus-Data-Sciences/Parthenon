@@ -73,6 +73,12 @@
                 }
             }
         ],
+        "EndStrategy": {
+            "DateOffset": {
+                "Offset": 0,
+                "DateField": "ObservationPeriodEnd"
+            }
+        },
         "CensorWindow": [],
         "InclusionRules": [],
         "QualifiedLimit": {
@@ -108,7 +114,7 @@
     "is_public": true,
     "version": 1,
     "created_at": null,
-    "updated_at": null,
+    "updated_at": "2026-03-20T21:28:07.000000Z",
     "deleted_at": null,
     "tags": [
         "study-5",
