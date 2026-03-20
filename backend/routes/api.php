@@ -19,7 +19,6 @@ use App\Http\Controllers\Api\V1\Admin\UserController;
 use App\Http\Controllers\Api\V1\Admin\VocabularyController as AdminVocabularyController;
 use App\Http\Controllers\Api\V1\Admin\WebApiRegistryController;
 use App\Http\Controllers\Api\V1\AnalysisStatsController;
-use App\Http\Controllers\Api\V1\AqueductController;
 use App\Http\Controllers\Api\V1\AriadneController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CareGapController;
@@ -533,19 +532,6 @@ Route::prefix('v1')->group(function () {
             Route::post('/fhir/batch', [FhirToCdmController::class, 'batch']);
             Route::get('/fhir/health', [FhirToCdmController::class, 'health']);
 
-            // Aqueduct ETL Mapping Workbench (auth:sanctum inherited from parent group)
-            Route::prefix('aqueduct')
-                ->middleware(['role:researcher|super-admin'])
-                ->group(function () {
-                    Route::middleware('throttle:60,1')->group(function () {
-                        Route::get('/lookups/vocabularies', [AqueductController::class, 'listVocabularies']);
-                        Route::get('/lookups/preview/{vocabulary}', [AqueductController::class, 'previewLookup']);
-                    });
-
-                    Route::middleware('throttle:10,1')->group(function () {
-                        Route::post('/lookups/generate', [AqueductController::class, 'generateLookups']);
-                    });
-                });
         });
 
         // Strategus Study Orchestration

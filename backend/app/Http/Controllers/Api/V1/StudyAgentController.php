@@ -12,7 +12,6 @@ use App\Http\Requests\StudyAgent\PhenotypeRecommendRequest;
 use App\Http\Requests\StudyAgent\PhenotypeSearchRequest;
 use App\Http\Requests\StudyAgent\RecommendPhenotypesRequest;
 use App\Models\App\Source;
-use App\Services\Aqueduct\AqueductService;
 use App\Services\StudyAgent\CommunityWorkbenchSdkDemoService;
 use App\Services\StudyAgent\FinnGenRunService;
 use App\Services\StudyAgent\FinnGenWorkbenchService;
@@ -60,7 +59,7 @@ class StudyAgentController extends Controller
         return response()->json(['data' => $response->json()]);
     }
 
-    public function services(CommunityWorkbenchSdkDemoService $demoService, AqueductService $aqueductService): JsonResponse
+    public function services(CommunityWorkbenchSdkDemoService $demoService): JsonResponse
     {
         $services = [];
         $warnings = [];
@@ -83,7 +82,6 @@ class StudyAgentController extends Controller
         }
 
         $services = $this->appendServiceEntry($services, $demoService->serviceEntry());
-        $services = $this->appendServiceEntry($services, $aqueductService->serviceEntry());
 
         return response()->json([
             'data' => [
