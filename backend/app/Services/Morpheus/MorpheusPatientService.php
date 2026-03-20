@@ -28,29 +28,146 @@ class MorpheusPatientService
     }
 
     /**
-     * List all patients with summary stats.
+     * List all patients with summary stats, supporting filters and sorting.
      */
-    public function listPatients(int $limit = 100, int $offset = 0): array
+    public function listPatients(int $limit = 100, int $offset = 0, array $filters = []): array
     {
-        $patients = DB::connection($this->conn)->select("
-            SELECT p.subject_id, p.gender, p.anchor_age, p.anchor_year,
-                   p.anchor_year_group, p.dod,
-                   count(DISTINCT a.hadm_id) as admission_count,
-                   count(DISTINCT i.stay_id) as icu_stay_count
-            FROM mimiciv.patients p
-            LEFT JOIN mimiciv.admissions a ON p.subject_id = a.subject_id
-            LEFT JOIN mimiciv.icustays i ON p.subject_id = i.subject_id
-            GROUP BY p.subject_id, p.gender, p.anchor_age, p.anchor_year,
-                     p.anchor_year_group, p.dod
-            ORDER BY p.subject_id::int
+        $params = [];
+        $conditions = [];
+
+        // Build filter conditions
+        if (isset($filters['icu'])) {
+            if ($filters['icu'] === true || $filters['icu'] === 'true') {
+                $conditions[] = "pi.icu_stay_count > 0";
+            } else {
+                $conditions[] = "(pi.icu_stay_count IS NULL OR pi.icu_stay_count = 0)";
+            }
+        }
+
+        if (isset($filters['deceased'])) {
+            if ($filters['deceased'] === true || $filters['deceased'] === 'true') {
+                $conditions[] = "pb.dod IS NOT NULL";
+            } else {
+                $conditions[] = "pb.dod IS NULL";
+            }
+        }
+
+        if (!empty($filters['admission_type'])) {
+            $conditions[] = "pb.subject_id IN (SELECT subject_id FROM mimiciv.admissions WHERE admission_type = ?)";
+            $params[] = $filters['admission_type'];
+        }
+
+        if (isset($filters['min_los']) && is_numeric($filters['min_los'])) {
+            $conditions[] = "pl.total_los_days >= ?";
+            $params[] = (float) $filters['min_los'];
+        }
+
+        if (isset($filters['max_los']) && is_numeric($filters['max_los'])) {
+            $conditions[] = "pl.total_los_days <= ?";
+            $params[] = (float) $filters['max_los'];
+        }
+
+        if (!empty($filters['diagnosis'])) {
+            $conditions[] = "pb.subject_id IN (
+                SELECT d.subject_id FROM mimiciv.diagnoses_icd d
+                LEFT JOIN mimiciv.d_icd_diagnoses dd ON d.icd_code = dd.icd_code AND d.icd_version = dd.icd_version
+                WHERE d.icd_code ILIKE ? OR dd.long_title ILIKE ?
+            )";
+            $like = '%' . $filters['diagnosis'] . '%';
+            $params[] = $like;
+            $params[] = $like;
+        }
+
+        $whereClause = $conditions ? 'WHERE ' . implode(' AND ', $conditions) : '';
+
+        // Validate sort column
+        $allowedSorts = ['subject_id', 'gender', 'anchor_age', 'admission_count', 'icu_stay_count', 'total_los_days', 'longest_icu_los', 'deceased'];
+        $sortCol = in_array($filters['sort'] ?? '', $allowedSorts) ? $filters['sort'] : 'subject_id';
+        $sortDir = ($filters['order'] ?? 'asc') === 'desc' ? 'DESC' : 'ASC';
+
+        // For subject_id sorting, cast to int for proper numeric order
+        $orderBy = $sortCol === 'subject_id' ? "pb.subject_id::int {$sortDir}" : "{$sortCol} {$sortDir} NULLS LAST";
+
+        $sql = "
+            WITH patient_base AS (
+                SELECT p.subject_id, p.gender, p.anchor_age, p.anchor_year,
+                       p.anchor_year_group, p.dod,
+                       count(DISTINCT a.hadm_id)::int as admission_count
+                FROM mimiciv.patients p
+                LEFT JOIN mimiciv.admissions a ON p.subject_id = a.subject_id
+                GROUP BY p.subject_id, p.gender, p.anchor_age, p.anchor_year,
+                         p.anchor_year_group, p.dod
+            ),
+            patient_icu AS (
+                SELECT subject_id,
+                       count(DISTINCT stay_id)::int as icu_stay_count,
+                       ROUND(max(los::numeric)::numeric, 1) as longest_icu_los
+                FROM mimiciv.icustays GROUP BY subject_id
+            ),
+            patient_los AS (
+                SELECT subject_id,
+                       ROUND(sum(EXTRACT(EPOCH FROM (dischtime::timestamp - admittime::timestamp))/86400.0)::numeric, 1) as total_los_days
+                FROM mimiciv.admissions GROUP BY subject_id
+            ),
+            patient_dx AS (
+                SELECT DISTINCT ON (d.subject_id)
+                       d.subject_id, d.icd_code as primary_icd_code,
+                       COALESCE(dd.long_title, '') as primary_diagnosis
+                FROM mimiciv.diagnoses_icd d
+                LEFT JOIN mimiciv.d_icd_diagnoses dd ON d.icd_code = dd.icd_code AND d.icd_version = dd.icd_version
+                WHERE d.seq_num = '1'
+                ORDER BY d.subject_id, d.hadm_id::bigint DESC
+            )
+            SELECT pb.subject_id, pb.gender, pb.anchor_age, pb.anchor_year,
+                   pb.anchor_year_group, pb.dod,
+                   pb.admission_count,
+                   COALESCE(pi.icu_stay_count, 0) as icu_stay_count,
+                   pl.total_los_days,
+                   pi.longest_icu_los,
+                   pd.primary_icd_code,
+                   pd.primary_diagnosis,
+                   CASE WHEN pb.dod IS NOT NULL THEN true ELSE false END as deceased
+            FROM patient_base pb
+            LEFT JOIN patient_icu pi ON pb.subject_id = pi.subject_id
+            LEFT JOIN patient_los pl ON pb.subject_id = pl.subject_id
+            LEFT JOIN patient_dx pd ON pb.subject_id = pd.subject_id
+            {$whereClause}
+            ORDER BY {$orderBy}
             LIMIT ? OFFSET ?
-        ", [$limit, $offset]);
+        ";
 
-        $total = DB::connection($this->conn)->selectOne(
-            "SELECT count(*) as total FROM mimiciv.patients"
-        );
+        $params[] = $limit;
+        $params[] = $offset;
 
-        return ['data' => $patients, 'total' => $total->total];
+        $patients = DB::connection($this->conn)->select($sql, $params);
+
+        // Count total (with same filters, without limit/offset)
+        $countSql = "
+            WITH patient_base AS (
+                SELECT p.subject_id, p.dod
+                FROM mimiciv.patients p
+            ),
+            patient_icu AS (
+                SELECT subject_id, count(DISTINCT stay_id)::int as icu_stay_count
+                FROM mimiciv.icustays GROUP BY subject_id
+            ),
+            patient_los AS (
+                SELECT subject_id,
+                       sum(EXTRACT(EPOCH FROM (dischtime::timestamp - admittime::timestamp))/86400.0) as total_los_days
+                FROM mimiciv.admissions GROUP BY subject_id
+            )
+            SELECT count(*) as total
+            FROM patient_base pb
+            LEFT JOIN patient_icu pi ON pb.subject_id = pi.subject_id
+            LEFT JOIN patient_los pl ON pb.subject_id = pl.subject_id
+            {$whereClause}
+        ";
+
+        // Remove the last two params (limit, offset) for count query
+        $countParams = array_slice($params, 0, -2);
+        $total = DB::connection($this->conn)->selectOne($countSql, $countParams);
+
+        return ['data' => $patients, 'total' => (int) $total->total];
     }
 
     /**

@@ -20,7 +20,17 @@ class MorpheusPatientController extends Controller
         $limit = $request->integer('limit', 100);
         $offset = $request->integer('offset', 0);
 
-        return response()->json($this->service->listPatients($limit, $offset));
+        $filters = [];
+        if ($request->has('icu')) $filters['icu'] = $request->input('icu');
+        if ($request->has('deceased')) $filters['deceased'] = $request->input('deceased');
+        if ($request->filled('admission_type')) $filters['admission_type'] = $request->input('admission_type');
+        if ($request->filled('min_los')) $filters['min_los'] = $request->input('min_los');
+        if ($request->filled('max_los')) $filters['max_los'] = $request->input('max_los');
+        if ($request->filled('diagnosis')) $filters['diagnosis'] = $request->input('diagnosis');
+        if ($request->filled('sort')) $filters['sort'] = $request->input('sort');
+        if ($request->filled('order')) $filters['order'] = $request->input('order');
+
+        return response()->json($this->service->listPatients($limit, $offset, $filters));
     }
 
     public function searchPatients(Request $request): JsonResponse
