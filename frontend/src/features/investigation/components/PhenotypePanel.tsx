@@ -314,6 +314,14 @@ export function PhenotypePanel({ investigation }: PhenotypePanelProps) {
           <CohortBuilder
             investigation={investigation}
             onStateChange={handleStateChange}
+            onPinFinding={(finding) => {
+              createPin.mutate({
+                domain: finding.domain,
+                section: finding.section,
+                finding_type: finding.finding_type,
+                finding_payload: finding.finding_payload,
+              });
+            }}
           />
         )}
 

@@ -27,12 +27,19 @@ export interface CohortOperationPanelProps {
   selectedCohorts: Array<{ id: number; name: string; count: number }>;
   primaryId: number | null;
   onOperationComplete?: (result: CohortOperationResult) => void;
+  onPinFinding?: (finding: {
+    domain: string;
+    section: string;
+    finding_type: string;
+    finding_payload: Record<string, unknown>;
+  }) => void;
 }
 
 export function CohortOperationPanel({
   selectedCohorts,
   primaryId,
   onOperationComplete,
+  onPinFinding,
 }: CohortOperationPanelProps) {
   const [operationType, setOperationType] = useState<SetOperationType>("union");
   const [sources, setSources] = useState<Source[]>([]);
@@ -295,12 +302,27 @@ export function CohortOperationPanel({
             </div>
           )}
 
-          {/* Pin to Dossier — wired in Task 6 */}
+          {/* Pin to Dossier */}
           <div>
             <button
-              disabled
-              className="rounded border border-zinc-700 bg-zinc-800/40 px-4 py-2 text-xs text-zinc-500 opacity-60 cursor-not-allowed"
-              title="Pin wiring coming in Task 6"
+              disabled={!result || !onPinFinding}
+              onClick={() => {
+                if (onPinFinding && result) {
+                  onPinFinding({
+                    domain: "phenotype",
+                    section: "phenotype_definition",
+                    finding_type: "cohort_summary",
+                    finding_payload: {
+                      operation_type: result.operation_type,
+                      result_count: result.result_count,
+                      cohorts: selectedCohorts.map(c => c.name),
+                      compile_summary: result.compile_summary,
+                    },
+                  });
+                }
+              }}
+              className="rounded border border-zinc-700 bg-zinc-800/40 px-4 py-2 text-xs text-zinc-300 transition-colors hover:border-[#C9A227]/50 hover:bg-[#C9A227]/10 hover:text-[#C9A227] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-zinc-700 disabled:hover:bg-zinc-800/40 disabled:hover:text-zinc-500"
+              title={!onPinFinding ? "Pin not available" : !result ? "Run an operation first" : "Pin this result to the dossier"}
             >
               Pin to Dossier
             </button>

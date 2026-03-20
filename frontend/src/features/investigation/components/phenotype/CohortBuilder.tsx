@@ -38,9 +38,15 @@ const IMPORT_OPTIONS: ImportOption[] = [
 interface CohortBuilderProps {
   investigation: Investigation;
   onStateChange: (partial: Partial<PhenotypeState>) => void;
+  onPinFinding?: (finding: {
+    domain: string;
+    section: string;
+    finding_type: string;
+    finding_payload: Record<string, unknown>;
+  }) => void;
 }
 
-export function CohortBuilder({ investigation, onStateChange }: CohortBuilderProps) {
+export function CohortBuilder({ investigation, onStateChange, onPinFinding }: CohortBuilderProps) {
   const [importMode, setImportMode] = useState<ImportMode>(
     investigation.phenotype_state.import_mode ?? "parthenon",
   );
@@ -241,6 +247,7 @@ export function CohortBuilder({ investigation, onStateChange }: CohortBuilderPro
           selectedCohorts={selectedCohorts}
           primaryId={primaryId}
           onOperationComplete={handleOperationComplete}
+          onPinFinding={onPinFinding}
         />
       )}
 
