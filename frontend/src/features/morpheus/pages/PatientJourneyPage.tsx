@@ -29,7 +29,7 @@ export default function PatientJourneyPage() {
   const [searchQuery, setSearchQuery] = useState('');
 
   // Data queries
-  const patientsQuery = useMorpheusPatients(100);
+  const patientsQuery = useMorpheusPatients({}, 100);
   const patientQuery = useMorpheusPatient(subjectId);
   const admissionsQuery = useMorpheusAdmissions(subjectId);
   const transfersQuery = useMorpheusTransfers(subjectId, selectedHadmId ?? undefined);
@@ -52,13 +52,6 @@ export default function PatientJourneyPage() {
   if (!subjectId) {
     return (
       <div className="p-6 space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-100">Morpheus &mdash; Patient Journey</h1>
-            <p className="text-sm text-gray-500 mt-1">Inpatient clinical timeline explorer (MIMIC-IV Demo: 100 patients)</p>
-          </div>
-        </div>
-
         {/* Search */}
         <div className="max-w-md">
           <input
@@ -138,29 +131,6 @@ export default function PatientJourneyPage() {
 
   return (
     <div className="p-6 space-y-4">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => navigate('/morpheus/journey')}
-            className="text-gray-500 hover:text-gray-300 transition-colors"
-          >
-            &larr; Back
-          </button>
-          <div>
-            <h1 className="text-xl font-bold text-gray-100">
-              Patient {subjectId}
-              {patient && (
-                <span className="text-sm font-normal text-gray-500 ml-2">
-                  {patient.gender === 'M' ? 'Male' : 'Female'}, age {patient.anchor_age}
-                  {patient.dod && <span className="text-[#E85A6B] ml-1"> (deceased)</span>}
-                </span>
-              )}
-            </h1>
-          </div>
-        </div>
-      </div>
-
       {/* Event counts */}
       {Object.keys(counts).length > 0 && <EventCountBar counts={counts} />}
 

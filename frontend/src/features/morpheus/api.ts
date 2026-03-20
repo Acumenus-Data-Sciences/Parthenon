@@ -11,6 +11,11 @@ export interface MorpheusPatient {
   dod: string | null;
   admission_count: number;
   icu_stay_count?: number;
+  total_los_days: number | null;
+  longest_icu_los: number | null;
+  primary_diagnosis: string | null;
+  primary_icd_code: string | null;
+  deceased: boolean;
 }
 
 export interface MorpheusAdmission {
@@ -113,13 +118,89 @@ export interface MorpheusEventCounts {
   [domain: string]: number;
 }
 
+export interface DashboardMetrics {
+  total_patients: number;
+  total_admissions: number;
+  icu_admission_rate: number;
+  mortality_rate: number;
+  avg_los_days: number;
+  avg_icu_los_days: number;
+}
+
+export interface DashboardTrend {
+  month: string;
+  admissions: number;
+  deaths: number;
+  mortality_rate: number;
+  avg_los: number;
+}
+
+export interface TopDiagnosis {
+  icd_code: string;
+  icd_version: string;
+  description: string;
+  patient_count: number;
+}
+
+export interface TopProcedure {
+  icd_code: string;
+  icd_version: string;
+  description: string;
+  patient_count: number;
+}
+
+export interface DemographicBreakdown {
+  gender: Record<string, number>;
+  age_groups: Array<{ range: string; count: number }>;
+}
+
+export interface LosDistribution {
+  bucket: string;
+  count: number;
+}
+
+export interface IcuUnitStats {
+  careunit: string;
+  admission_count: number;
+  avg_los_days: number;
+}
+
+export interface MortalityByType {
+  admission_type: string;
+  total: number;
+  deaths: number;
+  rate: number;
+}
+
+export interface PatientFilters {
+  icu?: boolean;
+  deceased?: boolean;
+  admission_type?: string;
+  min_los?: number;
+  max_los?: number;
+  diagnosis?: string;
+  sort?: string;
+  order?: 'asc' | 'desc';
+}
+
 const BASE = '/api/v1/morpheus/patients';
 
-export function useMorpheusPatients(limit = 100) {
+export function useMorpheusPatients(filters: PatientFilters = {}, limit = 100, offset = 0) {
   return useQuery({
-    queryKey: ['morpheus', 'patients', limit],
+    queryKey: ['morpheus', 'patients', filters, limit, offset],
     queryFn: async () => {
-      const res = await apiClient.get(`${BASE}?limit=${limit}`);
+      const params = new URLSearchParams();
+      params.set('limit', String(limit));
+      params.set('offset', String(offset));
+      if (filters.icu !== undefined) params.set('icu', String(filters.icu));
+      if (filters.deceased !== undefined) params.set('deceased', String(filters.deceased));
+      if (filters.admission_type) params.set('admission_type', filters.admission_type);
+      if (filters.min_los !== undefined) params.set('min_los', String(filters.min_los));
+      if (filters.max_los !== undefined) params.set('max_los', String(filters.max_los));
+      if (filters.diagnosis) params.set('diagnosis', filters.diagnosis);
+      if (filters.sort) params.set('sort', filters.sort);
+      if (filters.order) params.set('order', filters.order);
+      const res = await apiClient.get(`${BASE}?${params.toString()}`);
       return res.data as { data: MorpheusPatient[]; total: number };
     },
   });
@@ -256,5 +337,64 @@ export function useMorpheusEventCounts(subjectId: string | undefined, hadmId?: s
       return res.data.data as MorpheusEventCounts;
     },
     enabled: !!subjectId,
+  });
+}
+
+// Dashboard hooks
+const DASH = '/api/v1/morpheus/dashboard';
+
+export function useDashboardMetrics() {
+  return useQuery({
+    queryKey: ['morpheus', 'dashboard', 'metrics'],
+    queryFn: async () => { const res = await apiClient.get(`${DASH}/metrics`); return res.data.data as DashboardMetrics; },
+  });
+}
+
+export function useDashboardTrends() {
+  return useQuery({
+    queryKey: ['morpheus', 'dashboard', 'trends'],
+    queryFn: async () => { const res = await apiClient.get(`${DASH}/trends`); return res.data.data as DashboardTrend[]; },
+  });
+}
+
+export function useDashboardTopDiagnoses(limit = 10) {
+  return useQuery({
+    queryKey: ['morpheus', 'dashboard', 'top-diagnoses', limit],
+    queryFn: async () => { const res = await apiClient.get(`${DASH}/top-diagnoses?limit=${limit}`); return res.data.data as TopDiagnosis[]; },
+  });
+}
+
+export function useDashboardTopProcedures(limit = 10) {
+  return useQuery({
+    queryKey: ['morpheus', 'dashboard', 'top-procedures', limit],
+    queryFn: async () => { const res = await apiClient.get(`${DASH}/top-procedures?limit=${limit}`); return res.data.data as TopProcedure[]; },
+  });
+}
+
+export function useDashboardDemographics() {
+  return useQuery({
+    queryKey: ['morpheus', 'dashboard', 'demographics'],
+    queryFn: async () => { const res = await apiClient.get(`${DASH}/demographics`); return res.data.data as DemographicBreakdown; },
+  });
+}
+
+export function useDashboardLosDistribution() {
+  return useQuery({
+    queryKey: ['morpheus', 'dashboard', 'los-distribution'],
+    queryFn: async () => { const res = await apiClient.get(`${DASH}/los-distribution`); return res.data.data as LosDistribution[]; },
+  });
+}
+
+export function useDashboardIcuUnits() {
+  return useQuery({
+    queryKey: ['morpheus', 'dashboard', 'icu-units'],
+    queryFn: async () => { const res = await apiClient.get(`${DASH}/icu-units`); return res.data.data as IcuUnitStats[]; },
+  });
+}
+
+export function useDashboardMortalityByType() {
+  return useQuery({
+    queryKey: ['morpheus', 'dashboard', 'mortality-by-type'],
+    queryFn: async () => { const res = await apiClient.get(`${DASH}/mortality-by-type`); return res.data.data as MortalityByType[]; },
   });
 }

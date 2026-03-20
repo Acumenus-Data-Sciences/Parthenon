@@ -111,7 +111,6 @@ const navItems: NavItem[] = [
     label: "Evidence",
     icon: Microscope,
     children: [
-      { path: "/morpheus/journey", label: "Patient Journey", icon: Activity },
       { path: "/profiles", label: "Patient Profiles", icon: UserCircle },
       { path: "/genomics", label: "Genomics", icon: Dna },
       { path: "/imaging", label: "Imaging", icon: ScanLine },

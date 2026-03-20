@@ -400,25 +400,31 @@ export const router = createBrowserRouter(
       },
       {
         path: "morpheus",
+        lazy: () =>
+          import("@/features/morpheus/components/MorpheusLayout").then((m) => ({
+            Component: m.default,
+          })),
         children: [
           {
+            index: true,
+            lazy: () =>
+              import("@/features/morpheus/pages/MorpheusDashboardPage").then((m) => ({
+                Component: m.default,
+              })),
+          },
+          {
             path: "journey",
-            children: [
-              {
-                index: true,
-                lazy: () =>
-                  import("@/features/morpheus/pages/PatientJourneyPage").then((m) => ({
-                    Component: m.default,
-                  })),
-              },
-              {
-                path: ":subjectId",
-                lazy: () =>
-                  import("@/features/morpheus/pages/PatientJourneyPage").then((m) => ({
-                    Component: m.default,
-                  })),
-              },
-            ],
+            lazy: () =>
+              import("@/features/morpheus/pages/PatientJourneyPage").then((m) => ({
+                Component: m.default,
+              })),
+          },
+          {
+            path: "journey/:subjectId",
+            lazy: () =>
+              import("@/features/morpheus/pages/PatientJourneyPage").then((m) => ({
+                Component: m.default,
+              })),
           },
         ],
       },

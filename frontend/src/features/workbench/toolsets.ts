@@ -22,8 +22,8 @@ export const TOOLSET_REGISTRY: ToolsetDescriptor[] = [
       "ICU-focused analytics leveraging MIMIC-IV data in OMOP CDM 5.4. ABCDEF Liberation Bundle compliance, ventilator weaning prediction, sedation monitoring, and inpatient outcome research.",
     icon: "BedDouble",
     accent: "#9B1B30",
-    status: "coming_soon",
-    route: null,
+    status: "available",
+    route: "/morpheus",
     badge: "MIMIC-IV",
   },
   {
