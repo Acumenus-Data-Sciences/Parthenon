@@ -3,6 +3,8 @@ import { useAutoSave } from "../hooks/useAutoSave";
 import type { ConceptSearchResult, Investigation, PhenotypeState } from "../types";
 import { CohortBuilder } from "./phenotype/CohortBuilder";
 import { CodeWASRunner } from "./phenotype/CodeWASRunner";
+import { ValidationChecklist } from "./phenotype/ValidationChecklist";
+import { CohortOverlapMatrix } from "./phenotype/CohortOverlapMatrix";
 import { ConceptExplorer } from "./phenotype/ConceptExplorer";
 import {
   ConceptSetBuilder,
@@ -337,17 +339,27 @@ export function PhenotypePanel({ investigation }: PhenotypePanelProps) {
         )}
 
         {activeTab === "validate" && (
-          <CodeWASRunner
-            investigation={investigation}
-            onPinFinding={(finding) => {
-              createPin.mutate({
-                domain: finding.domain,
-                section: finding.section,
-                finding_type: finding.finding_type,
-                finding_payload: finding.finding_payload,
-              });
-            }}
-          />
+          <div className="flex flex-col gap-4 h-full overflow-y-auto pr-1">
+            <CodeWASRunner
+              investigation={investigation}
+              onPinFinding={(finding) => {
+                createPin.mutate({
+                  domain: finding.domain,
+                  section: finding.section,
+                  finding_type: finding.finding_type,
+                  finding_payload: finding.finding_payload,
+                });
+              }}
+            />
+            <ValidationChecklist investigation={investigation} />
+            <CohortOverlapMatrix
+              cohorts={investigation.phenotype_state.selected_cohort_ids.map((id) => ({
+                id,
+                name: `Cohort #${id}`,
+                count: 0,
+              }))}
+            />
+          </div>
         )}
       </div>
     </div>
