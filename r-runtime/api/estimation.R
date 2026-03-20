@@ -173,7 +173,7 @@ function(body, response) {
             matchOnPsArgs  = matchArgs
           )
         } else if (ps_method == "stratification") {
-          n_strata <- as.integer(ps_spec$stratification$num_strata %||% ps_spec$stratification$numStrata %||% 5)
+          n_strata <- as.integer(ps_spec$stratification$num_strata %||% ps_spec$stratification$numStrata %||% ps_spec$stratification$strata %||% 5)
           stratArgs <- CohortMethod::createStratifyByPsArgs(
             numberOfStrata = n_strata
           )

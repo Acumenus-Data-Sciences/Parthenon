@@ -59,15 +59,40 @@ class SccsService
                 );
             }
 
+            // Flatten risk windows from nested {start:{offset,anchor}} to flat {start, startAnchor}
+            $rawWindows = $design['riskWindows'] ?? [];
+            $flatWindows = array_map(function (array $rw): array {
+                $flat = ['label' => $rw['label'] ?? 'Exposure'];
+
+                // Handle nested {offset, anchor} or flat integer start/end
+                if (is_array($rw['start'] ?? null)) {
+                    $flat['start'] = $rw['start']['offset'] ?? 0;
+                    $flat['startAnchor'] = $rw['start']['anchor'] ?? 'era start';
+                } else {
+                    $flat['start'] = $rw['start'] ?? 0;
+                    $flat['startAnchor'] = $rw['startAnchor'] ?? $rw['start_anchor'] ?? 'era start';
+                }
+
+                if (is_array($rw['end'] ?? null)) {
+                    $flat['end'] = $rw['end']['offset'] ?? 0;
+                    $flat['endAnchor'] = $rw['end']['anchor'] ?? 'era end';
+                } else {
+                    $flat['end'] = $rw['end'] ?? 0;
+                    $flat['endAnchor'] = $rw['endAnchor'] ?? $rw['end_anchor'] ?? 'era end';
+                }
+
+                return $flat;
+            }, $rawWindows);
+
             $spec = [
                 'source' => HadesBridgeService::buildSourceSpec($source),
                 'cohorts' => [
                     'exposure_cohort_id' => $exposureCohortId,
                     'outcome_cohort_id' => $outcomeCohortId,
                 ],
-                'risk_windows' => $design['riskWindows'] ?? [],
-                'naive_period' => $design['naivePeriod'] ?? 180,
-                'first_outcome_only' => $design['firstOutcomeOnly'] ?? true,
+                'risk_windows' => $flatWindows,
+                'naive_period' => $design['naivePeriod'] ?? $design['studyPopulation']['naivePeriod'] ?? 180,
+                'first_outcome_only' => $design['firstOutcomeOnly'] ?? $design['studyPopulation']['firstOutcomeOnly'] ?? true,
                 'event_dependent_observation' => $design['eventDependentObservation'] ?? true,
                 'covariate_settings' => $design['covariateSettings'] ?? [],
             ];
