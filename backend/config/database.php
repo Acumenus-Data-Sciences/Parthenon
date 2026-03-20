@@ -86,11 +86,12 @@ return [
         // SINGLE-DATABASE ARCHITECTURE
         // All connections point to the same 'parthenon' database.
         // Schema isolation via search_path:
-        //   pgsql    → app,php      (application tables, Laravel internals)
-        //   omop     → omop,php     (CDM + vocabulary)
-        //   results  → results,php  (Achilles/DQD output)
-        //   gis      → gis,omop,php (geospatial + CDM lookup)
-        //   eunomia  → eunomia,php  (demo dataset)
+        //   pgsql     → app,php                      (application tables, Laravel internals)
+        //   omop      → omop,php                     (CDM + vocabulary)
+        //   results   → results,php                  (Achilles/DQD output)
+        //   gis       → gis,omop,php                 (geospatial + CDM lookup)
+        //   eunomia   → eunomia,php                  (demo dataset)
+        //   inpatient → inpatient,inpatient_ext,omop (Morpheus inpatient CDM + extensions + shared vocab)
         // ────────────────────────────────────────────────────────────────────
 
         'pgsql' => [
@@ -167,6 +168,23 @@ return [
             'charset' => 'utf8',
             'prefix' => '',
             'search_path' => 'eunomia,php',
+            'sslmode' => 'prefer',
+        ],
+
+        // Morpheus inpatient CDM — schema-isolated OMOP CDM for inpatient
+        // clinical data. Extension tables in inpatient_ext, shared vocabulary
+        // from omop schema (no duplication).
+        'inpatient' => [
+            'driver' => 'pgsql',
+            'host' => env('DB_HOST', '127.0.0.1'),
+            'port' => env('DB_PORT', '5432'),
+            'database' => env('DB_DATABASE', 'parthenon'),
+            'username' => env('DB_USERNAME', 'parthenon'),
+            'password' => env('DB_PASSWORD', ''),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'search_path' => 'inpatient,inpatient_ext,omop',
             'sslmode' => 'prefer',
         ],
 
