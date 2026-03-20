@@ -2,6 +2,11 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { useCreateInvestigation } from "../hooks/useInvestigation";
+import { saveDomainState } from "../api";
+import { splitIntent } from "@/features/study-agent/api";
+import type { IntentSplitResult } from "@/features/study-agent/api";
+
+type StatusPhase = "idle" | "creating" | "analyzing" | "done";
 
 export default function NewInvestigationPage() {
   const navigate = useNavigate();
@@ -9,22 +14,65 @@ export default function NewInvestigationPage() {
 
   const [title, setTitle] = useState("");
   const [researchQuestion, setResearchQuestion] = useState("");
+  const [phase, setPhase] = useState<StatusPhase>("idle");
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const isLongEnough = researchQuestion.trim().length > 20;
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
 
-    createInvestigation.mutate(
-      {
+    setError(null);
+    setPhase("creating");
+
+    let investigationId: number;
+
+    try {
+      const result = await createInvestigation.mutateAsync({
         title: title.trim(),
         research_question: researchQuestion.trim() || undefined,
-      },
-      {
-        onSuccess: (result) => {
-          void navigate(`/workbench/investigation/${result.id}`);
-        },
-      },
-    );
+      });
+      investigationId = result.id;
+    } catch {
+      setError("Failed to create investigation. Please try again.");
+      setPhase("idle");
+      return;
+    }
+
+    // Guided mode: if the research question is long enough, attempt intent split
+    if (isLongEnough) {
+      setPhase("analyzing");
+
+      try {
+        const intent: IntentSplitResult = await splitIntent(
+          researchQuestion.trim(),
+        );
+
+        // Seed phenotype_state with concept set suggestions from the split
+        await saveDomainState(investigationId, "phenotype", {
+          concept_sets: [
+            { id: crypto.randomUUID(), name: intent.target },
+            { id: crypto.randomUUID(), name: intent.outcome },
+          ],
+          ai_seeded: true,
+          ai_rationale: intent.rationale ?? null,
+        });
+      } catch {
+        // Guided mode is best-effort — silently proceed if StudyAgent is unavailable
+      }
+    }
+
+    setPhase("done");
+    void navigate(`/workbench/investigation/${investigationId}`);
+  };
+
+  const isPending = phase === "creating" || phase === "analyzing";
+
+  const buttonLabel = () => {
+    if (phase === "creating") return "Creating...";
+    if (phase === "analyzing") return "AI is analyzing your question...";
+    return "Create Investigation";
   };
 
   return (
@@ -40,7 +88,7 @@ export default function NewInvestigationPage() {
           Start a structured dossier for your research question.
         </p>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={(e) => void handleSubmit(e)} className="space-y-5">
           {/* Title */}
           <div>
             <label
@@ -77,29 +125,33 @@ export default function NewInvestigationPage() {
               placeholder="What is the comparative effectiveness of..."
               className="w-full rounded-lg bg-zinc-900 border border-zinc-700 px-3 py-2 text-zinc-100 placeholder-zinc-600 text-sm focus:outline-none focus:border-zinc-500 transition-colors resize-none"
             />
+            {isLongEnough && (
+              <p className="mt-1 text-xs text-[#2DD4BF]">
+                AI will analyze your research question to suggest phenotype
+                concepts.
+              </p>
+            )}
           </div>
 
           {/* Submit */}
           <button
             type="submit"
-            disabled={createInvestigation.isPending || !title.trim()}
+            disabled={isPending || !title.trim()}
             className="w-full flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             style={{ backgroundColor: "#9B1B30" }}
           >
-            {createInvestigation.isPending ? (
+            {isPending ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Creating...
+                {buttonLabel()}
               </>
             ) : (
               "Create Investigation"
             )}
           </button>
 
-          {createInvestigation.isError && (
-            <p className="text-xs text-red-400 text-center">
-              Failed to create investigation. Please try again.
-            </p>
+          {error !== null && (
+            <p className="text-xs text-red-400 text-center">{error}</p>
           )}
         </form>
       </div>
