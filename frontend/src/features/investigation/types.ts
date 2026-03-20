@@ -172,6 +172,20 @@ export interface CodeWASDisplayResult {
   control_cohort_name: string;
 }
 
+/** Volcano plot data point — populated by Darkstar CodeWAS endpoint (future) */
+export interface VolcanoPoint {
+  concept_id: number;
+  concept_name: string;
+  odds_ratio: number;
+  log2_or: number;
+  p_value: number;
+  neg_log10_p: number;
+  ci_lower: number;
+  ci_upper: number;
+  significant: boolean;
+  direction: "risk" | "protective" | "neutral";
+}
+
 export interface PaginatedResponse<T> {
   data: T[];
   total: number;
