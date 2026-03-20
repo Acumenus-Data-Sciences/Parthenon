@@ -1,5 +1,6 @@
 import { useInvestigationStore } from "../stores/investigationStore";
 import type { Investigation } from "../types";
+import { ClinicalPanel } from "./clinical/ClinicalPanel";
 import { ContextBar } from "./ContextBar";
 import { DomainPlaceholder } from "./DomainPlaceholder";
 import { EvidenceSidebar } from "./EvidenceSidebar";
@@ -18,7 +19,7 @@ function FocusPanel({ investigation }: { investigation: Investigation }) {
     case "phenotype":
       return <PhenotypePanel investigation={investigation} />;
     case "clinical":
-      return <DomainPlaceholder domain="clinical" phase="Phase 2" />;
+      return <ClinicalPanel investigation={investigation} />;
     case "genomic":
       return <DomainPlaceholder domain="genomic" phase="Phase 3" />;
     case "synthesis":
