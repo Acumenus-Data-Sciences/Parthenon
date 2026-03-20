@@ -188,6 +188,24 @@ services:
       - parthenon
     restart: unless-stopped
 
+  morpheus-ingest:
+    container_name: parthenon-morpheus-ingest
+    build:
+      context: ./morpheus-ingest
+      dockerfile: Dockerfile
+    ports:
+      - "8004:8000"
+    volumes:
+      - ./morpheus-ingest:/app
+    environment:
+      - MORPHEUS_DATABASE_URL=postgresql://parthenon:parthenon@postgres:5432/parthenon
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - parthenon
+    restart: unless-stopped
+
   chromadb:
     container_name: parthenon-chromadb
     image: chromadb/chroma:latest
