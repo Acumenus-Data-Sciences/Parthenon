@@ -5,6 +5,7 @@ namespace App\Services\Analysis;
 use App\Enums\DaimonType;
 use App\Enums\ExecutionStatus;
 use App\Models\App\AnalysisExecution;
+use App\Models\App\CohortDefinition;
 use App\Models\App\ExecutionLog;
 use App\Models\App\PathwayAnalysis;
 use App\Models\App\Source;
@@ -278,9 +279,7 @@ class PathwayService
     }
 
     /**
-     * Build event cohort name map.
-     * Uses numeric labels like "Cohort 2", "Cohort 3" etc.
-     * In a full implementation, this would query cohort definitions for names.
+     * Build event cohort name map by querying cohort definition names.
      *
      * @param  list<int>  $eventCohortIds
      * @return array<int, string>
@@ -289,8 +288,10 @@ class PathwayService
     {
         $names = [];
 
+        $cohorts = CohortDefinition::whereIn('id', $eventCohortIds)->pluck('name', 'id');
+
         foreach ($eventCohortIds as $id) {
-            $names[$id] = "Cohort {$id}";
+            $names[$id] = $cohorts[$id] ?? "Cohort {$id}";
         }
 
         return $names;

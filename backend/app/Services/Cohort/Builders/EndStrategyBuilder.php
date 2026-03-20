@@ -31,6 +31,7 @@ class EndStrategyBuilder
 
             $baseDateExpr = match ($dateField) {
                 'EndDate' => $endDateExpr,
+                'ObservationPeriodEnd' => 'ie.op_end_date',
                 default => $startDateExpr,
             };
 
