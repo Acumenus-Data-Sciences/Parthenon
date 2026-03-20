@@ -374,8 +374,8 @@ class SeedResearchStudies extends Command
 
         // Study Analyses
         $s6AnalysisPatterns = [
-            'S6: Cardiorenal Cascade',
-            'S6: CKD Progression Incidence',
+            'S6: Cardiorenal Cascade — Baseline',
+            'S6: CKD Progression Incidence — Prediabetes',
             'S6: CKD Progression Incidence — Anemia',
             'S6: Cardiorenal — Metabolic Cascade',
             'S6: Predict CKD Stage 4',
