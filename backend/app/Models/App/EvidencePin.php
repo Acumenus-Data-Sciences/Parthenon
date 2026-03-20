@@ -19,12 +19,16 @@ class EvidencePin extends Model
         'is_key_finding',
         'narrative_before',
         'narrative_after',
+        'concept_ids',
+        'gene_symbols',
     ];
 
     protected $casts = [
         'finding_payload' => 'array',
         'is_key_finding' => 'boolean',
         'sort_order' => 'integer',
+        'concept_ids' => 'array',
+        'gene_symbols' => 'array',
     ];
 
     /**

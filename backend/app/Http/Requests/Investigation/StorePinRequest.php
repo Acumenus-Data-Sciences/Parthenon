@@ -28,6 +28,10 @@ class StorePinRequest extends FormRequest
             ])],
             'finding_payload' => ['required', 'array'],
             'is_key_finding' => ['sometimes', 'boolean'],
+            'concept_ids' => ['sometimes', 'array'],
+            'concept_ids.*' => ['integer'],
+            'gene_symbols' => ['sometimes', 'array'],
+            'gene_symbols.*' => ['string'],
         ];
     }
 }
