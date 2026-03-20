@@ -1,18 +1,21 @@
 import { useEffect, useMemo, useState } from "react";
 import { useAutoSave } from "../hooks/useAutoSave";
-import type { ConceptSearchResult, Investigation } from "../types";
+import type { ConceptSearchResult, Investigation, PhenotypeState } from "../types";
+import { CohortBuilder } from "./phenotype/CohortBuilder";
+import { CodeWASRunner } from "./phenotype/CodeWASRunner";
 import { ConceptExplorer } from "./phenotype/ConceptExplorer";
 import {
   ConceptSetBuilder,
   type ConceptSetEntry,
 } from "./phenotype/ConceptSetBuilder";
+import { useCreatePin } from "../hooks/useEvidencePins";
 
 type SubTab = "explore" | "build" | "validate";
 
 const SUB_TABS: { id: SubTab; label: string; disabled?: boolean }[] = [
   { id: "explore", label: "Explore" },
-  { id: "build", label: "Build", disabled: true },
-  { id: "validate", label: "Validate", disabled: true },
+  { id: "build", label: "Build" },
+  { id: "validate", label: "Validate" },
 ];
 
 interface ConceptSetData {
@@ -195,6 +198,17 @@ export function PhenotypePanel({ investigation }: PhenotypePanelProps) {
     });
   }
 
+  // Extra phenotype state fields managed by Build/Validate tabs
+  const [phenotypePartial, setPhenotypePartial] = useState<Partial<PhenotypeState>>({
+    selected_cohort_ids: investigation.phenotype_state.selected_cohort_ids ?? [],
+    primary_cohort_id: investigation.phenotype_state.primary_cohort_id ?? null,
+    import_mode: investigation.phenotype_state.import_mode ?? "parthenon",
+  });
+
+  function handleStateChange(partial: Partial<PhenotypeState>) {
+    setPhenotypePartial((prev) => ({ ...prev, ...partial }));
+  }
+
   // Build phenotypeState for auto-save using the Map-based multi-set shape
   const phenotypeState = useMemo(() => {
     return {
@@ -208,16 +222,18 @@ export function PhenotypePanel({ investigation }: PhenotypePanelProps) {
         })),
       })),
       cohort_definition: null,
-      selected_cohort_ids: [],
-      primary_cohort_id: null,
+      selected_cohort_ids: phenotypePartial.selected_cohort_ids ?? [],
+      primary_cohort_id: phenotypePartial.primary_cohort_id ?? null,
       matching_config: null,
-      import_mode: "parthenon" as const,
+      import_mode: (phenotypePartial.import_mode ?? "parthenon") as PhenotypeState["import_mode"],
       codewas_config: null,
       last_codewas_run_id: null,
     };
-  }, [conceptSets]);
+  }, [conceptSets, phenotypePartial]);
 
   const { status } = useAutoSave(investigation.id, "phenotype", phenotypeState);
+
+  const createPin = useCreatePin(investigation.id);
 
   return (
     <div className="flex flex-col h-full">
@@ -292,6 +308,27 @@ export function PhenotypePanel({ investigation }: PhenotypePanelProps) {
               />
             </div>
           </div>
+        )}
+
+        {activeTab === "build" && (
+          <CohortBuilder
+            investigation={investigation}
+            onStateChange={handleStateChange}
+          />
+        )}
+
+        {activeTab === "validate" && (
+          <CodeWASRunner
+            investigation={investigation}
+            onPinFinding={(finding) => {
+              createPin.mutate({
+                domain: finding.domain,
+                section: finding.section,
+                finding_type: finding.finding_type,
+                finding_payload: finding.finding_payload,
+              });
+            }}
+          />
         )}
       </div>
     </div>
