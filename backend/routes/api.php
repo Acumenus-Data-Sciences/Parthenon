@@ -59,6 +59,7 @@ use App\Http\Controllers\Api\V1\InvestigationController;
 use App\Http\Controllers\Api\V1\JobController;
 use App\Http\Controllers\Api\V1\JupyterController;
 use App\Http\Controllers\Api\V1\MappingReviewController;
+use App\Http\Controllers\Api\V1\MorpheusPatientController;
 use App\Http\Controllers\Api\V1\NegativeControlController;
 use App\Http\Controllers\Api\V1\NetworkAnalysisController;
 use App\Http\Controllers\Api\V1\NotificationPreferenceController;
@@ -1150,6 +1151,28 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         Route::post('/{investigation}/pins', [EvidencePinController::class, 'store']);
         Route::patch('/{investigation}/pins/{pin}', [EvidencePinController::class, 'update']);
         Route::delete('/{investigation}/pins/{pin}', [EvidencePinController::class, 'destroy']);
+    });
+});
+
+// ── Morpheus Patient Journey ─────────────────────────────────────────────────
+Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
+    Route::prefix('morpheus/patients')->group(function () {
+        Route::get('/', [MorpheusPatientController::class, 'listPatients']);
+        Route::get('/search', [MorpheusPatientController::class, 'searchPatients']);
+        Route::get('/{subjectId}', [MorpheusPatientController::class, 'show']);
+        Route::get('/{subjectId}/admissions', [MorpheusPatientController::class, 'admissions']);
+        Route::get('/{subjectId}/transfers', [MorpheusPatientController::class, 'transfers']);
+        Route::get('/{subjectId}/icu-stays', [MorpheusPatientController::class, 'icuStays']);
+        Route::get('/{subjectId}/diagnoses', [MorpheusPatientController::class, 'diagnoses']);
+        Route::get('/{subjectId}/procedures', [MorpheusPatientController::class, 'procedures']);
+        Route::get('/{subjectId}/medications', [MorpheusPatientController::class, 'medications']);
+        Route::get('/{subjectId}/lab-results', [MorpheusPatientController::class, 'labResults']);
+        Route::get('/{subjectId}/vitals', [MorpheusPatientController::class, 'vitals']);
+        Route::get('/{subjectId}/input-events', [MorpheusPatientController::class, 'inputEvents']);
+        Route::get('/{subjectId}/output-events', [MorpheusPatientController::class, 'outputEvents']);
+        Route::get('/{subjectId}/microbiology', [MorpheusPatientController::class, 'microbiology']);
+        Route::get('/{subjectId}/services', [MorpheusPatientController::class, 'services']);
+        Route::get('/{subjectId}/event-counts', [MorpheusPatientController::class, 'eventCounts']);
     });
 });
 
