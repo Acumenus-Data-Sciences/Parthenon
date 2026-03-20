@@ -1,14 +1,13 @@
 {
   "key": "data-explorer",
   "title": "Data Explorer",
-  "description": "The Data Explorer provides interactive, domain-level summaries of the observational data held within connected OMOP CDM data sources. Researchers can examine concept prevalence, temporal trends, demographic distributions, and data quality dashboard results to assess the fitness of a data source for a given research question.",
+  "description": "The Data Explorer enables interactive investigation of OMOP CDM data, including data quality dashboards that profile source data conformance, completeness, and plausibility. Researchers can use this feature to assess dataset readiness before conducting formal analyses.",
   "docs_url": "/docs/part6-data-explorer/19-data-quality-dashboard",
   "video_url": null,
   "tips": [
-    "Review the Data Quality Dashboard results for a source before relying on it for hypothesis-driven analyses \u2014 low conformance or completeness scores may indicate structural issues.",
-    "Use domain-level prevalence charts to assess whether key exposures and outcomes of interest are represented with sufficient frequency in your target data source.",
-    "Temporal trend views can reveal data collection gaps, coding practice changes, or EHR system migrations that may confound longitudinal analyses.",
-    "Compare concept prevalence across multiple data sources in the Explorer to identify site-level variation before designing a network study.",
-    "Bookmark specific Data Explorer views for data sources you use regularly so you can quickly re-assess source characteristics after a new data refresh."
+    "Review Data Quality Dashboard results for your target data source before executing analyses to identify known data gaps or anomalies.",
+    "Pay particular attention to completeness metrics for clinical domains central to your research question.",
+    "Use plausibility checks to identify records with implausible values that may need to be addressed in upstream ETL processes.",
+    "Compare data quality profiles across data sources when planning federated analyses to anticipate heterogeneity in results."
   ]
 }

@@ -1,14 +1,14 @@
 {
   "key": "data-sources",
   "title": "Data Sources",
-  "description": "Data Sources manages the connections between Parthenon and the OMOP CDM databases available within your deployment. Administrators and data engineers can register new sources, configure connection credentials, assign vocabulary schemas, and control which user roles have access to each source for analytical and exploratory purposes.",
+  "description": "Data Sources represent the OMOP CDM databases registered within Parthenon. This section provides tools to configure, profile, and monitor connected data sources, including uploading raw data, managing ETL processes, and mapping source concepts to standard vocabulary.",
   "docs_url": "/docs/part5-ingestion/15-uploading-data",
   "video_url": null,
   "tips": [
-    "Always assign the correct CDM version when registering a new source \u2014 mismatches between the registered version and the actual schema will cause query errors in downstream analyses.",
-    "Use descriptive, standardized source names and keycodes so that users can easily identify databases by institution, data type, and refresh date.",
-    "Restrict access to sensitive data sources at the role level rather than sharing credentials directly \u2014 use Parthenon's role-based access controls to manage authorization.",
-    "After registering a new source, run a characterization or Data Explorer summary to validate that the connection is active and the CDM tables are populated as expected.",
-    "Schedule periodic connection health checks through the System Health screen to detect database availability issues before they impact running analyses."
+    "Profile each new data source using the Source Profiler before running analyses to understand its clinical coverage and volume.",
+    "Validate concept mapping completeness for key clinical domains\u2014unmapped source codes can significantly affect cohort capture rates.",
+    "Monitor ingestion job status in Jobs Monitoring to ensure data loads complete successfully before scheduling analyses.",
+    "Document the CDM version and vocabulary release associated with each data source to support study reproducibility.",
+    "Use FHIR Ingestion tooling when integrating data from FHIR-conformant source systems to streamline the transformation process."
   ]
 }

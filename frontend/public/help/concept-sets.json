@@ -1,14 +1,14 @@
 {
   "key": "concept-sets",
   "title": "Concept Sets",
-  "description": "Concept Sets are reusable collections of OMOP standard vocabulary concepts that define clinical phenomena such as conditions, drugs, procedures, measurements, and observations. They serve as the building blocks for cohort definitions, analyses, and phenotype libraries across the Parthenon platform.",
+  "description": "Concept Sets are curated collections of OMOP standard vocabulary concepts used to represent clinical entities such as conditions, drugs, measurements, and procedures. They serve as reusable building blocks within cohort definitions and analyses, ensuring consistent clinical logic across studies.",
   "docs_url": "/docs/part2-vocabulary/04-concept-sets",
   "video_url": null,
   "tips": [
-    "Use the Vocabulary Browser to explore concept hierarchies before finalizing your concept set \u2014 including descendants of a high-level concept often captures more complete case ascertainment.",
-    "The Mapping Assistant can help translate source codes (ICD-10, CPT, SNOMED) to their OMOP standard equivalents when building concept sets from existing clinical code lists.",
-    "Exclude concepts that represent rule-out or family-history contexts by using the 'Exclude' flag on specific concept set items.",
-    "Save and version concept sets independently of the cohort definitions that use them so that a single update propagates to all dependent analyses.",
-    "Annotate concept sets with clinical rationale and curation date so that future reviewers understand the intent and currency of the included concepts."
+    "Use the Vocabulary Browser to explore concept hierarchies and identify descendants before finalizing a concept set.",
+    "Enable 'Include Descendants' for condition and drug concepts to capture all coded variations within the OMOP hierarchy.",
+    "Use the Mapping Assistant to identify source codes that map to your target standard concepts, improving capture completeness.",
+    "Share concept sets across cohort definitions rather than duplicating logic to simplify future updates and ensure consistency.",
+    "Document the clinical rationale for included and excluded concepts to support peer review and reproducibility."
   ]
 }

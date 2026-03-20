@@ -1,14 +1,13 @@
 {
   "key": "community-workbench-sdk",
   "title": "Community Workbench SDK",
-  "description": "The Community Workbench SDK provides developers and advanced researchers with a programmatic interface for building, packaging, and distributing custom analytical modules that integrate natively with the Parthenon platform. It supports extension of core analyses, custom visualizations, and automated study package generation.",
+  "description": "The Community Workbench SDK provides developers and advanced researchers with programmatic tools to build, extend, and integrate custom analytical modules within the Parthenon platform. The SDK enables the creation of reusable study components and facilitates contribution to the broader research community.",
   "docs_url": "/docs/part4-analyses/14f-community-workbench-sdk",
   "video_url": null,
   "tips": [
-    "Review the SDK module manifest specification before starting development to ensure your extension declares all required metadata for platform registration.",
-    "Use the local development server bundled with the SDK to iterate quickly on UI components without deploying to a full Parthenon environment.",
-    "Package dependencies should be pinned to specific versions in your module manifest to prevent breaking changes when the platform updates its core libraries.",
-    "Submit your completed module to the Community Workbench for peer review before publishing \u2014 community validation improves trust and adoption.",
-    "Reference the example modules included in the SDK repository as starting templates for common patterns such as cohort-based result visualizations."
+    "Review the SDK reference documentation before starting development to understand the available extension points and API contracts.",
+    "Package custom modules with explicit dependency declarations to ensure portability across different Parthenon deployments.",
+    "Test custom modules against a representative dataset in a non-production environment before publishing to the community workbench.",
+    "Follow the platform's versioning conventions when releasing SDK extensions to maintain backward compatibility."
   ]
 }

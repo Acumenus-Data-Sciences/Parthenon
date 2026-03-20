@@ -1,14 +1,13 @@
 {
   "key": "genomics",
   "title": "Genomics",
-  "description": "The Genomics module extends Parthenon's observational research capabilities into the domain of genomic medicine, enabling integration of genetic variant data with clinical and phenotypic information from OMOP CDM sources. It supports genome-wide association study (GWAS) workflows, PheWAS analyses, polygenic risk score computation, and variant-to-phenotype linkage.",
+  "description": "The Genomics module integrates genomic data with OMOP clinical data to support translational and precision medicine research. Researchers can explore genotype-phenotype relationships, leverage variant data in cohort definitions, and conduct genomic analyses alongside traditional observational studies.",
   "docs_url": "/docs/part9-genomics/27-genomics-overview",
   "video_url": null,
   "tips": [
-    "Ensure that genotyping array or sequencing metadata is documented alongside your genomic data source registration so that analysts can assess platform compatibility and imputation quality.",
-    "PheWAS analyses in Parthenon use cohort definitions as phenotype proxies \u2014 invest in well-validated, high-specificity cohort definitions to reduce phenotype misclassification.",
-    "Polygenic risk score computation requires a reference LD panel matched to the ancestry of your study population \u2014 confirm panel selection with a statistical geneticist before running.",
-    "Genomic analyses involving individual-level data are subject to additional governance controls \u2014 review your institution's IRB and data use agreement requirements before initiating.",
-    "Use the Data Explorer to assess the overlap between patients with genomic data and those meeting your clinical cohort criteria to estimate analytical sample sizes before full analysis runs."
+    "Link genomic data to clinical cohorts using patient identifiers to enable integrated genotype-phenotype analyses.",
+    "Review data governance and consent documentation before including genomic data in shareable study packages.",
+    "Validate variant annotations against current reference databases to ensure genomic data quality before analysis.",
+    "Use genomic features in combination with OMOP clinical data for richer patient stratification in prediction models."
   ]
 }

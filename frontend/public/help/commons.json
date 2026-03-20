@@ -1,14 +1,13 @@
 {
   "key": "commons",
   "title": "Commons Integration",
-  "description": "Commons provides a collaborative workspace that connects Parthenon to shared research infrastructure, enabling teams to publish, discover, and import analytical assets such as cohort definitions, concept sets, and study packages from a curated community repository. It is powered by Abby AI integration for intelligent asset recommendations.",
+  "description": "Commons Integration connects Parthenon to shared research infrastructure, enabling collaborative access to federated datasets, shared cohort definitions, and community-contributed analytical assets. This feature supports open-science workflows and facilitates participation in distributed research networks.",
   "docs_url": "/docs/abby-ai/05-commons-integration",
   "video_url": null,
   "tips": [
-    "Search Commons before building a new cohort or concept set \u2014 a validated community-contributed asset may already exist for your clinical area.",
-    "When publishing assets to Commons, include a clear description, clinical rationale, and validation status so that other researchers can assess fitness for use.",
-    "Use the Abby AI assistant within Commons to get natural-language recommendations for related phenotypes and evidence sources.",
-    "Imported assets from Commons are copies \u2014 you can safely customize them for your local data without affecting the shared original.",
-    "Periodically check Commons for updated versions of phenotypes you have previously imported, particularly after major OHDSI vocabulary releases."
+    "Link your Parthenon environment to a Commons repository to access pre-validated cohort definitions contributed by the broader research community.",
+    "Verify data use agreements and access permissions before importing or exporting assets through the Commons integration.",
+    "Use Commons to share finalized study packages with network partners to ensure consistent analysis execution.",
+    "Review imported assets carefully to confirm they align with your local vocabulary version and CDM configuration."
   ]
 }

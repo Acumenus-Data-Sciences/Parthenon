@@ -1,14 +1,14 @@
 {
   "key": "cohort-definitions",
   "title": "Cohort Definitions",
-  "description": "Cohort Definitions is the foundational module for specifying patient populations used across all analytical workflows in Parthenon. Using a structured, criteria-based interface aligned with OHDSI standards, researchers can define entry events, inclusion rules, cohort exit strategies, and then generate cohort counts across one or more data sources.",
+  "description": "Cohort Definitions allow researchers to specify inclusion and exclusion criteria that identify a population of interest from the OMOP CDM. Cohorts form the foundational building blocks for analyses, prediction models, incidence rate calculations, and patient-level investigations across the platform.",
   "docs_url": "/docs/part2-vocabulary/04-concept-sets",
   "video_url": null,
   "tips": [
-    "Anchor your cohort on a well-defined index event \u2014 such as a first diagnosis code or medication dispensing \u2014 to ensure a consistent observation start date across all patients.",
-    "Attach concept sets to inclusion criteria rather than hard-coding individual codes so that your definition remains maintainable as vocabularies are updated.",
-    "Use the cohort generation report to review attrition at each inclusion rule step and identify criteria that may be overly restrictive for your target population.",
-    "Version your cohort definitions before making changes so that prior analytical runs remain reproducible and traceable.",
-    "Share cohort definitions with collaborators via the Phenotype Library to promote reuse and harmonization across sites."
+    "Use concept sets to capture all clinically relevant codes for a condition or drug, then reference them across multiple cohort definitions to maintain consistency.",
+    "Apply index date logic carefully\u2014cohort start date selection significantly affects downstream analysis results.",
+    "Validate cohort counts against expected prevalence estimates before using a cohort in a formal analysis.",
+    "Version your cohort definitions and document changes to support reproducibility and peer review.",
+    "Use the cohort characterization feature to quickly profile a newly defined cohort and identify unexpected populations."
   ]
 }

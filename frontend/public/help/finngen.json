@@ -1,14 +1,13 @@
 {
   "key": "finngen",
-  "title": "FinnGen Integration",
-  "description": "The FinnGen integration module connects Parthenon to the FinnGen biobank dataset, enabling researchers to leverage Finland's large-scale genomic and health registry data within the platform's standard analytical workflows. It provides access to OMOP-mapped FinnGen phenotypes, endpoint definitions, and linked genomic summary statistics.",
+  "title": "FinnGen",
+  "description": "The FinnGen integration provides access to genomic and phenotypic data from the FinnGen study within the Parthenon platform. Researchers can leverage linked genomic information alongside OMOP clinical data to support translational research and genotype-phenotype investigations.",
   "docs_url": "/docs/part9-genomics/27-genomics-overview",
   "video_url": null,
   "tips": [
-    "FinnGen endpoint definitions use a Finnish registry-specific coding system \u2014 review the endpoint documentation to confirm alignment with your phenotype of interest before building cohorts.",
-    "Linked genomic summary statistics from FinnGen can be used in conjunction with Parthenon's Genomics module for PheWAS and genetic association analyses.",
-    "Access to FinnGen data through Parthenon requires institutional data access agreements \u2014 confirm your organization's authorization status with your administrator before initiating analyses.",
-    "Use the Concept Mapping screen to crosswalk FinnGen ICD-based endpoints to OMOP standard concepts for use in cross-database network studies.",
-    "Cohorts derived from FinnGen data should note the Finnish population ancestry context when interpreting results intended for broader generalizability."
+    "Ensure your cohort definitions are aligned with FinnGen phenotype endpoints before initiating genomic analyses.",
+    "Review data access and governance requirements specific to FinnGen before exporting or publishing results derived from this dataset.",
+    "Combine FinnGen genomic data with OMOP clinical data to enrich patient-level analyses with genetic context.",
+    "Consult the Genomics Overview documentation to understand the available data types and analytical capabilities within the FinnGen integration."
   ]
 }

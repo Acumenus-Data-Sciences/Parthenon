@@ -1,14 +1,14 @@
 {
   "key": "administration",
   "title": "Administration",
-  "description": "The Administration section provides platform administrators with centralized tools to manage users, roles, authentication providers, system configuration, and operational health. From here you can onboard new users, assign permissions, configure external identity providers, monitor system status, and maintain the vocabulary and WebAPI registry.",
+  "description": "The Administration section provides centralized control over platform configuration, user access, security settings, and system health. Administrators can manage user accounts, define roles and permissions, configure authentication providers, monitor system status, and maintain vocabulary and AI provider settings.",
   "docs_url": "/docs/part8-administration/22-user-management",
   "video_url": null,
   "tips": [
-    "Use the Roles & Permissions screen to apply least-privilege access \u2014 assign users only the roles required for their research workflows.",
-    "Review the Audit Log regularly to track sensitive operations such as cohort exports and user permission changes.",
-    "Configure AI Providers and Abby AI settings before enabling the AI assistant for end users so that API keys and rate limits are set correctly.",
-    "Check System Health after any platform upgrade to confirm that all background services and WebAPI endpoints are responding normally.",
-    "Solr Administration controls full-text search indexing \u2014 reindex after bulk vocabulary updates to keep concept search results accurate."
+    "Use Roles & Permissions to implement least-privilege access, granting users only the capabilities required for their research role.",
+    "Review the Audit Log regularly to track user activity and ensure compliance with your organization's data governance policies.",
+    "Configure Authentication Providers to integrate with your institution's SSO or identity management infrastructure.",
+    "Monitor System Health to proactively identify performance bottlenecks before they affect research workflows.",
+    "Use Vocabulary Admin to synchronize and validate OMOP vocabulary versions across your environment."
   ]
 }

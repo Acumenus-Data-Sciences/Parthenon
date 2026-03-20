@@ -1,0 +1,13 @@
+{
+  "key": "heor",
+  "title": "Health Economics & Outcomes Research",
+  "description": "The Health Economics and Outcomes Research (HEOR) module provides specialized analytical tools for evaluating the economic burden of disease, comparative value of treatments, and patient-reported outcomes. It supports payer, provider, and policy audiences with evidence generation for healthcare decision-making.",
+  "docs_url": "/docs/part11-heor/29-heor-overview",
+  "video_url": null,
+  "tips": [
+    "Define outcome measures and cost components clearly before configuring HEOR analyses to ensure results are interpretable by decision-making audiences.",
+    "Use well-characterized cohorts as the foundation for HEOR models to minimize confounding in economic evaluations.",
+    "Document all assumptions underlying cost and utility inputs to support transparency and sensitivity analysis.",
+    "Align HEOR study designs with relevant payer or regulatory submission guidelines when generating evidence for coverage decisions."
+  ]
+}
