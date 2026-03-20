@@ -2,7 +2,7 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
-TEST_DB_URL = "postgresql://parthenon:secret@localhost:5480/parthenon"
+TEST_DB_URL = "postgresql://smudoshi:acumenus@pgsql.acumenus.net:5432/parthenon"
 
 
 @pytest.fixture(scope="session")

@@ -4,7 +4,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_prefix="MORPHEUS_")
 
-    database_url: str = "postgresql://parthenon:parthenon@postgres:5432/parthenon"
+    database_url: str = "postgresql://smudoshi:acumenus@pgsql.acumenus.net:5432/parthenon"
     staging_schema: str = "inpatient_staging"
     cdm_schema: str = "inpatient"
     ext_schema: str = "inpatient_ext"
