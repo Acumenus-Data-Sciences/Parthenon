@@ -36,40 +36,40 @@ class SeedResearchStudies extends Command
      */
     private const COHORT_MAP = [
         // Study 6 — Cardiorenal Cascade
-        's6-c1'  => 'S6: New Prediabetes%',
-        's6-c2'  => 'S6: Matched Controls%',
-        's6-c3'  => 'S6: CKD Stage 4%',
-        's6-c4'  => 'S6: ESRD%',
-        's6-c5'  => 'S6: Composite MACE%No CHF%',
-        's6-c6'  => 'S6: Anemia at CKD%',
-        's6-c7'  => 'S6: Metabolic Syndrome%',
-        's6-c8'  => 'S6: Essential Hypertension%',
-        's6-c9'  => 'S6: CKD Stage 1%',
+        's6-c1' => 'S6: New Prediabetes%',
+        's6-c2' => 'S6: Matched Controls%',
+        's6-c3' => 'S6: CKD Stage 4%',
+        's6-c4' => 'S6: ESRD%',
+        's6-c5' => 'S6: Composite MACE%No CHF%',
+        's6-c6' => 'S6: Anemia at CKD%',
+        's6-c7' => 'S6: Metabolic Syndrome%',
+        's6-c8' => 'S6: Essential Hypertension%',
+        's6-c9' => 'S6: CKD Stage 1%',
         's6-c10' => 'S6: CKD Stage 2%',
         's6-c11' => 'S6: CKD Stage 3%',
         // Study 7 — Statin Paradox
-        's7-c1'  => 'S7:%Simvastatin%',
-        's7-c2'  => 'S7:%Atorvastatin%',
-        's7-c3'  => 'S7: Composite MACE%With CHF%',
-        's7-c4'  => 'S7: STEMI%',
-        's7-c5'  => 'S7: Stroke%',
-        's7-c6'  => 'S7:%Death%',
+        's7-c1' => 'S7:%Simvastatin%',
+        's7-c2' => 'S7:%Atorvastatin%',
+        's7-c3' => 'S7: Composite MACE%With CHF%',
+        's7-c4' => 'S7: STEMI%',
+        's7-c5' => 'S7: Stroke%',
+        's7-c6' => 'S7:%Death%',
         // Study 8 — Opioid Trajectory
-        's8-c1'  => 'S8: New Opioid Users%',
-        's8-c2'  => 'S8: Chronic Pain%NSAID%',
-        's8-c3'  => 'S8: Drug Misuse%',
-        's8-c4'  => 'S8: Drug Dependence%',
-        's8-c5'  => 'S8:%Death%',
-        's8-c6'  => 'S8: MAT Initiation%',
-        's8-c7'  => 'S8: Naloxone%',
+        's8-c1' => 'S8: New Opioid Users%',
+        's8-c2' => 'S8: Chronic Pain%NSAID%',
+        's8-c3' => 'S8: Drug Misuse%',
+        's8-c4' => 'S8: Drug Dependence%',
+        's8-c5' => 'S8:%Death%',
+        's8-c6' => 'S8: MAT Initiation%',
+        's8-c7' => 'S8: Naloxone%',
         // Study 9 — Metformin Repurposing
-        's9-c1'  => 'S9:%New Metformin%',
-        's9-c2'  => 'S9:%New Insulin%',
-        's9-c3'  => 'S9: Colorectal%',
-        's9-c4'  => 'S9: Alzheimer%',
-        's9-c5'  => 'S9: Composite MACE%',
-        's9-c6'  => 'S9:%Death%',
-        's9-c7'  => 'S9:%Breast%',
+        's9-c1' => 'S9:%New Metformin%',
+        's9-c2' => 'S9:%New Insulin%',
+        's9-c3' => 'S9: Colorectal%',
+        's9-c4' => 'S9: Alzheimer%',
+        's9-c5' => 'S9: Composite MACE%',
+        's9-c6' => 'S9:%Death%',
+        's9-c7' => 'S9:%Breast%',
         // Study 10 — Prediabetes Reversal
         's10-c0' => 'S10: Prediabetes%Base%',
         's10-c1' => 'S10: Prediabetes Escapers%',
@@ -85,12 +85,12 @@ class SeedResearchStudies extends Command
      * @var array<string, class-string<\Illuminate\Database\Eloquent\Model>>
      */
     private const ANALYSIS_MODEL_MAP = [
-        'characterizations'           => Characterization::class,
-        'estimation_analyses'         => EstimationAnalysis::class,
-        'prediction_analyses'         => PredictionAnalysis::class,
-        'pathway_analyses'            => PathwayAnalysis::class,
-        'incidence_rate_analyses'     => IncidenceRateAnalysis::class,
-        'sccs_analyses'               => SccsAnalysis::class,
+        'characterizations' => Characterization::class,
+        'estimation_analyses' => EstimationAnalysis::class,
+        'prediction_analyses' => PredictionAnalysis::class,
+        'pathway_analyses' => PathwayAnalysis::class,
+        'incidence_rate_analyses' => IncidenceRateAnalysis::class,
+        'sccs_analyses' => SccsAnalysis::class,
         'evidence_synthesis_analyses' => EvidenceSynthesisAnalysis::class,
     ];
 
@@ -226,12 +226,14 @@ class SeedResearchStudies extends Command
                 $raw = file_get_contents($file);
                 if ($raw === false) {
                     $this->warn("  Skipping unreadable: {$file}");
+
                     continue;
                 }
 
                 $data = json_decode($raw, true);
                 if ($data === null) {
                     $this->warn("  Skipping malformed JSON: {$file}");
+
                     continue;
                 }
 
@@ -264,13 +266,13 @@ class SeedResearchStudies extends Command
 
                     $records[$name] = [
                         'model_class' => $modelClass,
-                        'id'          => $record->id,
+                        'id' => $record->id,
                     ];
                 } else {
                     $this->line("  [DRY] Would create/update: {$name}");
                     $records[$name] = [
                         'model_class' => $modelClass,
-                        'id'          => 0,
+                        'id' => 0,
                     ];
                 }
             }
@@ -313,39 +315,39 @@ class SeedResearchStudies extends Command
         $study = Study::updateOrCreate(
             ['short_title' => 'Cardiorenal Cascade'],
             [
-                'title'                  => 'The Cardiorenal-Metabolic Cascade: A Multi-State Transition Model from Prediabetes to End-Stage Renal Disease',
-                'study_type'             => 'observational',
-                'study_design'           => 'cohort',
-                'priority'               => 'high',
-                'status'                 => 'protocol_development',
-                'description'            => 'Population-level study examining the temporal cascade from prediabetes through metabolic syndrome, hypertension, and progressive CKD stages to ESRD and cardiovascular death, using multi-state transition modeling in a 1M-patient OMOP CDM database.',
-                'scientific_rationale'   => 'Cardiorenal-metabolic syndrome is increasingly recognized as a unified disease continuum rather than discrete comorbidities. However, population-level transition probabilities between states remain poorly characterized. The 52,630 patients in this database with documented CKD stage 1→2→3→4 progression provide a rare opportunity to model the full cascade with time-varying covariates, testing whether anemia onset at any CKD stage accelerates progression to the next stage.',
-                'hypothesis'             => 'Specific transition probabilities exist between prediabetes, metabolic syndrome, hypertension, and CKD stages 1-4 that are modifiable by treatment intensity. Anemia onset at any CKD stage independently accelerates progression to the next stage, with the effect magnitude increasing at higher CKD stages.',
-                'primary_objective'      => 'Characterize multi-state transition probabilities from prediabetes through the cardiorenal-metabolic cascade and identify modifiable accelerants of disease progression.',
-                'secondary_objectives'   => [
+                'title' => 'The Cardiorenal-Metabolic Cascade: A Multi-State Transition Model from Prediabetes to End-Stage Renal Disease',
+                'study_type' => 'observational',
+                'study_design' => 'cohort',
+                'priority' => 'high',
+                'status' => 'protocol_development',
+                'description' => 'Population-level study examining the temporal cascade from prediabetes through metabolic syndrome, hypertension, and progressive CKD stages to ESRD and cardiovascular death, using multi-state transition modeling in a 1M-patient OMOP CDM database.',
+                'scientific_rationale' => 'Cardiorenal-metabolic syndrome is increasingly recognized as a unified disease continuum rather than discrete comorbidities. However, population-level transition probabilities between states remain poorly characterized. The 52,630 patients in this database with documented CKD stage 1→2→3→4 progression provide a rare opportunity to model the full cascade with time-varying covariates, testing whether anemia onset at any CKD stage accelerates progression to the next stage.',
+                'hypothesis' => 'Specific transition probabilities exist between prediabetes, metabolic syndrome, hypertension, and CKD stages 1-4 that are modifiable by treatment intensity. Anemia onset at any CKD stage independently accelerates progression to the next stage, with the effect magnitude increasing at higher CKD stages.',
+                'primary_objective' => 'Characterize multi-state transition probabilities from prediabetes through the cardiorenal-metabolic cascade and identify modifiable accelerants of disease progression.',
+                'secondary_objectives' => [
                     'Quantify the anemia-CKD interaction: does anemia at CKD stage N predict faster transition to stage N+1?',
                     'Build a patient-level prediction model for CKD Stage 4 using baseline features at prediabetes diagnosis',
                     'Map the most common disease progression pathways and their associated 5-year mortality',
                     'Compare MACE incidence rates between the prediabetes cascade cohort and age/sex-matched controls',
                 ],
-                'study_start_date'       => '2026-03-19',
-                'protocol_version'       => '1.0',
-                'funding_source'         => 'Acumenus Data Sciences — internal research',
-                'tags'                   => ['cardiorenal', 'ckd-progression', 'metabolic-syndrome', 'multi-state-model', 'prediabetes', 'anemia'],
-                'settings'               => ['min_cell_count' => 5, 'cdm_version' => '5.4', 'analysis_framework' => 'HADES'],
-                'metadata'               => [
-                    'data_sources'  => ['Parthenon OMOP CDM — 1,005,788 patients'],
+                'study_start_date' => '2026-03-19',
+                'protocol_version' => '1.0',
+                'funding_source' => 'Acumenus Data Sciences — internal research',
+                'tags' => ['cardiorenal', 'ckd-progression', 'metabolic-syndrome', 'multi-state-model', 'prediabetes', 'anemia'],
+                'settings' => ['min_cell_count' => 5, 'cdm_version' => '5.4', 'analysis_framework' => 'HADES'],
+                'metadata' => [
+                    'data_sources' => ['Parthenon OMOP CDM — 1,005,788 patients'],
                     'key_statistics' => [
-                        'prediabetes_n'             => 394039,
-                        'metabolic_syndrome_n'       => 200127,
-                        'hypertension_n'             => 380336,
-                        'ckd_full_progression_n'     => 52630,
-                        'esrd_deaths_n'              => 10591,
+                        'prediabetes_n' => 394039,
+                        'metabolic_syndrome_n' => 200127,
+                        'hypertension_n' => 380336,
+                        'ckd_full_progression_n' => 52630,
+                        'esrd_deaths_n' => 10591,
                         'anemia_prediabetes_comorbid_n' => 315842,
                     ],
                 ],
-                'created_by'                 => $admin->id,
-                'principal_investigator_id'  => $admin->id,
+                'created_by' => $admin->id,
+                'principal_investigator_id' => $admin->id,
             ]
         );
 
@@ -365,8 +367,8 @@ class SeedResearchStudies extends Command
             StudyCohort::updateOrCreate(
                 ['study_id' => $study->id, 'cohort_definition_id' => $idMap[$cohort['logical']]],
                 [
-                    'role'       => $cohort['role'],
-                    'label'      => $cohort['label'],
+                    'role' => $cohort['role'],
+                    'label' => $cohort['label'],
                     'sort_order' => $i,
                 ]
             );
@@ -387,9 +389,9 @@ class SeedResearchStudies extends Command
             if ($analysis) {
                 StudyAnalysis::updateOrCreate(
                     [
-                        'study_id'      => $study->id,
+                        'study_id' => $study->id,
                         'analysis_type' => $analysis['model_class'],
-                        'analysis_id'   => $analysis['id'],
+                        'analysis_id' => $analysis['id'],
                     ]
                 );
             } else {
@@ -403,9 +405,9 @@ class SeedResearchStudies extends Command
             StudySite::updateOrCreate(
                 ['study_id' => $study->id, 'source_id' => $defaultSource->id],
                 [
-                    'site_role'              => 'coordinating_center',
-                    'status'                 => 'irb_approved',
-                    'cdm_version'            => '5.4',
+                    'site_role' => 'coordinating_center',
+                    'status' => 'irb_approved',
+                    'cdm_version' => '5.4',
                     'patient_count_estimate' => 1005788,
                 ]
             );
@@ -428,9 +430,9 @@ class SeedResearchStudies extends Command
                 ['study_id' => $study->id, 'title' => $milestone['title']],
                 [
                     'milestone_type' => $milestone['type'],
-                    'target_date'    => $milestone['date'],
-                    'status'         => $milestone['status'],
-                    'sort_order'     => $i,
+                    'target_date' => $milestone['date'],
+                    'status' => $milestone['status'],
+                    'sort_order' => $i,
                 ]
             );
         }
@@ -455,44 +457,44 @@ class SeedResearchStudies extends Command
         $study = Study::updateOrCreate(
             ['short_title' => 'Opioid Trajectory'],
             [
-                'slug'                  => 'opioid-trajectory-prescription-to-substance-use-disorder',
-                'title'                 => 'The Opioid Trajectory: Predicting Transition from Legitimate Prescription to Substance Use Disorder in Chronic Pain Patients',
-                'study_type'            => 'observational',
-                'study_design'          => 'cohort',
-                'priority'              => 'high',
-                'status'                => 'protocol_development',
-                'description'           => 'Multi-method OHDSI study examining the clinical trajectory from first opioid prescription in chronic pain patients to substance use disorder, comparing outcomes against NSAID-managed chronic pain controls. Combines pathway analysis, comparative effectiveness estimation, and patient-level prediction to characterize, quantify, and predict the opioid-to-dependence transition in a 1M-patient OMOP CDM database.',
-                'scientific_rationale'  => "The opioid epidemic's pharmacoepidemiological profile remains incompletely characterized at the population level. Among 192,195 opioid-exposed patients in this database, 10.6% develop documented drug misuse and 9.3% develop dependence, with 6.4% mortality. The availability of 68% AUDIT-C and drug abuse screening coverage, plus 87% depression screening, enables baseline risk stratification using validated instruments rather than diagnosis codes alone. The NSAID-managed chronic pain cohort (207K naproxen + 143K ibuprofen) provides a powerful active comparator that shares the indication (chronic pain) but not the exposure (opioids).",
-                'hypothesis'            => 'Among opioid-naive chronic pain patients, specific baseline features (depression screening severity, AUDIT-C score, age, concurrent benzodiazepine use) predict transition to drug misuse or dependence within 3 years. Opioid-exposed patients have significantly higher rates of misuse, dependence, and mortality compared to NSAID-managed chronic pain patients after propensity score adjustment.',
-                'primary_objective'     => 'Estimate the comparative risk of drug misuse, drug dependence, and all-cause mortality between new opioid users and NSAID-managed chronic pain patients using active comparator new-user design with propensity score matching.',
-                'secondary_objectives'  => [
+                'slug' => 'opioid-trajectory-prescription-to-substance-use-disorder',
+                'title' => 'The Opioid Trajectory: Predicting Transition from Legitimate Prescription to Substance Use Disorder in Chronic Pain Patients',
+                'study_type' => 'observational',
+                'study_design' => 'cohort',
+                'priority' => 'high',
+                'status' => 'protocol_development',
+                'description' => 'Multi-method OHDSI study examining the clinical trajectory from first opioid prescription in chronic pain patients to substance use disorder, comparing outcomes against NSAID-managed chronic pain controls. Combines pathway analysis, comparative effectiveness estimation, and patient-level prediction to characterize, quantify, and predict the opioid-to-dependence transition in a 1M-patient OMOP CDM database.',
+                'scientific_rationale' => "The opioid epidemic's pharmacoepidemiological profile remains incompletely characterized at the population level. Among 192,195 opioid-exposed patients in this database, 10.6% develop documented drug misuse and 9.3% develop dependence, with 6.4% mortality. The availability of 68% AUDIT-C and drug abuse screening coverage, plus 87% depression screening, enables baseline risk stratification using validated instruments rather than diagnosis codes alone. The NSAID-managed chronic pain cohort (207K naproxen + 143K ibuprofen) provides a powerful active comparator that shares the indication (chronic pain) but not the exposure (opioids).",
+                'hypothesis' => 'Among opioid-naive chronic pain patients, specific baseline features (depression screening severity, AUDIT-C score, age, concurrent benzodiazepine use) predict transition to drug misuse or dependence within 3 years. Opioid-exposed patients have significantly higher rates of misuse, dependence, and mortality compared to NSAID-managed chronic pain patients after propensity score adjustment.',
+                'primary_objective' => 'Estimate the comparative risk of drug misuse, drug dependence, and all-cause mortality between new opioid users and NSAID-managed chronic pain patients using active comparator new-user design with propensity score matching.',
+                'secondary_objectives' => [
                     'Build a patient-level prediction model for drug misuse within 3 years of first opioid prescription using baseline clinical, demographic, and screening instrument features',
                     'Map the most common escalation pathways from initial opioid prescription through misuse, dependence, MAT initiation (buprenorphine/methadone), overdose reversal (naloxone), and death',
                     'Characterize baseline clinical profiles of opioid new-users vs. NSAID-managed chronic pain patients to assess residual confounding after PS matching',
                     'Compare gradient boosting vs. LASSO models for dependence prediction to evaluate interpretability-performance tradeoff',
                 ],
-                'study_start_date'      => '2026-03-19',
-                'protocol_version'      => '1.0',
-                'funding_source'        => 'Acumenus Data Sciences — internal research',
-                'tags'                  => ['opioid', 'substance-use-disorder', 'chronic-pain', 'drug-safety', 'prediction', 'pharmacoepidemiology'],
-                'settings'              => ['min_cell_count' => 5, 'cdm_version' => '5.4', 'analysis_framework' => 'HADES'],
-                'metadata'              => [
-                    'data_sources'  => ['Parthenon OMOP CDM — 1,005,788 patients'],
+                'study_start_date' => '2026-03-19',
+                'protocol_version' => '1.0',
+                'funding_source' => 'Acumenus Data Sciences — internal research',
+                'tags' => ['opioid', 'substance-use-disorder', 'chronic-pain', 'drug-safety', 'prediction', 'pharmacoepidemiology'],
+                'settings' => ['min_cell_count' => 5, 'cdm_version' => '5.4', 'analysis_framework' => 'HADES'],
+                'metadata' => [
+                    'data_sources' => ['Parthenon OMOP CDM — 1,005,788 patients'],
                     'key_statistics' => [
-                        'opioid_exposed_n'               => 192195,
-                        'chronic_pain_n'                  => 247198,
-                        'opioid_with_chronic_pain_n'      => 126544,
-                        'drug_misuse_n'                   => 84886,
-                        'opioid_misuse_n'                 => 20450,
-                        'opioid_dependence_n'             => 17926,
-                        'opioid_deaths_n'                 => 12385,
-                        'nsaid_chronic_pain_n'            => 207484,
-                        'depression_screening_coverage'   => 0.867,
-                        'audit_c_coverage'                => 0.680,
-                        'drug_abuse_screening_coverage'   => 0.684,
+                        'opioid_exposed_n' => 192195,
+                        'chronic_pain_n' => 247198,
+                        'opioid_with_chronic_pain_n' => 126544,
+                        'drug_misuse_n' => 84886,
+                        'opioid_misuse_n' => 20450,
+                        'opioid_dependence_n' => 17926,
+                        'opioid_deaths_n' => 12385,
+                        'nsaid_chronic_pain_n' => 207484,
+                        'depression_screening_coverage' => 0.867,
+                        'audit_c_coverage' => 0.680,
+                        'drug_abuse_screening_coverage' => 0.684,
                     ],
                 ],
-                'created_by'                => $admin->id,
+                'created_by' => $admin->id,
                 'principal_investigator_id' => $admin->id,
             ]
         );
@@ -512,8 +514,8 @@ class SeedResearchStudies extends Command
             StudyCohort::updateOrCreate(
                 ['study_id' => $study->id, 'cohort_definition_id' => $idMap[$cohort['logical']]],
                 [
-                    'role'       => $cohort['role'],
-                    'label'      => $cohort['label'],
+                    'role' => $cohort['role'],
+                    'label' => $cohort['label'],
                     'sort_order' => $i,
                 ]
             );
@@ -535,9 +537,9 @@ class SeedResearchStudies extends Command
             if ($analysis) {
                 StudyAnalysis::updateOrCreate(
                     [
-                        'study_id'      => $study->id,
+                        'study_id' => $study->id,
                         'analysis_type' => $analysis['model_class'],
-                        'analysis_id'   => $analysis['id'],
+                        'analysis_id' => $analysis['id'],
                     ]
                 );
             } else {
@@ -551,9 +553,9 @@ class SeedResearchStudies extends Command
             StudySite::updateOrCreate(
                 ['study_id' => $study->id, 'source_id' => $defaultSource->id],
                 [
-                    'site_role'              => 'coordinating_center',
-                    'status'                 => 'irb_approved',
-                    'cdm_version'            => '5.4',
+                    'site_role' => 'coordinating_center',
+                    'status' => 'irb_approved',
+                    'cdm_version' => '5.4',
                     'patient_count_estimate' => 1005788,
                 ]
             );
@@ -578,9 +580,9 @@ class SeedResearchStudies extends Command
                 ['study_id' => $study->id, 'title' => $milestone['title']],
                 [
                     'milestone_type' => $milestone['type'],
-                    'target_date'    => $milestone['date'],
-                    'status'         => $milestone['status'],
-                    'sort_order'     => $i,
+                    'target_date' => $milestone['date'],
+                    'status' => $milestone['status'],
+                    'sort_order' => $i,
                 ]
             );
         }

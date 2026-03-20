@@ -28,10 +28,12 @@ use App\Http\Controllers\Api\V1\ClaimsSearchController;
 use App\Http\Controllers\Api\V1\ClinicalCoherenceController;
 use App\Http\Controllers\Api\V1\CohortDefinitionController;
 use App\Http\Controllers\Api\V1\CohortDiagnosticsController;
+use App\Http\Controllers\Api\V1\ConceptExplorerController;
 use App\Http\Controllers\Api\V1\ConceptSetController;
 use App\Http\Controllers\Api\V1\DashboardController;
 use App\Http\Controllers\Api\V1\DataQualityController;
 use App\Http\Controllers\Api\V1\EstimationController;
+use App\Http\Controllers\Api\V1\EvidencePinController;
 use App\Http\Controllers\Api\V1\EvidenceSynthesisController;
 use App\Http\Controllers\Api\V1\FhirToCdmController;
 use App\Http\Controllers\Api\V1\GenomicsController;
@@ -53,6 +55,7 @@ use App\Http\Controllers\Api\V1\ImagingController;
 use App\Http\Controllers\Api\V1\ImagingTimelineController;
 use App\Http\Controllers\Api\V1\IncidenceRateController;
 use App\Http\Controllers\Api\V1\IngestionController;
+use App\Http\Controllers\Api\V1\InvestigationController;
 use App\Http\Controllers\Api\V1\JobController;
 use App\Http\Controllers\Api\V1\JupyterController;
 use App\Http\Controllers\Api\V1\MappingReviewController;
@@ -88,9 +91,6 @@ use App\Http\Controllers\Api\V1\TextToSqlController;
 use App\Http\Controllers\Api\V1\UserProfileController;
 use App\Http\Controllers\Api\V1\VocabularyController;
 use App\Http\Controllers\Api\V1\WhiteRabbitController;
-use App\Http\Controllers\Api\V1\ConceptExplorerController;
-use App\Http\Controllers\Api\V1\EvidencePinController;
-use App\Http\Controllers\Api\V1\InvestigationController;
 use App\Services\GIS\SpatialStatsProxy;
 use Illuminate\Support\Facades\Route;
 
@@ -265,61 +265,109 @@ Route::prefix('v1')->group(function () {
         // Analysis Stats (must be before resource routes)
         Route::get('analyses/stats', AnalysisStatsController::class);
 
-        // Characterizations
-        Route::apiResource('characterizations', CharacterizationController::class);
-        Route::post('characterizations/{characterization}/execute', [CharacterizationController::class, 'execute']);
-        Route::get('characterizations/{characterization}/executions', [CharacterizationController::class, 'executions']);
-        Route::get('characterizations/{characterization}/executions/{execution}', [CharacterizationController::class, 'showExecution']);
-        Route::post('characterizations/run-direct', [CharacterizationController::class, 'runDirect']);
+        // ── Analyses (require analyses.view minimum, write ops need analyses.create/run) ──
+        Route::middleware('permission:analyses.view')->group(function () {
+            // Characterizations
+            Route::apiResource('characterizations', CharacterizationController::class)
+                ->only(['index', 'show']);
+            Route::get('characterizations/{characterization}/executions', [CharacterizationController::class, 'executions']);
+            Route::get('characterizations/{characterization}/executions/{execution}', [CharacterizationController::class, 'showExecution']);
 
-        // Incidence Rates
-        Route::apiResource('incidence-rates', IncidenceRateController::class);
-        Route::post('incidence-rates/{incidenceRate}/execute', [IncidenceRateController::class, 'execute']);
-        Route::get('incidence-rates/{incidenceRate}/executions', [IncidenceRateController::class, 'executions']);
-        Route::get('incidence-rates/{incidenceRate}/executions/{execution}', [IncidenceRateController::class, 'showExecution']);
-        Route::post('incidence-rates/calculate-direct', [IncidenceRateController::class, 'calculateDirect']);
+            // Incidence Rates
+            Route::apiResource('incidence-rates', IncidenceRateController::class)
+                ->only(['index', 'show']);
+            Route::get('incidence-rates/{incidenceRate}/executions', [IncidenceRateController::class, 'executions']);
+            Route::get('incidence-rates/{incidenceRate}/executions/{execution}', [IncidenceRateController::class, 'showExecution']);
 
-        // Pathways
-        Route::apiResource('pathways', PathwayController::class);
-        Route::post('pathways/{pathway}/execute', [PathwayController::class, 'execute']);
-        Route::get('pathways/{pathway}/executions', [PathwayController::class, 'executions']);
-        Route::get('pathways/{pathway}/executions/{execution}', [PathwayController::class, 'showExecution']);
+            // Pathways
+            Route::apiResource('pathways', PathwayController::class)
+                ->only(['index', 'show']);
+            Route::get('pathways/{pathway}/executions', [PathwayController::class, 'executions']);
+            Route::get('pathways/{pathway}/executions/{execution}', [PathwayController::class, 'showExecution']);
 
-        // Estimation
-        Route::apiResource('estimations', EstimationController::class);
-        Route::post('estimations/{estimation}/execute', [EstimationController::class, 'execute']);
-        Route::get('estimations/{estimation}/executions', [EstimationController::class, 'executions']);
-        Route::get('estimations/{estimation}/executions/{execution}', [EstimationController::class, 'showExecution']);
+            // Estimation
+            Route::apiResource('estimations', EstimationController::class)
+                ->only(['index', 'show']);
+            Route::get('estimations/{estimation}/executions', [EstimationController::class, 'executions']);
+            Route::get('estimations/{estimation}/executions/{execution}', [EstimationController::class, 'showExecution']);
 
-        // Prediction
-        Route::apiResource('predictions', PredictionController::class);
-        Route::post('predictions/{prediction}/execute', [PredictionController::class, 'execute']);
-        Route::get('predictions/{prediction}/executions', [PredictionController::class, 'executions']);
-        Route::get('predictions/{prediction}/executions/{execution}', [PredictionController::class, 'showExecution']);
+            // Prediction
+            Route::apiResource('predictions', PredictionController::class)
+                ->only(['index', 'show']);
+            Route::get('predictions/{prediction}/executions', [PredictionController::class, 'executions']);
+            Route::get('predictions/{prediction}/executions/{execution}', [PredictionController::class, 'showExecution']);
 
-        // SCCS (Self-Controlled Case Series)
-        Route::apiResource('sccs', SccsController::class);
-        Route::post('sccs/{scc}/execute', [SccsController::class, 'execute']);
-        Route::get('sccs/{scc}/executions', [SccsController::class, 'executions']);
-        Route::get('sccs/{scc}/executions/{execution}', [SccsController::class, 'showExecution']);
+            // SCCS
+            Route::apiResource('sccs', SccsController::class)
+                ->only(['index', 'show']);
+            Route::get('sccs/{scc}/executions', [SccsController::class, 'executions']);
+            Route::get('sccs/{scc}/executions/{execution}', [SccsController::class, 'showExecution']);
 
-        // Evidence Synthesis (Meta-Analysis)
-        Route::apiResource('evidence-synthesis', EvidenceSynthesisController::class)
-            ->parameters(['evidence-synthesis' => 'evidenceSynthesis']);
-        Route::post('evidence-synthesis/{evidenceSynthesis}/execute', [EvidenceSynthesisController::class, 'execute']);
-        Route::get('evidence-synthesis/{evidenceSynthesis}/executions', [EvidenceSynthesisController::class, 'executions']);
-        Route::get('evidence-synthesis/{evidenceSynthesis}/executions/{execution}', [EvidenceSynthesisController::class, 'showExecution']);
+            // Evidence Synthesis
+            Route::apiResource('evidence-synthesis', EvidenceSynthesisController::class)
+                ->parameters(['evidence-synthesis' => 'evidenceSynthesis'])
+                ->only(['index', 'show']);
+            Route::get('evidence-synthesis/{evidenceSynthesis}/executions', [EvidenceSynthesisController::class, 'executions']);
+            Route::get('evidence-synthesis/{evidenceSynthesis}/executions/{execution}', [EvidenceSynthesisController::class, 'showExecution']);
+        });
 
-        // Studies
-        Route::get('studies/stats', StudyStatsController::class);
-        Route::apiResource('studies', StudyController::class);
-        Route::post('studies/{study}/execute', [StudyController::class, 'executeAll']);
-        Route::get('studies/{study}/progress', [StudyController::class, 'progress']);
-        Route::post('studies/{study}/transition', [StudyController::class, 'transition']);
-        Route::get('studies/{study}/allowed-transitions', [StudyController::class, 'allowedTransitions']);
-        Route::get('studies/{study}/analyses', [StudyController::class, 'analyses']);
-        Route::post('studies/{study}/analyses', [StudyController::class, 'addAnalysis']);
-        Route::delete('studies/{study}/analyses/{studyAnalysis}', [StudyController::class, 'removeAnalysis']);
+        Route::middleware('permission:analyses.create')->group(function () {
+            Route::apiResource('characterizations', CharacterizationController::class)
+                ->only(['store', 'update', 'destroy']);
+            Route::post('characterizations/run-direct', [CharacterizationController::class, 'runDirect']);
+
+            Route::apiResource('incidence-rates', IncidenceRateController::class)
+                ->only(['store', 'update', 'destroy']);
+            Route::post('incidence-rates/calculate-direct', [IncidenceRateController::class, 'calculateDirect']);
+
+            Route::apiResource('pathways', PathwayController::class)
+                ->only(['store', 'update', 'destroy']);
+
+            Route::apiResource('estimations', EstimationController::class)
+                ->only(['store', 'update', 'destroy']);
+
+            Route::apiResource('predictions', PredictionController::class)
+                ->only(['store', 'update', 'destroy']);
+
+            Route::apiResource('sccs', SccsController::class)
+                ->only(['store', 'update', 'destroy']);
+
+            Route::apiResource('evidence-synthesis', EvidenceSynthesisController::class)
+                ->parameters(['evidence-synthesis' => 'evidenceSynthesis'])
+                ->only(['store', 'update', 'destroy']);
+        });
+
+        Route::middleware('permission:analyses.run')->group(function () {
+            Route::post('characterizations/{characterization}/execute', [CharacterizationController::class, 'execute']);
+            Route::post('incidence-rates/{incidenceRate}/execute', [IncidenceRateController::class, 'execute']);
+            Route::post('pathways/{pathway}/execute', [PathwayController::class, 'execute']);
+            Route::post('estimations/{estimation}/execute', [EstimationController::class, 'execute']);
+            Route::post('predictions/{prediction}/execute', [PredictionController::class, 'execute']);
+            Route::post('sccs/{scc}/execute', [SccsController::class, 'execute']);
+            Route::post('evidence-synthesis/{evidenceSynthesis}/execute', [EvidenceSynthesisController::class, 'execute']);
+        });
+
+        // ── Studies (require studies.view minimum, write ops need studies.create/execute) ──
+        Route::middleware('permission:studies.view')->group(function () {
+            Route::get('studies/stats', StudyStatsController::class);
+            Route::apiResource('studies', StudyController::class)
+                ->only(['index', 'show']);
+            Route::get('studies/{study}/progress', [StudyController::class, 'progress']);
+            Route::get('studies/{study}/allowed-transitions', [StudyController::class, 'allowedTransitions']);
+            Route::get('studies/{study}/analyses', [StudyController::class, 'analyses']);
+        });
+
+        Route::middleware('permission:studies.create')->group(function () {
+            Route::apiResource('studies', StudyController::class)
+                ->only(['store', 'update', 'destroy']);
+            Route::post('studies/{study}/transition', [StudyController::class, 'transition']);
+            Route::post('studies/{study}/analyses', [StudyController::class, 'addAnalysis']);
+            Route::delete('studies/{study}/analyses/{studyAnalysis}', [StudyController::class, 'removeAnalysis']);
+        });
+
+        Route::middleware('permission:studies.execute')->group(function () {
+            Route::post('studies/{study}/execute', [StudyController::class, 'executeAll']);
+        });
 
         // Study sub-resources
         Route::prefix('studies/{study}')->group(function () {
@@ -794,8 +842,8 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     });
 });
 
-// WADO-URI: public endpoint — Cornerstone3D XHR cannot send Sanctum session cookies
-Route::prefix('v1/imaging')->group(function () {
+// WADO-URI: requires auth — use token query param for Cornerstone3D XHR compatibility
+Route::prefix('v1/imaging')->middleware('auth:sanctum')->group(function () {
     Route::get('/wado/{sopUid}', [ImagingController::class, 'wado']);
 });
 

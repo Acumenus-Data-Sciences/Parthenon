@@ -19,12 +19,16 @@ RUN pip install --no-cache-dir \
     requests \
     pyyaml
 
-# Create data directory for phenotype index
-RUN mkdir -p /data/phenotype-index
+# Create data directory for phenotype index and non-root user
+RUN mkdir -p /data/phenotype-index \
+    && addgroup --system agentgroup && adduser --system --ingroup agentgroup agentuser \
+    && chown -R agentuser:agentgroup /opt/study-agent /data/phenotype-index
 
 # Copy entrypoint script
 COPY docker/study-agent/entrypoint.sh /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh && chown agentuser:agentgroup /app/entrypoint.sh
+
+USER agentuser
 
 EXPOSE 3000 8765
 

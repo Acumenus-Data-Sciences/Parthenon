@@ -22,8 +22,6 @@ class ConceptEmbedding extends VocabularyModel
         'embedding',
     ];
 
-    protected $guarded = [];
-
     /**
      * @return array<string, string>
      */

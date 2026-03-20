@@ -113,11 +113,11 @@ services:
     volumes:
       - redis-data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-parthenon_redis_secret}", "ping"]
       interval: 5s
       timeout: 3s
       retries: 5
-    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru --requirepass ${REDIS_PASSWORD:-parthenon_redis_secret}
     deploy:
       resources:
         limits:
@@ -568,7 +568,8 @@ services:
     environment:
       - ORTHANC__NAME=Parthenon Orthanc
       - ORTHANC__REMOTE_ACCESS_ALLOWED=true
-      - ORTHANC__AUTHENTICATION_ENABLED=false
+      - ORTHANC__AUTHENTICATION_ENABLED=true
+      - 'ORTHANC__REGISTERED_USERS={"parthenon": "orthanc_secret"}'
       - DICOM_WEB_PLUGIN_ENABLED=true
       - ORTHANC__DICOM_WEB__ENABLE=true
       - ORTHANC__DICOM_WEB__ROOT=/dicom-web/
@@ -657,8 +658,7 @@ services:
     container_name: parthenon-grafana
     image: grafana/grafana:11.4.0
     environment:
-      - GF_AUTH_ANONYMOUS_ENABLED=true
-      - GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
+      - GF_AUTH_ANONYMOUS_ENABLED=false
       - GF_SERVER_ROOT_URL=https://parthenon.acumenus.net/grafana
       - GF_SERVER_SERVE_FROM_SUB_PATH=true
       - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}

@@ -16,7 +16,7 @@ class JupyterArchiveAuditCommand extends Command
         $days = (int) $this->option('days');
         $cutoff = now()->subDays($days);
 
-        DB::statement("
+        DB::statement('
             WITH moved AS (
                 DELETE FROM app.jupyter_audit_log
                 WHERE created_at < ?
@@ -24,7 +24,7 @@ class JupyterArchiveAuditCommand extends Command
             )
             INSERT INTO app.jupyter_audit_log_archive
             SELECT * FROM moved
-        ", [$cutoff]);
+        ', [$cutoff]);
 
         $this->info("Archived audit records older than {$days} days.");
 

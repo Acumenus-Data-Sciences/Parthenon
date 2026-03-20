@@ -53,7 +53,7 @@ class InvestigationService
     /** @param array<string, mixed> $state */
     public function saveDomainState(Investigation $investigation, string $domain, array $state, int $userId): Investigation
     {
-        $column = $domain . '_state';
+        $column = $domain.'_state';
 
         $investigation->update([
             $column => $state,

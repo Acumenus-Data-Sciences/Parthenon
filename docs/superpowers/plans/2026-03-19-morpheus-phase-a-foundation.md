@@ -10,7 +10,9 @@
 
 **Spec:** `docs/superpowers/specs/2026-03-19-morpheus-v2-architecture-design.md`
 
-**Prerequisite:** MIMIC-IV demo data loaded in Docker `parthenon.mimiciv.*` (31 tables, 100 patients) — already done.
+**Prerequisite:** MIMIC-IV demo data loaded in Docker `parthenon.mimiciv.*` (31 tables, 100 patients) — already done. Vocabulary (7.2M concepts) currently in `inpatient.*` — Task 0 migrates it to `omop.*`.
+
+**DATA PROTECTION:** Task 0 moves vocabulary data. The `inpatient.*` vocab tables are the ONLY copy in Docker. The migration MUST verify `omop.concept` has rows BEFORE dropping `inpatient.concept`. Follow the project's data protection rules (backup before destructive operations).
 
 ---
 
@@ -93,9 +95,74 @@ docker-compose.yml                   — Add morpheus-ingest service
 
 # SQL files (executed via Alembic or direct)
 morpheus-ingest/alembic/versions/
+├── 000_migrate_vocab_to_omop.py
 ├── 001_create_inpatient_staging.py
-├── 002_create_inpatient_ext.py
-└── 003_clean_inpatient_vocab.py
+└── 002_create_inpatient_ext.py
+```
+
+---
+
+### Task 0: Migrate Vocabulary to `omop.*` Schema
+
+**Files:**
+- Create: `morpheus-ingest/scripts/migrate_vocab_to_omop.sql`
+
+This is a prerequisite — vocabulary (7.2M concepts, 139M total rows) currently lives in `inpatient.*` in Docker. It must move to `omop.*` before we clean `inpatient.*` for CDM clinical data only.
+
+- [ ] **Step 1: Verify current state**
+
+Run: `docker compose exec -T postgres psql -U parthenon -d parthenon -c "SELECT count(*) FROM inpatient.concept;"`
+
+Expected: 7194924
+
+- [ ] **Step 2: Create and run migration script**
+
+Create `morpheus-ingest/scripts/migrate_vocab_to_omop.sql`:
+```sql
+-- Migrate vocabulary from inpatient.* to omop.* schema
+-- DATA PROTECTION: Verifies target has data before dropping source
+
+BEGIN;
+
+-- Create omop schema if not exists
+CREATE SCHEMA IF NOT EXISTS omop;
+
+-- Move each vocabulary table (ALTER TABLE SET SCHEMA is atomic and instant)
+ALTER TABLE inpatient.concept SET SCHEMA omop;
+ALTER TABLE inpatient.concept_ancestor SET SCHEMA omop;
+ALTER TABLE inpatient.concept_class SET SCHEMA omop;
+ALTER TABLE inpatient.concept_relationship SET SCHEMA omop;
+ALTER TABLE inpatient.concept_synonym SET SCHEMA omop;
+ALTER TABLE inpatient.domain SET SCHEMA omop;
+ALTER TABLE inpatient.drug_strength SET SCHEMA omop;
+ALTER TABLE inpatient.relationship SET SCHEMA omop;
+ALTER TABLE inpatient.source_to_concept_map SET SCHEMA omop;
+ALTER TABLE inpatient.vocabulary SET SCHEMA omop;
+
+COMMIT;
+```
+
+Run:
+```bash
+docker compose exec -T postgres psql -U parthenon -d parthenon -f /dev/stdin < morpheus-ingest/scripts/migrate_vocab_to_omop.sql
+```
+
+- [ ] **Step 3: Verify migration succeeded**
+
+Run:
+```bash
+docker compose exec -T postgres psql -U parthenon -d parthenon -c "
+SELECT 'omop.concept' as tbl, count(*) FROM omop.concept
+UNION ALL SELECT 'inpatient.concept exists', count(*) FROM pg_tables WHERE schemaname='inpatient' AND tablename='concept';"
+```
+
+Expected: omop.concept = 7194924, inpatient.concept exists = 0
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add morpheus-ingest/scripts/migrate_vocab_to_omop.sql
+git commit -m "feat(morpheus): migrate vocabulary tables from inpatient to omop schema"
 ```
 
 ---
@@ -131,10 +198,12 @@ pytest-asyncio>=0.24.0,<1.0.0
 - [ ] **Step 2: Create config.py**
 
 ```python
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env", env_prefix="MORPHEUS_")
+
     database_url: str = "postgresql://parthenon:parthenon@postgres:5432/parthenon"
     # Schema names
     staging_schema: str = "inpatient_staging"
@@ -147,10 +216,6 @@ class Settings(BaseSettings):
     max_error_rate: float = 0.20
     # Batch settings
     batch_size: int = 1000
-
-    class Config:
-        env_file = ".env"
-        env_prefix = "MORPHEUS_"
 
 
 settings = Settings()
@@ -318,7 +383,7 @@ datefmt = %H:%M:%S
 from logging.config import fileConfig
 
 from alembic import context
-from sqlalchemy import engine_from_config, pool
+from sqlalchemy import create_engine, pool
 
 config = context.config
 if config.config_file_name is not None:
@@ -326,11 +391,12 @@ if config.config_file_name is not None:
 
 
 def run_migrations_online() -> None:
-    connectable = engine_from_config(
-        config.get_section(config.config_ini_section, {}),
-        prefix="sqlalchemy.",
-        poolclass=pool.NullPool,
+    # Support URL override via alembic -x sqlalchemy.url=...
+    url = context.get_x_argument(as_dictionary=True).get(
+        "sqlalchemy.url",
+        config.get_main_option("sqlalchemy.url"),
     )
+    connectable = create_engine(url, poolclass=pool.NullPool)
     with connectable.connect() as connection:
         context.configure(connection=connection, target_metadata=None)
         with context.begin_transaction():
@@ -360,39 +426,8 @@ def upgrade() -> None:
     # Metadata columns included in every staging table:
     # source_system_id, load_batch_id, source_table, source_row_id, dq_flags
 
-    op.execute("""
-        CREATE TABLE inpatient_staging.load_batch (
-            batch_id        BIGSERIAL PRIMARY KEY,
-            source_id       INTEGER,
-            source_name     TEXT NOT NULL,
-            start_dt        TIMESTAMP NOT NULL DEFAULT NOW(),
-            end_dt          TIMESTAMP,
-            status          TEXT NOT NULL DEFAULT 'pending'
-                            CHECK (status IN ('pending','staging','mapping',
-                                              'validating','complete','failed','rejected')),
-            rows_staged     INTEGER DEFAULT 0,
-            rows_mapped     INTEGER DEFAULT 0,
-            rows_rejected   INTEGER DEFAULT 0,
-            mapping_coverage_pct NUMERIC(5,2),
-            dqd_pass        BOOLEAN,
-            stats           JSONB DEFAULT '{}'
-        )
-    """)
-
-    op.execute("""
-        CREATE TABLE inpatient_staging.concept_gap (
-            gap_id              BIGSERIAL PRIMARY KEY,
-            source_code         TEXT NOT NULL,
-            source_vocabulary   TEXT NOT NULL,
-            frequency           INTEGER DEFAULT 1,
-            suggested_concept_id INTEGER,
-            confidence_score    NUMERIC(5,4),
-            reviewed_by         TEXT,
-            accepted            BOOLEAN,
-            created_at          TIMESTAMP DEFAULT NOW(),
-            UNIQUE (source_code, source_vocabulary)
-        )
-    """)
+    # NOTE: load_batch and concept_gap live in inpatient_ext (persist after staging purge)
+    # Staging tables reference inpatient_ext.load_batch(batch_id) via load_batch_id column
 
     op.execute("""
         CREATE TABLE inpatient_staging.stg_patient (
@@ -721,7 +756,7 @@ Run: `cd morpheus-ingest && alembic -x sqlalchemy.url=postgresql://parthenon:par
 
 Run: `docker compose exec -T postgres psql -U parthenon -d parthenon -c "SELECT tablename FROM pg_tables WHERE schemaname = 'inpatient_staging' ORDER BY tablename;"`
 
-Expected: 17 tables (load_batch, concept_gap, stg_patient, stg_encounter, stg_condition, stg_procedure, stg_drug, stg_measurement, stg_note, stg_device, stg_specimen, stg_microbiology, stg_surgical_case, stg_case_timeline, stg_transport, stg_safety_event, stg_bed_census)
+Expected: 15 tables (stg_patient, stg_encounter, stg_condition, stg_procedure, stg_drug, stg_measurement, stg_note, stg_device, stg_specimen, stg_microbiology, stg_surgical_case, stg_case_timeline, stg_transport, stg_safety_event, stg_bed_census). Note: load_batch and concept_gap live in inpatient_ext.
 
 - [ ] **Step 6: Commit**
 
@@ -768,9 +803,24 @@ def upgrade() -> None:
     """)
 
     op.execute("""
+        CREATE TABLE inpatient_ext.concept_gap (
+            gap_id              BIGSERIAL PRIMARY KEY,
+            source_code         TEXT NOT NULL,
+            source_vocabulary   TEXT NOT NULL,
+            frequency           INTEGER DEFAULT 1,
+            suggested_concept_id INTEGER,
+            confidence_score    NUMERIC(5,4),
+            reviewed_by         TEXT,
+            accepted            BOOLEAN,
+            created_at          TIMESTAMP DEFAULT NOW(),
+            UNIQUE (source_code, source_vocabulary)
+        )
+    """)
+
+    op.execute("""
         CREATE TABLE inpatient_ext.load_batch (
             batch_id            BIGSERIAL PRIMARY KEY,
-            source_id           INTEGER REFERENCES inpatient_ext.data_source(source_id),
+            source_id           BIGINT REFERENCES inpatient_ext.data_source(source_id),
             start_dt            TIMESTAMP NOT NULL DEFAULT NOW(),
             end_dt              TIMESTAMP,
             status              TEXT NOT NULL DEFAULT 'pending',
@@ -1101,7 +1151,7 @@ Run: `cd morpheus-ingest && alembic -x sqlalchemy.url=postgresql://parthenon:par
 
 Run: `docker compose exec -T postgres psql -U parthenon -d parthenon -c "SELECT tablename FROM pg_tables WHERE schemaname = 'inpatient_ext' ORDER BY tablename;"`
 
-Expected: 22 tables
+Expected: 23 tables (includes concept_gap, load_batch, data_source, dq_result + 19 domain tables)
 
 - [ ] **Step 4: Commit**
 
@@ -1112,56 +1162,12 @@ git commit -m "feat(morpheus): create inpatient_ext schema with 22 extension tab
 
 ---
 
-### Task 4: Clean Vocabulary from `inpatient.*`
+### Task 4: Add Laravel `inpatient` Database Connection
 
 **Files:**
-- Create: `morpheus-ingest/alembic/versions/003_clean_inpatient_vocab.py`
 - Modify: `backend/config/database.php`
 
-- [ ] **Step 1: Create migration to drop vocab tables from inpatient schema**
-
-```python
-"""Remove vocabulary tables from inpatient schema (use omop.* instead)."""
-
-revision = "003"
-down_revision = "002"
-
-from alembic import op
-
-
-VOCAB_TABLES = [
-    "concept", "concept_ancestor", "concept_class", "concept_relationship",
-    "concept_synonym", "domain", "drug_strength", "relationship",
-    "source_to_concept_map", "vocabulary",
-]
-
-
-def upgrade() -> None:
-    for table in VOCAB_TABLES:
-        op.execute(f"DROP TABLE IF EXISTS inpatient.{table} CASCADE")
-
-
-def downgrade() -> None:
-    pass  # Vocab can be re-loaded from omop.* if needed
-```
-
-- [ ] **Step 2: Run migration**
-
-Run: `cd morpheus-ingest && alembic -x sqlalchemy.url=postgresql://parthenon:parthenon@localhost:5480/parthenon upgrade head`
-
-- [ ] **Step 3: Verify vocab tables removed from inpatient, still exist in omop**
-
-Run:
-```bash
-docker compose exec -T postgres psql -U parthenon -d parthenon -c "
-SELECT 'inpatient' as schema, count(*) FROM pg_tables WHERE schemaname='inpatient' AND tablename='concept'
-UNION ALL
-SELECT 'omop', count(*) FROM pg_tables WHERE schemaname='omop' AND tablename='concept';"
-```
-
-Expected: inpatient=0, omop=1 (if omop schema exists in Docker — if not, this confirms inpatient vocab is cleaned up)
-
-- [ ] **Step 4: Add inpatient connection to Laravel**
+- [ ] **Step 1: Add inpatient connection**
 
 Add to `backend/config/database.php` after the `eunomia` connection:
 
@@ -1182,11 +1188,11 @@ Add to `backend/config/database.php` after the `eunomia` connection:
 ],
 ```
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 2: Commit**
 
 ```bash
-git add morpheus-ingest/alembic/versions/003_clean_inpatient_vocab.py backend/config/database.php
-git commit -m "feat(morpheus): clean vocab from inpatient schema, add Laravel inpatient connection"
+git add backend/config/database.php
+git commit -m "feat(morpheus): add Laravel inpatient database connection"
 ```
 
 ---
@@ -1211,8 +1217,8 @@ This task is large — it builds the adapter that reads from `mimiciv.*` and wri
 Create `morpheus-ingest/tests/conftest.py`:
 ```python
 import pytest
-from sqlalchemy import create_engine, text
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session
 
 TEST_DB_URL = "postgresql://parthenon:parthenon@localhost:5480/parthenon"
 
@@ -1224,10 +1230,14 @@ def db_engine():
 
 @pytest.fixture
 def db_session(db_engine):
-    Session = sessionmaker(bind=db_engine)
-    session = Session()
+    """Each test runs in a transaction that rolls back — no pollution."""
+    connection = db_engine.connect()
+    transaction = connection.begin()
+    session = Session(bind=connection)
     yield session
     session.close()
+    transaction.rollback()
+    connection.close()
 ```
 
 Create `morpheus-ingest/tests/test_mimic_adapter.py`:
@@ -1239,7 +1249,7 @@ from app.adapters.mimic_adapter import MimicAdapter
 
 def test_mimic_adapter_stages_patients(db_session):
     adapter = MimicAdapter(db_session)
-    batch_id = adapter.stage_patients()
+    batch_id = adapter.stage_all()
     result = db_session.execute(
         text("SELECT count(*) FROM inpatient_staging.stg_patient WHERE load_batch_id = :bid"),
         {"bid": batch_id},
@@ -1250,7 +1260,7 @@ def test_mimic_adapter_stages_patients(db_session):
 
 def test_mimic_adapter_stages_encounters(db_session):
     adapter = MimicAdapter(db_session)
-    batch_id = adapter.stage_encounters()
+    batch_id = adapter.stage_all()
     result = db_session.execute(
         text("SELECT count(*) FROM inpatient_staging.stg_encounter WHERE load_batch_id = :bid"),
         {"bid": batch_id},
@@ -1259,15 +1269,18 @@ def test_mimic_adapter_stages_encounters(db_session):
     assert count > 0, "Expected encounters to be staged"
 
 
-def test_mimic_adapter_stages_measurements(db_session):
+def test_mimic_adapter_stage_all_uses_single_batch(db_session):
     adapter = MimicAdapter(db_session)
-    batch_id = adapter.stage_measurements()
-    result = db_session.execute(
-        text("SELECT count(*) FROM inpatient_staging.stg_measurement WHERE load_batch_id = :bid"),
-        {"bid": batch_id},
-    )
-    count = result.scalar()
-    assert count > 0, "Expected measurements to be staged"
+    batch_id = adapter.stage_all()
+    # All tables should reference the same batch_id
+    for table in ["stg_patient", "stg_encounter", "stg_condition", "stg_drug",
+                  "stg_measurement", "stg_procedure"]:
+        result = db_session.execute(
+            text(f"SELECT count(*) FROM inpatient_staging.{table} WHERE load_batch_id = :bid"),
+            {"bid": batch_id},
+        )
+        count = result.scalar()
+        assert count > 0, f"Expected {table} to have rows for batch {batch_id}"
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
@@ -1334,248 +1347,57 @@ from sqlalchemy.orm import Session
 from app.adapters.base import SourceAdapter
 from app.config import settings
 
+EXT = settings.ext_schema
+STG = settings.staging_schema
+SRC = settings.mimic_schema
+
 
 class MimicAdapter(SourceAdapter):
     """Adapter for MIMIC-IV demo data already loaded in mimiciv.* schema."""
 
-    MIMIC_SCHEMA = settings.mimic_schema
-    STAGING_SCHEMA = settings.staging_schema
-
     def create_batch(self, source_name: str = "MIMIC-IV Demo") -> int:
         result = self.session.execute(
             text(f"""
-                INSERT INTO {self.STAGING_SCHEMA}.load_batch (source_name, status)
+                INSERT INTO {EXT}.load_batch (source_name, status)
                 VALUES (:name, 'staging')
                 RETURNING batch_id
             """),
             {"name": source_name},
         )
-        self.session.commit()
+        self.session.flush()
         return result.scalar()
 
-    def stage_patients(self) -> int:
-        batch_id = self.create_batch()
-        self.session.execute(
-            text(f"""
-                INSERT INTO {self.STAGING_SCHEMA}.stg_patient
-                    (person_source_value, birth_year, gender_source_value,
-                     load_batch_id, source_table, source_row_id)
-                SELECT
-                    subject_id::text,
-                    anchor_year::int - anchor_age::int,
-                    gender,
-                    :bid,
-                    'patients',
-                    subject_id::text
-                FROM {self.MIMIC_SCHEMA}.patients
-            """),
-            {"bid": batch_id},
-        )
-        self.session.commit()
-        return batch_id
-
-    def stage_encounters(self) -> int:
-        batch_id = self.create_batch()
-        self.session.execute(
-            text(f"""
-                INSERT INTO {self.STAGING_SCHEMA}.stg_encounter
-                    (person_source_value, encounter_source_value, encounter_type,
-                     admit_datetime, discharge_datetime, admit_source,
-                     discharge_disposition, care_site_source_value,
-                     load_batch_id, source_table, source_row_id)
-                SELECT
-                    a.subject_id::text,
-                    a.hadm_id::text,
-                    a.admission_type,
-                    a.admittime::timestamp,
-                    a.dischtime::timestamp,
-                    a.admission_location,
-                    a.discharge_location,
-                    NULL,
-                    :bid,
-                    'admissions',
-                    a.hadm_id::text
-                FROM {self.MIMIC_SCHEMA}.admissions a
-            """),
-            {"bid": batch_id},
-        )
-        self.session.commit()
-        return batch_id
-
-    def stage_conditions(self) -> int:
-        batch_id = self.create_batch()
-        self.session.execute(
-            text(f"""
-                INSERT INTO {self.STAGING_SCHEMA}.stg_condition
-                    (person_source_value, encounter_source_value,
-                     condition_source_code, condition_source_vocab,
-                     load_batch_id, source_table, source_row_id)
-                SELECT
-                    d.subject_id::text,
-                    d.hadm_id::text,
-                    d.icd_code,
-                    CASE WHEN d.icd_version = '9' THEN 'ICD9CM'
-                         WHEN d.icd_version = '10' THEN 'ICD10CM'
-                         ELSE 'ICD' || d.icd_version END,
-                    :bid,
-                    'diagnoses_icd',
-                    d.subject_id::text || '-' || d.hadm_id::text || '-' || d.seq_num::text
-                FROM {self.MIMIC_SCHEMA}.diagnoses_icd d
-            """),
-            {"bid": batch_id},
-        )
-        self.session.commit()
-        return batch_id
-
-    def stage_measurements(self) -> int:
-        batch_id = self.create_batch()
-        # Lab events
-        self.session.execute(
-            text(f"""
-                INSERT INTO {self.STAGING_SCHEMA}.stg_measurement
-                    (person_source_value, encounter_source_value,
-                     measurement_datetime, source_code, source_vocabulary,
-                     value_as_number, value_as_text, unit_source_value,
-                     range_low, range_high,
-                     load_batch_id, source_table, source_row_id)
-                SELECT
-                    l.subject_id::text,
-                    l.hadm_id::text,
-                    l.charttime::timestamp,
-                    l.itemid::text,
-                    'MIMIC-labevents',
-                    CASE WHEN l.valuenum ~ '^-?[0-9]+(\\.[0-9]+)?$'
-                         THEN l.valuenum::numeric ELSE NULL END,
-                    l.value,
-                    l.valueuom,
-                    CASE WHEN l.ref_range_lower ~ '^-?[0-9]+(\\.[0-9]+)?$'
-                         THEN l.ref_range_lower::numeric ELSE NULL END,
-                    CASE WHEN l.ref_range_upper ~ '^-?[0-9]+(\\.[0-9]+)?$'
-                         THEN l.ref_range_upper::numeric ELSE NULL END,
-                    :bid,
-                    'labevents',
-                    l.labevent_id::text
-                FROM {self.MIMIC_SCHEMA}.labevents l
-            """),
-            {"bid": batch_id},
-        )
-        # Chart events (vitals, assessments)
-        self.session.execute(
-            text(f"""
-                INSERT INTO {self.STAGING_SCHEMA}.stg_measurement
-                    (person_source_value, encounter_source_value,
-                     measurement_datetime, source_code, source_vocabulary,
-                     value_as_number, value_as_text, unit_source_value,
-                     load_batch_id, source_table, source_row_id)
-                SELECT
-                    c.subject_id::text,
-                    c.hadm_id::text,
-                    c.charttime::timestamp,
-                    c.itemid::text,
-                    'MIMIC-chartevents',
-                    CASE WHEN c.valuenum ~ '^-?[0-9]+(\\.[0-9]+)?$'
-                         THEN c.valuenum::numeric ELSE NULL END,
-                    c.value,
-                    c.valueuom,
-                    :bid,
-                    'chartevents',
-                    c.subject_id::text || '-' || c.stay_id::text || '-' || c.charttime::text
-                FROM {self.MIMIC_SCHEMA}.chartevents c
-            """),
-            {"bid": batch_id},
-        )
-        self.session.commit()
-        return batch_id
-
-    def stage_drugs(self) -> int:
-        batch_id = self.create_batch()
-        self.session.execute(
-            text(f"""
-                INSERT INTO {self.STAGING_SCHEMA}.stg_drug
-                    (person_source_value, encounter_source_value,
-                     drug_source_code, drug_source_vocab, drug_name,
-                     start_datetime, end_datetime, route_source_value,
-                     dose_value, dose_unit,
-                     load_batch_id, source_table, source_row_id)
-                SELECT
-                    p.subject_id::text,
-                    p.hadm_id::text,
-                    COALESCE(p.ndc, p.gsn, p.drug),
-                    CASE WHEN p.ndc IS NOT NULL AND p.ndc != '0' AND p.ndc != ''
-                         THEN 'NDC' ELSE 'MIMIC-prescriptions' END,
-                    p.drug,
-                    p.starttime::timestamp,
-                    p.stoptime::timestamp,
-                    p.route,
-                    p.dose_val_rx,
-                    p.dose_unit_rx,
-                    :bid,
-                    'prescriptions',
-                    p.subject_id::text || '-' || p.hadm_id::text || '-' || COALESCE(p.starttime,'') || '-' || COALESCE(p.drug,'')
-                FROM {self.MIMIC_SCHEMA}.prescriptions p
-            """),
-            {"bid": batch_id},
-        )
-        self.session.commit()
-        return batch_id
-
-    def stage_procedures(self) -> int:
-        batch_id = self.create_batch()
-        self.session.execute(
-            text(f"""
-                INSERT INTO {self.STAGING_SCHEMA}.stg_procedure
-                    (person_source_value, encounter_source_value,
-                     procedure_source_code, procedure_source_vocab,
-                     load_batch_id, source_table, source_row_id)
-                SELECT
-                    p.subject_id::text,
-                    p.hadm_id::text,
-                    p.icd_code,
-                    CASE WHEN p.icd_version = '9' THEN 'ICD9Proc'
-                         WHEN p.icd_version = '10' THEN 'ICD10PCS'
-                         ELSE 'ICD' || p.icd_version END,
-                    :bid,
-                    'procedures_icd',
-                    p.subject_id::text || '-' || p.hadm_id::text || '-' || p.icd_code
-                FROM {self.MIMIC_SCHEMA}.procedures_icd p
-            """),
-            {"bid": batch_id},
-        )
-        self.session.commit()
-        return batch_id
-
     def stage_all(self) -> int:
-        """Stage all MIMIC-IV data into canonical staging tables."""
-        batch_id = self.create_batch("MIMIC-IV Demo (full)")
-        # Re-use the same batch_id for all tables
-        for method_name in [
-            "_stage_patients_into",
-            "_stage_encounters_into",
-            "_stage_conditions_into",
-            "_stage_measurements_into",
-            "_stage_drugs_into",
-            "_stage_procedures_into",
-        ]:
-            getattr(self, method_name)(batch_id)
+        """Stage all MIMIC-IV data into canonical staging tables under one batch."""
+        batch_id = self.create_batch("MIMIC-IV Demo")
+        self._stage_patients(batch_id)
+        self._stage_encounters(batch_id)
+        self._stage_conditions(batch_id)
+        self._stage_measurements(batch_id)
+        self._stage_drugs(batch_id)
+        self._stage_procedures(batch_id)
+        self.session.flush()
         return batch_id
 
-    def _stage_patients_into(self, batch_id: int) -> None:
+    # --- Individual staging methods (all private, share batch_id) ---
+
+    def _stage_patients(self, batch_id: int) -> None:
         self.session.execute(
             text(f"""
-                INSERT INTO {self.STAGING_SCHEMA}.stg_patient
+                INSERT INTO {STG}.stg_patient
                     (person_source_value, birth_year, gender_source_value,
                      load_batch_id, source_table, source_row_id)
                 SELECT subject_id::text, anchor_year::int - anchor_age::int, gender,
                        :bid, 'patients', subject_id::text
-                FROM {self.MIMIC_SCHEMA}.patients
+                FROM {SRC}.patients
             """),
             {"bid": batch_id},
         )
 
-    def _stage_encounters_into(self, batch_id: int) -> None:
+    def _stage_encounters(self, batch_id: int) -> None:
         self.session.execute(
             text(f"""
-                INSERT INTO {self.STAGING_SCHEMA}.stg_encounter
+                INSERT INTO {STG}.stg_encounter
                     (person_source_value, encounter_source_value, encounter_type,
                      admit_datetime, discharge_datetime, admit_source,
                      discharge_disposition, load_batch_id, source_table, source_row_id)
@@ -1583,15 +1405,15 @@ class MimicAdapter(SourceAdapter):
                        admittime::timestamp, dischtime::timestamp,
                        admission_location, discharge_location,
                        :bid, 'admissions', hadm_id::text
-                FROM {self.MIMIC_SCHEMA}.admissions
+                FROM {SRC}.admissions
             """),
             {"bid": batch_id},
         )
 
-    def _stage_conditions_into(self, batch_id: int) -> None:
+    def _stage_conditions(self, batch_id: int) -> None:
         self.session.execute(
             text(f"""
-                INSERT INTO {self.STAGING_SCHEMA}.stg_condition
+                INSERT INTO {STG}.stg_condition
                     (person_source_value, encounter_source_value,
                      condition_source_code, condition_source_vocab,
                      load_batch_id, source_table, source_row_id)
@@ -1599,15 +1421,16 @@ class MimicAdapter(SourceAdapter):
                        CASE WHEN icd_version='9' THEN 'ICD9CM' ELSE 'ICD10CM' END,
                        :bid, 'diagnoses_icd',
                        subject_id::text||'-'||hadm_id::text||'-'||seq_num::text
-                FROM {self.MIMIC_SCHEMA}.diagnoses_icd
+                FROM {SRC}.diagnoses_icd
             """),
             {"bid": batch_id},
         )
 
-    def _stage_measurements_into(self, batch_id: int) -> None:
+    def _stage_measurements(self, batch_id: int) -> None:
+        # Lab events
         self.session.execute(
             text(f"""
-                INSERT INTO {self.STAGING_SCHEMA}.stg_measurement
+                INSERT INTO {STG}.stg_measurement
                     (person_source_value, encounter_source_value,
                      measurement_datetime, source_code, source_vocabulary,
                      value_as_number, value_as_text, unit_source_value,
@@ -1620,13 +1443,14 @@ class MimicAdapter(SourceAdapter):
                        CASE WHEN ref_range_lower ~ '^-?[0-9]+(\\.[0-9]+)?$' THEN ref_range_lower::numeric ELSE NULL END,
                        CASE WHEN ref_range_upper ~ '^-?[0-9]+(\\.[0-9]+)?$' THEN ref_range_upper::numeric ELSE NULL END,
                        :bid, 'labevents', labevent_id::text
-                FROM {self.MIMIC_SCHEMA}.labevents
+                FROM {SRC}.labevents
             """),
             {"bid": batch_id},
         )
+        # Chart events (vitals, assessments)
         self.session.execute(
             text(f"""
-                INSERT INTO {self.STAGING_SCHEMA}.stg_measurement
+                INSERT INTO {STG}.stg_measurement
                     (person_source_value, encounter_source_value,
                      measurement_datetime, source_code, source_vocabulary,
                      value_as_number, value_as_text, unit_source_value,
@@ -1637,15 +1461,15 @@ class MimicAdapter(SourceAdapter):
                        value, valueuom,
                        :bid, 'chartevents',
                        subject_id::text||'-'||stay_id::text||'-'||charttime::text
-                FROM {self.MIMIC_SCHEMA}.chartevents
+                FROM {SRC}.chartevents
             """),
             {"bid": batch_id},
         )
 
-    def _stage_drugs_into(self, batch_id: int) -> None:
+    def _stage_drugs(self, batch_id: int) -> None:
         self.session.execute(
             text(f"""
-                INSERT INTO {self.STAGING_SCHEMA}.stg_drug
+                INSERT INTO {STG}.stg_drug
                     (person_source_value, encounter_source_value,
                      drug_source_code, drug_source_vocab, drug_name,
                      start_datetime, end_datetime, route_source_value,
@@ -1659,23 +1483,25 @@ class MimicAdapter(SourceAdapter):
                        dose_val_rx, dose_unit_rx,
                        :bid, 'prescriptions',
                        subject_id::text||'-'||hadm_id::text||'-'||COALESCE(starttime,'')||'-'||COALESCE(drug,'')
-                FROM {self.MIMIC_SCHEMA}.prescriptions
+                FROM {SRC}.prescriptions
             """),
             {"bid": batch_id},
         )
 
-    def _stage_procedures_into(self, batch_id: int) -> None:
+    def _stage_procedures(self, batch_id: int) -> None:
         self.session.execute(
             text(f"""
-                INSERT INTO {self.STAGING_SCHEMA}.stg_procedure
+                INSERT INTO {STG}.stg_procedure
                     (person_source_value, encounter_source_value,
                      procedure_source_code, procedure_source_vocab,
+                     procedure_date,
                      load_batch_id, source_table, source_row_id)
                 SELECT subject_id::text, hadm_id::text, icd_code,
                        CASE WHEN icd_version='9' THEN 'ICD9Proc' ELSE 'ICD10PCS' END,
+                       chartdate::date,
                        :bid, 'procedures_icd',
                        subject_id::text||'-'||hadm_id::text||'-'||icd_code
-                FROM {self.MIMIC_SCHEMA}.procedures_icd
+                FROM {SRC}.procedures_icd
             """),
             {"bid": batch_id},
         )
@@ -1717,8 +1543,9 @@ git commit -m "feat(morpheus): MIMIC-IV adapter stages patients, encounters, mea
 ## Completion Criteria
 
 Phase A is complete when:
-- [ ] `inpatient_staging` schema has 17 tables
-- [ ] `inpatient_ext` schema has 22 tables
+- [ ] `omop` schema has vocabulary tables (7.2M concepts)
+- [ ] `inpatient_staging` schema has 15 staging tables
+- [ ] `inpatient_ext` schema has 23 tables (including load_batch, concept_gap, data_source, dq_result)
 - [ ] `inpatient` schema has CDM clinical tables only (no vocabulary)
 - [ ] Laravel has `inpatient` database connection
 - [ ] morpheus-ingest service runs on port 8004

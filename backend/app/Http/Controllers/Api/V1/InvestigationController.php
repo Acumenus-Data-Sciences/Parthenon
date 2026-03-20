@@ -96,7 +96,7 @@ class InvestigationController extends Controller
 
         $validDomains = ['phenotype', 'clinical', 'genomic', 'synthesis'];
         if (! in_array($domain, $validDomains, true)) {
-            return response()->json(['error' => 'Invalid domain: ' . $domain], 422);
+            return response()->json(['error' => 'Invalid domain: '.$domain], 422);
         }
 
         $updated = $this->service->saveDomainState(

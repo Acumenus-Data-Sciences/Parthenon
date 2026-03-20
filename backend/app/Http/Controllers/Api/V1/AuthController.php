@@ -41,8 +41,8 @@ class AuthController extends Controller
             'phone_number' => $request->string('phone_number') ?: null,
         ]);
 
-        // Default roles for new accounts
-        $user->assignRole(['admin', 'mapping-reviewer', 'data-steward', 'researcher']);
+        // Default role for new accounts — admins promote users to higher roles manually
+        $user->assignRole(['viewer']);
 
         try {
             Mail::to($user->email)->send(new TempPasswordMail($user->name, $tempPassword));

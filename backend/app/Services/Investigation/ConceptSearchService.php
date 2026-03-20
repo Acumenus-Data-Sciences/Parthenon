@@ -9,6 +9,7 @@ class ConceptSearchService
 {
     /**
      * Search OMOP concepts by name with optional domain filter.
+     *
      * @return list<array<string, mixed>>
      */
     public function search(string $term, ?string $domain = null, int $limit = 25): array
@@ -19,7 +20,7 @@ class ConceptSearchService
                 'concept_id', 'concept_name', 'domain_id',
                 'vocabulary_id', 'concept_class_id', 'standard_concept', 'concept_code',
             ])
-            ->where('concept_name', 'ILIKE', '%' . $term . '%')
+            ->where('concept_name', 'ILIKE', '%'.$term.'%')
             ->where('invalid_reason', null);
 
         if ($domain !== null && $domain !== '' && $domain !== 'all') {
@@ -27,7 +28,7 @@ class ConceptSearchService
         }
 
         return $query
-            ->orderByRaw("CASE WHEN concept_name ILIKE ? THEN 0 WHEN concept_name ILIKE ? THEN 1 ELSE 2 END", [$term, $term . '%'])
+            ->orderByRaw('CASE WHEN concept_name ILIKE ? THEN 0 WHEN concept_name ILIKE ? THEN 1 ELSE 2 END', [$term, $term.'%'])
             ->orderBy('concept_name')
             ->limit($limit)
             ->get()
@@ -37,6 +38,7 @@ class ConceptSearchService
 
     /**
      * Get ancestor and descendant concepts for hierarchy display.
+     *
      * @return array{ancestors: list<array<string, mixed>>, descendants: list<array<string, mixed>>}
      */
     public function hierarchy(int $conceptId): array
@@ -81,6 +83,7 @@ class ConceptSearchService
     /**
      * Count distinct patients with records for a concept.
      * Cached in Redis for 1 hour.
+     *
      * @return array{concept_id: int, patient_count: int}
      */
     public function patientCount(int $conceptId): array

@@ -45,16 +45,16 @@ return new class extends Migration
         ");
 
         // Selective app schema access (exclude auth tables: users, personal_access_tokens, etc.)
-        DB::unprepared("
+        DB::unprepared('
             GRANT SELECT ON app.jupyter_audit_log, app.cohort_definitions, app.studies,
                 app.sources, app.analysis_executions, app.concept_sets
                 TO jupyter_admin;
-        ");
+        ');
     }
 
     public function down(): void
     {
-        DB::unprepared("
+        DB::unprepared('
             REVOKE ALL PRIVILEGES ON ALL TABLES IN SCHEMA omop, results, eunomia, eunomia_results FROM jupyter_researcher;
             REVOKE USAGE ON SCHEMA omop, results, eunomia, eunomia_results FROM jupyter_researcher;
             DROP ROLE IF EXISTS jupyter_researcher;
@@ -62,6 +62,6 @@ return new class extends Migration
             REVOKE ALL PRIVILEGES ON ALL TABLES IN SCHEMA omop, results, gis, eunomia, eunomia_results, app FROM jupyter_admin;
             REVOKE USAGE ON SCHEMA omop, results, gis, eunomia, eunomia_results, app FROM jupyter_admin;
             DROP ROLE IF EXISTS jupyter_admin;
-        ");
+        ');
     }
 };
