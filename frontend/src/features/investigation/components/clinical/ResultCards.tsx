@@ -1,6 +1,8 @@
 import { Pin } from "lucide-react";
 import type { ClinicalAnalysisType } from "../../types";
 import { ForestPlotWrapper } from "../phenotype/ForestPlotWrapper";
+import { KaplanMeierChart } from "./KaplanMeierChart";
+import { PSDistributionChart } from "./PSDistributionChart";
 
 // ── Shared types ──────────────────────────────────────────────────────────────
 
@@ -250,6 +252,27 @@ function EstimationResults({
       upper: e.ci_95_upper!,
     }));
 
+  // Kaplan-Meier curve data
+  type KMRaw = { target_curve?: Array<{ time: number; survival: number; censored?: boolean }>; comparator_curve?: Array<{ time: number; survival: number; censored?: boolean }> };
+  const kmData = result?.kaplan_meier as KMRaw | undefined;
+  const kmCurves =
+    kmData?.target_curve || kmData?.comparator_curve
+      ? [
+          ...(kmData?.target_curve
+            ? [{ label: "Target", color: "#2DD4BF", points: kmData.target_curve }]
+            : []),
+          ...(kmData?.comparator_curve
+            ? [{ label: "Comparator", color: "#9B1B30", points: kmData.comparator_curve }]
+            : []),
+        ]
+      : undefined;
+
+  // Propensity score distribution data
+  type PSRaw = { target_distribution?: Array<{ bin: number; count: number }>; comparator_distribution?: Array<{ bin: number; count: number }> };
+  const psData = result?.propensity_score as PSRaw | undefined;
+  const psTarget = psData?.target_distribution;
+  const psComparator = psData?.comparator_distribution;
+
   const hrFavorable = hr != null && hr < 1.0;
   const hrUnfavorable = hr != null && hr > 1.0;
 
@@ -302,6 +325,19 @@ function EstimationResults({
       {/* Forest plot */}
       {forestData && forestData.length > 0 && (
         <ForestPlotWrapper data={forestData} title="Estimates" />
+      )}
+
+      {/* Kaplan-Meier survival curves */}
+      {kmCurves && kmCurves.length > 0 && (
+        <KaplanMeierChart curves={kmCurves} />
+      )}
+
+      {/* Propensity score distribution */}
+      {(psTarget || psComparator) && (
+        <PSDistributionChart
+          target={psTarget ?? []}
+          comparator={psComparator ?? []}
+        />
       )}
 
       <PinButton
