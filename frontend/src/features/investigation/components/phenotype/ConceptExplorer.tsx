@@ -3,6 +3,7 @@ import type { ConceptSearchResult } from "../../types";
 import {
   useConceptSearch,
   useConceptHierarchy,
+  useConceptCount,
 } from "../../hooks/useConceptSearch";
 import { ConceptTree } from "./ConceptTree";
 
@@ -29,6 +30,17 @@ function domainBadgeClass(domain: string): string {
   return (
     DOMAIN_BADGE_CLASSES[domain] ??
     "bg-zinc-700/50 text-zinc-400 border border-zinc-600/30"
+  );
+}
+
+function ConceptCountBadge({ conceptId }: { conceptId: number }) {
+  const { data, isLoading } = useConceptCount(conceptId);
+  if (isLoading) return <span className="text-[10px] text-zinc-600">...</span>;
+  if (!data) return null;
+  return (
+    <span className="rounded bg-teal-900/30 px-1.5 py-0.5 text-[10px] text-teal-400">
+      {data.patient_count.toLocaleString()} pts
+    </span>
   );
 }
 
@@ -81,6 +93,7 @@ function ConceptCard({
             <span className="text-[10px] text-zinc-600 font-mono">
               ID: {concept.concept_id}
             </span>
+            <ConceptCountBadge conceptId={concept.concept_id} />
           </div>
         </div>
         <button
@@ -106,6 +119,7 @@ export function ConceptExplorer({ onAddConcept }: ConceptExplorerProps) {
   const [inputValue, setInputValue] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [selectedDomain, setSelectedDomain] = useState("all");
+  const [standardOnly, setStandardOnly] = useState(true);
   const [selectedConcept, setSelectedConcept] = useState<
     ConceptSearchResult | undefined
   >();
@@ -127,6 +141,10 @@ export function ConceptExplorer({ onAddConcept }: ConceptExplorerProps) {
   );
 
   const { data: hierarchy } = useConceptHierarchy(selectedConcept?.concept_id);
+
+  const filteredResults = results?.filter((c) =>
+    standardOnly ? c.standard_concept === "S" : true,
+  );
 
   const showTree =
     selectedConcept &&
@@ -162,6 +180,17 @@ export function ConceptExplorer({ onAddConcept }: ConceptExplorerProps) {
             </option>
           ))}
         </select>
+        <label className="flex items-center gap-1.5 cursor-pointer shrink-0">
+          <input
+            type="checkbox"
+            checked={standardOnly}
+            onChange={(e) => setStandardOnly(e.target.checked)}
+            className="h-3.5 w-3.5 rounded border border-zinc-600 bg-zinc-900 accent-[#2DD4BF] cursor-pointer"
+          />
+          <span className="text-xs text-zinc-400 whitespace-nowrap">
+            Standard only
+          </span>
+        </label>
       </div>
 
       {/* Results list */}
@@ -172,13 +201,18 @@ export function ConceptExplorer({ onAddConcept }: ConceptExplorerProps) {
           </p>
         )}
 
-        {debouncedQuery.length >= 2 && !isFetching && results?.length === 0 && (
+        {debouncedQuery.length >= 2 && !isFetching && filteredResults?.length === 0 && (
           <p className="text-center text-xs text-zinc-500 mt-6">
             No concepts found matching &ldquo;{debouncedQuery}&rdquo;
+            {standardOnly && results && results.length > 0 && (
+              <span className="block mt-1 text-zinc-600">
+                ({results.length} non-standard hidden — uncheck &ldquo;Standard only&rdquo; to show)
+              </span>
+            )}
           </p>
         )}
 
-        {results?.map((concept) => (
+        {filteredResults?.map((concept) => (
           <ConceptCard
             key={concept.concept_id}
             concept={concept}
