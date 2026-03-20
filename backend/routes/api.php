@@ -59,6 +59,7 @@ use App\Http\Controllers\Api\V1\InvestigationController;
 use App\Http\Controllers\Api\V1\JobController;
 use App\Http\Controllers\Api\V1\JupyterController;
 use App\Http\Controllers\Api\V1\MappingReviewController;
+use App\Http\Controllers\Api\V1\MorpheusDashboardController;
 use App\Http\Controllers\Api\V1\MorpheusPatientController;
 use App\Http\Controllers\Api\V1\NegativeControlController;
 use App\Http\Controllers\Api\V1\NetworkAnalysisController;
@@ -1154,8 +1155,21 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     });
 });
 
-// ── Morpheus Patient Journey ─────────────────────────────────────────────────
+// ── Morpheus Dashboard & Patient Journey ─────────────────────────────────────
 Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
+    // TODO: Phase H — add permission:morpheus.view middleware per HIGHSEC spec
+    // Morpheus Dashboard
+    Route::prefix('morpheus/dashboard')->group(function () {
+        Route::get('/metrics', [MorpheusDashboardController::class, 'metrics']);
+        Route::get('/trends', [MorpheusDashboardController::class, 'trends']);
+        Route::get('/top-diagnoses', [MorpheusDashboardController::class, 'topDiagnoses']);
+        Route::get('/top-procedures', [MorpheusDashboardController::class, 'topProcedures']);
+        Route::get('/demographics', [MorpheusDashboardController::class, 'demographics']);
+        Route::get('/los-distribution', [MorpheusDashboardController::class, 'losDistribution']);
+        Route::get('/icu-units', [MorpheusDashboardController::class, 'icuUnits']);
+        Route::get('/mortality-by-type', [MorpheusDashboardController::class, 'mortalityByType']);
+    });
+
     Route::prefix('morpheus/patients')->group(function () {
         Route::get('/', [MorpheusPatientController::class, 'listPatients']);
         Route::get('/search', [MorpheusPatientController::class, 'searchPatients']);
