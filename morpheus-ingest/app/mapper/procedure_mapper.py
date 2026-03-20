@@ -45,7 +45,7 @@ def map_procedures(session: Session, batch_id: int) -> int:
                     COALESCE(sp.procedure_date, v.visit_start_date)
                         AS procedure_date,
                     sp.procedure_datetime,
-                    sp.procedure_source_code AS procedure_source_value,
+                    LEFT(sp.procedure_source_code, 50) AS procedure_source_value,
                     COALESCE(src.concept_id, 0) AS procedure_source_concept_id,
                     v.visit_occurrence_id
                 FROM {STG}.stg_procedure sp

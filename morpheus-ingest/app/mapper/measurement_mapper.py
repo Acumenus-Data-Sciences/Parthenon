@@ -56,10 +56,10 @@ def map_measurements(session: Session, batch_id: int) -> int:
                     sm.measurement_datetime::date AS measurement_date,
                     sm.measurement_datetime,
                     sm.value_as_number,
-                    sm.unit_source_value,
+                    LEFT(sm.unit_source_value, 50) AS unit_source_value,
                     sm.range_low,
                     sm.range_high,
-                    sm.source_code,
+                    LEFT(sm.source_code, 50) AS source_code,
                     COALESCE(src.concept_id, 0) AS measurement_source_concept_id,
                     v.visit_occurrence_id
                 FROM {STG}.stg_measurement sm

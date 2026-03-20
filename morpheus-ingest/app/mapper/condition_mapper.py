@@ -47,7 +47,7 @@ def map_conditions(session: Session, batch_id: int) -> int:
                     COALESCE(sc.condition_start_date, v.visit_start_date)
                         AS condition_start_date,
                     sc.condition_start_datetime,
-                    sc.condition_source_code AS condition_source_value,
+                    LEFT(sc.condition_source_code, 50) AS condition_source_value,
                     COALESCE(src.concept_id, 0) AS condition_source_concept_id,
                     v.visit_occurrence_id
                 FROM {STG}.stg_condition sc

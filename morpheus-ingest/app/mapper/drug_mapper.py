@@ -55,10 +55,10 @@ def map_drugs(session: Session, batch_id: int) -> int:
                     COALESCE(sd.end_datetime::date, sd.start_datetime::date,
                              v.visit_start_date) AS drug_exposure_end_date,
                     sd.end_datetime,
-                    sd.drug_source_code AS drug_source_value,
+                    LEFT(sd.drug_source_code, 50) AS drug_source_value,
                     COALESCE(src.concept_id, 0) AS drug_source_concept_id,
-                    sd.route_source_value,
-                    sd.dose_unit,
+                    LEFT(sd.route_source_value, 50) AS route_source_value,
+                    LEFT(sd.dose_unit, 50) AS dose_unit,
                     sd.quantity,
                     v.visit_occurrence_id
                 FROM {STG}.stg_drug sd
