@@ -124,6 +124,19 @@ export interface EvidencePin {
   updated_at: string;
 }
 
+export interface CodeWASSignal {
+  label: string;
+  count: number;
+}
+
+export interface CodeWASDisplayResult {
+  top_signals: CodeWASSignal[];
+  analysis_summary: Record<string, unknown>;
+  forest_plot?: Array<{ label: string; hr: number; lower: number; upper: number }>;
+  case_cohort_name: string;
+  control_cohort_name: string;
+}
+
 export interface PaginatedResponse<T> {
   data: T[];
   total: number;
