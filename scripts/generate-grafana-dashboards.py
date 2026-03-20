@@ -22,7 +22,7 @@ LOKI_DS = {"type": "loki", "uid": "loki-parthenon"}
 TIER1 = "parthenon-(php|nginx|ai|postgres)"
 
 # Tier 2 services — shared filterable log panel
-TIER2 = "parthenon-(horizon|redis|solr|r|chromadb|study-agent|reverb|node|orthanc|finngen-runner|qdrant)"
+TIER2 = "parthenon-(horizon|redis|solr|darkstar|chromadb|study-agent|reverb|node|orthanc|finngen-runner|qdrant)"
 
 # Thresholds
 THRESH_PERCENT = {
@@ -831,7 +831,7 @@ def make_dashboard():
                         {"selected": False, "text": "horizon", "value": "parthenon-horizon"},
                         {"selected": False, "text": "redis", "value": "parthenon-redis"},
                         {"selected": False, "text": "solr", "value": "parthenon-solr"},
-                        {"selected": False, "text": "r-runtime", "value": "parthenon-r"},
+                        {"selected": False, "text": "darkstar", "value": "parthenon-darkstar"},
                         {"selected": False, "text": "chromadb", "value": "parthenon-chromadb"},
                         {"selected": False, "text": "study-agent", "value": "parthenon-study-agent"},
                         {"selected": False, "text": "reverb", "value": "parthenon-reverb"},
@@ -840,7 +840,7 @@ def make_dashboard():
                         {"selected": False, "text": "finngen-runner", "value": "parthenon-finngen-runner"},
                         {"selected": False, "text": "qdrant", "value": "parthenon-qdrant"},
                     ],
-                    "query": "parthenon-horizon,parthenon-redis,parthenon-solr,parthenon-r,parthenon-chromadb,parthenon-study-agent,parthenon-reverb,parthenon-node,parthenon-orthanc,parthenon-finngen-runner,parthenon-qdrant",
+                    "query": "parthenon-horizon,parthenon-redis,parthenon-solr,parthenon-darkstar,parthenon-chromadb,parthenon-study-agent,parthenon-reverb,parthenon-node,parthenon-orthanc,parthenon-finngen-runner,parthenon-qdrant",
                     "hide": 0, "multi": True, "includeAll": True,
                     "allValue": TIER2,
                     "skipUrlSync": False,

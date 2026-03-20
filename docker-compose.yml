@@ -470,8 +470,8 @@ services:
       - parthenon
     restart: unless-stopped
 
-  r-runtime:
-    container_name: parthenon-r
+  darkstar:
+    container_name: parthenon-darkstar
     build:
       context: .
       dockerfile: docker/r/Dockerfile

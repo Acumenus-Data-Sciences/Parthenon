@@ -298,7 +298,7 @@ class CharacterizationController extends Controller
             $cdmSchema = $source->getTableQualifier(DaimonType::CDM) ?? 'omop';
             $resultsSchema = $source->getTableQualifier(DaimonType::Results) ?? 'public';
 
-            $rRuntimeUrl = rtrim(config('services.r_runtime.url', 'http://r-runtime:8787'), '/');
+            $rRuntimeUrl = rtrim(config('services.r_runtime.url', 'http://darkstar:8787'), '/');
 
             $spec = [
                 'connection' => HadesBridgeService::buildSourceSpec($source),

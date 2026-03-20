@@ -27,7 +27,7 @@ shell-python:
 	docker compose exec python-ai sh
 
 shell-r:
-	docker compose exec r-runtime bash
+	docker compose exec darkstar bash
 
 test:
 	docker compose exec php php artisan test

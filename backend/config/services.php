@@ -36,7 +36,7 @@ return [
     ],
 
     'r_runtime' => [
-        'url' => env('R_SERVICE_URL', 'http://r-runtime:8787'),
+        'url' => env('R_SERVICE_URL', 'http://darkstar:8787'),
         'timeout' => env('R_SERVICE_TIMEOUT', 7200),
     ],
 

@@ -168,7 +168,7 @@ class SystemHealthController extends Controller
 
     private function checkRRuntime(): array
     {
-        $url = rtrim(config('services.r.url', env('R_PLUMBER_URL', 'http://r-runtime:8787')), '/');
+        $url = rtrim(config('services.r_runtime.url', 'http://darkstar:8787'), '/');
 
         try {
             $response = Http::timeout(3)->get("{$url}/health");
@@ -529,7 +529,7 @@ class SystemHealthController extends Controller
 
         $keyword = match ($service) {
             'ai' => 'python-ai|AI Service|abby|ollama|MedGemma',
-            'r' => 'r-runtime|R Plumber|plumber|HADES',
+            'r' => 'darkstar|R Plumber|plumber|HADES',
             'orthanc' => 'orthanc|PACS|DICOMweb|dicom-web',
             'chromadb' => 'chroma|ChromaDB|vector',
             default => $service,
@@ -677,7 +677,7 @@ class SystemHealthController extends Controller
      */
     private function getRMetrics(): array
     {
-        $url = rtrim(config('services.r.url', env('R_PLUMBER_URL', 'http://r-runtime:8787')), '/');
+        $url = rtrim(config('services.r_runtime.url', 'http://darkstar:8787'), '/');
 
         try {
             $response = Http::timeout(3)->get("{$url}/health");

@@ -21,7 +21,7 @@ BASE_SERVICES = [
     ("redis",      "parthenon-redis",    30),
     ("php",        "parthenon-php",      120),
     ("python-ai",  "parthenon-ai",       120),
-    ("r-runtime",  "parthenon-r",        120),
+    ("darkstar",   "parthenon-darkstar",  120),
     ("nginx",      "parthenon-nginx",    30),
     ("horizon",    "parthenon-horizon",  30),
 ]

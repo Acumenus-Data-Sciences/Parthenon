@@ -18,7 +18,7 @@ class HadesBridgeService
 
     public function __construct()
     {
-        $this->baseUrl = rtrim(config('services.r_plumber.url', 'http://r-plumber:8787'), '/');
+        $this->baseUrl = rtrim(config('services.r_runtime.url', 'http://darkstar:8787'), '/');
     }
 
     /**

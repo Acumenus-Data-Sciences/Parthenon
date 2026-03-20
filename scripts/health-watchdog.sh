@@ -21,7 +21,7 @@ TIMESTAMP="$(date '+%Y-%m-%d %H:%M:%S')"
 CRITICAL_SERVICES=(php nginx postgres redis horizon solr)
 
 # Important services — restart if unhealthy but don't block
-IMPORTANT_SERVICES=(python-ai r-runtime node reverb chromadb orthanc study-agent finngen-runner)
+IMPORTANT_SERVICES=(python-ai darkstar node reverb chromadb orthanc study-agent finngen-runner)
 
 # Monitoring stack — nice to have
 MONITORING_SERVICES=(prometheus grafana loki alloy cadvisor node-exporter)

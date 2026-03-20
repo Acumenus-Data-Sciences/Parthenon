@@ -19,7 +19,7 @@ class StrategusController extends Controller
 
     public function __construct()
     {
-        $this->rRuntimeUrl = rtrim(config('services.r_runtime.url', 'http://r-runtime:8787'), '/');
+        $this->rRuntimeUrl = rtrim(config('services.r_runtime.url', 'http://darkstar:8787'), '/');
     }
 
     /**

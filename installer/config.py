@@ -426,7 +426,7 @@ def build_backend_env(cfg: dict[str, Any]) -> str:
         f"SANCTUM_STATEFUL_DOMAINS={sanctum_domains}\n"
         f"\n"
         f"AI_SERVICE_URL=http://python-ai:8000\n"
-        f"R_SERVICE_URL=http://r-runtime:8787\n"
+        f"R_SERVICE_URL=http://darkstar:8787\n"
         f"\n"
         f"HORIZON_DASHBOARD_ENABLED=true\n"
         f"\n"
