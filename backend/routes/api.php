@@ -88,6 +88,8 @@ use App\Http\Controllers\Api\V1\TextToSqlController;
 use App\Http\Controllers\Api\V1\UserProfileController;
 use App\Http\Controllers\Api\V1\VocabularyController;
 use App\Http\Controllers\Api\V1\WhiteRabbitController;
+use App\Http\Controllers\Api\V1\EvidencePinController;
+use App\Http\Controllers\Api\V1\InvestigationController;
 use App\Services\GIS\SpatialStatsProxy;
 use Illuminate\Support\Facades\Route;
 
@@ -1075,6 +1077,24 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 
         // Abby feedback (thumbs up/down on responses)
         Route::post('abby/feedback', [AbbyAiController::class, 'feedback']);
+    });
+});
+
+// ── Evidence Investigations ───────────────────────────────────────────────────
+Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
+    Route::prefix('investigations')->group(function () {
+        Route::get('/', [InvestigationController::class, 'index']);
+        Route::post('/', [InvestigationController::class, 'store']);
+        Route::get('/{investigation}', [InvestigationController::class, 'show']);
+        Route::patch('/{investigation}', [InvestigationController::class, 'update']);
+        Route::delete('/{investigation}', [InvestigationController::class, 'destroy']);
+        Route::patch('/{investigation}/state/{domain}', [InvestigationController::class, 'saveDomainState']);
+
+        // Evidence Pins
+        Route::get('/{investigation}/pins', [EvidencePinController::class, 'index']);
+        Route::post('/{investigation}/pins', [EvidencePinController::class, 'store']);
+        Route::patch('/{investigation}/pins/{pin}', [EvidencePinController::class, 'update']);
+        Route::delete('/{investigation}/pins/{pin}', [EvidencePinController::class, 'destroy']);
     });
 });
 
