@@ -2,6 +2,7 @@
 
 namespace App\Models\App;
 
+use App\Casts\PgArray;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -27,8 +28,8 @@ class EvidencePin extends Model
         'finding_payload' => 'array',
         'is_key_finding' => 'boolean',
         'sort_order' => 'integer',
-        'concept_ids' => 'array',
-        'gene_symbols' => 'array',
+        'concept_ids' => PgArray::class,
+        'gene_symbols' => PgArray::class,
     ];
 
     /**

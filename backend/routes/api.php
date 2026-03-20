@@ -55,6 +55,7 @@ use App\Http\Controllers\Api\V1\ImagingController;
 use App\Http\Controllers\Api\V1\ImagingTimelineController;
 use App\Http\Controllers\Api\V1\IncidenceRateController;
 use App\Http\Controllers\Api\V1\IngestionController;
+use App\Http\Controllers\Api\V1\GenomicEvidenceController;
 use App\Http\Controllers\Api\V1\InvestigationController;
 use App\Http\Controllers\Api\V1\JobController;
 use App\Http\Controllers\Api\V1\JupyterController;
@@ -1152,6 +1153,12 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         Route::post('/{investigation}/pins', [EvidencePinController::class, 'store']);
         Route::patch('/{investigation}/pins/{pin}', [EvidencePinController::class, 'update']);
         Route::delete('/{investigation}/pins/{pin}', [EvidencePinController::class, 'destroy']);
+
+        // Genomic Evidence Proxy + Cross-links
+        Route::post('/{investigation}/genomic/query-opentargets', [GenomicEvidenceController::class, 'queryOpenTargets']);
+        Route::post('/{investigation}/genomic/query-gwas-catalog', [GenomicEvidenceController::class, 'queryGwasCatalog']);
+        Route::post('/{investigation}/genomic/upload-gwas', [GenomicEvidenceController::class, 'uploadGwas']);
+        Route::get('/{investigation}/cross-links', [GenomicEvidenceController::class, 'crossLinks']);
     });
 });
 
