@@ -308,13 +308,6 @@ export const router = createBrowserRouter(
                 ),
             },
             {
-              path: "workbench/aqueduct",
-              lazy: () =>
-                import("@/features/aqueduct/pages/AqueductPage").then(
-                  (m) => ({ Component: m.default }),
-                ),
-            },
-            {
               path: "finngen-tools",
               element: <Navigate to="/workbench" replace />,
             },
