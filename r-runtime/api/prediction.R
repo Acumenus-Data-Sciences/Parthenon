@@ -27,15 +27,17 @@ function(body, response) {
   spec   <- body
   logger <- create_analysis_logger()
 
-  # ── Force all atomic named vectors to lists ────────────────
-
-  # Plumber may deserialize single-element JSON objects as named
-  # atomic vectors instead of lists. Recursively convert them so
-  # downstream $ accessors work correctly.
+  # Plumber may deserialize JSON objects with few keys as named atomic
+  # vectors instead of lists.  Only convert named vectors that look like
+  # sub-objects (multiple elements with character names) — leave scalars
+  # and unnamed vectors alone.
   ensure_list <- function(x) {
     if (is.null(x)) return(x)
     if (is.list(x)) return(lapply(x, ensure_list))
-    if (!is.null(names(x)) && length(x) >= 1) return(as.list(x))
+    # Only convert named vectors with 2+ elements (they should be objects)
+    if (!is.null(names(x)) && length(x) > 1 && is.character(names(x))) {
+      return(lapply(as.list(x), ensure_list))
+    }
     return(x)
   }
   spec <- ensure_list(spec)

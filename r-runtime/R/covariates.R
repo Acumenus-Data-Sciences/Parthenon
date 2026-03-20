@@ -25,10 +25,39 @@ build_covariate_settings <- function(spec, exclude_concept_ids = c()) {
   }
 
   # If spec contains direct FeatureExtraction parameter names (keys starting with "use"),
-  # pass them through directly to createCovariateSettings
+  # pass them through directly to createCovariateSettings.
+  # First expand any short-hand keys (useDemographics → useDemographicsAge etc.)
+  # to prevent R partial-matching ambiguity.
+  shorthand_expansions <- list(
+    useDemographics          = c("useDemographicsAge", "useDemographicsGender",
+                                 "useDemographicsAgeGroup", "useDemographicsRace",
+                                 "useDemographicsEthnicity"),
+    useConditionOccurrence   = c("useConditionOccurrenceLongTerm",
+                                 "useConditionOccurrenceShortTerm",
+                                 "useConditionEraLongTerm"),
+    useDrugExposure          = c("useDrugExposureLongTerm",
+                                 "useDrugExposureShortTerm",
+                                 "useDrugEraLongTerm"),
+    useProcedureOccurrence   = c("useProcedureOccurrenceLongTerm"),
+    useMeasurement           = c("useMeasurementLongTerm",
+                                 "useMeasurementValueAnyTimePrior")
+  )
+
   use_keys <- grep("^use", names(spec), value = TRUE)
   if (length(use_keys) > 0) {
-    args <- lapply(spec[use_keys], as.logical)
+    args <- list()
+    for (key in use_keys) {
+      val <- as.logical(spec[[key]])
+      if (key %in% names(shorthand_expansions)) {
+        # Expand shorthand to multiple full parameter names
+        for (full_key in shorthand_expansions[[key]]) {
+          args[[full_key]] <- val
+        }
+      } else {
+        # Already a full parameter name — pass through
+        args[[key]] <- val
+      }
+    }
     # Merge exclusions from function param AND spec-level excludedConceptIds
     all_exclude <- c(
       as.integer(exclude_concept_ids),
