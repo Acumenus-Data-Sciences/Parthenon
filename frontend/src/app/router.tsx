@@ -286,33 +286,54 @@ export const router = createBrowserRouter(
                   (m) => ({ Component: m.default }),
                 ),
             },
-            {
-              path: "workbench",
-              lazy: () =>
-                import("@/features/finngen/pages/FinnGenToolsPage").then(
-                  (m) => ({ Component: m.default }),
-                ),
-            },
-            {
-              path: "workbench/help",
-              lazy: () =>
-                import("@/features/finngen/pages/WorkbenchHelpPage").then(
-                  (m) => ({ Component: m.default }),
-                ),
-            },
-            {
-              path: "workbench/community-sdk-demo",
-              lazy: () =>
-                import("@/features/community-workbench-sdk/pages/CommunityWorkbenchSdkDemoPage").then(
-                  (m) => ({ Component: m.default }),
-                ),
-            },
-            {
-              path: "finngen-tools",
-              element: <Navigate to="/workbench" replace />,
-            },
           ]
         : []),
+      // ── Workbench (always available — individual toolsets gate themselves) ──
+      {
+        path: "workbench",
+        children: [
+          {
+            index: true,
+            lazy: () =>
+              import("@/features/workbench/pages/WorkbenchLauncherPage").then(
+                (m) => ({ Component: m.default }),
+              ),
+          },
+          {
+            path: "finngen",
+            lazy: () =>
+              import("@/features/finngen/pages/FinnGenToolsPage").then(
+                (m) => ({ Component: m.default }),
+              ),
+          },
+          {
+            path: "finngen/help",
+            lazy: () =>
+              import("@/features/finngen/pages/WorkbenchHelpPage").then(
+                (m) => ({ Component: m.default }),
+              ),
+          },
+          {
+            path: "community-sdk-demo",
+            lazy: () =>
+              import(
+                "@/features/community-workbench-sdk/pages/CommunityWorkbenchSdkDemoPage"
+              ).then((m) => ({ Component: m.default })),
+          },
+        ],
+      },
+      {
+        path: "finngen-tools",
+        element: <Navigate to="/workbench/finngen" replace />,
+      },
+      {
+        path: "workbench/aqueduct",
+        element: <Navigate to="/workbench" replace />,
+      },
+      {
+        path: "workbench/help",
+        element: <Navigate to="/workbench/finngen/help" replace />,
+      },
       // ── Strategus Study Packages ─────────────────────────────────────────
       {
         path: "study-packages",
