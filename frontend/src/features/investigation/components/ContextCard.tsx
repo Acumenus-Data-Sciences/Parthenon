@@ -4,6 +4,8 @@ interface ContextCardProps {
   domain: EvidenceDomain;
   label: string;
   summary: string;
+  /** Optional rich node to render instead of the plain summary string. */
+  summaryNode?: React.ReactNode;
   isActive: boolean;
   onClick: () => void;
 }
@@ -19,6 +21,7 @@ export function ContextCard({
   domain,
   label,
   summary,
+  summaryNode,
   isActive,
   onClick,
 }: ContextCardProps) {
@@ -35,7 +38,9 @@ export function ContextCard({
       <p className="text-xs uppercase tracking-wider text-zinc-500 mb-1 truncate">
         {label}
       </p>
-      <p className="text-sm text-zinc-300 truncate">{summary}</p>
+      <p className="text-sm text-zinc-300 truncate">
+        {summaryNode ?? summary}
+      </p>
     </button>
   );
 }

@@ -1,5 +1,5 @@
 import { useInvestigationStore } from "../stores/investigationStore";
-import type { EvidenceDomain, Investigation } from "../types";
+import type { ClinicalState, EvidenceDomain, Investigation } from "../types";
 import { ContextCard } from "./ContextCard";
 
 interface ContextBarProps {
@@ -11,9 +11,79 @@ function getPhenotypeSummary(investigation: Investigation): string {
   return count > 0 ? `${count} concept set${count !== 1 ? "s" : ""}` : "No concepts";
 }
 
-function getClinicalSummary(investigation: Investigation): string {
-  const count = investigation.clinical_state.queued_analyses.length;
-  return count > 0 ? `${count} analysis${count !== 1 ? "es" : ""} queued` : "—";
+function getClinicalSummary(state: ClinicalState): string {
+  const analyses = state.queued_analyses ?? [];
+  if (analyses.length === 0) return "No analyses";
+
+  const running = analyses.filter(
+    (a) => a.status === "running" || a.status === "queued",
+  ).length;
+  const completed = analyses.filter((a) => a.status === "complete").length;
+  const failed = analyses.filter((a) => a.status === "failed").length;
+
+  const parts: string[] = [];
+  if (completed > 0) parts.push(`${completed} complete`);
+  if (running > 0) parts.push(`${running} running`);
+  if (failed > 0) parts.push(`${failed} failed`);
+
+  return parts.join(" · ") || "No analyses";
+}
+
+function ClinicalSummaryNode({
+  state,
+}: {
+  state: ClinicalState;
+}): React.ReactElement {
+  const analyses = state.queued_analyses ?? [];
+
+  if (analyses.length === 0) {
+    return <span className="text-zinc-500">No analyses</span>;
+  }
+
+  const running = analyses.filter(
+    (a) => a.status === "running" || a.status === "queued",
+  ).length;
+  const completed = analyses.filter((a) => a.status === "complete").length;
+  const failed = analyses.filter((a) => a.status === "failed").length;
+
+  const parts: React.ReactElement[] = [];
+
+  if (completed > 0) {
+    parts.push(
+      <span key="complete" style={{ color: "#2DD4BF" }}>
+        {completed} complete
+      </span>,
+    );
+  }
+  if (running > 0) {
+    parts.push(
+      <span key="running" style={{ color: "#C9A227" }}>
+        {running} running
+      </span>,
+    );
+  }
+  if (failed > 0) {
+    parts.push(
+      <span key="failed" style={{ color: "#9B1B30" }}>
+        {failed} failed
+      </span>,
+    );
+  }
+
+  if (parts.length === 0) {
+    return <span className="text-zinc-500">No analyses</span>;
+  }
+
+  return (
+    <>
+      {parts.map((part, i) => (
+        <span key={i}>
+          {i > 0 && <span className="text-zinc-600"> · </span>}
+          {part}
+        </span>
+      ))}
+    </>
+  );
 }
 
 function getGenomicSummary(investigation: Investigation): string {
@@ -42,7 +112,7 @@ export function ContextBar({ investigation }: ContextBarProps) {
 
   const summaries: Record<EvidenceDomain, string> = {
     phenotype: getPhenotypeSummary(investigation),
-    clinical: getClinicalSummary(investigation),
+    clinical: getClinicalSummary(investigation.clinical_state),
     genomic: getGenomicSummary(investigation),
     synthesis: getSynthesisSummary(investigation),
   };
@@ -55,6 +125,11 @@ export function ContextBar({ investigation }: ContextBarProps) {
           domain={domain}
           label={DOMAIN_LABELS[domain]}
           summary={summaries[domain]}
+          summaryNode={
+            domain === "clinical" ? (
+              <ClinicalSummaryNode state={investigation.clinical_state} />
+            ) : undefined
+          }
           isActive={activeDomain === domain}
           onClick={() => setActiveDomain(domain)}
         />
