@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ArrowUpRight, CircleAlert, HelpCircle, PanelsTopLeft, RefreshCw } from "lucide-react";
+import { ArrowUpRight, ChevronLeft, CircleAlert, HelpCircle, PanelsTopLeft, RefreshCw } from "lucide-react";
 import { Link } from "react-router-dom";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
 import { useFinnGenServices } from "../hooks/useFinnGenServices";
@@ -172,7 +172,7 @@ export default function FinnGenToolsPage() {
               Workbench
             </h1>
             <Link
-              to="/workbench/help"
+              to="/workbench/finngen/help"
               className="flex h-6 w-6 items-center justify-center rounded-md text-zinc-600 transition-colors hover:bg-zinc-800 hover:text-zinc-400"
               title="Workbench Help"
             >
@@ -192,21 +192,13 @@ export default function FinnGenToolsPage() {
           <ArrowUpRight className="h-3.5 w-3.5" />
         </a>
 
-        {/* Toolset selector */}
-        <label className="flex items-center gap-2">
-          <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-            Toolset
-          </span>
-          <select
-            value="finngen"
-            onChange={() => {
-              /* future: switch toolsets */
-            }}
-            className="rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-1.5 text-sm text-zinc-100 focus:border-[#9B1B30] focus:outline-none"
-          >
-            <option value="finngen">FinnGen</option>
-          </select>
-        </label>
+        <Link
+          to="/workbench"
+          className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
+        >
+          <ChevronLeft className="h-3.5 w-3.5" />
+          Workbench
+        </Link>
 
         {/* CDM Source selector */}
         <label className="flex items-center gap-2">
@@ -328,25 +320,6 @@ export default function FinnGenToolsPage() {
         </div>
       )}
 
-      {/* Aqueduct ETL Workbench */}
-      <div className="rounded-lg border border-[#2DD4BF]/30 bg-[#2DD4BF]/5 p-4">
-        <div className="flex items-center gap-2">
-          <div className="h-2 w-2 rounded-full bg-[#2DD4BF]" />
-          <h3 className="font-semibold text-white">Aqueduct</h3>
-        </div>
-        <p className="mt-2 text-sm text-gray-400">
-          Design and validate ETL mappings from source data to OMOP CDM with
-          concept matching and vocabulary lookup generation.
-        </p>
-        <div className="mt-3 flex gap-2">
-          <Link
-            to="/workbench/aqueduct"
-            className="rounded bg-[#2DD4BF]/20 px-3 py-1 text-xs text-[#2DD4BF] hover:bg-[#2DD4BF]/30"
-          >
-            Open Aqueduct
-          </Link>
-        </div>
-      </div>
     </div>
   );
 }
