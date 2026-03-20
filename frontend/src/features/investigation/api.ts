@@ -11,6 +11,10 @@ import type {
   ConceptHierarchy,
   SetOperationType,
   CohortOperationResult,
+  OpenTargetsResult,
+  GwasCatalogResult,
+  GwasUploadResult,
+  CrossLinksMap,
 } from "./types";
 
 // ── Investigations ────────────────────────────────────────────────────
@@ -189,6 +193,62 @@ export async function fetchExecutions(
     `/${apiPrefix}/${analysisId}/executions`,
   );
   return data.data ?? data;
+}
+
+// ── Genomic Evidence ──────────────────────────────────────────────────
+
+export async function queryOpenTargets(
+  investigationId: number,
+  queryType: "gene" | "disease",
+  term: string,
+): Promise<OpenTargetsResult> {
+  const { data } = await apiClient.post(
+    `/investigations/${investigationId}/genomic/query-opentargets`,
+    { query_type: queryType, term },
+  );
+  return data.data;
+}
+
+export async function queryGwasCatalog(
+  investigationId: number,
+  queryType: "trait" | "gene",
+  term: string,
+  size = 20,
+): Promise<GwasCatalogResult> {
+  const { data } = await apiClient.post(
+    `/investigations/${investigationId}/genomic/query-gwas-catalog`,
+    { query_type: queryType, term, size },
+  );
+  return data.data;
+}
+
+export async function uploadGwas(
+  investigationId: number,
+  file: File,
+  columnMapping?: Record<string, string>,
+): Promise<GwasUploadResult> {
+  const formData = new FormData();
+  formData.append("file", file);
+  if (columnMapping) {
+    Object.entries(columnMapping).forEach(([key, value]) => {
+      formData.append(`column_mapping[${key}]`, value);
+    });
+  }
+  const { data } = await apiClient.post(
+    `/investigations/${investigationId}/genomic/upload-gwas`,
+    formData,
+    { headers: { "Content-Type": "multipart/form-data" } },
+  );
+  return data.data;
+}
+
+export async function fetchCrossLinks(
+  investigationId: number,
+): Promise<CrossLinksMap> {
+  const { data } = await apiClient.get(
+    `/investigations/${investigationId}/cross-links`,
+  );
+  return data.data;
 }
 
 // ── Cohort Operations ──────────────────────────────────────────────────

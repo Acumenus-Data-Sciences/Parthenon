@@ -226,3 +226,91 @@ export interface CohortOperationResult {
   matching_summary?: Record<string, unknown>;
   handoff_ready: boolean;
 }
+
+// ── Open Targets types ────────────────────────────────────────────────
+
+export interface OpenTargetsSearchHit {
+  id: string;
+  name: string;
+  score: number;
+  object: Record<string, unknown>;
+}
+
+export interface OpenTargetsResult {
+  data: {
+    search?: { hits: OpenTargetsSearchHit[] };
+    target?: Record<string, unknown>;
+    disease?: Record<string, unknown>;
+  } | null;
+  errors?: Array<{ message: string }>;
+}
+
+// ── GWAS Catalog types ────────────────────────────────────────────────
+
+export interface GwasCatalogStudy {
+  accessionId: string;
+  diseaseTrait?: { trait: string };
+  publicationInfo?: {
+    pubmedId: string;
+    publication: string;
+    title: string;
+    author: { fullname: string };
+    publicationDate: string;
+  };
+  initialSampleSize: string;
+  snpCount: number;
+}
+
+export interface GwasCatalogAssociation {
+  pvalue: number;
+  pvalueMantissa: number;
+  pvalueExponent: number;
+  orPerCopyNum: number | null;
+  betaNum: number | null;
+  betaDirection: string | null;
+  range: string | null;
+  riskFrequency: string | null;
+  loci: Array<{
+    strongestRiskAlleles: Array<{ riskAlleleName: string; riskFrequency: string }>;
+    authorReportedGenes: Array<{ geneName: string; ensemblGeneIds: string[] }>;
+  }>;
+}
+
+export interface GwasCatalogResult {
+  _embedded?: Record<string, unknown[]>;
+  page?: { totalElements: number; totalPages: number; number: number; size: number };
+}
+
+// ── GWAS Upload types ─────────────────────────────────────────────────
+
+export interface GwasUploadResult {
+  upload_id: string;
+  file_name: string;
+  file_size: number;
+  total_rows: number;
+  columns: string[];
+  sample_rows: string[][];
+  column_mapping: Record<string, string>;
+}
+
+export interface GwasSummaryRow {
+  chr: string;
+  pos: number;
+  ref: string;
+  alt: string;
+  beta: number;
+  se: number;
+  p: number;
+}
+
+// ── Cross-Domain Links ────────────────────────────────────────────────
+
+export interface CrossLink {
+  pin_id: number;
+  domain: string;
+  finding_type: string;
+  link_type: "concept" | "gene";
+  link_value: number | string;
+}
+
+export type CrossLinksMap = Record<number, CrossLink[]>;
