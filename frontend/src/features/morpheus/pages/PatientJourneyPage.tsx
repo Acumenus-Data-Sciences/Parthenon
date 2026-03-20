@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   useMorpheusPatients,
   useMorpheusPatient,
@@ -13,6 +13,8 @@ import {
   useMorpheusEventCounts,
   useMorpheusMicrobiology,
 } from '../api';
+import type { PatientFilters } from '../api';
+import FilterBar from '../components/FilterBar';
 import LocationTrack from '../components/LocationTrack';
 import AdmissionPicker from '../components/AdmissionPicker';
 import EventCountBar from '../components/EventCountBar';
@@ -24,12 +26,27 @@ type ViewMode = 'journey' | 'diagnoses' | 'medications' | 'labs' | 'vitals' | 'm
 export default function PatientJourneyPage() {
   const { subjectId } = useParams<{ subjectId?: string }>();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [selectedHadmId, setSelectedHadmId] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('journey');
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Filter state initialized from URL params
+  const [filters, setFilters] = useState<PatientFilters>(() => {
+    const initial: PatientFilters = {};
+    if (searchParams.get('icu') === 'true') initial.icu = true;
+    if (searchParams.get('icu') === 'false') initial.icu = false;
+    if (searchParams.get('deceased') === 'true') initial.deceased = true;
+    if (searchParams.get('deceased') === 'false') initial.deceased = false;
+    if (searchParams.get('admission_type')) initial.admission_type = searchParams.get('admission_type')!;
+    if (searchParams.get('diagnosis')) initial.diagnosis = searchParams.get('diagnosis')!;
+    return initial;
+  });
+  const [sortCol, setSortCol] = useState<string>('subject_id');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
+
   // Data queries
-  const patientsQuery = useMorpheusPatients({}, 100);
+  const patientsQuery = useMorpheusPatients({ ...filters, sort: sortCol, order: sortDir }, 100);
   const patientQuery = useMorpheusPatient(subjectId);
   const admissionsQuery = useMorpheusAdmissions(subjectId);
   const transfersQuery = useMorpheusTransfers(subjectId, selectedHadmId ?? undefined);
@@ -41,17 +58,48 @@ export default function PatientJourneyPage() {
   const countsQuery = useMorpheusEventCounts(subjectId, selectedHadmId ?? undefined);
   const microQuery = useMorpheusMicrobiology(subjectId, selectedHadmId ?? undefined);
 
-  // Patient list filtering
+  // Patient list filtering (local search on subject_id only)
   const filteredPatients = useMemo(() => {
     const patients = patientsQuery.data?.data || [];
     if (!searchQuery) return patients;
     return patients.filter(p => p.subject_id.includes(searchQuery));
   }, [patientsQuery.data, searchQuery]);
 
+  const handleFilterChange = (newFilters: PatientFilters) => {
+    setFilters(newFilters);
+    const params = new URLSearchParams();
+    if (newFilters.icu !== undefined) params.set('icu', String(newFilters.icu));
+    if (newFilters.deceased !== undefined) params.set('deceased', String(newFilters.deceased));
+    if (newFilters.admission_type) params.set('admission_type', newFilters.admission_type);
+    if (newFilters.diagnosis) params.set('diagnosis', newFilters.diagnosis);
+    if (newFilters.min_los !== undefined) params.set('min_los', String(newFilters.min_los));
+    if (newFilters.max_los !== undefined) params.set('max_los', String(newFilters.max_los));
+    setSearchParams(params, { replace: true });
+  };
+
+  const handleSort = (col: string) => {
+    if (sortCol === col) {
+      setSortDir(d => d === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortCol(col);
+      setSortDir('asc');
+    }
+  };
+
+  const sortIndicator = (col: string) => sortCol === col ? (sortDir === 'asc' ? ' \u2191' : ' \u2193') : '';
+
   // Browse mode — no patient selected
   if (!subjectId) {
     return (
       <div className="p-6 space-y-4">
+        {/* Filter bar */}
+        <FilterBar
+          filters={filters}
+          onChange={handleFilterChange}
+          totalShown={filteredPatients.length}
+          totalAll={patientsQuery.data?.total ?? 0}
+        />
+
         {/* Search */}
         <div className="max-w-md">
           <input
@@ -68,12 +116,29 @@ export default function PatientJourneyPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-800 text-gray-500 text-xs">
-                <th className="text-left px-4 py-2">Subject ID</th>
-                <th className="text-left px-4 py-2">Gender</th>
-                <th className="text-left px-4 py-2">Age (anchor)</th>
+                <th className="text-left px-4 py-2 cursor-pointer hover:text-gray-300" onClick={() => handleSort('subject_id')}>
+                  Subject ID{sortIndicator('subject_id')}
+                </th>
+                <th className="text-left px-4 py-2 cursor-pointer hover:text-gray-300" onClick={() => handleSort('gender')}>
+                  Gender{sortIndicator('gender')}
+                </th>
+                <th className="text-left px-4 py-2 cursor-pointer hover:text-gray-300" onClick={() => handleSort('anchor_age')}>
+                  Age (anchor){sortIndicator('anchor_age')}
+                </th>
                 <th className="text-left px-4 py-2">Year Group</th>
-                <th className="text-left px-4 py-2">Admissions</th>
-                <th className="text-left px-4 py-2">ICU Stays</th>
+                <th className="text-left px-4 py-2 cursor-pointer hover:text-gray-300" onClick={() => handleSort('admission_count')}>
+                  Admissions{sortIndicator('admission_count')}
+                </th>
+                <th className="text-left px-4 py-2 cursor-pointer hover:text-gray-300" onClick={() => handleSort('icu_stay_count')}>
+                  ICU Stays{sortIndicator('icu_stay_count')}
+                </th>
+                <th className="text-left px-4 py-2 cursor-pointer hover:text-gray-300" onClick={() => handleSort('total_los_days')}>
+                  Total LOS{sortIndicator('total_los_days')}
+                </th>
+                <th className="text-left px-4 py-2 cursor-pointer hover:text-gray-300" onClick={() => handleSort('longest_icu_los')}>
+                  Longest ICU{sortIndicator('longest_icu_los')}
+                </th>
+                <th className="text-left px-4 py-2">Primary Dx</th>
                 <th className="text-left px-4 py-2">Deceased</th>
               </tr>
             </thead>
@@ -96,6 +161,17 @@ export default function PatientJourneyPage() {
                       <span className="text-gray-600">0</span>
                     )}
                   </td>
+                  <td className="px-4 py-2 text-gray-300">
+                    {p.total_los_days != null ? `${Number(p.total_los_days).toFixed(1)}d` : '\u2014'}
+                  </td>
+                  <td className="px-4 py-2 text-gray-300">
+                    {p.longest_icu_los != null ? `${Number(p.longest_icu_los).toFixed(1)}d` : '\u2014'}
+                  </td>
+                  <td className="px-4 py-2 text-gray-400">
+                    {p.primary_diagnosis ? (
+                      <span className="truncate max-w-[200px] inline-block align-bottom" title={p.primary_diagnosis}>{p.primary_diagnosis}</span>
+                    ) : '\u2014'}
+                  </td>
                   <td className="px-4 py-2">
                     {p.dod ? <span className="text-[#E85A6B]">Yes</span> : <span className="text-gray-600">No</span>}
                   </td>
@@ -105,6 +181,9 @@ export default function PatientJourneyPage() {
           </table>
           {patientsQuery.isLoading && (
             <div className="p-4 text-center text-gray-500 text-sm">Loading patients...</div>
+          )}
+          {!patientsQuery.isLoading && filteredPatients.length === 0 && (
+            <div className="p-4 text-center text-gray-500 text-sm">No patients match the current filters</div>
           )}
         </div>
       </div>
