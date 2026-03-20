@@ -1,6 +1,8 @@
 import { useState } from "react";
-import type { Investigation, PhenotypeState } from "../../types";
+import type { Investigation, PhenotypeState, CohortOperationResult } from "../../types";
 import { CohortPicker } from "./CohortPicker";
+import { useCohortDefinitions } from "@/features/cohort-definitions/hooks/useCohortDefinitions";
+import { CohortOperationPanel } from "./CohortOperationPanel";
 
 type ImportMode = PhenotypeState["import_mode"];
 
@@ -49,6 +51,22 @@ export function CohortBuilder({ investigation, onStateChange }: CohortBuilderPro
     investigation.phenotype_state.primary_cohort_id ?? null,
   );
   const [atlasJson, setAtlasJson] = useState("");
+
+  // Resolved cohort objects (name + count) for CohortOperationPanel
+  const { data: cohortListData } = useCohortDefinitions({ limit: 200, with_generations: true });
+  const cohortList = cohortListData?.data ?? [];
+  const selectedCohorts = selectedIds.map((id) => {
+    const def = cohortList.find((c) => c.id === id);
+    return {
+      id,
+      name: def?.name ?? `Cohort #${id}`,
+      count: def?.latest_generation?.person_count ?? 0,
+    };
+  });
+
+  function handleOperationComplete(result: CohortOperationResult) {
+    console.log("[CohortBuilder] operation complete:", result);
+  }
 
   function handleModeChange(mode: ImportMode) {
     setImportMode(mode);
@@ -188,7 +206,7 @@ export function CohortBuilder({ investigation, onStateChange }: CohortBuilderPro
             Selected Cohorts ({selectedIds.length})
           </p>
           <div className="flex flex-wrap gap-1.5">
-            {selectedIds.map((id) => (
+            {selectedCohorts.map(({ id, name }) => (
               <span
                 key={id}
                 className={`inline-flex items-center gap-1 px-2 py-1 rounded text-[11px] border ${
@@ -197,7 +215,7 @@ export function CohortBuilder({ investigation, onStateChange }: CohortBuilderPro
                     : "bg-zinc-800/60 text-zinc-300 border-zinc-700"
                 }`}
               >
-                Cohort #{id}
+                {name}
                 {primaryId === id && (
                   <span className="text-[10px] text-[#C9A227]">★</span>
                 )}
@@ -216,6 +234,14 @@ export function CohortBuilder({ investigation, onStateChange }: CohortBuilderPro
             ))}
           </div>
         </div>
+      )}
+
+      {selectedCohorts.length >= 2 && (
+        <CohortOperationPanel
+          selectedCohorts={selectedCohorts}
+          primaryId={primaryId}
+          onOperationComplete={handleOperationComplete}
+        />
       )}
 
       {/* Concept sets from Explore tab */}
