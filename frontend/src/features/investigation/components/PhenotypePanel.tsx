@@ -8,6 +8,10 @@ import {
   ConceptSetBuilder,
   type ConceptSetEntry,
 } from "./phenotype/ConceptSetBuilder";
+import {
+  SchemaDensityHeatmap,
+  buildDomainCounts,
+} from "./phenotype/SchemaDensityHeatmap";
 import { useCreatePin } from "../hooks/useEvidencePins";
 
 type SubTab = "explore" | "build" | "validate";
@@ -295,17 +299,24 @@ export function PhenotypePanel({ investigation }: PhenotypePanelProps) {
               <ConceptExplorer onAddConcept={handleAddConcept} />
             </div>
 
-            {/* Right: Concept Set Builder (narrower) */}
-            <div className="flex-[2] min-w-0 overflow-hidden flex flex-col border-l border-zinc-700/50 pl-4">
-              <ConceptSetBuilder
-                entries={activeSet.entries}
-                onEntriesChange={handleEntriesChange}
-                setName={activeSet.name}
-                onSetNameChange={handleSetNameChange}
-                savedSets={savedSets}
-                onSwitchSet={handleSwitchSet}
-                onNewSet={handleNewSet}
-              />
+            {/* Right: Concept Set Builder + Domain heatmap (narrower) */}
+            <div className="flex-[2] min-w-0 overflow-hidden flex flex-col gap-3 border-l border-zinc-700/50 pl-4">
+              <div className="flex-1 min-h-0 overflow-hidden">
+                <ConceptSetBuilder
+                  entries={activeSet.entries}
+                  onEntriesChange={handleEntriesChange}
+                  setName={activeSet.name}
+                  onSetNameChange={handleSetNameChange}
+                  savedSets={savedSets}
+                  onSwitchSet={handleSwitchSet}
+                  onNewSet={handleNewSet}
+                />
+              </div>
+              <div className="shrink-0">
+                <SchemaDensityHeatmap
+                  domains={buildDomainCounts(activeSet.entries)}
+                />
+              </div>
             </div>
           </div>
         )}
