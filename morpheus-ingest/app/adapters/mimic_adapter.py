@@ -72,7 +72,11 @@ class MimicAdapter(SourceAdapter):
                     (person_source_value, encounter_source_value,
                      condition_source_code, condition_source_vocab,
                      load_batch_id, source_table, source_row_id)
-                SELECT subject_id::text, hadm_id::text, icd_code,
+                SELECT subject_id::text, hadm_id::text,
+                       -- MIMIC stores ICD codes without dots; OMOP expects dots after 3rd char
+                       CASE WHEN length(icd_code) <= 3 THEN icd_code
+                            ELSE left(icd_code, 3) || '.' || substring(icd_code from 4)
+                       END,
                        CASE WHEN icd_version='9' THEN 'ICD9CM' ELSE 'ICD10CM' END,
                        :bid, 'diagnoses_icd',
                        subject_id::text||'-'||hadm_id::text||'-'||seq_num::text
@@ -151,7 +155,11 @@ class MimicAdapter(SourceAdapter):
                      procedure_source_code, procedure_source_vocab,
                      procedure_date,
                      load_batch_id, source_table, source_row_id)
-                SELECT subject_id::text, hadm_id::text, icd_code,
+                SELECT subject_id::text, hadm_id::text,
+                       -- ICD9Proc: dot after 2nd char (39.61). ICD10PCS: no dots (7-char alpha).
+                       CASE WHEN icd_version = '9' AND length(icd_code) > 2
+                            THEN left(icd_code, 2) || '.' || substring(icd_code from 3)
+                            ELSE icd_code END,
                        CASE WHEN icd_version='9' THEN 'ICD9Proc' ELSE 'ICD10PCS' END,
                        chartdate::date,
                        :bid, 'procedures_icd',
