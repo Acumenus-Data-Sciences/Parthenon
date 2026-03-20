@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from app.routers import health
+from app.routers import health, ingest
 
 app = FastAPI(
     title="Morpheus Ingest",
@@ -9,3 +9,4 @@ app = FastAPI(
 )
 
 app.include_router(health.router)
+app.include_router(ingest.router)
