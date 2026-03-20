@@ -5,6 +5,7 @@ import { DomainPlaceholder } from "./DomainPlaceholder";
 import { EvidenceSidebar } from "./EvidenceSidebar";
 import { LeftRail } from "./LeftRail";
 import { PhenotypePanel } from "./PhenotypePanel";
+import { SynthesisPanel } from "./SynthesisPanel";
 
 interface EvidenceBoardProps {
   investigation: Investigation;
@@ -21,11 +22,7 @@ function FocusPanel({ investigation }: { investigation: Investigation }) {
     case "genomic":
       return <DomainPlaceholder domain="genomic" phase="Phase 3" />;
     case "synthesis":
-      return (
-        <div className="flex items-center justify-center h-full text-zinc-500 text-sm">
-          Synthesis — Task 11
-        </div>
-      );
+      return <SynthesisPanel investigation={investigation} />;
     default:
       return null;
   }
