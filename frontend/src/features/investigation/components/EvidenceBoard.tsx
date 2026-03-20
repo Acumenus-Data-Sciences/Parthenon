@@ -16,7 +16,7 @@ function FocusPanel({ investigation }: { investigation: Investigation }) {
 
   switch (activeDomain) {
     case "phenotype":
-      return <PhenotypePanel />;
+      return <PhenotypePanel investigation={investigation} />;
     case "clinical":
       return <DomainPlaceholder domain="clinical" phase="Phase 2" />;
     case "genomic":
