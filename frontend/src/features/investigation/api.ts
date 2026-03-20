@@ -1,4 +1,6 @@
 import apiClient from "@/lib/api-client";
+import { previewFinnGenCohortOperations } from "@/features/finngen/api";
+import type { FinnGenSource } from "@/features/finngen/types";
 import type {
   Investigation,
   EvidencePin,
@@ -7,6 +9,8 @@ import type {
   EvidenceDomain,
   ConceptSearchResult,
   ConceptHierarchy,
+  SetOperationType,
+  CohortOperationResult,
 } from "./types";
 
 // ── Investigations ────────────────────────────────────────────────────
@@ -141,4 +145,46 @@ export async function fetchConceptCount(
     `/concept-explorer/${conceptId}/count`,
   );
   return data.data ?? data;
+}
+
+// ── Cohort Operations ──────────────────────────────────────────────────
+
+export async function executeCohortOperation(
+  source: FinnGenSource,
+  selectedCohortIds: number[],
+  selectedCohortLabels: string[],
+  primaryCohortId: number | null,
+  operationType: SetOperationType,
+): Promise<CohortOperationResult> {
+  // NOTE: previewFinnGenCohortOperations requires a full FinnGenSource object
+  // and requires cohort_definition (pass empty object for parthenon import mode)
+  const result = await previewFinnGenCohortOperations({
+    source,
+    cohort_definition: {},
+    import_mode: "parthenon",
+    operation_type: operationType,
+    selected_cohort_ids: selectedCohortIds,
+    selected_cohort_labels: selectedCohortLabels,
+    primary_cohort_id: primaryCohortId,
+    matching_enabled: false,
+  });
+
+  const data = result as Record<string, unknown>;
+  const attritionRaw = (data.attrition ?? []) as Array<Record<string, unknown>>;
+  const resultCount =
+    ((data.compile_summary as Record<string, unknown>)?.result_rows as number) ?? 0;
+
+  return {
+    compile_summary: (data.compile_summary ?? {}) as Record<string, unknown>,
+    attrition: attritionRaw.map((step, i) => ({
+      label: String(step.label ?? step.step ?? `Step ${i + 1}`),
+      count: Number(step.count ?? step.persons ?? 0),
+      percent: Number(step.percent ?? step.retention ?? 100),
+    })),
+    result_count: resultCount,
+    operation_type: operationType,
+    export_summary: (data.export_summary ?? {}) as Record<string, unknown>,
+    matching_summary: data.matching_summary as Record<string, unknown> | undefined,
+    handoff_ready: Boolean(data.handoff_ready ?? false),
+  };
 }

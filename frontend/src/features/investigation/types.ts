@@ -159,3 +159,21 @@ export interface ConceptHierarchy {
   ancestors: ConceptSearchResult[];
   descendants: ConceptSearchResult[];
 }
+
+export type SetOperationType = "union" | "intersect" | "subtract";
+
+export interface AttritionStep {
+  label: string;
+  count: number;
+  percent: number;
+}
+
+export interface CohortOperationResult {
+  compile_summary: Record<string, unknown>;
+  attrition: AttritionStep[];
+  result_count: number;
+  operation_type: SetOperationType;
+  export_summary: Record<string, unknown>;
+  matching_summary?: Record<string, unknown>;
+  handoff_ready: boolean;
+}
