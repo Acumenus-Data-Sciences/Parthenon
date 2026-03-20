@@ -1,0 +1,47 @@
+{
+    "id": 55,
+    "name": "Statin Effect on CAD Outcomes",
+    "description": "Population-level estimation of statin therapy effect on cardiovascular outcomes in CAD patients using propensity score matching with Cox proportional hazards model.",
+    "design_json": {
+        "model": {
+            "type": "cox",
+            "endAnchor": "cohort end",
+            "timeAtRiskEnd": 0,
+            "timeAtRiskStart": 0
+        },
+        "targetCohortId": 67,
+        "propensityScore": {
+            "enabled": true,
+            "matching": {
+                "ratio": 1,
+                "caliper": 0.2
+            },
+            "trimming": 0.05,
+            "stratification": {
+                "strata": 5
+            }
+        },
+        "outcomeCohortIds": [
+            67
+        ],
+        "covariateSettings": {
+            "timeWindows": [
+                {
+                    "end": 0,
+                    "start": -365
+                }
+            ],
+            "useMeasurement": true,
+            "useDemographics": true,
+            "useDrugExposure": true,
+            "useConditionOccurrence": true,
+            "useProcedureOccurrence": true
+        },
+        "comparatorCohortId": 67,
+        "negativeControlOutcomes": []
+    },
+    "author_id": 117,
+    "created_at": "2026-03-20T00:29:26.000000Z",
+    "updated_at": "2026-03-20T00:29:26.000000Z",
+    "deleted_at": null
+}

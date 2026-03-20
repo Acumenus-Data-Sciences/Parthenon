@@ -1,0 +1,98 @@
+{
+    "id": 50,
+    "name": "S8: Opioid vs NSAID — Drug Misuse Risk (PS-Matched Cox)",
+    "description": "Comparative effectiveness of new opioid users vs NSAID users on risk of drug misuse. Active comparator new-user design, 1:1 PS matching, Cox model, 3-year TAR.",
+    "design_json": {
+        "model": {
+            "type": "cox",
+            "covariateSettings": {
+                "endDays": 0,
+                "useCharlsonIndex": true,
+                "longTermStartDays": -365,
+                "shortTermStartDays": -30,
+                "useDemographicsAge": true,
+                "useDrugEraLongTerm": true,
+                "useDemographicsRace": true,
+                "useDemographicsGender": true,
+                "useMeasurementLongTerm": true,
+                "useObservationLongTerm": true,
+                "useConditionEraLongTerm": true,
+                "useDemographicsAgeGroup": true,
+                "useDrugExposureLongTerm": true,
+                "useDemographicsEthnicity": true,
+                "useDemographicsIndexYear": true,
+                "useDrugExposureShortTerm": true,
+                "useDemographicsIndexMonth": true,
+                "useConditionOccurrenceLongTerm": true,
+                "useProcedureOccurrenceLongTerm": true,
+                "useConditionOccurrenceShortTerm": true
+            }
+        },
+        "timeAtRisk": {
+            "end": {
+                "offset": 1095,
+                "dateField": "index_date"
+            },
+            "start": {
+                "offset": 1,
+                "dateField": "index_date"
+            }
+        },
+        "description": "Active comparator new-user cohort study estimating the effect of initiating opioid therapy vs NSAID therapy on subsequent drug misuse in patients with pain indications. Propensity score matching 1:1 with caliper 0.2 SD on logit PS. Cox proportional hazards model with time-at-risk from day 1 to 3 years post-index.",
+        "analysisType": "CohortMethod",
+        "targetCohortId": 180,
+        "propensityScore": {
+            "method": "matching",
+            "enabled": true,
+            "matching": {
+                "ratio": 1,
+                "caliper": 0.2,
+                "caliperScale": "standardized logit",
+                "allowReverseMatch": false
+            },
+            "trimming": {
+                "type": "preference_score",
+                "fraction": 0.05
+            }
+        },
+        "studyPopulation": {
+            "minTimeAtRisk": 1,
+            "riskWindowEnd": 1095,
+            "washoutPeriod": 0,
+            "riskWindowStart": 1,
+            "requireTimeAtRisk": true,
+            "priorOutcomeLookback": 99999,
+            "removeDuplicateSubjects": "keep first",
+            "removeSubjectsWithPriorOutcome": true
+        },
+        "outcomeCohortIds": [
+            183
+        ],
+        "covariateSettings": {
+            "useCharlsonIndex": true,
+            "excludedConceptIds": [
+                1174888,
+                1124957,
+                1110410,
+                1154029,
+                1201620,
+                1115008,
+                1177480
+            ],
+            "useDemographicsAge": true,
+            "useDemographicsRace": true,
+            "useDemographicsGender": true,
+            "useMeasurementLongTerm": true,
+            "useDrugExposureLongTerm": true,
+            "useConditionOccurrenceLongTerm": true,
+            "useProcedureOccurrenceLongTerm": true
+        },
+        "outcomeOfInterest": 183,
+        "comparatorCohortId": 177,
+        "negativeControlOutcomeIds": []
+    },
+    "author_id": 117,
+    "created_at": "2026-03-20T00:29:26.000000Z",
+    "updated_at": "2026-03-20T00:35:32.000000Z",
+    "deleted_at": null
+}

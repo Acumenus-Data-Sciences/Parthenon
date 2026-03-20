@@ -1,0 +1,46 @@
+{
+    "id": 24,
+    "name": "S10: Prediabetes Reversal — Escapers vs Progressors Baseline",
+    "description": "Baseline covariate profile comparison between prediabetes escapers (no T2DM within 5 years) and progressors (T2DM within 5 years). Evaluates demographic, clinical, and pharmacological differences for the Prediabetes Reversal study.",
+    "design_json": {
+        "topN": 100,
+        "ageBreaks": [
+            18,
+            40,
+            55,
+            65,
+            75
+        ],
+        "description": "Baseline characterization comparing demographic, clinical, and pharmacological profiles of prediabetes escapers vs progressors across demographics, conditions, drugs, measurements, procedures, and visits in the 365 days prior to index.",
+        "timeWindows": [
+            {
+                "id": 1,
+                "label": "365 days prior to index",
+                "endDays": 0,
+                "startDays": -365
+            }
+        ],
+        "analysisType": "Characterization",
+        "featureTypes": [
+            "demographics",
+            "conditions",
+            "drugs",
+            "measurements",
+            "procedures",
+            "visits"
+        ],
+        "minCellCount": 5,
+        "stratifyByAge": true,
+        "targetCohortIds": [
+            154
+        ],
+        "stratifyByGender": true,
+        "comparatorCohortIds": [
+            159
+        ]
+    },
+    "author_id": 117,
+    "created_at": "2026-03-20T00:28:56.000000Z",
+    "updated_at": "2026-03-20T00:28:56.000000Z",
+    "deleted_at": null
+}
