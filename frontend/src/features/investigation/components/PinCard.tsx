@@ -1,0 +1,51 @@
+import { Star, X } from "lucide-react";
+import type { EvidenceDomain, EvidencePin } from "../types";
+
+interface PinCardProps {
+  pin: EvidencePin;
+  onDelete: (id: number) => void;
+}
+
+const DOMAIN_BADGE_STYLE: Record<EvidenceDomain, string> = {
+  phenotype: "bg-teal-900 text-teal-300",
+  clinical: "bg-red-950 text-red-400",
+  genomic: "bg-yellow-950 text-yellow-500",
+  synthesis: "bg-zinc-800 text-zinc-300",
+};
+
+function extractPayloadSummary(payload: Record<string, unknown>): string {
+  const entries = Object.entries(payload);
+  if (entries.length === 0) return "Custom finding";
+  const [key, value] = entries[0];
+  return `${key}: ${String(value)}`;
+}
+
+export function PinCard({ pin, onDelete }: PinCardProps) {
+  const badgeStyle = DOMAIN_BADGE_STYLE[pin.domain];
+  const summary = extractPayloadSummary(pin.finding_payload);
+
+  return (
+    <div className="flex items-start gap-2 p-2 rounded-lg bg-zinc-900 border border-zinc-800 group">
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-1.5 mb-1">
+          <span
+            className={`inline-block px-1.5 py-0.5 rounded text-xs font-medium ${badgeStyle}`}
+          >
+            {pin.finding_type.replace(/_/g, " ")}
+          </span>
+          {pin.is_key_finding && (
+            <Star size={11} className="text-yellow-500 fill-yellow-500 shrink-0" />
+          )}
+        </div>
+        <p className="text-xs text-zinc-400 truncate">{summary}</p>
+      </div>
+      <button
+        onClick={() => onDelete(pin.id)}
+        className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity text-zinc-600 hover:text-zinc-300"
+        aria-label="Remove pin"
+      >
+        <X size={13} />
+      </button>
+    </div>
+  );
+}
