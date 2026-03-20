@@ -1,0 +1,223 @@
+import type { OpenTargetsSearchHit } from "../../types";
+
+type PinFinding = {
+  domain: string;
+  section: string;
+  finding_type: string;
+  finding_payload: Record<string, unknown>;
+  gene_symbols?: string[];
+};
+
+interface OpenTargetsResultsProps {
+  hits: OpenTargetsSearchHit[];
+  queryType: "gene" | "disease";
+  onPinFinding: (finding: PinFinding) => void;
+}
+
+function ScoreBar({ score }: { score: number }) {
+  const pct = Math.min(Math.max(score, 0), 1) * 100;
+  return (
+    <div className="flex items-center gap-2">
+      <div className="flex-1 h-1.5 rounded-full bg-zinc-700/60 overflow-hidden">
+        <div
+          className="h-full rounded-full"
+          style={{ width: `${pct}%`, backgroundColor: "#C9A227" }}
+        />
+      </div>
+      <span className="text-[10px] text-zinc-500 tabular-nums w-8 text-right">
+        {score.toFixed(2)}
+      </span>
+    </div>
+  );
+}
+
+function GeneCard({
+  hit,
+  onPinFinding,
+}: {
+  hit: OpenTargetsSearchHit;
+  onPinFinding: (finding: PinFinding) => void;
+}) {
+  const target = hit.object as {
+    approvedSymbol?: string;
+    approvedName?: string;
+    biotype?: string;
+    tractability?: Array<{ modality: string; value: boolean }>;
+  };
+
+  const symbol = target.approvedSymbol ?? hit.name;
+  const geneName = target.approvedName ?? "";
+  const biotype = target.biotype ?? null;
+  const tractability = target.tractability ?? [];
+
+  const tractabilityBadges = tractability
+    .filter((t) => t.value)
+    .map((t) => t.modality);
+
+  function getBadgeStyle(modality: string): string {
+    const lower = modality.toLowerCase();
+    if (lower.includes("small")) return "border-[#2DD4BF]/40 text-[#2DD4BF]";
+    if (lower.includes("antibody")) return "border-[#9B1B30]/40 text-[#9B1B30]";
+    return "border-zinc-600 text-zinc-400";
+  }
+
+  function handlePin() {
+    onPinFinding({
+      domain: "genomic",
+      section: "genomic_evidence",
+      finding_type: "open_targets_association",
+      finding_payload: {
+        hit_id: hit.id,
+        approved_symbol: symbol,
+        approved_name: geneName,
+        biotype,
+        score: hit.score,
+        tractability: tractabilityBadges,
+        source: "open_targets",
+      },
+      gene_symbols: [symbol],
+    });
+  }
+
+  return (
+    <div className="flex flex-col gap-2.5 p-4 rounded-xl bg-zinc-900/50 border border-zinc-800 hover:border-zinc-700 transition-colors">
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex flex-col gap-0.5 min-w-0">
+          <span className="text-sm font-bold truncate" style={{ color: "#2DD4BF" }}>
+            {symbol}
+          </span>
+          {geneName && (
+            <span className="text-xs text-zinc-400 leading-snug line-clamp-2">{geneName}</span>
+          )}
+        </div>
+        <div className="flex items-center gap-1.5 flex-shrink-0">
+          {biotype && (
+            <span className="text-[10px] px-2 py-0.5 rounded border border-zinc-700 text-zinc-500">
+              {biotype}
+            </span>
+          )}
+          <button
+            onClick={handlePin}
+            className="text-[10px] px-2.5 py-1 rounded border border-zinc-600 text-zinc-400 hover:border-[#C9A227]/50 hover:text-[#C9A227] transition-colors whitespace-nowrap"
+          >
+            Pin
+          </button>
+        </div>
+      </div>
+
+      {tractabilityBadges.length > 0 && (
+        <div className="flex flex-wrap gap-1">
+          {tractabilityBadges.map((m) => (
+            <span
+              key={m}
+              className={`text-[10px] px-2 py-0.5 rounded border ${getBadgeStyle(m)}`}
+            >
+              {m}
+            </span>
+          ))}
+        </div>
+      )}
+
+      <ScoreBar score={hit.score} />
+    </div>
+  );
+}
+
+function DiseaseCard({
+  hit,
+  onPinFinding,
+}: {
+  hit: OpenTargetsSearchHit;
+  onPinFinding: (finding: PinFinding) => void;
+}) {
+  const disease = hit.object as {
+    id?: string;
+    name?: string;
+    description?: string;
+    therapeuticAreas?: Array<{ name: string }>;
+  };
+
+  const name = disease.name ?? hit.name;
+  const description = disease.description ?? null;
+  const therapeuticAreas = disease.therapeuticAreas ?? [];
+
+  function handlePin() {
+    onPinFinding({
+      domain: "genomic",
+      section: "genomic_evidence",
+      finding_type: "open_targets_association",
+      finding_payload: {
+        hit_id: hit.id,
+        disease_name: name,
+        description,
+        therapeutic_areas: therapeuticAreas.map((a) => a.name),
+        score: hit.score,
+        source: "open_targets",
+        concept_ids: [],
+      },
+    });
+  }
+
+  return (
+    <div className="flex flex-col gap-2.5 p-4 rounded-xl bg-zinc-900/50 border border-zinc-800 hover:border-zinc-700 transition-colors">
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex flex-col gap-0.5 min-w-0">
+          <span className="text-sm font-bold leading-snug" style={{ color: "#9B1B30" }}>
+            {name}
+          </span>
+          {description && (
+            <span className="text-xs text-zinc-400 leading-snug line-clamp-2">{description}</span>
+          )}
+        </div>
+        <button
+          onClick={handlePin}
+          className="flex-shrink-0 text-[10px] px-2.5 py-1 rounded border border-zinc-600 text-zinc-400 hover:border-[#C9A227]/50 hover:text-[#C9A227] transition-colors whitespace-nowrap"
+        >
+          Pin
+        </button>
+      </div>
+
+      {therapeuticAreas.length > 0 && (
+        <div className="flex flex-wrap gap-1">
+          {therapeuticAreas.map((area) => (
+            <span
+              key={area.name}
+              className="text-[10px] px-2 py-0.5 rounded border border-zinc-700 text-zinc-400"
+            >
+              {area.name}
+            </span>
+          ))}
+        </div>
+      )}
+
+      <ScoreBar score={hit.score} />
+    </div>
+  );
+}
+
+export function OpenTargetsResults({
+  hits,
+  queryType,
+  onPinFinding,
+}: OpenTargetsResultsProps) {
+  if (hits.length === 0) {
+    return (
+      <p className="text-xs text-zinc-500 py-4 text-center">No results found.</p>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-2.5">
+      <p className="text-[10px] text-zinc-500 uppercase tracking-wide">
+        {hits.length} result{hits.length !== 1 ? "s" : ""} — Open Targets Platform
+      </p>
+      {hits.map((hit) =>
+        queryType === "gene" ? (
+          <GeneCard key={hit.id} hit={hit} onPinFinding={onPinFinding} />
+        ) : (
+          <DiseaseCard key={hit.id} hit={hit} onPinFinding={onPinFinding} />
+        ),
+      )}
+    </div>
+  );
+}
