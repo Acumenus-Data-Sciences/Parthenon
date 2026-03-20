@@ -124,9 +124,7 @@ const navItems: NavItem[] = [
     icon: Activity,
     children: [
       { path: "/jupyter", label: "Jupyter", icon: NotebookPen },
-      ...(studyAgentEnabled
-        ? [{ path: "/workbench", label: "Workbench", icon: PanelsTopLeft }]
-        : []),
+      { path: "/workbench", label: "Workbench", icon: PanelsTopLeft },
       { path: "/query-assistant", label: "Query Assistant", icon: MessageSquareCode },
       { path: "/publish", label: "Publish", icon: FileOutput },
       { path: "/jobs", label: "Jobs", icon: Briefcase },
@@ -194,6 +192,7 @@ const routeHelpKeys: Record<string, string> = {
   "/studies": "studies",
   "/study-designer": "study-designer",
   "/workbench": "study-designer",
+  "/workbench/finngen": "study-designer",
   "/finngen-tools": "study-designer",
   "/study-packages": "study-packages",
   "/vocabulary": "vocabulary-search",
