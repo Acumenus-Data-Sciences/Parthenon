@@ -1,3 +1,36 @@
+export type { AnalysisExecution } from "@/features/analyses/types/analysis";
+
+export type ClinicalAnalysisType =
+  | "characterization"
+  | "incidence_rate"
+  | "estimation"
+  | "prediction"
+  | "sccs"
+  | "evidence_synthesis"
+  | "pathway";
+
+export type ClinicalAnalysisGroup = "characterize" | "compare" | "predict";
+
+export interface AnalysisTypeDescriptor {
+  type: ClinicalAnalysisType;
+  group: ClinicalAnalysisGroup;
+  name: string;
+  description: string;
+  icon: string;
+  prerequisites: string[];
+  estimatedTime: string;
+  apiPrefix: string;
+}
+
+export interface ClinicalAnalysisConfig {
+  type: ClinicalAnalysisType;
+  source_id: number | null; // null for evidence_synthesis
+  target_cohort_id: number | null;
+  comparator_cohort_id: number | null;
+  outcome_cohort_ids: number[];
+  parameters: Record<string, unknown>;
+}
+
 export type InvestigationStatus = "draft" | "active" | "complete" | "archived";
 export type EvidenceDomain = "phenotype" | "clinical" | "genomic" | "synthesis";
 export type FindingType =
@@ -50,9 +83,11 @@ export interface PhenotypeState {
 
 export interface ClinicalState {
   queued_analyses: Array<{
-    analysis_type: string;
+    analysis_type: ClinicalAnalysisType;
+    api_prefix: string;
+    analysis_id: number;
+    execution_id: number | null;
     config: Record<string, unknown>;
-    run_id: number | null;
     status: "configured" | "queued" | "running" | "complete" | "failed";
   }>;
   selected_source_id: number | null;

@@ -147,6 +147,50 @@ export async function fetchConceptCount(
   return data.data ?? data;
 }
 
+// ── Clinical Analysis ─────────────────────────────────────────────────
+
+export async function createAnalysis(
+  apiPrefix: string,
+  payload: Record<string, unknown>,
+): Promise<Record<string, unknown>> {
+  const { data } = await apiClient.post(`/${apiPrefix}`, payload);
+  return data.data ?? data;
+}
+
+export async function executeAnalysis(
+  apiPrefix: string,
+  analysisId: number,
+  sourceId?: number,
+): Promise<unknown> {
+  const payload = sourceId ? { source_id: sourceId } : {};
+  const { data } = await apiClient.post(
+    `/${apiPrefix}/${analysisId}/execute`,
+    payload,
+  );
+  return data.data ?? data;
+}
+
+export async function fetchExecution(
+  apiPrefix: string,
+  analysisId: number,
+  executionId: number,
+): Promise<unknown> {
+  const { data } = await apiClient.get(
+    `/${apiPrefix}/${analysisId}/executions/${executionId}`,
+  );
+  return data.data ?? data;
+}
+
+export async function fetchExecutions(
+  apiPrefix: string,
+  analysisId: number,
+): Promise<unknown[]> {
+  const { data } = await apiClient.get(
+    `/${apiPrefix}/${analysisId}/executions`,
+  );
+  return data.data ?? data;
+}
+
 // ── Cohort Operations ──────────────────────────────────────────────────
 
 export async function executeCohortOperation(
