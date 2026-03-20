@@ -399,6 +399,30 @@ export const router = createBrowserRouter(
         ],
       },
       {
+        path: "morpheus",
+        children: [
+          {
+            path: "journey",
+            children: [
+              {
+                index: true,
+                lazy: () =>
+                  import("@/features/morpheus/pages/PatientJourneyPage").then((m) => ({
+                    Component: m.default,
+                  })),
+              },
+              {
+                path: ":subjectId",
+                lazy: () =>
+                  import("@/features/morpheus/pages/PatientJourneyPage").then((m) => ({
+                    Component: m.default,
+                  })),
+              },
+            ],
+          },
+        ],
+      },
+      {
         path: "care-gaps",
         children: [
           {
