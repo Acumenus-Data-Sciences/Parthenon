@@ -88,6 +88,7 @@ use App\Http\Controllers\Api\V1\TextToSqlController;
 use App\Http\Controllers\Api\V1\UserProfileController;
 use App\Http\Controllers\Api\V1\VocabularyController;
 use App\Http\Controllers\Api\V1\WhiteRabbitController;
+use App\Http\Controllers\Api\V1\ConceptExplorerController;
 use App\Http\Controllers\Api\V1\EvidencePinController;
 use App\Http\Controllers\Api\V1\InvestigationController;
 use App\Services\GIS\SpatialStatsProxy;
@@ -1082,6 +1083,12 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 
 // ── Evidence Investigations ───────────────────────────────────────────────────
 Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
+    // ── Concept Explorer ─────────────────────────────────────────────────
+    Route::prefix('concept-explorer')->group(function () {
+        Route::get('/search', [ConceptExplorerController::class, 'search']);
+        Route::get('/{conceptId}/hierarchy', [ConceptExplorerController::class, 'hierarchy']);
+        Route::get('/{conceptId}/count', [ConceptExplorerController::class, 'patientCount']);
+    });
     Route::prefix('investigations')->group(function () {
         Route::get('/', [InvestigationController::class, 'index']);
         Route::post('/', [InvestigationController::class, 'store']);
