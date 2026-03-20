@@ -21,10 +21,10 @@ The unit of work is an **Investigation** — a first-class, persistent entity in
 **Properties:**
 - `id`, `title`, `research_question` (free text)
 - `owner_id` (user), `status` (draft | active | complete | archived)
-- `mode` (guided | expert) — user preference, not investigation property
 - `phenotype_state`, `clinical_state`, `genomic_state`, `synthesis_state` (JSONB)
-- `created_at`, `updated_at`, `completed_at`
-- Timestamps and audit: `created_by`, `last_modified_by`
+- `created_at`, `updated_at`, `completed_at`, `last_modified_by`
+
+**Note:** Guided/expert mode is a **user preference** stored in `app.users.workbench_mode` (default: guided), not an investigation property. Any user viewing any investigation sees it through their own mode preference.
 
 **Lifecycle:**
 ```
@@ -369,26 +369,176 @@ A lightweight concept resolution layer that enables cross-referencing between do
 
 ```
 app.investigations
-  id, title, research_question, status, mode,
-  owner_id (FK users),
-  phenotype_state (jsonb), clinical_state (jsonb),
-  genomic_state (jsonb), synthesis_state (jsonb),
-  created_at, updated_at, completed_at,
-  created_by, last_modified_by
+  id (bigint PK),
+  title (varchar 255),
+  research_question (text, nullable),
+  status (varchar: draft | active | complete | archived),
+  owner_id (FK app.users),
+  phenotype_state (jsonb, default '{}'),
+  clinical_state (jsonb, default '{}'),
+  genomic_state (jsonb, default '{}'),
+  synthesis_state (jsonb, default '{}'),
+  created_at, updated_at, completed_at (nullable),
+  last_modified_by (FK app.users, nullable)
 
 app.evidence_pins
-  id, investigation_id (FK), domain, section,
-  finding_type, finding_payload (jsonb),
-  sort_order, is_key_finding (bool),
-  narrative_before (text), narrative_after (text),
+  id (bigint PK),
+  investigation_id (FK app.investigations, cascade delete),
+  domain (varchar: phenotype | clinical | genomic),
+  section (varchar: phenotype_definition | population | clinical_evidence |
+           genomic_evidence | synthesis | limitations | methods),
+  finding_type (varchar: cohort_summary | hazard_ratio | incidence_rate |
+                kaplan_meier | codewas_hit | gwas_locus | colocalization |
+                open_targets_association | prediction_model | custom),
+  finding_payload (jsonb),
+  concept_ids (integer[], default '{}'),    -- OMOP concept IDs for cross-linking
+  gene_symbols (varchar[], default '{}'),   -- Gene symbols for cross-linking
+  sort_order (integer, default 0),
+  is_key_finding (boolean, default false),
+  narrative_before (text, nullable),
+  narrative_after (text, nullable),
   created_at, updated_at
 
 app.investigation_versions
-  id, investigation_id (FK), version_number,
-  snapshot (jsonb), created_at, created_by
+  id (bigint PK),
+  investigation_id (FK app.investigations),
+  version_number (integer),
+  snapshot (jsonb),  -- full investigation + pins + run references
+  created_at, created_by (FK app.users)
 
 -- Existing table extended:
-app.finngen_runs + investigation_id (FK, nullable for backward compat)
+app.finngen_runs + investigation_id (FK app.investigations, nullable for backward compat)
+
+-- User preference:
+app.users + workbench_mode (varchar: guided | expert, default 'guided')
+```
+
+**Note on existing `finngen_runs`:** Existing records remain with `investigation_id = null`. No retroactive migration — users can manually associate legacy runs with new investigations via a "Link to Investigation" action.
+
+### Domain State Shapes (TypeScript)
+
+These define the JSONB contents for each domain state column:
+
+```typescript
+interface PhenotypeState {
+  concept_sets: Array<{
+    id: string;
+    name: string;
+    concepts: Array<{ concept_id: number; include_descendants: boolean; is_excluded: boolean }>;
+  }>;
+  cohort_definition: object | null;        // OHDSI cohort definition JSON
+  selected_cohort_ids: number[];           // Parthenon cohort IDs
+  primary_cohort_id: number | null;
+  matching_config: {
+    enabled: boolean;
+    strategy: string;
+    covariates: string[];
+    ratio: number;
+    caliper: number;
+  } | null;
+  import_mode: 'parthenon' | 'atlas' | 'file' | 'json' | 'phenotype_library';
+  codewas_config: { control_cohort_id: number | null; time_windows: number[] } | null;
+  last_codewas_run_id: number | null;
+}
+
+interface ClinicalState {
+  queued_analyses: Array<{
+    analysis_type: string;
+    config: Record<string, unknown>;
+    run_id: number | null;
+    status: 'configured' | 'queued' | 'running' | 'complete' | 'failed';
+  }>;
+  selected_source_id: number | null;
+  comparison_run_ids: [number, number] | null;  // for run diffing
+}
+
+interface GenomicState {
+  open_targets_queries: Array<{ query_type: 'gene' | 'disease'; term: string; cached_at: string | null }>;
+  gwas_catalog_queries: Array<{ query_type: 'trait' | 'gene'; term: string; cached_at: string | null }>;
+  uploaded_gwas: Array<{
+    file_name: string;
+    column_mapping: Record<string, string>;
+    upload_id: string;
+    top_loci_count: number;
+    lambda_gc: number | null;
+  }>;
+  uploaded_coloc: Array<{ file_name: string; upload_id: string }>;
+  uploaded_finemap: Array<{ file_name: string; upload_id: string }>;
+}
+
+interface SynthesisState {
+  section_order: string[];                 // ordered section keys
+  section_narratives: Record<string, string>;  // section key → rich text
+  export_history: Array<{ format: string; exported_at: string; exported_by: number }>;
+}
+```
+
+### API Contract
+
+All endpoints under `/api/v1/investigations`, Sanctum-authenticated.
+
+**Investigation CRUD:**
+```
+GET    /investigations                    → paginated list (filter: status, owner)
+POST   /investigations                    → create (body: { title, research_question? })
+GET    /investigations/{id}               → full investigation with latest state
+PATCH  /investigations/{id}               → update title, research_question, status
+DELETE /investigations/{id}               → soft delete (archive)
+```
+
+**Domain State:**
+```
+PATCH  /investigations/{id}/state/{domain} → save domain state (body: domain state JSON)
+                                            domain = phenotype | clinical | genomic | synthesis
+                                            Validates against domain state shape
+                                            Returns: { saved_at, domain }
+```
+
+**Evidence Pins:**
+```
+GET    /investigations/{id}/pins           → all pins for investigation
+POST   /investigations/{id}/pins           → create pin (body: { domain, section, finding_type,
+                                            finding_payload, concept_ids?, gene_symbols? })
+PATCH  /investigations/{id}/pins/{pinId}   → update (reorder, toggle key, edit narrative)
+DELETE /investigations/{id}/pins/{pinId}   → remove pin
+```
+
+**Cross-Domain Links:**
+```
+GET    /investigations/{id}/cross-links    → resolved cross-links based on concept_ids
+                                            and gene_symbols across all pins
+```
+
+**Analysis Runs (extends existing):**
+```
+POST   /investigations/{id}/runs           → start analysis (body: { service_name, config })
+GET    /investigations/{id}/runs           → runs for this investigation
+                                            (supplements existing /study-agent/finngen/runs)
+```
+
+**Genomic Evidence (new):**
+```
+POST   /investigations/{id}/genomic/query-opentargets  → server-side proxy to Open Targets
+POST   /investigations/{id}/genomic/query-gwas-catalog → server-side proxy to GWAS Catalog
+POST   /investigations/{id}/genomic/query-risteys      → server-side proxy to Risteys
+POST   /investigations/{id}/genomic/upload-gwas        → GWAS summary stats file upload
+POST   /investigations/{id}/genomic/upload-coloc       → colocalization results upload
+POST   /investigations/{id}/genomic/upload-finemap     → fine-mapping results upload
+```
+
+**Export:**
+```
+GET    /investigations/{id}/export/pdf     → generate and download PDF dossier
+GET    /investigations/{id}/export/json    → structured JSON evidence package
+POST   /investigations/{id}/export/share   → create shareable link
+GET    /investigations/{id}/export/strategus → OHDSI Strategus study package
+```
+
+**Versioning:**
+```
+POST   /investigations/{id}/versions       → snapshot current state as new version
+GET    /investigations/{id}/versions       → list versions
+GET    /investigations/{id}/versions/{v}   → retrieve specific version snapshot
 ```
 
 ### Background Execution
@@ -422,12 +572,20 @@ All analyses run as Horizon queue jobs (existing Laravel infrastructure):
 
 ## Build Phases
 
-### Phase 1: Foundation + Phenotype Domain
-- Investigation model (database, API, CRUD)
-- Evidence Board shell (left rail, context bar, focus panel, sidebar)
-- Phenotype domain: Concept Explorer, Cohort Builder, Phenotype Validation (CodeWAS)
-- Evidence pin model and basic Synthesis domain shell
-- Guided mode entry (StudyAgent question decomposition)
+### Phase 1a: Foundation + Evidence Board Shell
+- Investigation model (database migrations, Eloquent model, API CRUD endpoints, Form Requests)
+- Evidence Board shell: left rail navigation, context bar with 4 domain cards, focus panel container, collapsible evidence sidebar
+- Concept Explorer (Phenotype domain sub-view 1): type-ahead vocabulary search, concept hierarchy browser, patient counts, concept set builder
+- Evidence pin model (database + API + frontend pin/unpin interaction)
+- Basic Synthesis domain shell (section list with pins rendered, no export yet)
+- WorkbenchLauncherPage extended with "Recent Investigations" section
+- Visualization library selection and integration (D3 for custom charts + Recharts for standard statistical plots)
+
+### Phase 1b: Cohort Building + Phenotype Validation
+- Cohort Builder (Phenotype domain sub-view 2): visual set operations, matching configuration, attrition funnel, import from Parthenon/Atlas/file/Phenotype Library
+- Phenotype Validation (Phenotype domain sub-view 3): CodeWAS with interactive volcano plot, TimeCodeWAS with temporal heatmap, validation checklist
+- Guided mode entry: StudyAgent question decomposition → pre-configured investigation
+- Auto-save implementation with debounce strategy (see Non-Functional Requirements)
 
 ### Phase 2: Clinical Evidence Domain
 - Analysis gallery with card-based launcher
@@ -437,11 +595,12 @@ All analyses run as Horizon queue jobs (existing Laravel infrastructure):
 - Run history panel with compare/replay/fork
 
 ### Phase 3: Genomic Evidence Domain
-- Open Targets GraphQL integration
-- GWAS Catalog REST integration
-- Risteys API integration
+- Open Targets GraphQL integration (server-side proxy with response caching)
+- GWAS Catalog REST integration (server-side proxy with response caching)
+- Risteys API integration (server-side proxy with response caching)
 - GWAS summary stats file upload + Manhattan/QQ/locus zoom visualization
-- Cross-domain linking engine (concept/gene resolution)
+- Cross-domain linking engine (concept/gene resolution using `evidence_pins.concept_ids` and `gene_symbols` arrays)
+- Note: colocalization and fine-mapping import deferred to Phase 4 (Genomic domain MVP ships without them)
 
 ### Phase 4: Synthesis + Polish
 - Evidence Dossier assembly (section management, narrative editing, key finding flags)
@@ -450,6 +609,80 @@ All analyses run as Horizon queue jobs (existing Laravel infrastructure):
 - Split view for side-by-side cross-referencing
 - Investigation versioning and collaboration (sharing, forking)
 - Progressive disclosure polish (guided mode prompts, tooltips, plain-language warnings)
+
+---
+
+## Non-Functional Requirements
+
+### External API Calls
+
+All external API calls (Open Targets, GWAS Catalog, Risteys) are **server-side proxied** through Laravel. The browser never calls external APIs directly. This ensures:
+- Rate limiting on outbound calls (configurable per-provider, default 10 req/min)
+- Response caching in Redis (TTL: 24h for Open Targets/GWAS Catalog, 7d for Risteys)
+- Response validation before passing to frontend (treat external data as untrusted)
+- No CORS issues or API key exposure
+
+### File Upload Security
+
+GWAS summary stats, colocalization, and fine-mapping uploads:
+- Max file size: 500MB (configurable via `INVESTIGATION_MAX_UPLOAD_MB`)
+- Allowed formats: `.tsv`, `.csv`, `.gz` (gzipped TSV/CSV)
+- Server-side column structure validation before processing
+- Files stored in `storage/app/investigations/{id}/uploads/` (not public)
+- Virus/malware scanning via ClamAV if available (graceful skip if not)
+- Column mapping validated against expected schema (chr, pos, ref, alt, beta/or, se, p minimum)
+
+### Auto-Save Strategy
+
+Domain state saves on **discrete actions**, not continuous typing:
+- Concept set created/modified/deleted
+- Cohort definition saved
+- Analysis configuration applied
+- Matching parameters confirmed
+- File upload completed
+- Pin created/moved/deleted
+
+Implementation: frontend dispatches `PATCH /investigations/{id}/state/{domain}` with a 2-second debounce after the last discrete action. Optimistic UI — the save indicator shows "Saving..." then "Saved" without blocking interaction. Conflict resolution: last-write-wins (single-user investigations); for shared investigations, warn on concurrent edit.
+
+### Error Handling
+
+**Analysis run failures:** Failed Horizon jobs set `status = 'failed'` on the run record. The Runs panel shows a red status badge with an expandable error message. The domain context card shows "1 failed" in amber. The user can retry or view logs.
+
+**External API failures:** Timeout (10s default) → show "Service unavailable" with a retry button. Rate limited → show "Rate limited, retrying in Ns" with automatic exponential backoff (max 3 retries). Invalid response → log, show "Unexpected response from {service}" with a "Report issue" action.
+
+**File upload failures:** Validation errors → show specific column mapping issues inline. Processing errors → show error with the ability to re-upload.
+
+**State save failures:** Retry 3 times with backoff. If all fail, show persistent "Unsaved changes" warning in the context bar. The user can manually trigger save or export state as JSON.
+
+### Authorization
+
+- **Creating investigations:** Any authenticated user (role: researcher, analyst, or admin)
+- **Viewing/editing:** Owner by default. Sharing adds users with `read` or `read_write` permission via `app.investigation_collaborators` join table
+- **Deleting/archiving:** Owner or admin only
+- **Analysis execution:** Inherits user's existing OMOP source access permissions (already enforced by Sanctum + Source model)
+- **Export:** Owner and read_write collaborators. Shareable link generates a time-limited, read-only token
+
+### Accessibility
+
+- All drag-and-drop interactions have keyboard alternatives (arrow keys for reorder, Enter to move)
+- Charts include alt text with key metric summaries
+- Color is never the sole differentiator — all status indicators include text labels and/or icons
+- Focus management: switching domains via left rail moves focus to the focus panel header
+- This is a **desktop-first** interface. No mobile layout is planned; minimum supported viewport is 1280px
+
+### Performance Budgets
+
+- GWAS summary stats file: up to 500MB, ~25M rows. Processing is a Horizon job, not synchronous
+- Evidence pins per investigation: soft limit 200 (warn at 150). UI renders as virtualized list
+- JSONB state columns: expected <100KB per domain for typical investigations
+- Manhattan plot: rendered client-side with D3 canvas (not SVG) for datasets >1M variants
+- Context bar updates: debounced to 1/second maximum to prevent render thrashing during batch analysis completion
+
+### Visualization Libraries
+
+- **D3.js** — Manhattan plots, locus zoom, volcano plots, temporal heatmaps (custom genomic/clinical visualizations requiring precise control)
+- **Recharts** — Kaplan-Meier curves, forest plots, bar charts, progress indicators (standard statistical plots with React integration)
+- **No additional charting frameworks** to avoid bundle bloat. Custom components for Venn diagrams and love plots built on D3.
 
 ---
 
