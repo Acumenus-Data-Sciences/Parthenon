@@ -84,4 +84,17 @@ return [
         'db_admin_password' => env('JUPYTER_DB_ADMIN_PASSWORD', ''),
     ],
 
+    // Phase 17: Genomic evidence proxies
+    'open_targets' => [
+        'url' => env('OPEN_TARGETS_URL', 'https://api.platform.opentargets.org/api/v4/graphql'),
+        'timeout' => env('OPEN_TARGETS_TIMEOUT', 10),
+        'cache_ttl' => env('OPEN_TARGETS_CACHE_TTL', 86400),
+    ],
+
+    'gwas_catalog' => [
+        'url' => env('GWAS_CATALOG_URL', 'https://www.ebi.ac.uk/gwas/rest/api'),
+        'timeout' => env('GWAS_CATALOG_TIMEOUT', 10),
+        'cache_ttl' => env('GWAS_CATALOG_CACHE_TTL', 86400),
+    ],
+
 ];
