@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Models\App\Investigation;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -40,6 +42,7 @@ class User extends Authenticatable
         'department',
         'organization',
         'bio',
+        'workbench_mode',
     ];
 
     /**
@@ -65,6 +68,15 @@ class User extends Authenticatable
             'notification_email' => 'boolean',
             'notification_sms' => 'boolean',
             'notification_preferences' => 'array',
+            'workbench_mode' => 'string',
         ];
+    }
+
+    /**
+     * @return HasMany<Investigation, $this>
+     */
+    public function investigations(): HasMany
+    {
+        return $this->hasMany(Investigation::class, 'owner_id');
     }
 }

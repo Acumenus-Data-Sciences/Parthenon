@@ -22,6 +22,7 @@ class FinnGenRun extends Model
         'artifact_index',
         'submitted_at',
         'completed_at',
+        'investigation_id',
     ];
 
     protected $casts = [
@@ -48,5 +49,13 @@ class FinnGenRun extends Model
     public function submittedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'submitted_by');
+    }
+
+    /**
+     * @return BelongsTo<Investigation, $this>
+     */
+    public function investigation(): BelongsTo
+    {
+        return $this->belongsTo(Investigation::class);
     }
 }
