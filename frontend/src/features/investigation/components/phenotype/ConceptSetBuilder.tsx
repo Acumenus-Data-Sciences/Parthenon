@@ -117,14 +117,30 @@ function ConceptRow({ entry, onChange, onRemove }: ConceptRowProps) {
   );
 }
 
+export interface SavedSetSummary {
+  id: string;
+  name: string;
+  count: number;
+}
+
 interface ConceptSetBuilderProps {
   entries: ConceptSetEntry[];
   onEntriesChange: (entries: ConceptSetEntry[]) => void;
+  setName: string;
+  onSetNameChange: (name: string) => void;
+  savedSets: SavedSetSummary[];
+  onSwitchSet: (id: string) => void;
+  onNewSet: () => void;
 }
 
 export function ConceptSetBuilder({
   entries,
   onEntriesChange,
+  setName,
+  onSetNameChange,
+  savedSets,
+  onSwitchSet,
+  onNewSet,
 }: ConceptSetBuilderProps) {
   function handleChange(index: number, updated: ConceptSetEntry) {
     const next = entries.map((e, i) => (i === index ? updated : e));
@@ -137,6 +153,42 @@ export function ConceptSetBuilder({
 
   return (
     <div className="flex flex-col h-full">
+      {/* Set name input + New Set button */}
+      <div className="flex items-center gap-2 mb-2">
+        <input
+          type="text"
+          value={setName}
+          onChange={(e) => onSetNameChange(e.target.value)}
+          placeholder="Untitled concept set"
+          className="flex-1 min-w-0 bg-zinc-900 border border-zinc-700 rounded px-2 py-1 text-xs text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-[#2DD4BF]/60 focus:ring-1 focus:ring-[#2DD4BF]/20 transition-colors"
+        />
+        <button
+          onClick={onNewSet}
+          title="Save current set and create a new one"
+          className="shrink-0 px-2 py-1 rounded border border-zinc-700 bg-zinc-800 text-[11px] font-medium text-zinc-300 hover:bg-zinc-700 hover:text-zinc-100 hover:border-zinc-600 transition-colors whitespace-nowrap"
+        >
+          + New Set
+        </button>
+      </div>
+
+      {/* Set selector dropdown (only shown when there are multiple sets) */}
+      {savedSets.length > 1 && (
+        <div className="mb-3">
+          <select
+            value={savedSets.find((s) => s.name === setName)?.id ?? ""}
+            onChange={(e) => onSwitchSet(e.target.value)}
+            className="w-full bg-zinc-900 border border-zinc-700 rounded px-2 py-1 text-[11px] text-zinc-300 focus:outline-none focus:border-[#2DD4BF]/60 focus:ring-1 focus:ring-[#2DD4BF]/20 transition-colors cursor-pointer"
+          >
+            {savedSets.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.name} ({s.count} concept{s.count !== 1 ? "s" : ""})
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      {/* Header row */}
       <div className="flex items-center justify-between mb-3">
         <span className="text-xs font-medium text-zinc-400 uppercase tracking-wider">
           Concept Set

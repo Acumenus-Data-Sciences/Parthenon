@@ -15,79 +15,198 @@ const SUB_TABS: { id: SubTab; label: string; disabled?: boolean }[] = [
   { id: "validate", label: "Validate", disabled: true },
 ];
 
+interface ConceptSetData {
+  name: string;
+  entries: ConceptSetEntry[];
+}
+
 interface PhenotypePanelProps {
   investigation: Investigation;
 }
 
+function makeDefaultSet(): [string, ConceptSetData] {
+  return [
+    crypto.randomUUID(),
+    { name: "Untitled concept set", entries: [] },
+  ];
+}
+
 export function PhenotypePanel({ investigation }: PhenotypePanelProps) {
   const [activeTab, setActiveTab] = useState<SubTab>("explore");
-  const [conceptSetEntries, setConceptSetEntries] = useState<ConceptSetEntry[]>(
-    () => {
-      // Hydrate from saved phenotype_state on mount
-      const saved = investigation.phenotype_state.concept_sets;
-      if (!saved || saved.length === 0) return [];
 
-      // Flatten all concepts from saved concept sets into entries
-      return saved.flatMap((cs) =>
-        cs.concepts.map((c) => ({
-          concept: {
-            concept_id: c.concept_id,
-            concept_name: "",
-            domain_id: "",
-            vocabulary_id: "",
-            concept_class_id: "",
-            standard_concept: null,
-            concept_code: "",
-          } satisfies ConceptSearchResult,
-          includeDescendants: c.include_descendants,
-          isExcluded: c.is_excluded,
-        })),
-      );
+  // Initialize Map from saved phenotype_state.concept_sets
+  const [conceptSets, setConceptSets] = useState<Map<string, ConceptSetData>>(
+    () => {
+      const saved = investigation.phenotype_state.concept_sets;
+      if (saved && saved.length > 0) {
+        const entries = saved.map((cs) => [
+          cs.id,
+          {
+            name: cs.name,
+            entries: cs.concepts.map((c) => ({
+              concept: {
+                concept_id: c.concept_id,
+                concept_name: "",
+                domain_id: "",
+                vocabulary_id: "",
+                concept_class_id: "",
+                standard_concept: null,
+                concept_code: "",
+              } satisfies ConceptSearchResult,
+              includeDescendants: c.include_descendants,
+              isExcluded: c.is_excluded,
+            })),
+          },
+        ] as [string, ConceptSetData]);
+        return new Map(entries);
+      }
+      // No saved sets — create a default one
+      return new Map([makeDefaultSet()]);
     },
   );
 
-  // Keep hydration in sync if investigation changes (e.g. refetch after save)
-  // Only re-hydrate if entries are empty and saved state is non-empty
+  const [activeSetId, setActiveSetId] = useState<string>(() => {
+    const saved = investigation.phenotype_state.concept_sets;
+    if (saved && saved.length > 0) {
+      return saved[0].id;
+    }
+    // Return the key of the first (only) entry in the default map
+    const defaultEntry = makeDefaultSet();
+    return defaultEntry[0];
+  });
+
+  // Ensure activeSetId is always a valid key; fall back to first set
+  const resolvedActiveSetId = useMemo(() => {
+    if (conceptSets.has(activeSetId)) return activeSetId;
+    const first = conceptSets.keys().next().value;
+    return first ?? "";
+  }, [conceptSets, activeSetId]);
+
+  // Re-hydrate if investigation changes and conceptSets currently holds only
+  // an empty default (i.e. saved state arrived after initial render)
   useEffect(() => {
     const saved = investigation.phenotype_state.concept_sets;
-    if (saved && saved.length > 0 && conceptSetEntries.length === 0) {
-      setConceptSetEntries(
-        saved.flatMap((cs) =>
-          cs.concepts.map((c) => ({
-            concept: {
-              concept_id: c.concept_id,
-              concept_name: "",
-              domain_id: "",
-              vocabulary_id: "",
-              concept_class_id: "",
-              standard_concept: null,
-              concept_code: "",
-            } satisfies ConceptSearchResult,
-            includeDescendants: c.include_descendants,
-            isExcluded: c.is_excluded,
-          })),
-        ),
-      );
-    }
-  }, [investigation.phenotype_state.concept_sets]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (!saved || saved.length === 0) return;
 
-  // Build phenotypeState for auto-save (only concept_sets serialized for now)
-  const phenotypeState = useMemo(() => {
-    return {
-      concept_sets:
-        conceptSetEntries.length > 0
-          ? [
+    setConceptSets((prev) => {
+      // Only re-hydrate if we have a single empty default set
+      if (prev.size === 1) {
+        const [firstId, firstSet] = [...prev.entries()][0];
+        if (firstSet.entries.length === 0) {
+          // Replace with saved data
+          const newMap = new Map(
+            saved.map((cs) => [
+              cs.id,
               {
-                id: "default",
-                name: "Concept Set",
-                concepts: conceptSetEntries.map((e) => ({
-                  concept_id: e.concept.concept_id,
-                  include_descendants: e.includeDescendants,
-                  is_excluded: e.isExcluded,
+                name: cs.name,
+                entries: cs.concepts.map((c) => ({
+                  concept: {
+                    concept_id: c.concept_id,
+                    concept_name: "",
+                    domain_id: "",
+                    vocabulary_id: "",
+                    concept_class_id: "",
+                    standard_concept: null,
+                    concept_code: "",
+                  } satisfies ConceptSearchResult,
+                  includeDescendants: c.include_descendants,
+                  isExcluded: c.is_excluded,
                 })),
               },
-            ]
-          : [],
+            ] as [string, ConceptSetData]),
+          );
+          // Swap activeSetId to the first saved set's id
+          setActiveSetId(saved[0].id);
+          // Clean up the old default key if it doesn't collide
+          if (!newMap.has(firstId)) {
+            // nothing extra needed — newMap already has the right keys
+          }
+          return newMap;
+        }
+      }
+      return prev;
+    });
+  }, [investigation.phenotype_state.concept_sets]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Derived: active set data
+  const activeSet = conceptSets.get(resolvedActiveSetId) ?? {
+    name: "Untitled concept set",
+    entries: [],
+  };
+
+  // Derived: savedSets summary for the dropdown
+  const savedSets = useMemo(
+    () =>
+      [...conceptSets.entries()].map(([id, s]) => ({
+        id,
+        name: s.name,
+        count: s.entries.length,
+      })),
+    [conceptSets],
+  );
+
+  // Helpers to update a specific set immutably
+  function updateSet(id: string, updater: (prev: ConceptSetData) => ConceptSetData) {
+    setConceptSets((prev) => {
+      const existing = prev.get(id);
+      if (!existing) return prev;
+      const next = new Map(prev);
+      next.set(id, updater(existing));
+      return next;
+    });
+  }
+
+  function handleEntriesChange(entries: ConceptSetEntry[]) {
+    updateSet(resolvedActiveSetId, (s) => ({ ...s, entries }));
+  }
+
+  function handleSetNameChange(name: string) {
+    updateSet(resolvedActiveSetId, (s) => ({ ...s, name }));
+  }
+
+  function handleSwitchSet(id: string) {
+    if (conceptSets.has(id)) {
+      setActiveSetId(id);
+    }
+  }
+
+  function handleNewSet() {
+    const [newId, newSet] = makeDefaultSet();
+    setConceptSets((prev) => {
+      const next = new Map(prev);
+      next.set(newId, newSet);
+      return next;
+    });
+    setActiveSetId(newId);
+  }
+
+  function handleAddConcept(concept: ConceptSearchResult) {
+    updateSet(resolvedActiveSetId, (s) => {
+      if (s.entries.some((e) => e.concept.concept_id === concept.concept_id)) {
+        return s;
+      }
+      return {
+        ...s,
+        entries: [
+          ...s.entries,
+          { concept, includeDescendants: true, isExcluded: false },
+        ],
+      };
+    });
+  }
+
+  // Build phenotypeState for auto-save using the Map-based multi-set shape
+  const phenotypeState = useMemo(() => {
+    return {
+      concept_sets: Array.from(conceptSets.entries()).map(([id, set]) => ({
+        id,
+        name: set.name,
+        concepts: set.entries.map((e) => ({
+          concept_id: e.concept.concept_id,
+          include_descendants: e.includeDescendants,
+          is_excluded: e.isExcluded,
+        })),
+      })),
       cohort_definition: null,
       selected_cohort_ids: [],
       primary_cohort_id: null,
@@ -96,21 +215,9 @@ export function PhenotypePanel({ investigation }: PhenotypePanelProps) {
       codewas_config: null,
       last_codewas_run_id: null,
     };
-  }, [conceptSetEntries]);
+  }, [conceptSets]);
 
   const { status } = useAutoSave(investigation.id, "phenotype", phenotypeState);
-
-  function handleAddConcept(concept: ConceptSearchResult) {
-    setConceptSetEntries((prev) => {
-      if (prev.some((e) => e.concept.concept_id === concept.concept_id)) {
-        return prev;
-      }
-      return [
-        ...prev,
-        { concept, includeDescendants: true, isExcluded: false },
-      ];
-    });
-  }
 
   return (
     <div className="flex flex-col h-full">
@@ -175,8 +282,13 @@ export function PhenotypePanel({ investigation }: PhenotypePanelProps) {
             {/* Right: Concept Set Builder (narrower) */}
             <div className="flex-[2] min-w-0 overflow-hidden flex flex-col border-l border-zinc-700/50 pl-4">
               <ConceptSetBuilder
-                entries={conceptSetEntries}
-                onEntriesChange={setConceptSetEntries}
+                entries={activeSet.entries}
+                onEntriesChange={handleEntriesChange}
+                setName={activeSet.name}
+                onSetNameChange={handleSetNameChange}
+                savedSets={savedSets}
+                onSwitchSet={handleSwitchSet}
+                onNewSet={handleNewSet}
               />
             </div>
           </div>
