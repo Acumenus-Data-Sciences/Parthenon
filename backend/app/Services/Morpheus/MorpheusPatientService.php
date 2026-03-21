@@ -273,9 +273,14 @@ class MorpheusPatientService
     public function getTransfers(string $subjectId, ?string $hadmId = null, string $schema = 'mimiciv'): array
     {
         $s = $this->getSchemaName($schema);
+        $hasEventType = $this->introspector->hasColumn($schema, 'transfers', 'eventtype');
+        $eventTypeCol = $hasEventType ? 'eventtype' : "COALESCE(event_type_c, 'transfer') AS eventtype";
+
         $sql = "
-            SELECT transfer_id, hadm_id, eventtype, careunit, intime, outtime,
-                   EXTRACT(EPOCH FROM (outtime::timestamp - intime::timestamp))/3600.0 as duration_hours
+            SELECT transfer_id, hadm_id, {$eventTypeCol}, careunit, intime, outtime,
+                   CASE WHEN outtime IS NOT NULL AND intime IS NOT NULL
+                        THEN EXTRACT(EPOCH FROM (outtime::timestamp - intime::timestamp))/3600.0
+                        ELSE NULL END as duration_hours
             FROM {$s}.transfers
             WHERE subject_id = ?
         ";
@@ -419,15 +424,35 @@ class MorpheusPatientService
     public function getLabResults(string $subjectId, ?string $hadmId = null, int $limit = 2000, string $schema = 'mimiciv'): array
     {
         $s = $this->getSchemaName($schema);
-        $sql = "
-            SELECT l.labevent_id, l.hadm_id, l.charttime, l.itemid,
-                   di.label, di.fluid, di.category,
-                   l.value, l.valuenum, l.valueuom,
-                   l.ref_range_lower, l.ref_range_upper, l.flag
-            FROM {$s}.labevents l
-            LEFT JOIN {$s}.d_labitems di ON l.itemid = di.itemid
-            WHERE l.subject_id = ?
-        ";
+        $hasLabEventId = $this->introspector->hasColumn($schema, 'labevents', 'labevent_id');
+        $hasRefRange = $this->introspector->hasColumn($schema, 'labevents', 'ref_range_lower');
+        $hasInlineLabel = $this->introspector->hasColumn($schema, 'labevents', 'label');
+
+        $idCol = $hasLabEventId ? 'l.labevent_id' : "ROW_NUMBER() OVER (ORDER BY l.charttime) AS labevent_id";
+        $refLower = $hasRefRange ? 'l.ref_range_lower' : 'NULL AS ref_range_lower';
+        $refUpper = $hasRefRange ? 'l.ref_range_upper' : 'NULL AS ref_range_upper';
+
+        // AtlanticHealth has label inline on labevents; MIMIC needs d_labitems join
+        if ($hasInlineLabel) {
+            $sql = "
+                SELECT {$idCol}, l.hadm_id, l.charttime, l.itemid,
+                       l.label, NULL as fluid, NULL as category,
+                       l.value, l.valuenum, l.valueuom,
+                       {$refLower}, {$refUpper}, l.flag
+                FROM {$s}.labevents l
+                WHERE l.subject_id = ?
+            ";
+        } else {
+            $sql = "
+                SELECT {$idCol}, l.hadm_id, l.charttime, l.itemid,
+                       di.label, di.fluid, di.category,
+                       l.value, l.valuenum, l.valueuom,
+                       {$refLower}, {$refUpper}, l.flag
+                FROM {$s}.labevents l
+                LEFT JOIN {$s}.d_labitems di ON l.itemid = di.itemid
+                WHERE l.subject_id = ?
+            ";
+        }
         $params = [$subjectId];
 
         if ($hadmId) {
@@ -448,22 +473,30 @@ class MorpheusPatientService
     public function getVitals(string $subjectId, ?string $hadmId = null, ?string $stayId = null, int $limit = 5000, string $schema = 'mimiciv'): array
     {
         $s = $this->getSchemaName($schema);
+        $hasInlineLabel = $this->introspector->hasColumn($schema, 'chartevents', 'label');
 
-        // Key vital sign item IDs in MIMIC-IV
-        // HR=220045, SBP=220050(invasive)/220179(non-invasive), DBP=220051/220180,
-        // MAP=220052/220181, RR=220210, SpO2=220277, Temp=223761(F)/223762(C),
-        // GCS=220739(eye)/223900(verbal)/223901(motor), RASS=228096
-        $vitalItemIds = '220045,220050,220051,220052,220179,220180,220181,220210,220277,223761,223762,220739,223900,223901,228096';
-
-        $sql = "
-            SELECT c.stay_id, c.charttime, c.itemid,
-                   di.label, di.abbreviation, di.category,
-                   c.value, c.valuenum, c.valueuom
-            FROM {$s}.chartevents c
-            JOIN {$s}.d_items di ON c.itemid = di.itemid
-            WHERE c.subject_id = ?
-              AND c.itemid::int IN ({$vitalItemIds})
-        ";
+        if ($hasInlineLabel) {
+            // AtlanticHealth: label is inline, no d_items join needed, no itemid filtering
+            $sql = "
+                SELECT c.stay_id, c.charttime, c.itemid,
+                       c.label, NULL as abbreviation, NULL as category,
+                       c.value, c.valuenum, c.valueuom
+                FROM {$s}.chartevents c
+                WHERE c.subject_id = ?
+            ";
+        } else {
+            // MIMIC-IV: join d_items, filter by vital sign itemids
+            $vitalItemIds = '220045,220050,220051,220052,220179,220180,220181,220210,220277,223761,223762,220739,223900,223901,228096';
+            $sql = "
+                SELECT c.stay_id, c.charttime, c.itemid,
+                       di.label, di.abbreviation, di.category,
+                       c.value, c.valuenum, c.valueuom
+                FROM {$s}.chartevents c
+                JOIN {$s}.d_items di ON c.itemid = di.itemid
+                WHERE c.subject_id = ?
+                  AND c.itemid::int IN ({$vitalItemIds})
+            ";
+        }
         $params = [$subjectId];
 
         if ($hadmId) {
