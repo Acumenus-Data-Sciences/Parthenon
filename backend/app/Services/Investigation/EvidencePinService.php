@@ -32,6 +32,8 @@ class EvidencePinService
             'finding_payload' => $data['finding_payload'],
             'sort_order' => $maxOrder + 1,
             'is_key_finding' => $data['is_key_finding'] ?? false,
+            'concept_ids' => $data['concept_ids'] ?? [],
+            'gene_symbols' => $data['gene_symbols'] ?? [],
         ]);
     }
 
