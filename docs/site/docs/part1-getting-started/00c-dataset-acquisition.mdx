@@ -1,0 +1,248 @@
+---
+id: 00c-dataset-acquisition
+title: "Loading Datasets"
+sidebar_label: "Loading Datasets"
+---
+
+# Loading Datasets
+
+After installation, Parthenon has all table structures but no clinical data. The **Dataset Acquisition Tool** lets you browse and load publicly available OHDSI datasets with a guided terminal interface.
+
+## Quick Start
+
+```bash
+# From the Parthenon directory
+./parthenon-data
+```
+
+Or equivalently:
+
+```bash
+python3 -m datasets
+```
+
+The tool checks your system, then presents an interactive menu where you can choose a recommended bundle or pick individual datasets.
+
+## Available Datasets
+
+The tool catalogs 17 public datasets across 6 categories:
+
+### Vocabulary
+
+| Dataset | Size | Description |
+|---------|------|-------------|
+| **OMOP Vocabulary (Athena)** | ~4 GB download / 16 GB loaded | Standard OHDSI concept vocabulary with 7M+ concepts, relationships, and ancestors. Required for most research workflows. |
+
+:::info Manual download required
+The OMOP vocabulary requires a free account at [athena.ohdsi.org](https://athena.ohdsi.org). Download the vocabulary ZIP file first, then provide the path when prompted by the tool.
+:::
+
+### CDM Datasets
+
+| Dataset | Size | Description |
+|---------|------|-------------|
+| **Eunomia GiBleed** | ~38 MB | OHDSI standard demo dataset with 2,694 GI bleeding patients. Includes full CDM tables and Achilles characterization. Perfect for evaluation. |
+| **CMS SynPUF 1K** | ~200 MB | Synthetic Medicare claims for 1,000 patients in OMOP format. *(Coming soon)* |
+| **CMS SynPUF Full** | ~10 GB | Full CMS Synthetic Public Use Files with 2.3 million patients. *(Coming soon)* |
+| **SyntheA 1K** | ~500 MB | Synthea-generated synthetic patients with realistic clinical histories. *(Coming soon)* |
+
+### Genomics
+
+| Dataset | Size | Description |
+|---------|------|-------------|
+| **ClinVar** | ~500 MB | NCBI ClinVar database — clinical significance annotations for human genetic variants |
+| **GIAB HG001** | ~3.5 GB | Genome in a Bottle reference — NA12878, the most extensively characterized human genome |
+| **GIAB HG002–HG007** | ~3.5 GB each | Ashkenazim Trio (son, father, mother) and Chinese Trio (son, father, mother) |
+
+### Imaging
+
+| Dataset | Size | Description |
+|---------|------|-------------|
+| **Class-3 Malocclusion CBCT** | ~21 MB | Orthodontic cone-beam CT imaging dataset |
+| **Harvard COVID-19 CT** | ~242 GB | 1,000 subjects with 491K DICOM instances from The Cancer Imaging Archive *(manual download)* |
+
+### GIS / Geospatial
+
+| Dataset | Size | Description |
+|---------|------|-------------|
+| **US Census TIGER/Line** | ~100 MB | Census tracts, counties, ZIP crosswalks, CDC SVI, EPA air quality, CMS hospital data |
+
+### Phenotypes
+
+| Dataset | Size | Description |
+|---------|------|-------------|
+| **OHDSI Phenotype Library** | ~5 MB | 1,100+ community-curated cohort definitions from the OHDSI Phenotype Library |
+
+## Recommended Bundles
+
+Instead of picking datasets one by one, start with a bundle:
+
+| Bundle | What's Included | Total Size | Best For |
+|--------|----------------|------------|----------|
+| **Quick Start** | Eunomia + Phenotype Library | ~50 MB | Quick evaluation, demos |
+| **Research Ready** | Eunomia + Vocabulary + ClinVar + GIAB HG001 + GIS + Phenotypes | ~12 GB | Active research teams |
+| **Genomics Focus** | Eunomia + ClinVar + GIAB HG001 & HG002 + Phenotypes | ~8 GB | Genomics workflows |
+| **Full Platform** | All auto-downloadable datasets | ~50 GB | Full capability evaluation |
+
+Bundles are just presets — after selecting one, you can add or remove individual datasets before confirming.
+
+## TUI Walkthrough
+
+### 1. System Status Check
+
+The tool verifies your Docker environment:
+
+```
+╭─ Parthenon Dataset Acquisition ─╮
+│                                  │
+│  Checking system status...       │
+│                                  │
+│  OK Docker running               │
+│  OK PHP container (healthy)      │
+│  OK PostgreSQL reachable         │
+│  OK 142 GB free disk space       │
+│                                  │
+│  Already loaded (2):             │
+│    OK Eunomia GiBleed            │
+│    OK Achilles analysis catalog  │
+│                                  │
+╰──────────────────────────────────╯
+```
+
+### 2. Selection Mode
+
+Choose a bundle for quick setup, or go a la carte:
+
+```
+? How would you like to select datasets?
+  > Start with a recommended bundle
+    Pick individual datasets (a la carte)
+    Exit
+```
+
+### 3. Dataset Picker
+
+Toggle datasets with the space bar. Already-loaded items are greyed out, and dependencies are auto-resolved:
+
+```
+? Select datasets to install:
+  ── Vocabulary ──
+  [ ] OMOP Vocabulary (Athena)     ~4 GB    [manual download]
+
+  ── CDM Datasets ──
+  [x] Eunomia GiBleed             38 MB    [already loaded]
+  [ ] CMS SynPUF 1K               200 MB   [coming soon]
+
+  ── Genomics ──
+  [x] ClinVar variant database    500 MB
+  [x] GIAB HG001 (NA12878)        3.5 GB
+
+  ── Phenotypes ──
+  [x] OHDSI Phenotype Library     5 MB
+```
+
+### 4. Confirmation and Loading
+
+The tool resolves dependencies, shows a summary with disk estimates, then downloads and loads each dataset with progress bars:
+
+```
+Ready to install 3 dataset(s):
+
+  1. ClinVar variant database
+  2. GIAB HG001 (NA12878)
+  3. OHDSI Phenotype Library
+
+  Download: ~1.0 GB | Loaded: ~4.0 GB
+
+? Proceed? Yes
+
+── ClinVar variant database ──
+  Syncing ClinVar variant database...
+  Done.
+
+── GIAB HG001 (NA12878) ──
+  HG001.vcf.gz  ━━━━━━━━━━━━━━━  800 MB  2.1 MB/s  eta 0:00:00
+  Decompressing HG001.vcf.gz -> HG001.vcf...
+  Importing HG001 VCF into database...
+  Done.
+```
+
+## CLI Options
+
+### List all datasets
+
+```bash
+./parthenon-data --list
+```
+
+Shows all 17 datasets with sizes and availability status.
+
+### Load specific datasets (non-interactive)
+
+```bash
+# Load just Eunomia and phenotypes
+./parthenon-data --only eunomia phenotype-library
+
+# Load vocabulary (will prompt for ZIP path)
+./parthenon-data --only vocabulary
+
+# Load all genomics
+./parthenon-data --only clinvar giab-hg001 giab-hg002
+```
+
+### Re-run after partial failure
+
+The tool detects what's already loaded and skips it. Safe to re-run anytime:
+
+```bash
+./parthenon-data --only giab-hg001  # Resumes download if interrupted
+```
+
+## Dependency Resolution
+
+Some datasets depend on others. For example, CMS SynPUF requires the OMOP vocabulary (since SynPUF records reference standard concept IDs). The tool automatically detects and adds missing dependencies:
+
+```
+Auto-adding dependencies:
+  + OMOP Vocabulary (Athena) (required by CMS SynPUF 1K)
+```
+
+## Loading from the Installer
+
+During initial installation, Phase 5 handles dataset loading. You can specify which datasets to load in a defaults file:
+
+```json
+{
+  "datasets": ["eunomia", "phenotype-library", "clinvar"]
+}
+```
+
+```bash
+python3 install.py --defaults-file config.json
+```
+
+If no datasets are specified, the installer loads Eunomia by default. You can always load more datasets later with `./parthenon-data`.
+
+## Data Sources After Loading
+
+After loading datasets, configure them as data sources in Parthenon:
+
+1. Log in as an administrator
+2. Go to **Administration > Data Sources**
+3. The Eunomia source is automatically registered during loading
+4. For your own OMOP CDM databases, click **Add Source** and provide connection details
+
+See [Data Sources](./02-data-sources) for detailed configuration.
+
+## Dataset Storage
+
+Downloaded files are stored in:
+
+| Directory | Contents |
+|-----------|----------|
+| `downloads/` | Temporary download files (cleaned up after import) |
+| `vcf/giab_NISTv4.2.1/` | Decompressed GIAB VCF files |
+| `dicom_samples/` | Extracted DICOM imaging files |
+| `GIS/` | Raw geospatial data |
+
+All clinical data is loaded into the Docker PostgreSQL database. Downloaded files can be deleted after successful import to reclaim disk space.

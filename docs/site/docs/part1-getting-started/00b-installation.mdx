@@ -1,0 +1,217 @@
+---
+id: 00b-installation
+title: "Installing Parthenon"
+sidebar_label: "Installing Parthenon"
+---
+
+# Installing Parthenon
+
+Parthenon offers two installation paths depending on your needs:
+
+| Path | Best For | What You Get |
+|------|----------|-------------|
+| **Application Only** | Development, evaluation, small teams | Parthenon + PostgreSQL + Redis + Solr |
+| **Full Infrastructure** | Production, enterprise, multi-service | Everything above + Traefik, Portainer, pgAdmin, and optional enterprise services |
+
+Both paths use the same one-command Python installer with a 9-phase guided setup.
+
+## Quick Start (Application Only)
+
+```bash
+# Clone the repository
+git clone https://github.com/sudoshi/Parthenon.git
+cd Parthenon
+
+# Run the installer
+python3 install.py
+```
+
+The installer walks you through 9 phases:
+
+| Phase | What It Does |
+|-------|-------------|
+| 1. Preflight | Checks Docker, Compose, Python, disk space |
+| 2. Configuration | Collects app URL, admin credentials, optional features |
+| 3. Docker | Pulls images, builds containers, waits for health checks |
+| 4. Bootstrap | Runs migrations, seeds roles/permissions, verifies PostGIS |
+| 5. Datasets | Loads selected datasets (Eunomia demo, vocabulary, etc.) |
+| 6. Frontend | Builds the React SPA via Vite |
+| 7. Solr | Indexes vocabulary and search cores |
+| 8. Admin | Creates your super-admin account |
+| 9. Complete | Shows URLs, credentials, and next steps |
+
+:::tip Resume on failure
+If the installer fails at any phase, re-run `python3 install.py` — it detects the last completed phase and offers to resume from where it left off.
+:::
+
+### What Gets Created
+
+After installation, you'll have these Docker services running:
+
+```bash
+$ docker compose ps
+
+NAME                 STATUS    PORTS
+parthenon-nginx      healthy   0.0.0.0:8082->80/tcp
+parthenon-php        healthy
+parthenon-postgres   healthy   0.0.0.0:5480->5432/tcp
+parthenon-redis      healthy   0.0.0.0:6381->6379/tcp
+parthenon-python-ai  healthy   0.0.0.0:8002->8000/tcp
+parthenon-solr       healthy   0.0.0.0:8983->8983/tcp
+parthenon-horizon    running
+parthenon-chromadb   healthy   0.0.0.0:8001->8000/tcp
+```
+
+Your Parthenon instance is available at **http://localhost:8082**.
+
+### Database Layout
+
+The installer creates a single `parthenon` PostgreSQL database with schema isolation:
+
+| Schema | Purpose |
+|--------|---------|
+| `app` | Application tables (users, roles, cohorts, analyses, studies) |
+| `omop` | OMOP CDM v5.4 tables + vocabulary (empty until data loaded) |
+| `results` | Achilles characterization + DQD output + analysis catalog |
+| `eunomia` | GiBleed demo dataset (if loaded) |
+| `eunomia_results` | Demo Achilles results (if loaded) |
+| `gis` | Geospatial boundary data |
+| `php` | Laravel framework tables |
+
+All table structures are created by 170+ Laravel migrations during Phase 4. Data is loaded separately via Phase 5 and the dataset acquisition tool.
+
+## Full Infrastructure (Acropolis)
+
+For production deployments or organizations that want reverse proxy, monitoring, and management tools:
+
+```bash
+python3 install.py --with-infrastructure
+```
+
+This runs the **Acropolis infrastructure installer** on top of the standard Parthenon setup, adding:
+
+| Service | Purpose | URL |
+|---------|---------|-----|
+| **Traefik** | Reverse proxy with automatic TLS | Dashboard on port 8080 |
+| **Portainer** | Container management UI | Port 9443 |
+| **pgAdmin** | PostgreSQL administration | Port 5050 |
+| **n8n** (Enterprise) | Workflow automation | Via Traefik |
+| **Superset** (Enterprise) | BI dashboards | Via Traefik |
+
+The infrastructure installer detects your existing Parthenon installation and configures Traefik routes, shared Docker networks, and service credentials automatically.
+
+### Community vs Enterprise Edition
+
+During the Acropolis setup, you choose an edition:
+
+- **Community** — Traefik + Portainer + pgAdmin (free, open source)
+- **Enterprise** — Adds n8n, Apache Superset, DataHub, Authentik SSO, and Kubernetes Helm charts
+
+## Pre-Seeded Installation (Non-Interactive)
+
+For automated deployments or CI/CD pipelines, provide a JSON defaults file to skip interactive prompts:
+
+```bash
+python3 install.py --defaults-file my-config.json
+```
+
+Example `my-config.json`:
+
+```json
+{
+  "app_url": "https://parthenon.example.com",
+  "admin_email": "admin@example.com",
+  "admin_name": "Admin",
+  "admin_password": "secure-password-here",
+  "include_eunomia": true,
+  "enable_solr": true,
+  "datasets": ["eunomia", "phenotype-library"]
+}
+```
+
+## Post-Installation
+
+After the installer completes:
+
+1. **Log in** at http://localhost:8082 with your admin credentials
+2. **Change your password** — the first-login wizard enforces this
+3. **Load datasets** — run `./parthenon-data` to browse and load public datasets (see [Dataset Acquisition](./00c-dataset-acquisition))
+4. **Configure data sources** — connect your OMOP CDM databases via Administration > Data Sources
+
+### Key URLs
+
+| Service | URL |
+|---------|-----|
+| Parthenon | http://localhost:8082 |
+| AI Service | http://localhost:8002 |
+| Solr Admin | http://localhost:8983 |
+| PostgreSQL | localhost:5480 (user: parthenon) |
+
+### Useful Commands
+
+```bash
+# Check service health
+docker compose ps
+
+# View logs
+docker compose logs -f php          # PHP application logs
+docker compose logs -f python-ai    # AI service logs
+
+# Restart all services
+docker compose up -d
+
+# Full redeploy after code changes
+./deploy.sh
+
+# Database shell
+docker compose exec postgres psql -U parthenon
+```
+
+## Troubleshooting
+
+### Docker not running
+
+```
+Error: Cannot connect to the Docker daemon
+```
+
+Start Docker Desktop (macOS/Windows) or `sudo systemctl start docker` (Linux).
+
+### Port conflicts
+
+```
+Error: Bind for 0.0.0.0:8082 failed: port is already allocated
+```
+
+Another service is using port 8082. Either stop it or change the `NGINX_PORT` during installer configuration.
+
+### Insufficient disk space
+
+The installer checks for minimum free space. If you're low on disk:
+- Remove unused Docker images: `docker image prune -a`
+- Remove stopped containers: `docker container prune`
+
+### Container fails health check
+
+```bash
+# Check which container is unhealthy
+docker compose ps
+
+# View its logs
+docker compose logs <service-name>
+
+# Restart just that service
+docker compose restart <service-name>
+```
+
+### Resume a failed installation
+
+```bash
+# The installer auto-detects previous state
+python3 install.py
+# Answer "Yes" when asked to resume
+```
+
+## Next Step
+
+Once Parthenon is running, load public datasets using the [Dataset Acquisition Tool](./00c-dataset-acquisition).

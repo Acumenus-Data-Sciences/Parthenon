@@ -1,0 +1,156 @@
+---
+id: 00a-prerequisites
+title: "Prerequisites"
+sidebar_label: "Prerequisites"
+---
+
+# Prerequisites
+
+Before installing Parthenon, ensure your system meets these requirements. Parthenon runs entirely in Docker containers, so the host requirements are minimal.
+
+## Hardware Requirements
+
+| Component | Minimum | Recommended |
+|-----------|---------|-------------|
+| **CPU** | 4 cores | 8+ cores |
+| **RAM** | 8 GB | 16+ GB |
+| **Disk** | 20 GB free | 100+ GB free (for datasets) |
+| **Network** | Broadband internet | For downloading datasets and Docker images |
+
+:::tip Quick evaluation
+For a quick evaluation with just the Eunomia demo dataset (~40 MB), the minimum specs are sufficient. The recommended specs are for loading the OMOP vocabulary (~16 GB) and genomic datasets.
+:::
+
+## Software Requirements
+
+### All Platforms
+
+| Software | Version | Purpose |
+|----------|---------|---------|
+| **Docker Desktop** | 24.0+ | Container runtime |
+| **Docker Compose** | v2+ | Service orchestration (included with Docker Desktop) |
+| **Python** | 3.9+ | Installer and dataset tools |
+| **Git** | 2.x | Cloning the repository |
+
+### macOS
+
+```bash
+# Install Homebrew (if not already installed)
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# Install Docker Desktop
+brew install --cask docker
+
+# Install Python 3 and Git (usually pre-installed on macOS)
+brew install python3 git
+
+# Verify versions
+docker --version        # Docker version 24.0+
+docker compose version  # Docker Compose version v2+
+python3 --version       # Python 3.9+
+git --version           # git version 2.x
+```
+
+After installing Docker Desktop, **launch it from Applications** and wait for the Docker engine to start (whale icon in menu bar shows "Docker Desktop is running").
+
+:::caution Apple Silicon (M1/M2/M3/M4)
+Docker Desktop runs natively on Apple Silicon. All Parthenon containers are multi-arch (amd64 + arm64). No Rosetta translation needed.
+:::
+
+### Windows
+
+1. **Install WSL 2** (Windows Subsystem for Linux):
+   ```powershell
+   # Run PowerShell as Administrator
+   wsl --install
+   ```
+   Restart your computer when prompted.
+
+2. **Install Docker Desktop for Windows:**
+   - Download from [docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop/)
+   - During installation, ensure **"Use WSL 2 instead of Hyper-V"** is checked
+   - Launch Docker Desktop and wait for it to start
+
+3. **Install Python 3 and Git:**
+   ```powershell
+   # Using winget (Windows Package Manager)
+   winget install Python.Python.3.12
+   winget install Git.Git
+   ```
+
+4. **Open a WSL terminal** for all subsequent commands:
+   ```powershell
+   wsl
+   ```
+
+:::info Windows users
+All Parthenon commands should be run inside **WSL 2** (Ubuntu), not PowerShell or CMD. Docker Desktop integrates with WSL 2 automatically.
+:::
+
+### Linux (Ubuntu/Debian)
+
+```bash
+# Install Docker Engine
+curl -fsSL https://get.docker.com | sh
+
+# Add your user to the docker group (avoids sudo for docker commands)
+sudo usermod -aG docker $USER
+newgrp docker
+
+# Install Python 3 and Git
+sudo apt update && sudo apt install -y python3 python3-pip git
+
+# Verify
+docker --version
+docker compose version
+python3 --version
+```
+
+### Linux (RHEL/CentOS/Fedora)
+
+```bash
+# Install Docker Engine
+sudo dnf install -y dnf-plugins-core
+sudo dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
+sudo dnf install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+
+# Start and enable Docker
+sudo systemctl start docker
+sudo systemctl enable docker
+sudo usermod -aG docker $USER
+newgrp docker
+
+# Install Python 3 and Git
+sudo dnf install -y python3 python3-pip git
+```
+
+## Verify Your Environment
+
+Run this quick check to confirm everything is ready:
+
+```bash
+# All platforms (run inside WSL on Windows)
+docker --version && \
+docker compose version && \
+python3 --version && \
+git --version && \
+echo "" && \
+echo "All prerequisites met!"
+```
+
+You should see version numbers for all four tools and the success message.
+
+## Optional: OMOP Vocabulary Download
+
+If you plan to load the full OMOP vocabulary (recommended for production use), download it now while the installer runs:
+
+1. Go to [athena.ohdsi.org](https://athena.ohdsi.org) and create a free account
+2. Click **Download** and select your vocabularies (at minimum: SNOMED, RxNorm, LOINC, ICD10CM)
+3. Click **Generate** and wait for the download link email
+4. Download the ZIP file (~4 GB) and note its path
+
+The installer and dataset acquisition tool will ask for this file path during setup.
+
+## Next Step
+
+Once prerequisites are met, proceed to [Installing Parthenon](./00b-installation).

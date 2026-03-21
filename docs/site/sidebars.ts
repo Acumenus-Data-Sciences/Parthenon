@@ -12,8 +12,11 @@ const sidebars: SidebarsConfig = {
       label: "Part I — Getting Started",
       collapsed: false,
       items: [
-        "part1-getting-started/00-dashboard",
         "part1-getting-started/01-introduction",
+        "part1-getting-started/00a-prerequisites",
+        "part1-getting-started/00b-installation",
+        "part1-getting-started/00c-dataset-acquisition",
+        "part1-getting-started/00-dashboard",
         "part1-getting-started/02-data-sources",
       ],
     },
