@@ -3,16 +3,15 @@ import type { ToolsetDescriptor } from "./types";
 export const TOOLSET_REGISTRY: ToolsetDescriptor[] = [
   {
     slug: "finngen",
-    name: "FinnGen",
-    tagline: "Population-scale genomic analysis pipeline",
+    name: "FinnGen Evidence Investigation",
+    tagline: "Phenotype-to-evidence research platform",
     description:
-      "Four-step workflow: CDM exploration via ROMOPAPI, HADES SQL rendering, cohort operations, and CO2 downstream analysis modules. Powered by the StudyAgent service registry.",
+      "Unified workspace combining clinical phenotyping, HADES observational analytics, and genomic evidence (Open Targets, GWAS Catalog) into an exportable Evidence Dossier.",
     icon: "Dna",
     accent: "#2DD4BF",
     status: "available",
-    route: "/workbench/finngen",
-    badge: "StudyAgent",
-    requiresStudyAgent: true,
+    route: "/workbench/investigation/new",
+    badge: "Evidence Board",
   },
   {
     slug: "morpheus",
