@@ -16,6 +16,16 @@ on:
       - 'docker/**'
       - 'morpheus-ingest/Dockerfile'
       - '.github/workflows/docker-build.yml'
+      # Dependency files — rebuild base images when deps change
+      - 'backend/composer.json'
+      - 'backend/composer.lock'
+      - 'frontend/package.json'
+      - 'frontend/package-lock.json'
+      - 'ai/requirements.txt'
+      - 'ai/requirements-dev.txt'
+  # Weekly rebuild (Sunday 4am UTC) — picks up base image security patches
+  schedule:
+    - cron: '0 4 * * 0'
   workflow_dispatch:
     inputs:
       image:
@@ -90,13 +100,13 @@ jobs:
             [ohif-build]="docker/ohif"
           )
 
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            # Build all images on manual dispatch
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" || "${{ github.event_name }}" == "schedule" ]]; then
+            # Build all images on manual dispatch or weekly schedule
             for name in "${!DOCKER_PATHS[@]}"; do
               IMAGES=$(echo "$IMAGES" | jq -c --arg n "$name" '. + [{name: $n}]')
             done
           else
-            # Only build images whose Dockerfiles changed
+            # Only build images whose Dockerfiles or dependency files changed
             CHANGED=$(git diff --name-only HEAD~1 HEAD)
             for name in "${!DOCKER_PATHS[@]}"; do
               path="${DOCKER_PATHS[$name]}"
@@ -104,6 +114,17 @@ jobs:
                 IMAGES=$(echo "$IMAGES" | jq -c --arg n "$name" '. + [{name: $n}]')
               fi
             done
+
+            # Dependency file changes trigger specific image rebuilds
+            if echo "$CHANGED" | grep -q "^backend/composer"; then
+              IMAGES=$(echo "$IMAGES" | jq -c 'if any(.name == "php") then . else . + [{name: "php"}] end')
+            fi
+            if echo "$CHANGED" | grep -q "^frontend/package"; then
+              IMAGES=$(echo "$IMAGES" | jq -c 'if any(.name == "node") then . else . + [{name: "node"}] end')
+            fi
+            if echo "$CHANGED" | grep -q "^ai/requirements"; then
+              IMAGES=$(echo "$IMAGES" | jq -c 'if any(.name == "python-ai") then . else . + [{name: "python-ai"}] end')
+            fi
           fi
 
           if [[ $(echo "$IMAGES" | jq -r length) -eq 0 ]]; then
