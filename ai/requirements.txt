@@ -8,7 +8,7 @@ psycopg2-binary==2.9.*
 pgvector==0.4.*
 numpy==2.*
 ollama==0.4.*
-transformers>=4.41,<5
+transformers>=4.41,<6
 torch==2.*
 pandas==2.*
 chromadb==1.*
