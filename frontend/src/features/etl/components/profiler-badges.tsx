@@ -1,6 +1,5 @@
 import { cn } from "@/lib/utils";
 import { nullPct as computeNullPct, scoreToGrade } from "../lib/profiler-utils";
-import type { ColumnProfile } from "../api";
 
 // ---------------------------------------------------------------------------
 // Column type badge

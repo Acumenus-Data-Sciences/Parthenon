@@ -13,7 +13,7 @@ export default function HoverCard({ content, children, delay = 200 }: HoverCardP
   const [positionAbove, setPositionAbove] = useState(true);
   const triggerRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
-  const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const show = () => {
     timeoutRef.current = setTimeout(() => {
