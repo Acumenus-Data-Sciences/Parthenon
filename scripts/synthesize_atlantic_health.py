@@ -315,7 +315,146 @@ def phase_2_copy_dictionaries(conn, dry_run=False):
 
 def phase_3_extract_distributions(conn) -> dict:
     """Extract MIMIC-IV statistical distributions into memory."""
-    return {}  # Task 4
+    dist = {}
+
+    log(3, "Extracting MIMIC-IV distributions...")
+
+    # ── Procedures distributions ──────────────────────────────────────────
+
+    log(3, "  procedures_icd...")
+    dist["proc_count_by_adm_type"] = pd.read_sql(f"""
+        SELECT a.admission_type,
+               count(p.icd_code)::float / count(DISTINCT a.hadm_id) as mean_procs,
+               count(DISTINCT a.hadm_id) as n_admissions
+        FROM {MIMIC}.admissions a
+        LEFT JOIN {MIMIC}.procedures_icd p ON a.hadm_id = p.hadm_id
+        GROUP BY a.admission_type
+    """, conn)
+
+    dist["proc_codes"] = pd.read_sql(f"""
+        SELECT p.icd_code, p.icd_version,
+               left(d.icd_code, 3) as dx_chapter,
+               count(*) as freq
+        FROM {MIMIC}.procedures_icd p
+        JOIN {MIMIC}.diagnoses_icd d ON p.hadm_id = d.hadm_id AND d.seq_num = '1'
+        GROUP BY p.icd_code, p.icd_version, dx_chapter
+    """, conn)
+
+    dist["proc_day_offset"] = pd.read_sql(f"""
+        SELECT EXTRACT(EPOCH FROM (p.chartdate::timestamp - a.admittime::timestamp)) / 86400.0 as day_offset
+        FROM {MIMIC}.procedures_icd p
+        JOIN {MIMIC}.admissions a ON p.hadm_id = a.hadm_id
+        WHERE p.chartdate IS NOT NULL AND a.admittime IS NOT NULL
+    """, conn)
+
+    # ── Microbiology distributions ────────────────────────────────────────
+
+    log(3, "  microbiologyevents...")
+
+    # Culture rate by ICU status
+    dist["culture_rate"] = pd.read_sql(f"""
+        WITH adm_icu AS (
+            SELECT a.hadm_id,
+                   CASE WHEN EXISTS (SELECT 1 FROM {MIMIC}.icustays i WHERE i.hadm_id = a.hadm_id) THEN true ELSE false END as has_icu,
+                   EXTRACT(EPOCH FROM (a.dischtime::timestamp - a.admittime::timestamp)) / 86400.0 as los
+            FROM {MIMIC}.admissions a
+        )
+        SELECT has_icu,
+               CASE WHEN los > 5 THEN 'long' ELSE 'short' END as los_bucket,
+               count(DISTINCT m.hadm_id)::float / GREATEST(count(DISTINCT ai.hadm_id), 1) as culture_rate,
+               count(DISTINCT ai.hadm_id) as n_admissions
+        FROM adm_icu ai
+        LEFT JOIN {MIMIC}.microbiologyevents m ON ai.hadm_id = m.hadm_id
+        GROUP BY has_icu, los_bucket
+    """, conn)
+
+    dist["specimen_types"] = pd.read_sql(f"""
+        SELECT spec_type_desc, count(DISTINCT micro_specimen_id) as freq
+        FROM {MIMIC}.microbiologyevents
+        WHERE spec_type_desc IS NOT NULL
+        GROUP BY spec_type_desc
+    """, conn)
+
+    dist["organism_growth_by_specimen"] = pd.read_sql(f"""
+        SELECT spec_type_desc,
+               count(DISTINCT CASE WHEN org_name IS NOT NULL THEN micro_specimen_id END)::float /
+               GREATEST(count(DISTINCT micro_specimen_id), 1) as growth_rate
+        FROM {MIMIC}.microbiologyevents
+        WHERE spec_type_desc IS NOT NULL
+        GROUP BY spec_type_desc
+    """, conn)
+
+    dist["organisms_by_specimen"] = pd.read_sql(f"""
+        SELECT spec_type_desc, org_name, count(*) as freq
+        FROM {MIMIC}.microbiologyevents
+        WHERE org_name IS NOT NULL AND spec_type_desc IS NOT NULL
+        GROUP BY spec_type_desc, org_name
+    """, conn)
+
+    dist["ab_panels"] = pd.read_sql(f"""
+        SELECT org_name, ab_name, interpretation, count(*) as freq
+        FROM {MIMIC}.microbiologyevents
+        WHERE org_name IS NOT NULL AND ab_name IS NOT NULL AND interpretation IS NOT NULL
+        GROUP BY org_name, ab_name, interpretation
+    """, conn)
+
+    dist["mic_values"] = pd.read_sql(f"""
+        SELECT org_name, ab_name, dilution_comparison, dilution_value
+        FROM {MIMIC}.microbiologyevents
+        WHERE dilution_value IS NOT NULL AND org_name IS NOT NULL AND ab_name IS NOT NULL
+    """, conn)
+
+    # ── Input events distributions ────────────────────────────────────────
+
+    log(3, "  inputevents...")
+    dist["input_items"] = pd.read_sql(f"""
+        SELECT i.itemid, d.label, d.abbreviation,
+               count(*) as freq,
+               avg(NULLIF(i.amount, '')::float) as mean_amount,
+               stddev(NULLIF(i.amount, '')::float) as std_amount,
+               mode() WITHIN GROUP (ORDER BY i.amountuom) as common_uom,
+               avg(NULLIF(i.rate, '')::float) as mean_rate,
+               mode() WITHIN GROUP (ORDER BY i.rateuom) as common_rateuom,
+               avg(EXTRACT(EPOCH FROM (NULLIF(i.endtime, '')::timestamp - NULLIF(i.starttime, '')::timestamp)) / 3600.0) as mean_duration_hrs,
+               mode() WITHIN GROUP (ORDER BY i.ordercategoryname) as common_category,
+               mode() WITHIN GROUP (ORDER BY i.statusdescription) as common_status
+        FROM {MIMIC}.inputevents i
+        JOIN {MIMIC}.d_items d ON i.itemid::text = d.itemid::text
+        WHERE i.amount IS NOT NULL AND i.amount <> ''
+        GROUP BY i.itemid, d.label, d.abbreviation
+    """, conn)
+
+    dist["input_per_icu_day"] = pd.read_sql(f"""
+        SELECT count(*)::float / GREATEST(sum(NULLIF(s.los, '')::float), 1) as events_per_day
+        FROM {MIMIC}.inputevents i
+        JOIN {MIMIC}.icustays s ON i.stay_id::text = s.stay_id::text
+    """, conn)
+
+    # ── Output events distributions ───────────────────────────────────────
+
+    log(3, "  outputevents...")
+    dist["output_items"] = pd.read_sql(f"""
+        SELECT o.itemid, d.label,
+               count(*) as freq,
+               avg(NULLIF(o.value, '')::float) as mean_value,
+               stddev(NULLIF(o.value, '')::float) as std_value,
+               mode() WITHIN GROUP (ORDER BY o.valueuom) as common_uom
+        FROM {MIMIC}.outputevents o
+        JOIN {MIMIC}.d_items d ON o.itemid::text = d.itemid::text
+        WHERE o.value IS NOT NULL AND o.value <> ''
+        GROUP BY o.itemid, d.label
+    """, conn)
+
+    dist["output_per_icu_day"] = pd.read_sql(f"""
+        SELECT count(*)::float / GREATEST(sum(NULLIF(s.los, '')::float), 1) as events_per_day
+        FROM {MIMIC}.outputevents o
+        JOIN {MIMIC}.icustays s ON o.stay_id::text = s.stay_id::text
+    """, conn)
+
+    log(3, f"  Extracted {len(dist)} distribution tables")
+    for key, df in dist.items():
+        log(3, f"    {key}: {len(df)} rows")
+    return dist
 
 
 def phase_4_generate_procedures(conn, distributions: dict, dry_run=False):
