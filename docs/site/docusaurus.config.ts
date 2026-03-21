@@ -112,7 +112,7 @@ const config: Config = {
           label: "User Manual",
         },
         {
-          href: "/docs/api",
+          href: "https://parthenon.acumenus.net/docs/api",
           label: "API Reference",
           position: "left",
         },
@@ -145,7 +145,7 @@ const config: Config = {
             },
             {
               label: "API Reference",
-              href: "/docs/api",
+              href: "https://parthenon.acumenus.net/docs/api",
             },
             {
               label: "Migration Guide",
