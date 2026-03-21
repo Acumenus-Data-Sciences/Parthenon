@@ -1,9 +1,12 @@
 import { useNavigate } from "react-router-dom";
+import type { LucideProps } from "lucide-react";
 import * as LucideIcons from "lucide-react";
 import type { ToolsetDescriptor } from "../types";
 
-function getIcon(name: string): React.ElementType {
-  const icons = LucideIcons as unknown as Record<string, React.ElementType>;
+type IconComponent = React.ComponentType<LucideProps>;
+
+function getIcon(name: string): IconComponent {
+  const icons = LucideIcons as unknown as Record<string, IconComponent>;
   return icons[name] ?? LucideIcons.Box;
 }
 
@@ -52,7 +55,7 @@ export function ToolsetCard({ toolset }: ToolsetCardProps) {
         >
           <Icon
             className="h-6 w-6"
-            style={{ color: toolset.accent } as React.CSSProperties}
+            style={{ color: toolset.accent }}
           />
         </div>
         {toolset.badge && (

@@ -54,11 +54,6 @@ function computeLambdaGC(sortedP: number[]): number {
   if (sortedP.length === 0) return 1;
   const mid = Math.floor(sortedP.length / 2);
   const medianP = sortedP[mid];
-  // z-score from p-value (two-sided), then chi2
-  const _z = d3.quantile(
-    [-1, 1].map(() => 0), // dummy — compute via normal inverse
-    0.5,
-  );
   // Use -log10 quantile approximation instead:
   // chi2 statistic = (-2 * ln(p)) for 1 df approximately
   // lambda = median(-2*ln(p)) / (-2*ln(0.5)) = median(-2*ln(p)) / 1.3862944

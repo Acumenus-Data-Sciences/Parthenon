@@ -1,8 +1,11 @@
+import type { LucideProps } from "lucide-react";
 import * as LucideIcons from "lucide-react";
 import type { AnalysisTypeDescriptor, ClinicalAnalysisGroup, ClinicalAnalysisType } from "../../types";
 
-function getIcon(name: string): React.ElementType {
-  const icons = LucideIcons as unknown as Record<string, React.ElementType>;
+type IconComponent = React.ComponentType<LucideProps>;
+
+function getIcon(name: string): IconComponent {
+  const icons = LucideIcons as unknown as Record<string, IconComponent>;
   return icons[name] ?? LucideIcons.Box;
 }
 
@@ -54,7 +57,7 @@ export function AnalysisCard({
           className="flex h-9 w-9 items-center justify-center rounded-lg"
           style={{ backgroundColor: `${accent}18` }}
         >
-          <Icon className="h-4 w-4" style={{ color: accent } as React.CSSProperties} />
+          <Icon className="h-4 w-4" style={{ color: accent }} />
         </div>
         <span className="text-[10px] text-zinc-600">{descriptor.estimatedTime}</span>
       </div>

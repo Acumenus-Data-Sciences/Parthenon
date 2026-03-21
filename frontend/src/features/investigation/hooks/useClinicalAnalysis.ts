@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   createAnalysis,
   executeAnalysis,
@@ -7,7 +7,6 @@ import {
 } from "../api";
 
 export function useCreateAnalysis() {
-  const _qc = useQueryClient();
   return useMutation({
     mutationFn: ({
       apiPrefix,

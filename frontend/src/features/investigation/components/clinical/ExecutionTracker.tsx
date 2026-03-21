@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
+import type { LucideProps } from "lucide-react";
 import * as LucideIcons from "lucide-react";
 import { useExecution } from "../../hooks/useClinicalAnalysis";
 import type { ClinicalAnalysisType } from "../../types";
 import { ResultCards } from "./ResultCards";
+
+type IconComponent = React.ComponentType<LucideProps>;
 
 // Icon map keyed by analysis type
 const TYPE_ICON: Record<ClinicalAnalysisType, string> = {
@@ -15,8 +18,8 @@ const TYPE_ICON: Record<ClinicalAnalysisType, string> = {
   pathway: "GitBranch",
 };
 
-function getIcon(name: string): React.ElementType {
-  const icons = LucideIcons as unknown as Record<string, React.ElementType>;
+function getIcon(name: string): IconComponent {
+  const icons = LucideIcons as unknown as Record<string, IconComponent>;
   return icons[name] ?? LucideIcons.Box;
 }
 
@@ -53,7 +56,8 @@ export function ExecutionTracker({
   onComplete,
   onPinFinding,
 }: ExecutionTrackerProps) {
-  const { data: execution } = useExecution(apiPrefix, analysisId, executionId);
+  const { data: rawExecution } = useExecution(apiPrefix, analysisId, executionId);
+  const execution = rawExecution as Record<string, unknown> | undefined;
   const [elapsed, setElapsed] = useState(0);
 
   const status = (execution?.status as string | undefined) ?? "queued";
