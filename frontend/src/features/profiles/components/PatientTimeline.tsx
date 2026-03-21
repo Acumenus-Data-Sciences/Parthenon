@@ -1,71 +1,26 @@
 import { useState, useMemo, useRef, useCallback, useEffect, useId } from "react";
-import { Search, X, ZoomIn, ZoomOut } from "lucide-react";
-import { cn } from "@/lib/utils";
 import type { ClinicalEvent, ClinicalDomain, ObservationPeriod } from "../types/profile";
-
-// ---------------------------------------------------------------------------
-// Domain configuration
-// ---------------------------------------------------------------------------
-
-const DOMAIN_CONFIG: Record<
-  ClinicalDomain,
-  { label: string; color: string; order: number }
-> = {
-  condition: { label: "Conditions", color: "#E85A6B", order: 0 },
-  drug: { label: "Drugs", color: "#2DD4BF", order: 1 },
-  procedure: { label: "Procedures", color: "#C9A227", order: 2 },
-  measurement: { label: "Measurements", color: "#818CF8", order: 3 },
-  observation: { label: "Observations", color: "#94A3B8", order: 4 },
-  visit: { label: "Visits", color: "#F59E0B", order: 5 },
-};
-
-const ALL_DOMAINS: ClinicalDomain[] = [
-  "condition",
-  "drug",
-  "procedure",
-  "measurement",
-  "observation",
-  "visit",
-];
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-function parseDate(d: string): number {
-  return new Date(d).getTime();
-}
-
-function formatTimelineDate(ms: number): string {
-  return new Date(ms).toLocaleDateString("en-US", {
-    month: "short",
-    year: "numeric",
-  });
-}
-
-function formatTooltipDate(d: string): string {
-  return new Date(d).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
-
-/** Human-readable duration between two ISO date strings */
-function formatDuration(startDate: string, endDate: string): string {
-  const startMs = new Date(startDate).getTime();
-  const endMs = new Date(endDate).getTime();
-  const diffMs = endMs - startMs;
-  if (diffMs <= 0) return "";
-  const days = Math.round(diffMs / (24 * 60 * 60 * 1000));
-  if (days === 0) return "same day";
-  if (days === 1) return "1 day";
-  if (days < 30) return `${days} days`;
-  const months = Math.round(days / 30.44);
-  if (months < 12) return months === 1 ? "1 month" : `${months} months`;
-  const years = Math.round(days / 365.25);
-  return years === 1 ? "1 year" : `${years} years`;
-}
+import {
+  DOMAIN_CONFIG,
+  ALL_DOMAINS,
+  LANE_HEIGHT,
+  EVENT_HEIGHT,
+  EVENT_GAP,
+  MIN_EVENT_WIDTH,
+  TIMELINE_PADDING,
+  LABEL_WIDTH,
+  parseDate,
+  formatTimelineDate,
+  packDomainEvents,
+  type PackedEvent,
+} from "../lib/timeline-utils";
+import {
+  TimelineToolbar,
+  DomainFilterBar,
+  DensityMinimap,
+  EventTooltip,
+  TimelineLegend,
+} from "./timeline";
 
 // ---------------------------------------------------------------------------
 // Component
@@ -75,90 +30,6 @@ interface PatientTimelineProps {
   events: ClinicalEvent[];
   observationPeriods?: ObservationPeriod[];
   onEventClick?: (event: ClinicalEvent) => void;
-}
-
-const LANE_HEIGHT = 28;
-const EVENT_HEIGHT = 8;
-const EVENT_GAP = 3;
-const MIN_EVENT_WIDTH = 4;
-const MAX_ROWS = 12;
-const TIMELINE_PADDING = 60;
-const LABEL_WIDTH = 148;
-
-// ---------------------------------------------------------------------------
-// Lane packing — greedy interval scheduling to avoid overlap
-// ---------------------------------------------------------------------------
-
-interface PackedEvent {
-  event: ClinicalEvent;
-  row: number;
-  startMs: number;
-  endMs: number;
-}
-
-/**
- * Pack events into non-overlapping rows using greedy interval scheduling.
- * Events are sorted by start time, then assigned to the first row where they
- * don't overlap with any existing event. A minimum time gap prevents point
- * events from stacking on top of each other visually.
- */
-function packDomainEvents(
-  events: ClinicalEvent[],
-  timeRange: number,
-): { packed: PackedEvent[]; rowCount: number } {
-  if (events.length === 0) return { packed: [], rowCount: 0 };
-
-  // Minimum gap in ms — ensures point events don't overlap visually.
-  // ~0.8% of total time range ≈ MIN_EVENT_WIDTH at 1x zoom on a typical screen.
-  const minGapMs = timeRange * 0.008;
-
-  const items = events.map((ev) => ({
-    event: ev,
-    startMs: parseDate(ev.start_date),
-    endMs: ev.end_date ? parseDate(ev.end_date) : parseDate(ev.start_date),
-  }));
-  // Sort by start time, ties broken by shorter events first (point events before spans)
-  items.sort((a, b) => a.startMs - b.startMs || (a.endMs - a.startMs) - (b.endMs - b.startMs));
-
-  // rowEnds[r] = the effective end time of the last event placed in row r
-  const rowEnds: number[] = [];
-  const packed: PackedEvent[] = [];
-
-  for (const item of items) {
-    const effectiveEnd = Math.max(item.endMs, item.startMs + minGapMs);
-    let assignedRow = -1;
-
-    // Find first row where this event doesn't overlap
-    for (let r = 0; r < rowEnds.length; r++) {
-      if (rowEnds[r] <= item.startMs) {
-        assignedRow = r;
-        break;
-      }
-    }
-
-    // No existing row fits — create a new one if under MAX_ROWS
-    if (assignedRow === -1) {
-      if (rowEnds.length < MAX_ROWS) {
-        assignedRow = rowEnds.length;
-        rowEnds.push(0);
-      } else {
-        // Overflow: assign to row with the earliest end time (least-recently-used)
-        assignedRow = 0;
-        let minEnd = rowEnds[0];
-        for (let r = 1; r < MAX_ROWS; r++) {
-          if (rowEnds[r] < minEnd) {
-            minEnd = rowEnds[r];
-            assignedRow = r;
-          }
-        }
-      }
-    }
-
-    rowEnds[assignedRow] = effectiveEnd;
-    packed.push({ ...item, row: assignedRow });
-  }
-
-  return { packed, rowCount: rowEnds.length };
 }
 
 export function PatientTimeline({ events, observationPeriods = [], onEventClick }: PatientTimelineProps) {
@@ -226,6 +97,36 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
+  // Compute time bounds from ALL events (including hidden — so axis stays stable)
+  const { timeMin, timeMax } = useMemo(() => {
+    if (events.length === 0) {
+      const now = Date.now();
+      return { timeMin: now - 365 * 24 * 60 * 60 * 1000, timeMax: now };
+    }
+    let min = Infinity;
+    let max = -Infinity;
+    for (const ev of events) {
+      const start = parseDate(ev.start_date);
+      if (start < min) min = start;
+      if (start > max) max = start;
+      if (ev.end_date) {
+        const end = parseDate(ev.end_date);
+        if (end > max) max = end;
+      }
+    }
+    // Add obs period bounds too
+    for (const op of observationPeriods) {
+      const s = parseDate(op.start_date);
+      const e = parseDate(op.end_date);
+      if (s < min) min = s;
+      if (e > max) max = e;
+    }
+    const range = max - min || 365 * 24 * 60 * 60 * 1000;
+    return { timeMin: min - range * 0.03, timeMax: max + range * 0.03 };
+  }, [events, observationPeriods]);
+
+  const timeRange = timeMax - timeMin;
+
   // Smart initial zoom: show last 5 years for long histories
   useEffect(() => {
     if (hasSetInitialView.current || events.length === 0) return;
@@ -258,36 +159,6 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
     }
     return grouped;
   }, [events, hiddenDomains]);
-
-  // Compute time bounds from ALL events (including hidden — so axis stays stable)
-  const { timeMin, timeMax } = useMemo(() => {
-    if (events.length === 0) {
-      const now = Date.now();
-      return { timeMin: now - 365 * 24 * 60 * 60 * 1000, timeMax: now };
-    }
-    let min = Infinity;
-    let max = -Infinity;
-    for (const ev of events) {
-      const start = parseDate(ev.start_date);
-      if (start < min) min = start;
-      if (start > max) max = start;
-      if (ev.end_date) {
-        const end = parseDate(ev.end_date);
-        if (end > max) max = end;
-      }
-    }
-    // Add obs period bounds too
-    for (const op of observationPeriods) {
-      const s = parseDate(op.start_date);
-      const e = parseDate(op.end_date);
-      if (s < min) min = s;
-      if (e > max) max = e;
-    }
-    const range = max - min || 365 * 24 * 60 * 60 * 1000;
-    return { timeMin: min - range * 0.03, timeMax: max + range * 0.03 };
-  }, [events, observationPeriods]);
-
-  const timeRange = timeMax - timeMin;
 
   // Active (non-hidden, non-empty) domains
   const activeDomains = useMemo(
@@ -485,6 +356,7 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
   // Toolbar zoom in/out buttons
   const handleZoomIn = () => setZoom((z) => Math.min(10, z * 1.3));
   const handleZoomOut = () => setZoom((z) => Math.max(0.5, z / 1.3));
+  const handleReset = () => { setZoom(1); setPanOffset(0); };
 
   // Drag pan
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -512,166 +384,31 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
 
   return (
     <div className="relative rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
-      {/* Toolbar */}
-      <div className="flex items-center justify-between gap-3 px-4 py-2 bg-[#1C1C20] border-b border-[#232328] flex-wrap">
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-[#8A857D]">
-            {events.length} events · {activeDomains.length} domains
-          </span>
-          {observationPeriods.length > 0 && (
-            <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] bg-[#2DD4BF]/10 text-[#2DD4BF] border border-[#2DD4BF]/20">
-              {observationPeriods.length} obs. period{observationPeriods.length > 1 ? "s" : ""}
-            </span>
-          )}
-        </div>
+      <TimelineToolbar
+        eventCount={events.length}
+        activeDomainCount={activeDomains.length}
+        observationPeriods={observationPeriods}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        zoom={zoom}
+        onZoomIn={handleZoomIn}
+        onZoomOut={handleZoomOut}
+        onReset={handleReset}
+      />
 
-        <div className="flex items-center gap-2">
-          {/* Search */}
-          <div className="relative">
-            <Search
-              size={11}
-              className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#5A5650]"
-            />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Highlight events..."
-              className={cn(
-                "w-44 rounded-md border border-[#323238] bg-[#0E0E11] pl-7 pr-2 py-1 text-xs",
-                "text-[#F0EDE8] placeholder:text-[#5A5650]",
-                "focus:border-[#C9A227] focus:outline-none",
-              )}
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery("")}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-[#5A5650] hover:text-[#F0EDE8]"
-              >
-                <X size={10} />
-              </button>
-            )}
-          </div>
+      <DomainFilterBar
+        allPresentDomains={allPresentDomains}
+        hiddenDomains={hiddenDomains}
+        events={events}
+        onToggleHide={toggleHide}
+      />
 
-          {/* Zoom controls: -, percentage, +, Reset */}
-          <div className="flex items-center gap-0.5 rounded-md border border-[#323238] bg-[#0E0E11]">
-            <button
-              type="button"
-              onClick={handleZoomOut}
-              disabled={zoom <= 0.5}
-              className="p-1.5 text-[#8A857D] hover:text-[#F0EDE8] disabled:text-[#323238] disabled:cursor-not-allowed transition-colors"
-              title="Zoom out"
-            >
-              <ZoomOut size={12} />
-            </button>
-            <span className="text-[10px] text-[#5A5650] w-8 text-center tabular-nums">
-              {Math.round(zoom * 100)}%
-            </span>
-            <button
-              type="button"
-              onClick={handleZoomIn}
-              disabled={zoom >= 10}
-              className="p-1.5 text-[#8A857D] hover:text-[#F0EDE8] disabled:text-[#323238] disabled:cursor-not-allowed transition-colors"
-              title="Zoom in"
-            >
-              <ZoomIn size={12} />
-            </button>
-          </div>
-          <button
-            type="button"
-            onClick={() => { setZoom(1); setPanOffset(0); }}
-            className="text-[10px] text-[#8A857D] hover:text-[#F0EDE8] transition-colors px-2 py-1 rounded border border-[#323238]"
-          >
-            Reset
-          </button>
-        </div>
-      </div>
-
-      {/* Domain filter toggles */}
-      <div className="flex items-center gap-1.5 px-4 py-2 bg-[#151518] border-b border-[#232328] overflow-x-auto">
-        <span className="text-[10px] text-[#5A5650] shrink-0 mr-1">Domains:</span>
-        {allPresentDomains.map((domain) => {
-          const cfg = DOMAIN_CONFIG[domain];
-          const hidden = hiddenDomains.has(domain);
-          const count = events.filter((e) => e.domain === domain).length;
-          return (
-            <button
-              key={domain}
-              type="button"
-              onClick={() => toggleHide(domain)}
-              className={cn(
-                "inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-medium border transition-all shrink-0",
-                hidden
-                  ? "border-[#323238] text-[#5A5650] bg-transparent"
-                  : "border-opacity-30 text-opacity-90",
-              )}
-              style={
-                hidden
-                  ? {}
-                  : {
-                      backgroundColor: `${cfg.color}15`,
-                      color: cfg.color,
-                      borderColor: `${cfg.color}40`,
-                    }
-              }
-            >
-              {cfg.label} ({count})
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Event density / minimap strip — click to jump */}
-      <div className="relative bg-[#0E0E11] border-b border-[#1C1C20]" style={{ height: 32 }}>
-        <svg
-          width="100%"
-          height={32}
-          viewBox={`0 0 ${svgWidth} 32`}
-          preserveAspectRatio="none"
-          className="cursor-pointer"
-          onClick={handleMinimapClick}
-        >
-          {densityBuckets.map((bucket, i) => (
-            <rect
-              key={i}
-              x={bucket.x1}
-              y={0}
-              width={Math.max(bucket.x2 - bucket.x1 - 0.5, 0.5)}
-              height={32}
-              fill="#2DD4BF"
-              opacity={0.08 + bucket.intensity * 0.55}
-            />
-          ))}
-          {/* Viewport indicator */}
-          <rect
-            x={minimapViewport.x1}
-            y={1}
-            width={Math.max(minimapViewport.x2 - minimapViewport.x1, 4)}
-            height={30}
-            fill="white"
-            opacity={0.05}
-            rx={1}
-          />
-          <rect
-            x={minimapViewport.x1}
-            y={1}
-            width={Math.max(minimapViewport.x2 - minimapViewport.x1, 4)}
-            height={30}
-            fill="none"
-            stroke="white"
-            strokeWidth={0.8}
-            opacity={0.25}
-            rx={1}
-          />
-          {/* Axis line */}
-          <line x1={LABEL_WIDTH} x2={svgWidth} y1={31} y2={31} stroke="#1C1C20" strokeWidth={1} />
-          {/* Label */}
-          <text x={4} y={19} className="fill-[#3A3A40]" style={{ fontSize: 8 }}>
-            activity
-          </text>
-        </svg>
-      </div>
+      <DensityMinimap
+        svgWidth={svgWidth}
+        densityBuckets={densityBuckets}
+        minimapViewport={minimapViewport}
+        onMinimapClick={handleMinimapClick}
+      />
 
       {/* Year quick-nav */}
       {years.length > 1 && (
@@ -1037,95 +774,21 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
         </svg>
       </div>
 
-      {/* Tooltip — clamped to stay within the container */}
-      {tooltip && !isDragging.current && (() => {
-        const ev = tooltip.event;
-        const TOOLTIP_W = 260;
-        const TOOLTIP_OFFSET = 14;
-        const containerW = containerRef.current?.clientWidth ?? svgWidth;
-        const leftPos = tooltip.x + TOOLTIP_OFFSET + TOOLTIP_W > containerW
-          ? tooltip.x - TOOLTIP_W - TOOLTIP_OFFSET
-          : tooltip.x + TOOLTIP_OFFSET;
-        const duration = ev.end_date && ev.end_date !== ev.start_date
-          ? formatDuration(ev.start_date, ev.end_date)
-          : null;
-        return (
-          <div
-            className="absolute pointer-events-none z-50"
-            style={{ left: Math.max(4, leftPos), top: tooltip.y - 10 }}
-          >
-            <div className="rounded-lg bg-[#0E0E11] border border-[#323238] px-3 py-2 shadow-xl" style={{ maxWidth: TOOLTIP_W }}>
-              <p className="text-xs font-semibold text-[#F0EDE8]">
-                {ev.concept_name}
-              </p>
-              <div className="mt-1 space-y-0.5">
-                <div className="flex items-center justify-between gap-3">
-                  <p className="text-[10px] text-[#8A857D]">
-                    <span
-                      className="inline-block w-2 h-2 rounded-sm mr-1"
-                      style={{ backgroundColor: DOMAIN_CONFIG[ev.domain].color }}
-                    />
-                    {DOMAIN_CONFIG[ev.domain].label}
-                  </p>
-                  {ev.concept_id != null && (
-                    <p className="text-[10px] text-[#3A3A40] font-mono tabular-nums">
-                      #{ev.concept_id}
-                    </p>
-                  )}
-                </div>
-                <p className="text-[10px] text-[#8A857D]">
-                  {formatTooltipDate(ev.start_date)}
-                  {ev.end_date && ev.end_date !== ev.start_date &&
-                    ` \u2013 ${formatTooltipDate(ev.end_date)}`}
-                  {duration && (
-                    <span className="ml-1 text-[#5A5650]">({duration})</span>
-                  )}
-                </p>
-                {ev.value != null && (
-                  <p className="text-[10px] text-[#C9A227]">
-                    {String(ev.value)}
-                    {ev.unit ? ` ${ev.unit}` : ""}
-                  </p>
-                )}
-                {ev.vocabulary && (
-                  <p className="text-[10px] text-[#5A5650]">
-                    {ev.vocabulary}
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-        );
-      })()}
+      {/* Tooltip */}
+      {tooltip && !isDragging.current && (
+        <EventTooltip
+          event={tooltip.event}
+          x={tooltip.x}
+          y={tooltip.y}
+          containerWidth={containerRef.current?.clientWidth ?? svgWidth}
+        />
+      )}
 
-      {/* Legend + keyboard hint */}
-      <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-2 border-t border-[#232328] bg-[#1C1C20]">
-        <div className="flex flex-wrap gap-3">
-          {activeDomains.map((domain) => {
-            const config = DOMAIN_CONFIG[domain];
-            return (
-              <div key={domain} className="flex items-center gap-1.5">
-                <div
-                  className="w-2.5 h-2.5 rounded-sm"
-                  style={{ backgroundColor: config.color }}
-                />
-                <span className="text-[10px] text-[#8A857D]">
-                  {config.label} ({domainEvents[domain].length})
-                </span>
-              </div>
-            );
-          })}
-          {observationPeriods.length > 0 && (
-            <div className="flex items-center gap-1.5">
-              <div className="w-2.5 h-2.5 rounded-sm bg-[#2DD4BF] opacity-30" />
-              <span className="text-[10px] text-[#8A857D]">Obs. period</span>
-            </div>
-          )}
-        </div>
-        <span className="text-[10px] text-[#3A3A40]">
-          Ctrl+scroll to zoom · Drag to pan · Arrow keys · +/- keys · Click event for details
-        </span>
-      </div>
+      <TimelineLegend
+        activeDomains={activeDomains}
+        domainEvents={domainEvents}
+        observationPeriods={observationPeriods}
+      />
     </div>
   );
 }
