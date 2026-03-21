@@ -13,10 +13,10 @@ export default function AdmissionPicker({ admissions, selectedHadmId, onSelect }
     <div className="flex items-center gap-2 flex-wrap">
       <button
         onClick={() => onSelect(null)}
-        className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
           selectedHadmId === null
-            ? 'bg-[#2DD4BF] text-[#0E0E11]'
-            : 'bg-[#1A1A2E] text-gray-400 hover:text-gray-200 border border-gray-700'
+            ? 'bg-[#9B1B30] text-white'
+            : 'border border-zinc-700 bg-zinc-900/50 text-zinc-400 hover:text-zinc-200'
         }`}
       >
         All Admissions ({admissions.length})
@@ -28,10 +28,10 @@ export default function AdmissionPicker({ admissions, selectedHadmId, onSelect }
           <button
             key={adm.hadm_id}
             onClick={() => onSelect(adm.hadm_id)}
-            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
               selectedHadmId === adm.hadm_id
-                ? 'bg-[#2DD4BF] text-[#0E0E11]'
-                : 'bg-[#1A1A2E] text-gray-400 hover:text-gray-200 border border-gray-700'
+                ? 'bg-[#9B1B30] text-white'
+                : 'border border-zinc-700 bg-zinc-900/50 text-zinc-400 hover:text-zinc-200'
             }`}
           >
             {start.toLocaleDateString()} &mdash; {adm.admission_type} ({los}d)

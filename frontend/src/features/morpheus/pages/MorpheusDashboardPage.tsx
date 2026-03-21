@@ -12,12 +12,12 @@ import {
 } from '../api';
 
 function Shimmer({ className = '' }: { className?: string }) {
-  return <div className={`animate-pulse rounded-lg bg-gray-800/50 ${className}`} />;
+  return <div className={`animate-pulse rounded-xl bg-zinc-800/50 ${className}`} />;
 }
 
 function ErrorBox({ message = 'Failed to load' }: { message?: string }) {
   return (
-    <div className="rounded-lg border border-gray-800 bg-[#1A1A2E] p-4 flex items-center justify-center text-sm text-gray-500">
+    <div className="rounded-xl border border-zinc-800 bg-[#151518] p-5 flex items-center justify-center text-sm text-zinc-500">
       {message}
     </div>
   );
@@ -97,11 +97,11 @@ export default function MorpheusDashboardPage() {
   })) ?? [];
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="px-6 py-6 space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-100">Population Dashboard</h1>
-        <p className="text-sm text-gray-500 mt-1">Aggregate metrics across the MIMIC-IV inpatient population</p>
+        <h1 className="text-2xl font-bold text-zinc-100">Population Dashboard</h1>
+        <p className="text-sm text-zinc-500 mt-1">Aggregate metrics across the MIMIC-IV inpatient population</p>
       </div>
 
       {/* Headline Metrics Row */}
@@ -188,24 +188,24 @@ export default function MorpheusDashboardPage() {
       )}
 
       {/* Quick Actions */}
-      <div className="rounded-lg border border-gray-800 bg-[#1A1A2E] p-4">
-        <h3 className="text-sm font-medium text-gray-300 mb-3">Quick Actions</h3>
+      <div className="rounded-xl border border-zinc-800 bg-[#151518] p-5">
+        <h3 className="text-sm font-semibold text-zinc-300 mb-3">Quick Actions</h3>
         <div className="flex gap-3">
           <button
             onClick={() => navigate('/morpheus/journey?icu=true')}
-            className="px-4 py-2 rounded-md bg-[#C9A227]/10 border border-[#C9A227]/30 text-[#C9A227] text-xs font-medium hover:bg-[#C9A227]/20 transition-colors"
+            className="rounded-lg bg-[#9B1B30] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#9B1B30]/80 transition-colors"
           >
             View ICU Patients
           </button>
           <button
             onClick={() => navigate('/morpheus/journey?deceased=true')}
-            className="px-4 py-2 rounded-md bg-[#9B1B30]/10 border border-[#9B1B30]/30 text-[#E85A6B] text-xs font-medium hover:bg-[#9B1B30]/20 transition-colors"
+            className="rounded-lg bg-[#9B1B30] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#9B1B30]/80 transition-colors"
           >
             View Deceased Patients
           </button>
           <button
             onClick={() => navigate('/morpheus/journey')}
-            className="px-4 py-2 rounded-md bg-[#2DD4BF]/10 border border-[#2DD4BF]/30 text-[#2DD4BF] text-xs font-medium hover:bg-[#2DD4BF]/20 transition-colors"
+            className="rounded-lg border border-zinc-800 bg-zinc-950 px-5 py-2.5 text-sm font-medium text-zinc-200 hover:border-[#60A5FA]/40 transition-colors"
           >
             Browse All Patients
           </button>

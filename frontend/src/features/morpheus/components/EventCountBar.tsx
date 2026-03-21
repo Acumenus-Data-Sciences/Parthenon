@@ -27,11 +27,11 @@ export default function EventCountBar({ counts }: EventCountBarProps) {
         return (
           <div
             key={key}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#1A1A2E] border border-gray-800 shrink-0"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-zinc-800 bg-zinc-950/70 shrink-0"
           >
             <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: color }} />
-            <span className="text-[11px] text-gray-400">{label}</span>
-            <span className="text-[11px] font-semibold text-gray-200">{count.toLocaleString()}</span>
+            <span className="text-[11px] text-zinc-500">{label}</span>
+            <span className="text-[11px] font-semibold text-zinc-100">{count.toLocaleString()}</span>
           </div>
         );
       })}

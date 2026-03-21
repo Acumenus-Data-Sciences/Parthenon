@@ -15,15 +15,15 @@ export default function HorizontalBarChart({ data, maxItems = 10, barColor = '#2
   const items = data.slice(0, maxItems);
   const maxVal = Math.max(...items.map(d => d.value), 1);
 
-  if (!items.length) return <div className="text-gray-500 text-sm p-4">No data</div>;
+  if (!items.length) return <div className="text-zinc-500 text-sm p-5">No data</div>;
 
   return (
-    <div className="rounded-lg border border-gray-800 bg-[#1A1A2E] p-4">
-      {title && <h3 className="text-sm font-medium text-gray-300 mb-3">{title}</h3>}
+    <div className="rounded-xl border border-zinc-800 bg-[#151518] p-5">
+      {title && <h3 className="text-sm font-semibold text-zinc-300 mb-4">{title}</h3>}
       <div className="space-y-1.5">
         {items.map((item, i) => (
           <div key={i} className="flex items-center gap-2 h-6">
-            <div className="w-36 truncate text-[11px] text-gray-400 text-right shrink-0" title={item.label}>
+            <div className="w-36 truncate text-[11px] text-zinc-400 text-right shrink-0" title={item.label}>
               {item.sublabel ? (
                 <><span className="font-mono text-[#C9A227]">{item.sublabel}</span>{' '}<span>{item.label}</span></>
               ) : item.label}
@@ -34,7 +34,7 @@ export default function HorizontalBarChart({ data, maxItems = 10, barColor = '#2
                 style={{ width: `${(item.value / maxVal) * 100}%`, backgroundColor: barColor }}
               />
             </div>
-            <span className="text-[11px] text-gray-300 w-10 text-right shrink-0 font-medium">
+            <span className="text-[11px] text-zinc-300 w-10 text-right shrink-0 font-medium">
               {item.value.toLocaleString()}
             </span>
           </div>

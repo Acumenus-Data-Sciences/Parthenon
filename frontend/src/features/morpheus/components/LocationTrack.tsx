@@ -69,15 +69,15 @@ export default function LocationTrack({ transfers, icuStays }: LocationTrackProp
 
   if (!segments.length) {
     return (
-      <div className="rounded-lg border border-gray-800 bg-[#1A1A2E] p-4 text-gray-500 text-sm">
+      <div className="rounded-xl border border-zinc-800 bg-[#151518] p-5 text-zinc-500 text-sm">
         No transfer data available
       </div>
     );
   }
 
   return (
-    <div className="rounded-lg border border-gray-800 bg-[#1A1A2E] p-4">
-      <h3 className="text-sm font-medium text-gray-300 mb-3">Location Track</h3>
+    <div className="rounded-xl border border-zinc-800 bg-[#151518] p-5">
+      <h3 className="text-sm font-semibold text-zinc-300 mb-3">Location Track</h3>
 
       {/* Location bar */}
       <div className="relative h-10 bg-[#0E0E11] rounded-md overflow-hidden mb-2">
@@ -103,11 +103,11 @@ export default function LocationTrack({ transfers, icuStays }: LocationTrackProp
       {/* ICU overlay indicators */}
       {icuStays.length > 0 && (
         <div className="flex items-center gap-2 mt-2">
-          <span className="text-[10px] text-gray-500 uppercase tracking-wider">ICU Stays:</span>
+          <span className="text-[10px] text-zinc-500 uppercase tracking-wider">ICU Stays:</span>
           {icuStays.map((icu) => (
             <span
               key={icu.stay_id}
-              className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-[#9B1B30]/20 text-[#E85A6B] border border-[#9B1B30]/30"
+              className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-[#9B1B30]/20 text-[#E85A6B] border border-zinc-800"
             >
               {icu.first_careunit} &mdash; {Number(icu.los_days).toFixed(1)}d
             </span>
@@ -116,7 +116,7 @@ export default function LocationTrack({ transfers, icuStays }: LocationTrackProp
       )}
 
       {/* Legend */}
-      <div className="flex flex-wrap gap-3 mt-2 text-[10px] text-gray-500">
+      <div className="flex flex-wrap gap-3 mt-2 text-[10px] text-zinc-500">
         <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#E85A6B]" /> ED</span>
         <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#9B1B30]" /> ICU</span>
         <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#C9A227]" /> Step-down</span>

@@ -12,7 +12,7 @@ interface DonutChartProps {
 
 export default function DonutChart({ data, title, size = 120 }: DonutChartProps) {
   const total = data.reduce((sum, d) => sum + d.value, 0);
-  if (!total) return <div className="text-gray-500 text-sm p-4">No data</div>;
+  if (!total) return <div className="text-zinc-500 text-sm p-5">No data</div>;
 
   const cx = size / 2;
   const cy = size / 2;
@@ -47,22 +47,22 @@ export default function DonutChart({ data, title, size = 120 }: DonutChartProps)
   });
 
   return (
-    <div className="rounded-lg border border-gray-800 bg-[#1A1A2E] p-4">
-      {title && <h3 className="text-sm font-medium text-gray-300 mb-3">{title}</h3>}
+    <div className="rounded-xl border border-zinc-800 bg-[#151518] p-5">
+      {title && <h3 className="text-sm font-semibold text-zinc-300 mb-4">{title}</h3>}
       <div className="flex items-center gap-4">
         <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
           {arcs.map((arc, i) => (
-            <path key={i} d={arc.path} fill={arc.color} stroke="#1A1A2E" strokeWidth={1.5} />
+            <path key={i} d={arc.path} fill={arc.color} stroke="#151518" strokeWidth={1.5} />
           ))}
-          <text x={cx} y={cy - 4} textAnchor="middle" className="text-lg font-bold" fill="#E5E7EB">{total}</text>
-          <text x={cx} y={cy + 10} textAnchor="middle" className="text-[9px]" fill="#6B7280">total</text>
+          <text x={cx} y={cy - 4} textAnchor="middle" className="text-lg font-bold" fill="#F0EDE8">{total}</text>
+          <text x={cx} y={cy + 10} textAnchor="middle" className="text-[9px]" fill="#8A857D">total</text>
         </svg>
         <div className="flex flex-col gap-1.5">
           {data.map((d, i) => (
             <div key={i} className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: d.color }} />
-              <span className="text-xs text-gray-300">{d.label}</span>
-              <span className="text-xs text-gray-500">{d.value} ({Math.round(d.value / total * 100)}%)</span>
+              <span className="text-xs text-zinc-300">{d.label}</span>
+              <span className="text-xs text-zinc-500">{d.value} ({Math.round(d.value / total * 100)}%)</span>
             </div>
           ))}
         </div>

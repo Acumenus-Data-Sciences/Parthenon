@@ -40,20 +40,20 @@ export default function MedicationTimeline({ medications }: MedicationTimelinePr
   }, [medications]);
 
   if (!lanes.length) {
-    return <div className="text-gray-500 text-sm p-4">No medication data available</div>;
+    return <div className="text-zinc-500 text-sm p-5">No medication data available</div>;
   }
 
   const span = maxTime - minTime || 1;
 
   return (
-    <div className="rounded-lg border border-gray-800 bg-[#1A1A2E] p-4">
-      <h3 className="text-sm font-medium text-gray-300 mb-3">
+    <div className="rounded-xl border border-zinc-800 bg-[#151518] p-5">
+      <h3 className="text-sm font-semibold text-zinc-300 mb-4">
         Medications (top {lanes.length} by frequency)
       </h3>
       <div className="space-y-1">
         {lanes.map(({ drug, meds }) => (
           <div key={drug} className="flex items-center gap-2 h-5">
-            <div className="w-32 truncate text-[10px] text-gray-400 text-right shrink-0" title={drug}>
+            <div className="w-32 truncate text-[10px] text-zinc-400 text-right shrink-0" title={drug}>
               {drug}
             </div>
             <div className="flex-1 relative h-3 bg-[#0E0E11] rounded-sm overflow-hidden">

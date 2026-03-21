@@ -25,35 +25,37 @@ export default function MorpheusLayout() {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="shrink-0 border-b border-gray-800 bg-[#0E0E11] px-6 py-3">
+      <div className="shrink-0 border-b border-zinc-800 bg-[#151518] px-6 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#9B1B30]/15">
+            <div className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-[#9B1B30]/[0.18]">
               <BedDouble className="h-4 w-4 text-[#9B1B30]" />
             </div>
             <div className="flex items-center gap-2 text-sm">
-              <span className="font-semibold text-gray-100">Morpheus</span>
+              <span className="font-semibold text-zinc-100">Morpheus</span>
               {crumbs.map((c, i) => (
                 <span key={i} className="flex items-center gap-2">
-                  <span className="text-gray-600">/</span>
+                  <span className="text-zinc-600">/</span>
                   {c.path ? (
-                    <Link to={c.path} className="text-gray-400 hover:text-gray-200 transition-colors">{c.label}</Link>
+                    <Link to={c.path} className="text-zinc-500 hover:text-zinc-300 transition-colors">{c.label}</Link>
                   ) : (
-                    <span className="text-gray-300">{c.label}</span>
+                    <span className="text-zinc-300">{c.label}</span>
                   )}
                 </span>
               ))}
             </div>
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-0.5 border-b border-zinc-800">
             {TABS.map(({ path, label }) => (
               <button key={path} onClick={() => navigate(path)}
-                className={`px-4 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                  activeTab === path ? 'bg-[#1A1A2E] text-[#2DD4BF]' : 'text-gray-500 hover:text-gray-300'
+                className={`px-5 py-2.5 text-sm font-medium transition-colors ${
+                  activeTab === path
+                    ? 'font-semibold text-zinc-100 border-b-2 border-[#9B1B30]'
+                    : 'text-zinc-500 border-b-2 border-transparent hover:text-zinc-300'
                 }`}>{label}</button>
             ))}
           </div>
-          <Link to="/workbench" className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-300 transition-colors">
+          <Link to="/workbench" className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors">
             <ArrowLeft className="h-3 w-3" /> Workbench
           </Link>
         </div>
