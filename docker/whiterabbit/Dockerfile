@@ -12,6 +12,20 @@ WORKDIR /build
 # Clone the latest stable release of WhiteRabbit (shallow clone for speed)
 RUN git clone --depth 1 https://github.com/OHDSI/WhiteRabbit.git .
 
+# Override Maven settings to exclude the ICM repository (maven.ceon.pl)
+# which intermittently returns 403 Forbidden and blocks CI builds.
+RUN mkdir -p /root/.m2 && cat > /root/.m2/settings.xml << 'SETTINGS'
+<settings>
+  <mirrors>
+    <mirror>
+      <id>icm-mirror</id>
+      <mirrorOf>icm</mirrorOf>
+      <url>https://repo.maven.apache.org/maven2</url>
+    </mirror>
+  </mirrors>
+</settings>
+SETTINGS
+
 # Build the whiterabbit module and its dependency (rabbit-core).
 # The appassembler plugin writes a self-contained launcher to dist/:
 #   dist/bin/whiteRabbit  — shell launcher
