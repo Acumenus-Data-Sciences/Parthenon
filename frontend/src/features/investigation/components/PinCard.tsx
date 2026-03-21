@@ -4,6 +4,7 @@ import type { EvidenceDomain, EvidencePin } from "../types";
 interface PinCardProps {
   pin: EvidencePin;
   onDelete: (id: number) => void;
+  onToggleKeyFinding?: (pinId: number, current: boolean) => void;
 }
 
 const DOMAIN_BADGE_STYLE: Record<EvidenceDomain, string> = {
@@ -20,7 +21,7 @@ function extractPayloadSummary(payload: Record<string, unknown>): string {
   return `${key}: ${String(value)}`;
 }
 
-export function PinCard({ pin, onDelete }: PinCardProps) {
+export function PinCard({ pin, onDelete, onToggleKeyFinding }: PinCardProps) {
   const badgeStyle = DOMAIN_BADGE_STYLE[pin.domain];
   const summary = extractPayloadSummary(pin.finding_payload);
 
@@ -33,8 +34,25 @@ export function PinCard({ pin, onDelete }: PinCardProps) {
           >
             {pin.finding_type.replace(/_/g, " ")}
           </span>
-          {pin.is_key_finding && (
-            <Star size={11} className="text-yellow-500 fill-yellow-500 shrink-0" />
+          {onToggleKeyFinding ? (
+            <button
+              onClick={() => onToggleKeyFinding(pin.id, pin.is_key_finding)}
+              title={pin.is_key_finding ? "Unmark key finding" : "Mark as key finding"}
+              className="shrink-0 transition-colors hover:opacity-80"
+            >
+              <Star
+                size={11}
+                className={
+                  pin.is_key_finding
+                    ? "text-[#C9A227] fill-[#C9A227]"
+                    : "text-zinc-600 fill-none"
+                }
+              />
+            </button>
+          ) : (
+            pin.is_key_finding && (
+              <Star size={11} className="text-yellow-500 fill-yellow-500 shrink-0" />
+            )
           )}
         </div>
         <p className="text-xs text-zinc-400 truncate">{summary}</p>
