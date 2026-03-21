@@ -3,9 +3,10 @@ import type { MorpheusMedication } from '../api';
 
 interface MedicationTimelineProps {
   medications: MorpheusMedication[];
+  onDrugClick?: (med: MorpheusMedication) => void;
 }
 
-export default function MedicationTimeline({ medications }: MedicationTimelineProps) {
+export default function MedicationTimeline({ medications, onDrugClick }: MedicationTimelineProps) {
   const { lanes, minTime, maxTime } = useMemo(() => {
     if (!medications.length) return { lanes: [] as { drug: string; meds: MorpheusMedication[] }[], minTime: 0, maxTime: 0 };
 
@@ -65,9 +66,11 @@ export default function MedicationTimeline({ medications }: MedicationTimelinePr
                 return (
                   <div
                     key={i}
-                    className="absolute top-0 h-full rounded-sm bg-[#22C55E] opacity-70 hover:opacity-100"
+                    className={`absolute top-0 h-full rounded-sm bg-[#22C55E] opacity-70 hover:opacity-100 ${onDrugClick ? 'cursor-pointer' : ''}`}
                     style={{ left: `${left}%`, width: `${width}%` }}
                     title={`${drug}\n${med.route || ''} ${med.dose_val_rx || ''} ${med.dose_unit_rx || ''}\n${new Date(med.starttime).toLocaleString()}${med.stoptime ? ' \u2014 ' + new Date(med.stoptime).toLocaleString() : ''}`}
+                    onClick={() => onDrugClick?.(med)}
+                    role={onDrugClick ? 'button' : undefined}
                   />
                 );
               })}

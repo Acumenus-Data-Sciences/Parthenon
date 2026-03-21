@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import { Loader2 } from 'lucide-react';
 import {
   useMorpheusPatients,
   useMorpheusPatient,
@@ -13,13 +14,21 @@ import {
   useMorpheusEventCounts,
   useMorpheusMicrobiology,
 } from '../api';
-import type { PatientFilters } from '../api';
+import type { PatientFilters, MorpheusMedication } from '../api';
 import FilterBar from '../components/FilterBar';
 import LocationTrack from '../components/LocationTrack';
 import AdmissionPicker from '../components/AdmissionPicker';
 import EventCountBar from '../components/EventCountBar';
-import DiagnosisList from '../components/DiagnosisList';
 import MedicationTimeline from '../components/MedicationTimeline';
+import LabPanelDashboard from '../components/LabPanelDashboard';
+import VitalsMonitorGrid from '../components/VitalsMonitorGrid';
+import AntibiogramHeatmap from '../components/AntibiogramHeatmap';
+import CultureTable from '../components/CultureTable';
+import ConceptDetailDrawer, { type DrawerEvent } from '../components/ConceptDetailDrawer';
+import GroupedDiagnosisList from '../components/GroupedDiagnosisList';
+import ExportButton from '../components/ExportButton';
+import TruncationWarning from '../components/TruncationWarning';
+import SearchDropdown from '../components/SearchDropdown';
 
 type ViewMode = 'journey' | 'diagnoses' | 'medications' | 'labs' | 'vitals' | 'microbiology';
 
@@ -30,6 +39,7 @@ export default function PatientJourneyPage() {
   const [selectedHadmId, setSelectedHadmId] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('journey');
   const [searchQuery, setSearchQuery] = useState('');
+  const [drawerEvent, setDrawerEvent] = useState<DrawerEvent | null>(null);
 
   // Dataset from URL search params
   const dataset = searchParams.get('dataset') || 'mimiciv';
@@ -108,14 +118,17 @@ export default function PatientJourneyPage() {
           totalAll={patientsQuery.data?.total ?? 0}
         />
 
-        {/* Search */}
-        <div className="max-w-md">
-          <input
-            type="text"
-            placeholder="Search by Subject ID..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-[#0E0E11] border border-zinc-800 rounded-lg px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 focus:border-[#9B1B30] focus:outline-none transition-colors"
+        {/* Search + Export */}
+        <div className="flex items-center gap-3">
+          <div className="max-w-md flex-1">
+            <SearchDropdown
+              dataset={dataset}
+              onSelect={(id) => navigate(`/morpheus/journey/${id}${datasetSuffix}`)}
+            />
+          </div>
+          <ExportButton
+            data={(patientsQuery.data?.data ?? []) as unknown as Record<string, unknown>[]}
+            filename="morpheus-patient-list"
           />
         </div>
 
@@ -218,7 +231,22 @@ export default function PatientJourneyPage() {
   return (
     <div className="px-6 py-6 space-y-4">
       {/* Event counts */}
-      {Object.keys(counts).length > 0 && <EventCountBar counts={counts} />}
+      {Object.keys(counts).length > 0 && (
+        <EventCountBar
+          counts={counts}
+          onDomainClick={(domain) => {
+            const tabMap: Record<string, ViewMode> = {
+              diagnoses: 'diagnoses',
+              prescriptions: 'medications',
+              lab_results: 'labs',
+              vitals: 'vitals',
+              microbiology: 'microbiology',
+            };
+            const tab = tabMap[domain];
+            if (tab) setViewMode(tab);
+          }}
+        />
+      )}
 
       {/* Admission picker */}
       <AdmissionPicker
@@ -304,77 +332,112 @@ export default function PatientJourneyPage() {
         </div>
       )}
 
-      {viewMode === 'diagnoses' && <DiagnosisList diagnoses={diagnoses} />}
-
-      {viewMode === 'medications' && <MedicationTimeline medications={medications} />}
-
-      {viewMode === 'labs' && (
-        <div className="rounded-xl border border-zinc-800 bg-[#151518] p-5">
-          <h3 className="text-sm font-semibold text-zinc-300 mb-2">Lab Results</h3>
-          {labsQuery.isLoading && <div className="text-zinc-500 text-sm">Loading labs...</div>}
-          {labsQuery.data && (
-            <div className="text-sm text-zinc-400">
-              {labsQuery.data.length.toLocaleString()} results loaded.
-              <span className="text-zinc-600 ml-1">(Lab panel view coming in next iteration)</span>
-            </div>
-          )}
-        </div>
+      {viewMode === 'diagnoses' && (
+        <GroupedDiagnosisList diagnoses={diagnoses} onConceptClick={setDrawerEvent} />
       )}
 
-      {viewMode === 'vitals' && (
-        <div className="rounded-xl border border-zinc-800 bg-[#151518] p-5">
-          <h3 className="text-sm font-semibold text-zinc-300 mb-2">Vital Signs</h3>
-          {vitalsQuery.isLoading && <div className="text-zinc-500 text-sm">Loading vitals...</div>}
-          {vitalsQuery.data && (
-            <div className="text-sm text-zinc-400">
-              {vitalsQuery.data.length.toLocaleString()} vital sign readings loaded.
-              <span className="text-zinc-600 ml-1">(Vitals chart view coming in next iteration)</span>
-            </div>
-          )}
-        </div>
+      {viewMode === 'medications' && (
+        <MedicationTimeline
+          medications={medications}
+          onDrugClick={(med: MorpheusMedication) => setDrawerEvent({
+            domain: 'medication',
+            concept_id: null,
+            concept_name: med.drug,
+            source_code: null,
+            source_vocabulary: 'MIMIC-IV prescriptions',
+            standard_concept_name: null,
+            start_date: med.starttime,
+            end_date: med.stoptime,
+            value: null,
+            unit: null,
+            ref_range_lower: null,
+            ref_range_upper: null,
+            route: med.route,
+            dose: `${med.dose_val_rx} ${med.dose_unit_rx}`,
+            days_supply: null,
+            seq_num: null,
+            hadm_id: med.hadm_id,
+            occurrenceCount: medications.filter((m) => m.drug === med.drug).length,
+            sparklineValues: [],
+          })}
+        />
       )}
 
-      {viewMode === 'microbiology' && (
-        <div className="rounded-xl border border-zinc-800 bg-[#151518] p-5">
-          <h3 className="text-sm font-semibold text-zinc-300 mb-2">Microbiology Cultures</h3>
-          {microQuery.isLoading && <div className="text-zinc-500 text-sm">Loading cultures...</div>}
-          {microQuery.data && microQuery.data.length > 0 ? (
-            <div className="overflow-x-auto rounded-xl border border-zinc-800 bg-zinc-950/70">
-              <table className="min-w-full divide-y divide-zinc-800 text-left text-sm text-zinc-300">
-                <thead className="bg-zinc-900/70 text-xs uppercase tracking-wide text-zinc-500">
-                  <tr>
-                    <th className="px-3 py-2 font-semibold">Date</th>
-                    <th className="px-3 py-2 font-semibold">Specimen</th>
-                    <th className="px-3 py-2 font-semibold">Test</th>
-                    <th className="px-3 py-2 font-semibold">Organism</th>
-                    <th className="px-3 py-2 font-semibold">Antibiotic</th>
-                    <th className="px-3 py-2 font-semibold">Result</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-zinc-800">
-                  {microQuery.data.map((m) => (
-                    <tr key={m.microevent_id} className="hover:bg-zinc-900/50">
-                      <td className="px-3 py-2 align-top text-zinc-400">{m.chartdate ? new Date(m.chartdate).toLocaleDateString() : '\u2014'}</td>
-                      <td className="px-3 py-2 align-top text-zinc-300">{m.spec_type_desc || '\u2014'}</td>
-                      <td className="px-3 py-2 align-top text-zinc-300">{m.test_name || '\u2014'}</td>
-                      <td className="px-3 py-2 align-top text-[#C9A227]">{m.org_name || '\u2014'}</td>
-                      <td className="px-3 py-2 align-top text-zinc-300">{m.ab_name || '\u2014'}</td>
-                      <td className="px-3 py-2 align-top">
-                        {m.interpretation === 'S' && <span className="text-[#22C55E]">Sensitive</span>}
-                        {m.interpretation === 'R' && <span className="text-[#E85A6B]">Resistant</span>}
-                        {m.interpretation === 'I' && <span className="text-[#C9A227]">Intermediate</span>}
-                        {!m.interpretation && <span className="text-zinc-600">&mdash;</span>}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <div className="text-zinc-500 text-sm">No microbiology data</div>
+      {viewMode === 'labs' && subjectId && (
+        <>
+          {labsQuery.data && countsQuery.data && (
+            <TruncationWarning
+              loaded={labsQuery.data.length}
+              total={(countsQuery.data as Record<string, number>).lab_results ?? labsQuery.data.length}
+              domain="lab results"
+            />
           )}
-        </div>
+          {labsQuery.isLoading ? (
+            <div className="flex items-center justify-center h-64">
+              <Loader2 size={24} className="animate-spin text-[#8A857D]" />
+            </div>
+          ) : labsQuery.data ? (
+            <div>
+              <div className="flex justify-end mb-2">
+                <ExportButton
+                  data={labsQuery.data as unknown as Record<string, unknown>[]}
+                  filename={`morpheus-labs-${subjectId}`}
+                />
+              </div>
+              <LabPanelDashboard labs={labsQuery.data} onConceptClick={setDrawerEvent} />
+            </div>
+          ) : null}
+        </>
       )}
+
+      {viewMode === 'vitals' && subjectId && (
+        <>
+          {vitalsQuery.isLoading ? (
+            <div className="flex items-center justify-center h-64">
+              <Loader2 size={24} className="animate-spin text-[#8A857D]" />
+            </div>
+          ) : vitalsQuery.data ? (
+            <div>
+              <div className="flex justify-end mb-2">
+                <ExportButton
+                  data={vitalsQuery.data as unknown as Record<string, unknown>[]}
+                  filename={`morpheus-vitals-${subjectId}`}
+                />
+              </div>
+              <VitalsMonitorGrid vitals={vitalsQuery.data} />
+            </div>
+          ) : null}
+        </>
+      )}
+
+      {viewMode === 'microbiology' && subjectId && (
+        <>
+          {microQuery.isLoading ? (
+            <div className="flex items-center justify-center h-64">
+              <Loader2 size={24} className="animate-spin text-[#8A857D]" />
+            </div>
+          ) : microQuery.data ? (
+            <div className="space-y-6">
+              <div className="flex justify-end">
+                <ExportButton
+                  data={microQuery.data as unknown as Record<string, unknown>[]}
+                  filename={`morpheus-micro-${subjectId}`}
+                />
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-[#F0EDE8] mb-3">Antibiogram</h3>
+                <AntibiogramHeatmap data={microQuery.data} onOrganismClick={setDrawerEvent} />
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-[#F0EDE8] mb-3">Culture Results</h3>
+                <CultureTable data={microQuery.data} onOrganismClick={setDrawerEvent} />
+              </div>
+            </div>
+          ) : null}
+        </>
+      )}
+
+      <ConceptDetailDrawer event={drawerEvent} onClose={() => setDrawerEvent(null)} dataset={dataset} />
     </div>
   );
 }
