@@ -1,7 +1,7 @@
 // frontend/src/features/morpheus/components/ConceptDetailDrawer.tsx
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { X, Hash, Database, Tag, ExternalLink, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { X, Hash, Tag, ExternalLink, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { DOMAIN_COLORS } from '../constants/domainColors';
 import { useMorpheusConceptStats } from '../api';
 

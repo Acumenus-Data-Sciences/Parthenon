@@ -14,7 +14,7 @@ export default function SearchDropdown({ dataset, onSelect }: SearchDropdownProp
   const [isOpen, setIsOpen] = useState(false);
   const [selectedIdx, setSelectedIdx] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
-  const timerRef = useRef<ReturnType<typeof setTimeout>>();
+  const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const { data: results, isLoading } = useMorpheusPatientSearch(debouncedQuery, dataset);
 
