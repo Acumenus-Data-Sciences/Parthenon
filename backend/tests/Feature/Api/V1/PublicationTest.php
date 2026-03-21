@@ -7,6 +7,7 @@ use App\Services\AiService;
 use App\Services\Publication\PublicationService;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 uses(RefreshDatabase::class);
 
@@ -126,7 +127,12 @@ it('exports a publication document successfully', function () {
     $this->mock(PublicationService::class, function ($mock) {
         $mock->shouldReceive('export')
             ->once()
-            ->andReturn(response()->json(['data' => ['url' => '/exports/test.docx']]));
+            ->andReturn(new StreamedResponse(function () {
+                echo 'fake-docx-content';
+            }, 200, [
+                'Content-Type' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'Content-Disposition' => 'attachment; filename="export.docx"',
+            ]));
     });
 
     $response = $this->actingAs($user)

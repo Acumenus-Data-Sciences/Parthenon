@@ -63,6 +63,8 @@ use App\Services\Cohort\Schema\CohortExpressionSchema;
 use App\Services\SqlRenderer\SqlRendererService;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Interfaces\ImageManagerInterface;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -72,6 +74,9 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(SqlRendererService::class);
+
+        // Image processing (Intervention Image v3 with GD driver)
+        $this->app->singleton(ImageManagerInterface::class, fn () => ImageManager::gd());
 
         // AI services
         $this->app->singleton(AbbyAiService::class);

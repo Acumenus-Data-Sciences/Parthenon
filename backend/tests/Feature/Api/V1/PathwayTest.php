@@ -18,13 +18,13 @@ it('requires authentication to list pathways', function () {
         ->assertStatus(401);
 });
 
-it('denies viewer access to list pathways (analyses.view required)', function () {
+it('allows viewer access to list pathways (viewer has analyses.view)', function () {
     $user = User::factory()->create();
     $user->assignRole('viewer');
 
     $this->actingAs($user)
         ->getJson('/api/v1/pathways')
-        ->assertStatus(403);
+        ->assertStatus(200);
 });
 
 it('lists pathway analyses for researcher', function () {

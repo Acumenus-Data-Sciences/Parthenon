@@ -407,8 +407,8 @@ Route::prefix('v1')->group(function () {
             // Cohorts
             Route::get('cohorts', [StudyCohortController::class, 'index']);
             Route::post('cohorts', [StudyCohortController::class, 'store']);
-            Route::put('cohorts/{cohort}', [StudyCohortController::class, 'update']);
-            Route::delete('cohorts/{cohort}', [StudyCohortController::class, 'destroy']);
+            Route::put('cohorts/{studyCohort}', [StudyCohortController::class, 'update']);
+            Route::delete('cohorts/{studyCohort}', [StudyCohortController::class, 'destroy']);
 
             // Milestones
             Route::get('milestones', [StudyMilestoneController::class, 'index']);

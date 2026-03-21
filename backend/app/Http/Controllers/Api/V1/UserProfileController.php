@@ -10,11 +10,15 @@ use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Intervention\Image\Laravel\Facades\Image;
+use Intervention\Image\Interfaces\ImageManagerInterface;
 
 #[Group('User Profile', weight: 11)]
 class UserProfileController extends Controller
 {
+    public function __construct(
+        private readonly ImageManagerInterface $imageManager,
+    ) {}
+
     public function update(UpdateProfileRequest $request): JsonResponse
     {
         /** @var User $user */
@@ -43,7 +47,7 @@ class UserProfileController extends Controller
         $filename = "avatars/{$user->id}.{$extension}";
 
         // Reprocess image via Intervention to strip EXIF/embedded scripts
-        $image = Image::read($file->getRealPath());
+        $image = $this->imageManager->read($file->getRealPath());
         $image->scaleDown(width: 400, height: 400);
 
         // Encode and store
