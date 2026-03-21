@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Loader2 } from "lucide-react";
+import { useNavigate, Link } from "react-router-dom";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import { useCreateInvestigation } from "../hooks/useInvestigation";
 import { saveDomainState } from "../api";
 import { splitIntent } from "@/features/study-agent/api";
@@ -77,9 +77,21 @@ export default function NewInvestigationPage() {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center px-4"
+      className="min-h-screen flex flex-col px-4"
       style={{ backgroundColor: "#0E0E11" }}
     >
+      {/* Back link */}
+      <div className="pt-6 pb-2 max-w-lg w-full mx-auto">
+        <Link
+          to="/workbench"
+          className="inline-flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
+        >
+          <ArrowLeft className="h-3 w-3" />
+          Back to Workbench
+        </Link>
+      </div>
+
+      <div className="flex-1 flex items-center justify-center">
       <div className="max-w-lg w-full mx-auto bg-zinc-900/50 border border-zinc-800 rounded-2xl p-8">
         <h1 className="text-xl font-bold text-zinc-100 mb-1">
           New Evidence Investigation
@@ -154,6 +166,7 @@ export default function NewInvestigationPage() {
             <p className="text-xs text-red-400 text-center">{error}</p>
           )}
         </form>
+      </div>
       </div>
     </div>
   );
