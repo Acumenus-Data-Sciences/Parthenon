@@ -1,5 +1,6 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 import type { MorpheusMedication } from '../api';
+import HoverCard from './HoverCard';
 
 interface MedicationTimelineProps {
   medications: MorpheusMedication[];
@@ -40,6 +41,16 @@ export default function MedicationTimeline({ medications, onDrugClick }: Medicat
     };
   }, [medications]);
 
+  const [panOffset, setPanOffset] = useState(0);
+  const [zoom, setZoom] = useState(1);
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'ArrowLeft') { e.preventDefault(); setPanOffset((p) => p - 20); }
+    else if (e.key === 'ArrowRight') { e.preventDefault(); setPanOffset((p) => p + 20); }
+    else if (e.key === '+' || e.key === '=') { e.preventDefault(); setZoom((z) => Math.min(z * 1.2, 5)); }
+    else if (e.key === '-') { e.preventDefault(); setZoom((z) => Math.max(z / 1.2, 0.5)); }
+  }, []);
+
   if (!lanes.length) {
     return <div className="text-zinc-500 text-sm p-5">No medication data available</div>;
   }
@@ -47,11 +58,17 @@ export default function MedicationTimeline({ medications, onDrugClick }: Medicat
   const span = maxTime - minTime || 1;
 
   return (
-    <div className="rounded-xl border border-zinc-800 bg-[#151518] p-5">
+    <div
+      className="rounded-xl border border-zinc-800 bg-[#151518] p-5 focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/30"
+      tabIndex={0}
+      onKeyDown={handleKeyDown}
+      role="img"
+      aria-label="Medication timeline"
+    >
       <h3 className="text-sm font-semibold text-zinc-300 mb-4">
         Medications (top {lanes.length} by frequency)
       </h3>
-      <div className="space-y-1">
+      <div className="space-y-1" style={{ transform: `scaleX(${zoom}) translateX(${panOffset}px)`, transformOrigin: 'left center' }}>
         {lanes.map(({ drug, meds }) => (
           <div key={drug} className="flex items-center gap-2 h-5">
             <div className="w-32 truncate text-[10px] text-zinc-400 text-right shrink-0" title={drug}>
@@ -64,14 +81,24 @@ export default function MedicationTimeline({ medications, onDrugClick }: Medicat
                 const left = ((start - minTime) / span) * 100;
                 const width = Math.max(0.5, ((end - start) / span) * 100);
                 return (
-                  <div
+                  <HoverCard
                     key={i}
-                    className={`absolute top-0 h-full rounded-sm bg-[#22C55E] opacity-70 hover:opacity-100 ${onDrugClick ? 'cursor-pointer' : ''}`}
-                    style={{ left: `${left}%`, width: `${width}%` }}
-                    title={`${drug}\n${med.route || ''} ${med.dose_val_rx || ''} ${med.dose_unit_rx || ''}\n${new Date(med.starttime).toLocaleString()}${med.stoptime ? ' \u2014 ' + new Date(med.stoptime).toLocaleString() : ''}`}
-                    onClick={() => onDrugClick?.(med)}
-                    role={onDrugClick ? 'button' : undefined}
-                  />
+                    content={
+                      <div>
+                        <div className="font-medium text-[#F0EDE8]">{drug}</div>
+                        {med.route && <div>Route: {med.route}</div>}
+                        {(med.dose_val_rx || med.dose_unit_rx) && <div>Dose: {med.dose_val_rx} {med.dose_unit_rx}</div>}
+                        <div>{new Date(med.starttime).toLocaleString()}{med.stoptime ? ` \u2014 ${new Date(med.stoptime).toLocaleString()}` : ''}</div>
+                      </div>
+                    }
+                  >
+                    <div
+                      className={`absolute top-0 h-full rounded-sm bg-[#22C55E] opacity-70 hover:opacity-100 ${onDrugClick ? 'cursor-pointer' : ''}`}
+                      style={{ left: `${left}%`, width: `${width}%` }}
+                      onClick={() => onDrugClick?.(med)}
+                      role={onDrugClick ? 'button' : undefined}
+                    />
+                  </HoverCard>
                 );
               })}
             </div>

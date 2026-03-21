@@ -1,5 +1,6 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 import type { MorpheusTransfer, MorpheusIcuStay } from '../api';
+import HoverCard from './HoverCard';
 
 interface LocationTrackProps {
   transfers: MorpheusTransfer[];
@@ -75,28 +76,55 @@ export default function LocationTrack({ transfers, icuStays }: LocationTrackProp
     );
   }
 
+  const [panOffset, setPanOffset] = useState(0);
+  const [zoom, setZoom] = useState(1);
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'ArrowLeft') { e.preventDefault(); setPanOffset((p) => p - 20); }
+    else if (e.key === 'ArrowRight') { e.preventDefault(); setPanOffset((p) => p + 20); }
+    else if (e.key === '+' || e.key === '=') { e.preventDefault(); setZoom((z) => Math.min(z * 1.2, 5)); }
+    else if (e.key === '-') { e.preventDefault(); setZoom((z) => Math.max(z / 1.2, 0.5)); }
+  }, []);
+
   return (
     <div className="rounded-xl border border-zinc-800 bg-[#151518] p-5">
       <h3 className="text-sm font-semibold text-zinc-300 mb-3">Location Track</h3>
 
       {/* Location bar */}
-      <div className="relative h-10 bg-[#0E0E11] rounded-md overflow-hidden mb-2">
+      <div
+        className="relative h-10 bg-[#0E0E11] rounded-md overflow-hidden mb-2 focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/30"
+        tabIndex={0}
+        onKeyDown={handleKeyDown}
+        role="img"
+        aria-label="Patient location track timeline"
+        style={{ transform: `scaleX(${zoom}) translateX(${panOffset}px)`, transformOrigin: 'left center' }}
+      >
         {segments.map((seg) => (
-          <div
+          <HoverCard
             key={seg.id}
-            className="absolute top-0 h-full flex items-center justify-center text-[10px] font-medium text-white overflow-hidden border-r border-[#0E0E11] group cursor-default"
-            style={{
-              left: `${seg.leftPct}%`,
-              width: `${seg.widthPct}%`,
-              backgroundColor: seg.color,
-              opacity: seg.eventtype === 'discharge' ? 0.5 : 1,
-            }}
-            title={`${seg.careunit}\n${seg.start.toLocaleString()}${seg.end ? ' \u2014 ' + seg.end.toLocaleString() : ''}\n${seg.durationHours ? Number(seg.durationHours).toFixed(1) + 'h' : ''}`}
+            content={
+              <div>
+                <div className="font-medium text-[#F0EDE8]">{seg.careunit}</div>
+                <div>{seg.start.toLocaleString()}{seg.end ? ` \u2014 ${seg.end.toLocaleString()}` : ''}</div>
+                {seg.durationHours && <div>Duration: {Number(seg.durationHours).toFixed(1)}h</div>}
+                {seg.isIcu && <div className="text-[#E85A6B] font-medium">ICU</div>}
+              </div>
+            }
           >
-            <span className="truncate px-1">
-              {seg.widthPct > 8 ? seg.careunit : ''}
-            </span>
-          </div>
+            <div
+              className="absolute top-0 h-full flex items-center justify-center text-[10px] font-medium text-white overflow-hidden border-r border-[#0E0E11] group cursor-default"
+              style={{
+                left: `${seg.leftPct}%`,
+                width: `${seg.widthPct}%`,
+                backgroundColor: seg.color,
+                opacity: seg.eventtype === 'discharge' ? 0.5 : 1,
+              }}
+            >
+              <span className="truncate px-1">
+                {seg.widthPct > 8 ? seg.careunit : ''}
+              </span>
+            </div>
+          </HoverCard>
         ))}
       </div>
 
