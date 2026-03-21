@@ -16,6 +16,8 @@ import type {
   FinnGenSource,
   FinnGenCohortOperationsResult,
   FinnGenCo2AnalysisResult,
+  InvestigationVersion,
+  DossierExport,
 } from "./types";
 
 // ── Study-Agent API functions (migrated from deprecated finngen feature) ───────
@@ -301,6 +303,32 @@ export async function fetchCrossLinks(
     `/investigations/${investigationId}/cross-links`,
   );
   return data.data;
+}
+
+// ── Export ─────────────────────────────────────────────────────────────
+
+export async function exportJson(investigationId: number): Promise<DossierExport> {
+  const { data } = await apiClient.get(`/investigations/${investigationId}/export/json`);
+  return data.data;
+}
+
+export async function exportPdf(investigationId: number): Promise<Blob> {
+  const response = await apiClient.get(`/investigations/${investigationId}/export/pdf`, {
+    responseType: "blob",
+  });
+  return response.data;
+}
+
+// ── Versions ───────────────────────────────────────────────────────────
+
+export async function listVersions(investigationId: number): Promise<InvestigationVersion[]> {
+  const { data } = await apiClient.get(`/investigations/${investigationId}/versions`);
+  return data.data;
+}
+
+export async function createVersion(investigationId: number): Promise<InvestigationVersion> {
+  const { data } = await apiClient.post(`/investigations/${investigationId}/versions`);
+  return data;
 }
 
 // ── Cohort Operations ──────────────────────────────────────────────────

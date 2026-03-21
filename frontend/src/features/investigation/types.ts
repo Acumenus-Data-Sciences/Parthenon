@@ -436,3 +436,45 @@ export interface CrossLink {
 }
 
 export type CrossLinksMap = Record<number, CrossLink[]>;
+
+// ── Versioning ────────────────────────────────────────────────────────
+
+export interface InvestigationVersion {
+  id: number;
+  investigation_id: number;
+  version_number: number;
+  snapshot: Record<string, unknown>;
+  created_by: number;
+  creator?: { id: number; name: string };
+  created_at: string;
+}
+
+// ── Dossier Export ────────────────────────────────────────────────────
+
+export interface DossierExport {
+  meta: {
+    title: string;
+    research_question: string | null;
+    status: string;
+    owner: string | null;
+    created_at: string;
+    exported_at: string;
+    version: number;
+    platform: string;
+  };
+  sections: Record<string, {
+    pins: Array<{
+      finding_type: string;
+      finding_payload: Record<string, unknown>;
+      is_key_finding: boolean;
+      narrative_before: string | null;
+      narrative_after: string | null;
+    }>;
+    narrative: string | null;
+  }>;
+  key_findings: Array<{
+    section: string;
+    finding_type: string;
+    finding_payload: Record<string, unknown>;
+  }>;
+}
