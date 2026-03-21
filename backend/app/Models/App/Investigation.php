@@ -63,4 +63,12 @@ class Investigation extends Model
     {
         return $this->hasMany(FinnGenRun::class);
     }
+
+    /**
+     * @return HasMany<InvestigationVersion, $this>
+     */
+    public function versions(): HasMany
+    {
+        return $this->hasMany(InvestigationVersion::class)->orderByDesc('version_number');
+    }
 }

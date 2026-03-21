@@ -4,6 +4,7 @@ namespace App\Services\Investigation;
 
 use App\Models\App\Investigation;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\App as LaravelApp;
 
 class InvestigationService
 {
@@ -41,11 +42,19 @@ class InvestigationService
         $updateData = array_filter($data, fn ($v) => $v !== null);
         $updateData['last_modified_by'] = $userId;
 
-        if (isset($updateData['status']) && $updateData['status'] === 'complete') {
+        $isCompleting = isset($updateData['status']) && $updateData['status'] === 'complete';
+
+        if ($isCompleting) {
             $updateData['completed_at'] = now();
         }
 
         $investigation->update($updateData);
+
+        if ($isCompleting) {
+            /** @var InvestigationVersionService $versionService */
+            $versionService = LaravelApp::make(InvestigationVersionService::class);
+            $versionService->createSnapshot($investigation, $userId);
+        }
 
         return $investigation->fresh() ?? $investigation;
     }
