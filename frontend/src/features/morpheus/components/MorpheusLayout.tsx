@@ -21,9 +21,10 @@ export default function MorpheusLayout() {
     setSearchParams(params, { replace: true });
   };
 
-  const crumbs: Array<{ label: string; path?: string }> = [{ label: 'Dashboard', path: '/morpheus' }];
+  const dsParam = dataset !== 'mimiciv' ? `?dataset=${dataset}` : '';
+  const crumbs: Array<{ label: string; path?: string }> = [{ label: 'Dashboard', path: `/morpheus${dsParam}` }];
   if (location.pathname.startsWith('/morpheus/journey')) {
-    crumbs.push({ label: 'Patient Journey', path: '/morpheus/journey' });
+    crumbs.push({ label: 'Patient Journey', path: `/morpheus/journey${dsParam}` });
     if (subjectId) {
       crumbs.push({ label: `Patient ${subjectId}` });
     }
@@ -58,7 +59,7 @@ export default function MorpheusLayout() {
           </div>
           <div className="flex items-center gap-0.5 border-b border-zinc-800">
             {TABS.map(({ path, label }) => (
-              <button key={path} onClick={() => navigate(path)}
+              <button key={path} onClick={() => navigate(dataset !== 'mimiciv' ? `${path}?dataset=${dataset}` : path)}
                 className={`px-5 py-2.5 text-sm font-medium transition-colors ${
                   activeTab === path
                     ? 'font-semibold text-zinc-100 border-b-2 border-[#9B1B30]'
