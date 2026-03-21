@@ -50,7 +50,8 @@ export default function PatientJourneyPage() {
 
   // Data queries — all receive dataset
   const patientsQuery = useMorpheusPatients({ ...filters, sort: sortCol, order: sortDir }, 100, 0, dataset);
-  const patientQuery = useMorpheusPatient(subjectId, dataset);
+  // Pre-fetch patient data (used by child components via shared query key)
+  useMorpheusPatient(subjectId, dataset);
   const admissionsQuery = useMorpheusAdmissions(subjectId, dataset);
   const transfersQuery = useMorpheusTransfers(subjectId, selectedHadmId ?? undefined, dataset);
   const icuStaysQuery = useMorpheusIcuStays(subjectId, selectedHadmId ?? undefined, dataset);
@@ -198,7 +199,6 @@ export default function PatientJourneyPage() {
   }
 
   // Patient selected — journey view
-  // patientQuery.data available via patientQuery for future use
   const admissions = admissionsQuery.data || [];
   const transfers = transfersQuery.data || [];
   const icuStays = icuStaysQuery.data || [];
