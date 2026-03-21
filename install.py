@@ -14,6 +14,7 @@ before handing off to the installer package.
 """
 from __future__ import annotations
 
+import argparse
 import subprocess
 import sys
 
@@ -50,14 +51,37 @@ def _ensure_deps() -> None:
         print("Dependencies installed.\n")
 
 
+def _parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Parthenon Installer")
+    parser.add_argument(
+        "--defaults-file",
+        type=str,
+        default=None,
+        help="Path to JSON file with default config values (pre-seeds interactive prompts)",
+    )
+    return parser.parse_args()
+
+
 def main() -> None:
+    args = _parse_args()
     _ensure_deps()
 
     # Deferred import — deps now guaranteed to exist
+    import json
     from installer.cli import run
 
+    defaults = None
+    if args.defaults_file:
+        from pathlib import Path
+        defaults_path = Path(args.defaults_file)
+        if defaults_path.exists():
+            defaults = json.loads(defaults_path.read_text())
+            print(f"Loaded defaults from {args.defaults_file}\n")
+        else:
+            print(f"Warning: defaults file {args.defaults_file} not found, ignoring.\n")
+
     try:
-        run()
+        run(pre_seed=defaults)
     except KeyboardInterrupt:
         print("\n\nInstall cancelled by user.")
         sys.exit(130)

@@ -173,8 +173,14 @@ def _print_summary(cfg: dict[str, Any]) -> None:
 # Main entry point
 # ---------------------------------------------------------------------------
 
-def run(*, non_interactive: bool = False) -> None:
-    """Run the full 9-phase installer."""
+def run(*, non_interactive: bool = False, pre_seed: dict[str, Any] | None = None) -> None:
+    """Run the full 9-phase installer.
+
+    Args:
+        non_interactive: Skip interactive prompts (use defaults).
+        pre_seed: Dict of default values to pre-populate config prompts.
+                  Passed from --defaults-file or parent installer (e.g. Acropolis).
+    """
     console.print(
         Panel(
             "[bold cyan]Parthenon Installer[/bold cyan]\n"
@@ -186,6 +192,10 @@ def run(*, non_interactive: bool = False) -> None:
 
     state = _load_state()
     cfg: dict[str, Any] = state.get("config", {})
+
+    # Merge pre-seed defaults into config (state file takes precedence for resume)
+    if pre_seed and not cfg:
+        cfg = dict(pre_seed)
 
     # --- Resume prompt ---
     completed = state.get("completed_phases", [])
@@ -199,7 +209,7 @@ def run(*, non_interactive: bool = False) -> None:
         if not resume:
             _clear_state()
             state = {}
-            cfg = {}
+            cfg = dict(pre_seed) if pre_seed else {}
             completed = []
 
     # -----------------------------------------------------------------------
