@@ -9,9 +9,9 @@ import type {
 } from "../../types";
 import { GwasCatalogSearch } from "./GwasCatalogSearch";
 import { GwasUploader } from "./GwasUploader";
-import { ManhattanPlot } from "./ManhattanPlot";
+import ManhattanPlot from "./ManhattanPlot";
 import { OpenTargetsSearch } from "./OpenTargetsSearch";
-import { QQPlot } from "./QQPlot";
+import QQPlot from "./QQPlot";
 import { TopLociTable } from "./TopLociTable";
 
 type TabId = "opentargets" | "gwas-catalog" | "upload";

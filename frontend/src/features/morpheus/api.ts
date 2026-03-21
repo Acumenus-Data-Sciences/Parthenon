@@ -183,7 +183,7 @@ export interface PatientFilters {
   order?: 'asc' | 'desc';
 }
 
-const BASE = '/api/v1/morpheus/patients';
+const BASE = '/morpheus/patients';
 
 export function useMorpheusPatients(filters: PatientFilters = {}, limit = 100, offset = 0) {
   return useQuery({
@@ -341,7 +341,7 @@ export function useMorpheusEventCounts(subjectId: string | undefined, hadmId?: s
 }
 
 // Dashboard hooks
-const DASH = '/api/v1/morpheus/dashboard';
+const DASH = '/morpheus/dashboard';
 
 export function useDashboardMetrics() {
   return useQuery({
