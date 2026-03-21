@@ -91,7 +91,7 @@ export default function LocationTrack({ transfers, icuStays }: LocationTrackProp
               backgroundColor: seg.color,
               opacity: seg.eventtype === 'discharge' ? 0.5 : 1,
             }}
-            title={`${seg.careunit}\n${seg.start.toLocaleString()}${seg.end ? ' \u2014 ' + seg.end.toLocaleString() : ''}\n${seg.durationHours ? seg.durationHours.toFixed(1) + 'h' : ''}`}
+            title={`${seg.careunit}\n${seg.start.toLocaleString()}${seg.end ? ' \u2014 ' + seg.end.toLocaleString() : ''}\n${seg.durationHours ? Number(seg.durationHours).toFixed(1) + 'h' : ''}`}
           >
             <span className="truncate px-1">
               {seg.widthPct > 8 ? seg.careunit : ''}
