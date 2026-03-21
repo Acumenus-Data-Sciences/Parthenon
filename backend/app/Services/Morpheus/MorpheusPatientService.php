@@ -428,7 +428,7 @@ class MorpheusPatientService
         $hasRefRange = $this->introspector->hasColumn($schema, 'labevents', 'ref_range_lower');
         $hasInlineLabel = $this->introspector->hasColumn($schema, 'labevents', 'label');
 
-        $idCol = $hasLabEventId ? 'l.labevent_id' : "ROW_NUMBER() OVER (ORDER BY l.charttime) AS labevent_id";
+        $idCol = $hasLabEventId ? 'l.labevent_id' : 'ROW_NUMBER() OVER (ORDER BY l.charttime) AS labevent_id';
         $refLower = $hasRefRange ? 'l.ref_range_lower' : 'NULL AS ref_range_lower';
         $refUpper = $hasRefRange ? 'l.ref_range_upper' : 'NULL AS ref_range_upper';
 
