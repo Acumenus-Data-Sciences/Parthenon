@@ -164,69 +164,81 @@ export default function LabPanelDashboard({ labs, onConceptClick }: LabPanelDash
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <div className="text-xs text-[#8A857D]">
-        {groups.size} tests &middot; {labs.filter((l) => l.valuenum != null).length} numeric values
+        {groups.size} tests · {labs.filter((l) => l.valuenum != null).length} numeric values
       </div>
 
-      {panels.map(({ panel, tests }) => (
-        <div key={panel.name} className="rounded-xl border border-zinc-800 bg-zinc-950/70 overflow-hidden">
-          <button
-            type="button"
-            onClick={() => setExpandedPanel(expandedPanel === panel.name ? null : panel.name)}
-            className="w-full flex items-center justify-between px-4 py-2.5 hover:bg-[#1A1A1E] transition-colors focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/30"
-          >
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: panel.color }} />
-              <span className="text-sm font-semibold text-[#F0EDE8]">{panel.name}</span>
-              <span className="text-[10px] text-[#5A5650]">{tests.length} tests</span>
-            </div>
-            <ChevronDown size={14} className={`text-[#5A5650] transition-transform ${expandedPanel === panel.name || expandedPanel === null ? 'rotate-180' : ''}`} />
-          </button>
+      {/* Two-column grid for panels */}
+      <div className="grid grid-cols-2 gap-3 items-start">
+        {panels.map(({ panel, tests }) => {
+          const isOpen = expandedPanel === panel.name || expandedPanel === null;
+          // If any row is expanded (showing chart), span full width
+          const hasExpandedRow = isOpen && tests.some((g) => expandedRow === g.itemid);
 
-          {(expandedPanel === panel.name || expandedPanel === null) && (
-            <div className="divide-y divide-zinc-800/50">
-              {tests.map((g) => {
-                const severity = getSeverity(g.latest, g.rangeLow, g.rangeHigh);
-                const isExpanded = expandedRow === g.itemid;
-                const vals = g.values.map((v) => v.value);
+          return (
+            <div key={panel.name} className={`rounded-xl border border-zinc-800/60 bg-[#111114] overflow-hidden ${hasExpandedRow ? 'col-span-2' : ''}`}>
+              <button
+                type="button"
+                onClick={() => setExpandedPanel(expandedPanel === panel.name ? null : panel.name)}
+                className="w-full flex items-center justify-between px-3 py-2 hover:bg-[#1A1A1E] transition-colors focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/30"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full" style={{ backgroundColor: panel.color }} />
+                  <span className="text-xs font-semibold text-[#F0EDE8]">{panel.name}</span>
+                  <span className="text-[10px] text-[#5A5650]">{tests.length} tests</span>
+                </div>
+                <ChevronDown size={12} className={`text-[#5A5650] transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+              </button>
 
-                return (
-                  <div key={g.itemid}>
-                    <div
-                      className="flex items-center gap-3 px-4 py-2 hover:bg-[#1A1A1E] transition-colors cursor-pointer"
-                      onClick={() => setExpandedRow(isExpanded ? null : g.itemid)}
-                    >
-                      <ChevronDown size={12} className={`text-[#5A5650] transition-transform shrink-0 ${isExpanded ? 'rotate-180' : ''}`} />
-                      <button
-                        type="button"
-                        onClick={(e) => { e.stopPropagation(); handleConceptClick(g); }}
-                        className="text-xs text-[#C5C0B8] hover:text-[#2DD4BF] truncate min-w-[140px] text-left transition-colors"
-                      >
-                        {g.label}
-                      </button>
-                      <span className="text-[10px] text-[#5A5650] shrink-0">&times;{g.count}</span>
-                      <LabSparkline values={vals} rangeLow={g.rangeLow} rangeHigh={g.rangeHigh} />
-                      <span className="text-sm font-semibold text-[#F0EDE8] shrink-0 min-w-[60px] text-right">
-                        {g.latest.toFixed(1)}
-                        <span className="text-[10px] text-[#5A5650] ml-0.5">{g.unit}</span>
-                      </span>
-                      <TrendIcon values={vals} />
-                      <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: SEVERITY_COLORS[severity] }} title={severity} />
-                    </div>
+              {isOpen && (
+                <div className="divide-y divide-zinc-800/30">
+                  {tests.map((g) => {
+                    const severity = getSeverity(g.latest, g.rangeLow, g.rangeHigh);
+                    const isExpanded = expandedRow === g.itemid;
+                    const vals = g.values.map((v) => v.value);
 
-                    {isExpanded && (
-                      <div className="px-8 pb-3">
-                        <LabTimeSeriesChart data={g.values} rangeLow={g.rangeLow} rangeHigh={g.rangeHigh} unit={g.unit} />
+                    return (
+                      <div key={g.itemid}>
+                        <div
+                          className="flex items-center gap-2 px-3 py-1.5 hover:bg-[#1A1A1E] transition-colors cursor-pointer"
+                          onClick={() => setExpandedRow(isExpanded ? null : g.itemid)}
+                        >
+                          <ChevronDown size={10} className={`text-[#5A5650] transition-transform shrink-0 ${isExpanded ? 'rotate-180' : ''}`} />
+                          <button
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); handleConceptClick(g); }}
+                            className="text-[11px] text-[#C5C0B8] hover:text-[#2DD4BF] truncate w-[120px] shrink-0 text-left transition-colors"
+                          >
+                            {g.label}
+                          </button>
+                          <span className="text-[9px] text-[#5A5650] shrink-0 w-6 text-right">×{g.count}</span>
+                          {/* Sparkline stretches to fill remaining space */}
+                          <div className="flex-1 min-w-0">
+                            <LabSparkline values={vals} rangeLow={g.rangeLow} rangeHigh={g.rangeHigh} width={999} height={24} />
+                          </div>
+                          <span className="text-xs font-semibold text-[#F0EDE8] shrink-0 tabular-nums text-right" style={{ minWidth: 52 }}>
+                            {g.latest.toFixed(1)}
+                            <span className="text-[9px] text-[#5A5650] ml-0.5">{g.unit}</span>
+                          </span>
+                          <TrendIcon values={vals} />
+                          <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: SEVERITY_COLORS[severity] }} title={severity} />
+                        </div>
+
+                        {isExpanded && (
+                          <div className="px-4 pb-3">
+                            <LabTimeSeriesChart data={g.values} rangeLow={g.rangeLow} rangeHigh={g.rangeHigh} unit={g.unit} />
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
-                );
-              })}
+                    );
+                  })}
+                </div>
+              )}
             </div>
-          )}
-        </div>
-      ))}
+          );
+        })}
+      </div>
     </div>
   );
 }
