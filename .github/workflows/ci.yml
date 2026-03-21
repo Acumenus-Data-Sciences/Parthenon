@@ -44,9 +44,13 @@ jobs:
           psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE EXTENSION IF NOT EXISTS vector;"
           psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
           psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS app;"
-          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS vocab;"
-          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS cdm;"
-          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS achilles_results;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS php;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS omop;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS results;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS gis;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS eunomia;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS inpatient;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS inpatient_ext;"
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -80,16 +84,6 @@ jobs:
           DB_DATABASE: parthenon_test
           DB_USERNAME: parthenon
           DB_PASSWORD: secret
-          DB_SEARCH_PATH: app,public
-          CDM_DB_HOST: 127.0.0.1
-          CDM_DB_DATABASE: parthenon_test
-          CDM_DB_SEARCH_PATH: cdm,public
-          DB_VOCAB_HOST: 127.0.0.1
-          DB_VOCAB_DATABASE: parthenon_test
-          VOCAB_DB_SEARCH_PATH: vocab,public
-          RESULTS_DB_HOST: 127.0.0.1
-          RESULTS_DB_DATABASE: parthenon_test
-          RESULTS_DB_SEARCH_PATH: achilles_results,public
           REDIS_HOST: 127.0.0.1
           CACHE_STORE: array
           SESSION_DRIVER: array
@@ -294,9 +288,13 @@ jobs:
           psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE EXTENSION IF NOT EXISTS vector;"
           psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
           psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS app;"
-          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS vocab;"
-          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS cdm;"
-          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS achilles_results;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS php;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS omop;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS results;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS gis;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS eunomia;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS inpatient;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS inpatient_ext;"
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
