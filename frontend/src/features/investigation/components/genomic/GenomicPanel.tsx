@@ -72,7 +72,7 @@ export function GenomicPanel({ investigation }: GenomicPanelProps) {
     // Update genomic state: append uploaded GWAS record
     setGenomicState((prev) => {
       const topLociCount = parsedData.filter((r) => r.p <= 5e-8).length;
-      const alreadyExists = prev.uploaded_gwas.some(
+      const alreadyExists = (prev.uploaded_gwas ?? []).some(
         (u) => u.upload_id === result.upload_id,
       );
       if (alreadyExists) return prev;
@@ -80,7 +80,7 @@ export function GenomicPanel({ investigation }: GenomicPanelProps) {
       return {
         ...prev,
         uploaded_gwas: [
-          ...prev.uploaded_gwas,
+          ...(prev.uploaded_gwas ?? []),
           {
             file_name: result.file_name,
             column_mapping: result.column_mapping,

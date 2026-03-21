@@ -373,7 +373,7 @@ export function PhenotypePanel({ investigation }: PhenotypePanelProps) {
             />
             <ValidationChecklist investigation={investigation} />
             <CohortOverlapMatrix
-              cohorts={investigation.phenotype_state.selected_cohort_ids.map((id) => ({
+              cohorts={(investigation.phenotype_state.selected_cohort_ids ?? []).map((id) => ({
                 id,
                 name: `Cohort #${id}`,
                 count: 0,

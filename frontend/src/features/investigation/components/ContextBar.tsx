@@ -7,7 +7,7 @@ interface ContextBarProps {
 }
 
 function getPhenotypeSummary(investigation: Investigation): string {
-  const count = investigation.phenotype_state.concept_sets.length;
+  const count = investigation.phenotype_state.concept_sets?.length ?? 0;
   return count > 0 ? `${count} concept set${count !== 1 ? "s" : ""}` : "No concepts";
 }
 
@@ -100,7 +100,7 @@ function getGenomicSummary(state: GenomicState): string {
 
 function getSynthesisSummary(investigation: Investigation): string {
   const pinCount = investigation.pins?.length ?? 0;
-  const sections = investigation.synthesis_state.section_order.length;
+  const sections = investigation.synthesis_state.section_order?.length ?? 0;
   return pinCount > 0 || sections > 0
     ? `${pinCount} pin${pinCount !== 1 ? "s" : ""}, ${sections} section${sections !== 1 ? "s" : ""}`
     : "—";
@@ -147,11 +147,11 @@ export function ContextBar({ investigation }: ContextBarProps) {
   const kpiMetrics: KpiMetric[] = [
     {
       label: "Concept Sets",
-      value: investigation.phenotype_state.concept_sets.length,
+      value: investigation.phenotype_state.concept_sets?.length ?? 0,
     },
     {
       label: "Cohorts",
-      value: investigation.phenotype_state.selected_cohort_ids.length,
+      value: investigation.phenotype_state.selected_cohort_ids?.length ?? 0,
     },
     {
       label: "Analyses",

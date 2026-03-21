@@ -58,8 +58,8 @@ const VALID_DOMAINS: EvidenceDomain[] = ["phenotype", "clinical", "genomic", "sy
 
 export function EvidenceBoard({ investigation }: EvidenceBoardProps) {
   const pinCount = investigation.pins?.length ?? 0;
-  const runCount = investigation.clinical_state.queued_analyses.filter(
-    (a) => a.run_id !== null,
+  const runCount = (investigation.clinical_state.queued_analyses ?? []).filter(
+    (a) => (a as Record<string, unknown>).run_id !== null,
   ).length;
 
   const badge = STATUS_BADGE[investigation.status];

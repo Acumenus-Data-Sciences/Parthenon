@@ -269,7 +269,7 @@ export function ClinicalPanel({ investigation }: ClinicalPanelProps) {
 
         const updated: ClinicalState = {
           ...clinicalState,
-          queued_analyses: [...clinicalState.queued_analyses, newEntry],
+          queued_analyses: [...(clinicalState.queued_analyses ?? []), newEntry],
           selected_source_id: config.source_id,
         };
 
@@ -303,7 +303,7 @@ export function ClinicalPanel({ investigation }: ClinicalPanelProps) {
 
       const updated: ClinicalState = {
         ...clinicalState,
-        queued_analyses: clinicalState.queued_analyses.map((qa) =>
+        queued_analyses: (clinicalState.queued_analyses ?? []).map((qa) =>
           qa.analysis_id === activeExecution.analysisId &&
           qa.execution_id === activeExecution.executionId
             ? { ...qa, status: "complete" as const }

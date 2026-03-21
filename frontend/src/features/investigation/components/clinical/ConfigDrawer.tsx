@@ -103,7 +103,7 @@ export function ConfigDrawer({
 
   // IDs that belong to this investigation
   const investigationCohortIds = new Set(
-    investigation.phenotype_state.selected_cohort_ids,
+    investigation.phenotype_state.selected_cohort_ids ?? [],
   );
 
   // ---- Local form state ----
