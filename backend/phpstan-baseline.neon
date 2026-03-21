@@ -13,12 +13,6 @@ parameters:
 			path: app/Http/Controllers/Api/V1/IngestionController.php
 
 		-
-			message: '#^Method App\\Http\\Controllers\\Api\\V1\\JobController\:\:mapGenomicStatusToFilter\(\) never returns null so it can be removed from the return type\.$#'
-			identifier: return.unusedType
-			count: 1
-			path: app/Http/Controllers/Api/V1/JobController.php
-
-		-
 			message: '#^PHPDoc tag @return with type list\<string\>\|null is not subtype of native type array\.$#'
 			identifier: return.phpDocType
 			count: 1
@@ -31,22 +25,10 @@ parameters:
 			path: app/Http/Controllers/Api/V1/MappingReviewController.php
 
 		-
-			message: '#^Call to static method read\(\) on an unknown class Intervention\\Image\\Laravel\\Facades\\Image\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/Api/V1/UserProfileController.php
-
-		-
 			message: '#^Generator expects value type array\<string, string\>, array\<string, bool\|string\|null\> given\.$#'
 			identifier: generator.valueType
 			count: 1
 			path: app/Services/GIS/GisImportService.php
-
-		-
-			message: '#^Anonymous function has an unused use \$skipped\.$#'
-			identifier: closure.unusedUse
-			count: 1
-			path: app/Services/Genomics/OmopMeasurementWriterService.php
 
 		-
 			message: '#^Called ''take'' on Laravel collection, but could have been retrieved as a query\.$#'
@@ -89,6 +71,12 @@ parameters:
 			identifier: parameter.notFound
 			count: 1
 			path: app/Services/StudyAgent/FinnGenExternalAdapterService.php
+
+		-
+			message: '#^Trait App\\Services\\StudyAgent\\FinnGenSharedHelpers is used zero times and is not analysed\.$#'
+			identifier: trait.unused
+			count: 1
+			path: app/Services/StudyAgent/FinnGenSharedHelpers.php
 
 		-
 			message: '#^Method App\\Services\\WebApi\\AtlasCohortImportService\:\:importAtlasConceptSet\(\) has parameter \$client with no type specified\.$#'

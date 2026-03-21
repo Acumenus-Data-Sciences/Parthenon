@@ -719,9 +719,9 @@ class JobController extends Controller
     }
 
     /**
-     * @return list<string>|null
+     * @return list<string>
      */
-    private function mapGenomicStatusToFilter(string $filter): ?array
+    private function mapGenomicStatusToFilter(string $filter): array
     {
         return match ($filter) {
             'running' => ['parsing'],

@@ -66,7 +66,7 @@ class OmopMeasurementWriterService
         $upload->variants()
             ->where('mapping_status', '!=', 'imported')
             ->whereNotNull('person_id')
-            ->chunk(200, function ($variants) use ($conn, $schema, &$written, &$skipped, &$errors) {
+            ->chunk(200, function ($variants) use ($conn, $schema, &$written, &$errors) {
                 foreach ($variants as $variant) {
                     try {
                         $measurementId = $this->writeVariant($variant, $conn, $schema);

@@ -135,6 +135,8 @@ export interface MorpheusMicrobiology {
   org_name: string | null;
   ab_name: string | null;
   interpretation: string | null;
+  dilution_comparison: string | null;
+  dilution_value: string | null;
 }
 
 export interface MorpheusEventCounts {
@@ -468,5 +470,30 @@ export function useDashboardMortalityByType(dataset?: string) {
       const res = await apiClient.get(`${DASH}/mortality-by-type${datasetParam(dataset)}`);
       return res.data.data as MortalityByType[];
     },
+  });
+}
+
+// ── Concept Stats (for ConceptDetailDrawer population context) ──────────────
+
+export interface ConceptStats {
+  concept_id: number;
+  patient_count: number;
+  total_patients: number;
+  percentage: number;
+  mean_value: number | null;
+  median_value: number | null;
+}
+
+export function useMorpheusConceptStats(conceptId: number | undefined, dataset?: string) {
+  return useQuery({
+    queryKey: ['morpheus', 'dashboard', 'concept-stats', conceptId, dataset],
+    queryFn: async () => {
+      const res = await apiClient.get(
+        appendDataset(`${DASH}/concept-stats/${conceptId}`, dataset),
+      );
+      return res.data.data as ConceptStats;
+    },
+    enabled: !!conceptId,
+    staleTime: 60_000, // 60s cache per spec
   });
 }
