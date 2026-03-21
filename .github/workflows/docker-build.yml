@@ -65,7 +65,8 @@ jobs:
         run: |
           # If manual dispatch with specific image, build just that one
           if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.image }}" != "all" && -n "${{ inputs.image }}" ]]; then
-            echo "matrix={\"include\":[$(jq -n --arg name "${{ inputs.image }}" '{name: $name}')]}" >> "$GITHUB_OUTPUT"
+            SINGLE=$(jq -nc --arg name "${{ inputs.image }}" '{include: [{name: $name}]}')
+            echo "matrix=${SINGLE}" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
@@ -92,7 +93,7 @@ jobs:
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             # Build all images on manual dispatch
             for name in "${!DOCKER_PATHS[@]}"; do
-              IMAGES=$(echo "$IMAGES" | jq --arg n "$name" '. + [{name: $n}]')
+              IMAGES=$(echo "$IMAGES" | jq -c --arg n "$name" '. + [{name: $n}]')
             done
           else
             # Only build images whose Dockerfiles changed
@@ -100,16 +101,17 @@ jobs:
             for name in "${!DOCKER_PATHS[@]}"; do
               path="${DOCKER_PATHS[$name]}"
               if echo "$CHANGED" | grep -q "^${path}/"; then
-                IMAGES=$(echo "$IMAGES" | jq --arg n "$name" '. + [{name: $n}]')
+                IMAGES=$(echo "$IMAGES" | jq -c --arg n "$name" '. + [{name: $n}]')
               fi
             done
           fi
 
-          if [[ $(echo "$IMAGES" | jq length) -eq 0 ]]; then
+          if [[ $(echo "$IMAGES" | jq -r length) -eq 0 ]]; then
             echo "No Dockerfiles changed — skipping builds"
             echo "matrix={\"include\":[]}" >> "$GITHUB_OUTPUT"
           else
-            echo "matrix={\"include\":$(echo $IMAGES | jq -c .)}" >> "$GITHUB_OUTPUT"
+            MATRIX=$(echo "$IMAGES" | jq -c '{include: .}')
+            echo "matrix=${MATRIX}" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Show build matrix
