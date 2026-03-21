@@ -128,8 +128,9 @@ export function EvidenceBoard({ investigation }: EvidenceBoardProps) {
         </div>
       </div>
 
-      {/* Body: three-column layout */}
-      <div className="flex flex-1 min-h-0">
+      {/* Body: three-column layout — desktop-first, minimum viewport 1280px.
+           On narrower screens the layout scrolls horizontally rather than crushing columns. */}
+      <div className="flex flex-1 min-h-0 min-w-[1280px]">
         {/* Left rail — spans full height */}
         <LeftRail pinCount={pinCount} runCount={runCount} />
 

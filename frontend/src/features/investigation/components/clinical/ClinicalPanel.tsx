@@ -47,13 +47,15 @@ function SubTabBar({ view, hasActiveExecution, onChange }: SubTabBarProps) {
   ];
 
   return (
-    <div className="flex items-center gap-1 border-b border-zinc-800 px-6 pt-2">
+    <div className="flex items-center gap-1 border-b border-zinc-800 px-6 pt-2" role="tablist">
       {tabs
         .filter((t) => !t.hidden)
         .map((tab) => (
           <button
             key={tab.id}
             type="button"
+            role="tab"
+            aria-selected={view === tab.id}
             onClick={() => onChange(tab.id)}
             className={[
               "px-4 py-2.5 text-xs font-medium rounded-t transition-colors",

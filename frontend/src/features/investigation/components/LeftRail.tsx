@@ -47,7 +47,7 @@ interface LeftRailProps {
 }
 
 export function LeftRail({ pinCount, runCount }: LeftRailProps) {
-  const { activeDomain, setActiveDomain } = useInvestigationStore();
+  const { activeDomain, setActiveDomain, toggleSidebar } = useInvestigationStore();
 
   return (
     <div
@@ -83,14 +83,36 @@ export function LeftRail({ pinCount, runCount }: LeftRailProps) {
       <div className="mx-3 border-t border-zinc-800 my-2" />
 
       <div className="px-3 flex flex-col gap-0.5">
-        <div className="flex items-center gap-2.5 px-2 py-2 text-zinc-500">
+        <button
+          type="button"
+          onClick={toggleSidebar}
+          className={[
+            "flex items-center gap-2.5 px-2 py-2 w-full text-left rounded transition-colors",
+            pinCount > 0
+              ? "text-teal-400 hover:bg-zinc-900"
+              : "text-zinc-500 hover:bg-zinc-900 hover:text-zinc-300",
+          ].join(" ")}
+          aria-label="Toggle evidence sidebar"
+        >
           <Pin size={14} />
           <span className="text-xs">Pinned ({pinCount})</span>
-        </div>
-        <div className="flex items-center gap-2.5 px-2 py-2 text-zinc-500">
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setActiveDomain("clinical");
+          }}
+          className={[
+            "flex items-center gap-2.5 px-2 py-2 w-full text-left rounded transition-colors",
+            runCount > 0
+              ? "text-teal-400 hover:bg-zinc-900"
+              : "text-zinc-500 hover:bg-zinc-900 hover:text-zinc-300",
+          ].join(" ")}
+          aria-label="Switch to clinical domain run history"
+        >
           <Play size={14} />
           <span className="text-xs">Runs ({runCount})</span>
-        </div>
+        </button>
       </div>
     </div>
   );

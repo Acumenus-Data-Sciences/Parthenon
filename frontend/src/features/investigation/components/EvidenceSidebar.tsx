@@ -1,4 +1,4 @@
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Pin } from "lucide-react";
 import { useDeletePin, useEvidencePins } from "../hooks/useEvidencePins";
 import { useInvestigationStore } from "../stores/investigationStore";
 import type { PinSection } from "../types";
@@ -22,6 +22,8 @@ export function EvidenceSidebar({ investigationId }: EvidenceSidebarProps) {
   const { sidebarOpen, toggleSidebar } = useInvestigationStore();
   const { data: pins, isLoading, isError, refetch } = useEvidencePins(investigationId);
   const deletePin = useDeletePin(investigationId);
+
+  const pinCount = pins?.length ?? 0;
 
   // Group pins by section
   const grouped = (pins ?? []).reduce<Partial<Record<PinSection, typeof pins>>>(
@@ -49,6 +51,15 @@ export function EvidenceSidebar({ investigationId }: EvidenceSidebarProps) {
           <span className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
             Evidence
           </span>
+        )}
+        {/* Collapsed: show pin count badge when there are pins */}
+        {!sidebarOpen && pinCount > 0 && (
+          <div className="flex flex-col items-center gap-1 w-full mb-1">
+            <Pin size={12} className="text-teal-400" />
+            <span className="flex items-center justify-center w-5 h-5 rounded-full bg-teal-900 text-teal-400 text-[10px] font-semibold">
+              {pinCount > 99 ? "99+" : pinCount}
+            </span>
+          </div>
         )}
         <button
           onClick={toggleSidebar}

@@ -263,10 +263,12 @@ export function PhenotypePanel({ investigation }: PhenotypePanelProps) {
     <div className="flex flex-col h-full">
       {/* Sub-tab bar */}
       <div className="flex items-center justify-between border-b border-zinc-700/50 px-4 pt-3 pb-0 shrink-0">
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1" role="tablist">
           {SUB_TABS.map((tab) => (
             <button
               key={tab.id}
+              role="tab"
+              aria-selected={activeTab === tab.id}
               disabled={tab.disabled}
               onClick={() => !tab.disabled && handleTabChange(tab.id)}
               className={`relative px-3 py-2 text-xs font-medium transition-colors rounded-t ${

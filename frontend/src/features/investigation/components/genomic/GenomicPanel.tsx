@@ -129,10 +129,12 @@ export function GenomicPanel({ investigation }: GenomicPanelProps) {
       </div>
 
       {/* Sub-tabs */}
-      <div className="flex gap-0 border-b border-zinc-800 px-6">
+      <div className="flex gap-0 border-b border-zinc-800 px-6" role="tablist">
         {TABS.map((tab) => (
           <button
             key={tab.id}
+            role="tab"
+            aria-selected={activeTab === tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={`relative px-4 py-3 text-sm font-medium transition-colors whitespace-nowrap ${
               activeTab === tab.id
