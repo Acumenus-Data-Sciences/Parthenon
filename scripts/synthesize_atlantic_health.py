@@ -896,7 +896,190 @@ def phase_7_generate_outputevents(conn, distributions: dict, dry_run=False):
 
 def phase_8_index_and_cleanup(conn, dry_run=False):
     """Add indexes, update metadata, flush cache."""
-    pass  # Task 9
+
+    # Tables synthesized (with their indexed columns)
+    new_tables = [
+        ("procedures_icd",      ["subject_id", "hadm_id"]),
+        ("microbiologyevents",  ["subject_id", "hadm_id"]),
+        ("inputevents",         ["subject_id", "hadm_id", "stay_id"]),
+        ("outputevents",        ["subject_id", "hadm_id", "stay_id"]),
+    ]
+
+    # ── Step 1: Create indexes ───────────────────────────────────────────────
+    # VACUUM / CREATE INDEX require autocommit — must be outside any transaction
+    conn.commit()  # close any open transaction first
+    conn.autocommit = True
+
+    with conn.cursor() as cur:
+        for table, cols in new_tables:
+            cur.execute(
+                "SELECT EXISTS (SELECT 1 FROM information_schema.tables "
+                "WHERE table_schema = %s AND table_name = %s)",
+                (ATLANTIC, table),
+            )
+            if not cur.fetchone()[0]:
+                log(8, f"  Skipping index on {table} (table not found)")
+                continue
+
+            for col in cols:
+                idx_name = f"{table}_{col}_idx"
+                if dry_run:
+                    log(8, f"DRY RUN: Would create index {idx_name}")
+                    continue
+                log(8, f"  Creating index {ATLANTIC}.{idx_name}...")
+                cur.execute(
+                    f"CREATE INDEX IF NOT EXISTS {idx_name} "
+                    f"ON {ATLANTIC}.{table} ({col})"
+                )
+
+    if dry_run:
+        conn.autocommit = False
+        log(8, "DRY RUN: Skipping metadata, vacuum, and cache flush")
+        return
+
+    # ── Step 4: VACUUM ANALYZE all new tables (still in autocommit) ─────────
+    with conn.cursor() as cur:
+        for table, _ in new_tables:
+            cur.execute(
+                "SELECT EXISTS (SELECT 1 FROM information_schema.tables "
+                "WHERE table_schema = %s AND table_name = %s)",
+                (ATLANTIC, table),
+            )
+            if not cur.fetchone()[0]:
+                continue
+            log(8, f"  VACUUM ANALYZE {ATLANTIC}.{table}...")
+            cur.execute(f"VACUUM ANALYZE {ATLANTIC}.{table}")
+
+    # Switch back to transactional mode for remaining writes
+    conn.autocommit = False
+
+    with conn.cursor() as cur:
+
+        # ── Step 2: Update morpheus_dataset patient_count ───────────────────
+        cur.execute(f"SELECT count(*) FROM {ATLANTIC}.patients")
+        patient_count = cur.fetchone()[0]
+
+        cur.execute(
+            "SELECT EXISTS (SELECT 1 FROM information_schema.tables "
+            "WHERE table_schema = 'inpatient_ext' AND table_name = 'morpheus_dataset')"
+        )
+        if cur.fetchone()[0]:
+            cur.execute(
+                "UPDATE inpatient_ext.morpheus_dataset "
+                "SET patient_count = %s "
+                "WHERE schema_name = %s",
+                (patient_count, ATLANTIC),
+            )
+            if cur.rowcount > 0:
+                log(8, f"Updated morpheus_dataset patient_count → {patient_count}")
+            else:
+                log(8, f"No morpheus_dataset row for schema '{ATLANTIC}' (skipping update)")
+        else:
+            log(8, "inpatient_ext.morpheus_dataset not found — skipping update")
+
+        conn.commit()
+
+        # ── Step 3: Create _synthesis_metadata marker ────────────────────────
+        log(8, "Creating _synthesis_metadata table...")
+        cur.execute(f"DROP TABLE IF EXISTS {ATLANTIC}._synthesis_metadata")
+        cur.execute(f"""
+            CREATE TABLE {ATLANTIC}._synthesis_metadata (
+                key   TEXT PRIMARY KEY,
+                value TEXT,
+                ts    TIMESTAMP DEFAULT NOW()
+            )
+        """)
+        execute_values(
+            cur,
+            f"INSERT INTO {ATLANTIC}._synthesis_metadata (key, value) VALUES %s",
+            [
+                ("version",        "1.0"),
+                ("target_patients", str(TARGET_PATIENTS)),
+                ("actual_patients", str(patient_count)),
+                ("synthesized_tables",
+                 "procedures_icd,microbiologyevents,inputevents,outputevents"),
+                ("completed_at",   pd.Timestamp.now().isoformat()),
+            ],
+        )
+        conn.commit()
+        log(8, "Metadata table created")
+
+        # ── Step 5: Drop _selected_subjects temp table ───────────────────────
+        log(8, "Dropping _selected_subjects temp table...")
+        cur.execute(f"DROP TABLE IF EXISTS {ATLANTIC}._selected_subjects")
+        conn.commit()
+
+        # ── Step 6: Flush Redis cache keys ───────────────────────────────────
+        env_path = Path(__file__).resolve().parent.parent / "backend" / ".env"
+        redis_env = {}
+        for line in env_path.read_text().splitlines():
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            m = re.match(r"^([A-Z_]+)=(.*)$", line)
+            if m:
+                redis_env[m.group(1)] = m.group(2).strip('"').strip("'")
+
+        redis_host = redis_env.get("REDIS_HOST", "redis")
+        redis_port = int(redis_env.get("REDIS_PORT", "6379"))
+        redis_password = redis_env.get("REDIS_PASSWORD") or None
+
+        try:
+            import redis as redis_lib  # type: ignore
+            r = redis_lib.Redis(
+                host=redis_host,
+                port=redis_port,
+                password=redis_password,
+                socket_connect_timeout=5,
+            )
+            r.ping()
+            # Flush keys that match Morpheus / AtlanticHealth patterns
+            patterns = [
+                "morpheus:*",
+                "atlantic_health:*",
+                "*atlantic*",
+                "parthenon:*atlantic*",
+            ]
+            flushed = 0
+            for pattern in patterns:
+                keys = r.keys(pattern)
+                if keys:
+                    r.delete(*keys)
+                    flushed += len(keys)
+            log(8, f"Redis: flushed {flushed} cache key(s)")
+        except ImportError:
+            log(8, "WARNING: 'redis' Python package not installed — cache not flushed")
+            log(8, "  Run: pip install redis   (or: php artisan cache:clear)")
+        except Exception as e:
+            log(8, f"WARNING: Redis flush failed ({e}) — run: php artisan cache:clear")
+
+        # ── Step 7: Print table row counts ───────────────────────────────────
+        print()
+        print("─" * 40)
+        print("Final table row counts (atlantic_health schema):")
+        print("─" * 40)
+
+        summary_tables = [
+            "patients", "admissions", "icustays", "transfers", "services",
+            "diagnoses_icd", "prescriptions", "labevents", "chartevents",
+            "emar", "problem_list",
+            "procedures_icd", "microbiologyevents", "inputevents", "outputevents",
+            "d_icd_diagnoses", "d_icd_procedures", "d_items",
+        ]
+
+        for tbl in summary_tables:
+            cur.execute(
+                "SELECT EXISTS (SELECT 1 FROM information_schema.tables "
+                "WHERE table_schema = %s AND table_name = %s)",
+                (ATLANTIC, tbl),
+            )
+            if not cur.fetchone()[0]:
+                continue
+            cur.execute(f"SELECT count(*) FROM {ATLANTIC}.{tbl}")
+            cnt = cur.fetchone()[0]
+            print(f"  {tbl:<28} {cnt:>12,}")
+
+        print("─" * 40)
 
 
 # ─── Main Orchestrator ────────────────────────────────────────────────────────
