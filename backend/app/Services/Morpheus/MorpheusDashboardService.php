@@ -11,6 +11,10 @@ class MorpheusDashboardService
 
     private const CACHE_TTL = 600; // 10 minutes
 
+    public function __construct(
+        private readonly SchemaIntrospector $introspector,
+    ) {}
+
     /**
      * Validate schema name format (alphanumeric + underscore only).
      */
@@ -190,20 +194,11 @@ class MorpheusDashboardService
                 $gender[$row->gender] = $row->count;
             }
 
-            // Age groups
+            // Age groups — adapt to available columns
+            $ageBucket = $this->introspector->ageBucketExpression($schema);
             $ageGroups = DB::connection($this->conn)->select("
-                SELECT CASE
-                    WHEN anchor_age::int < 20 THEN '<20'
-                    WHEN anchor_age::int BETWEEN 20 AND 29 THEN '20-29'
-                    WHEN anchor_age::int BETWEEN 30 AND 39 THEN '30-39'
-                    WHEN anchor_age::int BETWEEN 40 AND 49 THEN '40-49'
-                    WHEN anchor_age::int BETWEEN 50 AND 59 THEN '50-59'
-                    WHEN anchor_age::int BETWEEN 60 AND 69 THEN '60-69'
-                    WHEN anchor_age::int BETWEEN 70 AND 79 THEN '70-79'
-                    WHEN anchor_age::int BETWEEN 80 AND 89 THEN '80-89'
-                    ELSE '90+' END as range,
-                    count(*)::int as count
-                FROM {$s}.patients GROUP BY range ORDER BY range
+                SELECT {$ageBucket} as range, count(*)::int as count
+                FROM {$s}.patients p GROUP BY range ORDER BY range
             ");
 
             return ['gender' => $gender, 'age_groups' => $ageGroups];

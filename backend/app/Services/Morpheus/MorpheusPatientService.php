@@ -8,10 +8,12 @@ class MorpheusPatientService
 {
     private string $conn = 'inpatient';
 
+    public function __construct(
+        private readonly SchemaIntrospector $introspector,
+    ) {}
+
     /**
      * Validate schema name format (alphanumeric + underscore only).
-     * Schema names come from the morpheus_dataset registry, not user input,
-     * but we validate as defense-in-depth.
      */
     private function getSchemaName(string $schema): string
     {
@@ -28,17 +30,17 @@ class MorpheusPatientService
     public function searchPatients(string $query, int $limit = 20, string $schema = 'mimiciv'): array
     {
         $s = $this->getSchemaName($schema);
+        $selectCols = $this->introspector->patientSelectColumns($schema);
+        $groupByCols = $this->introspector->patientGroupByColumns($schema);
 
         return DB::connection($this->conn)->select("
-            SELECT p.subject_id, p.gender, p.anchor_age, p.anchor_year,
-                   p.anchor_year_group, p.dod,
+            SELECT {$selectCols},
                    count(DISTINCT a.hadm_id) as admission_count
             FROM {$s}.patients p
             LEFT JOIN {$s}.admissions a ON p.subject_id = a.subject_id
             WHERE p.subject_id::text LIKE ?
-            GROUP BY p.subject_id, p.gender, p.anchor_age, p.anchor_year,
-                     p.anchor_year_group, p.dod
-            ORDER BY p.subject_id::int
+            GROUP BY {$groupByCols}
+            ORDER BY p.subject_id::bigint
             LIMIT ?
         ", [$query.'%', $limit]);
     }
@@ -49,12 +51,18 @@ class MorpheusPatientService
     public function listPatients(int $limit = 100, int $offset = 0, array $filters = [], string $schema = 'mimiciv'): array
     {
         $s = $this->getSchemaName($schema);
+        $selectCols = $this->introspector->patientSelectColumns($schema);
+        $groupByCols = $this->introspector->patientGroupByColumns($schema);
+        $hasDiagDict = $this->introspector->hasTable($schema, 'd_icd_diagnoses');
+        $hasIcuStays = $this->introspector->hasTable($schema, 'icustays');
+
         $params = [];
         $conditions = [];
 
-        // Build filter conditions
         if (isset($filters['icu'])) {
-            if ($filters['icu'] === true || $filters['icu'] === 'true') {
+            if (! $hasIcuStays) {
+                // No ICU data — filter has no effect
+            } elseif ($filters['icu'] === true || $filters['icu'] === 'true') {
                 $conditions[] = 'pi.icu_stay_count > 0';
             } else {
                 $conditions[] = '(pi.icu_stay_count IS NULL OR pi.icu_stay_count = 0)';
@@ -85,48 +93,46 @@ class MorpheusPatientService
         }
 
         if (! empty($filters['diagnosis'])) {
-            $conditions[] = "pb.subject_id IN (
-                SELECT d.subject_id FROM {$s}.diagnoses_icd d
-                LEFT JOIN {$s}.d_icd_diagnoses dd ON d.icd_code = dd.icd_code AND d.icd_version = dd.icd_version
-                WHERE d.icd_code ILIKE ? OR dd.long_title ILIKE ?
-            )";
-            $like = '%'.$filters['diagnosis'].'%';
-            $params[] = $like;
-            $params[] = $like;
+            if ($hasDiagDict) {
+                $conditions[] = "pb.subject_id IN (
+                    SELECT d.subject_id FROM {$s}.diagnoses_icd d
+                    LEFT JOIN {$s}.d_icd_diagnoses dd ON d.icd_code = dd.icd_code AND d.icd_version = dd.icd_version
+                    WHERE d.icd_code ILIKE ? OR dd.long_title ILIKE ?
+                )";
+                $like = '%'.$filters['diagnosis'].'%';
+                $params[] = $like;
+                $params[] = $like;
+            } else {
+                $conditions[] = "pb.subject_id IN (
+                    SELECT d.subject_id FROM {$s}.diagnoses_icd d
+                    WHERE d.icd_code ILIKE ?
+                )";
+                $params[] = '%'.$filters['diagnosis'].'%';
+            }
         }
 
         $whereClause = $conditions ? 'WHERE '.implode(' AND ', $conditions) : '';
 
-        // Validate sort column
         $allowedSorts = ['subject_id', 'gender', 'anchor_age', 'admission_count', 'icu_stay_count', 'total_los_days', 'longest_icu_los', 'deceased'];
         $sortCol = in_array($filters['sort'] ?? '', $allowedSorts) ? $filters['sort'] : 'subject_id';
         $sortDir = ($filters['order'] ?? 'asc') === 'desc' ? 'DESC' : 'ASC';
+        $orderBy = $sortCol === 'subject_id' ? "pb.subject_id::bigint {$sortDir}" : "{$sortCol} {$sortDir} NULLS LAST";
 
-        // For subject_id sorting, cast to int for proper numeric order
-        $orderBy = $sortCol === 'subject_id' ? "pb.subject_id::int {$sortDir}" : "{$sortCol} {$sortDir} NULLS LAST";
-
-        $sql = "
-            WITH patient_base AS (
-                SELECT p.subject_id, p.gender, p.anchor_age, p.anchor_year,
-                       p.anchor_year_group, p.dod,
-                       count(DISTINCT a.hadm_id)::int as admission_count
-                FROM {$s}.patients p
-                LEFT JOIN {$s}.admissions a ON p.subject_id = a.subject_id
-                GROUP BY p.subject_id, p.gender, p.anchor_age, p.anchor_year,
-                         p.anchor_year_group, p.dod
-            ),
-            patient_icu AS (
+        // ICU CTE — only if table exists
+        $icuCte = $hasIcuStays
+            ? "patient_icu AS (
                 SELECT subject_id,
                        count(DISTINCT stay_id)::int as icu_stay_count,
                        ROUND(max(los::numeric)::numeric, 1) as longest_icu_los
                 FROM {$s}.icustays GROUP BY subject_id
-            ),
-            patient_los AS (
-                SELECT subject_id,
-                       ROUND(sum(EXTRACT(EPOCH FROM (dischtime::timestamp - admittime::timestamp))/86400.0)::numeric, 1) as total_los_days
-                FROM {$s}.admissions GROUP BY subject_id
-            ),
-            patient_dx AS (
+            ),"
+            : "patient_icu AS (
+                SELECT NULL::text as subject_id, 0 as icu_stay_count, NULL::numeric as longest_icu_los WHERE false
+            ),";
+
+        // Diagnosis CTE — adapt to available tables
+        $dxCte = $hasDiagDict
+            ? "patient_dx AS (
                 SELECT DISTINCT ON (d.subject_id)
                        d.subject_id, d.icd_code as primary_icd_code,
                        COALESCE(dd.long_title, '') as primary_diagnosis
@@ -134,7 +140,31 @@ class MorpheusPatientService
                 LEFT JOIN {$s}.d_icd_diagnoses dd ON d.icd_code = dd.icd_code AND d.icd_version = dd.icd_version
                 WHERE d.seq_num = '1'
                 ORDER BY d.subject_id, d.hadm_id::bigint DESC
-            )
+            )"
+            : "patient_dx AS (
+                SELECT DISTINCT ON (d.subject_id)
+                       d.subject_id, d.icd_code as primary_icd_code,
+                       '' as primary_diagnosis
+                FROM {$s}.diagnoses_icd d
+                WHERE d.seq_num = '1'
+                ORDER BY d.subject_id, d.hadm_id::bigint DESC
+            )";
+
+        $sql = "
+            WITH patient_base AS (
+                SELECT {$selectCols},
+                       count(DISTINCT a.hadm_id)::int as admission_count
+                FROM {$s}.patients p
+                LEFT JOIN {$s}.admissions a ON p.subject_id = a.subject_id
+                GROUP BY {$groupByCols}
+            ),
+            {$icuCte}
+            patient_los AS (
+                SELECT subject_id,
+                       ROUND(sum(EXTRACT(EPOCH FROM (dischtime::timestamp - admittime::timestamp))/86400.0)::numeric, 1) as total_los_days
+                FROM {$s}.admissions GROUP BY subject_id
+            ),
+            {$dxCte}
             SELECT pb.subject_id, pb.gender, pb.anchor_age, pb.anchor_year,
                    pb.anchor_year_group, pb.dod,
                    pb.admission_count,
@@ -158,16 +188,22 @@ class MorpheusPatientService
 
         $patients = DB::connection($this->conn)->select($sql, $params);
 
-        // Count total (with same filters, without limit/offset)
+        // Count total
+        $icuCteCnt = $hasIcuStays
+            ? "patient_icu AS (
+                SELECT subject_id, count(DISTINCT stay_id)::int as icu_stay_count
+                FROM {$s}.icustays GROUP BY subject_id
+            ),"
+            : "patient_icu AS (
+                SELECT NULL::text as subject_id, 0 as icu_stay_count WHERE false
+            ),";
+
         $countSql = "
             WITH patient_base AS (
                 SELECT p.subject_id, p.dod
                 FROM {$s}.patients p
             ),
-            patient_icu AS (
-                SELECT subject_id, count(DISTINCT stay_id)::int as icu_stay_count
-                FROM {$s}.icustays GROUP BY subject_id
-            ),
+            {$icuCteCnt}
             patient_los AS (
                 SELECT subject_id,
                        sum(EXTRACT(EPOCH FROM (dischtime::timestamp - admittime::timestamp))/86400.0) as total_los_days
@@ -180,7 +216,6 @@ class MorpheusPatientService
             {$whereClause}
         ";
 
-        // Remove the last two params (limit, offset) for count query
         $countParams = array_slice($params, 0, -2);
         $total = DB::connection($this->conn)->selectOne($countSql, $countParams);
 
@@ -193,12 +228,16 @@ class MorpheusPatientService
     public function getDemographics(string $subjectId, string $schema = 'mimiciv'): ?object
     {
         $s = $this->getSchemaName($schema);
+        $selectCols = $this->introspector->patientSelectColumns($schema);
+        $hasIcuStays = $this->introspector->hasTable($schema, 'icustays');
+        $icuCount = $hasIcuStays
+            ? "(SELECT count(*) FROM {$s}.icustays WHERE subject_id = p.subject_id)"
+            : '0';
 
         return DB::connection($this->conn)->selectOne("
-            SELECT p.subject_id, p.gender, p.anchor_age, p.anchor_year,
-                   p.anchor_year_group, p.dod,
+            SELECT {$selectCols},
                    (SELECT count(*) FROM {$s}.admissions WHERE subject_id = p.subject_id) as admission_count,
-                   (SELECT count(*) FROM {$s}.icustays WHERE subject_id = p.subject_id) as icu_stay_count,
+                   {$icuCount} as icu_stay_count,
                    (SELECT min(admittime) FROM {$s}.admissions WHERE subject_id = p.subject_id) as first_admit,
                    (SELECT max(dischtime) FROM {$s}.admissions WHERE subject_id = p.subject_id) as last_discharge
             FROM {$s}.patients p
@@ -213,10 +252,13 @@ class MorpheusPatientService
     {
         $s = $this->getSchemaName($schema);
 
+        $hasInsurance = $this->introspector->hasColumn($schema, 'admissions', 'insurance');
+        $insuranceCol = $hasInsurance ? 'insurance,' : "NULL as insurance,";
+
         return DB::connection($this->conn)->select("
             SELECT hadm_id, admittime, dischtime, deathtime,
                    admission_type, admission_location, discharge_location,
-                   insurance, language, marital_status, race,
+                   {$insuranceCol} language, marital_status, race,
                    hospital_expire_flag,
                    EXTRACT(EPOCH FROM (dischtime::timestamp - admittime::timestamp))/86400.0 as los_days
             FROM {$s}.admissions
@@ -279,13 +321,19 @@ class MorpheusPatientService
     public function getDiagnoses(string $subjectId, ?string $hadmId = null, string $schema = 'mimiciv'): array
     {
         $s = $this->getSchemaName($schema);
+        $hasDiagDict = $this->introspector->hasTable($schema, 'd_icd_diagnoses');
+
+        $descJoin = $hasDiagDict
+            ? "LEFT JOIN {$s}.d_icd_diagnoses dd ON d.icd_code = dd.icd_code AND d.icd_version = dd.icd_version"
+            : '';
+        $descCol = $hasDiagDict ? "COALESCE(dd.long_title, '')" : "''";
+
         $sql = "
             SELECT d.hadm_id, d.seq_num, d.icd_code, d.icd_version,
-                   COALESCE(dd.long_title, '') as description,
+                   {$descCol} as description,
                    c.concept_id, c.concept_name as standard_concept_name
             FROM {$s}.diagnoses_icd d
-            LEFT JOIN {$s}.d_icd_diagnoses dd
-                ON d.icd_code = dd.icd_code AND d.icd_version = dd.icd_version
+            {$descJoin}
             LEFT JOIN omop.concept c
                 ON CASE WHEN length(d.icd_code) <= 3 THEN d.icd_code
                         ELSE left(d.icd_code, 3) || '.' || substring(d.icd_code from 4) END = c.concept_code
@@ -310,12 +358,21 @@ class MorpheusPatientService
     public function getProcedures(string $subjectId, ?string $hadmId = null, string $schema = 'mimiciv'): array
     {
         $s = $this->getSchemaName($schema);
+        if (! $this->introspector->hasTable($schema, 'procedures_icd')) {
+            return [];
+        }
+
+        $hasProcDict = $this->introspector->hasTable($schema, 'd_icd_procedures');
+        $descJoin = $hasProcDict
+            ? "LEFT JOIN {$s}.d_icd_procedures dp ON p.icd_code = dp.icd_code AND p.icd_version = dp.icd_version"
+            : '';
+        $descCol = $hasProcDict ? "COALESCE(dp.long_title, '')" : "''";
+
         $sql = "
             SELECT p.hadm_id, p.seq_num, p.chartdate, p.icd_code, p.icd_version,
-                   COALESCE(dp.long_title, '') as description
+                   {$descCol} as description
             FROM {$s}.procedures_icd p
-            LEFT JOIN {$s}.d_icd_procedures dp
-                ON p.icd_code = dp.icd_code AND p.icd_version = dp.icd_version
+            {$descJoin}
             WHERE p.subject_id = ?
         ";
         $params = [$subjectId];
@@ -429,6 +486,10 @@ class MorpheusPatientService
      */
     public function getInputEvents(string $subjectId, ?string $hadmId = null, int $limit = 2000, string $schema = 'mimiciv'): array
     {
+        if (! $this->introspector->hasTable($schema, 'inputevents')) {
+            return [];
+        }
+
         $s = $this->getSchemaName($schema);
         $sql = "
             SELECT i.stay_id, i.starttime, i.endtime, i.itemid,
@@ -457,6 +518,10 @@ class MorpheusPatientService
      */
     public function getOutputEvents(string $subjectId, ?string $hadmId = null, int $limit = 2000, string $schema = 'mimiciv'): array
     {
+        if (! $this->introspector->hasTable($schema, 'outputevents')) {
+            return [];
+        }
+
         $s = $this->getSchemaName($schema);
         $sql = "
             SELECT o.stay_id, o.charttime, o.itemid,
@@ -484,6 +549,10 @@ class MorpheusPatientService
      */
     public function getMicrobiology(string $subjectId, ?string $hadmId = null, string $schema = 'mimiciv'): array
     {
+        if (! $this->introspector->hasTable($schema, 'microbiologyevents')) {
+            return [];
+        }
+
         $s = $this->getSchemaName($schema);
         $sql = "
             SELECT microevent_id, hadm_id, chartdate, charttime,
@@ -535,20 +604,28 @@ class MorpheusPatientService
     {
         $s = $this->getSchemaName($schema);
 
-        $domains = [
-            'admissions' => "{$s}.admissions",
-            'transfers' => "{$s}.transfers",
-            'icu_stays' => "{$s}.icustays",
-            'diagnoses' => "{$s}.diagnoses_icd",
-            'procedures' => "{$s}.procedures_icd",
-            'prescriptions' => "{$s}.prescriptions",
-            'lab_results' => "{$s}.labevents",
-            'vitals' => "{$s}.chartevents",
-            'input_events' => "{$s}.inputevents",
-            'output_events' => "{$s}.outputevents",
-            'microbiology' => "{$s}.microbiologyevents",
-            'services' => "{$s}.services",
+        $allDomains = [
+            'admissions' => 'admissions',
+            'transfers' => 'transfers',
+            'icu_stays' => 'icustays',
+            'diagnoses' => 'diagnoses_icd',
+            'procedures' => 'procedures_icd',
+            'prescriptions' => 'prescriptions',
+            'lab_results' => 'labevents',
+            'vitals' => 'chartevents',
+            'input_events' => 'inputevents',
+            'output_events' => 'outputevents',
+            'microbiology' => 'microbiologyevents',
+            'services' => 'services',
         ];
+
+        // Only include domains whose tables exist in this schema
+        $domains = [];
+        foreach ($allDomains as $name => $table) {
+            if ($this->introspector->hasTable($schema, $table)) {
+                $domains[$name] = "{$s}.{$table}";
+            }
+        }
 
         // Tables where hadm_id filtering uses a subquery through icustays
         $stayFilterTables = ["{$s}.chartevents", "{$s}.inputevents", "{$s}.outputevents"];
