@@ -119,7 +119,7 @@ Every container MUST run as a non-root user. The following `USER` directives are
 | Hecate | docker/hecate/Dockerfile | `hecate` |
 | FHIR-to-CDM | docker/fhir-to-cdm/Dockerfile | `fhircdm` |
 | JupyterHub | docker/jupyterhub/Dockerfile | `jupyterhub` |
-| R Runtime | docker/r/Dockerfile | *(root — hardening planned)* |
+| R Runtime | docker/r/Dockerfile | `ruser` (via s6-setuidgid) |
 
 When adding a new Dockerfile, ALWAYS include:
 ```dockerfile

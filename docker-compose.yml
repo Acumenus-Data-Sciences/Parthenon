@@ -15,6 +15,10 @@ services:
         condition: service_healthy
       jupyterhub:
         condition: service_started
+    deploy:
+      resources:
+        limits:
+          memory: 256M
     networks:
       - parthenon
     restart: unless-stopped
@@ -72,6 +76,10 @@ services:
       timeout: 5s
       retries: 3
       start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
     networks:
       - parthenon
     restart: unless-stopped
@@ -207,6 +215,10 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 2G
     networks:
       - parthenon
     restart: unless-stopped
@@ -316,6 +328,10 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
     networks:
       - parthenon
       - jupyter_users
@@ -566,6 +582,10 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 256M
     networks:
       - parthenon
     restart: unless-stopped
@@ -616,6 +636,10 @@ services:
     volumes:
       - ohif-dist:/output
       - ./docker/ohif/app-config.js:/config/app-config.js:ro
+    deploy:
+      resources:
+        limits:
+          memory: 2G
     profiles:
       - setup
 
@@ -628,6 +652,10 @@ services:
       - ./docs/blog:/blog:ro
       - ./docs/dist:/dist
     command: sh -c "npm ci --legacy-peer-deps && npm run build:docker"
+    deploy:
+      resources:
+        limits:
+          memory: 1G
     profiles:
       - docs
 
@@ -687,6 +715,10 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
     networks:
       - parthenon
     depends_on:
@@ -713,6 +745,10 @@ services:
       timeout: 10s
       retries: 3
       start_period: 15s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
     networks:
       - parthenon
     restart: unless-stopped
@@ -720,9 +756,11 @@ services:
   cadvisor:
     container_name: parthenon-cadvisor
     image: gcr.io/cadvisor/cadvisor:v0.51.0
-    privileged: true
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - no-new-privileges:true
     volumes:
-      - /:/rootfs:ro
       - /var/run:/var/run:ro
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
@@ -733,6 +771,10 @@ services:
       timeout: 10s
       retries: 3
       start_period: 15s
+    deploy:
+      resources:
+        limits:
+          memory: 256M
     networks:
       - parthenon
     restart: unless-stopped
@@ -757,6 +799,10 @@ services:
       timeout: 10s
       retries: 3
       start_period: 15s
+    deploy:
+      resources:
+        limits:
+          memory: 128M
     restart: unless-stopped
 
   loki:
@@ -772,6 +818,10 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
     networks:
       - parthenon
     restart: unless-stopped
@@ -799,6 +849,10 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
     networks:
       - parthenon
     depends_on:

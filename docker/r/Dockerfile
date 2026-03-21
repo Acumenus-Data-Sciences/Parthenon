@@ -204,15 +204,26 @@ RUN tar -C / -Jxpf /tmp/s6-overlay-noarch.tar.xz && \
 ## ──────────────────────────────────────────────────────────────────
 FROM hades-base AS runtime
 
+# Create non-root user for service execution (HIGHSEC §4.1)
+# s6-overlay runs as root for PID 1, then drops to ruser for the plumber service
+RUN addgroup --system ruser && adduser --system --ingroup ruser --home /home/ruser ruser \
+    && mkdir -p /home/ruser && chown -R ruser:ruser /home/ruser
+
 WORKDIR /app
 
 COPY r-runtime/ .
+RUN chown -R ruser:ruser /app
 
 # s6-overlay service registration
 COPY r-runtime/s6/plumber/ /etc/s6-overlay/s6-rc.d/plumber/
 RUN touch /etc/s6-overlay/s6-rc.d/user/contents.d/plumber
 
+# Ensure JDBC driver directory is readable by ruser
+RUN chown -R ruser:ruser /opt/jdbc
+
 EXPOSE 8787
 
 # s6-overlay as PID 1 — manages Valve which manages Plumber processes
+# s6 runs as root for init, plumber service should use S6_USER to drop privileges
+ENV S6_VERBOSITY=1
 ENTRYPOINT ["/init"]
