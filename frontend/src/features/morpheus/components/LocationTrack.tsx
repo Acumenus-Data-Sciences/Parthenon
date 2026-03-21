@@ -68,14 +68,6 @@ export default function LocationTrack({ transfers, icuStays }: LocationTrackProp
     }));
   }, [transfers]);
 
-  if (!segments.length) {
-    return (
-      <div className="rounded-xl border border-zinc-800 bg-[#151518] p-5 text-zinc-500 text-sm">
-        No transfer data available
-      </div>
-    );
-  }
-
   const [panOffset, setPanOffset] = useState(0);
   const [zoom, setZoom] = useState(1);
 
@@ -85,6 +77,14 @@ export default function LocationTrack({ transfers, icuStays }: LocationTrackProp
     else if (e.key === '+' || e.key === '=') { e.preventDefault(); setZoom((z) => Math.min(z * 1.2, 5)); }
     else if (e.key === '-') { e.preventDefault(); setZoom((z) => Math.max(z / 1.2, 0.5)); }
   }, []);
+
+  if (!segments.length) {
+    return (
+      <div className="rounded-xl border border-zinc-800 bg-[#151518] p-5 text-zinc-500 text-sm">
+        No transfer data available
+      </div>
+    );
+  }
 
   return (
     <div className="rounded-xl border border-zinc-800 bg-[#151518] p-5">

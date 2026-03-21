@@ -38,7 +38,7 @@ export default function PatientJourneyPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedHadmId, setSelectedHadmId] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('journey');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery] = useState('');
   const [drawerEvent, setDrawerEvent] = useState<DrawerEvent | null>(null);
 
   // Dataset from URL search params
