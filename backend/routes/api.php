@@ -57,6 +57,7 @@ use App\Http\Controllers\Api\V1\IncidenceRateController;
 use App\Http\Controllers\Api\V1\IngestionController;
 use App\Http\Controllers\Api\V1\GenomicEvidenceController;
 use App\Http\Controllers\Api\V1\InvestigationController;
+use App\Http\Controllers\Api\V1\InvestigationExportController;
 use App\Http\Controllers\Api\V1\JobController;
 use App\Http\Controllers\Api\V1\JupyterController;
 use App\Http\Controllers\Api\V1\MappingReviewController;
@@ -1160,6 +1161,13 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         Route::post('/{investigation}/genomic/query-gwas-catalog', [GenomicEvidenceController::class, 'queryGwasCatalog']);
         Route::post('/{investigation}/genomic/upload-gwas', [GenomicEvidenceController::class, 'uploadGwas']);
         Route::get('/{investigation}/cross-links', [GenomicEvidenceController::class, 'crossLinks']);
+
+        // Export + Versions
+        Route::get('/{investigation}/export/json', [InvestigationExportController::class, 'exportJson']);
+        Route::get('/{investigation}/export/pdf', [InvestigationExportController::class, 'exportPdf']);
+        Route::get('/{investigation}/versions', [InvestigationExportController::class, 'listVersions']);
+        Route::get('/{investigation}/versions/{versionNumber}', [InvestigationExportController::class, 'getVersion']);
+        Route::post('/{investigation}/versions', [InvestigationExportController::class, 'createVersion']);
     });
 });
 
