@@ -40,7 +40,7 @@ class MorpheusPatientService
                      p.anchor_year_group, p.dod
             ORDER BY p.subject_id::int
             LIMIT ?
-        ", [$query . '%', $limit]);
+        ", [$query.'%', $limit]);
     }
 
     /**
@@ -55,17 +55,17 @@ class MorpheusPatientService
         // Build filter conditions
         if (isset($filters['icu'])) {
             if ($filters['icu'] === true || $filters['icu'] === 'true') {
-                $conditions[] = "pi.icu_stay_count > 0";
+                $conditions[] = 'pi.icu_stay_count > 0';
             } else {
-                $conditions[] = "(pi.icu_stay_count IS NULL OR pi.icu_stay_count = 0)";
+                $conditions[] = '(pi.icu_stay_count IS NULL OR pi.icu_stay_count = 0)';
             }
         }
 
         if (isset($filters['deceased'])) {
             if ($filters['deceased'] === true || $filters['deceased'] === 'true') {
-                $conditions[] = "pb.dod IS NOT NULL";
+                $conditions[] = 'pb.dod IS NOT NULL';
             } else {
-                $conditions[] = "pb.dod IS NULL";
+                $conditions[] = 'pb.dod IS NULL';
             }
         }
 
@@ -75,12 +75,12 @@ class MorpheusPatientService
         }
 
         if (isset($filters['min_los']) && is_numeric($filters['min_los'])) {
-            $conditions[] = "pl.total_los_days >= ?";
+            $conditions[] = 'pl.total_los_days >= ?';
             $params[] = (float) $filters['min_los'];
         }
 
         if (isset($filters['max_los']) && is_numeric($filters['max_los'])) {
-            $conditions[] = "pl.total_los_days <= ?";
+            $conditions[] = 'pl.total_los_days <= ?';
             $params[] = (float) $filters['max_los'];
         }
 
@@ -90,12 +90,12 @@ class MorpheusPatientService
                 LEFT JOIN {$s}.d_icd_diagnoses dd ON d.icd_code = dd.icd_code AND d.icd_version = dd.icd_version
                 WHERE d.icd_code ILIKE ? OR dd.long_title ILIKE ?
             )";
-            $like = '%' . $filters['diagnosis'] . '%';
+            $like = '%'.$filters['diagnosis'].'%';
             $params[] = $like;
             $params[] = $like;
         }
 
-        $whereClause = $conditions ? 'WHERE ' . implode(' AND ', $conditions) : '';
+        $whereClause = $conditions ? 'WHERE '.implode(' AND ', $conditions) : '';
 
         // Validate sort column
         $allowedSorts = ['subject_id', 'gender', 'anchor_age', 'admission_count', 'icu_stay_count', 'total_los_days', 'longest_icu_los', 'deceased'];
@@ -240,11 +240,11 @@ class MorpheusPatientService
         $params = [$subjectId];
 
         if ($hadmId) {
-            $sql .= " AND hadm_id = ?";
+            $sql .= ' AND hadm_id = ?';
             $params[] = $hadmId;
         }
 
-        $sql .= " ORDER BY intime";
+        $sql .= ' ORDER BY intime';
 
         return DB::connection($this->conn)->select($sql, $params);
     }
@@ -264,11 +264,11 @@ class MorpheusPatientService
         $params = [$subjectId];
 
         if ($hadmId) {
-            $sql .= " AND hadm_id = ?";
+            $sql .= ' AND hadm_id = ?';
             $params[] = $hadmId;
         }
 
-        $sql .= " ORDER BY intime";
+        $sql .= ' ORDER BY intime';
 
         return DB::connection($this->conn)->select($sql, $params);
     }
@@ -295,11 +295,11 @@ class MorpheusPatientService
         $params = [$subjectId];
 
         if ($hadmId) {
-            $sql .= " AND d.hadm_id = ?";
+            $sql .= ' AND d.hadm_id = ?';
             $params[] = $hadmId;
         }
 
-        $sql .= " ORDER BY d.seq_num::int";
+        $sql .= ' ORDER BY d.seq_num::int';
 
         return DB::connection($this->conn)->select($sql, $params);
     }
@@ -321,11 +321,11 @@ class MorpheusPatientService
         $params = [$subjectId];
 
         if ($hadmId) {
-            $sql .= " AND p.hadm_id = ?";
+            $sql .= ' AND p.hadm_id = ?';
             $params[] = $hadmId;
         }
 
-        $sql .= " ORDER BY p.chartdate, p.seq_num::int";
+        $sql .= ' ORDER BY p.chartdate, p.seq_num::int';
 
         return DB::connection($this->conn)->select($sql, $params);
     }
@@ -347,11 +347,11 @@ class MorpheusPatientService
         $params = [$subjectId];
 
         if ($hadmId) {
-            $sql .= " AND hadm_id = ?";
+            $sql .= ' AND hadm_id = ?';
             $params[] = $hadmId;
         }
 
-        $sql .= " ORDER BY starttime";
+        $sql .= ' ORDER BY starttime';
 
         return DB::connection($this->conn)->select($sql, $params);
     }
@@ -374,11 +374,11 @@ class MorpheusPatientService
         $params = [$subjectId];
 
         if ($hadmId) {
-            $sql .= " AND l.hadm_id = ?";
+            $sql .= ' AND l.hadm_id = ?';
             $params[] = $hadmId;
         }
 
-        $sql .= " ORDER BY l.charttime DESC LIMIT ?";
+        $sql .= ' ORDER BY l.charttime DESC LIMIT ?';
         $params[] = $limit;
 
         return DB::connection($this->conn)->select($sql, $params);
@@ -410,15 +410,15 @@ class MorpheusPatientService
         $params = [$subjectId];
 
         if ($hadmId) {
-            $sql .= " AND c.hadm_id = ?";
+            $sql .= ' AND c.hadm_id = ?';
             $params[] = $hadmId;
         }
         if ($stayId) {
-            $sql .= " AND c.stay_id = ?";
+            $sql .= ' AND c.stay_id = ?';
             $params[] = $stayId;
         }
 
-        $sql .= " ORDER BY c.charttime LIMIT ?";
+        $sql .= ' ORDER BY c.charttime LIMIT ?';
         $params[] = $limit;
 
         return DB::connection($this->conn)->select($sql, $params);
@@ -442,11 +442,11 @@ class MorpheusPatientService
         $params = [$subjectId];
 
         if ($hadmId) {
-            $sql .= " AND i.hadm_id = ?";
+            $sql .= ' AND i.hadm_id = ?';
             $params[] = $hadmId;
         }
 
-        $sql .= " ORDER BY i.starttime LIMIT ?";
+        $sql .= ' ORDER BY i.starttime LIMIT ?';
         $params[] = $limit;
 
         return DB::connection($this->conn)->select($sql, $params);
@@ -469,11 +469,11 @@ class MorpheusPatientService
         $params = [$subjectId];
 
         if ($hadmId) {
-            $sql .= " AND o.hadm_id = ?";
+            $sql .= ' AND o.hadm_id = ?';
             $params[] = $hadmId;
         }
 
-        $sql .= " ORDER BY o.charttime LIMIT ?";
+        $sql .= ' ORDER BY o.charttime LIMIT ?';
         $params[] = $limit;
 
         return DB::connection($this->conn)->select($sql, $params);
@@ -495,11 +495,11 @@ class MorpheusPatientService
         $params = [$subjectId];
 
         if ($hadmId) {
-            $sql .= " AND hadm_id = ?";
+            $sql .= ' AND hadm_id = ?';
             $params[] = $hadmId;
         }
 
-        $sql .= " ORDER BY chartdate, charttime";
+        $sql .= ' ORDER BY chartdate, charttime';
 
         return DB::connection($this->conn)->select($sql, $params);
     }
@@ -518,11 +518,11 @@ class MorpheusPatientService
         $params = [$subjectId];
 
         if ($hadmId) {
-            $sql .= " AND hadm_id = ?";
+            $sql .= ' AND hadm_id = ?';
             $params[] = $hadmId;
         }
 
-        $sql .= " ORDER BY transfertime";
+        $sql .= ' ORDER BY transfertime';
 
         return DB::connection($this->conn)->select($sql, $params);
     }
@@ -536,18 +536,18 @@ class MorpheusPatientService
         $s = $this->getSchemaName($schema);
 
         $domains = [
-            'admissions'    => "{$s}.admissions",
-            'transfers'     => "{$s}.transfers",
-            'icu_stays'     => "{$s}.icustays",
-            'diagnoses'     => "{$s}.diagnoses_icd",
-            'procedures'    => "{$s}.procedures_icd",
+            'admissions' => "{$s}.admissions",
+            'transfers' => "{$s}.transfers",
+            'icu_stays' => "{$s}.icustays",
+            'diagnoses' => "{$s}.diagnoses_icd",
+            'procedures' => "{$s}.procedures_icd",
             'prescriptions' => "{$s}.prescriptions",
-            'lab_results'   => "{$s}.labevents",
-            'vitals'        => "{$s}.chartevents",
-            'input_events'  => "{$s}.inputevents",
+            'lab_results' => "{$s}.labevents",
+            'vitals' => "{$s}.chartevents",
+            'input_events' => "{$s}.inputevents",
             'output_events' => "{$s}.outputevents",
-            'microbiology'  => "{$s}.microbiologyevents",
-            'services'      => "{$s}.services",
+            'microbiology' => "{$s}.microbiologyevents",
+            'services' => "{$s}.services",
         ];
 
         // Tables where hadm_id filtering uses a subquery through icustays
@@ -565,7 +565,7 @@ class MorpheusPatientService
                 if (in_array($table, $stayFilterTables, true)) {
                     $clause .= " AND stay_id IN (SELECT stay_id FROM {$s}.icustays WHERE hadm_id = ?)";
                 } else {
-                    $clause .= " AND hadm_id = ?";
+                    $clause .= ' AND hadm_id = ?';
                 }
                 $params[] = $hadmId;
             }

@@ -17,7 +17,7 @@ class GenomicProxyService
      */
     public function queryOpenTargets(string $graphqlQuery, array $variables): array
     {
-        $cacheKey = 'open_targets:' . md5($graphqlQuery . json_encode($variables));
+        $cacheKey = 'open_targets:'.md5($graphqlQuery.json_encode($variables));
         /** @var int $ttl */
         $ttl = (int) config('services.open_targets.cache_ttl', 86400);
         /** @var string $url */
@@ -40,7 +40,7 @@ class GenomicProxyService
                         'body' => $response->body(),
                     ]);
 
-                    return ['error' => 'Open Targets API returned ' . $response->status()];
+                    return ['error' => 'Open Targets API returned '.$response->status()];
                 }
 
                 return $response->json() ?? [];
@@ -60,7 +60,7 @@ class GenomicProxyService
      */
     public function queryGwasCatalog(string $endpoint, array $params): array
     {
-        $cacheKey = 'gwas_catalog:' . md5($endpoint . json_encode($params));
+        $cacheKey = 'gwas_catalog:'.md5($endpoint.json_encode($params));
         /** @var int $ttl */
         $ttl = (int) config('services.gwas_catalog.cache_ttl', 86400);
         /** @var string $baseUrl */
@@ -68,7 +68,7 @@ class GenomicProxyService
         /** @var int $timeout */
         $timeout = (int) config('services.gwas_catalog.timeout', 10);
 
-        $url = rtrim($baseUrl, '/') . '/' . ltrim($endpoint, '/');
+        $url = rtrim($baseUrl, '/').'/'.ltrim($endpoint, '/');
 
         /** @var array<string, mixed> */
         return Cache::remember($cacheKey, $ttl, function () use ($url, $timeout, $params): array {
@@ -81,7 +81,7 @@ class GenomicProxyService
                         'url' => $url,
                     ]);
 
-                    return ['error' => 'GWAS Catalog API returned ' . $response->status()];
+                    return ['error' => 'GWAS Catalog API returned '.$response->status()];
                 }
 
                 return $response->json() ?? [];

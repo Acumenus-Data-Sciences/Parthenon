@@ -35,7 +35,7 @@ class InvestigationExportService
         $sections = [];
 
         foreach ($domainKeys as $domain) {
-            $stateKey = $domain . '_state';
+            $stateKey = $domain.'_state';
             $state = $investigation->$stateKey;
             $domainPins = $investigation->pins
                 ->filter(fn ($pin) => $pin->domain === $domain)
@@ -77,7 +77,7 @@ class InvestigationExportService
 
         $html = $this->toPdfHtml($investigation);
 
-        $dompdf = new \Dompdf\Dompdf();
+        $dompdf = new \Dompdf\Dompdf;
         $dompdf->loadHtml($html);
         $dompdf->setPaper('A4', 'portrait');
         $dompdf->render();

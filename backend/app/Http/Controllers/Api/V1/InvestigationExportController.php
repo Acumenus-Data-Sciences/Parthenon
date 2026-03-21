@@ -41,11 +41,11 @@ class InvestigationExportController extends Controller
         $pdfBinary = $this->exportService->toPdf($investigation);
 
         if ($pdfBinary !== null) {
-            $filename = 'investigation-' . $investigation->id . '-dossier.pdf';
+            $filename = 'investigation-'.$investigation->id.'-dossier.pdf';
 
             return response($pdfBinary, 200, [
                 'Content-Type' => 'application/pdf',
-                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+                'Content-Disposition' => 'attachment; filename="'.$filename.'"',
             ]);
         }
 

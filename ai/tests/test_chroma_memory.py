@@ -4,9 +4,11 @@ from unittest.mock import MagicMock, patch
 
 def test_store_conversation_turn():
     """Stores a Q&A pair in the user's conversation collection."""
-    with patch("app.chroma.memory.get_user_conversation_collection") as mock_coll_fn:
+    with patch("app.chroma.memory.get_user_conversation_collection") as mock_coll_fn, \
+         patch("app.chroma.memory._get_unified_collection") as mock_unified_fn:
         mock_coll = MagicMock()
         mock_coll_fn.return_value = mock_coll
+        mock_unified_fn.return_value = MagicMock()
 
         from app.chroma.memory import store_conversation_turn
 
@@ -25,9 +27,11 @@ def test_store_conversation_turn():
 
 def test_store_conversation_combines_qa():
     """Stored document combines question and answer."""
-    with patch("app.chroma.memory.get_user_conversation_collection") as mock_coll_fn:
+    with patch("app.chroma.memory.get_user_conversation_collection") as mock_coll_fn, \
+         patch("app.chroma.memory._get_unified_collection") as mock_unified_fn:
         mock_coll = MagicMock()
         mock_coll_fn.return_value = mock_coll
+        mock_unified_fn.return_value = MagicMock()
 
         from app.chroma.memory import store_conversation_turn
 

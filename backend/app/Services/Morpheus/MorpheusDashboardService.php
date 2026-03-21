@@ -31,9 +31,10 @@ class MorpheusDashboardService
     {
         return Cache::remember("morpheus_mv_exists:{$schema}:{$viewName}", self::CACHE_TTL, function () use ($schema, $viewName) {
             $result = DB::connection($this->conn)->selectOne(
-                "SELECT EXISTS (SELECT 1 FROM pg_matviews WHERE schemaname = ? AND matviewname = ?) as exists",
+                'SELECT EXISTS (SELECT 1 FROM pg_matviews WHERE schemaname = ? AND matviewname = ?) as exists',
                 [$schema, $viewName]
             );
+
             return (bool) ($result->exists ?? false);
         });
     }
@@ -69,16 +70,17 @@ class MorpheusDashboardService
         $s = $this->getSchemaName($schema);
 
         return $this->cached('metrics', $s, function () use ($s) {
-        // Use materialized view if available
-        if ($this->hasMaterializedView($s, 'mv_dashboard_metrics')) {
-            $result = DB::connection($this->conn)->selectOne("SELECT * FROM {$s}.mv_dashboard_metrics");
-            return $this->castNumericFields($result, [
-                'total_patients', 'total_admissions', 'icu_admission_rate',
-                'mortality_rate', 'avg_los_days', 'avg_icu_los_days',
-            ]);
-        }
+            // Use materialized view if available
+            if ($this->hasMaterializedView($s, 'mv_dashboard_metrics')) {
+                $result = DB::connection($this->conn)->selectOne("SELECT * FROM {$s}.mv_dashboard_metrics");
 
-        $result = DB::connection($this->conn)->selectOne("
+                return $this->castNumericFields($result, [
+                    'total_patients', 'total_admissions', 'icu_admission_rate',
+                    'mortality_rate', 'avg_los_days', 'avg_icu_los_days',
+                ]);
+            }
+
+            $result = DB::connection($this->conn)->selectOne("
             SELECT
                 (SELECT count(DISTINCT subject_id) FROM {$s}.patients) as total_patients,
                 (SELECT count(*) FROM {$s}.admissions) as total_admissions,
@@ -91,10 +93,10 @@ class MorpheusDashboardService
                 ROUND((SELECT avg(los::numeric) FROM {$s}.icustays)::numeric, 1) as avg_icu_los_days
         ");
 
-        return $this->castNumericFields($result, [
-            'total_patients', 'total_admissions', 'icu_admission_rate',
-            'mortality_rate', 'avg_los_days', 'avg_icu_los_days',
-        ]);
+            return $this->castNumericFields($result, [
+                'total_patients', 'total_admissions', 'icu_admission_rate',
+                'mortality_rate', 'avg_los_days', 'avg_icu_los_days',
+            ]);
         }); // end cached
     }
 
@@ -103,12 +105,13 @@ class MorpheusDashboardService
         $s = $this->getSchemaName($schema);
 
         return $this->cached('trends', $s, function () use ($s) {
-        if ($this->hasMaterializedView($s, 'mv_dashboard_trends')) {
-            $rows = DB::connection($this->conn)->select("SELECT * FROM {$s}.mv_dashboard_trends ORDER BY month");
-            return $this->castNumericFields($rows, ['admissions', 'deaths', 'mortality_rate', 'avg_los']);
-        }
+            if ($this->hasMaterializedView($s, 'mv_dashboard_trends')) {
+                $rows = DB::connection($this->conn)->select("SELECT * FROM {$s}.mv_dashboard_trends ORDER BY month");
 
-        $rows = DB::connection($this->conn)->select("
+                return $this->castNumericFields($rows, ['admissions', 'deaths', 'mortality_rate', 'avg_los']);
+            }
+
+            $rows = DB::connection($this->conn)->select("
             SELECT to_char(admittime::timestamp, 'YYYY-MM') as month,
                    count(*) as admissions,
                    count(*) FILTER (WHERE hospital_expire_flag = '1') as deaths,
@@ -120,7 +123,7 @@ class MorpheusDashboardService
             ORDER BY month
         ");
 
-        return $this->castNumericFields($rows, ['admissions', 'deaths', 'mortality_rate', 'avg_los']);
+            return $this->castNumericFields($rows, ['admissions', 'deaths', 'mortality_rate', 'avg_los']);
         }); // end cached
     }
 

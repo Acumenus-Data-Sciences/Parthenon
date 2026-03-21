@@ -67,12 +67,12 @@ class PgArray implements CastsAttributes
             $s = (string) $item;
             // Quote if contains comma, space, brace, backslash, double-quote, or is empty
             if ($s === '' || preg_match('/[,\s{}"\\\\]/', $s)) {
-                $s = '"' . str_replace('"', '\\"', $s) . '"';
+                $s = '"'.str_replace('"', '\\"', $s).'"';
             }
 
             return $s;
         }, $value);
 
-        return '{' . implode(',', $escaped) . '}';
+        return '{'.implode(',', $escaped).'}';
     }
 }

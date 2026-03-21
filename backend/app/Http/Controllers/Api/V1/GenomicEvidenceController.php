@@ -130,7 +130,7 @@ class GenomicEvidenceController extends Controller
 
         $uploadId = (string) Str::uuid();
         $directory = "investigations/{$investigation->id}/uploads";
-        $filename = $uploadId . '_' . $file->getClientOriginalName();
+        $filename = $uploadId.'_'.$file->getClientOriginalName();
         $path = $file->storeAs($directory, $filename, 'local');
 
         // Parse columns and sample rows from the first 5 data lines

@@ -14,11 +14,13 @@ class TestClaudeClient:
         assert client.api_key == "test-key"
 
     @patch("app.routing.claude_client.anthropic")
+    @patch("app.routing.claude_client.TextBlock", MagicMock)
     def test_chat_returns_response(self, mock_anthropic):
         mock_client = MagicMock()
         mock_anthropic.Anthropic.return_value = mock_client
+        mock_text_block = MagicMock(text="Test reply")
         mock_response = MagicMock()
-        mock_response.content = [MagicMock(text="Test reply")]
+        mock_response.content = [mock_text_block]
         mock_response.usage.input_tokens = 100
         mock_response.usage.output_tokens = 50
         mock_response.model = "claude-sonnet-4-20250514"
