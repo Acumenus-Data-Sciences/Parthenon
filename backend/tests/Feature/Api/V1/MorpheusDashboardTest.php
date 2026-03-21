@@ -49,7 +49,7 @@ test('authenticated user can access dashboard metrics', function () {
         $mock->shouldReceive('getMetrics')
             ->once()
             ->with('mimiciv')
-            ->andReturn([
+            ->andReturn((object) [
                 'total_patients' => 1000,
                 'total_admissions' => 2500,
                 'total_icu_stays' => 800,

@@ -104,7 +104,7 @@ test('authenticated user can view patient demographics', function () {
         $mock->shouldReceive('getDemographics')
             ->once()
             ->with('10001', 'mimiciv')
-            ->andReturn([
+            ->andReturn((object) [
                 'subject_id' => 10001,
                 'gender' => 'M',
                 'anchor_age' => 65,
