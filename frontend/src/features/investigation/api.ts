@@ -353,7 +353,7 @@ export async function executeCohortOperation(
     matching_enabled: false,
   });
 
-  const data = result as Record<string, unknown>;
+  const data = result as unknown as Record<string, unknown>;
   const attritionRaw = (data.attrition ?? []) as Array<Record<string, unknown>>;
   const resultCount =
     ((data.compile_summary as Record<string, unknown>)?.result_rows as number) ?? 0;

@@ -27,7 +27,7 @@ beforeEach(function () {
                 ['concept_id' => 316139, 'concept_name' => 'Heart failure', 'domain_id' => 'Condition', 'vocabulary_id' => 'SNOMED', 'concept_class_id' => 'Clinical Finding', 'standard_concept' => 'S', 'concept_code' => '84114007', 'valid_start_date' => '1970-01-01', 'valid_end_date' => '2099-12-31', 'invalid_reason' => null],
             ]);
         }
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         $this->markTestSkipped('Vocabulary tables not available: '.$e->getMessage());
     }
 });

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Models\App\AbbyConversation;
 use Dedoc\Scramble\Attributes\Group;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -33,7 +34,7 @@ class AbbyConversationController extends Controller
                 ->findOrFail($id);
 
             return response()->json(['data' => $conversation]);
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException) {
+        } catch (ModelNotFoundException) {
             return response()->json(['error' => 'Conversation not found'], 404);
         } catch (\Throwable $e) {
             return $this->errorResponse('Failed to load conversation', $e);
@@ -69,7 +70,7 @@ class AbbyConversationController extends Controller
             $conversation->delete();
 
             return response()->json(['message' => 'Conversation deleted']);
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException) {
+        } catch (ModelNotFoundException) {
             return response()->json(['error' => 'Conversation not found'], 404);
         } catch (\Throwable $e) {
             return $this->errorResponse('Failed to delete conversation', $e);

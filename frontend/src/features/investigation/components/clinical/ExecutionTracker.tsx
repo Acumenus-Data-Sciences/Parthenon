@@ -16,7 +16,7 @@ const TYPE_ICON: Record<ClinicalAnalysisType, string> = {
 };
 
 function getIcon(name: string): React.ElementType {
-  const icons = LucideIcons as Record<string, React.ElementType>;
+  const icons = LucideIcons as unknown as Record<string, React.ElementType>;
   return icons[name] ?? LucideIcons.Box;
 }
 

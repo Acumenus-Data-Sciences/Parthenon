@@ -5,6 +5,7 @@ namespace App\Services\Imaging;
 use App\Models\App\ImagingSeries;
 use App\Models\App\ImagingStudy;
 use App\Models\App\PacsConnection;
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -327,7 +328,7 @@ class DicomwebService
         return str_replace('^', ' ', $pn['Alphabetic']);
     }
 
-    private function request(string $method, string $path, array $query = [], array $headers = [], ?string $body = null): \Illuminate\Http\Client\Response
+    private function request(string $method, string $path, array $query = [], array $headers = [], ?string $body = null): Response
     {
         $defaultHeaders = ['Accept' => 'application/dicom+json'];
         $req = Http::withHeaders(array_merge($defaultHeaders, $headers));

@@ -3,13 +3,14 @@
 namespace App\Models\Commons;
 
 use App\Models\User;
+use Database\Factories\Commons\NotificationFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Notification extends Model
 {
-    /** @use HasFactory<\Database\Factories\Commons\NotificationFactory> */
+    /** @use HasFactory<NotificationFactory> */
     use HasFactory;
 
     protected $table = 'commons_notifications';

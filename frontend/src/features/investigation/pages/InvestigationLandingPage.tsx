@@ -284,9 +284,9 @@ export default function InvestigationLandingPage() {
               <div className="h-4 w-4 rounded-full border-2 border-zinc-700 border-t-zinc-400 animate-spin" />
               Loading investigations...
             </div>
-          ) : investigations && investigations.length > 0 ? (
+          ) : investigations && investigations.data.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {investigations.slice(0, 9).map((inv) => (
+              {investigations.data.slice(0, 9).map((inv: Investigation) => (
                 <InvestigationCard key={inv.id} investigation={inv} />
               ))}
             </div>

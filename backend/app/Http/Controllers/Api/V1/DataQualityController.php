@@ -11,6 +11,7 @@ use App\Services\Dqd\DqdEngineService;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 #[Group('Data Explorer', weight: 160)]
@@ -245,7 +246,7 @@ class DataQualityController extends Controller
         $totalExpected = $this->registry->count();
 
         // Use DB facade to avoid DqdResult model's boolean cast on 'passed' column
-        $overall = \Illuminate\Support\Facades\DB::table('app.dqd_results')
+        $overall = DB::table('app.dqd_results')
             ->where('run_id', $runId)
             ->where('source_id', $source->id)
             ->selectRaw('COUNT(*) as completed')
@@ -256,7 +257,7 @@ class DataQualityController extends Controller
         $completed = (int) ($overall->completed ?? 0);
         $status = $completed === 0 ? 'pending' : ($completed >= $totalExpected ? 'completed' : 'running');
 
-        $byCategory = \Illuminate\Support\Facades\DB::table('app.dqd_results')
+        $byCategory = DB::table('app.dqd_results')
             ->where('run_id', $runId)
             ->where('source_id', $source->id)
             ->selectRaw('category, COUNT(*) as completed, SUM(CASE WHEN passed = true THEN 1 ELSE 0 END)::int as passed_count, SUM(CASE WHEN passed = false THEN 1 ELSE 0 END)::int as failed_count')

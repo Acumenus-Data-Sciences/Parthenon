@@ -2,6 +2,8 @@
 
 namespace App\Services\Solr;
 
+use Illuminate\Support\Facades\Http;
+
 class ClinicalSearchService
 {
     public function __construct(
@@ -115,7 +117,7 @@ class ClinicalSearchService
         $port = config('solr.endpoint.default.port', 8983);
 
         try {
-            $response = \Illuminate\Support\Facades\Http::timeout(30)
+            $response = Http::timeout(30)
                 ->withHeaders(['Content-Type' => 'application/json'])
                 ->post("http://{$host}:{$port}/solr/{$core}/update?commit=true", [
                     'delete' => ['query' => "source_id:{$sourceId}"],

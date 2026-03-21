@@ -4,6 +4,7 @@ namespace App\Models\App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ImagingSeries extends Model
 {
@@ -29,8 +30,8 @@ class ImagingSeries extends Model
         return $this->belongsTo(ImagingStudy::class, 'study_id');
     }
 
-    /** @return \Illuminate\Database\Eloquent\Relations\HasMany<ImagingInstance, $this> */
-    public function instances(): \Illuminate\Database\Eloquent\Relations\HasMany
+    /** @return HasMany<ImagingInstance, $this> */
+    public function instances(): HasMany
     {
         return $this->hasMany(ImagingInstance::class, 'series_id')->orderBy('instance_number');
     }

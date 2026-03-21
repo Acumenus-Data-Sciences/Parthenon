@@ -3,6 +3,7 @@
 namespace App\Services\Investigation;
 
 use App\Models\App\EvidencePin;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -104,7 +105,7 @@ class GenomicProxyService
      */
     public function resolveCrossLinks(int $investigationId): array
     {
-        /** @var \Illuminate\Database\Eloquent\Collection<int, EvidencePin> $pins */
+        /** @var Collection<int, EvidencePin> $pins */
         $pins = EvidencePin::where('investigation_id', $investigationId)->get();
 
         // Build inverted indexes

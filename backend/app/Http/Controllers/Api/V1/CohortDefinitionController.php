@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Enums\ExecutionStatus;
 use App\Http\Controllers\Controller;
 use App\Jobs\Cohort\GenerateCohortJob;
 use App\Models\App\CohortDefinition;
@@ -275,7 +276,7 @@ class CohortDefinitionController extends Controller
             $generation = CohortGeneration::create([
                 'cohort_definition_id' => $cohortDefinition->id,
                 'source_id' => $source->id,
-                'status' => \App\Enums\ExecutionStatus::Queued,
+                'status' => ExecutionStatus::Queued,
                 'started_at' => now(),
             ]);
 
@@ -329,7 +330,7 @@ class CohortDefinitionController extends Controller
             ];
 
             // Include member count breakdown if completed
-            if ($generation->status === \App\Enums\ExecutionStatus::Completed) {
+            if ($generation->status === ExecutionStatus::Completed) {
                 $members = $this->generationService->getMembers($generation, limit: 10);
                 $response['data'] = array_merge($generation->toArray(), [
                     'member_preview' => $members['members'],

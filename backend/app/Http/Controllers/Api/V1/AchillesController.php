@@ -13,6 +13,7 @@ use App\Services\Solr\AnalysesSearchService;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -302,7 +303,7 @@ class AchillesController extends Controller
             ->max('created_at');
 
         $lastAge = $lastResult
-            ? abs(now()->diffInSeconds(\Illuminate\Support\Carbon::parse($lastResult)))
+            ? abs(now()->diffInSeconds(Carbon::parse($lastResult)))
             : PHP_INT_MAX;
 
         if ($rulesCompleted === 0 && $totalResults === 0) {

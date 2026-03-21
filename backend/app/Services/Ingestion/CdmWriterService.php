@@ -2,6 +2,7 @@
 
 namespace App\Services\Ingestion;
 
+use App\Models\App\ConceptMapping;
 use App\Models\App\IngestionJob;
 use App\Models\App\SchemaMapping;
 use Illuminate\Support\Collection;
@@ -143,8 +144,8 @@ class CdmWriterService
      *
      * @param  list<string>  $row
      * @param  array<string, int>  $headerIndex
-     * @param  \Illuminate\Support\Collection<int, \App\Models\App\SchemaMapping>  $tableMappings
-     * @param  \Illuminate\Support\Collection<string, \App\Models\App\ConceptMapping>  $conceptMappings
+     * @param  Collection<int, SchemaMapping>  $tableMappings
+     * @param  Collection<string, ConceptMapping>  $conceptMappings
      * @return array<string, mixed>
      */
     private function buildCdmRow(
@@ -250,7 +251,7 @@ class CdmWriterService
      * - {domain}_source_value (original value)
      *
      * @param  array<string, mixed>  &$cdmRow
-     * @param  \Illuminate\Support\Collection<string, \App\Models\App\ConceptMapping>  $conceptMappings
+     * @param  Collection<string, ConceptMapping>  $conceptMappings
      */
     private function applyConceptTriple(
         array &$cdmRow,

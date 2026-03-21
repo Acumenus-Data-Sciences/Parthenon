@@ -6,10 +6,14 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\FhirSearchRequest;
+use App\Jobs\Fhir\RunFhirExportJob;
+use App\Models\App\FhirExportJob;
 use App\Services\Fhir\Export\FhirBundleAssembler;
 use App\Services\Fhir\Export\OmopToFhirService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class FhirR4Controller extends Controller
 {
@@ -125,7 +129,7 @@ class FhirR4Controller extends Controller
             'patient_ids.*' => ['integer'],
         ]);
 
-        $job = \App\Models\App\FhirExportJob::create([
+        $job = FhirExportJob::create([
             'source_id' => $request->input('source_id'),
             'resource_types' => $request->input('resource_types', [
                 'Patient', 'Condition', 'Encounter', 'Observation',
@@ -135,7 +139,7 @@ class FhirR4Controller extends Controller
             'user_id' => $request->user()->id,
         ]);
 
-        \App\Jobs\Fhir\RunFhirExportJob::dispatch($job->id);
+        RunFhirExportJob::dispatch($job->id);
 
         return response()->json([
             'id' => $job->id,
@@ -150,7 +154,7 @@ class FhirR4Controller extends Controller
      */
     public function exportStatus(string $id): JsonResponse
     {
-        $job = \App\Models\App\FhirExportJob::findOrFail($id);
+        $job = FhirExportJob::findOrFail($id);
 
         return response()->json([
             'id' => $job->id,
@@ -166,16 +170,16 @@ class FhirR4Controller extends Controller
     /**
      * Download an exported NDJSON file.
      */
-    public function downloadExportFile(string $id, string $file): \Symfony\Component\HttpFoundation\StreamedResponse
+    public function downloadExportFile(string $id, string $file): StreamedResponse
     {
-        $job = \App\Models\App\FhirExportJob::findOrFail($id);
+        $job = FhirExportJob::findOrFail($id);
         $path = "fhir-exports/{$id}/{$file}.ndjson";
 
-        if (! \Illuminate\Support\Facades\Storage::disk('local')->exists($path)) {
+        if (! Storage::disk('local')->exists($path)) {
             abort(404, 'Export file not found');
         }
 
-        return \Illuminate\Support\Facades\Storage::disk('local')->download(
+        return Storage::disk('local')->download(
             $path,
             "{$file}.ndjson",
             ['Content-Type' => 'application/fhir+ndjson'],

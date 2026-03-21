@@ -324,6 +324,7 @@ export interface ConceptSearchResult {
   concept_class_id: string;
   standard_concept: string | null;
   concept_code: string;
+  level?: number;
 }
 
 export interface ConceptHierarchy {

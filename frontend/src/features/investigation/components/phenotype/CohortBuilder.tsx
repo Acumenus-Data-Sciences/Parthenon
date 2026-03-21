@@ -65,7 +65,7 @@ export function CohortBuilder({ investigation, onStateChange, onPinFinding }: Co
 
   // Resolved cohort objects (name + count) for CohortOperationPanel
   const { data: cohortListData } = useCohortDefinitions({ limit: 200, with_generations: true });
-  const cohortList = cohortListData?.data ?? [];
+  const cohortList = cohortListData?.items ?? [];
   const selectedCohorts = selectedIds.map((id) => {
     const def = cohortList.find((c) => c.id === id);
     return {

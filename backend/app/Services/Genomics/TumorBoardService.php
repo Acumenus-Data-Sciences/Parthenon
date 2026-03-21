@@ -3,6 +3,7 @@
 namespace App\Services\Genomics;
 
 use App\Models\App\GenomicVariant;
+use Illuminate\Database\Connection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -100,7 +101,7 @@ class TumorBoardService
     }
 
     /** @return array<string, mixed>|null */
-    private function getPatientDemographics(\Illuminate\Database\Connection $conn, string $schema, int $personId): ?array
+    private function getPatientDemographics(Connection $conn, string $schema, int $personId): ?array
     {
         try {
             $row = $conn->selectOne(
@@ -131,7 +132,7 @@ class TumorBoardService
      * @return array<array{gene: string, n_similar: int, median_survival_days: int|null, event_rate: float}>
      */
     private function getSimilarPatientOutcomes(
-        \Illuminate\Database\Connection $conn,
+        Connection $conn,
         string $schema,
         int $sourceId,
         array $actionableGenes,
@@ -196,7 +197,7 @@ class TumorBoardService
      * @return array<array{gene: string, drug: string, n: int, pct: float}>
      */
     private function getDrugPatternsForGenes(
-        \Illuminate\Database\Connection $conn,
+        Connection $conn,
         string $schema,
         int $sourceId,
         array $actionableGenes,

@@ -22,9 +22,23 @@ use App\Models\App\StudyResult;
 use App\Models\App\StudySite;
 use App\Models\App\StudySynthesis;
 use App\Models\App\StudyTeamMember;
+use App\Models\Commons\Channel;
+use App\Models\Commons\Message;
 use App\Observers\CohortDefinitionObserver;
+use App\Observers\DesignProtection\CharacterizationProtectionObserver;
+use App\Observers\DesignProtection\CohortDefinitionProtectionObserver;
+use App\Observers\DesignProtection\ConceptSetProtectionObserver;
+use App\Observers\DesignProtection\EstimationAnalysisProtectionObserver;
+use App\Observers\DesignProtection\EvidenceSynthesisAnalysisProtectionObserver;
+use App\Observers\DesignProtection\HeorAnalysisProtectionObserver;
+use App\Observers\DesignProtection\IncidenceRateAnalysisProtectionObserver;
+use App\Observers\DesignProtection\PathwayAnalysisProtectionObserver;
+use App\Observers\DesignProtection\PredictionAnalysisProtectionObserver;
+use App\Observers\DesignProtection\SccsAnalysisProtectionObserver;
 use App\Observers\StudyObserver;
 use App\Observers\StudySubResourceObserver;
+use App\Policies\Commons\ChannelPolicy;
+use App\Policies\Commons\MessagePolicy;
 use App\Services\AI\AbbyAiService;
 use App\Services\Analysis\CareGapService;
 use App\Services\Analysis\CharacterizationService;
@@ -153,8 +167,8 @@ class AppServiceProvider extends ServiceProvider
         }
 
         // Commons policies
-        Gate::policy(\App\Models\Commons\Channel::class, \App\Policies\Commons\ChannelPolicy::class);
-        Gate::policy(\App\Models\Commons\Message::class, \App\Policies\Commons\MessagePolicy::class);
+        Gate::policy(Channel::class, ChannelPolicy::class);
+        Gate::policy(Message::class, MessagePolicy::class);
 
         // Model observers — activity logging + Solr delta indexing
         CohortDefinition::observe(CohortDefinitionObserver::class);
@@ -177,15 +191,15 @@ class AppServiceProvider extends ServiceProvider
         }
 
         // Design Protection observers — audit log + fixture export for all 10 design entity types
-        CohortDefinition::observe(\App\Observers\DesignProtection\CohortDefinitionProtectionObserver::class);
-        ConceptSet::observe(\App\Observers\DesignProtection\ConceptSetProtectionObserver::class);
-        Characterization::observe(\App\Observers\DesignProtection\CharacterizationProtectionObserver::class);
-        EstimationAnalysis::observe(\App\Observers\DesignProtection\EstimationAnalysisProtectionObserver::class);
-        PredictionAnalysis::observe(\App\Observers\DesignProtection\PredictionAnalysisProtectionObserver::class);
-        SccsAnalysis::observe(\App\Observers\DesignProtection\SccsAnalysisProtectionObserver::class);
-        IncidenceRateAnalysis::observe(\App\Observers\DesignProtection\IncidenceRateAnalysisProtectionObserver::class);
-        PathwayAnalysis::observe(\App\Observers\DesignProtection\PathwayAnalysisProtectionObserver::class);
-        EvidenceSynthesisAnalysis::observe(\App\Observers\DesignProtection\EvidenceSynthesisAnalysisProtectionObserver::class);
-        HeorAnalysis::observe(\App\Observers\DesignProtection\HeorAnalysisProtectionObserver::class);
+        CohortDefinition::observe(CohortDefinitionProtectionObserver::class);
+        ConceptSet::observe(ConceptSetProtectionObserver::class);
+        Characterization::observe(CharacterizationProtectionObserver::class);
+        EstimationAnalysis::observe(EstimationAnalysisProtectionObserver::class);
+        PredictionAnalysis::observe(PredictionAnalysisProtectionObserver::class);
+        SccsAnalysis::observe(SccsAnalysisProtectionObserver::class);
+        IncidenceRateAnalysis::observe(IncidenceRateAnalysisProtectionObserver::class);
+        PathwayAnalysis::observe(PathwayAnalysisProtectionObserver::class);
+        EvidenceSynthesisAnalysis::observe(EvidenceSynthesisAnalysisProtectionObserver::class);
+        HeorAnalysis::observe(HeorAnalysisProtectionObserver::class);
     }
 }

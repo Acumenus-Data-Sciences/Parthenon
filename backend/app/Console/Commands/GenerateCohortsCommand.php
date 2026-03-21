@@ -7,6 +7,7 @@ use App\Enums\ExecutionStatus;
 use App\Models\App\CohortDefinition;
 use App\Models\App\CohortGeneration;
 use App\Models\App\Source;
+use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -111,7 +112,7 @@ class GenerateCohortsCommand extends Command
             DB::connection($connectionName)->statement("DELETE FROM {$resultsSchema}.cohort");
         }
 
-        $user = \App\Models\User::first();
+        $user = User::first();
         $totalGenerated = 0;
 
         foreach ($this->cohortSpecs as $spec) {

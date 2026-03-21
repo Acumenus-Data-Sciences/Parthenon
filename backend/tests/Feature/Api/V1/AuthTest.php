@@ -1,18 +1,20 @@
 <?php
 
 use App\Models\User;
+use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Mail;
 
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
     // Prevent rate-limiter interference across parallel tests
-    $this->withoutMiddleware(\Illuminate\Routing\Middleware\ThrottleRequests::class);
+    $this->withoutMiddleware(ThrottleRequests::class);
     // Fake mail so registration doesn't need a real mail driver
     Mail::fake();
     // Seed roles/permissions required by registration flow
-    $this->seed(\Database\Seeders\RolePermissionSeeder::class);
+    $this->seed(RolePermissionSeeder::class);
 });
 
 test('user can register', function () {

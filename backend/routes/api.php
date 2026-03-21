@@ -28,6 +28,19 @@ use App\Http\Controllers\Api\V1\ClaimsSearchController;
 use App\Http\Controllers\Api\V1\ClinicalCoherenceController;
 use App\Http\Controllers\Api\V1\CohortDefinitionController;
 use App\Http\Controllers\Api\V1\CohortDiagnosticsController;
+use App\Http\Controllers\Api\V1\Commons\ActivityController;
+use App\Http\Controllers\Api\V1\Commons\AnnouncementController;
+use App\Http\Controllers\Api\V1\Commons\AttachmentController;
+use App\Http\Controllers\Api\V1\Commons\ChannelController;
+use App\Http\Controllers\Api\V1\Commons\DirectMessageController;
+use App\Http\Controllers\Api\V1\Commons\MemberController;
+use App\Http\Controllers\Api\V1\Commons\MessageController;
+use App\Http\Controllers\Api\V1\Commons\NotificationController;
+use App\Http\Controllers\Api\V1\Commons\ObjectReferenceController;
+use App\Http\Controllers\Api\V1\Commons\PinController;
+use App\Http\Controllers\Api\V1\Commons\ReactionController;
+use App\Http\Controllers\Api\V1\Commons\ReviewRequestController;
+use App\Http\Controllers\Api\V1\Commons\WikiController;
 use App\Http\Controllers\Api\V1\ConceptExplorerController;
 use App\Http\Controllers\Api\V1\ConceptSetController;
 use App\Http\Controllers\Api\V1\DashboardController;
@@ -97,6 +110,8 @@ use App\Http\Controllers\Api\V1\UserProfileController;
 use App\Http\Controllers\Api\V1\VocabularyController;
 use App\Http\Controllers\Api\V1\WhiteRabbitController;
 use App\Services\GIS\SpatialStatsProxy;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
 
 // Public health check
@@ -104,8 +119,8 @@ Route::get('/health', [HealthController::class, 'index']);
 
 // Broadcasting auth — registered under Sanctum so SPA bearer tokens work.
 // Must use /api/broadcasting/auth path; Echo is configured to match.
-Route::post('/broadcasting/auth', function (\Illuminate\Http\Request $request) {
-    return \Illuminate\Support\Facades\Broadcast::auth($request);
+Route::post('/broadcasting/auth', function (Request $request) {
+    return Broadcast::auth($request);
 })->middleware('auth:sanctum');
 
 // API v1
@@ -932,7 +947,7 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         });
 
         // Spatial statistics (proxy to Python)
-        Route::post('/spatial-stats', function (\Illuminate\Http\Request $request) {
+        Route::post('/spatial-stats', function (Request $request) {
             $request->validate([
                 'analysis_type' => 'required|in:morans_i,hotspots,regression,correlation,drive_time',
                 'variable' => 'required|string',
@@ -1057,77 +1072,77 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 // ── Commons Workspace ──────────────────────────────────────────────────────────
 Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     Route::prefix('commons')->group(function () {
-        Route::get('channels', [App\Http\Controllers\Api\V1\Commons\ChannelController::class, 'index']);
-        Route::post('channels', [App\Http\Controllers\Api\V1\Commons\ChannelController::class, 'store']);
-        Route::get('channels/unread', [App\Http\Controllers\Api\V1\Commons\MemberController::class, 'unreadCounts']);
-        Route::get('channels/{slug}', [App\Http\Controllers\Api\V1\Commons\ChannelController::class, 'show']);
-        Route::patch('channels/{slug}', [App\Http\Controllers\Api\V1\Commons\ChannelController::class, 'update']);
-        Route::post('channels/{slug}/archive', [App\Http\Controllers\Api\V1\Commons\ChannelController::class, 'archive']);
+        Route::get('channels', [ChannelController::class, 'index']);
+        Route::post('channels', [ChannelController::class, 'store']);
+        Route::get('channels/unread', [MemberController::class, 'unreadCounts']);
+        Route::get('channels/{slug}', [ChannelController::class, 'show']);
+        Route::patch('channels/{slug}', [ChannelController::class, 'update']);
+        Route::post('channels/{slug}/archive', [ChannelController::class, 'archive']);
 
-        Route::get('channels/{slug}/messages', [App\Http\Controllers\Api\V1\Commons\MessageController::class, 'index']);
-        Route::post('channels/{slug}/messages', [App\Http\Controllers\Api\V1\Commons\MessageController::class, 'store'])
+        Route::get('channels/{slug}/messages', [MessageController::class, 'index']);
+        Route::post('channels/{slug}/messages', [MessageController::class, 'store'])
             ->middleware('throttle:60,1');
         // Message search (must be before messages/{id} to avoid route conflict)
-        Route::get('messages/search', [App\Http\Controllers\Api\V1\Commons\MessageController::class, 'search']);
+        Route::get('messages/search', [MessageController::class, 'search']);
 
-        Route::patch('messages/{id}', [App\Http\Controllers\Api\V1\Commons\MessageController::class, 'update']);
-        Route::delete('messages/{id}', [App\Http\Controllers\Api\V1\Commons\MessageController::class, 'destroy']);
-        Route::get('channels/{slug}/messages/{messageId}/replies', [App\Http\Controllers\Api\V1\Commons\MessageController::class, 'replies']);
+        Route::patch('messages/{id}', [MessageController::class, 'update']);
+        Route::delete('messages/{id}', [MessageController::class, 'destroy']);
+        Route::get('channels/{slug}/messages/{messageId}/replies', [MessageController::class, 'replies']);
 
-        Route::get('channels/{slug}/members', [App\Http\Controllers\Api\V1\Commons\MemberController::class, 'index']);
-        Route::post('channels/{slug}/members', [App\Http\Controllers\Api\V1\Commons\MemberController::class, 'store']);
-        Route::delete('channels/{slug}/members/{memberId}', [App\Http\Controllers\Api\V1\Commons\MemberController::class, 'destroy']);
-        Route::patch('channels/{slug}/members/{memberId}', [App\Http\Controllers\Api\V1\Commons\MemberController::class, 'updatePreference']);
-        Route::post('channels/{slug}/read', [App\Http\Controllers\Api\V1\Commons\MemberController::class, 'markRead']);
-        Route::post('messages/{id}/reactions', [App\Http\Controllers\Api\V1\Commons\ReactionController::class, 'toggle'])
+        Route::get('channels/{slug}/members', [MemberController::class, 'index']);
+        Route::post('channels/{slug}/members', [MemberController::class, 'store']);
+        Route::delete('channels/{slug}/members/{memberId}', [MemberController::class, 'destroy']);
+        Route::patch('channels/{slug}/members/{memberId}', [MemberController::class, 'updatePreference']);
+        Route::post('channels/{slug}/read', [MemberController::class, 'markRead']);
+        Route::post('messages/{id}/reactions', [ReactionController::class, 'toggle'])
             ->middleware('throttle:30,1');
 
         // Pinned messages
-        Route::get('channels/{slug}/pins', [App\Http\Controllers\Api\V1\Commons\PinController::class, 'index']);
-        Route::post('channels/{slug}/pins', [App\Http\Controllers\Api\V1\Commons\PinController::class, 'store']);
-        Route::delete('channels/{slug}/pins/{pinId}', [App\Http\Controllers\Api\V1\Commons\PinController::class, 'destroy']);
+        Route::get('channels/{slug}/pins', [PinController::class, 'index']);
+        Route::post('channels/{slug}/pins', [PinController::class, 'store']);
+        Route::delete('channels/{slug}/pins/{pinId}', [PinController::class, 'destroy']);
 
         // Direct messages
-        Route::get('dm', [App\Http\Controllers\Api\V1\Commons\DirectMessageController::class, 'index']);
-        Route::post('dm', [App\Http\Controllers\Api\V1\Commons\DirectMessageController::class, 'store']);
+        Route::get('dm', [DirectMessageController::class, 'index']);
+        Route::post('dm', [DirectMessageController::class, 'store']);
 
         // Object references
-        Route::get('objects/search', [App\Http\Controllers\Api\V1\Commons\ObjectReferenceController::class, 'search']);
-        Route::get('objects/{type}/{id}/discussions', [App\Http\Controllers\Api\V1\Commons\ObjectReferenceController::class, 'discussions']);
+        Route::get('objects/search', [ObjectReferenceController::class, 'search']);
+        Route::get('objects/{type}/{id}/discussions', [ObjectReferenceController::class, 'discussions']);
 
         // File attachments
-        Route::post('channels/{slug}/attachments', [App\Http\Controllers\Api\V1\Commons\AttachmentController::class, 'store']);
-        Route::get('attachments/{id}/download', [App\Http\Controllers\Api\V1\Commons\AttachmentController::class, 'download']);
-        Route::delete('attachments/{id}', [App\Http\Controllers\Api\V1\Commons\AttachmentController::class, 'destroy']);
+        Route::post('channels/{slug}/attachments', [AttachmentController::class, 'store']);
+        Route::get('attachments/{id}/download', [AttachmentController::class, 'download']);
+        Route::delete('attachments/{id}', [AttachmentController::class, 'destroy']);
 
         // Review requests
-        Route::get('channels/{slug}/reviews', [App\Http\Controllers\Api\V1\Commons\ReviewRequestController::class, 'index']);
-        Route::post('channels/{slug}/reviews', [App\Http\Controllers\Api\V1\Commons\ReviewRequestController::class, 'store']);
-        Route::patch('reviews/{id}/resolve', [App\Http\Controllers\Api\V1\Commons\ReviewRequestController::class, 'resolve']);
+        Route::get('channels/{slug}/reviews', [ReviewRequestController::class, 'index']);
+        Route::post('channels/{slug}/reviews', [ReviewRequestController::class, 'store']);
+        Route::patch('reviews/{id}/resolve', [ReviewRequestController::class, 'resolve']);
 
         // Notifications
-        Route::get('notifications', [App\Http\Controllers\Api\V1\Commons\NotificationController::class, 'index']);
-        Route::get('notifications/unread-count', [App\Http\Controllers\Api\V1\Commons\NotificationController::class, 'unreadCount']);
-        Route::post('notifications/mark-read', [App\Http\Controllers\Api\V1\Commons\NotificationController::class, 'markRead']);
+        Route::get('notifications', [NotificationController::class, 'index']);
+        Route::get('notifications/unread-count', [NotificationController::class, 'unreadCount']);
+        Route::post('notifications/mark-read', [NotificationController::class, 'markRead']);
 
         // Activity feed
-        Route::get('activities', [App\Http\Controllers\Api\V1\Commons\ActivityController::class, 'global']);
-        Route::get('channels/{slug}/activities', [App\Http\Controllers\Api\V1\Commons\ActivityController::class, 'index']);
+        Route::get('activities', [ActivityController::class, 'global']);
+        Route::get('channels/{slug}/activities', [ActivityController::class, 'index']);
 
         // Announcements
-        Route::get('announcements', [App\Http\Controllers\Api\V1\Commons\AnnouncementController::class, 'index']);
-        Route::post('announcements', [App\Http\Controllers\Api\V1\Commons\AnnouncementController::class, 'store']);
-        Route::patch('announcements/{id}', [App\Http\Controllers\Api\V1\Commons\AnnouncementController::class, 'update']);
-        Route::delete('announcements/{id}', [App\Http\Controllers\Api\V1\Commons\AnnouncementController::class, 'destroy']);
-        Route::post('announcements/{id}/bookmark', [App\Http\Controllers\Api\V1\Commons\AnnouncementController::class, 'bookmark']);
+        Route::get('announcements', [AnnouncementController::class, 'index']);
+        Route::post('announcements', [AnnouncementController::class, 'store']);
+        Route::patch('announcements/{id}', [AnnouncementController::class, 'update']);
+        Route::delete('announcements/{id}', [AnnouncementController::class, 'destroy']);
+        Route::post('announcements/{id}/bookmark', [AnnouncementController::class, 'bookmark']);
 
         // Wiki / Knowledge Base
-        Route::get('wiki', [App\Http\Controllers\Api\V1\Commons\WikiController::class, 'index']);
-        Route::post('wiki', [App\Http\Controllers\Api\V1\Commons\WikiController::class, 'store']);
-        Route::get('wiki/{slug}', [App\Http\Controllers\Api\V1\Commons\WikiController::class, 'show']);
-        Route::patch('wiki/{slug}', [App\Http\Controllers\Api\V1\Commons\WikiController::class, 'update']);
-        Route::delete('wiki/{slug}', [App\Http\Controllers\Api\V1\Commons\WikiController::class, 'destroy']);
-        Route::get('wiki/{slug}/revisions', [App\Http\Controllers\Api\V1\Commons\WikiController::class, 'revisions']);
+        Route::get('wiki', [WikiController::class, 'index']);
+        Route::post('wiki', [WikiController::class, 'store']);
+        Route::get('wiki/{slug}', [WikiController::class, 'show']);
+        Route::patch('wiki/{slug}', [WikiController::class, 'update']);
+        Route::delete('wiki/{slug}', [WikiController::class, 'destroy']);
+        Route::get('wiki/{slug}/revisions', [WikiController::class, 'revisions']);
 
         // Abby feedback (thumbs up/down on responses)
         Route::post('abby/feedback', [AbbyAiController::class, 'feedback']);

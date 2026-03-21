@@ -2,6 +2,8 @@
 
 namespace App\Services\Solr;
 
+use Illuminate\Support\Facades\Http;
+
 class CohortSearchService
 {
     public function __construct(
@@ -146,7 +148,7 @@ class CohortSearchService
         $url = 'http://'.config('solr.endpoint.default.host', 'solr').':'.config('solr.endpoint.default.port', 8983)."/solr/{$core}/update?commit=true";
 
         try {
-            $response = \Illuminate\Support\Facades\Http::timeout(5)
+            $response = Http::timeout(5)
                 ->withHeaders(['Content-Type' => 'application/json'])
                 ->post($url, ['delete' => ['id' => $id]]);
 

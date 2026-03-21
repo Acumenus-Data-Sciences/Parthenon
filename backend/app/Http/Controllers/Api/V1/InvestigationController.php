@@ -7,6 +7,7 @@ use App\Http\Requests\Investigation\SaveDomainStateRequest;
 use App\Http\Requests\Investigation\StoreInvestigationRequest;
 use App\Http\Requests\Investigation\UpdateInvestigationRequest;
 use App\Models\App\Investigation;
+use App\Models\User;
 use App\Services\Investigation\InvestigationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -19,7 +20,7 @@ class InvestigationController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = $request->user();
         $status = $request->query('status');
 
@@ -39,7 +40,7 @@ class InvestigationController extends Controller
 
     public function store(StoreInvestigationRequest $request): JsonResponse
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = $request->user();
 
         $investigation = $this->service->create($user->id, $request->validated());
@@ -49,7 +50,7 @@ class InvestigationController extends Controller
 
     public function show(Request $request, Investigation $investigation): JsonResponse
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = $request->user();
         if ($investigation->owner_id !== $user->id) {
             return response()->json(['error' => 'Forbidden'], 403);
@@ -62,7 +63,7 @@ class InvestigationController extends Controller
 
     public function update(UpdateInvestigationRequest $request, Investigation $investigation): JsonResponse
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = $request->user();
         if ($investigation->owner_id !== $user->id) {
             return response()->json(['error' => 'Forbidden'], 403);
@@ -75,7 +76,7 @@ class InvestigationController extends Controller
 
     public function destroy(Request $request, Investigation $investigation): JsonResponse
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = $request->user();
         if ($investigation->owner_id !== $user->id) {
             return response()->json(['error' => 'Forbidden'], 403);
@@ -88,7 +89,7 @@ class InvestigationController extends Controller
 
     public function saveDomainState(SaveDomainStateRequest $request, Investigation $investigation, string $domain): JsonResponse
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = $request->user();
         if ($investigation->owner_id !== $user->id) {
             return response()->json(['error' => 'Forbidden'], 403);

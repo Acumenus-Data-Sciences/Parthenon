@@ -14,6 +14,7 @@ use App\Models\App\GisImport;
 use App\Models\App\IngestionJob;
 use App\Models\App\Source;
 use App\Models\App\VocabularyImport;
+use App\Models\User;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -26,7 +27,7 @@ class DashboardController extends Controller
      */
     public function stats(Request $request): JsonResponse
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = $request->user();
         $userId = $user->id;
 

@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class FhirConnectionController extends Controller
 {
@@ -352,7 +353,7 @@ class FhirConnectionController extends Controller
     {
         $key = openssl_pkey_get_private($pem);
         if ($key === false) {
-            throw new \Illuminate\Validation\ValidationException(
+            throw new ValidationException(
                 validator([], [])->after(function ($v) {
                     $v->errors()->add('private_key_pem', 'Invalid PEM private key. Ensure it is RSA or EC format.');
                 })

@@ -4,6 +4,7 @@ namespace App\Services\Genomics;
 
 use App\Models\App\GenomicUpload;
 use App\Models\App\GenomicVariant;
+use Illuminate\Database\Connection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -102,7 +103,7 @@ class OmopMeasurementWriterService
      *
      * @return int The new measurement_id
      */
-    private function writeVariant(GenomicVariant $variant, \Illuminate\Database\Connection $conn, string $schema): int
+    private function writeVariant(GenomicVariant $variant, Connection $conn, string $schema): int
     {
         // Resolve the next measurement_id (sequence or max+1 for CDM without sequences)
         $maxId = $conn->selectOne("SELECT COALESCE(MAX(measurement_id), 0) AS max_id FROM {$schema}.measurement");
@@ -139,7 +140,7 @@ class OmopMeasurementWriterService
      * Attempt to resolve a standard OMOP concept_id for this variant.
      * Priority: explicit measurement_concept_id set during parsing > gene LOINC lookup > 0.
      */
-    private function resolveMeasurementConceptId(GenomicVariant $variant, \Illuminate\Database\Connection $conn, string $schema): int
+    private function resolveMeasurementConceptId(GenomicVariant $variant, Connection $conn, string $schema): int
     {
         if ($variant->measurement_concept_id > 0) {
             return $variant->measurement_concept_id;

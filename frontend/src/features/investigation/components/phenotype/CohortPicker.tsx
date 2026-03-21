@@ -20,7 +20,7 @@ export function CohortPicker({
     with_generations: true,
   });
 
-  const cohorts = data?.data ?? [];
+  const cohorts = data?.items ?? [];
 
   const filtered = cohorts.filter((c) => {
     const q = search.toLowerCase();

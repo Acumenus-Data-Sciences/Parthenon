@@ -55,7 +55,7 @@ function computeLambdaGC(sortedP: number[]): number {
   const mid = Math.floor(sortedP.length / 2);
   const medianP = sortedP[mid];
   // z-score from p-value (two-sided), then chi2
-  const z = d3.quantile(
+  const _z = d3.quantile(
     [-1, 1].map(() => 0), // dummy — compute via normal inverse
     0.5,
   );

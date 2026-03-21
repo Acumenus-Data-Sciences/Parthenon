@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Analysis;
 
+use App\Enums\DaimonType;
 use App\Models\App\Source;
 use App\Services\Analysis\CareGapRefreshService;
 use Illuminate\Bus\Queueable;
@@ -41,7 +42,7 @@ class CareGapNightlyRefreshJob implements ShouldQueue
         $sources = Source::all()->filter(function (Source $source) {
             $source->load('daimons');
 
-            return $source->getTableQualifier(\App\Enums\DaimonType::CDM) !== null;
+            return $source->getTableQualifier(DaimonType::CDM) !== null;
         });
 
         if ($sources->isEmpty()) {

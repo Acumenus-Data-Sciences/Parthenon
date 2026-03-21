@@ -14,8 +14,10 @@ use App\Services\AiService;
 use App\Services\Ingestion\FileUploadService;
 use App\Services\Solr\MappingSearchService;
 use Database\Seeders\RolePermissionSeeder;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Storage;
 
@@ -26,7 +28,7 @@ uses(RefreshDatabase::class);
 // ---------------------------------------------------------------------------
 
 beforeEach(function () {
-    $this->withoutMiddleware(\Illuminate\Routing\Middleware\ThrottleRequests::class);
+    $this->withoutMiddleware(ThrottleRequests::class);
     $this->seed(RolePermissionSeeder::class);
     Storage::fake('ingestion');
 });
@@ -97,7 +99,7 @@ function makeSchemaMapping(IngestionJob $job, array $overrides = []): SchemaMapp
     ], $overrides));
 }
 
-function mockFileUploadService(\Illuminate\Contracts\Foundation\Application $app): void
+function mockFileUploadService(Application $app): void
 {
     $app->bind(FileUploadService::class, function () {
         $mock = Mockery::mock(FileUploadService::class);

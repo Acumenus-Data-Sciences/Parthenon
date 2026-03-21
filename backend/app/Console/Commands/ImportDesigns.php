@@ -15,6 +15,9 @@ use App\Models\App\PredictionAnalysis;
 use App\Models\App\SccsAnalysis;
 use App\Models\User;
 use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 
 class ImportDesigns extends Command
@@ -168,16 +171,16 @@ class ImportDesigns extends Command
     /**
      * Find an existing record by name, supporting soft-deleted models.
      *
-     * @param  class-string<\Illuminate\Database\Eloquent\Model>  $modelClass
+     * @param  class-string<Model>  $modelClass
      */
-    private function findExisting(string $modelClass, string $name): ?\Illuminate\Database\Eloquent\Model
+    private function findExisting(string $modelClass, string $name): ?Model
     {
         $usesSoftDeletes = in_array(
-            \Illuminate\Database\Eloquent\SoftDeletes::class,
+            SoftDeletes::class,
             class_uses_recursive($modelClass)
         );
 
-        /** @var \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model> $query */
+        /** @var Builder<Model> $query */
         $query = $modelClass::query();
 
         if ($usesSoftDeletes) {

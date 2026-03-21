@@ -2,6 +2,8 @@
 
 namespace App\Services\Solr;
 
+use Illuminate\Support\Facades\Http;
+
 class MappingSearchService
 {
     public function __construct(
@@ -119,7 +121,7 @@ class MappingSearchService
         $port = config('solr.endpoint.default.port', 8983);
 
         try {
-            $response = \Illuminate\Support\Facades\Http::timeout(5)
+            $response = Http::timeout(5)
                 ->withHeaders(['Content-Type' => 'application/json'])
                 ->post("http://{$host}:{$port}/solr/{$core}/update?commit=true", [
                     'delete' => ['query' => "ingestion_job_id:{$jobId}"],

@@ -2,6 +2,8 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\DaimonType;
+use App\Jobs\Analysis\CareGapNightlyRefreshJob;
 use App\Models\App\ConditionBundle;
 use App\Models\App\Source;
 use App\Services\Analysis\CareGapRefreshService;
@@ -25,7 +27,7 @@ class RefreshCareGapsCommand extends Command
     public function handle(CareGapRefreshService $refreshService): int
     {
         if ($this->option('queue')) {
-            \App\Jobs\Analysis\CareGapNightlyRefreshJob::dispatch();
+            CareGapNightlyRefreshJob::dispatch();
             $this->info('CareGapNightlyRefreshJob dispatched to analysis queue.');
 
             return self::SUCCESS;
@@ -66,7 +68,7 @@ class RefreshCareGapsCommand extends Command
 
             if ($bundles !== null) {
                 // Single-bundle mode
-                $cdmSchema = $source->getTableQualifier(\App\Enums\DaimonType::CDM);
+                $cdmSchema = $source->getTableQualifier(DaimonType::CDM);
                 if ($cdmSchema === null) {
                     $this->warn('  → No CDM daimon configured — skipping.');
 

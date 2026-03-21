@@ -4,8 +4,10 @@ use App\Models\App\GisImport;
 use App\Models\User;
 use App\Services\GIS\GisImportService;
 use Database\Seeders\RolePermissionSeeder;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Storage;
 
@@ -16,7 +18,7 @@ uses(RefreshDatabase::class);
 // ---------------------------------------------------------------------------
 
 beforeEach(function () {
-    $this->withoutMiddleware(\Illuminate\Routing\Middleware\ThrottleRequests::class);
+    $this->withoutMiddleware(ThrottleRequests::class);
     $this->seed(RolePermissionSeeder::class);
 });
 
@@ -46,7 +48,7 @@ function makeGisImport(User $user, array $overrides = []): GisImport
  * Mock GisImportService so upload tests don't need real files on disk.
  * Returns a standard preview payload.
  */
-function mockImportService(\Illuminate\Contracts\Foundation\Application $app): void
+function mockImportService(Application $app): void
 {
     $app->bind(GisImportService::class, function () {
         $mock = Mockery::mock(GisImportService::class)->makePartial();

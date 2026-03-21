@@ -2,6 +2,7 @@
 
 namespace App\Services\Analysis;
 
+use App\Enums\DaimonType;
 use App\Models\App\Source;
 use App\Services\SqlRenderer\SqlRendererService;
 use Illuminate\Support\Facades\DB;
@@ -36,8 +37,8 @@ class NegativeControlService
         array $excludeConceptIds = [],
     ): array {
         $source->load('daimons');
-        $cdmSchema = $source->getTableQualifier(\App\Enums\DaimonType::CDM);
-        $vocabSchema = $source->getTableQualifier(\App\Enums\DaimonType::Vocabulary) ?? $cdmSchema;
+        $cdmSchema = $source->getTableQualifier(DaimonType::CDM);
+        $vocabSchema = $source->getTableQualifier(DaimonType::Vocabulary) ?? $cdmSchema;
 
         if ($cdmSchema === null) {
             throw new \RuntimeException('Source is missing required CDM schema configuration.');
@@ -114,8 +115,8 @@ class NegativeControlService
         Source $source,
     ): array {
         $source->load('daimons');
-        $vocabSchema = $source->getTableQualifier(\App\Enums\DaimonType::Vocabulary)
-            ?? $source->getTableQualifier(\App\Enums\DaimonType::CDM);
+        $vocabSchema = $source->getTableQualifier(DaimonType::Vocabulary)
+            ?? $source->getTableQualifier(DaimonType::CDM);
         $dialect = $source->source_dialect ?? 'postgresql';
         $connectionName = $source->source_connection ?? 'omop';
         $params = ['vocabSchema' => $vocabSchema];

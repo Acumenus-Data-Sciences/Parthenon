@@ -24,13 +24,16 @@ use App\Models\App\IngestionJob;
 use App\Models\App\PathwayAnalysis;
 use App\Models\App\PredictionAnalysis;
 use App\Models\App\SccsAnalysis;
+use App\Models\App\Source;
 use App\Models\App\VocabularyImport;
 use App\Services\Achilles\Heel\AchillesHeelRuleRegistry;
 use App\Services\Dqd\DqdCheckRegistry;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class JobController extends Controller
 {
@@ -418,7 +421,7 @@ class JobController extends Controller
     {
         $totalExpected = app(DqdCheckRegistry::class)->count();
 
-        $runs = \Illuminate\Support\Facades\DB::table('app.dqd_results')
+        $runs = DB::table('app.dqd_results')
             ->selectRaw('run_id, source_id, COUNT(*) as total_checks, SUM(CASE WHEN passed = true THEN 1 ELSE 0 END)::int as passed_count, MIN(created_at) as started_at, MAX(created_at) as completed_at, SUM(execution_time_ms) as total_ms')
             ->groupBy('run_id', 'source_id')
             ->orderByDesc('started_at')
@@ -426,7 +429,7 @@ class JobController extends Controller
             ->get();
 
         return $runs->map(function ($run) use ($totalExpected) {
-            $source = \App\Models\App\Source::find($run->source_id);
+            $source = Source::find($run->source_id);
             $completed = (int) $run->total_checks;
             $passed = (int) $run->passed_count;
             $failed = $completed - $passed;
@@ -435,7 +438,7 @@ class JobController extends Controller
             // If the last check was >5 minutes ago and we haven't hit totalExpected,
             // the run stalled/crashed — mark it completed (partial).
             $lastCheckAge = $run->completed_at
-                ? abs(now()->diffInSeconds(\Illuminate\Support\Carbon::parse($run->completed_at)))
+                ? abs(now()->diffInSeconds(Carbon::parse($run->completed_at)))
                 : PHP_INT_MAX;
             $isRunning = $completed < $totalExpected && $lastCheckAge < 300;
             $pct = $totalExpected > 0 ? round(($completed / $totalExpected) * 100) : 100;
@@ -471,7 +474,7 @@ class JobController extends Controller
     {
         $totalRules = app(AchillesHeelRuleRegistry::class)->count();
 
-        $runs = \Illuminate\Support\Facades\DB::table('app.achilles_heel_results')
+        $runs = DB::table('app.achilles_heel_results')
             ->whereNotNull('run_id')
             ->selectRaw('run_id, source_id, COUNT(*) as total_results, COUNT(DISTINCT rule_id) as rules_completed, MIN(created_at) as started_at, MAX(created_at) as completed_at')
             ->groupBy('run_id', 'source_id')
@@ -480,7 +483,7 @@ class JobController extends Controller
             ->get();
 
         return $runs->map(function ($run) use ($totalRules) {
-            $source = \App\Models\App\Source::find($run->source_id);
+            $source = Source::find($run->source_id);
             $totalResults = (int) $run->total_results;
             $rulesWithViolations = (int) $run->rules_completed;
 
@@ -488,7 +491,7 @@ class JobController extends Controller
             // We cannot determine "running" from row count since most rules produce 0 rows.
             // Instead, use time-based staleness: if the last insert was >2 minutes ago, it's done.
             $lastResultAge = $run->completed_at
-                ? abs(now()->diffInSeconds(\Illuminate\Support\Carbon::parse($run->completed_at)))
+                ? abs(now()->diffInSeconds(Carbon::parse($run->completed_at)))
                 : PHP_INT_MAX;
             $isRunning = $lastResultAge < 120;
 

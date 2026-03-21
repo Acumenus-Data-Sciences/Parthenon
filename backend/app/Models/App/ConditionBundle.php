@@ -3,6 +3,7 @@
 namespace App\Models\App;
 
 use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -70,9 +71,9 @@ class ConditionBundle extends Model
     /**
      * Get overlap rules applicable to this bundle.
      *
-     * @return \Illuminate\Database\Eloquent\Collection<int, BundleOverlapRule>
+     * @return Collection<int, BundleOverlapRule>
      */
-    public function getOverlapRulesAttribute(): \Illuminate\Database\Eloquent\Collection
+    public function getOverlapRulesAttribute(): Collection
     {
         return BundleOverlapRule::where('is_active', true)
             ->get()

@@ -99,7 +99,7 @@ export function ConfigDrawer({
 
   // ---- Cohort definitions ----
   const { data: cohortPage } = useCohortDefinitions({ limit: 200 });
-  const allCohorts = cohortPage?.data ?? [];
+  const allCohorts = cohortPage?.items ?? [];
 
   // IDs that belong to this investigation
   const investigationCohortIds = new Set(

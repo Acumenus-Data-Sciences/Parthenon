@@ -7,7 +7,7 @@ import {
 } from "../api";
 
 export function useCreateAnalysis() {
-  const qc = useQueryClient();
+  const _qc = useQueryClient();
   return useMutation({
     mutationFn: ({
       apiPrefix,

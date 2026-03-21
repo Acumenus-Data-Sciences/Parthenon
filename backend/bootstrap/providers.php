@@ -1,12 +1,21 @@
 <?php
 
+use App\Providers\AchillesServiceProvider;
+use App\Providers\AppServiceProvider;
+use App\Providers\ClinicalCoherenceServiceProvider;
+use App\Providers\DataQualityServiceProvider;
+use App\Providers\NetworkAnalysisServiceProvider;
+use App\Providers\PopulationCharacterizationServiceProvider;
+use App\Providers\PopulationRiskServiceProvider;
+use App\Providers\SolrServiceProvider;
+
 return [
-    App\Providers\AppServiceProvider::class,
-    App\Providers\AchillesServiceProvider::class,
-    App\Providers\ClinicalCoherenceServiceProvider::class,
-    App\Providers\DataQualityServiceProvider::class,
-    App\Providers\PopulationRiskServiceProvider::class,
-    App\Providers\NetworkAnalysisServiceProvider::class,
-    App\Providers\PopulationCharacterizationServiceProvider::class,
-    App\Providers\SolrServiceProvider::class,
+    AppServiceProvider::class,
+    AchillesServiceProvider::class,
+    ClinicalCoherenceServiceProvider::class,
+    DataQualityServiceProvider::class,
+    PopulationRiskServiceProvider::class,
+    NetworkAnalysisServiceProvider::class,
+    PopulationCharacterizationServiceProvider::class,
+    SolrServiceProvider::class,
 ];

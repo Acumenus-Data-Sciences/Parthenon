@@ -1,8 +1,16 @@
 <?php
 
+use App\Http\Middleware\ForceJsonResponse;
+use App\Http\Middleware\RecordUserActivity;
+use App\Jobs\Analysis\CareGapNightlyRefreshJob;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Support\Facades\Route;
+use Spatie\Permission\Middleware\PermissionMiddleware;
+use Spatie\Permission\Middleware\RoleMiddleware;
+use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -12,7 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
         channels: __DIR__.'/../routes/channels.php',
         health: '/up',
         then: function () {
-            \Illuminate\Support\Facades\Route::prefix('api/v1')
+            Route::prefix('api/v1')
                 ->middleware(['api'])
                 ->group(base_path('routes/fhir.php'));
         },
@@ -20,19 +28,19 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->statefulApi();
         $middleware->api(prepend: [
-            \App\Http\Middleware\ForceJsonResponse::class,
+            ForceJsonResponse::class,
         ]);
         $middleware->appendToGroup('api', [
-            \App\Http\Middleware\RecordUserActivity::class,
+            RecordUserActivity::class,
         ]);
         $middleware->alias([
-            'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
-            'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
-            'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
+            'role' => RoleMiddleware::class,
+            'permission' => PermissionMiddleware::class,
+            'role_or_permission' => RoleOrPermissionMiddleware::class,
         ]);
     })
-    ->withSchedule(function (\Illuminate\Console\Scheduling\Schedule $schedule) {
-        $schedule->job(new \App\Jobs\Analysis\CareGapNightlyRefreshJob)
+    ->withSchedule(function (Schedule $schedule) {
+        $schedule->job(new CareGapNightlyRefreshJob)
             ->dailyAt('02:00')
             ->withoutOverlapping(60)
             ->onOneServer()

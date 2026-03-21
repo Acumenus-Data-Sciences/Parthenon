@@ -2,6 +2,7 @@
 
 namespace App\Services\Publication\Exporters;
 
+use Dompdf\Dompdf;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class PdfExporter
@@ -20,8 +21,8 @@ class PdfExporter
         $filename = trim((string) $slug, '-');
 
         // Try DOMPDF if available
-        if (class_exists(\Dompdf\Dompdf::class)) {
-            $dompdf = new \Dompdf\Dompdf;
+        if (class_exists(Dompdf::class)) {
+            $dompdf = new Dompdf;
             $dompdf->loadHtml($html);
             $dompdf->setPaper('letter', 'portrait');
             $dompdf->render();

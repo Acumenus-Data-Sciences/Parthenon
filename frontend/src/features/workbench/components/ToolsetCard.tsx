@@ -3,7 +3,7 @@ import * as LucideIcons from "lucide-react";
 import type { ToolsetDescriptor } from "../types";
 
 function getIcon(name: string): React.ElementType {
-  const icons = LucideIcons as Record<string, React.ElementType>;
+  const icons = LucideIcons as unknown as Record<string, React.ElementType>;
   return icons[name] ?? LucideIcons.Box;
 }
 
@@ -52,7 +52,7 @@ export function ToolsetCard({ toolset }: ToolsetCardProps) {
         >
           <Icon
             className="h-6 w-6"
-            style={{ color: toolset.accent }}
+            style={{ color: toolset.accent } as React.CSSProperties}
           />
         </div>
         {toolset.badge && (

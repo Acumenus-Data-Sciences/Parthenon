@@ -8,6 +8,7 @@ use App\Services\AiService;
 use App\Services\Cohort\Schema\CohortExpressionSchema;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class AbbyAiService
 {
@@ -178,7 +179,7 @@ class AbbyAiService
         $build = $this->buildCohortFromPrompt($prompt, null, $pageContext);
 
         $name = $build['cohort_name']
-            ?? ('Abby: '.\Illuminate\Support\Str::limit($prompt, 80));
+            ?? ('Abby: '.Str::limit($prompt, 80));
 
         // Location states go into the description since OMOP CDM doesn't have
         // a first-class state filter in the expression schema.

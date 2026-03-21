@@ -2,6 +2,7 @@
 
 namespace App\Services\StudyAgent;
 
+use App\Enums\DaimonType;
 use App\Models\App\Source;
 use App\Services\Analysis\CohortOverlapService;
 use App\Services\Cohort\CohortSqlCompiler;
@@ -1316,9 +1317,9 @@ SQL;
             'source_name' => $source->source_name,
             'source_key' => $source->source_key,
             'source_dialect' => $source->source_dialect,
-            'cdm_schema' => $source->getTableQualifier(\App\Enums\DaimonType::CDM),
-            'results_schema' => $source->getTableQualifier(\App\Enums\DaimonType::Results),
-            'vocabulary_schema' => $source->getTableQualifier(\App\Enums\DaimonType::Vocabulary),
+            'cdm_schema' => $source->getTableQualifier(DaimonType::CDM),
+            'results_schema' => $source->getTableQualifier(DaimonType::Results),
+            'vocabulary_schema' => $source->getTableQualifier(DaimonType::Vocabulary),
         ];
     }
 

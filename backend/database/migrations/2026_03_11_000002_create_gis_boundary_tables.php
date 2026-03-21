@@ -65,7 +65,7 @@ return new class extends Migration
             $result = DB::selectOne("SELECT COUNT(*) AS cnt FROM pg_extension WHERE extname = 'postgis'");
 
             return $result !== null && (int) $result->cnt > 0;
-        } catch (\Throwable) {
+        } catch (Throwable) {
             return false;
         }
     }

@@ -14,7 +14,7 @@ return new class extends Migration
             $table->timestamp('share_expires_at')->nullable()->after('share_token');
         });
 
-        \DB::statement('CREATE INDEX idx_cohort_definitions_share_token ON cohort_definitions(share_token)');
+        DB::statement('CREATE INDEX idx_cohort_definitions_share_token ON cohort_definitions(share_token)');
     }
 
     public function down(): void

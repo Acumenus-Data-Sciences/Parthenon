@@ -9,6 +9,7 @@ use App\Services\GIS\GisImportService;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Storage;
@@ -85,7 +86,7 @@ class ImportSecurityTest extends TestCase
      */
     public function test_binary_file_with_csv_extension_rejected(): void
     {
-        $this->withoutMiddleware(\Illuminate\Routing\Middleware\ThrottleRequests::class);
+        $this->withoutMiddleware(ThrottleRequests::class);
         Storage::fake('local');
 
         $researcher = $this->createUser('researcher');
@@ -107,7 +108,7 @@ class ImportSecurityTest extends TestCase
      */
     public function test_php_file_as_csv_rejected(): void
     {
-        $this->withoutMiddleware(\Illuminate\Routing\Middleware\ThrottleRequests::class);
+        $this->withoutMiddleware(ThrottleRequests::class);
         Storage::fake('local');
 
         $researcher = $this->createUser('researcher');
@@ -134,7 +135,7 @@ class ImportSecurityTest extends TestCase
      */
     public function test_empty_file_rejected(): void
     {
-        $this->withoutMiddleware(\Illuminate\Routing\Middleware\ThrottleRequests::class);
+        $this->withoutMiddleware(ThrottleRequests::class);
         Storage::fake('local');
 
         $researcher = $this->createUser('researcher');
@@ -159,7 +160,7 @@ class ImportSecurityTest extends TestCase
      */
     public function test_upload_respects_50mb_limit(): void
     {
-        $this->withoutMiddleware(\Illuminate\Routing\Middleware\ThrottleRequests::class);
+        $this->withoutMiddleware(ThrottleRequests::class);
         Storage::fake('local');
 
         $researcher = $this->createUser('researcher');
@@ -182,7 +183,7 @@ class ImportSecurityTest extends TestCase
      */
     public function test_injection_in_column_headers_does_not_execute(): void
     {
-        $this->withoutMiddleware(\Illuminate\Routing\Middleware\ThrottleRequests::class);
+        $this->withoutMiddleware(ThrottleRequests::class);
         Storage::fake('local');
         $this->mockGisImportService();
 
@@ -211,7 +212,7 @@ class ImportSecurityTest extends TestCase
      */
     public function test_path_traversal_in_filename_sanitized(): void
     {
-        $this->withoutMiddleware(\Illuminate\Routing\Middleware\ThrottleRequests::class);
+        $this->withoutMiddleware(ThrottleRequests::class);
         Storage::fake('local');
         $this->mockGisImportService();
 
@@ -244,7 +245,7 @@ class ImportSecurityTest extends TestCase
      */
     public function test_xss_in_layer_name_escaped(): void
     {
-        $this->withoutMiddleware(\Illuminate\Routing\Middleware\ThrottleRequests::class);
+        $this->withoutMiddleware(ThrottleRequests::class);
 
         $researcher = $this->createUser('researcher');
         $import = $this->makeGisImport($researcher, ['status' => 'uploaded']);
@@ -285,7 +286,7 @@ class ImportSecurityTest extends TestCase
      */
     public function test_sql_injection_in_mapping_column_names(): void
     {
-        $this->withoutMiddleware(\Illuminate\Routing\Middleware\ThrottleRequests::class);
+        $this->withoutMiddleware(ThrottleRequests::class);
 
         $researcher = $this->createUser('researcher');
         $import = $this->makeGisImport($researcher);
@@ -319,7 +320,7 @@ class ImportSecurityTest extends TestCase
      */
     public function test_null_bytes_in_filename_stripped(): void
     {
-        $this->withoutMiddleware(\Illuminate\Routing\Middleware\ThrottleRequests::class);
+        $this->withoutMiddleware(ThrottleRequests::class);
         Storage::fake('local');
         $this->mockGisImportService();
 
@@ -353,7 +354,7 @@ class ImportSecurityTest extends TestCase
      */
     public function test_viewer_cannot_upload_gis(): void
     {
-        $this->withoutMiddleware(\Illuminate\Routing\Middleware\ThrottleRequests::class);
+        $this->withoutMiddleware(ThrottleRequests::class);
         Storage::fake('local');
 
         $viewer = $this->createUser('viewer');
@@ -377,7 +378,7 @@ class ImportSecurityTest extends TestCase
      */
     public function test_viewer_cannot_upload_ingestion(): void
     {
-        $this->withoutMiddleware(\Illuminate\Routing\Middleware\ThrottleRequests::class);
+        $this->withoutMiddleware(ThrottleRequests::class);
         Storage::fake('ingestion');
 
         $viewer = $this->createUser('viewer');
@@ -398,7 +399,7 @@ class ImportSecurityTest extends TestCase
      */
     public function test_researcher_can_gis_import_but_not_manage(): void
     {
-        $this->withoutMiddleware(\Illuminate\Routing\Middleware\ThrottleRequests::class);
+        $this->withoutMiddleware(ThrottleRequests::class);
         Storage::fake('local');
         $this->mockGisImportService();
 
@@ -429,7 +430,7 @@ class ImportSecurityTest extends TestCase
      */
     public function test_data_steward_can_upload_ingestion(): void
     {
-        $this->withoutMiddleware(\Illuminate\Routing\Middleware\ThrottleRequests::class);
+        $this->withoutMiddleware(ThrottleRequests::class);
         Storage::fake('ingestion');
 
         $dataSteward = $this->createUser('data-steward');
@@ -464,7 +465,7 @@ class ImportSecurityTest extends TestCase
      */
     public function test_mapping_reviewer_cannot_upload(): void
     {
-        $this->withoutMiddleware(\Illuminate\Routing\Middleware\ThrottleRequests::class);
+        $this->withoutMiddleware(ThrottleRequests::class);
 
         $mappingReviewer = $this->createUser('mapping-reviewer');
 
@@ -491,7 +492,7 @@ class ImportSecurityTest extends TestCase
      */
     public function test_admin_has_full_gis_access(): void
     {
-        $this->withoutMiddleware(\Illuminate\Routing\Middleware\ThrottleRequests::class);
+        $this->withoutMiddleware(ThrottleRequests::class);
         Storage::fake('local');
         $this->mockGisImportService();
 

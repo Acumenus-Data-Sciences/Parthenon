@@ -2,6 +2,7 @@
 
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schedule;
 
 Artisan::command('inspire', function () {
@@ -21,5 +22,5 @@ Schedule::command('commons:sync-ohdsi-announcements')
     ->withoutOverlapping()
     ->runInBackground()
     ->onFailure(function () {
-        \Illuminate\Support\Facades\Log::error('commons:sync-ohdsi-announcements scheduled run failed.');
+        Log::error('commons:sync-ohdsi-announcements scheduled run failed.');
     });

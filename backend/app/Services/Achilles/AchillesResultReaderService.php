@@ -9,6 +9,7 @@ use App\Models\Results\AchillesPerformance;
 use App\Models\Results\AchillesResult;
 use App\Models\Results\AchillesResultDist;
 use App\Services\Database\DynamicConnectionFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
 class AchillesResultReaderService
@@ -44,26 +45,26 @@ class AchillesResultReaderService
     // These scope every Eloquent query to $this->activeConnection so that
     // dynamic sources (db_host set) use their own registered connection.
 
-    /** @return \Illuminate\Database\Eloquent\Builder<AchillesResult> */
-    private function ar(): \Illuminate\Database\Eloquent\Builder
+    /** @return Builder<AchillesResult> */
+    private function ar(): Builder
     {
         return AchillesResult::on($this->activeConnection)->newQuery();
     }
 
-    /** @return \Illuminate\Database\Eloquent\Builder<AchillesResultDist> */
-    private function ard(): \Illuminate\Database\Eloquent\Builder
+    /** @return Builder<AchillesResultDist> */
+    private function ard(): Builder
     {
         return AchillesResultDist::on($this->activeConnection)->newQuery();
     }
 
-    /** @return \Illuminate\Database\Eloquent\Builder<AchillesAnalysis> */
-    private function aa(): \Illuminate\Database\Eloquent\Builder
+    /** @return Builder<AchillesAnalysis> */
+    private function aa(): Builder
     {
         return AchillesAnalysis::on($this->activeConnection)->newQuery();
     }
 
-    /** @return \Illuminate\Database\Eloquent\Builder<AchillesPerformance> */
-    private function ap(): \Illuminate\Database\Eloquent\Builder
+    /** @return Builder<AchillesPerformance> */
+    private function ap(): Builder
     {
         return AchillesPerformance::on($this->activeConnection)->newQuery();
     }

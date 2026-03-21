@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\ParseGenomicUploadJob;
 use App\Models\App\ClinVarSyncLog;
 use App\Models\App\ClinVarVariant;
 use App\Models\App\GenomicCohortCriterion;
@@ -123,7 +124,7 @@ class GenomicsController extends Controller
                 ]);
             }
         } else {
-            \App\Jobs\ParseGenomicUploadJob::dispatch($upload);
+            ParseGenomicUploadJob::dispatch($upload);
         }
 
         $upload->load('creator:id,name');

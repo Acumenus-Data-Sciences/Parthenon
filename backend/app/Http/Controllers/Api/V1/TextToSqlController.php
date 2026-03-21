@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\App\QueryLibraryEntry;
+use App\Models\User;
 use App\Services\QueryLibrary\QueryLibrarySearchService;
 use App\Services\Solr\VocabularySearchService;
 use Dedoc\Scramble\Attributes\Group;
@@ -197,7 +198,7 @@ class TextToSqlController extends Controller
 
         // Role gate for non-safe queries
         if ($safety !== 'safe') {
-            /** @var \App\Models\User $user */
+            /** @var User $user */
             $user = $request->user();
             if (! $user->hasRole('super-admin')) {
                 return response()->json([

@@ -2,6 +2,7 @@
 
 namespace App\Models\App;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
@@ -20,7 +21,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property array|null $new_json
  * @property array|null $changed_fields
  * @property string|null $ip_address
- * @property \Carbon\Carbon $created_at
+ * @property Carbon $created_at
  */
 class DesignAuditLog extends Model
 {

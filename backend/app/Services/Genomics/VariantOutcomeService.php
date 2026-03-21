@@ -3,6 +3,7 @@
 namespace App\Services\Genomics;
 
 use App\Models\App\Source;
+use Illuminate\Database\Connection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -86,7 +87,7 @@ class VariantOutcomeService
      * @param  int[]  $personIds
      * @return array<array{t: int, e: int}>
      */
-    private function getSurvivalEvents(\Illuminate\Database\Connection $conn, string $schema, array $personIds, ?int $cohortId): array
+    private function getSurvivalEvents(Connection $conn, string $schema, array $personIds, ?int $cohortId): array
     {
         if (empty($personIds)) {
             return [];

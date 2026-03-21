@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\App\Investigation;
+use App\Models\User;
 use App\Services\Investigation\InvestigationExportService;
 use App\Services\Investigation\InvestigationVersionService;
 use Illuminate\Http\JsonResponse;
@@ -19,7 +20,7 @@ class InvestigationExportController extends Controller
 
     public function exportJson(Request $request, Investigation $investigation): JsonResponse
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = $request->user();
         if ($investigation->owner_id !== $user->id) {
             return response()->json(['error' => 'Forbidden'], 403);
@@ -32,7 +33,7 @@ class InvestigationExportController extends Controller
 
     public function exportPdf(Request $request, Investigation $investigation): Response|JsonResponse
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = $request->user();
         if ($investigation->owner_id !== $user->id) {
             return response()->json(['error' => 'Forbidden'], 403);
@@ -59,7 +60,7 @@ class InvestigationExportController extends Controller
 
     public function listVersions(Request $request, Investigation $investigation): JsonResponse
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = $request->user();
         if ($investigation->owner_id !== $user->id) {
             return response()->json(['error' => 'Forbidden'], 403);
@@ -72,7 +73,7 @@ class InvestigationExportController extends Controller
 
     public function getVersion(Request $request, Investigation $investigation, int $versionNumber): JsonResponse
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = $request->user();
         if ($investigation->owner_id !== $user->id) {
             return response()->json(['error' => 'Forbidden'], 403);
@@ -89,7 +90,7 @@ class InvestigationExportController extends Controller
 
     public function createVersion(Request $request, Investigation $investigation): JsonResponse
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = $request->user();
         if ($investigation->owner_id !== $user->id) {
             return response()->json(['error' => 'Forbidden'], 403);

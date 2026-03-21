@@ -2,6 +2,7 @@
 
 namespace App\Models\App;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -26,7 +27,7 @@ class AppSetting extends Model
 
     public function updatedByUser(): BelongsTo
     {
-        return $this->belongsTo(\App\Models\User::class, 'updated_by');
+        return $this->belongsTo(User::class, 'updated_by');
     }
 
     /**

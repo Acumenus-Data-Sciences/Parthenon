@@ -68,7 +68,7 @@ it('exports investigation as PDF or HTML fallback', function () {
 
     // Mock the export service so Blade doesn't need to compile in test env
     // (storage/framework/views is owned by the Docker user in this environment)
-    $mock = \Mockery::mock(InvestigationExportService::class);
+    $mock = Mockery::mock(InvestigationExportService::class);
     $mock->shouldReceive('toPdf')->andReturn(null);
     $mock->shouldReceive('toPdfHtml')->andReturn('<html><body>Test dossier for SGLT2i Study</body></html>');
     $this->app->instance(InvestigationExportService::class, $mock);

@@ -7,6 +7,7 @@ use App\Http\Requests\Investigation\StorePinRequest;
 use App\Http\Requests\Investigation\UpdatePinRequest;
 use App\Models\App\EvidencePin;
 use App\Models\App\Investigation;
+use App\Models\User;
 use App\Services\Investigation\EvidencePinService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -19,7 +20,7 @@ class EvidencePinController extends Controller
 
     public function index(Request $request, Investigation $investigation): JsonResponse
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = $request->user();
         if ($investigation->owner_id !== $user->id) {
             return response()->json(['error' => 'Forbidden'], 403);
@@ -32,7 +33,7 @@ class EvidencePinController extends Controller
 
     public function store(StorePinRequest $request, Investigation $investigation): JsonResponse
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = $request->user();
         if ($investigation->owner_id !== $user->id) {
             return response()->json(['error' => 'Forbidden'], 403);
@@ -45,7 +46,7 @@ class EvidencePinController extends Controller
 
     public function update(UpdatePinRequest $request, Investigation $investigation, EvidencePin $pin): JsonResponse
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = $request->user();
         if ($investigation->owner_id !== $user->id || $pin->investigation_id !== $investigation->id) {
             return response()->json(['error' => 'Forbidden'], 403);
@@ -58,7 +59,7 @@ class EvidencePinController extends Controller
 
     public function destroy(Request $request, Investigation $investigation, EvidencePin $pin): JsonResponse
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = $request->user();
         if ($investigation->owner_id !== $user->id || $pin->investigation_id !== $investigation->id) {
             return response()->json(['error' => 'Forbidden'], 403);

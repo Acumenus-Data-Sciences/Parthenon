@@ -10,7 +10,7 @@ return new class extends Migration
     {
         try {
             DB::statement('CREATE EXTENSION IF NOT EXISTS postgis');
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             Log::warning('PostGIS extension could not be enabled: '.$e->getMessage());
         }
     }
@@ -19,7 +19,7 @@ return new class extends Migration
     {
         try {
             DB::statement('DROP EXTENSION IF EXISTS postgis CASCADE');
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             Log::warning('PostGIS extension could not be dropped: '.$e->getMessage());
         }
     }

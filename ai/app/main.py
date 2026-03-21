@@ -1,5 +1,7 @@
 import os
 import logging
+from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
 from importlib import import_module
 from typing import Any
 
@@ -23,10 +25,21 @@ from app.routers import health
 if not settings.database_url:
     raise RuntimeError("DATABASE_URL must be set")
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+    """Startup/shutdown lifecycle handler (replaces deprecated on_event)."""
+    await _startup_ingest_docs()
+    await _startup_warm_embedders()
+    await _startup_warm_ollama()
+    yield
+
+
 app = FastAPI(
     title="Parthenon AI Service",
     description="AI/ML service for concept mapping, embeddings, and clinical NLP. Uses Ollama with MedGemma for medical reasoning.",
     version="0.1.0",
+    lifespan=lifespan,
 )
 
 app.add_middleware(
@@ -68,8 +81,7 @@ for module_name, kwargs in OPTIONAL_ROUTERS:
     app.include_router(module.router, **kwargs)
 
 
-@app.on_event("startup")
-async def startup_ingest_docs() -> None:
+async def _startup_ingest_docs() -> None:
     """Auto-ingest documentation on service startup."""
     import asyncio
 
@@ -90,8 +102,7 @@ async def startup_ingest_docs() -> None:
         _logger.warning("Startup doc ingestion failed (non-fatal): %s", e)
 
 
-@app.on_event("startup")
-async def startup_warm_embedders() -> None:
+async def _startup_warm_embedders() -> None:
     """Clear stale lru_cache embedder singletons inherited from pre-fork parent,
     then eagerly load fresh instances in this worker process.
 
@@ -119,8 +130,7 @@ async def startup_warm_embedders() -> None:
     asyncio.create_task(_warm())
 
 
-@app.on_event("startup")
-async def startup_warm_ollama() -> None:
+async def _startup_warm_ollama() -> None:
     """Pre-load MedGemma into Ollama at startup with keep_alive=3600 so the
     model stays warm for 1 hour without pegging the GPU indefinitely."""
     import asyncio

@@ -7,6 +7,7 @@ use App\Models\App\AuthProviderSetting;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 #[Group('Administration', weight: 220)]
 class AuthProviderController extends Controller
@@ -126,7 +127,7 @@ class AuthProviderController extends Controller
         }
 
         try {
-            $response = \Illuminate\Support\Facades\Http::timeout(10)->get($cfg['discovery_url']);
+            $response = Http::timeout(10)->get($cfg['discovery_url']);
 
             if ($response->failed()) {
                 return ['success' => false, 'message' => "Discovery URL returned HTTP {$response->status()}."];

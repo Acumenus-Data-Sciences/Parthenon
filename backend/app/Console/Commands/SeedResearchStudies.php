@@ -18,6 +18,7 @@ use App\Models\App\StudyMilestone;
 use App\Models\App\StudySite;
 use App\Models\User;
 use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
 class SeedResearchStudies extends Command
@@ -82,7 +83,7 @@ class SeedResearchStudies extends Command
     /**
      * Map fixture subdirectory → analysis model class.
      *
-     * @var array<string, class-string<\Illuminate\Database\Eloquent\Model>>
+     * @var array<string, class-string<Model>>
      */
     private const ANALYSIS_MODEL_MAP = [
         'characterizations' => Characterization::class,
@@ -209,7 +210,7 @@ class SeedResearchStudies extends Command
      * Import all s*-prefixed analysis fixtures with resolved cohort IDs.
      *
      * @param  array<string, int>  $idMap
-     * @return array<string, array{model_class: class-string<\Illuminate\Database\Eloquent\Model>, id: int}> keyed by fixture name
+     * @return array<string, array{model_class: class-string<Model>, id: int}> keyed by fixture name
      */
     private function importAnalysisFixtures(array $idMap, User $admin, bool $dryRun): array
     {
@@ -284,8 +285,8 @@ class SeedResearchStudies extends Command
     /**
      * Find an analysis record by name pattern and return its model class + ID.
      *
-     * @param  array<string, array{model_class: class-string<\Illuminate\Database\Eloquent\Model>, id: int}>  $records
-     * @return array{model_class: class-string<\Illuminate\Database\Eloquent\Model>, id: int}|null
+     * @param  array<string, array{model_class: class-string<Model>, id: int}>  $records
+     * @return array{model_class: class-string<Model>, id: int}|null
      */
     private function findAnalysis(array $records, string $namePattern): ?array
     {
@@ -300,7 +301,7 @@ class SeedResearchStudies extends Command
 
     /**
      * @param  array<string, int>  $idMap
-     * @param  array<string, array{model_class: class-string<\Illuminate\Database\Eloquent\Model>, id: int}>  $analysisRecords
+     * @param  array<string, array{model_class: class-string<Model>, id: int}>  $analysisRecords
      */
     private function createStudy6(User $admin, array $idMap, array $analysisRecords, bool $dryRun): void
     {
@@ -442,7 +443,7 @@ class SeedResearchStudies extends Command
 
     /**
      * @param  array<string, int>  $idMap
-     * @param  array<string, array{model_class: class-string<\Illuminate\Database\Eloquent\Model>, id: int}>  $analysisRecords
+     * @param  array<string, array{model_class: class-string<Model>, id: int}>  $analysisRecords
      */
     private function createStudy8(User $admin, array $idMap, array $analysisRecords, bool $dryRun): void
     {

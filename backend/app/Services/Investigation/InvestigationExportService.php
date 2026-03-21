@@ -3,6 +3,7 @@
 namespace App\Services\Investigation;
 
 use App\Models\App\Investigation;
+use Dompdf\Dompdf;
 use Illuminate\Support\Facades\View;
 
 class InvestigationExportService
@@ -71,13 +72,13 @@ class InvestigationExportService
      */
     public function toPdf(Investigation $investigation): ?string
     {
-        if (! class_exists(\Dompdf\Dompdf::class)) {
+        if (! class_exists(Dompdf::class)) {
             return null;
         }
 
         $html = $this->toPdfHtml($investigation);
 
-        $dompdf = new \Dompdf\Dompdf;
+        $dompdf = new Dompdf;
         $dompdf->loadHtml($html);
         $dompdf->setPaper('A4', 'portrait');
         $dompdf->render();

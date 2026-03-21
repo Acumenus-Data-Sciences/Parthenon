@@ -3,6 +3,7 @@
 namespace App\Models\App;
 
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -235,8 +236,8 @@ class Study extends Model
     // ── Scopes ───────────────────────────────────────────────────────────
 
     /**
-     * @param  \Illuminate\Database\Eloquent\Builder<Study>  $query
-     * @return \Illuminate\Database\Eloquent\Builder<Study>
+     * @param  Builder<Study>  $query
+     * @return Builder<Study>
      */
     public function scopeSearch($query, string $term)
     {

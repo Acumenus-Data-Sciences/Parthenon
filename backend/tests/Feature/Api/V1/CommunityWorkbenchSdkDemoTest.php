@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Support\Facades\Http;
+
 it('returns the community workbench sdk demo payload', function () {
     $this->withoutMiddleware();
 
@@ -13,8 +15,8 @@ it('returns the community workbench sdk demo payload', function () {
 it('appends the community workbench sdk sample tool to study agent services', function () {
     $this->withoutMiddleware();
 
-    \Illuminate\Support\Facades\Http::fake([
-        '*' => \Illuminate\Support\Facades\Http::response([
+    Http::fake([
+        '*' => Http::response([
             'services' => [
                 [
                     'name' => 'finngen_romopapi',

@@ -7,6 +7,7 @@ use App\Models\App\BundleOverlapRule;
 use App\Models\App\ConditionBundle;
 use App\Models\App\QualityMeasure;
 use App\Models\App\Source;
+use Illuminate\Database\Connection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -140,7 +141,7 @@ class CareGapRefreshService
         ConditionBundle $bundle,
         string $cdmSchema,
         string $connectionName,
-        \Illuminate\Database\Connection $appConn,
+        Connection $appConn,
     ): void {
         $conceptIds = $bundle->omop_concept_ids ?? [];
 
@@ -203,7 +204,7 @@ class CareGapRefreshService
         QualityMeasure $measure,
         string $cdmSchema,
         string $connectionName,
-        \Illuminate\Database\Connection $appConn,
+        Connection $appConn,
     ): void {
         $numerator = $measure->numerator_criteria;
 
@@ -288,7 +289,7 @@ class CareGapRefreshService
     private function applyDeduplicationFlags(
         Source $source,
         ConditionBundle $bundle,
-        \Illuminate\Database\Connection $appConn,
+        Connection $appConn,
     ): void {
         // Reset all to false first
         $appConn->table('care_gap_patient_measures')
@@ -337,7 +338,7 @@ class CareGapRefreshService
         Source $source,
         ConditionBundle $bundle,
         int $durationMs,
-        \Illuminate\Database\Connection $appConn,
+        Connection $appConn,
     ): void {
         // Single-pass aggregation over per-patient stats using a CTE.
         // Avoids the O(N²) self-join of the previous approach.

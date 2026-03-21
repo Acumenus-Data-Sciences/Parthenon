@@ -4,7 +4,9 @@ namespace App\Services\Imaging;
 
 use App\Models\App\ImagingFeature;
 use App\Models\App\ImagingStudy;
+use Illuminate\Database\Connection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -138,7 +140,7 @@ Report:
 PROMPT;
 
         try {
-            $response = \Illuminate\Support\Facades\Http::timeout(30)
+            $response = Http::timeout(30)
                 ->post("{$this->aiBaseUrl}/generate", [
                     'prompt' => $prompt,
                     'max_tokens' => 1000,
@@ -168,7 +170,7 @@ PROMPT;
     /**
      * @param  array<string, mixed>  $finding
      */
-    private function createFeature(ImagingStudy $study, array $finding, \Illuminate\Database\Connection $conn, string $schema): ?ImagingFeature
+    private function createFeature(ImagingStudy $study, array $finding, Connection $conn, string $schema): ?ImagingFeature
     {
         $featureName = $finding['finding'] ?? null;
         if (! $featureName) {

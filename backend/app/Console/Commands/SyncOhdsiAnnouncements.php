@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Commons\Announcement;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -75,7 +76,7 @@ class SyncOhdsiAnnouncements extends Command
 
         foreach ($items as $item) {
             $guid = (string) ($item->guid ?? $item->link ?? '');
-            $pubDate = isset($item->pubDate) ? \Carbon\Carbon::parse((string) $item->pubDate) : now();
+            $pubDate = isset($item->pubDate) ? Carbon::parse((string) $item->pubDate) : now();
 
             if (in_array($guid, $seenGuids, true)) {
                 continue;
@@ -151,7 +152,7 @@ class SyncOhdsiAnnouncements extends Command
         );
     }
 
-    private function formatBody(\SimpleXMLElement $item, \Carbon\Carbon $pubDate): string
+    private function formatBody(\SimpleXMLElement $item, Carbon $pubDate): string
     {
         $link = (string) $item->link;
         $author = (string) ($item->children('dc', true)->creator ?? '');
@@ -174,7 +175,7 @@ class SyncOhdsiAnnouncements extends Command
         ]));
     }
 
-    private function createAnnouncement(User $poster, string $title, string $body, \Carbon\Carbon $pubDate): void
+    private function createAnnouncement(User $poster, string $title, string $body, Carbon $pubDate): void
     {
         $bodyHtml = (new GithubFlavoredMarkdownConverter)->convert($body)->getContent();
 

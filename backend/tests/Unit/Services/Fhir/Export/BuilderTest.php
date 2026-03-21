@@ -4,9 +4,17 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Services\Fhir\Export;
 
+use App\Services\Fhir\Export\Builders\AllergyBuilder;
 use App\Services\Fhir\Export\Builders\ConditionBuilder;
+use App\Services\Fhir\Export\Builders\EncounterBuilder;
+use App\Services\Fhir\Export\Builders\ImmunizationBuilder;
+use App\Services\Fhir\Export\Builders\MeasurementBuilder;
+use App\Services\Fhir\Export\Builders\MedicationBuilder;
+use App\Services\Fhir\Export\Builders\ObservationBuilder;
 use App\Services\Fhir\Export\Builders\PatientBuilder;
+use App\Services\Fhir\Export\Builders\ProcedureBuilder;
 use App\Services\Fhir\Export\FhirBundleAssembler;
+use App\Services\Fhir\Export\FhirResourceBuilderFactory;
 use App\Services\Fhir\Export\ReverseVocabularyService;
 use Mockery;
 use Tests\TestCase;
@@ -147,7 +155,7 @@ class BuilderTest extends TestCase
             'care_site_id' => 10,
         ];
 
-        $builder = new \App\Services\Fhir\Export\Builders\EncounterBuilder($this->vocab);
+        $builder = new EncounterBuilder($this->vocab);
         $resource = $builder->build($row);
 
         $this->assertEquals('Encounter', $resource['resourceType']);
@@ -174,7 +182,7 @@ class BuilderTest extends TestCase
             'care_site_id' => null,
         ];
 
-        $builder = new \App\Services\Fhir\Export\Builders\EncounterBuilder($this->vocab);
+        $builder = new EncounterBuilder($this->vocab);
         $resource = $builder->build($row);
 
         $this->assertEquals('EMER', $resource['class']['code']);
@@ -197,7 +205,7 @@ class BuilderTest extends TestCase
             'care_site_id' => null,
         ];
 
-        $builder = new \App\Services\Fhir\Export\Builders\EncounterBuilder($this->vocab);
+        $builder = new EncounterBuilder($this->vocab);
         $resource = $builder->build($row);
 
         $this->assertEquals('AMB', $resource['class']['code']);
@@ -224,7 +232,7 @@ class BuilderTest extends TestCase
             'visit_occurrence_id' => 100,
         ];
 
-        $builder = new \App\Services\Fhir\Export\Builders\ObservationBuilder($this->vocab);
+        $builder = new ObservationBuilder($this->vocab);
         $resource = $builder->build($row);
 
         $this->assertEquals('Observation', $resource['resourceType']);
@@ -256,7 +264,7 @@ class BuilderTest extends TestCase
             'visit_occurrence_id' => null,
         ];
 
-        $builder = new \App\Services\Fhir\Export\Builders\ObservationBuilder($this->vocab);
+        $builder = new ObservationBuilder($this->vocab);
         $resource = $builder->build($row);
 
         $this->assertEquals('Never smoker', $resource['valueString']);
@@ -284,7 +292,7 @@ class BuilderTest extends TestCase
             'visit_occurrence_id' => 100,
         ];
 
-        $builder = new \App\Services\Fhir\Export\Builders\MeasurementBuilder($this->vocab);
+        $builder = new MeasurementBuilder($this->vocab);
         $resource = $builder->build($row);
 
         $this->assertEquals('Observation', $resource['resourceType']);
@@ -314,7 +322,7 @@ class BuilderTest extends TestCase
             'visit_occurrence_id' => null,
         ];
 
-        $builder = new \App\Services\Fhir\Export\Builders\MeasurementBuilder($this->vocab);
+        $builder = new MeasurementBuilder($this->vocab);
         $resource = $builder->build($row);
 
         $this->assertEquals('measurement-999', $resource['id']);
@@ -342,7 +350,7 @@ class BuilderTest extends TestCase
             'visit_occurrence_id' => null,
         ];
 
-        $builder = new \App\Services\Fhir\Export\Builders\MedicationBuilder($this->vocab);
+        $builder = new MedicationBuilder($this->vocab);
         $resource = $builder->build($row);
 
         $this->assertEquals('MedicationStatement', $resource['resourceType']);
@@ -372,7 +380,7 @@ class BuilderTest extends TestCase
             'visit_occurrence_id' => 200,
         ];
 
-        $builder = new \App\Services\Fhir\Export\Builders\MedicationBuilder($this->vocab);
+        $builder = new MedicationBuilder($this->vocab);
         $resource = $builder->build($row);
 
         $this->assertEquals('Encounter/200', $resource['context']['reference']);
@@ -399,7 +407,7 @@ class BuilderTest extends TestCase
             'visit_occurrence_id' => 100,
         ];
 
-        $builder = new \App\Services\Fhir\Export\Builders\ProcedureBuilder($this->vocab);
+        $builder = new ProcedureBuilder($this->vocab);
         $resource = $builder->build($row);
 
         $this->assertEquals('Procedure', $resource['resourceType']);
@@ -428,7 +436,7 @@ class BuilderTest extends TestCase
             'visit_occurrence_id' => null,
         ];
 
-        $builder = new \App\Services\Fhir\Export\Builders\ProcedureBuilder($this->vocab);
+        $builder = new ProcedureBuilder($this->vocab);
         $resource = $builder->build($row);
 
         $this->assertEquals('401', $resource['id']);
@@ -439,15 +447,15 @@ class BuilderTest extends TestCase
 
     public function test_factory_for_table_dispatches_all_builders(): void
     {
-        $factory = new \App\Services\Fhir\Export\FhirResourceBuilderFactory($this->vocab);
+        $factory = new FhirResourceBuilderFactory($this->vocab);
 
-        $this->assertInstanceOf(\App\Services\Fhir\Export\Builders\PatientBuilder::class, $factory->forTable('person'));
-        $this->assertInstanceOf(\App\Services\Fhir\Export\Builders\ConditionBuilder::class, $factory->forTable('condition_occurrence'));
-        $this->assertInstanceOf(\App\Services\Fhir\Export\Builders\EncounterBuilder::class, $factory->forTable('visit_occurrence'));
-        $this->assertInstanceOf(\App\Services\Fhir\Export\Builders\ObservationBuilder::class, $factory->forTable('observation'));
-        $this->assertInstanceOf(\App\Services\Fhir\Export\Builders\MeasurementBuilder::class, $factory->forTable('measurement'));
-        $this->assertInstanceOf(\App\Services\Fhir\Export\Builders\MedicationBuilder::class, $factory->forTable('drug_exposure'));
-        $this->assertInstanceOf(\App\Services\Fhir\Export\Builders\ProcedureBuilder::class, $factory->forTable('procedure_occurrence'));
+        $this->assertInstanceOf(PatientBuilder::class, $factory->forTable('person'));
+        $this->assertInstanceOf(ConditionBuilder::class, $factory->forTable('condition_occurrence'));
+        $this->assertInstanceOf(EncounterBuilder::class, $factory->forTable('visit_occurrence'));
+        $this->assertInstanceOf(ObservationBuilder::class, $factory->forTable('observation'));
+        $this->assertInstanceOf(MeasurementBuilder::class, $factory->forTable('measurement'));
+        $this->assertInstanceOf(MedicationBuilder::class, $factory->forTable('drug_exposure'));
+        $this->assertInstanceOf(ProcedureBuilder::class, $factory->forTable('procedure_occurrence'));
         $this->assertNull($factory->forTable('unknown_table'));
     }
 
@@ -471,7 +479,7 @@ class BuilderTest extends TestCase
             'dose_unit_source_value' => 'mL',
         ];
 
-        $builder = new \App\Services\Fhir\Export\Builders\ImmunizationBuilder($this->vocab);
+        $builder = new ImmunizationBuilder($this->vocab);
         $resource = $builder->build($row);
 
         $this->assertEquals('Immunization', $resource['resourceType']);
@@ -498,7 +506,7 @@ class BuilderTest extends TestCase
             'value_as_concept_id' => 1500,
         ];
 
-        $builder = new \App\Services\Fhir\Export\Builders\AllergyBuilder($this->vocab);
+        $builder = new AllergyBuilder($this->vocab);
         $resource = $builder->build($row);
 
         $this->assertEquals('AllergyIntolerance', $resource['resourceType']);

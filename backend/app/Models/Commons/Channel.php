@@ -3,6 +3,7 @@
 namespace App\Models\Commons;
 
 use App\Models\User;
+use Database\Factories\Commons\ChannelFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Channel extends Model
 {
-    /** @use HasFactory<\Database\Factories\Commons\ChannelFactory> */
+    /** @use HasFactory<ChannelFactory> */
     use HasFactory;
 
     protected $table = 'commons_channels';

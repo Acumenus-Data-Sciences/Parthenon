@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Services\Solr\SolrClientWrapper;
 use Illuminate\Console\Command;
+use Illuminate\Database\Connection;
 use Illuminate\Support\Facades\DB;
 
 class SolrIndexClaims extends Command
@@ -193,7 +194,7 @@ class SolrIndexClaims extends Command
      * @param  list<string>  $codes
      * @return list<string>
      */
-    private function resolveDiagnosisNames(\Illuminate\Database\Connection $conn, string $schema, array $codes): array
+    private function resolveDiagnosisNames(Connection $conn, string $schema, array $codes): array
     {
         if (empty($codes)) {
             return [];
@@ -216,7 +217,7 @@ class SolrIndexClaims extends Command
     /**
      * @return array{total_charge: float, total_payment: float, total_adjustment: float, transaction_count: int, procedure_codes: list<string>, place_of_service: string, line_notes: string}
      */
-    private function aggregateTransactions(\Illuminate\Database\Connection $conn, string $schema, string $claimId): array
+    private function aggregateTransactions(Connection $conn, string $schema, string $claimId): array
     {
         $rows = $conn->select(
             "SELECT type, amount, procedurecode, placeofservice, notes, linenote

@@ -2,6 +2,7 @@
 
 namespace App\Services\Cohort\Builders;
 
+use App\Services\Cohort\Criteria\CriteriaBuilderInterface;
 use App\Services\Cohort\Criteria\CriteriaBuilderRegistry;
 use App\Services\Cohort\Criteria\DemographicCriteriaBuilder;
 use App\Services\Cohort\Schema\CohortExpressionSchema;
@@ -148,7 +149,7 @@ SQL;
      */
     private function buildSingleCriterionCte(
         string $cteName,
-        \App\Services\Cohort\Criteria\CriteriaBuilderInterface $builder,
+        CriteriaBuilderInterface $builder,
         array $domainConfig,
         array $criterionWrapper,
         string $cdmSchema,

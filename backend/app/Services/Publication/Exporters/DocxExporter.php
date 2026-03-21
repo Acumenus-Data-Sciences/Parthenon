@@ -2,6 +2,8 @@
 
 namespace App\Services\Publication\Exporters;
 
+use PhpOffice\PhpWord\Element\Section;
+use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\SimpleType\Jc;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -95,7 +97,7 @@ class DocxExporter
                 }
 
                 try {
-                    $writer = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'Word2007');
+                    $writer = IOFactory::createWriter($phpWord, 'Word2007');
                     $writer->save($tempFile);
                     readfile($tempFile);
                 } finally {
@@ -116,7 +118,7 @@ class DocxExporter
     /**
      * Add a text-based section (methods, results, discussion).
      *
-     * @param  \PhpOffice\PhpWord\Element\Section  $section
+     * @param  Section  $section
      * @param  array<string, mixed>  $data
      */
     private function addTextSection($section, array $data): void
@@ -162,7 +164,7 @@ class DocxExporter
     /**
      * Add a diagram section with optional SVG-to-PNG conversion.
      *
-     * @param  \PhpOffice\PhpWord\Element\Section  $section
+     * @param  Section  $section
      * @param  array<string, mixed>  $data
      */
     private function addDiagram($section, array $data): void

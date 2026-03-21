@@ -5,6 +5,7 @@ namespace App\Services\Analysis;
 use App\Enums\DaimonType;
 use App\Enums\ExecutionStatus;
 use App\Models\App\AnalysisExecution;
+use App\Models\App\CohortDefinition;
 use App\Models\App\EstimationAnalysis;
 use App\Models\App\ExecutionLog;
 use App\Models\App\Source;
@@ -70,7 +71,7 @@ class EstimationService
 
             // Resolve outcome names from cohort definitions
             $outcomeNames = [];
-            $cohortNames = \App\Models\App\CohortDefinition::whereIn('id', $outcomeCohortIds)
+            $cohortNames = CohortDefinition::whereIn('id', $outcomeCohortIds)
                 ->pluck('name', 'id');
             foreach ($outcomeCohortIds as $oid) {
                 $outcomeNames[(string) $oid] = $cohortNames[$oid] ?? "Outcome {$oid}";

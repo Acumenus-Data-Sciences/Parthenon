@@ -12,7 +12,7 @@ export function useAutoSave(
 ) {
   const mutation = useSaveDomainState();
   const [status, setStatus] = useState<SaveStatus>("idle");
-  const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const lastSavedRef = useRef<string>("");
 
   const save = useCallback(() => {

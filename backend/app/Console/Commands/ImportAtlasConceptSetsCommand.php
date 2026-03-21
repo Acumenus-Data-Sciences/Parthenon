@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\App\ConceptSet;
+use App\Models\User;
 use Illuminate\Console\Command;
 
 class ImportAtlasConceptSetsCommand extends Command
@@ -26,8 +27,8 @@ class ImportAtlasConceptSetsCommand extends Command
         // Resolve author ID
         $userId = $this->option('user-id');
         if (! $userId) {
-            $superAdmin = \App\Models\User::role('super-admin')->first()
-                ?? \App\Models\User::first();
+            $superAdmin = User::role('super-admin')->first()
+                ?? User::first();
 
             if (! $superAdmin) {
                 $this->error('No users found. Pass --user-id=<id>.');

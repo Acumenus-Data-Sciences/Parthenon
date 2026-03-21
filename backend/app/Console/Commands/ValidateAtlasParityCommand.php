@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\App\CohortDefinition;
 use App\Models\App\Source;
+use App\Models\User;
 use App\Services\Cohort\CohortGenerationService;
 use App\Services\Cohort\Schema\CohortExpressionSchema;
 use Illuminate\Console\Command;
@@ -186,8 +187,8 @@ class ValidateAtlasParityCommand extends Command
             if (! $parthenon) {
                 try {
                     $this->schema->validate($expression);
-                    $userId = \App\Models\User::role('super-admin')->value('id')
-                        ?? \App\Models\User::value('id');
+                    $userId = User::role('super-admin')->value('id')
+                        ?? User::value('id');
 
                     $parthenon = CohortDefinition::create([
                         'name' => $name,

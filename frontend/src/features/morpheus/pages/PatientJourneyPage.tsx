@@ -198,7 +198,7 @@ export default function PatientJourneyPage() {
   }
 
   // Patient selected — journey view
-  const patient = patientQuery.data;
+  const _patient = patientQuery.data;
   const admissions = admissionsQuery.data || [];
   const transfers = transfersQuery.data || [];
   const icuStays = icuStaysQuery.data || [];

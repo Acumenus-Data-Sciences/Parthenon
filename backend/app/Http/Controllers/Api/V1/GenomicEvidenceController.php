@@ -7,9 +7,11 @@ use App\Http\Requests\Investigation\QueryGwasCatalogRequest;
 use App\Http\Requests\Investigation\QueryOpenTargetsRequest;
 use App\Http\Requests\Investigation\UploadGwasRequest;
 use App\Models\App\Investigation;
+use App\Models\User;
 use App\Services\Investigation\GenomicProxyService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -24,7 +26,7 @@ class GenomicEvidenceController extends Controller
      */
     public function queryOpenTargets(QueryOpenTargetsRequest $request, Investigation $investigation): JsonResponse
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = $request->user();
         if ($investigation->owner_id !== $user->id) {
             return response()->json(['error' => 'Forbidden'], 403);
@@ -87,7 +89,7 @@ class GenomicEvidenceController extends Controller
      */
     public function queryGwasCatalog(QueryGwasCatalogRequest $request, Investigation $investigation): JsonResponse
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = $request->user();
         if ($investigation->owner_id !== $user->id) {
             return response()->json(['error' => 'Forbidden'], 403);
@@ -119,13 +121,13 @@ class GenomicEvidenceController extends Controller
      */
     public function uploadGwas(UploadGwasRequest $request, Investigation $investigation): JsonResponse
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = $request->user();
         if ($investigation->owner_id !== $user->id) {
             return response()->json(['error' => 'Forbidden'], 403);
         }
 
-        /** @var \Illuminate\Http\UploadedFile $file */
+        /** @var UploadedFile $file */
         $file = $request->file('file');
 
         $uploadId = (string) Str::uuid();
@@ -182,7 +184,7 @@ class GenomicEvidenceController extends Controller
      */
     public function crossLinks(Request $request, Investigation $investigation): JsonResponse
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = $request->user();
         if ($investigation->owner_id !== $user->id) {
             return response()->json(['error' => 'Forbidden'], 403);

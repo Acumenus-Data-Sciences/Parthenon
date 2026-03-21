@@ -6,6 +6,7 @@ use App\Models\App\HeorAnalysis;
 use App\Models\App\HeorCostParameter;
 use App\Models\App\HeorResult;
 use App\Models\App\HeorScenario;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -140,7 +141,7 @@ class HeorEconomicsService
     /**
      * Sum all cost parameters for a scenario, applying discounting.
      *
-     * @param  \Illuminate\Support\Collection<int, HeorCostParameter>  $params
+     * @param  Collection<int, HeorCostParameter>  $params
      * @param  array<string, float>  $overrides
      */
     private function sumCosts($params, array $overrides, float $rate, string $horizon): float
@@ -163,7 +164,7 @@ class HeorEconomicsService
     /**
      * Sum QALY/utility parameters.
      *
-     * @param  \Illuminate\Support\Collection<int, HeorCostParameter>  $params
+     * @param  Collection<int, HeorCostParameter>  $params
      * @param  array<string, float>  $overrides
      */
     private function sumQalys($params, array $overrides, float $rate, string $horizon): float
@@ -185,7 +186,7 @@ class HeorEconomicsService
     /**
      * Sum savings parameters (negative costs / avoided costs).
      *
-     * @param  \Illuminate\Support\Collection<int, HeorCostParameter>  $params
+     * @param  Collection<int, HeorCostParameter>  $params
      * @param  array<string, float>  $overrides
      */
     private function sumSavings($params, array $overrides): float
@@ -204,7 +205,7 @@ class HeorEconomicsService
     /**
      * Sum investment/program cost parameters.
      *
-     * @param  \Illuminate\Support\Collection<int, HeorCostParameter>  $params
+     * @param  Collection<int, HeorCostParameter>  $params
      * @param  array<string, float>  $overrides
      */
     private function sumInvestment($params, array $overrides): float
@@ -270,7 +271,7 @@ class HeorEconomicsService
      * One-way sensitivity analysis (tornado diagram data).
      * Vary each parameter ±20% (or bound) and record ICER impact.
      *
-     * @param  \Illuminate\Support\Collection<int, HeorCostParameter>  $params
+     * @param  Collection<int, HeorCostParameter>  $params
      * @param  array<string, float>  $overrides
      * @return array<int, array{parameter: string, low_icer: float|null, high_icer: float|null, range: float}>
      */
