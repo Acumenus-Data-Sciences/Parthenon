@@ -1,0 +1,44 @@
+# =============================================================================
+# Traefik Dynamic Config — Parthenon Route
+# =============================================================================
+# Routes parthenon.acumenus.net to the Parthenon nginx container.
+# Requires Parthenon to join the acropolis_network:
+#   networks:
+#     acropolis:
+#       external: true
+#       name: acropolis_network
+# =============================================================================
+
+http:
+  routers:
+    parthenon:
+      rule: "Host(`parthenon.acumenus.net`)"
+      entryPoints:
+        - websecure
+      service: parthenon
+      tls:
+        certResolver: letsencrypt
+
+    parthenon-ws:
+      rule: "Host(`parthenon.acumenus.net`) && PathPrefix(`/app`)"
+      entryPoints:
+        - websecure
+      service: parthenon-reverb
+      tls:
+        certResolver: letsencrypt
+
+  services:
+    parthenon:
+      loadBalancer:
+        servers:
+          - url: "http://parthenon-nginx:80"
+
+    parthenon-reverb:
+      loadBalancer:
+        servers:
+          - url: "http://parthenon-reverb:8080"
+
+  # Allow Portainer's self-signed cert
+  serversTransports:
+    insecureTransport:
+      insecureSkipVerify: true

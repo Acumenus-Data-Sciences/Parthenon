@@ -1,0 +1,54 @@
+# =============================================================================
+# Acropolis — Base Infrastructure
+# =============================================================================
+# This file defines the shared network and Traefik reverse proxy.
+# Layer community or enterprise compose files on top:
+#
+#   Community:   docker compose -f docker-compose.yml -f docker-compose.community.yml up -d
+#   Enterprise:  docker compose -f docker-compose.yml -f docker-compose.community.yml -f docker-compose.enterprise.yml up -d
+#
+# Or use the CLI:  ./acropolis.sh up --edition community|enterprise
+# =============================================================================
+
+services:
+
+  # ── Traefik — Reverse Proxy + Auto SSL ────────────────────────────────────
+  traefik:
+    container_name: acropolis-traefik
+    image: traefik:v3.3
+    restart: unless-stopped
+    command:
+      - --configFile=/etc/traefik/traefik.yml
+    ports:
+      - "${TRAEFIK_HTTP_PORT:-80}:80"
+      - "${TRAEFIK_HTTPS_PORT:-443}:443"
+      - "${TRAEFIK_DASHBOARD_PORT:-8090}:8080"   # Dashboard (internal only)
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik/traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./traefik/dynamic:/etc/traefik/dynamic:ro
+      - ./traefik/acme:/etc/traefik/acme
+    environment:
+      - TZ=${TZ:-America/New_York}
+    networks:
+      - acropolis
+      - parthenon
+    healthcheck:
+      test: ["CMD", "traefik", "healthcheck", "--ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    labels:
+      - "traefik.enable=true"
+
+networks:
+  acropolis:
+    name: acropolis_network
+    driver: bridge
+  parthenon:
+    external: true
+    name: parthenon
+
+volumes:
+  traefik_acme:

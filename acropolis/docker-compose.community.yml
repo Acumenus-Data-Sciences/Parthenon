@@ -1,0 +1,72 @@
+# =============================================================================
+# Acropolis — Community Edition Services
+# =============================================================================
+# Includes: Portainer CE, pgAdmin 4
+# Monitoring is owned by Parthenon's stack.
+# =============================================================================
+
+services:
+
+  # ── Portainer CE — Container Management ───────────────────────────────────
+  portainer:
+    container_name: acropolis-portainer
+    image: portainer/portainer-ce:2.25.1
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    networks:
+      - acropolis
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.portainer.rule=Host(`portainer.${DOMAIN:-acumenus.net}`)"
+      - "traefik.http.routers.portainer.entrypoints=websecure"
+      - "traefik.http.routers.portainer.tls.certresolver=letsencrypt"
+      - "traefik.http.services.portainer.loadbalancer.server.scheme=https"
+      - "traefik.http.services.portainer.loadbalancer.server.port=9443"
+      - "traefik.http.services.portainer.loadbalancer.serversTransport=insecureTransport@file"
+    healthcheck:
+      test: ["CMD", "/docker", "container", "top", "acropolis-portainer"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # ── pgAdmin 4 — Database Administration ──────────────────────────────────
+  pgadmin:
+    container_name: acropolis-pgadmin
+    image: dpage/pgadmin4:9
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@acumenus.net}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-changeme}
+      PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION: "True"
+      PGADMIN_SERVER_JSON_FILE: /pgadmin4/servers.json
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+      - ./config/pgadmin/servers.json:/pgadmin4/servers.json:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - acropolis
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.pgadmin.rule=Host(`pgadmin.${DOMAIN:-acumenus.net}`)"
+      - "traefik.http.routers.pgadmin.entrypoints=websecure"
+      - "traefik.http.routers.pgadmin.tls.certresolver=letsencrypt"
+      - "traefik.http.services.pgadmin.loadbalancer.server.port=80"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:80/misc/ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+volumes:
+  portainer_data:
+  pgadmin_data:
+
+networks:
+  acropolis:
+    external: true
+    name: acropolis_network

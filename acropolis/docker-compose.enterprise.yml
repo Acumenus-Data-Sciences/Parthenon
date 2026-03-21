@@ -1,0 +1,429 @@
+# =============================================================================
+# Acropolis — Enterprise Edition Services
+# =============================================================================
+# Requires: docker-compose.yml (base) + docker-compose.community.yml
+# Includes: n8n, Apache Superset, DataHub, Authentik
+#
+# License: Commercial license required. See docs/editions.md
+# =============================================================================
+
+services:
+
+  # ── n8n — Workflow Automation ─────────────────────────────────────────────
+  n8n:
+    container_name: acropolis-n8n
+    image: n8nio/n8n:latest
+    restart: unless-stopped
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=${N8N_AUTH_USER:-admin}
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_AUTH_PASSWORD:-changeme}
+      - GENERIC_TIMEZONE=${TZ:-America/New_York}
+      - N8N_DEFAULT_BINARY_DATA_MODE=filesystem
+      - N8N_PROTOCOL=https
+      - N8N_HOST=n8n.${DOMAIN:-acumenus.net}
+      - N8N_SECURE_COOKIE=false
+      - N8N_EDITOR_BASE_URL=https://n8n.${DOMAIN:-acumenus.net}/
+      - WEBHOOK_URL=https://n8n.${DOMAIN:-acumenus.net}/
+      - N8N_PROXY_HOPS=1
+      - N8N_RESTRICT_ENVIRONMENT_VARIABLES_ACCESS=false
+      # Database connection for workflows
+      - PGHOST=${DB_HOST:-pgsql.acumenus.net}
+      - PGPORT=${DB_PORT:-5432}
+      - PGUSER=${DB_USER:-}
+      - PGPASSWORD=${DB_PASSWORD:-}
+      - PGDATABASE=${DB_NAME:-}
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./config/n8n/workflows:/home/node/workflows
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - acropolis
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.n8n.rule=Host(`n8n.${DOMAIN:-acumenus.net}`)"
+      - "traefik.http.routers.n8n.entrypoints=websecure"
+      - "traefik.http.routers.n8n.tls.certresolver=letsencrypt"
+      - "traefik.http.services.n8n.loadbalancer.server.port=5678"
+      - "traefik.http.routers.n8n.middlewares=authentik@docker"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:5678/healthz || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # ── Apache Superset — BI & Data Visualization ────────────────────────────
+  superset-db:
+    container_name: acropolis-superset-db
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: superset
+      POSTGRES_USER: superset
+      POSTGRES_PASSWORD: ${SUPERSET_DB_PASSWORD:-superset}
+    volumes:
+      - superset_db_data:/var/lib/postgresql/data
+    networks:
+      - acropolis
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U superset"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  superset-cache:
+    container_name: acropolis-superset-cache
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - superset_cache_data:/data
+    networks:
+      - acropolis
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  superset:
+    container_name: acropolis-superset
+    image: apache/superset:4.1.2
+    restart: unless-stopped
+    environment:
+      - SUPERSET_SECRET_KEY=${SUPERSET_SECRET_KEY:-CHANGE_ME_TO_A_RANDOM_SECRET}
+      - SUPERSET_CONFIG_PATH=/app/superset_config.py
+      - DATABASE_HOST=superset-db
+      - DATABASE_PORT=5432
+      - DATABASE_DB=superset
+      - DATABASE_USER=superset
+      - DATABASE_PASSWORD=${SUPERSET_DB_PASSWORD:-superset}
+      - REDIS_HOST=superset-cache
+      - REDIS_PORT=6379
+    volumes:
+      - superset_home:/app/superset_home
+      - ./config/superset/superset_config.py:/app/superset_config.py:ro
+    depends_on:
+      superset-db:
+        condition: service_healthy
+      superset-cache:
+        condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - acropolis
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.superset.rule=Host(`superset.${DOMAIN:-acumenus.net}`)"
+      - "traefik.http.routers.superset.entrypoints=websecure"
+      - "traefik.http.routers.superset.tls.certresolver=letsencrypt"
+      - "traefik.http.services.superset.loadbalancer.server.port=8088"
+      - "traefik.http.routers.superset.middlewares=authentik@docker"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8088/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  superset-worker:
+    container_name: acropolis-superset-worker
+    image: apache/superset:4.1.2
+    restart: unless-stopped
+    command: celery --app=superset.tasks.celery_app:app worker --pool=prefork -O fair -c 4
+    environment:
+      - SUPERSET_SECRET_KEY=${SUPERSET_SECRET_KEY:-CHANGE_ME_TO_A_RANDOM_SECRET}
+      - SUPERSET_CONFIG_PATH=/app/superset_config.py
+      - DATABASE_HOST=superset-db
+      - DATABASE_PORT=5432
+      - DATABASE_DB=superset
+      - DATABASE_USER=superset
+      - DATABASE_PASSWORD=${SUPERSET_DB_PASSWORD:-superset}
+      - REDIS_HOST=superset-cache
+      - REDIS_PORT=6379
+    volumes:
+      - superset_home:/app/superset_home
+      - ./config/superset/superset_config.py:/app/superset_config.py:ro
+    depends_on:
+      superset-db:
+        condition: service_healthy
+      superset-cache:
+        condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - acropolis
+    healthcheck:
+      test: ["CMD-SHELL", "celery -A superset.tasks.celery_app:app inspect ping -d celery@$$HOSTNAME"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  superset-beat:
+    container_name: acropolis-superset-beat
+    image: apache/superset:4.1.2
+    restart: unless-stopped
+    command: celery --app=superset.tasks.celery_app:app beat --pidfile /tmp/celerybeat.pid --schedule /tmp/celerybeat-schedule
+    environment:
+      - SUPERSET_SECRET_KEY=${SUPERSET_SECRET_KEY:-CHANGE_ME_TO_A_RANDOM_SECRET}
+      - SUPERSET_CONFIG_PATH=/app/superset_config.py
+      - DATABASE_HOST=superset-db
+      - DATABASE_PORT=5432
+      - DATABASE_DB=superset
+      - DATABASE_USER=superset
+      - DATABASE_PASSWORD=${SUPERSET_DB_PASSWORD:-superset}
+      - REDIS_HOST=superset-cache
+      - REDIS_PORT=6379
+    volumes:
+      - superset_home:/app/superset_home
+      - ./config/superset/superset_config.py:/app/superset_config.py:ro
+    depends_on:
+      superset-db:
+        condition: service_healthy
+      superset-cache:
+        condition: service_healthy
+    networks:
+      - acropolis
+
+  # ── DataHub — Data Catalog & Lineage ─────────────────────────────────────
+  datahub-mysql:
+    container_name: acropolis-datahub-mysql
+    image: mysql:8.2
+    restart: unless-stopped
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_bin --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_DATABASE: datahub
+      MYSQL_USER: datahub
+      MYSQL_PASSWORD: ${DATAHUB_MYSQL_PASSWORD:-datahub}
+      MYSQL_ROOT_PASSWORD: ${DATAHUB_MYSQL_ROOT_PASSWORD:-datahub}
+    volumes:
+      - datahub_mysql_data:/var/lib/mysql
+    networks:
+      - acropolis
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "datahub", "-pdatahub"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  datahub-opensearch:
+    container_name: acropolis-datahub-opensearch
+    image: opensearchproject/opensearch:2.19.3
+    restart: unless-stopped
+    environment:
+      - discovery.type=single-node
+      - OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m
+      - DISABLE_INSTALL_DEMO_CONFIG=true
+      - DISABLE_SECURITY_PLUGIN=true
+    volumes:
+      - datahub_opensearch_data:/usr/share/opensearch/data
+    networks:
+      - acropolis
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  datahub-broker:
+    container_name: acropolis-datahub-broker
+    image: confluentinc/cp-kafka:8.0.0
+    restart: unless-stopped
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://datahub-broker:29092
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@datahub-broker:29093
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:29092,CONTROLLER://0.0.0.0:29093
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      CLUSTER_ID: AcropolisDataHub
+    volumes:
+      - datahub_broker_data:/var/lib/kafka/data
+    networks:
+      - acropolis
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-broker-api-versions --bootstrap-server localhost:29092 > /dev/null 2>&1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  datahub-gms:
+    container_name: acropolis-datahub-gms
+    image: acryldata/datahub-gms:v0.15.0
+    restart: unless-stopped
+    environment:
+      - EBEAN_DATASOURCE_URL=jdbc:mysql://datahub-mysql:3306/datahub?verifyServerCertificate=false&useSSL=false&useUnicode=yes&characterEncoding=UTF-8
+      - EBEAN_DATASOURCE_USERNAME=datahub
+      - EBEAN_DATASOURCE_PASSWORD=${DATAHUB_MYSQL_PASSWORD:-datahub}
+      - EBEAN_DATASOURCE_DRIVER=com.mysql.jdbc.Driver
+      - KAFKA_BOOTSTRAP_SERVER=datahub-broker:29092
+      - ELASTICSEARCH_HOST=datahub-opensearch
+      - ELASTICSEARCH_PORT=9200
+      - GRAPH_SERVICE_IMPL=elasticsearch
+      - DATAHUB_GMS_HOST=datahub-gms
+      - DATAHUB_GMS_PORT=8080
+    depends_on:
+      datahub-mysql:
+        condition: service_healthy
+      datahub-opensearch:
+        condition: service_healthy
+      datahub-broker:
+        condition: service_healthy
+    networks:
+      - acropolis
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
+
+  datahub-frontend:
+    container_name: acropolis-datahub-frontend
+    image: acryldata/datahub-frontend-react:v0.15.0
+    restart: unless-stopped
+    environment:
+      - DATAHUB_GMS_HOST=datahub-gms
+      - DATAHUB_GMS_PORT=8080
+      - DATAHUB_SECRET=${DATAHUB_SECRET:-YouKnowNothing}
+      - DATAHUB_APP_VERSION=1.0
+      - DATAHUB_PLAY_MEM_BUFFER_SIZE=10MB
+      - JAVA_OPTS=-Xms256m -Xmx512m
+    depends_on:
+      datahub-gms:
+        condition: service_healthy
+    networks:
+      - acropolis
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.datahub.rule=Host(`datahub.${DOMAIN:-acumenus.net}`)"
+      - "traefik.http.routers.datahub.entrypoints=websecure"
+      - "traefik.http.routers.datahub.tls.certresolver=letsencrypt"
+      - "traefik.http.services.datahub.loadbalancer.server.port=9002"
+      - "traefik.http.routers.datahub.middlewares=authentik@docker"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9002/health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # ── Authentik — SSO / SAML / OIDC Identity Provider ──────────────────────
+  authentik-db:
+    container_name: acropolis-authentik-db
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: authentik
+      POSTGRES_USER: authentik
+      POSTGRES_PASSWORD: ${AUTHENTIK_DB_PASSWORD:-authentik}
+    volumes:
+      - authentik_db_data:/var/lib/postgresql/data
+    networks:
+      - acropolis
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U authentik"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  authentik-redis:
+    container_name: acropolis-authentik-redis
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: --save 60 1 --loglevel warning
+    volumes:
+      - authentik_redis_data:/data
+    networks:
+      - acropolis
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  authentik-server:
+    container_name: acropolis-authentik-server
+    image: ghcr.io/goauthentik/server:2025.2
+    restart: unless-stopped
+    command: server
+    environment:
+      AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY:-CHANGE_ME_TO_A_RANDOM_SECRET}
+      AUTHENTIK_REDIS__HOST: authentik-redis
+      AUTHENTIK_POSTGRESQL__HOST: authentik-db
+      AUTHENTIK_POSTGRESQL__USER: authentik
+      AUTHENTIK_POSTGRESQL__NAME: authentik
+      AUTHENTIK_POSTGRESQL__PASSWORD: ${AUTHENTIK_DB_PASSWORD:-authentik}
+    volumes:
+      - authentik_media:/media
+      - authentik_templates:/templates
+    depends_on:
+      authentik-db:
+        condition: service_healthy
+      authentik-redis:
+        condition: service_healthy
+    networks:
+      - acropolis
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.authentik.rule=Host(`auth.${DOMAIN:-acumenus.net}`)"
+      - "traefik.http.routers.authentik.entrypoints=websecure"
+      - "traefik.http.routers.authentik.tls.certresolver=letsencrypt"
+      - "traefik.http.services.authentik.loadbalancer.server.port=9000"
+      - "traefik.http.middlewares.authentik.forwardauth.address=http://acropolis-authentik-server:9000/outpost.goauthentik.io/auth/traefik"
+      - "traefik.http.middlewares.authentik.forwardauth.trustForwardHeader=true"
+      - "traefik.http.middlewares.authentik.forwardauth.authResponseHeaders=X-authentik-username,X-authentik-groups,X-authentik-email,X-authentik-name,X-authentik-uid,X-authentik-jwt,X-authentik-meta-jwks,X-authentik-meta-outpost,X-authentik-meta-provider,X-authentik-meta-app,X-authentik-meta-version"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:9000/-/health/live/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  authentik-worker:
+    container_name: acropolis-authentik-worker
+    image: ghcr.io/goauthentik/server:2025.2
+    restart: unless-stopped
+    command: worker
+    environment:
+      AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY:-CHANGE_ME_TO_A_RANDOM_SECRET}
+      AUTHENTIK_REDIS__HOST: authentik-redis
+      AUTHENTIK_POSTGRESQL__HOST: authentik-db
+      AUTHENTIK_POSTGRESQL__USER: authentik
+      AUTHENTIK_POSTGRESQL__NAME: authentik
+      AUTHENTIK_POSTGRESQL__PASSWORD: ${AUTHENTIK_DB_PASSWORD:-authentik}
+    volumes:
+      - authentik_media:/media
+      - authentik_templates:/templates
+    depends_on:
+      authentik-db:
+        condition: service_healthy
+      authentik-redis:
+        condition: service_healthy
+    networks:
+      - acropolis
+
+volumes:
+  n8n_data:
+  superset_db_data:
+  superset_cache_data:
+  superset_home:
+  datahub_mysql_data:
+  datahub_opensearch_data:
+  datahub_broker_data:
+  authentik_db_data:
+  authentik_redis_data:
+  authentik_media:
+  authentik_templates:
+
+networks:
+  acropolis:
+    external: true
+    name: acropolis_network

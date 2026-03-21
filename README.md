@@ -85,23 +85,21 @@ Describe a cohort in plain English — *"patients with type 2 diabetes newly sta
 - Git
 - Python 3.9+ (for the installer)
 
-### Recommended: Install with Acropolis
+### Recommended: Install with Infrastructure
 
-[Acropolis](https://github.com/sudoshi/Acropolis) is the infrastructure orchestration layer for Parthenon. It adds automatic TLS via Traefik, container management via Portainer, database administration via pgAdmin, and a full observability stack (Grafana, Prometheus, Loki). The Enterprise tier adds n8n workflow automation, Apache Superset BI dashboards, DataHub data catalog, and Authentik SSO.
+The full production deployment includes Parthenon plus the Acropolis infrastructure layer: automatic TLS via Traefik, container management via Portainer, database administration via pgAdmin. The Enterprise tier adds n8n workflow automation, Apache Superset BI dashboards, DataHub data catalog, and Authentik SSO.
 
 ```bash
-git clone https://github.com/sudoshi/Acropolis.git
-cd Acropolis
-python3 install.py
-# → Select "Yes, install fresh" when asked about Parthenon
-# → Acropolis clones and installs Parthenon automatically
+git clone https://github.com/sudoshi/Parthenon.git
+cd Parthenon
+python3 install.py --with-infrastructure
 ```
 
-Acropolis handles the full deployment: cloning Parthenon, configuring environment files, starting all containers, running migrations, building the frontend, and wiring Traefik reverse proxy routes with auto-TLS for every service.
+This runs both the Parthenon application installer and the Acropolis infrastructure installer in sequence: configuring environment files, starting all containers, running migrations, building the frontend, and wiring Traefik reverse proxy routes with auto-TLS for every service.
 
-### Quick Start: Standalone Install
+### Quick Start: Application Only
 
-For local development or environments where you don't need the Acropolis infrastructure layer:
+For local development or environments where you manage your own reverse proxy:
 
 ```bash
 git clone https://github.com/sudoshi/Parthenon.git

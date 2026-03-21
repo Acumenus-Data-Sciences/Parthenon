@@ -1,0 +1,86 @@
+# =============================================================================
+# Acropolis Helm Chart — Default Values
+# =============================================================================
+# Override with: helm install acropolis ./k8s/helm/acropolis -f my-values.yaml
+# =============================================================================
+
+global:
+  domain: acumenus.net
+  edition: community    # community | enterprise
+  storageClass: ""      # Use cluster default
+
+# ── Ingress (Traefik or nginx-ingress) ──────────────────────────────────────
+ingress:
+  enabled: true
+  className: traefik
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+  tls: true
+
+# ── Community Services ─────────────────────────────────────────────────────
+grafana:
+  enabled: true
+  adminUser: admin
+  adminPassword: changeme
+  persistence:
+    enabled: true
+    size: 10Gi
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: Prometheus
+          type: prometheus
+          url: http://acropolis-prometheus-server:80
+          isDefault: true
+        - name: Loki
+          type: loki
+          url: http://acropolis-loki:3100
+
+prometheus:
+  enabled: true
+  server:
+    retention: 15d
+    persistentVolume:
+      size: 50Gi
+
+loki:
+  enabled: true
+  persistence:
+    size: 50Gi
+
+# ── Enterprise Services ────────────────────────────────────────────────────
+n8n:
+  enabled: false    # Set to true for enterprise
+  persistence:
+    enabled: true
+    size: 10Gi
+
+superset:
+  enabled: false    # Set to true for enterprise
+  supersetNode:
+    replicaCount: 1
+  postgresql:
+    enabled: true
+  redis:
+    enabled: true
+
+datahub:
+  enabled: false    # Set to true for enterprise
+  datahub-frontend:
+    enabled: true
+  datahub-gms:
+    enabled: true
+  mysql:
+    enabled: true
+  opensearch:
+    enabled: true
+  kafka:
+    enabled: true
+
+authentik:
+  enabled: false    # Set to true for enterprise
+  postgresql:
+    enabled: true
+  redis:
+    enabled: true

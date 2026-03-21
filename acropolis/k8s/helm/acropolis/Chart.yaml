@@ -1,0 +1,44 @@
+apiVersion: v2
+name: acropolis
+description: Enterprise Foundation for Parthenon — OHDSI Research Platform
+type: application
+version: 2.0.0
+appVersion: "2.0.0"
+home: https://github.com/sudoshi/Acropolis
+maintainers:
+  - name: Acumenus Data Sciences
+    email: admin@acumenus.net
+    url: https://acumenus.net
+
+dependencies:
+  # Community tier
+  - name: grafana
+    version: "8.x.x"
+    repository: https://grafana.github.io/helm-charts
+    condition: grafana.enabled
+  - name: prometheus
+    version: "25.x.x"
+    repository: https://prometheus-community.github.io/helm-charts
+    condition: prometheus.enabled
+  - name: loki
+    version: "6.x.x"
+    repository: https://grafana.github.io/helm-charts
+    condition: loki.enabled
+
+  # Enterprise tier
+  - name: n8n
+    version: "1.x.x"
+    repository: https://community-charts.github.io/helm-charts
+    condition: n8n.enabled
+  - name: superset
+    version: "0.x.x"
+    repository: https://apache.github.io/superset
+    condition: superset.enabled
+  - name: datahub
+    version: "0.x.x"
+    repository: https://helm.datahubproject.io
+    condition: datahub.enabled
+  - name: authentik
+    version: "2025.x.x"
+    repository: https://charts.goauthentik.io
+    condition: authentik.enabled

@@ -7,7 +7,11 @@ One-command setup for Parthenon:
   macOS / Linux:  python3 install.py
   Windows:        python install.py
 
-Requires: Python 3.9+, Docker ≥ 24.0 with Compose v2
+With production infrastructure (Traefik, Portainer, pgAdmin, + Enterprise):
+
+  python3 install.py --with-infrastructure
+
+Requires: Python 3.9+, Docker >= 24.0 with Compose v2
 
 This script bootstraps missing Python dependencies (rich, questionary)
 before handing off to the installer package.
@@ -59,6 +63,12 @@ def _parse_args() -> argparse.Namespace:
         default=None,
         help="Path to JSON file with default config values (pre-seeds interactive prompts)",
     )
+    parser.add_argument(
+        "--with-infrastructure",
+        action="store_true",
+        default=False,
+        help="Also install Acropolis infrastructure (Traefik, Portainer, pgAdmin, + Enterprise)",
+    )
     return parser.parse_args()
 
 
@@ -81,7 +91,13 @@ def main() -> None:
             print(f"Warning: defaults file {args.defaults_file} not found, ignoring.\n")
 
     try:
-        run(pre_seed=defaults)
+        if args.with_infrastructure:
+            # Run the Acropolis infrastructure installer, which will call
+            # the Parthenon installer internally if Parthenon isn't running yet.
+            from acropolis.installer.cli import run as run_infrastructure
+            run_infrastructure()
+        else:
+            run(pre_seed=defaults)
     except KeyboardInterrupt:
         print("\n\nInstall cancelled by user.")
         sys.exit(130)

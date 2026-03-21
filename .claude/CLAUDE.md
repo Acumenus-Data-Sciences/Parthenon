@@ -10,7 +10,7 @@ Parthenon is a unified OHDSI outcomes research platform that replaces Atlas, Web
 - **Frontend:** React 19, TypeScript strict, Vite 7, Tailwind 4, Zustand state, TanStack Query/Table
 - **AI Service:** Python 3.12, FastAPI, Ollama (MedGemma), pgvector for embeddings
 - **R Runtime:** R 4.4, Plumber API, HADES packages (CohortMethod, PatientLevelPrediction)
-- **Search:** Solr 9.7 (9 configsets: vocabulary, cohorts, analyses, mappings, clinical, imaging, claims, gis_spatial, vector_explorer)
+- **Search:** Solr 9.7 (10 configsets: vocabulary, cohorts, analyses, mappings, clinical, imaging, claims, gis_spatial, vector_explorer, query_library)
 - **Database:** PostgreSQL 16 (Docker) / PostgreSQL 17 (host) — single `parthenon` DB, schema-isolated, pgvector, Redis 7
 - **Infrastructure:** Docker Compose (16 services), Nginx proxy, deploy.sh
 
@@ -49,7 +49,7 @@ Root files:
   CLAUDE.md              — This file (also at .claude/CLAUDE.md)
   docker-compose.yml     — All Docker service definitions
   deploy.sh              — Production deployment script
-  install.py             — One-command installer entry point
+  install.py             — One-command installer (--with-infrastructure for full stack)
   Makefile               — Top-level test/lint shortcuts
 
 Application code:
@@ -89,9 +89,15 @@ Application code:
 
 Infrastructure:
   docker/                — Dockerfiles and container configs
-  solr/                  — Solr configsets (9 search cores)
-    configsets/          — vocabulary, cohorts, analyses, mappings, clinical, imaging, claims, gis_spatial, vector_explorer
+  solr/                  — Solr configsets (10 search cores)
+    configsets/          — vocabulary, cohorts, analyses, mappings, clinical, imaging, claims, gis_spatial, vector_explorer, query_library
   installer/             — Python installer modules (bootstrap, config, ETL, Eunomia)
+  acropolis/             — Infrastructure layer (Traefik, Portainer, pgAdmin, Enterprise)
+    installer/           — Infrastructure installer (9-phase Python TUI)
+    docker-compose.*.yml — Infrastructure service definitions (base, community, enterprise)
+    traefik/             — Traefik reverse proxy configs (static + dynamic routes)
+    config/              — Service configs (pgAdmin servers, Superset)
+    k8s/                 — Kubernetes Helm charts + Kustomize overlays (Enterprise)
 
 Scripts & tools:
   scripts/               — Utility scripts
