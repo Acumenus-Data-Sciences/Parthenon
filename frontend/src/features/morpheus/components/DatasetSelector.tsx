@@ -26,7 +26,7 @@ export default function DatasetSelector({ selectedSchema, onSelect }: DatasetSel
     <select
       value={selectedSchema}
       onChange={(e) => onSelect(e.target.value)}
-      className="rounded-lg border border-zinc-700 bg-zinc-900/50 px-3 py-1.5 text-xs text-zinc-200 focus:border-[#9B1B30] focus:outline-none transition-colors"
+      className="rounded-lg border border-zinc-700 bg-zinc-900/50 px-3 py-1.5 text-xs text-[#C5C0B8] focus:border-[#9B1B30] focus:outline-none focus:ring-1 focus:ring-[#9B1B30]/30 transition-colors"
     >
       {datasets.map((ds) => (
         <option key={ds.schema_name} value={ds.schema_name}>
