@@ -8,9 +8,26 @@ class MorpheusDashboardService
 {
     private string $conn = 'inpatient';
 
+    /**
+     * Cast numeric string fields to float for proper JSON serialization.
+     * PostgreSQL ROUND() returns numeric which PDO serializes as string.
+     */
+    private function castNumericFields(object|array $data, array $fields): object|array
+    {
+        if (is_array($data)) {
+            return array_map(fn ($row) => $this->castNumericFields($row, $fields), $data);
+        }
+        foreach ($fields as $field) {
+            if (isset($data->$field) && is_string($data->$field)) {
+                $data->$field = (float) $data->$field;
+            }
+        }
+        return $data;
+    }
+
     public function getMetrics(): object
     {
-        return DB::connection($this->conn)->selectOne("
+        $result = DB::connection($this->conn)->selectOne("
             SELECT
                 (SELECT count(DISTINCT subject_id) FROM mimiciv.patients) as total_patients,
                 (SELECT count(*) FROM mimiciv.admissions) as total_admissions,
@@ -22,11 +39,16 @@ class MorpheusDashboardService
                     FROM mimiciv.admissions)::numeric, 1) as avg_los_days,
                 ROUND((SELECT avg(los::numeric) FROM mimiciv.icustays)::numeric, 1) as avg_icu_los_days
         ");
+
+        return $this->castNumericFields($result, [
+            'total_patients', 'total_admissions', 'icu_admission_rate',
+            'mortality_rate', 'avg_los_days', 'avg_icu_los_days',
+        ]);
     }
 
     public function getTrends(): array
     {
-        return DB::connection($this->conn)->select("
+        $rows = DB::connection($this->conn)->select("
             SELECT to_char(admittime::timestamp, 'YYYY-MM') as month,
                    count(*) as admissions,
                    count(*) FILTER (WHERE hospital_expire_flag = '1') as deaths,
@@ -37,6 +59,8 @@ class MorpheusDashboardService
             GROUP BY month
             ORDER BY month
         ");
+
+        return $this->castNumericFields($rows, ['admissions', 'deaths', 'mortality_rate', 'avg_los']);
     }
 
     public function getTopDiagnoses(int $limit = 10): array
@@ -125,7 +149,7 @@ class MorpheusDashboardService
 
     public function getIcuUnits(): array
     {
-        return DB::connection($this->conn)->select("
+        $rows = DB::connection($this->conn)->select("
             SELECT first_careunit as careunit,
                    count(*)::int as admission_count,
                    ROUND(avg(los::numeric)::numeric, 1) as avg_los_days
@@ -133,11 +157,13 @@ class MorpheusDashboardService
             GROUP BY first_careunit
             ORDER BY admission_count DESC
         ");
+
+        return $this->castNumericFields($rows, ['admission_count', 'avg_los_days']);
     }
 
     public function getMortalityByType(): array
     {
-        return DB::connection($this->conn)->select("
+        $rows = DB::connection($this->conn)->select("
             SELECT admission_type,
                    count(*)::int as total,
                    count(*) FILTER (WHERE hospital_expire_flag = '1')::int as deaths,
@@ -147,5 +173,7 @@ class MorpheusDashboardService
             GROUP BY admission_type
             ORDER BY total DESC
         ");
+
+        return $this->castNumericFields($rows, ['total', 'deaths', 'rate']);
     }
 }
