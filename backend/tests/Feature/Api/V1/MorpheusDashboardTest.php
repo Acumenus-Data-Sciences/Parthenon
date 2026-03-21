@@ -209,3 +209,48 @@ test('top diagnoses respects custom limit parameter', function () {
         ->getJson('/api/v1/morpheus/dashboard/top-diagnoses?limit=5')
         ->assertOk();
 });
+
+test('unauthenticated user cannot access concept stats', function () {
+    $this->getJson('/api/v1/morpheus/dashboard/concept-stats/316139')
+        ->assertStatus(401);
+});
+
+test('authenticated user can access concept stats', function () {
+    $user = User::factory()->create();
+
+    $this->mock(MorpheusDashboardService::class, function ($mock) {
+        $mock->shouldReceive('getConceptStats')
+            ->once()
+            ->with('mimiciv', 316139)
+            ->andReturn([
+                'concept_id' => 316139,
+                'patient_count' => 250,
+                'total_patients' => 1000,
+                'percentage' => 25.0,
+                'mean_value' => null,
+                'median_value' => null,
+            ]);
+    });
+
+    $this->actingAs($user)
+        ->getJson('/api/v1/morpheus/dashboard/concept-stats/316139')
+        ->assertOk()
+        ->assertJsonStructure(['data' => [
+            'concept_id', 'patient_count', 'total_patients', 'percentage',
+        ]]);
+});
+
+test('concept stats returns null for unknown concept', function () {
+    $user = User::factory()->create();
+
+    $this->mock(MorpheusDashboardService::class, function ($mock) {
+        $mock->shouldReceive('getConceptStats')
+            ->once()
+            ->andReturn(null);
+    });
+
+    $this->actingAs($user)
+        ->getJson('/api/v1/morpheus/dashboard/concept-stats/999999')
+        ->assertOk()
+        ->assertJson(['data' => null]);
+});

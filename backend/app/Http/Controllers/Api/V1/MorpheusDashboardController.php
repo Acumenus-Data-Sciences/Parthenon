@@ -94,4 +94,16 @@ class MorpheusDashboardController extends Controller
 
         return response()->json(['data' => $this->service->getMortalityByType($schema)]);
     }
+
+    public function conceptStats(Request $request, int $conceptId): JsonResponse
+    {
+        $schema = $this->resolveSchema($request);
+        $stats = $this->service->getConceptStats($schema, $conceptId);
+
+        if (! $stats) {
+            return response()->json(['data' => null, 'message' => 'No data available for this concept'], 200);
+        }
+
+        return response()->json(['data' => $stats]);
+    }
 }

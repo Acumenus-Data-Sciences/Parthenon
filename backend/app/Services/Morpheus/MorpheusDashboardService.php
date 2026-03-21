@@ -289,4 +289,67 @@ class MorpheusDashboardService
             return $this->castNumericFields($rows, ['total', 'deaths', 'rate']);
         }); // end cached
     }
+
+    /**
+     * Get population-level statistics for a single concept within a dataset.
+     * Returns patient count, percentage, and mean/median for measurement concepts.
+     */
+    public function getConceptStats(string $schema, int $conceptId): ?array
+    {
+        $s = $this->getSchemaName($schema);
+
+        return $this->cached("concept_stats:{$conceptId}", $schema, function () use ($s, $conceptId) {
+            // Check diagnoses_icd (ICD codes map to concept_id via omop.concept)
+            $diagStats = DB::connection($this->conn)->selectOne("
+                SELECT
+                    COUNT(DISTINCT d.subject_id) as patient_count,
+                    (SELECT COUNT(DISTINCT subject_id) FROM \"{$s}\".admissions) as total_patients
+                FROM \"{$s}\".diagnoses_icd d
+                JOIN omop.concept c ON c.concept_code = d.icd_code
+                    AND c.vocabulary_id = CASE WHEN d.icd_version = 9 THEN 'ICD9CM' ELSE 'ICD10CM' END
+                WHERE c.concept_id = ?
+            ", [$conceptId]);
+
+            if ($diagStats && $diagStats->patient_count > 0) {
+                $total = (int) $diagStats->total_patients;
+                $count = (int) $diagStats->patient_count;
+
+                return [
+                    'concept_id' => $conceptId,
+                    'patient_count' => $count,
+                    'total_patients' => $total,
+                    'percentage' => $total > 0 ? round(($count / $total) * 100, 2) : 0,
+                    'mean_value' => null,
+                    'median_value' => null,
+                ];
+            }
+
+            // Check labevents (measurement concept via d_labitems)
+            $labStats = DB::connection($this->conn)->selectOne("
+                SELECT
+                    COUNT(DISTINCT le.subject_id) as patient_count,
+                    (SELECT COUNT(DISTINCT subject_id) FROM \"{$s}\".admissions) as total_patients,
+                    ROUND(AVG(le.valuenum)::numeric, 2) as mean_value,
+                    ROUND(PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY le.valuenum)::numeric, 2) as median_value
+                FROM \"{$s}\".labevents le
+                WHERE le.itemid = ? AND le.valuenum IS NOT NULL
+            ", [$conceptId]);
+
+            if ($labStats && $labStats->patient_count > 0) {
+                $total = (int) $labStats->total_patients;
+                $count = (int) $labStats->patient_count;
+
+                return [
+                    'concept_id' => $conceptId,
+                    'patient_count' => $count,
+                    'total_patients' => $total,
+                    'percentage' => $total > 0 ? round(($count / $total) * 100, 2) : 0,
+                    'mean_value' => $labStats->mean_value !== null ? (float) $labStats->mean_value : null,
+                    'median_value' => $labStats->median_value !== null ? (float) $labStats->median_value : null,
+                ];
+            }
+
+            return null;
+        });
+    }
 }

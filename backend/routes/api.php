@@ -1203,6 +1203,7 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         Route::get('/los-distribution', [MorpheusDashboardController::class, 'losDistribution']);
         Route::get('/icu-units', [MorpheusDashboardController::class, 'icuUnits']);
         Route::get('/mortality-by-type', [MorpheusDashboardController::class, 'mortalityByType']);
+        Route::get('/concept-stats/{conceptId}', [MorpheusDashboardController::class, 'conceptStats']);
     });
 
     Route::prefix('morpheus/patients')->group(function () {
