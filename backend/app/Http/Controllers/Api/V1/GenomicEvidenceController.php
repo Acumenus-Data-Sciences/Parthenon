@@ -102,10 +102,10 @@ class GenomicEvidenceController extends Controller
         $size = (int) ($validated['size'] ?? 20);
 
         if ($queryType === 'trait') {
-            $endpoint = 'efoTraits/search';
-            $params = ['query' => $term, 'size' => $size];
+            $endpoint = 'studies/search/findByDiseaseTrait';
+            $params = ['diseaseTrait' => $term, 'size' => $size];
         } else {
-            $endpoint = 'associations/search';
+            $endpoint = 'singleNucleotidePolymorphisms/search/findByGene';
             $params = ['geneName' => $term, 'size' => $size];
         }
 
