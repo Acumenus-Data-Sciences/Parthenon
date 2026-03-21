@@ -1,5 +1,5 @@
 # Stage 1: Builder
-FROM rust:1.82 AS builder
+FROM rust:1.85 AS builder
 
 # Install git and OpenSSL dev headers needed to build the workspace
 RUN apt-get update && apt-get install -y --no-install-recommends \

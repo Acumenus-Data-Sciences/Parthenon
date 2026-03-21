@@ -13,8 +13,8 @@ WORKDIR /build
 RUN git clone --depth 1 https://github.com/OHDSI/FhirToCdm.git .
 
 # Publish as a self-contained, release-mode binary bundle
-# The project file lives at the repo root under FHIRtoCDM/
-RUN dotnet publish FHIRtoCDM/FHIRtoCDM.csproj \
+# The .csproj lives at the repo root (not in a subdirectory)
+RUN dotnet publish FHIRtoCDM.csproj \
         -c Release \
         -r linux-x64 \
         --self-contained false \
