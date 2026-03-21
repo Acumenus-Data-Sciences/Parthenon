@@ -34,13 +34,13 @@ export default function HorizontalBarChart({ data, maxItems = 10, barColor = '#2
               onMouseEnter={() => setHoverIdx(i)}
               onMouseLeave={() => setHoverIdx(null)}
             >
-              <div className="w-[140px] shrink-0 text-right pr-2">
-                {item.sublabel && (
-                  <span className="font-mono text-[10px] text-[#C9A227] mr-1">{item.sublabel}</span>
-                )}
-                <span className="text-[10px] text-[#8A857D] truncate" title={item.label}>
-                  {item.label.length > 20 ? item.label.slice(0, 20) + '...' : item.label}
+              <div className="w-[200px] shrink-0 text-right pr-2 leading-tight">
+                <span className="text-[11px] text-[#C5C0B8] block truncate" title={item.label}>
+                  {item.label}
                 </span>
+                {item.sublabel && (
+                  <span className="text-[9px] text-[#5A5650] block">{item.sublabel}</span>
+                )}
               </div>
               <div className="flex-1 h-[18px] bg-[#0E0E11] rounded overflow-hidden relative">
                 <div
@@ -52,7 +52,7 @@ export default function HorizontalBarChart({ data, maxItems = 10, barColor = '#2
                   }}
                 />
               </div>
-              <span className="text-[11px] font-medium text-[#C5C0B8] w-12 text-right shrink-0 tabular-nums">
+              <span className="text-[11px] font-medium text-[#F0EDE8] w-12 text-right shrink-0 tabular-nums">
                 {item.value.toLocaleString()}
               </span>
             </div>
