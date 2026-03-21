@@ -26,12 +26,13 @@ RUN mkdir -p /root/.m2 && cat > /root/.m2/settings.xml << 'SETTINGS'
 </settings>
 SETTINGS
 
-# Build the whiterabbit module and its dependency (rabbit-core).
-# The appassembler plugin writes a self-contained launcher to dist/:
-#   dist/bin/whiteRabbit  — shell launcher
-#   dist/repo/            — all dependency JARs
-# -DskipTests skips unit tests (some require live DB containers).
-RUN mvn -pl whiterabbit,rabbit-core -am package \
+# Build rabbit-core first (install to local repo), then build whiterabbit.
+# Two-step approach ensures rabbit-core:jar is available for the second
+# mvn invocation (appassembler:assemble runs in a fresh reactor).
+RUN mvn -pl rabbit-core install \
+        -DskipTests \
+        --no-transfer-progress \
+    && mvn -pl whiterabbit package \
         -DskipTests \
         -DskipUnitTests=true \
         -DskipITs=true \
