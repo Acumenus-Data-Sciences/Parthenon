@@ -124,12 +124,17 @@ export default function MorpheusDashboardPage() {
         <ErrorBox message="Failed to load metrics" />
       ) : metrics ? (
         <div className="flex gap-4 flex-wrap">
-          <MetricCard label="Total Patients" value={Number(metrics.total_patients).toLocaleString()} color="#2DD4BF" />
-          <MetricCard label="Total Admissions" value={Number(metrics.total_admissions).toLocaleString()} color="#2DD4BF" />
-          <MetricCard label="ICU Rate" value={`${Number(metrics.icu_admission_rate).toFixed(1)}%`} color="#C9A227" />
-          <MetricCard label="Mortality Rate" value={`${Number(metrics.mortality_rate).toFixed(1)}%`} color="#9B1B30" />
+          <MetricCard label="Total Patients" value={Number(metrics.total_patients).toLocaleString()} color="#2DD4BF"
+            onClick={() => navigate(`/morpheus/journey${dataset !== 'mimiciv' ? `?dataset=${dataset}` : ''}`)} />
+          <MetricCard label="Total Admissions" value={Number(metrics.total_admissions).toLocaleString()} color="#2DD4BF"
+            onClick={() => navigate(`/morpheus/journey${dataset !== 'mimiciv' ? `?dataset=${dataset}` : ''}`)} />
+          <MetricCard label="ICU Rate" value={`${Number(metrics.icu_admission_rate).toFixed(1)}%`} color="#C9A227"
+            onClick={() => navigate(`/morpheus/journey?icu=true${datasetSuffix}`)} />
+          <MetricCard label="Mortality Rate" value={`${Number(metrics.mortality_rate).toFixed(1)}%`} color="#9B1B30"
+            onClick={() => navigate(`/morpheus/journey?deceased=true${datasetSuffix}`)} />
           <MetricCard label="Avg LOS" value={`${Number(metrics.avg_los_days).toFixed(1)}d`} color="#3B82F6" />
-          <MetricCard label="Avg ICU LOS" value={`${Number(metrics.avg_icu_los_days).toFixed(1)}d`} color="#C9A227" />
+          <MetricCard label="Avg ICU LOS" value={`${Number(metrics.avg_icu_los_days).toFixed(1)}d`} color="#C9A227"
+            onClick={() => navigate(`/morpheus/journey?icu=true${datasetSuffix}`)} />
         </div>
       ) : null}
 

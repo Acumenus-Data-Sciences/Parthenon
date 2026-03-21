@@ -1,3 +1,5 @@
+import HoverCard from './HoverCard';
+
 interface DonutSegment {
   label: string;
   value: number;
@@ -52,7 +54,15 @@ export default function DonutChart({ data, title, size = 120 }: DonutChartProps)
       <div className="flex items-center gap-4">
         <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
           {arcs.map((arc, i) => (
-            <path key={i} d={arc.path} fill={arc.color} stroke="#151518" strokeWidth={1.5} />
+            <HoverCard key={i} content={
+              <div>
+                <div className="font-medium text-[#F0EDE8]">{arc.label}</div>
+                <div>Count: {arc.value.toLocaleString()}</div>
+                <div>Share: {Math.round(arc.value / total * 100)}%</div>
+              </div>
+            }>
+              <path d={arc.path} fill={arc.color} stroke="#151518" strokeWidth={1.5} className="transition-opacity opacity-80 hover:opacity-100" />
+            </HoverCard>
           ))}
           <text x={cx} y={cy - 4} textAnchor="middle" className="text-lg font-bold" fill="#F0EDE8">{total}</text>
           <text x={cx} y={cy + 10} textAnchor="middle" className="text-[9px]" fill="#8A857D">total</text>

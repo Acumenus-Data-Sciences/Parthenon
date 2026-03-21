@@ -1,3 +1,5 @@
+import HoverCard from './HoverCard';
+
 interface BarItem {
   label: string;
   value: number;
@@ -22,22 +24,30 @@ export default function HorizontalBarChart({ data, maxItems = 10, barColor = '#2
       {title && <h3 className="text-sm font-semibold text-zinc-300 mb-4">{title}</h3>}
       <div className="space-y-1.5">
         {items.map((item, i) => (
-          <div key={i} className="flex items-center gap-2 h-6">
-            <div className="w-36 truncate text-[11px] text-zinc-400 text-right shrink-0" title={item.label}>
-              {item.sublabel ? (
-                <><span className="font-mono text-[#C9A227]">{item.sublabel}</span>{' '}<span>{item.label}</span></>
-              ) : item.label}
+          <HoverCard key={i} content={
+            <div>
+              <div className="font-medium text-[#F0EDE8]">{item.label}</div>
+              {item.sublabel && <div className="font-mono text-[#2DD4BF]">{item.sublabel}</div>}
+              <div>Count: {item.value.toLocaleString()}</div>
             </div>
-            <div className="flex-1 h-4 bg-[#0E0E11] rounded-sm overflow-hidden">
-              <div
-                className="h-full rounded-sm transition-all duration-300"
-                style={{ width: `${(item.value / maxVal) * 100}%`, backgroundColor: barColor }}
-              />
+          }>
+            <div className="flex items-center gap-2 h-6">
+              <div className="w-36 truncate text-[11px] text-zinc-400 text-right shrink-0" title={item.label}>
+                {item.sublabel ? (
+                  <><span className="font-mono text-[#C9A227]">{item.sublabel}</span>{' '}<span>{item.label}</span></>
+                ) : item.label}
+              </div>
+              <div className="flex-1 h-4 bg-[#0E0E11] rounded-sm overflow-hidden">
+                <div
+                  className="h-full rounded-sm transition-all duration-300 opacity-70 hover:opacity-100"
+                  style={{ width: `${(item.value / maxVal) * 100}%`, backgroundColor: barColor }}
+                />
+              </div>
+              <span className="text-[11px] text-zinc-300 w-10 text-right shrink-0 font-medium">
+                {item.value.toLocaleString()}
+              </span>
             </div>
-            <span className="text-[11px] text-zinc-300 w-10 text-right shrink-0 font-medium">
-              {item.value.toLocaleString()}
-            </span>
-          </div>
+          </HoverCard>
         ))}
       </div>
     </div>

@@ -1,3 +1,5 @@
+import HoverCard from './HoverCard';
+
 interface DistItem {
   label: string;
   value: number;
@@ -29,7 +31,14 @@ export default function DistributionChart({ data, barColor = '#2DD4BF', title, h
           const y = chartHeight - barH;
           return (
             <g key={i}>
-              <rect x={x} y={y} width={barWidth} height={barH} rx={2} fill={barColor} opacity={0.85} />
+              <HoverCard content={
+                <div>
+                  <div className="font-medium text-[#F0EDE8]">{d.label}</div>
+                  <div>Count: {d.value.toLocaleString()}</div>
+                </div>
+              }>
+                <rect x={x} y={y} width={barWidth} height={barH} rx={2} fill={barColor} className="transition-opacity opacity-70 hover:opacity-100" />
+              </HoverCard>
               <text x={x + barWidth / 2} y={y - 4} textAnchor="middle" className="text-[9px]" fill="#8A857D">
                 {d.value}
               </text>

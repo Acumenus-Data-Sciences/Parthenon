@@ -1,3 +1,5 @@
+import HoverCard from './HoverCard';
+
 interface TrendItem {
   label: string;
   barValue: number;
@@ -53,7 +55,15 @@ export default function TrendChart({
           const y = chartHeight - barH;
           return (
             <g key={i}>
-              <rect x={x} y={y} width={barWidth} height={barH} rx={2} fill={barColor} opacity={0.7} />
+              <HoverCard content={
+                <div>
+                  <div className="font-medium text-[#F0EDE8]">{d.label}</div>
+                  <div>{barLabel ?? 'Value'}: {d.barValue.toLocaleString()}</div>
+                  {d.lineValue !== undefined && <div>{lineLabel ?? 'Rate'}: {d.lineValue.toFixed(1)}%</div>}
+                </div>
+              }>
+                <rect x={x} y={y} width={barWidth} height={barH} rx={2} fill={barColor} className="transition-opacity opacity-70 hover:opacity-100" />
+              </HoverCard>
               {(i % Math.max(1, Math.floor(data.length / 8)) === 0) && (
                 <text x={x + barWidth / 2} y={chartHeight + 14} textAnchor="middle" className="text-[8px]" fill="#8A857D">
                   {d.label.slice(2)}
