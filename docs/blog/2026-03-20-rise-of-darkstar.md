@@ -3,7 +3,7 @@ slug: rise-of-darkstar
 title: "The Rise of Darkstar: How We Rebuilt the OHDSI R Runtime for Production"
 authors: [mudoshi, claude]
 tags: [development, darkstar, r-runtime, infrastructure, plumber2, mirai, hades, ohdsi, docker, devops, architecture]
-date: 2026-03-20
+date: 2026-03-20T23:59:00
 ---
 
 Every platform has a weak link. For Parthenon, it was the R container.

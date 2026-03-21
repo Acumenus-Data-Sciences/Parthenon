@@ -252,3 +252,64 @@ php artisan parthenon:load-eunomia --fresh # Load GiBleed demo dataset
 php artisan phenotype:sync                # Sync OHDSI phenotype library (1100 definitions)
 php artisan commons:seed-demo             # Seed Commons demo data
 ```
+
+## Project Memory (Parthenon Brain)
+
+This project has a persistent knowledge base stored in ChromaDB, accessible via
+the `parthenon-brain` MCP server. It contains all project documentation, devlogs,
+development blogs, architecture specs, module designs, and key code files that
+have been created over the course of development.
+
+### CRITICAL: Always Query Before Working
+
+**Before starting any task**, query the Parthenon Brain to recall relevant context:
+
+1. **At the start of every session**, use the Chroma MCP tools to search for
+   context related to the current task. Search the `parthenon_docs` collection
+   for documentation and specs, and `parthenon_code` for implementation details.
+
+2. **Before making architectural decisions**, search for prior design decisions
+   and specs. Many modules have detailed phase specifications, data models, and
+   API contracts already documented.
+
+3. **Before writing new code**, check if similar patterns already exist. The
+   codebase has established conventions for FastAPI endpoints, React components,
+   database migrations, and testing.
+
+### How to Query
+
+Use the Chroma MCP tools (available as `parthenon-brain` in your MCP server list):
+
+- `chroma_query` — Semantic search across collections
+  - Collection `parthenon_docs`: 6,500+ chunks from documentation, specs, devlogs, blogs
+  - Collection `parthenon_code`: 13,800+ chunks from Python, TypeScript, PHP, SQL source
+
+- Filter by metadata when narrowing scope:
+  - `doc_type`: documentation, devblog, devlog, specification, architecture,
+    design, module_spec, planning, guide, api_reference, source_code, prompt, rules
+  - `module`: commons, studies, gis, imaging, molecular, heor, abby, atlas,
+    cohort, explorer, pipeline, auth, dashboard, federated, network, ai,
+    study-agent, frontend, backend, docker, scripts
+
+### Example Queries
+
+- "How does the Commons module handle real-time messaging?"
+- "What is the federated architecture for the Studies module?"
+- "Abby RAG pipeline ChromaDB collections"
+- "GIS Explorer PostGIS spatial statistics"
+- "OMOP CDM schema extensions for oncology"
+- "FastAPI router endpoint patterns" (use `parthenon_code` collection)
+- "Laravel controller conventions" (use `parthenon_code` collection)
+
+### Brain Updates
+
+The brain auto-updates via a git `post-commit` hook whenever documentation files
+(`.md`, `.mdx`, `.txt`, `.rst`) change. For manual updates or to include code:
+
+```bash
+# Incremental docs only (fast — skips unchanged files)
+python3 ~/.parthenon-brain/ingest.py -s /home/smudoshi/Github/Parthenon -i
+
+# Full re-index with code
+python3 ~/.parthenon-brain/ingest.py -s /home/smudoshi/Github/Parthenon --include-code
+```
