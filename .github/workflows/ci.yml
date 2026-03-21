@@ -51,6 +51,7 @@ jobs:
           psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS eunomia;"
           psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS inpatient;"
           psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS inpatient_ext;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS eunomia_results;"
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -295,6 +296,7 @@ jobs:
           psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS eunomia;"
           psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS inpatient;"
           psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS inpatient_ext;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS eunomia_results;"
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
