@@ -1,4 +1,5 @@
 import { useCallback, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useAutoSave } from "../../hooks/useAutoSave";
 import { useCreateAnalysis, useExecuteAnalysis } from "../../hooks/useClinicalAnalysis";
 import { useCreatePin } from "../../hooks/useEvidencePins";
@@ -153,11 +154,32 @@ function buildDesignPayload(
 
 // ── Main component ────────────────────────────────────────────────────────────
 
+const VALID_PANEL_VIEWS: PanelView[] = ["gallery", "tracking", "history"];
+
 export function ClinicalPanel({ investigation }: ClinicalPanelProps) {
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const [selectedType, setSelectedType] = useState<ClinicalAnalysisType | null>(null);
   const [activeExecution, setActiveExecution] = useState<ActiveExecution | null>(null);
-  const [view, setView] = useState<PanelView>("gallery");
+  const [view, setView] = useState<PanelView>(() => {
+    const urlTab = searchParams.get("subtab");
+    const isValid = VALID_PANEL_VIEWS.includes(urlTab as PanelView);
+    // "tracking" requires an active execution; fall back to gallery if loaded cold
+    if (isValid && urlTab !== "tracking") return urlTab as PanelView;
+    return "gallery";
+  });
   const [executeError, setExecuteError] = useState<string | null>(null);
+
+  function handleViewChange(v: PanelView) {
+    setView(v);
+    setSearchParams(
+      (prev) => {
+        prev.set("subtab", v);
+        return prev;
+      },
+      { replace: true },
+    );
+  }
 
   // Local copy of clinical state for auto-save
   const [clinicalState, setClinicalState] = useState<ClinicalState>(
@@ -231,7 +253,7 @@ export function ClinicalPanel({ investigation }: ClinicalPanelProps) {
         // 3. Close config drawer and switch to tracking view
         setSelectedType(null);
         setActiveExecution({ apiPrefix, analysisId, executionId, type: config.type });
-        setView("tracking");
+        handleViewChange("tracking");
 
         // 4. Update clinical state to track the new queued analysis
         const newEntry = {
@@ -301,8 +323,9 @@ export function ClinicalPanel({ investigation }: ClinicalPanelProps) {
       type: ClinicalAnalysisType,
     ) => {
       setActiveExecution({ apiPrefix, analysisId, executionId, type });
-      setView("tracking");
+      handleViewChange("tracking");
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   );
 
@@ -316,7 +339,7 @@ export function ClinicalPanel({ investigation }: ClinicalPanelProps) {
         onChange={(v) => {
           // If switching away from tracking with no active run, go to gallery
           if (v === "tracking" && !activeExecution) return;
-          setView(v);
+          handleViewChange(v);
         }}
       />
 

@@ -17,6 +17,13 @@ const DOMAIN_ACCENT: Record<EvidenceDomain, string> = {
   synthesis: "border-zinc-300",
 };
 
+/** Extract a leading integer from a summary string, e.g. "3 concept sets" → [3, "concept sets"]. */
+function parseLeadingNumber(text: string): [number, string] | null {
+  const match = /^(\d+)\s+(.+)$/.exec(text);
+  if (!match) return null;
+  return [parseInt(match[1], 10), match[2]];
+}
+
 export function ContextCard({
   domain,
   label,
@@ -25,9 +32,26 @@ export function ContextCard({
   isActive,
   onClick,
 }: ContextCardProps) {
+  // Build enhanced summary node when no custom summaryNode is provided
+  const displayContent = summaryNode ?? (() => {
+    const parsed = parseLeadingNumber(summary);
+    if (parsed) {
+      const [num, rest] = parsed;
+      return (
+        <span className="flex items-baseline gap-1.5 min-w-0">
+          <span className="text-lg font-bold text-zinc-100 shrink-0">{num}</span>
+          <span className="text-sm text-zinc-400 truncate">{rest}</span>
+        </span>
+      );
+    }
+    return <span className="text-base font-medium text-zinc-300 truncate">{summary}</span>;
+  })();
+
   return (
     <button
       onClick={onClick}
+      title={summary}
+      aria-pressed={isActive}
       className={[
         "rounded-xl p-3 text-left transition-colors flex-1 min-w-0",
         isActive
@@ -38,9 +62,9 @@ export function ContextCard({
       <p className="text-xs uppercase tracking-wider text-zinc-500 mb-1 truncate">
         {label}
       </p>
-      <p className="text-sm text-zinc-300 truncate">
-        {summaryNode ?? summary}
-      </p>
+      <div className="truncate">
+        {displayContent}
+      </div>
     </button>
   );
 }

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useAutoSave } from "../hooks/useAutoSave";
 import type { ConceptSearchResult, Investigation, PhenotypeState } from "../types";
 import { CohortBuilder } from "./phenotype/CohortBuilder";
@@ -41,7 +42,24 @@ function makeDefaultSet(): [string, ConceptSetData] {
 }
 
 export function PhenotypePanel({ investigation }: PhenotypePanelProps) {
-  const [activeTab, setActiveTab] = useState<SubTab>("explore");
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const [activeTab, setActiveTab] = useState<SubTab>(() => {
+    const urlTab = searchParams.get("subtab");
+    const isValid = SUB_TABS.some((t) => t.id === urlTab);
+    return isValid ? (urlTab as SubTab) : "explore";
+  });
+
+  function handleTabChange(tab: SubTab) {
+    setActiveTab(tab);
+    setSearchParams(
+      (prev) => {
+        prev.set("subtab", tab);
+        return prev;
+      },
+      { replace: true },
+    );
+  }
 
   // Initialize Map from saved phenotype_state.concept_sets
   const [conceptSets, setConceptSets] = useState<Map<string, ConceptSetData>>(
@@ -250,7 +268,7 @@ export function PhenotypePanel({ investigation }: PhenotypePanelProps) {
             <button
               key={tab.id}
               disabled={tab.disabled}
-              onClick={() => !tab.disabled && setActiveTab(tab.id)}
+              onClick={() => !tab.disabled && handleTabChange(tab.id)}
               className={`relative px-3 py-2 text-xs font-medium transition-colors rounded-t ${
                 tab.disabled
                   ? "text-zinc-600 cursor-not-allowed"

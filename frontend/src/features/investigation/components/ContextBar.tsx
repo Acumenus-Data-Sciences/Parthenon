@@ -114,6 +114,26 @@ const DOMAIN_LABELS: Record<EvidenceDomain, string> = {
   synthesis: "Synthesis",
 };
 
+interface KpiMetric {
+  label: string;
+  value: number;
+}
+
+interface KpiMetricCardProps {
+  metric: KpiMetric;
+}
+
+function KpiMetricCard({ metric }: KpiMetricCardProps) {
+  return (
+    <div className="bg-zinc-900/50 border border-zinc-800 rounded-lg px-3 py-2 flex flex-col items-center min-w-[72px]">
+      <span className="text-2xl font-bold text-zinc-100 leading-none">{metric.value}</span>
+      <span className="text-[10px] uppercase tracking-wider text-zinc-500 mt-1 whitespace-nowrap">
+        {metric.label}
+      </span>
+    </div>
+  );
+}
+
 export function ContextBar({ investigation }: ContextBarProps) {
   const { activeDomain, setActiveDomain } = useInvestigationStore();
 
@@ -124,23 +144,62 @@ export function ContextBar({ investigation }: ContextBarProps) {
     synthesis: getSynthesisSummary(investigation),
   };
 
+  const kpiMetrics: KpiMetric[] = [
+    {
+      label: "Concept Sets",
+      value: investigation.phenotype_state.concept_sets.length,
+    },
+    {
+      label: "Cohorts",
+      value: investigation.phenotype_state.selected_cohort_ids.length,
+    },
+    {
+      label: "Analyses",
+      value: investigation.clinical_state.queued_analyses?.length ?? 0,
+    },
+    {
+      label: "Pins",
+      value: investigation.pins?.length ?? 0,
+    },
+  ];
+
+  const allZero = kpiMetrics.every((m) => m.value === 0);
+
   return (
-    <div className="flex gap-2 px-4 py-3 border-b border-zinc-800 bg-zinc-950">
-      {DOMAIN_ORDER.map((domain) => (
-        <ContextCard
-          key={domain}
-          domain={domain}
-          label={DOMAIN_LABELS[domain]}
-          summary={summaries[domain]}
-          summaryNode={
-            domain === "clinical" ? (
-              <ClinicalSummaryNode state={investigation.clinical_state} />
-            ) : undefined
-          }
-          isActive={activeDomain === domain}
-          onClick={() => setActiveDomain(domain)}
-        />
-      ))}
+    <div className="flex flex-col border-b border-zinc-800 bg-zinc-950">
+      {/* KPI summary row */}
+      <div className="flex items-center gap-2 px-4 pt-3 pb-2">
+        {allZero ? (
+          <p className="text-xs text-zinc-600 italic">
+            Start exploring — add concepts, cohorts, and analyses to build evidence
+          </p>
+        ) : (
+          <div className="flex items-center gap-2">
+            {kpiMetrics.map((metric) => (
+              <KpiMetricCard key={metric.label} metric={metric} />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Domain context cards */}
+      <div className="flex gap-2 px-4 pb-3">
+        {DOMAIN_ORDER.map((domain) => (
+          <ContextCard
+            key={domain}
+            domain={domain}
+            label={DOMAIN_LABELS[domain]}
+            summary={summaries[domain]}
+            summaryNode={
+              domain === "clinical" ? (
+                <ClinicalSummaryNode state={investigation.clinical_state} />
+              ) : undefined
+            }
+            isActive={activeDomain === domain}
+            onClick={() => setActiveDomain(domain)}
+          />
+        ))}
+      </div>
     </div>
   );
 }
