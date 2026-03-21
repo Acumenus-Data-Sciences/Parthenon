@@ -14,7 +14,7 @@ from typing import Any
 from rich.console import Console
 from rich.panel import Panel
 
-from . import preflight, config, docker_ops, bootstrap, eunomia, utils
+from . import preflight, config, docker_ops, bootstrap, utils
 
 console = Console()
 STATE_FILE = utils.REPO_ROOT / ".install-state.json"
@@ -142,11 +142,15 @@ def _print_summary(cfg: dict[str, Any]) -> None:
     next_steps = [
         f"  • Open {display_url} to log in",
         "  • Run [bold]./deploy.sh[/bold] after code changes",
-        f"  • API docs at {display_url}/docs/api",
     ]
-    if cfg.get("vocab_zip_path"):
+    if not cfg.get("vocab_zip_path"):
         next_steps.append(
-            f"  • Load vocabulary: Settings → Vocabulary Refresh → upload {cfg['vocab_zip_path']}"
+            "  • [bold]Load OMOP vocabulary:[/bold] download from https://athena.ohdsi.org,\n"
+            "    then: docker compose exec php php artisan parthenon:load-vocabularies --zip=/path/to/vocab.zip"
+        )
+    if not cfg.get("include_eunomia"):
+        next_steps.append(
+            "  • [bold]Load demo data:[/bold] docker compose exec php php artisan parthenon:load-eunomia"
         )
     if cfg.get("enable_solr", True):
         next_steps.append(
@@ -155,6 +159,16 @@ def _print_summary(cfg: dict[str, Any]) -> None:
     next_steps.append(
         "  • Load GIS boundaries: Admin → System Health → GIS Data Management"
     )
+
+    # Database info section
+    lines.append("")
+    lines.append("  [bold]Database layout[/bold] (single [cyan]parthenon[/cyan] DB, schema-isolated):")
+    lines.append("    app.*             — Application tables (users, roles, cohorts)")
+    lines.append("    omop.*            — OMOP CDM + Vocabulary tables (empty until data loaded)")
+    lines.append("    results.*         — Achilles/DQD output + analysis catalog")
+    if cfg.get("include_eunomia"):
+        lines.append("    eunomia.*         — GiBleed demo CDM (2,694 patients)")
+        lines.append("    eunomia_results.* — Demo Achilles characterization")
 
     lines += ["", "  [bold]Next steps:[/bold]"] + next_steps
 
@@ -249,15 +263,37 @@ def run(*, non_interactive: bool = False, pre_seed: dict[str, Any] | None = None
         _save_state({"completed_phases": completed, "config": cfg})
 
     # -----------------------------------------------------------------------
-    # Phase 5 — Eunomia (optional)
+    # Phase 5 — Dataset Acquisition
     # -----------------------------------------------------------------------
-    if "eunomia" not in completed:
-        if cfg.get("include_eunomia", True):
-            eunomia.run()
+    if "datasets" not in completed:
+        console.rule("[bold]Phase 5 — Dataset Acquisition[/bold]")
+
+        # Determine which datasets to load
+        dataset_keys = cfg.get("datasets")
+
+        if not dataset_keys:
+            # Build default list from legacy config flags
+            dataset_keys = []
+            if cfg.get("include_eunomia", True):
+                dataset_keys.append("eunomia")
+
+        if dataset_keys:
+            from datasets.loader import run_selected, print_summary
+            results = run_selected(dataset_keys, console=console)
+            print_summary(results, console=console)
         else:
-            console.rule("[bold]Phase 5 — Eunomia Demo Data[/bold]")
-            console.print("[dim]Skipped (user opted out).[/dim]\n")
-        completed.append("eunomia")
+            console.print("[dim]No datasets selected during configuration.[/dim]")
+            console.print(
+                "  Run [bold]./parthenon-data[/bold] after installation to load datasets.\n"
+            )
+
+        # Handle vocabulary separately if ZIP was provided (legacy config path)
+        vocab_zip = cfg.get("vocab_zip_path")
+        if vocab_zip and "vocabulary" not in (dataset_keys or []):
+            from datasets.loaders.vocabulary import load as load_vocab
+            load_vocab(console=console, downloads_dir=utils.REPO_ROOT / "downloads", zip_path=vocab_zip)
+
+        completed.append("datasets")
         _save_state({"completed_phases": completed, "config": cfg})
 
     # -----------------------------------------------------------------------

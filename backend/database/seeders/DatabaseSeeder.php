@@ -39,6 +39,7 @@ class DatabaseSeeder extends Seeder
         $this->call(RolePermissionSeeder::class);
         $this->call(AuthProviderSeeder::class);
         $this->call(AiProviderSeeder::class);
+        $this->call(AchillesAnalysisSeeder::class);
 
         // ── Super-admin account ──────────────────────────────────────────────
         // Credentials: admin@acumenus.net / superuser

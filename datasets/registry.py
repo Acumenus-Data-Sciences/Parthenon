@@ -1,0 +1,477 @@
+"""Dataset registry for Parthenon Dataset Acquisition TUI.
+
+Defines all known datasets, bundles, and dependency resolution utilities.
+"""
+from __future__ import annotations
+
+from collections import deque
+from dataclasses import dataclass, field
+from typing import Dict, List, Optional, Tuple
+
+# ---------------------------------------------------------------------------
+# Categories
+# ---------------------------------------------------------------------------
+
+CATEGORIES: List[Tuple[str, str]] = [
+    ("vocabulary", "Vocabulary"),
+    ("cdm", "CDM Datasets"),
+    ("genomics", "Genomics"),
+    ("imaging", "Imaging"),
+    ("gis", "GIS / Geospatial"),
+    ("phenotypes", "Phenotypes"),
+]
+
+
+# ---------------------------------------------------------------------------
+# Dataset dataclass
+# ---------------------------------------------------------------------------
+
+@dataclass(frozen=True)
+class Dataset:
+    key: str
+    name: str
+    category: str
+    description: str
+    size_estimate: str
+    size_download_mb: int
+    size_loaded_mb: int
+    time_estimate: str
+    source_url: str
+    loader: str
+    requires_registration: bool = False
+    auto_downloadable: bool = True
+    dependencies: List[str] = field(default_factory=list)
+    checksum: Optional[str] = None
+    phase: int = 1
+
+
+# ---------------------------------------------------------------------------
+# Registry helpers
+# ---------------------------------------------------------------------------
+
+DATASETS: Dict[str, Dataset] = {}
+
+
+def _register(ds: Dataset) -> Dataset:
+    """Add *ds* to the global DATASETS registry and return it."""
+    DATASETS[ds.key] = ds
+    return ds
+
+
+# ---------------------------------------------------------------------------
+# Vocabulary
+# ---------------------------------------------------------------------------
+
+_register(Dataset(
+    key="vocabulary",
+    name="OMOP Vocabulary (Athena)",
+    category="vocabulary",
+    description=(
+        "The full OMOP standardised vocabularies downloaded from Athena "
+        "(OHDSI). Covers ~100 source vocabularies including SNOMED CT, "
+        "RxNorm, ICD-9/10, LOINC, CPT-4, and more. Required by all CDM "
+        "datasets for concept mapping."
+    ),
+    size_estimate="~4 GB download / ~16 GB loaded",
+    size_download_mb=4_000,
+    size_loaded_mb=16_000,
+    time_estimate="~30–60 min",
+    source_url="https://athena.ohdsi.org/vocabulary/list",
+    loader="datasets.loaders.vocabulary",
+    requires_registration=True,
+    auto_downloadable=False,
+    phase=1,
+))
+
+# ---------------------------------------------------------------------------
+# CDM Datasets
+# ---------------------------------------------------------------------------
+
+_register(Dataset(
+    key="eunomia",
+    name="Eunomia GiBleed",
+    category="cdm",
+    description=(
+        "The Eunomia reference dataset — 2,694 synthetic patients with a "
+        "gastrointestinal bleeding scenario. Ships as a pre-mapped OMOP CDM "
+        "SQLite database and is the canonical demo / smoke-test dataset for "
+        "Parthenon."
+    ),
+    size_estimate="~15 MB download / ~38 MB loaded",
+    size_download_mb=15,
+    size_loaded_mb=38,
+    time_estimate="~1 min",
+    source_url=(
+        "https://github.com/OHDSI/Eunomia/releases/download/v2.0.0/"
+        "GiBleed_5.4.zip"
+    ),
+    loader="datasets.loaders.eunomia",
+    phase=1,
+))
+
+_register(Dataset(
+    key="synpuf-1k",
+    name="CMS SynPUF 1K",
+    category="cdm",
+    description=(
+        "CMS DE-SynPUF 1,000-patient sample — a small, publicly available "
+        "synthetic Medicare dataset mapped to OMOP CDM. Good for rapid "
+        "prototyping without the full SynPUF footprint."
+    ),
+    size_estimate="~100 MB download / ~200 MB loaded",
+    size_download_mb=100,
+    size_loaded_mb=200,
+    time_estimate="~5 min",
+    source_url="https://www.cms.gov/Research-Statistics-Data-and-Systems/Downloadable-Public-Use-Files/SynPUFs",
+    loader="datasets.loaders.synpuf",
+    dependencies=["vocabulary"],
+    phase=2,
+))
+
+_register(Dataset(
+    key="synpuf-full",
+    name="CMS SynPUF 2.3M",
+    category="cdm",
+    description=(
+        "The full CMS DE-SynPUF dataset — 2.3 million synthetic Medicare "
+        "beneficiaries mapped to OMOP CDM. Suitable for large-cohort "
+        "population-level studies and performance benchmarking."
+    ),
+    size_estimate="~3 GB download / ~10 GB loaded",
+    size_download_mb=3_000,
+    size_loaded_mb=10_000,
+    time_estimate="~2–4 hrs",
+    source_url="https://www.cms.gov/Research-Statistics-Data-and-Systems/Downloadable-Public-Use-Files/SynPUFs",
+    loader="datasets.loaders.synpuf",
+    dependencies=["vocabulary"],
+    phase=2,
+))
+
+_register(Dataset(
+    key="synthea-1k",
+    name="Synthea 1K",
+    category="cdm",
+    description=(
+        "1,000 synthetic patients generated by the Synthea simulator and "
+        "mapped to OMOP CDM v5.4.  Covers a broad range of conditions, "
+        "medications, and procedures; useful for testing cohort definitions."
+    ),
+    size_estimate="~200 MB download / ~500 MB loaded",
+    size_download_mb=200,
+    size_loaded_mb=500,
+    time_estimate="~10 min",
+    source_url="https://synthetichealth.github.io/synthea/",
+    loader="datasets.loaders.synthea",
+    dependencies=["vocabulary"],
+    phase=2,
+))
+
+# ---------------------------------------------------------------------------
+# Genomics — ClinVar
+# ---------------------------------------------------------------------------
+
+_register(Dataset(
+    key="clinvar",
+    name="ClinVar",
+    category="genomics",
+    description=(
+        "NCBI ClinVar — a freely accessible, public archive of reports of "
+        "the relationships among human variations and phenotypes. Includes "
+        "VCF and XML variants with clinical significance classifications."
+    ),
+    size_estimate="~200 MB download / ~500 MB loaded",
+    size_download_mb=200,
+    size_loaded_mb=500,
+    time_estimate="~5 min",
+    source_url="https://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh38/clinvar.vcf.gz",
+    loader="datasets.loaders.genomics",
+    phase=1,
+))
+
+# ---------------------------------------------------------------------------
+# Genomics — GIAB samples
+# ---------------------------------------------------------------------------
+
+_GIAB_SAMPLES = [
+    ("hg001", "HG001",  "NA12878",  "NA12878",           "HG001_NA12878_son"),
+    ("hg002", "HG002",  "NA24385",  "Ashkenazim son",    "AshkenazimTrio/HG002_NA24385_son"),
+    ("hg003", "HG003",  "NA24149",  "Ashkenazim father", "AshkenazimTrio/HG003_NA24149_father"),
+    ("hg004", "HG004",  "NA24143",  "Ashkenazim mother", "AshkenazimTrio/HG004_NA24143_mother"),
+    ("hg005", "HG005",  "NA24631",  "Chinese son",       "ChineseTrio/HG005_NA24631_son"),
+    ("hg006", "HG006",  "NA24694",  "Chinese father",    "ChineseTrio/HG006_NA24694_father"),
+    ("hg007", "HG007",  "NA24695",  "Chinese mother",    "ChineseTrio/HG007_NA24695_mother"),
+]
+
+_GIAB_BASE = "https://ftp-trace.ncbi.nlm.nih.gov/giab/ftp/release"
+
+for _id, _sample, _accession, _role, _path in _GIAB_SAMPLES:
+    _filename = f"{_sample}_{_accession}_GRCh38_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-22_v.3.3.2_highconf_triophased.vcf.gz"
+    _url = f"{_GIAB_BASE}/{_path}/NISTv4.2.1/GRCh38/{_filename}"
+    _register(Dataset(
+        key=f"giab-{_id}",
+        name=f"GIAB {_sample} ({_accession})",
+        category="genomics",
+        description=(
+            f"Genome in a Bottle reference sample {_sample} — {_role} "
+            f"({_accession}). High-confidence small variant VCF for GRCh38 "
+            f"from NIST v4.2.1. Used for variant calling benchmarking and "
+            f"radiogenomics studies in Parthenon."
+        ),
+        size_estimate="~800 MB download / ~3.5 GB loaded",
+        size_download_mb=800,
+        size_loaded_mb=3_500,
+        time_estimate="~15–30 min",
+        source_url=_url,
+        loader="datasets.loaders.genomics",
+        phase=1,
+    ))
+
+# ---------------------------------------------------------------------------
+# Imaging
+# ---------------------------------------------------------------------------
+
+_register(Dataset(
+    key="dicom-malocclusion",
+    name="Class-3 Malocclusion CBCT",
+    category="imaging",
+    description=(
+        "Open-access CBCT scans of Class III malocclusion patients, "
+        "contributed to the TCIA. Small footprint (~21 MB) and a good "
+        "first dataset for testing Parthenon's DICOM ingestion pipeline."
+    ),
+    size_estimate="~21 MB download / ~21 MB loaded",
+    size_download_mb=21,
+    size_loaded_mb=21,
+    time_estimate="~2 min",
+    source_url=(
+        "https://wiki.cancerimagingarchive.net/display/Public/"
+        "Class+3+Malocclusion"
+    ),
+    loader="datasets.loaders.imaging",
+    phase=1,
+))
+
+_register(Dataset(
+    key="dicom-covid19",
+    name="Harvard COVID-19 CT",
+    category="imaging",
+    description=(
+        "Harvard Dataverse COVID-19 CT scan collection (~242 GB). "
+        "Requires manual download from Harvard Dataverse due to "
+        "registration and terms-of-use requirements."
+    ),
+    size_estimate="~242 GB download / ~242 GB loaded",
+    size_download_mb=242_000,
+    size_loaded_mb=242_000,
+    time_estimate="~12–24 hrs",
+    source_url="https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/6ACUZJ",
+    loader="datasets.loaders.imaging",
+    auto_downloadable=False,
+    phase=1,
+))
+
+# ---------------------------------------------------------------------------
+# GIS
+# ---------------------------------------------------------------------------
+
+_register(Dataset(
+    key="gis-boundaries",
+    name="US Census TIGER/Line Boundaries",
+    category="gis",
+    description=(
+        "US Census Bureau TIGER/Line shapefiles for state, county, ZIP "
+        "code tabulation area (ZCTA), and census tract boundaries. Used by "
+        "the Parthenon GIS Explorer for spatial cohort analysis."
+    ),
+    size_estimate="~50 MB download / ~100 MB loaded",
+    size_download_mb=50,
+    size_loaded_mb=100,
+    time_estimate="~5 min",
+    source_url="https://www.census.gov/geographies/mapping-files/time-series/geo/tiger-line-file.html",
+    loader="datasets.loaders.gis",
+    phase=1,
+))
+
+# ---------------------------------------------------------------------------
+# Phenotypes
+# ---------------------------------------------------------------------------
+
+_register(Dataset(
+    key="phenotype-library",
+    name="OHDSI Phenotype Library",
+    category="phenotypes",
+    description=(
+        "The OHDSI Phenotype Library — a curated collection of 1,100+ "
+        "validated cohort definitions covering common conditions, "
+        "medications, and procedures.  Loaded into Parthenon's cohort "
+        "definition repository for immediate use."
+    ),
+    size_estimate="~5 MB download / ~5 MB loaded",
+    size_download_mb=5,
+    size_loaded_mb=5,
+    time_estimate="~1 min",
+    source_url="https://github.com/OHDSI/PhenotypeLibrary",
+    loader="datasets.loaders.phenotypes",
+    phase=1,
+))
+
+
+# ---------------------------------------------------------------------------
+# Bundle dataclass
+# ---------------------------------------------------------------------------
+
+@dataclass(frozen=True)
+class Bundle:
+    key: str
+    name: str
+    description: str
+    dataset_keys: List[str]
+
+
+# ---------------------------------------------------------------------------
+# Bundles
+# ---------------------------------------------------------------------------
+
+def _phase1_auto() -> List[str]:
+    """Return keys for all auto-downloadable phase-1 datasets in registry order."""
+    return [
+        ds.key
+        for ds in DATASETS.values()
+        if ds.phase == 1 and ds.auto_downloadable
+    ]
+
+
+BUNDLES: List[Bundle] = [
+    Bundle(
+        key="quick-start",
+        name="Quick Start",
+        description=(
+            "The smallest working Parthenon installation — Eunomia GiBleed "
+            "demo data plus the OHDSI Phenotype Library.  Ready in under "
+            "5 minutes; no registration required."
+        ),
+        dataset_keys=["eunomia", "phenotype-library"],
+    ),
+    Bundle(
+        key="research-ready",
+        name="Research Ready",
+        description=(
+            "A fully configured research environment with vocabulary, "
+            "clinical demo data, genomics, GIS boundaries, and phenotype "
+            "library.  Requires Athena registration for the vocabulary."
+        ),
+        dataset_keys=[
+            "eunomia",
+            "vocabulary",
+            "clinvar",
+            "giab-hg001",
+            "gis-boundaries",
+            "phenotype-library",
+        ],
+    ),
+    Bundle(
+        key="genomics-focus",
+        name="Genomics Focus",
+        description=(
+            "Eunomia plus a curated set of GIAB reference samples and "
+            "ClinVar for variant benchmarking and radiogenomics analysis."
+        ),
+        dataset_keys=[
+            "eunomia",
+            "clinvar",
+            "giab-hg001",
+            "giab-hg002",
+            "phenotype-library",
+        ],
+    ),
+    Bundle(
+        key="full-platform",
+        name="Full Platform",
+        description=(
+            "All auto-downloadable phase-1 datasets — the complete "
+            "Parthenon dataset suite that does not require manual "
+            "registration or download.  Large footprint; plan for "
+            "several hours of download and loading time."
+        ),
+        dataset_keys=_phase1_auto(),
+    ),
+]
+
+
+# ---------------------------------------------------------------------------
+# Dependency resolution — Kahn's topological sort
+# ---------------------------------------------------------------------------
+
+def resolve_dependencies(selected_keys: List[str]) -> List[str]:
+    """Return a topologically-ordered list of dataset keys that includes
+    *selected_keys* plus all transitive dependencies.
+
+    Raises ValueError if a dependency cycle is detected or if any key
+    references an unknown dataset.
+    """
+    # Validate all keys up-front
+    for key in selected_keys:
+        if key not in DATASETS:
+            raise ValueError(f"Unknown dataset key: {key!r}")
+
+    # Collect the full closure of required datasets
+    closure: set[str] = set()
+    frontier = list(selected_keys)
+    while frontier:
+        key = frontier.pop()
+        if key in closure:
+            continue
+        if key not in DATASETS:
+            raise ValueError(f"Unknown dependency key: {key!r}")
+        closure.add(key)
+        for dep in DATASETS[key].dependencies:
+            if dep not in closure:
+                frontier.append(dep)
+
+    # Kahn's algorithm over the closure
+    # Build adjacency (dep -> dependents) and in-degree within the closure
+    in_degree: dict[str, int] = {k: 0 for k in closure}
+    dependents: dict[str, list[str]] = {k: [] for k in closure}
+
+    for key in closure:
+        for dep in DATASETS[key].dependencies:
+            if dep in closure:
+                in_degree[key] += 1
+                dependents[dep].append(key)
+
+    queue: deque[str] = deque(k for k in closure if in_degree[k] == 0)
+    order: list[str] = []
+
+    while queue:
+        node = queue.popleft()
+        order.append(node)
+        for dependent in dependents[node]:
+            in_degree[dependent] -= 1
+            if in_degree[dependent] == 0:
+                queue.append(dependent)
+
+    if len(order) != len(closure):
+        remaining = closure - set(order)
+        raise ValueError(
+            f"Dependency cycle detected among datasets: {', '.join(sorted(remaining))}"
+        )
+
+    return order
+
+
+def get_added_dependencies(selected_keys: List[str]) -> List[str]:
+    """Return dependency keys that would be added beyond *selected_keys*.
+
+    These are the transitive dependencies not already present in
+    *selected_keys*.
+    """
+    full = resolve_dependencies(selected_keys)
+    selected_set = set(selected_keys)
+    return [k for k in full if k not in selected_set]
+
+
+# ---------------------------------------------------------------------------
+# Import-time validation — catch cycles at module load time
+# ---------------------------------------------------------------------------
+
+resolve_dependencies(list(DATASETS.keys()))
