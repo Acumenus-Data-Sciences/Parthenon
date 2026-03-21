@@ -5,12 +5,17 @@ use App\Models\App\CohortDefinition;
 use App\Models\App\Source;
 use App\Models\App\WebApiRegistry;
 use App\Models\User;
+use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 
 use function Pest\Laravel\actingAs;
 
 uses(RefreshDatabase::class);
+
+beforeEach(function () {
+    $this->seed(RolePermissionSeeder::class);
+});
 
 it('imports atlas cohort definitions through the finngen cohort operations endpoint', function () {
     Http::fake([
@@ -32,6 +37,7 @@ it('imports atlas cohort definitions through the finngen cohort operations endpo
     ]);
 
     $user = User::factory()->create();
+    $user->assignRole('researcher');
     $source = Source::factory()->create([
         'source_key' => 'acumenus',
         'source_dialect' => 'postgresql',

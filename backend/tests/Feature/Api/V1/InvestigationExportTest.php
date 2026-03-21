@@ -34,15 +34,17 @@ it('exports investigation as JSON with correct structure', function () {
 
     $response->assertStatus(200);
     $response->assertJsonStructure([
-        'meta' => ['id', 'title', 'research_question', 'status', 'owner', 'exported_at', 'version'],
-        'key_findings',
-        'sections' => ['phenotype', 'clinical', 'genomic', 'synthesis'],
+        'data' => [
+            'meta' => ['id', 'title', 'research_question', 'status', 'owner', 'exported_at', 'version'],
+            'key_findings',
+            'sections' => ['phenotype', 'clinical', 'genomic', 'synthesis'],
+        ],
     ]);
-    $response->assertJsonPath('meta.title', 'CKD Study');
-    $response->assertJsonPath('meta.status', 'active');
+    $response->assertJsonPath('data.meta.title', 'CKD Study');
+    $response->assertJsonPath('data.meta.status', 'active');
 
     // key findings should include the pin
-    $keyFindings = $response->json('key_findings');
+    $keyFindings = $response->json('data.key_findings');
     expect($keyFindings)->toHaveCount(1);
     expect($keyFindings[0]['finding_type'])->toBe('cohort_definition');
 });

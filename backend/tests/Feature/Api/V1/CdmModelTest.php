@@ -33,14 +33,14 @@ it('throws RuntimeException on delete attempt', function () {
     $person->delete();
 })->throws(RuntimeException::class, 'CDM models are read-only');
 
-it('uses the cdm database connection', function () {
-    expect((new Person)->getConnectionName())->toBe('cdm');
-    expect((new ConditionOccurrence)->getConnectionName())->toBe('cdm');
-    expect((new DrugExposure)->getConnectionName())->toBe('cdm');
-    expect((new Measurement)->getConnectionName())->toBe('cdm');
-    expect((new Observation)->getConnectionName())->toBe('cdm');
-    expect((new ProcedureOccurrence)->getConnectionName())->toBe('cdm');
-    expect((new VisitOccurrence)->getConnectionName())->toBe('cdm');
+it('uses the omop database connection', function () {
+    expect((new Person)->getConnectionName())->toBe('omop');
+    expect((new ConditionOccurrence)->getConnectionName())->toBe('omop');
+    expect((new DrugExposure)->getConnectionName())->toBe('omop');
+    expect((new Measurement)->getConnectionName())->toBe('omop');
+    expect((new Observation)->getConnectionName())->toBe('omop');
+    expect((new ProcedureOccurrence)->getConnectionName())->toBe('omop');
+    expect((new VisitOccurrence)->getConnectionName())->toBe('omop');
 });
 
 it('has timestamps disabled', function () {
