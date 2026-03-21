@@ -1,5 +1,5 @@
 import { useInvestigationStore } from "../stores/investigationStore";
-import type { ClinicalState, EvidenceDomain, Investigation } from "../types";
+import type { ClinicalState, EvidenceDomain, GenomicState, Investigation } from "../types";
 import { ContextCard } from "./ContextCard";
 
 interface ContextBarProps {
@@ -86,9 +86,16 @@ function ClinicalSummaryNode({
   );
 }
 
-function getGenomicSummary(investigation: Investigation): string {
-  const count = investigation.genomic_state.uploaded_gwas.length;
-  return count > 0 ? `${count} GWAS file${count !== 1 ? "s" : ""}` : "—";
+function getGenomicSummary(state: GenomicState): string {
+  const queries =
+    (state.open_targets_queries?.length ?? 0) +
+    (state.gwas_catalog_queries?.length ?? 0);
+  const uploads = state.uploaded_gwas?.length ?? 0;
+  if (queries === 0 && uploads === 0) return "No evidence";
+  const parts: string[] = [];
+  if (queries > 0) parts.push(`${queries} quer${queries !== 1 ? "ies" : "y"}`);
+  if (uploads > 0) parts.push(`${uploads} upload${uploads !== 1 ? "s" : ""}`);
+  return parts.join(" · ");
 }
 
 function getSynthesisSummary(investigation: Investigation): string {
@@ -113,7 +120,7 @@ export function ContextBar({ investigation }: ContextBarProps) {
   const summaries: Record<EvidenceDomain, string> = {
     phenotype: getPhenotypeSummary(investigation),
     clinical: getClinicalSummary(investigation.clinical_state),
-    genomic: getGenomicSummary(investigation),
+    genomic: getGenomicSummary(investigation.genomic_state),
     synthesis: getSynthesisSummary(investigation),
   };
 
