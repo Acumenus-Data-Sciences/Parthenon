@@ -169,15 +169,13 @@ export default function LabPanelDashboard({ labs, onConceptClick }: LabPanelDash
         {groups.size} tests · {labs.filter((l) => l.valuenum != null).length} numeric values
       </div>
 
-      {/* Two-column grid for panels */}
-      <div className="grid grid-cols-2 gap-3 items-start">
+      {/* Masonry two-column layout — panels pack tightly with no wasted vertical space */}
+      <div className="columns-2 gap-3 [column-fill:balance]">
         {panels.map(({ panel, tests }) => {
           const isOpen = expandedPanel === panel.name || expandedPanel === null;
-          // If any row is expanded (showing chart), span full width
-          const hasExpandedRow = isOpen && tests.some((g) => expandedRow === g.itemid);
 
           return (
-            <div key={panel.name} className={`rounded-xl border border-zinc-800/60 bg-[#111114] overflow-hidden ${hasExpandedRow ? 'col-span-2' : ''}`}>
+            <div key={panel.name} className="rounded-xl border border-zinc-800/60 bg-[#111114] overflow-hidden mb-3 break-inside-avoid">
               <button
                 type="button"
                 onClick={() => setExpandedPanel(expandedPanel === panel.name ? null : panel.name)}
