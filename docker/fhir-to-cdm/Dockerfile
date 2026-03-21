@@ -45,8 +45,8 @@ WORKDIR /app
 # Copy the published .NET tool from the builder stage
 COPY --from=builder /app/publish ./dotnet/
 
-# Copy Python HTTP wrapper
-COPY wrapper.py ./wrapper.py
+# Copy Python HTTP wrapper (path relative to repo-root build context)
+COPY docker/fhir-to-cdm/wrapper.py ./wrapper.py
 
 # Create working directories for temp FHIR files and CDM output
 RUN mkdir -p /tmp/fhir_input /tmp/cdm_output \

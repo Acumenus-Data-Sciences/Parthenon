@@ -141,7 +141,7 @@ jobs:
             node)             DOCKERFILE="docker/node/Dockerfile";          CONTEXT="." ;;
             postgres)         DOCKERFILE="docker/postgres/Dockerfile";      CONTEXT="." ;;
             python-ai)        DOCKERFILE="docker/python/Dockerfile";        CONTEXT="." ;;
-            morpheus-ingest)  DOCKERFILE="morpheus-ingest/Dockerfile";      CONTEXT="./morpheus-ingest" ;;
+            morpheus-ingest)  DOCKERFILE="./morpheus-ingest/Dockerfile";     CONTEXT="./morpheus-ingest" ;;
             study-agent)      DOCKERFILE="docker/study-agent/Dockerfile";   CONTEXT="." ;;
             jupyterhub)       DOCKERFILE="docker/jupyterhub/Dockerfile";    CONTEXT="." ;;
             jupyter-user)     DOCKERFILE="docker/jupyter-user/Dockerfile";  CONTEXT="." ;;
@@ -150,7 +150,7 @@ jobs:
             hecate)           DOCKERFILE="docker/hecate/Dockerfile";        CONTEXT="." ;;
             whiterabbit)      DOCKERFILE="docker/whiterabbit/Dockerfile";   CONTEXT="." ;;
             fhir-to-cdm)      DOCKERFILE="docker/fhir-to-cdm/Dockerfile";  CONTEXT="." ;;
-            ohif-build)       DOCKERFILE="docker/ohif/Dockerfile";          CONTEXT="./docker/ohif" ;;
+            ohif-build)       DOCKERFILE="./docker/ohif/Dockerfile";        CONTEXT="./docker/ohif" ;;
             *) echo "Unknown image: $NAME"; exit 1 ;;
           esac
 

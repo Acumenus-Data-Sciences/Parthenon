@@ -13,9 +13,9 @@ WORKDIR /build
 # Clone the OHDSI Hecate repository
 RUN git clone --depth 1 https://github.com/OHDSI/Hecate.git .
 
-# Build only the api workspace member in release mode.
-# Cargo caches layers when Cargo.toml/Cargo.lock are unchanged.
-RUN cargo build --release -p api
+# Build the api crate in release mode (standalone crate under api/).
+WORKDIR /build/api
+RUN cargo build --release
 
 # Stage 2: Runtime
 FROM debian:bookworm-slim
@@ -33,7 +33,7 @@ RUN useradd --system --no-create-home --shell /usr/sbin/nologin hecate
 WORKDIR /app
 
 # Copy the compiled binary from the builder stage
-COPY --from=builder /build/target/release/hecate-api /app/hecate-api
+COPY --from=builder /build/api/target/release/hecate-api /app/hecate-api
 
 RUN chown hecate:hecate /app/hecate-api && chmod +x /app/hecate-api
 
