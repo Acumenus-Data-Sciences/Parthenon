@@ -83,8 +83,37 @@ Describe a cohort in plain English — *"patients with type 2 diabetes newly sta
 ### Prerequisites
 - Docker and Docker Compose v2
 - Git
+- Python 3.9+ (for the installer)
 
-### Install
+### Recommended: Install with Acropolis
+
+[Acropolis](https://github.com/sudoshi/Acropolis) is the infrastructure orchestration layer for Parthenon. It adds automatic TLS via Traefik, container management via Portainer, database administration via pgAdmin, and a full observability stack (Grafana, Prometheus, Loki). The Enterprise tier adds n8n workflow automation, Apache Superset BI dashboards, DataHub data catalog, and Authentik SSO.
+
+```bash
+git clone https://github.com/sudoshi/Acropolis.git
+cd Acropolis
+python3 install.py
+# → Select "Yes, install fresh" when asked about Parthenon
+# → Acropolis clones and installs Parthenon automatically
+```
+
+Acropolis handles the full deployment: cloning Parthenon, configuring environment files, starting all containers, running migrations, building the frontend, and wiring Traefik reverse proxy routes with auto-TLS for every service.
+
+### Quick Start: Standalone Install
+
+For local development or environments where you don't need the Acropolis infrastructure layer:
+
+```bash
+git clone https://github.com/sudoshi/Parthenon.git
+cd Parthenon
+python3 install.py
+```
+
+The Rich TUI installer walks through prerequisites, environment setup, container orchestration, and initial seeding in 9 phases.
+
+### Manual Install
+
+If you prefer manual setup over the interactive installer:
 
 ```bash
 git clone https://github.com/sudoshi/Parthenon.git
@@ -116,16 +145,6 @@ Open **http://localhost:8082** — you'll be greeted by the setup wizard.
 3. **Run Achilles** — Data Explorer → select source → Run Achilles (takes 15–60 min depending on size)
 4. **Create a cohort** — Cohort Definitions → New → build criteria or import an Atlas JSON
 5. **Generate the cohort** — hit Generate, monitor progress, see person counts
-
-### Python Installer
-
-For a guided installation with dependency checks:
-
-```bash
-python3 install.py
-```
-
-The Rich TUI walks through prerequisites, environment setup, container orchestration, and initial seeding.
 
 ---
 

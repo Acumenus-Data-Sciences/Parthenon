@@ -5,6 +5,42 @@ Collects user preferences via questionary prompts, then writes:
   backend/.env     (Laravel app env vars)
 
 Also saves generated credentials to .install-credentials (gitignored).
+
+## --defaults-file JSON Schema
+
+When invoked via ``python3 install.py --defaults-file path.json``, the JSON
+file pre-seeds the interactive prompts. All fields are optional — they set
+the default value shown to the user, who can still edit any field.
+
+Acropolis writes this file during its Phase 5 (config collection) and passes
+it to Parthenon's installer to avoid prompting for values already collected.
+
+.. code-block:: json
+
+    {
+      "admin_email":    "admin@acumenus.net",
+      "admin_name":     "Administrator",
+      "admin_password": "auto-generated-or-user-supplied",
+      "app_url":        "https://parthenon.acumenus.net",
+      "timezone":       "America/New_York",
+      "experience":     "Experienced",
+      "db_password":    "optional-override"
+    }
+
+Field details:
+
+- ``admin_email``    — Pre-populates the admin email prompt.
+- ``admin_name``     — Pre-populates the admin display name prompt.
+- ``admin_password`` — Pre-populates the admin password (still confirmable).
+- ``app_url``        — Pre-populates the application URL prompt.
+- ``timezone``       — Pre-populates the timezone prompt (IANA format).
+- ``experience``     — Skips the experience-level question ("First-time" or "Experienced").
+- ``db_password``    — Pre-populates the database password instead of auto-generating.
+
+Output: ``.install-credentials`` (JSON, chmod 600) is always written after
+config collection, containing ``app_url``, ``admin_email``, ``admin_password``,
+and ``db_password``. Acropolis reads this file post-install to verify success
+and display credentials in its summary. Do not change the format.
 """
 from __future__ import annotations
 

@@ -295,7 +295,7 @@ services:
       - JUPYTER_JWT_SECRET=${JUPYTER_JWT_SECRET}
       - JUPYTER_HUB_API_KEY=${JUPYTER_HUB_API_KEY}
       - PARTHENON_API_URL=http://nginx/api/v1
-      - DOCKER_NETWORK_NAME=parthenon_default
+      - DOCKER_NETWORK_NAME=parthenon
       - JUPYTER_USER_NETWORK_NAME=parthenon_jupyter_users
       - JUPYTER_IMAGE=parthenon-jupyter-user
       - JUPYTER_IDLE_TIMEOUT=${JUPYTER_IDLE_TIMEOUT:-1800}
@@ -826,6 +826,7 @@ volumes:
 
 networks:
   parthenon:
+    name: parthenon
     driver: bridge
   jupyter_users:
     name: parthenon_jupyter_users
