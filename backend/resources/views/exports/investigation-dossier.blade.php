@@ -30,7 +30,7 @@
   <div class="key-finding">
     <span class="finding-type">{{ str_replace('_', ' ', $kf['finding_type']) }}</span>
     @foreach($kf['finding_payload'] as $k => $v)
-      <br><strong>{{ str_replace('_', ' ', $k) }}:</strong> {{ is_array($v) ? implode(', ', $v) : $v }}
+      <br><strong>{{ str_replace('_', ' ', $k) }}:</strong> {{ is_array($v) ? implode(', ', array_map(fn($item) => is_array($item) ? json_encode($item) : (string) $item, $v)) : (is_bool($v) ? ($v ? 'Yes' : 'No') : $v) }}
     @endforeach
   </div>
   @endforeach
@@ -44,7 +44,7 @@
     <span class="finding-type">{{ str_replace('_', ' ', $pin['finding_type']) }}</span>
     @if($pin['narrative_before'])<div class="narrative">{{ $pin['narrative_before'] }}</div>@endif
     @foreach($pin['finding_payload'] as $k => $v)
-      <br><strong>{{ str_replace('_', ' ', $k) }}:</strong> {{ is_array($v) ? implode(', ', $v) : $v }}
+      <br><strong>{{ str_replace('_', ' ', $k) }}:</strong> {{ is_array($v) ? implode(', ', array_map(fn($item) => is_array($item) ? json_encode($item) : (string) $item, $v)) : (is_bool($v) ? ($v ? 'Yes' : 'No') : $v) }}
     @endforeach
     @if($pin['narrative_after'])<div class="narrative">{{ $pin['narrative_after'] }}</div>@endif
   </div>

@@ -27,7 +27,7 @@ class InvestigationExportController extends Controller
 
         $data = $this->exportService->toJson($investigation);
 
-        return response()->json($data);
+        return response()->json(['data' => $data]);
     }
 
     public function exportPdf(Request $request, Investigation $investigation): Response|JsonResponse
