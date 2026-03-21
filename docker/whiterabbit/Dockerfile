@@ -26,10 +26,11 @@ RUN mkdir -p /root/.m2 && cat > /root/.m2/settings.xml << 'SETTINGS'
 </settings>
 SETTINGS
 
-# Build rabbit-core first (install to local repo), then build whiterabbit.
-# Two-step approach ensures rabbit-core:jar is available for the second
-# mvn invocation (appassembler:assemble runs in a fresh reactor).
-RUN mvn -pl rabbit-core install \
+# Install parent POM + rabbit-core to local repo, then build whiterabbit.
+# The parent POM (leporidae) and rabbit-core aren't in any remote Maven
+# repo — they must be installed locally before whiterabbit can resolve them.
+RUN mvn -N install --no-transfer-progress \
+    && mvn -pl rabbit-core install \
         -DskipTests \
         --no-transfer-progress \
     && mvn -pl whiterabbit package \
