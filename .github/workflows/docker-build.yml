@@ -1,0 +1,187 @@
+# Build and push Docker images to GitHub Container Registry (GHCR)
+#
+# Triggers:
+#   - Push to main (builds all images whose Dockerfiles changed)
+#   - Manual dispatch (builds all images or a specific one)
+#
+# Images are tagged with: latest, sha-<short>, and date-based tags.
+# BuildKit layer caching via GitHub Actions cache keeps rebuilds fast.
+
+name: Build & Push Docker Images
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docker/**'
+      - 'morpheus-ingest/Dockerfile'
+      - '.github/workflows/docker-build.yml'
+  workflow_dispatch:
+    inputs:
+      image:
+        description: 'Specific image to build (leave empty for all)'
+        required: false
+        type: choice
+        options:
+          - all
+          - php
+          - node
+          - postgres
+          - python-ai
+          - morpheus-ingest
+          - study-agent
+          - jupyterhub
+          - jupyter-user
+          - finngen-runner
+          - darkstar
+          - hecate
+          - whiterabbit
+          - fhir-to-cdm
+          - ohif-build
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ghcr.io/sudoshi/parthenon
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Determine which images need building based on changed files
+  # ---------------------------------------------------------------------------
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Detect changed Dockerfiles
+        id: set-matrix
+        run: |
+          # If manual dispatch with specific image, build just that one
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.image }}" != "all" && -n "${{ inputs.image }}" ]]; then
+            echo "matrix={\"include\":[$(jq -n --arg name "${{ inputs.image }}" '{name: $name}')]}" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # For push events, check which Dockerfiles changed; for dispatch "all", build everything
+          IMAGES='[]'
+
+          declare -A DOCKER_PATHS=(
+            [php]="docker/php"
+            [node]="docker/node"
+            [postgres]="docker/postgres"
+            [python-ai]="docker/python"
+            [morpheus-ingest]="morpheus-ingest"
+            [study-agent]="docker/study-agent"
+            [jupyterhub]="docker/jupyterhub"
+            [jupyter-user]="docker/jupyter-user"
+            [finngen-runner]="docker/finngen-runner"
+            [darkstar]="docker/r"
+            [hecate]="docker/hecate"
+            [whiterabbit]="docker/whiterabbit"
+            [fhir-to-cdm]="docker/fhir-to-cdm"
+            [ohif-build]="docker/ohif"
+          )
+
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            # Build all images on manual dispatch
+            for name in "${!DOCKER_PATHS[@]}"; do
+              IMAGES=$(echo "$IMAGES" | jq --arg n "$name" '. + [{name: $n}]')
+            done
+          else
+            # Only build images whose Dockerfiles changed
+            CHANGED=$(git diff --name-only HEAD~1 HEAD)
+            for name in "${!DOCKER_PATHS[@]}"; do
+              path="${DOCKER_PATHS[$name]}"
+              if echo "$CHANGED" | grep -q "^${path}/"; then
+                IMAGES=$(echo "$IMAGES" | jq --arg n "$name" '. + [{name: $n}]')
+              fi
+            done
+          fi
+
+          if [[ $(echo "$IMAGES" | jq length) -eq 0 ]]; then
+            echo "No Dockerfiles changed — skipping builds"
+            echo "matrix={\"include\":[]}" >> "$GITHUB_OUTPUT"
+          else
+            echo "matrix={\"include\":$(echo $IMAGES | jq -c .)}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Show build matrix
+        run: echo "${{ steps.set-matrix.outputs.matrix }}"
+
+  # ---------------------------------------------------------------------------
+  # Build and push each image in parallel
+  # ---------------------------------------------------------------------------
+  build:
+    needs: changes
+    if: ${{ fromJson(needs.changes.outputs.matrix).include[0] != null }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.changes.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set image metadata
+        id: meta
+        run: |
+          NAME="${{ matrix.name }}"
+          SHA_SHORT=$(echo "${{ github.sha }}" | cut -c1-7)
+          DATE_TAG=$(date +%Y%m%d)
+
+          # Map image name to Dockerfile path and build context
+          case "$NAME" in
+            php)              DOCKERFILE="docker/php/Dockerfile";           CONTEXT="." ;;
+            node)             DOCKERFILE="docker/node/Dockerfile";          CONTEXT="." ;;
+            postgres)         DOCKERFILE="docker/postgres/Dockerfile";      CONTEXT="." ;;
+            python-ai)        DOCKERFILE="docker/python/Dockerfile";        CONTEXT="." ;;
+            morpheus-ingest)  DOCKERFILE="morpheus-ingest/Dockerfile";      CONTEXT="./morpheus-ingest" ;;
+            study-agent)      DOCKERFILE="docker/study-agent/Dockerfile";   CONTEXT="." ;;
+            jupyterhub)       DOCKERFILE="docker/jupyterhub/Dockerfile";    CONTEXT="." ;;
+            jupyter-user)     DOCKERFILE="docker/jupyter-user/Dockerfile";  CONTEXT="." ;;
+            finngen-runner)   DOCKERFILE="docker/finngen-runner/Dockerfile"; CONTEXT="." ;;
+            darkstar)         DOCKERFILE="docker/r/Dockerfile";             CONTEXT="." ;;
+            hecate)           DOCKERFILE="docker/hecate/Dockerfile";        CONTEXT="." ;;
+            whiterabbit)      DOCKERFILE="docker/whiterabbit/Dockerfile";   CONTEXT="." ;;
+            fhir-to-cdm)      DOCKERFILE="docker/fhir-to-cdm/Dockerfile";  CONTEXT="." ;;
+            ohif-build)       DOCKERFILE="docker/ohif/Dockerfile";          CONTEXT="./docker/ohif" ;;
+            *) echo "Unknown image: $NAME"; exit 1 ;;
+          esac
+
+          echo "dockerfile=$DOCKERFILE" >> "$GITHUB_OUTPUT"
+          echo "context=$CONTEXT" >> "$GITHUB_OUTPUT"
+          echo "image=${{ env.IMAGE_PREFIX }}-${NAME}" >> "$GITHUB_OUTPUT"
+          echo "tags<<EOF" >> "$GITHUB_OUTPUT"
+          echo "${{ env.IMAGE_PREFIX }}-${NAME}:latest" >> "$GITHUB_OUTPUT"
+          echo "${{ env.IMAGE_PREFIX }}-${NAME}:sha-${SHA_SHORT}" >> "$GITHUB_OUTPUT"
+          echo "${{ env.IMAGE_PREFIX }}-${NAME}:${DATE_TAG}" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ steps.meta.outputs.context }}
+          file: ${{ steps.meta.outputs.dockerfile }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          cache-from: type=gha,scope=${{ matrix.name }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.name }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/sudoshi/Parthenon
+            org.opencontainers.image.revision=${{ github.sha }}

@@ -21,6 +21,7 @@ services:
 
   php:
     container_name: parthenon-php
+    image: ghcr.io/sudoshi/parthenon-php:latest
     build:
       context: .
       dockerfile: docker/php/Dockerfile
@@ -54,6 +55,7 @@ services:
 
   node:
     container_name: parthenon-node
+    image: ghcr.io/sudoshi/parthenon-node:latest
     build:
       context: .
       dockerfile: docker/node/Dockerfile
@@ -78,6 +80,7 @@ services:
 
   postgres:
     container_name: parthenon-postgres
+    image: ghcr.io/sudoshi/parthenon-postgres:latest
     build:
       context: .
       dockerfile: docker/postgres/Dockerfile
@@ -128,6 +131,7 @@ services:
 
   python-ai:
     container_name: parthenon-ai
+    image: ghcr.io/sudoshi/parthenon-python-ai:latest
     build:
       context: .
       dockerfile: docker/python/Dockerfile
@@ -190,6 +194,7 @@ services:
 
   morpheus-ingest:
     container_name: parthenon-morpheus-ingest
+    image: ghcr.io/sudoshi/parthenon-morpheus-ingest:latest
     build:
       context: ./morpheus-ingest
       dockerfile: Dockerfile
@@ -230,6 +235,7 @@ services:
 
   study-agent:
     container_name: parthenon-study-agent
+    image: ghcr.io/sudoshi/parthenon-study-agent:latest
     build:
       context: .
       dockerfile: docker/study-agent/Dockerfile
@@ -274,6 +280,7 @@ services:
 
   jupyterhub:
     container_name: parthenon-jupyterhub
+    image: ghcr.io/sudoshi/parthenon-jupyterhub:latest
     build:
       context: .
       dockerfile: docker/jupyterhub/Dockerfile
@@ -316,6 +323,7 @@ services:
 
   finngen-runner:
     container_name: parthenon-finngen-runner
+    image: ghcr.io/sudoshi/parthenon-finngen-runner:latest
     build:
       context: .
       dockerfile: docker/finngen-runner/Dockerfile
@@ -375,6 +383,7 @@ services:
 
   hecate:
     container_name: parthenon-hecate
+    image: ghcr.io/sudoshi/parthenon-hecate:latest
     build:
       context: .
       dockerfile: docker/hecate/Dockerfile
@@ -449,6 +458,7 @@ services:
 
   whiterabbit:
     container_name: parthenon-whiterabbit
+    image: ghcr.io/sudoshi/parthenon-whiterabbit:latest
     build:
       context: .
       dockerfile: docker/whiterabbit/Dockerfile
@@ -472,6 +482,7 @@ services:
 
   darkstar:
     container_name: parthenon-darkstar
+    image: ghcr.io/sudoshi/parthenon-darkstar:latest
     build:
       context: .
       dockerfile: docker/r/Dockerfile
@@ -503,6 +514,7 @@ services:
 
   horizon:
     container_name: parthenon-horizon
+    image: ghcr.io/sudoshi/parthenon-php:latest
     build:
       context: .
       dockerfile: docker/php/Dockerfile
@@ -535,6 +547,7 @@ services:
 
   reverb:
     container_name: parthenon-reverb
+    image: ghcr.io/sudoshi/parthenon-php:latest
     build:
       context: .
       dockerfile: docker/php/Dockerfile
@@ -596,6 +609,7 @@ services:
 
   ohif-build:
     container_name: parthenon-ohif-build
+    image: ghcr.io/sudoshi/parthenon-ohif-build:latest
     build:
       context: ./docker/ohif
     entrypoint: ["sh", "-c", "cp -a /dist/. /output/ && cp /config/app-config.js /output/app-config.js"]
@@ -619,6 +633,7 @@ services:
 
   fhir-to-cdm:
     container_name: parthenon-fhir-to-cdm
+    image: ghcr.io/sudoshi/parthenon-fhir-to-cdm:latest
     build:
       context: .
       dockerfile: docker/fhir-to-cdm/Dockerfile
