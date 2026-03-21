@@ -1,13 +1,11 @@
 import { useMemo, useState, useCallback } from 'react';
 import type { MorpheusTransfer, MorpheusIcuStay } from '../api';
-import HoverCard from './HoverCard';
 
 interface LocationTrackProps {
   transfers: MorpheusTransfer[];
   icuStays: MorpheusIcuStay[];
 }
 
-// Color map for care unit types
 const UNIT_COLORS: Record<string, string> = {
   'Emergency Department': '#E85A6B',
   'Medical Intensive Care Unit (MICU)': '#9B1B30',
@@ -27,7 +25,6 @@ function getUnitColor(careunit: string | null): string {
   for (const [key, color] of Object.entries(UNIT_COLORS)) {
     if (careunit.includes(key) || key.includes(careunit)) return color;
   }
-  // ICU units get crimson, others get teal
   if (careunit.toLowerCase().includes('icu') || careunit.toLowerCase().includes('intensive')) return '#9B1B30';
   return '#2DD4BF';
 }
@@ -38,11 +35,27 @@ function isIcuUnit(careunit: string | null): boolean {
   return lower.includes('icu') || lower.includes('intensive') || lower.includes('ccu');
 }
 
+interface Segment {
+  id: string;
+  careunit: string;
+  eventtype: string;
+  start: Date;
+  end: Date | null;
+  durationHours: number | null;
+  isIcu: boolean;
+  color: string;
+  leftPct: number;
+  widthPct: number;
+}
+
 export default function LocationTrack({ transfers, icuStays }: LocationTrackProps) {
-  const segments = useMemo(() => {
+  const [tooltip, setTooltip] = useState<{ x: number; y: number; seg: Segment } | null>(null);
+  const [panOffset, setPanOffset] = useState(0);
+  const [zoom, setZoom] = useState(1);
+
+  const segments = useMemo<Segment[]>(() => {
     if (!transfers.length) return [];
 
-    // Filter to admit/transfer events (skip discharge events without careunit)
     const events = transfers
       .filter(t => t.careunit || t.eventtype === 'discharge')
       .map(t => ({
@@ -56,7 +69,6 @@ export default function LocationTrack({ transfers, icuStays }: LocationTrackProp
         color: getUnitColor(t.careunit),
       }));
 
-    // Calculate time span for scaling
     const minTime = Math.min(...events.map(e => e.start.getTime()));
     const maxTime = Math.max(...events.map(e => (e.end || e.start).getTime()));
     const span = maxTime - minTime || 1;
@@ -68,9 +80,6 @@ export default function LocationTrack({ transfers, icuStays }: LocationTrackProp
     }));
   }, [transfers]);
 
-  const [panOffset, setPanOffset] = useState(0);
-  const [zoom, setZoom] = useState(1);
-
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'ArrowLeft') { e.preventDefault(); setPanOffset((p) => p - 20); }
     else if (e.key === 'ArrowRight') { e.preventDefault(); setPanOffset((p) => p + 20); }
@@ -80,17 +89,17 @@ export default function LocationTrack({ transfers, icuStays }: LocationTrackProp
 
   if (!segments.length) {
     return (
-      <div className="rounded-xl border border-zinc-800 bg-[#151518] p-5 text-zinc-500 text-sm">
-        No transfer data available
+      <div className="flex items-center justify-center h-20 rounded-lg border border-dashed border-[#323238] bg-[#151518]">
+        <p className="text-sm text-[#8A857D]">No transfer data available</p>
       </div>
     );
   }
 
   return (
-    <div className="rounded-xl border border-zinc-800 bg-[#151518] p-5">
-      <h3 className="text-sm font-semibold text-zinc-300 mb-3">Location Track</h3>
+    <div className="rounded-xl border border-zinc-800/60 bg-[#111114] p-4">
+      <h3 className="text-xs font-semibold text-[#C5C0B8] mb-3">Location Track</h3>
 
-      {/* Location bar */}
+      {/* Timeline bar */}
       <div
         className="relative h-10 bg-[#0E0E11] rounded-md overflow-hidden mb-2 focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/30"
         tabIndex={0}
@@ -100,57 +109,62 @@ export default function LocationTrack({ transfers, icuStays }: LocationTrackProp
         style={{ transform: `scaleX(${zoom}) translateX(${panOffset}px)`, transformOrigin: 'left center' }}
       >
         {segments.map((seg) => (
-          <HoverCard
+          <div
             key={seg.id}
-            content={
-              <div>
-                <div className="font-medium text-[#F0EDE8]">{seg.careunit}</div>
-                <div>{seg.start.toLocaleString()}{seg.end ? ` \u2014 ${seg.end.toLocaleString()}` : ''}</div>
-                {seg.durationHours && <div>Duration: {Number(seg.durationHours).toFixed(1)}h</div>}
-                {seg.isIcu && <div className="text-[#E85A6B] font-medium">ICU</div>}
-              </div>
-            }
+            className="absolute top-0 h-full flex items-center justify-center text-[10px] font-medium text-white overflow-hidden border-r border-[#0E0E11] cursor-default transition-opacity hover:opacity-100"
+            style={{
+              left: `${seg.leftPct}%`,
+              width: `${seg.widthPct}%`,
+              backgroundColor: seg.color,
+              opacity: seg.eventtype === 'discharge' ? 0.5 : 0.85,
+            }}
+            onMouseEnter={(e) => setTooltip({ x: e.clientX, y: e.clientY, seg })}
+            onMouseMove={(e) => setTooltip((prev) => prev ? { ...prev, x: e.clientX, y: e.clientY } : null)}
+            onMouseLeave={() => setTooltip(null)}
           >
-            <div
-              className="absolute top-0 h-full flex items-center justify-center text-[10px] font-medium text-white overflow-hidden border-r border-[#0E0E11] group cursor-default"
-              style={{
-                left: `${seg.leftPct}%`,
-                width: `${seg.widthPct}%`,
-                backgroundColor: seg.color,
-                opacity: seg.eventtype === 'discharge' ? 0.5 : 1,
-              }}
-            >
-              <span className="truncate px-1">
-                {seg.widthPct > 8 ? seg.careunit : ''}
-              </span>
-            </div>
-          </HoverCard>
+            <span className="truncate px-1">{seg.widthPct > 8 ? seg.careunit : ''}</span>
+          </div>
         ))}
       </div>
 
-      {/* ICU overlay indicators */}
+      {/* ICU stays badges */}
       {icuStays.length > 0 && (
         <div className="flex items-center gap-2 mt-2">
-          <span className="text-[10px] text-zinc-500 uppercase tracking-wider">ICU Stays:</span>
+          <span className="text-[9px] text-[#5A5650] uppercase tracking-wider">ICU:</span>
           {icuStays.map((icu) => (
-            <span
-              key={icu.stay_id}
-              className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-[#9B1B30]/20 text-[#E85A6B] border border-zinc-800"
-            >
-              {icu.first_careunit} &mdash; {Number(icu.los_days).toFixed(1)}d
+            <span key={icu.stay_id}
+              className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-[#9B1B30]/15 text-[#E85A6B] border border-[#9B1B30]/30">
+              {icu.first_careunit} — {Number(icu.los_days).toFixed(1)}d
             </span>
           ))}
         </div>
       )}
 
       {/* Legend */}
-      <div className="flex flex-wrap gap-3 mt-2 text-[10px] text-zinc-500">
+      <div className="flex flex-wrap gap-3 mt-2 text-[10px] text-[#8A857D]">
         <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#E85A6B]" /> ED</span>
         <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#9B1B30]" /> ICU</span>
         <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#C9A227]" /> Step-down</span>
         <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#2DD4BF]" /> Floor</span>
         <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#818CF8]" /> PACU</span>
       </div>
+
+      {/* Tooltip */}
+      {tooltip && (
+        <div
+          className="fixed z-50 rounded-lg border border-[#323238] bg-[#1A1A1E] px-3 py-2 text-xs text-[#C5C0B8] shadow-xl pointer-events-none max-w-[280px]"
+          style={{ top: tooltip.y - 80, left: tooltip.x + 16 }}
+        >
+          <div className="font-medium text-[#F0EDE8]">{tooltip.seg.careunit}</div>
+          <div className="text-[#8A857D] mt-0.5">
+            {tooltip.seg.start.toLocaleString()}{tooltip.seg.end ? ` — ${tooltip.seg.end.toLocaleString()}` : ''}
+          </div>
+          {tooltip.seg.durationHours && (
+            <div className="text-[#8A857D]">Duration: {Number(tooltip.seg.durationHours).toFixed(1)}h</div>
+          )}
+          {tooltip.seg.isIcu && <div className="text-[#E85A6B] font-medium mt-0.5">ICU Stay</div>}
+        </div>
+      )}
     </div>
   );
 }
