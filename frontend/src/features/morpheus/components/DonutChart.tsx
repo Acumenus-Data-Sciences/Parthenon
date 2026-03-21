@@ -1,4 +1,4 @@
-import HoverCard from './HoverCard';
+import { useState } from 'react';
 
 interface DonutSegment {
   label: string;
@@ -12,17 +12,19 @@ interface DonutChartProps {
   size?: number;
 }
 
-export default function DonutChart({ data, title, size = 120 }: DonutChartProps) {
+export default function DonutChart({ data, title, size = 140 }: DonutChartProps) {
   const total = data.reduce((sum, d) => sum + d.value, 0);
-  if (!total) return <div className="text-zinc-500 text-sm p-5">No data</div>;
+  const [hoverIdx, setHoverIdx] = useState<number | null>(null);
+
+  if (!total) return <div className="text-[#5A5650] text-sm py-8 text-center">No data</div>;
 
   const cx = size / 2;
   const cy = size / 2;
-  const radius = size / 2 - 8;
+  const radius = size / 2 - 4;
   const innerRadius = radius * 0.6;
 
   let startAngle = -Math.PI / 2;
-  const arcs = data.map((d) => {
+  const arcs = data.map((d, i) => {
     const angle = (d.value / total) * 2 * Math.PI;
     const endAngle = startAngle + angle;
     const largeArc = angle > Math.PI ? 1 : 0;
@@ -45,34 +47,45 @@ export default function DonutChart({ data, title, size = 120 }: DonutChartProps)
     ].join(' ');
 
     startAngle = endAngle;
-    return { ...d, path };
+    return { ...d, path, index: i };
   });
 
   return (
-    <div className="rounded-xl border border-zinc-800 bg-[#151518] p-5">
-      {title && <h3 className="text-sm font-semibold text-zinc-300 mb-4">{title}</h3>}
-      <div className="flex items-center gap-4">
+    <div>
+      {title && <h3 className="text-xs font-semibold text-[#C5C0B8] mb-3">{title}</h3>}
+      <div className="flex items-center gap-5">
         <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-          {arcs.map((arc, i) => (
-            <HoverCard key={i} content={
-              <div>
-                <div className="font-medium text-[#F0EDE8]">{arc.label}</div>
-                <div>Count: {arc.value.toLocaleString()}</div>
-                <div>Share: {Math.round(arc.value / total * 100)}%</div>
-              </div>
-            }>
-              <path d={arc.path} fill={arc.color} stroke="#151518" strokeWidth={1.5} className="transition-opacity opacity-80 hover:opacity-100" />
-            </HoverCard>
+          {arcs.map((arc) => (
+            <path
+              key={arc.index}
+              d={arc.path}
+              fill={arc.color}
+              stroke="#0E0E11"
+              strokeWidth={2}
+              opacity={hoverIdx === null || hoverIdx === arc.index ? 1 : 0.4}
+              onMouseEnter={() => setHoverIdx(arc.index)}
+              onMouseLeave={() => setHoverIdx(null)}
+              className="transition-opacity duration-150 cursor-pointer"
+            />
           ))}
-          <text x={cx} y={cy - 4} textAnchor="middle" className="text-lg font-bold" fill="#F0EDE8">{total}</text>
-          <text x={cx} y={cy + 10} textAnchor="middle" className="text-[9px]" fill="#8A857D">total</text>
+          <text x={cx} y={cy - 2} textAnchor="middle" fill="#F0EDE8" fontSize={20} fontWeight="bold">
+            {total.toLocaleString()}
+          </text>
+          <text x={cx} y={cy + 14} textAnchor="middle" fill="#5A5650" fontSize={9}>
+            patients
+          </text>
         </svg>
-        <div className="flex flex-col gap-1.5">
+        <div className="flex flex-col gap-2">
           {data.map((d, i) => (
-            <div key={i} className="flex items-center gap-2">
+            <div
+              key={i}
+              className={`flex items-center gap-2 transition-opacity ${hoverIdx !== null && hoverIdx !== i ? 'opacity-40' : ''}`}
+              onMouseEnter={() => setHoverIdx(i)}
+              onMouseLeave={() => setHoverIdx(null)}
+            >
               <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: d.color }} />
-              <span className="text-xs text-zinc-300">{d.label}</span>
-              <span className="text-xs text-zinc-500">{d.value} ({Math.round(d.value / total * 100)}%)</span>
+              <span className="text-xs text-[#C5C0B8] font-medium">{d.label}</span>
+              <span className="text-xs text-[#5A5650] tabular-nums">{d.value.toLocaleString()} ({Math.round(d.value / total * 100)}%)</span>
             </div>
           ))}
         </div>

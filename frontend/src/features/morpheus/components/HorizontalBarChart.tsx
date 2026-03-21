@@ -1,4 +1,4 @@
-import HoverCard from './HoverCard';
+import { useState } from 'react';
 
 interface BarItem {
   label: string;
@@ -16,39 +16,48 @@ interface HorizontalBarChartProps {
 export default function HorizontalBarChart({ data, maxItems = 10, barColor = '#2DD4BF', title }: HorizontalBarChartProps) {
   const items = data.slice(0, maxItems);
   const maxVal = Math.max(...items.map(d => d.value), 1);
+  const [hoverIdx, setHoverIdx] = useState<number | null>(null);
 
-  if (!items.length) return <div className="text-zinc-500 text-sm p-5">No data</div>;
+  if (!items.length) return <div className="text-[#5A5650] text-sm py-8 text-center">No data</div>;
 
   return (
-    <div className="rounded-xl border border-zinc-800 bg-[#151518] p-5">
-      {title && <h3 className="text-sm font-semibold text-zinc-300 mb-4">{title}</h3>}
-      <div className="space-y-1.5">
-        {items.map((item, i) => (
-          <HoverCard key={i} content={
-            <div>
-              <div className="font-medium text-[#F0EDE8]">{item.label}</div>
-              {item.sublabel && <div className="font-mono text-[#2DD4BF]">{item.sublabel}</div>}
-              <div>Count: {item.value.toLocaleString()}</div>
-            </div>
-          }>
-            <div className="flex items-center gap-2 h-6">
-              <div className="w-36 truncate text-[11px] text-zinc-400 text-right shrink-0" title={item.label}>
-                {item.sublabel ? (
-                  <><span className="font-mono text-[#C9A227]">{item.sublabel}</span>{' '}<span>{item.label}</span></>
-                ) : item.label}
+    <div>
+      {title && <h3 className="text-xs font-semibold text-[#C5C0B8] mb-3">{title}</h3>}
+      <div className="space-y-1">
+        {items.map((item, i) => {
+          const pct = (item.value / maxVal) * 100;
+          const isHovered = hoverIdx === i;
+          return (
+            <div
+              key={i}
+              className="flex items-center gap-2 group py-0.5"
+              onMouseEnter={() => setHoverIdx(i)}
+              onMouseLeave={() => setHoverIdx(null)}
+            >
+              <div className="w-[140px] shrink-0 text-right pr-2">
+                {item.sublabel && (
+                  <span className="font-mono text-[10px] text-[#C9A227] mr-1">{item.sublabel}</span>
+                )}
+                <span className="text-[10px] text-[#8A857D] truncate" title={item.label}>
+                  {item.label.length > 20 ? item.label.slice(0, 20) + '...' : item.label}
+                </span>
               </div>
-              <div className="flex-1 h-4 bg-[#0E0E11] rounded-sm overflow-hidden">
+              <div className="flex-1 h-[18px] bg-[#0E0E11] rounded overflow-hidden relative">
                 <div
-                  className="h-full rounded-sm transition-all duration-300 opacity-70 hover:opacity-100"
-                  style={{ width: `${(item.value / maxVal) * 100}%`, backgroundColor: barColor }}
+                  className="h-full rounded transition-all duration-300"
+                  style={{
+                    width: `${pct}%`,
+                    backgroundColor: barColor,
+                    opacity: isHovered ? 1 : 0.75,
+                  }}
                 />
               </div>
-              <span className="text-[11px] text-zinc-300 w-10 text-right shrink-0 font-medium">
+              <span className="text-[11px] font-medium text-[#C5C0B8] w-12 text-right shrink-0 tabular-nums">
                 {item.value.toLocaleString()}
               </span>
             </div>
-          </HoverCard>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
