@@ -1,13 +1,14 @@
 {
   "key": "community-workbench-sdk",
   "title": "Community Workbench SDK",
-  "description": "The Community Workbench SDK provides developers and advanced researchers with programmatic tools to build, extend, and integrate custom analytical modules within the Parthenon platform. The SDK enables the creation of reusable study components and facilitates contribution to the broader research community.",
+  "description": "The Community Workbench SDK provides developers and researchers with programmatic tools to build, extend, and integrate custom analysis modules within the Parthenon platform. The SDK exposes APIs and scaffolding to create reproducible study packages, custom visualisations, and third-party data integrations.",
   "docs_url": "/docs/part4-analyses/14f-community-workbench-sdk",
   "video_url": null,
   "tips": [
-    "Review the SDK reference documentation before starting development to understand the available extension points and API contracts.",
-    "Package custom modules with explicit dependency declarations to ensure portability across different Parthenon deployments.",
-    "Test custom modules against a representative dataset in a non-production environment before publishing to the community workbench.",
-    "Follow the platform's versioning conventions when releasing SDK extensions to maintain backward compatibility."
+    "Review the SDK documentation and sample templates before building a new module to align with platform conventions and ensure compatibility.",
+    "Use the provided package scaffolding to structure your analysis code so it can be exported and executed at federated sites.",
+    "Validate your SDK module against a local data source before submitting it for network-wide distribution.",
+    "Leverage the built-in logging and error-handling hooks to make troubleshooting straightforward for end users.",
+    "Engage the community forum to share your extensions and incorporate feedback from researchers at other institutions."
   ]
 }

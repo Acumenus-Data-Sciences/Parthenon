@@ -1,14 +1,14 @@
 {
   "key": "etl",
   "title": "ETL & Data Ingestion",
-  "description": "The ETL and Data Ingestion capabilities support the full pipeline for transforming source healthcare data into the OMOP Common Data Model. Features include schema mapping, concept mapping, source profiling, FHIR ingestion, and job monitoring to ensure reliable, auditable data transformation.",
+  "description": "The ETL and Data Ingestion module supports the transformation of source clinical data into the OMOP Common Data Model. It provides tools for schema mapping, concept mapping, source profiling, FHIR ingestion, and job monitoring to guide data engineers through the end-to-end process of preparing data for research.",
   "docs_url": "/docs/part5-ingestion/17c-etl-tools",
   "video_url": null,
   "tips": [
-    "Complete schema mapping before concept mapping to establish the structural transformation rules for each source table.",
-    "Use the Source Profiler to characterize raw data distributions and identify data quality issues early in the ETL design process.",
-    "Iteratively validate ETL outputs against expected OMOP record counts and concept coverage before promoting to production.",
-    "Maintain version-controlled ETL specifications to support auditability and reprocessing when vocabulary updates occur.",
-    "Monitor Jobs Monitoring dashboards during large data loads to detect and respond to failures promptly."
+    "Complete source profiling before beginning schema mapping to understand the structure and content of your raw data.",
+    "Use the Schema Mapping tool to align source tables and fields to their corresponding OMOP CDM equivalents systematically.",
+    "Run Concept Mapping to resolve local source codes to OMOP standard vocabulary concepts before executing your ETL.",
+    "Monitor the Jobs Monitoring page throughout ingestion to detect and address errors before they propagate downstream.",
+    "For FHIR-based sources, use the FHIR Ingestion pipeline to transform HL7 FHIR resources directly into OMOP CDM tables."
   ]
 }

@@ -1,13 +1,14 @@
 {
   "key": "heor",
   "title": "Health Economics & Outcomes Research",
-  "description": "The Health Economics and Outcomes Research (HEOR) module provides specialized analytical tools for evaluating the economic burden of disease, comparative value of treatments, and patient-reported outcomes. It supports payer, provider, and policy audiences with evidence generation for healthcare decision-making.",
+  "description": "The HEOR module provides analytical tools for health economics and outcomes research, enabling evaluation of treatment value, healthcare resource utilisation, and patient outcomes. Researchers can conduct cost-effectiveness analyses, burden of disease studies, and comparative effectiveness research using real-world data.",
   "docs_url": "/docs/part11-heor/29-heor-overview",
   "video_url": null,
   "tips": [
-    "Define outcome measures and cost components clearly before configuring HEOR analyses to ensure results are interpretable by decision-making audiences.",
-    "Use well-characterized cohorts as the foundation for HEOR models to minimize confounding in economic evaluations.",
-    "Document all assumptions underlying cost and utility inputs to support transparency and sensitivity analysis.",
-    "Align HEOR study designs with relevant payer or regulatory submission guidelines when generating evidence for coverage decisions."
+    "Define clinically meaningful outcome endpoints and relevant comparator treatments before configuring your HEOR analysis.",
+    "Use cohort characterisation results to describe baseline patient characteristics and support propensity score adjustment in comparative analyses.",
+    "Incorporate healthcare utilisation domains such as inpatient visits, procedures, and drug exposures to capture total cost of care.",
+    "Validate your real-world evidence findings against published clinical trial benchmarks to assess external validity.",
+    "Engage health economics collaborators early to ensure that model structures and assumptions align with payer and regulatory expectations."
   ]
 }

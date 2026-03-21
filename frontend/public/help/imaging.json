@@ -1,0 +1,14 @@
+{
+  "key": "imaging",
+  "title": "Imaging",
+  "description": "The Imaging module integrates medical imaging data with clinical records, enabling researchers to link radiological findings and imaging-derived biomarkers with patient phenotypes. It supports the incorporation of imaging data into multimodal research studies within the OMOP CDM framework.",
+  "docs_url": "/docs/part10-imaging/28-imaging-overview",
+  "video_url": null,
+  "tips": [
+    "Ensure imaging study identifiers are correctly linked to patient records in the CDM before running any cohort-level imaging analyses.",
+    "Use imaging-derived phenotypes in combination with clinical cohort definitions to refine case identification for research studies.",
+    "Review data quality and completeness of imaging metadata fields prior to including imaging endpoints in a study protocol.",
+    "Coordinate with your radiology informatics team to standardise image annotation and measurement extraction workflows.",
+    "Apply appropriate governance controls to imaging data access given the sensitivity of radiological records and associated re-identification risks."
+  ]
+}

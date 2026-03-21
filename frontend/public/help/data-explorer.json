@@ -1,13 +1,14 @@
 {
   "key": "data-explorer",
   "title": "Data Explorer",
-  "description": "The Data Explorer enables interactive investigation of OMOP CDM data, including data quality dashboards that profile source data conformance, completeness, and plausibility. Researchers can use this feature to assess dataset readiness before conducting formal analyses.",
+  "description": "The Data Explorer enables researchers to interactively query and visualise patient data across connected data sources. It includes data quality dashboards, aggregate reporting, and source profiling tools that help users understand the structure, completeness, and reliability of their clinical data before conducting analyses.",
   "docs_url": "/docs/part6-data-explorer/19-data-quality-dashboard",
   "video_url": null,
   "tips": [
-    "Review Data Quality Dashboard results for your target data source before executing analyses to identify known data gaps or anomalies.",
-    "Pay particular attention to completeness metrics for clinical domains central to your research question.",
-    "Use plausibility checks to identify records with implausible values that may need to be addressed in upstream ETL processes.",
-    "Compare data quality profiles across data sources when planning federated analyses to anticipate heterogeneity in results."
+    "Run the Data Quality Dashboard on any new data source before building cohorts to identify completeness or conformance issues early.",
+    "Use the Source Profiler to assess the temporal coverage and record density of your data, informing appropriate look-back period settings.",
+    "Filter quality reports by domain to pinpoint specific areas of concern, such as missing lab values or incomplete drug exposure records.",
+    "Compare data quality metrics across multiple data sources to select the most appropriate sources for a given research question.",
+    "Export data quality results to share with data governance teams or include in study documentation."
   ]
 }

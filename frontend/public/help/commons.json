@@ -1,13 +1,14 @@
 {
   "key": "commons",
   "title": "Commons Integration",
-  "description": "Commons Integration connects Parthenon to shared research infrastructure, enabling collaborative access to federated datasets, shared cohort definitions, and community-contributed analytical assets. This feature supports open-science workflows and facilitates participation in distributed research networks.",
+  "description": "The Commons integration connects Parthenon to collaborative research networks, enabling federated analysis, shared cohort definitions, and cross-institutional study coordination. Researchers can publish and discover phenotypes, analysis packages, and evidence synthesis results across participating sites.",
   "docs_url": "/docs/abby-ai/05-commons-integration",
   "video_url": null,
   "tips": [
-    "Link your Parthenon environment to a Commons repository to access pre-validated cohort definitions contributed by the broader research community.",
-    "Verify data use agreements and access permissions before importing or exporting assets through the Commons integration.",
-    "Use Commons to share finalized study packages with network partners to ensure consistent analysis execution.",
-    "Review imported assets carefully to confirm they align with your local vocabulary version and CDM configuration."
+    "Register your data source with the Commons to make your site discoverable to network researchers without exposing patient-level data.",
+    "Use federated cohort generation to run identical cohort definitions across multiple sites and aggregate summary statistics centrally.",
+    "Publish validated phenotypes to the Commons Phenotype Library to accelerate collaborative research across the network.",
+    "Coordinate study package distribution through Commons to ensure all participating sites execute identical analysis specifications.",
+    "Review data partner agreements and governance requirements before initiating cross-site analyses."
   ]
 }

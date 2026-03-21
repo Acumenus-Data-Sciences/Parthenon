@@ -1,14 +1,14 @@
 {
   "key": "cohort-definitions",
   "title": "Cohort Definitions",
-  "description": "Cohort Definitions allow researchers to specify inclusion and exclusion criteria that identify a population of interest from the OMOP CDM. Cohorts form the foundational building blocks for analyses, prediction models, incidence rate calculations, and patient-level investigations across the platform.",
+  "description": "Cohort Definitions allow researchers to specify inclusion and exclusion criteria using clinical concepts, temporal logic, and demographic filters to identify patient populations of interest. Cohorts form the foundation for all downstream analyses, including incidence rates, characterisation, and predictive modelling.",
   "docs_url": "/docs/part2-vocabulary/04-concept-sets",
   "video_url": null,
   "tips": [
-    "Use concept sets to capture all clinically relevant codes for a condition or drug, then reference them across multiple cohort definitions to maintain consistency.",
-    "Apply index date logic carefully\u2014cohort start date selection significantly affects downstream analysis results.",
-    "Validate cohort counts against expected prevalence estimates before using a cohort in a formal analysis.",
-    "Version your cohort definitions and document changes to support reproducibility and peer review.",
-    "Use the cohort characterization feature to quickly profile a newly defined cohort and identify unexpected populations."
+    "Use concept sets to group clinically related terms and apply them consistently across multiple cohort definitions.",
+    "Apply index event criteria carefully to ensure the cohort entry date accurately reflects the clinical event of interest.",
+    "Review cohort attrition reports to understand how each inclusion criterion reduces the eligible population.",
+    "Version your cohort definitions before making changes so that prior analysis results remain reproducible.",
+    "Share cohort definitions with collaborators via the Phenotype Library to promote reuse of validated phenotypes."
   ]
 }

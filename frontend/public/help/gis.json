@@ -1,13 +1,14 @@
 {
   "key": "gis",
   "title": "GIS Explorer",
-  "description": "The GIS Explorer enables geographic analysis of patient populations and clinical data by visualizing OMOP data on spatial maps. Researchers can identify geographic patterns in disease burden, healthcare utilization, and population characteristics to support public health and epidemiological investigations.",
+  "description": "The GIS Explorer enables spatial analysis of clinical and population health data by mapping patient cohorts and health outcomes to geographic regions. Researchers can identify geographic variation in disease burden, access to care, and health disparities by overlaying clinical data with geospatial reference layers.",
   "docs_url": "/docs/part13-gis/31-gis-explorer",
   "video_url": null,
   "tips": [
-    "Use geographic filters in combination with cohort definitions to analyze regional variation in disease prevalence or treatment patterns.",
-    "Aggregate patient data to appropriate geographic units (e.g., postal code, region) to protect patient privacy while enabling spatial analysis.",
-    "Overlay external geographic datasets, such as social determinants of health indicators, to enrich spatial analyses.",
-    "Export GIS visualizations for inclusion in study reports or presentations to communicate geographic findings clearly."
+    "Aggregate patient data to appropriate geographic units such as postal codes or health service areas to protect patient privacy while enabling spatial analysis.",
+    "Use choropleth maps to visualise the geographic distribution of cohort prevalence and identify high-burden regions.",
+    "Overlay social determinants of health layers to contextualise observed geographic variation in clinical outcomes.",
+    "Apply spatial filters to restrict cohort generation to specific geographic catchment areas relevant to your research question.",
+    "Export GIS outputs as standard geospatial file formats for integration with external mapping and planning tools."
   ]
 }

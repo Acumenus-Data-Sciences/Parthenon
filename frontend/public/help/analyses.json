@@ -1,14 +1,14 @@
 {
   "key": "analyses",
   "title": "Analyses",
-  "description": "The Analyses section enables researchers to design, execute, and review a comprehensive suite of observational studies, including characterization, incidence rate estimation, treatment pathway analysis, population-level effect estimation, patient-level prediction, and self-controlled case series. Study packages can be exported for distributed network research.",
+  "description": "The Analyses module brings together a suite of epidemiological and clinical research methods, including characterisation, incidence rate estimation, treatment pathways, population-level estimation, patient-level prediction, and self-controlled case series. Studies and study packages allow researchers to bundle and export analysis specifications for reproducible research.",
   "docs_url": "/docs/part4-analyses/14-studies",
   "video_url": null,
   "tips": [
-    "Begin with a Characterization analysis to understand the baseline demographics and clinical profile of your cohort before running comparative studies.",
-    "Use Population-Level Estimation when evaluating comparative effectiveness or safety of interventions across large patient populations.",
-    "Patient-Level Prediction models can be trained and validated directly within the platform; ensure your cohort definitions are well-characterized before training.",
-    "Export Study Packages to share analysis specifications with federated network partners for distributed execution.",
-    "Leverage Evidence Synthesis to aggregate results from multiple data sources into a unified estimate."
+    "Begin with Characterisation to understand the baseline demographics and clinical profiles of your cohorts before running comparative analyses.",
+    "Use Incidence Rates to calculate event rates within cohorts and stratify results by age, gender, or calendar year.",
+    "Package your analysis specifications as Study Packages to share reproducible research artefacts with collaborators.",
+    "Leverage Population-Level Estimation for causal inference questions using comparative cohort or self-controlled designs.",
+    "Patient-Level Prediction models can be validated across multiple data sources using the built-in cross-validation workflows."
   ]
 }

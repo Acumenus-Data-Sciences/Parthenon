@@ -1,13 +1,14 @@
 {
   "key": "genomics",
   "title": "Genomics",
-  "description": "The Genomics module integrates genomic data with OMOP clinical data to support translational and precision medicine research. Researchers can explore genotype-phenotype relationships, leverage variant data in cohort definitions, and conduct genomic analyses alongside traditional observational studies.",
+  "description": "The Genomics module integrates genomic data with clinical phenotypes, enabling researchers to conduct genome-wide association studies, variant analysis, and pharmacogenomics investigations within a unified research environment. It supports the linkage of biobank-scale genomic datasets with OMOP CDM clinical records.",
   "docs_url": "/docs/part9-genomics/27-genomics-overview",
   "video_url": null,
   "tips": [
-    "Link genomic data to clinical cohorts using patient identifiers to enable integrated genotype-phenotype analyses.",
-    "Review data governance and consent documentation before including genomic data in shareable study packages.",
-    "Validate variant annotations against current reference databases to ensure genomic data quality before analysis.",
-    "Use genomic features in combination with OMOP clinical data for richer patient stratification in prediction models."
+    "Define your clinical phenotype cohorts rigorously before linking to genomic data to ensure high-quality case and control populations.",
+    "Leverage FinnGen integration workflows to access pre-processed genomic summary statistics for rapid hypothesis generation.",
+    "Review data governance and consent requirements for genomic data linkage before initiating any cross-domain analysis.",
+    "Use quality control filters appropriate for your genomic platform to exclude low-quality variants prior to association testing.",
+    "Coordinate with your biobank team to align sample identifiers between clinical and genomic datasets to prevent linkage errors."
   ]
 }

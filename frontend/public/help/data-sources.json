@@ -1,14 +1,14 @@
 {
   "key": "data-sources",
   "title": "Data Sources",
-  "description": "Data Sources represent the OMOP CDM databases registered within Parthenon. This section provides tools to configure, profile, and monitor connected data sources, including uploading raw data, managing ETL processes, and mapping source concepts to standard vocabulary.",
+  "description": "Data Sources represent the database connections to OMOP CDM-formatted datasets available within your Parthenon environment. Administrators configure and manage data source connections, while researchers select appropriate sources when building cohorts, running analyses, and exploring patient data.",
   "docs_url": "/docs/part5-ingestion/15-uploading-data",
   "video_url": null,
   "tips": [
-    "Profile each new data source using the Source Profiler before running analyses to understand its clinical coverage and volume.",
-    "Validate concept mapping completeness for key clinical domains\u2014unmapped source codes can significantly affect cohort capture rates.",
-    "Monitor ingestion job status in Jobs Monitoring to ensure data loads complete successfully before scheduling analyses.",
-    "Document the CDM version and vocabulary release associated with each data source to support study reproducibility.",
-    "Use FHIR Ingestion tooling when integrating data from FHIR-conformant source systems to streamline the transformation process."
+    "Verify CDM version compatibility for each data source before running analyses to ensure all required tables and fields are present.",
+    "Use descriptive names and metadata tags for each data source to help researchers identify the most appropriate dataset for their study.",
+    "Review the Jobs Monitoring page after data uploads to confirm that ingestion completed without errors before initiating analyses.",
+    "Configure source-specific vocabulary mappings to align local coding systems with OMOP standard concepts.",
+    "Restrict data source access by role to ensure researchers can only query datasets covered by their data use agreements."
   ]
 }

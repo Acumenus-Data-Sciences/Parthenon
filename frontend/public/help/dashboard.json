@@ -1,13 +1,14 @@
 {
   "key": "dashboard",
   "title": "Dashboard",
-  "description": "The Dashboard provides a centralized overview of your Parthenon environment, surfacing key metrics, recent activity, and quick navigation to core platform features. It serves as the primary landing experience for researchers and administrators upon logging in.",
+  "description": "The Dashboard provides a high-level overview of your Parthenon environment, surfacing recent activity, system status, and quick access to commonly used features. It serves as the central launch point for research workflows, enabling teams to monitor ongoing analyses and navigate to relevant modules efficiently.",
   "docs_url": "/docs/part1-getting-started/00-dashboard",
   "video_url": null,
   "tips": [
-    "Use the Dashboard to quickly resume recent cohort definitions, analyses, or concept sets without navigating through individual sections.",
-    "Monitor summary metrics on the Dashboard to stay informed about data source status and analysis completion.",
-    "Bookmark the Dashboard URL as your default entry point for efficient daily research workflows.",
-    "Administrators can use the Dashboard to get a high-level view of platform activity before drilling into the Administration section."
+    "Pin frequently used cohorts, concept sets, and analyses to the Dashboard for rapid access at the start of each session.",
+    "Monitor the recent activity feed to stay informed about changes made by collaborators in shared projects.",
+    "Use the Dashboard status indicators to confirm that data sources and background jobs are functioning as expected before launching analyses.",
+    "Customise your Dashboard layout to surface the modules most relevant to your role, whether clinical, analytical, or administrative.",
+    "Check system notifications on the Dashboard for scheduled maintenance windows or vocabulary update announcements."
   ]
 }
