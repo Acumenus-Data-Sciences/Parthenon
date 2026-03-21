@@ -264,6 +264,8 @@ export function LoginPage() {
           >
             <a
               href="/docs/blog"
+              target="_blank"
+              rel="noopener noreferrer"
               style={{
                 display: "inline-flex",
                 alignItems: "center",
