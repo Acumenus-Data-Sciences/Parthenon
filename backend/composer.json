@@ -16,7 +16,7 @@
         "laravel/pennant": "^1.20",
         "laravel/reverb": "^1.8",
         "laravel/sanctum": "^4.3",
-        "laravel/tinker": "^2.9",
+        "laravel/tinker": "^3.0",
         "pgvector/pgvector": "^0.2.2",
         "phpoffice/phpword": "^1.1",
         "resend/resend-php": "^1.1",
