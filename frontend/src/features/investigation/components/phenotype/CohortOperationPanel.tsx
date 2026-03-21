@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
-import type { FinnGenSource } from "@/features/finngen/types";
+import type { FinnGenSource } from "../../types";
 import type { Source } from "@/types/models";
 import { executeCohortOperation } from "../../api";
 import type { SetOperationType, CohortOperationResult } from "../../types";

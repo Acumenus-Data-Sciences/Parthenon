@@ -1,4 +1,126 @@
 export type { AnalysisExecution } from "@/features/analyses/types/analysis";
+import type { Source } from "@/types/models";
+
+// ── FinnGen / Study-Agent types (migrated from deprecated finngen feature) ─────
+
+export type FinnGenSource = Pick<
+  Source,
+  "id" | "source_name" | "source_key" | "source_dialect" | "daimons"
+>;
+
+export interface FinnGenRuntime {
+  service: string;
+  mode: "parthenon_native" | "external_command" | "external_service" | string;
+  mode_label: string;
+  adapter_configured: boolean;
+  adapter_command?: string | null;
+  adapter_base_url?: string | null;
+  adapter_label?: string | null;
+  upstream_repo_path?: string | null;
+  upstream_package?: string | null;
+  upstream_ready?: boolean | null;
+  compatibility_mode?: boolean | null;
+  missing_dependencies?: string[];
+  fallback_active: boolean;
+  status: string;
+  last_error?: string;
+  capabilities?: Record<string, boolean>;
+  notes?: string[];
+}
+
+export interface FinnGenMetricPoint {
+  label: string;
+  value?: string | number;
+  count?: number;
+  percent?: number;
+  effect?: number;
+  lower?: number;
+  upper?: number;
+}
+
+export interface FinnGenTimelineStep {
+  step?: number;
+  title?: string;
+  stage?: string;
+  label?: string;
+  status: string;
+  window?: string;
+  detail?: string;
+  duration_ms?: number;
+}
+
+export interface FinnGenArtifact {
+  name: string;
+  type?: string;
+  summary?: string;
+}
+
+export interface FinnGenCohortOperationsResult {
+  status: string;
+  runtime: FinnGenRuntime;
+  source: Record<string, unknown>;
+  compile_summary: Record<string, unknown>;
+  attrition: FinnGenMetricPoint[];
+  criteria_timeline: FinnGenTimelineStep[];
+  selected_cohorts?: Array<{ id: number; name: string; description?: string | null; role?: string }>;
+  operation_summary?: Record<string, unknown>;
+  operation_evidence?: Array<{ label: string; value: number; emphasis?: string }>;
+  operation_comparison?: Array<{ label: string; value: string | number }>;
+  import_review?: Array<{ label: string; status: string; detail: string }>;
+  cohort_table_summary?: Record<string, unknown>;
+  matching_summary?: Record<string, unknown>;
+  matching_review?: {
+    matched_samples?: Array<Record<string, unknown>>;
+    excluded_samples?: Array<Record<string, unknown>>;
+    balance_notes?: string[];
+  };
+  atlas_concept_set_summary?: Array<{
+    atlas_id: number;
+    parthenon_id?: number | null;
+    name: string;
+    status: string;
+    item_count?: number;
+  }>;
+  atlas_import_diagnostics?: Record<string, unknown>;
+  file_import_summary?: Record<string, unknown>;
+  export_summary?: Record<string, unknown>;
+  export_bundle?: { name?: string; format?: string; entries?: string[]; download_name?: string };
+  export_manifest?: Array<{ name: string; type?: string; summary?: string }>;
+  artifacts: FinnGenArtifact[];
+  sql_preview?: string;
+  sample_rows?: Array<Record<string, unknown>>;
+}
+
+export interface FinnGenCo2AnalysisResult {
+  status: string;
+  runtime: FinnGenRuntime;
+  source: Record<string, unknown>;
+  analysis_summary: Record<string, unknown>;
+  cohort_context?: Record<string, unknown>;
+  handoff_impact?: Array<{ label: string; value: string | number; emphasis?: string }>;
+  module_setup?: Record<string, unknown>;
+  module_family?: string;
+  family_evidence?: Array<{ label: string; value: string | number; emphasis?: string }>;
+  family_notes?: string[];
+  family_spotlight?: Array<{ label: string; value: string | number; detail?: string }>;
+  family_segments?: Array<{ label: string; count: number; share?: number }>;
+  module_validation?: Array<{ label: string; status: string; detail: string }>;
+  family_result_summary?: Record<string, unknown>;
+  job_summary?: Record<string, unknown>;
+  analysis_artifacts?: Array<{ name: string; type?: string; summary?: string }>;
+  result_validation?: Array<{ label: string; status: string; detail: string }>;
+  result_table?: Array<Record<string, unknown>>;
+  subgroup_summary?: Array<{ label: string; value: string }>;
+  temporal_windows?: Array<{ label: string; count: number; detail?: string }>;
+  module_gallery: Array<{ name: string; family: string; status: string }>;
+  forest_plot: FinnGenMetricPoint[];
+  heatmap: Array<{ label: string; value: number }>;
+  time_profile?: Array<{ label: string; count: number }>;
+  overlap_matrix?: Array<{ label: string; value: number }>;
+  top_signals: Array<{ label: string; count: number }>;
+  utilization_trend: Array<{ label: string; count: number }>;
+  execution_timeline: FinnGenTimelineStep[];
+}
 
 export type ClinicalAnalysisType =
   | "characterization"

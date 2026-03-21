@@ -301,17 +301,7 @@ export const router = createBrowserRouter(
           },
           {
             path: "finngen",
-            lazy: () =>
-              import("@/features/finngen/pages/FinnGenToolsPage").then(
-                (m) => ({ Component: m.default }),
-              ),
-          },
-          {
-            path: "finngen/help",
-            lazy: () =>
-              import("@/features/finngen/pages/WorkbenchHelpPage").then(
-                (m) => ({ Component: m.default }),
-              ),
+            element: <Navigate to="/workbench/investigation/new" replace />,
           },
           {
             path: "community-sdk-demo",
@@ -338,7 +328,7 @@ export const router = createBrowserRouter(
       },
       {
         path: "finngen-tools",
-        element: <Navigate to="/workbench/finngen" replace />,
+        element: <Navigate to="/workbench/investigation/new" replace />,
       },
       {
         path: "workbench/aqueduct",
@@ -346,7 +336,7 @@ export const router = createBrowserRouter(
       },
       {
         path: "workbench/help",
-        element: <Navigate to="/workbench/finngen/help" replace />,
+        element: <Navigate to="/workbench/investigation/new" replace />,
       },
       // ── Strategus Study Packages ─────────────────────────────────────────
       {

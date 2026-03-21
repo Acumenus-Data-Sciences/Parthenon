@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { previewFinnGenCo2Analysis } from "@/features/finngen/api";
+import { previewFinnGenCo2Analysis } from "../../api";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
-import type { FinnGenSource } from "@/features/finngen/types";
+import type { FinnGenSource } from "../../types";
 import type { CodeWASDisplayResult, Investigation } from "../../types";
 import { CodeWASResults } from "./CodeWASResults";
 

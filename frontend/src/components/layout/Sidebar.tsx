@@ -192,8 +192,6 @@ const routeHelpKeys: Record<string, string> = {
   "/studies": "studies",
   "/study-designer": "study-designer",
   "/workbench": "study-designer",
-  "/workbench/finngen": "study-designer",
-  "/finngen-tools": "study-designer",
   "/study-packages": "study-packages",
   "/vocabulary": "vocabulary-search",
 };

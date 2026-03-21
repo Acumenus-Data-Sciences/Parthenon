@@ -1,6 +1,4 @@
 import apiClient from "@/lib/api-client";
-import { previewFinnGenCohortOperations } from "@/features/finngen/api";
-import type { FinnGenSource } from "@/features/finngen/types";
 import type {
   Investigation,
   EvidencePin,
@@ -15,7 +13,61 @@ import type {
   GwasCatalogResult,
   GwasUploadResult,
   CrossLinksMap,
+  FinnGenSource,
+  FinnGenCohortOperationsResult,
+  FinnGenCo2AnalysisResult,
 } from "./types";
+
+// ── Study-Agent API functions (migrated from deprecated finngen feature) ───────
+
+export async function previewFinnGenCohortOperations(payload: {
+  source: FinnGenSource;
+  cohort_definition: Record<string, unknown>;
+  execution_mode?: string;
+  import_mode?: string;
+  operation_type?: string;
+  atlas_cohort_ids?: number[];
+  atlas_import_behavior?: string;
+  cohort_table_name?: string;
+  file_name?: string;
+  file_format?: string;
+  file_row_count?: number;
+  file_columns?: string[];
+  file_contents?: string;
+  selected_cohort_ids?: number[];
+  selected_cohort_labels?: string[];
+  primary_cohort_id?: number | null;
+  matching_enabled?: boolean;
+  matching_strategy?: string;
+  matching_target?: string;
+  matching_covariates?: string[];
+  matching_ratio?: number;
+  matching_caliper?: number;
+  export_target?: string;
+}): Promise<FinnGenCohortOperationsResult> {
+  const { data } = await apiClient.post("/study-agent/finngen/cohort-operations", payload);
+  return data.data ?? data;
+}
+
+export async function previewFinnGenCo2Analysis(payload: {
+  source: FinnGenSource;
+  module_key: string;
+  cohort_label?: string;
+  outcome_name?: string;
+  cohort_context?: Record<string, unknown>;
+  comparator_label?: string;
+  sensitivity_label?: string;
+  burden_domain?: string;
+  exposure_window?: string;
+  stratify_by?: string;
+  time_window_unit?: string;
+  time_window_count?: number;
+  gwas_trait?: string;
+  gwas_method?: string;
+}): Promise<FinnGenCo2AnalysisResult> {
+  const { data } = await apiClient.post("/study-agent/finngen/co2-analysis", payload);
+  return data.data ?? data;
+}
 
 // ── Investigations ────────────────────────────────────────────────────
 
