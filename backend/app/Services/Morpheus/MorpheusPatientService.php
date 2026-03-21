@@ -404,7 +404,7 @@ class MorpheusPatientService
                    dose_val_rx, dose_unit_rx, route,
                    form_rx, doses_per_24_hrs
             FROM {$s}.prescriptions
-            WHERE subject_id = ?
+            WHERE subject_id = ? AND drug IS NOT NULL
         ";
         $params = [$subjectId];
 
