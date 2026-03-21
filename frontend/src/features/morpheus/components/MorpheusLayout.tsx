@@ -1,5 +1,6 @@
-import { Outlet, useLocation, useNavigate, useParams, Link } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate, useParams, Link, useSearchParams } from 'react-router-dom';
 import { BedDouble, ArrowLeft } from 'lucide-react';
+import DatasetSelector from './DatasetSelector';
 
 const TABS = [
   { path: '/morpheus', label: 'Dashboard', exact: true },
@@ -10,6 +11,15 @@ export default function MorpheusLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const { subjectId } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const dataset = searchParams.get('dataset') || 'mimiciv';
+
+  const handleDatasetChange = (schema: string) => {
+    const params = new URLSearchParams(searchParams);
+    params.set('dataset', schema);
+    setSearchParams(params, { replace: true });
+  };
 
   const crumbs: Array<{ label: string; path?: string }> = [{ label: 'Dashboard', path: '/morpheus' }];
   if (location.pathname.startsWith('/morpheus/journey')) {
@@ -44,6 +54,7 @@ export default function MorpheusLayout() {
                 </span>
               ))}
             </div>
+            <DatasetSelector selectedSchema={dataset} onSelect={handleDatasetChange} />
           </div>
           <div className="flex items-center gap-0.5 border-b border-zinc-800">
             {TABS.map(({ path, label }) => (
@@ -61,7 +72,7 @@ export default function MorpheusLayout() {
         </div>
       </div>
       <div className="flex-1 overflow-y-auto">
-        <Outlet />
+        <Outlet context={{ dataset }} />
       </div>
     </div>
   );

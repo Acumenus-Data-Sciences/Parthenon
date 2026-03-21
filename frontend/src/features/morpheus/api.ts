@@ -1,7 +1,30 @@
 import { useQuery } from '@tanstack/react-query';
 import apiClient from '@/lib/api-client';
 
-// Types for Morpheus patient data
+// ── Dataset types ────────────────────────────────────────────────────────────
+
+export interface MorpheusDataset {
+  dataset_id: number;
+  name: string;
+  schema_name: string;
+  description: string | null;
+  source_type: string | null;
+  patient_count: number | null;
+  status: string;
+}
+
+export function useMorpheusDatasets() {
+  return useQuery({
+    queryKey: ['morpheus', 'datasets'],
+    queryFn: async () => {
+      const res = await apiClient.get('/morpheus/datasets');
+      return res.data.data as MorpheusDataset[];
+    },
+  });
+}
+
+// ── Patient types ────────────────────────────────────────────────────────────
+
 export interface MorpheusPatient {
   subject_id: string;
   gender: string;
@@ -183,15 +206,30 @@ export interface PatientFilters {
   order?: 'asc' | 'desc';
 }
 
+// ── Helper to build dataset query string ─────────────────────────────────────
+
+function datasetParam(dataset?: string): string {
+  return dataset ? `?dataset=${encodeURIComponent(dataset)}` : '';
+}
+
+function appendDataset(url: string, dataset?: string): string {
+  if (!dataset) return url;
+  const sep = url.includes('?') ? '&' : '?';
+  return `${url}${sep}dataset=${encodeURIComponent(dataset)}`;
+}
+
+// ── Patient hooks ────────────────────────────────────────────────────────────
+
 const BASE = '/morpheus/patients';
 
-export function useMorpheusPatients(filters: PatientFilters = {}, limit = 100, offset = 0) {
+export function useMorpheusPatients(filters: PatientFilters = {}, limit = 100, offset = 0, dataset?: string) {
   return useQuery({
-    queryKey: ['morpheus', 'patients', filters, limit, offset],
+    queryKey: ['morpheus', 'patients', filters, limit, offset, dataset],
     queryFn: async () => {
       const params = new URLSearchParams();
       params.set('limit', String(limit));
       params.set('offset', String(offset));
+      if (dataset) params.set('dataset', dataset);
       if (filters.icu !== undefined) params.set('icu', String(filters.icu));
       if (filters.deceased !== undefined) params.set('deceased', String(filters.deceased));
       if (filters.admission_type) params.set('admission_type', filters.admission_type);
@@ -206,107 +244,114 @@ export function useMorpheusPatients(filters: PatientFilters = {}, limit = 100, o
   });
 }
 
-export function useMorpheusPatientSearch(query: string) {
+export function useMorpheusPatientSearch(query: string, dataset?: string) {
   return useQuery({
-    queryKey: ['morpheus', 'patients', 'search', query],
+    queryKey: ['morpheus', 'patients', 'search', query, dataset],
     queryFn: async () => {
-      const res = await apiClient.get(`${BASE}/search?q=${encodeURIComponent(query)}`);
+      const url = appendDataset(`${BASE}/search?q=${encodeURIComponent(query)}`, dataset);
+      const res = await apiClient.get(url);
       return res.data.data as MorpheusPatient[];
     },
     enabled: query.length >= 1,
   });
 }
 
-export function useMorpheusPatient(subjectId: string | undefined) {
+export function useMorpheusPatient(subjectId: string | undefined, dataset?: string) {
   return useQuery({
-    queryKey: ['morpheus', 'patient', subjectId],
+    queryKey: ['morpheus', 'patient', subjectId, dataset],
     queryFn: async () => {
-      const res = await apiClient.get(`${BASE}/${subjectId}`);
+      const res = await apiClient.get(appendDataset(`${BASE}/${subjectId}`, dataset));
       return res.data.data;
     },
     enabled: !!subjectId,
   });
 }
 
-export function useMorpheusAdmissions(subjectId: string | undefined) {
+export function useMorpheusAdmissions(subjectId: string | undefined, dataset?: string) {
   return useQuery({
-    queryKey: ['morpheus', 'admissions', subjectId],
+    queryKey: ['morpheus', 'admissions', subjectId, dataset],
     queryFn: async () => {
-      const res = await apiClient.get(`${BASE}/${subjectId}/admissions`);
+      const res = await apiClient.get(appendDataset(`${BASE}/${subjectId}/admissions`, dataset));
       return res.data.data as MorpheusAdmission[];
     },
     enabled: !!subjectId,
   });
 }
 
-export function useMorpheusTransfers(subjectId: string | undefined, hadmId?: string) {
+export function useMorpheusTransfers(subjectId: string | undefined, hadmId?: string, dataset?: string) {
   return useQuery({
-    queryKey: ['morpheus', 'transfers', subjectId, hadmId],
+    queryKey: ['morpheus', 'transfers', subjectId, hadmId, dataset],
     queryFn: async () => {
-      const url = hadmId ? `${BASE}/${subjectId}/transfers?hadm_id=${hadmId}` : `${BASE}/${subjectId}/transfers`;
-      const res = await apiClient.get(url);
+      let url = `${BASE}/${subjectId}/transfers`;
+      if (hadmId) url += `?hadm_id=${hadmId}`;
+      const res = await apiClient.get(appendDataset(url, dataset));
       return res.data.data as MorpheusTransfer[];
     },
     enabled: !!subjectId,
   });
 }
 
-export function useMorpheusIcuStays(subjectId: string | undefined, hadmId?: string) {
+export function useMorpheusIcuStays(subjectId: string | undefined, hadmId?: string, dataset?: string) {
   return useQuery({
-    queryKey: ['morpheus', 'icu-stays', subjectId, hadmId],
+    queryKey: ['morpheus', 'icu-stays', subjectId, hadmId, dataset],
     queryFn: async () => {
-      const url = hadmId ? `${BASE}/${subjectId}/icu-stays?hadm_id=${hadmId}` : `${BASE}/${subjectId}/icu-stays`;
-      const res = await apiClient.get(url);
+      let url = `${BASE}/${subjectId}/icu-stays`;
+      if (hadmId) url += `?hadm_id=${hadmId}`;
+      const res = await apiClient.get(appendDataset(url, dataset));
       return res.data.data as MorpheusIcuStay[];
     },
     enabled: !!subjectId,
   });
 }
 
-export function useMorpheusDiagnoses(subjectId: string | undefined, hadmId?: string) {
+export function useMorpheusDiagnoses(subjectId: string | undefined, hadmId?: string, dataset?: string) {
   return useQuery({
-    queryKey: ['morpheus', 'diagnoses', subjectId, hadmId],
+    queryKey: ['morpheus', 'diagnoses', subjectId, hadmId, dataset],
     queryFn: async () => {
-      const url = hadmId ? `${BASE}/${subjectId}/diagnoses?hadm_id=${hadmId}` : `${BASE}/${subjectId}/diagnoses`;
-      const res = await apiClient.get(url);
+      let url = `${BASE}/${subjectId}/diagnoses`;
+      if (hadmId) url += `?hadm_id=${hadmId}`;
+      const res = await apiClient.get(appendDataset(url, dataset));
       return res.data.data as MorpheusDiagnosis[];
     },
     enabled: !!subjectId,
   });
 }
 
-export function useMorpheusMedications(subjectId: string | undefined, hadmId?: string) {
+export function useMorpheusMedications(subjectId: string | undefined, hadmId?: string, dataset?: string) {
   return useQuery({
-    queryKey: ['morpheus', 'medications', subjectId, hadmId],
+    queryKey: ['morpheus', 'medications', subjectId, hadmId, dataset],
     queryFn: async () => {
-      const url = hadmId ? `${BASE}/${subjectId}/medications?hadm_id=${hadmId}` : `${BASE}/${subjectId}/medications`;
-      const res = await apiClient.get(url);
+      let url = `${BASE}/${subjectId}/medications`;
+      if (hadmId) url += `?hadm_id=${hadmId}`;
+      const res = await apiClient.get(appendDataset(url, dataset));
       return res.data.data as MorpheusMedication[];
     },
     enabled: !!subjectId,
   });
 }
 
-export function useMorpheusLabResults(subjectId: string | undefined, hadmId?: string) {
+export function useMorpheusLabResults(subjectId: string | undefined, hadmId?: string, dataset?: string) {
   return useQuery({
-    queryKey: ['morpheus', 'lab-results', subjectId, hadmId],
+    queryKey: ['morpheus', 'lab-results', subjectId, hadmId, dataset],
     queryFn: async () => {
-      const url = hadmId ? `${BASE}/${subjectId}/lab-results?hadm_id=${hadmId}` : `${BASE}/${subjectId}/lab-results`;
-      const res = await apiClient.get(url);
+      let url = `${BASE}/${subjectId}/lab-results`;
+      if (hadmId) url += `?hadm_id=${hadmId}`;
+      const res = await apiClient.get(appendDataset(url, dataset));
       return res.data.data as MorpheusLabResult[];
     },
     enabled: !!subjectId,
   });
 }
 
-export function useMorpheusVitals(subjectId: string | undefined, hadmId?: string, stayId?: string) {
+export function useMorpheusVitals(subjectId: string | undefined, hadmId?: string, stayId?: string, dataset?: string) {
   return useQuery({
-    queryKey: ['morpheus', 'vitals', subjectId, hadmId, stayId],
+    queryKey: ['morpheus', 'vitals', subjectId, hadmId, stayId, dataset],
     queryFn: async () => {
       let url = `${BASE}/${subjectId}/vitals`;
       const params = new URLSearchParams();
       if (hadmId) params.set('hadm_id', hadmId);
       if (stayId) params.set('stay_id', stayId);
+      if (dataset) params.set('dataset', dataset);
       const qs = params.toString();
       if (qs) url += `?${qs}`;
       const res = await apiClient.get(url);
@@ -316,85 +361,112 @@ export function useMorpheusVitals(subjectId: string | undefined, hadmId?: string
   });
 }
 
-export function useMorpheusMicrobiology(subjectId: string | undefined, hadmId?: string) {
+export function useMorpheusMicrobiology(subjectId: string | undefined, hadmId?: string, dataset?: string) {
   return useQuery({
-    queryKey: ['morpheus', 'microbiology', subjectId, hadmId],
+    queryKey: ['morpheus', 'microbiology', subjectId, hadmId, dataset],
     queryFn: async () => {
-      const url = hadmId ? `${BASE}/${subjectId}/microbiology?hadm_id=${hadmId}` : `${BASE}/${subjectId}/microbiology`;
-      const res = await apiClient.get(url);
+      let url = `${BASE}/${subjectId}/microbiology`;
+      if (hadmId) url += `?hadm_id=${hadmId}`;
+      const res = await apiClient.get(appendDataset(url, dataset));
       return res.data.data as MorpheusMicrobiology[];
     },
     enabled: !!subjectId,
   });
 }
 
-export function useMorpheusEventCounts(subjectId: string | undefined, hadmId?: string) {
+export function useMorpheusEventCounts(subjectId: string | undefined, hadmId?: string, dataset?: string) {
   return useQuery({
-    queryKey: ['morpheus', 'event-counts', subjectId, hadmId],
+    queryKey: ['morpheus', 'event-counts', subjectId, hadmId, dataset],
     queryFn: async () => {
-      const url = hadmId ? `${BASE}/${subjectId}/event-counts?hadm_id=${hadmId}` : `${BASE}/${subjectId}/event-counts`;
-      const res = await apiClient.get(url);
+      let url = `${BASE}/${subjectId}/event-counts`;
+      if (hadmId) url += `?hadm_id=${hadmId}`;
+      const res = await apiClient.get(appendDataset(url, dataset));
       return res.data.data as MorpheusEventCounts;
     },
     enabled: !!subjectId,
   });
 }
 
-// Dashboard hooks
+// ── Dashboard hooks ──────────────────────────────────────────────────────────
+
 const DASH = '/morpheus/dashboard';
 
-export function useDashboardMetrics() {
+export function useDashboardMetrics(dataset?: string) {
   return useQuery({
-    queryKey: ['morpheus', 'dashboard', 'metrics'],
-    queryFn: async () => { const res = await apiClient.get(`${DASH}/metrics`); return res.data.data as DashboardMetrics; },
+    queryKey: ['morpheus', 'dashboard', 'metrics', dataset],
+    queryFn: async () => {
+      const res = await apiClient.get(`${DASH}/metrics${datasetParam(dataset)}`);
+      return res.data.data as DashboardMetrics;
+    },
   });
 }
 
-export function useDashboardTrends() {
+export function useDashboardTrends(dataset?: string) {
   return useQuery({
-    queryKey: ['morpheus', 'dashboard', 'trends'],
-    queryFn: async () => { const res = await apiClient.get(`${DASH}/trends`); return res.data.data as DashboardTrend[]; },
+    queryKey: ['morpheus', 'dashboard', 'trends', dataset],
+    queryFn: async () => {
+      const res = await apiClient.get(`${DASH}/trends${datasetParam(dataset)}`);
+      return res.data.data as DashboardTrend[];
+    },
   });
 }
 
-export function useDashboardTopDiagnoses(limit = 10) {
+export function useDashboardTopDiagnoses(limit = 10, dataset?: string) {
   return useQuery({
-    queryKey: ['morpheus', 'dashboard', 'top-diagnoses', limit],
-    queryFn: async () => { const res = await apiClient.get(`${DASH}/top-diagnoses?limit=${limit}`); return res.data.data as TopDiagnosis[]; },
+    queryKey: ['morpheus', 'dashboard', 'top-diagnoses', limit, dataset],
+    queryFn: async () => {
+      const res = await apiClient.get(appendDataset(`${DASH}/top-diagnoses?limit=${limit}`, dataset));
+      return res.data.data as TopDiagnosis[];
+    },
   });
 }
 
-export function useDashboardTopProcedures(limit = 10) {
+export function useDashboardTopProcedures(limit = 10, dataset?: string) {
   return useQuery({
-    queryKey: ['morpheus', 'dashboard', 'top-procedures', limit],
-    queryFn: async () => { const res = await apiClient.get(`${DASH}/top-procedures?limit=${limit}`); return res.data.data as TopProcedure[]; },
+    queryKey: ['morpheus', 'dashboard', 'top-procedures', limit, dataset],
+    queryFn: async () => {
+      const res = await apiClient.get(appendDataset(`${DASH}/top-procedures?limit=${limit}`, dataset));
+      return res.data.data as TopProcedure[];
+    },
   });
 }
 
-export function useDashboardDemographics() {
+export function useDashboardDemographics(dataset?: string) {
   return useQuery({
-    queryKey: ['morpheus', 'dashboard', 'demographics'],
-    queryFn: async () => { const res = await apiClient.get(`${DASH}/demographics`); return res.data.data as DemographicBreakdown; },
+    queryKey: ['morpheus', 'dashboard', 'demographics', dataset],
+    queryFn: async () => {
+      const res = await apiClient.get(`${DASH}/demographics${datasetParam(dataset)}`);
+      return res.data.data as DemographicBreakdown;
+    },
   });
 }
 
-export function useDashboardLosDistribution() {
+export function useDashboardLosDistribution(dataset?: string) {
   return useQuery({
-    queryKey: ['morpheus', 'dashboard', 'los-distribution'],
-    queryFn: async () => { const res = await apiClient.get(`${DASH}/los-distribution`); return res.data.data as LosDistribution[]; },
+    queryKey: ['morpheus', 'dashboard', 'los-distribution', dataset],
+    queryFn: async () => {
+      const res = await apiClient.get(`${DASH}/los-distribution${datasetParam(dataset)}`);
+      return res.data.data as LosDistribution[];
+    },
   });
 }
 
-export function useDashboardIcuUnits() {
+export function useDashboardIcuUnits(dataset?: string) {
   return useQuery({
-    queryKey: ['morpheus', 'dashboard', 'icu-units'],
-    queryFn: async () => { const res = await apiClient.get(`${DASH}/icu-units`); return res.data.data as IcuUnitStats[]; },
+    queryKey: ['morpheus', 'dashboard', 'icu-units', dataset],
+    queryFn: async () => {
+      const res = await apiClient.get(`${DASH}/icu-units${datasetParam(dataset)}`);
+      return res.data.data as IcuUnitStats[];
+    },
   });
 }
 
-export function useDashboardMortalityByType() {
+export function useDashboardMortalityByType(dataset?: string) {
   return useQuery({
-    queryKey: ['morpheus', 'dashboard', 'mortality-by-type'],
-    queryFn: async () => { const res = await apiClient.get(`${DASH}/mortality-by-type`); return res.data.data as MortalityByType[]; },
+    queryKey: ['morpheus', 'dashboard', 'mortality-by-type', dataset],
+    queryFn: async () => {
+      const res = await apiClient.get(`${DASH}/mortality-by-type${datasetParam(dataset)}`);
+      return res.data.data as MortalityByType[];
+    },
   });
 }

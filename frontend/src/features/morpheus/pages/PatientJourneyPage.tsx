@@ -31,6 +31,9 @@ export default function PatientJourneyPage() {
   const [viewMode, setViewMode] = useState<ViewMode>('journey');
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Dataset from URL search params
+  const dataset = searchParams.get('dataset') || 'mimiciv';
+
   // Filter state initialized from URL params
   const [filters, setFilters] = useState<PatientFilters>(() => {
     const initial: PatientFilters = {};
@@ -45,18 +48,18 @@ export default function PatientJourneyPage() {
   const [sortCol, setSortCol] = useState<string>('subject_id');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
 
-  // Data queries
-  const patientsQuery = useMorpheusPatients({ ...filters, sort: sortCol, order: sortDir }, 100);
-  const patientQuery = useMorpheusPatient(subjectId);
-  const admissionsQuery = useMorpheusAdmissions(subjectId);
-  const transfersQuery = useMorpheusTransfers(subjectId, selectedHadmId ?? undefined);
-  const icuStaysQuery = useMorpheusIcuStays(subjectId, selectedHadmId ?? undefined);
-  const diagnosesQuery = useMorpheusDiagnoses(subjectId, selectedHadmId ?? undefined);
-  const medicationsQuery = useMorpheusMedications(subjectId, selectedHadmId ?? undefined);
-  const labsQuery = useMorpheusLabResults(subjectId, selectedHadmId ?? undefined);
-  const vitalsQuery = useMorpheusVitals(subjectId, selectedHadmId ?? undefined);
-  const countsQuery = useMorpheusEventCounts(subjectId, selectedHadmId ?? undefined);
-  const microQuery = useMorpheusMicrobiology(subjectId, selectedHadmId ?? undefined);
+  // Data queries — all receive dataset
+  const patientsQuery = useMorpheusPatients({ ...filters, sort: sortCol, order: sortDir }, 100, 0, dataset);
+  const patientQuery = useMorpheusPatient(subjectId, dataset);
+  const admissionsQuery = useMorpheusAdmissions(subjectId, dataset);
+  const transfersQuery = useMorpheusTransfers(subjectId, selectedHadmId ?? undefined, dataset);
+  const icuStaysQuery = useMorpheusIcuStays(subjectId, selectedHadmId ?? undefined, dataset);
+  const diagnosesQuery = useMorpheusDiagnoses(subjectId, selectedHadmId ?? undefined, dataset);
+  const medicationsQuery = useMorpheusMedications(subjectId, selectedHadmId ?? undefined, dataset);
+  const labsQuery = useMorpheusLabResults(subjectId, selectedHadmId ?? undefined, dataset);
+  const vitalsQuery = useMorpheusVitals(subjectId, selectedHadmId ?? undefined, undefined, dataset);
+  const countsQuery = useMorpheusEventCounts(subjectId, selectedHadmId ?? undefined, dataset);
+  const microQuery = useMorpheusMicrobiology(subjectId, selectedHadmId ?? undefined, dataset);
 
   // Patient list filtering (local search on subject_id only)
   const filteredPatients = useMemo(() => {
@@ -68,6 +71,7 @@ export default function PatientJourneyPage() {
   const handleFilterChange = (newFilters: PatientFilters) => {
     setFilters(newFilters);
     const params = new URLSearchParams();
+    if (dataset !== 'mimiciv') params.set('dataset', dataset);
     if (newFilters.icu !== undefined) params.set('icu', String(newFilters.icu));
     if (newFilters.deceased !== undefined) params.set('deceased', String(newFilters.deceased));
     if (newFilters.admission_type) params.set('admission_type', newFilters.admission_type);
@@ -87,6 +91,9 @@ export default function PatientJourneyPage() {
   };
 
   const sortIndicator = (col: string) => sortCol === col ? (sortDir === 'asc' ? ' \u2191' : ' \u2193') : '';
+
+  // Preserve dataset param when navigating to patient detail
+  const datasetSuffix = dataset !== 'mimiciv' ? `?dataset=${dataset}` : '';
 
   // Browse mode — no patient selected
   if (!subjectId) {
@@ -146,7 +153,7 @@ export default function PatientJourneyPage() {
               {filteredPatients.map((p) => (
                 <tr
                   key={p.subject_id}
-                  onClick={() => navigate(`/morpheus/journey/${p.subject_id}`)}
+                  onClick={() => navigate(`/morpheus/journey/${p.subject_id}${datasetSuffix}`)}
                   className="hover:bg-zinc-900/50 cursor-pointer transition-colors"
                 >
                   <td className="px-3 py-2 align-top font-mono text-[#2DD4BF]">{p.subject_id}</td>

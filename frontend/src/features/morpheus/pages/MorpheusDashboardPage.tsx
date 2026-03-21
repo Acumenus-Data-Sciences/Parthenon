@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import MetricCard from '../components/MetricCard';
 import HorizontalBarChart from '../components/HorizontalBarChart';
 import DistributionChart from '../components/DistributionChart';
@@ -9,6 +9,7 @@ import {
   useDashboardTopDiagnoses, useDashboardTopProcedures,
   useDashboardDemographics, useDashboardLosDistribution,
   useDashboardIcuUnits, useDashboardMortalityByType,
+  useMorpheusDatasets,
 } from '../api';
 
 function Shimmer({ className = '' }: { className?: string }) {
@@ -25,15 +26,22 @@ function ErrorBox({ message = 'Failed to load' }: { message?: string }) {
 
 export default function MorpheusDashboardPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const dataset = searchParams.get('dataset') || 'mimiciv';
 
-  const metricsQ = useDashboardMetrics();
-  const trendsQ = useDashboardTrends();
-  const dxQ = useDashboardTopDiagnoses();
-  const pxQ = useDashboardTopProcedures();
-  const demoQ = useDashboardDemographics();
-  const losQ = useDashboardLosDistribution();
-  const icuQ = useDashboardIcuUnits();
-  const mortTypeQ = useDashboardMortalityByType();
+  // Resolve display name from datasets list
+  const { data: datasets } = useMorpheusDatasets();
+  const currentDataset = datasets?.find(d => d.schema_name === dataset);
+  const datasetLabel = currentDataset?.name || 'Inpatient';
+
+  const metricsQ = useDashboardMetrics(dataset);
+  const trendsQ = useDashboardTrends(dataset);
+  const dxQ = useDashboardTopDiagnoses(10, dataset);
+  const pxQ = useDashboardTopProcedures(10, dataset);
+  const demoQ = useDashboardDemographics(dataset);
+  const losQ = useDashboardLosDistribution(dataset);
+  const icuQ = useDashboardIcuUnits(dataset);
+  const mortTypeQ = useDashboardMortalityByType(dataset);
 
   const metrics = metricsQ.data;
   const trends = trendsQ.data;
@@ -96,12 +104,15 @@ export default function MorpheusDashboardPage() {
     sublabel: `${Number(u.avg_los_days).toFixed(1)}d avg`,
   })) ?? [];
 
+  // Preserve dataset param in navigation
+  const datasetSuffix = dataset !== 'mimiciv' ? `&dataset=${dataset}` : '';
+
   return (
     <div className="px-6 py-6 space-y-6">
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-zinc-100">Population Dashboard</h1>
-        <p className="text-sm text-zinc-500 mt-1">Aggregate metrics across the MIMIC-IV inpatient population</p>
+        <p className="text-sm text-zinc-500 mt-1">Aggregate metrics across the {datasetLabel} inpatient population</p>
       </div>
 
       {/* Headline Metrics Row */}
@@ -192,19 +203,19 @@ export default function MorpheusDashboardPage() {
         <h3 className="text-sm font-semibold text-zinc-300 mb-3">Quick Actions</h3>
         <div className="flex gap-3">
           <button
-            onClick={() => navigate('/morpheus/journey?icu=true')}
+            onClick={() => navigate(`/morpheus/journey?icu=true${datasetSuffix}`)}
             className="rounded-lg bg-[#9B1B30] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#9B1B30]/80 transition-colors"
           >
             View ICU Patients
           </button>
           <button
-            onClick={() => navigate('/morpheus/journey?deceased=true')}
+            onClick={() => navigate(`/morpheus/journey?deceased=true${datasetSuffix}`)}
             className="rounded-lg bg-[#9B1B30] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#9B1B30]/80 transition-colors"
           >
             View Deceased Patients
           </button>
           <button
-            onClick={() => navigate('/morpheus/journey')}
+            onClick={() => navigate(`/morpheus/journey${dataset !== 'mimiciv' ? `?dataset=${dataset}` : ''}`)}
             className="rounded-lg border border-zinc-800 bg-zinc-950 px-5 py-2.5 text-sm font-medium text-zinc-200 hover:border-[#60A5FA]/40 transition-colors"
           >
             Browse All Patients

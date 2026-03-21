@@ -7,6 +7,7 @@ use App\Services\Morpheus\MorpheusDashboardService;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 #[Group('Morpheus Dashboard', weight: 245)]
 class MorpheusDashboardController extends Controller
@@ -15,47 +16,82 @@ class MorpheusDashboardController extends Controller
         private readonly MorpheusDashboardService $service,
     ) {}
 
-    public function metrics(): JsonResponse
+    /**
+     * Resolve and validate the dataset schema name from the request.
+     * Looks up the schema_name in the morpheus_dataset registry to ensure
+     * it exists and is active. Falls back to 'mimiciv' if not provided.
+     */
+    private function resolveSchema(Request $request): string
     {
-        return response()->json(['data' => $this->service->getMetrics()]);
+        $schemaName = $request->input('dataset', 'mimiciv');
+
+        $dataset = DB::connection('inpatient')->selectOne("
+            SELECT schema_name FROM inpatient_ext.morpheus_dataset
+            WHERE schema_name = ? AND status = 'active'
+        ", [$schemaName]);
+
+        if (! $dataset) {
+            abort(404, 'Dataset not found or not active');
+        }
+
+        return $dataset->schema_name;
     }
 
-    public function trends(): JsonResponse
+    public function metrics(Request $request): JsonResponse
     {
-        return response()->json(['data' => $this->service->getTrends()]);
+        $schema = $this->resolveSchema($request);
+
+        return response()->json(['data' => $this->service->getMetrics($schema)]);
+    }
+
+    public function trends(Request $request): JsonResponse
+    {
+        $schema = $this->resolveSchema($request);
+
+        return response()->json(['data' => $this->service->getTrends($schema)]);
     }
 
     public function topDiagnoses(Request $request): JsonResponse
     {
+        $schema = $this->resolveSchema($request);
         $limit = max(1, min($request->integer('limit', 10), 50));
 
-        return response()->json(['data' => $this->service->getTopDiagnoses($limit)]);
+        return response()->json(['data' => $this->service->getTopDiagnoses($limit, $schema)]);
     }
 
     public function topProcedures(Request $request): JsonResponse
     {
+        $schema = $this->resolveSchema($request);
         $limit = max(1, min($request->integer('limit', 10), 50));
 
-        return response()->json(['data' => $this->service->getTopProcedures($limit)]);
+        return response()->json(['data' => $this->service->getTopProcedures($limit, $schema)]);
     }
 
-    public function demographics(): JsonResponse
+    public function demographics(Request $request): JsonResponse
     {
-        return response()->json(['data' => $this->service->getDemographics()]);
+        $schema = $this->resolveSchema($request);
+
+        return response()->json(['data' => $this->service->getDemographics($schema)]);
     }
 
-    public function losDistribution(): JsonResponse
+    public function losDistribution(Request $request): JsonResponse
     {
-        return response()->json(['data' => $this->service->getLosDistribution()]);
+        $schema = $this->resolveSchema($request);
+
+        return response()->json(['data' => $this->service->getLosDistribution($schema)]);
     }
 
-    public function icuUnits(): JsonResponse
+    public function icuUnits(Request $request): JsonResponse
     {
-        return response()->json(['data' => $this->service->getIcuUnits()]);
+        $schema = $this->resolveSchema($request);
+
+        return response()->json(['data' => $this->service->getIcuUnits($schema)]);
     }
 
-    public function mortalityByType(): JsonResponse
+    public function mortalityByType(Request $request): JsonResponse
     {
-        return response()->json(['data' => $this->service->getMortalityByType()]);
+        $schema = $this->resolveSchema($request);
+
+        return response()->json(['data' => $this->service->getMortalityByType($schema)]);
     }
 }

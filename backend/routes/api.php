@@ -60,6 +60,7 @@ use App\Http\Controllers\Api\V1\InvestigationController;
 use App\Http\Controllers\Api\V1\JobController;
 use App\Http\Controllers\Api\V1\JupyterController;
 use App\Http\Controllers\Api\V1\MappingReviewController;
+use App\Http\Controllers\Api\V1\MorpheusDatasetController;
 use App\Http\Controllers\Api\V1\MorpheusDashboardController;
 use App\Http\Controllers\Api\V1\MorpheusPatientController;
 use App\Http\Controllers\Api\V1\NegativeControlController;
@@ -1165,6 +1166,10 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 // ── Morpheus Dashboard & Patient Journey ─────────────────────────────────────
 Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     // TODO: Phase H — add permission:morpheus.view middleware per HIGHSEC spec
+    // Morpheus Datasets
+    Route::get('morpheus/datasets', [MorpheusDatasetController::class, 'index']);
+    Route::get('morpheus/datasets/{datasetId}', [MorpheusDatasetController::class, 'show']);
+
     // Morpheus Dashboard
     Route::prefix('morpheus/dashboard')->group(function () {
         Route::get('/metrics', [MorpheusDashboardController::class, 'metrics']);

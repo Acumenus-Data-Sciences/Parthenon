@@ -9,16 +9,32 @@ class MorpheusPatientService
     private string $conn = 'inpatient';
 
     /**
+     * Validate schema name format (alphanumeric + underscore only).
+     * Schema names come from the morpheus_dataset registry, not user input,
+     * but we validate as defense-in-depth.
+     */
+    private function getSchemaName(string $schema): string
+    {
+        if (! preg_match('/^[a-z_][a-z0-9_]*$/', $schema)) {
+            throw new \InvalidArgumentException('Invalid schema name');
+        }
+
+        return $schema;
+    }
+
+    /**
      * Search patients by subject_id prefix.
      */
-    public function searchPatients(string $query, int $limit = 20): array
+    public function searchPatients(string $query, int $limit = 20, string $schema = 'mimiciv'): array
     {
+        $s = $this->getSchemaName($schema);
+
         return DB::connection($this->conn)->select("
             SELECT p.subject_id, p.gender, p.anchor_age, p.anchor_year,
                    p.anchor_year_group, p.dod,
                    count(DISTINCT a.hadm_id) as admission_count
-            FROM mimiciv.patients p
-            LEFT JOIN mimiciv.admissions a ON p.subject_id = a.subject_id
+            FROM {$s}.patients p
+            LEFT JOIN {$s}.admissions a ON p.subject_id = a.subject_id
             WHERE p.subject_id::text LIKE ?
             GROUP BY p.subject_id, p.gender, p.anchor_age, p.anchor_year,
                      p.anchor_year_group, p.dod
@@ -30,8 +46,9 @@ class MorpheusPatientService
     /**
      * List all patients with summary stats, supporting filters and sorting.
      */
-    public function listPatients(int $limit = 100, int $offset = 0, array $filters = []): array
+    public function listPatients(int $limit = 100, int $offset = 0, array $filters = [], string $schema = 'mimiciv'): array
     {
+        $s = $this->getSchemaName($schema);
         $params = [];
         $conditions = [];
 
@@ -52,8 +69,8 @@ class MorpheusPatientService
             }
         }
 
-        if (!empty($filters['admission_type'])) {
-            $conditions[] = "pb.subject_id IN (SELECT subject_id FROM mimiciv.admissions WHERE admission_type = ?)";
+        if (! empty($filters['admission_type'])) {
+            $conditions[] = "pb.subject_id IN (SELECT subject_id FROM {$s}.admissions WHERE admission_type = ?)";
             $params[] = $filters['admission_type'];
         }
 
@@ -67,10 +84,10 @@ class MorpheusPatientService
             $params[] = (float) $filters['max_los'];
         }
 
-        if (!empty($filters['diagnosis'])) {
+        if (! empty($filters['diagnosis'])) {
             $conditions[] = "pb.subject_id IN (
-                SELECT d.subject_id FROM mimiciv.diagnoses_icd d
-                LEFT JOIN mimiciv.d_icd_diagnoses dd ON d.icd_code = dd.icd_code AND d.icd_version = dd.icd_version
+                SELECT d.subject_id FROM {$s}.diagnoses_icd d
+                LEFT JOIN {$s}.d_icd_diagnoses dd ON d.icd_code = dd.icd_code AND d.icd_version = dd.icd_version
                 WHERE d.icd_code ILIKE ? OR dd.long_title ILIKE ?
             )";
             $like = '%' . $filters['diagnosis'] . '%';
@@ -93,8 +110,8 @@ class MorpheusPatientService
                 SELECT p.subject_id, p.gender, p.anchor_age, p.anchor_year,
                        p.anchor_year_group, p.dod,
                        count(DISTINCT a.hadm_id)::int as admission_count
-                FROM mimiciv.patients p
-                LEFT JOIN mimiciv.admissions a ON p.subject_id = a.subject_id
+                FROM {$s}.patients p
+                LEFT JOIN {$s}.admissions a ON p.subject_id = a.subject_id
                 GROUP BY p.subject_id, p.gender, p.anchor_age, p.anchor_year,
                          p.anchor_year_group, p.dod
             ),
@@ -102,19 +119,19 @@ class MorpheusPatientService
                 SELECT subject_id,
                        count(DISTINCT stay_id)::int as icu_stay_count,
                        ROUND(max(los::numeric)::numeric, 1) as longest_icu_los
-                FROM mimiciv.icustays GROUP BY subject_id
+                FROM {$s}.icustays GROUP BY subject_id
             ),
             patient_los AS (
                 SELECT subject_id,
                        ROUND(sum(EXTRACT(EPOCH FROM (dischtime::timestamp - admittime::timestamp))/86400.0)::numeric, 1) as total_los_days
-                FROM mimiciv.admissions GROUP BY subject_id
+                FROM {$s}.admissions GROUP BY subject_id
             ),
             patient_dx AS (
                 SELECT DISTINCT ON (d.subject_id)
                        d.subject_id, d.icd_code as primary_icd_code,
                        COALESCE(dd.long_title, '') as primary_diagnosis
-                FROM mimiciv.diagnoses_icd d
-                LEFT JOIN mimiciv.d_icd_diagnoses dd ON d.icd_code = dd.icd_code AND d.icd_version = dd.icd_version
+                FROM {$s}.diagnoses_icd d
+                LEFT JOIN {$s}.d_icd_diagnoses dd ON d.icd_code = dd.icd_code AND d.icd_version = dd.icd_version
                 WHERE d.seq_num = '1'
                 ORDER BY d.subject_id, d.hadm_id::bigint DESC
             )
@@ -145,16 +162,16 @@ class MorpheusPatientService
         $countSql = "
             WITH patient_base AS (
                 SELECT p.subject_id, p.dod
-                FROM mimiciv.patients p
+                FROM {$s}.patients p
             ),
             patient_icu AS (
                 SELECT subject_id, count(DISTINCT stay_id)::int as icu_stay_count
-                FROM mimiciv.icustays GROUP BY subject_id
+                FROM {$s}.icustays GROUP BY subject_id
             ),
             patient_los AS (
                 SELECT subject_id,
                        sum(EXTRACT(EPOCH FROM (dischtime::timestamp - admittime::timestamp))/86400.0) as total_los_days
-                FROM mimiciv.admissions GROUP BY subject_id
+                FROM {$s}.admissions GROUP BY subject_id
             )
             SELECT count(*) as total
             FROM patient_base pb
@@ -173,16 +190,18 @@ class MorpheusPatientService
     /**
      * Get full patient demographics.
      */
-    public function getDemographics(string $subjectId): ?object
+    public function getDemographics(string $subjectId, string $schema = 'mimiciv'): ?object
     {
+        $s = $this->getSchemaName($schema);
+
         return DB::connection($this->conn)->selectOne("
             SELECT p.subject_id, p.gender, p.anchor_age, p.anchor_year,
                    p.anchor_year_group, p.dod,
-                   (SELECT count(*) FROM mimiciv.admissions WHERE subject_id = p.subject_id) as admission_count,
-                   (SELECT count(*) FROM mimiciv.icustays WHERE subject_id = p.subject_id) as icu_stay_count,
-                   (SELECT min(admittime) FROM mimiciv.admissions WHERE subject_id = p.subject_id) as first_admit,
-                   (SELECT max(dischtime) FROM mimiciv.admissions WHERE subject_id = p.subject_id) as last_discharge
-            FROM mimiciv.patients p
+                   (SELECT count(*) FROM {$s}.admissions WHERE subject_id = p.subject_id) as admission_count,
+                   (SELECT count(*) FROM {$s}.icustays WHERE subject_id = p.subject_id) as icu_stay_count,
+                   (SELECT min(admittime) FROM {$s}.admissions WHERE subject_id = p.subject_id) as first_admit,
+                   (SELECT max(dischtime) FROM {$s}.admissions WHERE subject_id = p.subject_id) as last_discharge
+            FROM {$s}.patients p
             WHERE p.subject_id = ?
         ", [$subjectId]);
     }
@@ -190,15 +209,17 @@ class MorpheusPatientService
     /**
      * Get all admissions for a patient.
      */
-    public function getAdmissions(string $subjectId): array
+    public function getAdmissions(string $subjectId, string $schema = 'mimiciv'): array
     {
+        $s = $this->getSchemaName($schema);
+
         return DB::connection($this->conn)->select("
             SELECT hadm_id, admittime, dischtime, deathtime,
                    admission_type, admission_location, discharge_location,
                    insurance, language, marital_status, race,
                    hospital_expire_flag,
                    EXTRACT(EPOCH FROM (dischtime::timestamp - admittime::timestamp))/86400.0 as los_days
-            FROM mimiciv.admissions
+            FROM {$s}.admissions
             WHERE subject_id = ?
             ORDER BY admittime
         ", [$subjectId]);
@@ -207,12 +228,13 @@ class MorpheusPatientService
     /**
      * Get transfers (location track) for a patient, optionally filtered by hadm_id.
      */
-    public function getTransfers(string $subjectId, ?string $hadmId = null): array
+    public function getTransfers(string $subjectId, ?string $hadmId = null, string $schema = 'mimiciv'): array
     {
+        $s = $this->getSchemaName($schema);
         $sql = "
             SELECT transfer_id, hadm_id, eventtype, careunit, intime, outtime,
                    EXTRACT(EPOCH FROM (outtime::timestamp - intime::timestamp))/3600.0 as duration_hours
-            FROM mimiciv.transfers
+            FROM {$s}.transfers
             WHERE subject_id = ?
         ";
         $params = [$subjectId];
@@ -230,12 +252,13 @@ class MorpheusPatientService
     /**
      * Get ICU stays for a patient.
      */
-    public function getIcuStays(string $subjectId, ?string $hadmId = null): array
+    public function getIcuStays(string $subjectId, ?string $hadmId = null, string $schema = 'mimiciv'): array
     {
+        $s = $this->getSchemaName($schema);
         $sql = "
             SELECT stay_id, hadm_id, first_careunit, last_careunit,
                    intime, outtime, los::numeric as los_days
-            FROM mimiciv.icustays
+            FROM {$s}.icustays
             WHERE subject_id = ?
         ";
         $params = [$subjectId];
@@ -253,14 +276,15 @@ class MorpheusPatientService
     /**
      * Get diagnoses for a patient.
      */
-    public function getDiagnoses(string $subjectId, ?string $hadmId = null): array
+    public function getDiagnoses(string $subjectId, ?string $hadmId = null, string $schema = 'mimiciv'): array
     {
+        $s = $this->getSchemaName($schema);
         $sql = "
             SELECT d.hadm_id, d.seq_num, d.icd_code, d.icd_version,
                    COALESCE(dd.long_title, '') as description,
                    c.concept_id, c.concept_name as standard_concept_name
-            FROM mimiciv.diagnoses_icd d
-            LEFT JOIN mimiciv.d_icd_diagnoses dd
+            FROM {$s}.diagnoses_icd d
+            LEFT JOIN {$s}.d_icd_diagnoses dd
                 ON d.icd_code = dd.icd_code AND d.icd_version = dd.icd_version
             LEFT JOIN omop.concept c
                 ON CASE WHEN length(d.icd_code) <= 3 THEN d.icd_code
@@ -283,13 +307,14 @@ class MorpheusPatientService
     /**
      * Get procedures for a patient.
      */
-    public function getProcedures(string $subjectId, ?string $hadmId = null): array
+    public function getProcedures(string $subjectId, ?string $hadmId = null, string $schema = 'mimiciv'): array
     {
+        $s = $this->getSchemaName($schema);
         $sql = "
             SELECT p.hadm_id, p.seq_num, p.chartdate, p.icd_code, p.icd_version,
                    COALESCE(dp.long_title, '') as description
-            FROM mimiciv.procedures_icd p
-            LEFT JOIN mimiciv.d_icd_procedures dp
+            FROM {$s}.procedures_icd p
+            LEFT JOIN {$s}.d_icd_procedures dp
                 ON p.icd_code = dp.icd_code AND p.icd_version = dp.icd_version
             WHERE p.subject_id = ?
         ";
@@ -308,14 +333,15 @@ class MorpheusPatientService
     /**
      * Get prescriptions/medications for a patient.
      */
-    public function getMedications(string $subjectId, ?string $hadmId = null): array
+    public function getMedications(string $subjectId, ?string $hadmId = null, string $schema = 'mimiciv'): array
     {
+        $s = $this->getSchemaName($schema);
         $sql = "
             SELECT hadm_id, pharmacy_id, starttime, stoptime,
                    drug_type, drug, gsn, ndc, prod_strength,
                    dose_val_rx, dose_unit_rx, route,
                    form_rx, doses_per_24_hrs
-            FROM mimiciv.prescriptions
+            FROM {$s}.prescriptions
             WHERE subject_id = ?
         ";
         $params = [$subjectId];
@@ -333,15 +359,16 @@ class MorpheusPatientService
     /**
      * Get lab results for a patient (from labevents).
      */
-    public function getLabResults(string $subjectId, ?string $hadmId = null, int $limit = 2000): array
+    public function getLabResults(string $subjectId, ?string $hadmId = null, int $limit = 2000, string $schema = 'mimiciv'): array
     {
+        $s = $this->getSchemaName($schema);
         $sql = "
             SELECT l.labevent_id, l.hadm_id, l.charttime, l.itemid,
                    di.label, di.fluid, di.category,
                    l.value, l.valuenum, l.valueuom,
                    l.ref_range_lower, l.ref_range_upper, l.flag
-            FROM mimiciv.labevents l
-            LEFT JOIN mimiciv.d_labitems di ON l.itemid = di.itemid
+            FROM {$s}.labevents l
+            LEFT JOIN {$s}.d_labitems di ON l.itemid = di.itemid
             WHERE l.subject_id = ?
         ";
         $params = [$subjectId];
@@ -361,8 +388,10 @@ class MorpheusPatientService
      * Get vital signs / chart events for a patient (from chartevents).
      * Returns only key vitals by default to avoid overwhelming the client.
      */
-    public function getVitals(string $subjectId, ?string $hadmId = null, ?string $stayId = null, int $limit = 5000): array
+    public function getVitals(string $subjectId, ?string $hadmId = null, ?string $stayId = null, int $limit = 5000, string $schema = 'mimiciv'): array
     {
+        $s = $this->getSchemaName($schema);
+
         // Key vital sign item IDs in MIMIC-IV
         // HR=220045, SBP=220050(invasive)/220179(non-invasive), DBP=220051/220180,
         // MAP=220052/220181, RR=220210, SpO2=220277, Temp=223761(F)/223762(C),
@@ -373,8 +402,8 @@ class MorpheusPatientService
             SELECT c.stay_id, c.charttime, c.itemid,
                    di.label, di.abbreviation, di.category,
                    c.value, c.valuenum, c.valueuom
-            FROM mimiciv.chartevents c
-            JOIN mimiciv.d_items di ON c.itemid = di.itemid
+            FROM {$s}.chartevents c
+            JOIN {$s}.d_items di ON c.itemid = di.itemid
             WHERE c.subject_id = ?
               AND c.itemid::int IN ({$vitalItemIds})
         ";
@@ -398,15 +427,16 @@ class MorpheusPatientService
     /**
      * Get input events (IV fluids, medications) for a patient.
      */
-    public function getInputEvents(string $subjectId, ?string $hadmId = null, int $limit = 2000): array
+    public function getInputEvents(string $subjectId, ?string $hadmId = null, int $limit = 2000, string $schema = 'mimiciv'): array
     {
+        $s = $this->getSchemaName($schema);
         $sql = "
             SELECT i.stay_id, i.starttime, i.endtime, i.itemid,
                    di.label, di.abbreviation,
                    i.amount, i.amountuom, i.rate, i.rateuom,
                    i.ordercategoryname, i.statusdescription, i.patientweight
-            FROM mimiciv.inputevents i
-            JOIN mimiciv.d_items di ON i.itemid = di.itemid
+            FROM {$s}.inputevents i
+            JOIN {$s}.d_items di ON i.itemid = di.itemid
             WHERE i.subject_id = ?
         ";
         $params = [$subjectId];
@@ -425,14 +455,15 @@ class MorpheusPatientService
     /**
      * Get output events for a patient.
      */
-    public function getOutputEvents(string $subjectId, ?string $hadmId = null, int $limit = 2000): array
+    public function getOutputEvents(string $subjectId, ?string $hadmId = null, int $limit = 2000, string $schema = 'mimiciv'): array
     {
+        $s = $this->getSchemaName($schema);
         $sql = "
             SELECT o.stay_id, o.charttime, o.itemid,
                    di.label,
                    o.value, o.valueuom
-            FROM mimiciv.outputevents o
-            JOIN mimiciv.d_items di ON o.itemid = di.itemid
+            FROM {$s}.outputevents o
+            JOIN {$s}.d_items di ON o.itemid = di.itemid
             WHERE o.subject_id = ?
         ";
         $params = [$subjectId];
@@ -451,13 +482,14 @@ class MorpheusPatientService
     /**
      * Get microbiology cultures for a patient.
      */
-    public function getMicrobiology(string $subjectId, ?string $hadmId = null): array
+    public function getMicrobiology(string $subjectId, ?string $hadmId = null, string $schema = 'mimiciv'): array
     {
+        $s = $this->getSchemaName($schema);
         $sql = "
             SELECT microevent_id, hadm_id, chartdate, charttime,
                    spec_type_desc, test_name, org_name, ab_name,
                    dilution_comparison, dilution_value, interpretation
-            FROM mimiciv.microbiologyevents
+            FROM {$s}.microbiologyevents
             WHERE subject_id = ?
         ";
         $params = [$subjectId];
@@ -475,11 +507,12 @@ class MorpheusPatientService
     /**
      * Get service changes for a patient.
      */
-    public function getServices(string $subjectId, ?string $hadmId = null): array
+    public function getServices(string $subjectId, ?string $hadmId = null, string $schema = 'mimiciv'): array
     {
+        $s = $this->getSchemaName($schema);
         $sql = "
             SELECT hadm_id, transfertime, prev_service, curr_service
-            FROM mimiciv.services
+            FROM {$s}.services
             WHERE subject_id = ?
         ";
         $params = [$subjectId];
@@ -498,25 +531,27 @@ class MorpheusPatientService
      * Get per-domain event counts for a patient (summary stats).
      * Uses parameterized queries for both subject_id and hadm_id to prevent SQL injection.
      */
-    public function getEventCounts(string $subjectId, ?string $hadmId = null): array
+    public function getEventCounts(string $subjectId, ?string $hadmId = null, string $schema = 'mimiciv'): array
     {
+        $s = $this->getSchemaName($schema);
+
         $domains = [
-            'admissions'    => 'mimiciv.admissions',
-            'transfers'     => 'mimiciv.transfers',
-            'icu_stays'     => 'mimiciv.icustays',
-            'diagnoses'     => 'mimiciv.diagnoses_icd',
-            'procedures'    => 'mimiciv.procedures_icd',
-            'prescriptions' => 'mimiciv.prescriptions',
-            'lab_results'   => 'mimiciv.labevents',
-            'vitals'        => 'mimiciv.chartevents',
-            'input_events'  => 'mimiciv.inputevents',
-            'output_events' => 'mimiciv.outputevents',
-            'microbiology'  => 'mimiciv.microbiologyevents',
-            'services'      => 'mimiciv.services',
+            'admissions'    => "{$s}.admissions",
+            'transfers'     => "{$s}.transfers",
+            'icu_stays'     => "{$s}.icustays",
+            'diagnoses'     => "{$s}.diagnoses_icd",
+            'procedures'    => "{$s}.procedures_icd",
+            'prescriptions' => "{$s}.prescriptions",
+            'lab_results'   => "{$s}.labevents",
+            'vitals'        => "{$s}.chartevents",
+            'input_events'  => "{$s}.inputevents",
+            'output_events' => "{$s}.outputevents",
+            'microbiology'  => "{$s}.microbiologyevents",
+            'services'      => "{$s}.services",
         ];
 
         // Tables where hadm_id filtering uses a subquery through icustays
-        $stayFilterTables = ['mimiciv.chartevents', 'mimiciv.inputevents', 'mimiciv.outputevents'];
+        $stayFilterTables = ["{$s}.chartevents", "{$s}.inputevents", "{$s}.outputevents"];
 
         $unions = [];
         $params = [];
@@ -528,7 +563,7 @@ class MorpheusPatientService
 
             if ($hadmId) {
                 if (in_array($table, $stayFilterTables, true)) {
-                    $clause .= " AND stay_id IN (SELECT stay_id FROM mimiciv.icustays WHERE hadm_id = ?)";
+                    $clause .= " AND stay_id IN (SELECT stay_id FROM {$s}.icustays WHERE hadm_id = ?)";
                 } else {
                     $clause .= " AND hadm_id = ?";
                 }
