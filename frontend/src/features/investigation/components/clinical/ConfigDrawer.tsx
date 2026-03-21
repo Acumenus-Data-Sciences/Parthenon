@@ -14,6 +14,8 @@ interface ConfigDrawerProps {
   investigation: Investigation;
   onClose: () => void;
   onExecute: (config: ClinicalAnalysisConfig) => void;
+  isPending?: boolean;
+  pendingLabel?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -79,6 +81,8 @@ export function ConfigDrawer({
   investigation,
   onClose,
   onExecute,
+  isPending = false,
+  pendingLabel = "Running…",
 }: ConfigDrawerProps) {
   const isOpen = analysisType !== null;
   const descriptor = analysisType
@@ -580,10 +584,35 @@ export function ConfigDrawer({
             </button>
             <button
               onClick={handleExecute}
-              disabled={analysisType === "evidence_synthesis"}
-              className="px-5 py-2 rounded text-xs font-medium text-white bg-[#9B1B30] hover:bg-[#b02035] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={analysisType === "evidence_synthesis" || isPending}
+              className="px-5 py-2 rounded text-xs font-medium text-white bg-[#9B1B30] hover:bg-[#b02035] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 min-w-[110px] justify-center"
             >
-              Run Analysis
+              {isPending ? (
+                <>
+                  <svg
+                    className="w-3 h-3 animate-spin"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                    />
+                  </svg>
+                  {pendingLabel}
+                </>
+              ) : (
+                "Run Analysis"
+              )}
             </button>
           </div>
         </div>

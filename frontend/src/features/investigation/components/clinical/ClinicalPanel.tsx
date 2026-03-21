@@ -9,6 +9,7 @@ import type {
   ClinicalState,
   Investigation,
 } from "../../types";
+import { AlertCircle } from "lucide-react";
 import { AnalysisGallery } from "./AnalysisGallery";
 import { ConfigDrawer } from "./ConfigDrawer";
 import { ExecutionTracker } from "./ExecutionTracker";
@@ -156,6 +157,7 @@ export function ClinicalPanel({ investigation }: ClinicalPanelProps) {
   const [selectedType, setSelectedType] = useState<ClinicalAnalysisType | null>(null);
   const [activeExecution, setActiveExecution] = useState<ActiveExecution | null>(null);
   const [view, setView] = useState<PanelView>("gallery");
+  const [executeError, setExecuteError] = useState<string | null>(null);
 
   // Local copy of clinical state for auto-save
   const [clinicalState, setClinicalState] = useState<ClinicalState>(
@@ -196,62 +198,70 @@ export function ClinicalPanel({ investigation }: ClinicalPanelProps) {
   // ── Execute handler ────────────────────────────────────────────────────────
   const handleExecute = useCallback(
     async (config: ClinicalAnalysisConfig) => {
-      const descriptor = (await import("../../clinicalRegistry")).CLINICAL_ANALYSIS_REGISTRY.find(
-        (r) => r.type === config.type,
-      );
+      setExecuteError(null);
 
-      const apiPrefix = descriptor?.apiPrefix ?? config.type;
-      const designPayload = buildDesignPayload(config);
+      try {
+        const descriptor = (await import("../../clinicalRegistry")).CLINICAL_ANALYSIS_REGISTRY.find(
+          (r) => r.type === config.type,
+        );
 
-      // 1. Create the analysis record
-      const analysisRecord = await createAnalysisMutation.mutateAsync({
-        apiPrefix,
-        payload: designPayload,
-      });
+        const apiPrefix = descriptor?.apiPrefix ?? config.type;
+        const designPayload = buildDesignPayload(config);
 
-      const analysisId = (analysisRecord.id ?? analysisRecord.analysis_id) as number;
+        // 1. Create the analysis record
+        const analysisRecord = await createAnalysisMutation.mutateAsync({
+          apiPrefix,
+          payload: designPayload,
+        });
 
-      // 2. Execute the analysis
-      const executionRecord = await executeAnalysisMutation.mutateAsync({
-        apiPrefix,
-        analysisId,
-        sourceId: config.source_id ?? undefined,
-      });
+        const analysisId = (analysisRecord.id ?? analysisRecord.analysis_id) as number;
 
-      const executionId = (
-        (executionRecord as Record<string, unknown>).id ??
-        (executionRecord as Record<string, unknown>).execution_id
-      ) as number;
+        // 2. Execute the analysis
+        const executionRecord = await executeAnalysisMutation.mutateAsync({
+          apiPrefix,
+          analysisId,
+          sourceId: config.source_id ?? undefined,
+        });
 
-      // 3. Close config drawer and switch to tracking view
-      setSelectedType(null);
-      setActiveExecution({ apiPrefix, analysisId, executionId, type: config.type });
-      setView("tracking");
+        const executionId = (
+          (executionRecord as Record<string, unknown>).id ??
+          (executionRecord as Record<string, unknown>).execution_id
+        ) as number;
 
-      // 4. Update clinical state to track the new queued analysis
-      const newEntry = {
-        analysis_type: config.type,
-        api_prefix: apiPrefix,
-        analysis_id: analysisId,
-        execution_id: executionId,
-        config: designPayload,
-        status: "queued" as const,
-      };
+        // 3. Close config drawer and switch to tracking view
+        setSelectedType(null);
+        setActiveExecution({ apiPrefix, analysisId, executionId, type: config.type });
+        setView("tracking");
 
-      const updated: ClinicalState = {
-        ...clinicalState,
-        queued_analyses: [...clinicalState.queued_analyses, newEntry],
-        selected_source_id: config.source_id,
-      };
+        // 4. Update clinical state to track the new queued analysis
+        const newEntry = {
+          analysis_type: config.type,
+          api_prefix: apiPrefix,
+          analysis_id: analysisId,
+          execution_id: executionId,
+          config: designPayload,
+          status: "queued" as const,
+        };
 
-      setClinicalState(updated);
+        const updated: ClinicalState = {
+          ...clinicalState,
+          queued_analyses: [...clinicalState.queued_analyses, newEntry],
+          selected_source_id: config.source_id,
+        };
 
-      // Persist immediately (don't wait for debounce on important state changes)
-      saveDomainState.mutate({
-        id: investigation.id,
-        domain: "clinical",
-        state: updated as unknown as Record<string, unknown>,
-      });
+        setClinicalState(updated);
+
+        // Persist immediately (don't wait for debounce on important state changes)
+        saveDomainState.mutate({
+          id: investigation.id,
+          domain: "clinical",
+          state: updated as unknown as Record<string, unknown>,
+        });
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : "An unexpected error occurred while dispatching the analysis.";
+        setExecuteError(message);
+      }
     },
     [
       createAnalysisMutation,
@@ -338,14 +348,42 @@ export function ClinicalPanel({ investigation }: ClinicalPanelProps) {
         )}
       </div>
 
+      {/* Inline execute error — shown below the panel body */}
+      {executeError && (
+        <div className="mx-6 mb-4 flex items-start gap-3 rounded border border-[#9B1B30] bg-[#9B1B30]/10 px-4 py-3">
+          <AlertCircle size={15} className="mt-0.5 shrink-0 text-[#9B1B30]" />
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-medium text-[#e05c6e]">Analysis dispatch failed</p>
+            <p className="text-xs text-zinc-400 mt-0.5 break-words">{executeError}</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setExecuteError(null)}
+            className="shrink-0 text-zinc-500 hover:text-zinc-300 transition-colors text-xs"
+            aria-label="Dismiss error"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       {/* Config drawer — rendered at this level so it sits above content */}
       <ConfigDrawer
         analysisType={selectedType}
         investigation={investigation}
-        onClose={() => setSelectedType(null)}
+        onClose={() => {
+          setSelectedType(null);
+          setExecuteError(null);
+        }}
         onExecute={(config) => {
           void handleExecute(config);
         }}
+        isPending={
+          createAnalysisMutation.isPending || executeAnalysisMutation.isPending
+        }
+        pendingLabel={
+          createAnalysisMutation.isPending ? "Creating…" : "Dispatching…"
+        }
       />
     </div>
   );

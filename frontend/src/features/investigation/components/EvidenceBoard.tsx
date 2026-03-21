@@ -1,7 +1,8 @@
 import { ArrowLeft } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useEffect } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { useInvestigationStore } from "../stores/investigationStore";
-import type { Investigation, InvestigationStatus } from "../types";
+import type { EvidenceDomain, Investigation, InvestigationStatus } from "../types";
 import { ClinicalPanel } from "./clinical/ClinicalPanel";
 import { ContextBar } from "./ContextBar";
 import { EvidenceSidebar } from "./EvidenceSidebar";
@@ -53,6 +54,8 @@ function FocusPanel({ investigation }: { investigation: Investigation }) {
   }
 }
 
+const VALID_DOMAINS: EvidenceDomain[] = ["phenotype", "clinical", "genomic", "synthesis"];
+
 export function EvidenceBoard({ investigation }: EvidenceBoardProps) {
   const pinCount = investigation.pins?.length ?? 0;
   const runCount = investigation.clinical_state.queued_analyses.filter(
@@ -60,6 +63,29 @@ export function EvidenceBoard({ investigation }: EvidenceBoardProps) {
   ).length;
 
   const badge = STATUS_BADGE[investigation.status];
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { activeDomain, setActiveDomain } = useInvestigationStore();
+
+  // Sync URL → store on mount (honour deep-linked ?domain= param)
+  useEffect(() => {
+    const urlDomain = searchParams.get("domain");
+    if (urlDomain && (VALID_DOMAINS as string[]).includes(urlDomain)) {
+      setActiveDomain(urlDomain as EvidenceDomain);
+    }
+    // Only run once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Sync store → URL whenever activeDomain changes
+  useEffect(() => {
+    setSearchParams(
+      (prev) => {
+        prev.set("domain", activeDomain);
+        return prev;
+      },
+      { replace: true },
+    );
+  }, [activeDomain, setSearchParams]);
 
   return (
     <div

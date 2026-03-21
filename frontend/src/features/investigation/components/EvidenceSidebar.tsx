@@ -20,7 +20,7 @@ const SECTION_LABELS: Record<PinSection, string> = {
 
 export function EvidenceSidebar({ investigationId }: EvidenceSidebarProps) {
   const { sidebarOpen, toggleSidebar } = useInvestigationStore();
-  const { data: pins } = useEvidencePins(investigationId);
+  const { data: pins, isLoading, isError, refetch } = useEvidencePins(investigationId);
   const deletePin = useDeletePin(investigationId);
 
   // Group pins by section
@@ -64,10 +64,36 @@ export function EvidenceSidebar({ investigationId }: EvidenceSidebarProps) {
 
       {sidebarOpen && (
         <div className="flex-1 overflow-y-auto px-3 py-3 flex flex-col gap-4">
-          {sections.length === 0 && (
+          {/* Loading state */}
+          {isLoading && (
+            <div className="flex flex-col gap-3 mt-2" aria-label="Loading pins">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="animate-pulse rounded bg-zinc-800/60 h-12 w-full" />
+              ))}
+            </div>
+          )}
+
+          {/* Error state */}
+          {isError && !isLoading && (
+            <div className="flex flex-col items-center gap-2 mt-6 px-1">
+              <p className="text-xs text-zinc-500 text-center">Failed to load pins</p>
+              <button
+                type="button"
+                onClick={() => void refetch()}
+                className="text-xs text-[#2DD4BF] hover:underline transition-colors"
+              >
+                Retry
+              </button>
+            </div>
+          )}
+
+          {/* Empty state */}
+          {!isLoading && !isError && sections.length === 0 && (
             <p className="text-xs text-zinc-600 text-center mt-8">No pins yet</p>
           )}
-          {sections.map((section) => {
+
+          {/* Pin sections */}
+          {!isLoading && !isError && sections.map((section) => {
             const sectionPins = grouped[section] ?? [];
             return (
               <div key={section}>
