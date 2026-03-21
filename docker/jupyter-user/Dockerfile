@@ -19,8 +19,10 @@ RUN pip install --no-cache-dir \
     pyarrow \
     "psycopg[binary]" \
     requests \
+    scikit-learn \
     seaborn \
-    sqlalchemy
+    sqlalchemy \
+    tensorflow
 
 # Create non-root user
 RUN useradd -m -s /bin/bash -N jovyan && \
