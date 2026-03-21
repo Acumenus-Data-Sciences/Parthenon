@@ -1,0 +1,167 @@
+---
+id: 31a-contextual-layers
+title: "31a. Contextual Data Layers"
+sidebar_label: "31a. Contextual Layers"
+---
+
+# Contextual Data Layers
+
+Beyond the core choropleth map, the GIS Explorer supports **contextual data layers** that overlay social determinants of health, environmental exposures, healthcare access metrics, and comorbidity burden data on the map. These layers help researchers investigate the geographic and socioeconomic factors that influence health outcomes.
+
+---
+
+## Layer System Overview
+
+Parthenon's GIS module uses a plug-in layer architecture. Each layer provides:
+
+- A **map overlay** that renders data on the deck.gl map (color-coded regions, markers, or heatmaps)
+- A **detail panel** that shows layer-specific information when you click a region
+- An **analysis panel** that displays statistical charts in the bottom drawer
+- **Legend items** that appear in the composite legend
+- **Tooltip data** that appears when you hover over a region
+
+Layers can be toggled on and off independently from the **Layer Panel** on the left side of the map. Multiple layers can be active simultaneously, creating composite visualizations that combine clinical, social, and environmental data.
+
+---
+
+## Available Layers
+
+### Social Vulnerability Index (SVI)
+
+The **SVI layer** overlays CDC/ATSDR Social Vulnerability Index data, which ranks census tracts on 16 social factors grouped into four themes.
+
+| Theme | Factors |
+|-------|---------|
+| **Socioeconomic Status** | Below 150% poverty, unemployed, housing cost burden, no high school diploma, no health insurance |
+| **Household Characteristics** | Aged 65+, aged 17 and under, civilian with disability, single-parent households, English language proficiency |
+| **Racial/Ethnic Minority Status** | Minority race/ethnicity, limited English-speaking households |
+| **Housing Type / Transportation** | Multi-unit structures, mobile homes, crowding, no vehicle, group quarters |
+
+**Map display:** Regions are shaded from light to dark based on overall SVI score (0 = least vulnerable, 1 = most vulnerable).
+
+**Detail panel:** When you click a region, the SVI detail panel shows the overall SVI score, each theme score, and the individual indicator values.
+
+**Analysis panel:** A bar chart showing health outcome rates (for the selected condition/metric) across SVI quartiles (Q1--Q4). This reveals whether patients in more socially vulnerable areas experience worse outcomes.
+
+#### Research Applications
+
+- Identify communities with high social vulnerability and high disease burden for targeted intervention
+- Quantify the association between SVI and specific health outcomes (e.g., "Are diabetes hospitalization rates higher in high-SVI areas?")
+- Incorporate social determinants into study designs by using SVI thresholds as inclusion/exclusion criteria
+
+---
+
+### Rural-Urban Continuum Codes (RUCC)
+
+The **RUCC layer** overlays USDA Rural-Urban Continuum Codes, which classify counties by population size and adjacency to metropolitan areas.
+
+| Category | RUCC Codes | Description |
+|----------|------------|-------------|
+| **Metro** | 1--3 | Counties in metropolitan statistical areas, from large (1M+) to small (&lt;250K) |
+| **Micro** | 4--6 | Nonmetro counties with urban populations of 2,500--19,999, varying by adjacency to metro |
+| **Rural** | 7--9 | Nonmetro counties that are completely rural or have small urban populations (&lt;2,500) |
+
+**Map display:** Regions are color-coded by urban/rural category --- blue for metro, purple for micro, amber for rural.
+
+**Detail panel:** Shows the county's RUCC code, category, population, and adjacency status.
+
+**Analysis panel:** A grouped bar chart comparing health outcome rates across metro, micro, and rural counties. This directly addresses questions of rural health disparities.
+
+#### Research Applications
+
+- Compare health outcomes between urban and rural populations for the same condition
+- Identify rural areas with limited healthcare access and elevated disease burden
+- Design geographically stratified studies that account for urban/rural differences
+
+---
+
+### Comorbidity Burden
+
+The **Comorbidity layer** maps the geographic distribution of comorbidity burden across regions, using data from the OMOP CDM condition tables.
+
+**Map display:** Regions are shaded by aggregate comorbidity burden score, computed from the conditions recorded for patients in each area.
+
+**Detail panel:** When you click a region, the panel shows the top conditions and their prevalence rates for patients in that area.
+
+**Analysis panel:** Charts showing comorbidity patterns for the selected disease, helping identify geographic clustering of multi-morbidity.
+
+#### Research Applications
+
+- Identify "hot spots" where patients with complex multi-morbidity are concentrated
+- Compare comorbidity profiles between regions to understand population health differences
+- Inform resource allocation and chronic disease management program design
+
+---
+
+### Air Quality
+
+The **Air Quality layer** overlays environmental air quality data, including particulate matter (PM2.5) and other pollutant measurements.
+
+**Map display:** Regions are color-coded by air quality index or pollutant concentration level.
+
+**Detail panel:** Shows air quality measurements for the selected region, including PM2.5 concentration, AQI category, and monitoring station data.
+
+**Analysis panel:** A bar chart showing respiratory disease outcome rates across air quality tertiles (T1 = cleanest, T3 = most polluted). This reveals the dose-response relationship between air pollution and respiratory health in your patient population.
+
+#### Research Applications
+
+- Investigate the association between air quality and respiratory disease prevalence
+- Identify areas where environmental exposures may contribute to poor health outcomes
+- Design environmental epidemiology studies that link OMOP CDM clinical data to ambient air quality measurements
+
+---
+
+### Hospital Access
+
+The **Hospital Access layer** maps healthcare facility locations and access metrics, helping identify areas with limited access to care.
+
+**Map display:** Hospital and healthcare facility locations appear as markers on the map, with region shading indicating access metrics (e.g., average distance to nearest facility, facilities per capita).
+
+**Detail panel:** Lists healthcare facilities in or near the selected region, with distances and facility types.
+
+**Analysis panel:** Charts showing the relationship between healthcare access metrics and health outcomes for the selected condition.
+
+#### Research Applications
+
+- Identify "healthcare deserts" --- areas with limited facility access
+- Correlate access-to-care metrics with health outcomes to quantify the impact of geographic barriers
+- Plan facility placement or mobile health unit deployment based on underserved areas
+
+---
+
+## Using Multiple Layers
+
+Layers can be combined to create composite views. For example:
+
+1. Enable the **SVI layer** to see social vulnerability.
+2. Add the **RUCC layer** to distinguish urban from rural areas.
+3. Add the **Air Quality layer** to see environmental exposures.
+4. Select a disease condition as the base metric.
+
+The map now shows the intersection of social, geographic, and environmental factors overlaid on clinical data. The analysis drawer at the bottom displays panels for each active layer side by side, making it easy to compare how different contextual factors relate to the selected health outcome.
+
+### Analysis Drawer
+
+When one or more layers are active, the **Analysis Drawer** appears at the bottom of the map. Click the drawer header (labeled "Analysis (N layers)") to expand it. Inside, each active layer shows its analysis chart in a horizontally scrollable panel.
+
+The drawer provides a compact way to compare multiple determinants without leaving the map view.
+
+---
+
+## Layer Data Requirements
+
+Contextual layers require additional data loading beyond the base boundary data:
+
+| Layer | Data Source | Loading Method |
+|-------|------------|----------------|
+| **SVI** | CDC/ATSDR Social Vulnerability Index | Loaded via GIS data import scripts |
+| **RUCC** | USDA Economic Research Service | Loaded via GIS data import scripts |
+| **Comorbidity** | OMOP CDM condition tables | Computed dynamically from CDM data |
+| **Air Quality** | EPA Air Quality System (AQS) | Loaded via GIS data import scripts |
+| **Hospital Access** | CMS Provider of Services files | Loaded via GIS data import scripts |
+
+Layers gracefully degrade when their data is not available --- they simply do not appear in the Layer Panel if the underlying data tables are empty.
+
+:::tip Getting started with layers
+Start by loading SVI and RUCC data, as these are the most commonly used social determinants layers and have straightforward data sources. Air quality and hospital access data require additional data acquisition steps. See the GIS data loading documentation or contact your system administrator.
+:::

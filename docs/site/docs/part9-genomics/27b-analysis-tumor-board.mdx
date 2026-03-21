@@ -1,0 +1,194 @@
+---
+id: 27b-analysis-tumor-board
+title: "27b. Genomic Analysis & Tumor Board"
+sidebar_label: "27b. Analysis & Tumor Board"
+---
+
+# Genomic Analysis & Tumor Board
+
+Once genomic variants are uploaded, annotated, and imported into the OMOP CDM, Parthenon provides three population-level analysis types and an individual patient tumor board dashboard. These tools connect molecular findings to clinical outcomes, enabling translational research and precision medicine workflows.
+
+---
+
+## Genomic Analysis Suite
+
+The analysis suite is accessible from **Genomics > Analysis** in the navigation. All analyses query the OMOP CDM directly, correlating genomic measurement data with clinical outcomes, treatments, and demographics.
+
+### Survival Analysis
+
+Kaplan-Meier survival analysis compares outcomes between patients who carry a specific variant and those who do not (wild-type).
+
+**How to run a survival analysis:**
+
+1. Navigate to **Genomics > Analysis**.
+2. Select the **Survival** tab.
+3. Configure:
+   - **Data Source** --- the OMOP source containing both genomic and clinical data
+   - **Gene** --- the gene of interest (e.g., EGFR, KRAS, TP53)
+   - **HGVS Variant** --- optionally restrict to a specific variant (e.g., L858R). Leave blank to compare any mutation in the gene vs. wild-type.
+4. Click **Run Analysis**.
+
+**Results include:**
+
+- **Survival curves** --- Kaplan-Meier curves for mutated vs. wild-type groups, plotted over time from the index date (variant detection or cohort entry) to the event (death) or censoring (end of observation)
+- **Log-rank p-value** --- statistical significance of the survival difference between groups
+- **Median survival** --- median survival time for each group (with confidence intervals)
+- **Patient counts** --- number of patients in each group, number of events, and number censored
+
+:::tip Choosing the right gene
+Start with genes known to have prognostic significance in your disease area. For lung cancer, consider EGFR, KRAS, ALK, and TP53. For breast cancer, consider BRCA1, BRCA2, and HER2. The survival analysis is most informative when you have sufficient patients in both the mutated and wild-type groups.
+:::
+
+### Treatment-Variant Response Matrix
+
+The treatment-variant response matrix cross-tabulates drug exposures against genomic variants to identify treatment-variant combinations associated with different outcomes.
+
+**How to run a treatment-variant analysis:**
+
+1. Navigate to **Genomics > Analysis**.
+2. Select the **Treatment Matrix** tab.
+3. Configure:
+   - **Data Source** --- the OMOP source
+   - **Genes** --- select up to 10 genes to include in the matrix
+4. Click **Run Analysis**.
+
+**Results display:**
+
+- A matrix with **drugs** (from the CDM `drug_exposure` table) on one axis and **gene variants** on the other
+- Each cell shows the outcome metric (e.g., time to progression, response rate) for patients who received that drug and carry that variant
+- Color coding highlights favorable (teal) and unfavorable (red) treatment-variant combinations
+- Cell counts show the number of patients in each combination
+
+This analysis helps answer questions like: "Do patients with EGFR L858R who receive osimertinib have better outcomes than those who receive standard chemotherapy?"
+
+### Genomic Characterization
+
+Population-level genomic profiling provides an overview of the variant landscape in your data source.
+
+**How to run characterization:**
+
+1. Navigate to **Genomics > Analysis**.
+2. Select the **Characterization** tab.
+3. Select a **Data Source**.
+4. Click **Run**.
+
+**Results include four visualizations:**
+
+| Chart | Description |
+|-------|-------------|
+| **Top Mutated Genes** | Horizontal bar chart showing the most frequently mutated genes across all patients, ranked by variant count |
+| **TMB Distribution** | Histogram of tumor mutational burden across the patient population, showing the distribution shape and identifying patients with high TMB |
+| **Variant Type Breakdown** | Pie or bar chart showing the proportion of SNVs (single nucleotide variants), insertions, deletions, and MNVs (multi-nucleotide variants) |
+| **ClinVar Significance** | Distribution of ClinVar clinical significance classifications across all annotated variants |
+
+These characterization results are useful for understanding the molecular profile of your patient population before designing targeted analyses or clinical trials.
+
+---
+
+## Genomic Cohort Criteria
+
+The genomics module extends Parthenon's cohort builder with six genomic criteria types, allowing you to define patient cohorts based on molecular characteristics.
+
+### Available Criteria Types
+
+| Type | Description | Example Use Case |
+|------|-------------|------------------|
+| **Gene Mutation** | Patients with a specific mutation in a specific gene | EGFR L858R carriers for lung cancer therapy selection |
+| **TMB** | Patients above or below a tumor mutational burden threshold | TMB &gt; 10 mutations/Mb for immunotherapy eligibility |
+| **MSI** | Patients with a specific microsatellite instability status | MSI-High patients for pembrolizumab candidacy |
+| **Fusion** | Patients with a specific gene fusion event | ALK-EML4 fusion carriers for ALK inhibitor studies |
+| **Pathogenicity** | Patients with variants of a specific ClinVar classification in a gene | Any pathogenic variant in BRCA1 or BRCA2 for hereditary cancer screening |
+| **Treatment Episode** | Patients who received a specific treatment following a genomic finding | Patients started on osimertinib after EGFR mutation detection |
+
+### Creating a Genomic Criterion
+
+1. Navigate to **Genomics > Criteria** (or access from the Cohort Builder's genomic criteria panel).
+2. Click **New Criterion**.
+3. Select a **criteria type** from the list above.
+4. Configure the criterion:
+   - For **gene mutation**: specify the gene, and optionally the specific HGVS variant
+   - For **TMB**: specify the operator (&gt;, &gt;=, &lt;, &lt;=) and threshold value
+   - For **MSI**: select the status (MSS, MSI-L, MSI-H)
+   - For **fusion**: specify the two fusion partner genes
+   - For **pathogenicity**: select one or more ClinVar classes and optionally restrict to specific genes
+   - For **treatment episode**: select the treatment and the temporal relationship to the genomic finding
+5. Optionally check **Shared** to make the criterion available to all researchers in the organization.
+
+Genomic criteria integrate seamlessly with standard clinical criteria in the cohort builder. You can combine genomic filters with condition, drug, procedure, and demographic criteria to build precision medicine cohorts. For example: "Patients aged 18+ with stage IIIB NSCLC who carry EGFR L858R and have at least 365 days of follow-up."
+
+---
+
+## Tumor Board Dashboard
+
+The tumor board dashboard provides a comprehensive molecular evidence panel for an individual patient, consolidating genomic findings with clinical history in a single view. It is designed to support molecular tumor board discussions.
+
+### Accessing the Tumor Board
+
+1. Navigate to **Genomics > Tumor Board**.
+2. Enter a **Person ID** for the patient.
+3. Select a **Data Source**.
+4. The dashboard loads the patient's complete molecular and clinical profile.
+
+### Dashboard Sections
+
+The tumor board display is organized into five sections:
+
+#### 1. Genomic Variants
+
+A table of all variants for the patient, sorted by clinical significance (pathogenic first). Each variant shows:
+
+- Gene symbol and HGVS notation (coding and protein)
+- Variant type and functional consequence
+- ClinVar significance with a link to the NCBI ClinVar entry
+- Allele frequency and read depth
+- Quality score
+
+Pathogenic and likely pathogenic variants are highlighted for immediate attention.
+
+#### 2. ClinVar Annotations
+
+For each annotated variant, the panel displays:
+
+- ClinVar variation ID (hyperlinked to NCBI)
+- Clinical significance classification
+- Review status (e.g., reviewed by expert panel, criteria provided)
+- Associated conditions from ClinVar
+- Last evaluated date
+
+#### 3. Drug Exposures
+
+A timeline of the patient's medication history from the OMOP CDM, showing:
+
+- Drug name and class
+- Start and end dates
+- Duration of exposure
+
+This helps the tumor board understand what treatments the patient has already received and how they relate to genomic findings.
+
+#### 4. Condition History
+
+The patient's condition history from the CDM, including:
+
+- Diagnosis codes and descriptions
+- Condition start and end dates
+- Condition type (primary, secondary, billing)
+
+This provides clinical context for interpreting the relevance of genomic variants.
+
+#### 5. Treatment Timeline with Genomic Overlay
+
+A visual timeline that overlays:
+
+- Drug exposure periods (horizontal bars)
+- Condition events (markers)
+- Genomic variant detection dates (vertical lines)
+
+This integrated view shows the temporal relationship between molecular findings and clinical events, which is critical for understanding whether treatments were selected based on genomic results and how the disease responded.
+
+:::info When to use the Tumor Board
+The tumor board dashboard is most useful when reviewing individual patients with complex molecular profiles --- for example, patients with multiple actionable variants, patients who have progressed through multiple lines of therapy, or patients being considered for clinical trial enrollment based on molecular markers.
+:::
+
+:::warning Research use only
+The genomics module is designed for research and quality improvement purposes. It is not a validated clinical diagnostic tool. All clinical decisions should be made in consultation with qualified medical geneticists and using validated clinical-grade sequencing and interpretation pipelines.
+:::

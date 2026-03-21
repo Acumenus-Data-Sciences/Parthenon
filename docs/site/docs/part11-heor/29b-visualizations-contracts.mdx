@@ -1,0 +1,193 @@
+---
+id: 29b-visualizations-contracts
+title: "29b. Economic Visualizations & Value-Based Contracts"
+sidebar_label: "29b. Visualizations & Contracts"
+---
+
+# Economic Visualizations & Value-Based Contracts
+
+This page covers the visualization tools that help interpret HEOR analysis results and the value-based contracting system for outcomes-linked pricing agreements.
+
+---
+
+## Cost-Effectiveness Plane
+
+The **cost-effectiveness plane** (CE plane) is the primary visualization for interpreting cost-effectiveness analysis results. It plots each scenario's incremental cost (vertical axis) against incremental QALYs (horizontal axis) relative to the comparator.
+
+### How to Read the CE Plane
+
+The plane is divided into four quadrants, each with a distinct interpretation:
+
+| Quadrant | Position | Meaning |
+|----------|----------|---------|
+| **Southeast** | Less costly, more effective | **Dominant** --- the intervention saves money and improves outcomes. This is the ideal position. |
+| **Northeast** | More costly, more effective | **Trade-off** --- the intervention improves outcomes but costs more. Whether it is cost-effective depends on the ICER relative to the willingness-to-pay (WTP) threshold. |
+| **Northwest** | More costly, less effective | **Dominated** --- the intervention costs more and produces worse outcomes. This is the worst-case position. |
+| **Southwest** | Less costly, less effective | **Trade-off** --- the intervention saves money but produces worse outcomes. Acceptable only if cost savings are substantial relative to the outcome reduction. |
+
+### Willingness-to-Pay Threshold
+
+A dashed gold line on the CE plane represents the **WTP threshold** --- the maximum amount a decision maker is willing to pay for one additional QALY. The default threshold is $50,000/QALY, but this can be configured per analysis.
+
+- Scenarios **below** the WTP line (even in the northeast quadrant) are considered cost-effective.
+- Scenarios **above** the WTP line are not cost-effective at the selected threshold.
+
+Common WTP thresholds:
+
+| Threshold | Context |
+|-----------|---------|
+| $50,000/QALY | Conservative (traditional US benchmark) |
+| $100,000/QALY | Moderate (commonly used in practice) |
+| $150,000/QALY | Generous (upper end of US range) |
+| 1--3x GDP per capita | WHO-CHOICE framework for international analyses |
+
+### Data Points and Labels
+
+Each scenario with computed incremental results appears as a labeled point on the CE plane. The label shows the scenario name, and below it, the ICER value. The legend at the bottom includes the net monetary benefit (NMB) for each scenario:
+
+- **Positive NMB** (teal) means the intervention is cost-effective at the given WTP threshold.
+- **Negative NMB** (red) means it is not cost-effective.
+
+---
+
+## Tornado Diagram
+
+The **tornado diagram** ranks parameters by their influence on the ICER, helping you identify which inputs most affect the economic conclusion. It is generated automatically when an analysis includes parameters with defined lower and upper bounds.
+
+### Reading the Tornado Diagram
+
+- Each horizontal bar represents one cost or utility parameter.
+- The bar extends from the ICER at the parameter's **lower bound** to the ICER at the **upper bound**.
+- Parameters are sorted from top to bottom by their **range** (the difference between low-ICER and high-ICER), so the most influential parameters appear at the top.
+- A vertical line marks the **base-case ICER**.
+
+### Using Tornado Results
+
+The tornado diagram answers the question: "Which parameters should I spend the most effort validating?" Parameters at the top of the tornado warrant:
+
+- More precise data sourcing (e.g., site-specific cost data instead of national averages)
+- Additional literature review for stronger estimates
+- Scenario analysis or probabilistic sensitivity analysis
+
+Parameters at the bottom of the tornado have minimal impact on the conclusion and may not require further refinement.
+
+---
+
+## Scenario Comparison Chart
+
+When an analysis has multiple scenarios, the **scenario comparison chart** provides a side-by-side view of key economic outcomes:
+
+| Metric | Description |
+|--------|-------------|
+| **Total Cost** | Aggregate cost for each scenario |
+| **Total QALYs** | Quality-adjusted life years for each scenario |
+| **ICER** | Incremental cost-effectiveness ratio (cost per QALY gained) |
+| **NMB** | Net monetary benefit at the selected WTP threshold |
+| **Budget Impact** | Year 1, 3, and 5 projected budget impact (for budget impact analyses) |
+
+This chart is particularly useful for presentations and reports where stakeholders need to compare multiple modeling assumptions at a glance.
+
+---
+
+## Budget Impact Chart
+
+For **budget impact analyses**, a dedicated chart shows the projected financial impact of adopting the new intervention over time:
+
+- **Year 1** --- immediate financial impact, typically dominated by drug acquisition costs
+- **Year 3** --- medium-term impact including offset savings from avoided events
+- **Year 5** --- long-term impact reflecting sustained adoption and outcome improvements
+
+Positive values indicate increased costs; negative values indicate net savings. The chart helps payers and health systems understand the year-by-year financial trajectory of adopting a new therapy or program.
+
+---
+
+## Value-Based Contracts
+
+The HEOR module includes a value-based contracting system for creating and simulating outcomes-linked pricing agreements. These contracts tie drug pricing to real-world outcome achievement, aligning manufacturer and payer incentives.
+
+### Contract Types
+
+| Type | How It Works | Example |
+|------|-------------|---------|
+| **Outcomes-Based** | The manufacturer provides rebates if a predefined clinical outcome is achieved beyond a baseline threshold | "If 30-day readmission rate drops below 12%, manufacturer provides a 20% rebate" |
+| **Amortized** | Payment is spread over time, linked to continued patient benefit | "Drug cost is amortized over 24 months; payment stops if the patient discontinues due to lack of response" |
+| **Warranty** | The manufacturer guarantees outcomes; if the outcome is not achieved, the manufacturer refunds the cost | "Full refund if the patient does not achieve a complete response within 6 months" |
+
+### Creating a Contract
+
+1. Navigate to **HEOR > Contracts**.
+2. Click **New Contract**.
+3. Fill in the contract parameters:
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| **Contract Name** | Yes | Descriptive name for the contract |
+| **Analysis** | Yes | Link to an existing HEOR analysis that models the therapy |
+| **Drug Name** | No | Name of the drug under contract |
+| **Contract Type** | No | Outcomes-based, amortized, or warranty |
+| **Outcome Metric** | Yes | The clinical endpoint being measured (e.g., "30-day readmission rate", "progression-free survival at 12 months") |
+| **Baseline Rate** | No | The expected outcome rate without the intervention |
+| **List Price** | No | Drug list price per unit or per course |
+| **Net Price Floor** | No | Minimum allowable net price after all rebates |
+| **Measurement Period** | No | Duration in months over which outcomes are measured |
+| **Effective Date** | No | Contract start date |
+
+### Defining Rebate Tiers
+
+For outcomes-based contracts, define tiered rebate structures that scale with outcome achievement:
+
+| Tier | Outcome Threshold | Rebate |
+|------|-------------------|--------|
+| Tier 1 | 5% improvement over baseline | 10% rebate |
+| Tier 2 | 10% improvement over baseline | 20% rebate |
+| Tier 3 | 20% improvement over baseline | 35% rebate |
+
+Tiers are evaluated in order. The highest qualifying tier determines the rebate percentage. For example, if the observed improvement is 15%, the patient qualifies for Tier 2 (20% rebate) but not Tier 3.
+
+### Rebate Simulation
+
+The rebate simulator lets you model different outcome scenarios before finalizing contract terms.
+
+**To simulate a rebate:**
+
+1. Open a contract detail page.
+2. Enter the **observed outcome rate** from your real-world data (or a hypothetical rate for scenario planning).
+3. Click **Simulate Rebate**.
+
+The simulation computes and displays:
+
+| Output | Description |
+|--------|-------------|
+| **Observed rate** | The outcome rate you entered |
+| **Baseline rate** | The contract's baseline outcome rate |
+| **Applied tier** | Which rebate tier was triggered (if any) |
+| **Rebate percentage** | The rebate percentage from the applied tier |
+| **Rebate amount** | Dollar amount of the rebate (list price times rebate percentage) |
+| **Net price** | Final price after the rebate is applied |
+
+Run multiple simulations with different observed rates to understand the range of possible financial outcomes under the contract.
+
+### Contract Status Lifecycle
+
+| Status | Meaning |
+|--------|---------|
+| **Draft** | Contract is being configured; not yet active |
+| **Active** | Contract is in effect; outcome data is being collected |
+| **Expired** | Contract measurement period has ended |
+
+---
+
+## Connecting Analyses to Contracts
+
+A typical workflow for value-based contracting:
+
+1. **Build the economic model** --- Create a cost-effectiveness analysis comparing the new therapy to the standard of care. Define cost parameters, utility values, and scenarios.
+2. **Run the analysis** --- Generate results including ICER, NMB, and budget impact.
+3. **Review visualizations** --- Use the CE plane and tornado diagram to understand the economic value proposition and parameter sensitivity.
+4. **Create the contract** --- Link the contract to the analysis, define outcome metrics and rebate tiers based on the economic model's key outcome drivers.
+5. **Simulate scenarios** --- Use the rebate simulator to model best-case, expected, and worst-case outcomes.
+6. **Monitor outcomes** --- Once the contract is active, compare real-world outcomes against the baseline and contract thresholds.
+
+:::warning Regulatory compliance
+HEOR analyses and value-based contracts produced by Parthenon are research and planning tools. Economic models used for regulatory submissions (e.g., HTA dossiers, AMCP Format submissions) require additional validation, sensitivity analyses, and expert review. Value-based contracts should be reviewed by legal, compliance, and health economics teams before execution. Consult qualified health economics methodologists for regulatory-grade deliverables.
+:::

@@ -107,17 +107,29 @@ const sidebars: SidebarsConfig = {
     {
       type: "category",
       label: "Part IX — Genomics",
-      items: ["part9-genomics/27-genomics-overview"],
+      items: [
+        "part9-genomics/27-genomics-overview",
+        "part9-genomics/27a-vcf-upload-annotation",
+        "part9-genomics/27b-analysis-tumor-board",
+      ],
     },
     {
       type: "category",
       label: "Part X — Imaging",
-      items: ["part10-imaging/28-imaging-overview"],
+      items: [
+        "part10-imaging/28-imaging-overview",
+        "part10-imaging/28a-ohif-viewer",
+        "part10-imaging/28b-timeline-response",
+      ],
     },
     {
       type: "category",
       label: "Part XI — HEOR",
-      items: ["part11-heor/29-heor-overview"],
+      items: [
+        "part11-heor/29-heor-overview",
+        "part11-heor/29a-claims-explorer",
+        "part11-heor/29b-visualizations-contracts",
+      ],
     },
     {
       type: "category",
@@ -130,7 +142,21 @@ const sidebars: SidebarsConfig = {
     {
       type: "category",
       label: "Part XIII — GIS Explorer",
-      items: ["part13-gis/31-gis-explorer"],
+      items: [
+        "part13-gis/31-gis-explorer",
+        "part13-gis/31a-contextual-layers",
+        "part13-gis/31b-spatial-analysis",
+      ],
+    },
+    {
+      type: "category",
+      label: "Part XIV — Morpheus Inpatient Data",
+      items: [
+        "part14-morpheus/32-morpheus-overview",
+        "part14-morpheus/33-morpheus-dashboard",
+        "part14-morpheus/34-morpheus-patient-journey",
+        "part14-morpheus/35-morpheus-datasets",
+      ],
     },
     {
       type: "category",

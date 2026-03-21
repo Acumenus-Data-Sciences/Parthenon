@@ -1,0 +1,218 @@
+---
+id: 27a-vcf-upload-annotation
+title: "27a. VCF Upload & ClinVar Annotation"
+sidebar_label: "27a. Upload & Annotation"
+---
+
+# VCF Upload & ClinVar Annotation
+
+This page covers the complete workflow for getting genomic variant data into Parthenon --- from uploading VCF or MAF files through ClinVar annotation to OMOP CDM import. Each stage is independent, allowing you to review and validate data before it moves to the next step.
+
+---
+
+## Uploading Genomic Data
+
+### Supported File Formats
+
+| Format | Extension | Description | Typical Source |
+|--------|-----------|-------------|----------------|
+| **VCF** | `.vcf`, `.vcf.gz` | Variant Call Format --- the standard output from sequencing pipelines | GATK, bcftools, Strelka, FreeBayes |
+| **MAF** | `.maf` | Mutation Annotation Format --- common in cancer genomics | VEP, Funcotator |
+| **cBioPortal MAF** | `.maf` | cBioPortal-flavored MAF with additional annotation columns | cBioPortal data downloads |
+| **FHIR Genomics** | `.json` | FHIR R4 Genomics resources (MolecularSequence, Observation) | EHR genomics integrations |
+
+Both **GRCh38** (hg38, current reference) and **GRCh37** (hg19, legacy) genome builds are supported. GRCh38 is the default and recommended build.
+
+### Upload via the Web Interface
+
+1. Navigate to **Genomics** from the main navigation.
+2. Click **Upload** in the toolbar.
+3. In the upload dialog, configure:
+   - **Data Source** --- select the target OMOP data source where variants will ultimately be imported
+   - **File** --- select a VCF, MAF, or FHIR Genomics file from your computer
+   - **File Format** --- choose the matching format (`vcf`, `maf`, `cbio_maf`, or `fhir_genomics`)
+   - **Genome Build** --- GRCh38 (default) or GRCh37
+   - **Sample ID** --- optional external sample identifier for linking to clinical data
+4. Click **Upload**.
+
+### File Size and Processing
+
+- Files under **10 MB** are parsed synchronously --- you will see variants appear immediately after upload.
+- Files between **10 MB and 200 MB** are queued for background processing via Laravel Horizon. You can close the page and return later; the upload status will update automatically.
+- The maximum upload size is **200 MB**.
+
+### Batch Upload via CLI
+
+For high-throughput environments processing many samples, use the Artisan command:
+
+```bash
+php artisan genomics:upload \
+  --source=my_source \
+  --format=vcf \
+  --build=GRCh38 \
+  /path/to/samples/*.vcf.gz
+```
+
+This processes all matching files in a single batch, which is significantly faster than individual web uploads when you have dozens or hundreds of samples.
+
+---
+
+## Upload Status Lifecycle
+
+Each upload progresses through a defined status sequence:
+
+| Status | What It Means | What to Do |
+|--------|---------------|------------|
+| `pending` | File received, waiting to be parsed | Wait for processing to begin |
+| `parsing` | The VCF/MAF parser is extracting variants from the file | Wait for parsing to complete |
+| `mapped` | Variants extracted successfully, ready for annotation and person matching | Proceed to ClinVar annotation or person matching |
+| `review` | Some variants have ambiguous mappings and need manual review | Review flagged variants on the upload detail page |
+| `imported` | Variants successfully written to the OMOP measurement table | Complete --- variants are now available in the CDM |
+| `failed` | An error occurred during parsing or import | Check the error message on the upload detail page |
+
+---
+
+## Upload Detail Page
+
+After an upload completes parsing, the upload detail page shows:
+
+- **Upload metadata** --- file name, format, genome build, sample ID, status, variant counts
+- **Variant table** --- paginated list of all parsed variants with chromosome, position, gene, HGVS notation, consequence, quality, and mapping status
+- **Action buttons** --- available actions depend on the current status:
+  - **Annotate with ClinVar** --- match variants against the local ClinVar database
+  - **Match Persons** --- link variants to OMOP person records
+  - **Import to OMOP** --- write matched variants into the CDM measurement table
+
+---
+
+## ClinVar Annotation
+
+ClinVar is NCBI's public archive of clinically relevant genetic variants with their interpretations. Parthenon maintains a local copy of ClinVar data and uses it to annotate uploaded variants with clinical significance classifications.
+
+### Syncing the ClinVar Database
+
+Before annotating uploads, the local ClinVar cache must be populated:
+
+1. Navigate to **Genomics > ClinVar** in the navigation.
+2. Click **Sync ClinVar** to begin downloading from NCBI's FTP server.
+3. Choose a sync mode:
+   - **Full sync** --- downloads all ClinVar variants. This is a large dataset and takes longer but provides the most comprehensive coverage.
+   - **PAPU only** --- downloads only Pathogenic, Likely Pathogenic, and Variants of Uncertain Significance. Faster and smaller, but excludes benign variants.
+
+The sync status panel displays:
+
+| Metric | Description |
+|--------|-------------|
+| **Total ClinVar variants** | Number of variants in the local cache |
+| **Pathogenic count** | Variants classified as pathogenic or likely pathogenic |
+| **Last sync date** | When the cache was last updated from NCBI |
+| **Sync history** | Log of recent sync operations with status, counts, and duration |
+
+You can also sync via the command line:
+
+```bash
+# Full sync
+php artisan genomics:sync-clinvar
+
+# PAPU only (faster)
+php artisan genomics:sync-clinvar --papu-only
+```
+
+:::tip Update frequency
+ClinVar is updated weekly by NCBI. For active clinical genomics workflows, schedule monthly syncs to keep your local cache current. Stale ClinVar data may miss newly classified pathogenic variants or reclassifications.
+:::
+
+### Annotating an Upload
+
+After ClinVar is synced, annotate a specific upload:
+
+1. Open the upload detail page.
+2. Click **Annotate with ClinVar**.
+3. Parthenon matches each variant by chromosome, position, reference allele, and alternate allele against the local ClinVar cache.
+4. Matching variants receive:
+   - **ClinVar ID** --- the ClinVar variation identifier
+   - **ClinVar Significance** --- clinical significance classification (pathogenic, likely pathogenic, uncertain significance, likely benign, benign)
+   - **Is Pathogenic** --- boolean flag (true for pathogenic or likely pathogenic)
+
+After annotation, the variant browser highlights pathogenic and likely pathogenic variants, making it easy to identify clinically actionable findings.
+
+---
+
+## Person Matching
+
+Before variants can be imported into the OMOP CDM, they must be linked to person records. The `PersonMatcherService` attempts to match variants to OMOP persons using available identifiers.
+
+### Matching Workflow
+
+1. On the upload detail page, click **Match Persons**.
+2. The matcher queries the CDM for person records that correspond to the upload's sample ID, patient identifier, or other linking fields.
+3. Results show:
+   - Number of variants matched to a person
+   - Number of variants unmatched (no corresponding person found)
+
+If automatic matching fails, you can manually assign a person ID to the upload, which applies to all variants in that upload.
+
+---
+
+## OMOP CDM Import
+
+The final step writes matched variants into the OMOP `measurement` table, making them queryable alongside all other clinical data.
+
+### What Gets Written
+
+Each variant is stored as a measurement record with:
+
+| OMOP Field | Source |
+|------------|--------|
+| `measurement_concept_id` | Mapped to appropriate genomics measurement concepts |
+| `person_id` | From person matching |
+| `measurement_date` | Sample collection date (from upload metadata) |
+| `value_source_value` | HGVS notation or variant description |
+| Source value fields | Original chromosome, position, reference/alternate alleles |
+
+### Import Results
+
+After import, the system reports:
+
+- **Variants written** --- successfully imported into the measurement table
+- **Variants skipped** --- no person match available
+- **Errors** --- constraint violations or other issues
+
+Once imported, genomic variants are available for:
+
+- Querying in the **Variant Browser** with filters by gene, chromosome, significance, and more
+- Building **genomic cohorts** using criteria like specific gene mutations, TMB thresholds, or MSI status
+- Running **genomic analyses** (survival, treatment-variant matrix, characterization)
+- Reviewing on the **Tumor Board** dashboard
+
+---
+
+## Variant Browser
+
+The variant browser (accessible from the main Genomics page) provides a searchable, filterable table of all parsed variants across all uploads.
+
+### Available Filters
+
+| Filter | Description |
+|--------|-------------|
+| **Gene** | Filter by gene symbol (supports partial match, e.g., "EGF" matches EGFR) |
+| **Chromosome** | Select one or more chromosomes (1--22, X, Y, MT) |
+| **Clinical Significance** | Pathogenic, Likely Pathogenic, VUS, Benign, Likely Benign |
+| **Mapping Status** | Mapped (linked to OMOP), Unmapped, Review |
+| **Quality** | Minimum variant call quality score threshold |
+| **Upload** | Variants from a specific upload batch |
+| **Data Source** | Variants from a specific OMOP data source |
+
+### Variant Record Fields
+
+Each variant in the browser displays:
+
+- **Genomic coordinates** --- chromosome, position, reference and alternate alleles
+- **Gene and consequence** --- gene symbol, HGVS coding and protein notation, functional consequence (missense, nonsense, frameshift, etc.)
+- **Quality metrics** --- variant call quality score, zygosity, allele frequency, read depth
+- **Clinical annotations** --- ClinVar ID, ClinVar significance, COSMIC ID (if available)
+- **Status** --- mapping status (mapped, unmapped, review)
+
+:::warning Research use disclaimer
+The genomics module is designed for research and quality improvement. It is not a validated clinical diagnostic tool. All clinical decisions should be made in consultation with qualified medical geneticists using validated clinical-grade sequencing and interpretation pipelines.
+:::

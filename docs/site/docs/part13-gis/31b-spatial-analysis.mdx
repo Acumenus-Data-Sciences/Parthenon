@@ -1,0 +1,174 @@
+---
+id: 31b-spatial-analysis
+title: "31b. Spatial Analysis & Time Animation"
+sidebar_label: "31b. Spatial Analysis & Timeline"
+---
+
+# Spatial Analysis & Time Animation
+
+Beyond static choropleth maps, the GIS Explorer provides temporal analysis tools that animate how health metrics change across regions over time, and spatial analysis capabilities that quantify geographic patterns in health outcomes.
+
+---
+
+## Time Slider and Animation
+
+The **Time Slider** lets you observe how geographic health patterns evolve across time periods. Instead of viewing a single aggregate snapshot, you can step through monthly or quarterly windows to watch disease prevalence, utilization, or other metrics shift across regions.
+
+### Using the Time Slider
+
+1. In the GIS Explorer, ensure you have selected a **metric** and **data source** in the Layer Controls.
+2. The Time Slider appears below the layer controls (if temporal data is available for the selected condition).
+3. The slider shows the available time range from earliest to latest data period.
+4. Use the controls:
+
+| Control | Action |
+|---------|--------|
+| **Play** | Automatically advance through time periods at 0.8-second intervals |
+| **Pause** | Stop the animation at the current period |
+| **Skip Back** | Reset to "All time" (aggregate view) |
+| **Skip Forward** | Advance to the next time period |
+| **Drag slider** | Jump directly to any time period |
+
+The current time period is displayed in gold text (e.g., "Mar 2024"). The start and end dates of the available range appear at the slider endpoints.
+
+### What Changes During Animation
+
+As you step through time periods:
+
+- The **choropleth colors** update to reflect metric values for that specific period
+- The **legend scale** may adjust to the min/max values of the current period
+- **Tooltip values** show period-specific data when you hover over regions
+- The **detail panel** (when a region is selected) shows period-specific metrics
+
+### Research Applications
+
+The time animation is particularly useful for:
+
+- **Epidemic tracking** --- Watch how disease prevalence or case counts spread geographically over time
+- **Seasonal patterns** --- Identify conditions with seasonal geographic variation (e.g., flu, respiratory infections)
+- **Intervention impact** --- Observe whether a public health intervention in a specific region produces measurable changes in subsequent time periods
+- **Trend identification** --- Spot regions where metrics are consistently worsening or improving over time
+
+:::tip Presentation mode
+The animation feature is valuable for presentations and stakeholder meetings. Set the map to a full viewport, enable the relevant layers, select a condition, and press Play to show a compelling geographic narrative of how health patterns evolved over a study period.
+:::
+
+---
+
+## Disease-Focused Spatial Analysis
+
+The GIS Explorer includes a **Disease Selector** that focuses the entire map view on a specific condition from the OMOP CDM vocabulary.
+
+### Selecting a Disease
+
+1. Open the **Disease Selector** panel in the GIS controls.
+2. Search for or browse conditions by concept name or concept ID.
+3. Select a condition (e.g., "Type 2 diabetes mellitus", concept 201826).
+4. The map, choropleth metrics, time slider, and all active layers update to reflect data specific to that condition.
+
+### Disease Summary Bar
+
+When a disease is selected, a summary bar appears showing key population-level statistics:
+
+- Total patients with the condition
+- Geographic spread (number of regions with at least one case)
+- Prevalence rate across the dataset
+- Time period coverage
+
+This provides immediate context for interpreting the geographic distribution shown on the map.
+
+---
+
+## Regional Detail Panel
+
+Clicking any region on the map opens a **detail panel** on the right side with comprehensive information about that area.
+
+### Panel Contents
+
+| Section | Description |
+|---------|-------------|
+| **Region identity** | Region name, parent region, administrative level, area |
+| **Core metrics** | All choropleth metric values for the selected region (patient count, condition count, average age, visits, drug exposures, measurements) |
+| **Layer-specific data** | Each active contextual layer adds its own section with SVI scores, RUCC classification, air quality, etc. |
+| **Child regions** | Count and list of sub-regions available for drill-down |
+
+### Drill-Down Navigation
+
+From the detail panel, click **"Drill Down"** to:
+
+1. Zoom the map to fit the selected region
+2. Switch the admin level to the next lower level (e.g., from ADM1/state to ADM2/county)
+3. Display child regions within the parent
+
+This hierarchical navigation lets you start with a national overview and progressively focus on smaller areas of interest.
+
+### Research Actions
+
+Two action buttons at the bottom of the detail panel connect geographic exploration to research workflows:
+
+| Button | Action |
+|--------|--------|
+| **Create Study for [Region]** | Opens the New Study form with the region name and bounding box pre-filled as a geographic constraint |
+| **Browse Cohorts in Region** | Opens the Cohort Definitions list filtered to cohorts whose patients have location records intersecting the selected region |
+
+These shortcuts eliminate the manual step of defining geographic boundaries when transitioning from geographic exploration to formal research.
+
+---
+
+## Composite Legend
+
+When multiple layers are active, the **Composite Legend** in the bottom-right corner of the map shows all active layer scales in a stacked view:
+
+- **Gradient legends** show the color ramp for continuous metrics (e.g., choropleth metric values, SVI scores)
+- **Category legends** show color codes for categorical data (e.g., RUCC metro/micro/rural classification)
+- **Circle legends** show size-coded markers (e.g., hospital facility locations)
+
+Each legend item includes the layer name and the value range or category labels. The legend updates dynamically as layers are toggled on and off.
+
+---
+
+## Working with Location Data
+
+The GIS Explorer's spatial capabilities depend on the quality of location data in your OMOP CDM. Two GIS-specific tables in the `gis` schema enhance standard OMOP location data:
+
+### Location History
+
+The `gis.location_history` table tracks where patients lived over time, enabling time-windowed spatial queries:
+
+- **Who lived in this region during a specific study period?**
+- **How many patients migrated between regions during their observation period?**
+- **What is the disease prevalence in this region during Q3 2024?**
+
+Without location history, the GIS Explorer uses the current location from the CDM `location` table, which represents a point-in-time snapshot rather than a longitudinal record.
+
+### External Exposures
+
+The `gis.external_exposure` table records environmental or contextual exposures derived from geospatial data (e.g., air quality measurements, flood zone classifications, heat index values). These are linked to patients via their location history, enabling exposure-outcome analyses that combine environmental data with clinical outcomes from the CDM.
+
+### Location Criteria in the Cohort Builder
+
+Geographic regions identified in the GIS Explorer can be saved as **Location Criteria** for use in the Cohort Builder:
+
+1. Select a region in the GIS Explorer.
+2. Note the `boundary_gid` value from the detail panel.
+3. In the Cohort Builder, add a **Location** criterion and paste the `boundary_gid`.
+4. The cohort will automatically include only patients whose location history intersects that boundary.
+
+This allows you to build cohorts that are geographically scoped --- for example, "Patients with Type 2 Diabetes who resided in Cook County, IL during their observation period."
+
+---
+
+## Data Privacy Considerations
+
+Geographic analysis at fine administrative levels (ADM4/ADM5) can increase re-identification risk, particularly in sparsely populated areas where small cell counts may allow patients to be identified.
+
+Recommendations:
+
+- Use **ADM0--ADM2** (country, state, county) for routine analyses
+- Reserve **ADM3--ADM5** (sub-district, municipality, settlement) for specific investigations with appropriate data governance approval
+- Configure **minimum cell size thresholds** in **Administration > GIS Settings** if required by your data use agreement
+- Follow your institution's data governance policies before sharing region-level analyses, particularly at sub-district granularity
+
+:::warning Re-identification risk
+The GIS Explorer does not apply k-anonymity suppression by default. In geographic areas with very few patients, the combination of condition, demographics, and precise location may be sufficient to identify individuals. Apply appropriate cell size suppression before sharing results, especially when working with rare diseases or small populations.
+:::

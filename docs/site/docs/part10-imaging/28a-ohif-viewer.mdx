@@ -1,0 +1,142 @@
+---
+id: 28a-ohif-viewer
+title: "28a. OHIF Viewer & DICOM Viewing"
+sidebar_label: "28a. OHIF Viewer"
+---
+
+# OHIF Viewer & DICOM Viewing
+
+Parthenon integrates the [OHIF Viewer](https://ohif.org/) --- an open-source, zero-footprint DICOM viewer --- directly into the imaging module. This provides clinical-grade image viewing, annotation, and measurement capabilities without requiring any desktop software installation.
+
+## How the Viewer Works
+
+The OHIF Viewer runs as a static web application served by nginx at `/ohif/`. It reads DICOM image data from Orthanc (a DICOM server) via the DICOMweb protocol, proxied through `/orthanc/`. When you open a study in Parthenon, the viewer is embedded as an iframe pointed at the specific Study Instance UID.
+
+```
+Parthenon Study Page  -->  OHIF Viewer (iframe)  -->  Orthanc (DICOMweb)  -->  DICOM files
+```
+
+The viewer loads automatically when you navigate to a study detail page and click **Open in Viewer** or access the viewer tab.
+
+---
+
+## Viewing Tools
+
+The OHIF Viewer provides a full suite of clinical image viewing tools:
+
+| Tool | Description | How to Use |
+|------|-------------|------------|
+| **Window/Level** | Adjust image brightness and contrast. For CT images, this adjusts Hounsfield unit windowing. | Left-click and drag on the image |
+| **Zoom** | Magnify or shrink the image view | Scroll wheel |
+| **Pan** | Move the image within the viewport | Middle-click and drag |
+| **Scroll through slices** | Navigate through individual slices in a series (axial, sagittal, or coronal) | Scroll wheel over the image |
+| **Length measurement** | Draw a straight line between two points to measure distance in millimeters | Select the Length tool from the toolbar |
+| **Angle measurement** | Measure the angle between three points | Select the Angle tool from the toolbar |
+| **Elliptical ROI** | Draw an ellipse to measure area, mean density (HU), and standard deviation | Select the Ellipse tool |
+| **Bidimensional** | Measure longest and perpendicular diameters (used for RECIST) | Select the Bidimensional tool |
+| **Reset viewport** | Return to the original window/level, zoom, and pan settings | Click Reset in the toolbar |
+| **Full screen** | Expand the viewer to fill the browser window | Click the Expand button |
+
+:::tip Preset windows for CT
+For CT imaging, the OHIF toolbar includes preset window/level settings for common tissue types: Lung (-600/1500), Bone (400/1800), Soft Tissue (40/400), Brain (40/80), and Liver (80/160). These presets help you quickly optimize visibility for different anatomical structures.
+:::
+
+---
+
+## Measurement Bridge
+
+One of Parthenon's key integrations is the **Measurement Bridge** --- a communication layer between the OHIF Viewer and Parthenon's imaging measurement database. When you take measurements in OHIF (lengths, areas, bidimensional measurements, ROI statistics), those measurements can be saved directly into Parthenon for use in treatment response assessment, trend analysis, and cohort criteria.
+
+### How It Works
+
+1. A small JavaScript bridge (`ohif-bridge.js`) is injected into the OHIF Viewer.
+2. When you draw a measurement in OHIF, the bridge sends the measurement data to Parthenon via the browser's `postMessage` API.
+3. A **"Save N measurement(s)"** button appears in the top-right corner of the embedded viewer.
+4. Click the button to persist all pending measurements to Parthenon's database.
+
+### What Gets Saved
+
+Each measurement captured from OHIF is stored with:
+
+| Field | Description |
+|-------|-------------|
+| **Measurement type** | Automatically determined from the OHIF tool used (longest diameter, tumor volume, density HU) |
+| **Value** | Numeric measurement value (length in mm, area in mm2, density in HU) |
+| **Unit** | Unit of measurement |
+| **Algorithm name** | Recorded as `ohif-viewer` to distinguish from automated measurements |
+| **Confidence** | Set to 1.0 for manual measurements |
+
+### Bridge Status Indicator
+
+A small green indicator labeled **"Bridge"** appears in the top-right corner of the viewer when the measurement bridge is connected and ready. If this indicator does not appear, the viewer may still be loading or the bridge script may not have initialized.
+
+---
+
+## Study Comparison Viewer
+
+For treatment response assessment, Parthenon provides a **side-by-side comparison viewer** that displays two studies simultaneously --- typically a baseline and a follow-up examination.
+
+### Opening the Comparison View
+
+1. Navigate to a patient's imaging timeline (see [Patient Timeline & Response Assessment](./28b-timeline-response)).
+2. Select two studies to compare (baseline and follow-up).
+3. The comparison viewer opens with two OHIF instances side by side.
+
+### Comparison Features
+
+| Feature | Description |
+|---------|-------------|
+| **Side-by-side layout** | Two OHIF viewers displayed in a 50/50 split |
+| **Stacked layout** | Switch to a vertical arrangement for portrait-oriented screens |
+| **Swap** | Reverse the left/right (or top/bottom) positions of the two studies |
+| **Interval display** | The header shows the number of days between the two study dates |
+| **Independent tools** | Each viewer operates independently --- you can use different window/level settings on each |
+| **Measurement on both** | Take measurements on both studies and save them to Parthenon via the bridge |
+
+The comparison viewer is particularly useful for:
+
+- **RECIST assessment** --- measuring target lesions at baseline and follow-up to determine treatment response
+- **Surgical planning** --- comparing pre- and post-operative imaging
+- **Disease progression monitoring** --- visually assessing changes over time
+
+### Study Labels
+
+Each viewer pane is labeled with:
+
+- **Baseline** or **Follow-up** designation (color-coded blue and teal)
+- Imaging modality (CT, MR, etc.)
+- Study description or body part
+- Study date
+
+---
+
+## Expanding to a New Tab
+
+If the embedded viewer feels constrained, click the **Expand** link in the top-right corner to open OHIF in a full browser tab. In expanded mode, you have access to the complete OHIF interface including:
+
+- Multi-viewport layouts (2x2, 1x2, etc.)
+- MPR (multiplanar reconstruction) for volumetric datasets
+- Hanging protocol selection
+- Full measurement and annotation toolsets
+
+:::info Measurements in expanded mode
+Measurements taken in the expanded (new tab) mode are **not** captured by the Parthenon bridge, since the bridge communicates via the iframe's `postMessage` channel. For measurements that need to be saved to Parthenon, use the embedded viewer.
+:::
+
+---
+
+## WADO-RS Endpoint
+
+Behind the scenes, the viewer retrieves DICOM images through Parthenon's WADO-URI endpoint:
+
+```
+GET /api/v1/imaging/wado/{sopInstanceUid}
+```
+
+This endpoint streams the raw DICOM file with `Content-Type: application/dicom`. The endpoint requires authentication (`auth:sanctum`) to ensure that medical images are not publicly accessible.
+
+For large studies with hundreds of images, the viewer loads slices progressively as you scroll. The first slice appears immediately, and subsequent slices stream in the background. Browser caching prevents re-downloading images on repeat views of the same study.
+
+:::warning DICOM data privacy
+DICOM files may contain patient-identifying information embedded in the DICOM headers (patient name, date of birth, medical record number). Ensure your DICOM files are appropriately de-identified before importing into research environments. Parthenon does not automatically strip PHI-containing DICOM tags during import.
+:::

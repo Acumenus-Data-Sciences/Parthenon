@@ -1,0 +1,141 @@
+---
+id: 29a-claims-explorer
+title: "29a. Claims Explorer"
+sidebar_label: "29a. Claims Explorer"
+---
+
+# Claims Explorer
+
+The **Claims Explorer** provides a searchable, faceted interface for investigating healthcare claims data within Parthenon. It enables health economics researchers to search across claims records, filter by status, type, diagnosis, and place of service, and view aggregate financial statistics --- all within the same platform used for OMOP CDM research.
+
+---
+
+## Accessing the Claims Explorer
+
+1. Navigate to **HEOR** from the main navigation.
+2. Select the **Claims** tab.
+3. The Claims Explorer loads with all available claims data.
+
+If the Solr claims core has been indexed, the explorer uses Solr-accelerated full-text search with faceted navigation. A teal **"Solr-accelerated"** badge appears next to the search description when Solr is active. If Solr is not available, the explorer falls back to database queries.
+
+:::info Indexing claims for search
+To enable Solr-powered claims search, an administrator must run:
+```bash
+php artisan solr:index-claims
+```
+This indexes claims data into the Solr `claims` core, enabling full-text search, faceted filtering, and real-time statistical aggregations. Without this step, the Claims Explorer will display an informational message indicating that the Solr claims core is not available.
+:::
+
+---
+
+## Search and Filtering
+
+### Full-Text Search
+
+The search bar at the top of the explorer accepts free-text queries across:
+
+- Patient names and identifiers
+- Diagnosis codes and descriptions
+- Procedure codes
+- Clinical notes associated with claims
+
+Type your search terms and press **Enter** or click **Search**. Results update immediately with matching claims.
+
+### Faceted Filters
+
+The left sidebar provides drill-down filters that narrow results across multiple dimensions simultaneously. Available facets:
+
+| Facet | Description | Examples |
+|-------|-------------|---------|
+| **Status** | Claim processing status | Paid, Submitted, Denied, Pending, Appealed, Adjusted |
+| **Claim Type** | Type of healthcare claim | Professional, Institutional, Pharmacy, Dental |
+| **Place of Service** | Where the service was rendered | Office, Inpatient Hospital, Emergency Room, Outpatient Hospital |
+| **Diagnosis (Top 20)** | Most common diagnosis codes in the result set | Sorted by frequency, showing the 20 most prevalent diagnoses |
+
+Each facet value shows a count of matching claims. Click a value to filter by it; click again (or click **Clear**) to remove the filter. Multiple facets can be active simultaneously --- they combine with AND logic.
+
+### Additional Filter Options
+
+The Claims Explorer also supports filtering by:
+
+- **Date range** --- restrict to claims within a specific service date window
+- **Charge range** --- minimum and/or maximum charge amounts
+- **Outstanding balance** --- show only claims with unpaid balances
+
+To clear all active filters at once, click the **Clear** button next to the search bar.
+
+---
+
+## Financial Statistics Cards
+
+When claims data is loaded, four summary cards appear above the results showing aggregate financial metrics for the current filtered result set:
+
+| Card | Description |
+|------|-------------|
+| **Total Charges** | Sum of all charge amounts across matching claims, with total claim count |
+| **Avg Charge** | Mean charge per claim, with the min--max range shown below |
+| **Total Payments** | Sum of all payment amounts, with average payment per claim |
+| **Outstanding** | Sum of unpaid balances. Displayed in red when outstanding amounts exist; teal when fully resolved |
+
+These statistics update dynamically as you apply or remove filters, giving you immediate financial context for any subset of claims.
+
+---
+
+## Claims Table
+
+The main results table displays individual claim records with the following columns:
+
+| Column | Description |
+|--------|-------------|
+| **Patient** | Patient name and identifier |
+| **Date** | Service date |
+| **Type** | Claim type (professional, institutional, pharmacy, etc.) |
+| **Status** | Color-coded processing status badge |
+| **Diagnosis** | Primary and secondary diagnosis names (up to 2 shown, with "+N more" for additional) |
+| **Charge** | Total charge amount (gold) |
+| **Payment** | Total payment amount (teal) |
+| **Outstanding** | Unpaid balance (red if positive) |
+| **Txns** | Number of individual transactions within the claim |
+
+### Claim Status Colors
+
+Each claim status is color-coded for quick visual scanning:
+
+| Status | Color |
+|--------|-------|
+| Paid | Teal |
+| Submitted | Blue |
+| Denied | Red |
+| Pending | Amber |
+| Appealed | Purple |
+| Adjusted | Gold |
+
+### Pagination
+
+Results are paginated at 25 claims per page. Use the page controls at the top-right of the results table to navigate between pages. The total number of matching claims is displayed alongside the current page position.
+
+---
+
+## Research Use Cases
+
+The Claims Explorer supports several health economics research workflows:
+
+- **Cost of illness studies** --- Search for claims related to a specific diagnosis, then review aggregate charge and payment statistics to estimate disease cost burden
+- **Denial analysis** --- Filter by "Denied" status to identify patterns in claim denials by diagnosis, provider, or place of service
+- **Place of service migration** --- Compare claim volumes and costs across settings (e.g., inpatient vs. outpatient) for the same procedures
+- **Revenue cycle analysis** --- Filter for claims with outstanding balances to quantify unpaid amounts by age, diagnosis, or claim type
+- **Payer mix analysis** --- Use claim type facets to understand the distribution of professional vs. institutional vs. pharmacy claims
+
+### Connecting to HEOR Analyses
+
+Insights from the Claims Explorer can inform HEOR analysis parameters. For example:
+
+1. Use the Claims Explorer to determine the average hospitalization cost for a specific condition.
+2. Enter that value as a **Hospitalization** cost parameter in an HEOR cost-effectiveness analysis.
+3. Use the min/max range from the claims statistics as the sensitivity analysis bounds.
+
+This data-driven approach to parameterizing economic models ensures that your analyses reflect the actual cost experience in your patient population rather than relying solely on published literature estimates.
+
+:::tip Combining with OMOP CDM data
+Claims data indexed in Solr complements the OMOP CDM data in PostgreSQL. While the CDM provides standardized clinical events (conditions, procedures, drug exposures), the claims data adds financial dimensions (charges, payments, adjustments) and administrative context (claim status, place of service) that are essential for health economics research.
+:::

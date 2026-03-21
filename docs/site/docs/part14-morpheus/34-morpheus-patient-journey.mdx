@@ -1,0 +1,137 @@
+---
+id: 34-morpheus-patient-journey
+title: "34. Patient Journey"
+sidebar_label: "34. Patient Journey"
+---
+
+# Patient Journey
+
+The **Patient Journey** view is a two-level interface: a filterable patient list for finding patients of interest, and a detailed clinical timeline for reviewing an individual patient's complete inpatient history.
+
+## Patient List
+
+When you open the Patient Journey tab without selecting a specific patient, you see a sortable table of all patients in the current dataset.
+
+### Columns
+
+| Column | Description |
+|--------|-------------|
+| **Subject ID** | Unique patient identifier. Click any row to open that patient's journey. |
+| **Gender** | Male, Female, or other. |
+| **Age (anchor)** | Patient's age at anchor year (the reference year for de-identification). |
+| **Year Group** | Anchor year range (for example, 2017--2019). |
+| **Admissions** | Total number of hospital admissions. |
+| **ICU Stays** | Number of ICU stays. Highlighted in crimson when greater than zero. |
+| **Total LOS** | Cumulative hospital length of stay in days across all admissions. |
+| **Longest ICU** | Duration of the longest single ICU stay in days. |
+| **Primary Dx** | Primary diagnosis from the most recent admission. |
+| **Deceased** | Whether the patient has a recorded date of death. |
+
+All columns with numeric or categorical values are sortable. Click a column header to sort ascending; click again to sort descending. An arrow indicator shows the current sort direction.
+
+### Filtering
+
+The **Filter Bar** at the top of the patient list provides several filters that can be combined:
+
+- **ICU** -- Toggle between All, Yes (ICU patients only), or No (non-ICU patients only)
+- **Mortality** -- Toggle between All, Survived, or Deceased
+- **LOS** -- Enter minimum and/or maximum length of stay in days to find patients with short or extended hospitalizations
+- **Clinical > Diagnosis** -- Expand the clinical filter section to search by ICD code or diagnosis description. Type a search term and press Enter to filter.
+
+Active filters are shown with a count badge. Click **Clear all** to reset all filters. The result count (for example, "Showing 47 of 382 patients") updates in real time.
+
+:::tip Combining filters
+Filters are cumulative. For example, setting ICU to "Yes", Mortality to "Deceased", and LOS minimum to 7 will show only ICU patients who died during a hospitalization lasting at least 7 days.
+:::
+
+### Searching
+
+Use the **Search** dropdown above the patient list to find a specific patient by Subject ID. The search provides type-ahead suggestions as you type. Select a result to navigate directly to that patient's journey.
+
+### Exporting
+
+Click the **Export** button next to the search field to download the current patient list as a CSV file. The export respects the active filters, so you receive only the patients currently displayed.
+
+## Individual Patient Journey
+
+Click any patient row to open their detailed clinical journey. The view displays a rich, multi-domain clinical record organized into tabs.
+
+### Event Count Bar
+
+At the top of the patient detail view, a horizontal bar displays the total number of events across clinical domains (diagnoses, prescriptions, lab results, vitals, microbiology). Click any domain segment to jump directly to its corresponding tab.
+
+### Admission Picker
+
+If the patient has multiple hospital admissions, the **Admission Picker** lets you scope the view to a single admission or view data across all admissions. Each admission shows its ID, date range, admission type, length of stay, discharge location, and an indicator if the patient expired during that admission.
+
+### View Tabs
+
+Six tabs organize the patient's clinical data:
+
+#### Journey
+
+The default view providing a longitudinal summary of the patient's inpatient experience:
+
+- **Location Track** -- A visual timeline showing the patient's physical path through the hospital: admission, ward transfers, ICU stays, and discharge. Each segment is color-coded by care unit with duration labels.
+- **Medication Timeline** -- A Gantt-style chart showing all medications administered during the hospitalization, with start and stop times, drug names, routes, and dosages.
+- **Top Diagnoses** -- A compact tag cloud of the patient's diagnosis codes (ICD) with descriptions, showing up to 15 diagnoses with a count of additional diagnoses if more exist.
+- **Admissions Summary** -- A list of all hospital admissions with date ranges, admission type, length of stay, discharge location, and mortality indicator.
+
+#### Diagnoses
+
+A grouped and structured view of all diagnoses recorded for the patient. Diagnoses are organized hierarchically and display ICD codes, descriptions, and mapped OMOP standard concept names when available. Click any diagnosis to open the **Concept Detail Drawer**, which shows the OMOP concept mapping, population prevalence, and related metadata.
+
+#### Medications
+
+A detailed medication timeline showing all prescribed medications with:
+- Drug name, type, and route of administration
+- Dosage (value and unit)
+- Start and stop times
+- Visual timeline bars showing overlapping medications
+
+Click any medication to open the Concept Detail Drawer with drug details, dosing information, and occurrence count.
+
+#### Labs
+
+An interactive **Lab Panel Dashboard** that organizes laboratory results into clinically meaningful panels (for example, Basic Metabolic Panel, Complete Blood Count, Liver Function Tests, Coagulation). Each panel displays:
+
+- Individual lab test results with values, units, and reference ranges
+- **Sparkline charts** showing the trend of each lab value over time
+- Flagged results (abnormal high or low) highlighted for quick identification
+
+If the number of lab results exceeds the display limit, a **Truncation Warning** appears indicating how many results are loaded versus the total available.
+
+Click the **Export** button to download all lab results as a CSV file.
+
+#### Vitals
+
+A **Vitals Monitor Grid** presenting vital sign measurements in a clinical monitor layout. Vital types include:
+
+- Heart rate
+- Blood pressure (systolic and diastolic)
+- Respiratory rate
+- Temperature
+- SpO2 (oxygen saturation)
+
+Each vital displays its most recent value, unit of measurement, and a time-series chart showing the trend across the hospitalization or ICU stay.
+
+Click the **Export** button to download all vitals data as a CSV file.
+
+#### Microbiology
+
+A two-section microbiology view:
+
+- **Antibiogram** -- A heatmap showing organism-antibiotic susceptibility patterns. Rows represent organisms, columns represent antibiotics, and cells are color-coded by interpretation (Susceptible, Intermediate, Resistant). Click any organism to view its OMOP concept mapping in the detail drawer.
+- **Culture Results** -- A table listing all microbiology culture results with specimen type, test name, organism isolated, antibiotic tested, interpretation, and dilution values.
+
+Click the **Export** button to download all microbiology data as a CSV file.
+
+### Concept Detail Drawer
+
+Across all tabs, clicking a clinical concept (diagnosis, medication, lab test, or organism) opens a slide-out drawer providing:
+
+- **OMOP concept mapping** -- The mapped standard concept ID and name from the OMOP vocabulary
+- **Source code and vocabulary** -- The original source code (for example, ICD-10, NDC, LOINC)
+- **Population context** -- How many patients in the dataset have this concept, expressed as a count and percentage
+- **Statistical summary** -- For measurement concepts, the mean and median values across the population
+- **Link to Vocabulary Browser** -- A direct link to explore the concept further in the Parthenon Vocabulary Browser

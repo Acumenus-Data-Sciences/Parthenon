@@ -1,0 +1,56 @@
+---
+id: 32-morpheus-overview
+title: "32. Morpheus Inpatient Data"
+sidebar_label: "32. Morpheus Overview"
+---
+
+# Morpheus Inpatient Data
+
+The **Morpheus** module provides a dedicated workspace for exploring inpatient clinical data at both population and individual-patient levels. It is designed for clinical researchers, quality improvement teams, and data engineers who need to analyze hospital admissions, ICU utilization, laboratory results, medications, vitals, and microbiology data without writing SQL.
+
+## Why Morpheus
+
+Traditional OHDSI tools like Atlas and Achilles focus on standardized OMOP CDM data at an aggregate level. Morpheus complements these tools by exposing the granular, event-level detail that inpatient research demands -- ICU transfer sequences, antibiograms, vital sign time series, and medication administration timelines. It provides an interactive, visual interface over data that would otherwise require complex ad-hoc queries.
+
+## Supported Data Sources
+
+Morpheus operates on **datasets** -- registered inpatient data sources that are schema-isolated within the Parthenon database. Each dataset maps to a PostgreSQL schema containing inpatient clinical tables.
+
+Currently supported source types include:
+
+- **MIMIC-IV** -- The MIT Lab for Computational Physiology's Medical Information Mart for Intensive Care, version IV. Contains de-identified ICU and hospital data from Beth Israel Deaconess Medical Center.
+- **Epic EHR exports** -- Structured exports from Epic electronic health record systems, mapped to the Morpheus inpatient schema.
+- **Additional EHR systems** -- Cerner, Meditech, and other EHR exports can be onboarded by mapping to the Morpheus schema format.
+
+The active dataset is selected using the **Dataset Selector** dropdown in the Morpheus header bar. When multiple datasets are registered, the selector shows each dataset name along with its patient count. All dashboard metrics, patient lists, and clinical detail views update automatically when you switch datasets.
+
+## Key Capabilities
+
+### Population Dashboard
+
+An aggregate overview of the entire inpatient population in the selected dataset. Six key performance indicator (KPI) cards summarize total patients, total admissions, ICU admission rate, mortality rate, average length of stay, and average ICU length of stay. Below the KPIs, interactive charts display admission volume trends, mortality trends, demographic breakdowns, length-of-stay distributions, top diagnoses and procedures, mortality by admission type, and ICU utilization by care unit. See [Chapter 33 -- Dashboard](33-morpheus-dashboard) for details.
+
+### Patient Journey
+
+A patient-level clinical review tool. Browse, search, and filter the patient population, then drill into any individual patient's complete inpatient journey: hospital admissions, ICU stays, ward transfers, diagnoses, medications, lab results, vital signs, and microbiology cultures. See [Chapter 34 -- Patient Journey](34-morpheus-patient-journey) for details.
+
+### Dataset Management
+
+Administrative configuration of inpatient data sources, including dataset registration, status management, and patient count tracking. See [Chapter 35 -- Datasets](35-morpheus-datasets) for details.
+
+## Navigation
+
+Morpheus is accessible from the main application navigation. The module has its own layout with two primary tabs:
+
+- **Dashboard** -- Population-level aggregate metrics and charts
+- **Patient Journey** -- Patient list, search, filtering, and individual patient detail
+
+A breadcrumb trail at the top of the page shows your current location within the module (for example, **Morpheus / Patient Journey / Patient 10006**).
+
+## Access Requirements
+
+Morpheus displays **Protected Health Information (PHI)** at the individual patient level. Access requires appropriate permissions configured by your administrator. All access to patient-level data is subject to your institution's data use agreement and applicable privacy regulations (HIPAA, GDPR, or institutional policies).
+
+:::danger PHI compliance
+Morpheus patient data includes diagnoses, medications, lab results, vital signs, and microbiology results at the individual level. Sharing patient-identifiable information outside your authorized data use agreement may violate regulatory requirements. Contact your administrator if you have questions about your access level.
+:::

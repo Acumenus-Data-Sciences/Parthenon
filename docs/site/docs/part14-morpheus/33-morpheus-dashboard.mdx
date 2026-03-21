@@ -1,0 +1,76 @@
+---
+id: 33-morpheus-dashboard
+title: "33. Population Dashboard"
+sidebar_label: "33. Population Dashboard"
+---
+
+# Population Dashboard
+
+The Morpheus **Dashboard** presents aggregate metrics and visualizations for the entire inpatient population in the selected dataset. It is the default landing page when you open the Morpheus module.
+
+## Dataset Selection
+
+The **Dataset Selector** in the header bar determines which inpatient dataset powers the dashboard. All metrics, charts, and counts reflect the selected dataset. If only one dataset is registered, the selector displays it as a static badge with the patient count.
+
+## KPI Cards
+
+Six metric cards span the top of the dashboard, providing an at-a-glance summary of the inpatient population:
+
+| Card | Description |
+|------|-------------|
+| **Patients** | Total unique patients in the dataset. Click to browse the full patient list. |
+| **Admissions** | Total hospital admissions across all patients. Click to browse the patient list. |
+| **ICU Rate** | Percentage of admissions that included at least one ICU stay. Click to filter the patient list to ICU patients only. |
+| **Mortality** | Overall in-hospital mortality rate. Click to filter the patient list to deceased patients. |
+| **Avg LOS** | Mean hospital length of stay in days across all admissions. |
+| **Avg ICU LOS** | Mean ICU length of stay in days for admissions with ICU stays. Click to filter to ICU patients. |
+
+Clicking a KPI card navigates you to the **Patient Journey** tab with the corresponding filter pre-applied (for example, clicking **ICU Rate** opens the patient list filtered to ICU patients).
+
+## Admission Volume Trend
+
+A bar chart showing the number of hospital admissions per month over the dataset's time range. This reveals seasonal patterns, growth trends, and any gaps in data coverage.
+
+## Mortality Trend
+
+A combined bar-and-line chart that overlays monthly admission counts (bars) with the monthly mortality rate (line). Use this to identify periods of elevated mortality relative to admission volume.
+
+## Demographics
+
+Three charts provide a demographic profile of the inpatient population:
+
+### Gender Distribution
+
+A donut chart showing the proportion of male, female, and other gender categories in the dataset.
+
+### Age Distribution
+
+A bar chart displaying patient counts across age bands, revealing whether the population skews toward pediatric, adult, or geriatric patients.
+
+### Length-of-Stay Distribution
+
+A bar chart showing the distribution of hospital lengths of stay, bucketed into ranges (for example, 0--1 days, 1--3 days, 3--7 days, 7--14 days, 14+ days). This helps identify the typical admission duration and the prevalence of extended stays.
+
+## Top Diagnoses
+
+A horizontal bar chart listing the 10 most common diagnoses by patient count. Each bar displays the diagnosis description, ICD code, and patient count. This provides a quick overview of the clinical conditions driving inpatient volume.
+
+## Top Procedures
+
+A horizontal bar chart listing the 10 most common procedures by patient count, formatted identically to the diagnoses chart.
+
+## Mortality by Admission Type
+
+A horizontal bar chart breaking down mortality by admission type (for example, emergency, elective, urgent, newborn). Each bar shows the total admissions of that type, along with the number of deaths and the mortality rate percentage. This reveals which admission pathways carry the highest mortality risk.
+
+## ICU Utilization by Unit
+
+A horizontal bar chart showing admission counts per ICU care unit (for example, Medical ICU, Surgical ICU, Cardiac Care Unit, Neonatal ICU). Each bar includes the average length of stay for that unit. This chart supports capacity planning and helps identify which units carry the highest patient load.
+
+## Quick-Access Buttons
+
+Three buttons in the dashboard header provide direct access to commonly needed patient subsets:
+
+- **ICU Patients** -- Opens the Patient Journey tab filtered to patients with ICU stays
+- **Deceased** -- Opens the Patient Journey tab filtered to deceased patients
+- **Browse All** -- Opens the full, unfiltered patient list

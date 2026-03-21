@@ -1,0 +1,81 @@
+---
+id: 35-morpheus-datasets
+title: "35. Managing Datasets"
+sidebar_label: "35. Managing Datasets"
+---
+
+# Managing Datasets
+
+Morpheus datasets represent registered inpatient data sources. Each dataset maps to a PostgreSQL schema containing the clinical tables that power the Dashboard and Patient Journey views. This chapter covers how datasets are structured, how they appear in the interface, and what administrators need to know about adding new data sources.
+
+## What Is a Dataset
+
+A dataset is a named, schema-isolated collection of inpatient clinical data within the Parthenon database. Each dataset record in the `inpatient_ext.morpheus_dataset` registry stores:
+
+| Field | Description |
+|-------|-------------|
+| **Name** | A human-readable label (for example, "MIMIC-IV" or "Acumenus Epic Export"). |
+| **Schema Name** | The PostgreSQL schema containing the clinical tables (for example, `mimiciv`). |
+| **Description** | An optional description of the data source. |
+| **Source Type** | The origin system (for example, MIMIC-IV, Epic, Cerner). |
+| **Patient Count** | The number of unique patients in the dataset, used for display in the Dataset Selector. |
+| **Status** | Either `active` (visible to users) or `inactive` (hidden from the interface). |
+
+Only datasets with `active` status appear in the Dataset Selector and are queryable through the Morpheus interface.
+
+## Dataset Selector
+
+The Dataset Selector dropdown appears in the Morpheus header bar. Its behavior depends on the number of active datasets:
+
+- **Single dataset** -- The selector displays as a static badge showing the dataset name and patient count. No dropdown interaction is needed.
+- **Multiple datasets** -- A dropdown allows you to switch between datasets. Selecting a different dataset reloads all dashboard metrics, patient lists, and detail views to reflect the new data source.
+
+The selected dataset is persisted in the URL as a query parameter (`?dataset=mimiciv`), so you can share links that point to a specific dataset.
+
+## Supported Source Types
+
+### MIMIC-IV
+
+[MIMIC-IV](https://physionet.org/content/mimiciv/) is a freely available critical care database from MIT's Lab for Computational Physiology. It contains de-identified hospital and ICU data from Beth Israel Deaconess Medical Center. MIMIC-IV is the default dataset (`mimiciv`) and serves as a reference implementation for the Morpheus schema.
+
+The MIMIC-IV schema includes:
+- **patients** -- Demographics (gender, anchor age, anchor year, date of death)
+- **admissions** -- Hospital admissions with admission/discharge times, types, locations, and insurance
+- **transfers** -- Intra-hospital transfers between care units
+- **icustays** -- ICU stay records with care unit assignments and duration
+- **diagnoses_icd** -- ICD-9/ICD-10 diagnosis codes per admission
+- **procedures_icd** -- ICD-9/ICD-10 procedure codes per admission
+- **prescriptions** -- Medication orders with drug names, routes, and dosing
+- **labevents** -- Laboratory test results with values, units, and reference ranges
+- **chartevents** -- Vital sign measurements and nursing assessments
+- **microbiologyevents** -- Culture results, organisms, and antibiotic susceptibility
+
+### Epic EHR
+
+Structured exports from Epic electronic health record systems. Epic data must be mapped to the Morpheus inpatient schema format before it can be registered as a dataset. The mapping process involves aligning Epic's proprietary table structures to the standard table layout expected by Morpheus.
+
+### Other EHR Systems
+
+Data from Cerner, Meditech, or other EHR platforms can be onboarded by transforming the source data into the Morpheus schema format. The schema follows a convention similar to MIMIC-IV's table structure, making it straightforward to map common EHR data elements.
+
+## Data Quality Considerations
+
+When working with Morpheus datasets, keep the following in mind:
+
+- **Completeness** -- Not all data sources capture all clinical domains equally. Some may have rich lab data but sparse microbiology, or detailed vitals but limited medication records. The Event Count Bar on the Patient Journey view helps you quickly assess data completeness for individual patients.
+- **Coding systems** -- Diagnosis and procedure codes may use ICD-9, ICD-10, or a mix depending on the dataset's time range. The Diagnoses tab shows both the source ICD code and the mapped OMOP standard concept when available.
+- **De-identification** -- MIMIC-IV data is date-shifted and de-identified. Anchor ages and anchor years provide approximate demographics. Other datasets may have different de-identification strategies depending on their data use agreements.
+- **Truncation** -- For patients with very large numbers of lab results or vital sign measurements, the system loads a configurable maximum (2,000 lab results, 5,000 vitals by default). A truncation warning appears when the displayed data is a subset of the full record.
+
+## Adding a New Dataset
+
+Registering a new inpatient dataset requires administrator-level access and involves the following steps:
+
+1. **Prepare the schema** -- Load the inpatient clinical data into a dedicated PostgreSQL schema within the Parthenon database, following the Morpheus table structure.
+2. **Register the dataset** -- Insert a record into the `inpatient_ext.morpheus_dataset` table with the dataset name, schema name, source type, and patient count.
+3. **Set status to active** -- Update the dataset status to `active` to make it visible in the Morpheus interface.
+4. **Verify** -- Open Morpheus and confirm the new dataset appears in the Dataset Selector. Check that the Dashboard loads metrics correctly and that patient-level data is accessible.
+
+:::note Administrator only
+Dataset registration is a database-level operation. Contact your system administrator to add new inpatient data sources to Morpheus.
+:::

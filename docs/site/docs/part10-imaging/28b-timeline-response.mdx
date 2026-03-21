@@ -1,0 +1,187 @@
+---
+id: 28b-timeline-response
+title: "28b. Patient Timeline & Response Assessment"
+sidebar_label: "28b. Timeline & Response"
+---
+
+# Patient Timeline & Response Assessment
+
+Parthenon's imaging module includes a longitudinal patient timeline and automated treatment response assessment engine. These tools enable researchers to track imaging changes over time, correlate them with treatment exposures, and compute standardized response categories using RECIST 1.1, Deauville/Lugano, RANO, and CT severity criteria.
+
+---
+
+## Patient Imaging Timeline
+
+The patient timeline consolidates a single patient's complete imaging history alongside their treatment context into one interactive view.
+
+### Accessing the Timeline
+
+1. Navigate to **Imaging** from the main navigation.
+2. Click the **Timeline** tab (or navigate to a patient's imaging studies from Patient Profiles).
+3. Enter or select a **Person ID** and **Data Source**.
+4. The timeline loads the patient's full imaging and treatment history.
+
+### Summary Cards
+
+At the top of the timeline, four summary cards provide an at-a-glance overview:
+
+| Card | Shows |
+|------|-------|
+| **Patient** | Person ID, gender, age, and race |
+| **Studies** | Total number of imaging studies, modalities present, and imaging span (days between first and last study) |
+| **Measurements** | Total measurements recorded, with a list of measurement types (tumor volume, longest diameter, SUVmax, etc.) |
+| **Treatments** | Number of drug exposures found during the imaging window, with date range |
+
+### Visual Timeline
+
+Below the summary cards, an interactive timeline chart displays:
+
+- **Treatment context bars** --- horizontal bars showing each drug exposure period, color-coded by drug. Hovering over a bar shows the drug name, start/end dates, and days of supply.
+- **Study nodes** --- circular markers along a time axis, one for each imaging study. Nodes are color-coded by modality (blue for CT, purple for MR, amber for PET, teal for US). A badge on each node shows how many measurements are attached to that study.
+- **Measurement trend charts** --- if measurements exist across multiple timepoints, line charts appear below the timeline showing trends for each measurement type (e.g., longest diameter over time, tumor volume over time).
+
+Clicking any study node navigates to that study's detail page where you can open the OHIF viewer.
+
+### Study List Table
+
+A detailed table lists all imaging studies for the patient:
+
+| Column | Description |
+|--------|-------------|
+| **Date** | Study date |
+| **Modality** | CT, MR, PET, etc. |
+| **Body Part** | Anatomical region examined |
+| **Description** | Study description from DICOM header |
+| **Series** | Number of series in the study |
+| **Images** | Total image count |
+| **Measurements** | Number of measurements attached |
+
+### Treatment Context Table
+
+A separate table (toggled via "Show/Hide treatment details") displays all drug exposures found in the OMOP CDM for this patient during their imaging window:
+
+| Column | Description |
+|--------|-------------|
+| **Drug Name** | Medication name from the CDM |
+| **Class** | Drug class (e.g., chemotherapy, immunotherapy) |
+| **Start / End** | Exposure start and end dates |
+| **Days Supply** | Total days of supply |
+
+This treatment context is essential for correlating imaging changes with specific therapies.
+
+---
+
+## Imaging Measurements
+
+Before response assessment can be computed, imaging measurements must be recorded for each study timepoint. Measurements can come from three sources:
+
+| Source | How | Confidence |
+|--------|-----|------------|
+| **OHIF Viewer bridge** | Take measurements directly in the OHIF viewer and save them via the measurement bridge (see [OHIF Viewer](./28a-ohif-viewer)) | 1.0 (manual) |
+| **NLP feature extraction** | Extract findings from radiology reports using the NLP service | Algorithm-dependent |
+| **Manual entry** | Enter measurements directly on the study detail page | User-specified |
+
+### Measurement Types
+
+Parthenon supports a comprehensive set of imaging measurement types:
+
+| Type | Unit | Use Case |
+|------|------|----------|
+| **Longest Diameter** | mm | RECIST target lesion measurement |
+| **Perpendicular Diameter** | mm | Bidimensional measurement (RANO) |
+| **Tumor Volume** | mm3 | Volumetric response assessment |
+| **SUVmax** | -- | PET metabolic activity (Deauville) |
+| **Density (HU)** | HU | CT density measurement |
+| **Opacity Score** | -- | Ground glass/consolidation scoring |
+| **Lesion Count** | -- | Tracking number of lesions over time |
+| **Metabolic Tumor Volume** | mL | PET volumetric assessment |
+| **Total Lesion Glycolysis** | g | PET metabolic burden |
+| **CT Severity Score** | -- | Lung CT severity grading |
+| **Enhancement Ratio** | -- | Contrast enhancement measurement |
+
+### Target Lesion Tracking
+
+For RECIST-based assessments, measurements can be flagged as **target lesions** and assigned a number (1, 2, 3, etc.). This allows the response assessment engine to track the same lesions across timepoints and compute the sum of longest diameters, which is the basis for RECIST response categories.
+
+---
+
+## Response Assessment Engine
+
+The response assessment engine automatically computes treatment response categories by comparing imaging measurements across timepoints.
+
+### Supported Criteria
+
+| Criteria | Full Name | Primary Measurement | Disease Context |
+|----------|-----------|---------------------|-----------------|
+| **RECIST 1.1** | Response Evaluation Criteria in Solid Tumors | Sum of longest diameters of target lesions | Solid tumors |
+| **Deauville/Lugano** | Deauville Five-Point Scale | SUVmax relative to mediastinum and liver | Lymphoma |
+| **RANO** | Response Assessment in Neuro-Oncology | Product of perpendicular diameters | Brain tumors |
+| **CT Severity** | CT Severity Score | Aggregate severity score | Lung disease (e.g., COVID-19 pneumonia) |
+
+### Computing a Response Assessment
+
+1. Navigate to the patient timeline.
+2. Click **"Show response assessments"** to expand the assessment panel.
+3. Select a **current study** (the follow-up timepoint to evaluate). Only studies with at least one measurement are available.
+4. Select **criteria type**: Auto-detect, RECIST 1.1, CT Severity, Deauville/Lugano, or RANO.
+5. Click **Assess**.
+
+When set to **Auto-detect**, the engine selects the appropriate criteria based on the measurement types present:
+
+- If longest diameter measurements exist, it uses RECIST 1.1
+- If SUVmax measurements exist, it uses Deauville/Lugano
+- If perpendicular diameter measurements exist, it uses RANO
+- If CT severity scores exist, it uses CT Severity
+
+### Response Categories
+
+The engine classifies each assessment into one of five categories:
+
+| Category | Code | Meaning | Color |
+|----------|------|---------|-------|
+| **Complete Response** | CR | All target lesions disappeared or fell below detection threshold | Teal |
+| **Partial Response** | PR | Significant decrease in disease burden (e.g., >=30% decrease in sum of diameters for RECIST) | Blue |
+| **Stable Disease** | SD | Neither sufficient shrinkage nor sufficient increase | Gold |
+| **Progressive Disease** | PD | Significant increase in disease burden (e.g., >=20% increase for RECIST) or new lesions | Red |
+| **Not Evaluable** | NE | Insufficient measurements or timepoints for assessment | Gray |
+
+### Assessment Results
+
+Each computed assessment records:
+
+| Field | Description |
+|-------|-------------|
+| **Criteria type** | Which response criteria were used |
+| **Baseline value** | Measurement aggregate at the first (baseline) timepoint |
+| **Nadir value** | Lowest measurement aggregate observed across all prior timepoints |
+| **Current value** | Measurement aggregate at the selected follow-up timepoint |
+| **% change from baseline** | Percent change between baseline and current values |
+| **% change from nadir** | Percent change between nadir and current values (important for RECIST progression) |
+| **Response category** | CR, PR, SD, PD, or NE |
+| **Rationale** | Text explanation of how the category was determined |
+| **Confirmed** | Whether the response was confirmed at a subsequent timepoint |
+| **Assessment date** | Date of the current study used for this assessment |
+
+### Assessment History
+
+All previously computed assessments for a patient are displayed in the **Assessment History** panel, listed chronologically. Each entry shows the response category badge, criteria type, and date. Click any assessment to expand it and see the full detail including baseline/nadir/current values, percent changes, and rationale text.
+
+:::tip Longitudinal response tracking
+Computing assessments at each follow-up timepoint builds a longitudinal response history. This enables research questions like "How many patients converted from PR to PD within 6 months?" or "What is the best overall response rate for patients on therapy X?"
+:::
+
+---
+
+## Research Applications
+
+The patient timeline and response assessment engine support several research workflows:
+
+- **Oncology clinical trials** --- Measure target lesions per RECIST 1.1 and track response over time
+- **Lymphoma response evaluation** --- Apply Deauville criteria to PET/CT studies
+- **Neuro-oncology** --- Use RANO criteria for brain tumor response in glioblastoma studies
+- **Pulmonary disease monitoring** --- Track CT severity scores for conditions like COVID-19 pneumonia or interstitial lung disease
+- **Real-world evidence** --- Compare imaging-based response rates across treatment cohorts using OMOP CDM drug exposure data
+
+:::warning Research use only
+The response assessment engine is designed for research purposes. Clinical response assessment for patient care decisions should follow your institution's radiology and oncology protocols with qualified physician oversight.
+:::
