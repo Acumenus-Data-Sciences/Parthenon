@@ -1,0 +1,232 @@
+// frontend/src/features/morpheus/components/LabPanelDashboard.tsx
+import { useMemo, useState } from 'react';
+import { ChevronDown, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import type { MorpheusLabResult } from '../api';
+import { LAB_PANELS, findLabPanel, type LabPanelConfig } from '../constants/labPanels';
+import LabSparkline from './LabSparkline';
+import LabTimeSeriesChart from './LabTimeSeriesChart';
+import type { DrawerEvent } from './ConceptDetailDrawer';
+
+interface LabPanelDashboardProps {
+  labs: MorpheusLabResult[];
+  onConceptClick: (event: DrawerEvent) => void;
+}
+
+interface LabGroup {
+  itemid: string;
+  label: string;
+  values: { date: string; value: number }[];
+  rangeLow: number | null;
+  rangeHigh: number | null;
+  latest: number;
+  latestDate: string;
+  unit: string;
+  count: number;
+}
+
+function getSeverity(value: number, low: number | null, high: number | null): 'normal' | 'mild' | 'moderate' | 'critical' {
+  if (low == null && high == null) return 'normal';
+  if (low != null && value < low) {
+    const pct = low > 0 ? ((low - value) / low) * 100 : 0;
+    if (pct > 50) return 'critical';
+    if (pct > 25) return 'moderate';
+    return 'mild';
+  }
+  if (high != null && value > high) {
+    const pct = high > 0 ? ((value - high) / high) * 100 : 0;
+    if (pct > 50) return 'critical';
+    if (pct > 25) return 'moderate';
+    return 'mild';
+  }
+  return 'normal';
+}
+
+const SEVERITY_COLORS = {
+  normal: '#22C55E',
+  mild: '#EAB308',
+  moderate: '#F97316',
+  critical: '#E85A6B',
+};
+
+function TrendIcon({ values }: { values: number[] }) {
+  if (values.length < 2) return <Minus size={12} className="text-[#5A5650]" />;
+  const last = values[values.length - 1];
+  const prev = values[values.length - 2];
+  if (last > prev * 1.05) return <TrendingUp size={12} className="text-[#E85A6B]" />;
+  if (last < prev * 0.95) return <TrendingDown size={12} className="text-[#818CF8]" />;
+  return <Minus size={12} className="text-[#22C55E]" />;
+}
+
+export default function LabPanelDashboard({ labs, onConceptClick }: LabPanelDashboardProps) {
+  const [expandedRow, setExpandedRow] = useState<string | null>(null);
+  const [expandedPanel, setExpandedPanel] = useState<string | null>(null);
+
+  const groups = useMemo(() => {
+    const map = new Map<string, LabGroup>();
+    for (const lab of labs) {
+      const num = lab.valuenum != null ? Number(lab.valuenum) : null;
+      if (num == null || isNaN(num)) continue;
+
+      const existing = map.get(lab.itemid);
+      if (existing) {
+        existing.values.push({ date: lab.charttime, value: num });
+        existing.count++;
+        if (new Date(lab.charttime) > new Date(existing.latestDate)) {
+          existing.latest = num;
+          existing.latestDate = lab.charttime;
+        }
+        if (lab.ref_range_lower != null) existing.rangeLow = Number(lab.ref_range_lower);
+        if (lab.ref_range_upper != null) existing.rangeHigh = Number(lab.ref_range_upper);
+      } else {
+        map.set(lab.itemid, {
+          itemid: lab.itemid,
+          label: lab.label,
+          values: [{ date: lab.charttime, value: num }],
+          rangeLow: lab.ref_range_lower != null ? Number(lab.ref_range_lower) : null,
+          rangeHigh: lab.ref_range_upper != null ? Number(lab.ref_range_upper) : null,
+          latest: num,
+          latestDate: lab.charttime,
+          unit: lab.valueuom ?? '',
+          count: 1,
+        });
+      }
+    }
+    // Sort values chronologically within each group
+    for (const g of map.values()) {
+      g.values.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    }
+    return map;
+  }, [labs]);
+
+  // Organize into panels
+  const panels = useMemo(() => {
+    const result: { panel: LabPanelConfig; tests: LabGroup[] }[] = [];
+    const ungrouped: LabGroup[] = [];
+
+    for (const panel of LAB_PANELS) {
+      const tests: LabGroup[] = [];
+      for (const g of groups.values()) {
+        if (findLabPanel(g.label)?.name === panel.name) {
+          tests.push(g);
+        }
+      }
+      if (tests.length > 0) {
+        tests.sort((a, b) => a.label.localeCompare(b.label));
+        result.push({ panel, tests });
+      }
+    }
+
+    // Collect ungrouped
+    for (const g of groups.values()) {
+      if (!findLabPanel(g.label)) ungrouped.push(g);
+    }
+    if (ungrouped.length > 0) {
+      ungrouped.sort((a, b) => a.label.localeCompare(b.label));
+      result.push({
+        panel: { name: 'Other', color: '#8A857D', tests: [] },
+        tests: ungrouped,
+      });
+    }
+
+    return result;
+  }, [groups]);
+
+  if (panels.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-32 rounded-lg border border-dashed border-[#323238] bg-[#151518]">
+        <p className="text-sm text-[#8A857D]">No numeric lab results available</p>
+      </div>
+    );
+  }
+
+  const handleConceptClick = (g: LabGroup) => {
+    onConceptClick({
+      domain: 'lab',
+      concept_id: Number(g.itemid) || null,
+      concept_name: g.label,
+      source_code: g.itemid,
+      source_vocabulary: 'MIMIC-IV d_labitems',
+      standard_concept_name: null,
+      start_date: g.latestDate,
+      end_date: null,
+      value: g.latest,
+      unit: g.unit,
+      ref_range_lower: g.rangeLow,
+      ref_range_upper: g.rangeHigh,
+      route: null,
+      dose: null,
+      days_supply: null,
+      seq_num: null,
+      hadm_id: null,
+      occurrenceCount: g.count,
+      sparklineValues: g.values.map((v) => v.value),
+    });
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="text-xs text-[#8A857D]">
+        {groups.size} tests &middot; {labs.filter((l) => l.valuenum != null).length} numeric values
+      </div>
+
+      {panels.map(({ panel, tests }) => (
+        <div key={panel.name} className="rounded-xl border border-zinc-800 bg-zinc-950/70 overflow-hidden">
+          <button
+            type="button"
+            onClick={() => setExpandedPanel(expandedPanel === panel.name ? null : panel.name)}
+            className="w-full flex items-center justify-between px-4 py-2.5 hover:bg-[#1A1A1E] transition-colors focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/30"
+          >
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: panel.color }} />
+              <span className="text-sm font-semibold text-[#F0EDE8]">{panel.name}</span>
+              <span className="text-[10px] text-[#5A5650]">{tests.length} tests</span>
+            </div>
+            <ChevronDown size={14} className={`text-[#5A5650] transition-transform ${expandedPanel === panel.name || expandedPanel === null ? 'rotate-180' : ''}`} />
+          </button>
+
+          {(expandedPanel === panel.name || expandedPanel === null) && (
+            <div className="divide-y divide-zinc-800/50">
+              {tests.map((g) => {
+                const severity = getSeverity(g.latest, g.rangeLow, g.rangeHigh);
+                const isExpanded = expandedRow === g.itemid;
+                const vals = g.values.map((v) => v.value);
+
+                return (
+                  <div key={g.itemid}>
+                    <div
+                      className="flex items-center gap-3 px-4 py-2 hover:bg-[#1A1A1E] transition-colors cursor-pointer"
+                      onClick={() => setExpandedRow(isExpanded ? null : g.itemid)}
+                    >
+                      <ChevronDown size={12} className={`text-[#5A5650] transition-transform shrink-0 ${isExpanded ? 'rotate-180' : ''}`} />
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); handleConceptClick(g); }}
+                        className="text-xs text-[#C5C0B8] hover:text-[#2DD4BF] truncate min-w-[140px] text-left transition-colors"
+                      >
+                        {g.label}
+                      </button>
+                      <span className="text-[10px] text-[#5A5650] shrink-0">&times;{g.count}</span>
+                      <LabSparkline values={vals} rangeLow={g.rangeLow} rangeHigh={g.rangeHigh} />
+                      <span className="text-sm font-semibold text-[#F0EDE8] shrink-0 min-w-[60px] text-right">
+                        {g.latest.toFixed(1)}
+                        <span className="text-[10px] text-[#5A5650] ml-0.5">{g.unit}</span>
+                      </span>
+                      <TrendIcon values={vals} />
+                      <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: SEVERITY_COLORS[severity] }} title={severity} />
+                    </div>
+
+                    {isExpanded && (
+                      <div className="px-8 pb-3">
+                        <LabTimeSeriesChart data={g.values} rangeLow={g.rangeLow} rangeHigh={g.rangeHigh} unit={g.unit} />
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
