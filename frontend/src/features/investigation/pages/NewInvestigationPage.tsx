@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { useCreateInvestigation } from "../hooks/useInvestigation";
 import { saveDomainState } from "../api";
@@ -11,9 +11,10 @@ type StatusPhase = "idle" | "creating" | "analyzing" | "done";
 export default function NewInvestigationPage() {
   const navigate = useNavigate();
   const createInvestigation = useCreateInvestigation();
+  const [searchParams] = useSearchParams();
 
-  const [title, setTitle] = useState("");
-  const [researchQuestion, setResearchQuestion] = useState("");
+  const [title, setTitle] = useState(searchParams.get("title") ?? "");
+  const [researchQuestion, setResearchQuestion] = useState(searchParams.get("question") ?? "");
   const [phase, setPhase] = useState<StatusPhase>("idle");
   const [error, setError] = useState<string | null>(null);
 
@@ -83,11 +84,11 @@ export default function NewInvestigationPage() {
       {/* Back link */}
       <div className="pt-6 pb-2 max-w-lg w-full mx-auto">
         <Link
-          to="/workbench"
+          to="/workbench/investigation"
           className="inline-flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
         >
           <ArrowLeft className="h-3 w-3" />
-          Back to Workbench
+          Evidence Investigation
         </Link>
       </div>
 

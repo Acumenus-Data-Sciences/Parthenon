@@ -10,7 +10,7 @@ export const TOOLSET_REGISTRY: ToolsetDescriptor[] = [
     icon: "Dna",
     accent: "#2DD4BF",
     status: "available",
-    route: "/workbench/investigation/new",
+    route: "/workbench/investigation",
     badge: "Evidence Board",
   },
   {

@@ -301,7 +301,7 @@ export const router = createBrowserRouter(
           },
           {
             path: "finngen",
-            element: <Navigate to="/workbench/investigation/new" replace />,
+            element: <Navigate to="/workbench/investigation" replace />,
           },
           {
             path: "community-sdk-demo",
@@ -311,24 +311,36 @@ export const router = createBrowserRouter(
               ).then((m) => ({ Component: m.default })),
           },
           {
-            path: "investigation/new",
-            lazy: () =>
-              import(
-                "@/features/investigation/pages/NewInvestigationPage"
-              ).then((m) => ({ Component: m.default })),
-          },
-          {
-            path: "investigation/:investigationId",
-            lazy: () =>
-              import(
-                "@/features/investigation/pages/InvestigationPage"
-              ).then((m) => ({ Component: m.default })),
+            path: "investigation",
+            children: [
+              {
+                index: true,
+                lazy: () =>
+                  import(
+                    "@/features/investigation/pages/InvestigationLandingPage"
+                  ).then((m) => ({ Component: m.default })),
+              },
+              {
+                path: "new",
+                lazy: () =>
+                  import(
+                    "@/features/investigation/pages/NewInvestigationPage"
+                  ).then((m) => ({ Component: m.default })),
+              },
+              {
+                path: ":investigationId",
+                lazy: () =>
+                  import(
+                    "@/features/investigation/pages/InvestigationPage"
+                  ).then((m) => ({ Component: m.default })),
+              },
+            ],
           },
         ],
       },
       {
         path: "finngen-tools",
-        element: <Navigate to="/workbench/investigation/new" replace />,
+        element: <Navigate to="/workbench/investigation" replace />,
       },
       {
         path: "workbench/aqueduct",
@@ -336,7 +348,7 @@ export const router = createBrowserRouter(
       },
       {
         path: "workbench/help",
-        element: <Navigate to="/workbench/investigation/new" replace />,
+        element: <Navigate to="/workbench/investigation" replace />,
       },
       // ── Strategus Study Packages ─────────────────────────────────────────
       {
