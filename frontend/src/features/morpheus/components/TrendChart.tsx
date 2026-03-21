@@ -30,10 +30,8 @@ export default function TrendChart({
     return () => ro.disconnect();
   }, []);
 
-  if (!data.length) return <div className="text-[#5A5650] text-sm py-8 text-center">No trend data</div>;
-
-  const hasLine = data.some(d => d.lineValue !== undefined);
-  const maxBar = Math.max(...data.map(d => d.barValue), 1);
+  const hasLine = data.length > 0 && data.some(d => d.lineValue !== undefined);
+  const maxBar = data.length > 0 ? Math.max(...data.map(d => d.barValue), 1) : 1;
   const maxLine = hasLine ? Math.max(...data.map(d => d.lineValue ?? 0), 1) : 0;
 
   const padL = 40;
@@ -43,13 +41,15 @@ export default function TrendChart({
   const chartH = 160;
   const svgH = chartH + padT + padB;
   const chartW = width - padL - padR;
-  const barW = Math.max(4, Math.min(24, chartW / data.length - 3));
-  const gap = (chartW - barW * data.length) / Math.max(1, data.length - 1);
+  const barW = data.length > 0 ? Math.max(4, Math.min(24, chartW / data.length - 3)) : 8;
+  const gap = data.length > 1 ? (chartW - barW * data.length) / (data.length - 1) : 0;
 
   const yTicks = useMemo(() => {
     const step = Math.ceil(maxBar / 4);
     return [0, step, step * 2, step * 3, step * 4].filter(v => v <= maxBar * 1.1);
   }, [maxBar]);
+
+  if (!data.length) return <div className="text-[#5A5650] text-sm py-8 text-center">No trend data</div>;
 
   const linePath = hasLine ? data.map((d, i) => {
     const x = padL + i * (barW + gap) + barW / 2;

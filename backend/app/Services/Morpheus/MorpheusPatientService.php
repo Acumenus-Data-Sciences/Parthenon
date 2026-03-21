@@ -126,9 +126,9 @@ class MorpheusPatientService
                        ROUND(max(los::numeric)::numeric, 1) as longest_icu_los
                 FROM {$s}.icustays GROUP BY subject_id
             ),"
-            : "patient_icu AS (
+            : 'patient_icu AS (
                 SELECT NULL::text as subject_id, 0 as icu_stay_count, NULL::numeric as longest_icu_los WHERE false
-            ),";
+            ),';
 
         // Diagnosis CTE — adapt to available tables
         $dxCte = $hasDiagDict
@@ -194,9 +194,9 @@ class MorpheusPatientService
                 SELECT subject_id, count(DISTINCT stay_id)::int as icu_stay_count
                 FROM {$s}.icustays GROUP BY subject_id
             ),"
-            : "patient_icu AS (
+            : 'patient_icu AS (
                 SELECT NULL::text as subject_id, 0 as icu_stay_count WHERE false
-            ),";
+            ),';
 
         $countSql = "
             WITH patient_base AS (
@@ -253,7 +253,7 @@ class MorpheusPatientService
         $s = $this->getSchemaName($schema);
 
         $hasInsurance = $this->introspector->hasColumn($schema, 'admissions', 'insurance');
-        $insuranceCol = $hasInsurance ? 'insurance,' : "NULL as insurance,";
+        $insuranceCol = $hasInsurance ? 'insurance,' : 'NULL as insurance,';
 
         return DB::connection($this->conn)->select("
             SELECT hadm_id, admittime, dischtime, deathtime,

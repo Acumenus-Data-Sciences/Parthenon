@@ -104,7 +104,7 @@ class SchemaIntrospector
         if ($this->hasColumn($schema, 'patients', 'anchor_year_group')) {
             $cols[] = "{$alias}.anchor_year_group";
         } else {
-            $cols[] = "NULL AS anchor_year_group";
+            $cols[] = 'NULL AS anchor_year_group';
         }
 
         // dod
