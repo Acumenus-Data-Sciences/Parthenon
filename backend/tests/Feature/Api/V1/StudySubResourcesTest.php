@@ -23,6 +23,7 @@ beforeEach(function () {
 
     $this->study = Study::create([
         'title' => 'Test Study',
+        'slug' => 'test-study',
         'description' => 'A test study for unit tests',
         'study_type' => 'cohort',
         'status' => 'draft',
