@@ -1,14 +1,14 @@
 {
   "key": "heor",
   "title": "Health Economics & Outcomes Research",
-  "description": "The HEOR module provides analytical tools for health economics and outcomes research, enabling evaluation of treatment value, healthcare resource utilisation, and patient outcomes. Researchers can conduct cost-effectiveness analyses, burden of disease studies, and comparative effectiveness research using real-world data.",
+  "description": "The HEOR module provides specialized tools for health economics and outcomes research, including claims data exploration, cost and utilization analysis, and visualization of contract and value-based care performance metrics. It supports researchers and payers in quantifying the economic impact of clinical interventions.",
   "docs_url": "/docs/part11-heor/29-heor-overview",
   "video_url": null,
   "tips": [
-    "Define clinically meaningful outcome endpoints and relevant comparator treatments before configuring your HEOR analysis.",
-    "Use cohort characterisation results to describe baseline patient characteristics and support propensity score adjustment in comparative analyses.",
-    "Incorporate healthcare utilisation domains such as inpatient visits, procedures, and drug exposures to capture total cost of care.",
-    "Validate your real-world evidence findings against published clinical trial benchmarks to assess external validity.",
-    "Engage health economics collaborators early to ensure that model structures and assumptions align with payer and regulatory expectations."
+    "Use the Claims Explorer to drill into utilization patterns and identify high-cost patient segments within your study population.",
+    "Align cost analysis time windows with clinically meaningful episodes of care to ensure economic findings are interpretable.",
+    "Leverage contract visualization tools to compare actual versus target performance on value-based care arrangements.",
+    "Combine HEOR outputs with clinical outcomes data to build comprehensive cost-effectiveness arguments for interventions.",
+    "Validate claims data completeness using the Data Quality Dashboard before drawing conclusions about utilization trends."
   ]
 }

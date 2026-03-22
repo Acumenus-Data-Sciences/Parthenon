@@ -1,14 +1,14 @@
 {
   "key": "concept-sets",
   "title": "Concept Sets",
-  "description": "Concept Sets are reusable collections of standardised clinical vocabulary terms drawn from the OMOP CDM vocabulary. They are used throughout the platform to define conditions, drugs, procedures, measurements, and other clinical entities within cohort definitions and analyses.",
+  "description": "Concept Sets are curated collections of clinical terminology codes used to define clinical events, conditions, medications, and procedures within cohort definitions and analyses. The Vocabulary Browser and Mapping Assistant support precise concept identification and cross-vocabulary alignment.",
   "docs_url": "/docs/part2-vocabulary/04-concept-sets",
   "video_url": null,
   "tips": [
-    "Use the Vocabulary Browser to explore concept hierarchies and identify all relevant descendant codes before finalising a concept set.",
-    "Enable the 'Include Descendants' flag to capture all child concepts in a hierarchy without manually enumerating each code.",
-    "Use the Mapping Assistant to identify source codes that map to your target standard concepts, ensuring complete coverage.",
-    "Document the clinical rationale for included and excluded concepts to facilitate peer review and reuse.",
-    "Periodically review concept sets against new vocabulary releases to incorporate updated or deprecated codes."
+    "Use the Mapping Assistant to identify equivalent concepts across vocabularies such as ICD-10, SNOMED, and RxNorm.",
+    "Include descendant concepts when building concept sets to capture all specificity levels of a clinical entity.",
+    "Periodically review and update concept sets after vocabulary version upgrades to ensure continued accuracy.",
+    "Document the clinical rationale for each included or excluded concept to support peer review and replication.",
+    "Share finalized concept sets via Commons to enable consistent phenotype definitions across your research network."
   ]
 }

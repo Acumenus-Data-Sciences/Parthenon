@@ -1,14 +1,14 @@
 {
   "key": "data-sources",
   "title": "Data Sources",
-  "description": "Data Sources represent the database connections to OMOP CDM-formatted datasets available within your Parthenon environment. Administrators configure and manage data source connections, while researchers select appropriate sources when building cohorts, running analyses, and exploring patient data.",
+  "description": "Data Sources manages the configuration and registration of clinical databases connected to the Parthenon platform. Administrators can register CDM-conformant sources, configure connection parameters, and monitor source availability to ensure researchers have reliable access to the data they need.",
   "docs_url": "/docs/part5-ingestion/15-uploading-data",
   "video_url": null,
   "tips": [
-    "Verify CDM version compatibility for each data source before running analyses to ensure all required tables and fields are present.",
-    "Use descriptive names and metadata tags for each data source to help researchers identify the most appropriate dataset for their study.",
-    "Review the Jobs Monitoring page after data uploads to confirm that ingestion completed without errors before initiating analyses.",
-    "Configure source-specific vocabulary mappings to align local coding systems with OMOP standard concepts.",
-    "Restrict data source access by role to ensure researchers can only query datasets covered by their data use agreements."
+    "Verify CDM version compatibility before registering a new data source to prevent downstream analysis errors.",
+    "Use the Source Profiler to generate an inventory of available data domains and record counts after initial source registration.",
+    "Apply descriptive naming conventions to data sources so researchers can clearly identify the population and time period covered.",
+    "Schedule periodic data refresh jobs and monitor them via the Jobs Monitoring panel to keep source data current.",
+    "Restrict data source configuration to authorized administrators and audit changes via the platform Audit Log."
   ]
 }

@@ -1,14 +1,14 @@
 {
   "key": "gis",
-  "title": "GIS Explorer",
-  "description": "The GIS Explorer enables spatial analysis of clinical and population health data by mapping patient cohorts and health outcomes to geographic regions. Researchers can identify geographic variation in disease burden, access to care, and health disparities by overlaying clinical data with geospatial reference layers.",
+  "title": "GIS & Spatial Analysis",
+  "description": "The GIS module enables researchers to visualize patient populations and clinical outcomes in geographic context. Spatial analysis tools and contextual layers support exploration of social determinants of health, environmental exposures, and geographic variation in care access and outcomes.",
   "docs_url": "/docs/part13-gis/31-gis-explorer",
   "video_url": null,
   "tips": [
-    "Aggregate patient data to appropriate geographic units such as postal codes or health service areas to protect patient privacy while enabling spatial analysis.",
-    "Use choropleth maps to visualise the geographic distribution of cohort prevalence and identify high-burden regions.",
-    "Overlay social determinants of health layers to contextualise observed geographic variation in clinical outcomes.",
-    "Apply spatial filters to restrict cohort generation to specific geographic catchment areas relevant to your research question.",
-    "Export GIS outputs as standard geospatial file formats for integration with external mapping and planning tools."
+    "Add contextual layers such as census demographics or environmental indices to enrich spatial analysis of clinical outcomes.",
+    "Use spatial clustering analysis to identify geographic regions with elevated disease burden or unmet care needs.",
+    "Ensure patient location data is appropriately de-identified or aggregated before performing and sharing geographic analyses.",
+    "Combine GIS findings with cohort-level data to investigate whether geography modifies treatment outcomes in your study population.",
+    "Export spatial analysis results in standard GIS formats for integration with external mapping and reporting tools."
   ]
 }

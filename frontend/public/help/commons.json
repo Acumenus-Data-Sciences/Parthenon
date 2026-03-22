@@ -1,14 +1,14 @@
 {
   "key": "commons",
-  "title": "Commons Integration",
-  "description": "The Commons integration connects Parthenon to collaborative research networks, enabling federated analysis, shared cohort definitions, and cross-institutional study coordination. Researchers can publish and discover phenotypes, analysis packages, and evidence synthesis results across participating sites.",
+  "title": "Commons",
+  "description": "Commons provides a collaborative workspace where researchers can share cohort definitions, concept sets, analyses, and study packages across institutions and networks. Integration with Abby AI enables intelligent recommendations and discovery of community-contributed research assets.",
   "docs_url": "/docs/abby-ai/05-commons-integration",
   "video_url": null,
   "tips": [
-    "Register your data source with the Commons to make your site discoverable to network researchers without exposing patient-level data.",
-    "Use federated cohort generation to run identical cohort definitions across multiple sites and aggregate summary statistics centrally.",
-    "Publish validated phenotypes to the Commons Phenotype Library to accelerate collaborative research across the network.",
-    "Coordinate study package distribution through Commons to ensure all participating sites execute identical analysis specifications.",
-    "Review data partner agreements and governance requirements before initiating cross-site analyses."
+    "Search Commons before building new cohort definitions or concept sets to avoid duplicating work already contributed by the community.",
+    "Tag your shared assets with relevant therapeutic area and data model version metadata to improve discoverability.",
+    "Review the validation status and community ratings of shared cohorts before incorporating them into your own studies.",
+    "Use the Abby AI assistant to get recommendations for related community assets based on your current research context.",
+    "Contribute finalized, peer-reviewed study packages to Commons to increase the reproducibility and visibility of your research."
   ]
 }

@@ -1,14 +1,14 @@
 {
   "key": "etl",
-  "title": "ETL & Data Ingestion",
-  "description": "The ETL and Data Ingestion module supports the transformation of source clinical data into the OMOP Common Data Model. It provides tools for schema mapping, concept mapping, source profiling, FHIR ingestion, and job monitoring to guide data engineers through the end-to-end process of preparing data for research.",
+  "title": "ETL & Ingestion",
+  "description": "The ETL and Ingestion module supports the transformation and loading of source data into OMOP Common Data Model format. Tools for schema mapping, concept mapping, FHIR ingestion, and ETL execution enable data engineers to build reproducible, auditable data pipelines.",
   "docs_url": "/docs/part5-ingestion/17c-etl-tools",
   "video_url": null,
   "tips": [
-    "Complete source profiling before beginning schema mapping to understand the structure and content of your raw data.",
-    "Use the Schema Mapping tool to align source tables and fields to their corresponding OMOP CDM equivalents systematically.",
-    "Run Concept Mapping to resolve local source codes to OMOP standard vocabulary concepts before executing your ETL.",
-    "Monitor the Jobs Monitoring page throughout ingestion to detect and address errors before they propagate downstream.",
-    "For FHIR-based sources, use the FHIR Ingestion pipeline to transform HL7 FHIR resources directly into OMOP CDM tables."
+    "Complete schema mapping before concept mapping to ensure source fields are correctly aligned with CDM domain structures.",
+    "Use the Source Profiler to understand source data distributions and inform mapping decisions before building ETL logic.",
+    "Leverage the FHIR ingestion pathway for sources that expose HL7 FHIR APIs to reduce custom ETL development effort.",
+    "Validate concept mapping coverage by reviewing unmapped source codes and resolving high-frequency gaps before production loads.",
+    "Monitor ETL job status and error logs in the Jobs Monitoring panel to quickly detect and remediate pipeline failures."
   ]
 }

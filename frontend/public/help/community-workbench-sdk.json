@@ -1,14 +1,14 @@
 {
   "key": "community-workbench-sdk",
   "title": "Community Workbench SDK",
-  "description": "The Community Workbench SDK provides developers and researchers with programmatic tools to build, extend, and integrate custom analysis modules within the Parthenon platform. The SDK exposes APIs and scaffolding to create reproducible study packages, custom visualisations, and third-party data integrations.",
+  "description": "The Community Workbench SDK provides developers and advanced researchers with programmatic tools to build, extend, and integrate custom analysis modules within the Parthenon platform. It enables creation of reusable study components that can be shared across the research network.",
   "docs_url": "/docs/part4-analyses/14f-community-workbench-sdk",
   "video_url": null,
   "tips": [
-    "Review the SDK documentation and sample templates before building a new module to align with platform conventions and ensure compatibility.",
-    "Use the provided package scaffolding to structure your analysis code so it can be exported and executed at federated sites.",
-    "Validate your SDK module against a local data source before submitting it for network-wide distribution.",
-    "Leverage the built-in logging and error-handling hooks to make troubleshooting straightforward for end users.",
-    "Engage the community forum to share your extensions and incorporate feedback from researchers at other institutions."
+    "Review the SDK documentation thoroughly before beginning development to understand the module lifecycle and integration points.",
+    "Package your custom modules with version metadata and dependency declarations to ensure compatibility across platform updates.",
+    "Test SDK modules against a representative sample dataset before deploying to a full federated network.",
+    "Follow the platform coding standards to ensure your contributions pass the community review process.",
+    "Use the SDK's built-in logging hooks to facilitate debugging and audit trail generation for custom modules."
   ]
 }

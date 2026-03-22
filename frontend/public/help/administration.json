@@ -1,14 +1,14 @@
 {
   "key": "administration",
   "title": "Administration",
-  "description": "The Administration module provides tools for managing users, roles, authentication providers, system configuration, and platform health. Administrators can configure access controls, monitor system status, manage vocabulary, and oversee AI integrations from a centralised interface.",
+  "description": "The Administration section provides system administrators with tools to manage users, roles, permissions, authentication providers, system configuration, and platform health. Use these controls to maintain security, configure integrations, and monitor the operational state of the Parthenon platform.",
   "docs_url": "/docs/part8-administration/22-user-management",
   "video_url": null,
   "tips": [
-    "Use the Roles & Permissions page to apply least-privilege access, granting each user only the capabilities required for their role.",
+    "Assign roles at the group level rather than per user to simplify permission management as your organization grows.",
     "Review the Audit Log regularly to track data access and configuration changes for compliance purposes.",
-    "Configure Authentication Providers early in your deployment to integrate with your organisation's identity management system.",
-    "Check System Health dashboards before major analysis runs to ensure all services are operational.",
-    "Use Vocabulary Admin to keep your concept sets aligned with the latest OMOP vocabulary releases."
+    "Configure authentication providers before onboarding users to ensure seamless single sign-on from day one.",
+    "Use the System Health dashboard to proactively identify performance bottlenecks before they affect researchers.",
+    "Restrict AI provider credentials to administrators to prevent unauthorized usage of external AI services."
   ]
 }

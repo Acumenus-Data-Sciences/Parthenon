@@ -1,14 +1,14 @@
 {
   "key": "data-explorer",
   "title": "Data Explorer",
-  "description": "The Data Explorer enables researchers to interactively query and visualise patient data across connected data sources. It includes data quality dashboards, aggregate reporting, and source profiling tools that help users understand the structure, completeness, and reliability of their clinical data before conducting analyses.",
+  "description": "The Data Explorer enables researchers to interactively browse, query, and assess the quality of data within connected sources. The integrated Data Quality Dashboard provides standardized metrics to evaluate completeness, conformance, and plausibility across CDM domains.",
   "docs_url": "/docs/part6-data-explorer/19-data-quality-dashboard",
   "video_url": null,
   "tips": [
-    "Run the Data Quality Dashboard on any new data source before building cohorts to identify completeness or conformance issues early.",
-    "Use the Source Profiler to assess the temporal coverage and record density of your data, informing appropriate look-back period settings.",
-    "Filter quality reports by domain to pinpoint specific areas of concern, such as missing lab values or incomplete drug exposure records.",
-    "Compare data quality metrics across multiple data sources to select the most appropriate sources for a given research question.",
-    "Export data quality results to share with data governance teams or include in study documentation."
+    "Run a Data Quality assessment on a new data source before building cohorts to identify known gaps or anomalies in the data.",
+    "Filter Data Quality results by domain and check type to focus remediation efforts on the most clinically significant issues.",
+    "Compare Data Quality metrics across time periods to detect upstream ETL regressions after data refreshes.",
+    "Use the Data Explorer to validate that expected clinical events are present for a pilot cohort before scaling your study.",
+    "Document and share Data Quality findings with your data engineering team to drive continuous improvement in source data pipelines."
   ]
 }

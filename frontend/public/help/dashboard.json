@@ -1,14 +1,14 @@
 {
   "key": "dashboard",
   "title": "Dashboard",
-  "description": "The Dashboard provides a high-level overview of your Parthenon environment, surfacing recent activity, system status, and quick access to commonly used features. It serves as the central launch point for research workflows, enabling teams to monitor ongoing analyses and navigate to relevant modules efficiently.",
+  "description": "The Dashboard provides a centralized overview of platform activity, research assets, and key metrics. It serves as the entry point for navigating to cohort definitions, analyses, data sources, and collaborative workspaces, giving researchers and administrators an at-a-glance view of their work.",
   "docs_url": "/docs/part1-getting-started/00-dashboard",
   "video_url": null,
   "tips": [
-    "Pin frequently used cohorts, concept sets, and analyses to the Dashboard for rapid access at the start of each session.",
-    "Monitor the recent activity feed to stay informed about changes made by collaborators in shared projects.",
-    "Use the Dashboard status indicators to confirm that data sources and background jobs are functioning as expected before launching analyses.",
-    "Customise your Dashboard layout to surface the modules most relevant to your role, whether clinical, analytical, or administrative.",
-    "Check system notifications on the Dashboard for scheduled maintenance windows or vocabulary update announcements."
+    "Bookmark the Dashboard as your starting point to quickly navigate to recently accessed studies and cohorts.",
+    "Monitor the activity feed on the Dashboard to stay informed about updates made by collaborators on shared assets.",
+    "Use Dashboard widgets to track the status of long-running analyses and data ingestion jobs without navigating away.",
+    "Customize your Dashboard layout to surface the metrics and shortcuts most relevant to your research role.",
+    "Check the system notifications panel on the Dashboard for platform maintenance announcements and version updates."
   ]
 }

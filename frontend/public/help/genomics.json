@@ -1,14 +1,14 @@
 {
   "key": "genomics",
   "title": "Genomics",
-  "description": "The Genomics module integrates genomic data with clinical phenotypes, enabling researchers to conduct genome-wide association studies, variant analysis, and pharmacogenomics investigations within a unified research environment. It supports the linkage of biobank-scale genomic datasets with OMOP CDM clinical records.",
+  "description": "The Genomics module integrates genomic data with clinical records to support precision medicine research and molecular tumor board workflows. Researchers can upload and annotate VCF files, explore variant data, and link genomic findings to patient clinical timelines.",
   "docs_url": "/docs/part9-genomics/27-genomics-overview",
   "video_url": null,
   "tips": [
-    "Define your clinical phenotype cohorts rigorously before linking to genomic data to ensure high-quality case and control populations.",
-    "Leverage FinnGen integration workflows to access pre-processed genomic summary statistics for rapid hypothesis generation.",
-    "Review data governance and consent requirements for genomic data linkage before initiating any cross-domain analysis.",
-    "Use quality control filters appropriate for your genomic platform to exclude low-quality variants prior to association testing.",
-    "Coordinate with your biobank team to align sample identifiers between clinical and genomic datasets to prevent linkage errors."
+    "Annotate uploaded VCF files against current reference databases to ensure variant classifications reflect the latest clinical evidence.",
+    "Link genomic variants to OMOP clinical records to enable combined genotype-phenotype analyses within your cohorts.",
+    "Use the Tumor Board view to present integrated genomic and clinical findings in a structured format suitable for multidisciplinary review.",
+    "Apply quality filters during VCF upload to exclude low-confidence variant calls before annotation.",
+    "Coordinate with your bioinformatics team to standardize VCF preprocessing steps and ensure consistency across submitted samples."
   ]
 }
