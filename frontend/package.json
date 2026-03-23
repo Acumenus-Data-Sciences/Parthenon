@@ -33,7 +33,7 @@
     "d3": "^7.9.0",
     "date-fns": "^4.1.0",
     "deck.gl": "^9.2.11",
-    "framer-motion": "^12.36.0",
+    "framer-motion": "^12.38.0",
     "i18next": "^25.8.18",
     "laravel-echo": "^2.3.1",
     "lucide-react": "^0.577.0",
