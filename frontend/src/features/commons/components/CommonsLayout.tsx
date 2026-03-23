@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { Megaphone, BookOpen } from "lucide-react";
+import { Megaphone, BookOpen, Sparkles } from "lucide-react";
 import { useChannels, useChannel, useMessages, useSendMessage, useMarkRead, useMembers, useUploadAttachment } from "../api";
 import { usePresence } from "../hooks/usePresence";
 import { useChannelSubscription } from "../hooks/useEcho";
@@ -16,6 +16,7 @@ import { AnnouncementBoard } from "./announcements/AnnouncementBoard";
 import { WikiPage } from "./wiki/WikiPage";
 import AskAbbyChannel from "./abby/AskAbbyChannel";
 import AbbyMentionHandler from "./abby/AbbyMentionHandler";
+import { WhatsNewModal } from "@/features/help";
 
 export function CommonsLayout() {
   const { slug } = useParams<{ slug?: string }>();
@@ -36,6 +37,7 @@ export function CommonsLayout() {
   const { isTyping, sendTypingWhisper } = useTypingIndicator(channel?.id);
   const [rightTab, setRightTab] = useState<"search" | "settings" | "members" | "activity" | "pinned" | "reviews">("activity");
   const [view, setView] = useState<"chat" | "announcements" | "wiki">("chat");
+  const [whatsNewOpen, setWhatsNewOpen] = useState(false);
 
   // Subscribe to real-time events for the active channel
   useChannelSubscription(channel?.id, channelSlug);
@@ -92,8 +94,15 @@ export function CommonsLayout() {
             <ChannelList channels={channels} activeSlug={activeSlug} />
           )}
           <button
+            onClick={() => setWhatsNewOpen(true)}
+            className="mx-2 mt-2 flex w-[calc(100%-16px)] items-center gap-2 rounded px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <Sparkles className="h-3.5 w-3.5" />
+            What's New
+          </button>
+          <button
             onClick={() => setView(view === "announcements" ? "chat" : "announcements")}
-            className={`mx-2 mt-2 flex w-[calc(100%-16px)] items-center gap-2 rounded px-3 py-1.5 text-xs transition-colors ${
+            className={`mx-2 mt-1 flex w-[calc(100%-16px)] items-center gap-2 rounded px-3 py-1.5 text-xs transition-colors ${
               view === "announcements"
                 ? "bg-primary/10 text-primary"
                 : "text-muted-foreground hover:text-foreground"
@@ -166,6 +175,11 @@ export function CommonsLayout() {
           currentMember={currentMember}
         />
       )}
+
+      <WhatsNewModal
+        externalOpen={whatsNewOpen}
+        onExternalClose={() => setWhatsNewOpen(false)}
+      />
     </div>
   );
 }

@@ -72,27 +72,36 @@ function EntryCard({ entry }: { entry: ChangelogEntry }) {
   );
 }
 
-export function WhatsNewModal() {
+interface WhatsNewModalProps {
+  externalOpen?: boolean;
+  onExternalClose?: () => void;
+}
+
+export function WhatsNewModal({ externalOpen, onExternalClose }: WhatsNewModalProps = {}) {
   const { data: entries, isLoading } = useChangelog();
-  const [open, setOpen] = useState(false);
+  const [autoOpen, setAutoOpen] = useState(false);
+
+  const isOpen = externalOpen || autoOpen;
 
   useEffect(() => {
+    if (externalOpen !== undefined) return; // skip auto-open when externally controlled
     if (!entries || entries.length === 0) return;
     const latestVersion = entries[0].version;
     const seenVersion = localStorage.getItem(STORAGE_KEY);
     if (seenVersion !== latestVersion) {
-      setOpen(true);
+      setAutoOpen(true);
     }
-  }, [entries]);
+  }, [entries, externalOpen]);
 
   const handleClose = () => {
     if (entries && entries.length > 0) {
       localStorage.setItem(STORAGE_KEY, entries[0].version);
     }
-    setOpen(false);
+    setAutoOpen(false);
+    onExternalClose?.();
   };
 
-  if (!open || isLoading || !entries) return null;
+  if (!isOpen || isLoading || !entries) return null;
 
   return (
     <Modal
