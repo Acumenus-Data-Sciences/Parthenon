@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Joyride, { type CallBackProps, STATUS, type Step } from "react-joyride";
+import { Joyride, type EventData, STATUS, type Step } from "react-joyride";
 import { BookOpen, Database, FlaskConical, X, ArrowRight, Loader2 } from "lucide-react";
 import apiClient from "@/lib/api-client";
 import { useAuthStore } from "@/stores/authStore";
@@ -13,7 +13,7 @@ const TOUR_STEPS: Step[] = [
     title: "Navigation Sidebar",
     content:
       "All your research tools live here: Data Explorer, Vocabulary, Cohort Definitions, Concept Sets, Analyses, and more.",
-    disableBeacon: true,
+    skipBeacon: true,
     placement: "right",
   },
   {
@@ -107,7 +107,7 @@ export function OnboardingModal() {
     navigate(href);
   }
 
-  function handleJoyrideCallback(data: CallBackProps) {
+  function handleJoyrideEvent(data: EventData) {
     const { status } = data;
     if (status === STATUS.FINISHED || status === STATUS.SKIPPED) {
       setRunTour(false);
@@ -121,19 +121,18 @@ export function OnboardingModal() {
         steps={TOUR_STEPS}
         run={runTour}
         continuous
-        showSkipButton
-        showProgress
-        callback={handleJoyrideCallback}
+        onEvent={handleJoyrideEvent}
+        options={{
+          buttons: ["back", "close", "primary", "skip"],
+          showProgress: true,
+          primaryColor: "#C9A227",
+          backgroundColor: "#1A1A1E",
+          textColor: "#C5C0B8",
+          overlayColor: "rgba(0,0,0,0.65)",
+          zIndex: 10000,
+        }}
         styles={{
-          options: {
-            primaryColor: "#C9A227",
-            backgroundColor: "#1A1A1E",
-            textColor: "#C5C0B8",
-            arrowColor: "#1A1A1E",
-            overlayColor: "rgba(0,0,0,0.65)",
-            zIndex: 10000,
-          },
-          buttonNext: {
+          buttonPrimary: {
             backgroundColor: "#C9A227",
             color: "#0E0E11",
           },
