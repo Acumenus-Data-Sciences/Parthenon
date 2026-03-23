@@ -1,5 +1,5 @@
 fastapi==0.135.*
-uvicorn[standard]==0.41.*
+uvicorn[standard]==0.42.*
 pydantic==2.*
 pydantic-settings==2.*
 httpx==0.28.*
