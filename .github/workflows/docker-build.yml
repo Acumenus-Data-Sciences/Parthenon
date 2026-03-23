@@ -197,7 +197,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: ${{ steps.meta.outputs.context }}
           file: ${{ steps.meta.outputs.dockerfile }}
