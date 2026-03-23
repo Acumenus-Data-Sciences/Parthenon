@@ -596,7 +596,7 @@ services:
     ports:
       - "${ORTHANC_PORT:-8042}:8042"
     volumes:
-      - orthanc-data:/var/lib/orthanc/db
+      - ${ORTHANC_DATA_PATH:-orthanc-data}:/var/lib/orthanc/db
       - ./dicom_samples:/dicom_samples:ro
     environment:
       - ORTHANC__NAME=Parthenon Orthanc
