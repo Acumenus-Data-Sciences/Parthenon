@@ -105,7 +105,7 @@ export function WhatsNewModal({ externalOpen, onExternalClose }: WhatsNewModalPr
 
   return (
     <Modal
-      open={open}
+      open={isOpen}
       onClose={handleClose}
       size="lg"
       title="What's New in Parthenon"
