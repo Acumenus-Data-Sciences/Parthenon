@@ -4,10 +4,13 @@ namespace App\Services\Achilles;
 
 use App\Contracts\AchillesAnalysisInterface;
 use App\Enums\DaimonType;
+use App\Events\AchillesStepCompleted;
 use App\Models\App\Source;
 use App\Models\Results\AchillesPerformance;
 use App\Models\Results\AchillesResult;
 use App\Models\Results\AchillesResultDist;
+use App\Models\Results\AchillesRun;
+use App\Models\Results\AchillesRunStep;
 use App\Services\SqlRenderer\SqlRendererService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -25,13 +28,13 @@ class AchillesEngineService
      * @param  list<string>|null  $categories
      * @return array{completed: int, failed: int, results: list<array{analysis_id: int, status: string, elapsed_seconds: float, error?: string}>}
      */
-    public function runAll(Source $source, ?array $categories = null): array
+    public function runAll(Source $source, ?array $categories = null, ?string $runId = null): array
     {
         $analyses = $categories
             ? collect($categories)->flatMap(fn (string $c) => $this->registry->byCategory($c))->all()
             : $this->registry->all();
 
-        return $this->executeAnalyses($source, $analyses);
+        return $this->executeAnalyses($source, $analyses, $runId);
     }
 
     /**
@@ -40,13 +43,13 @@ class AchillesEngineService
      * @param  list<int>  $analysisIds
      * @return array{completed: int, failed: int, results: list<array{analysis_id: int, status: string, elapsed_seconds: float, error?: string}>}
      */
-    public function runAnalyses(Source $source, array $analysisIds): array
+    public function runAnalyses(Source $source, array $analysisIds, ?string $runId = null): array
     {
         $analyses = array_filter(
             array_map(fn (int $id) => $this->registry->get($id), $analysisIds),
         );
 
-        return $this->executeAnalyses($source, $analyses);
+        return $this->executeAnalyses($source, $analyses, $runId);
     }
 
     /**
@@ -102,12 +105,19 @@ class AchillesEngineService
      * @param  array<int, AchillesAnalysisInterface>  $analyses
      * @return array{completed: int, failed: int, results: list<array{analysis_id: int, status: string, elapsed_seconds: float, error?: string}>}
      */
-    private function executeAnalyses(Source $source, array $analyses): array
+    private function executeAnalyses(Source $source, array $analyses, ?string $runId = null): array
     {
         $cdmSchema = $source->getTableQualifier(DaimonType::CDM);
         $resultsSchema = $source->getTableQualifier(DaimonType::Results);
 
         if (! $cdmSchema || ! $resultsSchema) {
+            if ($runId) {
+                AchillesRun::where('run_id', $runId)->update([
+                    'status' => 'failed',
+                    'completed_at' => now(),
+                ]);
+            }
+
             return [
                 'completed' => 0,
                 'failed' => count($analyses),
@@ -120,11 +130,45 @@ class AchillesEngineService
             ];
         }
 
+        // Pre-populate step rows if tracking
+        if ($runId) {
+            $stepRows = [];
+            $now = now();
+            foreach ($analyses as $analysis) {
+                $stepRows[] = [
+                    'run_id' => $runId,
+                    'analysis_id' => $analysis->analysisId(),
+                    'analysis_name' => $analysis->analysisName(),
+                    'category' => $analysis->category(),
+                    'status' => 'pending',
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ];
+            }
+            // Batch insert for performance (single query per chunk vs N queries)
+            foreach (array_chunk($stepRows, 50) as $chunk) {
+                AchillesRunStep::insert($chunk);
+            }
+
+            AchillesRun::where('run_id', $runId)->update([
+                'status' => 'running',
+                'total_analyses' => count($analyses),
+                'started_at' => now(),
+            ]);
+        }
+
         $completed = 0;
         $failed = 0;
         $results = [];
 
         foreach ($analyses as $analysis) {
+            // Mark step running
+            if ($runId) {
+                AchillesRunStep::where('run_id', $runId)
+                    ->where('analysis_id', $analysis->analysisId())
+                    ->update(['status' => 'running', 'started_at' => now()]);
+            }
+
             $result = $this->executeSingle($source, $analysis, $cdmSchema, $resultsSchema);
             $results[] = $result;
 
@@ -133,6 +177,45 @@ class AchillesEngineService
             } else {
                 $failed++;
             }
+
+            // Update step and run, broadcast
+            if ($runId) {
+                AchillesRunStep::where('run_id', $runId)
+                    ->where('analysis_id', $analysis->analysisId())
+                    ->update([
+                        'status' => $result['status'],
+                        'elapsed_seconds' => $result['elapsed_seconds'],
+                        'error_message' => $result['error'] ?? null,
+                        'completed_at' => now(),
+                    ]);
+
+                AchillesRun::where('run_id', $runId)->update([
+                    'completed_analyses' => $completed,
+                    'failed_analyses' => $failed,
+                ]);
+
+                broadcast(new AchillesStepCompleted(
+                    runId: $runId,
+                    sourceId: $source->id,
+                    analysisId: $analysis->analysisId(),
+                    analysisName: $analysis->analysisName(),
+                    category: $analysis->category(),
+                    status: $result['status'],
+                    elapsedSeconds: $result['elapsed_seconds'],
+                    completedAnalyses: $completed,
+                    totalAnalyses: count($analyses),
+                    failedAnalyses: $failed,
+                    errorMessage: $result['error'] ?? null,
+                ));
+            }
+        }
+
+        // Mark run complete
+        if ($runId) {
+            AchillesRun::where('run_id', $runId)->update([
+                'status' => $failed === count($analyses) ? 'failed' : 'completed',
+                'completed_at' => now(),
+            ]);
         }
 
         return [
