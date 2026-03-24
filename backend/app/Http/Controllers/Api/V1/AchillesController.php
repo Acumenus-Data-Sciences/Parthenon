@@ -435,10 +435,13 @@ class AchillesController extends Controller
         $totalCount = $steps->count();
 
         // Stale run detection: if status is 'running' but no step has been
-        // updated in the last 2 minutes, the queue worker died mid-run.
-        // Mark remaining pending/running steps as failed and finalize the run.
+        // updated in 5+ minutes AND no step is currently executing, the queue
+        // worker died. A step with status='running' means the job is alive
+        // (some analyses like Measurement 1802 take 7+ minutes on real CDM data).
         $status = $run->status;
-        if ($status === 'running' || $status === 'pending') {
+        $hasRunningStep = $steps->where('status', 'running')->count() > 0;
+
+        if (($status === 'running' || $status === 'pending') && ! $hasRunningStep) {
             $lastActivity = $steps
                 ->whereNotNull('completed_at')
                 ->max('completed_at');
