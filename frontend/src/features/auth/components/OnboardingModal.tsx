@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Joyride, type EventData, STATUS, type Step } from "react-joyride";
+import Joyride, { type CallBackProps, STATUS, type Step } from "react-joyride";
 import { BookOpen, Database, FlaskConical, X, ArrowRight, Loader2 } from "lucide-react";
 import apiClient from "@/lib/api-client";
 import { useAuthStore } from "@/stores/authStore";
@@ -107,7 +107,7 @@ export function OnboardingModal() {
     navigate(href);
   }
 
-  function handleJoyrideEvent(data: EventData) {
+  function handleJoyrideEvent(data: CallBackProps) {
     const { status } = data;
     if (status === STATUS.FINISHED || status === STATUS.SKIPPED) {
       setRunTour(false);

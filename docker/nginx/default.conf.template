@@ -103,6 +103,8 @@ server {
     }
 
     # ── Orthanc DICOMweb proxy (optional — resolve at request time) ─────
+    # Service-to-service auth: user is already authenticated via Sanctum
+    # on the Laravel imaging route before reaching this proxy.
     location /orthanc/ {
         set $orthanc_upstream http://orthanc:8042;
         rewrite ^/orthanc/(.*) /$1 break;
@@ -111,6 +113,7 @@ server {
         proxy_set_header X-Real-IP         $remote_addr;
         proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Authorization     "${ORTHANC_AUTH_HEADER}";
         proxy_request_buffering off;
         client_max_body_size 5120M;
 

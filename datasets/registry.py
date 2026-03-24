@@ -118,14 +118,14 @@ _register(Dataset(
         "synthetic Medicare dataset mapped to OMOP CDM. Good for rapid "
         "prototyping without the full SynPUF footprint."
     ),
-    size_estimate="~100 MB download / ~200 MB loaded",
-    size_download_mb=100,
+    size_estimate="~200 MB loaded (1K-patient subset)",
+    size_download_mb=0,
     size_loaded_mb=200,
     time_estimate="~5 min",
     source_url="https://www.cms.gov/Research-Statistics-Data-and-Systems/Downloadable-Public-Use-Files/SynPUFs",
     loader="datasets.loaders.synpuf",
     dependencies=["vocabulary"],
-    phase=2,
+    phase=1,
 ))
 
 _register(Dataset(
@@ -137,14 +137,14 @@ _register(Dataset(
         "beneficiaries mapped to OMOP CDM. Suitable for large-cohort "
         "population-level studies and performance benchmarking."
     ),
-    size_estimate="~3 GB download / ~10 GB loaded",
-    size_download_mb=3_000,
-    size_loaded_mb=10_000,
+    size_estimate="~150–200 GB loaded (pre-ETL'd CSV on local drive)",
+    size_download_mb=0,
+    size_loaded_mb=200_000,
     time_estimate="~2–4 hrs",
     source_url="https://www.cms.gov/Research-Statistics-Data-and-Systems/Downloadable-Public-Use-Files/SynPUFs",
     loader="datasets.loaders.synpuf",
     dependencies=["vocabulary"],
-    phase=2,
+    phase=1,
 ))
 
 _register(Dataset(

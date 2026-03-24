@@ -5,11 +5,15 @@ services:
     ports:
       - "${NGINX_PORT:-8082}:80"
     volumes:
-      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./docker/nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
       - ./backend:/var/www/html:ro
       - ./frontend/dist:/var/www/frontend:ro
       - ./docs/dist:/var/www/docs-dist:ro
       - ohif-dist:/var/www/ohif:ro
+    environment:
+      - ORTHANC_AUTH_HEADER=${ORTHANC_AUTH_HEADER:-}
+      - NGINX_ENVSUBST_TEMPLATE_SUFFIX=.template
+      - NGINX_ENVSUBST_OUTPUT_DIR=/etc/nginx/conf.d
     depends_on:
       php:
         condition: service_healthy
@@ -596,33 +600,49 @@ services:
     ports:
       - "${ORTHANC_PORT:-8042}:8042"
     volumes:
-      - ${ORTHANC_DATA_PATH:-orthanc-data}:/var/lib/orthanc/db
+      - /media/smudoshi/DATA/orthanc-data-pg:/var/lib/orthanc/db
+      - ${ORTHANC_DATA_PATH:-/media/smudoshi/DATA/orthanc-data}:/old-data:ro
       - ./dicom_samples:/dicom_samples:ro
     environment:
       - ORTHANC__NAME=Parthenon Orthanc
       - ORTHANC__REMOTE_ACCESS_ALLOWED=true
       - ORTHANC__AUTHENTICATION_ENABLED=true
-      - 'ORTHANC__REGISTERED_USERS={"parthenon": "orthanc_secret"}'
+      - 'ORTHANC__REGISTERED_USERS={"${ORTHANC_USER:-parthenon}": "${ORTHANC_PASSWORD}"}'
+      # DICOMweb plugin
       - DICOM_WEB_PLUGIN_ENABLED=true
       - ORTHANC__DICOM_WEB__ENABLE=true
       - ORTHANC__DICOM_WEB__ROOT=/dicom-web/
       - ORTHANC__DICOM_WEB__ENABLE_WADO=true
       - ORTHANC__DICOM_WEB__WADO_ROOT=/wado
-      - ORTHANC__DICOM_WEB__STUDIES_METADATA=Full
+      - ORTHANC__DICOM_WEB__STUDIES_METADATA=MainDicomTags
+      - ORTHANC__DICOM_WEB__ENABLE_METADATA_CACHE=true
       # Transcoding: serve compressed pixel data to reduce transfer size
       - ORTHANC__BUILTIN_DECODER_TRANSCODER_ORDER=After
       - ORTHANC__INGEST_TRANSCODING=1.2.840.10008.1.2.1
-      - ORTHANC__DICOM_WEB__ENABLE_METADATA_CACHE=true
+      # Query limits — prevent full-table scans on large datasets
+      - ORTHANC__LIMIT_FIND_RESULTS=100
+      - ORTHANC__LIMIT_FIND_INSTANCES=50
+      - ORTHANC__CONCURRENT_JOBS=4
+      # PostgreSQL index — concurrent query support for 926K+ instances
+      - ORTHANC__POSTGRESQL__ENABLE_INDEX=true
+      - ORTHANC__POSTGRESQL__ENABLE_STORAGE=false
+      - ORTHANC__POSTGRESQL__HOST=${DB_HOST:-pgsql.acumenus.net}
+      - ORTHANC__POSTGRESQL__PORT=${DB_PORT:-5432}
+      - ORTHANC__POSTGRESQL__DATABASE=${DB_DATABASE:-parthenon}
+      - ORTHANC__POSTGRESQL__USERNAME=${DB_USERNAME:-smudoshi}
+      - ORTHANC__POSTGRESQL__PASSWORD=${DB_PASSWORD:-acumenus}
+      - ORTHANC__POSTGRESQL__INDEX_CONNECTIONS_COUNT=5
+      - ORTHANC__POSTGRESQL__PREPARE_INDEX=true
     healthcheck:
-      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8042/system')"]
+      test: ["CMD", "python3", "-c", "import urllib.request,base64,os; urllib.request.urlopen(urllib.request.Request('http://localhost:8042/system', headers={'Authorization': 'Basic ' + base64.b64encode((os.environ.get('ORTHANC_USER','parthenon') + ':' + os.environ.get('ORTHANC_PASSWORD','')).encode()).decode()}))"]
       interval: 10s
       timeout: 5s
-      retries: 3
-      start_period: 15s
+      retries: 5
+      start_period: 60s
     deploy:
       resources:
         limits:
-          memory: 1G
+          memory: 4G
     networks:
       - parthenon
     restart: unless-stopped
