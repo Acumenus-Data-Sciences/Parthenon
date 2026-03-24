@@ -19,6 +19,7 @@ use App\Http\Controllers\Api\V1\Admin\UserController;
 use App\Http\Controllers\Api\V1\Admin\VocabularyController as AdminVocabularyController;
 use App\Http\Controllers\Api\V1\Admin\WebApiRegistryController;
 use App\Http\Controllers\Api\V1\AnalysisStatsController;
+use App\Http\Controllers\Api\V1\AresController;
 use App\Http\Controllers\Api\V1\AriadneController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CareGapController;
@@ -216,6 +217,19 @@ Route::prefix('v1')->group(function () {
             Route::get('/runs', [AchillesController::class, 'achillesRuns']);
             Route::get('/runs/{runId}/progress', [AchillesController::class, 'achillesProgress']);
             Route::post('/run', [AchillesController::class, 'run']);
+        });
+
+        // Ares (Release Management & Chart Annotations)
+        Route::prefix('sources/{source}/ares')->group(function () {
+            Route::get('/releases', [AresController::class, 'releases'])->middleware('permission:analyses.view');
+            Route::post('/releases', [AresController::class, 'storeRelease'])->middleware('permission:analyses.create');
+            Route::get('/releases/{release}', [AresController::class, 'showRelease'])->middleware('permission:analyses.view');
+            Route::put('/releases/{release}', [AresController::class, 'updateRelease'])->middleware('permission:analyses.edit');
+            Route::delete('/releases/{release}', [AresController::class, 'destroyRelease'])->middleware('permission:analyses.delete');
+            Route::get('/annotations', [AresController::class, 'annotations'])->middleware('permission:analyses.view');
+            Route::post('/annotations', [AresController::class, 'storeAnnotation'])->middleware('permission:analyses.create');
+            Route::put('/annotations/{annotation}', [AresController::class, 'updateAnnotation'])->middleware('permission:analyses.edit');
+            Route::delete('/annotations/{annotation}', [AresController::class, 'destroyAnnotation'])->middleware('permission:analyses.delete');
         });
 
         // Population Risk Scoring (Tier 3 — 20 validated clinical risk scores)

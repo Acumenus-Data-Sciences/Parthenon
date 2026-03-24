@@ -10,6 +10,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class ChartAnnotation extends Model
 {
     use HasFactory;
+
+    protected static function newFactory(): \Database\Factories\ChartAnnotationFactory
+    {
+        return \Database\Factories\ChartAnnotationFactory::new();
+    }
+
     protected $fillable = [
         'source_id',
         'chart_type',
