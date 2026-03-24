@@ -28,7 +28,7 @@ function formatDuration(seconds: number): string {
   return `${mins}m ${secs.toFixed(0)}s`;
 }
 
-function LiveTimer({ startedAt }: { startedAt: string }) {
+function LiveTimer({ startedAt, className }: { startedAt: string; className?: string }) {
   const [elapsed, setElapsed] = useState(0);
 
   useEffect(() => {
@@ -40,8 +40,8 @@ function LiveTimer({ startedAt }: { startedAt: string }) {
   }, [startedAt]);
 
   return (
-    <span className="font-['IBM_Plex_Mono',monospace] text-xs text-[#C9A227] tabular-nums">
-      [{elapsed.toFixed(1)}s]
+    <span className={className ?? "font-['IBM_Plex_Mono',monospace] text-xs text-[#C9A227] tabular-nums"}>
+      {elapsed < 60 ? `${elapsed.toFixed(1)}s` : `${Math.floor(elapsed / 60)}m ${(elapsed % 60).toFixed(0)}s`}
     </span>
   );
 }
@@ -78,7 +78,9 @@ function StepRow({ step }: { step: AchillesRunStep }) {
         </span>
 
         {step.status === "running" && step.started_at && (
-          <LiveTimer startedAt={step.started_at} />
+          <span className="font-['IBM_Plex_Mono',monospace] text-xs text-[#C9A227] tabular-nums">
+            [<LiveTimer startedAt={step.started_at} />]
+          </span>
         )}
         {step.status === "completed" && step.elapsed_seconds != null && (
           <span className="font-['IBM_Plex_Mono',monospace] text-xs text-[#5A5650] tabular-nums">
@@ -200,6 +202,11 @@ export default function AchillesRunModal({
                 {isFinished
                   ? `Completed in ${formatDuration(elapsedTotal)}`
                   : `${done} of ${total} analyses`}
+                {!isFinished && startedAt && (
+                  <span className="ml-2 text-[#8A857D]">
+                    Elapsed: <LiveTimer startedAt={progress!.started_at!} className="text-xs text-[#8A857D] font-['IBM_Plex_Mono',monospace] tabular-nums" />
+                  </span>
+                )}
               </p>
             </div>
           </div>
