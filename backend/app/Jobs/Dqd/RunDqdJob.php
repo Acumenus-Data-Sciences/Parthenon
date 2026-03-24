@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Dqd;
 
+use App\Events\DqdRunCompleted;
 use App\Models\App\Source;
 use App\Services\Dqd\DqdEngineService;
 use Illuminate\Bus\Queueable;
@@ -61,6 +62,8 @@ class RunDqdJob implements ShouldQueue
             'completed' => $result['completed'],
             'failed' => $result['failed'],
         ]);
+
+        DqdRunCompleted::dispatch($this->source->id, $result['runId'], $this->source);
     }
 
     /**

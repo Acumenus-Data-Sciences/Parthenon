@@ -2,6 +2,12 @@
 
 namespace App\Providers;
 
+use App\Events\AchillesRunCompleted;
+use App\Events\DqdRunCompleted;
+use App\Events\ReleaseCreated;
+use App\Listeners\AssociateDqdWithRelease;
+use App\Listeners\ComputeDqDeltas;
+use App\Listeners\CreateAutoRelease;
 use App\Models\App\Characterization;
 use App\Models\App\CohortDefinition;
 use App\Models\App\ConceptSet;
@@ -61,6 +67,7 @@ use App\Services\Cohort\Criteria\CriteriaBuilderRegistry;
 use App\Services\Cohort\Criteria\DemographicCriteriaBuilder;
 use App\Services\Cohort\Schema\CohortExpressionSchema;
 use App\Services\SqlRenderer\SqlRendererService;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Intervention\Image\ImageManager;
@@ -170,6 +177,11 @@ class AppServiceProvider extends ServiceProvider
                 'services.resend.key' => $key,
             ]);
         }
+
+        // Ares event → listener mappings
+        Event::listen(AchillesRunCompleted::class, CreateAutoRelease::class);
+        Event::listen(DqdRunCompleted::class, AssociateDqdWithRelease::class);
+        Event::listen(ReleaseCreated::class, ComputeDqDeltas::class);
 
         // Commons policies
         Gate::policy(Channel::class, ChannelPolicy::class);

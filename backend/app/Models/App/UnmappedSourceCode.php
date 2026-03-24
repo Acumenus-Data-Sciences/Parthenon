@@ -5,26 +5,19 @@ namespace App\Models\App;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class DqdResult extends Model
+class UnmappedSourceCode extends Model
 {
+    public $timestamps = false;
+
     protected $fillable = [
         'source_id',
-        'run_id',
-        'check_id',
-        'category',
-        'subcategory',
-        'cdm_table',
-        'cdm_column',
-        'severity',
-        'threshold',
-        'passed',
-        'violated_rows',
-        'total_rows',
-        'violation_percentage',
-        'description',
-        'details',
-        'execution_time_ms',
         'release_id',
+        'source_code',
+        'source_vocabulary_id',
+        'cdm_table',
+        'cdm_field',
+        'record_count',
+        'created_at',
     ];
 
     /**
@@ -33,14 +26,8 @@ class DqdResult extends Model
     protected function casts(): array
     {
         return [
-            'passed' => 'boolean',
-            'violated_rows' => 'integer',
-            'total_rows' => 'integer',
-            'violation_percentage' => 'float',
-            'threshold' => 'float',
-            'execution_time_ms' => 'integer',
-            'details' => 'array',
-            'release_id' => 'integer',
+            'record_count' => 'integer',
+            'created_at' => 'datetime',
         ];
     }
 

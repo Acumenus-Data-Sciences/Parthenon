@@ -32,6 +32,7 @@ class Source extends Model
         'db_options',
         'username',
         'password',
+        'release_mode',
     ];
 
     protected $hidden = [
@@ -52,6 +53,7 @@ class Source extends Model
             'db_options' => 'encrypted:array',
             'db_port' => 'integer',
             'restricted_to_roles' => 'array',
+            'release_mode' => 'string',
         ];
     }
 
@@ -79,6 +81,14 @@ class Source extends Model
                 $q->orWhereJsonContains('restricted_to_roles', $role);
             }
         });
+    }
+
+    /**
+     * @return HasMany<SourceRelease, $this>
+     */
+    public function releases(): HasMany
+    {
+        return $this->hasMany(SourceRelease::class);
     }
 
     /**

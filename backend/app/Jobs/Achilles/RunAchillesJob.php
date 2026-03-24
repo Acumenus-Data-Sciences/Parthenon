@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Achilles;
 
+use App\Events\AchillesRunCompleted;
 use App\Models\App\Source;
 use App\Models\Results\AchillesRun;
 use App\Services\Achilles\AchillesEngineService;
@@ -71,5 +72,7 @@ class RunAchillesJob implements ShouldQueue
             'completed' => $result['completed'],
             'failed' => $result['failed'],
         ]);
+
+        AchillesRunCompleted::dispatch($this->source->id, $this->runId, $this->source);
     }
 }
