@@ -447,7 +447,7 @@ class AchillesController extends Controller
                 ? abs(now()->diffInSeconds(Carbon::parse($lastActivity)))
                 : ($run->started_at ? abs(now()->diffInSeconds($run->started_at)) : PHP_INT_MAX);
 
-            if ($staleSince > 120 && ($completedCount + $failedCount) > 0) {
+            if ($staleSince > 300 && ($completedCount + $failedCount) > 0) {
                 // Mark orphaned steps as failed
                 AchillesRunStep::where('run_id', $runId)
                     ->whereIn('status', ['pending', 'running'])

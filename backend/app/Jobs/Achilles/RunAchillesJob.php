@@ -19,7 +19,7 @@ class RunAchillesJob implements ShouldQueue
 
     public int $timeout = 3600;
 
-    public int $tries = 1;
+    public int $tries = 2;
 
     /**
      * @param  list<string>|null  $categories
