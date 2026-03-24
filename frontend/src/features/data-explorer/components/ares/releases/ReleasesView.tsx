@@ -1,0 +1,190 @@
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Loader2, Plus, Trash2, Package } from "lucide-react";
+import { fetchSources } from "@/features/data-sources/api/sourcesApi";
+import { useReleases, useCreateRelease, useDeleteRelease } from "../../../hooks/useReleaseData";
+import type { StoreReleasePayload } from "../../../types/ares";
+
+export function ReleasesView() {
+  const [selectedSourceId, setSelectedSourceId] = useState<number | null>(null);
+  const [showForm, setShowForm] = useState(false);
+  const [formData, setFormData] = useState<StoreReleasePayload>({
+    release_name: "",
+    release_type: "scheduled_etl",
+  });
+
+  const { data: sources } = useQuery({ queryKey: ["sources"], queryFn: fetchSources });
+  const { data: releases, isLoading } = useReleases(selectedSourceId);
+  const createMutation = useCreateRelease(selectedSourceId ?? 0);
+  const deleteMutation = useDeleteRelease(selectedSourceId ?? 0);
+
+  const handleCreate = () => {
+    if (!selectedSourceId || !formData.release_name.trim()) return;
+    createMutation.mutate(formData, {
+      onSuccess: () => {
+        setFormData({ release_name: "", release_type: "scheduled_etl" });
+        setShowForm(false);
+      },
+    });
+  };
+
+  const handleDelete = (releaseId: number) => {
+    if (!confirm("Delete this release?")) return;
+    deleteMutation.mutate(releaseId);
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* Source selector + Create button */}
+      <div className="flex flex-wrap items-center gap-3">
+        <select
+          value={selectedSourceId ?? ""}
+          onChange={(e) => setSelectedSourceId(e.target.value ? Number(e.target.value) : null)}
+          className="rounded-lg border border-[#252530] bg-[#151518] px-3 py-2 text-sm text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none"
+        >
+          <option value="">Select a source</option>
+          {sources?.map((s) => (
+            <option key={s.id} value={s.id}>{s.source_name}</option>
+          ))}
+        </select>
+
+        {selectedSourceId && (
+          <button
+            type="button"
+            onClick={() => setShowForm((prev) => !prev)}
+            className="flex items-center gap-1.5 rounded-lg border border-[#252530] bg-[#1a1a22] px-3 py-2 text-sm text-[#C9A227] hover:border-[#C9A227] transition-colors"
+          >
+            <Plus size={14} />
+            Create Release
+          </button>
+        )}
+      </div>
+
+      {/* Create form */}
+      {showForm && selectedSourceId && (
+        <div className="rounded-xl border border-[#252530] bg-[#151518] p-4 space-y-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <input
+              type="text"
+              placeholder="Release name"
+              value={formData.release_name}
+              onChange={(e) => setFormData({ ...formData, release_name: e.target.value })}
+              className="rounded-lg border border-[#252530] bg-[#0E0E11] px-3 py-2 text-sm text-[#F0EDE8] placeholder-[#8A857D] focus:border-[#C9A227] focus:outline-none"
+            />
+            <select
+              value={formData.release_type}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  release_type: e.target.value as "scheduled_etl" | "snapshot",
+                })
+              }
+              className="rounded-lg border border-[#252530] bg-[#0E0E11] px-3 py-2 text-sm text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none"
+            >
+              <option value="scheduled_etl">Scheduled ETL</option>
+              <option value="snapshot">Snapshot</option>
+            </select>
+            <input
+              type="text"
+              placeholder="CDM version (optional)"
+              value={formData.cdm_version ?? ""}
+              onChange={(e) => setFormData({ ...formData, cdm_version: e.target.value || undefined })}
+              className="rounded-lg border border-[#252530] bg-[#0E0E11] px-3 py-2 text-sm text-[#F0EDE8] placeholder-[#8A857D] focus:border-[#C9A227] focus:outline-none"
+            />
+            <input
+              type="text"
+              placeholder="Vocabulary version (optional)"
+              value={formData.vocabulary_version ?? ""}
+              onChange={(e) =>
+                setFormData({ ...formData, vocabulary_version: e.target.value || undefined })
+              }
+              className="rounded-lg border border-[#252530] bg-[#0E0E11] px-3 py-2 text-sm text-[#F0EDE8] placeholder-[#8A857D] focus:border-[#C9A227] focus:outline-none"
+            />
+          </div>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={handleCreate}
+              disabled={createMutation.isPending || !formData.release_name.trim()}
+              className="rounded-lg bg-[#C9A227] px-4 py-2 text-sm font-medium text-[#0E0E11] hover:bg-[#e0b82e] disabled:opacity-50 transition-colors"
+            >
+              {createMutation.isPending ? "Creating..." : "Create"}
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowForm(false)}
+              className="rounded-lg border border-[#252530] px-4 py-2 text-sm text-[#8A857D] hover:text-[#F0EDE8] transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Release list */}
+      {!selectedSourceId && (
+        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-[#323238] bg-[#151518] py-16">
+          <Package size={32} className="text-[#8A857D] mb-3" />
+          <p className="text-sm text-[#8A857D]">Select a source to view its releases</p>
+        </div>
+      )}
+
+      {selectedSourceId && isLoading && (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 size={20} className="animate-spin text-[#8A857D]" />
+        </div>
+      )}
+
+      {selectedSourceId && !isLoading && (!releases || releases.length === 0) && (
+        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-[#323238] bg-[#151518] py-16">
+          <Package size={32} className="text-[#8A857D] mb-3" />
+          <p className="text-sm text-[#8A857D]">No releases yet for this source</p>
+        </div>
+      )}
+
+      {releases && releases.length > 0 && (
+        <div className="space-y-3">
+          {releases.map((release) => (
+            <div
+              key={release.id}
+              className="flex items-start justify-between rounded-xl border border-[#252530] bg-[#151518] p-4"
+            >
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-[#F0EDE8]">{release.release_name}</span>
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                      release.release_type === "snapshot"
+                        ? "bg-[#2DD4BF]/10 text-[#2DD4BF]"
+                        : "bg-[#C9A227]/10 text-[#C9A227]"
+                    }`}
+                  >
+                    {release.release_type === "scheduled_etl" ? "ETL" : "Snapshot"}
+                  </span>
+                </div>
+                <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-[#8A857D]">
+                  {release.cdm_version && <span>CDM {release.cdm_version}</span>}
+                  {release.vocabulary_version && <span>Vocab {release.vocabulary_version}</span>}
+                  <span>{release.person_count.toLocaleString()} persons</span>
+                  <span>{release.record_count.toLocaleString()} records</span>
+                  <span>{new Date(release.created_at).toLocaleDateString()}</span>
+                </div>
+                {release.notes && (
+                  <p className="text-xs text-[#8A857D] mt-1">{release.notes}</p>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => handleDelete(release.id)}
+                disabled={deleteMutation.isPending}
+                className="text-[#8A857D] hover:text-[#9B1B30] transition-colors p-1"
+              >
+                <Trash2 size={14} />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}

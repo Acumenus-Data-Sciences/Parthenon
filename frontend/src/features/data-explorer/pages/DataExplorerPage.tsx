@@ -14,8 +14,9 @@ const DomainTab = lazy(() => import("./DomainTab"));
 const DqdTab = lazy(() => import("./DqdTab"));
 const TemporalTab = lazy(() => import("./TemporalTab"));
 const AchillesTab = lazy(() => import("./AchillesTab"));
+const AresTab = lazy(() => import("./AresTab"));
 
-type TabId = "overview" | "domains" | "dqd" | "temporal" | "heel";
+type TabId = "overview" | "domains" | "dqd" | "temporal" | "heel" | "ares";
 
 const TABS: { id: TabId; label: string }[] = [
   { id: "overview", label: "Overview" },
@@ -23,6 +24,7 @@ const TABS: { id: TabId; label: string }[] = [
   { id: "temporal", label: "Temporal" },
   { id: "heel", label: "Achilles" },
   { id: "dqd", label: "Data Quality" },
+  { id: "ares", label: "Ares" },
 ];
 
 function TabFallback() {
@@ -101,7 +103,11 @@ export default function DataExplorerPage() {
       </div>
 
       {/* Tab content */}
-      {!sourceId || sourceId <= 0 ? (
+      {activeTab === "ares" ? (
+        <Suspense fallback={<TabFallback />}>
+          <AresTab />
+        </Suspense>
+      ) : !sourceId || sourceId <= 0 ? (
         <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-[#323238] bg-[#151518] py-20">
           <p className="text-lg font-semibold text-[#F0EDE8]">
             Select a data source
