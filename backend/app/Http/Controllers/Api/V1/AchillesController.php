@@ -427,19 +427,68 @@ class AchillesController extends Controller
 
         $steps = AchillesRunStep::where('run_id', $runId)
             ->orderBy('analysis_id')
-            ->get()
-            ->map(fn (AchillesRunStep $step) => [
-                'analysis_id' => $step->analysis_id,
-                'analysis_name' => $step->analysis_name,
-                'category' => $step->category,
-                'status' => $step->status,
-                'elapsed_seconds' => $step->elapsed_seconds,
-                'error_message' => $step->error_message,
-                'started_at' => $step->started_at?->toISOString(),
-                'completed_at' => $step->completed_at?->toISOString(),
-            ]);
+            ->get();
 
-        $categories = $steps->groupBy('category')->map(fn ($catSteps, $category) => [
+        // Compute actual counts from steps (authoritative, not the cached run row)
+        $completedCount = $steps->where('status', 'completed')->count();
+        $failedCount = $steps->where('status', 'failed')->count();
+        $totalCount = $steps->count();
+
+        // Stale run detection: if status is 'running' but no step has been
+        // updated in the last 2 minutes, the queue worker died mid-run.
+        // Mark remaining pending/running steps as failed and finalize the run.
+        $status = $run->status;
+        if ($status === 'running' || $status === 'pending') {
+            $lastActivity = $steps
+                ->whereNotNull('completed_at')
+                ->max('completed_at');
+
+            $staleSince = $lastActivity
+                ? abs(now()->diffInSeconds(Carbon::parse($lastActivity)))
+                : ($run->started_at ? abs(now()->diffInSeconds($run->started_at)) : PHP_INT_MAX);
+
+            if ($staleSince > 120 && ($completedCount + $failedCount) > 0) {
+                // Mark orphaned steps as failed
+                AchillesRunStep::where('run_id', $runId)
+                    ->whereIn('status', ['pending', 'running'])
+                    ->update([
+                        'status' => 'failed',
+                        'error_message' => 'Job interrupted — queue worker restarted',
+                        'completed_at' => now(),
+                    ]);
+
+                // Recount after marking orphans
+                $orphanedCount = $totalCount - $completedCount - $failedCount;
+                $failedCount += $orphanedCount;
+
+                // Finalize the run (use query builder to bypass $fillable exclusion of 'status')
+                AchillesRun::where('run_id', $runId)->update([
+                    'status' => 'failed',
+                    'completed_analyses' => $completedCount,
+                    'failed_analyses' => $failedCount,
+                    'completed_at' => now(),
+                ]);
+                $status = 'failed';
+
+                // Refresh steps from DB after orphan cleanup
+                $steps = AchillesRunStep::where('run_id', $runId)
+                    ->orderBy('analysis_id')
+                    ->get();
+            }
+        }
+
+        $mappedSteps = $steps->map(fn (AchillesRunStep $step) => [
+            'analysis_id' => $step->analysis_id,
+            'analysis_name' => $step->analysis_name,
+            'category' => $step->category,
+            'status' => $step->status,
+            'elapsed_seconds' => $step->elapsed_seconds,
+            'error_message' => $step->error_message,
+            'started_at' => $step->started_at?->toISOString(),
+            'completed_at' => $step->completed_at?->toISOString(),
+        ]);
+
+        $categories = $mappedSteps->groupBy('category')->map(fn ($catSteps, $category) => [
             'category' => $category,
             'total' => $catSteps->count(),
             'completed' => $catSteps->where('status', 'completed')->count(),
@@ -450,10 +499,10 @@ class AchillesController extends Controller
 
         return response()->json([
             'run_id' => $run->run_id,
-            'status' => $run->status,
-            'total_analyses' => $run->total_analyses,
-            'completed_analyses' => $run->completed_analyses,
-            'failed_analyses' => $run->failed_analyses,
+            'status' => $status,
+            'total_analyses' => $run->total_analyses ?: $totalCount,
+            'completed_analyses' => $completedCount,
+            'failed_analyses' => $failedCount,
             'started_at' => $run->started_at?->toISOString(),
             'completed_at' => $run->completed_at?->toISOString(),
             'categories' => $categories,
