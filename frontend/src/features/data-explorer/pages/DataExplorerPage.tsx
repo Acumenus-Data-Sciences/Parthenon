@@ -1,11 +1,9 @@
 import { useState, useCallback, lazy, Suspense } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Loader2, PlayCircle } from "lucide-react";
-import { useMutation } from "@tanstack/react-query";
+import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SourceSelector } from "../components/SourceSelector";
 import { HelpButton } from "@/features/help";
-import apiClient from "@/lib/api-client";
 import type { Domain } from "../types/dataExplorer";
 
 const VALID_DOMAINS = new Set<Domain>(["condition", "drug", "procedure", "measurement", "observation", "visit"]);
@@ -15,16 +13,16 @@ const OverviewTab = lazy(() => import("./OverviewTab"));
 const DomainTab = lazy(() => import("./DomainTab"));
 const DqdTab = lazy(() => import("./DqdTab"));
 const TemporalTab = lazy(() => import("./TemporalTab"));
-const HeelTab = lazy(() => import("./HeelTab"));
+const AchillesTab = lazy(() => import("./AchillesTab"));
 
 type TabId = "overview" | "domains" | "dqd" | "temporal" | "heel";
 
 const TABS: { id: TabId; label: string }[] = [
   { id: "overview", label: "Overview" },
   { id: "domains", label: "Domains" },
-  { id: "dqd", label: "Data Quality" },
   { id: "temporal", label: "Temporal" },
-  { id: "heel", label: "Heel Checks" },
+  { id: "heel", label: "Achilles" },
+  { id: "dqd", label: "Data Quality" },
 ];
 
 function TabFallback() {
@@ -59,12 +57,6 @@ export default function DataExplorerPage() {
     setActiveTab("domains");
   }, []);
 
-  // Run Achilles mutation
-  const achillesMutation = useMutation({
-    mutationFn: () =>
-      apiClient.post(`/sources/${sourceId}/achilles/run`).then((r) => r.data),
-  });
-
   return (
     <div className="space-y-6">
       {/* Header bar */}
@@ -83,40 +75,8 @@ export default function DataExplorerPage() {
             onChange={handleSourceChange}
           />
 
-          {sourceId && sourceId > 0 && (
-            <>
-              <button
-                type="button"
-                onClick={() => achillesMutation.mutate()}
-                disabled={achillesMutation.isPending}
-                className={cn(
-                  "inline-flex items-center gap-2 rounded-lg border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#C5C0B8]",
-                  "hover:bg-[#1A1A1E] hover:text-[#F0EDE8] transition-colors disabled:opacity-50",
-                )}
-              >
-                {achillesMutation.isPending ? (
-                  <Loader2 size={14} className="animate-spin" />
-                ) : (
-                  <PlayCircle size={14} />
-                )}
-                Run Achilles
-              </button>
-            </>
-          )}
         </div>
       </div>
-
-      {/* Achilles run feedback */}
-      {achillesMutation.isSuccess && (
-        <div className="rounded-lg border border-[#2DD4BF]/20 bg-[#2DD4BF]/5 px-4 py-2">
-          <p className="text-sm text-[#2DD4BF]">Achilles run dispatched successfully</p>
-        </div>
-      )}
-      {achillesMutation.isError && (
-        <div className="rounded-lg border border-[#E85A6B]/20 bg-[#E85A6B]/5 px-4 py-2">
-          <p className="text-sm text-[#E85A6B]">Failed to dispatch Achilles run</p>
-        </div>
-      )}
 
       {/* Tab navigation */}
       <div className="flex items-center gap-1 border-b border-[#232328]">
@@ -156,7 +116,7 @@ export default function DataExplorerPage() {
           {activeTab === "domains" && <DomainTab sourceId={sourceId} initialDomain={pendingDomain ?? undefined} />}
           {activeTab === "dqd" && <DqdTab sourceId={sourceId} />}
           {activeTab === "temporal" && <TemporalTab sourceId={sourceId} />}
-          {activeTab === "heel" && <HeelTab sourceId={sourceId} />}
+          {activeTab === "heel" && <AchillesTab sourceId={sourceId} />}
         </Suspense>
       )}
     </div>
