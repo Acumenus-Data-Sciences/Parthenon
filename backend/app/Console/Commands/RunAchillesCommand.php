@@ -55,8 +55,9 @@ class RunAchillesCommand extends Command
         }
 
         // Dispatch to queue
-        RunAchillesJob::dispatch($source, $categories, $analysisIds, (bool) $this->option('fresh'));
-        $this->info('Achilles job dispatched to queue.');
+        $runId = (string) \Illuminate\Support\Str::uuid();
+        RunAchillesJob::dispatch($source, $categories, $analysisIds, (bool) $this->option('fresh'), $runId);
+        $this->info("Achilles job dispatched to queue (run_id: {$runId}).");
 
         return self::SUCCESS;
     }
