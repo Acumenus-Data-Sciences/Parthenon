@@ -440,15 +440,18 @@ function AchillesPanel({ sourceId }: { sourceId: number }) {
               Duration: {((new Date(displayRun.completed_at).getTime() - new Date(displayRun.started_at).getTime()) / 1000).toFixed(1)}s
             </div>
           )}
-          {displayRun.status === "running" && (
-            <button
-              type="button"
-              onClick={() => { setActiveRunId(displayRun.run_id); setTotalAnalyses(displayRun.total_analyses); setShowModal(true); }}
-              className="w-full rounded-lg bg-[#C9A227]/10 px-3 py-1.5 text-xs font-medium text-[#C9A227] hover:bg-[#C9A227]/20 transition-colors"
-            >
-              View Live Progress
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={() => { setActiveRunId(displayRun.run_id); setTotalAnalyses(displayRun.total_analyses); setShowModal(true); }}
+            className={cn(
+              "w-full rounded-lg px-3 py-1.5 text-xs font-medium transition-colors",
+              displayRun.status === "running"
+                ? "bg-[#C9A227]/10 text-[#C9A227] hover:bg-[#C9A227]/20"
+                : "bg-[#232328] text-[#C5C0B8] hover:bg-[#2a2a30]",
+            )}
+          >
+            {displayRun.status === "running" ? "View Live Progress" : "View Details"}
+          </button>
         </div>
       )}
 
