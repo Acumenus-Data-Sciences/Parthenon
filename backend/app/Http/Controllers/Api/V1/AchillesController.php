@@ -9,6 +9,9 @@ use App\Models\App\Source;
 use App\Services\Achilles\AchillesResultReaderService;
 use App\Services\Achilles\Heel\AchillesHeelRuleRegistry;
 use App\Services\Achilles\Heel\AchillesHeelService;
+use App\Models\Results\AchillesRun;
+use App\Models\Results\AchillesRunStep;
+use App\Services\Achilles\AchillesAnalysisRegistry;
 use App\Services\Solr\AnalysesSearchService;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
@@ -24,6 +27,7 @@ class AchillesController extends Controller
         private readonly AchillesResultReaderService $reader,
         private readonly AchillesHeelService $heel,
         private readonly AchillesHeelRuleRegistry $heelRegistry,
+        private readonly AchillesAnalysisRegistry $analysisRegistry,
         private readonly AnalysesSearchService $analysesSearch,
     ) {}
 
@@ -361,17 +365,99 @@ class AchillesController extends Controller
     public function run(Request $request, Source $source): JsonResponse
     {
         try {
+            $runId = (string) Str::uuid();
+
             RunAchillesJob::dispatch(
                 $source,
                 $request->input('categories'),
                 $request->input('analysis_ids'),
                 $request->boolean('fresh', false),
+                $runId,
             );
 
-            return response()->json(['message' => 'Achilles run dispatched.'], 202);
+            return response()->json([
+                'run_id' => $runId,
+                'total_analyses' => $this->analysisRegistry->count(),
+                'message' => 'Achilles run dispatched.',
+            ], 202);
         } catch (\Throwable $e) {
             return $this->errorResponse('Failed to dispatch Achilles run', $e);
         }
+    }
+
+    /**
+     * GET /v1/sources/{source}/achilles/runs
+     *
+     * List Achilles characterization runs for a source.
+     */
+    public function achillesRuns(Source $source): JsonResponse
+    {
+        $runs = AchillesRun::where('source_id', $source->id)
+            ->orderByDesc('created_at')
+            ->limit(20)
+            ->get()
+            ->map(fn (AchillesRun $run) => [
+                'run_id' => $run->run_id,
+                'status' => $run->status,
+                'total_analyses' => $run->total_analyses,
+                'completed_analyses' => $run->completed_analyses,
+                'failed_analyses' => $run->failed_analyses,
+                'categories' => $run->categories,
+                'started_at' => $run->started_at?->toISOString(),
+                'completed_at' => $run->completed_at?->toISOString(),
+            ]);
+
+        return response()->json(['data' => $runs]);
+    }
+
+    /**
+     * GET /v1/sources/{source}/achilles/runs/{runId}/progress
+     *
+     * Full progress for a specific Achilles run including all steps grouped by category.
+     */
+    public function achillesProgress(Source $source, string $runId): JsonResponse
+    {
+        $run = AchillesRun::where('run_id', $runId)
+            ->where('source_id', $source->id)
+            ->first();
+
+        if (! $run) {
+            return response()->json(['error' => 'Run not found'], 404);
+        }
+
+        $steps = AchillesRunStep::where('run_id', $runId)
+            ->orderBy('analysis_id')
+            ->get()
+            ->map(fn (AchillesRunStep $step) => [
+                'analysis_id' => $step->analysis_id,
+                'analysis_name' => $step->analysis_name,
+                'category' => $step->category,
+                'status' => $step->status,
+                'elapsed_seconds' => $step->elapsed_seconds,
+                'error_message' => $step->error_message,
+                'started_at' => $step->started_at?->toISOString(),
+                'completed_at' => $step->completed_at?->toISOString(),
+            ]);
+
+        $categories = $steps->groupBy('category')->map(fn ($catSteps, $category) => [
+            'category' => $category,
+            'total' => $catSteps->count(),
+            'completed' => $catSteps->where('status', 'completed')->count(),
+            'failed' => $catSteps->where('status', 'failed')->count(),
+            'running' => $catSteps->where('status', 'running')->count(),
+            'steps' => $catSteps->values(),
+        ])->values();
+
+        return response()->json([
+            'run_id' => $run->run_id,
+            'status' => $run->status,
+            'total_analyses' => $run->total_analyses,
+            'completed_analyses' => $run->completed_analyses,
+            'failed_analyses' => $run->failed_analyses,
+            'started_at' => $run->started_at?->toISOString(),
+            'completed_at' => $run->completed_at?->toISOString(),
+            'categories' => $categories,
+        ]);
     }
 
     /**

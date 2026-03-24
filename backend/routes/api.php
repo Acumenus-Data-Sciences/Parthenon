@@ -213,6 +213,8 @@ Route::prefix('v1')->group(function () {
             Route::get('/heel/runs', [AchillesController::class, 'heelRuns']);
             Route::get('/heel/runs/{runId}/progress', [AchillesController::class, 'heelProgress']);
             Route::post('/heel/run', [AchillesController::class, 'runHeel']);
+            Route::get('/runs', [AchillesController::class, 'achillesRuns']);
+            Route::get('/runs/{runId}/progress', [AchillesController::class, 'achillesProgress']);
             Route::post('/run', [AchillesController::class, 'run']);
         });
 
