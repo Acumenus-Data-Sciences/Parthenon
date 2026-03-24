@@ -3,11 +3,13 @@
 namespace App\Models\App;
 
 use App\Models\User;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ChartAnnotation extends Model
 {
+    use HasFactory;
     protected $fillable = [
         'source_id',
         'chart_type',

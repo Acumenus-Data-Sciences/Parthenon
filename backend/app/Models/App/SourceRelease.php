@@ -12,6 +12,11 @@ class SourceRelease extends Model
 {
     use HasFactory;
 
+    protected static function newFactory(): \Database\Factories\SourceReleaseFactory
+    {
+        return \Database\Factories\SourceReleaseFactory::new();
+    }
+
     protected $fillable = [
         'source_id',
         'release_key',
