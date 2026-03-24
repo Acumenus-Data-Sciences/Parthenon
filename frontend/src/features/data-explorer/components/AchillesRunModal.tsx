@@ -98,19 +98,19 @@ function StepRow({ step }: { step: AchillesRunStep }) {
   );
 }
 
-function CategorySection({ category }: { category: AchillesRunCategory }) {
+function CategorySection({ category, isHistorical }: { category: AchillesRunCategory; isHistorical: boolean }) {
   const isDone = category.completed + category.failed >= category.total;
   const hasRunning = category.running > 0;
   const [collapsed, setCollapsed] = useState(false);
 
-  // Auto-collapse completed categories
+  // Auto-collapse completed categories only during live runs (not historical viewing)
   const prevDoneRef = useRef(isDone);
   useEffect(() => {
-    if (isDone && !prevDoneRef.current) {
+    if (!isHistorical && isDone && !prevDoneRef.current) {
       setCollapsed(true);
     }
     prevDoneRef.current = isDone;
-  }, [isDone]);
+  }, [isDone, isHistorical]);
 
   const statusIcon = isDone
     ? category.failed > 0
@@ -165,11 +165,21 @@ export default function AchillesRunModal({
   const pct = total > 0 ? (done / total) * 100 : 0;
   const isFinished = progress?.status === "completed" || progress?.status === "failed";
 
-  // ETA calculation
+  // Duration: use completed_at - started_at for finished runs, live clock for running
   const startedAt = progress?.started_at ? new Date(progress.started_at).getTime() : null;
-  const elapsedTotal = startedAt ? (Date.now() - startedAt) / 1000 : 0;
+  const completedAt = progress?.completed_at ? new Date(progress.completed_at).getTime() : null;
+  const elapsedTotal = startedAt
+    ? isFinished && completedAt
+      ? (completedAt - startedAt) / 1000
+      : (Date.now() - startedAt) / 1000
+    : 0;
+
+  // ETA calculation (only meaningful while running)
   const avgPerAnalysis = done > 0 ? elapsedTotal / done : 0;
   const remaining = (total - done) * avgPerAnalysis;
+
+  // Historical = opened after run already finished (not watched live)
+  const isHistorical = isFinished;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
@@ -219,6 +229,11 @@ export default function AchillesRunModal({
                   <AlertCircle size={12} /> {failed} failed
                 </span>
               )}
+              {isFinished && elapsedTotal > 0 && (
+                <span className="flex items-center gap-1 text-xs text-[#8A857D]">
+                  <Clock size={12} /> {formatDuration(elapsedTotal)} total
+                </span>
+              )}
               {!isFinished && remaining > 0 && (
                 <span className="flex items-center gap-1 text-xs text-[#8A857D]">
                   <Clock size={12} /> ~{formatDuration(remaining)} remaining
@@ -243,7 +258,7 @@ export default function AchillesRunModal({
         <div className="flex-1 overflow-y-auto px-6 py-4 space-y-3">
           {progress?.categories && progress.categories.length > 0 ? (
             progress.categories.map((cat) => (
-              <CategorySection key={cat.category} category={cat} />
+              <CategorySection key={cat.category} category={cat} isHistorical={isHistorical} />
             ))
           ) : (
             <div className="flex items-center justify-center py-12">
