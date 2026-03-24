@@ -13,7 +13,6 @@ class AchillesPerformance extends ResultsModel
     protected $fillable = [
         'analysis_id',
         'elapsed_seconds',
-        'query_text',
     ];
 
     /**

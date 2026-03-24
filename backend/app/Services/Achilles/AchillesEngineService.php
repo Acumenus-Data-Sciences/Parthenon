@@ -265,7 +265,6 @@ class AchillesEngineService
             AchillesPerformance::create([
                 'analysis_id' => $analysisId,
                 'elapsed_seconds' => $elapsed,
-                'query_text' => mb_substr($renderedSql, 0, 10000),
             ]);
 
             Log::info("Achilles analysis {$analysisId} ({$analysis->analysisName()}) completed in {$elapsed}s");
