@@ -8,7 +8,7 @@ services:
       - ./docker/nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
       - ./backend:/var/www/html:ro
       - ./frontend/dist:/var/www/frontend:ro
-      - ./docs/dist:/var/www/docs-dist:ro
+      - ./docs/site/build:/var/www/docs-dist:ro
       - ohif-dist:/var/www/ohif:ro
     environment:
       - ORTHANC_AUTH_HEADER=${ORTHANC_AUTH_HEADER:-}
@@ -670,7 +670,7 @@ services:
     volumes:
       - ./docs/site:/docs
       - ./docs/blog:/blog:ro
-      - ./docs/dist:/dist
+      - ./docs/site/build:/dist
     command: sh -c "npm ci --legacy-peer-deps && npm run build:docker"
     deploy:
       resources:

@@ -98,8 +98,6 @@ installer/**/__pycache__/
 docs/MBU/
 
 # Documentation
-docs/dist/*
-!docs/dist/.gitkeep
 docs/site/node_modules/
 docs/site/build/
 docs/site/.docusaurus/

@@ -260,9 +260,9 @@ if $DO_DOCS; then
   echo ""
   echo "── Docs: building Docusaurus site ──"
   if [ -f docs/site/package.json ]; then
-    mkdir -p docs/dist
+    mkdir -p docs/site/build
     if docker compose --profile docs run --rm docs-build 2>&1 | sed 's/^/   /'; then
-      ok "Docs built → docs/dist"
+      ok "Docs built → docs/site/build"
     else
       warn "Docs build failed (non-critical)"
     fi

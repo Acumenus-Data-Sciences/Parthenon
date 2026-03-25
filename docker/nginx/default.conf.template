@@ -92,14 +92,14 @@ server {
     location /docs/ {
         alias /var/www/docs-dist/;
         index index.html;
-        try_files $uri $uri/ /docs/index.html;
+        try_files $uri $uri/ /index.html;
     }
 
     # ── OHIF Viewer (static build) ────────────────────────────────────────
     location /ohif {
         alias /var/www/ohif/;
         index index.html;
-        try_files $uri $uri/ /ohif/index.html;
+        try_files $uri $uri/ /index.html;
     }
 
     # ── Orthanc DICOMweb proxy (optional — resolve at request time) ─────
