@@ -4,6 +4,7 @@ namespace App\Services\Ares;
 
 use App\Enums\DaimonType;
 use App\Models\App\Source;
+use App\Models\App\SourceRelease;
 use App\Models\Results\AchillesResult;
 use App\Services\Database\DynamicConnectionFactory;
 use Illuminate\Support\Facades\Cache;
@@ -514,7 +515,7 @@ class DiversityService
      */
     public function getDiversityTrends(Source $source): array
     {
-        $releases = \App\Models\App\SourceRelease::where('source_id', $source->id)
+        $releases = SourceRelease::where('source_id', $source->id)
             ->orderBy('created_at')
             ->get();
 

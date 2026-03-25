@@ -5,6 +5,7 @@ namespace App\Models\App;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * Accepted vocabulary mapping from source code to standard concept.
@@ -18,9 +19,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $mapping_method
  * @property float|null $confidence
  * @property int|null $reviewed_by
- * @property \Illuminate\Support\Carbon|null $reviewed_at
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $reviewed_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  */
 class AcceptedMapping extends Model
 {

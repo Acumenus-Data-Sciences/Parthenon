@@ -80,9 +80,9 @@ class ReleaseDiffService
         $notes = [];
 
         if ($diff['person_delta'] > 0) {
-            $notes[] = "Added ".number_format($diff['person_delta'])." persons";
+            $notes[] = 'Added '.number_format($diff['person_delta']).' persons';
         } elseif ($diff['person_delta'] < 0) {
-            $notes[] = "Removed ".number_format(abs($diff['person_delta']))." persons";
+            $notes[] = 'Removed '.number_format(abs($diff['person_delta'])).' persons';
         }
 
         if ($diff['record_delta'] !== 0) {
@@ -96,7 +96,7 @@ class ReleaseDiffService
         if ($diff['dq_score_delta'] > 0) {
             $notes[] = "DQ score improved {$diff['dq_score_delta']}%";
         } elseif ($diff['dq_score_delta'] < 0) {
-            $notes[] = "DQ score declined ".abs($diff['dq_score_delta'])."%";
+            $notes[] = 'DQ score declined '.abs($diff['dq_score_delta']).'%';
         }
 
         if ($diff['vocab_version_changed']) {
@@ -106,7 +106,7 @@ class ReleaseDiffService
         if ($diff['unmapped_code_delta'] > 0) {
             $notes[] = "{$diff['unmapped_code_delta']} new unmapped codes";
         } elseif ($diff['unmapped_code_delta'] < 0) {
-            $notes[] = abs($diff['unmapped_code_delta'])." unmapped codes resolved";
+            $notes[] = abs($diff['unmapped_code_delta']).' unmapped codes resolved';
         }
 
         return implode('. ', $notes).'.';

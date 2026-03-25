@@ -7,7 +7,6 @@ use App\Models\App\Source;
 use App\Models\Results\AchillesResult;
 use App\Services\Database\DynamicConnectionFactory;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class PatientArrivalForecastService
 {
@@ -278,7 +277,7 @@ class PatientArrivalForecastService
 
         // Get last month for projection base
         $lastMonth = end($recentHistory)['month'];
-        $lastTs = strtotime($lastMonth . '-01');
+        $lastTs = strtotime($lastMonth.'-01');
 
         $projected = [];
         for ($m = 1; $m <= $months; $m++) {
@@ -316,7 +315,7 @@ class PatientArrivalForecastService
     private function formatMonth(string $yyyymm): string
     {
         if (strlen($yyyymm) === 6) {
-            return substr($yyyymm, 0, 4) . '-' . substr($yyyymm, 4, 2);
+            return substr($yyyymm, 0, 4).'-'.substr($yyyymm, 4, 2);
         }
 
         // Already formatted or different format

@@ -5,7 +5,6 @@ namespace App\Services\Ares;
 use App\Models\App\UnmappedSourceCode;
 use App\Models\Vocabulary\ConceptEmbedding;
 use App\Services\AiService;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Pgvector\Laravel\Distance;
 use Pgvector\Laravel\Vector;

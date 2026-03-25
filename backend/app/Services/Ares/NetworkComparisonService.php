@@ -300,7 +300,7 @@ class NetworkComparisonService
     /**
      * Lookup population benchmark rate for a concept from config.
      *
-     * @return float|null  National prevalence rate per 1000, or null if unavailable
+     * @return float|null National prevalence rate per 1000, or null if unavailable
      */
     public function getBenchmark(int $conceptId): ?float
     {

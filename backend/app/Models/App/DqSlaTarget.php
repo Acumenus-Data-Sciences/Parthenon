@@ -4,6 +4,7 @@ namespace App\Models\App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * Data quality SLA target per source and category.
@@ -12,8 +13,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $source_id
  * @property string $category
  * @property float $min_pass_rate
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  */
 class DqSlaTarget extends Model
 {

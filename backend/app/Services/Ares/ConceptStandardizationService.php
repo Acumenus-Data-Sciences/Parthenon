@@ -231,7 +231,7 @@ class ConceptStandardizationService
     /**
      * Get concept counts stratified by gender across all relevant domain analyses.
      *
-     * @return array<int, int>  gender_concept_id => count
+     * @return array<int, int> gender_concept_id => count
      */
     private function getConceptByGender(string $connection, int $conceptId): array
     {
@@ -256,7 +256,7 @@ class ConceptStandardizationService
     /**
      * Get concept counts stratified by age decile across all relevant domain analyses.
      *
-     * @return array<string, int>  age_group => count
+     * @return array<string, int> age_group => count
      */
     private function getConceptByAge(string $connection, int $conceptId): array
     {
@@ -375,13 +375,13 @@ class ConceptStandardizationService
 
         $decade = (int) floor($age / 10) * 10;
 
-        return "{$decade}-" . ($decade + 9);
+        return "{$decade}-".($decade + 9);
     }
 
     /**
      * Wilson score 95% confidence interval for a proportion.
      *
-     * @return array{0: float, 1: float}  [lower, upper] as proportions (0-1)
+     * @return array{0: float, 1: float} [lower, upper] as proportions (0-1)
      */
     private function wilsonScoreInterval(int $successes, int $trials): array
     {

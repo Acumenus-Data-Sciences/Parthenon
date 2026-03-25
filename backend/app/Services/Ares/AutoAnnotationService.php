@@ -9,13 +9,15 @@ use App\Models\App\Source;
 use App\Models\App\SourceRelease;
 use App\Models\App\UnmappedSourceCode;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class AutoAnnotationService
 {
     private const DQ_DROP_THRESHOLD = 5.0; // percent
+
     private const UNMAPPED_SPIKE_THRESHOLD = 50; // new codes
+
     private const FRESHNESS_WARNING_DAYS = 14;
+
     private const FRESHNESS_CRITICAL_DAYS = 30;
 
     /**

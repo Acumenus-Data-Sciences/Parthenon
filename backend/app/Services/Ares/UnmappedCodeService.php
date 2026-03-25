@@ -198,7 +198,7 @@ class UnmappedCodeService
             ->count();
 
         $reviews = UnmappedCodeReview::where('source_id', $source->id)
-            ->selectRaw("status, COUNT(*) as cnt")
+            ->selectRaw('status, COUNT(*) as cnt')
             ->groupBy('status')
             ->pluck('cnt', 'status');
 

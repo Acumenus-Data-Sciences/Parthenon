@@ -3,17 +3,17 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Api\MapUnmappedCodeRequest;
 use App\Http\Requests\Api\StoreAnnotationRequest;
 use App\Http\Requests\Api\StoreReleaseRequest;
-use App\Http\Requests\Api\StoreUnmappedCodeReviewRequest;
 use App\Http\Requests\Api\UpdateAnnotationRequest;
 use App\Http\Requests\Api\UpdateReleaseRequest;
+use App\Models\App\AcceptedMapping;
 use App\Models\App\ChartAnnotation;
+use App\Models\App\DqSlaTarget;
 use App\Models\App\Source;
 use App\Models\App\SourceRelease;
+use App\Models\App\UnmappedSourceCode;
 use App\Models\User;
-use App\Models\App\AcceptedMapping;
 use App\Services\Ares\AnnotationService;
 use App\Services\Ares\CostService;
 use App\Services\Ares\DiversityService;
@@ -25,6 +25,7 @@ use App\Services\Ares\UnmappedCodeService;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AresController extends Controller
 {
@@ -504,15 +505,15 @@ class AresController extends Controller
             'targets.*.min_pass_rate' => 'required|numeric|min:0|max:100',
         ]);
 
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = $request->user();
 
         // Delete existing targets for this source, then re-create
-        \App\Models\App\DqSlaTarget::where('source_id', $source->id)->delete();
+        DqSlaTarget::where('source_id', $source->id)->delete();
 
         $targets = [];
         foreach ($validated['targets'] as $target) {
-            $targets[] = \App\Models\App\DqSlaTarget::create([
+            $targets[] = DqSlaTarget::create([
                 'source_id' => $source->id,
                 'category' => $target['category'],
                 'min_pass_rate' => $target['min_pass_rate'],
@@ -527,7 +528,7 @@ class AresController extends Controller
      */
     public function dqSlaIndex(Source $source): JsonResponse
     {
-        $targets = \App\Models\App\DqSlaTarget::where('source_id', $source->id)->get();
+        $targets = DqSlaTarget::where('source_id', $source->id)->get();
 
         return response()->json(['data' => $targets]);
     }
@@ -619,12 +620,12 @@ class AresController extends Controller
         $user = $request->user();
 
         // Verify the unmapped code exists and belongs to this source
-        $unmappedCode = \App\Models\App\UnmappedSourceCode::where('id', $codeId)
+        $unmappedCode = UnmappedSourceCode::where('id', $codeId)
             ->where('source_id', $source->id)
             ->firstOrFail();
 
         // Look up target concept name from vocabulary
-        $targetConceptName = \Illuminate\Support\Facades\DB::connection('omop')
+        $targetConceptName = DB::connection('omop')
             ->table('concept')
             ->where('concept_id', $validated['target_concept_id'])
             ->value('concept_name');

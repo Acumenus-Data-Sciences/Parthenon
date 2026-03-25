@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\RunFeasibilityRequest;
+use App\Models\App\Source;
 use App\Models\App\SourceRelease;
 use App\Models\User;
 use App\Services\Ares\AnnotationService;
@@ -19,6 +20,7 @@ use App\Services\Ares\PatientArrivalForecastService;
 use App\Services\Ares\ReleaseService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class NetworkAresController extends Controller
 {
@@ -335,7 +337,7 @@ class NetworkAresController extends Controller
      */
     public function feasibilityTemplates(Request $request): JsonResponse
     {
-        /** @var \App\Models\User|null $user */
+        /** @var User|null $user */
         $user = $request->user();
 
         return response()->json([
@@ -355,7 +357,7 @@ class NetworkAresController extends Controller
             'is_public' => 'nullable|boolean',
         ]);
 
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = $request->user();
 
         $template = $this->feasibilityService->createTemplate($user->id, $validated);
@@ -471,18 +473,18 @@ class NetworkAresController extends Controller
         $export = $this->coverageService->exportMatrix($format);
 
         if ($format === 'csv') {
-            $csv = implode(',', $export['headers']) . "\n";
+            $csv = implode(',', $export['headers'])."\n";
             foreach ($export['rows'] as $row) {
                 $csv .= implode(',', array_map(
-                    fn ($v) => '"' . str_replace('"', '""', (string) $v) . '"',
+                    fn ($v) => '"'.str_replace('"', '""', (string) $v).'"',
                     $row,
-                )) . "\n";
+                ))."\n";
             }
 
             return response()->json([
                 'data' => [
                     'format' => 'csv',
-                    'filename' => 'coverage_matrix_' . now()->format('Y-m-d') . '.csv',
+                    'filename' => 'coverage_matrix_'.now()->format('Y-m-d').'.csv',
                     'content' => $csv,
                 ],
             ]);
@@ -499,7 +501,7 @@ class NetworkAresController extends Controller
      */
     public function releasesTimeline(): JsonResponse
     {
-        $sources = \App\Models\App\Source::whereHas('daimons')->with(['releases' => function ($q) {
+        $sources = Source::whereHas('daimons')->with(['releases' => function ($q) {
             $q->orderByDesc('created_at');
         }])->get();
 
@@ -588,7 +590,7 @@ class NetworkAresController extends Controller
         }
 
         // Verify the assessment exists
-        $assessment = \Illuminate\Support\Facades\DB::table('feasibility_assessments')
+        $assessment = DB::table('feasibility_assessments')
             ->where('id', $id)
             ->first();
 

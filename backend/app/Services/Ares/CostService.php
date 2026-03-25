@@ -303,7 +303,7 @@ class CostService
             }
 
             $distributions = $query
-                ->selectRaw("
+                ->selectRaw('
                     cost_domain_id as domain,
                     MIN(total_charge) as min_val,
                     PERCENTILE_CONT(0.10) WITHIN GROUP (ORDER BY total_charge) as p10,
@@ -314,7 +314,7 @@ class CostService
                     MAX(total_charge) as max_val,
                     AVG(total_charge) as mean_val,
                     COUNT(*) as record_count
-                ")
+                ')
                 ->groupBy('cost_domain_id')
                 ->orderByDesc(DB::raw('SUM(total_charge)'))
                 ->get();
@@ -452,7 +452,7 @@ class CostService
      */
     public function getNetworkCostComparison(string $domain, ?int $costTypeConceptId = null): array
     {
-        $cacheKey = "ares:network:cost-compare-detailed:{$domain}:" . ($costTypeConceptId ?? 'all');
+        $cacheKey = "ares:network:cost-compare-detailed:{$domain}:".($costTypeConceptId ?? 'all');
 
         return Cache::remember($cacheKey, 600, function () use ($domain, $costTypeConceptId) {
             $sources = Source::whereHas('daimons')->get();
@@ -484,7 +484,7 @@ class CostService
                         $query->where('cost_type_concept_id', $costTypeConceptId);
                     }
 
-                    $stats = $query->selectRaw("
+                    $stats = $query->selectRaw('
                         MIN(total_charge) as min_val,
                         PERCENTILE_CONT(0.10) WITHIN GROUP (ORDER BY total_charge) as p10,
                         PERCENTILE_CONT(0.25) WITHIN GROUP (ORDER BY total_charge) as p25,
@@ -493,7 +493,7 @@ class CostService
                         PERCENTILE_CONT(0.90) WITHIN GROUP (ORDER BY total_charge) as p90,
                         MAX(total_charge) as max_val,
                         COUNT(*) as record_count
-                    ")->first();
+                    ')->first();
 
                     if (! $stats || (int) $stats->record_count === 0) {
                         $results[] = [

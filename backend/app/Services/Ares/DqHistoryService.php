@@ -4,8 +4,8 @@ namespace App\Services\Ares;
 
 use App\Enums\DaimonType;
 use App\Models\App\ChartAnnotation;
-use App\Models\App\DqSlaTarget;
 use App\Models\App\DqdResult;
+use App\Models\App\DqSlaTarget;
 use App\Models\App\Source;
 use App\Models\App\SourceRelease;
 use App\Models\Results\AchillesResult;
@@ -26,6 +26,7 @@ class DqHistoryService
     public function __construct(
         private readonly DynamicConnectionFactory $connectionFactory,
     ) {}
+
     /**
      * Compute delta status for each DQD check in the given release
      * compared to the previous release for the same source.
@@ -668,7 +669,7 @@ class DqHistoryService
 
         foreach ($trends as $trend) {
             $lines[] = implode(',', [
-                '"' . str_replace('"', '""', $trend['release_name']) . '"',
+                '"'.str_replace('"', '""', $trend['release_name']).'"',
                 $trend['created_at'],
                 $trend['pass_rate'],
                 $trend['total'],
@@ -690,7 +691,7 @@ class DqHistoryService
             $lines[] = implode(',', array_merge(['release_name', 'created_at'], $categories));
             foreach ($categoryTrends as $ct) {
                 $row = [
-                    '"' . str_replace('"', '""', $ct['release_name']) . '"',
+                    '"'.str_replace('"', '""', $ct['release_name']).'"',
                     $ct['created_at'],
                 ];
                 foreach ($categories as $cat) {
