@@ -1,28 +1,35 @@
 import { useState } from "react";
 import { Clock, ChevronUp, ChevronDown, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import {
-  scoreToGrade,
-  tableNullScore,
-  type ScanHistoryEntry,
-} from "../lib/profiler-utils";
+import { scoreToGrade } from "../lib/profiler-utils";
+import type { ProfileSummary } from "../api";
+
+// Grade letter → approximate numeric score for display badge
+function gradeToScore(grade: string): number {
+  switch (grade.toUpperCase()) {
+    case "A": return 0.02;
+    case "B": return 0.10;
+    case "C": return 0.22;
+    case "D": return 0.40;
+    case "F": return 0.60;
+    default: return 0.50;
+  }
+}
 
 export function ScanHistorySidebar({
-  history,
+  profiles,
   onSelect,
   onDelete,
-  onClear,
   selectedId,
 }: {
-  history: ScanHistoryEntry[];
-  onSelect: (entry: ScanHistoryEntry) => void;
-  onDelete: (id: string) => void;
-  onClear: () => void;
-  selectedId: string | null;
+  profiles: ProfileSummary[];
+  onSelect: (profile: ProfileSummary) => void;
+  onDelete: (profileId: number) => void;
+  selectedId: number | null;
 }) {
   const [expanded, setExpanded] = useState(true);
 
-  if (history.length === 0) return null;
+  if (profiles.length === 0) return null;
 
   return (
     <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
@@ -35,7 +42,7 @@ export function ScanHistorySidebar({
         <span className="flex-1 text-sm font-medium text-[#F0EDE8]">
           Scan History
         </span>
-        <span className="text-[11px] text-[#5A5650]">{history.length}</span>
+        <span className="text-[11px] text-[#5A5650]">{profiles.length}</span>
         {expanded ? (
           <ChevronUp size={14} className="text-[#8A857D]" />
         ) : (
@@ -45,42 +52,37 @@ export function ScanHistorySidebar({
 
       {expanded && (
         <div className="max-h-[400px] overflow-y-auto">
-          {history.map((entry) => {
-            const grade = scoreToGrade(
-              entry.result.tables.length > 0
-                ? entry.result.tables.reduce((s, t) => s + tableNullScore(t), 0) /
-                    entry.result.tables.length
-                : 0,
-            );
+          {profiles.map((profile) => {
+            const grade = scoreToGrade(gradeToScore(profile.overall_grade));
             return (
               <div
-                key={entry.id}
+                key={profile.id}
                 className={cn(
                   "flex items-center gap-3 px-4 py-2.5 border-b border-[#1C1C20] cursor-pointer hover:bg-[#1C1C20] transition-colors",
-                  selectedId === entry.id && "bg-[#1C1C20] border-l-2 border-l-[#9B1B30]",
+                  selectedId === profile.id && "bg-[#1C1C20] border-l-2 border-l-[#9B1B30]",
                 )}
-                onClick={() => onSelect(entry)}
+                onClick={() => onSelect(profile)}
               >
                 <span
                   className="w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold shrink-0"
                   style={{ backgroundColor: grade.bg, color: grade.color }}
                 >
-                  {grade.letter}
+                  {profile.overall_grade}
                 </span>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-medium text-[#F0EDE8] truncate">
-                    {entry.sourceName}
+                    {profile.table_count} tables &middot; {profile.overall_grade}
                   </p>
                   <p className="text-[10px] text-[#5A5650]">
-                    {new Date(entry.scannedAt).toLocaleString()} -{" "}
-                    {entry.tableCount} tables
+                    {new Date(profile.created_at).toLocaleString()} &mdash;{" "}
+                    {profile.scan_time_seconds.toFixed(1)}s
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
-                    onDelete(entry.id);
+                    onDelete(profile.id);
                   }}
                   className="p-1 rounded hover:bg-[#2E2E35] text-[#5A5650] hover:text-[#E85A6B] transition-colors"
                   title="Delete scan"
@@ -90,15 +92,6 @@ export function ScanHistorySidebar({
               </div>
             );
           })}
-          <div className="px-4 py-2 border-t border-[#232328]">
-            <button
-              type="button"
-              onClick={onClear}
-              className="text-[11px] text-[#5A5650] hover:text-[#E85A6B] transition-colors"
-            >
-              Clear all history
-            </button>
-          </div>
         </div>
       )}
     </div>

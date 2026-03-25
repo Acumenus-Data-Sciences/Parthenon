@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useRef } from "react";
+import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   ScanSearch,
@@ -18,20 +18,21 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
-import { useScanDatabase, useWhiteRabbitHealth, type ScanResult } from "../api";
+import { useWhiteRabbitHealth, type ScanResult } from "../api";
+import type { ProfileSummary, PersistedFieldProfile } from "../api";
+import { CdmContextPanel } from "../components/CdmContextPanel";
+import ScanProgressIndicator from "../components/ScanProgressIndicator";
+import { useProfileHistory, useRunScan, useDeleteProfile } from "../hooks/useProfilerData";
+import { fetchProfile } from "../api";
 import {
   fmtNumber,
   fmtNumberFull,
   overallGrade,
   scoreToGrade,
   tableNullScore,
-  generateId,
-  loadHistory,
-  saveHistory,
   exportJson,
   exportCsv,
-  MAX_HISTORY,
-  type ScanHistoryEntry,
+  HISTORY_KEY,
   type SortField,
   type SortDir,
   type ViewMode,
@@ -44,6 +45,57 @@ import { TableAccordion } from "../components/TableAccordion";
 import { ScanHistorySidebar } from "../components/ScanHistorySidebar";
 
 // ---------------------------------------------------------------------------
+// Transform persisted field data into the ScanResult shape used by rendering
+// ---------------------------------------------------------------------------
+
+function transformPersistedToScanResult(
+  fields: PersistedFieldProfile[],
+  summary: ProfileSummary,
+): ScanResult {
+  const tableMap = new Map<
+    string,
+    {
+      columns: Array<{
+        name: string;
+        type: string;
+        n_rows: number;
+        fraction_empty: number;
+        unique_count: number;
+        values?: Record<string, number>;
+      }>;
+      row_count: number;
+    }
+  >();
+
+  for (const f of fields) {
+    if (!tableMap.has(f.table_name)) {
+      tableMap.set(f.table_name, { columns: [], row_count: f.row_count });
+    }
+    tableMap.get(f.table_name)!.columns.push({
+      name: f.column_name,
+      type: f.inferred_type,
+      n_rows: f.row_count,
+      fraction_empty: f.null_percentage / 100,
+      unique_count: f.distinct_count,
+      values: f.sample_values ?? undefined,
+    });
+  }
+
+  const tables = Array.from(tableMap.entries()).map(([table_name, data]) => ({
+    table_name,
+    row_count: data.row_count,
+    column_count: data.columns.length,
+    columns: data.columns,
+  }));
+
+  return {
+    status: "ok",
+    tables,
+    scan_time_seconds: summary.scan_time_seconds,
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Main Page Component
 // ---------------------------------------------------------------------------
 
@@ -53,15 +105,19 @@ export default function SourceProfilerPage() {
   const [tableFilter, setTableFilter] = useState("");
   const [result, setResult] = useState<ScanResult | null>(null);
   const [resultSourceName, setResultSourceName] = useState("");
-  const [history, setHistory] = useState<ScanHistoryEntry[]>(loadHistory);
-  const [selectedHistoryId, setSelectedHistoryId] = useState<string | null>(null);
+  const [selectedHistoryId, setSelectedHistoryId] = useState<number | null>(null);
   const [tableSearch, setTableSearch] = useState("");
   const [sortField, setSortField] = useState<SortField>("name");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [sampleRows, setSampleRows] = useState(10000);
-  const scanStartRef = useRef<number>(0);
+  const scanAbortRef = useRef<AbortController | null>(null);
+
+  // -- Clear stale localStorage on mount --
+  useEffect(() => {
+    localStorage.removeItem(HISTORY_KEY);
+  }, []);
 
   // -- Queries --------------------------------------------------------------
   const { data: sources = [] } = useQuery({
@@ -69,8 +125,12 @@ export default function SourceProfilerPage() {
     queryFn: fetchSources,
   });
 
+  const sourceIdNum = Number(selectedSourceId) || 0;
   const { data: health } = useWhiteRabbitHealth();
-  const scanMutation = useScanDatabase();
+  const { data: profileHistoryData } = useProfileHistory(sourceIdNum);
+  const profileHistory: ProfileSummary[] = profileHistoryData?.data ?? [];
+  const scanMutation = useRunScan(sourceIdNum);
+  const deleteMutation = useDeleteProfile(sourceIdNum);
 
   // -- Derived data ---------------------------------------------------------
   const selectedSource = sources.find((s) => s.id === selectedSourceId);
@@ -120,71 +180,72 @@ export default function SourceProfilerPage() {
       .map((t) => t.trim())
       .filter(Boolean);
 
-    scanStartRef.current = Date.now();
+    scanAbortRef.current = new AbortController();
 
     scanMutation.mutate(
       {
-        source_id: Number(selectedSourceId),
         tables: tables.length ? tables : undefined,
+        sample_rows: sampleRows !== 10000 ? sampleRows : undefined,
       },
       {
-        onSuccess: (data) => {
-          setResult(data);
+        onSuccess: async (summary: ProfileSummary) => {
           setSelectedHistoryId(null);
           setTableSearch("");
 
           const srcName = selectedSource?.source_name ?? `Source ${selectedSourceId}`;
           setResultSourceName(srcName);
 
-          // Save to history
-          const entry: ScanHistoryEntry = {
-            id: generateId(),
-            sourceName: srcName,
-            sourceId: Number(selectedSourceId),
-            scannedAt: new Date().toISOString(),
-            tableCount: data.tables.length,
-            totalRows: data.tables.reduce((s, t) => s + t.row_count, 0),
-            totalColumns: data.tables.reduce((s, t) => s + t.column_count, 0),
-            scanTimeSeconds: data.scan_time_seconds,
-            overallScore: overallGrade(data.tables).letter,
-            result: data,
-          };
-          const updated = [entry, ...history].slice(0, MAX_HISTORY);
-          setHistory(updated);
-          saveHistory(updated);
+          // Fetch full profile detail to get field data for rendering
+          try {
+            const detail = await fetchProfile(sourceIdNum, summary.id);
+            const scanResult = transformPersistedToScanResult(detail.fields, summary);
+            setResult(scanResult);
+            setSelectedHistoryId(summary.id);
+          } catch {
+            // Fallback: show summary metrics without field-level detail
+            setResult({
+              status: "ok",
+              tables: [],
+              scan_time_seconds: summary.scan_time_seconds,
+            });
+          }
         },
       },
     );
-  }, [selectedSourceId, tableFilter, selectedSource, history, scanMutation]);
+  }, [selectedSourceId, tableFilter, selectedSource, sampleRows, sourceIdNum, scanMutation]);
 
-  const handleHistorySelect = useCallback((entry: ScanHistoryEntry) => {
-    setResult(entry.result);
-    setResultSourceName(entry.sourceName);
-    setSelectedHistoryId(entry.id);
-    setTableSearch("");
-  }, []);
+  const handleHistorySelect = useCallback(
+    async (profile: ProfileSummary) => {
+      setTableSearch("");
+      const srcName = selectedSource?.source_name ?? `Source ${selectedSourceId}`;
+      setResultSourceName(srcName);
+      setSelectedHistoryId(profile.id);
+
+      try {
+        const detail = await fetchProfile(sourceIdNum, profile.id);
+        const scanResult = transformPersistedToScanResult(detail.fields, profile);
+        setResult(scanResult);
+      } catch {
+        setResult({
+          status: "ok",
+          tables: [],
+          scan_time_seconds: profile.scan_time_seconds,
+        });
+      }
+    },
+    [selectedSource, selectedSourceId, sourceIdNum],
+  );
 
   const handleHistoryDelete = useCallback(
-    (id: string) => {
-      const updated = history.filter((h) => h.id !== id);
-      setHistory(updated);
-      saveHistory(updated);
-      if (selectedHistoryId === id) {
+    (profileId: number) => {
+      deleteMutation.mutate(profileId);
+      if (selectedHistoryId === profileId) {
         setResult(null);
         setSelectedHistoryId(null);
       }
     },
-    [history, selectedHistoryId],
+    [selectedHistoryId, deleteMutation],
   );
-
-  const handleHistoryClear = useCallback(() => {
-    setHistory([]);
-    saveHistory([]);
-    if (selectedHistoryId) {
-      setResult(null);
-      setSelectedHistoryId(null);
-    }
-  }, [selectedHistoryId]);
 
   const toggleSort = useCallback(
     (field: SortField) => {
@@ -234,6 +295,11 @@ export default function SourceProfilerPage() {
           {health.available ? "available" : "unavailable \u2014 scan may fail"}{" "}
           {health.version ? `(v${health.version})` : ""}
         </div>
+      )}
+
+      {/* CDM Context Panel */}
+      {selectedSourceId && Number(selectedSourceId) > 0 && (
+        <CdmContextPanel sourceId={Number(selectedSourceId)} />
       )}
 
       {/* -- Two-column layout: config + history -- */}
@@ -368,27 +434,19 @@ export default function SourceProfilerPage() {
         {/* Right: scan history */}
         <div>
           <ScanHistorySidebar
-            history={history}
+            profiles={profileHistory}
             onSelect={handleHistorySelect}
             onDelete={handleHistoryDelete}
-            onClear={handleHistoryClear}
             selectedId={selectedHistoryId}
           />
         </div>
       </div>
 
       {/* -- Loading state -- */}
-      {scanMutation.isPending && (
-        <div className="flex flex-col items-center justify-center py-16 rounded-lg border border-dashed border-[#2E2E35] bg-[#151518]">
-          <Loader2 size={32} className="animate-spin text-[#9B1B30] mb-4" />
-          <p className="text-sm text-[#C5C0B8] font-medium">
-            Scanning database...
-          </p>
-          <p className="text-xs text-[#8A857D] mt-1">
-            This may take several minutes for large databases.
-          </p>
-        </div>
-      )}
+      <ScanProgressIndicator
+        isScanning={scanMutation.isPending}
+        onCancel={() => scanAbortRef.current?.abort()}
+      />
 
       {/* -- Error state -- */}
       {scanMutation.isError && (
@@ -416,7 +474,7 @@ export default function SourceProfilerPage() {
                 <span className="text-xs text-[#5A5650] flex items-center gap-1">
                   <Clock size={11} />
                   {new Date(
-                    history.find((h) => h.id === selectedHistoryId)?.scannedAt ?? "",
+                    profileHistory.find((h) => h.id === selectedHistoryId)?.created_at ?? "",
                   ).toLocaleString()}
                 </span>
               )}
@@ -647,7 +705,7 @@ export default function SourceProfilerPage() {
             source data. Results include column completeness, cardinality, value
             distributions, and data quality grades.
           </p>
-          {history.length > 0 && (
+          {profileHistory.length > 0 && (
             <p className="text-xs text-[#5A5650] mt-3">
               Or select a previous scan from the history panel.
             </p>
