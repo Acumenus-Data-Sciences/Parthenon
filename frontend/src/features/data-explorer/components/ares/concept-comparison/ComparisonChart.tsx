@@ -55,13 +55,14 @@ export default function ComparisonChart({ data, metric }: ComparisonChartProps) 
               color: "#ccc",
               fontSize: 12,
             }}
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            /* eslint-disable @typescript-eslint/no-explicit-any */
             formatter={((value: number | string) => [
               metric === "rate_per_1000"
                 ? `${Number(value).toFixed(2)} per 1,000`
                 : Number(value).toLocaleString(),
               metric === "rate_per_1000" ? "Rate" : "Count",
             ]) as any}
+            /* eslint-enable @typescript-eslint/no-explicit-any */
           />
           <Bar dataKey="value" fill="#C9A227" radius={[4, 4, 0, 0]} />
         </BarChart>
