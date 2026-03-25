@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\App\SourceProfile;
 
 class Source extends Model
 {
@@ -98,6 +99,14 @@ class Source extends Model
     public function daimons(): HasMany
     {
         return $this->hasMany(SourceDaimon::class);
+    }
+
+    /**
+     * @return HasMany<SourceProfile, $this>
+     */
+    public function sourceProfiles(): HasMany
+    {
+        return $this->hasMany(SourceProfile::class);
     }
 
     public function getTableQualifier(DaimonType $type): ?string

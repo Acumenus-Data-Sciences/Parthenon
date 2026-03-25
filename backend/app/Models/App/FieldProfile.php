@@ -9,6 +9,7 @@ class FieldProfile extends Model
 {
     protected $fillable = [
         'source_profile_id',
+        'table_name',
         'column_name',
         'column_index',
         'inferred_type',
@@ -22,6 +23,7 @@ class FieldProfile extends Model
         'statistics',
         'is_potential_pii',
         'pii_type',
+        'row_count',
     ];
 
     /**
