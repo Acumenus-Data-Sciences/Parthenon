@@ -128,7 +128,8 @@ class NetworkComparisonService
 
         // Pivot: group by source, with rates per concept
         $sourceMap = [];
-        foreach ($batchData as $conceptId => $sourceResults) {
+        foreach ($batchData as $conceptId => $conceptData) {
+            $sourceResults = $conceptData['sources'] ?? [];
             foreach ($sourceResults as $sr) {
                 $key = $sr['source_id'];
                 if (! isset($sourceMap[$key])) {

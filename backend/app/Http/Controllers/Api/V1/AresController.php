@@ -254,8 +254,17 @@ class AresController extends Controller
      */
     public function unmappedCodesSummary(Source $source): JsonResponse
     {
-        $releaseId = (int) request()->query('release_id');
-        $release = SourceRelease::findOrFail($releaseId);
+        $releaseId = request()->query('release_id');
+        if (! $releaseId) {
+            $release = SourceRelease::where('source_id', $source->id)
+                ->orderByDesc('created_at')
+                ->first();
+            if (! $release) {
+                return response()->json(['data' => []]);
+            }
+        } else {
+            $release = SourceRelease::findOrFail((int) $releaseId);
+        }
 
         return response()->json([
             'data' => $this->unmappedCodeService->getSummary($source, $release),
