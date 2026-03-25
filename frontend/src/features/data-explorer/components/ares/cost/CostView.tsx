@@ -109,7 +109,7 @@ export default function CostView() {
                       borderRadius: "8px",
                     }}
                     labelStyle={{ color: "#fff" }}
-                    formatter={(value: number) => [formatCurrency(value), "Total Cost"]}
+                    formatter={(value: number | string) => [formatCurrency(Number(value)), "Total Cost"]}
                   />
                   <Bar dataKey="total_cost" fill="#2DD4BF" radius={[4, 4, 0, 0]} />
                 </BarChart>
@@ -160,7 +160,7 @@ export default function CostView() {
                         borderRadius: "8px",
                       }}
                       labelStyle={{ color: "#fff" }}
-                      formatter={(value: number) => [formatCurrency(value), "Total Cost"]}
+                      formatter={(value: number | string) => [formatCurrency(Number(value)), "Total Cost"]}
                     />
                     <Line
                       type="monotone"

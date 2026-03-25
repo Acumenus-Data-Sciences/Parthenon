@@ -214,7 +214,7 @@ class CostService
     private function getOmopConnection(Source $source): string
     {
         if (! empty($source->db_host)) {
-            $daimon = $source->daimons()->where('daimon_type', DaimonType::Cdm->value)->first();
+            $daimon = $source->daimons()->where('daimon_type', DaimonType::CDM->value)->first();
             $schema = $daimon?->table_qualifier ?? 'omop';
 
             return $this->connectionFactory->connectionForSchema($source, $schema);

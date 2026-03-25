@@ -35,8 +35,10 @@ export default function DqTrendChart({ data, onReleaseClick }: DqTrendChartProps
         <LineChart
           data={chartData}
           onClick={(e) => {
-            if (e?.activePayload?.[0]?.payload && onReleaseClick) {
-              onReleaseClick(e.activePayload[0].payload.release_id as number);
+            const event = e as Record<string, unknown>;
+            const activePayload = event?.activePayload as Array<{ payload: Record<string, unknown> }> | undefined;
+            if (activePayload?.[0]?.payload && onReleaseClick) {
+              onReleaseClick(activePayload[0].payload.release_id as number);
             }
           }}
         >
@@ -60,7 +62,7 @@ export default function DqTrendChart({ data, onReleaseClick }: DqTrendChartProps
               color: "#ccc",
               fontSize: 12,
             }}
-            formatter={(value: number) => [`${value.toFixed(1)}%`, "Pass Rate"]}
+            formatter={(value: number | string) => [`${Number(value).toFixed(1)}%`, "Pass Rate"]}
           />
           <ReferenceLine y={80} stroke="#C9A227" strokeDasharray="5 5" />
           <Line

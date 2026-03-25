@@ -55,10 +55,10 @@ export default function ComparisonChart({ data, metric }: ComparisonChartProps) 
               color: "#ccc",
               fontSize: 12,
             }}
-            formatter={(value: number) => [
+            formatter={(value: number | string) => [
               metric === "rate_per_1000"
-                ? `${value.toFixed(2)} per 1,000`
-                : value.toLocaleString(),
+                ? `${Number(value).toFixed(2)} per 1,000`
+                : Number(value).toLocaleString(),
               metric === "rate_per_1000" ? "Rate" : "Count",
             ]}
           />
