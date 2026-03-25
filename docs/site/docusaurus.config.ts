@@ -61,6 +61,7 @@ const config: Config = {
           blogSidebarTitle: "Recent Posts",
           blogSidebarCount: 10,
           authorsMapPath: "../blog/authors.yml",
+          exclude: ["README.md", "community-post.md"],
         },
         theme: {
           customCss: "./src/css/custom.css",
