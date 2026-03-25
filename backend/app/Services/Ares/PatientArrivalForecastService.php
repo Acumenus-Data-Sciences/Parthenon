@@ -84,7 +84,8 @@ class PatientArrivalForecastService
         // Compute months to target
         $monthsToTarget = null;
         if ($targetPatients !== null && $targetPatients > 0 && $regression['slope'] > 0) {
-            $lastCount = (int) end($recentHistory)['patient_count'];
+            $last = end($recentHistory);
+            $lastCount = is_array($last) ? (int) $last['patient_count'] : 0;
             $remaining = $targetPatients - $lastCount;
             if ($remaining > 0) {
                 $monthsToTarget = (int) ceil($remaining / max(1, $regression['slope']));

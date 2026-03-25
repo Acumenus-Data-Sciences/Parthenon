@@ -376,7 +376,7 @@ class DiversityService
      */
     public function getGeographicDiversity(Source $source): array
     {
-        $daimon = $source->daimons()->where('daimon_type', DaimonType::Cdm->value)->first();
+        $daimon = $source->daimons()->where('daimon_type', DaimonType::CDM->value)->first();
         $schema = $daimon?->table_qualifier ?? 'omop';
 
         $connection = 'omop';
