@@ -27,8 +27,17 @@ class SourceProfilerService
     {
         $source->loadMissing('daimons');
 
+        // Build connection spec from HADES bridge, then map to WhiteRabbit's expected format.
+        // WhiteRabbit expects FLAT keys (no 'connection' wrapper) and for PostgreSQL,
+        // the server field must be <host>/<database>.
+        $hadesSpec = HadesBridgeService::buildSourceSpec($source);
         $payload = [
-            'connection' => HadesBridgeService::buildSourceSpec($source),
+            'dbms' => $hadesSpec['dbms'] ?? 'postgresql',
+            'server' => $hadesSpec['server'] ?? '', // Already in host/database format from HADES
+            'port' => (int) ($hadesSpec['port'] ?? 5432),
+            'user' => $hadesSpec['user'] ?? '',
+            'password' => $hadesSpec['password'] ?? '',
+            'schema' => $hadesSpec['cdm_schema'] ?? 'public',
             'sample_size' => $sampleRows,
         ];
 
@@ -81,6 +90,12 @@ class SourceProfilerService
         $singleValueColumns = 0;
 
         foreach ($tables as $table) {
+            // Skip WhiteRabbit's "Field Overview" metadata table
+            $tName = $table['table_name'] ?? $table['name'] ?? '';
+            if ($tName === '' || $tName === 'Field Overview') {
+                continue;
+            }
+
             $totalRows += $table['row_count'] ?? 0;
             $columnCount += $table['column_count'] ?? count($table['columns'] ?? []);
 
@@ -124,13 +139,30 @@ class SourceProfilerService
 
         // Persist field profiles
         foreach ($tables as $table) {
-            $tableName = $table['table_name'];
+            // WhiteRabbit uses 'name' not 'table_name'; skip the "Field Overview" metadata table
+            $tableName = $table['table_name'] ?? $table['name'] ?? '';
+            if ($tableName === '' || $tableName === 'Field Overview') {
+                continue;
+            }
             $tableRowCount = $table['row_count'] ?? 0;
 
             foreach ($table['columns'] ?? [] as $idx => $col) {
                 $nullPct = round(($col['fraction_empty'] ?? 0) * 100, 2);
                 $nRows = $col['n_rows'] ?? $tableRowCount;
                 $nullCount = (int) round($nRows * ($col['fraction_empty'] ?? 0));
+
+                // WhiteRabbit returns values as [{value, frequency}] — normalize to {value: frequency}
+                $sampleValues = null;
+                if (! empty($col['values'])) {
+                    if (is_array($col['values']) && isset($col['values'][0]['value'])) {
+                        $sampleValues = [];
+                        foreach (array_slice($col['values'], 0, 10) as $v) {
+                            $sampleValues[$v['value'] ?? ''] = $v['frequency'] ?? 0;
+                        }
+                    } else {
+                        $sampleValues = $col['values'];
+                    }
+                }
 
                 FieldProfile::create([
                     'source_profile_id' => $profile->id,
@@ -146,7 +178,7 @@ class SourceProfilerService
                     'distinct_percentage' => $nRows > 0
                         ? round(($col['unique_count'] ?? 0) / $nRows * 100, 2)
                         : 0,
-                    'sample_values' => $col['values'] ?? null,
+                    'sample_values' => $sampleValues,
                 ]);
             }
         }

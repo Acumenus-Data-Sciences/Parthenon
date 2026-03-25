@@ -731,8 +731,8 @@ Route::prefix('v1')->group(function () {
         });
 
         // Source Profiler (persisted WhiteRabbit scans)
-        // NOTE: /compare and /scan must be registered BEFORE /{profile} to avoid wildcard capture.
-        Route::prefix('sources/{source}/profiles')->group(function () {
+        // Uses 'scan-profiles' to avoid collision with patient profiles at sources/{source}/profiles/{personId}
+        Route::prefix('sources/{source}/scan-profiles')->group(function () {
             Route::get('/', [SourceProfilerController::class, 'index'])
                 ->middleware('permission:profiler.view');
             Route::get('/compare', [SourceProfilerController::class, 'compare'])

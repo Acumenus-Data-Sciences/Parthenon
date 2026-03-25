@@ -204,14 +204,14 @@ export interface PaginatedProfiles {
 
 export async function fetchProfileHistory(sourceId: number): Promise<PaginatedProfiles> {
   const { data } = await apiClient.get<PaginatedProfiles>(
-    `/sources/${sourceId}/profiles`,
+    `/sources/${sourceId}/scan-profiles`,
   );
   return data;
 }
 
 export async function fetchProfile(sourceId: number, profileId: number): Promise<PersistedProfile> {
   const { data } = await apiClient.get<{ data: PersistedProfile }>(
-    `/sources/${sourceId}/profiles/${profileId}`,
+    `/sources/${sourceId}/scan-profiles/${profileId}`,
   );
   return data.data;
 }
@@ -221,12 +221,12 @@ export async function runPersistedScan(
   request: { tables?: string[]; sample_rows?: number },
 ): Promise<ProfileSummary> {
   const { data } = await apiClient.post<{ data: ProfileSummary }>(
-    `/sources/${sourceId}/profiles/scan`,
+    `/sources/${sourceId}/scan-profiles/scan`,
     request,
   );
   return data.data;
 }
 
 export async function deleteProfile(sourceId: number, profileId: number): Promise<void> {
-  await apiClient.delete(`/sources/${sourceId}/profiles/${profileId}`);
+  await apiClient.delete(`/sources/${sourceId}/scan-profiles/${profileId}`);
 }
