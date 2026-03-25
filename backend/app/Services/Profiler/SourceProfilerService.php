@@ -5,6 +5,7 @@ namespace App\Services\Profiler;
 use App\Models\App\FieldProfile;
 use App\Models\App\Source;
 use App\Models\App\SourceProfile;
+use App\Services\Analysis\HadesBridgeService;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -27,7 +28,7 @@ class SourceProfilerService
         $source->loadMissing('daimons');
 
         $payload = [
-            'connection' => \App\Services\Analysis\HadesBridgeService::buildSourceSpec($source),
+            'connection' => HadesBridgeService::buildSourceSpec($source),
             'sample_size' => $sampleRows,
         ];
 
