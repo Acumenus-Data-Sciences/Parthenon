@@ -149,3 +149,84 @@ export function useGenerateSynthea() {
     mutationFn: generateSynthea,
   });
 }
+
+// ---------------------------------------------------------------------------
+// Types — Source Profiler (persisted)
+// ---------------------------------------------------------------------------
+
+export interface ProfileSummary {
+  id: number;
+  source_id: number;
+  scan_type: string;
+  scan_time_seconds: number;
+  overall_grade: string;
+  table_count: number;
+  column_count: number;
+  total_rows: number;
+  summary_json: {
+    high_null_columns: number;
+    empty_tables: number;
+    low_cardinality_columns: number;
+    single_value_columns: number;
+  };
+  created_at: string;
+}
+
+export interface PersistedFieldProfile {
+  id: number;
+  source_profile_id: number;
+  table_name: string;
+  row_count: number;
+  column_name: string;
+  column_index: number;
+  inferred_type: string;
+  null_percentage: number;
+  distinct_count: number;
+  sample_values: Record<string, number> | null;
+  is_potential_pii: boolean;
+  pii_type: string | null;
+}
+
+export interface PersistedProfile extends ProfileSummary {
+  fields: PersistedFieldProfile[];
+}
+
+export interface PaginatedProfiles {
+  data: ProfileSummary[];
+  current_page: number;
+  last_page: number;
+  total: number;
+}
+
+// ---------------------------------------------------------------------------
+// API functions — Source Profiler (persisted)
+// ---------------------------------------------------------------------------
+
+export async function fetchProfileHistory(sourceId: number): Promise<PaginatedProfiles> {
+  const { data } = await apiClient.get<PaginatedProfiles>(
+    `/sources/${sourceId}/profiles`,
+  );
+  return data;
+}
+
+export async function fetchProfile(sourceId: number, profileId: number): Promise<PersistedProfile> {
+  const { data } = await apiClient.get<{ data: PersistedProfile }>(
+    `/sources/${sourceId}/profiles/${profileId}`,
+  );
+  return data.data;
+}
+
+export async function runPersistedScan(
+  sourceId: number,
+  request: { tables?: string[]; sample_rows?: number },
+): Promise<ProfileSummary> {
+  const { data } = await apiClient.post<{ data: ProfileSummary }>(
+    `/sources/${sourceId}/profiles/scan`,
+    request,
+  );
+  return data.data;
+}
+
+export async function deleteProfile(sourceId: number, profileId: number): Promise<void> {
+  await apiClient.delete(`/sources/${sourceId}/profiles/${profileId}`);
+}
