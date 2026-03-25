@@ -32,8 +32,8 @@ export default function TemporalCoverageBar({
 }: TemporalCoverageBarProps) {
   const startYear = parseYear(earliest);
   const endYear = parseYear(latest);
-  const gStart = parseYear(globalEarliest) ?? startYear;
-  const gEnd = parseYear(globalLatest) ?? endYear;
+  const gStart = parseYear(globalEarliest ?? null) ?? startYear;
+  const gEnd = parseYear(globalLatest ?? null) ?? endYear;
 
   if (startYear === null || endYear === null || gStart === null || gEnd === null) {
     return <span className="text-[10px] text-[#555]">--</span>;

@@ -49,7 +49,7 @@ export default function AgePyramid({ data, sourceName }: AgePyramidProps) {
                 color: "#ccc",
                 fontSize: 12,
               }}
-              formatter={(value: number) => [Math.abs(value).toLocaleString(), ""]}
+              formatter={((value: number) => [Math.abs(value).toLocaleString(), ""]) as never}
             />
             <ReferenceLine x={0} stroke="#333" />
             <Bar dataKey="male" fill="#7c8aed" name="Male" />

@@ -22,7 +22,7 @@ function ReleaseCard({
   updateMutation,
   deleteMutation,
 }: {
-  release: { id: number; release_name: string; release_type: string; cdm_version: string | null; vocabulary_version: string | null; person_count: number; record_count: number; notes: string | null; etl_metadata?: EtlMetadata | null; created_at: string };
+  release: { id: number; source_id: number; release_key: string; release_name: string; release_type: string; cdm_version: string | null; vocabulary_version: string | null; etl_version: string | null; person_count: number; record_count: number; notes: string | null; etl_metadata?: EtlMetadata | null; created_at: string; updated_at: string };
   sourceId: number;
   editingId: number | null;
   setEditingId: (id: number | null) => void;

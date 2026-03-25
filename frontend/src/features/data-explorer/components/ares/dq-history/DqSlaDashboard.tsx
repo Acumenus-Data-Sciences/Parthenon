@@ -127,10 +127,10 @@ function ComplianceChart({ compliance }: { compliance: DqSlaCompliance[] }) {
                 borderRadius: "8px",
               }}
               labelStyle={{ color: "#fff" }}
-              formatter={(value: number, name: string) => [
+              formatter={((value: number, name: string) => [
                 `${value}%`,
                 name === "actual" ? "Actual" : "Target",
-              ]}
+              ]) as never}
             />
             <Bar dataKey="actual" radius={[0, 4, 4, 0]}>
               {chartData.map((entry, idx) => (
@@ -184,8 +184,8 @@ export default function DqSlaDashboard({ sourceId }: DqSlaDashboardProps) {
   const { user } = useAuthStore();
 
   const isAdmin = user?.roles?.some(
-    (r: { name: string }) =>
-      r.name === "admin" || r.name === "super-admin" || r.name === "data-steward",
+    (r: string) =>
+      r === "admin" || r === "super-admin" || r === "data-steward",
   );
 
   return (

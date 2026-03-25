@@ -12,7 +12,7 @@ import ConsortDiagram from "./ConsortDiagram";
 import ArrivalForecastChart from "./ArrivalForecastChart";
 import type { FeasibilityAssessment, FeasibilityResult } from "../../../types/ares";
 
-function ScoreBadge({ score, pass }: { score: number; pass: boolean }) {
+function ScoreBadge({ score, pass: _pass }: { score: number; pass: boolean }) {
   const color = score >= 90
     ? "bg-[#2DD4BF]/20 text-[#2DD4BF]"
     : score >= 70

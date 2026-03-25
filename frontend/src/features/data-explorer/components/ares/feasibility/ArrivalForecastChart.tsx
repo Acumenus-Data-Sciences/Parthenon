@@ -110,7 +110,7 @@ export default function ArrivalForecastChart({
                 color: "#ccc",
                 fontSize: 12,
               }}
-              formatter={(value: number | null, name: string) => {
+              formatter={((value: number | null, name: string) => {
                 if (value === null) return ["-", name];
                 const label =
                   name === "historical"
@@ -119,7 +119,7 @@ export default function ArrivalForecastChart({
                       ? "Projected"
                       : name;
                 return [value.toLocaleString(), label];
-              }}
+              }) as never}
             />
             <Legend
               wrapperStyle={{ fontSize: 11, color: "#888" }}

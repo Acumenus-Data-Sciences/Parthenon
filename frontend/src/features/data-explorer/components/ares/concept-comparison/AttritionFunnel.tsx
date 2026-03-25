@@ -46,10 +46,10 @@ export default function AttritionFunnel({ data }: AttritionFunnelProps) {
                     color: "#ccc",
                     fontSize: 12,
                   }}
-                  formatter={(value: number) => [
+                  formatter={((value: number) => [
                     `${value.toLocaleString()} patients`,
                     "Remaining",
-                  ]}
+                  ]) as never}
                 />
                 <Bar dataKey="remaining_patients" radius={[0, 4, 4, 0]}>
                   {source.steps.map((_entry, index) => (

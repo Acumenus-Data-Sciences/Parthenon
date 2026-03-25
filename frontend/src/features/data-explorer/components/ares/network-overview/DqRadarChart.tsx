@@ -75,8 +75,7 @@ export default function DqRadarChart({ profiles, maxSources = 5 }: DqRadarChartP
                 borderRadius: "8px",
               }}
               labelStyle={{ color: "#fff" }}
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              formatter={(value: number) => [`${value}%`, undefined] as any}
+              formatter={((value: number) => [`${value}%`, undefined]) as never}
             />
             {displayProfiles.map((profile, idx) => (
               <Radar

@@ -89,14 +89,13 @@ export default function VocabularyTreemap({ data }: VocabularyTreemapProps) {
               color: "#ccc",
               fontSize: 12,
             }}
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            formatter={(value: any, _name: string, entry: any) => {
+            formatter={((value: unknown, _name: string, entry: { payload?: { code_count?: number; name?: string } }) => {
               const item = entry?.payload;
               return [
                 `${Number(value).toLocaleString()} records (${item?.code_count ?? 0} codes)`,
                 item?.name ?? "Vocabulary",
               ];
-            }}
+            }) as never}
           />
         </Treemap>
       </ResponsiveContainer>
