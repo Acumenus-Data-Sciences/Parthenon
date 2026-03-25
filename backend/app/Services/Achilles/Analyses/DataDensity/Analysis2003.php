@@ -33,34 +33,34 @@ class Analysis2003 implements AchillesAnalysisInterface
             INSERT INTO {@resultsSchema}.achilles_results (analysis_id, stratum_1, stratum_2, count_value)
             SELECT 2003 AS analysis_id,
                 domain_name AS stratum_1,
-                CAST(yyyymm AS VARCHAR(255)) AS stratum_2,
+                TO_CHAR(month_start, 'YYYYMM') AS stratum_2,
                 COUNT(*) AS count_value
             FROM (
                 SELECT 'Condition' AS domain_name,
-                    EXTRACT(YEAR FROM condition_start_date) * 100 + EXTRACT(MONTH FROM condition_start_date) AS yyyymm
+                    date_trunc('month', condition_start_date) AS month_start
                 FROM {@cdmSchema}.condition_occurrence
                 UNION ALL
                 SELECT 'Drug',
-                    EXTRACT(YEAR FROM drug_exposure_start_date) * 100 + EXTRACT(MONTH FROM drug_exposure_start_date)
+                    date_trunc('month', drug_exposure_start_date)
                 FROM {@cdmSchema}.drug_exposure
                 UNION ALL
                 SELECT 'Measurement',
-                    EXTRACT(YEAR FROM measurement_date) * 100 + EXTRACT(MONTH FROM measurement_date)
+                    date_trunc('month', measurement_date)
                 FROM {@cdmSchema}.measurement
                 UNION ALL
                 SELECT 'Observation',
-                    EXTRACT(YEAR FROM observation_date) * 100 + EXTRACT(MONTH FROM observation_date)
+                    date_trunc('month', observation_date)
                 FROM {@cdmSchema}.observation
                 UNION ALL
                 SELECT 'Procedure',
-                    EXTRACT(YEAR FROM procedure_date) * 100 + EXTRACT(MONTH FROM procedure_date)
+                    date_trunc('month', procedure_date)
                 FROM {@cdmSchema}.procedure_occurrence
                 UNION ALL
                 SELECT 'Visit',
-                    EXTRACT(YEAR FROM visit_start_date) * 100 + EXTRACT(MONTH FROM visit_start_date)
+                    date_trunc('month', visit_start_date)
                 FROM {@cdmSchema}.visit_occurrence
             ) t
-            GROUP BY domain_name, yyyymm
+            GROUP BY domain_name, month_start
             SQL;
     }
 

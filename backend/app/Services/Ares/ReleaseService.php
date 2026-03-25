@@ -51,7 +51,7 @@ class ReleaseService
         $release = SourceRelease::create([
             'source_id' => $source->id,
             'release_key' => $releaseKey,
-            'release_name' => 'Auto snapshot ' . now()->format('Y-m-d H:i'),
+            'release_name' => 'Auto snapshot '.now()->format('Y-m-d H:i'),
             'release_type' => 'snapshot',
         ]);
 
@@ -113,6 +113,6 @@ class ReleaseService
      */
     private function generateKey(Source $source): string
     {
-        return $source->source_key . '-' . now()->format('Ymd-His');
+        return $source->source_key.'-'.now()->format('Ymd-His');
     }
 }

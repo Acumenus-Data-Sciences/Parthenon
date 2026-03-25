@@ -87,7 +87,7 @@ class DqHistoryService
             DB::table('dqd_deltas')->insert($deltas);
         }
 
-        Log::info("DqHistoryService: computed {$release->id} deltas — " . count($deltas) . ' checks processed.');
+        Log::info("DqHistoryService: computed {$release->id} deltas — ".count($deltas).' checks processed.');
     }
 
     /**
@@ -241,6 +241,7 @@ class DqHistoryService
                     'trend' => null,
                     'release_name' => null,
                 ];
+
                 continue;
             }
 

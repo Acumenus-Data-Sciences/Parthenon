@@ -21,7 +21,7 @@ import {
 } from "../hooks/useAchillesData";
 import { runHeel } from "../api/achillesApi";
 import type { HeelResult, HeelSeverity } from "../types/dataExplorer";
-import type { AchillesRunSummary } from "../api/achillesRunApi";
+
 
 const AchillesRunModal = lazy(() => import("../components/AchillesRunModal"));
 

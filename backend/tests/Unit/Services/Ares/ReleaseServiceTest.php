@@ -13,7 +13,7 @@ test('create_release_stores_and_fires_event', function () {
     Event::fake([ReleaseCreated::class]);
 
     $source = Source::factory()->create();
-    $service = new ReleaseService();
+    $service = new ReleaseService;
 
     $release = $service->createRelease($source, [
         'release_name' => 'Q1 2026 Release',
@@ -43,7 +43,7 @@ test('auto_snapshot_creates_release_for_auto_mode', function () {
     Event::fake([ReleaseCreated::class]);
 
     $source = Source::factory()->create(['release_mode' => 'auto']);
-    $service = new ReleaseService();
+    $service = new ReleaseService;
 
     $release = $service->autoSnapshot($source, 'run-abc-123');
 
@@ -58,7 +58,7 @@ test('auto_snapshot_skips_for_manual_mode', function () {
     Event::fake([ReleaseCreated::class]);
 
     $source = Source::factory()->create(['release_mode' => 'manual']);
-    $service = new ReleaseService();
+    $service = new ReleaseService;
 
     $result = $service->autoSnapshot($source, 'run-abc-123');
 
@@ -83,7 +83,7 @@ test('get_timeline_returns_releases_ordered_by_date', function () {
         'created_at' => now(),
     ]);
 
-    $service = new ReleaseService();
+    $service = new ReleaseService;
     $timeline = $service->getTimeline($source);
 
     expect($timeline)->toHaveCount(3);
@@ -95,7 +95,7 @@ test('release_key_is_unique_per_source', function () {
     $sourceA = Source::factory()->create(['source_key' => 'source-a']);
     $sourceB = Source::factory()->create(['source_key' => 'source-b']);
 
-    $service = new ReleaseService();
+    $service = new ReleaseService;
 
     Event::fake([ReleaseCreated::class]);
 

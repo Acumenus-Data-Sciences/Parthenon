@@ -3,6 +3,7 @@
 namespace App\Models\App;
 
 use App\Models\Results\AchillesRun;
+use Database\Factories\SourceReleaseFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,9 +13,9 @@ class SourceRelease extends Model
 {
     use HasFactory;
 
-    protected static function newFactory(): \Database\Factories\SourceReleaseFactory
+    protected static function newFactory(): SourceReleaseFactory
     {
-        return \Database\Factories\SourceReleaseFactory::new();
+        return SourceReleaseFactory::new();
     }
 
     protected $fillable = [

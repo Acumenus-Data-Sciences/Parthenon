@@ -130,25 +130,48 @@ class AchillesEngineService
             ];
         }
 
-        // Pre-populate step rows if tracking
+        // Determine which analyses were already completed (for resume after retry)
+        $completedIds = [];
         if ($runId) {
+            $completedIds = AchillesRunStep::where('run_id', $runId)
+                ->where('status', 'completed')
+                ->pluck('analysis_id')
+                ->all();
+
+            if (count($completedIds) > 0) {
+                Log::info("Achilles resuming run {$runId}: skipping ".count($completedIds).' already-completed analyses');
+            }
+
+            // Pre-populate step rows for analyses that don't have rows yet
+            $existingIds = AchillesRunStep::where('run_id', $runId)
+                ->pluck('analysis_id')
+                ->all();
+
             $stepRows = [];
             $now = now();
             foreach ($analyses as $analysis) {
-                $stepRows[] = [
-                    'run_id' => $runId,
-                    'analysis_id' => $analysis->analysisId(),
-                    'analysis_name' => $analysis->analysisName(),
-                    'category' => $analysis->category(),
-                    'status' => 'pending',
-                    'created_at' => $now,
-                    'updated_at' => $now,
-                ];
+                if (! in_array($analysis->analysisId(), $existingIds)) {
+                    $stepRows[] = [
+                        'run_id' => $runId,
+                        'analysis_id' => $analysis->analysisId(),
+                        'analysis_name' => $analysis->analysisName(),
+                        'category' => $analysis->category(),
+                        'status' => 'pending',
+                        'created_at' => $now,
+                        'updated_at' => $now,
+                    ];
+                }
             }
-            // Batch insert for performance (single query per chunk vs N queries)
-            foreach (array_chunk($stepRows, 50) as $chunk) {
-                AchillesRunStep::insert($chunk);
+            if (count($stepRows) > 0) {
+                foreach (array_chunk($stepRows, 50) as $chunk) {
+                    AchillesRunStep::insert($chunk);
+                }
             }
+
+            // Reset any steps stuck in 'running' from a prior crashed attempt
+            AchillesRunStep::where('run_id', $runId)
+                ->where('status', 'running')
+                ->update(['status' => 'pending', 'started_at' => null]);
 
             AchillesRun::where('run_id', $runId)->update([
                 'status' => 'running',
@@ -157,11 +180,16 @@ class AchillesEngineService
             ]);
         }
 
-        $completed = 0;
+        $completed = count($completedIds); // credit already-completed analyses
         $failed = 0;
         $results = [];
 
         foreach ($analyses as $analysis) {
+            // Skip analyses already completed in a prior attempt
+            if (in_array($analysis->analysisId(), $completedIds)) {
+                continue;
+            }
+
             // Mark step running
             if ($runId) {
                 AchillesRunStep::where('run_id', $runId)
@@ -252,10 +280,15 @@ class AchillesEngineService
             // Execute each statement separately (template may contain DELETE + INSERT)
             $statements = $this->splitStatements($renderedSql);
 
+            $conn = DB::connection('results');
+
+            // Set per-statement timeout (30 min) to prevent single queries from blocking the run
+            $conn->statement('SET LOCAL statement_timeout = 1800000');
+
             foreach ($statements as $statement) {
                 $statement = trim($statement);
                 if ($statement !== '') {
-                    DB::connection('results')->statement($statement);
+                    $conn->statement($statement);
                 }
             }
 

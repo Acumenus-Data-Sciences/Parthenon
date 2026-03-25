@@ -29,7 +29,7 @@ class UnmappedCodeService
     /**
      * Get paginated details of unmapped codes with optional filters.
      *
-     * @param array{table?: string, field?: string, search?: string} $filters
+     * @param  array{table?: string, field?: string, search?: string}  $filters
      */
     public function getDetails(
         Source $source,
@@ -50,7 +50,7 @@ class UnmappedCodeService
         }
 
         if (! empty($filters['search'])) {
-            $query->where('source_code', 'ilike', '%' . $filters['search'] . '%');
+            $query->where('source_code', 'ilike', '%'.$filters['search'].'%');
         }
 
         return $query->orderByDesc('record_count')

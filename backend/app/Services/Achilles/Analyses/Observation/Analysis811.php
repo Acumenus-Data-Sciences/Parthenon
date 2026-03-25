@@ -31,12 +31,12 @@ class Analysis811 implements AchillesAnalysisInterface
             INSERT INTO {@resultsSchema}.achilles_results (analysis_id, stratum_1, stratum_2, count_value)
             SELECT 811 AS analysis_id,
                 CAST(observation_concept_id AS VARCHAR(255)) AS stratum_1,
-                CAST(EXTRACT(YEAR FROM observation_date) * 100 + EXTRACT(MONTH FROM observation_date) AS VARCHAR(255)) AS stratum_2,
+                TO_CHAR(date_trunc('month', observation_date), 'YYYYMM') AS stratum_2,
                 COUNT(*) AS count_value
             FROM {@cdmSchema}.observation
             WHERE observation_concept_id != 0
             GROUP BY observation_concept_id,
-                EXTRACT(YEAR FROM observation_date) * 100 + EXTRACT(MONTH FROM observation_date)
+                date_trunc('month', observation_date)
             SQL;
     }
 

@@ -26,17 +26,19 @@ class Analysis1811 implements AchillesAnalysisInterface
 
     public function sqlTemplate(): string
     {
+        // Optimized: date_trunc + to_char avoids per-row EXTRACT arithmetic,
+        // enables HashAggregate on fewer distinct groups, and reduces CPU cost.
         return <<<'SQL'
             DELETE FROM {@resultsSchema}.achilles_results WHERE analysis_id = 1811;
             INSERT INTO {@resultsSchema}.achilles_results (analysis_id, stratum_1, stratum_2, count_value)
             SELECT 1811 AS analysis_id,
                 CAST(measurement_concept_id AS VARCHAR(255)) AS stratum_1,
-                CAST(EXTRACT(YEAR FROM measurement_date) * 100 + EXTRACT(MONTH FROM measurement_date) AS VARCHAR(255)) AS stratum_2,
+                TO_CHAR(date_trunc('month', measurement_date), 'YYYYMM') AS stratum_2,
                 COUNT(*) AS count_value
             FROM {@cdmSchema}.measurement
             WHERE measurement_concept_id != 0
             GROUP BY measurement_concept_id,
-                EXTRACT(YEAR FROM measurement_date) * 100 + EXTRACT(MONTH FROM measurement_date)
+                date_trunc('month', measurement_date)
             SQL;
     }
 

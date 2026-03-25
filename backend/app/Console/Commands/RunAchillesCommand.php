@@ -7,6 +7,7 @@ use App\Models\App\Source;
 use App\Services\Achilles\AchillesAnalysisRegistry;
 use App\Services\Achilles\AchillesEngineService;
 use Illuminate\Console\Command;
+use Illuminate\Support\Str;
 
 class RunAchillesCommand extends Command
 {
@@ -55,7 +56,7 @@ class RunAchillesCommand extends Command
         }
 
         // Dispatch to queue
-        $runId = (string) \Illuminate\Support\Str::uuid();
+        $runId = (string) Str::uuid();
         RunAchillesJob::dispatch($source, $categories, $analysisIds, (bool) $this->option('fresh'), $runId);
         $this->info("Achilles job dispatched to queue (run_id: {$runId}).");
 

@@ -13,7 +13,7 @@ uses(RefreshDatabase::class);
 test('create_annotation', function () {
     $user = User::factory()->create();
     $source = Source::factory()->create();
-    $service = new AnnotationService();
+    $service = new AnnotationService;
 
     $annotation = $service->create($user, [
         'source_id' => $source->id,
@@ -50,7 +50,7 @@ test('for_chart_returns_matching_annotations', function () {
         'created_by' => $user->id,
     ]);
 
-    $service = new AnnotationService();
+    $service = new AnnotationService;
     $results = $service->forChart('gender', $source->id);
 
     expect($results)->toHaveCount(1);
@@ -67,7 +67,7 @@ test('update_by_creator_succeeds', function () {
         'annotation_text' => 'Original text',
     ]);
 
-    $service = new AnnotationService();
+    $service = new AnnotationService;
     $updated = $service->update($user, $annotation, [
         'annotation_text' => 'Updated text',
     ]);
@@ -83,7 +83,7 @@ test('update_by_non_creator_fails', function () {
         'created_by' => $creator->id,
     ]);
 
-    $service = new AnnotationService();
+    $service = new AnnotationService;
 
     $this->expectException(AuthorizationException::class);
     $service->update($other, $annotation, [
@@ -98,7 +98,7 @@ test('delete_by_creator_succeeds', function () {
         'created_by' => $user->id,
     ]);
 
-    $service = new AnnotationService();
+    $service = new AnnotationService;
     $service->delete($user, $annotation);
 
     $this->assertDatabaseMissing('chart_annotations', [
@@ -117,7 +117,7 @@ test('delete_by_admin_succeeds', function () {
         'created_by' => $creator->id,
     ]);
 
-    $service = new AnnotationService();
+    $service = new AnnotationService;
     $service->delete($admin, $annotation);
 
     $this->assertDatabaseMissing('chart_annotations', [

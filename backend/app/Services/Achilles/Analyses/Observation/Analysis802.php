@@ -30,10 +30,10 @@ class Analysis802 implements AchillesAnalysisInterface
             DELETE FROM {@resultsSchema}.achilles_results WHERE analysis_id = 802;
             INSERT INTO {@resultsSchema}.achilles_results (analysis_id, stratum_1, count_value)
             SELECT 802 AS analysis_id,
-                CAST(EXTRACT(YEAR FROM observation_date) * 100 + EXTRACT(MONTH FROM observation_date) AS VARCHAR(255)) AS stratum_1,
+                TO_CHAR(date_trunc('month', observation_date), 'YYYYMM') AS stratum_1,
                 COUNT(*) AS count_value
             FROM {@cdmSchema}.observation
-            GROUP BY EXTRACT(YEAR FROM observation_date), EXTRACT(MONTH FROM observation_date)
+            GROUP BY date_trunc('month', observation_date)
             SQL;
     }
 

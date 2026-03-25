@@ -20,7 +20,7 @@ class DqdResultFactory extends Factory
         return [
             'source_id' => Source::factory(),
             'run_id' => fake()->uuid(),
-            'check_id' => 'check_' . fake()->unique()->numerify('###'),
+            'check_id' => 'check_'.fake()->unique()->numerify('###'),
             'category' => fake()->randomElement(['Completeness', 'Conformance', 'Plausibility']),
             'subcategory' => fake()->randomElement(['Verification', 'Validation', 'Temporal']),
             'cdm_table' => fake()->randomElement(['person', 'condition_occurrence', 'drug_exposure', 'measurement']),

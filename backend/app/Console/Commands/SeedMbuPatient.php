@@ -17,12 +17,14 @@ class SeedMbuPatient extends Command
     protected $description = 'Seed Dr. M.B. Udoshi (person_id=1005788) Foundation Medicine genomic variants and verify DICOM imaging';
 
     private const PERSON_ID = 1005788;
+
     private const SOURCE_ID = 47; // OHDSI Acumenus CDM
+
     private const FMI_CASE = 'TRF091836';
 
     public function handle(): int
     {
-        $this->info('MBU Patient Data Seed — person_id=' . self::PERSON_ID);
+        $this->info('MBU Patient Data Seed — person_id='.self::PERSON_ID);
         $this->newLine();
 
         $this->seedGenomicVariants();
@@ -54,7 +56,7 @@ class SeedMbuPatient extends Command
 
         // Create or find the FoundationOne upload record
         $upload = GenomicUpload::firstOrCreate(
-            ['filename' => self::FMI_CASE . '.pdf', 'source_id' => self::SOURCE_ID],
+            ['filename' => self::FMI_CASE.'.pdf', 'source_id' => self::SOURCE_ID],
             [
                 'created_by' => $adminId,
                 'file_format' => 'foundation_one',
@@ -65,7 +67,7 @@ class SeedMbuPatient extends Command
                 'total_variants' => 4,
                 'mapped_variants' => 4,
                 'review_required' => 0,
-                'storage_path' => 'docs/MBU/' . self::FMI_CASE . '.pdf',
+                'storage_path' => 'docs/MBU/'.self::FMI_CASE.'.pdf',
                 'parsed_at' => $now,
             ]
         );
@@ -149,7 +151,7 @@ class SeedMbuPatient extends Command
             DB::table('app.genomic_variants')->insert($v);
         }
 
-        $this->info('Genomic variants: inserted 4 from FoundationOne report ' . self::FMI_CASE);
+        $this->info('Genomic variants: inserted 4 from FoundationOne report '.self::FMI_CASE);
         $this->table(
             ['Gene', 'Alteration', 'Significance'],
             [

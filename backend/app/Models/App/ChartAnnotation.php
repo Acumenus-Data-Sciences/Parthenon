@@ -3,6 +3,7 @@
 namespace App\Models\App;
 
 use App\Models\User;
+use Database\Factories\ChartAnnotationFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,9 +12,9 @@ class ChartAnnotation extends Model
 {
     use HasFactory;
 
-    protected static function newFactory(): \Database\Factories\ChartAnnotationFactory
+    protected static function newFactory(): ChartAnnotationFactory
     {
-        return \Database\Factories\ChartAnnotationFactory::new();
+        return ChartAnnotationFactory::new();
     }
 
     protected $fillable = [

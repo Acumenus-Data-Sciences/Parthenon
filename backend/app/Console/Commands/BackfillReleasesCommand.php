@@ -30,22 +30,24 @@ class BackfillReleasesCommand extends Command
             // Skip if source already has releases (idempotent)
             if (SourceRelease::where('source_id', $source->id)->exists()) {
                 $this->line("  Skipping source [{$source->source_key}] — releases already exist.");
+
                 continue;
             }
 
             // Skip if source has no Achilles runs
             if (! AchillesRun::where('source_id', $source->id)->exists()) {
                 $this->line("  Skipping source [{$source->source_key}] — no Achilles runs found.");
+
                 continue;
             }
 
             // Create the legacy release
             $release = SourceRelease::create([
-                'source_id'    => $source->id,
-                'release_key'  => "{$source->source_key}-legacy",
+                'source_id' => $source->id,
+                'release_key' => "{$source->source_key}-legacy",
                 'release_name' => 'Pre-Ares Legacy',
                 'release_type' => 'snapshot',
-                'notes'        => 'Auto-created by ares:backfill-releases for pre-existing data.',
+                'notes' => 'Auto-created by ares:backfill-releases for pre-existing data.',
             ]);
 
             // Backfill achilles_runs with null release_id
@@ -61,7 +63,7 @@ class BackfillReleasesCommand extends Command
 
             $this->info(
                 "  Created legacy release [{$release->release_key}] for source [{$source->source_key}]"
-                . " — backfilled {$achillesCount} Achilles run(s) and {$dqdCount} DQD result row(s)."
+                ." — backfilled {$achillesCount} Achilles run(s) and {$dqdCount} DQD result row(s)."
             );
 
             $created++;
