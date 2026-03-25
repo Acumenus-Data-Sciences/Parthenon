@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\RunScanRequest;
 use App\Models\App\Source;
 use App\Models\App\SourceProfile;
+use App\Services\Profiler\ScanComparisonService;
 use App\Services\Profiler\SourceProfilerService;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 #[Group('Source Profiler', weight: 231)]
@@ -16,6 +18,7 @@ class SourceProfilerController extends Controller
 {
     public function __construct(
         private readonly SourceProfilerService $profilerService,
+        private readonly ScanComparisonService $comparisonService,
     ) {}
 
     /**
@@ -84,13 +87,25 @@ class SourceProfilerController extends Controller
     }
 
     /**
-     * GET /sources/{source}/profiles/compare
+     * GET /sources/{source}/profiles/compare?current={id}&baseline={id}
      *
-     * Compare two scans side-by-side (Phase 2 — not yet implemented).
+     * Compare two scans side-by-side: regressions, improvements, schema changes.
      */
-    public function compare(): JsonResponse
+    public function compare(Request $request, Source $source): JsonResponse
     {
-        return response()->json(['error' => 'Not implemented — Phase 2'], 501);
+        $request->validate([
+            'current' => ['required', 'integer'],
+            'baseline' => ['required', 'integer'],
+        ]);
+
+        $current = SourceProfile::where('source_id', $source->id)
+            ->findOrFail($request->integer('current'));
+        $baseline = SourceProfile::where('source_id', $source->id)
+            ->findOrFail($request->integer('baseline'));
+
+        $diff = $this->comparisonService->compare($current, $baseline);
+
+        return response()->json(['data' => $diff]);
     }
 
     /**

@@ -13,8 +13,9 @@ class SourceProfilerService
 {
     private string $whiteRabbitUrl;
 
-    public function __construct()
-    {
+    public function __construct(
+        private readonly PiiDetectionService $piiDetectionService,
+    ) {
         $this->whiteRabbitUrl = rtrim(config('services.whiterabbit.url', 'http://whiterabbit:8090'), '/');
     }
 
@@ -182,6 +183,9 @@ class SourceProfilerService
                 ]);
             }
         }
+
+        // Run PII detection on all field profiles
+        $this->piiDetectionService->detectAndFlag($profile);
 
         Log::info('Profiler scan persisted', [
             'source_id' => $source->id,
