@@ -12,6 +12,7 @@
     "generate:api-types": "openapi-typescript ../backend/api.json -o src/types/api.generated.ts"
   },
   "dependencies": {
+    "@dagrejs/dagre": "^3.0.0",
     "@deck.gl/core": "^9.2.11",
     "@deck.gl/geo-layers": "^9.2.11",
     "@deck.gl/layers": "^9.2.11",
@@ -26,6 +27,7 @@
     "@tanstack/react-query": "^5.95.0",
     "@tanstack/react-table": "^8.21.3",
     "@tanstack/react-virtual": "^3.13.23",
+    "@xyflow/react": "^12.10.1",
     "axios": "^1.13.6",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
