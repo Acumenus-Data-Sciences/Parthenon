@@ -83,13 +83,21 @@ export async function scanDatabase(request: ScanRequest): Promise<ScanResult> {
 }
 
 export async function fetchWhiteRabbitHealth(): Promise<WhiteRabbitHealth> {
-  const { data } = await apiClient.get<WhiteRabbitHealth | { data: WhiteRabbitHealth }>(
-    "/etl/scan/health",
-  );
-  if ("data" in data && typeof (data as { data: unknown }).data === "object") {
-    return (data as { data: WhiteRabbitHealth }).data;
-  }
-  return data as WhiteRabbitHealth;
+  const { data } = await apiClient.get<
+    { data: { status: string; service: string; version?: string } } | WhiteRabbitHealth
+  >("/etl/scan/health");
+
+  // WhiteRabbit returns { data: { status: "ok", service: "whiterabbit" } }
+  // Map to the expected { available, version } shape
+  const raw =
+    "data" in data && typeof (data as { data: unknown }).data === "object"
+      ? (data as { data: { status?: string; version?: string } }).data
+      : (data as { status?: string; version?: string });
+
+  return {
+    available: raw.status === "ok",
+    version: raw.version,
+  };
 }
 
 // ---------------------------------------------------------------------------
