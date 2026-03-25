@@ -71,24 +71,29 @@ class RecordUserActivity
             return $response;
         }
 
-        // Throttle: one entry per (user, feature) per hour to avoid log flood
-        $recentKey = "audit:{$user->id}:{$feature}:".now()->format('Y-m-d-H');
-        if (cache()->has($recentKey)) {
-            return $response;
-        }
-        cache()->put($recentKey, 1, 3600);
+        // Audit logging is non-critical — never break the request
+        try {
+            // Throttle: one entry per (user, feature) per hour to avoid log flood
+            $recentKey = "audit:{$user->id}:{$feature}:".now()->format('Y-m-d-H');
+            if (cache()->has($recentKey)) {
+                return $response;
+            }
+            cache()->put($recentKey, 1, 3600);
 
-        UserAuditLog::create([
-            'user_id' => $user->id,
-            'action' => 'api_access',
-            'feature' => $feature,
-            'ip_address' => $request->ip(),
-            'user_agent' => $request->userAgent(),
-            'metadata' => [
-                'method' => $request->method(),
-                'path' => $request->path(),
-            ],
-        ]);
+            UserAuditLog::create([
+                'user_id' => $user->id,
+                'action' => 'api_access',
+                'feature' => $feature,
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'metadata' => [
+                    'method' => $request->method(),
+                    'path' => $request->path(),
+                ],
+            ]);
+        } catch (\Throwable) {
+            // Cache or DB unavailable — silently skip audit logging
+        }
 
         return $response;
     }
