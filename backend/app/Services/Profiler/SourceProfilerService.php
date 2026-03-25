@@ -1,0 +1,196 @@
+<?php
+
+namespace App\Services\Profiler;
+
+use App\Models\App\FieldProfile;
+use App\Models\App\Source;
+use App\Models\App\SourceProfile;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+
+class SourceProfilerService
+{
+    private string $whiteRabbitUrl;
+
+    public function __construct()
+    {
+        $this->whiteRabbitUrl = rtrim(config('services.whiterabbit.url', 'http://whiterabbit:8090'), '/');
+    }
+
+    /**
+     * Run a WhiteRabbit scan and persist results.
+     *
+     * @param  list<string>|null  $tables
+     */
+    public function scan(Source $source, ?array $tables = null, int $sampleRows = 100000): SourceProfile
+    {
+        $source->loadMissing('daimons');
+
+        $payload = [
+            'connection' => \App\Services\Analysis\HadesBridgeService::buildSourceSpec($source),
+            'sample_size' => $sampleRows,
+        ];
+
+        if ($tables) {
+            $payload['tables'] = $tables;
+        }
+
+        Log::info('Profiler scan started', ['source_id' => $source->id]);
+
+        $startTime = microtime(true);
+
+        $response = Http::timeout(600)->post(
+            "{$this->whiteRabbitUrl}/scan",
+            $payload,
+        );
+
+        $elapsed = round(microtime(true) - $startTime, 3);
+
+        if ($response->failed()) {
+            Log::error('Profiler scan failed', [
+                'source_id' => $source->id,
+                'status' => $response->status(),
+            ]);
+
+            throw new \RuntimeException(
+                'WhiteRabbit scan failed: '.($response->json('message') ?? $response->body())
+            );
+        }
+
+        $scanData = $response->json();
+
+        return $this->persistResults($source, $scanData, $elapsed);
+    }
+
+    /**
+     * Persist WhiteRabbit scan results to source_profiles + field_profiles.
+     *
+     * @param  array<string, mixed>  $scanData
+     */
+    private function persistResults(Source $source, array $scanData, float $elapsed): SourceProfile
+    {
+        $tables = $scanData['tables'] ?? [];
+
+        $tableCount = count($tables);
+        $columnCount = 0;
+        $totalRows = 0;
+        $highNullColumns = 0;
+        $emptyTables = 0;
+        $lowCardinalityColumns = 0;
+        $singleValueColumns = 0;
+
+        foreach ($tables as $table) {
+            $totalRows += $table['row_count'] ?? 0;
+            $columnCount += $table['column_count'] ?? count($table['columns'] ?? []);
+
+            if (($table['row_count'] ?? 0) === 0) {
+                $emptyTables++;
+            }
+
+            foreach ($table['columns'] ?? [] as $col) {
+                $nullPct = ($col['fraction_empty'] ?? 0) * 100;
+                if ($nullPct > 50) {
+                    $highNullColumns++;
+                }
+                $uniqueCount = $col['unique_count'] ?? 0;
+                if ($uniqueCount < 5 && ($table['row_count'] ?? 0) > 0) {
+                    $lowCardinalityColumns++;
+                }
+                if ($uniqueCount <= 1 && ($table['row_count'] ?? 0) > 0) {
+                    $singleValueColumns++;
+                }
+            }
+        }
+
+        $grade = $this->computeOverallGrade($tables);
+
+        $profile = SourceProfile::create([
+            'source_id' => $source->id,
+            'scan_type' => 'whiterabbit',
+            'scan_time_seconds' => $elapsed,
+            'overall_grade' => $grade,
+            'table_count' => $tableCount,
+            'column_count' => $columnCount,
+            'total_rows' => $totalRows,
+            'row_count' => $totalRows,
+            'summary_json' => [
+                'high_null_columns' => $highNullColumns,
+                'empty_tables' => $emptyTables,
+                'low_cardinality_columns' => $lowCardinalityColumns,
+                'single_value_columns' => $singleValueColumns,
+            ],
+        ]);
+
+        // Persist field profiles
+        foreach ($tables as $table) {
+            $tableName = $table['table_name'];
+            $tableRowCount = $table['row_count'] ?? 0;
+
+            foreach ($table['columns'] ?? [] as $idx => $col) {
+                $nullPct = round(($col['fraction_empty'] ?? 0) * 100, 2);
+                $nRows = $col['n_rows'] ?? $tableRowCount;
+                $nullCount = (int) round($nRows * ($col['fraction_empty'] ?? 0));
+
+                FieldProfile::create([
+                    'source_profile_id' => $profile->id,
+                    'table_name' => $tableName,
+                    'row_count' => $tableRowCount,
+                    'column_name' => $col['name'],
+                    'column_index' => $idx,
+                    'inferred_type' => $col['type'] ?? 'unknown',
+                    'non_null_count' => $nRows - $nullCount,
+                    'null_count' => $nullCount,
+                    'null_percentage' => $nullPct,
+                    'distinct_count' => $col['unique_count'] ?? 0,
+                    'distinct_percentage' => $nRows > 0
+                        ? round(($col['unique_count'] ?? 0) / $nRows * 100, 2)
+                        : 0,
+                    'sample_values' => $col['values'] ?? null,
+                ]);
+            }
+        }
+
+        Log::info('Profiler scan persisted', [
+            'source_id' => $source->id,
+            'profile_id' => $profile->id,
+            'tables' => $tableCount,
+            'columns' => $columnCount,
+            'grade' => $grade,
+            'elapsed' => $elapsed,
+        ]);
+
+        return $profile;
+    }
+
+    /**
+     * Compute overall A-F grade from average null fraction across all columns.
+     *
+     * @param  list<array{columns?: list<array{fraction_empty?: float}>}>  $tables
+     */
+    private function computeOverallGrade(array $tables): string
+    {
+        $totalNull = 0;
+        $totalCols = 0;
+
+        foreach ($tables as $table) {
+            foreach ($table['columns'] ?? [] as $col) {
+                $totalNull += $col['fraction_empty'] ?? 0;
+                $totalCols++;
+            }
+        }
+
+        if ($totalCols === 0) {
+            return 'F';
+        }
+
+        $avgNull = ($totalNull / $totalCols) * 100;
+
+        return match (true) {
+            $avgNull <= 5 => 'A',
+            $avgNull <= 15 => 'B',
+            $avgNull <= 30 => 'C',
+            $avgNull <= 50 => 'D',
+            default => 'F',
+        };
+    }
+}
