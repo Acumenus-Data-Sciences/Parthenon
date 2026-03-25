@@ -41,6 +41,7 @@ import { GradeBadge } from "../components/profiler-badges";
 import { CompletenessHeatmap } from "../components/CompletenessHeatmap";
 import { DataQualityScorecard } from "../components/DataQualityScorecard";
 import { TableSizeChart } from "../components/TableSizeChart";
+import { FkRelationshipGraph } from "../components/FkRelationshipGraph";
 import { TableAccordion } from "../components/TableAccordion";
 import { ScanHistorySidebar } from "../components/ScanHistorySidebar";
 import ComparisonSummary from "../components/ComparisonSummary";
@@ -189,6 +190,18 @@ export default function SourceProfilerPage() {
       ) ?? 0,
     [result],
   );
+
+  const graphFields = useMemo(() => {
+    if (!result) return [];
+    return result.tables.flatMap((t) =>
+      t.columns.map((c) => ({
+        table_name: t.table_name,
+        column_name: c.name,
+        inferred_type: c.type,
+        row_count: t.row_count,
+      }))
+    );
+  }, [result]);
 
   // -- Handlers -------------------------------------------------------------
   const handleScan = useCallback(() => {
@@ -586,6 +599,16 @@ export default function SourceProfilerPage() {
           {/* Heatmap */}
           {result.tables.length > 1 && (
             <CompletenessHeatmap tables={result.tables} />
+          )}
+
+          {/* FK Relationship Graph */}
+          {graphFields.length > 0 && (
+            <FkRelationshipGraph
+              fields={graphFields}
+              onTableClick={(tableName) => {
+                setTableSearch(tableName);
+              }}
+            />
           )}
 
           {/* -- Table list section -- */}
