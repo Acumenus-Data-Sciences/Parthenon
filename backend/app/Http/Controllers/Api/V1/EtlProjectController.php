@@ -57,6 +57,18 @@ class EtlProjectController extends Controller
 
         $source = Source::findOrFail($validated['source_id']);
 
+        // Check for existing active project (partial unique index enforces this at DB level too)
+        $existing = EtlProject::where('source_id', $source->id)
+            ->where('cdm_version', $validated['cdm_version'] ?? '5.4')
+            ->first();
+
+        if ($existing) {
+            return response()->json([
+                'error' => 'A mapping project already exists for this source and CDM version.',
+                'existing_project_id' => $existing->id,
+            ], 409);
+        }
+
         $project = $this->service->createProject($source, $validated, $user);
         $project = $this->service->getProjectWithMappings($project);
         $progress = $this->service->computeProgress($project);

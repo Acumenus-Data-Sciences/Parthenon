@@ -355,8 +355,8 @@ export async function fetchEtlProjects(): Promise<{ data: EtlProject[]; total: n
 }
 
 export async function fetchEtlProject(projectId: number): Promise<{ project: EtlProject; progress: ProjectProgress }> {
-  const { data } = await apiClient.get<{ data: { project: EtlProject; progress: ProjectProgress } }>(`/etl-projects/${projectId}`);
-  return data.data;
+  const { data } = await apiClient.get<{ data: EtlProject; progress: ProjectProgress }>(`/etl-projects/${projectId}`);
+  return { project: data.data, progress: data.progress };
 }
 
 export async function createEtlProject(request: {
