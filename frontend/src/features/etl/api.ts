@@ -17,6 +17,8 @@ export interface ColumnProfile {
   fraction_empty: number;
   unique_count: number;
   values?: Record<string, number>;
+  is_potential_pii?: boolean;
+  pii_type?: string | null;
 }
 
 export interface TableProfile {

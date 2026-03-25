@@ -1,10 +1,10 @@
 import { useMemo } from "react";
-import { Shield, CheckCircle2, AlertTriangle, Info } from "lucide-react";
+import { Shield, ShieldAlert, CheckCircle2, AlertTriangle, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { TableProfile } from "../api";
 import { fmtNumberFull, overallGrade } from "../lib/profiler-utils";
 
-export function DataQualityScorecard({ tables }: { tables: TableProfile[] }) {
+export function DataQualityScorecard({ tables, piiColumnCount }: { tables: TableProfile[]; piiColumnCount?: number }) {
   const stats = useMemo(() => {
     const totalCols = tables.reduce((s, t) => s + t.columns.length, 0);
     const highNullCols = tables.reduce(
@@ -70,6 +70,16 @@ export function DataQualityScorecard({ tables }: { tables: TableProfile[] }) {
       total: tables.length,
       severity: stats.emptyTables > 0 ? "error" : "ok",
     },
+    ...(piiColumnCount && piiColumnCount > 0
+      ? [
+          {
+            label: "PII Columns",
+            count: piiColumnCount,
+            total: stats.totalCols,
+            severity: "pii" as const,
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -114,6 +124,9 @@ export function DataQualityScorecard({ tables }: { tables: TableProfile[] }) {
                 {check.severity === "info" && (
                   <Info size={14} className="text-[#60A5FA]" />
                 )}
+                {check.severity === "pii" && (
+                  <ShieldAlert size={14} className="text-amber-400" />
+                )}
                 <span className="text-xs text-[#C5C0B8]">{check.label}</span>
               </div>
               <span
@@ -125,7 +138,9 @@ export function DataQualityScorecard({ tables }: { tables: TableProfile[] }) {
                       ? "text-[#E85A6B]"
                       : check.severity === "warn"
                         ? "text-[#C9A227]"
-                        : "text-[#60A5FA]",
+                        : check.severity === "pii"
+                          ? "text-amber-400"
+                          : "text-[#60A5FA]",
                 )}
               >
                 {check.count}/{check.total}

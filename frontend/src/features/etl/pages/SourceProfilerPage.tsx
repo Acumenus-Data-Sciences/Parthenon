@@ -22,7 +22,7 @@ import { useWhiteRabbitHealth, type ScanResult } from "../api";
 import type { ProfileSummary, PersistedFieldProfile } from "../api";
 import { CdmContextPanel } from "../components/CdmContextPanel";
 import ScanProgressIndicator from "../components/ScanProgressIndicator";
-import { useProfileHistory, useRunScan, useDeleteProfile } from "../hooks/useProfilerData";
+import { useProfileHistory, useRunScan, useDeleteProfile, useComparison } from "../hooks/useProfilerData";
 import { fetchProfile } from "../api";
 import {
   fmtNumber,
@@ -43,6 +43,9 @@ import { DataQualityScorecard } from "../components/DataQualityScorecard";
 import { TableSizeChart } from "../components/TableSizeChart";
 import { TableAccordion } from "../components/TableAccordion";
 import { ScanHistorySidebar } from "../components/ScanHistorySidebar";
+import ComparisonSummary from "../components/ComparisonSummary";
+import ComparisonDiff from "../components/ComparisonDiff";
+import PiiBadge from "../components/PiiBadge";
 
 // ---------------------------------------------------------------------------
 // Transform persisted field data into the ScanResult shape used by rendering
@@ -78,6 +81,8 @@ function transformPersistedToScanResult(
       fraction_empty: f.null_percentage / 100,
       unique_count: f.distinct_count,
       values: f.sample_values ?? undefined,
+      is_potential_pii: f.is_potential_pii,
+      pii_type: f.pii_type,
     });
   }
 
@@ -113,6 +118,10 @@ export default function SourceProfilerPage() {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [sampleRows, setSampleRows] = useState(10000);
   const scanAbortRef = useRef<AbortController | null>(null);
+  const [compareMode, setCompareMode] = useState(false);
+  const [compareCurrentId, setCompareCurrentId] = useState<number>(0);
+  const [compareBaselineId, setCompareBaselineId] = useState<number>(0);
+  const [comparisonFilter, setComparisonFilter] = useState<string | null>(null);
 
   // -- Clear stale localStorage on mount --
   useEffect(() => {
@@ -131,6 +140,7 @@ export default function SourceProfilerPage() {
   const profileHistory: ProfileSummary[] = profileHistoryData?.data ?? [];
   const scanMutation = useRunScan(sourceIdNum);
   const deleteMutation = useDeleteProfile(sourceIdNum);
+  const comparison = useComparison(sourceIdNum, compareCurrentId, compareBaselineId);
 
   // -- Derived data ---------------------------------------------------------
   const selectedSource = sources.find((s) => s.id === selectedSourceId);
@@ -171,6 +181,14 @@ export default function SourceProfilerPage() {
 
   const totalCols = result?.tables.reduce((s, t) => s + t.column_count, 0) ?? 0;
   const totalRows = result?.tables.reduce((s, t) => s + t.row_count, 0) ?? 0;
+  const piiColumnCount = useMemo(
+    () =>
+      result?.tables.reduce(
+        (s, t) => s + t.columns.filter((c) => c.is_potential_pii === true).length,
+        0,
+      ) ?? 0,
+    [result],
+  );
 
   // -- Handlers -------------------------------------------------------------
   const handleScan = useCallback(() => {
@@ -246,6 +264,13 @@ export default function SourceProfilerPage() {
     },
     [selectedHistoryId, deleteMutation],
   );
+
+  const handleCompare = useCallback((currentId: number, baselineId: number) => {
+    setCompareCurrentId(currentId);
+    setCompareBaselineId(baselineId);
+    setCompareMode(true);
+    setComparisonFilter(null);
+  }, []);
 
   const toggleSort = useCallback(
     (field: SortField) => {
@@ -437,6 +462,7 @@ export default function SourceProfilerPage() {
             profiles={profileHistory}
             onSelect={handleHistorySelect}
             onDelete={handleHistoryDelete}
+            onCompare={handleCompare}
             selectedId={selectedHistoryId}
           />
         </div>
@@ -461,8 +487,32 @@ export default function SourceProfilerPage() {
         </div>
       )}
 
+      {/* -- Comparison View -- */}
+      {compareMode && comparison.data && (
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-white">Scan Comparison</h2>
+            <button
+              onClick={() => setCompareMode(false)}
+              className="text-sm text-gray-400 hover:text-white"
+            >
+              &larr; Back to results
+            </button>
+          </div>
+          <ComparisonSummary
+            data={comparison.data}
+            activeFilter={comparisonFilter}
+            onFilterChange={setComparisonFilter}
+          />
+          <ComparisonDiff
+            data={comparison.data}
+            activeFilter={comparisonFilter}
+          />
+        </div>
+      )}
+
       {/* -- Results Dashboard -- */}
-      {result && !scanMutation.isPending && (
+      {result && !scanMutation.isPending && !compareMode && (
         <div className="space-y-6">
           {/* Source name + timestamp header */}
           {resultSourceName && (
@@ -529,7 +579,7 @@ export default function SourceProfilerPage() {
 
           {/* Scorecard + size chart row */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <DataQualityScorecard tables={result.tables} />
+            <DataQualityScorecard tables={result.tables} piiColumnCount={piiColumnCount} />
             <TableSizeChart tables={result.tables} />
           </div>
 

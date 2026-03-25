@@ -16,6 +16,7 @@ import {
   tableNullScore,
 } from "../lib/profiler-utils";
 import { TypeBadge, NullBar, SampleValues, nullPct } from "./profiler-badges";
+import PiiBadge from "./PiiBadge";
 
 export function TableAccordion({
   table,
@@ -115,7 +116,12 @@ export function TableAccordion({
                       </div>
                     </td>
                     <td className="px-4 py-2.5">
-                      <TypeBadge type={col.type} />
+                      <div className="flex items-center gap-1.5">
+                        <TypeBadge type={col.type} />
+                        {col.is_potential_pii === true && col.pii_type && (
+                          <PiiBadge piiType={col.pii_type} />
+                        )}
+                      </div>
                     </td>
                     <td className="px-4 py-2.5">
                       <NullBar pct={nullPct(col)} />

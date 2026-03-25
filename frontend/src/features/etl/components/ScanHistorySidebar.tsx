@@ -20,14 +20,17 @@ export function ScanHistorySidebar({
   profiles,
   onSelect,
   onDelete,
+  onCompare,
   selectedId,
 }: {
   profiles: ProfileSummary[];
   onSelect: (profile: ProfileSummary) => void;
   onDelete: (profileId: number) => void;
+  onCompare: (currentId: number, baselineId: number) => void;
   selectedId: number | null;
 }) {
   const [expanded, setExpanded] = useState(true);
+  const [compareIds, setCompareIds] = useState<Set<number>>(new Set());
 
   if (profiles.length === 0) return null;
 
@@ -52,6 +55,26 @@ export function ScanHistorySidebar({
 
       {expanded && (
         <div className="max-h-[400px] overflow-y-auto">
+          {compareIds.size === 2 && (
+            <div className="px-3 py-2 border-b border-[#232328]">
+              <button
+                type="button"
+                onClick={() => {
+                  const ids = Array.from(compareIds);
+                  const sorted = profiles
+                    .filter((p) => ids.includes(p.id))
+                    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+                  if (sorted.length === 2) {
+                    onCompare(sorted[0].id, sorted[1].id);
+                  }
+                  setCompareIds(new Set());
+                }}
+                className="w-full py-2 bg-teal-600 hover:bg-teal-500 text-white text-sm rounded-lg font-medium transition-colors"
+              >
+                Compare Selected
+              </button>
+            </div>
+          )}
           {profiles.map((profile) => {
             const grade = scoreToGrade(gradeToScore(profile.overall_grade));
             return (
@@ -63,6 +86,22 @@ export function ScanHistorySidebar({
                 )}
                 onClick={() => onSelect(profile)}
               >
+                <input
+                  type="checkbox"
+                  checked={compareIds.has(profile.id)}
+                  onClick={(e) => e.stopPropagation()}
+                  onChange={(e) => {
+                    const next = new Set(compareIds);
+                    if (e.target.checked) {
+                      if (next.size < 2) next.add(profile.id);
+                    } else {
+                      next.delete(profile.id);
+                    }
+                    setCompareIds(next);
+                  }}
+                  className="w-4 h-4 rounded border-gray-600 bg-transparent accent-teal-500 shrink-0"
+                  title="Select for comparison"
+                />
                 <span
                   className="w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold shrink-0"
                   style={{ backgroundColor: grade.bg, color: grade.color }}
