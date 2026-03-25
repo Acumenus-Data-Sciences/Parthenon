@@ -125,6 +125,13 @@ export default function UnmappedCodesView() {
         </div>
       )}
 
+      {/* Helper text */}
+      {codesData && codesData.data.length > 0 && (
+        <p className="mb-3 text-xs text-[#555]">
+          Sorted by impact score (record count x domain weight)
+        </p>
+      )}
+
       {/* Data table */}
       {!selectedSourceId && (
         <p className="py-10 text-center text-[#555]">Select a source to view unmapped codes.</p>
@@ -149,10 +156,11 @@ export default function UnmappedCodesView() {
                   <th className="px-3 py-2 text-left text-[11px] font-medium uppercase text-[#888]">CDM Table</th>
                   <th className="px-3 py-2 text-left text-[11px] font-medium uppercase text-[#888]">CDM Field</th>
                   <th className="px-3 py-2 text-right text-[11px] font-medium uppercase text-[#888]">Records</th>
+                  <th className="px-3 py-2 text-right text-[11px] font-medium uppercase text-[#888]">Impact Score</th>
                 </tr>
               </thead>
               <tbody>
-                {codesData.data.map((code: UnmappedCode) => (
+                {codesData.data.map((code: UnmappedCode, idx: number) => (
                   <tr key={code.id} className="border-b border-[#1a1a22] hover:bg-[#151518]">
                     <td className="px-3 py-2 font-mono text-xs text-[#ccc]">{code.source_code}</td>
                     <td className="px-3 py-2 text-xs text-[#888]">{code.source_vocabulary_id}</td>
@@ -160,6 +168,16 @@ export default function UnmappedCodesView() {
                     <td className="px-3 py-2 text-xs text-[#888]">{code.cdm_field}</td>
                     <td className="px-3 py-2 text-right text-xs text-[#ccc]">
                       {code.record_count.toLocaleString()}
+                    </td>
+                    <td className="px-3 py-2 text-right text-xs">
+                      <span className="flex items-center justify-end gap-1.5">
+                        {page === 1 && idx < 3 && (
+                          <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#9B1B30] text-[10px] font-bold text-white">
+                            #{idx + 1}
+                          </span>
+                        )}
+                        <span className="text-[#ccc]">{Number(code.impact_score).toFixed(1)}</span>
+                      </span>
                     </td>
                   </tr>
                 ))}

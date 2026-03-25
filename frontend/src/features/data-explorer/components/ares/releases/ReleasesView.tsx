@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Loader2, Plus, Trash2, Package } from "lucide-react";
+import { Loader2, Plus, Trash2, Pencil, Package } from "lucide-react";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
-import { useReleases, useCreateRelease, useDeleteRelease } from "../../../hooks/useReleaseData";
-import type { StoreReleasePayload } from "../../../types/ares";
+import { useReleases, useCreateRelease, useUpdateRelease, useDeleteRelease } from "../../../hooks/useReleaseData";
+import { ReleaseEditForm } from "./ReleaseEditForm";
+import type { StoreReleasePayload, UpdateReleasePayload } from "../../../types/ares";
 
 export function ReleasesView() {
   const [selectedSourceId, setSelectedSourceId] = useState<number | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
   const [formData, setFormData] = useState<StoreReleasePayload>({
     release_name: "",
     release_type: "scheduled_etl",
@@ -16,7 +18,15 @@ export function ReleasesView() {
   const { data: sources } = useQuery({ queryKey: ["sources"], queryFn: fetchSources });
   const { data: releases, isLoading } = useReleases(selectedSourceId);
   const createMutation = useCreateRelease(selectedSourceId ?? 0);
+  const updateMutation = useUpdateRelease(selectedSourceId ?? 0);
   const deleteMutation = useDeleteRelease(selectedSourceId ?? 0);
+
+  const handleUpdate = (releaseId: number, payload: UpdateReleasePayload) => {
+    updateMutation.mutate(
+      { releaseId, payload },
+      { onSuccess: () => setEditingId(null) },
+    );
+  };
 
   const handleCreate = () => {
     if (!selectedSourceId || !formData.release_name.trim()) return;
@@ -147,40 +157,60 @@ export function ReleasesView() {
           {releases.map((release) => (
             <div
               key={release.id}
-              className="flex items-start justify-between rounded-xl border border-[#252530] bg-[#151518] p-4"
+              className="rounded-xl border border-[#252530] bg-[#151518] p-4"
             >
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-[#F0EDE8]">{release.release_name}</span>
-                  <span
-                    className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                      release.release_type === "snapshot"
-                        ? "bg-[#2DD4BF]/10 text-[#2DD4BF]"
-                        : "bg-[#C9A227]/10 text-[#C9A227]"
-                    }`}
+              <div className="flex items-start justify-between">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-[#F0EDE8]">{release.release_name}</span>
+                    <span
+                      className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                        release.release_type === "snapshot"
+                          ? "bg-[#2DD4BF]/10 text-[#2DD4BF]"
+                          : "bg-[#C9A227]/10 text-[#C9A227]"
+                      }`}
+                    >
+                      {release.release_type === "scheduled_etl" ? "ETL" : "Snapshot"}
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-[#8A857D]">
+                    {release.cdm_version && <span>CDM {release.cdm_version}</span>}
+                    {release.vocabulary_version && <span>Vocab {release.vocabulary_version}</span>}
+                    <span>{release.person_count.toLocaleString()} persons</span>
+                    <span>{release.record_count.toLocaleString()} records</span>
+                    <span>{new Date(release.created_at).toLocaleDateString()}</span>
+                  </div>
+                  {release.notes && (
+                    <p className="text-xs text-[#8A857D] mt-1">{release.notes}</p>
+                  )}
+                </div>
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => setEditingId(editingId === release.id ? null : release.id)}
+                    className="text-[#8A857D] hover:text-[#C9A227] transition-colors p-1"
+                    title="Edit release"
                   >
-                    {release.release_type === "scheduled_etl" ? "ETL" : "Snapshot"}
-                  </span>
+                    <Pencil size={14} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(release.id)}
+                    disabled={deleteMutation.isPending}
+                    className="text-[#8A857D] hover:text-[#9B1B30] transition-colors p-1"
+                  >
+                    <Trash2 size={14} />
+                  </button>
                 </div>
-                <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-[#8A857D]">
-                  {release.cdm_version && <span>CDM {release.cdm_version}</span>}
-                  {release.vocabulary_version && <span>Vocab {release.vocabulary_version}</span>}
-                  <span>{release.person_count.toLocaleString()} persons</span>
-                  <span>{release.record_count.toLocaleString()} records</span>
-                  <span>{new Date(release.created_at).toLocaleDateString()}</span>
-                </div>
-                {release.notes && (
-                  <p className="text-xs text-[#8A857D] mt-1">{release.notes}</p>
-                )}
               </div>
-              <button
-                type="button"
-                onClick={() => handleDelete(release.id)}
-                disabled={deleteMutation.isPending}
-                className="text-[#8A857D] hover:text-[#9B1B30] transition-colors p-1"
-              >
-                <Trash2 size={14} />
-              </button>
+              {editingId === release.id && (
+                <ReleaseEditForm
+                  release={release}
+                  onSave={(payload) => handleUpdate(release.id, payload)}
+                  onCancel={() => setEditingId(null)}
+                  isSaving={updateMutation.isPending}
+                />
+              )}
             </div>
           ))}
         </div>

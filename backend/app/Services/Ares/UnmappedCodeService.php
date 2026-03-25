@@ -12,6 +12,33 @@ use Illuminate\Support\Facades\DB;
 class UnmappedCodeService
 {
     /**
+     * Domain weights for impact score calculation.
+     * Higher weight = more clinically significant when unmapped.
+     */
+    private const DOMAIN_WEIGHTS = [
+        'condition_occurrence' => 1.0,
+        'drug_exposure' => 0.9,
+        'procedure_occurrence' => 0.8,
+        'measurement' => 0.7,
+        'device_exposure' => 0.6,
+        'observation' => 0.5,
+        'visit_occurrence' => 0.3,
+    ];
+
+    /**
+     * Build a SQL CASE expression for domain weight lookup.
+     */
+    private function buildDomainWeightCase(): string
+    {
+        $cases = [];
+        foreach (self::DOMAIN_WEIGHTS as $domain => $weight) {
+            $cases[] = "WHEN cdm_table = '{$domain}' THEN {$weight}";
+        }
+
+        return 'CASE '.implode(' ', $cases).' ELSE 0.4 END';
+    }
+
+    /**
      * Get summary of unmapped codes grouped by CDM table/field for a specific release.
      *
      * @return Collection<int, object>
@@ -38,8 +65,11 @@ class UnmappedCodeService
         int $page = 1,
         int $perPage = 20,
     ): LengthAwarePaginator {
+        $weightCase = $this->buildDomainWeightCase();
+
         $query = UnmappedSourceCode::where('source_id', $source->id)
-            ->where('release_id', $release->id);
+            ->where('release_id', $release->id)
+            ->selectRaw("*, (record_count * ({$weightCase})) as impact_score");
 
         if (! empty($filters['table'])) {
             $query->where('cdm_table', $filters['table']);
@@ -53,7 +83,7 @@ class UnmappedCodeService
             $query->where('source_code', 'ilike', '%'.$filters['search'].'%');
         }
 
-        return $query->orderByDesc('record_count')
+        return $query->orderByDesc('impact_score')
             ->paginate($perPage, ['*'], 'page', $page);
     }
 

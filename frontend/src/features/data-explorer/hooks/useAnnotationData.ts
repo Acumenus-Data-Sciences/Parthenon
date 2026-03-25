@@ -7,10 +7,14 @@ import {
 } from "../api/annotationApi";
 import type { StoreAnnotationPayload, UpdateAnnotationPayload } from "../types/ares";
 
-export function useAnnotations(sourceId: number | null, chartType?: string) {
+export function useAnnotations(
+  sourceId: number | null,
+  chartType?: string,
+  filters?: { tag?: string; search?: string },
+) {
   return useQuery({
-    queryKey: ["ares", "annotations", sourceId, chartType],
-    queryFn: () => fetchAnnotations(sourceId!, chartType),
+    queryKey: ["ares", "annotations", sourceId, chartType, filters],
+    queryFn: () => fetchAnnotations(sourceId!, chartType, filters),
     enabled: sourceId != null && sourceId > 0,
   });
 }

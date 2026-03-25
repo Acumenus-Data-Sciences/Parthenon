@@ -74,11 +74,13 @@ class AnnotationService
      *
      * @return Collection<int, ChartAnnotation>
      */
-    public function allForSource(int $sourceId): Collection
+    public function allForSource(int $sourceId, ?string $tag = null, ?string $search = null): Collection
     {
         return ChartAnnotation::query()
             ->with('creator')
             ->where('source_id', $sourceId)
+            ->when($tag, fn ($q) => $q->where('tag', $tag))
+            ->when($search, fn ($q) => $q->where('annotation_text', 'ilike', '%'.$search.'%'))
             ->orderBy('x_value')
             ->get();
     }
@@ -88,10 +90,12 @@ class AnnotationService
      *
      * @return Collection<int, ChartAnnotation>
      */
-    public function allForNetwork(): Collection
+    public function allForNetwork(?string $tag = null, ?string $search = null): Collection
     {
         return ChartAnnotation::query()
             ->with(['creator', 'source'])
+            ->when($tag, fn ($q) => $q->where('tag', $tag))
+            ->when($search, fn ($q) => $q->where('annotation_text', 'ilike', '%'.$search.'%'))
             ->orderBy('x_value')
             ->get();
     }

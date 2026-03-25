@@ -90,11 +90,13 @@ class AresController extends Controller
     public function annotations(Request $request, Source $source): JsonResponse
     {
         $chartType = $request->query('chart_type');
+        $tag = is_string($request->query('tag')) ? $request->query('tag') : null;
+        $search = is_string($request->query('search')) ? $request->query('search') : null;
 
         if (is_string($chartType) && $chartType !== '') {
             $annotations = $this->annotationService->forChart($chartType, $source->id);
         } else {
-            $annotations = $this->annotationService->allForSource($source->id);
+            $annotations = $this->annotationService->allForSource($source->id, $tag, $search);
         }
 
         return response()->json(['data' => $annotations]);

@@ -79,6 +79,28 @@ export default function CostView() {
 
       {selectedSourceId && !isLoading && summary && summary.has_cost_data && (
         <>
+          {/* PPPY + Total Cost summary cards */}
+          {summary.total_cost !== undefined && (
+            <div className="mb-4 grid grid-cols-2 gap-3 md:grid-cols-4">
+              <div className="rounded-lg border border-[#252530] bg-[#151518] p-3 text-center">
+                <p className="text-xl font-semibold text-[#2DD4BF]">{formatCurrency(summary.total_cost)}</p>
+                <p className="text-[10px] text-[#666]">Total Cost</p>
+              </div>
+              <div className="rounded-lg border border-[#252530] bg-[#151518] p-3 text-center">
+                <p className="text-xl font-semibold text-[#C9A227]">{formatCurrency(summary.pppy ?? 0)}</p>
+                <p className="text-[10px] text-[#666]">Per-Patient-Per-Year</p>
+              </div>
+              <div className="rounded-lg border border-[#252530] bg-[#151518] p-3 text-center">
+                <p className="text-xl font-semibold text-white">{(summary.person_count ?? 0).toLocaleString()}</p>
+                <p className="text-[10px] text-[#666]">Persons</p>
+              </div>
+              <div className="rounded-lg border border-[#252530] bg-[#151518] p-3 text-center">
+                <p className="text-xl font-semibold text-white">{(summary.avg_observation_years ?? 0).toFixed(1)} yr</p>
+                <p className="text-[10px] text-[#666]">Avg Observation</p>
+              </div>
+            </div>
+          )}
+
           {/* Cost by domain bar chart */}
           <div className="mb-6 rounded-lg border border-[#252530] bg-[#151518] p-4">
             <h3 className="mb-3 text-sm font-medium text-white">Cost by Domain</h3>

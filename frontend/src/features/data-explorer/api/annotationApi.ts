@@ -18,9 +18,15 @@ function unwrap<T>(body: any): T {
 export async function fetchAnnotations(
   sourceId: number,
   chartType?: string,
+  filters?: { tag?: string; search?: string },
 ): Promise<ChartAnnotation[]> {
-  const params = chartType ? { chart_type: chartType } : undefined;
-  const { data } = await apiClient.get(BASE(sourceId), { params });
+  const params: Record<string, string> = {};
+  if (chartType) params.chart_type = chartType;
+  if (filters?.tag) params.tag = filters.tag;
+  if (filters?.search) params.search = filters.search;
+  const { data } = await apiClient.get(BASE(sourceId), {
+    params: Object.keys(params).length > 0 ? params : undefined,
+  });
   return unwrap<ChartAnnotation[]>(data);
 }
 

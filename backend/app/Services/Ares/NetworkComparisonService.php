@@ -32,7 +32,7 @@ class NetworkComparisonService
     /**
      * Compare concept prevalence across all active sources.
      *
-     * @return array<int, array{source_id: int, source_name: string, count: int, rate_per_1000: float, person_count: int}>
+     * @return array<int, array{source_id: int, source_name: string, count: int, rate_per_1000: float, person_count: int, ci_lower: float, ci_upper: float}>
      */
     public function compareConcept(int $conceptId): array
     {
@@ -51,6 +51,8 @@ class NetworkComparisonService
                     'count' => 0,
                     'rate_per_1000' => 0.0,
                     'person_count' => 0,
+                    'ci_lower' => 0.0,
+                    'ci_upper' => 0.0,
                 ];
             }
         }
@@ -62,7 +64,7 @@ class NetworkComparisonService
      * Compare multiple concepts across all sources.
      *
      * @param  array<int>  $conceptIds
-     * @return array<int, array<int, array{source_id: int, source_name: string, count: int, rate_per_1000: float, person_count: int}>>
+     * @return array<int, array<int, array{source_id: int, source_name: string, count: int, rate_per_1000: float, person_count: int, ci_lower: float, ci_upper: float}>>
      */
     public function compareBatch(array $conceptIds): array
     {
@@ -108,7 +110,7 @@ class NetworkComparisonService
     /**
      * Get concept prevalence data for a specific source.
      *
-     * @return array{source_id: int, source_name: string, count: int, rate_per_1000: float, person_count: int}
+     * @return array{source_id: int, source_name: string, count: int, rate_per_1000: float, person_count: int, ci_lower: float, ci_upper: float}
      */
     private function getConceptDataForSource(Source $source, int $conceptId): array
     {
@@ -143,12 +145,28 @@ class NetworkComparisonService
         $personCount = (int) ($personResult?->count_value ?? 0);
         $ratePer1000 = $personCount > 0 ? round(($count / $personCount) * 1000, 2) : 0.0;
 
+        // Wilson score 95% confidence interval for rate_per_1000
+        $ciLower = 0.0;
+        $ciUpper = 0.0;
+
+        if ($personCount > 0 && $count > 0) {
+            $p = $count / $personCount;
+            $z = 1.96;
+            $denominator = 1 + ($z * $z / $personCount);
+            $center = ($p + ($z * $z) / (2 * $personCount)) / $denominator;
+            $spread = ($z / $denominator) * sqrt(($p * (1 - $p) / $personCount) + ($z * $z / (4 * $personCount * $personCount)));
+            $ciLower = round(max(0, ($center - $spread) * 1000), 2);
+            $ciUpper = round(($center + $spread) * 1000, 2);
+        }
+
         return [
             'source_id' => $source->id,
             'source_name' => $source->source_name,
             'count' => $count,
             'rate_per_1000' => $ratePer1000,
             'person_count' => $personCount,
+            'ci_lower' => $ciLower,
+            'ci_upper' => $ciUpper,
         ];
     }
 }

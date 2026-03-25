@@ -56,7 +56,7 @@ class CostService
     /**
      * Get cost aggregates by domain for a source.
      *
-     * @return array{has_cost_data: bool, domains: array<int, array{domain: string, total_cost: float, record_count: int, avg_cost: float}>}
+     * @return array{has_cost_data: bool, domains: array<int, array{domain: string, total_cost: float, record_count: int, avg_cost: float}>, total_cost?: float, person_count?: int, avg_observation_years?: float, pppy?: float}
      */
     public function getSummary(Source $source): array
     {
@@ -87,7 +87,42 @@ class CostService
                 'avg_cost' => round((float) $row->avg_cost, 2),
             ])->toArray();
 
-            return ['has_cost_data' => true, 'domains' => $domains];
+            // Compute PPPY (per-patient-per-year)
+            $totalCost = array_sum(array_column($domains, 'total_cost'));
+
+            // Get person count from Achilles analysis 1
+            $personResult = DB::connection($connection)
+                ->table('achilles_results')
+                ->where('analysis_id', 1)
+                ->value('count_value');
+            $personCount = (int) ($personResult ?? 0);
+
+            // Get average observation years from observation_period table
+            $avgObsYears = 1.0; // default
+            try {
+                $avgObsDays = DB::connection($connection)
+                    ->table('observation_period')
+                    ->selectRaw('AVG(observation_period_end_date - observation_period_start_date) as avg_days')
+                    ->value('avg_days');
+                if ($avgObsDays && (float) $avgObsDays > 0) {
+                    $avgObsYears = max(0.1, round((float) $avgObsDays / 365.25, 2));
+                }
+            } catch (\Throwable) {
+                // Fall back to 1 year if obs_period not accessible
+            }
+
+            $pppy = ($personCount > 0 && $avgObsYears > 0)
+                ? round($totalCost / $personCount / $avgObsYears, 2)
+                : 0;
+
+            return [
+                'has_cost_data' => true,
+                'domains' => $domains,
+                'total_cost' => round($totalCost, 2),
+                'person_count' => $personCount,
+                'avg_observation_years' => $avgObsYears,
+                'pppy' => $pppy,
+            ];
         } catch (\Throwable $e) {
             Log::warning("CostService: getSummary failed for source {$source->source_name}: {$e->getMessage()}");
 

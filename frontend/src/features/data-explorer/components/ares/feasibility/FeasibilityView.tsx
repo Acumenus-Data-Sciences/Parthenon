@@ -3,14 +3,18 @@ import { useFeasibilityAssessment, useFeasibilityList, useRunFeasibility } from 
 import FeasibilityForm from "./FeasibilityForm";
 import type { FeasibilityAssessment, FeasibilityResult } from "../../../types/ares";
 
-function PassBadge({ pass }: { pass: boolean }) {
+function ScoreBadge({ score, pass }: { score: number; pass: boolean }) {
+  const color = score >= 90
+    ? "bg-[#2DD4BF]/20 text-[#2DD4BF]"
+    : score >= 70
+      ? "bg-[#C9A227]/20 text-[#C9A227]"
+      : score >= 50
+        ? "bg-[#F59E0B]/20 text-[#F59E0B]"
+        : "bg-[#9B1B30]/20 text-[#e85d75]";
+
   return (
-    <span
-      className={`rounded px-1.5 py-0.5 text-[10px] font-bold ${
-        pass ? "bg-[#2DD4BF]/20 text-[#2DD4BF]" : "bg-[#9B1B30]/20 text-[#e85d75]"
-      }`}
-    >
-      {pass ? "PASS" : "FAIL"}
+    <span className={`rounded px-1.5 py-0.5 text-[10px] font-bold ${color}`}>
+      {score}%
     </span>
   );
 }
@@ -107,6 +111,7 @@ export default function FeasibilityView() {
                   <th className="px-3 py-2 text-center text-[11px] font-medium uppercase text-[#888]">Visits</th>
                   <th className="px-3 py-2 text-center text-[11px] font-medium uppercase text-[#888]">Dates</th>
                   <th className="px-3 py-2 text-center text-[11px] font-medium uppercase text-[#888]">Patients</th>
+                  <th className="px-3 py-2 text-center text-[11px] font-medium uppercase text-[#888]">Score</th>
                   <th className="px-3 py-2 text-center text-[11px] font-medium uppercase text-[#888]">Overall</th>
                 </tr>
               </thead>
@@ -114,21 +119,47 @@ export default function FeasibilityView() {
                 {selectedAssessment.results.map((r: FeasibilityResult) => (
                   <tr key={r.id} className="border-b border-[#1a1a22] hover:bg-[#1a1a22]">
                     <td className="px-3 py-2 text-white">{r.source_name}</td>
-                    <td className="px-3 py-2 text-center"><PassBadge pass={r.domain_pass} /></td>
-                    <td className="px-3 py-2 text-center"><PassBadge pass={r.concept_pass} /></td>
-                    <td className="px-3 py-2 text-center"><PassBadge pass={r.visit_pass} /></td>
-                    <td className="px-3 py-2 text-center"><PassBadge pass={r.date_pass} /></td>
-                    <td className="px-3 py-2 text-center"><PassBadge pass={r.patient_pass} /></td>
+                    <td className="px-3 py-2 text-center">
+                      <ScoreBadge score={r.domain_score ?? (r.domain_pass ? 100 : 0)} pass={r.domain_pass} />
+                    </td>
+                    <td className="px-3 py-2 text-center">
+                      <ScoreBadge score={r.concept_score ?? (r.concept_pass ? 100 : 0)} pass={r.concept_pass} />
+                    </td>
+                    <td className="px-3 py-2 text-center">
+                      <ScoreBadge score={r.visit_score ?? (r.visit_pass ? 100 : 0)} pass={r.visit_pass} />
+                    </td>
+                    <td className="px-3 py-2 text-center">
+                      <ScoreBadge score={r.date_score ?? (r.date_pass ? 100 : 0)} pass={r.date_pass} />
+                    </td>
+                    <td className="px-3 py-2 text-center">
+                      <ScoreBadge score={r.patient_score ?? (r.patient_pass ? 100 : 0)} pass={r.patient_pass} />
+                    </td>
                     <td className="px-3 py-2 text-center">
                       <span
-                        className={`rounded px-2 py-0.5 text-[10px] font-bold ${
-                          r.overall_pass
+                        className={`rounded-full px-2 py-0.5 text-xs font-bold ${
+                          (r.composite_score ?? 0) >= 80
                             ? "bg-[#2DD4BF]/20 text-[#2DD4BF]"
-                            : "bg-[#9B1B30]/20 text-[#e85d75]"
+                            : (r.composite_score ?? 0) >= 60
+                              ? "bg-[#C9A227]/20 text-[#C9A227]"
+                              : "bg-[#9B1B30]/20 text-[#e85d75]"
                         }`}
                       >
-                        {r.overall_pass ? "ELIGIBLE" : "INELIGIBLE"}
+                        {r.composite_score ?? 0}%
                       </span>
+                    </td>
+                    <td className="px-3 py-2 text-center">
+                      <div className="flex flex-col items-center gap-0.5">
+                        <span
+                          className={`rounded px-2 py-0.5 text-[10px] font-bold ${
+                            r.overall_pass
+                              ? "bg-[#2DD4BF]/20 text-[#2DD4BF]"
+                              : "bg-[#9B1B30]/20 text-[#e85d75]"
+                          }`}
+                        >
+                          {r.overall_pass ? "ELIGIBLE" : "INELIGIBLE"}
+                        </span>
+                        <span className="text-[10px] text-[#666]">{r.composite_score ?? 0}% score</span>
+                      </div>
                     </td>
                   </tr>
                 ))}

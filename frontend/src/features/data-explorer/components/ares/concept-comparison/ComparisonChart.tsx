@@ -5,6 +5,7 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
+  ErrorBar,
   ResponsiveContainer,
 } from "recharts";
 import type { ConceptComparison } from "../../../types/ares";
@@ -23,10 +24,15 @@ export default function ComparisonChart({ data, metric }: ComparisonChartProps) 
     );
   }
 
-  const chartData = data.map((d) => ({
-    source: d.source_name,
-    value: metric === "count" ? d.count : d.rate_per_1000,
-  }));
+  const chartData = data.map((d) => {
+    const value = metric === "count" ? d.count : d.rate_per_1000;
+    // Error bar uses [errorLow, errorHigh] tuple relative to the value
+    const error: [number, number] =
+      metric === "rate_per_1000" && d.ci_lower !== undefined && d.ci_upper !== undefined
+        ? [value - d.ci_lower, d.ci_upper - value]
+        : [0, 0];
+    return { source: d.source_name, value, error };
+  });
 
   return (
     <div className="h-64">
@@ -64,7 +70,11 @@ export default function ComparisonChart({ data, metric }: ComparisonChartProps) 
             ]) as any}
             /* eslint-enable @typescript-eslint/no-explicit-any */
           />
-          <Bar dataKey="value" fill="#C9A227" radius={[4, 4, 0, 0]} />
+          <Bar dataKey="value" fill="#C9A227" radius={[4, 4, 0, 0]}>
+            {metric === "rate_per_1000" && (
+              <ErrorBar dataKey="error" width={4} stroke="#888" strokeWidth={1} />
+            )}
+          </Bar>
         </BarChart>
       </ResponsiveContainer>
     </div>

@@ -7,6 +7,7 @@ import {
   Tooltip,
   ResponsiveContainer,
   ReferenceLine,
+  ReferenceArea,
 } from "recharts";
 import type { DqTrendPoint } from "../../../types/ares";
 
@@ -65,6 +66,15 @@ export default function DqTrendChart({ data, onReleaseClick }: DqTrendChartProps
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             formatter={((value: number | string) => [`${Number(value).toFixed(1)}%`, "Pass Rate"]) as any}
           />
+          {/* Good zone: >90% — green */}
+          <ReferenceArea y1={90} y2={100} fill="#2DD4BF" fillOpacity={0.05} ifOverflow="extendDomain" />
+
+          {/* Warning zone: 80-90% — amber */}
+          <ReferenceArea y1={80} y2={90} fill="#C9A227" fillOpacity={0.05} ifOverflow="extendDomain" />
+
+          {/* Danger zone: <80% — red */}
+          <ReferenceArea y1={0} y2={80} fill="#9B1B30" fillOpacity={0.05} ifOverflow="extendDomain" />
+
           <ReferenceLine y={80} stroke="#C9A227" strokeDasharray="5 5" />
           <Line
             type="monotone"
@@ -77,7 +87,7 @@ export default function DqTrendChart({ data, onReleaseClick }: DqTrendChartProps
         </LineChart>
       </ResponsiveContainer>
       <p className="mt-1 text-center text-[10px] text-[#555]">
-        Click a release point to view delta details. Dashed line = 80% quality threshold.
+        Click a release point to view delta details. Green &gt;90%, amber 80-90%, red &lt;80%.
       </p>
     </div>
   );

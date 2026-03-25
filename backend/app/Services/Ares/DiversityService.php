@@ -49,9 +49,19 @@ class DiversityService
                         'gender' => [],
                         'race' => [],
                         'ethnicity' => [],
+                        'simpson_index' => 0.0,
+                        'diversity_rating' => 'low',
                     ];
                 }
             }
+
+            // Compute Simpson's diversity index for each source
+            foreach ($results as &$row) {
+                $index = $this->computeSimpsonIndex($row);
+                $row['simpson_index'] = $index;
+                $row['diversity_rating'] = $this->rateDiversity($index);
+            }
+            unset($row);
 
             // Sort by person count descending
             usort($results, fn ($a, $b) => $b['person_count'] <=> $a['person_count']);
@@ -131,6 +141,55 @@ class DiversityService
         arsort($proportions);
 
         return $proportions;
+    }
+
+    /**
+     * Compute Simpson's Diversity Index averaged across race, ethnicity, and gender.
+     *
+     * Simpson's = 1 - sum(p_i^2) where p_i is the proportion of each category.
+     * The index is averaged across all non-empty demographic dimensions.
+     *
+     * @param  array{gender: array<string, float>, race: array<string, float>, ethnicity: array<string, float>}  $sourceData
+     */
+    private function computeSimpsonIndex(array $sourceData): float
+    {
+        $dimensions = ['race', 'ethnicity', 'gender'];
+        $indices = [];
+
+        foreach ($dimensions as $dim) {
+            $proportions = $sourceData[$dim] ?? [];
+            if (empty($proportions)) {
+                continue;
+            }
+
+            // Proportions are stored as percentages (0-100); convert to 0-1 fractions
+            $sumPSquared = 0.0;
+            foreach ($proportions as $pct) {
+                $p = $pct / 100.0;
+                $sumPSquared += $p * $p;
+            }
+
+            $indices[] = 1.0 - $sumPSquared;
+        }
+
+        if (empty($indices)) {
+            return 0.0;
+        }
+
+        return round(array_sum($indices) / count($indices), 3);
+    }
+
+    /**
+     * Map a Simpson's index value to a human-readable rating.
+     */
+    private function rateDiversity(float $index): string
+    {
+        return match (true) {
+            $index >= 0.8 => 'very_high',
+            $index >= 0.6 => 'high',
+            $index >= 0.4 => 'moderate',
+            default => 'low',
+        };
     }
 
     /**

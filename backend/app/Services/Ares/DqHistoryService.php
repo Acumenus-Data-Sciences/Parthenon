@@ -2,15 +2,28 @@
 
 namespace App\Services\Ares;
 
+use App\Enums\DaimonType;
 use App\Models\App\DqdResult;
 use App\Models\App\Source;
 use App\Models\App\SourceRelease;
+use App\Models\Results\AchillesResult;
+use App\Services\Database\DynamicConnectionFactory;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class DqHistoryService
 {
+    /**
+     * Standard CDM domain analysis IDs for domain coverage counting.
+     *
+     * @var array<int, int>
+     */
+    private const DOMAIN_ANALYSIS_IDS = [400, 600, 700, 800, 200, 1800, 2100, 900, 1000, 1100, 1300, 1500];
+
+    public function __construct(
+        private readonly DynamicConnectionFactory $connectionFactory,
+    ) {}
     /**
      * Compute delta status for each DQD check in the given release
      * compared to the previous release for the same source.
@@ -219,9 +232,10 @@ class DqHistoryService
     }
 
     /**
-     * Get the latest DQ pass rate per source across the network.
+     * Get the latest DQ pass rate per source across the network,
+     * including sparkline data, freshness, domain count, and person count.
      *
-     * @return array<int, array{source_id: int, source_name: string, pass_rate: float, trend: string|null, release_name: string|null}>
+     * @return array<int, array{source_id: int, source_name: string, pass_rate: float, trend: string|null, release_name: string|null, sparkline: array<int, float>, days_since_refresh: int|null, domain_count: int, person_count: int}>
      */
     public function getNetworkDqSummary(): array
     {
@@ -234,12 +248,18 @@ class DqHistoryService
                 ->first();
 
             if (! $latestRelease) {
+                $achillesData = $this->getAchillesMetrics($source);
+
                 $summary[] = [
                     'source_id' => $source->id,
                     'source_name' => $source->source_name,
                     'pass_rate' => 0.0,
                     'trend' => null,
                     'release_name' => null,
+                    'sparkline' => [],
+                    'days_since_refresh' => null,
+                    'domain_count' => $achillesData['domain_count'],
+                    'person_count' => $achillesData['person_count'],
                 ];
 
                 continue;
@@ -279,16 +299,101 @@ class DqHistoryService
                 }
             }
 
+            // Sparkline: last 6 DQ pass rates
+            $sparkline = $this->getSparklineData($source);
+
+            // Freshness: days since latest release
+            $daysSinceRefresh = (int) now()->diffInDays($latestRelease->created_at);
+
+            // Domain count and person count from Achilles results
+            $achillesData = $this->getAchillesMetrics($source);
+
             $summary[] = [
                 'source_id' => $source->id,
                 'source_name' => $source->source_name,
                 'pass_rate' => $currentRate,
                 'trend' => $trend,
                 'release_name' => $latestRelease->release_name,
+                'sparkline' => $sparkline,
+                'days_since_refresh' => $daysSinceRefresh,
+                'domain_count' => $achillesData['domain_count'],
+                'person_count' => $achillesData['person_count'],
             ];
         }
 
         return $summary;
+    }
+
+    /**
+     * Get last 6 DQ pass rates for sparkline display.
+     *
+     * @return array<int, float>
+     */
+    private function getSparklineData(Source $source): array
+    {
+        $releases = SourceRelease::where('source_id', $source->id)
+            ->orderByDesc('created_at')
+            ->limit(6)
+            ->get()
+            ->reverse()
+            ->values();
+
+        return $releases->map(function (SourceRelease $release) use ($source): float {
+            $stats = DqdResult::where('source_id', $source->id)
+                ->where('release_id', $release->id)
+                ->selectRaw('COUNT(*) as total, SUM(CASE WHEN passed THEN 1 ELSE 0 END) as passed_count')
+                ->first();
+
+            $total = (int) $stats->total;
+
+            return $total > 0 ? round(((int) $stats->passed_count / $total) * 100, 1) : 0.0;
+        })->toArray();
+    }
+
+    /**
+     * Get domain count and person count from Achilles results for a source.
+     *
+     * @return array{domain_count: int, person_count: int}
+     */
+    private function getAchillesMetrics(Source $source): array
+    {
+        try {
+            $daimon = $source->daimons()->where('daimon_type', DaimonType::Results->value)->first();
+            $schema = $daimon?->table_qualifier ?? 'results';
+
+            $connection = 'results';
+            if (! empty($source->db_host)) {
+                $connection = $this->connectionFactory->connectionForSchema($source, $schema);
+            } else {
+                DB::connection('results')->statement(
+                    "SET search_path TO \"{$schema}\", public"
+                );
+            }
+
+            // Count distinct domains with Achilles data
+            $domainCount = (int) AchillesResult::on($connection)
+                ->whereIn('analysis_id', self::DOMAIN_ANALYSIS_IDS)
+                ->where('count_value', '>', 0)
+                ->distinct()
+                ->count('analysis_id');
+
+            // Person count from analysis_id = 1
+            $personCount = (int) (AchillesResult::on($connection)
+                ->where('analysis_id', 1)
+                ->value('count_value') ?? 0);
+
+            return [
+                'domain_count' => $domainCount,
+                'person_count' => $personCount,
+            ];
+        } catch (\Throwable $e) {
+            Log::warning("DqHistory: failed to query Achilles for source {$source->source_name}: {$e->getMessage()}");
+
+            return [
+                'domain_count' => 0,
+                'person_count' => 0,
+            ];
+        }
     }
 
     /**

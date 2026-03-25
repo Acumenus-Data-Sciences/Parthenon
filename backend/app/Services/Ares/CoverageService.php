@@ -35,7 +35,7 @@ class CoverageService
     /**
      * Build the domain x source coverage matrix.
      *
-     * @return array{sources: array<int, array{id: int, name: string}>, domains: string[], matrix: array<int, array<string, array{record_count: int, has_data: bool, density_per_person: float}>>}
+     * @return array{sources: array<int, array{id: int, name: string}>, domains: string[], matrix: array<int, array<string, array{record_count: int, has_data: bool, density_per_person: float}>>, domain_totals: array<string, int>, source_completeness: array<int, int>}
      */
     public function getMatrix(): array
     {
@@ -68,10 +68,34 @@ class CoverageService
                 $matrix[] = $row;
             }
 
+            // Domain totals: sum record_count across all sources per domain
+            $domainTotals = [];
+            foreach ($domains as $domain) {
+                $total = 0;
+                foreach ($matrix as $row) {
+                    $total += $row[$domain]['record_count'] ?? 0;
+                }
+                $domainTotals[$domain] = $total;
+            }
+
+            // Source completeness: count domains with data per source
+            $sourceCompleteness = [];
+            foreach ($sources as $idx => $source) {
+                $count = 0;
+                foreach ($domains as $domain) {
+                    if ($matrix[$idx][$domain]['has_data'] ?? false) {
+                        $count++;
+                    }
+                }
+                $sourceCompleteness[$source->id] = $count;
+            }
+
             return [
                 'sources' => $sourceList,
                 'domains' => $domains,
                 'matrix' => $matrix,
+                'domain_totals' => $domainTotals,
+                'source_completeness' => $sourceCompleteness,
             ];
         });
     }

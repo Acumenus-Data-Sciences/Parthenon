@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\RunFeasibilityRequest;
+use App\Models\App\SourceRelease;
 use App\Models\User;
 use App\Services\Ares\AnnotationService;
 use App\Services\Ares\CostService;
@@ -39,12 +40,24 @@ class NetworkAresController extends Controller
         $passRates = array_filter(array_column($dqSummary, 'pass_rate'), fn ($r) => $r > 0);
         $avgDqScore = count($passRates) > 0 ? round(array_sum($passRates) / count($passRates), 1) : null;
 
+        // Network aggregate totals
+        $networkPersonCount = (int) array_sum(array_column($dqSummary, 'person_count'));
+        $networkRecordCount = 0;
+        foreach ($dqSummary as $s) {
+            $latestRelease = SourceRelease::where('source_id', $s['source_id'])
+                ->orderByDesc('created_at')
+                ->first();
+            $networkRecordCount += $latestRelease?->record_count ?? 0;
+        }
+
         return response()->json([
             'data' => [
                 'source_count' => $sourceCount,
                 'avg_dq_score' => $avgDqScore,
                 'total_unmapped_codes' => 0, // Populated in Phase 4 (UnmappedCodeService)
                 'sources_needing_attention' => count(array_filter($dqSummary, fn ($s) => $s['pass_rate'] < 80)),
+                'network_person_count' => $networkPersonCount,
+                'network_record_count' => $networkRecordCount,
                 'dq_summary' => $dqSummary,
             ],
         ]);
@@ -185,10 +198,13 @@ class NetworkAresController extends Controller
     /**
      * GET /v1/network/ares/annotations
      */
-    public function annotations(): JsonResponse
+    public function annotations(Request $request): JsonResponse
     {
+        $tag = is_string($request->query('tag')) ? $request->query('tag') : null;
+        $search = is_string($request->query('search')) ? $request->query('search') : null;
+
         return response()->json([
-            'data' => $this->annotationService->allForNetwork(),
+            'data' => $this->annotationService->allForNetwork($tag, $search),
         ]);
     }
 

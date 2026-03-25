@@ -61,6 +61,12 @@ class FeasibilityService
                 'date_pass' => $result['date_pass'],
                 'patient_pass' => $result['patient_pass'],
                 'overall_pass' => $result['overall_pass'],
+                'domain_score' => $result['domain_score'],
+                'concept_score' => $result['concept_score'],
+                'visit_score' => $result['visit_score'],
+                'date_score' => $result['date_score'],
+                'patient_score' => $result['patient_score'],
+                'composite_score' => $result['composite_score'],
                 'details' => json_encode($result['details']),
             ]);
 
@@ -115,7 +121,7 @@ class FeasibilityService
      * Evaluate a single source against the feasibility criteria.
      *
      * @param  array<string, mixed>  $criteria
-     * @return array{domain_pass: bool, concept_pass: bool, visit_pass: bool, date_pass: bool, patient_pass: bool, overall_pass: bool, details: array<string, mixed>}
+     * @return array{domain_pass: bool, concept_pass: bool, visit_pass: bool, date_pass: bool, patient_pass: bool, overall_pass: bool, domain_score: int, concept_score: int, visit_score: int, date_score: int, patient_score: int, composite_score: int, details: array<string, mixed>}
      */
     private function evaluateSource(Source $source, array $criteria): array
     {
@@ -203,6 +209,36 @@ class FeasibilityService
 
             $overallPass = $domainPass && $conceptPass && $visitPass && $datePass && $patientPass;
 
+            // Continuous 0-100 scores
+            $domainScore = count($requiredDomains) > 0
+                ? (int) round((count(array_filter($domainDetails, fn (array $d): bool => $d['available'] ?? false)) / count($requiredDomains)) * 100)
+                : 100;
+
+            $conceptScore = count($requiredConcepts) > 0
+                ? (int) round((count(array_filter($conceptDetails, fn (array $d): bool => $d['present'] ?? false)) / count($requiredConcepts)) * 100)
+                : 100;
+
+            $visitScore = count($requiredVisits) > 0
+                ? (int) round((count(array_filter($visitDetails, fn (array $d): bool => $d['present'] ?? false)) / count($requiredVisits)) * 100)
+                : 100;
+
+            $dateScore = ! empty($criteria['date_range'])
+                ? ($personCount > 0 ? 100 : 0)
+                : 100;
+
+            $patientScore = $minPatients > 0
+                ? min(100, (int) round(($personCount / $minPatients) * 100))
+                : 100;
+
+            // Weighted composite: domain=20%, concept=30%, visit=15%, date=15%, patient=20%
+            $compositeScore = (int) round(
+                ($domainScore * 0.20) +
+                ($conceptScore * 0.30) +
+                ($visitScore * 0.15) +
+                ($dateScore * 0.15) +
+                ($patientScore * 0.20)
+            );
+
             return [
                 'domain_pass' => $domainPass,
                 'concept_pass' => $conceptPass,
@@ -210,6 +246,12 @@ class FeasibilityService
                 'date_pass' => $datePass,
                 'patient_pass' => $patientPass,
                 'overall_pass' => $overallPass,
+                'domain_score' => $domainScore,
+                'concept_score' => $conceptScore,
+                'visit_score' => $visitScore,
+                'date_score' => $dateScore,
+                'patient_score' => $patientScore,
+                'composite_score' => $compositeScore,
                 'details' => [
                     'domains' => $domainDetails,
                     'concepts' => $conceptDetails,
@@ -228,6 +270,12 @@ class FeasibilityService
                 'date_pass' => false,
                 'patient_pass' => false,
                 'overall_pass' => false,
+                'domain_score' => 0,
+                'concept_score' => 0,
+                'visit_score' => 0,
+                'date_score' => 0,
+                'patient_score' => 0,
+                'composite_score' => 0,
                 'details' => ['error' => $e->getMessage()],
             ];
         }

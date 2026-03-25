@@ -1,14 +1,51 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Loader2, Trash2, MessageSquare } from "lucide-react";
+import { Loader2, Trash2, MessageSquare, Search } from "lucide-react";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
 import { useAnnotations, useDeleteAnnotation } from "../../../hooks/useAnnotationData";
 
+const TAG_OPTIONS = [
+  { value: undefined, label: "All", color: "border-[#333] text-[#888]", activeBg: "border-[#C9A227] bg-[#C9A227]/10 text-[#C9A227]" },
+  { value: "data_event", label: "Data Event", color: "border-[#333] text-[#888]", activeBg: "border-[#2DD4BF] bg-[#2DD4BF]/10 text-[#2DD4BF]" },
+  { value: "research_note", label: "Research Note", color: "border-[#333] text-[#888]", activeBg: "border-[#C9A227] bg-[#C9A227]/10 text-[#C9A227]" },
+  { value: "action_item", label: "Action Item", color: "border-[#333] text-[#888]", activeBg: "border-[#9B1B30] bg-[#9B1B30]/10 text-[#9B1B30]" },
+  { value: "system", label: "System", color: "border-[#333] text-[#888]", activeBg: "border-[#6366F1] bg-[#6366F1]/10 text-[#6366F1]" },
+] as const;
+
+const TAG_BADGE_COLORS: Record<string, string> = {
+  data_event: "bg-[#2DD4BF]/10 text-[#2DD4BF]",
+  research_note: "bg-[#C9A227]/10 text-[#C9A227]",
+  action_item: "bg-[#9B1B30]/10 text-[#9B1B30]",
+  system: "bg-[#6366F1]/10 text-[#6366F1]",
+};
+
+const TAG_LABELS: Record<string, string> = {
+  data_event: "Data Event",
+  research_note: "Research Note",
+  action_item: "Action Item",
+  system: "System",
+};
+
 export function AnnotationsView() {
   const [selectedSourceId, setSelectedSourceId] = useState<number | null>(null);
+  const [tagFilter, setTagFilter] = useState<string | undefined>(undefined);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  // Debounce search input (300ms)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   const { data: sources } = useQuery({ queryKey: ["sources"], queryFn: fetchSources });
-  const { data: annotations, isLoading } = useAnnotations(selectedSourceId);
+  const filters = {
+    tag: tagFilter,
+    search: debouncedSearch || undefined,
+  };
+  const { data: annotations, isLoading } = useAnnotations(selectedSourceId, undefined, filters);
   const deleteMutation = useDeleteAnnotation(selectedSourceId ?? 0);
 
   const handleDelete = (annotationId: number) => {
@@ -31,6 +68,40 @@ export function AnnotationsView() {
           ))}
         </select>
       </div>
+
+      {/* Tag filter pills + search */}
+      {selectedSourceId && (
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap gap-1.5">
+            {TAG_OPTIONS.map((opt) => {
+              const isActive = tagFilter === opt.value;
+              return (
+                <button
+                  key={opt.label}
+                  type="button"
+                  onClick={() => setTagFilter(opt.value)}
+                  className={`rounded-full border px-3 py-1 text-xs transition-colors ${
+                    isActive ? opt.activeBg : opt.color + " hover:border-[#555]"
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              );
+            })}
+          </div>
+          <div className="relative">
+            <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#555]" />
+            <input
+              type="text"
+              placeholder="Search annotations..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="rounded-lg border border-[#252530] bg-[#151518] py-1.5 pl-8 pr-3 text-sm text-[#F0EDE8]
+                         placeholder-[#555] focus:border-[#2DD4BF] focus:outline-none"
+            />
+          </div>
+        </div>
+      )}
 
       {/* Loading */}
       {selectedSourceId && isLoading && (
@@ -67,6 +138,11 @@ export function AnnotationsView() {
                   <span className="rounded-full bg-[#C9A227]/10 px-2 py-0.5 text-xs font-medium text-[#C9A227]">
                     {ann.chart_type}
                   </span>
+                  {ann.tag && (
+                    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${TAG_BADGE_COLORS[ann.tag] ?? "bg-[#333]/20 text-[#888]"}`}>
+                      {TAG_LABELS[ann.tag] ?? ann.tag}
+                    </span>
+                  )}
                   <span className="text-xs text-[#8A857D]">x = {ann.x_value}</span>
                   {ann.y_value != null && (
                     <span className="text-xs text-[#8A857D]">y = {ann.y_value}</span>
