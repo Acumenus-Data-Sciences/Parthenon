@@ -46,11 +46,14 @@ Three new tables in the `app` schema.
 | `name` | varchar(255) | Auto-generated: "{source_name} → CDM {version}" |
 | `status` | varchar(20), default 'draft' | Enum: draft, in_review, approved, archived |
 | `created_by` | bigint FK → users | NOT NULL |
-| `scan_profile_id` | bigint FK → source_profiles, nullable | Links to the scan this mapping is based on |
+| `scan_profile_id` | bigint FK → source_profiles | NOT NULL. Links to the scan this mapping is based on. A scan is required before mapping. |
 | `notes` | text, nullable | Project-level notes |
+| `deleted_at` | timestamp, nullable | Soft delete support |
 | `timestamps` | created_at, updated_at | |
 
-Unique constraint: `(source_id, cdm_version)` — one project per source + CDM version pair.
+Uses `SoftDeletes` trait — accidental deletion of significant mapping work is recoverable.
+
+Unique constraint: partial unique index on `(source_id, cdm_version) WHERE deleted_at IS NULL` — one active project per source + CDM version pair. Soft-deleted projects don't block creation of new ones, enabling "start over" workflow.
 
 **`etl_table_mappings`**
 
@@ -121,39 +124,47 @@ export const CDM_SCHEMA_V54: CdmTable[] = [...]
 
 Derived from the official OHDSI CDM CSV (`https://github.com/OHDSI/CommonDataModel`). Approximately 37 tables, ~400 columns.
 
+**Sync strategy:** Both files are generated from the same OHDSI CDM CSV source via a build script (`scripts/generate-cdm-schema.py`). When CDM version changes, re-run the script to update both. Both files include a `// GENERATED — do not edit manually. Run scripts/generate-cdm-schema.py` header comment.
+
 ### 1.4 API Endpoints
 
 All under `auth:sanctum` middleware.
+
+All routes require `auth:sanctum` + `EtlProjectPolicy` ownership check. Scoped to the authenticated user's projects (admins see all).
 
 **Project management:**
 
 | Method | Path | Permission | Purpose |
 |---|---|---|---|
-| `GET` | `/etl-projects` | `profiler.view` | List user's projects (paginated) |
-| `POST` | `/etl-projects` | `profiler.scan` | Create project for source + CDM version |
-| `GET` | `/etl-projects/{project}` | `profiler.view` | Get project with table mappings |
-| `PUT` | `/etl-projects/{project}` | `profiler.scan` | Update project metadata (name, status, notes) |
-| `DELETE` | `/etl-projects/{project}` | `profiler.delete` | Delete project + all mappings |
+| `GET` | `/etl-projects` | `etl.view` | List user's projects (paginated, scoped by ownership) |
+| `POST` | `/etl-projects` | `etl.create` | Create project for source + CDM version |
+| `GET` | `/etl-projects/{project}` | `etl.view` | Get project with table mappings (ownership enforced) |
+| `PUT` | `/etl-projects/{project}` | `etl.create` | Update project metadata (name, status, notes) |
+| `DELETE` | `/etl-projects/{project}` | `etl.delete` | Soft-delete project + all mappings |
 
 **Table mappings:**
 
 | Method | Path | Permission | Purpose |
 |---|---|---|---|
-| `GET` | `/etl-projects/{project}/table-mappings` | `profiler.view` | List all table mappings with completion status |
-| `POST` | `/etl-projects/{project}/table-mappings` | `profiler.scan` | Create table mapping (source → target) |
-| `PUT` | `/etl-projects/{project}/table-mappings/{mapping}` | `profiler.scan` | Update logic, completion |
-| `DELETE` | `/etl-projects/{project}/table-mappings/{mapping}` | `profiler.scan` | Remove table mapping + field mappings |
+| `GET` | `/etl-projects/{project}/table-mappings` | `etl.view` | List all table mappings with completion status |
+| `POST` | `/etl-projects/{project}/table-mappings` | `etl.create` | Create table mapping (source → target) |
+| `PUT` | `/etl-projects/{project}/table-mappings/{mapping}` | `etl.create` | Update logic, completion |
+| `DELETE` | `/etl-projects/{project}/table-mappings/{mapping}` | `etl.create` | Remove table mapping + field mappings |
 
 **Field mappings:**
 
 | Method | Path | Permission | Purpose |
 |---|---|---|---|
-| `GET` | `/etl-projects/{project}/table-mappings/{mapping}/fields` | `profiler.view` | List field mappings for a table pair |
-| `PUT` | `/etl-projects/{project}/table-mappings/{mapping}/fields` | `profiler.scan` | Bulk upsert field mappings (auto-save from canvas) |
+| `GET` | `/etl-projects/{project}/table-mappings/{mapping}/fields` | `etl.view` | List field mappings for a table pair |
+| `PUT` | `/etl-projects/{project}/table-mappings/{mapping}/fields` | `etl.create` | Bulk upsert field mappings (auto-save from canvas) |
 
-The `PUT /fields` endpoint accepts the full field mapping array and upserts — this supports the debounced auto-save from the frontend (no explicit save button).
+The `PUT /fields` endpoint accepts the full field mapping array and upserts with optimistic locking — includes `updated_at` timestamp on the table mapping; API returns 409 Conflict if stale. This prevents auto-save race conditions.
 
-**Reuses `profiler.*` permissions** — ETL mapping is a natural extension of source profiling. No new permission domain needed.
+**Form Requests:**
+- `CreateEtlProjectRequest` — validates source_id (required, exists), cdm_version (required, in allowed list), scan_profile_id (required, exists), notes (nullable string)
+- `UpdateEtlProjectRequest` — validates name (nullable string, max 255), status (nullable, in: draft/in_review/approved/archived), notes (nullable string)
+- `CreateTableMappingRequest` — validates source_table (required, max 255), target_table (required, must exist in CDM schema), logic (nullable string), is_stem (boolean)
+- `UpdateFieldMappingsRequest` — validates fields array with per-field rules: target_column (required), source_column (nullable), mapping_type (in allowed enum), logic (nullable), is_reviewed (boolean)
 
 ### 1.5 Mapping Canvas — Table Overview (React Flow)
 
@@ -259,7 +270,11 @@ backend/
       EtlFieldMappingController.php — Field mapping bulk upsert
     Http/Requests/
       CreateEtlProjectRequest.php
+      UpdateEtlProjectRequest.php
+      CreateTableMappingRequest.php
       UpdateFieldMappingsRequest.php
+    Policies/
+      EtlProjectPolicy.php         — Ownership enforcement (HIGHSEC §2 Layer 3)
     Services/Etl/
       EtlProjectService.php        — Project lifecycle management
   config/
@@ -298,7 +313,7 @@ backend/
 
 | Method | Path | Purpose |
 |---|---|---|
-| `POST` | `/etl-projects/{project}/suggest` | Generate AI suggestions for all unmapped tables/fields |
+| `POST` | `/etl-projects/{project}/suggest` | Generate AI suggestions for all unmapped tables/fields. `etl.create` + `throttle:3,10` |
 
 ### 2.2 UX Flow
 
@@ -374,11 +389,13 @@ Full project serialization: `EtlProject` + all `EtlTableMapping` + all `EtlField
 
 ### 3.5 Export API Endpoints
 
-| Method | Path | Purpose |
-|---|---|---|
-| `GET` | `/etl-projects/{project}/export/markdown` | Download Markdown spec |
-| `GET` | `/etl-projects/{project}/export/sql` | Download SQL files (zip) |
-| `GET` | `/etl-projects/{project}/export/json` | Download full project JSON |
+| Method | Path | Permission | Purpose |
+|---|---|---|---|
+| `GET` | `/etl-projects/{project}/export/markdown` | `etl.export` | Download Markdown spec |
+| `GET` | `/etl-projects/{project}/export/sql` | `etl.export` | Download SQL files (zip) |
+| `GET` | `/etl-projects/{project}/export/json` | `etl.export` | Download full project JSON |
+
+**SQL injection mitigation for `expression` mapping type:** Generated SQL includes a prominent header warning: "WARNING: This SQL contains user-defined expressions. Review all `expression` type mappings before execution." Server-side validation rejects expression logic containing DDL keywords (`DROP`, `TRUNCATE`, `ALTER`, `CREATE`, `GRANT`) and statement-terminating semicolons.
 
 ### 3.6 Backend Files
 
@@ -391,13 +408,24 @@ backend/app/Services/Etl/
 
 ## RBAC
 
-Reuses existing `profiler.*` permissions — ETL mapping is a natural extension of source profiling:
+New `etl` permission domain — separate from `profiler.*` because scanning and mapping are distinct activities with different authorization needs.
 
-| Permission | Protects |
-|---|---|
-| `profiler.view` | Read projects, mappings, exports |
-| `profiler.scan` | Create/edit projects and mappings, trigger AI suggestions |
-| `profiler.delete` | Delete projects |
+| Permission | Roles | Protects |
+|---|---|---|
+| `etl.view` | viewer, researcher, data-steward, admin, super-admin | Read projects, mappings, exports |
+| `etl.create` | researcher, data-steward, admin, super-admin | Create/edit projects and mappings |
+| `etl.delete` | admin, super-admin | Delete projects |
+| `etl.export` | researcher, data-steward, admin, super-admin | Download Markdown/SQL/JSON exports |
+
+Added to `RolePermissionSeeder` in Phase 1.
+
+**Ownership enforcement (HIGHSEC §2 Layer 3):**
+- `EtlProjectPolicy` class enforces ownership: users can only view/edit/delete their own projects
+- Admin/super-admin can access all projects (override)
+- Index queries scoped to `where('created_by', auth()->id())` (admins see all)
+- Show/update/delete verify `$project->created_by === auth()->id()` via policy
+
+Rate limiting: `throttle:3,10` on `POST /suggest` (AI suggestions are expensive).
 
 ## File Impact Summary
 
