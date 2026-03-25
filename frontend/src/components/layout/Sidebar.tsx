@@ -77,8 +77,8 @@ const navItems: NavItem[] = [
       { path: "/ingestion", label: "Data Ingestion", icon: Upload },
       { path: "/data-explorer", label: "Data Explorer", icon: BarChart3 },
       { path: "/source-profiler", label: "Source Profiler", icon: ScanSearch },
-      { path: "/fhir-ingestion", label: "FHIR Ingestion", icon: GitMerge },
       { path: "/etl-tools", label: "ETL Tools", icon: Wrench },
+      { path: "/fhir-ingestion", label: "FHIR Ingestion", icon: GitMerge },
     ],
   },
   {
