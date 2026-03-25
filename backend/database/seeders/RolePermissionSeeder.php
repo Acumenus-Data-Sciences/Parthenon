@@ -62,6 +62,9 @@ class RolePermissionSeeder extends Seeder
 
         // ── GIS / Geographic epidemiology ───────────────────────────────────
         'gis' => ['view', 'load-data', 'import', 'import.manage'],
+
+        // ── Source profiler ────────────────────────────────────────────────
+        'profiler' => ['view', 'scan', 'delete'],
     ];
 
     /**
@@ -84,6 +87,7 @@ class RolePermissionSeeder extends Seeder
             'jobs.view', 'jobs.cancel',
             'system.view-horizon', 'system.view-logs', 'system.manage-config',
             'gis.view', 'gis.load-data', 'gis.import', 'gis.import.manage',
+            'profiler.view', 'profiler.scan', 'profiler.delete',
         ],
 
         // Clinical/epidemiological researcher — primary user persona.
@@ -98,6 +102,7 @@ class RolePermissionSeeder extends Seeder
             'sources.view',
             'jobs.view',
             'gis.view', 'gis.import',
+            'profiler.view',
         ],
 
         // Responsible for data pipelines and CDM quality.
@@ -110,6 +115,7 @@ class RolePermissionSeeder extends Seeder
             'jobs.view', 'jobs.cancel',
             'cohorts.view',
             'analyses.view',
+            'profiler.view', 'profiler.scan',
         ],
 
         // Reviews and approves AI concept mapping suggestions.
@@ -133,6 +139,7 @@ class RolePermissionSeeder extends Seeder
             'sources.view',
             'jobs.view',
             'gis.view',
+            'profiler.view',
         ],
     ];
 
