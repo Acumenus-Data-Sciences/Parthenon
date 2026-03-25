@@ -13,10 +13,12 @@ use App\Models\App\ChartAnnotation;
 use App\Models\App\Source;
 use App\Models\App\SourceRelease;
 use App\Models\User;
+use App\Models\App\AcceptedMapping;
 use App\Services\Ares\AnnotationService;
 use App\Services\Ares\CostService;
 use App\Services\Ares\DiversityService;
 use App\Services\Ares\DqHistoryService;
+use App\Services\Ares\MappingSuggestionService;
 use App\Services\Ares\ReleaseDiffService;
 use App\Services\Ares\ReleaseService;
 use App\Services\Ares\UnmappedCodeService;
@@ -34,6 +36,7 @@ class AresController extends Controller
         private readonly CostService $costService,
         private readonly DiversityService $diversityService,
         private readonly ReleaseDiffService $releaseDiffService,
+        private readonly MappingSuggestionService $mappingSuggestionService,
     ) {}
 
     // ── Releases ────────────────────────────────────────────────────────
@@ -373,22 +376,30 @@ class AresController extends Controller
     // ── Cost ────────────────────────────────────────────────────────────
 
     /**
-     * GET /v1/sources/{source}/ares/cost/summary
+     * GET /v1/sources/{source}/ares/cost/summary?cost_type_concept_id=
      */
     public function costSummary(Source $source): JsonResponse
     {
+        $costType = request()->query('cost_type_concept_id')
+            ? (int) request()->query('cost_type_concept_id')
+            : null;
+
         return response()->json([
-            'data' => $this->costService->getSummary($source),
+            'data' => $this->costService->getSummary($source, $costType),
         ]);
     }
 
     /**
-     * GET /v1/sources/{source}/ares/cost/trends
+     * GET /v1/sources/{source}/ares/cost/trends?cost_type_concept_id=
      */
     public function costTrends(Source $source): JsonResponse
     {
+        $costType = request()->query('cost_type_concept_id')
+            ? (int) request()->query('cost_type_concept_id')
+            : null;
+
         return response()->json([
-            'data' => $this->costService->getTrends($source),
+            'data' => $this->costService->getTrends($source, $costType),
         ]);
     }
 
@@ -435,6 +446,115 @@ class AresController extends Controller
         ]);
     }
 
+    /**
+     * GET /v1/sources/{source}/ares/cost/drivers?limit=10
+     * Top cost-driving concepts for a source.
+     */
+    public function costDrivers(Request $request, Source $source): JsonResponse
+    {
+        $limit = min((int) ($request->query('limit') ?? 10), 50);
+
+        return response()->json([
+            'data' => $this->costService->getCostDrivers($source, $limit),
+        ]);
+    }
+
+    // ── Diversity Trends (source-scoped) ─────────────────────────────────
+
+    /**
+     * GET /v1/sources/{source}/ares/diversity/trends
+     * Simpson's Diversity Index per release for a source.
+     */
+    public function diversityTrends(Source $source): JsonResponse
+    {
+        return response()->json([
+            'data' => $this->diversityService->getDiversityTrends($source),
+        ]);
+    }
+
+    // ── DQ Radar + SLA ──────────────────────────────────────────────────
+
+    /**
+     * GET /v1/sources/{source}/ares/dq-radar
+     */
+    public function dqRadar(Source $source): JsonResponse
+    {
+        return response()->json([
+            'data' => $this->dqHistoryService->getRadarProfile($source),
+        ]);
+    }
+
+    /**
+     * POST /v1/sources/{source}/ares/dq-sla
+     */
+    public function dqSlaStore(Request $request, Source $source): JsonResponse
+    {
+        $validated = $request->validate([
+            'targets' => 'required|array|min:1',
+            'targets.*.category' => 'required|string|max:50',
+            'targets.*.min_pass_rate' => 'required|numeric|min:0|max:100',
+        ]);
+
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+
+        // Delete existing targets for this source, then re-create
+        \App\Models\App\DqSlaTarget::where('source_id', $source->id)->delete();
+
+        $targets = [];
+        foreach ($validated['targets'] as $target) {
+            $targets[] = \App\Models\App\DqSlaTarget::create([
+                'source_id' => $source->id,
+                'category' => $target['category'],
+                'min_pass_rate' => $target['min_pass_rate'],
+            ]);
+        }
+
+        return response()->json(['data' => $targets], 201);
+    }
+
+    /**
+     * GET /v1/sources/{source}/ares/dq-sla
+     */
+    public function dqSlaIndex(Source $source): JsonResponse
+    {
+        $targets = \App\Models\App\DqSlaTarget::where('source_id', $source->id)->get();
+
+        return response()->json(['data' => $targets]);
+    }
+
+    /**
+     * GET /v1/sources/{source}/ares/dq-sla/compliance
+     */
+    public function dqSlaCompliance(Source $source): JsonResponse
+    {
+        return response()->json([
+            'data' => $this->dqHistoryService->getSlaCompliance($source),
+        ]);
+    }
+
+    /**
+     * GET /v1/sources/{source}/ares/dq-history/export?format=csv
+     */
+    public function dqHistoryExport(Source $source): JsonResponse
+    {
+        $format = is_string(request()->query('format')) ? request()->query('format') : 'csv';
+
+        $exportData = $this->dqHistoryService->exportDqHistory($source, $format);
+
+        if ($format === 'csv') {
+            return response()->json([
+                'data' => [
+                    'format' => 'csv',
+                    'filename' => "dq_history_{$source->source_name}.csv",
+                    'content' => $exportData,
+                ],
+            ]);
+        }
+
+        return response()->json(['data' => $exportData]);
+    }
+
     // ── Diversity (source-scoped) ──────────────────────────────────────
 
     /**
@@ -457,5 +577,61 @@ class AresController extends Controller
         return response()->json([
             'data' => $this->releaseDiffService->computeDiff($release),
         ]);
+    }
+
+    // ── Mapping Suggestions (AI-powered via pgvector) ──────────────────
+
+    /**
+     * GET /v1/sources/{source}/ares/unmapped-codes/{codeId}/suggestions
+     *
+     * Returns top 5 AI-suggested standard concept mappings for an unmapped code.
+     */
+    public function unmappedCodeSuggestions(Source $source, int $codeId): JsonResponse
+    {
+        $result = $this->mappingSuggestionService->suggestForUnmappedCode($codeId);
+
+        return response()->json(['data' => $result]);
+    }
+
+    /**
+     * POST /v1/sources/{source}/ares/unmapped-codes/{codeId}/map
+     *
+     * Accept a mapping suggestion. Creates an AcceptedMapping record.
+     * HIGHSEC: Writes to app.accepted_mappings ONLY, NOT to source_to_concept_map.
+     */
+    public function acceptMapping(Request $request, Source $source, int $codeId): JsonResponse
+    {
+        $validated = $request->validate([
+            'target_concept_id' => 'required|integer',
+            'confidence_score' => 'nullable|numeric|min:0|max:1',
+        ]);
+
+        /** @var User $user */
+        $user = $request->user();
+
+        // Verify the unmapped code exists and belongs to this source
+        $unmappedCode = \App\Models\App\UnmappedSourceCode::where('id', $codeId)
+            ->where('source_id', $source->id)
+            ->firstOrFail();
+
+        // Look up target concept name from vocabulary
+        $targetConceptName = \Illuminate\Support\Facades\DB::connection('omop')
+            ->table('concept')
+            ->where('concept_id', $validated['target_concept_id'])
+            ->value('concept_name');
+
+        $mapping = AcceptedMapping::create([
+            'source_id' => $source->id,
+            'source_code' => $unmappedCode->source_code,
+            'source_vocabulary_id' => $unmappedCode->source_vocabulary_id,
+            'target_concept_id' => $validated['target_concept_id'],
+            'target_concept_name' => $targetConceptName,
+            'mapping_method' => 'ai_suggestion',
+            'confidence' => $validated['confidence_score'] ?? null,
+            'reviewed_by' => $user->id,
+            'reviewed_at' => now(),
+        ]);
+
+        return response()->json(['data' => $mapping], 201);
     }
 }

@@ -14,13 +14,25 @@ function unwrap<T>(body: any): T {
   return body as T;
 }
 
-export async function fetchCostSummary(sourceId: number): Promise<CostSummary> {
-  const { data } = await apiClient.get(`/sources/${sourceId}/ares/cost/summary`);
+export async function fetchCostSummary(
+  sourceId: number,
+  costTypeConceptId?: number,
+): Promise<CostSummary> {
+  const params: Record<string, number> = {};
+  if (costTypeConceptId) params.cost_type_concept_id = costTypeConceptId;
+
+  const { data } = await apiClient.get(`/sources/${sourceId}/ares/cost/summary`, { params });
   return unwrap<CostSummary>(data);
 }
 
-export async function fetchCostTrends(sourceId: number): Promise<CostTrends> {
-  const { data } = await apiClient.get(`/sources/${sourceId}/ares/cost/trends`);
+export async function fetchCostTrends(
+  sourceId: number,
+  costTypeConceptId?: number,
+): Promise<CostTrends> {
+  const params: Record<string, number> = {};
+  if (costTypeConceptId) params.cost_type_concept_id = costTypeConceptId;
+
+  const { data } = await apiClient.get(`/sources/${sourceId}/ares/cost/trends`, { params });
   return unwrap<CostTrends>(data);
 }
 
@@ -115,4 +127,63 @@ export interface NetworkCostCompareResponse {
 export async function fetchNetworkCostCompare(): Promise<NetworkCostCompareResponse> {
   const { data } = await apiClient.get("/network/ares/cost/compare");
   return unwrap<NetworkCostCompareResponse>(data);
+}
+
+// Cross-Source Cost Comparison (detailed distributions)
+export interface CrossSourceDistribution {
+  min: number;
+  p10: number;
+  p25: number;
+  median: number;
+  p75: number;
+  p90: number;
+  max: number;
+}
+
+export interface CrossSourceCostSource {
+  source_id: number;
+  source_name: string;
+  has_cost_data: boolean;
+  distribution: CrossSourceDistribution | null;
+}
+
+export interface CrossSourceCostResponse {
+  sources: CrossSourceCostSource[];
+}
+
+export async function fetchCrossSourceCost(
+  domain: string = "all",
+  costTypeId?: number,
+): Promise<CrossSourceCostResponse> {
+  const params: Record<string, string | number> = { domain };
+  if (costTypeId) params.cost_type = costTypeId;
+
+  const { data } = await apiClient.get("/network/ares/cost/compare/detailed", { params });
+  return unwrap<CrossSourceCostResponse>(data);
+}
+
+// Cost Drivers
+export interface CostDriver {
+  concept_id: number;
+  concept_name: string;
+  domain: string;
+  total_cost: number;
+  record_count: number;
+  patient_count: number;
+  pct_of_total: number;
+}
+
+export interface CostDriversResponse {
+  has_cost_data: boolean;
+  drivers: CostDriver[];
+}
+
+export async function fetchCostDrivers(
+  sourceId: number,
+  limit: number = 10,
+): Promise<CostDriversResponse> {
+  const { data } = await apiClient.get(`/sources/${sourceId}/ares/cost/drivers`, {
+    params: { limit },
+  });
+  return unwrap<CostDriversResponse>(data);
 }

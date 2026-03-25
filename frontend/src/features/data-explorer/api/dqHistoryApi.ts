@@ -8,6 +8,8 @@ import type {
   UnmappedCode,
   PaginatedResponse,
   DomainContinuityPoint,
+  MappingSuggestion,
+  AcceptedMapping,
 } from "../types/ares";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -135,4 +137,66 @@ export async function fetchUnmappedCodesExport(
 export async function fetchDomainContinuity(sourceId: number): Promise<DomainContinuityPoint[]> {
   const { data } = await apiClient.get(`/sources/${sourceId}/ares/domain-continuity`);
   return unwrap<DomainContinuityPoint[]>(data);
+}
+
+// Mapping Suggestions (AI-powered via pgvector)
+export async function fetchMappingSuggestions(
+  sourceId: number,
+  codeId: number,
+): Promise<MappingSuggestion[]> {
+  const { data } = await apiClient.get(
+    `/sources/${sourceId}/ares/unmapped-codes/${codeId}/suggestions`,
+  );
+  return unwrap<MappingSuggestion[]>(data);
+}
+
+// Accept mapping suggestion
+export async function acceptMappingSuggestion(
+  sourceId: number,
+  codeId: number,
+  payload: { target_concept_id: number; confidence_score?: number },
+): Promise<AcceptedMapping> {
+  const { data } = await apiClient.post(
+    `/sources/${sourceId}/ares/unmapped-codes/${codeId}/map`,
+    payload,
+  );
+  return unwrap<AcceptedMapping>(data);
+}
+
+// DQ Radar
+import type { DqRadarProfile, DqSlaTarget, DqSlaCompliance, DqSlaTargetInput } from "../types/ares";
+
+export async function fetchDqRadar(sourceId: number): Promise<DqRadarProfile> {
+  const { data } = await apiClient.get(`/sources/${sourceId}/ares/dq-radar`);
+  return unwrap<DqRadarProfile>(data);
+}
+
+// DQ SLA
+export async function fetchDqSlaTargets(sourceId: number): Promise<DqSlaTarget[]> {
+  const { data } = await apiClient.get(`/sources/${sourceId}/ares/dq-sla`);
+  return unwrap<DqSlaTarget[]>(data);
+}
+
+export async function storeDqSlaTargets(
+  sourceId: number,
+  targets: DqSlaTargetInput[],
+): Promise<DqSlaTarget[]> {
+  const { data } = await apiClient.post(`/sources/${sourceId}/ares/dq-sla`, { targets });
+  return unwrap<DqSlaTarget[]>(data);
+}
+
+export async function fetchDqSlaCompliance(sourceId: number): Promise<DqSlaCompliance[]> {
+  const { data } = await apiClient.get(`/sources/${sourceId}/ares/dq-sla/compliance`);
+  return unwrap<DqSlaCompliance[]>(data);
+}
+
+// DQ History Export
+export async function fetchDqHistoryExport(
+  sourceId: number,
+  format: string = "csv",
+): Promise<{ format: string; filename: string; content: string }> {
+  const { data } = await apiClient.get(`/sources/${sourceId}/ares/dq-history/export`, {
+    params: { format },
+  });
+  return unwrap(data);
 }

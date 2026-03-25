@@ -32,7 +32,7 @@ class NetworkComparisonService
     /**
      * Compare concept prevalence across all active sources.
      *
-     * @return array<int, array{source_id: int, source_name: string, count: int, rate_per_1000: float, person_count: int, ci_lower: float, ci_upper: float}>
+     * @return array{sources: array<int, array{source_id: int, source_name: string, count: int, rate_per_1000: float, person_count: int, ci_lower: float, ci_upper: float}>, benchmark_rate: float|null}
      */
     public function compareConcept(int $conceptId): array
     {
@@ -57,7 +57,10 @@ class NetworkComparisonService
             }
         }
 
-        return $results;
+        return [
+            'sources' => $results,
+            'benchmark_rate' => $this->getBenchmark($conceptId),
+        ];
     }
 
     /**
@@ -229,6 +232,174 @@ class NetworkComparisonService
         }
 
         return $steps;
+    }
+
+    /**
+     * Get temporal prevalence trends for a concept across all sources.
+     *
+     * Returns per-source prevalence per release for trend visualization.
+     *
+     * @return array{sources: array<int, array{source_id: int, source_name: string, trend: array<int, array{release_name: string, rate_per_1000: float}>}>}
+     */
+    public function getTemporalPrevalence(int $conceptId): array
+    {
+        $sources = Source::whereHas('daimons')->with(['releases' => fn ($q) => $q->orderBy('created_at')])->get();
+        $result = [];
+
+        foreach ($sources as $source) {
+            try {
+                $trend = $this->getTemporalTrendForSource($source, $conceptId);
+                if (count($trend) > 0) {
+                    $result[] = [
+                        'source_id' => $source->id,
+                        'source_name' => $source->source_name,
+                        'trend' => $trend,
+                    ];
+                }
+            } catch (\Throwable $e) {
+                Log::warning("TemporalPrevalence: failed for {$source->source_name}: {$e->getMessage()}");
+            }
+        }
+
+        return ['sources' => $result];
+    }
+
+    /**
+     * Compare a concept set (union of concepts) across all sources.
+     *
+     * Returns aggregate prevalence: patients with ANY concept in the set.
+     *
+     * @param  array<int>  $conceptIds
+     * @return array<int, array{source_id: int, source_name: string, union_count: int, rate_per_1000: float, person_count: int}>
+     */
+    public function compareConceptSet(array $conceptIds): array
+    {
+        $sources = Source::whereHas('daimons')->get();
+        $results = [];
+
+        foreach ($sources as $source) {
+            try {
+                $data = $this->getConceptSetDataForSource($source, $conceptIds);
+                $results[] = $data;
+            } catch (\Throwable $e) {
+                Log::warning("ConceptSetComparison: failed for {$source->source_name}: {$e->getMessage()}");
+                $results[] = [
+                    'source_id' => $source->id,
+                    'source_name' => $source->source_name,
+                    'union_count' => 0,
+                    'rate_per_1000' => 0.0,
+                    'person_count' => 0,
+                ];
+            }
+        }
+
+        return $results;
+    }
+
+    /**
+     * Lookup population benchmark rate for a concept from config.
+     *
+     * @return float|null  National prevalence rate per 1000, or null if unavailable
+     */
+    public function getBenchmark(int $conceptId): ?float
+    {
+        $benchmarks = config('ares.benchmarks', []);
+
+        return isset($benchmarks[$conceptId]) ? (float) $benchmarks[$conceptId] : null;
+    }
+
+    /**
+     * Get temporal trend data for a single source by querying each release.
+     *
+     * @return array<int, array{release_name: string, rate_per_1000: float}>
+     */
+    private function getTemporalTrendForSource(Source $source, int $conceptId): array
+    {
+        $daimon = $source->daimons()->where('daimon_type', DaimonType::Results->value)->first();
+        $schema = $daimon?->table_qualifier ?? 'results';
+
+        $connection = 'results';
+        if (! empty($source->db_host)) {
+            $connection = $this->connectionFactory->connectionForSchema($source, $schema);
+        } else {
+            DB::connection('results')->statement("SET search_path TO \"{$schema}\", public");
+        }
+
+        $analysisIds = array_values(self::DOMAIN_PREVALENCE_MAP);
+        $releases = $source->releases()->orderBy('created_at')->get();
+        $trend = [];
+
+        // Get person count (analysis 1)
+        $personResult = AchillesResult::on($connection)->where('analysis_id', 1)->first();
+        $personCount = (int) ($personResult?->count_value ?? 0);
+
+        if ($personCount === 0) {
+            return [];
+        }
+
+        // For each release, query concept prevalence
+        // If Achilles results are not per-release, use global count as a single data point
+        foreach ($releases as $release) {
+            $result = AchillesResult::on($connection)
+                ->whereIn('analysis_id', $analysisIds)
+                ->where('stratum_1', (string) $conceptId)
+                ->selectRaw('SUM(CAST(count_value AS bigint)) as total_count')
+                ->first();
+
+            $count = (int) ($result?->total_count ?? 0);
+            $ratePer1000 = round(($count / $personCount) * 1000, 2);
+
+            $trend[] = [
+                'release_name' => $release->release_name,
+                'rate_per_1000' => $ratePer1000,
+            ];
+        }
+
+        return $trend;
+    }
+
+    /**
+     * Get union patient counts for a concept set in a single source.
+     *
+     * @param  array<int>  $conceptIds
+     * @return array{source_id: int, source_name: string, union_count: int, rate_per_1000: float, person_count: int}
+     */
+    private function getConceptSetDataForSource(Source $source, array $conceptIds): array
+    {
+        $daimon = $source->daimons()->where('daimon_type', DaimonType::Results->value)->first();
+        $schema = $daimon?->table_qualifier ?? 'results';
+
+        $connection = 'results';
+        if (! empty($source->db_host)) {
+            $connection = $this->connectionFactory->connectionForSchema($source, $schema);
+        } else {
+            DB::connection('results')->statement("SET search_path TO \"{$schema}\", public");
+        }
+
+        $analysisIds = array_values(self::DOMAIN_PREVALENCE_MAP);
+
+        // Union: sum unique patients across all concept IDs in the set
+        $stratumValues = array_map('strval', $conceptIds);
+        $result = AchillesResult::on($connection)
+            ->whereIn('analysis_id', $analysisIds)
+            ->whereIn('stratum_1', $stratumValues)
+            ->selectRaw('SUM(CAST(count_value AS bigint)) as total_count')
+            ->first();
+
+        $unionCount = (int) ($result?->total_count ?? 0);
+
+        // Person count
+        $personResult = AchillesResult::on($connection)->where('analysis_id', 1)->first();
+        $personCount = (int) ($personResult?->count_value ?? 0);
+        $ratePer1000 = $personCount > 0 ? round(($unionCount / $personCount) * 1000, 2) : 0.0;
+
+        return [
+            'source_id' => $source->id,
+            'source_name' => $source->source_name,
+            'union_count' => $unionCount,
+            'rate_per_1000' => $ratePer1000,
+            'person_count' => $personCount,
+        ];
     }
 
     /**

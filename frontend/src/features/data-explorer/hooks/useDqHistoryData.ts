@@ -114,3 +114,56 @@ export function useDomainContinuity(sourceId: number | null) {
     enabled: !!sourceId,
   });
 }
+
+// DQ Radar + SLA hooks
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  fetchDqRadar,
+  fetchDqSlaTargets,
+  storeDqSlaTargets,
+  fetchDqSlaCompliance,
+  fetchDqHistoryExport,
+} from "../api/dqHistoryApi";
+import type { DqSlaTargetInput } from "../types/ares";
+
+export function useDqRadar(sourceId: number | null) {
+  return useQuery({
+    queryKey: ["ares", "dq-radar", sourceId],
+    queryFn: () => fetchDqRadar(sourceId!),
+    enabled: !!sourceId,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+export function useDqSlaTargets(sourceId: number | null) {
+  return useQuery({
+    queryKey: ["ares", "dq-sla", sourceId],
+    queryFn: () => fetchDqSlaTargets(sourceId!),
+    enabled: !!sourceId,
+  });
+}
+
+export function useStoreDqSlaTargets(sourceId: number | null) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (targets: DqSlaTargetInput[]) => storeDqSlaTargets(sourceId!, targets),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["ares", "dq-sla", sourceId] });
+      qc.invalidateQueries({ queryKey: ["ares", "dq-sla-compliance", sourceId] });
+    },
+  });
+}
+
+export function useDqSlaCompliance(sourceId: number | null) {
+  return useQuery({
+    queryKey: ["ares", "dq-sla-compliance", sourceId],
+    queryFn: () => fetchDqSlaCompliance(sourceId!),
+    enabled: !!sourceId,
+  });
+}
+
+export function useDqHistoryExport(sourceId: number | null) {
+  return useMutation({
+    mutationFn: (format: string) => fetchDqHistoryExport(sourceId!, format),
+  });
+}

@@ -1,0 +1,154 @@
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { fetchMappingSuggestions, acceptMappingSuggestion } from "../../../api/dqHistoryApi";
+import type { MappingSuggestion, UnmappedCode } from "../../../types/ares";
+
+interface MappingSuggestionPanelProps {
+  code: UnmappedCode;
+  sourceId: number;
+}
+
+function ConfidenceBar({ score }: { score: number }) {
+  const pct = Math.round(score * 100);
+  const color =
+    pct >= 80 ? "bg-[#2DD4BF]" :
+    pct >= 60 ? "bg-[#C9A227]" :
+    pct >= 40 ? "bg-amber-500" :
+    "bg-[#9B1B30]";
+
+  return (
+    <div className="flex items-center gap-2">
+      <div className="h-2 w-20 overflow-hidden rounded-full bg-[#252530]">
+        <div className={`h-full rounded-full ${color}`} style={{ width: `${pct}%` }} />
+      </div>
+      <span className="text-[11px] text-[#888]">{pct}%</span>
+    </div>
+  );
+}
+
+export default function MappingSuggestionPanel({ code, sourceId }: MappingSuggestionPanelProps) {
+  const [expanded, setExpanded] = useState(false);
+  const [acceptedId, setAcceptedId] = useState<number | null>(null);
+  const queryClient = useQueryClient();
+
+  const { data: suggestionData, isLoading, error } = useQuery({
+    queryKey: ["ares", "mapping-suggestions", sourceId, code.id],
+    queryFn: () => fetchMappingSuggestions(sourceId, code.id),
+    enabled: expanded,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const acceptMutation = useMutation({
+    mutationFn: (suggestion: MappingSuggestion) =>
+      acceptMappingSuggestion(sourceId, code.id, {
+        target_concept_id: suggestion.concept_id,
+        confidence_score: suggestion.confidence_score,
+      }),
+    onSuccess: (_data, suggestion) => {
+      setAcceptedId(suggestion.concept_id);
+      queryClient.invalidateQueries({
+        queryKey: ["ares", "unmapped-codes", "progress"],
+      });
+    },
+  });
+
+  return (
+    <div className="border-t border-[#1a1a22]">
+      <button
+        type="button"
+        onClick={() => setExpanded(!expanded)}
+        className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs text-[#2DD4BF] hover:bg-[#151518]"
+      >
+        <span className={`transition-transform ${expanded ? "rotate-90" : ""}`}>
+          {"\u25B6"}
+        </span>
+        AI Mapping Suggestions
+      </button>
+
+      {expanded && (
+        <div className="px-3 pb-3">
+          {isLoading && (
+            <p className="text-xs text-[#555]">Generating suggestions via pgvector similarity...</p>
+          )}
+
+          {error && (
+            <p className="text-xs text-[#9B1B30]">
+              Failed to load suggestions. The AI service or concept embeddings may not be available.
+            </p>
+          )}
+
+          {suggestionData && suggestionData.length === 0 && (
+            <p className="text-xs text-[#555]">
+              No suggestions available. Concept embeddings may not be loaded.
+            </p>
+          )}
+
+          {suggestionData && suggestionData.length > 0 && (
+            <div className="space-y-2">
+              {suggestionData.map((suggestion: MappingSuggestion) => {
+                const isAccepted = acceptedId === suggestion.concept_id;
+
+                return (
+                  <div
+                    key={suggestion.concept_id}
+                    className={`flex items-center justify-between rounded-lg border p-2 ${
+                      isAccepted
+                        ? "border-[#2DD4BF]/50 bg-[#2DD4BF]/5"
+                        : "border-[#252530] bg-[#0E0E11]"
+                    }`}
+                  >
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-medium text-white">
+                          {suggestion.concept_name}
+                        </span>
+                        <span className="rounded bg-[#252530] px-1.5 py-0.5 text-[10px] text-[#888]">
+                          {suggestion.vocabulary_id}
+                        </span>
+                        <span className="rounded bg-[#252530] px-1.5 py-0.5 text-[10px] text-[#888]">
+                          {suggestion.domain_id}
+                        </span>
+                      </div>
+                      <div className="mt-1 flex items-center gap-3">
+                        <span className="text-[10px] text-[#666]">
+                          ID: {suggestion.concept_id}
+                        </span>
+                        <ConfidenceBar score={suggestion.confidence_score} />
+                      </div>
+                    </div>
+
+                    <div className="ml-3 flex items-center gap-1">
+                      {isAccepted ? (
+                        <span className="rounded-full bg-[#2DD4BF]/20 px-3 py-1 text-[10px] font-medium text-[#2DD4BF]">
+                          Accepted
+                        </span>
+                      ) : (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => acceptMutation.mutate(suggestion)}
+                            disabled={acceptMutation.isPending || acceptedId !== null}
+                            className="rounded border border-[#2DD4BF]/30 px-2 py-1 text-[10px] text-[#2DD4BF] hover:bg-[#2DD4BF]/10 disabled:opacity-30"
+                          >
+                            {acceptMutation.isPending ? "..." : "Accept"}
+                          </button>
+                          <button
+                            type="button"
+                            disabled={acceptedId !== null}
+                            className="rounded border border-[#333] px-2 py-1 text-[10px] text-[#666] hover:text-[#888] disabled:opacity-30"
+                          >
+                            Skip
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}

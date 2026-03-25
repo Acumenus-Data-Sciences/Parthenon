@@ -3,6 +3,8 @@
 namespace App\Services\Ares;
 
 use App\Enums\DaimonType;
+use App\Models\App\ChartAnnotation;
+use App\Models\App\DqSlaTarget;
 use App\Models\App\DqdResult;
 use App\Models\App\Source;
 use App\Models\App\SourceRelease;
@@ -508,6 +510,247 @@ class DqHistoryService
         }
 
         return $result;
+    }
+
+    /**
+     * Kahn DQ dimensions mapped from DQD category values.
+     *
+     * @var array<string, string>
+     */
+    private const KAHN_DIMENSION_MAP = [
+        'completeness' => 'completeness',
+        'Completeness' => 'completeness',
+        'conformance' => 'conformance_value',
+        'Conformance' => 'conformance_value',
+        'conformance_value' => 'conformance_value',
+        'conformance_relational' => 'conformance_relational',
+        'plausibility' => 'plausibility_atemporal',
+        'Plausibility' => 'plausibility_atemporal',
+        'plausibility_atemporal' => 'plausibility_atemporal',
+        'plausibility_temporal' => 'plausibility_temporal',
+    ];
+
+    /**
+     * Get radar profile for a single source — pass rates by Kahn DQ dimension.
+     *
+     * @return array{source_id: int, source_name: string, dimensions: array<string, float>}
+     */
+    public function getRadarProfile(Source $source): array
+    {
+        $latestRelease = SourceRelease::where('source_id', $source->id)
+            ->orderByDesc('created_at')
+            ->first();
+
+        $defaultDimensions = [
+            'completeness' => 0.0,
+            'conformance_value' => 0.0,
+            'conformance_relational' => 0.0,
+            'plausibility_atemporal' => 0.0,
+            'plausibility_temporal' => 0.0,
+        ];
+
+        if (! $latestRelease) {
+            return [
+                'source_id' => $source->id,
+                'source_name' => $source->source_name,
+                'dimensions' => $defaultDimensions,
+            ];
+        }
+
+        $categoryStats = DqdResult::where('source_id', $source->id)
+            ->where('release_id', $latestRelease->id)
+            ->whereNotNull('category')
+            ->selectRaw('category, COUNT(*) as total, SUM(CASE WHEN passed THEN 1 ELSE 0 END) as passed_count')
+            ->groupBy('category')
+            ->get();
+
+        $dimensions = $defaultDimensions;
+
+        foreach ($categoryStats as $stat) {
+            $total = (int) $stat->total;
+            $passRate = $total > 0 ? round(((int) $stat->passed_count / $total) * 100, 1) : 0.0;
+
+            $dimension = self::KAHN_DIMENSION_MAP[$stat->category] ?? null;
+            if ($dimension !== null) {
+                // If multiple categories map to the same dimension, take the average
+                if ($dimensions[$dimension] > 0) {
+                    $dimensions[$dimension] = round(($dimensions[$dimension] + $passRate) / 2, 1);
+                } else {
+                    $dimensions[$dimension] = $passRate;
+                }
+            }
+        }
+
+        return [
+            'source_id' => $source->id,
+            'source_name' => $source->source_name,
+            'dimensions' => $dimensions,
+        ];
+    }
+
+    /**
+     * Get radar profiles for all sources in the network.
+     *
+     * @return array<int, array{source_id: int, source_name: string, dimensions: array<string, float>}>
+     */
+    public function getNetworkRadarProfiles(): array
+    {
+        $sources = Source::whereHas('daimons')->get();
+        $profiles = [];
+
+        foreach ($sources as $source) {
+            $profiles[] = $this->getRadarProfile($source);
+        }
+
+        return $profiles;
+    }
+
+    /**
+     * Get SLA compliance for a source.
+     *
+     * @return array<int, array{category: string, target: float, actual: float, compliant: bool, error_budget_remaining: float}>
+     */
+    public function getSlaCompliance(Source $source): array
+    {
+        $targets = DqSlaTarget::where('source_id', $source->id)->get();
+
+        if ($targets->isEmpty()) {
+            return [];
+        }
+
+        $latestRelease = SourceRelease::where('source_id', $source->id)
+            ->orderByDesc('created_at')
+            ->first();
+
+        if (! $latestRelease) {
+            return $targets->map(fn (DqSlaTarget $t) => [
+                'category' => $t->category,
+                'target' => $t->min_pass_rate,
+                'actual' => 0.0,
+                'compliant' => false,
+                'error_budget_remaining' => -$t->min_pass_rate,
+            ])->toArray();
+        }
+
+        $categoryStats = DqdResult::where('source_id', $source->id)
+            ->where('release_id', $latestRelease->id)
+            ->whereNotNull('category')
+            ->selectRaw('category, COUNT(*) as total, SUM(CASE WHEN passed THEN 1 ELSE 0 END) as passed_count')
+            ->groupBy('category')
+            ->get()
+            ->keyBy('category');
+
+        return $targets->map(function (DqSlaTarget $target) use ($categoryStats) {
+            $stat = $categoryStats->get($target->category);
+            $total = $stat ? (int) $stat->total : 0;
+            $actual = $total > 0 ? round(((int) $stat->passed_count / $total) * 100, 1) : 0.0;
+
+            return [
+                'category' => $target->category,
+                'target' => $target->min_pass_rate,
+                'actual' => $actual,
+                'compliant' => $actual >= $target->min_pass_rate,
+                'error_budget_remaining' => round($actual - $target->min_pass_rate, 1),
+            ];
+        })->toArray();
+    }
+
+    /**
+     * Export DQ history data as CSV string.
+     */
+    public function exportDqHistory(Source $source, string $format = 'csv'): string
+    {
+        $trends = $this->getTrends($source);
+        $categoryTrends = $this->getCategoryTrends($source);
+
+        $lines = [];
+        $lines[] = 'release_name,created_at,overall_pass_rate,total_checks,passed_checks';
+
+        foreach ($trends as $trend) {
+            $lines[] = implode(',', [
+                '"' . str_replace('"', '""', $trend['release_name']) . '"',
+                $trend['created_at'],
+                $trend['pass_rate'],
+                $trend['total'],
+                $trend['passed'],
+            ]);
+        }
+
+        // Add category breakdown section
+        if (! empty($categoryTrends)) {
+            $lines[] = '';
+            $allCategories = [];
+            foreach ($categoryTrends as $ct) {
+                foreach (array_keys($ct['categories']) as $cat) {
+                    $allCategories[$cat] = true;
+                }
+            }
+            $categories = array_keys($allCategories);
+
+            $lines[] = implode(',', array_merge(['release_name', 'created_at'], $categories));
+            foreach ($categoryTrends as $ct) {
+                $row = [
+                    '"' . str_replace('"', '""', $ct['release_name']) . '"',
+                    $ct['created_at'],
+                ];
+                foreach ($categories as $cat) {
+                    $row[] = (string) ($ct['categories'][$cat] ?? 0.0);
+                }
+                $lines[] = implode(',', $row);
+            }
+        }
+
+        return implode("\n", $lines);
+    }
+
+    /**
+     * Get regression context — annotations and release changes for a specific check.
+     *
+     * @return array{annotations: array<int, array<string, mixed>>, release_changes: array{vocab_changed: bool, etl_changed: bool, person_delta: int}}
+     */
+    public function getRegressionContext(Source $source, int $releaseId, string $checkId): array
+    {
+        $release = SourceRelease::findOrFail($releaseId);
+
+        // Get annotations near the release date
+        $annotations = ChartAnnotation::where('source_id', $source->id)
+            ->where('x_value', $release->created_at->toDateString())
+            ->get()
+            ->map(fn (ChartAnnotation $a) => [
+                'id' => $a->id,
+                'text' => $a->annotation_text,
+                'tag' => $a->tag,
+                'created_at' => $a->created_at?->toIso8601String(),
+            ])
+            ->toArray();
+
+        // Compare release metadata with previous
+        $previousRelease = SourceRelease::where('source_id', $source->id)
+            ->where('id', '!=', $release->id)
+            ->where('created_at', '<', $release->created_at)
+            ->orderByDesc('created_at')
+            ->first();
+
+        $vocabChanged = $previousRelease
+            ? $release->vocabulary_version !== $previousRelease->vocabulary_version
+            : false;
+
+        $etlChanged = $previousRelease
+            ? $release->etl_version !== $previousRelease->etl_version
+            : false;
+
+        $personDelta = $previousRelease
+            ? $release->person_count - $previousRelease->person_count
+            : 0;
+
+        return [
+            'annotations' => $annotations,
+            'release_changes' => [
+                'vocab_changed' => $vocabChanged,
+                'etl_changed' => $etlChanged,
+                'person_delta' => $personDelta,
+            ],
+        ];
     }
 
     /**

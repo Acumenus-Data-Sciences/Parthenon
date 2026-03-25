@@ -1,11 +1,13 @@
 import { useState, useMemo } from "react";
-import { useDiversity, useAgePyramid, useDapCheck, usePooledDemographics } from "../../../hooks/useNetworkData";
+import { useDiversity, useAgePyramid, useDapCheck, usePooledDemographics, useDiversityTrends } from "../../../hooks/useNetworkData";
 import type { DiversitySource } from "../../../types/ares";
 import AgePyramid from "./AgePyramid";
 import DapGapMatrix from "./DapGapMatrix";
 import BenchmarkOverlay from "./BenchmarkOverlay";
+import GeographicDiversityView from "./GeographicDiversityView";
+import DiversityTrendsChart from "./DiversityTrendsChart";
 
-type DiversityTab = "overview" | "pyramid" | "dap" | "pooled";
+type DiversityTab = "overview" | "pyramid" | "dap" | "pooled" | "geographic" | "trends";
 
 const RATING_COLORS: Record<string, { bg: string; text: string; border: string }> = {
   very_high: { bg: "bg-[#2DD4BF]/10", text: "text-[#2DD4BF]", border: "border-[#2DD4BF]/30" },
@@ -92,11 +94,13 @@ export default function DiversityView() {
   const [activeTab, setActiveTab] = useState<DiversityTab>("overview");
   const [pyramidSourceId, setPyramidSourceId] = useState<number | null>(null);
   const [pooledSourceIds, setPooledSourceIds] = useState<number[]>([]);
+  const [trendsSourceId, setTrendsSourceId] = useState<number | null>(null);
 
   const { data: diversity, isLoading } = useDiversity();
   const { data: pyramidData } = useAgePyramid(pyramidSourceId);
   const { data: dapData } = useDapCheck(activeTab === "dap" ? DEFAULT_DAP_TARGETS : null);
   const { data: pooledData } = usePooledDemographics(pooledSourceIds);
+  const { data: trendsData } = useDiversityTrends(trendsSourceId);
 
   const pyramidSource = useMemo(
     () => diversity?.find((s) => s.source_id === pyramidSourceId),
@@ -116,6 +120,8 @@ export default function DiversityView() {
     { key: "pyramid", label: "Age Pyramid" },
     { key: "dap", label: "DAP Gap" },
     { key: "pooled", label: "Pooled" },
+    { key: "geographic", label: "Geographic" },
+    { key: "trends", label: "Trends" },
   ];
 
   return (
@@ -251,6 +257,34 @@ export default function DiversityView() {
               </div>
             )}
           </div>
+        </div>
+      )}
+
+      {activeTab === "geographic" && <GeographicDiversityView />}
+
+      {activeTab === "trends" && (
+        <div className="space-y-4">
+          <select
+            value={trendsSourceId ?? ""}
+            onChange={(e) => setTrendsSourceId(e.target.value ? Number(e.target.value) : null)}
+            className="rounded-lg border border-[#252530] bg-[#151518] px-3 py-2 text-sm text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none"
+          >
+            <option value="">Select a source</option>
+            {diversity.map((s) => (
+              <option key={s.source_id} value={s.source_id}>{s.source_name}</option>
+            ))}
+          </select>
+          {trendsData && trendsSourceId && (
+            <DiversityTrendsChart
+              data={trendsData.releases}
+              sourceName={diversity.find((s) => s.source_id === trendsSourceId)?.source_name ?? ""}
+            />
+          )}
+          {trendsSourceId && trendsData && trendsData.releases.length === 0 && (
+            <div className="rounded-lg border border-dashed border-[#323238] bg-[#151518] py-12 text-center">
+              <p className="text-sm text-[#666]">No releases found for this source. Create releases to track diversity trends.</p>
+            </div>
+          )}
         </div>
       )}
     </div>

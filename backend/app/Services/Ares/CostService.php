@@ -54,11 +54,31 @@ class CostService
     }
 
     /**
+     * Get a warning message if multiple cost types exist.
+     */
+    public function getCostTypeWarning(Source $source): ?string
+    {
+        $types = $this->getAvailableCostTypes($source);
+
+        if (count($types) <= 1) {
+            return null;
+        }
+
+        $typeNames = array_map(fn (array $t) => $t['concept_name'], $types);
+
+        return sprintf(
+            'This source contains %d cost types (%s). Mixing types can distort analysis by 3-10x. Filter to a single type.',
+            count($types),
+            implode(', ', $typeNames),
+        );
+    }
+
+    /**
      * Get cost aggregates by domain for a source.
      *
-     * @return array{has_cost_data: bool, domains: array<int, array{domain: string, total_cost: float, record_count: int, avg_cost: float}>, total_cost?: float, person_count?: int, avg_observation_years?: float, pppy?: float}
+     * @return array{has_cost_data: bool, domains: array<int, array{domain: string, total_cost: float, record_count: int, avg_cost: float}>, total_cost?: float, person_count?: int, avg_observation_years?: float, pppy?: float, cost_type_warning?: string|null}
      */
-    public function getSummary(Source $source): array
+    public function getSummary(Source $source, ?int $costTypeConceptId = null): array
     {
         if (! $this->hasCostData($source)) {
             return ['has_cost_data' => false, 'domains' => []];
@@ -67,7 +87,7 @@ class CostService
         try {
             $connection = $this->getOmopConnection($source);
 
-            $results = DB::connection($connection)
+            $query = DB::connection($connection)
                 ->table('cost')
                 ->selectRaw('
                     cost_domain_id as domain,
@@ -75,7 +95,13 @@ class CostService
                     COUNT(*) as record_count,
                     AVG(total_charge) as avg_cost
                 ')
-                ->whereNotNull('cost_domain_id')
+                ->whereNotNull('cost_domain_id');
+
+            if ($costTypeConceptId !== null) {
+                $query->where('cost_type_concept_id', $costTypeConceptId);
+            }
+
+            $results = $query
                 ->groupBy('cost_domain_id')
                 ->orderByDesc(DB::raw('SUM(total_charge)'))
                 ->get();
@@ -122,6 +148,7 @@ class CostService
                 'person_count' => $personCount,
                 'avg_observation_years' => $avgObsYears,
                 'pppy' => $pppy,
+                'cost_type_warning' => $this->getCostTypeWarning($source),
             ];
         } catch (\Throwable $e) {
             Log::warning("CostService: getSummary failed for source {$source->source_name}: {$e->getMessage()}");
@@ -135,7 +162,7 @@ class CostService
      *
      * @return array{has_cost_data: bool, months: array<int, array{month: string, total_cost: float, record_count: int}>}
      */
-    public function getTrends(Source $source): array
+    public function getTrends(Source $source, ?int $costTypeConceptId = null): array
     {
         if (! $this->hasCostData($source)) {
             return ['has_cost_data' => false, 'months' => []];
@@ -144,14 +171,20 @@ class CostService
         try {
             $connection = $this->getOmopConnection($source);
 
-            $results = DB::connection($connection)
+            $query = DB::connection($connection)
                 ->table('cost')
                 ->selectRaw("
                     TO_CHAR(cost_event_date, 'YYYY-MM') as month,
                     SUM(total_charge) as total_cost,
                     COUNT(*) as record_count
                 ")
-                ->whereNotNull('cost_event_date')
+                ->whereNotNull('cost_event_date');
+
+            if ($costTypeConceptId !== null) {
+                $query->where('cost_type_concept_id', $costTypeConceptId);
+            }
+
+            $results = $query
                 ->groupByRaw("TO_CHAR(cost_event_date, 'YYYY-MM')")
                 ->orderBy(DB::raw("TO_CHAR(cost_event_date, 'YYYY-MM')"))
                 ->get();
@@ -410,6 +443,156 @@ class CostService
 
             return ['sources' => $results];
         });
+    }
+
+    /**
+     * Get per-source cost distribution stats for cross-source comparison.
+     *
+     * @return array{sources: array<int, array{source_id: int, source_name: string, has_cost_data: bool, distribution: array{min: float, p10: float, p25: float, median: float, p75: float, p90: float, max: float}|null}>}
+     */
+    public function getNetworkCostComparison(string $domain, ?int $costTypeConceptId = null): array
+    {
+        $cacheKey = "ares:network:cost-compare-detailed:{$domain}:" . ($costTypeConceptId ?? 'all');
+
+        return Cache::remember($cacheKey, 600, function () use ($domain, $costTypeConceptId) {
+            $sources = Source::whereHas('daimons')->get();
+            $results = [];
+
+            foreach ($sources as $source) {
+                if (! $this->hasCostData($source)) {
+                    $results[] = [
+                        'source_id' => $source->id,
+                        'source_name' => $source->source_name,
+                        'has_cost_data' => false,
+                        'distribution' => null,
+                    ];
+
+                    continue;
+                }
+
+                try {
+                    $connection = $this->getOmopConnection($source);
+
+                    $query = DB::connection($connection)->table('cost')
+                        ->where('total_charge', '>', 0);
+
+                    if ($domain !== 'all') {
+                        $query->where('cost_domain_id', $domain);
+                    }
+
+                    if ($costTypeConceptId) {
+                        $query->where('cost_type_concept_id', $costTypeConceptId);
+                    }
+
+                    $stats = $query->selectRaw("
+                        MIN(total_charge) as min_val,
+                        PERCENTILE_CONT(0.10) WITHIN GROUP (ORDER BY total_charge) as p10,
+                        PERCENTILE_CONT(0.25) WITHIN GROUP (ORDER BY total_charge) as p25,
+                        PERCENTILE_CONT(0.50) WITHIN GROUP (ORDER BY total_charge) as median,
+                        PERCENTILE_CONT(0.75) WITHIN GROUP (ORDER BY total_charge) as p75,
+                        PERCENTILE_CONT(0.90) WITHIN GROUP (ORDER BY total_charge) as p90,
+                        MAX(total_charge) as max_val,
+                        COUNT(*) as record_count
+                    ")->first();
+
+                    if (! $stats || (int) $stats->record_count === 0) {
+                        $results[] = [
+                            'source_id' => $source->id,
+                            'source_name' => $source->source_name,
+                            'has_cost_data' => false,
+                            'distribution' => null,
+                        ];
+
+                        continue;
+                    }
+
+                    $results[] = [
+                        'source_id' => $source->id,
+                        'source_name' => $source->source_name,
+                        'has_cost_data' => true,
+                        'distribution' => [
+                            'min' => round((float) $stats->min_val, 2),
+                            'p10' => round((float) $stats->p10, 2),
+                            'p25' => round((float) $stats->p25, 2),
+                            'median' => round((float) $stats->median, 2),
+                            'p75' => round((float) $stats->p75, 2),
+                            'p90' => round((float) $stats->p90, 2),
+                            'max' => round((float) $stats->max_val, 2),
+                        ],
+                    ];
+                } catch (\Throwable $e) {
+                    Log::warning("CostService: getNetworkCostComparison failed for source {$source->source_name}: {$e->getMessage()}");
+                    $results[] = [
+                        'source_id' => $source->id,
+                        'source_name' => $source->source_name,
+                        'has_cost_data' => false,
+                        'distribution' => null,
+                    ];
+                }
+            }
+
+            return ['sources' => $results];
+        });
+    }
+
+    /**
+     * Get top cost-driving concepts for a source.
+     *
+     * @return array{has_cost_data: bool, drivers: array<int, array{concept_id: int, concept_name: string, domain: string, total_cost: float, record_count: int, patient_count: int, pct_of_total: float}>}
+     */
+    public function getCostDrivers(Source $source, int $limit = 10): array
+    {
+        if (! $this->hasCostData($source)) {
+            return ['has_cost_data' => false, 'drivers' => []];
+        }
+
+        try {
+            $connection = $this->getOmopConnection($source);
+
+            // Get total cost for percentage calculation
+            $totalCost = (float) DB::connection($connection)->table('cost')
+                ->where('total_charge', '>', 0)
+                ->sum('total_charge');
+
+            if ($totalCost <= 0) {
+                return ['has_cost_data' => false, 'drivers' => []];
+            }
+
+            // Get top concepts by total cost, joining to concept for names
+            $results = DB::connection($connection)->table('cost as c')
+                ->join('concept as co', 'c.cost_concept_id', '=', 'co.concept_id')
+                ->selectRaw('
+                    c.cost_concept_id as concept_id,
+                    co.concept_name,
+                    c.cost_domain_id as domain,
+                    SUM(c.total_charge) as total_cost,
+                    COUNT(*) as record_count,
+                    COUNT(DISTINCT c.person_id) as patient_count
+                ')
+                ->where('c.total_charge', '>', 0)
+                ->whereNotNull('c.cost_concept_id')
+                ->where('c.cost_concept_id', '!=', 0)
+                ->groupBy('c.cost_concept_id', 'co.concept_name', 'c.cost_domain_id')
+                ->orderByDesc(DB::raw('SUM(c.total_charge)'))
+                ->limit($limit)
+                ->get();
+
+            $drivers = $results->map(fn ($row) => [
+                'concept_id' => (int) $row->concept_id,
+                'concept_name' => $row->concept_name,
+                'domain' => $row->domain ?? 'Unknown',
+                'total_cost' => round((float) $row->total_cost, 2),
+                'record_count' => (int) $row->record_count,
+                'patient_count' => (int) $row->patient_count,
+                'pct_of_total' => round(((float) $row->total_cost / $totalCost) * 100, 1),
+            ])->toArray();
+
+            return ['has_cost_data' => true, 'drivers' => $drivers];
+        } catch (\Throwable $e) {
+            Log::warning("CostService: getCostDrivers failed for source {$source->source_name}: {$e->getMessage()}");
+
+            return ['has_cost_data' => false, 'drivers' => []];
+        }
     }
 
     /**

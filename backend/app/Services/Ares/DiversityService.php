@@ -367,6 +367,252 @@ class DiversityService
     }
 
     /**
+     * Get geographic diversity data for a single source.
+     *
+     * Queries person->location for state/zip distribution.
+     * Optionally joins gis.adi_data for Area Deprivation Index if available.
+     *
+     * @return array{state_distribution: array<string, int>, adi_distribution: array<string, int>, geographic_reach: int, median_adi: float|null}
+     */
+    public function getGeographicDiversity(Source $source): array
+    {
+        $daimon = $source->daimons()->where('daimon_type', DaimonType::Cdm->value)->first();
+        $schema = $daimon?->table_qualifier ?? 'omop';
+
+        $connection = 'omop';
+        if (! empty($source->db_host)) {
+            $connection = $this->connectionFactory->connectionForSchema($source, $schema);
+        } else {
+            DB::connection('omop')->statement(
+                "SET search_path TO \"{$schema}\", public"
+            );
+        }
+
+        // Query person -> location for state distribution
+        $stateDistribution = [];
+        $zipCodes = [];
+
+        try {
+            $rows = DB::connection($connection)
+                ->table('person')
+                ->join('location', 'person.location_id', '=', 'location.location_id')
+                ->select(DB::raw('location.state AS state, COUNT(*) AS cnt'))
+                ->whereNotNull('location.state')
+                ->groupBy('location.state')
+                ->orderByDesc('cnt')
+                ->get();
+
+            foreach ($rows as $row) {
+                $stateDistribution[$row->state] = (int) $row->cnt;
+            }
+
+            // Get zip codes for ADI lookup
+            $zipRows = DB::connection($connection)
+                ->table('person')
+                ->join('location', 'person.location_id', '=', 'location.location_id')
+                ->select('location.zip')
+                ->whereNotNull('location.zip')
+                ->distinct()
+                ->limit(10000)
+                ->get();
+
+            $zipCodes = $zipRows->pluck('zip')->toArray();
+        } catch (\Throwable $e) {
+            Log::warning("GeoDiversity: failed to query locations for source {$source->source_name}: {$e->getMessage()}");
+        }
+
+        // ADI distribution — attempt gis.adi_data join (graceful degradation if unavailable)
+        $adiDistribution = [];
+        $medianAdi = null;
+
+        if (! empty($zipCodes)) {
+            try {
+                $adiRows = DB::connection('gis')
+                    ->table('adi_data')
+                    ->select(DB::raw('adi_natrank_median AS decile, COUNT(*) AS cnt'))
+                    ->whereIn('zipcode', array_map(fn ($z) => substr((string) $z, 0, 5), $zipCodes))
+                    ->whereNotNull('adi_natrank_median')
+                    ->groupBy('adi_natrank_median')
+                    ->orderBy('adi_natrank_median')
+                    ->get();
+
+                foreach ($adiRows as $row) {
+                    $decile = (string) $row->decile;
+                    $adiDistribution[$decile] = (int) $row->cnt;
+                }
+
+                // Compute median ADI from all zip matches
+                $allAdi = DB::connection('gis')
+                    ->table('adi_data')
+                    ->whereIn('zipcode', array_map(fn ($z) => substr((string) $z, 0, 5), $zipCodes))
+                    ->whereNotNull('adi_natrank_median')
+                    ->pluck('adi_natrank_median')
+                    ->sort()
+                    ->values();
+
+                if ($allAdi->isNotEmpty()) {
+                    $mid = (int) floor($allAdi->count() / 2);
+                    $medianAdi = $allAdi->count() % 2 === 0
+                        ? round(((float) $allAdi[$mid - 1] + (float) $allAdi[$mid]) / 2, 1)
+                        : round((float) $allAdi[$mid], 1);
+                }
+            } catch (\Throwable $e) {
+                Log::info("GeoDiversity: ADI data not available for source {$source->source_name}: {$e->getMessage()}");
+                // Graceful degradation — ADI data not loaded
+            }
+        }
+
+        return [
+            'state_distribution' => $stateDistribution,
+            'adi_distribution' => $adiDistribution,
+            'geographic_reach' => count($stateDistribution),
+            'median_adi' => $medianAdi,
+        ];
+    }
+
+    /**
+     * Get geographic diversity aggregated across all sources.
+     *
+     * @return array<int, array{source_id: int, source_name: string, state_distribution: array<string, int>, adi_distribution: array<string, int>, geographic_reach: int, median_adi: float|null}>
+     */
+    public function getNetworkGeographicDiversity(): array
+    {
+        return Cache::remember('ares:network:geographic-diversity', 600, function () {
+            $sources = Source::whereHas('daimons')->get();
+            $results = [];
+
+            foreach ($sources as $source) {
+                try {
+                    $geo = $this->getGeographicDiversity($source);
+                    $results[] = [
+                        'source_id' => $source->id,
+                        'source_name' => $source->source_name,
+                        ...$geo,
+                    ];
+                } catch (\Throwable $e) {
+                    Log::warning("GeoDiversity: failed for source {$source->source_name}: {$e->getMessage()}");
+                    $results[] = [
+                        'source_id' => $source->id,
+                        'source_name' => $source->source_name,
+                        'state_distribution' => [],
+                        'adi_distribution' => [],
+                        'geographic_reach' => 0,
+                        'median_adi' => null,
+                    ];
+                }
+            }
+
+            return $results;
+        });
+    }
+
+    /**
+     * Get diversity trends over releases for a source.
+     * Computes Simpson's Diversity Index per release from demographic Achilles results.
+     *
+     * @return array{releases: array<int, array{release_name: string, created_at: string, gender_index: float, race_index: float, ethnicity_index: float, composite_index: float}>}
+     */
+    public function getDiversityTrends(Source $source): array
+    {
+        $releases = \App\Models\App\SourceRelease::where('source_id', $source->id)
+            ->orderBy('created_at')
+            ->get();
+
+        if ($releases->isEmpty()) {
+            return ['releases' => []];
+        }
+
+        $results = [];
+
+        foreach ($releases as $release) {
+            try {
+                $daimon = $source->daimons()->where('daimon_type', DaimonType::Results->value)->first();
+                $schema = $daimon?->table_qualifier ?? 'results';
+
+                $connection = 'results';
+                if (! empty($source->db_host)) {
+                    $connection = $this->connectionFactory->connectionForSchema($source, $schema);
+                } else {
+                    DB::connection('results')->statement(
+                        "SET search_path TO \"{$schema}\", public"
+                    );
+                }
+
+                // Get person count
+                $personResult = AchillesResult::on($connection)
+                    ->where('analysis_id', 1)
+                    ->first();
+                $personCount = (int) ($personResult?->count_value ?? 0);
+
+                if ($personCount === 0) {
+                    $results[] = [
+                        'release_name' => $release->release_name,
+                        'created_at' => $release->created_at->toISOString(),
+                        'gender_index' => 0.0,
+                        'race_index' => 0.0,
+                        'ethnicity_index' => 0.0,
+                        'composite_index' => 0.0,
+                    ];
+
+                    continue;
+                }
+
+                $gender = $this->getProportions($connection, self::GENDER_ANALYSIS, $personCount);
+                $race = $this->getProportions($connection, self::RACE_ANALYSIS, $personCount);
+                $ethnicity = $this->getProportions($connection, self::ETHNICITY_ANALYSIS, $personCount);
+
+                $genderIndex = $this->computeDimensionIndex($gender);
+                $raceIndex = $this->computeDimensionIndex($race);
+                $ethnicityIndex = $this->computeDimensionIndex($ethnicity);
+
+                $indices = array_filter([$genderIndex, $raceIndex, $ethnicityIndex], fn ($v) => $v > 0);
+                $composite = ! empty($indices) ? round(array_sum($indices) / count($indices), 3) : 0.0;
+
+                $results[] = [
+                    'release_name' => $release->release_name,
+                    'created_at' => $release->created_at->toISOString(),
+                    'gender_index' => $genderIndex,
+                    'race_index' => $raceIndex,
+                    'ethnicity_index' => $ethnicityIndex,
+                    'composite_index' => $composite,
+                ];
+            } catch (\Throwable $e) {
+                Log::warning("DiversityService: getDiversityTrends failed for release {$release->release_name}: {$e->getMessage()}");
+                $results[] = [
+                    'release_name' => $release->release_name,
+                    'created_at' => $release->created_at->toISOString(),
+                    'gender_index' => 0.0,
+                    'race_index' => 0.0,
+                    'ethnicity_index' => 0.0,
+                    'composite_index' => 0.0,
+                ];
+            }
+        }
+
+        return ['releases' => $results];
+    }
+
+    /**
+     * Compute Simpson's Diversity Index for a single demographic dimension.
+     *
+     * @param  array<string, float>  $proportions  Percentages (0-100)
+     */
+    private function computeDimensionIndex(array $proportions): float
+    {
+        if (empty($proportions)) {
+            return 0.0;
+        }
+
+        $sumPSquared = 0.0;
+        foreach ($proportions as $pct) {
+            $p = $pct / 100.0;
+            $sumPSquared += $p * $p;
+        }
+
+        return round(1.0 - $sumPSquared, 3);
+    }
+
+    /**
      * Resolve a concept_id to a concept_name from the vocabulary.
      */
     private function resolveConceptName(string $conceptId): ?string

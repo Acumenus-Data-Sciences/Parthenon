@@ -240,6 +240,13 @@ Route::prefix('v1')->group(function () {
             Route::get('/dq-history/domain-trends', [AresController::class, 'dqHistoryDomainTrends'])->middleware('permission:analyses.view');
             Route::get('/dq-history/heatmap', [AresController::class, 'dqHistoryHeatmap'])->middleware('permission:analyses.view');
             Route::get('/dq-history/sparklines', [AresController::class, 'dqHistorySparklines'])->middleware('permission:analyses.view');
+            Route::get('/dq-history/export', [AresController::class, 'dqHistoryExport'])->middleware('permission:analyses.view');
+
+            // DQ Radar + SLA
+            Route::get('/dq-radar', [AresController::class, 'dqRadar'])->middleware('permission:analyses.view');
+            Route::post('/dq-sla', [AresController::class, 'dqSlaStore'])->middleware('role:admin|super-admin|data-steward');
+            Route::get('/dq-sla', [AresController::class, 'dqSlaIndex'])->middleware('permission:analyses.view');
+            Route::get('/dq-sla/compliance', [AresController::class, 'dqSlaCompliance'])->middleware('permission:analyses.view');
 
             // Unmapped Codes
             Route::get('/unmapped-codes', [AresController::class, 'unmappedCodes'])->middleware('permission:analyses.view');
@@ -248,6 +255,10 @@ Route::prefix('v1')->group(function () {
             Route::get('/unmapped-codes/progress', [AresController::class, 'unmappedCodesProgress'])->middleware('permission:analyses.view');
             Route::get('/unmapped-codes/treemap', [AresController::class, 'unmappedCodesTreemap'])->middleware('permission:analyses.view');
             Route::get('/unmapped-codes/export', [AresController::class, 'unmappedCodesExport'])->middleware('permission:analyses.view');
+            Route::get('/unmapped-codes/{codeId}/suggestions', [AresController::class, 'unmappedCodeSuggestions'])
+                ->middleware(['permission:analyses.view', 'throttle:30,1']);
+            Route::post('/unmapped-codes/{codeId}/map', [AresController::class, 'acceptMapping'])
+                ->middleware('permission:mapping.review');
 
             // Domain Continuity
             Route::get('/domain-continuity', [AresController::class, 'domainContinuity'])->middleware('permission:analyses.view');
@@ -265,6 +276,10 @@ Route::prefix('v1')->group(function () {
             Route::get('/cost/care-setting', [AresController::class, 'costCareSetting'])->middleware('permission:analyses.view');
             Route::get('/cost/types', [AresController::class, 'costTypes'])->middleware('permission:analyses.view');
             Route::get('/cost/domains/{domain}', [AresController::class, 'costDomainDetail'])->middleware('permission:analyses.view');
+            Route::get('/cost/drivers', [AresController::class, 'costDrivers'])->middleware('permission:analyses.view');
+
+            // Diversity Trends (source-scoped)
+            Route::get('/diversity/trends', [AresController::class, 'diversityTrends'])->middleware('permission:analyses.view');
         });
 
         // Network Ares — Cross-source intelligence
@@ -278,10 +293,16 @@ Route::prefix('v1')->group(function () {
                 ->middleware(['permission:analyses.view', 'throttle:30,1']);
             Route::get('/compare/multi', [NetworkAresController::class, 'compareMulti'])->middleware('permission:analyses.view');
             Route::get('/compare/funnel', [NetworkAresController::class, 'compareFunnel'])->middleware('permission:analyses.view');
+            Route::get('/compare/standardized', [NetworkAresController::class, 'compareStandardized'])
+                ->middleware(['permission:analyses.view', 'throttle:20,1']);
+            Route::get('/compare/temporal', [NetworkAresController::class, 'compareTemporal'])->middleware('permission:analyses.view');
+            Route::get('/compare/concept-set', [NetworkAresController::class, 'compareConceptSet'])
+                ->middleware(['permission:analyses.view', 'throttle:20,1']);
 
             // Coverage + Diversity
             Route::get('/coverage', [NetworkAresController::class, 'coverage'])->middleware('permission:analyses.view');
             Route::get('/coverage/extended', [NetworkAresController::class, 'coverageExtended'])->middleware('permission:analyses.view');
+            Route::get('/coverage/export', [NetworkAresController::class, 'coverageExport'])->middleware('permission:analyses.view');
             Route::get('/diversity', [NetworkAresController::class, 'diversity'])->middleware('permission:analyses.view');
 
             // Feasibility
@@ -293,11 +314,14 @@ Route::prefix('v1')->group(function () {
                 ->middleware(['permission:analyses.create']);
             Route::get('/feasibility/{id}', [NetworkAresController::class, 'showFeasibility'])->middleware('permission:analyses.view');
             Route::get('/feasibility/{id}/impact', [NetworkAresController::class, 'feasibilityImpact'])->middleware('permission:analyses.view');
+            Route::get('/feasibility/{id}/forecast', [NetworkAresController::class, 'feasibilityForecast'])
+                ->middleware(['permission:analyses.view', 'throttle:10,1']);
 
             // Alerts
             Route::get('/alerts', [NetworkAresController::class, 'alerts'])->middleware('permission:analyses.view');
 
             // Diversity (network-level)
+            Route::get('/diversity/geographic', [NetworkAresController::class, 'diversityGeographic'])->middleware('permission:analyses.view');
             Route::post('/diversity/dap-check', [NetworkAresController::class, 'diversityDapCheck'])->middleware('permission:analyses.view');
             Route::get('/diversity/pooled', [NetworkAresController::class, 'diversityPooled'])->middleware('permission:analyses.view');
 
@@ -306,11 +330,13 @@ Route::prefix('v1')->group(function () {
             Route::get('/releases/calendar', [NetworkAresController::class, 'releasesCalendar'])->middleware('permission:analyses.view');
 
             // Network DQ + Annotations + Cost
+            Route::get('/dq-radar', [NetworkAresController::class, 'dqRadar'])->middleware('permission:analyses.view');
             Route::get('/dq-summary', [NetworkAresController::class, 'dqSummary'])->middleware('permission:analyses.view');
             Route::get('/dq-overlay', [NetworkAresController::class, 'dqOverlay'])->middleware('permission:analyses.view');
             Route::get('/annotations', [NetworkAresController::class, 'annotations'])->middleware('permission:analyses.view');
             Route::get('/cost', [NetworkAresController::class, 'cost'])->middleware('permission:analyses.view');
             Route::get('/cost/compare', [NetworkAresController::class, 'costCompare'])->middleware('permission:analyses.view');
+            Route::get('/cost/compare/detailed', [NetworkAresController::class, 'costCompareDetailed'])->middleware('permission:analyses.view');
         });
 
         // Population Risk Scoring (Tier 3 — 20 validated clinical risk scores)

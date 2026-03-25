@@ -8,12 +8,14 @@ use App\Models\App\SourceRelease;
 use App\Models\User;
 use App\Services\Ares\AnnotationService;
 use App\Services\Ares\AutoAnnotationService;
+use App\Services\Ares\ConceptStandardizationService;
 use App\Services\Ares\CostService;
 use App\Services\Ares\CoverageService;
 use App\Services\Ares\DiversityService;
 use App\Services\Ares\DqHistoryService;
 use App\Services\Ares\FeasibilityService;
 use App\Services\Ares\NetworkComparisonService;
+use App\Services\Ares\PatientArrivalForecastService;
 use App\Services\Ares\ReleaseService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -30,6 +32,8 @@ class NetworkAresController extends Controller
         private readonly CostService $costService,
         private readonly ReleaseService $releaseService,
         private readonly AutoAnnotationService $autoAnnotationService,
+        private readonly ConceptStandardizationService $standardizationService,
+        private readonly PatientArrivalForecastService $forecastService,
     ) {}
 
     // ── Hub Overview ─────────────────────────────────────────────────────
@@ -160,6 +164,43 @@ class NetworkAresController extends Controller
         ]);
     }
 
+    /**
+     * GET /v1/network/ares/compare/temporal?concept_id={id}
+     */
+    public function compareTemporal(Request $request): JsonResponse
+    {
+        $conceptId = (int) $request->query('concept_id');
+
+        if (! $conceptId) {
+            return response()->json(['error' => 'concept_id is required'], 422);
+        }
+
+        return response()->json([
+            'data' => $this->comparisonService->getTemporalPrevalence($conceptId),
+        ]);
+    }
+
+    /**
+     * GET /v1/network/ares/compare/concept-set?concept_ids=1,2,3
+     */
+    public function compareConceptSet(Request $request): JsonResponse
+    {
+        $idsParam = (string) $request->query('concept_ids', '');
+        $conceptIds = array_map('intval', array_filter(explode(',', $idsParam)));
+
+        if (empty($conceptIds)) {
+            return response()->json(['error' => 'concept_ids is required'], 422);
+        }
+
+        if (count($conceptIds) > 50) {
+            return response()->json(['error' => 'Maximum 50 concepts per concept set'], 422);
+        }
+
+        return response()->json([
+            'data' => $this->comparisonService->compareConceptSet($conceptIds),
+        ]);
+    }
+
     // ── Coverage ─────────────────────────────────────────────────────────
 
     /**
@@ -223,6 +264,16 @@ class NetworkAresController extends Controller
 
         return response()->json([
             'data' => $this->diversityService->getPooledDemographics($sourceIds),
+        ]);
+    }
+
+    /**
+     * GET /v1/network/ares/diversity/geographic
+     */
+    public function diversityGeographic(): JsonResponse
+    {
+        return response()->json([
+            'data' => $this->diversityService->getNetworkGeographicDiversity(),
         ]);
     }
 
@@ -327,6 +378,16 @@ class NetworkAresController extends Controller
     // ── Network DQ ───────────────────────────────────────────────────────
 
     /**
+     * GET /v1/network/ares/dq-radar
+     */
+    public function dqRadar(): JsonResponse
+    {
+        return response()->json([
+            'data' => $this->dqHistoryService->getNetworkRadarProfiles(),
+        ]);
+    }
+
+    /**
      * GET /v1/network/ares/dq-summary
      */
     public function dqSummary(): JsonResponse
@@ -383,6 +444,53 @@ class NetworkAresController extends Controller
         ]);
     }
 
+    /**
+     * GET /v1/network/ares/cost/compare/detailed?domain=all&cost_type=
+     * Per-source distribution stats for cross-source box plot comparison.
+     */
+    public function costCompareDetailed(Request $request): JsonResponse
+    {
+        $domain = is_string($request->query('domain')) ? $request->query('domain') : 'all';
+        $costType = $request->query('cost_type') ? (int) $request->query('cost_type') : null;
+
+        return response()->json([
+            'data' => $this->costService->getNetworkCostComparison($domain, $costType),
+        ]);
+    }
+
+    // ── Coverage Export ──────────────────────────────────────────────────
+
+    /**
+     * GET /v1/network/ares/coverage/export?format=csv
+     * Export coverage matrix as CSV download.
+     */
+    public function coverageExport(Request $request): JsonResponse
+    {
+        $format = is_string($request->query('format')) ? $request->query('format') : 'csv';
+
+        $export = $this->coverageService->exportMatrix($format);
+
+        if ($format === 'csv') {
+            $csv = implode(',', $export['headers']) . "\n";
+            foreach ($export['rows'] as $row) {
+                $csv .= implode(',', array_map(
+                    fn ($v) => '"' . str_replace('"', '""', (string) $v) . '"',
+                    $row,
+                )) . "\n";
+            }
+
+            return response()->json([
+                'data' => [
+                    'format' => 'csv',
+                    'filename' => 'coverage_matrix_' . now()->format('Y-m-d') . '.csv',
+                    'content' => $csv,
+                ],
+            ]);
+        }
+
+        return response()->json(['data' => $export]);
+    }
+
     // ── Releases ──────────────────────────────────────────────────────────
 
     /**
@@ -432,5 +540,68 @@ class NetworkAresController extends Controller
         ])->all();
 
         return response()->json(['data' => $events]);
+    }
+
+    // ── Standardized Comparison ─────────────────────────────────────────
+
+    /**
+     * GET /v1/network/ares/compare/standardized?concept_id={id}&method=direct
+     *
+     * Age-sex standardized rates for a concept across all sources.
+     */
+    public function compareStandardized(Request $request): JsonResponse
+    {
+        $conceptId = (int) $request->query('concept_id');
+
+        if (! $conceptId) {
+            return response()->json(['error' => 'concept_id is required'], 422);
+        }
+
+        $method = (string) $request->query('method', 'direct');
+        if (! in_array($method, ['direct'], true)) {
+            return response()->json(['error' => 'Invalid method. Supported: direct'], 422);
+        }
+
+        return response()->json([
+            'data' => $this->standardizationService->standardize($conceptId, $method),
+        ]);
+    }
+
+    // ── Feasibility Forecast ────────────────────────────────────────────
+
+    /**
+     * GET /v1/network/ares/feasibility/{id}/forecast?source_id={sid}&months=24
+     *
+     * Patient arrival forecast for a feasibility assessment source.
+     */
+    public function feasibilityForecast(int $id, Request $request): JsonResponse
+    {
+        $sourceId = (int) $request->query('source_id');
+
+        if (! $sourceId) {
+            return response()->json(['error' => 'source_id is required'], 422);
+        }
+
+        $months = (int) $request->query('months', '24');
+        if ($months < 6 || $months > 60) {
+            return response()->json(['error' => 'months must be between 6 and 60'], 422);
+        }
+
+        // Verify the assessment exists
+        $assessment = \Illuminate\Support\Facades\DB::table('feasibility_assessments')
+            ->where('id', $id)
+            ->first();
+
+        if (! $assessment) {
+            return response()->json(['error' => 'Assessment not found'], 404);
+        }
+
+        try {
+            $forecast = $this->forecastService->forecast($id, $sourceId, $months);
+
+            return response()->json(['data' => $forecast]);
+        } catch (\InvalidArgumentException $e) {
+            return response()->json(['error' => $e->getMessage()], 422);
+        }
     }
 }

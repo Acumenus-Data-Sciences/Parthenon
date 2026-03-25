@@ -14,15 +14,23 @@ import {
   fetchFeasibilityImpact,
   fetchFeasibilityList,
   fetchFeasibilityTemplates,
+  fetchConceptSetComparison,
+  fetchGeographicDiversity,
   fetchMultiComparison,
   fetchNetworkDqSummary,
   fetchNetworkOverview,
   fetchPooledDemographics,
   fetchReleasesCalendar,
   fetchReleasesTimeline,
+  fetchTemporalPrevalence,
+  fetchStandardizedComparison,
+  fetchFeasibilityForecast,
   runFeasibility,
   searchConceptsForComparison,
   storeFeasibilityTemplate,
+  fetchCoverageExport,
+  fetchDiversityTrends,
+  fetchNetworkDqRadar,
 } from "../api/networkAresApi";
 import type { FeasibilityCriteria } from "../types/ares";
 
@@ -200,6 +208,14 @@ export function usePooledDemographics(sourceIds: number[]) {
   });
 }
 
+export function useGeographicDiversity() {
+  return useQuery({
+    queryKey: ["ares", "network", "diversity", "geographic"],
+    queryFn: fetchGeographicDiversity,
+    staleTime: 10 * 60 * 1000,
+  });
+}
+
 // ── Release hooks ────────────────────────────────────────────────────────
 
 export function useReleasesTimeline() {
@@ -215,5 +231,83 @@ export function useReleasesCalendar() {
     queryKey: ["ares", "network", "releases", "calendar"],
     queryFn: fetchReleasesCalendar,
     staleTime: 10 * 60 * 1000,
+  });
+}
+
+// ── Phase C: Temporal prevalence + concept sets ─────────────────────────
+
+export function useTemporalPrevalence(conceptId: number | null) {
+  return useQuery({
+    queryKey: ["ares", "network", "compare-temporal", conceptId],
+    queryFn: () => fetchTemporalPrevalence(conceptId!),
+    enabled: !!conceptId,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+export function useConceptSetComparison(conceptIds: number[]) {
+  return useQuery({
+    queryKey: ["ares", "network", "compare-concept-set", conceptIds],
+    queryFn: () => fetchConceptSetComparison(conceptIds),
+    enabled: conceptIds.length >= 2,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+// ── D1: Standardized comparison ──────────────────────────────────────
+
+export function useStandardizedComparison(conceptId: number | null, enabled: boolean = true) {
+  return useQuery({
+    queryKey: ["ares", "network", "compare-standardized", conceptId],
+    queryFn: () => fetchStandardizedComparison(conceptId!),
+    enabled: !!conceptId && enabled,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+// ── D2: Feasibility forecast ─────────────────────────────────────────
+
+export function useFeasibilityForecast(
+  assessmentId: number | null,
+  sourceId: number | null,
+  months: number = 24,
+) {
+  return useQuery({
+    queryKey: ["ares", "network", "feasibility", assessmentId, "forecast", sourceId, months],
+    queryFn: () => fetchFeasibilityForecast(assessmentId!, sourceId!, months),
+    enabled: !!assessmentId && !!sourceId,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+// ── C6: Coverage export ─────────────────────────────────────────────
+
+export function useCoverageExport(enabled: boolean = false) {
+  return useQuery({
+    queryKey: ["ares", "network", "coverage", "export"],
+    queryFn: () => fetchCoverageExport("csv"),
+    enabled,
+    staleTime: 10 * 60 * 1000,
+  });
+}
+
+// ── C6: Diversity trends (source-scoped) ────────────────────────────
+
+export function useDiversityTrends(sourceId: number | null) {
+  return useQuery({
+    queryKey: ["ares", "diversity", "trends", sourceId],
+    queryFn: () => fetchDiversityTrends(sourceId!),
+    enabled: !!sourceId,
+    staleTime: 10 * 60 * 1000,
+  });
+}
+
+// ── C1: Network DQ Radar ──────────────────────────────────────────
+
+export function useNetworkDqRadar() {
+  return useQuery({
+    queryKey: ["ares", "network", "dq-radar"],
+    queryFn: fetchNetworkDqRadar,
+    staleTime: 5 * 60 * 1000,
   });
 }

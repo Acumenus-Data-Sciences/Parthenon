@@ -3,7 +3,9 @@ import type {
   AgePyramidBand,
   AresAlert,
   ConceptComparison,
+  ConceptComparisonResponse,
   ConceptSearchResult,
+  ConceptSetComparison,
   CoverageMatrix,
   CriteriaImpact,
   DapGapItem,
@@ -12,13 +14,17 @@ import type {
   FeasibilityAssessment,
   FeasibilityCriteria,
   FeasibilityTemplate,
+  GeographicDiversity,
   MultiConceptComparison,
   NetworkDqSource,
   NetworkOverview,
   PooledDemographics,
   ReleaseCalendarEvent,
   ReleaseDiff,
+  StandardizedComparison,
+  ArrivalForecast,
   SwimLaneEntry,
+  TemporalPrevalenceResponse,
 } from "../types/ares";
 
 interface AttritionFunnelSource {
@@ -56,9 +62,23 @@ export async function fetchNetworkOverview(): Promise<NetworkOverview> {
 }
 
 // Concept comparison
-export async function compareConcept(conceptId: number): Promise<ConceptComparison[]> {
+export async function compareConcept(conceptId: number): Promise<ConceptComparisonResponse> {
   const { data } = await apiClient.get("/network/ares/compare", { params: { concept_id: conceptId } });
-  return unwrap<ConceptComparison[]>(data);
+  return unwrap<ConceptComparisonResponse>(data);
+}
+
+// Temporal prevalence
+export async function fetchTemporalPrevalence(conceptId: number): Promise<TemporalPrevalenceResponse> {
+  const { data } = await apiClient.get("/network/ares/compare/temporal", { params: { concept_id: conceptId } });
+  return unwrap<TemporalPrevalenceResponse>(data);
+}
+
+// Concept set comparison
+export async function fetchConceptSetComparison(conceptIds: number[]): Promise<ConceptSetComparison[]> {
+  const { data } = await apiClient.get("/network/ares/compare/concept-set", {
+    params: { concept_ids: conceptIds.join(",") },
+  });
+  return unwrap<ConceptSetComparison[]>(data);
 }
 
 export async function searchConceptsForComparison(query: string): Promise<ConceptSearchResult[]> {
@@ -185,6 +205,12 @@ export async function fetchPooledDemographics(sourceIds: number[]): Promise<Pool
   return unwrap<PooledDemographics>(data);
 }
 
+// Geographic diversity (network)
+export async function fetchGeographicDiversity(): Promise<GeographicDiversity[]> {
+  const { data } = await apiClient.get("/network/ares/diversity/geographic");
+  return unwrap<GeographicDiversity[]>(data);
+}
+
 // Release diff (source-scoped)
 export async function fetchReleaseDiff(sourceId: number, releaseId: number): Promise<ReleaseDiff> {
   const { data } = await apiClient.get(`/sources/${sourceId}/ares/releases/${releaseId}/diff`);
@@ -201,4 +227,69 @@ export async function fetchReleasesTimeline(): Promise<SwimLaneEntry[]> {
 export async function fetchReleasesCalendar(): Promise<ReleaseCalendarEvent[]> {
   const { data } = await apiClient.get("/network/ares/releases/calendar");
   return unwrap<ReleaseCalendarEvent[]>(data);
+}
+
+// Standardized comparison (D1)
+export async function fetchStandardizedComparison(
+  conceptId: number,
+  method: string = "direct",
+): Promise<StandardizedComparison[]> {
+  const { data } = await apiClient.get("/network/ares/compare/standardized", {
+    params: { concept_id: conceptId, method },
+  });
+  return unwrap<StandardizedComparison[]>(data);
+}
+
+// Network DQ Radar (C1)
+import type { DqRadarProfile } from "../types/ares";
+
+export async function fetchNetworkDqRadar(): Promise<DqRadarProfile[]> {
+  const { data } = await apiClient.get("/network/ares/dq-radar");
+  return unwrap<DqRadarProfile[]>(data);
+}
+
+// Coverage export (C6)
+export interface CoverageExportResponse {
+  format: string;
+  filename: string;
+  content: string;
+}
+
+export async function fetchCoverageExport(format: string = "csv"): Promise<CoverageExportResponse> {
+  const { data } = await apiClient.get("/network/ares/coverage/export", {
+    params: { format },
+  });
+  return unwrap<CoverageExportResponse>(data);
+}
+
+// Diversity trends (source-scoped, C6)
+export interface DiversityTrendPoint {
+  release_name: string;
+  created_at: string;
+  gender_index: number;
+  race_index: number;
+  ethnicity_index: number;
+  composite_index: number;
+}
+
+export interface DiversityTrendsResponse {
+  releases: DiversityTrendPoint[];
+}
+
+export async function fetchDiversityTrends(sourceId: number): Promise<DiversityTrendsResponse> {
+  const { data } = await apiClient.get(`/sources/${sourceId}/ares/diversity/trends`);
+  return unwrap<DiversityTrendsResponse>(data);
+}
+
+// Feasibility forecast (D2)
+export async function fetchFeasibilityForecast(
+  assessmentId: number,
+  sourceId: number,
+  months: number = 24,
+): Promise<ArrivalForecast> {
+  const { data } = await apiClient.get(
+    `/network/ares/feasibility/${assessmentId}/forecast`,
+    { params: { source_id: sourceId, months } },
+  );
+  return unwrap<ArrivalForecast>(data);
 }

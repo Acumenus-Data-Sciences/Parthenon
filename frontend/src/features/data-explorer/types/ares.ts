@@ -1,3 +1,11 @@
+export interface EtlMetadata {
+  who?: string;
+  code_version?: string;
+  parameters?: Record<string, unknown>;
+  duration_seconds?: number;
+  started_at?: string;
+}
+
 export interface SourceRelease {
   id: number;
   source_id: number;
@@ -10,6 +18,7 @@ export interface SourceRelease {
   person_count: number;
   record_count: number;
   notes: string | null;
+  etl_metadata: EtlMetadata | null;
   created_at: string;
   updated_at: string;
 }
@@ -347,6 +356,36 @@ export interface NetworkCost {
   sources: NetworkCostSource[];
 }
 
+// ── Phase C: Temporal prevalence ─────────────────────────────────────
+
+export interface TemporalPrevalenceTrend {
+  release_name: string;
+  rate_per_1000: number;
+}
+
+export interface TemporalPrevalenceSource {
+  source_id: number;
+  source_name: string;
+  trend: TemporalPrevalenceTrend[];
+}
+
+export interface TemporalPrevalenceResponse {
+  sources: TemporalPrevalenceSource[];
+}
+
+export interface ConceptComparisonResponse {
+  sources: ConceptComparison[];
+  benchmark_rate: number | null;
+}
+
+export interface ConceptSetComparison {
+  source_id: number;
+  source_name: string;
+  union_count: number;
+  rate_per_1000: number;
+  person_count: number;
+}
+
 // ── Phase B: Alerts ────────────────────────────────────────────────────
 
 export interface AresAlert {
@@ -558,6 +597,35 @@ export interface NetworkCostCompare {
   }>;
 }
 
+// ── Phase C/D: Standardized comparison ─────────────────────────────────
+
+export interface StandardizedComparison {
+  source_id: number;
+  source_name: string;
+  crude_rate: number;
+  standardized_rate: number;
+  ci_lower: number;
+  ci_upper: number;
+  person_count: number;
+  warning: string | null;
+}
+
+// ── Phase C/D: Arrival forecast ────────────────────────────────────────
+
+export interface ArrivalForecast {
+  source_id: number;
+  source_name: string;
+  historical: Array<{ month: string; patient_count: number }>;
+  projected: Array<{
+    month: string;
+    projected_count: number;
+    lower_bound: number;
+    upper_bound: number;
+  }>;
+  monthly_rate: number;
+  months_to_target: number | null;
+}
+
 // ── Phase B: Cost type option ──────────────────────────────────────────
 
 export interface CostTypeOption {
@@ -599,4 +667,55 @@ export interface UnmappedCodeReview {
   status: 'pending' | 'mapped' | 'deferred' | 'excluded';
   notes: string | null;
   reviewed_by: number | null;
+}
+
+// ── Phase C: Geographic diversity ──────────────────────────────────────
+
+export interface GeographicDiversity {
+  source_id: number;
+  source_name: string;
+  state_distribution: Record<string, number>;
+  adi_distribution: Record<string, number>;
+  geographic_reach: number;
+  median_adi: number | null;
+}
+
+// ── Phase C: Mapping suggestions ───────────────────────────────────────
+
+export interface MappingSuggestion {
+  concept_id: number;
+  concept_name: string;
+  domain_id: string;
+  vocabulary_id: string;
+  confidence_score: number;
+  distance: number;
+}
+
+// ── Phase C: DQ Radar ───────────────────────────────────────────────
+
+export interface DqRadarProfile {
+  source_id: number;
+  source_name: string;
+  dimensions: {
+    completeness: number;
+    conformance_value: number;
+    conformance_relational: number;
+    plausibility_atemporal: number;
+    plausibility_temporal: number;
+  };
+}
+
+// ── Phase C: DQ SLA Compliance ──────────────────────────────────────
+
+export interface DqSlaCompliance {
+  category: string;
+  target: number;
+  actual: number;
+  compliant: boolean;
+  error_budget_remaining: number;
+}
+
+export interface DqSlaTargetInput {
+  category: string;
+  min_pass_rate: number;
 }

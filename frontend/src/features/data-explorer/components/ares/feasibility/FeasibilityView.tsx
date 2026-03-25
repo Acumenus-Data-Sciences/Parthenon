@@ -1,6 +1,7 @@
 import { useState } from "react";
 import {
   useFeasibilityAssessment,
+  useFeasibilityForecast,
   useFeasibilityImpact,
   useFeasibilityList,
   useRunFeasibility,
@@ -8,6 +9,7 @@ import {
 import FeasibilityForm from "./FeasibilityForm";
 import CriteriaImpactChart from "./CriteriaImpactChart";
 import ConsortDiagram from "./ConsortDiagram";
+import ArrivalForecastChart from "./ArrivalForecastChart";
 import type { FeasibilityAssessment, FeasibilityResult } from "../../../types/ares";
 
 function ScoreBadge({ score, pass }: { score: number; pass: boolean }) {
@@ -32,10 +34,12 @@ export default function FeasibilityView() {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [detailView, setDetailView] = useState<DetailView>("table");
+  const [forecastSourceId, setForecastSourceId] = useState<number | null>(null);
 
   const { data: assessments } = useFeasibilityList();
   const { data: selectedAssessment } = useFeasibilityAssessment(selectedId);
   const { data: impactData } = useFeasibilityImpact(selectedId);
+  const { data: forecastData } = useFeasibilityForecast(selectedId, forecastSourceId);
   const runMutation = useRunFeasibility();
 
   return (
@@ -145,6 +149,7 @@ export default function FeasibilityView() {
                   <th className="px-3 py-2 text-center text-[11px] font-medium uppercase text-[#888]">Patients</th>
                   <th className="px-3 py-2 text-center text-[11px] font-medium uppercase text-[#888]">Score</th>
                   <th className="px-3 py-2 text-center text-[11px] font-medium uppercase text-[#888]">Overall</th>
+                  <th className="px-3 py-2 text-center text-[11px] font-medium uppercase text-[#888]">Forecast</th>
                 </tr>
               </thead>
               <tbody>
@@ -193,11 +198,41 @@ export default function FeasibilityView() {
                         <span className="text-[10px] text-[#666]">{r.composite_score ?? 0}% score</span>
                       </div>
                     </td>
+                    <td className="px-3 py-2 text-center">
+                      {r.overall_pass && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setForecastSourceId(
+                              forecastSourceId === r.source_id ? null : r.source_id,
+                            );
+                          }}
+                          className={`rounded px-2 py-0.5 text-[10px] font-medium transition-colors ${
+                            forecastSourceId === r.source_id
+                              ? "bg-[#C9A227] text-black"
+                              : "border border-[#333] text-[#888] hover:border-[#C9A227] hover:text-[#C9A227]"
+                          }`}
+                        >
+                          {forecastSourceId === r.source_id ? "Hide" : "Forecast"}
+                        </button>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
+        </div>
+      )}
+
+      {/* Arrival Forecast chart (shown below table when source selected) */}
+      {selectedAssessment?.results && detailView === "table" && forecastSourceId && forecastData && (
+        <div className="mt-4">
+          <ArrivalForecastChart
+            forecast={forecastData}
+            targetCount={selectedAssessment.criteria?.min_patients}
+          />
         </div>
       )}
 

@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useCoverage, useCoverageExtended } from "../../../hooks/useNetworkData";
+import { fetchCoverageExport } from "../../../api/networkAresApi";
 import type { ExtendedCoverageCell } from "../../../types/ares";
 import TemporalCoverageBar from "./TemporalCoverageBar";
 
@@ -31,6 +32,28 @@ export default function CoverageMatrixView() {
   const [hoveredRow, setHoveredRow] = useState<number | null>(null);
   const [hoveredCol, setHoveredCol] = useState<string | null>(null);
   const [showExpected, setShowExpected] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+
+  const handleExport = useCallback(async () => {
+    setIsExporting(true);
+    try {
+      const exportData = await fetchCoverageExport("csv");
+      // Trigger browser download
+      const blob = new Blob([exportData.content], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = exportData.filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch {
+      // Silently fail — user can retry
+    } finally {
+      setIsExporting(false);
+    }
+  }, []);
 
   if (isLoading) {
     return <div className="p-4 text-[#555]">Loading coverage matrix...</div>;
@@ -59,7 +82,17 @@ export default function CoverageMatrixView() {
 
   return (
     <div className="p-4">
-      <h2 className="mb-4 text-lg font-medium text-white">Coverage Matrix (Strand Report)</h2>
+      <div className="mb-4 flex items-center justify-between">
+        <h2 className="text-lg font-medium text-white">Coverage Matrix (Strand Report)</h2>
+        <button
+          type="button"
+          onClick={handleExport}
+          disabled={isExporting}
+          className="flex items-center gap-1.5 rounded-lg border border-[#252530] bg-[#151518] px-3 py-1.5 text-xs text-[#888] transition-colors hover:border-[#C9A227]/30 hover:text-[#C9A227] disabled:opacity-50"
+        >
+          {isExporting ? "Exporting..." : "Export CSV"}
+        </button>
+      </div>
       <p className="mb-4 text-xs text-[#666]">
         Domain availability across all data sources. Green = high density, amber = low density, red = no data.
       </p>

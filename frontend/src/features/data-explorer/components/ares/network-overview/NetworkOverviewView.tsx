@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAlerts, useNetworkOverview } from "../../../hooks/useNetworkData";
+import { useAlerts, useNetworkOverview, useNetworkDqRadar } from "../../../hooks/useNetworkData";
 import type { NetworkDqSource } from "../../../types/ares";
 import Sparkline from "../shared/Sparkline";
 import AlertBanner from "./AlertBanner";
+import DqRadarChart from "./DqRadarChart";
 import FreshnessCell from "./FreshnessCell";
 
 function DomainRing({ count }: { count: number }) {
@@ -31,8 +33,10 @@ function DomainRing({ count }: { count: number }) {
 }
 
 export default function NetworkOverviewView() {
+  const [showRadar, setShowRadar] = useState(false);
   const { data: overview, isLoading } = useNetworkOverview();
   const { data: alerts } = useAlerts();
+  const { data: radarProfiles } = useNetworkDqRadar();
   const navigate = useNavigate();
 
   if (isLoading) {
@@ -45,7 +49,27 @@ export default function NetworkOverviewView() {
 
   return (
     <div className="p-4">
-      <h2 className="mb-4 text-lg font-medium text-white">Network Overview</h2>
+      <div className="mb-4 flex items-center justify-between">
+        <h2 className="text-lg font-medium text-white">Network Overview</h2>
+        <button
+          type="button"
+          onClick={() => setShowRadar(!showRadar)}
+          className={`rounded-md border px-3 py-1 text-xs transition-colors ${
+            showRadar
+              ? "border-[#2DD4BF] bg-[#2DD4BF]/10 text-[#2DD4BF]"
+              : "border-[#333] text-[#888] hover:border-[#555]"
+          }`}
+        >
+          {showRadar ? "Hide Radar" : "DQ Radar"}
+        </button>
+      </div>
+
+      {/* DQ Radar chart */}
+      {showRadar && radarProfiles && radarProfiles.length > 0 && (
+        <div className="mb-6">
+          <DqRadarChart profiles={radarProfiles} />
+        </div>
+      )}
 
       {/* Alert banner */}
       {alerts && alerts.length > 0 && <AlertBanner alerts={alerts} />}

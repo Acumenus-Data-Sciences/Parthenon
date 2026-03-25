@@ -29,7 +29,8 @@ class AnnotationService
     public function forChart(string $chartType, ?int $sourceId = null): Collection
     {
         return ChartAnnotation::query()
-            ->with('creator')
+            ->with(['creator', 'replies.creator'])
+            ->whereNull('parent_id')
             ->where('chart_type', $chartType)
             ->when($sourceId !== null, fn ($q) => $q->where('source_id', $sourceId))
             ->orderBy('x_value')
@@ -77,7 +78,8 @@ class AnnotationService
     public function allForSource(int $sourceId, ?string $tag = null, ?string $search = null): Collection
     {
         return ChartAnnotation::query()
-            ->with('creator')
+            ->with(['creator', 'replies.creator'])
+            ->whereNull('parent_id')
             ->where('source_id', $sourceId)
             ->when($tag, fn ($q) => $q->where('tag', $tag))
             ->when($search, fn ($q) => $q->where('annotation_text', 'ilike', '%'.$search.'%'))
@@ -93,7 +95,8 @@ class AnnotationService
     public function allForNetwork(?string $tag = null, ?string $search = null): Collection
     {
         return ChartAnnotation::query()
-            ->with(['creator', 'source'])
+            ->with(['creator', 'source', 'replies.creator'])
+            ->whereNull('parent_id')
             ->when($tag, fn ($q) => $q->where('tag', $tag))
             ->when($search, fn ($q) => $q->where('annotation_text', 'ilike', '%'.$search.'%'))
             ->orderBy('x_value')

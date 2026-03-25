@@ -8,6 +8,7 @@ import {
   ErrorBar,
   ResponsiveContainer,
   Legend,
+  ReferenceLine,
 } from "recharts";
 import type { ConceptComparison, MultiConceptComparison } from "../../../types/ares";
 
@@ -17,12 +18,14 @@ interface SingleComparisonChartProps {
   data: ConceptComparison[];
   metric: "count" | "rate_per_1000";
   multiData?: never;
+  benchmarkRate?: number | null;
 }
 
 interface MultiComparisonChartProps {
   data?: never;
   metric: "count" | "rate_per_1000";
   multiData: MultiConceptComparison;
+  benchmarkRate?: never;
 }
 
 type ComparisonChartProps = SingleComparisonChartProps | MultiComparisonChartProps;
@@ -35,7 +38,7 @@ export default function ComparisonChart(props: ComparisonChartProps) {
     return <GroupedBars multiData={multiData} metric={metric} />;
   }
 
-  const { data } = props as SingleComparisonChartProps;
+  const { data, benchmarkRate } = props as SingleComparisonChartProps;
 
   if (!data || data.length === 0) {
     return (
@@ -54,6 +57,8 @@ export default function ComparisonChart(props: ComparisonChartProps) {
         : [0, 0];
     return { source: d.source_name, value, error };
   });
+
+  const showBenchmark = metric === "rate_per_1000" && benchmarkRate != null && benchmarkRate > 0;
 
   return (
     <div className="h-64">
@@ -91,6 +96,20 @@ export default function ComparisonChart(props: ComparisonChartProps) {
             ]) as any}
             /* eslint-enable @typescript-eslint/no-explicit-any */
           />
+          {showBenchmark && (
+            <ReferenceLine
+              y={benchmarkRate}
+              stroke="#e85d75"
+              strokeDasharray="8 4"
+              strokeWidth={1.5}
+              label={{
+                value: `CDC National Rate: ${benchmarkRate} per 1,000`,
+                position: "top",
+                fill: "#e85d75",
+                fontSize: 10,
+              }}
+            />
+          )}
           <Bar dataKey="value" fill="#C9A227" radius={[4, 4, 0, 0]}>
             {metric === "rate_per_1000" && (
               <ErrorBar dataKey="error" width={4} stroke="#888" strokeWidth={1} />

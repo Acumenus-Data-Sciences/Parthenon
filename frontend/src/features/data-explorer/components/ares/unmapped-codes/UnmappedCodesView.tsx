@@ -14,6 +14,7 @@ import type { SourceRelease, UnmappedCode } from "../../../types/ares";
 import ParetoChart from "./ParetoChart";
 import MappingProgressTracker from "./MappingProgressTracker";
 import VocabularyTreemap from "./VocabularyTreemap";
+import MappingSuggestionPanel from "./MappingSuggestionPanel";
 
 type ViewMode = "table" | "pareto" | "treemap";
 
@@ -292,6 +293,22 @@ export default function UnmappedCodesView() {
               </tbody>
             </table>
           </div>
+
+          {/* AI Mapping Suggestion Panels */}
+          {selectedSourceId && (
+            <div className="mt-3 space-y-1">
+              <p className="mb-2 text-[11px] uppercase text-[#666]">AI Mapping Suggestions</p>
+              {codesData.data.map((code: UnmappedCode) => (
+                <div key={`suggest-${code.id}`} className="rounded-lg border border-[#252530] bg-[#151518]">
+                  <div className="px-3 py-1.5 text-xs text-[#ccc]">
+                    <span className="font-mono">{code.source_code}</span>
+                    <span className="ml-2 text-[#666]">({code.source_vocabulary_id})</span>
+                  </div>
+                  <MappingSuggestionPanel code={code} sourceId={selectedSourceId} />
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* Pagination */}
           <div className="mt-3 flex items-center justify-between text-xs text-[#888]">

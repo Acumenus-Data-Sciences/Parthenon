@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Loader2, Plus, Trash2, Pencil, Package, ChevronDown, ChevronRight } from "lucide-react";
+import { Loader2, Plus, Trash2, Pencil, Package, ChevronDown, ChevronRight, Server } from "lucide-react";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
 import { useReleases, useCreateRelease, useUpdateRelease, useDeleteRelease, useReleaseDiff } from "../../../hooks/useReleaseData";
 import { useReleasesTimeline, useReleasesCalendar } from "../../../hooks/useNetworkData";
@@ -8,7 +8,7 @@ import { ReleaseEditForm } from "./ReleaseEditForm";
 import ReleaseDiffPanel from "./ReleaseDiffPanel";
 import SwimLaneTimeline from "./SwimLaneTimeline";
 import ReleaseCalendar from "./ReleaseCalendar";
-import type { StoreReleasePayload, UpdateReleasePayload } from "../../../types/ares";
+import type { EtlMetadata, StoreReleasePayload, UpdateReleasePayload } from "../../../types/ares";
 
 type ReleasesTab = "list" | "swimlane" | "calendar";
 
@@ -22,7 +22,7 @@ function ReleaseCard({
   updateMutation,
   deleteMutation,
 }: {
-  release: { id: number; release_name: string; release_type: string; cdm_version: string | null; vocabulary_version: string | null; person_count: number; record_count: number; notes: string | null; created_at: string };
+  release: { id: number; release_name: string; release_type: string; cdm_version: string | null; vocabulary_version: string | null; person_count: number; record_count: number; notes: string | null; etl_metadata?: EtlMetadata | null; created_at: string };
   sourceId: number;
   editingId: number | null;
   setEditingId: (id: number | null) => void;
@@ -32,6 +32,7 @@ function ReleaseCard({
   deleteMutation: { isPending: boolean };
 }) {
   const [showDiff, setShowDiff] = useState(false);
+  const [showEtl, setShowEtl] = useState(false);
   const { data: diff, isLoading: diffLoading } = useReleaseDiff(
     showDiff ? sourceId : null,
     showDiff ? release.id : null,
@@ -93,6 +94,63 @@ function ReleaseCard({
       </div>
 
       {showDiff && <ReleaseDiffPanel diff={diff ?? null} isLoading={diffLoading} />}
+
+      {/* ETL Provenance section — only visible when etl_metadata is populated */}
+      {release.etl_metadata && Object.keys(release.etl_metadata).length > 0 && (
+        <div className="mt-3 border-t border-[#252530] pt-3">
+          <button
+            type="button"
+            onClick={() => setShowEtl(!showEtl)}
+            className="flex items-center gap-1.5 text-xs text-[#8A857D] hover:text-[#C9A227] transition-colors"
+          >
+            <Server size={12} />
+            ETL Provenance
+            {showEtl ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
+          </button>
+          {showEtl && (
+            <div className="mt-2 grid grid-cols-2 gap-x-6 gap-y-2 rounded-lg bg-[#0E0E11] p-3 text-xs">
+              {release.etl_metadata.who && (
+                <div>
+                  <span className="text-[#555]">Ran by: </span>
+                  <span className="text-[#F0EDE8]">{release.etl_metadata.who}</span>
+                </div>
+              )}
+              {release.etl_metadata.code_version && (
+                <div>
+                  <span className="text-[#555]">Code version: </span>
+                  <span className="font-mono text-[#2DD4BF]">{release.etl_metadata.code_version}</span>
+                </div>
+              )}
+              {release.etl_metadata.duration_seconds != null && (
+                <div>
+                  <span className="text-[#555]">Duration: </span>
+                  <span className="text-[#F0EDE8]">
+                    {release.etl_metadata.duration_seconds >= 3600
+                      ? `${Math.floor(release.etl_metadata.duration_seconds / 3600)}h ${Math.floor((release.etl_metadata.duration_seconds % 3600) / 60)}m`
+                      : release.etl_metadata.duration_seconds >= 60
+                        ? `${Math.floor(release.etl_metadata.duration_seconds / 60)}m ${release.etl_metadata.duration_seconds % 60}s`
+                        : `${release.etl_metadata.duration_seconds}s`}
+                  </span>
+                </div>
+              )}
+              {release.etl_metadata.started_at && (
+                <div>
+                  <span className="text-[#555]">Started: </span>
+                  <span className="text-[#F0EDE8]">{new Date(release.etl_metadata.started_at).toLocaleString()}</span>
+                </div>
+              )}
+              {release.etl_metadata.parameters && Object.keys(release.etl_metadata.parameters).length > 0 && (
+                <div className="col-span-2 mt-1">
+                  <span className="text-[#555]">Parameters:</span>
+                  <pre className="mt-1 overflow-x-auto rounded bg-[#151518] p-2 text-[10px] text-[#8A857D]">
+                    {JSON.stringify(release.etl_metadata.parameters, null, 2)}
+                  </pre>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       {editingId === release.id && (
         <ReleaseEditForm

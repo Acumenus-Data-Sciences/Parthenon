@@ -202,6 +202,38 @@ class CoverageService
     }
 
     /**
+     * Export coverage matrix as CSV content.
+     *
+     * @return array{headers: string[], rows: array<int, array<int, string|int>>}
+     */
+    public function exportMatrix(string $format = 'csv'): array
+    {
+        $matrix = $this->getMatrix();
+        $headers = array_merge(['Source'], $matrix['domains'], ['Domains with Data']);
+
+        $rows = [];
+        foreach ($matrix['sources'] as $idx => $source) {
+            $row = [$source['name']];
+            foreach ($matrix['domains'] as $domain) {
+                $cell = $matrix['matrix'][$idx][$domain] ?? null;
+                $row[] = $cell ? $cell['record_count'] : 0;
+            }
+            $row[] = $matrix['source_completeness'][$source['id']] ?? 0;
+            $rows[] = $row;
+        }
+
+        // Add totals row
+        $totalsRow = ['Network Total'];
+        foreach ($matrix['domains'] as $domain) {
+            $totalsRow[] = $matrix['domain_totals'][$domain] ?? 0;
+        }
+        $totalsRow[] = '--';
+        $rows[] = $totalsRow;
+
+        return ['headers' => $headers, 'rows' => $rows];
+    }
+
+    /**
      * Get record counts per domain for a source from Achilles results.
      *
      * @return array<string, int>

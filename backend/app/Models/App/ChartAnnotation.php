@@ -4,6 +4,7 @@ namespace App\Models\App;
 
 use App\Models\User;
 use Database\Factories\ChartAnnotationFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -73,5 +74,16 @@ class ChartAnnotation extends Model
     public function replies(): HasMany
     {
         return $this->hasMany(self::class, 'parent_id');
+    }
+
+    /**
+     * Scope to only root-level annotations (no parent).
+     *
+     * @param  Builder<self>  $query
+     * @return Builder<self>
+     */
+    public function scopeRootAnnotations(Builder $query): Builder
+    {
+        return $query->whereNull('parent_id');
     }
 }

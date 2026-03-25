@@ -22,8 +22,10 @@ import {
 import CostBoxPlot from "./CostBoxPlot";
 import CareSettingBreakdown from "./CareSettingBreakdown";
 import CostTypeFilter from "./CostTypeFilter";
+import CrossSourceCostChart from "./CrossSourceCostChart";
+import CostDriversView from "./CostDriversView";
 
-type CostTab = "overview" | "distribution" | "care-setting" | "trends";
+type CostTab = "overview" | "distribution" | "care-setting" | "trends" | "cross-source" | "drivers";
 
 function EmptyState() {
   return (
@@ -58,8 +60,8 @@ export default function CostView() {
   const [selectedCostTypeId, setSelectedCostTypeId] = useState<number | null>(null);
 
   const { data: sources } = useQuery({ queryKey: ["sources"], queryFn: fetchSources });
-  const { data: summary, isLoading: summaryLoading } = useCostSummary(selectedSourceId);
-  const { data: trends, isLoading: trendsLoading } = useCostTrends(selectedSourceId);
+  const { data: summary, isLoading: summaryLoading } = useCostSummary(selectedSourceId, selectedCostTypeId);
+  const { data: trends, isLoading: trendsLoading } = useCostTrends(selectedSourceId, selectedCostTypeId);
   const { data: distributionData } = useCostDistribution(
     selectedSourceId,
     undefined,
@@ -94,21 +96,31 @@ export default function CostView() {
 
         {/* Tab navigation */}
         {selectedSourceId && summary?.has_cost_data && (
-          <div className="ml-auto flex items-center gap-1 rounded-lg border border-[#252530] bg-[#0E0E11] p-0.5">
-            {(["overview", "distribution", "care-setting", "trends"] as const).map((tab) => (
-              <button
-                key={tab}
-                type="button"
-                onClick={() => setActiveTab(tab)}
-                className={`rounded-md px-3 py-1 text-xs transition-colors ${
-                  activeTab === tab
-                    ? "bg-[#252530] text-white"
-                    : "text-[#666] hover:text-white"
-                }`}
-              >
-                {tab === "overview" ? "Overview" : tab === "distribution" ? "Distribution" : tab === "care-setting" ? "Care Setting" : "Trends"}
-              </button>
-            ))}
+          <div className="ml-auto flex flex-wrap items-center gap-1 rounded-lg border border-[#252530] bg-[#0E0E11] p-0.5">
+            {(["overview", "distribution", "care-setting", "trends", "drivers", "cross-source"] as const).map((tab) => {
+              const labels: Record<string, string> = {
+                overview: "Overview",
+                distribution: "Distribution",
+                "care-setting": "Care Setting",
+                trends: "Trends",
+                drivers: "Cost Drivers",
+                "cross-source": "Cross-Source",
+              };
+              return (
+                <button
+                  key={tab}
+                  type="button"
+                  onClick={() => setActiveTab(tab)}
+                  className={`rounded-md px-3 py-1 text-xs transition-colors ${
+                    activeTab === tab
+                      ? "bg-[#252530] text-white"
+                      : "text-[#666] hover:text-white"
+                  }`}
+                >
+                  {labels[tab]}
+                </button>
+              );
+            })}
           </div>
         )}
       </div>
@@ -279,6 +291,22 @@ export default function CostView() {
                   </LineChart>
                 </ResponsiveContainer>
               </div>
+            </div>
+          )}
+
+          {/* Cost Drivers tab */}
+          {activeTab === "drivers" && (
+            <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
+              <h3 className="mb-3 text-sm font-medium text-white">Top Cost Drivers</h3>
+              <CostDriversView sourceId={selectedSourceId} />
+            </div>
+          )}
+
+          {/* Cross-Source tab */}
+          {activeTab === "cross-source" && (
+            <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
+              <h3 className="mb-3 text-sm font-medium text-white">Cross-Source Cost Comparison</h3>
+              <CrossSourceCostChart />
             </div>
           )}
         </>
