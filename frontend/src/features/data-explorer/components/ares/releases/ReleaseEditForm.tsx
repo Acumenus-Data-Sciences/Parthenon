@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { SourceRelease, UpdateReleasePayload } from "../../../types/ares";
 
 interface ReleaseEditFormProps {
-  release: SourceRelease;
+  release: Pick<SourceRelease, 'release_name' | 'cdm_version' | 'vocabulary_version' | 'etl_version' | 'notes'>;
   onSave: (payload: UpdateReleasePayload) => void;
   onCancel: () => void;
   isSaving: boolean;

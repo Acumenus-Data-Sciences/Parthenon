@@ -150,7 +150,7 @@ class NetworkComparisonService
 
         return [
             'concepts' => $concepts,
-            'sources' => array_values($sourceMap),
+            'sources' => count($sourceMap) > 0 ? array_values($sourceMap) : [],
         ];
     }
 

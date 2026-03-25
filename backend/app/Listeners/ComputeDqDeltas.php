@@ -23,7 +23,12 @@ class ComputeDqDeltas implements ShouldQueue
         $cursor = null;
 
         do {
-            [$cursor, $keys] = Redis::scan($cursor ?? 0, ['match' => $prefix.$pattern, 'count' => 100]);
+            $scanCursor = $cursor ?? 0;
+            $result = Redis::scan($scanCursor, ['match' => $prefix.$pattern, 'count' => 100]);
+            if ($result === false) {
+                break;
+            }
+            [$cursor, $keys] = $result;
 
             if (! empty($keys)) {
                 Redis::del(...array_map(fn ($k) => str_replace($prefix, '', $k), $keys));
