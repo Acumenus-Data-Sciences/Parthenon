@@ -161,6 +161,11 @@ Data directories (gitignored, local only):
 - Use **eager loading** (`with()`) to avoid N+1 queries — critical for large OMOP datasets
 - Return types on all public controller methods
 - PHPStan level 8 — all public methods need full type hints
+- **Enum cases are UPPERCASE:** `DaimonType::CDM`, not `DaimonType::Cdm`
+- **Event listeners that write to DB must use nested transactions** (`DB::beginTransaction()` / `DB::commit()` / `DB::rollBack()` inside try-catch) to prevent `SQLSTATE[25P02]` transaction poisoning in tests. The listener's failure must never abort the parent transaction.
+- **Non-critical middleware** (audit logging, analytics) must wrap all DB/cache operations in try-catch. If Redis or a table is unavailable, silently skip — never break the request.
+- **When changing a service method's return type**, update ALL tests that assert on the old shape. Search: `grep -rn 'MethodName' backend/tests/`
+- **Run Pint after every PHP edit:** `docker compose exec -T php sh -c "cd /var/www/html && vendor/bin/pint"` — CI uses Docker Pint, so always use Docker Pint for version parity.
 
 ### Frontend (React)
 - API calls go through **TanStack Query** hooks (not raw fetch/useEffect)
@@ -169,6 +174,9 @@ Data directories (gitignored, local only):
 - No `any` types — use `unknown` and narrow
 - Components follow **dark clinical theme**: #0E0E11 base, #9B1B30 crimson, #C9A227 gold, #2DD4BF teal
 - Install npm packages with `--legacy-peer-deps` (react-joyride peer dep issue)
+- **Recharts Tooltip `formatter` prop** has a complex union type that causes TS errors. Always cast: `formatter={((value: number) => [`${value}`, '']) as never}`
+- **Component props should use `Pick<T, ...>` instead of full interface types** when only a subset of fields is needed. This prevents TS errors when the component receives data from contexts that don't carry every field.
+- **CI runs `npx vite build` which is STRICTER than `tsc --noEmit`** — always verify with both locally before committing TypeScript changes.
 
 ### Python (AI Service)
 - FastAPI with Pydantic v2 models
@@ -213,6 +221,21 @@ After any frontend change, the production build must be rebuilt via `deploy.sh -
 - Maintenance: `chore/description`
 - Commit messages: conventional commits (`feat:`, `fix:`, `chore:`, `docs:`, `style:`, `refactor:`, `test:`)
 
+## Pre-Commit Hook
+
+A pre-commit hook runs Pint, PHPStan, and TypeScript checks before every commit. It auto-skips for docs-only commits (no PHP/TS/Python files staged).
+
+```
+Pre-commit: Pint...        ✓ Pint
+Pre-commit: PHPStan...     ✓ PHPStan
+Pre-commit: TypeScript...  ✓ TypeScript
+Pre-commit: all checks passed.
+```
+
+If a check fails, fix the issue and re-commit. To bypass in emergencies: `git commit --no-verify` (but CI will still catch it).
+
+**Subagents:** When spawning execution agents that make code changes, always instruct them to run the relevant checks (Pint for PHP, tsc for TS) BEFORE returning. Do not commit unchecked code.
+
 ## Common Gotchas
 
 1. Single `parthenon` DB with schema isolation — use the correct connection (`omop` for CDM/vocab, `results` for Achilles, `gis` for GIS). Never use `cdm`, `vocab`, or `docker_pg` connections (removed).
@@ -225,6 +248,9 @@ After any frontend change, the production build must be rebuilt via `deploy.sh -
 8. Docker `env_file` loads at container CREATION time — `docker compose restart` does NOT reload; must `docker compose up -d`
 9. PHP empty array `json_encode([])` produces `[]` not `{}` — use `(object) []` for empty JSON objects
 10. Laravel `encrypted:array` cast produces base64 — use `text` columns, not `jsonb`
+11. **Recharts Tooltip formatter** — always cast as `never`: `formatter={(...) as never}`. The Recharts type union is intentionally complex and not worth satisfying.
+12. **PostgreSQL transaction poisoning** — if ANY statement fails inside a PG transaction, ALL subsequent statements fail with `SQLSTATE[25P02]`. Event listeners and middleware that write to optional tables MUST use nested transactions or try-catch to avoid poisoning the request's transaction.
+13. **DaimonType enum** — cases are UPPERCASE: `DaimonType::CDM`, `DaimonType::Vocabulary`, `DaimonType::Results`, `DaimonType::Temp`
 
 ## Docker Services
 
