@@ -1,0 +1,370 @@
+---
+id: 21-ares-data-observatory
+title: "21. Ares Data Observatory"
+sidebar_label: "21. Ares Data Observatory"
+---
+
+# Ares Data Observatory
+
+The **Ares** tab in Data Explorer is a network-level data observatory that provides cross-source characterization, quality tracking, feasibility analysis, and cost analytics across all configured OMOP CDM data sources. While the other Data Explorer tabs analyze one source at a time, Ares compares and aggregates across your entire network simultaneously.
+
+Ares replaces what would otherwise require Atlas Data Sources, Achilles Results Viewer, DQD Dashboard, and multiple spreadsheets -- consolidating network intelligence into 10 interactive analytical panels.
+
+## Accessing Ares
+
+1. Navigate to **Data Explorer** from the left sidebar.
+2. Click the **Ares** tab (6th tab).
+3. The Ares Hub dashboard appears with 10 clickable panel cards.
+
+Click any card to open that panel. A breadcrumb at the top shows your current location -- click "Ares" to return to the Hub at any time.
+
+## Ares Hub
+
+The Hub is the landing page. It displays a health banner summarizing the network status (total sources, average DQ score, unmapped code count, annotation count) and a grid of 10 panel cards. Each card shows a live KPI preview from that panel's data.
+
+---
+
+## Panel 1: Network Overview
+
+The Network Overview provides an at-a-glance health summary of every data source in your network.
+
+### Alert Banner
+
+An auto-generated alert banner appears at the top when any source needs attention:
+
+| Alert Type | Trigger | Severity |
+|-----------|---------|----------|
+| **DQ Drop** | Pass rate dropped >5% since previous release | Warning (>5%) or Critical (>10%) |
+| **Stale Data** | Source not refreshed in >14 days | Warning (14-30 days) or Critical (>30 days) |
+| **Unmapped Spike** | >50 new unmapped source codes since last release | Warning |
+
+Alerts are auto-dismissed when the underlying condition is resolved.
+
+### Source Table
+
+Each row represents one data source with the following columns:
+
+| Column | Description |
+|--------|-------------|
+| **Source Name** | Clickable -- navigates to the source's detail view |
+| **DQ Score** | Latest pass rate percentage |
+| **DQ Trend** | 6-point sparkline showing pass rate trajectory across the last 6 releases |
+| **Freshness** | Days since last data refresh. Color-coded: green (&lt;14d), amber (14-30d), red with STALE badge (&gt;30d) |
+| **Domains** | Mini progress ring showing X/12 clinical domains with data |
+| **Persons** | Total patient count in the source |
+| **Latest Release** | Name of the most recent data release |
+
+A **Network Total** row at the bottom aggregates person count and shows the median DQ score.
+
+### DQ Radar
+
+Toggle the radar chart view to see each source's quality profile across 5 Kahn dimensions:
+
+- **Completeness** -- are expected data elements populated?
+- **Conformance (Value)** -- do values match expected formats and vocabularies?
+- **Conformance (Relational)** -- are referential integrity rules satisfied?
+- **Plausibility (Atemporal)** -- are values clinically reasonable?
+- **Plausibility (Temporal)** -- are temporal sequences logical?
+
+Compare source "shapes" -- a lopsided radar reveals dimensional weaknesses that an overall score might mask.
+
+---
+
+## Panel 2: Concept Comparison
+
+Compare concept prevalence across all sources in the network. Useful for feasibility assessment and data characterization.
+
+### View Modes
+
+**Single Concept** -- Search for a concept by name or ID. A horizontal bar chart shows the rate per 1,000 patients across all sources with Wilson score 95% confidence interval error bars. Sources with wide intervals may have statistically unreliable rates due to small population size.
+
+**Multi-Concept** -- Select 2-5 concepts via a chip-based search selector. The chart switches to grouped bars with one color per concept, enabling side-by-side prevalence comparison.
+
+**Attrition Funnel** -- Select multiple concepts to see how the eligible patient population shrinks as each concept criterion is added. Each bar shows remaining patients per source. This is the standard approach for multi-site feasibility assessment.
+
+**Temporal Prevalence** -- A line chart showing how a concept's prevalence changes across data releases per source. Useful for detecting temporal trends or ETL issues.
+
+### Age-Sex Standardization
+
+When viewing rates per 1,000, toggle between **Crude Rate** and **Age-Sex Adjusted**. Direct standardization uses the US Census 2020 reference population to remove demographic bias. A pediatric hospital and a Medicare database may have very different crude prevalence rates for the same condition, but similar standardized rates. A footnote indicates the standardization method.
+
+:::info Why standardize?
+Crude prevalence rates are misleading when comparing sources with different age and gender distributions. A diabetes rate of 120 per 1,000 in a Medicare database and 15 per 1,000 in a pediatric database does not mean the Medicare source has 8x more diabetes -- it reflects the age profile. Standardization removes this confound. No other OHDSI tool provides this capability.
+:::
+
+### Concept Sets
+
+Compare entire concept sets (e.g., "all Type 2 Diabetes medications") across sources rather than individual concepts.
+
+### Population Benchmark
+
+When available for the selected concept, a dashed reference line shows the CDC national prevalence rate, labeled with the value and source.
+
+---
+
+## Panel 3: DQ History
+
+Track data quality changes over time for a selected source.
+
+### Tabs
+
+**Trends** -- Line chart of overall DQ pass rate per release. Background zones indicate quality bands: green (&gt;90%), amber (80-90%), red (&lt;80%). Click any release point on the chart to see the detailed delta table below.
+
+**Heatmap** -- A Category x Release grid where each cell is color-coded by pass rate. Quickly spot which DQ categories degrade over specific releases.
+
+**Cross-Source** -- Overlay DQ trend lines from multiple sources on one chart. Useful for identifying network-wide quality shifts (e.g., after a vocabulary update).
+
+**SLA** -- Data quality Service Level Agreement dashboard.
+
+:::caution Admin Only
+The SLA tab is only visible to users with **admin**, **super-admin**, or **data-steward** roles.
+:::
+
+Set minimum pass rate targets per DQ category. The compliance view shows horizontal bars comparing actual vs target rates, with error budget remaining. When a category approaches its SLA threshold, the error budget bar turns amber.
+
+### Delta Table
+
+When a release point is clicked on the Trends chart, the delta table shows every DQ check that changed status:
+
+| Status | Meaning |
+|--------|---------|
+| **New** | Check failed for the first time in this release |
+| **Resolved** | Previously failing check now passes |
+| **Existing** | Check continues to fail from a prior release |
+| **Stable** | Check continues to pass |
+
+Each check row includes a sparkline showing its pass/fail history across recent releases.
+
+### Annotation Markers
+
+Small dots on the trend chart indicate where team members left annotations about data events. Hover to preview the annotation text.
+
+### Export
+
+Click **Export CSV** to download all DQ trend data and category breakdowns for offline analysis.
+
+---
+
+## Panel 4: Coverage Matrix
+
+A domain-by-source grid showing which clinical data domains are populated in which sources.
+
+### View Modes
+
+| Mode | Cell Contents |
+|------|--------------|
+| **Records** | Raw record count per domain per source |
+| **Per Person** | Records divided by person count (density) |
+| **Date Range** | Horizontal bars showing earliest-to-latest temporal coverage |
+
+### Features
+
+- **Observation Period Highlight** -- The observation_period column has an accent border, as it is the most critical domain for study design.
+- **Hover Highlighting** -- Hover any row to highlight the source across all domains; hover a column header to highlight the domain across all sources.
+- **Expected vs Actual** -- Toggle to see indicators comparing what domains a source type (claims, EHR, registry) should have vs what exists. Cells show OK, MISS, or BONUS.
+- **Network Total Row** -- Sum of record counts per domain across the network.
+- **Source Completeness Column** -- Domain count (X/12) per source.
+- **Export CSV** -- Download the coverage matrix as a spreadsheet.
+
+---
+
+## Panel 5: Feasibility
+
+Evaluate whether your data sources can support a proposed study design.
+
+### Workflow
+
+1. **Define Criteria** -- Specify required domains, concepts, visit types, date ranges, and minimum patient counts. Select a **saved template** to pre-fill criteria from prior assessments.
+2. **Run Assessment** -- The system evaluates every source against your criteria.
+3. **Review Results** -- Each source receives per-criterion scores and a weighted composite.
+
+### Scoring
+
+Each criterion is scored continuously from 0-100% rather than binary pass/fail:
+
+| Criterion | Weight | Scoring |
+|-----------|--------|---------|
+| **Domains** | 20% | (available domains / required domains) x 100 |
+| **Concepts** | 30% | (found concepts / required concepts) x 100 |
+| **Visits** | 15% | (found visit types / required visit types) x 100 |
+| **Date Range** | 15% | 100 if observation dates satisfy requirement, else 0 |
+| **Patients** | 20% | min(100, actual patients / required patients x 100) |
+
+The **composite score** is the weighted average. Sources scoring above a threshold are marked ELIGIBLE.
+
+### Analysis Views
+
+**Score Table** -- Per-source, per-criterion breakdown with color-coded score badges.
+
+**Impact Analysis** -- Waterfall chart showing which criterion eliminates the most sources. Helps identify which requirement to relax for broader network coverage.
+
+**CONSORT Flow** -- A CONSORT-style flow diagram showing progressive source exclusion through each criterion gate.
+
+### Patient Arrival Forecast
+
+For ELIGIBLE sources, click the **Forecast** button to project future patient enrollment:
+
+- **Historical line** (solid) -- monthly new patient counts from Achilles temporal data
+- **Projected line** (dashed) -- linear regression forecast with widening confidence band
+- **Target line** -- reference line at your minimum patient count
+- **Annotation** -- estimated months to reach target ("Target reached in ~14 months")
+
+:::info Competitive Feature
+Patient arrival forecasting answers "how long will enrollment take?" -- a capability previously available only in TriNetX. Parthenon computes this from your own OMOP CDM data without external data licensing.
+:::
+
+### Templates
+
+Save frequently used criteria sets as templates. Public templates are visible to all researchers.
+
+---
+
+## Panel 6: Diversity
+
+Demographic analysis across the network, designed for FDA Diversity Action Plan (DAP) compliance.
+
+### Tabs
+
+**Overview** -- Simpson's Diversity Index card per source (0-1 scale, higher = more diverse), rated as low/moderate/high/very high. Below: gender, race, and ethnicity proportion charts per source with optional benchmark overlay lines.
+
+**Age Pyramid** -- Select a source to see a population pyramid (male left, female right) in standard age-group bands.
+
+**DAP Gap** -- Set target enrollment percentages by demographic dimension (e.g., "20% Hispanic/Latino"). The matrix shows per-source gaps between actual demographics and targets, color-coded as MET (green), GAP (amber), or CRITICAL (red).
+
+**Pooled** -- Select multiple sources to see combined demographic proportions across the pooled population. Useful for multi-site trial planning.
+
+**Geographic** -- State distribution (horizontal bars showing patient counts by state), geographic reach (number of states represented), ADI decile histogram (Area Deprivation Index -- lower deciles represent more disadvantaged areas), and median ADI card.
+
+:::info Geographic Diversity
+Geographic and socioeconomic diversity analysis using ADI data is a capability ahead of all OHDSI competitors for FDA DAP compliance. When GIS data is loaded, the ADI histogram reveals whether your network reaches underserved populations.
+:::
+
+**Trends** -- Simpson's Diversity Index per source over releases, toggleable between composite, gender, race, and ethnicity dimensions.
+
+---
+
+## Panel 7: Releases
+
+Manage and compare data release versions across the network.
+
+### Tabs
+
+**Releases** -- Per-source release cards showing metadata (release name, CDM version, vocabulary version, ETL version, notes). Each card includes:
+
+- **Edit button** (pencil icon) -- inline metadata editing
+- **Diff panel** (expandable) -- shows changes since the previous release: person count delta, record count delta, DQ score change, vocabulary version change, and domain-level changes
+- **ETL provenance** (collapsible) -- when populated, shows who ran the ETL, code version, runtime duration, and parameters
+
+**Swimlane** -- Horizontal timeline with one lane per source, release dots positioned chronologically. Reveals release cadence and cross-source timing.
+
+**Calendar** -- Heatmap calendar (similar to GitHub contribution graphs) showing release density by day across the network.
+
+---
+
+## Panel 8: Unmapped Codes
+
+Manage source codes that don't map to standard OMOP concepts, prioritized for remediation.
+
+### Views
+
+**Table** -- Paginated list sorted by **impact score** (record count x domain weight). The top 3 codes receive crimson priority badges (#1, #2, #3). Domain weights prioritize clinical data: condition_occurrence (1.0) > drug_exposure (0.9) > procedure_occurrence (0.8) > measurement (0.7) > device_exposure (0.6) > observation (0.5) > visit_occurrence (0.3).
+
+**Pareto** -- Bars show record count per code with a cumulative percentage line. Typically, the top 20 codes account for 80%+ of all unmapped records -- focus mapping efforts there.
+
+**Treemap** -- Vocabulary treemap showing unmapped codes grouped and sized by source vocabulary.
+
+### Mapping Progress
+
+A stacked progress bar shows the status distribution: mapped, deferred, excluded, and pending.
+
+### AI Mapping Suggestions
+
+Expand any unmapped code row to see the **Mapping Suggestion Panel**:
+
+- Top 5 standard concept suggestions ranked by confidence (0-100%)
+- Powered by pgvector concept embedding cosine similarity
+- Click **Accept** to stage a mapping in the `accepted_mappings` table
+
+:::caution Two-Stage Mapping
+Accepting a suggestion does **not** write to the OMOP CDM. Accepted mappings are staged in `accepted_mappings` for review. An administrator with the `mapping.override` permission must promote approved mappings to the CDM. This two-stage workflow protects clinical data integrity.
+:::
+
+### Export
+
+Download unmapped codes in Usagi-compatible CSV format for offline mapping workflows using OHDSI Usagi.
+
+---
+
+## Panel 9: Annotations
+
+Collaborative notes and system-generated observations attached to charts, data events, and releases.
+
+### Views
+
+**List** -- Annotation cards with creator name, date, source, and chart context. Color-coded tag badges identify the annotation type.
+
+**Timeline** -- Chronological vertical timeline with tag-colored markers and date grouping.
+
+### Tag Types
+
+| Tag | Color | Purpose |
+|-----|-------|---------|
+| **Data Event** | Teal | Something changed in the data (ETL run, schema migration, vocabulary update) |
+| **Research Note** | Gold | Researcher observation, insight, or finding |
+| **Action Item** | Crimson | Task that needs attention |
+| **System** | Indigo | Auto-generated by Parthenon (DQ regressions, release events) |
+
+### Filtering
+
+Combine tag filter pills with full-text search to find specific annotations (e.g., tag=system + search="vocabulary" to find all system annotations mentioning vocabulary changes).
+
+### Threaded Discussions
+
+Click **Reply** on any annotation to add a threaded response (one level of nesting). Useful for data steward and researcher conversations about data quality events.
+
+### Chart Integration
+
+Annotation markers appear as small dots on DQ trend charts at the x-coordinates where annotations exist. Hover to preview; click to view the full annotation. Use the **Create from Chart** popover to add context-aware annotations directly from chart interactions.
+
+---
+
+## Panel 10: Cost Analysis
+
+Healthcare cost analytics across domains, care settings, and the network.
+
+### Tabs
+
+**Overview** -- Summary cards showing Total Cost, Per-Patient-Per-Year (PPPY), total persons, and average observation period. Domain breakdown bar chart below.
+
+**Distribution** -- Box-and-whisker plots per domain showing cost distribution (min, P10, P25, median, P75, P90, max). Distributions reveal skewness that averages obscure -- important for HEOR studies.
+
+**Care Setting** -- Cost breakdown by care setting (Inpatient, Outpatient, ER, Pharmacy) with per-setting PPPY.
+
+**Cross-Source** -- Network-wide comparison using small-multiples box plots per source.
+
+**Cost Drivers** -- Top 10 concepts by total cost, showing concept name, domain, total cost, percentage of total, and patient count. Click to drill down.
+
+**Trends** -- Monthly cost totals over time.
+
+### Cost Type Filter
+
+A dropdown selector lets you filter by cost type (Charged Amount, Paid Amount, Allowed Amount). All cost views update when you change the filter.
+
+:::warning Mixed Cost Types
+When a source contains multiple cost types, an amber warning banner appears: "This source contains X cost types. Mixing types can distort analysis by 3-10x. Filter to a single type." This is the most common HEOR analysis error -- always verify you are analyzing a single cost type.
+:::
+
+---
+
+## Role-Based Access Summary
+
+| Feature | Viewer | Researcher | Data Steward | Admin |
+|---------|--------|-----------|-------------|-------|
+| View all panels | Yes | Yes | Yes | Yes |
+| Run feasibility assessments | -- | Yes | Yes | Yes |
+| Create annotations | -- | Yes | Yes | Yes |
+| Accept AI mapping suggestions | -- | -- | Yes | Yes |
+| Set DQ SLA targets | -- | -- | Yes | Yes |
+| Promote mappings to CDM | -- | -- | -- | Yes |
+| Save feasibility templates | -- | Yes | Yes | Yes |
+| Edit release metadata | -- | Yes | Yes | Yes |

@@ -77,6 +77,7 @@ const sidebars: SidebarsConfig = {
         "part6-data-explorer/19-data-quality-dashboard",
         "part6-data-explorer/20-population-stats",
         "part6-data-explorer/20a-query-assistant",
+        "part6-data-explorer/21-ares-data-observatory",
       ],
     },
     {
