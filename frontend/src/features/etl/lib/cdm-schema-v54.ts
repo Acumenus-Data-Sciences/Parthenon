@@ -294,7 +294,7 @@ export const CDM_SCHEMA_V54: CdmTable[] = [
       { name: "note_id", type: "integer", required: true, description: "This is the NOTE_ID for the NOTE record the NLP record is associated to." },
       { name: "section_concept_id", type: "integer", required: false, description: "The SECTION_CONCEPT_ID should be used to represent the note section contained in the NOTE_NLP record. These concepts can be found as parts of document panels and are based on the type of note written, i.e. a discharge summary. These panels can be found as concepts with the relationship 'Subsumes'..." },
       { name: "snippet", type: "varchar", required: false, description: "A small window of text surrounding the term" },
-      { name: ""offset"", type: "varchar", required: false, description: "Character offset of the extracted term in the input note" },
+      { name: "offset", type: "varchar", required: false, description: "Character offset of the extracted term in the input note" },
       { name: "lexical_variant", type: "varchar", required: true, description: "Raw text extracted from the NLP tool." },
       { name: "note_nlp_concept_id", type: "integer", required: false, description: "" },
       { name: "note_nlp_source_concept_id", type: "integer", required: false, description: "" },

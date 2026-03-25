@@ -538,13 +538,10 @@ export const router = createBrowserRouter(
             "@/features/text-to-sql/pages/QueryAssistantPage"
           ).then((m) => ({ Component: m.default })),
       },
-      // ── Source Profiler (WhiteRabbit) ────────────────────────────────
+      // ── Source Profiler → redirect to ETL pipeline step 1 ────────────
       {
         path: "source-profiler",
-        lazy: () =>
-          import("@/features/etl/pages/SourceProfilerPage").then((m) => ({
-            Component: m.default,
-          })),
+        element: <Navigate to="/etl-tools?step=profiler" replace />,
       },
       // ── FHIR Ingestion ──────────────────────────────────────────────
       {
