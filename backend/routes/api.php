@@ -94,6 +94,7 @@ use App\Http\Controllers\Api\V1\QueryLibraryController;
 use App\Http\Controllers\Api\V1\RadiogenomicsController;
 use App\Http\Controllers\Api\V1\SccsController;
 use App\Http\Controllers\Api\V1\SourceController;
+use App\Http\Controllers\Api\V1\SourceProfilerController;
 use App\Http\Controllers\Api\V1\StrategusController;
 use App\Http\Controllers\Api\V1\StudyActivityController;
 use App\Http\Controllers\Api\V1\StudyAgentController;
@@ -714,7 +715,8 @@ Route::prefix('v1')->group(function () {
         // ETL Tools
         Route::prefix('etl')->group(function () {
             // WhiteRabbit Database Profiler
-            Route::post('/scan', [WhiteRabbitController::class, 'scan']);
+            Route::post('/scan', [WhiteRabbitController::class, 'scan'])
+                ->middleware('permission:profiler.scan');
             Route::get('/scan/health', [WhiteRabbitController::class, 'health']);
 
             // Synthea Data Generation
@@ -726,6 +728,23 @@ Route::prefix('v1')->group(function () {
             Route::post('/fhir/batch', [FhirToCdmController::class, 'batch']);
             Route::get('/fhir/health', [FhirToCdmController::class, 'health']);
 
+        });
+
+        // Source Profiler (persisted WhiteRabbit scans)
+        // NOTE: /compare and /scan must be registered BEFORE /{profile} to avoid wildcard capture.
+        Route::prefix('sources/{source}/profiles')->group(function () {
+            Route::get('/', [SourceProfilerController::class, 'index'])
+                ->middleware('permission:profiler.view');
+            Route::get('/compare', [SourceProfilerController::class, 'compare'])
+                ->middleware('permission:profiler.view');
+            Route::post('/scan', [SourceProfilerController::class, 'scan'])
+                ->middleware(['permission:profiler.scan', 'throttle:3,10']);
+            Route::get('/{profile}', [SourceProfilerController::class, 'show'])
+                ->middleware('permission:profiler.view')
+                ->where('profile', '[0-9]+');
+            Route::delete('/{profile}', [SourceProfilerController::class, 'destroy'])
+                ->middleware('permission:profiler.delete')
+                ->where('profile', '[0-9]+');
         });
 
         // Strategus Study Orchestration
