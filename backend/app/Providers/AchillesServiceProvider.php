@@ -112,12 +112,12 @@ use App\Services\Achilles\Analyses\PayerPlan\Analysis1701;
 use App\Services\Achilles\Analyses\PayerPlan\Analysis1702;
 use App\Services\Achilles\Analyses\PayerPlan\Analysis1703;
 use App\Services\Achilles\Analyses\Person\Analysis0;
+use App\Services\Achilles\Analyses\Person\Analysis10;
 use App\Services\Achilles\Analyses\Person\Analysis2;
-use App\Services\Achilles\Analyses\Person\Analysis3;
 // ── Measurement ────────────────────────────────────────────────────────────────
+use App\Services\Achilles\Analyses\Person\Analysis3;
 use App\Services\Achilles\Analyses\Person\Analysis4;
 use App\Services\Achilles\Analyses\Person\Analysis5;
-use App\Services\Achilles\Analyses\Person\Analysis10;
 use App\Services\Achilles\Analyses\Procedure\Analysis600;
 use App\Services\Achilles\Analyses\Procedure\Analysis601;
 use App\Services\Achilles\Analyses\Procedure\Analysis602;
