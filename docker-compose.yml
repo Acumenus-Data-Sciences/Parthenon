@@ -40,6 +40,9 @@ services:
       - ./.resendapikey:/var/www/.resendapikey:ro
     env_file:
       - ./backend/.env
+    environment:
+      - HOST_UID=${HOST_UID:-1000}
+      - HOST_GID=${HOST_GID:-1000}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
@@ -544,6 +547,9 @@ services:
       - ./.resendapikey:/var/www/.resendapikey:ro
     env_file:
       - ./backend/.env
+    environment:
+      - HOST_UID=${HOST_UID:-1000}
+      - HOST_GID=${HOST_GID:-1000}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:

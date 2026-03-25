@@ -292,6 +292,26 @@ if $DO_OPENAPI; then
   fi
 fi
 
+# ── Fix file ownership ────────────────────────────────────────────────────────
+# Docker containers may create files as root or www-data (UID 33).
+# Reclaim ownership so git and host tooling work without permission errors.
+echo ""
+echo "── Fixing file ownership ──"
+HOST_UID=$(id -u)
+HOST_GID=$(id -g)
+NEEDS_FIX=$(find backend/storage backend/bootstrap/cache frontend/dist docs/site/build -not -user "$HOST_UID" -type f 2>/dev/null | head -1)
+if [ -n "$NEEDS_FIX" ]; then
+  docker run --rm \
+    -v "$(pwd)/backend/storage:/fix/storage" \
+    -v "$(pwd)/backend/bootstrap/cache:/fix/cache" \
+    -v "$(pwd)/frontend/dist:/fix/frontend-dist" \
+    -v "$(pwd)/docs/site/build:/fix/docs-dist" \
+    alpine chown -R "$HOST_UID:$HOST_GID" /fix 2>/dev/null
+  ok "File ownership reclaimed (UID $HOST_UID)"
+else
+  ok "File ownership OK"
+fi
+
 # ── Summary ──────────────────────────────────────────────────────────────────
 echo ""
 if [ $ERRORS -eq 0 ]; then
