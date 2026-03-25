@@ -7,6 +7,7 @@ namespace App\Listeners;
 use App\Events\DqdRunCompleted;
 use App\Events\ReleaseCreated;
 use App\Services\Ares\AutoAnnotationService;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class CreateAutoAnnotation
@@ -17,10 +18,13 @@ class CreateAutoAnnotation
 
     /**
      * Handle both ReleaseCreated and DqdRunCompleted events.
+     * Uses a savepoint so failures don't poison the parent transaction.
      */
     public function handle(ReleaseCreated|DqdRunCompleted $event): void
     {
         try {
+            DB::beginTransaction();
+
             if ($event instanceof ReleaseCreated) {
                 $this->handleRelease($event);
             }
@@ -28,7 +32,10 @@ class CreateAutoAnnotation
             if ($event instanceof DqdRunCompleted) {
                 $this->handleDqd($event);
             }
+
+            DB::commit();
         } catch (\Throwable $e) {
+            DB::rollBack();
             Log::warning("CreateAutoAnnotation: failed — {$e->getMessage()}");
         }
     }
