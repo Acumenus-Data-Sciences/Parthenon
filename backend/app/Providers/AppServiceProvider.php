@@ -7,6 +7,7 @@ use App\Events\DqdRunCompleted;
 use App\Events\ReleaseCreated;
 use App\Listeners\AssociateDqdWithRelease;
 use App\Listeners\ComputeDqDeltas;
+use App\Listeners\CreateAutoAnnotation;
 use App\Listeners\CreateAutoRelease;
 use App\Models\App\Characterization;
 use App\Models\App\CohortDefinition;
@@ -182,6 +183,8 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(AchillesRunCompleted::class, CreateAutoRelease::class);
         Event::listen(DqdRunCompleted::class, AssociateDqdWithRelease::class);
         Event::listen(ReleaseCreated::class, ComputeDqDeltas::class);
+        Event::listen(ReleaseCreated::class, CreateAutoAnnotation::class);
+        Event::listen(DqdRunCompleted::class, CreateAutoAnnotation::class);
 
         // Commons policies
         Gate::policy(Channel::class, ChannelPolicy::class);

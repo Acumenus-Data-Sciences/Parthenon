@@ -99,4 +99,52 @@ class AnnotationService
             ->orderBy('x_value')
             ->get();
     }
+
+    /**
+     * Get annotations in chronological timeline format for a specific source.
+     *
+     * @return array<int, array{id: int, date: string, text: string, tag: string|null, source_name: string, chart_type: string, creator_name: string}>
+     */
+    public function timeline(int $sourceId): array
+    {
+        $annotations = ChartAnnotation::query()
+            ->with(['creator', 'source', 'replies.creator'])
+            ->where('source_id', $sourceId)
+            ->whereNull('parent_id')
+            ->orderByDesc('created_at')
+            ->get();
+
+        return $annotations->map(fn (ChartAnnotation $ann) => [
+            'id' => $ann->id,
+            'date' => $ann->created_at->toIso8601String(),
+            'text' => $ann->annotation_text,
+            'tag' => $ann->tag,
+            'source_name' => $ann->source?->source_name ?? 'Unknown',
+            'chart_type' => $ann->chart_type,
+            'creator_name' => $ann->creator?->name ?? 'System',
+            'replies' => $ann->replies->map(fn (ChartAnnotation $reply) => [
+                'id' => $reply->id,
+                'text' => $reply->annotation_text,
+                'creator_name' => $reply->creator?->name ?? 'System',
+                'date' => $reply->created_at->toIso8601String(),
+            ])->toArray(),
+        ])->toArray();
+    }
+
+    /**
+     * Search annotations across sources with optional filters.
+     *
+     * @return Collection<int, ChartAnnotation>
+     */
+    public function searchAnnotations(string $query, ?int $sourceId = null, ?string $tag = null): Collection
+    {
+        return ChartAnnotation::query()
+            ->with(['creator', 'source'])
+            ->where('annotation_text', 'ilike', '%'.$query.'%')
+            ->when($sourceId, fn ($q) => $q->where('source_id', $sourceId))
+            ->when($tag, fn ($q) => $q->where('tag', $tag))
+            ->orderByDesc('created_at')
+            ->limit(50)
+            ->get();
+    }
 }

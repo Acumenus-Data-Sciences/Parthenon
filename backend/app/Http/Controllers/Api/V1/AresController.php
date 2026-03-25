@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\MapUnmappedCodeRequest;
 use App\Http\Requests\Api\StoreAnnotationRequest;
 use App\Http\Requests\Api\StoreReleaseRequest;
+use App\Http\Requests\Api\StoreUnmappedCodeReviewRequest;
 use App\Http\Requests\Api\UpdateAnnotationRequest;
 use App\Http\Requests\Api\UpdateReleaseRequest;
 use App\Models\App\ChartAnnotation;
@@ -13,7 +15,9 @@ use App\Models\App\SourceRelease;
 use App\Models\User;
 use App\Services\Ares\AnnotationService;
 use App\Services\Ares\CostService;
+use App\Services\Ares\DiversityService;
 use App\Services\Ares\DqHistoryService;
+use App\Services\Ares\ReleaseDiffService;
 use App\Services\Ares\ReleaseService;
 use App\Services\Ares\UnmappedCodeService;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -28,6 +32,8 @@ class AresController extends Controller
         private readonly DqHistoryService $dqHistoryService,
         private readonly UnmappedCodeService $unmappedCodeService,
         private readonly CostService $costService,
+        private readonly DiversityService $diversityService,
+        private readonly ReleaseDiffService $releaseDiffService,
     ) {}
 
     // ── Releases ────────────────────────────────────────────────────────
@@ -154,6 +160,16 @@ class AresController extends Controller
         return response()->json(['message' => 'Annotation deleted']);
     }
 
+    /**
+     * GET /v1/sources/{source}/ares/annotations/timeline
+     */
+    public function annotationTimeline(Source $source): JsonResponse
+    {
+        return response()->json([
+            'data' => $this->annotationService->timeline($source->id),
+        ]);
+    }
+
     // ── DQ History ─────────────────────────────────────────────────────
 
     /**
@@ -202,6 +218,32 @@ class AresController extends Controller
         ]);
     }
 
+    /**
+     * GET /v1/sources/{source}/ares/dq-history/heatmap
+     */
+    public function dqHistoryHeatmap(Source $source): JsonResponse
+    {
+        return response()->json([
+            'data' => $this->dqHistoryService->getCategoryHeatmap($source),
+        ]);
+    }
+
+    /**
+     * GET /v1/sources/{source}/ares/dq-history/sparklines?release_id={id}
+     */
+    public function dqHistorySparklines(Source $source): JsonResponse
+    {
+        $releaseId = (int) request()->query('release_id');
+
+        if (! $releaseId) {
+            return response()->json(['error' => 'release_id is required'], 422);
+        }
+
+        return response()->json([
+            'data' => $this->dqHistoryService->getCheckSparklines($releaseId),
+        ]);
+    }
+
     // ── Unmapped Codes ─────────────────────────────────────────────────
 
     /**
@@ -247,6 +289,75 @@ class AresController extends Controller
         ]);
     }
 
+    /**
+     * GET /v1/sources/{source}/ares/unmapped-codes/pareto?release_id={id}
+     */
+    public function unmappedCodesPareto(Source $source): JsonResponse
+    {
+        $releaseId = (int) request()->query('release_id');
+        $release = SourceRelease::findOrFail($releaseId);
+
+        return response()->json([
+            'data' => $this->unmappedCodeService->getParetoData($source, $release),
+        ]);
+    }
+
+    /**
+     * GET /v1/sources/{source}/ares/unmapped-codes/progress?release_id={id}
+     */
+    public function unmappedCodesProgress(Source $source): JsonResponse
+    {
+        $releaseId = (int) request()->query('release_id');
+        $release = SourceRelease::findOrFail($releaseId);
+
+        return response()->json([
+            'data' => $this->unmappedCodeService->getProgressStats($source, $release),
+        ]);
+    }
+
+    /**
+     * GET /v1/sources/{source}/ares/unmapped-codes/treemap?release_id={id}
+     */
+    public function unmappedCodesTreemap(Source $source): JsonResponse
+    {
+        $releaseId = (int) request()->query('release_id');
+        $release = SourceRelease::findOrFail($releaseId);
+
+        return response()->json([
+            'data' => $this->unmappedCodeService->getVocabularyTreemap($source, $release),
+        ]);
+    }
+
+    /**
+     * GET /v1/sources/{source}/ares/unmapped-codes/export?release_id={id}&format=usagi|csv
+     */
+    public function unmappedCodesExport(Source $source): JsonResponse
+    {
+        $releaseId = (int) request()->query('release_id');
+        $release = SourceRelease::findOrFail($releaseId);
+
+        $exportData = $this->unmappedCodeService->exportUsagi($source, $release);
+
+        $format = request()->query('format', 'csv');
+
+        if ($format === 'usagi') {
+            $csv = implode(',', $exportData['headers'])."\n";
+            foreach ($exportData['rows'] as $row) {
+                $csv .= implode(',', array_map(fn ($v) => '"'.str_replace('"', '""', (string) $v).'"', $row))."\n";
+            }
+
+            return response()->json([
+                'data' => [
+                    'format' => 'usagi',
+                    'filename' => "unmapped_codes_{$source->source_name}_{$release->release_name}.csv",
+                    'content' => $csv,
+                ],
+            ]);
+        }
+
+        return response()->json(['data' => $exportData]);
+    }
+
     // ── Domain Continuity ──────────────────────────────────────────────
 
     /**
@@ -288,6 +399,63 @@ class AresController extends Controller
     {
         return response()->json([
             'data' => $this->costService->getDomainDetail($source, $domain),
+        ]);
+    }
+
+    /**
+     * GET /v1/sources/{source}/ares/cost/distribution?domain=&cost_type=
+     */
+    public function costDistribution(Source $source): JsonResponse
+    {
+        $domain = is_string(request()->query('domain')) ? request()->query('domain') : null;
+        $costType = request()->query('cost_type') ? (int) request()->query('cost_type') : null;
+
+        return response()->json([
+            'data' => $this->costService->getDistribution($source, $domain, $costType),
+        ]);
+    }
+
+    /**
+     * GET /v1/sources/{source}/ares/cost/care-setting
+     */
+    public function costCareSetting(Source $source): JsonResponse
+    {
+        return response()->json([
+            'data' => $this->costService->getCareSettingBreakdown($source),
+        ]);
+    }
+
+    /**
+     * GET /v1/sources/{source}/ares/cost/types
+     */
+    public function costTypes(Source $source): JsonResponse
+    {
+        return response()->json([
+            'data' => $this->costService->getAvailableCostTypes($source),
+        ]);
+    }
+
+    // ── Diversity (source-scoped) ──────────────────────────────────────
+
+    /**
+     * GET /v1/sources/{source}/ares/diversity/age-pyramid
+     */
+    public function diversityAgePyramid(Source $source): JsonResponse
+    {
+        return response()->json([
+            'data' => $this->diversityService->getAgePyramid($source),
+        ]);
+    }
+
+    // ── Release Diff ──────────────────────────────────────────────────────
+
+    /**
+     * GET /v1/sources/{source}/ares/releases/{release}/diff
+     */
+    public function releaseDiff(Source $source, SourceRelease $release): JsonResponse
+    {
+        return response()->json([
+            'data' => $this->releaseDiffService->computeDiff($release),
         ]);
     }
 }

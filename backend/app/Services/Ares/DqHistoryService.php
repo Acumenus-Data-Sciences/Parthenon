@@ -397,6 +397,120 @@ class DqHistoryService
     }
 
     /**
+     * Get category x release heatmap data for a source.
+     *
+     * @return array{releases: array<int, array{id: int, name: string, date: string}>, categories: string[], cells: array<int, array{release_id: int, category: string, pass_rate: float}>}
+     */
+    public function getCategoryHeatmap(Source $source): array
+    {
+        $releases = SourceRelease::where('source_id', $source->id)
+            ->orderBy('created_at')
+            ->get();
+
+        $releaseList = $releases->map(fn (SourceRelease $r) => [
+            'id' => $r->id,
+            'name' => $r->release_name,
+            'date' => $r->created_at->toDateString(),
+        ])->toArray();
+
+        $allCategories = [];
+        $cells = [];
+
+        foreach ($releases as $release) {
+            $categoryStats = DqdResult::where('source_id', $source->id)
+                ->where('release_id', $release->id)
+                ->whereNotNull('category')
+                ->selectRaw('category, COUNT(*) as total, SUM(CASE WHEN passed THEN 1 ELSE 0 END) as passed_count')
+                ->groupBy('category')
+                ->get();
+
+            foreach ($categoryStats as $stat) {
+                $allCategories[$stat->category] = true;
+                $total = (int) $stat->total;
+                $cells[] = [
+                    'release_id' => $release->id,
+                    'category' => $stat->category,
+                    'pass_rate' => $total > 0 ? round(((int) $stat->passed_count / $total) * 100, 1) : 0.0,
+                ];
+            }
+        }
+
+        return [
+            'releases' => array_values($releaseList),
+            'categories' => array_keys($allCategories),
+            'cells' => $cells,
+        ];
+    }
+
+    /**
+     * Get check-level sparklines for a release's delta table.
+     * Returns per-check historical pass/fail across last 6 releases.
+     *
+     * @return array<string, array<int, bool|null>>
+     */
+    public function getCheckSparklines(int $releaseId): array
+    {
+        $release = SourceRelease::findOrFail($releaseId);
+
+        $recentReleases = SourceRelease::where('source_id', $release->source_id)
+            ->where('created_at', '<=', $release->created_at)
+            ->orderByDesc('created_at')
+            ->limit(6)
+            ->get()
+            ->reverse()
+            ->values();
+
+        // Get all check_ids from the current release
+        $currentChecks = DqdResult::where('source_id', $release->source_id)
+            ->where('release_id', $release->id)
+            ->pluck('check_id')
+            ->toArray();
+
+        $sparklines = [];
+
+        foreach ($currentChecks as $checkId) {
+            $history = [];
+            foreach ($recentReleases as $r) {
+                $result = DqdResult::where('source_id', $release->source_id)
+                    ->where('release_id', $r->id)
+                    ->where('check_id', $checkId)
+                    ->first();
+
+                $history[] = $result ? (bool) $result->passed : null;
+            }
+            $sparklines[$checkId] = $history;
+        }
+
+        return $sparklines;
+    }
+
+    /**
+     * Get DQ trend data for all sources overlaid on same timeline.
+     *
+     * @return array<int, array{source_id: int, source_name: string, trends: array<int, array{release_name: string, created_at: string, pass_rate: float}>}>
+     */
+    public function getNetworkDqOverlay(): array
+    {
+        $sources = Source::whereHas('daimons')->get();
+        $result = [];
+
+        foreach ($sources as $source) {
+            $trends = $this->getTrends($source);
+            $result[] = [
+                'source_id' => $source->id,
+                'source_name' => $source->source_name,
+                'trends' => array_map(fn (array $t) => [
+                    'release_name' => $t['release_name'],
+                    'created_at' => $t['created_at'],
+                    'pass_rate' => $t['pass_rate'],
+                ], $trends),
+            ];
+        }
+
+        return $result;
+    }
+
+    /**
      * Get records per domain across releases for domain continuity.
      *
      * @return array<int, array{release_id: int, release_name: string, created_at: string, domains: array<string, int>}>

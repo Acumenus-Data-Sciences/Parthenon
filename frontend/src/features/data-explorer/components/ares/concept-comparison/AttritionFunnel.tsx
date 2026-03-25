@@ -1,0 +1,66 @@
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
+
+interface FunnelStep {
+  concept_name: string;
+  remaining_patients: number;
+  percentage: number;
+}
+
+interface AttritionFunnelProps {
+  data: Array<{
+    source_id: number;
+    source_name: string;
+    steps: FunnelStep[];
+  }>;
+}
+
+const FUNNEL_COLORS = ["#2DD4BF", "#C9A227", "#e85d75", "#7c8aed", "#59c990"];
+
+export default function AttritionFunnel({ data }: AttritionFunnelProps) {
+  if (data.length === 0) return null;
+
+  return (
+    <div className="space-y-4">
+      {data.map((source) => (
+        <div key={source.source_id} className="rounded-lg border border-[#252530] bg-[#151518] p-4">
+          <h4 className="mb-3 text-sm font-medium text-white">{source.source_name}</h4>
+          <div className="h-48">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={source.steps}
+                layout="vertical"
+                margin={{ top: 5, right: 40, bottom: 5, left: 120 }}
+              >
+                <XAxis type="number" tick={{ fill: "#888", fontSize: 11 }} />
+                <YAxis
+                  type="category"
+                  dataKey="concept_name"
+                  tick={{ fill: "#888", fontSize: 11 }}
+                  width={110}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "#1a1a22",
+                    border: "1px solid #333",
+                    borderRadius: "8px",
+                    color: "#ccc",
+                    fontSize: 12,
+                  }}
+                  formatter={(value: number) => [
+                    `${value.toLocaleString()} patients`,
+                    "Remaining",
+                  ]}
+                />
+                <Bar dataKey="remaining_patients" radius={[0, 4, 4, 0]}>
+                  {source.steps.map((_entry, index) => (
+                    <Cell key={index} fill={FUNNEL_COLORS[index % FUNNEL_COLORS.length]} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}

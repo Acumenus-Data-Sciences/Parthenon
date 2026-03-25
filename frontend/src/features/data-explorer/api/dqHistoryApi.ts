@@ -41,6 +41,29 @@ export async function fetchDqDomainTrends(sourceId: number): Promise<DqDomainTre
   return unwrap<DqDomainTrendPoint[]>(data);
 }
 
+// DQ Heatmap
+export interface DqHeatmapData {
+  releases: Array<{ id: number; name: string; date: string }>;
+  categories: string[];
+  cells: Array<{ release_id: number; category: string; pass_rate: number }>;
+}
+
+export async function fetchDqHeatmap(sourceId: number): Promise<DqHeatmapData> {
+  const { data } = await apiClient.get(`/sources/${sourceId}/ares/dq-history/heatmap`);
+  return unwrap<DqHeatmapData>(data);
+}
+
+// DQ Check Sparklines
+export async function fetchDqCheckSparklines(
+  sourceId: number,
+  releaseId: number,
+): Promise<Record<string, Array<boolean | null>>> {
+  const { data } = await apiClient.get(`/sources/${sourceId}/ares/dq-history/sparklines`, {
+    params: { release_id: releaseId },
+  });
+  return unwrap<Record<string, Array<boolean | null>>>(data);
+}
+
 // Unmapped Codes
 export async function fetchUnmappedCodesSummary(
   sourceId: number,
@@ -61,6 +84,51 @@ export async function fetchUnmappedCodes(
     params: { release_id: releaseId, ...filters },
   });
   return data as PaginatedResponse<UnmappedCode>;
+}
+
+// Unmapped Codes — Pareto
+export async function fetchUnmappedCodesPareto(
+  sourceId: number,
+  releaseId: number,
+): Promise<{ codes: Array<{ source_code: string; record_count: number; cumulative_percent: number }>; top_20_coverage: number }> {
+  const { data } = await apiClient.get(`/sources/${sourceId}/ares/unmapped-codes/pareto`, {
+    params: { release_id: releaseId },
+  });
+  return unwrap(data);
+}
+
+// Unmapped Codes — Progress
+export async function fetchUnmappedCodesProgress(
+  sourceId: number,
+  releaseId: number,
+): Promise<{ total: number; mapped: number; deferred: number; excluded: number; pending: number }> {
+  const { data } = await apiClient.get(`/sources/${sourceId}/ares/unmapped-codes/progress`, {
+    params: { release_id: releaseId },
+  });
+  return unwrap(data);
+}
+
+// Unmapped Codes — Treemap
+export async function fetchUnmappedCodesTreemap(
+  sourceId: number,
+  releaseId: number,
+): Promise<Array<{ name: string; value: number; code_count: number }>> {
+  const { data } = await apiClient.get(`/sources/${sourceId}/ares/unmapped-codes/treemap`, {
+    params: { release_id: releaseId },
+  });
+  return unwrap(data);
+}
+
+// Unmapped Codes — Export
+export async function fetchUnmappedCodesExport(
+  sourceId: number,
+  releaseId: number,
+  format: "usagi" | "csv" = "csv",
+): Promise<unknown> {
+  const { data } = await apiClient.get(`/sources/${sourceId}/ares/unmapped-codes/export`, {
+    params: { release_id: releaseId, format },
+  });
+  return unwrap(data);
 }
 
 // Domain Continuity

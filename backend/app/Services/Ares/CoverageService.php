@@ -28,6 +28,30 @@ class CoverageService
         'death' => 500,
     ];
 
+    /**
+     * Expected domain coverage by source type.
+     * true = expected to have data, false = typically missing.
+     *
+     * @var array<string, array<string, bool>>
+     */
+    private const EXPECTED_COVERAGE = [
+        'claims' => [
+            'person' => true, 'condition_occurrence' => true, 'drug_exposure' => true,
+            'procedure_occurrence' => true, 'measurement' => false, 'observation' => false,
+            'visit_occurrence' => true, 'death' => true,
+        ],
+        'ehr' => [
+            'person' => true, 'condition_occurrence' => true, 'drug_exposure' => true,
+            'procedure_occurrence' => true, 'measurement' => true, 'observation' => true,
+            'visit_occurrence' => true, 'death' => true,
+        ],
+        'registry' => [
+            'person' => true, 'condition_occurrence' => true, 'drug_exposure' => false,
+            'procedure_occurrence' => false, 'measurement' => true, 'observation' => true,
+            'visit_occurrence' => false, 'death' => true,
+        ],
+    ];
+
     public function __construct(
         private readonly DynamicConnectionFactory $connectionFactory,
     ) {}
@@ -98,6 +122,83 @@ class CoverageService
                 'source_completeness' => $sourceCompleteness,
             ];
         });
+    }
+
+    /**
+     * Extended matrix with temporal extent per cell and expected coverage benchmarks.
+     *
+     * @return array{sources: array<int, array{id: int, name: string, source_type: string|null}>, domains: string[], matrix: array<int, array<string, array{record_count: int, has_data: bool, density_per_person: float, earliest_date: string|null, latest_date: string|null}>>, domain_totals: array<string, int>, source_completeness: array<int, int>, expected: array<string, array<string, bool>>}
+     */
+    public function getExtendedMatrix(): array
+    {
+        return Cache::remember('ares:network:coverage:extended', 600, function () {
+            $base = $this->getMatrix();
+
+            $sources = Source::whereHas('daimons')->get();
+
+            // Enrich source list with source_type
+            foreach ($sources as $index => $source) {
+                $base['sources'][$index]['source_type'] = $source->source_type;
+            }
+
+            // Query observation_period for temporal extent per source
+            foreach ($sources as $index => $source) {
+                $temporal = $this->getTemporalExtent($source);
+
+                foreach ($base['domains'] as $domain) {
+                    if (isset($base['matrix'][$index][$domain])) {
+                        $base['matrix'][$index][$domain]['earliest_date'] = $temporal['earliest'] ?? null;
+                        $base['matrix'][$index][$domain]['latest_date'] = $temporal['latest'] ?? null;
+                    }
+                }
+            }
+
+            $base['expected'] = self::EXPECTED_COVERAGE;
+
+            return $base;
+        });
+    }
+
+    /**
+     * Get the earliest and latest observation dates for a source.
+     *
+     * @return array{earliest: string|null, latest: string|null}
+     */
+    private function getTemporalExtent(Source $source): array
+    {
+        try {
+            $daimon = $source->daimons()->where('daimon_type', DaimonType::Results->value)->first();
+            $schema = $daimon?->table_qualifier ?? 'results';
+
+            $connection = 'results';
+            if (! empty($source->db_host)) {
+                $connection = $this->connectionFactory->connectionForSchema($source, $schema);
+            } else {
+                DB::connection('results')->statement(
+                    "SET search_path TO \"{$schema}\", public"
+                );
+            }
+
+            // Analysis 111 = observation period start dates, 112 = end dates
+            $earliest = AchillesResult::on($connection)
+                ->where('analysis_id', 111)
+                ->orderBy('stratum_1')
+                ->first();
+
+            $latest = AchillesResult::on($connection)
+                ->where('analysis_id', 112)
+                ->orderByDesc('stratum_1')
+                ->first();
+
+            return [
+                'earliest' => $earliest?->stratum_1,
+                'latest' => $latest?->stratum_1,
+            ];
+        } catch (\Throwable $e) {
+            Log::warning("Coverage: failed to get temporal extent for source {$source->source_name}: {$e->getMessage()}");
+
+            return ['earliest' => null, 'latest' => null];
+        }
     }
 
     /**

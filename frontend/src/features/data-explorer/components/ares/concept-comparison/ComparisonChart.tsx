@@ -7,16 +7,37 @@ import {
   Tooltip,
   ErrorBar,
   ResponsiveContainer,
+  Legend,
 } from "recharts";
-import type { ConceptComparison } from "../../../types/ares";
+import type { ConceptComparison, MultiConceptComparison } from "../../../types/ares";
 
-interface ComparisonChartProps {
+const CONCEPT_COLORS = ["#2DD4BF", "#C9A227", "#e85d75", "#7c8aed", "#59c990"];
+
+interface SingleComparisonChartProps {
   data: ConceptComparison[];
   metric: "count" | "rate_per_1000";
+  multiData?: never;
 }
 
-export default function ComparisonChart({ data, metric }: ComparisonChartProps) {
-  if (data.length === 0) {
+interface MultiComparisonChartProps {
+  data?: never;
+  metric: "count" | "rate_per_1000";
+  multiData: MultiConceptComparison;
+}
+
+type ComparisonChartProps = SingleComparisonChartProps | MultiComparisonChartProps;
+
+export default function ComparisonChart(props: ComparisonChartProps) {
+  const { metric, multiData } = props;
+
+  // Multi-concept grouped bars
+  if (multiData) {
+    return <GroupedBars multiData={multiData} metric={metric} />;
+  }
+
+  const { data } = props as SingleComparisonChartProps;
+
+  if (!data || data.length === 0) {
     return (
       <div className="flex h-48 items-center justify-center text-[#555]">
         No comparison data available.
@@ -75,6 +96,81 @@ export default function ComparisonChart({ data, metric }: ComparisonChartProps) 
               <ErrorBar dataKey="error" width={4} stroke="#888" strokeWidth={1} />
             )}
           </Bar>
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
+function GroupedBars({
+  multiData,
+  metric,
+}: {
+  multiData: MultiConceptComparison;
+  metric: "count" | "rate_per_1000";
+}) {
+  if (multiData.sources.length === 0) {
+    return (
+      <div className="flex h-48 items-center justify-center text-[#555]">
+        No comparison data available.
+      </div>
+    );
+  }
+
+  // Build chart data: one row per source, one bar per concept
+  const chartData = multiData.sources.map((source) => {
+    const row: Record<string, unknown> = { source: source.source_name };
+    for (const concept of multiData.concepts) {
+      const rate = source.rates[concept.concept_id];
+      row[`concept_${concept.concept_id}`] = rate
+        ? metric === "count"
+          ? rate.count
+          : rate.rate_per_1000
+        : 0;
+    }
+    return row;
+  });
+
+  return (
+    <div className="h-72">
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart data={chartData} margin={{ top: 5, right: 20, bottom: 30, left: 20 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#252530" />
+          <XAxis
+            dataKey="source"
+            tick={{ fill: "#888", fontSize: 11 }}
+            axisLine={{ stroke: "#333" }}
+            angle={-30}
+            textAnchor="end"
+          />
+          <YAxis
+            tick={{ fill: "#888", fontSize: 11 }}
+            axisLine={{ stroke: "#333" }}
+            tickFormatter={(v: number) =>
+              metric === "rate_per_1000" ? `${v}/1k` : v.toLocaleString()
+            }
+          />
+          <Tooltip
+            contentStyle={{
+              backgroundColor: "#1a1a22",
+              border: "1px solid #333",
+              borderRadius: "8px",
+              color: "#ccc",
+              fontSize: 12,
+            }}
+          />
+          <Legend
+            wrapperStyle={{ fontSize: 11, color: "#888" }}
+          />
+          {multiData.concepts.map((concept, i) => (
+            <Bar
+              key={concept.concept_id}
+              dataKey={`concept_${concept.concept_id}`}
+              name={concept.concept_name}
+              fill={CONCEPT_COLORS[i % CONCEPT_COLORS.length]}
+              radius={[4, 4, 0, 0]}
+            />
+          ))}
         </BarChart>
       </ResponsiveContainer>
     </div>

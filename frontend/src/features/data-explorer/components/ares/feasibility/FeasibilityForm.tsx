@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { FeasibilityCriteria } from "../../../types/ares";
+import TemplateSelector from "./TemplateSelector";
 
 const DOMAINS = [
   { id: "condition", label: "Conditions" },
@@ -26,6 +27,16 @@ export default function FeasibilityForm({ onSubmit, isLoading }: FeasibilityForm
     );
   };
 
+  const handleTemplateSelect = (criteria: FeasibilityCriteria, templateName: string) => {
+    setName(templateName);
+    setSelectedDomains(criteria.required_domains ?? []);
+    if (criteria.min_patients) {
+      setMinPatients(String(criteria.min_patients));
+    } else {
+      setMinPatients("");
+    }
+  };
+
   const handleSubmit = () => {
     if (!name.trim() || selectedDomains.length === 0) return;
 
@@ -43,6 +54,8 @@ export default function FeasibilityForm({ onSubmit, isLoading }: FeasibilityForm
   return (
     <div className="rounded-lg border border-[#333] bg-[#1a1a22] p-4">
       <h3 className="mb-3 text-sm font-medium text-white">New Feasibility Assessment</h3>
+
+      <TemplateSelector onSelect={handleTemplateSelect} />
 
       <div className="mb-3">
         <label className="mb-1 block text-xs text-[#888]">Assessment Name</label>

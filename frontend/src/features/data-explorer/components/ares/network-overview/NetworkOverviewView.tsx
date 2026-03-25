@@ -1,7 +1,8 @@
 import { useNavigate } from "react-router-dom";
-import { useNetworkOverview } from "../../../hooks/useNetworkData";
+import { useAlerts, useNetworkOverview } from "../../../hooks/useNetworkData";
 import type { NetworkDqSource } from "../../../types/ares";
 import Sparkline from "../shared/Sparkline";
+import AlertBanner from "./AlertBanner";
 import FreshnessCell from "./FreshnessCell";
 
 function DomainRing({ count }: { count: number }) {
@@ -31,6 +32,7 @@ function DomainRing({ count }: { count: number }) {
 
 export default function NetworkOverviewView() {
   const { data: overview, isLoading } = useNetworkOverview();
+  const { data: alerts } = useAlerts();
   const navigate = useNavigate();
 
   if (isLoading) {
@@ -44,6 +46,9 @@ export default function NetworkOverviewView() {
   return (
     <div className="p-4">
       <h2 className="mb-4 text-lg font-medium text-white">Network Overview</h2>
+
+      {/* Alert banner */}
+      {alerts && alerts.length > 0 && <AlertBanner alerts={alerts} />}
 
       {/* Summary stats */}
       <div className="mb-6 grid grid-cols-5 gap-3">

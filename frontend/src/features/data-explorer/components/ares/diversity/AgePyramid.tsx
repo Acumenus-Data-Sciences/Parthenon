@@ -1,0 +1,70 @@
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
+
+interface AgePyramidData {
+  group: string;
+  male: number;
+  female: number;
+}
+
+interface AgePyramidProps {
+  data: AgePyramidData[];
+  sourceName: string;
+}
+
+export default function AgePyramid({ data, sourceName }: AgePyramidProps) {
+  if (data.length === 0) return null;
+
+  // Male values should be negative for left side
+  const chartData = data.map((d) => ({
+    group: d.group,
+    male: -Math.abs(d.male),
+    female: Math.abs(d.female),
+  }));
+
+  return (
+    <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
+      <h4 className="mb-3 text-sm font-medium text-white">{sourceName} -- Age Distribution</h4>
+      <div className="h-72">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart
+            data={chartData}
+            layout="vertical"
+            margin={{ top: 5, right: 30, bottom: 5, left: 60 }}
+          >
+            <XAxis
+              type="number"
+              tick={{ fill: "#888", fontSize: 11 }}
+              tickFormatter={(v: number) => Math.abs(v).toLocaleString()}
+            />
+            <YAxis
+              type="category"
+              dataKey="group"
+              tick={{ fill: "#888", fontSize: 11 }}
+            />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: "#1a1a22",
+                border: "1px solid #333",
+                borderRadius: "8px",
+                color: "#ccc",
+                fontSize: 12,
+              }}
+              formatter={(value: number) => [Math.abs(value).toLocaleString(), ""]}
+            />
+            <ReferenceLine x={0} stroke="#333" />
+            <Bar dataKey="male" fill="#7c8aed" name="Male" />
+            <Bar dataKey="female" fill="#e85d75" name="Female" />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+      <div className="mt-2 flex justify-center gap-4 text-xs text-[#888]">
+        <span className="flex items-center gap-1">
+          <span className="inline-block h-2 w-2 rounded-full bg-[#7c8aed]" /> Male
+        </span>
+        <span className="flex items-center gap-1">
+          <span className="inline-block h-2 w-2 rounded-full bg-[#e85d75]" /> Female
+        </span>
+      </div>
+    </div>
+  );
+}

@@ -7,6 +7,7 @@ use Database\Factories\ChartAnnotationFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ChartAnnotation extends Model
 {
@@ -25,6 +26,7 @@ class ChartAnnotation extends Model
         'y_value',
         'annotation_text',
         'tag',
+        'parent_id',
         'created_by',
     ];
 
@@ -55,5 +57,21 @@ class ChartAnnotation extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    /**
+     * @return BelongsTo<self, $this>
+     */
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'parent_id');
+    }
+
+    /**
+     * @return HasMany<self, $this>
+     */
+    public function replies(): HasMany
+    {
+        return $this->hasMany(self::class, 'parent_id');
     }
 }

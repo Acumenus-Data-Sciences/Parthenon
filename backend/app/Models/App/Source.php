@@ -18,6 +18,7 @@ class Source extends Model
 
     protected $fillable = [
         'source_name',
+        'source_type',
         'source_key',
         'source_dialect',
         'source_connection',

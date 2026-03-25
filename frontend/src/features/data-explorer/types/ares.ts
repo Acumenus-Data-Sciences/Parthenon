@@ -23,9 +23,11 @@ export interface ChartAnnotation {
   y_value: number | null;
   annotation_text: string;
   tag: 'data_event' | 'research_note' | 'action_item' | 'system' | null;
+  parent_id: number | null;
   created_by: number;
   creator?: { id: number; name: string };
   source?: { id: number; source_name: string };
+  replies?: ChartAnnotation[];
   created_at: string;
   updated_at: string;
 }
@@ -53,6 +55,8 @@ export interface StoreAnnotationPayload {
   x_value: string;
   y_value?: number;
   annotation_text: string;
+  tag?: string;
+  parent_id?: number;
 }
 
 export interface UpdateAnnotationPayload {
@@ -198,6 +202,20 @@ export interface CoverageCell {
   density_per_person: number;
 }
 
+export interface ExtendedCoverageCell extends CoverageCell {
+  earliest_date: string | null;
+  latest_date: string | null;
+}
+
+export interface ExtendedCoverageMatrix {
+  sources: Array<{ id: number; name: string; source_type: string | null }>;
+  domains: string[];
+  matrix: Array<Record<string, ExtendedCoverageCell>>;
+  domain_totals: Record<string, number>;
+  source_completeness: Record<number, number>;
+  expected: Record<string, Record<string, boolean>>;
+}
+
 // ── Diversity types ──────────────────────────────────────────────────────
 
 export interface DiversitySource {
@@ -327,4 +345,258 @@ export interface NetworkCostSource {
 
 export interface NetworkCost {
   sources: NetworkCostSource[];
+}
+
+// ── Phase B: Alerts ────────────────────────────────────────────────────
+
+export interface AresAlert {
+  severity: 'warning' | 'critical';
+  source_id: number;
+  source_name: string;
+  type: 'dq_drop' | 'stale_data' | 'unmapped_spike';
+  message: string;
+  value: number;
+}
+
+// ── Phase B: Multi-concept comparison ──────────────────────────────────
+
+export interface MultiConceptComparison {
+  concepts: Array<{ concept_id: number; concept_name: string }>;
+  sources: Array<{
+    source_id: number;
+    source_name: string;
+    rates: Record<number, { count: number; rate_per_1000: number; ci_lower: number; ci_upper: number }>;
+  }>;
+}
+
+// ── Phase B: Attrition funnel ──────────────────────────────────────────
+
+export interface AttritionFunnelStep {
+  concept_id: number;
+  concept_name: string;
+  counts: Record<number, number>;
+}
+
+// ── Phase B: DQ Heatmap ────────────────────────────────────────────────
+
+export interface DqCategoryHeatmapCell {
+  release_name: string;
+  category: string;
+  pass_rate: number;
+}
+
+// ── Phase B: DQ Overlay ────────────────────────────────────────────────
+
+export interface DqOverlayPoint {
+  release_name: string;
+  sources: Record<number, number>;
+}
+
+// ── Phase B: Temporal coverage ─────────────────────────────────────────
+
+export interface TemporalCoverage {
+  source_id: number;
+  domain: string;
+  earliest: string;
+  latest: string;
+  expected: boolean;
+}
+
+// ── Phase B: Feasibility impact ────────────────────────────────────────
+
+export interface CriteriaImpact {
+  criterion: string;
+  sources_passing: number;
+  sources_total: number;
+  impact: number;
+}
+
+// ── Phase B: CONSORT diagram ───────────────────────────────────────────
+
+export interface ConsortStep {
+  label: string;
+  remaining: Record<number, number>;
+}
+
+// ── Phase B: Feasibility template ──────────────────────────────────────
+
+export interface FeasibilityTemplate {
+  id: number;
+  name: string;
+  description: string | null;
+  criteria: Record<string, unknown>;
+  is_public: boolean;
+  created_by: number;
+}
+
+// ── Phase B: Age pyramid ───────────────────────────────────────────────
+
+export interface AgePyramidBand {
+  age_group: string;
+  male: number;
+  female: number;
+}
+
+// ── Phase B: DAP gap analysis ──────────────────────────────────────────
+
+export interface DapGapItem {
+  dimension: string;
+  source_value: number;
+  benchmark_value: number;
+  gap: number;
+  status: 'met' | 'gap' | 'critical';
+}
+
+// ── Phase B: Pooled demographics ───────────────────────────────────────
+
+export interface PooledDemographics {
+  gender: Record<string, number>;
+  race: Record<string, number>;
+  ethnicity: Record<string, number>;
+  total_persons: number;
+}
+
+// ── Phase B: Release diff ──────────────────────────────────────────────
+
+export interface ReleaseDiff {
+  has_previous: boolean;
+  person_delta: number;
+  record_delta: number;
+  domain_deltas: Record<string, number>;
+  dq_score_delta: number;
+  vocab_version_changed: boolean;
+  unmapped_code_delta: number;
+  auto_notes: string;
+}
+
+// ── Phase B: Swimlane timeline ─────────────────────────────────────────
+
+export interface SwimLaneEntry {
+  source_id: number;
+  source_name: string;
+  releases: Array<{ id: number; name: string; date: string; type: string }>;
+}
+
+// ── Phase B: Release calendar ──────────────────────────────────────────
+
+export interface ReleaseCalendarEvent {
+  date: string;
+  source_name: string;
+  release_name: string;
+  type: string;
+}
+
+// ── Phase B: Unmapped pareto ───────────────────────────────────────────
+
+export interface ParetoDataPoint {
+  source_code: string;
+  record_count: number;
+  cumulative_pct: number;
+}
+
+// ── Phase B: Mapping progress ──────────────────────────────────────────
+
+export interface MappingProgress {
+  source_id: number;
+  total_unmapped: number;
+  mapped: number;
+  deferred: number;
+  excluded: number;
+  pending: number;
+}
+
+// ── Phase B: Vocabulary treemap ────────────────────────────────────────
+
+export interface TreemapNode {
+  name: string;
+  value: number;
+  children?: TreemapNode[];
+}
+
+// ── Phase B: Annotation timeline ───────────────────────────────────────
+
+export interface AnnotationTimelineEntry {
+  id: number;
+  date: string;
+  text: string;
+  tag: string | null;
+  source_name: string;
+  chart_type: string;
+  creator_name: string;
+}
+
+// ── Phase B: Cost distribution (box plot) ──────────────────────────────
+
+export interface CostDistribution {
+  domain: string;
+  min: number;
+  q1: number;
+  median: number;
+  q3: number;
+  max: number;
+  outliers: number[];
+}
+
+// ── Phase B: Care setting breakdown ────────────────────────────────────
+
+export interface CareSettingCost {
+  care_setting: string;
+  total_cost: number;
+  person_count: number;
+  pppy: number;
+}
+
+// ── Phase B: Network cost compare ──────────────────────────────────────
+
+export interface NetworkCostCompare {
+  sources: Array<{
+    source_id: number;
+    source_name: string;
+    total_cost: number;
+    pppy: number;
+    person_count: number;
+  }>;
+}
+
+// ── Phase B: Cost type option ──────────────────────────────────────────
+
+export interface CostTypeOption {
+  concept_id: number;
+  concept_name: string;
+}
+
+// ── Phase B: DQ SLA target ─────────────────────────────────────────────
+
+export interface DqSlaTarget {
+  id: number;
+  source_id: number;
+  category: string;
+  min_pass_rate: number;
+}
+
+// ── Phase B: Accepted mapping ──────────────────────────────────────────
+
+export interface AcceptedMapping {
+  id: number;
+  source_id: number;
+  source_code: string;
+  source_vocabulary_id: string;
+  target_concept_id: number;
+  target_concept_name: string | null;
+  mapping_method: 'manual' | 'ai_suggestion' | 'usagi';
+  confidence: number | null;
+  reviewed_by: number | null;
+  reviewed_at: string | null;
+}
+
+// ── Phase B: Unmapped code review ──────────────────────────────────────
+
+export interface UnmappedCodeReview {
+  id: number;
+  source_id: number;
+  source_code: string;
+  source_vocabulary_id: string;
+  status: 'pending' | 'mapped' | 'deferred' | 'excluded';
+  notes: string | null;
+  reviewed_by: number | null;
 }

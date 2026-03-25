@@ -5,6 +5,7 @@ import {
   updateRelease,
   deleteRelease,
 } from "../api/releaseApi";
+import { fetchReleaseDiff } from "../api/networkAresApi";
 import type { StoreReleasePayload, UpdateReleasePayload } from "../types/ares";
 
 export function useReleases(sourceId: number | null) {
@@ -43,5 +44,13 @@ export function useDeleteRelease(sourceId: number) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["ares", "releases", sourceId] });
     },
+  });
+}
+
+export function useReleaseDiff(sourceId: number | null, releaseId: number | null) {
+  return useQuery({
+    queryKey: ["ares", "releases", sourceId, releaseId, "diff"],
+    queryFn: () => fetchReleaseDiff(sourceId!, releaseId!),
+    enabled: !!sourceId && !!releaseId,
   });
 }

@@ -1,9 +1,21 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
-import { useUnmappedCodes, useUnmappedCodesSummary } from "../../../hooks/useDqHistoryData";
+import {
+  useUnmappedCodes,
+  useUnmappedCodesSummary,
+  useUnmappedCodesPareto,
+  useUnmappedCodesProgress,
+  useUnmappedCodesTreemap,
+} from "../../../hooks/useDqHistoryData";
 import { useReleases } from "../../../hooks/useReleaseData";
+import { fetchUnmappedCodesExport } from "../../../api/dqHistoryApi";
 import type { SourceRelease, UnmappedCode } from "../../../types/ares";
+import ParetoChart from "./ParetoChart";
+import MappingProgressTracker from "./MappingProgressTracker";
+import VocabularyTreemap from "./VocabularyTreemap";
+
+type ViewMode = "table" | "pareto" | "treemap";
 
 export default function UnmappedCodesView() {
   const [selectedSourceId, setSelectedSourceId] = useState<number | null>(null);
@@ -11,6 +23,8 @@ export default function UnmappedCodesView() {
   const [tableFilter, setTableFilter] = useState<string>("");
   const [searchFilter, setSearchFilter] = useState<string>("");
   const [page, setPage] = useState(1);
+  const [viewMode, setViewMode] = useState<ViewMode>("table");
+  const [exporting, setExporting] = useState(false);
 
   const { data: sources } = useQuery({ queryKey: ["sources"], queryFn: fetchSources });
   const { data: releases } = useReleases(selectedSourceId);
@@ -27,8 +41,34 @@ export default function UnmappedCodesView() {
     per_page: 20,
   });
 
+  // Phase B data
+  const { data: paretoData } = useUnmappedCodesPareto(selectedSourceId, activeReleaseId);
+  const { data: progressData } = useUnmappedCodesProgress(selectedSourceId, activeReleaseId);
+  const { data: treemapData } = useUnmappedCodesTreemap(selectedSourceId, activeReleaseId);
+
   // Extract unique tables from summary for filter dropdown
   const availableTables = summary?.map((s) => s.cdm_table) ?? [];
+
+  const handleExport = async (format: "usagi" | "csv") => {
+    if (!selectedSourceId || !activeReleaseId) return;
+    setExporting(true);
+    try {
+      const result = await fetchUnmappedCodesExport(selectedSourceId, activeReleaseId, format);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const exportData = result as any;
+      if (format === "usagi" && exportData?.content) {
+        const blob = new Blob([exportData.content], { type: "text/csv" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = exportData.filename ?? "unmapped_codes.csv";
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+    } finally {
+      setExporting(false);
+    }
+  };
 
   return (
     <div className="p-4">
@@ -70,83 +110,151 @@ export default function UnmappedCodesView() {
           </div>
         )}
 
-        {availableTables.length > 0 && (
-          <div className="flex items-center gap-2">
-            <label className="text-sm text-[#888]">Table:</label>
-            <select
-              value={tableFilter}
-              onChange={(e) => {
-                setTableFilter(e.target.value);
-                setPage(1);
-              }}
-              className="rounded border border-[#333] bg-[#1a1a22] px-3 py-1.5 text-sm text-white"
-            >
-              <option value="">All tables</option>
-              {availableTables.map((t) => (
-                <option key={t} value={t}>{t}</option>
-              ))}
-            </select>
+        {/* View mode toggle */}
+        {selectedSourceId && activeReleaseId && (
+          <div className="ml-auto flex items-center gap-1 rounded-lg border border-[#252530] bg-[#0E0E11] p-0.5">
+            {(["table", "pareto", "treemap"] as const).map((mode) => (
+              <button
+                key={mode}
+                type="button"
+                onClick={() => setViewMode(mode)}
+                className={`rounded-md px-3 py-1 text-xs transition-colors ${
+                  viewMode === mode
+                    ? "bg-[#252530] text-white"
+                    : "text-[#666] hover:text-white"
+                }`}
+              >
+                {mode === "table" ? "Table" : mode === "pareto" ? "Pareto" : "Treemap"}
+              </button>
+            ))}
           </div>
         )}
 
-        <input
-          type="text"
-          placeholder="Search source codes..."
-          value={searchFilter}
-          onChange={(e) => {
-            setSearchFilter(e.target.value);
-            setPage(1);
-          }}
-          className="rounded border border-[#333] bg-[#1a1a22] px-3 py-1.5 text-sm text-white
-                     placeholder-[#555] focus:border-[#2DD4BF] focus:outline-none"
-        />
+        {/* Export button */}
+        {selectedSourceId && activeReleaseId && (
+          <button
+            type="button"
+            onClick={() => handleExport("usagi")}
+            disabled={exporting}
+            className="rounded border border-[#333] px-3 py-1.5 text-xs text-[#888] hover:border-[#555] hover:text-white disabled:opacity-50"
+          >
+            {exporting ? "Exporting..." : "Export Usagi CSV"}
+          </button>
+        )}
       </div>
 
-      {/* Summary badges */}
-      {summary && summary.length > 0 && (
-        <div className="mb-4 flex flex-wrap gap-2">
-          {summary.map((s) => (
-            <button
-              key={`${s.cdm_table}-${s.cdm_field}`}
-              type="button"
-              onClick={() => {
-                setTableFilter(s.cdm_table);
-                setPage(1);
-              }}
-              className={`rounded-full border px-3 py-1 text-xs transition-colors ${
-                tableFilter === s.cdm_table
-                  ? "border-[#C9A227] bg-[#C9A227]/10 text-[#C9A227]"
-                  : "border-[#333] text-[#888] hover:border-[#555]"
-              }`}
-            >
-              {s.cdm_table} ({s.code_count} codes, {Number(s.total_records).toLocaleString()} records)
-            </button>
-          ))}
+      {/* Progress tracker */}
+      {progressData && progressData.total > 0 && (
+        <div className="mb-4">
+          <MappingProgressTracker {...progressData} />
         </div>
       )}
 
-      {/* Helper text */}
-      {codesData && codesData.data.length > 0 && (
-        <p className="mb-3 text-xs text-[#555]">
-          Sorted by impact score (record count x domain weight)
-        </p>
+      {/* Table filter badges */}
+      {viewMode === "table" && (
+        <>
+          {availableTables.length > 0 && (
+            <div className="mb-4 flex flex-wrap items-center gap-3">
+              <div className="flex items-center gap-2">
+                <label className="text-sm text-[#888]">Table:</label>
+                <select
+                  value={tableFilter}
+                  onChange={(e) => {
+                    setTableFilter(e.target.value);
+                    setPage(1);
+                  }}
+                  className="rounded border border-[#333] bg-[#1a1a22] px-3 py-1.5 text-sm text-white"
+                >
+                  <option value="">All tables</option>
+                  {availableTables.map((t) => (
+                    <option key={t} value={t}>{t}</option>
+                  ))}
+                </select>
+              </div>
+
+              <input
+                type="text"
+                placeholder="Search source codes..."
+                value={searchFilter}
+                onChange={(e) => {
+                  setSearchFilter(e.target.value);
+                  setPage(1);
+                }}
+                className="rounded border border-[#333] bg-[#1a1a22] px-3 py-1.5 text-sm text-white
+                           placeholder-[#555] focus:border-[#2DD4BF] focus:outline-none"
+              />
+            </div>
+          )}
+
+          {/* Summary badges */}
+          {summary && summary.length > 0 && (
+            <div className="mb-4 flex flex-wrap gap-2">
+              {summary.map((s) => (
+                <button
+                  key={`${s.cdm_table}-${s.cdm_field}`}
+                  type="button"
+                  onClick={() => {
+                    setTableFilter(s.cdm_table);
+                    setPage(1);
+                  }}
+                  className={`rounded-full border px-3 py-1 text-xs transition-colors ${
+                    tableFilter === s.cdm_table
+                      ? "border-[#C9A227] bg-[#C9A227]/10 text-[#C9A227]"
+                      : "border-[#333] text-[#888] hover:border-[#555]"
+                  }`}
+                >
+                  {s.cdm_table} ({s.code_count} codes, {Number(s.total_records).toLocaleString()} records)
+                </button>
+              ))}
+            </div>
+          )}
+        </>
       )}
 
-      {/* Data table */}
+      {/* Content area */}
       {!selectedSourceId && (
         <p className="py-10 text-center text-[#555]">Select a source to view unmapped codes.</p>
       )}
 
-      {isLoading && <p className="text-[#555]">Loading unmapped codes...</p>}
+      {isLoading && viewMode === "table" && <p className="text-[#555]">Loading unmapped codes...</p>}
 
-      {codesData && codesData.data.length === 0 && (
+      {/* Pareto view */}
+      {viewMode === "pareto" && paretoData && paretoData.codes.length > 0 && (
+        <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
+          <h3 className="mb-3 text-sm font-medium text-white">Unmapped Codes Pareto Analysis</h3>
+          <ParetoChart data={paretoData.codes} top20Coverage={paretoData.top_20_coverage} />
+        </div>
+      )}
+
+      {viewMode === "pareto" && paretoData && paretoData.codes.length === 0 && (
+        <p className="py-10 text-center text-[#555]">No unmapped codes found for Pareto analysis.</p>
+      )}
+
+      {/* Treemap view */}
+      {viewMode === "treemap" && treemapData && treemapData.length > 0 && (
+        <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
+          <h3 className="mb-3 text-sm font-medium text-white">Unmapped Codes by Vocabulary</h3>
+          <VocabularyTreemap data={treemapData} />
+        </div>
+      )}
+
+      {viewMode === "treemap" && treemapData && treemapData.length === 0 && (
+        <p className="py-10 text-center text-[#555]">No vocabulary data available for treemap.</p>
+      )}
+
+      {/* Table view */}
+      {viewMode === "table" && codesData && codesData.data.length === 0 && (
         <p className="py-10 text-center text-[#555]">
           No unmapped source codes found. All codes are mapped to standard OMOP concepts.
         </p>
       )}
 
-      {codesData && codesData.data.length > 0 && (
+      {viewMode === "table" && codesData && codesData.data.length > 0 && (
         <>
+          <p className="mb-3 text-xs text-[#555]">
+            Sorted by impact score (record count x domain weight)
+          </p>
+
           <div className="overflow-hidden rounded-lg border border-[#252530]">
             <table className="w-full text-sm">
               <thead className="bg-[#1a1a22]">

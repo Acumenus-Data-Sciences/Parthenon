@@ -1,6 +1,13 @@
 import { useState } from "react";
-import { useFeasibilityAssessment, useFeasibilityList, useRunFeasibility } from "../../../hooks/useNetworkData";
+import {
+  useFeasibilityAssessment,
+  useFeasibilityImpact,
+  useFeasibilityList,
+  useRunFeasibility,
+} from "../../../hooks/useNetworkData";
 import FeasibilityForm from "./FeasibilityForm";
+import CriteriaImpactChart from "./CriteriaImpactChart";
+import ConsortDiagram from "./ConsortDiagram";
 import type { FeasibilityAssessment, FeasibilityResult } from "../../../types/ares";
 
 function ScoreBadge({ score, pass }: { score: number; pass: boolean }) {
@@ -19,12 +26,16 @@ function ScoreBadge({ score, pass }: { score: number; pass: boolean }) {
   );
 }
 
+type DetailView = "table" | "impact" | "consort";
+
 export default function FeasibilityView() {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [detailView, setDetailView] = useState<DetailView>("table");
 
   const { data: assessments } = useFeasibilityList();
   const { data: selectedAssessment } = useFeasibilityAssessment(selectedId);
+  const { data: impactData } = useFeasibilityImpact(selectedId);
   const runMutation = useRunFeasibility();
 
   return (
@@ -66,7 +77,7 @@ export default function FeasibilityView() {
             <button
               key={a.id}
               type="button"
-              onClick={() => setSelectedId(a.id)}
+              onClick={() => { setSelectedId(a.id); setDetailView("table"); }}
               className={`flex w-full items-center justify-between rounded-lg border p-3 text-left transition-colors ${
                 selectedId === a.id
                   ? "border-[#C9A227] bg-[#C9A227]/5"
@@ -95,8 +106,29 @@ export default function FeasibilityView() {
         </div>
       )}
 
-      {/* Assessment results detail */}
+      {/* Detail view toggle */}
       {selectedAssessment?.results && (
+        <div className="mb-3 flex items-center gap-2">
+          <span className="text-xs text-[#666]">View:</span>
+          {(["table", "impact", "consort"] as const).map((mode) => (
+            <button
+              key={mode}
+              type="button"
+              onClick={() => setDetailView(mode)}
+              className={`rounded px-2 py-1 text-xs transition-colors ${
+                detailView === mode
+                  ? "bg-[#C9A227]/20 text-[#C9A227]"
+                  : "text-[#888] hover:text-white"
+              }`}
+            >
+              {mode === "table" ? "Score Table" : mode === "impact" ? "Impact Analysis" : "CONSORT Flow"}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Assessment results detail - Table view */}
+      {selectedAssessment?.results && detailView === "table" && (
         <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
           <h3 className="mb-3 text-sm font-medium text-white">
             Results: {selectedAssessment.name}
@@ -167,6 +199,23 @@ export default function FeasibilityView() {
             </table>
           </div>
         </div>
+      )}
+
+      {/* Impact Analysis view */}
+      {selectedAssessment?.results && detailView === "impact" && (
+        <CriteriaImpactChart
+          impacts={impactData ?? []}
+          baselinePassed={selectedAssessment.sources_passed}
+          totalSources={selectedAssessment.sources_assessed}
+        />
+      )}
+
+      {/* CONSORT Flow view */}
+      {selectedAssessment?.results && detailView === "consort" && (
+        <ConsortDiagram
+          results={selectedAssessment.results}
+          criteriaLabels={["Domains", "Concepts", "Visit Types", "Date Range", "Patient Count"]}
+        />
       )}
 
       {!assessments || assessments.length === 0 ? (

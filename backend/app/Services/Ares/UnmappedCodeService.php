@@ -4,10 +4,12 @@ namespace App\Services\Ares;
 
 use App\Models\App\Source;
 use App\Models\App\SourceRelease;
+use App\Models\App\UnmappedCodeReview;
 use App\Models\App\UnmappedSourceCode;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class UnmappedCodeService
 {
@@ -134,6 +136,127 @@ class UnmappedCodeService
         }
 
         return UnmappedSourceCode::whereIn('release_id', $latestReleases)->count();
+    }
+
+    /**
+     * Get Pareto data for unmapped codes — cumulative % of records covered.
+     *
+     * @return array{codes: array<int, array{source_code: string, record_count: int, cumulative_percent: float}>, top_20_coverage: float}
+     */
+    public function getParetoData(Source $source, SourceRelease $release): array
+    {
+        try {
+            $codes = UnmappedSourceCode::where('source_id', $source->id)
+                ->where('release_id', $release->id)
+                ->orderByDesc('record_count')
+                ->select(['source_code', 'record_count'])
+                ->get();
+
+            if ($codes->isEmpty()) {
+                return ['codes' => [], 'top_20_coverage' => 0.0];
+            }
+
+            $totalRecords = $codes->sum('record_count');
+            $cumulative = 0;
+            $paretoItems = [];
+
+            foreach ($codes as $code) {
+                $cumulative += $code->record_count;
+                $paretoItems[] = [
+                    'source_code' => $code->source_code,
+                    'record_count' => (int) $code->record_count,
+                    'cumulative_percent' => $totalRecords > 0
+                        ? round(($cumulative / $totalRecords) * 100, 2)
+                        : 0.0,
+                ];
+            }
+
+            // Top 20 coverage
+            $top20 = array_slice($paretoItems, 0, 20);
+            $top20Coverage = ! empty($top20) ? end($top20)['cumulative_percent'] : 0.0;
+
+            return [
+                'codes' => $paretoItems,
+                'top_20_coverage' => $top20Coverage,
+            ];
+        } catch (\Throwable $e) {
+            Log::warning("UnmappedCodeService: getParetoData failed: {$e->getMessage()}");
+
+            return ['codes' => [], 'top_20_coverage' => 0.0];
+        }
+    }
+
+    /**
+     * Get progress stats for unmapped code mapping workflow.
+     *
+     * @return array{total: int, mapped: int, deferred: int, excluded: int, pending: int}
+     */
+    public function getProgressStats(Source $source, SourceRelease $release): array
+    {
+        $totalCodes = UnmappedSourceCode::where('source_id', $source->id)
+            ->where('release_id', $release->id)
+            ->count();
+
+        $reviews = UnmappedCodeReview::where('source_id', $source->id)
+            ->selectRaw("status, COUNT(*) as cnt")
+            ->groupBy('status')
+            ->pluck('cnt', 'status');
+
+        return [
+            'total' => $totalCodes,
+            'mapped' => (int) ($reviews['mapped'] ?? 0),
+            'deferred' => (int) ($reviews['deferred'] ?? 0),
+            'excluded' => (int) ($reviews['excluded'] ?? 0),
+            'pending' => max(0, $totalCodes - (int) ($reviews['mapped'] ?? 0) - (int) ($reviews['deferred'] ?? 0) - (int) ($reviews['excluded'] ?? 0)),
+        ];
+    }
+
+    /**
+     * Get vocabulary treemap data — aggregate unmapped codes by source_vocabulary_id.
+     *
+     * @return array<int, array{name: string, value: int, code_count: int}>
+     */
+    public function getVocabularyTreemap(Source $source, SourceRelease $release): array
+    {
+        return UnmappedSourceCode::where('source_id', $source->id)
+            ->where('release_id', $release->id)
+            ->selectRaw('source_vocabulary_id as name, SUM(record_count) as value, COUNT(*) as code_count')
+            ->groupBy('source_vocabulary_id')
+            ->orderByDesc(DB::raw('SUM(record_count)'))
+            ->get()
+            ->map(fn ($row) => [
+                'name' => $row->name,
+                'value' => (int) $row->value,
+                'code_count' => (int) $row->code_count,
+            ])
+            ->toArray();
+    }
+
+    /**
+     * Export unmapped codes in Usagi-compatible CSV format.
+     *
+     * @return array{headers: list<string>, rows: array<int, array<string, string|int>>}
+     */
+    public function exportUsagi(Source $source, SourceRelease $release): array
+    {
+        $codes = UnmappedSourceCode::where('source_id', $source->id)
+            ->where('release_id', $release->id)
+            ->orderByDesc('record_count')
+            ->get();
+
+        $headers = ['sourceCode', 'sourceName', 'sourceFrequency', 'sourceAutoAssignedConceptIds', 'ADD_INFO:sourceVocabulary', 'ADD_INFO:cdmTable', 'ADD_INFO:cdmField'];
+
+        $rows = $codes->map(fn ($code) => [
+            'sourceCode' => $code->source_code,
+            'sourceName' => $code->source_code,
+            'sourceFrequency' => (int) $code->record_count,
+            'sourceAutoAssignedConceptIds' => '',
+            'ADD_INFO:sourceVocabulary' => $code->source_vocabulary_id,
+            'ADD_INFO:cdmTable' => $code->cdm_table,
+            'ADD_INFO:cdmField' => $code->cdm_field,
+        ])->toArray();
+
+        return ['headers' => $headers, 'rows' => $rows];
     }
 
     /**

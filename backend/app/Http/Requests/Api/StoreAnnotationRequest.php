@@ -23,6 +23,7 @@ class StoreAnnotationRequest extends FormRequest
             'y_value' => 'nullable|numeric',
             'annotation_text' => 'required|string|max:2000',
             'tag' => ['nullable', 'string', 'in:data_event,research_note,action_item,system'],
+            'parent_id' => ['nullable', 'integer', 'exists:chart_annotations,id'],
         ];
     }
 }

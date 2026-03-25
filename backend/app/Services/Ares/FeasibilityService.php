@@ -3,6 +3,7 @@
 namespace App\Services\Ares;
 
 use App\Enums\DaimonType;
+use App\Models\App\FeasibilityTemplate;
 use App\Models\App\Source;
 use App\Models\Results\AchillesResult;
 use App\Models\User;
@@ -115,6 +116,100 @@ class FeasibilityService
         return DB::table('feasibility_assessments')
             ->orderByDesc('created_at')
             ->get();
+    }
+
+    /**
+     * Compute criteria impact analysis for an assessment.
+     *
+     * For each criterion, calculates how many sources pass when that criterion is removed,
+     * producing a waterfall showing which criterion eliminates the most sources.
+     *
+     * @return array<int, array{criterion: string, sources_passing: int, sources_total: int, impact: int}>
+     */
+    public function getCriteriaImpact(int $assessmentId): array
+    {
+        $assessment = DB::table('feasibility_assessments')->find($assessmentId);
+        if (! $assessment) {
+            return [];
+        }
+
+        $criteria = json_decode($assessment->criteria, true) ?? [];
+        $sources = Source::whereHas('daimons')->get();
+        $totalSources = $sources->count();
+
+        // Get baseline pass count (all criteria active)
+        $baselinePassed = (int) $assessment->sources_passed;
+
+        $criterionKeys = ['required_domains', 'required_concepts', 'visit_types', 'date_range', 'min_patients'];
+        $labels = [
+            'required_domains' => 'Required Domains',
+            'required_concepts' => 'Required Concepts',
+            'visit_types' => 'Visit Types',
+            'date_range' => 'Date Range',
+            'min_patients' => 'Minimum Patients',
+        ];
+
+        $impacts = [];
+
+        foreach ($criterionKeys as $key) {
+            if (empty($criteria[$key])) {
+                continue;
+            }
+
+            // Build criteria with this one removed
+            $reducedCriteria = $criteria;
+            unset($reducedCriteria[$key]);
+
+            $passedWithout = 0;
+            foreach ($sources as $source) {
+                $result = $this->evaluateSource($source, $reducedCriteria);
+                if ($result['overall_pass']) {
+                    $passedWithout++;
+                }
+            }
+
+            $impacts[] = [
+                'criterion' => $labels[$key] ?? $key,
+                'sources_passing' => $passedWithout,
+                'sources_total' => $totalSources,
+                'impact' => $passedWithout - $baselinePassed,
+            ];
+        }
+
+        // Sort by impact descending (most impactful criterion first)
+        usort($impacts, fn (array $a, array $b): int => $b['impact'] <=> $a['impact']);
+
+        return $impacts;
+    }
+
+    /**
+     * List all public templates plus templates created by the given user.
+     *
+     * @return Collection<int, FeasibilityTemplate>
+     */
+    public function getTemplates(?int $userId = null): Collection
+    {
+        return FeasibilityTemplate::query()
+            ->where('is_public', true)
+            ->when($userId, fn ($q) => $q->orWhere('created_by', $userId))
+            ->orderBy('name')
+            ->get();
+    }
+
+    /**
+     * Create a new feasibility template.
+     *
+     * @param  array{name: string, description?: string, criteria: array<string, mixed>, is_public?: bool}  $data
+     */
+    public function createTemplate(int $userId, array $data): FeasibilityTemplate
+    {
+        return FeasibilityTemplate::create([
+            'name' => $data['name'],
+            'description' => $data['description'] ?? null,
+            'criteria' => $data['criteria'],
+            'is_public' => $data['is_public'] ?? false,
+            'created_by' => $userId,
+        ]);
     }
 
     /**

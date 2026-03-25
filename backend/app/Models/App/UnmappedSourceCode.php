@@ -17,6 +17,7 @@ class UnmappedSourceCode extends Model
         'cdm_table',
         'cdm_field',
         'record_count',
+        'patient_count',
         'created_at',
     ];
 
@@ -27,6 +28,7 @@ class UnmappedSourceCode extends Model
     {
         return [
             'record_count' => 'integer',
+            'patient_count' => 'integer',
             'created_at' => 'datetime',
         ];
     }

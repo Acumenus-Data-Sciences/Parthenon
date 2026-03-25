@@ -108,6 +108,143 @@ class NetworkComparisonService
     }
 
     /**
+     * Compare multiple concepts across all sources with grouped data.
+     *
+     * @param  array<int>  $conceptIds
+     * @return array{concepts: array<int, array{concept_id: int, concept_name: string}>, sources: array<int, array{source_id: int, source_name: string, rates: array<int, array{count: int, rate_per_1000: float, ci_lower: float, ci_upper: float}>}>}
+     */
+    public function compareMultiConcepts(array $conceptIds): array
+    {
+        $conceptNames = $this->resolveConceptNames($conceptIds);
+        $batchData = $this->compareBatch($conceptIds);
+
+        $concepts = array_map(fn (int $id) => [
+            'concept_id' => $id,
+            'concept_name' => $conceptNames[$id] ?? "Concept {$id}",
+        ], $conceptIds);
+
+        // Pivot: group by source, with rates per concept
+        $sourceMap = [];
+        foreach ($batchData as $conceptId => $sourceResults) {
+            foreach ($sourceResults as $sr) {
+                $key = $sr['source_id'];
+                if (! isset($sourceMap[$key])) {
+                    $sourceMap[$key] = [
+                        'source_id' => $sr['source_id'],
+                        'source_name' => $sr['source_name'],
+                        'rates' => [],
+                    ];
+                }
+                $sourceMap[$key]['rates'][$conceptId] = [
+                    'count' => $sr['count'],
+                    'rate_per_1000' => $sr['rate_per_1000'],
+                    'ci_lower' => $sr['ci_lower'],
+                    'ci_upper' => $sr['ci_upper'],
+                ];
+            }
+        }
+
+        return [
+            'concepts' => $concepts,
+            'sources' => array_values($sourceMap),
+        ];
+    }
+
+    /**
+     * Compute attrition funnel across sources for stacked concept criteria.
+     *
+     * @param  array<int>  $conceptIds
+     * @return array<int, array{source_id: int, source_name: string, steps: array<int, array{concept_name: string, remaining_patients: int, percentage: float}>}>
+     */
+    public function computeAttritionFunnel(array $conceptIds): array
+    {
+        $sources = Source::whereHas('daimons')->get();
+        $conceptNames = $this->resolveConceptNames($conceptIds);
+        $results = [];
+
+        foreach ($sources as $source) {
+            try {
+                $steps = $this->computeFunnelForSource($source, $conceptIds, $conceptNames);
+                $results[] = [
+                    'source_id' => $source->id,
+                    'source_name' => $source->source_name,
+                    'steps' => $steps,
+                ];
+            } catch (\Throwable $e) {
+                Log::warning("AttritionFunnel: failed for {$source->source_name}: {$e->getMessage()}");
+            }
+        }
+
+        return $results;
+    }
+
+    /**
+     * @param  array<int>  $conceptIds
+     * @param  array<int, string>  $conceptNames
+     * @return array<int, array{concept_name: string, remaining_patients: int, percentage: float}>
+     */
+    private function computeFunnelForSource(Source $source, array $conceptIds, array $conceptNames): array
+    {
+        $daimon = $source->daimons()->where('daimon_type', DaimonType::Results->value)->first();
+        $schema = $daimon?->table_qualifier ?? 'results';
+
+        $connection = 'results';
+        if (! empty($source->db_host)) {
+            $connection = $this->connectionFactory->connectionForSchema($source, $schema);
+        } else {
+            DB::connection('results')->statement("SET search_path TO \"{$schema}\", public");
+        }
+
+        // Get total person count as baseline
+        $personResult = AchillesResult::on($connection)->where('analysis_id', 1)->first();
+        $totalPersons = (int) ($personResult?->count_value ?? 0);
+
+        $steps = [];
+        $remaining = $totalPersons;
+
+        // "All patients" baseline
+        $steps[] = [
+            'concept_name' => 'All patients',
+            'remaining_patients' => $totalPersons,
+            'percentage' => 100.0,
+        ];
+
+        foreach ($conceptIds as $conceptId) {
+            $analysisIds = array_values(self::DOMAIN_PREVALENCE_MAP);
+            $result = AchillesResult::on($connection)
+                ->whereIn('analysis_id', $analysisIds)
+                ->where('stratum_1', (string) $conceptId)
+                ->selectRaw('SUM(CAST(count_value AS bigint)) as total_count')
+                ->first();
+
+            $conceptCount = (int) ($result?->total_count ?? 0);
+            // Simulate attrition — remaining is min of current remaining and concept count
+            $remaining = min($remaining, $conceptCount);
+
+            $steps[] = [
+                'concept_name' => $conceptNames[$conceptId] ?? "Concept {$conceptId}",
+                'remaining_patients' => $remaining,
+                'percentage' => $totalPersons > 0 ? round(($remaining / $totalPersons) * 100, 1) : 0.0,
+            ];
+        }
+
+        return $steps;
+    }
+
+    /**
+     * @param  array<int>  $conceptIds
+     * @return array<int, string>
+     */
+    private function resolveConceptNames(array $conceptIds): array
+    {
+        return DB::connection('omop')
+            ->table('concept')
+            ->whereIn('concept_id', $conceptIds)
+            ->pluck('concept_name', 'concept_id')
+            ->toArray();
+    }
+
+    /**
      * Get concept prevalence data for a specific source.
      *
      * @return array{source_id: int, source_name: string, count: int, rate_per_1000: float, person_count: int, ci_lower: float, ci_upper: float}

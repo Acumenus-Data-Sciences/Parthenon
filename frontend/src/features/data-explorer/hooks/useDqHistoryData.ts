@@ -4,8 +4,13 @@ import {
   fetchDqDeltas,
   fetchDqCategoryTrends,
   fetchDqDomainTrends,
+  fetchDqHeatmap,
+  fetchDqCheckSparklines,
   fetchUnmappedCodesSummary,
   fetchUnmappedCodes,
+  fetchUnmappedCodesPareto,
+  fetchUnmappedCodesProgress,
+  fetchUnmappedCodesTreemap,
   fetchDomainContinuity,
 } from "../api/dqHistoryApi";
 
@@ -41,6 +46,23 @@ export function useDqDomainTrends(sourceId: number | null) {
   });
 }
 
+export function useCategoryHeatmap(sourceId: number | null) {
+  return useQuery({
+    queryKey: ["ares", "dq-heatmap", sourceId],
+    queryFn: () => fetchDqHeatmap(sourceId!),
+    enabled: !!sourceId,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+export function useCheckSparklines(sourceId: number | null, releaseId: number | null) {
+  return useQuery({
+    queryKey: ["ares", "dq-sparklines", sourceId, releaseId],
+    queryFn: () => fetchDqCheckSparklines(sourceId!, releaseId!),
+    enabled: !!sourceId && !!releaseId,
+  });
+}
+
 export function useUnmappedCodesSummary(sourceId: number | null, releaseId: number | null) {
   return useQuery({
     queryKey: ["ares", "unmapped-summary", sourceId, releaseId],
@@ -57,6 +79,30 @@ export function useUnmappedCodes(
   return useQuery({
     queryKey: ["ares", "unmapped-codes", sourceId, releaseId, filters],
     queryFn: () => fetchUnmappedCodes(sourceId!, releaseId!, filters),
+    enabled: !!sourceId && !!releaseId,
+  });
+}
+
+export function useUnmappedCodesPareto(sourceId: number | null, releaseId: number | null) {
+  return useQuery({
+    queryKey: ["ares", "unmapped-pareto", sourceId, releaseId],
+    queryFn: () => fetchUnmappedCodesPareto(sourceId!, releaseId!),
+    enabled: !!sourceId && !!releaseId,
+  });
+}
+
+export function useUnmappedCodesProgress(sourceId: number | null, releaseId: number | null) {
+  return useQuery({
+    queryKey: ["ares", "unmapped-progress", sourceId, releaseId],
+    queryFn: () => fetchUnmappedCodesProgress(sourceId!, releaseId!),
+    enabled: !!sourceId && !!releaseId,
+  });
+}
+
+export function useUnmappedCodesTreemap(sourceId: number | null, releaseId: number | null) {
+  return useQuery({
+    queryKey: ["ares", "unmapped-treemap", sourceId, releaseId],
+    queryFn: () => fetchUnmappedCodesTreemap(sourceId!, releaseId!),
     enabled: !!sourceId && !!releaseId,
   });
 }

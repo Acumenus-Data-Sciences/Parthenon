@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Loader2, Trash2, MessageSquare, Search } from "lucide-react";
+import { Loader2, Trash2, MessageSquare, Search, List, Clock } from "lucide-react";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
 import { useAnnotations, useDeleteAnnotation } from "../../../hooks/useAnnotationData";
+import AnnotationTimeline from "./AnnotationTimeline";
 
 const TAG_OPTIONS = [
   { value: undefined, label: "All", color: "border-[#333] text-[#888]", activeBg: "border-[#C9A227] bg-[#C9A227]/10 text-[#C9A227]" },
@@ -26,11 +27,14 @@ const TAG_LABELS: Record<string, string> = {
   system: "System",
 };
 
+type ViewMode = "list" | "timeline";
+
 export function AnnotationsView() {
   const [selectedSourceId, setSelectedSourceId] = useState<number | null>(null);
   const [tagFilter, setTagFilter] = useState<string | undefined>(undefined);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [viewMode, setViewMode] = useState<ViewMode>("list");
 
   // Debounce search input (300ms)
   useEffect(() => {
@@ -55,7 +59,7 @@ export function AnnotationsView() {
 
   return (
     <div className="space-y-4">
-      {/* Source selector */}
+      {/* Source selector + view toggle */}
       <div className="flex items-center gap-3">
         <select
           value={selectedSourceId ?? ""}
@@ -67,6 +71,34 @@ export function AnnotationsView() {
             <option key={s.id} value={s.id}>{s.source_name}</option>
           ))}
         </select>
+
+        {/* View mode toggle */}
+        <div className="flex rounded-lg border border-[#252530] bg-[#151518]">
+          <button
+            type="button"
+            onClick={() => setViewMode("list")}
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs transition-colors ${
+              viewMode === "list"
+                ? "bg-[#C9A227]/10 text-[#C9A227]"
+                : "text-[#666] hover:text-[#888]"
+            }`}
+          >
+            <List size={13} />
+            List
+          </button>
+          <button
+            type="button"
+            onClick={() => setViewMode("timeline")}
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs transition-colors ${
+              viewMode === "timeline"
+                ? "bg-[#C9A227]/10 text-[#C9A227]"
+                : "text-[#666] hover:text-[#888]"
+            }`}
+          >
+            <Clock size={13} />
+            Timeline
+          </button>
+        </div>
       </div>
 
       {/* Tag filter pills + search */}
@@ -125,8 +157,12 @@ export function AnnotationsView() {
         </div>
       )}
 
-      {/* Annotation list */}
-      {annotations && annotations.length > 0 && (
+      {/* Annotation list or timeline */}
+      {annotations && annotations.length > 0 && viewMode === "timeline" && (
+        <AnnotationTimeline annotations={annotations} />
+      )}
+
+      {annotations && annotations.length > 0 && viewMode === "list" && (
         <div className="space-y-3">
           {annotations.map((ann) => (
             <div

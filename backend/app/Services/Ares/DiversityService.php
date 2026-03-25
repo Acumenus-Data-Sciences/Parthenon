@@ -193,6 +193,180 @@ class DiversityService
     }
 
     /**
+     * Get age distribution pyramid data for a source, split by gender.
+     *
+     * @return array<int, array{group: string, male: int, female: int}>
+     */
+    public function getAgePyramid(Source $source): array
+    {
+        $daimon = $source->daimons()->where('daimon_type', DaimonType::Results->value)->first();
+        $schema = $daimon?->table_qualifier ?? 'results';
+
+        $connection = 'results';
+        if (! empty($source->db_host)) {
+            $connection = $this->connectionFactory->connectionForSchema($source, $schema);
+        } else {
+            DB::connection('results')->statement("SET search_path TO \"{$schema}\", public");
+        }
+
+        // Analysis 3: age at first observation by gender (stratum_1=gender_concept_id, stratum_2=age)
+        $results = AchillesResult::on($connection)
+            ->where('analysis_id', 3)
+            ->whereNotNull('stratum_1')
+            ->whereNotNull('stratum_2')
+            ->get();
+
+        $ageGroups = ['0-9', '10-19', '20-29', '30-39', '40-49', '50-59', '60-69', '70-79', '80-89', '90+'];
+        $pyramid = [];
+
+        foreach ($ageGroups as $group) {
+            $pyramid[$group] = ['group' => $group, 'male' => 0, 'female' => 0];
+        }
+
+        foreach ($results as $result) {
+            $age = (int) $result->stratum_2;
+            $genderConceptId = (int) $result->stratum_1;
+            $count = (int) $result->count_value;
+
+            $groupKey = match (true) {
+                $age < 10 => '0-9',
+                $age < 20 => '10-19',
+                $age < 30 => '20-29',
+                $age < 40 => '30-39',
+                $age < 50 => '40-49',
+                $age < 60 => '50-59',
+                $age < 70 => '60-69',
+                $age < 80 => '70-79',
+                $age < 90 => '80-89',
+                default => '90+',
+            };
+
+            // 8507 = Male, 8532 = Female in OMOP
+            if ($genderConceptId === 8507) {
+                $pyramid[$groupKey]['male'] += $count;
+            } elseif ($genderConceptId === 8532) {
+                $pyramid[$groupKey]['female'] += $count;
+            }
+        }
+
+        return array_values($pyramid);
+    }
+
+    /**
+     * FDA Drug Action Plan (DAP) gap analysis.
+     * Compares actual demographic proportions against target enrollment percentages.
+     *
+     * @param  array<string, float>  $targets  Target percentages keyed by demographic label
+     * @return array<int, array{source_id: int, source_name: string, gaps: array<int, array{dimension: string, source_value: float, benchmark_value: float, gap: float, status: string}>}>
+     */
+    public function getDapGapAnalysis(array $targets): array
+    {
+        $sources = Source::whereHas('daimons')->get();
+        $results = [];
+
+        foreach ($sources as $source) {
+            try {
+                $demographics = $this->getSourceDemographics($source);
+            } catch (\Throwable) {
+                continue;
+            }
+
+            $gaps = [];
+            // Combine all demographic dimensions for comparison
+            $allProportions = array_merge(
+                $demographics['gender'],
+                $demographics['race'],
+                $demographics['ethnicity'],
+            );
+
+            foreach ($targets as $dimension => $targetPct) {
+                $actualPct = $allProportions[$dimension] ?? 0.0;
+                $gap = round($targetPct - $actualPct, 1);
+                $status = match (true) {
+                    abs($gap) <= 2.0 => 'met',
+                    abs($gap) <= 10.0 => 'gap',
+                    default => 'critical',
+                };
+
+                $gaps[] = [
+                    'dimension' => $dimension,
+                    'source_value' => $actualPct,
+                    'benchmark_value' => $targetPct,
+                    'gap' => $gap,
+                    'status' => $status,
+                ];
+            }
+
+            $results[] = [
+                'source_id' => $source->id,
+                'source_name' => $source->source_name,
+                'gaps' => $gaps,
+            ];
+        }
+
+        return $results;
+    }
+
+    /**
+     * Pool demographics across multiple sources (weighted merge).
+     *
+     * @param  array<int>  $sourceIds
+     * @return array{gender: array<string, float>, race: array<string, float>, ethnicity: array<string, float>, total_persons: int}
+     */
+    public function getPooledDemographics(array $sourceIds): array
+    {
+        $sources = Source::whereIn('id', $sourceIds)->whereHas('daimons')->get();
+
+        $totalPersons = 0;
+        $genderCounts = [];
+        $raceCounts = [];
+        $ethnicityCounts = [];
+
+        foreach ($sources as $source) {
+            try {
+                $demo = $this->getSourceDemographics($source);
+            } catch (\Throwable) {
+                continue;
+            }
+
+            $personCount = $demo['person_count'];
+            $totalPersons += $personCount;
+
+            // Accumulate raw counts from percentages
+            foreach ($demo['gender'] as $label => $pct) {
+                $genderCounts[$label] = ($genderCounts[$label] ?? 0) + (int) round($pct / 100 * $personCount);
+            }
+            foreach ($demo['race'] as $label => $pct) {
+                $raceCounts[$label] = ($raceCounts[$label] ?? 0) + (int) round($pct / 100 * $personCount);
+            }
+            foreach ($demo['ethnicity'] as $label => $pct) {
+                $ethnicityCounts[$label] = ($ethnicityCounts[$label] ?? 0) + (int) round($pct / 100 * $personCount);
+            }
+        }
+
+        // Convert back to percentages
+        $toPercentages = function (array $counts) use ($totalPersons): array {
+            if ($totalPersons === 0) {
+                return [];
+            }
+            $result = [];
+            foreach ($counts as $label => $count) {
+                $result[$label] = round(($count / $totalPersons) * 100, 1);
+            }
+            arsort($result);
+
+            return $result;
+        };
+
+        return [
+            'gender' => $toPercentages($genderCounts),
+            'race' => $toPercentages($raceCounts),
+            'ethnicity' => $toPercentages($ethnicityCounts),
+            'total_persons' => $totalPersons,
+        ];
+    }
+
+    /**
      * Resolve a concept_id to a concept_name from the vocabulary.
      */
     private function resolveConceptName(string $conceptId): ?string

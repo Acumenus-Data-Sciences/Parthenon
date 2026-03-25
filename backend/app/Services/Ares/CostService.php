@@ -244,6 +244,175 @@ class CostService
     }
 
     /**
+     * Get cost distribution data for box-and-whisker plots.
+     *
+     * @return array{has_cost_data: bool, distributions: array<int, array{domain: string, min: float, p10: float, p25: float, median: float, p75: float, p90: float, max: float, mean: float, count: int}>}
+     */
+    public function getDistribution(Source $source, ?string $domain = null, ?int $costTypeConceptId = null): array
+    {
+        if (! $this->hasCostData($source)) {
+            return ['has_cost_data' => false, 'distributions' => []];
+        }
+
+        try {
+            $connection = $this->getOmopConnection($source);
+
+            $query = DB::connection($connection)->table('cost')
+                ->whereNotNull('cost_domain_id')
+                ->where('total_charge', '>', 0);
+
+            if ($domain) {
+                $query->where('cost_domain_id', $domain);
+            }
+
+            if ($costTypeConceptId) {
+                $query->where('cost_type_concept_id', $costTypeConceptId);
+            }
+
+            $distributions = $query
+                ->selectRaw("
+                    cost_domain_id as domain,
+                    MIN(total_charge) as min_val,
+                    PERCENTILE_CONT(0.10) WITHIN GROUP (ORDER BY total_charge) as p10,
+                    PERCENTILE_CONT(0.25) WITHIN GROUP (ORDER BY total_charge) as p25,
+                    PERCENTILE_CONT(0.50) WITHIN GROUP (ORDER BY total_charge) as median,
+                    PERCENTILE_CONT(0.75) WITHIN GROUP (ORDER BY total_charge) as p75,
+                    PERCENTILE_CONT(0.90) WITHIN GROUP (ORDER BY total_charge) as p90,
+                    MAX(total_charge) as max_val,
+                    AVG(total_charge) as mean_val,
+                    COUNT(*) as record_count
+                ")
+                ->groupBy('cost_domain_id')
+                ->orderByDesc(DB::raw('SUM(total_charge)'))
+                ->get();
+
+            return [
+                'has_cost_data' => true,
+                'distributions' => $distributions->map(fn ($row) => [
+                    'domain' => $row->domain,
+                    'min' => round((float) $row->min_val, 2),
+                    'p10' => round((float) $row->p10, 2),
+                    'p25' => round((float) $row->p25, 2),
+                    'median' => round((float) $row->median, 2),
+                    'p75' => round((float) $row->p75, 2),
+                    'p90' => round((float) $row->p90, 2),
+                    'max' => round((float) $row->max_val, 2),
+                    'mean' => round((float) $row->mean_val, 2),
+                    'count' => (int) $row->record_count,
+                ])->toArray(),
+            ];
+        } catch (\Throwable $e) {
+            Log::warning("CostService: getDistribution failed: {$e->getMessage()}");
+
+            return ['has_cost_data' => false, 'distributions' => []];
+        }
+    }
+
+    /**
+     * Get distinct cost type concept IDs available for a source.
+     *
+     * @return array<int, array{cost_type_concept_id: int, concept_name: string, record_count: int}>
+     */
+    public function getAvailableCostTypes(Source $source): array
+    {
+        try {
+            $connection = $this->getOmopConnection($source);
+
+            $types = DB::connection($connection)->table('cost as c')
+                ->join('concept as co', 'c.cost_type_concept_id', '=', 'co.concept_id')
+                ->whereNotNull('c.cost_type_concept_id')
+                ->selectRaw('c.cost_type_concept_id, co.concept_name, COUNT(*) as record_count')
+                ->groupBy('c.cost_type_concept_id', 'co.concept_name')
+                ->orderByDesc(DB::raw('COUNT(*)'))
+                ->get();
+
+            return $types->map(fn ($row) => [
+                'cost_type_concept_id' => (int) $row->cost_type_concept_id,
+                'concept_name' => $row->concept_name,
+                'record_count' => (int) $row->record_count,
+            ])->toArray();
+        } catch (\Throwable) {
+            return [];
+        }
+    }
+
+    /**
+     * Get care setting breakdown — cost grouped by visit type.
+     *
+     * @return array{has_cost_data: bool, settings: array<int, array{setting: string, visit_concept_id: int, total_cost: float, record_count: int, avg_cost: float}>}
+     */
+    public function getCareSettingBreakdown(Source $source): array
+    {
+        if (! $this->hasCostData($source)) {
+            return ['has_cost_data' => false, 'settings' => []];
+        }
+
+        try {
+            $connection = $this->getOmopConnection($source);
+
+            $results = DB::connection($connection)->table('cost as c')
+                ->join('visit_occurrence as vo', function ($join) {
+                    $join->on('c.cost_event_id', '=', 'vo.visit_occurrence_id')
+                        ->where('c.cost_domain_id', '=', 'Visit');
+                })
+                ->join('concept as co', 'vo.visit_concept_id', '=', 'co.concept_id')
+                ->selectRaw('
+                    co.concept_name as setting,
+                    vo.visit_concept_id,
+                    SUM(c.total_charge) as total_cost,
+                    COUNT(*) as record_count,
+                    AVG(c.total_charge) as avg_cost
+                ')
+                ->groupBy('co.concept_name', 'vo.visit_concept_id')
+                ->orderByDesc(DB::raw('SUM(c.total_charge)'))
+                ->get();
+
+            return [
+                'has_cost_data' => true,
+                'settings' => $results->map(fn ($row) => [
+                    'setting' => $row->setting,
+                    'visit_concept_id' => (int) $row->visit_concept_id,
+                    'total_cost' => round((float) $row->total_cost, 2),
+                    'record_count' => (int) $row->record_count,
+                    'avg_cost' => round((float) $row->avg_cost, 2),
+                ])->toArray(),
+            ];
+        } catch (\Throwable $e) {
+            Log::warning("CostService: getCareSettingBreakdown failed: {$e->getMessage()}");
+
+            return ['has_cost_data' => false, 'settings' => []];
+        }
+    }
+
+    /**
+     * Get network cost comparison across all sources.
+     *
+     * @return array{sources: array<int, array{source_id: int, source_name: string, has_cost_data: bool, total_cost: float, pppy: float, person_count: int}>}
+     */
+    public function getNetworkCompare(): array
+    {
+        return Cache::remember('ares:network:cost-compare', 600, function () {
+            $sources = Source::whereHas('daimons')->get();
+            $results = [];
+
+            foreach ($sources as $source) {
+                $summary = $this->getSummary($source);
+
+                $results[] = [
+                    'source_id' => $source->id,
+                    'source_name' => $source->source_name,
+                    'has_cost_data' => $summary['has_cost_data'],
+                    'total_cost' => $summary['total_cost'] ?? 0.0,
+                    'pppy' => $summary['pppy'] ?? 0.0,
+                    'person_count' => $summary['person_count'] ?? 0,
+                ];
+            }
+
+            return ['sources' => $results];
+        });
+    }
+
+    /**
      * Get the OMOP connection name for a source, setting search_path as needed.
      */
     private function getOmopConnection(Source $source): string

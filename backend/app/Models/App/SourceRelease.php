@@ -29,6 +29,7 @@ class SourceRelease extends Model
         'person_count',
         'record_count',
         'notes',
+        'etl_metadata',
     ];
 
     /**
@@ -39,6 +40,7 @@ class SourceRelease extends Model
         return [
             'person_count' => 'integer',
             'record_count' => 'integer',
+            'etl_metadata' => 'array',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];
