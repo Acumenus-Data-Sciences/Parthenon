@@ -108,6 +108,14 @@ class Source extends Model
         return $this->hasMany(SourceProfile::class);
     }
 
+    /**
+     * @return HasMany<EtlProject, $this>
+     */
+    public function etlProjects(): HasMany
+    {
+        return $this->hasMany(EtlProject::class);
+    }
+
     public function getTableQualifier(DaimonType $type): ?string
     {
         /** @var SourceDaimon|null $daimon */

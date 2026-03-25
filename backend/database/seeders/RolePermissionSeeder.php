@@ -65,6 +65,9 @@ class RolePermissionSeeder extends Seeder
 
         // ── Source profiler ────────────────────────────────────────────────
         'profiler' => ['view', 'scan', 'delete'],
+
+        // ── ETL mapping designer ──────────────────────────────────────────
+        'etl' => ['view', 'create', 'delete', 'export'],
     ];
 
     /**
@@ -88,6 +91,7 @@ class RolePermissionSeeder extends Seeder
             'system.view-horizon', 'system.view-logs', 'system.manage-config',
             'gis.view', 'gis.load-data', 'gis.import', 'gis.import.manage',
             'profiler.view', 'profiler.scan', 'profiler.delete',
+            'etl.view', 'etl.create', 'etl.delete', 'etl.export',
         ],
 
         // Clinical/epidemiological researcher — primary user persona.
@@ -103,6 +107,7 @@ class RolePermissionSeeder extends Seeder
             'jobs.view',
             'gis.view', 'gis.import',
             'profiler.view',
+            'etl.view', 'etl.create', 'etl.export',
         ],
 
         // Responsible for data pipelines and CDM quality.
@@ -116,6 +121,7 @@ class RolePermissionSeeder extends Seeder
             'cohorts.view',
             'analyses.view',
             'profiler.view', 'profiler.scan',
+            'etl.view', 'etl.create', 'etl.export',
         ],
 
         // Reviews and approves AI concept mapping suggestions.
@@ -140,6 +146,7 @@ class RolePermissionSeeder extends Seeder
             'jobs.view',
             'gis.view',
             'profiler.view',
+            'etl.view',
         ],
     ];
 

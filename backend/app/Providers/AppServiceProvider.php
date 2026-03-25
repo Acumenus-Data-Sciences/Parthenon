@@ -29,6 +29,7 @@ use App\Models\App\StudyResult;
 use App\Models\App\StudySite;
 use App\Models\App\StudySynthesis;
 use App\Models\App\StudyTeamMember;
+use App\Models\App\EtlProject;
 use App\Models\Commons\Channel;
 use App\Models\Commons\Message;
 use App\Observers\CohortDefinitionObserver;
@@ -46,6 +47,7 @@ use App\Observers\StudyObserver;
 use App\Observers\StudySubResourceObserver;
 use App\Policies\Commons\ChannelPolicy;
 use App\Policies\Commons\MessagePolicy;
+use App\Policies\EtlProjectPolicy;
 use App\Services\AI\AbbyAiService;
 use App\Services\Analysis\CareGapService;
 use App\Services\Analysis\CharacterizationService;
@@ -189,6 +191,9 @@ class AppServiceProvider extends ServiceProvider
         // Commons policies
         Gate::policy(Channel::class, ChannelPolicy::class);
         Gate::policy(Message::class, MessagePolicy::class);
+
+        // Aqueduct ETL policies
+        Gate::policy(EtlProject::class, EtlProjectPolicy::class);
 
         // Model observers — activity logging + Solr delta indexing
         CohortDefinition::observe(CohortDefinitionObserver::class);
