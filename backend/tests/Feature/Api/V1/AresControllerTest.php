@@ -166,3 +166,45 @@ it('allows creator to delete annotation', function () {
 
     $this->assertDatabaseMissing('chart_annotations', ['id' => $annotation->id]);
 });
+
+// ── Cost Routes ───────────────────────────────────────────────────────────
+
+it('requires authentication for cost summary', function () {
+    $source = Source::factory()->create();
+
+    $this->getJson("/api/v1/sources/{$source->id}/ares/cost/summary")
+        ->assertStatus(401);
+});
+
+it('returns cost summary for authenticated user', function () {
+    $user = User::factory()->create();
+    $user->assignRole('researcher');
+    $source = Source::factory()->create();
+
+    $this->actingAs($user)
+        ->getJson("/api/v1/sources/{$source->id}/ares/cost/summary")
+        ->assertOk()
+        ->assertJsonStructure(['data' => ['has_cost_data', 'domains']]);
+});
+
+it('returns cost trends for authenticated user', function () {
+    $user = User::factory()->create();
+    $user->assignRole('researcher');
+    $source = Source::factory()->create();
+
+    $this->actingAs($user)
+        ->getJson("/api/v1/sources/{$source->id}/ares/cost/trends")
+        ->assertOk()
+        ->assertJsonStructure(['data' => ['has_cost_data', 'months']]);
+});
+
+it('returns cost domain detail for authenticated user', function () {
+    $user = User::factory()->create();
+    $user->assignRole('researcher');
+    $source = Source::factory()->create();
+
+    $this->actingAs($user)
+        ->getJson("/api/v1/sources/{$source->id}/ares/cost/domains/drug_exposure")
+        ->assertOk()
+        ->assertJsonStructure(['data' => ['has_cost_data', 'concepts']]);
+});

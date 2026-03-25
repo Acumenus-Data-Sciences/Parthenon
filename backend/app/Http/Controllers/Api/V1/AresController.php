@@ -10,7 +10,9 @@ use App\Http\Requests\Api\UpdateReleaseRequest;
 use App\Models\App\ChartAnnotation;
 use App\Models\App\Source;
 use App\Models\App\SourceRelease;
+use App\Models\User;
 use App\Services\Ares\AnnotationService;
+use App\Services\Ares\CostService;
 use App\Services\Ares\DqHistoryService;
 use App\Services\Ares\ReleaseService;
 use App\Services\Ares\UnmappedCodeService;
@@ -25,6 +27,7 @@ class AresController extends Controller
         private readonly AnnotationService $annotationService,
         private readonly DqHistoryService $dqHistoryService,
         private readonly UnmappedCodeService $unmappedCodeService,
+        private readonly CostService $costService,
     ) {}
 
     // ── Releases ────────────────────────────────────────────────────────
@@ -102,7 +105,7 @@ class AresController extends Controller
      */
     public function storeAnnotation(StoreAnnotationRequest $request, Source $source): JsonResponse
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = $request->user();
 
         $data = [
@@ -120,7 +123,7 @@ class AresController extends Controller
      */
     public function updateAnnotation(UpdateAnnotationRequest $request, Source $source, ChartAnnotation $annotation): JsonResponse
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = $request->user();
 
         try {
@@ -137,7 +140,7 @@ class AresController extends Controller
      */
     public function destroyAnnotation(Request $request, Source $source, ChartAnnotation $annotation): JsonResponse
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = $request->user();
 
         try {
@@ -251,6 +254,38 @@ class AresController extends Controller
     {
         return response()->json([
             'data' => $this->dqHistoryService->getDomainContinuity($source),
+        ]);
+    }
+
+    // ── Cost ────────────────────────────────────────────────────────────
+
+    /**
+     * GET /v1/sources/{source}/ares/cost/summary
+     */
+    public function costSummary(Source $source): JsonResponse
+    {
+        return response()->json([
+            'data' => $this->costService->getSummary($source),
+        ]);
+    }
+
+    /**
+     * GET /v1/sources/{source}/ares/cost/trends
+     */
+    public function costTrends(Source $source): JsonResponse
+    {
+        return response()->json([
+            'data' => $this->costService->getTrends($source),
+        ]);
+    }
+
+    /**
+     * GET /v1/sources/{source}/ares/cost/domains/{domain}
+     */
+    public function costDomainDetail(Source $source, string $domain): JsonResponse
+    {
+        return response()->json([
+            'data' => $this->costService->getDomainDetail($source, $domain),
         ]);
     }
 }

@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\RunFeasibilityRequest;
+use App\Models\User;
 use App\Services\Ares\AnnotationService;
+use App\Services\Ares\CostService;
 use App\Services\Ares\CoverageService;
 use App\Services\Ares\DiversityService;
 use App\Services\Ares\DqHistoryService;
@@ -22,6 +24,7 @@ class NetworkAresController extends Controller
         private readonly FeasibilityService $feasibilityService,
         private readonly DqHistoryService $dqHistoryService,
         private readonly AnnotationService $annotationService,
+        private readonly CostService $costService,
     ) {}
 
     // ── Hub Overview ─────────────────────────────────────────────────────
@@ -129,7 +132,7 @@ class NetworkAresController extends Controller
      */
     public function runFeasibility(RunFeasibilityRequest $request): JsonResponse
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = $request->user();
 
         $assessment = $this->feasibilityService->assess(
@@ -189,7 +192,7 @@ class NetworkAresController extends Controller
         ]);
     }
 
-    // ── Network Cost (Placeholder) ───────────────────────────────────────
+    // ── Network Cost ──────────────────────────────────────────────────────
 
     /**
      * GET /v1/network/ares/cost
@@ -197,8 +200,7 @@ class NetworkAresController extends Controller
     public function cost(): JsonResponse
     {
         return response()->json([
-            'data' => [],
-            'message' => 'Cost analysis will be available in Phase 4.',
+            'data' => $this->costService->getNetworkCost(),
         ]);
     }
 }

@@ -11,6 +11,7 @@ import CoverageMatrixView from "../components/ares/coverage/CoverageMatrixView";
 import DiversityView from "../components/ares/diversity/DiversityView";
 import FeasibilityView from "../components/ares/feasibility/FeasibilityView";
 import NetworkOverviewView from "../components/ares/network-overview/NetworkOverviewView";
+import CostView from "../components/ares/cost/CostView";
 
 const SECTION_LABELS: Record<AresSection, string> = {
   hub: "Hub",
@@ -70,6 +71,8 @@ export default function AresTab() {
         return <DiversityView />;
       case "feasibility":
         return <FeasibilityView />;
+      case "cost":
+        return <CostView />;
       default:
         return <ComingSoonPlaceholder section={activeSection} />;
     }

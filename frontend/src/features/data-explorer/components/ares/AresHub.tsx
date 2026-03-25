@@ -2,6 +2,7 @@ import type { AresSection } from "../../types/ares";
 import { useAresHubKpis } from "../../hooks/useAresHub";
 import { AresHealthBanner } from "./AresHealthBanner";
 import { HubCard } from "./HubCard";
+import { HubCardSkeleton } from "./HubCardSkeleton";
 
 interface AresHubProps {
   onNavigate: (section: AresSection) => void;
@@ -9,6 +10,41 @@ interface AresHubProps {
 
 export function AresHub({ onNavigate }: AresHubProps) {
   const { data: kpis, isLoading } = useAresHubKpis();
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        {/* Banner skeleton */}
+        <div className="h-20 animate-pulse rounded-xl border border-[#252530] bg-[#151518]" />
+
+        {/* Row 1 */}
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          <HubCardSkeleton />
+          <HubCardSkeleton />
+          <HubCardSkeleton />
+        </div>
+
+        {/* Row 2 */}
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          <HubCardSkeleton />
+          <HubCardSkeleton />
+          <HubCardSkeleton />
+        </div>
+
+        {/* Row 3 */}
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          <HubCardSkeleton />
+          <HubCardSkeleton />
+          <HubCardSkeleton />
+        </div>
+
+        {/* Row 4 */}
+        <div className="grid grid-cols-1 gap-4">
+          <HubCardSkeleton />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -80,10 +116,6 @@ export function AresHub({ onNavigate }: AresHubProps) {
           <p className="text-sm text-[#888]">Cost data by domain and over time</p>
         </HubCard>
       </div>
-
-      {isLoading && (
-        <p className="mt-2 text-center text-[10px] text-[#555]">Loading network health data...</p>
-      )}
     </div>
   );
 }

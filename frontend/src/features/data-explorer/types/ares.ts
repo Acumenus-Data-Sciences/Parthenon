@@ -249,3 +249,52 @@ export interface NetworkDqSource {
   trend: "up" | "down" | "stable" | null;
   release_name: string | null;
 }
+
+// ── Cost types ──────────────────────────────────────────────────────────
+
+export interface CostDomain {
+  domain: string;
+  total_cost: number;
+  record_count: number;
+  avg_cost: number;
+}
+
+export interface CostSummary {
+  has_cost_data: boolean;
+  domains: CostDomain[];
+}
+
+export interface CostMonth {
+  month: string;
+  total_cost: number;
+  record_count: number;
+}
+
+export interface CostTrends {
+  has_cost_data: boolean;
+  months: CostMonth[];
+}
+
+export interface CostConcept {
+  concept_id: number;
+  concept_name: string;
+  total_cost: number;
+  record_count: number;
+}
+
+export interface CostDomainDetail {
+  has_cost_data: boolean;
+  concepts: CostConcept[];
+}
+
+export interface NetworkCostSource {
+  source_id: number;
+  source_name: string;
+  has_cost_data: boolean;
+  total_cost: number;
+  record_count: number;
+}
+
+export interface NetworkCost {
+  sources: NetworkCostSource[];
+}

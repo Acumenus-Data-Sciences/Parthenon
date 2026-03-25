@@ -133,10 +133,16 @@ it('returns network annotations', function () {
         ->assertOk();
 });
 
-// ── Cost (Placeholder) ──────────────────────────────────────────────────
+// ── Cost ─────────────────────────────────────────────────────────────────
 
-it('returns cost placeholder', function () {
+it('returns network cost data with sources array', function () {
     $this->actingAs($this->user)
         ->getJson('/api/v1/network/ares/cost')
-        ->assertOk();
+        ->assertOk()
+        ->assertJsonStructure(['data' => ['sources']]);
+});
+
+it('requires authentication for network cost', function () {
+    $this->getJson('/api/v1/network/ares/cost')
+        ->assertStatus(401);
 });

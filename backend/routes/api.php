@@ -21,7 +21,6 @@ use App\Http\Controllers\Api\V1\Admin\WebApiRegistryController;
 use App\Http\Controllers\Api\V1\AnalysisStatsController;
 use App\Http\Controllers\Api\V1\AresController;
 use App\Http\Controllers\Api\V1\AriadneController;
-use App\Http\Controllers\Api\V1\NetworkAresController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CareGapController;
 use App\Http\Controllers\Api\V1\CharacterizationController;
@@ -81,6 +80,7 @@ use App\Http\Controllers\Api\V1\MorpheusDatasetController;
 use App\Http\Controllers\Api\V1\MorpheusPatientController;
 use App\Http\Controllers\Api\V1\NegativeControlController;
 use App\Http\Controllers\Api\V1\NetworkAnalysisController;
+use App\Http\Controllers\Api\V1\NetworkAresController;
 use App\Http\Controllers\Api\V1\NotificationPreferenceController;
 use App\Http\Controllers\Api\V1\OnboardingController;
 use App\Http\Controllers\Api\V1\PathwayController;
@@ -244,6 +244,11 @@ Route::prefix('v1')->group(function () {
 
             // Domain Continuity
             Route::get('/domain-continuity', [AresController::class, 'domainContinuity'])->middleware('permission:analyses.view');
+
+            // Cost
+            Route::get('/cost/summary', [AresController::class, 'costSummary'])->middleware('permission:analyses.view');
+            Route::get('/cost/trends', [AresController::class, 'costTrends'])->middleware('permission:analyses.view');
+            Route::get('/cost/domains/{domain}', [AresController::class, 'costDomainDetail'])->middleware('permission:analyses.view');
         });
 
         // Network Ares — Cross-source intelligence
