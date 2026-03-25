@@ -48,12 +48,13 @@ class ReleaseService
 
         $releaseKey = $this->generateKey($source);
 
-        $release = SourceRelease::create([
-            'source_id' => $source->id,
-            'release_key' => $releaseKey,
-            'release_name' => 'Auto snapshot '.now()->format('Y-m-d H:i'),
-            'release_type' => 'snapshot',
-        ]);
+        $release = SourceRelease::firstOrCreate(
+            ['source_id' => $source->id, 'release_key' => $releaseKey],
+            [
+                'release_name' => 'Auto snapshot '.now()->format('Y-m-d H:i'),
+                'release_type' => 'snapshot',
+            ],
+        );
 
         Log::info('ReleaseService: Auto snapshot created', [
             'release_id' => $release->id,

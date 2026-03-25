@@ -365,6 +365,20 @@ class AchillesController extends Controller
     public function run(Request $request, Source $source): JsonResponse
     {
         try {
+            // Prevent concurrent runs on the same source
+            $activeRun = AchillesRun::where('source_id', $source->id)
+                ->whereIn('status', ['pending', 'running'])
+                ->first();
+
+            if ($activeRun) {
+                return response()->json([
+                    'error' => 'An Achilles run is already active for this source.',
+                    'active_run_id' => $activeRun->run_id,
+                    'status' => $activeRun->status,
+                    'started_at' => $activeRun->started_at,
+                ], 409);
+            }
+
             $runId = (string) Str::uuid();
 
             RunAchillesJob::dispatch(

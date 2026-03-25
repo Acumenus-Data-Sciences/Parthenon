@@ -7,6 +7,7 @@ use App\Models\App\Source;
 use App\Models\Results\AchillesRun;
 use App\Services\Achilles\AchillesEngineService;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -14,7 +15,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
-class RunAchillesJob implements ShouldQueue
+class RunAchillesJob implements ShouldBeUnique, ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -23,6 +24,13 @@ class RunAchillesJob implements ShouldQueue
     public int $tries = 3;
 
     public int $backoff = 30; // seconds between retries
+
+    /**
+     * Unique lock TTL: 4 hours (longer than timeout to cover retries).
+     * Prevents a second Achilles job for the SAME source from being dispatched
+     * while one is already queued or running.
+     */
+    public int $uniqueFor = 14400;
 
     /**
      * @param  list<string>|null  $categories
@@ -38,10 +46,40 @@ class RunAchillesJob implements ShouldQueue
         $this->queue = 'achilles';
     }
 
+    /**
+     * Unique ID scoped to the source — only one Achilles job per source at a time.
+     */
+    public function uniqueId(): string
+    {
+        return 'achilles-source-'.$this->source->id;
+    }
+
     public function handle(AchillesEngineService $engine): void
     {
         // Generate run_id if not provided (backward compat with CLI)
         $this->runId ??= (string) Str::uuid();
+
+        // Guard: abort if another run for this source is already running
+        $existingRun = AchillesRun::where('source_id', $this->source->id)
+            ->where('status', 'running')
+            ->where('run_id', '!=', $this->runId)
+            ->first();
+
+        if ($existingRun) {
+            Log::warning('Achilles job aborted: another run is active for this source', [
+                'source_id' => $this->source->id,
+                'this_run_id' => $this->runId,
+                'existing_run_id' => $existingRun->run_id,
+            ]);
+
+            // Mark this run as failed so it doesn't stay "pending" forever
+            AchillesRun::where('run_id', $this->runId)->update([
+                'status' => 'failed',
+                'completed_at' => now(),
+            ]);
+
+            return;
+        }
 
         $isRetry = $this->attempts() > 1;
 

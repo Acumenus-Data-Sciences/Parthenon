@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Jobs\Achilles\RunAchillesJob;
 use App\Models\App\Source;
+use App\Models\Results\AchillesRun;
 use App\Services\Achilles\AchillesAnalysisRegistry;
 use App\Services\Achilles\AchillesEngineService;
 use Illuminate\Console\Command;
@@ -50,6 +51,18 @@ class RunAchillesCommand extends Command
 
         // List available categories for reference
         $this->info('Available categories: '.implode(', ', $registry->categories()));
+
+        // Prevent concurrent runs on the same source
+        $activeRun = AchillesRun::where('source_id', $source->id)
+            ->whereIn('status', ['pending', 'running'])
+            ->first();
+
+        if ($activeRun) {
+            $this->error("An Achilles run is already active for this source (run_id: {$activeRun->run_id}, status: {$activeRun->status}).");
+            $this->error('Wait for it to complete or manually mark it as failed before starting a new run.');
+
+            return self::FAILURE;
+        }
 
         if ($this->option('sync')) {
             return $this->runSync($engine, $source, $categories, $analysisIds);

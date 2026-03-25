@@ -117,6 +117,7 @@ use App\Services\Achilles\Analyses\Person\Analysis3;
 // ── Measurement ────────────────────────────────────────────────────────────────
 use App\Services\Achilles\Analyses\Person\Analysis4;
 use App\Services\Achilles\Analyses\Person\Analysis5;
+use App\Services\Achilles\Analyses\Person\Analysis10;
 use App\Services\Achilles\Analyses\Procedure\Analysis600;
 use App\Services\Achilles\Analyses\Procedure\Analysis601;
 use App\Services\Achilles\Analyses\Procedure\Analysis602;
@@ -169,8 +170,8 @@ class AchillesServiceProvider extends ServiceProvider
         $this->app->singleton(AchillesAnalysisRegistry::class, function () {
             $registry = new AchillesAnalysisRegistry;
 
-            // Person (5 analyses)
-            foreach ([new Analysis0, new Analysis2, new Analysis3, new Analysis4, new Analysis5] as $a) {
+            // Person (6 analyses)
+            foreach ([new Analysis0, new Analysis2, new Analysis3, new Analysis4, new Analysis5, new Analysis10] as $a) {
                 $registry->register($a);
             }
 
