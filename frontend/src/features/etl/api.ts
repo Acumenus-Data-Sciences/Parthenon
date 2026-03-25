@@ -292,3 +292,137 @@ export async function fetchComparison(
   );
   return data.data;
 }
+
+// ---------------------------------------------------------------------------
+// Types — Aqueduct ETL Mapping
+// ---------------------------------------------------------------------------
+
+export interface EtlProject {
+  id: number;
+  source_id: number;
+  cdm_version: string;
+  name: string;
+  status: 'draft' | 'in_review' | 'approved' | 'archived';
+  created_by: number;
+  scan_profile_id: number;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+  table_mappings?: EtlTableMapping[];
+  source?: { id: number; source_name: string };
+}
+
+export interface EtlTableMapping {
+  id: number;
+  etl_project_id: number;
+  source_table: string;
+  target_table: string;
+  logic: string | null;
+  is_completed: boolean;
+  is_stem: boolean;
+  sort_order: number;
+  updated_at: string;
+  field_mappings_count?: number;
+  field_mappings?: EtlFieldMapping[];
+}
+
+export interface EtlFieldMapping {
+  id: number;
+  etl_table_mapping_id: number;
+  source_column: string | null;
+  target_column: string;
+  mapping_type: 'direct' | 'transform' | 'lookup' | 'constant' | 'concat' | 'expression';
+  logic: string | null;
+  is_required: boolean;
+  confidence: number | null;
+  is_ai_suggested: boolean;
+  is_reviewed: boolean;
+}
+
+export interface ProjectProgress {
+  mapped_tables: number;
+  total_cdm_tables: number;
+  field_coverage_pct: number;
+}
+
+// ---------------------------------------------------------------------------
+// API functions — Aqueduct ETL Mapping
+// ---------------------------------------------------------------------------
+
+export async function fetchEtlProjects(): Promise<{ data: EtlProject[]; total: number }> {
+  const { data } = await apiClient.get<{ data: EtlProject[]; total: number }>('/etl-projects');
+  return data;
+}
+
+export async function fetchEtlProject(projectId: number): Promise<{ project: EtlProject; progress: ProjectProgress }> {
+  const { data } = await apiClient.get<{ data: { project: EtlProject; progress: ProjectProgress } }>(`/etl-projects/${projectId}`);
+  return data.data;
+}
+
+export async function createEtlProject(request: {
+  source_id: number;
+  cdm_version: string;
+  scan_profile_id: number;
+  notes?: string;
+}): Promise<EtlProject> {
+  const { data } = await apiClient.post<{ data: EtlProject }>('/etl-projects', request);
+  return data.data;
+}
+
+export async function updateEtlProject(projectId: number, updates: {
+  name?: string;
+  status?: string;
+  notes?: string;
+}): Promise<EtlProject> {
+  const { data } = await apiClient.put<{ data: EtlProject }>(`/etl-projects/${projectId}`, updates);
+  return data.data;
+}
+
+export async function deleteEtlProject(projectId: number): Promise<void> {
+  await apiClient.delete(`/etl-projects/${projectId}`);
+}
+
+export async function fetchTableMappings(projectId: number): Promise<EtlTableMapping[]> {
+  const { data } = await apiClient.get<{ data: EtlTableMapping[] }>(`/etl-projects/${projectId}/table-mappings`);
+  return data.data;
+}
+
+export async function createTableMapping(projectId: number, request: {
+  source_table: string;
+  target_table: string;
+  logic?: string;
+  is_stem?: boolean;
+}): Promise<EtlTableMapping> {
+  const { data } = await apiClient.post<{ data: EtlTableMapping }>(`/etl-projects/${projectId}/table-mappings`, request);
+  return data.data;
+}
+
+export async function updateTableMapping(projectId: number, mappingId: number, updates: {
+  logic?: string;
+  is_completed?: boolean;
+}): Promise<EtlTableMapping> {
+  const { data } = await apiClient.put<{ data: EtlTableMapping }>(`/etl-projects/${projectId}/table-mappings/${mappingId}`, updates);
+  return data.data;
+}
+
+export async function deleteTableMapping(projectId: number, mappingId: number): Promise<void> {
+  await apiClient.delete(`/etl-projects/${projectId}/table-mappings/${mappingId}`);
+}
+
+export async function fetchFieldMappings(projectId: number, mappingId: number): Promise<EtlFieldMapping[]> {
+  const { data } = await apiClient.get<{ data: EtlFieldMapping[] }>(`/etl-projects/${projectId}/table-mappings/${mappingId}/fields`);
+  return data.data;
+}
+
+export async function bulkUpsertFieldMappings(
+  projectId: number,
+  mappingId: number,
+  fields: Array<Partial<EtlFieldMapping> & { target_column: string }>,
+  updatedAt: string,
+): Promise<EtlFieldMapping[]> {
+  const { data } = await apiClient.put<{ data: EtlFieldMapping[] }>(
+    `/etl-projects/${projectId}/table-mappings/${mappingId}/fields`,
+    { fields, updated_at: updatedAt },
+  );
+  return data.data;
+}
