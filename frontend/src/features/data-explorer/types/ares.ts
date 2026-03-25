@@ -22,6 +22,7 @@ export interface ChartAnnotation {
   x_value: string;
   y_value: number | null;
   annotation_text: string;
+  tag: 'data_event' | 'research_note' | 'action_item' | 'system' | null;
   created_by: number;
   creator?: { id: number; name: string };
   source?: { id: number; source_name: string };
@@ -124,7 +125,14 @@ export interface UnmappedCode {
   cdm_table: string;
   cdm_field: string;
   record_count: number;
+  impact_score: number;
   created_at: string;
+}
+
+export interface AnnotationFilters {
+  tag?: string;
+  search?: string;
+  source_id?: number;
 }
 
 export interface PaginatedResponse<T> {
@@ -170,6 +178,8 @@ export interface ConceptComparison {
   count: number;
   rate_per_1000: number;
   person_count: number;
+  ci_lower: number;
+  ci_upper: number;
 }
 
 // ── Coverage matrix types ────────────────────────────────────────────────
@@ -178,6 +188,8 @@ export interface CoverageMatrix {
   sources: Array<{ id: number; name: string }>;
   domains: string[];
   matrix: Array<Record<string, CoverageCell>>;
+  domain_totals: Record<string, number>;
+  source_completeness: Record<number, number>;
 }
 
 export interface CoverageCell {
@@ -195,6 +207,8 @@ export interface DiversitySource {
   gender: Record<string, number>;
   race: Record<string, number>;
   ethnicity: Record<string, number>;
+  simpson_index: number;
+  diversity_rating: 'low' | 'moderate' | 'high' | 'very_high';
 }
 
 // ── Feasibility types ────────────────────────────────────────────────────
@@ -230,6 +244,12 @@ export interface FeasibilityResult {
   patient_pass: boolean;
   overall_pass: boolean;
   details: Record<string, unknown>;
+  domain_score: number;
+  concept_score: number;
+  visit_score: number;
+  date_score: number;
+  patient_score: number;
+  composite_score: number;
 }
 
 // ── Network overview types ───────────────────────────────────────────────
@@ -239,6 +259,8 @@ export interface NetworkOverview {
   avg_dq_score: number | null;
   total_unmapped_codes: number;
   sources_needing_attention: number;
+  network_person_count: number;
+  network_record_count: number;
   dq_summary: NetworkDqSource[];
 }
 
@@ -248,6 +270,10 @@ export interface NetworkDqSource {
   pass_rate: number;
   trend: "up" | "down" | "stable" | null;
   release_name: string | null;
+  sparkline: number[];
+  days_since_refresh: number | null;
+  domain_count: number;
+  person_count: number;
 }
 
 // ── Cost types ──────────────────────────────────────────────────────────
@@ -262,6 +288,10 @@ export interface CostDomain {
 export interface CostSummary {
   has_cost_data: boolean;
   domains: CostDomain[];
+  total_cost: number;
+  person_count: number;
+  avg_observation_years: number;
+  pppy: number;
 }
 
 export interface CostMonth {

@@ -24,6 +24,7 @@ class ChartAnnotation extends Model
         'x_value',
         'y_value',
         'annotation_text',
+        'tag',
         'created_by',
     ];
 

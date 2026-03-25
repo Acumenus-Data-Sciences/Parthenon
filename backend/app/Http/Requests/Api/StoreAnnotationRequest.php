@@ -22,6 +22,7 @@ class StoreAnnotationRequest extends FormRequest
             'x_value' => 'required|string|max:100',
             'y_value' => 'nullable|numeric',
             'annotation_text' => 'required|string|max:2000',
+            'tag' => ['nullable', 'string', 'in:data_event,research_note,action_item,system'],
         ];
     }
 }
