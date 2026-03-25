@@ -62,7 +62,8 @@ export default function DqTrendChart({ data, onReleaseClick }: DqTrendChartProps
               color: "#ccc",
               fontSize: 12,
             }}
-            formatter={(value: number | string) => [`${Number(value).toFixed(1)}%`, "Pass Rate"]}
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            formatter={((value: number | string) => [`${Number(value).toFixed(1)}%`, "Pass Rate"]) as any}
           />
           <ReferenceLine y={80} stroke="#C9A227" strokeDasharray="5 5" />
           <Line
