@@ -230,3 +230,55 @@ export async function runPersistedScan(
 export async function deleteProfile(sourceId: number, profileId: number): Promise<void> {
   await apiClient.delete(`/sources/${sourceId}/scan-profiles/${profileId}`);
 }
+
+// ---------------------------------------------------------------------------
+// Types — Scan Comparison
+// ---------------------------------------------------------------------------
+
+export interface ComparisonData {
+  summary: {
+    grade_change: { baseline: string; current: string };
+    regressions: number;
+    improvements: number;
+    schema_changes: number;
+    row_count_delta: { baseline: number; current: number; delta_pct: number };
+  };
+  regressions: Array<{
+    table: string;
+    column: string;
+    metric: string;
+    baseline: number;
+    current: number;
+    delta: number;
+  }>;
+  improvements: Array<{
+    table: string;
+    column: string;
+    metric: string;
+    baseline: number;
+    current: number;
+    delta: number;
+  }>;
+  schema_changes: Array<{
+    table: string;
+    column: string;
+    change: string;
+    type: string;
+  }>;
+}
+
+// ---------------------------------------------------------------------------
+// API functions — Scan Comparison
+// ---------------------------------------------------------------------------
+
+export async function fetchComparison(
+  sourceId: number,
+  currentId: number,
+  baselineId: number,
+): Promise<ComparisonData> {
+  const { data } = await apiClient.get<{ data: ComparisonData }>(
+    `/sources/${sourceId}/scan-profiles/compare`,
+    { params: { current: currentId, baseline: baselineId } },
+  );
+  return data.data;
+}

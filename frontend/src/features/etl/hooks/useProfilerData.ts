@@ -4,6 +4,7 @@ import {
   fetchProfile,
   runPersistedScan,
   deleteProfile,
+  fetchComparison,
 } from "../api";
 
 export function useProfileHistory(sourceId: number) {
@@ -43,5 +44,13 @@ export function useDeleteProfile(sourceId: number) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["profiler", "history", sourceId] });
     },
+  });
+}
+
+export function useComparison(sourceId: number, currentId: number, baselineId: number) {
+  return useQuery({
+    queryKey: ["profiler", "compare", sourceId, currentId, baselineId],
+    queryFn: () => fetchComparison(sourceId, currentId, baselineId),
+    enabled: sourceId > 0 && currentId > 0 && baselineId > 0,
   });
 }
