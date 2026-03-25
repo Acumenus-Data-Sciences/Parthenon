@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-// @ts-expect-error react-joyride has inconsistent ESM/CJS exports
-import Joyride, { STATUS, type Step } from "react-joyride";
+import { Joyride, STATUS, type Step } from "react-joyride";
 import { BookOpen, Database, FlaskConical, X, ArrowRight, Loader2 } from "lucide-react";
 import apiClient from "@/lib/api-client";
 import { useAuthStore } from "@/stores/authStore";
