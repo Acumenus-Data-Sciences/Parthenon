@@ -4,6 +4,13 @@ import { AresBreadcrumb } from "../components/ares/AresBreadcrumb";
 import { AresHub } from "../components/ares/AresHub";
 import { ReleasesView } from "../components/ares/releases/ReleasesView";
 import { AnnotationsView } from "../components/ares/annotations/AnnotationsView";
+import DqHistoryView from "../components/ares/dq-history/DqHistoryView";
+import UnmappedCodesView from "../components/ares/unmapped-codes/UnmappedCodesView";
+import ConceptComparisonView from "../components/ares/concept-comparison/ConceptComparisonView";
+import CoverageMatrixView from "../components/ares/coverage/CoverageMatrixView";
+import DiversityView from "../components/ares/diversity/DiversityView";
+import FeasibilityView from "../components/ares/feasibility/FeasibilityView";
+import NetworkOverviewView from "../components/ares/network-overview/NetworkOverviewView";
 
 const SECTION_LABELS: Record<AresSection, string> = {
   hub: "Hub",
@@ -49,6 +56,20 @@ export default function AresTab() {
         return <ReleasesView />;
       case "annotations":
         return <AnnotationsView />;
+      case "dq-history":
+        return <DqHistoryView />;
+      case "unmapped-codes":
+        return <UnmappedCodesView />;
+      case "network-overview":
+        return <NetworkOverviewView />;
+      case "concept-comparison":
+        return <ConceptComparisonView />;
+      case "coverage":
+        return <CoverageMatrixView />;
+      case "diversity":
+        return <DiversityView />;
+      case "feasibility":
+        return <FeasibilityView />;
       default:
         return <ComingSoonPlaceholder section={activeSection} />;
     }

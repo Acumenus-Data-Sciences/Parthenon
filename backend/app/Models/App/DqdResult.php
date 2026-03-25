@@ -2,11 +2,19 @@
 
 namespace App\Models\App;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class DqdResult extends Model
 {
+    use HasFactory;
+
+    protected static function newFactory(): \Database\Factories\DqdResultFactory
+    {
+        return \Database\Factories\DqdResultFactory::new();
+    }
+
     protected $fillable = [
         'source_id',
         'run_id',

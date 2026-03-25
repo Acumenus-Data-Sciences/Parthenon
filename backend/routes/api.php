@@ -21,6 +21,7 @@ use App\Http\Controllers\Api\V1\Admin\WebApiRegistryController;
 use App\Http\Controllers\Api\V1\AnalysisStatsController;
 use App\Http\Controllers\Api\V1\AresController;
 use App\Http\Controllers\Api\V1\AriadneController;
+use App\Http\Controllers\Api\V1\NetworkAresController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CareGapController;
 use App\Http\Controllers\Api\V1\CharacterizationController;
@@ -230,6 +231,45 @@ Route::prefix('v1')->group(function () {
             Route::post('/annotations', [AresController::class, 'storeAnnotation'])->middleware('permission:analyses.create');
             Route::put('/annotations/{annotation}', [AresController::class, 'updateAnnotation'])->middleware('permission:analyses.edit');
             Route::delete('/annotations/{annotation}', [AresController::class, 'destroyAnnotation'])->middleware('permission:analyses.delete');
+
+            // DQ History
+            Route::get('/dq-history', [AresController::class, 'dqHistory'])->middleware('permission:analyses.view');
+            Route::get('/dq-history/deltas', [AresController::class, 'dqHistoryDeltas'])->middleware('permission:analyses.view');
+            Route::get('/dq-history/category-trends', [AresController::class, 'dqHistoryCategoryTrends'])->middleware('permission:analyses.view');
+            Route::get('/dq-history/domain-trends', [AresController::class, 'dqHistoryDomainTrends'])->middleware('permission:analyses.view');
+
+            // Unmapped Codes
+            Route::get('/unmapped-codes', [AresController::class, 'unmappedCodes'])->middleware('permission:analyses.view');
+            Route::get('/unmapped-codes/summary', [AresController::class, 'unmappedCodesSummary'])->middleware('permission:analyses.view');
+
+            // Domain Continuity
+            Route::get('/domain-continuity', [AresController::class, 'domainContinuity'])->middleware('permission:analyses.view');
+        });
+
+        // Network Ares — Cross-source intelligence
+        Route::prefix('network/ares')->group(function () {
+            Route::get('/overview', [NetworkAresController::class, 'overview'])->middleware('permission:analyses.view');
+
+            // Concept comparison
+            Route::get('/compare', [NetworkAresController::class, 'compare'])->middleware('permission:analyses.view');
+            Route::get('/compare/search', [NetworkAresController::class, 'compareSearch'])->middleware('permission:analyses.view');
+            Route::get('/compare/batch', [NetworkAresController::class, 'compareBatch'])
+                ->middleware(['permission:analyses.view', 'throttle:30,1']);
+
+            // Coverage + Diversity
+            Route::get('/coverage', [NetworkAresController::class, 'coverage'])->middleware('permission:analyses.view');
+            Route::get('/diversity', [NetworkAresController::class, 'diversity'])->middleware('permission:analyses.view');
+
+            // Feasibility
+            Route::post('/feasibility', [NetworkAresController::class, 'runFeasibility'])
+                ->middleware(['permission:analyses.create', 'throttle:10,60']);
+            Route::get('/feasibility', [NetworkAresController::class, 'listFeasibility'])->middleware('permission:analyses.view');
+            Route::get('/feasibility/{id}', [NetworkAresController::class, 'showFeasibility'])->middleware('permission:analyses.view');
+
+            // Network DQ + Annotations + Cost
+            Route::get('/dq-summary', [NetworkAresController::class, 'dqSummary'])->middleware('permission:analyses.view');
+            Route::get('/annotations', [NetworkAresController::class, 'annotations'])->middleware('permission:analyses.view');
+            Route::get('/cost', [NetworkAresController::class, 'cost'])->middleware('permission:analyses.view');
         });
 
         // Population Risk Scoring (Tier 3 — 20 validated clinical risk scores)

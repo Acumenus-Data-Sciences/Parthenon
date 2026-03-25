@@ -1,66 +1,89 @@
 import type { AresSection } from "../../types/ares";
-import { HubCard } from "./HubCard";
+import { useAresHubKpis } from "../../hooks/useAresHub";
 import { AresHealthBanner } from "./AresHealthBanner";
+import { HubCard } from "./HubCard";
 
 interface AresHubProps {
   onNavigate: (section: AresSection) => void;
 }
 
 export function AresHub({ onNavigate }: AresHubProps) {
+  const { data: kpis, isLoading } = useAresHubKpis();
+
   return (
     <div className="space-y-6">
       <AresHealthBanner
-        sourceCount={0}
-        avgDqScore={null}
-        unmappedCodes={0}
-        annotationCount={0}
+        sourceCount={kpis?.source_count ?? 0}
+        avgDqScore={kpis?.avg_dq_score ?? null}
+        unmappedCodes={kpis?.total_unmapped_codes ?? 0}
+        annotationCount={kpis?.annotation_count ?? 0}
       />
 
-      {/* Row 1 */}
+      {/* Row 1: Primary */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <HubCard section="network-overview" title="Network Overview" accentColor="#2DD4BF" onClick={onNavigate}>
-          High-level summary across all data sources in the network.
+          <p className="text-2xl font-semibold text-white">{kpis?.source_count ?? "--"}</p>
+          <p className="text-sm text-[#888]">
+            {kpis?.sources_needing_attention
+              ? `${kpis.sources_needing_attention} source${kpis.sources_needing_attention !== 1 ? "s" : ""} below 80% DQ`
+              : "Source health, DQ scores, trend indicators"}
+          </p>
         </HubCard>
         <HubCard section="concept-comparison" title="Concept Comparison" accentColor="#C9A227" onClick={onNavigate}>
-          Compare concept prevalence and distributions across sources.
+          <p className="text-sm text-[#888]">Compare concept prevalence across sources</p>
         </HubCard>
-        <HubCard section="dq-history" title="DQ History" accentColor="#9B1B30" onClick={onNavigate}>
-          Track data quality trends over time across releases.
+        <HubCard section="dq-history" title="DQ History" accentColor="#2DD4BF" onClick={onNavigate}>
+          <p className="text-2xl font-semibold text-white">
+            {kpis?.avg_dq_score != null
+              ? `${kpis.avg_dq_score.toFixed(1)}%`
+              : "--"}
+          </p>
+          <p className="text-sm text-[#888]">Avg network DQ score over releases</p>
         </HubCard>
       </div>
 
-      {/* Row 2 */}
+      {/* Row 2: Secondary */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <HubCard section="coverage" title="Coverage" accentColor="#2DD4BF" onClick={onNavigate}>
-          Vocabulary coverage analysis and mapping completeness.
+        <HubCard section="coverage" title="Coverage Matrix" accentColor="#9B1B30" onClick={onNavigate}>
+          <p className="text-sm text-[#888]">Domain x source availability</p>
         </HubCard>
         <HubCard section="feasibility" title="Feasibility" accentColor="#C9A227" onClick={onNavigate}>
-          Evaluate study feasibility based on available data.
+          <p className="text-sm text-[#888]">Can your network support a study?</p>
         </HubCard>
-        <HubCard section="diversity" title="Diversity" accentColor="#9B1B30" onClick={onNavigate}>
-          Demographic diversity and representation analysis.
+        <HubCard section="diversity" title="Diversity" accentColor="#2DD4BF" onClick={onNavigate}>
+          <p className="text-sm text-[#888]">Demographic parity across sources</p>
         </HubCard>
       </div>
 
-      {/* Row 3 */}
+      {/* Row 3: Tertiary */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <HubCard section="releases" title="Releases" accentColor="#2DD4BF" onClick={onNavigate}>
-          Manage ETL releases and data snapshots per source.
+        <HubCard section="releases" title="Releases" accentColor="#C9A227" onClick={onNavigate}>
+          <p className="text-sm text-[#888]">Version history per source</p>
         </HubCard>
-        <HubCard section="unmapped-codes" title="Unmapped Codes" accentColor="#C9A227" onClick={onNavigate}>
-          Review and prioritize unmapped source codes.
+        <HubCard section="unmapped-codes" title="Unmapped Codes" accentColor="#9B1B30" onClick={onNavigate}>
+          <p className="text-2xl font-semibold text-white">
+            {kpis?.total_unmapped_codes !== undefined
+              ? kpis.total_unmapped_codes.toLocaleString()
+              : "--"}
+          </p>
+          <p className="text-sm text-[#888]">Source codes without standard mappings</p>
         </HubCard>
-        <HubCard section="annotations" title="Annotations" accentColor="#9B1B30" onClick={onNavigate}>
-          Chart annotations and contextual notes across visualizations.
+        <HubCard section="annotations" title="Annotations" accentColor="#2DD4BF" onClick={onNavigate}>
+          <p className="text-2xl font-semibold text-white">{kpis?.annotation_count ?? "--"}</p>
+          <p className="text-sm text-[#888]">Chart notes across all sources</p>
         </HubCard>
       </div>
 
-      {/* Row 4 */}
+      {/* Row 4: Bottom */}
       <div className="grid grid-cols-1 gap-4">
-        <HubCard section="cost" title="Cost" accentColor="#C9A227" onClick={onNavigate}>
-          Cost analysis and resource utilization across the CDM.
+        <HubCard section="cost" title="Cost Analysis" accentColor="#C9A227" onClick={onNavigate}>
+          <p className="text-sm text-[#888]">Cost data by domain and over time</p>
         </HubCard>
       </div>
+
+      {isLoading && (
+        <p className="mt-2 text-center text-[10px] text-[#555]">Loading network health data...</p>
+      )}
     </div>
   );
 }
