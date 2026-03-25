@@ -47,6 +47,8 @@ use App\Http\Controllers\Api\V1\ConceptSetController;
 use App\Http\Controllers\Api\V1\DashboardController;
 use App\Http\Controllers\Api\V1\DataQualityController;
 use App\Http\Controllers\Api\V1\EstimationController;
+use App\Http\Controllers\Api\V1\EtlFieldMappingController;
+use App\Http\Controllers\Api\V1\EtlProjectController;
 use App\Http\Controllers\Api\V1\EvidencePinController;
 use App\Http\Controllers\Api\V1\EvidenceSynthesisController;
 use App\Http\Controllers\Api\V1\FhirToCdmController;
@@ -745,6 +747,39 @@ Route::prefix('v1')->group(function () {
             Route::delete('/{profile}', [SourceProfilerController::class, 'destroy'])
                 ->middleware('permission:profiler.delete')
                 ->where('profile', '[0-9]+');
+        });
+
+        // Aqueduct ETL Mapping Designer
+        Route::prefix('etl-projects')->group(function () {
+            Route::get('/', [EtlProjectController::class, 'index'])
+                ->middleware('permission:etl.view');
+            Route::post('/', [EtlProjectController::class, 'store'])
+                ->middleware('permission:etl.create');
+            Route::get('/{project}', [EtlProjectController::class, 'show'])
+                ->middleware('permission:etl.view')
+                ->where('project', '[0-9]+');
+            Route::put('/{project}', [EtlProjectController::class, 'update'])
+                ->middleware('permission:etl.create')
+                ->where('project', '[0-9]+');
+            Route::delete('/{project}', [EtlProjectController::class, 'destroy'])
+                ->middleware('permission:etl.delete')
+                ->where('project', '[0-9]+');
+
+            // Table mappings
+            Route::get('/{project}/table-mappings', [EtlProjectController::class, 'tableMappings'])
+                ->middleware('permission:etl.view');
+            Route::post('/{project}/table-mappings', [EtlProjectController::class, 'storeTableMapping'])
+                ->middleware('permission:etl.create');
+            Route::put('/{project}/table-mappings/{mapping}', [EtlProjectController::class, 'updateTableMapping'])
+                ->middleware('permission:etl.create');
+            Route::delete('/{project}/table-mappings/{mapping}', [EtlProjectController::class, 'destroyTableMapping'])
+                ->middleware('permission:etl.create');
+
+            // Field mappings
+            Route::get('/{project}/table-mappings/{mapping}/fields', [EtlFieldMappingController::class, 'index'])
+                ->middleware('permission:etl.view');
+            Route::put('/{project}/table-mappings/{mapping}/fields', [EtlFieldMappingController::class, 'bulkUpsert'])
+                ->middleware('permission:etl.create');
         });
 
         // Strategus Study Orchestration
