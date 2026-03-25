@@ -17,9 +17,11 @@ it('returns per-source structure for compare concept', function () {
 
     $result = $this->service->compareConcept(201826);
 
-    expect($result)->toBeArray();
-    foreach ($result as $entry) {
-        expect($entry)->toHaveKeys(['source_id', 'source_name', 'count', 'rate_per_1000', 'person_count']);
+    expect($result)->toBeArray()
+        ->toHaveKey('sources')
+        ->toHaveKey('benchmark_rate');
+    foreach ($result['sources'] as $entry) {
+        expect($entry)->toHaveKeys(['source_id', 'source_name', 'count', 'rate_per_1000', 'person_count', 'ci_lower', 'ci_upper']);
     }
 });
 
@@ -36,8 +38,8 @@ it('returns empty results for nonexistent concept', function () {
 
     $result = $this->service->compareConcept(999999999);
 
-    expect($result)->toBeArray();
-    foreach ($result as $entry) {
+    expect($result)->toBeArray()->toHaveKey('sources');
+    foreach ($result['sources'] as $entry) {
         expect($entry['count'])->toBe(0);
     }
 });
