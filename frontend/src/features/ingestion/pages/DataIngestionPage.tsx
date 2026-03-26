@@ -1,18 +1,10 @@
 import { useState, useEffect, lazy, Suspense } from "react";
 import { useSearchParams } from "react-router-dom";
-import {
-  Upload,
-  ScanSearch,
-  GitMerge,
-  Loader2,
-  type LucideIcon,
-} from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// Lazy-load tab content to avoid loading everything upfront
-const IngestionDashboardPage = lazy(
-  () => import("./IngestionDashboardPage"),
-);
+// Lazy-load tab content
+const IngestionDashboardPage = lazy(() => import("./IngestionDashboardPage"));
 const SourceProfilerPage = lazy(
   () => import("@/features/etl/pages/SourceProfilerPage"),
 );
@@ -23,67 +15,19 @@ const FhirIngestionPage = lazy(
   () => import("@/features/etl/pages/FhirIngestionPage"),
 );
 
-// React Flow icon (inline SVG to avoid adding a dependency for one icon)
-function AqueductIcon({ size = 18, className }: { size?: number; className?: string }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
-      <circle cx="5" cy="6" r="2" />
-      <circle cx="5" cy="18" r="2" />
-      <circle cx="19" cy="6" r="2" />
-      <circle cx="19" cy="18" r="2" />
-      <path d="M7 6h10M7 18h10M5 8v8M19 8v8" />
-    </svg>
-  );
-}
+type TabId = "upload" | "profiler" | "aqueduct" | "fhir";
 
-interface Tab {
-  id: string;
-  label: string;
-  icon: LucideIcon | typeof AqueductIcon;
-  description: string;
-}
-
-const TABS: Tab[] = [
-  {
-    id: "upload",
-    label: "Upload Files",
-    icon: Upload,
-    description: "Upload CSV/Excel files for CDM ingestion",
-  },
-  {
-    id: "profiler",
-    label: "Source Profiler",
-    icon: ScanSearch,
-    description: "Profile source databases with WhiteRabbit",
-  },
-  {
-    id: "aqueduct",
-    label: "Aqueduct",
-    icon: AqueductIcon as unknown as LucideIcon,
-    description: "Design ETL mappings to OMOP CDM",
-  },
-  {
-    id: "fhir",
-    label: "FHIR Ingestion",
-    icon: GitMerge,
-    description: "Import FHIR Bundles into CDM",
-  },
+const TABS: { id: TabId; label: string }[] = [
+  { id: "upload", label: "Upload Files" },
+  { id: "profiler", label: "Source Profiler" },
+  { id: "aqueduct", label: "Aqueduct" },
+  { id: "fhir", label: "FHIR Ingestion" },
 ];
 
-function LoadingFallback() {
+function TabFallback() {
   return (
     <div className="flex items-center justify-center py-20">
-      <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+      <Loader2 size={20} className="animate-spin text-[#8A857D]" />
     </div>
   );
 }
@@ -92,9 +36,8 @@ export default function DataIngestionPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const tabParam = searchParams.get("tab");
 
-  // Determine initial tab from URL param or default
-  const [activeTab, setActiveTab] = useState(() => {
-    if (tabParam && TABS.some((t) => t.id === tabParam)) return tabParam;
+  const [activeTab, setActiveTab] = useState<TabId>(() => {
+    if (tabParam && TABS.some((t) => t.id === tabParam)) return tabParam as TabId;
     return "upload";
   });
 
@@ -106,41 +49,46 @@ export default function DataIngestionPage() {
   }, [activeTab, tabParam, setSearchParams]);
 
   return (
-    <div className="flex h-full flex-col">
-      {/* Tab bar */}
-      <div className="border-b border-[#2a2a3e] bg-[#0E0E11]">
-        <div className="flex items-center gap-1 px-6 pt-2">
-          {TABS.map((tab) => {
-            const Icon = tab.icon;
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={cn(
-                  "flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-t-lg transition-colors",
-                  isActive
-                    ? "bg-[#1a1a2e] text-white border-t border-x border-[#2a2a3e] -mb-px"
-                    : "text-gray-400 hover:text-gray-200 hover:bg-[#1a1a2e]/50",
-                )}
-              >
-                <Icon size={16} />
-                {tab.label}
-              </button>
-            );
-          })}
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-[#F0EDE8]">Data Ingestion</h1>
+          <p className="mt-1 text-sm text-[#8A857D]">
+            Upload files, profile sources, design ETL mappings, and import FHIR data
+          </p>
         </div>
       </div>
 
-      {/* Tab content */}
-      <div className="flex-1 overflow-auto">
-        <Suspense fallback={<LoadingFallback />}>
-          {activeTab === "upload" && <IngestionDashboardPage />}
-          {activeTab === "profiler" && <SourceProfilerPage />}
-          {activeTab === "aqueduct" && <EtlToolsPage />}
-          {activeTab === "fhir" && <FhirIngestionPage />}
-        </Suspense>
+      {/* Tab navigation — matches Data Explorer gold standard */}
+      <div className="flex items-center gap-1 border-b border-[#232328]">
+        {TABS.map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            onClick={() => setActiveTab(tab.id)}
+            className={cn(
+              "relative px-4 py-2.5 text-sm uppercase tracking-wide transition-colors",
+              activeTab === tab.id
+                ? "text-[#F0EDE8] font-medium"
+                : "text-[#8A857D] hover:text-[#C5C0B8]",
+            )}
+          >
+            {tab.label}
+            {activeTab === tab.id && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#C9A227]" />
+            )}
+          </button>
+        ))}
       </div>
+
+      {/* Tab content */}
+      <Suspense fallback={<TabFallback />}>
+        {activeTab === "upload" && <IngestionDashboardPage />}
+        {activeTab === "profiler" && <SourceProfilerPage />}
+        {activeTab === "aqueduct" && <EtlToolsPage />}
+        {activeTab === "fhir" && <FhirIngestionPage />}
+      </Suspense>
     </div>
   );
 }
