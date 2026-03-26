@@ -19,7 +19,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 5: Visit Derivation** - Visit occurrence script deriving visits from clinical table dates with outpatient/inpatient classification (completed 2026-03-26)
 - [x] **Phase 6: Custom IRSF Vocabulary** - Custom vocabulary (concept_ids >= 2B) for CSS, MBA, genotype mutations, and Rett diagnostic categories (completed 2026-03-26)
 - [ ] **Phase 7: Medications** - Drug exposure script transforming 44K medication records with RxNorm formatted-string parsing and source value preservation
-- [ ] **Phase 8: Conditions** - Condition occurrence script for chronic diagnoses, seizures, fractures, and infections with SNOMED mapping
+- [x] **Phase 8: Conditions** - Condition occurrence script for chronic diagnoses, seizures, fractures, and infections with SNOMED mapping (completed 2026-03-26)
 - [ ] **Phase 9: Measurements** - Measurement script with wide-to-long unpivot for growth, CSS, labs, and SF-36 data
 - [ ] **Phase 10: Observations** - Observation script for MBA scores, genotype boolean mapping, and categorical clinical data
 - [ ] **Phase 11: Data Loading and Observation Periods** - Upload staging CSVs to Parthenon in FK order, compute observation periods, populate CDM_SOURCE
@@ -228,7 +228,7 @@ Note: Phases 2 and 3 can run in parallel. Phases 7, 8, 9, 10 can run in parallel
 | 5. Visit Derivation | 2/2 | Complete    | 2026-03-26 |
 | 6. Custom IRSF Vocabulary | 2/2 | Complete    | 2026-03-26 |
 | 7. Medications | 1/3 | In progress | - |
-| 8. Conditions | 1/2 | In Progress|  |
+| 8. Conditions | 2/2 | Complete   | 2026-03-26 |
 | 9. Measurements | 1/3 | In progress | - |
 | 10. Observations | 1/3 | In progress | - |
 | 11. Data Loading and Observation Periods | 0/2 | Not started | - |

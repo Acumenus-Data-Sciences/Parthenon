@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v5.4
 milestone_name: milestone
 status: executing
-stopped_at: Completed 08-01-PLAN.md (condition extraction from 4 tables)
-last_updated: "2026-03-26T18:28:14.384Z"
+stopped_at: Completed 07-02-PLAN.md (drug exposure builder)
+last_updated: "2026-03-26T18:34:18.622Z"
 last_activity: 2026-03-26 -- Completed 09-01 growth measurement unpivot (34,135 rows)
 progress:
   total_phases: 12
-  completed_phases: 6
+  completed_phases: 7
   total_plans: 24
-  completed_plans: 17
+  completed_plans: 20
   percent: 92
 ---
 
@@ -65,6 +65,8 @@ Progress: [█████████░] 92%
 | Phase 06 P02 | 3min | 2 tasks | 5 files |
 | Phase 05 P02 | 3min | 3 tasks | 2 files |
 | Phase 08 P01 | 7min | 11 tasks | 3 files |
+| Phase 08-conditions P02 | 3min | 6 tasks | 2 files |
+| Phase 07 P02 | 3min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -116,6 +118,9 @@ Recent decisions affecting current work:
 - [Phase 08]: condition_type_concept_id = 32879 (Registry) for all condition records
 - [Phase 08]: SNOMED regex parser extracts code from formatted SNOWMEDOutput strings via code:(\d+)
 - [Phase 08]: Not a seizure (390 rows) excluded from condition_occurrence; Rett spell emitted with concept_id=0
+- [Phase 08-conditions]: Optional validator parameter on extract_conditions() -- None skips validation for DB-free testing
+- [Phase 08-conditions]: condition_source_concept_id always preserves original pre-validation code for traceability
+- [Phase 07]: Conditional ConceptStatus import for offline mode; Int64Dtype for nullable integers; MM/DD/YY + MM/DD/YYYY visit_date parsing
 
 ### Pending Todos
 
@@ -129,6 +134,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-26T18:28:14.382Z
-Stopped at: Completed 08-01-PLAN.md (condition extraction from 4 tables)
+Last session: 2026-03-26T18:34:18.620Z
+Stopped at: Completed 07-02-PLAN.md (drug exposure builder)
 Resume file: None

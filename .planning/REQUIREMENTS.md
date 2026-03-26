@@ -33,7 +33,7 @@
 
 - [x] **MED-01**: All 44K medication records from Medications_5201_5211.csv transformed to drug_exposure staging CSV
 - [x] **MED-02**: MedRxNormCode formatted strings parsed via regex to extract clean RxNorm concept_ids
-- [ ] **MED-03**: Pre-mapped RxNorm codes validated against current Athena vocabulary with deprecated codes remapped via Maps-to relationships
+- [x] **MED-03**: Pre-mapped RxNorm codes validated against current Athena vocabulary with deprecated codes remapped via Maps-to relationships
 - [x] **MED-04**: Drug exposure start/stop dates assembled from split date columns with stop_reason populated from ReasonForStoppin columns
 - [ ] **MED-05**: Drug mapping coverage rate >= 90% (records with valid RxNorm concept)
 
@@ -41,7 +41,7 @@
 
 - [x] **COND-01**: Chronic diagnoses, seizures, bone fractures, and infections from 5211 tables transformed to condition_occurrence staging CSV
 - [x] **COND-02**: Pre-mapped SNOMED codes from SNOWMEDOutput columns validated against current vocabulary
-- [ ] **COND-03**: Condition mapping coverage rate >= 85% (records with valid SNOMED concept)
+- [x] **COND-03**: Condition mapping coverage rate >= 85% (records with valid SNOMED concept)
 
 ### Measurements
 
@@ -86,8 +86,8 @@
 
 ### Source Value Preservation
 
-- [ ] **SRC-01**: Every mapped record carries original source code/text in *_source_value columns
-- [ ] **SRC-02**: Pre-mapped concept_ids stored in *_source_concept_id columns
+- [x] **SRC-01**: Every mapped record carries original source code/text in *_source_value columns
+- [x] **SRC-02**: Pre-mapped concept_ids stored in *_source_concept_id columns
 
 ## v2 Requirements
 
@@ -143,12 +143,12 @@
 | VISIT-03 | Phase 5 | Complete |
 | MED-01 | Phase 7 | Complete |
 | MED-02 | Phase 7 | Complete |
-| MED-03 | Phase 7 | Pending |
+| MED-03 | Phase 7 | Complete |
 | MED-04 | Phase 7 | Complete |
 | MED-05 | Phase 7 | Pending |
 | COND-01 | Phase 8 | Complete |
 | COND-02 | Phase 8 | Complete |
-| COND-03 | Phase 8 | Pending |
+| COND-03 | Phase 8 | Complete |
 | MEAS-01 | Phase 9 | Complete |
 | MEAS-02 | Phase 9 | Pending |
 | MEAS-03 | Phase 9 | Pending |
@@ -175,8 +175,8 @@
 | VAL-04 | Phase 12 | Pending |
 | VAL-05 | Phase 12 | Pending |
 | VAL-06 | Phase 12 | Pending |
-| SRC-01 | Phase 7 | Pending |
-| SRC-02 | Phase 7 | Pending |
+| SRC-01 | Phase 7 | Complete |
+| SRC-02 | Phase 7 | Complete |
 
 **Coverage:**
 - v1 requirements: 51 total
