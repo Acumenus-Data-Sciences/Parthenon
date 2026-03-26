@@ -18,9 +18,9 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 4: Person and Demographics** - Person roster script producing ~1,860 unique persons with gender, race, ethnicity, DOB, and death records (completed 2026-03-26)
 - [x] **Phase 5: Visit Derivation** - Visit occurrence script deriving visits from clinical table dates with outpatient/inpatient classification (completed 2026-03-26)
 - [x] **Phase 6: Custom IRSF Vocabulary** - Custom vocabulary (concept_ids >= 2B) for CSS, MBA, genotype mutations, and Rett diagnostic categories (completed 2026-03-26)
-- [ ] **Phase 7: Medications** - Drug exposure script transforming 44K medication records with RxNorm formatted-string parsing and source value preservation
+- [x] **Phase 7: Medications** - Drug exposure script transforming 44K medication records with RxNorm formatted-string parsing and source value preservation (completed 2026-03-26)
 - [x] **Phase 8: Conditions** - Condition occurrence script for chronic diagnoses, seizures, fractures, and infections with SNOMED mapping (completed 2026-03-26)
-- [ ] **Phase 9: Measurements** - Measurement script with wide-to-long unpivot for growth, CSS, labs, and SF-36 data
+- [x] **Phase 9: Measurements** - Measurement script with wide-to-long unpivot for growth, CSS, labs, and SF-36 data (completed 2026-03-26)
 - [x] **Phase 10: Observations** - Observation script for MBA scores, genotype boolean mapping, and categorical clinical data (completed 2026-03-26)
 - [ ] **Phase 11: Data Loading and Observation Periods** - Upload staging CSVs to Parthenon in FK order, compute observation periods, populate CDM_SOURCE
 - [ ] **Phase 12: Validation and Cohort Verification** - DQD checks, Achilles characterization, temporal integrity, Rett-specific plausibility, and cohort buildability
@@ -206,12 +206,12 @@ Plans:
   3. Zero clinical events are recorded before birth or after death (temporal integrity verified)
   4. Rett-specific plausibility checks pass: approximately 95% female, MECP2 mutation present in approximately 95%, age at first visit typically 0-10 years
   5. At least 3 cohort definitions are buildable in Parthenon's cohort builder (all Rett patients, seizure subgroup, medication exposure subgroup)
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 12-01: DQD execution and threshold verification
-- [ ] 12-02: Achilles characterization and temporal integrity checks
-- [ ] 12-03: Rett-specific plausibility checks and cohort buildability verification
+- [ ] 12-01: DQD execution and threshold verification (VAL-01, VAL-06)
+- [ ] 12-02: Achilles characterization and temporal integrity checks (VAL-02, VAL-03)
+- [ ] 12-03: Rett-specific plausibility checks and cohort buildability verification (VAL-04, VAL-05)
 
 ## Progress
 
@@ -227,9 +227,9 @@ Note: Phases 2 and 3 can run in parallel. Phases 7, 8, 9, 10 can run in parallel
 | 4. Person and Demographics | 1/3 | Complete    | 2026-03-26 |
 | 5. Visit Derivation | 2/2 | Complete    | 2026-03-26 |
 | 6. Custom IRSF Vocabulary | 2/2 | Complete    | 2026-03-26 |
-| 7. Medications | 1/3 | In progress | - |
-| 8. Conditions | 2/2 | Complete   | 2026-03-26 |
-| 9. Measurements | 1/3 | In progress | - |
-| 10. Observations | 3/3 | Complete   | 2026-03-26 |
+| 7. Medications | 1/3 | Complete    | 2026-03-26 |
+| 8. Conditions | 2/2 | Complete    | 2026-03-26 |
+| 9. Measurements | 1/3 | Complete    | 2026-03-26 |
+| 10. Observations | 3/3 | Complete    | 2026-03-26 |
 | 11. Data Loading and Observation Periods | 0/2 | Not started | - |
 | 12. Validation and Cohort Verification | 0/3 | Not started | - |
