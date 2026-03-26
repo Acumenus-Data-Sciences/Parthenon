@@ -68,3 +68,17 @@ def split_date_columns() -> list[str]:
 def no_date_columns() -> list[str]:
     """Columns with no date patterns."""
     return ["participant_id", "name", "diagnosis", "mutation"]
+
+
+@pytest.fixture()
+def medications_with_dates() -> pd.DataFrame:
+    """Medications-shaped DataFrame with split date columns (mixed valid/invalid)."""
+    return pd.DataFrame(
+        {
+            "participant_id": ["P001", "P002", "P003"],
+            "MedName": ["Levetiracetam", "Valproic Acid", "Carbamazepine"],
+            "MedStartDateMonth": ["Jan", "Apr", None],
+            "MedStartDateDay": [15, None, None],
+            "MedStartDateYear": [2006, 2008, None],
+        }
+    )
