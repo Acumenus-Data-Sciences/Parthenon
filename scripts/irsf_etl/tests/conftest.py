@@ -82,3 +82,42 @@ def medications_with_dates() -> pd.DataFrame:
             "MedStartDateYear": [2006, 2008, None],
         }
     )
+
+
+@pytest.fixture()
+def sample_logmasterform_csv() -> StringIO:
+    """StringIO with representative LogMasterForm data."""
+    data = (
+        "participant_id,visit,visit_date\n"
+        "1001,Baseline,12/13/16\n"
+        "1001,1 year,12/10/17\n"
+        "1002,Baseline,03/05/18\n"
+        "1002,,06/15/18\n"
+    )
+    return StringIO(data)
+
+
+@pytest.fixture()
+def sample_hospitalizations_csv() -> StringIO:
+    """StringIO with representative Hospitalizations data."""
+    data = (
+        "participant_id,visit_date,TypeOfVisit,MonthDateVisit,DayDateVisit,"
+        "YearDateVisit,DateUnknown\n"
+        "1001,11/07/16,Hospital,Sep,,2017,\n"
+        "1001,11/07/16,ER,Jan,15,2018,\n"
+        "1002,03/05/18,Hospital,,,,"
+        "Yes\n"
+    )
+    return StringIO(data)
+
+
+@pytest.fixture()
+def sample_clinical_assessment_5201_csv() -> StringIO:
+    """StringIO with representative 5201 ClinicalAssessment data."""
+    data = (
+        "Participant_ID,Local_ID,Visit,Visit_Date\n"
+        "1003,010061,Baseline,03/04/2006\n"
+        "1003,010061,12 months,03/05/2007\n"
+        "1003,010061,PRN,03/04/2006\n"
+    )
+    return StringIO(data)
