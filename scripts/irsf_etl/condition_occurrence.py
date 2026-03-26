@@ -156,14 +156,27 @@ def _resolve_person_id(
         )
         return None
 
-    person_id = registry.resolve(raw_pid)
+    # Convert to int for registry lookup (CSV may read as str or float)
+    try:
+        pid_int = int(float(str(raw_pid)))
+    except (ValueError, OverflowError):
+        log.log(
+            idx,
+            "participant_id",
+            str(raw_pid),
+            RejectionCategory.INVALID_VALUE,
+            f"Non-numeric participant_id '{raw_pid}' in {source_file}",
+        )
+        return None
+
+    person_id = registry.resolve(pid_int)
     if person_id is None:
         log.log(
             idx,
             "participant_id",
             str(raw_pid),
             RejectionCategory.MISSING_REQUIRED,
-            f"Cannot resolve participant_id {raw_pid} in {source_file}",
+            f"Cannot resolve participant_id {pid_int} in {source_file}",
         )
         return None
     return person_id
