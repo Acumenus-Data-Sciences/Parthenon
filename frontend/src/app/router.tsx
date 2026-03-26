@@ -61,10 +61,11 @@ export const router = createBrowserRouter(
           {
             index: true,
             lazy: () =>
-              import("@/features/ingestion/pages/IngestionDashboardPage").then(
+              import("@/features/ingestion/pages/DataIngestionPage").then(
                 (m) => ({ Component: m.default }),
               ),
           },
+          // Deep-link routes for ingestion job workflow (used by Upload Files tab)
           {
             path: "upload",
             lazy: () =>
@@ -538,26 +539,18 @@ export const router = createBrowserRouter(
             "@/features/text-to-sql/pages/QueryAssistantPage"
           ).then((m) => ({ Component: m.default })),
       },
-      // ── Source Profiler → redirect to ETL pipeline step 1 ────────────
+      // ── Legacy route redirects → unified Data Ingestion page ──────────
       {
         path: "source-profiler",
-        element: <Navigate to="/etl-tools?step=profiler" replace />,
+        element: <Navigate to="/ingestion?tab=profiler" replace />,
       },
-      // ── FHIR Ingestion ──────────────────────────────────────────────
       {
         path: "fhir-ingestion",
-        lazy: () =>
-          import("@/features/etl/pages/FhirIngestionPage").then((m) => ({
-            Component: m.default,
-          })),
+        element: <Navigate to="/ingestion?tab=fhir" replace />,
       },
-      // ── ETL Tools (WhiteRabbit + Synthea) ────────────────────────────
       {
         path: "etl-tools",
-        lazy: () =>
-          import("@/features/etl/pages/EtlToolsPage").then((m) => ({
-            Component: m.default,
-          })),
+        element: <Navigate to="/ingestion?tab=aqueduct" replace />,
       },
       // ── GIS Explorer ────────────────────────────────────────────────
       {

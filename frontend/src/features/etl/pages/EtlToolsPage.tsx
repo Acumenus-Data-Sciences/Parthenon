@@ -1,18 +1,12 @@
 import { useState, useMemo, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useLocation, useSearchParams } from "react-router-dom";
 import {
   Database,
-  ScanSearch,
   Loader2,
-  ArrowRight,
   GitMerge,
   Plus,
-  ChevronLeft,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
-import SourceProfilerPage from "./SourceProfilerPage";
 import { AqueductCanvas } from "../components/aqueduct/AqueductCanvas";
 import { FieldMappingDetail } from "../components/aqueduct/FieldMappingDetail";
 import {
@@ -25,94 +19,14 @@ import { useProfileHistory } from "../hooks/useProfilerData";
 import {
   fetchProfile,
   type PersistedFieldProfile,
-  type EtlProject,
 } from "../api";
 import { CDM_SCHEMA_V54 } from "../lib/cdm-schema-v54";
 
 // ---------------------------------------------------------------------------
-// Step indicator component
+// Aqueduct canvas content
 // ---------------------------------------------------------------------------
 
-function StepIndicator({
-  activeStep,
-  step2Enabled,
-  onStepClick,
-}: {
-  activeStep: 1 | 2;
-  step2Enabled: boolean;
-  onStepClick: (step: 1 | 2) => void;
-}) {
-  const steps = [
-    { num: 1 as const, label: "Source Profile" },
-    { num: 2 as const, label: "ETL Mapping (Aqueduct)" },
-  ];
-
-  return (
-    <div className="flex items-center gap-0">
-      {steps.map((step, idx) => {
-        const isActive = activeStep === step.num;
-        const isEnabled = step.num === 1 || step2Enabled;
-
-        return (
-          <div key={step.num} className="flex items-center">
-            {idx > 0 && (
-              <div
-                className={cn(
-                  "w-16 h-0.5 mx-1",
-                  step2Enabled ? "bg-[#2DD4BF]/40" : "bg-[#2E2E35]",
-                )}
-              />
-            )}
-            <button
-              type="button"
-              disabled={!isEnabled}
-              onClick={() => isEnabled && onStepClick(step.num)}
-              className={cn(
-                "flex items-center gap-2.5 rounded-lg px-4 py-2.5 transition-colors",
-                isActive
-                  ? "bg-[rgba(45,212,191,0.1)] border border-[#2DD4BF]/30"
-                  : isEnabled
-                    ? "bg-[#151518] border border-[#232328] hover:border-[#2DD4BF]/20 cursor-pointer"
-                    : "bg-[#151518] border border-[#232328] opacity-50 cursor-not-allowed",
-              )}
-            >
-              <div
-                className={cn(
-                  "flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold",
-                  isActive
-                    ? "bg-[#2DD4BF] text-[#0E0E11]"
-                    : isEnabled
-                      ? "bg-[#2E2E35] text-[#8A857D]"
-                      : "bg-[#1C1C20] text-[#5A5650]",
-                )}
-              >
-                {step.num}
-              </div>
-              <span
-                className={cn(
-                  "text-sm font-medium",
-                  isActive
-                    ? "text-[#2DD4BF]"
-                    : isEnabled
-                      ? "text-[#C5C0B8]"
-                      : "text-[#5A5650]",
-                )}
-              >
-                {step.label}
-              </span>
-            </button>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Aqueduct Step 2 content
-// ---------------------------------------------------------------------------
-
-function AqueductStep({
+function AqueductContent({
   sourceId,
   sourceProfileId,
   onDrilledMapping,
@@ -134,7 +48,6 @@ function AqueductStep({
   }, [projectsData, sourceId]);
 
   const projectId = existingProject?.id ?? 0;
-
   const { data: projectDetail } = useEtlProject(projectId);
   const { data: tableMappings = [] } = useTableMappings(projectId);
 
@@ -142,7 +55,6 @@ function AqueductStep({
   const [sourceFields, setSourceFields] = useState<PersistedFieldProfile[]>([]);
   const [fieldsLoaded, setFieldsLoaded] = useState(false);
 
-  // Fetch source fields when project exists
   useMemo(() => {
     if (existingProject && sourceProfileId > 0 && !fieldsLoaded) {
       fetchProfile(sourceId, sourceProfileId)
@@ -164,7 +76,6 @@ function AqueductStep({
     });
   }, [createProject, sourceId, cdmVersion, sourceProfileId]);
 
-  // -- Drill-down into a specific table mapping --------------------------------
   const drilledMapping = useMemo(() => {
     if (drilledDownMappingId === null) return null;
     return tableMappings.find((m) => m.id === drilledDownMappingId) ?? null;
@@ -175,7 +86,6 @@ function AqueductStep({
     [tableMappings],
   );
 
-  // Build source columns for field detail
   const drilledSourceColumns = useMemo(() => {
     if (!drilledMapping) return [];
     return sourceFields
@@ -188,7 +98,6 @@ function AqueductStep({
       }));
   }, [drilledMapping, sourceFields]);
 
-  // Build CDM columns for field detail
   const drilledCdmColumns = useMemo(() => {
     if (!drilledMapping) return [];
     const cdmTable = CDM_SCHEMA_V54.find(
@@ -204,19 +113,16 @@ function AqueductStep({
     );
   }, [drilledMapping]);
 
-  // -- Loading state -----------------------------------------------------------
   if (loadingProjects) {
     return (
       <div className="flex items-center justify-center py-20">
         <Loader2 size={24} className="animate-spin text-[#2DD4BF]" />
-        <span className="ml-3 text-sm text-[#8A857D]">
-          Loading ETL projects...
-        </span>
+        <span className="ml-3 text-sm text-[#8A857D]">Loading ETL projects...</span>
       </div>
     );
   }
 
-  // -- No project yet: create one ---------------------------------------------
+  // No project: show create card
   if (!existingProject) {
     return (
       <div className="flex flex-col items-center justify-center py-20 rounded-lg border border-dashed border-[#2E2E35] bg-[#151518]">
@@ -227,11 +133,9 @@ function AqueductStep({
           Create ETL Mapping Project
         </h3>
         <p className="text-sm text-[#8A857D] mt-1 text-center max-w-md">
-          Start mapping your source schema to the OMOP CDM. This will create a
-          new Aqueduct project linked to the selected source and its scan
-          profile.
+          Start mapping your source schema to the OMOP CDM. Select a source
+          that has been profiled via the Source Profiler tab first.
         </p>
-
         <div className="mt-6 flex items-center gap-4">
           <div className="space-y-1.5">
             <label className="block text-xs font-medium text-[#8A857D] uppercase tracking-wider">
@@ -246,7 +150,6 @@ function AqueductStep({
               <option value="5.3">OMOP CDM v5.3</option>
             </select>
           </div>
-
           <button
             type="button"
             onClick={handleCreateProject}
@@ -266,7 +169,6 @@ function AqueductStep({
             )}
           </button>
         </div>
-
         {createProject.isError && (
           <p className="mt-3 text-xs text-[#E85A6B]">
             {(createProject.error as Error)?.message ?? "Failed to create project"}
@@ -276,7 +178,7 @@ function AqueductStep({
     );
   }
 
-  // -- Project exists: field detail drill-down ---------------------------------
+  // Drill-down into field detail
   if (drilledDownMappingId !== null && drilledMapping && projectDetail) {
     return (
       <FieldMappingDetail
@@ -291,7 +193,7 @@ function AqueductStep({
     );
   }
 
-  // -- Project exists: canvas overview -----------------------------------------
+  // Canvas overview
   if (projectDetail) {
     return (
       <AqueductCanvas
@@ -308,28 +210,13 @@ function AqueductStep({
 }
 
 // ---------------------------------------------------------------------------
-// Main Page Component
+// Main Page (Aqueduct tab content)
 // ---------------------------------------------------------------------------
 
 export default function EtlToolsPage() {
-  const location = useLocation();
-  const [searchParams] = useSearchParams();
-
-  // Determine initial step from URL
-  const initialStep = useMemo((): 1 | 2 => {
-    const stepParam = searchParams.get("step");
-    if (stepParam === "mapping") return 2;
-    if (stepParam === "profiler") return 1;
-    if (location.pathname.includes("source-profiler")) return 1;
-    return 1;
-  }, [searchParams, location.pathname]);
-
-  // -- State ------------------------------------------------------------------
-  const [activeStep, setActiveStep] = useState<1 | 2>(initialStep);
   const [selectedSourceId, setSelectedSourceId] = useState<number | "">("");
   const [drilledDownMappingId, setDrilledDownMappingId] = useState<number | null>(null);
 
-  // -- Queries ----------------------------------------------------------------
   const { data: sources = [] } = useQuery({
     queryKey: ["sources"],
     queryFn: fetchSources,
@@ -338,67 +225,12 @@ export default function EtlToolsPage() {
   const sourceIdNum = Number(selectedSourceId) || 0;
   const { data: profileHistoryData } = useProfileHistory(sourceIdNum);
   const profileHistory = profileHistoryData?.data ?? [];
-
-  // Determine if source has scan data (step 2 eligibility)
   const hasScanData = profileHistory.length > 0;
   const latestProfileId = profileHistory.length > 0 ? profileHistory[0].id : 0;
 
-  // If step 2 becomes disabled while active, fall back to step 1
-  const effectiveStep = activeStep === 2 && !hasScanData ? 1 : activeStep;
-
-  const handleStepClick = useCallback(
-    (step: 1 | 2) => {
-      setActiveStep(step);
-      if (step !== 2) {
-        setDrilledDownMappingId(null);
-      }
-    },
-    [],
-  );
-
-  const handleSourceChange = useCallback(
-    (newSourceId: number | "") => {
-      setSelectedSourceId(newSourceId);
-      setDrilledDownMappingId(null);
-      // Don't reset step — let them stay on current step
-    },
-    [],
-  );
-
-  const handleStartMapping = useCallback(() => {
-    if (hasScanData) {
-      setActiveStep(2);
-      setDrilledDownMappingId(null);
-    }
-  }, [hasScanData]);
-
-  // -- Render -----------------------------------------------------------------
   return (
-    <div className="space-y-6">
-      {/* Page header */}
-      <div className="flex items-start justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-[#F0EDE8]">
-            ETL Pipeline
-          </h1>
-          <p className="mt-1 text-sm text-[#8A857D]">
-            Profile source databases, then design ETL mappings to OMOP CDM with
-            Aqueduct
-          </p>
-        </div>
-        <div className="flex items-center justify-center w-10 h-10 rounded-full bg-[rgba(45,212,191,0.12)]">
-          <GitMerge size={20} className="text-[#2DD4BF]" />
-        </div>
-      </div>
-
-      {/* Step indicator */}
-      <StepIndicator
-        activeStep={effectiveStep}
-        step2Enabled={hasScanData}
-        onStepClick={handleStepClick}
-      />
-
-      {/* Source selector — shared between both steps */}
+    <div className="space-y-6 p-6">
+      {/* Source selector */}
       <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
         <div className="flex items-center gap-4">
           <div className="flex-1 max-w-sm space-y-1.5">
@@ -408,11 +240,10 @@ export default function EtlToolsPage() {
             </label>
             <select
               value={selectedSourceId}
-              onChange={(e) =>
-                handleSourceChange(
-                  e.target.value ? Number(e.target.value) : "",
-                )
-              }
+              onChange={(e) => {
+                setSelectedSourceId(e.target.value ? Number(e.target.value) : "");
+                setDrilledDownMappingId(null);
+              }}
               className="w-full rounded-lg bg-[#1C1C20] border border-[#2E2E35] px-3 py-2 text-sm text-[#F0EDE8] focus:outline-none focus:border-[#9B1B30]"
             >
               <option value="">Select a source...</option>
@@ -423,58 +254,36 @@ export default function EtlToolsPage() {
               ))}
             </select>
           </div>
-
-          {/* "Start Mapping" button — visible in step 1 when scan data exists */}
-          {effectiveStep === 1 && hasScanData && selectedSourceId && (
-            <button
-              type="button"
-              onClick={handleStartMapping}
-              className="mt-5 inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-4 py-2.5 text-sm font-medium text-[#0E0E11] hover:bg-[#26B8A5] transition-colors"
-            >
-              Start Mapping
-              <ArrowRight size={15} />
-            </button>
-          )}
-
-          {/* Back to profiler button — visible in step 2 */}
-          {effectiveStep === 2 && (
-            <button
-              type="button"
-              onClick={() => handleStepClick(1)}
-              className="mt-5 inline-flex items-center gap-2 rounded-lg border border-[#2E2E35] bg-[#1C1C20] px-4 py-2.5 text-sm text-[#C5C0B8] hover:bg-[#232328] transition-colors"
-            >
-              <ChevronLeft size={15} />
-              Back to Profiler
-            </button>
+          {selectedSourceId && !hasScanData && (
+            <p className="mt-5 text-sm text-[#8A857D]">
+              No scan data found. Profile this source in the Source Profiler tab first.
+            </p>
           )}
         </div>
       </div>
 
-      {/* Step content */}
-      {effectiveStep === 1 && <SourceProfilerPage />}
-
-      {effectiveStep === 2 && selectedSourceId && hasScanData && (
-        <AqueductStep
+      {/* Aqueduct content */}
+      {selectedSourceId && hasScanData ? (
+        <AqueductContent
           sourceId={sourceIdNum}
           sourceProfileId={latestProfileId}
           onDrilledMapping={setDrilledDownMappingId}
           drilledDownMappingId={drilledDownMappingId}
         />
-      )}
-
-      {effectiveStep === 2 && !selectedSourceId && (
+      ) : !selectedSourceId ? (
         <div className="flex flex-col items-center justify-center py-20 rounded-lg border border-dashed border-[#2E2E35] bg-[#151518]">
           <div className="w-16 h-16 rounded-full bg-[#1C1C20] flex items-center justify-center mb-4">
-            <ScanSearch size={28} className="text-[#8A857D]" />
+            <GitMerge size={28} className="text-[#8A857D]" />
           </div>
           <h3 className="text-[#F0EDE8] font-semibold text-lg">
-            Select a source
+            Aqueduct ETL Mapping Designer
           </h3>
           <p className="text-sm text-[#8A857D] mt-1 text-center max-w-md">
-            Choose a data source above to begin designing your ETL mapping.
+            Select a data source to design ETL mappings from your source schema
+            to the OMOP CDM. Sources must be profiled via the Source Profiler tab first.
           </p>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }
