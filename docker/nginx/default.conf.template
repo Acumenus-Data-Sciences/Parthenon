@@ -92,7 +92,7 @@ server {
     location /docs/ {
         alias /var/www/docs-dist/;
         index index.html;
-        try_files $uri $uri/ /index.html;
+        try_files $uri $uri/ $uri/index.html /docs/index.html;
     }
 
     # ── OHIF Viewer (static build) ────────────────────────────────────────
