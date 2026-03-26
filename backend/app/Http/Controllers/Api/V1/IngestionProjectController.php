@@ -265,7 +265,7 @@ class IngestionProjectController extends Controller
                 return response()->json(['data' => [
                     'columns' => $columns,
                     'rows' => $rows,
-                    'total_rows' => $totalRows,
+                    'total' => $totalRows,
                 ]]);
             } catch (\Throwable $e) {
                 Log::warning('Database preview failed', [
