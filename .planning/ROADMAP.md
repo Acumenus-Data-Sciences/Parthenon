@@ -230,6 +230,6 @@ Note: Phases 2 and 3 can run in parallel. Phases 7, 8, 9, 10 can run in parallel
 | 7. Medications | 1/3 | In progress | - |
 | 8. Conditions | 2/2 | Complete   | 2026-03-26 |
 | 9. Measurements | 1/3 | In progress | - |
-| 10. Observations | 1/3 | In progress | - |
+| 10. Observations | 2/3 | In Progress|  |
 | 11. Data Loading and Observation Periods | 0/2 | Not started | - |
 | 12. Validation and Cohort Verification | 0/3 | Not started | - |

@@ -55,7 +55,7 @@
 ### Observations
 
 - [x] **OBS-01**: Motor Behavioral Assessment (MBA) scores stored as observation rows with custom IRSF concept_ids
-- [ ] **OBS-02**: Genotype/mutation data (~50 boolean columns) mapped to structured observations with value=1 only emitted, using custom IRSF vocabulary concepts
+- [x] **OBS-02**: Genotype/mutation data (~50 boolean columns) mapped to structured observations with value=1 only emitted, using custom IRSF vocabulary concepts
 - [ ] **OBS-03**: Rett features, developmental history, clinical assessments, allergies, nutrition, and other categorical data mapped to observation table
 - [x] **OBS-04**: All observations carry observation_source_value preserving original column names and values
 
@@ -156,7 +156,7 @@
 | MEAS-05 | Phase 9 | Pending |
 | MEAS-06 | Phase 9 | Complete |
 | OBS-01 | Phase 10 | Complete |
-| OBS-02 | Phase 10 | Pending |
+| OBS-02 | Phase 10 | Complete |
 | OBS-03 | Phase 10 | Pending |
 | OBS-04 | Phase 10 | Complete |
 | VOCAB-01 | Phase 6 | Complete |
