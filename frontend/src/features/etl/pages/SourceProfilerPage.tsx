@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useRef, useEffect } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   ScanSearch,
@@ -22,7 +22,7 @@ import { useWhiteRabbitHealth, type ScanResult } from "../api";
 import type { ProfileSummary, PersistedFieldProfile } from "../api";
 import { CdmContextPanel } from "../components/CdmContextPanel";
 import ScanProgressIndicator from "../components/ScanProgressIndicator";
-import { useProfileHistory, useRunScan, useDeleteProfile, useComparison } from "../hooks/useProfilerData";
+import { useProfileHistory, useRunScanWithProgress, useDeleteProfile, useComparison } from "../hooks/useProfilerData";
 import { fetchProfile } from "../api";
 import {
   fmtNumber,
@@ -120,7 +120,7 @@ export default function SourceProfilerPage() {
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [sampleRows, setSampleRows] = useState(10000);
-  const scanAbortRef = useRef<AbortController | null>(null);
+
   const [compareMode, setCompareMode] = useState(false);
   const [compareCurrentId, setCompareCurrentId] = useState<number>(0);
   const [compareBaselineId, setCompareBaselineId] = useState<number>(0);
@@ -141,7 +141,7 @@ export default function SourceProfilerPage() {
   const { data: health } = useWhiteRabbitHealth();
   const { data: profileHistoryData } = useProfileHistory(sourceIdNum);
   const profileHistory: ProfileSummary[] = profileHistoryData?.data ?? [];
-  const scanMutation = useRunScan(sourceIdNum);
+  const { startScan, cancel: cancelScan, progress: scanProgress, error: scanError } = useRunScanWithProgress(sourceIdNum);
   const deleteMutation = useDeleteProfile(sourceIdNum);
   const comparison = useComparison(sourceIdNum, compareCurrentId, compareBaselineId);
 
@@ -213,39 +213,11 @@ export default function SourceProfilerPage() {
       .map((t) => t.trim())
       .filter(Boolean);
 
-    scanAbortRef.current = new AbortController();
-
-    scanMutation.mutate(
-      {
-        tables: tables.length ? tables : undefined,
-        sample_rows: sampleRows !== 10000 ? sampleRows : undefined,
-      },
-      {
-        onSuccess: async (summary: ProfileSummary) => {
-          setSelectedHistoryId(null);
-          setTableSearch("");
-
-          const srcName = selectedSource?.source_name ?? `Source ${selectedSourceId}`;
-          setResultSourceName(srcName);
-
-          // Fetch full profile detail to get field data for rendering
-          try {
-            const detail = await fetchProfile(sourceIdNum, summary.id);
-            const scanResult = transformPersistedToScanResult(detail.fields, summary);
-            setResult(scanResult);
-            setSelectedHistoryId(summary.id);
-          } catch {
-            // Fallback: show summary metrics without field-level detail
-            setResult({
-              status: "ok",
-              tables: [],
-              scan_time_seconds: summary.scan_time_seconds,
-            });
-          }
-        },
-      },
-    );
-  }, [selectedSourceId, tableFilter, selectedSource, sampleRows, sourceIdNum, scanMutation]);
+    startScan({
+      tables: tables.length ? tables : undefined,
+      sample_rows: sampleRows !== 10000 ? sampleRows : undefined,
+    });
+  }, [selectedSourceId, tableFilter, sampleRows, startScan]);
 
   const handleHistorySelect = useCallback(
     async (profile: ProfileSummary) => {
@@ -431,10 +403,10 @@ export default function SourceProfilerPage() {
               <button
                 type="button"
                 onClick={handleScan}
-                disabled={!selectedSourceId || scanMutation.isPending}
+                disabled={!selectedSourceId || scanProgress.isScanning}
                 className="inline-flex items-center gap-2 rounded-lg bg-[#9B1B30] px-5 py-2.5 text-sm font-medium text-[#F0EDE8] hover:bg-[#B82D42] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {scanMutation.isPending ? (
+                {scanProgress.isScanning ? (
                   <>
                     <Loader2 size={15} className="animate-spin" />
                     Scanning...
@@ -485,18 +457,18 @@ export default function SourceProfilerPage() {
 
       {/* -- Loading state -- */}
       <ScanProgressIndicator
-        isScanning={scanMutation.isPending}
-        onCancel={() => scanAbortRef.current?.abort()}
+        progress={scanProgress}
+        onCancel={cancelScan}
       />
 
       {/* -- Error state -- */}
-      {scanMutation.isError && (
+      {scanError && (
         <div className="flex items-start gap-3 rounded-lg bg-[rgba(232,90,107,0.08)] border border-[rgba(232,90,107,0.2)] px-4 py-3">
           <AlertTriangle size={16} className="text-[#E85A6B] shrink-0 mt-0.5" />
           <div>
             <p className="text-sm font-medium text-[#E85A6B]">Scan failed</p>
             <p className="text-xs text-[#8A857D] mt-0.5">
-              {(scanMutation.error as Error)?.message ?? "Unknown error"}
+              {scanError}
             </p>
           </div>
         </div>
@@ -527,7 +499,7 @@ export default function SourceProfilerPage() {
       )}
 
       {/* -- Results Dashboard -- */}
-      {result && !scanMutation.isPending && !compareMode && (
+      {result && !scanProgress.isScanning && !compareMode && (
         <div className="space-y-6">
           {/* Source name + timestamp header */}
           {resultSourceName && (
@@ -767,7 +739,7 @@ export default function SourceProfilerPage() {
       )}
 
       {/* -- Empty state -- */}
-      {!result && !scanMutation.isPending && !scanMutation.isError && (
+      {!result && !scanProgress.isScanning && !scanError && (
         <div className="flex flex-col items-center justify-center py-20 rounded-lg border border-dashed border-[#2E2E35] bg-[#151518]">
           <div className="w-16 h-16 rounded-full bg-[#1C1C20] flex items-center justify-center mb-4">
             <ScanSearch size={28} className="text-[#8A857D]" />

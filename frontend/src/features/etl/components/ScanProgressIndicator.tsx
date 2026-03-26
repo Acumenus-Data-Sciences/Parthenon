@@ -1,118 +1,99 @@
-import { useState, useEffect, useCallback } from 'react';
+import { type ScanProgress } from "../hooks/useProfilerData";
 
 interface ScanProgressIndicatorProps {
-  isScanning: boolean;
+  progress: ScanProgress;
   onCancel: () => void;
 }
 
-const PHASES = [
-  'Connecting to database...',
-  'Scanning tables...',
-  'Profiling columns...',
-  'Computing quality metrics...',
-] as const;
-
-const PHASE_THRESHOLDS_MS = [0, 2000, 5000] as const;
-const LONG_RUNNING_THRESHOLD_S = 60;
-
 export default function ScanProgressIndicator({
-  isScanning,
+  progress,
   onCancel,
 }: ScanProgressIndicatorProps) {
-  const [phaseIndex, setPhaseIndex] = useState(0);
-  const [elapsedSeconds, setElapsedSeconds] = useState(0);
-  const [wasScanningRef, setWasScanningRef] = useState(false);
+  if (!progress.isScanning && progress.totalTables === 0) return null;
 
-  // Reset state when scanning starts
-  useEffect(() => {
-    if (isScanning) {
-      setPhaseIndex(0);
-      setElapsedSeconds(0);
-      setWasScanningRef(true);
-    } else if (wasScanningRef) {
-      // Scanning just finished — show final phase
-      setPhaseIndex(3);
-    }
-  }, [isScanning, wasScanningRef]);
+  const pct = progress.totalTables > 0
+    ? Math.round((progress.completedTables / progress.totalTables) * 100)
+    : 0;
 
-  // Elapsed time counter
-  useEffect(() => {
-    if (!isScanning) return;
-
-    const interval = setInterval(() => {
-      setElapsedSeconds((prev) => prev + 1);
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [isScanning]);
-
-  // Phase transitions based on elapsed time
-  useEffect(() => {
-    if (!isScanning) return;
-
-    const timers: ReturnType<typeof setTimeout>[] = [];
-
-    // Phase 2 at 2s
-    timers.push(
-      setTimeout(() => setPhaseIndex(1), PHASE_THRESHOLDS_MS[1]),
-    );
-
-    // Phase 3 at 5s
-    timers.push(
-      setTimeout(() => setPhaseIndex(2), PHASE_THRESHOLDS_MS[2]),
-    );
-
-    return () => timers.forEach(clearTimeout);
-  }, [isScanning]);
-
-  const handleCancel = useCallback(() => {
-    onCancel();
-  }, [onCancel]);
-
-  // Don't render if not scanning and never was (or already done)
-  if (!isScanning && !wasScanningRef) return null;
-  // Hide after final phase has been shown briefly
-  if (!isScanning && phaseIndex !== 3) return null;
-
-  const showLongRunningMessage = elapsedSeconds >= LONG_RUNNING_THRESHOLD_S;
+  const elapsedSec = Math.round(progress.elapsedMs / 1000);
+  const totalRows = progress.tableResults.reduce((sum, t) => sum + t.rows, 0);
+  const totalCols = progress.tableResults.reduce((sum, t) => sum + t.columns, 0);
 
   return (
-    <div className="bg-[#0E0E11]/90 backdrop-blur-sm rounded-xl border border-[#2a2a3e] p-8">
-      <div className="flex flex-col items-center gap-4">
-        {/* Spinning loader */}
-        <svg className="w-12 h-12 animate-spin text-teal-500" viewBox="0 0 24 24" fill="none">
-          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
-          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-        </svg>
+    <div className="bg-[#0E0E11]/90 backdrop-blur-sm rounded-xl border border-[#2a2a3e] p-6">
+      {/* Progress bar */}
+      <div className="mb-4">
+        <div className="flex items-center justify-between mb-1.5">
+          <span className="text-sm font-medium text-[#F0EDE8]">
+            {progress.isScanning ? progress.currentTable : "Scan complete"}
+          </span>
+          <span className="text-sm font-mono text-[#8A857D]">{pct}%</span>
+        </div>
+        <div className="h-2 rounded-full bg-[#232328] overflow-hidden">
+          <div
+            className="h-full rounded-full bg-[#2DD4BF] transition-all duration-300"
+            style={{ width: `${pct}%` }}
+          />
+        </div>
+      </div>
 
-        {/* Phase text */}
-        <p className="text-lg text-white font-medium">
-          {PHASES[phaseIndex]}
-        </p>
+      {/* Stats row */}
+      <div className="grid grid-cols-4 gap-3 mb-4">
+        {[
+          { label: "Tables", value: `${progress.completedTables} / ${progress.totalTables}` },
+          { label: "Columns", value: totalCols.toLocaleString() },
+          { label: "Rows", value: totalRows.toLocaleString() },
+          { label: "Elapsed", value: `${elapsedSec}s` },
+        ].map((s) => (
+          <div key={s.label} className="text-center">
+            <div className="text-sm font-semibold text-[#F0EDE8] font-mono">{s.value}</div>
+            <div className="text-xs text-[#5A5650]">{s.label}</div>
+          </div>
+        ))}
+      </div>
 
-        {/* Elapsed time */}
-        <p className="text-sm text-gray-400">
-          {elapsedSeconds}s elapsed
-        </p>
+      {/* Completed tables list */}
+      {progress.tableResults.length > 0 && (
+        <div className="max-h-40 overflow-y-auto rounded-lg bg-[#151518] border border-[#232328] mb-4">
+          <div className="divide-y divide-[#1E1E23]">
+            {progress.tableResults.map((t) => (
+              <div key={t.table} className="flex items-center justify-between px-3 py-1.5 text-xs">
+                <span className="text-[#C5C0B8] truncate">{t.table}</span>
+                <span className="text-[#5A5650] font-mono shrink-0 ml-2">
+                  {t.rows.toLocaleString()} rows &middot; {t.elapsed_ms}ms
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
-        {/* Long-running message */}
-        {showLongRunningMessage && (
-          <p className="text-sm text-amber-400/70">
-            Large databases may take several minutes
+      {/* Errors */}
+      {progress.errors.length > 0 && (
+        <div className="mb-4 rounded-lg bg-[#E85A6B]/10 border border-[#E85A6B]/30 px-3 py-2">
+          <p className="text-xs font-medium text-[#E85A6B] mb-1">
+            {progress.errors.length} table(s) failed
           </p>
-        )}
+          {progress.errors.map((e) => (
+            <p key={e.table} className="text-xs text-[#E85A6B]/70 truncate">
+              {e.table}: {e.message}
+            </p>
+          ))}
+        </div>
+      )}
 
-        {/* Cancel button */}
-        {isScanning && (
+      {/* Cancel button */}
+      {progress.isScanning && (
+        <div className="flex justify-center">
           <button
             type="button"
-            onClick={handleCancel}
-            className="text-sm text-gray-400 hover:text-white border border-gray-600 rounded px-4 py-1.5 transition-colors"
+            onClick={onCancel}
+            className="text-sm text-[#8A857D] hover:text-[#F0EDE8] border border-[#323238] rounded-md px-4 py-1.5 transition-colors"
           >
             Cancel
           </button>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

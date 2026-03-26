@@ -455,3 +455,75 @@ export async function downloadExport(projectId: number, format: 'markdown' | 'sq
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
+
+// --- SSE Progress types ---
+export interface ScanProgressEvent {
+  event: string;
+  scan_id?: string;
+  total_tables?: number;
+  table?: string;
+  index?: number;
+  of?: number;
+  rows?: number;
+  columns?: number;
+  elapsed_ms?: number;
+  total_elapsed_ms?: number;
+  succeeded?: number;
+  failed?: number;
+  message?: string;
+}
+
+export async function startAsyncScan(
+  sourceId: number,
+  request: { tables?: string[]; sample_rows?: number },
+): Promise<{ scan_id: string; source_id: number }> {
+  const { data } = await apiClient.post<{ data: { scan_id: string; source_id: number } }>(
+    `/sources/${sourceId}/scan-profiles/scan-async`,
+    request,
+  );
+  return data.data;
+}
+
+export function subscribeScanProgress(
+  sourceId: number,
+  scanId: string,
+  onEvent: (event: ScanProgressEvent) => void,
+  onDone: () => void,
+  onError: (error: Event) => void,
+): () => void {
+  const baseUrl = apiClient.defaults.baseURL ?? "";
+  const token = localStorage.getItem("auth_token") ?? "";
+  const url = `${baseUrl}/sources/${sourceId}/scan-profiles/scan-progress/${scanId}?token=${token}`;
+
+  const eventSource = new EventSource(url);
+
+  eventSource.onmessage = (e) => {
+    try {
+      const parsed: ScanProgressEvent = JSON.parse(e.data);
+      onEvent(parsed);
+      if (parsed.event === "completed" || parsed.event === "completed_with_errors") {
+        eventSource.close();
+        onDone();
+      }
+    } catch {
+      // ignore parse errors
+    }
+  };
+
+  eventSource.onerror = (e) => {
+    eventSource.close();
+    onError(e);
+  };
+
+  return () => eventSource.close();
+}
+
+export async function completeScan(
+  sourceId: number,
+  scanId: string,
+): Promise<ProfileSummary> {
+  const { data } = await apiClient.post<{ data: ProfileSummary }>(
+    `/sources/${sourceId}/scan-profiles/scan-complete/${scanId}`,
+  );
+  return data.data;
+}
