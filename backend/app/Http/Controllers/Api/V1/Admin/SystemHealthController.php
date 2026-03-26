@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\App\PacsConnection;
 use Dedoc\Scramble\Attributes\Group;
+use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -290,10 +291,10 @@ class SystemHealthController extends Controller
             ];
         }
 
-        $baseUrl = rtrim(str_replace('/dicom-web', '', $conn->base_url), '/');
+        $baseUrl = $this->orthancBaseUrl($conn);
 
         try {
-            $response = Http::timeout(5)->get("{$baseUrl}/statistics");
+            $response = $this->orthancClient($conn)->get("{$baseUrl}/statistics");
 
             if ($response->successful()) {
                 $stats = $response->json();
@@ -766,10 +767,10 @@ class SystemHealthController extends Controller
             return ['configured' => false];
         }
 
-        $baseUrl = rtrim(str_replace('/dicom-web', '', $conn->base_url), '/');
+        $baseUrl = $this->orthancBaseUrl($conn);
 
         try {
-            $response = Http::timeout(5)->get("{$baseUrl}/system");
+            $response = $this->orthancClient($conn)->get("{$baseUrl}/system");
 
             if ($response->successful()) {
                 $sys = $response->json();
@@ -868,5 +869,25 @@ class SystemHealthController extends Controller
         }
 
         return 'Request served in '.round((microtime(true) - $startTime) * 1000).'ms';
+    }
+
+    private function orthancBaseUrl(PacsConnection $conn): string
+    {
+        return rtrim(str_replace('/dicom-web', '', $conn->base_url), '/');
+    }
+
+    private function orthancClient(PacsConnection $conn): PendingRequest
+    {
+        $client = Http::timeout(5);
+        $credentials = $conn->credentials ?? [];
+
+        return match ($conn->auth_type) {
+            'basic' => $client->withBasicAuth(
+                $credentials['username'] ?? '',
+                $credentials['password'] ?? '',
+            ),
+            'bearer' => $client->withToken($credentials['token'] ?? ''),
+            default => $client,
+        };
     }
 }
