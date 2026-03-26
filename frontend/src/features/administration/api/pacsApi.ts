@@ -59,6 +59,8 @@ export interface PacsStudy {
 export interface PacsStudyBrowseResult {
   studies: PacsStudy[];
   count: number;
+  has_more: boolean;
+  total_studies: number | null;
 }
 
 export interface PacsStudyFilters {

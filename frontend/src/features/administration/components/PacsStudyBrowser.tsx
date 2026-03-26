@@ -69,8 +69,9 @@ export default function PacsStudyBrowser({
   );
 
   const studies = data?.studies ?? [];
-  const totalCount = data?.count ?? 0;
-  const hasNext = offset + PAGE_SIZE < totalCount;
+  const hasMore = data?.has_more ?? false;
+  const totalStudies = data?.total_studies ?? null;
+  const hasNext = hasMore;
   const hasPrev = offset > 0;
 
   if (!connection) return null;
@@ -211,10 +212,16 @@ export default function PacsStudyBrowser({
               {/* Pagination */}
               <div className="flex items-center justify-between px-4 py-3 border-t border-[#232328]">
                 <span className="text-xs text-[#5A5650]">
-                  {offset + 1}–{Math.min(offset + PAGE_SIZE, totalCount)} of{" "}
-                  <span className="font-['IBM_Plex_Mono',monospace]">
-                    {totalCount.toLocaleString()}
-                  </span>
+                  {offset + 1}–{offset + studies.length}
+                  {totalStudies != null && (
+                    <>
+                      {" "}of{" "}
+                      <span className="font-['IBM_Plex_Mono',monospace]">
+                        {totalStudies.toLocaleString()}
+                      </span>
+                      {" "}studies
+                    </>
+                  )}
                 </span>
                 <div className="flex items-center gap-1">
                   <button

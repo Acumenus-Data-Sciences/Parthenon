@@ -119,9 +119,10 @@ class PacsConnectionService
                 '00081030', '00201206', '00201208',
             ]);
 
-            if (! empty($filters['limit'])) {
-                $queryParams['limit'] = (int) $filters['limit'];
-            }
+            $requestedLimit = ! empty($filters['limit']) ? (int) $filters['limit'] : 25;
+            // Fetch one extra to detect if more pages exist
+            $queryParams['limit'] = $requestedLimit + 1;
+
             if (! empty($filters['offset'])) {
                 $queryParams['offset'] = (int) $filters['offset'];
             }
@@ -140,12 +141,21 @@ class PacsConnectionService
             /** @var array<int, array<string, mixed>> $dicomJson */
             $dicomJson = $response->json() ?? [];
 
+            $hasMore = count($dicomJson) > $requestedLimit;
+            $dicomJson = array_slice($dicomJson, 0, $requestedLimit);
+
             $studies = array_map([$this, 'normalizeDicomStudy'], $dicomJson);
+
+            // Use cached total from metadata_cache for display
+            $cache = $conn->metadata_cache;
+            $totalStudies = $cache['count_studies'] ?? null;
 
             return [
                 'success' => true,
                 'studies' => $studies,
                 'count' => count($studies),
+                'has_more' => $hasMore,
+                'total_studies' => $totalStudies,
             ];
         } catch (\Throwable $e) {
             Log::warning('PACS study browse failed', [
