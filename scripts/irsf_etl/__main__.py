@@ -75,6 +75,12 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Transform MBA scores into OMOP observation rows",
     )
 
+    # Genotype observations subcommand
+    subparsers.add_parser(
+        "observation-genotype",
+        help="Transform genotype boolean columns into OMOP observation rows",
+    )
+
     return parser
 
 
@@ -266,6 +272,47 @@ def _run_observation_mba() -> int:
     return 0
 
 
+def _run_observation_genotype() -> int:
+    """Execute the observation-genotype subcommand."""
+    import logging
+
+    from scripts.irsf_etl.config import ETLConfig
+    from scripts.irsf_etl.observation_genotype import transform_genotype_observations
+
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+
+    config = ETLConfig()
+    result = transform_genotype_observations(config)
+
+    print(f"\nGenotype Observations Complete")
+    print(f"  observation_genotype.csv: {len(result)} rows")
+
+    if not result.empty:
+        unique_concepts = result["observation_concept_id"].nunique()
+        print(f"  Unique mutation concepts: {unique_concepts}")
+
+        person_count = result["person_id"].nunique()
+        print(f"  Unique patients with mutations: {person_count}")
+
+        # All visit_occurrence_id should be NULL
+        null_visits = result["visit_occurrence_id"].isna().sum()
+        print(f"  NULL visit_occurrence_id: {null_visits}/{len(result)}")
+
+        # Show mutations per person distribution
+        mutations_per_person = result.groupby("person_id").size()
+        print(f"\n  Mutations per person: min={mutations_per_person.min()}, "
+              f"median={mutations_per_person.median():.0f}, "
+              f"max={mutations_per_person.max()}")
+
+        # Top 5 most common mutations
+        print(f"\n  Top 5 most common mutations:")
+        top_mutations = result["observation_source_value"].value_counts().head(5)
+        for mutation, count in top_mutations.items():
+            print(f"    {mutation}: {count}")
+
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     """Main entry point for the IRSF ETL CLI."""
     parser = _build_parser()
@@ -289,6 +336,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "observation-mba":
         return _run_observation_mba()
+
+    if args.command == "observation-genotype":
+        return _run_observation_genotype()
 
     return 0
 
