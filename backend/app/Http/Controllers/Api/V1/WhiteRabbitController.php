@@ -84,8 +84,8 @@ class WhiteRabbitController extends Controller
                 'server' => $payload['connection']['server'] ?? null,
             ]);
 
-            // Scans can take many minutes on large databases
-            $response = Http::timeout(600)->post(
+            // Scans can take many minutes on large databases (SynPUF etc.)
+            $response = Http::timeout(1200)->post(
                 "{$this->whiteRabbitUrl}/scan",
                 $payload
             );

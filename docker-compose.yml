@@ -489,6 +489,8 @@ services:
       - "${WHITERABBIT_PORT:-8090}:8090"
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    environment:
+      - SCAN_TIMEOUT_SECONDS=${SCAN_TIMEOUT_SECONDS:-1200}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8090/health"]
       interval: 30s
@@ -498,7 +500,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 2G
+          memory: 4G
     networks:
       - parthenon
     restart: unless-stopped

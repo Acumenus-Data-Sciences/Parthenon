@@ -19,6 +19,9 @@ import { StemTableNode } from "./StemTableNode";
 import { MappingEdge } from "./MappingEdge";
 import { MappingToolbar } from "./MappingToolbar";
 import { CDM_SCHEMA_V54 } from "../../lib/cdm-schema-v54";
+
+// Vocabulary tables are reference data, not ETL targets — exclude from mapping canvas
+const CDM_ETL_TABLES = CDM_SCHEMA_V54.filter((t) => t.domain !== "Vocabulary");
 import { computeLayout, type LayoutNode, type LayoutEdge } from "../../lib/aqueduct-layout";
 import { useCreateTableMapping, useSuggestMappings } from "../../hooks/useAqueductData";
 import type { EtlProject, EtlTableMapping, PersistedFieldProfile } from "../../api";
@@ -134,14 +137,14 @@ export function AqueductCanvas({
   const sourceTables = useMemo(() => buildSourceTables(sourceFields), [sourceFields]);
 
   // -- Compute progress -------------------------------------------------------
-  const totalCdmTables = CDM_SCHEMA_V54.length;
+  const totalCdmTables = CDM_ETL_TABLES.length;
   const mappedTables = connectedCdm.size;
   const fieldCoveragePct = useMemo(() => {
     if (tableMappings.length === 0) return 0;
     let totalFields = 0;
     let mappedFields = 0;
     for (const mapping of tableMappings) {
-      const cdmTable = CDM_SCHEMA_V54.find((t) => t.name === mapping.target_table);
+      const cdmTable = CDM_ETL_TABLES.find((t) => t.name === mapping.target_table);
       if (cdmTable) {
         totalFields += cdmTable.columns.length;
         mappedFields += mapping.field_mappings_count ?? 0;
@@ -156,6 +159,48 @@ export function AqueductCanvas({
     const edges: Edge[] = [];
     const layoutNodes: LayoutNode[] = [];
     const layoutEdges: LayoutEdge[] = [];
+
+    // Column header labels (positioned after layout computation)
+    nodes.push({
+      id: "header-source",
+      type: "default",
+      data: { label: `Source Tables (${sourceTables.length})` },
+      position: { x: 0, y: 0 },
+      selectable: false,
+      draggable: false,
+      connectable: false,
+      style: {
+        background: "transparent",
+        border: "none",
+        color: "#C9A227",
+        fontSize: "13px",
+        fontWeight: 600,
+        textTransform: "uppercase" as const,
+        letterSpacing: "0.05em",
+        width: NODE_WIDTH,
+        pointerEvents: "none" as const,
+      },
+    });
+    nodes.push({
+      id: "header-cdm",
+      type: "default",
+      data: { label: `OMOP CDM v5.4 Tables (${CDM_ETL_TABLES.length})` },
+      position: { x: 0, y: 0 },
+      selectable: false,
+      draggable: false,
+      connectable: false,
+      style: {
+        background: "transparent",
+        border: "none",
+        color: "#2DD4BF",
+        fontSize: "13px",
+        fontWeight: 600,
+        textTransform: "uppercase" as const,
+        letterSpacing: "0.05em",
+        width: NODE_WIDTH,
+        pointerEvents: "none" as const,
+      },
+    });
 
     // Source nodes
     for (const st of sourceTables) {
@@ -179,7 +224,7 @@ export function AqueductCanvas({
     }
 
     // CDM nodes
-    for (const cdmTable of CDM_SCHEMA_V54) {
+    for (const cdmTable of CDM_ETL_TABLES) {
       const nodeId = `cdm-${cdmTable.name}`;
       const isMapped = connectedCdm.has(cdmTable.name);
       const hidden = filter === "mapped" ? !isMapped : filter === "unmapped" ? isMapped : false;
@@ -249,7 +294,7 @@ export function AqueductCanvas({
     for (const mapping of tableMappings) {
       const sourceId = `source-${mapping.source_table}`;
       const targetId = `cdm-${mapping.target_table}`;
-      const cdmTable = CDM_SCHEMA_V54.find((t) => t.name === mapping.target_table);
+      const cdmTable = CDM_ETL_TABLES.find((t) => t.name === mapping.target_table);
       const totalFields = cdmTable ? cdmTable.columns.length : 0;
       const mappedFields = mapping.field_mappings_count ?? 0;
 
@@ -338,6 +383,18 @@ export function AqueductCanvas({
       if (node) {
         node.position = { x: pos.x, y: pos.y };
       }
+    }
+
+    // Position column headers above their respective columns
+    const firstSource = positioned.find((p) => p.id.startsWith("source-"));
+    const firstCdm = positioned.find((p) => p.id.startsWith("cdm-"));
+    const headerSource = nodes.find((n) => n.id === "header-source");
+    const headerCdm = nodes.find((n) => n.id === "header-cdm");
+    if (headerSource && firstSource) {
+      headerSource.position = { x: firstSource.x, y: firstSource.y - 36 };
+    }
+    if (headerCdm && firstCdm) {
+      headerCdm.position = { x: firstCdm.x, y: firstCdm.y - 36 };
     }
 
     return { initialNodes: nodes, initialEdges: edges };

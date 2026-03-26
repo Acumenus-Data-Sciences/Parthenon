@@ -46,7 +46,7 @@ function CdmTableNodeComponent({ data }: NodeProps) {
       <Handle
         type="target"
         position={Position.Left}
-        className="!w-3 !h-3 !border-2"
+        className="!w-4 !h-4 !border-2 hover:!scale-125 transition-transform"
         style={{ backgroundColor: color, borderColor: color }}
       />
       <div className="flex items-center gap-2">

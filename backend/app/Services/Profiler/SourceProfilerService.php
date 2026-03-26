@@ -50,7 +50,7 @@ class SourceProfilerService
 
         $startTime = microtime(true);
 
-        $response = Http::timeout(600)->post(
+        $response = Http::timeout(1200)->post(
             "{$this->whiteRabbitUrl}/scan",
             $payload,
         );

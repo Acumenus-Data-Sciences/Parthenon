@@ -24,7 +24,7 @@ function SourceTableNodeComponent({ data }: NodeProps) {
       <Handle
         type="source"
         position={Position.Right}
-        className="!w-3 !h-3 !bg-[#C9A227] !border-[#C9A227]"
+        className="!w-4 !h-4 !bg-[#C9A227] !border-2 !border-[#C9A227] hover:!scale-125 transition-transform"
       />
     </div>
   );
