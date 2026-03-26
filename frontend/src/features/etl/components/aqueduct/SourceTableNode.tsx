@@ -13,7 +13,7 @@ function SourceTableNodeComponent({ data }: NodeProps) {
   return (
     <div
       className={`rounded-lg border-2 border-[#C9A227] bg-[#1e1a14] px-4 py-3 min-w-[160px] transition-opacity ${
-        d.dimmed ? "opacity-30" : "opacity-100"
+        d.dimmed ? "opacity-50" : "opacity-100"
       }`}
     >
       <div className="text-sm font-semibold text-white truncate">{d.tableName}</div>

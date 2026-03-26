@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback } from "react";
+import { useMemo, useState, useCallback, useEffect } from "react";
 import {
   ReactFlow,
   Controls,
@@ -108,7 +108,7 @@ export function AqueductCanvas({
   onDrillDown,
   onBack,
 }: AqueductCanvasProps) {
-  const [filter, setFilter] = useState<"all" | "mapped" | "unmapped">("all");
+  const [filter, setFilter] = useState<"all" | "mapped" | "unmapped">("mapped");
   const [suggestBanner, setSuggestBanner] = useState<string | null>(null);
   const [isExporting, setIsExporting] = useState(false);
   const createMapping = useCreateTableMapping(project.id);
@@ -401,8 +401,14 @@ export function AqueductCanvas({
   }, [sourceTables, tableMappings, connectedSources, connectedCdm, filter, onDrillDown]);
 
   // -- React Flow state -------------------------------------------------------
-  const [nodes, , onNodesChange] = useNodesState(initialNodes);
-  const [edges, , onEdgesChange] = useEdgesState(initialEdges);
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+
+  // Sync when data changes (e.g., sourceFields load async, mappings created)
+  useEffect(() => {
+    setNodes(initialNodes);
+    setEdges(initialEdges);
+  }, [initialNodes, initialEdges, setNodes, setEdges]);
 
   // -- onConnect: create a new table mapping ----------------------------------
   const handleConnect = useCallback(

@@ -36,7 +36,7 @@ function CdmTableNodeComponent({ data }: NodeProps) {
   return (
     <div
       className={`rounded-lg border-2 px-4 py-3 min-w-[160px] transition-opacity ${
-        d.dimmed ? "opacity-30" : "opacity-100"
+        d.dimmed ? "opacity-50" : "opacity-100"
       }`}
       style={{
         borderColor: color,
