@@ -213,6 +213,16 @@ export interface IngestionProject {
   updated_at: string;
   jobs?: IngestionJob[];
   source?: { id: number; source_name: string };
+  db_connection_config?: {
+    dbms: string;
+    host: string;
+    port: number;
+    user: string;
+    password: string;
+    database: string;
+    schema: string;
+  } | null;
+  selected_tables?: string[] | null;
 }
 
 export interface StagingPreviewResult {
@@ -260,4 +270,59 @@ export async function fetchStagingPreview(projectId: number, tableName: string, 
     params: { limit, offset },
   });
   return unwrap<StagingPreviewResult>(data);
+}
+
+// --- Database Connection types ---
+export interface DbConnectionConfig {
+  dbms: string;
+  host: string;
+  port: number;
+  user: string;
+  password: string;
+  database: string;
+  schema: string;
+}
+
+export interface DbTableInfo {
+  name: string;
+  column_count: number;
+  row_count: number | null;
+}
+
+export interface ConnectDbResult {
+  connected: boolean;
+  tables: DbTableInfo[];
+}
+
+export async function connectDatabase(
+  projectId: number,
+  config: DbConnectionConfig,
+): Promise<ConnectDbResult> {
+  const { data } = await apiClient.post<{ data: ConnectDbResult }>(
+    `/ingestion-projects/${projectId}/connect-db`,
+    config,
+  );
+  return unwrap<ConnectDbResult>(data);
+}
+
+export async function confirmTables(
+  projectId: number,
+  tables: string[],
+): Promise<{ tables: string[]; count: number }> {
+  const { data } = await apiClient.post<{ data: { tables: string[]; count: number } }>(
+    `/ingestion-projects/${projectId}/confirm-tables`,
+    { tables },
+  );
+  return unwrap(data);
+}
+
+export async function stageDatabase(
+  projectId: number,
+): Promise<{ jobs: Array<{ id: number; staging_table_name: string }> }> {
+  const { data } = await apiClient.post<{ data: { jobs: Array<{ id: number; staging_table_name: string }> } }>(
+    `/ingestion-projects/${projectId}/stage-db`,
+    {},
+    { timeout: 600000 },
+  );
+  return unwrap(data);
 }

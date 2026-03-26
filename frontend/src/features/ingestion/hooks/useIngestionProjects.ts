@@ -7,6 +7,10 @@ import {
   stageFiles,
   removeProjectFile,
   fetchStagingPreview,
+  connectDatabase,
+  confirmTables,
+  stageDatabase,
+  type DbConnectionConfig,
 } from "../api/ingestionApi";
 
 export function useIngestionProjects() {
@@ -70,5 +74,35 @@ export function useStagingPreview(projectId: number, tableName: string, enabled 
     queryFn: () => fetchStagingPreview(projectId, tableName),
     enabled: enabled && projectId > 0 && tableName.length > 0,
     staleTime: 60_000,
+  });
+}
+
+export function useConnectDatabase(projectId: number) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (config: DbConnectionConfig) => connectDatabase(projectId, config),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["ingestion-project", projectId] });
+    },
+  });
+}
+
+export function useConfirmTables(projectId: number) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (tables: string[]) => confirmTables(projectId, tables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["ingestion-project", projectId] });
+    },
+  });
+}
+
+export function useStageDatabase(projectId: number) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => stageDatabase(projectId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["ingestion-project", projectId] });
+    },
   });
 }
