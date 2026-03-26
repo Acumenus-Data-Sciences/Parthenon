@@ -38,31 +38,35 @@ class PatientProfileService
         $opStart = $opBounds['start'];
         $opEnd = $opBounds['end'];
 
+        // Cross-source isolation: (visit_occurrence_id IS NULL OR matches a valid visit for this person)
+        // IRSF ETL records have NULL visit IDs; SynPUF records have SynPUF visit IDs that won't match.
+        $visitFilter = "(visit_occurrence_id IS NULL OR visit_occurrence_id IN (SELECT visit_occurrence_id FROM {@cdmSchema}.visit_occurrence WHERE person_id = {$personId}))";
+
         $sql = "
-            SELECT 'condition'     AS domain, COUNT(*) AS total FROM {@cdmSchema}.condition_occurrence WHERE person_id = {$personId}
+            SELECT 'condition'     AS domain, COUNT(*) AS total FROM {@cdmSchema}.condition_occurrence WHERE person_id = {$personId} AND {$visitFilter}
             UNION ALL
-            SELECT 'drug',                    COUNT(*) FROM {@cdmSchema}.drug_exposure          WHERE person_id = {$personId}
+            SELECT 'drug',                    COUNT(*) FROM {@cdmSchema}.drug_exposure          WHERE person_id = {$personId} AND {$visitFilter}
             UNION ALL
-            SELECT 'procedure',               COUNT(*) FROM {@cdmSchema}.procedure_occurrence   WHERE person_id = {$personId}
+            SELECT 'procedure',               COUNT(*) FROM {@cdmSchema}.procedure_occurrence   WHERE person_id = {$personId} AND {$visitFilter}
             UNION ALL
-            SELECT 'measurement',             COUNT(*) FROM {@cdmSchema}.measurement            WHERE person_id = {$personId}
+            SELECT 'measurement',             COUNT(*) FROM {@cdmSchema}.measurement            WHERE person_id = {$personId} AND {$visitFilter}
             UNION ALL
-            SELECT 'observation',             COUNT(*) FROM {@cdmSchema}.observation            WHERE person_id = {$personId}
+            SELECT 'observation',             COUNT(*) FROM {@cdmSchema}.observation            WHERE person_id = {$personId} AND {$visitFilter}
             UNION ALL
             SELECT 'visit',                   COUNT(*) FROM {@cdmSchema}.visit_occurrence       WHERE person_id = {$personId}
             UNION ALL
             SELECT 'condition_era',           COUNT(*) FROM {@cdmSchema}.condition_era
                 WHERE person_id = {$personId}
                   AND condition_era_start_date >= '{$opStart}' AND condition_era_start_date <= '{$opEnd}'
-                  AND condition_concept_id IN (SELECT DISTINCT condition_concept_id FROM {@cdmSchema}.condition_occurrence WHERE person_id = {$personId})
+                  AND condition_concept_id IN (SELECT DISTINCT condition_concept_id FROM {@cdmSchema}.condition_occurrence WHERE person_id = {$personId} AND {$visitFilter})
             UNION ALL
             SELECT 'drug_era',                COUNT(*) FROM {@cdmSchema}.drug_era
                 WHERE person_id = {$personId}
                   AND drug_era_start_date >= '{$opStart}' AND drug_era_start_date <= '{$opEnd}'
-                  AND drug_concept_id IN (SELECT DISTINCT drug_concept_id FROM {@cdmSchema}.drug_exposure WHERE person_id = {$personId})
+                  AND drug_concept_id IN (SELECT DISTINCT drug_concept_id FROM {@cdmSchema}.drug_exposure WHERE person_id = {$personId} AND {$visitFilter})
             UNION ALL
             SELECT 'note',                    COUNT(*) FROM {@cdmSchema}.note
-                WHERE person_id = {$personId}
+                WHERE person_id = {$personId} AND {$visitFilter}
                   AND note_date >= '{$opStart}' AND note_date <= '{$opEnd}'
         ";
 
@@ -123,13 +127,18 @@ class PatientProfileService
         $opStart = $opBounds['start'];
         $opEnd = $opBounds['end'];
 
-        // Count total notes for this person within observation period
+        // Count total notes — require visit linkage to filter cross-source contamination
+        // (multiple CDMs share the omop schema with overlapping person_ids)
         $countSql = "
             SELECT COUNT(*) AS total_count
-            FROM {@cdmSchema}.note
-            WHERE person_id = {$personId}
-              AND note_date >= '{$opStart}'
-              AND note_date <= '{$opEnd}'
+            FROM {@cdmSchema}.note n
+            WHERE n.person_id = {$personId}
+              AND n.note_date >= '{$opStart}'
+              AND n.note_date <= '{$opEnd}'
+              AND n.visit_occurrence_id IN (
+                  SELECT visit_occurrence_id FROM {@cdmSchema}.visit_occurrence
+                  WHERE person_id = {$personId}
+              )
         ";
 
         $renderedCountSql = $this->sqlRenderer->render($countSql, $params, $dialect);
@@ -171,6 +180,10 @@ class PatientProfileService
                 WHERE n.person_id = {$personId}
                   AND n.note_date >= '{$opStart}'
                   AND n.note_date <= '{$opEnd}'
+                  AND n.visit_occurrence_id IN (
+                      SELECT visit_occurrence_id FROM {@cdmSchema}.visit_occurrence
+                      WHERE person_id = {$personId}
+                  )
                 ORDER BY n.note_date DESC, n.note_id DESC
                 LIMIT {$perPage} OFFSET {$offset}
             ";
@@ -236,6 +249,8 @@ class PatientProfileService
             $opBounds = $this->getObservationPeriodBounds($personId, $params, $dialect, $connectionName);
             $params['opStart'] = $opBounds['start'];
             $params['opEnd'] = $opBounds['end'];
+            // Cross-source visit filter: keep records with NULL visit_id (IRSF ETL) or valid visit_id
+            $params['visitFilter'] = "(visit_occurrence_id IS NULL OR visit_occurrence_id IN (SELECT visit_occurrence_id FROM {$cdmSchema}.visit_occurrence WHERE person_id = {$personId}))";
 
             $result = [
                 'demographics' => $this->getDemographics($personId, $params, $dialect, $connectionName),
@@ -619,6 +634,7 @@ class PatientProfileService
             LEFT JOIN {@vocabSchema}.concept tc
                 ON co.condition_type_concept_id = tc.concept_id
             WHERE co.person_id = {$personId}
+              AND {$params['visitFilter']}
             ORDER BY co.condition_start_date DESC
             LIMIT 2000
         ";
@@ -678,6 +694,7 @@ class PatientProfileService
             LEFT JOIN {@vocabSchema}.concept tc
                 ON de.drug_type_concept_id = tc.concept_id
             WHERE de.person_id = {$personId}
+              AND {$params['visitFilter']}
             ORDER BY de.drug_exposure_start_date DESC
             LIMIT 2000
         ";
@@ -717,6 +734,7 @@ class PatientProfileService
             LEFT JOIN {@vocabSchema}.concept tc
                 ON po.procedure_type_concept_id = tc.concept_id
             WHERE po.person_id = {$personId}
+              AND {$params['visitFilter']}
             ORDER BY po.procedure_date DESC
             LIMIT 2000
         ";
@@ -764,6 +782,7 @@ class PatientProfileService
             LEFT JOIN {@vocabSchema}.concept tc
                 ON m.measurement_type_concept_id = tc.concept_id
             WHERE m.person_id = {$personId}
+              AND {$params['visitFilter']}
             ORDER BY m.measurement_date DESC
             LIMIT 500
         ";
@@ -827,6 +846,7 @@ class PatientProfileService
             LEFT JOIN {@vocabSchema}.concept tc
                 ON o.observation_type_concept_id = tc.concept_id
             WHERE o.person_id = {$personId}
+              AND {$params['visitFilter']}
             ORDER BY o.observation_date DESC
             LIMIT 500
         ";
