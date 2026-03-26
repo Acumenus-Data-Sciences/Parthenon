@@ -63,6 +63,18 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Derive visit_occurrence from study visits and hospitalizations",
     )
 
+    # Conditions subcommand
+    conditions_parser = subparsers.add_parser(
+        "conditions",
+        help="Extract conditions from 5211 tables and generate condition_occurrence staging CSV",
+    )
+    conditions_parser.add_argument(
+        "--skip-vocab",
+        action="store_true",
+        default=False,
+        help="Skip vocabulary DB validation (offline mode)",
+    )
+
     # Measurements subcommand
     subparsers.add_parser(
         "measurements",
@@ -237,6 +249,39 @@ def _run_visit_derivation() -> int:
 
         person_count = visit_occ["person_id"].nunique()
         print(f"\nUnique patients with visits: {person_count}")
+
+    return 0
+
+
+def _run_conditions(skip_vocab: bool = False) -> int:
+    """Execute the conditions subcommand."""
+    import logging
+
+    from scripts.irsf_etl.condition_occurrence import extract_conditions
+    from scripts.irsf_etl.config import ETLConfig
+
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+
+    config = ETLConfig()
+    validator = None
+    if not skip_vocab:
+        try:
+            from scripts.irsf_etl.lib.vocab_validator import VocabularyValidator
+
+            validator = VocabularyValidator(config)
+        except Exception as e:
+            print(f"WARNING: Could not connect to vocabulary DB: {e}")
+            print("Running without vocabulary validation (all concept_ids kept as-is)")
+
+    result = extract_conditions(config, validator=validator)
+
+    print(f"\nConditions Complete")
+    print(f"  condition_occurrence.csv: {len(result)} rows")
+    if not result.empty:
+        print(f"  Unique patients: {result['person_id'].nunique()}")
+        mapped = (result["condition_concept_id"] != 0).sum()
+        total = len(result)
+        print(f"  Mapping coverage: {mapped}/{total} ({mapped/total*100:.1f}%)")
 
     return 0
 
@@ -516,6 +561,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "visit-derivation":
         return _run_visit_derivation()
+
+    if args.command == "conditions":
+        return _run_conditions(skip_vocab=args.skip_vocab)
 
     if args.command == "measurements":
         return _run_measurements()

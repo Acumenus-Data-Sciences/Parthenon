@@ -225,15 +225,39 @@ def _resolve_visit(
 
 
 def _visit_date_as_iso(row: pd.Series) -> str | None:
-    """Extract visit_date from row and return as ISO string if valid."""
+    """Extract visit_date from row and return as ISO string if valid.
+
+    Source visit_date is in MM/DD/YY or MM/DD/YYYY format. Converts to
+    YYYY-MM-DD ISO format. Two-digit years use pivot: 00-49 -> 2000-2049,
+    50-99 -> 1950-1999.
+    """
     visit_date = row.get("visit_date")
     if visit_date is None or pd.isna(visit_date):
         return None
     vd = str(visit_date).strip()
     if not vd:
         return None
-    # visit_date is already ISO YYYY-MM-DD format from prior phases
-    return vd
+    from datetime import date as date_cls
+
+    # Try ISO format first (YYYY-MM-DD)
+    if len(vd) == 10 and vd[4] == "-" and vd[7] == "-":
+        try:
+            date_cls.fromisoformat(vd)
+            return vd
+        except ValueError:
+            pass
+    # Try MM/DD/YY or MM/DD/YYYY format
+    try:
+        parts = vd.split("/")
+        if len(parts) != 3:
+            return None
+        month, day, year_str = int(parts[0]), int(parts[1]), parts[2]
+        year = int(year_str)
+        if year < 100:
+            year = year + 2000 if year < 50 else year + 1900
+        return date_cls(year, month, day).isoformat()
+    except (ValueError, IndexError):
+        return None
 
 
 # ---------------------------------------------------------------------------
