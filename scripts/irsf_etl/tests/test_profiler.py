@@ -216,13 +216,13 @@ class TestProfileAll:
 
     def test_profiles_multiple_csvs_with_source_group(self, tmp_path: Path) -> None:
         """profile_all with a temp directory containing 2 CSVs returns profiles with source_group tags."""
-        # Create a fake source root with a "5201" subdirectory
+        # Create a fake source root with a "5201/csv" subdirectory (matching real structure)
         source_root = tmp_path / "source"
-        dir_5201 = source_root / "5201"
-        dir_5201.mkdir(parents=True)
+        dir_5201_csv = source_root / "5201" / "csv"
+        dir_5201_csv.mkdir(parents=True)
 
-        (dir_5201 / "file_a.csv").write_text("id,val\n1,a\n2,b\n")
-        (dir_5201 / "file_b.csv").write_text("id,val\n3,c\n4,d\n")
+        (dir_5201_csv / "file_a.csv").write_text("id,val\n1,a\n2,b\n")
+        (dir_5201_csv / "file_b.csv").write_text("id,val\n3,c\n4,d\n")
 
         # Use a mock config that points to our temp dirs
         from scripts.irsf_etl.config import ETLConfig

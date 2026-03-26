@@ -42,8 +42,8 @@ class ETLConfig(BaseSettings):
 
     @property
     def source_custom_extracts(self) -> Path:
-        """Path to custom extract source data."""
-        return self.source_root / "Custom Extracts"
+        """Path to custom extract source data (CSVs inside csv/ subdir)."""
+        return self.source_root / "5211_Custom_Extracts"
 
     @property
     def profiles_dir(self) -> Path:

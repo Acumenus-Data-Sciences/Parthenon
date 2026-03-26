@@ -176,11 +176,12 @@ def profile_one_csv(path: Path) -> dict[str, Any]:
 # Multi-directory profiling
 # ---------------------------------------------------------------------------
 
-# Source directory definitions: (group_label, subdirectory_path_relative_to_root)
+# Source directory definitions: (group_label, subdirectory parts relative to source_root)
+# CSVs live inside csv/ subdirectories for 5201, 5211, and Custom Extracts.
 _SOURCE_DIRS: list[tuple[str, list[str]]] = [
-    ("5201", ["5201"]),
-    ("5211", ["5211"]),
-    ("5211_Custom_Extracts", ["Custom Extracts"]),
+    ("5201", ["5201", "csv"]),
+    ("5211", ["5211", "csv"]),
+    ("5211_Custom_Extracts", ["5211_Custom_Extracts", "csv"]),
     ("DDLs_5211_Lab_Log", ["DDLs", "5211", "Lab_Log output"]),
     ("Notes", ["Notes"]),
 ]
