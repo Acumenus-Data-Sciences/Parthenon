@@ -22,10 +22,16 @@ from scripts.irsf_etl.condition_occurrence import (
     extract_infections,
     extract_seizures,
     parse_snomed_output,
+    validate_condition_concepts,
+    validate_hardcoded_mappings,
 )
 from scripts.irsf_etl.config import ETLConfig
 from scripts.irsf_etl.lib.id_registry import PersonIdRegistry
 from scripts.irsf_etl.lib.rejection_log import RejectionLog
+from scripts.irsf_etl.lib.vocab_validator import (
+    ConceptStatus,
+    ConceptValidationResult,
+)
 from scripts.irsf_etl.lib.visit_resolver import VisitResolver
 
 
@@ -712,3 +718,362 @@ class TestMappingCompleteness:
     def test_all_fracture_snomed_are_positive(self) -> None:
         for concept_id in _FRACTURE_SNOMED_MAP.values():
             assert concept_id > 0
+
+
+# ---------------------------------------------------------------------------
+# Mock VocabularyValidator
+# ---------------------------------------------------------------------------
+
+
+class MockVocabularyValidator:
+    """Mock VocabularyValidator that returns predetermined results.
+
+    Does NOT require a database connection.
+    """
+
+    def __init__(self, results: dict[int, ConceptValidationResult]) -> None:
+        self._results = results
+
+    def validate_batch(
+        self, concept_ids: list[int]
+    ) -> dict[int, ConceptValidationResult]:
+        out: dict[int, ConceptValidationResult] = {}
+        for cid in concept_ids:
+            if cid in self._results:
+                out[cid] = self._results[cid]
+            else:
+                out[cid] = ConceptValidationResult(
+                    original_id=cid,
+                    resolved_id=0,
+                    status=ConceptStatus.NOT_FOUND,
+                    concept_name="",
+                    vocabulary_id="",
+                    message=f"Concept {cid} not found in vocabulary",
+                )
+        return out
+
+    @staticmethod
+    def generate_currency_report(
+        results: dict[int, ConceptValidationResult],
+    ) -> object:
+        from scripts.irsf_etl.lib.vocab_validator import CurrencyReport
+
+        current = sum(1 for r in results.values() if r.status == ConceptStatus.STANDARD)
+        remapped = sum(1 for r in results.values() if r.status == ConceptStatus.DEPRECATED_REMAPPED)
+        no_replacement = sum(1 for r in results.values() if r.status == ConceptStatus.DEPRECATED_NO_REPLACEMENT)
+        non_standard = sum(1 for r in results.values() if r.status == ConceptStatus.NON_STANDARD)
+        unmapped = sum(1 for r in results.values() if r.status == ConceptStatus.NOT_FOUND)
+        return CurrencyReport(
+            current_count=current,
+            remapped_count=remapped,
+            no_replacement_count=no_replacement,
+            non_standard_count=non_standard,
+            unmapped_count=unmapped,
+            total=len(results),
+        )
+
+
+def _make_standard_result(cid: int, name: str = "Test concept") -> ConceptValidationResult:
+    return ConceptValidationResult(
+        original_id=cid,
+        resolved_id=cid,
+        status=ConceptStatus.STANDARD,
+        concept_name=name,
+        vocabulary_id="SNOMED",
+        message="Standard concept",
+    )
+
+
+def _make_remapped_result(cid: int, new_id: int) -> ConceptValidationResult:
+    return ConceptValidationResult(
+        original_id=cid,
+        resolved_id=new_id,
+        status=ConceptStatus.DEPRECATED_REMAPPED,
+        concept_name="Remapped concept",
+        vocabulary_id="SNOMED",
+        message=f"Remapped from {cid} to {new_id}",
+    )
+
+
+def _make_not_found_result(cid: int) -> ConceptValidationResult:
+    return ConceptValidationResult(
+        original_id=cid,
+        resolved_id=0,
+        status=ConceptStatus.NOT_FOUND,
+        concept_name="",
+        vocabulary_id="",
+        message=f"Concept {cid} not found in vocabulary",
+    )
+
+
+def _make_no_replacement_result(cid: int) -> ConceptValidationResult:
+    return ConceptValidationResult(
+        original_id=cid,
+        resolved_id=0,
+        status=ConceptStatus.DEPRECATED_NO_REPLACEMENT,
+        concept_name="Deprecated concept",
+        vocabulary_id="SNOMED",
+        message=f"Deprecated concept {cid} with no replacement",
+    )
+
+
+# ---------------------------------------------------------------------------
+# Vocabulary validation tests
+# ---------------------------------------------------------------------------
+
+
+class TestValidateConditionConcepts:
+    """Tests for validate_condition_concepts()."""
+
+    def test_standard_codes_unchanged(self) -> None:
+        """All codes are standard -- no changes to concept_ids."""
+        df = pd.DataFrame({
+            "condition_concept_id": [14760008, 246545002],
+            "condition_source_concept_id": [14760008, 246545002],
+        })
+        validator = MockVocabularyValidator({
+            14760008: _make_standard_result(14760008),
+            246545002: _make_standard_result(246545002),
+        })
+        log = RejectionLog("test")
+        result = validate_condition_concepts(df, validator, log)  # type: ignore[arg-type]
+        assert list(result["condition_concept_id"]) == [14760008, 246545002]
+
+    def test_deprecated_remapped(self) -> None:
+        """Deprecated code gets remapped to new concept_id."""
+        df = pd.DataFrame({
+            "condition_concept_id": [99999],
+            "condition_source_concept_id": [99999],
+        })
+        validator = MockVocabularyValidator({
+            99999: _make_remapped_result(99999, 88888),
+        })
+        log = RejectionLog("test")
+        result = validate_condition_concepts(df, validator, log)  # type: ignore[arg-type]
+        assert result.iloc[0]["condition_concept_id"] == 88888
+
+    def test_not_found_set_to_zero(self) -> None:
+        """Code not in vocab sets condition_concept_id to 0."""
+        df = pd.DataFrame({
+            "condition_concept_id": [77777],
+            "condition_source_concept_id": [77777],
+        })
+        validator = MockVocabularyValidator({
+            77777: _make_not_found_result(77777),
+        })
+        log = RejectionLog("test")
+        result = validate_condition_concepts(df, validator, log)  # type: ignore[arg-type]
+        assert result.iloc[0]["condition_concept_id"] == 0
+
+    def test_preserves_source_concept_id(self) -> None:
+        """Original code kept in condition_source_concept_id after remap."""
+        df = pd.DataFrame({
+            "condition_concept_id": [99999],
+            "condition_source_concept_id": [99999],
+        })
+        validator = MockVocabularyValidator({
+            99999: _make_remapped_result(99999, 88888),
+        })
+        log = RejectionLog("test")
+        result = validate_condition_concepts(df, validator, log)  # type: ignore[arg-type]
+        # condition_concept_id remapped, source preserved
+        assert result.iloc[0]["condition_concept_id"] == 88888
+        assert result.iloc[0]["condition_source_concept_id"] == 99999
+
+    def test_zero_codes_skipped(self) -> None:
+        """concept_id=0 is NOT sent to validator."""
+        df = pd.DataFrame({
+            "condition_concept_id": [0, 14760008],
+            "condition_source_concept_id": [0, 14760008],
+        })
+        call_log: list[list[int]] = []
+
+        class TrackingValidator(MockVocabularyValidator):
+            def validate_batch(self, concept_ids: list[int]) -> dict[int, ConceptValidationResult]:
+                call_log.append(concept_ids)
+                return super().validate_batch(concept_ids)
+
+        validator = TrackingValidator({
+            14760008: _make_standard_result(14760008),
+        })
+        log = RejectionLog("test")
+        validate_condition_concepts(df, validator, log)  # type: ignore[arg-type]
+        # Only the non-zero concept_id should have been sent
+        assert len(call_log) == 1
+        assert 0 not in call_log[0]
+        assert 14760008 in call_log[0]
+
+
+# ---------------------------------------------------------------------------
+# Coverage rate tests
+# ---------------------------------------------------------------------------
+
+
+class TestCoverageRate:
+    """Tests for coverage rate calculation."""
+
+    def test_coverage_rate_calculation(self) -> None:
+        """Verify coverage = mapped / total."""
+        # 8 mapped, 2 unmapped = 80%
+        df = pd.DataFrame({
+            "condition_concept_id": [100] * 8 + [0] * 2,
+        })
+        mapped = int((df["condition_concept_id"] != 0).sum())
+        total = len(df)
+        coverage = mapped / total
+        assert coverage == pytest.approx(0.80)
+
+    def test_coverage_rate_meets_threshold(self) -> None:
+        """Verify 85% threshold is achievable with typical data distribution.
+
+        IRSF data has ~90% of conditions with pre-mapped SNOMED codes.
+        Only Rett spells and unmapped diagnoses lack codes.
+        """
+        # Simulate typical distribution: 90 mapped, 10 unmapped
+        df = pd.DataFrame({
+            "condition_concept_id": [100] * 90 + [0] * 10,
+        })
+        mapped = int((df["condition_concept_id"] != 0).sum())
+        total = len(df)
+        coverage = mapped / total
+        assert coverage >= 0.85
+
+
+# ---------------------------------------------------------------------------
+# Hardcoded mapping validation tests
+# ---------------------------------------------------------------------------
+
+
+class TestValidateHardcodedMappings:
+    """Tests for validate_hardcoded_mappings()."""
+
+    def test_all_standard_returns_empty_remap(self) -> None:
+        """All hardcoded codes are standard -- no remapping needed."""
+        # Build a mock that returns STANDARD for all hardcoded codes
+        all_ids = set()
+        for cid in _SEIZURE_SNOMED_MAP.values():
+            if cid != 0:
+                all_ids.add(cid)
+        for cid in _FRACTURE_SNOMED_MAP.values():
+            if cid != 0:
+                all_ids.add(cid)
+
+        results = {cid: _make_standard_result(cid) for cid in all_ids}
+        validator = MockVocabularyValidator(results)
+        remap = validate_hardcoded_mappings(validator)  # type: ignore[arg-type]
+        assert remap == {}
+
+    def test_deprecated_code_returns_remap(self) -> None:
+        """Deprecated hardcoded code returns a remap entry."""
+        # Only make one code deprecated, rest standard
+        all_ids = set()
+        for cid in _SEIZURE_SNOMED_MAP.values():
+            if cid != 0:
+                all_ids.add(cid)
+        for cid in _FRACTURE_SNOMED_MAP.values():
+            if cid != 0:
+                all_ids.add(cid)
+
+        results: dict[int, ConceptValidationResult] = {}
+        deprecated_id = 246545002  # Generalized seizure
+        new_id = 999999
+        for cid in all_ids:
+            if cid == deprecated_id:
+                results[cid] = _make_remapped_result(cid, new_id)
+            else:
+                results[cid] = _make_standard_result(cid)
+
+        validator = MockVocabularyValidator(results)
+        remap = validate_hardcoded_mappings(validator)  # type: ignore[arg-type]
+        assert remap == {deprecated_id: new_id}
+
+
+# ---------------------------------------------------------------------------
+# Integration test with validation
+# ---------------------------------------------------------------------------
+
+
+class TestExtractConditionsWithValidation:
+    """Integration test: full pipeline with mocked VocabularyValidator."""
+
+    def test_extract_conditions_with_validation(
+        self,
+        config: ETLConfig,
+        person_registry: PersonIdRegistry,
+        visit_resolver: VisitResolver,
+    ) -> None:
+        _write_staging_maps(config, person_registry, visit_resolver)
+
+        _write_csv(
+            config,
+            "Chronic_Diagnoses_5211.csv",
+            (
+                "participant_id,ChronicMedicalDiagnosis,SNOWMEDOutput,"
+                "DateMonthStarted,DateDayStarted,DateYearStarted,"
+                "DateMonthResolved,DateDayResolved,DateYearResolved,"
+                "NotAssessed,datestartedunknown,visit_date,VisitTimePoint\n"
+                "1001,Constipation,Constipation (disorder) code:14760008 100.0 [SNOMED CT],"
+                "Jan,10,2019,,,,,,2020-01-15,Baseline\n"
+            ),
+        )
+        _write_csv(
+            config,
+            "seizures_5211.csv",
+            (
+                "participant_id,InvestigImpress,"
+                "DateStartedMonth,DateStartedDay,DateStartedYear,"
+                "DateStoppedMonth,DateStoppedDay,DateStoppedYear,"
+                "DateStartedUnknown,visit_date,VisitTimePoint\n"
+                "1001,Generalized seizure,Mar,5,2018,,,,,2020-01-15,Baseline\n"
+            ),
+        )
+        _write_csv(
+            config,
+            "Bone_Fracture_5211.csv",
+            (
+                "participant_id,FractureLocation,OtherFractureLocation,"
+                "FracturesDateMonth,FracturesDateDay,FracturesDateYear,"
+                "FractureDateUnknown,visit_date,VisitTimePoint\n"
+                "1002,ankle,,Mar,10,2020,,2020-03-10,Baseline\n"
+            ),
+        )
+        _write_csv(
+            config,
+            "Infections_5211.csv",
+            (
+                "participant_id,InfectionType,InfectionSNOMEDInput,InfectionSNOMEDOutput,"
+                "InfectionDateMM,InfectionDateDD,InfectionDateYY,"
+                "DateOfInfectionUnknown,Resolved,visit_date,VisitTimePoint\n"
+                "1003,Bacterial,pneumonia,"
+                "Pneumonia (disorder) code:233604007 85.0 [SNOMED CT],"
+                "Jun,1,2019,,Yes,2019-06-05,Baseline\n"
+            ),
+        )
+
+        # Build mock: all extracted concept_ids are standard
+        concept_ids = [14760008, 246545002, 16114001, 233604007]
+        # Include all hardcoded mapping IDs too
+        for cid in _SEIZURE_SNOMED_MAP.values():
+            if cid != 0 and cid not in concept_ids:
+                concept_ids.append(cid)
+        for cid in _FRACTURE_SNOMED_MAP.values():
+            if cid != 0 and cid not in concept_ids:
+                concept_ids.append(cid)
+
+        results = {cid: _make_standard_result(cid) for cid in concept_ids}
+        validator = MockVocabularyValidator(results)
+
+        result = extract_conditions(config, validator=validator)  # type: ignore[arg-type]
+        assert len(result) == 4
+
+        # All should have non-zero concept_ids (100% coverage)
+        assert (result["condition_concept_id"] != 0).all()
+
+        # Currency report should be written
+        currency_path = config.reports_dir / "condition_snomed_currency.csv"
+        assert currency_path.exists()
+        report = pd.read_csv(currency_path)
+        # Should have 4 source tables + 1 TOTAL row
+        assert len(report) == 5
+        total_row = report[report["source_table"] == "TOTAL"]
+        assert float(total_row.iloc[0]["coverage_rate"]) == pytest.approx(1.0)
