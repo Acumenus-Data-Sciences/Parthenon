@@ -2,6 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\DaimonType;
+use App\Models\App\Source;
+use App\Models\App\SourceDaimon;
+use App\Services\Ingestion\ObservationPeriodCalculator;
 use Illuminate\Console\Command;
 use Illuminate\Database\Connection;
 use Illuminate\Support\Facades\DB;
@@ -11,7 +15,8 @@ class LoadIrsfCommand extends Command
     protected $signature = 'parthenon:load-irsf
         {--path= : Path to staging CSV directory (default: scripts/irsf_etl/output/staging)}
         {--fresh : Drop existing IRSF clinical tables and reload}
-        {--table= : Load only a specific table (e.g., person, measurement)}';
+        {--table= : Load only a specific table (e.g., person, measurement)}
+        {--post-load-only : Skip CSV loading, run only observation periods + CDM_SOURCE + data source registration}';
 
     protected $description = 'Load IRSF Natural History Study staging CSVs into the OMOP CDM schema';
 
@@ -56,76 +61,239 @@ class LoadIrsfCommand extends Command
 
     public function handle(): int
     {
-        $stagingDir = $this->resolveStagingDir();
-        if ($stagingDir === null) {
-            return self::FAILURE;
-        }
-
-        if ($this->option('fresh')) {
-            $this->dropIrsfData();
-        }
-
-        // Create infrastructure tables that don't come from CSVs
-        $this->createInfrastructureTables();
-
-        // Adapt existing table schemas for IRSF data compatibility
-        $this->adaptExistingSchemas();
-
-        $singleTable = $this->option('table');
-        $manifest = $singleTable
-            ? array_values(array_filter(self::LOAD_ORDER, fn ($entry) => $entry['table'] === $singleTable))
-            : self::LOAD_ORDER;
-
-        if ($singleTable && empty($manifest)) {
-            $this->error("Table '{$singleTable}' not found in load manifest.");
-
-            return self::FAILURE;
-        }
-
-        $this->info('=== IRSF-NHS CDM Loading ===');
-        $this->info('Loading '.count($manifest).' tables in FK order...');
-        $this->newLine();
-
+        $startTime = microtime(true);
         $totalRows = 0;
         $totalTables = 0;
         $skipped = [];
-        $startTime = microtime(true);
-        $step = 0;
 
-        foreach ($manifest as $entry) {
-            $step++;
-            $label = '['.str_pad((string) $step, 2, ' ', STR_PAD_LEFT).'/'.count($manifest).']';
+        if (! $this->option('post-load-only')) {
+            $stagingDir = $this->resolveStagingDir();
+            if ($stagingDir === null) {
+                return self::FAILURE;
+            }
 
-            if ($entry['csv'] === '__merged_observation__') {
-                $rows = $this->loadMergedObservations($stagingDir, $label);
-            } else {
-                $csvPath = $stagingDir.'/'.$entry['csv'];
-                if (! file_exists($csvPath)) {
-                    $this->warn("  {$label} {$entry['table']}: SKIPPED (CSV not found)");
-                    $skipped[] = $entry['table'];
+            if ($this->option('fresh')) {
+                $this->dropIrsfData();
+            }
 
-                    continue;
+            // Create infrastructure tables that don't come from CSVs
+            $this->createInfrastructureTables();
+
+            // Adapt existing table schemas for IRSF data compatibility
+            $this->adaptExistingSchemas();
+
+            $singleTable = $this->option('table');
+            $manifest = $singleTable
+                ? array_values(array_filter(self::LOAD_ORDER, fn ($entry) => $entry['table'] === $singleTable))
+                : self::LOAD_ORDER;
+
+            if ($singleTable && empty($manifest)) {
+                $this->error("Table '{$singleTable}' not found in load manifest.");
+
+                return self::FAILURE;
+            }
+
+            $this->info('=== IRSF-NHS CDM Loading ===');
+            $this->info('Loading '.count($manifest).' tables in FK order...');
+            $this->newLine();
+
+            $step = 0;
+
+            foreach ($manifest as $entry) {
+                $step++;
+                $label = '['.str_pad((string) $step, 2, ' ', STR_PAD_LEFT).'/'.count($manifest).']';
+
+                if ($entry['csv'] === '__merged_observation__') {
+                    $rows = $this->loadMergedObservations($stagingDir, $label);
+                } else {
+                    $csvPath = $stagingDir.'/'.$entry['csv'];
+                    if (! file_exists($csvPath)) {
+                        $this->warn("  {$label} {$entry['table']}: SKIPPED (CSV not found)");
+                        $skipped[] = $entry['table'];
+
+                        continue;
+                    }
+                    $rows = $this->loadSingleTable($csvPath, $entry['table'], $entry['mode'], $label);
                 }
-                $rows = $this->loadSingleTable($csvPath, $entry['table'], $entry['mode'], $label);
+
+                if ($rows > 0) {
+                    $totalRows += $rows;
+                    $totalTables++;
+                } elseif ($rows === -1) {
+                    $skipped[] = $entry['table'];
+                }
             }
 
-            if ($rows > 0) {
-                $totalRows += $rows;
-                $totalTables++;
-            } elseif ($rows === -1) {
-                $skipped[] = $entry['table'];
+            $loadElapsed = round(microtime(true) - $startTime, 1);
+            $this->newLine();
+            $this->info('Loaded '.number_format($totalRows)." rows across {$totalTables} tables in {$loadElapsed}s.");
+
+            if (! empty($skipped)) {
+                $this->warn('Skipped tables: '.implode(', ', $skipped));
             }
+        } else {
+            $this->info('=== IRSF-NHS Post-Load Processing ===');
+            $this->info('Skipping CSV loading (--post-load-only).');
+
+            // Ensure infrastructure tables exist even when skipping CSV loading
+            $this->createInfrastructureTables();
         }
 
-        $elapsed = round(microtime(true) - $startTime, 1);
+        // Phase 2: Compute observation periods
+        $periodCount = $this->computeObservationPeriods();
+
+        // Phase 3: Populate CDM_SOURCE
+        $this->populateCdmSource();
+
+        // Phase 4: Register IRSF as Parthenon data source
+        $sourceId = $this->registerDataSource();
+
+        // Final summary
+        $totalElapsed = round(microtime(true) - $startTime, 1);
         $this->newLine();
-        $this->info('Loaded '.number_format($totalRows)." rows across {$totalTables} tables in {$elapsed}s.");
-
-        if (! empty($skipped)) {
-            $this->warn('Skipped tables: '.implode(', ', $skipped));
-        }
+        $this->info('=== IRSF-NHS Load Summary ===');
+        $this->info("Tables loaded:      {$totalTables}/".count(self::LOAD_ORDER).(! empty($skipped) ? ' ('.implode(', ', $skipped).' skipped)' : ''));
+        $this->info('Total rows:         '.number_format($totalRows));
+        $this->info("Observation periods: {$periodCount}");
+        $this->info('CDM_SOURCE:         IRSF-NHS (CDM v5.4)');
+        $this->info("Data source:        IRSF Natural History Study (id={$sourceId})");
+        $this->info("Duration:           {$totalElapsed}s");
 
         return self::SUCCESS;
+    }
+
+    /**
+     * Compute observation periods for all persons using ObservationPeriodCalculator.
+     */
+    private function computeObservationPeriods(): int
+    {
+        $this->newLine();
+        $this->info('=== Phase 2: Computing observation periods ===');
+
+        /** @var ObservationPeriodCalculator $calculator */
+        $calculator = app(ObservationPeriodCalculator::class);
+        $periodCount = $calculator->calculate();
+
+        $this->info("Created {$periodCount} observation periods.");
+
+        // Verify 100% person coverage (LOAD-03)
+        $db = DB::connection('omop');
+        $personCount = $db->table('person')->count();
+        $opPersonCount = (int) $db->table('observation_period')->distinct()->count('person_id');
+
+        if ($personCount === $opPersonCount) {
+            $this->info("Verification PASSED: {$personCount} persons = {$opPersonCount} observation periods");
+        } else {
+            $missing = $personCount - $opPersonCount;
+            $pct = $personCount > 0 ? round(($missing / $personCount) * 100, 1) : 0;
+
+            if ($pct > 5) {
+                $this->warn("Verification WARNING: {$missing} persons ({$pct}%) have no observation period");
+            } else {
+                $this->info("Verification: {$opPersonCount}/{$personCount} persons have observation periods ({$missing} without events)");
+            }
+
+            // List persons without observation periods for debugging
+            $orphans = $db->select('
+                SELECT p.person_id, p.person_source_value
+                FROM person p
+                LEFT JOIN observation_period op ON p.person_id = op.person_id
+                WHERE op.person_id IS NULL
+                LIMIT 20
+            ');
+
+            foreach ($orphans as $orphan) {
+                $this->line("  Missing: person_id={$orphan->person_id} (source: {$orphan->person_source_value})");
+            }
+        }
+
+        return $periodCount;
+    }
+
+    /**
+     * Populate CDM_SOURCE table with IRSF-NHS metadata (LOAD-04).
+     */
+    private function populateCdmSource(): void
+    {
+        $this->newLine();
+        $this->info('=== Phase 3: Populating CDM_SOURCE ===');
+
+        $db = DB::connection('omop');
+
+        // Get vocabulary version from loaded vocabulary
+        $vocabVersion = $db->table('vocabulary')
+            ->where('vocabulary_id', 'None')
+            ->value('vocabulary_version');
+
+        if ($vocabVersion === null) {
+            $vocabVersion = $db->table('vocabulary')
+                ->whereNotNull('vocabulary_version')
+                ->orderByDesc('vocabulary_concept_id')
+                ->value('vocabulary_version') ?? 'v5.0';
+        }
+
+        // Delete existing IRSF row and insert fresh (idempotent)
+        $db->table('cdm_source')
+            ->where('cdm_source_abbreviation', 'IRSF-NHS')
+            ->delete();
+
+        $db->table('cdm_source')->insert([
+            'cdm_source_name' => 'IRSF Natural History Study',
+            'cdm_source_abbreviation' => 'IRSF-NHS',
+            'cdm_holder' => 'International Rett Syndrome Foundation',
+            'source_description' => 'Rett Syndrome Natural History Study (RDCRN protocols 5201/5211). '
+                .'Approximately 1,860 patients with longitudinal clinical data including '
+                .'demographics, medications, conditions, growth measurements, Clinical Severity '
+                .'Scale (CSS), Motor Behavioral Assessment (MBA), genotype data, and categorical '
+                .'clinical observations.',
+            'source_documentation_reference' => 'https://www.rettsyndrome.org',
+            'cdm_etl_reference' => 'scripts/irsf_etl',
+            'source_release_date' => '2024-01-01',
+            'cdm_release_date' => now()->toDateString(),
+            'cdm_version' => '5.4',
+            'cdm_version_concept_id' => 756265,
+            'vocabulary_version' => $vocabVersion,
+        ]);
+
+        $this->info('CDM_SOURCE populated with IRSF-NHS metadata.');
+    }
+
+    /**
+     * Register IRSF-NHS as a Parthenon data source with daimons.
+     *
+     * @return int The source ID
+     */
+    private function registerDataSource(): int
+    {
+        $this->newLine();
+        $this->info('=== Phase 4: Registering IRSF data source ===');
+
+        $source = Source::updateOrCreate(
+            ['source_key' => 'IRSF-NHS'],
+            [
+                'source_name' => 'IRSF Natural History Study',
+                'source_dialect' => 'postgresql',
+                'source_connection' => 'omop',
+                'is_cache_enabled' => false,
+            ]
+        );
+
+        $daimons = [
+            ['daimon_type' => DaimonType::CDM->value, 'table_qualifier' => 'omop', 'priority' => 1],
+            ['daimon_type' => DaimonType::Vocabulary->value, 'table_qualifier' => 'omop', 'priority' => 1],
+            ['daimon_type' => DaimonType::Results->value, 'table_qualifier' => 'results', 'priority' => 1],
+        ];
+
+        foreach ($daimons as $daimon) {
+            SourceDaimon::updateOrCreate(
+                ['source_id' => $source->id, 'daimon_type' => $daimon['daimon_type']],
+                ['table_qualifier' => $daimon['table_qualifier'], 'priority' => $daimon['priority']]
+            );
+        }
+
+        $this->info("Registered source: {$source->source_name} (id={$source->id}) with 3 daimons.");
+
+        return $source->id;
     }
 
     private function resolveStagingDir(): ?string

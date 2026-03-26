@@ -45,10 +45,15 @@ class ObservationPeriodCalculator
             $startCol = $dateColumns['start'];
             $endCol = $dateColumns['end'];
 
-            // Check if the table has any rows
-            $exists = $cdm->table($table)->exists();
+            // Check if the table exists and has any rows
+            try {
+                $hasRows = $cdm->table($table)->exists();
+            } catch (\Throwable) {
+                // Table does not exist in the schema
+                continue;
+            }
 
-            if (! $exists) {
+            if (! $hasRows) {
                 continue;
             }
 
@@ -67,15 +72,18 @@ class ObservationPeriodCalculator
 
         $unionSql = implode(' UNION ALL ', $unionParts);
 
+        // Only create observation periods for persons that exist in the person table
+        // (event tables may contain data from other datasets not loaded into person)
         $sql = '
             INSERT INTO observation_period (person_id, observation_period_start_date, observation_period_end_date, period_type_concept_id)
             SELECT
-                person_id,
-                MIN(event_date) AS observation_period_start_date,
-                MAX(event_date) AS observation_period_end_date,
+                ae.person_id,
+                MIN(ae.event_date) AS observation_period_start_date,
+                MAX(ae.event_date) AS observation_period_end_date,
                 '.self::PERIOD_TYPE_CONCEPT_ID." AS period_type_concept_id
-            FROM ({$unionSql}) AS all_events
-            GROUP BY person_id
+            FROM ({$unionSql}) AS ae
+            INNER JOIN person p ON p.person_id = ae.person_id
+            GROUP BY ae.person_id
         ";
 
         // Clear existing observation periods before recalculating
