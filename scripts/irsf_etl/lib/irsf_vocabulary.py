@@ -1263,6 +1263,18 @@ _DIAGNOSIS_CONCEPTS: tuple[ConceptDefinition, ...] = (
 # ---------------------------------------------------------------------------
 
 
+# ---------------------------------------------------------------------------
+# SNOMED dual-mapping for diagnostic categories with standard equivalents
+# ---------------------------------------------------------------------------
+
+SNOMED_MAPPINGS: dict[str, int] = {
+    "Classic": 4288480,  # Rett syndrome
+    "Atypical/variant unspecified Rett syndrome": 37397680,  # Atypical Rett syndrome
+    "MECP2 duplication": 45765797,  # MECP2 duplication syndrome
+    "FOXG1 disorder": 45765499,  # FOXG1 syndrome
+}
+
+
 class IrsfVocabulary:
     """Authoritative registry of all IRSF-NHS custom concepts.
 
@@ -1421,4 +1433,86 @@ def generate_concept_csv(output_dir: Path) -> Path:
             ])
 
     logger.info("Generated %s (%d rows)", path, len(IrsfVocabulary.all_concepts()))
+    return path
+
+
+def generate_source_to_concept_map_csv(output_dir: Path) -> Path:
+    """Generate source_to_concept_map.csv matching the OMOP table schema.
+
+    Creates one mapping row per custom concept:
+    - CSS/MBA/Mutation concepts: source_code = source_column name
+    - Diagnosis concepts: source_code = source_value string
+    - Diagnoses with SNOMED equivalents get an additional row targeting the
+      standard SNOMED concept_id.
+
+    Args:
+        output_dir: Directory to write source_to_concept_map.csv into.
+
+    Returns:
+        Path to the generated source_to_concept_map.csv file.
+    """
+    output_dir.mkdir(parents=True, exist_ok=True)
+    path = output_dir / "source_to_concept_map.csv"
+
+    header = [
+        "source_code",
+        "source_concept_id",
+        "source_vocabulary_id",
+        "source_code_description",
+        "target_concept_id",
+        "target_vocabulary_id",
+        "valid_start_date",
+        "valid_end_date",
+        "invalid_reason",
+    ]
+
+    row_count = 0
+    with open(path, "w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f, quoting=csv.QUOTE_MINIMAL)
+        writer.writerow(header)
+
+        for concept in IrsfVocabulary.all_concepts():
+            # Determine source_code: column name for CSS/MBA/Mutation, value for Diagnosis
+            if concept.source_column is not None:
+                source_code = concept.source_column
+            elif concept.source_value is not None:
+                source_code = concept.source_value
+            else:
+                logger.warning(
+                    "Concept %s has neither source_column nor source_value, skipping",
+                    concept.concept_code,
+                )
+                continue
+
+            # Primary mapping: source -> custom concept
+            writer.writerow([
+                source_code,
+                0,  # source_concept_id
+                "IRSF-NHS",  # source_vocabulary_id
+                concept.concept_name,  # source_code_description
+                concept.concept_id,  # target_concept_id
+                concept.vocabulary_id,  # target_vocabulary_id (IRSF-NHS)
+                "1970-01-01",
+                "2099-12-31",
+                "",  # invalid_reason
+            ])
+            row_count += 1
+
+            # Dual mapping: diagnoses with SNOMED equivalents
+            if concept.source_value is not None and concept.source_value in SNOMED_MAPPINGS:
+                snomed_concept_id = SNOMED_MAPPINGS[concept.source_value]
+                writer.writerow([
+                    source_code,
+                    0,  # source_concept_id
+                    "IRSF-NHS",  # source_vocabulary_id
+                    concept.concept_name,  # source_code_description
+                    snomed_concept_id,  # target_concept_id (standard SNOMED)
+                    "SNOMED",  # target_vocabulary_id
+                    "1970-01-01",
+                    "2099-12-31",
+                    "",  # invalid_reason
+                ])
+                row_count += 1
+
+    logger.info("Generated %s (%d rows)", path, row_count)
     return path

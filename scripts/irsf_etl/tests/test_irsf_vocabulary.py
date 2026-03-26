@@ -13,9 +13,11 @@ import pandas as pd
 import pytest
 
 from scripts.irsf_etl.lib.irsf_vocabulary import (
+    SNOMED_MAPPINGS,
     ConceptDefinition,
     IrsfVocabulary,
     generate_concept_csv,
+    generate_source_to_concept_map_csv,
     generate_vocabulary_csv,
 )
 
@@ -346,3 +348,180 @@ class TestConceptCsvGeneration:
         path = generate_concept_csv(tmp_path)
         assert path.exists()
         assert path.name == "concept.csv"
+
+
+# ---------------------------------------------------------------------------
+# source_to_concept_map CSV generation
+# ---------------------------------------------------------------------------
+
+
+class TestSourceToConceptMapCsvSchema:
+    """Verify source_to_concept_map.csv has the correct OMOP schema columns."""
+
+    def test_columns(self, tmp_path: Path) -> None:
+        path = generate_source_to_concept_map_csv(tmp_path)
+        df = pd.read_csv(path)
+        expected = [
+            "source_code",
+            "source_concept_id",
+            "source_vocabulary_id",
+            "source_code_description",
+            "target_concept_id",
+            "target_vocabulary_id",
+            "valid_start_date",
+            "valid_end_date",
+            "invalid_reason",
+        ]
+        assert list(df.columns) == expected
+
+    def test_file_name(self, tmp_path: Path) -> None:
+        path = generate_source_to_concept_map_csv(tmp_path)
+        assert path.name == "source_to_concept_map.csv"
+
+
+class TestSourceToConceptMapCssMappings:
+    """Every CSS concept maps source_code = source_column name."""
+
+    def test_css_concepts_have_mapping(self, tmp_path: Path) -> None:
+        path = generate_source_to_concept_map_csv(tmp_path)
+        df = pd.read_csv(path)
+        for c in IrsfVocabulary.css_concepts():
+            matches = df[
+                (df["source_code"] == c.source_column)
+                & (df["target_concept_id"] == c.concept_id)
+            ]
+            assert len(matches) >= 1, (
+                f"CSS concept {c.concept_code} ({c.source_column}) missing mapping"
+            )
+
+
+class TestSourceToConceptMapMbaMappings:
+    """Every MBA concept maps source_code = source_column name."""
+
+    def test_mba_concepts_have_mapping(self, tmp_path: Path) -> None:
+        path = generate_source_to_concept_map_csv(tmp_path)
+        df = pd.read_csv(path)
+        for c in IrsfVocabulary.mba_concepts():
+            matches = df[
+                (df["source_code"] == c.source_column)
+                & (df["target_concept_id"] == c.concept_id)
+            ]
+            assert len(matches) >= 1, (
+                f"MBA concept {c.concept_code} ({c.source_column}) missing mapping"
+            )
+
+
+class TestSourceToConceptMapMutationMappings:
+    """Every mutation concept maps source_code = source_column name."""
+
+    def test_mutation_concepts_have_mapping(self, tmp_path: Path) -> None:
+        path = generate_source_to_concept_map_csv(tmp_path)
+        df = pd.read_csv(path)
+        for c in IrsfVocabulary.mutation_concepts():
+            matches = df[
+                (df["source_code"] == c.source_column)
+                & (df["target_concept_id"] == c.concept_id)
+            ]
+            assert len(matches) >= 1, (
+                f"Mutation concept {c.concept_code} ({c.source_column}) missing mapping"
+            )
+
+
+class TestSourceToConceptMapDiagnosisMappings:
+    """Every diagnosis concept maps source_code = source_value."""
+
+    def test_diagnosis_concepts_have_mapping(self, tmp_path: Path) -> None:
+        path = generate_source_to_concept_map_csv(tmp_path)
+        df = pd.read_csv(path)
+        for c in IrsfVocabulary.diagnosis_concepts():
+            matches = df[
+                (df["source_code"] == c.source_value)
+                & (df["target_concept_id"] == c.concept_id)
+            ]
+            assert len(matches) >= 1, (
+                f"Diagnosis concept {c.concept_code} ({c.source_value}) missing mapping"
+            )
+
+
+class TestSourceToConceptMapDualSnomedMappings:
+    """Diagnoses with SNOMED equivalents have additional SNOMED target rows."""
+
+    def test_classic_rett_snomed_mapping(self, tmp_path: Path) -> None:
+        path = generate_source_to_concept_map_csv(tmp_path)
+        df = pd.read_csv(path)
+        matches = df[
+            (df["source_code"] == "Classic")
+            & (df["target_concept_id"] == 4288480)
+            & (df["target_vocabulary_id"] == "SNOMED")
+        ]
+        assert len(matches) == 1, "Missing SNOMED mapping for Classic Rett"
+
+    def test_atypical_rett_snomed_mapping(self, tmp_path: Path) -> None:
+        path = generate_source_to_concept_map_csv(tmp_path)
+        df = pd.read_csv(path)
+        matches = df[
+            (df["source_code"] == "Atypical/variant unspecified Rett syndrome")
+            & (df["target_concept_id"] == 37397680)
+            & (df["target_vocabulary_id"] == "SNOMED")
+        ]
+        assert len(matches) == 1, "Missing SNOMED mapping for Atypical Rett"
+
+    def test_mecp2_duplication_snomed_mapping(self, tmp_path: Path) -> None:
+        path = generate_source_to_concept_map_csv(tmp_path)
+        df = pd.read_csv(path)
+        matches = df[
+            (df["source_code"] == "MECP2 duplication")
+            & (df["target_concept_id"] == 45765797)
+            & (df["target_vocabulary_id"] == "SNOMED")
+        ]
+        assert len(matches) == 1, "Missing SNOMED mapping for MECP2 duplication"
+
+    def test_foxg1_snomed_mapping(self, tmp_path: Path) -> None:
+        path = generate_source_to_concept_map_csv(tmp_path)
+        df = pd.read_csv(path)
+        matches = df[
+            (df["source_code"] == "FOXG1 disorder")
+            & (df["target_concept_id"] == 45765499)
+            & (df["target_vocabulary_id"] == "SNOMED")
+        ]
+        assert len(matches) == 1, "Missing SNOMED mapping for FOXG1 syndrome"
+
+    def test_snomed_mappings_dict_has_four_entries(self) -> None:
+        assert len(SNOMED_MAPPINGS) == 4
+
+    def test_snomed_dual_mapping_count(self, tmp_path: Path) -> None:
+        path = generate_source_to_concept_map_csv(tmp_path)
+        df = pd.read_csv(path)
+        snomed_rows = df[df["target_vocabulary_id"] == "SNOMED"]
+        assert len(snomed_rows) >= 4, (
+            f"Expected >= 4 SNOMED rows, got {len(snomed_rows)}"
+        )
+
+
+class TestSourceToConceptMapCommonFields:
+    """All rows share source_vocabulary_id, source_concept_id, dates."""
+
+    def test_all_source_vocabulary_id(self, tmp_path: Path) -> None:
+        path = generate_source_to_concept_map_csv(tmp_path)
+        df = pd.read_csv(path)
+        assert (df["source_vocabulary_id"] == "IRSF-NHS").all()
+
+    def test_all_source_concept_id_zero(self, tmp_path: Path) -> None:
+        path = generate_source_to_concept_map_csv(tmp_path)
+        df = pd.read_csv(path)
+        assert (df["source_concept_id"] == 0).all()
+
+    def test_all_valid_start_date(self, tmp_path: Path) -> None:
+        path = generate_source_to_concept_map_csv(tmp_path)
+        df = pd.read_csv(path)
+        assert (df["valid_start_date"] == "1970-01-01").all()
+
+    def test_all_valid_end_date(self, tmp_path: Path) -> None:
+        path = generate_source_to_concept_map_csv(tmp_path)
+        df = pd.read_csv(path)
+        assert (df["valid_end_date"] == "2099-12-31").all()
+
+    def test_total_row_count_at_least_117(self, tmp_path: Path) -> None:
+        path = generate_source_to_concept_map_csv(tmp_path)
+        df = pd.read_csv(path)
+        assert len(df) >= 117, f"Expected >= 117 rows, got {len(df)}"
