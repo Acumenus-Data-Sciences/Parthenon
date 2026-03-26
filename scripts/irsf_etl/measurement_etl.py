@@ -119,7 +119,7 @@ def unpivot_wide_to_long(
             continue
 
         # Skip rows with unparseable/missing date
-        if pd.isna(vdate) or str(vdate).strip() == "":
+        if pd.isna(vdate) or str(vdate).strip() == "" or str(vdate).strip() == "NaT":
             log.log(
                 record_index=idx,
                 column="visit_date",

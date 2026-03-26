@@ -6,7 +6,11 @@ Used after measurement ETL to ensure output conformance before downstream use.
 
 from __future__ import annotations
 
+import pandas as pd
 import pandera as pa
+
+# Use pandas nullable Int64 for columns that can contain None values
+_NULLABLE_INT = pd.Int64Dtype()
 
 measurement_schema = pa.DataFrameSchema(
     columns={
@@ -42,7 +46,7 @@ measurement_schema = pa.DataFrameSchema(
             description="32882 = Survey/registry data",
         ),
         "operator_concept_id": pa.Column(
-            int,
+            _NULLABLE_INT,
             nullable=True,
             description="Operator concept (e.g., 4172703 = equals)",
         ),
@@ -52,12 +56,12 @@ measurement_schema = pa.DataFrameSchema(
             description="Numeric measurement value",
         ),
         "value_as_concept_id": pa.Column(
-            int,
+            _NULLABLE_INT,
             nullable=True,
             description="Concept ID for categorical measurement values",
         ),
         "unit_concept_id": pa.Column(
-            int,
+            _NULLABLE_INT,
             nullable=True,
             description="Unit concept ID (e.g., 8582=cm, 9529=kg)",
         ),
@@ -77,7 +81,7 @@ measurement_schema = pa.DataFrameSchema(
             description="Not available in IRSF data",
         ),
         "visit_occurrence_id": pa.Column(
-            int,
+            _NULLABLE_INT,
             nullable=True,
             description="FK to visit_occurrence table",
         ),
@@ -92,7 +96,7 @@ measurement_schema = pa.DataFrameSchema(
             description="Original source column name and qualifiers",
         ),
         "measurement_source_concept_id": pa.Column(
-            int,
+            _NULLABLE_INT,
             nullable=True,
             description="Source concept ID (0 for unmapped)",
         ),
@@ -102,7 +106,7 @@ measurement_schema = pa.DataFrameSchema(
             description="Original unit string from source data",
         ),
         "unit_source_concept_id": pa.Column(
-            int,
+            _NULLABLE_INT,
             nullable=True,
             description="Source unit concept ID",
         ),
