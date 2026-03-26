@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v5.4
 milestone_name: milestone
-status: executing
-stopped_at: Completed 03-02-PLAN.md
-last_updated: "2026-03-26T12:14:07.158Z"
-last_activity: 2026-03-26 -- Completed 02-01 date assembly module (49 tests, 85% coverage)
+status: completed
+stopped_at: Completed 02-01-PLAN.md
+last_updated: "2026-03-26T12:14:36.416Z"
+last_activity: 2026-03-26 -- Completed 02-02 ID reconciliation module (26 tests, 89% coverage)
 progress:
   total_phases: 12
   completed_phases: 2
   total_plans: 6
   completed_plans: 5
-  percent: 50
+  percent: 83
 ---
 
 # Project State
@@ -52,6 +52,7 @@ Progress: [████████░░] 83%
 
 *Updated after each plan completion*
 | Phase 03 P02 | 3min | 1 tasks | 3 files |
+| Phase 02 P02 | 3min | 1 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -72,6 +73,7 @@ Recent decisions affecting current work:
 - [Phase 02-01]: Day clamping to month max (improvement over SQL's simple <1/>31 check)
 - [Phase 02-01]: _safe_int pattern for unified NaN/NA/None/float coercion in pandas columns
 - [Phase 03]: RejectionCategory.CUSTOM severity set to warning (safe default for user-defined categories)
+- [Phase 02]: person_id = int(participant_id) -- direct integer use as OMOP person_id, no hashing
 
 ### Pending Todos
 
@@ -85,6 +87,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-26T12:14:07.157Z
-Stopped at: Completed 03-02-PLAN.md
+Last session: 2026-03-26T12:14:36.414Z
+Stopped at: Completed 02-01-PLAN.md
 Resume file: None

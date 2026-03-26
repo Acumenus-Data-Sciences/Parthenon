@@ -8,7 +8,7 @@
 ### Foundation
 
 - [x] **FOUND-01**: ETL shared library provides tested date assembly from split columns (Month-text, Day-int, Year-int) with imputation rules matching Final_Queries.sql logic
-- [ ] **FOUND-02**: ETL shared library provides cross-protocol ID reconciliation mapping all three ID systems to unified person_id via Person_Characteristics crosswalk
+- [x] **FOUND-02**: ETL shared library provides cross-protocol ID reconciliation mapping all three ID systems to unified person_id via Person_Characteristics crosswalk
 - [ ] **FOUND-03**: ETL shared library provides vocabulary validator that checks concept_ids against current Athena vocabulary and follows Maps-to chain for deprecated codes
 - [x] **FOUND-04**: ETL shared library provides error accumulation logger that tracks rejected/skipped records per table with reasons and produces rejection summary reports
 - [x] **FOUND-05**: All 60+ source CSV files are profiled with row counts, null rates, value distributions, and date format detection before any transformation begins
@@ -127,7 +127,7 @@
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | FOUND-01 | Phase 2 | Complete |
-| FOUND-02 | Phase 2 | Pending |
+| FOUND-02 | Phase 2 | Complete |
 | FOUND-03 | Phase 3 | Pending |
 | FOUND-04 | Phase 3 | Complete |
 | FOUND-05 | Phase 1 | Complete |
