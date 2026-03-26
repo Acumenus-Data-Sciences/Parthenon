@@ -8,8 +8,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\CreateIngestionProjectRequest;
 use App\Http\Requests\Api\StageFilesRequest;
 use App\Jobs\Ingestion\StageFileJob;
+use App\Models\App\FieldProfile;
 use App\Models\App\IngestionJob;
 use App\Models\App\IngestionProject;
+use App\Models\App\SourceProfile;
 use App\Services\Ingestion\FileUploadService;
 use App\Services\Ingestion\StagingService;
 use App\Services\Ingestion\StagingSourceService;
@@ -17,6 +19,8 @@ use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 #[Group('Ingestion Projects', weight: 201)]
@@ -236,5 +240,225 @@ class IngestionProjectController extends Controller
         );
 
         return response()->json(['data' => $preview]);
+    }
+
+    /**
+     * POST /ingestion-projects/{project}/connect-db
+     *
+     * Test database connection and return table list via BlackRabbit.
+     */
+    public function connectDb(Request $request, IngestionProject $project): JsonResponse
+    {
+        $validated = $request->validate([
+            'dbms' => 'required|string|max:64',
+            'host' => 'required|string|max:255',
+            'port' => 'required|integer|min:1|max:65535',
+            'user' => 'nullable|string|max:255',
+            'password' => 'nullable|string|max:255',
+            'database' => 'required|string|max:255',
+            'schema' => 'required|string|max:255',
+        ]);
+
+        $blackRabbitUrl = rtrim(config('services.blackrabbit.url', 'http://blackrabbit:8090'), '/');
+
+        try {
+            $response = Http::timeout(30)->post("{$blackRabbitUrl}/tables", [
+                'dbms' => $validated['dbms'],
+                'server' => "{$validated['host']}/{$validated['database']}",
+                'port' => $validated['port'],
+                'user' => $validated['user'] ?? '',
+                'password' => $validated['password'] ?? '',
+                'schema' => $validated['schema'],
+            ]);
+
+            if ($response->failed()) {
+                return response()->json([
+                    'error' => 'Connection failed',
+                    'message' => $response->json('detail') ?? 'Unable to connect to database.',
+                ], 422);
+            }
+
+            $project->update([
+                'db_connection_config' => $validated,
+            ]);
+
+            return response()->json([
+                'data' => [
+                    'connected' => true,
+                    'tables' => $response->json('tables') ?? [],
+                ],
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning('Database connection test failed', [
+                'project_id' => $project->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'error' => 'Connection failed',
+                'message' => $e->getMessage(),
+            ], 422);
+        }
+    }
+
+    /**
+     * POST /ingestion-projects/{project}/confirm-tables
+     *
+     * Save selected table list on the project.
+     */
+    public function confirmTables(Request $request, IngestionProject $project): JsonResponse
+    {
+        $validated = $request->validate([
+            'tables' => 'required|array|min:1',
+            'tables.*' => 'string|max:255',
+        ]);
+
+        $project->update([
+            'selected_tables' => $validated['tables'],
+        ]);
+
+        return response()->json([
+            'data' => [
+                'tables' => $validated['tables'],
+                'count' => count($validated['tables']),
+            ],
+        ]);
+    }
+
+    /**
+     * POST /ingestion-projects/{project}/stage-db
+     *
+     * Trigger BlackRabbit scan on selected tables, persist results.
+     */
+    public function stageDb(IngestionProject $project): JsonResponse
+    {
+        $config = $project->db_connection_config;
+        $tables = $project->selected_tables;
+
+        if (! $config || ! $tables) {
+            return response()->json([
+                'error' => 'No database connection or tables configured',
+            ], 422);
+        }
+
+        $blackRabbitUrl = rtrim(config('services.blackrabbit.url', 'http://blackrabbit:8090'), '/');
+
+        try {
+            $scanPayload = [
+                'dbms' => $config['dbms'],
+                'server' => "{$config['host']}/{$config['database']}",
+                'port' => (int) $config['port'],
+                'user' => $config['user'] ?? '',
+                'password' => $config['password'] ?? '',
+                'schema' => $config['schema'],
+                'tables' => $tables,
+            ];
+
+            $startResp = Http::timeout(30)->post("{$blackRabbitUrl}/scan", $scanPayload);
+            if ($startResp->failed()) {
+                throw new \RuntimeException('BlackRabbit scan failed to start: '.($startResp->json('detail') ?? $startResp->body()));
+            }
+
+            $scanId = $startResp->json('scan_id');
+
+            // Poll for result
+            $maxWait = 600;
+            $waited = 0;
+            $scanData = null;
+            while ($waited < $maxWait) {
+                usleep(500_000);
+                $waited += 0.5;
+
+                $resultResp = Http::timeout(10)->get("{$blackRabbitUrl}/scan/{$scanId}/result");
+                if ($resultResp->status() === 404) {
+                    continue;
+                }
+                if ($resultResp->successful()) {
+                    $scanData = $resultResp->json();
+
+                    break;
+                }
+                if ($resultResp->status() === 410) {
+                    throw new \RuntimeException('Scan expired');
+                }
+            }
+
+            if (! $scanData) {
+                throw new \RuntimeException('Scan timed out');
+            }
+
+            $jobIds = [];
+            foreach ($scanData['tables'] ?? [] as $tableData) {
+                $tableName = $tableData['table_name'] ?? '';
+                if (! $tableName) {
+                    continue;
+                }
+
+                $job = IngestionJob::create([
+                    'ingestion_project_id' => $project->id,
+                    'status' => ExecutionStatus::Completed,
+                    'current_step' => IngestionStep::Profiling,
+                    'progress_percentage' => 100,
+                    'staging_table_name' => $tableName,
+                    'created_by' => auth()->id(),
+                    'stats_json' => [
+                        'staging_table_name' => $tableName,
+                        'row_count' => $tableData['row_count'] ?? 0,
+                        'column_count' => $tableData['column_count'] ?? 0,
+                        'source' => 'database',
+                    ],
+                ]);
+
+                $profile = SourceProfile::create([
+                    'ingestion_job_id' => $job->id,
+                    'scan_type' => 'blackrabbit',
+                    'table_count' => 1,
+                    'column_count' => $tableData['column_count'] ?? 0,
+                    'total_rows' => $tableData['row_count'] ?? 0,
+                    'row_count' => $tableData['row_count'] ?? 0,
+                    'scan_time_seconds' => $scanData['scan_time_seconds'] ?? 0,
+                    'overall_grade' => 'A',
+                ]);
+
+                foreach ($tableData['columns'] ?? [] as $idx => $col) {
+                    FieldProfile::create([
+                        'source_profile_id' => $profile->id,
+                        'table_name' => $tableName,
+                        'row_count' => $tableData['row_count'] ?? 0,
+                        'column_name' => $col['name'],
+                        'column_index' => $idx,
+                        'inferred_type' => $col['type'] ?? 'unknown',
+                        'non_null_count' => $col['non_null_count'] ?? 0,
+                        'null_count' => $col['null_count'] ?? 0,
+                        'null_percentage' => $col['null_percentage'] ?? 0,
+                        'distinct_count' => $col['distinct_count'] ?? 0,
+                        'distinct_percentage' => $col['distinct_percentage'] ?? 0,
+                        'sample_values' => $col['top_values'] ?? null,
+                    ]);
+                }
+
+                $jobIds[] = ['id' => $job->id, 'staging_table_name' => $tableName];
+            }
+
+            $project->update([
+                'status' => 'ready',
+                'file_count' => count($jobIds),
+            ]);
+
+            return response()->json([
+                'data' => ['jobs' => $jobIds],
+                'message' => 'Database tables profiled and staged.',
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Database staging failed', [
+                'project_id' => $project->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'error' => 'Database staging failed',
+                'message' => $e->getMessage(),
+            ], 502);
+        }
     }
 }

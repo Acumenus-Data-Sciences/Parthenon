@@ -245,6 +245,15 @@ Route::prefix('v1')->group(function () {
             Route::get('/{project}/preview/{table}', [IngestionProjectController::class, 'preview'])
                 ->middleware('permission:ingestion.view')
                 ->where(['project' => '[0-9]+', 'table' => '[a-z][a-z0-9_]*']);
+            Route::post('/{project}/connect-db', [IngestionProjectController::class, 'connectDb'])
+                ->middleware('permission:ingestion.upload')
+                ->where('project', '[0-9]+');
+            Route::post('/{project}/confirm-tables', [IngestionProjectController::class, 'confirmTables'])
+                ->middleware('permission:ingestion.upload')
+                ->where('project', '[0-9]+');
+            Route::post('/{project}/stage-db', [IngestionProjectController::class, 'stageDb'])
+                ->middleware(['permission:ingestion.upload', 'throttle:5,10'])
+                ->where('project', '[0-9]+');
         });
 
         // Achilles (Data Characterization)
