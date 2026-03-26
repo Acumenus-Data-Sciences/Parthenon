@@ -6,6 +6,7 @@ Usage:
 Commands:
     profile              Profile source CSV files and generate data quality reports
     visit-derivation     Derive visit_occurrence from study visits and hospitalizations
+    measurements         Transform measurement sources into OMOP measurement rows
 
 Run with --help for full usage information.
 """
@@ -60,6 +61,12 @@ def _build_parser() -> argparse.ArgumentParser:
     subparsers.add_parser(
         "visit-derivation",
         help="Derive visit_occurrence from study visits and hospitalizations",
+    )
+
+    # Measurements subcommand
+    subparsers.add_parser(
+        "measurements",
+        help="Transform measurement sources into OMOP measurement rows",
     )
 
     return parser
@@ -174,6 +181,50 @@ def _run_visit_derivation() -> int:
     return 0
 
 
+def _run_measurements() -> int:
+    """Execute the measurements subcommand."""
+    import logging
+
+    from scripts.irsf_etl.config import ETLConfig
+    from scripts.irsf_etl.measurement_etl import transform_measurements
+
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+
+    config = ETLConfig()
+    measurements = transform_measurements(config)
+
+    print(f"\nMeasurements Complete")
+    print(f"  measurement.csv: {len(measurements)} rows")
+
+    if not measurements.empty:
+        concept_counts = measurements["measurement_concept_id"].value_counts()
+        print(f"\nMeasurement concept distribution:")
+        concept_labels = {
+            3036277: "Height (cm)",
+            3025315: "Weight (kg)",
+            3038553: "BMI (kg/m2)",
+            3036832: "Head circumference (cm)",
+        }
+        for concept_id, count in concept_counts.items():
+            label = concept_labels.get(int(concept_id), f"Unknown ({concept_id})")
+            print(f"  {label} ({concept_id}): {count}")
+
+        person_count = measurements["person_id"].nunique()
+        print(f"\nUnique patients with measurements: {person_count}")
+
+        rejection_count = 0
+        reports_dir = config.reports_dir
+        rejection_path = reports_dir / "measurement_growth_rejections.csv"
+        if rejection_path.exists():
+            import pandas as pd
+
+            rej_df = pd.read_csv(rejection_path)
+            rejection_count = len(rej_df)
+        print(f"Rejections: {rejection_count}")
+
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     """Main entry point for the IRSF ETL CLI."""
     parser = _build_parser()
@@ -191,6 +242,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "visit-derivation":
         return _run_visit_derivation()
+
+    if args.command == "measurements":
+        return _run_measurements()
 
     return 0
 
