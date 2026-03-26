@@ -152,11 +152,12 @@ class SourceProfilerService
             }
 
             foreach ($table['columns'] ?? [] as $col) {
-                $nullPct = ($col['fraction_empty'] ?? 0) * 100;
+                // BlackRabbit: null_percentage (0-100), WhiteRabbit: fraction_empty (0-1)
+                $nullPct = $col['null_percentage'] ?? (($col['fraction_empty'] ?? 0) * 100);
                 if ($nullPct > 50) {
                     $highNullColumns++;
                 }
-                $uniqueCount = $col['unique_count'] ?? 0;
+                $uniqueCount = $col['distinct_count'] ?? $col['unique_count'] ?? 0;
                 if ($uniqueCount < 5 && ($table['row_count'] ?? 0) > 0) {
                     $lowCardinalityColumns++;
                 }
@@ -170,7 +171,7 @@ class SourceProfilerService
 
         $profile = SourceProfile::create([
             'source_id' => $source->id,
-            'scan_type' => 'whiterabbit',
+            'scan_type' => 'blackrabbit',
             'scan_time_seconds' => $elapsed,
             'overall_grade' => $grade,
             'table_count' => $tableCount,
@@ -195,13 +196,19 @@ class SourceProfilerService
             $tableRowCount = $table['row_count'] ?? 0;
 
             foreach ($table['columns'] ?? [] as $idx => $col) {
-                $nullPct = round(($col['fraction_empty'] ?? 0) * 100, 2);
-                $nRows = $col['n_rows'] ?? $tableRowCount;
-                $nullCount = (int) round($nRows * ($col['fraction_empty'] ?? 0));
+                // BlackRabbit provides these directly; WhiteRabbit uses fraction_empty (0-1)
+                $nRows = $col['row_count'] ?? $col['n_rows'] ?? $tableRowCount;
+                $nullCount = $col['null_count'] ?? (int) round($nRows * ($col['fraction_empty'] ?? 0));
+                $nonNullCount = $col['non_null_count'] ?? ($nRows - $nullCount);
+                $nullPct = $col['null_percentage'] ?? round(($col['fraction_empty'] ?? 0) * 100, 2);
+                $distinctCount = $col['distinct_count'] ?? $col['unique_count'] ?? 0;
+                $distinctPct = $col['distinct_percentage'] ?? ($nRows > 0 ? round($distinctCount / $nRows * 100, 2) : 0);
 
-                // WhiteRabbit returns values as [{value, frequency}] — normalize to {value: frequency}
+                // Normalize sample values — WhiteRabbit: [{value, frequency}], BlackRabbit: {value: count}
                 $sampleValues = null;
-                if (! empty($col['values'])) {
+                if (! empty($col['top_values'])) {
+                    $sampleValues = $col['top_values'];
+                } elseif (! empty($col['values'])) {
                     if (is_array($col['values']) && isset($col['values'][0]['value'])) {
                         $sampleValues = [];
                         foreach (array_slice($col['values'], 0, 10) as $v) {
@@ -219,13 +226,11 @@ class SourceProfilerService
                     'column_name' => $col['name'],
                     'column_index' => $idx,
                     'inferred_type' => $col['type'] ?? 'unknown',
-                    'non_null_count' => $nRows - $nullCount,
+                    'non_null_count' => $nonNullCount,
                     'null_count' => $nullCount,
                     'null_percentage' => $nullPct,
-                    'distinct_count' => $col['unique_count'] ?? 0,
-                    'distinct_percentage' => $nRows > 0
-                        ? round(($col['unique_count'] ?? 0) / $nRows * 100, 2)
-                        : 0,
+                    'distinct_count' => $distinctCount,
+                    'distinct_percentage' => $distinctPct,
                     'sample_values' => $sampleValues,
                 ]);
             }
@@ -258,7 +263,12 @@ class SourceProfilerService
 
         foreach ($tables as $table) {
             foreach ($table['columns'] ?? [] as $col) {
-                $totalNull += $col['fraction_empty'] ?? 0;
+                // BlackRabbit: null_percentage (0-100), WhiteRabbit: fraction_empty (0-1)
+                if (isset($col['null_percentage'])) {
+                    $totalNull += $col['null_percentage'] / 100;
+                } else {
+                    $totalNull += $col['fraction_empty'] ?? 0;
+                }
                 $totalCols++;
             }
         }

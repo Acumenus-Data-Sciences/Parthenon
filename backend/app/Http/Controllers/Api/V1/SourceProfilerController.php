@@ -30,7 +30,7 @@ class SourceProfilerController extends Controller
     public function index(Source $source): JsonResponse
     {
         $profiles = $source->sourceProfiles()
-            ->where('scan_type', 'whiterabbit')
+            ->whereIn('scan_type', ['blackrabbit', 'whiterabbit'])
             ->orderByDesc('created_at')
             ->paginate(20, ['id', 'source_id', 'scan_type', 'scan_time_seconds', 'overall_grade', 'table_count', 'column_count', 'total_rows', 'summary_json', 'created_at']);
 
