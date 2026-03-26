@@ -13,8 +13,8 @@ This roadmap transforms the IRSF Natural History Study dataset (~1,860 Rett Synd
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Project Setup and Source Data Profiling** - Python project scaffold in scripts/irsf-etl/ with pandera, plus automated profiling of all 60+ source CSVs (completed 2026-03-26)
-- [ ] **Phase 2: Shared Library - Date and ID Utilities** - Tested date assembly and cross-protocol ID reconciliation modules that all downstream scripts depend on
-- [ ] **Phase 3: Shared Library - Vocabulary and Error Handling** - Vocabulary validator against current Athena load and structured error accumulation logger
+- [x] **Phase 2: Shared Library - Date and ID Utilities** - Tested date assembly and cross-protocol ID reconciliation modules that all downstream scripts depend on (completed 2026-03-26)
+- [x] **Phase 3: Shared Library - Vocabulary and Error Handling** - Vocabulary validator against current Athena load and structured error accumulation logger (completed 2026-03-26)
 - [ ] **Phase 4: Person and Demographics** - Person roster script producing ~1,860 unique persons with gender, race, ethnicity, DOB, and death records
 - [ ] **Phase 5: Visit Derivation** - Visit occurrence script deriving visits from clinical table dates with outpatient/inpatient classification
 - [ ] **Phase 6: Custom IRSF Vocabulary** - Custom vocabulary (concept_ids >= 2B) for CSS, MBA, genotype mutations, and Rett diagnostic categories
@@ -222,9 +222,9 @@ Note: Phases 2 and 3 can run in parallel. Phases 7, 8, 9, 10 can run in parallel
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Project Setup and Source Data Profiling | 2/2 | Complete    | 2026-03-26 |
-| 2. Shared Library - Date and ID Utilities | 0/2 | Not started | - |
-| 3. Shared Library - Vocabulary and Error Handling | 0/2 | Not started | - |
-| 4. Person and Demographics | 0/3 | Not started | - |
+| 2. Shared Library - Date and ID Utilities | 0/2 | Complete    | 2026-03-26 |
+| 3. Shared Library - Vocabulary and Error Handling | 0/2 | Complete    | 2026-03-26 |
+| 4. Person and Demographics | 1/3 | In Progress|  |
 | 5. Visit Derivation | 0/2 | Not started | - |
 | 6. Custom IRSF Vocabulary | 0/4 | Not started | - |
 | 7. Medications | 0/3 | Not started | - |

@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v5.4
 milestone_name: milestone
-status: completed
-stopped_at: Completed 03-01-PLAN.md
-last_updated: "2026-03-26T12:15:11.354Z"
-last_activity: 2026-03-26 -- Completed 02-02 ID reconciliation module (26 tests, 89% coverage)
+status: in-progress
+stopped_at: Completed 04-01-PLAN.md
+last_updated: "2026-03-26T12:41:26.354Z"
+last_activity: 2026-03-26 -- Completed 04-01 person roster builder (35 tests, 84% coverage)
 progress:
   total_phases: 12
   completed_phases: 3
-  total_plans: 6
-  completed_plans: 6
+  total_plans: 13
+  completed_plans: 7
   percent: 83
 ---
 
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-26)
 
 **Core value:** All ~1,860 Rett Syndrome patients from the IRSF Natural History Study queryable in Parthenon's OMOP CDM with accurate demographics, medications, conditions, measurements, and observations
-**Current focus:** Phase 2 - Shared Library: Date and ID Utilities
+**Current focus:** Phase 4 - Person and Demographics
 
 ## Current Position
 
-Phase: 2 of 12 (Shared Library: Date and ID Utilities) -- COMPLETE
-Plan: 2 of 2 in current phase
-Status: Phase Complete
-Last activity: 2026-03-26 -- Completed 02-02 ID reconciliation module (26 tests, 89% coverage)
+Phase: 4 of 12 (Person and Demographics) -- IN PROGRESS
+Plan: 1 of 2 in current phase
+Status: Plan 04-01 Complete
+Last activity: 2026-03-26 -- Completed 04-01 person roster builder (35 tests, 84% coverage)
 
-Progress: [████████░░] 83%
+Progress: [█████░░░░░] 54%
 
 ## Performance Metrics
 
@@ -51,6 +51,7 @@ Progress: [████████░░] 83%
 - Trend: -
 
 *Updated after each plan completion*
+| Phase 04 P01 | 3min | 1 tasks | 2 files |
 | Phase 03 P02 | 3min | 1 tasks | 3 files |
 | Phase 02 P02 | 3min | 1 tasks | 3 files |
 | Phase 03 P01 | 4min | 2 tasks | 6 files |
@@ -77,6 +78,9 @@ Recent decisions affecting current work:
 - [Phase 02]: person_id = int(participant_id) -- direct integer use as OMOP person_id, no hashing
 - [Phase 03]: Used psycopg2-binary for PostgreSQL access with search_path=omop schema isolation
 - [Phase 03]: Batch queries chunk at 1000 items to avoid PostgreSQL parameter limits
+- [Phase 04-01]: 2-digit year pivot at 25 for Rett patient DOBs (00-25->2000s, 26-99->1900s)
+- [Phase 04-01]: Missing DOB logged as warning, not error -- patient included without DOB
+- [Phase 04-01]: Demographics_5211 join via dict lookup for O(1) participant_id matching
 
 ### Pending Todos
 
@@ -90,6 +94,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-26T12:15:11.352Z
-Stopped at: Completed 03-01-PLAN.md
+Last session: 2026-03-26T12:41:00Z
+Stopped at: Completed 04-01-PLAN.md
 Resume file: None

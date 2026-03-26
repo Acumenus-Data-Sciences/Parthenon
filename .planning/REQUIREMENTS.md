@@ -16,11 +16,11 @@
 
 ### Person and Demographics
 
-- [ ] **PERS-01**: Person roster built from Person_Characteristics_5201_5211.csv produces ~1,860 unique persons with deterministic person_id assignment
-- [ ] **PERS-02**: Gender mapping correctly handles Rett population (~95% female) with concept_ids 8532 (Female) and 8507 (Male)
+- [x] **PERS-01**: Person roster built from Person_Characteristics_5201_5211.csv produces ~1,860 unique persons with deterministic person_id assignment
+- [x] **PERS-02**: Gender mapping correctly handles Rett population (~95% female) with concept_ids 8532 (Female) and 8507 (Male)
 - [ ] **PERS-03**: Race mapping converts multiple boolean race columns to single OMOP race_concept_id with multi-race mapped to concept_id 0 and flags preserved in race_source_value
 - [ ] **PERS-04**: Ethnicity mapping converts to standard OMOP concepts (38003563 Hispanic, 38003564 Non-Hispanic)
-- [ ] **PERS-05**: Date of birth assembled from split columns with year/month/day populated in person table
+- [x] **PERS-05**: Date of birth assembled from split columns with year/month/day populated in person table
 - [ ] **PERS-06**: Death records imported from both protocols (5201: 73 rows, 5211: 94 rows) with deduplication on unified participant_id
 
 ### Visit Derivation
@@ -132,11 +132,11 @@
 | FOUND-04 | Phase 3 | Complete |
 | FOUND-05 | Phase 1 | Complete |
 | FOUND-06 | Phase 1 | Complete |
-| PERS-01 | Phase 4 | Pending |
-| PERS-02 | Phase 4 | Pending |
+| PERS-01 | Phase 4 | Complete |
+| PERS-02 | Phase 4 | Complete |
 | PERS-03 | Phase 4 | Pending |
 | PERS-04 | Phase 4 | Pending |
-| PERS-05 | Phase 4 | Pending |
+| PERS-05 | Phase 4 | Complete |
 | PERS-06 | Phase 4 | Pending |
 | VISIT-01 | Phase 5 | Pending |
 | VISIT-02 | Phase 5 | Pending |
