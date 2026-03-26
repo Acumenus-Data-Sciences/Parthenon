@@ -79,12 +79,11 @@ export default function ScanProgressIndicator({
   return (
     <div className="bg-[#0E0E11]/90 backdrop-blur-sm rounded-xl border border-[#2a2a3e] p-8">
       <div className="flex flex-col items-center gap-4">
-        {/* Running White Rabbit — homage to OHDSI WhiteRabbit */}
-        <img
-          src="/whiterabbit.gif"
-          alt="White Rabbit scanning"
-          className="w-100 h-auto"
-        />
+        {/* Spinning loader */}
+        <svg className="w-12 h-12 animate-spin text-teal-500" viewBox="0 0 24 24" fill="none">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+        </svg>
 
         {/* Phase text */}
         <p className="text-lg text-white font-medium">
