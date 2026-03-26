@@ -1,12 +1,13 @@
-import { Loader2, AlertCircle } from "lucide-react";
+import { Loader2, AlertCircle, X } from "lucide-react";
 import { useStagingPreview } from "../hooks/useIngestionProjects";
 
 interface StagingPreviewProps {
   projectId: number;
   tableName: string;
+  onClose?: () => void;
 }
 
-export function StagingPreview({ projectId, tableName }: StagingPreviewProps) {
+export function StagingPreview({ projectId, tableName, onClose }: StagingPreviewProps) {
   const { data, isLoading, error } = useStagingPreview(projectId, tableName);
 
   if (isLoading) {
@@ -75,10 +76,20 @@ export function StagingPreview({ projectId, tableName }: StagingPreviewProps) {
       </div>
 
       {/* Footer */}
-      <div className="px-3 py-2 border-t border-[#232328] bg-[#1C1C20]">
+      <div className="flex items-center justify-between px-3 py-2 border-t border-[#232328] bg-[#1C1C20]">
         <span className="text-[11px] text-[#8A857D]">
-          Showing 1&ndash;{showing} of {data.total.toLocaleString()} total rows
+          Showing 1&ndash;{showing} of {(data.total ?? 0).toLocaleString()} total rows
         </span>
+        {onClose && (
+          <button
+            type="button"
+            onClick={onClose}
+            className="inline-flex items-center gap-1 text-[11px] text-[#8A857D] hover:text-[#F0EDE8] transition-colors"
+          >
+            <X size={12} />
+            Close
+          </button>
+        )}
       </div>
     </div>
   );

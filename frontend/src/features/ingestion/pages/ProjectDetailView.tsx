@@ -516,7 +516,7 @@ function StagedFileRow({
       {isPreviewOpen && (
         <tr>
           <td colSpan={6} className="p-0">
-            <StagingPreview projectId={projectId} tableName={tableName} />
+            <StagingPreview projectId={projectId} tableName={tableName} onClose={onTogglePreview} />
           </td>
         </tr>
       )}
