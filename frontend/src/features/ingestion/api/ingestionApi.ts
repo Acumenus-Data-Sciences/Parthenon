@@ -197,3 +197,67 @@ export async function fetchValidationSummary(
   );
   return unwrap<ValidationSummary>(data);
 }
+
+// ── Ingestion Projects (Multi-File) ────────────────────────────────
+
+export interface IngestionProject {
+  id: number;
+  name: string;
+  source_id: number | null;
+  status: 'draft' | 'profiling' | 'ready' | 'mapping' | 'completed' | 'failed';
+  created_by: number;
+  file_count: number;
+  total_size_bytes: number;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+  jobs?: IngestionJob[];
+  source?: { id: number; source_name: string };
+}
+
+export interface StagingPreviewResult {
+  columns: string[];
+  rows: Array<Record<string, string>>;
+  total: number;
+}
+
+export async function fetchIngestionProjects(): Promise<{ data: IngestionProject[]; total: number }> {
+  const { data } = await apiClient.get('/ingestion-projects');
+  return data;
+}
+
+export async function fetchIngestionProject(id: number): Promise<IngestionProject> {
+  const { data } = await apiClient.get(`/ingestion-projects/${id}`);
+  return unwrap<IngestionProject>(data);
+}
+
+export async function createIngestionProject(request: { name: string; source_id?: number; notes?: string }): Promise<IngestionProject> {
+  const { data } = await apiClient.post('/ingestion-projects', request);
+  return unwrap<IngestionProject>(data);
+}
+
+export async function deleteIngestionProject(id: number): Promise<void> {
+  await apiClient.delete(`/ingestion-projects/${id}`);
+}
+
+export async function stageFiles(projectId: number, files: File[], tableNames: string[]): Promise<{ jobs: Array<{ id: number; staging_table_name: string }> }> {
+  const formData = new FormData();
+  files.forEach((f) => formData.append('files[]', f));
+  tableNames.forEach((n) => formData.append('table_names[]', n));
+  const { data } = await apiClient.post(`/ingestion-projects/${projectId}/stage`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+    timeout: 600000, // 10 min for large uploads
+  });
+  return unwrap(data);
+}
+
+export async function removeProjectFile(projectId: number, jobId: number): Promise<void> {
+  await apiClient.delete(`/ingestion-projects/${projectId}/files/${jobId}`);
+}
+
+export async function fetchStagingPreview(projectId: number, tableName: string, limit = 100, offset = 0): Promise<StagingPreviewResult> {
+  const { data } = await apiClient.get(`/ingestion-projects/${projectId}/preview/${tableName}`, {
+    params: { limit, offset },
+  });
+  return unwrap<StagingPreviewResult>(data);
+}
