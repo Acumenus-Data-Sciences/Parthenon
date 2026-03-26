@@ -190,11 +190,10 @@ class PacsConnectionService
      */
     private function refreshOrthancStats(PacsConnection $conn): array
     {
-        // Strip /dicom-web suffix to reach the Orthanc REST API root
-        $orthancBase = preg_replace('#/dicom-web/?$#i', '', rtrim($conn->base_url, '/'));
+        $orthancBase = $this->orthancRestBase($conn);
+        $client = $this->resolveOrthancRestClient($conn);
 
-        $response = Http::timeout(15)
-            ->get($orthancBase.'/statistics');
+        $response = $client->get($orthancBase.'/statistics');
 
         if (! $response->successful()) {
             return [
@@ -207,10 +206,12 @@ class PacsConnectionService
         $stats = $response->json();
 
         $cache = [
+            'count_patients' => $stats['CountPatients'] ?? null,
             'count_studies' => $stats['CountStudies'] ?? null,
             'count_series' => $stats['CountSeries'] ?? null,
             'count_instances' => $stats['CountInstances'] ?? null,
             'total_disk_size_mb' => $stats['TotalDiskSizeMB'] ?? null,
+            'modalities' => $this->fetchModalityBreakdown($conn),
         ];
 
         $conn->update([
@@ -222,6 +223,85 @@ class PacsConnectionService
             'success' => true,
             'stats' => $cache,
         ];
+    }
+
+    /**
+     * Fetch modality breakdown by paginating the /series endpoint.
+     *
+     * @return array<string, int>
+     */
+    private function fetchModalityBreakdown(PacsConnection $conn): array
+    {
+        $orthancBase = $this->orthancRestBase($conn);
+        $client = $this->resolveOrthancRestClient($conn);
+        $counts = [];
+        $since = 0;
+        $batch = 500;
+        $maxSeries = 50000;
+
+        while ($since < $maxSeries) {
+            try {
+                $response = $client->get($orthancBase.'/series', [
+                    'since' => $since,
+                    'limit' => $batch,
+                    'expand' => true,
+                ]);
+
+                if (! $response->successful()) {
+                    break;
+                }
+
+                /** @var list<array<string, mixed>> $series */
+                $series = $response->json() ?? [];
+
+                if (empty($series)) {
+                    break;
+                }
+
+                foreach ($series as $s) {
+                    $modality = $s['MainDicomTags']['Modality'] ?? 'Unknown';
+                    $counts[$modality] = ($counts[$modality] ?? 0) + 1;
+                }
+
+                if (count($series) < $batch) {
+                    break;
+                }
+
+                $since += $batch;
+            } catch (\Throwable) {
+                break;
+            }
+        }
+
+        arsort($counts);
+
+        return $counts;
+    }
+
+    /**
+     * Get the Orthanc REST API base URL (strip /dicom-web suffix).
+     */
+    private function orthancRestBase(PacsConnection $conn): string
+    {
+        return (string) preg_replace('#/dicom-web/?$#i', '', rtrim($conn->base_url, '/'));
+    }
+
+    /**
+     * Build an HTTP client with auth for Orthanc REST API calls (no DICOM Accept header).
+     */
+    private function resolveOrthancRestClient(PacsConnection $conn): PendingRequest
+    {
+        $client = Http::timeout(30);
+        $credentials = $conn->credentials ?? [];
+
+        return match ($conn->auth_type) {
+            'basic' => $client->withBasicAuth(
+                $credentials['username'] ?? '',
+                $credentials['password'] ?? '',
+            ),
+            'bearer' => $client->withToken($credentials['token'] ?? ''),
+            default => $client,
+        };
     }
 
     /**

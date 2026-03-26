@@ -3,10 +3,12 @@ import apiClient from "@/lib/api-client";
 // ── Types ────────────────────────────────────────────────────────────────────
 
 export interface PacsStats {
+  count_patients: number | null;
   count_studies: number | null;
   count_series: number | null;
   count_instances: number | null;
   total_disk_size_mb: number | null;
+  modalities: Record<string, number> | null;
 }
 
 export interface PacsConnection {

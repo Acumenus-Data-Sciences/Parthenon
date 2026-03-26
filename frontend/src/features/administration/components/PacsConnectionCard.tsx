@@ -3,6 +3,7 @@ import {
   Film,
   Image,
   HardDrive,
+  Users,
   Star,
   Pencil,
   Trash2,
@@ -152,8 +153,9 @@ export default function PacsConnectionCard({
       </div>
 
       {/* Stats row */}
-      <div className="mt-3 grid grid-cols-4 gap-2">
+      <div className="mt-3 grid grid-cols-5 gap-2">
         {[
+          { label: "Patients", value: formatCount(stats?.count_patients), icon: Users },
           { label: "Studies", value: formatCount(stats?.count_studies), icon: Database },
           { label: "Series", value: formatCount(stats?.count_series), icon: Film },
           { label: "Instances", value: formatCount(stats?.count_instances), icon: Image },
@@ -171,6 +173,21 @@ export default function PacsConnectionCard({
           </div>
         ))}
       </div>
+
+      {/* Modality breakdown */}
+      {stats?.modalities && Object.keys(stats.modalities).length > 0 && (
+        <div className="mt-2 rounded-lg bg-[#0E0E11] px-3 py-2">
+          <div className="text-[10px] text-[#5A5650] mb-1.5">Series by Modality</div>
+          <div className="flex flex-wrap gap-x-3 gap-y-1">
+            {Object.entries(stats.modalities).map(([mod, count]) => (
+              <span key={mod} className="inline-flex items-center gap-1 text-xs">
+                <span className="font-medium text-[#2DD4BF] font-['IBM_Plex_Mono',monospace]">{mod}</span>
+                <span className="text-[#8A857D]">{formatCount(count)}</span>
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
       <div className="mt-3 flex items-center justify-between text-xs">
