@@ -61,11 +61,11 @@
 
 ### Custom Vocabulary
 
-- [ ] **VOCAB-01**: Custom IRSF-NHS vocabulary created with vocabulary_id='IRSF-NHS' and concept_ids >= 2,000,000,000 per OHDSI convention
-- [ ] **VOCAB-02**: CSS total score and ~13 individual item concepts registered in custom vocabulary
-- [ ] **VOCAB-03**: MBA total score and item concepts registered in custom vocabulary
-- [ ] **VOCAB-04**: ~50 MECP2/CDKL5/FOXG1 mutation type concepts registered with groupings (missense, nonsense, large deletion, C-terminal truncation)
-- [ ] **VOCAB-05**: Rett diagnostic category concepts (classic Rett, atypical Rett, CDKL5 deficiency, FOXG1, MECP2 duplication) registered
+- [x] **VOCAB-01**: Custom IRSF-NHS vocabulary created with vocabulary_id='IRSF-NHS' and concept_ids >= 2,000,000,000 per OHDSI convention
+- [x] **VOCAB-02**: CSS total score and ~13 individual item concepts registered in custom vocabulary
+- [x] **VOCAB-03**: MBA total score and item concepts registered in custom vocabulary
+- [x] **VOCAB-04**: ~50 MECP2/CDKL5/FOXG1 mutation type concepts registered with groupings (missense, nonsense, large deletion, C-terminal truncation)
+- [x] **VOCAB-05**: Rett diagnostic category concepts (classic Rett, atypical Rett, CDKL5 deficiency, FOXG1, MECP2 duplication) registered
 - [ ] **VOCAB-06**: All custom concepts registered in source_to_concept_map for ETL lookup
 
 ### Data Loading
@@ -159,11 +159,11 @@
 | OBS-02 | Phase 10 | Pending |
 | OBS-03 | Phase 10 | Pending |
 | OBS-04 | Phase 10 | Pending |
-| VOCAB-01 | Phase 6 | Pending |
-| VOCAB-02 | Phase 6 | Pending |
-| VOCAB-03 | Phase 6 | Pending |
-| VOCAB-04 | Phase 6 | Pending |
-| VOCAB-05 | Phase 6 | Pending |
+| VOCAB-01 | Phase 6 | Complete |
+| VOCAB-02 | Phase 6 | Complete |
+| VOCAB-03 | Phase 6 | Complete |
+| VOCAB-04 | Phase 6 | Complete |
+| VOCAB-05 | Phase 6 | Complete |
 | VOCAB-06 | Phase 6 | Pending |
 | LOAD-01 | Phase 11 | Pending |
 | LOAD-02 | Phase 11 | Pending |

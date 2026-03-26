@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v5.4
 milestone_name: milestone
 status: in-progress
-stopped_at: Completed 04-01-PLAN.md
-last_updated: "2026-03-26T12:41:26.354Z"
-last_activity: 2026-03-26 -- Completed 04-01 person roster builder (35 tests, 84% coverage)
+stopped_at: Completed 06-01-PLAN.md
+last_updated: "2026-03-26T12:45:32Z"
+last_activity: 2026-03-26 -- Completed 06-01 custom IRSF vocabulary registry (44 tests, 117 concepts)
 progress:
   total_phases: 12
   completed_phases: 3
   total_plans: 13
-  completed_plans: 7
-  percent: 83
+  completed_plans: 8
+  percent: 62
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-26)
 
 **Core value:** All ~1,860 Rett Syndrome patients from the IRSF Natural History Study queryable in Parthenon's OMOP CDM with accurate demographics, medications, conditions, measurements, and observations
-**Current focus:** Phase 4 - Person and Demographics
+**Current focus:** Phase 6 - Custom IRSF Vocabulary
 
 ## Current Position
 
-Phase: 4 of 12 (Person and Demographics) -- IN PROGRESS
+Phase: 6 of 12 (Custom IRSF Vocabulary) -- IN PROGRESS
 Plan: 1 of 2 in current phase
-Status: Plan 04-01 Complete
-Last activity: 2026-03-26 -- Completed 04-01 person roster builder (35 tests, 84% coverage)
+Status: Plan 06-01 Complete
+Last activity: 2026-03-26 -- Completed 06-01 custom IRSF vocabulary registry (44 tests, 117 concepts)
 
-Progress: [█████░░░░░] 54%
+Progress: [██████░░░░] 62%
 
 ## Performance Metrics
 
@@ -51,6 +51,7 @@ Progress: [█████░░░░░] 54%
 - Trend: -
 
 *Updated after each plan completion*
+| Phase 06 P01 | 7min | 2 tasks | 5 files |
 | Phase 04 P01 | 3min | 1 tasks | 2 files |
 | Phase 03 P02 | 3min | 1 tasks | 3 files |
 | Phase 02 P02 | 3min | 1 tasks | 3 files |
@@ -81,6 +82,9 @@ Recent decisions affecting current work:
 - [Phase 04-01]: 2-digit year pivot at 25 for Rett patient DOBs (00-25->2000s, 26-99->1900s)
 - [Phase 04-01]: Missing DOB logged as warning, not error -- patient included without DOB
 - [Phase 04-01]: Demographics_5211 join via dict lookup for O(1) participant_id matching
+- [Phase 06-01]: Block-allocated concept IDs: CSS 2B+1000, MBA 2B+2000, Mutations 2B+3000, Diagnoses 2B+4000
+- [Phase 06-01]: Used csv module (not pandas) for CSV generation -- lighter dependency, consistent quoting
+- [Phase 06-01]: Both OtherMCP2Mutations and OtherMECP2Mutations get separate concepts (both exist in source data)
 
 ### Pending Todos
 
@@ -94,6 +98,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-26T12:41:00Z
-Stopped at: Completed 04-01-PLAN.md
+Last session: 2026-03-26T12:45:32Z
+Stopped at: Completed 06-01-PLAN.md
 Resume file: None
