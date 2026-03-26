@@ -149,12 +149,12 @@
 | COND-01 | Phase 8 | Complete |
 | COND-02 | Phase 8 | Complete |
 | COND-03 | Phase 8 | Pending |
-| MEAS-01 | Phase 9 | Pending |
+| MEAS-01 | Phase 9 | Complete |
 | MEAS-02 | Phase 9 | Pending |
 | MEAS-03 | Phase 9 | Pending |
 | MEAS-04 | Phase 9 | Pending |
 | MEAS-05 | Phase 9 | Pending |
-| MEAS-06 | Phase 9 | Pending |
+| MEAS-06 | Phase 9 | Complete |
 | OBS-01 | Phase 10 | Complete |
 | OBS-02 | Phase 10 | Pending |
 | OBS-03 | Phase 10 | Pending |
