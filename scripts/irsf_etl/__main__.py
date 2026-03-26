@@ -69,6 +69,12 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Transform measurement sources into OMOP measurement rows",
     )
 
+    # MBA observations subcommand
+    subparsers.add_parser(
+        "observation-mba",
+        help="Transform MBA scores into OMOP observation rows",
+    )
+
     return parser
 
 
@@ -225,6 +231,41 @@ def _run_measurements() -> int:
     return 0
 
 
+def _run_observation_mba() -> int:
+    """Execute the observation-mba subcommand."""
+    import logging
+
+    from scripts.irsf_etl.config import ETLConfig
+    from scripts.irsf_etl.observation_mba import transform_mba_observations
+
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+
+    config = ETLConfig()
+    result = transform_mba_observations(config)
+
+    print(f"\nMBA Observations Complete")
+    print(f"  observation_mba.csv: {len(result)} rows")
+
+    if not result.empty:
+        unique_concepts = result["observation_concept_id"].nunique()
+        print(f"  Unique MBA concepts: {unique_concepts}")
+
+        person_count = result["person_id"].nunique()
+        print(f"  Unique patients: {person_count}")
+
+        visit_resolved = result["visit_occurrence_id"].notna().sum()
+        print(f"  Visit resolved: {visit_resolved}/{len(result)} ({visit_resolved / len(result) * 100:.1f}%)")
+
+        # Show GrandTotal stats
+        grand_total = result[result["observation_source_value"] == "GrandTotal"]
+        if not grand_total.empty:
+            print(f"\n  GrandTotal observations: {len(grand_total)}")
+            print(f"  GrandTotal concept_id: {grand_total['observation_concept_id'].iloc[0]}")
+            print(f"  GrandTotal score range: {grand_total['value_as_number'].min():.0f} - {grand_total['value_as_number'].max():.0f}")
+
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     """Main entry point for the IRSF ETL CLI."""
     parser = _build_parser()
@@ -245,6 +286,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "measurements":
         return _run_measurements()
+
+    if args.command == "observation-mba":
+        return _run_observation_mba()
 
     return 0
 
