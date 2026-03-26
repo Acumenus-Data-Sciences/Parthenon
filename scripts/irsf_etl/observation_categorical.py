@@ -412,8 +412,8 @@ def transform_rett_features(
                 else:
                     continue
 
-            val = _safe_int(record.get(everoccurred_col))
-            if val != 1:
+            val = record.get(everoccurred_col)
+            if not _is_truthy(val):
                 continue
 
             # Assemble onset date from split columns
@@ -468,8 +468,8 @@ def transform_rett_features(
                 tp_col = f"{feature}{tp}"
                 if tp_col not in df_valid.columns:
                     continue
-                tp_val = _safe_int(record.get(tp_col))
-                if tp_val != 1:
+                tp_val = record.get(tp_col)
+                if not _is_truthy(tp_val):
                     continue
 
                 # Timepoints use visit_date (not onset date)

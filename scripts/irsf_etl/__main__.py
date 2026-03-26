@@ -81,6 +81,12 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Transform genotype boolean columns into OMOP observation rows",
     )
 
+    # Categorical observations subcommand
+    subparsers.add_parser(
+        "observation-categorical",
+        help="Transform categorical clinical data into OMOP observation rows",
+    )
+
     # Medications subcommand
     medications_parser = subparsers.add_parser(
         "medications",
@@ -325,6 +331,48 @@ def _run_observation_genotype() -> int:
     return 0
 
 
+def _run_observation_categorical() -> int:
+    """Execute the observation-categorical subcommand."""
+    import logging
+
+    from scripts.irsf_etl.config import ETLConfig
+    from scripts.irsf_etl.observation_categorical import transform_categorical_observations
+
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+
+    config = ETLConfig()
+    result = transform_categorical_observations(config)
+
+    print(f"\nCategorical Observations Complete")
+    print(f"  observation_categorical.csv: {len(result)} rows")
+
+    if not result.empty:
+        # Per-source breakdown
+        source_patterns = {
+            "Rett Features": "Everoccurred|AtBaseline|At1Y|At2Y|At3Y|At4Y|At5Y",
+            "DevHx": "Learned|Lost|Relearned|HowSudden|RegressSameTime",
+            "Allergies": "^(?!Nutrition|AbnormalMovement|DysmorphicCB|Dysm|Contractures|Gait|Descript|Alertness|Interaction|CranialNerves|Sitting|Standing|Walking|Ataxia|AxialTone|AppendicTone|OverallHypertonia|Dystonia|Bradykinesia|Chorea|Bruxism|TruncalRocking|VerbLang|RespToSpoken|Duration|NonverbChoice|HandDominance|HandUseImpression|SelfAbusive|Aggressive|OverallReflexes|DegreeHyperreflexia|Hyperactivity|Hypoactivity)",
+        }
+
+        person_count = result["person_id"].nunique()
+        print(f"  Unique patients: {person_count}")
+
+        # Type distribution
+        type_counts = result["observation_type_concept_id"].value_counts()
+        type_labels = {32883: "Survey", 32817: "EHR"}
+        print(f"\n  Type distribution:")
+        for type_id, count in type_counts.items():
+            label = type_labels.get(int(type_id), f"Unknown ({type_id})")
+            print(f"    {label} ({type_id}): {count}")
+
+        # Source value sample
+        print(f"\n  Sample source values (first 10):")
+        for sv in result["observation_source_value"].unique()[:10]:
+            print(f"    {sv}")
+
+    return 0
+
+
 def _run_medications(args: argparse.Namespace) -> int:
     """Execute the medications subcommand — run full medication ETL."""
     import logging
@@ -397,6 +445,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "observation-genotype":
         return _run_observation_genotype()
+
+    if args.command == "observation-categorical":
+        return _run_observation_categorical()
 
     if args.command == "medications":
         return _run_medications(args)
