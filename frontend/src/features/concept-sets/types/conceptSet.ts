@@ -51,6 +51,7 @@ export interface ConceptSetListParams {
   tags?: string[];
   is_public?: boolean;
   with_items?: boolean;
+  author_id?: number;
 }
 
 export interface PaginatedResponse<T> {

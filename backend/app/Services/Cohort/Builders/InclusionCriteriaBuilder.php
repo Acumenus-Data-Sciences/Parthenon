@@ -128,9 +128,13 @@ SQL;
             $nestedResult = $this->buildGroup($nestedGroup, $cdmSchema, $ruleIndex);
             $ctes = array_merge($ctes, $nestedResult['ctes']);
 
-            // If the nested group has multiple person sets, combine them into one CTE
-            if (count($nestedResult['personSets']) > 1) {
-                $nestedType = $nestedGroup['Type'] ?? 'ALL';
+            // Combine person sets based on nested group type.
+            // AT_MOST_0 groups always need combination (NOT IN) even with a single set.
+            $nestedType = $nestedGroup['Type'] ?? 'ALL';
+            $needsCombination = count($nestedResult['personSets']) > 1
+                || ($nestedType === 'AT_MOST_0' && count($nestedResult['personSets']) === 1);
+
+            if ($needsCombination) {
                 $combinedName = "inclusion_group_{$ruleIndex}";
                 $combinedCte = $this->buildGroupCombination($nestedResult['personSets'], $nestedType, $combinedName);
                 $ctes[] = $combinedCte;

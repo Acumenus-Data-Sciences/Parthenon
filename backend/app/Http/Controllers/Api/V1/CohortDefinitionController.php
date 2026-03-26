@@ -47,6 +47,7 @@ class CohortDefinitionController extends Controller
             $tags = $request->filled('tags') ? (array) $request->input('tags') : [];
             $filterIsPublic = $request->boolean('is_public');
             $filterWithGenerations = $request->boolean('with_generations');
+            $filterAuthorId = $request->integer('author_id') ?: null;
 
             // Try Solr when search is active
             if ($search && $this->cohortSearch->isAvailable()) {
@@ -117,6 +118,10 @@ class CohortDefinitionController extends Controller
                 $query->whereHas('generations');
             }
 
+            if ($filterAuthorId) {
+                $query->where('author_id', $filterAuthorId);
+            }
+
             $cohortDefinitions = $query->paginate($perPage);
 
             $cohortDefinitions->getCollection()->transform(function (CohortDefinition $def) {
@@ -125,6 +130,21 @@ class CohortDefinitionController extends Controller
                     ->first(['id', 'status', 'person_count', 'completed_at', 'source_id']);
 
                 $def->setAttribute('latest_generation', $latestGeneration);
+
+                // Include all completed generation sources for source badges
+                $generationSources = $def->generations()
+                    ->where('status', 'completed')
+                    ->with('source:id,source_name,source_key')
+                    ->get(['id', 'source_id', 'person_count', 'completed_at'])
+                    ->map(fn (CohortGeneration $gen) => [
+                        'source_id' => $gen->source_id,
+                        'source_name' => $gen->source?->source_name,
+                        'source_key' => $gen->source?->source_key,
+                        'person_count' => $gen->person_count,
+                        'completed_at' => $gen->completed_at,
+                    ]);
+
+                $def->setAttribute('generation_sources', $generationSources);
 
                 return $def;
             });

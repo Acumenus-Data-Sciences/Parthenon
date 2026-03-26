@@ -9,8 +9,10 @@ import {
   Lock,
   Plus,
   Stethoscope,
+  User,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuthStore } from "@/stores/authStore";
 import { useConceptSets } from "../hooks/useConceptSets";
 
 function formatDate(iso: string): string {
@@ -38,12 +40,14 @@ export function ConceptSetList({
 }: ConceptSetListProps) {
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
+  const [myOnly, setMyOnly] = useState(true);
+  const currentUser = useAuthStore((s) => s.user);
   const limit = 20;
 
   // Reset page on filter change
   useEffect(() => {
     setPage(1);
-  }, [search, tags, isPublic, withItems]);
+  }, [search, tags, isPublic, withItems, myOnly]);
 
   const { data, isLoading, error } = useConceptSets({
     page,
@@ -52,6 +56,7 @@ export function ConceptSetList({
     tags: tags?.length ? tags : undefined,
     is_public: isPublic || undefined,
     with_items: withItems || undefined,
+    author_id: myOnly && currentUser ? currentUser.id : undefined,
   });
 
   if (isLoading) {
@@ -117,6 +122,36 @@ export function ConceptSetList({
 
   return (
     <div className="space-y-4">
+      {/* My / All toggle */}
+      <div className="flex items-center gap-1 rounded-lg bg-[#1C1C20] p-0.5 w-fit">
+        <button
+          type="button"
+          onClick={() => setMyOnly(true)}
+          className={cn(
+            "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+            myOnly
+              ? "bg-[#232328] text-[#F0EDE8] shadow-sm"
+              : "text-[#8A857D] hover:text-[#C5C0B8]",
+          )}
+        >
+          <User size={12} />
+          My Concept Sets
+        </button>
+        <button
+          type="button"
+          onClick={() => setMyOnly(false)}
+          className={cn(
+            "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+            !myOnly
+              ? "bg-[#232328] text-[#F0EDE8] shadow-sm"
+              : "text-[#8A857D] hover:text-[#C5C0B8]",
+          )}
+        >
+          <Globe size={12} />
+          All Concept Sets
+        </button>
+      </div>
+
       {/* Table */}
       <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
         <table className="w-full">
@@ -125,9 +160,11 @@ export function ConceptSetList({
               <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
                 Name
               </th>
-              <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
-                Author
-              </th>
+              {!myOnly && (
+                <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+                  Author
+                </th>
+              )}
               <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
                 Visibility
               </th>
@@ -164,9 +201,11 @@ export function ConceptSetList({
                     )}
                   </div>
                 </td>
-                <td className="px-4 py-3 text-sm text-[#8A857D]">
-                  {cs.author?.name ?? "--"}
-                </td>
+                {!myOnly && (
+                  <td className="px-4 py-3 text-sm text-[#8A857D]">
+                    {cs.author?.name ?? "--"}
+                  </td>
+                )}
                 <td className="px-4 py-3">
                   {cs.is_public ? (
                     <span className="inline-flex items-center gap-1 text-xs text-[#2DD4BF]">

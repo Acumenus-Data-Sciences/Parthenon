@@ -212,6 +212,7 @@ export interface CohortDefinition {
   updated_at: string;
   generations?: CohortGeneration[];
   latest_generation?: CohortGeneration | null;
+  generation_sources?: GenerationSource[];
 }
 
 export interface CohortGeneration {
@@ -236,6 +237,14 @@ export interface CohortGeneration {
 // Param / payload types
 // ---------------------------------------------------------------------------
 
+export interface GenerationSource {
+  source_id: number;
+  source_name: string | null;
+  source_key: string | null;
+  person_count: number | null;
+  completed_at: string | null;
+}
+
 export interface CohortDefinitionListParams {
   page?: number;
   limit?: number;
@@ -243,6 +252,7 @@ export interface CohortDefinitionListParams {
   tags?: string[];
   is_public?: boolean;
   with_generations?: boolean;
+  author_id?: number;
 }
 
 export interface PaginatedResponse<T> {

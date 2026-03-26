@@ -56,6 +56,10 @@ class ConceptSetController extends Controller
                 $query->whereHas('items');
             }
 
+            if ($request->filled('author_id')) {
+                $query->where('author_id', $request->integer('author_id'));
+            }
+
             return response()->json($query->paginate($request->integer('per_page', 20)));
         } catch (\Throwable $e) {
             return $this->errorResponse('Failed to retrieve concept sets', $e);

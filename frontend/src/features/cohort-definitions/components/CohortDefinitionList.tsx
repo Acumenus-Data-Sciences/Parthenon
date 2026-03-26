@@ -13,10 +13,13 @@ import {
   Lock,
   Stethoscope,
   Plus,
+  Database,
+  User,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuthStore } from "@/stores/authStore";
 import { useCohortDefinitions } from "../hooks/useCohortDefinitions";
-import type { CohortGeneration } from "../types/cohortExpression";
+import type { CohortGeneration, GenerationSource } from "../types/cohortExpression";
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString("en-US", {
@@ -78,6 +81,28 @@ function LatestGenerationBadge({
   );
 }
 
+function SourceBadges({ sources }: { sources?: GenerationSource[] }) {
+  if (!sources || sources.length === 0) return null;
+
+  return (
+    <div className="flex flex-wrap gap-1">
+      {sources.map((s) => (
+        <span
+          key={s.source_id}
+          className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-medium bg-[#60A5FA]/10 text-[#60A5FA] border border-[#60A5FA]/20"
+          title={`${s.person_count?.toLocaleString() ?? '?'} patients — ${s.completed_at ? new Date(s.completed_at).toLocaleDateString() : ''}`}
+        >
+          <Database size={8} />
+          {s.source_name ?? `Source ${s.source_id}`}
+          {s.person_count !== null && (
+            <span className="opacity-70">({s.person_count.toLocaleString()})</span>
+          )}
+        </span>
+      ))}
+    </div>
+  );
+}
+
 interface Props {
   tags?: string[];
   search?: string;
@@ -89,12 +114,14 @@ interface Props {
 export function CohortDefinitionList({ tags, search, isPublic, withGenerations, onCreateFromBundle }: Props) {
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
+  const [myOnly, setMyOnly] = useState(true);
+  const currentUser = useAuthStore((s) => s.user);
   const limit = 20;
 
   // Reset page when filters change
   useEffect(() => {
     setPage(1);
-  }, [search, tags, isPublic, withGenerations]);
+  }, [search, tags, isPublic, withGenerations, myOnly]);
 
   const { data, isLoading, error } = useCohortDefinitions({
     page,
@@ -103,6 +130,7 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
     search,
     is_public: isPublic || undefined,
     with_generations: withGenerations || undefined,
+    author_id: myOnly && currentUser ? currentUser.id : undefined,
   });
 
   if (isLoading) {
@@ -168,6 +196,36 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
 
   return (
     <div className="space-y-4">
+      {/* My / All toggle */}
+      <div className="flex items-center gap-1 rounded-lg bg-[#1C1C20] p-0.5 w-fit">
+        <button
+          type="button"
+          onClick={() => setMyOnly(true)}
+          className={cn(
+            "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+            myOnly
+              ? "bg-[#232328] text-[#F0EDE8] shadow-sm"
+              : "text-[#8A857D] hover:text-[#C5C0B8]",
+          )}
+        >
+          <User size={12} />
+          My Definitions
+        </button>
+        <button
+          type="button"
+          onClick={() => setMyOnly(false)}
+          className={cn(
+            "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+            !myOnly
+              ? "bg-[#232328] text-[#F0EDE8] shadow-sm"
+              : "text-[#8A857D] hover:text-[#C5C0B8]",
+          )}
+        >
+          <Globe size={12} />
+          All Definitions
+        </button>
+      </div>
+
       {/* Table */}
       <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
         <table className="w-full">
@@ -176,14 +234,19 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
               <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
                 Name
               </th>
-              <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
-                Author
-              </th>
+              {!myOnly && (
+                <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+                  Author
+                </th>
+              )}
               <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
                 Tags
               </th>
               <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
                 Latest Generation
+              </th>
+              <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+                Generated Against
               </th>
               <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
                 Created
@@ -219,11 +282,13 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
                     </div>
                   </div>
                 </td>
-                <td className="px-4 py-3">
-                  <p className="text-xs text-[#8A857D]">
-                    {def.author?.name ?? "--"}
-                  </p>
-                </td>
+                {!myOnly && (
+                  <td className="px-4 py-3">
+                    <p className="text-xs text-[#8A857D]">
+                      {def.author?.name ?? "--"}
+                    </p>
+                  </td>
+                )}
                 <td className="px-4 py-3">
                   <div className="flex flex-wrap gap-1">
                     {def.tags?.map((tag) => (
@@ -238,6 +303,9 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
                 </td>
                 <td className="px-4 py-3">
                   <LatestGenerationBadge generations={def.generations} />
+                </td>
+                <td className="px-4 py-3">
+                  <SourceBadges sources={def.generation_sources} />
                 </td>
                 <td className="px-4 py-3 text-sm text-[#8A857D]">
                   {formatDate(def.created_at)}

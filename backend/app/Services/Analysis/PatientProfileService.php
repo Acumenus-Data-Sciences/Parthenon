@@ -33,6 +33,11 @@ class PatientProfileService
 
         $params = ['cdmSchema' => $cdmSchema];
 
+        // Get observation period bounds for cross-source filtering
+        $opBounds = $this->getObservationPeriodBounds($personId, $params, $dialect, $connectionName);
+        $opStart = $opBounds['start'];
+        $opEnd = $opBounds['end'];
+
         $sql = "
             SELECT 'condition'     AS domain, COUNT(*) AS total FROM {@cdmSchema}.condition_occurrence WHERE person_id = {$personId}
             UNION ALL
@@ -46,9 +51,19 @@ class PatientProfileService
             UNION ALL
             SELECT 'visit',                   COUNT(*) FROM {@cdmSchema}.visit_occurrence       WHERE person_id = {$personId}
             UNION ALL
-            SELECT 'condition_era',           COUNT(*) FROM {@cdmSchema}.condition_era          WHERE person_id = {$personId}
+            SELECT 'condition_era',           COUNT(*) FROM {@cdmSchema}.condition_era
+                WHERE person_id = {$personId}
+                  AND condition_era_start_date >= '{$opStart}' AND condition_era_start_date <= '{$opEnd}'
+                  AND condition_concept_id IN (SELECT DISTINCT condition_concept_id FROM {@cdmSchema}.condition_occurrence WHERE person_id = {$personId})
             UNION ALL
-            SELECT 'drug_era',                COUNT(*) FROM {@cdmSchema}.drug_era               WHERE person_id = {$personId}
+            SELECT 'drug_era',                COUNT(*) FROM {@cdmSchema}.drug_era
+                WHERE person_id = {$personId}
+                  AND drug_era_start_date >= '{$opStart}' AND drug_era_start_date <= '{$opEnd}'
+                  AND drug_concept_id IN (SELECT DISTINCT drug_concept_id FROM {@cdmSchema}.drug_exposure WHERE person_id = {$personId})
+            UNION ALL
+            SELECT 'note',                    COUNT(*) FROM {@cdmSchema}.note
+                WHERE person_id = {$personId}
+                  AND note_date >= '{$opStart}' AND note_date <= '{$opEnd}'
         ";
 
         $renderedSql = $this->sqlRenderer->render($sql, $params, $dialect);
@@ -103,11 +118,18 @@ class PatientProfileService
 
         $offset = ($page - 1) * $perPage;
 
-        // Count total notes for this person
+        // Get observation period bounds to filter out cross-source data
+        $opBounds = $this->getObservationPeriodBounds($personId, $params, $dialect, $connectionName);
+        $opStart = $opBounds['start'];
+        $opEnd = $opBounds['end'];
+
+        // Count total notes for this person within observation period
         $countSql = "
             SELECT COUNT(*) AS total_count
             FROM {@cdmSchema}.note
             WHERE person_id = {$personId}
+              AND note_date >= '{$opStart}'
+              AND note_date <= '{$opEnd}'
         ";
 
         $renderedCountSql = $this->sqlRenderer->render($countSql, $params, $dialect);
@@ -147,6 +169,8 @@ class PatientProfileService
                 LEFT JOIN {@vocabSchema}.concept lc
                     ON n.language_concept_id = lc.concept_id
                 WHERE n.person_id = {$personId}
+                  AND n.note_date >= '{$opStart}'
+                  AND n.note_date <= '{$opEnd}'
                 ORDER BY n.note_date DESC, n.note_id DESC
                 LIMIT {$perPage} OFFSET {$offset}
             ";
@@ -207,6 +231,12 @@ class PatientProfileService
         $conn->statement('SET statement_timeout = 5000');
 
         try {
+            // Fetch observation period bounds to filter out cross-source data
+            // (multiple CDMs share the omop schema, person_ids can collide)
+            $opBounds = $this->getObservationPeriodBounds($personId, $params, $dialect, $connectionName);
+            $params['opStart'] = $opBounds['start'];
+            $params['opEnd'] = $opBounds['end'];
+
             $result = [
                 'demographics' => $this->getDemographics($personId, $params, $dialect, $connectionName),
                 'observation_periods' => $this->getObservationPeriods($personId, $params, $dialect, $connectionName),
@@ -244,12 +274,46 @@ class PatientProfileService
             return $fn();
         } catch (\Throwable $e) {
             // Log but don't bubble — return empty so other domains still load
-            \Log::warning('PatientProfileService: domain query failed', [
-                'error' => $e->getMessage(),
-            ]);
+            try {
+                \Log::warning('PatientProfileService: domain query failed', [
+                    'error' => $e->getMessage(),
+                ]);
+            } catch (\Throwable) {
+                // Logging itself failed (e.g. permission denied) — silently skip
+            }
 
             return [];
         }
+    }
+
+    /**
+     * Get the min/max observation period dates for a person.
+     * Used to filter out cross-source data when multiple CDMs share the same schema.
+     *
+     * @param  array<string, string>  $params
+     * @return array{start: string, end: string}
+     */
+    private function getObservationPeriodBounds(
+        int $personId,
+        array $params,
+        string $dialect,
+        string $connectionName,
+    ): array {
+        $sql = "
+            SELECT
+                MIN(observation_period_start_date) AS op_start,
+                MAX(observation_period_end_date) AS op_end
+            FROM {@cdmSchema}.observation_period
+            WHERE person_id = {$personId}
+        ";
+
+        $renderedSql = $this->sqlRenderer->render($sql, $params, $dialect);
+        $row = DB::connection($connectionName)->selectOne($renderedSql);
+
+        return [
+            'start' => $row->op_start ?? '1900-01-01',
+            'end' => $row->op_end ?? '2099-12-31',
+        ];
     }
 
     /**
@@ -577,6 +641,25 @@ class PatientProfileService
         string $dialect,
         string $connectionName,
     ): array {
+        // Use column existence check for optional CDM columns (route_concept_id, quantity, days_supply)
+        // Some CDM instances (e.g. IRSF-NHS) use simplified schemas without these columns
+        $hasOptionalCols = DB::connection($connectionName)->selectOne("
+            SELECT EXISTS (
+                SELECT 1 FROM information_schema.columns
+                WHERE table_schema = split_part('{$params['cdmSchema']}', '.', 1)
+                  AND table_name = 'drug_exposure'
+                  AND column_name = 'route_concept_id'
+            ) AS has_route
+        ");
+
+        if ($hasOptionalCols->has_route ?? false) {
+            $routeSelect = "COALESCE(rc.concept_name, '') AS route, de.quantity, de.days_supply";
+            $routeJoin = 'LEFT JOIN {@vocabSchema}.concept rc ON de.route_concept_id = rc.concept_id';
+        } else {
+            $routeSelect = "'' AS route, NULL AS quantity, NULL AS days_supply";
+            $routeJoin = '';
+        }
+
         $sql = "
             SELECT
                 de.drug_exposure_id AS occurrence_id,
@@ -587,14 +670,11 @@ class PatientProfileService
                 de.drug_exposure_start_date AS start_date,
                 de.drug_exposure_end_date AS end_date,
                 COALESCE(tc.concept_name, 'Unknown') AS type_name,
-                COALESCE(rc.concept_name, '') AS route,
-                de.quantity,
-                de.days_supply
+                {$routeSelect}
             FROM {@cdmSchema}.drug_exposure de
             LEFT JOIN {@vocabSchema}.concept c
                 ON de.drug_concept_id = c.concept_id
-            LEFT JOIN {@vocabSchema}.concept rc
-                ON de.route_concept_id = rc.concept_id
+            {$routeJoin}
             LEFT JOIN {@vocabSchema}.concept tc
                 ON de.drug_type_concept_id = tc.concept_id
             WHERE de.person_id = {$personId}
@@ -706,6 +786,24 @@ class PatientProfileService
         string $dialect,
         string $connectionName,
     ): array {
+        // Check for optional unit_concept_id column (missing in some simplified CDMs)
+        $hasUnitCol = DB::connection($connectionName)->selectOne("
+            SELECT EXISTS (
+                SELECT 1 FROM information_schema.columns
+                WHERE table_schema = split_part('{$params['cdmSchema']}', '.', 1)
+                  AND table_name = 'observation'
+                  AND column_name = 'unit_concept_id'
+            ) AS has_unit
+        ");
+
+        if ($hasUnitCol->has_unit ?? false) {
+            $unitSelect = "COALESCE(uc.concept_name, '') AS unit";
+            $unitJoin = 'LEFT JOIN {@vocabSchema}.concept uc ON o.unit_concept_id = uc.concept_id';
+        } else {
+            $unitSelect = "'' AS unit";
+            $unitJoin = '';
+        }
+
         $sql = "
             SELECT
                 o.observation_id AS occurrence_id,
@@ -719,14 +817,13 @@ class PatientProfileService
                 o.value_as_number AS value,
                 o.value_as_string,
                 COALESCE(vc.concept_name, '') AS value_as_concept,
-                COALESCE(uc.concept_name, '') AS unit
+                {$unitSelect}
             FROM {@cdmSchema}.observation o
             LEFT JOIN {@vocabSchema}.concept c
                 ON o.observation_concept_id = c.concept_id
             LEFT JOIN {@vocabSchema}.concept vc
                 ON o.value_as_concept_id = vc.concept_id
-            LEFT JOIN {@vocabSchema}.concept uc
-                ON o.unit_concept_id = uc.concept_id
+            {$unitJoin}
             LEFT JOIN {@vocabSchema}.concept tc
                 ON o.observation_type_concept_id = tc.concept_id
             WHERE o.person_id = {$personId}
@@ -802,6 +899,13 @@ class PatientProfileService
             LEFT JOIN {@vocabSchema}.concept c
                 ON ce.condition_concept_id = c.concept_id
             WHERE ce.person_id = {$personId}
+              AND ce.condition_era_start_date >= '{$params['opStart']}'
+              AND ce.condition_era_start_date <= '{$params['opEnd']}'
+              AND ce.condition_concept_id IN (
+                  SELECT DISTINCT condition_concept_id
+                  FROM {@cdmSchema}.condition_occurrence
+                  WHERE person_id = {$personId}
+              )
             ORDER BY ce.condition_era_start_date
         ";
 
@@ -836,6 +940,13 @@ class PatientProfileService
             LEFT JOIN {@vocabSchema}.concept c
                 ON de.drug_concept_id = c.concept_id
             WHERE de.person_id = {$personId}
+              AND de.drug_era_start_date >= '{$params['opStart']}'
+              AND de.drug_era_start_date <= '{$params['opEnd']}'
+              AND de.drug_concept_id IN (
+                  SELECT DISTINCT drug_concept_id
+                  FROM {@cdmSchema}.drug_exposure
+                  WHERE person_id = {$personId}
+              )
             ORDER BY de.drug_era_start_date
         ";
 
