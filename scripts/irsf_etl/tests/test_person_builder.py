@@ -16,7 +16,9 @@ from scripts.irsf_etl.lib.person_builder import (
     parse_mm_dd_yy,
     parse_mm_dd_yyyy,
     resolve_dob,
+    resolve_ethnicity,
     resolve_gender,
+    resolve_race,
 )
 
 
@@ -192,13 +194,29 @@ class TestBuildPersonRoster:
 
     @pytest.fixture()
     def sample_demographics(self) -> pd.DataFrame:
-        """3-row Demographics_5211 for join."""
+        """3-row Demographics_5211 for join with race/ethnicity columns."""
         return pd.DataFrame({
             "participant_id": [1001, 1003, 1004],
             "DateofBirthMonth": ["Jun", "Feb", ""],
             "DateofBirthDay": [16, 19, None],
             "DateofBirthYear": [2011, 1997, None],
             "Gender": ["Female", "Female", ""],
+            # Race boolean columns
+            "Race_White": ["1", pd.NA, "1"],
+            "Race_BlackorAfricanAmerican": [pd.NA, pd.NA, pd.NA],
+            "Race_Asian": [pd.NA, "1", "1"],
+            "Race_AmericanIndianorAlaskaNat": [pd.NA, pd.NA, pd.NA],
+            "Race_NativeHawaiianorOtherPaci": [pd.NA, pd.NA, pd.NA],
+            "Race_Other": [pd.NA, pd.NA, pd.NA],
+            "Race_Refused": [pd.NA, pd.NA, pd.NA],
+            "Race_Unknown": [pd.NA, pd.NA, pd.NA],
+            "Race_Unknownornotreported": [pd.NA, pd.NA, pd.NA],
+            # Ethnicity
+            "Ethnicity": [
+                "Hispanic, Latino, or Spanish origin",
+                "Not Hispanic, Latino, or Spanish origin",
+                "Refused",
+            ],
         })
 
     @pytest.fixture()
@@ -372,33 +390,248 @@ class TestBuildPersonRoster:
         pd.testing.assert_frame_equal(sample_person_chars, orig_person)
         pd.testing.assert_frame_equal(sample_demographics, orig_demo)
 
-    def test_race_ethnicity_placeholders(
+    def test_race_concept_id_populated_from_demographics(
         self,
         sample_person_chars: pd.DataFrame,
         sample_demographics: pd.DataFrame,
         registry: object,
         rejection_log: object,
     ) -> None:
-        """Race/ethnicity are 0 placeholders (Plan 04-02 fills them)."""
+        """race_concept_id populated from Demographics_5211 join."""
         result = build_person_roster(
             sample_person_chars, sample_demographics, registry, rejection_log
         )
-        assert (result["race_concept_id"] == 0).all()
-        assert (result["ethnicity_concept_id"] == 0).all()
-        assert (result["race_source_value"] == "").all()
-        assert (result["ethnicity_source_value"] == "").all()
+        races = dict(zip(result["person_id"], result["race_concept_id"]))
+        # 1001 has Race_White=1 only -> 8527
+        assert races[1001] == 8527
+        # 1003 has Race_Asian=1 only -> 8515
+        assert races[1003] == 8515
 
-    def test_none_demographics(
+    def test_ethnicity_concept_id_populated_from_demographics(
+        self,
+        sample_person_chars: pd.DataFrame,
+        sample_demographics: pd.DataFrame,
+        registry: object,
+        rejection_log: object,
+    ) -> None:
+        """ethnicity_concept_id populated from Demographics_5211 join."""
+        result = build_person_roster(
+            sample_person_chars, sample_demographics, registry, rejection_log
+        )
+        eth = dict(zip(result["person_id"], result["ethnicity_concept_id"]))
+        # 1001 Hispanic -> 38003563
+        assert eth[1001] == 38003563
+        # 1003 Non-Hispanic -> 38003564
+        assert eth[1003] == 38003564
+
+    def test_5201_only_patients_race_zero(
+        self,
+        sample_person_chars: pd.DataFrame,
+        sample_demographics: pd.DataFrame,
+        registry: object,
+        rejection_log: object,
+    ) -> None:
+        """Patients with no Demographics_5211 match get race_concept_id=0."""
+        result = build_person_roster(
+            sample_person_chars, sample_demographics, registry, rejection_log
+        )
+        races = dict(zip(result["person_id"], result["race_concept_id"]))
+        # 1002 and 1005 have no Demographics_5211 row
+        assert races[1002] == 0
+        assert races[1005] == 0
+
+    def test_5201_only_patients_ethnicity_zero(
+        self,
+        sample_person_chars: pd.DataFrame,
+        sample_demographics: pd.DataFrame,
+        registry: object,
+        rejection_log: object,
+    ) -> None:
+        """Patients with no Demographics_5211 match get ethnicity_concept_id=0."""
+        result = build_person_roster(
+            sample_person_chars, sample_demographics, registry, rejection_log
+        )
+        eth = dict(zip(result["person_id"], result["ethnicity_concept_id"]))
+        assert eth[1002] == 0
+        assert eth[1005] == 0
+
+    def test_race_source_value_comma_separated_multi_race(
+        self,
+        sample_person_chars: pd.DataFrame,
+        sample_demographics: pd.DataFrame,
+        registry: object,
+        rejection_log: object,
+    ) -> None:
+        """Multi-race patients have comma-separated race_source_value."""
+        result = build_person_roster(
+            sample_person_chars, sample_demographics, registry, rejection_log
+        )
+        sv = dict(zip(result["person_id"], result["race_source_value"]))
+        # 1004 has Race_White=1 and Race_Asian=1 -> multi-race
+        assert "White" in sv[1004]
+        assert "Asian" in sv[1004]
+        assert "," in sv[1004]
+
+    def test_ethnicity_source_value_preserved(
+        self,
+        sample_person_chars: pd.DataFrame,
+        sample_demographics: pd.DataFrame,
+        registry: object,
+        rejection_log: object,
+    ) -> None:
+        """ethnicity_source_value preserves original text."""
+        result = build_person_roster(
+            sample_person_chars, sample_demographics, registry, rejection_log
+        )
+        sv = dict(zip(result["person_id"], result["ethnicity_source_value"]))
+        assert sv[1001] == "Hispanic, Latino, or Spanish origin"
+        assert sv[1003] == "Not Hispanic, Latino, or Spanish origin"
+
+    def test_none_demographics_race_ethnicity_zero(
         self,
         sample_person_chars: pd.DataFrame,
         registry: object,
         rejection_log: object,
     ) -> None:
-        """build_person_roster works when demographics is None."""
+        """build_person_roster with demographics=None gives 0 race/ethnicity."""
         result = build_person_roster(
             sample_person_chars, None, registry, rejection_log
         )
         assert len(result) == 5
+        assert (result["race_concept_id"] == 0).all()
+        assert (result["ethnicity_concept_id"] == 0).all()
         # Should fall back to DOB5201 or ChildsDOB
         row_1001 = result[result["person_id"] == 1001].iloc[0]
         assert row_1001["year_of_birth"] == 2011
+
+
+# ---------------------------------------------------------------------------
+# resolve_race
+# ---------------------------------------------------------------------------
+
+
+def _race_row(**kwargs: str) -> pd.Series:
+    """Build a pd.Series with all race boolean columns.
+
+    Pass column_name="1" for set columns; unmentioned columns get pd.NA.
+    """
+    all_cols = [
+        "Race_White",
+        "Race_BlackorAfricanAmerican",
+        "Race_Asian",
+        "Race_AmericanIndianorAlaskaNat",
+        "Race_NativeHawaiianorOtherPaci",
+        "Race_Other",
+        "Race_Refused",
+        "Race_Unknown",
+        "Race_Unknownornotreported",
+    ]
+    data = {col: kwargs.get(col, pd.NA) for col in all_cols}
+    return pd.Series(data)
+
+
+class TestResolveRace:
+    """Race boolean mapping to OMOP concept_ids."""
+
+    def test_white_only(self) -> None:
+        assert resolve_race(_race_row(Race_White="1")) == (8527, "White")
+
+    def test_black_only(self) -> None:
+        assert resolve_race(_race_row(Race_BlackorAfricanAmerican="1")) == (
+            8516,
+            "Black or African American",
+        )
+
+    def test_asian_only(self) -> None:
+        assert resolve_race(_race_row(Race_Asian="1")) == (8515, "Asian")
+
+    def test_american_indian_only(self) -> None:
+        assert resolve_race(_race_row(Race_AmericanIndianorAlaskaNat="1")) == (
+            8657,
+            "American Indian or Alaska Native",
+        )
+
+    def test_native_hawaiian_only(self) -> None:
+        assert resolve_race(_race_row(Race_NativeHawaiianorOtherPaci="1")) == (
+            8557,
+            "Native Hawaiian or Other Pacific Islander",
+        )
+
+    def test_multi_race_white_asian(self) -> None:
+        row = _race_row(Race_White="1", Race_Asian="1")
+        cid, sv = resolve_race(row)
+        assert cid == 0
+        assert "White" in sv
+        assert "Asian" in sv
+
+    def test_refused(self) -> None:
+        assert resolve_race(_race_row(Race_Refused="1")) == (0, "Refused")
+
+    def test_unknown(self) -> None:
+        assert resolve_race(_race_row(Race_Unknown="1")) == (0, "Unknown")
+
+    def test_unknown_or_not_reported(self) -> None:
+        assert resolve_race(_race_row(Race_Unknownornotreported="1")) == (
+            0,
+            "Unknown or not reported",
+        )
+
+    def test_no_race_set(self) -> None:
+        assert resolve_race(_race_row()) == (0, "Unknown")
+
+    def test_other(self) -> None:
+        assert resolve_race(_race_row(Race_Other="1")) == (0, "Other")
+
+    def test_pd_na_treated_as_not_set(self) -> None:
+        """pd.NA values in boolean columns are treated as not set."""
+        row = pd.Series({
+            "Race_White": pd.NA,
+            "Race_BlackorAfricanAmerican": pd.NA,
+            "Race_Asian": pd.NA,
+            "Race_AmericanIndianorAlaskaNat": pd.NA,
+            "Race_NativeHawaiianorOtherPaci": pd.NA,
+            "Race_Other": pd.NA,
+            "Race_Refused": pd.NA,
+            "Race_Unknown": pd.NA,
+            "Race_Unknownornotreported": pd.NA,
+        })
+        assert resolve_race(row) == (0, "Unknown")
+
+
+# ---------------------------------------------------------------------------
+# resolve_ethnicity
+# ---------------------------------------------------------------------------
+
+
+class TestResolveEthnicity:
+    """Ethnicity text mapping to OMOP concept_ids."""
+
+    def test_hispanic(self) -> None:
+        assert resolve_ethnicity("Hispanic, Latino, or Spanish origin") == (
+            38003563,
+            "Hispanic, Latino, or Spanish origin",
+        )
+
+    def test_not_hispanic(self) -> None:
+        assert resolve_ethnicity("Not Hispanic, Latino, or Spanish origin") == (
+            38003564,
+            "Not Hispanic, Latino, or Spanish origin",
+        )
+
+    def test_refused(self) -> None:
+        assert resolve_ethnicity("Refused") == (0, "Refused")
+
+    def test_unknown_or_not_reported(self) -> None:
+        assert resolve_ethnicity("Unknown or not reported") == (
+            0,
+            "Unknown or not reported",
+        )
+
+    def test_empty_string(self) -> None:
+        assert resolve_ethnicity("") == (0, "")
+
+    def test_none(self) -> None:
+        assert resolve_ethnicity(None) == (0, "")
+
+    def test_pd_na(self) -> None:
+        assert resolve_ethnicity(pd.NA) == (0, "")

@@ -5,6 +5,8 @@ join) into an OMOP CDM person staging DataFrame.
 
 Exports:
     resolve_gender: Map ChildsGender text to OMOP gender_concept_id.
+    resolve_race: Map Demographics_5211 boolean race columns to OMOP race_concept_id.
+    resolve_ethnicity: Map Ethnicity text to OMOP ethnicity_concept_id.
     parse_mm_dd_yy: Parse MM/DD/YY dates with 2-digit year pivot.
     parse_mm_dd_yyyy: Parse MM/DD/YYYY dates.
     resolve_dob: 3-source DOB resolution (Demographics_5211 > DOB5201 > ChildsDOB).
@@ -35,6 +37,30 @@ GENDER_MAP: dict[str, int] = {
     "Male": 8507,
 }
 
+# Race boolean column -> (OMOP concept_id, display label)
+# These columns map to standard OMOP race concepts.
+RACE_BOOLEAN_MAP: dict[str, tuple[int, str]] = {
+    "Race_White": (8527, "White"),
+    "Race_BlackorAfricanAmerican": (8516, "Black or African American"),
+    "Race_Asian": (8515, "Asian"),
+    "Race_AmericanIndianorAlaskaNat": (8657, "American Indian or Alaska Native"),
+    "Race_NativeHawaiianorOtherPaci": (8557, "Native Hawaiian or Other Pacific Islander"),
+}
+
+# Race boolean columns that do NOT map to OMOP concept_ids (concept_id = 0).
+NON_RACE_BOOLEAN_MAP: dict[str, str] = {
+    "Race_Other": "Other",
+    "Race_Refused": "Refused",
+    "Race_Unknown": "Unknown",
+    "Race_Unknownornotreported": "Unknown or not reported",
+}
+
+# Ethnicity source text -> OMOP concept_id
+ETHNICITY_MAP: dict[str, int] = {
+    "Hispanic, Latino, or Spanish origin": 38003563,
+    "Not Hispanic, Latino, or Spanish origin": 38003564,
+}
+
 _DATE_PATTERN = re.compile(r"^(\d{1,2})/(\d{1,2})/(\d{2,4})$")
 
 # 2-digit year pivot: 00-25 -> 2000-2025, 26-99 -> 1926-1999
@@ -62,6 +88,97 @@ def resolve_gender(value: str | None) -> tuple[int, str]:
     if value == "":
         return (0, "")
     concept_id = GENDER_MAP.get(value, 0)
+    return (concept_id, value)
+
+
+# ---------------------------------------------------------------------------
+# Race resolution
+# ---------------------------------------------------------------------------
+
+
+def _is_set(value: object) -> bool:
+    """Check if a boolean column value is set (equals "1").
+
+    Handles pd.NA, NaN, None, empty strings -- all treated as not set.
+    """
+    if value is None:
+        return False
+    if isinstance(value, type(pd.NA)) and value is pd.NA:
+        return False
+    if isinstance(value, float) and pd.isna(value):
+        return False
+    return str(value).strip() == "1"
+
+
+def resolve_race(row: pd.Series) -> tuple[int, str]:
+    """Map Demographics_5211 boolean race columns to (OMOP concept_id, source_value).
+
+    Logic:
+        - Exactly one RACE_BOOLEAN_MAP column set: return its (concept_id, label).
+        - Multiple RACE_BOOLEAN_MAP columns set: return (0, "label1,label2,...").
+        - Only NON_RACE_BOOLEAN_MAP columns set: return (0, label).
+        - Nothing set: return (0, "Unknown").
+
+    Args:
+        row: A pd.Series containing Race_* boolean columns.
+
+    Returns:
+        Tuple of (concept_id, source_value).
+    """
+    # Collect mapped races (have OMOP concept_ids)
+    mapped: list[tuple[int, str]] = []
+    for col, (cid, label) in RACE_BOOLEAN_MAP.items():
+        if _is_set(row.get(col)):
+            mapped.append((cid, label))
+
+    # Collect non-mapped races
+    non_mapped: list[str] = []
+    for col, label in NON_RACE_BOOLEAN_MAP.items():
+        if _is_set(row.get(col)):
+            non_mapped.append(label)
+
+    if len(mapped) == 1 and not non_mapped:
+        return mapped[0]
+
+    if len(mapped) > 1:
+        # Multi-race: combine all labels, concept_id = 0
+        all_labels = [label for _, label in mapped] + non_mapped
+        return (0, ",".join(all_labels))
+
+    if mapped and non_mapped:
+        # One mapped + non-mapped
+        all_labels = [label for _, label in mapped] + non_mapped
+        return (0, ",".join(all_labels))
+
+    if non_mapped:
+        # Only non-mapped columns set
+        return (0, ",".join(non_mapped))
+
+    # Nothing set
+    return (0, "Unknown")
+
+
+# ---------------------------------------------------------------------------
+# Ethnicity resolution
+# ---------------------------------------------------------------------------
+
+
+def resolve_ethnicity(value: str | None) -> tuple[int, str]:
+    """Map an ethnicity string to (OMOP concept_id, source_value).
+
+    Args:
+        value: Ethnicity text from Demographics_5211 (or None/pd.NA).
+
+    Returns:
+        Tuple of (concept_id, source_value). Unknown/missing -> (0, "").
+    """
+    if value is None or (isinstance(value, type(pd.NA)) and value is pd.NA):
+        return (0, "")
+    if not isinstance(value, str):
+        return (0, "")
+    if value == "":
+        return (0, "")
+    concept_id = ETHNICITY_MAP.get(value, 0)
     return (concept_id, value)
 
 
@@ -251,6 +368,19 @@ def build_person_roster(
         if year is not None and month is not None and day is not None:
             birth_datetime = datetime(year, month, day).isoformat()
 
+        # Race and ethnicity (from Demographics_5211 join)
+        if demo_row is not None:
+            race_concept_id, race_source_value = resolve_race(demo_row)
+            ethnicity_text = _get_str(demo_row, "Ethnicity")
+            ethnicity_concept_id, ethnicity_source_value = resolve_ethnicity(
+                ethnicity_text if ethnicity_text else None
+            )
+        else:
+            race_concept_id = 0
+            race_source_value = ""
+            ethnicity_concept_id = 0
+            ethnicity_source_value = ""
+
         rows.append({
             "person_id": person_id,
             "gender_concept_id": gender_concept_id,
@@ -258,17 +388,17 @@ def build_person_roster(
             "month_of_birth": month,
             "day_of_birth": day,
             "birth_datetime": birth_datetime,
-            "race_concept_id": 0,
-            "ethnicity_concept_id": 0,
+            "race_concept_id": race_concept_id,
+            "ethnicity_concept_id": ethnicity_concept_id,
             "location_id": None,
             "provider_id": None,
             "care_site_id": None,
             "person_source_value": str(participant_id),
             "gender_source_value": gender_source_value,
             "gender_source_concept_id": 0,
-            "race_source_value": "",
+            "race_source_value": race_source_value,
             "race_source_concept_id": 0,
-            "ethnicity_source_value": "",
+            "ethnicity_source_value": ethnicity_source_value,
             "ethnicity_source_concept_id": 0,
         })
 
