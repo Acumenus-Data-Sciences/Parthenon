@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\UploadIngestionFileRequest;
 use App\Jobs\Ingestion\ProfileSourceJob;
 use App\Models\App\IngestionJob;
+use App\Models\App\IngestionProject;
 use App\Services\AiService;
 use App\Services\Ingestion\CdmTableRegistry;
 use App\Services\Ingestion\FileUploadService;
@@ -47,6 +48,17 @@ class IngestionController extends Controller
             'storage_path' => $fileData['storage_path'],
             'format_metadata' => $fileData['format_metadata'],
         ]);
+
+        // Auto-wrap in an IngestionProject for backward compatibility
+        $project = IngestionProject::create([
+            'name' => pathinfo($request->file('file')->getClientOriginalName(), PATHINFO_FILENAME),
+            'source_id' => $request->validated('source_id'),
+            'status' => 'profiling',
+            'created_by' => $request->user()->id,
+            'file_count' => 1,
+            'total_size_bytes' => $request->file('file')->getSize(),
+        ]);
+        $ingestionJob->update(['ingestion_project_id' => $project->id]);
 
         ProfileSourceJob::dispatch($ingestionJob);
 

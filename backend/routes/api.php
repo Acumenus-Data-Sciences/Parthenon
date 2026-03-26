@@ -72,6 +72,7 @@ use App\Http\Controllers\Api\V1\ImagingController;
 use App\Http\Controllers\Api\V1\ImagingTimelineController;
 use App\Http\Controllers\Api\V1\IncidenceRateController;
 use App\Http\Controllers\Api\V1\IngestionController;
+use App\Http\Controllers\Api\V1\IngestionProjectController;
 use App\Http\Controllers\Api\V1\InvestigationController;
 use App\Http\Controllers\Api\V1\InvestigationExportController;
 use App\Http\Controllers\Api\V1\JobController;
@@ -220,6 +221,31 @@ Route::prefix('v1')->group(function () {
             ->middleware('permission:ingestion.view');
         Route::get('/ingestion/jobs/{ingestionJob}/validation/summary', [IngestionController::class, 'validationSummary'])
             ->middleware('permission:ingestion.view');
+
+        // Ingestion Projects (multi-file)
+        Route::prefix('ingestion-projects')->group(function () {
+            Route::get('/', [IngestionProjectController::class, 'index'])
+                ->middleware('permission:ingestion.view');
+            Route::post('/', [IngestionProjectController::class, 'store'])
+                ->middleware('permission:ingestion.upload');
+            Route::get('/{project}', [IngestionProjectController::class, 'show'])
+                ->middleware('permission:ingestion.view')
+                ->where('project', '[0-9]+');
+            Route::put('/{project}', [IngestionProjectController::class, 'update'])
+                ->middleware('permission:ingestion.upload')
+                ->where('project', '[0-9]+');
+            Route::delete('/{project}', [IngestionProjectController::class, 'destroy'])
+                ->middleware('permission:ingestion.delete')
+                ->where('project', '[0-9]+');
+            Route::post('/{project}/stage', [IngestionProjectController::class, 'stage'])
+                ->middleware(['permission:ingestion.upload', 'throttle:5,10'])
+                ->where('project', '[0-9]+');
+            Route::delete('/{project}/files/{job}', [IngestionProjectController::class, 'removeFile'])
+                ->middleware('permission:ingestion.delete');
+            Route::get('/{project}/preview/{table}', [IngestionProjectController::class, 'preview'])
+                ->middleware('permission:ingestion.view')
+                ->where(['project' => '[0-9]+', 'table' => '[a-z][a-z0-9_]*']);
+        });
 
         // Achilles (Data Characterization)
         Route::prefix('sources/{source}/achilles')->group(function () {
