@@ -356,27 +356,58 @@ export default function OverviewTab({
           </div>
         ) : demographics.data ? (
           <div className="space-y-4">
-            {/* Gender + Pyramid */}
+            {/* Panel 1: Gender, Ethnicity & Race — Panel 2: Age Pyramid */}
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-              <ChartCard title="Gender Distribution">
-                <ProportionalBar segments={genderSegments} height={28} />
-              </ChartCard>
+              {/* Left panel: Gender + Ethnicity + Race stacked in one card */}
+              <div className="rounded-xl border border-[#232328] bg-[#151518] p-6">
+                {/* Gender section */}
+                <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-[#8A857D]">
+                  Gender Distribution
+                </h3>
+                <ProportionalBar segments={genderSegments} height={24} />
+                <div className="mt-2 flex gap-4">
+                  {genderSegments.map((seg) => (
+                    <span key={seg.label} className="font-['IBM_Plex_Mono',monospace] text-xs text-[#C5C0B8]">
+                      <span className="inline-block h-2 w-2 rounded-sm mr-1" style={{ backgroundColor: seg.color }} />
+                      {seg.label}: {formatCompact(seg.value)}
+                    </span>
+                  ))}
+                </div>
+
+                {/* Divider */}
+                <div className="my-4 border-t border-[#232328]" />
+
+                {/* Ethnicity section */}
+                <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-[#8A857D]">
+                  Ethnicity
+                </h3>
+                <ProportionalBar segments={ethnicitySegments} height={24} />
+                <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
+                  {ethnicitySegments.map((seg) => (
+                    <span key={seg.label} className="font-['IBM_Plex_Mono',monospace] text-xs text-[#C5C0B8]">
+                      <span className="inline-block h-2 w-2 rounded-sm mr-1" style={{ backgroundColor: seg.color }} />
+                      {seg.label}: {formatCompact(seg.value)}
+                    </span>
+                  ))}
+                </div>
+
+                {/* Divider */}
+                <div className="my-4 border-t border-[#232328]" />
+
+                {/* Race section */}
+                <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-[#8A857D]">
+                  Race <span className="font-normal normal-case text-[#5A5650]">Top 10</span>
+                </h3>
+                <RaceBarChart data={demographics.data.race} />
+              </div>
+
+              {/* Right panel: Age pyramid (2/3 width) */}
               <div className="lg:col-span-2">
                 <DemographicsPyramid
                   gender={demographics.data.gender}
                   age={demographics.data.age}
                 />
               </div>
-            </div>
-
-            {/* Race + Ethnicity */}
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-              <ChartCard title="Race Distribution" subtitle="Top 10 by count">
-                <RaceBarChart data={demographics.data.race} />
-              </ChartCard>
-              <ChartCard title="Ethnicity Distribution">
-                <ProportionalBar segments={ethnicitySegments} height={28} />
-              </ChartCard>
             </div>
 
             {/* Year of Birth */}
