@@ -1,5 +1,6 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useSearchParams } from "react-router-dom";
 import {
   Database,
   Loader2,
@@ -214,8 +215,20 @@ function AqueductContent({
 // ---------------------------------------------------------------------------
 
 export default function EtlToolsPage() {
-  const [selectedSourceId, setSelectedSourceId] = useState<number | "">("");
+  const [searchParams] = useSearchParams();
+  const sourceParam = searchParams.get("source");
+
+  const [selectedSourceId, setSelectedSourceId] = useState<number | "">(() =>
+    sourceParam ? Number(sourceParam) : "",
+  );
   const [drilledDownMappingId, setDrilledDownMappingId] = useState<number | null>(null);
+
+  // Auto-select source from URL param (e.g., from "Open in Aqueduct" button)
+  useEffect(() => {
+    if (sourceParam && Number(sourceParam) > 0) {
+      setSelectedSourceId(Number(sourceParam));
+    }
+  }, [sourceParam]);
 
   const { data: sources = [] } = useQuery({
     queryKey: ["sources"],

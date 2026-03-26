@@ -339,7 +339,7 @@ export default function ProjectDetailView({ projectId, onBack }: ProjectDetailVi
       {project.status === "ready" && (
         <div className="flex items-center gap-3">
           <a
-            href="/ingestion?tab=aqueduct"
+            href={`/ingestion?tab=aqueduct${project.source_id ? `&source=${project.source_id}` : ""}`}
             className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-5 py-2.5 text-sm font-medium text-[#0E0E11] transition-colors hover:bg-[#26BCA8]"
           >
             Open in Aqueduct
