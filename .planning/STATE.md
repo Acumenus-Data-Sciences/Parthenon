@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v5.4
 milestone_name: milestone
 status: executing
-stopped_at: Completed 11-02-PLAN.md (observation periods, CDM_SOURCE, data source)
-last_updated: "2026-03-26T19:25:39.303Z"
+stopped_at: Completed 12-02 (Achilles + temporal validation scripts)
+last_updated: "2026-03-26T19:31:04.725Z"
 last_activity: 2026-03-26 -- Completed 09-01 growth measurement unpivot (34,135 rows)
 progress:
   total_phases: 12
   completed_phases: 10
   total_plans: 24
-  completed_plans: 26
+  completed_plans: 27
   percent: 92
 ---
 
@@ -74,6 +74,7 @@ Progress: [█████████░] 92%
 | Phase 10 P03 | 5min | 7 tasks | 3 files |
 | Phase 11 P01 | 11min | 1 tasks | 1 files |
 | Phase 11 P02 | 10min | 1 tasks | 2 files |
+| Phase 12 P02 | 3min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -138,6 +139,8 @@ Recent decisions affecting current work:
 - [Phase 11]: bigint for concept_id columns (SNOMED codes exceed int32); schema adaptation for existing OMOP tables; IRSF sentinel via person_source_value = person_id::text
 - [Phase 11]: ObservationPeriodCalculator filters to person table via INNER JOIN to avoid orphan person_ids from shared event tables (procedure_occurrence had 110M rows from Synthea)
 - [Phase 11]: CDM_SOURCE uses delete+insert for idempotency (no PK in OMOP spec)
+- [Phase 12]: Achilles dispatch via API with --skip-dispatch fallback for post-hoc verification
+- [Phase 12]: Temporal checks use year_of_birth comparison for before-birth since OMOP person may only have year
 
 ### Pending Todos
 
@@ -151,6 +154,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-26T19:25:39.302Z
-Stopped at: Completed 11-02-PLAN.md (observation periods, CDM_SOURCE, data source)
+Last session: 2026-03-26T19:31:04.723Z
+Stopped at: Completed 12-02 (Achilles + temporal validation scripts)
 Resume file: None

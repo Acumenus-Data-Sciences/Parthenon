@@ -22,7 +22,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 8: Conditions** - Condition occurrence script for chronic diagnoses, seizures, fractures, and infections with SNOMED mapping (completed 2026-03-26)
 - [x] **Phase 9: Measurements** - Measurement script with wide-to-long unpivot for growth, CSS, labs, and SF-36 data (completed 2026-03-26)
 - [x] **Phase 10: Observations** - Observation script for MBA scores, genotype boolean mapping, and categorical clinical data (completed 2026-03-26)
-- [ ] **Phase 11: Data Loading and Observation Periods** - Upload staging CSVs to Parthenon in FK order, compute observation periods, populate CDM_SOURCE
+- [x] **Phase 11: Data Loading and Observation Periods** - Upload staging CSVs to Parthenon in FK order, compute observation periods, populate CDM_SOURCE (completed 2026-03-26)
 - [ ] **Phase 12: Validation and Cohort Verification** - DQD checks, Achilles characterization, temporal integrity, Rett-specific plausibility, and cohort buildability
 
 ## Phase Details
@@ -232,4 +232,4 @@ Note: Phases 2 and 3 can run in parallel. Phases 7, 8, 9, 10 can run in parallel
 | 9. Measurements | 1/3 | Complete    | 2026-03-26 |
 | 10. Observations | 3/3 | Complete    | 2026-03-26 |
 | 11. Data Loading and Observation Periods | 2/2 | Complete    | 2026-03-26 |
-| 12. Validation and Cohort Verification | 0/3 | Not started | - |
+| 12. Validation and Cohort Verification | 1/3 | In progress | - |

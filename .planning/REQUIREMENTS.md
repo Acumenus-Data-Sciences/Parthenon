@@ -78,8 +78,8 @@
 ### Validation
 
 - [ ] **VAL-01**: DQD checks pass at >= 80% rate on populated tables
-- [ ] **VAL-02**: Achilles characterization runs successfully and produces reports in results schema
-- [ ] **VAL-03**: Zero events recorded before birth or after death (temporal integrity)
+- [x] **VAL-02**: Achilles characterization runs successfully and produces reports in results schema
+- [x] **VAL-03**: Zero events recorded before birth or after death (temporal integrity)
 - [ ] **VAL-04**: Rett-specific plausibility checks pass: ~95% female, MECP2 mutation in ~95%, age at first visit typically 0-10 years
 - [ ] **VAL-05**: At least 3 cohort definitions buildable in Parthenon's cohort builder (all Rett, seizure subgroup, medication exposure)
 - [ ] **VAL-06**: Rejection rate < 5% for all high-priority tables
@@ -170,8 +170,8 @@
 | LOAD-03 | Phase 11 | Complete |
 | LOAD-04 | Phase 11 | Complete |
 | VAL-01 | Phase 12 | Pending |
-| VAL-02 | Phase 12 | Pending |
-| VAL-03 | Phase 12 | Pending |
+| VAL-02 | Phase 12 | Complete |
+| VAL-03 | Phase 12 | Complete |
 | VAL-04 | Phase 12 | Pending |
 | VAL-05 | Phase 12 | Pending |
 | VAL-06 | Phase 12 | Pending |
