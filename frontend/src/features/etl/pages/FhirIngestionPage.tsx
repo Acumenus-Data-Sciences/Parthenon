@@ -560,7 +560,7 @@ export default function FhirIngestionPage() {
               className="flex items-center gap-2 text-xs text-[#60A5FA] hover:text-[#93B8F9] transition-colors"
             >
               <ArrowRight size={11} />
-              ETL Tools (Synthea, WhiteRabbit)
+              ETL Tools (Synthea, BlackRabbit)
             </Link>
           </div>
         </div>

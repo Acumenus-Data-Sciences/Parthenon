@@ -279,7 +279,7 @@ export default function SourceProfilerPage() {
         <div>
           <h1 className="text-2xl font-bold text-[#F0EDE8]">Source Profiler</h1>
           <p className="mt-1 text-sm text-[#8A857D]">
-            Profile source databases with WhiteRabbit to assess data completeness,
+            Profile source databases with BlackRabbit to assess data completeness,
             cardinality, and quality before ETL
           </p>
         </div>
@@ -303,7 +303,7 @@ export default function SourceProfilerPage() {
           ) : (
             <AlertTriangle size={13} />
           )}
-          WhiteRabbit service{" "}
+          BlackRabbit service{" "}
           {health.available ? "available" : "unavailable \u2014 scan may fail"}{" "}
           {health.version ? `(v${health.version})` : ""}
         </div>

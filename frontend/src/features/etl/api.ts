@@ -2,7 +2,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import apiClient from "@/lib/api-client";
 
 // ---------------------------------------------------------------------------
-// Types — WhiteRabbit Source Profiler
+// Types — BlackRabbit Source Profiler
 // ---------------------------------------------------------------------------
 
 export interface ScanRequest {
@@ -67,7 +67,7 @@ export interface SyntheaStatus {
 }
 
 // ---------------------------------------------------------------------------
-// API functions — WhiteRabbit
+// API functions — BlackRabbit
 // ---------------------------------------------------------------------------
 
 export async function scanDatabase(request: ScanRequest): Promise<ScanResult> {
@@ -87,7 +87,7 @@ export async function fetchWhiteRabbitHealth(): Promise<WhiteRabbitHealth> {
     { data: { status: string; service: string; version?: string } } | WhiteRabbitHealth
   >("/etl/scan/health");
 
-  // WhiteRabbit returns { data: { status: "ok", service: "whiterabbit" } }
+  // BlackRabbit returns { data: { status: "ok", service: "blackrabbit" } }
   // Map to the expected { available, version } shape
   const raw =
     "data" in data && typeof (data as { data: unknown }).data === "object"
