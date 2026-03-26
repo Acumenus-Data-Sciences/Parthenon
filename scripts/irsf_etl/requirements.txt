@@ -1,4 +1,5 @@
 pandera~=0.29
+psycopg2-binary~=2.9
 pydantic-settings~=2.0
 rich~=13.0
 pytest~=8.0

@@ -30,6 +30,13 @@ class ETLConfig(BaseSettings):
     source_root: Path = _PROJECT_ROOT / "external" / "2023 IRSF" / "OMOP" / "IRSF Dataset"
     output_dir: Path = _PROJECT_ROOT / "scripts" / "irsf_etl" / "output"
 
+    # Database connection settings (Parthenon PostgreSQL with omop schema)
+    db_host: str = "127.0.0.1"
+    db_port: int = 5432
+    db_database: str = "parthenon"
+    db_username: str = "parthenon"
+    db_password: str = ""
+
     @property
     def source_5201(self) -> Path:
         """Path to Study 5201 source data."""
@@ -44,6 +51,21 @@ class ETLConfig(BaseSettings):
     def source_custom_extracts(self) -> Path:
         """Path to custom extract source data (CSVs inside csv/ subdir)."""
         return self.source_root / "5211_Custom_Extracts"
+
+    @property
+    def db_connection_params(self) -> dict[str, str | int]:
+        """Return connection parameters dict for psycopg2.connect().
+
+        Sets search_path to omop, matching Parthenon's schema isolation.
+        """
+        return {
+            "host": self.db_host,
+            "port": self.db_port,
+            "dbname": self.db_database,
+            "user": self.db_username,
+            "password": self.db_password,
+            "options": "-c search_path=omop",
+        }
 
     @property
     def profiles_dir(self) -> Path:
