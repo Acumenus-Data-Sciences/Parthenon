@@ -827,6 +827,17 @@ Route::prefix('v1')->group(function () {
                 ->middleware('permission:etl.view');
             Route::put('/{project}/table-mappings/{mapping}/fields', [EtlFieldMappingController::class, 'bulkUpsert'])
                 ->middleware('permission:etl.create');
+
+            // Export endpoints
+            Route::get('/{project}/export/markdown', [EtlProjectController::class, 'exportMarkdown'])
+                ->middleware('permission:etl.export')
+                ->where('project', '[0-9]+');
+            Route::get('/{project}/export/sql', [EtlProjectController::class, 'exportSql'])
+                ->middleware('permission:etl.export')
+                ->where('project', '[0-9]+');
+            Route::get('/{project}/export/json', [EtlProjectController::class, 'exportJson'])
+                ->middleware('permission:etl.export')
+                ->where('project', '[0-9]+');
         });
 
         // Strategus Study Orchestration

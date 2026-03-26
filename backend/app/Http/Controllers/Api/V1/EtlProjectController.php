@@ -10,11 +10,15 @@ use App\Models\App\EtlProject;
 use App\Models\App\EtlTableMapping;
 use App\Models\App\Source;
 use App\Models\User;
+use App\Services\Etl\EtlDocumentService;
 use App\Services\Etl\EtlProjectService;
+use App\Services\Etl\EtlSqlGeneratorService;
 use App\Services\Etl\EtlSuggestionService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Str;
 
 class EtlProjectController extends Controller
 {
@@ -212,5 +216,64 @@ class EtlProjectController extends Controller
         $mapping->delete();
 
         return response()->json(['message' => 'Table mapping deleted.'], 200);
+    }
+
+    /**
+     * Export ETL specification as Markdown.
+     */
+    public function exportMarkdown(EtlProject $project): Response
+    {
+        $this->authorize('view', $project);
+
+        $markdown = app(EtlDocumentService::class)->generateMarkdown($project);
+
+        return response($markdown, 200, [
+            'Content-Type' => 'text/markdown',
+            'Content-Disposition' => 'attachment; filename="'.Str::slug($project->name).'-etl-spec.md"',
+        ]);
+    }
+
+    /**
+     * Export ETL SQL files as a zip download.
+     */
+    public function exportSql(EtlProject $project): Response
+    {
+        $this->authorize('view', $project);
+
+        $files = app(EtlSqlGeneratorService::class)->generate($project);
+
+        // Create a temporary zip
+        $zipPath = tempnam(sys_get_temp_dir(), 'etl_sql_');
+        $zip = new \ZipArchive;
+        $zip->open($zipPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+        foreach ($files as $filename => $content) {
+            $zip->addFromString($filename, $content);
+        }
+        $zip->close();
+
+        $response = response(file_get_contents($zipPath), 200, [
+            'Content-Type' => 'application/zip',
+            'Content-Disposition' => 'attachment; filename="'.Str::slug($project->name).'-etl-sql.zip"',
+        ]);
+
+        unlink($zipPath);
+
+        return $response;
+    }
+
+    /**
+     * Export full project as JSON.
+     */
+    public function exportJson(EtlProject $project): JsonResponse
+    {
+        $this->authorize('view', $project);
+
+        $project->load(['tableMappings.fieldMappings', 'source', 'scanProfile']);
+
+        return response()->json([
+            'data' => $project->toArray(),
+            'exported_at' => now()->toIso8601String(),
+            'aqueduct_version' => '1.0',
+        ], 200, [], JSON_PRETTY_PRINT);
     }
 }
