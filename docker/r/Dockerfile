@@ -40,9 +40,10 @@ RUN JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java)))) \
     && echo "JAVA_HOME=$JAVA_HOME" \
     && R CMD javareconf
 
-# ── Pinned package versions (2026-03-04) ────────────────────────────
+# ── Pinned package versions (2026-03-26) ────────────────────────────
 # Pin versions to prevent rolling-release breakage.
-# To update: check https://ohdsi.r-universe.dev/api/packages/{name}
+# To update: run scripts/darkstar-version-check.sh
+# or check https://ohdsi.r-universe.dev/api/packages/{name}
 
 ## Layer 1 — base R plumbing + the two packages that require native compilation
 ##            (rJava needs javareconf to have run; duckdb compiles a C++ library)
@@ -67,7 +68,7 @@ RUN R -e " \
     OHDSI = 'https://ohdsi.r-universe.dev', \
     CRAN  = 'https://cloud.r-project.org' \
   )); \
-  remotes::install_version('SqlRender',          version = '1.19.4', repos = c('https://ohdsi.r-universe.dev', 'https://cloud.r-project.org')); \
+  remotes::install_version('SqlRender',          version = '1.19.5', repos = c('https://ohdsi.r-universe.dev', 'https://cloud.r-project.org')); \
   remotes::install_version('DatabaseConnector',  version = '7.1.0',  repos = c('https://ohdsi.r-universe.dev', 'https://cloud.r-project.org')); \
   remotes::install_version('Andromeda',          version = '1.2.0',  repos = c('https://ohdsi.r-universe.dev', 'https://cloud.r-project.org')); \
   if (!requireNamespace('DatabaseConnector', quietly = TRUE)) stop('DatabaseConnector failed'); \
@@ -80,8 +81,8 @@ RUN R -e " \
     OHDSI = 'https://ohdsi.r-universe.dev', \
     CRAN  = 'https://cloud.r-project.org' \
   )); \
-  remotes::install_version('Cyclops',               version = '3.6.0',  repos = c('https://ohdsi.r-universe.dev', 'https://cloud.r-project.org')); \
-  remotes::install_version('FeatureExtraction',      version = '3.12.0', repos = c('https://ohdsi.r-universe.dev', 'https://cloud.r-project.org')); \
+  remotes::install_version('Cyclops',               version = '3.7.0',  repos = c('https://ohdsi.r-universe.dev', 'https://cloud.r-project.org')); \
+  remotes::install_version('FeatureExtraction',      version = '3.13.0', repos = c('https://ohdsi.r-universe.dev', 'https://cloud.r-project.org')); \
   remotes::install_version('ResultModelManager',     version = '0.6.2',  repos = c('https://ohdsi.r-universe.dev', 'https://cloud.r-project.org')); \
   remotes::install_version('EmpiricalCalibration',   version = '3.1.4',  repos = c('https://ohdsi.r-universe.dev', 'https://cloud.r-project.org')); \
   if (!requireNamespace('Cyclops',            quietly = TRUE)) stop('Cyclops failed'); \
@@ -97,8 +98,8 @@ RUN R -e " \
     CRAN  = 'https://cloud.r-project.org' \
   )); \
   remotes::install_github(c( \
-    'OHDSI/CohortMethod@v6.0.0', \
-    'OHDSI/PatientLevelPrediction@v6.5.1', \
+    'OHDSI/CohortMethod@v6.0.1', \
+    'OHDSI/PatientLevelPrediction@v6.6.0', \
     'OHDSI/SelfControlledCaseSeries@v6.1.1', \
     'OHDSI/EvidenceSynthesis@v1.1.0', \
     'OHDSI/CohortGenerator@v1.1.0' \
@@ -107,19 +108,20 @@ RUN R -e " \
   if (!requireNamespace('PatientLevelPrediction', quietly = TRUE)) stop('PLP failed'); \
 "
 
-## Layer 5 — Phase B: Cohort diagnostics + deep learning prediction
+## Layer 5 — Phase B: Cohort diagnostics + DQD + deep learning prediction
 ## CohortDiagnostics: phenotype evaluation (incidence, orphan concepts, temporal characterization)
+## DataQualityDashboard: OHDSI DQ checks (now on CRAN as of Feb 2026)
 ## DeepPatientLevelPrediction: neural network models (Transformer, ResNet, MLP) for PLP
 RUN R -e " \
   options(repos = c( \
     OHDSI = 'https://ohdsi.r-universe.dev', \
     CRAN  = 'https://cloud.r-project.org' \
   )); \
-  remotes::install_github(c( \
-    'OHDSI/CohortDiagnostics@v3.4.2', \
-    'OHDSI/DeepPatientLevelPrediction@v2.3.0' \
-  ), upgrade = FALSE); \
+  remotes::install_github('OHDSI/CohortDiagnostics@v3.4.2', upgrade = FALSE); \
+  remotes::install_version('DataQualityDashboard', version = '2.8.7', repos = c('https://ohdsi.r-universe.dev', 'https://cloud.r-project.org')); \
+  remotes::install_github('OHDSI/DeepPatientLevelPrediction@v2.3.0', upgrade = FALSE); \
   if (!requireNamespace('CohortDiagnostics',          quietly = TRUE)) stop('CohortDiagnostics failed'); \
+  if (!requireNamespace('DataQualityDashboard',       quietly = TRUE)) stop('DQD failed'); \
   if (!requireNamespace('DeepPatientLevelPrediction', quietly = TRUE)) stop('DeepPLP failed'); \
 "
 
@@ -132,13 +134,11 @@ RUN R -e " \
     OHDSI = 'https://ohdsi.r-universe.dev', \
     CRAN  = 'https://cloud.r-project.org' \
   )); \
-  remotes::install_github(c( \
-    'OHDSI/CohortIncidence@v4.1.1', \
-    'OHDSI/Characterization@v2.2.0' \
-  ), upgrade = FALSE); \
+  remotes::install_github('OHDSI/CohortIncidence@v4.1.1', upgrade = FALSE); \
+  remotes::install_version('Characterization', version = '3.0.0', repos = c('https://ohdsi.r-universe.dev', 'https://cloud.r-project.org')); \
   if (!requireNamespace('CohortIncidence',   quietly = TRUE)) stop('CohortIncidence failed'); \
   if (!requireNamespace('Characterization',  quietly = TRUE)) stop('Characterization failed'); \
-  remotes::install_github('OHDSI/Strategus@v1.4.1', upgrade = FALSE); \
+  remotes::install_github('OHDSI/Strategus@v1.5.0', upgrade = FALSE); \
   if (!requireNamespace('Strategus', quietly = TRUE)) stop('Strategus failed'); \
 "
 

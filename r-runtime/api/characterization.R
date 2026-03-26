@@ -130,27 +130,32 @@ function(body, response) {
     # ── Build Characterization settings ──────────────────────────
     settings_list <- list()
 
-    # 1. Aggregate covariate settings (Table 1)
+    # 1. Risk factor settings (Table 1 — target vs outcome covariate comparison)
+    # Characterization 3.0.0: createAggregateCovariateSettings was split into
+    # createRiskFactorSettings, createTargetBaselineSettings, createCaseSeriesSettings
     if (do_aggregate) {
-      logger$info("Building aggregate covariate settings")
+      logger$info("Building risk factor settings (Table 1)")
       cov_settings_list <- .build_covariate_settings(time_windows)
 
-      agg_settings <- Characterization::createAggregateCovariateSettings(
+      # Use the first covariate settings if multiple time windows provided;
+      # createRiskFactorSettings takes a single covariateSettings object
+      cov_settings <- if (length(cov_settings_list) == 1) {
+        cov_settings_list[[1]]
+      } else {
+        cov_settings_list[[1]]
+      }
+
+      rf_settings <- Characterization::createRiskFactorSettings(
         targetIds                 = target_ids,
         outcomeIds                = outcome_ids,
         minPriorObservation       = min_prior_obs,
-        covariateSettings         = cov_settings_list,
-        caseCovariateSettings     = FeatureExtraction::createCovariateSettings(
-          useDemographicsGender        = TRUE,
-          useDemographicsAge           = TRUE,
-          useConditionGroupEraShortTerm = TRUE,
-          useDrugGroupEraShortTerm     = TRUE,
-          longTermStartDays            = -30L,
-          endDays                      = 0L
-        ),
-        casePostExposureWindow    = 30L
+        covariateSettings         = cov_settings,
+        riskWindowStart           = 1L,
+        startAnchor               = "cohort start",
+        riskWindowEnd             = 365L,
+        endAnchor                 = "cohort start"
       )
-      settings_list[["aggregate"]] <- agg_settings
+      settings_list[["risk_factor"]] <- rf_settings
     }
 
     # 2. Time-to-event settings
@@ -176,11 +181,12 @@ function(body, response) {
     }
 
     # Combine all enabled settings into one CharacterizationSettings object
-    char_settings_args <- list(
-      minPriorObservation = min_prior_obs
-    )
-    if (!is.null(settings_list[["aggregate"]]))
-      char_settings_args$targetOutcomeSettings <- list(settings_list[["aggregate"]])
+    # Characterization 3.0.0: createCharacterizationSettings takes named
+    # settings lists (riskFactorSettings, targetBaselineSettings,
+    # timeToEventSettings, dechallengeRechallengeSettings, caseSeriesSettings)
+    char_settings_args <- list()
+    if (!is.null(settings_list[["risk_factor"]]))
+      char_settings_args$riskFactorSettings <- list(settings_list[["risk_factor"]])
     if (!is.null(settings_list[["time_to_event"]]))
       char_settings_args$timeToEventSettings <- list(settings_list[["time_to_event"]])
     if (!is.null(settings_list[["dechallenge_rechallenge"]]))
@@ -242,13 +248,21 @@ function(body, response) {
       error = function(e) { logger$warn(paste("cohort_counts query failed:", e$message)); NULL }
     )
 
-    # Aggregate covariates (Table 1 style)
+    # Risk factor covariates (Table 1 style)
+    # Characterization 3.0.0 may write to risk_factor_covariates or aggregate_covariates
     agg_cov_df <- NULL
     if (do_aggregate) {
       agg_cov_df <- tryCatch(
         DatabaseConnector::querySql(result_conn2,
-          "SELECT * FROM main.aggregate_covariates ORDER BY covariate_id LIMIT 5000"),
-        error = function(e) { logger$warn(paste("aggregate_covariates query failed:", e$message)); NULL }
+          "SELECT * FROM main.risk_factor_covariates ORDER BY covariate_id LIMIT 5000"),
+        error = function(e) {
+          # Fall back to legacy table name
+          tryCatch(
+            DatabaseConnector::querySql(result_conn2,
+              "SELECT * FROM main.aggregate_covariates ORDER BY covariate_id LIMIT 5000"),
+            error = function(e2) { logger$warn(paste("covariate query failed:", e2$message)); NULL }
+          )
+        }
       )
     }
 
