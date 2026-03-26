@@ -81,6 +81,18 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Transform genotype boolean columns into OMOP observation rows",
     )
 
+    # Medications subcommand
+    medications_parser = subparsers.add_parser(
+        "medications",
+        help="Run medication ETL: RxNorm parsing, vocabulary validation, drug_exposure staging",
+    )
+    medications_parser.add_argument(
+        "--skip-vocab",
+        action="store_true",
+        default=False,
+        help="Skip vocabulary DB validation (offline mode, all concept_ids = 0)",
+    )
+
     return parser
 
 
@@ -313,6 +325,52 @@ def _run_observation_genotype() -> int:
     return 0
 
 
+def _run_medications(args: argparse.Namespace) -> int:
+    """Execute the medications subcommand — run full medication ETL."""
+    import logging
+
+    from scripts.irsf_etl.config import ETLConfig
+    from scripts.irsf_etl.medication_etl import run_medication_etl
+
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+
+    config = ETLConfig()
+    drug_exposure_df, stats = run_medication_etl(
+        config, skip_vocab=args.skip_vocab
+    )
+
+    print(f"\nMedication ETL Complete")
+    print(f"  Input rows:     {stats.total_input_rows}")
+    print(f"  Output rows:    {stats.total_output_rows}")
+    print(f"  Mapped:         {stats.mapped_count}")
+    print(f"  Unmapped:       {stats.unmapped_count}")
+    print(f"  Remapped:       {stats.remapped_count}")
+    print(f"  Date fallback:  {stats.date_fallback_count}")
+    print(f"  Coverage rate:  {stats.coverage_rate * 100:.1f}%")
+
+    if not drug_exposure_df.empty:
+        # Top 10 most common drug concepts
+        top_concepts = (
+            drug_exposure_df[drug_exposure_df["drug_concept_id"] > 0]
+            .groupby("drug_concept_id")
+            .agg(
+                count=("drug_concept_id", "size"),
+                source_value=("drug_source_value", "first"),
+            )
+            .sort_values("count", ascending=False)
+            .head(10)
+        )
+        if not top_concepts.empty:
+            print(f"\n  Top 10 drug concepts:")
+            for concept_id, row in top_concepts.iterrows():
+                print(f"    {concept_id}: {row['source_value']} ({row['count']} rows)")
+
+        person_count = drug_exposure_df["person_id"].nunique()
+        print(f"\n  Unique patients with medications: {person_count}")
+
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     """Main entry point for the IRSF ETL CLI."""
     parser = _build_parser()
@@ -339,6 +397,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "observation-genotype":
         return _run_observation_genotype()
+
+    if args.command == "medications":
+        return _run_medications(args)
 
     return 0
 
