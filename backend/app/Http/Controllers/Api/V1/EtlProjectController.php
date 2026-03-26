@@ -36,7 +36,7 @@ class EtlProjectController extends Controller
         /** @var User $user */
         $user = $request->user();
 
-        $query = EtlProject::with('source')
+        $query = EtlProject::with(['source', 'ingestionProject'])
             ->withCount('tableMappings');
 
         if (! $user->hasRole(['admin', 'super-admin'])) {
@@ -60,12 +60,24 @@ class EtlProjectController extends Controller
         /** @var array<string, mixed> $validated */
         $validated = $request->validated();
 
-        $source = Source::findOrFail($validated['source_id']);
+        // Support both source_id (legacy) and ingestion_project_id (new)
+        $ingestionProjectId = $validated['ingestion_project_id'] ?? null;
+        $source = ! empty($validated['source_id']) ? Source::find($validated['source_id']) : null;
 
-        // Check for existing active project (partial unique index enforces this at DB level too)
-        $existing = EtlProject::where('source_id', $source->id)
-            ->where('cdm_version', $validated['cdm_version'] ?? '5.4')
-            ->first();
+        // Check for existing active project
+        if ($ingestionProjectId) {
+            $existing = EtlProject::where('ingestion_project_id', $ingestionProjectId)
+                ->where('cdm_version', $validated['cdm_version'] ?? '5.4')
+                ->first();
+        } elseif ($source) {
+            $existing = EtlProject::where('source_id', $source->id)
+                ->where('cdm_version', $validated['cdm_version'] ?? '5.4')
+                ->first();
+        } else {
+            return response()->json([
+                'error' => 'Either source_id or ingestion_project_id is required.',
+            ], 422);
+        }
 
         if ($existing) {
             return response()->json([

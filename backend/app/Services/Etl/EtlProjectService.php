@@ -3,6 +3,7 @@
 namespace App\Services\Etl;
 
 use App\Models\App\EtlProject;
+use App\Models\App\IngestionProject;
 use App\Models\App\Source;
 use App\Models\User;
 
@@ -13,15 +14,25 @@ class EtlProjectService
      *
      * @param  array<string, mixed>  $data
      */
-    public function createProject(Source $source, array $data, User $user): EtlProject
+    public function createProject(?Source $source, array $data, User $user): EtlProject
     {
+        $ingestionProjectId = $data['ingestion_project_id'] ?? null;
+        $ingestionProject = $ingestionProjectId
+            ? IngestionProject::find($ingestionProjectId)
+            : null;
+
+        $projectName = $ingestionProject
+            ? $ingestionProject->name.' → CDM '.($data['cdm_version'] ?? '5.4')
+            : ($source ? $source->source_name : 'Unnamed').' → CDM '.($data['cdm_version'] ?? '5.4');
+
         return EtlProject::create([
-            'source_id' => $source->id,
+            'source_id' => $source?->id,
+            'ingestion_project_id' => $ingestionProjectId,
             'cdm_version' => $data['cdm_version'] ?? '5.4',
-            'name' => $source->source_name.' → CDM '.($data['cdm_version'] ?? '5.4'),
+            'name' => $projectName,
             'status' => 'draft',
             'created_by' => $user->id,
-            'scan_profile_id' => $data['scan_profile_id'],
+            'scan_profile_id' => $data['scan_profile_id'] ?? null,
             'notes' => $data['notes'] ?? null,
         ]);
     }
@@ -33,7 +44,7 @@ class EtlProjectService
     {
         return $project->load(['tableMappings' => function ($q) {
             $q->withCount('fieldMappings');
-        }, 'source', 'scanProfile']);
+        }, 'source', 'ingestionProject', 'scanProfile']);
     }
 
     /**

@@ -15,9 +15,10 @@ class CreateEtlProjectRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'source_id' => ['required', 'integer', 'exists:sources,id'],
+            'source_id' => ['nullable', 'integer', 'exists:sources,id'],
+            'ingestion_project_id' => ['nullable', 'integer', 'exists:ingestion_projects,id'],
             'cdm_version' => ['required', 'string', 'in:5.4,5.3'],
-            'scan_profile_id' => ['required', 'integer', 'exists:source_profiles,id'],
+            'scan_profile_id' => ['nullable', 'integer', 'exists:source_profiles,id'],
             'notes' => ['nullable', 'string'],
         ];
     }
