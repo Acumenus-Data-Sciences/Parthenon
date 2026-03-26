@@ -99,6 +99,36 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Skip vocabulary DB validation (offline mode, all concept_ids = 0)",
     )
 
+    # Validate DQD subcommand
+    dqd_parser = subparsers.add_parser(
+        "validate-dqd",
+        help="Run DQD validation: dispatch run, poll, and verify >= 80%% pass rate",
+    )
+    dqd_parser.add_argument(
+        "--source-id",
+        type=int,
+        default=None,
+        help="Parthenon source ID for the IRSF-NHS data source (default: 57)",
+    )
+    dqd_parser.add_argument(
+        "--run-id",
+        type=str,
+        default=None,
+        help="Existing DQD run ID to analyze (skip dispatching)",
+    )
+    dqd_parser.add_argument(
+        "--db-only",
+        action="store_true",
+        default=False,
+        help="Query DQD results directly from database (requires --run-id)",
+    )
+
+    # Validate rejections subcommand
+    subparsers.add_parser(
+        "validate-rejections",
+        help="Validate ETL rejection rates: verify < 5%% for high-priority tables",
+    )
+
     return parser
 
 
@@ -419,6 +449,56 @@ def _run_medications(args: argparse.Namespace) -> int:
     return 0
 
 
+def _run_validate_dqd(args: argparse.Namespace) -> int:
+    """Execute the validate-dqd subcommand."""
+    import logging
+
+    from scripts.irsf_etl.validate_dqd import run_validate_dqd
+
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+
+    source_id = args.source_id
+    run_id = args.run_id
+    db_only = args.db_only
+
+    if db_only and not run_id:
+        print("ERROR: --db-only requires --run-id")
+        return 1
+
+    if not source_id and not run_id:
+        source_id = 57  # Default IRSF-NHS source ID
+
+    report = run_validate_dqd(
+        source_id=source_id,
+        run_id=run_id,
+        db_only=db_only,
+    )
+
+    if report is None:
+        print("DQD validation could not complete. See instructions above.")
+        return 1
+
+    return 0 if report.target_met else 2
+
+
+def _run_validate_rejections() -> int:
+    """Execute the validate-rejections subcommand."""
+    import logging
+
+    from scripts.irsf_etl.validate_rejections import run_validate_rejections
+
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+
+    report = run_validate_rejections()
+
+    if not report.high_priority_targets_met:
+        print("FAIL: High-priority tables exceed 5% rejection rate threshold")
+        return 2
+
+    print("PASS: All high-priority tables below 5% rejection rate")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     """Main entry point for the IRSF ETL CLI."""
     parser = _build_parser()
@@ -451,6 +531,12 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "medications":
         return _run_medications(args)
+
+    if args.command == "validate-dqd":
+        return _run_validate_dqd(args)
+
+    if args.command == "validate-rejections":
+        return _run_validate_rejections()
 
     return 0
 
