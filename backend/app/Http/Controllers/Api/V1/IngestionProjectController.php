@@ -232,6 +232,56 @@ class IngestionProjectController extends Controller
         $limit = min((int) $request->input('limit', 100), 1000);
         $offset = max((int) $request->input('offset', 0), 0);
 
+        // Check if this is a database-connected table (no local staging schema)
+        $config = $project->db_connection_config;
+        $selectedTables = $project->selected_tables ?? [];
+
+        if ($config && in_array($table, $selectedTables, true)) {
+            // Query the source database directly via BlackRabbit-style connection
+            try {
+                $dsn = sprintf(
+                    'pgsql:host=%s;port=%s;dbname=%s',
+                    $config['host'],
+                    $config['port'],
+                    $config['database'],
+                );
+                $pdo = new \PDO($dsn, $config['user'] ?? '', $config['password'] ?? '');
+                $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+
+                $schema = $config['schema'];
+                $stmt = $pdo->prepare("SELECT * FROM \"{$schema}\".\"{$table}\" LIMIT :limit OFFSET :offset");
+                $stmt->bindValue(':limit', $limit, \PDO::PARAM_INT);
+                $stmt->bindValue(':offset', $offset, \PDO::PARAM_INT);
+                $stmt->execute();
+                $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+                // Get column names
+                $columns = $rows ? array_keys($rows[0]) : [];
+
+                // Get total count
+                $countStmt = $pdo->query("SELECT COUNT(*) FROM \"{$schema}\".\"{$table}\"");
+                $totalRows = (int) $countStmt->fetchColumn();
+
+                return response()->json(['data' => [
+                    'columns' => $columns,
+                    'rows' => $rows,
+                    'total_rows' => $totalRows,
+                ]]);
+            } catch (\Throwable $e) {
+                Log::warning('Database preview failed', [
+                    'project_id' => $project->id,
+                    'table' => $table,
+                    'error' => $e->getMessage(),
+                ]);
+
+                return response()->json([
+                    'error' => 'Preview failed',
+                    'message' => $e->getMessage(),
+                ], 500);
+            }
+        }
+
+        // File-based staging: query local staging schema
         $preview = $this->stagingService->previewTable(
             $project->staging_schema,
             $table,
