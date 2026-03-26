@@ -100,3 +100,24 @@ class HealthResponse(BaseModel):
     python_version: str
     dialects_available: int
     dialects_total: int = 12
+
+
+class TableInfo(BaseModel):
+    name: str
+    column_count: int
+    row_count: int | None = None
+
+
+class TablesRequest(BaseModel):
+    dbms: str = "postgresql"
+    server: str
+    port: int = 5432
+    user: str = ""
+    password: str = ""
+    schema_name: str = Field("public", alias="schema")
+
+    model_config = {"populate_by_name": True}
+
+
+class TablesResponse(BaseModel):
+    tables: list[TableInfo]
