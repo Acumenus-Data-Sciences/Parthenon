@@ -7,9 +7,12 @@ import {
   BackgroundVariant,
   useNodesState,
   useEdgesState,
+  useReactFlow,
+  ReactFlowProvider,
   type Connection,
   type Node,
   type Edge,
+  type Viewport,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 
@@ -27,6 +30,35 @@ import { computeLayout, type LayoutNode, type LayoutEdge } from "../../lib/aqued
 import { useCreateTableMapping, useSuggestMappings } from "../../hooks/useAqueductData";
 import type { EtlProject, EtlTableMapping, PersistedFieldProfile } from "../../api";
 import { downloadExport } from "../../api";
+
+// ---------------------------------------------------------------------------
+// Session persistence keys
+// ---------------------------------------------------------------------------
+
+const VIEWPORT_KEY = "aqueduct_viewport";
+const FILTER_KEY = "aqueduct_filter";
+
+function loadViewport(): Viewport | null {
+  try {
+    const raw = sessionStorage.getItem(VIEWPORT_KEY);
+    if (raw) return JSON.parse(raw) as Viewport;
+  } catch { /* ignore */ }
+  return null;
+}
+
+function saveViewport(vp: Viewport): void {
+  sessionStorage.setItem(VIEWPORT_KEY, JSON.stringify(vp));
+}
+
+function loadFilter(): "all" | "mapped" | "unmapped" {
+  const raw = sessionStorage.getItem(FILTER_KEY);
+  if (raw === "all" || raw === "mapped" || raw === "unmapped") return raw;
+  return "mapped";
+}
+
+function saveFilter(f: string): void {
+  sessionStorage.setItem(FILTER_KEY, f);
+}
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -109,7 +141,11 @@ export function AqueductCanvas({
   onDrillDown,
   onBack,
 }: AqueductCanvasProps) {
-  const [filter, setFilter] = useState<"all" | "mapped" | "unmapped">("mapped");
+  const [filter, setFilterRaw] = useState<"all" | "mapped" | "unmapped">(loadFilter);
+  const setFilter = useCallback((f: "all" | "mapped" | "unmapped") => {
+    setFilterRaw(f);
+    saveFilter(f);
+  }, []);
   const [suggestBanner, setSuggestBanner] = useState<string | null>(null);
   const [isExporting, setIsExporting] = useState(false);
   const [detailCdmTable, setDetailCdmTable] = useState<string | null>(null);
@@ -493,7 +529,12 @@ export function AqueductCanvas({
           edgeTypes={edgeTypes}
           onConnect={handleConnect}
           onNodeClick={handleNodeClick}
-          fitView
+          onMoveEnd={(_event, viewport) => saveViewport(viewport)}
+          defaultViewport={loadViewport() ?? { x: 0, y: 0, zoom: 1.5 }}
+          fitView={!loadViewport()}
+          fitViewOptions={{ maxZoom: 1.5, padding: 0.15 }}
+          minZoom={0.3}
+          maxZoom={3}
           proOptions={{ hideAttribution: true }}
         >
           <Controls className="!bg-[#1a1a2e] !border-[#2a2a3e]" />
