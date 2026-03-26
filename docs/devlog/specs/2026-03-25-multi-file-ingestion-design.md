@@ -30,7 +30,7 @@ Upgrade the Upload Files tab from a single-file-per-job pipeline to a multi-file
 | `id` | bigint PK | |
 | `name` | varchar(255) | Researcher-provided project name |
 | `source_id` | bigint FK → sources, nullable | Optional target CDM source |
-| `staging_schema` | varchar(50) | Auto-generated: `staging_{id}` |
+| ~~`staging_schema`~~ | ~~varchar~~ | Removed — derived via model accessor: `getStagingSchemaAttribute()` returns `"staging_{$this->id}"` |
 | `status` | varchar(20), default 'draft' | Enum: draft, profiling, ready, mapping, completed, failed |
 | `created_by` | bigint FK → users | NOT NULL |
 | `file_count` | integer, default 0 | Number of files uploaded |
@@ -74,16 +74,22 @@ All under `auth:sanctum` + ownership policy.
 |---|---|---|---|
 | `GET` | `/ingestion-projects` | `ingestion.view` | List user's projects (paginated) |
 | `POST` | `/ingestion-projects` | `ingestion.upload` | Create named project |
-| `GET` | `/ingestion-projects/{project}` | `ingestion.view` | Show project + jobs + status |
+| `GET` | `/ingestion-projects/{project}` | `ingestion.view` | Show project + jobs (eager loaded with `profiles`) + status |
 | `PUT` | `/ingestion-projects/{project}` | `ingestion.upload` | Update name, notes |
 | `DELETE` | `/ingestion-projects/{project}` | `ingestion.delete` | Soft-delete project |
 | `POST` | `/ingestion-projects/{project}/stage` | `ingestion.upload` | Upload + stage files (multipart, multiple files) |
 | `DELETE` | `/ingestion-projects/{project}/files/{job}` | `ingestion.delete` | Remove single file + drop staging table |
 | `GET` | `/ingestion-projects/{project}/preview/{table}` | `ingestion.view` | Preview first 100 rows from staging table |
 
+**Rate limiting:** `throttle:5,10` on `POST /stage` (expensive endpoint — schema creation + COPY operations).
+
+**Preview endpoint security:** The `{table}` route parameter MUST be validated against `IngestionJob` records belonging to the project (`WHERE ingestion_project_id = ? AND staging_table_name = ?`). Reject with 404 if no match. This prevents both SQL injection and cross-project data access.
+
 **Form Requests:**
 - `CreateIngestionProjectRequest` — validates name (required, max 255), source_id (nullable, exists), notes (nullable)
-- `StageFilesRequest` — validates files (required, array, each: file, max 5120000 KB), table_names (required, array, each: string, max 255)
+- `StageFilesRequest` — validates files (required, array, each: file, max 5120000 KB), table_names (required, array, each: string, max 255, regex `/^[a-z][a-z0-9_]{0,62}$/`, distinct — no duplicates in the same request)
+
+**SQL injection prevention:** All dynamic schema and table names MUST be passed through `pg_escape_identifier()` or double-quoted in raw SQL. The `table_names[]` validation enforces a strict regex (`^[a-z][a-z0-9_]{0,62}$`) that prevents injection by construction. The `StagingService` additionally verifies table names against PostgreSQL reserved words and prefixes with `tbl_` if needed.
 
 **`POST /stage` multipart payload:**
 ```
@@ -101,7 +107,7 @@ table_names[]: string (parallel array — table_names[0] is the name for files[0
 2. Detect format (CSV/TSV/Excel) via existing `FileUploadService::detectFormat()`
 3. Read header row → sanitize column names (lowercase, special chars → underscores, truncate 63 chars, deduplicate)
 4. `CREATE SCHEMA IF NOT EXISTS staging_{project_id}`
-5. `CREATE TABLE staging_{project_id}.{table_name} (_row_id SERIAL PRIMARY KEY, col1 TEXT, col2 TEXT, ...)`
+5. `CREATE TABLE staging_{project_id}.{table_name} (__row_id SERIAL PRIMARY KEY, col1 TEXT, col2 TEXT, ...)`
 6. Load data:
    - CSV/TSV: PostgreSQL `COPY FROM STDIN` (fastest bulk load)
    - Excel: PhpSpreadsheet read → batch INSERT in chunks of 1000
@@ -110,8 +116,19 @@ table_names[]: string (parallel array — table_names[0] is the name for files[0
 9. Update `IngestionProject`: increment `file_count`, add to `total_size_bytes`, recompute `status`
 
 **Hybrid size threshold:**
-- File < 50MB → steps 1–9 run inline (synchronous within the HTTP request)
-- File ≥ 50MB → steps 1–2 run inline (store file), steps 3–9 dispatched to `StageFileJob` on Horizon `ingestion` queue
+- File < 5MB → steps 1–9 run inline (synchronous within the HTTP request)
+- File ≥ 5MB → steps 1–2 run inline (store file), steps 3–9 dispatched to `StageFileJob` on Horizon `ingestion` queue
+- When batch contains multiple files, ALL files are queued regardless of size (prevents HTTP timeout from cumulative processing)
+- Response: `202 Accepted` with project ID and per-file job IDs for polling
+
+**Excel file handling:**
+- Requires `phpoffice/phpspreadsheet` (add to `composer.json`)
+- `FileUploadService::detectFormat()` extended to return `'excel'` for `.xlsx`/`.xls` extensions
+- Excel files use `ReadFilter` + `setReadDataOnly(true)` to limit memory usage
+- Hard cap: Excel files > 100MB are rejected with a user-friendly error directing the researcher to export as CSV
+- Each worksheet in an Excel file becomes a separate staging table (named after the sheet)
+
+**Empty file handling:** Files with only a header row and zero data rows create the staging table with columns but no rows (`row_count = 0`). Completely empty files (0 bytes) are rejected with a validation error.
 
 **Project status rollup:**
 - All jobs completed → `ready`
@@ -122,11 +139,13 @@ table_names[]: string (parallel array — table_names[0] is the name for files[0
 **Column name sanitization rules:**
 1. Lowercase
 2. Replace spaces, hyphens, dots, special chars with `_`
-3. Strip leading digits (PostgreSQL identifiers can't start with a number) — prefix with `col_` if needed
-4. Truncate to 63 characters
-5. Deduplicate: if `name` exists, append `_2`, `_3`, etc.
+3. Strip leading digits — prefix with `col_` if needed
+4. Check against PostgreSQL reserved words (`select`, `table`, `order`, `group`, `user`, `type`, `index`, `primary`, `key`, `column`, `constraint`, etc.) — prefix with `col_` if reserved
+5. Check for collision with internal `___row_id` column — rename to `col__row_id` if needed
+6. Truncate to 63 characters
+7. Deduplicate: if `name` exists, append `_2`, `_3`, etc.
 
-**Preview endpoint:** `SELECT * FROM staging_{project_id}.{table_name} ORDER BY _row_id LIMIT {limit} OFFSET {offset}`. Uses `SET search_path` on the default `pgsql` connection (same pattern as `AchillesResultReaderService`). Returns JSON with column names and row arrays.
+**Preview endpoint:** `SELECT * FROM staging_{project_id}.{table_name} ORDER BY __row_id LIMIT {limit} OFFSET {offset}`. Uses `SET search_path` on the default `pgsql` connection (same pattern as `AchillesResultReaderService`). Returns JSON with column names and row arrays.
 
 ### 1.5 Staging Schema Cleanup
 
@@ -148,7 +167,7 @@ table_names[]: string (parallel array — table_names[0] is the name for files[0
 - Breadcrumb: "← Projects / {project_name}"
 - Status badge
 - Upload zone (collapsible — expanded for `draft`, collapsed for `ready`):
-  - Multi-file drag-and-drop (accepts `.csv, .tsv, .xlsx, .xls, .json`)
+  - Multi-file drag-and-drop (accepts `.csv, .tsv, .xlsx, .xls`). JSON/HL7 files deferred to future phase (require different staging strategies).
   - Editable review list: filename | table name (editable input) | size | remove button
   - "Stage All" button
 - Staged files table:
@@ -198,9 +217,18 @@ This makes the staging schema visible to Aqueduct through the standard `Source` 
 ### 2.3 Cleanup Cascade
 
 When `IngestionProject` is soft-deleted:
-- Auto-created `Source` is soft-deleted (if Source model supports it) or marked `is_deleted`
+- Auto-created `Source` is soft-deleted (Source model already uses `SoftDeletes` trait)
 - This removes it from source dropdowns
 - Historical `EtlProject` references remain intact (FK not cascaded)
+
+### 2.4 Fix Existing Ingestion Route Permissions
+
+Pre-existing HIGHSEC violation: the existing ingestion routes at `/api/v1/ingestion/*` have no `permission:` middleware (only `auth:sanctum`). As part of this work, add permission middleware to the existing routes:
+- `POST /ingestion/upload` → `permission:ingestion.upload`
+- `GET /ingestion/jobs` → `permission:ingestion.view`
+- `GET /ingestion/jobs/{id}` → `permission:ingestion.view`
+- `DELETE /ingestion/jobs/{id}` → `permission:ingestion.delete`
+- `POST /ingestion/jobs/{id}/retry` → `permission:ingestion.run`
 
 ## File Impact Summary
 
