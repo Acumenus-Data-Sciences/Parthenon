@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v5.4
 milestone_name: milestone
-status: in-progress
-stopped_at: Completed 06-01-PLAN.md
-last_updated: "2026-03-26T12:45:32Z"
+status: completed
+stopped_at: Completed 04-02-PLAN.md
+last_updated: "2026-03-26T12:52:10.520Z"
 last_activity: 2026-03-26 -- Completed 06-01 custom IRSF vocabulary registry (44 tests, 117 concepts)
 progress:
   total_phases: 12
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 13
-  completed_plans: 8
+  completed_plans: 10
   percent: 62
 ---
 
@@ -56,6 +56,8 @@ Progress: [██████░░░░] 62%
 | Phase 03 P02 | 3min | 1 tasks | 3 files |
 | Phase 02 P02 | 3min | 1 tasks | 3 files |
 | Phase 03 P01 | 4min | 2 tasks | 6 files |
+| Phase 04 P03 | 3min | 1 tasks | 2 files |
+| Phase 04 P02 | 3min | 1 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -85,6 +87,8 @@ Recent decisions affecting current work:
 - [Phase 06-01]: Block-allocated concept IDs: CSS 2B+1000, MBA 2B+2000, Mutations 2B+3000, Diagnoses 2B+4000
 - [Phase 06-01]: Used csv module (not pandas) for CSV generation -- lighter dependency, consistent quoting
 - [Phase 06-01]: Both OtherMCP2Mutations and OtherMECP2Mutations get separate concepts (both exist in source data)
+- [Phase 04]: Load only DeathRecord_5211 (strict superset of 5201); dedup keeps first valid record per person_id
+- [Phase 04]: Multi-race patients get concept_id=0 with comma-separated source_value
 
 ### Pending Todos
 
@@ -98,6 +102,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-26T12:45:32Z
-Stopped at: Completed 06-01-PLAN.md
+Last session: 2026-03-26T12:52:10.517Z
+Stopped at: Completed 04-02-PLAN.md
 Resume file: None
