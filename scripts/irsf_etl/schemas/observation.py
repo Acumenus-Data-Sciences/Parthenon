@@ -6,6 +6,7 @@ Used after MBA, CSS, and other observation transforms to ensure output conforman
 
 from __future__ import annotations
 
+import pandas as pd
 import pandera as pa
 
 observation_schema = pa.DataFrameSchema(
@@ -55,7 +56,7 @@ observation_schema = pa.DataFrameSchema(
             description="String value (used for free-text observations)",
         ),
         "value_as_concept_id": pa.Column(
-            int,
+            pd.Int64Dtype(),
             nullable=True,
             description="Concept ID for coded values",
         ),
@@ -75,7 +76,7 @@ observation_schema = pa.DataFrameSchema(
             description="Source concept ID (equals observation_concept_id for custom IRSF)",
         ),
         "visit_occurrence_id": pa.Column(
-            int,
+            pd.Int64Dtype(),
             nullable=True,
             description="FK to visit_occurrence via visit_id_map",
         ),
