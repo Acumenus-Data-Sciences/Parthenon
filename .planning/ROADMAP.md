@@ -225,7 +225,7 @@ Note: Phases 2 and 3 can run in parallel. Phases 7, 8, 9, 10 can run in parallel
 | 2. Shared Library - Date and ID Utilities | 0/2 | Complete    | 2026-03-26 |
 | 3. Shared Library - Vocabulary and Error Handling | 0/2 | Complete    | 2026-03-26 |
 | 4. Person and Demographics | 1/3 | In Progress|  |
-| 5. Visit Derivation | 0/2 | Not started | - |
+| 5. Visit Derivation | 1/2 | In Progress|  |
 | 6. Custom IRSF Vocabulary | 2/2 | Complete   | 2026-03-26 |
 | 7. Medications | 0/3 | Not started | - |
 | 8. Conditions | 0/2 | Not started | - |

@@ -59,6 +59,7 @@ Progress: [█████████░] 85%
 | Phase 04 P03 | 3min | 1 tasks | 2 files |
 | Phase 04 P02 | 3min | 1 tasks | 2 files |
 | Phase 06 P02 | 3min | 2 tasks | 5 files |
+| Phase 05 P02 | 3min | 3 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -92,6 +93,9 @@ Recent decisions affecting current work:
 - [Phase 04]: Multi-race patients get concept_id=0 with comma-separated source_value
 - [Phase 06]: SNOMED dual mappings for 4 diagnoses: Classic Rett (4288480), Atypical Rett (37397680), MECP2 duplication (45765797), FOXG1 (45765499)
 - [Phase 06]: VocabularyLoader uses DELETE+INSERT in single transaction for idempotent re-runs with parameterized queries
+- [Phase 05]: Outpatient (9202) preferred in date-only fallback for VisitResolver when multiple visits on same person+date
+- [Phase 05]: Binary search (bisect) for nearest-date fallback with sorted date list per person
+- [Phase 05]: resolve_series returns pd.Int64Dtype array with pd.NA for unresolved (consistent with PersonIdRegistry pattern)
 
 ### Pending Todos
 
@@ -105,6 +109,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-26T12:53:21.489Z
-Stopped at: Completed 06-02-PLAN.md
+Last session: 2026-03-26T12:57:42Z
+Stopped at: Completed 05-02-PLAN.md (parallel with 05-01, 06-01, 06-02)
 Resume file: None
