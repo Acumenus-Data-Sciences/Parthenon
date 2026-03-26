@@ -226,6 +226,15 @@ export async function fetchProfile(sourceId: number, profileId: number): Promise
   return data.data;
 }
 
+export async function fetchIngestionProjectFields(
+  ingestionProjectId: number,
+): Promise<PersistedFieldProfile[]> {
+  const { data } = await apiClient.get<{ data: PersistedFieldProfile[] }>(
+    `/ingestion-projects/${ingestionProjectId}/fields`,
+  );
+  return data.data;
+}
+
 export async function runPersistedScan(
   sourceId: number,
   request: { tables?: string[]; sample_rows?: number },
@@ -299,17 +308,19 @@ export async function fetchComparison(
 
 export interface EtlProject {
   id: number;
-  source_id: number;
+  source_id: number | null;
+  ingestion_project_id: number | null;
   cdm_version: string;
   name: string;
   status: 'draft' | 'in_review' | 'approved' | 'archived';
   created_by: number;
-  scan_profile_id: number;
+  scan_profile_id: number | null;
   notes: string | null;
   created_at: string;
   updated_at: string;
   table_mappings?: EtlTableMapping[];
-  source?: { id: number; source_name: string };
+  source?: { id: number; source_name: string } | null;
+  ingestion_project?: { id: number; name: string } | null;
 }
 
 export interface EtlTableMapping {
@@ -360,9 +371,10 @@ export async function fetchEtlProject(projectId: number): Promise<{ project: Etl
 }
 
 export async function createEtlProject(request: {
-  source_id: number;
+  source_id?: number;
+  ingestion_project_id?: number;
   cdm_version: string;
-  scan_profile_id: number;
+  scan_profile_id?: number;
   notes?: string;
 }): Promise<EtlProject> {
   const { data } = await apiClient.post<{ data: EtlProject }>('/etl-projects', request);

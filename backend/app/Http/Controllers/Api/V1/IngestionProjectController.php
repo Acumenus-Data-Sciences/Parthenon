@@ -293,6 +293,22 @@ class IngestionProjectController extends Controller
     }
 
     /**
+     * GET /ingestion-projects/{project}/fields
+     *
+     * Return all field profiles across all jobs in the project.
+     */
+    public function fields(IngestionProject $project): JsonResponse
+    {
+        $this->authorize('view', $project);
+
+        $fields = FieldProfile::whereHas('sourceProfile.ingestionJob', function ($q) use ($project) {
+            $q->where('ingestion_project_id', $project->id);
+        })->get();
+
+        return response()->json(['data' => $fields]);
+    }
+
+    /**
      * POST /ingestion-projects/{project}/connect-db
      *
      * Test database connection and return table list via BlackRabbit.

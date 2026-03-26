@@ -7,7 +7,7 @@ import {
   GitMerge,
   Plus,
 } from "lucide-react";
-import { fetchSources } from "@/features/data-sources/api/sourcesApi";
+import { fetchIngestionProjects, type IngestionProject } from "@/features/ingestion/api/ingestionApi";
 import { AqueductCanvas } from "../components/aqueduct/AqueductCanvas";
 import { FieldMappingDetail } from "../components/aqueduct/FieldMappingDetail";
 import {
@@ -16,9 +16,8 @@ import {
   useEtlProject,
   useTableMappings,
 } from "../hooks/useAqueductData";
-import { useProfileHistory } from "../hooks/useProfilerData";
 import {
-  fetchProfile,
+  fetchIngestionProjectFields,
   suggestMappings,
   type PersistedFieldProfile,
 } from "../api";
@@ -29,13 +28,11 @@ import { CDM_SCHEMA_V54 } from "../lib/cdm-schema-v54";
 // ---------------------------------------------------------------------------
 
 function AqueductContent({
-  sourceId,
-  sourceProfileId,
+  ingestionProjectId,
   onDrilledMapping,
   drilledDownMappingId,
 }: {
-  sourceId: number;
-  sourceProfileId: number;
+  ingestionProjectId: number;
   onDrilledMapping: (id: number | null) => void;
   drilledDownMappingId: number | null;
 }) {
@@ -43,50 +40,48 @@ function AqueductContent({
   const createProject = useCreateEtlProject();
   const [cdmVersion, setCdmVersion] = useState("5.4");
 
-  // Find existing project for this source
+  // Find existing ETL project for this ingestion project
   const existingProject = useMemo(() => {
     if (!projectsData?.data) return null;
-    return projectsData.data.find((p) => p.source_id === sourceId) ?? null;
-  }, [projectsData, sourceId]);
+    return projectsData.data.find((p) => p.ingestion_project_id === ingestionProjectId) ?? null;
+  }, [projectsData, ingestionProjectId]);
 
   const projectId = existingProject?.id ?? 0;
   const { data: projectDetail } = useEtlProject(projectId);
   const { data: tableMappings = [] } = useTableMappings(projectId);
 
-  // Source fields from profile
+  // Source fields from ingestion project's field profiles
   const [sourceFields, setSourceFields] = useState<PersistedFieldProfile[]>([]);
   const [fieldsLoaded, setFieldsLoaded] = useState(false);
 
   useMemo(() => {
-    if (existingProject && sourceProfileId > 0 && !fieldsLoaded) {
-      fetchProfile(sourceId, sourceProfileId)
-        .then((detail) => {
-          setSourceFields(detail.fields);
+    if (ingestionProjectId > 0 && !fieldsLoaded) {
+      fetchIngestionProjectFields(ingestionProjectId)
+        .then((fields) => {
+          setSourceFields(fields);
           setFieldsLoaded(true);
         })
         .catch(() => {
           setFieldsLoaded(true);
         });
     }
-  }, [existingProject, sourceId, sourceProfileId, fieldsLoaded]);
+  }, [ingestionProjectId, fieldsLoaded]);
 
   const handleCreateProject = useCallback(() => {
     createProject.mutate(
       {
-        source_id: sourceId,
+        ingestion_project_id: ingestionProjectId,
         cdm_version: cdmVersion,
-        scan_profile_id: sourceProfileId,
       },
       {
         onSuccess: (newProject) => {
-          // Auto-trigger AI suggestions on newly created project
           suggestMappings(newProject.id).catch(() => {
             // Suggestion is best-effort; failure is non-blocking
           });
         },
       },
     );
-  }, [createProject, sourceId, cdmVersion, sourceProfileId]);
+  }, [createProject, ingestionProjectId, cdmVersion]);
 
   const drilledMapping = useMemo(() => {
     if (drilledDownMappingId === null) return null;
@@ -227,74 +222,76 @@ function AqueductContent({
 
 export default function EtlToolsPage() {
   const [searchParams] = useSearchParams();
-  const sourceParam = searchParams.get("source");
+  const projectParam = searchParams.get("project");
 
-  const [selectedSourceId, setSelectedSourceId] = useState<number | "">(() =>
-    sourceParam ? Number(sourceParam) : "",
+  const [selectedProjectId, setSelectedProjectId] = useState<number | "">(() =>
+    projectParam ? Number(projectParam) : "",
   );
   const [drilledDownMappingId, setDrilledDownMappingId] = useState<number | null>(null);
 
-  // Auto-select source from URL param (e.g., from "Open in Aqueduct" button)
+  // Auto-select project from URL param (e.g., from "Open in Aqueduct" button)
   useEffect(() => {
-    if (sourceParam && Number(sourceParam) > 0) {
-      setSelectedSourceId(Number(sourceParam));
+    if (projectParam && Number(projectParam) > 0) {
+      setSelectedProjectId(Number(projectParam));
     }
-  }, [sourceParam]);
+  }, [projectParam]);
 
-  const { data: sources = [] } = useQuery({
-    queryKey: ["sources"],
-    queryFn: fetchSources,
+  // Fetch ingestion projects with status "ready" or beyond
+  const { data: projectsData } = useQuery({
+    queryKey: ["ingestion-projects"],
+    queryFn: fetchIngestionProjects,
   });
 
-  const sourceIdNum = Number(selectedSourceId) || 0;
-  const { data: profileHistoryData } = useProfileHistory(sourceIdNum);
-  const profileHistory = profileHistoryData?.data ?? [];
-  const hasScanData = profileHistory.length > 0;
-  const latestProfileId = profileHistory.length > 0 ? profileHistory[0].id : 0;
+  const readyProjects = useMemo(() => {
+    const all = projectsData?.data ?? [];
+    return all.filter((p: IngestionProject) => p.status === "ready" || p.status === "mapping" || p.status === "completed");
+  }, [projectsData]);
+
+  const selectedProjectIdNum = Number(selectedProjectId) || 0;
+  const hasJobs = readyProjects.some((p: IngestionProject) => p.id === selectedProjectIdNum);
 
   return (
     <div className="space-y-6 p-6">
-      {/* Source selector */}
+      {/* Project selector */}
       <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
         <div className="flex items-center gap-4">
           <div className="flex-1 max-w-sm space-y-1.5">
             <label className="block text-xs font-medium text-[#8A857D] uppercase tracking-wider">
               <Database size={12} className="inline mr-1.5 -mt-0.5" />
-              Data Source
+              Ingestion Project
             </label>
             <select
-              value={selectedSourceId}
+              value={selectedProjectId}
               onChange={(e) => {
-                setSelectedSourceId(e.target.value ? Number(e.target.value) : "");
+                setSelectedProjectId(e.target.value ? Number(e.target.value) : "");
                 setDrilledDownMappingId(null);
               }}
               className="w-full rounded-lg bg-[#1C1C20] border border-[#2E2E35] px-3 py-2 text-sm text-[#F0EDE8] focus:outline-none focus:border-[#9B1B30]"
             >
-              <option value="">Select a source...</option>
-              {sources.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.source_name}
+              <option value="">Select a project...</option>
+              {readyProjects.map((p: IngestionProject) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
                 </option>
               ))}
             </select>
           </div>
-          {selectedSourceId && !hasScanData && (
+          {selectedProjectId && !hasJobs && (
             <p className="mt-5 text-sm text-[#8A857D]">
-              No scan data found. Profile this source in the Source Profiler tab first.
+              Project not found or not ready. Stage data in the Ingestion tab first.
             </p>
           )}
         </div>
       </div>
 
       {/* Aqueduct content */}
-      {selectedSourceId && hasScanData ? (
+      {selectedProjectId && hasJobs ? (
         <AqueductContent
-          sourceId={sourceIdNum}
-          sourceProfileId={latestProfileId}
+          ingestionProjectId={selectedProjectIdNum}
           onDrilledMapping={setDrilledDownMappingId}
           drilledDownMappingId={drilledDownMappingId}
         />
-      ) : !selectedSourceId ? (
+      ) : !selectedProjectId ? (
         <div className="flex flex-col items-center justify-center py-20 rounded-lg border border-dashed border-[#2E2E35] bg-[#151518]">
           <div className="w-16 h-16 rounded-full bg-[#1C1C20] flex items-center justify-center mb-4">
             <GitMerge size={28} className="text-[#8A857D]" />
@@ -303,8 +300,8 @@ export default function EtlToolsPage() {
             Aqueduct ETL Mapping Designer
           </h3>
           <p className="text-sm text-[#8A857D] mt-1 text-center max-w-md">
-            Select a data source to design ETL mappings from your source schema
-            to the OMOP CDM. Sources must be profiled via the Source Profiler tab first.
+            Select an ingestion project to design ETL mappings from your source schema
+            to the OMOP CDM. Projects must be staged via the Ingestion tab first.
           </p>
         </div>
       ) : null}
