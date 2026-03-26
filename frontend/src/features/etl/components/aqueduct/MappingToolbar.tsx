@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, useState, useRef, useEffect } from "react";
 
 interface MappingToolbarProps {
   projectName: string;
@@ -11,6 +11,8 @@ interface MappingToolbarProps {
   onBack: () => void;
   onSuggest: () => void;
   isSuggesting: boolean;
+  onExport: (format: "markdown" | "sql" | "json") => void;
+  isExporting: boolean;
 }
 
 const STATUS_STYLES: Record<string, { bg: string; text: string; label: string }> = {
@@ -26,6 +28,12 @@ const FILTER_OPTIONS: Array<{ value: "all" | "mapped" | "unmapped"; label: strin
   { value: "unmapped", label: "Unmapped" },
 ];
 
+const EXPORT_OPTIONS: Array<{ format: "markdown" | "sql" | "json"; label: string }> = [
+  { format: "markdown", label: "Markdown Spec (.md)" },
+  { format: "sql", label: "SQL Files (.zip)" },
+  { format: "json", label: "Project JSON (.json)" },
+];
+
 function MappingToolbarComponent({
   projectName,
   status,
@@ -37,8 +45,25 @@ function MappingToolbarComponent({
   onBack,
   onSuggest,
   isSuggesting,
+  onExport,
+  isExporting,
 }: MappingToolbarProps) {
   const statusStyle = STATUS_STYLES[status] ?? STATUS_STYLES.draft;
+  const [exportOpen, setExportOpen] = useState(false);
+  const exportRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (exportRef.current && !exportRef.current.contains(event.target as HTMLElement)) {
+        setExportOpen(false);
+      }
+    }
+    if (exportOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
+    }
+  }, [exportOpen]);
   const progressPct = totalCdmTables > 0 ? (mappedTables / totalCdmTables) * 100 : 0;
 
   return (
@@ -116,14 +141,44 @@ function MappingToolbarComponent({
               "AI Suggest"
             )}
           </button>
-          <button
-            type="button"
-            disabled
-            className="text-xs px-3 py-1.5 text-gray-600 border border-[#2a2a3e] rounded-lg cursor-not-allowed"
-            title="Export (Phase 3)"
-          >
-            Export
-          </button>
+          <div className="relative" ref={exportRef}>
+            <button
+              type="button"
+              onClick={() => setExportOpen((prev) => !prev)}
+              disabled={isExporting}
+              className="text-xs px-3 py-1.5 border border-[#2a2a3e] rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-gray-300 hover:text-white hover:bg-[#1a1a2e]"
+              title="Export ETL specification"
+            >
+              {isExporting ? (
+                <span className="inline-flex items-center gap-1.5">
+                  <svg className="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  Exporting...
+                </span>
+              ) : (
+                "Export \u25BE"
+              )}
+            </button>
+            {exportOpen && (
+              <div className="absolute right-0 mt-1 w-48 bg-[#1a1a2e] border border-[#2a2a3e] rounded-lg shadow-lg z-50 overflow-hidden">
+                {EXPORT_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.format}
+                    type="button"
+                    onClick={() => {
+                      setExportOpen(false);
+                      onExport(opt.format);
+                    }}
+                    className="w-full text-left text-xs px-4 py-2 text-gray-300 hover:bg-[#2a2a3e] hover:text-white transition-colors"
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

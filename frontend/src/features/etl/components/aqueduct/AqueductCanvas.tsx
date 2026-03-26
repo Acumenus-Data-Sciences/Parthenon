@@ -15,12 +15,14 @@ import "@xyflow/react/dist/style.css";
 
 import { SourceTableNode } from "./SourceTableNode";
 import { CdmTableNode } from "./CdmTableNode";
+import { StemTableNode } from "./StemTableNode";
 import { MappingEdge } from "./MappingEdge";
 import { MappingToolbar } from "./MappingToolbar";
 import { CDM_SCHEMA_V54 } from "../../lib/cdm-schema-v54";
 import { computeLayout, type LayoutNode, type LayoutEdge } from "../../lib/aqueduct-layout";
 import { useCreateTableMapping, useSuggestMappings } from "../../hooks/useAqueductData";
 import type { EtlProject, EtlTableMapping, PersistedFieldProfile } from "../../api";
+import { downloadExport } from "../../api";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -32,6 +34,7 @@ const NODE_HEIGHT = 60;
 const nodeTypes = {
   sourceTable: SourceTableNode,
   cdmTable: CdmTableNode,
+  stemTable: StemTableNode,
 };
 
 const edgeTypes = {
@@ -104,8 +107,18 @@ export function AqueductCanvas({
 }: AqueductCanvasProps) {
   const [filter, setFilter] = useState<"all" | "mapped" | "unmapped">("all");
   const [suggestBanner, setSuggestBanner] = useState<string | null>(null);
+  const [isExporting, setIsExporting] = useState(false);
   const createMapping = useCreateTableMapping(project.id);
   const suggestMutation = useSuggestMappings(project.id);
+
+  const handleExport = useCallback(async (format: "markdown" | "sql" | "json") => {
+    setIsExporting(true);
+    try {
+      await downloadExport(project.id, format);
+    } finally {
+      setIsExporting(false);
+    }
+  }, [project.id]);
 
   // -- Derive connected sets --------------------------------------------------
   const connectedSources = useMemo(
@@ -204,6 +217,35 @@ export function AqueductCanvas({
       layoutNodes.push({ id: nodeId, width: NODE_WIDTH, height: NODE_HEIGHT, group: "cdm" });
     }
 
+    // Stem table nodes — group stem mappings by source_table
+    const stemMappings = tableMappings.filter((m) => m.is_stem);
+    const stemBySource = new Map<string, EtlTableMapping[]>();
+    for (const m of stemMappings) {
+      const existing = stemBySource.get(m.source_table) ?? [];
+      existing.push(m);
+      stemBySource.set(m.source_table, existing);
+    }
+
+    for (const [sourceTable, mappings] of stemBySource) {
+      const stemNodeId = `stem-${sourceTable}`;
+      const routingRules = mappings.length;
+      // Count unique target columns across all stem mappings from this source
+      const allFieldMappings = mappings.flatMap((m) => m.field_mappings ?? []);
+      const uniqueColumns = new Set(allFieldMappings.map((fm) => fm.target_column));
+
+      nodes.push({
+        id: stemNodeId,
+        type: "stemTable",
+        data: {
+          tableName: `stem_${sourceTable}`,
+          columnCount: uniqueColumns.size,
+          routingRules,
+        },
+        position: { x: 0, y: 0 },
+      });
+      layoutNodes.push({ id: stemNodeId, width: NODE_WIDTH, height: NODE_HEIGHT, group: "stem" });
+    }
+
     // Edges from table mappings
     for (const mapping of tableMappings) {
       const sourceId = `source-${mapping.source_table}`;
@@ -224,23 +266,70 @@ export function AqueductCanvas({
 
       const hidden = filter === "unmapped";
 
-      edges.push({
-        id: `edge-${mapping.id}`,
-        source: sourceId,
-        target: targetId,
-        type: "mappingEdge",
-        data: {
-          mappedFields,
-          totalFields,
-          hasUnmappedRequired,
-          isComplete,
-          isAiSuggested: false,
-          isReviewed: true,
-          onClick: () => onDrillDown(mapping.id),
-        },
-        hidden,
-      });
-      layoutEdges.push({ source: sourceId, target: targetId });
+      if (mapping.is_stem) {
+        // Stem mappings: source -> stem -> CDM
+        const stemNodeId = `stem-${mapping.source_table}`;
+
+        // Source to stem edge
+        const sourceToStemId = `edge-s2stem-${mapping.id}`;
+        if (!edges.some((e) => e.source === sourceId && e.target === stemNodeId)) {
+          edges.push({
+            id: sourceToStemId,
+            source: sourceId,
+            target: stemNodeId,
+            type: "mappingEdge",
+            data: {
+              mappedFields,
+              totalFields,
+              hasUnmappedRequired: false,
+              isComplete: false,
+              isAiSuggested: false,
+              isReviewed: true,
+              onClick: () => onDrillDown(mapping.id),
+            },
+            hidden,
+          });
+          layoutEdges.push({ source: sourceId, target: stemNodeId });
+        }
+
+        // Stem to CDM edge
+        edges.push({
+          id: `edge-stem2cdm-${mapping.id}`,
+          source: stemNodeId,
+          target: targetId,
+          type: "mappingEdge",
+          data: {
+            mappedFields,
+            totalFields,
+            hasUnmappedRequired,
+            isComplete,
+            isAiSuggested: false,
+            isReviewed: true,
+            onClick: () => onDrillDown(mapping.id),
+          },
+          hidden,
+        });
+        layoutEdges.push({ source: stemNodeId, target: targetId });
+      } else {
+        // Regular direct mapping
+        edges.push({
+          id: `edge-${mapping.id}`,
+          source: sourceId,
+          target: targetId,
+          type: "mappingEdge",
+          data: {
+            mappedFields,
+            totalFields,
+            hasUnmappedRequired,
+            isComplete,
+            isAiSuggested: false,
+            isReviewed: true,
+            onClick: () => onDrillDown(mapping.id),
+          },
+          hidden,
+        });
+        layoutEdges.push({ source: sourceId, target: targetId });
+      }
     }
 
     // Compute layout positions
@@ -304,6 +393,8 @@ export function AqueductCanvas({
         onBack={onBack}
         onSuggest={handleSuggest}
         isSuggesting={suggestMutation.isPending}
+        onExport={handleExport}
+        isExporting={isExporting}
       />
       {suggestBanner && (
         <div className="bg-amber-900/30 border-b border-amber-800/50 px-6 py-2 text-sm text-amber-300 flex items-center justify-between">

@@ -4,7 +4,7 @@ export interface LayoutNode {
   id: string;
   width: number;
   height: number;
-  group: "source" | "cdm";
+  group: "source" | "cdm" | "stem";
 }
 
 export interface LayoutEdge {

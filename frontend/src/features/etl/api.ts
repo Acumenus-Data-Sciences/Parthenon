@@ -433,3 +433,25 @@ export async function suggestMappings(projectId: number): Promise<{ table_mappin
   );
   return data.data;
 }
+
+export async function downloadExport(projectId: number, format: 'markdown' | 'sql' | 'json'): Promise<void> {
+  const response = await apiClient.get(`/etl-projects/${projectId}/export/${format}`, {
+    responseType: format === 'sql' ? 'blob' : format === 'json' ? 'json' : 'text',
+  });
+
+  const ext = format === 'markdown' ? 'md' : format === 'sql' ? 'zip' : 'json';
+  const mimeType = format === 'sql' ? 'application/zip' : format === 'json' ? 'application/json' : 'text/markdown';
+
+  const blob = format === 'sql'
+    ? new Blob([response.data as BlobPart], { type: mimeType })
+    : new Blob([typeof response.data === 'string' ? response.data : JSON.stringify(response.data, null, 2)], { type: mimeType });
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `etl-export.${ext}`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
