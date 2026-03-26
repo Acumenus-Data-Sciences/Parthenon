@@ -46,7 +46,7 @@ import { TableAccordion } from "../components/TableAccordion";
 import { ScanHistorySidebar } from "../components/ScanHistorySidebar";
 import ComparisonSummary from "../components/ComparisonSummary";
 import ComparisonDiff from "../components/ComparisonDiff";
-import PiiBadge from "../components/PiiBadge";
+
 
 // ---------------------------------------------------------------------------
 // Transform persisted field data into the ScanResult shape used by rendering
@@ -66,6 +66,8 @@ function transformPersistedToScanResult(
         fraction_empty: number;
         unique_count: number;
         values?: Record<string, number>;
+        is_potential_pii?: boolean;
+        pii_type?: string | null;
       }>;
       row_count: number;
     }
