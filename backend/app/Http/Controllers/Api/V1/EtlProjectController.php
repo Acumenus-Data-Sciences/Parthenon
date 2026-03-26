@@ -11,6 +11,7 @@ use App\Models\App\EtlTableMapping;
 use App\Models\App\Source;
 use App\Models\User;
 use App\Services\Etl\EtlProjectService;
+use App\Services\Etl\EtlSuggestionService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -179,6 +180,22 @@ class EtlProjectController extends Controller
         $mapping->update(array_filter($validated, fn ($v) => $v !== null));
 
         return response()->json(['data' => $mapping->fresh()]);
+    }
+
+    /**
+     * Generate AI mapping suggestions for a project.
+     */
+    public function suggest(EtlProject $project): JsonResponse
+    {
+        $this->authorize('update', $project);
+
+        $suggestionService = app(EtlSuggestionService::class);
+        $result = $suggestionService->suggest($project);
+
+        return response()->json([
+            'data' => $result,
+            'message' => "Suggested {$result['table_mappings']} table mappings and {$result['field_mappings']} field mappings.",
+        ]);
     }
 
     /**

@@ -799,6 +799,9 @@ Route::prefix('v1')->group(function () {
                 ->middleware('permission:etl.view');
             Route::post('/', [EtlProjectController::class, 'store'])
                 ->middleware('permission:etl.create');
+            Route::post('/{project}/suggest', [EtlProjectController::class, 'suggest'])
+                ->middleware(['permission:etl.create', 'throttle:3,10'])
+                ->where('project', '[0-9]+');
             Route::get('/{project}', [EtlProjectController::class, 'show'])
                 ->middleware('permission:etl.view')
                 ->where('project', '[0-9]+');
