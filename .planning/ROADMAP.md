@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Project Setup and Source Data Profiling** - Python project scaffold in scripts/irsf-etl/ with pandera, plus automated profiling of all 60+ source CSVs (completed 2026-03-26)
 - [x] **Phase 2: Shared Library - Date and ID Utilities** - Tested date assembly and cross-protocol ID reconciliation modules that all downstream scripts depend on (completed 2026-03-26)
 - [x] **Phase 3: Shared Library - Vocabulary and Error Handling** - Vocabulary validator against current Athena load and structured error accumulation logger (completed 2026-03-26)
-- [ ] **Phase 4: Person and Demographics** - Person roster script producing ~1,860 unique persons with gender, race, ethnicity, DOB, and death records
+- [x] **Phase 4: Person and Demographics** - Person roster script producing ~1,860 unique persons with gender, race, ethnicity, DOB, and death records (completed 2026-03-26)
 - [x] **Phase 5: Visit Derivation** - Visit occurrence script deriving visits from clinical table dates with outpatient/inpatient classification (completed 2026-03-26)
 - [x] **Phase 6: Custom IRSF Vocabulary** - Custom vocabulary (concept_ids >= 2B) for CSS, MBA, genotype mutations, and Rett diagnostic categories (completed 2026-03-26)
 - [ ] **Phase 7: Medications** - Drug exposure script transforming 44K medication records with RxNorm formatted-string parsing and source value preservation
@@ -127,12 +127,12 @@ Plans:
   3. Drug mapping coverage rate is >= 90% (records with valid, current RxNorm concept_id)
   4. Every mapped record carries original source code/text in drug_source_value and pre-mapped concept_id in drug_source_concept_id
   5. stop_reason is populated from ReasonForStoppin columns where available
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 07-01: Medication record extraction and date assembly
-- [ ] 07-02: RxNorm formatted-string parsing and vocabulary validation
-- [ ] 07-03: Drug exposure staging CSV assembly with source value preservation
+- [ ] 07-01: RxNorm parser module and drug_exposure pandera schema
+- [ ] 07-02: Drug exposure builder with vocabulary validation and source value preservation
+- [ ] 07-03: Medication ETL orchestrator, CLI integration, and real-data validation
 
 ### Phase 8: Conditions
 **Goal**: Chronic diagnoses, seizures, fractures, and infections are transformed to condition_occurrence staging CSV with validated SNOMED mappings
@@ -142,7 +142,7 @@ Plans:
   1. staging/condition_occurrence.csv contains condition records from all relevant 5211 tables (chronic diagnoses, seizures, bone fractures, infections)
   2. Pre-mapped SNOMED codes from SNOWMEDOutput columns are validated against current vocabulary with deprecated codes remapped
   3. Condition mapping coverage rate is >= 85% (records with valid, current SNOMED concept_id)
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
 - [ ] 08-01: Condition extraction from 5211 tables
@@ -224,10 +224,10 @@ Note: Phases 2 and 3 can run in parallel. Phases 7, 8, 9, 10 can run in parallel
 | 1. Project Setup and Source Data Profiling | 2/2 | Complete    | 2026-03-26 |
 | 2. Shared Library - Date and ID Utilities | 0/2 | Complete    | 2026-03-26 |
 | 3. Shared Library - Vocabulary and Error Handling | 0/2 | Complete    | 2026-03-26 |
-| 4. Person and Demographics | 1/3 | In Progress|  |
-| 5. Visit Derivation | 2/2 | Complete   | 2026-03-26 |
-| 6. Custom IRSF Vocabulary | 2/2 | Complete   | 2026-03-26 |
-| 7. Medications | 0/3 | Not started | - |
+| 4. Person and Demographics | 1/3 | Complete    | 2026-03-26 |
+| 5. Visit Derivation | 2/2 | Complete    | 2026-03-26 |
+| 6. Custom IRSF Vocabulary | 2/2 | Complete    | 2026-03-26 |
+| 7. Medications | 1/3 | In progress | - |
 | 8. Conditions | 0/2 | Not started | - |
 | 9. Measurements | 0/3 | Not started | - |
 | 10. Observations | 0/3 | Not started | - |

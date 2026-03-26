@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v5.4
 milestone_name: milestone
-status: completed
-stopped_at: Completed 05-01-PLAN.md
-last_updated: "2026-03-26T13:01:23.000Z"
-last_activity: 2026-03-26 -- Completed 05-01 visit derivation (9,003 visits, 364 tests)
+status: executing
+stopped_at: Completed 07-01-PLAN.md, ready for 07-02-PLAN.md
+last_updated: "2026-03-26T18:22:51.000Z"
+last_activity: 2026-03-26 -- Completed 07-01 RxNorm parser and drug_exposure schema
 progress:
   total_phases: 12
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 13
-  completed_plans: 12
-  percent: 92
+  completed_plans: 14
+  percent: 93
 ---
 
 # Project State
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-26)
 
 **Core value:** All ~1,860 Rett Syndrome patients from the IRSF Natural History Study queryable in Parthenon's OMOP CDM with accurate demographics, medications, conditions, measurements, and observations
-**Current focus:** Phase 5 Visit Derivation (Plan 1 of 2 complete)
+**Current focus:** Phase 7 Medications (planning complete, ready to execute)
 
 ## Current Position
 
-Phase: 5 of 12 (Visit Derivation) -- Plan 1 of 2 Complete
-Plan: 1 of 2 in current phase
-Status: Executing Phase 05
-Last activity: 2026-03-26 -- Completed 05-01 visit derivation (9,003 visits, 364 tests)
+Phase: 7 of 12 (Medications) -- Executing, 1 of 3 plans executed
+Plan: 1 of 3 in current phase
+Status: Executing Phase 07
+Last activity: 2026-03-26 -- Completed 07-01 RxNorm parser and drug_exposure schema
 
 Progress: [█████████░] 92%
 
@@ -51,6 +51,7 @@ Progress: [█████████░] 92%
 - Trend: -
 
 *Updated after each plan completion*
+| Phase 07 P01 | 3min | 3 tasks | 4 files |
 | Phase 06 P01 | 7min | 2 tasks | 5 files |
 | Phase 04 P01 | 3min | 1 tasks | 2 files |
 | Phase 03 P02 | 3min | 1 tasks | 3 files |
@@ -101,6 +102,8 @@ Recent decisions affecting current work:
 - [Phase 05]: Outpatient (9202) preferred in date-only fallback for VisitResolver when multiple visits on same person+date
 - [Phase 05]: Binary search (bisect) for nearest-date fallback with sorted date list per person
 - [Phase 05]: resolve_series returns pd.Int64Dtype array with pd.NA for unresolved (consistent with PersonIdRegistry pattern)
+- [Phase 07]: Regex ordering: code:(digits) before code:RX10(digits) -- RX10 prefix naturally fails numeric-only match
+- [Phase 07]: assemble_stop_reason severity order: Ineffective, Side effects, Not needed
 
 ### Pending Todos
 
@@ -114,6 +117,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-26T13:01:23Z
-Stopped at: Completed 05-01-PLAN.md
-Resume file: None
+Last session: 2026-03-26T18:22:51Z
+Stopped at: Completed 07-01-PLAN.md, ready for 07-02-PLAN.md
+Resume file: .planning/phases/07-medications/07-02-PLAN.md

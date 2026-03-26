@@ -31,10 +31,10 @@
 
 ### Medications
 
-- [ ] **MED-01**: All 44K medication records from Medications_5201_5211.csv transformed to drug_exposure staging CSV
-- [ ] **MED-02**: MedRxNormCode formatted strings parsed via regex to extract clean RxNorm concept_ids
+- [x] **MED-01**: All 44K medication records from Medications_5201_5211.csv transformed to drug_exposure staging CSV
+- [x] **MED-02**: MedRxNormCode formatted strings parsed via regex to extract clean RxNorm concept_ids
 - [ ] **MED-03**: Pre-mapped RxNorm codes validated against current Athena vocabulary with deprecated codes remapped via Maps-to relationships
-- [ ] **MED-04**: Drug exposure start/stop dates assembled from split date columns with stop_reason populated from ReasonForStoppin columns
+- [x] **MED-04**: Drug exposure start/stop dates assembled from split date columns with stop_reason populated from ReasonForStoppin columns
 - [ ] **MED-05**: Drug mapping coverage rate >= 90% (records with valid RxNorm concept)
 
 ### Conditions
@@ -141,10 +141,10 @@
 | VISIT-01 | Phase 5 | Complete |
 | VISIT-02 | Phase 5 | Complete |
 | VISIT-03 | Phase 5 | Complete |
-| MED-01 | Phase 7 | Pending |
-| MED-02 | Phase 7 | Pending |
+| MED-01 | Phase 7 | Complete |
+| MED-02 | Phase 7 | Complete |
 | MED-03 | Phase 7 | Pending |
-| MED-04 | Phase 7 | Pending |
+| MED-04 | Phase 7 | Complete |
 | MED-05 | Phase 7 | Pending |
 | COND-01 | Phase 8 | Pending |
 | COND-02 | Phase 8 | Pending |
