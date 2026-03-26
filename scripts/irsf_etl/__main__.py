@@ -4,7 +4,8 @@ Usage:
     python -m scripts.irsf_etl [command]
 
 Commands:
-    profile    Profile source CSV files and generate data quality reports
+    profile              Profile source CSV files and generate data quality reports
+    visit-derivation     Derive visit_occurrence from study visits and hospitalizations
 
 Run with --help for full usage information.
 """
@@ -49,6 +50,12 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Suppress console table output; write JSON report only",
     )
 
+    # Visit derivation subcommand
+    subparsers.add_parser(
+        "visit-derivation",
+        help="Derive visit_occurrence from study visits and hospitalizations",
+    )
+
     return parser
 
 
@@ -76,6 +83,37 @@ def _run_profile(args: argparse.Namespace) -> int:
     return 0
 
 
+def _run_visit_derivation() -> int:
+    """Execute the visit-derivation subcommand."""
+    import logging
+
+    from scripts.irsf_etl.config import ETLConfig
+    from scripts.irsf_etl.visit_derivation import derive_visits
+
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+
+    config = ETLConfig()
+    visit_occ, visit_map = derive_visits(config)
+
+    print(f"\nVisit Derivation Complete")
+    print(f"  visit_occurrence.csv: {len(visit_occ)} rows")
+    print(f"  visit_id_map.csv:     {len(visit_map)} rows")
+
+    if not visit_occ.empty:
+        concept_counts = visit_occ["visit_concept_id"].value_counts()
+        print(f"\nVisit type distribution:")
+        for concept_id, count in concept_counts.items():
+            label = {9201: "Inpatient", 9202: "Outpatient", 9203: "ER"}.get(
+                int(concept_id), f"Unknown ({concept_id})"
+            )
+            print(f"  {label} ({concept_id}): {count}")
+
+        person_count = visit_occ["person_id"].nunique()
+        print(f"\nUnique patients with visits: {person_count}")
+
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     """Main entry point for the IRSF ETL CLI."""
     parser = _build_parser()
@@ -87,6 +125,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "profile":
         return _run_profile(args)
+
+    if args.command == "visit-derivation":
+        return _run_visit_derivation()
 
     return 0
 
