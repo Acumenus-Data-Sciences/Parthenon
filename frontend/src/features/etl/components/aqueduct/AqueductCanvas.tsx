@@ -134,7 +134,15 @@ function extractCdmFromNodeId(nodeId: string): string {
 // Component
 // ---------------------------------------------------------------------------
 
-export function AqueductCanvas({
+export function AqueductCanvas(props: AqueductCanvasProps) {
+  return (
+    <ReactFlowProvider>
+      <AqueductCanvasInner {...props} />
+    </ReactFlowProvider>
+  );
+}
+
+function AqueductCanvasInner({
   project,
   tableMappings,
   sourceFields,
