@@ -211,11 +211,11 @@ RUN addgroup --system ruser && adduser --system --ingroup ruser --home /home/rus
 
 WORKDIR /app
 
-COPY r-runtime/ .
+COPY darkstar/ .
 RUN chown -R ruser:ruser /app
 
 # s6-overlay service registration
-COPY r-runtime/s6/plumber/ /etc/s6-overlay/s6-rc.d/plumber/
+COPY darkstar/s6/plumber/ /etc/s6-overlay/s6-rc.d/plumber/
 RUN touch /etc/s6-overlay/s6-rc.d/user/contents.d/plumber
 
 # Ensure JDBC driver directory is readable by ruser
