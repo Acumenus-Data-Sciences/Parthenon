@@ -65,6 +65,7 @@ backups/
 *.iso
 *.pdf
 *.txt
+!**/requirements.txt
 vcf/
 
 # Secrets
@@ -130,6 +131,10 @@ output/
 tmp/
 backend/tmp/
 external/
+
+# IRSF ETL
+scripts/irsf_etl/output/
+scripts/irsf_etl/.venv/
 
 # Python cache
 __pycache__/
