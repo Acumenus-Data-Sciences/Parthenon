@@ -149,6 +149,7 @@ class EtlProjectController extends Controller
         $this->authorize('view', $project);
 
         $mappings = $project->tableMappings()
+            ->with('fieldMappings')
             ->withCount('fieldMappings')
             ->get();
 

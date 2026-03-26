@@ -35,7 +35,7 @@ export default function CdmTableDetailModal({
   for (const mapping of mappings) {
     for (const fm of mapping.field_mappings ?? []) {
       fieldMap.set(fm.target_column, {
-        source_column: fm.source_column,
+        source_column: fm.source_column ?? "(unmapped)",
         source_table: mapping.source_table,
         mapping_type: fm.mapping_type ?? "direct",
         confidence: fm.confidence ?? null,
