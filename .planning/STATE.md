@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v5.4
 milestone_name: milestone
 status: executing
-stopped_at: Completed 07-03-PLAN.md (medication ETL orchestrator)
-last_updated: "2026-03-26T18:42:51.393Z"
+stopped_at: Completed 10-03-PLAN.md (categorical clinical observations)
+last_updated: "2026-03-26T18:44:58.971Z"
 last_activity: 2026-03-26 -- Completed 09-01 growth measurement unpivot (34,135 rows)
 progress:
   total_phases: 12
-  completed_phases: 8
+  completed_phases: 10
   total_plans: 24
-  completed_plans: 22
+  completed_plans: 24
   percent: 92
 ---
 
@@ -70,6 +70,8 @@ Progress: [█████████░] 92%
 | Phase 09 P02 | 3min | 4 tasks | 3 files |
 | Phase 10 P02 | 4min | 3 tasks | 3 files |
 | Phase 07 P03 | 5min | 5 tasks | 4 files |
+| Phase 09 P03 | 7min | 5 tasks | 2 files |
+| Phase 10 P03 | 5min | 7 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -128,6 +130,9 @@ Recent decisions affecting current work:
 - [Phase 10]: 1,732 genotype rows from value=1 filter; 47/48 columns mapped; DOB as atemporal observation_date
 - [Phase 07]: Int64Dtype for drug_exposure schema nullable integer columns (Pandera compatibility)
 - [Phase 07]: Coverage rate 86.3% among parseable RxNorm codes; gap from 2,556 deprecated-no-replacement + 2,544 not-found-in-vocabulary
+- [Phase 09]: Lab measurement_date uses DatePerformed (actual lab date), not visit_date; SF-36 uses keep_default_na=False for None text preservation
+- [Phase 10]: Rett Features Everoccurred columns use Yes/No strings; _is_truthy handles both string and integer truthy values
+- [Phase 10]: Timepoint observations (AtBaseline-At5Y) included in v1 for longitudinal tracking
 
 ### Pending Todos
 
@@ -141,6 +146,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-26T18:42:51.391Z
-Stopped at: Completed 07-03-PLAN.md (medication ETL orchestrator)
+Last session: 2026-03-26T18:44:58.969Z
+Stopped at: Completed 10-03-PLAN.md (categorical clinical observations)
 Resume file: None
