@@ -30,6 +30,7 @@ class SystemHealthController extends Controller
             'chromadb' => fn () => $this->checkChromaDb(),
             'study-agent' => fn () => $this->checkStudyAgent(),
             'grafana' => fn () => $this->checkGrafana(),
+            'blackrabbit' => fn () => $this->checkBlackRabbit(),
         ];
     }
 
@@ -80,6 +81,7 @@ class SystemHealthController extends Controller
             'chromadb' => $this->getServiceHttpLogs('chromadb'),
             'study-agent' => [],
             'grafana' => [],
+            'blackrabbit' => $this->getServiceHttpLogs('blackrabbit'),
             default => [],
         };
     }
@@ -100,6 +102,7 @@ class SystemHealthController extends Controller
             'chromadb' => $this->getChromaDbMetrics(),
             'study-agent' => [],
             'grafana' => $this->getGrafanaMetrics(),
+            'blackrabbit' => $this->getBlackRabbitMetrics(),
             default => [],
         };
     }
@@ -537,6 +540,7 @@ class SystemHealthController extends Controller
             'darkstar' => 'darkstar|Darkstar|R Plumber|plumber|HADES',
             'orthanc' => 'orthanc|PACS|DICOMweb|dicom-web',
             'chromadb' => 'chroma|ChromaDB|vector',
+            'blackrabbit' => 'blackrabbit|BlackRabbit|whiterabbit|WhiteRabbit|profiler|scan',
             default => $service,
         };
 
@@ -889,5 +893,68 @@ class SystemHealthController extends Controller
             'bearer' => $client->withToken($credentials['token'] ?? ''),
             default => $client,
         };
+    }
+
+    private function checkBlackRabbit(): array
+    {
+        $url = rtrim(config('services.blackrabbit.url', 'http://blackrabbit:8090'), '/');
+
+        try {
+            $response = Http::timeout(5)->get("{$url}/health");
+
+            if ($response->successful()) {
+                $data = $response->json();
+                $available = $data['dialects_available'] ?? 0;
+                $total = $data['dialects_total'] ?? 12;
+
+                return [
+                    'name' => 'BlackRabbit',
+                    'key' => 'blackrabbit',
+                    'status' => 'healthy',
+                    'message' => "Python {$data['python_version']}, {$available}/{$total} dialects available.",
+                ];
+            }
+
+            return [
+                'name' => 'BlackRabbit',
+                'key' => 'blackrabbit',
+                'status' => 'degraded',
+                'message' => "BlackRabbit returned HTTP {$response->status()}.",
+            ];
+        } catch (\Throwable $e) {
+            return [
+                'name' => 'BlackRabbit',
+                'key' => 'blackrabbit',
+                'status' => 'down',
+                'message' => $e->getMessage(),
+            ];
+        }
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function getBlackRabbitMetrics(): array
+    {
+        $url = rtrim(config('services.blackrabbit.url', 'http://blackrabbit:8090'), '/');
+
+        try {
+            $healthResp = Http::timeout(5)->get("{$url}/health");
+            $dialectsResp = Http::timeout(5)->get("{$url}/dialects");
+
+            $metrics = $healthResp->successful() ? ($healthResp->json() ?? []) : [];
+
+            if ($dialectsResp->successful()) {
+                $dialects = $dialectsResp->json() ?? [];
+                $metrics['dialects'] = [];
+                foreach ($dialects as $d) {
+                    $metrics['dialects'][$d['name']] = $d['installed'] ? ($d['version'] ?? 'installed') : 'not installed';
+                }
+            }
+
+            return $metrics;
+        } catch (\Throwable) {
+            return [];
+        }
     }
 }
