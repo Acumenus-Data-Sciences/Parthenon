@@ -302,3 +302,116 @@ class TestImmutability:
         log = RejectionLog("death")
         result = build_death_records(sample_death_df, registry, log)
         assert result is not sample_death_df
+
+
+# ---------------------------------------------------------------------------
+# Edge case tests (coverage for helper branches)
+# ---------------------------------------------------------------------------
+
+
+class TestEdgeCases:
+    """Edge case tests for helper functions and unusual data."""
+
+    def test_float_nan_in_cause_desc(self, registry: PersonIdRegistry) -> None:
+        """CauseofDeathImmediateCauseDesc as float NaN."""
+        df = pd.DataFrame(
+            {
+                "participant_id": [1001],
+                "DeathDateMonth": ["Feb"],
+                "DeathDateDay": [10],
+                "DeathDateYear": [2021],
+                "CauseofDeathImmediateCauseDesc": [float("nan")],
+                "CauseofDeathImmediateCauseSNOM": [float("nan")],
+            }
+        )
+        log = RejectionLog("death")
+        result = build_death_records(df, registry, log)
+        assert len(result) == 1
+        assert result.iloc[0]["cause_source_value"] == ""
+        assert result.iloc[0]["cause_source_concept_id"] == 0
+
+    def test_integer_snomed_code(self, registry: PersonIdRegistry) -> None:
+        """CauseofDeathImmediateCauseSNOM as actual integer."""
+        df = pd.DataFrame(
+            {
+                "participant_id": [1002],
+                "DeathDateMonth": ["Mar"],
+                "DeathDateDay": [5],
+                "DeathDateYear": [2020],
+                "CauseofDeathImmediateCauseDesc": ["Cardiac arrest"],
+                "CauseofDeathImmediateCauseSNOM": [410429000],
+            }
+        )
+        log = RejectionLog("death")
+        result = build_death_records(df, registry, log)
+        assert result.iloc[0]["cause_source_concept_id"] == 410429000
+
+    def test_invalid_snomed_string(self, registry: PersonIdRegistry) -> None:
+        """CauseofDeathImmediateCauseSNOM as non-numeric string."""
+        df = pd.DataFrame(
+            {
+                "participant_id": [1003],
+                "DeathDateMonth": ["Apr"],
+                "DeathDateDay": [1],
+                "DeathDateYear": [2022],
+                "CauseofDeathImmediateCauseDesc": ["Unknown"],
+                "CauseofDeathImmediateCauseSNOM": ["not-a-number"],
+            }
+        )
+        log = RejectionLog("death")
+        result = build_death_records(df, registry, log)
+        assert result.iloc[0]["cause_source_concept_id"] == 0
+
+    def test_null_participant_id_excluded(self, registry: PersonIdRegistry) -> None:
+        """Row with null participant_id should be excluded."""
+        df = pd.DataFrame(
+            {
+                "participant_id": [pd.NA],
+                "DeathDateMonth": ["Jan"],
+                "DeathDateDay": [1],
+                "DeathDateYear": [2020],
+                "CauseofDeathImmediateCauseDesc": ["Unknown"],
+                "CauseofDeathImmediateCauseSNOM": [pd.NA],
+            }
+        )
+        log = RejectionLog("death")
+        result = build_death_records(df, registry, log)
+        assert len(result) == 0
+        missing = log.filter_by_category(RejectionCategory.MISSING_REQUIRED)
+        assert len(missing) == 1
+
+    def test_empty_input_returns_empty_dataframe(
+        self, registry: PersonIdRegistry
+    ) -> None:
+        """Empty DataFrame produces empty result with correct columns."""
+        df = pd.DataFrame(
+            columns=[
+                "participant_id",
+                "DeathDateMonth",
+                "DeathDateDay",
+                "DeathDateYear",
+                "CauseofDeathImmediateCauseDesc",
+                "CauseofDeathImmediateCauseSNOM",
+            ]
+        )
+        log = RejectionLog("death")
+        result = build_death_records(df, registry, log)
+        assert len(result) == 0
+        assert list(result.columns) == DEATH_COLUMNS
+
+    def test_string_participant_id(self, registry: PersonIdRegistry) -> None:
+        """participant_id as string should be converted to int."""
+        df = pd.DataFrame(
+            {
+                "participant_id": ["1005"],
+                "DeathDateMonth": ["Oct"],
+                "DeathDateDay": [15],
+                "DeathDateYear": [2023],
+                "CauseofDeathImmediateCauseDesc": ["Seizure"],
+                "CauseofDeathImmediateCauseSNOM": ["91175000"],
+            }
+        )
+        log = RejectionLog("death")
+        result = build_death_records(df, registry, log)
+        assert len(result) == 1
+        assert result.iloc[0]["person_id"] == 1005
