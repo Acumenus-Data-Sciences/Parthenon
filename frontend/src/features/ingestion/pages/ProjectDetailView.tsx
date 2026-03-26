@@ -1,0 +1,513 @@
+import { useState } from "react";
+import {
+  ArrowLeft,
+  ChevronDown,
+  ChevronUp,
+  Check,
+  Loader2,
+  X,
+  Eye,
+  EyeOff,
+  Trash2,
+  Plus,
+  ExternalLink,
+  AlertTriangle,
+  FileText,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import {
+  useIngestionProject,
+  useStageFiles,
+  useRemoveProjectFile,
+} from "../hooks/useIngestionProjects";
+import { MultiFileUploadZone } from "../components/MultiFileUploadZone";
+import { FileReviewList, deriveTableName } from "../components/FileReviewList";
+import { StagingPreview } from "../components/StagingPreview";
+import type { IngestionProject } from "../api/ingestionApi";
+import type { IngestionJob } from "@/types/ingestion";
+
+interface ProjectDetailViewProps {
+  projectId: number;
+  onBack: () => void;
+}
+
+const STATUS_STYLES: Record<IngestionProject["status"], { label: string; classes: string }> = {
+  draft: { label: "Draft", classes: "bg-[#2A2A30] text-[#8A857D]" },
+  profiling: { label: "Profiling", classes: "bg-blue-900/30 text-blue-400 animate-pulse" },
+  ready: { label: "Ready", classes: "bg-teal-900/30 text-[#2DD4BF]" },
+  mapping: { label: "Mapping", classes: "bg-amber-900/30 text-[#C9A227]" },
+  completed: { label: "Completed", classes: "bg-green-900/30 text-green-400" },
+  failed: { label: "Failed", classes: "bg-red-900/30 text-red-400" },
+};
+
+const JOB_STATUS_ICON: Record<string, React.ReactNode> = {
+  completed: <Check size={14} className="text-[#2DD4BF]" />,
+  running: <Loader2 size={14} className="animate-spin text-blue-400" />,
+  pending: <Loader2 size={14} className="text-[#8A857D]" />,
+  queued: <Loader2 size={14} className="text-[#8A857D]" />,
+  failed: <X size={14} className="text-[#E85A6B]" />,
+  cancelled: <X size={14} className="text-[#5A5650]" />,
+};
+
+function formatBytes(bytes: number): string {
+  if (bytes === 0) return "0 B";
+  const units = ["B", "KB", "MB", "GB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(1024));
+  return `${(bytes / Math.pow(1024, i)).toFixed(i > 0 ? 1 : 0)} ${units[i]}`;
+}
+
+function getJobTableName(job: IngestionJob): string | null {
+  const stats = job.stats_json as Record<string, unknown> | null;
+  if (stats && typeof stats["staging_table_name"] === "string") {
+    return stats["staging_table_name"];
+  }
+  // Fallback: derive from profile file name
+  const profile = job.profiles?.[0];
+  if (profile) {
+    return deriveTableName(profile.file_name);
+  }
+  return null;
+}
+
+function getJobRowCount(job: IngestionJob): number | null {
+  const stats = job.stats_json as Record<string, unknown> | null;
+  if (stats && typeof stats["row_count"] === "number") return stats["row_count"];
+  return job.profiles?.[0]?.row_count ?? null;
+}
+
+function getJobColumnCount(job: IngestionJob): number | null {
+  const stats = job.stats_json as Record<string, unknown> | null;
+  if (stats && typeof stats["column_count"] === "number") return stats["column_count"];
+  return job.profiles?.[0]?.column_count ?? null;
+}
+
+function getJobPiiFlag(job: IngestionJob): boolean | null {
+  const stats = job.stats_json as Record<string, unknown> | null;
+  if (stats && typeof stats["pii_detected"] === "boolean") return stats["pii_detected"];
+  return null;
+}
+
+export default function ProjectDetailView({ projectId, onBack }: ProjectDetailViewProps) {
+  const { data: project, isLoading, error } = useIngestionProject(projectId);
+  const stageFilesMutation = useStageFiles(projectId);
+  const removeFileMutation = useRemoveProjectFile(projectId);
+
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [tableNames, setTableNames] = useState<string[]>([]);
+  const [expandedPreview, setExpandedPreview] = useState<string | null>(null);
+  const [uploadExpanded, setUploadExpanded] = useState(true);
+  const [confirmDeleteJobId, setConfirmDeleteJobId] = useState<number | null>(null);
+
+  // Collapse upload after staging succeeds
+  const isDraft = project?.status === "draft";
+
+  const handleFilesSelect = (files: File[]) => {
+    setSelectedFiles((prev) => [...prev, ...files]);
+    setTableNames((prev) => [...prev, ...files.map((f) => deriveTableName(f.name))]);
+  };
+
+  const handleTableNameChange = (index: number, name: string) => {
+    setTableNames((prev) => {
+      const next = [...prev];
+      next[index] = name;
+      return next;
+    });
+  };
+
+  const handleRemoveFile = (index: number) => {
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+    setTableNames((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleStageAll = () => {
+    stageFilesMutation.mutate(
+      { files: selectedFiles, tableNames },
+      {
+        onSuccess: () => {
+          setSelectedFiles([]);
+          setTableNames([]);
+          setUploadExpanded(false);
+        },
+      },
+    );
+  };
+
+  const handleDeleteJob = (jobId: number) => {
+    removeFileMutation.mutate(jobId, {
+      onSuccess: () => setConfirmDeleteJobId(null),
+    });
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-24">
+        <Loader2 size={24} className="animate-spin text-[#8A857D]" />
+      </div>
+    );
+  }
+
+  if (error || !project) {
+    return (
+      <div className="space-y-4">
+        <button
+          type="button"
+          onClick={onBack}
+          className="flex items-center gap-1 text-sm text-[#8A857D] hover:text-[#F0EDE8] transition-colors"
+        >
+          <ArrowLeft size={14} />
+          Back to Projects
+        </button>
+        <div className="flex items-center justify-center py-16">
+          <p className="text-sm text-[#E85A6B]">Failed to load project</p>
+        </div>
+      </div>
+    );
+  }
+
+  const jobs = project.jobs ?? [];
+  const stagedJobs = jobs.filter((j) => getJobTableName(j) !== null);
+  const statusStyle = STATUS_STYLES[project.status];
+
+  return (
+    <div className="space-y-6">
+      {/* Breadcrumb + Header */}
+      <div className="space-y-3">
+        <button
+          type="button"
+          onClick={onBack}
+          className="flex items-center gap-1 text-sm text-[#8A857D] hover:text-[#F0EDE8] transition-colors"
+        >
+          <ArrowLeft size={14} />
+          Back to Projects
+        </button>
+
+        <div className="flex items-center gap-3">
+          <h2 className="text-lg font-semibold text-[#F0EDE8]">{project.name}</h2>
+          <span
+            className={cn(
+              "inline-block rounded-full px-2.5 py-0.5 text-xs font-medium",
+              statusStyle.classes,
+            )}
+          >
+            {statusStyle.label}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-4 text-xs text-[#8A857D]">
+          <span>{project.file_count} file{project.file_count !== 1 ? "s" : ""}</span>
+          <span className="w-px h-3 bg-[#323238]" />
+          <span>{formatBytes(project.total_size_bytes)}</span>
+          {project.source && (
+            <>
+              <span className="w-px h-3 bg-[#323238]" />
+              <span>Source: {project.source.source_name}</span>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Upload Zone (collapsible) */}
+      <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
+        <button
+          type="button"
+          onClick={() => setUploadExpanded((v) => !v)}
+          className="flex items-center justify-between w-full px-5 py-3.5 text-left hover:bg-[#1C1C20] transition-colors"
+        >
+          <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#9B1B30]/15">
+              <Plus size={16} className="text-[#9B1B30]" />
+            </div>
+            <div>
+              <span className="text-sm font-medium text-[#F0EDE8]">
+                {isDraft ? "Upload Source Files" : "Add More Files"}
+              </span>
+              <p className="text-xs text-[#8A857D]">
+                Select CSV, TSV, or Excel files to stage into the project
+              </p>
+            </div>
+          </div>
+          {uploadExpanded ? (
+            <ChevronUp size={16} className="text-[#8A857D]" />
+          ) : (
+            <ChevronDown size={16} className="text-[#8A857D]" />
+          )}
+        </button>
+
+        {uploadExpanded && (
+          <div className="px-5 pb-5 pt-1 border-t border-[#1C1C20] space-y-4">
+            {selectedFiles.length === 0 ? (
+              <MultiFileUploadZone onFilesSelect={handleFilesSelect} />
+            ) : (
+              <FileReviewList
+                files={selectedFiles}
+                tableNames={tableNames}
+                onTableNameChange={handleTableNameChange}
+                onRemove={handleRemoveFile}
+                onStageAll={handleStageAll}
+                isStaging={stageFilesMutation.isPending}
+              />
+            )}
+
+            {stageFilesMutation.isError && (
+              <div className="rounded-lg border border-[#E85A6B]/30 bg-[#E85A6B]/10 px-4 py-2.5">
+                <p className="text-sm text-[#E85A6B]">
+                  {stageFilesMutation.error instanceof Error
+                    ? stageFilesMutation.error.message
+                    : "Staging failed. Please try again."}
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Staged Files Table */}
+      {stagedJobs.length > 0 && (
+        <div className="space-y-3">
+          <h3 className="text-sm font-medium text-[#8A857D] uppercase tracking-wider">
+            Staged Files
+          </h3>
+          <div className="rounded-lg border border-[#232328] overflow-hidden">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-[#151518] border-b border-[#232328]">
+                  <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+                    Table Name
+                  </th>
+                  <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+                    Rows
+                  </th>
+                  <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+                    Columns
+                  </th>
+                  <th className="px-4 py-2.5 text-center text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+                    Status
+                  </th>
+                  <th className="px-4 py-2.5 text-center text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+                    PII
+                  </th>
+                  <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {stagedJobs.map((job) => {
+                  const tableName = getJobTableName(job)!;
+                  const rowCount = getJobRowCount(job);
+                  const colCount = getJobColumnCount(job);
+                  const pii = getJobPiiFlag(job);
+                  const isPreviewOpen = expandedPreview === tableName;
+
+                  return (
+                    <StagedFileRow
+                      key={job.id}
+                      job={job}
+                      tableName={tableName}
+                      rowCount={rowCount}
+                      colCount={colCount}
+                      pii={pii}
+                      isPreviewOpen={isPreviewOpen}
+                      onTogglePreview={() =>
+                        setExpandedPreview(isPreviewOpen ? null : tableName)
+                      }
+                      projectId={projectId}
+                      confirmDeleteJobId={confirmDeleteJobId}
+                      onConfirmDelete={setConfirmDeleteJobId}
+                      onDelete={handleDeleteJob}
+                      isDeleting={removeFileMutation.isPending}
+                    />
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Empty state when no staged jobs */}
+      {stagedJobs.length === 0 && !isDraft && (
+        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-12">
+          <FileText size={24} className="text-[#8A857D] mb-3" />
+          <p className="text-sm text-[#8A857D]">
+            No staged files yet. Upload files above to get started.
+          </p>
+        </div>
+      )}
+
+      {/* Open in Aqueduct button */}
+      {project.status === "ready" && (
+        <div className="flex items-center gap-3">
+          <a
+            href="/ingestion?tab=aqueduct"
+            className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-5 py-2.5 text-sm font-medium text-[#0E0E11] transition-colors hover:bg-[#26BCA8]"
+          >
+            Open in Aqueduct
+            <ExternalLink size={14} />
+          </a>
+          {!uploadExpanded && (
+            <button
+              type="button"
+              onClick={() => setUploadExpanded(true)}
+              className="inline-flex items-center gap-2 rounded-lg border border-[#323238] bg-[#1C1C20] px-5 py-2.5 text-sm font-medium text-[#F0EDE8] transition-colors hover:bg-[#232328]"
+            >
+              <Plus size={14} />
+              Add more files
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ── Staged File Row ──────────────────────────────────────────────── */
+
+interface StagedFileRowProps {
+  job: IngestionJob;
+  tableName: string;
+  rowCount: number | null;
+  colCount: number | null;
+  pii: boolean | null;
+  isPreviewOpen: boolean;
+  onTogglePreview: () => void;
+  projectId: number;
+  confirmDeleteJobId: number | null;
+  onConfirmDelete: (id: number | null) => void;
+  onDelete: (id: number) => void;
+  isDeleting: boolean;
+}
+
+function StagedFileRow({
+  job,
+  tableName,
+  rowCount,
+  colCount,
+  pii,
+  isPreviewOpen,
+  onTogglePreview,
+  projectId,
+  confirmDeleteJobId,
+  onConfirmDelete,
+  onDelete,
+  isDeleting,
+}: StagedFileRowProps) {
+  const statusIcon = JOB_STATUS_ICON[job.status] ?? null;
+  const isConfirmingDelete = confirmDeleteJobId === job.id;
+
+  return (
+    <>
+      <tr className="border-b border-[#232328] bg-[#0E0E11] hover:bg-[#1A1A1E] transition-colors">
+        {/* Table Name */}
+        <td className="px-4 py-3 text-sm font-mono text-[#F0EDE8]">
+          {tableName}
+        </td>
+
+        {/* Rows */}
+        <td className="px-4 py-3 text-right text-sm tabular-nums text-[#C5C0B8]">
+          {rowCount !== null ? rowCount.toLocaleString() : "--"}
+        </td>
+
+        {/* Columns */}
+        <td className="px-4 py-3 text-right text-sm tabular-nums text-[#C5C0B8]">
+          {colCount !== null ? colCount.toLocaleString() : "--"}
+        </td>
+
+        {/* Status */}
+        <td className="px-4 py-3 text-center">
+          <div className="inline-flex items-center gap-1.5" title={job.error_message ?? job.status}>
+            {statusIcon}
+            <span className="text-xs text-[#8A857D] capitalize">{job.status}</span>
+          </div>
+          {job.status === "failed" && job.error_message && (
+            <div className="mt-1">
+              <span
+                className="text-[10px] text-[#E85A6B] cursor-help"
+                title={job.error_message}
+              >
+                <AlertTriangle size={10} className="inline mr-0.5" />
+                error
+              </span>
+            </div>
+          )}
+        </td>
+
+        {/* PII */}
+        <td className="px-4 py-3 text-center">
+          {pii === null ? (
+            <span className="text-xs text-[#5A5650]">--</span>
+          ) : pii ? (
+            <span className="inline-flex items-center gap-1 text-xs text-amber-400" title="PII detected">
+              <AlertTriangle size={12} />
+              Yes
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1 text-xs text-[#2DD4BF]">
+              <Check size={12} />
+              No
+            </span>
+          )}
+        </td>
+
+        {/* Actions */}
+        <td className="px-4 py-3 text-right">
+          <div className="flex items-center justify-end gap-1">
+            {/* Preview toggle */}
+            <button
+              type="button"
+              onClick={onTogglePreview}
+              className={cn(
+                "inline-flex items-center justify-center w-8 h-8 rounded-md transition-colors",
+                isPreviewOpen
+                  ? "text-[#C9A227] bg-[#C9A227]/10"
+                  : "text-[#8A857D] hover:text-[#F0EDE8] hover:bg-[#232328]",
+              )}
+              title={isPreviewOpen ? "Hide preview" : "Preview data"}
+            >
+              {isPreviewOpen ? <EyeOff size={15} /> : <Eye size={15} />}
+            </button>
+
+            {/* Delete */}
+            {isConfirmingDelete ? (
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => onDelete(job.id)}
+                  disabled={isDeleting}
+                  className="rounded-md px-2 py-1 text-xs text-red-400 hover:bg-red-900/20 transition-colors"
+                >
+                  {isDeleting ? "..." : "Confirm"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onConfirmDelete(null)}
+                  className="rounded-md px-2 py-1 text-xs text-[#8A857D] hover:bg-[#1C1C20] transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => onConfirmDelete(job.id)}
+                className="inline-flex items-center justify-center w-8 h-8 rounded-md text-[#8A857D] hover:text-[#E85A6B] hover:bg-[#232328] transition-colors"
+                title="Remove file"
+              >
+                <Trash2 size={15} />
+              </button>
+            )}
+          </div>
+        </td>
+      </tr>
+
+      {/* Inline Preview */}
+      {isPreviewOpen && (
+        <tr>
+          <td colSpan={6} className="p-0">
+            <StagingPreview projectId={projectId} tableName={tableName} />
+          </td>
+        </tr>
+      )}
+    </>
+  );
+}
