@@ -161,7 +161,6 @@ export function AqueductCanvas({
     for (const st of sourceTables) {
       const nodeId = `source-${st.tableName}`;
       const isMapped = connectedSources.has(st.tableName);
-      const dimmed = filter === "mapped" ? !isMapped : filter === "unmapped" ? isMapped : false;
       const hidden = filter === "mapped" ? !isMapped : filter === "unmapped" ? isMapped : false;
 
       nodes.push({

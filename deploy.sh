@@ -63,12 +63,18 @@ echo "==> Parthenon deploy"
 # Images are built in CI (GitHub Actions) and pushed to ghcr.io/sudoshi/parthenon-*.
 # Pulling here avoids local rebuilds and speeds up deploys significantly.
 # If GHCR is unreachable or images don't exist yet, fall back to local images.
-echo ""
-echo "── Pulling pre-built images from GHCR ──"
-if docker compose pull --ignore-pull-failures 2>&1 | tail -5 | sed 's/^/   /'; then
-  ok "Image pull complete (using cached images for any failures)"
+# Skip for targeted deploys (--frontend, --db, --docs, --openapi) where no image changes are expected.
+if $FRONTEND_ONLY || $DB_ONLY || $DOCS_ONLY || $OPENAPI_ONLY; then
+  echo ""
+  echo "── Skipping image pull (targeted deploy) ──"
 else
-  warn "Image pull had errors — will use locally cached images"
+  echo ""
+  echo "── Pulling pre-built images from GHCR ──"
+  if docker compose pull --ignore-pull-failures 2>&1 | tail -5 | sed 's/^/   /'; then
+    ok "Image pull complete (using cached images for any failures)"
+  else
+    warn "Image pull had errors — will use locally cached images"
+  fi
 fi
 
 # ── Pre-flight: verify critical containers are running ─────────────────────────

@@ -809,19 +809,16 @@ test('user cannot access another users job', function () {
     expect($data)->toBeEmpty();
 });
 
-test('viewer role cannot delete jobs', function () {
+test('viewer role cannot access ingestion jobs', function () {
     $viewer = ingestionUser('viewer');
     $steward = ingestionUser();
     $job = makeIngestionJob($steward);
 
-    // Viewer does not have ingestion.delete permission
-    // Routes don't have explicit permission middleware so this tests the scoping
-    // The destroy endpoint will attempt but the viewer can still hit it (no 403 from route)
-    // What matters is the index shows no jobs for the viewer
+    // Viewer does not have ingestion.view permission — route middleware returns 403
     $response = $this->actingAs($viewer)
         ->getJson('/api/v1/ingestion/jobs');
 
-    $response->assertStatus(200);
+    $response->assertStatus(403);
 });
 
 test('data steward can upload files', function () {

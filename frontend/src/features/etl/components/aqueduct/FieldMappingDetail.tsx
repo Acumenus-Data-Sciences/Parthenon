@@ -6,10 +6,9 @@ import {
   type Node,
   type Edge,
   type Connection,
-  type EdgeSelectionChange,
+  type OnSelectionChangeFunc,
   useNodesState,
   useEdgesState,
-  Position,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 
@@ -273,8 +272,8 @@ export function FieldMappingDetail({
   );
 
   // -- Edge selection --------------------------------------------------------
-  const handleSelectionChange = useCallback(
-    ({ edges: edgeChanges }: { edges: EdgeSelectionChange[] }) => {
+  const handleSelectionChange: OnSelectionChangeFunc = useCallback(
+    ({ edges: edgeChanges }) => {
       const selected = edgeChanges.find((e) => e.selected);
       setSelectedEdgeId(selected ? selected.id : null);
     },
@@ -284,10 +283,7 @@ export function FieldMappingDetail({
   // -- Selected mapping for editor -------------------------------------------
   const selectedMapping = useMemo(() => {
     if (!selectedEdgeId) return null;
-    // Edge IDs are `fm-{source}-{target}`
-    const parts = selectedEdgeId.replace(/^fm-/, "").split("-");
-    // Handle column names with hyphens: source is first part, target is the rest matched
-    // Use localFields to find the match
+    // Edge IDs are `fm-{source}-{target}` — use localFields to find the match
     return localFields.find(
       (f) =>
         f.source_column &&

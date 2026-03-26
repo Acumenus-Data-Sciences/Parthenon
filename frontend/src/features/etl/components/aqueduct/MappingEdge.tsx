@@ -26,7 +26,7 @@ function MappingEdgeComponent({
   data,
   style = {},
 }: EdgeProps) {
-  const d = (data ?? {}) as MappingEdgeData;
+  const d = (data ?? {}) as unknown as MappingEdgeData;
 
   const [edgePath, labelX, labelY] = getBezierPath({
     sourceX,

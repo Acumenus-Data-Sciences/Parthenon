@@ -9,7 +9,7 @@ export interface SourceTableNodeData {
 }
 
 function SourceTableNodeComponent({ data }: NodeProps) {
-  const d = data as SourceTableNodeData;
+  const d = data as unknown as SourceTableNodeData;
   return (
     <div
       className={`rounded-lg border-2 border-[#C9A227] bg-[#1e1a14] px-4 py-3 min-w-[160px] transition-opacity ${

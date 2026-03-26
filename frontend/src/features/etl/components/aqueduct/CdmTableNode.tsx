@@ -29,7 +29,7 @@ export interface CdmTableNodeData {
 }
 
 function CdmTableNodeComponent({ data }: NodeProps) {
-  const d = data as CdmTableNodeData;
+  const d = data as unknown as CdmTableNodeData;
   const color = DOMAIN_COLORS[d.domain] ?? DOMAIN_COLORS.Other;
   const unmappedRequired = d.requiredCount - d.mappedRequiredCount;
 

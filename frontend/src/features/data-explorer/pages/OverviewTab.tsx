@@ -365,14 +365,6 @@ export default function OverviewTab({
                   Gender Distribution
                 </h3>
                 <ProportionalBar segments={genderSegments} height={24} />
-                <div className="mt-2 flex gap-4">
-                  {genderSegments.map((seg) => (
-                    <span key={seg.label} className="font-['IBM_Plex_Mono',monospace] text-xs text-[#C5C0B8]">
-                      <span className="inline-block h-2 w-2 rounded-sm mr-1" style={{ backgroundColor: seg.color }} />
-                      {seg.label}: {formatCompact(seg.value)}
-                    </span>
-                  ))}
-                </div>
 
                 {/* Divider */}
                 <div className="my-4 border-t border-[#232328]" />
@@ -382,14 +374,6 @@ export default function OverviewTab({
                   Ethnicity
                 </h3>
                 <ProportionalBar segments={ethnicitySegments} height={24} />
-                <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
-                  {ethnicitySegments.map((seg) => (
-                    <span key={seg.label} className="font-['IBM_Plex_Mono',monospace] text-xs text-[#C5C0B8]">
-                      <span className="inline-block h-2 w-2 rounded-sm mr-1" style={{ backgroundColor: seg.color }} />
-                      {seg.label}: {formatCompact(seg.value)}
-                    </span>
-                  ))}
-                </div>
 
                 {/* Divider */}
                 <div className="my-4 border-t border-[#232328]" />
