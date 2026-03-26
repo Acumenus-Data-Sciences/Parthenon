@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v5.4
 milestone_name: milestone
 status: completed
-stopped_at: Completed 04-02-PLAN.md
-last_updated: "2026-03-26T12:52:10.520Z"
-last_activity: 2026-03-26 -- Completed 06-01 custom IRSF vocabulary registry (44 tests, 117 concepts)
+stopped_at: Completed 06-02-PLAN.md
+last_updated: "2026-03-26T12:53:21.490Z"
+last_activity: 2026-03-26 -- Completed 06-02 source_to_concept_map CSV and VocabularyLoader (76 tests, 121 mappings)
 progress:
   total_phases: 12
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 13
-  completed_plans: 10
-  percent: 62
+  completed_plans: 11
+  percent: 85
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-26)
 
 **Core value:** All ~1,860 Rett Syndrome patients from the IRSF Natural History Study queryable in Parthenon's OMOP CDM with accurate demographics, medications, conditions, measurements, and observations
-**Current focus:** Phase 6 - Custom IRSF Vocabulary
+**Current focus:** Phase 6 Complete - Custom IRSF Vocabulary
 
 ## Current Position
 
-Phase: 6 of 12 (Custom IRSF Vocabulary) -- IN PROGRESS
-Plan: 1 of 2 in current phase
-Status: Plan 06-01 Complete
-Last activity: 2026-03-26 -- Completed 06-01 custom IRSF vocabulary registry (44 tests, 117 concepts)
+Phase: 6 of 12 (Custom IRSF Vocabulary) -- COMPLETE
+Plan: 2 of 2 in current phase
+Status: Phase 06 Complete
+Last activity: 2026-03-26 -- Completed 06-02 source_to_concept_map CSV and VocabularyLoader (76 tests, 121 mappings)
 
-Progress: [██████░░░░] 62%
+Progress: [█████████░] 85%
 
 ## Performance Metrics
 
@@ -58,6 +58,7 @@ Progress: [██████░░░░] 62%
 | Phase 03 P01 | 4min | 2 tasks | 6 files |
 | Phase 04 P03 | 3min | 1 tasks | 2 files |
 | Phase 04 P02 | 3min | 1 tasks | 2 files |
+| Phase 06 P02 | 3min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -89,6 +90,8 @@ Recent decisions affecting current work:
 - [Phase 06-01]: Both OtherMCP2Mutations and OtherMECP2Mutations get separate concepts (both exist in source data)
 - [Phase 04]: Load only DeathRecord_5211 (strict superset of 5201); dedup keeps first valid record per person_id
 - [Phase 04]: Multi-race patients get concept_id=0 with comma-separated source_value
+- [Phase 06]: SNOMED dual mappings for 4 diagnoses: Classic Rett (4288480), Atypical Rett (37397680), MECP2 duplication (45765797), FOXG1 (45765499)
+- [Phase 06]: VocabularyLoader uses DELETE+INSERT in single transaction for idempotent re-runs with parameterized queries
 
 ### Pending Todos
 
@@ -102,6 +105,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-26T12:52:10.517Z
-Stopped at: Completed 04-02-PLAN.md
+Last session: 2026-03-26T12:53:21.489Z
+Stopped at: Completed 06-02-PLAN.md
 Resume file: None

@@ -66,7 +66,7 @@
 - [x] **VOCAB-03**: MBA total score and item concepts registered in custom vocabulary
 - [x] **VOCAB-04**: ~50 MECP2/CDKL5/FOXG1 mutation type concepts registered with groupings (missense, nonsense, large deletion, C-terminal truncation)
 - [x] **VOCAB-05**: Rett diagnostic category concepts (classic Rett, atypical Rett, CDKL5 deficiency, FOXG1, MECP2 duplication) registered
-- [ ] **VOCAB-06**: All custom concepts registered in source_to_concept_map for ETL lookup
+- [x] **VOCAB-06**: All custom concepts registered in source_to_concept_map for ETL lookup
 
 ### Data Loading
 
@@ -164,7 +164,7 @@
 | VOCAB-03 | Phase 6 | Complete |
 | VOCAB-04 | Phase 6 | Complete |
 | VOCAB-05 | Phase 6 | Complete |
-| VOCAB-06 | Phase 6 | Pending |
+| VOCAB-06 | Phase 6 | Complete |
 | LOAD-01 | Phase 11 | Pending |
 | LOAD-02 | Phase 11 | Pending |
 | LOAD-03 | Phase 11 | Pending |
