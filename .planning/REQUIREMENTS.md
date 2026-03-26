@@ -46,7 +46,7 @@
 ### Measurements
 
 - [x] **MEAS-01**: Growth measurements (height, weight, BMI, head circumference) unpivoted from wide to long format with LOINC concept_ids (3036277, 3025315, 3038553, 3036832)
-- [ ] **MEAS-02**: Clinical Severity Scale (CSS) total score and individual items stored as separate measurement rows with custom IRSF concept_ids
+- [x] **MEAS-02**: Clinical Severity Scale (CSS) total score and individual items stored as separate measurement rows with custom IRSF concept_ids
 - [ ] **MEAS-03**: Lab results from Labs_5211 mapped to LOINC concepts
 - [ ] **MEAS-04**: SF-36 quality of life scores transformed to measurement rows
 - [ ] **MEAS-05**: Measurement mapping coverage rate >= 95% for growth/lab measurements
@@ -150,7 +150,7 @@
 | COND-02 | Phase 8 | Complete |
 | COND-03 | Phase 8 | Complete |
 | MEAS-01 | Phase 9 | Complete |
-| MEAS-02 | Phase 9 | Pending |
+| MEAS-02 | Phase 9 | Complete |
 | MEAS-03 | Phase 9 | Pending |
 | MEAS-04 | Phase 9 | Pending |
 | MEAS-05 | Phase 9 | Pending |
