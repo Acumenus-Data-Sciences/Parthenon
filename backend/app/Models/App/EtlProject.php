@@ -14,6 +14,7 @@ class EtlProject extends Model
 
     protected $fillable = [
         'source_id',
+        'ingestion_project_id',
         'cdm_version',
         'name',
         'status',
@@ -26,6 +27,12 @@ class EtlProject extends Model
     public function source(): BelongsTo
     {
         return $this->belongsTo(Source::class);
+    }
+
+    /** @return BelongsTo<IngestionProject, $this> */
+    public function ingestionProject(): BelongsTo
+    {
+        return $this->belongsTo(IngestionProject::class);
     }
 
     /** @return BelongsTo<User, $this> */
