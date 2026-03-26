@@ -18,6 +18,7 @@ import { CdmTableNode } from "./CdmTableNode";
 import { StemTableNode } from "./StemTableNode";
 import { MappingEdge } from "./MappingEdge";
 import { MappingToolbar } from "./MappingToolbar";
+import CdmTableDetailModal from "./CdmTableDetailModal";
 import { CDM_SCHEMA_V54 } from "../../lib/cdm-schema-v54";
 
 // Vocabulary tables are reference data, not ETL targets — exclude from mapping canvas
@@ -111,6 +112,7 @@ export function AqueductCanvas({
   const [filter, setFilter] = useState<"all" | "mapped" | "unmapped">("mapped");
   const [suggestBanner, setSuggestBanner] = useState<string | null>(null);
   const [isExporting, setIsExporting] = useState(false);
+  const [detailCdmTable, setDetailCdmTable] = useState<string | null>(null);
   const createMapping = useCreateTableMapping(project.id);
   const suggestMutation = useSuggestMappings(project.id);
 
@@ -431,6 +433,17 @@ export function AqueductCanvas({
     [tableMappings, createMapping],
   );
 
+  const handleNodeClick = useCallback((_event: React.MouseEvent, node: Node) => {
+    if (node.id.startsWith("cdm-")) {
+      setDetailCdmTable(node.id.replace("cdm-", ""));
+    } else if (node.id.startsWith("source-")) {
+      // Find mapping for this source table and drill down
+      const sourceTable = node.id.replace("source-", "");
+      const mapping = tableMappings.find((m) => m.source_table === sourceTable);
+      if (mapping) onDrillDown(mapping.id);
+    }
+  }, [tableMappings, onDrillDown]);
+
   const handleSuggest = useCallback(() => {
     suggestMutation.mutate(undefined, {
       onSuccess: (result) => {
@@ -479,6 +492,7 @@ export function AqueductCanvas({
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}
           onConnect={handleConnect}
+          onNodeClick={handleNodeClick}
           fitView
           proOptions={{ hideAttribution: true }}
         >
@@ -487,6 +501,24 @@ export function AqueductCanvas({
           <Background variant={BackgroundVariant.Dots} color="#2a2a3e" gap={20} />
         </ReactFlow>
       </div>
+
+      {/* CDM table detail modal */}
+      {detailCdmTable && (() => {
+        const cdmDef = CDM_ETL_TABLES.find((t) => t.name === detailCdmTable);
+        if (!cdmDef) return null;
+        const relatedMappings = tableMappings.filter((m) => m.target_table === detailCdmTable);
+        return (
+          <CdmTableDetailModal
+            isOpen
+            onClose={() => setDetailCdmTable(null)}
+            tableName={cdmDef.name}
+            domain={cdmDef.domain}
+            columns={cdmDef.columns}
+            mappings={relatedMappings}
+            onDrillDown={onDrillDown}
+          />
+        );
+      })()}
     </div>
   );
 }
