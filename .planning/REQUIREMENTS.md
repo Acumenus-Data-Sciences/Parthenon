@@ -71,9 +71,9 @@
 ### Data Loading
 
 - [x] **LOAD-01**: Staging CSVs uploaded to Parthenon ingestion pipeline in strict FK dependency order: person -> visit -> death -> drug -> condition -> measurement -> observation
-- [ ] **LOAD-02**: Observation periods computed post-load from all event table date ranges via Parthenon's ObservationPeriodCalculator
-- [ ] **LOAD-03**: 100% of loaded persons have at least one observation period
-- [ ] **LOAD-04**: CDM_SOURCE table populated with IRSF-NHS metadata
+- [x] **LOAD-02**: Observation periods computed post-load from all event table date ranges via Parthenon's ObservationPeriodCalculator
+- [x] **LOAD-03**: 100% of loaded persons have at least one observation period
+- [x] **LOAD-04**: CDM_SOURCE table populated with IRSF-NHS metadata
 
 ### Validation
 
@@ -166,9 +166,9 @@
 | VOCAB-05 | Phase 6 | Complete |
 | VOCAB-06 | Phase 6 | Complete |
 | LOAD-01 | Phase 11 | Complete |
-| LOAD-02 | Phase 11 | Pending |
-| LOAD-03 | Phase 11 | Pending |
-| LOAD-04 | Phase 11 | Pending |
+| LOAD-02 | Phase 11 | Complete |
+| LOAD-03 | Phase 11 | Complete |
+| LOAD-04 | Phase 11 | Complete |
 | VAL-01 | Phase 12 | Pending |
 | VAL-02 | Phase 12 | Pending |
 | VAL-03 | Phase 12 | Pending |

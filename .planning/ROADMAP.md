@@ -231,5 +231,5 @@ Note: Phases 2 and 3 can run in parallel. Phases 7, 8, 9, 10 can run in parallel
 | 8. Conditions | 2/2 | Complete    | 2026-03-26 |
 | 9. Measurements | 1/3 | Complete    | 2026-03-26 |
 | 10. Observations | 3/3 | Complete    | 2026-03-26 |
-| 11. Data Loading and Observation Periods | 0/2 | Not started | - |
+| 11. Data Loading and Observation Periods | 2/2 | Complete    | 2026-03-26 |
 | 12. Validation and Cohort Verification | 0/3 | Not started | - |

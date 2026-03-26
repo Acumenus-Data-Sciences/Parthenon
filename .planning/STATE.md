@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v5.4
 milestone_name: milestone
 status: executing
-stopped_at: Completed 11-01-PLAN.md (FK-ordered staging CSV upload)
-last_updated: "2026-03-26T19:12:30.263Z"
+stopped_at: Completed 11-02-PLAN.md (observation periods, CDM_SOURCE, data source)
+last_updated: "2026-03-26T19:25:39.303Z"
 last_activity: 2026-03-26 -- Completed 09-01 growth measurement unpivot (34,135 rows)
 progress:
   total_phases: 12
   completed_phases: 10
   total_plans: 24
-  completed_plans: 25
+  completed_plans: 26
   percent: 92
 ---
 
@@ -73,6 +73,7 @@ Progress: [█████████░] 92%
 | Phase 09 P03 | 7min | 5 tasks | 2 files |
 | Phase 10 P03 | 5min | 7 tasks | 3 files |
 | Phase 11 P01 | 11min | 1 tasks | 1 files |
+| Phase 11 P02 | 10min | 1 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -135,6 +136,8 @@ Recent decisions affecting current work:
 - [Phase 10]: Rett Features Everoccurred columns use Yes/No strings; _is_truthy handles both string and integer truthy values
 - [Phase 10]: Timepoint observations (AtBaseline-At5Y) included in v1 for longitudinal tracking
 - [Phase 11]: bigint for concept_id columns (SNOMED codes exceed int32); schema adaptation for existing OMOP tables; IRSF sentinel via person_source_value = person_id::text
+- [Phase 11]: ObservationPeriodCalculator filters to person table via INNER JOIN to avoid orphan person_ids from shared event tables (procedure_occurrence had 110M rows from Synthea)
+- [Phase 11]: CDM_SOURCE uses delete+insert for idempotency (no PK in OMOP spec)
 
 ### Pending Todos
 
@@ -148,6 +151,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-26T19:12:30.261Z
-Stopped at: Completed 11-01-PLAN.md (FK-ordered staging CSV upload)
+Last session: 2026-03-26T19:25:39.302Z
+Stopped at: Completed 11-02-PLAN.md (observation periods, CDM_SOURCE, data source)
 Resume file: None
