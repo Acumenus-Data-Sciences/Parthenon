@@ -60,7 +60,8 @@ export default function ServiceDetailPage() {
   const { service, logs, metrics } = data;
   const { badge, dot } = STATUS_MAP[service.status] ?? STATUS_MAP.down;
   const metricEntries = Object.entries(metrics).filter(([, v]) => v !== null && typeof v !== "object");
-  const nestedMetrics = Object.entries(metrics).filter(([, v]) => typeof v === "object" && v !== null);
+  const darkstarPackageKeys = key === "darkstar" ? new Set(["ohdsi_packages", "posit_packages"]) : new Set<string>();
+  const nestedMetrics = Object.entries(metrics).filter(([k, v]) => typeof v === "object" && v !== null && !darkstarPackageKeys.has(k));
 
   return (
     <div className="space-y-6">
@@ -117,6 +118,9 @@ export default function ServiceDetailPage() {
 
       {/* ChromaDB Studio */}
       {key === "chromadb" && <ChromaStudioPanel />}
+
+      {/* Darkstar package versions */}
+      {key === "darkstar" && <DarkstarPackagesPanel metrics={metrics} />}
 
       {/* Metrics */}
       {metricEntries.length > 0 && (
@@ -270,6 +274,59 @@ function PacsManagementSection() {
         connection={browseConn}
         onClose={() => setBrowseConn(null)}
       />
+    </div>
+  );
+}
+
+function DarkstarPackagesPanel({ metrics }: { metrics: Record<string, unknown> }) {
+  const ohdsiPkgs = metrics.ohdsi_packages as Record<string, string> | undefined;
+  const positPkgs = metrics.posit_packages as Record<string, string> | undefined;
+
+  if (!ohdsiPkgs && !positPkgs) return null;
+
+  return (
+    <div className="space-y-4">
+      {ohdsiPkgs && Object.keys(ohdsiPkgs).length > 0 && (
+        <div>
+          <h2 className="mb-3 text-lg font-semibold text-foreground">
+            OHDSI HADES Packages
+            <span className="ml-2 text-sm font-normal text-muted-foreground">
+              ({Object.keys(ohdsiPkgs).length} installed)
+            </span>
+          </h2>
+          <Panel>
+            <div className="grid grid-cols-2 gap-x-6 gap-y-2 sm:grid-cols-3 lg:grid-cols-4">
+              {Object.entries(ohdsiPkgs).map(([name, version]) => (
+                <div key={name} className="flex items-baseline justify-between gap-2">
+                  <span className="text-sm text-muted-foreground truncate">{name}</span>
+                  <span className="shrink-0 font-mono text-sm font-medium text-foreground">{version}</span>
+                </div>
+              ))}
+            </div>
+          </Panel>
+        </div>
+      )}
+
+      {positPkgs && Object.keys(positPkgs).length > 0 && (
+        <div>
+          <h2 className="mb-3 text-lg font-semibold text-foreground">
+            Posit / CRAN Packages
+            <span className="ml-2 text-sm font-normal text-muted-foreground">
+              ({Object.keys(positPkgs).length} installed)
+            </span>
+          </h2>
+          <Panel>
+            <div className="grid grid-cols-2 gap-x-6 gap-y-2 sm:grid-cols-3 lg:grid-cols-4">
+              {Object.entries(positPkgs).map(([name, version]) => (
+                <div key={name} className="flex items-baseline justify-between gap-2">
+                  <span className="text-sm text-muted-foreground truncate">{name}</span>
+                  <span className="shrink-0 font-mono text-sm font-medium text-foreground">{version}</span>
+                </div>
+              ))}
+            </div>
+          </Panel>
+        </div>
+      )}
     </div>
   );
 }

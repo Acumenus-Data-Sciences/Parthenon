@@ -22,7 +22,7 @@ class SystemHealthController extends Controller
             'backend' => fn () => $this->checkBackend(),
             'redis' => fn () => $this->checkRedis(),
             'ai' => fn () => $this->checkAiService(),
-            'r' => fn () => $this->checkRRuntime(),
+            'darkstar' => fn () => $this->checkRRuntime(),
             'solr' => fn () => $this->checkSolr(),
             'orthanc' => fn () => $this->checkOrthanc(),
             'queue' => fn () => $this->checkQueue(),
@@ -72,7 +72,7 @@ class SystemHealthController extends Controller
             'backend' => $this->getLaravelLogs(),
             'redis' => $this->getRedisLogs(),
             'ai' => $this->getServiceHttpLogs('ai'),
-            'r' => $this->getServiceHttpLogs('r'),
+            'darkstar' => $this->getServiceHttpLogs('darkstar'),
             'solr' => $this->getSolrLogs(),
             'orthanc' => $this->getServiceHttpLogs('orthanc'),
             'queue' => $this->getQueueLogs(),
@@ -92,7 +92,7 @@ class SystemHealthController extends Controller
             'backend' => $this->getBackendMetrics(),
             'redis' => $this->getRedisMetrics(),
             'ai' => $this->getAiMetrics(),
-            'r' => $this->getRMetrics(),
+            'darkstar' => $this->getDarkstarMetrics(),
             'solr' => $this->getSolrMetrics(),
             'orthanc' => $this->getOrthancMetrics(),
             'queue' => $this->getQueueMetrics(),
@@ -174,24 +174,28 @@ class SystemHealthController extends Controller
             $response = Http::timeout(3)->get("{$url}/health");
 
             if ($response->successful()) {
+                $data = $response->json();
+                $rVersion = $data['r_version'] ?? 'unknown';
+                $hadesCount = count($data['packages']['ohdsi'] ?? []);
+
                 return [
-                    'name' => 'R Analytics Runtime',
-                    'key' => 'r',
+                    'name' => 'Darkstar',
+                    'key' => 'darkstar',
                     'status' => 'healthy',
-                    'message' => 'R Plumber is reachable.',
+                    'message' => "R {$rVersion}, {$hadesCount} HADES packages loaded.",
                 ];
             }
 
             return [
-                'name' => 'R Analytics Runtime',
-                'key' => 'r',
+                'name' => 'Darkstar',
+                'key' => 'darkstar',
                 'status' => 'degraded',
-                'message' => "R Plumber returned HTTP {$response->status()}.",
+                'message' => "Darkstar returned HTTP {$response->status()}.",
             ];
         } catch (\Throwable $e) {
             return [
-                'name' => 'R Analytics Runtime',
-                'key' => 'r',
+                'name' => 'Darkstar',
+                'key' => 'darkstar',
                 'status' => 'down',
                 'message' => $e->getMessage(),
             ];
@@ -529,7 +533,7 @@ class SystemHealthController extends Controller
 
         $keyword = match ($service) {
             'ai' => 'python-ai|AI Service|abby|ollama|MedGemma',
-            'r' => 'darkstar|R Plumber|plumber|HADES',
+            'darkstar' => 'darkstar|Darkstar|R Plumber|plumber|HADES',
             'orthanc' => 'orthanc|PACS|DICOMweb|dicom-web',
             'chromadb' => 'chroma|ChromaDB|vector',
             default => $service,
@@ -675,14 +679,37 @@ class SystemHealthController extends Controller
     /**
      * @return array<string, mixed>
      */
-    private function getRMetrics(): array
+    private function getDarkstarMetrics(): array
     {
         $url = rtrim(config('services.r_runtime.url', 'http://darkstar:8787'), '/');
 
         try {
-            $response = Http::timeout(3)->get("{$url}/health");
+            $response = Http::timeout(5)->get("{$url}/health");
 
-            return $response->successful() ? ($response->json() ?? []) : [];
+            if (! $response->successful()) {
+                return [];
+            }
+
+            $data = $response->json() ?? [];
+
+            $metrics = [
+                'service_version' => $data['version'] ?? 'unknown',
+                'r_version' => $data['r_version'] ?? 'unknown',
+                'uptime_seconds' => $data['uptime_seconds'] ?? null,
+                'memory_used_mb' => $data['checks']['memory_used_mb'] ?? null,
+                'jvm_healthy' => $data['checks']['jvm'] ?? false,
+                'jdbc_driver' => $data['checks']['jdbc_driver'] ?? false,
+            ];
+
+            // Structure package versions into named groups
+            if (isset($data['packages']['ohdsi'])) {
+                $metrics['ohdsi_packages'] = $data['packages']['ohdsi'];
+            }
+            if (isset($data['packages']['posit'])) {
+                $metrics['posit_packages'] = $data['packages']['posit'];
+            }
+
+            return $metrics;
         } catch (\Throwable) {
             return [];
         }

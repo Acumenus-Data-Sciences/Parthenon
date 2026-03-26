@@ -1,4 +1,5 @@
 #* Deep health check — validates JVM, memory, core packages, and uptime
+#* Returns package versions for OHDSI (HADES) and Posit (infrastructure) packages
 #* @get /health
 #* @serializer unboxedJSON
 function() {
@@ -40,12 +41,51 @@ function() {
 
   overall <- all(unlist(checks[c("packages", "jvm", "memory_ok", "jdbc_driver")]))
 
+  # ── Package versions ────────────────────────────────────────────
+  get_ver <- function(pkg) {
+    tryCatch(
+      as.character(utils::packageVersion(pkg)),
+      error = function(e) NA_character_
+    )
+  }
+
+  # OHDSI HADES packages
+  ohdsi_pkgs <- c(
+    "SqlRender", "DatabaseConnector", "Andromeda", "Cyclops",
+    "FeatureExtraction", "ResultModelManager", "EmpiricalCalibration",
+    "ParallelLogger", "CohortMethod", "PatientLevelPrediction",
+    "SelfControlledCaseSeries", "EvidenceSynthesis", "CohortGenerator",
+    "CohortDiagnostics", "DeepPatientLevelPrediction", "CohortIncidence",
+    "Characterization", "Strategus", "ETLSyntheaBuilder",
+    "DataQualityDashboard"
+  )
+
+  # Posit / CRAN infrastructure packages
+  posit_pkgs <- c(
+    "plumber2", "mirai", "nanonext", "jsonlite", "DBI", "RPostgres",
+    "httr2", "callr", "processx", "rJava", "duckdb", "remotes"
+  )
+
+  ohdsi_versions <- lapply(ohdsi_pkgs, function(p) get_ver(p))
+  names(ohdsi_versions) <- ohdsi_pkgs
+
+  posit_versions <- lapply(posit_pkgs, function(p) get_ver(p))
+  names(posit_versions) <- posit_pkgs
+
+  # Filter out packages that are not installed (NA)
+  ohdsi_versions <- Filter(Negate(is.na), ohdsi_versions)
+  posit_versions <- Filter(Negate(is.na), posit_versions)
+
   list(
     status = if (overall) "ok" else "degraded",
-    service = "parthenon-r-runtime",
-    version = "0.2.0",
+    service = "darkstar",
+    version = "0.3.0",
     r_version = paste(R.version$major, R.version$minor, sep = "."),
     uptime_seconds = uptime_secs,
-    checks = checks
+    checks = checks,
+    packages = list(
+      ohdsi = ohdsi_versions,
+      posit = posit_versions
+    )
   )
 }
