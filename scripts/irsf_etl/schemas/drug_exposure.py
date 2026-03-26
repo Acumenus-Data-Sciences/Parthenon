@@ -56,7 +56,7 @@ drug_exposure_schema = pa.DataFrameSchema(
             description="Reason for stopping medication (semicolon-separated)",
         ),
         "visit_occurrence_id": pa.Column(
-            int,
+            "Int64",
             nullable=True,
             description="FK to visit_occurrence table",
         ),
@@ -66,7 +66,7 @@ drug_exposure_schema = pa.DataFrameSchema(
             description="Original medication name and RxNorm code string",
         ),
         "drug_source_concept_id": pa.Column(
-            int,
+            "Int64",
             nullable=True,
             description="Pre-mapped RxNorm concept ID before vocabulary validation",
         ),
