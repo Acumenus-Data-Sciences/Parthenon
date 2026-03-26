@@ -3,9 +3,9 @@
 namespace App\Jobs\Ingestion;
 
 use App\Enums\ExecutionStatus;
+use App\Models\App\FieldProfile;
 use App\Models\App\IngestionJob;
 use App\Models\App\IngestionProject;
-use App\Models\App\FieldProfile;
 use App\Models\App\SourceProfile;
 use App\Services\Ingestion\StagingService;
 use App\Services\Ingestion\StagingSourceService;
