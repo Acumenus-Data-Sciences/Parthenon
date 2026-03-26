@@ -25,8 +25,8 @@
 
 ### Visit Derivation
 
-- [ ] **VISIT-01**: Visit occurrences derived from unique (person_id, visit_date, visit_label) tuples across clinical tables
-- [ ] **VISIT-02**: Study visits classified as outpatient (concept_id 9202), hospitalizations from Hospitalizations_5211 classified as inpatient (concept_id 9201)
+- [x] **VISIT-01**: Visit occurrences derived from unique (person_id, visit_date, visit_label) tuples across clinical tables
+- [x] **VISIT-02**: Study visits classified as outpatient (concept_id 9202), hospitalizations from Hospitalizations_5211 classified as inpatient (concept_id 9201)
 - [x] **VISIT-03**: Visit lookup map (visit_id_map.csv) produced for all clinical event scripts to reference
 
 ### Medications
@@ -138,8 +138,8 @@
 | PERS-04 | Phase 4 | Complete |
 | PERS-05 | Phase 4 | Complete |
 | PERS-06 | Phase 4 | Complete |
-| VISIT-01 | Phase 5 | Pending |
-| VISIT-02 | Phase 5 | Pending |
+| VISIT-01 | Phase 5 | Complete |
+| VISIT-02 | Phase 5 | Complete |
 | VISIT-03 | Phase 5 | Complete |
 | MED-01 | Phase 7 | Pending |
 | MED-02 | Phase 7 | Pending |

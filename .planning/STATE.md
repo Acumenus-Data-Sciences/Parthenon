@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v5.4
 milestone_name: milestone
 status: completed
-stopped_at: Completed 06-02-PLAN.md
-last_updated: "2026-03-26T12:53:21.490Z"
-last_activity: 2026-03-26 -- Completed 06-02 source_to_concept_map CSV and VocabularyLoader (76 tests, 121 mappings)
+stopped_at: Completed 05-01-PLAN.md
+last_updated: "2026-03-26T13:01:23.000Z"
+last_activity: 2026-03-26 -- Completed 05-01 visit derivation (9,003 visits, 364 tests)
 progress:
   total_phases: 12
   completed_phases: 5
   total_plans: 13
-  completed_plans: 11
-  percent: 85
+  completed_plans: 12
+  percent: 92
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-26)
 
 **Core value:** All ~1,860 Rett Syndrome patients from the IRSF Natural History Study queryable in Parthenon's OMOP CDM with accurate demographics, medications, conditions, measurements, and observations
-**Current focus:** Phase 6 Complete - Custom IRSF Vocabulary
+**Current focus:** Phase 5 Visit Derivation (Plan 1 of 2 complete)
 
 ## Current Position
 
-Phase: 6 of 12 (Custom IRSF Vocabulary) -- COMPLETE
-Plan: 2 of 2 in current phase
-Status: Phase 06 Complete
-Last activity: 2026-03-26 -- Completed 06-02 source_to_concept_map CSV and VocabularyLoader (76 tests, 121 mappings)
+Phase: 5 of 12 (Visit Derivation) -- Plan 1 of 2 Complete
+Plan: 1 of 2 in current phase
+Status: Executing Phase 05
+Last activity: 2026-03-26 -- Completed 05-01 visit derivation (9,003 visits, 364 tests)
 
-Progress: [█████████░] 85%
+Progress: [█████████░] 92%
 
 ## Performance Metrics
 
@@ -58,6 +58,7 @@ Progress: [█████████░] 85%
 | Phase 03 P01 | 4min | 2 tasks | 6 files |
 | Phase 04 P03 | 3min | 1 tasks | 2 files |
 | Phase 04 P02 | 3min | 1 tasks | 2 files |
+| Phase 05 P01 | 6min | 5 tasks | 5 files |
 | Phase 06 P02 | 3min | 2 tasks | 5 files |
 | Phase 05 P02 | 3min | 3 tasks | 2 files |
 
@@ -93,6 +94,10 @@ Recent decisions affecting current work:
 - [Phase 04]: Multi-race patients get concept_id=0 with comma-separated source_value
 - [Phase 06]: SNOMED dual mappings for 4 diagnoses: Classic Rett (4288480), Atypical Rett (37397680), MECP2 duplication (45765797), FOXG1 (45765499)
 - [Phase 06]: VocabularyLoader uses DELETE+INSERT in single transaction for idempotent re-runs with parameterized queries
+- [Phase 05]: LogMasterForm_5211 as authoritative 5211 visit source (not scanning 60+ clinical tables)
+- [Phase 05]: 822 5201-only patients identified and scanned from ClinicalAssessment + Measurements
+- [Phase 05]: Dedup on (person_id, visit_date, visit_concept_id) -- same date different type creates separate records
+- [Phase 05]: max_year=2026 for hospitalization date assembly (data includes recent hospitalizations)
 - [Phase 05]: Outpatient (9202) preferred in date-only fallback for VisitResolver when multiple visits on same person+date
 - [Phase 05]: Binary search (bisect) for nearest-date fallback with sorted date list per person
 - [Phase 05]: resolve_series returns pd.Int64Dtype array with pd.NA for unresolved (consistent with PersonIdRegistry pattern)
@@ -109,6 +114,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-26T12:57:42Z
-Stopped at: Completed 05-02-PLAN.md (parallel with 05-01, 06-01, 06-02)
+Last session: 2026-03-26T13:01:23Z
+Stopped at: Completed 05-01-PLAN.md
 Resume file: None
