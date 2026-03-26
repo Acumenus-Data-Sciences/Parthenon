@@ -6,10 +6,10 @@ namespace App\Services\SqlRenderer;
  * Translates OHDSI SQL (T-SQL dialect) to target database dialects.
  *
  * OHDSI tools use SQL Server syntax as the canonical format (via SqlRender in R/Java).
- * This PHP translator handles the same conversions for the 11 HADES-compliant databases:
+ * This PHP translator handles the same conversions for the 12 HADES-compliant databases:
  *
  *   postgresql, sql_server, oracle, redshift, bigquery, snowflake,
- *   synapse, spark, hive, impala, netezza
+ *   synapse, spark, hive, impala, netezza, duckdb
  *
  * Templates are stored in OHDSI SQL (T-SQL) and translated at render time.
  */
@@ -34,6 +34,7 @@ class OhdsiSqlTranslator
             'hive' => $this->toHive($sql),
             'impala' => $this->toImpala($sql),
             'netezza' => $this->toNetezza($sql),
+            'duckdb' => $this->toPostgresql($sql),
             default => $this->toPostgresql($sql),
         };
     }
@@ -57,6 +58,7 @@ class OhdsiSqlTranslator
             'hive',
             'impala',
             'netezza',
+            'duckdb',
         ];
     }
 
