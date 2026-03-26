@@ -112,6 +112,31 @@ def sample_hospitalizations_csv() -> StringIO:
 
 
 @pytest.fixture()
+def sample_css_csv() -> StringIO:
+    """StringIO with representative CSS data (3 patients, 2 visits, some null scores).
+
+    Contains all 14 CSS score columns matching _CSS_CONCEPTS source_column values.
+    Patient 1002 visit 2 has 2 null scores to test NULL filtering.
+    """
+    data = (
+        "participant_id,participant_id5201,participant_id5211,visit,visit_date,"
+        "TotalScore,AgeOfOnsetOfRegression,OnsetOfStereotypes,HeadGrowth,"
+        "SomaticGrowthAtThisVisit,IndependentSittingAtThisVisitB,"
+        "AmbulationAtThisVisitByExam,HandUse,Scoliosis,"
+        "LanguageAtThisVisitByExam,NonverbalCommunicationAtThisVi,"
+        "RespiratoryDysfunctionAtThisVi,AutonomicSymptomsAtThisVisitBy,"
+        "EpilepsySeizuresAtThisVisit\n"
+        "1001,1001,1001,Baseline,03/05/06,25,3,2,1,2,3,4,3,2,1,2,1,0,1\n"
+        "1001,1001,1001,1 year,03/10/07,30,3,2,2,3,4,4,3,2,1,2,1,1,2\n"
+        "1002,1002,1002,Baseline,06/15/08,20,2,1,1,1,2,3,2,1,1,1,1,1,2\n"
+        "1002,1002,1002,1 year,06/20/09,22,2,1,1,2,3,3,,1,,1,1,1,3\n"
+        "1003,1003,1003,Baseline,01/10/10,18,1,1,0,1,2,2,2,1,1,1,0,0,3\n"
+        "1003,1003,1003,1 year,01/15/11,21,2,1,1,2,3,3,2,1,1,1,1,1,2\n"
+    )
+    return StringIO(data)
+
+
+@pytest.fixture()
 def sample_clinical_assessment_5201_csv() -> StringIO:
     """StringIO with representative 5201 ClinicalAssessment data."""
     data = (

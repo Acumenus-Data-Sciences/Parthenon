@@ -1,4 +1,4 @@
-"""Tests for measurement ETL: growth unpivot, NULL filtering, LOINC mapping, visit resolution."""
+"""Tests for measurement ETL: growth unpivot, CSS decomposition, NULL filtering, concept mapping."""
 
 from __future__ import annotations
 
@@ -9,12 +9,15 @@ import pandas as pd
 import pytest
 
 from scripts.irsf_etl.lib.id_registry import PersonIdRegistry
+from scripts.irsf_etl.lib.irsf_vocabulary import _CSS_CONCEPTS
 from scripts.irsf_etl.lib.rejection_log import RejectionLog
 from scripts.irsf_etl.lib.visit_resolver import VisitResolver
 from scripts.irsf_etl.measurement_etl import (
+    _CSS_MEASURE_SPECS,
     _GROWTH_MEASURES,
     _MEASUREMENT_TYPE_SURVEY,
     _OPERATOR_EQUALS,
+    transform_css,
     transform_growth,
     transform_measurements,
     unpivot_wide_to_long,
@@ -470,3 +473,261 @@ class TestMeasurementOutput:
         assert has_weight, f"Expected WeightKg in source_values: {source_values}"
         assert has_bmi, f"Expected BMI in source_values: {source_values}"
         assert has_foc, f"Expected FOCCm in source_values: {source_values}"
+
+
+# ---------------------------------------------------------------------------
+# CSS transform tests
+# ---------------------------------------------------------------------------
+
+
+class TestCssTransform:
+    """Tests for CSS (Clinical Severity Scale) measurement transformation."""
+
+    def test_css_concept_mapping(
+        self,
+        sample_css_csv: StringIO,
+        mock_registry: PersonIdRegistry,
+        mock_visit_resolver: VisitResolver,
+    ) -> None:
+        """Verify TotalScore->2000001000, AgeOfOnsetOfRegression->2000001001, etc."""
+        df = pd.read_csv(sample_css_csv)
+        log = RejectionLog("test_css")
+        log.set_processed_count(len(df))
+
+        person_ids = mock_registry.resolve_series(df["participant_id"])
+        visit_dates = pd.to_datetime(df["visit_date"], format="mixed", errors="coerce")
+        visit_dates_str = visit_dates.dt.strftime("%Y-%m-%d")
+
+        rows = unpivot_wide_to_long(
+            df=df,
+            person_ids=person_ids,
+            visit_dates=visit_dates_str,
+            measure_specs=_CSS_MEASURE_SPECS,
+            visit_resolver=mock_visit_resolver,
+            log=log,
+            source_file="test_css.csv",
+        )
+
+        result = pd.DataFrame(rows)
+        concept_ids = set(result["measurement_concept_id"].unique())
+
+        # All 14 CSS concept_ids should be present
+        expected_ids = {c.concept_id for c in _CSS_CONCEPTS}
+        assert concept_ids == expected_ids, (
+            f"Expected {expected_ids}, got {concept_ids}"
+        )
+
+    def test_css_all_14_columns_unpivoted(
+        self,
+        mock_registry: PersonIdRegistry,
+        mock_visit_resolver: VisitResolver,
+    ) -> None:
+        """One complete CSS row (all values non-null) produces exactly 14 rows."""
+        data = (
+            "participant_id,visit,visit_date,"
+            "TotalScore,AgeOfOnsetOfRegression,OnsetOfStereotypes,HeadGrowth,"
+            "SomaticGrowthAtThisVisit,IndependentSittingAtThisVisitB,"
+            "AmbulationAtThisVisitByExam,HandUse,Scoliosis,"
+            "LanguageAtThisVisitByExam,NonverbalCommunicationAtThisVi,"
+            "RespiratoryDysfunctionAtThisVi,AutonomicSymptomsAtThisVisitBy,"
+            "EpilepsySeizuresAtThisVisit\n"
+            "1001,Baseline,03/05/06,25,3,2,1,2,3,4,3,2,1,2,1,0,1\n"
+        )
+        df = pd.read_csv(StringIO(data))
+        log = RejectionLog("test_css")
+
+        person_ids = mock_registry.resolve_series(df["participant_id"])
+        visit_dates = pd.to_datetime(df["visit_date"], format="mixed", errors="coerce")
+        visit_dates_str = visit_dates.dt.strftime("%Y-%m-%d")
+
+        rows = unpivot_wide_to_long(
+            df=df,
+            person_ids=person_ids,
+            visit_dates=visit_dates_str,
+            measure_specs=_CSS_MEASURE_SPECS,
+            visit_resolver=mock_visit_resolver,
+            log=log,
+            source_file="test_css.csv",
+        )
+
+        assert len(rows) == 14, f"Expected 14 rows, got {len(rows)}"
+
+    def test_css_null_filter(
+        self,
+        mock_registry: PersonIdRegistry,
+        mock_visit_resolver: VisitResolver,
+    ) -> None:
+        """CSS row with 2 null score columns produces 12 measurement rows, not 14."""
+        data = (
+            "participant_id,visit,visit_date,"
+            "TotalScore,AgeOfOnsetOfRegression,OnsetOfStereotypes,HeadGrowth,"
+            "SomaticGrowthAtThisVisit,IndependentSittingAtThisVisitB,"
+            "AmbulationAtThisVisitByExam,HandUse,Scoliosis,"
+            "LanguageAtThisVisitByExam,NonverbalCommunicationAtThisVi,"
+            "RespiratoryDysfunctionAtThisVi,AutonomicSymptomsAtThisVisitBy,"
+            "EpilepsySeizuresAtThisVisit\n"
+            "1002,1 year,06/20/09,22,2,1,1,2,3,3,,1,,1,1,1,3\n"
+        )
+        df = pd.read_csv(StringIO(data))
+        log = RejectionLog("test_css")
+
+        person_ids = mock_registry.resolve_series(df["participant_id"])
+        visit_dates = pd.to_datetime(df["visit_date"], format="mixed", errors="coerce")
+        visit_dates_str = visit_dates.dt.strftime("%Y-%m-%d")
+
+        rows = unpivot_wide_to_long(
+            df=df,
+            person_ids=person_ids,
+            visit_dates=visit_dates_str,
+            measure_specs=_CSS_MEASURE_SPECS,
+            visit_resolver=mock_visit_resolver,
+            log=log,
+            source_file="test_css.csv",
+        )
+
+        # 14 columns - 2 nulls = 12
+        assert len(rows) == 12, f"Expected 12 rows (2 nulls), got {len(rows)}"
+
+    def test_css_values_are_integer_scores(
+        self,
+        sample_css_csv: StringIO,
+        mock_registry: PersonIdRegistry,
+        mock_visit_resolver: VisitResolver,
+    ) -> None:
+        """value_as_number contains integer values (0-5 for items, 0-52 for total)."""
+        df = pd.read_csv(sample_css_csv)
+        log = RejectionLog("test_css")
+
+        person_ids = mock_registry.resolve_series(df["participant_id"])
+        visit_dates = pd.to_datetime(df["visit_date"], format="mixed", errors="coerce")
+        visit_dates_str = visit_dates.dt.strftime("%Y-%m-%d")
+
+        rows = unpivot_wide_to_long(
+            df=df,
+            person_ids=person_ids,
+            visit_dates=visit_dates_str,
+            measure_specs=_CSS_MEASURE_SPECS,
+            visit_resolver=mock_visit_resolver,
+            log=log,
+            source_file="test_css.csv",
+        )
+
+        result = pd.DataFrame(rows)
+        for val in result["value_as_number"]:
+            assert float(val) == int(val), f"CSS score should be integer, got {val}"
+            assert 0 <= val <= 52, f"CSS score out of range: {val}"
+
+    def test_css_unit_concept_is_zero(
+        self,
+        sample_css_csv: StringIO,
+        mock_registry: PersonIdRegistry,
+        mock_visit_resolver: VisitResolver,
+    ) -> None:
+        """All CSS measurements have unit_concept_id=0 (scores, not physical units)."""
+        df = pd.read_csv(sample_css_csv)
+        log = RejectionLog("test_css")
+
+        person_ids = mock_registry.resolve_series(df["participant_id"])
+        visit_dates = pd.to_datetime(df["visit_date"], format="mixed", errors="coerce")
+        visit_dates_str = visit_dates.dt.strftime("%Y-%m-%d")
+
+        rows = unpivot_wide_to_long(
+            df=df,
+            person_ids=person_ids,
+            visit_dates=visit_dates_str,
+            measure_specs=_CSS_MEASURE_SPECS,
+            visit_resolver=mock_visit_resolver,
+            log=log,
+            source_file="test_css.csv",
+        )
+
+        result = pd.DataFrame(rows)
+        unique_units = set(result["unit_concept_id"].unique())
+        assert unique_units == {0}, f"Expected all unit_concept_id=0, got {unique_units}"
+
+    def test_css_source_column_driven(self) -> None:
+        """Verify that source_column from _CSS_CONCEPTS matches actual measure_specs."""
+        expected_columns = {c.source_column for c in _CSS_CONCEPTS}
+        spec_columns = {spec[0] for spec in _CSS_MEASURE_SPECS}
+        assert expected_columns == spec_columns, (
+            f"Mismatch: _CSS_CONCEPTS source_columns {expected_columns} "
+            f"vs _CSS_MEASURE_SPECS columns {spec_columns}"
+        )
+
+    def test_css_measurement_source_value(
+        self,
+        sample_css_csv: StringIO,
+        mock_registry: PersonIdRegistry,
+        mock_visit_resolver: VisitResolver,
+    ) -> None:
+        """measurement_source_value = original column name (e.g., TotalScore, HandUse)."""
+        df = pd.read_csv(sample_css_csv)
+        log = RejectionLog("test_css")
+
+        person_ids = mock_registry.resolve_series(df["participant_id"])
+        visit_dates = pd.to_datetime(df["visit_date"], format="mixed", errors="coerce")
+        visit_dates_str = visit_dates.dt.strftime("%Y-%m-%d")
+
+        rows = unpivot_wide_to_long(
+            df=df,
+            person_ids=person_ids,
+            visit_dates=visit_dates_str,
+            measure_specs=_CSS_MEASURE_SPECS,
+            visit_resolver=mock_visit_resolver,
+            log=log,
+            source_file="test_css.csv",
+        )
+
+        result = pd.DataFrame(rows)
+        source_values = set(result["measurement_source_value"].unique())
+        expected_names = {c.source_column for c in _CSS_CONCEPTS}
+        assert source_values == expected_names, (
+            f"Expected {expected_names}, got {source_values}"
+        )
+
+    def test_combined_growth_and_css(
+        self,
+        sample_growth_csv: StringIO,
+        sample_css_csv: StringIO,
+        mock_registry: PersonIdRegistry,
+        mock_visit_resolver: VisitResolver,
+        tmp_path,
+    ) -> None:
+        """Both growth and CSS rows appear in combined output with distinct concept_id ranges."""
+        from scripts.irsf_etl.config import ETLConfig
+
+        csv_dir = tmp_path / "5211_Custom_Extracts" / "csv"
+        csv_dir.mkdir(parents=True)
+
+        # Write growth CSV
+        sample_growth_csv.seek(0)
+        (csv_dir / "GROWTH_5201_5211.csv").write_text(sample_growth_csv.read())
+
+        # Write CSS CSV
+        sample_css_csv.seek(0)
+        (csv_dir / "CSS_5201_5211.csv").write_text(sample_css_csv.read())
+
+        config = ETLConfig(source_root=tmp_path)
+        growth_log = RejectionLog("test_growth")
+        css_log = RejectionLog("test_css")
+
+        growth_df = transform_growth(config, mock_registry, mock_visit_resolver, growth_log)
+        css_df = transform_css(config, mock_registry, mock_visit_resolver, css_log)
+
+        combined = pd.concat([growth_df, css_df], ignore_index=True)
+
+        # Growth concepts are in LOINC range (3M+)
+        growth_concepts = set(combined.loc[
+            combined["measurement_concept_id"] < 2_000_000_000,
+            "measurement_concept_id",
+        ].unique())
+        # CSS concepts are in IRSF custom range (2B+)
+        css_concepts = set(combined.loc[
+            combined["measurement_concept_id"] >= 2_000_000_000,
+            "measurement_concept_id",
+        ].unique())
+
+        assert len(growth_concepts) > 0, "Expected growth concept_ids"
+        assert len(css_concepts) > 0, "Expected CSS concept_ids"
+        # No overlap
+        assert growth_concepts.isdisjoint(css_concepts)
