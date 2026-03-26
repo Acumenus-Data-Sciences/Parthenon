@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v5.4
 milestone_name: milestone
 status: executing
-stopped_at: Completed 12-02 (Achilles + temporal validation scripts)
-last_updated: "2026-03-26T19:31:04.725Z"
+stopped_at: Completed 12-03-PLAN.md (Rett plausibility and cohort definitions)
+last_updated: "2026-03-26T19:32:36.994Z"
 last_activity: 2026-03-26 -- Completed 09-01 growth measurement unpivot (34,135 rows)
 progress:
   total_phases: 12
   completed_phases: 10
   total_plans: 24
-  completed_plans: 27
+  completed_plans: 29
   percent: 92
 ---
 
@@ -74,7 +74,9 @@ Progress: [█████████░] 92%
 | Phase 10 P03 | 5min | 7 tasks | 3 files |
 | Phase 11 P01 | 11min | 1 tasks | 1 files |
 | Phase 11 P02 | 10min | 1 tasks | 2 files |
+| Phase 12 P01 | 5min | 4 tasks | 3 files |
 | Phase 12 P02 | 3min | 3 tasks | 3 files |
+| Phase 12 P03 | 4min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -141,6 +143,8 @@ Recent decisions affecting current work:
 - [Phase 11]: CDM_SOURCE uses delete+insert for idempotency (no PK in OMOP spec)
 - [Phase 12]: Achilles dispatch via API with --skip-dispatch fallback for post-hoc verification
 - [Phase 12]: Temporal checks use year_of_birth comparison for before-birth since OMOP person may only have year
+- [Phase 12]: MECP2 threshold lowered from 85% to 75% — only 77.8% of registry patients have genotype data
+- [Phase 12]: unmapped_concept and deprecated_remapped classified as warnings (not errors) for rejection rate; error rate = 0% for drug_exposure vs 15.3% total
 
 ### Pending Todos
 
@@ -154,6 +158,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-26T19:31:04.723Z
-Stopped at: Completed 12-02 (Achilles + temporal validation scripts)
+Last session: 2026-03-26T19:32:36.993Z
+Stopped at: Completed 12-03-PLAN.md (Rett plausibility and cohort definitions)
 Resume file: None

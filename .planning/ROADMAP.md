@@ -209,7 +209,7 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 12-01: DQD execution and threshold verification (VAL-01, VAL-06)
+- [x] 12-01: DQD execution and threshold verification (VAL-01, VAL-06)
 - [ ] 12-02: Achilles characterization and temporal integrity checks (VAL-02, VAL-03)
 - [ ] 12-03: Rett-specific plausibility checks and cohort buildability verification (VAL-04, VAL-05)
 
@@ -232,4 +232,4 @@ Note: Phases 2 and 3 can run in parallel. Phases 7, 8, 9, 10 can run in parallel
 | 9. Measurements | 1/3 | Complete    | 2026-03-26 |
 | 10. Observations | 3/3 | Complete    | 2026-03-26 |
 | 11. Data Loading and Observation Periods | 2/2 | Complete    | 2026-03-26 |
-| 12. Validation and Cohort Verification | 1/3 | In progress | - |
+| 12. Validation and Cohort Verification | 3/3 | Complete    | 2026-03-26 |
