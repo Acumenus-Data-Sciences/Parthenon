@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback, useEffect } from "react";
+import { useMemo, useState, useCallback } from "react";
 import {
   ReactFlow,
   Controls,
@@ -7,7 +7,6 @@ import {
   BackgroundVariant,
   useNodesState,
   useEdgesState,
-  useReactFlow,
   ReactFlowProvider,
   type Connection,
   type Node,
@@ -135,8 +134,10 @@ function extractCdmFromNodeId(nodeId: string): string {
 // ---------------------------------------------------------------------------
 
 export function AqueductCanvas(props: AqueductCanvasProps) {
+  // Key forces remount when source data or mappings change
+  const key = `${props.sourceFields.length}-${props.tableMappings.length}`;
   return (
-    <ReactFlowProvider>
+    <ReactFlowProvider key={key}>
       <AqueductCanvasInner {...props} />
     </ReactFlowProvider>
   );
@@ -447,14 +448,13 @@ function AqueductCanvasInner({
   }, [sourceTables, tableMappings, connectedSources, connectedCdm, filter, onDrillDown]);
 
   // -- React Flow state -------------------------------------------------------
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-
-  // Sync when data changes (e.g., sourceFields load async, mappings created)
-  useEffect(() => {
-    setNodes(initialNodes);
-    setEdges(initialEdges);
-  }, [initialNodes, initialEdges, setNodes, setEdges]);
+  // Use a key derived from data to force remount when source data changes
+  const flowKey = useMemo(
+    () => `${sourceTables.length}-${tableMappings.length}-${filter}`,
+    [sourceTables.length, tableMappings.length, filter],
+  );
+  const [nodes, , onNodesChange] = useNodesState(initialNodes);
+  const [edges, , onEdgesChange] = useEdgesState(initialEdges);
 
   // -- onConnect: create a new table mapping ----------------------------------
   const handleConnect = useCallback(
