@@ -14,6 +14,7 @@ use App\Models\App\CohortDefinition;
 use App\Models\App\ConceptSet;
 use App\Models\App\EstimationAnalysis;
 use App\Models\App\EtlProject;
+use App\Models\App\IngestionProject;
 use App\Models\App\EvidenceSynthesisAnalysis;
 use App\Models\App\HeorAnalysis;
 use App\Models\App\IncidenceRateAnalysis;
@@ -48,6 +49,7 @@ use App\Observers\StudySubResourceObserver;
 use App\Policies\Commons\ChannelPolicy;
 use App\Policies\Commons\MessagePolicy;
 use App\Policies\EtlProjectPolicy;
+use App\Policies\IngestionProjectPolicy;
 use App\Services\AI\AbbyAiService;
 use App\Services\Analysis\CareGapService;
 use App\Services\Analysis\CharacterizationService;
@@ -194,6 +196,9 @@ class AppServiceProvider extends ServiceProvider
 
         // Aqueduct ETL policies
         Gate::policy(EtlProject::class, EtlProjectPolicy::class);
+
+        // Ingestion project policies
+        Gate::policy(IngestionProject::class, IngestionProjectPolicy::class);
 
         // Model observers — activity logging + Solr delta indexing
         CohortDefinition::observe(CohortDefinitionObserver::class);

@@ -13,6 +13,7 @@ class IngestionJob extends Model
 {
     protected $fillable = [
         'source_id',
+        'ingestion_project_id',
         'status',
         'current_step',
         'progress_percentage',
@@ -22,6 +23,7 @@ class IngestionJob extends Model
         'stats_json',
         'error_message',
         'created_by',
+        'staging_table_name',
     ];
 
     /**
@@ -37,6 +39,14 @@ class IngestionJob extends Model
             'completed_at' => 'datetime',
             'stats_json' => 'array',
         ];
+    }
+
+    /**
+     * @return BelongsTo<IngestionProject, $this>
+     */
+    public function project(): BelongsTo
+    {
+        return $this->belongsTo(IngestionProject::class, 'ingestion_project_id');
     }
 
     /**

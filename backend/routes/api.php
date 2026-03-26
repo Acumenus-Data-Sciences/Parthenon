@@ -178,30 +178,48 @@ Route::prefix('v1')->group(function () {
         Route::post('/vocabulary/semantic-search', [VocabularyController::class, 'semanticSearch']);
 
         // Ingestion
-        Route::post('/ingestion/upload', [IngestionController::class, 'upload']);
-        Route::get('/ingestion/jobs', [IngestionController::class, 'index']);
-        Route::get('/ingestion/jobs/{ingestionJob}', [IngestionController::class, 'show']);
-        Route::get('/ingestion/jobs/{ingestionJob}/profile', [IngestionController::class, 'profile']);
-        Route::delete('/ingestion/jobs/{ingestionJob}', [IngestionController::class, 'destroy']);
-        Route::post('/ingestion/jobs/{ingestionJob}/retry', [IngestionController::class, 'retry']);
+        Route::post('/ingestion/upload', [IngestionController::class, 'upload'])
+            ->middleware('permission:ingestion.upload');
+        Route::get('/ingestion/jobs', [IngestionController::class, 'index'])
+            ->middleware('permission:ingestion.view');
+        Route::get('/ingestion/jobs/{ingestionJob}', [IngestionController::class, 'show'])
+            ->middleware('permission:ingestion.view');
+        Route::get('/ingestion/jobs/{ingestionJob}/profile', [IngestionController::class, 'profile'])
+            ->middleware('permission:ingestion.view');
+        Route::delete('/ingestion/jobs/{ingestionJob}', [IngestionController::class, 'destroy'])
+            ->middleware('permission:ingestion.delete');
+        Route::post('/ingestion/jobs/{ingestionJob}/retry', [IngestionController::class, 'retry'])
+            ->middleware('permission:ingestion.run');
 
         // Mapping Review
-        Route::get('/ingestion/mappings/search', [MappingReviewController::class, 'search']);
-        Route::get('/ingestion/jobs/{ingestionJob}/mappings', [MappingReviewController::class, 'index']);
-        Route::get('/ingestion/jobs/{ingestionJob}/mappings/stats', [MappingReviewController::class, 'stats']);
-        Route::post('/ingestion/jobs/{ingestionJob}/mappings/{conceptMapping}/review', [MappingReviewController::class, 'review']);
-        Route::post('/ingestion/jobs/{ingestionJob}/mappings/batch-review', [MappingReviewController::class, 'batchReview']);
-        Route::get('/ingestion/jobs/{ingestionJob}/mappings/{conceptMapping}/candidates', [MappingReviewController::class, 'candidates']);
+        Route::get('/ingestion/mappings/search', [MappingReviewController::class, 'search'])
+            ->middleware('permission:ingestion.view');
+        Route::get('/ingestion/jobs/{ingestionJob}/mappings', [MappingReviewController::class, 'index'])
+            ->middleware('permission:ingestion.view');
+        Route::get('/ingestion/jobs/{ingestionJob}/mappings/stats', [MappingReviewController::class, 'stats'])
+            ->middleware('permission:ingestion.view');
+        Route::post('/ingestion/jobs/{ingestionJob}/mappings/{conceptMapping}/review', [MappingReviewController::class, 'review'])
+            ->middleware('permission:ingestion.run');
+        Route::post('/ingestion/jobs/{ingestionJob}/mappings/batch-review', [MappingReviewController::class, 'batchReview'])
+            ->middleware('permission:ingestion.run');
+        Route::get('/ingestion/jobs/{ingestionJob}/mappings/{conceptMapping}/candidates', [MappingReviewController::class, 'candidates'])
+            ->middleware('permission:ingestion.view');
 
         // Schema Mapping
-        Route::post('/ingestion/jobs/{ingestionJob}/schema-mapping/suggest', [IngestionController::class, 'suggestSchemaMapping']);
-        Route::get('/ingestion/jobs/{ingestionJob}/schema-mapping', [IngestionController::class, 'getSchemaMapping']);
-        Route::put('/ingestion/jobs/{ingestionJob}/schema-mapping', [IngestionController::class, 'updateSchemaMapping']);
-        Route::post('/ingestion/jobs/{ingestionJob}/schema-mapping/confirm', [IngestionController::class, 'confirmSchemaMapping']);
+        Route::post('/ingestion/jobs/{ingestionJob}/schema-mapping/suggest', [IngestionController::class, 'suggestSchemaMapping'])
+            ->middleware('permission:ingestion.run');
+        Route::get('/ingestion/jobs/{ingestionJob}/schema-mapping', [IngestionController::class, 'getSchemaMapping'])
+            ->middleware('permission:ingestion.view');
+        Route::put('/ingestion/jobs/{ingestionJob}/schema-mapping', [IngestionController::class, 'updateSchemaMapping'])
+            ->middleware('permission:ingestion.run');
+        Route::post('/ingestion/jobs/{ingestionJob}/schema-mapping/confirm', [IngestionController::class, 'confirmSchemaMapping'])
+            ->middleware('permission:ingestion.run');
 
         // Validation
-        Route::get('/ingestion/jobs/{ingestionJob}/validation', [IngestionController::class, 'validation']);
-        Route::get('/ingestion/jobs/{ingestionJob}/validation/summary', [IngestionController::class, 'validationSummary']);
+        Route::get('/ingestion/jobs/{ingestionJob}/validation', [IngestionController::class, 'validation'])
+            ->middleware('permission:ingestion.view');
+        Route::get('/ingestion/jobs/{ingestionJob}/validation/summary', [IngestionController::class, 'validationSummary'])
+            ->middleware('permission:ingestion.view');
 
         // Achilles (Data Characterization)
         Route::prefix('sources/{source}/achilles')->group(function () {
