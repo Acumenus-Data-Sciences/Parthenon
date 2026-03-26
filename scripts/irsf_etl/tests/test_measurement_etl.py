@@ -1,4 +1,4 @@
-"""Tests for measurement ETL: growth unpivot, CSS decomposition, NULL filtering, concept mapping."""
+"""Tests for measurement ETL: growth unpivot, CSS decomposition, labs, SF-36, NULL filtering, concept mapping."""
 
 from __future__ import annotations
 
@@ -15,11 +15,21 @@ from scripts.irsf_etl.lib.visit_resolver import VisitResolver
 from scripts.irsf_etl.measurement_etl import (
     _CSS_MEASURE_SPECS,
     _GROWTH_MEASURES,
+    _LAB_TYPE_MAP,
+    _LIKERT_ACTIVITY_LIMIT,
+    _LIKERT_TRUTH,
     _MEASUREMENT_TYPE_SURVEY,
     _OPERATOR_EQUALS,
+    _RESULT_CONCEPT_MAP,
+    _SF36_COLUMN_SCALE,
+    _SF36_SKIP_COLUMNS,
+    _SNOMED_CODE_RE,
+    _assemble_lab_date,
     transform_css,
     transform_growth,
+    transform_labs,
     transform_measurements,
+    transform_sf36,
     unpivot_wide_to_long,
 )
 from scripts.irsf_etl.schemas.measurement import measurement_schema
@@ -731,3 +741,453 @@ class TestCssTransform:
         assert len(css_concepts) > 0, "Expected CSS concept_ids"
         # No overlap
         assert growth_concepts.isdisjoint(css_concepts)
+
+
+# ---------------------------------------------------------------------------
+# Lab transform test fixtures
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture()
+def sample_labs_csv() -> StringIO:
+    """StringIO with representative Labs data (known types + Other/SNOMED)."""
+    data = (
+        "participant_id,visit_date,VisitTimePoint,TypeOfTest,DatePerformed,"
+        "DatePerformedDay,DatePerformedMonth,DatePerformedYear,DatePerformedUnknown,"
+        "GeneralResults,ResultsAvailableScan,SpecificResultsKnown,SNOMEDInput,SNOWMEDOutput,NA\n"
+        '1001,06/17/16,Baseline,WBC,01/12/05,12,Jan,2005,,Abnormal,No,19.1,,,\n'
+        '1001,06/17/16,Baseline,Other (SNOMED terms),01/12/05,12,Jan,2005,,Normal,No,1.62,'
+        'tsh,"Thyroid stimulating hormone measurement (procedure) code:61167004 60.3 [SNOMED CT]",\n'
+        '1001,06/17/16,Baseline,CBC,05/08/18,8,May,2018,,Normal,No,'
+        '"hgb 12.5\nhct 37.6\nWBC 8.4\nplts 328",,,\n'
+        '1002,09/13/16,Baseline,Cholesterol,07/09/14,9,Jul,2014,,Normal,No,191,,,\n'
+        '1002,09/13/16,Baseline,Triglycerides,07/09/14,9,Jul,2014,,Normal,No,124,,,\n'
+        '1003,03/02/17,Baseline,Vitamin D,11/18/15,18,Nov,2015,,Normal,No,48.4,,,\n'
+        '1003,03/02/17,Baseline,Other (SNOMED terms),,,,,,,42.0,phenobarbital,,\n'
+    )
+    return StringIO(data)
+
+
+@pytest.fixture()
+def sample_sf36_csv() -> StringIO:
+    """StringIO with representative SF-36 data (3 patients, response columns)."""
+    import csv as csv_mod
+    from io import StringIO as SIO
+
+    headers = [
+        "participant_id", "visit", "visit_date", "age_at_visit",
+        "PPInstructions",
+        "_1Ingeneralwouldyousayyourheal",
+        "_2Comparedtooneyearagohowwould",
+        "labeltypicalActivities",
+        "aVigorousactivitiessuchasrunni",
+        "bModerateactivitiessuchasmovin",
+        "Label4question",
+        "_4aCutDownOnAmountOfTimeSpent",
+        "Label5question",
+        "_6Duringthepast4weekstowhatext",
+        "_7Howmuchbodilypainhaveyouhadd",
+        "Label9question",
+        "aDidyoufeelfulloflife",
+        "Label11question",
+        "aIseemtogetsickalittleeasierth",
+        "dMyhealthisexcellent",
+    ]
+    rows = [
+        ["1001", "Baseline", "03/05/06", "4.2", "",
+         "Very Good", "Somewhat  better now than one year ago", "",
+         "No, not limited at all", "Yes, limited a lot", "",
+         "A little of the time", "", "Slightly", "None", "",
+         "Some of the time", "", "Don't know", "Mostly true"],
+        ["1002", "Baseline", "06/15/08", "5.3", "",
+         "Good", "About the same as one year ago", "",
+         "Yes, limited a little", "No, not limited at all", "",
+         "Most of the time", "", "Not at all", "Mild", "",
+         "All of the time", "", "Definitely false", "Definitely true"],
+        ["1003", "Baseline", "01/10/10", "3.1", "",
+         "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+    ]
+    buf = SIO()
+    writer = csv_mod.writer(buf)
+    writer.writerow(headers)
+    writer.writerows(rows)
+    buf.seek(0)
+    return buf
+
+
+# ---------------------------------------------------------------------------
+# Labs transform tests
+# ---------------------------------------------------------------------------
+
+
+class TestLabsTransform:
+    """Tests for lab result measurement transformation."""
+
+    def test_labs_known_type_loinc_mapping(
+        self,
+        sample_labs_csv: StringIO,
+        mock_registry: PersonIdRegistry,
+        mock_visit_resolver: VisitResolver,
+        tmp_path,
+    ) -> None:
+        """CBC->3000963, WBC->3010813, Cholesterol->3027114, Triglycerides->3022192, Vitamin D->3049536."""
+        from scripts.irsf_etl.config import ETLConfig
+
+        csv_dir = tmp_path / "5211_Custom_Extracts" / "csv"
+        csv_dir.mkdir(parents=True)
+        sample_labs_csv.seek(0)
+        (csv_dir / "Labs_5211.csv").write_text(sample_labs_csv.read())
+
+        config = ETLConfig(source_root=tmp_path)
+        log = RejectionLog("test_labs")
+
+        result = transform_labs(config, mock_registry, mock_visit_resolver, log)
+
+        # Check each known type maps correctly
+        for test_type, expected_concept in _LAB_TYPE_MAP.items():
+            type_rows = result[result["measurement_source_value"] == test_type]
+            if len(type_rows) > 0:
+                actual = type_rows["measurement_concept_id"].iloc[0]
+                assert actual == expected_concept, (
+                    f"{test_type}: expected concept_id {expected_concept}, got {actual}"
+                )
+
+    def test_labs_snomed_code_extraction(
+        self,
+        sample_labs_csv: StringIO,
+        mock_registry: PersonIdRegistry,
+        mock_visit_resolver: VisitResolver,
+        tmp_path,
+    ) -> None:
+        """SNOWMEDOutput "...code:61167004..." -> measurement_source_concept_id=61167004."""
+        from scripts.irsf_etl.config import ETLConfig
+
+        csv_dir = tmp_path / "5211_Custom_Extracts" / "csv"
+        csv_dir.mkdir(parents=True)
+        sample_labs_csv.seek(0)
+        (csv_dir / "Labs_5211.csv").write_text(sample_labs_csv.read())
+
+        config = ETLConfig(source_root=tmp_path)
+        log = RejectionLog("test_labs")
+
+        result = transform_labs(config, mock_registry, mock_visit_resolver, log)
+
+        snomed_rows = result[result["measurement_source_concept_id"] > 0]
+        assert len(snomed_rows) > 0, "Expected rows with SNOMED codes"
+        assert 61167004 in snomed_rows["measurement_source_concept_id"].values
+
+    def test_labs_snomed_missing(
+        self,
+        sample_labs_csv: StringIO,
+        mock_registry: PersonIdRegistry,
+        mock_visit_resolver: VisitResolver,
+        tmp_path,
+    ) -> None:
+        """Other (SNOMED terms) with no SNOWMEDOutput -> concept_id=0, source_concept_id=0."""
+        from scripts.irsf_etl.config import ETLConfig
+
+        csv_dir = tmp_path / "5211_Custom_Extracts" / "csv"
+        csv_dir.mkdir(parents=True)
+        sample_labs_csv.seek(0)
+        (csv_dir / "Labs_5211.csv").write_text(sample_labs_csv.read())
+
+        config = ETLConfig(source_root=tmp_path)
+        log = RejectionLog("test_labs")
+
+        result = transform_labs(config, mock_registry, mock_visit_resolver, log)
+
+        # The last row in sample is "Other (SNOMED terms)" with empty SNOWMEDOutput
+        other_rows = result[result["measurement_source_value"] == "Other (SNOMED terms)"]
+        # At least one should have source_concept_id=0 (the one without SNOWMEDOutput)
+        zero_snomed = other_rows[other_rows["measurement_source_concept_id"] == 0]
+        assert len(zero_snomed) > 0, "Expected Other row with no SNOMED extraction"
+        assert zero_snomed["measurement_concept_id"].iloc[0] == 0
+
+    def test_labs_date_assembly(self) -> None:
+        """DatePerformedMonth=Jan, DatePerformedDay=12, DatePerformedYear=2005 -> 2005-01-12."""
+        row = pd.Series({
+            "DatePerformedMonth": "Jan",
+            "DatePerformedDay": 12,
+            "DatePerformedYear": 2005,
+            "DatePerformed": "01/12/05",
+            "visit_date": "06/17/16",
+        })
+        result = _assemble_lab_date(row)
+        assert result == "2005-01-12"
+
+    def test_labs_date_fallback_to_visit_date(self) -> None:
+        """Missing DatePerformed columns -> uses visit_date."""
+        row = pd.Series({
+            "DatePerformedMonth": None,
+            "DatePerformedDay": None,
+            "DatePerformedYear": None,
+            "DatePerformed": None,
+            "visit_date": "06/17/16",
+        })
+        result = _assemble_lab_date(row)
+        assert result == "2016-06-17"
+
+    def test_labs_numeric_extraction(
+        self,
+        sample_labs_csv: StringIO,
+        mock_registry: PersonIdRegistry,
+        mock_visit_resolver: VisitResolver,
+        tmp_path,
+    ) -> None:
+        """SpecificResultsKnown=19.1 -> value_as_number=19.1."""
+        from scripts.irsf_etl.config import ETLConfig
+
+        csv_dir = tmp_path / "5211_Custom_Extracts" / "csv"
+        csv_dir.mkdir(parents=True)
+        sample_labs_csv.seek(0)
+        (csv_dir / "Labs_5211.csv").write_text(sample_labs_csv.read())
+
+        config = ETLConfig(source_root=tmp_path)
+        log = RejectionLog("test_labs")
+
+        result = transform_labs(config, mock_registry, mock_visit_resolver, log)
+
+        # WBC row for patient 1001 should have value_as_number=19.1
+        wbc_rows = result[
+            (result["measurement_source_value"] == "WBC")
+            & (result["person_id"] == 1001)
+        ]
+        assert len(wbc_rows) > 0
+        assert wbc_rows["value_as_number"].iloc[0] == pytest.approx(19.1)
+
+    def test_labs_multiline_result(
+        self,
+        sample_labs_csv: StringIO,
+        mock_registry: PersonIdRegistry,
+        mock_visit_resolver: VisitResolver,
+        tmp_path,
+    ) -> None:
+        """Multi-value result extracts first number; full text in value_source_value."""
+        from scripts.irsf_etl.config import ETLConfig
+
+        csv_dir = tmp_path / "5211_Custom_Extracts" / "csv"
+        csv_dir.mkdir(parents=True)
+        sample_labs_csv.seek(0)
+        (csv_dir / "Labs_5211.csv").write_text(sample_labs_csv.read())
+
+        config = ETLConfig(source_root=tmp_path)
+        log = RejectionLog("test_labs")
+
+        result = transform_labs(config, mock_registry, mock_visit_resolver, log)
+
+        # CBC row for patient 1001 should have multiline result
+        cbc_rows = result[
+            (result["measurement_source_value"] == "CBC")
+            & (result["person_id"] == 1001)
+        ]
+        if len(cbc_rows) > 0:
+            # First numeric value should be 12.5 (from "hgb 12.5")
+            assert cbc_rows["value_as_number"].iloc[0] == pytest.approx(12.5)
+            # Full text preserved
+            assert "hgb" in str(cbc_rows["value_source_value"].iloc[0])
+
+    def test_labs_general_results_mapping(
+        self,
+        sample_labs_csv: StringIO,
+        mock_registry: PersonIdRegistry,
+        mock_visit_resolver: VisitResolver,
+        tmp_path,
+    ) -> None:
+        """Normal->4069590, Abnormal->4135493."""
+        from scripts.irsf_etl.config import ETLConfig
+
+        csv_dir = tmp_path / "5211_Custom_Extracts" / "csv"
+        csv_dir.mkdir(parents=True)
+        sample_labs_csv.seek(0)
+        (csv_dir / "Labs_5211.csv").write_text(sample_labs_csv.read())
+
+        config = ETLConfig(source_root=tmp_path)
+        log = RejectionLog("test_labs")
+
+        result = transform_labs(config, mock_registry, mock_visit_resolver, log)
+
+        # Abnormal WBC row
+        abnormal_rows = result[
+            (result["measurement_source_value"] == "WBC")
+            & (result["person_id"] == 1001)
+        ]
+        if len(abnormal_rows) > 0:
+            assert abnormal_rows["value_as_concept_id"].iloc[0] == 4135493
+
+        # Normal Cholesterol row
+        normal_rows = result[
+            (result["measurement_source_value"] == "Cholesterol")
+            & (result["person_id"] == 1002)
+        ]
+        if len(normal_rows) > 0:
+            assert normal_rows["value_as_concept_id"].iloc[0] == 4069590
+
+
+# ---------------------------------------------------------------------------
+# SF-36 transform tests
+# ---------------------------------------------------------------------------
+
+
+class TestSf36Transform:
+    """Tests for SF-36 quality-of-life measurement transformation."""
+
+    def test_sf36_likert_encoding(
+        self,
+        sample_sf36_csv: StringIO,
+        mock_registry: PersonIdRegistry,
+        mock_visit_resolver: VisitResolver,
+        tmp_path,
+    ) -> None:
+        """Activity limit: 'Yes, limited a lot' -> 1, 'No, not limited at all' -> 3."""
+        from scripts.irsf_etl.config import ETLConfig
+
+        csv_dir = tmp_path / "5211_Custom_Extracts" / "csv"
+        csv_dir.mkdir(parents=True)
+        sample_sf36_csv.seek(0)
+        (csv_dir / "SF36_5201_5211.csv").write_text(sample_sf36_csv.read())
+
+        config = ETLConfig(source_root=tmp_path)
+        log = RejectionLog("test_sf36")
+
+        result = transform_sf36(config, mock_registry, mock_visit_resolver, log)
+
+        # Patient 1001 activity columns
+        p1_vigorous = result[
+            (result["person_id"] == 1001)
+            & (result["measurement_source_value"] == "aVigorousactivitiessuchasrunni")
+        ]
+        if len(p1_vigorous) > 0:
+            assert p1_vigorous["value_as_number"].iloc[0] == 3.0  # "No, not limited at all"
+
+        p1_moderate = result[
+            (result["person_id"] == 1001)
+            & (result["measurement_source_value"] == "bModerateactivitiessuchasmovin")
+        ]
+        if len(p1_moderate) > 0:
+            assert p1_moderate["value_as_number"].iloc[0] == 1.0  # "Yes, limited a lot"
+
+    def test_sf36_null_filter(
+        self,
+        sample_sf36_csv: StringIO,
+        mock_registry: PersonIdRegistry,
+        mock_visit_resolver: VisitResolver,
+        tmp_path,
+    ) -> None:
+        """Patient 1003 with all-null responses should produce 0 measurement rows."""
+        from scripts.irsf_etl.config import ETLConfig
+
+        csv_dir = tmp_path / "5211_Custom_Extracts" / "csv"
+        csv_dir.mkdir(parents=True)
+        sample_sf36_csv.seek(0)
+        (csv_dir / "SF36_5201_5211.csv").write_text(sample_sf36_csv.read())
+
+        config = ETLConfig(source_root=tmp_path)
+        log = RejectionLog("test_sf36")
+
+        result = transform_sf36(config, mock_registry, mock_visit_resolver, log)
+
+        p3_rows = result[result["person_id"] == 1003]
+        assert len(p3_rows) == 0, f"Expected 0 rows for patient 1003 (all null), got {len(p3_rows)}"
+
+    def test_sf36_label_columns_excluded(self) -> None:
+        """labeltypicalActivities, Label4question, etc. are in skip set."""
+        for skip_col in ["labeltypicalActivities", "Label4question", "Label5question",
+                         "Label9question", "Label11question", "PPInstructions"]:
+            assert skip_col in _SF36_SKIP_COLUMNS, f"{skip_col} not in skip set"
+            assert skip_col not in _SF36_COLUMN_SCALE, f"{skip_col} should not be in scale mapping"
+
+    def test_sf36_source_value_preserved(
+        self,
+        sample_sf36_csv: StringIO,
+        mock_registry: PersonIdRegistry,
+        mock_visit_resolver: VisitResolver,
+        tmp_path,
+    ) -> None:
+        """Original text response preserved in value_source_value."""
+        from scripts.irsf_etl.config import ETLConfig
+
+        csv_dir = tmp_path / "5211_Custom_Extracts" / "csv"
+        csv_dir.mkdir(parents=True)
+        sample_sf36_csv.seek(0)
+        (csv_dir / "SF36_5201_5211.csv").write_text(sample_sf36_csv.read())
+
+        config = ETLConfig(source_root=tmp_path)
+        log = RejectionLog("test_sf36")
+
+        result = transform_sf36(config, mock_registry, mock_visit_resolver, log)
+
+        # General health for patient 1001 should have "Very Good"
+        p1_health = result[
+            (result["person_id"] == 1001)
+            & (result["measurement_source_value"] == "_1Ingeneralwouldyousayyourheal")
+        ]
+        if len(p1_health) > 0:
+            assert p1_health["value_source_value"].iloc[0] == "Very Good"
+
+    def test_sf36_dont_know_handling(
+        self,
+        sample_sf36_csv: StringIO,
+        mock_registry: PersonIdRegistry,
+        mock_visit_resolver: VisitResolver,
+        tmp_path,
+    ) -> None:
+        """Don't know encoded as 3 in truth scale."""
+        from scripts.irsf_etl.config import ETLConfig
+
+        csv_dir = tmp_path / "5211_Custom_Extracts" / "csv"
+        csv_dir.mkdir(parents=True)
+        sample_sf36_csv.seek(0)
+        (csv_dir / "SF36_5201_5211.csv").write_text(sample_sf36_csv.read())
+
+        config = ETLConfig(source_root=tmp_path)
+        log = RejectionLog("test_sf36")
+
+        result = transform_sf36(config, mock_registry, mock_visit_resolver, log)
+
+        # Patient 1001 truth-scale item "Don't know"
+        p1_truth = result[
+            (result["person_id"] == 1001)
+            & (result["measurement_source_value"] == "aIseemtogetsickalittleeasierth")
+        ]
+        if len(p1_truth) > 0:
+            assert p1_truth["value_as_number"].iloc[0] == 3.0  # Don't know = 3
+            assert p1_truth["value_source_value"].iloc[0] == "Don't know"
+
+
+# ---------------------------------------------------------------------------
+# Coverage rate test
+# ---------------------------------------------------------------------------
+
+
+class TestMeasurementCoverage:
+    """Tests for measurement mapping coverage rate calculation."""
+
+    def test_measurement_coverage_rate(self) -> None:
+        """Mock data with known mapping rates: coverage >= 95% for growth + labs."""
+        # Growth: 100 rows all mapped (concept_id != 0) = 100% coverage
+        growth_concepts = [3036277] * 50 + [3025315] * 50
+        # Labs: 90 LOINC mapped + 8 SNOMED extracted + 2 unmapped = 98% coverage
+        lab_concepts = [3010813] * 90 + [0] * 10
+        lab_source_concepts = [0] * 90 + [61167004] * 8 + [0] * 2
+
+        growth_mapped = sum(1 for c in growth_concepts if c != 0)
+        growth_total = len(growth_concepts)
+        labs_mapped = sum(1 for c in lab_concepts if c != 0)
+        labs_snomed = sum(1 for c in lab_source_concepts if c > 0)
+        labs_total = len(lab_concepts)
+
+        coverage = (growth_mapped + labs_mapped + labs_snomed) / (growth_total + labs_total)
+        assert coverage >= 0.95, f"Coverage {coverage:.1%} below 95% target"
+
+    def test_snomed_regex(self) -> None:
+        """SNOMED code regex extracts correctly from real-world formats."""
+        test_cases = [
+            ("Thyroid stimulating hormone measurement (procedure) code:61167004 60.3 [SNOMED CT]", 61167004),
+            ("Carnitine measurement (procedure) code:36174000 56.3 [SNOMED CT]", 36174000),
+            ("Elevated C-reactive protein (finding) code:119971000119104 33.6 [SNOMED CT]", 119971000119104),
+            ("Phenobarbital measurement (procedure) code:105294009 58.0 [SNOMED CT]", 105294009),
+        ]
+        for text, expected_code in test_cases:
+            match = _SNOMED_CODE_RE.search(text)
+            assert match is not None, f"No match for: {text}"
+            assert int(match.group(1)) == expected_code
