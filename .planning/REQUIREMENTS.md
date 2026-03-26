@@ -11,7 +11,7 @@
 - [ ] **FOUND-02**: ETL shared library provides cross-protocol ID reconciliation mapping all three ID systems to unified person_id via Person_Characteristics crosswalk
 - [ ] **FOUND-03**: ETL shared library provides vocabulary validator that checks concept_ids against current Athena vocabulary and follows Maps-to chain for deprecated codes
 - [ ] **FOUND-04**: ETL shared library provides error accumulation logger that tracks rejected/skipped records per table with reasons and produces rejection summary reports
-- [ ] **FOUND-05**: All 60+ source CSV files are profiled with row counts, null rates, value distributions, and date format detection before any transformation begins
+- [x] **FOUND-05**: All 60+ source CSV files are profiled with row counts, null rates, value distributions, and date format detection before any transformation begins
 - [x] **FOUND-06**: Python ETL scripts live in `scripts/irsf-etl/` with shared `lib/` package, using pandera for DataFrame schema validation
 
 ### Person and Demographics
@@ -130,7 +130,7 @@
 | FOUND-02 | Phase 2 | Pending |
 | FOUND-03 | Phase 3 | Pending |
 | FOUND-04 | Phase 3 | Pending |
-| FOUND-05 | Phase 1 | Pending |
+| FOUND-05 | Phase 1 | Complete |
 | FOUND-06 | Phase 1 | Complete |
 | PERS-01 | Phase 4 | Pending |
 | PERS-02 | Phase 4 | Pending |
