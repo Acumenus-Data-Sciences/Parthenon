@@ -7,12 +7,16 @@ No live database required -- pure Python data structure tests.
 from __future__ import annotations
 
 import re
+from pathlib import Path
 
+import pandas as pd
 import pytest
 
 from scripts.irsf_etl.lib.irsf_vocabulary import (
     ConceptDefinition,
     IrsfVocabulary,
+    generate_concept_csv,
+    generate_vocabulary_csv,
 )
 
 
@@ -266,3 +270,79 @@ class TestLookupMethods:
 
     def test_get_concept_by_id_missing(self) -> None:
         assert IrsfVocabulary.get_concept_by_id(9999999999) is None
+
+
+# ---------------------------------------------------------------------------
+# CSV generation
+# ---------------------------------------------------------------------------
+
+
+class TestVocabularyCsvGeneration:
+    def test_vocabulary_csv_columns(self, tmp_path: Path) -> None:
+        path = generate_vocabulary_csv(tmp_path)
+        df = pd.read_csv(path)
+        expected = [
+            "vocabulary_id",
+            "vocabulary_name",
+            "vocabulary_reference",
+            "vocabulary_version",
+            "vocabulary_concept_id",
+        ]
+        assert list(df.columns) == expected
+
+    def test_vocabulary_csv_row_count(self, tmp_path: Path) -> None:
+        path = generate_vocabulary_csv(tmp_path)
+        df = pd.read_csv(path)
+        assert len(df) == 1
+
+    def test_vocabulary_csv_values(self, tmp_path: Path) -> None:
+        path = generate_vocabulary_csv(tmp_path)
+        df = pd.read_csv(path)
+        row = df.iloc[0]
+        assert row["vocabulary_id"] == "IRSF-NHS"
+        assert row["vocabulary_name"] == "IRSF Natural History Study Custom Vocabulary"
+        assert row["vocabulary_concept_id"] == 2000000000
+
+
+class TestConceptCsvGeneration:
+    def test_concept_csv_columns(self, tmp_path: Path) -> None:
+        path = generate_concept_csv(tmp_path)
+        df = pd.read_csv(path)
+        expected = [
+            "concept_id",
+            "concept_name",
+            "domain_id",
+            "vocabulary_id",
+            "concept_class_id",
+            "standard_concept",
+            "concept_code",
+            "valid_start_date",
+            "valid_end_date",
+            "invalid_reason",
+        ]
+        assert list(df.columns) == expected
+
+    def test_concept_csv_row_count(self, tmp_path: Path) -> None:
+        path = generate_concept_csv(tmp_path)
+        df = pd.read_csv(path)
+        assert len(df) == 117
+
+    def test_concept_csv_valid_start_date(self, tmp_path: Path) -> None:
+        path = generate_concept_csv(tmp_path)
+        df = pd.read_csv(path)
+        assert (df["valid_start_date"] == "1970-01-01").all()
+
+    def test_concept_csv_valid_end_date(self, tmp_path: Path) -> None:
+        path = generate_concept_csv(tmp_path)
+        df = pd.read_csv(path)
+        assert (df["valid_end_date"] == "2099-12-31").all()
+
+    def test_concept_csv_invalid_reason_empty(self, tmp_path: Path) -> None:
+        path = generate_concept_csv(tmp_path)
+        df = pd.read_csv(path, keep_default_na=False)
+        assert (df["invalid_reason"] == "").all()
+
+    def test_concept_csv_written_to_staging(self, tmp_path: Path) -> None:
+        path = generate_concept_csv(tmp_path)
+        assert path.exists()
+        assert path.name == "concept.csv"
