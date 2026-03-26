@@ -50,6 +50,12 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Suppress console table output; write JSON report only",
     )
 
+    # Demographics subcommand
+    subparsers.add_parser(
+        "demographics",
+        help="Build person roster and death records as OMOP staging CSVs",
+    )
+
     # Visit derivation subcommand
     subparsers.add_parser(
         "visit-derivation",
@@ -80,6 +86,60 @@ def _run_profile(args: argparse.Namespace) -> int:
         return 1
 
     write_report(profiles, output_dir, json_only=args.json_only)
+    return 0
+
+
+def _run_demographics() -> int:
+    """Execute the demographics subcommand — build person.csv and death.csv."""
+    import logging
+
+    import pandas as pd
+
+    from scripts.irsf_etl.config import ETLConfig
+    from scripts.irsf_etl.lib.csv_utils import read_csv_safe
+    from scripts.irsf_etl.lib.death_builder import build_death_records
+    from scripts.irsf_etl.lib.id_registry import PersonIdRegistry
+    from scripts.irsf_etl.lib.person_builder import build_person_roster
+    from scripts.irsf_etl.lib.rejection_log import RejectionLog
+
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+
+    config = ETLConfig()
+    staging_dir = config.staging_dir
+    staging_dir.mkdir(parents=True, exist_ok=True)
+
+    # Load source data
+    custom_extracts = config.source_root / "5211_Custom_Extracts" / "csv"
+    raw_5211 = config.source_root / "5211" / "csv"
+
+    person_chars = read_csv_safe(custom_extracts / "Person_Characteristics_5201_5211.csv")
+    demographics_path = raw_5211 / "Demographics_5211.csv"
+    demographics: pd.DataFrame | None = read_csv_safe(demographics_path) if demographics_path.exists() else None
+
+    registry = PersonIdRegistry.from_csv(config.staging_dir / "person_id_map.csv")
+    rejection_log = RejectionLog("demographics")
+
+    person_df = build_person_roster(person_chars, demographics, registry, rejection_log)
+    person_path = staging_dir / "person.csv"
+    person_df.to_csv(person_path, index=False)
+    print(f"  person.csv: {len(person_df)} rows -> {person_path}")
+
+    # Death records (in Custom Extracts, not raw 5211)
+    death_path_src = custom_extracts / "DeathRecord_5211.csv"
+    if death_path_src.exists():
+        death_src = read_csv_safe(death_path_src)
+        death_rejection = RejectionLog("death")
+        death_df = build_death_records(death_src, registry, death_rejection)
+        death_path = staging_dir / "death.csv"
+        death_df.to_csv(death_path, index=False)
+        print(f"  death.csv:  {len(death_df)} rows -> {death_path}")
+    else:
+        print("  death.csv:  SKIPPED (DeathRecord_5211.csv not found)")
+
+    print(f"\nDemographics Complete")
+    print(f"  Gender: {person_df['gender_concept_id'].value_counts().to_dict()}")
+    print(f"  Unique persons: {person_df['person_id'].nunique()}")
+
     return 0
 
 
@@ -125,6 +185,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "profile":
         return _run_profile(args)
+
+    if args.command == "demographics":
+        return _run_demographics()
 
     if args.command == "visit-derivation":
         return _run_visit_derivation()
