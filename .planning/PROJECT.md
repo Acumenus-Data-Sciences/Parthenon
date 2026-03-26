@@ -1,61 +1,80 @@
-# Parthenon Codebase Health Fixes
+# IRSF-NHS OMOP CDM Import
 
 ## What This Is
 
-Systematic remediation of critical bugs found during a full-codebase health audit of Parthenon, a unified OHDSI outcomes research platform. This project fixes 3 critical issues that are actively breaking production functionality: email delivery, FHIR export, and data ingestion.
+An ETL pipeline to import the IRSF (International Rett Syndrome Foundation) Natural History Study dataset into Parthenon as a new OMOP CDM v5.4 source called "IRSF-NHS". The dataset spans two RDCRN protocols (5201 and 5211) covering ~1,860 unique Rett Syndrome patients with longitudinal clinical observations. The import uses Parthenon's AI-powered ingestion pipeline supplemented by pre-processing scripts to handle the dataset's unique characteristics.
 
 ## Core Value
 
-All production-facing features must actually work — no silently broken email, no crashing pages, no corrupted API responses.
+All ~1,860 Rett Syndrome patients from the IRSF Natural History Study are queryable in Parthenon's OMOP CDM with accurate demographics, medications, conditions, measurements, and observations — enabling cohort-based outcomes research on this rare disease population.
 
 ## Requirements
 
 ### Validated
 
-- ✓ Auth system (login, register, password reset) — existing
-- ✓ Dashboard with CDM characterization — existing (restored from stash)
-- ✓ Query Library with 201 OHDSI entries — existing (imported)
-- ✓ Stats bar drill-through for Concept Sets and Cohort Definitions — existing
+(None yet — ship to validate)
 
 ### Active
 
-- [ ] RESEND_KEY env variable must match what Laravel reads — email delivery is broken
-- [ ] FHIR Export page must have working backend endpoints — page crashes on any action
-- [ ] Ingestion API must unwrap Laravel response envelope — 18+ API calls return wrong data shape
+- [ ] Pre-processing scripts transform raw IRSF data into Parthenon-ingestible CSVs
+- [ ] Person roster built from Person_Characteristics with cross-protocol ID reconciliation
+- [ ] Date assembly handles split columns (Month-text, Day-int, Year-int) with validation
+- [ ] 44K medication records map to RxNorm concepts via pre-mapped codes
+- [ ] Conditions map to SNOMED concepts from pre-mapped codes + AI mapping
+- [ ] Growth measurements unpivoted to OMOP measurement rows with LOINC concepts
+- [ ] Rett-specific clinical instruments (CSS, MBA) mapped to measurement/observation
+- [ ] Genotype/mutation data captured as observations with custom IRSF vocabulary
+- [ ] Visit occurrences derived from clinical table visit dates
+- [ ] Observation periods computed per person from earliest to latest events
+- [ ] Death records imported from both protocols
+- [ ] Achilles characterization runs successfully on loaded data
+- [ ] DQD checks pass at >=80% rate
+- [ ] At least 3 cohort definitions buildable in Parthenon
 
 ### Out of Scope
 
-- High severity issues (hardcoded sourceId, history metadata, gene filter) — deferred to v2
-- Medium severity issues (Solr config, accessibility, error states, type safety) — deferred to v2
-- Low severity issues (modal consistency, dead code, empty state guidance) — deferred to v2
-- New features or UI redesigns — this is a bugfix-only project
-- Stash@{0} Abby agency framework review — separate decision, not a bug
+- FilesUpload_5211 (file metadata, not clinical data)
+- ContactRegistryEnrollment_5211 (administrative, not clinical)
+- Other_Research_5211 (external study references)
+- Eligibility_5211 (study admin, not clinical observations)
+- Real-time data feeds (this is a one-time historical import)
+- De-identification (data is already de-identified per RDCRN protocols)
 
 ## Context
 
-**Audit findings (2026-03-18):** 5 parallel agents scanned all frontend feature modules and backend infrastructure. Found 16 issues total across 4 severity levels. This project addresses only the 3 critical issues.
+**Source data location:** `external/2023 IRSF/` — contains Protocol 5201 CSVs, Protocol 5211 Custom Extracts, reference files, data dictionaries, and prior SQL ETL work.
 
-**Tech stack:** Laravel 11 (PHP 8.4) + React 19 + TypeScript + Vite + TanStack Query. Production at https://parthenon.acumenus.net.
+**Prior ETL work (2022-2023):** `Final_Queries.sql` (4,738 lines) contains complete SQL for date assembly, age calculation, and data prep. The date-handling logic and table DDLs from prior work should be adapted, not rewritten.
 
-**Root causes:**
-1. RESEND_KEY: `.env` uses `RESEND_API_KEY` but `config/services.php` reads `RESEND_KEY` via `env('RESEND_KEY')`. One-line fix.
-2. FHIR Export: Frontend page exists at `/admin/fhir-export` calling `POST /fhir/$export` and `GET /fhir/$export/{id}`, but no backend routes or controller methods exist. Needs new controller or feature flag/disable.
-3. Ingestion API: All 18+ API functions in `ingestionApi.ts` return raw Axios response data without unwrapping Laravel's `{data: T}` envelope. Need `data.data ?? data` pattern.
+**Pre-mapped vocabularies:** `RXNORM_5201.csv` and `SNOMED_5201.csv` provide pre-built concept crosswalks. `Medications_5201_5211.csv` includes `MedRxNormCode` columns. These should be validated against current OMOP vocabulary before use.
+
+**Key data challenges:**
+1. Split date columns (Month text abbreviation, Day int, Year int) across most tables
+2. Three ID systems requiring reconciliation via Person_Characteristics crosswalk
+3. ~50 boolean genotype columns with no standard OMOP concepts
+4. Rett-specific clinical instruments (CSS, MBA) needing custom vocabulary
+5. Wide measurement tables requiring unpivot to OMOP long format
+
+**Target schema:** `omop.*` in the existing Parthenon database, registered as a new CDM source "IRSF-NHS".
 
 ## Constraints
 
-- **Auth system**: DO NOT modify any auth components (see `.claude/rules/auth-system.md`)
-- **Production**: Changes must not break existing functionality
-- **Secrets**: Never hardcode credentials; RESEND_API_KEY is already in .env, just wrong variable name
-- **Testing**: Must verify fixes with TypeScript check and PHPStan before committing
+- **Tech stack**: Python 3.12 for pre-processing scripts (consistent with Parthenon AI service)
+- **Database**: Must use existing `parthenon` database with `omop` schema — no separate database
+- **Vocabulary**: Must validate against loaded Athena vocabulary; pre-mapped codes may be outdated
+- **Ingestion pipeline**: Use Parthenon's existing ingestion UI/API for the actual CDM loading
+- **Data volume**: Largest table is Medications at 44K rows — batch uploads needed
+- **Timeline**: 3-4 weeks estimated for full ETL with validation
 
 ## Key Decisions
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Fix only Critical issues in v1 | Focused scope prevents more mistakes | — Pending |
-| Skip research phase | Audit already identified exact root causes | — Pending |
-| Use GSD tracking | Prevent context loss between fixes | — Pending |
+| Use Person_Characteristics as authoritative person roster | Contains cross-protocol ID reconciliation already done | — Pending |
+| Python pre-processing scripts (not direct SQL ETL) | Parthenon ingestion pipeline expects CSV uploads; Python gives validation + error handling | — Pending |
+| Custom IRSF vocabulary for Rett-specific concepts | CSS, MBA, genotype mutations have no standard OMOP mapping | — Pending |
+| Batch import in dependency order (person first) | Foreign key constraints require person_id before clinical events | — Pending |
+| Adapt prior SQL logic, don't rewrite | 4,738 lines of tested date assembly and data prep exist | — Pending |
 
 ---
-*Last updated: 2026-03-18 after initialization*
+*Last updated: 2026-03-26 after initialization from PRD*
