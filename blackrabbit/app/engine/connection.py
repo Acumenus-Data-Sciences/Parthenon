@@ -25,7 +25,7 @@ DIALECT_REGISTRY: dict[str, DialectSpec] = {
     "mysql": DialectSpec("mysql", "mysql+pymysql", "pymysql", 3306),
     "mariadb": DialectSpec("mariadb", "mariadb+pymysql", "pymysql", 3306),
     "bigquery": DialectSpec("bigquery", "bigquery", "sqlalchemy_bigquery", 443),
-    "redshift": DialectSpec("redshift", "redshift+psycopg2", "sqlalchemy_redshift", 5439),
+    "redshift": DialectSpec("redshift", "redshift+redshift_connector", "redshift_connector", 5439),
     "snowflake": DialectSpec("snowflake", "snowflake", "snowflake.sqlalchemy", 443),
     "spark": DialectSpec("spark", "databricks", "databricks.sql", 443),
     "duckdb": DialectSpec("duckdb", "duckdb", "duckdb_engine", 0),

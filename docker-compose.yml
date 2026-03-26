@@ -487,6 +487,8 @@ services:
       dockerfile: docker/blackrabbit/Dockerfile
     ports:
       - "${WHITERABBIT_PORT:-8090}:8090"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       - BLACKRABBIT_SCAN_TIMEOUT_SECONDS=${SCAN_TIMEOUT_SECONDS:-1200}
     healthcheck:
