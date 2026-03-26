@@ -23,6 +23,7 @@ class SystemHealthController extends Controller
             'backend' => fn () => $this->checkBackend(),
             'redis' => fn () => $this->checkRedis(),
             'ai' => fn () => $this->checkAiService(),
+            'blackrabbit' => fn () => $this->checkBlackRabbit(),
             'darkstar' => fn () => $this->checkRRuntime(),
             'solr' => fn () => $this->checkSolr(),
             'orthanc' => fn () => $this->checkOrthanc(),
@@ -30,7 +31,6 @@ class SystemHealthController extends Controller
             'chromadb' => fn () => $this->checkChromaDb(),
             'study-agent' => fn () => $this->checkStudyAgent(),
             'grafana' => fn () => $this->checkGrafana(),
-            'blackrabbit' => fn () => $this->checkBlackRabbit(),
         ];
     }
 
