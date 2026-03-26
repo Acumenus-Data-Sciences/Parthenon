@@ -19,7 +19,7 @@ import { MappingEdge } from "./MappingEdge";
 import { MappingToolbar } from "./MappingToolbar";
 import { CDM_SCHEMA_V54 } from "../../lib/cdm-schema-v54";
 import { computeLayout, type LayoutNode, type LayoutEdge } from "../../lib/aqueduct-layout";
-import { useCreateTableMapping } from "../../hooks/useAqueductData";
+import { useCreateTableMapping, useSuggestMappings } from "../../hooks/useAqueductData";
 import type { EtlProject, EtlTableMapping, PersistedFieldProfile } from "../../api";
 
 // ---------------------------------------------------------------------------
@@ -103,7 +103,9 @@ export function AqueductCanvas({
   onBack,
 }: AqueductCanvasProps) {
   const [filter, setFilter] = useState<"all" | "mapped" | "unmapped">("all");
+  const [suggestBanner, setSuggestBanner] = useState<string | null>(null);
   const createMapping = useCreateTableMapping(project.id);
+  const suggestMutation = useSuggestMappings(project.id);
 
   // -- Derive connected sets --------------------------------------------------
   const connectedSources = useMemo(
@@ -278,6 +280,17 @@ export function AqueductCanvas({
     [tableMappings, createMapping],
   );
 
+  const handleSuggest = useCallback(() => {
+    suggestMutation.mutate(undefined, {
+      onSuccess: (result) => {
+        setSuggestBanner(
+          `Suggested ${result.table_mappings} table mapping${result.table_mappings !== 1 ? "s" : ""} and ${result.field_mappings} field mapping${result.field_mappings !== 1 ? "s" : ""}`,
+        );
+        setTimeout(() => setSuggestBanner(null), 5000);
+      },
+    });
+  }, [suggestMutation]);
+
   return (
     <div className="flex flex-col h-[calc(100vh-200px)]">
       <MappingToolbar
@@ -289,7 +302,21 @@ export function AqueductCanvas({
         filter={filter}
         onFilterChange={setFilter}
         onBack={onBack}
+        onSuggest={handleSuggest}
+        isSuggesting={suggestMutation.isPending}
       />
+      {suggestBanner && (
+        <div className="bg-amber-900/30 border-b border-amber-800/50 px-6 py-2 text-sm text-amber-300 flex items-center justify-between">
+          <span>{suggestBanner}</span>
+          <button
+            type="button"
+            onClick={() => setSuggestBanner(null)}
+            className="text-amber-400 hover:text-amber-200 ml-4"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
       <div className="flex-1">
         <ReactFlow
           nodes={nodes}

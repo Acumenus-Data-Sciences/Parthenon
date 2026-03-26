@@ -11,6 +11,7 @@ import {
   deleteTableMapping,
   fetchFieldMappings,
   bulkUpsertFieldMappings,
+  suggestMappings,
   type EtlFieldMapping,
 } from "../api";
 
@@ -117,6 +118,17 @@ export function useBulkUpsertFields(projectId: number, mappingId: number) {
     }) => bulkUpsertFieldMappings(projectId, mappingId, fields, updatedAt),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["aqueduct", "field-mappings", projectId, mappingId] });
+      qc.invalidateQueries({ queryKey: ["aqueduct", "table-mappings", projectId] });
+    },
+  });
+}
+
+export function useSuggestMappings(projectId: number) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () => suggestMappings(projectId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["aqueduct", "project", projectId] });
       qc.invalidateQueries({ queryKey: ["aqueduct", "table-mappings", projectId] });
     },
   });

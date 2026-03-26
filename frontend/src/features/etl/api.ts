@@ -426,3 +426,10 @@ export async function bulkUpsertFieldMappings(
   );
   return data.data;
 }
+
+export async function suggestMappings(projectId: number): Promise<{ table_mappings: number; field_mappings: number }> {
+  const { data } = await apiClient.post<{ data: { table_mappings: number; field_mappings: number } }>(
+    `/etl-projects/${projectId}/suggest`,
+  );
+  return data.data;
+}

@@ -19,6 +19,7 @@ import {
 import { useProfileHistory } from "../hooks/useProfilerData";
 import {
   fetchProfile,
+  suggestMappings,
   type PersistedFieldProfile,
 } from "../api";
 import { CDM_SCHEMA_V54 } from "../lib/cdm-schema-v54";
@@ -70,11 +71,21 @@ function AqueductContent({
   }, [existingProject, sourceId, sourceProfileId, fieldsLoaded]);
 
   const handleCreateProject = useCallback(() => {
-    createProject.mutate({
-      source_id: sourceId,
-      cdm_version: cdmVersion,
-      scan_profile_id: sourceProfileId,
-    });
+    createProject.mutate(
+      {
+        source_id: sourceId,
+        cdm_version: cdmVersion,
+        scan_profile_id: sourceProfileId,
+      },
+      {
+        onSuccess: (newProject) => {
+          // Auto-trigger AI suggestions on newly created project
+          suggestMappings(newProject.id).catch(() => {
+            // Suggestion is best-effort; failure is non-blocking
+          });
+        },
+      },
+    );
   }, [createProject, sourceId, cdmVersion, sourceProfileId]);
 
   const drilledMapping = useMemo(() => {

@@ -1,4 +1,5 @@
 import { memo, useCallback, type ChangeEvent } from "react";
+import { ConceptSearchInline } from "./ConceptSearchInline";
 
 // ---------------------------------------------------------------------------
 // Props
@@ -59,6 +60,17 @@ function MappingTypeEditorComponent({ mapping, onChange }: MappingTypeEditorProp
     },
     [onChange],
   );
+
+  const handleConceptSelect = useCallback(
+    (conceptId: number, conceptName: string) => {
+      onChange({ logic: `${conceptId} (${conceptName})` });
+    },
+    [onChange],
+  );
+
+  const showConceptSearch =
+    (mapping.mapping_type === "lookup" || mapping.mapping_type === "constant") &&
+    mapping.target_column.endsWith("_concept_id");
 
   const confidencePct =
     mapping.confidence !== null ? Math.round(mapping.confidence * 100) : null;
@@ -126,6 +138,11 @@ function MappingTypeEditorComponent({ mapping, onChange }: MappingTypeEditorProp
           </label>
         </div>
       </div>
+
+      {/* Concept search for *_concept_id columns */}
+      {showConceptSearch && (
+        <ConceptSearchInline onSelect={handleConceptSelect} />
+      )}
     </div>
   );
 }

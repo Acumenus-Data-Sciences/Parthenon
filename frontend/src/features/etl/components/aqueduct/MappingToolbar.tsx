@@ -9,6 +9,8 @@ interface MappingToolbarProps {
   filter: "all" | "mapped" | "unmapped";
   onFilterChange: (f: "all" | "mapped" | "unmapped") => void;
   onBack: () => void;
+  onSuggest: () => void;
+  isSuggesting: boolean;
 }
 
 const STATUS_STYLES: Record<string, { bg: string; text: string; label: string }> = {
@@ -33,6 +35,8 @@ function MappingToolbarComponent({
   filter,
   onFilterChange,
   onBack,
+  onSuggest,
+  isSuggesting,
 }: MappingToolbarProps) {
   const statusStyle = STATUS_STYLES[status] ?? STATUS_STYLES.draft;
   const progressPct = totalCdmTables > 0 ? (mappedTables / totalCdmTables) * 100 : 0;
@@ -95,11 +99,22 @@ function MappingToolbarComponent({
           </div>
           <button
             type="button"
-            disabled
-            className="text-xs px-3 py-1.5 text-gray-600 border border-[#2a2a3e] rounded-lg cursor-not-allowed"
-            title="AI Suggest (Phase 2)"
+            onClick={onSuggest}
+            disabled={isSuggesting}
+            className="text-xs px-3 py-1.5 border border-[#2a2a3e] rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-amber-400 hover:bg-amber-900/30 hover:border-amber-800/50"
+            title="AI Suggest mappings"
           >
-            AI Suggest
+            {isSuggesting ? (
+              <span className="inline-flex items-center gap-1.5">
+                <svg className="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+                Suggesting...
+              </span>
+            ) : (
+              "AI Suggest"
+            )}
           </button>
           <button
             type="button"
