@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v5.4
 milestone_name: milestone
 status: executing
-stopped_at: Completed 07-01-PLAN.md, ready for 07-02-PLAN.md
-last_updated: "2026-03-26T18:22:51.000Z"
-last_activity: 2026-03-26 -- Completed 07-01 RxNorm parser and drug_exposure schema
+stopped_at: Completed 08-01-PLAN.md (condition extraction from 4 tables)
+last_updated: "2026-03-26T18:28:14.384Z"
+last_activity: 2026-03-26 -- Completed 09-01 growth measurement unpivot (34,135 rows)
 progress:
   total_phases: 12
   completed_phases: 6
-  total_plans: 13
-  completed_plans: 14
-  percent: 93
+  total_plans: 24
+  completed_plans: 17
+  percent: 92
 ---
 
 # Project State
@@ -25,10 +25,10 @@ See: .planning/PROJECT.md (updated 2026-03-26)
 
 ## Current Position
 
-Phase: 7 of 12 (Medications) -- Executing, 1 of 3 plans executed
-Plan: 1 of 3 in current phase
-Status: Executing Phase 07
-Last activity: 2026-03-26 -- Completed 07-01 RxNorm parser and drug_exposure schema
+Phase: 7-10 parallel (Medications, Conditions, Measurements, Observations)
+Plan: 09-01 completed (growth measurements), phases 7-10 in parallel
+Status: Executing Phases 07-10 in parallel
+Last activity: 2026-03-26 -- Completed 09-01 growth measurement unpivot (34,135 rows)
 
 Progress: [█████████░] 92%
 
@@ -51,6 +51,8 @@ Progress: [█████████░] 92%
 - Trend: -
 
 *Updated after each plan completion*
+| Phase 09 P01 | 5min | 5 tasks | 4 files |
+| Phase 10 P01 | 4min | 4 tasks | 4 files |
 | Phase 07 P01 | 3min | 3 tasks | 4 files |
 | Phase 06 P01 | 7min | 2 tasks | 5 files |
 | Phase 04 P01 | 3min | 1 tasks | 2 files |
@@ -62,6 +64,7 @@ Progress: [█████████░] 92%
 | Phase 05 P01 | 6min | 5 tasks | 5 files |
 | Phase 06 P02 | 3min | 2 tasks | 5 files |
 | Phase 05 P02 | 3min | 3 tasks | 2 files |
+| Phase 08 P01 | 7min | 11 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -104,6 +107,15 @@ Recent decisions affecting current work:
 - [Phase 05]: resolve_series returns pd.Int64Dtype array with pd.NA for unresolved (consistent with PersonIdRegistry pattern)
 - [Phase 07]: Regex ordering: code:(digits) before code:RX10(digits) -- RX10 prefix naturally fails numeric-only match
 - [Phase 07]: assemble_stop_reason severity order: Ineffective, Side effects, Not needed
+- [Phase 10]: pd.Int64Dtype() required for pandera nullable integer columns (pd.NA cannot coerce to int64)
+- [Phase 10]: 40/41 MBA score columns mapped -- Scoliosis_MBA not in source CSV (source uses shared Scoliosis column)
+- [Phase 10]: pandas melt approach for wide-to-long unpivot, dropna after melt for NULL score filtering
+- [Phase 09]: pd.Int64Dtype() for nullable int Pandera schema columns (same pattern as Phase 10)
+- [Phase 09]: NaT string treated as invalid date in unpivot (strftime on NaT produces literal "NaT")
+- [Phase 09]: HeightMeasurementPosition appended as parenthetical to measurement_source_value
+- [Phase 08]: condition_type_concept_id = 32879 (Registry) for all condition records
+- [Phase 08]: SNOMED regex parser extracts code from formatted SNOWMEDOutput strings via code:(\d+)
+- [Phase 08]: Not a seizure (390 rows) excluded from condition_occurrence; Rett spell emitted with concept_id=0
 
 ### Pending Todos
 
@@ -117,6 +129,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-26T18:22:51Z
-Stopped at: Completed 07-01-PLAN.md, ready for 07-02-PLAN.md
-Resume file: .planning/phases/07-medications/07-02-PLAN.md
+Last session: 2026-03-26T18:28:14.382Z
+Stopped at: Completed 08-01-PLAN.md (condition extraction from 4 tables)
+Resume file: None

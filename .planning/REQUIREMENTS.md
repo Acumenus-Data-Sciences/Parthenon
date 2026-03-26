@@ -39,25 +39,25 @@
 
 ### Conditions
 
-- [ ] **COND-01**: Chronic diagnoses, seizures, bone fractures, and infections from 5211 tables transformed to condition_occurrence staging CSV
-- [ ] **COND-02**: Pre-mapped SNOMED codes from SNOWMEDOutput columns validated against current vocabulary
+- [x] **COND-01**: Chronic diagnoses, seizures, bone fractures, and infections from 5211 tables transformed to condition_occurrence staging CSV
+- [x] **COND-02**: Pre-mapped SNOMED codes from SNOWMEDOutput columns validated against current vocabulary
 - [ ] **COND-03**: Condition mapping coverage rate >= 85% (records with valid SNOMED concept)
 
 ### Measurements
 
-- [ ] **MEAS-01**: Growth measurements (height, weight, BMI, head circumference) unpivoted from wide to long format with LOINC concept_ids (3036277, 3025315, 3038553, 3036832)
+- [x] **MEAS-01**: Growth measurements (height, weight, BMI, head circumference) unpivoted from wide to long format with LOINC concept_ids (3036277, 3025315, 3038553, 3036832)
 - [ ] **MEAS-02**: Clinical Severity Scale (CSS) total score and individual items stored as separate measurement rows with custom IRSF concept_ids
 - [ ] **MEAS-03**: Lab results from Labs_5211 mapped to LOINC concepts
 - [ ] **MEAS-04**: SF-36 quality of life scores transformed to measurement rows
 - [ ] **MEAS-05**: Measurement mapping coverage rate >= 95% for growth/lab measurements
-- [ ] **MEAS-06**: Wide-to-long unpivot filters NULL primary values to avoid row inflation
+- [x] **MEAS-06**: Wide-to-long unpivot filters NULL primary values to avoid row inflation
 
 ### Observations
 
-- [ ] **OBS-01**: Motor Behavioral Assessment (MBA) scores stored as observation rows with custom IRSF concept_ids
+- [x] **OBS-01**: Motor Behavioral Assessment (MBA) scores stored as observation rows with custom IRSF concept_ids
 - [ ] **OBS-02**: Genotype/mutation data (~50 boolean columns) mapped to structured observations with value=1 only emitted, using custom IRSF vocabulary concepts
 - [ ] **OBS-03**: Rett features, developmental history, clinical assessments, allergies, nutrition, and other categorical data mapped to observation table
-- [ ] **OBS-04**: All observations carry observation_source_value preserving original column names and values
+- [x] **OBS-04**: All observations carry observation_source_value preserving original column names and values
 
 ### Custom Vocabulary
 
@@ -146,8 +146,8 @@
 | MED-03 | Phase 7 | Pending |
 | MED-04 | Phase 7 | Complete |
 | MED-05 | Phase 7 | Pending |
-| COND-01 | Phase 8 | Pending |
-| COND-02 | Phase 8 | Pending |
+| COND-01 | Phase 8 | Complete |
+| COND-02 | Phase 8 | Complete |
 | COND-03 | Phase 8 | Pending |
 | MEAS-01 | Phase 9 | Pending |
 | MEAS-02 | Phase 9 | Pending |
@@ -155,10 +155,10 @@
 | MEAS-04 | Phase 9 | Pending |
 | MEAS-05 | Phase 9 | Pending |
 | MEAS-06 | Phase 9 | Pending |
-| OBS-01 | Phase 10 | Pending |
+| OBS-01 | Phase 10 | Complete |
 | OBS-02 | Phase 10 | Pending |
 | OBS-03 | Phase 10 | Pending |
-| OBS-04 | Phase 10 | Pending |
+| OBS-04 | Phase 10 | Complete |
 | VOCAB-01 | Phase 6 | Complete |
 | VOCAB-02 | Phase 6 | Complete |
 | VOCAB-03 | Phase 6 | Complete |

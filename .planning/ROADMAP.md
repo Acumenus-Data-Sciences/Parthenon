@@ -177,7 +177,7 @@ Plans:
 **Plans**: TBD
 
 Plans:
-- [ ] 10-01: MBA score transformation
+- [x] 10-01: MBA score transformation
 - [ ] 10-02: Genotype boolean mapping to observations
 - [ ] 10-03: Categorical clinical data observation mapping
 
@@ -228,8 +228,8 @@ Note: Phases 2 and 3 can run in parallel. Phases 7, 8, 9, 10 can run in parallel
 | 5. Visit Derivation | 2/2 | Complete    | 2026-03-26 |
 | 6. Custom IRSF Vocabulary | 2/2 | Complete    | 2026-03-26 |
 | 7. Medications | 1/3 | In progress | - |
-| 8. Conditions | 0/2 | Not started | - |
-| 9. Measurements | 0/3 | Not started | - |
-| 10. Observations | 0/3 | Not started | - |
+| 8. Conditions | 1/2 | In Progress|  |
+| 9. Measurements | 1/3 | In progress | - |
+| 10. Observations | 1/3 | In progress | - |
 | 11. Data Loading and Observation Periods | 0/2 | Not started | - |
 | 12. Validation and Cohort Verification | 0/3 | Not started | - |
