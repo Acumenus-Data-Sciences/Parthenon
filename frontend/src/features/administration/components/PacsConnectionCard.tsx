@@ -47,6 +47,30 @@ const TYPE_LABELS: Record<string, string> = {
   cloud: "Cloud",
 };
 
+const MODALITY_LABELS: Record<string, string> = {
+  CT: "CT",
+  MR: "MRI",
+  PT: "PET",
+  US: "Ultrasound",
+  CR: "Computed Radiography",
+  DX: "Digital X-Ray",
+  MG: "Mammography",
+  NM: "Nuclear Medicine",
+  XA: "Angiography",
+  RF: "Fluoroscopy",
+  OT: "Other",
+  SR: "Structured Report",
+  DOC: "Document",
+  SEG: "Segmentation",
+  RTSTRUCT: "RT Structure",
+  RTPLAN: "RT Plan",
+  RTDOSE: "RT Dose",
+  RTIMAGE: "RT Image",
+  REG: "Registration",
+  KO: "Key Object",
+  PR: "Presentation State",
+};
+
 const STATUS_DOT: Record<string, string> = {
   ok: "bg-[#2DD4BF]",
   healthy: "bg-[#2DD4BF]",
@@ -85,7 +109,7 @@ export default function PacsConnectionCard({
   return (
     <div
       className={cn(
-        "rounded-xl border bg-[#151518] p-4 transition-colors",
+        "rounded-xl border bg-[#151518] p-5 transition-colors",
         connection.is_default
           ? "border-[#C9A227]/40"
           : "border-[#232328]",
@@ -94,17 +118,17 @@ export default function PacsConnectionCard({
     >
       {/* Header */}
       <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2.5 min-w-0">
+        <div className="flex items-center gap-3 min-w-0">
           {/* Status dot */}
           <span
             className={cn(
-              "h-2.5 w-2.5 rounded-full flex-shrink-0",
+              "h-3 w-3 rounded-full flex-shrink-0",
               connection.last_health_status
                 ? STATUS_DOT[connection.last_health_status] ?? "bg-[#5A5650]"
                 : "bg-[#5A5650]",
             )}
           />
-          <h3 className="text-sm font-semibold text-[#F0EDE8] truncate">
+          <h3 className="text-base font-semibold text-[#F0EDE8] truncate">
             {connection.name}
           </h3>
           {/* Default star */}
@@ -115,7 +139,7 @@ export default function PacsConnectionCard({
             className="flex-shrink-0"
           >
             <Star
-              size={14}
+              size={16}
               className={cn(
                 connection.is_default
                   ? "fill-[#C9A227] text-[#C9A227]"
@@ -125,19 +149,19 @@ export default function PacsConnectionCard({
             />
           </button>
           {/* Type badge */}
-          <span className="flex-shrink-0 rounded px-1.5 py-0.5 text-[10px] font-medium bg-[#2DD4BF]/15 text-[#2DD4BF]">
+          <span className="flex-shrink-0 rounded px-2 py-0.5 text-xs font-medium bg-[#2DD4BF]/15 text-[#2DD4BF]">
             {TYPE_LABELS[connection.type] ?? connection.type}
           </span>
         </div>
 
-        <div className="flex items-center gap-1 flex-shrink-0">
+        <div className="flex items-center gap-1.5 flex-shrink-0">
           <button
             type="button"
             onClick={() => onEdit(connection)}
             title="Edit"
-            className="p-1.5 rounded text-[#5A5650] hover:text-[#C5C0B8] hover:bg-[#232328] transition-colors"
+            className="p-2 rounded text-[#5A5650] hover:text-[#C5C0B8] hover:bg-[#232328] transition-colors"
           >
-            <Pencil size={14} />
+            <Pencil size={16} />
           </button>
           <button
             type="button"
@@ -145,15 +169,15 @@ export default function PacsConnectionCard({
               if (confirm(`Delete "${connection.name}"?`)) onDelete(connection.id);
             }}
             title="Delete"
-            className="p-1.5 rounded text-[#5A5650] hover:text-[#E85A6B] hover:bg-[#E85A6B]/10 transition-colors"
+            className="p-2 rounded text-[#5A5650] hover:text-[#E85A6B] hover:bg-[#E85A6B]/10 transition-colors"
           >
-            <Trash2 size={14} />
+            <Trash2 size={16} />
           </button>
         </div>
       </div>
 
       {/* Stats row */}
-      <div className="mt-3 grid grid-cols-5 gap-2">
+      <div className="mt-4 grid grid-cols-5 gap-3">
         {[
           { label: "Patients", value: formatCount(stats?.count_patients), icon: Users },
           { label: "Studies", value: formatCount(stats?.count_studies), icon: Database },
@@ -163,48 +187,55 @@ export default function PacsConnectionCard({
         ].map((cell) => (
           <div
             key={cell.label}
-            className="rounded-lg bg-[#0E0E11] px-2.5 py-2 text-center"
+            className="rounded-lg bg-[#0E0E11] px-3 py-3 text-center"
           >
-            <cell.icon size={12} className="mx-auto text-[#5A5650] mb-1" />
-            <div className="text-xs font-medium text-[#F0EDE8] font-['IBM_Plex_Mono',monospace]">
+            <cell.icon size={16} className="mx-auto text-[#5A5650] mb-1.5" />
+            <div className="text-sm font-semibold text-[#F0EDE8] font-['IBM_Plex_Mono',monospace]">
               {cell.value}
             </div>
-            <div className="text-[10px] text-[#5A5650]">{cell.label}</div>
+            <div className="text-xs text-[#8A857D] mt-0.5">{cell.label}</div>
           </div>
         ))}
       </div>
 
       {/* Modality breakdown */}
       {stats?.modalities && Object.keys(stats.modalities).length > 0 && (
-        <div className="mt-2 rounded-lg bg-[#0E0E11] px-3 py-2">
-          <div className="text-[10px] text-[#5A5650] mb-1.5">Series by Modality</div>
-          <div className="flex flex-wrap gap-x-3 gap-y-1">
+        <div className="mt-3 rounded-lg bg-[#0E0E11] px-4 py-3">
+          <div className="text-xs font-medium text-[#8A857D] mb-2">Series by Modality</div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-1.5">
             {Object.entries(stats.modalities).map(([mod, count]) => (
-              <span key={mod} className="inline-flex items-center gap-1 text-xs">
-                <span className="font-medium text-[#2DD4BF] font-['IBM_Plex_Mono',monospace]">{mod}</span>
-                <span className="text-[#8A857D]">{formatCount(count)}</span>
-              </span>
+              <div key={mod} className="flex items-baseline justify-between gap-2">
+                <span className="text-sm text-[#C5C0B8] truncate" title={MODALITY_LABELS[mod] ?? mod}>
+                  {mod}
+                  {MODALITY_LABELS[mod] && mod !== MODALITY_LABELS[mod] && (
+                    <span className="ml-1.5 text-xs text-[#5A5650]">{MODALITY_LABELS[mod]}</span>
+                  )}
+                </span>
+                <span className="shrink-0 text-sm font-semibold text-[#2DD4BF] font-['IBM_Plex_Mono',monospace]">
+                  {formatCount(count)}
+                </span>
+              </div>
             ))}
           </div>
         </div>
       )}
 
       {/* Footer */}
-      <div className="mt-3 flex items-center justify-between text-xs">
-        <span className="text-[#5A5650]">
+      <div className="mt-4 flex items-center justify-between">
+        <span className="text-sm text-[#5A5650]">
           Stats updated {formatDate(connection.metadata_cached_at)}
         </span>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1.5">
           <button
             type="button"
             onClick={() => onTest(connection.id)}
             disabled={isTesting}
-            className="inline-flex items-center gap-1 rounded px-2 py-1 text-[#8A857D] hover:text-[#F0EDE8] hover:bg-[#232328] transition-colors disabled:opacity-40"
+            className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm text-[#8A857D] hover:text-[#F0EDE8] hover:bg-[#232328] transition-colors disabled:opacity-40"
           >
             {isTesting ? (
-              <Loader2 size={12} className="animate-spin" />
+              <Loader2 size={14} className="animate-spin" />
             ) : (
-              <Play size={12} />
+              <Play size={14} />
             )}
             Test
           </button>
@@ -212,21 +243,21 @@ export default function PacsConnectionCard({
             type="button"
             onClick={() => onRefresh(connection.id)}
             disabled={isRefreshing}
-            className="inline-flex items-center gap-1 rounded px-2 py-1 text-[#8A857D] hover:text-[#F0EDE8] hover:bg-[#232328] transition-colors disabled:opacity-40"
+            className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm text-[#8A857D] hover:text-[#F0EDE8] hover:bg-[#232328] transition-colors disabled:opacity-40"
           >
             {isRefreshing ? (
-              <Loader2 size={12} className="animate-spin" />
+              <Loader2 size={14} className="animate-spin" />
             ) : (
-              <RefreshCw size={12} />
+              <RefreshCw size={14} />
             )}
             Stats
           </button>
           <button
             type="button"
             onClick={() => onBrowse(connection)}
-            className="inline-flex items-center gap-1 rounded px-2 py-1 text-[#2DD4BF] hover:bg-[#2DD4BF]/10 transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm text-[#2DD4BF] hover:bg-[#2DD4BF]/10 transition-colors"
           >
-            <Search size={12} />
+            <Search size={14} />
             Browse
           </button>
         </div>

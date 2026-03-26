@@ -236,13 +236,13 @@ function PacsManagementSection() {
       </div>
 
       {isLoading ? (
-        <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3">
           {[1, 2].map((n) => (
             <div key={n} className="h-36 animate-pulse rounded-xl border border-border bg-muted" />
           ))}
         </div>
       ) : connections && connections.length > 0 ? (
-        <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3">
           {connections.map((conn) => (
             <PacsConnectionCard
               key={conn.id}
