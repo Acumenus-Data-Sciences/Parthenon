@@ -479,28 +479,25 @@ services:
       - parthenon
     restart: unless-stopped
 
-  whiterabbit:
-    container_name: parthenon-whiterabbit
-    image: ghcr.io/sudoshi/parthenon-whiterabbit:latest
+  blackrabbit:
+    container_name: parthenon-blackrabbit
+    image: ghcr.io/sudoshi/parthenon-blackrabbit:latest
     build:
       context: .
-      dockerfile: docker/whiterabbit/Dockerfile
+      dockerfile: docker/blackrabbit/Dockerfile
     ports:
       - "${WHITERABBIT_PORT:-8090}:8090"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     environment:
-      - SCAN_TIMEOUT_SECONDS=${SCAN_TIMEOUT_SECONDS:-1200}
+      - BLACKRABBIT_SCAN_TIMEOUT_SECONDS=${SCAN_TIMEOUT_SECONDS:-1200}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8090/health"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
     deploy:
       resources:
         limits:
-          memory: 4G
+          memory: 2G
     networks:
       - parthenon
     restart: unless-stopped

@@ -1,0 +1,18 @@
+fastapi>=0.115,<1
+uvicorn[standard]>=0.34,<1
+pydantic>=2.0,<3
+pydantic-settings>=2.0,<3
+sqlalchemy>=2.0,<3
+
+# Database drivers — 12 HADES dialects
+psycopg[binary]>=3.2,<4
+pyodbc>=5.1,<6
+oracledb>=2.0,<3
+PyMySQL>=1.1,<2
+cryptography>=44.0
+sqlalchemy-bigquery>=1.12,<2
+sqlalchemy-redshift>=0.8,<1
+snowflake-sqlalchemy>=1.7,<2
+databricks-sql-connector>=3.0,<4
+duckdb-engine>=0.15,<1
+duckdb>=1.0,<2

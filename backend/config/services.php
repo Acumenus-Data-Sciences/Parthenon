@@ -70,6 +70,11 @@ return [
         'url' => env('WHITERABBIT_URL', 'http://whiterabbit:8090'),
     ],
 
+    // BlackRabbit: Native Python database profiler replacing WhiteRabbit
+    'blackrabbit' => [
+        'url' => env('BLACKRABBIT_URL', env('WHITERABBIT_URL', 'http://blackrabbit:8090')),
+    ],
+
     // Grafana: Metrics and monitoring dashboard
     'grafana' => [
         'url' => env('GRAFANA_URL', 'http://grafana:3000'),
