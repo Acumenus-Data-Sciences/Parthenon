@@ -83,7 +83,7 @@ export default function ScanProgressIndicator({
         <img
           src="/whiterabbit.gif"
           alt="White Rabbit scanning"
-          className="w-40 h-auto"
+          className="w-80 h-auto"
         />
 
         {/* Phase text */}
