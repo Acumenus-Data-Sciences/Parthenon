@@ -17,6 +17,7 @@ use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 #[Group('Ingestion Projects', weight: 201)]
 class IngestionProjectController extends Controller
@@ -149,10 +150,13 @@ class IngestionProjectController extends Controller
 
             $totalSize += $fileData['file_size'];
 
+            // Resolve relative storage path to absolute for the staging service
+            $absolutePath = Storage::disk('ingestion')->path($fileData['storage_path']);
+
             StageFileJob::dispatch(
                 $project,
                 $ingestionJob,
-                $fileData['storage_path'],
+                $absolutePath,
                 $tableName,
                 $fileData['file_format'],
             );
