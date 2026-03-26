@@ -11,66 +11,113 @@ use Illuminate\Support\Facades\Log;
 
 class SourceProfilerService
 {
-    private string $whiteRabbitUrl;
+    private string $blackRabbitUrl;
 
     public function __construct(
         private readonly PiiDetectionService $piiDetectionService,
     ) {
-        $this->whiteRabbitUrl = rtrim(config('services.whiterabbit.url', 'http://whiterabbit:8090'), '/');
+        $this->blackRabbitUrl = rtrim(
+            config('services.blackrabbit.url', config('services.whiterabbit.url', 'http://blackrabbit:8090')),
+            '/'
+        );
     }
 
     /**
-     * Run a WhiteRabbit scan and persist results.
+     * Start a scan and return the scan_id for SSE progress tracking.
      *
      * @param  list<string>|null  $tables
      */
-    public function scan(Source $source, ?array $tables = null, int $sampleRows = 100000): SourceProfile
+    public function startScan(Source $source, ?array $tables = null, int $sampleRows = 100000): string
     {
         $source->loadMissing('daimons');
 
-        // Build connection spec from HADES bridge, then map to WhiteRabbit's expected format.
-        // WhiteRabbit expects FLAT keys (no 'connection' wrapper) and for PostgreSQL,
-        // the server field must be <host>/<database>.
         $hadesSpec = HadesBridgeService::buildSourceSpec($source);
         $payload = [
             'dbms' => $hadesSpec['dbms'] ?? 'postgresql',
-            'server' => $hadesSpec['server'] ?? '', // Already in host/database format from HADES
+            'server' => $hadesSpec['server'] ?? '',
             'port' => (int) ($hadesSpec['port'] ?? 5432),
             'user' => $hadesSpec['user'] ?? '',
             'password' => $hadesSpec['password'] ?? '',
             'schema' => $hadesSpec['cdm_schema'] ?? 'public',
-            'sample_size' => $sampleRows,
+            'rows_per_table' => $sampleRows,
         ];
 
         if ($tables) {
             $payload['tables'] = $tables;
         }
 
-        Log::info('Profiler scan started', ['source_id' => $source->id]);
+        Log::info('BlackRabbit scan started', ['source_id' => $source->id]);
 
-        $startTime = microtime(true);
-
-        $response = Http::timeout(1200)->post(
-            "{$this->whiteRabbitUrl}/scan",
-            $payload,
-        );
-
-        $elapsed = round(microtime(true) - $startTime, 3);
+        $response = Http::timeout(30)->post("{$this->blackRabbitUrl}/scan", $payload);
 
         if ($response->failed()) {
-            Log::error('Profiler scan failed', [
-                'source_id' => $source->id,
-                'status' => $response->status(),
-            ]);
-
             throw new \RuntimeException(
-                'WhiteRabbit scan failed: '.($response->json('message') ?? $response->body())
+                'BlackRabbit scan failed to start: '.($response->json('detail') ?? $response->body())
+            );
+        }
+
+        return $response->json('scan_id');
+    }
+
+    /**
+     * Get the SSE progress stream URL for a scan.
+     */
+    public function progressUrl(string $scanId): string
+    {
+        return "{$this->blackRabbitUrl}/scan/{$scanId}";
+    }
+
+    /**
+     * Fetch the completed scan result and persist it.
+     */
+    public function fetchAndPersist(Source $source, string $scanId): SourceProfile
+    {
+        $response = Http::timeout(1200)->get("{$this->blackRabbitUrl}/scan/{$scanId}/result");
+
+        if ($response->failed()) {
+            throw new \RuntimeException(
+                'BlackRabbit result fetch failed: '.($response->json('detail') ?? $response->body())
             );
         }
 
         $scanData = $response->json();
+        $elapsed = $scanData['scan_time_seconds'] ?? 0;
 
         return $this->persistResults($source, $scanData, $elapsed);
+    }
+
+    /**
+     * Run a BlackRabbit scan and persist results (synchronous, backward-compat).
+     *
+     * @param  list<string>|null  $tables
+     */
+    public function scan(Source $source, ?array $tables = null, int $sampleRows = 100000): SourceProfile
+    {
+        $scanId = $this->startScan($source, $tables, $sampleRows);
+
+        // Poll until complete
+        $maxWait = 1200;
+        $waited = 0;
+        while ($waited < $maxWait) {
+            usleep(500_000); // 500ms
+            $waited += 0.5;
+
+            $response = Http::timeout(10)->get("{$this->blackRabbitUrl}/scan/{$scanId}/result");
+            if ($response->status() === 404) {
+                continue; // Still running
+            }
+            if ($response->successful()) {
+                $scanData = $response->json();
+                $elapsed = $scanData['scan_time_seconds'] ?? $waited;
+
+                return $this->persistResults($source, $scanData, $elapsed);
+            }
+            if ($response->status() === 410) {
+                throw new \RuntimeException('Scan expired before result could be fetched');
+            }
+        }
+
+        throw new \RuntimeException('Scan timed out after '.$maxWait.' seconds');
     }
 
     /**

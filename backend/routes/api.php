@@ -785,6 +785,12 @@ Route::prefix('v1')->group(function () {
                 ->middleware('permission:profiler.view');
             Route::post('/scan', [SourceProfilerController::class, 'scan'])
                 ->middleware(['permission:profiler.scan', 'throttle:3,10']);
+            Route::post('/scan-async', [SourceProfilerController::class, 'scanAsync'])
+                ->middleware(['permission:profiler.scan', 'throttle:3,10']);
+            Route::get('/scan-progress/{scanId}', [SourceProfilerController::class, 'scanProgress'])
+                ->middleware('permission:profiler.scan');
+            Route::post('/scan-complete/{scanId}', [SourceProfilerController::class, 'scanComplete'])
+                ->middleware('permission:profiler.scan');
             Route::get('/{profile}', [SourceProfilerController::class, 'show'])
                 ->middleware('permission:profiler.view')
                 ->where('profile', '[0-9]+');

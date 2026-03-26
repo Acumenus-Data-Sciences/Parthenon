@@ -12,6 +12,7 @@ use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 #[Group('Source Profiler', weight: 231)]
 class SourceProfilerController extends Controller
@@ -106,6 +107,96 @@ class SourceProfilerController extends Controller
         $diff = $this->comparisonService->compare($current, $baseline);
 
         return response()->json(['data' => $diff]);
+    }
+
+    /**
+     * POST /sources/{source}/scan-profiles/scan-async
+     */
+    public function scanAsync(RunScanRequest $request, Source $source): JsonResponse
+    {
+        try {
+            $scanId = $this->profilerService->startScan(
+                $source,
+                $request->input('tables'),
+                $request->integer('sample_rows', 100000),
+            );
+
+            return response()->json([
+                'data' => ['scan_id' => $scanId, 'source_id' => $source->id],
+                'message' => 'Scan started.',
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Profiler async scan request failed', [
+                'source_id' => $source->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'error' => 'Scan failed to start',
+                'message' => $e->getMessage(),
+            ], 502);
+        }
+    }
+
+    /**
+     * GET /sources/{source}/scan-profiles/scan-progress/{scanId}
+     */
+    public function scanProgress(Source $source, string $scanId): StreamedResponse
+    {
+        $url = $this->profilerService->progressUrl($scanId);
+
+        return new StreamedResponse(function () use ($url) {
+            $ch = curl_init($url);
+            curl_setopt_array($ch, [
+                CURLOPT_HTTPHEADER => ['Accept: text/event-stream'],
+                CURLOPT_WRITEFUNCTION => function ($ch, $data) {
+                    echo $data;
+                    if (ob_get_level() > 0) {
+                        ob_flush();
+                    }
+                    flush();
+
+                    return strlen($data);
+                },
+                CURLOPT_TIMEOUT => 1200,
+            ]);
+            curl_exec($ch);
+            curl_close($ch);
+        }, 200, [
+            'Content-Type' => 'text/event-stream',
+            'Cache-Control' => 'no-cache',
+            'Connection' => 'keep-alive',
+            'X-Accel-Buffering' => 'no',
+        ]);
+    }
+
+    /**
+     * POST /sources/{source}/scan-profiles/scan-complete/{scanId}
+     */
+    public function scanComplete(Request $request, Source $source, string $scanId): JsonResponse
+    {
+        try {
+            $profile = $this->profilerService->fetchAndPersist($source, $scanId);
+
+            return response()->json([
+                'data' => $profile->only([
+                    'id', 'source_id', 'overall_grade', 'table_count',
+                    'column_count', 'total_rows', 'scan_time_seconds', 'summary_json',
+                ]),
+                'message' => 'Scan completed and saved.',
+            ], 201);
+        } catch (\Throwable $e) {
+            Log::error('Profiler scan complete failed', [
+                'source_id' => $source->id,
+                'scan_id' => $scanId,
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'error' => 'Failed to persist scan results',
+                'message' => $e->getMessage(),
+            ], 502);
+        }
     }
 
     /**
