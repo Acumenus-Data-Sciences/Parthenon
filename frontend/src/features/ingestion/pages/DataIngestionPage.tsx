@@ -18,7 +18,7 @@ const FhirIngestionPage = lazy(
 type TabId = "upload" | "profiler" | "aqueduct" | "fhir";
 
 const TABS: { id: TabId; label: string }[] = [
-  { id: "upload", label: "Upload Files" },
+  { id: "upload", label: "Ingestion" },
   { id: "profiler", label: "Source Profiler" },
   { id: "aqueduct", label: "Aqueduct" },
   { id: "fhir", label: "FHIR Ingestion" },

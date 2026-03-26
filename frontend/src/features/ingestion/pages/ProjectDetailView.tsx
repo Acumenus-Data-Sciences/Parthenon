@@ -23,6 +23,7 @@ import {
 import { MultiFileUploadZone } from "../components/MultiFileUploadZone";
 import { FileReviewList, deriveTableName } from "../components/FileReviewList";
 import { StagingPreview } from "../components/StagingPreview";
+import ConnectDatabaseColumn from "../components/ConnectDatabaseColumn";
 import type { IngestionProject } from "../api/ingestionApi";
 import type { IngestionJob } from "@/types/ingestion";
 
@@ -206,59 +207,70 @@ export default function ProjectDetailView({ projectId, onBack }: ProjectDetailVi
         </div>
       </div>
 
-      {/* Upload Zone (collapsible) */}
-      <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
-        <button
-          type="button"
-          onClick={() => setUploadExpanded((v) => !v)}
-          className="flex items-center justify-between w-full px-5 py-3.5 text-left hover:bg-[#1C1C20] transition-colors"
-        >
-          <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#9B1B30]/15">
-              <Plus size={16} className="text-[#9B1B30]" />
-            </div>
-            <div>
-              <span className="text-sm font-medium text-[#F0EDE8]">
-                {isDraft ? "Upload Source Files" : "Add More Files"}
-              </span>
-              <p className="text-xs text-[#8A857D]">
-                Select CSV, TSV, or Excel files to stage into the project
-              </p>
-            </div>
+      {/* Ingestion: Connect to Database + Upload Files */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Left column: Connect to Database */}
+        <div className="rounded-lg border border-[#232328] bg-[#151518] p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <h3 className="text-sm font-medium text-[#F0EDE8]">Connect to Database</h3>
           </div>
-          {uploadExpanded ? (
-            <ChevronUp size={16} className="text-[#8A857D]" />
-          ) : (
-            <ChevronDown size={16} className="text-[#8A857D]" />
-          )}
-        </button>
+          <ConnectDatabaseColumn project={project} />
+        </div>
 
-        {uploadExpanded && (
-          <div className="px-5 pb-5 pt-1 border-t border-[#1C1C20] space-y-4">
-            {selectedFiles.length === 0 ? (
-              <MultiFileUploadZone onFilesSelect={handleFilesSelect} />
-            ) : (
-              <FileReviewList
-                files={selectedFiles}
-                tableNames={tableNames}
-                onTableNameChange={handleTableNameChange}
-                onRemove={handleRemoveFile}
-                onStageAll={handleStageAll}
-                isStaging={stageFilesMutation.isPending}
-              />
-            )}
-
-            {stageFilesMutation.isError && (
-              <div className="rounded-lg border border-[#E85A6B]/30 bg-[#E85A6B]/10 px-4 py-2.5">
-                <p className="text-sm text-[#E85A6B]">
-                  {stageFilesMutation.error instanceof Error
-                    ? stageFilesMutation.error.message
-                    : "Staging failed. Please try again."}
+        {/* Right column: Upload Files */}
+        <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
+          <button
+            type="button"
+            onClick={() => setUploadExpanded((v) => !v)}
+            className="flex items-center justify-between w-full px-5 py-3.5 text-left hover:bg-[#1C1C20] transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#9B1B30]/15">
+                <Plus size={16} className="text-[#9B1B30]" />
+              </div>
+              <div>
+                <span className="text-sm font-medium text-[#F0EDE8]">
+                  {isDraft ? "Upload Source Files" : "Add More Files"}
+                </span>
+                <p className="text-xs text-[#8A857D]">
+                  Select CSV, TSV, or Excel files to stage into the project
                 </p>
               </div>
+            </div>
+            {uploadExpanded ? (
+              <ChevronUp size={16} className="text-[#8A857D]" />
+            ) : (
+              <ChevronDown size={16} className="text-[#8A857D]" />
             )}
-          </div>
-        )}
+          </button>
+
+          {uploadExpanded && (
+            <div className="px-5 pb-5 pt-1 border-t border-[#1C1C20] space-y-4">
+              {selectedFiles.length === 0 ? (
+                <MultiFileUploadZone onFilesSelect={handleFilesSelect} />
+              ) : (
+                <FileReviewList
+                  files={selectedFiles}
+                  tableNames={tableNames}
+                  onTableNameChange={handleTableNameChange}
+                  onRemove={handleRemoveFile}
+                  onStageAll={handleStageAll}
+                  isStaging={stageFilesMutation.isPending}
+                />
+              )}
+
+              {stageFilesMutation.isError && (
+                <div className="rounded-lg border border-[#E85A6B]/30 bg-[#E85A6B]/10 px-4 py-2.5">
+                  <p className="text-sm text-[#E85A6B]">
+                    {stageFilesMutation.error instanceof Error
+                      ? stageFilesMutation.error.message
+                      : "Staging failed. Please try again."}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Staged Files Table */}
