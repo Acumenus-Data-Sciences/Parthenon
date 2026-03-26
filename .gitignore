@@ -101,6 +101,9 @@ docs/MBU/
 docs/site/node_modules/
 docs/site/build/
 docs/site/.docusaurus/
+docs/site/.docusaurus-tmp/
+docs/dist/
+docs/.obsidian/
 
 # OpenAPI / generated types
 backend/api.json
