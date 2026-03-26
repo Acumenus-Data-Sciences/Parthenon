@@ -15,7 +15,17 @@ class IngestionProject extends Model
     protected $fillable = [
         'name', 'source_id', 'status', 'created_by',
         'file_count', 'total_size_bytes', 'notes',
+        'db_connection_config', 'selected_tables',
     ];
+
+    /** @return array<string, string> */
+    protected function casts(): array
+    {
+        return [
+            'db_connection_config' => 'encrypted:array',
+            'selected_tables' => 'array',
+        ];
+    }
 
     public function getStagingSchemaAttribute(): string
     {
