@@ -6,6 +6,7 @@ by growth, CSS, lab, and SF-36 measurement transformations.
 
 Exports:
     transform_growth: Growth measurement unpivot (height, weight, BMI, FOC).
+    transform_css: CSS (Clinical Severity Scale) measurement unpivot (14 items).
     unpivot_wide_to_long: Reusable wide-to-long helper for any measurement source.
     transform_measurements: Main orchestrator for all measurement sources.
 """
@@ -20,6 +21,7 @@ import pandas as pd
 from scripts.irsf_etl.config import ETLConfig
 from scripts.irsf_etl.lib.csv_utils import read_csv_safe
 from scripts.irsf_etl.lib.id_registry import PersonIdRegistry
+from scripts.irsf_etl.lib.irsf_vocabulary import _CSS_CONCEPTS
 from scripts.irsf_etl.lib.rejection_log import RejectionCategory, RejectionLog
 from scripts.irsf_etl.lib.visit_resolver import VisitResolver
 from scripts.irsf_etl.schemas.measurement import measurement_schema
@@ -275,6 +277,84 @@ def transform_growth(
 
 
 # ---------------------------------------------------------------------------
+# CSS (Clinical Severity Scale) measurement transform
+# ---------------------------------------------------------------------------
+
+# Build measure_specs from _CSS_CONCEPTS: data-driven, no hardcoded columns.
+# Unit concept_id=0 (scores have no physical unit), unit_source_value=None.
+_CSS_MEASURE_SPECS: list[tuple[str, int, int, str | None]] = [
+    (c.source_column, c.concept_id, 0, None) for c in _CSS_CONCEPTS
+]
+
+
+def transform_css(
+    config: ETLConfig,
+    registry: PersonIdRegistry,
+    resolver: VisitResolver,
+    log: RejectionLog,
+) -> pd.DataFrame:
+    """Transform CSS (Clinical Severity Scale) measurements from CSS_5201_5211.csv.
+
+    Loads the wide-format CSS CSV, resolves person_ids and visit dates,
+    then unpivots 14 score columns (1 TotalScore + 13 individual clinical
+    severity items) into long-format OMOP measurement rows. Concept_ids
+    are data-driven from irsf_vocabulary._CSS_CONCEPTS.
+
+    Args:
+        config: ETL configuration with source paths.
+        registry: PersonIdRegistry for participant_id -> person_id resolution.
+        resolver: VisitResolver for visit_occurrence_id lookup.
+        log: RejectionLog for tracking rejected rows.
+
+    Returns:
+        DataFrame with OMOP measurement columns (measurement_id not yet assigned).
+    """
+    css_path = config.source_custom_extracts / "csv" / "CSS_5201_5211.csv"
+    logger.info("Loading CSS data from %s", css_path)
+    df = read_csv_safe(css_path)
+    logger.info("CSS CSV loaded: %d rows", len(df))
+
+    log.set_processed_count(len(df))
+
+    # Validate that all expected source_columns exist in the CSV
+    expected_cols = {c.source_column for c in _CSS_CONCEPTS}
+    actual_cols = set(df.columns)
+    missing_cols = expected_cols - actual_cols
+    if missing_cols:
+        raise ValueError(
+            f"CSS CSV missing expected columns from _CSS_CONCEPTS: {sorted(missing_cols)}. "
+            f"Available columns: {sorted(actual_cols)}"
+        )
+
+    # Resolve person_ids
+    person_ids = registry.resolve_series(df["participant_id"])
+
+    # Parse visit dates
+    visit_dates = pd.to_datetime(df["visit_date"], format="mixed", errors="coerce")
+    visit_dates_str = visit_dates.dt.strftime("%Y-%m-%d")
+
+    # Get visit labels
+    visit_labels = df["visit"].astype(str) if "visit" in df.columns else None
+
+    # Unpivot CSS measurements
+    rows = unpivot_wide_to_long(
+        df=df,
+        person_ids=person_ids,
+        visit_dates=visit_dates_str,
+        measure_specs=_CSS_MEASURE_SPECS,
+        visit_resolver=resolver,
+        log=log,
+        source_file="CSS_5201_5211.csv",
+        visit_labels=visit_labels,
+    )
+
+    result = pd.DataFrame(rows, columns=_MEASUREMENT_COLUMNS)
+    logger.info("CSS measurements: %d rows produced", len(result))
+
+    return result
+
+
+# ---------------------------------------------------------------------------
 # Main orchestrator
 # ---------------------------------------------------------------------------
 
@@ -282,8 +362,8 @@ def transform_growth(
 def transform_measurements(config: ETLConfig) -> pd.DataFrame:
     """Transform all measurement sources into OMOP measurement staging CSV.
 
-    Currently processes growth measurements only. Plans 09-02 and 09-03
-    will add CSS, lab, and SF-36 measurement sources.
+    Processes growth and CSS (Clinical Severity Scale) measurements.
+    Plans 09-03 will add lab and SF-36 measurement sources.
 
     Args:
         config: ETL configuration.
@@ -302,8 +382,12 @@ def transform_measurements(config: ETLConfig) -> pd.DataFrame:
     growth_log = RejectionLog("measurement_growth")
     growth_df = transform_growth(config, registry, resolver, growth_log)
 
-    # Combine all measurement sources (growth only for now)
-    all_measurements = growth_df
+    # CSS measurements
+    css_log = RejectionLog("measurement_css")
+    css_df = transform_css(config, registry, resolver, css_log)
+
+    # Combine all measurement sources
+    all_measurements = pd.concat([growth_df, css_df], ignore_index=True)
 
     # Assign sequential measurement_ids starting from 1
     all_measurements = all_measurements.copy()
@@ -317,9 +401,10 @@ def transform_measurements(config: ETLConfig) -> pd.DataFrame:
     validated.to_csv(output_path, index=False)
     logger.info("Wrote measurement.csv: %d rows -> %s", len(validated), output_path)
 
-    # Write rejection report
+    # Write rejection reports
     reports_dir = config.reports_dir
     reports_dir.mkdir(parents=True, exist_ok=True)
     growth_log.to_csv(reports_dir / "measurement_growth_rejections.csv")
+    css_log.to_csv(reports_dir / "measurement_css_rejections.csv")
 
     return validated
