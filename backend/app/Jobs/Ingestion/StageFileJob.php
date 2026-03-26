@@ -6,6 +6,7 @@ use App\Enums\ExecutionStatus;
 use App\Models\App\IngestionJob;
 use App\Models\App\IngestionProject;
 use App\Services\Ingestion\StagingService;
+use App\Services\Ingestion\StagingSourceService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -107,6 +108,8 @@ class StageFileJob implements ShouldQueue
             $project->update(['status' => 'failed']);
         } elseif ($completed === $total) {
             $project->update(['status' => 'ready']);
+            // Auto-create staging source for Aqueduct integration
+            app(StagingSourceService::class)->createStagingSource($project);
         } else {
             $project->update(['status' => 'profiling']);
         }

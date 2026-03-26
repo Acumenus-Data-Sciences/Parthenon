@@ -12,6 +12,7 @@ use App\Models\App\IngestionJob;
 use App\Models\App\IngestionProject;
 use App\Services\Ingestion\FileUploadService;
 use App\Services\Ingestion\StagingService;
+use App\Services\Ingestion\StagingSourceService;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
@@ -104,6 +105,7 @@ class IngestionProjectController extends Controller
     {
         $this->authorize('delete', $project);
 
+        app(StagingSourceService::class)->cleanupStagingSource($project);
         $project->delete();
 
         return response()->json(null, 204);
