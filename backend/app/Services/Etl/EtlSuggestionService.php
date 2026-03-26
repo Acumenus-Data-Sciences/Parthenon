@@ -28,13 +28,17 @@ class EtlSuggestionService
             return ['table_mappings' => 0, 'field_mappings' => 0];
         }
 
-        // Get source tables from the scan profile
-        $sourceProfile = $project->scanProfile;
-        if (! $sourceProfile) {
-            return ['table_mappings' => 0, 'field_mappings' => 0];
+        // Get source tables from scan profile OR ingestion project field profiles
+        $sourceTables = [];
+        if ($project->scanProfile) {
+            $sourceTables = $this->getSourceTables($project->scanProfile);
+        } elseif ($project->ingestion_project_id) {
+            $sourceTables = $this->getIngestionProjectTables($project->ingestion_project_id);
         }
 
-        $sourceTables = $this->getSourceTables($sourceProfile);
+        if (empty($sourceTables)) {
+            return ['table_mappings' => 0, 'field_mappings' => 0];
+        }
         $existingMappings = $project->tableMappings()->pluck('target_table', 'source_table')->toArray();
 
         $tableMappingsCreated = 0;
@@ -121,6 +125,35 @@ class EtlSuggestionService
                 continue;
             }
 
+            if (! isset($tables[$tableName])) {
+                $tables[$tableName] = [];
+            }
+            $tables[$tableName][] = [
+                'name' => $field->column_name,
+                'type' => $field->inferred_type ?? 'text',
+            ];
+        }
+
+        return $tables;
+    }
+
+    /**
+     * Get source tables from all field profiles across an ingestion project's jobs.
+     *
+     * @return array<string, list<array{name: string, type: string}>>
+     */
+    private function getIngestionProjectTables(int $ingestionProjectId): array
+    {
+        $fields = FieldProfile::whereHas('sourceProfile.ingestionJob', function ($q) use ($ingestionProjectId) {
+            $q->where('ingestion_project_id', $ingestionProjectId);
+        })->get();
+
+        $tables = [];
+        foreach ($fields as $field) {
+            $tableName = $field->table_name;
+            if (! $tableName) {
+                continue;
+            }
             if (! isset($tables[$tableName])) {
                 $tables[$tableName] = [];
             }
