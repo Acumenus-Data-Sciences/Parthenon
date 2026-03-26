@@ -18,7 +18,7 @@ class WhiteRabbitController extends Controller
 
     public function __construct()
     {
-        $this->whiteRabbitUrl = rtrim(config('services.whiterabbit.url', 'http://whiterabbit:8090'), '/');
+        $this->whiteRabbitUrl = rtrim(config('services.blackrabbit.url', config('services.whiterabbit.url', 'http://blackrabbit:8090')), '/');
     }
 
     /**
