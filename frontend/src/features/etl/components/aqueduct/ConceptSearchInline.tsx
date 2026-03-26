@@ -116,7 +116,7 @@ export function ConceptSearchInline({ onSelect }: ConceptSearchInlineProps) {
               <button
                 type="button"
                 onClick={() => handleSelect(concept)}
-                className="w-full text-left px-3 py-2 hover:bg-[#2a2a3e] transition-colors flex items-center gap-2"
+                className="w-full text-left px-3 py-2 hover:bg-[#232328] transition-colors flex items-center gap-2"
               >
                 <span className="text-xs text-gray-500 font-mono min-w-[60px]">
                   {concept.concept_id}

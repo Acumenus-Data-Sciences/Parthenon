@@ -545,9 +545,9 @@ function AqueductCanvasInner({
           maxZoom={3}
           proOptions={{ hideAttribution: true }}
         >
-          <Controls className="!bg-[#1a1a2e] !border-[#2a2a3e]" />
-          <MiniMap className="!bg-[#1a1a2e]" />
-          <Background variant={BackgroundVariant.Dots} color="#2a2a3e" gap={20} />
+          <Controls className="!bg-[#1C1C20] !border-[#2A2A30]" />
+          <MiniMap className="!bg-[#1C1C20]" />
+          <Background variant={BackgroundVariant.Dots} color="#2A2A30" gap={20} />
         </ReactFlow>
       </div>
 

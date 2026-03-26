@@ -1,4 +1,5 @@
-import { memo, useCallback, type ChangeEvent } from "react";
+import { memo, useCallback, useState, type ChangeEvent } from "react";
+import { BookOpen, ChevronDown, ChevronUp } from "lucide-react";
 import { ConceptSearchInline } from "./ConceptSearchInline";
 
 // ---------------------------------------------------------------------------
@@ -20,6 +21,13 @@ export interface MappingTypeEditorProps {
     logic?: string;
     is_reviewed?: boolean;
   }) => void;
+  onRemove?: () => void;
+  cdmColumnInfo?: {
+    description?: string;
+    etl_conventions?: string;
+    fk_table?: string | null;
+    fk_domain?: string | null;
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -39,7 +47,9 @@ const MAPPING_TYPES = [
 // Component
 // ---------------------------------------------------------------------------
 
-function MappingTypeEditorComponent({ mapping, onChange }: MappingTypeEditorProps) {
+function MappingTypeEditorComponent({ mapping, onChange, onRemove, cdmColumnInfo }: MappingTypeEditorProps) {
+  const [showDocs, setShowDocs] = useState(false);
+  const hasDocs = !!(cdmColumnInfo?.description || cdmColumnInfo?.etl_conventions);
   const handleTypeChange = useCallback(
     (e: ChangeEvent<HTMLSelectElement>) => {
       onChange({ mapping_type: e.target.value });
@@ -76,7 +86,7 @@ function MappingTypeEditorComponent({ mapping, onChange }: MappingTypeEditorProp
     mapping.confidence !== null ? Math.round(mapping.confidence * 100) : null;
 
   return (
-    <div className="bg-[#1a1a2e] border border-[#2a2a3e] rounded-lg p-4 mt-2">
+    <div className="bg-[#151518] border border-[#2A2A30] rounded-xl p-5 mt-2 shadow-[0_2px_4px_rgba(0,0,0,0.50)]">
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <div className="text-sm text-gray-300">
@@ -101,7 +111,7 @@ function MappingTypeEditorComponent({ mapping, onChange }: MappingTypeEditorProp
           <select
             value={mapping.mapping_type}
             onChange={handleTypeChange}
-            className="bg-[#0E0E11] border border-[#2a2a3e] rounded px-2 py-1 text-sm text-white focus:outline-none focus:border-[#2DD4BF]"
+            className="bg-[#0E0E11] border border-[#2A2A30] rounded px-2 py-1 text-sm text-white focus:outline-none focus:border-[#2DD4BF]"
           >
             {MAPPING_TYPES.map((t) => (
               <option key={t} value={t}>
@@ -121,27 +131,81 @@ function MappingTypeEditorComponent({ mapping, onChange }: MappingTypeEditorProp
             value={mapping.logic ?? ""}
             onChange={handleLogicChange}
             placeholder="Transformation logic or SQL expression"
-            className="bg-[#0E0E11] border border-[#2a2a3e] rounded px-2 py-1 text-sm text-white font-mono resize-none focus:outline-none focus:border-[#2DD4BF] placeholder:text-gray-600"
+            className="bg-[#0E0E11] border border-[#2A2A30] rounded px-2 py-1 text-sm text-white font-mono resize-none focus:outline-none focus:border-[#2DD4BF] placeholder:text-gray-600"
           />
         </div>
 
-        {/* Reviewed checkbox */}
-        <div className="flex flex-col gap-1 pt-4">
+        {/* Reviewed checkbox + Remove */}
+        <div className="flex flex-col gap-2 pt-4">
           <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer select-none">
             <input
               type="checkbox"
               checked={mapping.is_reviewed}
               onChange={handleReviewedChange}
-              className="rounded border-[#2a2a3e] bg-[#0E0E11] text-[#2DD4BF] focus:ring-[#2DD4BF]"
+              className="rounded border-[#2A2A30] bg-[#0E0E11] text-[#2DD4BF] focus:ring-[#2DD4BF]"
             />
             Reviewed
           </label>
+          {onRemove && (
+            <button
+              onClick={onRemove}
+              className="text-[11px] text-red-400 hover:text-red-300 transition-colors"
+            >
+              Remove mapping
+            </button>
+          )}
         </div>
       </div>
 
       {/* Concept search for *_concept_id columns */}
       {showConceptSearch && (
         <ConceptSearchInline onSelect={handleConceptSelect} />
+      )}
+
+      {/* CDM Documentation */}
+      {hasDocs && (
+        <div className="mt-3 border-t border-[#2A2A30] pt-3">
+          <button
+            onClick={() => setShowDocs((v) => !v)}
+            className="flex items-center gap-1.5 text-[11px] text-gray-400 hover:text-gray-300 transition-colors"
+          >
+            <BookOpen className="w-3.5 h-3.5" />
+            CDM Documentation
+            {showDocs ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+          </button>
+          {showDocs && (
+            <div className="mt-2 space-y-2 text-xs text-gray-400">
+              {cdmColumnInfo?.description && (
+                <div>
+                  <span className="text-[10px] uppercase tracking-wide text-gray-500 block mb-0.5">User Guide</span>
+                  <p className="text-gray-300 leading-relaxed">{cdmColumnInfo.description}</p>
+                </div>
+              )}
+              {cdmColumnInfo?.etl_conventions && (
+                <div>
+                  <span className="text-[10px] uppercase tracking-wide text-gray-500 block mb-0.5">ETL Conventions</span>
+                  <p className="text-[#C9A227]/80 leading-relaxed">{cdmColumnInfo.etl_conventions}</p>
+                </div>
+              )}
+              {(cdmColumnInfo?.fk_table || cdmColumnInfo?.fk_domain) && (
+                <div className="flex gap-4">
+                  {cdmColumnInfo.fk_table && (
+                    <span>
+                      <span className="text-[10px] uppercase tracking-wide text-gray-500">FK Table: </span>
+                      <span className="text-[#2DD4BF]">{cdmColumnInfo.fk_table}</span>
+                    </span>
+                  )}
+                  {cdmColumnInfo.fk_domain && (
+                    <span>
+                      <span className="text-[10px] uppercase tracking-wide text-gray-500">FK Domain: </span>
+                      <span className="text-[#2DD4BF]">{cdmColumnInfo.fk_domain}</span>
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       )}
     </div>
   );

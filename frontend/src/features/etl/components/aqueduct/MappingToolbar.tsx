@@ -67,7 +67,7 @@ function MappingToolbarComponent({
   const progressPct = totalCdmTables > 0 ? (mappedTables / totalCdmTables) * 100 : 0;
 
   return (
-    <div className="bg-[#0E0E11] border-b border-[#2a2a3e] px-6 py-3">
+    <div className="bg-[#0E0E11] border-b border-[#2A2A30] px-6 py-3">
       <div className="flex items-center justify-between">
         {/* Left: Back + project name + status */}
         <div className="flex items-center gap-3">
@@ -96,7 +96,7 @@ function MappingToolbarComponent({
           <span className="text-xs text-gray-400">
             {mappedTables} of {totalCdmTables} CDM tables mapped &bull; {fieldCoveragePct}% field coverage
           </span>
-          <div className="w-full h-1 bg-[#2a2a3e] rounded-full overflow-hidden">
+          <div className="w-full h-1 bg-[#2A2A30] rounded-full overflow-hidden">
             <div
               className="h-full bg-[#2DD4BF] rounded-full transition-all duration-300"
               style={{ width: `${Math.min(progressPct, 100)}%` }}
@@ -106,7 +106,7 @@ function MappingToolbarComponent({
 
         {/* Right: Filter toggle + placeholder buttons */}
         <div className="flex items-center gap-2">
-          <div className="flex rounded-lg overflow-hidden border border-[#2a2a3e]">
+          <div className="flex rounded-lg overflow-hidden border border-[#2A2A30]">
             {FILTER_OPTIONS.map((opt) => (
               <button
                 key={opt.value}
@@ -115,7 +115,7 @@ function MappingToolbarComponent({
                 className={`text-xs px-3 py-1.5 transition-colors ${
                   filter === opt.value
                     ? "bg-[#2DD4BF]/20 text-[#2DD4BF] font-medium"
-                    : "text-gray-400 hover:text-white hover:bg-[#1a1a2e]"
+                    : "text-gray-400 hover:text-white hover:bg-[#1C1C20]"
                 }`}
               >
                 {opt.label}
@@ -126,7 +126,7 @@ function MappingToolbarComponent({
             type="button"
             onClick={onSuggest}
             disabled={isSuggesting}
-            className="text-xs px-3 py-1.5 border border-[#2a2a3e] rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-amber-400 hover:bg-amber-900/30 hover:border-amber-800/50"
+            className="text-xs px-3 py-1.5 border border-[#2A2A30] rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-amber-400 hover:bg-amber-900/30 hover:border-amber-800/50"
             title="AI Suggest mappings"
           >
             {isSuggesting ? (
@@ -146,7 +146,7 @@ function MappingToolbarComponent({
               type="button"
               onClick={() => setExportOpen((prev) => !prev)}
               disabled={isExporting}
-              className="text-xs px-3 py-1.5 border border-[#2a2a3e] rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-gray-300 hover:text-white hover:bg-[#1a1a2e]"
+              className="text-xs px-3 py-1.5 border border-[#2A2A30] rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-gray-300 hover:text-white hover:bg-[#1C1C20]"
               title="Export ETL specification"
             >
               {isExporting ? (
@@ -162,7 +162,7 @@ function MappingToolbarComponent({
               )}
             </button>
             {exportOpen && (
-              <div className="absolute right-0 mt-1 w-48 bg-[#1a1a2e] border border-[#2a2a3e] rounded-lg shadow-lg z-50 overflow-hidden">
+              <div className="absolute right-0 mt-1 w-48 bg-[#1C1C20] border border-[#2A2A30] rounded-lg shadow-lg z-50 overflow-hidden">
                 {EXPORT_OPTIONS.map((opt) => (
                   <button
                     key={opt.format}
@@ -171,7 +171,7 @@ function MappingToolbarComponent({
                       setExportOpen(false);
                       onExport(opt.format);
                     }}
-                    className="w-full text-left text-xs px-4 py-2 text-gray-300 hover:bg-[#2a2a3e] hover:text-white transition-colors"
+                    className="w-full text-left text-xs px-4 py-2 text-gray-300 hover:bg-[#2A2A30]/80 hover:text-white transition-colors"
                   >
                     {opt.label}
                   </button>

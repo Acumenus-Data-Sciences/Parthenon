@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { Handle, Position } from "@xyflow/react";
+import { GripVertical } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // ---------------------------------------------------------------------------
@@ -15,6 +15,11 @@ export interface FieldRowProps {
   required?: boolean;
   nullPct?: number;
   distinctCount?: number;
+  isDragSource?: boolean;
+  isDropTarget?: boolean;
+  isDropHighlighted?: boolean;
+  isDragging?: boolean;
+  hint?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -30,6 +35,10 @@ function FieldRowComponent({
   required,
   nullPct,
   distinctCount,
+  isDragSource,
+  isDropHighlighted,
+  isDragging,
+  hint,
 }: FieldRowProps) {
   const borderIndicator =
     side === "target" && isMapped && isReviewed
@@ -43,20 +52,13 @@ function FieldRowComponent({
   return (
     <div
       className={cn(
-        "relative flex items-center gap-2 px-3 py-1.5 text-sm border-b border-[#1a1a2e]",
+        "relative flex items-center gap-2 px-3 py-1.5 text-sm border-b border-[#2A2A30]/40",
         borderIndicator,
         required && !isMapped && "bg-red-950/20",
+        isDropHighlighted && "ring-1 ring-[#2DD4BF] bg-[#2DD4BF]/5",
+        isDragging && "opacity-40",
       )}
     >
-      {side === "target" && (
-        <Handle
-          type="target"
-          position={Position.Left}
-          id={name}
-          className="!w-2.5 !h-2.5 !bg-[#2DD4BF]"
-        />
-      )}
-
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
           <span className="font-medium text-white truncate">{name}</span>
@@ -72,15 +74,15 @@ function FieldRowComponent({
             null: {nullPct}% &bull; {distinctCount ?? 0} distinct
           </div>
         )}
+        {hint && (
+          <div className="text-[10px] text-gray-600 italic mt-0.5">
+            {hint}
+          </div>
+        )}
       </div>
 
-      {side === "source" && (
-        <Handle
-          type="source"
-          position={Position.Right}
-          id={name}
-          className="!w-2.5 !h-2.5 !bg-[#C9A227]"
-        />
+      {isDragSource && (
+        <GripVertical className="w-3.5 h-3.5 text-gray-600 flex-shrink-0" />
       )}
     </div>
   );
