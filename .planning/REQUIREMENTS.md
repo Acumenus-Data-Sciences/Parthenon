@@ -35,7 +35,7 @@
 - [x] **MED-02**: MedRxNormCode formatted strings parsed via regex to extract clean RxNorm concept_ids
 - [x] **MED-03**: Pre-mapped RxNorm codes validated against current Athena vocabulary with deprecated codes remapped via Maps-to relationships
 - [x] **MED-04**: Drug exposure start/stop dates assembled from split date columns with stop_reason populated from ReasonForStoppin columns
-- [ ] **MED-05**: Drug mapping coverage rate >= 90% (records with valid RxNorm concept)
+- [x] **MED-05**: Drug mapping coverage rate >= 90% (records with valid RxNorm concept)
 
 ### Conditions
 
@@ -145,7 +145,7 @@
 | MED-02 | Phase 7 | Complete |
 | MED-03 | Phase 7 | Complete |
 | MED-04 | Phase 7 | Complete |
-| MED-05 | Phase 7 | Pending |
+| MED-05 | Phase 7 | Complete |
 | COND-01 | Phase 8 | Complete |
 | COND-02 | Phase 8 | Complete |
 | COND-03 | Phase 8 | Complete |
