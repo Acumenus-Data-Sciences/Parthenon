@@ -10,6 +10,8 @@ Produces staging/condition_occurrence.csv following OMOP CDM v5.4.
 
 Exports:
     extract_conditions: Main orchestrator producing condition_occurrence.csv.
+    validate_condition_concepts: Validate/remap SNOMED concept_ids via VocabularyValidator.
+    validate_hardcoded_mappings: Validate hardcoded seizure/fracture SNOMED concept_ids.
     extract_chronic_diagnoses: Extract from Chronic_Diagnoses_5211.
     extract_seizures: Extract from seizures_5211.
     extract_bone_fractures: Extract from Bone_Fracture_5211.
@@ -19,9 +21,10 @@ Exports:
 
 from __future__ import annotations
 
+import csv
 import logging
 import re
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 import pandas as pd
 
@@ -34,6 +37,12 @@ from scripts.irsf_etl.lib.visit_resolver import VisitResolver
 from scripts.irsf_etl.schemas.condition_occurrence import (
     condition_occurrence_schema,
 )
+
+if TYPE_CHECKING:
+    from scripts.irsf_etl.lib.vocab_validator import (
+        ConceptValidationResult,
+        VocabularyValidator,
+    )
 
 logger = logging.getLogger(__name__)
 
@@ -694,19 +703,259 @@ def extract_infections(
 
 
 # ---------------------------------------------------------------------------
+# SNOMED vocabulary validation
+# ---------------------------------------------------------------------------
+
+
+def validate_condition_concepts(
+    df: pd.DataFrame,
+    validator: VocabularyValidator,
+    log: RejectionLog,
+) -> pd.DataFrame:
+    """Validate and remap condition SNOMED concept_ids.
+
+    1. Collect all unique non-zero concept_ids from the DataFrame
+    2. Batch-validate via VocabularyValidator.validate_batch()
+    3. For each row:
+       - Standard -> keep as-is
+       - Deprecated_Remapped -> use resolved_id as condition_concept_id
+       - Deprecated_No_Replacement -> set condition_concept_id=0, log warning
+       - Not_Found -> set condition_concept_id=0, log warning
+    4. condition_source_concept_id retains the original pre-validation code
+
+    Returns new DataFrame (immutable pattern) with validated concept_ids.
+    """
+    from scripts.irsf_etl.lib.vocab_validator import ConceptStatus
+
+    # Collect unique non-zero concept_ids
+    all_ids = df["condition_concept_id"].dropna().unique().tolist()
+    unique_ids = [int(cid) for cid in all_ids if int(cid) != 0]
+
+    if not unique_ids:
+        logger.info("No non-zero concept_ids to validate")
+        return df.copy()
+
+    # Batch validate
+    results = validator.validate_batch(unique_ids)
+
+    # Build remap dict: original_id -> new concept_id
+    remap: dict[int, int] = {}
+    for cid, result in results.items():
+        if result.status == ConceptStatus.STANDARD:
+            remap[cid] = result.resolved_id
+        elif result.status == ConceptStatus.DEPRECATED_REMAPPED:
+            remap[cid] = result.resolved_id
+            log.log(
+                0,
+                "condition_concept_id",
+                str(cid),
+                RejectionCategory.DEPRECATED_REMAPPED,
+                f"Remapped {cid} -> {result.resolved_id}: {result.message}",
+            )
+            logger.info("Remapped deprecated SNOMED %d -> %d", cid, result.resolved_id)
+        elif result.status == ConceptStatus.DEPRECATED_NO_REPLACEMENT:
+            remap[cid] = 0
+            log.log(
+                0,
+                "condition_concept_id",
+                str(cid),
+                RejectionCategory.DEPRECATED_NO_REPLACEMENT,
+                f"Deprecated concept {cid} with no replacement",
+            )
+            logger.warning("Deprecated SNOMED %d has no replacement", cid)
+        elif result.status == ConceptStatus.NOT_FOUND:
+            remap[cid] = 0
+            log.log(
+                0,
+                "condition_concept_id",
+                str(cid),
+                RejectionCategory.UNMAPPED_CONCEPT,
+                f"Concept {cid} not found in vocabulary",
+            )
+            logger.warning("SNOMED concept %d not found in vocabulary", cid)
+        elif result.status == ConceptStatus.NON_STANDARD:
+            # Non-standard with no Maps-to: keep original id
+            remap[cid] = result.resolved_id
+
+    # Apply remap: update condition_concept_id, preserve condition_source_concept_id
+    new_df = df.copy()
+    new_df["condition_concept_id"] = new_df["condition_concept_id"].apply(
+        lambda x: remap.get(int(x), int(x)) if pd.notna(x) and int(x) != 0 else int(x) if pd.notna(x) else 0
+    )
+
+    remapped_count = sum(
+        1 for r in results.values()
+        if r.status == ConceptStatus.DEPRECATED_REMAPPED
+    )
+    not_found_count = sum(
+        1 for r in results.values()
+        if r.status in (ConceptStatus.NOT_FOUND, ConceptStatus.DEPRECATED_NO_REPLACEMENT)
+    )
+    logger.info(
+        "Vocabulary validation: %d unique concepts, %d remapped, %d unmapped/not-found",
+        len(unique_ids),
+        remapped_count,
+        not_found_count,
+    )
+
+    return new_df
+
+
+def validate_hardcoded_mappings(validator: VocabularyValidator) -> dict[int, int]:
+    """Validate seizure and fracture hardcoded SNOMED concept_ids.
+
+    Returns a remap dict for any deprecated codes in the hardcoded maps.
+    Logs warnings for any codes that are not found or have no replacement.
+    """
+    from scripts.irsf_etl.lib.vocab_validator import ConceptStatus
+
+    all_hardcoded_ids = set()
+    for cid in _SEIZURE_SNOMED_MAP.values():
+        if cid != 0:
+            all_hardcoded_ids.add(cid)
+    for cid in _FRACTURE_SNOMED_MAP.values():
+        if cid != 0:
+            all_hardcoded_ids.add(cid)
+
+    if not all_hardcoded_ids:
+        return {}
+
+    results = validator.validate_batch(list(all_hardcoded_ids))
+
+    remap: dict[int, int] = {}
+    for cid, result in results.items():
+        if result.status == ConceptStatus.DEPRECATED_REMAPPED:
+            remap[cid] = result.resolved_id
+            logger.warning(
+                "Hardcoded SNOMED %d is deprecated, remapped to %d",
+                cid,
+                result.resolved_id,
+            )
+        elif result.status == ConceptStatus.DEPRECATED_NO_REPLACEMENT:
+            logger.warning(
+                "Hardcoded SNOMED %d is deprecated with no replacement",
+                cid,
+            )
+        elif result.status == ConceptStatus.NOT_FOUND:
+            logger.warning(
+                "Hardcoded SNOMED %d not found in vocabulary",
+                cid,
+            )
+        elif result.status == ConceptStatus.STANDARD:
+            logger.debug("Hardcoded SNOMED %d is current/standard", cid)
+
+    if remap:
+        logger.info(
+            "Hardcoded mapping validation: %d/%d codes need remapping",
+            len(remap),
+            len(all_hardcoded_ids),
+        )
+    else:
+        logger.info(
+            "Hardcoded mapping validation: all %d codes are current",
+            len(all_hardcoded_ids),
+        )
+
+    return remap
+
+
+def _write_currency_report(
+    df: pd.DataFrame,
+    validation_results: dict[int, ConceptValidationResult],
+    report_path: object,
+) -> None:
+    """Write per-source-table SNOMED currency report to CSV.
+
+    Columns: source_table, total_records, mapped_count, unmapped_count,
+    remapped_count, coverage_rate. Includes a summary row.
+    """
+    from pathlib import Path
+
+    from scripts.irsf_etl.lib.vocab_validator import ConceptStatus
+
+    report_path = Path(report_path)
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Group by source_file
+    source_tables = df["source_file"].unique().tolist() if "source_file" in df.columns else []
+
+    rows: list[dict] = []
+    total_all = 0
+    mapped_all = 0
+    unmapped_all = 0
+    remapped_all = 0
+
+    for table in sorted(source_tables):
+        table_df = df[df["source_file"] == table]
+        total = len(table_df)
+        mapped = int((table_df["condition_concept_id"] != 0).sum())
+        unmapped = total - mapped
+
+        # Count remapped: rows whose original source_concept_id was remapped
+        remapped = 0
+        for _, row in table_df.iterrows():
+            src_cid = int(row["condition_source_concept_id"]) if pd.notna(row["condition_source_concept_id"]) else 0
+            if src_cid != 0 and src_cid in validation_results:
+                if validation_results[src_cid].status == ConceptStatus.DEPRECATED_REMAPPED:
+                    remapped += 1
+
+        coverage = mapped / total if total > 0 else 0.0
+
+        rows.append({
+            "source_table": table.replace(".csv", ""),
+            "total_records": total,
+            "mapped_count": mapped,
+            "unmapped_count": unmapped,
+            "remapped_count": remapped,
+            "coverage_rate": f"{coverage:.4f}",
+        })
+
+        total_all += total
+        mapped_all += mapped
+        unmapped_all += unmapped
+        remapped_all += remapped
+
+    # Summary row
+    coverage_all = mapped_all / total_all if total_all > 0 else 0.0
+    rows.append({
+        "source_table": "TOTAL",
+        "total_records": total_all,
+        "mapped_count": mapped_all,
+        "unmapped_count": unmapped_all,
+        "remapped_count": remapped_all,
+        "coverage_rate": f"{coverage_all:.4f}",
+    })
+
+    # Write CSV using csv module for consistent quoting
+    fieldnames = ["source_table", "total_records", "mapped_count", "unmapped_count", "remapped_count", "coverage_rate"]
+    with open(report_path, "w", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)
+
+    logger.info("Wrote currency report to %s", report_path)
+
+
+# ---------------------------------------------------------------------------
 # Orchestrator
 # ---------------------------------------------------------------------------
 
 
-def extract_conditions(config: ETLConfig | None = None) -> pd.DataFrame:
+def extract_conditions(
+    config: ETLConfig | None = None,
+    validator: VocabularyValidator | None = None,
+) -> pd.DataFrame:
     """Main orchestrator: extract conditions from all four 5211 tables.
 
     Loads PersonIdRegistry and VisitResolver from staging, calls all four
-    extractors, deduplicates, assigns deterministic IDs, validates via
+    extractors, deduplicates, optionally validates SNOMED codes via
+    VocabularyValidator, assigns deterministic IDs, validates via
     Pandera schema, and writes staging/condition_occurrence.csv.
 
     Args:
         config: Optional ETL config. Created with defaults if None.
+        validator: Optional VocabularyValidator for SNOMED validation.
+            If None, validation is skipped (allows testing without DB).
 
     Returns:
         Final condition_occurrence DataFrame.
@@ -746,6 +995,40 @@ def extract_conditions(config: ETLConfig | None = None) -> pd.DataFrame:
     if combined.empty:
         logger.warning("No condition records extracted from any source table")
         return combined
+
+    # SNOMED vocabulary validation (if validator provided)
+    validation_results: dict[int, ConceptValidationResult] = {}
+    if validator is not None:
+        # Validate hardcoded seizure/fracture mappings
+        hardcoded_remap = validate_hardcoded_mappings(validator)
+        if hardcoded_remap:
+            logger.info("Applying %d hardcoded remaps", len(hardcoded_remap))
+            combined["condition_concept_id"] = combined["condition_concept_id"].apply(
+                lambda x: hardcoded_remap.get(int(x), int(x)) if pd.notna(x) else 0
+            )
+
+        # Validate all concept_ids in the combined DataFrame
+        combined = validate_condition_concepts(combined, validator, log)
+
+        # Collect validation results for currency report
+        unique_ids = [int(cid) for cid in combined["condition_source_concept_id"].dropna().unique() if int(cid) != 0]
+        if unique_ids:
+            validation_results = validator.validate_batch(unique_ids)
+
+        # Write currency report
+        currency_path = reports_dir / "condition_snomed_currency.csv"
+        _write_currency_report(combined, validation_results, currency_path)
+
+        # Generate and log overall currency report
+        currency = validator.generate_currency_report(validation_results)
+        logger.info(
+            "SNOMED currency: %d current, %d remapped, %d no-replacement, %d not-found (%.1f%% coverage)",
+            currency.current_count,
+            currency.remapped_count,
+            currency.no_replacement_count,
+            currency.unmapped_count,
+            currency.coverage_rate * 100,
+        )
 
     # Deduplicate on (person_id, condition_concept_id, condition_start_date, condition_source_value)
     dedup_cols = ["person_id", "condition_concept_id", "condition_start_date", "condition_source_value"]
@@ -814,17 +1097,15 @@ def extract_conditions(config: ETLConfig | None = None) -> pd.DataFrame:
         summary.rejection_rate * 100,
     )
 
-    # Log mapped vs unmapped counts
-    mapped = (result["condition_concept_id"] != 0).sum()
-    unmapped = (result["condition_concept_id"] == 0).sum()
+    # Log mapping coverage rate
+    mapped = int((result["condition_concept_id"] != 0).sum())
     total = len(result)
-    coverage = mapped / total * 100 if total > 0 else 0
+    coverage = mapped / total * 100 if total > 0 else 0.0
     logger.info(
-        "Mapping coverage: %d/%d mapped (%.1f%%), %d unmapped",
+        "Condition mapping coverage: %.1f%% (%d/%d)",
+        coverage,
         mapped,
         total,
-        coverage,
-        unmapped,
     )
 
     return result
