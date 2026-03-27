@@ -82,6 +82,7 @@ const initialState: WizardState = {
 // ── Research-question section config ────────────────────────────────────────
 
 const SECTION_CONFIG: Record<string, { title: string; diagramType: DiagramType | null }> = {
+  // Plural forms (from "All Analyses" tab)
   characterizations: { title: "Population Characteristics", diagramType: "attrition" },
   incidence_rates: { title: "Incidence Rates", diagramType: null },
   estimations: { title: "Comparative Effectiveness", diagramType: "forest_plot" },
@@ -89,6 +90,12 @@ const SECTION_CONFIG: Record<string, { title: string; diagramType: DiagramType |
   sccs: { title: "Safety Analysis", diagramType: null },
   predictions: { title: "Predictive Modeling", diagramType: "kaplan_meier" },
   evidence_synthesis: { title: "Evidence Synthesis", diagramType: "forest_plot" },
+  // Singular forms (from "From Studies" tab)
+  characterization: { title: "Population Characteristics", diagramType: "attrition" },
+  incidence_rate: { title: "Incidence Rates", diagramType: null },
+  estimation: { title: "Comparative Effectiveness", diagramType: "forest_plot" },
+  pathway: { title: "Treatment Patterns", diagramType: null },
+  prediction: { title: "Predictive Modeling", diagramType: "kaplan_meier" },
 };
 
 function buildManuscriptSections(
@@ -131,12 +138,12 @@ function buildManuscriptSections(
   }
 
   const typeOrder = [
-    "characterizations",
-    "incidence_rates",
-    "pathways",
-    "estimations",
+    "characterizations", "characterization",
+    "incidence_rates", "incidence_rate",
+    "pathways", "pathway",
+    "estimations", "estimation",
     "sccs",
-    "predictions",
+    "predictions", "prediction",
     "evidence_synthesis",
   ];
 

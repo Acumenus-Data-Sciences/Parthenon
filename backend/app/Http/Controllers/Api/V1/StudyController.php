@@ -81,10 +81,18 @@ class StudyController extends Controller
             }
 
             // PostgreSQL fallback
-            $query = Study::with([
+            $eagerLoads = [
                 'author:id,name,email',
                 'principalInvestigator:id,name,email',
-            ])->orderByDesc('updated_at');
+            ];
+
+            // Optional eager-load for publish/export workflows
+            $includeAnalyses = $request->input('include') === 'analyses';
+            if ($includeAnalyses) {
+                $eagerLoads[] = 'analyses.analysis.executions';
+            }
+
+            $query = Study::with($eagerLoads)->orderByDesc('updated_at');
 
             if ($search) {
                 $query->search($search);
@@ -116,9 +124,22 @@ class StudyController extends Controller
 
             $studies = $query->paginate($perPage);
 
-            $studies->getCollection()->transform(function (Study $study) {
+            $studies->getCollection()->transform(function (Study $study) use ($includeAnalyses) {
                 $progress = $this->studyService->getProgress($study);
                 $study->setAttribute('progress', $progress);
+
+                // Append latest_execution to each analysis for publish workflow
+                if ($includeAnalyses && $study->relationLoaded('analyses')) {
+                    $study->analyses->each(function (StudyAnalysis $sa) {
+                        if ($sa->relationLoaded('analysis') && $sa->analysis) {
+                            $latestExecution = $sa->analysis->executions
+                                ->sortByDesc('created_at')
+                                ->first();
+                            $sa->analysis->setAttribute('latest_execution', $latestExecution);
+                            $sa->analysis->unsetRelation('executions');
+                        }
+                    });
+                }
 
                 return $study;
             });

@@ -274,6 +274,7 @@ function buildEvidenceSynthesisTable(executions: SelectedExecution[]): TableData
 // ── Public API ──────────────────────────────────────────────────────────────
 
 const TABLE_BUILDERS: Record<string, (execs: SelectedExecution[]) => TableData> = {
+  // Plural forms (from "All Analyses" tab — fetchAllAnalyses)
   characterizations: buildCharacterizationTable,
   incidence_rates: buildIncidenceRateTable,
   estimations: buildEstimationTable,
@@ -281,6 +282,12 @@ const TABLE_BUILDERS: Record<string, (execs: SelectedExecution[]) => TableData> 
   pathways: buildPathwaysTable,
   predictions: buildPredictionTable,
   evidence_synthesis: buildEvidenceSynthesisTable,
+  // Singular forms (from "From Studies" tab — study_analyses.analysis_type)
+  characterization: buildCharacterizationTable,
+  incidence_rate: buildIncidenceRateTable,
+  estimation: buildEstimationTable,
+  pathway: buildPathwaysTable,
+  prediction: buildPredictionTable,
 };
 
 export function buildTableFromResults(

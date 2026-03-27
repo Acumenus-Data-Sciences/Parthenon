@@ -14,7 +14,7 @@ export function useStudiesForPublish() {
     queryKey: ["publish", "studies"],
     queryFn: async () => {
       const { data } = await apiClient.get("/studies", {
-        params: { per_page: 100 },
+        params: { per_page: 100, include: "analyses" },
       });
       return (data.data ?? data) as Study[];
     },
