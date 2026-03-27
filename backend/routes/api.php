@@ -1302,6 +1302,10 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'source.resolve'])->group(funct
         Route::post('/map', [AriadneController::class, 'map']);
         Route::post('/clean-terms', [AriadneController::class, 'cleanTerms']);
         Route::post('/vector-search', [AriadneController::class, 'vectorSearch']);
+        Route::post('/save-mappings', [AriadneController::class, 'saveMappings'])->middleware('permission:mapping.review');
+        Route::post('/projects', [AriadneController::class, 'saveProject'])->middleware('permission:mapping.view');
+        Route::get('/projects', [AriadneController::class, 'listProjects'])->middleware('permission:mapping.view');
+        Route::get('/projects/{project}', [AriadneController::class, 'loadProject'])->middleware('permission:mapping.view');
     });
 });
 
