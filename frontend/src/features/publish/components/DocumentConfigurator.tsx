@@ -104,6 +104,17 @@ export default function DocumentConfigurator({
     [sections, onSectionsChange]
   );
 
+  const handleToggleElement = useCallback(
+    (id: string, element: "tableIncluded" | "narrativeIncluded" | "diagramIncluded") => {
+      onSectionsChange(
+        sections.map((s) =>
+          s.id === id ? { ...s, [element]: !(s[element] !== false) } : s
+        )
+      );
+    },
+    [sections, onSectionsChange]
+  );
+
   const handleGenerateNarrative = useCallback(
     (_section: ReportSection) => {
       // Narrative generation is handled by the parent via useGenerateNarrative
@@ -201,6 +212,7 @@ export default function DocumentConfigurator({
                 onNarrativeStateChange={handleNarrativeStateChange}
                 onGenerateNarrative={handleGenerateNarrative}
                 isGenerating={false}
+                onToggleElement={handleToggleElement}
               />
             ))}
           </SortableContext>
