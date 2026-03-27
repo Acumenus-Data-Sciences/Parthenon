@@ -418,13 +418,14 @@ services:
       - "${HECATE_PORT:-8088}:8080"
     volumes:
       - ./output/hecate-bootstrap:/app/data:ro
+      - ./output/hecate-bootstrap/ConceptRecordCounts.json:/app/ConceptRecordCounts.json:ro
     env_file:
       - backend/.env
     environment:
       - SERVER_ADDR=0.0.0.0:8080
       - VECTORDB_DATA_PATH=/app/data/all_pairs.txt
       - QDRANT_URI=http://qdrant:6334
-      - CORS_ORIGINS=http://localhost:5175,http://localhost:8082,https://parthenon.acumenus.net
+      - CORS_ORIGINS=http://nginx:80
       - PG__USER=${HECATE_PG_USER:-claude_dev}
       - PG__PASSWORD=${HECATE_PG_PASSWORD}
       - PG__HOST=host.docker.internal
@@ -617,8 +618,8 @@ services:
     ports:
       - "${ORTHANC_PORT:-8042}:8042"
     volumes:
-      - /media/smudoshi/DATA/orthanc-data-pg:/var/lib/orthanc/db
-      - ${ORTHANC_DATA_PATH:-/media/smudoshi/DATA/orthanc-data}:/old-data:ro
+      - /mnt/md0/orthanc-data-pg:/var/lib/orthanc/db
+      - /mnt/md0/orthanc-data:/var/lib/orthanc/dicom:ro
       - ./dicom_samples:/dicom_samples:ro
     environment:
       - ORTHANC__NAME=Parthenon Orthanc
@@ -643,13 +644,15 @@ services:
       # PostgreSQL index — concurrent query support for 926K+ instances
       - ORTHANC__POSTGRESQL__ENABLE_INDEX=true
       - ORTHANC__POSTGRESQL__ENABLE_STORAGE=false
-      - ORTHANC__POSTGRESQL__HOST=${DB_HOST:-pgsql.acumenus.net}
+      - ORTHANC__POSTGRESQL__HOST=host.docker.internal
       - ORTHANC__POSTGRESQL__PORT=${DB_PORT:-5432}
       - ORTHANC__POSTGRESQL__DATABASE=${DB_DATABASE:-parthenon}
       - ORTHANC__POSTGRESQL__USERNAME=${DB_USERNAME:-smudoshi}
       - ORTHANC__POSTGRESQL__PASSWORD=${DB_PASSWORD:-acumenus}
       - ORTHANC__POSTGRESQL__INDEX_CONNECTIONS_COUNT=5
       - ORTHANC__POSTGRESQL__PREPARE_INDEX=true
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     healthcheck:
       test: ["CMD", "python3", "-c", "import urllib.request,base64,os; urllib.request.urlopen(urllib.request.Request('http://localhost:8042/system', headers={'Authorization': 'Basic ' + base64.b64encode((os.environ.get('ORTHANC_USER','parthenon') + ':' + os.environ.get('ORTHANC_PASSWORD','')).encode()).decode()}))"]
       interval: 10s
