@@ -95,6 +95,35 @@ export default function UnifiedAnalysisPicker({
     return result;
   }, [completedAnalyses, typeFilter, search]);
 
+  // Filter studies by search term (title or analysis name) and type filter
+  const filteredStudies = useMemo(() => {
+    return studies
+      .map((study) => {
+        let studyAnalyses = (study.analyses ?? []).filter(
+          (sa) => sa.analysis?.latest_execution?.status === "completed"
+        );
+
+        // Filter by analysis type
+        if (typeFilter) {
+          studyAnalyses = studyAnalyses.filter((sa) => sa.analysis_type === typeFilter);
+        }
+
+        // Filter by search (match study title OR analysis name)
+        if (search) {
+          const q = search.toLowerCase();
+          const titleMatch = study.title.toLowerCase().includes(q);
+          if (!titleMatch) {
+            studyAnalyses = studyAnalyses.filter((sa) =>
+              sa.analysis?.name?.toLowerCase().includes(q)
+            );
+          }
+        }
+
+        return { study, studyAnalyses };
+      })
+      .filter(({ studyAnalyses }) => studyAnalyses.length > 0);
+  }, [studies, typeFilter, search]);
+
   useEffect(() => {
     if (!initialStudyId || studies.length === 0 || selections.length > 0) return;
 
@@ -190,6 +219,31 @@ export default function UnifiedAnalysisPicker({
     <div className="flex gap-4 h-full">
       {/* Main area */}
       <div className="flex-1 flex flex-col min-w-0">
+        {/* Search & filter — shared across both tabs */}
+        <div className="flex gap-3 mb-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#5A5650]" />
+            <input
+              type="text"
+              placeholder={activeTab === "all" ? "Search analyses..." : "Search studies..."}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full pl-9 pr-3 py-2 bg-[#151518] border border-[#232328] rounded-lg text-sm text-[#F0EDE8] placeholder-[#5A5650] focus:outline-none focus:border-[#C9A227]"
+            />
+          </div>
+          <select
+            value={typeFilter}
+            onChange={(e) => setTypeFilter(e.target.value)}
+            className="bg-[#151518] border border-[#232328] rounded-lg px-3 py-2 text-sm text-[#F0EDE8] focus:outline-none focus:border-[#C9A227]"
+          >
+            {TYPE_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
         {/* Tab bar */}
         <div className="flex border-b border-[#232328] mb-4">
           <button
@@ -218,31 +272,6 @@ export default function UnifiedAnalysisPicker({
 
         {activeTab === "all" && (
           <div className="flex flex-col flex-1 min-h-0">
-            {/* Filters */}
-            <div className="flex gap-3 mb-4">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#5A5650]" />
-                <input
-                  type="text"
-                  placeholder="Search analyses..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 bg-[#151518] border border-[#232328] rounded-lg text-sm text-[#F0EDE8] placeholder-[#5A5650] focus:outline-none focus:border-[#C9A227]"
-                />
-              </div>
-              <select
-                value={typeFilter}
-                onChange={(e) => setTypeFilter(e.target.value)}
-                className="bg-[#151518] border border-[#232328] rounded-lg px-3 py-2 text-sm text-[#F0EDE8] focus:outline-none focus:border-[#C9A227]"
-              >
-                {TYPE_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
             {/* Analysis list — cap visible height at ~12 items */}
             <div className="overflow-y-auto space-y-1" style={{ maxHeight: "540px" }}>
               {loadingAnalyses ? (
@@ -307,17 +336,13 @@ export default function UnifiedAnalysisPicker({
               <p className="text-sm text-[#5A5650] text-center py-8">
                 Loading studies...
               </p>
-            ) : studies.length === 0 ? (
+            ) : filteredStudies.length === 0 ? (
               <p className="text-sm text-[#5A5650] text-center py-8">
-                No studies found
+                {search || typeFilter ? "No studies match your filters" : "No studies found"}
               </p>
             ) : (
-              studies.map((study) => {
+              filteredStudies.map(({ study, studyAnalyses }) => {
                 const expanded = expandedStudies.has(study.id);
-                const studyAnalyses = (study.analyses ?? []).filter(
-                  (sa) =>
-                    sa.analysis?.latest_execution?.status === "completed"
-                );
 
                 return (
                   <div
