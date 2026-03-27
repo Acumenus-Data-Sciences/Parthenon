@@ -23,6 +23,7 @@ class SystemHealthController extends Controller
         $this->checkers = [
             'backend' => fn () => $this->checkBackend(),
             'redis' => fn () => $this->checkRedis(),
+            'hecate' => fn () => $this->checkHecate(),
             'ai' => fn () => $this->checkAiService(),
             'blackrabbit' => fn () => $this->checkBlackRabbit(),
             'darkstar' => fn () => $this->checkRRuntime(),
@@ -135,6 +136,38 @@ class SystemHealthController extends Controller
                 'key' => 'redis',
                 'status' => 'down',
                 'message' => $e->getMessage(),
+            ];
+        }
+    }
+
+    private function checkHecate(): array
+    {
+        $url = rtrim(config('services.hecate.url', 'http://hecate:8080'), '/');
+
+        try {
+            $response = Http::timeout(3)->get("{$url}/api/search", ['q' => 'test']);
+
+            if ($response->successful()) {
+                return [
+                    'name' => 'Hecate (Semantic Vocab)',
+                    'key' => 'hecate',
+                    'status' => 'healthy',
+                    'message' => 'Hecate vocabulary service is reachable.',
+                ];
+            }
+
+            return [
+                'name' => 'Hecate (Semantic Vocab)',
+                'key' => 'hecate',
+                'status' => 'degraded',
+                'message' => "Hecate returned HTTP {$response->status()}.",
+            ];
+        } catch (\Throwable $e) {
+            return [
+                'name' => 'Hecate (Semantic Vocab)',
+                'key' => 'hecate',
+                'status' => 'down',
+                'message' => 'Hecate service is not running. Semantic search unavailable.',
             ];
         }
     }
