@@ -35,7 +35,11 @@ import {
   KNOWN_MODULES,
   type SharedCohortRef,
   type AnalysisSpecification,
+  type ModuleSettingsMap,
+  getDefaultSettings,
 } from "../types";
+import { ModuleConfigStep } from "../components/ModuleConfigPanels";
+import { JsonSpecEditor } from "../components/JsonSpecEditor";
 import { getCohortDefinitions } from "@/features/cohort-definitions/api/cohortApi";
 
 // ---------------------------------------------------------------------------
@@ -57,6 +61,8 @@ const STEP_LABELS = [
   "Study Info",
   "Select Modules",
   "Shared Cohorts",
+  "Module Settings",
+  "JSON Preview",
   "Review & Validate",
   "Execute",
 ];
@@ -70,6 +76,7 @@ const ROLE_COLORS: Record<SharedCohortRef["role"], string> = {
 function buildSpec(
   selectedModules: string[],
   cohorts: SharedCohortRef[],
+  moduleSettings: ModuleSettingsMap = {},
 ): AnalysisSpecification {
   return {
     sharedResources: {
@@ -82,7 +89,7 @@ function buildSpec(
     },
     moduleSpecifications: selectedModules.map((name) => ({
       module: name,
-      settings: {},
+      settings: (moduleSettings[name] ?? {}) as Record<string, unknown>,
     })),
   };
 }
@@ -783,7 +790,13 @@ export default function StudyPackagePage() {
   // Step 3
   const [cohorts, setCohorts] = useState<SharedCohortRef[]>([]);
 
-  // Step 4 — validation
+  // Step 4 — module settings
+  const [moduleSettings, setModuleSettings] = useState<ModuleSettingsMap>({});
+
+  // Step 5 — spec override (when user edits JSON manually)
+  const [specOverride, setSpecOverride] = useState<AnalysisSpecification | null>(null);
+
+  // Step 6 — validation
   const [validation, setValidation] =
     useState<import("../types").StrategusValidation | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
@@ -804,21 +817,42 @@ export default function StudyPackagePage() {
 
   // ── module toggle
   const toggleModule = (name: string) => {
-    setSelectedModules((prev) =>
-      prev.includes(name) ? prev.filter((m) => m !== name) : [...prev, name],
-    );
+    setSelectedModules((prev) => {
+      const removing = prev.includes(name);
+      if (removing) {
+        // Remove settings for deselected module
+        setModuleSettings((ms) => {
+          const { [name]: _, ...rest } = ms;
+          void _;
+          return rest;
+        });
+      } else {
+        // Initialize default settings for newly selected module
+        setModuleSettings((ms) => ({ ...ms, [name]: getDefaultSettings(name) }));
+      }
+      setSpecOverride(null); // Reset manual edits when modules change
+      return removing ? prev.filter((m) => m !== name) : [...prev, name];
+    });
   };
 
   // ── cohort management
   const addCohort = (c: SharedCohortRef) => {
     setCohorts((prev) => [...prev, c]);
+    setSpecOverride(null);
   };
   const removeCohort = (cohortId: number) => {
     setCohorts((prev) => prev.filter((c) => c.cohortId !== cohortId));
+    setSpecOverride(null);
   };
 
   // ── build spec helper
-  const currentSpec = buildSpec(selectedModules, cohorts);
+  const currentSpec = specOverride ?? buildSpec(selectedModules, cohorts, moduleSettings);
+
+  // ── module settings change handler (also resets spec override)
+  const handleModuleSettingsChange = (moduleName: string, settings: import("../types").ModuleSettings) => {
+    setModuleSettings((prev) => ({ ...prev, [moduleName]: settings }));
+    setSpecOverride(null);
+  };
 
   // ── validate
   const handleValidate = async () => {
@@ -1026,6 +1060,22 @@ export default function StudyPackagePage() {
         )}
 
         {step === 3 && (
+          <ModuleConfigStep
+            selectedModules={selectedModules}
+            moduleSettings={moduleSettings}
+            onSettingsChange={handleModuleSettingsChange}
+            cohorts={cohorts}
+          />
+        )}
+
+        {step === 4 && (
+          <JsonSpecEditor
+            spec={currentSpec}
+            onSpecChange={setSpecOverride}
+          />
+        )}
+
+        {step === 5 && (
           <StepReview
             studyName={studyName}
             studyDescription={studyDescription}
@@ -1039,7 +1089,7 @@ export default function StudyPackagePage() {
           />
         )}
 
-        {step === 4 && (
+        {step === 6 && (
           <StepExecute
             studyName={studyName}
             onExecute={handleExecute}
