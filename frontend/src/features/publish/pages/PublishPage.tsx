@@ -393,14 +393,32 @@ export default function PublishPage() {
   return (
     <div className="space-y-6">
       {/* Page header */}
-      <div className="flex items-center gap-3">
-        <FileOutput size={22} className="text-[#2DD4BF]" />
-        <div>
-          <h1 className="text-xl font-bold text-[#F0EDE8]">Publish</h1>
-          <p className="text-sm text-[#F0EDE8]/50">
-            Create publication-ready manuscripts from your analyses
-          </p>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <FileOutput size={22} className="text-[#2DD4BF]" />
+          <div>
+            <h1 className="text-xl font-bold text-[#F0EDE8]">Publish</h1>
+            <p className="text-sm text-[#F0EDE8]/50">
+              Create publication-ready manuscripts from your analyses
+            </p>
+          </div>
         </div>
+        {state.step > 1 && (
+          <button
+            type="button"
+            onClick={() => {
+              sessionStorage.removeItem(STORAGE_KEY);
+              dispatch({ type: "SET_SELECTIONS", selections: [] });
+              dispatch({ type: "SET_SECTIONS", sections: [] });
+              dispatch({ type: "SET_TITLE", title: "" });
+              dispatch({ type: "SET_AUTHORS", authors: [] });
+              dispatch({ type: "SET_STEP", step: 1 });
+            }}
+            className="text-xs text-[#5A5650] hover:text-[#F0EDE8] transition-colors"
+          >
+            Start new document
+          </button>
+        )}
       </div>
 
       {/* Progress bar */}
