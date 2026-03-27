@@ -2,14 +2,12 @@ import { useState, useMemo, useCallback, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
 import {
-  Database,
   Loader2,
   GitMerge,
   Plus,
 } from "lucide-react";
 import { fetchIngestionProjects, type IngestionProject } from "@/features/ingestion/api/ingestionApi";
 import { AqueductCanvas } from "../components/aqueduct/AqueductCanvas";
-import { FieldMappingDetail } from "../components/aqueduct/FieldMappingDetail";
 import {
   useEtlProjects,
   useCreateEtlProject,
@@ -21,7 +19,6 @@ import {
   suggestMappings,
   type PersistedFieldProfile,
 } from "../api";
-import { CDM_SCHEMA_V54 } from "../lib/cdm-schema-v54";
 
 // ---------------------------------------------------------------------------
 // Aqueduct canvas content
@@ -29,12 +26,8 @@ import { CDM_SCHEMA_V54 } from "../lib/cdm-schema-v54";
 
 function AqueductContent({
   ingestionProjectId,
-  onDrilledMapping,
-  drilledDownMappingId,
 }: {
   ingestionProjectId: number;
-  onDrilledMapping: (id: number | null) => void;
-  drilledDownMappingId: number | null;
 }) {
   const { data: projectsData, isLoading: loadingProjects } = useEtlProjects();
   const createProject = useCreateEtlProject();
@@ -82,46 +75,6 @@ function AqueductContent({
       },
     );
   }, [createProject, ingestionProjectId, cdmVersion]);
-
-  const drilledMapping = useMemo(() => {
-    if (drilledDownMappingId === null) return null;
-    return tableMappings.find((m) => m.id === drilledDownMappingId) ?? null;
-  }, [tableMappings, drilledDownMappingId]);
-
-  const allMappingIds = useMemo(
-    () => tableMappings.map((m) => m.id),
-    [tableMappings],
-  );
-
-  const drilledSourceColumns = useMemo(() => {
-    if (!drilledMapping) return [];
-    return sourceFields
-      .filter((f) => f.table_name === drilledMapping.source_table)
-      .map((f) => ({
-        name: f.column_name,
-        type: f.inferred_type,
-        nullPct: f.null_percentage,
-        distinctCount: f.distinct_count,
-      }));
-  }, [drilledMapping, sourceFields]);
-
-  const drilledCdmColumns = useMemo(() => {
-    if (!drilledMapping) return [];
-    const cdmTable = CDM_SCHEMA_V54.find(
-      (t) => t.name === drilledMapping.target_table,
-    );
-    return (
-      cdmTable?.columns.map((c) => ({
-        name: c.name,
-        type: c.type,
-        required: c.required,
-        description: c.description,
-        etl_conventions: c.etl_conventions,
-        fk_table: c.fk_table,
-        fk_domain: c.fk_domain,
-      })) ?? []
-    );
-  }, [drilledMapping]);
 
   if (loadingProjects) {
     return (
@@ -188,21 +141,6 @@ function AqueductContent({
     );
   }
 
-  // Drill-down into field detail
-  if (drilledDownMappingId !== null && drilledMapping && projectDetail) {
-    return (
-      <FieldMappingDetail
-        project={projectDetail.project}
-        tableMapping={drilledMapping}
-        sourceColumns={drilledSourceColumns}
-        cdmColumns={drilledCdmColumns}
-        onBack={() => onDrilledMapping(null)}
-        onNavigate={(id) => onDrilledMapping(id)}
-        allMappingIds={allMappingIds}
-      />
-    );
-  }
-
   // Canvas overview
   if (projectDetail) {
     return (
@@ -210,8 +148,7 @@ function AqueductContent({
         project={projectDetail.project}
         tableMappings={tableMappings}
         sourceFields={sourceFields}
-        onDrillDown={(id) => onDrilledMapping(id)}
-        onBack={() => onDrilledMapping(null)}
+        onBack={() => window.history.back()}
       />
     );
   }
@@ -230,16 +167,13 @@ export default function EtlToolsPage() {
   const [selectedProjectId, setSelectedProjectId] = useState<number | "">(() =>
     projectParam ? Number(projectParam) : "",
   );
-  const [drilledDownMappingId, setDrilledDownMappingId] = useState<number | null>(null);
 
-  // Auto-select project from URL param (e.g., from "Open in Aqueduct" button)
   useEffect(() => {
     if (projectParam && Number(projectParam) > 0) {
       setSelectedProjectId(Number(projectParam));
     }
   }, [projectParam]);
 
-  // Fetch ingestion projects with status "ready" or beyond
   const { data: projectsData } = useQuery({
     queryKey: ["ingestion-projects"],
     queryFn: fetchIngestionProjects,
@@ -253,61 +187,24 @@ export default function EtlToolsPage() {
   const selectedProjectIdNum = Number(selectedProjectId) || 0;
   const hasJobs = readyProjects.some((p: IngestionProject) => p.id === selectedProjectIdNum);
 
-  return (
-    <div className="space-y-6 p-6">
-      {/* Project selector */}
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
-        <div className="flex items-center gap-4">
-          <div className="flex-1 max-w-sm space-y-1.5">
-            <label className="block text-xs font-medium text-[#8A857D] uppercase tracking-wider">
-              <Database size={12} className="inline mr-1.5 -mt-0.5" />
-              Ingestion Project
-            </label>
-            <select
-              value={selectedProjectId}
-              onChange={(e) => {
-                setSelectedProjectId(e.target.value ? Number(e.target.value) : "");
-                setDrilledDownMappingId(null);
-              }}
-              className="w-full rounded-lg bg-[#1C1C20] border border-[#2E2E35] px-3 py-2 text-sm text-[#F0EDE8] focus:outline-none focus:border-[#9B1B30]"
-            >
-              <option value="">Select a project...</option>
-              {readyProjects.map((p: IngestionProject) => (
-                <option key={p.id} value={p.id}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          {selectedProjectId && !hasJobs && (
-            <p className="mt-5 text-sm text-[#8A857D]">
-              Project not found or not ready. Stage data in the Ingestion tab first.
-            </p>
-          )}
-        </div>
-      </div>
+  if (selectedProjectId && hasJobs) {
+    return (
+      <AqueductContent ingestionProjectId={selectedProjectIdNum} />
+    );
+  }
 
-      {/* Aqueduct content */}
-      {selectedProjectId && hasJobs ? (
-        <AqueductContent
-          ingestionProjectId={selectedProjectIdNum}
-          onDrilledMapping={setDrilledDownMappingId}
-          drilledDownMappingId={drilledDownMappingId}
-        />
-      ) : !selectedProjectId ? (
-        <div className="flex flex-col items-center justify-center py-20 rounded-lg border border-dashed border-[#2E2E35] bg-[#151518]">
-          <div className="w-16 h-16 rounded-full bg-[#1C1C20] flex items-center justify-center mb-4">
-            <GitMerge size={28} className="text-[#8A857D]" />
-          </div>
-          <h3 className="text-[#F0EDE8] font-semibold text-lg">
-            Aqueduct ETL Mapping Designer
-          </h3>
-          <p className="text-sm text-[#8A857D] mt-1 text-center max-w-md">
-            Select an ingestion project to design ETL mappings from your source schema
-            to the OMOP CDM. Projects must be staged via the Ingestion tab first.
-          </p>
-        </div>
-      ) : null}
+  return (
+    <div className="flex flex-col items-center justify-center py-20 rounded-lg border border-dashed border-[#2E2E35] bg-[#151518]">
+      <div className="w-16 h-16 rounded-full bg-[#1C1C20] flex items-center justify-center mb-4">
+        <GitMerge size={28} className="text-[#8A857D]" />
+      </div>
+      <h3 className="text-[#F0EDE8] font-semibold text-lg">
+        Aqueduct ETL Mapping Designer
+      </h3>
+      <p className="text-sm text-[#8A857D] mt-1 text-center max-w-md">
+        Navigate to an ingestion project and click &ldquo;Open in Aqueduct&rdquo; to start
+        designing ETL mappings from your source schema to the OMOP CDM.
+      </p>
     </div>
   );
 }
