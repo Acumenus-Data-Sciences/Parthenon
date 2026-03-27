@@ -11,6 +11,7 @@ import {
   ConsortDiagram,
   KaplanMeierCurve,
 } from "./diagrams";
+import ResultsTable from "./ResultsTable";
 
 interface DocumentPreviewProps {
   sections: ReportSection[];
@@ -85,8 +86,9 @@ export default function DocumentPreview({
     (s) => s.narrativeState === "draft",
   );
 
-  // Track figure numbering for diagram sections
+  // Track figure and table numbering
   let figureCounter = 0;
+  let tableCounter = 0;
 
   return (
     <div className="flex flex-col gap-6">
@@ -153,7 +155,75 @@ export default function DocumentPreview({
               );
             }
 
-            // Text sections: methods, results, discussion
+            // Results sections with table + narrative + diagram
+            if (section.type === "results") {
+              const hasTable = section.tableData && section.tableIncluded !== false;
+              const hasNarrative = section.narrativeIncluded !== false && section.content;
+              const hasDiagram = section.diagramIncluded !== false && section.diagramType;
+
+              if (hasTable) tableCounter += 1;
+              if (hasDiagram) figureCounter += 1;
+
+              const currentTableNum = hasTable ? tableCounter : 0;
+              const currentFigNum = hasDiagram ? figureCounter : 0;
+
+              return (
+                <div key={section.id} className="mb-8">
+                  <h2
+                    className="mb-3 font-bold text-gray-900"
+                    style={{ fontSize: "14pt" }}
+                  >
+                    {section.title}
+                  </h2>
+
+                  {/* Table */}
+                  {hasTable && section.tableData && (
+                    <ResultsTable data={section.tableData} tableNumber={currentTableNum} />
+                  )}
+
+                  {/* Narrative */}
+                  {hasNarrative && (
+                    <div
+                      className="text-sm leading-relaxed text-gray-800"
+                      style={{ fontSize: "11pt", lineHeight: 1.7 }}
+                    >
+                      {(typeof section.content === "string"
+                        ? section.content
+                        : JSON.stringify(section.content)
+                      )
+                        .split("\n")
+                        .map((paragraph: string, i: number) => (
+                          <p key={i} className={i > 0 ? "mt-3" : ""}>
+                            {paragraph}
+                          </p>
+                        ))}
+                    </div>
+                  )}
+
+                  {/* Diagram */}
+                  {hasDiagram && section.diagramType && (
+                    <div className="mt-4">
+                      <DiagramWrapper
+                        title={section.title}
+                        caption={section.caption}
+                        figureNumber={currentFigNum}
+                      >
+                        {renderDiagram(section.diagramType, section.diagramData)}
+                      </DiagramWrapper>
+                    </div>
+                  )}
+
+                  {/* Empty state */}
+                  {!hasTable && !hasNarrative && !hasDiagram && (
+                    <p className="text-sm italic text-gray-400">
+                      No content available for this section.
+                    </p>
+                  )}
+                </div>
+              );
+            }
+
+            // Text sections: methods, discussion, introduction
             return (
               <div key={section.id} className="mb-8">
                 <h2
@@ -167,11 +237,16 @@ export default function DocumentPreview({
                     className="text-sm leading-relaxed text-gray-800"
                     style={{ fontSize: "11pt", lineHeight: 1.7 }}
                   >
-                    {(typeof section.content === "string" ? section.content : JSON.stringify(section.content)).split("\n").map((paragraph: string, i: number) => (
-                      <p key={i} className={i > 0 ? "mt-3" : ""}>
-                        {paragraph}
-                      </p>
-                    ))}
+                    {(typeof section.content === "string"
+                      ? section.content
+                      : JSON.stringify(section.content)
+                    )
+                      .split("\n")
+                      .map((paragraph: string, i: number) => (
+                        <p key={i} className={i > 0 ? "mt-3" : ""}>
+                          {paragraph}
+                        </p>
+                      ))}
                   </div>
                 ) : (
                   <p className="text-sm italic text-gray-400">
