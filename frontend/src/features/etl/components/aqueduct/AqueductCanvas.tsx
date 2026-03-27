@@ -21,6 +21,7 @@ import { StemTableNode } from "./StemTableNode";
 import { MappingEdge } from "./MappingEdge";
 import { MappingToolbar } from "./MappingToolbar";
 import CdmTableDetailModal from "./CdmTableDetailModal";
+import { FieldMappingDetail } from "./FieldMappingDetail";
 import { CDM_SCHEMA_V54 } from "../../lib/cdm-schema-v54";
 
 // Vocabulary tables are reference data, not ETL targets — exclude from mapping canvas
@@ -92,7 +93,6 @@ interface AqueductCanvasProps {
   project: EtlProject;
   tableMappings: EtlTableMapping[];
   sourceFields: PersistedFieldProfile[];
-  onDrillDown: (mappingId: number) => void;
   onBack: () => void;
 }
 
@@ -155,7 +155,6 @@ function AqueductCanvasInner({
   project,
   tableMappings,
   sourceFields,
-  onDrillDown,
   onBack,
 }: AqueductCanvasProps) {
   const [filter, setFilterRaw] = useState<"all" | "mapped" | "unmapped">(() => loadFilter(project.id));
@@ -167,6 +166,46 @@ function AqueductCanvasInner({
   const [isExporting, setIsExporting] = useState(false);
   const [detailCdmTable, setDetailCdmTable] = useState<string | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const [sourceMappingId, setSourceMappingId] = useState<number | null>(null);
+
+  const sourceModalMapping = useMemo(
+    () => sourceMappingId !== null ? tableMappings.find((m) => m.id === sourceMappingId) ?? null : null,
+    [tableMappings, sourceMappingId],
+  );
+
+  const allMappingIds = useMemo(
+    () => tableMappings.map((m) => m.id),
+    [tableMappings],
+  );
+
+  const sourceModalColumns = useMemo(() => {
+    if (!sourceModalMapping) return [];
+    return sourceFields
+      .filter((f) => f.table_name === sourceModalMapping.source_table)
+      .map((f) => ({
+        name: f.column_name,
+        type: f.inferred_type,
+        nullPct: f.null_percentage,
+        distinctCount: f.distinct_count,
+      }));
+  }, [sourceModalMapping, sourceFields]);
+
+  const sourceModalCdmColumns = useMemo(() => {
+    if (!sourceModalMapping) return [];
+    const cdmTable = CDM_ETL_TABLES.find((t) => t.name === sourceModalMapping.target_table);
+    return (
+      cdmTable?.columns.map((c) => ({
+        name: c.name,
+        type: c.type,
+        required: c.required,
+        description: c.description,
+        etl_conventions: c.etl_conventions,
+        fk_table: c.fk_table,
+        fk_domain: c.fk_domain,
+      })) ?? []
+    );
+  }, [sourceModalMapping]);
 
   useEffect(() => {
     if (!isFullscreen) return;
@@ -395,7 +434,7 @@ function AqueductCanvasInner({
               isComplete: false,
               isAiSuggested: false,
               isReviewed: true,
-              onClick: () => onDrillDown(mapping.id),
+              onClick: () => setSourceMappingId(mapping.id),
             },
             hidden,
           });
@@ -415,7 +454,7 @@ function AqueductCanvasInner({
             isComplete,
             isAiSuggested: false,
             isReviewed: true,
-            onClick: () => onDrillDown(mapping.id),
+            onClick: () => setSourceMappingId(mapping.id),
           },
           hidden,
         });
@@ -434,7 +473,7 @@ function AqueductCanvasInner({
             isComplete,
             isAiSuggested: false,
             isReviewed: true,
-            onClick: () => onDrillDown(mapping.id),
+            onClick: () => setSourceMappingId(mapping.id),
           },
           hidden,
         });
@@ -464,7 +503,7 @@ function AqueductCanvasInner({
     }
 
     return { initialNodes: nodes, initialEdges: edges };
-  }, [sourceTables, tableMappings, connectedSources, connectedCdm, filter, onDrillDown]);
+  }, [sourceTables, tableMappings, connectedSources, connectedCdm, filter]);
 
   // -- React Flow state -------------------------------------------------------
   // Use a key derived from data to force remount when source data changes
@@ -500,12 +539,11 @@ function AqueductCanvasInner({
     if (node.id.startsWith("cdm-")) {
       setDetailCdmTable(node.id.replace("cdm-", ""));
     } else if (node.id.startsWith("source-")) {
-      // Find mapping for this source table and drill down
       const sourceTable = node.id.replace("source-", "");
       const mapping = tableMappings.find((m) => m.source_table === sourceTable);
-      if (mapping) onDrillDown(mapping.id);
+      if (mapping) setSourceMappingId(mapping.id);
     }
-  }, [tableMappings, onDrillDown]);
+  }, [tableMappings]);
 
   const handleSuggest = useCallback(() => {
     suggestMutation.mutate(undefined, {
@@ -594,10 +632,23 @@ function AqueductCanvasInner({
             domain={cdmDef.domain}
             columns={cdmDef.columns}
             mappings={relatedMappings}
-            onDrillDown={onDrillDown}
+            onDrillDown={(id) => { setDetailCdmTable(null); setSourceMappingId(id); }}
           />
         );
       })()}
+
+      {/* Source table mapping modal */}
+      {sourceModalMapping && (
+        <FieldMappingDetail
+          project={project}
+          tableMapping={sourceModalMapping}
+          sourceColumns={sourceModalColumns}
+          cdmColumns={sourceModalCdmColumns}
+          onBack={() => setSourceMappingId(null)}
+          onNavigate={(id) => setSourceMappingId(id)}
+          allMappingIds={allMappingIds}
+        />
+      )}
     </div>
   );
 }
