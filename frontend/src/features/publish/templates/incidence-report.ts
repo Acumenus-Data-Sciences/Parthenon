@@ -1,14 +1,20 @@
 import type { TemplateConfig } from "./index";
 
-export const GENERIC_OHDSI_TEMPLATE: TemplateConfig = {
-  id: "generic-ohdsi",
-  name: "Generic OHDSI Publication",
-  description: "Standard IMRaD structure for observational health data studies",
+export const INCIDENCE_REPORT_TEMPLATE: TemplateConfig = {
+  id: "incidence-report",
+  name: "Incidence Rate Report",
+  description: "Population-based incidence analysis",
   usesResults: true,
+  preferredAnalysisTypes: [
+    "incidence_rates",
+    "incidence_rate",
+    "characterizations",
+    "characterization",
+  ],
   sections: [
     {
-      id: "introduction",
-      title: "Introduction",
+      id: "background",
+      title: "Background",
       type: "methods",
       narrativeIncluded: true,
       tableIncluded: false,
@@ -20,7 +26,7 @@ export const GENERIC_OHDSI_TEMPLATE: TemplateConfig = {
       narrativeIncluded: true,
       tableIncluded: false,
     },
-    // Results sections are injected dynamically by buildManuscriptSections
+    // Results sections are injected dynamically
     {
       id: "discussion",
       title: "Discussion",
