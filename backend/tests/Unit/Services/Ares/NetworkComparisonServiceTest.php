@@ -6,11 +6,20 @@ use App\Context\SourceContext;
 use App\Models\App\Source;
 use App\Services\Ares\NetworkComparisonService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
     $source = Source::factory()->create(['source_connection' => 'omop']);
+
+    // Register ctx_* connections required by SourceAware trait.
+    // In tests, all three map to the shared local connections (omop / results).
+    foreach (['ctx_cdm' => 'omop', 'ctx_results' => 'results', 'ctx_vocab' => 'omop'] as $ctxName => $base) {
+        config(["database.connections.{$ctxName}" => config("database.connections.{$base}", [])]);
+        DB::purge($ctxName);
+    }
+
     $ctx = new SourceContext(
         source: $source,
         cdmSchema: 'omop',
