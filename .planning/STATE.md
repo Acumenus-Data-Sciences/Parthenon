@@ -165,9 +165,10 @@ None yet.
 | 2 | Add 3 publication templates to the Publish page: Comparative Effectiveness, Incidence Report, and Study Protocol | 2026-03-27 | 572db21a2 | [2-add-3-publication-templates](./quick/2-add-3-publication-templates-to-the-publi/) |
 | 3 | Add save-to-vocabulary, save/load project actions to Mapping Assistant | 2026-03-27 | a657163ee | [3-add-action-arms-to-mapping-assistant-sav](./quick/3-add-action-arms-to-mapping-assistant-sav/) |
 | 4 | Integrate Phoebe concept recommendations into Concept Set Editor and Detail page | 2026-03-27 | 85a9e950e | [4-integrate-phoebe-concept-recommendations](./quick/4-integrate-phoebe-concept-recommendations/) |
+| 5 | Add Arachne federated execution service (backend + frontend) | 2026-03-27 | fa228d5e5 | [5-add-arachne-federated-execution-service-](./quick/5-add-arachne-federated-execution-service-/) |
 
 ## Session Continuity
 
-Last session: 2026-03-27T19:33:00.000Z
-Stopped at: Completed quick-4 (Phoebe concept recommendations integration)
+Last session: 2026-03-27T19:56:36.000Z
+Stopped at: Completed quick-5 (Arachne federated execution service)
 Resume file: None
