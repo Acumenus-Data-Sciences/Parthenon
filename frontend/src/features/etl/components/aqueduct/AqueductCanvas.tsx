@@ -31,32 +31,39 @@ import type { EtlProject, EtlTableMapping, PersistedFieldProfile } from "../../a
 import { downloadExport } from "../../api";
 
 // ---------------------------------------------------------------------------
-// Session persistence keys
+// Persistent viewport & filter (localStorage, per-project)
 // ---------------------------------------------------------------------------
 
-const VIEWPORT_KEY = "aqueduct_viewport";
-const FILTER_KEY = "aqueduct_filter";
+const DEFAULT_ZOOM = 2.0;
 
-function loadViewport(): Viewport | null {
+function viewportKey(projectId: number): string {
+  return `aqueduct_viewport_${projectId}`;
+}
+
+function filterKey(projectId: number): string {
+  return `aqueduct_filter_${projectId}`;
+}
+
+function loadViewport(projectId: number): Viewport | null {
   try {
-    const raw = sessionStorage.getItem(VIEWPORT_KEY);
+    const raw = localStorage.getItem(viewportKey(projectId));
     if (raw) return JSON.parse(raw) as Viewport;
   } catch { /* ignore */ }
   return null;
 }
 
-function saveViewport(vp: Viewport): void {
-  sessionStorage.setItem(VIEWPORT_KEY, JSON.stringify(vp));
+function saveViewport(projectId: number, vp: Viewport): void {
+  localStorage.setItem(viewportKey(projectId), JSON.stringify(vp));
 }
 
-function loadFilter(): "all" | "mapped" | "unmapped" {
-  const raw = sessionStorage.getItem(FILTER_KEY);
+function loadFilter(projectId: number): "all" | "mapped" | "unmapped" {
+  const raw = localStorage.getItem(filterKey(projectId));
   if (raw === "all" || raw === "mapped" || raw === "unmapped") return raw;
   return "all";
 }
 
-function saveFilter(f: string): void {
-  sessionStorage.setItem(FILTER_KEY, f);
+function saveFilter(projectId: number, f: string): void {
+  localStorage.setItem(filterKey(projectId), f);
 }
 
 // ---------------------------------------------------------------------------
@@ -150,11 +157,11 @@ function AqueductCanvasInner({
   onDrillDown,
   onBack,
 }: AqueductCanvasProps) {
-  const [filter, setFilterRaw] = useState<"all" | "mapped" | "unmapped">(loadFilter);
+  const [filter, setFilterRaw] = useState<"all" | "mapped" | "unmapped">(() => loadFilter(project.id));
   const setFilter = useCallback((f: "all" | "mapped" | "unmapped") => {
     setFilterRaw(f);
-    saveFilter(f);
-  }, []);
+    saveFilter(project.id, f);
+  }, [project.id]);
   const [suggestBanner, setSuggestBanner] = useState<string | null>(null);
   const [isExporting, setIsExporting] = useState(false);
   const [detailCdmTable, setDetailCdmTable] = useState<string | null>(null);
@@ -499,6 +506,8 @@ function AqueductCanvasInner({
     });
   }, [suggestMutation]);
 
+  const savedViewport = useMemo(() => loadViewport(project.id), [project.id]);
+
   return (
     <div className="flex flex-col h-[calc(100vh-200px)]">
       <MappingToolbar
@@ -537,9 +546,10 @@ function AqueductCanvasInner({
           edgeTypes={edgeTypes}
           onConnect={handleConnect}
           onNodeClick={handleNodeClick}
-          onMoveEnd={(_event, viewport) => saveViewport(viewport)}
-          fitView
-          fitViewOptions={{ maxZoom: 1.5, minZoom: 0.5, padding: 0.12 }}
+          onMoveEnd={(_event, viewport) => saveViewport(project.id, viewport)}
+          defaultViewport={savedViewport ?? { x: 0, y: 0, zoom: DEFAULT_ZOOM }}
+          fitView={!savedViewport}
+          fitViewOptions={savedViewport ? undefined : { maxZoom: DEFAULT_ZOOM, minZoom: 0.5, padding: 0.12 }}
           minZoom={0.3}
           maxZoom={3}
           proOptions={{ hideAttribution: true }}
