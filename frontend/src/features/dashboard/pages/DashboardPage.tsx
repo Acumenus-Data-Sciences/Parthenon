@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Database,
@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import { MetricCard, Panel, StatusDot, Badge, Skeleton, EmptyState } from "@/components/ui";
 import { useDashboardStats } from "../hooks/useDashboard";
-import { SourceSelector } from "@/features/data-explorer/components/SourceSelector";
+import { useSourceStore } from "@/stores/sourceStore";
 import { useRecordCounts, useDemographics, useObservationPeriods } from "@/features/data-explorer/hooks/useAchillesData";
 import { ProportionalBar } from "@/features/data-explorer/components/charts/ProportionalBar";
 import { DemographicsPyramid } from "@/features/data-explorer/components/charts/DemographicsPyramid";
@@ -48,16 +48,9 @@ const DOMAIN_CONFIG: Record<string, { label: string; icon: React.ReactNode; colo
 export function DashboardPage() {
   const { data: stats, isLoading, error } = useDashboardStats();
   const navigate = useNavigate();
-  const [selectedSourceId, setSelectedSourceId] = useState<number | null>(null);
+  const activeSourceId = useSourceStore((s) => s.activeSourceId);
 
-  useEffect(() => {
-    if (stats?.sources.length && !selectedSourceId) {
-      const defaultSrc = stats.sources.find((s: { id: number; is_default?: boolean }) => s.is_default);
-      setSelectedSourceId(defaultSrc ? defaultSrc.id : stats.sources[0].id);
-    }
-  }, [stats?.sources, selectedSourceId]);
-
-  const sourceId = selectedSourceId ?? 0;
+  const sourceId = activeSourceId ?? 0;
   const { data: recordCounts, isLoading: recordsLoading } = useRecordCounts(sourceId);
   const { data: demographics, isLoading: demoLoading } = useDemographics(sourceId);
   const { data: obsPeriods, isLoading: obsLoading } = useObservationPeriods(sourceId);
@@ -182,7 +175,6 @@ export function DashboardPage() {
             <p className="mt-0.5 text-sm text-[#8A857D]">Clinical data profile for the selected source</p>
           </div>
           <div className="flex items-center gap-3">
-            <SourceSelector value={selectedSourceId} onChange={setSelectedSourceId} />
             <Link
               to="/data-explorer"
               className="flex items-center gap-1 rounded-lg border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#C9A227] hover:border-[#C9A227]/30 hover:text-[#C9A227]"

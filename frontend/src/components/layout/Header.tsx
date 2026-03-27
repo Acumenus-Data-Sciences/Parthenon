@@ -3,8 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/authStore";
 import { useUiStore } from "@/stores/uiStore";
 import { useAbbyStore } from "@/stores/abbyStore";
-import { LogOut, User, Search, Sparkles, Bell, Settings, ChevronDown } from "lucide-react";
+import { LogOut, User, Search, Sparkles, Bell, Settings, ChevronDown, Database, Star } from "lucide-react";
 import { AboutAbbyModal } from "./AboutAbbyModal";
+import { useSourceStore } from "@/stores/sourceStore";
+import { useQuery } from "@tanstack/react-query";
+import { fetchSources } from "@/features/data-sources/api/sourcesApi";
+import type { Source } from "@/types/models";
 
 function UserDropdown() {
   const { user, logout } = useAuthStore();
@@ -77,6 +81,48 @@ function UserDropdown() {
   );
 }
 
+function GlobalSourceSelector() {
+  const { activeSourceId, setActiveSource, setSources, setDefaultSourceId } = useSourceStore();
+  const { data: sources } = useQuery({
+    queryKey: ["sources"],
+    queryFn: fetchSources,
+  });
+
+  useEffect(() => {
+    if (!sources?.length) return;
+    setSources(sources.map((s: Source) => ({ id: s.id, source_name: s.source_name, is_default: s.is_default })));
+    const defaultSrc = sources.find((s: Source) => s.is_default);
+    if (defaultSrc) setDefaultSourceId(defaultSrc.id);
+    if (!activeSourceId) {
+      setActiveSource(defaultSrc ? defaultSrc.id : sources[0].id);
+    }
+  }, [sources, activeSourceId, setActiveSource, setSources, setDefaultSourceId]);
+
+  const selected = sources?.find((s: Source) => s.id === activeSourceId);
+
+  return (
+    <div className="flex items-center gap-1.5">
+      {selected?.is_default ? (
+        <Star size={12} className="text-[#C9A227] fill-[#C9A227]" />
+      ) : (
+        <Database size={12} className="text-[#8A857D]" />
+      )}
+      <select
+        value={activeSourceId ?? ""}
+        onChange={(e) => setActiveSource(Number(e.target.value))}
+        className="appearance-none rounded border border-[#232328] bg-[#0E0E11] pl-2 pr-6 py-1 text-xs text-[#C5C0B8] focus:border-[#C9A227] focus:outline-none cursor-pointer min-w-[140px]"
+      >
+        <option value="" disabled>Select source</option>
+        {sources?.map((s: Source) => (
+          <option key={s.id} value={s.id}>
+            {s.is_default ? "\u2605 " : ""}{s.source_name}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
 export function Header() {
   const { user, isAuthenticated } = useAuthStore();
   const { setCommandPaletteOpen } = useUiStore();
@@ -103,6 +149,7 @@ export function Header() {
       <div className="topbar-actions">
         {isAuthenticated && user ? (
           <>
+            <GlobalSourceSelector />
             <button
               className="btn btn-ghost btn-sm"
               onClick={() => setAboutAbbyOpen(true)}
