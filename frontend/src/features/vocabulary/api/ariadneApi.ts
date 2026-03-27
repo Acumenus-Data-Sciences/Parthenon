@@ -35,16 +35,16 @@ export interface VectorResult {
 // ── Request param types ────────────────────────────────────────────────────
 
 export interface MapTermsParams {
-  terms: string[];
+  source_terms: string[];
   target_vocabularies?: string[];
   target_domains?: string[];
 }
 
 export interface VectorSearchParams {
-  query: string;
-  top_k?: number;
-  vocabulary_ids?: string[];
-  domain_ids?: string[];
+  term: string;
+  max_results?: number;
+  vocabulary_id?: string;
+  domain_id?: string;
 }
 
 // ── API functions ──────────────────────────────────────────────────────────

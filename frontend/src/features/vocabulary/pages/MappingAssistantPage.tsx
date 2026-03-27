@@ -559,7 +559,7 @@ export default function MappingAssistantPage() {
   const handleMap = () => {
     if (parsedTerms.length === 0) return;
     mapMutation.mutate({
-      terms: parsedTerms,
+      source_terms: parsedTerms,
       target_vocabularies: targetVocabs.length > 0 ? targetVocabs : undefined,
       target_domains: targetDomains.length > 0 ? targetDomains : undefined,
     });

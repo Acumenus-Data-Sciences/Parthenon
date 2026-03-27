@@ -164,17 +164,18 @@ services:
       - ./OHDSI-scraper/medical_textbooks_extracted:/app/medical_textbooks:ro
       - ./backend/storage/app:/var/www/html/storage/app:ro
     environment:
-      - DATABASE_URL=postgresql://smudoshi:acumenus@host.docker.internal:5432/ohdsi
-      - GIS_DATABASE_URL=postgresql://smudoshi:acumenus@host.docker.internal:5432/ohdsi
+      - DATABASE_URL=postgresql://claude_dev:${HECATE_PG_PASSWORD}@host.docker.internal:5432/parthenon
+      - GIS_DATABASE_URL=postgresql://claude_dev:${HECATE_PG_PASSWORD}@host.docker.internal:5432/parthenon
       - REDIS_URL=redis://redis:6379/2
       - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
-      - OLLAMA_MODEL=${OLLAMA_MODEL:-medgemma-q4:latest}
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-MedAIBase/MedGemma1.5:4b}
       - HELP_DIR=/var/www/html/resources/help
       - DOCS_DIR=/app/docs
       - CHROMA_HOST=chromadb
       - CHROMA_PORT=8000
       - STUDY_AGENT_URL=http://study-agent:8765
       - HECATE_URL=http://hecate:8080
+      - ARIADNE_VOCAB_SCHEMA=vocab
       - CUDA_VISIBLE_DEVICES=
       - TORCH_DEVICE=cpu
       - CLAUDE_API_KEY=${CLAUDE_API_KEY:-}
@@ -387,11 +388,14 @@ services:
 
   qdrant:
     container_name: parthenon-qdrant
-    image: qdrant/qdrant:v1.12.4
+    image: qdrant/qdrant:v1.17.1
+    ports:
+      - "6333:6333"
+      - "6334:6334"
     volumes:
       - qdrant-data:/qdrant/storage
     healthcheck:
-      test: ["CMD-SHELL", "wget --spider -q http://localhost:6333/healthz || exit 1"]
+      test: ["CMD-SHELL", "bash -c 'echo > /dev/tcp/localhost/6333'"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -399,7 +403,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 1G
+          memory: 4G
     networks:
       - parthenon
     restart: unless-stopped
@@ -411,17 +415,23 @@ services:
       context: .
       dockerfile: docker/hecate/Dockerfile
     ports:
-      - "${HECATE_PORT:-8080}:8080"
+      - "${HECATE_PORT:-8088}:8080"
+    volumes:
+      - ./output/hecate-bootstrap:/app/data:ro
+    env_file:
+      - backend/.env
     environment:
       - SERVER_ADDR=0.0.0.0:8080
+      - VECTORDB_DATA_PATH=/app/data/all_pairs.txt
       - QDRANT_URI=http://qdrant:6334
-      - PG__USER=${HECATE_PG_USER:-smudoshi}
-      - PG__PASSWORD=${HECATE_PG_PASSWORD:-}
+      - CORS_ORIGINS=http://localhost:5175,http://localhost:8082,https://parthenon.acumenus.net
+      - PG__USER=${HECATE_PG_USER:-claude_dev}
+      - PG__PASSWORD=${HECATE_PG_PASSWORD}
       - PG__HOST=host.docker.internal
       - PG__PORT=5432
-      - PG__DBNAME=${HECATE_PG_DBNAME:-ohdsi}
+      - PG__DBNAME=${HECATE_PG_DBNAME:-parthenon}
       - PG__POOL_MAX_SIZE=16
-      - VOCAB_SCHEMA=omop
+      - VOCAB_SCHEMA=vocab
       - CACHE_MAX_CAPACITY=32
       - CACHE_TTL_DAYS=10
     extra_hosts:
