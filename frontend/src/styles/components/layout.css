@@ -115,7 +115,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow-y: auto;
   margin-left: var(--sidebar-width);
   transition: margin-left var(--duration-slow) var(--ease-out);
 }
@@ -125,7 +125,6 @@
 
 .content-main {
   flex: 1;
-  overflow-y: auto;
   padding: var(--content-padding);
   width: 80%;
   max-width: var(--content-max-width);
@@ -136,7 +135,7 @@
 .content-main:has(.layout-full-bleed) {
   padding: 0;
   max-width: none;
-  overflow: hidden;
+  width: 100%;
 }
 
 /* Page header */
