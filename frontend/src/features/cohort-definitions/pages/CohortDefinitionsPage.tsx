@@ -12,6 +12,7 @@ import {
 } from "../hooks/useCohortDefinitions";
 import { getCohortTags } from "../api/cohortApi";
 import { HelpButton } from "@/features/help";
+import TagFilterBar from "@/components/ui/TagFilterBar";
 
 const defaultExpression = {
   ConceptSets: [],
@@ -166,40 +167,14 @@ export default function CohortDefinitionsPage() {
 
       {/* Tag filter chips */}
       {tags && tags.length > 0 && (
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs text-[#5A5650]">Filter by tag:</span>
-          {tags.map((tag) => {
-            const active = activeTags.includes(tag);
-            const count = facets?.tags?.[tag];
-            return (
-              <button
-                key={tag}
-                type="button"
-                onClick={() => toggleTag(tag)}
-                className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs transition-colors ${
-                  active
-                    ? "bg-[#2DD4BF]/15 text-[#2DD4BF] border border-[#2DD4BF]/30"
-                    : "bg-[#1A1A1F] text-[#8A857D] border border-[#2A2A30] hover:border-[#3A3A42]"
-                }`}
-              >
-                {tag}
-                {count != null && (
-                  <span className="text-[10px] opacity-60">({count})</span>
-                )}
-                {active && <X size={10} />}
-              </button>
-            );
-          })}
-          {activeTags.length > 0 && (
-            <button
-              type="button"
-              onClick={() => setActiveTags([])}
-              className="text-xs text-[#5A5650] hover:text-[#8A857D] transition-colors"
-            >
-              Clear all
-            </button>
-          )}
-        </div>
+        <TagFilterBar
+          tags={tags}
+          activeTags={activeTags}
+          onToggle={toggleTag}
+          onClear={() => setActiveTags([])}
+          facets={facets?.tags}
+          color="teal"
+        />
       )}
 
       {/* Solr facet chips: status */}

@@ -10,6 +10,7 @@ import { CreateFromBundleModal } from "../components/CreateFromBundleModal";
 import { useCreateConceptSet } from "../hooks/useConceptSets";
 import { getConceptSetTags } from "../api/conceptSetApi";
 import { HelpButton } from "@/features/help";
+import TagFilterBar from "@/components/ui/TagFilterBar";
 
 export default function ConceptSetsPage() {
   const navigate = useNavigate();
@@ -150,36 +151,13 @@ export default function ConceptSetsPage() {
 
         {/* Tag chips */}
         {tags.length > 0 && (
-          <div className="flex flex-wrap gap-1.5">
-            {tags.map((tag) => {
-              const active = selectedTags.includes(tag);
-              return (
-                <button
-                  key={tag}
-                  type="button"
-                  onClick={() => toggleTag(tag)}
-                  className={cn(
-                    "inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors",
-                    active
-                      ? "bg-[#C9A227]/20 text-[#C9A227] ring-1 ring-[#C9A227]/40"
-                      : "bg-[#1C1C20] text-[#8A857D] hover:text-[#C5C0B8] hover:bg-[#232328]",
-                  )}
-                >
-                  {tag}
-                </button>
-              );
-            })}
-            {selectedTags.length > 0 && (
-              <button
-                type="button"
-                onClick={() => setSelectedTags([])}
-                className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium text-[#5A5650] hover:text-[#8A857D] transition-colors"
-              >
-                <X size={10} />
-                Clear
-              </button>
-            )}
-          </div>
+          <TagFilterBar
+            tags={tags}
+            activeTags={selectedTags}
+            onToggle={toggleTag}
+            onClear={() => setSelectedTags([])}
+            color="gold"
+          />
         )}
       </div>
 
