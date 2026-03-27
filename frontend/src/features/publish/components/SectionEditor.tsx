@@ -7,6 +7,7 @@ import {
   EyeOff,
   BrainCircuit,
   Table,
+  BarChart3,
 } from "lucide-react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -26,6 +27,7 @@ interface SectionEditorProps {
   onNarrativeStateChange: (id: string, state: NarrativeState) => void;
   onGenerateNarrative: (section: ReportSection) => void;
   isGenerating: boolean;
+  onToggleElement?: (id: string, element: "tableIncluded" | "narrativeIncluded" | "diagramIncluded") => void;
 }
 
 export default function SectionEditor({
@@ -38,6 +40,7 @@ export default function SectionEditor({
   onNarrativeStateChange,
   onGenerateNarrative,
   isGenerating,
+  onToggleElement,
 }: SectionEditorProps) {
   const [viewMode, setViewMode] = useState<ViewMode>("ai");
   const isDiagram = section.type === "diagram";
@@ -109,6 +112,52 @@ export default function SectionEditor({
             >
               <Table className="w-3.5 h-3.5" />
             </button>
+          </div>
+        )}
+
+        {/* Element toggles (table / narrative / diagram) */}
+        {onToggleElement && section.type === "results" && (
+          <div className="flex items-center gap-0.5 border border-[#232328] rounded-lg overflow-hidden">
+            {section.tableData && (
+              <button
+                type="button"
+                onClick={() => onToggleElement(section.id, "tableIncluded")}
+                className={`p-1.5 transition-colors ${
+                  section.tableIncluded !== false
+                    ? "bg-[#2DD4BF]/20 text-[#2DD4BF]"
+                    : "text-[#5A5650] hover:text-[#F0EDE8]"
+                }`}
+                title={section.tableIncluded !== false ? "Hide table" : "Show table"}
+              >
+                <Table className="w-3.5 h-3.5" />
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => onToggleElement(section.id, "narrativeIncluded")}
+              className={`p-1.5 transition-colors ${
+                section.narrativeIncluded !== false
+                  ? "bg-[#2DD4BF]/20 text-[#2DD4BF]"
+                  : "text-[#5A5650] hover:text-[#F0EDE8]"
+              }`}
+              title={section.narrativeIncluded !== false ? "Hide narrative" : "Show narrative"}
+            >
+              <BrainCircuit className="w-3.5 h-3.5" />
+            </button>
+            {section.diagramType && (
+              <button
+                type="button"
+                onClick={() => onToggleElement(section.id, "diagramIncluded")}
+                className={`p-1.5 transition-colors ${
+                  section.diagramIncluded !== false
+                    ? "bg-[#2DD4BF]/20 text-[#2DD4BF]"
+                    : "text-[#5A5650] hover:text-[#F0EDE8]"
+                }`}
+                title={section.diagramIncluded !== false ? "Hide diagram" : "Show diagram"}
+              >
+                <BarChart3 className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
         )}
 
