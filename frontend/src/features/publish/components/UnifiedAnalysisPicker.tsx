@@ -243,8 +243,8 @@ export default function UnifiedAnalysisPicker({
               </select>
             </div>
 
-            {/* Analysis list */}
-            <div className="flex-1 overflow-y-auto space-y-1">
+            {/* Analysis list — cap visible height at ~12 items */}
+            <div className="overflow-y-auto space-y-1" style={{ maxHeight: "540px" }}>
               {loadingAnalyses ? (
                 <p className="text-sm text-[#5A5650] text-center py-8">
                   Loading analyses...
@@ -302,7 +302,7 @@ export default function UnifiedAnalysisPicker({
         )}
 
         {activeTab === "studies" && (
-          <div className="flex-1 overflow-y-auto space-y-2">
+          <div className="overflow-y-auto space-y-2" style={{ maxHeight: "540px" }}>
             {loadingStudies ? (
               <p className="text-sm text-[#5A5650] text-center py-8">
                 Loading studies...
