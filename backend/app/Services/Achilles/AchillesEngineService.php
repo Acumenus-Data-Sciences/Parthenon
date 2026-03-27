@@ -2,6 +2,7 @@
 
 namespace App\Services\Achilles;
 
+use App\Concerns\SourceAware;
 use App\Contracts\AchillesAnalysisInterface;
 use App\Enums\DaimonType;
 use App\Events\AchillesStepCompleted;
@@ -12,11 +13,12 @@ use App\Models\Results\AchillesResultDist;
 use App\Models\Results\AchillesRun;
 use App\Models\Results\AchillesRunStep;
 use App\Services\SqlRenderer\SqlRendererService;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class AchillesEngineService
 {
+    use SourceAware;
+
     public function __construct(
         private AchillesAnalysisRegistry $registry,
         private SqlRendererService $sqlRenderer,
@@ -280,7 +282,7 @@ class AchillesEngineService
             // Execute each statement separately (template may contain DELETE + INSERT)
             $statements = $this->splitStatements($renderedSql);
 
-            $conn = DB::connection('results');
+            $conn = $this->results();
 
             // Set per-statement timeout (30 min) to prevent single queries from blocking the run
             $conn->statement('SET LOCAL statement_timeout = 1800000');

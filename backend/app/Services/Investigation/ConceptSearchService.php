@@ -2,11 +2,13 @@
 
 namespace App\Services\Investigation;
 
+use App\Concerns\SourceAware;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 
 class ConceptSearchService
 {
+    use SourceAware;
+
     /**
      * Search OMOP concepts by name with optional domain filter.
      *
@@ -14,7 +16,7 @@ class ConceptSearchService
      */
     public function search(string $term, ?string $domain = null, int $limit = 25): array
     {
-        $query = DB::connection('omop')
+        $query = $this->cdm()
             ->table('concept')
             ->select([
                 'concept_id', 'concept_name', 'domain_id',
@@ -43,7 +45,7 @@ class ConceptSearchService
      */
     public function hierarchy(int $conceptId): array
     {
-        $ancestors = DB::connection('omop')
+        $ancestors = $this->cdm()
             ->table('concept_ancestor')
             ->join('concept', 'concept.concept_id', '=', 'concept_ancestor.ancestor_concept_id')
             ->where('concept_ancestor.descendant_concept_id', $conceptId)
@@ -60,7 +62,7 @@ class ConceptSearchService
             ->map(fn ($row) => (array) $row)
             ->all();
 
-        $descendants = DB::connection('omop')
+        $descendants = $this->cdm()
             ->table('concept_ancestor')
             ->join('concept', 'concept.concept_id', '=', 'concept_ancestor.descendant_concept_id')
             ->where('concept_ancestor.ancestor_concept_id', $conceptId)
@@ -89,7 +91,7 @@ class ConceptSearchService
     public function patientCount(int $conceptId): array
     {
         $count = Cache::remember("concept:count:{$conceptId}", 3600, function () use ($conceptId) {
-            $concept = DB::connection('omop')
+            $concept = $this->cdm()
                 ->table('concept')
                 ->where('concept_id', $conceptId)
                 ->select('domain_id')
@@ -129,7 +131,7 @@ class ConceptSearchService
                 return 0;
             }
 
-            return DB::connection('omop')
+            return $this->cdm()
                 ->table($table)
                 ->where($conceptColumn, $conceptId)
                 ->distinct('person_id')

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Fhir;
 
+use App\Concerns\SourceAware;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -21,6 +22,8 @@ use Illuminate\Support\Facades\Log;
  */
 class FhirDedupService
 {
+    use SourceAware;
+
     /** @var array<string, array{cdm_table: string, cdm_row_id: int, content_hash: string}> */
     private array $cache = [];
 
@@ -111,7 +114,7 @@ class FhirDedupService
         $pkColumn = $this->getPrimaryKeyColumn($existing['cdm_table']);
 
         try {
-            DB::connection('omop')
+            $this->cdm()
                 ->table($existing['cdm_table'])
                 ->where($pkColumn, $existing['cdm_row_id'])
                 ->delete();

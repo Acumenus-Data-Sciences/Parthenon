@@ -2,12 +2,14 @@
 
 namespace App\Services\Ingestion;
 
+use App\Concerns\SourceAware;
 use App\Models\App\IngestionJob;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class PostLoadValidationService
 {
+    use SourceAware;
+
     /**
      * Run all DQD-style validation checks on CDM data for an ingestion job.
      *
@@ -40,7 +42,7 @@ class PostLoadValidationService
      */
     private function runCompletenessChecks(IngestionJob $job, array &$counts): void
     {
-        $cdm = DB::connection('omop');
+        $cdm = $this->cdm();
 
         // person.gender_concept_id IS NOT NULL
         $this->runCheck($job, $counts, [
@@ -296,7 +298,7 @@ class PostLoadValidationService
      */
     private function runCheck(IngestionJob $job, array &$counts, array $check): void
     {
-        $cdm = DB::connection('omop');
+        $cdm = $this->cdm();
 
         try {
             $totalResult = $cdm->selectOne($check['sql_total']);

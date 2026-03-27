@@ -2,6 +2,7 @@
 
 namespace App\Services\Ares;
 
+use App\Concerns\SourceAware;
 use App\Enums\DaimonType;
 use App\Models\App\Source;
 use App\Models\Results\AchillesResult;
@@ -10,6 +11,8 @@ use Illuminate\Support\Facades\DB;
 
 class PatientArrivalForecastService
 {
+    use SourceAware;
+
     /**
      * Achilles analysis IDs for monthly concept counts by domain.
      * stratum_1 = concept_id, stratum_2 = YYYYMM month, count_value = patient count
@@ -56,7 +59,7 @@ class PatientArrivalForecastService
         if (! empty($source->db_host)) {
             $connection = $this->connectionFactory->connectionForSchema($source, $schema);
         } else {
-            DB::connection('results')->statement("SET search_path TO \"{$schema}\", public");
+            $this->results()->statement("SET search_path TO \"{$schema}\", public");
         }
 
         // Get historical monthly patient counts

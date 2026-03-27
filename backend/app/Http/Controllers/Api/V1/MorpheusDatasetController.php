@@ -2,17 +2,19 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Concerns\SourceAware;
 use App\Http\Controllers\Controller;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\DB;
 
 #[Group('Morpheus Datasets', weight: 240)]
 class MorpheusDatasetController extends Controller
 {
+    use SourceAware;
+
     public function index(): JsonResponse
     {
-        $datasets = DB::connection('inpatient')->select("
+        $datasets = $this->cdm()->select("
             SELECT dataset_id, name, schema_name, description, source_type,
                    patient_count, status, created_at
             FROM inpatient_ext.morpheus_dataset
@@ -25,7 +27,7 @@ class MorpheusDatasetController extends Controller
 
     public function show(int $datasetId): JsonResponse
     {
-        $dataset = DB::connection('inpatient')->selectOne("
+        $dataset = $this->cdm()->selectOne("
             SELECT dataset_id, name, schema_name, description, source_type,
                    patient_count, status, created_at
             FROM inpatient_ext.morpheus_dataset

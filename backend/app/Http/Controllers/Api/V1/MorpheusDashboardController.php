@@ -2,16 +2,18 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Concerns\SourceAware;
 use App\Http\Controllers\Controller;
 use App\Services\Morpheus\MorpheusDashboardService;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 #[Group('Morpheus Dashboard', weight: 245)]
 class MorpheusDashboardController extends Controller
 {
+    use SourceAware;
+
     public function __construct(
         private readonly MorpheusDashboardService $service,
     ) {}
@@ -25,7 +27,7 @@ class MorpheusDashboardController extends Controller
     {
         $schemaName = $request->input('dataset', 'mimiciv');
 
-        $dataset = DB::connection('inpatient')->selectOne("
+        $dataset = $this->cdm()->selectOne("
             SELECT schema_name FROM inpatient_ext.morpheus_dataset
             WHERE schema_name = ? AND status = 'active'
         ", [$schemaName]);

@@ -2,6 +2,7 @@
 
 namespace App\Services\Ares;
 
+use App\Concerns\SourceAware;
 use App\Models\App\Source;
 use App\Models\App\SourceRelease;
 use App\Models\App\UnmappedCodeReview;
@@ -13,6 +14,8 @@ use Illuminate\Support\Facades\Log;
 
 class UnmappedCodeService
 {
+    use SourceAware;
+
     /**
      * Domain weights for impact score calculation.
      * Higher weight = more clinically significant when unmapped.
@@ -271,7 +274,7 @@ class UnmappedCodeService
             ->delete();
 
         // Query source_to_concept_map for unmapped codes (target_concept_id = 0 or NULL)
-        $unmapped = DB::connection('omop')
+        $unmapped = $this->cdm()
             ->table('source_to_concept_map')
             ->select([
                 'source_code',

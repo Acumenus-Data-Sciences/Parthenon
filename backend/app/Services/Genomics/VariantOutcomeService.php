@@ -2,6 +2,7 @@
 
 namespace App\Services\Genomics;
 
+use App\Concerns\SourceAware;
 use App\Models\App\Source;
 use Illuminate\Database\Connection;
 use Illuminate\Support\Facades\DB;
@@ -20,6 +21,8 @@ use Illuminate\Support\Facades\Log;
  */
 class VariantOutcomeService
 {
+    use SourceAware;
+
     /**
      * Generate Kaplan-Meier–ready event data stratified by gene mutation presence.
      *
@@ -35,7 +38,7 @@ class VariantOutcomeService
      */
     public function survivalByMutation(int $sourceId, string $gene, ?string $hgvs = null, ?int $cohortId = null): array
     {
-        $conn = DB::connection('omop');
+        $conn = $this->cdm();
         $schema = 'omop';
 
         // Get person_ids with this gene variant
@@ -141,7 +144,7 @@ class VariantOutcomeService
      */
     public function treatmentVariantMatrix(int $sourceId, array $genes, int $limit = 20): array
     {
-        $conn = DB::connection('omop');
+        $conn = $this->cdm();
         $schema = 'omop';
 
         if (empty($genes)) {

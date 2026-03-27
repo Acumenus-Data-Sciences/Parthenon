@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Concerns\SourceAware;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\StoreAnnotationRequest;
 use App\Http\Requests\Api\StoreReleaseRequest;
@@ -25,10 +26,11 @@ use App\Services\Ares\UnmappedCodeService;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class AresController extends Controller
 {
+    use SourceAware;
+
     public function __construct(
         private readonly ReleaseService $releaseService,
         private readonly AnnotationService $annotationService,
@@ -625,7 +627,7 @@ class AresController extends Controller
             ->firstOrFail();
 
         // Look up target concept name from vocabulary
-        $targetConceptName = DB::connection('omop')
+        $targetConceptName = $this->vocab()
             ->table('concept')
             ->where('concept_id', $validated['target_concept_id'])
             ->value('concept_name');

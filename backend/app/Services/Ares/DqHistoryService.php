@@ -2,6 +2,7 @@
 
 namespace App\Services\Ares;
 
+use App\Concerns\SourceAware;
 use App\Enums\DaimonType;
 use App\Models\App\ChartAnnotation;
 use App\Models\App\DqdResult;
@@ -16,6 +17,8 @@ use Illuminate\Support\Facades\Log;
 
 class DqHistoryService
 {
+    use SourceAware;
+
     /**
      * Standard CDM domain analysis IDs for domain coverage counting.
      *
@@ -368,7 +371,7 @@ class DqHistoryService
             if (! empty($source->db_host)) {
                 $connection = $this->connectionFactory->connectionForSchema($source, $schema);
             } else {
-                DB::connection('results')->statement(
+                $this->results()->statement(
                     "SET search_path TO \"{$schema}\", public"
                 );
             }

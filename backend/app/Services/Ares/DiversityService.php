@@ -2,6 +2,7 @@
 
 namespace App\Services\Ares;
 
+use App\Concerns\SourceAware;
 use App\Enums\DaimonType;
 use App\Models\App\Source;
 use App\Models\App\SourceRelease;
@@ -13,6 +14,8 @@ use Illuminate\Support\Facades\Log;
 
 class DiversityService
 {
+    use SourceAware;
+
     /**
      * Achilles analysis IDs for demographics.
      * Analysis 2 = gender, Analysis 4 = race, Analysis 5 = ethnicity
@@ -85,7 +88,7 @@ class DiversityService
         if (! empty($source->db_host)) {
             $connection = $this->connectionFactory->connectionForSchema($source, $schema);
         } else {
-            DB::connection('results')->statement(
+            $this->results()->statement(
                 "SET search_path TO \"{$schema}\", public"
             );
         }
@@ -207,7 +210,7 @@ class DiversityService
         if (! empty($source->db_host)) {
             $connection = $this->connectionFactory->connectionForSchema($source, $schema);
         } else {
-            DB::connection('results')->statement("SET search_path TO \"{$schema}\", public");
+            $this->results()->statement("SET search_path TO \"{$schema}\", public");
         }
 
         // Analysis 3: age at first observation by gender (stratum_1=gender_concept_id, stratum_2=age)
@@ -384,7 +387,7 @@ class DiversityService
         if (! empty($source->db_host)) {
             $connection = $this->connectionFactory->connectionForSchema($source, $schema);
         } else {
-            DB::connection('omop')->statement(
+            $this->cdm()->statement(
                 "SET search_path TO \"{$schema}\", public"
             );
         }
@@ -534,7 +537,7 @@ class DiversityService
                 if (! empty($source->db_host)) {
                     $connection = $this->connectionFactory->connectionForSchema($source, $schema);
                 } else {
-                    DB::connection('results')->statement(
+                    $this->results()->statement(
                         "SET search_path TO \"{$schema}\", public"
                     );
                 }
@@ -626,7 +629,7 @@ class DiversityService
         }
 
         try {
-            $concept = DB::connection('omop')
+            $concept = $this->cdm()
                 ->table('concept')
                 ->where('concept_id', (int) $conceptId)
                 ->value('concept_name');
