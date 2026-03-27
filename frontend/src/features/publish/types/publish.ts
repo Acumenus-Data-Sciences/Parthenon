@@ -23,6 +23,10 @@ export interface ReportSection {
   diagramData?: Record<string, unknown>;
   svgMarkup?: string;
   caption?: string;
+  tableData?: TableData;
+  tableIncluded?: boolean;
+  narrativeIncluded?: boolean;
+  diagramIncluded?: boolean;
 }
 
 export interface SelectedExecution {
@@ -44,6 +48,13 @@ export interface PublishState {
   authors: string[];
   template: string;
   exportFormat: ExportFormat;
+}
+
+export interface TableData {
+  caption: string;
+  headers: string[];
+  rows: Array<Record<string, string | number>>;
+  footnotes?: string[];
 }
 
 export interface NarrativeResponse {
