@@ -901,6 +901,20 @@ services:
       - loki
     restart: unless-stopped
 
+  # Arachne Data Node (optional — start with: docker compose --profile arachne up -d)
+  arachne-datanode:
+    image: odysseusinc/arachne-datanode-ce:latest
+    profiles: ["arachne"]
+    container_name: parthenon-arachne-datanode
+    environment:
+      ARACHNE_CENTRAL_URL: ${ARACHNE_URL:-http://arachne-central:8080}
+      DATANODE_PORT: 8880
+    ports:
+      - "${ARACHNE_DATANODE_PORT:-8880}:8880"
+    networks:
+      - parthenon
+    restart: unless-stopped
+
 volumes:
   # postgres-data removed — using host bind mount instead (survives docker compose down -v)
   redis-data:

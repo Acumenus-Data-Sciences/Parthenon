@@ -102,4 +102,11 @@ return [
         'cache_ttl' => env('GWAS_CATALOG_CACHE_TTL', 86400),
     ],
 
+    // Arachne: OHDSI federated execution platform (Central + Data Nodes)
+    'arachne' => [
+        'url' => env('ARACHNE_URL', 'http://arachne-central:8080'),
+        'token' => env('ARACHNE_TOKEN', ''),
+        'timeout' => env('ARACHNE_TIMEOUT', 120),
+    ],
+
 ];

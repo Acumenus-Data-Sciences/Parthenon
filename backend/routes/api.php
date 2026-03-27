@@ -19,6 +19,7 @@ use App\Http\Controllers\Api\V1\Admin\UserController;
 use App\Http\Controllers\Api\V1\Admin\VocabularyController as AdminVocabularyController;
 use App\Http\Controllers\Api\V1\Admin\WebApiRegistryController;
 use App\Http\Controllers\Api\V1\AnalysisStatsController;
+use App\Http\Controllers\Api\V1\ArachneController;
 use App\Http\Controllers\Api\V1\AresController;
 use App\Http\Controllers\Api\V1\AriadneController;
 use App\Http\Controllers\Api\V1\AuthController;
@@ -870,6 +871,14 @@ Route::prefix('v1')->group(function () {
             Route::post('/execute', [StrategusController::class, 'execute']);
             Route::post('/validate', [StrategusController::class, 'validate']);
             Route::get('/modules', [StrategusController::class, 'modules']);
+        });
+
+        // Arachne Federated Execution
+        Route::prefix('arachne')->middleware('permission:studies.execute')->group(function () {
+            Route::get('/nodes', [ArachneController::class, 'nodes']);
+            Route::post('/distribute', [ArachneController::class, 'distribute']);
+            Route::get('/studies/{study}/status', [ArachneController::class, 'status']);
+            Route::get('/studies/{study}/results/{execution}', [ArachneController::class, 'results']);
         });
 
         // Phenotype Library
