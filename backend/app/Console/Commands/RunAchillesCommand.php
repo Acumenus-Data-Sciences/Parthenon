@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Context\SourceContext;
 use App\Jobs\Achilles\RunAchillesJob;
 use App\Models\App\Source;
 use App\Models\Results\AchillesRun;
@@ -30,6 +31,9 @@ class RunAchillesCommand extends Command
     public function handle(AchillesEngineService $engine, AchillesAnalysisRegistry $registry): int
     {
         $source = Source::findOrFail($this->argument('source'));
+
+        // Register source context so SourceAware trait can resolve connections
+        SourceContext::forSource($source);
 
         $categories = $this->option('categories')
             ? array_map('trim', explode(',', (string) $this->option('categories')))
@@ -86,14 +90,29 @@ class RunAchillesCommand extends Command
         ?array $categories,
         ?array $analysisIds,
     ): int {
+        $runId = (string) Str::uuid();
+
+        AchillesRun::create([
+            'source_id' => $source->id,
+            'run_id' => $runId,
+            'status' => 'running',
+            'total_analyses' => 0,
+            'completed_analyses' => 0,
+            'failed_analyses' => 0,
+            'categories' => $categories,
+            'started_at' => now(),
+        ]);
+
+        $this->info("Achilles run started (run_id: {$runId})");
+
         if ($this->option('fresh')) {
             $this->info('Clearing existing results...');
             $engine->clearResults($analysisIds);
         }
 
         $result = $analysisIds
-            ? $engine->runAnalyses($source, $analysisIds)
-            : $engine->runAll($source, $categories);
+            ? $engine->runAnalyses($source, $analysisIds, $runId)
+            : $engine->runAll($source, $categories, $runId);
 
         $this->newLine();
         $this->info("Completed: {$result['completed']}, Failed: {$result['failed']}");

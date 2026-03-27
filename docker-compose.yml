@@ -620,8 +620,7 @@ services:
     ports:
       - "${ORTHANC_PORT:-8042}:8042"
     volumes:
-      - /mnt/md0/orthanc-data-pg:/var/lib/orthanc/db       # Active storage (PG-era, read-write)
-      - /mnt/md0/orthanc-data:/old-data:ro                  # Legacy storage (SQLite-era, re-index only)
+      - /mnt/md0/orthanc-data-pg:/var/lib/orthanc/db       # All DICOM files (937K instances, NVMe RAID0)
       - ./dicom_samples:/dicom_samples:ro
     environment:
       - ORTHANC__NAME=Parthenon Orthanc

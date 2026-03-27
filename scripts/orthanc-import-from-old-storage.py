@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Import DICOM files from old Orthanc storage into PG-indexed Orthanc.
 
-Reads files from /old-data (mounted read-only from old SQLite storage)
+Reads files from /old-data (mounted read-only from legacy SQLite-era storage on RAID0)
 and POSTs each to localhost:8042/instances for re-indexing into PG.
 
 Runs INSIDE the Orthanc container via docker compose exec.
@@ -24,7 +24,7 @@ from pathlib import Path
 
 sys.stdout.reconfigure(line_buffering=True)
 
-OLD_STORAGE = Path("/old-data")
+OLD_STORAGE = Path(os.environ.get("ORTHANC_STORAGE_PATH", "/old-data"))
 _user = os.environ.get("ORTHANC_USER", "parthenon")
 _pass = os.environ.get("ORTHANC_PASSWORD", "")
 AUTH = "Basic " + base64.b64encode(f"{_user}:{_pass}".encode()).decode()
