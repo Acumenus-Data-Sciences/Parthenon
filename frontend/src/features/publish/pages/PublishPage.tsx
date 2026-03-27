@@ -2,7 +2,7 @@
 // PublishPage — 4-step publish & export wizard
 // ---------------------------------------------------------------------------
 
-import { useReducer, useCallback } from "react";
+import { useReducer, useCallback, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { FileOutput, Check } from "lucide-react";
 import UnifiedAnalysisPicker from "../components/UnifiedAnalysisPicker";
@@ -70,7 +70,9 @@ function wizardReducer(state: WizardState, action: Action): WizardState {
   }
 }
 
-const initialState: WizardState = {
+const STORAGE_KEY = "parthenon:publish-wizard";
+
+const defaultState: WizardState = {
   step: 1,
   selectedExecutions: [],
   sections: [],
@@ -78,6 +80,36 @@ const initialState: WizardState = {
   authors: [],
   template: "generic-ohdsi",
 };
+
+function loadPersistedState(): WizardState {
+  try {
+    const stored = sessionStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored) as WizardState;
+      // Validate shape
+      if (parsed.step && parsed.sections && parsed.selectedExecutions) {
+        return parsed;
+      }
+    }
+  } catch {
+    // ignore parse errors
+  }
+  return defaultState;
+}
+
+function persistState(state: WizardState): void {
+  try {
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch {
+    // ignore quota errors
+  }
+}
+
+function persistingReducer(state: WizardState, action: Action): WizardState {
+  const next = wizardReducer(state, action);
+  persistState(next);
+  return next;
+}
 
 // ── Research-question section config ────────────────────────────────────────
 
@@ -231,7 +263,21 @@ export default function PublishPage() {
     ? Number(searchParams.get("studyId"))
     : undefined;
 
-  const [state, dispatch] = useReducer(wizardReducer, initialState);
+  const [state, dispatch] = useReducer(persistingReducer, undefined, loadPersistedState);
+
+  // When navigating via ?studyId, reset if it's a different study than what's persisted
+  useEffect(() => {
+    if (
+      initialStudyId &&
+      state.selectedExecutions.length > 0 &&
+      state.selectedExecutions[0].studyId !== initialStudyId
+    ) {
+      sessionStorage.removeItem(STORAGE_KEY);
+      dispatch({ type: "SET_SELECTIONS", selections: [] });
+      dispatch({ type: "SET_SECTIONS", sections: [] });
+      dispatch({ type: "SET_STEP", step: 1 });
+    }
+  }, [initialStudyId, state.selectedExecutions]);
   const narrativeMutation = useGenerateNarrative();
 
   // ── Step 1 handlers ─────────────────────────────────────────────────────

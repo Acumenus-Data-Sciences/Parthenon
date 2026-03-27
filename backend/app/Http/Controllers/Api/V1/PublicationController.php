@@ -93,7 +93,9 @@ class PublicationController extends Controller
             .'for an OHDSI observational study using the OMOP Common Data Model. '
             .'Write in formal academic prose suitable for a peer-reviewed journal (NEJM, Lancet, JAMA style). '
             .'Use passive voice and past tense. Never fabricate citations, statistics, or results. '
-            .'Only reference data provided in the context.';
+            .'Only reference data provided in the context. '
+            .'IMPORTANT: Output plain text only. Do NOT use markdown formatting — no ##, **, *, ```, or any other markup. '
+            .'Do not include section headings — the heading is already provided by the document template.';
 
         return match ($sectionType) {
             'methods' => $base.' Focus on study design, data source description, cohort definitions, '
