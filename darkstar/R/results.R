@@ -182,30 +182,66 @@ extract_calibration_points <- function(plp_result) {
 }
 
 #' Extract top predictors from a PLP result.
+#' Falls back to model coefficients when covariateSummary is NULL
+#' (e.g. when runCovariateSummary = FALSE).
 extract_top_predictors <- function(plp_result, n = 30) {
   tryCatch({
+    # Try covariateSummary first
     cov_summary <- plp_result$covariateSummary
-    if (is.null(cov_summary)) return(list())
-
-    cov_df <- as.data.frame(cov_summary)
-
-    # Sort by absolute coefficient/importance
-    if ("covariateValue" %in% names(cov_df)) {
-      cov_df <- cov_df[order(-abs(cov_df$covariateValue)), ]
-    } else if ("CovariateMeanWithOutcome" %in% names(cov_df)) {
-      cov_df$importance <- abs(cov_df$CovariateMeanWithOutcome - cov_df$CovariateMeanWithNoOutcome)
-      cov_df <- cov_df[order(-cov_df$importance), ]
+    if (!is.null(cov_summary)) {
+      cov_df <- as.data.frame(cov_summary)
+      if ("covariateValue" %in% names(cov_df)) {
+        cov_df <- cov_df[order(-abs(cov_df$covariateValue)), ]
+      }
+      cov_df <- head(cov_df, n)
+      return(lapply(seq_len(nrow(cov_df)), function(i) {
+        row <- cov_df[i, ]
+        list(
+          covariate_name = as.character(
+            row$covariateName %||%
+              paste0("Covariate ", row$covariateId)
+          ),
+          concept_id  = as.integer(row$conceptId %||% NA),
+          coefficient = round(as.numeric(
+            row$covariateValue %||% 0
+          ), 4)
+        )
+      }))
     }
 
-    cov_df <- head(cov_df, n)
+    # Fall back to model coefficients
+    coefs <- plp_result$model$model$coefficients
+    if (is.null(coefs)) return(list())
 
-    lapply(seq_len(nrow(cov_df)), function(i) {
-      row <- cov_df[i, ]
+    coef_df <- as.data.frame(coefs)
+    coef_df <- coef_df[
+      coef_df$betas != 0 &
+        coef_df$covariateIds != "(Intercept)",
+    ]
+    coef_df <- coef_df[order(-abs(coef_df$betas)), ]
+    coef_df <- head(coef_df, n)
+
+    # Resolve covariate names from plpData covariateRef
+    cov_ref <- tryCatch(
+      plp_result$model$metaData$covariateRef,
+      error = function(e) NULL
+    )
+
+    lapply(seq_len(nrow(coef_df)), function(i) {
+      cov_id <- as.numeric(coef_df$covariateIds[i])
+      cov_name <- paste0("Covariate ", cov_id)
+      if (!is.null(cov_ref)) {
+        match_row <- cov_ref[cov_ref$covariateId == cov_id, ]
+        if (nrow(match_row) > 0) {
+          cov_name <- as.character(match_row$covariateName[1])
+        }
+      }
       list(
-        name        = as.character(row$covariateName %||% paste0("Covariate ", row$covariateId)),
-        concept_id  = as.integer(row$conceptId %||% NA),
-        coefficient = round(as.numeric(row$covariateValue %||% 0), 4),
-        importance  = round(as.numeric(row$importance %||% abs(row$covariateValue %||% 0)), 4)
+        covariate_name = cov_name,
+        concept_id = as.integer(
+          (cov_id %% 1000 == 0) * (cov_id / 1000)
+        ),
+        coefficient = round(coef_df$betas[i], 4)
       )
     })
   }, error = function(e) list())
@@ -228,13 +264,13 @@ extract_plp_performance <- function(plp_result) {
     }
 
     list(
-      auc                 = get_metric("AUC.auc") %||% get_metric("AUROC"),
-      auc_ci_lower        = get_metric("AUC.auc_lb95ci"),
-      auc_ci_upper        = get_metric("AUC.auc_ub95ci"),
+      auc                 = get_metric("AUROC") %||% get_metric("AUC.auc"),
+      auc_ci_lower        = get_metric("95% lower AUROC") %||% get_metric("AUC.auc_lb95ci"),
+      auc_ci_upper        = get_metric("95% upper AUROC") %||% get_metric("AUC.auc_ub95ci"),
       auprc               = get_metric("AUPRC"),
-      brier_score         = get_metric("BrierScore") %||% get_metric("brierScore"),
-      calibration_slope   = get_metric("CalibrationSlope") %||% get_metric("calibrationSlope"),
-      calibration_intercept = get_metric("CalibrationIntercept") %||% get_metric("calibrationIntercept")
+      brier_score         = get_metric("brier score") %||% get_metric("BrierScore"),
+      calibration_slope   = get_metric("weak calibration gradient") %||% get_metric("CalibrationSlope"),
+      calibration_intercept = get_metric("weak calibration intercept") %||% get_metric("CalibrationIntercept")
     )
   }, error = function(e) list())
 }

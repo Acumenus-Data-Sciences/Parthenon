@@ -3,13 +3,6 @@
 # POST /analysis/prediction/run
 # ──────────────────────────────────────────────────────────────────
 
-# OMOP CDM extension vocabularies (e.g. SNOMED CT) use concept_ids that exceed
-# 2^53 when multiplied by 1000 for FeatureExtraction covariate_id encoding.
-# DatabaseConnector defaults to converting BIGINT → R numeric, which silently
-# loses precision at 2^53. Setting this option forces integer64 (bit64 package)
-# so that large covariate_ids survive the round-trip.
-options(databaseConnectorInteger64AsNumeric = FALSE)
-
 library(PatientLevelPrediction)
 library(FeatureExtraction)
 library(DatabaseConnector)
@@ -279,7 +272,7 @@ function(body, response) {
         runFeatureEngineering = FALSE,
         runPreprocessData     = TRUE,
         runModelDevelopment   = TRUE,
-        runCovariateSummary   = TRUE
+        runCovariateSummary   = FALSE  # PLP 6.6.0 bug: aggregateCovariateSummaries crashes with 0-coefficient models
       ),
       saveDirectory      = save_dir
     )

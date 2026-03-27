@@ -89,23 +89,17 @@ RUN R -e " \
   if (!requireNamespace('FeatureExtraction',  quietly = TRUE)) stop('FeatureExtraction failed'); \
 "
 
-# Patch FeatureExtraction SQL: CAST concept_id AS INT → BIGINT
+# Patch FeatureExtraction SQL: cap concept_ids to prevent INT overflow.
 # OMOP CDM extension vocabularies (SNOMED CT) use concept_ids > 2^31 which
-# overflow INT when FeatureExtraction derives concept_id from covariate_id.
-# This is a known issue in FE 3.13.0; patch in-place until upstream fixes.
+# overflow INT when FeatureExtraction computes covariate_id = concept_id * 1000.
+# BIGINT would fix SQL but R numeric loses precision above 2^53 and Andromeda
+# (DuckDB) corrupts integer64 values. Safest fix: exclude oversized concept_ids
+# from covariate construction (they are rare SNOMED extension codes).
 RUN FE_SQL="/usr/local/lib/R/site-library/FeatureExtraction/sql/sql_server" && \
-    sed -i 's|CAST((covariate_id - @analysis_id) / 1000 AS INT)|CAST((covariate_id - @analysis_id) / 1000 AS BIGINT)|g' \
-        "$FE_SQL/DomainConcept.sql" \
-        "$FE_SQL/DomainConceptGroup.sql" \
-        "$FE_SQL/ConceptCounts.sql" \
-        "$FE_SQL/DemographicsEthnicity.sql" \
-        "$FE_SQL/DemographicsRace.sql" \
-        "$FE_SQL/DemographicsGender.sql" \
-        "$FE_SQL/CareSite.sql" && \
-    sed -i 's|CAST(FLOOR(covariate_id / 10000.0) AS INT)|CAST(FLOOR(covariate_id / 10000.0) AS BIGINT)|g' \
-        "$FE_SQL/MeasurementRangeGroup.sql" && \
-    sed -i 's|concept_id INT,|concept_id BIGINT,|g' \
-        "$FE_SQL/CreateCovAnalysisRefTables.sql"
+    sed -i 's|AND @domain_concept_id != 0|AND @domain_concept_id != 0\n\t\tAND @domain_concept_id < 2147483|g' \
+        "$FE_SQL/DomainConcept.sql" "$FE_SQL/DomainConceptGroup.sql" && \
+    sed -i 's|WHERE @domain_concept_id != 0|WHERE @domain_concept_id != 0\n\t\tAND @domain_concept_id < 2147483|g' \
+        "$FE_SQL/DomainConcept.sql" "$FE_SQL/DomainConceptGroup.sql"
 
 ## Layer 4 — HADES analysis packages (depends on layers 2 + 3)
 ## install_github used because r-universe lags behind GitHub releases;
