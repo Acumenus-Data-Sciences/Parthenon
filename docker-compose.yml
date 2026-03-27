@@ -426,6 +426,8 @@ services:
       - VECTORDB_DATA_PATH=/app/data/all_pairs.txt
       - QDRANT_URI=http://qdrant:6334
       - CORS_ORIGINS=http://nginx:80
+      - OPENAI_BASE_URL=http://host.docker.internal:11434/v1
+      - OPENAI_API_KEY=not-needed
       - PG__USER=${HECATE_PG_USER:-claude_dev}
       - PG__PASSWORD=${HECATE_PG_PASSWORD}
       - PG__HOST=host.docker.internal
@@ -618,8 +620,8 @@ services:
     ports:
       - "${ORTHANC_PORT:-8042}:8042"
     volumes:
-      - /mnt/md0/orthanc-data-pg:/var/lib/orthanc/db
-      - /mnt/md0/orthanc-data:/var/lib/orthanc/dicom:ro
+      - /mnt/md0/orthanc-data-pg:/var/lib/orthanc/db       # Active storage (PG-era, read-write)
+      - /mnt/md0/orthanc-data:/old-data:ro                  # Legacy storage (SQLite-era, re-index only)
       - ./dicom_samples:/dicom_samples:ro
     environment:
       - ORTHANC__NAME=Parthenon Orthanc

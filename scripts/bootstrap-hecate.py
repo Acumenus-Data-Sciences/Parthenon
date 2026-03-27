@@ -26,7 +26,7 @@ import urllib.request
 # ── Configuration ──────────────────────────────────────────────────────────────
 
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434/api/embed")
-OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "nomic-embed-text")
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "embeddinggemma:300m")
 QDRANT_URL = os.getenv("QDRANT_URL", "http://localhost:6333")
 PG_DSN = os.getenv("PG_DSN", "host=localhost dbname=parthenon user=claude_dev password=claude321$%")
 VECTOR_DIM = 768  # nomic-embed-text dimension
@@ -123,7 +123,7 @@ def fetch_concepts(conn, domains: list[str] | None, after_id: int, limit: int) -
         if domains:
             cur.execute("""
                 SELECT concept_id, concept_name, domain_id, vocabulary_id,
-                       concept_class_id, standard_concept
+                       concept_class_id, standard_concept, concept_code
                 FROM concept
                 WHERE invalid_reason IS NULL
                   AND standard_concept = 'S'
@@ -137,7 +137,7 @@ def fetch_concepts(conn, domains: list[str] | None, after_id: int, limit: int) -
             exclude = PHASE_1_DOMAINS + PHASE_2_DOMAINS
             cur.execute("""
                 SELECT concept_id, concept_name, domain_id, vocabulary_id,
-                       concept_class_id, standard_concept
+                       concept_class_id, standard_concept, concept_code
                 FROM concept
                 WHERE invalid_reason IS NULL
                   AND standard_concept = 'S'
@@ -237,21 +237,27 @@ def run_phase(phase: int, batch_size: int, limit: int | None):
             conn.close()
             return
 
-        # Build Qdrant points
+        # Build Qdrant points (Hecate nested concepts format)
         points = []
-        for i, (cid, cname, domain, vocab, cclass, std) in enumerate(concept_data):
+        for i, (cid, cname, domain, vocab, cclass, std, ccode) in enumerate(concept_data):
             point_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, f"omop-concept-{cid}"))
             points.append({
                 "id": point_id,
                 "vector": embeddings[i],
                 "payload": {
-                    "concept_id": cid,
                     "concept_name": cname,
                     "concept_name_lower": cname.lower(),
-                    "domain_id": domain,
-                    "vocabulary_id": vocab,
-                    "concept_class_id": cclass,
-                    "standard_concept": std,
+                    "concepts": [{
+                        "concept_id": cid,
+                        "concept_name": cname,
+                        "domain_id": domain,
+                        "vocabulary_id": vocab,
+                        "concept_class_id": cclass,
+                        "standard_concept": std,
+                        "concept_code": ccode or str(cid),
+                        "invalid_reason": None,
+                        "record_count": 0,
+                    }],
                 },
             })
 
