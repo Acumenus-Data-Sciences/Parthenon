@@ -399,7 +399,7 @@ export default function PublishPage() {
           <div>
             <h1 className="text-xl font-bold text-[#F0EDE8]">Publish</h1>
             <p className="text-sm text-[#F0EDE8]/50">
-              Create publication-ready manuscripts from your analyses
+              Create pre-publication manuscripts from studies and analyses
             </p>
           </div>
         </div>
