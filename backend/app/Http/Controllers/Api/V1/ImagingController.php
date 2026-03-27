@@ -17,6 +17,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
+/**
+ * @group Imaging
+ */
 class ImagingController extends Controller
 {
     public function __construct(

@@ -8,11 +8,12 @@ use App\Http\Requests\PublicationExportRequest;
 use App\Http\Requests\PublicationNarrativeRequest;
 use App\Services\AI\AnalyticsLlmService;
 use App\Services\Publication\PublicationService;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
-#[Group('Publication & Export', weight: 80)]
+/**
+ * @group Publication & Export
+ */
 class PublicationController extends Controller
 {
     public function __construct(

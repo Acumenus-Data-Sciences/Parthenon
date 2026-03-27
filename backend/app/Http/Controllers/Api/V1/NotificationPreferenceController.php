@@ -3,11 +3,12 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-#[Group('Authentication', weight: 10)]
+/**
+ * @group Authentication
+ */
 class NotificationPreferenceController extends Controller
 {
     public function show(Request $request): JsonResponse

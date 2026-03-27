@@ -4,13 +4,14 @@ namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\App\AiProviderSetting;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 
-#[Group('Administration', weight: 220)]
+/**
+ * @group Administration
+ */
 class AiProviderController extends Controller
 {
     public function index(): JsonResponse

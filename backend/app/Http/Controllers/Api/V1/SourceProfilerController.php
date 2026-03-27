@@ -8,13 +8,14 @@ use App\Models\App\Source;
 use App\Models\App\SourceProfile;
 use App\Services\Profiler\ScanComparisonService;
 use App\Services\Profiler\SourceProfilerService;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
-#[Group('Source Profiler', weight: 231)]
+/**
+ * @group Source Profiler
+ */
 class SourceProfilerController extends Controller
 {
     public function __construct(

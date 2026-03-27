@@ -9,11 +9,12 @@ use App\Models\App\AnalysisExecution;
 use App\Models\App\EstimationAnalysis;
 use App\Models\App\Source;
 use App\Support\EstimationResultNormalizer;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-#[Group('Population-Level Estimation', weight: 90)]
+/**
+ * @group Population-Level Estimation
+ */
 class EstimationController extends Controller
 {
     /**

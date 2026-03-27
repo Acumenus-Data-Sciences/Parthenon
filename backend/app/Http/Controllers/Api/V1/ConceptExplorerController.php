@@ -7,6 +7,9 @@ use App\Services\Investigation\ConceptSearchService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * @group Concept Explorer
+ */
 class ConceptExplorerController extends Controller
 {
     public function __construct(

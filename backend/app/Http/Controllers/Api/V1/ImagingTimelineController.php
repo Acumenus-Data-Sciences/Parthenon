@@ -18,6 +18,9 @@ use Illuminate\Support\Facades\Auth;
  *
  * @tags Imaging Outcomes
  */
+/**
+ * @group Imaging
+ */
 class ImagingTimelineController extends Controller
 {
     public function __construct(

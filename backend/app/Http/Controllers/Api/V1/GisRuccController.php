@@ -7,6 +7,9 @@ use App\Services\GIS\RuccAnalysisService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * @group GIS Explorer
+ */
 class GisRuccController extends Controller
 {
     public function __construct(

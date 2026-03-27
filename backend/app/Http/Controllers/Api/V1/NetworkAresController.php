@@ -22,6 +22,9 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * @group Network Analysis
+ */
 class NetworkAresController extends Controller
 {
     public function __construct(

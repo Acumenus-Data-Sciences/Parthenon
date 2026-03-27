@@ -7,6 +7,9 @@ use App\Services\GIS\ComorbidityAnalysisService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * @group GIS Explorer
+ */
 class GisComorbidityController extends Controller
 {
     public function __construct(

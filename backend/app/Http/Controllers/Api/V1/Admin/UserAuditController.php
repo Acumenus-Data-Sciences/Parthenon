@@ -5,11 +5,12 @@ namespace App\Http\Controllers\Api\V1\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\App\UserAuditLog;
 use App\Models\User;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-#[Group('Administration', weight: 225)]
+/**
+ * @group Administration
+ */
 class UserAuditController extends Controller
 {
     public function index(Request $request): JsonResponse

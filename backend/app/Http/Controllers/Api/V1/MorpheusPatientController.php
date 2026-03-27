@@ -5,11 +5,12 @@ namespace App\Http\Controllers\Api\V1;
 use App\Concerns\SourceAware;
 use App\Http\Controllers\Controller;
 use App\Services\Morpheus\MorpheusPatientService;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-#[Group('Morpheus Patient Journey', weight: 250)]
+/**
+ * @group Morpheus Patient Journey
+ */
 class MorpheusPatientController extends Controller
 {
     use SourceAware;

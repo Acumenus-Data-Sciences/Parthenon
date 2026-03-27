@@ -8,6 +8,9 @@ use App\Models\App\StudySynthesis;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * @group Studies
+ */
 class StudySynthesisController extends Controller
 {
     /**

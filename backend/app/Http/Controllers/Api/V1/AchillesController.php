@@ -13,14 +13,15 @@ use App\Services\Achilles\AchillesResultReaderService;
 use App\Services\Achilles\Heel\AchillesHeelRuleRegistry;
 use App\Services\Achilles\Heel\AchillesHeelService;
 use App\Services\Solr\AnalysesSearchService;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
-#[Group('Data Explorer', weight: 160)]
+/**
+ * @group Data Explorer
+ */
 class AchillesController extends Controller
 {
     public function __construct(

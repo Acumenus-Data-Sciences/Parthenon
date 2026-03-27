@@ -9,11 +9,12 @@ use App\Models\App\AnalysisExecution;
 use App\Models\App\PredictionAnalysis;
 use App\Models\App\Source;
 use App\Support\PredictionResultNormalizer;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-#[Group('Patient-Level Prediction', weight: 100)]
+/**
+ * @group Patient-Level Prediction
+ */
 class PredictionController extends Controller
 {
     /**

@@ -8,12 +8,13 @@ use App\Models\App\ConceptSetItem;
 use App\Models\App\ConditionBundle;
 use App\Models\Vocabulary\Concept;
 use App\Services\ConceptSet\ConceptSetResolverService;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-#[Group('Concept Sets', weight: 40)]
+/**
+ * @group Concept Sets
+ */
 class ConceptSetController extends Controller
 {
     public function __construct(

@@ -12,6 +12,9 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
+/**
+ * @group GIS Explorer
+ */
 class GisController extends Controller
 {
     private string $aiServiceUrl;

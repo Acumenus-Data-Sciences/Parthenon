@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\App\PacsConnection;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -12,7 +11,9 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Redis;
 
-#[Group('Administration', weight: 220)]
+/**
+ * @group Administration
+ */
 class SystemHealthController extends Controller
 {
     /** @var array<string, callable(): array<string, mixed>> */

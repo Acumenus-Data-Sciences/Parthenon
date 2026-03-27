@@ -27,6 +27,9 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * @group Data Explorer
+ */
 class AresController extends Controller
 {
     use SourceAware;

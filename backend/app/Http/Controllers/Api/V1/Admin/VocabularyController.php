@@ -7,12 +7,13 @@ use App\Http\Controllers\Controller;
 use App\Jobs\Vocabulary\VocabularyImportJob;
 use App\Models\App\Source;
 use App\Models\App\VocabularyImport;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
-#[Group('Administration', weight: 225)]
+/**
+ * @group Administration
+ */
 class VocabularyController extends Controller
 {
     /**

@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Services\Solr\VectorExplorerSearchService;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -14,7 +13,9 @@ use Illuminate\Support\Facades\Http;
  * All requests are forwarded to the Python AI service which is the sole
  * gateway to ChromaDB (browser never talks to Chroma directly).
  */
-#[Group('Administration', weight: 225)]
+/**
+ * @group Administration
+ */
 class ChromaStudioController extends Controller
 {
     private function aiUrl(): string

@@ -4,13 +4,14 @@ namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Services\Solr\SolrClientWrapper;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 
-#[Group('Admin — Solr', weight: 900)]
+/**
+ * @group Admin — Solr
+ */
 class SolrAdminController extends Controller
 {
     public function __construct(

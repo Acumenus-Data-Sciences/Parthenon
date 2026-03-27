@@ -9,6 +9,9 @@ use App\Services\SqlRenderer\SqlRendererService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * @group Query Library
+ */
 class QueryLibraryController extends Controller
 {
     public function __construct(

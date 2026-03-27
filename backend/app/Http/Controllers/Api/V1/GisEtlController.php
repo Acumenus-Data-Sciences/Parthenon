@@ -8,6 +8,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Process;
 
+/**
+ * @group GIS Explorer
+ */
 class GisEtlController extends Controller
 {
     private const SCRIPTS_DIR = '/home/smudoshi/Github/Parthenon/scripts/gis';

@@ -22,6 +22,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * @group Genomics
+ */
 class GenomicsController extends Controller
 {
     public function __construct(

@@ -11,13 +11,14 @@ use App\Models\App\IncidenceRateAnalysis;
 use App\Models\App\Source;
 use App\Services\Analysis\HadesBridgeService;
 use App\Support\IncidenceRateResultNormalizer;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
-#[Group('Incidence Rates', weight: 70)]
+/**
+ * @group Incidence Rates
+ */
 class IncidenceRateController extends Controller
 {
     /**

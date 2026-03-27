@@ -6,11 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Models\App\AtlasMigration;
 use App\Services\WebApi\AtlasDiscoveryService;
 use App\Services\WebApi\AtlasEntityImporter;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-#[Group('Administration', weight: 225)]
+/**
+ * @group Administration
+ */
 class AtlasMigrationController extends Controller
 {
     public function __construct(

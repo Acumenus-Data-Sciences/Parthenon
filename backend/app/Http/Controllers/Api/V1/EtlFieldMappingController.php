@@ -10,6 +10,9 @@ use App\Services\Etl\EtlSuggestionService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 
+/**
+ * @group Data Ingestion
+ */
 class EtlFieldMappingController extends Controller
 {
     use AuthorizesRequests;

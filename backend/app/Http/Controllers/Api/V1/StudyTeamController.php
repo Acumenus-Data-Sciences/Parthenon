@@ -5,11 +5,12 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Models\App\Study;
 use App\Models\App\StudyTeamMember;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-#[Group('Studies', weight: 150)]
+/**
+ * @group Studies
+ */
 class StudyTeamController extends Controller
 {
     /**

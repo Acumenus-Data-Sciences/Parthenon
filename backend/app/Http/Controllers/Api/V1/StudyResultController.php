@@ -8,6 +8,9 @@ use App\Models\App\StudyResult;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * @group Studies
+ */
 class StudyResultController extends Controller
 {
     /**

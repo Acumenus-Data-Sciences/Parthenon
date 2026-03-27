@@ -8,6 +8,9 @@ use App\Services\Radiogenomics\RadiogenomicsService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * @group Genomics
+ */
 class RadiogenomicsController extends Controller
 {
     public function __construct(

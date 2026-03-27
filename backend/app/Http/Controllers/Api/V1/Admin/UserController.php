@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Mail\TempPasswordMail;
 use App\Models\App\UserAuditLog;
 use App\Models\User;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -14,7 +13,9 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rules\Password;
 use Spatie\Permission\Models\Role;
 
-#[Group('Administration', weight: 220)]
+/**
+ * @group Administration
+ */
 class UserController extends Controller
 {
     public function index(Request $request): JsonResponse

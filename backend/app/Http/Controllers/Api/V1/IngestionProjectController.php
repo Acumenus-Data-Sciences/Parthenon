@@ -15,7 +15,6 @@ use App\Models\App\SourceProfile;
 use App\Services\Ingestion\FileUploadService;
 use App\Services\Ingestion\StagingService;
 use App\Services\Ingestion\StagingSourceService;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -23,7 +22,9 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
-#[Group('Ingestion Projects', weight: 201)]
+/**
+ * @group Ingestion Projects
+ */
 class IngestionProjectController extends Controller
 {
     use AuthorizesRequests;

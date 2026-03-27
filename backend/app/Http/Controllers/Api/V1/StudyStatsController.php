@@ -4,10 +4,11 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\App\Study;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 
-#[Group('Studies', weight: 149)]
+/**
+ * @group Studies
+ */
 class StudyStatsController extends Controller
 {
     /**

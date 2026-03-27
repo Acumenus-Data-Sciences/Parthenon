@@ -12,6 +12,9 @@ use App\Services\Investigation\EvidencePinService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * @group Evidence Synthesis
+ */
 class EvidencePinController extends Controller
 {
     public function __construct(

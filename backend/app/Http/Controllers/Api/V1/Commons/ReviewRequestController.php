@@ -11,6 +11,9 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * @group Commons
+ */
 class ReviewRequestController extends Controller
 {
     use AuthorizesRequests;

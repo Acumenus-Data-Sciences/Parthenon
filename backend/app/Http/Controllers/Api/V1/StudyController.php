@@ -9,11 +9,12 @@ use App\Models\App\StudyAnalysis;
 use App\Services\Analysis\StudyService;
 use App\Services\Analysis\StudyStatusStateMachine;
 use App\Services\Solr\CohortSearchService;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-#[Group('Studies', weight: 150)]
+/**
+ * @group Studies
+ */
 class StudyController extends Controller
 {
     public function __construct(

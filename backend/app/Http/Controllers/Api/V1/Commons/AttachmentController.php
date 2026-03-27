@@ -12,6 +12,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
+/**
+ * @group Commons
+ */
 class AttachmentController extends Controller
 {
     use AuthorizesRequests;

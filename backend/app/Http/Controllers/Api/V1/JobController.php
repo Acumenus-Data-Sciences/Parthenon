@@ -35,6 +35,9 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * @group System
+ */
 class JobController extends Controller
 {
     /**

@@ -4,13 +4,14 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Services\Solr\SolrClientWrapper;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 
-#[Group('System', weight: 230)]
+/**
+ * @group System
+ */
 class HealthController extends Controller
 {
     public function index(SolrClientWrapper $solr): JsonResponse

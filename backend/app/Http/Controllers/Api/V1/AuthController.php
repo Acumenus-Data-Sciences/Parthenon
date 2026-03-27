@@ -7,13 +7,14 @@ use App\Http\Requests\Api\LoginRequest;
 use App\Mail\TempPasswordMail;
 use App\Models\App\UserAuditLog;
 use App\Models\User;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 
-#[Group('Authentication', weight: 10)]
+/**
+ * @group Authentication
+ */
 class AuthController extends Controller
 {
     public function register(Request $request): JsonResponse

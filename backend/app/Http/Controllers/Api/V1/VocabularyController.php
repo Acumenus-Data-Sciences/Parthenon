@@ -11,11 +11,12 @@ use App\Models\Vocabulary\Domain;
 use App\Models\Vocabulary\Vocabulary;
 use App\Services\AiService;
 use App\Services\Solr\VocabularySearchService;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-#[Group('Vocabulary', weight: 30)]
+/**
+ * @group Vocabulary
+ */
 class VocabularyController extends Controller
 {
     public function __construct(

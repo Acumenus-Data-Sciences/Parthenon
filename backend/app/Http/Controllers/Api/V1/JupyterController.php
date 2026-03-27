@@ -4,14 +4,15 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\JupyterAuditLog;
-use Dedoc\Scramble\Attributes\Group;
 use Firebase\JWT\JWT;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
-#[Group('Jupyter', weight: 228)]
+/**
+ * @group Jupyter
+ */
 class JupyterController extends Controller
 {
     private string $hubUrl;

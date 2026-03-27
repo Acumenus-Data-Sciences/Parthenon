@@ -3,10 +3,11 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 
-#[Group('Help & Changelog', weight: 95)]
+/**
+ * @group Help & Changelog
+ */
 class HelpController extends Controller
 {
     /**

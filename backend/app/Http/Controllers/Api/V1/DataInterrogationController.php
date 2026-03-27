@@ -10,6 +10,9 @@ use App\Models\App\Source;
 use App\Services\AI\DataInterrogationService;
 use Illuminate\Http\JsonResponse;
 
+/**
+ * @group Data Explorer
+ */
 class DataInterrogationController extends Controller
 {
     public function __construct(

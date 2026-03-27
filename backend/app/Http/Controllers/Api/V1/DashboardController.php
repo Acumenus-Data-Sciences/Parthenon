@@ -15,11 +15,12 @@ use App\Models\App\IngestionJob;
 use App\Models\App\Source;
 use App\Models\App\VocabularyImport;
 use App\Models\User;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-#[Group('Dashboard', weight: 5)]
+/**
+ * @group Dashboard
+ */
 class DashboardController extends Controller
 {
     /**

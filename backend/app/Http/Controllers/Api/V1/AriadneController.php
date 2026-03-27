@@ -8,14 +8,15 @@ use App\Http\Requests\Api\SaveMappingProjectRequest;
 use App\Http\Requests\Api\SaveMappingsRequest;
 use App\Models\App\MappingProject;
 use App\Models\User;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
-#[Group('Ariadne Concept Mapping', weight: 226)]
+/**
+ * @group Ariadne Concept Mapping
+ */
 class AriadneController extends Controller
 {
     use SourceAware;

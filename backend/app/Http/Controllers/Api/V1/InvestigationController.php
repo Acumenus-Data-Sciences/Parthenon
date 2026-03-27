@@ -12,6 +12,9 @@ use App\Services\Investigation\InvestigationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * @group Studies
+ */
 class InvestigationController extends Controller
 {
     public function __construct(

@@ -6,12 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\PacsConnectionRequest;
 use App\Models\App\PacsConnection;
 use App\Services\Imaging\PacsConnectionService;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-#[Group('Administration', weight: 230)]
+/**
+ * @group Administration
+ */
 class PacsConnectionController extends Controller
 {
     public function __construct(

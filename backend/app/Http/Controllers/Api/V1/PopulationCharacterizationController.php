@@ -6,11 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Models\App\Source;
 use App\Services\PopulationCharacterization\PopulationCharacterizationEngineService;
 use App\Services\PopulationCharacterization\PopulationCharacterizationRegistry;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Throwable;
 
-#[Group('Population Analytics', weight: 170)]
+/**
+ * @group Population Analytics
+ */
 class PopulationCharacterizationController extends Controller
 {
     public function __construct(

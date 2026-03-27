@@ -12,11 +12,12 @@ use App\Models\App\IngestionProject;
 use App\Services\AiService;
 use App\Services\Ingestion\CdmTableRegistry;
 use App\Services\Ingestion\FileUploadService;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-#[Group('Data Ingestion', weight: 200)]
+/**
+ * @group Data Ingestion
+ */
 class IngestionController extends Controller
 {
     public function __construct(

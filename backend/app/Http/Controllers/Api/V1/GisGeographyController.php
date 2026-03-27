@@ -7,6 +7,9 @@ use App\Services\GIS\GeographyService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * @group GIS Explorer
+ */
 class GisGeographyController extends Controller
 {
     public function __construct(

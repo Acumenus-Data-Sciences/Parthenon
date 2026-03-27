@@ -12,6 +12,9 @@ use App\Services\ArachneService;
 use Illuminate\Http\JsonResponse;
 use RuntimeException;
 
+/**
+ * @group Studies
+ */
 class ArachneController extends Controller
 {
     public function __construct(

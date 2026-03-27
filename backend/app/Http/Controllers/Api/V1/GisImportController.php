@@ -14,6 +14,9 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redis;
 
+/**
+ * @group GIS Explorer
+ */
 class GisImportController extends Controller
 {
     public function __construct(

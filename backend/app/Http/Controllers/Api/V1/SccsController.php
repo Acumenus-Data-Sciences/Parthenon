@@ -9,11 +9,12 @@ use App\Models\App\AnalysisExecution;
 use App\Models\App\SccsAnalysis;
 use App\Models\App\Source;
 use App\Support\SccsResultNormalizer;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-#[Group('SCCS', weight: 110)]
+/**
+ * @group SCCS
+ */
 class SccsController extends Controller
 {
     /**

@@ -7,6 +7,9 @@ use App\Services\GIS\SviAnalysisService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * @group GIS Explorer
+ */
 class GisSviController extends Controller
 {
     public function __construct(

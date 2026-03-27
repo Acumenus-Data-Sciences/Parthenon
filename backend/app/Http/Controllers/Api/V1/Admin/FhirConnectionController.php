@@ -14,6 +14,9 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
+/**
+ * @group Administration
+ */
 class FhirConnectionController extends Controller
 {
     public function __construct(

@@ -6,10 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\App\Source;
 use App\Models\Results\ClinicalCoherenceResult;
 use App\Services\ClinicalCoherence\ClinicalCoherenceEngineService;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 
-#[Group('Population Analytics', weight: 170)]
+/**
+ * @group Population Analytics
+ */
 class ClinicalCoherenceController extends Controller
 {
     public function __construct(

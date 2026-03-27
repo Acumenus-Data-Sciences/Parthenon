@@ -3,13 +3,14 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
-#[Group('FHIR to CDM', weight: 232)]
+/**
+ * @group FHIR to CDM
+ */
 class FhirToCdmController extends Controller
 {
     private string $fhirToCdmUrl;

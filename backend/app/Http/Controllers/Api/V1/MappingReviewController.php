@@ -10,12 +10,13 @@ use App\Models\App\IngestionJob;
 use App\Models\App\MappingCache;
 use App\Models\App\MappingReview;
 use App\Services\Solr\MappingSearchService;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
-#[Group('Data Ingestion', weight: 200)]
+/**
+ * @group Data Ingestion
+ */
 class MappingReviewController extends Controller
 {
     public function __construct(

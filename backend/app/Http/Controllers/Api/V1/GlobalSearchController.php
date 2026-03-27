@@ -4,11 +4,12 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Services\Solr\GlobalSearchService;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-#[Group('Search', weight: 5)]
+/**
+ * @group Search
+ */
 class GlobalSearchController extends Controller
 {
     public function __construct(

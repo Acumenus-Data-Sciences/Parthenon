@@ -15,6 +15,9 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
+/**
+ * @group Genomics
+ */
 class GenomicEvidenceController extends Controller
 {
     public function __construct(

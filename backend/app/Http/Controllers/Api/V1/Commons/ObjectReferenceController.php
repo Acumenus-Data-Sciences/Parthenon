@@ -11,6 +11,9 @@ use App\Models\Commons\ObjectReference;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * @group Commons
+ */
 class ObjectReferenceController extends Controller
 {
     /**

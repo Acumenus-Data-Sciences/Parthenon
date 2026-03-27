@@ -7,12 +7,13 @@ use App\Models\App\AbbyConversation;
 use App\Models\App\AbbyMessage;
 use App\Models\App\AbbyUserProfile;
 use App\Services\AI\AbbyAiService;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
-#[Group('AI Assistant (Abby)', weight: 210)]
+/**
+ * @group AI Assistant (Abby)
+ */
 class AbbyAiController extends Controller
 {
     public function __construct(

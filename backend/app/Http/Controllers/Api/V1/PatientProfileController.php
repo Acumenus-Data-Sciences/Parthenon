@@ -6,11 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Models\App\Source;
 use App\Services\Analysis\PatientProfileService;
 use App\Services\Solr\ClinicalSearchService;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-#[Group('Patient Profiles', weight: 190)]
+/**
+ * @group Patient Profiles
+ */
 class PatientProfileController extends Controller
 {
     public function __construct(

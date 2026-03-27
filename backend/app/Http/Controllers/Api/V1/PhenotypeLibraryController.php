@@ -5,11 +5,12 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Models\App\CohortDefinition;
 use App\Models\App\PhenotypeLibraryEntry;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-#[Group('Phenotype Library', weight: 217)]
+/**
+ * @group Phenotype Library
+ */
 class PhenotypeLibraryController extends Controller
 {
     /**

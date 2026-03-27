@@ -10,7 +10,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Knuckles\Scribe\Attributes\Group;
 
-#[Group('AI Assistant (Abby)', weight: 212)]
+/**
+ * @group AI Assistant (Abby)
+ */
 class AbbyProfileController extends Controller
 {
     public function show(Request $request): JsonResponse

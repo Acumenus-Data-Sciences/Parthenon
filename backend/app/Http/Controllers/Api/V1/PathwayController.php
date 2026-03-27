@@ -8,11 +8,12 @@ use App\Jobs\Analysis\RunPathwayJob;
 use App\Models\App\AnalysisExecution;
 use App\Models\App\PathwayAnalysis;
 use App\Models\App\Source;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-#[Group('Treatment Pathways', weight: 80)]
+/**
+ * @group Treatment Pathways
+ */
 class PathwayController extends Controller
 {
     /**

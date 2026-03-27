@@ -15,13 +15,14 @@ use App\Models\App\Source;
 use App\Services\StudyAgent\CommunityWorkbenchSdkDemoService;
 use App\Services\StudyAgent\FinnGenRunService;
 use App\Services\StudyAgent\FinnGenWorkbenchService;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
-#[Group('Study Agent', weight: 216)]
+/**
+ * @group Study Agent
+ */
 class StudyAgentController extends Controller
 {
     private string $aiServiceUrl;

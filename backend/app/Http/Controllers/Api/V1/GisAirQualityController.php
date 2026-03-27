@@ -7,6 +7,9 @@ use App\Services\GIS\AirQualityAnalysisService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * @group GIS Explorer
+ */
 class GisAirQualityController extends Controller
 {
     public function __construct(

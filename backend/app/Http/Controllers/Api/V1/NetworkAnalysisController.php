@@ -6,11 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Models\Results\NetworkAnalysisResult;
 use App\Services\Network\NetworkAnalysisEngineService;
 use App\Services\Network\NetworkAnalysisRegistry;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Throwable;
 
-#[Group('Network Analysis', weight: 180)]
+/**
+ * @group Network Analysis
+ */
 class NetworkAnalysisController extends Controller
 {
     public function __construct(

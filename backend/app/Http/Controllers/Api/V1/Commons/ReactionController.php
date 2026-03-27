@@ -8,6 +8,9 @@ use App\Models\Commons\Message;
 use App\Services\Commons\ReactionService;
 use Illuminate\Http\JsonResponse;
 
+/**
+ * @group Commons
+ */
 class ReactionController extends Controller
 {
     public function __construct(private ReactionService $reactionService) {}

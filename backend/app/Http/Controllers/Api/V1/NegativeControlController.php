@@ -5,11 +5,12 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Models\App\Source;
 use App\Services\Analysis\NegativeControlService;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-#[Group('Negative Controls', weight: 130)]
+/**
+ * @group Negative Controls
+ */
 class NegativeControlController extends Controller
 {
     public function __construct(

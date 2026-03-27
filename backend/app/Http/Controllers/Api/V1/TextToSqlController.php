@@ -8,7 +8,6 @@ use App\Models\App\QueryLibraryEntry;
 use App\Models\User;
 use App\Services\QueryLibrary\QueryLibrarySearchService;
 use App\Services\Solr\VocabularySearchService;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -17,7 +16,9 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
-#[Group('Text-to-SQL', weight: 227)]
+/**
+ * @group Text-to-SQL
+ */
 class TextToSqlController extends Controller
 {
     use SourceAware;

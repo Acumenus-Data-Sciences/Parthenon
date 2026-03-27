@@ -4,10 +4,11 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Concerns\SourceAware;
 use App\Http\Controllers\Controller;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 
-#[Group('Morpheus Datasets', weight: 240)]
+/**
+ * @group Morpheus Datasets
+ */
 class MorpheusDatasetController extends Controller
 {
     use SourceAware;

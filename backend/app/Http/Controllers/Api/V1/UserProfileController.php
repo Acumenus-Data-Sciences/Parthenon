@@ -6,13 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateProfileRequest;
 use App\Http\Requests\UploadAvatarRequest;
 use App\Models\User;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Interfaces\ImageManagerInterface;
 
-#[Group('User Profile', weight: 11)]
+/**
+ * @group User Profile
+ */
 class UserProfileController extends Controller
 {
     public function __construct(

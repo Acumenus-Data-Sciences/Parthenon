@@ -5,11 +5,12 @@ namespace App\Http\Controllers\Api\V1\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\App\WebApiRegistry;
 use App\Services\WebApi\WebApiImporterService;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-#[Group('Administration', weight: 220)]
+/**
+ * @group Administration
+ */
 class WebApiRegistryController extends Controller
 {
     public function __construct(

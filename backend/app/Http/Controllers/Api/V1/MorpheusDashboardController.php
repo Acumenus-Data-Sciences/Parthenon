@@ -5,11 +5,12 @@ namespace App\Http\Controllers\Api\V1;
 use App\Concerns\SourceAware;
 use App\Http\Controllers\Controller;
 use App\Services\Morpheus\MorpheusDashboardService;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-#[Group('Morpheus Dashboard', weight: 245)]
+/**
+ * @group Morpheus Dashboard
+ */
 class MorpheusDashboardController extends Controller
 {
     use SourceAware;

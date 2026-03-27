@@ -15,12 +15,13 @@ use App\Services\Cohort\CohortGenerationService;
 use App\Services\Cohort\CohortSqlCompiler;
 use App\Services\Cohort\Schema\CohortExpressionSchema;
 use App\Services\Solr\CohortSearchService;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
-#[Group('Cohort Definitions', weight: 50)]
+/**
+ * @group Cohort Definitions
+ */
 class CohortDefinitionController extends Controller
 {
     public function __construct(

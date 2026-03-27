@@ -3,13 +3,14 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
-#[Group('Circe Cohort Compiler', weight: 215)]
+/**
+ * @group Circe Cohort Compiler
+ */
 class CirceController extends Controller
 {
     private string $aiServiceUrl;

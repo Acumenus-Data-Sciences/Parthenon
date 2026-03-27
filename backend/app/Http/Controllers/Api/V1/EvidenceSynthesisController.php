@@ -8,11 +8,12 @@ use App\Jobs\Analysis\RunEvidenceSynthesisJob;
 use App\Models\App\AnalysisExecution;
 use App\Models\App\EvidenceSynthesisAnalysis;
 use App\Support\EvidenceSynthesisResultNormalizer;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-#[Group('Evidence Synthesis', weight: 120)]
+/**
+ * @group Evidence Synthesis
+ */
 class EvidenceSynthesisController extends Controller
 {
     /**

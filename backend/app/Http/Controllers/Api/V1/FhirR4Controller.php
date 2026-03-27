@@ -15,6 +15,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
+/**
+ * @group FHIR to CDM
+ */
 class FhirR4Controller extends Controller
 {
     public function __construct(

@@ -12,6 +12,9 @@ use App\Models\App\PredictionAnalysis;
 use App\Models\App\SccsAnalysis;
 use Illuminate\Http\JsonResponse;
 
+/**
+ * @group Analyses
+ */
 class AnalysisStatsController extends Controller
 {
     public function __invoke(): JsonResponse

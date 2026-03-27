@@ -7,10 +7,11 @@ use App\Models\App\Source;
 use App\Models\Results\PopulationRiskScoreResult;
 use App\Services\PopulationRisk\PopulationRiskScoreEngineService;
 use App\Services\PopulationRisk\PopulationRiskScoreRegistry;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 
-#[Group('Population Analytics', weight: 170)]
+/**
+ * @group Population Analytics
+ */
 class PopulationRiskScoreController extends Controller
 {
     public function __construct(

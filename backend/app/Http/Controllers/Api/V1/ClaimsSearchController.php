@@ -4,11 +4,12 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Services\Solr\ClaimsSearchService;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-#[Group('Claims', weight: 12)]
+/**
+ * @group Claims
+ */
 class ClaimsSearchController extends Controller
 {
     public function __construct(

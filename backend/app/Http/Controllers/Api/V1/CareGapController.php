@@ -10,11 +10,12 @@ use App\Models\App\ConditionBundle;
 use App\Models\App\QualityMeasure;
 use App\Models\App\Source;
 use App\Services\Analysis\CareGapService;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-#[Group('Care Bundles & Gaps', weight: 140)]
+/**
+ * @group Care Bundles & Gaps
+ */
 class CareGapController extends Controller
 {
     public function __construct(

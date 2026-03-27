@@ -8,11 +8,12 @@ use App\Models\App\Source;
 use App\Models\User;
 use App\Services\Database\DynamicConnectionFactory;
 use App\Services\WebApi\WebApiImporterService;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-#[Group('Data Sources', weight: 20)]
+/**
+ * @group Data Sources
+ */
 class SourceController extends Controller
 {
     /** Dialects that are proxied through the R service — no PHP PDO connection needed. */

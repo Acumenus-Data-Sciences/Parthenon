@@ -7,6 +7,9 @@ use App\Models\Commons\Notification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * @group Commons
+ */
 class NotificationController extends Controller
 {
     public function index(Request $request): JsonResponse

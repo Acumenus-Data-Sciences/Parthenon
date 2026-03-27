@@ -7,6 +7,9 @@ use App\Services\GIS\HospitalAccessService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * @group GIS Explorer
+ */
 class GisHospitalController extends Controller
 {
     public function __construct(

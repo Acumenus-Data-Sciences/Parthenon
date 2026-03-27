@@ -20,6 +20,9 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Str;
 
+/**
+ * @group Data Ingestion
+ */
 class EtlProjectController extends Controller
 {
     use AuthorizesRequests;

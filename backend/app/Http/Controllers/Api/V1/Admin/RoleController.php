@@ -3,13 +3,14 @@
 namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Controller;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
-#[Group('Administration', weight: 220)]
+/**
+ * @group Administration
+ */
 class RoleController extends Controller
 {
     /** Protected built-in roles that cannot be deleted. */

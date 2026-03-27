@@ -11,6 +11,9 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
+/**
+ * @group Studies
+ */
 class InvestigationExportController extends Controller
 {
     public function __construct(

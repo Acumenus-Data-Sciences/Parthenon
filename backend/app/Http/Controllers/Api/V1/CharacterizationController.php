@@ -12,13 +12,14 @@ use App\Models\App\Source;
 use App\Services\Analysis\CharacterizationService;
 use App\Services\Analysis\HadesBridgeService;
 use App\Support\CharacterizationResultNormalizer;
-use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
-#[Group('Characterization', weight: 60)]
+/**
+ * @group Characterization
+ */
 class CharacterizationController extends Controller
 {
     public function __construct(
