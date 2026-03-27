@@ -2,10 +2,10 @@
 
 namespace App\Services\Imaging;
 
+use App\Concerns\SourceAware;
 use App\Models\App\ImagingMeasurement;
 use App\Models\App\ImagingStudy;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 
 /**
  * Builds longitudinal patient imaging timelines with treatment context.
@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\DB;
  */
 class ImagingTimelineService
 {
+    use SourceAware;
+
     /**
      * Build a patient timeline: imaging studies + drug exposures + measurements.
      *
@@ -103,7 +105,7 @@ class ImagingTimelineService
      */
     public function getPersonDemographics(int $personId): array
     {
-        $row = DB::connection('omop')
+        $row = $this->cdm()
             ->table('person as p')
             ->leftJoin('concept as gc', 'gc.concept_id', '=', 'p.gender_concept_id')
             ->leftJoin('concept as rc', 'rc.concept_id', '=', 'p.race_concept_id')
@@ -143,7 +145,7 @@ class ImagingTimelineService
      */
     public function getDrugExposures(int $personId, string $windowStart, string $windowEnd): array
     {
-        $rows = DB::connection('omop')
+        $rows = $this->cdm()
             ->table('drug_exposure as de')
             ->join('concept as dc', 'dc.concept_id', '=', 'de.drug_concept_id')
             ->leftJoin('concept_ancestor as ca', function ($join) {
@@ -247,7 +249,7 @@ class ImagingTimelineService
 
         $sourceValues = $unlinked->values()->unique()->all();
 
-        $matches = DB::connection('omop')
+        $matches = $this->cdm()
             ->table('person')
             ->whereIn('person_source_value', $sourceValues)
             ->pluck('person_id', 'person_source_value');
@@ -294,7 +296,7 @@ class ImagingTimelineService
 
         // Get CDM patients with the specified condition (randomized for variety)
         // Use subquery to avoid PostgreSQL "SELECT DISTINCT + ORDER BY RANDOM()" conflict
-        $subquery = DB::connection('omop')
+        $subquery = $this->cdm()
             ->table('condition_occurrence as co')
             ->join('concept as c', 'c.concept_id', '=', 'co.condition_concept_id')
             ->join('person as p', 'p.person_id', '=', 'co.person_id')
@@ -302,7 +304,7 @@ class ImagingTimelineService
             ->select('p.person_id')
             ->distinct();
 
-        $candidates = DB::connection('omop')
+        $candidates = $this->cdm()
             ->query()
             ->fromSub($subquery, 'candidates')
             ->orderByRaw('RANDOM()')

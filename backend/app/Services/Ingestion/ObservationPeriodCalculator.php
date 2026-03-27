@@ -2,11 +2,13 @@
 
 namespace App\Services\Ingestion;
 
-use Illuminate\Support\Facades\DB;
+use App\Concerns\SourceAware;
 use Illuminate\Support\Facades\Log;
 
 class ObservationPeriodCalculator
 {
+    use SourceAware;
+
     /**
      * Event tables and their date columns to scan for observation period boundaries.
      *
@@ -36,7 +38,7 @@ class ObservationPeriodCalculator
      */
     public function calculate(): int
     {
-        $cdm = DB::connection('omop');
+        $cdm = $this->cdm();
 
         // Build a UNION query to get min/max dates across all event tables per person
         $unionParts = [];

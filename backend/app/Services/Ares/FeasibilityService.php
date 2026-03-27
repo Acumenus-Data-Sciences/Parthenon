@@ -2,6 +2,7 @@
 
 namespace App\Services\Ares;
 
+use App\Concerns\SourceAware;
 use App\Enums\DaimonType;
 use App\Models\App\FeasibilityTemplate;
 use App\Models\App\Source;
@@ -9,11 +10,12 @@ use App\Models\Results\AchillesResult;
 use App\Models\User;
 use App\Services\Database\DynamicConnectionFactory;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class FeasibilityService
 {
+    use SourceAware;
+
     /**
      * @var array<string, int>
      */
@@ -228,7 +230,7 @@ class FeasibilityService
             if (! empty($source->db_host)) {
                 $connection = $this->connectionFactory->connectionForSchema($source, $schema);
             } else {
-                DB::connection('results')->statement(
+                $this->results()->statement(
                     "SET search_path TO \"{$schema}\", public"
                 );
             }

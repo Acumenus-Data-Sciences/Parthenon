@@ -2,16 +2,18 @@
 
 namespace App\Services\Ares;
 
+use App\Concerns\SourceAware;
 use App\Enums\DaimonType;
 use App\Models\App\Source;
 use App\Models\Results\AchillesResult;
 use App\Services\Database\DynamicConnectionFactory;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class CoverageService
 {
+    use SourceAware;
+
     /**
      * Standard CDM domains and their Achilles count analysis IDs.
      *
@@ -174,7 +176,7 @@ class CoverageService
             if (! empty($source->db_host)) {
                 $connection = $this->connectionFactory->connectionForSchema($source, $schema);
             } else {
-                DB::connection('results')->statement(
+                $this->results()->statement(
                     "SET search_path TO \"{$schema}\", public"
                 );
             }
@@ -248,7 +250,7 @@ class CoverageService
             if (! empty($source->db_host)) {
                 $connection = $this->connectionFactory->connectionForSchema($source, $schema);
             } else {
-                DB::connection('results')->statement(
+                $this->results()->statement(
                     "SET search_path TO \"{$schema}\", public"
                 );
             }

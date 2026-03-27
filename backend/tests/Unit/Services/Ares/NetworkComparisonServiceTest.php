@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Context\SourceContext;
 use App\Models\App\Source;
 use App\Services\Ares\NetworkComparisonService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -9,6 +10,15 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
+    $source = Source::factory()->create(['source_connection' => 'omop']);
+    $ctx = new SourceContext(
+        source: $source,
+        cdmSchema: 'omop',
+        resultsSchema: 'results',
+        vocabSchema: 'omop',
+    );
+    app()->instance(SourceContext::class, $ctx);
+
     $this->service = app(NetworkComparisonService::class);
 });
 

@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace App\Services\Fhir\Export;
 
+use App\Concerns\SourceAware;
 use Illuminate\Database\Query\Builder;
-use Illuminate\Support\Facades\DB;
 
 class OmopToFhirService
 {
+    use SourceAware;
+
     /** FHIR resource type → CDM table mapping. */
     private const RESOURCE_TABLE_MAP = [
         'Patient' => 'person',
@@ -48,7 +50,7 @@ class OmopToFhirService
         $offset = (int) ($params['_offset'] ?? 0);
         $count = min($count, 100); // Cap at 100
 
-        $query = DB::connection('omop')->table("{$this->cdmSchema}.{$table}");
+        $query = $this->cdm()->table("{$this->cdmSchema}.{$table}");
 
         // Apply resource-specific filters
         $this->applyFilters($query, $resourceType, $params);
@@ -80,7 +82,7 @@ class OmopToFhirService
         }
 
         $pkColumn = $this->getPrimaryKey($table);
-        $row = DB::connection('omop')
+        $row = $this->cdm()
             ->table("{$this->cdmSchema}.{$table}")
             ->where($pkColumn, $id)
             ->first();
@@ -119,7 +121,7 @@ class OmopToFhirService
      */
     private function buildPatient(object $person): array
     {
-        $death = DB::connection('omop')
+        $death = $this->cdm()
             ->table("{$this->cdmSchema}.death")
             ->where('person_id', $person->person_id)
             ->first();

@@ -9,6 +9,7 @@ use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Redis;
 
 #[Group('Administration', weight: 220)]
@@ -258,18 +259,37 @@ class SystemHealthController extends Controller
 
     private function checkQueue(): array
     {
-        try {
-            $pending = DB::table('jobs')->count();
-            $failed = DB::table('failed_jobs')->count();
+        $queues = ['default', 'ingestion', 'achilles', 'analysis', 'r-analysis', 'gis', 'genomics'];
 
-            $status = $failed > 0 ? 'degraded' : 'healthy';
+        try {
+            // Get actual pending jobs from Redis via Queue facade
+            $pending = 0;
+            foreach ($queues as $queue) {
+                $pending += Queue::size($queue);
+            }
+
+            // Count recent failed jobs (last 24 hours) — not all-time accumulation
+            $recentFailed = DB::table('failed_jobs')
+                ->where('failed_at', '>=', now()->subDay())
+                ->count();
+
+            $totalFailed = DB::table('failed_jobs')->count();
+
+            $status = $recentFailed > 0 ? 'degraded' : 'healthy';
+            $failedLabel = $recentFailed > 0
+                ? "{$recentFailed} in last 24h ({$totalFailed} total)"
+                : ($totalFailed > 0 ? "0 recent ({$totalFailed} historic)" : '0');
 
             return [
                 'name' => 'Job Queue',
                 'key' => 'queue',
                 'status' => $status,
-                'message' => "Pending: {$pending}, Failed: {$failed}",
-                'details' => ['pending' => $pending, 'failed' => $failed],
+                'message' => "Pending: {$pending}, Failed: {$failedLabel}",
+                'details' => [
+                    'pending' => $pending,
+                    'failed' => $recentFailed,
+                    'failed_total' => $totalFailed,
+                ],
             ];
         } catch (\Throwable $e) {
             return [
@@ -818,17 +838,27 @@ class SystemHealthController extends Controller
      */
     private function getQueueMetrics(): array
     {
+        $queues = ['default', 'ingestion', 'achilles', 'analysis', 'r-analysis', 'gis', 'genomics'];
+
         try {
-            $pending = DB::table('jobs')->count();
-            $failed = DB::table('failed_jobs')->count();
-            $recentCompleted = DB::table('jobs')
-                ->where('created_at', '>=', now()->subHour())
+            $perQueue = [];
+            $totalPending = 0;
+            foreach ($queues as $queue) {
+                $size = Queue::size($queue);
+                $perQueue[$queue] = $size;
+                $totalPending += $size;
+            }
+
+            $recentFailed = DB::table('failed_jobs')
+                ->where('failed_at', '>=', now()->subDay())
                 ->count();
+            $totalFailed = DB::table('failed_jobs')->count();
 
             return [
-                'pending' => $pending,
-                'failed' => $failed,
-                'recent_1h' => $recentCompleted,
+                'pending' => $totalPending,
+                'pending_per_queue' => $perQueue,
+                'failed_recent_24h' => $recentFailed,
+                'failed_total' => $totalFailed,
                 'driver' => config('queue.default'),
             ];
         } catch (\Throwable) {

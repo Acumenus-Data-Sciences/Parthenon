@@ -2,20 +2,20 @@
 
 namespace App\Jobs\Vocabulary;
 
+use App\Concerns\SourceAware;
 use App\Models\App\VocabularyImport;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use ZipArchive;
 
 class VocabularyImportJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, SourceAware;
 
     /**
      * Allow up to 6 hours — large Athena zips take substantial time to load.
@@ -218,7 +218,7 @@ class VocabularyImportJob implements ShouldQueue
         $startTime = microtime(true);
 
         /** @var \PDO $pdo */
-        $pdo = DB::connection('omop')->getPdo();
+        $pdo = $this->vocab()->getPdo();
 
         // Apply target schema
         $pdo->exec("SET search_path TO {$schema}, public");
@@ -260,7 +260,7 @@ class VocabularyImportJob implements ShouldQueue
         unlink($tempFile);
 
         /** @var object{cnt: string} $result */
-        $result = DB::connection('omop')->selectOne("SELECT count(*) as cnt FROM {$schema}.{$table}");
+        $result = $this->vocab()->selectOne("SELECT count(*) as cnt FROM {$schema}.{$table}");
         $count = (int) $result->cnt;
 
         $elapsed = round(microtime(true) - $startTime, 1);
@@ -278,7 +278,7 @@ class VocabularyImportJob implements ShouldQueue
 
         foreach ($reverseOrder as $table) {
             try {
-                DB::connection('omop')->statement("TRUNCATE TABLE {$schema}.{$table} CASCADE");
+                $this->vocab()->statement("TRUNCATE TABLE {$schema}.{$table} CASCADE");
                 $import->appendLog("  Truncated {$table}");
             } catch (\Throwable $e) {
                 $import->appendLog("  Skipped truncate on {$table} ({$e->getMessage()})");
@@ -302,7 +302,7 @@ class VocabularyImportJob implements ShouldQueue
 
         foreach ($btreeIndexes as [$tableName, $indexName, $column]) {
             try {
-                DB::connection('omop')->statement(
+                $this->vocab()->statement(
                     "CREATE INDEX IF NOT EXISTS {$indexName} ON {$tableName} ({$column})"
                 );
                 $import->appendLog("  Index: {$indexName}");
@@ -313,7 +313,7 @@ class VocabularyImportJob implements ShouldQueue
 
         // Trigram GIN index for fuzzy concept name search
         try {
-            DB::connection('omop')->statement(
+            $this->vocab()->statement(
                 "CREATE INDEX IF NOT EXISTS idx_{$schema}_concept_name_trgm ON {$schema}.concept USING gin (concept_name gin_trgm_ops)"
             );
             $import->appendLog('  GIN trigram index on concept.concept_name');
@@ -326,7 +326,7 @@ class VocabularyImportJob implements ShouldQueue
     {
         foreach (array_keys($this->tableConfig) as $table) {
             try {
-                DB::connection('omop')->statement("ANALYZE {$schema}.{$table}");
+                $this->vocab()->statement("ANALYZE {$schema}.{$table}");
             } catch (\Throwable $e) {
                 $import->appendLog("  ANALYZE {$table} skipped: {$e->getMessage()}");
             }

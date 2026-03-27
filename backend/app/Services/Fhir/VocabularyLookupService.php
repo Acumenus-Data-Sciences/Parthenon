@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Fhir;
 
-use Illuminate\Support\Facades\DB;
+use App\Concerns\SourceAware;
 
 /**
  * Resolves FHIR coding arrays to OMOP concept_ids using the vocabulary tables.
@@ -18,6 +18,8 @@ use Illuminate\Support\Facades\DB;
  */
 class VocabularyLookupService
 {
+    use SourceAware;
+
     /**
      * FHIR code system URI → OHDSI vocabulary_id.
      */
@@ -188,7 +190,7 @@ class VocabularyLookupService
             return $this->conceptCache[$cacheKey];
         }
 
-        $row = DB::connection('omop')
+        $row = $this->vocab()
             ->table("{$this->vocabSchema}.concept")
             ->where('vocabulary_id', $vocabId)
             ->where('concept_code', $code)
@@ -218,7 +220,7 @@ class VocabularyLookupService
             return $this->mapsToCache[$cacheKey];
         }
 
-        $row = DB::connection('omop')
+        $row = $this->vocab()
             ->table("{$this->vocabSchema}.concept_relationship as cr")
             ->join("{$this->vocabSchema}.concept as c", 'c.concept_id', '=', 'cr.concept_id_2')
             ->where('cr.concept_id_1', $sourceConceptId)

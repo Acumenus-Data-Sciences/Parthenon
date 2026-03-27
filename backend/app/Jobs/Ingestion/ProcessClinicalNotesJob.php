@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Jobs\Ingestion;
 
+use App\Concerns\SourceAware;
 use App\Models\App\IngestionJob;
 use App\Services\Ingestion\ClinicalNlpService;
 use Illuminate\Bus\Queueable;
@@ -11,12 +12,11 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class ProcessClinicalNotesJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, SourceAware;
 
     public int $timeout = 1800;
 
@@ -34,7 +34,7 @@ class ProcessClinicalNotesJob implements ShouldQueue
 
         try {
             // Get note records from CDM that need NLP processing
-            $notes = DB::connection('omop')
+            $notes = $this->cdm()
                 ->table('omop.note')
                 ->whereNull('note_nlp_processed')
                 ->where('note_text', '!=', '')
@@ -62,7 +62,7 @@ class ProcessClinicalNotesJob implements ShouldQueue
 
                     foreach ($nlpResult['entities'] as $entity) {
                         // Insert into note_nlp table
-                        DB::connection('omop')->table('omop.note_nlp')->insert([
+                        $this->cdm()->table('omop.note_nlp')->insert([
                             'note_id' => $note->note_id,
                             'section_concept_id' => 0,
                             'snippet' => $entity['context'] ?? substr($note->note_text, max(0, $entity['start'] - 50), 200),
