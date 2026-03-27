@@ -33,6 +33,7 @@ class PublicationController extends Controller
         /** @var array<string, mixed> $context */
         $context = $validated['context'];
 
+        $context = $this->summarizeContext($context);
         $systemPrompt = $this->buildSystemPrompt($sectionType);
         $userPrompt = $this->buildUserPrompt($sectionType, $context);
 
@@ -132,5 +133,156 @@ class PublicationController extends Controller
             'caption' => "Write a figure caption based on this context:\n\n{$contextJson}",
             default => "Write a narrative summary of the following research context:\n\n{$contextJson}",
         };
+    }
+
+    /**
+     * Summarize large context data to fit within LLM token limits.
+     *
+     * Raw result_json from characterizations can be 300KB+ (thousands of feature rows).
+     * This method extracts the most meaningful summary while keeping the context under ~8K tokens.
+     *
+     * @param  array<string, mixed>  $context
+     * @return array<string, mixed>
+     */
+    private function summarizeContext(array $context): array
+    {
+        // Summarize resultJson if it's large
+        if (isset($context['resultJson']) && is_array($context['resultJson'])) {
+            $context['resultJson'] = $this->summarizeResultJson($context['resultJson']);
+        }
+
+        // Summarize each item in groupedResults
+        if (isset($context['groupedResults']) && is_array($context['groupedResults'])) {
+            $context['groupedResults'] = array_map(function ($item) {
+                if (is_array($item)) {
+                    // Items from "all results" context (introduction/methods/discussion)
+                    if (isset($item['resultJson']) && is_array($item['resultJson'])) {
+                        $item['resultJson'] = $this->summarizeResultJson($item['resultJson']);
+                    }
+                    // Direct result objects (from grouped results sections)
+                    if (isset($item['results']) || isset($item['outcomes'])) {
+                        $item = $this->summarizeResultJson($item);
+                    }
+                }
+
+                return $item;
+            }, $context['groupedResults']);
+        }
+
+        return $context;
+    }
+
+    /**
+     * Summarize a single result_json blob.
+     *
+     * @param  array<string, mixed>  $result
+     * @return array<string, mixed>
+     */
+    private function summarizeResultJson(array $result): array
+    {
+        $jsonSize = strlen(json_encode($result));
+
+        // If under 8KB, keep as-is
+        if ($jsonSize < 8192) {
+            return $result;
+        }
+
+        $summary = ['_summarized' => true, '_original_size_bytes' => $jsonSize];
+
+        // ── Characterization results ────────────────────────────────────
+        // Structure: results[].{cohort_id, cohort_name, person_count, features.{drugs[], conditions[], ...}}
+        // + smd_X_vs_Y[] top-level SMD pair arrays
+        if (isset($result['results']) && is_array($result['results'])) {
+            $cohorts = [];
+            foreach ($result['results'] as $r) {
+                if (! is_array($r)) {
+                    continue;
+                }
+
+                $cohortSummary = [
+                    'cohort_id' => $r['cohort_id'] ?? null,
+                    'cohort_name' => $r['cohort_name'] ?? null,
+                    'person_count' => $r['person_count'] ?? 0,
+                ];
+
+                // Summarize features: keep top 10 per category by count
+                if (isset($r['features']) && is_array($r['features'])) {
+                    $featureSummary = [];
+                    foreach ($r['features'] as $category => $features) {
+                        if (! is_array($features)) {
+                            continue;
+                        }
+                        // Sort by count desc, take top 5
+                        usort($features, fn ($a, $b) => ($b['count'] ?? 0) <=> ($a['count'] ?? 0));
+                        $featureSummary[$category] = array_map(
+                            fn ($f) => [
+                                'name' => $f['concept_name'] ?? $f['feature_name'] ?? 'unknown',
+                                'count' => $f['count'] ?? $f['person_count'] ?? 0,
+                                'percent' => $f['percent'] ?? $f['percent_value'] ?? null,
+                            ],
+                            array_slice($features, 0, 5),
+                        );
+                    }
+                    $cohortSummary['top_features'] = $featureSummary;
+                }
+
+                // Extract strata for IR/estimation results
+                if (isset($r['strata']) && is_array($r['strata'])) {
+                    $cohortSummary['strata'] = array_map(
+                        fn ($s) => is_array($s) ? array_intersect_key($s, array_flip([
+                            'stratum_name', 'stratum_value', 'person_years',
+                            'incidence_rate', 'event_count', 'person_count',
+                        ])) : $s,
+                        array_slice($r['strata'], 0, 20),
+                    );
+                }
+
+                $cohorts[] = $cohortSummary;
+            }
+            $summary['cohorts'] = $cohorts;
+
+            // Extract SMD pairs (top-level keys like smd_166_vs_165)
+            $smdPairs = [];
+            foreach ($result as $key => $value) {
+                if (str_starts_with($key, 'smd_') && is_array($value)) {
+                    // Sort by abs SMD, take top 20
+                    usort($value, fn ($a, $b) => abs($b['smd'] ?? 0) <=> abs($a['smd'] ?? 0));
+                    $smdPairs[$key] = array_map(
+                        fn ($p) => [
+                            'feature' => $p['feature_name'] ?? $p['concept_name'] ?? 'unknown',
+                            'smd' => round((float) ($p['smd'] ?? 0), 3),
+                            'category' => $p['category'] ?? null,
+                        ],
+                        array_slice($value, 0, 20),
+                    );
+                }
+            }
+            if (! empty($smdPairs)) {
+                $summary['smd_pairs'] = $smdPairs;
+            }
+        }
+
+        // ── Preserve structural keys ────────────────────────────────────
+        foreach (['targetCohorts', 'comparatorCohorts', 'targetCohortId', 'comparatorCohortId', 'analysisName'] as $key) {
+            if (isset($result[$key])) {
+                $summary[$key] = $result[$key];
+            }
+        }
+
+        // ── Outcomes (IR/estimation) — keep but trim rates ──────────────
+        if (isset($result['outcomes']) && is_array($result['outcomes'])) {
+            $summary['outcomes'] = array_map(function ($outcome) {
+                if (! is_array($outcome)) {
+                    return $outcome;
+                }
+                if (isset($outcome['rates']) && is_array($outcome['rates'])) {
+                    $outcome['rates'] = array_slice($outcome['rates'], 0, 20);
+                }
+
+                return $outcome;
+            }, $result['outcomes']);
+        }
+
+        return $summary;
     }
 }
