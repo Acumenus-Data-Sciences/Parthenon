@@ -366,9 +366,17 @@ export default function AiProvidersPage() {
         </div>
       ) : (
         <div className="space-y-3">
-          {(providers ?? []).map((p) => (
-            <ProviderCard key={p.provider_type} provider={p} />
-          ))}
+          {(providers ?? [])
+            .slice()
+            .sort((a, b) => {
+              // Ollama (local) first, then alphabetical
+              if (a.provider_type === "ollama") return -1;
+              if (b.provider_type === "ollama") return 1;
+              return a.provider_type.localeCompare(b.provider_type);
+            })
+            .map((p) => (
+              <ProviderCard key={p.provider_type} provider={p} />
+            ))}
         </div>
       )}
     </div>
