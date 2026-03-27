@@ -91,6 +91,7 @@ export default function ExportPanel({
     const exportSections: ExportRequest["sections"] = includedSections.map(
       (section) => ({
         type: section.type,
+        title: section.title,
         content: typeof section.content === "string" ? section.content : (section.content ? JSON.stringify(section.content) : undefined),
         included: section.included,
         svg:
@@ -98,6 +99,9 @@ export default function ExportPanel({
           (section.type === "diagram" ? getSvgFromDom(section.id) : undefined),
         caption: section.caption,
         diagram_type: section.diagramType,
+        table_data: section.tableIncluded !== false && section.tableData
+          ? section.tableData
+          : undefined,
       }),
     );
 

@@ -55,11 +55,18 @@ export interface ExportRequest {
   authors: string[];
   sections: Array<{
     type: string;
+    title?: string;
     content?: string;
     included: boolean;
     svg?: string;
     caption?: string;
     diagram_type?: string;
+    table_data?: {
+      caption: string;
+      headers: string[];
+      rows: Array<Record<string, string | number>>;
+      footnotes?: string[];
+    };
   }>;
 }
 

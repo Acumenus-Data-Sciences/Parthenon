@@ -6,6 +6,7 @@ use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\SimpleType\Jc;
+use PhpOffice\PhpWord\SimpleType\TblWidth;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class DocxExporter
@@ -25,16 +26,14 @@ class DocxExporter
 
         // Title page
         $titleSection = $phpWord->addSection([
-            'marginTop' => 1440,    // 1 inch = 1440 twips
+            'marginTop' => 1440,
             'marginBottom' => 1440,
             'marginLeft' => 1440,
             'marginRight' => 1440,
         ]);
 
-        // Add vertical spacing before title
         $titleSection->addTextBreak(6);
 
-        // Title
         $titleSection->addText(
             (string) ($document['title'] ?? 'Untitled'),
             ['bold' => true, 'size' => 16, 'name' => 'Times New Roman'],
@@ -43,7 +42,6 @@ class DocxExporter
 
         $titleSection->addTextBreak(1);
 
-        // Authors
         /** @var list<string> $authors */
         $authors = $document['authors'] ?? [];
         if ($authors !== []) {
@@ -56,7 +54,6 @@ class DocxExporter
 
         $titleSection->addTextBreak(1);
 
-        // Generation date
         $titleSection->addText(
             'Generated: '.date('F j, Y'),
             ['size' => 10, 'name' => 'Times New Roman', 'color' => '666666'],
@@ -74,13 +71,14 @@ class DocxExporter
                 'marginRight' => 1440,
             ]);
 
+            $tableNum = 0;
             foreach ($sections as $section) {
                 $type = (string) ($section['type'] ?? '');
 
                 if ($type === 'diagram') {
                     $this->addDiagram($contentSection, $section);
                 } else {
-                    $this->addTextSection($contentSection, $section);
+                    $this->addTextSection($contentSection, $section, $tableNum);
                 }
             }
         }
@@ -116,45 +114,54 @@ class DocxExporter
     }
 
     /**
-     * Add a text-based section (methods, results, discussion).
+     * Add a text-based section (methods, results, discussion) with optional table.
      *
-     * @param  Section  $section
+     * @param  Section  $wordSection
      * @param  array<string, mixed>  $data
      */
-    private function addTextSection($section, array $data): void
+    private function addTextSection($wordSection, array $data, int &$tableNum): void
     {
-        $type = (string) ($data['type'] ?? '');
         $content = (string) ($data['content'] ?? '');
 
-        // Heading
-        $heading = match ($type) {
-            'methods' => 'Methods',
-            'results' => 'Results',
-            'discussion' => 'Discussion',
-            'title' => 'Title',
-            default => ucfirst($type),
-        };
+        // Use the section's own title if provided, otherwise fall back to type
+        $heading = (string) ($data['title'] ?? '');
+        if ($heading === '') {
+            $type = (string) ($data['type'] ?? '');
+            $heading = match ($type) {
+                'methods' => 'Methods',
+                'results' => 'Results',
+                'discussion' => 'Discussion',
+                default => ucfirst($type),
+            };
+        }
 
-        $section->addText(
+        $wordSection->addText(
             $heading,
             ['bold' => true, 'size' => 14, 'name' => 'Times New Roman'],
         );
 
-        $section->addTextBreak(1);
+        $wordSection->addTextBreak(1);
 
-        // Paragraphs (split by double newline)
+        // Table (if present)
+        /** @var array<string, mixed>|null $tableData */
+        $tableData = $data['table_data'] ?? null;
+        if ($tableData !== null) {
+            $this->addTable($wordSection, $tableData, $tableNum);
+        }
+
+        // Paragraphs
         if ($content !== '') {
             $paragraphs = preg_split('/\n\n+/', $content);
             if ($paragraphs !== false) {
                 foreach ($paragraphs as $paragraph) {
                     $paragraph = trim($paragraph);
                     if ($paragraph !== '') {
-                        $section->addText(
+                        $wordSection->addText(
                             $paragraph,
                             ['size' => 12, 'name' => 'Times New Roman'],
                             ['alignment' => Jc::BOTH],
                         );
-                        $section->addTextBreak(1);
+                        $wordSection->addTextBreak(1);
                     }
                 }
             }
@@ -162,18 +169,97 @@ class DocxExporter
     }
 
     /**
+     * Add a publication-style table.
+     *
+     * @param  Section  $wordSection
+     * @param  array<string, mixed>  $tableData
+     */
+    private function addTable($wordSection, array $tableData, int &$tableNum): void
+    {
+        /** @var list<string> $headers */
+        $headers = $tableData['headers'] ?? [];
+        /** @var list<array<string, mixed>> $rows */
+        $rows = $tableData['rows'] ?? [];
+
+        if ($headers === [] || $rows === []) {
+            return;
+        }
+
+        $tableNum++;
+        $caption = (string) ($tableData['caption'] ?? '');
+
+        // Table caption
+        $wordSection->addText(
+            "Table {$tableNum}. {$caption}",
+            ['bold' => true, 'size' => 10, 'name' => 'Times New Roman'],
+        );
+
+        // Create table
+        $table = $wordSection->addTable([
+            'borderSize' => 0,
+            'borderColor' => 'FFFFFF',
+            'cellMargin' => 40,
+            'unit' => TblWidth::PERCENT,
+            'width' => 100 * 50,
+        ]);
+
+        // Header row with top/bottom borders
+        $table->addRow();
+        foreach ($headers as $header) {
+            $cell = $table->addCell(null, [
+                'borderTopSize' => 12,
+                'borderTopColor' => '000000',
+                'borderBottomSize' => 6,
+                'borderBottomColor' => '666666',
+            ]);
+            $cell->addText(
+                (string) $header,
+                ['bold' => true, 'size' => 10, 'name' => 'Times New Roman'],
+            );
+        }
+
+        // Data rows
+        foreach ($rows as $idx => $row) {
+            $isLast = $idx === count($rows) - 1;
+            $table->addRow();
+            foreach ($headers as $header) {
+                $value = $row[$header] ?? '—';
+                $cell = $table->addCell(null, [
+                    'borderBottomSize' => $isLast ? 12 : 0,
+                    'borderBottomColor' => $isLast ? '000000' : 'FFFFFF',
+                ]);
+                $cell->addText(
+                    (string) $value,
+                    ['size' => 10, 'name' => 'Times New Roman'],
+                );
+            }
+        }
+
+        // Footnotes
+        /** @var list<string> $footnotes */
+        $footnotes = $tableData['footnotes'] ?? [];
+        foreach ($footnotes as $note) {
+            $wordSection->addText(
+                (string) $note,
+                ['size' => 8, 'name' => 'Times New Roman', 'color' => '666666'],
+            );
+        }
+
+        $wordSection->addTextBreak(1);
+    }
+
+    /**
      * Add a diagram section with optional SVG-to-PNG conversion.
      *
-     * @param  Section  $section
+     * @param  Section  $wordSection
      * @param  array<string, mixed>  $data
      */
-    private function addDiagram($section, array $data): void
+    private function addDiagram($wordSection, array $data): void
     {
         $svg = (string) ($data['svg'] ?? '');
         $caption = (string) ($data['caption'] ?? '');
         $diagramType = (string) ($data['diagram_type'] ?? 'figure');
 
-        // Try to embed SVG as PNG via Imagick
         if ($svg !== '' && extension_loaded('imagick')) {
             try {
                 $tempPng = tempnam(sys_get_temp_dir(), 'pub_png_');
@@ -186,7 +272,7 @@ class DocxExporter
                     $imagick->clear();
                     $imagick->destroy();
 
-                    $section->addImage($tempPng, [
+                    $wordSection->addImage($tempPng, [
                         'width' => 450,
                         'alignment' => Jc::CENTER,
                     ]);
@@ -198,15 +284,14 @@ class DocxExporter
             }
         }
 
-        // Caption
         if ($caption !== '') {
             $figureLabel = ucwords(str_replace('_', ' ', $diagramType));
-            $section->addText(
+            $wordSection->addText(
                 "Figure: {$figureLabel} — {$caption}",
                 ['italic' => true, 'size' => 10, 'name' => 'Times New Roman'],
                 ['alignment' => Jc::CENTER],
             );
-            $section->addTextBreak(1);
+            $wordSection->addTextBreak(1);
         }
     }
 }

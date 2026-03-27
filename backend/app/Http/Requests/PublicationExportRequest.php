@@ -29,6 +29,13 @@ class PublicationExportRequest extends FormRequest
             'sections.*.svg' => 'nullable|string',
             'sections.*.caption' => 'nullable|string',
             'sections.*.diagram_type' => 'nullable|string|in:consort,forest_plot,kaplan_meier,attrition',
+            'sections.*.title' => 'nullable|string|max:500',
+            'sections.*.table_data' => 'nullable|array',
+            'sections.*.table_data.caption' => 'nullable|string',
+            'sections.*.table_data.headers' => 'nullable|array',
+            'sections.*.table_data.headers.*' => 'string',
+            'sections.*.table_data.rows' => 'nullable|array',
+            'sections.*.table_data.footnotes' => 'nullable|array',
         ];
     }
 }

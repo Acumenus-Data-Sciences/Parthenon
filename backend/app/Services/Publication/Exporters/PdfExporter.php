@@ -16,13 +16,11 @@ class PdfExporter
     {
         $html = $this->buildHtml($document);
 
-        // Build filename
         $slug = preg_replace('/[^a-z0-9]+/', '-', strtolower((string) ($document['title'] ?? 'export')));
         $filename = trim((string) $slug, '-');
 
-        // Try DOMPDF if available
         if (class_exists(Dompdf::class)) {
-            $dompdf = new Dompdf;
+            $dompdf = new Dompdf(['isRemoteEnabled' => false]);
             $dompdf->loadHtml($html);
             $dompdf->setPaper('letter', 'portrait');
             $dompdf->render();
@@ -41,7 +39,6 @@ class PdfExporter
             );
         }
 
-        // Fallback: return HTML for browser print
         return new StreamedResponse(
             function () use ($html): void {
                 echo $html;
@@ -71,6 +68,7 @@ class PdfExporter
         $date = date('F j, Y');
 
         $sectionsHtml = '';
+        $tableNum = 0;
         /** @var list<array<string, mixed>> $sections */
         $sections = $document['sections'] ?? [];
         foreach ($sections as $section) {
@@ -87,16 +85,27 @@ class PdfExporter
                     $sectionsHtml .= '<p style="text-align: center; font-style: italic; font-size: 10pt; color: #555;">'.htmlspecialchars($caption, ENT_QUOTES, 'UTF-8').'</p>';
                 }
             } else {
-                $heading = match ($type) {
-                    'methods' => 'Methods',
-                    'results' => 'Results',
-                    'discussion' => 'Discussion',
-                    'title' => 'Title',
-                    default => ucfirst($type),
-                };
+                // Use section title if provided
+                $heading = (string) ($section['title'] ?? '');
+                if ($heading === '') {
+                    $heading = match ($type) {
+                        'methods' => 'Methods',
+                        'results' => 'Results',
+                        'discussion' => 'Discussion',
+                        default => ucfirst($type),
+                    };
+                }
 
                 $sectionsHtml .= '<h2 style="font-size: 14pt; margin-top: 24px; margin-bottom: 8px;">'.htmlspecialchars($heading, ENT_QUOTES, 'UTF-8').'</h2>';
 
+                // Table
+                /** @var array<string, mixed>|null $tableData */
+                $tableData = $section['table_data'] ?? null;
+                if ($tableData !== null) {
+                    $sectionsHtml .= $this->buildTableHtml($tableData, $tableNum);
+                }
+
+                // Text paragraphs
                 if ($content !== '') {
                     $paragraphs = preg_split('/\n\n+/', $content);
                     if ($paragraphs !== false) {
@@ -122,6 +131,39 @@ class PdfExporter
         @media print {
             body { margin: 0; }
         }
+        table.pub-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 10pt;
+            margin: 16px 0;
+        }
+        table.pub-table th {
+            text-align: left;
+            font-weight: bold;
+            padding: 4px 8px;
+            border-top: 2px solid #000;
+            border-bottom: 1px solid #999;
+        }
+        table.pub-table td {
+            padding: 3px 8px;
+        }
+        table.pub-table tr:last-child td {
+            border-bottom: 2px solid #000;
+        }
+        table.pub-table th:not(:first-child),
+        table.pub-table td:not(:first-child) {
+            text-align: right;
+        }
+        .table-caption {
+            font-size: 10pt;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        .table-footnote {
+            font-size: 8pt;
+            color: #666;
+            margin-top: 2px;
+        }
     </style>
 </head>
 <body style="font-family: 'Times New Roman', Times, serif; font-size: 12pt; max-width: 7in; margin: 1in auto; color: #000;">
@@ -132,5 +174,52 @@ class PdfExporter
 </body>
 </html>
 HTML;
+    }
+
+    /**
+     * Build an HTML table from table data.
+     *
+     * @param  array<string, mixed>  $tableData
+     */
+    private function buildTableHtml(array $tableData, int &$tableNum): string
+    {
+        /** @var list<string> $headers */
+        $headers = $tableData['headers'] ?? [];
+        /** @var list<array<string, mixed>> $rows */
+        $rows = $tableData['rows'] ?? [];
+
+        if ($headers === [] || $rows === []) {
+            return '';
+        }
+
+        $tableNum++;
+        $caption = htmlspecialchars((string) ($tableData['caption'] ?? ''), ENT_QUOTES, 'UTF-8');
+
+        $html = "<p class=\"table-caption\">Table {$tableNum}. {$caption}</p>";
+        $html .= '<table class="pub-table"><thead><tr>';
+
+        foreach ($headers as $header) {
+            $html .= '<th>'.htmlspecialchars((string) $header, ENT_QUOTES, 'UTF-8').'</th>';
+        }
+        $html .= '</tr></thead><tbody>';
+
+        foreach ($rows as $row) {
+            $html .= '<tr>';
+            foreach ($headers as $header) {
+                $value = $row[$header] ?? '—';
+                $html .= '<td>'.htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8').'</td>';
+            }
+            $html .= '</tr>';
+        }
+
+        $html .= '</tbody></table>';
+
+        /** @var list<string> $footnotes */
+        $footnotes = $tableData['footnotes'] ?? [];
+        foreach ($footnotes as $note) {
+            $html .= '<p class="table-footnote">'.htmlspecialchars((string) $note, ENT_QUOTES, 'UTF-8').'</p>';
+        }
+
+        return $html;
     }
 }
