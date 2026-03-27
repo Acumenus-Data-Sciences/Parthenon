@@ -1,14 +1,14 @@
 {
   "key": "concept-sets",
   "title": "Concept Sets",
-  "description": "Concept Sets are curated collections of clinical terminology codes used to define clinical events, conditions, medications, and procedures within cohort definitions and analyses. The Vocabulary Browser and Mapping Assistant support precise concept identification and cross-vocabulary alignment.",
+  "description": "Concept Sets are curated collections of clinical vocabulary codes used to define clinical events, conditions, medications, procedures, and measurements within cohort definitions and analyses. The Vocabulary Browser and Mapping Assistant help researchers identify, validate, and organize concepts across standard vocabularies such as SNOMED, RxNorm, and LOINC.",
   "docs_url": "/docs/part2-vocabulary/04-concept-sets",
   "video_url": null,
   "tips": [
-    "Use the Mapping Assistant to identify equivalent concepts across vocabularies such as ICD-10, SNOMED, and RxNorm.",
-    "Include descendant concepts when building concept sets to capture all specificity levels of a clinical entity.",
-    "Periodically review and update concept sets after vocabulary version upgrades to ensure continued accuracy.",
-    "Document the clinical rationale for each included or excluded concept to support peer review and replication.",
-    "Share finalized concept sets via Commons to enable consistent phenotype definitions across your research network."
+    "Use the Vocabulary Browser to explore concept hierarchies and identify both specific and broader concepts relevant to your clinical question.",
+    "Include descendant concepts where appropriate to ensure complete capture of clinical events coded at varying levels of specificity.",
+    "Use the Mapping Assistant to identify source-to-standard concept mappings and verify coverage across your target data sources.",
+    "Review concept set coverage statistics per data source to identify gaps before finalizing cohort definitions.",
+    "Version and annotate concept sets with clinical rationale to support peer review and regulatory documentation."
   ]
 }

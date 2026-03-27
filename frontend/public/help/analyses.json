@@ -1,14 +1,14 @@
 {
   "key": "analyses",
   "title": "Analyses",
-  "description": "The Analyses section enables researchers to design and execute a full spectrum of epidemiological and clinical studies, including characterization, incidence rates, treatment pathways, population-level estimation, patient-level prediction, self-controlled case series, and evidence synthesis. Studies can be packaged and shared across the research community.",
-  "docs_url": "/docs/part4-analyses/14-studies",
+  "description": "The Analyses module provides a comprehensive suite of analytical capabilities including characterization, incidence rate estimation, treatment pathways, population-level estimation, patient-level prediction, and self-controlled case series. Researchers can design, execute, and share study packages, and collaborate through the Community Workbench SDK and Phenotype Library.",
+  "docs_url": "/docs/part4-analyses/09-characterization",
   "video_url": null,
   "tips": [
-    "Start with a Characterization analysis to understand the baseline demographics and clinical profile of your cohort before running comparative studies.",
-    "Use the Study Designer to define study parameters in a structured, reproducible way that can be exported as a study package.",
-    "Leverage Evidence Synthesis to pool results across multiple data sources and increase statistical power.",
-    "Review incidence rate stratifications by age and gender to uncover subgroup patterns that aggregate results may obscure.",
-    "Use the Community Workbench SDK to share and reuse analysis templates with collaborators across your network."
+    "Start with a Characterization analysis to understand baseline demographics and clinical features of your cohort before running comparative studies.",
+    "Use Treatment Pathways to visualize sequences of treatments within a cohort and identify common clinical practice patterns.",
+    "Package your study using Study Packages to ensure reproducibility and facilitate sharing with external collaborators.",
+    "Leverage the Phenotype Library to reuse validated cohort definitions and analysis specifications rather than building from scratch.",
+    "Use Evidence Synthesis to combine results across multiple data sources and strengthen the generalizability of your findings."
   ]
 }

@@ -1,14 +1,14 @@
 {
   "key": "data-sources",
   "title": "Data Sources",
-  "description": "Data Sources manages the configuration and registration of clinical databases connected to the Parthenon platform. Administrators can register CDM-conformant sources, configure connection parameters, and monitor source availability to ensure researchers have reliable access to the data they need.",
+  "description": "The Data Sources module allows administrators and data engineers to register, configure, and monitor the clinical data sources connected to the Parthenon platform. It provides visibility into source database connections, CDM version compatibility, and ingestion job status.",
   "docs_url": "/docs/part5-ingestion/15-uploading-data",
   "video_url": null,
   "tips": [
-    "Verify CDM version compatibility before registering a new data source to prevent downstream analysis errors.",
-    "Use the Source Profiler to generate an inventory of available data domains and record counts after initial source registration.",
-    "Apply descriptive naming conventions to data sources so researchers can clearly identify the population and time period covered.",
-    "Schedule periodic data refresh jobs and monitor them via the Jobs Monitoring panel to keep source data current.",
-    "Restrict data source configuration to authorized administrators and audit changes via the platform Audit Log."
+    "Verify CDM version compatibility when registering a new data source to ensure all analytical modules function correctly against it.",
+    "Use the Source Profiler to assess the structure and content of a newly connected data source before initiating full ingestion.",
+    "Monitor ingestion job status through the Jobs Monitoring panel to detect and resolve pipeline failures promptly.",
+    "Assign appropriate access controls to each data source to restrict visibility to authorized research teams.",
+    "Document the provenance, refresh cadence, and known limitations of each data source to support transparent research reporting."
   ]
 }

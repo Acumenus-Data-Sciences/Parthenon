@@ -1,14 +1,14 @@
 {
   "key": "community-workbench-sdk",
   "title": "Community Workbench SDK",
-  "description": "The Community Workbench SDK provides developers and advanced researchers with programmatic tools to build, extend, and integrate custom analysis modules within the Parthenon platform. It enables creation of reusable study components that can be shared across the research network.",
+  "description": "The Community Workbench SDK enables developers and researchers to build, extend, and integrate custom analytical modules and study components into the Parthenon platform. It provides programmatic access to platform services, study packaging tools, and collaborative development workflows.",
   "docs_url": "/docs/part4-analyses/14f-community-workbench-sdk",
   "video_url": null,
   "tips": [
-    "Review the SDK documentation thoroughly before beginning development to understand the module lifecycle and integration points.",
-    "Package your custom modules with version metadata and dependency declarations to ensure compatibility across platform updates.",
-    "Test SDK modules against a representative sample dataset before deploying to a full federated network.",
-    "Follow the platform coding standards to ensure your contributions pass the community review process.",
-    "Use the SDK's built-in logging hooks to facilitate debugging and audit trail generation for custom modules."
+    "Review the SDK documentation and example modules before beginning development to understand the expected component structure and API conventions.",
+    "Use the Study Packages framework in conjunction with the SDK to ensure custom modules are exportable and reproducible.",
+    "Test custom SDK modules against a development data source before deploying to production environments.",
+    "Follow platform versioning guidelines when publishing SDK extensions to maintain compatibility across Parthenon upgrades.",
+    "Engage with the community through Commons to share SDK modules and incorporate feedback from collaborating institutions."
   ]
 }

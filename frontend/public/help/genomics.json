@@ -1,14 +1,14 @@
 {
   "key": "genomics",
   "title": "Genomics",
-  "description": "The Genomics module integrates genomic data with clinical records to support precision medicine research and molecular tumor board workflows. Researchers can upload and annotate VCF files, explore variant data, and link genomic findings to patient clinical timelines.",
+  "description": "The Genomics module integrates genomic data with clinical records to support precision medicine research. Researchers can upload and annotate VCF files, explore variant data, and leverage the Tumor Board analysis workflow to correlate genomic findings with clinical outcomes.",
   "docs_url": "/docs/part9-genomics/27-genomics-overview",
   "video_url": null,
   "tips": [
-    "Annotate uploaded VCF files against current reference databases to ensure variant classifications reflect the latest clinical evidence.",
-    "Link genomic variants to OMOP clinical records to enable combined genotype-phenotype analyses within your cohorts.",
-    "Use the Tumor Board view to present integrated genomic and clinical findings in a structured format suitable for multidisciplinary review.",
-    "Apply quality filters during VCF upload to exclude low-confidence variant calls before annotation.",
-    "Coordinate with your bioinformatics team to standardize VCF preprocessing steps and ensure consistency across submitted samples."
+    "Use the VCF Upload & Annotation workflow to standardize variant data before linking it to patient clinical records.",
+    "Apply cohort definitions to filter the genomic dataset to patients with relevant clinical phenotypes prior to variant analysis.",
+    "Leverage the Tumor Board module to present integrated genomic and clinical data in multidisciplinary review sessions.",
+    "Ensure genomic data access is governed by appropriate consent and data use agreements before conducting cross-modal analyses.",
+    "Annotate variants with clinical significance classifications to prioritize findings in downstream research and clinical workflows."
   ]
 }

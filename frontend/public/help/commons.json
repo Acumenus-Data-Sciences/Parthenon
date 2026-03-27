@@ -1,14 +1,14 @@
 {
   "key": "commons",
   "title": "Commons",
-  "description": "Commons provides a collaborative workspace where researchers can share cohort definitions, concept sets, analyses, and study packages across institutions and networks. Integration with Abby AI enables intelligent recommendations and discovery of community-contributed research assets.",
+  "description": "Commons provides a collaborative workspace for sharing cohort definitions, concept sets, analysis specifications, and study artifacts across teams and institutions. It integrates with ABBY AI to surface relevant shared resources and streamline cross-organizational research collaboration.",
   "docs_url": "/docs/abby-ai/05-commons-integration",
   "video_url": null,
   "tips": [
-    "Search Commons before building new cohort definitions or concept sets to avoid duplicating work already contributed by the community.",
-    "Tag your shared assets with relevant therapeutic area and data model version metadata to improve discoverability.",
-    "Review the validation status and community ratings of shared cohorts before incorporating them into your own studies.",
-    "Use the Abby AI assistant to get recommendations for related community assets based on your current research context.",
-    "Contribute finalized, peer-reviewed study packages to Commons to increase the reproducibility and visibility of your research."
+    "Search Commons before creating new cohort definitions or concept sets to avoid duplicating work already validated by other teams.",
+    "Tag shared artifacts with relevant therapeutic area and study type metadata to improve discoverability for collaborators.",
+    "Use Commons integration with ABBY AI to receive recommendations on existing shared resources that match your current research context.",
+    "Review the provenance and version history of shared artifacts before incorporating them into a new study.",
+    "Contribute validated study packages back to Commons to support the broader research community."
   ]
 }

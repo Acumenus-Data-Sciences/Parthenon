@@ -1,14 +1,14 @@
 {
   "key": "care-gaps",
   "title": "Care Gaps",
-  "description": "Care Gaps surfaces patients who have not received recommended preventive or chronic disease management interventions. By identifying and acting on these gaps, care teams can improve quality measures, support value-based care programs, and prioritize outreach for at-risk populations.",
+  "description": "The Care Gaps feature identifies patients who are overdue for recommended clinical interventions, screenings, or follow-up care based on defined quality measures. It enables care managers and clinical researchers to prioritize outreach and track measure compliance at the patient and population level.",
   "docs_url": "/docs/part7-patient-profiles/21a-care-gaps",
   "video_url": null,
   "tips": [
-    "Filter care gaps by measure type and date range to focus outreach efforts on the highest-priority quality measures.",
-    "Combine care gap results with patient timeline data to understand the clinical context behind each identified gap.",
-    "Export care gap lists to your care management team for direct patient outreach workflows.",
-    "Re-run care gap analyses after an intervention period to measure the impact of outreach programs.",
-    "Align care gap measure definitions with standard quality frameworks such as HEDIS to ensure regulatory consistency."
+    "Define care gap criteria using well-validated cohort definitions to ensure consistent and accurate patient identification.",
+    "Review care gaps in conjunction with the Patient Timeline to understand the full clinical context before initiating outreach.",
+    "Filter care gap results by care site or provider to support targeted quality improvement programs.",
+    "Export care gap lists in a compliant format for integration with care management or EHR workflows.",
+    "Refresh care gap analyses periodically to reflect newly ingested data and updated patient records."
   ]
 }

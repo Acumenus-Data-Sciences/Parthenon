@@ -1,14 +1,14 @@
 {
   "key": "cohort-definitions",
   "title": "Cohort Definitions",
-  "description": "Cohort Definitions allow researchers to specify inclusion and exclusion criteria using clinical concepts, temporal logic, and demographic filters to identify patient populations of interest. Well-constructed cohorts are the foundation of any reproducible real-world evidence study on the Parthenon platform.",
+  "description": "Cohort Definitions allow researchers to specify inclusion and exclusion criteria using concept sets and logical rules to identify patient populations of interest. Cohorts form the foundational building blocks for analyses, patient profiles, and quality measures across the Parthenon platform.",
   "docs_url": "/docs/part2-vocabulary/04-concept-sets",
   "video_url": null,
   "tips": [
-    "Use concept sets to group related clinical codes and apply them consistently across multiple cohort definitions.",
-    "Add index event criteria before applying inclusion rules to improve query performance on large datasets.",
-    "Version your cohort definitions and document changes so collaborators can track the evolution of your phenotype.",
-    "Validate cohort counts against known prevalence estimates to detect potential misconfiguration early.",
-    "Apply washout periods to ensure patients have sufficient observation time prior to their index event."
+    "Use the Concept Set editor alongside your cohort definition to ensure all relevant clinical codes are captured across vocabularies.",
+    "Apply temporal logic (e.g., index event windows, inclusion criteria lookback periods) carefully to avoid inadvertent bias in cohort selection.",
+    "Validate cohort counts against expected prevalence estimates before using the cohort in downstream analyses.",
+    "Version your cohort definitions and document changes to maintain reproducibility across study iterations.",
+    "Reuse published cohort definitions from the Phenotype Library where available to accelerate study design."
   ]
 }

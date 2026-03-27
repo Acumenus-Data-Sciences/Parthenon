@@ -1,14 +1,14 @@
 {
   "key": "dashboard",
   "title": "Dashboard",
-  "description": "The Dashboard provides a centralized overview of platform activity, research assets, and key metrics. It serves as the entry point for navigating to cohort definitions, analyses, data sources, and collaborative workspaces, giving researchers and administrators an at-a-glance view of their work.",
+  "description": "The Dashboard provides a centralized overview of your active studies, cohorts, recent analyses, and platform notifications. It serves as the primary landing experience for researchers, offering quick access to in-progress work, data source status, and platform announcements.",
   "docs_url": "/docs/part1-getting-started/00-dashboard",
   "video_url": null,
   "tips": [
-    "Bookmark the Dashboard as your starting point to quickly navigate to recently accessed studies and cohorts.",
-    "Monitor the activity feed on the Dashboard to stay informed about updates made by collaborators on shared assets.",
-    "Use Dashboard widgets to track the status of long-running analyses and data ingestion jobs without navigating away.",
-    "Customize your Dashboard layout to surface the metrics and shortcuts most relevant to your research role.",
-    "Check the system notifications panel on the Dashboard for platform maintenance announcements and version updates."
+    "Pin frequently used cohorts, analyses, and concept sets to the Dashboard for faster navigation during active research projects.",
+    "Review platform notifications on the Dashboard regularly to stay informed of data refreshes, job completions, and system updates.",
+    "Use the Dashboard summary cards to monitor the status of long-running analysis jobs without navigating to the Analyses module.",
+    "Customize the Dashboard layout to prioritize the modules and data sources most relevant to your current research portfolio.",
+    "Check the Dashboard after new data ingestions to confirm that updated record counts are reflected in your cohort definitions."
   ]
 }

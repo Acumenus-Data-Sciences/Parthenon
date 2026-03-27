@@ -1,14 +1,14 @@
 {
   "key": "etl",
-  "title": "ETL & Ingestion",
-  "description": "The ETL and Ingestion module supports the transformation and loading of source data into OMOP Common Data Model format. Tools for schema mapping, concept mapping, FHIR ingestion, and ETL execution enable data engineers to build reproducible, auditable data pipelines.",
+  "title": "ETL & Data Ingestion",
+  "description": "The ETL module supports the extraction, transformation, and loading of clinical data into the OMOP Common Data Model. It includes tools for schema mapping, concept mapping, FHIR ingestion, source profiling, and job monitoring to streamline the conversion of raw source data into analysis-ready CDM datasets.",
   "docs_url": "/docs/part5-ingestion/17c-etl-tools",
   "video_url": null,
   "tips": [
-    "Complete schema mapping before concept mapping to ensure source fields are correctly aligned with CDM domain structures.",
-    "Use the Source Profiler to understand source data distributions and inform mapping decisions before building ETL logic.",
-    "Leverage the FHIR ingestion pathway for sources that expose HL7 FHIR APIs to reduce custom ETL development effort.",
-    "Validate concept mapping coverage by reviewing unmapped source codes and resolving high-frequency gaps before production loads.",
-    "Monitor ETL job status and error logs in the Jobs Monitoring panel to quickly detect and remediate pipeline failures."
+    "Complete schema mapping before concept mapping to establish structural alignment between source tables and CDM domains.",
+    "Use the Source Profiler to understand source data distributions and identify edge cases prior to writing transformation logic.",
+    "Leverage FHIR Ingestion workflows where source systems expose FHIR APIs to accelerate onboarding without custom ETL development.",
+    "Validate concept mapping coverage using the Vocabulary Browser to ensure source codes are correctly mapped to standard concepts.",
+    "Monitor ETL jobs through the Jobs Monitoring panel and configure alerts to catch failures before they affect downstream analyses."
   ]
 }

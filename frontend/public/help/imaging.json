@@ -1,14 +1,14 @@
 {
   "key": "imaging",
   "title": "Imaging",
-  "description": "The Imaging module integrates medical imaging data with clinical records, providing access to the OHIF Viewer for DICOM image review and tools for tracking imaging-based treatment response over time. Researchers and clinicians can correlate imaging findings with structured clinical data within patient timelines.",
+  "description": "The Imaging module integrates medical imaging data with clinical records, enabling researchers and clinicians to view DICOM studies through the OHIF Viewer, analyze imaging timelines and treatment response, and correlate imaging findings with structured clinical data for oncology and other imaging-intensive specialties.",
   "docs_url": "/docs/part10-imaging/28-imaging-overview",
   "video_url": null,
   "tips": [
-    "Use the OHIF Viewer to review DICOM studies directly within Parthenon without requiring a separate imaging workstation.",
-    "Link imaging studies to corresponding clinical events in the patient timeline to provide longitudinal context for radiological findings.",
-    "Apply the Timeline Response tool to quantify and visualize tumor burden changes across serial imaging studies.",
-    "Ensure imaging data is de-identified in accordance with DICOM de-identification standards before ingestion into the platform.",
-    "Coordinate with your PACS administrator to configure reliable DICOM routing to the Parthenon imaging repository."
+    "Use the OHIF Viewer to review DICOM studies directly within the platform without exporting data to external viewing systems.",
+    "Leverage the Timeline & Response module to track longitudinal imaging changes and assess treatment response over time.",
+    "Link imaging studies to patient cohort definitions to enable imaging-enriched subgroup analyses.",
+    "Ensure DICOM metadata is consistently structured during ingestion to support reliable indexing and retrieval in the imaging viewer.",
+    "Combine imaging findings with genomic and clinical data to support multidisciplinary tumor board reviews and precision oncology workflows."
   ]
 }

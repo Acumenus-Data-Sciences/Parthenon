@@ -1,14 +1,14 @@
 {
   "key": "gis",
   "title": "GIS & Spatial Analysis",
-  "description": "The GIS module enables researchers to visualize patient populations and clinical outcomes in geographic context. Spatial analysis tools and contextual layers support exploration of social determinants of health, environmental exposures, and geographic variation in care access and outcomes.",
+  "description": "The GIS module provides geospatial analysis capabilities that enable researchers to explore the geographic distribution of clinical events, disease burden, and social determinants of health. The GIS Explorer, contextual layers, and spatial analysis tools support population health research and epidemiological investigations.",
   "docs_url": "/docs/part13-gis/31-gis-explorer",
   "video_url": null,
   "tips": [
-    "Add contextual layers such as census demographics or environmental indices to enrich spatial analysis of clinical outcomes.",
-    "Use spatial clustering analysis to identify geographic regions with elevated disease burden or unmet care needs.",
-    "Ensure patient location data is appropriately de-identified or aggregated before performing and sharing geographic analyses.",
-    "Combine GIS findings with cohort-level data to investigate whether geography modifies treatment outcomes in your study population.",
-    "Export spatial analysis results in standard GIS formats for integration with external mapping and reporting tools."
+    "Overlay contextual layers such as socioeconomic indicators or environmental exposures onto patient distribution maps to investigate social determinants of health.",
+    "Use spatial analysis tools to identify geographic clustering of disease events and generate hypotheses for epidemiological investigation.",
+    "Ensure patient location data is appropriately de-identified or aggregated before visualizing in the GIS Explorer to maintain privacy compliance.",
+    "Combine GIS findings with cohort-level characterization data to enrich geographic analyses with clinical context.",
+    "Export spatial analysis outputs in standard formats for integration with external GIS tools or regulatory submissions."
   ]
 }

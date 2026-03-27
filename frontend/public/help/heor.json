@@ -1,14 +1,14 @@
 {
   "key": "heor",
   "title": "Health Economics & Outcomes Research",
-  "description": "The HEOR module provides specialized tools for health economics and outcomes research, including claims data exploration, cost and utilization analysis, and visualization of contract and value-based care performance metrics. It supports researchers and payers in quantifying the economic impact of clinical interventions.",
+  "description": "The HEOR module provides specialized tools for health economics and outcomes research, including a Claims Explorer for analyzing healthcare utilization and cost data, and visualization tools for contracts and value-based care performance. It supports payers, providers, and life sciences researchers in quantifying the economic burden of disease and treatment value.",
   "docs_url": "/docs/part11-heor/29-heor-overview",
   "video_url": null,
   "tips": [
-    "Use the Claims Explorer to drill into utilization patterns and identify high-cost patient segments within your study population.",
-    "Align cost analysis time windows with clinically meaningful episodes of care to ensure economic findings are interpretable.",
-    "Leverage contract visualization tools to compare actual versus target performance on value-based care arrangements.",
-    "Combine HEOR outputs with clinical outcomes data to build comprehensive cost-effectiveness arguments for interventions.",
-    "Validate claims data completeness using the Data Quality Dashboard before drawing conclusions about utilization trends."
+    "Use the Claims Explorer to analyze healthcare resource utilization patterns within defined cohorts before building cost-effectiveness models.",
+    "Filter claims data by payer type, care setting, and time period to isolate the most relevant cost components for your research question.",
+    "Combine HEOR outputs with population-level estimation results to contextualize economic findings within a comparative effectiveness framework.",
+    "Use the Visualizations & Contracts panel to track performance against value-based care agreements and quality benchmarks.",
+    "Document all cost variable definitions and data source assumptions transparently to support peer review and regulatory submissions."
   ]
 }

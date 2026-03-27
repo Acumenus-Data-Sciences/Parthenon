@@ -1,14 +1,14 @@
 {
   "key": "data-explorer",
   "title": "Data Explorer",
-  "description": "The Data Explorer enables researchers to interactively browse, query, and assess the quality of data within connected sources. The integrated Data Quality Dashboard provides standardized metrics to evaluate completeness, conformance, and plausibility across CDM domains.",
+  "description": "The Data Explorer enables researchers to interactively query, profile, and assess the quality of data within connected sources. It includes a Data Quality Dashboard for reviewing DQD results, allowing teams to understand data completeness, conformance, and plausibility before conducting analyses.",
   "docs_url": "/docs/part6-data-explorer/19-data-quality-dashboard",
   "video_url": null,
   "tips": [
-    "Run a Data Quality assessment on a new data source before building cohorts to identify known gaps or anomalies in the data.",
-    "Filter Data Quality results by domain and check type to focus remediation efforts on the most clinically significant issues.",
-    "Compare Data Quality metrics across time periods to detect upstream ETL regressions after data refreshes.",
-    "Use the Data Explorer to validate that expected clinical events are present for a pilot cohort before scaling your study.",
-    "Document and share Data Quality findings with your data engineering team to drive continuous improvement in source data pipelines."
+    "Run data quality checks on a new data source before building cohort definitions to identify potential gaps in coverage or coding inconsistencies.",
+    "Use the Data Quality Dashboard to compare quality metrics across multiple data sources when selecting populations for network studies.",
+    "Filter data quality results by domain to focus remediation efforts on the clinical areas most relevant to your study.",
+    "Document data quality findings and share them with data stewards to support upstream ETL improvements.",
+    "Revisit Data Quality Dashboard results after each data refresh to track improvements or regressions over time."
   ]
 }

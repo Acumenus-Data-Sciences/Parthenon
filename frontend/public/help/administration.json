@@ -1,14 +1,14 @@
 {
   "key": "administration",
   "title": "Administration",
-  "description": "The Administration section provides system administrators with tools to manage users, roles, permissions, authentication providers, system configuration, and platform health. Use these controls to maintain security, configure integrations, and monitor the operational state of the Parthenon platform.",
+  "description": "The Administration module provides tools for managing users, roles, permissions, authentication providers, system configuration, and platform health. Administrators can configure AI providers, monitor system status, manage vocabulary settings, and review audit logs to maintain governance and compliance across the Parthenon platform.",
   "docs_url": "/docs/part8-administration/22-user-management",
   "video_url": null,
   "tips": [
-    "Assign roles at the group level rather than per user to simplify permission management as your organization grows.",
-    "Review the Audit Log regularly to track data access and configuration changes for compliance purposes.",
-    "Configure authentication providers before onboarding users to ensure seamless single sign-on from day one.",
-    "Use the System Health dashboard to proactively identify performance bottlenecks before they affect researchers.",
-    "Restrict AI provider credentials to administrators to prevent unauthorized usage of external AI services."
+    "Use the Roles & Permissions panel to apply least-privilege access, granting users only the capabilities required for their research role.",
+    "Review the Audit Log regularly to track data access and configuration changes for regulatory compliance.",
+    "Configure Authentication Providers under Administration before onboarding new users to ensure SSO or LDAP integrations are in place.",
+    "Check System Health and the Solr Administration panel after platform upgrades to confirm all services are running correctly.",
+    "Use the WebAPI Registry to register and manage external data source connections centrally."
   ]
 }
