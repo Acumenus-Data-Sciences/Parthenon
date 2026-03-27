@@ -54,15 +54,12 @@ export interface VectorSearchParams {
  * POST /api/v1/ariadne/map
  */
 export async function mapTerms(params: MapTermsParams): Promise<MappingResult[]> {
-  const { data } = await apiClient.post<{ data: MappingResult[] } | MappingResult[]>(
-    "/ariadne/map",
-    params,
-  );
-  // Unwrap Laravel envelope if present
-  if (data && typeof data === "object" && "data" in data && Array.isArray((data as { data: MappingResult[] }).data)) {
-    return (data as { data: MappingResult[] }).data;
-  }
-  return data as MappingResult[];
+  const { data } = await apiClient.post("/ariadne/map", params);
+  // Response may be: { data: { mappings: [...] } } or { mappings: [...] } or [...]
+  const inner = data?.data ?? data;
+  if (Array.isArray(inner)) return inner;
+  if (inner?.mappings && Array.isArray(inner.mappings)) return inner.mappings;
+  return [];
 }
 
 /**
@@ -70,14 +67,11 @@ export async function mapTerms(params: MapTermsParams): Promise<MappingResult[]>
  * POST /api/v1/ariadne/clean-terms
  */
 export async function cleanTerms(terms: string[]): Promise<CleanedTerm[]> {
-  const { data } = await apiClient.post<{ data: CleanedTerm[] } | CleanedTerm[]>(
-    "/ariadne/clean-terms",
-    { terms },
-  );
-  if (data && typeof data === "object" && "data" in data && Array.isArray((data as { data: CleanedTerm[] }).data)) {
-    return (data as { data: CleanedTerm[] }).data;
-  }
-  return data as CleanedTerm[];
+  const { data } = await apiClient.post("/ariadne/clean-terms", { terms });
+  const inner = data?.data ?? data;
+  if (Array.isArray(inner)) return inner;
+  if (inner?.cleaned && Array.isArray(inner.cleaned)) return inner.cleaned;
+  return [];
 }
 
 /**
@@ -85,12 +79,9 @@ export async function cleanTerms(terms: string[]): Promise<CleanedTerm[]> {
  * POST /api/v1/ariadne/vector-search
  */
 export async function vectorSearch(params: VectorSearchParams): Promise<VectorResult[]> {
-  const { data } = await apiClient.post<{ data: VectorResult[] } | VectorResult[]>(
-    "/ariadne/vector-search",
-    params,
-  );
-  if (data && typeof data === "object" && "data" in data && Array.isArray((data as { data: VectorResult[] }).data)) {
-    return (data as { data: VectorResult[] }).data;
-  }
-  return data as VectorResult[];
+  const { data } = await apiClient.post("/ariadne/vector-search", params);
+  const inner = data?.data ?? data;
+  if (Array.isArray(inner)) return inner;
+  if (inner?.results && Array.isArray(inner.results)) return inner.results;
+  return [];
 }
