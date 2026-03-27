@@ -14,52 +14,59 @@ function buildIncidenceRateTable(executions: SelectedExecution[]): TableData {
     const result = exec.resultJson;
     if (!result) continue;
 
-    const outcomes = Array.isArray(result.outcomes)
-      ? (result.outcomes as Array<Record<string, unknown>>)
-      : [result];
+    // Structure: results[].{outcome_cohort_name, persons_with_outcome, person_years, incidence_rate, rate_95_ci_lower/upper}
+    // Only use overall (non-strata) rows from results array
+    const results = Array.isArray(result.results)
+      ? (result.results as Array<Record<string, unknown>>)
+      : [];
 
-    for (const outcome of outcomes) {
-      const rates = Array.isArray(outcome.rates)
-        ? (outcome.rates as Array<Record<string, unknown>>)
-        : [outcome];
+    // Filter to overall results (not strata breakdowns)
+    const overallResults = results.filter(
+      (r) => !r.stratum_name && !r.stratum_value
+    );
 
-      for (const rate of rates) {
-        rows.push({
-          Cohort: (rate.cohort_name as string) ?? exec.analysisName,
-          Outcome: (rate.outcome_name as string) ?? (outcome.outcome_name as string) ?? "—",
-          Events: (rate.event_count as number) ?? (rate.outcomes as number) ?? 0,
-          "Person-Years": typeof rate.person_years === "number"
-            ? Math.round(rate.person_years * 10) / 10
-            : 0,
-          "Rate/1000PY": typeof rate.incidence_rate === "number"
-            ? Math.round(rate.incidence_rate * 100) / 100
-            : 0,
-          "95% CI": typeof rate.ci_95_lower === "number" && typeof rate.ci_95_upper === "number"
-            ? `${(rate.ci_95_lower as number).toFixed(1)}–${(rate.ci_95_upper as number).toFixed(1)}`
-            : "—",
-        });
-      }
-    }
-  }
+    // If no non-strata results, the top-level results ARE the overall results
+    const entries = overallResults.length > 0 ? overallResults : results.slice(0, 5);
 
-  if (rows.length === 0) {
-    for (const exec of executions) {
-      const r = exec.resultJson;
-      if (!r) continue;
+    for (const r of entries) {
+      // Skip strata rows (age/gender breakdowns)
+      if (r.stratum_name && r.stratum_value !== undefined) continue;
+
+      const ir = (r.incidence_rate as number) ?? (r.incidence_rate_per_1000py as number);
+      const events = (r.persons_with_outcome as number) ?? (r.event_count as number) ?? 0;
+      const py = (r.person_years as number) ?? (r.person_years_at_risk as number) ?? 0;
+      const ciLo = r.rate_95_ci_lower as number | undefined;
+      const ciHi = r.rate_95_ci_upper as number | undefined;
+
       rows.push({
         Cohort: exec.analysisName,
-        Outcome: "—",
-        Events: (r.event_count as number) ?? (r.outcomes as number) ?? 0,
-        "Person-Years": typeof r.person_years === "number"
-          ? Math.round(r.person_years * 10) / 10
-          : 0,
-        "Rate/1000PY": typeof r.incidence_rate === "number"
-          ? Math.round(r.incidence_rate * 100) / 100
-          : 0,
-        "95% CI": typeof r.ci_95_lower === "number" && typeof r.ci_95_upper === "number"
-          ? `${(r.ci_95_lower as number).toFixed(1)}–${(r.ci_95_upper as number).toFixed(1)}`
+        Outcome: (r.outcome_cohort_name as string) ?? "—",
+        Events: events,
+        "Person-Years": py > 0 ? Math.round(py * 10) / 10 : 0,
+        "Rate/1000PY": typeof ir === "number" ? Math.round(ir * 100) / 100 : 0,
+        "95% CI": typeof ciLo === "number" && typeof ciHi === "number"
+          ? `${ciLo.toFixed(1)}–${ciHi.toFixed(1)}`
           : "—",
       });
+    }
+
+    // Fallback: try outcomes[].overall structure
+    if (rows.length === 0 && Array.isArray(result.outcomes)) {
+      for (const outcome of result.outcomes as Array<Record<string, unknown>>) {
+        const overall = outcome.overall as Record<string, unknown> | undefined;
+        if (!overall) continue;
+
+        const ir = (overall.incidence_rate_per_1000py as number) ?? (overall.incidence_rate as number);
+        rows.push({
+          Cohort: exec.analysisName,
+          Outcome: (outcome.outcome_cohort_name as string) ?? "—",
+          Events: (overall.persons_with_outcome as number) ?? 0,
+          "Person-Years": typeof overall.person_years_at_risk === "number"
+            ? Math.round(overall.person_years_at_risk as number * 10) / 10 : 0,
+          "Rate/1000PY": typeof ir === "number" ? Math.round(ir * 100) / 100 : 0,
+          "95% CI": "—",
+        });
+      }
     }
   }
 
@@ -187,24 +194,43 @@ function buildCharacterizationTable(executions: SelectedExecution[]): TableData 
     const r = exec.resultJson;
     if (!r) continue;
 
+    // Structure: results[].{cohort_id, cohort_name, person_count, features.demographics[]}
+    const results = Array.isArray(r.results)
+      ? (r.results as Array<Record<string, unknown>>)
+      : [];
+
+    // Fallback: cohorts[] (alternative structure)
     const cohorts = Array.isArray(r.cohorts)
       ? (r.cohorts as Array<Record<string, unknown>>)
       : [];
 
-    for (const c of cohorts) {
+    const entries = results.length > 0 ? results : cohorts;
+
+    for (const c of entries) {
+      const personCount = (c.person_count as number) ?? (c.count as number) ?? 0;
+      if (personCount === 0) continue; // skip empty comparator cohorts
+
+      // Extract demographics from features if available
+      const features = c.features as Record<string, Array<Record<string, unknown>>> | undefined;
+      const demographics = features?.demographics ?? [];
+      const femalePct = demographics.find(
+        (d) => (d.concept_name as string)?.toLowerCase().includes("female")
+      );
+
       rows.push({
-        Cohort: (c.cohort_name as string) ?? exec.analysisName,
-        "N": (c.count as number) ?? 0,
-        "Mean Age": typeof c.mean_age === "number" ? Math.round(c.mean_age * 10) / 10 : "—",
-        "% Female": typeof c.pct_female === "number" ? Math.round(c.pct_female * 10) / 10 : "—",
+        Cohort: (c.cohort_name as string) ?? `Cohort #${c.cohort_id}` ?? exec.analysisName,
+        "N": personCount,
+        "% Female": typeof femalePct?.percent === "number"
+          ? Math.round(femalePct.percent as number * 10) / 10
+          : "—",
       });
     }
 
-    if (cohorts.length === 0) {
+    // Fallback if no structured data
+    if (entries.length === 0) {
       rows.push({
         Cohort: exec.analysisName,
         "N": (r.total_count as number) ?? (r.count as number) ?? "—",
-        "Mean Age": "—",
         "% Female": "—",
       });
     }
@@ -212,7 +238,7 @@ function buildCharacterizationTable(executions: SelectedExecution[]): TableData 
 
   return {
     caption: "Population characteristics",
-    headers: ["Cohort", "N", "Mean Age", "% Female"],
+    headers: ["Cohort", "N", "% Female"],
     rows,
   };
 }
