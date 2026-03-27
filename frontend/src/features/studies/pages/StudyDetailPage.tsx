@@ -25,6 +25,7 @@ import {
   Download,
   Archive,
   FileOutput,
+  Globe2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { StudyDesigner } from "../components/StudyDesigner";
@@ -37,6 +38,7 @@ import { StudyMilestonesTab } from "../components/StudyMilestonesTab";
 import { StudyArtifactsTab } from "../components/StudyArtifactsTab";
 import { StudyActivityTab } from "../components/StudyActivityTab";
 import { StudyResultsTab } from "../components/StudyResultsTab";
+import { FederatedExecutionTab } from "../components/FederatedExecutionTab";
 import {
   useStudy,
   useUpdateStudy,
@@ -87,7 +89,7 @@ const STATUS_LABELS: Record<string, string> = {
   withdrawn: "Withdrawn",
 };
 
-type TabKey = "overview" | "design" | "analyses" | "results" | "progress" | "sites" | "team" | "cohorts" | "milestones" | "artifacts" | "activity";
+type TabKey = "overview" | "design" | "analyses" | "results" | "progress" | "sites" | "team" | "cohorts" | "milestones" | "artifacts" | "activity" | "federated";
 
 const TABS: { key: TabKey; label: string; icon: typeof Settings }[] = [
   { key: "overview", label: "Overview", icon: Settings },
@@ -101,6 +103,7 @@ const TABS: { key: TabKey; label: string; icon: typeof Settings }[] = [
   { key: "milestones", label: "Milestones", icon: Milestone },
   { key: "artifacts", label: "Artifacts", icon: FileText },
   { key: "activity", label: "Activity", icon: Activity },
+  { key: "federated", label: "Federated", icon: Globe2 },
 ];
 
 export default function StudyDetailPage() {
@@ -420,6 +423,7 @@ export default function StudyDetailPage() {
       {activeTab === "milestones" && <StudyMilestonesTab slug={study.slug} />}
       {activeTab === "artifacts" && <StudyArtifactsTab slug={study.slug} />}
       {activeTab === "activity" && <StudyActivityTab slug={study.slug} />}
+      {activeTab === "federated" && <FederatedExecutionTab studySlug={study.slug} />}
     </div>
   );
 }

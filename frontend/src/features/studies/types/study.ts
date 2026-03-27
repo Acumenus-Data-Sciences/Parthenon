@@ -272,3 +272,49 @@ export interface StudySynthesis {
   updated_at: string;
   generated_by_user?: { id: number; name: string; email: string } | null;
 }
+
+// ---------------------------------------------------------------------------
+// Arachne Federated Execution Types
+// ---------------------------------------------------------------------------
+
+export interface ArachneNode {
+  id: number;
+  name: string;
+  description: string | null;
+  status: "ONLINE" | "OFFLINE" | "UNKNOWN";
+  cdm_version: string | null;
+  patient_count: number | null;
+  last_seen_at: string | null;
+}
+
+export interface ArachneSubmission {
+  id: number;
+  node_id: number;
+  node_name: string;
+  status: "PENDING" | "EXECUTING" | "COMPLETED" | "FAILED";
+  submitted_at: string;
+  started_at: string | null;
+  completed_at: string | null;
+  error_message: string | null;
+}
+
+export interface ArachneDistributePayload {
+  study_slug: string;
+  node_ids: number[];
+  analysis_spec?: Record<string, unknown>;
+}
+
+export interface ArachneDistributeResponse {
+  arachne_analysis_id: number;
+  submissions: ArachneSubmission[];
+}
+
+export interface ArachneStatusResponse {
+  executions: Array<{
+    id: number;
+    execution_engine: string;
+    status: string;
+    arachne_analysis_id: number;
+    submissions: ArachneSubmission[];
+  }>;
+}
