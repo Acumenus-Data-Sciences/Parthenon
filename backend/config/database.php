@@ -87,11 +87,11 @@ return [
         // All connections point to the same 'parthenon' database.
         // Schema isolation via search_path:
         //   pgsql     → app,php                      (application tables, Laravel internals)
-        //   omop      → omop,php                     (CDM + vocabulary)
+        //   omop      → omop,vocab,php                (CDM + shared vocabulary)
         //   results   → results,php                  (Achilles/DQD output)
-        //   gis       → gis,omop,php                 (geospatial + CDM lookup)
+        //   gis       → gis,omop,vocab,php           (geospatial + CDM + vocab lookup)
         //   eunomia   → eunomia,php                  (demo dataset)
-        //   inpatient → inpatient,inpatient_ext,omop (Morpheus inpatient CDM + extensions + shared vocab)
+        //   inpatient → inpatient,inpatient_ext,vocab (Morpheus inpatient CDM + extensions + shared vocab)
         // ────────────────────────────────────────────────────────────────────
 
         'pgsql' => [
@@ -110,8 +110,8 @@ return [
         ],
 
         // OMOP CDM + Vocabulary — used by DQD, ingestion, cohort generation,
-        // AbbyAI, and all clinical data services. Replaces the old separate
-        // 'cdm' and 'vocab' connections (both now point here).
+        // AbbyAI, and all clinical data services. Vocabulary tables live in
+        // the shared 'vocab' schema; CDM clinical tables remain in 'omop'.
         'omop' => [
             'driver' => 'pgsql',
             'host' => env('DB_HOST', '127.0.0.1'),
@@ -121,7 +121,7 @@ return [
             'password' => env('DB_PASSWORD', ''),
             'charset' => 'utf8',
             'prefix' => '',
-            'search_path' => 'omop,php',
+            'search_path' => 'omop,vocab,php',
             'sslmode' => 'prefer',
         ],
 
@@ -142,7 +142,7 @@ return [
         ],
 
         // GIS extension tables (geographic_location, external_exposure, etc.)
-        // search_path includes omop for CDM lookups within GIS queries.
+        // search_path includes omop for CDM lookups and vocab for vocabulary.
         'gis' => [
             'driver' => 'pgsql',
             'host' => env('DB_HOST', '127.0.0.1'),
@@ -152,7 +152,7 @@ return [
             'password' => env('DB_PASSWORD', ''),
             'charset' => 'utf8',
             'prefix' => '',
-            'search_path' => 'gis,omop,php',
+            'search_path' => 'gis,omop,vocab,php',
             'sslmode' => 'prefer',
         ],
 
@@ -173,7 +173,7 @@ return [
 
         // Morpheus inpatient CDM — schema-isolated OMOP CDM for inpatient
         // clinical data. Extension tables in inpatient_ext, shared vocabulary
-        // from omop schema (no duplication).
+        // from vocab schema.
         'inpatient' => [
             'driver' => 'pgsql',
             'host' => env('DB_HOST', '127.0.0.1'),
@@ -184,12 +184,12 @@ return [
             'charset' => 'utf8',
             'prefix' => '',
             'prefix_indexes' => true,
-            'search_path' => 'inpatient,inpatient_ext,omop',
+            'search_path' => 'inpatient,inpatient_ext,vocab',
             'sslmode' => 'prefer',
         ],
 
         // Data interrogation — read-only CDM access for Abby AI analytics.
-        // Uses dedicated abby_analyst role with SELECT-only on omop/results
+        // Uses dedicated abby_analyst role with SELECT-only on omop/results/vocab
         // and full access to temp_abby scratch schema.
         'interrogation' => [
             'driver' => 'pgsql',
@@ -200,7 +200,7 @@ return [
             'password' => env('ABBY_ANALYST_PASSWORD', ''),
             'charset' => 'utf8',
             'prefix' => '',
-            'search_path' => 'omop,results,temp_abby',
+            'search_path' => 'omop,vocab,results,temp_abby',
             'sslmode' => 'prefer',
         ],
 

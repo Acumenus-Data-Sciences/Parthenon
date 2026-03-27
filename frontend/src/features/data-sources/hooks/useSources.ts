@@ -15,6 +15,7 @@ import {
   syncWebApiRegistry,
 } from "../api/sourcesApi";
 import { useSourceStore } from "@/stores/sourceStore";
+import { useAuthStore } from "@/stores/authStore";
 
 // ---------------------------------------------------------------------------
 // Source hooks
@@ -70,10 +71,13 @@ export function useDeleteSource() {
 export function useSetDefaultSource() {
   const queryClient = useQueryClient();
   const setDefaultSourceId = useSourceStore((s) => s.setDefaultSourceId);
+  const updateUser = useAuthStore((s) => s.updateUser);
+  const user = useAuthStore((s) => s.user);
   return useMutation({
     mutationFn: (id: number) => setDefaultSource(id),
     onSuccess: (source) => {
       setDefaultSourceId(source.id);
+      if (user) updateUser({ ...user, default_source_id: source.id });
       queryClient.invalidateQueries({ queryKey: ["sources"] });
     },
   });
@@ -82,10 +86,13 @@ export function useSetDefaultSource() {
 export function useClearDefaultSource() {
   const queryClient = useQueryClient();
   const setDefaultSourceId = useSourceStore((s) => s.setDefaultSourceId);
+  const updateUser = useAuthStore((s) => s.updateUser);
+  const user = useAuthStore((s) => s.user);
   return useMutation({
     mutationFn: () => clearDefaultSource(),
     onSuccess: () => {
       setDefaultSourceId(null);
+      if (user) updateUser({ ...user, default_source_id: null });
       queryClient.invalidateQueries({ queryKey: ["sources"] });
     },
   });

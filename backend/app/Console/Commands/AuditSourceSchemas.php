@@ -18,6 +18,7 @@ class AuditSourceSchemas extends Command
 
         foreach (['cdm', 'results'] as $type) {
             $duplicates = SourceDaimon::where('daimon_type', $type)
+                ->whereHas('source')
                 ->with('source:id,source_name')
                 ->get()
                 ->groupBy('table_qualifier')
@@ -25,7 +26,7 @@ class AuditSourceSchemas extends Command
 
             foreach ($duplicates as $schema => $daimons) {
                 $conflicts++;
-                $sources = $daimons->map(fn ($d) => "{$d->source->source_name} (ID {$d->source_id})")->join(', ');
+                $sources = $daimons->map(fn ($d) => ($d->source?->source_name ?? 'Unknown')." (ID {$d->source_id})")->join(', ');
                 $this->error("CONFLICT: {$type} schema '{$schema}' shared by: {$sources}");
             }
         }

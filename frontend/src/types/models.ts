@@ -10,6 +10,7 @@ export interface User {
   bio: string | null;
   must_change_password: boolean;
   onboarding_completed: boolean;
+  default_source_id: number | null;
   last_login_at: string | null;
   last_active_at: string | null;
   is_active: boolean;

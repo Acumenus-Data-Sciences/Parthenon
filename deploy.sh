@@ -298,6 +298,22 @@ if $DO_OPENAPI; then
   fi
 fi
 
+# ── Guard: rebuild docs if build dir is empty ────────────────────────────────
+# The docs/site/build/ directory is gitignored and can get wiped by git
+# worktree operations or clean commands. Detect and rebuild automatically.
+if ! $DO_DOCS && [ -f docs/site/package.json ]; then
+  if [ ! -f docs/site/build/index.html ]; then
+    echo ""
+    echo "── Docs: build dir empty — rebuilding Docusaurus site ──"
+    mkdir -p docs/site/build
+    if (cd docs/site && npx docusaurus build) 2>&1 | sed 's/^/   /'; then
+      ok "Docs rebuilt → docs/site/build"
+    else
+      warn "Docs rebuild failed (non-critical)"
+    fi
+  fi
+fi
+
 # ── Fix file ownership ────────────────────────────────────────────────────────
 # Docker containers may create files as root or www-data (UID 33).
 # Reclaim ownership so git and host tooling work without permission errors.

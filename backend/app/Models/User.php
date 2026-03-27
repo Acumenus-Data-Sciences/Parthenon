@@ -44,6 +44,7 @@ class User extends Authenticatable
         'organization',
         'bio',
         'workbench_mode',
+        'default_source_id',
     ];
 
     /**
@@ -70,6 +71,7 @@ class User extends Authenticatable
             'notification_sms' => 'boolean',
             'notification_preferences' => 'array',
             'workbench_mode' => 'string',
+            'default_source_id' => 'integer',
         ];
     }
 

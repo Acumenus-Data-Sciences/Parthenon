@@ -14,6 +14,7 @@ import {
 import { cn } from "@/lib/utils";
 import { runRCohortDiagnostics } from "../api/cohortApi";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
+import { useSourceStore } from "@/stores/sourceStore";
 import type {
   RDiagnosticsResponse,
   RDiagnosticsResults,
@@ -610,9 +611,11 @@ export function CohortDiagnosticsPanel({
     queryFn: fetchSources,
   });
 
-  // Auto-select first source
+  const userDefaultSourceId = useSourceStore((s) => s.defaultSourceId);
+
+  // Auto-select user's default source
   if (!sourceId && sources && sources.length > 0 && sources[0]) {
-    const def = sources.find((s) => s.is_default) ?? sources[0];
+    const def = (userDefaultSourceId ? sources.find((s) => s.id === userDefaultSourceId) : null) ?? sources[0];
     setSourceId(def.id);
   }
 
@@ -721,7 +724,7 @@ export function CohortDiagnosticsPanel({
                 {sources.map((s) => (
                   <option key={s.id} value={s.id}>
                     {s.source_name}
-                    {s.is_default ? " (default)" : ""}
+                    {s.id === userDefaultSourceId ? " (default)" : ""}
                   </option>
                 ))}
               </select>

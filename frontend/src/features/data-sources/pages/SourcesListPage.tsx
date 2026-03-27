@@ -6,6 +6,7 @@ import { WebApiImportPanel } from "../components/WebApiImportPanel";
 import { SourceAccessControl } from "../components/SourceAccessControl";
 import { HelpButton } from "@/features/help";
 import { AddSourceWizard } from "../components/AddSourceWizard";
+import { useAuthStore } from "@/stores/authStore";
 
 export function SourcesListPage() {
   const { data: sources, isLoading, error } = useSources();
@@ -14,6 +15,8 @@ export function SourcesListPage() {
   const [wizardOpen, setWizardOpen] = useState(false);
   const setDefault = useSetDefaultSource();
   const clearDefault = useClearDefaultSource();
+  const user = useAuthStore((s) => s.user);
+  const userDefaultSourceId = user?.default_source_id ?? null;
 
   const handleToggleDefault = (sourceId: number, currentlyDefault: boolean) => {
     if (currentlyDefault) {
@@ -43,9 +46,9 @@ export function SourcesListPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#F0EDE8]">Data Sources</h1>
+          <h1 className="text-2xl font-bold text-[#F0EDE8]">Clinical Data Models</h1>
           <p className="mt-1 text-sm text-[#8A857D]">
-            Manage CDM database connections and access controls
+            Manage CDM connections and set your default data model
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -114,10 +117,10 @@ export function SourcesListPage() {
                             WebAPI
                           </span>
                         )}
-                        {source.is_default && (
+                        {userDefaultSourceId === source.id && (
                           <span className="inline-flex items-center gap-0.5 rounded-full bg-[#C9A227]/10 px-1.5 py-0.5 text-[9px] font-medium text-[#C9A227]">
                             <Star size={8} className="fill-[#C9A227]" />
-                            Default
+                            My Default
                           </span>
                         )}
                       </div>
@@ -138,14 +141,14 @@ export function SourcesListPage() {
                     </div>
                   </button>
 
-                  {/* Default CDM toggle */}
+                  {/* Per-user default CDM toggle */}
                   <button
                     type="button"
-                    onClick={() => handleToggleDefault(source.id, source.is_default)}
-                    title={source.is_default ? "Remove as default CDM" : "Set as default CDM"}
+                    onClick={() => handleToggleDefault(source.id, userDefaultSourceId === source.id)}
+                    title={userDefaultSourceId === source.id ? "Remove as your default CDM" : "Set as your default CDM"}
                     className={cn(
                       "shrink-0 inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium transition-all border",
-                      source.is_default
+                      userDefaultSourceId === source.id
                         ? "border-[#C9A227]/40 bg-[#C9A227]/10 text-[#C9A227]"
                         : "border-[#232328] text-[#5A5650] hover:text-[#8A857D] hover:border-[#323238] hover:bg-[#1A1A1E]",
                     )}
@@ -154,19 +157,19 @@ export function SourcesListPage() {
                     <div
                       className={cn(
                         "relative w-7 h-4 rounded-full transition-colors",
-                        source.is_default ? "bg-[#C9A227]" : "bg-[#323238]",
+                        userDefaultSourceId === source.id ? "bg-[#C9A227]" : "bg-[#323238]",
                       )}
                     >
                       <div
                         className={cn(
                           "absolute top-0.5 w-3 h-3 rounded-full transition-all",
-                          source.is_default
+                          userDefaultSourceId === source.id
                             ? "left-3.5 bg-[#0E0E11]"
                             : "left-0.5 bg-[#5A5650]",
                         )}
                       />
                     </div>
-                    Default
+                    My Default
                   </button>
                 </div>
 

@@ -70,7 +70,7 @@ const navItems: NavItem[] = [
     label: "Data",
     icon: Database,
     children: [
-      { path: "/data-sources", label: "Data Sources", icon: Database },
+      { path: "/data-sources", label: "Clinical Data Models", icon: Database },
       { path: "/ingestion", label: "Data Ingestion", icon: Upload },
       { path: "/data-explorer", label: "Data Explorer", icon: BarChart3 },
     ],

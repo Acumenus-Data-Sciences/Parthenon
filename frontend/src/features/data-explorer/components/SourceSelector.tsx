@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Database, ChevronDown, Loader2, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
+import { useSourceStore } from "@/stores/sourceStore";
 
 interface SourceSelectorProps {
   value: number | null;
@@ -15,14 +16,16 @@ export function SourceSelector({ value, onChange }: SourceSelectorProps) {
     queryFn: fetchSources,
   });
 
-  // Auto-select default source when no value is set and sources load
+  const defaultSourceId = useSourceStore((s) => s.defaultSourceId);
+
+  // Auto-select user's default source when no value is set and sources load
   useEffect(() => {
     if (value || !sources?.length) return;
-    const defaultSource = sources.find((s) => s.is_default);
-    if (defaultSource) {
-      onChange(defaultSource.id);
-    }
-  }, [value, sources, onChange]);
+    const target = defaultSourceId
+      ? sources.find((s) => s.id === defaultSourceId)
+      : sources[0];
+    if (target) onChange(target.id);
+  }, [value, sources, defaultSourceId, onChange]);
 
   if (isLoading) {
     return (
@@ -38,7 +41,7 @@ export function SourceSelector({ value, onChange }: SourceSelectorProps) {
   return (
     <div className="relative">
       <div className="flex items-center gap-2">
-        {selectedSource?.is_default ? (
+        {selectedSource && selectedSource.id === defaultSourceId ? (
           <Star size={14} className="text-[#C9A227] fill-[#C9A227]" />
         ) : (
           <Database size={14} className="text-[#8A857D]" />
@@ -57,7 +60,7 @@ export function SourceSelector({ value, onChange }: SourceSelectorProps) {
           </option>
           {sources?.map((source) => (
             <option key={source.id} value={source.id}>
-              {source.is_default ? "\u2605 " : ""}{source.source_name}
+              {source.id === defaultSourceId ? "\u2605 " : ""}{source.source_name}
             </option>
           ))}
         </select>

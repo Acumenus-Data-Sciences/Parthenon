@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-03-26)
 Phase: 7-10 parallel (Medications, Conditions, Measurements, Observations)
 Plan: 09-01 completed (growth measurements), phases 7-10 in parallel
 Status: Executing Phases 07-10 in parallel
-Last activity: 2026-03-26 -- Completed 09-01 growth measurement unpivot (34,135 rows)
+Last activity: 2026-03-27 - Completed quick task 1: IRSF schema isolation + vocab load
 
 Progress: [█████████░] 92%
 
@@ -161,6 +161,7 @@ None yet.
 
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
+| 1 | Create irsf/irsf_results schemas, migrate IRSF data, load shared vocab schema | 2026-03-27 | 9649b1c97 | [1-create-irsf-irsf-results-schemas-migrate](./quick/1-create-irsf-irsf-results-schemas-migrate/) |
 | 2 | Add 3 publication templates to the Publish page: Comparative Effectiveness, Incidence Report, and Study Protocol | 2026-03-27 | 572db21a2 | [2-add-3-publication-templates](./quick/2-add-3-publication-templates-to-the-publi/) |
 
 ## Session Continuity

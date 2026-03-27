@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\StoreSourceRequest;
 use App\Models\App\Source;
+use App\Models\User;
 use App\Services\Database\DynamicConnectionFactory;
 use App\Services\WebApi\WebApiImporterService;
 use Dedoc\Scramble\Attributes\Group;
@@ -73,12 +74,13 @@ class SourceController extends Controller
     /**
      * PUT /v1/sources/{source}/set-default
      *
-     * Mark a source as the default CDM. Clears is_default on all other sources.
+     * Set the authenticated user's default CDM source.
      */
-    public function setDefault(Source $source): JsonResponse
+    public function setDefault(Request $request, Source $source): JsonResponse
     {
-        Source::where('is_default', true)->update(['is_default' => false]);
-        $source->update(['is_default' => true]);
+        /** @var User $user */
+        $user = $request->user();
+        $user->update(['default_source_id' => $source->id]);
 
         return response()->json($source->load('daimons'));
     }
@@ -86,11 +88,13 @@ class SourceController extends Controller
     /**
      * DELETE /v1/sources/default
      *
-     * Clear the default CDM source (no source is default).
+     * Clear the authenticated user's default CDM source.
      */
-    public function clearDefault(): JsonResponse
+    public function clearDefault(Request $request): JsonResponse
     {
-        Source::where('is_default', true)->update(['is_default' => false]);
+        /** @var User $user */
+        $user = $request->user();
+        $user->update(['default_source_id' => null]);
 
         return response()->json(null, 204);
     }

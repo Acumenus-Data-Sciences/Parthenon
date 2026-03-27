@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/authStore";
 import { useUiStore } from "@/stores/uiStore";
 import { useAbbyStore } from "@/stores/abbyStore";
-import { LogOut, User, Search, Sparkles, Bell, Settings, ChevronDown, Database, Star } from "lucide-react";
+import { LogOut, User, Search, Sparkles, Bell, Settings, ChevronDown } from "lucide-react";
 import { AboutAbbyModal } from "./AboutAbbyModal";
 import { useSourceStore } from "@/stores/sourceStore";
 import { useQuery } from "@tanstack/react-query";
@@ -81,8 +81,13 @@ function UserDropdown() {
   );
 }
 
-function GlobalSourceSelector() {
-  const { activeSourceId, setActiveSource, setSources, setDefaultSourceId } = useSourceStore();
+/**
+ * Initializes the active source from the user's per-user default.
+ * Resets to the user's default on each fresh page load (session-only override).
+ */
+function useSourceInitializer() {
+  const { user } = useAuthStore();
+  const { setActiveSource, setSources, setDefaultSourceId } = useSourceStore();
   const { data: sources } = useQuery({
     queryKey: ["sources"],
     queryFn: fetchSources,
@@ -90,37 +95,17 @@ function GlobalSourceSelector() {
 
   useEffect(() => {
     if (!sources?.length) return;
-    setSources(sources.map((s: Source) => ({ id: s.id, source_name: s.source_name, is_default: s.is_default })));
-    const defaultSrc = sources.find((s: Source) => s.is_default);
-    if (defaultSrc) setDefaultSourceId(defaultSrc.id);
-    if (!activeSourceId) {
-      setActiveSource(defaultSrc ? defaultSrc.id : sources[0].id);
-    }
-  }, [sources, activeSourceId, setActiveSource, setSources, setDefaultSourceId]);
+    setSources(sources.map((s: Source) => ({ id: s.id, source_name: s.source_name })));
 
-  const selected = sources?.find((s: Source) => s.id === activeSourceId);
+    const userDefaultId = user?.default_source_id ?? null;
+    setDefaultSourceId(userDefaultId);
 
-  return (
-    <div className="flex items-center gap-1.5">
-      {selected?.is_default ? (
-        <Star size={12} className="text-[#C9A227] fill-[#C9A227]" />
-      ) : (
-        <Database size={12} className="text-[#8A857D]" />
-      )}
-      <select
-        value={activeSourceId ?? ""}
-        onChange={(e) => setActiveSource(Number(e.target.value))}
-        className="appearance-none rounded border border-[#232328] bg-[#0E0E11] pl-2 pr-6 py-1 text-xs text-[#C5C0B8] focus:border-[#C9A227] focus:outline-none cursor-pointer min-w-[140px]"
-      >
-        <option value="" disabled>Select source</option>
-        {sources?.map((s: Source) => (
-          <option key={s.id} value={s.id}>
-            {s.is_default ? "\u2605 " : ""}{s.source_name}
-          </option>
-        ))}
-      </select>
-    </div>
-  );
+    // Always reset to user's default on mount; fall back to first source
+    const target = userDefaultId
+      ? sources.find((s: Source) => s.id === userDefaultId)
+      : null;
+    setActiveSource(target ? target.id : sources[0].id);
+  }, [sources, user?.default_source_id, setActiveSource, setSources, setDefaultSourceId]);
 }
 
 export function Header() {
@@ -128,6 +113,8 @@ export function Header() {
   const { setCommandPaletteOpen } = useUiStore();
   const togglePanel = useAbbyStore((s) => s.togglePanel);
   const [aboutAbbyOpen, setAboutAbbyOpen] = useState(false);
+
+  useSourceInitializer();
 
   return (
     <header className="app-topbar">
@@ -149,7 +136,6 @@ export function Header() {
       <div className="topbar-actions">
         {isAuthenticated && user ? (
           <>
-            <GlobalSourceSelector />
             <button
               className="btn btn-ghost btn-sm"
               onClick={() => setAboutAbbyOpen(true)}

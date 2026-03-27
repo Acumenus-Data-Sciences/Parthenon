@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
+import { useSourceStore } from "@/stores/sourceStore";
 import { usePatientProfile, useProfileStats } from "../hooks/useProfiles";
 import { PROFILE_DOMAIN_LIMIT } from "../api/profileApi";
 import { PatientDemographicsCard } from "../components/PatientDemographicsCard";
@@ -147,17 +148,21 @@ export default function PatientProfilePage() {
     queryFn: fetchSources,
   });
 
-  // Auto-select default source when no source is specified
+  const userDefaultSourceId = useSourceStore((s) => s.defaultSourceId);
+
+  // Auto-select user's default source when no source is specified
   useEffect(() => {
     if (sourceId || !sources?.length) return;
-    const defaultSource = sources.find((s) => s.is_default);
-    if (defaultSource) {
-      setSourceId(defaultSource.id);
+    const target = userDefaultSourceId
+      ? sources.find((s) => s.id === userDefaultSourceId)
+      : sources[0];
+    if (target) {
+      setSourceId(target.id);
       if (parsedPersonId) {
-        setSearchParams({ sourceId: String(defaultSource.id) });
+        setSearchParams({ sourceId: String(target.id) });
       }
     }
-  }, [sourceId, sources, parsedPersonId, setSearchParams]);
+  }, [sourceId, sources, userDefaultSourceId, parsedPersonId, setSearchParams]);
 
   const {
     data: profile,
@@ -382,7 +387,7 @@ export default function PatientProfilePage() {
           <div className="relative">
             {(() => {
               const selectedSource = sources?.find((s) => s.id === sourceId);
-              return selectedSource?.is_default ? (
+              return selectedSource && selectedSource.id === userDefaultSourceId ? (
                 <Star
                   size={12}
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-[#C9A227] fill-[#C9A227]"
@@ -406,7 +411,7 @@ export default function PatientProfilePage() {
               <option value="">Select source...</option>
               {sources?.map((src) => (
                 <option key={src.id} value={src.id}>
-                  {src.is_default ? "\u2605 " : ""}{src.source_name}
+                  {src.id === userDefaultSourceId ? "\u2605 " : ""}{src.source_name}
                 </option>
               ))}
             </select>
