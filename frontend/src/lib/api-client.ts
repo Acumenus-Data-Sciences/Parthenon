@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useAuthStore } from "@/stores/authStore";
+import { useSourceStore } from "@/stores/sourceStore";
 
 const apiClient = axios.create({
   baseURL: "/api/v1",
@@ -15,6 +16,12 @@ apiClient.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+
+  const sourceId = useSourceStore.getState().activeSourceId;
+  if (sourceId) {
+    config.headers["X-Source-Id"] = String(sourceId);
+  }
+
   return config;
 });
 
