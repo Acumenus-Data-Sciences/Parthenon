@@ -11,6 +11,7 @@ import DocumentPreview from "../components/DocumentPreview";
 import ExportPanel from "../components/ExportPanel";
 import { useGenerateNarrative } from "../hooks/useNarrativeGeneration";
 import { buildTableFromResults } from "../lib/tableBuilders";
+import { buildDiagramData } from "../lib/diagramBuilders";
 import type {
   ReportSection,
   SelectedExecution,
@@ -204,7 +205,7 @@ function buildManuscriptSections(
       diagramIncluded: config.diagramType !== null,
       diagramType: config.diagramType ?? undefined,
       diagramData: config.diagramType
-        ? (groupExecs[0].resultJson as Record<string, unknown>) ?? undefined
+        ? buildDiagramData(config.diagramType, groupExecs)
         : undefined,
     });
   }
@@ -234,7 +235,7 @@ function buildManuscriptSections(
       diagramIncluded: config.diagramType !== null,
       diagramType: config.diagramType ?? undefined,
       diagramData: config.diagramType
-        ? (groupExecs[0].resultJson as Record<string, unknown>) ?? undefined
+        ? buildDiagramData(config.diagramType, groupExecs)
         : undefined,
     });
   }
