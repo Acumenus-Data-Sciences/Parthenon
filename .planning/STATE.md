@@ -5,7 +5,7 @@ milestone_name: milestone
 status: executing
 stopped_at: Completed 12-03-PLAN.md (Rett plausibility and cohort definitions)
 last_updated: "2026-03-26T19:34:04.868Z"
-last_activity: 2026-03-26 -- Completed 09-01 growth measurement unpivot (34,135 rows)
+last_activity: 2026-03-27 - Completed quick task 2: Add 3 publication templates
 progress:
   total_phases: 12
   completed_phases: 10
@@ -156,8 +156,14 @@ None yet.
 - Research flags Phase 6 (Custom Vocabulary) as needing deeper research during planning for LOINC/HPO coverage of CSS/MBA items and MECP2 mutation taxonomy.
 - Research flags Phase 12 (Validation) Rett-specific heuristic thresholds need domain expert confirmation before treating as hard assertion failures.
 
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 2 | Add 3 publication templates to the Publish page: Comparative Effectiveness, Incidence Report, and Study Protocol | 2026-03-27 | 572db21a2 | [2-add-3-publication-templates](./quick/2-add-3-publication-templates-to-the-publi/) |
+
 ## Session Continuity
 
-Last session: 2026-03-26T19:32:36.993Z
-Stopped at: Completed 12-03-PLAN.md (Rett plausibility and cohort definitions)
+Last session: 2026-03-27T06:22:31.606Z
+Stopped at: Completed quick task 2: Add 3 publication templates
 Resume file: None
