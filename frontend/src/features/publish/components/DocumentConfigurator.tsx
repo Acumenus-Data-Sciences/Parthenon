@@ -25,6 +25,7 @@ interface DocumentConfiguratorProps {
   onSectionsChange: (sections: ReportSection[]) => void;
   onTitleChange: (title: string) => void;
   onAuthorsChange: (authors: string[]) => void;
+  onGenerateNarrative: (section: ReportSection) => void;
   onNext: () => void;
   onBack: () => void;
 }
@@ -36,6 +37,7 @@ export default function DocumentConfigurator({
   onSectionsChange,
   onTitleChange,
   onAuthorsChange,
+  onGenerateNarrative,
   onNext,
   onBack,
 }: DocumentConfiguratorProps) {
@@ -113,14 +115,6 @@ export default function DocumentConfigurator({
       );
     },
     [sections, onSectionsChange]
-  );
-
-  const handleGenerateNarrative = useCallback(
-    (_section: ReportSection) => {
-      // Narrative generation is handled by the parent via useGenerateNarrative
-      // This is a pass-through; the parent wires the mutation
-    },
-    []
   );
 
   const handleAuthorsInput = (value: string) => {
@@ -210,7 +204,7 @@ export default function DocumentConfigurator({
                 onMove={handleMove}
                 onContentChange={handleContentChange}
                 onNarrativeStateChange={handleNarrativeStateChange}
-                onGenerateNarrative={handleGenerateNarrative}
+                onGenerateNarrative={onGenerateNarrative}
                 isGenerating={false}
                 onToggleElement={handleToggleElement}
               />

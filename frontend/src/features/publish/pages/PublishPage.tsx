@@ -170,6 +170,36 @@ function buildManuscriptSections(
     });
   }
 
+  // Catch-all: any analysis types not in typeOrder
+  for (const [analysisType, groupExecs] of groupedByType) {
+    if (typeOrder.includes(analysisType)) continue;
+
+    const config = SECTION_CONFIG[analysisType] ?? {
+      title: analysisType.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
+      diagramType: null,
+    };
+
+    const tableData = buildTableFromResults(analysisType, groupExecs);
+
+    sections.push({
+      id: `results-${analysisType}`,
+      title: config.title,
+      type: "results",
+      analysisType,
+      included: true,
+      content: "",
+      narrativeState: "idle",
+      tableData,
+      tableIncluded: tableData !== undefined,
+      narrativeIncluded: true,
+      diagramIncluded: config.diagramType !== null,
+      diagramType: config.diagramType ?? undefined,
+      diagramData: config.diagramType
+        ? (groupExecs[0].resultJson as Record<string, unknown>) ?? undefined
+        : undefined,
+    });
+  }
+
   // 4. Discussion
   sections.push({
     id: "discussion",
@@ -233,10 +263,17 @@ export default function PublishPage() {
   // ── Narrative generation ────────────────────────────────────────────────
   const handleGenerateNarrative = useCallback(
     (section: ReportSection) => {
-      // Find the matching execution for context
-      const exec = state.selectedExecutions.find(
-        (e) => e.executionId === section.executionId,
-      );
+      // Find matching execution(s) for context — grouped sections use analysisType
+      const exec = section.executionId
+        ? state.selectedExecutions.find((e) => e.executionId === section.executionId)
+        : state.selectedExecutions.find((e) => e.analysisType === section.analysisType);
+
+      // For grouped results sections, collect all result_json for richer context
+      const groupedResults = section.analysisType
+        ? state.selectedExecutions
+            .filter((e) => e.analysisType === section.analysisType && e.resultJson)
+            .map((e) => e.resultJson)
+        : [];
 
       dispatch({
         type: "UPDATE_SECTION",
@@ -259,6 +296,7 @@ export default function PublishPage() {
             analysisType: section.analysisType,
             designJson: exec?.designJson ?? {},
             resultJson: exec?.resultJson ?? {},
+            groupedResults,
           },
         },
         {
@@ -284,9 +322,6 @@ export default function PublishPage() {
     },
     [state.selectedExecutions, narrativeMutation],
   );
-
-  // Keep handleGenerateNarrative in scope for DocumentConfigurator
-  void handleGenerateNarrative;
 
   // ── Navigation helpers ──────────────────────────────────────────────────
   const goToStep = useCallback((step: 1 | 2 | 3 | 4) => {
@@ -371,6 +406,7 @@ export default function PublishPage() {
             onSectionsChange={handleSectionsChange}
             onTitleChange={handleTitleChange}
             onAuthorsChange={handleAuthorsChange}
+            onGenerateNarrative={handleGenerateNarrative}
             onNext={() => goToStep(3)}
             onBack={() => goToStep(1)}
           />

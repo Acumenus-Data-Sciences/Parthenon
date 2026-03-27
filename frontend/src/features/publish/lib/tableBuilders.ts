@@ -34,6 +34,9 @@ function buildIncidenceRateTable(executions: SelectedExecution[]): TableData {
           "Rate/1000PY": typeof rate.incidence_rate === "number"
             ? Math.round(rate.incidence_rate * 100) / 100
             : 0,
+          "95% CI": typeof rate.ci_95_lower === "number" && typeof rate.ci_95_upper === "number"
+            ? `${(rate.ci_95_lower as number).toFixed(1)}–${(rate.ci_95_upper as number).toFixed(1)}`
+            : "—",
         });
       }
     }
@@ -53,13 +56,16 @@ function buildIncidenceRateTable(executions: SelectedExecution[]): TableData {
         "Rate/1000PY": typeof r.incidence_rate === "number"
           ? Math.round(r.incidence_rate * 100) / 100
           : 0,
+        "95% CI": typeof r.ci_95_lower === "number" && typeof r.ci_95_upper === "number"
+          ? `${(r.ci_95_lower as number).toFixed(1)}–${(r.ci_95_upper as number).toFixed(1)}`
+          : "—",
       });
     }
   }
 
   return {
     caption: "Incidence rates by cohort",
-    headers: ["Cohort", "Outcome", "Events", "Person-Years", "Rate/1000PY"],
+    headers: ["Cohort", "Outcome", "Events", "Person-Years", "Rate/1000PY", "95% CI"],
     rows,
   };
 }

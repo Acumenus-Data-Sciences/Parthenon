@@ -5,6 +5,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { MemoryRouter } from "react-router-dom";
 import PublishPage from "../../pages/PublishPage";
 import { StudySelector } from "../StudySelector";
 import { ReportPreview } from "../ReportPreview";
@@ -194,7 +195,9 @@ function createQueryClient() {
 function renderWithProviders(ui: React.ReactElement) {
   const qc = createQueryClient();
   return render(
-    <QueryClientProvider client={qc}>{ui}</QueryClientProvider>,
+    <MemoryRouter>
+      <QueryClientProvider client={qc}>{ui}</QueryClientProvider>
+    </MemoryRouter>,
   );
 }
 
