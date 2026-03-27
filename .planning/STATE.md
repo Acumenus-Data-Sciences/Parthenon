@@ -163,9 +163,10 @@ None yet.
 |---|-------------|------|--------|-----------|
 | 1 | Create irsf/irsf_results schemas, migrate IRSF data, load shared vocab schema | 2026-03-27 | 9649b1c97 | [1-create-irsf-irsf-results-schemas-migrate](./quick/1-create-irsf-irsf-results-schemas-migrate/) |
 | 2 | Add 3 publication templates to the Publish page: Comparative Effectiveness, Incidence Report, and Study Protocol | 2026-03-27 | 572db21a2 | [2-add-3-publication-templates](./quick/2-add-3-publication-templates-to-the-publi/) |
+| 3 | Add save-to-vocabulary, save/load project actions to Mapping Assistant | 2026-03-27 | a657163ee | [3-add-action-arms-to-mapping-assistant-sav](./quick/3-add-action-arms-to-mapping-assistant-sav/) |
 
 ## Session Continuity
 
-Last session: 2026-03-27T06:35:59.962Z
-Stopped at: Completed quick-1 (IRSF schema isolation + vocab load)
+Last session: 2026-03-27T18:30:00.000Z
+Stopped at: Completed quick-3 (Mapping Assistant action arms)
 Resume file: None
