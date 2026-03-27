@@ -4,6 +4,7 @@ build/
 
 # Generated API docs (build artifacts from docusaurus-plugin-openapi-docs)
 docs/api/
+!docs/api/index.mdx
 
 # Mounted OpenAPI spec (Docker build)
 openapi.yaml

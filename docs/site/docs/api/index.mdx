@@ -1,0 +1,52 @@
+---
+title: API Reference
+description: Parthenon REST API — 785 endpoints for clinical data analysis on OMOP CDM v5.4
+sidebar_position: 0
+slug: /api
+---
+
+# Parthenon API Reference
+
+Interactive documentation for the Parthenon REST API — **785 endpoints** powering cohort building, population-level estimation, patient-level prediction, pathway analysis, genomics, medical imaging, and health economics research on the OMOP Common Data Model v5.4.
+
+## Authentication
+
+All endpoints require [Laravel Sanctum](https://laravel.com/docs/sanctum) Bearer token authentication unless marked public.
+
+```bash
+POST /api/v1/auth/login
+Content-Type: application/json
+
+{ "email": "you@example.com", "password": "your-password" }
+```
+
+The response includes a `token` field — pass it as `Authorization: Bearer {token}` on subsequent requests.
+
+## API Groups
+
+| Group | Description |
+|-------|-------------|
+| **Authentication** | Login, registration, password management |
+| **Cohort Definitions** | Build and generate patient cohorts using Circe expressions |
+| **Concept Sets** | Manage OMOP concept sets with vocabulary lookups |
+| **Analyses** | Incidence rates, characterizations, estimations, predictions, pathways |
+| **Data Sources** | Configure CDM/vocabulary/results database connections |
+| **Vocabulary** | Search concepts, browse hierarchies, map codes |
+| **Data Quality** | Achilles characterization and DQD heel checks |
+| **Imaging** | DICOM study management, DICOMweb integration, radiology NLP |
+| **Genomics** | Variant queries, ClinVar annotations, gene-level analysis |
+| **HEOR** | Cost-effectiveness, budget impact, Markov modeling |
+| **Administration** | Users, roles, permissions, system health, AI providers |
+
+## Standards & Conventions
+
+- **Response envelope**: All responses wrap data in `{ "data": ... }` with pagination metadata where applicable
+- **Error format**: `{ "message": "...", "errors": { "field": ["..."] } }` with appropriate HTTP status codes
+- **Pagination**: `?page=N&per_page=N` query parameters, responses include `total`, `current_page`, `last_page`
+- **Rate limiting**: Auth endpoints throttled at 5 requests / 15 minutes per IP
+
+:::tip Try It Out
+Each endpoint page has a **Send API Request** button — enter your Bearer token to test endpoints interactively.
+:::
+
+Browse the API by group using the sidebar, or use the search bar to find specific endpoints.
