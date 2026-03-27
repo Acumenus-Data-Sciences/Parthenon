@@ -126,7 +126,7 @@
 .content-main {
   flex: 1;
   padding: var(--content-padding);
-  width: 80%;
+  width: 90%;
   max-width: var(--content-max-width);
   margin: 0 auto;
 }
