@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v5.4
 milestone_name: milestone
 status: executing
-stopped_at: Completed 12-03-PLAN.md (Rett plausibility and cohort definitions)
-last_updated: "2026-03-26T19:34:04.868Z"
-last_activity: 2026-03-27 - Completed quick task 2: Add 3 publication templates
+stopped_at: Completed quick-1 (IRSF schema isolation + vocab load)
+last_updated: "2026-03-27T06:36:20.989Z"
+last_activity: 2026-03-26 -- Completed 09-01 growth measurement unpivot (34,135 rows)
 progress:
   total_phases: 12
   completed_phases: 10
@@ -145,6 +145,7 @@ Recent decisions affecting current work:
 - [Phase 12]: Temporal checks use year_of_birth comparison for before-birth since OMOP person may only have year
 - [Phase 12]: MECP2 threshold lowered from 85% to 75% — only 77.8% of registry patients have genotype data
 - [Phase 12]: unmapped_concept and deprecated_remapped classified as warnings (not errors) for rejection rate; error rate = 0% for drug_exposure vs 15.3% total
+- [Phase quick-1]: source_to_concept_map is clinical data (moved to irsf schema), not shared vocab; load-vocab.sh reads from irsf schema
 
 ### Pending Todos
 
@@ -164,6 +165,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-27T06:22:31.606Z
-Stopped at: Completed quick task 2: Add 3 publication templates
+Last session: 2026-03-27T06:35:59.962Z
+Stopped at: Completed quick-1 (IRSF schema isolation + vocab load)
 Resume file: None
