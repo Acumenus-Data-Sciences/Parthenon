@@ -482,3 +482,125 @@ article blockquote:has(> strong:first-child) {
 [data-theme="dark"] article blockquote:has(> strong:first-child) {
   color: #C9A227;
 }
+
+/* ── OpenAPI / API Reference ───────────────────────────────────────────── */
+
+/* Method badges */
+[data-theme="dark"] .openapi-method-badge,
+[data-theme="dark"] [class*="api-method-badge"] {
+  font-family: 'IBM Plex Mono', Consolas, monospace;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 4px;
+}
+
+/* Schema / request-response panels */
+[data-theme="dark"] .openapi-tabs__schema-container,
+[data-theme="dark"] .openapi-explorer__container {
+  background: #151518;
+  border: 1px solid #2A2A30;
+  border-radius: 8px;
+}
+
+/* Schema property names */
+[data-theme="dark"] .openapi-schema__property-name {
+  color: #C9A227;
+  font-family: 'IBM Plex Mono', Consolas, monospace;
+}
+
+/* Try It Out button */
+[data-theme="dark"] button[class*="tryItBtn"],
+[data-theme="dark"] .openapi-explorer__btn {
+  background: #9B1B30;
+  color: #F0EDE8;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+[data-theme="dark"] button[class*="tryItBtn"]:hover,
+[data-theme="dark"] .openapi-explorer__btn:hover {
+  background: #B82D42;
+}
+
+/* Response status codes */
+[data-theme="dark"] .openapi-tabs__response-code--success {
+  color: #2DD4BF;
+}
+
+[data-theme="dark"] .openapi-tabs__response-code--error {
+  color: #E85A6B;
+}
+
+/* Authorization header inputs */
+[data-theme="dark"] .openapi-explorer__auth-input {
+  background: #1C1C20;
+  border: 1px solid #2A2A30;
+  color: #C5C0B8;
+  border-radius: 6px;
+}
+
+[data-theme="dark"] .openapi-explorer__auth-input:focus {
+  border-color: #C9A227;
+  box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.15);
+}
+
+/* Tab styling for request/response tabs */
+[data-theme="dark"] .openapi-tabs__tab-item {
+  color: #8A857D;
+}
+
+[data-theme="dark"] .openapi-tabs__tab-item--active {
+  color: #C9A227;
+  border-bottom-color: #C9A227;
+}
+
+/* Markdown content inside API docs */
+[data-theme="dark"] .openapi-markdown__details summary {
+  color: #C9A227;
+  cursor: pointer;
+}
+
+/* Server URL selector */
+[data-theme="dark"] .openapi-explorer__server-url {
+  background: #1C1C20;
+  border: 1px solid #2A2A30;
+  color: #C5C0B8;
+  border-radius: 6px;
+}
+
+/* Send request button — crimson accent */
+[data-theme="dark"] button[class*="sendBtn"],
+[data-theme="dark"] .openapi-explorer__send-btn {
+  background: #9B1B30;
+  color: #F0EDE8;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+[data-theme="dark"] button[class*="sendBtn"]:hover,
+[data-theme="dark"] .openapi-explorer__send-btn:hover {
+  background: #B82D42;
+}
+
+/* Response body code blocks */
+[data-theme="dark"] .openapi-explorer__response-body pre {
+  background: #08080A !important;
+  border: 1px solid #2A2A30;
+  border-radius: 8px;
+}
+
+/* Operation summary heading */
+[data-theme="dark"] .openapi-explorer__heading h2,
+[data-theme="dark"] [class*="apiItemTitle"] {
+  font-family: 'Crimson Pro', Georgia, serif;
+  color: #F0EDE8;
+}
+
+/* Required badge on parameters */
+[data-theme="dark"] .openapi-schema__required {
+  color: #E85A6B;
+  font-size: 0.7rem;
+  font-weight: 600;
+}

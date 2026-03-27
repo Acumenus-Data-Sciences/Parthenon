@@ -271,6 +271,15 @@ fi
 # ── Documentation build ───────────────────────────────────────────────────────
 if $DO_DOCS; then
   echo ""
+  echo "── Docs: regenerating OpenAPI spec before build ──"
+  if is_running php; then
+    if docker compose exec php php artisan scribe:generate --no-interaction 2>/dev/null; then
+      ok "OpenAPI spec regenerated"
+    else
+      warn "OpenAPI spec generation failed (using existing spec)"
+    fi
+  fi
+  echo ""
   echo "── Docs: building Docusaurus site ──"
   if [ -f docs/site/package.json ]; then
     mkdir -p docs/site/build

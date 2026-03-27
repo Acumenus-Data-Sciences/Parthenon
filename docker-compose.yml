@@ -688,15 +688,19 @@ services:
     container_name: parthenon-docs-build
     image: node:22-alpine
     working_dir: /docs
+    environment:
+      - DOCKER_BUILD=1
+      - NODE_OPTIONS=--max-old-space-size=4096
     volumes:
       - ./docs/site:/docs
       - ./docs/blog:/blog:ro
       - ./docs/site/build:/dist
-    command: sh -c "npm ci --legacy-peer-deps && npm run build:docker"
+      - ./backend/public/docs/openapi.yaml:/docs/openapi.yaml:ro
+    command: sh -c "npm ci --legacy-peer-deps && DOCKER_BUILD=1 npm run build:docker"
     deploy:
       resources:
         limits:
-          memory: 1G
+          memory: 2G
     profiles:
       - docs
 
