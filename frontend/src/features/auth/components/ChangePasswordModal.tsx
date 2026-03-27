@@ -43,7 +43,7 @@ export function ChangePasswordModal() {
     try {
       const { data } = await apiClient.post<ChangePasswordResponse>(
         "/auth/change-password",
-        { current_password: currentPw, new_password: newPw },
+        { current_password: currentPw, new_password: newPw, new_password_confirmation: confirmPw },
       );
       updateUser(data.user);
     } catch (err: unknown) {
