@@ -221,21 +221,50 @@ interface DisambiguationDrawerProps {
   result: MappingResult | null;
   onClose: () => void;
   onSelectCandidate: (sourceTerm: string, candidate: MappingCandidate) => void;
+  onRemap: (sourceTerm: string, cleanedTerm: string) => void;
 }
 
-function DisambiguationDrawer({ result, onClose, onSelectCandidate }: DisambiguationDrawerProps) {
+function DisambiguationDrawer({ result, onClose, onSelectCandidate, onRemap }: DisambiguationDrawerProps) {
   const [cleanRawText, setCleanRawText] = useState("");
+  const [remapPending, setRemapPending] = useState(false);
   const cleanMutation = useMutation({
     mutationFn: (terms: string[]) => cleanTerms(terms),
   });
 
+  const remapMutation = useMutation({
+    mutationFn: (params: { sourceTerm: string; cleanedTerm: string }) =>
+      mapTerms({ source_terms: [params.cleanedTerm] }),
+    onSuccess: (data, variables) => {
+      const mapped = data[0];
+      if (mapped?.best_match) {
+        onSelectCandidate(variables.sourceTerm, mapped.best_match);
+        toast.success(`Re-mapped "${variables.sourceTerm}" → ${mapped.best_match.concept_name}`);
+        onClose();
+      } else {
+        toast.error(`No match found for cleaned term "${variables.cleanedTerm}"`);
+      }
+      setRemapPending(false);
+    },
+    onError: () => {
+      toast.error("Re-mapping failed");
+      setRemapPending(false);
+    },
+  });
+
   const cleaned: CleanedTerm[] = cleanMutation.data ?? [];
+
+  const handleRemap = (cleanedTerm: string) => {
+    if (!result) return;
+    setRemapPending(true);
+    remapMutation.mutate({ sourceTerm: result.source_term, cleanedTerm });
+  };
 
   // Reset clean state when result changes
   useEffect(() => {
     if (result) {
       setCleanRawText(result.source_term);
       cleanMutation.reset();
+      setRemapPending(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [result?.source_term]);
@@ -361,18 +390,33 @@ function DisambiguationDrawer({ result, onClose, onSelectCandidate }: Disambigua
                 </button>
               </div>
               {cleaned.length > 0 && (
-                <div className="rounded-lg border border-[#232328] bg-[#151518] divide-y divide-[#1C1C20]">
-                  {cleaned.map((item, i) => (
-                    <div key={i} className="flex items-center gap-2 px-3 py-2">
-                      <span className="text-[11px] text-[#5A5650] font-mono flex-1 truncate">
-                        {item.original}
-                      </span>
-                      <ChevronRight className="h-3 w-3 text-[#5A5650] shrink-0" />
-                      <span className="text-[11px] text-[#2DD4BF] font-mono flex-1 truncate">
-                        {item.cleaned}
-                      </span>
-                    </div>
-                  ))}
+                <div className="space-y-2">
+                  <div className="rounded-lg border border-[#232328] bg-[#151518] divide-y divide-[#1C1C20]">
+                    {cleaned.map((item, i) => (
+                      <div key={i} className="flex items-center gap-2 px-3 py-2">
+                        <span className="text-[11px] text-[#5A5650] font-mono flex-1 truncate">
+                          {item.original}
+                        </span>
+                        <ChevronRight className="h-3 w-3 text-[#5A5650] shrink-0" />
+                        <span className="text-[11px] text-[#2DD4BF] font-mono flex-1 truncate">
+                          {item.cleaned}
+                        </span>
+                        <button
+                          type="button"
+                          disabled={remapPending}
+                          onClick={() => handleRemap(item.cleaned)}
+                          className="inline-flex items-center gap-1 rounded border border-[#2DD4BF]/30 bg-[#2DD4BF]/10 px-2 py-0.5 text-[10px] font-medium text-[#2DD4BF] hover:bg-[#2DD4BF]/20 disabled:opacity-50 transition-colors shrink-0"
+                        >
+                          {remapPending ? (
+                            <Loader2 className="h-3 w-3 animate-spin" />
+                          ) : (
+                            <RefreshCw className="h-3 w-3" />
+                          )}
+                          Re-map
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
               {cleanMutation.isError && (
@@ -831,6 +875,11 @@ export default function MappingAssistantPage() {
         onSelectCandidate={(term, candidate) => {
           handleOverrideCandidate(term, candidate);
           handleDecide(term, "accepted");
+        }}
+        onRemap={(sourceTerm, cleanedTerm) => {
+          // The drawer handles re-mapping internally via its own mutation
+          void sourceTerm;
+          void cleanedTerm;
         }}
       />
 
