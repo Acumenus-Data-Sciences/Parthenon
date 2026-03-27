@@ -18,6 +18,8 @@ import type {
   NarrativeState,
   DiagramType,
 } from "../types/publish";
+import { TEMPLATES, TEMPLATE_LIST } from "../templates/index";
+import type { TemplateSectionDef } from "../templates/index";
 
 // ── Step labels ─────────────────────────────────────────────────────────────
 
@@ -45,7 +47,8 @@ type Action =
   | { type: "SET_SECTIONS"; sections: ReportSection[] }
   | { type: "SET_TITLE"; title: string }
   | { type: "SET_AUTHORS"; authors: string[] }
-  | { type: "UPDATE_SECTION"; id: string; updates: Partial<ReportSection> };
+  | { type: "UPDATE_SECTION"; id: string; updates: Partial<ReportSection> }
+  | { type: "SET_TEMPLATE"; template: string };
 
 function wizardReducer(state: WizardState, action: Action): WizardState {
   switch (action.type) {
@@ -66,6 +69,8 @@ function wizardReducer(state: WizardState, action: Action): WizardState {
           s.id === action.id ? { ...s, ...action.updates } : s,
         ),
       };
+    case "SET_TEMPLATE":
+      return { ...state, template: action.template };
     default:
       return state;
   }
@@ -131,40 +136,41 @@ const SECTION_CONFIG: Record<string, { title: string; diagramType: DiagramType |
   prediction: { title: "Predictive Modeling", diagramType: "kaplan_meier" },
 };
 
-function buildManuscriptSections(
+function sectionDefToReportSection(def: TemplateSectionDef): ReportSection {
+  return {
+    id: def.id,
+    title: def.title,
+    type: def.type,
+    included: true,
+    content: "",
+    narrativeState: "idle",
+    tableIncluded: def.tableIncluded ?? false,
+    narrativeIncluded: def.narrativeIncluded ?? true,
+    diagramIncluded: def.diagramType !== undefined,
+    diagramType: def.diagramType,
+  };
+}
+
+function buildResultsSections(
   executions: SelectedExecution[],
+  preferredAnalysisTypes?: string[],
 ): ReportSection[] {
-  const sections: ReportSection[] = [];
+  const resultSections: ReportSection[] = [];
 
-  // 1. Introduction
-  sections.push({
-    id: "introduction",
-    title: "Introduction",
-    type: "methods",
-    included: true,
-    content: "",
-    narrativeState: "idle",
-    tableIncluded: false,
-    narrativeIncluded: true,
-    diagramIncluded: false,
-  });
+  // Filter executions by preferred analysis types if specified
+  let filteredExecs = executions;
+  if (preferredAnalysisTypes && preferredAnalysisTypes.length > 0) {
+    const preferred = executions.filter((e) =>
+      preferredAnalysisTypes.includes(e.analysisType),
+    );
+    // Graceful fallback: use all executions if no matches
+    if (preferred.length > 0) {
+      filteredExecs = preferred;
+    }
+  }
 
-  // 2. Methods (unified across all analysis types)
-  sections.push({
-    id: "methods",
-    title: "Methods",
-    type: "methods",
-    included: true,
-    content: "",
-    narrativeState: "idle",
-    tableIncluded: false,
-    narrativeIncluded: true,
-    diagramIncluded: false,
-  });
-
-  // 3. Results subsections — grouped by analysis type
   const groupedByType = new Map<string, SelectedExecution[]>();
-  for (const exec of executions) {
+  for (const exec of filteredExecs) {
     const group = groupedByType.get(exec.analysisType) ?? [];
     group.push(exec);
     groupedByType.set(exec.analysisType, group);
@@ -191,7 +197,7 @@ function buildManuscriptSections(
 
     const tableData = buildTableFromResults(analysisType, groupExecs);
 
-    sections.push({
+    resultSections.push({
       id: `results-${analysisType}`,
       title: config.title,
       type: "results",
@@ -221,7 +227,7 @@ function buildManuscriptSections(
 
     const tableData = buildTableFromResults(analysisType, groupExecs);
 
-    sections.push({
+    resultSections.push({
       id: `results-${analysisType}`,
       title: config.title,
       type: "results",
@@ -240,18 +246,39 @@ function buildManuscriptSections(
     });
   }
 
-  // 4. Discussion
-  sections.push({
-    id: "discussion",
-    title: "Discussion",
-    type: "discussion",
-    included: true,
-    content: "",
-    narrativeState: "idle",
-    tableIncluded: false,
-    narrativeIncluded: true,
-    diagramIncluded: false,
-  });
+  return resultSections;
+}
+
+function buildManuscriptSections(
+  executions: SelectedExecution[],
+  templateId: string = "generic-ohdsi",
+): ReportSection[] {
+  const template = TEMPLATES[templateId] ?? TEMPLATES["generic-ohdsi"];
+
+  // Split template sections into methods (before results) and discussion (after results)
+  const methodsSections = template.sections.filter((s) => s.type !== "discussion");
+  const discussionSections = template.sections.filter((s) => s.type === "discussion");
+
+  const sections: ReportSection[] = [];
+
+  // 1. Fixed sections before results (methods-type)
+  for (const def of methodsSections) {
+    sections.push(sectionDefToReportSection(def));
+  }
+
+  // 2. Dynamic results sections (only if template uses results)
+  if (template.usesResults) {
+    const resultSections = buildResultsSections(
+      executions,
+      template.preferredAnalysisTypes,
+    );
+    sections.push(...resultSections);
+  }
+
+  // 3. Fixed sections after results (discussion-type)
+  for (const def of discussionSections) {
+    sections.push(sectionDefToReportSection(def));
+  }
 
   return sections;
 }
@@ -290,7 +317,7 @@ export default function PublishPage() {
   );
 
   const handleStep1Next = useCallback(() => {
-    const sections = buildManuscriptSections(state.selectedExecutions);
+    const sections = buildManuscriptSections(state.selectedExecutions, state.template);
     const defaultTitle =
       state.selectedExecutions.length > 0
         ? state.selectedExecutions[0].studyTitle ?? state.selectedExecutions[0].analysisName
@@ -299,7 +326,19 @@ export default function PublishPage() {
     dispatch({ type: "SET_SECTIONS", sections });
     dispatch({ type: "SET_TITLE", title: state.title || defaultTitle });
     dispatch({ type: "SET_STEP", step: 2 });
-  }, [state.selectedExecutions, state.title]);
+  }, [state.selectedExecutions, state.title, state.template]);
+
+  const handleTemplateChange = useCallback(
+    (templateId: string) => {
+      dispatch({ type: "SET_TEMPLATE", template: templateId });
+      // Rebuild sections if executions are already selected
+      if (state.selectedExecutions.length > 0) {
+        const sections = buildManuscriptSections(state.selectedExecutions, templateId);
+        dispatch({ type: "SET_SECTIONS", sections });
+      }
+    },
+    [state.selectedExecutions],
+  );
 
   // ── Step 2 handlers ─────────────────────────────────────────────────────
   const handleSectionsChange = useCallback((sections: ReportSection[]) => {
@@ -484,9 +523,11 @@ export default function PublishPage() {
             sections={state.sections}
             title={state.title}
             authors={state.authors}
+            template={state.template}
             onSectionsChange={handleSectionsChange}
             onTitleChange={handleTitleChange}
             onAuthorsChange={handleAuthorsChange}
+            onTemplateChange={handleTemplateChange}
             onGenerateNarrative={handleGenerateNarrative}
             onNext={() => goToStep(3)}
             onBack={() => goToStep(1)}

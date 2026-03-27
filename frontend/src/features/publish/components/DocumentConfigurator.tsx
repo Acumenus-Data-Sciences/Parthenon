@@ -16,15 +16,18 @@ import {
 } from "@dnd-kit/sortable";
 import { ArrowLeft } from "lucide-react";
 import type { ReportSection, NarrativeState } from "../types/publish";
+import { TEMPLATES, TEMPLATE_LIST } from "../templates/index";
 import SectionEditor from "./SectionEditor";
 
 interface DocumentConfiguratorProps {
   sections: ReportSection[];
   title: string;
   authors: string[];
+  template: string;
   onSectionsChange: (sections: ReportSection[]) => void;
   onTitleChange: (title: string) => void;
   onAuthorsChange: (authors: string[]) => void;
+  onTemplateChange: (templateId: string) => void;
   onGenerateNarrative: (section: ReportSection) => void;
   onNext: () => void;
   onBack: () => void;
@@ -34,9 +37,11 @@ export default function DocumentConfigurator({
   sections,
   title,
   authors,
+  template,
   onSectionsChange,
   onTitleChange,
   onAuthorsChange,
+  onTemplateChange,
   onGenerateNarrative,
   onNext,
   onBack,
@@ -175,11 +180,19 @@ export default function DocumentConfigurator({
           </label>
           <select
             id="doc-template"
-            disabled
-            className="w-full bg-[#151518] border border-[#232328] rounded-lg px-3 py-2 text-sm text-[#5A5650] cursor-not-allowed"
+            value={template}
+            onChange={(e) => onTemplateChange(e.target.value)}
+            className="w-full bg-[#151518] border border-[#232328] rounded-lg px-3 py-2 text-sm text-[#F0EDE8] focus:outline-none focus:border-[#C9A227]"
           >
-            <option>Generic OHDSI Publication</option>
+            {TEMPLATE_LIST.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.name}
+              </option>
+            ))}
           </select>
+          <p className="text-xs text-[#5A5650] mt-1">
+            {(TEMPLATES[template] ?? TEMPLATES["generic-ohdsi"]).description}
+          </p>
         </div>
       </div>
 
