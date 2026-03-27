@@ -295,6 +295,15 @@ if $DO_OPENAPI; then
     warn "API docs generation failed (non-critical)"
   fi
 
+  # Convert OpenAPI YAML to JSON for TypeScript type generator
+  if [ -f backend/public/docs/openapi.yaml ]; then
+    if python3 -c "import yaml, json, sys; print(json.dumps(yaml.safe_load(open(sys.argv[1])), indent=2))" backend/public/docs/openapi.yaml > backend/api.json 2>/dev/null; then
+      ok "Spec exported → backend/api.json"
+    else
+      warn "YAML-to-JSON conversion failed (non-critical)"
+    fi
+  fi
+
   if is_running node; then
     if docker compose exec node sh -c "cd /app && npm run generate:api-types" 2>/dev/null; then
       ok "Types generated → frontend/src/types/api.generated.ts"
