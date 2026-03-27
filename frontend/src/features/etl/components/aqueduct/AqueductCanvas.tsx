@@ -52,7 +52,7 @@ function saveViewport(vp: Viewport): void {
 function loadFilter(): "all" | "mapped" | "unmapped" {
   const raw = sessionStorage.getItem(FILTER_KEY);
   if (raw === "all" || raw === "mapped" || raw === "unmapped") return raw;
-  return "mapped";
+  return "all";
 }
 
 function saveFilter(f: string): void {
@@ -538,9 +538,8 @@ function AqueductCanvasInner({
           onConnect={handleConnect}
           onNodeClick={handleNodeClick}
           onMoveEnd={(_event, viewport) => saveViewport(viewport)}
-          defaultViewport={loadViewport() ?? { x: 0, y: 0, zoom: 1.5 }}
-          fitView={!loadViewport()}
-          fitViewOptions={{ maxZoom: 1.5, padding: 0.15 }}
+          fitView
+          fitViewOptions={{ maxZoom: 1.5, minZoom: 0.5, padding: 0.12 }}
           minZoom={0.3}
           maxZoom={3}
           proOptions={{ hideAttribution: true }}
