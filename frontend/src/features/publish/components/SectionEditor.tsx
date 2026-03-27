@@ -14,6 +14,7 @@ import { CSS } from "@dnd-kit/utilities";
 import type { ReportSection, NarrativeState } from "../types/publish";
 import AiNarrativeBlock from "./narrative/AiNarrativeBlock";
 import StructuredDataBlock from "./narrative/StructuredDataBlock";
+import type { TableData } from "../types/publish";
 
 type ViewMode = "ai" | "structured";
 
@@ -28,6 +29,52 @@ interface SectionEditorProps {
   onGenerateNarrative: (section: ReportSection) => void;
   isGenerating: boolean;
   onToggleElement?: (id: string, element: "tableIncluded" | "narrativeIncluded" | "diagramIncluded") => void;
+}
+
+function InlineTablePreview({ data }: { data: TableData }) {
+  if (data.rows.length === 0) return null;
+
+  return (
+    <div className="rounded-lg border border-[#232328] overflow-hidden">
+      <div className="px-3 py-1.5 bg-[#1A1A1F] border-b border-[#232328]">
+        <span className="text-[10px] font-medium text-[#5A5650] uppercase tracking-wide">
+          Table: {data.caption}
+        </span>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full text-xs">
+          <thead>
+            <tr className="border-b border-[#232328]">
+              {data.headers.map((h) => (
+                <th
+                  key={h}
+                  className="px-3 py-1.5 text-left font-medium text-[#8A857D] whitespace-nowrap"
+                  style={{ textAlign: h === data.headers[0] ? "left" : "right" }}
+                >
+                  {h}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {data.rows.map((row, i) => (
+              <tr key={i} className="border-b border-[#232328]/50">
+                {data.headers.map((h, ci) => (
+                  <td
+                    key={h}
+                    className="px-3 py-1 text-[#F0EDE8] whitespace-nowrap"
+                    style={{ textAlign: ci === 0 ? "left" : "right" }}
+                  >
+                    {row[h] ?? "—"}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
 }
 
 export default function SectionEditor({
@@ -201,7 +248,12 @@ export default function SectionEditor({
       </div>
 
       {/* Body */}
-      <div className="p-3">
+      <div className="p-3 space-y-3">
+        {/* Inline table preview for results sections */}
+        {section.tableData && section.tableIncluded !== false && (
+          <InlineTablePreview data={section.tableData} />
+        )}
+
         {isDiagram ? (
           section.svgMarkup ? (
             <div
