@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Exceptions\AiProviderNotConfiguredException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PublicationExportRequest;
 use App\Http\Requests\PublicationNarrativeRequest;
-use App\Services\AiService;
+use App\Services\AI\AnalyticsLlmService;
 use App\Services\Publication\PublicationService;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
@@ -15,7 +16,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 class PublicationController extends Controller
 {
     public function __construct(
-        private readonly AiService $aiService,
+        private readonly AnalyticsLlmService $llm,
         private readonly PublicationService $publicationService,
     ) {}
 
@@ -32,16 +33,20 @@ class PublicationController extends Controller
         /** @var array<string, mixed> $context */
         $context = $validated['context'];
 
-        $prompt = $this->buildNarrativePrompt($sectionType, $context);
+        $systemPrompt = $this->buildSystemPrompt($sectionType);
+        $userPrompt = $this->buildUserPrompt($sectionType, $context);
 
         try {
-            $response = $this->aiService->abbyChat(
-                message: $prompt,
-                pageContext: 'publication',
-                pageData: $context,
+            $text = $this->llm->chat(
+                messages: [
+                    ['role' => 'user', 'content' => $userPrompt],
+                ],
+                options: [
+                    'system' => $systemPrompt,
+                    'max_tokens' => 8192,
+                    'temperature' => 0.3,
+                ],
             );
-
-            $text = $response['reply'] ?? '';
 
             return response()->json([
                 'data' => [
@@ -49,9 +54,13 @@ class PublicationController extends Controller
                     'section_type' => $sectionType,
                 ],
             ]);
+        } catch (AiProviderNotConfiguredException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 422);
         } catch (\Throwable $e) {
             return response()->json([
-                'message' => 'AI service is unavailable. Please try again later.',
+                'message' => 'AI narrative generation failed: '.$e->getMessage(),
             ], 503);
         }
     }
@@ -75,33 +84,53 @@ class PublicationController extends Controller
     }
 
     /**
-     * Build a section-specific prompt for AI narrative generation.
+     * Build the system prompt for the LLM based on section type.
+     */
+    private function buildSystemPrompt(string $sectionType): string
+    {
+        $base = 'You are a senior clinical research writer producing publication-ready manuscript text '
+            .'for an OHDSI observational study using the OMOP Common Data Model. '
+            .'Write in formal academic prose suitable for a peer-reviewed journal (NEJM, Lancet, JAMA style). '
+            .'Use passive voice and past tense. Never fabricate citations, statistics, or results. '
+            .'Only reference data provided in the context.';
+
+        return match ($sectionType) {
+            'methods' => $base.' Focus on study design, data source description, cohort definitions, '
+                .'covariates, and statistical methods. Mention the OMOP CDM version and analysis framework (OHDSI HADES).',
+
+            'results' => $base.' Report exact statistics from the analysis output. '
+                ."Use hedging language ('was associated with' not 'caused'). "
+                .'Include confidence intervals and p-values where available. '
+                .'When multiple cohorts or outcomes are reported, present comparisons systematically. '
+                .'Reference tables and figures by number (e.g., Table 1, Figure 2).',
+
+            'discussion' => $base.' Discuss clinical significance of the findings, compare with prior literature, '
+                .'address study limitations (unmeasured confounding, selection bias, generalizability, '
+                .'immortal time bias if applicable), and suggest future research directions. '
+                .'If multiple analyses are referenced, synthesize the findings into a coherent narrative.',
+
+            'caption' => 'You are a medical research writer. Write a single-sentence figure caption. '
+                .'Be specific about what is plotted, the axes, and the key takeaway.',
+
+            default => $base,
+        };
+    }
+
+    /**
+     * Build the user prompt with analysis context data.
      *
      * @param  array<string, mixed>  $context
      */
-    private function buildNarrativePrompt(string $sectionType, array $context): string
+    private function buildUserPrompt(string $sectionType, array $context): string
     {
         $contextJson = json_encode($context, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 
         return match ($sectionType) {
-            'methods' => 'You are a medical research writer drafting the Methods section of an observational study manuscript. '
-                .'Write 2-3 paragraphs in passive voice, past tense. Do not make causal claims. Do not fabricate citations. '
-                ."Describe the study design, data source, cohort definitions, covariates, and statistical methods based on the following context:\n\n{$contextJson}",
-
-            'results' => 'You are a medical research writer drafting the Results section of an observational study manuscript. '
-                ."Write 1-2 paragraphs reporting exact statistics from the analysis output. Use hedging language (e.g., 'was associated with' rather than 'caused'). "
-                ."Report confidence intervals and p-values where available. Base your narrative on the following context:\n\n{$contextJson}",
-
-            'discussion' => 'You are a medical research writer drafting the Discussion section of an observational study manuscript. '
-                .'Write 2-3 paragraphs discussing clinical significance of the findings, comparison with prior literature, study limitations '
-                .'(including unmeasured confounding, selection bias, and generalizability), and future research directions. '
-                ."Base your narrative on the following context:\n\n{$contextJson}",
-
-            'caption' => 'You are a medical research writer. Write a single-sentence figure caption that concisely describes '
-                .'the visualization shown. Be specific about what is plotted, the axes, and the key takeaway. '
-                ."Base your caption on the following context:\n\n{$contextJson}",
-
-            default => "Summarize the following research context:\n\n{$contextJson}",
+            'methods' => "Write the Methods section (2-3 paragraphs) based on this analysis context:\n\n{$contextJson}",
+            'results' => "Write the Results subsection (1-3 paragraphs) based on this analysis output:\n\n{$contextJson}",
+            'discussion' => "Write the Discussion section (2-4 paragraphs) synthesizing these findings:\n\n{$contextJson}",
+            'caption' => "Write a figure caption based on this context:\n\n{$contextJson}",
+            default => "Write a narrative summary of the following research context:\n\n{$contextJson}",
         };
     }
 }
