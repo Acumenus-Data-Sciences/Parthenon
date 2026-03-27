@@ -210,11 +210,14 @@ function AqueductCanvasInner({
   useEffect(() => {
     if (!isFullscreen) return;
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setIsFullscreen(false);
+      // Only exit fullscreen if no modal is open (modals have their own close UX)
+      if (e.key === "Escape" && !sourceMappingId && !detailCdmTable) {
+        setIsFullscreen(false);
+      }
     };
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [isFullscreen]);
+  }, [isFullscreen, sourceMappingId, detailCdmTable]);
 
   const createMapping = useCreateTableMapping(project.id);
   const suggestMutation = useSuggestMappings(project.id);
