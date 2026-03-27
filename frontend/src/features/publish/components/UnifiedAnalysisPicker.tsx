@@ -144,7 +144,7 @@ export default function UnifiedAnalysisPicker({
       studyId: study.id,
       studyTitle: study.title,
       resultJson: sa.analysis!.latest_execution!.result_json,
-      designJson: {},
+      designJson: (sa.analysis as Record<string, unknown>)?.design_json as Record<string, unknown> | null ?? {},
     }));
 
     if (autoSelections.length > 0) {
@@ -209,7 +209,7 @@ export default function UnifiedAnalysisPicker({
           studyId: study.id,
           studyTitle: study.title,
           resultJson: sa.analysis!.latest_execution!.result_json,
-          designJson: {},
+          designJson: (sa.analysis as Record<string, unknown>)?.design_json as Record<string, unknown> | null ?? {},
         }));
       onSelectionsChange([...selections, ...newSelections]);
     }

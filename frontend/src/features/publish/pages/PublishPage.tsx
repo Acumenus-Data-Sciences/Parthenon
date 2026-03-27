@@ -276,11 +276,19 @@ export default function PublishPage() {
         : state.selectedExecutions.find((e) => e.analysisType === section.analysisType);
 
       // For grouped results sections, collect all result_json for richer context
+      // For introduction/methods/discussion (no analysisType), include ALL results
       const groupedResults = section.analysisType
         ? state.selectedExecutions
             .filter((e) => e.analysisType === section.analysisType && e.resultJson)
             .map((e) => e.resultJson)
-        : [];
+        : state.selectedExecutions
+            .filter((e) => e.resultJson)
+            .map((e) => ({
+              analysisType: e.analysisType,
+              analysisName: e.analysisName,
+              designJson: e.designJson,
+              resultJson: e.resultJson,
+            }));
 
       dispatch({
         type: "UPDATE_SECTION",
@@ -300,6 +308,7 @@ export default function PublishPage() {
           analysis_id: exec?.analysisId,
           execution_id: exec?.executionId,
           context: {
+            studyTitle: state.selectedExecutions[0]?.studyTitle ?? state.title,
             analysisType: section.analysisType,
             designJson: exec?.designJson ?? {},
             resultJson: exec?.resultJson ?? {},
