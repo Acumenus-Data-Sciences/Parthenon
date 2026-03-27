@@ -190,6 +190,20 @@ export interface AskAbbyChannelProps {
   className?: string;
 }
 
+// Data Interrogation (Abby Analytics)
+export interface DataInterrogationRequest {
+  question: string;
+  source_id: number;
+}
+
+export interface DataInterrogationResponse {
+  answer: string;
+  tables: Record<string, unknown>[];
+  queries: string[];
+  iterations: number;
+  error?: string;
+}
+
 export interface AbbyConversationSummary {
   id: number;
   title: string | null;
