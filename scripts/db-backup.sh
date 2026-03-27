@@ -4,8 +4,12 @@
 # Backs up ALL critical schemas from the parthenon database.
 #
 # Schemas backed up:
-#   app     — Application state (users, sources, cohorts, studies, analyses, executions, etc.)
-#   results — Achilles characterization output, cohort records, DQD results
+#   app          — Application state (users, sources, cohorts, studies, analyses, executions, etc.)
+#   irsf         — IRSF Natural History Study CDM data
+#   irsf_results — IRSF Achilles/DQD characterization results
+#   vocab        — Shared OHDSI vocabulary (standard + IRSF-NHS custom)
+#   results      — Achilles results (future sources)
+#   omop         — OMOP CDM (future Acumenus re-ETL)
 #
 # Usage:
 #   ./scripts/db-backup.sh           # manual run
@@ -46,7 +50,7 @@ mkdir -p "$BACKUP_DIR"
 
 echo "==> Parthenon DB Backup"
 echo "    Host:    $PG_HOST:$PG_PORT / $PG_DB"
-echo "    Schemas: app, results"
+echo "    Schemas: app, irsf, irsf_results, vocab, results, omop"
 echo "    Target:  $BACKUP_DIR/$BACKUP_FILE"
 
 # Dump critical schemas: app state + analysis results
@@ -56,7 +60,11 @@ if PGPASSWORD="$PG_PASSWORD" pg_dump \
   -U "$PG_USER" \
   -d "$PG_DB" \
   --schema=app \
+  --schema=irsf \
+  --schema=irsf_results \
+  --schema=vocab \
   --schema=results \
+  --schema=omop \
   --clean \
   --if-exists \
   --no-owner \
@@ -80,6 +88,8 @@ if PGPASSWORD="$PG_PASSWORD" pg_dump \
       'cohorts', (SELECT COUNT(*) FROM app.cohort_definitions),
       'characterizations', (SELECT COUNT(*) FROM app.characterizations),
       'executions', (SELECT COUNT(*) FROM app.analysis_executions),
+      'irsf_persons', (SELECT COUNT(*) FROM irsf.person),
+      'vocab_concepts', (SELECT COUNT(*) FROM vocab.concept),
       'cohort_records', (SELECT COUNT(*) FROM results.cohort)
     );
   " 2>/dev/null || echo '{"error":"query failed"}')"
