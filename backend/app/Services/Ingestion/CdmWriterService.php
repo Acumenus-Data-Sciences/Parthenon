@@ -2,18 +2,16 @@
 
 namespace App\Services\Ingestion;
 
-use App\Concerns\SourceAware;
 use App\Models\App\ConceptMapping;
 use App\Models\App\IngestionJob;
 use App\Models\App\SchemaMapping;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class CdmWriterService
 {
-    use SourceAware;
-
     private const BATCH_SIZE = 1000;
 
     public function __construct(
@@ -299,7 +297,7 @@ class CdmWriterService
         }
 
         try {
-            $this->cdm()->table($table)->insert($rows);
+            DB::connection('omop')->table($table)->insert($rows);
         } catch (\Exception $e) {
             Log::error("CDM write error for table {$table}: {$e->getMessage()}", [
                 'table' => $table,

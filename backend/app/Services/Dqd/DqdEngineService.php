@@ -2,18 +2,16 @@
 
 namespace App\Services\Dqd;
 
-use App\Concerns\SourceAware;
 use App\Contracts\DqdCheckInterface;
 use App\Enums\DaimonType;
 use App\Models\App\DqdResult;
 use App\Models\App\Source;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class DqdEngineService
 {
-    use SourceAware;
-
     public function __construct(
         private DqdCheckRegistry $registry,
     ) {}
@@ -219,12 +217,12 @@ class DqdEngineService
         try {
             // Run total count query
             $totalSql = $check->sqlTotal($cdmSchema, $vocabSchema);
-            $totalResult = $this->cdm()->select($totalSql);
+            $totalResult = DB::connection('omop')->select($totalSql);
             $totalRows = (int) ($totalResult[0]->count ?? 0);
 
             // Run violation count query
             $violatedSql = $check->sqlViolated($cdmSchema, $vocabSchema);
-            $violatedResult = $this->cdm()->select($violatedSql);
+            $violatedResult = DB::connection('omop')->select($violatedSql);
             $violatedRows = (int) ($violatedResult[0]->count ?? 0);
 
             // Compute violation percentage

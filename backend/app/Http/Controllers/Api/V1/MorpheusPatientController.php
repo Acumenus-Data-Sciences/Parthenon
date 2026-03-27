@@ -2,18 +2,16 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Concerns\SourceAware;
 use App\Http\Controllers\Controller;
 use App\Services\Morpheus\MorpheusPatientService;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 #[Group('Morpheus Patient Journey', weight: 250)]
 class MorpheusPatientController extends Controller
 {
-    use SourceAware;
-
     public function __construct(
         private readonly MorpheusPatientService $service,
     ) {}
@@ -27,7 +25,7 @@ class MorpheusPatientController extends Controller
     {
         $schemaName = $request->input('dataset', 'mimiciv');
 
-        $dataset = $this->cdm()->selectOne("
+        $dataset = DB::connection('inpatient')->selectOne("
             SELECT schema_name FROM inpatient_ext.morpheus_dataset
             WHERE schema_name = ? AND status = 'active'
         ", [$schemaName]);

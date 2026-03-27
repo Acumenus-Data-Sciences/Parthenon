@@ -2,12 +2,12 @@
 
 namespace App\Services\Morpheus;
 
-use App\Concerns\SourceAware;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class MorpheusDashboardService
 {
-    use SourceAware;
+    private string $conn = 'inpatient';
 
     private const CACHE_TTL = 600; // 10 minutes
 
@@ -34,7 +34,7 @@ class MorpheusDashboardService
     private function hasMaterializedView(string $schema, string $viewName): bool
     {
         return Cache::remember("morpheus_mv_exists:{$schema}:{$viewName}", self::CACHE_TTL, function () use ($schema, $viewName) {
-            $result = $this->cdm()->selectOne(
+            $result = DB::connection($this->conn)->selectOne(
                 'SELECT EXISTS (SELECT 1 FROM pg_matviews WHERE schemaname = ? AND matviewname = ?) as exists',
                 [$schema, $viewName]
             );
@@ -76,7 +76,7 @@ class MorpheusDashboardService
         return $this->cached('metrics', $s, function () use ($s) {
             // Use materialized view if available
             if ($this->hasMaterializedView($s, 'mv_dashboard_metrics')) {
-                $result = $this->cdm()->selectOne("SELECT * FROM {$s}.mv_dashboard_metrics");
+                $result = DB::connection($this->conn)->selectOne("SELECT * FROM {$s}.mv_dashboard_metrics");
 
                 return $this->castNumericFields($result, [
                     'total_patients', 'total_admissions', 'icu_admission_rate',
@@ -84,7 +84,7 @@ class MorpheusDashboardService
                 ]);
             }
 
-            $result = $this->cdm()->selectOne("
+            $result = DB::connection($this->conn)->selectOne("
             SELECT
                 (SELECT count(DISTINCT subject_id) FROM {$s}.patients) as total_patients,
                 (SELECT count(*) FROM {$s}.admissions) as total_admissions,
@@ -110,12 +110,12 @@ class MorpheusDashboardService
 
         return $this->cached('trends', $s, function () use ($s) {
             if ($this->hasMaterializedView($s, 'mv_dashboard_trends')) {
-                $rows = $this->cdm()->select("SELECT * FROM {$s}.mv_dashboard_trends ORDER BY month");
+                $rows = DB::connection($this->conn)->select("SELECT * FROM {$s}.mv_dashboard_trends ORDER BY month");
 
                 return $this->castNumericFields($rows, ['admissions', 'deaths', 'mortality_rate', 'avg_los']);
             }
 
-            $rows = $this->cdm()->select("
+            $rows = DB::connection($this->conn)->select("
             SELECT to_char(admittime::timestamp, 'YYYY-MM') as month,
                    count(*) as admissions,
                    count(*) FILTER (WHERE hospital_expire_flag = '1') as deaths,
@@ -136,7 +136,7 @@ class MorpheusDashboardService
         $s = $this->getSchemaName($schema);
 
         return $this->cached("top-diagnoses-{$limit}", $s, function () use ($s, $limit) {
-            return $this->cdm()->select("
+            return DB::connection($this->conn)->select("
                 SELECT d.icd_code, d.icd_version, COALESCE(dd.long_title, '') as description,
                        count(DISTINCT d.subject_id)::int as patient_count
                 FROM {$s}.diagnoses_icd d
@@ -153,7 +153,7 @@ class MorpheusDashboardService
         $s = $this->getSchemaName($schema);
 
         return $this->cached("top-procedures-{$limit}", $s, function () use ($s, $limit) {
-            return $this->cdm()->select("
+            return DB::connection($this->conn)->select("
                 SELECT p.icd_code, p.icd_version, COALESCE(dp.long_title, '') as description,
                        count(DISTINCT p.subject_id)::int as patient_count
                 FROM {$s}.procedures_icd p
@@ -171,7 +171,7 @@ class MorpheusDashboardService
 
         return $this->cached('demographics', $s, function () use ($s) {
             if ($this->hasMaterializedView($s, 'mv_dashboard_demographics')) {
-                $rows = $this->cdm()->select("SELECT * FROM {$s}.mv_dashboard_demographics");
+                $rows = DB::connection($this->conn)->select("SELECT * FROM {$s}.mv_dashboard_demographics");
                 $gender = [];
                 $ageGroups = [];
                 foreach ($rows as $row) {
@@ -186,7 +186,7 @@ class MorpheusDashboardService
             }
 
             // Gender counts
-            $genderRows = $this->cdm()->select("
+            $genderRows = DB::connection($this->conn)->select("
                 SELECT gender, count(*)::int as count FROM {$s}.patients GROUP BY gender
             ");
             $gender = [];
@@ -196,7 +196,7 @@ class MorpheusDashboardService
 
             // Age groups — adapt to available columns
             $ageBucket = $this->introspector->ageBucketExpression($schema);
-            $ageGroups = $this->cdm()->select("
+            $ageGroups = DB::connection($this->conn)->select("
                 SELECT {$ageBucket} as range, count(*)::int as count
                 FROM {$s}.patients p GROUP BY range ORDER BY range
             ");
@@ -211,10 +211,10 @@ class MorpheusDashboardService
 
         return $this->cached('los-distribution', $s, function () use ($s) {
             if ($this->hasMaterializedView($s, 'mv_dashboard_los')) {
-                return $this->cdm()->select("SELECT * FROM {$s}.mv_dashboard_los");
+                return DB::connection($this->conn)->select("SELECT * FROM {$s}.mv_dashboard_los");
             }
 
-            return $this->cdm()->select("
+            return DB::connection($this->conn)->select("
                 WITH bucketed AS (
                     SELECT CASE
                         WHEN los <= 2 THEN '0-2d'
@@ -246,7 +246,7 @@ class MorpheusDashboardService
         $s = $this->getSchemaName($schema);
 
         return $this->cached('icu-units', $s, function () use ($s) {
-            $rows = $this->cdm()->select("
+            $rows = DB::connection($this->conn)->select("
                 SELECT first_careunit as careunit,
                        count(*)::int as admission_count,
                        ROUND(avg(los::numeric)::numeric, 1) as avg_los_days
@@ -265,12 +265,12 @@ class MorpheusDashboardService
 
         return $this->cached('mortality-by-type', $s, function () use ($s) {
             if ($this->hasMaterializedView($s, 'mv_dashboard_mortality_by_type')) {
-                $rows = $this->cdm()->select("SELECT * FROM {$s}.mv_dashboard_mortality_by_type");
+                $rows = DB::connection($this->conn)->select("SELECT * FROM {$s}.mv_dashboard_mortality_by_type");
 
                 return $this->castNumericFields($rows, ['total', 'deaths', 'rate']);
             }
 
-            $rows = $this->cdm()->select("
+            $rows = DB::connection($this->conn)->select("
                 SELECT admission_type,
                        count(*)::int as total,
                        count(*) FILTER (WHERE hospital_expire_flag = '1')::int as deaths,
@@ -295,7 +295,7 @@ class MorpheusDashboardService
 
         return $this->cached("concept_stats:{$conceptId}", $schema, function () use ($s, $conceptId) {
             // Check diagnoses_icd (ICD codes map to concept_id via omop.concept)
-            $diagStats = $this->cdm()->selectOne("
+            $diagStats = DB::connection($this->conn)->selectOne("
                 SELECT
                     COUNT(DISTINCT d.subject_id) as patient_count,
                     (SELECT COUNT(DISTINCT subject_id) FROM \"{$s}\".admissions) as total_patients
@@ -320,7 +320,7 @@ class MorpheusDashboardService
             }
 
             // Check labevents (measurement concept via d_labitems)
-            $labStats = $this->cdm()->selectOne("
+            $labStats = DB::connection($this->conn)->selectOne("
                 SELECT
                     COUNT(DISTINCT le.subject_id) as patient_count,
                     (SELECT COUNT(DISTINCT subject_id) FROM \"{$s}\".admissions) as total_patients,

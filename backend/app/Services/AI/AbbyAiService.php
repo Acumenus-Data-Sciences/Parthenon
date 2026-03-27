@@ -2,18 +2,16 @@
 
 namespace App\Services\AI;
 
-use App\Concerns\SourceAware;
 use App\Models\App\CohortDefinition;
 use App\Models\User;
 use App\Services\AiService;
 use App\Services\Cohort\Schema\CohortExpressionSchema;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class AbbyAiService
 {
-    use SourceAware;
-
     // Common study design patterns
     private const PATTERNS = [
         'new_users' => '/\b(new|first[- ]time|incident|newly)\s+(users?|initiators?|diagnosed|exposure)\b/i',
@@ -332,7 +330,7 @@ class AbbyAiService
      */
     private function searchConcepts(string $query, ?string $domain = null): array
     {
-        $builder = $this->cdm()
+        $builder = DB::connection('omop')
             ->table('concept')
             ->where('standard_concept', 'S')
             ->where('invalid_reason', null)

@@ -2,7 +2,6 @@
 
 namespace App\Services\Genomics;
 
-use App\Concerns\SourceAware;
 use App\Models\App\GenomicVariant;
 use Illuminate\Database\Connection;
 use Illuminate\Support\Facades\DB;
@@ -21,8 +20,6 @@ use Illuminate\Support\Facades\Log;
  */
 class TumorBoardService
 {
-    use SourceAware;
-
     /**
      * Build a full tumor board evidence panel for a patient.
      *
@@ -32,7 +29,7 @@ class TumorBoardService
      */
     public function buildPanel(int $personId, int $sourceId): array
     {
-        $conn = $this->cdm();
+        $conn = DB::connection('omop');
         $schema = 'omop';
 
         // 1. Patient's variants

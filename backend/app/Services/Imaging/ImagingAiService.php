@@ -2,7 +2,6 @@
 
 namespace App\Services\Imaging;
 
-use App\Concerns\SourceAware;
 use App\Models\App\ImagingMeasurement;
 use App\Models\App\ImagingStudy;
 use Illuminate\Support\Facades\Http;
@@ -18,8 +17,6 @@ use Illuminate\Support\Facades\Log;
  */
 class ImagingAiService
 {
-    use SourceAware;
-
     private string $aiBaseUrl;
 
     public function __construct()
@@ -172,7 +169,7 @@ class ImagingAiService
         }
 
         try {
-            $note = $this->cdm()
+            $note = \DB::connection('omop')
                 ->table('note')
                 ->where('person_id', $study->person_id)
                 ->where('note_type_concept_id', 44814637) // Radiology report

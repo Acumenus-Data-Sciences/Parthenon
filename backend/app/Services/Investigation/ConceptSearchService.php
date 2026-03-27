@@ -2,13 +2,11 @@
 
 namespace App\Services\Investigation;
 
-use App\Concerns\SourceAware;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class ConceptSearchService
 {
-    use SourceAware;
-
     /**
      * Search OMOP concepts by name with optional domain filter.
      *
@@ -16,7 +14,7 @@ class ConceptSearchService
      */
     public function search(string $term, ?string $domain = null, int $limit = 25): array
     {
-        $query = $this->cdm()
+        $query = DB::connection('omop')
             ->table('concept')
             ->select([
                 'concept_id', 'concept_name', 'domain_id',
@@ -45,7 +43,7 @@ class ConceptSearchService
      */
     public function hierarchy(int $conceptId): array
     {
-        $ancestors = $this->cdm()
+        $ancestors = DB::connection('omop')
             ->table('concept_ancestor')
             ->join('concept', 'concept.concept_id', '=', 'concept_ancestor.ancestor_concept_id')
             ->where('concept_ancestor.descendant_concept_id', $conceptId)
@@ -62,7 +60,7 @@ class ConceptSearchService
             ->map(fn ($row) => (array) $row)
             ->all();
 
-        $descendants = $this->cdm()
+        $descendants = DB::connection('omop')
             ->table('concept_ancestor')
             ->join('concept', 'concept.concept_id', '=', 'concept_ancestor.descendant_concept_id')
             ->where('concept_ancestor.ancestor_concept_id', $conceptId)
@@ -91,7 +89,7 @@ class ConceptSearchService
     public function patientCount(int $conceptId): array
     {
         $count = Cache::remember("concept:count:{$conceptId}", 3600, function () use ($conceptId) {
-            $concept = $this->cdm()
+            $concept = DB::connection('omop')
                 ->table('concept')
                 ->where('concept_id', $conceptId)
                 ->select('domain_id')
@@ -131,7 +129,7 @@ class ConceptSearchService
                 return 0;
             }
 
-            return $this->cdm()
+            return DB::connection('omop')
                 ->table($table)
                 ->where($conceptColumn, $conceptId)
                 ->distinct('person_id')

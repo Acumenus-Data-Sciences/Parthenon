@@ -2,17 +2,15 @@
 
 namespace App\Services\Ares;
 
-use App\Concerns\SourceAware;
 use App\Enums\DaimonType;
 use App\Models\App\Source;
 use App\Models\Results\AchillesResult;
 use App\Services\Database\DynamicConnectionFactory;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class ConceptStandardizationService
 {
-    use SourceAware;
-
     /**
      * Map of OMOP domains to their Achilles prevalence analysis IDs.
      *
@@ -96,7 +94,7 @@ class ConceptStandardizationService
         if (! empty($source->db_host)) {
             $connection = $this->connectionFactory->connectionForSchema($source, $schema);
         } else {
-            $this->results()->statement("SET search_path TO \"{$schema}\", public");
+            DB::connection('results')->statement("SET search_path TO \"{$schema}\", public");
         }
 
         // 1. Get total person count (analysis 1)

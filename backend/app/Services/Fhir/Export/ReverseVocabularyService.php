@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace App\Services\Fhir\Export;
 
-use App\Concerns\SourceAware;
+use Illuminate\Support\Facades\DB;
 
 class ReverseVocabularyService
 {
-    use SourceAware;
-
     private const VOCAB_TO_SYSTEM = [
         'SNOMED' => 'http://snomed.info/sct',
         'LOINC' => 'http://loinc.org',
@@ -132,7 +130,7 @@ class ReverseVocabularyService
             return $this->cache[$conceptId] ? ($this->reverseSystemLookup($this->cache[$conceptId]['system']) ?? null) : null;
         }
 
-        $row = $this->vocab()
+        $row = DB::connection('omop')
             ->table("{$this->vocabSchema}.concept")
             ->where('concept_id', $conceptId)
             ->select('vocabulary_id')
@@ -147,7 +145,7 @@ class ReverseVocabularyService
             return $this->cache[$conceptId];
         }
 
-        $row = $this->vocab()
+        $row = DB::connection('omop')
             ->table("{$this->vocabSchema}.concept")
             ->where('concept_id', $conceptId)
             ->select('concept_code', 'vocabulary_id', 'concept_name')

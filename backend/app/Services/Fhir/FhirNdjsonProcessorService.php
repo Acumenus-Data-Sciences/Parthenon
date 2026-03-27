@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Services\Fhir;
 
-use App\Concerns\SourceAware;
 use App\Models\App\FhirSyncRun;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -21,8 +20,6 @@ use Illuminate\Support\Facades\Log;
  */
 class FhirNdjsonProcessorService
 {
-    use SourceAware;
-
     private const BATCH_SIZE = 500;
 
     /** Resource types that must be processed first (order matters). */
@@ -300,12 +297,12 @@ class FhirNdjsonProcessorService
         }
 
         $unionSql = implode(' UNION ALL ', $unions);
-        $aggregated = $this->cdm()
+        $aggregated = DB::connection('omop')
             ->select("SELECT person_id, MIN(min_date) as earliest, MAX(max_date) as latest FROM ({$unionSql}) sub GROUP BY person_id");
 
         foreach ($aggregated as $row) {
             if ($row->earliest && $row->latest) {
-                $this->cdm()->table('observation_period')->updateOrInsert(
+                DB::connection('omop')->table('observation_period')->updateOrInsert(
                     ['person_id' => $row->person_id, 'period_type_concept_id' => 32817],
                     [
                         'observation_period_start_date' => $row->earliest,
@@ -337,7 +334,7 @@ class FhirNdjsonProcessorService
         $dataRows = array_column($entries, 'data');
 
         try {
-            $this->cdm()->table($table)->insert($dataRows);
+            DB::connection('omop')->table($table)->insert($dataRows);
             $written = count($dataRows);
 
             // Track for dedup if incremental mode
@@ -368,7 +365,7 @@ class FhirNdjsonProcessorService
 
         foreach ($entries as $entry) {
             try {
-                $id = $this->cdm()->table($table)->insertGetId($entry['data']);
+                $id = DB::connection('omop')->table($table)->insertGetId($entry['data']);
                 $written++;
 
                 if ($this->incrementalMode && $entry['fhir_id'] !== '') {

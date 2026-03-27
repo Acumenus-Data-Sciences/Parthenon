@@ -2,17 +2,15 @@
 
 namespace App\Services\Ares;
 
-use App\Concerns\SourceAware;
 use App\Enums\DaimonType;
 use App\Models\App\Source;
 use App\Models\Results\AchillesResult;
 use App\Services\Database\DynamicConnectionFactory;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class NetworkComparisonService
 {
-    use SourceAware;
-
     /**
      * Map of OMOP domains to their Achilles prevalence analysis IDs.
      *
@@ -95,7 +93,7 @@ class NetworkComparisonService
 
         $sanitized = str_replace(['%', '_'], ['\%', '\_'], $query);
 
-        $results = $this->cdm()
+        $results = DB::connection('omop')
             ->table('concept')
             ->select(['concept_id', 'concept_name', 'domain_id', 'vocabulary_id', 'standard_concept'])
             ->where('concept_name', 'ilike', "%{$sanitized}%")
@@ -198,7 +196,7 @@ class NetworkComparisonService
         if (! empty($source->db_host)) {
             $connection = $this->connectionFactory->connectionForSchema($source, $schema);
         } else {
-            $this->results()->statement("SET search_path TO \"{$schema}\", public");
+            DB::connection('results')->statement("SET search_path TO \"{$schema}\", public");
         }
 
         // Get total person count as baseline
@@ -325,7 +323,7 @@ class NetworkComparisonService
         if (! empty($source->db_host)) {
             $connection = $this->connectionFactory->connectionForSchema($source, $schema);
         } else {
-            $this->results()->statement("SET search_path TO \"{$schema}\", public");
+            DB::connection('results')->statement("SET search_path TO \"{$schema}\", public");
         }
 
         $analysisIds = array_values(self::DOMAIN_PREVALENCE_MAP);
@@ -376,7 +374,7 @@ class NetworkComparisonService
         if (! empty($source->db_host)) {
             $connection = $this->connectionFactory->connectionForSchema($source, $schema);
         } else {
-            $this->results()->statement("SET search_path TO \"{$schema}\", public");
+            DB::connection('results')->statement("SET search_path TO \"{$schema}\", public");
         }
 
         $analysisIds = array_values(self::DOMAIN_PREVALENCE_MAP);
@@ -411,7 +409,7 @@ class NetworkComparisonService
      */
     private function resolveConceptNames(array $conceptIds): array
     {
-        return $this->cdm()
+        return DB::connection('omop')
             ->table('concept')
             ->whereIn('concept_id', $conceptIds)
             ->pluck('concept_name', 'concept_id')
@@ -432,7 +430,7 @@ class NetworkComparisonService
         if (! empty($source->db_host)) {
             $connection = $this->connectionFactory->connectionForSchema($source, $schema);
         } else {
-            $this->results()->statement(
+            DB::connection('results')->statement(
                 "SET search_path TO \"{$schema}\", public"
             );
         }

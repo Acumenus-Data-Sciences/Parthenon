@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Concerns\SourceAware;
 use App\Http\Controllers\Controller;
 use App\Models\App\QueryLibraryEntry;
 use App\Models\User;
@@ -12,6 +11,7 @@ use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -20,8 +20,6 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 #[Group('Text-to-SQL', weight: 227)]
 class TextToSqlController extends Controller
 {
-    use SourceAware;
-
     private string $aiUrl;
 
     public function __construct(
@@ -213,7 +211,7 @@ class TextToSqlController extends Controller
         $maxRows = 10_000;
 
         try {
-            $connection = $this->cdm();
+            $connection = DB::connection('omop');
 
             // Get backend PID and cache it for status polling
             $pidResult = $connection->selectOne('SELECT pg_backend_pid() AS pid');
@@ -265,7 +263,7 @@ class TextToSqlController extends Controller
 
             // Reset timeout on error
             try {
-                $this->cdm()->statement("SET statement_timeout = '0'");
+                DB::connection('omop')->statement("SET statement_timeout = '0'");
             } catch (\Throwable) {
                 // Connection may be broken
             }
@@ -299,7 +297,7 @@ class TextToSqlController extends Controller
         }
 
         try {
-            $stat = $this->cdm()->selectOne(
+            $stat = DB::connection('omop')->selectOne(
                 'SELECT state, wait_event_type, wait_event,
                         EXTRACT(EPOCH FROM (now() - query_start)) * 1000 AS elapsed_ms
                  FROM pg_stat_activity
