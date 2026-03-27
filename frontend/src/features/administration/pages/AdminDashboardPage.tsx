@@ -133,18 +133,17 @@ export default function AdminDashboardPage() {
   const solr = getService(services, "solr");
   const darkstar = getService(services, "darkstar");
   const aiSvc = getService(services, "ai");
-  const pendingJobs = (queue?.details?.pending_jobs as number) ?? 0;
-  const failedJobs = (queue?.details?.failed_jobs as number) ?? 0;
-  const redisMemory = (redis?.details?.used_memory_human as string) ?? "—";
-  const redisClients = (redis?.details?.connected_clients as number) ?? "—";
+  const pendingJobs = (queue?.details?.pending as number) ?? (queue?.details?.pending_jobs as number) ?? 0;
+  const failedJobs = (queue?.details?.failed as number) ?? (queue?.details?.failed_jobs as number) ?? 0;
+  const redisMsg = redis?.message ?? "—";
 
   // Solr stats
   const solrCores = (solr?.details?.cores as number) ?? 0;
-  const solrDocs = (solr?.details?.total_documents as number) ?? 0;
+  const solrDocs = (solr?.details?.documents as number) ?? (solr?.details?.total_documents as number) ?? 0;
 
   // Sources — CDM sources with person counts from daimons
   const cdmSources = (sources ?? []).filter((s) =>
-    s.daimons?.some((d) => d.daimon_type === "CDM")
+    s.daimons?.some((d) => d.daimon_type === "cdm" || d.daimon_type === "CDM")
   );
 
   // Overall health status
@@ -182,7 +181,7 @@ export default function AdminDashboardPage() {
             <div className="space-y-1.5">
               <Stat label="Services" value={`${healthyCount}/${totalServices} up`} warn={healthyCount < totalServices} />
               <Stat label="Queue" value={`${pendingJobs} pending / ${failedJobs} failed`} warn={failedJobs > 0} />
-              <Stat label="Redis" value={`${redisMemory} / ${redisClients} clients`} />
+              <Stat label="Redis" value={redisMsg} />
               {services && (
                 <div className="flex gap-1 mt-2 flex-wrap">
                   {services.map((s) => (
@@ -267,7 +266,7 @@ export default function AdminDashboardPage() {
                 label="R / HADES"
                 value={
                   darkstar?.status === "healthy"
-                    ? `Online (${(darkstar.details?.hades_packages as number) ?? "?"} pkgs)`
+                    ? darkstar.message ?? "Online"
                     : darkstar?.status ?? "—"
                 }
                 warn={darkstar?.status === "down"}
