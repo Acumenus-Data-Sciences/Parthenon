@@ -86,21 +86,24 @@ function buildEstimationTable(executions: SelectedExecution[]): TableData {
     const r = exec.resultJson;
     if (!r) continue;
 
+    // Structure: estimates[].{outcome_name, hazard_ratio, ci_95_lower, ci_95_upper, p_value, target_outcomes, comparator_outcomes}
     const estimates = Array.isArray(r.estimates)
       ? (r.estimates as Array<Record<string, unknown>>)
-      : [r];
+      : [];
 
     for (const est of estimates) {
+      const hr = (est.hazard_ratio as number) ?? (est.hr as number);
+      const events = ((est.target_outcomes as number) ?? 0) + ((est.comparator_outcomes as number) ?? 0);
       rows.push({
         Outcome: (est.outcome_name as string) ?? exec.analysisName,
-        HR: typeof est.hr === "number" ? Math.round(est.hr * 100) / 100 : "—",
+        HR: typeof hr === "number" ? Math.round(hr * 100) / 100 : "—",
         "95% CI": typeof est.ci_95_lower === "number" && typeof est.ci_95_upper === "number"
           ? `${(est.ci_95_lower as number).toFixed(2)}–${(est.ci_95_upper as number).toFixed(2)}`
           : "—",
         "p-value": typeof est.p_value === "number"
           ? (est.p_value as number) < 0.001 ? "<0.001" : (est.p_value as number).toFixed(4)
           : "—",
-        Events: (est.event_count as number) ?? "—",
+        Events: events > 0 ? events : "—",
       });
     }
   }
@@ -121,18 +124,17 @@ function buildSccsTable(executions: SelectedExecution[]): TableData {
     const r = exec.resultJson;
     if (!r) continue;
 
-    const windows = Array.isArray(r.estimates)
+    // Structure: estimates[].{irr, covariate, ci_lower, ci_upper, name}
+    const estimates = Array.isArray(r.estimates)
       ? (r.estimates as Array<Record<string, unknown>>)
-      : Array.isArray(r.windows)
-        ? (r.windows as Array<Record<string, unknown>>)
-        : [r];
+      : [];
 
-    for (const w of windows) {
+    for (const est of estimates) {
       rows.push({
-        "Exposure Window": (w.window_name as string) ?? (w.covariate_name as string) ?? "—",
-        IRR: typeof w.irr === "number" ? Math.round(w.irr * 100) / 100 : "—",
-        "95% CI": typeof w.ci_95_lower === "number" && typeof w.ci_95_upper === "number"
-          ? `${(w.ci_95_lower as number).toFixed(2)}–${(w.ci_95_upper as number).toFixed(2)}`
+        "Exposure Window": (est.covariate as string) ?? (est.name as string) ?? (est.window_name as string) ?? "—",
+        IRR: typeof est.irr === "number" ? Math.round(est.irr * 100) / 100 : "—",
+        "95% CI": typeof est.ci_lower === "number" && typeof est.ci_upper === "number"
+          ? `${(est.ci_lower as number).toFixed(2)}–${(est.ci_upper as number).toFixed(2)}`
           : "—",
       });
     }
@@ -154,25 +156,36 @@ function buildPathwaysTable(executions: SelectedExecution[]): TableData {
     const r = exec.resultJson;
     if (!r) continue;
 
+    // Structure: pathways[].{path: string[], count: number, percent: number}
+    // Also: target_count, summary.{total_pathways, patients_with_events}
     const pathways = Array.isArray(r.pathways)
       ? (r.pathways as Array<Record<string, unknown>>)
       : [];
 
     const top = pathways.slice(0, 10);
     for (const p of top) {
+      // path is an array of step names like ["Cohort 155"] or ["Drug A", "Drug B"]
+      const pathArr = Array.isArray(p.path) ? (p.path as string[]) : [];
+      const pathName = pathArr.length > 0
+        ? pathArr.join(" → ")
+        : (p.pathway_name as string) ?? (p.name as string) ?? "—";
+
       rows.push({
-        Pathway: (p.pathway_name as string) ?? (p.name as string) ?? "—",
-        Patients: (p.patient_count as number) ?? 0,
-        "%": typeof p.percentage === "number"
-          ? Math.round(p.percentage * 100) / 100
-          : "—",
+        Pathway: pathName,
+        Patients: (p.count as number) ?? (p.patient_count as number) ?? 0,
+        "%": typeof p.percent === "number"
+          ? Math.round(p.percent * 100) / 100
+          : typeof p.percentage === "number"
+            ? Math.round(p.percentage * 100) / 100
+            : "—",
       });
     }
 
     if (top.length === 0) {
+      const summary = r.summary as Record<string, unknown> | undefined;
       rows.push({
         Pathway: exec.analysisName,
-        Patients: (r.patients_with_events as number) ?? (r.total_patients as number) ?? "—",
+        Patients: (summary?.patients_with_events as number) ?? (r.target_count as number) ?? "—",
         "%": "—",
       });
     }
@@ -252,13 +265,21 @@ function buildPredictionTable(executions: SelectedExecution[]): TableData {
     const r = exec.resultJson;
     if (!r) continue;
 
+    // Structure: performance.{auc, brier_score, auprc}, summary.{target_count, outcome_count}
+    const perf = (r.performance as Record<string, unknown>) ?? {};
+    const summary = (r.summary as Record<string, unknown>) ?? {};
+
+    const auc = (perf.auc as number) ?? (r.auc as number);
+    const brier = (perf.brier_score as number) ?? (r.brier_score as number);
+    const auprc = (perf.auprc as number) ?? (r.auprc as number);
+
     rows.push({
       Model: exec.analysisName,
-      AUC: typeof r.auc === "number" ? Math.round(r.auc * 1000) / 1000 : "—",
-      "Brier Score": typeof r.brier_score === "number" ? Math.round(r.brier_score * 1000) / 1000 : "—",
-      AUPRC: typeof r.auprc === "number" ? Math.round(r.auprc * 1000) / 1000 : "—",
-      "Target N": (r.target_count as number) ?? "—",
-      "Outcome N": (r.outcome_count as number) ?? "—",
+      AUC: typeof auc === "number" && auc > 0 ? Math.round(auc * 1000) / 1000 : "—",
+      "Brier Score": typeof brier === "number" && brier > 0 ? Math.round(brier * 1000) / 1000 : "—",
+      AUPRC: typeof auprc === "number" && auprc > 0 ? Math.round(auprc * 1000) / 1000 : "—",
+      "Target N": (summary.target_count as number) ?? (r.target_count as number) ?? "—",
+      "Outcome N": (summary.outcome_count as number) ?? (r.outcome_count as number) ?? "—",
     });
   }
 
