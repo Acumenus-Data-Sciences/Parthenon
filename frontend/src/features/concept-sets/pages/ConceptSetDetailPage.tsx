@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
@@ -9,16 +9,20 @@ import {
   Lock,
   Download,
   Copy,
+  Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "@/components/ui/Toast";
 import { ConceptSetEditor } from "../components/ConceptSetEditor";
+import { PhoebeRecommendationsPanel } from "../components/PhoebeRecommendationsPanel";
 import {
   useConceptSet,
   useUpdateConceptSet,
   useDeleteConceptSet,
   useCopyConceptSet,
+  useAddConceptSetItem,
 } from "../hooks/useConceptSets";
+import { useAggregatedPhoebeRecommendations } from "../hooks/usePhoebeRecommendations";
 import { exportConceptSet } from "../api/conceptSetApi";
 
 export default function ConceptSetDetailPage() {
@@ -30,6 +34,18 @@ export default function ConceptSetDetailPage() {
   const updateMutation = useUpdateConceptSet();
   const deleteMutation = useDeleteConceptSet();
   const copyMutation = useCopyConceptSet();
+  const addPhoebeItem = useAddConceptSetItem();
+
+  const conceptIds = useMemo(
+    () => (conceptSet?.items ?? []).map((i) => i.concept_id),
+    [conceptSet],
+  );
+
+  const {
+    data: aggregatedData,
+    isLoading: isAggregatedLoading,
+    isError: isAggregatedError,
+  } = useAggregatedPhoebeRecommendations(conceptIds);
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -315,6 +331,37 @@ export default function ConceptSetDetailPage() {
 
       {/* Editor */}
       <ConceptSetEditor conceptSet={conceptSet} />
+
+      {/* Aggregated Phoebe Recommendations */}
+      {conceptIds.length > 0 && (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Sparkles size={16} className="text-[#C9A227]" />
+            <h2 className="text-sm font-semibold text-[#F0EDE8]">
+              Recommended Concepts
+            </h2>
+          </div>
+          <PhoebeRecommendationsPanel
+            recommendations={aggregatedData}
+            isLoading={isAggregatedLoading}
+            isError={isAggregatedError}
+            existingConceptIds={new Set(conceptIds)}
+            onAddConcept={(cid) =>
+              addPhoebeItem.mutate({
+                setId: conceptSetId!,
+                payload: {
+                  concept_id: cid,
+                  is_excluded: false,
+                  include_descendants: true,
+                  include_mapped: false,
+                },
+              })
+            }
+            isAddingConcept={addPhoebeItem.isPending}
+            defaultExpanded={true}
+          />
+        </div>
+      )}
     </div>
   );
 }

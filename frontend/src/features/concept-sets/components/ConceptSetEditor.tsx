@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ConceptSetItemRow } from "./ConceptSetItemRow";
+import { PhoebeRecommendationsPanel } from "./PhoebeRecommendationsPanel";
 import {
   useResolveConceptSet,
   useAddConceptSetItem,
@@ -20,6 +21,7 @@ import {
   useRemoveConceptSetItem,
   useBulkUpdateConceptSetItems,
 } from "../hooks/useConceptSets";
+import { usePhoebeRecommendations } from "../hooks/usePhoebeRecommendations";
 import type { ConceptSet } from "../types/conceptSet";
 import { useVocabularySearch } from "@/features/vocabulary/hooks/useVocabularySearch";
 
@@ -34,6 +36,15 @@ export function ConceptSetEditor({ conceptSet }: ConceptSetEditorProps) {
   const [selectedItemIds, setSelectedItemIds] = useState<Set<number>>(
     new Set(),
   );
+  const [selectedConceptId, setSelectedConceptId] = useState<number | null>(
+    null,
+  );
+
+  const {
+    data: phoebeData,
+    isLoading: isPhoebeLoading,
+    isError: isPhoebeError,
+  } = usePhoebeRecommendations(selectedConceptId);
 
   const {
     data: resolveResult,
@@ -431,7 +442,9 @@ export function ConceptSetEditor({ conceptSet }: ConceptSetEditorProps) {
                     item={item}
                     index={i}
                     isSelected={selectedItemIds.has(item.id)}
+                    isHighlighted={selectedConceptId === item.concept_id}
                     onSelectionChange={toggleSelectItem}
+                    onRowClick={() => setSelectedConceptId(item.concept_id)}
                     onToggle={handleToggle}
                     onRemove={handleRemoveItem}
                     isUpdating={updateItemMutation.isPending}
@@ -451,6 +464,18 @@ export function ConceptSetEditor({ conceptSet }: ConceptSetEditorProps) {
             set
           </p>
         </div>
+      )}
+
+      {/* Phoebe Recommendations for selected concept */}
+      {selectedConceptId && (
+        <PhoebeRecommendationsPanel
+          recommendations={phoebeData ?? []}
+          isLoading={isPhoebeLoading}
+          isError={isPhoebeError}
+          existingConceptIds={new Set(items.map((i) => i.concept_id))}
+          onAddConcept={handleAddConcept}
+          isAddingConcept={addItemMutation.isPending}
+        />
       )}
     </div>
   );

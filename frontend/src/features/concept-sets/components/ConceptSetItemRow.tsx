@@ -6,7 +6,9 @@ interface ConceptSetItemRowProps {
   item: ConceptSetItem;
   index: number;
   isSelected?: boolean;
+  isHighlighted?: boolean;
   onSelectionChange?: (itemId: number) => void;
+  onRowClick?: () => void;
   onToggle: (
     itemId: number,
     field: "is_excluded" | "include_descendants" | "include_mapped",
@@ -57,7 +59,9 @@ export function ConceptSetItemRow({
   item,
   index,
   isSelected,
+  isHighlighted,
   onSelectionChange,
+  onRowClick,
   onToggle,
   onRemove,
   isUpdating,
@@ -68,10 +72,12 @@ export function ConceptSetItemRow({
 
   return (
     <tr
+      onClick={onRowClick}
       className={cn(
-        "border-t border-[#1C1C20] transition-colors hover:bg-[#1C1C20]",
+        "border-t border-[#1C1C20] transition-colors hover:bg-[#1C1C20] cursor-pointer",
         index % 2 === 0 ? "bg-[#151518]" : "bg-[#1A1A1E]",
         isSelected && "bg-[#2DD4BF]/5",
+        isHighlighted && "border-l-2 border-l-[#2DD4BF]",
       )}
     >
       {/* Checkbox */}
