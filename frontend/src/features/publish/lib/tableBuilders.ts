@@ -208,11 +208,11 @@ function buildCharacterizationTable(executions: SelectedExecution[]): TableData 
     if (!r) continue;
 
     // Structure: results[].{cohort_id, cohort_name, person_count, features.demographics[]}
+    // demographics[].{feature_name: "Gender", category: "FEMALE"|"MALE", percent}
     const results = Array.isArray(r.results)
       ? (r.results as Array<Record<string, unknown>>)
       : [];
 
-    // Fallback: cohorts[] (alternative structure)
     const cohorts = Array.isArray(r.cohorts)
       ? (r.cohorts as Array<Record<string, unknown>>)
       : [];
@@ -221,37 +221,53 @@ function buildCharacterizationTable(executions: SelectedExecution[]): TableData 
 
     for (const c of entries) {
       const personCount = (c.person_count as number) ?? (c.count as number) ?? 0;
-      if (personCount === 0) continue; // skip empty comparator cohorts
+      if (personCount === 0) continue;
 
-      // Extract demographics from features if available
       const features = c.features as Record<string, Array<Record<string, unknown>>> | undefined;
       const demographics = features?.demographics ?? [];
-      const femalePct = demographics.find(
-        (d) => (d.concept_name as string)?.toLowerCase().includes("female")
+
+      // Find gender entries by category field
+      const femaleDemo = demographics.find(
+        (d) => ((d.category as string) ?? "").toUpperCase() === "FEMALE"
+          || ((d.concept_name as string) ?? "").toLowerCase().includes("female")
+      );
+      const maleDemo = demographics.find(
+        (d) => ((d.category as string) ?? "").toUpperCase() === "MALE"
+          || ((d.concept_name as string) ?? "").toLowerCase().includes("male")
+      );
+
+      // Find age group
+      const ageDemo = demographics.find(
+        (d) => ((d.feature_name as string) ?? "").toLowerCase() === "age group"
       );
 
       rows.push({
         Cohort: (c.cohort_name as string) ?? `Cohort #${c.cohort_id}` ?? exec.analysisName,
-        "N": personCount,
-        "% Female": typeof femalePct?.percent === "number"
-          ? Math.round(femalePct.percent as number * 10) / 10
+        N: personCount,
+        "% Female": femaleDemo && typeof femaleDemo.percent === "number" && (femaleDemo.percent as number) >= 0
+          ? Math.round(femaleDemo.percent as number * 10) / 10
           : "—",
+        "% Male": maleDemo && typeof maleDemo.percent === "number" && (maleDemo.percent as number) >= 0
+          ? Math.round(maleDemo.percent as number * 10) / 10
+          : "—",
+        "Age Group": (ageDemo?.category as string) ?? "—",
       });
     }
 
-    // Fallback if no structured data
     if (entries.length === 0) {
       rows.push({
         Cohort: exec.analysisName,
-        "N": (r.total_count as number) ?? (r.count as number) ?? "—",
+        N: (r.total_count as number) ?? (r.count as number) ?? "—",
         "% Female": "—",
+        "% Male": "—",
+        "Age Group": "—",
       });
     }
   }
 
   return {
     caption: "Population characteristics",
-    headers: ["Cohort", "N", "% Female"],
+    headers: ["Cohort", "N", "% Female", "% Male", "Age Group"],
     rows,
   };
 }
