@@ -82,9 +82,11 @@ class AiProviderController extends Controller
         $provider = AiProviderSetting::where('provider_type', $type)->firstOrFail();
         $settings = $provider->settings ?? [];
 
+        $model = $provider->model;
+
         $result = match ($type) {
             'ollama' => $this->testOllama($settings),
-            'anthropic' => $this->testAnthropic($settings),
+            'anthropic' => $this->testAnthropic($settings, $model),
             'openai' => $this->testOpenAi($settings),
             'gemini' => $this->testGemini($settings),
             'deepseek' => $this->testDeepSeek($settings),
@@ -120,13 +122,15 @@ class AiProviderController extends Controller
     }
 
     /** @param array<string, mixed> $cfg */
-    private function testAnthropic(array $cfg): array
+    private function testAnthropic(array $cfg, string $model = ''): array
     {
         $apiKey = $cfg['api_key'] ?? '';
 
         if (empty($apiKey)) {
             return ['success' => false, 'message' => 'API key is not configured.'];
         }
+
+        $model = $model ?: 'claude-haiku-4-5-20251001';
 
         try {
             $response = Http::timeout(10)
@@ -136,9 +140,9 @@ class AiProviderController extends Controller
                     'content-type' => 'application/json',
                 ])
                 ->post('https://api.anthropic.com/v1/messages', [
-                    'model' => 'claude-haiku-4-5-20251001',
-                    'max_tokens' => 1,
-                    'messages' => [['role' => 'user', 'content' => 'Hi']],
+                    'model' => $model,
+                    'max_tokens' => 10,
+                    'messages' => [['role' => 'user', 'content' => 'Say ok']],
                 ]);
 
             if ($response->status() === 200 || $response->status() === 400) {

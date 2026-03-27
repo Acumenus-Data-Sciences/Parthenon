@@ -128,10 +128,27 @@ function ProviderCard({ provider }: { provider: AiProviderSetting }) {
 
   function handleTest() {
     setTestResult(null);
-    testMutation.mutate(provider.provider_type, {
-      onSuccess: (r) => setTestResult(r),
-      onError: () => setTestResult({ success: false, message: "Request failed." }),
-    });
+
+    const runTest = () => {
+      testMutation.mutate(provider.provider_type, {
+        onSuccess: (r) => setTestResult(r),
+        onError: () => setTestResult({ success: false, message: "Request failed." }),
+      });
+    };
+
+    // Auto-save unsaved settings before testing so the backend has the latest key
+    if (dirty) {
+      const settings: Record<string, string> = {};
+      if (meta.hasApiKey) settings.api_key = apiKey;
+      if (meta.hasBaseUrl) settings.base_url = baseUrl;
+
+      updateMutation.mutate(
+        { type: provider.provider_type, data: { model, settings } },
+        { onSuccess: () => { setDirty(false); runTest(); } },
+      );
+    } else {
+      runTest();
+    }
   }
 
   const isSaving = updateMutation.isPending;
