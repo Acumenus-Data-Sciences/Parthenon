@@ -13,6 +13,8 @@ import {
   submitFeedback,
   executePlan,
 } from "../../services/abbyService";
+import { askDataQuestion } from '../../services/dataInterrogationService';
+import { DataInterrogationResult } from './DataInterrogationResult';
 import { useAuthStore } from "@/stores/authStore";
 import { useAbbyStore } from "@/stores/abbyStore";
 import { useAbbyConversations } from "../../api";
@@ -20,6 +22,7 @@ import type {
   AbbyConversationMessage,
   AbbyFeedbackRequest,
   AbbyQueryResponse,
+  DataInterrogationResponse,
   ObjectReference,
 } from "../../types/abby";
 import type { ActionPlan } from '../../../abby-ai/types/agency';
@@ -33,6 +36,7 @@ interface ConversationEntry {
   timestamp: string;
   userName?: string;
   response?: AbbyQueryResponse;
+  dataResult?: DataInterrogationResponse;
 }
 
 // ─── Suggested Prompts ──────────────────────────────────────────
@@ -145,11 +149,15 @@ function AbbyBubble({
 
         {/* Response body */}
         <div className="px-3.5 py-2.5 rounded-2xl rounded-bl-sm bg-muted">
-          <div className="prose prose-sm prose-invert max-w-none text-[13px] text-foreground leading-relaxed [&_p]:my-1 [&_ul]:my-2 [&_ol]:my-2 [&_li]:my-0.5 [&_pre]:bg-[#13131a] [&_pre]:border [&_pre]:border-white/[0.06] [&_pre]:rounded-md [&_pre]:p-3 [&_code]:text-teal-400">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-              {entry.response ? entry.response.content : entry.content}
-            </ReactMarkdown>
-          </div>
+          {entry.dataResult ? (
+            <DataInterrogationResult result={entry.dataResult} />
+          ) : (
+            <div className="prose prose-sm prose-invert max-w-none text-[13px] text-foreground leading-relaxed [&_p]:my-1 [&_ul]:my-2 [&_ol]:my-2 [&_li]:my-0.5 [&_pre]:bg-[#13131a] [&_pre]:border [&_pre]:border-white/[0.06] [&_pre]:rounded-md [&_pre]:p-3 [&_code]:text-teal-400">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {entry.response ? entry.response.content : entry.content}
+              </ReactMarkdown>
+            </div>
+          )}
         </div>
 
         {/* Suggestion chips */}
@@ -210,6 +218,7 @@ export default function AskAbbyChannel() {
   const [historyOpen, setHistoryOpen] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [activePlan, setActivePlan] = useState<ActionPlan | null>(null);
+  const [isDataLoading, setIsDataLoading] = useState(false);
   const { response, pipelineState, isLoading, error, sendQuery } = useAbbyQuery();
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -264,7 +273,7 @@ export default function AskAbbyChannel() {
         behavior: "smooth",
       });
     });
-  }, [conversation.length, isLoading, pipelineState.stage]);
+  }, [conversation.length, isLoading, isDataLoading, pipelineState.stage]);
 
   // Append Abby's response when query completes
   useEffect(() => {
@@ -287,9 +296,9 @@ export default function AskAbbyChannel() {
   }, [response, setConversationId]);
 
   const handleSend = useCallback(
-    (text?: string) => {
+    async (text?: string) => {
       const query = (text ?? inputValue).trim();
-      if (!query || isLoading) return;
+      if (!query || isLoading || isDataLoading) return;
 
       setConversation((prev) => [
         ...prev,
@@ -305,8 +314,51 @@ export default function AskAbbyChannel() {
       setInputValue("");
       inputRef.current?.focus();
 
-      // Build history from current conversation state (state not yet updated with
-      // the just-added user message, so this captures all prior turns correctly).
+      // Route /data queries to the data interrogation endpoint
+      if (query.startsWith("/data ")) {
+        const question = query.slice(6).trim();
+        if (!question) return;
+
+        setIsDataLoading(true);
+        try {
+          const result = await askDataQuestion({
+            question,
+            source_id: 1, // TODO: wire to user's selected source
+          });
+          setConversation((prev) => [
+            ...prev,
+            {
+              id: crypto.randomUUID(),
+              role: "abby",
+              content: result.answer || "",
+              timestamp: new Date().toISOString(),
+              dataResult: result,
+            },
+          ]);
+        } catch (err) {
+          setConversation((prev) => [
+            ...prev,
+            {
+              id: crypto.randomUUID(),
+              role: "abby",
+              content: "",
+              timestamp: new Date().toISOString(),
+              dataResult: {
+                answer: "",
+                tables: [],
+                queries: [],
+                iterations: 0,
+                error: err instanceof Error ? err.message : "An error occurred while analyzing your data question.",
+              },
+            },
+          ]);
+        } finally {
+          setIsDataLoading(false);
+        }
+        return;
+      }
+
+      // Regular Abby query
       const history = conversation.map((entry) => ({
         role: (entry.role === "abby" ? "assistant" : "user") as
           | "user"
@@ -324,7 +376,7 @@ export default function AskAbbyChannel() {
         history,
       });
     },
-    [conversationId, inputValue, isLoading, userName, sendQuery]
+    [conversationId, inputValue, isLoading, isDataLoading, userName, sendQuery, conversation]
   );
 
   const handleFeedback = useCallback(
@@ -506,6 +558,17 @@ export default function AskAbbyChannel() {
             </div>
           )}
 
+          {isDataLoading && (
+            <div className="flex items-start gap-2.5 mb-3">
+              <AbbyAvatar size="sm" />
+              <div className="px-3.5 py-2.5 rounded-2xl rounded-bl-sm bg-muted">
+                <p className="text-xs text-muted-foreground animate-pulse">
+                  Analyzing data...
+                </p>
+              </div>
+            </div>
+          )}
+
           {error && !isLoading && (
             <div className="flex gap-2.5">
               <AbbyAvatar size="md" />
@@ -536,12 +599,12 @@ export default function AskAbbyChannel() {
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Ask Abby anything about your research network..."
-              disabled={isLoading}
+              disabled={isLoading || isDataLoading}
               className="flex-1 h-10 px-3.5 text-[13px] bg-[#13131a] border border-white/[0.08] rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/30 disabled:opacity-60 transition-all duration-150"
             />
             <button
               onClick={() => handleSend()}
-              disabled={!inputValue.trim() || isLoading}
+              disabled={!inputValue.trim() || isLoading || isDataLoading}
               className="h-10 px-5 rounded-lg text-[13px] font-medium bg-emerald-600 hover:bg-emerald-500 text-white disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-150 cursor-pointer hover:shadow-[0_0_16px_rgba(16,185,129,0.25)]"
             >
               Ask

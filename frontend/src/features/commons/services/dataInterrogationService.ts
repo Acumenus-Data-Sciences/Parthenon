@@ -1,4 +1,4 @@
-import api from '@/lib/api';
+import apiClient from '@/lib/api-client';
 import type {
   DataInterrogationRequest,
   DataInterrogationResponse,
@@ -7,7 +7,7 @@ import type {
 export async function askDataQuestion(
   request: DataInterrogationRequest,
 ): Promise<DataInterrogationResponse> {
-  const { data } = await api.post<DataInterrogationResponse>(
+  const { data } = await apiClient.post<DataInterrogationResponse>(
     '/data-interrogation/ask',
     request,
     { timeout: 120_000 },
