@@ -3,12 +3,14 @@
 // ---------------------------------------------------------------------------
 
 import { useReducer, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
 import { FileOutput, Check } from "lucide-react";
 import UnifiedAnalysisPicker from "../components/UnifiedAnalysisPicker";
 import DocumentConfigurator from "../components/DocumentConfigurator";
 import DocumentPreview from "../components/DocumentPreview";
 import ExportPanel from "../components/ExportPanel";
 import { useGenerateNarrative } from "../hooks/useNarrativeGeneration";
+import { buildTableFromResults } from "../lib/tableBuilders";
 import type {
   ReportSection,
   SelectedExecution,
@@ -77,78 +79,98 @@ const initialState: WizardState = {
   template: "generic-ohdsi",
 };
 
-// ── Section generation helpers ──────────────────────────────────────────────
+// ── Research-question section config ────────────────────────────────────────
 
-function diagramTypeForAnalysis(analysisType: string): DiagramType | null {
-  const normalized = analysisType.toLowerCase().replace(/[-_\s]/g, "");
-  if (normalized.includes("estimation") || normalized.includes("sccs")) {
-    return "forest_plot";
-  }
-  if (normalized.includes("prediction")) {
-    return "kaplan_meier";
-  }
-  if (normalized.includes("characterization")) {
-    return "attrition";
-  }
-  if (normalized.includes("evidencesynthesis")) {
-    return "forest_plot";
-  }
-  return null;
-}
+const SECTION_CONFIG: Record<string, { title: string; diagramType: DiagramType | null }> = {
+  characterizations: { title: "Population Characteristics", diagramType: "attrition" },
+  incidence_rates: { title: "Incidence Rates", diagramType: null },
+  estimations: { title: "Comparative Effectiveness", diagramType: "forest_plot" },
+  pathways: { title: "Treatment Patterns", diagramType: null },
+  sccs: { title: "Safety Analysis", diagramType: null },
+  predictions: { title: "Predictive Modeling", diagramType: "kaplan_meier" },
+  evidence_synthesis: { title: "Evidence Synthesis", diagramType: "forest_plot" },
+};
 
-function buildSectionsFromExecutions(
+function buildManuscriptSections(
   executions: SelectedExecution[],
 ): ReportSection[] {
   const sections: ReportSection[] = [];
 
-  // One "methods" section per unique analysis type
-  const seenTypes = new Set<string>();
+  // 1. Introduction
+  sections.push({
+    id: "introduction",
+    title: "Introduction",
+    type: "methods",
+    included: true,
+    content: "",
+    narrativeState: "idle",
+    tableIncluded: false,
+    narrativeIncluded: true,
+    diagramIncluded: false,
+  });
+
+  // 2. Methods (unified across all analysis types)
+  sections.push({
+    id: "methods",
+    title: "Methods",
+    type: "methods",
+    included: true,
+    content: "",
+    narrativeState: "idle",
+    tableIncluded: false,
+    narrativeIncluded: true,
+    diagramIncluded: false,
+  });
+
+  // 3. Results subsections — grouped by analysis type
+  const groupedByType = new Map<string, SelectedExecution[]>();
   for (const exec of executions) {
-    if (!seenTypes.has(exec.analysisType)) {
-      seenTypes.add(exec.analysisType);
-      sections.push({
-        id: `methods-${exec.analysisType}`,
-        title: `Methods: ${exec.analysisType.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}`,
-        type: "methods",
-        analysisType: exec.analysisType,
-        included: true,
-        content: "",
-        narrativeState: "idle",
-      });
-    }
+    const group = groupedByType.get(exec.analysisType) ?? [];
+    group.push(exec);
+    groupedByType.set(exec.analysisType, group);
   }
 
-  // One "results" section per execution + optional diagram
-  for (const exec of executions) {
+  const typeOrder = [
+    "characterizations",
+    "incidence_rates",
+    "pathways",
+    "estimations",
+    "sccs",
+    "predictions",
+    "evidence_synthesis",
+  ];
+
+  for (const analysisType of typeOrder) {
+    const groupExecs = groupedByType.get(analysisType);
+    if (!groupExecs || groupExecs.length === 0) continue;
+
+    const config = SECTION_CONFIG[analysisType] ?? {
+      title: analysisType.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
+      diagramType: null,
+    };
+
+    const tableData = buildTableFromResults(analysisType, groupExecs);
+
     sections.push({
-      id: `results-${exec.executionId}`,
-      title: `Results: ${exec.analysisName}`,
+      id: `results-${analysisType}`,
+      title: config.title,
       type: "results",
-      analysisType: exec.analysisType,
-      executionId: exec.executionId,
+      analysisType,
       included: true,
       content: "",
       narrativeState: "idle",
+      tableData,
+      tableIncluded: tableData !== undefined,
+      narrativeIncluded: true,
+      diagramIncluded: config.diagramType !== null,
+      diagramType: config.diagramType ?? undefined,
+      diagramData: config.diagramType
+        ? (groupExecs[0].resultJson as Record<string, unknown>) ?? undefined
+        : undefined,
     });
-
-    const diagType = diagramTypeForAnalysis(exec.analysisType);
-    if (diagType) {
-      sections.push({
-        id: `diagram-${exec.executionId}`,
-        title: `${diagType.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}: ${exec.analysisName}`,
-        type: "diagram",
-        analysisType: exec.analysisType,
-        executionId: exec.executionId,
-        diagramType: diagType,
-        diagramData: (exec.resultJson as Record<string, unknown>) ?? undefined,
-        included: true,
-        content: "",
-        narrativeState: "idle",
-      });
-    }
   }
 
-  // Discussion section at the end
+  // 4. Discussion
   sections.push({
     id: "discussion",
     title: "Discussion",
@@ -156,6 +178,9 @@ function buildSectionsFromExecutions(
     included: true,
     content: "",
     narrativeState: "idle",
+    tableIncluded: false,
+    narrativeIncluded: true,
+    diagramIncluded: false,
   });
 
   return sections;
@@ -164,6 +189,11 @@ function buildSectionsFromExecutions(
 // ── Component ───────────────────────────────────────────────────────────────
 
 export default function PublishPage() {
+  const [searchParams] = useSearchParams();
+  const initialStudyId = searchParams.get("studyId")
+    ? Number(searchParams.get("studyId"))
+    : undefined;
+
   const [state, dispatch] = useReducer(wizardReducer, initialState);
   const narrativeMutation = useGenerateNarrative();
 
@@ -176,10 +206,10 @@ export default function PublishPage() {
   );
 
   const handleStep1Next = useCallback(() => {
-    const sections = buildSectionsFromExecutions(state.selectedExecutions);
+    const sections = buildManuscriptSections(state.selectedExecutions);
     const defaultTitle =
       state.selectedExecutions.length > 0
-        ? state.selectedExecutions[0].analysisName
+        ? state.selectedExecutions[0].studyTitle ?? state.selectedExecutions[0].analysisName
         : "Untitled Document";
 
     dispatch({ type: "SET_SECTIONS", sections });
@@ -329,6 +359,7 @@ export default function PublishPage() {
             selections={state.selectedExecutions}
             onSelectionsChange={handleSelectionsChange}
             onNext={handleStep1Next}
+            initialStudyId={initialStudyId}
           />
         )}
 
