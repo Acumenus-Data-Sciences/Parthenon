@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   ArrowLeftRight,
   Upload,
@@ -13,15 +13,25 @@ import {
   AlertCircle,
   Sparkles,
   RefreshCw,
+  Save,
+  FolderOpen,
+  Database,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { toast } from "@/components/ui/Toast";
 import {
   mapTerms,
   cleanTerms,
+  saveMappings,
+  saveProject,
+  listProjects,
+  loadProject,
   type MappingResult,
   type MappingCandidate,
   type CleanedTerm,
   type MapTermsParams,
+  type SaveMappingEntry,
+  type MappingProject,
 } from "../api/ariadneApi";
 
 // ── Constants ──────────────────────────────────────────────────────────────
@@ -599,6 +609,79 @@ export default function MappingAssistantPage() {
     });
   }, []);
 
+  // ── Save / Load state ─────────────────────────────────────────────────────
+  const [projectNameInput, setProjectNameInput] = useState("");
+  const [showProjectNameInput, setShowProjectNameInput] = useState(false);
+  const [showProjectDropdown, setShowProjectDropdown] = useState(false);
+
+  // Build save-mapping entries from accepted results
+  const buildSaveMappingEntries = useCallback(
+    (res: MappingResult[], dec: Map<string, Decision>): SaveMappingEntry[] =>
+      res
+        .filter((r) => dec.get(r.source_term) === "accepted" && r.best_match !== null)
+        .map((r) => ({
+          source_code: r.source_term.slice(0, 50),
+          source_code_description: r.source_term,
+          target_concept_id: r.best_match!.concept_id,
+          target_vocabulary_id: r.best_match!.vocabulary_id,
+        })),
+    [],
+  );
+
+  const saveMappingsMutation = useMutation({
+    mutationFn: (entries: SaveMappingEntry[]) => saveMappings(entries),
+    onSuccess: (data) => {
+      toast.success(`Saved ${data.saved} mapping${data.saved !== 1 ? "s" : ""} to source_to_concept_map`);
+    },
+    onError: () => {
+      toast.error("Failed to save mappings");
+    },
+  });
+
+  const saveProjectMutation = useMutation({
+    mutationFn: (params: { name: string }) =>
+      saveProject({
+        name: params.name,
+        source_terms: parsedTerms,
+        results,
+        decisions: Object.fromEntries(decisions.entries()),
+        target_vocabularies: targetVocabs.length > 0 ? targetVocabs : undefined,
+        target_domains: targetDomains.length > 0 ? targetDomains : undefined,
+      }),
+    onSuccess: (data) => {
+      toast.success(`Project saved: ${data.name}`);
+      setShowProjectNameInput(false);
+      setProjectNameInput("");
+    },
+    onError: () => {
+      toast.error("Failed to save project");
+    },
+  });
+
+  const projectsQuery = useQuery({
+    queryKey: ["ariadne", "projects"],
+    queryFn: listProjects,
+    enabled: showProjectDropdown,
+  });
+
+  const handleLoadProject = useCallback(
+    async (id: number) => {
+      try {
+        const project: MappingProject = await loadProject(id);
+        setResults(project.results);
+        setDecisions(new Map(Object.entries(project.decisions) as [string, Decision][]));
+        setTargetVocabs(project.target_vocabularies ?? []);
+        setTargetDomains(project.target_domains ?? []);
+        setTermsText(project.source_terms.join("\n"));
+        setShowProjectDropdown(false);
+        toast.success(`Loaded project: ${project.name}`);
+      } catch {
+        toast.error("Failed to load project");
+      }
+    },
+    [setResults, setDecisions, setTargetVocabs, setTargetDomains, setTermsText],
+  );
+
   // Summary stats
   const totalMapped = results.filter((r) => r.best_match !== null).length;
   const highConf = results.filter(
@@ -677,6 +760,60 @@ export default function MappingAssistantPage() {
               className="hidden"
               onChange={handleFileUpload}
             />
+
+            {/* Load Project dropdown */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setShowProjectDropdown((v) => !v)}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-[#232328] bg-transparent px-3 py-1.5 text-xs text-[#8A857D] hover:text-[#F0EDE8] hover:border-[#3A3A40] transition-colors"
+              >
+                <FolderOpen className="h-3.5 w-3.5" />
+                Load Project
+              </button>
+              {showProjectDropdown && (
+                <>
+                  <div
+                    className="fixed inset-0 z-10"
+                    onClick={() => setShowProjectDropdown(false)}
+                  />
+                  <div className="absolute left-0 top-full z-20 mt-1 w-72 rounded-lg border border-[#232328] bg-[#151518] shadow-xl py-1 max-h-64 overflow-y-auto">
+                    {projectsQuery.isLoading && (
+                      <div className="flex items-center gap-2 px-3 py-3 text-xs text-[#5A5650]">
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        Loading projects...
+                      </div>
+                    )}
+                    {projectsQuery.isError && (
+                      <div className="px-3 py-3 text-xs text-[#E85A6B]">
+                        Failed to load projects
+                      </div>
+                    )}
+                    {projectsQuery.data && projectsQuery.data.length === 0 && (
+                      <div className="px-3 py-3 text-xs text-[#5A5650]">
+                        No saved projects
+                      </div>
+                    )}
+                    {projectsQuery.data?.map((p) => (
+                      <button
+                        key={p.id}
+                        type="button"
+                        onClick={() => handleLoadProject(p.id)}
+                        className="w-full text-left px-3 py-2 hover:bg-[#1C1C20] transition-colors"
+                      >
+                        <div className="text-sm text-[#F0EDE8] truncate">{p.name}</div>
+                        <div className="text-[10px] text-[#5A5650] mt-0.5">
+                          {p.source_terms.length} terms
+                          {" -- "}
+                          {new Date(p.updated_at).toLocaleDateString()}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+
             {parsedTerms.length > 0 && (
               <span className="text-xs text-[#5A5650]">
                 {parsedTerms.length} term{parsedTerms.length !== 1 ? "s" : ""} entered
@@ -797,9 +934,83 @@ export default function MappingAssistantPage() {
           </div>
 
           {accepted > 0 && (
-            <div className="flex items-center gap-2 text-sm text-[#2DD4BF]">
-              <Check className="h-4 w-4" />
-              <span>{accepted} mapping{accepted !== 1 ? "s" : ""} accepted</span>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-sm text-[#2DD4BF]">
+                <Check className="h-4 w-4" />
+                <span>{accepted} mapping{accepted !== 1 ? "s" : ""} accepted</span>
+              </div>
+
+              {/* Action bar */}
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  disabled={saveMappingsMutation.isPending}
+                  onClick={() => {
+                    const entries = buildSaveMappingEntries(results, decisions);
+                    if (entries.length > 0) saveMappingsMutation.mutate(entries);
+                  }}
+                  className="inline-flex items-center gap-2 rounded-lg bg-[#9B1B30] px-4 py-2 text-sm font-medium text-white hover:bg-[#B22234] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  {saveMappingsMutation.isPending ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Database className="h-4 w-4" />
+                  )}
+                  Save to Vocabulary
+                </button>
+
+                {!showProjectNameInput ? (
+                  <button
+                    type="button"
+                    onClick={() => setShowProjectNameInput(true)}
+                    className="inline-flex items-center gap-2 rounded-lg border border-[#232328] bg-[#151518] px-4 py-2 text-sm text-[#8A857D] hover:text-[#F0EDE8] hover:border-[#3A3A40] transition-colors"
+                  >
+                    <Save className="h-4 w-4" />
+                    Save Project
+                  </button>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={projectNameInput}
+                      onChange={(e) => setProjectNameInput(e.target.value)}
+                      placeholder="Project name..."
+                      className="rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm text-[#F0EDE8] placeholder-[#3A3A40] focus:border-[#9B1B30] focus:outline-none focus:ring-1 focus:ring-[#9B1B30]/30 w-48 transition-colors"
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && projectNameInput.trim()) {
+                          saveProjectMutation.mutate({ name: projectNameInput.trim() });
+                        }
+                        if (e.key === "Escape") {
+                          setShowProjectNameInput(false);
+                          setProjectNameInput("");
+                        }
+                      }}
+                    />
+                    <button
+                      type="button"
+                      disabled={!projectNameInput.trim() || saveProjectMutation.isPending}
+                      onClick={() => saveProjectMutation.mutate({ name: projectNameInput.trim() })}
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-[#9B1B30] px-3 py-2 text-sm text-white hover:bg-[#B22234] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      {saveProjectMutation.isPending ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <Save className="h-3.5 w-3.5" />
+                      )}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowProjectNameInput(false);
+                        setProjectNameInput("");
+                      }}
+                      className="text-[#5A5650] hover:text-[#C5C0B8] transition-colors"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           )}
 

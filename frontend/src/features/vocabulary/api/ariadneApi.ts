@@ -32,6 +32,38 @@ export interface VectorResult {
   domain_id: string;
 }
 
+export interface SaveMappingEntry {
+  source_code: string;
+  source_code_description: string | null;
+  target_concept_id: number;
+  target_vocabulary_id: string;
+  source_vocabulary_id?: string;
+  source_concept_id?: number;
+}
+
+export interface MappingProject {
+  id: number;
+  name: string;
+  description: string | null;
+  source_terms: string[];
+  results: MappingResult[];
+  decisions: Record<string, string | null>;
+  target_vocabularies: string[] | null;
+  target_domains: string[] | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SaveProjectParams {
+  name: string;
+  description?: string;
+  source_terms: string[];
+  results: MappingResult[];
+  decisions: Record<string, string | null>;
+  target_vocabularies?: string[];
+  target_domains?: string[];
+}
+
 // ── Request param types ────────────────────────────────────────────────────
 
 export interface MapTermsParams {
@@ -84,4 +116,45 @@ export async function vectorSearch(params: VectorSearchParams): Promise<VectorRe
   if (Array.isArray(inner)) return inner;
   if (inner?.results && Array.isArray(inner.results)) return inner.results;
   return [];
+}
+
+/**
+ * Save accepted mappings to source_to_concept_map.
+ * POST /api/v1/ariadne/save-mappings
+ */
+export async function saveMappings(
+  mappings: SaveMappingEntry[],
+): Promise<{ saved: number }> {
+  const { data } = await apiClient.post("/ariadne/save-mappings", { mappings });
+  return data;
+}
+
+/**
+ * Persist a mapping session as a project.
+ * POST /api/v1/ariadne/projects
+ */
+export async function saveProject(
+  params: SaveProjectParams,
+): Promise<MappingProject> {
+  const { data } = await apiClient.post("/ariadne/projects", params);
+  return data?.data ?? data;
+}
+
+/**
+ * List mapping projects for the current user.
+ * GET /api/v1/ariadne/projects
+ */
+export async function listProjects(): Promise<MappingProject[]> {
+  const { data } = await apiClient.get("/ariadne/projects");
+  // Paginated Laravel response: { data: [...], ... }
+  return data?.data ?? [];
+}
+
+/**
+ * Load a single mapping project by ID.
+ * GET /api/v1/ariadne/projects/{id}
+ */
+export async function loadProject(id: number): Promise<MappingProject> {
+  const { data } = await apiClient.get(`/ariadne/projects/${id}`);
+  return data?.data ?? data;
 }
