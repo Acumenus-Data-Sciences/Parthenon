@@ -2,71 +2,44 @@
 
 namespace App\Services\Achilles;
 
-use App\Enums\DaimonType;
+use App\Concerns\SourceAware;
 use App\Models\App\Source;
 use App\Models\Results\AchillesAnalysis;
 use App\Models\Results\AchillesPerformance;
 use App\Models\Results\AchillesResult;
 use App\Models\Results\AchillesResultDist;
-use App\Services\Database\DynamicConnectionFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
 class AchillesResultReaderService
 {
-    public function __construct(
-        private readonly DynamicConnectionFactory $connectionFactory,
-    ) {}
-
-    /**
-     * Set the results connection's search_path (or equivalent) for this source
-     * and store the active connection name for subsequent queries in this request.
-     */
-    private string $activeConnection = 'results';
-
-    private function setSchemaForSource(Source $source): void
-    {
-        $daimon = $source->daimons()->where('daimon_type', DaimonType::Results->value)->first();
-        $schema = $daimon?->table_qualifier ?? 'results';
-
-        if (! empty($source->db_host)) {
-            // Dynamic source — build connection and set search_path
-            $this->activeConnection = $this->connectionFactory->connectionForSchema($source, $schema);
-        } else {
-            // Static named connection — SET search_path on the configured 'results' connection
-            $this->activeConnection = 'results';
-            DB::connection('results')->statement(
-                "SET search_path TO \"{$schema}\", public"
-            );
-        }
-    }
+    use SourceAware;
 
     // ── Per-connection model query helpers ───────────────────────────────────
-    // These scope every Eloquent query to $this->activeConnection so that
-    // dynamic sources (db_host set) use their own registered connection.
+    // These scope every Eloquent query to the SourceContext results connection.
 
     /** @return Builder<AchillesResult> */
     private function ar(): Builder
     {
-        return AchillesResult::on($this->activeConnection)->newQuery();
+        return AchillesResult::on($this->results()->getName())->newQuery();
     }
 
     /** @return Builder<AchillesResultDist> */
     private function ard(): Builder
     {
-        return AchillesResultDist::on($this->activeConnection)->newQuery();
+        return AchillesResultDist::on($this->results()->getName())->newQuery();
     }
 
     /** @return Builder<AchillesAnalysis> */
     private function aa(): Builder
     {
-        return AchillesAnalysis::on($this->activeConnection)->newQuery();
+        return AchillesAnalysis::on($this->results()->getName())->newQuery();
     }
 
     /** @return Builder<AchillesPerformance> */
     private function ap(): Builder
     {
-        return AchillesPerformance::on($this->activeConnection)->newQuery();
+        return AchillesPerformance::on($this->results()->getName())->newQuery();
     }
 
     /**
@@ -201,7 +174,7 @@ class AchillesResultReaderService
      */
     public function getRecordCounts(Source $source): array
     {
-        $this->setSchemaForSource($source);
+
         $analysisIds = array_values(self::RECORD_COUNT_ANALYSES);
 
         $results = $this->ar()->forAnalysis($analysisIds)
@@ -272,7 +245,7 @@ class AchillesResultReaderService
      */
     public function getDemographics(Source $source): array
     {
-        $this->setSchemaForSource($source);
+
         // Analysis 2: gender distribution (stratum_1 = gender_concept_id)
         $genderRows = $this->ar()->forAnalysis(2)->get();
         $gender = $genderRows->map(fn ($row) => [
@@ -386,7 +359,7 @@ class AchillesResultReaderService
      */
     public function getObservationPeriods(Source $source): array
     {
-        $this->setSchemaForSource($source);
+
         // Analysis 101: observation period count
         $countRow = $this->ar()->forAnalysis(101)->first();
         $count = $countRow ? (int) $countRow->count_value : 0;
@@ -437,7 +410,7 @@ class AchillesResultReaderService
      */
     public function getDomainSummary(Source $source, string $domain, int $limit = 25): array
     {
-        $this->setSchemaForSource($source);
+
         $analysisMap = self::DOMAIN_ANALYSIS_MAP[$domain] ?? null;
 
         if ($analysisMap === null) {
@@ -506,7 +479,7 @@ class AchillesResultReaderService
      */
     public function getConceptDrilldown(Source $source, string $domain, int $conceptId): array
     {
-        $this->setSchemaForSource($source);
+
         $analysisMap = self::DOMAIN_ANALYSIS_MAP[$domain] ?? null;
 
         if ($analysisMap === null) {
@@ -595,7 +568,7 @@ class AchillesResultReaderService
      */
     public function getTemporalTrends(Source $source, string $domain): array
     {
-        $this->setSchemaForSource($source);
+
         $analysisMap = self::DOMAIN_ANALYSIS_MAP[$domain] ?? null;
 
         if ($analysisMap === null || ! isset($analysisMap['month'])) {
@@ -626,7 +599,7 @@ class AchillesResultReaderService
      */
     public function getDistribution(Source $source, int $analysisId, ?string $stratum1 = null): array
     {
-        $this->setSchemaForSource($source);
+
         $query = $this->ard()->forAnalysis($analysisId);
 
         if ($stratum1 !== null) {
@@ -655,7 +628,7 @@ class AchillesResultReaderService
      */
     public function getAvailableAnalyses(Source $source): array
     {
-        $this->setSchemaForSource($source);
+
         // Join achilles_analysis with a count of rows in achilles_results per analysis_id
         $analyses = $this->aa()
             ->select('achilles_analysis.*')
@@ -688,7 +661,7 @@ class AchillesResultReaderService
      */
     public function getPerformanceReport(Source $source): array
     {
-        $this->setSchemaForSource($source);
+
         $performances = $this->ap()
             ->orderByDesc('elapsed_seconds')
             ->get();
@@ -762,8 +735,7 @@ class AchillesResultReaderService
         }
 
         try {
-            $concept = DB::connection('omop')
-                ->table('concept')
+            $concept = $this->vocab()->table('concept')
                 ->where('concept_id', $conceptId)
                 ->value('concept_name');
 
@@ -801,8 +773,7 @@ class AchillesResultReaderService
 
         if (! empty($toLookup)) {
             try {
-                $vocabResults = DB::connection('omop')
-                    ->table('concept')
+                $vocabResults = $this->vocab()->table('concept')
                     ->whereIn('concept_id', $toLookup)
                     ->pluck('concept_name', 'concept_id')
                     ->toArray();
