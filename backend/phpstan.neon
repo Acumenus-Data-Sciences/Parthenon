@@ -42,3 +42,9 @@ parameters:
         - identifier: return.type
         - identifier: function.unresolvableReturnType
         - identifier: variable.undefined
+
+services:
+    -
+        class: App\PHPStan\Rules\NoBareConnectionCallRule
+        tags:
+            - phpstan.rules.rule
