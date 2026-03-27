@@ -600,51 +600,44 @@ export function FieldMappingDetail({
   // -------------------------------------------------------------------------
 
   return (
-    <div className="flex flex-col h-[calc(100vh-200px)]">
-      {/* Header bar */}
-      <div className="flex items-center justify-between px-5 py-3 border-b border-[#2A2A30] bg-[#0E0E11]">
+    <>
+      <div className="fixed inset-0 z-40 bg-black/50" onClick={onBack} />
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-6">
+        <div className="w-full max-w-5xl rounded-xl border border-[#232328] bg-[#151518] shadow-2xl max-h-[85vh] flex flex-col">
+      {/* Modal header */}
+      <div className="flex items-center justify-between px-5 py-3 border-b border-[#2A2A30] bg-[#0E0E11] rounded-t-xl">
         <div className="flex items-center gap-2 text-sm">
-          <button onClick={onBack} className="text-gray-400 hover:text-white transition-colors">
-            &larr; Overview
-          </button>
-          <span className="text-gray-600">/</span>
           <span className="text-[#C9A227] font-medium">{tableMapping.source_table}</span>
-          <span className="text-gray-600">&rarr;</span>
+          <span className="text-[#5A5650]">→</span>
           <span className="text-[#2DD4BF] font-medium">{tableMapping.target_table}</span>
+          <span className="text-[#323238] ml-2">│</span>
+          <span className="text-xs text-[#8A857D]">
+            <span className={requiredUnmappedCount > 0 ? "text-red-400 font-medium" : "text-emerald-400"}>
+              {mappedCount}/{totalCdm}
+            </span>
+            {" mapped"}
+          </span>
         </div>
 
-        <div className="flex items-center gap-4">
-          {/* Progress */}
-          <div className="flex items-center gap-3 text-xs text-gray-400">
-            <span>
-              <span className={requiredUnmappedCount > 0 ? "text-red-400 font-medium" : "text-emerald-400"}>
-                {mappedCount}/{totalCdm}
-              </span>
-              {" mapped"}
-            </span>
-            <span className="text-gray-600">&bull;</span>
-            <span>
-              <span className="text-gray-300">{reviewedCount}</span>
-              {" reviewed"}
-            </span>
-          </div>
-
+        <div className="flex items-center gap-3">
           <button
             onClick={() => setAiPanelOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-md bg-[#C9A227]/10 text-[#C9A227] hover:bg-[#C9A227]/20 transition-colors font-medium"
+            className="flex items-center gap-1.5 px-2.5 py-1 text-[10px] rounded-md bg-[#C9A227]/10 text-[#C9A227] hover:bg-[#C9A227]/20 transition-colors font-medium"
           >
-            <Sparkles className="w-3.5 h-3.5" />
+            <Sparkles className="w-3 h-3" />
             AI Assist
           </button>
-
-          <div className="flex items-center gap-1">
-            <button onClick={navigatePrev} disabled={!hasPrev} className="text-gray-400 hover:text-white disabled:opacity-30 transition-colors text-sm px-1">
-              &larr; Prev
+          <div className="flex items-center gap-1 text-xs">
+            <button onClick={navigatePrev} disabled={!hasPrev} className="text-[#8A857D] hover:text-[#F0EDE8] disabled:opacity-30 transition-colors px-1">
+              ◀ Prev
             </button>
-            <button onClick={navigateNext} disabled={!hasNext} className="text-gray-400 hover:text-white disabled:opacity-30 transition-colors text-sm px-1">
-              Next &rarr;
+            <button onClick={navigateNext} disabled={!hasNext} className="text-[#8A857D] hover:text-[#F0EDE8] disabled:opacity-30 transition-colors px-1">
+              Next ▶
             </button>
           </div>
+          <button type="button" onClick={onBack} className="p-1 text-[#5A5650] hover:text-[#F0EDE8] transition-colors">
+            <X size={18} />
+          </button>
         </div>
       </div>
 
@@ -906,6 +899,8 @@ export function FieldMappingDetail({
         onAccept={handleAiAccept}
         onAcceptAll={handleAiAcceptAll}
       />
-    </div>
+        </div>
+      </div>
+    </>
   );
 }
