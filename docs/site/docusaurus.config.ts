@@ -39,6 +39,27 @@ const config: Config = {
     locales: ["en"],
   },
 
+  plugins: [
+    [
+      "docusaurus-plugin-openapi-docs",
+      {
+        id: "api",
+        docsPluginId: "classic",
+        config: {
+          parthenon: {
+            specPath: process.env.DOCKER_BUILD
+              ? "./openapi.yaml"
+              : "../../backend/public/docs/openapi.yaml",
+            outputDir: "docs/api",
+            sidebarOptions: {
+              groupPathsBy: "tag",
+            },
+          },
+        },
+      },
+    ],
+  ],
+
   presets: [
     [
       "classic",
@@ -46,6 +67,7 @@ const config: Config = {
         docs: {
           sidebarPath: "./sidebars.ts",
           routeBasePath: "/",
+          docItemComponent: "@theme/ApiItem",
           editUrl:
             "https://github.com/sudoshi/Parthenon/edit/main/docs/site/",
           // Versioning: uncomment the next line when cutting the first release
@@ -70,9 +92,10 @@ const config: Config = {
     ],
   ],
 
-  // themes: Mermaid is registered here; Lunr search added when no Algolia config
+  // themes: Mermaid + OpenAPI theme; Lunr search added when no Algolia config
   themes: [
     "@docusaurus/theme-mermaid",
+    "docusaurus-theme-openapi-docs",
     ...(process.env.ALGOLIA_APP_ID
       ? []
       : [
@@ -113,7 +136,7 @@ const config: Config = {
           label: "User Manual",
         },
         {
-          href: "https://parthenon.acumenus.net/docs/api",
+          to: "/api/",
           label: "API Reference",
           position: "left",
         },
@@ -146,7 +169,7 @@ const config: Config = {
             },
             {
               label: "API Reference",
-              href: "https://parthenon.acumenus.net/docs/api",
+              to: "/api/",
             },
             {
               label: "Migration Guide",

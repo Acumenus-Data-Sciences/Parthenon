@@ -1,0 +1,12 @@
+# Build output
+build/
+.docusaurus/
+
+# Generated API docs (build artifacts from docusaurus-plugin-openapi-docs)
+docs/api/
+
+# Mounted OpenAPI spec (Docker build)
+openapi.yaml
+
+# Dependencies
+node_modules/
