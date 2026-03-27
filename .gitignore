@@ -148,3 +148,7 @@ scripts/**/__pycache__/
 .ruff_cache/
 .pytest_cache/
 .planning/
+.planning.archive/
+.coverage
+.pgpass
+.claude/worktrees/
