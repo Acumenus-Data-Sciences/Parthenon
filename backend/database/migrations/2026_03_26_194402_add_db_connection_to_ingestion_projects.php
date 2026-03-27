@@ -11,9 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (! Schema::hasTable('ingestion_projects')) {
+            return;
+        }
+
         Schema::table('ingestion_projects', function (Blueprint $table) {
-            $table->text('db_connection_config')->nullable()->after('notes');
-            $table->jsonb('selected_tables')->nullable()->after('db_connection_config');
+            if (! Schema::hasColumn('ingestion_projects', 'db_connection_config')) {
+                $table->text('db_connection_config')->nullable()->after('notes');
+            }
+            if (! Schema::hasColumn('ingestion_projects', 'selected_tables')) {
+                $table->jsonb('selected_tables')->nullable()->after('db_connection_config');
+            }
         });
     }
 
@@ -22,6 +30,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        if (! Schema::hasTable('ingestion_projects')) {
+            return;
+        }
+
         Schema::table('ingestion_projects', function (Blueprint $table) {
             $table->dropColumn(['db_connection_config', 'selected_tables']);
         });

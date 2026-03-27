@@ -3,11 +3,14 @@
 namespace App\Models\App;
 
 use App\Enums\DaimonType;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class SourceDaimon extends Model
 {
+    use HasFactory;
+
     protected $table = 'source_daimons';
 
     protected $fillable = [

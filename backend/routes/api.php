@@ -45,6 +45,7 @@ use App\Http\Controllers\Api\V1\Commons\WikiController;
 use App\Http\Controllers\Api\V1\ConceptExplorerController;
 use App\Http\Controllers\Api\V1\ConceptSetController;
 use App\Http\Controllers\Api\V1\DashboardController;
+use App\Http\Controllers\Api\V1\DataInterrogationController;
 use App\Http\Controllers\Api\V1\DataQualityController;
 use App\Http\Controllers\Api\V1\EstimationController;
 use App\Http\Controllers\Api\V1\EtlFieldMappingController;
@@ -697,6 +698,10 @@ Route::prefix('v1')->group(function () {
             Route::post('refine', [AbbyAiController::class, 'refine']);
             Route::post('suggest-protocol', [AbbyAiController::class, 'suggestProtocol']);
         });
+
+        // Data Interrogation (Abby Analytics)
+        Route::post('data-interrogation/ask', [DataInterrogationController::class, 'ask'])
+            ->middleware('permission:analyses.view');
 
         // Abby Conversations (persistence)
         Route::apiResource('abby/conversations', AbbyConversationController::class)
