@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Search, ChevronRight, ChevronDown, Check } from "lucide-react";
 import { useAllAnalyses } from "../hooks/useAnalysisPicker";
 import { useStudiesForPublish } from "../api/publishApi";
@@ -31,6 +31,7 @@ interface UnifiedAnalysisPickerProps {
   selections: SelectedExecution[];
   onSelectionsChange: (selections: SelectedExecution[]) => void;
   onNext: () => void;
+  initialStudyId?: number;
 }
 
 function isSelected(
@@ -61,8 +62,9 @@ export default function UnifiedAnalysisPicker({
   selections,
   onSelectionsChange,
   onNext,
+  initialStudyId,
 }: UnifiedAnalysisPickerProps) {
-  const [activeTab, setActiveTab] = useState<"all" | "studies">("all");
+  const [activeTab, setActiveTab] = useState<"all" | "studies">(initialStudyId ? "studies" : "all");
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
   const [expandedStudies, setExpandedStudies] = useState<Set<number>>(
@@ -93,6 +95,34 @@ export default function UnifiedAnalysisPicker({
     return result;
   }, [completedAnalyses, typeFilter, search]);
 
+  useEffect(() => {
+    if (!initialStudyId || studies.length === 0 || selections.length > 0) return;
+
+    const study = studies.find((s) => s.id === initialStudyId);
+    if (!study) return;
+
+    setExpandedStudies(new Set([initialStudyId]));
+
+    const studyAnalyses = (study.analyses ?? []).filter(
+      (sa) => sa.analysis?.latest_execution?.status === "completed"
+    );
+
+    const autoSelections: SelectedExecution[] = studyAnalyses.map((sa) => ({
+      executionId: sa.analysis!.latest_execution!.id,
+      analysisId: sa.analysis!.id,
+      analysisType: sa.analysis_type,
+      analysisName: sa.analysis!.name,
+      studyId: study.id,
+      studyTitle: study.title,
+      resultJson: sa.analysis!.latest_execution!.result_json,
+      designJson: {},
+    }));
+
+    if (autoSelections.length > 0) {
+      onSelectionsChange(autoSelections);
+    }
+  }, [initialStudyId, studies, selections.length, onSelectionsChange]);
+
   const handleToggle = (item: AnalysisPickerItem, studyId?: number, studyTitle?: string) => {
     const execId = item.latest_execution!.id;
     if (isSelected(selections, execId)) {
@@ -119,6 +149,41 @@ export default function UnifiedAnalysisPicker({
       }
       return next;
     });
+  };
+
+  const handleSelectAllFromStudy = (study: typeof studies[number]) => {
+    const studyAnalyses = (study.analyses ?? []).filter(
+      (sa) => sa.analysis?.latest_execution?.status === "completed"
+    );
+
+    const studyExecIds = new Set(
+      studyAnalyses.map((sa) => sa.analysis!.latest_execution!.id)
+    );
+
+    const allSelected = studyAnalyses.every((sa) =>
+      isSelected(selections, sa.analysis!.latest_execution!.id)
+    );
+
+    if (allSelected) {
+      onSelectionsChange(
+        selections.filter((s) => !studyExecIds.has(s.executionId))
+      );
+    } else {
+      const existingIds = new Set(selections.map((s) => s.executionId));
+      const newSelections = studyAnalyses
+        .filter((sa) => !existingIds.has(sa.analysis!.latest_execution!.id))
+        .map((sa) => ({
+          executionId: sa.analysis!.latest_execution!.id,
+          analysisId: sa.analysis!.id,
+          analysisType: sa.analysis_type,
+          analysisName: sa.analysis!.name,
+          studyId: study.id,
+          studyTitle: study.title,
+          resultJson: sa.analysis!.latest_execution!.result_json,
+          designJson: {},
+        }));
+      onSelectionsChange([...selections, ...newSelections]);
+    }
   };
 
   return (
@@ -273,12 +338,30 @@ export default function UnifiedAnalysisPicker({
                         <p className="text-sm text-[#F0EDE8] truncate">
                           {study.title}
                         </p>
-                        <p className="text-xs text-[#5A5650]">
-                          {studyAnalyses.length} completed{" "}
-                          {studyAnalyses.length === 1 ? "analysis" : "analyses"}
-                        </p>
                       </div>
                     </button>
+                    {studyAnalyses.length > 0 && (
+                      <div className="flex items-center justify-between px-3 py-1.5 border-t border-[#232328]">
+                        <span className="text-xs text-[#5A5650]">
+                          {studyAnalyses.length} completed{" "}
+                          {studyAnalyses.length === 1 ? "analysis" : "analyses"}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleSelectAllFromStudy(study);
+                          }}
+                          className="text-xs font-medium text-[#C9A227] hover:text-[#d4ad2f] transition-colors"
+                        >
+                          {studyAnalyses.every((sa) =>
+                            isSelected(selections, sa.analysis!.latest_execution!.id)
+                          )
+                            ? "Deselect All"
+                            : "Select All"}
+                        </button>
+                      </div>
+                    )}
                     {expanded && studyAnalyses.length > 0 && (
                       <div className="border-t border-[#232328] px-3 py-2 space-y-1">
                         {studyAnalyses.map((sa) => {
