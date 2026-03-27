@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Context\SourceContext;
 use App\Events\AchillesRunCompleted;
 use App\Events\DqdRunCompleted;
 use App\Events\ReleaseCreated;
@@ -85,6 +86,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        $this->app->scoped(SourceContext::class, fn () => new SourceContext);
+
         $this->app->singleton(SqlRendererService::class);
 
         // Image processing (Intervention Image v3 with GD driver)

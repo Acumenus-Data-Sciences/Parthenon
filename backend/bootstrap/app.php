@@ -2,6 +2,8 @@
 
 use App\Http\Middleware\ForceJsonResponse;
 use App\Http\Middleware\RecordUserActivity;
+use App\Http\Middleware\RequireSourceContext;
+use App\Http\Middleware\ResolveSourceContext;
 use App\Jobs\Analysis\CareGapNightlyRefreshJob;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Application;
@@ -37,6 +39,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => RoleMiddleware::class,
             'permission' => PermissionMiddleware::class,
             'role_or_permission' => RoleOrPermissionMiddleware::class,
+            'source.resolve' => ResolveSourceContext::class,
+            'source.require' => RequireSourceContext::class,
         ]);
     })
     ->withSchedule(function (Schedule $schedule) {

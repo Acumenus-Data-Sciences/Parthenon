@@ -1,6 +1,12 @@
 parameters:
 	ignoreErrors:
 		-
+			message: '#^Trait App\\Concerns\\SourceAware is used zero times and is not analysed\.$#'
+			identifier: trait.unused
+			count: 1
+			path: app/Concerns/SourceAware.php
+
+		-
 			message: '#^Attribute class Knuckles\\Scribe\\Attributes\\Group does not exist\.$#'
 			identifier: attribute.notFound
 			count: 1
@@ -71,12 +77,6 @@ parameters:
 			identifier: parameter.notFound
 			count: 1
 			path: app/Services/StudyAgent/FinnGenExternalAdapterService.php
-
-		-
-			message: '#^Trait App\\Services\\StudyAgent\\FinnGenSharedHelpers is used zero times and is not analysed\.$#'
-			identifier: trait.unused
-			count: 1
-			path: app/Services/StudyAgent/FinnGenSharedHelpers.php
 
 		-
 			message: '#^Method App\\Services\\WebApi\\AtlasCohortImportService\:\:importAtlasConceptSet\(\) has parameter \$client with no type specified\.$#'
