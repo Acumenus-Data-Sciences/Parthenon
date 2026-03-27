@@ -188,6 +188,22 @@ return [
             'sslmode' => 'prefer',
         ],
 
+        // Data interrogation — read-only CDM access for Abby AI analytics.
+        // Uses dedicated abby_analyst role with SELECT-only on omop/results
+        // and full access to temp_abby scratch schema.
+        'interrogation' => [
+            'driver' => 'pgsql',
+            'host' => env('DB_HOST', '127.0.0.1'),
+            'port' => env('DB_PORT', '5432'),
+            'database' => env('DB_DATABASE', 'parthenon'),
+            'username' => env('ABBY_ANALYST_USERNAME', 'abby_analyst'),
+            'password' => env('ABBY_ANALYST_PASSWORD', ''),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'search_path' => 'omop,results,temp_abby',
+            'sslmode' => 'prefer',
+        ],
+
         'sqlsrv' => [
             'driver' => 'sqlsrv',
             'url' => env('DB_URL'),
