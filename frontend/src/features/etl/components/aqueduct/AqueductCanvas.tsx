@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import {
   ReactFlow,
   Controls,
@@ -29,6 +29,7 @@ import { computeLayout, type LayoutNode, type LayoutEdge } from "../../lib/aqued
 import { useCreateTableMapping, useSuggestMappings } from "../../hooks/useAqueductData";
 import type { EtlProject, EtlTableMapping, PersistedFieldProfile } from "../../api";
 import { downloadExport } from "../../api";
+import { cn } from "@/lib/utils";
 
 // ---------------------------------------------------------------------------
 // Persistent viewport & filter (localStorage, per-project)
@@ -165,6 +166,17 @@ function AqueductCanvasInner({
   const [suggestBanner, setSuggestBanner] = useState<string | null>(null);
   const [isExporting, setIsExporting] = useState(false);
   const [detailCdmTable, setDetailCdmTable] = useState<string | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  useEffect(() => {
+    if (!isFullscreen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsFullscreen(false);
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isFullscreen]);
+
   const createMapping = useCreateTableMapping(project.id);
   const suggestMutation = useSuggestMappings(project.id);
 
@@ -509,7 +521,14 @@ function AqueductCanvasInner({
   const savedViewport = useMemo(() => loadViewport(project.id), [project.id]);
 
   return (
-    <div className="flex flex-col h-[calc(100vh-200px)]">
+    <div
+      className={cn(
+        "flex flex-col",
+        isFullscreen
+          ? "fixed inset-0 z-50 bg-[#0E0E11]"
+          : "h-[calc(100vh-200px)]",
+      )}
+    >
       <MappingToolbar
         projectName={project.name}
         status={project.status}
@@ -523,6 +542,8 @@ function AqueductCanvasInner({
         isSuggesting={suggestMutation.isPending}
         onExport={handleExport}
         isExporting={isExporting}
+        isFullscreen={isFullscreen}
+        onToggleFullscreen={() => setIsFullscreen((prev) => !prev)}
       />
       {suggestBanner && (
         <div className="bg-amber-900/30 border-b border-amber-800/50 px-6 py-2 text-sm text-amber-300 flex items-center justify-between">
