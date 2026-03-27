@@ -13,6 +13,8 @@ interface MappingToolbarProps {
   isSuggesting: boolean;
   onExport: (format: "markdown" | "sql" | "json") => void;
   isExporting: boolean;
+  isFullscreen: boolean;
+  onToggleFullscreen: () => void;
 }
 
 const STATUS_STYLES: Record<string, { bg: string; text: string; label: string }> = {
@@ -47,12 +49,14 @@ function MappingToolbarComponent({
   isSuggesting,
   onExport,
   isExporting,
+  isFullscreen,
+  onToggleFullscreen,
 }: MappingToolbarProps) {
   const statusStyle = STATUS_STYLES[status] ?? STATUS_STYLES.draft;
   const [exportOpen, setExportOpen] = useState(false);
   const exportRef = useRef<HTMLDivElement>(null);
+  const progressPct = totalCdmTables > 0 ? (mappedTables / totalCdmTables) * 100 : 0;
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (exportRef.current && !exportRef.current.contains(event.target as HTMLElement)) {
@@ -64,122 +68,100 @@ function MappingToolbarComponent({
       return () => document.removeEventListener("mousedown", handleClickOutside);
     }
   }, [exportOpen]);
-  const progressPct = totalCdmTables > 0 ? (mappedTables / totalCdmTables) * 100 : 0;
 
   return (
-    <div className="bg-[#0E0E11] border-b border-[#2A2A30] px-6 py-3">
-      <div className="flex items-center justify-between">
-        {/* Left: Back + project name + status */}
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={onBack}
-            className="text-gray-400 hover:text-white transition-colors p-1 -ml-1"
-            aria-label="Go back"
-          >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-          </button>
-          <h1 className="text-white font-semibold text-sm truncate max-w-[240px]">
-            {projectName}
-          </h1>
-          <span
-            className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${statusStyle.bg} ${statusStyle.text}`}
-          >
-            {statusStyle.label}
-          </span>
+    <div className="bg-[#0E0E11] border-b border-[#2A2A30] px-4 py-2 flex items-center justify-between gap-3">
+      {/* Left: back + project + status + progress */}
+      <div className="flex items-center gap-2.5 min-w-0">
+        <button
+          type="button"
+          onClick={onBack}
+          className="text-[#8A857D] hover:text-[#F0EDE8] transition-colors p-0.5 flex-shrink-0"
+          aria-label="Go back"
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+        </button>
+        <span className="text-[#F0EDE8] font-medium text-sm truncate max-w-[200px]">{projectName}</span>
+        <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium flex-shrink-0 ${statusStyle.bg} ${statusStyle.text}`}>
+          {statusStyle.label}
+        </span>
+        <span className="text-[#323238] flex-shrink-0">{"\u2502"}</span>
+        <span className="text-[#8A857D] text-xs flex-shrink-0 whitespace-nowrap">
+          {mappedTables}/{totalCdmTables}
+        </span>
+        <div className="w-20 h-[3px] bg-[#2A2A30] rounded-full overflow-hidden flex-shrink-0">
+          <div
+            className="h-full bg-[#2DD4BF] rounded-full transition-all duration-300"
+            style={{ width: `${Math.min(progressPct, 100)}%` }}
+          />
         </div>
+        <span className="text-[#2DD4BF] text-xs flex-shrink-0">{fieldCoveragePct}%</span>
+      </div>
 
-        {/* Center: Progress */}
-        <div className="flex flex-col items-center gap-1 min-w-[280px]">
-          <span className="text-xs text-gray-400">
-            {mappedTables} of {totalCdmTables} CDM tables mapped &bull; {fieldCoveragePct}% field coverage
-          </span>
-          <div className="w-full h-1 bg-[#2A2A30] rounded-full overflow-hidden">
-            <div
-              className="h-full bg-[#2DD4BF] rounded-full transition-all duration-300"
-              style={{ width: `${Math.min(progressPct, 100)}%` }}
-            />
-          </div>
-        </div>
-
-        {/* Right: Filter toggle + placeholder buttons */}
-        <div className="flex items-center gap-2">
-          <div className="flex rounded-lg overflow-hidden border border-[#2A2A30]">
-            {FILTER_OPTIONS.map((opt) => (
-              <button
-                key={opt.value}
-                type="button"
-                onClick={() => onFilterChange(opt.value)}
-                className={`text-xs px-3 py-1.5 transition-colors ${
-                  filter === opt.value
-                    ? "bg-[#2DD4BF]/20 text-[#2DD4BF] font-medium"
-                    : "text-gray-400 hover:text-white hover:bg-[#1C1C20]"
-                }`}
-              >
-                {opt.label}
-              </button>
-            ))}
-          </div>
-          <button
-            type="button"
-            onClick={onSuggest}
-            disabled={isSuggesting}
-            className="text-xs px-3 py-1.5 border border-[#2A2A30] rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-amber-400 hover:bg-amber-900/30 hover:border-amber-800/50"
-            title="AI Suggest mappings"
-          >
-            {isSuggesting ? (
-              <span className="inline-flex items-center gap-1.5">
-                <svg className="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                </svg>
-                Suggesting...
-              </span>
-            ) : (
-              "AI Suggest"
-            )}
-          </button>
-          <div className="relative" ref={exportRef}>
+      {/* Right: filters + actions + expand */}
+      <div className="flex items-center gap-2 flex-shrink-0">
+        <div className="flex rounded-md overflow-hidden border border-[#2A2A30]">
+          {FILTER_OPTIONS.map((opt) => (
             <button
+              key={opt.value}
               type="button"
-              onClick={() => setExportOpen((prev) => !prev)}
-              disabled={isExporting}
-              className="text-xs px-3 py-1.5 border border-[#2A2A30] rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-gray-300 hover:text-white hover:bg-[#1C1C20]"
-              title="Export ETL specification"
+              onClick={() => onFilterChange(opt.value)}
+              className={`text-[10px] px-2.5 py-1 transition-colors ${
+                filter === opt.value
+                  ? "bg-[#2DD4BF]/20 text-[#2DD4BF] font-medium"
+                  : "text-[#5A5650] hover:text-[#F0EDE8] hover:bg-[#1C1C20]"
+              }`}
             >
-              {isExporting ? (
-                <span className="inline-flex items-center gap-1.5">
-                  <svg className="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                  </svg>
-                  Exporting...
-                </span>
-              ) : (
-                "Export \u25BE"
-              )}
+              {opt.label}
             </button>
-            {exportOpen && (
-              <div className="absolute right-0 mt-1 w-48 bg-[#1C1C20] border border-[#2A2A30] rounded-lg shadow-lg z-50 overflow-hidden">
-                {EXPORT_OPTIONS.map((opt) => (
-                  <button
-                    key={opt.format}
-                    type="button"
-                    onClick={() => {
-                      setExportOpen(false);
-                      onExport(opt.format);
-                    }}
-                    className="w-full text-left text-xs px-4 py-2 text-gray-300 hover:bg-[#2A2A30]/80 hover:text-white transition-colors"
-                  >
-                    {opt.label}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+          ))}
         </div>
+        <button
+          type="button"
+          onClick={onSuggest}
+          disabled={isSuggesting}
+          className="text-[10px] px-2.5 py-1 border border-[#2A2A30] rounded-md transition-colors disabled:opacity-50 text-[#C9A227] hover:bg-amber-900/30"
+        >
+          {isSuggesting ? "Suggesting..." : "\u2728 AI"}
+        </button>
+        <div className="relative" ref={exportRef}>
+          <button
+            type="button"
+            onClick={() => setExportOpen((prev) => !prev)}
+            disabled={isExporting}
+            className="text-[10px] px-2.5 py-1 border border-[#2A2A30] rounded-md transition-colors disabled:opacity-50 text-[#8A857D] hover:text-[#F0EDE8] hover:bg-[#1C1C20]"
+          >
+            {isExporting ? "..." : "Export \u25BE"}
+          </button>
+          {exportOpen && (
+            <div className="absolute right-0 mt-1 w-44 bg-[#1C1C20] border border-[#2A2A30] rounded-lg shadow-lg z-50 overflow-hidden">
+              {EXPORT_OPTIONS.map((opt) => (
+                <button
+                  key={opt.format}
+                  type="button"
+                  onClick={() => { setExportOpen(false); onExport(opt.format); }}
+                  className="w-full text-left text-xs px-3 py-2 text-[#8A857D] hover:bg-[#2A2A30]/80 hover:text-[#F0EDE8] transition-colors"
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+        <button
+          type="button"
+          onClick={onToggleFullscreen}
+          className={`text-sm px-1.5 py-0.5 rounded transition-colors ${
+            isFullscreen
+              ? "text-[#F0EDE8] bg-[#2A2A30] border border-[#2DD4BF]"
+              : "text-[#8A857D] border border-[#323238] hover:text-[#F0EDE8]"
+          }`}
+          title={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
+        >
+          {"\u26F6"}
+        </button>
       </div>
     </div>
   );
