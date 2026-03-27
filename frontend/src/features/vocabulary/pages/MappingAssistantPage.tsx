@@ -278,158 +278,146 @@ function DisambiguationDrawer({ result, onClose, onSelectCandidate, onRemap }: D
     cleanMutation.mutate(terms);
   };
 
+  if (!result) return null;
+
   return (
-    <>
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Overlay */}
       <div
-        className={cn(
-          "fixed inset-0 z-40 bg-black/60 transition-opacity duration-200",
-          result ? "opacity-100" : "opacity-0 pointer-events-none",
-        )}
+        className="absolute inset-0 bg-black/60"
         onClick={onClose}
       />
 
-      {/* Drawer */}
-      <div
-        className={cn(
-          "fixed top-0 right-0 z-50 h-full w-[400px] bg-[#0E0E11] border-l border-[#232328] shadow-2xl transition-transform duration-200 ease-out flex flex-col",
-          result ? "translate-x-0" : "translate-x-full",
-        )}
-      >
-        {result && (
-          <>
-            {/* Drawer header */}
-            <div className="flex items-center justify-between px-5 py-4 border-b border-[#232328] shrink-0">
-              <div className="min-w-0 flex-1">
-                <div className="text-[10px] uppercase tracking-widest text-[#5A5650] mb-1">
-                  Source Term
-                </div>
-                <div className="text-sm font-medium text-[#F0EDE8] truncate">
-                  {result.source_term}
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={onClose}
-                className="ml-3 h-8 w-8 rounded-lg border border-[#232328] flex items-center justify-center text-[#5A5650] hover:text-[#F0EDE8] hover:border-[#3A3A40] transition-colors shrink-0"
-              >
-                <X className="h-4 w-4" />
-              </button>
+      {/* Modal */}
+      <div className="relative z-10 w-full max-w-lg max-h-[85vh] rounded-xl border border-[#232328] bg-[#0E0E11] shadow-2xl flex flex-col mx-4">
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[#232328] shrink-0">
+          <div className="min-w-0 flex-1">
+            <div className="text-[10px] uppercase tracking-widest text-[#5A5650] mb-1">
+              Disambiguate
             </div>
+            <div className="text-base font-semibold text-[#F0EDE8] truncate">
+              {result.source_term}
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="ml-3 h-8 w-8 rounded-lg border border-[#232328] flex items-center justify-center text-[#5A5650] hover:text-[#F0EDE8] hover:border-[#3A3A40] transition-colors shrink-0"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
 
-            {/* Candidates list */}
-            <div className="flex-1 overflow-y-auto px-5 py-4 space-y-2">
-              <div className="text-[10px] uppercase tracking-widest text-[#5A5650] mb-3">
-                Candidates ({result.candidates.length})
-              </div>
+        {/* Candidates list */}
+        <div className="flex-1 overflow-y-auto px-5 py-4 space-y-2">
+          <div className="text-[10px] uppercase tracking-widest text-[#5A5650] mb-3">
+            {result.candidates.length} candidate{result.candidates.length !== 1 ? "s" : ""} — select the correct mapping
+          </div>
 
-              {result.candidates.length === 0 && (
-                <div className="text-sm text-[#5A5650] italic py-4 text-center">
-                  No candidates found for this term.
-                </div>
-              )}
+          {result.candidates.length === 0 && (
+            <div className="text-sm text-[#5A5650] italic py-8 text-center">
+              No candidates found. Try cleaning the term below.
+            </div>
+          )}
 
-              {result.candidates.map((c) => (
-                <div
-                  key={c.concept_id}
-                  className="rounded-lg border border-[#1C1C20] bg-[#151518] p-3 space-y-2"
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0 flex-1">
-                      <div className="text-sm font-medium text-[#F0EDE8]">
-                        {c.concept_name}
-                      </div>
-                      <div className="flex items-center gap-2 mt-1 flex-wrap">
-                        <span className="text-[10px] text-[#5A5650] font-mono">#{c.concept_id}</span>
-                        <span className="text-[10px] text-[#5A5650]">{c.vocabulary_id}</span>
-                        <span className="text-[10px] text-[#5A5650]">{c.domain_id}</span>
-                      </div>
-                    </div>
-                    <MatchTypeBadge type={c.match_type} />
+          {result.candidates.map((c) => (
+            <button
+              key={c.concept_id}
+              type="button"
+              onClick={() => {
+                onSelectCandidate(result.source_term, c);
+                onClose();
+              }}
+              className="w-full text-left rounded-lg border border-[#1C1C20] bg-[#151518] p-3 space-y-2 hover:border-[#2DD4BF]/40 hover:bg-[#2DD4BF]/5 transition-colors group"
+            >
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0 flex-1">
+                  <div className="text-sm font-medium text-[#F0EDE8] group-hover:text-[#2DD4BF] transition-colors">
+                    {c.concept_name}
                   </div>
-                  <ConfidenceBar value={c.confidence} />
+                  <div className="flex items-center gap-2 mt-1 flex-wrap">
+                    <span className="text-[10px] text-[#5A5650] font-mono">#{c.concept_id}</span>
+                    <span className="text-[10px] text-[#5A5650]">{c.vocabulary_id}</span>
+                    <span className="text-[10px] text-[#5A5650]">{c.domain_id}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <MatchTypeBadge type={c.match_type} />
+                </div>
+              </div>
+              <ConfidenceBar value={c.confidence} />
+            </button>
+          ))}
+        </div>
+
+        {/* Clean term section */}
+        <div className="border-t border-[#232328] px-5 py-4 space-y-3 shrink-0">
+          <div className="text-[10px] uppercase tracking-widest text-[#5A5650]">
+            Clean & Re-map
+          </div>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={cleanRawText}
+              onChange={(e) => setCleanRawText(e.target.value)}
+              placeholder="Edit term and re-map..."
+              className="flex-1 rounded-lg border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#F0EDE8] placeholder-[#3A3A40] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30 font-mono transition-colors"
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && cleanRawText.trim()) handleClean();
+              }}
+            />
+            <button
+              type="button"
+              disabled={!cleanRawText.trim() || cleanMutation.isPending}
+              onClick={handleClean}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-[#C9A227]/40 bg-[#C9A227]/10 px-3 py-2 text-xs font-medium text-[#C9A227] hover:bg-[#C9A227]/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shrink-0"
+            >
+              {cleanMutation.isPending ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Wand2 className="h-3.5 w-3.5" />
+              )}
+              Clean
+            </button>
+          </div>
+          {cleaned.length > 0 && (
+            <div className="rounded-lg border border-[#232328] bg-[#151518] divide-y divide-[#1C1C20]">
+              {cleaned.map((item, i) => (
+                <div key={i} className="flex items-center gap-2 px-3 py-2">
+                  <span className="text-[11px] text-[#5A5650] font-mono flex-1 truncate">
+                    {item.original}
+                  </span>
+                  <ChevronRight className="h-3 w-3 text-[#5A5650] shrink-0" />
+                  <span className="text-[11px] text-[#2DD4BF] font-mono flex-1 truncate">
+                    {item.cleaned}
+                  </span>
                   <button
                     type="button"
-                    onClick={() => {
-                      onSelectCandidate(result.source_term, c);
-                      onClose();
-                    }}
-                    className="w-full inline-flex items-center justify-center gap-1.5 rounded-lg border border-[#2DD4BF]/30 bg-[#2DD4BF]/10 px-3 py-1.5 text-xs font-medium text-[#2DD4BF] hover:bg-[#2DD4BF]/20 transition-colors"
+                    disabled={remapPending}
+                    onClick={() => handleRemap(item.cleaned)}
+                    className="inline-flex items-center gap-1 rounded border border-[#2DD4BF]/30 bg-[#2DD4BF]/10 px-2 py-0.5 text-[10px] font-medium text-[#2DD4BF] hover:bg-[#2DD4BF]/20 disabled:opacity-50 transition-colors shrink-0"
                   >
-                    <Check className="h-3 w-3" />
-                    Select this mapping
+                    {remapPending ? (
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                    ) : (
+                      <RefreshCw className="h-3 w-3" />
+                    )}
+                    Re-map
                   </button>
                 </div>
               ))}
             </div>
-
-            {/* Clean term section at bottom */}
-            <div className="border-t border-[#232328] px-5 py-4 space-y-3 shrink-0">
-              <div className="text-[10px] uppercase tracking-widest text-[#5A5650]">
-                Clean Term & Re-map
-              </div>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={cleanRawText}
-                  onChange={(e) => setCleanRawText(e.target.value)}
-                  className="flex-1 rounded-lg border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#F0EDE8] placeholder-[#3A3A40] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30 font-mono transition-colors"
-                />
-                <button
-                  type="button"
-                  disabled={!cleanRawText.trim() || cleanMutation.isPending}
-                  onClick={handleClean}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-[#C9A227]/40 bg-[#C9A227]/10 px-3 py-2 text-xs font-medium text-[#C9A227] hover:bg-[#C9A227]/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shrink-0"
-                >
-                  {cleanMutation.isPending ? (
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  ) : (
-                    <Wand2 className="h-3.5 w-3.5" />
-                  )}
-                  Clean
-                </button>
-              </div>
-              {cleaned.length > 0 && (
-                <div className="space-y-2">
-                  <div className="rounded-lg border border-[#232328] bg-[#151518] divide-y divide-[#1C1C20]">
-                    {cleaned.map((item, i) => (
-                      <div key={i} className="flex items-center gap-2 px-3 py-2">
-                        <span className="text-[11px] text-[#5A5650] font-mono flex-1 truncate">
-                          {item.original}
-                        </span>
-                        <ChevronRight className="h-3 w-3 text-[#5A5650] shrink-0" />
-                        <span className="text-[11px] text-[#2DD4BF] font-mono flex-1 truncate">
-                          {item.cleaned}
-                        </span>
-                        <button
-                          type="button"
-                          disabled={remapPending}
-                          onClick={() => handleRemap(item.cleaned)}
-                          className="inline-flex items-center gap-1 rounded border border-[#2DD4BF]/30 bg-[#2DD4BF]/10 px-2 py-0.5 text-[10px] font-medium text-[#2DD4BF] hover:bg-[#2DD4BF]/20 disabled:opacity-50 transition-colors shrink-0"
-                        >
-                          {remapPending ? (
-                            <Loader2 className="h-3 w-3 animate-spin" />
-                          ) : (
-                            <RefreshCw className="h-3 w-3" />
-                          )}
-                          Re-map
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {cleanMutation.isError && (
-                <div className="flex items-center gap-2 text-[#E85A6B] text-xs">
-                  <AlertCircle className="h-3.5 w-3.5 shrink-0" />
-                  <span>Cleanup failed.</span>
-                </div>
-              )}
+          )}
+          {cleanMutation.isError && (
+            <div className="flex items-center gap-2 text-[#E85A6B] text-xs">
+              <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+              <span>Cleanup failed.</span>
             </div>
-          </>
-        )}
+          )}
+        </div>
       </div>
-    </>
+    </div>
   );
 }
 
