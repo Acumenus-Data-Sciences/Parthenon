@@ -140,7 +140,7 @@ Route::prefix('v1')->group(function () {
     Route::get('/cohort-definitions/shared/{token}', [CohortDefinitionController::class, 'showShared']);
 
     // Protected routes
-    Route::middleware('auth:sanctum')->group(function () {
+    Route::middleware(['auth:sanctum', 'source.resolve'])->group(function () {
         Route::get('/auth/user', [AuthController::class, 'user']);
         Route::post('/auth/logout', [AuthController::class, 'logout']);
         Route::post('/auth/change-password', [AuthController::class, 'changePassword']);
@@ -703,7 +703,7 @@ Route::prefix('v1')->group(function () {
             ->only(['index', 'store', 'show', 'destroy']);
 
         // Abby User Profile
-        Route::prefix('abby/profile')->middleware('auth:sanctum')->group(function () {
+        Route::prefix('abby/profile')->middleware(['auth:sanctum', 'source.resolve'])->group(function () {
             Route::get('/', [AbbyProfileController::class, 'show']);
             Route::put('/', [AbbyProfileController::class, 'update']);
             Route::post('/reset', [AbbyProfileController::class, 'reset']);
@@ -1016,7 +1016,7 @@ Route::prefix('v1')->group(function () {
 });
 
 // ── Phase 15: Genomics ────────────────────────────────────────────────────────
-Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
+Route::prefix('v1')->middleware(['auth:sanctum', 'source.resolve'])->group(function () {
     Route::prefix('genomics')->group(function () {
         Route::get('/stats', [GenomicsController::class, 'stats']);
 
@@ -1055,7 +1055,7 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 });
 
 // ── Phase 16: DICOM Imaging ───────────────────────────────────────────────────
-Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
+Route::prefix('v1')->middleware(['auth:sanctum', 'source.resolve'])->group(function () {
     Route::prefix('imaging')->group(function () {
         Route::get('/stats', [ImagingController::class, 'stats']);
 
@@ -1118,12 +1118,12 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 });
 
 // WADO-URI: requires auth — use token query param for Cornerstone3D XHR compatibility
-Route::prefix('v1/imaging')->middleware('auth:sanctum')->group(function () {
+Route::prefix('v1/imaging')->middleware(['auth:sanctum', 'source.resolve'])->group(function () {
     Route::get('/wado/{sopUid}', [ImagingController::class, 'wado']);
 });
 
 // ── Phase 5: Radiogenomics ────────────────────────────────────────────────
-Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
+Route::prefix('v1')->middleware(['auth:sanctum', 'source.resolve'])->group(function () {
     Route::prefix('radiogenomics')->group(function () {
         Route::get('/patients/{personId}', [RadiogenomicsController::class, 'patientPanel']);
         Route::get('/variant-drug-interactions', [RadiogenomicsController::class, 'variantDrugInteractions']);
@@ -1131,7 +1131,7 @@ Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
 });
 
 // ── GIS Epidemiology ────────────────────────────────────────────────────────
-Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
+Route::prefix('v1')->middleware(['auth:sanctum', 'source.resolve'])->group(function () {
     Route::prefix('gis')->group(function () {
         Route::get('/boundaries', [GisController::class, 'boundaries']);
         Route::get('/boundaries/{id}', [GisController::class, 'boundaryDetail']);
@@ -1158,7 +1158,7 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 });
 
 // ── GIS Use Case Layers (v3) ───────────────────────────────────────────────
-Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
+Route::prefix('v1')->middleware(['auth:sanctum', 'source.resolve'])->group(function () {
     Route::prefix('gis')->group(function () {
         // Geography & layers
         Route::get('/layers', [GisGeographyController::class, 'layers']);
@@ -1223,7 +1223,7 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 });
 
 // ── GIS Data Import (v2) ─────────────────────────────────────────────────────
-Route::prefix('v1/gis/import')->middleware(['auth:sanctum', 'permission:gis.import', 'throttle:5,60'])->group(function () {
+Route::prefix('v1/gis/import')->middleware(['auth:sanctum', 'source.resolve', 'permission:gis.import', 'throttle:5,60'])->group(function () {
     // Non-parameterized routes FIRST (before {import} wildcard)
     Route::get('/history', [GisImportController::class, 'history']);
     Route::post('/upload', [GisImportController::class, 'upload']);
@@ -1241,7 +1241,7 @@ Route::prefix('v1/gis/import')->middleware(['auth:sanctum', 'permission:gis.impo
 });
 
 // ── Phase 17: HEOR ───────────────────────────────────────────────────────────
-Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
+Route::prefix('v1')->middleware(['auth:sanctum', 'source.resolve'])->group(function () {
     Route::prefix('heor')->group(function () {
         Route::get('/stats', [HeorController::class, 'stats']);
 
@@ -1279,7 +1279,7 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 });
 
 // ── Hecate Semantic Vocabulary Search ────────────────────────────────────────
-Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
+Route::prefix('v1')->middleware(['auth:sanctum', 'source.resolve'])->group(function () {
     Route::prefix('vocabulary/semantic')->group(function () {
         Route::get('/search', [HecateController::class, 'search']);
         Route::get('/search/standard', [HecateController::class, 'searchStandard']);
@@ -1292,7 +1292,7 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 });
 
 // ── Ariadne Concept Mapping ───────────────────────────────────────────────────
-Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
+Route::prefix('v1')->middleware(['auth:sanctum', 'source.resolve'])->group(function () {
     Route::prefix('ariadne')->group(function () {
         Route::post('/map', [AriadneController::class, 'map']);
         Route::post('/clean-terms', [AriadneController::class, 'cleanTerms']);
@@ -1301,13 +1301,13 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 });
 
 // ── App Settings ─────────────────────────────────────────────────────────────
-Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
+Route::prefix('v1')->middleware(['auth:sanctum', 'source.resolve'])->group(function () {
     Route::get('/app-settings', [AppSettingsController::class, 'index']);
     Route::patch('/app-settings', [AppSettingsController::class, 'update'])->middleware('role:super-admin');
 });
 
 // ── Text-to-SQL ───────────────────────────────────────────────────────────────
-Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
+Route::prefix('v1')->middleware(['auth:sanctum', 'source.resolve'])->group(function () {
     Route::prefix('text-to-sql')->group(function () {
         Route::post('/generate', [TextToSqlController::class, 'generate']);
         Route::post('/validate', [TextToSqlController::class, 'validate']);
@@ -1325,7 +1325,7 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 });
 
 // ── Commons Workspace ──────────────────────────────────────────────────────────
-Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
+Route::prefix('v1')->middleware(['auth:sanctum', 'source.resolve'])->group(function () {
     Route::prefix('commons')->group(function () {
         Route::get('channels', [ChannelController::class, 'index']);
         Route::post('channels', [ChannelController::class, 'store']);
@@ -1405,7 +1405,7 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 });
 
 // ── Evidence Investigations ───────────────────────────────────────────────────
-Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
+Route::prefix('v1')->middleware(['auth:sanctum', 'source.resolve'])->group(function () {
     // ── Concept Explorer ─────────────────────────────────────────────────
     Route::prefix('concept-explorer')->group(function () {
         Route::get('/search', [ConceptExplorerController::class, 'search']);
@@ -1442,7 +1442,7 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 });
 
 // ── Morpheus Dashboard & Patient Journey ─────────────────────────────────────
-Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
+Route::prefix('v1')->middleware(['auth:sanctum', 'source.resolve'])->group(function () {
     // TODO: Phase H — add permission:morpheus.view middleware per HIGHSEC spec
     // Morpheus Datasets
     Route::get('morpheus/datasets', [MorpheusDatasetController::class, 'index']);
