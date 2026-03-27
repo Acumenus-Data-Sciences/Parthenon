@@ -690,7 +690,7 @@ services:
     working_dir: /docs
     environment:
       - DOCKER_BUILD=1
-      - NODE_OPTIONS=--max-old-space-size=4096
+      - NODE_OPTIONS=--max-old-space-size=5120
     volumes:
       - ./docs/site:/docs
       - ./docs/blog:/blog:ro
@@ -700,7 +700,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 2G
+          memory: 8G
     profiles:
       - docs
 

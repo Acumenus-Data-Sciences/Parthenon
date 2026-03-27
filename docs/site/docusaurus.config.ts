@@ -40,6 +40,24 @@ const config: Config = {
   },
 
   plugins: [
+    // Webpack polyfills for Node.js core modules used by postman-code-generators
+    // (dependency of docusaurus-theme-openapi-docs "Try It Out" code snippets)
+    function nodePolyfillPlugin() {
+      return {
+        name: "node-polyfill-plugin",
+        configureWebpack() {
+          return {
+            resolve: {
+              fallback: {
+                path: false,
+                os: false,
+                fs: false,
+              },
+            },
+          };
+        },
+      };
+    },
     [
       "docusaurus-plugin-openapi-docs",
       {
