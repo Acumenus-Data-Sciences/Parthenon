@@ -8,12 +8,14 @@ use App\Jobs\Analysis\RunEstimationJob;
 use App\Jobs\Analysis\RunIncidenceRateJob;
 use App\Jobs\Analysis\RunPathwayJob;
 use App\Jobs\Analysis\RunPredictionJob;
+use App\Jobs\Analysis\RunSccsJob;
 use App\Models\App\AnalysisExecution;
 use App\Models\App\Characterization;
 use App\Models\App\EstimationAnalysis;
 use App\Models\App\IncidenceRateAnalysis;
 use App\Models\App\PathwayAnalysis;
 use App\Models\App\PredictionAnalysis;
+use App\Models\App\SccsAnalysis;
 use App\Models\App\Source;
 use App\Models\App\Study;
 use App\Models\App\StudyAnalysis;
@@ -33,6 +35,7 @@ class StudyService
         PathwayAnalysis::class => 3,
         EstimationAnalysis::class => 4,
         PredictionAnalysis::class => 5,
+        SccsAnalysis::class => 6,
     ];
 
     /**
@@ -105,6 +108,7 @@ class StudyService
             PathwayAnalysis::class => RunPathwayJob::dispatch($analysis, $source, $execution),
             EstimationAnalysis::class => RunEstimationJob::dispatch($analysis, $source, $execution),
             PredictionAnalysis::class => RunPredictionJob::dispatch($analysis, $source, $execution),
+            SccsAnalysis::class => RunSccsJob::dispatch($analysis, $source, $execution),
             default => Log::warning('StudyService: unknown analysis type', [
                 'analysis_type' => $analysisType,
                 'execution_id' => $execution->id,
@@ -193,6 +197,7 @@ class StudyService
             'pathway' => PathwayAnalysis::class,
             'estimation' => EstimationAnalysis::class,
             'prediction' => PredictionAnalysis::class,
+            'sccs' => SccsAnalysis::class,
         ];
 
         $modelClass = $validTypes[$analysisType] ?? null;

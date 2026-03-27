@@ -439,6 +439,37 @@ export async function bulkUpsertFieldMappings(
   return data.data;
 }
 
+// ---------------------------------------------------------------------------
+// Types — AI Field Suggestions
+// ---------------------------------------------------------------------------
+
+export interface FieldSuggestion {
+  source_column: string;
+  score: number;
+  mapping_type: string;
+  logic: string | null;
+}
+
+export interface FieldSuggestionGroup {
+  target_column: string;
+  is_required: boolean;
+  suggestions: FieldSuggestion[];
+}
+
+// ---------------------------------------------------------------------------
+// API functions — AI Field Suggestions
+// ---------------------------------------------------------------------------
+
+export async function suggestFieldMappings(
+  projectId: number,
+  mappingId: number,
+): Promise<FieldSuggestionGroup[]> {
+  const { data } = await apiClient.post<{ data: FieldSuggestionGroup[] }>(
+    `/etl-projects/${projectId}/table-mappings/${mappingId}/suggest-fields`,
+  );
+  return data.data;
+}
+
 export async function suggestMappings(projectId: number): Promise<{ table_mappings: number; field_mappings: number }> {
   const { data } = await apiClient.post<{ data: { table_mappings: number; field_mappings: number } }>(
     `/etl-projects/${projectId}/suggest`,

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateFieldMappingsRequest;
 use App\Models\App\EtlProject;
 use App\Models\App\EtlTableMapping;
+use App\Services\Etl\EtlSuggestionService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 
@@ -27,6 +28,22 @@ class EtlFieldMappingController extends Controller
         $fields = $mapping->fieldMappings()->get();
 
         return response()->json(['data' => $fields]);
+    }
+
+    /**
+     * Return ranked field mapping suggestions for a table mapping without persisting.
+     */
+    public function suggestFields(EtlProject $project, EtlTableMapping $mapping, EtlSuggestionService $suggestionService): JsonResponse
+    {
+        $this->authorize('view', $project);
+
+        if ($mapping->etl_project_id !== $project->id) {
+            return response()->json(['message' => 'Resource not found.'], 404);
+        }
+
+        $suggestions = $suggestionService->suggestFieldsForTable($mapping);
+
+        return response()->json(['data' => $suggestions]);
     }
 
     /**

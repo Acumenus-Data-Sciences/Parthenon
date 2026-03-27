@@ -841,6 +841,8 @@ Route::prefix('v1')->group(function () {
                 ->middleware('permission:etl.create');
 
             // Field mappings
+            Route::post('/{project}/table-mappings/{mapping}/suggest-fields', [EtlFieldMappingController::class, 'suggestFields'])
+                ->middleware(['permission:etl.view', 'throttle:5,10']);
             Route::get('/{project}/table-mappings/{mapping}/fields', [EtlFieldMappingController::class, 'index'])
                 ->middleware('permission:etl.view');
             Route::put('/{project}/table-mappings/{mapping}/fields', [EtlFieldMappingController::class, 'bulkUpsert'])

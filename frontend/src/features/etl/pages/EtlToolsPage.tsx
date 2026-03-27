@@ -116,6 +116,9 @@ function AqueductContent({
         type: c.type,
         required: c.required,
         description: c.description,
+        etl_conventions: c.etl_conventions,
+        fk_table: c.fk_table,
+        fk_domain: c.fk_domain,
       })) ?? []
     );
   }, [drilledMapping]);

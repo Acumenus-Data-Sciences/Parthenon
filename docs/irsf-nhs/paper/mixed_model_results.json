@@ -1,0 +1,78 @@
+{
+  "log_likelihood": -11020.1,
+  "converged": true,
+  "n_observations": 4053,
+  "n_groups": 743,
+  "random_intercept_sd": 6.97,
+  "residual_sd": 2.7,
+  "coefficients": {
+    "Intercept": {
+      "beta": 19.916,
+      "p": 6.333021586260519e-155
+    },
+    "mutation_protein[T.R168X]": {
+      "beta": 0.672,
+      "p": 0.49783183515559726
+    },
+    "mutation_protein[T.R270X]": {
+      "beta": 2.141,
+      "p": 0.07398073817873001
+    },
+    "mutation_protein[T.R255X]": {
+      "beta": 2.876,
+      "p": 0.005376778314982302
+    },
+    "mutation_protein[T.R106W]": {
+      "beta": -1.218,
+      "p": 0.4097703337626901
+    },
+    "mutation_protein[T.P152R]": {
+      "beta": -1.755,
+      "p": 0.3621723427409196
+    },
+    "mutation_protein[T.R294X]": {
+      "beta": -1.229,
+      "p": 0.27663240070151807
+    },
+    "mutation_protein[T.R133C]": {
+      "beta": -7.381,
+      "p": 3.4698612020389515e-10
+    },
+    "age_at_assessment": {
+      "beta": 0.29,
+      "p": 5.7959174546124295e-18
+    },
+    "age_at_assessment:mutation_protein[T.R168X]": {
+      "beta": 0.098,
+      "p": 0.03133711277022054
+    },
+    "age_at_assessment:mutation_protein[T.R270X]": {
+      "beta": 0.043,
+      "p": 0.4277794838154567
+    },
+    "age_at_assessment:mutation_protein[T.R255X]": {
+      "beta": 0.045,
+      "p": 0.3357228677155063
+    },
+    "age_at_assessment:mutation_protein[T.R106W]": {
+      "beta": 0.045,
+      "p": 0.44555331877000715
+    },
+    "age_at_assessment:mutation_protein[T.P152R]": {
+      "beta": 0.025,
+      "p": 0.7839253914505094
+    },
+    "age_at_assessment:mutation_protein[T.R294X]": {
+      "beta": -0.091,
+      "p": 0.07639542932137479
+    },
+    "age_at_assessment:mutation_protein[T.R133C]": {
+      "beta": 0.031,
+      "p": 0.560445735550283
+    },
+    "Group Var": {
+      "beta": 6.669,
+      "p": 5.75472790840662e-55
+    }
+  }
+}

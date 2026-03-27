@@ -23,7 +23,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 9: Measurements** - Measurement script with wide-to-long unpivot for growth, CSS, labs, and SF-36 data (completed 2026-03-26)
 - [x] **Phase 10: Observations** - Observation script for MBA scores, genotype boolean mapping, and categorical clinical data (completed 2026-03-26)
 - [x] **Phase 11: Data Loading and Observation Periods** - Upload staging CSVs to Parthenon in FK order, compute observation periods, populate CDM_SOURCE (completed 2026-03-26)
-- [ ] **Phase 12: Validation and Cohort Verification** - DQD checks, Achilles characterization, temporal integrity, Rett-specific plausibility, and cohort buildability
+- [x] **Phase 12: Validation and Cohort Verification** - DQD checks, Achilles characterization, temporal integrity, Rett-specific plausibility, and cohort buildability (completed 2026-03-26)
 
 ## Phase Details
 

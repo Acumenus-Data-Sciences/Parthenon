@@ -167,6 +167,98 @@ class EtlSuggestionService
     }
 
     /**
+     * Return ranked field mapping suggestions for a specific table mapping WITHOUT creating records.
+     *
+     * @return list<array{target_column: string, is_required: bool, suggestions: list<array{source_column: string, score: float, mapping_type: string}>}>
+     */
+    public function suggestFieldsForTable(EtlTableMapping $tableMapping): array
+    {
+        $project = $tableMapping->project;
+
+        // Resolve source columns for this specific source table
+        $allSourceTables = [];
+        if ($project->scanProfile) {
+            $allSourceTables = $this->getSourceTables($project->scanProfile);
+        } elseif ($project->ingestion_project_id) {
+            $allSourceTables = $this->getIngestionProjectTables($project->ingestion_project_id);
+        }
+
+        $sourceColumns = $allSourceTables[$tableMapping->source_table] ?? [];
+        if (empty($sourceColumns)) {
+            return [];
+        }
+
+        // Get CDM columns for the target table
+        $cdmSchema = config('cdm-schema-v54');
+        if (! is_array($cdmSchema)) {
+            return [];
+        }
+
+        $cdmColumns = [];
+        foreach ($cdmSchema as $cdmTable) {
+            if ($cdmTable['name'] === $tableMapping->target_table) {
+                $cdmColumns = $cdmTable['columns'];
+                break;
+            }
+        }
+
+        if (empty($cdmColumns)) {
+            return [];
+        }
+
+        // Get already-mapped CDM columns to skip them
+        $mappedTargetColumns = $tableMapping->fieldMappings()
+            ->pluck('target_column')
+            ->toArray();
+
+        $results = [];
+
+        foreach ($cdmColumns as $cdmCol) {
+            if (in_array($cdmCol['name'], $mappedTargetColumns, true)) {
+                continue;
+            }
+
+            // Score ALL source columns, collect top 3 with score >= 0.4
+            $candidates = [];
+            foreach ($sourceColumns as $sourceCol) {
+                $score = EtlSuggestionScorer::fieldScore(
+                    $sourceCol['name'],
+                    $cdmCol['name'],
+                    $sourceCol['type']
+                );
+                if ($score >= 0.4) {
+                    $inference = EtlSuggestionScorer::inferMappingWithLogic(
+                        $sourceCol['name'],
+                        $cdmCol['name'],
+                        $sourceCol['type'] ?? null,
+                        $cdmCol['type'] ?? null,
+                        $cdmCol['fk_table'] ?? null,
+                        $cdmCol['fk_domain'] ?? null,
+                    );
+                    $candidates[] = [
+                        'source_column' => $sourceCol['name'],
+                        'score' => round($score, 2),
+                        'mapping_type' => $inference['mapping_type'],
+                        'logic' => $inference['logic'],
+                    ];
+                }
+            }
+
+            // Sort by score descending and take top 3
+            usort($candidates, fn (array $a, array $b): int => $b['score'] <=> $a['score']);
+            $topCandidates = array_slice($candidates, 0, 3);
+
+            $results[] = [
+                'target_column' => $cdmCol['name'],
+                'is_required' => $cdmCol['required'] ?? false,
+                'suggestions' => $topCandidates,
+            ];
+        }
+
+        return $results;
+    }
+
+    /**
      * Suggest field-level mappings for a table pair.
      *
      * @param  list<array{name: string, type: string}>  $sourceColumns

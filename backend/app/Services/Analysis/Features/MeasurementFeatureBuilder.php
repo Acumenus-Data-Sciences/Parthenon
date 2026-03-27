@@ -27,16 +27,16 @@ class MeasurementFeatureBuilder implements FeatureBuilderInterface
                 COALESCE(c2.concept_name, 'Unknown') AS concept_name,
                 COUNT(DISTINCT m.person_id) AS person_count,
                 ROUND(
-                    100.0 * COUNT(DISTINCT m.person_id) /
-                    NULLIF((SELECT COUNT(DISTINCT subject_id) FROM {@cohortTable} WHERE cohort_definition_id = {$cohortDefinitionId}), 0),
+                    (100.0 * COUNT(DISTINCT m.person_id) /
+                    NULLIF((SELECT COUNT(DISTINCT subject_id) FROM {@cohortTable} WHERE cohort_definition_id = {$cohortDefinitionId}), 0))::numeric,
                     2
                 ) AS percent_value,
-                ROUND(AVG(CASE WHEN m.value_as_number IS NOT NULL THEN m.value_as_number END), 4) AS mean_value,
-                ROUND(STDDEV(CASE WHEN m.value_as_number IS NOT NULL THEN m.value_as_number END), 4) AS stddev_value,
+                ROUND(AVG(CASE WHEN m.value_as_number IS NOT NULL THEN m.value_as_number END)::numeric, 4) AS mean_value,
+                ROUND(STDDEV(CASE WHEN m.value_as_number IS NOT NULL THEN m.value_as_number END)::numeric, 4) AS stddev_value,
                 MIN(CASE WHEN m.value_as_number IS NOT NULL THEN m.value_as_number END) AS min_value,
                 MAX(CASE WHEN m.value_as_number IS NOT NULL THEN m.value_as_number END) AS max_value,
                 ROUND(
-                    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY CASE WHEN m.value_as_number IS NOT NULL THEN m.value_as_number END),
+                    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY CASE WHEN m.value_as_number IS NOT NULL THEN m.value_as_number END)::numeric,
                     4
                 ) AS median_value
             FROM {@cohortTable} c

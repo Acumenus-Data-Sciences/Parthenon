@@ -12,6 +12,7 @@ import {
   fetchFieldMappings,
   bulkUpsertFieldMappings,
   suggestMappings,
+  suggestFieldMappings,
   type EtlFieldMapping,
 } from "../api";
 
@@ -120,6 +121,12 @@ export function useBulkUpsertFields(projectId: number, mappingId: number) {
       qc.invalidateQueries({ queryKey: ["aqueduct", "field-mappings", projectId, mappingId] });
       qc.invalidateQueries({ queryKey: ["aqueduct", "table-mappings", projectId] });
     },
+  });
+}
+
+export function useSuggestFieldMappings(projectId: number, mappingId: number) {
+  return useMutation({
+    mutationFn: () => suggestFieldMappings(projectId, mappingId),
   });
 }
 
