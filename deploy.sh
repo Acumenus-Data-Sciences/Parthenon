@@ -160,6 +160,13 @@ if $DO_PHP; then
   if docker compose exec php php artisan storage:link 2>/dev/null || true; then
     ok "Storage symlink created"
   fi
+
+  echo "── Generating API documentation ──"
+  if docker compose exec php php artisan scribe:generate --no-interaction 2>/dev/null; then
+    ok "API docs generated → public/docs/"
+  else
+    warn "API docs generation failed (non-critical)"
+  fi
 fi
 
 # ── Database migrations ───────────────────────────────────────────────────────
@@ -280,11 +287,12 @@ fi
 # ── OpenAPI spec export + TypeScript type generation ─────────────────────────
 if $DO_OPENAPI; then
   echo ""
-  echo "── OpenAPI: exporting spec and regenerating TypeScript types ──"
-  if docker compose exec php php artisan scramble:export 2>/dev/null; then
-    ok "Spec exported → backend/api.json"
+  echo "── OpenAPI: generating API docs and regenerating TypeScript types ──"
+  echo "── Generating API documentation ──"
+  if docker compose exec php php artisan scribe:generate --no-interaction 2>/dev/null; then
+    ok "API docs + OpenAPI spec generated → public/docs/"
   else
-    warn "OpenAPI export failed (non-critical)"
+    warn "API docs generation failed (non-critical)"
   fi
 
   if is_running node; then
