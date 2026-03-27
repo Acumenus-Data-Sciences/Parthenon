@@ -24,6 +24,7 @@ import {
   Copy,
   Download,
   Archive,
+  FileOutput,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { StudyDesigner } from "../components/StudyDesigner";
@@ -327,6 +328,19 @@ export default function StudyDetailPage() {
 
           {/* Action buttons */}
           <div className="flex items-center gap-1.5 shrink-0">
+            {(analyses ?? []).some(
+              (sa) => sa.analysis?.latest_execution?.status === "completed"
+            ) && (
+              <button
+                type="button"
+                onClick={() => navigate(`/publish?studyId=${study.id}`)}
+                className="btn btn-ghost btn-sm flex items-center gap-1"
+                title="Generate manuscript from completed analyses"
+              >
+                <FileOutput size={14} />
+                <span className="text-xs">Manuscript</span>
+              </button>
+            )}
             <button
               type="button"
               onClick={handleDuplicate}
