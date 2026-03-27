@@ -166,10 +166,11 @@ None yet.
 | 3 | Add save-to-vocabulary, save/load project actions to Mapping Assistant | 2026-03-27 | a657163ee | [3-add-action-arms-to-mapping-assistant-sav](./quick/3-add-action-arms-to-mapping-assistant-sav/) |
 | 4 | Integrate Phoebe concept recommendations into Concept Set Editor and Detail page | 2026-03-27 | 85a9e950e | [4-integrate-phoebe-concept-recommendations](./quick/4-integrate-phoebe-concept-recommendations/) |
 | 5 | Add Arachne federated execution service (backend + frontend) | 2026-03-27 | fa228d5e5 | [5-add-arachne-federated-execution-service-](./quick/5-add-arachne-federated-execution-service-/) |
+| 6 | Build Strategus JSON spec builder UI with per-module config and JSON editor | 2026-03-27 | fed378b5e | [6-build-strategus-json-spec-builder-ui-for](./quick/6-build-strategus-json-spec-builder-ui-for/) |
 | 7 | Replace Scramble with Scribe for static API documentation | 2026-03-27 | 63c0cd4e7 | [7-replace-scramble-with-scribe-for-api-ref](./quick/7-replace-scramble-with-scribe-for-api-ref/) |
 
 ## Session Continuity
 
-Last session: 2026-03-27T20:17:29.000Z
-Stopped at: Completed quick-7 (Replace Scramble with Scribe for API docs)
+Last session: 2026-03-27T20:50:00.000Z
+Stopped at: Completed quick-6 (Strategus JSON spec builder UI)
 Resume file: None
