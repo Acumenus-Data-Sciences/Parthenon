@@ -415,6 +415,7 @@ export default function PatientTimeline({ data, isLoading, error }: PatientTimel
     <div className="space-y-6">
       <SummaryCards data={data} />
       <VisualTimeline data={data} />
+      <StudyListTable studies={data.studies} />
 
       {/* Toggle buttons */}
       <div className="flex items-center gap-4">
@@ -439,8 +440,6 @@ export default function PatientTimeline({ data, isLoading, error }: PatientTimel
       {showAssessments && (
         <ResponseAssessmentPanel personId={data.person.person_id} studies={data.studies} />
       )}
-
-      <StudyListTable studies={data.studies} />
     </div>
   );
 }
