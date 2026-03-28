@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use App\Models\User;
-use App\Services\AiService;
+use App\Services\AI\AnalyticsLlmService;
 use App\Services\Publication\PublicationService;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -52,10 +52,10 @@ it('generates narrative text via AI service', function () {
     $user = User::factory()->create();
     $user->assignRole('researcher');
 
-    $this->mock(AiService::class, function ($mock) {
-        $mock->shouldReceive('abbyChat')
+    $this->mock(AnalyticsLlmService::class, function ($mock) {
+        $mock->shouldReceive('chat')
             ->once()
-            ->andReturn(['reply' => 'A retrospective cohort study was conducted using the OMOP CDM.']);
+            ->andReturn('A retrospective cohort study was conducted using the OMOP CDM.');
     });
 
     $response = $this->actingAs($user)
@@ -77,8 +77,8 @@ it('returns 503 when AI service is unavailable', function () {
     $user = User::factory()->create();
     $user->assignRole('researcher');
 
-    $this->mock(AiService::class, function ($mock) {
-        $mock->shouldReceive('abbyChat')
+    $this->mock(AnalyticsLlmService::class, function ($mock) {
+        $mock->shouldReceive('chat')
             ->once()
             ->andThrow(new RuntimeException('Connection refused'));
     });

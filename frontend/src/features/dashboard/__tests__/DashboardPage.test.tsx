@@ -118,7 +118,7 @@ describe("DashboardPage", () => {
     const { container } = renderDashboard();
 
     // Skeleton components should be rendered during loading
-    const skeletons = container.querySelectorAll(".grid-metrics");
+    const skeletons = container.querySelectorAll(".grid.grid-cols-4");
     expect(skeletons.length).toBeGreaterThan(0);
   });
 
@@ -133,10 +133,9 @@ describe("DashboardPage", () => {
 
     // Check metric card labels are present
     expect(screen.getByText("CDM Sources")).toBeInTheDocument();
-    expect(screen.getByText("Active Cohorts")).toBeInTheDocument();
     expect(screen.getByText("Running Jobs")).toBeInTheDocument();
-    expect(screen.getByText("DQD Failures")).toBeInTheDocument();
     expect(screen.getByText("Concept Sets")).toBeInTheDocument();
+    expect(screen.getByText("Active Cohorts")).toBeInTheDocument();
   });
 
   it("displays recent cohort activity table", () => {

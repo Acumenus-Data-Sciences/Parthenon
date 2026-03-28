@@ -12,6 +12,7 @@ use App\Models\App\SourceRelease;
 use App\Models\Results\AchillesResult;
 use App\Services\Database\DynamicConnectionFactory;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class DqHistoryService

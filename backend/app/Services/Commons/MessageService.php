@@ -7,6 +7,8 @@ use App\Events\Commons\MessageUpdated;
 use App\Models\Commons\Channel;
 use App\Models\Commons\ChannelMember;
 use App\Models\Commons\Message;
+use App\Models\Commons\Notification;
+use App\Models\User;
 use League\CommonMark\Environment\Environment;
 use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
 use League\CommonMark\Extension\DisallowedRawHtml\DisallowedRawHtmlExtension;
@@ -96,6 +98,14 @@ class MessageService
             $this->unreadService->invalidateCacheForUserId($memberId);
         }
 
+        // Create mention notifications
+        $this->createMentionNotifications($message, $channel, $userId, $body);
+
+        // Create DM notification on first message in a DM channel
+        if ($channel->type === 'dm') {
+            $this->createDmNotification($message, $channel, $userId);
+        }
+
         return $message;
     }
 
@@ -111,6 +121,98 @@ class MessageService
         broadcast(new MessageUpdated($message, 'edited'))->toOthers();
 
         return $message;
+    }
+
+    /**
+     * Generate a plain-text excerpt from a message body.
+     *
+     * Converts mention tokens to @Username, strips HTML, and truncates at 160 chars.
+     */
+    protected function excerptFromBody(string $body): string
+    {
+        // Convert mention tokens @[id:Name] to @Name
+        $text = preg_replace(self::MENTION_PATTERN, '@$2', $body);
+
+        // Strip any HTML tags
+        $text = strip_tags($text);
+
+        // Trim whitespace
+        $text = trim($text);
+
+        if (mb_strlen($text) > 160) {
+            $text = mb_substr($text, 0, 160).'…';
+        }
+
+        return $text;
+    }
+
+    private function createMentionNotifications(Message $message, Channel $channel, int $senderId, string $body): void
+    {
+        preg_match_all(self::MENTION_PATTERN, $body, $matches);
+
+        if (empty($matches[1])) {
+            return;
+        }
+
+        $mentionedUserIds = collect($matches[1])
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->reject(fn ($id) => $id === $senderId)
+            ->values();
+
+        // Cap at 20 recipients
+        $mentionedUserIds = $mentionedUserIds->take(20);
+
+        // Only notify users who actually exist and are channel members
+        $validUserIds = ChannelMember::where('channel_id', $channel->id)
+            ->whereIn('user_id', $mentionedUserIds)
+            ->pluck('user_id');
+
+        $existingUserIds = User::whereIn('id', $validUserIds)->pluck('id');
+
+        $excerpt = $this->excerptFromBody($body);
+
+        foreach ($existingUserIds as $userId) {
+            Notification::create([
+                'user_id' => $userId,
+                'actor_id' => $senderId,
+                'type' => 'mention',
+                'title' => 'You were mentioned',
+                'body' => $excerpt,
+                'channel_id' => $channel->id,
+                'message_id' => $message->id,
+            ]);
+        }
+    }
+
+    private function createDmNotification(Message $message, Channel $channel, int $senderId): void
+    {
+        // Only notify on the first message in the DM channel
+        $priorMessageCount = Message::where('channel_id', $channel->id)
+            ->where('id', '!=', $message->id)
+            ->count();
+
+        if ($priorMessageCount > 0) {
+            return;
+        }
+
+        $recipientIds = ChannelMember::where('channel_id', $channel->id)
+            ->where('user_id', '!=', $senderId)
+            ->pluck('user_id');
+
+        $excerpt = $this->excerptFromBody($message->body);
+
+        foreach ($recipientIds as $userId) {
+            Notification::create([
+                'user_id' => $userId,
+                'actor_id' => $senderId,
+                'type' => 'dm',
+                'title' => 'New direct message',
+                'body' => $excerpt,
+                'channel_id' => $channel->id,
+                'message_id' => $message->id,
+            ]);
+        }
     }
 
     public function deleteMessage(Message $message): Message
