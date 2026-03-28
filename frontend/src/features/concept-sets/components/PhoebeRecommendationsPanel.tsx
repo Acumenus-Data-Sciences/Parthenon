@@ -39,7 +39,8 @@ export function PhoebeRecommendationsPanel({
         )}
         <Sparkles size={14} className="text-[#C9A227]" />
         <span>Phoebe Recommendations</span>
-        <span className="inline-flex items-center gap-1 rounded-full border border-[#C9A227]/40 bg-[#C9A227]/10 px-2 py-0.5 text-[10px] font-semibold tracking-wide text-[#C9A227]">
+        <span className="inline-flex items-center gap-1 rounded-full border border-[#C9A227]/40 bg-[#C9A227]/10 px-2.5 py-0.5 text-[10px] font-semibold tracking-wide text-[#C9A227]">
+          <Sparkles className="h-3 w-3" />
           Powered by Phoebe
         </span>
         {!isLoading && recommendations.length > 0 && (

@@ -627,13 +627,13 @@ export function SemanticSearchPanel({
       {/* Search header */}
       <div className="px-4 py-4 border-b border-[#232328] space-y-3">
         {/* Branding row */}
-        <div className="flex items-center gap-1.5">
-          <Sparkles size={13} className="text-[#2DD4BF]" />
-          <span className="text-xs font-semibold text-[#2DD4BF] tracking-wide">
-            Hecate Semantic Search
+        <div className="flex items-center gap-2">
+          <span className="inline-flex items-center gap-1 rounded-full border border-[#2DD4BF]/40 bg-[#2DD4BF]/10 px-2.5 py-0.5 text-[10px] font-semibold tracking-wide text-[#2DD4BF]">
+            <Sparkles className="h-3 w-3" />
+            Powered by Hecate
           </span>
           <span className="text-[10px] text-[#5A5650]">
-            — vector-powered concept discovery
+            vector-powered concept discovery
           </span>
         </div>
 
