@@ -2,9 +2,10 @@ import { useEffect, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { getEcho } from "@/lib/echo";
 import { useAuthStore } from "@/stores/authStore";
-import type { Message, ReactionSummary } from "../types";
+import type { CommonsCall, Message, ReactionSummary } from "../types";
 
 const MESSAGES_KEY = "commons-messages";
+const CALL_KEY = "commons-call";
 
 /**
  * Subscribe to real-time message events for a channel.
@@ -120,6 +121,12 @@ export function useChannelSubscription(
                 });
               }
             });
+        },
+      )
+      .listen(
+        ".CallUpdated",
+        (event: { call: CommonsCall | null }) => {
+          qc.setQueryData<CommonsCall | null>([CALL_KEY, slug], event.call ?? null);
         },
       );
 

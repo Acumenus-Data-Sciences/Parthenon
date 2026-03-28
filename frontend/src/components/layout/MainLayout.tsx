@@ -15,6 +15,7 @@ import { AtlasMigrationContext } from "@/contexts/AtlasMigrationContext";
 import { useUiStore } from "@/stores/uiStore";
 import { useAuthStore } from "@/stores/authStore";
 import { useGlobalKeyboard } from "@/hooks/useGlobalKeyboard";
+import { useCommonsMessageToasts } from "@/features/commons/hooks/useCommonsMessageToasts";
 import { useGlobalPresence } from "@/features/commons/hooks/usePresence";
 import { useNotificationListener } from "@/features/commons/hooks/useNotificationListener";
 import { cn } from "@/lib/utils";
@@ -41,6 +42,9 @@ export function MainLayout() {
 
   // Listen for real-time notifications on the user's private channel.
   useNotificationListener();
+
+  // Toast new Commons messages when the user is elsewhere in the app.
+  useCommonsMessageToasts();
 
   const showWizard = wizardOpen && isSuperAdmin;
 

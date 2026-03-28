@@ -3,12 +3,28 @@ export interface ChannelUser {
   name: string;
 }
 
+export interface SearchableUser extends ChannelUser {
+  email: string;
+}
+
 export interface DirectMessage {
   id: number;
   slug: string;
   other_user: ChannelUser | null;
   last_message_at: string | null;
   members_count: number;
+}
+
+export interface CommonsCall {
+  id: number;
+  channel_id: number;
+  room_name: string;
+  call_type: "audio" | "video";
+  status: "active" | "ended";
+  started_at: string | null;
+  ended_at: string | null;
+  started_by_user: ChannelUser | null;
+  ended_by_user?: ChannelUser | null;
 }
 
 export interface Channel {
@@ -100,9 +116,22 @@ export interface Message {
   review_status?: "requested" | "approved" | "rejected" | null;
 }
 
+export interface PresenceSession {
+  id: number;
+  name: string;
+  session_id: string;
+  status?: "active" | "idle";
+  channel_slug?: string | null;
+  last_active_at?: string | null;
+}
+
 export interface PresenceUser {
   id: number;
   name: string;
+  status: "active" | "idle";
+  sessionCount: number;
+  channelSlug?: string | null;
+  lastActiveAt?: string | null;
   activity?: string;
 }
 

@@ -5,6 +5,7 @@ import { getEcho } from "@/lib/echo";
 import { useAuthStore } from "@/stores/authStore";
 import { toast } from "@/components/ui/Toast";
 import type { CommonsNotification } from "../types";
+import { markCommonsMessageToast } from "./commonsToastDeduper";
 
 const NOTIFICATIONS_KEY = "commons-notifications";
 
@@ -41,8 +42,8 @@ export function useNotificationListener(): void {
 
     channel.listen(
       ".NotificationSent",
-      (event: { notification: CommonsNotification }) => {
-        const n = event.notification;
+      (event: CommonsNotification | { notification: CommonsNotification }) => {
+        const n = "notification" in event ? event.notification : event;
 
         // 1. Prepend to notification list cache
         qc.setQueryData<CommonsNotification[]>([NOTIFICATIONS_KEY], (old) => {
@@ -73,6 +74,7 @@ export function useNotificationListener(): void {
               }
             : undefined;
 
+        markCommonsMessageToast(n.message_id);
         toast.info(message, action);
       },
     );

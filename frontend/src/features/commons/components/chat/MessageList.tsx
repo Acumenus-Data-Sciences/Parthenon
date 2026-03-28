@@ -36,9 +36,11 @@ function isSameDay(a: string, b: string): boolean {
 
 function DateSeparator({ label }: { label: string }) {
   return (
-    <div className="flex items-center gap-3 px-5 py-2">
+    <div className="flex items-center gap-3 px-6 py-3">
       <div className="flex-1 h-px bg-white/[0.06]" />
-      <span className="text-[11px] font-medium text-muted-foreground/60 select-none">{label}</span>
+      <span className="select-none rounded-full border border-white/[0.06] bg-[#15151a] px-3 py-1 text-[11px] font-medium text-muted-foreground/70">
+        {label}
+      </span>
       <div className="flex-1 h-px bg-white/[0.06]" />
     </div>
   );
@@ -46,9 +48,11 @@ function DateSeparator({ label }: { label: string }) {
 
 function UnreadDivider() {
   return (
-    <div className="flex items-center gap-3 px-5 py-1">
+    <div className="flex items-center gap-3 px-6 py-2">
       <div className="flex-1 h-px bg-red-500/40" />
-      <span className="text-[10px] font-semibold text-red-400 uppercase tracking-wider select-none">New messages</span>
+      <span className="select-none rounded-full border border-red-500/20 bg-red-500/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-red-400">
+        New messages
+      </span>
       <div className="flex-1 h-px bg-red-500/40" />
     </div>
   );
@@ -127,26 +131,30 @@ export function MessageList({
 
   if (isLoading) {
     return (
-      <div className="flex flex-1 items-center justify-center">
+      <div className="flex flex-1 items-center justify-center bg-[linear-gradient(180deg,rgba(255,255,255,0.02),transparent)]">
         <p className="text-sm text-muted-foreground">Loading messages...</p>
       </div>
     );
   }
 
   return (
-    <div ref={containerRef} className="flex-1 overflow-y-auto">
+    <div ref={containerRef} className="flex-1 overflow-y-auto bg-[linear-gradient(180deg,rgba(255,255,255,0.02),transparent_18%)]">
       {sorted.length === 0 ? (
-        <div className="flex h-full flex-col items-center justify-center gap-3">
-          <div className="rounded-full bg-white/[0.03] p-5">
+        <div className="flex h-full items-center justify-center p-8">
+          <div className="w-full max-w-lg rounded-3xl border border-[#26262c] bg-[#111115] px-8 py-10 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-[#2a2a31] bg-[#1a1a20]">
             <Hash className="h-8 w-8 text-muted-foreground/20" />
-          </div>
-          <div className="text-center">
-            <p className="text-[13px] text-muted-foreground/70">No messages yet</p>
-            <p className="text-[11px] text-muted-foreground/40 mt-1">Be the first to say something</p>
+            </div>
+            <div className="mt-4">
+              <p className="text-[15px] font-medium text-foreground/85">No messages yet</p>
+              <p className="mt-1 text-[12px] leading-6 text-muted-foreground/70">
+                Be the first to start the conversation in this channel.
+              </p>
+            </div>
           </div>
         </div>
       ) : (
-        <div className="py-4">
+        <div className="mx-auto w-full max-w-5xl px-3 py-5">
           {sorted.map((msg, i) => {
             const showDateSep = i === 0 || !isSameDay(sorted[i - 1].created_at, msg.created_at);
             const showUnread = unreadIndex === i && i > 0;

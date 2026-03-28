@@ -53,6 +53,12 @@ class Channel extends Model
         return $this->hasMany(Message::class, 'channel_id');
     }
 
+    /** @return HasMany<Call, $this> */
+    public function calls(): HasMany
+    {
+        return $this->hasMany(Call::class, 'channel_id');
+    }
+
     public function isPublic(): bool
     {
         return $this->visibility === 'public';

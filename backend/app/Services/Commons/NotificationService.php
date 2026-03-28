@@ -2,48 +2,55 @@
 
 namespace App\Services\Commons;
 
+use App\Events\Commons\NotificationSent;
 use App\Models\Commons\ChannelMember;
 use App\Models\Commons\Message;
 use App\Models\Commons\Notification;
 
 class NotificationService
 {
+    /** Matches tokenized mentions stored by the composer: @[id:display name]. */
+    private const TOKEN_MENTION_PATTERN = '/@\[(\d+):([^\]]+)\]/';
+
+    private function broadcastNotification(Notification $notification): void
+    {
+        $notification->loadMissing(['actor:id,name', 'channel:id,slug']);
+        broadcast(new NotificationSent($notification));
+    }
+
     /**
      * Create notifications for @mentions in a message body.
-     * Parses @Name patterns and notifies matching channel members.
+     * Parses tokenized mentions and notifies eligible channel members.
      */
     public function notifyMentions(Message $message, int $channelId): void
     {
-        // Find @mentions in the body (matches @FirstName LastName or @FirstName)
-        if (! preg_match_all('/@([\w]+ ?[\w]*)/', $message->body, $matches)) {
+        if (! preg_match_all(self::TOKEN_MENTION_PATTERN, $message->body, $matches)) {
             return;
         }
 
-        $mentionedNames = array_unique($matches[1]);
+        $mentionedIds = array_values(array_unique(array_map('intval', $matches[1] ?? [])));
+        if (empty($mentionedIds)) {
+            return;
+        }
 
         $members = ChannelMember::where('channel_id', $channelId)
-            ->with('user:id,name')
+            ->whereIn('user_id', $mentionedIds)
+            ->where('user_id', '!=', $message->user_id)
+            ->where('notification_preference', '!=', 'none')
             ->get();
 
         foreach ($members as $member) {
-            if ($member->user_id === $message->user_id) {
-                continue; // Don't notify yourself
-            }
+            $notification = Notification::create([
+                'user_id' => $member->user_id,
+                'type' => 'mention',
+                'title' => "{$message->user->name} mentioned you",
+                'body' => mb_substr(preg_replace(self::TOKEN_MENTION_PATTERN, '@$2', $message->body) ?? $message->body, 0, 200),
+                'channel_id' => $channelId,
+                'message_id' => $message->id,
+                'actor_id' => $message->user_id,
+            ]);
 
-            foreach ($mentionedNames as $name) {
-                if (stripos($member->user->name, trim($name)) === 0) {
-                    Notification::create([
-                        'user_id' => $member->user_id,
-                        'type' => 'mention',
-                        'title' => "{$message->user->name} mentioned you",
-                        'body' => mb_substr($message->body, 0, 200),
-                        'channel_id' => $channelId,
-                        'message_id' => $message->id,
-                        'actor_id' => $message->user_id,
-                    ]);
-                    break; // Only one notification per user
-                }
-            }
+            $this->broadcastNotification($notification);
         }
     }
 
@@ -54,18 +61,21 @@ class NotificationService
     {
         $members = ChannelMember::where('channel_id', $channelId)
             ->where('user_id', '!=', $message->user_id)
+            ->where('notification_preference', '!=', 'none')
             ->pluck('user_id');
 
         foreach ($members as $userId) {
-            Notification::create([
+            $notification = Notification::create([
                 'user_id' => $userId,
                 'type' => 'dm',
                 'title' => "New message from {$message->user->name}",
-                'body' => mb_substr($message->body, 0, 200),
+                'body' => mb_substr(preg_replace(self::TOKEN_MENTION_PATTERN, '@$2', $message->body) ?? $message->body, 0, 200),
                 'channel_id' => $channelId,
                 'message_id' => $message->id,
                 'actor_id' => $message->user_id,
             ]);
+
+            $this->broadcastNotification($notification);
         }
     }
 
@@ -78,21 +88,30 @@ class NotificationService
             return;
         }
 
-        // Get the parent message author
         $parent = Message::find($reply->parent_id);
         if (! $parent || $parent->user_id === $reply->user_id) {
             return;
         }
 
-        Notification::create([
+        $parentMember = ChannelMember::where('channel_id', $channelId)
+            ->where('user_id', $parent->user_id)
+            ->first();
+
+        if ($parentMember && $parentMember->notification_preference === 'none') {
+            return;
+        }
+
+        $notification = Notification::create([
             'user_id' => $parent->user_id,
             'type' => 'thread_reply',
             'title' => "{$reply->user->name} replied to your message",
-            'body' => mb_substr($reply->body, 0, 200),
+            'body' => mb_substr(preg_replace(self::TOKEN_MENTION_PATTERN, '@$2', $reply->body) ?? $reply->body, 0, 200),
             'channel_id' => $channelId,
             'message_id' => $reply->id,
             'actor_id' => $reply->user_id,
         ]);
+
+        $this->broadcastNotification($notification);
     }
 
     /**
@@ -104,7 +123,7 @@ class NotificationService
             return;
         }
 
-        Notification::create([
+        $notification = Notification::create([
             'user_id' => $userId,
             'type' => 'review_assigned',
             'title' => "{$requesterName} requested your review",
@@ -112,6 +131,8 @@ class NotificationService
             'message_id' => $messageId,
             'actor_id' => $requestedBy,
         ]);
+
+        $this->broadcastNotification($notification);
     }
 
     /**
@@ -125,7 +146,7 @@ class NotificationService
 
         $statusLabel = $status === 'approved' ? 'approved' : 'requested changes on';
 
-        Notification::create([
+        $notification = Notification::create([
             'user_id' => $requesterId,
             'type' => 'review_resolved',
             'title' => "{$reviewerName} {$statusLabel} your review",
@@ -133,5 +154,7 @@ class NotificationService
             'message_id' => $messageId,
             'actor_id' => $reviewerId,
         ]);
+
+        $this->broadcastNotification($notification);
     }
 }

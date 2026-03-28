@@ -176,10 +176,16 @@ export function MessageComposer({ channelName, onSend, disabled, onKeyDown, memb
   }
 
   return (
-    <div className="border-t border-white/[0.06] px-5 py-3 bg-gradient-to-t from-black/20 to-transparent">
-      <div className="relative rounded-lg border border-white/[0.08] bg-[#13131a] p-3 shadow-[0_-4px_20px_rgba(0,0,0,0.15)]">
-        <div className="text-xs text-muted-foreground mb-2">
-          Message #{channelName} — Markdown supported
+    <div className="border-t border-white/[0.06] bg-[linear-gradient(180deg,rgba(0,0,0,0),rgba(0,0,0,0.18))] px-5 py-4">
+      <div className="mx-auto max-w-5xl">
+      <div className="relative rounded-[22px] border border-white/[0.08] bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.04),transparent_32%),#13131a] p-4 shadow-[0_-8px_28px_rgba(0,0,0,0.18)]">
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <div className="text-xs text-muted-foreground">
+            Message <span className="font-medium text-foreground">#{channelName}</span> and use Markdown for structure
+          </div>
+          <div className="rounded-full border border-white/[0.06] bg-white/[0.03] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+            Enter to send
+          </div>
         </div>
 
         {/* Hidden file input */}
@@ -194,11 +200,11 @@ export function MessageComposer({ channelName, onSend, disabled, onKeyDown, memb
 
         {/* Pending file pills */}
         {pendingFiles.length > 0 && (
-          <div className="flex flex-wrap gap-1 mb-2">
+          <div className="mb-3 flex flex-wrap gap-1.5">
             {pendingFiles.map((file, i) => (
               <span
                 key={`${file.name}-${i}`}
-                className="inline-flex items-center gap-1 rounded-full border border-border bg-muted px-2 py-0.5 text-[11px] text-foreground"
+                className="inline-flex items-center gap-1 rounded-full border border-[#2a2a31] bg-[#1a1a20] px-2.5 py-1 text-[11px] text-foreground"
               >
                 <Paperclip className="h-3 w-3 text-muted-foreground" />
                 <span className="max-w-[120px] truncate">{file.name}</span>
@@ -216,7 +222,7 @@ export function MessageComposer({ channelName, onSend, disabled, onKeyDown, memb
 
         {/* Attached reference pills */}
         {attachedRefs.length > 0 && (
-          <div className="flex flex-wrap gap-1 mb-2">
+          <div className="mb-3 flex flex-wrap gap-1.5">
             {attachedRefs.map((ref) => (
               <span
                 key={`${ref.type}-${ref.id}`}
@@ -244,7 +250,7 @@ export function MessageComposer({ channelName, onSend, disabled, onKeyDown, memb
 
         {/* @mention autocomplete dropdown */}
         {mentionQuery !== null && mentionResults.length > 0 && (
-          <div className="absolute bottom-full left-0 mb-1 w-64 rounded-md border border-border bg-card py-1 shadow-lg z-20">
+          <div className="absolute bottom-full left-0 z-20 mb-2 w-72 rounded-2xl border border-[#2a2a31] bg-[#17171c] py-1.5 shadow-[0_18px_40px_rgba(0,0,0,0.4)]">
             {mentionResults.map((member, i) => (
               <button
                 key={member.id}
@@ -252,7 +258,7 @@ export function MessageComposer({ channelName, onSend, disabled, onKeyDown, memb
                   e.preventDefault();
                   insertMention(member);
                 }}
-                className={`flex w-full items-center gap-2 px-3 py-1.5 text-sm ${
+                className={`flex w-full items-center gap-2 px-3 py-2 text-sm ${
                   i === mentionIndex ? "bg-muted text-foreground" : "text-foreground hover:bg-muted"
                 }`}
               >
@@ -279,10 +285,10 @@ export function MessageComposer({ channelName, onSend, disabled, onKeyDown, memb
           placeholder="Write a message..."
           rows={1}
           disabled={disabled}
-          className="w-full resize-none bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+          className="min-h-[84px] w-full resize-none bg-transparent text-sm leading-7 text-foreground placeholder:text-muted-foreground focus:outline-none"
         />
-        <div className="flex items-center justify-between pt-2">
-          <div className="flex items-center gap-1">
+        <div className="flex items-center justify-between border-t border-white/[0.06] pt-3">
+          <div className="flex items-center gap-1.5">
             <ToolbarButton icon={Bold} title="Bold" onClick={() => wrapSelection("**", "**")} />
             <ToolbarButton icon={Italic} title="Italic" onClick={() => wrapSelection("*", "*")} />
             <ToolbarButton icon={Code} title="Code" onClick={() => wrapSelection("`", "`")} />
@@ -292,11 +298,12 @@ export function MessageComposer({ channelName, onSend, disabled, onKeyDown, memb
           <button
             onClick={handleSubmit}
             disabled={disabled || (!body.trim() && pendingFiles.length === 0)}
-            className="rounded-md bg-primary px-4 py-1.5 text-xs font-medium text-primary-foreground transition-all duration-150 hover:bg-primary/90 hover:shadow-[0_0_12px_rgba(155,27,48,0.3)] disabled:opacity-40"
+            className="rounded-xl bg-primary px-4 py-2 text-xs font-medium text-primary-foreground transition-all duration-150 hover:bg-primary/90 hover:shadow-[0_0_16px_rgba(155,27,48,0.35)] disabled:opacity-40"
           >
             Send
           </button>
         </div>
+      </div>
       </div>
     </div>
   );
@@ -316,7 +323,7 @@ function ToolbarButton({
       type="button"
       title={title}
       onClick={onClick}
-      className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+      className="rounded-xl border border-[#2a2a31] bg-[#17171c] p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
     >
       <Icon className="h-3.5 w-3.5" />
     </button>

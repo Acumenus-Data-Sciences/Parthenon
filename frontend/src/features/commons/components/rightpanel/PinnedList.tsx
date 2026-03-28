@@ -11,7 +11,7 @@ export function PinnedList({ slug }: PinnedListProps) {
 
   if (isLoading) {
     return (
-      <div className="flex flex-1 items-center justify-center">
+      <div className="flex flex-1 items-center justify-center px-4">
         <p className="text-xs text-muted-foreground">Loading pins...</p>
       </div>
     );
@@ -20,26 +20,28 @@ export function PinnedList({ slug }: PinnedListProps) {
   if (pins.length === 0) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-2 px-5 text-center">
-        <p className="text-[13px] font-medium text-muted-foreground">No pinned messages</p>
-        <p className="text-xs text-muted-foreground/60">
-          Pin important messages from the action menu
-        </p>
+        <div className="w-full rounded-2xl border border-dashed border-[#2b2b32] bg-[#111115] px-4 py-6">
+          <p className="text-[13px] font-medium text-muted-foreground">No pinned messages</p>
+          <p className="mt-1 text-xs leading-5 text-muted-foreground/60">
+            Pin important messages from the action menu
+          </p>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="flex-1 overflow-y-auto">
-      <div className="p-3 space-y-2">
+      <div className="space-y-2 p-3">
         {pins.map((pin) => (
           <div
             key={pin.id}
-            className="group relative rounded-md border border-border bg-card p-2.5"
+            className="group relative rounded-xl border border-[#25252b] bg-[#111115] p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] transition-colors hover:border-[#31313a]"
           >
-            <div className="text-xs font-medium text-foreground line-clamp-2">
+            <div className="line-clamp-3 pr-6 text-xs font-medium leading-5 text-foreground">
               {pin.message.body}
             </div>
-            <div className="text-[11px] text-muted-foreground mt-1">
+            <div className="mt-2 text-[11px] text-muted-foreground">
               {pin.message.user.name} · Pinned{" "}
               {new Date(pin.pinned_at).toLocaleDateString("en-US", {
                 month: "short",
@@ -49,7 +51,7 @@ export function PinnedList({ slug }: PinnedListProps) {
             <button
               onClick={() => unpin.mutate({ slug, pinId: pin.id })}
               title="Unpin"
-              className="absolute top-1.5 right-1.5 shrink-0 rounded p-0.5 text-muted-foreground opacity-0 group-hover:opacity-100 hover:bg-muted hover:text-foreground transition-all"
+              className="absolute right-2 top-2 shrink-0 rounded-lg p-1 text-muted-foreground opacity-0 transition-all hover:bg-muted hover:text-foreground group-hover:opacity-100"
             >
               <X className="h-3 w-3" />
             </button>

@@ -15,6 +15,36 @@ use Illuminate\Http\Request;
 class DirectMessageController extends Controller
 {
     /**
+     * Search users to start a DM conversation.
+     */
+    public function searchUsers(Request $request): JsonResponse
+    {
+        $request->validate([
+            'q' => 'required|string|min:2|max:100',
+        ]);
+
+        $user = $request->user();
+        $q = $request->input('q');
+
+        $users = User::query()
+            ->where('id', '!=', $user->id)
+            ->where(function ($query) use ($q) {
+                $query->where('name', 'ilike', "%{$q}%")
+                    ->orWhere('email', 'ilike', "%{$q}%");
+            })
+            ->orderBy('name')
+            ->limit(10)
+            ->get(['id', 'name', 'email'])
+            ->map(fn (User $match) => [
+                'id' => $match->id,
+                'name' => $match->name,
+                'email' => $match->email,
+            ]);
+
+        return response()->json(['data' => $users]);
+    }
+
+    /**
      * List all DM conversations for the current user.
      */
     public function index(Request $request): JsonResponse

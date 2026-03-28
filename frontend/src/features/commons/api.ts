@@ -9,6 +9,7 @@ import type {
   Attachment,
   Channel,
   ChannelMember,
+  CommonsCall,
   CommonsNotification,
   CreateChannelPayload,
   DirectMessage,
@@ -17,6 +18,7 @@ import type {
   PinnedMessage,
   ReactionSummary,
   ReviewRequest,
+  SearchableUser,
   SearchResult,
 } from "./types";
 
@@ -27,6 +29,7 @@ const UNREAD_KEY = "commons-unread";
 const PINS_KEY = "commons-pins";
 const SEARCH_KEY = "commons-search";
 const DM_KEY = "commons-dm";
+const CALL_KEY = "commons-call";
 
 // ---------------------------------------------------------------------------
 // API functions
@@ -184,6 +187,40 @@ async function searchMessages(
   return data.data;
 }
 
+async function fetchActiveCall(slug: string): Promise<CommonsCall | null> {
+  const { data } = await apiClient.get<{ data: CommonsCall | null }>(
+    `/commons/channels/${slug}/call`,
+  );
+  return data.data;
+}
+
+async function startCall(
+  slug: string,
+  callType: "audio" | "video" = "video",
+): Promise<CommonsCall> {
+  const { data } = await apiClient.post<{ data: CommonsCall }>(
+    `/commons/channels/${slug}/call/start`,
+    { call_type: callType },
+  );
+  return data.data;
+}
+
+async function endCall(slug: string): Promise<CommonsCall> {
+  const { data } = await apiClient.post<{ data: CommonsCall }>(
+    `/commons/channels/${slug}/call/end`,
+  );
+  return data.data;
+}
+
+async function fetchCallToken(
+  slug: string,
+): Promise<{ call: CommonsCall; token: string; server_url: string }> {
+  const { data } = await apiClient.post<{
+    data: { call: CommonsCall; token: string; server_url: string };
+  }>(`/commons/channels/${slug}/call/token`);
+  return data.data;
+}
+
 // ---------------------------------------------------------------------------
 // TanStack Query hooks
 // ---------------------------------------------------------------------------
@@ -200,6 +237,16 @@ export function useChannel(slug: string) {
     queryKey: [CHANNELS_KEY, slug],
     queryFn: () => fetchChannel(slug),
     enabled: !!slug,
+  });
+}
+
+export function useActiveCall(slug: string) {
+  return useQuery({
+    queryKey: [CALL_KEY, slug],
+    queryFn: () => fetchActiveCall(slug),
+    enabled: !!slug,
+    refetchInterval: 15_000,
+    staleTime: 5_000,
   });
 }
 
@@ -244,6 +291,33 @@ export function useCreateChannel() {
   return useMutation({
     mutationFn: createChannel,
     onSuccess: () => void qc.invalidateQueries({ queryKey: [CHANNELS_KEY] }),
+  });
+}
+
+export function useStartCall() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ slug, callType = "video" }: { slug: string; callType?: "audio" | "video" }) =>
+      startCall(slug, callType),
+    onSuccess: (_data, variables) => {
+      void qc.invalidateQueries({ queryKey: [CALL_KEY, variables.slug] });
+    },
+  });
+}
+
+export function useEndCall() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ slug }: { slug: string }) => endCall(slug),
+    onSuccess: (_data, variables) => {
+      void qc.invalidateQueries({ queryKey: [CALL_KEY, variables.slug] });
+    },
+  });
+}
+
+export function useCallToken() {
+  return useMutation({
+    mutationFn: ({ slug }: { slug: string }) => fetchCallToken(slug),
   });
 }
 
@@ -397,6 +471,14 @@ async function createDirectMessage(userId: number): Promise<Channel> {
   return data.data;
 }
 
+async function searchDirectMessageUsers(query: string): Promise<SearchableUser[]> {
+  const params = new URLSearchParams({ q: query });
+  const { data } = await apiClient.get<{ data: SearchableUser[] }>(
+    `/commons/users/search?${params.toString()}`,
+  );
+  return data.data;
+}
+
 export function useDirectMessages() {
   return useQuery({
     queryKey: [DM_KEY],
@@ -411,6 +493,15 @@ export function useCreateDirectMessage() {
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: [DM_KEY] });
     },
+  });
+}
+
+export function useDirectMessageUserSearch(query: string) {
+  return useQuery({
+    queryKey: [DM_KEY, "user-search", query],
+    queryFn: () => searchDirectMessageUsers(query),
+    enabled: query.trim().length >= 2,
+    staleTime: 30_000,
   });
 }
 

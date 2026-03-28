@@ -33,6 +33,7 @@ use App\Http\Controllers\Api\V1\CohortDiagnosticsController;
 use App\Http\Controllers\Api\V1\Commons\ActivityController;
 use App\Http\Controllers\Api\V1\Commons\AnnouncementController;
 use App\Http\Controllers\Api\V1\Commons\AttachmentController;
+use App\Http\Controllers\Api\V1\Commons\CallController;
 use App\Http\Controllers\Api\V1\Commons\ChannelController;
 use App\Http\Controllers\Api\V1\Commons\DirectMessageController;
 use App\Http\Controllers\Api\V1\Commons\MemberController;
@@ -1345,12 +1346,17 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'source.resolve'])->group(funct
 // ── Commons Workspace ──────────────────────────────────────────────────────────
 Route::prefix('v1')->middleware(['auth:sanctum', 'source.resolve'])->group(function () {
     Route::prefix('commons')->group(function () {
+        Route::get('users/search', [DirectMessageController::class, 'searchUsers']);
         Route::get('channels', [ChannelController::class, 'index']);
         Route::post('channels', [ChannelController::class, 'store']);
         Route::get('channels/unread', [MemberController::class, 'unreadCounts']);
         Route::get('channels/{slug}', [ChannelController::class, 'show']);
         Route::patch('channels/{slug}', [ChannelController::class, 'update']);
         Route::post('channels/{slug}/archive', [ChannelController::class, 'archive']);
+        Route::get('channels/{slug}/call', [CallController::class, 'show']);
+        Route::post('channels/{slug}/call/start', [CallController::class, 'start']);
+        Route::post('channels/{slug}/call/token', [CallController::class, 'token']);
+        Route::post('channels/{slug}/call/end', [CallController::class, 'end']);
 
         Route::get('channels/{slug}/messages', [MessageController::class, 'index']);
         Route::post('channels/{slug}/messages', [MessageController::class, 'store'])

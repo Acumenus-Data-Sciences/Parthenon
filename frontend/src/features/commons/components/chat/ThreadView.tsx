@@ -36,8 +36,8 @@ export function ThreadView({ parentMessage, slug, currentUserId }: ThreadViewPro
   }
 
   return (
-    <div className="ml-[58px] mr-4 mb-3 rounded-md border border-border bg-card/50 overflow-hidden">
-      <div className="flex items-center gap-1.5 px-3 py-2 border-b border-border text-[11px] text-muted-foreground">
+    <div className="mb-4 ml-[64px] mr-3 overflow-hidden rounded-2xl border border-[#2a2a31] bg-[#111115] shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
+      <div className="flex items-center gap-1.5 border-b border-[#2a2a31] bg-[#17171c] px-4 py-2.5 text-[11px] text-muted-foreground">
         <span>Thread</span>
         <span className="opacity-50">·</span>
         <span>
@@ -47,13 +47,13 @@ export function ThreadView({ parentMessage, slug, currentUserId }: ThreadViewPro
         </span>
       </div>
 
-      <div className="divide-y divide-border">
+      <div className="divide-y divide-[#23232a]">
         {!isLoading &&
           replies.map((reply) => (
             <div
               key={reply.id}
-              className="px-3 py-2"
-              style={{ paddingLeft: reply.depth === 2 ? 36 : 12 }}
+              className="px-4 py-3"
+              style={{ paddingLeft: reply.depth === 2 ? 44 : 16 }}
             >
               {reply.deleted_at ? (
                 <p className="text-xs italic text-muted-foreground">
@@ -65,7 +65,7 @@ export function ThreadView({ parentMessage, slug, currentUserId }: ThreadViewPro
                     <span className="text-xs font-semibold text-foreground">
                       {reply.user.name}
                     </span>
-                    <span className="text-xs text-muted-foreground">
+                    <span className="rounded-full bg-white/[0.04] px-2 py-0.5 text-[10px] text-muted-foreground">
                       {new Date(reply.created_at).toLocaleTimeString([], {
                         hour: "2-digit",
                         minute: "2-digit",
@@ -96,19 +96,19 @@ export function ThreadView({ parentMessage, slug, currentUserId }: ThreadViewPro
       </div>
 
       {/* Compact reply composer */}
-      <div className="flex gap-2 px-3 py-2 border-t border-border">
+      <div className="flex gap-2 border-t border-[#2a2a31] bg-[#15151a] px-4 py-3">
         <textarea
           value={replyBody}
           onChange={(e) => setReplyBody(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="Reply..."
           rows={1}
-          className="flex-1 resize-none rounded border border-border bg-muted px-2 py-1 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
+          className="flex-1 resize-none rounded-xl border border-[#2a2a31] bg-[#101014] px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
         />
         <button
           onClick={handleSendReply}
           disabled={sendMessage.isPending || !replyBody.trim()}
-          className="rounded bg-primary px-2 py-1 text-xs text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+          className="rounded-xl bg-primary px-3 py-2 text-xs text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
         >
           <Send className="h-3.5 w-3.5" />
         </button>

@@ -6,6 +6,7 @@ import { useUnreadCounts, useDirectMessages } from "../../api";
 import { avatarColor } from "../../utils/avatarColor";
 import { ChannelSearch } from "./ChannelSearch";
 import { CreateChannelModal } from "./CreateChannelModal";
+import { CreateDirectMessageModal } from "./CreateDirectMessageModal";
 
 interface ChannelListProps {
   channels: Channel[];
@@ -25,6 +26,7 @@ export function ChannelList({ channels, activeSlug }: ChannelListProps) {
   }, [channels, search]);
 
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showDmModal, setShowDmModal] = useState(false);
   const topicChannels = filtered.filter((c) => c.type === "topic" || c.type === "custom");
   const studyChannels = filtered.filter((c) => c.type === "study");
 
@@ -85,13 +87,27 @@ export function ChannelList({ channels, activeSlug }: ChannelListProps) {
         </>
       )}
 
-      <SectionLabel>Direct Messages</SectionLabel>
+      <div className="flex items-center justify-between px-4 pt-4 pb-1">
+        <SectionLabel noPadding>Direct Messages</SectionLabel>
+        <button
+          onClick={() => setShowDmModal(true)}
+          title="New message"
+          className="rounded p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+        >
+          <Plus className="h-3.5 w-3.5" />
+        </button>
+      </div>
       {dms.length === 0 ? (
         <p className="px-4 text-xs italic text-muted-foreground/60">
-          Click a user to start a conversation
+          Start a conversation from the + button or the online roster
         </p>
       ) : (
-        dms.map((dm) => (
+        dms.map((dm) => {
+          const unreadCount = unreadCounts[dm.slug] ?? 0;
+          const hasUnread = unreadCount > 0 && dm.slug !== activeSlug;
+          const displayCount = unreadCount > 99 ? "99+" : String(unreadCount);
+
+          return (
           <button
             key={dm.id}
             onClick={() => navigate(`/commons/${dm.slug}`)}
@@ -100,7 +116,7 @@ export function ChannelList({ channels, activeSlug }: ChannelListProps) {
                 ? "border-primary bg-primary/15 text-foreground"
                 : "border-transparent text-muted-foreground hover:bg-muted/50 hover:text-foreground"
             }`}
-          >
+            >
             {dm.other_user && (
               <div
                 className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[8px] font-semibold text-white"
@@ -112,20 +128,35 @@ export function ChannelList({ channels, activeSlug }: ChannelListProps) {
             <span className="truncate">
               {dm.other_user?.name ?? "Unknown"}
             </span>
+            {hasUnread && (
+              <span className="ml-auto shrink-0 rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-semibold leading-none text-primary-foreground min-w-[18px] text-center">
+                {displayCount}
+              </span>
+            )}
           </button>
-        ))
+          );
+        })
       )}
 
       {showCreateModal && (
         <CreateChannelModal onClose={() => setShowCreateModal(false)} />
       )}
+      {showDmModal && (
+        <CreateDirectMessageModal onClose={() => setShowDmModal(false)} />
+      )}
     </div>
   );
 }
 
-function SectionLabel({ children }: { children: React.ReactNode }) {
+function SectionLabel({
+  children,
+  noPadding = false,
+}: {
+  children: React.ReactNode;
+  noPadding?: boolean;
+}) {
   return (
-    <p className="px-4 pt-4 pb-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+    <p className={`${noPadding ? "" : "px-4 pt-4 pb-1 "}text-[11px] font-semibold uppercase tracking-wide text-muted-foreground`}>
       {children}
     </p>
   );

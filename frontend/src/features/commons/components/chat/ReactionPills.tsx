@@ -29,7 +29,7 @@ export function ReactionPills({ messageId, reactions }: ReactionPillsProps) {
   if (!hasReactions && !showPicker) return null;
 
   return (
-    <div className="flex flex-wrap items-center gap-1.5 pt-1">
+    <div className="flex flex-wrap items-center gap-2 pt-2">
       {emojiKeys.map((key) => {
         const entry = reactions[key];
         const display = EMOJI_DISPLAY[key];
@@ -45,14 +45,14 @@ export function ReactionPills({ messageId, reactions }: ReactionPillsProps) {
             <button
               onClick={() => handleToggle(key)}
               disabled={toggleReaction.isPending}
-              className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs transition-colors ${
+              className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs transition-colors ${
                 entry.reacted
-                  ? "border border-primary/50 bg-primary/20 text-primary-foreground"
-                  : "border border-border bg-muted/50 text-muted-foreground hover:bg-muted"
+                  ? "border-primary/50 bg-primary/20 text-primary-foreground shadow-[0_0_0_1px_rgba(155,27,48,0.12)]"
+                  : "border-[#2a2a31] bg-[#17171c] text-muted-foreground hover:border-[#3a3a44] hover:bg-[#1b1b22]"
               }`}
             >
               <span className="text-sm">{display.emoji}</span>
-              <span>{entry.count}</span>
+              <span className="font-medium">{entry.count}</span>
             </button>
             {hoveredEmoji === key && <ReactionTooltip users={entry.users} />}
           </div>
@@ -64,7 +64,7 @@ export function ReactionPills({ messageId, reactions }: ReactionPillsProps) {
         <button
           onClick={() => setShowPicker(!showPicker)}
           aria-label="Add reaction"
-          className="inline-flex h-6 w-7 items-center justify-center rounded-full border border-dashed border-border/50 text-muted-foreground hover:bg-muted hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity"
+          className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-dashed border-[#35353d] bg-[#121216] text-muted-foreground opacity-0 transition-all group-hover:opacity-100 hover:border-[#454550] hover:bg-[#1a1a20] hover:text-foreground"
         >
           <Plus className="h-3 w-3" />
         </button>

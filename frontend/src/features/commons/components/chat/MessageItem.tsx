@@ -49,10 +49,11 @@ export function MessageItem({
 
   return (
     <>
-      <div className="group relative flex gap-2.5 px-5 py-3 hover:bg-white/[0.02] transition-colors duration-150">
+      <div className="group relative mb-2 rounded-2xl border border-transparent px-3 py-3 transition-colors duration-150 hover:border-white/[0.05] hover:bg-white/[0.02]">
+        <div className="flex gap-3">
           {/* Floating action bar — appears on hover */}
           {!isDeleted && (
-            <div className="absolute -top-3.5 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-10">
+            <div className="absolute right-4 top-0 z-10 -translate-y-1/2 opacity-0 transition-opacity duration-150 group-hover:opacity-100">
               <div className="flex items-center gap-0.5 rounded-lg border border-white/[0.08] bg-[#1a1a24] px-1 py-0.5 shadow-[0_4px_20px_rgba(0,0,0,0.4)] backdrop-blur-xl">
                 <ActionBarButton icon={SmilePlus} label="React" onClick={() => {}} />
                 <ActionBarButton icon={Reply} label="Reply" onClick={() => setShowThread(true)} />
@@ -71,17 +72,17 @@ export function MessageItem({
             </div>
           )}
         <div
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl text-xs font-semibold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]"
           style={{ backgroundColor: avatarColor(message.user.id) }}
         >
           {getInitials(message.user.name)}
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-baseline gap-2">
-            <span className="text-[13px] font-semibold text-foreground">
+            <span className="text-[13px] font-semibold tracking-tight text-foreground">
               {message.user.name}
             </span>
-            <span className="ml-1 text-[11px] text-muted-foreground">{time}</span>
+            <span className="rounded-full bg-white/[0.04] px-2 py-0.5 text-[11px] text-muted-foreground">{time}</span>
             {message.is_edited && !isDeleted && (
               <span className="text-xs text-muted-foreground">(edited)</span>
             )}
@@ -100,7 +101,7 @@ export function MessageItem({
               onSaved={() => setEditing(false)}
             />
           ) : (
-            <div className="prose prose-sm prose-invert max-w-none text-[#b8b8c0] leading-relaxed [&_p]:my-1 [&_pre]:bg-[#13131a] [&_pre]:border [&_pre]:border-white/[0.06] [&_pre]:rounded-md [&_pre]:p-3 [&_code]:text-teal-400 [&_code.mention]:rounded [&_code.mention]:border-0 [&_code.mention]:bg-teal-500/10 [&_code.mention]:text-teal-300 [&_code.mention]:px-1 [&_code.mention]:py-0.5">
+            <div className="prose prose-sm prose-invert mt-1 max-w-none text-[#c5c5cf] leading-7 [&_p]:my-1.5 [&_pre]:bg-[#13131a] [&_pre]:border [&_pre]:border-white/[0.06] [&_pre]:rounded-xl [&_pre]:p-3 [&_code]:text-teal-400 [&_code.mention]:rounded [&_code.mention]:border-0 [&_code.mention]:bg-teal-500/10 [&_code.mention]:text-teal-300 [&_code.mention]:px-1 [&_code.mention]:py-0.5">
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 rehypePlugins={[rehypeSanitize]}
@@ -157,7 +158,7 @@ export function MessageItem({
           {(message.reply_count ?? 0) > 0 && !showThread && (
             <button
               onClick={() => setShowThread(true)}
-              className="mt-2 flex items-center gap-2 rounded-md border border-white/[0.04] bg-white/[0.02] px-2.5 py-1.5 text-xs text-primary hover:bg-white/[0.04] hover:border-white/[0.08] transition-all duration-150 group/thread"
+              className="group/thread mt-3 flex items-center gap-2 rounded-xl border border-white/[0.05] bg-white/[0.02] px-3 py-2 text-xs text-primary transition-all duration-150 hover:border-white/[0.08] hover:bg-white/[0.04]"
             >
               <div className="flex -space-x-1.5">
                 <div className="h-5 w-5 rounded-full bg-primary/20 border border-[#0e0e11] flex items-center justify-center text-[7px] font-semibold text-primary">
@@ -174,6 +175,7 @@ export function MessageItem({
             </button>
           )}
         </div>
+      </div>
       </div>
 
       {/* Inline thread */}

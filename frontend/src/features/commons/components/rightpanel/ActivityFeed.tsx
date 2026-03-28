@@ -41,8 +41,8 @@ export function ActivityFeed({ slug }: ActivityFeedProps) {
 
   if (activities.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center gap-3 p-8 text-center">
-        <div className="rounded-full bg-white/[0.03] p-4">
+      <div className="m-3 flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-[#2b2b32] bg-[#111115] p-8 text-center">
+        <div className="rounded-2xl bg-white/[0.03] p-4">
           <Zap className="h-6 w-6 text-muted-foreground/30" />
         </div>
         <div>
@@ -56,7 +56,7 @@ export function ActivityFeed({ slug }: ActivityFeedProps) {
   }
 
   return (
-    <div className="space-y-0.5">
+    <div className="space-y-2 p-3">
       {activities.map((item) => {
         const Icon = EVENT_ICONS[item.event_type] ?? Activity;
         const colorClass = EVENT_COLORS[item.event_type] ?? "text-muted-foreground bg-muted";
@@ -66,7 +66,10 @@ export function ActivityFeed({ slug }: ActivityFeedProps) {
         });
 
         return (
-          <div key={item.id} className="flex items-start gap-2.5 px-4 py-2.5">
+          <div
+            key={item.id}
+            className="flex items-start gap-2.5 rounded-xl border border-[#25252b] bg-[#111115] px-3 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]"
+          >
             <div className={`mt-0.5 rounded-full p-1.5 ${colorClass}`}>
               <Icon className="h-3 w-3" />
             </div>

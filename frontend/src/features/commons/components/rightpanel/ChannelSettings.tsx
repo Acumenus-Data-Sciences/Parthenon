@@ -32,19 +32,19 @@ export function ChannelSettings({ channel, currentMember, slug }: ChannelSetting
   }
 
   return (
-    <div className="flex-1 overflow-y-auto px-4 py-4 space-y-6">
+    <div className="flex-1 space-y-4 overflow-y-auto px-3 py-3">
       {/* Notification Preferences */}
-      <div>
-        <h3 className="text-xs font-semibold text-foreground mb-2">Notifications</h3>
+      <div className="rounded-2xl border border-[#25252b] bg-[#111115] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
+        <h3 className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Notifications</h3>
         <div className="space-y-1">
           {(["all", "mentions", "none"] as const).map((pref) => (
             <button
               key={pref}
               onClick={() => handlePrefChange(pref)}
-              className={`flex w-full items-center rounded px-3 py-2 text-xs transition-colors ${
+              className={`flex w-full items-center rounded-xl border px-3 py-2 text-xs transition-colors ${
                 currentMember?.notification_preference === pref
-                  ? "bg-primary/15 text-foreground"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  ? "border-primary/30 bg-primary/15 text-foreground"
+                  : "border-[#2a2a31] text-muted-foreground hover:bg-muted hover:text-foreground"
               }`}
             >
               <span className="capitalize">{pref === "all" ? "All messages" : pref === "mentions" ? "Mentions only" : "Nothing"}</span>
@@ -58,15 +58,18 @@ export function ChannelSettings({ channel, currentMember, slug }: ChannelSetting
 
       {/* Channel Info (admin-editable) */}
       {isAdmin ? (
-        <form onSubmit={handleSave} className="space-y-3">
-          <h3 className="text-xs font-semibold text-foreground">Channel Settings</h3>
+        <form
+          onSubmit={handleSave}
+          className="space-y-3 rounded-2xl border border-[#25252b] bg-[#111115] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]"
+        >
+          <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Channel Settings</h3>
           <div>
             <label className="mb-1 block text-[11px] font-medium text-muted-foreground">Name</label>
             <input
               type="text"
               value={name}
               onChange={(e) => { setName(e.target.value); setSaved(false); }}
-              className="w-full rounded-md border border-border bg-muted px-3 py-1.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+              className="w-full rounded-xl border border-[#2a2a31] bg-[#17171c] px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
             />
           </div>
           <div>
@@ -75,21 +78,21 @@ export function ChannelSettings({ channel, currentMember, slug }: ChannelSetting
               value={description}
               onChange={(e) => { setDescription(e.target.value); setSaved(false); }}
               rows={3}
-              className="w-full resize-none rounded-md border border-border bg-muted px-3 py-1.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+              className="w-full resize-none rounded-xl border border-[#2a2a31] bg-[#17171c] px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
             />
           </div>
           <div className="flex items-center gap-2">
             <button
               type="submit"
               disabled={updateChannel.isPending}
-              className="rounded bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+              className="rounded-xl bg-primary px-3 py-2 text-xs font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
             >
               {updateChannel.isPending ? "Saving..." : "Save"}
             </button>
             {saved && <span className="text-[11px] text-green-400">Saved</span>}
           </div>
 
-          <div className="border-t border-border pt-3">
+          <div className="border-t border-[#2a2a31] pt-3">
             <p className="text-[11px] text-muted-foreground">
               Type: <span className="text-foreground capitalize">{channel.type}</span>
               {" / "}
@@ -98,8 +101,8 @@ export function ChannelSettings({ channel, currentMember, slug }: ChannelSetting
           </div>
         </form>
       ) : (
-        <div className="space-y-2">
-          <h3 className="text-xs font-semibold text-foreground">Channel Info</h3>
+        <div className="space-y-2 rounded-2xl border border-[#25252b] bg-[#111115] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
+          <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Channel Info</h3>
           <p className="text-xs text-muted-foreground">{channel.description || "No description"}</p>
           <p className="text-[11px] text-muted-foreground">
             Type: <span className="capitalize">{channel.type}</span>
