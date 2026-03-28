@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Bell, MessageSquare, AtSign, ClipboardCheck, Reply } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/Button";
 import { useNotifications, useUnreadNotificationCount, useMarkNotificationsRead } from "../../api";
 import { avatarColor } from "../../utils/avatarColor";
 import type { CommonsNotification } from "../../types";
@@ -10,7 +11,7 @@ export function NotificationBell() {
   const ref = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { data: count = 0 } = useUnreadNotificationCount();
-  const { data: notifications = [] } = useNotifications();
+  const { data: notifications = [], refetch } = useNotifications();
   const markRead = useMarkNotificationsRead();
 
   useEffect(() => {
@@ -25,9 +26,10 @@ export function NotificationBell() {
   }, [open]);
 
   function handleOpen() {
-    setOpen(!open);
-    if (!open && count > 0) {
-      markRead.mutate(undefined);
+    const nextOpen = !open;
+    setOpen(nextOpen);
+    if (nextOpen) {
+      void refetch();
     }
   }
 
@@ -45,9 +47,14 @@ export function NotificationBell() {
 
   return (
     <div ref={ref} className="relative">
-      <button
+      <Button
         onClick={handleOpen}
-        className="relative rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+        variant="ghost"
+        size="sm"
+        icon
+        aria-label="Notifications"
+        aria-expanded={open}
+        aria-haspopup="dialog"
         title="Notifications"
       >
         <Bell className="h-4 w-4" />
@@ -56,10 +63,14 @@ export function NotificationBell() {
             {count > 9 ? "9+" : count}
           </span>
         )}
-      </button>
+      </Button>
 
       {open && (
-        <div className="absolute left-0 top-full z-30 mt-1 w-80 rounded-md border border-border bg-card shadow-xl">
+        <div
+          className="absolute right-0 top-full z-30 mt-2 w-80 rounded-md border border-border bg-card shadow-xl"
+          role="dialog"
+          aria-label="Notifications"
+        >
           <div className="flex items-center justify-between border-b border-border px-3 py-2">
             <span className="text-xs font-semibold text-foreground">Notifications</span>
             {notifications.some((n) => !n.read_at) && (
