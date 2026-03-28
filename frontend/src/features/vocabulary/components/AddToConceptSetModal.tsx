@@ -1,18 +1,26 @@
-import { useState } from "react";
-import { Search, Loader2, CheckCircle2 } from "lucide-react";
+import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { Plus, Search, Loader2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Modal } from "@/components/ui/Modal";
 import { toast } from "@/components/ui/Toast";
 import {
   useConceptSets,
   useAddConceptSetItem,
+  useCreateConceptSet,
 } from "@/features/concept-sets/hooks/useConceptSets";
+import type { ConceptSet } from "@/features/concept-sets/types/conceptSet";
 
 interface AddToConceptSetModalProps {
   open: boolean;
   onClose: () => void;
   conceptId: number;
   conceptName: string;
+  searchContext?: {
+    query?: string;
+    domain?: string;
+    vocabulary?: string;
+    standard?: string;
+  };
 }
 
 export function AddToConceptSetModal({
@@ -20,26 +28,58 @@ export function AddToConceptSetModal({
   onClose,
   conceptId,
   conceptName,
+  searchContext,
 }: AddToConceptSetModalProps) {
+  const navigate = useNavigate();
   const [filter, setFilter] = useState("");
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [newSetName, setNewSetName] = useState("");
+
   const { data: conceptSetsData, isLoading } = useConceptSets();
   const addItem = useAddConceptSetItem();
+  const createSet = useCreateConceptSet();
 
-  const conceptSets = conceptSetsData?.items ?? conceptSetsData ?? [];
-  const filtered = Array.isArray(conceptSets)
-    ? conceptSets.filter((cs: { name: string }) =>
-        cs.name.toLowerCase().includes(filter.toLowerCase()),
-      )
-    : [];
+  const conceptSets: ConceptSet[] = useMemo(() => {
+    if (!conceptSetsData) return [];
+    // Handle both paginated { items: [...] } and raw array responses
+    if ("items" in conceptSetsData && Array.isArray(conceptSetsData.items)) {
+      return conceptSetsData.items as ConceptSet[];
+    }
+    if (Array.isArray(conceptSetsData)) {
+      return conceptSetsData as ConceptSet[];
+    }
+    return [];
+  }, [conceptSetsData]);
 
-  const handleAdd = (setId: number, setName: string) => {
+  const filtered = useMemo(() => {
+    if (!filter.trim()) return conceptSets;
+    const lower = filter.toLowerCase();
+    return conceptSets.filter(
+      (cs) =>
+        cs.name.toLowerCase().includes(lower) ||
+        (cs.description ?? "").toLowerCase().includes(lower),
+    );
+  }, [conceptSets, filter]);
+
+  const buildContextParams = (): string => {
+    if (!searchContext) return "";
+    const params = new URLSearchParams();
+    if (searchContext.query) params.set("q", searchContext.query);
+    if (searchContext.domain) params.set("domain", searchContext.domain);
+    if (searchContext.vocabulary) params.set("vocabulary", searchContext.vocabulary);
+    if (searchContext.standard) params.set("standard", searchContext.standard);
+    const str = params.toString();
+    return str ? `?${str}` : "";
+  };
+
+  const handleAddToExisting = (setId: number, setName: string) => {
     addItem.mutate(
       {
         setId,
         payload: {
           concept_id: conceptId,
           is_excluded: false,
-          include_descendants: false,
+          include_descendants: true,
           include_mapped: false,
         },
       },
@@ -55,85 +95,295 @@ export function AddToConceptSetModal({
     );
   };
 
-  return (
-    <Modal open={open} onClose={onClose} title="Add to Concept Set" size="sm">
-      <div className="space-y-3">
-        <p className="text-xs text-[#8A857D]">
-          Add <span className="text-[#F0EDE8] font-medium">{conceptName}</span>{" "}
-          <span className="font-['IBM_Plex_Mono',monospace] text-[#C9A227]">
-            ({conceptId})
-          </span>{" "}
-          to a concept set:
-        </p>
+  const handleCreateNew = () => {
+    const name = newSetName.trim() || conceptName;
+    createSet.mutate(
+      { name, description: "" },
+      {
+        onSuccess: (newSet) => {
+          const setId: number =
+            typeof newSet === "object" && newSet !== null && "id" in newSet
+              ? (newSet as { id: number }).id
+              : 0;
 
-        {/* Filter input */}
-        <div className="relative">
-          <Search
-            size={14}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
-          />
-          <input
-            type="text"
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            placeholder="Filter concept sets..."
-            className={cn(
-              "w-full rounded-lg pl-9 pr-3 py-2 text-sm",
-              "bg-[#0E0E11] border border-[#232328]",
-              "text-[#F0EDE8] placeholder:text-[#5A5650]",
-              "focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40",
-            )}
-          />
+          if (!setId) {
+            toast.error("Failed to retrieve new concept set ID");
+            return;
+          }
+
+          addItem.mutate(
+            {
+              setId,
+              payload: {
+                concept_id: conceptId,
+                is_excluded: false,
+                include_descendants: true,
+                include_mapped: false,
+              },
+            },
+            {
+              onSuccess: () => {
+                toast.success(`Created "${name}" and added concept`);
+                onClose();
+                navigate(`/concept-sets/${setId}${buildContextParams()}`);
+              },
+              onError: () => {
+                toast.error("Set created but failed to add concept");
+                onClose();
+                navigate(`/concept-sets/${setId}`);
+              },
+            },
+          );
+        },
+        onError: () => {
+          toast.error("Failed to create concept set");
+        },
+      },
+    );
+  };
+
+  const handleOpenBuilder = () => {
+    navigate(`/concept-sets${buildContextParams()}`);
+    onClose();
+  };
+
+  if (!open) return null;
+
+  const isPending = addItem.isPending || createSet.isPending;
+
+  return (
+    /* Backdrop */
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+
+      {/* Modal panel */}
+      <div
+        className={cn(
+          "relative z-10 w-full max-w-md mx-4",
+          "bg-[#16161b] border border-white/10 rounded-xl shadow-2xl",
+          "flex flex-col",
+        )}
+      >
+        {/* Header */}
+        <div className="flex items-start justify-between px-5 pt-5 pb-4 border-b border-white/10">
+          <div className="min-w-0 pr-4">
+            <h2 className="text-base font-semibold text-[#F0EDE8]">
+              Add to Concept Set
+            </h2>
+            <p className="text-xs text-[#8A857D] mt-0.5 truncate">
+              <span className="font-['IBM_Plex_Mono',monospace] text-[#C9A227]">
+                {conceptId}
+              </span>{" "}
+              · {conceptName}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="shrink-0 p-1 rounded-md text-[#5A5650] hover:text-[#F0EDE8] hover:bg-white/5 transition-colors"
+          >
+            <X size={16} />
+          </button>
         </div>
 
-        {/* Concept set list */}
-        <div className="rounded-lg border border-[#232328] bg-[#0E0E11] max-h-64 overflow-y-auto">
-          {isLoading ? (
-            <div className="flex items-center justify-center py-8">
-              <Loader2 size={16} className="animate-spin text-[#8A857D]" />
-            </div>
-          ) : filtered.length === 0 ? (
-            <div className="py-6 text-center">
-              <p className="text-xs text-[#5A5650]">
-                {filter ? "No matching concept sets" : "No concept sets found"}
-              </p>
-            </div>
-          ) : (
-            <div className="divide-y divide-[#232328]">
-              {filtered.map((cs: { id: number; name: string; description?: string | null }) => (
-                <button
-                  key={cs.id}
-                  type="button"
-                  onClick={() => handleAdd(cs.id, cs.name)}
-                  disabled={addItem.isPending}
+        {/* Body */}
+        <div className="px-5 py-4 space-y-4 overflow-hidden">
+          {/* Create New section */}
+          <div>
+            {!showCreateForm ? (
+              <button
+                type="button"
+                onClick={() => setShowCreateForm(true)}
+                className={cn(
+                  "w-full flex items-center gap-3 px-4 py-3 rounded-lg",
+                  "border-2 border-dashed border-[#2DD4BF]/40",
+                  "text-left transition-colors",
+                  "hover:border-[#2DD4BF]/70 hover:bg-[#2DD4BF]/5",
+                )}
+              >
+                <div className="shrink-0 w-7 h-7 rounded-md bg-[#2DD4BF]/15 flex items-center justify-center">
+                  <Plus size={14} className="text-[#2DD4BF]" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-[#2DD4BF]">
+                    Create New Concept Set
+                  </p>
+                  <p className="text-[10px] text-[#5A5650]">
+                    Add concept and open in Builder
+                  </p>
+                </div>
+              </button>
+            ) : (
+              <div
+                className={cn(
+                  "rounded-lg border border-[#2DD4BF]/40 bg-[#2DD4BF]/5 p-3",
+                  "space-y-2",
+                )}
+              >
+                <label className="text-[10px] font-medium text-[#2DD4BF] uppercase tracking-wide">
+                  New Concept Set Name
+                </label>
+                <input
+                  type="text"
+                  value={newSetName}
+                  onChange={(e) => setNewSetName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleCreateNew();
+                    if (e.key === "Escape") setShowCreateForm(false);
+                  }}
+                  placeholder={conceptName}
+                  autoFocus
                   className={cn(
-                    "w-full px-4 py-3 text-left transition-colors",
-                    "hover:bg-[#1C1C20]",
-                    addItem.isPending && "opacity-50 cursor-not-allowed",
+                    "w-full rounded-md px-3 py-1.5 text-sm",
+                    "bg-[#0E0E11] border border-[#232328]",
+                    "text-[#F0EDE8] placeholder:text-[#5A5650]",
+                    "focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40",
                   )}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="min-w-0">
-                      <p className="text-sm text-[#F0EDE8] truncate">
-                        {cs.name}
-                      </p>
-                      {cs.description && (
-                        <p className="text-[10px] text-[#5A5650] truncate mt-0.5">
-                          {cs.description}
+                />
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={handleCreateNew}
+                    disabled={isPending}
+                    className={cn(
+                      "flex-1 py-1.5 rounded-md text-xs font-medium transition-colors",
+                      "bg-[#2DD4BF] text-[#0E0E11] hover:bg-[#26B8A5]",
+                      "disabled:opacity-50 disabled:cursor-not-allowed",
+                      "flex items-center justify-center gap-1.5",
+                    )}
+                  >
+                    {isPending && (
+                      <Loader2 size={11} className="animate-spin" />
+                    )}
+                    Create
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowCreateForm(false)}
+                    className="px-3 py-1.5 rounded-md text-xs text-[#8A857D] hover:text-[#F0EDE8] hover:bg-white/5 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Divider */}
+          <div className="flex items-center gap-2">
+            <div className="flex-1 h-px bg-white/10" />
+            <span className="text-[10px] text-[#5A5650] uppercase tracking-wide">
+              or add to existing
+            </span>
+            <div className="flex-1 h-px bg-white/10" />
+          </div>
+
+          {/* Filter input */}
+          <div className="relative">
+            <Search
+              size={13}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
+            />
+            <input
+              type="text"
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+              placeholder="Filter concept sets..."
+              className={cn(
+                "w-full rounded-lg pl-9 pr-3 py-2 text-sm",
+                "bg-[#0E0E11] border border-[#232328]",
+                "text-[#F0EDE8] placeholder:text-[#5A5650]",
+                "focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40",
+              )}
+            />
+          </div>
+
+          {/* Set list */}
+          <div className="rounded-lg border border-[#232328] bg-[#0E0E11] max-h-72 overflow-y-auto">
+            {isLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 size={16} className="animate-spin text-[#8A857D]" />
+              </div>
+            ) : filtered.length === 0 ? (
+              <div className="py-6 text-center">
+                <p className="text-xs text-[#5A5650]">
+                  {filter ? "No matching concept sets" : "No concept sets found"}
+                </p>
+              </div>
+            ) : (
+              <div className="divide-y divide-[#232328]">
+                {filtered.map((cs) => (
+                  <button
+                    key={cs.id}
+                    type="button"
+                    onClick={() => handleAddToExisting(cs.id, cs.name)}
+                    disabled={isPending}
+                    className={cn(
+                      "w-full px-4 py-3 text-left transition-colors",
+                      "hover:bg-[#1C1C20]",
+                      isPending && "opacity-50 cursor-not-allowed",
+                    )}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm text-[#F0EDE8] truncate">
+                          {cs.name}
                         </p>
+                        {cs.description && (
+                          <p className="text-[10px] text-[#5A5650] truncate mt-0.5">
+                            {cs.description}
+                          </p>
+                        )}
+                        {/* Recent concept chips */}
+                        {cs.recent_items &&
+                          Object.keys(cs.recent_items).length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-1.5">
+                              {Object.entries(cs.recent_items)
+                                .slice(0, 3)
+                                .map(([id, name]) => (
+                                  <span
+                                    key={id}
+                                    className="inline-block px-1.5 py-0.5 rounded text-[9px] bg-[#232328] text-[#8A857D] truncate max-w-[120px]"
+                                  >
+                                    {name}
+                                  </span>
+                                ))}
+                            </div>
+                          )}
+                      </div>
+                      {/* Item count badge */}
+                      {cs.items_count !== undefined && (
+                        <span className="shrink-0 mt-0.5 inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-[10px] font-medium bg-[#232328] text-[#8A857D]">
+                          {cs.items_count}
+                        </span>
                       )}
                     </div>
-                    <CheckCircle2
-                      size={14}
-                      className="shrink-0 text-[#323238] group-hover:text-[#2DD4BF]"
-                    />
-                  </div>
-                </button>
-              ))}
-            </div>
-          )}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="px-5 py-3 border-t border-white/10 flex items-center justify-between">
+          <p className="text-[10px] text-[#5A5650]">
+            Adds with Include Descendants
+          </p>
+          <button
+            type="button"
+            onClick={handleOpenBuilder}
+            className="text-[10px] text-[#C9A227] hover:text-[#B8911F] transition-colors"
+          >
+            Open Builder with current search →
+          </button>
         </div>
       </div>
-    </Modal>
+    </div>
   );
 }

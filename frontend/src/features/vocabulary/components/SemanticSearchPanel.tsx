@@ -681,6 +681,12 @@ export function SemanticSearchPanel({
           }}
           conceptId={addTarget.id}
           conceptName={addTarget.name}
+          searchContext={{
+            query: query || undefined,
+            domain: domainFilter || undefined,
+            vocabulary: vocabFilter || undefined,
+            standard: standardFilter !== "all" ? standardFilter : undefined,
+          }}
         />
       )}
     </div>

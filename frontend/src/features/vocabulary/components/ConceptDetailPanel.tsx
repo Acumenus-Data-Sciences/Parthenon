@@ -50,6 +50,13 @@ export function ConceptDetailPanel({ conceptId, onSelectConcept }: ConceptDetail
   const [relPage, setRelPage] = useState(1);
   const [showAddToSet, setShowAddToSet] = useState(false);
 
+  const searchContext = {
+    query: new URL(window.location.href).searchParams.get("q") ?? undefined,
+    domain: new URL(window.location.href).searchParams.get("domain") ?? undefined,
+    vocabulary: new URL(window.location.href).searchParams.get("vocabulary") ?? undefined,
+    standard: new URL(window.location.href).searchParams.get("standard") ?? undefined,
+  };
+
   // Reset relationship page when concept changes
   useEffect(() => {
     setRelPage(1);
@@ -514,6 +521,7 @@ export function ConceptDetailPanel({ conceptId, onSelectConcept }: ConceptDetail
           onClose={() => setShowAddToSet(false)}
           conceptId={concept.concept_id}
           conceptName={concept.concept_name}
+          searchContext={searchContext}
         />
       )}
     </div>
