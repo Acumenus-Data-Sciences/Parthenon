@@ -51,10 +51,30 @@ OHIF Viewer (iframe at /ohif/) ──→ Orthanc DICOMweb ──→ renders in b
 2. **orthancteam/orthanc image versioning** — tags like `18.1.4` are from 2018 (Docker image version, not Orthanc version). Use `latest` for current Orthanc.
 3. **Orthanc config file conflicts** — the orthancteam image ships multiple JSON configs in `/etc/orthanc/`. Mounting your own `orthanc.json` with keys like `HttpPort` causes "defined in 2 files" fatal errors. Use env vars (`ORTHANC__*`) instead.
 4. **nginx variable URI behavior** — `proxy_pass $variable/` does NOT strip the location prefix like `proxy_pass http://upstream/` does. Must use `rewrite ^/prefix/(.*) /$1 break;` explicitly.
-5. **nginx reload vs recreate** — bind-mounted config changes require `docker compose up -d` (recreate), not just `nginx -s reload`, if the container was created before the mount existed.
+5. **nginx reload vs restart/recreate** — bind-mounted config changes may not be picked up by `nginx -s reload`; use `docker compose restart nginx` or `docker compose up -d nginx` instead.
 6. **Orthanc healthcheck** — the orthancteam image has no `curl` or `wget`. Use `python3 -c "import urllib.request; ..."` for healthchecks.
 7. **OHIF static files permissions** — the official `ohif/app` image runs as non-root nginx user. The `ohif-build` service needs `user: root` to copy files into the named volume.
 8. **STOW-RS vs Orthanc REST** — Orthanc's native `POST /instances` with `Content-Type: application/dicom` is simpler and more reliable than STOW-RS multipart for single-file uploads.
+
+## 2026-03-28 Production Fix
+
+### Symptoms
+- `/ohif/viewer` returned `404` instead of serving the SPA entrypoint.
+- After the route fix, OHIF loaded but DICOMweb requests to `/orthanc/dicom-web/...` returned `401 Unauthorized`.
+
+### Root Cause
+- The nginx OHIF block used `location /ohif` with `alias`, which let SPA fallback requests re-enter location matching and miss `/ohif/index.html`.
+- The Orthanc proxy expected nginx to forward a service-to-service `Authorization` header, but `ORTHANC_AUTH_HEADER` was unset in the running nginx container.
+
+### Fix
+- Changed the OHIF route to `location ^~ /ohif/` with `root /var/www`.
+- Replaced the SPA fallback with a named location that serves `/ohif/index.html` through `try_files`.
+- Added explicit `ORTHANC_USER` and `ORTHANC_AUTH_HEADER` values to `.env`.
+- Recreated nginx with `docker compose up -d nginx` so the updated env and bind-mounted template were actually applied.
+
+### Verification
+- `https://parthenon.acumenus.net/ohif/viewer?...` returned `200 OK`.
+- `https://parthenon.acumenus.net/orthanc/dicom-web/studies?limit=1` returned `200 OK`.
 
 ## Setup Commands
 
@@ -62,7 +82,7 @@ OHIF Viewer (iframe at /ohif/) ──→ Orthanc DICOMweb ──→ renders in b
 # One-time: build OHIF static files into Docker volume
 docker compose --profile setup run --rm ohif-build
 
-# Start Orthanc + reload nginx
+# Start Orthanc + restart/recreate nginx so bind-mounted config changes apply
 docker compose up -d orthanc nginx
 
 # Verify

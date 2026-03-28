@@ -88,10 +88,15 @@ server {
     }
 
     # ── OHIF Viewer (static build) ────────────────────────────────────────
-    location /ohif {
-        alias /var/www/ohif/;
+    location ^~ /ohif/ {
+        root /var/www;
         index index.html;
-        try_files $uri $uri/ /index.html;
+        try_files $uri $uri/ @ohif_fallback;
+    }
+
+    location @ohif_fallback {
+        root /var/www;
+        try_files /ohif/index.html =404;
     }
 
     # ── Orthanc DICOMweb proxy (optional — resolve at request time) ─────
