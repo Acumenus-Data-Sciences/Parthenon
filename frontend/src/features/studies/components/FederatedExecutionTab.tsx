@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Loader2, Globe2, CheckCircle2, XCircle, Clock, Play, Eye } from "lucide-react";
+import { Loader2, Globe2, CheckCircle2, XCircle, Clock, Play, Eye, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useArachneNodes, useDistributeStudy, useArachneStatus, useArachneResults } from "../hooks/useArachne";
 import type { ArachneSubmission } from "../types/study";
@@ -131,7 +131,13 @@ export function FederatedExecutionTab({ studySlug }: { studySlug: string }) {
       {/* Section 1: Available Data Nodes */}
       <div className="panel">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-semibold text-[#C5C0B8]">Available Data Nodes</h3>
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-semibold text-[#C5C0B8]">Available Data Nodes</h3>
+            <span className="inline-flex items-center gap-1 rounded-full border border-[#8B5CF6]/40 bg-[#8B5CF6]/10 px-2.5 py-0.5 text-[10px] font-semibold tracking-wide text-[#A78BFA]">
+              <Sparkles className="h-3 w-3" />
+              Powered by Arachne
+            </span>
+          </div>
           <button
             type="button"
             onClick={handleDistribute}
