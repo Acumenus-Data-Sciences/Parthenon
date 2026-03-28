@@ -14,11 +14,19 @@ import type { Source } from "@/types/models";
 // ---------------------------------------------------------------------------
 
 export async function fetchModules(): Promise<StrategusModule[]> {
-  const { data } = await apiClient.get<{ data: StrategusModule[] } | StrategusModule[]>(
-    "/strategus/modules",
-  );
-  // Handle both wrapped {data: [...]} and bare [...] responses
-  return Array.isArray(data) ? data : (data as { data: StrategusModule[] }).data ?? [];
+  const { data } = await apiClient.get<
+    | { data: { modules: StrategusModule[] } }
+    | { data: StrategusModule[] }
+    | StrategusModule[]
+  >("/strategus/modules");
+  // Handle: {data: {modules: [...]}} | {data: [...]} | bare [...]
+  if (Array.isArray(data)) return data;
+  const inner = (data as Record<string, unknown>).data ?? data;
+  if (Array.isArray(inner)) return inner;
+  if (inner && typeof inner === "object" && "modules" in inner) {
+    return (inner as { modules: StrategusModule[] }).modules ?? [];
+  }
+  return [];
 }
 
 export async function validateSpec(
