@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Concerns\SourceAware;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -13,6 +14,8 @@ use Illuminate\Support\Facades\Log;
  */
 class HecateController extends Controller
 {
+    use SourceAware;
+
     private string $hecateUrl;
 
     public function __construct()
@@ -154,29 +157,37 @@ class HecateController extends Controller
      * GET /api/v1/vocabulary/semantic/concepts/{id}/phoebe
      *
      * Retrieve PHOEBE co-occurrence recommendations for a given concept ID.
-     * Proxies to Hecate at GET /api/concepts/{id}/phoebe.
+     * Queries the vocab.phoebe table directly (OHDSI concept_recommended data).
      */
     public function conceptPhoebe(int $id): JsonResponse
     {
         try {
-            $response = Http::timeout(15)->get(
-                "{$this->hecateUrl}/api/concepts/{$id}/phoebe"
-            );
+            $results = $this->vocab()->select('
+                SELECT p.relationship_id,
+                       c.concept_id,
+                       c.concept_name,
+                       c.vocabulary_id
+                FROM vocab.phoebe p
+                JOIN vocab.concept c ON p.concept_id_2 = c.concept_id
+                WHERE p.concept_id_1 = ?
+                ORDER BY p.relationship_id, c.vocabulary_id, c.concept_name
+            ', [$id]);
 
-            if ($response->failed()) {
-                return response()->json([
-                    'error' => 'Failed to retrieve PHOEBE recommendations',
-                    'detail' => $response->json('message') ?? $response->body(),
-                ], $response->status() ?: 502);
-            }
+            $data = array_map(fn ($row) => [
+                'concept_id' => (int) $row->concept_id,
+                'concept_name' => $row->concept_name,
+                'score' => 1.0,
+                'relationship_id' => $row->relationship_id,
+                'vocabulary_id' => $row->vocabulary_id,
+            ], $results);
 
-            return response()->json(['data' => $response->json()]);
+            return response()->json(['data' => $data]);
 
         } catch (\Throwable $e) {
             Log::error('HecateController::conceptPhoebe exception', ['message' => $e->getMessage()]);
 
             return response()->json([
-                'error' => 'Hecate service unavailable',
+                'error' => 'PHOEBE query failed',
                 'message' => $e->getMessage(),
             ], 503);
         }
