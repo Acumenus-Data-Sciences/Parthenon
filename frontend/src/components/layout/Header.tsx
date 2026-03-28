@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/authStore";
 import { useUiStore } from "@/stores/uiStore";
 import { useAbbyStore } from "@/stores/abbyStore";
-import { LogOut, User, Search, Sparkles, Bell, Settings, ChevronDown } from "lucide-react";
+import { LogOut, User, Search, Sparkles, Bell, Settings, ChevronDown, Database, Star } from "lucide-react";
 import { AboutAbbyModal } from "./AboutAbbyModal";
 import { useSourceStore } from "@/stores/sourceStore";
 import { useQuery } from "@tanstack/react-query";
@@ -108,6 +108,51 @@ function useSourceInitializer() {
   }, [sources, user?.default_source_id, setActiveSource, setSources, setDefaultSourceId]);
 }
 
+function HeaderSourceSelector() {
+  const { activeSourceId, setActiveSource, defaultSourceId, sources } = useSourceStore();
+  const navigate = useNavigate();
+
+  if (!sources.length) return null;
+
+  const selectedSource = sources.find((s) => s.id === activeSourceId);
+
+  const handleChange = (id: number) => {
+    setActiveSource(id);
+    // If on a data-explorer route, update the URL too
+    if (window.location.pathname.startsWith("/data-explorer")) {
+      navigate(`/data-explorer/${id}`, { replace: true });
+    }
+  };
+
+  return (
+    <div className="relative flex items-center gap-1.5">
+      {selectedSource && selectedSource.id === defaultSourceId ? (
+        <Star size={13} className="text-[#C9A227] fill-[#C9A227] shrink-0" />
+      ) : (
+        <Database size={13} className="text-[#8A857D] shrink-0" />
+      )}
+      <select
+        value={activeSourceId ?? ""}
+        onChange={(e) => handleChange(Number(e.target.value))}
+        className="appearance-none rounded-md border border-[#232328] bg-[#151518] pl-2 pr-6 py-1 text-base text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30 cursor-pointer min-w-[160px]"
+      >
+        <option value="" disabled>
+          Select source
+        </option>
+        {sources.map((source) => (
+          <option key={source.id} value={source.id}>
+            {source.id === defaultSourceId ? "\u2605 " : ""}{source.source_name}
+          </option>
+        ))}
+      </select>
+      <ChevronDown
+        size={12}
+        className="pointer-events-none absolute right-1 top-1/2 -translate-y-1/2 text-[#8A857D]"
+      />
+    </div>
+  );
+}
+
 export function Header() {
   const { user, isAuthenticated } = useAuthStore();
   const { setCommandPaletteOpen } = useUiStore();
@@ -131,6 +176,9 @@ export function Header() {
         </span>
         <span className="search-shortcut">Ctrl K</span>
       </button>
+
+      {/* Center-right: CDM source selector */}
+      {isAuthenticated && user && <HeaderSourceSelector />}
 
       {/* Right: actions */}
       <div className="topbar-actions">

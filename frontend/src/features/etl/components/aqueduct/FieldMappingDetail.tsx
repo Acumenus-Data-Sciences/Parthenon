@@ -8,12 +8,13 @@ import {
   Search,
   BookOpen,
   Check,
+  Trash2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import { AiSuggestPanel } from "./AiSuggestPanel";
 import { ConceptSearchInline } from "./ConceptSearchInline";
-import { useFieldMappings, useBulkUpsertFields } from "../../hooks/useAqueductData";
+import { useFieldMappings, useBulkUpsertFields, useDeleteTableMapping } from "../../hooks/useAqueductData";
 import type { EtlProject, EtlTableMapping, EtlFieldMapping } from "../../api";
 import { toast } from "@/components/ui/Toast";
 
@@ -312,6 +313,8 @@ export function FieldMappingDetail({
   // -- Remote data -----------------------------------------------------------
   const { data: remoteFields } = useFieldMappings(project.id, tableMapping.id);
   const bulkUpsert = useBulkUpsertFields(project.id, tableMapping.id);
+  const deleteMutation = useDeleteTableMapping(project.id);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   // -- Local field mapping state ---------------------------------------------
   const [localFields, setLocalFields] = useState<EtlFieldMapping[]>([]);
@@ -635,6 +638,44 @@ export function FieldMappingDetail({
               Next ▶
             </button>
           </div>
+          <span className="text-[#232328]">│</span>
+          {confirmDelete ? (
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-red-400">Delete this mapping?</span>
+              <button
+                type="button"
+                onClick={() => {
+                  deleteMutation.mutate(tableMapping.id, {
+                    onSuccess: () => {
+                      toast.success(`Deleted mapping ${tableMapping.source_table} → ${tableMapping.target_table}`);
+                      onBack();
+                    },
+                    onError: () => toast.error("Failed to delete mapping"),
+                  });
+                }}
+                disabled={deleteMutation.isPending}
+                className="px-2 py-0.5 text-xs rounded bg-red-600 text-white hover:bg-red-500 transition-colors disabled:opacity-50"
+              >
+                {deleteMutation.isPending ? "..." : "Yes"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setConfirmDelete(false)}
+                className="px-2 py-0.5 text-xs rounded border border-[#2A2A30] text-[#8A857D] hover:text-[#F0EDE8] transition-colors"
+              >
+                No
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setConfirmDelete(true)}
+              className="p-1 text-[#5A5650] hover:text-red-400 transition-colors"
+              title="Delete this table mapping"
+            >
+              <Trash2 size={16} />
+            </button>
+          )}
           <button type="button" onClick={onBack} className="p-1 text-[#5A5650] hover:text-[#F0EDE8] transition-colors">
             <X size={18} />
           </button>

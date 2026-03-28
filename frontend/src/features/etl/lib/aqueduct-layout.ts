@@ -21,10 +21,10 @@ export interface PositionedNode {
 // stem nodes centered between connected pairs.
 // ---------------------------------------------------------------------------
 
-const MARGIN_X = 40;
+const MARGIN_X = 30;
 const MARGIN_Y = 40;
 const ROW_GAP = 16;
-const COLUMN_GAP = 350; // horizontal space between source and CDM columns
+const COLUMN_GAP = 600; // horizontal space between source and CDM columns
 
 /**
  * Compute node positions using explicit two-column layout.

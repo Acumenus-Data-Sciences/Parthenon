@@ -1,8 +1,8 @@
-import { useState, useCallback, lazy, Suspense } from "react";
+import { useState, useCallback, useEffect, lazy, Suspense } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { SourceSelector } from "../components/SourceSelector";
+import { useSourceStore } from "@/stores/sourceStore";
 import { HelpButton } from "@/features/help";
 import type { Domain } from "../types/dataExplorer";
 
@@ -41,16 +41,24 @@ export default function DataExplorerPage() {
   const [activeTab, setActiveTab] = useState<TabId>("overview");
   const [pendingDomain, setPendingDomain] = useState<Domain | null>(null);
 
-  // Derive sourceId from URL param or local state
-  const [localSourceId, setLocalSourceId] = useState<number | null>(
-    sourceIdParam ? Number(sourceIdParam) : null,
-  );
-  const sourceId = sourceIdParam ? Number(sourceIdParam) : localSourceId;
+  const { activeSourceId, setActiveSource } = useSourceStore();
 
-  const handleSourceChange = (id: number) => {
-    setLocalSourceId(id);
-    navigate(`/data-explorer/${id}`, { replace: true });
-  };
+  // Sync URL param → store on mount (deep-link support)
+  useEffect(() => {
+    if (sourceIdParam) {
+      const paramId = Number(sourceIdParam);
+      if (paramId !== activeSourceId) setActiveSource(paramId);
+    }
+  }, [sourceIdParam, activeSourceId, setActiveSource]);
+
+  // Sync store → URL when store changes (header selector picks a new source)
+  useEffect(() => {
+    if (activeSourceId && activeSourceId !== Number(sourceIdParam)) {
+      navigate(`/data-explorer/${activeSourceId}`, { replace: true });
+    }
+  }, [activeSourceId, sourceIdParam, navigate]);
+
+  const sourceId = activeSourceId;
 
   // Cross-tab navigation (Overview metric cards → Domains tab)
   const handleNavigateToDomain = useCallback((domain: string) => {
@@ -72,11 +80,6 @@ export default function DataExplorerPage() {
 
         <div className="flex items-center gap-3">
           <HelpButton helpKey="data-explorer" />
-          <SourceSelector
-            value={sourceId}
-            onChange={handleSourceChange}
-          />
-
         </div>
       </div>
 

@@ -41,6 +41,8 @@ export default function DataIngestionPage() {
     return "upload";
   });
 
+  const [activeProjectId, setActiveProjectId] = useState<number | null>(null);
+
   // Sync tab changes to URL
   useEffect(() => {
     if (tabParam !== activeTab) {
@@ -84,7 +86,12 @@ export default function DataIngestionPage() {
 
       {/* Tab content */}
       <Suspense fallback={<TabFallback />}>
-        {activeTab === "upload" && <IngestionDashboardPage />}
+        {activeTab === "upload" && (
+          <IngestionDashboardPage
+            activeProjectId={activeProjectId}
+            onActiveProjectChange={setActiveProjectId}
+          />
+        )}
         {activeTab === "profiler" && <SourceProfilerPage />}
         {activeTab === "aqueduct" && <EtlToolsPage />}
         {activeTab === "fhir" && <FhirIngestionPage />}

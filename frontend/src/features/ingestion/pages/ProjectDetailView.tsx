@@ -10,8 +10,8 @@ import {
   EyeOff,
   Trash2,
   Plus,
-  ExternalLink,
   AlertTriangle,
+  ExternalLink,
   FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -182,16 +182,35 @@ export default function ProjectDetailView({ projectId, onBack }: ProjectDetailVi
           Back to Projects
         </button>
 
-        <div className="flex items-center gap-3">
-          <h2 className="text-lg font-semibold text-[#F0EDE8]">{project.name}</h2>
-          <span
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <h2 className="text-lg font-semibold text-[#F0EDE8]">{project.name}</h2>
+            <span
+              className={cn(
+                "inline-block rounded-full px-2.5 py-0.5 text-xs font-medium",
+                statusStyle.classes,
+              )}
+            >
+              {statusStyle.label}
+            </span>
+          </div>
+          <a
+            href={
+              project.status === "ready" || project.status === "mapping" || project.status === "completed"
+                ? `/ingestion?tab=aqueduct&project=${project.id}`
+                : undefined
+            }
+            aria-disabled={project.status !== "ready" && project.status !== "mapping" && project.status !== "completed"}
             className={cn(
-              "inline-block rounded-full px-2.5 py-0.5 text-xs font-medium",
-              statusStyle.classes,
+              "inline-flex items-center gap-2 rounded-lg px-4 py-1.5 text-xs font-medium transition-colors",
+              project.status === "ready" || project.status === "mapping" || project.status === "completed"
+                ? "bg-[#2DD4BF] text-[#0E0E11] hover:bg-[#26BCA8]"
+                : "bg-[#1C1C20] text-[#5A5650] border border-[#323238] pointer-events-none",
             )}
           >
-            {statusStyle.label}
-          </span>
+            Open in Aqueduct
+            <ExternalLink size={12} />
+          </a>
         </div>
 
         <div className="flex items-center gap-4 text-xs text-[#8A857D]">
@@ -347,26 +366,17 @@ export default function ProjectDetailView({ projectId, onBack }: ProjectDetailVi
         </div>
       )}
 
-      {/* Open in Aqueduct button */}
-      {project.status === "ready" && (
+      {/* Add more files button */}
+      {project.status === "ready" && !uploadExpanded && (
         <div className="flex items-center gap-3">
-          <a
-            href={`/ingestion?tab=aqueduct&project=${project.id}`}
-            className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-5 py-2.5 text-sm font-medium text-[#0E0E11] transition-colors hover:bg-[#26BCA8]"
+          <button
+            type="button"
+            onClick={() => setUploadExpanded(true)}
+            className="inline-flex items-center gap-2 rounded-lg border border-[#323238] bg-[#1C1C20] px-5 py-2.5 text-sm font-medium text-[#F0EDE8] transition-colors hover:bg-[#232328]"
           >
-            Open in Aqueduct
-            <ExternalLink size={14} />
-          </a>
-          {!uploadExpanded && (
-            <button
-              type="button"
-              onClick={() => setUploadExpanded(true)}
-              className="inline-flex items-center gap-2 rounded-lg border border-[#323238] bg-[#1C1C20] px-5 py-2.5 text-sm font-medium text-[#F0EDE8] transition-colors hover:bg-[#232328]"
-            >
-              <Plus size={14} />
-              Add more files
-            </button>
-          )}
+            <Plus size={14} />
+            Add more files
+          </button>
         </div>
       )}
     </div>

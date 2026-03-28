@@ -78,11 +78,12 @@ function MappingEdgeComponent({
           }}
         >
           <div
-            className="text-[10px] font-medium px-2 py-0.5 rounded-full border"
+            className="text-xs font-semibold px-3 py-1 rounded-full border shadow-lg"
             style={{
-              backgroundColor: `${color}20`,
-              borderColor: `${color}60`,
+              backgroundColor: `${color}30`,
+              borderColor: `${color}80`,
               color,
+              backdropFilter: "blur(4px)",
             }}
           >
             {d.mappedFields}/{d.totalFields} fields

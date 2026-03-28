@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect, useMemo, useState, useCallback, useRef } from "react";
+import { createPortal } from "react-dom";
 import {
   ReactFlow,
   Controls,
@@ -7,6 +8,7 @@ import {
   BackgroundVariant,
   useNodesState,
   useEdgesState,
+  useReactFlow,
   ReactFlowProvider,
   type Connection,
   type Node,
@@ -14,6 +16,7 @@ import {
   type Viewport,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
+import { Maximize2, Minimize2 } from "lucide-react";
 
 import { SourceTableNode } from "./SourceTableNode";
 import { CdmTableNode } from "./CdmTableNode";
@@ -36,7 +39,7 @@ import { cn } from "@/lib/utils";
 // Persistent viewport & filter (localStorage, per-project)
 // ---------------------------------------------------------------------------
 
-const DEFAULT_ZOOM = 2.0;
+const DEFAULT_ZOOM = 0.85;
 
 function viewportKey(projectId: number): string {
   return `aqueduct_viewport_${projectId}`;
@@ -166,6 +169,14 @@ function AqueductCanvasInner({
   const [isExporting, setIsExporting] = useState(false);
   const [detailCdmTable, setDetailCdmTable] = useState<string | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const { fitView } = useReactFlow();
+
+  // Re-center canvas when toggling fullscreen (container size changes)
+  useEffect(() => {
+    // Small delay to let the portal/container resize before fitting
+    const timer = setTimeout(() => fitView({ padding: 0.08, duration: 300 }), 100);
+    return () => clearTimeout(timer);
+  }, [isFullscreen, fitView]);
 
   const [sourceMappingId, setSourceMappingId] = useState<number | null>(null);
 
@@ -281,7 +292,7 @@ function AqueductCanvasInner({
         background: "transparent",
         border: "none",
         color: "#C9A227",
-        fontSize: "13px",
+        fontSize: "15px",
         fontWeight: 600,
         textTransform: "uppercase" as const,
         letterSpacing: "0.05em",
@@ -301,7 +312,7 @@ function AqueductCanvasInner({
         background: "transparent",
         border: "none",
         color: "#2DD4BF",
-        fontSize: "13px",
+        fontSize: "15px",
         fontWeight: 600,
         textTransform: "uppercase" as const,
         letterSpacing: "0.05em",
@@ -560,68 +571,68 @@ function AqueductCanvasInner({
   }, [suggestMutation]);
 
   const savedViewport = useMemo(() => loadViewport(project.id), [project.id]);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  return (
-    <div
-      className={cn(
-        "flex flex-col",
-        isFullscreen
-          ? "fixed inset-0 z-50 bg-[#0E0E11]"
-          : "h-[calc(100vh-200px)]",
-      )}
-    >
-      <MappingToolbar
-        projectName={project.name}
-        status={project.status}
-        mappedTables={mappedTables}
-        totalCdmTables={totalCdmTables}
-        fieldCoveragePct={fieldCoveragePct}
-        filter={filter}
-        onFilterChange={setFilter}
-        onBack={onBack}
-        onSuggest={handleSuggest}
-        isSuggesting={suggestMutation.isPending}
-        onExport={handleExport}
-        isExporting={isExporting}
-        isFullscreen={isFullscreen}
-        onToggleFullscreen={() => setIsFullscreen((prev) => !prev)}
-      />
-      {suggestBanner && (
-        <div className="bg-amber-900/30 border-b border-amber-800/50 px-6 py-2 text-sm text-amber-300 flex items-center justify-between">
-          <span>{suggestBanner}</span>
-          <button
-            type="button"
-            onClick={() => setSuggestBanner(null)}
-            className="text-amber-400 hover:text-amber-200 ml-4"
-          >
-            Dismiss
-          </button>
-        </div>
-      )}
-      <div className="flex-1">
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          nodeTypes={nodeTypes}
-          edgeTypes={edgeTypes}
-          onConnect={handleConnect}
-          onNodeClick={handleNodeClick}
-          onMoveEnd={(_event, viewport) => saveViewport(project.id, viewport)}
-          defaultViewport={savedViewport ?? { x: 0, y: 0, zoom: DEFAULT_ZOOM }}
-          fitView={!savedViewport}
-          fitViewOptions={savedViewport ? undefined : { maxZoom: DEFAULT_ZOOM, minZoom: 0.5, padding: 0.12 }}
-          minZoom={0.3}
-          maxZoom={3}
-          proOptions={{ hideAttribution: true }}
-        >
-          <Controls className="!bg-[#1C1C20] !border-[#2A2A30]" />
-          <MiniMap className="!bg-[#1C1C20]" />
-          <Background variant={BackgroundVariant.Dots} color="#2A2A30" gap={20} />
-        </ReactFlow>
-      </div>
+  const toolbar = (
+    <MappingToolbar
+      projectName={project.name}
+      status={project.status}
+      mappedTables={mappedTables}
+      totalCdmTables={totalCdmTables}
+      fieldCoveragePct={fieldCoveragePct}
+      filter={filter}
+      onFilterChange={setFilter}
+      onBack={onBack}
+      onSuggest={handleSuggest}
+      isSuggesting={suggestMutation.isPending}
+      onExport={handleExport}
+      isExporting={isExporting}
+      isFullscreen={isFullscreen}
+      onToggleFullscreen={() => setIsFullscreen((prev) => !prev)}
+    />
+  );
 
+  const banner = suggestBanner ? (
+    <div className="bg-amber-900/30 border-b border-amber-800/50 px-6 py-2 text-sm text-amber-300 flex items-center justify-between">
+      <span>{suggestBanner}</span>
+      <button
+        type="button"
+        onClick={() => setSuggestBanner(null)}
+        className="text-amber-400 hover:text-amber-200 ml-4"
+      >
+        Dismiss
+      </button>
+    </div>
+  ) : null;
+
+  const canvas = (
+    <div className="flex-1">
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
+        onConnect={handleConnect}
+        onNodeClick={handleNodeClick}
+        onMoveEnd={(_event, viewport) => saveViewport(project.id, viewport)}
+        defaultViewport={savedViewport ?? { x: 0, y: 0, zoom: DEFAULT_ZOOM }}
+        fitView={!savedViewport}
+        fitViewOptions={savedViewport ? undefined : { maxZoom: DEFAULT_ZOOM, minZoom: 0.3, padding: 0.08 }}
+        minZoom={0.15}
+        maxZoom={3}
+        proOptions={{ hideAttribution: true }}
+      >
+        <Controls className="!bg-[#1C1C20] !border-[#2A2A30]" />
+        <MiniMap className="!bg-[#1C1C20]" />
+        <Background variant={BackgroundVariant.Dots} color="#2A2A30" gap={20} />
+      </ReactFlow>
+    </div>
+  );
+
+  const modals = (
+    <>
       {/* CDM table detail modal */}
       {detailCdmTable && (() => {
         const cdmDef = CDM_ETL_TABLES.find((t) => t.name === detailCdmTable);
@@ -652,6 +663,28 @@ function AqueductCanvasInner({
           allMappingIds={allMappingIds}
         />
       )}
+    </>
+  );
+
+  // Expanded mode: portal to document.body, covering everything
+  if (isFullscreen) {
+    return createPortal(
+      <div className="fixed inset-0 flex flex-col bg-[#0E0E11]" style={{ zIndex: 200 }}>
+        {toolbar}
+        {banner}
+        {canvas}
+        {modals}
+      </div>,
+      document.body,
+    );
+  }
+
+  return (
+    <div ref={containerRef} className="flex flex-col h-[calc(100vh-200px)]">
+      {toolbar}
+      {banner}
+      {canvas}
+      {modals}
     </div>
   );
 }

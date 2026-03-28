@@ -1,18 +1,23 @@
-import { useState } from "react";
 import { ProjectListView } from "./ProjectListView";
 import ProjectDetailView from "./ProjectDetailView";
 
-export default function IngestionDashboardPage() {
-  const [activeProjectId, setActiveProjectId] = useState<number | null>(null);
+interface IngestionDashboardPageProps {
+  activeProjectId: number | null;
+  onActiveProjectChange: (id: number | null) => void;
+}
 
+export default function IngestionDashboardPage({
+  activeProjectId,
+  onActiveProjectChange,
+}: IngestionDashboardPageProps) {
   if (activeProjectId !== null) {
     return (
       <ProjectDetailView
         projectId={activeProjectId}
-        onBack={() => setActiveProjectId(null)}
+        onBack={() => onActiveProjectChange(null)}
       />
     );
   }
 
-  return <ProjectListView onSelectProject={setActiveProjectId} />;
+  return <ProjectListView onSelectProject={onActiveProjectChange} />;
 }

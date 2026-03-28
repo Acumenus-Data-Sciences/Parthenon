@@ -1,4 +1,5 @@
 import { memo, useState, useRef, useEffect } from "react";
+import { Maximize2, Minimize2 } from "lucide-react";
 
 interface MappingToolbarProps {
   projectName: string;
@@ -83,21 +84,21 @@ function MappingToolbarComponent({
             <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
           </svg>
         </button>
-        <span className="text-[#F0EDE8] font-medium text-sm truncate max-w-[200px]">{projectName}</span>
-        <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium flex-shrink-0 ${statusStyle.bg} ${statusStyle.text}`}>
+        <span className="text-[#F0EDE8] font-medium text-base truncate max-w-[200px]">{projectName}</span>
+        <span className={`text-xs px-2.5 py-0.5 rounded-full font-medium flex-shrink-0 ${statusStyle.bg} ${statusStyle.text}`}>
           {statusStyle.label}
         </span>
         <span className="text-[#323238] flex-shrink-0">{"\u2502"}</span>
-        <span className="text-[#8A857D] text-xs flex-shrink-0 whitespace-nowrap">
+        <span className="text-[#8A857D] text-sm flex-shrink-0 whitespace-nowrap">
           {mappedTables}/{totalCdmTables}
         </span>
-        <div className="w-20 h-[3px] bg-[#2A2A30] rounded-full overflow-hidden flex-shrink-0">
+        <div className="w-24 h-1 bg-[#2A2A30] rounded-full overflow-hidden flex-shrink-0">
           <div
             className="h-full bg-[#2DD4BF] rounded-full transition-all duration-300"
             style={{ width: `${Math.min(progressPct, 100)}%` }}
           />
         </div>
-        <span className="text-[#2DD4BF] text-xs flex-shrink-0">{fieldCoveragePct}%</span>
+        <span className="text-[#2DD4BF] text-sm font-medium flex-shrink-0">{fieldCoveragePct}%</span>
       </div>
 
       {/* Right: filters + actions + expand */}
@@ -108,7 +109,7 @@ function MappingToolbarComponent({
               key={opt.value}
               type="button"
               onClick={() => onFilterChange(opt.value)}
-              className={`text-[10px] px-2.5 py-1 transition-colors ${
+              className={`text-sm px-3 py-1.5 transition-colors ${
                 filter === opt.value
                   ? "bg-[#2DD4BF]/20 text-[#2DD4BF] font-medium"
                   : "text-[#5A5650] hover:text-[#F0EDE8] hover:bg-[#1C1C20]"
@@ -122,7 +123,7 @@ function MappingToolbarComponent({
           type="button"
           onClick={onSuggest}
           disabled={isSuggesting}
-          className="text-[10px] px-2.5 py-1 border border-[#2A2A30] rounded-md transition-colors disabled:opacity-50 text-[#C9A227] hover:bg-amber-900/30"
+          className="text-sm px-3 py-1.5 border border-[#2A2A30] rounded-md transition-colors disabled:opacity-50 text-[#C9A227] hover:bg-amber-900/30"
         >
           {isSuggesting ? "Suggesting..." : "\u2728 AI"}
         </button>
@@ -131,7 +132,7 @@ function MappingToolbarComponent({
             type="button"
             onClick={() => setExportOpen((prev) => !prev)}
             disabled={isExporting}
-            className="text-[10px] px-2.5 py-1 border border-[#2A2A30] rounded-md transition-colors disabled:opacity-50 text-[#8A857D] hover:text-[#F0EDE8] hover:bg-[#1C1C20]"
+            className="text-sm px-3 py-1.5 border border-[#2A2A30] rounded-md transition-colors disabled:opacity-50 text-[#8A857D] hover:text-[#F0EDE8] hover:bg-[#1C1C20]"
           >
             {isExporting ? "..." : "Export \u25BE"}
           </button>
@@ -153,14 +154,15 @@ function MappingToolbarComponent({
         <button
           type="button"
           onClick={onToggleFullscreen}
-          className={`text-sm px-1.5 py-0.5 rounded transition-colors ${
+          className={`flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-md transition-colors ${
             isFullscreen
-              ? "text-[#F0EDE8] bg-[#2A2A30] border border-[#2DD4BF]"
-              : "text-[#8A857D] border border-[#323238] hover:text-[#F0EDE8]"
+              ? "text-[#F0EDE8] bg-[#2DD4BF]/20 border border-[#2DD4BF] hover:bg-[#2DD4BF]/30"
+              : "text-[#C9A227] bg-[#232328] border border-[#2A2A30] hover:bg-[#232328]/80"
           }`}
-          title={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
+          title={isFullscreen ? "Collapse" : "Expand"}
         >
-          {"\u26F6"}
+          {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+          {isFullscreen ? "Collapse" : "Expand"}
         </button>
       </div>
     </div>
