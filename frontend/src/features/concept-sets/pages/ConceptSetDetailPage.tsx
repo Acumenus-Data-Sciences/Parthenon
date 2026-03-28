@@ -361,54 +361,27 @@ export default function ConceptSetDetailPage() {
 
       {/* Split-pane Builder */}
       <ConceptSetBuilderLayout
+        activeTab={searchTab}
+        onTabChange={setSearchTab}
+        itemCount={conceptSet.items?.length ?? 0}
         searchPanel={
-          <div>
-            {/* Search tab switcher */}
-            <div className="mb-3 flex gap-1">
-              <button
-                type="button"
-                onClick={() => setSearchTab('keyword')}
-                className={cn(
-                  'rounded-lg px-3 py-1.5 text-xs font-medium transition-colors',
-                  searchTab === 'keyword'
-                    ? 'bg-[#2DD4BF]/15 text-[#2DD4BF]'
-                    : 'text-[#8A857D] hover:text-[#C5C0B8]',
-                )}
-              >
-                Keyword
-              </button>
-              <button
-                type="button"
-                onClick={() => setSearchTab('semantic')}
-                className={cn(
-                  'rounded-lg px-3 py-1.5 text-xs font-medium transition-colors',
-                  searchTab === 'semantic'
-                    ? 'bg-[#2DD4BF]/15 text-[#2DD4BF]'
-                    : 'text-[#8A857D] hover:text-[#C5C0B8]',
-                )}
-              >
-                Semantic
-              </button>
-            </div>
-
-            {searchTab === 'keyword' ? (
-              <VocabularySearchPanel
-                mode="build"
-                conceptSetItemIds={conceptSetItemIds}
-                onAddToSet={handleAddToSet}
-                initialQuery={initialQuery}
-                initialFilters={initialFilters}
-              />
-            ) : (
-              <SemanticSearchPanel
-                mode="build"
-                conceptSetItemIds={conceptSetItemIds}
-                onAddToSet={handleAddToSet}
-                initialQuery={initialQuery}
-                initialFilters={initialFilters}
-              />
-            )}
-          </div>
+          searchTab === 'keyword' ? (
+            <VocabularySearchPanel
+              mode="build"
+              conceptSetItemIds={conceptSetItemIds}
+              onAddToSet={handleAddToSet}
+              initialQuery={initialQuery}
+              initialFilters={initialFilters}
+            />
+          ) : (
+            <SemanticSearchPanel
+              mode="build"
+              conceptSetItemIds={conceptSetItemIds}
+              onAddToSet={handleAddToSet}
+              initialQuery={initialQuery}
+              initialFilters={initialFilters}
+            />
+          )
         }
         contentsPanel={
           <div className="space-y-4">
