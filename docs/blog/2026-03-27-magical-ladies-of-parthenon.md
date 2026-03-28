@@ -17,8 +17,8 @@ In Greek mythology, the great temple atop the Acropolis housed not just Athena, 
     style={{borderRadius: '16px', maxWidth: '100%', boxShadow: '0 8px 32px rgba(0,0,0,0.4)'}}
   />
   <p style={{fontSize: '0.85rem', color: '#8A857D', marginTop: '0.75rem', fontStyle: 'italic'}}>
-    From left to right: Hecate (torch-bearer of hidden knowledge), Phoebe (oracle of concept relationships),
-    Ariadne (thread-spinner of vocabulary mappings), and Arachne (weaver of the federated network).
+    From left to right: Hecate (torch-bearer of hidden knowledge), Ariadne (thread-spinner of vocabulary mappings),
+    Phoebe (oracle of concept relationships), and Arachne (weaver of the federated network).
   </p>
 </div>
 
