@@ -100,6 +100,8 @@ server {
 
     location @ohif_fallback {
         root /var/www;
+        add_header Cross-Origin-Embedder-Policy "require-corp" always;
+        add_header Cross-Origin-Opener-Policy   "same-origin" always;
         try_files /ohif/index.html =404;
     }
 
@@ -107,6 +109,16 @@ server {
     # Service-to-service auth: user is already authenticated via Sanctum
     # on the Laravel imaging route before reaching this proxy.
     location /orthanc/ {
+        # Handle CORS preflight for browser DICOM uploads
+        if ($request_method = 'OPTIONS') {
+            add_header Access-Control-Allow-Origin  $scheme://$host always;
+            add_header Access-Control-Allow-Methods 'GET, POST, OPTIONS' always;
+            add_header Access-Control-Allow-Headers 'Content-Type, Authorization' always;
+            add_header Access-Control-Max-Age 86400;
+            add_header Content-Length 0;
+            return 204;
+        }
+
         set $orthanc_upstream http://orthanc:8042;
         rewrite ^/orthanc/(.*) /$1 break;
         proxy_pass $orthanc_upstream;

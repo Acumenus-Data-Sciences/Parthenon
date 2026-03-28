@@ -21,8 +21,9 @@ window.config = {
   maxNumberOfWebWorkers: navigator.hardwareConcurrency || 6,
 
   showWarningMessageForCrossOrigin: false,
-  showCPUFallbackMessage: false,
-  strictZSpacingForVolumeViewport: true,
+  showCPUFallbackMessage: true,
+  useSharedArrayBuffer: 'AUTO',
+  strictZSpacingForVolumeViewport: false,
 
   // Only load the requested study — do not fetch prior studies
   studyPrefetcher: {

@@ -175,7 +175,7 @@ class ImagingController extends Controller
                 $validated['source_id'],
                 $request->integer('batch_size', 100),
                 $filters,
-                $request->integer('limit')
+                $request->filled('limit') ? $request->integer('limit') : null
             )
             : $dicomweb->indexStudies(
                 $validated['source_id'],

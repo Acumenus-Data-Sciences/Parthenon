@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   ScanLine,
   Layers,
@@ -11,7 +12,7 @@ import {
   Loader2,
   Users,
   Trash2,
-  FolderInput,
+  Upload,
   Activity,
 } from "lucide-react";
 import {
@@ -22,8 +23,8 @@ import {
   useDeleteImagingCriterion,
   useIndexFromDicomweb,
   usePopulationAnalytics,
-  useImportLocalDicom,
 } from "../hooks/useImaging";
+import { DicomUploadModal } from "../components/DicomUploadModal";
 import type { ImagingStudy, ImagingFeature } from "../types";
 import { HelpButton } from "@/features/help";
 import PatientTimelineTab from "../components/PatientTimelineTab";
@@ -114,73 +115,6 @@ function StatsBar() {
   );
 }
 
-function LocalImportPanel() {
-  const [sourceId, setSourceId] = useState("1");
-  const [dir, setDir] = useState("dicom_samples");
-  const importMutation = useImportLocalDicom();
-
-  const handleImport = () => {
-    importMutation.mutate({ source_id: parseInt(sourceId), dir });
-  };
-
-  return (
-    <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 space-y-3">
-      <div className="flex items-center gap-2 mb-1">
-        <FolderInput size={14} className="text-[#60A5FA]" />
-        <h3 className="text-sm font-semibold text-[#F0EDE8]">Import Local DICOM Files</h3>
-        <span className="ml-auto text-[10px] text-[#5A5650] uppercase tracking-wider">Server-side scan</span>
-      </div>
-      <div className="flex items-end gap-3 flex-wrap">
-        <div>
-          <label className="block text-xs text-[#8A857D] mb-1.5">Source ID</label>
-          <input
-            className="w-24 rounded-lg bg-[#0E0E11] border border-[#232328] px-3 py-2 text-sm text-[#F0EDE8] placeholder:text-[#5A5650] focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40 transition-colors"
-            value={sourceId}
-            onChange={(e) => setSourceId(e.target.value)}
-            placeholder="1"
-          />
-        </div>
-        <div className="flex-1 min-w-[200px]">
-          <label className="block text-xs text-[#8A857D] mb-1.5">Directory (relative to repo root)</label>
-          <input
-            className="w-full rounded-lg bg-[#0E0E11] border border-[#232328] px-3 py-2 text-sm text-[#F0EDE8] placeholder:text-[#5A5650] focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40 transition-colors font-mono"
-            value={dir}
-            onChange={(e) => setDir(e.target.value)}
-            placeholder="dicom_samples"
-          />
-        </div>
-        <button
-          type="button"
-          onClick={handleImport}
-          disabled={importMutation.isPending || !sourceId}
-          className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-4 py-2 text-sm font-medium text-[#0E0E11] hover:bg-[#26B8A5] disabled:opacity-50 transition-colors"
-        >
-          {importMutation.isPending ? (
-            <Loader2 size={14} className="animate-spin" />
-          ) : (
-            <FolderInput size={14} />
-          )}
-          {importMutation.isPending ? "Scanning…" : "Import"}
-        </button>
-      </div>
-      {importMutation.isSuccess && (
-        <div className="rounded-lg border border-[#2DD4BF]/30 bg-[#2DD4BF]/10 px-4 py-3 text-sm text-[#2DD4BF]">
-          Import complete — {(importMutation.data as Record<string, number>)?.studies_imported ?? 0} studies,{" "}
-          {(importMutation.data as Record<string, number>)?.series_imported ?? 0} series,{" "}
-          {(importMutation.data as Record<string, number>)?.instances_imported ?? 0} instances
-        </div>
-      )}
-      {importMutation.isError && (
-        <div className="rounded-lg border border-[#E85A6B]/30 bg-[#E85A6B]/10 px-4 py-3 text-sm text-[#E85A6B]">
-          Import failed: {importMutation.error instanceof Error ? importMutation.error.message : "Unknown error"}
-        </div>
-      )}
-      <p className="text-[10px] text-[#5A5650]">
-        Scans DICOM files on the server at the specified path. Files must be in the Parthenon repo directory mounted in the PHP container.
-      </p>
-    </div>
-  );
-}
 
 function StudiesTab() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -244,9 +178,6 @@ function StudiesTab() {
 
   return (
     <div className="space-y-4">
-      {/* Local DICOM Import */}
-      <LocalImportPanel />
-
       {/* DICOMweb filter + index */}
       <div className="flex items-end gap-3 flex-wrap">
         <div>
@@ -790,6 +721,8 @@ function AnalyticsTab() {
 
 export default function ImagingPage() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const [uploadOpen, setUploadOpen] = useState(false);
+  const queryClient = useQueryClient();
   const tabParam = searchParams.get("tab");
   const tab: Tab = TABS.some(({ id }) => id === tabParam) ? (tabParam as Tab) : "studies";
 
@@ -817,7 +750,23 @@ export default function ImagingPage() {
           </p>
         </div>
         <HelpButton helpKey="imaging" />
+        <button
+          type="button"
+          onClick={() => setUploadOpen(true)}
+          className="ml-auto inline-flex items-center gap-2 rounded-lg bg-[#60A5FA] px-4 py-2 text-sm font-medium text-[#0E0E11] hover:bg-[#4E94E8] transition-colors"
+        >
+          <Upload size={14} />
+          Import DICOM
+        </button>
       </div>
+
+      <DicomUploadModal
+        open={uploadOpen}
+        onClose={() => setUploadOpen(false)}
+        onComplete={() => {
+          queryClient.invalidateQueries({ queryKey: ["imaging"] });
+        }}
+      />
 
       <StatsBar />
 
