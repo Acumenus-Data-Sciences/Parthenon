@@ -401,6 +401,26 @@ export const router = createBrowserRouter(
           },
         ],
       },
+      // ── Risk Scores ──────────────────────────────────────────────────
+      {
+        path: "risk-scores",
+        children: [
+          {
+            index: true,
+            lazy: () =>
+              import(
+                "@/features/risk-scores/pages/RiskScoreCataloguePage"
+              ).then((m) => ({ Component: m.default })),
+          },
+          {
+            path: ":scoreId",
+            lazy: () =>
+              import(
+                "@/features/risk-scores/pages/RiskScoreDetailPage"
+              ).then((m) => ({ Component: m.default })),
+          },
+        ],
+      },
       {
         path: "morpheus",
         lazy: () =>

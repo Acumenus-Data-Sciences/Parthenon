@@ -2,6 +2,7 @@
 
 namespace App\Services\PopulationRisk;
 
+use App\Enums\DaimonType;
 use App\Models\App\Source;
 use App\Models\Results\PopulationRiskScoreResult;
 use App\Services\SqlRenderer\SqlRendererService;
@@ -29,11 +30,19 @@ class PopulationRiskScoreEngineService
 
         PopulationRiskScoreResult::where('source_id', $source->id)->delete();
 
+        $cdmSchema = $source->getTableQualifier(DaimonType::CDM);
+        $connection = $source->source_connection ?? 'omop';
+        $dialect = $source->source_dialect ?? 'postgresql';
+
         foreach ($this->registry->all() as $score) {
             $start = microtime(true);
             try {
-                $sql = $this->renderer->render($score->sqlTemplate(), $source);
-                $rows = DB::connection($source->connection_name)->select($sql);
+                $sql = $this->renderer->render(
+                    $score->sqlTemplate(),
+                    ['cdmSchema' => $cdmSchema],
+                    $dialect,
+                );
+                $rows = DB::connection($connection)->select($sql);
 
                 $inserts = [];
                 foreach ($rows as $row) {

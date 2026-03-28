@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Enums\DaimonType;
 use App\Http\Controllers\Controller;
 use App\Models\App\Source;
 use App\Models\Results\PopulationRiskScoreResult;
 use App\Services\PopulationRisk\PopulationRiskScoreEngineService;
 use App\Services\PopulationRisk\PopulationRiskScoreRegistry;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 
 /**
  * @group Population Analytics
@@ -110,6 +112,59 @@ class PopulationRiskScoreController extends Controller
                 'missing_components' => json_decode($r->missing_components ?? '{}', true),
             ])->values(),
         ]);
+    }
+
+    /**
+     * GET /api/v1/sources/{source}/risk-scores/eligibility
+     *
+     * Pre-flight check: which scores can run on this source's CDM data?
+     */
+    public function eligibility(Source $source): JsonResponse
+    {
+        $connection = $source->source_connection ?? 'omop';
+        $cdmSchema = $source->getTableQualifier(DaimonType::CDM);
+
+        if (! $cdmSchema) {
+            return response()->json(['error' => 'Source has no CDM daimon configured.'], 422);
+        }
+
+        $result = [];
+
+        foreach ($this->registry->all() as $score) {
+            $requiredTables = $score->requiredTables();
+            $missing = [];
+            $patientCount = 0;
+
+            foreach ($requiredTables as $table) {
+                try {
+                    $count = DB::connection($connection)
+                        ->selectOne("SELECT COUNT(*) AS cnt FROM {$cdmSchema}.{$table}");
+                    if ((int) ($count->cnt ?? 0) === 0) {
+                        $missing[] = "{$table} (empty)";
+                    }
+                } catch (\Throwable $e) {
+                    $missing[] = "{$table} (not found)";
+                }
+            }
+
+            if (empty($missing)) {
+                try {
+                    $row = DB::connection($connection)
+                        ->selectOne("SELECT COUNT(*) AS cnt FROM {$cdmSchema}.person");
+                    $patientCount = (int) ($row->cnt ?? 0);
+                } catch (\Throwable) {
+                    // ignore
+                }
+            }
+
+            $result[$score->scoreId()] = [
+                'eligible' => empty($missing),
+                'patient_count' => $patientCount,
+                'missing' => $missing,
+            ];
+        }
+
+        return response()->json($result);
     }
 
     /**

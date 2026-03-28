@@ -407,6 +407,7 @@ Route::prefix('v1')->group(function () {
         Route::prefix('sources/{source}/risk-scores')->group(function () {
             Route::get('/', [PopulationRiskScoreController::class, 'index']);
             Route::post('/run', [PopulationRiskScoreController::class, 'run']);
+            Route::get('/eligibility', [PopulationRiskScoreController::class, 'eligibility']);
             Route::get('/{scoreId}', [PopulationRiskScoreController::class, 'show']);
         });
 
