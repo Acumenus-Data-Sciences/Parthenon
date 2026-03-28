@@ -9,6 +9,7 @@ export interface ConceptSet {
   tags: string[];
   items: ConceptSetItem[];
   items_count?: number;
+  recent_items?: Record<number, string>;
   created_at: string;
   updated_at: string;
 }

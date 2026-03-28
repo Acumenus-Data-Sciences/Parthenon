@@ -61,7 +61,20 @@ class ConceptSetController extends Controller
                 $query->where('author_id', $request->integer('author_id'));
             }
 
-            return response()->json($query->paginate($request->integer('per_page', 20)));
+            $conceptSets = $query->paginate($request->integer('per_page', 20));
+
+            $conceptSets->getCollection()->each(function ($set) {
+                $recentIds = $set->items()->latest()->limit(3)->pluck('concept_id');
+                if ($recentIds->isNotEmpty()) {
+                    $set->recent_items = Concept::whereIn('concept_id', $recentIds)
+                        ->pluck('concept_name', 'concept_id')
+                        ->toArray();
+                } else {
+                    $set->recent_items = [];
+                }
+            });
+
+            return response()->json($conceptSets);
         } catch (\Throwable $e) {
             return $this->errorResponse('Failed to retrieve concept sets', $e);
         }

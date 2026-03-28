@@ -10,8 +10,21 @@ import {
 
 
 interface VocabularySearchPanelProps {
-  selectedConceptId: number | null;
-  onSelectConcept: (id: number) => void;
+  mode?: 'browse' | 'build';
+  selectedConceptId?: number | null;
+  onSelectConcept?: (id: number) => void;
+
+  // Build mode: concept set integration
+  conceptSetItemIds?: Set<number>;
+  onAddToSet?: (conceptId: number) => void;
+
+  // Context carry-over: pre-fill search from URL params
+  initialQuery?: string;
+  initialFilters?: {
+    domain?: string;
+    vocabulary?: string;
+    standard?: boolean;
+  };
 }
 
 /** Render HTML string with <mark> highlights safely (only allow <mark> tags) */
@@ -23,15 +36,21 @@ function HighlightedText({ html, fallback }: { html: string | undefined; fallbac
 }
 
 export function VocabularySearchPanel({
+  mode,
   selectedConceptId,
   onSelectConcept,
+  conceptSetItemIds,
+  onAddToSet,
+  initialQuery,
+  initialFilters,
 }: VocabularySearchPanelProps) {
-  const [query, setQuery] = useState("");
+  const resolvedMode = mode ?? 'browse';
+  const [query, setQuery] = useState(initialQuery ?? "");
   const [showFilters, setShowFilters] = useState(false);
-  const [domainFilter, setDomainFilter] = useState<string>("");
-  const [vocabFilter, setVocabFilter] = useState<string>("");
+  const [domainFilter, setDomainFilter] = useState<string>(initialFilters?.domain ?? "");
+  const [vocabFilter, setVocabFilter] = useState<string>(initialFilters?.vocabulary ?? "");
   const [conceptClassFilter, setConceptClassFilter] = useState<string>("");
-  const [standardOnly, setStandardOnly] = useState(false);
+  const [standardOnly, setStandardOnly] = useState(initialFilters?.standard ?? false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedSuggestionIdx, setSelectedSuggestionIdx] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -451,18 +470,25 @@ export function VocabularySearchPanel({
               {results.map((concept) => {
                 const isStandard = concept.standard_concept === "S";
                 const isSelected = concept.concept_id === selectedConceptId;
+                const isInSet = conceptSetItemIds?.has(concept.concept_id) ?? false;
                 const highlightedName = getHighlight(concept.concept_id, "concept_name");
 
                 return (
                   <button
                     key={concept.concept_id}
                     type="button"
-                    onClick={() => onSelectConcept(concept.concept_id)}
+                    onClick={() => {
+                      if (resolvedMode === 'browse') {
+                        onSelectConcept?.(concept.concept_id);
+                      }
+                    }}
                     className={cn(
                       "flex flex-col gap-1 w-full px-4 py-3 text-left transition-colors",
-                      isSelected
+                      resolvedMode === 'browse' && isSelected
                         ? "bg-[#2DD4BF]/10 border-l-2 border-[#2DD4BF]"
-                        : "hover:bg-[#1C1C20] border-l-2 border-transparent",
+                        : resolvedMode === 'build' && isInSet
+                          ? "border-l-2 border-l-teal-400 bg-teal-400/5"
+                          : "hover:bg-[#1C1C20] border-l-2 border-transparent",
                     )}
                   >
                     <div className="flex items-center gap-2">
@@ -479,6 +505,25 @@ export function VocabularySearchPanel({
                           S
                         </span>
                       )}
+                      <span className="flex-1" />
+                      {resolvedMode === 'build' ? (
+                        isInSet ? (
+                          <span className="shrink-0 rounded bg-teal-500/10 px-2 py-0.5 text-xs text-teal-400">
+                            In set
+                          </span>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onAddToSet?.(concept.concept_id);
+                            }}
+                            className="shrink-0 flex h-6 w-6 items-center justify-center rounded bg-teal-400 text-[#0E0E11] text-sm font-bold hover:bg-teal-300 transition-colors"
+                          >
+                            +
+                          </button>
+                        )
+                      ) : null}
                     </div>
                     <p className="text-sm text-[#F0EDE8] leading-snug [&_mark]:bg-[#C9A227]/30 [&_mark]:text-[#F0EDE8] [&_mark]:rounded-sm [&_mark]:px-0.5">
                       <HighlightedText

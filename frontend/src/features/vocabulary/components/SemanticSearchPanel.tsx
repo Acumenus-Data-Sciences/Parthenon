@@ -133,6 +133,9 @@ interface ResultRowProps {
   isSelected: boolean;
   onSelectConcept?: (id: number) => void;
   onAddToSet: (id: number, name: string) => void;
+  resolvedMode: 'browse' | 'build';
+  conceptSetItemIds?: Set<number>;
+  onAddToSetBuild?: (conceptId: number) => void;
 }
 
 function ResultRow({
@@ -140,6 +143,9 @@ function ResultRow({
   isSelected,
   onSelectConcept,
   onAddToSet,
+  resolvedMode,
+  conceptSetItemIds,
+  onAddToSetBuild,
 }: ResultRowProps) {
   return (
     <div
@@ -164,17 +170,36 @@ function ResultRow({
             {result.concept_id}
           </span>
           <StandardBadge value={result.standard_concept} />
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              onAddToSet(result.concept_id, result.concept_name);
-            }}
-            className="ml-auto inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[9px] text-[#9B1B30] hover:text-[#C5384C] hover:bg-[#9B1B30]/10 transition-colors"
-          >
-            <PlusCircle size={10} />
-            Add to Set
-          </button>
+          {resolvedMode === 'build' ? (
+            conceptSetItemIds?.has(result.concept_id) ? (
+              <span className="ml-auto shrink-0 rounded bg-teal-500/10 px-2 py-0.5 text-xs text-teal-400">
+                In set
+              </span>
+            ) : (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onAddToSetBuild?.(result.concept_id);
+                }}
+                className="ml-auto shrink-0 flex h-6 w-6 items-center justify-center rounded bg-teal-400 text-[#0E0E11] text-sm font-bold hover:bg-teal-300 transition-colors"
+              >
+                +
+              </button>
+            )
+          ) : (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onAddToSet(result.concept_id, result.concept_name);
+              }}
+              className="ml-auto inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[9px] text-[#9B1B30] hover:text-[#C5384C] hover:bg-[#9B1B30]/10 transition-colors"
+            >
+              <PlusCircle size={10} />
+              Add to Set
+            </button>
+          )}
         </div>
 
         {/* Concept name */}
@@ -202,18 +227,39 @@ function ResultRow({
 // ---------------------------------------------------------------------------
 
 interface SemanticSearchPanelProps {
+  mode?: 'browse' | 'build';
   onSelectConcept?: (id: number) => void;
+
+  // Build mode: concept set integration
+  conceptSetItemIds?: Set<number>;
+  onAddToSet?: (conceptId: number) => void;
+
+  // Context carry-over
+  initialQuery?: string;
+  initialFilters?: {
+    domain?: string;
+    vocabulary?: string;
+    standard?: boolean;
+  };
 }
 
 export function SemanticSearchPanel({
+  mode,
   onSelectConcept,
+  conceptSetItemIds,
+  onAddToSet,
+  initialQuery,
+  initialFilters,
 }: SemanticSearchPanelProps) {
-  const [query, setQuery] = useState("");
+  const resolvedMode = mode ?? 'browse';
+  const [query, setQuery] = useState(initialQuery ?? "");
   const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [domainFilter, setDomainFilter] = useState("");
-  const [vocabFilter, setVocabFilter] = useState("");
+  const [domainFilter, setDomainFilter] = useState(initialFilters?.domain ?? "");
+  const [vocabFilter, setVocabFilter] = useState(initialFilters?.vocabulary ?? "");
   const [standardFilter, setStandardFilter] =
-    useState<StandardConceptFilter>("all");
+    useState<StandardConceptFilter>(
+      initialFilters?.standard === true ? "S" : "all"
+    );
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedSuggestionIdx, setSelectedSuggestionIdx] = useState(-1);
 
@@ -615,6 +661,9 @@ export function SemanticSearchPanel({
                     onSelectConcept?.(id);
                   }}
                   onAddToSet={handleAddToSet}
+                  resolvedMode={resolvedMode}
+                  conceptSetItemIds={conceptSetItemIds}
+                  onAddToSetBuild={onAddToSet}
                 />
               ))}
             </div>

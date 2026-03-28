@@ -93,11 +93,15 @@ export default function VocabularyPage() {
             <div className="flex-1 overflow-hidden">
               {activeTab === "keyword" ? (
                 <VocabularySearchPanel
+                  mode="browse"
                   selectedConceptId={selectedConceptId}
                   onSelectConcept={handleSelectConcept}
                 />
               ) : (
-                <SemanticSearchPanel onSelectConcept={handleSelectConcept} />
+                <SemanticSearchPanel
+                  mode="browse"
+                  onSelectConcept={handleSelectConcept}
+                />
               )}
             </div>
           </div>
