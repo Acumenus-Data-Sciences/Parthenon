@@ -358,13 +358,21 @@ CREATE TABLE IF NOT EXISTS pancreas.payer_plan_period (
     stop_reason_source_concept_id integer
 );
 
--- Cohort tables
+-- Cohort tables (in both CDM and results schemas — results is where Patient Profiles reads from)
 CREATE TABLE IF NOT EXISTS pancreas.cohort (
     cohort_definition_id integer NOT NULL,
     subject_id integer NOT NULL,
     cohort_start_date date NOT NULL,
     cohort_end_date date NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS pancreas_results.cohort (
+    cohort_definition_id bigint,
+    subject_id bigint,
+    cohort_start_date date,
+    cohort_end_date date
+);
+CREATE INDEX IF NOT EXISTS idx_pr_cohort_def_subject ON pancreas_results.cohort (cohort_definition_id, subject_id);
 
 -- Episode tables (oncology extension)
 CREATE TABLE IF NOT EXISTS pancreas.episode (

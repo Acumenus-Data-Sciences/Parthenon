@@ -46,7 +46,7 @@ class SeedPancreasCohortDefinitionsCommand extends Command
 
             // Clear existing membership for this definition before repopulating.
             DB::connection('pancreas')->statement(
-                'DELETE FROM pancreas.cohort WHERE cohort_definition_id = ?',
+                'DELETE FROM pancreas_results.cohort WHERE cohort_definition_id = ?',
                 [$cohortId],
             );
 
@@ -56,7 +56,7 @@ class SeedPancreasCohortDefinitionsCommand extends Command
             );
 
             $count = DB::connection('pancreas')
-                ->table('pancreas.cohort')
+                ->table('pancreas_results.cohort')
                 ->where('cohort_definition_id', $cohortId)
                 ->count();
 
@@ -85,7 +85,7 @@ class SeedPancreasCohortDefinitionsCommand extends Command
     {
         return match ($key) {
             'all_pdac' => "
-                INSERT INTO pancreas.cohort (cohort_definition_id, subject_id, cohort_start_date, cohort_end_date)
+                INSERT INTO pancreas_results.cohort (cohort_definition_id, subject_id, cohort_start_date, cohort_end_date)
                 SELECT DISTINCT
                     {$cohortId},
                     co.person_id,
@@ -99,7 +99,7 @@ class SeedPancreasCohortDefinitionsCommand extends Command
             ",
 
             'surgical_pdac' => "
-                INSERT INTO pancreas.cohort (cohort_definition_id, subject_id, cohort_start_date, cohort_end_date)
+                INSERT INTO pancreas_results.cohort (cohort_definition_id, subject_id, cohort_start_date, cohort_end_date)
                 SELECT DISTINCT
                     {$cohortId},
                     co.person_id,
@@ -119,7 +119,7 @@ class SeedPancreasCohortDefinitionsCommand extends Command
             ",
 
             'folfirinox' => "
-                INSERT INTO pancreas.cohort (cohort_definition_id, subject_id, cohort_start_date, cohort_end_date)
+                INSERT INTO pancreas_results.cohort (cohort_definition_id, subject_id, cohort_start_date, cohort_end_date)
                 WITH first_pdac AS (
                     SELECT person_id, MIN(condition_start_date) AS dx_date
                     FROM pancreas.condition_occurrence
@@ -151,7 +151,7 @@ class SeedPancreasCohortDefinitionsCommand extends Command
             ",
 
             'high_ca199' => "
-                INSERT INTO pancreas.cohort (cohort_definition_id, subject_id, cohort_start_date, cohort_end_date)
+                INSERT INTO pancreas_results.cohort (cohort_definition_id, subject_id, cohort_start_date, cohort_end_date)
                 WITH first_pdac AS (
                     SELECT person_id, MIN(condition_start_date) AS dx_date
                     FROM pancreas.condition_occurrence
