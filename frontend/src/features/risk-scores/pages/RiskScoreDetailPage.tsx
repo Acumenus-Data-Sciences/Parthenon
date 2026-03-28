@@ -15,8 +15,8 @@ import { RiskScoreRunModal } from "../components/RiskScoreRunModal";
 
 export default function RiskScoreDetailPage() {
   const { scoreId } = useParams<{ scoreId: string }>();
-  const { activeSourceId } = useSourceStore();
-  const sourceId = activeSourceId ?? 0;
+  const { activeSourceId, defaultSourceId } = useSourceStore();
+  const sourceId = activeSourceId ?? defaultSourceId ?? 0;
 
   const {
     data: detail,

@@ -12,8 +12,8 @@ import { RiskScoreCard } from "../components/RiskScoreCard";
 import { RiskScoreRunModal } from "../components/RiskScoreRunModal";
 
 export default function RiskScoreCataloguePage() {
-  const { activeSourceId } = useSourceStore();
-  const sourceId = activeSourceId ?? 0;
+  const { activeSourceId, defaultSourceId } = useSourceStore();
+  const sourceId = activeSourceId ?? defaultSourceId ?? 0;
 
   const { data: catalogue, isLoading: loadingCatalogue } =
     useRiskScoreCatalogue();
