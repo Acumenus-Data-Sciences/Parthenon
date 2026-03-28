@@ -3,6 +3,7 @@
 namespace App\Services\Commons;
 
 use App\Events\Commons\CallUpdated;
+use App\Models\App\SystemSetting;
 use App\Models\Commons\Call;
 use App\Models\Commons\Channel;
 use App\Models\User;
@@ -81,9 +82,7 @@ class CallService
     /** @return array{token:string, server_url:string} */
     public function issueToken(Call $call, User $user): array
     {
-        $serverUrl = rtrim((string) Config::get('services.livekit.url', ''), '/');
-        $apiKey = (string) Config::get('services.livekit.api_key', '');
-        $apiSecret = (string) Config::get('services.livekit.api_secret', '');
+        [$serverUrl, $apiKey, $apiSecret] = $this->resolveLiveKitConfig();
 
         if ($serverUrl === '' || $apiKey === '' || $apiSecret === '') {
             throw new RuntimeException('LiveKit is not configured');
@@ -114,6 +113,32 @@ class CallService
         return [
             'token' => JWT::encode($payload, $apiSecret, 'HS256'),
             'server_url' => $serverUrl,
+        ];
+    }
+
+    /**
+     * Resolve LiveKit config: DB settings first, then .env fallback.
+     *
+     * @return array{0: string, 1: string, 2: string}
+     */
+    private function resolveLiveKitConfig(): array
+    {
+        $provider = SystemSetting::getValue('livekit_provider');
+
+        if ($provider !== null && $provider !== 'env') {
+            $url = rtrim((string) (SystemSetting::getValue('livekit_url') ?? ''), '/');
+            $key = (string) (SystemSetting::getValue('livekit_api_key') ?? '');
+            $secret = (string) (SystemSetting::getValue('livekit_api_secret') ?? '');
+
+            if ($url !== '' && $key !== '' && $secret !== '') {
+                return [$url, $key, $secret];
+            }
+        }
+
+        return [
+            rtrim((string) Config::get('services.livekit.url', ''), '/'),
+            (string) Config::get('services.livekit.api_key', ''),
+            (string) Config::get('services.livekit.api_secret', ''),
         ];
     }
 }

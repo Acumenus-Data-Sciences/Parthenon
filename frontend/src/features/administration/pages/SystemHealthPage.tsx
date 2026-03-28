@@ -5,6 +5,7 @@ import type { SystemHealthService } from "@/types/models";
 import { useSystemHealth } from "../hooks/useAiProviders";
 import { GisDataPanel } from "../components/GisDataPanel";
 import { GrafanaLaunchCard } from "../components/GrafanaLaunchCard";
+import { LiveKitConfigPanel } from "../components/LiveKitConfigPanel";
 
 const STATUS_MAP: Record<string, { badge: BadgeVariant; dot: StatusDotVariant }> = {
   healthy:  { badge: "success",  dot: "healthy" },
@@ -160,6 +161,8 @@ export default function SystemHealthPage() {
                 service={s}
                 grafanaUrl="/grafana/d/parthenon/parthenon"
               />
+            ) : s.key === "livekit" ? (
+              <LiveKitConfigPanel key={s.key} service={s} />
             ) : (
               <ServiceCard key={s.key} service={s} />
             )

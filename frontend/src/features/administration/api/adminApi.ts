@@ -145,6 +145,31 @@ export interface ServiceDetail {
 export const fetchServiceDetail = (key: string) =>
   apiClient.get<ServiceDetail>(`/admin/system-health/${key}`).then((r) => r.data);
 
+// ── LiveKit Configuration ─────────────────────────────────────────────────────
+
+export interface LiveKitConfig {
+  provider: "cloud" | "self-hosted" | "env";
+  url: string;
+  has_api_key: boolean;
+  has_api_secret: boolean;
+  env_url: string;
+  env_has_key: boolean;
+  env_has_secret: boolean;
+}
+
+export const fetchLiveKitConfig = () =>
+  apiClient.get<{ data: LiveKitConfig }>("/admin/livekit-config").then((r) => r.data.data);
+
+export const updateLiveKitConfig = (data: {
+  provider: string;
+  url?: string;
+  api_key?: string;
+  api_secret?: string;
+}) => apiClient.put("/admin/livekit-config", data).then((r) => r.data);
+
+export const testLiveKitConnection = (url: string) =>
+  apiClient.post<{ reachable: boolean; message: string }>("/admin/livekit-config/test", { url }).then((r) => r.data);
+
 // ── Vocabulary Imports ────────────────────────────────────────────────────────
 
 export type VocabImportStatus = "pending" | "running" | "completed" | "failed";

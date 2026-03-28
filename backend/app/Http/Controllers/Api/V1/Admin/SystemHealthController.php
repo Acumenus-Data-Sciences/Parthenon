@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\App\PacsConnection;
+use App\Models\App\SystemSetting;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -34,6 +35,7 @@ class SystemHealthController extends Controller
             'chromadb' => fn () => $this->checkChromaDb(),
             'study-agent' => fn () => $this->checkStudyAgent(),
             'grafana' => fn () => $this->checkGrafana(),
+            'livekit' => fn () => $this->checkLiveKit(),
         ];
     }
 
@@ -85,6 +87,7 @@ class SystemHealthController extends Controller
             'study-agent' => [],
             'grafana' => [],
             'blackrabbit' => $this->getServiceHttpLogs('blackrabbit'),
+            'livekit' => [],
             default => [],
         };
     }
@@ -106,6 +109,7 @@ class SystemHealthController extends Controller
             'study-agent' => [],
             'grafana' => $this->getGrafanaMetrics(),
             'blackrabbit' => $this->getBlackRabbitMetrics(),
+            'livekit' => $this->getLiveKitMetrics(),
             default => [],
         };
     }
@@ -957,6 +961,74 @@ class SystemHealthController extends Controller
             'bearer' => $client->withToken($credentials['token'] ?? ''),
             default => $client,
         };
+    }
+
+    private function checkLiveKit(): array
+    {
+        $url = $this->resolveLiveKitUrl();
+
+        if ($url === '') {
+            return [
+                'name' => 'LiveKit (Calls)',
+                'key' => 'livekit',
+                'status' => 'down',
+                'message' => 'LiveKit is not configured.',
+            ];
+        }
+
+        $httpUrl = preg_replace('#^wss?://#', 'https://', $url);
+
+        try {
+            $response = Http::timeout(3)->get($httpUrl);
+
+            return [
+                'name' => 'LiveKit (Calls)',
+                'key' => 'livekit',
+                'status' => 'healthy',
+                'message' => 'LiveKit server is reachable.',
+                'details' => [
+                    'provider' => $this->resolveLiveKitProvider(),
+                    'url' => $url,
+                ],
+            ];
+        } catch (\Throwable $e) {
+            return [
+                'name' => 'LiveKit (Calls)',
+                'key' => 'livekit',
+                'status' => 'down',
+                'message' => 'Cannot reach LiveKit: '.$e->getMessage(),
+                'details' => [
+                    'provider' => $this->resolveLiveKitProvider(),
+                    'url' => $url,
+                ],
+            ];
+        }
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function getLiveKitMetrics(): array
+    {
+        return [
+            'provider' => $this->resolveLiveKitProvider(),
+            'url' => $this->resolveLiveKitUrl(),
+            'configured' => $this->resolveLiveKitUrl() !== '',
+        ];
+    }
+
+    private function resolveLiveKitUrl(): string
+    {
+        $dbUrl = SystemSetting::getValue('livekit_url');
+
+        return (string) ($dbUrl ?? config('services.livekit.url', ''));
+    }
+
+    private function resolveLiveKitProvider(): string
+    {
+        $provider = SystemSetting::getValue('livekit_provider');
+
+        return (string) ($provider ?? 'cloud');
     }
 
     private function checkBlackRabbit(): array

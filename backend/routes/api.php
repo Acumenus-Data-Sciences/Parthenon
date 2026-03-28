@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\V1\Admin\AtlasMigrationController;
 use App\Http\Controllers\Api\V1\Admin\AuthProviderController;
 use App\Http\Controllers\Api\V1\Admin\ChromaStudioController;
 use App\Http\Controllers\Api\V1\Admin\FhirConnectionController;
+use App\Http\Controllers\Api\V1\Admin\LiveKitConfigController;
 use App\Http\Controllers\Api\V1\Admin\PacsConnectionController;
 use App\Http\Controllers\Api\V1\Admin\RoleController;
 use App\Http\Controllers\Api\V1\Admin\SolrAdminController;
@@ -964,6 +965,13 @@ Route::prefix('v1')->group(function () {
             // ── System health (admin+) ────────────────────────────────────
             Route::get('/system-health', [SystemHealthController::class, 'index']);
             Route::get('/system-health/{key}', [SystemHealthController::class, 'show']);
+
+            // ── LiveKit configuration (super-admin only) ──────────────────
+            Route::middleware('role:super-admin')->prefix('livekit-config')->group(function () {
+                Route::get('/', [LiveKitConfigController::class, 'show']);
+                Route::put('/', [LiveKitConfigController::class, 'update']);
+                Route::post('/test', [LiveKitConfigController::class, 'test']);
+            });
 
             // ── ChromaDB Studio (admin+) ──────────────────────────────────
             Route::prefix('chroma-studio')->group(function () {

@@ -5,10 +5,13 @@ import {
   enableAiProvider,
   fetchAiProvider,
   fetchAiProviders,
+  fetchLiveKitConfig,
   fetchServiceDetail,
   fetchSystemHealth,
   testAiProvider,
+  testLiveKitConnection,
   updateAiProvider,
+  updateLiveKitConfig,
 } from "../api/adminApi";
 
 const QUERY_KEY = "ai-providers";
@@ -72,4 +75,28 @@ export function useServiceDetail(key: string) {
     refetchInterval: 15_000,
     enabled: !!key,
   });
+}
+
+// ── LiveKit Config ────────────────────────────────────────────────────────────
+
+const LIVEKIT_KEY = "livekit-config";
+
+export function useLiveKitConfig() {
+  return useQuery({ queryKey: [LIVEKIT_KEY], queryFn: fetchLiveKitConfig });
+}
+
+export function useUpdateLiveKitConfig() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateLiveKitConfig,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: [LIVEKIT_KEY] });
+      qc.invalidateQueries({ queryKey: [HEALTH_KEY] });
+    },
+  });
+}
+
+export function useTestLiveKitConnection() {
+  return useMutation({ mutationFn: testLiveKitConnection });
 }
