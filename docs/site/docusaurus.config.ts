@@ -154,8 +154,7 @@ const config: Config = {
           label: "User Manual",
         },
         {
-          type: "docSidebar",
-          sidebarId: "apisidebar",
+          to: "/api",
           label: "API Reference",
           position: "left",
         },

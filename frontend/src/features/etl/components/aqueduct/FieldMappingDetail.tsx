@@ -435,7 +435,7 @@ export function FieldMappingDetail({
 
     for (const col of sortedCdmColumns) {
       const mapping = mappingByCdm.get(col.name);
-      let t = !mapping && col.required ? 0 : !mapping ? 1 : !mapping.is_reviewed ? 2 : 3;
+      const t = !mapping && col.required ? 0 : !mapping ? 1 : !mapping.is_reviewed ? 2 : 3;
       tierCounts[t]++;
     }
 

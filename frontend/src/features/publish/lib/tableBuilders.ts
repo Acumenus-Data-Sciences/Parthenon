@@ -242,7 +242,7 @@ function buildCharacterizationTable(executions: SelectedExecution[]): TableData 
       );
 
       rows.push({
-        Cohort: (c.cohort_name as string) ?? `Cohort #${c.cohort_id}` ?? exec.analysisName,
+        Cohort: (c.cohort_name as string) || `Cohort #${c.cohort_id ?? exec.analysisName}`,
         N: personCount,
         "% Female": femaleDemo && typeof femaleDemo.percent === "number" && (femaleDemo.percent as number) >= 0
           ? Math.round(femaleDemo.percent as number * 10) / 10
