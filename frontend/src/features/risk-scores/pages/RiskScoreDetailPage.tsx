@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, useSearchParams, Link } from "react-router-dom";
 import {
   ArrowLeft,
   Activity,
@@ -15,8 +15,10 @@ import { RiskScoreRunModal } from "../components/RiskScoreRunModal";
 
 export default function RiskScoreDetailPage() {
   const { scoreId } = useParams<{ scoreId: string }>();
+  const [searchParams] = useSearchParams();
   const { activeSourceId, defaultSourceId } = useSourceStore();
-  const sourceId = activeSourceId ?? defaultSourceId ?? 0;
+  const querySourceId = searchParams.get("source");
+  const sourceId = (querySourceId ? Number(querySourceId) : null) ?? activeSourceId ?? defaultSourceId ?? 0;
 
   const {
     data: detail,

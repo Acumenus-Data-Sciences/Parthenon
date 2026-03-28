@@ -108,7 +108,7 @@ export function RiskScoreCard({
         {hasSource && hasResults && (
           <div className="flex items-center gap-1.5 shrink-0">
             <Link
-              to={`/risk-scores/${score.score_id}`}
+              to={`/risk-scores/${score.score_id}?source=${sourceId}`}
               className="rounded-lg p-1.5 text-[#2DD4BF] hover:bg-[#2DD4BF]/10 transition-colors"
               title="View details"
             >
