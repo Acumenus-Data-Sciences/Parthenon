@@ -5,6 +5,9 @@ use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Mail;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 uses(RefreshDatabase::class);
 
@@ -41,6 +44,23 @@ test('register returns same message for existing email', function () {
     ])
         ->assertStatus(200)
         ->assertJsonPath('message', 'Account created. Check your email for your temporary password.');
+});
+
+test('registration reseeds roles when the default viewer role is missing', function () {
+    Role::query()->delete();
+    Permission::query()->delete();
+    app(PermissionRegistrar::class)->forgetCachedPermissions();
+
+    $this->postJson('/api/v1/auth/register', [
+        'name' => 'Recovery User',
+        'email' => 'recovery@example.com',
+    ])
+        ->assertStatus(200)
+        ->assertJsonPath('message', 'Account created. Check your email for your temporary password.');
+
+    $user = User::where('email', 'recovery@example.com')->firstOrFail();
+
+    expect($user->hasRole('viewer'))->toBeTrue();
 });
 
 test('user can login', function () {

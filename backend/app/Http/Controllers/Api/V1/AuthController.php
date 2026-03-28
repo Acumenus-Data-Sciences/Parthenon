@@ -7,10 +7,13 @@ use App\Http\Requests\Api\LoginRequest;
 use App\Mail\TempPasswordMail;
 use App\Models\App\UserAuditLog;
 use App\Models\User;
+use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 /**
  * @group Authentication
@@ -42,8 +45,7 @@ class AuthController extends Controller
             'phone_number' => $request->string('phone_number') ?: null,
         ]);
 
-        // Default role for new accounts — admins promote users to higher roles manually
-        $user->assignRole(['viewer']);
+        $this->assignDefaultViewerRole($user);
 
         try {
             Mail::to($user->email)->send(new TempPasswordMail($user->name, $tempPassword));
@@ -222,5 +224,47 @@ class AuthController extends Controller
         }
 
         return $result;
+    }
+
+    /**
+     * Registration should not hard-fail if role seed data drifted in a long-lived environment.
+     * Attempt to self-heal the default viewer role before assigning it.
+     */
+    private function assignDefaultViewerRole(User $user): void
+    {
+        try {
+            if ($this->ensureViewerRoleExists()) {
+                $user->assignRole('viewer');
+
+                return;
+            }
+
+            logger()->error('Viewer role unavailable during self-registration', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+            ]);
+        } catch (\Throwable $e) {
+            logger()->error('Failed to assign default viewer role during self-registration', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    private function ensureViewerRoleExists(): bool
+    {
+        if (Role::where('name', 'viewer')->where('guard_name', 'web')->exists()) {
+            return true;
+        }
+
+        logger()->warning('Viewer role missing during self-registration; reseeding roles and permissions.', [
+            'action' => 'register',
+        ]);
+
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
+        app(RolePermissionSeeder::class)->run();
+
+        return Role::where('name', 'viewer')->where('guard_name', 'web')->exists();
     }
 }
