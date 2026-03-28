@@ -76,7 +76,7 @@ WITH eligible_patients AS (
         p.person_id,
         p.gender_concept_id,
         EXTRACT(YEAR FROM CURRENT_DATE) - p.year_of_birth AS age
-    FROM {cdmSchema}.person p
+    FROM {@cdmSchema}.person p
     WHERE (
         -- Women >= 50
         (p.gender_concept_id = 8532 AND (EXTRACT(YEAR FROM CURRENT_DATE) - p.year_of_birth) >= 50)
@@ -89,7 +89,7 @@ WITH eligible_patients AS (
 -- Prior fragility fracture: vertebral, wrist, hip, osteoporotic fracture
 prior_fracture AS (
     SELECT DISTINCT person_id, 1 AS has_fracture
-    FROM {cdmSchema}.condition_occurrence
+    FROM {@cdmSchema}.condition_occurrence
     WHERE condition_concept_id IN (4227085, 432439, 436945, 444132, 4059173, 4218106)
 ),
 
@@ -104,8 +104,8 @@ glucocorticoid_use AS (
             ) >= 90 THEN 1
             ELSE 0
         END AS on_glucocorticoid
-    FROM {cdmSchema}.drug_exposure de
-    INNER JOIN {cdmSchema}.concept_ancestor ca
+    FROM {@cdmSchema}.drug_exposure de
+    INNER JOIN {@cdmSchema}.concept_ancestor ca
         ON ca.descendant_concept_id = de.drug_concept_id
     WHERE ca.ancestor_concept_id IN (1551099, 1506270)
     GROUP BY de.person_id
@@ -114,14 +114,14 @@ glucocorticoid_use AS (
 -- Rheumatoid arthritis
 ra_diag AS (
     SELECT DISTINCT person_id, 1 AS has_ra
-    FROM {cdmSchema}.condition_occurrence
+    FROM {@cdmSchema}.condition_occurrence
     WHERE condition_concept_id IN (80809, 4179242)
 ),
 
 -- Secondary osteoporosis causes: T1DM (201254), COPD (255573), hyperparathyroidism (4115776)
 secondary_osteo AS (
     SELECT DISTINCT person_id, 1 AS has_secondary
-    FROM {cdmSchema}.condition_occurrence
+    FROM {@cdmSchema}.condition_occurrence
     WHERE condition_concept_id IN (201254, 255573, 4115776, 4064161)
 ),
 
@@ -134,7 +134,7 @@ bmd_proxy AS (
             WHEN condition_concept_id = 77079 THEN 1
             ELSE 0
         END) AS bmd_pts
-    FROM {cdmSchema}.condition_occurrence
+    FROM {@cdmSchema}.condition_occurrence
     WHERE condition_concept_id IN (80502, 77079)
     GROUP BY person_id
 ),
@@ -142,14 +142,14 @@ bmd_proxy AS (
 -- Smoking
 smoking_flag AS (
     SELECT DISTINCT person_id, 1 AS is_smoker
-    FROM {cdmSchema}.condition_occurrence
+    FROM {@cdmSchema}.condition_occurrence
     WHERE condition_concept_id IN (436070, 442277)
 ),
 
 -- Alcohol
 alcohol_flag AS (
     SELECT DISTINCT person_id, 1 AS uses_alcohol
-    FROM {cdmSchema}.condition_occurrence
+    FROM {@cdmSchema}.condition_occurrence
     WHERE condition_concept_id IN (433753, 4030541, 196463)
 ),
 

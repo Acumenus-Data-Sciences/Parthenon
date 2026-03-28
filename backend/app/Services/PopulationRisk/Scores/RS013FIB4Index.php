@@ -69,7 +69,7 @@ WITH adult_patients AS (
     SELECT
         p.person_id,
         EXTRACT(YEAR FROM CURRENT_DATE) - p.year_of_birth AS age
-    FROM {cdmSchema}.person p
+    FROM {@cdmSchema}.person p
     WHERE (EXTRACT(YEAR FROM CURRENT_DATE) - p.year_of_birth) >= 18
 ),
 
@@ -78,7 +78,7 @@ latest_ast AS (
     SELECT DISTINCT ON (person_id)
         person_id,
         value_as_number AS ast_ul
-    FROM {cdmSchema}.measurement
+    FROM {@cdmSchema}.measurement
     WHERE measurement_concept_id = 3013721
       AND value_as_number IS NOT NULL
       AND value_as_number > 0
@@ -90,7 +90,7 @@ latest_alt AS (
     SELECT DISTINCT ON (person_id)
         person_id,
         value_as_number AS alt_ul
-    FROM {cdmSchema}.measurement
+    FROM {@cdmSchema}.measurement
     WHERE measurement_concept_id = 3006923
       AND value_as_number IS NOT NULL
       AND value_as_number > 0
@@ -102,7 +102,7 @@ latest_plt AS (
     SELECT DISTINCT ON (person_id)
         person_id,
         value_as_number AS plt_bil
-    FROM {cdmSchema}.measurement
+    FROM {@cdmSchema}.measurement
     WHERE measurement_concept_id = 3024929
       AND value_as_number IS NOT NULL
       AND value_as_number > 0

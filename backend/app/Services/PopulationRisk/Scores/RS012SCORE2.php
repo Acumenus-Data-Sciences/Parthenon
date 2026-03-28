@@ -70,7 +70,7 @@ WITH eligible_patients AS (
         p.person_id,
         p.gender_concept_id,
         EXTRACT(YEAR FROM CURRENT_DATE) - p.year_of_birth AS age
-    FROM {cdmSchema}.person p
+    FROM {@cdmSchema}.person p
     WHERE (EXTRACT(YEAR FROM CURRENT_DATE) - p.year_of_birth) BETWEEN 40 AND 69
 ),
 
@@ -79,7 +79,7 @@ latest_tc AS (
     SELECT DISTINCT ON (person_id)
         person_id,
         value_as_number AS tc_mgdl
-    FROM {cdmSchema}.measurement
+    FROM {@cdmSchema}.measurement
     WHERE measurement_concept_id = 3027114
       AND value_as_number IS NOT NULL
       AND value_as_number > 0
@@ -91,7 +91,7 @@ latest_hdl AS (
     SELECT DISTINCT ON (person_id)
         person_id,
         value_as_number AS hdl_mgdl
-    FROM {cdmSchema}.measurement
+    FROM {@cdmSchema}.measurement
     WHERE measurement_concept_id = 3007070
       AND value_as_number IS NOT NULL
       AND value_as_number > 0
@@ -103,7 +103,7 @@ latest_sbp AS (
     SELECT DISTINCT ON (person_id)
         person_id,
         value_as_number AS sbp_mmhg
-    FROM {cdmSchema}.measurement
+    FROM {@cdmSchema}.measurement
     WHERE measurement_concept_id = 3004249
       AND value_as_number IS NOT NULL
       AND value_as_number > 0
@@ -113,7 +113,7 @@ latest_sbp AS (
 -- Smoking status: any smoking-related condition (436070 tobacco use, 442277 smoker)
 smoking_flag AS (
     SELECT DISTINCT person_id, 1 AS is_smoker
-    FROM {cdmSchema}.condition_occurrence
+    FROM {@cdmSchema}.condition_occurrence
     WHERE condition_concept_id IN (436070, 442277)
 ),
 

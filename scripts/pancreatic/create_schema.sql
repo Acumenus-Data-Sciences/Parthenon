@@ -507,5 +507,6 @@ INSERT INTO pancreas.cdm_source VALUES (
 -- Required by Achilles validity-check analyses that JOIN {cdmSchema}.concept
 -- ============================================================
 CREATE OR REPLACE VIEW pancreas.concept AS SELECT * FROM vocab.concept;
+CREATE OR REPLACE VIEW pancreas.concept_ancestor AS SELECT * FROM vocab.concept_ancestor;
 
 COMMIT;

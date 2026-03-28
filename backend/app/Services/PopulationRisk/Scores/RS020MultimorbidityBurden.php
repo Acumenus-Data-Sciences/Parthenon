@@ -76,7 +76,7 @@ class RS020MultimorbidityBurden implements PopulationRiskScoreInterface
 WITH adult_patients AS (
     SELECT
         p.person_id
-    FROM {cdmSchema}.person p
+    FROM {@cdmSchema}.person p
     WHERE (EXTRACT(YEAR FROM CURRENT_DATE) - p.year_of_birth) >= 18
 ),
 
@@ -191,7 +191,7 @@ condition_flags AS (
         ) THEN 1 ELSE 0 END) AS dom_dermatological
 
     FROM adult_patients ap
-    LEFT JOIN {cdmSchema}.condition_occurrence co
+    LEFT JOIN {@cdmSchema}.condition_occurrence co
         ON co.person_id = ap.person_id
     GROUP BY ap.person_id
 ),

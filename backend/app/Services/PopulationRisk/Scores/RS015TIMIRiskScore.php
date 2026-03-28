@@ -71,8 +71,8 @@ WITH eligible_patients AS (
     SELECT DISTINCT
         p.person_id,
         EXTRACT(YEAR FROM CURRENT_DATE) - p.year_of_birth AS age
-    FROM {cdmSchema}.person p
-    INNER JOIN {cdmSchema}.condition_occurrence co
+    FROM {@cdmSchema}.person p
+    INNER JOIN {@cdmSchema}.condition_occurrence co
         ON co.person_id = p.person_id
         AND co.condition_concept_id IN (315286, 444406)
 ),
@@ -93,7 +93,7 @@ cad_rf AS (
             CASE WHEN co.condition_concept_id IN (316866, 432867, 201826, 436070, 442277) THEN co.condition_concept_id END
         ) >= 3 THEN 1 ELSE 0 END AS pts_rf
     FROM eligible_patients ep
-    LEFT JOIN {cdmSchema}.condition_occurrence co
+    LEFT JOIN {@cdmSchema}.condition_occurrence co
         ON co.person_id = ep.person_id
         AND co.condition_concept_id IN (316866, 432867, 201826, 436070, 442277)
     GROUP BY ep.person_id
@@ -102,15 +102,15 @@ cad_rf AS (
 -- Component 3: Prior coronary stenosis >= 50%: prior CABG (4180790) or PCI (2107550)
 prior_stenosis AS (
     SELECT DISTINCT person_id, 1 AS pts_stenosis
-    FROM {cdmSchema}.condition_occurrence
+    FROM {@cdmSchema}.condition_occurrence
     WHERE condition_concept_id IN (4180790, 2107550, 4314453, 4192097)
 ),
 
 -- Also check procedures for PCI/CABG via concept_ancestor
 prior_proc AS (
     SELECT DISTINCT de.person_id, 1 AS pts_proc
-    FROM {cdmSchema}.drug_exposure de
-    INNER JOIN {cdmSchema}.concept_ancestor ca
+    FROM {@cdmSchema}.drug_exposure de
+    INNER JOIN {@cdmSchema}.concept_ancestor ca
         ON ca.descendant_concept_id = de.drug_concept_id
     WHERE ca.ancestor_concept_id IN (4180790, 2107550)
 ),
@@ -118,7 +118,7 @@ prior_proc AS (
 -- Component 4: ST deviation — ST elevation/depression conditions
 st_changes AS (
     SELECT DISTINCT person_id, 1 AS pts_st
-    FROM {cdmSchema}.condition_occurrence
+    FROM {@cdmSchema}.condition_occurrence
     WHERE condition_concept_id IN (4229881, 4045932, 4108832, 4110192)
 ),
 
@@ -127,7 +127,7 @@ anginal_events AS (
     SELECT
         person_id,
         CASE WHEN COUNT(*) >= 2 THEN 1 ELSE 0 END AS pts_angina
-    FROM {cdmSchema}.condition_occurrence
+    FROM {@cdmSchema}.condition_occurrence
     WHERE condition_concept_id = 315286
       AND condition_start_date >= CURRENT_DATE - INTERVAL '30 days'
     GROUP BY person_id
@@ -136,8 +136,8 @@ anginal_events AS (
 -- Component 6: Aspirin use in past 7 days (proxied by 90-day window)
 aspirin_use AS (
     SELECT DISTINCT de.person_id, 1 AS pts_aspirin
-    FROM {cdmSchema}.drug_exposure de
-    INNER JOIN {cdmSchema}.concept_ancestor ca
+    FROM {@cdmSchema}.drug_exposure de
+    INNER JOIN {@cdmSchema}.concept_ancestor ca
         ON ca.descendant_concept_id = de.drug_concept_id
     WHERE ca.ancestor_concept_id = 1112807
       AND de.drug_exposure_start_date >= CURRENT_DATE - INTERVAL '90 days'
@@ -148,7 +148,7 @@ latest_troponin AS (
     SELECT DISTINCT ON (person_id)
         person_id,
         value_as_number AS troponin_value
-    FROM {cdmSchema}.measurement
+    FROM {@cdmSchema}.measurement
     WHERE measurement_concept_id IN (3016335, 3028437)
       AND value_as_number IS NOT NULL
     ORDER BY person_id, measurement_date DESC

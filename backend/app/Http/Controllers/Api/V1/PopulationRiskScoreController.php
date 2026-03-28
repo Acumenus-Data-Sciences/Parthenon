@@ -48,6 +48,8 @@ class PopulationRiskScoreController extends Controller
      */
     public function run(Source $source): JsonResponse
     {
+        set_time_limit(120); // 20 scores can take up to ~60s on large CDMs
+
         $outcome = $this->engine->run($source);
 
         return response()->json([

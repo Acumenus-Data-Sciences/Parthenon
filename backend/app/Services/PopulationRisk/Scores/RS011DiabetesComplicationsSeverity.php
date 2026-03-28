@@ -71,8 +71,8 @@ class RS011DiabetesComplicationsSeverity implements PopulationRiskScoreInterface
 WITH diabetic_patients AS (
     SELECT DISTINCT p.person_id,
         EXTRACT(YEAR FROM CURRENT_DATE) - p.year_of_birth AS age
-    FROM {cdmSchema}.person p
-    INNER JOIN {cdmSchema}.condition_occurrence co
+    FROM {@cdmSchema}.person p
+    INNER JOIN {@cdmSchema}.condition_occurrence co
         ON co.person_id = p.person_id
         AND co.condition_concept_id IN (201826, 201254, 443238, 4193704)
 ),
@@ -124,7 +124,7 @@ complication_flags AS (
         MAX(CASE WHEN co.condition_concept_id IN (4096682) THEN 1 ELSE 0 END) AS metabolic_pts
 
     FROM diabetic_patients dp
-    LEFT JOIN {cdmSchema}.condition_occurrence co
+    LEFT JOIN {@cdmSchema}.condition_occurrence co
         ON co.person_id = dp.person_id
     GROUP BY dp.person_id
 ),

@@ -73,42 +73,42 @@ WITH adult_patients AS (
         p.person_id,
         p.gender_concept_id,
         EXTRACT(YEAR FROM CURRENT_DATE) - p.year_of_birth AS age
-    FROM {cdmSchema}.person p
+    FROM {@cdmSchema}.person p
     WHERE (EXTRACT(YEAR FROM CURRENT_DATE) - p.year_of_birth) >= 18
 ),
 
 -- S: Snoring conditions
 snoring_flag AS (
     SELECT DISTINCT person_id, 1 AS has_snoring
-    FROM {cdmSchema}.condition_occurrence
+    FROM {@cdmSchema}.condition_occurrence
     WHERE condition_concept_id IN (4249576, 4056050, 4215512)
 ),
 
 -- T: Tired — fatigue or hypersomnia conditions
 tired_flag AS (
     SELECT DISTINCT person_id, 1 AS has_fatigue
-    FROM {cdmSchema}.condition_occurrence
+    FROM {@cdmSchema}.condition_occurrence
     WHERE condition_concept_id IN (4226263, 4163735, 438727, 4230448)
 ),
 
 -- O: Observed apnea
 apnea_flag AS (
     SELECT DISTINCT person_id, 1 AS has_apnea
-    FROM {cdmSchema}.condition_occurrence
+    FROM {@cdmSchema}.condition_occurrence
     WHERE condition_concept_id IN (4173837, 4098304, 40480893, 4215376)
 ),
 
 -- P: Treated hypertension — diagnosis or antihypertensive medication
 htn_diag AS (
     SELECT DISTINCT person_id, 1 AS has_htn
-    FROM {cdmSchema}.condition_occurrence
+    FROM {@cdmSchema}.condition_occurrence
     WHERE condition_concept_id = 316866
 ),
 
 antihtn_med AS (
     SELECT DISTINCT de.person_id, 1 AS on_antihtn
-    FROM {cdmSchema}.drug_exposure de
-    INNER JOIN {cdmSchema}.concept_ancestor ca
+    FROM {@cdmSchema}.drug_exposure de
+    INNER JOIN {@cdmSchema}.concept_ancestor ca
         ON ca.descendant_concept_id = de.drug_concept_id
     WHERE ca.ancestor_concept_id IN (
         1340128,  -- lisinopril
@@ -122,7 +122,7 @@ antihtn_med AS (
 -- B: BMI > 35 — morbid obesity diagnosis or BMI measurement > 35
 morbid_obesity_diag AS (
     SELECT DISTINCT person_id, 1 AS morbidly_obese
-    FROM {cdmSchema}.condition_occurrence
+    FROM {@cdmSchema}.condition_occurrence
     WHERE condition_concept_id IN (433736, 4119134)
 ),
 
@@ -130,7 +130,7 @@ latest_bmi AS (
     SELECT DISTINCT ON (person_id)
         person_id,
         value_as_number AS bmi_value
-    FROM {cdmSchema}.measurement
+    FROM {@cdmSchema}.measurement
     WHERE measurement_concept_id = 3038553
       AND value_as_number IS NOT NULL
     ORDER BY person_id, measurement_date DESC

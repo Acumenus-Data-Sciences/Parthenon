@@ -70,8 +70,8 @@ WITH af_patients AS (
     SELECT DISTINCT
         p.person_id,
         EXTRACT(YEAR FROM CURRENT_DATE) - p.year_of_birth AS age
-    FROM {cdmSchema}.person p
-    INNER JOIN {cdmSchema}.condition_occurrence co
+    FROM {@cdmSchema}.person p
+    INNER JOIN {@cdmSchema}.condition_occurrence co
         ON co.person_id = p.person_id
         AND co.condition_concept_id = 313217
 ),
@@ -94,7 +94,7 @@ chads2_flags AS (
         MAX(CASE WHEN co.condition_concept_id IN (443454, 4110192, 375557, 439847) THEN 1 ELSE 0 END) AS has_stroke
 
     FROM af_patients ap
-    LEFT JOIN {cdmSchema}.condition_occurrence co
+    LEFT JOIN {@cdmSchema}.condition_occurrence co
         ON co.person_id = ap.person_id
     GROUP BY ap.person_id, ap.age
 ),

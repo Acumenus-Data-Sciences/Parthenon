@@ -70,7 +70,7 @@ WITH adult_patients AS (
         p.person_id,
         p.gender_concept_id,
         EXTRACT(YEAR FROM CURRENT_DATE) - p.year_of_birth AS age
-    FROM {cdmSchema}.person p
+    FROM {@cdmSchema}.person p
     WHERE (EXTRACT(YEAR FROM CURRENT_DATE) - p.year_of_birth) >= 18
 ),
 
@@ -78,7 +78,7 @@ WITH adult_patients AS (
 -- Obesity diagnosis (433736 morbid obesity, 436583 obesity) OR BMI ≥ 30
 obesity_diag AS (
     SELECT DISTINCT person_id, 1 AS obese_flag
-    FROM {cdmSchema}.condition_occurrence
+    FROM {@cdmSchema}.condition_occurrence
     WHERE condition_concept_id IN (433736, 436583, 4119134)
 ),
 
@@ -86,7 +86,7 @@ latest_bmi AS (
     SELECT DISTINCT ON (person_id)
         person_id,
         value_as_number AS bmi_value
-    FROM {cdmSchema}.measurement
+    FROM {@cdmSchema}.measurement
     WHERE measurement_concept_id = 3038553
       AND value_as_number IS NOT NULL
     ORDER BY person_id, measurement_date DESC
@@ -97,7 +97,7 @@ latest_tg AS (
     SELECT DISTINCT ON (person_id)
         person_id,
         value_as_number AS tg_mgdl
-    FROM {cdmSchema}.measurement
+    FROM {@cdmSchema}.measurement
     WHERE measurement_concept_id = 3022192
       AND value_as_number IS NOT NULL
     ORDER BY person_id, measurement_date DESC
@@ -105,8 +105,8 @@ latest_tg AS (
 
 fibrate_use AS (
     SELECT DISTINCT de.person_id, 1 AS on_fibrate
-    FROM {cdmSchema}.drug_exposure de
-    INNER JOIN {cdmSchema}.concept_ancestor ca
+    FROM {@cdmSchema}.drug_exposure de
+    INNER JOIN {@cdmSchema}.concept_ancestor ca
         ON ca.descendant_concept_id = de.drug_concept_id
     WHERE ca.ancestor_concept_id = 1545996
 ),
@@ -116,7 +116,7 @@ latest_hdl AS (
     SELECT DISTINCT ON (person_id)
         person_id,
         value_as_number AS hdl_mgdl
-    FROM {cdmSchema}.measurement
+    FROM {@cdmSchema}.measurement
     WHERE measurement_concept_id = 3007070
       AND value_as_number IS NOT NULL
     ORDER BY person_id, measurement_date DESC
@@ -127,7 +127,7 @@ latest_sbp AS (
     SELECT DISTINCT ON (person_id)
         person_id,
         value_as_number AS sbp_mmhg
-    FROM {cdmSchema}.measurement
+    FROM {@cdmSchema}.measurement
     WHERE measurement_concept_id = 3004249
       AND value_as_number IS NOT NULL
     ORDER BY person_id, measurement_date DESC
@@ -137,7 +137,7 @@ latest_dbp AS (
     SELECT DISTINCT ON (person_id)
         person_id,
         value_as_number AS dbp_mmhg
-    FROM {cdmSchema}.measurement
+    FROM {@cdmSchema}.measurement
     WHERE measurement_concept_id = 3012888
       AND value_as_number IS NOT NULL
     ORDER BY person_id, measurement_date DESC
@@ -145,14 +145,14 @@ latest_dbp AS (
 
 htn_diag AS (
     SELECT DISTINCT person_id, 1 AS has_htn
-    FROM {cdmSchema}.condition_occurrence
+    FROM {@cdmSchema}.condition_occurrence
     WHERE condition_concept_id = 316866
 ),
 
 antihypertensive_use AS (
     SELECT DISTINCT de.person_id, 1 AS on_antihtn
-    FROM {cdmSchema}.drug_exposure de
-    INNER JOIN {cdmSchema}.concept_ancestor ca
+    FROM {@cdmSchema}.drug_exposure de
+    INNER JOIN {@cdmSchema}.concept_ancestor ca
         ON ca.descendant_concept_id = de.drug_concept_id
     -- ATC C02, C03, C07, C08, C09 ancestor concept IDs (use broad cardiovascular drug classes)
     WHERE ca.ancestor_concept_id IN (
@@ -170,7 +170,7 @@ latest_glucose AS (
     SELECT DISTINCT ON (person_id)
         person_id,
         value_as_number AS glucose_mgdl
-    FROM {cdmSchema}.measurement
+    FROM {@cdmSchema}.measurement
     WHERE measurement_concept_id IN (3004501, 3037110)
       AND value_as_number IS NOT NULL
     ORDER BY person_id, measurement_date DESC
@@ -178,7 +178,7 @@ latest_glucose AS (
 
 dm_diag AS (
     SELECT DISTINCT person_id, 1 AS has_dm
-    FROM {cdmSchema}.condition_occurrence
+    FROM {@cdmSchema}.condition_occurrence
     WHERE condition_concept_id IN (201826, 443238)
 ),
 

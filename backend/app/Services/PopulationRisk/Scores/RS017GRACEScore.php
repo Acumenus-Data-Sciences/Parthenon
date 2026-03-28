@@ -73,8 +73,8 @@ WITH eligible_patients AS (
     SELECT DISTINCT
         p.person_id,
         EXTRACT(YEAR FROM CURRENT_DATE) - p.year_of_birth AS age
-    FROM {cdmSchema}.person p
-    INNER JOIN {cdmSchema}.condition_occurrence co
+    FROM {@cdmSchema}.person p
+    INNER JOIN {@cdmSchema}.condition_occurrence co
         ON co.person_id = p.person_id
         AND co.condition_concept_id IN (312327, 444406, 4236484, 315286)
 ),
@@ -84,7 +84,7 @@ latest_hr AS (
     SELECT DISTINCT ON (person_id)
         person_id,
         value_as_number AS hr_bpm
-    FROM {cdmSchema}.measurement
+    FROM {@cdmSchema}.measurement
     WHERE measurement_concept_id = 3027018
       AND value_as_number IS NOT NULL
       AND value_as_number > 0
@@ -96,7 +96,7 @@ latest_sbp AS (
     SELECT DISTINCT ON (person_id)
         person_id,
         value_as_number AS sbp_mmhg
-    FROM {cdmSchema}.measurement
+    FROM {@cdmSchema}.measurement
     WHERE measurement_concept_id = 3004249
       AND value_as_number IS NOT NULL
       AND value_as_number > 0
@@ -108,7 +108,7 @@ latest_cr AS (
     SELECT DISTINCT ON (person_id)
         person_id,
         value_as_number AS cr_mgdl
-    FROM {cdmSchema}.measurement
+    FROM {@cdmSchema}.measurement
     WHERE measurement_concept_id = 3016723
       AND value_as_number IS NOT NULL
       AND value_as_number >= 0
@@ -118,14 +118,14 @@ latest_cr AS (
 -- Cardiac arrest on admission (concept 4275477)
 cardiac_arrest_flag AS (
     SELECT DISTINCT person_id, 1 AS had_arrest
-    FROM {cdmSchema}.condition_occurrence
+    FROM {@cdmSchema}.condition_occurrence
     WHERE condition_concept_id IN (4275477, 321042)
 ),
 
 -- ST segment depression (concept 4229881, 4045932)
 st_depression_flag AS (
     SELECT DISTINCT person_id, 1 AS has_std
-    FROM {cdmSchema}.condition_occurrence
+    FROM {@cdmSchema}.condition_occurrence
     WHERE condition_concept_id IN (4229881, 4045932, 4228901)
 ),
 
@@ -134,7 +134,7 @@ latest_troponin AS (
     SELECT DISTINCT ON (person_id)
         person_id,
         value_as_number AS troponin_value
-    FROM {cdmSchema}.measurement
+    FROM {@cdmSchema}.measurement
     WHERE measurement_concept_id IN (3016335, 3028437)
       AND value_as_number IS NOT NULL
     ORDER BY person_id, measurement_date DESC
