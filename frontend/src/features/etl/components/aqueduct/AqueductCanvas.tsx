@@ -16,7 +16,6 @@ import {
   type Viewport,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { Maximize2, Minimize2 } from "lucide-react";
 
 import { SourceTableNode } from "./SourceTableNode";
 import { CdmTableNode } from "./CdmTableNode";
@@ -33,7 +32,6 @@ import { computeLayout, type LayoutNode, type LayoutEdge } from "../../lib/aqued
 import { useCreateTableMapping, useSuggestMappings } from "../../hooks/useAqueductData";
 import type { EtlProject, EtlTableMapping, PersistedFieldProfile } from "../../api";
 import { downloadExport } from "../../api";
-import { cn } from "@/lib/utils";
 
 // ---------------------------------------------------------------------------
 // Persistent viewport & filter (localStorage, per-project)
@@ -520,11 +518,6 @@ function AqueductCanvasInner({
   }, [sourceTables, tableMappings, connectedSources, connectedCdm, filter]);
 
   // -- React Flow state -------------------------------------------------------
-  // Use a key derived from data to force remount when source data changes
-  const flowKey = useMemo(
-    () => `${sourceTables.length}-${tableMappings.length}-${filter}`,
-    [sourceTables.length, tableMappings.length, filter],
-  );
   const [nodes, , onNodesChange] = useNodesState(initialNodes);
   const [edges, , onEdgesChange] = useEdgesState(initialEdges);
 

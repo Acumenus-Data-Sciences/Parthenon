@@ -18,7 +18,7 @@ import type {
   NarrativeState,
   DiagramType,
 } from "../types/publish";
-import { TEMPLATES, TEMPLATE_LIST } from "../templates/index";
+import { TEMPLATES } from "../templates/index";
 import type { TemplateSectionDef } from "../templates/index";
 
 // ── Step labels ─────────────────────────────────────────────────────────────

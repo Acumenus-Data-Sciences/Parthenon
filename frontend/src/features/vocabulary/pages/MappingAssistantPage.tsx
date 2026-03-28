@@ -221,10 +221,9 @@ interface DisambiguationDrawerProps {
   result: MappingResult | null;
   onClose: () => void;
   onSelectCandidate: (sourceTerm: string, candidate: MappingCandidate) => void;
-  onRemap: (sourceTerm: string, cleanedTerm: string) => void;
 }
 
-function DisambiguationDrawer({ result, onClose, onSelectCandidate, onRemap }: DisambiguationDrawerProps) {
+function DisambiguationDrawer({ result, onClose, onSelectCandidate }: DisambiguationDrawerProps) {
   const [cleanRawText, setCleanRawText] = useState("");
   const [remapPending, setRemapPending] = useState(false);
   const cleanMutation = useMutation({
@@ -863,11 +862,6 @@ export default function MappingAssistantPage() {
         onSelectCandidate={(term, candidate) => {
           handleOverrideCandidate(term, candidate);
           handleDecide(term, "accepted");
-        }}
-        onRemap={(sourceTerm, cleanedTerm) => {
-          // The drawer handles re-mapping internally via its own mutation
-          void sourceTerm;
-          void cleanedTerm;
         }}
       />
 
