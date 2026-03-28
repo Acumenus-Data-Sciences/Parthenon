@@ -4,26 +4,14 @@ import {
   Loader2,
   X,
   ChevronDown,
-  ChevronRight,
   RefreshCw,
   Sparkles,
   PlusCircle,
-  BookOpen,
-  Network,
-  Lightbulb,
-  GitBranch,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 import { AddToConceptSetModal } from "./AddToConceptSetModal";
-import {
-  semanticSearch,
-  autocomplete,
-  getConceptRelationships,
-  getConceptPhoebe,
-  getConceptDefinition,
-  getConceptExpand,
-} from "../api/hecateApi";
+import { semanticSearch } from "../api/hecateApi";
 import type {
   HecateSemanticSearchResult,
   HecateAutocompleteResult,
@@ -137,277 +125,6 @@ function StandardBadge({ value }: { value: string | null }) {
 }
 
 // ---------------------------------------------------------------------------
-// Sub-component: Expanded concept detail
-// ---------------------------------------------------------------------------
-
-interface ConceptDetailExpandedProps {
-  conceptId: number;
-  onSelectConcept?: (id: number) => void;
-  onAddToSet: (id: number, name: string) => void;
-  conceptName: string;
-}
-
-function ConceptDetailExpanded({
-  conceptId,
-  onSelectConcept,
-  onAddToSet,
-  conceptName,
-}: ConceptDetailExpandedProps) {
-  const [activeTab, setActiveTab] = useState<
-    "definition" | "relationships" | "phoebe" | "expand"
-  >("definition");
-
-  const definitionQuery = useQuery({
-    queryKey: ["hecate", "definition", conceptId],
-    queryFn: () => getConceptDefinition(conceptId),
-    staleTime: 5 * 60_000,
-  });
-
-  const relationshipsQuery = useQuery({
-    queryKey: ["hecate", "relationships", conceptId],
-    queryFn: () => getConceptRelationships(conceptId),
-    enabled: activeTab === "relationships",
-    staleTime: 5 * 60_000,
-  });
-
-  const phoebeQuery = useQuery({
-    queryKey: ["hecate", "phoebe", conceptId],
-    queryFn: () => getConceptPhoebe(conceptId),
-    enabled: activeTab === "phoebe",
-    staleTime: 5 * 60_000,
-  });
-
-  const expandQuery = useQuery({
-    queryKey: ["hecate", "expand", conceptId],
-    queryFn: () => getConceptExpand(conceptId),
-    enabled: activeTab === "expand",
-    staleTime: 5 * 60_000,
-  });
-
-  const tabs = [
-    {
-      id: "definition" as const,
-      label: "Definition",
-      icon: <BookOpen size={11} />,
-    },
-    {
-      id: "relationships" as const,
-      label: "Relations",
-      icon: <Network size={11} />,
-    },
-    {
-      id: "phoebe" as const,
-      label: "Phoebe",
-      icon: <Lightbulb size={11} />,
-    },
-    {
-      id: "expand" as const,
-      label: "Hierarchy",
-      icon: <GitBranch size={11} />,
-    },
-  ];
-
-  return (
-    <div className="mt-2 rounded-lg border border-[#2DD4BF]/20 bg-[#0E0E11] overflow-hidden">
-      {/* Tab bar */}
-      <div className="flex border-b border-[#232328]">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            type="button"
-            onClick={() => setActiveTab(tab.id)}
-            className={cn(
-              "flex items-center gap-1 px-3 py-2 text-[10px] font-medium transition-colors",
-              activeTab === tab.id
-                ? "border-b-2 border-[#2DD4BF] text-[#2DD4BF] bg-[#2DD4BF]/5"
-                : "text-[#8A857D] hover:text-[#C5C0B8]",
-            )}
-          >
-            {tab.icon}
-            {tab.label}
-          </button>
-        ))}
-        <div className="ml-auto flex items-center pr-2">
-          <button
-            type="button"
-            onClick={() => onAddToSet(conceptId, conceptName)}
-            className="inline-flex items-center gap-1 rounded px-2 py-1 text-[10px] text-[#9B1B30] hover:text-[#C5384C] hover:bg-[#9B1B30]/10 transition-colors"
-          >
-            <PlusCircle size={11} />
-            Add to Set
-          </button>
-          {onSelectConcept && (
-            <button
-              type="button"
-              onClick={() => onSelectConcept(conceptId)}
-              className="inline-flex items-center gap-1 rounded px-2 py-1 text-[10px] text-[#8A857D] hover:text-[#C5C0B8] hover:bg-[#1C1C20] transition-colors"
-            >
-              View Detail
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* Tab content */}
-      <div className="p-3 min-h-[80px]">
-        {/* Definition */}
-        {activeTab === "definition" && (
-          <>
-            {definitionQuery.isLoading ? (
-              <div className="flex items-center gap-2 text-[#8A857D] text-xs">
-                <Loader2 size={12} className="animate-spin" />
-                Loading definition...
-              </div>
-            ) : definitionQuery.isError ? (
-              <p className="text-xs text-[#E85A6B]">
-                Could not load definition.
-              </p>
-            ) : definitionQuery.data?.definition ? (
-              <p className="text-xs text-[#C5C0B8] leading-relaxed">
-                {definitionQuery.data.definition}
-              </p>
-            ) : (
-              <p className="text-xs text-[#5A5650] italic">
-                No definition available for this concept.
-              </p>
-            )}
-          </>
-        )}
-
-        {/* Relationships */}
-        {activeTab === "relationships" && (
-          <>
-            {relationshipsQuery.isLoading ? (
-              <div className="flex items-center gap-2 text-[#8A857D] text-xs">
-                <Loader2 size={12} className="animate-spin" />
-                Loading relationships...
-              </div>
-            ) : relationshipsQuery.isError ? (
-              <p className="text-xs text-[#E85A6B]">
-                Could not load relationships.
-              </p>
-            ) : !relationshipsQuery.data?.length ? (
-              <p className="text-xs text-[#5A5650] italic">
-                No relationships found.
-              </p>
-            ) : (
-              <div className="space-y-1 max-h-48 overflow-y-auto pr-1">
-                {relationshipsQuery.data.slice(0, 20).map((rel, idx) => (
-                  <div
-                    key={`${rel.relationship_id}-${rel.concept_id}-${idx}`}
-                    className="flex items-start gap-2"
-                  >
-                    <span className="shrink-0 rounded px-1.5 py-0.5 text-[9px] bg-[#232328] text-[#8A857D] font-mono mt-0.5">
-                      {rel.relationship_id}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => onSelectConcept?.(rel.concept_id)}
-                      className="text-[11px] text-[#C5C0B8] hover:text-[#2DD4BF] transition-colors text-left leading-snug"
-                    >
-                      {rel.concept_name}
-                      <span className="ml-1 font-mono text-[9px] text-[#5A5650]">
-                        [{rel.vocabulary_id}]
-                      </span>
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </>
-        )}
-
-        {/* Phoebe recommendations */}
-        {activeTab === "phoebe" && (
-          <>
-            {phoebeQuery.isLoading ? (
-              <div className="flex items-center gap-2 text-[#8A857D] text-xs">
-                <Loader2 size={12} className="animate-spin" />
-                Loading recommendations...
-              </div>
-            ) : phoebeQuery.isError ? (
-              <p className="text-xs text-[#E85A6B]">
-                Could not load Phoebe recommendations.
-              </p>
-            ) : !phoebeQuery.data?.length ? (
-              <p className="text-xs text-[#5A5650] italic">
-                No Phoebe recommendations available.
-              </p>
-            ) : (
-              <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
-                {phoebeQuery.data.slice(0, 15).map((rec, idx) => (
-                  <div
-                    key={`${rec.concept_id}-${idx}`}
-                    className="flex items-center gap-2"
-                  >
-                    <ScoreBadge score={rec.score} />
-                    <button
-                      type="button"
-                      onClick={() => onSelectConcept?.(rec.concept_id)}
-                      className="text-[11px] text-[#C5C0B8] hover:text-[#2DD4BF] transition-colors text-left"
-                    >
-                      {rec.concept_name}
-                    </button>
-                    <span className="ml-auto font-mono text-[9px] text-[#5A5650] shrink-0">
-                      {rec.concept_id}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </>
-        )}
-
-        {/* Expand hierarchy */}
-        {activeTab === "expand" && (
-          <>
-            {expandQuery.isLoading ? (
-              <div className="flex items-center gap-2 text-[#8A857D] text-xs">
-                <Loader2 size={12} className="animate-spin" />
-                Expanding hierarchy...
-              </div>
-            ) : expandQuery.isError ? (
-              <p className="text-xs text-[#E85A6B]">
-                Could not expand hierarchy.
-              </p>
-            ) : !expandQuery.data?.length ? (
-              <p className="text-xs text-[#5A5650] italic">
-                No hierarchy nodes found.
-              </p>
-            ) : (
-              <div className="space-y-0.5 max-h-48 overflow-y-auto pr-1">
-                {expandQuery.data.slice(0, 30).map((node, idx) => (
-                  <div
-                    key={`${node.concept_id}-${idx}`}
-                    className="flex items-center gap-1"
-                    style={{ paddingLeft: `${(node.level ?? 0) * 14}px` }}
-                  >
-                    <ChevronRight
-                      size={9}
-                      className="shrink-0 text-[#5A5650]"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => onSelectConcept?.(node.concept_id)}
-                      className="text-[11px] text-[#C5C0B8] hover:text-[#2DD4BF] transition-colors text-left truncate"
-                    >
-                      {node.concept_name}
-                    </button>
-                    <span className="ml-auto font-mono text-[9px] text-[#5A5650] shrink-0">
-                      {node.vocabulary_id}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
 // Sub-component: Single result row
 // ---------------------------------------------------------------------------
 
@@ -424,34 +141,40 @@ function ResultRow({
   onSelectConcept,
   onAddToSet,
 }: ResultRowProps) {
-  const [expanded, setExpanded] = useState(false);
-
   return (
     <div
+      role="button"
+      tabIndex={0}
+      onClick={() => onSelectConcept?.(result.concept_id)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") onSelectConcept?.(result.concept_id);
+      }}
       className={cn(
-        "border-b border-[#232328] transition-colors",
-        isSelected ? "bg-[#2DD4BF]/5" : "hover:bg-[#1C1C20]",
+        "border-b border-[#232328] transition-colors cursor-pointer",
+        isSelected
+          ? "bg-[#2DD4BF]/10 border-l-2 border-l-[#2DD4BF]"
+          : "hover:bg-[#1C1C20]",
       )}
     >
-      <button
-        type="button"
-        onClick={() => setExpanded((prev) => !prev)}
-        className="flex flex-col gap-1.5 w-full px-4 py-3 text-left"
-      >
-        {/* Top row: score + id + standard badge */}
+      <div className="flex flex-col gap-1.5 w-full px-4 py-3 text-left">
+        {/* Top row: score + id + standard badge + add-to-set */}
         <div className="flex items-center gap-2">
           <ScoreBadge score={result.score} />
           <span className="font-mono text-xs tabular-nums text-[#C9A227]">
             {result.concept_id}
           </span>
           <StandardBadge value={result.standard_concept} />
-          <ChevronRight
-            size={11}
-            className={cn(
-              "ml-auto shrink-0 text-[#5A5650] transition-transform",
-              expanded && "rotate-90",
-            )}
-          />
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onAddToSet(result.concept_id, result.concept_name);
+            }}
+            className="ml-auto inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[9px] text-[#9B1B30] hover:text-[#C5384C] hover:bg-[#9B1B30]/10 transition-colors"
+          >
+            <PlusCircle size={10} />
+            Add to Set
+          </button>
         </div>
 
         {/* Concept name */}
@@ -469,19 +192,7 @@ function ResultRow({
             </span>
           )}
         </div>
-      </button>
-
-      {/* Expanded detail */}
-      {expanded && (
-        <div className="px-4 pb-3">
-          <ConceptDetailExpanded
-            conceptId={result.concept_id}
-            conceptName={result.concept_name}
-            onSelectConcept={onSelectConcept}
-            onAddToSet={onAddToSet}
-          />
-        </div>
-      )}
+      </div>
     </div>
   );
 }
@@ -498,6 +209,7 @@ export function SemanticSearchPanel({
   onSelectConcept,
 }: SemanticSearchPanelProps) {
   const [query, setQuery] = useState("");
+  const [selectedId, setSelectedId] = useState<number | null>(null);
   const [domainFilter, setDomainFilter] = useState("");
   const [vocabFilter, setVocabFilter] = useState("");
   const [standardFilter, setStandardFilter] =
@@ -522,12 +234,9 @@ export function SemanticSearchPanel({
   // Autocomplete query
   // ---------------------------------------------------------------------------
 
-  const { data: suggestions } = useQuery<HecateAutocompleteResult[]>({
-    queryKey: ["hecate", "autocomplete", debouncedAutocompleteQuery],
-    queryFn: () => autocomplete(debouncedAutocompleteQuery),
-    enabled: debouncedAutocompleteQuery.length >= 2,
-    staleTime: 60_000,
-  });
+  // Autocomplete disabled — Hecate binary does not expose /api/autocomplete
+  const suggestions: HecateAutocompleteResult[] | undefined = undefined;
+  void debouncedAutocompleteQuery;
 
   // ---------------------------------------------------------------------------
   // Semantic search query
@@ -900,8 +609,11 @@ export function SemanticSearchPanel({
                 <ResultRow
                   key={result.concept_id}
                   result={result}
-                  isSelected={false}
-                  onSelectConcept={onSelectConcept}
+                  isSelected={selectedId === result.concept_id}
+                  onSelectConcept={(id) => {
+                    setSelectedId(id);
+                    onSelectConcept?.(id);
+                  }}
                   onAddToSet={handleAddToSet}
                 />
               ))}
