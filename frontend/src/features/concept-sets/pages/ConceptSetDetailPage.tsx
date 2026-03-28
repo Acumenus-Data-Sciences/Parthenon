@@ -411,6 +411,19 @@ export default function ConceptSetDetailPage() {
                       },
                     })
                   }
+                  onAddAll={(cids) => {
+                    for (const cid of cids) {
+                      addPhoebeItem.mutate({
+                        setId: conceptSetId!,
+                        payload: {
+                          concept_id: cid,
+                          is_excluded: false,
+                          include_descendants: true,
+                          include_mapped: false,
+                        },
+                      });
+                    }
+                  }}
                   isAddingConcept={addPhoebeItem.isPending}
                   defaultExpanded={true}
                 />

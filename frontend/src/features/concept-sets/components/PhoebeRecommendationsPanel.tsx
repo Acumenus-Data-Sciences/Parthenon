@@ -9,6 +9,7 @@ interface PhoebeRecommendationsPanelProps {
   isError: boolean;
   existingConceptIds: Set<number>;
   onAddConcept: (conceptId: number) => void;
+  onAddAll?: (conceptIds: number[]) => void;
   isAddingConcept?: boolean;
   defaultExpanded?: boolean;
 }
@@ -19,10 +20,15 @@ export function PhoebeRecommendationsPanel({
   isError,
   existingConceptIds,
   onAddConcept,
+  onAddAll,
   isAddingConcept,
   defaultExpanded = false,
 }: PhoebeRecommendationsPanelProps) {
   const [expanded, setExpanded] = useState(defaultExpanded);
+
+  const notYetAdded = recommendations.filter(
+    (rec) => !existingConceptIds.has(rec.concept_id),
+  );
 
   return (
     <div className="rounded-lg border border-[#232328] bg-[#1A1A1E]">
@@ -49,6 +55,25 @@ export function PhoebeRecommendationsPanel({
           </span>
         )}
       </button>
+
+      {/* Add All button — shown in header when expanded and there are unadded recommendations */}
+      {expanded && onAddAll && notYetAdded.length > 1 && (
+        <div className="flex justify-end border-b border-[#232328] bg-[#0E0E11] px-3 py-1.5">
+          <button
+            type="button"
+            onClick={() => onAddAll(notYetAdded.map((r) => r.concept_id))}
+            disabled={isAddingConcept}
+            className={cn(
+              "inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-xs font-medium transition-colors",
+              "text-[#C9A227] hover:bg-[#C9A227]/10",
+              "disabled:opacity-50 disabled:cursor-not-allowed",
+            )}
+          >
+            <Plus size={12} />
+            Add All ({notYetAdded.length})
+          </button>
+        </div>
+      )}
 
       {/* Expanded content */}
       {expanded && (

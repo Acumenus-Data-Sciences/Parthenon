@@ -11,7 +11,6 @@ import {
 } from "lucide-react";
 import { ConceptSetItemRow } from "./ConceptSetItemRow";
 import { ConceptSetItemDetailExpander } from "./ConceptSetItemDetailExpander";
-import { PhoebeRecommendationsPanel } from "./PhoebeRecommendationsPanel";
 import {
   useResolveConceptSet,
   useAddConceptSetItem,
@@ -19,7 +18,6 @@ import {
   useRemoveConceptSetItem,
   useBulkUpdateConceptSetItems,
 } from "../hooks/useConceptSets";
-import { usePhoebeRecommendations } from "../hooks/usePhoebeRecommendations";
 import type { ConceptSet } from "../types/conceptSet";
 
 interface ConceptSetEditorProps {
@@ -31,16 +29,7 @@ export function ConceptSetEditor({ conceptSet }: ConceptSetEditorProps) {
   const [selectedItemIds, setSelectedItemIds] = useState<Set<number>>(
     new Set(),
   );
-  const [selectedConceptId, setSelectedConceptId] = useState<number | null>(
-    null,
-  );
   const [expandedItemId, setExpandedItemId] = useState<number | null>(null);
-
-  const {
-    data: phoebeData,
-    isLoading: isPhoebeLoading,
-    isError: isPhoebeError,
-  } = usePhoebeRecommendations(selectedConceptId);
 
   const {
     data: resolveResult,
@@ -113,18 +102,6 @@ export function ConceptSetEditor({ conceptSet }: ConceptSetEditorProps) {
 
   const handleRemoveItem = (itemId: number) => {
     removeItemMutation.mutate({ setId: conceptSet.id, itemId });
-  };
-
-  const handleAddConcept = (conceptId: number) => {
-    addItemMutation.mutate({
-      setId: conceptSet.id,
-      payload: {
-        concept_id: conceptId,
-        is_excluded: false,
-        include_descendants: true,
-        include_mapped: false,
-      },
-    });
   };
 
   const handleResolve = () => {
@@ -302,10 +279,9 @@ export function ConceptSetEditor({ conceptSet }: ConceptSetEditorProps) {
                       item={item}
                       index={i}
                       isSelected={selectedItemIds.has(item.id)}
-                      isHighlighted={selectedConceptId === item.concept_id}
+                      isHighlighted={expandedItemId === item.id}
                       onSelectionChange={toggleSelectItem}
                       onRowClick={() => {
-                        setSelectedConceptId(item.concept_id);
                         setExpandedItemId(
                           expandedItemId === item.id ? null : item.id,
                         );
@@ -345,17 +321,6 @@ export function ConceptSetEditor({ conceptSet }: ConceptSetEditorProps) {
         </div>
       )}
 
-      {/* Phoebe Recommendations for selected concept */}
-      {selectedConceptId && (
-        <PhoebeRecommendationsPanel
-          recommendations={phoebeData ?? []}
-          isLoading={isPhoebeLoading}
-          isError={isPhoebeError}
-          existingConceptIds={new Set(items.map((i) => i.concept_id))}
-          onAddConcept={handleAddConcept}
-          isAddingConcept={addItemMutation.isPending}
-        />
-      )}
     </div>
   );
 }
