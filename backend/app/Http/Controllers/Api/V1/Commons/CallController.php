@@ -6,12 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Models\Commons\Call;
 use App\Models\Commons\Channel;
 use App\Services\Commons\CallService;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use RuntimeException;
 
 class CallController extends Controller
 {
+    use AuthorizesRequests;
+
     public function show(string $slug, CallService $callService): JsonResponse
     {
         $channel = Channel::where('slug', $slug)->firstOrFail();
