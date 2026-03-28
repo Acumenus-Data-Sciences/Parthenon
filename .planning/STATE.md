@@ -169,9 +169,10 @@ None yet.
 | 6 | Build Strategus JSON spec builder UI with per-module config and JSON editor | 2026-03-27 | fed378b5e | [6-build-strategus-json-spec-builder-ui-for](./quick/6-build-strategus-json-spec-builder-ui-for/) |
 | 7 | Replace Scramble with Scribe for static API documentation | 2026-03-27 | 63c0cd4e7 | [7-replace-scramble-with-scribe-for-api-ref](./quick/7-replace-scramble-with-scribe-for-api-ref/) |
 | 8 | Integrate Scribe OpenAPI spec into Docusaurus site | 2026-03-27 | 713358ee9 | [8-integrate-scribe-openapi-spec-into-docus](./quick/8-integrate-scribe-openapi-spec-into-docus/) |
+| 9 | Fix semantic search right panel empty and selection highlighting | 2026-03-28 | 04d7bf81f | [9-fix-semantic-search-ui-right-panel-empty](./quick/9-fix-semantic-search-ui-right-panel-empty/) |
 
 ## Session Continuity
 
-Last session: 2026-03-27T21:39:00.000Z
-Stopped at: Completed quick-8 (Integrate Scribe OpenAPI spec into Docusaurus)
+Last session: 2026-03-28T08:46:48Z
+Stopped at: Completed quick-9 (Fix semantic search UI right panel empty)
 Resume file: None

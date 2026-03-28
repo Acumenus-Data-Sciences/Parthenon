@@ -67,11 +67,25 @@ export interface StandardSearchParams {
 
 const BASE = "/vocabulary/semantic";
 
+interface HecateGroupedResult {
+  concept_name: string;
+  score: number;
+  concepts: Omit<HecateSemanticSearchResult, "score">[];
+}
+
 export async function semanticSearch(
   params: SemanticSearchParams,
 ): Promise<HecateSemanticSearchResult[]> {
   const { data } = await apiClient.get(`${BASE}/search`, { params });
-  return data.data ?? data ?? [];
+  const raw: HecateGroupedResult[] = data.data ?? data ?? [];
+
+  // Hecate returns results grouped by concept_name with a nested concepts array.
+  // Flatten into individual concept results, carrying the group-level score.
+  return raw.flatMap((group) =>
+    group.concepts
+      ? group.concepts.map((c) => ({ ...c, score: group.score }))
+      : [group as unknown as HecateSemanticSearchResult],
+  );
 }
 
 export async function semanticSearchStandard(

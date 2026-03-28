@@ -1306,10 +1306,10 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'source.resolve'])->group(funct
     Route::prefix('vocabulary/semantic')->group(function () {
         Route::get('/search', [HecateController::class, 'search']);
         Route::get('/search/standard', [HecateController::class, 'searchStandard']);
-        Route::get('/concepts/{id}/relationships', [HecateController::class, 'conceptRelationships']);
-        Route::get('/concepts/{id}/phoebe', [HecateController::class, 'conceptPhoebe']);
-        Route::get('/concepts/{id}/definition', [HecateController::class, 'conceptDefinition']);
-        Route::get('/concepts/{id}/expand', [HecateController::class, 'conceptExpand']);
+        Route::get('/concepts/{id}/relationships', [HecateController::class, 'conceptRelationships'])->whereNumber('id');
+        Route::get('/concepts/{id}/phoebe', [HecateController::class, 'conceptPhoebe'])->whereNumber('id');
+        Route::get('/concepts/{id}/definition', [HecateController::class, 'conceptDefinition'])->whereNumber('id');
+        Route::get('/concepts/{id}/expand', [HecateController::class, 'conceptExpand'])->whereNumber('id');
         Route::get('/autocomplete', [HecateController::class, 'autocomplete']);
     });
 });
