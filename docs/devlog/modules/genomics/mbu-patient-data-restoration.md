@@ -74,3 +74,67 @@ php artisan imaging:import-samples --dir=docs/MBU/DICOM --source=47 --person-id=
 1. `php artisan mbu:seed-genomics` — restores Foundation Medicine variants
 2. Mount `docs/MBU` into PHP container, run `imaging:import-samples` — restores DICOM studies
 3. Verify in Patient Profile: Precision Medicine tab shows 4 variants, Imaging tab shows 15 studies
+
+---
+
+## Update: 2026-03-28 — Orthanc RAID0 Migration & SourceContext Fix
+
+### Context
+
+After migrating Orthanc storage from the external USB spinning drive to the internal NVMe RAID0 array (`/mnt/md0/orthanc-data-pg`), the imaging studies lost their `orthanc_study_id` links due to reindexing. Additionally, a deeper bug was discovered: the patient profile's Imaging and Precision Medicine tabs returned 500 errors because `SourceContext` didn't include the vocabulary schema in CDM/results connection search paths.
+
+### What Was Done
+
+#### 1. DICOM Re-upload to Orthanc
+
+Uploaded all 10,026 files from `/home/smudoshi/Documents/DICOM/` (the canonical source of Dad's DICOMs) to Orthanc via REST API:
+- **2,700 new instances** imported (previously missing from the RAID0 migration)
+- **2,313 duplicates** (already in Orthanc) — correctly deduplicated
+- **5,013 macOS `._` resource fork files** skipped (HTTP 400, harmless)
+
+The 2 PET/CT studies from 2013-05-15 (`WB PETCT LUNG/COLON`) that were missing after the RAID0 migration were recovered.
+
+#### 2. Orthanc Study ID Re-linking
+
+All 15 `imaging_studies` records updated with current Orthanc UUIDs and accurate series/instance counts:
+
+| Studies | Series | Instances | Modalities |
+|---------|--------|-----------|------------|
+| 15 | 110 | 5,013 | CT, PT, CR, MR, CT/PT |
+
+#### 3. SourceContext Bug Fix (Critical)
+
+**File:** `backend/app/Context/SourceContext.php`
+
+**Problem:** `ctx_cdm` and `ctx_results` database connections only included their own schema in the PostgreSQL `search_path`. Any query joining CDM/results tables with vocabulary tables (e.g., `person` JOIN `concept`) failed with `relation "concept" does not exist` because `concept` lives in the `vocab` schema, not `omop`.
+
+This affected **all** patient profiles and any CDM query with concept joins — not just Dad's record.
+
+**Fix:** Added the vocabulary schema as an extra search path entry for CDM and results connections:
+
+```php
+// Before: search_path = "omop",public
+$this->registerConnection('ctx_cdm', $baseConfig, $this->cdmSchema);
+
+// After: search_path = "omop","vocab",public
+$this->registerConnection('ctx_cdm', $baseConfig, $this->cdmSchema, $this->vocabSchema);
+```
+
+Applied to both `registerLocalConnections()` (local sources) and `registerDynamicConnections()` (remote sources).
+
+### Verification
+
+All three patient profile API endpoints confirmed working:
+- `GET /api/v1/sources/47/profiles/1005788` — demographics, conditions, drugs, procedures, visits
+- `GET /api/v1/imaging/patients/1005788/timeline` — 15 studies, 5 drug exposures
+- `GET /api/v1/radiogenomics/patients/1005788` — 7 variants (4 Foundation Medicine + 3 derived), 15 imaging studies
+
+### Files Changed
+
+| File | Change |
+|------|--------|
+| `backend/app/Context/SourceContext.php` | Include vocab schema in CDM/results connection search paths |
+
+### Canonical DICOM Source
+
+Dad's DICOMs live at `/home/smudoshi/Documents/DICOM/` (10,026 files, flat numbered directory). This is the authoritative source for re-upload if Orthanc is ever rebuilt.

@@ -95,8 +95,9 @@ class SourceContext
     {
         $baseConfig = $this->buildDynamicConfig($source);
 
-        $this->registerConnection('ctx_cdm', $baseConfig, $this->cdmSchema);
-        $this->registerConnection('ctx_results', $baseConfig, $this->resultsSchema);
+        // CDM and results connections also need the vocab schema for concept joins
+        $this->registerConnection('ctx_cdm', $baseConfig, $this->cdmSchema, $this->vocabSchema);
+        $this->registerConnection('ctx_results', $baseConfig, $this->resultsSchema, $this->vocabSchema);
         $this->registerConnection('ctx_vocab', $baseConfig, $this->vocabSchema);
     }
 
@@ -105,22 +106,29 @@ class SourceContext
         $connName = $source->source_connection ?? 'omop';
         $baseConfig = config("database.connections.{$connName}", []);
 
-        $this->registerConnection('ctx_cdm', $baseConfig, $this->cdmSchema);
-        $this->registerConnection('ctx_results', $baseConfig, $this->resultsSchema);
+        // CDM and results connections also need the vocab schema for concept joins
+        $this->registerConnection('ctx_cdm', $baseConfig, $this->cdmSchema, $this->vocabSchema);
+        $this->registerConnection('ctx_results', $baseConfig, $this->resultsSchema, $this->vocabSchema);
         $this->registerConnection('ctx_vocab', $baseConfig, $this->vocabSchema);
     }
 
     /**
      * @param  array<string, mixed>  $baseConfig
      */
-    private function registerConnection(string $name, array $baseConfig, ?string $schema): void
+    private function registerConnection(string $name, array $baseConfig, ?string $schema, ?string $extraSchema = null): void
     {
         if ($schema === null) {
             return;
         }
 
+        $searchPath = "\"{$schema}\"";
+        if ($extraSchema !== null && $extraSchema !== $schema) {
+            $searchPath .= ",\"{$extraSchema}\"";
+        }
+        $searchPath .= ',public';
+
         $config = array_merge($baseConfig, [
-            'search_path' => "\"{$schema}\",public",
+            'search_path' => $searchPath,
         ]);
 
         config(["database.connections.{$name}" => $config]);
