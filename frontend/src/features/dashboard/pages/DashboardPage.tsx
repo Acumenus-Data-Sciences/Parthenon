@@ -108,49 +108,41 @@ export function DashboardPage() {
 
       {/* Metric row */}
       {isLoading ? (
-        <div className="grid-metrics" style={{ marginBottom: "var(--space-6)" }}>
-          {Array.from({ length: 5 }).map((_, i) => (
+        <div className="grid grid-cols-4 gap-4" style={{ marginBottom: "var(--space-6)" }}>
+          {Array.from({ length: 4 }).map((_, i) => (
             <Skeleton key={i} variant="card" height="120px" />
           ))}
         </div>
       ) : (
-        <div className="grid-metrics" style={{ marginBottom: "var(--space-6)" }}>
+        <div className="grid grid-cols-4 gap-4" style={{ marginBottom: "var(--space-6)" }}>
           <MetricCard
             label="CDM Sources"
             value={stats?.sources.length ?? 0}
-            description="Connected databases"
+            description={`${stats?.sources.filter(s => s.source_dialect === "postgresql").length ?? 0} PostgreSQL · ${personCount > 0 ? formatCompact(personCount) + " persons" : "No CDM loaded"}`}
             icon={<Database size={18} />}
             to="/data-sources"
           />
           <MetricCard
-            label="Active Cohorts"
-            value={stats?.cohortCount ?? 0}
-            description="Defined cohorts"
-            icon={<Users size={18} />}
-            to="/cohort-definitions"
-          />
-          <MetricCard
             label="Running Jobs"
             value={stats?.activeJobCount ?? 0}
-            description="Queued or executing"
+            description={`${stats?.recentJobs.filter(j => j.status === "completed").length ?? 0} completed recently · ${stats?.recentJobs.filter(j => j.status === "failed").length ?? 0} failed`}
             icon={<Briefcase size={18} />}
             variant={stats?.activeJobCount ? "info" : "default"}
             to="/jobs"
           />
           <MetricCard
-            label="DQD Failures"
-            value={stats?.dqdFailures ?? 0}
-            description="Quality check failures"
-            icon={<AlertTriangle size={18} />}
-            variant={stats?.dqdFailures ? "critical" : "success"}
-            to="/data-explorer"
-          />
-          <MetricCard
             label="Concept Sets"
             value={stats?.conceptSetCount ?? 0}
-            description="Saved concept sets"
+            description={`${tablesWithData}/${totalTables} CDM tables populated · ${completeness}% complete`}
             icon={<FlaskConical size={18} />}
             to="/concept-sets"
+          />
+          <MetricCard
+            label="Active Cohorts"
+            value={stats?.cohortCount ?? 0}
+            description={`${stats?.recentCohorts.filter(c => c.person_count != null && c.person_count > 0).length ?? 0} generated · ${stats?.conceptSetCount ?? 0} concept sets`}
+            icon={<Users size={18} />}
+            to="/cohort-definitions"
           />
         </div>
       )}

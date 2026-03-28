@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Achilles;
 
+use App\Context\SourceContext;
 use App\Events\AchillesRunCompleted;
 use App\Models\App\Source;
 use App\Models\Results\AchillesRun;
@@ -80,6 +81,9 @@ class RunAchillesJob implements ShouldBeUnique, ShouldQueue
 
             return;
         }
+
+        // Register source context so SourceAware trait can resolve connections
+        SourceContext::forSource($this->source);
 
         $isRetry = $this->attempts() > 1;
 

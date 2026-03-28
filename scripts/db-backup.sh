@@ -10,6 +10,7 @@
 #   vocab        — Shared OHDSI vocabulary (standard + IRSF-NHS custom)
 #   results      — Achilles results (future sources)
 #   omop         — OMOP CDM (future Acumenus re-ETL)
+#   public       — Orthanc DICOM index (resources, attachedfiles, maindicomtags)
 #
 # Usage:
 #   ./scripts/db-backup.sh           # manual run
@@ -50,7 +51,7 @@ mkdir -p "$BACKUP_DIR"
 
 echo "==> Parthenon DB Backup"
 echo "    Host:    $PG_HOST:$PG_PORT / $PG_DB"
-echo "    Schemas: app, irsf, irsf_results, vocab, results, omop"
+echo "    Schemas: app, irsf, irsf_results, vocab, results, omop, public (Orthanc)"
 echo "    Target:  $BACKUP_DIR/$BACKUP_FILE"
 
 # Dump critical schemas: app state + analysis results
@@ -65,6 +66,7 @@ if PGPASSWORD="$PG_PASSWORD" pg_dump \
   --schema=vocab \
   --schema=results \
   --schema=omop \
+  --schema=public \
   --clean \
   --if-exists \
   --no-owner \
