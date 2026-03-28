@@ -1,9 +1,7 @@
-import { useState } from "react";
+import { useState, Fragment } from "react";
 import {
   Loader2,
-  Plus,
   Search,
-  X,
   CheckCircle2,
   Hash,
   GitBranch,
@@ -11,8 +9,8 @@ import {
   Ban,
   Check,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { ConceptSetItemRow } from "./ConceptSetItemRow";
+import { ConceptSetItemDetailExpander } from "./ConceptSetItemDetailExpander";
 import { PhoebeRecommendationsPanel } from "./PhoebeRecommendationsPanel";
 import {
   useResolveConceptSet,
@@ -23,22 +21,20 @@ import {
 } from "../hooks/useConceptSets";
 import { usePhoebeRecommendations } from "../hooks/usePhoebeRecommendations";
 import type { ConceptSet } from "../types/conceptSet";
-import { useVocabularySearch } from "@/features/vocabulary/hooks/useVocabularySearch";
 
 interface ConceptSetEditorProps {
   conceptSet: ConceptSet;
 }
 
 export function ConceptSetEditor({ conceptSet }: ConceptSetEditorProps) {
-  const [showAddPanel, setShowAddPanel] = useState(false);
   const [showResolve, setShowResolve] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
   const [selectedItemIds, setSelectedItemIds] = useState<Set<number>>(
     new Set(),
   );
   const [selectedConceptId, setSelectedConceptId] = useState<number | null>(
     null,
   );
+  const [expandedItemId, setExpandedItemId] = useState<number | null>(null);
 
   const {
     data: phoebeData,
@@ -56,9 +52,6 @@ export function ConceptSetEditor({ conceptSet }: ConceptSetEditorProps) {
   const updateItemMutation = useUpdateConceptSetItem();
   const removeItemMutation = useRemoveConceptSetItem();
   const bulkUpdateMutation = useBulkUpdateConceptSetItems();
-
-  const { data: searchResults, isLoading: isSearching } =
-    useVocabularySearch(searchQuery, {});
 
   const items = conceptSet.items ?? [];
   const allSelected =
@@ -123,22 +116,15 @@ export function ConceptSetEditor({ conceptSet }: ConceptSetEditorProps) {
   };
 
   const handleAddConcept = (conceptId: number) => {
-    addItemMutation.mutate(
-      {
-        setId: conceptSet.id,
-        payload: {
-          concept_id: conceptId,
-          is_excluded: false,
-          include_descendants: true,
-          include_mapped: false,
-        },
+    addItemMutation.mutate({
+      setId: conceptSet.id,
+      payload: {
+        concept_id: conceptId,
+        is_excluded: false,
+        include_descendants: true,
+        include_mapped: false,
       },
-      {
-        onSuccess: () => {
-          setSearchQuery("");
-        },
-      },
-    );
+    });
   };
 
   const handleResolve = () => {
@@ -151,20 +137,6 @@ export function ConceptSetEditor({ conceptSet }: ConceptSetEditorProps) {
       {/* Toolbar */}
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setShowAddPanel(!showAddPanel)}
-            className={cn(
-              "inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-              showAddPanel
-                ? "bg-[#2DD4BF]/15 text-[#2DD4BF] border border-[#2DD4BF]/30"
-                : "bg-[#151518] text-[#C5C0B8] border border-[#232328] hover:bg-[#1A1A1E] hover:text-[#F0EDE8]",
-            )}
-          >
-            {showAddPanel ? <X size={14} /> : <Plus size={14} />}
-            {showAddPanel ? "Close Search" : "Add Concept"}
-          </button>
-
           <span className="text-xs text-[#8A857D]">
             {items.length} items
           </span>
@@ -258,118 +230,6 @@ export function ConceptSetEditor({ conceptSet }: ConceptSetEditorProps) {
         </div>
       )}
 
-      {/* Add Concept Panel */}
-      {showAddPanel && (
-        <div className="rounded-lg border border-[#232328] bg-[#1A1A1E] p-4">
-          <h4 className="text-sm font-semibold text-[#F0EDE8] mb-3">
-            Search Vocabulary
-          </h4>
-
-          {/* Search Input */}
-          <div className="relative mb-3">
-            <Search
-              size={14}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
-            />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search concepts by name or code..."
-              className={cn(
-                "w-full rounded-lg pl-9 pr-8 py-2 text-sm",
-                "bg-[#0E0E11] border border-[#232328]",
-                "text-[#F0EDE8] placeholder:text-[#5A5650]",
-                "focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40",
-                "transition-colors",
-              )}
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery("")}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-[#5A5650] hover:text-[#C5C0B8] transition-colors"
-              >
-                <X size={14} />
-              </button>
-            )}
-          </div>
-
-          {/* Search Results */}
-          <div className="max-h-64 overflow-y-auto rounded-lg border border-[#232328] bg-[#151518]">
-            {isSearching ? (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 size={18} className="animate-spin text-[#8A857D]" />
-              </div>
-            ) : searchQuery.length < 2 ? (
-              <div className="flex items-center justify-center py-8 text-xs text-[#5A5650]">
-                Type at least 2 characters to search
-              </div>
-            ) : !searchResults || searchResults.length === 0 ? (
-              <div className="flex items-center justify-center py-8 text-xs text-[#5A5650]">
-                No concepts found
-              </div>
-            ) : (
-              <div className="divide-y divide-[#232328]">
-                {searchResults.map((concept) => {
-                  const isStandard = concept.standard_concept === "S";
-                  const alreadyAdded = items.some(
-                    (item) => item.concept_id === concept.concept_id,
-                  );
-
-                  return (
-                    <button
-                      key={concept.concept_id}
-                      type="button"
-                      onClick={() => handleAddConcept(concept.concept_id)}
-                      disabled={alreadyAdded || addItemMutation.isPending}
-                      className={cn(
-                        "flex items-center gap-3 w-full px-4 py-2.5 text-left transition-colors",
-                        alreadyAdded
-                          ? "opacity-50 cursor-not-allowed bg-[#151518]"
-                          : "hover:bg-[#1C1C20]",
-                      )}
-                    >
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="font-['IBM_Plex_Mono',monospace] text-xs tabular-nums text-[#C9A227]">
-                            {concept.concept_id}
-                          </span>
-                          {isStandard && (
-                            <span className="inline-flex items-center rounded px-1 py-0.5 text-[9px] font-medium bg-[#2DD4BF]/15 text-[#2DD4BF]">
-                              S
-                            </span>
-                          )}
-                          <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-[#60A5FA]/15 text-[#60A5FA]">
-                            {concept.domain_id}
-                          </span>
-                          <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-[#C9A227]/15 text-[#C9A227]">
-                            {concept.vocabulary_id}
-                          </span>
-                        </div>
-                        <p className="text-sm text-[#F0EDE8] truncate mt-0.5">
-                          {concept.concept_name}
-                        </p>
-                      </div>
-                      {alreadyAdded ? (
-                        <span className="text-[10px] text-[#5A5650] shrink-0">
-                          Added
-                        </span>
-                      ) : (
-                        <Plus
-                          size={14}
-                          className="text-[#8A857D] shrink-0"
-                        />
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
       {/* Resolve Result Panel */}
       {showResolve && resolveResult && (
         <div className="rounded-lg border border-[#2DD4BF]/20 bg-[#2DD4BF]/5 px-4 py-3">
@@ -437,19 +297,39 @@ export function ConceptSetEditor({ conceptSet }: ConceptSetEditorProps) {
               </thead>
               <tbody>
                 {items.map((item, i) => (
-                  <ConceptSetItemRow
-                    key={item.id}
-                    item={item}
-                    index={i}
-                    isSelected={selectedItemIds.has(item.id)}
-                    isHighlighted={selectedConceptId === item.concept_id}
-                    onSelectionChange={toggleSelectItem}
-                    onRowClick={() => setSelectedConceptId(item.concept_id)}
-                    onToggle={handleToggle}
-                    onRemove={handleRemoveItem}
-                    isUpdating={updateItemMutation.isPending}
-                    isRemoving={removeItemMutation.isPending}
-                  />
+                  <Fragment key={item.id}>
+                    <ConceptSetItemRow
+                      item={item}
+                      index={i}
+                      isSelected={selectedItemIds.has(item.id)}
+                      isHighlighted={selectedConceptId === item.concept_id}
+                      onSelectionChange={toggleSelectItem}
+                      onRowClick={() => {
+                        setSelectedConceptId(item.concept_id);
+                        setExpandedItemId(
+                          expandedItemId === item.id ? null : item.id,
+                        );
+                      }}
+                      onToggle={handleToggle}
+                      onRemove={handleRemoveItem}
+                      isUpdating={updateItemMutation.isPending}
+                      isRemoving={removeItemMutation.isPending}
+                    />
+                    {expandedItemId === item.id && (
+                      <tr>
+                        <td
+                          colSpan={10}
+                          className="p-0 border-b border-teal-400/30"
+                        >
+                          <div className="border-x border-teal-400/30 bg-teal-400/5">
+                            <ConceptSetItemDetailExpander
+                              conceptId={item.concept_id}
+                            />
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </Fragment>
                 ))}
               </tbody>
             </table>
@@ -460,8 +340,7 @@ export function ConceptSetEditor({ conceptSet }: ConceptSetEditorProps) {
           <Search size={24} className="text-[#323238] mb-3" />
           <p className="text-sm text-[#8A857D]">No concepts added yet</p>
           <p className="mt-1 text-xs text-[#5A5650]">
-            Click &ldquo;Add Concept&rdquo; to search and add concepts to this
-            set
+            Use the search panel to find and add concepts to this set
           </p>
         </div>
       )}
