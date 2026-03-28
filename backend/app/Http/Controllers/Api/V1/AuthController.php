@@ -45,7 +45,7 @@ class AuthController extends Controller
             'phone_number' => $request->string('phone_number') ?: null,
         ]);
 
-        $this->assignDefaultViewerRole($user);
+        $this->assignDefaultResearcherRole($user);
 
         try {
             Mail::to($user->email)->send(new TempPasswordMail($user->name, $tempPassword));
@@ -228,23 +228,23 @@ class AuthController extends Controller
 
     /**
      * Registration should not hard-fail if role seed data drifted in a long-lived environment.
-     * Attempt to self-heal the default viewer role before assigning it.
+     * Attempt to self-heal the default researcher role before assigning it.
      */
-    private function assignDefaultViewerRole(User $user): void
+    private function assignDefaultResearcherRole(User $user): void
     {
         try {
-            if ($this->ensureViewerRoleExists()) {
-                $user->assignRole('viewer');
+            if ($this->ensureResearcherRoleExists()) {
+                $user->assignRole('researcher');
 
                 return;
             }
 
-            logger()->error('Viewer role unavailable during self-registration', [
+            logger()->error('Researcher role unavailable during self-registration', [
                 'user_id' => $user->id,
                 'email' => $user->email,
             ]);
         } catch (\Throwable $e) {
-            logger()->error('Failed to assign default viewer role during self-registration', [
+            logger()->error('Failed to assign default researcher role during self-registration', [
                 'user_id' => $user->id,
                 'email' => $user->email,
                 'error' => $e->getMessage(),
@@ -252,19 +252,19 @@ class AuthController extends Controller
         }
     }
 
-    private function ensureViewerRoleExists(): bool
+    private function ensureResearcherRoleExists(): bool
     {
-        if (Role::where('name', 'viewer')->where('guard_name', 'web')->exists()) {
+        if (Role::where('name', 'researcher')->where('guard_name', 'web')->exists()) {
             return true;
         }
 
-        logger()->warning('Viewer role missing during self-registration; reseeding roles and permissions.', [
+        logger()->warning('Researcher role missing during self-registration; reseeding roles and permissions.', [
             'action' => 'register',
         ]);
 
         app(PermissionRegistrar::class)->forgetCachedPermissions();
         app(RolePermissionSeeder::class)->run();
 
-        return Role::where('name', 'viewer')->where('guard_name', 'web')->exists();
+        return Role::where('name', 'researcher')->where('guard_name', 'web')->exists();
     }
 }

@@ -33,6 +33,10 @@ test('user can register', function () {
     $this->assertDatabaseHas('users', [
         'email' => 'test@example.com',
     ]);
+
+    $user = User::where('email', 'test@example.com')->firstOrFail();
+
+    expect($user->hasRole('researcher'))->toBeTrue();
 });
 
 test('register returns same message for existing email', function () {
@@ -46,7 +50,7 @@ test('register returns same message for existing email', function () {
         ->assertJsonPath('message', 'Account created. Check your email for your temporary password.');
 });
 
-test('registration reseeds roles when the default viewer role is missing', function () {
+test('registration reseeds roles when the default researcher role is missing', function () {
     Role::query()->delete();
     Permission::query()->delete();
     app(PermissionRegistrar::class)->forgetCachedPermissions();
@@ -60,7 +64,7 @@ test('registration reseeds roles when the default viewer role is missing', funct
 
     $user = User::where('email', 'recovery@example.com')->firstOrFail();
 
-    expect($user->hasRole('viewer'))->toBeTrue();
+    expect($user->hasRole('researcher'))->toBeTrue();
 });
 
 test('user can login', function () {
