@@ -143,7 +143,7 @@ export default function AdminDashboardPage() {
 
   // Sources — CDM sources with person counts from daimons
   const cdmSources = (sources ?? []).filter((s) =>
-    s.daimons?.some((d) => d.daimon_type === "cdm" || d.daimon_type === "CDM")
+    s.daimons?.some((d) => d.daimon_type === "cdm")
   );
 
   // Overall health status

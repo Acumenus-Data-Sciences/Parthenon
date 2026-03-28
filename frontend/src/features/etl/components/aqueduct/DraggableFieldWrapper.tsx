@@ -1,5 +1,7 @@
-import { useDraggable } from "@dnd-kit/core";
+import { useDraggable, type DraggableAttributes } from "@dnd-kit/core";
 import type { ReactNode } from "react";
+
+type DraggableListeners = ReturnType<typeof useDraggable>["listeners"];
 
 interface DraggableFieldWrapperProps {
   id: string;
@@ -7,8 +9,8 @@ interface DraggableFieldWrapperProps {
   disabled?: boolean;
   children: (props: {
     isDragging: boolean;
-    attributes: Record<string, unknown>;
-    listeners: Record<string, unknown> | undefined;
+    attributes: DraggableAttributes;
+    listeners: DraggableListeners;
     setNodeRef: (node: HTMLElement | null) => void;
   }) => ReactNode;
 }

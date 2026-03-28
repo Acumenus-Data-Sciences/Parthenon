@@ -3,7 +3,7 @@
 // ---------------------------------------------------------------------------
 
 import { useState, useMemo } from "react";
-import { Search, X, ArrowUpDown, Check } from "lucide-react";
+import { Search, X, Check } from "lucide-react";
 
 type SortMode = "alpha" | "count" | "selected";
 

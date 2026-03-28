@@ -1,10 +1,10 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Attribute class Knuckles\\Scribe\\Attributes\\Group does not exist\.$#'
-			identifier: attribute.notFound
-			count: 1
-			path: app/Http/Controllers/Api/V1/AbbyProfileController.php
+			message: '#^Call to an undefined method App\\Http\\Controllers\\Api\\V1\\Commons\\CallController\:\:authorize\(\)\.$#'
+			identifier: method.notFound
+			count: 4
+			path: app/Http/Controllers/Api/V1/Commons/CallController.php
 
 		-
 			message: '#^Call to an undefined method App\\Models\\App\\SchemaMapping\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\App\\SchemaMapping\>\:\:update\(\)\.$#'
@@ -25,16 +25,22 @@ parameters:
 			path: app/Http/Controllers/Api/V1/MappingReviewController.php
 
 		-
-			message: '#^Call to static method table\(\) on an unknown class App\\Services\\Ares\\DB\.$#'
-			identifier: class.notFound
-			count: 3
-			path: app/Services/Ares/DqHistoryService.php
+			message: '#^Method App\\Models\\Commons\\Call\:\:scopeActive\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Models/Commons/Call.php
+
+		-
+			message: '#^Method App\\Models\\Commons\\Call\:\:scopeActive\(\) has parameter \$query with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Models/Commons/Call.php
 
 		-
 			message: '#^Call to static method table\(\) on an unknown class App\\Services\\Ares\\DB\.$#'
 			identifier: class.notFound
-			count: 8
-			path: app/Services/Ares/FeasibilityService.php
+			count: 3
+			path: app/Services/Ares/DqHistoryService.php
 
 		-
 			message: '#^Call to static method table\(\) on an unknown class App\\Services\\Ares\\DB\.$#'

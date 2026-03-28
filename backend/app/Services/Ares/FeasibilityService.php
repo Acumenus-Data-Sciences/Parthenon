@@ -10,6 +10,7 @@ use App\Models\Results\AchillesResult;
 use App\Models\User;
 use App\Services\Database\DynamicConnectionFactory;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class FeasibilityService
