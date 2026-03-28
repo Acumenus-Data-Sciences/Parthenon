@@ -12,7 +12,7 @@ In Greek mythology, the great temple atop the Acropolis housed not just Athena, 
 
 <div style={{textAlign: 'center', margin: '2rem 0'}}>
   <img
-    src="/img/magical-ladies.png"
+    src="/docs/img/magical-ladies.png"
     alt="Hecate, Phoebe, Ariadne, and Arachne — the four mythological engines of Parthenon"
     style={{borderRadius: '16px', maxWidth: '100%', boxShadow: '0 8px 32px rgba(0,0,0,0.4)'}}
   />
