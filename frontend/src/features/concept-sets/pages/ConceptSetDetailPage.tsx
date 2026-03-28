@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import {
   ArrowLeft,
   Loader2,
@@ -15,6 +15,9 @@ import { cn } from "@/lib/utils";
 import { toast } from "@/components/ui/Toast";
 import { ConceptSetEditor } from "../components/ConceptSetEditor";
 import { PhoebeRecommendationsPanel } from "../components/PhoebeRecommendationsPanel";
+import { ConceptSetBuilderLayout } from "../components/ConceptSetBuilderLayout";
+import { VocabularySearchPanel } from "@/features/vocabulary/components/VocabularySearchPanel";
+import { SemanticSearchPanel } from "@/features/vocabulary/components/SemanticSearchPanel";
 import {
   useConceptSet,
   useUpdateConceptSet,
@@ -28,6 +31,7 @@ import { exportConceptSet } from "../api/conceptSetApi";
 export default function ConceptSetDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const conceptSetId = id ? Number(id) : null;
 
   const { data: conceptSet, isLoading, error } = useConceptSet(conceptSetId);
@@ -51,6 +55,7 @@ export default function ConceptSetDetailPage() {
   const [description, setDescription] = useState("");
   const [isEditingName, setIsEditingName] = useState(false);
   const [isEditingDesc, setIsEditingDesc] = useState(false);
+  const [searchTab, setSearchTab] = useState<'keyword' | 'semantic'>('keyword');
 
   useEffect(() => {
     if (conceptSet) {
@@ -58,6 +63,18 @@ export default function ConceptSetDetailPage() {
       setDescription(conceptSet.description ?? "");
     }
   }, [conceptSet]);
+
+  const initialQuery = searchParams.get('q') ?? undefined;
+  const initialFilters = useMemo(() => ({
+    domain: searchParams.get('domain') ?? undefined,
+    vocabulary: searchParams.get('vocabulary') ?? undefined,
+    standard: searchParams.get('standard') === 'true' ? true : undefined,
+  }), [searchParams]);
+
+  const conceptSetItemIds = useMemo(
+    () => new Set(conceptSet?.items?.map((item) => item.concept_id) ?? []),
+    [conceptSet?.items],
+  );
 
   const handleSaveName = () => {
     if (!conceptSetId || !name.trim()) return;
@@ -122,6 +139,19 @@ export default function ConceptSetDetailPage() {
     URL.revokeObjectURL(url);
   };
 
+  const handleAddToSet = (conceptId: number) => {
+    if (!conceptSetId) return;
+    addPhoebeItem.mutate({
+      setId: conceptSetId,
+      payload: {
+        concept_id: conceptId,
+        include_descendants: true,
+        include_mapped: false,
+        is_excluded: false,
+      },
+    });
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -148,7 +178,7 @@ export default function ConceptSetDetailPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
@@ -329,39 +359,93 @@ export default function ConceptSetDetailPage() {
         </div>
       </div>
 
-      {/* Editor */}
-      <ConceptSetEditor conceptSet={conceptSet} />
+      {/* Split-pane Builder */}
+      <ConceptSetBuilderLayout
+        searchPanel={
+          <div>
+            {/* Search tab switcher */}
+            <div className="mb-3 flex gap-1">
+              <button
+                type="button"
+                onClick={() => setSearchTab('keyword')}
+                className={cn(
+                  'rounded-lg px-3 py-1.5 text-xs font-medium transition-colors',
+                  searchTab === 'keyword'
+                    ? 'bg-[#2DD4BF]/15 text-[#2DD4BF]'
+                    : 'text-[#8A857D] hover:text-[#C5C0B8]',
+                )}
+              >
+                Keyword
+              </button>
+              <button
+                type="button"
+                onClick={() => setSearchTab('semantic')}
+                className={cn(
+                  'rounded-lg px-3 py-1.5 text-xs font-medium transition-colors',
+                  searchTab === 'semantic'
+                    ? 'bg-[#2DD4BF]/15 text-[#2DD4BF]'
+                    : 'text-[#8A857D] hover:text-[#C5C0B8]',
+                )}
+              >
+                Semantic
+              </button>
+            </div>
 
-      {/* Aggregated Phoebe Recommendations */}
-      {conceptIds.length > 0 && (
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <Sparkles size={16} className="text-[#C9A227]" />
-            <h2 className="text-sm font-semibold text-[#F0EDE8]">
-              Recommended Concepts
-            </h2>
+            {searchTab === 'keyword' ? (
+              <VocabularySearchPanel
+                mode="build"
+                conceptSetItemIds={conceptSetItemIds}
+                onAddToSet={handleAddToSet}
+                initialQuery={initialQuery}
+                initialFilters={initialFilters}
+              />
+            ) : (
+              <SemanticSearchPanel
+                mode="build"
+                conceptSetItemIds={conceptSetItemIds}
+                onAddToSet={handleAddToSet}
+                initialQuery={initialQuery}
+                initialFilters={initialFilters}
+              />
+            )}
           </div>
-          <PhoebeRecommendationsPanel
-            recommendations={aggregatedData}
-            isLoading={isAggregatedLoading}
-            isError={isAggregatedError}
-            existingConceptIds={new Set(conceptIds)}
-            onAddConcept={(cid) =>
-              addPhoebeItem.mutate({
-                setId: conceptSetId!,
-                payload: {
-                  concept_id: cid,
-                  is_excluded: false,
-                  include_descendants: true,
-                  include_mapped: false,
-                },
-              })
-            }
-            isAddingConcept={addPhoebeItem.isPending}
-            defaultExpanded={true}
-          />
-        </div>
-      )}
+        }
+        contentsPanel={
+          <div className="space-y-4">
+            <ConceptSetEditor conceptSet={conceptSet} />
+
+            {conceptIds.length > 0 && (
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <Sparkles size={16} className="text-[#C9A227]" />
+                  <h2 className="text-sm font-semibold text-[#F0EDE8]">
+                    Recommended Concepts
+                  </h2>
+                </div>
+                <PhoebeRecommendationsPanel
+                  recommendations={aggregatedData}
+                  isLoading={isAggregatedLoading}
+                  isError={isAggregatedError}
+                  existingConceptIds={new Set(conceptIds)}
+                  onAddConcept={(cid) =>
+                    addPhoebeItem.mutate({
+                      setId: conceptSetId!,
+                      payload: {
+                        concept_id: cid,
+                        is_excluded: false,
+                        include_descendants: true,
+                        include_mapped: false,
+                      },
+                    })
+                  }
+                  isAddingConcept={addPhoebeItem.isPending}
+                  defaultExpanded={true}
+                />
+              </div>
+            )}
+          </div>
+        }
+      />
     </div>
   );
 }
