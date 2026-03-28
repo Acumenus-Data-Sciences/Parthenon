@@ -26,12 +26,11 @@ import { fetchSources } from "@/features/data-sources/api/sourcesApi";
 import { useSourceStore } from "@/stores/sourceStore";
 import { usePatientProfile, useProfileStats } from "../hooks/useProfiles";
 import { PROFILE_DOMAIN_LIMIT } from "../api/profileApi";
-import { PatientDemographicsCard } from "../components/PatientDemographicsCard";
+import { PatientProfileHeader } from "../components/PatientProfileHeader";
 import { PatientTimeline } from "../components/PatientTimeline";
 import { ClinicalEventCard, GroupedConceptCard } from "../components/ClinicalEventCard";
 import { CohortMemberList } from "../components/CohortMemberList";
 import { EraTimeline } from "../components/EraTimeline";
-import { PatientSummaryStats } from "../components/PatientSummaryStats";
 import { PatientLabPanel } from "../components/PatientLabPanel";
 import { PatientVisitView } from "../components/PatientVisitView";
 import { PatientSearchPanel } from "../components/PatientSearchPanel";
@@ -457,14 +456,8 @@ export default function PatientProfilePage() {
       {/* Profile data */}
       {sourceId && profile && (
         <>
-          {/* Demographics */}
-          <PatientDemographicsCard
-            demographics={profile.demographics}
-            observationPeriods={profile.observation_periods}
-          />
-
-          {/* Summary stats bar */}
-          <PatientSummaryStats
+          {/* Patient identity + stats */}
+          <PatientProfileHeader
             profile={profile}
             stats={profileStats}
             onDrillDown={(view, domain) => {
