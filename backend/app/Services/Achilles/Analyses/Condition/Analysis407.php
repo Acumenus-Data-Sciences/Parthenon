@@ -33,7 +33,7 @@ class Analysis407 implements AchillesAnalysisInterface
             SELECT 407 AS analysis_id,
                 COUNT(*) AS count_value
             FROM {@cdmSchema}.condition_occurrence co
-            LEFT JOIN {@cdmSchema}.concept c ON co.condition_concept_id = c.concept_id
+            LEFT JOIN {@vocabSchema}.concept c ON co.condition_concept_id = c.concept_id
                 AND c.domain_id = 'Condition'
                 AND c.standard_concept = 'S'
             WHERE co.condition_concept_id = 0

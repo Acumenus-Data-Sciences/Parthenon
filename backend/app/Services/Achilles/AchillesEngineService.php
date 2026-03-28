@@ -69,6 +69,7 @@ class AchillesEngineService
 
         $cdmSchema = $source->getTableQualifier(DaimonType::CDM);
         $resultsSchema = $source->getTableQualifier(DaimonType::Results);
+        $vocabSchema = $source->getTableQualifier(DaimonType::Vocabulary) ?? $cdmSchema;
 
         if (! $cdmSchema || ! $resultsSchema) {
             return [
@@ -79,7 +80,7 @@ class AchillesEngineService
             ];
         }
 
-        return $this->executeSingle($source, $analysis, $cdmSchema, $resultsSchema);
+        return $this->executeSingle($source, $analysis, $cdmSchema, $resultsSchema, $vocabSchema);
     }
 
     /**
@@ -111,6 +112,7 @@ class AchillesEngineService
     {
         $cdmSchema = $source->getTableQualifier(DaimonType::CDM);
         $resultsSchema = $source->getTableQualifier(DaimonType::Results);
+        $vocabSchema = $source->getTableQualifier(DaimonType::Vocabulary) ?? $cdmSchema;
 
         if (! $cdmSchema || ! $resultsSchema) {
             if ($runId) {
@@ -199,7 +201,7 @@ class AchillesEngineService
                     ->update(['status' => 'running', 'started_at' => now()]);
             }
 
-            $result = $this->executeSingle($source, $analysis, $cdmSchema, $resultsSchema);
+            $result = $this->executeSingle($source, $analysis, $cdmSchema, $resultsSchema, $vocabSchema);
             $results[] = $result;
 
             if ($result['status'] === 'completed') {
@@ -265,6 +267,7 @@ class AchillesEngineService
         AchillesAnalysisInterface $analysis,
         string $cdmSchema,
         string $resultsSchema,
+        string $vocabSchema,
     ): array {
         $analysisId = $analysis->analysisId();
         $startTime = microtime(true);
@@ -275,6 +278,7 @@ class AchillesEngineService
                 [
                     'cdmSchema' => $cdmSchema,
                     'resultsSchema' => $resultsSchema,
+                    'vocabSchema' => $vocabSchema,
                 ],
                 $source->source_dialect ?? 'postgresql',
             );
@@ -284,14 +288,20 @@ class AchillesEngineService
 
             $conn = $this->results();
 
-            // Set per-statement timeout (30 min) to prevent single queries from blocking the run
-            $conn->statement('SET LOCAL statement_timeout = 1800000');
+            // Set session-level timeout (30 min) to prevent single queries from blocking the run.
+            // NOTE: SET LOCAL only works inside a transaction; SET applies to the session.
+            $conn->statement('SET statement_timeout = 1800000');
 
-            foreach ($statements as $statement) {
-                $statement = trim($statement);
-                if ($statement !== '') {
-                    $conn->statement($statement);
+            try {
+                foreach ($statements as $statement) {
+                    $statement = trim($statement);
+                    if ($statement !== '') {
+                        $conn->statement($statement);
+                    }
                 }
+            } finally {
+                // Reset to default (no timeout) so other queries aren't affected
+                $conn->statement('SET statement_timeout = 0');
             }
 
             $elapsed = round(microtime(true) - $startTime, 3);

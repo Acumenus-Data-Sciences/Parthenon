@@ -33,7 +33,7 @@ class Analysis1817 implements AchillesAnalysisInterface
             SELECT 1817 AS analysis_id,
                 COUNT(*) AS count_value
             FROM {@cdmSchema}.measurement m
-            LEFT JOIN {@cdmSchema}.concept c ON m.unit_concept_id = c.concept_id
+            LEFT JOIN {@vocabSchema}.concept c ON m.unit_concept_id = c.concept_id
                 AND c.domain_id = 'Unit'
                 AND c.standard_concept = 'S'
             WHERE m.unit_concept_id IS NOT NULL

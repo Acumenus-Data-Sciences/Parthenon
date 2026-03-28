@@ -33,7 +33,7 @@ class Analysis708 implements AchillesAnalysisInterface
             SELECT 708 AS analysis_id,
                 COUNT(*) AS count_value
             FROM {@cdmSchema}.drug_exposure de
-            LEFT JOIN {@cdmSchema}.concept c ON de.drug_concept_id = c.concept_id
+            LEFT JOIN {@vocabSchema}.concept c ON de.drug_concept_id = c.concept_id
                 AND c.domain_id = 'Drug'
                 AND c.standard_concept = 'S'
             WHERE de.drug_concept_id = 0

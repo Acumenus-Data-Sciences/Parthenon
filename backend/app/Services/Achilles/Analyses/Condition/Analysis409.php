@@ -33,7 +33,7 @@ class Analysis409 implements AchillesAnalysisInterface
             SELECT 409 AS analysis_id,
                 COUNT(*) AS count_value
             FROM {@cdmSchema}.condition_occurrence co
-            LEFT JOIN {@cdmSchema}.concept c ON co.condition_type_concept_id = c.concept_id
+            LEFT JOIN {@vocabSchema}.concept c ON co.condition_type_concept_id = c.concept_id
                 AND c.domain_id = 'Type Concept'
             WHERE co.condition_type_concept_id = 0
                OR c.concept_id IS NULL

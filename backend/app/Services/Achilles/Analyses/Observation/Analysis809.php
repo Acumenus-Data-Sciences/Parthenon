@@ -32,7 +32,7 @@ class Analysis809 implements AchillesAnalysisInterface
             SELECT 809 AS analysis_id,
                 COUNT(*) AS count_value
             FROM {@cdmSchema}.observation o
-            LEFT JOIN {@cdmSchema}.concept c ON o.observation_type_concept_id = c.concept_id
+            LEFT JOIN {@vocabSchema}.concept c ON o.observation_type_concept_id = c.concept_id
                 AND c.domain_id = 'Type Concept'
             WHERE o.observation_type_concept_id = 0
                OR c.concept_id IS NULL

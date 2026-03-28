@@ -16,31 +16,45 @@ Parthenon is a unified OHDSI outcomes research platform that replaces Atlas, Web
 
 ## Database Architecture
 
-**Single database, schema-isolated.** Every environment uses one `parthenon` database:
+**Single database, schema-isolated.** Every environment uses one `parthenon` database.
+Vocabulary tables (concept, concept_relationship, concept_ancestor, etc.) live in a **shared `vocab` schema**, separate from CDM clinical tables. Each CDM instance has its own schema for clinical data but shares the single `vocab` schema via `search_path`.
 
 ```
 parthenon
-├── app.*              — Application tables (users, roles, cohorts, sources, studies)
-├── omop.*             — OMOP CDM + Vocabulary (person, concept, visit_occurrence, etc.)
-├── results.*          — Achilles/DQD output
-├── gis.*              — Geospatial tables
-├── eunomia.*          — GiBleed demo dataset
-├── eunomia_results.*  — Demo Achilles results
-├── php.*              — Laravel internals (migrations, jobs, cache)
-└── webapi.*           — Legacy OHDSI WebAPI (Atlas migration)
+├── app.*                — Application tables (users, roles, cohorts, sources, studies)
+├── vocab.*              — Shared OMOP Vocabulary (concept, concept_ancestor, concept_relationship, domain, vocabulary, etc.)
+├── omop.*               — Acumenus CDM clinical tables (person, visit_occurrence, drug_exposure, etc.)
+├── synpuf.*             — CMS SynPUF 2.3M CDM clinical tables
+├── irsf.*               — IRSF Natural History Study CDM
+├── pancreas.*           — Pancreatic Cancer Corpus CDM
+├── inpatient.*          — Morpheus inpatient CDM
+├── inpatient_ext.*      — Morpheus inpatient extension tables
+├── results.*            — Acumenus Achilles/DQD output
+├── synpuf_results.*     — SynPUF Achilles/DQD output
+├── irsf_results.*       — IRSF Achilles/DQD output
+├── pancreas_results.*   — Pancreas Achilles/DQD output
+├── gis.*                — Geospatial tables
+├── eunomia.*            — GiBleed demo dataset (CDM + vocab bundled)
+├── eunomia_results.*    — Demo Achilles results
+├── php.*                — Laravel internals (migrations, jobs, cache)
+├── temp_abby.*          — Abby AI scratch/analytics workspace
+└── webapi.*             — Legacy OHDSI WebAPI (Atlas migration)
 ```
 
-**5 Laravel connections** (all same DB, different `search_path`):
+**8 Laravel connections** (all same DB, different `search_path`):
 
 | Connection | Search Path | Used By |
 |---|---|---|
 | `pgsql` (default) | `app,php` | App models, auth, Spatie RBAC |
-| `omop` | `omop,php` | CdmModel, VocabularyModel, AbbyAI, DQD, ingestion |
-| `results` | `results,php` | ResultsModel, AchillesResultReaderService |
-| `gis` | `gis,omop,php` | GIS services |
-| `eunomia` | `eunomia,php` | Eunomia demo queries |
+| `omop` | `omop,vocab,php` | CdmModel, VocabularyModel, AbbyAI, DQD, ingestion |
+| `results` | `results,php` | ResultsModel, AchillesResultReaderService (overrides per source) |
+| `gis` | `gis,omop,vocab,php` | GIS services |
+| `eunomia` | `eunomia,php` | Eunomia demo queries (vocab bundled in eunomia schema) |
+| `inpatient` | `inpatient,inpatient_ext,vocab` | Morpheus inpatient CDM + extensions |
+| `pancreas` | `pancreas,vocab,php` | Pancreatic cancer multimodal corpus |
+| `interrogation` | `omop,vocab,results,temp_abby` | Abby AI read-only analytics (abby_analyst role) |
 
-**CRITICAL:** There is no `cdm`, `vocab`, or `docker_pg` connection. Use `omop` for CDM and vocabulary queries.
+**CRITICAL:** There is no `cdm` or `docker_pg` connection. The `vocab` schema is **shared** — all CDM connections include it in their `search_path`. Each source's daimons (in `app.source_daimons`) map `vocabulary → vocab` for non-Eunomia sources. In SQL templates, use `{@cdmSchema}` for clinical tables and `{@vocabSchema}` (or the source's vocabulary daimon table_qualifier) for vocabulary tables.
 
 ## Project Structure
 
@@ -238,7 +252,7 @@ If a check fails, fix the issue and re-commit. To bypass in emergencies: `git co
 
 ## Common Gotchas
 
-1. Single `parthenon` DB with schema isolation — use the correct connection (`omop` for CDM/vocab, `results` for Achilles, `gis` for GIS). Never use `cdm`, `vocab`, or `docker_pg` connections (removed).
+1. Single `parthenon` DB with schema isolation — vocabulary lives in `vocab` schema (shared), CDM clinical data in per-source schemas (`omop`, `synpuf`, `irsf`, `pancreas`, `inpatient`). Each source's `source_daimons` row maps `vocabulary → vocab`. In Achilles SQL templates, use `{@vocabSchema}` for vocabulary tables and `{@cdmSchema}` for clinical tables. Never use `cdm` or `docker_pg` connections (removed).
 2. React 19 strict mode — components render twice in dev, effects must be idempotent
 3. `--legacy-peer-deps` required for `npm install` (react-joyride compatibility)
 4. PHPStan baseline exists at `backend/phpstan-baseline.neon` — check it before adding new ignores

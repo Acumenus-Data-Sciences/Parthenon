@@ -32,7 +32,7 @@ class Analysis609 implements AchillesAnalysisInterface
             SELECT 609 AS analysis_id,
                 COUNT(*) AS count_value
             FROM {@cdmSchema}.procedure_occurrence po
-            LEFT JOIN {@cdmSchema}.concept c ON po.procedure_type_concept_id = c.concept_id
+            LEFT JOIN {@vocabSchema}.concept c ON po.procedure_type_concept_id = c.concept_id
                 AND c.domain_id = 'Type Concept'
             WHERE po.procedure_type_concept_id = 0
                OR c.concept_id IS NULL
