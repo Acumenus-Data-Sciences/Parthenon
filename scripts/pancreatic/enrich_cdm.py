@@ -19,6 +19,8 @@ Deterministic: seeded RNG for reproducibility.
 Run: python3 scripts/pancreatic/enrich_cdm.py
 """
 
+import glob
+import gzip
 import random
 import subprocess
 import sys
@@ -811,8 +813,16 @@ def generate_specimens(pt: PatientTrajectory, rng: random.Random) -> None:
 # ── SQL generation ──────────────────────────────────────────────────────────
 
 
-def generate_sql(patients: list[PatientTrajectory]) -> str:
-    """Generate the complete SQL file."""
+def generate_sql(
+    patients: list[PatientTrajectory],
+    new_persons: list[dict] | None = None,
+) -> str:
+    """Generate the complete SQL file.
+
+    Args:
+        patients: All patient trajectories (existing + new).
+        new_persons: Optional list of new person dicts to INSERT into pancreas.person.
+    """
     parts: list[str] = []
 
     parts.append("-- Pancreas CDM Enrichment SQL")
@@ -821,6 +831,44 @@ def generate_sql(patients: list[PatientTrajectory]) -> str:
     parts.append("")
     parts.append("BEGIN;")
     parts.append("")
+
+    # ── Add care_site 3 if not exists ──
+    parts.append("-- Ensure care_site 3 exists (TCGA-PAAD)")
+    parts.append(
+        "INSERT INTO pancreas.care_site (care_site_id, care_site_name, place_of_service_concept_id, location_id, care_site_source_value, place_of_service_source_value) "
+        "VALUES (3, 'NCI TCGA Pancreatic Adenocarcinoma', 8717, NULL, 'TCGA-PAAD', 'Research consortium') "
+        "ON CONFLICT (care_site_id) DO NOTHING;"
+    )
+    parts.append("")
+
+    # ── Insert new TCGA persons ──
+    if new_persons:
+        parts.append("-- Insert new TCGA-PAAD persons")
+        parts.append("DELETE FROM pancreas.person WHERE care_site_id = 3;")
+        person_rows: list[str] = []
+        for p in new_persons:
+            gender_src = "Male" if p["gender_concept_id"] == MALE else "Female"
+            race_src = {WHITE: "White", BLACK: "Black or African American", ASIAN: "Asian"}.get(p["race_concept_id"], "Unknown")
+            person_rows.append(
+                f"({p['person_id']}, {p['gender_concept_id']}, "
+                f"{p['year_of_birth']}, {p['month_of_birth']}, {p['day_of_birth']}, "
+                f"{p['race_concept_id']}, {NOT_HISPANIC}, NULL, NULL, "
+                f"{p['care_site_id']}, '{sql_escape(p['person_source_value'])}', "
+                f"'{gender_src}', {p['gender_concept_id']}, "
+                f"'{race_src}', {p['race_concept_id']}, "
+                f"'Not Hispanic or Latino', {NOT_HISPANIC})"
+            )
+        parts.append(
+            "INSERT INTO pancreas.person (person_id, gender_concept_id, "
+            "year_of_birth, month_of_birth, day_of_birth, "
+            "race_concept_id, ethnicity_concept_id, provider_id, location_id, "
+            "care_site_id, person_source_value, "
+            "gender_source_value, gender_source_concept_id, "
+            "race_source_value, race_source_concept_id, "
+            "ethnicity_source_value, ethnicity_source_concept_id) VALUES"
+        )
+        parts.append(",\n".join(person_rows) + ";")
+        parts.append("")
 
     # Truncate clinical tables (NOT person, care_site, location)
     parts.append("-- Truncate clinical tables (preserving person and care_site)")
@@ -1069,6 +1117,74 @@ ORDER BY person_id, drug_concept_id;
 # ── Main ────────────────────────────────────────────────────────────────────
 
 
+# ── TCGA-PAAD patient extraction ───────────────────────────────────────────
+
+TCGA_MAF_GLOB = "/mnt/md0/pancreatic-corpus/genomics/TCGA-PAAD/*/*.wxs.aliquot_ensemble_masked.maf.gz"
+TCGA_SEED_OFFSET = 1000
+
+
+def extract_tcga_patient_barcodes() -> list[str]:
+    """Scan all TCGA-PAAD MAF files and return sorted unique 12-char patient barcodes."""
+    maf_files = sorted(glob.glob(TCGA_MAF_GLOB))
+    if not maf_files:
+        print(f"  WARNING: No MAF files found at {TCGA_MAF_GLOB}")
+        return []
+
+    barcodes: set[str] = set()
+    for maf_path in maf_files:
+        with gzip.open(maf_path, "rt") as f:
+            for line in f:
+                if line.startswith("#") or line.startswith("Hugo_Symbol"):
+                    continue
+                cols = line.split("\t")
+                if len(cols) > 15:
+                    barcode = cols[15][:12]  # First 12 chars = patient barcode
+                    if barcode.startswith("TCGA-"):
+                        barcodes.add(barcode)
+                break  # Only need one data line per file to get the barcode
+
+    return sorted(barcodes)
+
+
+def create_tcga_persons(barcodes: list[str], start_id: int) -> list[dict]:
+    """Create synthetic person dicts for TCGA-PAAD patients."""
+    rng = random.Random(42 + TCGA_SEED_OFFSET)
+    persons: list[dict] = []
+
+    for i, barcode in enumerate(barcodes):
+        person_id = start_id + i + 1
+
+        # Demographics: synthetic, same approach as PANCREAS-CT
+        gender = MALE if rng.random() < 0.55 else FEMALE
+        age = rng.randint(50, 80)
+        year_of_birth = 2020 - age  # Reference year ~2020
+        month_of_birth = rng.randint(1, 12)
+        day_of_birth = rng.randint(1, 28)
+
+        # Race: weighted toward White (matching PDAC epidemiology)
+        race_roll = rng.random()
+        if race_roll < 0.70:
+            race = WHITE
+        elif race_roll < 0.88:
+            race = BLACK
+        else:
+            race = ASIAN
+
+        persons.append({
+            "person_id": person_id,
+            "gender_concept_id": gender,
+            "year_of_birth": year_of_birth,
+            "month_of_birth": month_of_birth,
+            "day_of_birth": day_of_birth,
+            "race_concept_id": race,
+            "care_site_id": 3,
+            "person_source_value": barcode,
+            "dataset": "TCGA-PAAD",
+        })
+
+    return persons
+
+
 def load_persons() -> list[dict]:
     """Read existing persons from pancreas.person."""
     conn = psycopg2.connect(
@@ -1106,8 +1222,15 @@ def build_trajectories(persons: list[dict]) -> list[PatientTrajectory]:
 
     for person in persons:
         pid = person["person_id"]
-        # Deterministic per-patient RNG
-        rng = random.Random(pid * 7919 + 104729)
+        # Deterministic per-patient RNG — use offset seed for TCGA to avoid collision
+        dataset = person.get("dataset", "")
+        if not dataset:
+            # Derive from care_site_id for existing DB persons
+            dataset = {1: "PANCREAS-CT", 2: "CPTAC-PDA"}.get(person["care_site_id"], "unknown")
+        if dataset == "TCGA-PAAD":
+            rng = random.Random(pid * 7919 + 104729 + TCGA_SEED_OFFSET)
+        else:
+            rng = random.Random(pid * 7919 + 104729)
 
         is_cptac = person["care_site_id"] == 2
         subgroup = assign_subgroup(rng, is_cptac)
@@ -1183,17 +1306,45 @@ def main() -> None:
     print("=" * 60)
 
     # Step 1: Load existing persons
-    print("\n[1/5] Loading persons from pancreas.person...")
-    persons = load_persons()
-    print(f"  Loaded {len(persons)} persons")
+    print("\n[1/6] Loading existing persons from pancreas.person...")
+    existing_persons = load_persons()
+    print(f"  Loaded {len(existing_persons)} existing persons")
 
-    if len(persons) == 0:
+    if len(existing_persons) == 0:
         print("  ERROR: No persons found. Run populate_cdm.py first.")
         sys.exit(1)
 
-    # Step 2: Build trajectories
-    print("\n[2/5] Building clinical trajectories...")
-    trajectories = build_trajectories(persons)
+    max_existing_id = max(p["person_id"] for p in existing_persons)
+    print(f"  Max existing person_id: {max_existing_id}")
+
+    # Step 2: Extract TCGA-PAAD patient barcodes from MAF files
+    print("\n[2/6] Extracting TCGA-PAAD patient barcodes from MAF files...")
+    tcga_barcodes = extract_tcga_patient_barcodes()
+    print(f"  Found {len(tcga_barcodes)} unique TCGA patient barcodes")
+
+    # Step 3: Create synthetic person dicts for TCGA-PAAD patients
+    print("\n[3/6] Creating TCGA-PAAD person records...")
+    tcga_persons = create_tcga_persons(tcga_barcodes, max_existing_id)
+    print(f"  Created {len(tcga_persons)} TCGA-PAAD person records (IDs {max_existing_id + 1}-{max_existing_id + len(tcga_persons)})")
+
+    # Merge all persons for trajectory generation
+    # Add dataset key to existing persons for stratification
+    for p in existing_persons:
+        p["dataset"] = {1: "PANCREAS-CT", 2: "CPTAC-PDA"}.get(p["care_site_id"], "unknown")
+    all_persons = existing_persons + tcga_persons
+    print(f"  Total persons: {len(all_persons)}")
+
+    # Care site distribution
+    cs_counts: dict[int, int] = {}
+    for p in all_persons:
+        cs_counts[p["care_site_id"]] = cs_counts.get(p["care_site_id"], 0) + 1
+    cs_names = {1: "PANCREAS-CT", 2: "CPTAC-PDA", 3: "TCGA-PAAD"}
+    for cs_id in sorted(cs_counts):
+        print(f"    care_site {cs_id} ({cs_names.get(cs_id, '?')}): {cs_counts[cs_id]}")
+
+    # Step 4: Build trajectories
+    print("\n[4/6] Building clinical trajectories...")
+    trajectories = build_trajectories(all_persons)
     print_subgroup_stats(trajectories)
 
     # Count totals
@@ -1214,15 +1365,15 @@ def main() -> None:
     print(f"    Specimens:        {total_specimens:,}")
     print(f"    Deaths:           {total_deaths:,}")
 
-    # Step 3: Generate SQL
-    print("\n[3/5] Generating SQL...")
-    sql = generate_sql(trajectories)
+    # Step 5: Generate SQL
+    print("\n[5/6] Generating SQL...")
+    sql = generate_sql(trajectories, new_persons=tcga_persons)
     sql_file = Path(__file__).parent / "enrich_cdm.sql"
     sql_file.write_text(sql)
     print(f"  Written to {sql_file} ({len(sql):,} bytes)")
 
-    # Step 4: Execute SQL
-    print("\n[4/5] Executing SQL via psql...")
+    # Step 6: Execute SQL
+    print("\n[6/6] Executing SQL via psql...")
     result = subprocess.run(
         [
             "psql", "-h", "localhost", "-U", "claude_dev", "-d", "parthenon",
@@ -1246,8 +1397,8 @@ def main() -> None:
 
     print("  SQL executed successfully")
 
-    # Step 5: Verify
-    print("\n[5/5] Verification counts:")
+    # Verify
+    print("\n  Verification counts:")
     verify_sql = """
 SELECT 'person' as tbl, count(*) FROM pancreas.person
 UNION ALL SELECT 'observation_period', count(*) FROM pancreas.observation_period

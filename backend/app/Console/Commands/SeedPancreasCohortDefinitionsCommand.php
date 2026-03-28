@@ -172,6 +172,24 @@ class SeedPancreasCohortDefinitionsCommand extends Command
                     AND m.value_as_number > 37
             ",
 
+            'kras_mutant' => "
+                INSERT INTO pancreas_results.cohort (cohort_definition_id, subject_id, cohort_start_date, cohort_end_date)
+                SELECT DISTINCT
+                    {$cohortId},
+                    co.person_id,
+                    MIN(co.condition_start_date) OVER (PARTITION BY co.person_id),
+                    COALESCE(
+                        MAX(co.condition_end_date) OVER (PARTITION BY co.person_id),
+                        MIN(co.condition_start_date) OVER (PARTITION BY co.person_id) + INTERVAL '365 days'
+                    )
+                FROM pancreas.condition_occurrence co
+                JOIN pancreas.measurement m
+                    ON  co.person_id = m.person_id
+                    AND m.measurement_concept_id = 3012200
+                    AND m.value_as_concept_id = 4181412
+                WHERE co.condition_concept_id = 4180793
+            ",
+
             default => throw new \InvalidArgumentException("Unknown membership key: {$key}"),
         };
     }
@@ -379,6 +397,67 @@ class SeedPancreasCohortDefinitionsCommand extends Command
                                 'StartWindow' => [
                                     'Start' => ['Days' => 0, 'Coeff' => 1],
                                     'End' => ['Days' => 30, 'Coeff' => 1],
+                                ],
+                                'Occurrence' => ['Type' => 2, 'Count' => 1],
+                            ],
+                        ],
+                        'Groups' => [],
+                    ],
+                    'QualifiedLimit' => ['Type' => 'First'],
+                    'ExpressionLimit' => ['Type' => 'First'],
+                    'CollapseSettings' => ['CollapseType' => 'ERA', 'EraPad' => 0],
+                ],
+            ],
+
+            // ── 5. KRAS Mutant PDAC ─────────────────────────────────────────
+            [
+                'name' => 'KRAS Mutant PDAC',
+                'description' => 'PDAC patients with a detected KRAS somatic mutation (concept 3012200, value Present). KRAS is mutated in ~93% of pancreatic adenocarcinomas and is the hallmark oncogenic driver.',
+                'author_id' => $adminId,
+                'is_public' => true,
+                'version' => 1,
+                'tags' => ['pancreatic-cancer', 'pdac', 'kras', 'genomics', 'corpus'],
+                '_membership_key' => 'kras_mutant',
+                'expression_json' => [
+                    'ConceptSets' => [
+                        [
+                            'id' => 0,
+                            'name' => 'PDAC Condition',
+                            'expression' => [
+                                'items' => [
+                                    $this->conceptItem(4180793, 'Malignant tumor of pancreas', 'Condition', 'SNOMED', 'Clinical Finding', 'S'),
+                                ],
+                            ],
+                        ],
+                        [
+                            'id' => 1,
+                            'name' => 'KRAS Mutation Analysis',
+                            'expression' => [
+                                'items' => [
+                                    $this->conceptItem(3012200, 'KRAS gene mutations found [Identifier] in Blood or Tissue by Molecular genetics method', 'Measurement', 'LOINC', 'Lab Test', 'S'),
+                                ],
+                            ],
+                        ],
+                    ],
+                    'PrimaryCriteria' => [
+                        'CriteriaList' => [
+                            ['ConditionOccurrence' => ['CodesetId' => 0, 'First' => true]],
+                        ],
+                        'ObservationWindow' => ['PriorDays' => 0, 'PostDays' => 0],
+                    ],
+                    'AdditionalCriteria' => [
+                        'Type' => 'ALL',
+                        'CriteriaList' => [
+                            [
+                                'Criteria' => [
+                                    'Measurement' => [
+                                        'CodesetId' => 1,
+                                        'ValueAsConcept' => [['CONCEPT_ID' => 4181412, 'CONCEPT_NAME' => 'Present']],
+                                    ],
+                                ],
+                                'StartWindow' => [
+                                    'Start' => ['Days' => 365, 'Coeff' => -1],
+                                    'End' => ['Days' => 365, 'Coeff' => 1],
                                 ],
                                 'Occurrence' => ['Type' => 2, 'Count' => 1],
                             ],
