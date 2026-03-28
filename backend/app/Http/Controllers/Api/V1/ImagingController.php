@@ -8,6 +8,7 @@ use App\Models\App\ImagingFeature;
 use App\Models\App\ImagingInstance;
 use App\Models\App\ImagingSeries;
 use App\Models\App\ImagingStudy;
+use App\Models\App\PacsConnection;
 use App\Services\Imaging\DicomFileService;
 use App\Services\Imaging\DicomwebService;
 use App\Services\Imaging\RadiologyNlpService;
@@ -57,7 +58,26 @@ class ImagingController extends Controller
 
     public function indexStudies(Request $request): JsonResponse
     {
-        $query = ImagingStudy::orderByDesc('study_date');
+        $sortBy = $request->string('sort_by', 'study_date')->toString();
+        $sortDir = strtolower($request->string('sort_dir', 'desc')->toString()) === 'asc' ? 'asc' : 'desc';
+        $sortable = [
+            'study_date',
+            'modality',
+            'body_part_examined',
+            'study_description',
+            'num_series',
+            'num_images',
+            'person_id',
+            'status',
+            'created_at',
+            'updated_at',
+        ];
+
+        if (! in_array($sortBy, $sortable, true)) {
+            $sortBy = 'study_date';
+        }
+
+        $query = ImagingStudy::query();
 
         if ($request->filled('source_id')) {
             $query->where('source_id', $request->integer('source_id'));
@@ -68,7 +88,49 @@ class ImagingController extends Controller
         if ($request->filled('person_id')) {
             $query->where('person_id', $request->integer('person_id'));
         }
+        if ($request->filled('status')) {
+            $query->where('status', $request->string('status'));
+        }
+        if ($request->filled('body_part')) {
+            $terms = $this->expandImagingSearchTerms($request->string('body_part')->toString());
+            $query->where(function ($q) use ($terms) {
+                foreach ($terms as $term) {
+                    $pattern = '%'.$term.'%';
+                    $q->orWhere('body_part_examined', 'ilike', $pattern)
+                        ->orWhereHas('series', function ($series) use ($pattern) {
+                            $series->where('body_part_examined', 'ilike', $pattern);
+                        });
+                }
+            });
+        }
+        if ($request->filled('date_from')) {
+            $query->whereDate('study_date', '>=', $request->string('date_from')->toString());
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('study_date', '<=', $request->string('date_to')->toString());
+        }
+        if ($request->filled('q')) {
+            $terms = $this->expandImagingSearchTerms($request->string('q')->toString());
+            $query->where(function ($q) use ($terms) {
+                foreach ($terms as $term) {
+                    $pattern = '%'.$term.'%';
+                    $q->orWhere('study_instance_uid', 'ilike', $pattern)
+                        ->orWhere('accession_number', 'ilike', $pattern)
+                        ->orWhere('study_description', 'ilike', $pattern)
+                        ->orWhere('body_part_examined', 'ilike', $pattern)
+                        ->orWhere('patient_name_dicom', 'ilike', $pattern)
+                        ->orWhere('patient_id_dicom', 'ilike', $pattern)
+                        ->orWhere('modality', 'ilike', $pattern)
+                        ->orWhereHas('series', function ($series) use ($pattern) {
+                            $series->where('series_description', 'ilike', $pattern)
+                                ->orWhere('body_part_examined', 'ilike', $pattern)
+                                ->orWhere('modality', 'ilike', $pattern);
+                        });
+                }
+            });
+        }
 
+        $query->orderBy($sortBy, $sortDir)->orderBy('id', $sortDir);
         $studies = $query->paginate($request->integer('per_page', 25));
 
         return response()->json($studies);
@@ -91,6 +153,8 @@ class ImagingController extends Controller
             'source_id' => 'required|integer|exists:sources,id',
             'limit' => 'nullable|integer|min:1|max:1000',
             'modality' => 'nullable|string|max:10',
+            'sync_all' => 'nullable|boolean',
+            'batch_size' => 'nullable|integer|min:1|max:500',
         ]);
 
         $filters = [];
@@ -98,13 +162,60 @@ class ImagingController extends Controller
             $filters['Modality'] = $request->string('modality');
         }
 
-        $result = $this->dicomweb->indexStudies(
-            $validated['source_id'],
-            $request->integer('limit', 100),
-            $filters
-        );
+        $dicomweb = PacsConnection::query()
+            ->where('is_active', true)
+            ->orderByDesc('is_default')
+            ->orderBy('id')
+            ->get()
+            ->map(fn (PacsConnection $conn) => DicomwebService::forConnection($conn))
+            ->first() ?? $this->dicomweb;
+
+        $result = $request->boolean('sync_all')
+            ? $dicomweb->syncStudies(
+                $validated['source_id'],
+                $request->integer('batch_size', 100),
+                $filters,
+                $request->integer('limit')
+            )
+            : $dicomweb->indexStudies(
+                $validated['source_id'],
+                $request->integer('limit', 100),
+                $filters
+            );
 
         return response()->json(['data' => $result]);
+    }
+
+    /**
+     * Expand common anatomy search terms so user-facing search matches the
+     * vocabulary actually present in DICOM metadata.
+     *
+     * @return array<int, string>
+     */
+    private function expandImagingSearchTerms(string $term): array
+    {
+        $normalized = strtolower(trim(preg_replace('/\s+/', ' ', $term) ?? ''));
+        if ($normalized === '') {
+            return [];
+        }
+
+        $synonyms = [
+            'brain' => ['brain', 'head'],
+            'head' => ['head', 'brain'],
+            'chest' => ['chest', 'lung', 'thorax', 'thoracic'],
+            'lung' => ['lung', 'chest', 'thorax', 'thoracic'],
+            'abdomen' => ['abdomen', 'abdominal'],
+            'abdominal' => ['abdominal', 'abdomen'],
+            'pelvis' => ['pelvis', 'pelvic'],
+            'pelvic' => ['pelvic', 'pelvis'],
+        ];
+
+        $terms = [$term];
+        if (isset($synonyms[$normalized])) {
+            array_push($terms, ...$synonyms[$normalized]);
+        }
+
+        return array_values(array_unique(array_filter($terms)));
     }
 
     /**

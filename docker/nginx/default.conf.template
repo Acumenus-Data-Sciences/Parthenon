@@ -87,14 +87,41 @@ server {
         try_files $uri $uri/ $uri/index.html /docs/index.html;
     }
 
+    # Imaging routes must be cross-origin isolated so the embedded OHIF iframe
+    # can use SharedArrayBuffer-backed volume viewports (MPR / 3D).
+    location = /imaging {
+        add_header Cross-Origin-Opener-Policy "same-origin" always;
+        add_header Cross-Origin-Embedder-Policy "require-corp" always;
+        root /var/www/frontend;
+        try_files $uri $uri/ @imaging_fallback;
+    }
+
+    location ^~ /imaging/ {
+        add_header Cross-Origin-Opener-Policy "same-origin" always;
+        add_header Cross-Origin-Embedder-Policy "require-corp" always;
+        root /var/www/frontend;
+        try_files $uri $uri/ @imaging_fallback;
+    }
+
+    location @imaging_fallback {
+        add_header Cross-Origin-Opener-Policy "same-origin" always;
+        add_header Cross-Origin-Embedder-Policy "require-corp" always;
+        root /var/www/frontend;
+        try_files /index.html =404;
+    }
+
     # ── OHIF Viewer (static build) ────────────────────────────────────────
     location ^~ /ohif/ {
+        add_header Cross-Origin-Opener-Policy "same-origin" always;
+        add_header Cross-Origin-Embedder-Policy "require-corp" always;
         root /var/www;
         index index.html;
         try_files $uri $uri/ @ohif_fallback;
     }
 
     location @ohif_fallback {
+        add_header Cross-Origin-Opener-Policy "same-origin" always;
+        add_header Cross-Origin-Embedder-Policy "require-corp" always;
         root /var/www;
         try_files /ohif/index.html =404;
     }

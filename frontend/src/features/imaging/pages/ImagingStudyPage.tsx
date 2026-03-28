@@ -1,4 +1,4 @@
-import { useParams, Link } from "react-router-dom";
+import { useLocation, useParams, Link } from "react-router-dom";
 import { useState } from "react";
 import { ArrowLeft, Layers, Brain, Loader2, ScanLine, Monitor, Ruler } from "lucide-react";
 import { useImagingStudy, useIndexSeries, useExtractNlp, useImagingFeatures } from "../hooks/useImaging";
@@ -16,6 +16,7 @@ type StudyTab = (typeof STUDY_TABS)[number]["id"];
 
 export default function ImagingStudyPage() {
   const { id } = useParams<{ id: string }>();
+  const location = useLocation();
   const studyId = parseInt(id ?? "0");
   const [activeTab, setActiveTab] = useState<StudyTab>("metadata");
 
@@ -57,7 +58,7 @@ export default function ImagingStudyPage() {
     <div className="space-y-6">
       {/* Back nav */}
       <Link
-        to="/imaging"
+        to={`/imaging${location.search}`}
         className="inline-flex items-center gap-1.5 text-sm text-[#8A857D] hover:text-[#F0EDE8] transition-colors"
       >
         <ArrowLeft size={14} />

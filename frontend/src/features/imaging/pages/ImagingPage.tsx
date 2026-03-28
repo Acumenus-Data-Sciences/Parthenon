@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import {
   ScanLine,
   Layers,
@@ -183,14 +183,64 @@ function LocalImportPanel() {
 }
 
 function StudiesTab() {
-  const [sourceId, setSourceId] = useState("");
-  const [modality, setModality] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const sourceId = searchParams.get("source_id") ?? "";
+  const modality = searchParams.get("modality") ?? "";
+  const status = searchParams.get("status") ?? "";
+  const bodyPart = searchParams.get("body_part") ?? "";
+  const search = searchParams.get("q") ?? "";
+  const dateFrom = searchParams.get("date_from") ?? "";
+  const dateTo = searchParams.get("date_to") ?? "";
+  const sortBy = searchParams.get("sort_by") ?? "study_date";
+  const sortDir = searchParams.get("sort_dir") === "asc" ? "asc" : "desc";
+  const page = Math.max(1, parseInt(searchParams.get("page") ?? "1", 10) || 1);
   const { data, isLoading } = useImagingStudies({
     source_id: sourceId ? parseInt(sourceId) : undefined,
     modality: modality || undefined,
+    status: status || undefined,
+    body_part: bodyPart || undefined,
+    q: search || undefined,
+    date_from: dateFrom || undefined,
+    date_to: dateTo || undefined,
+    sort_by: sortBy,
+    sort_dir: sortDir,
     per_page: 25,
+    page,
   });
   const indexMutation = useIndexFromDicomweb();
+
+  const updateStudyParams = (updates: Record<string, string | null>, resetPage = false) => {
+    const next = new URLSearchParams(searchParams);
+
+    Object.entries(updates).forEach(([key, value]) => {
+      if (value === null || value === "") {
+        next.delete(key);
+      } else {
+        next.set(key, value);
+      }
+    });
+
+    if (resetPage) {
+      next.delete("page");
+    }
+
+    next.set("tab", "studies");
+    setSearchParams(next);
+  };
+
+  const toggleSort = (column: string) => {
+    if (sortBy === column) {
+      updateStudyParams({ sort_dir: sortDir === "asc" ? "desc" : "asc" }, true);
+      return;
+    }
+    updateStudyParams(
+      {
+        sort_by: column,
+        sort_dir: column === "study_date" ? "desc" : "asc",
+      },
+      true,
+    );
+  };
 
   return (
     <div className="space-y-4">
@@ -198,14 +248,14 @@ function StudiesTab() {
       <LocalImportPanel />
 
       {/* DICOMweb filter + index */}
-      <div className="flex items-end gap-3">
+      <div className="flex items-end gap-3 flex-wrap">
         <div>
           <label className="block text-xs text-[#8A857D] mb-1.5">Filter by Source ID</label>
           <input
             className="w-28 rounded-lg bg-[#151518] border border-[#232328] px-3 py-2 text-sm text-[#F0EDE8] placeholder:text-[#5A5650] focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40 transition-colors"
             placeholder="e.g. 9"
             value={sourceId}
-            onChange={(e) => setSourceId(e.target.value)}
+            onChange={(e) => updateStudyParams({ source_id: e.target.value }, true)}
           />
         </div>
         <div>
@@ -214,9 +264,81 @@ function StudiesTab() {
             className="w-40 rounded-lg bg-[#151518] border border-[#232328] px-3 py-2 text-sm text-[#F0EDE8] placeholder:text-[#5A5650] focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40 transition-colors"
             placeholder="CT, MR…"
             value={modality}
-            onChange={(e) => setModality(e.target.value)}
+            onChange={(e) => updateStudyParams({ modality: e.target.value }, true)}
           />
         </div>
+        <div>
+          <label className="block text-xs text-[#8A857D] mb-1.5">Status</label>
+          <select
+            className="w-36 rounded-lg bg-[#151518] border border-[#232328] px-3 py-2 text-sm text-[#F0EDE8] focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40 transition-colors"
+            value={status}
+            onChange={(e) => updateStudyParams({ status: e.target.value }, true)}
+          >
+            <option value="">All statuses</option>
+            <option value="indexed">indexed</option>
+            <option value="processed">processed</option>
+            <option value="error">error</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-xs text-[#8A857D] mb-1.5">Body Part</label>
+          <input
+            className="w-40 rounded-lg bg-[#151518] border border-[#232328] px-3 py-2 text-sm text-[#F0EDE8] placeholder:text-[#5A5650] focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40 transition-colors"
+            placeholder="Chest, Brain…"
+            value={bodyPart}
+            onChange={(e) => updateStudyParams({ body_part: e.target.value }, true)}
+          />
+        </div>
+        <div className="min-w-[220px] flex-1">
+          <label className="block text-xs text-[#8A857D] mb-1.5">Find</label>
+          <input
+            className="w-full rounded-lg bg-[#151518] border border-[#232328] px-3 py-2 text-sm text-[#F0EDE8] placeholder:text-[#5A5650] focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40 transition-colors"
+            placeholder="UID, accession, description, patient…"
+            value={search}
+            onChange={(e) => updateStudyParams({ q: e.target.value }, true)}
+          />
+        </div>
+        <div>
+          <label className="block text-xs text-[#8A857D] mb-1.5">From</label>
+          <input
+            type="date"
+            className="w-40 rounded-lg bg-[#151518] border border-[#232328] px-3 py-2 text-sm text-[#F0EDE8] focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40 transition-colors"
+            value={dateFrom}
+            onChange={(e) => updateStudyParams({ date_from: e.target.value }, true)}
+          />
+        </div>
+        <div>
+          <label className="block text-xs text-[#8A857D] mb-1.5">To</label>
+          <input
+            type="date"
+            className="w-40 rounded-lg bg-[#151518] border border-[#232328] px-3 py-2 text-sm text-[#F0EDE8] focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40 transition-colors"
+            value={dateTo}
+            onChange={(e) => updateStudyParams({ date_to: e.target.value }, true)}
+          />
+        </div>
+        <button
+          type="button"
+          onClick={() => {
+            const next = new URLSearchParams(searchParams);
+            [
+              "source_id",
+              "modality",
+              "status",
+              "body_part",
+              "q",
+              "date_from",
+              "date_to",
+              "sort_by",
+              "sort_dir",
+              "page",
+            ].forEach((key) => next.delete(key));
+            next.set("tab", "studies");
+            setSearchParams(next);
+          }}
+          className="inline-flex items-center gap-2 rounded-lg border border-[#2A2A30] bg-[#151518] px-4 py-2 text-sm font-medium text-[#8A857D] hover:text-[#C5C0B8] hover:border-[#3A3A42] transition-colors"
+        >
+          Reset
+        </button>
         {sourceId && (
           <button
             type="button"
@@ -224,13 +346,15 @@ function StudiesTab() {
               indexMutation.mutate({
                 source_id: parseInt(sourceId),
                 modality: modality || undefined,
+                sync_all: true,
+                batch_size: 100,
               })
             }
             disabled={indexMutation.isPending}
             className="inline-flex items-center gap-2 rounded-lg border border-[#2A2A30] bg-[#151518] px-4 py-2 text-sm font-medium text-[#8A857D] hover:text-[#C5C0B8] hover:border-[#3A3A42] disabled:opacity-50 transition-colors"
           >
             <RefreshCw size={14} className={indexMutation.isPending ? "animate-spin" : ""} />
-            Index from DICOMweb
+            Sync Full Catalog
           </button>
         )}
       </div>
@@ -239,6 +363,9 @@ function StudiesTab() {
         <div className="rounded-lg border border-[#2DD4BF]/30 bg-[#2DD4BF]/10 px-4 py-3 text-sm text-[#2DD4BF]">
           Indexed {(indexMutation.data as { indexed: number }).indexed} new /{" "}
           updated {(indexMutation.data as { updated: number }).updated} studies
+          {"scanned" in (indexMutation.data as object) && (
+            <> across {String((indexMutation.data as { scanned?: number }).scanned ?? 0)} scanned records</>
+          )}
         </div>
       )}
 
@@ -247,16 +374,35 @@ function StudiesTab() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-[#232328]">
-                {["Study Date", "Modality", "Body Part", "Description", "Series", "Images", "Person", "Status", ""].map(
-                  (h) => (
+                {[
+                  ["Study Date", "study_date"],
+                  ["Modality", "modality"],
+                  ["Body Part", "body_part_examined"],
+                  ["Description", "study_description"],
+                  ["Series", "num_series"],
+                  ["Images", "num_images"],
+                  ["Person", "person_id"],
+                  ["Status", "status"],
+                ].map(([label, column]) => (
                     <th
-                      key={h}
+                      key={label}
                       className="px-4 py-2.5 text-left text-[10px] font-medium text-[#5A5650] uppercase tracking-wider"
                     >
-                      {h}
+                      <button
+                        type="button"
+                        onClick={() => toggleSort(column)}
+                        className="inline-flex items-center gap-1 hover:text-[#C5C0B8]"
+                      >
+                        {label}
+                        {sortBy === column && <span>{sortDir === "asc" ? "↑" : "↓"}</span>}
+                      </button>
                     </th>
-                  )
-                )}
+                  ))}
+                <th
+                  className="px-4 py-2.5 text-left text-[10px] font-medium text-[#5A5650] uppercase tracking-wider"
+                >
+                  {""}
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#1E1E23]">
@@ -298,7 +444,10 @@ function StudiesTab() {
                   </td>
                   <td className="px-4 py-3">
                     <Link
-                      to={`/imaging/studies/${study.id}`}
+                      to={{
+                        pathname: `/imaging/studies/${study.id}`,
+                        search: searchParams.toString() ? `?${searchParams.toString()}` : "",
+                      }}
                       className="inline-flex items-center gap-1 text-xs text-[#2DD4BF] hover:text-[#26B8A5] transition-colors"
                     >
                       Details <ChevronRight size={12} />
@@ -310,9 +459,29 @@ function StudiesTab() {
           </table>
         </div>
         {data && (
-          <div className="px-4 py-2.5 text-xs text-[#5A5650] border-t border-[#232328]">
-            {data.total.toLocaleString()} total studies · page {data.current_page} of{" "}
-            {data.last_page}
+          <div className="flex items-center justify-between gap-3 px-4 py-2.5 text-xs text-[#5A5650] border-t border-[#232328]">
+            <div>
+              {data.total.toLocaleString()} total studies · page {data.current_page} of{" "}
+              {data.last_page}
+            </div>
+            <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                onClick={() => updateStudyParams({ page: String(Math.max(1, page - 1)) })}
+                disabled={data.current_page <= 1 || isLoading}
+                className="rounded border border-[#2A2A30] px-2.5 py-1 text-[#8A857D] hover:text-[#C5C0B8] hover:border-[#3A3A42] disabled:opacity-40"
+              >
+                Prev
+              </button>
+                <button
+                  type="button"
+                onClick={() => updateStudyParams({ page: String(Math.min(data.last_page, page + 1)) })}
+                disabled={data.current_page >= data.last_page || isLoading}
+                className="rounded border border-[#2A2A30] px-2.5 py-1 text-[#8A857D] hover:text-[#C5C0B8] hover:border-[#3A3A42] disabled:opacity-40"
+              >
+                Next
+              </button>
+            </div>
           </div>
         )}
       </div>
@@ -620,7 +789,19 @@ function AnalyticsTab() {
 }
 
 export default function ImagingPage() {
-  const [tab, setTab] = useState<Tab>("studies");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tabParam = searchParams.get("tab");
+  const tab: Tab = TABS.some(({ id }) => id === tabParam) ? (tabParam as Tab) : "studies";
+
+  const setTab = (nextTab: Tab) => {
+    const next = new URLSearchParams(searchParams);
+    if (nextTab === "studies") {
+      next.delete("tab");
+    } else {
+      next.set("tab", nextTab);
+    }
+    setSearchParams(next);
+  };
 
   return (
     <div className="space-y-6">

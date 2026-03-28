@@ -221,6 +221,8 @@ class DicomwebService
             ];
         }
 
+        $studyPatch = $this->buildStudyPatchFromMetadata($metadata);
+
         $seriesRows = [];
         $instanceRows = [];
         $seriesCounts = [];
@@ -310,10 +312,10 @@ class DicomwebService
             );
         }
 
-        $study->update([
+        $study->update(array_merge($studyPatch, [
             'num_series' => count($seriesRows),
             'num_images' => count($instanceRows),
-        ]);
+        ]));
 
         return [
             'series_indexed' => count($seriesUids) - $existingSeries->count(),
@@ -567,6 +569,41 @@ class DicomwebService
         $cols = $this->extractInt($dataset, '00280011');
 
         return $rows && $cols ? "{$rows}x{$cols}" : null;
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>  $metadata
+     * @return array<string, mixed>
+     */
+    private function buildStudyPatchFromMetadata(array $metadata): array
+    {
+        $patch = [];
+
+        foreach ($metadata as $instance) {
+            $studyDescription = $this->extractValue($instance, '00081030');
+            $bodyPart = $this->extractValue($instance, '00180015');
+            $institution = $this->extractValue($instance, '00080080');
+            $referrer = $this->extractValue($instance, '00080090');
+
+            if ($studyDescription !== null && $studyDescription !== '') {
+                $patch['study_description'] = $studyDescription;
+            }
+            if ($bodyPart !== null && $bodyPart !== '') {
+                $patch['body_part_examined'] = $bodyPart;
+            }
+            if ($institution !== null && $institution !== '') {
+                $patch['institution_name'] = $institution;
+            }
+            if ($referrer !== null && $referrer !== '') {
+                $patch['referring_physician'] = $referrer;
+            }
+
+            if (isset($patch['study_description'], $patch['body_part_examined'])) {
+                break;
+            }
+        }
+
+        return $patch;
     }
 
     /**

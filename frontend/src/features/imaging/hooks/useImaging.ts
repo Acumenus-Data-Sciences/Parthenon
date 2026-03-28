@@ -76,7 +76,10 @@ export function useIndexFromDicomweb() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: imagingApi.indexFromDicomweb,
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["imaging", "studies"] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["imaging", "studies"] });
+      qc.invalidateQueries({ queryKey: ["imaging", "stats"] });
+    },
   });
 }
 

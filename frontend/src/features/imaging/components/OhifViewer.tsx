@@ -168,6 +168,7 @@ export default function OhifViewer({
   }, [studyId, pending, onMeasurementSaved]);
 
   const ohifUrl = `/ohif/viewer?StudyInstanceUIDs=${encodeURIComponent(studyInstanceUid)}`;
+  const ohifMprUrl = `/ohif/viewer?StudyInstanceUIDs=${encodeURIComponent(studyInstanceUid)}&hangingProtocolId=${encodeURIComponent("@ohif/mnGrid")}`;
 
   return (
     <div ref={containerRef} className={`relative rounded-lg border border-[#1E1E23] overflow-hidden ${className}`}>
@@ -253,6 +254,19 @@ export default function OhifViewer({
         )}
 
         {/* Expand to new tab */}
+        {!loading && !error && (
+          <a
+            href={ohifMprUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 rounded-md bg-[#0E0E11]/80 px-2 py-1 text-[10px] text-[#60A5FA] hover:text-[#93C5FD] transition-colors backdrop-blur-sm"
+            title="Open OHIF in MPR layout"
+          >
+            MPR
+            <ExternalLink size={10} />
+          </a>
+        )}
+
         {!loading && !error && (
           <a
             href={ohifUrl}

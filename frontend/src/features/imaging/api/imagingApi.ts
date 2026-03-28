@@ -23,6 +23,13 @@ export const imagingApi = {
     source_id?: number;
     modality?: string;
     person_id?: number;
+    status?: string;
+    body_part?: string;
+    q?: string;
+    date_from?: string;
+    date_to?: string;
+    sort_by?: string;
+    sort_dir?: "asc" | "desc";
     per_page?: number;
     page?: number;
   }) =>
@@ -33,9 +40,15 @@ export const imagingApi = {
   getStudy: (id: number) =>
     apiClient.get<{ data: ImagingStudy }>(`/imaging/studies/${id}`).then((r) => r.data.data),
 
-  indexFromDicomweb: (payload: { source_id: number; limit?: number; modality?: string }) =>
+  indexFromDicomweb: (payload: {
+    source_id: number;
+    limit?: number;
+    modality?: string;
+    sync_all?: boolean;
+    batch_size?: number;
+  }) =>
     apiClient
-      .post<{ data: { indexed: number; updated: number; errors: number } }>(
+      .post<{ data: { indexed: number; updated: number; errors: number; scanned?: number; batches?: number } }>(
         "/imaging/studies/index-from-dicomweb",
         payload,
       )
