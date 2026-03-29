@@ -66,6 +66,7 @@ export default function RiskScoreHubPage() {
   const [showDropdown, setShowDropdown] = useState(false);
   const [drilldownStatus, setDrilldownStatus] = useState<string | null>(null);
   const [showCatalogue, setShowCatalogue] = useState(false);
+  const [hubTab, setHubTab] = useState<"analyses" | "catalogue">("analyses");
   const searchRef = useRef<HTMLDivElement>(null);
 
   const hasFilters = !!(filterStatus || filterCategory);
@@ -136,6 +137,16 @@ export default function RiskScoreHubPage() {
   }, []);
 
   // Derive the latest execution status for display
+  // Group catalogue scores by category for the catalogue tab
+  const catalogueGroups = useMemo(() => {
+    if (!catalogue?.scores) return [];
+    return CATEGORY_ORDER.map((category) => ({
+      category,
+      color: CATEGORY_COLORS[category] ?? "#8A857D",
+      scores: catalogue.scores.filter((s) => s.category === category),
+    })).filter((g) => g.scores.length > 0);
+  }, [catalogue]);
+
   const getAnalysisStatus = (a: RiskScoreAnalysis): string => {
     if (!a.executions || a.executions.length === 0) return "draft";
     // Latest execution status
@@ -297,7 +308,7 @@ export default function RiskScoreHubPage() {
             ].map((metric) => {
               const Icon = metric.icon;
               const isDrilling =
-                (metric.drilldown === "__catalogue__" && showCatalogue) ||
+                (metric.drilldown === "__catalogue__" && hubTab === "catalogue") ||
                 (metric.drilldown !== null && metric.drilldown !== "__catalogue__" && drilldownStatus === metric.drilldown);
               return (
                 <button
@@ -305,14 +316,13 @@ export default function RiskScoreHubPage() {
                   type="button"
                   onClick={() => {
                     if (metric.drilldown === "__catalogue__") {
-                      setShowCatalogue((prev) => !prev);
+                      setHubTab("catalogue");
                       setDrilldownStatus(null);
                     } else if (metric.drilldown === null) {
                       setDrilldownStatus(null);
-                      setShowCatalogue(false);
                     } else {
+                      setHubTab("analyses");
                       setDrilldownStatus(drilldownStatus === metric.drilldown ? null : metric.drilldown);
-                      setShowCatalogue(false);
                     }
                   }}
                   className={cn(
@@ -402,192 +412,215 @@ export default function RiskScoreHubPage() {
         </div>
       )}
 
-      {/* Score Catalogue Panel */}
-      {showCatalogue && catalogue?.scores && (
-        <div className="rounded-lg border border-[#60A5FA]/20 bg-[#60A5FA]/5 overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-2.5 bg-[#1C1C20] border-b border-[#232328]">
-            <div className="flex items-center gap-2">
-              <BarChart3 size={14} className="text-[#60A5FA]" />
-              <p className="text-[11px] font-semibold text-[#C5C0B8] uppercase tracking-wider">
-                Available Risk Scores
-                <span className="ml-1.5 text-[#5A5650]">({catalogue.scores.length})</span>
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => setShowCatalogue(false)}
-              className="text-[#5A5650] hover:text-[#C5C0B8] transition-colors"
-            >
-              <X size={14} />
-            </button>
-          </div>
-          <div className="p-4 space-y-4 max-h-96 overflow-y-auto">
-            {CATEGORY_ORDER.map((category) => {
-              const categoryScores = catalogue.scores.filter(
-                (s) => s.category === category,
-              );
-              if (categoryScores.length === 0) return null;
-              const catColor = CATEGORY_COLORS[category] ?? "#8A857D";
-              return (
-                <div key={category}>
-                  <p className="text-[10px] font-semibold uppercase tracking-wider mb-2" style={{ color: catColor }}>
-                    {category}
-                    <span className="ml-1 text-[#5A5650]">({categoryScores.length})</span>
-                  </p>
-                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
-                    {categoryScores.map((score) => (
-                      <div
-                        key={score.score_id}
-                        className="flex items-start gap-2.5 rounded-lg border border-[#232328] bg-[#151518] px-3 py-2.5"
-                      >
-                        <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#5A5650] mt-0.5 shrink-0">
-                          {score.score_id}
-                        </span>
-                        <div className="min-w-0">
-                          <p className="text-xs font-medium text-[#F0EDE8] truncate">
-                            {score.score_name}
-                          </p>
-                          <p className="text-[10px] text-[#5A5650] line-clamp-2 mt-0.5">
-                            {score.description}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          <div className="px-4 py-2.5 border-t border-[#232328] bg-[#1C1C20]">
-            <button
-              type="button"
-              onClick={() => {
-                setShowCatalogue(false);
-                navigate("/risk-scores/create");
-              }}
-              className="flex items-center gap-1.5 text-xs text-[#2DD4BF] hover:text-[#2DD4BF]/80 transition-colors"
-            >
-              <Plus size={12} />
-              Create analysis with these scores
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Filter Chips */}
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="text-[10px] text-[#5A5650] uppercase tracking-wider mr-1">Status</span>
-        {STATUS_OPTIONS.map((opt) => {
-          const count = facets?.status?.[opt.value];
-          return (
-            <button
-              key={opt.value}
-              type="button"
-              onClick={() => setFilterStatus(filterStatus === opt.value ? null : opt.value)}
-              className={cn(
-                "px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors border",
-                filterStatus === opt.value
-                  ? "border-transparent"
-                  : "border-[#232328] bg-[#151518] text-[#8A857D] hover:text-[#C5C0B8] hover:border-[#323238]",
-              )}
-              style={filterStatus === opt.value ? { backgroundColor: `${opt.color}20`, color: opt.color, borderColor: `${opt.color}40` } : undefined}
-            >
-              {opt.label}
-              {count != null && <span className="ml-1 text-[10px] opacity-60">({count})</span>}
-            </button>
-          );
-        })}
-
-        <span className="text-[#232328] mx-1">|</span>
-        <span className="text-[10px] text-[#5A5650] uppercase tracking-wider mr-1">Category</span>
-        {CATEGORY_OPTIONS.map((opt) => {
-          const count = facets?.category?.[opt.value];
-          return (
-            <button
-              key={opt.value}
-              type="button"
-              onClick={() => setFilterCategory(filterCategory === opt.value ? null : opt.value)}
-              className={cn(
-                "px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors border",
-                filterCategory === opt.value
-                  ? "border-transparent"
-                  : "border-[#232328] bg-[#151518] text-[#8A857D] hover:text-[#C5C0B8] hover:border-[#323238]",
-              )}
-              style={filterCategory === opt.value ? { backgroundColor: `${opt.color}20`, color: opt.color, borderColor: `${opt.color}40` } : undefined}
-            >
-              {opt.label}
-              {count != null && <span className="ml-1 text-[10px] opacity-60">({count})</span>}
-            </button>
-          );
-        })}
-
-        {hasFilters && (
-          <button
-            type="button"
-            onClick={() => { setFilterStatus(null); setFilterCategory(null); }}
-            className="ml-2 px-2 py-1 rounded text-[11px] text-[#E85A6B] hover:bg-[#E85A6B]/10 transition-colors"
-          >
-            <X size={12} className="inline mr-0.5" />
-            Clear
-          </button>
-        )}
+      {/* Tab Bar */}
+      <div className="tab-bar">
+        <button
+          type="button"
+          onClick={() => setHubTab("analyses")}
+          className={cn("tab-item flex items-center gap-1.5 whitespace-nowrap", hubTab === "analyses" && "active")}
+        >
+          <List size={14} />
+          Analyses
+          {stats && stats.total > 0 && (
+            <span className="text-[10px] font-medium text-[#5A5650]">{stats.total}</span>
+          )}
+        </button>
+        <button
+          type="button"
+          onClick={() => setHubTab("catalogue")}
+          className={cn("tab-item flex items-center gap-1.5 whitespace-nowrap", hubTab === "catalogue" && "active")}
+        >
+          <BarChart3 size={14} />
+          Score Catalogue
+          {catalogue?.scores && (
+            <span className="text-[10px] font-medium text-[#5A5650]">{catalogue.scores.length}</span>
+          )}
+        </button>
       </div>
 
-      {/* Content */}
-      {viewMode === "table" ? (
-        <RiskScoreAnalysisList
-          analyses={analyses}
-          onSelect={(id) => navigate(`/risk-scores/${id}`)}
-          isLoading={isLoading}
-          error={error}
-          page={page}
-          totalPages={data?.last_page ?? 1}
-          total={data?.total ?? 0}
-          perPage={data?.per_page ?? 20}
-          onPageChange={setPage}
-          searchActive={!!debouncedSearch}
-        />
-      ) : (
-        <div>
-          {isLoading ? (
-            <div className="flex items-center justify-center h-64">
-              <Loader2 size={24} className="animate-spin text-[#8A857D]" />
-            </div>
-          ) : error ? (
-            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#E85A6B]/30 bg-[#E85A6B]/5 py-16">
-              <p className="text-sm text-[#E85A6B]">Failed to load analyses. Please try again.</p>
-            </div>
-          ) : analyses.length === 0 ? (
-            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-16">
-              <Activity size={28} className="text-[#323238] mb-3" />
-              <h3 className="text-lg font-semibold text-[#F0EDE8]">
-                {debouncedSearch ? "No matching analyses" : "No risk score analyses yet"}
-              </h3>
-              <p className="mt-2 text-sm text-[#8A857D]">
-                {debouncedSearch
-                  ? `No analyses found for "${debouncedSearch}"`
-                  : "Create your first analysis to stratify patients by clinical risk scores."}
-              </p>
-              {!debouncedSearch && (
+      {/* ── Analyses Tab ─────────────────────────────────────────── */}
+      {hubTab === "analyses" && (
+        <>
+          {/* Filter Chips */}
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-[10px] text-[#5A5650] uppercase tracking-wider mr-1">Status</span>
+            {STATUS_OPTIONS.map((opt) => {
+              const count = facets?.status?.[opt.value];
+              return (
                 <button
+                  key={opt.value}
                   type="button"
-                  onClick={() => navigate("/risk-scores/create")}
-                  className="btn btn-primary mt-4"
+                  onClick={() => setFilterStatus(filterStatus === opt.value ? null : opt.value)}
+                  className={cn(
+                    "px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors border",
+                    filterStatus === opt.value
+                      ? "border-transparent"
+                      : "border-[#232328] bg-[#151518] text-[#8A857D] hover:text-[#C5C0B8] hover:border-[#323238]",
+                  )}
+                  style={filterStatus === opt.value ? { backgroundColor: `${opt.color}20`, color: opt.color, borderColor: `${opt.color}40` } : undefined}
                 >
-                  <Plus size={16} />
-                  New Analysis
+                  {opt.label}
+                  {count != null && <span className="ml-1 text-[10px] opacity-60">({count})</span>}
                 </button>
+              );
+            })}
+
+            <span className="text-[#232328] mx-1">|</span>
+            <span className="text-[10px] text-[#5A5650] uppercase tracking-wider mr-1">Category</span>
+            {CATEGORY_OPTIONS.map((opt) => {
+              const count = facets?.category?.[opt.value];
+              return (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => setFilterCategory(filterCategory === opt.value ? null : opt.value)}
+                  className={cn(
+                    "px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors border",
+                    filterCategory === opt.value
+                      ? "border-transparent"
+                      : "border-[#232328] bg-[#151518] text-[#8A857D] hover:text-[#C5C0B8] hover:border-[#323238]",
+                  )}
+                  style={filterCategory === opt.value ? { backgroundColor: `${opt.color}20`, color: opt.color, borderColor: `${opt.color}40` } : undefined}
+                >
+                  {opt.label}
+                  {count != null && <span className="ml-1 text-[10px] opacity-60">({count})</span>}
+                </button>
+              );
+            })}
+
+            {hasFilters && (
+              <button
+                type="button"
+                onClick={() => { setFilterStatus(null); setFilterCategory(null); }}
+                className="ml-2 px-2 py-1 rounded text-[11px] text-[#E85A6B] hover:bg-[#E85A6B]/10 transition-colors"
+              >
+                <X size={12} className="inline mr-0.5" />
+                Clear
+              </button>
+            )}
+          </div>
+
+          {/* Analysis Content */}
+          {viewMode === "table" ? (
+            <RiskScoreAnalysisList
+              analyses={analyses}
+              onSelect={(id) => navigate(`/risk-scores/${id}`)}
+              isLoading={isLoading}
+              error={error}
+              page={page}
+              totalPages={data?.last_page ?? 1}
+              total={data?.total ?? 0}
+              perPage={data?.per_page ?? 20}
+              onPageChange={setPage}
+              searchActive={!!debouncedSearch}
+            />
+          ) : (
+            <div>
+              {isLoading ? (
+                <div className="flex items-center justify-center h-64">
+                  <Loader2 size={24} className="animate-spin text-[#8A857D]" />
+                </div>
+              ) : error ? (
+                <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#E85A6B]/30 bg-[#E85A6B]/5 py-16">
+                  <p className="text-sm text-[#E85A6B]">Failed to load analyses. Please try again.</p>
+                </div>
+              ) : analyses.length === 0 ? (
+                <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-16">
+                  <Activity size={28} className="text-[#323238] mb-3" />
+                  <h3 className="text-lg font-semibold text-[#F0EDE8]">
+                    {debouncedSearch ? "No matching analyses" : "No risk score analyses yet"}
+                  </h3>
+                  <p className="mt-2 text-sm text-[#8A857D]">
+                    {debouncedSearch
+                      ? `No analyses found for "${debouncedSearch}"`
+                      : "Create your first analysis to stratify patients by clinical risk scores."}
+                  </p>
+                  {!debouncedSearch && (
+                    <button
+                      type="button"
+                      onClick={() => navigate("/risk-scores/create")}
+                      className="btn btn-primary mt-4"
+                    >
+                      <Plus size={16} />
+                      New Analysis
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                  {analyses.map((analysis) => (
+                    <RiskScoreAnalysisCard
+                      key={analysis.id}
+                      analysis={analysis}
+                      onClick={() => navigate(`/risk-scores/${analysis.id}`)}
+                    />
+                  ))}
+                </div>
               )}
             </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-              {analyses.map((analysis) => (
-                <RiskScoreAnalysisCard
-                  key={analysis.id}
-                  analysis={analysis}
-                  onClick={() => navigate(`/risk-scores/${analysis.id}`)}
+          )}
+        </>
+      )}
+
+      {/* ── Score Catalogue Tab ──────────────────────────────────── */}
+      {hubTab === "catalogue" && (
+        <div className="space-y-6">
+          {catalogueGroups.map(({ category, color, scores }) => (
+            <div key={category}>
+              <div className="flex items-center gap-2 mb-3">
+                <div
+                  className="w-2 h-2 rounded-full"
+                  style={{ backgroundColor: color }}
                 />
-              ))}
+                <h2 className="text-sm font-medium text-[#C5C0B8] uppercase tracking-wider">
+                  {category}
+                </h2>
+                <span className="text-[10px] text-[#5A5650]">
+                  ({scores.length})
+                </span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+                {scores.map((score) => (
+                  <div
+                    key={score.score_id}
+                    className="rounded-lg border border-[#232328] bg-[#151518] p-4 hover:border-[#323238] transition-colors"
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <span
+                        className="font-['IBM_Plex_Mono',monospace] text-[10px] px-1.5 py-0.5 rounded"
+                        style={{ backgroundColor: `${color}15`, color }}
+                      >
+                        {score.score_id}
+                      </span>
+                      <h3 className="text-sm font-medium text-[#F0EDE8] truncate">
+                        {score.score_name}
+                      </h3>
+                    </div>
+                    <p className="text-xs text-[#8A857D] line-clamp-2">
+                      {score.description}
+                    </p>
+                    <div className="flex flex-wrap gap-1.5 mt-3">
+                      {score.required_tables.map((t) => (
+                        <span
+                          key={t}
+                          className="inline-block rounded bg-[#1A1A1F] px-1.5 py-0.5 text-[9px] text-[#5A5650] font-['IBM_Plex_Mono',monospace]"
+                        >
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                    <p className="text-[10px] text-[#5A5650] mt-2">
+                      {score.eligible_population}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+
+          {(!catalogue?.scores || catalogue.scores.length === 0) && (
+            <div className="flex items-center justify-center h-32">
+              <Loader2 size={20} className="animate-spin text-[#8A857D]" />
             </div>
           )}
         </div>
