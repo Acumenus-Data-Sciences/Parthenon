@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\AdminBroadcastMail;
 use App\Mail\TempPasswordMail;
 use App\Models\App\UserAuditLog;
 use App\Models\User;
@@ -197,5 +198,64 @@ class UserController extends Controller
         return response()->json(
             Role::with('permissions')->orderBy('name')->get()
         );
+    }
+
+    /** Send an individual email to every registered user. Super-admin only. */
+    public function broadcastEmail(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'subject' => 'required|string|max:255',
+            'body' => 'required|string|max:10000',
+        ]);
+
+        $emails = User::pluck('email')->toArray();
+
+        if (empty($emails)) {
+            return response()->json(['message' => 'No registered users to email.'], 422);
+        }
+
+        $senderName = $request->user()->name;
+        $mailable = new AdminBroadcastMail(
+            $validated['subject'],
+            $validated['body'],
+            $senderName,
+        );
+
+        $sent = 0;
+        $failed = 0;
+        $failedRecipients = [];
+
+        foreach ($emails as $index => $email) {
+            try {
+                Mail::to($email)->send(clone $mailable);
+                $sent++;
+
+                // Respect Resend's 5 req/sec rate limit — pause every 4 sends
+                if (($index + 1) % 4 === 0) {
+                    usleep(300_000); // 300ms
+                }
+            } catch (\Throwable $e) {
+                $failed++;
+                $failedRecipients[] = $email;
+
+                // Logging is non-critical — never let a log failure crash the request
+                try {
+                    logger()->warning('Admin broadcast email failed for recipient', [
+                        'recipient' => $email,
+                        'error' => $e->getMessage(),
+                    ]);
+                } catch (\Throwable) {
+                    // Log channel unavailable — silently continue
+                }
+            }
+        }
+
+        return response()->json([
+            'message' => $failed === 0
+                ? "Email sent successfully to all {$sent} users."
+                : "Sent to {$sent} users, {$failed} failed.",
+            'recipient_count' => $sent,
+            'failed_count' => $failed,
+        ]);
     }
 }

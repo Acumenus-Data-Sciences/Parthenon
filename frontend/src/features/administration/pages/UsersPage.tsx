@@ -1,11 +1,13 @@
 import { useState } from "react";
 import {
   Plus, ChevronLeft, ChevronRight, Pencil, Trash2, Circle,
-  Search, X, Loader2, UsersRound, ChevronUp, ChevronDown,
+  Search, X, Loader2, UsersRound, ChevronUp, ChevronDown, Mail,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUsers, useDeleteUser, useAvailableRoles } from "../hooks/useAdminUsers";
 import { UserModal } from "../components/UserModal";
+import { BroadcastEmailModal } from "../components/BroadcastEmailModal";
+import { useAuthStore } from "@/stores/authStore";
 import type { User } from "@/types/models";
 import type { UserFilters } from "../api/adminApi";
 
@@ -141,6 +143,8 @@ export default function UsersPage() {
     open: false, user: null,
   });
   const [deleteConfirm, setDeleteConfirm] = useState<User | null>(null);
+  const [showBroadcast, setShowBroadcast] = useState(false);
+  const isSuperAdmin = useAuthStore((s) => s.isSuperAdmin)();
 
   const { data, isLoading } = useUsers({ ...filters, search: search || undefined });
   const { data: roles } = useAvailableRoles();
@@ -168,14 +172,26 @@ export default function UsersPage() {
             total accounts
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => setModalState({ open: true, user: null })}
-          className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-4 py-2 text-sm font-semibold text-[#0E0E11] transition-colors hover:bg-[#25B8A5]"
-        >
-          <Plus size={16} />
-          New User
-        </button>
+        <div className="flex items-center gap-3">
+          {isSuperAdmin && (
+            <button
+              type="button"
+              onClick={() => setShowBroadcast(true)}
+              className="inline-flex items-center gap-2 rounded-lg border border-[#C9A227]/40 bg-[#C9A227]/10 px-4 py-2 text-sm font-semibold text-[#C9A227] transition-colors hover:bg-[#C9A227]/20"
+            >
+              <Mail size={16} />
+              Admin Emailer
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => setModalState({ open: true, user: null })}
+            className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-4 py-2 text-sm font-semibold text-[#0E0E11] transition-colors hover:bg-[#25B8A5]"
+          >
+            <Plus size={16} />
+            New User
+          </button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -395,6 +411,14 @@ export default function UsersPage() {
           user={modalState.user}
           roles={roles ?? []}
           onClose={() => setModalState({ open: false, user: null })}
+        />
+      )}
+
+      {/* Broadcast email modal (super-admin only) */}
+      {showBroadcast && (
+        <BroadcastEmailModal
+          userCount={data?.total ?? 0}
+          onClose={() => setShowBroadcast(false)}
         />
       )}
 
