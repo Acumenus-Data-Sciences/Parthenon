@@ -27,7 +27,26 @@ use App\Services\PopulationRisk\Scores\RS017GRACEScore;
 use App\Services\PopulationRisk\Scores\RS018STOPBANGApnea;
 use App\Services\PopulationRisk\Scores\RS019CHADS2Score;
 use App\Services\PopulationRisk\Scores\RS020MultimorbidityBurden;
+use App\Services\PopulationRisk\V2Scores\RS001FraminghamV2;
+use App\Services\PopulationRisk\V2Scores\RS002PooledCohortV2;
+use App\Services\PopulationRisk\V2Scores\RS003CHA2DS2VASc_V2;
+use App\Services\PopulationRisk\V2Scores\RS004HASBLED_V2;
 use App\Services\PopulationRisk\V2Scores\RS005CharlsonV2;
+use App\Services\PopulationRisk\V2Scores\RS006ElixhauserV2;
+use App\Services\PopulationRisk\V2Scores\RS007MELDV2;
+use App\Services\PopulationRisk\V2Scores\RS008ChildPughV2;
+use App\Services\PopulationRisk\V2Scores\RS009RCRIV2;
+use App\Services\PopulationRisk\V2Scores\RS010CURB65V2;
+use App\Services\PopulationRisk\V2Scores\RS011DCSIV2;
+use App\Services\PopulationRisk\V2Scores\RS012SCORE2V2;
+use App\Services\PopulationRisk\V2Scores\RS013FIB4V2;
+use App\Services\PopulationRisk\V2Scores\RS014MetabolicSyndromeV2;
+use App\Services\PopulationRisk\V2Scores\RS015TIMIV2;
+use App\Services\PopulationRisk\V2Scores\RS016FRAXV2;
+use App\Services\PopulationRisk\V2Scores\RS017GRACEV2;
+use App\Services\PopulationRisk\V2Scores\RS018STOPBANGV2;
+use App\Services\PopulationRisk\V2Scores\RS019CHADS2V2;
+use App\Services\PopulationRisk\V2Scores\RS020MultimorbidityV2;
 use Illuminate\Support\ServiceProvider;
 
 class PopulationRiskServiceProvider extends ServiceProvider
@@ -37,9 +56,37 @@ class PopulationRiskServiceProvider extends ServiceProvider
         $this->app->singleton(ConceptResolutionService::class);
         $this->app->singleton(PatientFeatureExtractor::class);
 
+        // All 20 v2 score instances (shared between execution + recommendation services)
+        $this->app->singleton('risk-score.v2-instances', function () {
+            return [
+                new RS001FraminghamV2,
+                new RS002PooledCohortV2,
+                new RS003CHA2DS2VASc_V2,
+                new RS004HASBLED_V2,
+                new RS005CharlsonV2,
+                new RS006ElixhauserV2,
+                new RS007MELDV2,
+                new RS008ChildPughV2,
+                new RS009RCRIV2,
+                new RS010CURB65V2,
+                new RS011DCSIV2,
+                new RS012SCORE2V2,
+                new RS013FIB4V2,
+                new RS014MetabolicSyndromeV2,
+                new RS015TIMIV2,
+                new RS016FRAXV2,
+                new RS017GRACEV2,
+                new RS018STOPBANGV2,
+                new RS019CHADS2V2,
+                new RS020MultimorbidityV2,
+            ];
+        });
+
         $this->app->singleton(RiskScoreRecommendationService::class, function ($app) {
             $service = new RiskScoreRecommendationService($app->make(ConceptResolutionService::class));
-            $service->registerV2Score(new RS005CharlsonV2);
+            foreach ($app->make('risk-score.v2-instances') as $score) {
+                $service->registerV2Score($score);
+            }
 
             return $service;
         });
@@ -49,7 +96,9 @@ class PopulationRiskServiceProvider extends ServiceProvider
                 $app->make(PatientFeatureExtractor::class),
                 $app->make(ConceptResolutionService::class),
             );
-            $service->registerV2Score(new RS005CharlsonV2);
+            foreach ($app->make('risk-score.v2-instances') as $score) {
+                $service->registerV2Score($score);
+            }
 
             return $service;
         });
