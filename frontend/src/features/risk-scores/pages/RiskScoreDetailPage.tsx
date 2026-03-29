@@ -112,7 +112,7 @@ export default function RiskScoreDetailPage() {
 
   const completenessPercent =
     detail.completeness_rate != null
-      ? (detail.completeness_rate * 100).toFixed(1)
+      ? (Number(detail.completeness_rate) * 100).toFixed(1)
       : null;
 
   return (
@@ -176,7 +176,7 @@ export default function RiskScoreDetailPage() {
         />
         <StatCard
           label="Confidence"
-          value={`${(detail.mean_confidence * 100).toFixed(1)}%`}
+          value={`${(Number(detail.mean_confidence) * 100).toFixed(1)}%`}
           sub="mean"
         />
       </div>

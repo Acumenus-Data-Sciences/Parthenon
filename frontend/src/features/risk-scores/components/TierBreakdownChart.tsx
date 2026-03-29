@@ -215,7 +215,7 @@ export function TierBreakdownChart({
                   </td>
                   <td className="px-3 py-2 text-right font-['IBM_Plex_Mono',monospace] text-[#C5C0B8]">
                     {t.mean_score != null
-                      ? t.mean_score.toFixed(1)
+                      ? Number(t.mean_score).toFixed(1)
                       : "-"}
                   </td>
                 </tr>
