@@ -302,7 +302,7 @@ export default function RiskScoreDetailPage() {
               type="button"
               onClick={() => setShowRunModal(true)}
               disabled={executeMutation.isPending || sourceId === 0}
-              className="flex items-center gap-1.5 rounded-lg bg-[#9B1B30] px-3 py-1.5 text-sm font-medium text-white hover:bg-[#B42240] transition-colors disabled:opacity-50"
+              className="btn btn-sm flex items-center gap-1.5 bg-[#9B1B30] text-white hover:bg-[#B42240] border-[#9B1B30] disabled:opacity-50"
             >
               <RefreshCw size={14} />
               Re-run
@@ -320,7 +320,7 @@ export default function RiskScoreDetailPage() {
               type="button"
               onClick={handleDelete}
               disabled={deleteMutation.isPending}
-              className="btn btn-ghost btn-sm text-[#E85A6B]"
+              className="btn btn-danger btn-sm"
               title="Delete analysis"
             >
               <Trash2 size={14} />

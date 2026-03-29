@@ -83,6 +83,7 @@ export default function RiskScoreCreatePage() {
   const [createdAnalysisId, setCreatedAnalysisId] = useState<number | null>(
     null,
   );
+  const [createError, setCreateError] = useState<string | null>(null);
 
   // ── Queries ────────────────────────────────────────────────────
 
@@ -139,6 +140,7 @@ export default function RiskScoreCreatePage() {
   }
 
   function handleCreate(andRun: boolean) {
+    setCreateError(null);
     const payload: RiskScoreAnalysisCreatePayload = {
       name: name.trim(),
       description: description.trim() || undefined,
@@ -159,13 +161,19 @@ export default function RiskScoreCreatePage() {
                 setShowRunModal(true);
               },
               onError: () => {
-                navigate(`/risk-scores/${analysis.id}`);
+                setCreateError(
+                  "Analysis created but execution failed. You can re-run from the detail page.",
+                );
+                setTimeout(() => navigate(`/risk-scores/${analysis.id}`), 2000);
               },
             },
           );
         } else {
           navigate("/risk-scores");
         }
+      },
+      onError: () => {
+        setCreateError("Failed to create analysis. Please try again.");
       },
     });
   }
@@ -493,6 +501,12 @@ export default function RiskScoreCreatePage() {
             Create & Run
           </button>
         </div>
+
+        {createError && (
+          <div className="rounded-lg border border-[#E85A6B]/30 bg-[#E85A6B]/5 px-4 py-3 mt-4">
+            <p className="text-sm text-[#E85A6B]">{createError}</p>
+          </div>
+        )}
       </div>
     );
   };

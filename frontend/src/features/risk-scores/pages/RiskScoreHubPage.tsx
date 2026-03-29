@@ -463,6 +463,10 @@ export default function RiskScoreHubPage() {
             <div className="flex items-center justify-center h-64">
               <Loader2 size={24} className="animate-spin text-[#8A857D]" />
             </div>
+          ) : error ? (
+            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#E85A6B]/30 bg-[#E85A6B]/5 py-16">
+              <p className="text-sm text-[#E85A6B]">Failed to load analyses. Please try again.</p>
+            </div>
           ) : analyses.length === 0 ? (
             <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-16">
               <Activity size={28} className="text-[#323238] mb-3" />

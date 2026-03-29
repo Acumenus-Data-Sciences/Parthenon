@@ -76,13 +76,8 @@ function computeStats(populationSummaries: PopulationSummary[]) {
 
   const uniqueScoreCount = byScore.size;
 
-  let totalPatients = 0;
-  for (const [, tiers] of byScore) {
-    const scoreTotal = tiers.reduce((sum, t) => sum + t.patient_count, 0);
-    totalPatients = Math.max(totalPatients, totalPatients); // per-score max
-    totalPatients += scoreTotal > 0 ? scoreTotal : 0;
-  }
-  // Actually: sum of patient_count grouped by score_id, take max per score
+  // Patients scored = max patients across any single score
+  // (each score is computed against the same cohort, so max ≈ cohort size)
   let patientsScored = 0;
   for (const [, tiers] of byScore) {
     const scorePatients = tiers.reduce((sum, t) => sum + t.patient_count, 0);

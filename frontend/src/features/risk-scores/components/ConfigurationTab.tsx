@@ -168,12 +168,9 @@ export function ConfigurationTab({
                         {duration}
                       </td>
                       <td className="py-2.5">
-                        <button
-                          type="button"
-                          className="text-xs text-[#2DD4BF] hover:text-[#2DD4BF]/80 transition-colors"
-                        >
-                          View
-                        </button>
+                        <span className="text-xs text-[#5A5650]">
+                          #{index + 1}
+                        </span>
                       </td>
                     </tr>
                   );
@@ -186,6 +183,7 @@ export function ConfigurationTab({
 
       {/* Re-run Button */}
       <button
+        type="button"
         onClick={onReRun}
         className="flex items-center gap-2 rounded-lg bg-[#9B1B30] px-4 py-2 text-sm font-medium text-white hover:bg-[#B42240] transition-colors"
       >
