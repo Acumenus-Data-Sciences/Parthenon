@@ -18,16 +18,19 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { HelpButton } from "@/features/help";
+import { useSourceStore } from "@/stores/sourceStore";
 import { RiskScoreAnalysisList } from "../components/RiskScoreAnalysisList";
 import { RiskScoreAnalysisCard } from "../components/RiskScoreAnalysisCard";
+import { ScoreCatalogueCard } from "../components/ScoreCatalogueCard";
 import {
   useRiskScoreAnalyses,
   useRiskScoreAnalysisStats,
   useAllRiskScoreAnalyses,
   useRiskScoreCatalogue,
+  useRiskScoreEligibility,
 } from "../hooks/useRiskScores";
 import type { RiskScoreAnalysis } from "../types/riskScore";
-import { ANALYSIS_STATUS_COLORS, CATEGORY_ORDER, TIER_COLORS } from "../types/riskScore";
+import { ANALYSIS_STATUS_COLORS, CATEGORY_ORDER } from "../types/riskScore";
 
 const STATUS_OPTIONS = [
   { value: "draft", label: "Draft", color: ANALYSIS_STATUS_COLORS.draft },
@@ -55,6 +58,8 @@ const CATEGORY_OPTIONS = CATEGORY_ORDER.map((cat) => ({
 
 export default function RiskScoreHubPage() {
   const navigate = useNavigate();
+  const { activeSourceId, defaultSourceId } = useSourceStore();
+  const sourceId = activeSourceId ?? defaultSourceId ?? 0;
   const [page, setPage] = useState(1);
   const [searchInput, setSearchInput] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -78,6 +83,7 @@ export default function RiskScoreHubPage() {
   });
   const { data: allAnalysesData } = useAllRiskScoreAnalyses();
   const { data: catalogue } = useRiskScoreCatalogue();
+  const { data: eligibility } = useRiskScoreEligibility(sourceId);
 
   const facets = data?.facets;
 
@@ -565,6 +571,15 @@ export default function RiskScoreHubPage() {
       {/* ── Score Catalogue Tab ──────────────────────────────────── */}
       {hubTab === "catalogue" && (
         <div className="space-y-6">
+          {!sourceId && (
+            <div className="flex items-center gap-3 rounded-xl border border-[#C9A227]/20 bg-[#C9A227]/5 px-5 py-3">
+              <Info size={16} className="text-[#C9A227] shrink-0" />
+              <p className="text-sm text-[#C9A227]">
+                Select a data source to check eligibility for each score.
+              </p>
+            </div>
+          )}
+
           {catalogueGroups.map(({ category, color, scores }) => (
             <div key={category}>
               <div className="flex items-center gap-2 mb-3">
@@ -578,41 +593,24 @@ export default function RiskScoreHubPage() {
                 <span className="text-[10px] text-[#5A5650]">
                   ({scores.length})
                 </span>
+                {sourceId > 0 && eligibility && (
+                  <span className="text-[10px] text-[#2DD4BF]">
+                    {scores.filter((s) => eligibility[s.score_id]?.eligible).length} eligible
+                  </span>
+                )}
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
                 {scores.map((score) => (
-                  <div
+                  <ScoreCatalogueCard
                     key={score.score_id}
-                    className="rounded-lg border border-[#232328] bg-[#151518] p-4 hover:border-[#323238] transition-colors"
-                  >
-                    <div className="flex items-center gap-2 mb-2">
-                      <span
-                        className="font-['IBM_Plex_Mono',monospace] text-[10px] px-1.5 py-0.5 rounded"
-                        style={{ backgroundColor: `${color}15`, color }}
-                      >
-                        {score.score_id}
-                      </span>
-                      <h3 className="text-sm font-medium text-[#F0EDE8] truncate">
-                        {score.score_name}
-                      </h3>
-                    </div>
-                    <p className="text-xs text-[#8A857D] line-clamp-2">
-                      {score.description}
-                    </p>
-                    <div className="flex flex-wrap gap-1.5 mt-3">
-                      {score.required_tables.map((t) => (
-                        <span
-                          key={t}
-                          className="inline-block rounded bg-[#1A1A1F] px-1.5 py-0.5 text-[9px] text-[#5A5650] font-['IBM_Plex_Mono',monospace]"
-                        >
-                          {t}
-                        </span>
-                      ))}
-                    </div>
-                    <p className="text-[10px] text-[#5A5650] mt-2">
-                      {score.eligible_population}
-                    </p>
-                  </div>
+                    score={score}
+                    color={color}
+                    eligibility={eligibility?.[score.score_id]}
+                    sourceSelected={sourceId > 0}
+                    onCreateAnalysis={(scoreId) =>
+                      navigate(`/risk-scores/create?score=${scoreId}`)
+                    }
+                  />
                 ))}
               </div>
             </div>
