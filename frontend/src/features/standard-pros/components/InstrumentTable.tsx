@@ -1,8 +1,10 @@
 import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Search,
   ChevronUp,
   ChevronDown,
+  ChevronRight,
   Check,
   X,
   Minus,
@@ -52,6 +54,7 @@ function LoincBadge({ hasLoinc, code }: { hasLoinc: boolean; code: string | null
 }
 
 export function InstrumentTable({ instruments }: InstrumentTableProps) {
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [domainFilter, setDomainFilter] = useState<string | null>(null);
   const [omopFilter, setOmopFilter] = useState<OmopCoverage | null>(null);
@@ -346,10 +349,21 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
               {filtered.map((inst) => (
                 <tr
                   key={inst.abbreviation}
-                  className="border-b border-[#2A2A2F]/50 last:border-b-0 hover:bg-[#1A1A1F] transition-colors"
+                  className={cn(
+                    "border-b border-[#2A2A2F]/50 last:border-b-0 hover:bg-[#1A1A1F] transition-colors",
+                    inst.id && "cursor-pointer",
+                  )}
+                  onClick={() => {
+                    if (inst.id) navigate(`/standard-pros/${inst.id}`);
+                  }}
                 >
                   <td className="px-3 py-2.5 font-semibold text-[#F0EDE8] whitespace-nowrap">
-                    {inst.abbreviation}
+                    <div className="flex items-center gap-1.5">
+                      {inst.abbreviation}
+                      {inst.id && (
+                        <ChevronRight size={12} className="text-[#5A5650]" />
+                      )}
+                    </div>
                   </td>
                   <td className="px-3 py-2.5 text-[#C5C0B8] max-w-[300px]">
                     {inst.name}

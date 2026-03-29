@@ -131,6 +131,7 @@ export async function fetchSurveyInstrument(
 
 export function toProInstrument(api: SurveyInstrumentApi): ProInstrument {
   return {
+    id: api.id,
     abbreviation: api.abbreviation,
     name: api.name,
     domain: api.domain,
@@ -140,5 +141,7 @@ export function toProInstrument(api: SurveyInstrumentApi): ProInstrument {
     omopCoverage: api.omop_coverage,
     license: api.license_type,
     licenseDetail: api.license_detail ?? (api.license_type === "public" ? "Public Domain" : "Proprietary"),
+    description: api.description ?? undefined,
+    itemCount: api.item_count,
   };
 }

@@ -431,10 +431,22 @@ export const router = createBrowserRouter(
       // ── Standard PROs+ ────────────────────────────────────────────────
       {
         path: "standard-pros",
-        lazy: () =>
-          import(
-            "@/features/standard-pros/pages/StandardProsPage"
-          ).then((m) => ({ Component: m.default })),
+        children: [
+          {
+            index: true,
+            lazy: () =>
+              import(
+                "@/features/standard-pros/pages/StandardProsPage"
+              ).then((m) => ({ Component: m.default })),
+          },
+          {
+            path: ":id",
+            lazy: () =>
+              import(
+                "@/features/standard-pros/pages/InstrumentDetailPage"
+              ).then((m) => ({ Component: m.default })),
+          },
+        ],
       },
       {
         path: "morpheus",

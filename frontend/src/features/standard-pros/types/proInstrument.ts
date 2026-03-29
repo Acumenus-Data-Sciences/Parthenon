@@ -1,4 +1,5 @@
 export interface ProInstrument {
+  id?: number;
   abbreviation: string;
   name: string;
   domain: string;
@@ -8,6 +9,8 @@ export interface ProInstrument {
   omopCoverage: "yes" | "partial" | "no";
   license: "public" | "proprietary";
   licenseDetail: string;
+  description?: string;
+  itemCount?: number;
 }
 
 export type OmopCoverage = ProInstrument["omopCoverage"];
