@@ -10,12 +10,11 @@ import {
   Library,
   PieChart,
   Info,
-  ChevronDown,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { INSTRUMENTS } from "../data/instruments";
 import { InstrumentTable } from "../components/InstrumentTable";
 import { CoverageChart } from "../components/CoverageChart";
+import { AboutProsModal } from "../components/AboutProsModal";
 import { useSurveyStats, useSurveyInstrumentsAsProList } from "../hooks/useSurveyInstruments";
 import type { SurveyStatsApi } from "../api/surveyApi";
 
@@ -180,72 +179,11 @@ function AnalyticsTab() {
   );
 }
 
-/* ── About section (collapsible) ─────────────────────────────────────── */
-
-function AboutSection() {
-  const [open, setOpen] = useState(false);
-
-  return (
-    <div className="rounded-xl border border-[#2A2A2F] bg-[#141418]">
-      <button
-        type="button"
-        onClick={() => setOpen(!open)}
-        className="flex items-center justify-between w-full px-5 py-3 text-left"
-      >
-        <div className="flex items-center gap-2">
-          <Info size={14} className="text-[#5A5650]" />
-          <span className="text-xs font-medium text-[#8A857D]">
-            About Standard PROs+
-          </span>
-        </div>
-        <ChevronDown
-          size={14}
-          className={cn(
-            "text-[#5A5650] transition-transform duration-200",
-            open && "rotate-180",
-          )}
-        />
-      </button>
-      {open && (
-        <div className="px-5 pb-5 space-y-3 border-t border-[#2A2A2F]">
-          <p className="text-xs text-[#8A857D] leading-relaxed pt-4">
-            Patient-Reported Outcomes (PROs) capture information directly from
-            patients without clinician interpretation. Despite the OMOP CDM's
-            maturity for claims and EHR data, survey instruments lack
-            standardized representation, pre-built concept mappings, and
-            dedicated analytical tooling.
-          </p>
-          <p className="text-xs text-[#8A857D] leading-relaxed">
-            Parthenon Standard PROs+ addresses this decade-old gap with a
-            pre-mapped library of 100 survey instruments, a visual builder for
-            custom instruments, a survey_conduct metadata layer
-            (v5.4-compatible, v6.0-forward), and dedicated Achilles 900-series
-            analytics.
-          </p>
-          <div className="flex items-center gap-4 pt-1">
-            <span className="text-[10px] text-[#5A5650]">
-              <span className="font-['IBM_Plex_Mono',monospace] text-[#C5C0B8]">100</span> instruments
-            </span>
-            <span className="text-[10px] text-[#5A5650]">
-              <span className="font-['IBM_Plex_Mono',monospace] text-[#C5C0B8]">22</span> clinical domains
-            </span>
-            <span className="text-[10px] text-[#5A5650]">
-              <span className="font-['IBM_Plex_Mono',monospace] text-[#C5C0B8]">5</span> database tables
-            </span>
-            <span className="text-[10px] text-[#5A5650]">
-              <span className="font-['IBM_Plex_Mono',monospace] text-[#C5C0B8]">10</span> Achilles analyses
-            </span>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
 /* ── Page ────────────────────────────────────────────────────────────── */
 
 export default function StandardProsPage() {
   const [tab, setTab] = useState<Tab>("library");
+  const [showAbout, setShowAbout] = useState(false);
   const { data: stats, isLoading: statsLoading } = useSurveyStats();
   const { data: liveInstruments, isLoading: instrumentsLoading } =
     useSurveyInstrumentsAsProList();
@@ -281,6 +219,14 @@ export default function StandardProsPage() {
             Pre-mapped survey instrument library, visual builder, and dedicated PRO analytics
           </p>
         </div>
+        <button
+          type="button"
+          onClick={() => setShowAbout(true)}
+          className="flex items-center gap-1.5 rounded-lg border border-[#2A2A2F] bg-[#141418] px-3 py-2 text-xs font-medium text-[#8A857D] hover:text-[#F0EDE8] hover:border-[#2DD4BF]/30 transition-colors shrink-0"
+        >
+          <Info size={14} />
+          About PROs+
+        </button>
       </div>
 
       {/* Stats bar */}
@@ -311,8 +257,21 @@ export default function StandardProsPage() {
       {tab === "builder" && <BuilderTab />}
       {tab === "analytics" && <AnalyticsTab />}
 
-      {/* About (collapsible) */}
-      <AboutSection />
+      {/* About modal */}
+      {showAbout && (
+        <AboutProsModal
+          onClose={() => setShowAbout(false)}
+          stats={{
+            total: stats?.total_instruments ?? INSTRUMENTS.length,
+            domains: stats?.domains ?? new Set(INSTRUMENTS.map((i) => i.domain)).size,
+            withLoinc: stats?.with_loinc ?? INSTRUMENTS.filter((i) => i.hasLoinc).length,
+            fullOmop: stats?.full_omop ?? INSTRUMENTS.filter((i) => i.omopCoverage === "yes").length,
+            partialOmop: stats?.partial_omop ?? INSTRUMENTS.filter((i) => i.omopCoverage === "partial").length,
+            noOmop: stats?.no_omop ?? INSTRUMENTS.filter((i) => i.omopCoverage === "no").length,
+            publicDomain: stats?.public_domain ?? INSTRUMENTS.filter((i) => i.license === "public").length,
+          }}
+        />
+      )}
     </div>
   );
 }
