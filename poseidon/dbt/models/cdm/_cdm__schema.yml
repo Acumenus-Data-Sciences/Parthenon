@@ -1,0 +1,30 @@
+version: 2
+
+models:
+  - name: person
+    description: >
+      OMOP CDM person table — one row per unique patient. This example model
+      is a pass-through view used to validate the Poseidon dbt pipeline can
+      connect to host PG17 and compile models against the CDM schema.
+    columns:
+      - name: person_id
+        description: Unique identifier for each person (patient).
+        tests:
+          - not_null
+          - unique
+      - name: gender_concept_id
+        description: Standard concept_id representing the person's gender.
+        tests:
+          - not_null
+      - name: year_of_birth
+        description: Year component of the person's date of birth.
+        tests:
+          - not_null
+      - name: race_concept_id
+        description: Standard concept_id representing the person's race.
+        tests:
+          - not_null
+      - name: ethnicity_concept_id
+        description: Standard concept_id representing the person's ethnicity.
+        tests:
+          - not_null

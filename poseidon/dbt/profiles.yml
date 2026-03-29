@@ -1,0 +1,14 @@
+poseidon:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: "{{ env_var('POSEIDON_PG_HOST', 'host.docker.internal') }}"
+      port: 5432
+      user: "{{ env_var('POSEIDON_PG_USER', 'claude_dev') }}"
+      password: "{{ env_var('POSEIDON_PG_PASSWORD', '') }}"
+      dbname: parthenon
+      schema: omop
+      threads: 4
+      keepalives_idle: 0
+      connect_timeout: 10

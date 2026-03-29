@@ -1,0 +1,28 @@
+{{
+    config(
+        materialized='view',
+        schema=var('cdm_schema', 'omop')
+    )
+}}
+-- Example CDM model: pass-through view of omop.person.
+-- Validates dbt can connect to host PG17 and compile models against the CDM schema.
+SELECT
+    person_id,
+    gender_concept_id,
+    year_of_birth,
+    month_of_birth,
+    day_of_birth,
+    birth_datetime,
+    race_concept_id,
+    ethnicity_concept_id,
+    location_id,
+    provider_id,
+    care_site_id,
+    person_source_value,
+    gender_source_value,
+    gender_source_concept_id,
+    race_source_value,
+    race_source_concept_id,
+    ethnicity_source_value,
+    ethnicity_source_concept_id
+FROM {{ var('cdm_schema', 'omop') }}.person

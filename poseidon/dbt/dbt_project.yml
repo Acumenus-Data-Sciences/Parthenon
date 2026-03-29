@@ -1,0 +1,34 @@
+name: poseidon
+version: '0.1.0'
+config-version: 2
+
+profile: poseidon
+
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+vars:
+  cdm_schema: omop
+  vocab_schema: vocab
+  staging_schema: "staging_0"
+  results_schema: results
+  project_id: 0
+
+models:
+  poseidon:
+    staging:
+      +materialized: view
+    intermediate:
+      +materialized: ephemeral
+    cdm:
+      +materialized: view
+    quality:
+      +materialized: table

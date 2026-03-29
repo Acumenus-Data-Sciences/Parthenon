@@ -216,8 +216,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8004:8000"
-    volumes:
-      - ./morpheus-ingest:/app
+    # volumes:
+    #   - ./morpheus-ingest:/app  # Disabled: empty dir clobbers container code
     environment:
       - MORPHEUS_DATABASE_URL=postgresql://parthenon:parthenon@postgres:5432/parthenon
     depends_on:
@@ -629,6 +629,8 @@ services:
       - ORTHANC__REMOTE_ACCESS_ALLOWED=true
       - ORTHANC__AUTHENTICATION_ENABLED=true
       - 'ORTHANC__REGISTERED_USERS={"${ORTHANC_USER:-parthenon}": "${ORTHANC_PASSWORD}"}'
+      - ORTHANC_USER=${ORTHANC_USER:-parthenon}
+      - ORTHANC_PASSWORD=${ORTHANC_PASSWORD}
       # DICOMweb plugin
       - DICOM_WEB_PLUGIN_ENABLED=true
       - ORTHANC__DICOM_WEB__ENABLE=true
@@ -906,6 +908,88 @@ services:
       - loki
     restart: unless-stopped
 
+  # Poseidon — Dagster webserver (Dagit UI + GraphQL API)
+  poseidon-webserver:
+    container_name: parthenon-poseidon-webserver
+    build:
+      context: .
+      dockerfile: poseidon/docker/poseidon/Dockerfile
+    command: dagster-webserver -h 0.0.0.0 -p 3100 -f poseidon/dagster/definitions.py
+    ports:
+      - "${POSEIDON_PORT:-3100}:3100"
+    volumes:
+      - ./poseidon:/app/poseidon
+      - poseidon_storage:/app/storage
+    environment:
+      - DAGSTER_HOME=/app/storage
+      - DATABASE_URL=postgresql://claude_dev:${HECATE_PG_PASSWORD}@host.docker.internal:5432/parthenon
+      - DBT_PROFILES_DIR=/app/poseidon/dbt
+      - POSEIDON_PG_HOST=host.docker.internal
+      - POSEIDON_PG_USER=claude_dev
+      - POSEIDON_PG_PASSWORD=${HECATE_PG_PASSWORD}
+      - PARTHENON_API_URL=http://nginx:80/api/v1
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-parthenon_redis_secret}@redis:6379/0
+    env_file:
+      - ./backend/.env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://127.0.0.1:3100/server_info"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+    networks:
+      - parthenon
+    restart: unless-stopped
+
+  # Poseidon — Dagster daemon (schedules, sensors, run launcher)
+  poseidon-daemon:
+    container_name: parthenon-poseidon-daemon
+    build:
+      context: .
+      dockerfile: poseidon/docker/poseidon/Dockerfile
+    command: dagster-daemon run -f poseidon/dagster/definitions.py
+    volumes:
+      - ./poseidon:/app/poseidon
+      - poseidon_storage:/app/storage
+    environment:
+      - DAGSTER_HOME=/app/storage
+      - DATABASE_URL=postgresql://claude_dev:${HECATE_PG_PASSWORD}@host.docker.internal:5432/parthenon
+      - DBT_PROFILES_DIR=/app/poseidon/dbt
+      - POSEIDON_PG_HOST=host.docker.internal
+      - POSEIDON_PG_USER=claude_dev
+      - POSEIDON_PG_PASSWORD=${HECATE_PG_PASSWORD}
+      - PARTHENON_API_URL=http://nginx:80/api/v1
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-parthenon_redis_secret}@redis:6379/0
+    env_file:
+      - ./backend/.env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      poseidon-webserver:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+    networks:
+      - parthenon
+    restart: unless-stopped
+
   # Arachne Data Node (optional — start with: docker compose --profile arachne up -d)
   arachne-datanode:
     image: odysseusinc/arachne-datanode-ce:latest
@@ -922,6 +1006,8 @@ services:
 
 volumes:
   # postgres-data removed — using host bind mount instead (survives docker compose down -v)
+  poseidon_storage:
+    driver: local
   redis-data:
   solr_data:
   orthanc-data:
