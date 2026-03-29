@@ -4,7 +4,7 @@ title: "Poseidon and Vulcan: The Gods of Continuous Data Ingestion"
 description: "Two new engines join the Parthenon pantheon — Vulcan commands the FHIR, while Poseidon rules the tides of transactional data. Together they deliver continuous, incremental, dependency-aware OMOP CDM ingestion."
 authors: [mudoshi]
 tags: [architecture, ingestion, fhir, dbt, dagster, omop, pipeline]
-date: 2026-03-28
+date: 2026-03-28T18:00:00
 ---
 
 <div style={{borderRadius: '12px', overflow: 'hidden', marginBottom: '2rem'}}>

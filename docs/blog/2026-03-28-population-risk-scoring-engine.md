@@ -3,7 +3,7 @@ slug: population-risk-scoring-engine
 title: "Building a Clinically Intelligent Risk Scoring Engine on OMOP CDM"
 authors: [mudoshi, claude]
 tags: [risk-scores, omop, clinical-analytics, architecture, cohort-analysis, vocabulary]
-date: 2026-03-28
+date: 2026-03-28T12:00:00
 ---
 
 We built a population risk scoring engine that runs 20 validated clinical risk calculators against any OMOP CDM dataset — then immediately realized the approach was wrong. This post covers what we built, why we tore it apart, and the v2 architecture that replaced "run everything on everyone" with cohort-scoped, recommendation-driven clinical risk analysis.
