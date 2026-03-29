@@ -792,7 +792,788 @@
     "license_detail": "Public domain — published by the US Department of Veterans Affairs National Center for PTSD.",
     "is_public_domain": true,
     "omop_coverage": "no",
-    "items": [],
+    "items": [
+      {
+        "item_number": 1,
+        "text": "Repeated, disturbing, and unwanted memories of the stressful experience",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Not at all",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "A little bit",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderately",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Quite a bit",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Extremely",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 2,
+        "text": "Repeated, disturbing dreams of the stressful experience",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Not at all",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "A little bit",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderately",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Quite a bit",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Extremely",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 3,
+        "text": "Suddenly feeling or acting as if the stressful experience were actually happening again",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Not at all",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "A little bit",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderately",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Quite a bit",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Extremely",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 4,
+        "text": "Feeling very upset when something reminded you of the stressful experience",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Not at all",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "A little bit",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderately",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Quite a bit",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Extremely",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 5,
+        "text": "Having strong physical reactions when something reminded you of the stressful experience",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Not at all",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "A little bit",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderately",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Quite a bit",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Extremely",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 6,
+        "text": "Avoiding memories, thoughts, or feelings related to the stressful experience",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Not at all",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "A little bit",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderately",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Quite a bit",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Extremely",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 7,
+        "text": "Avoiding external reminders of the stressful experience",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Not at all",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "A little bit",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderately",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Quite a bit",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Extremely",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 8,
+        "text": "Trouble remembering important parts of the stressful experience",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Not at all",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "A little bit",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderately",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Quite a bit",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Extremely",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 9,
+        "text": "Having strong negative beliefs about yourself, other people, or the world",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Not at all",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "A little bit",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderately",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Quite a bit",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Extremely",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 10,
+        "text": "Blaming yourself or someone else for the stressful experience or what happened after it",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Not at all",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "A little bit",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderately",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Quite a bit",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Extremely",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 11,
+        "text": "Having strong negative feelings such as fear, horror, anger, guilt, or shame",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Not at all",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "A little bit",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderately",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Quite a bit",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Extremely",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 12,
+        "text": "Loss of interest in activities that you used to enjoy",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Not at all",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "A little bit",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderately",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Quite a bit",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Extremely",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 13,
+        "text": "Feeling distant or cut off from other people",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Not at all",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "A little bit",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderately",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Quite a bit",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Extremely",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 14,
+        "text": "Trouble experiencing positive feelings",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Not at all",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "A little bit",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderately",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Quite a bit",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Extremely",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 15,
+        "text": "Irritable behavior, angry outbursts, or acting aggressively",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Not at all",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "A little bit",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderately",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Quite a bit",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Extremely",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 16,
+        "text": "Taking too many risks or doing things that could cause you harm",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Not at all",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "A little bit",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderately",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Quite a bit",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Extremely",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 17,
+        "text": "Being superalert or watchful or on guard",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Not at all",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "A little bit",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderately",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Quite a bit",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Extremely",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 18,
+        "text": "Feeling jumpy or easily startled",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Not at all",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "A little bit",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderately",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Quite a bit",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Extremely",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 19,
+        "text": "Having difficulty concentrating",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Not at all",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "A little bit",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderately",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Quite a bit",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Extremely",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 20,
+        "text": "Trouble falling or staying asleep",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Not at all",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "A little bit",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderately",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Quite a bit",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Extremely",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      }
+    ],
     "snomed_code": "446082004",
     "has_snomed": true
   },
@@ -1123,7 +1904,218 @@
     "license_detail": "Harvey A. Skinner; freely available for clinical and research use.",
     "is_public_domain": true,
     "omop_coverage": "partial",
-    "items": [],
+    "items": [
+      {
+        "item_number": 1,
+        "text": "Have you used drugs other than those required for medical reasons?",
+        "response_type": "yes_no",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Yes",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "No",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 2,
+        "text": "Do you abuse more than one drug at a time?",
+        "response_type": "yes_no",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Yes",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "No",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 3,
+        "text": "Are you always able to stop using drugs when you want to?",
+        "response_type": "yes_no",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Yes",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "No",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 4,
+        "text": "Have you had blackouts or flashbacks as a result of drug use?",
+        "response_type": "yes_no",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Yes",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "No",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 5,
+        "text": "Do you ever feel bad or guilty about your drug use?",
+        "response_type": "yes_no",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Yes",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "No",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 6,
+        "text": "Does your spouse (or parents) ever complain about your involvement with drugs?",
+        "response_type": "yes_no",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Yes",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "No",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 7,
+        "text": "Have you neglected your family because of your use of drugs?",
+        "response_type": "yes_no",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Yes",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "No",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 8,
+        "text": "Have you engaged in illegal activities in order to obtain drugs?",
+        "response_type": "yes_no",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Yes",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "No",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 9,
+        "text": "Have you ever experienced withdrawal symptoms when you stopped taking drugs?",
+        "response_type": "yes_no",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Yes",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "No",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 10,
+        "text": "Have you had medical problems as a result of your drug use?",
+        "response_type": "yes_no",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Yes",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "No",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      }
+    ],
     "snomed_code": "273426007",
     "has_snomed": true
   },
@@ -1224,7 +2216,7 @@
     "abbreviation": "ASSIST",
     "name": "Alcohol, Smoking and Substance Involvement Screening Test",
     "domain": "Substance Use",
-    "item_count": 8,
+    "item_count": 10,
     "description": "Eight-item WHO-developed screening tool assessing lifetime and recent use of tobacco, alcohol, cannabis, cocaine, amphetamines, inhalants, sedatives, hallucinogens, opioids, and other drugs, as well as associated problems and dependence indicators.",
     "scoring_method": {
       "type": "substance_specific_sum",
@@ -1256,7 +2248,398 @@
     "license_detail": "World Health Organization. Freely available at who.int.",
     "is_public_domain": true,
     "omop_coverage": "partial",
-    "items": [],
+    "items": [
+      {
+        "item_number": 1,
+        "text": "In the past 3 months, how often have you used tobacco products?",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Never",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Once or twice",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Monthly",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Weekly",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Daily or almost daily",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 2,
+        "text": "In the past 3 months, how often have you used alcoholic beverages?",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Never",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Once or twice",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Monthly",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Weekly",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Daily or almost daily",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 3,
+        "text": "In the past 3 months, how often have you used cannabis?",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Never",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Once or twice",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Monthly",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Weekly",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Daily or almost daily",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 4,
+        "text": "In the past 3 months, how often have you used cocaine?",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Never",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Once or twice",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Monthly",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Weekly",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Daily or almost daily",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 5,
+        "text": "In the past 3 months, how often have you used amphetamine-type stimulants?",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Never",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Once or twice",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Monthly",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Weekly",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Daily or almost daily",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 6,
+        "text": "In the past 3 months, how often have you used inhalants?",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Never",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Once or twice",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Monthly",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Weekly",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Daily or almost daily",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 7,
+        "text": "In the past 3 months, how often have you used sedatives or sleeping pills?",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Never",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Once or twice",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Monthly",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Weekly",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Daily or almost daily",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 8,
+        "text": "In the past 3 months, how often have you used hallucinogens?",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Never",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Once or twice",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Monthly",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Weekly",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Daily or almost daily",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 9,
+        "text": "In the past 3 months, how often have you used opioids?",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Never",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Once or twice",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Monthly",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Weekly",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Daily or almost daily",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 10,
+        "text": "In the past 3 months, how often have you used other substances?",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Never",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Once or twice",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Monthly",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Weekly",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Daily or almost daily",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      }
+    ],
     "has_snomed": false
   },
   {
@@ -1531,7 +2914,83 @@
     "license_detail": "Public domain. Original methodology by Scott and Huskisson (1976).",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": [],
+    "items": [
+      {
+        "item_number": 1,
+        "text": "Mark on the line to indicate your current pain intensity",
+        "response_type": "numeric",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "0",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "1",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "2",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "3",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "4",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "5",
+            "value": 5,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "6",
+            "value": 6,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "7",
+            "value": 7,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "8",
+            "value": 8,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "9",
+            "value": 9,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "10",
+            "value": 10,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      }
+    ],
     "snomed_code": "273904004",
     "has_snomed": true
   },
@@ -1561,7 +3020,83 @@
     "license_detail": "Public domain.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": [],
+    "items": [
+      {
+        "item_number": 1,
+        "text": "Rate your pain on a scale of 0 to 10, where 0 is no pain and 10 is the worst pain imaginable",
+        "response_type": "numeric",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "0",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "1",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "2",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "3",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "4",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "5",
+            "value": 5,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "6",
+            "value": 6,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "7",
+            "value": 7,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "8",
+            "value": 8,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "9",
+            "value": 9,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "10",
+            "value": 10,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      }
+    ],
     "snomed_code": "1144798005",
     "has_snomed": true
   },
@@ -1569,7 +3104,7 @@
     "abbreviation": "BPI",
     "name": "Brief Pain Inventory",
     "domain": "Pain",
-    "item_count": 17,
+    "item_count": 11,
     "description": "Seventeen-item multidimensional pain assessment tool evaluating pain severity (worst, least, average, current) and pain interference with seven functional domains including general activity, mood, walking, normal work, relations with others, sleep, and enjoyment of life.",
     "scoring_method": {
       "type": "subscale_mean",
@@ -1589,7 +3124,833 @@
     "license_detail": "Charles Cleeland / University of Texas MD Anderson Cancer Center. Free for use; available at mdanderson.org.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": [],
+    "items": [
+      {
+        "item_number": 1,
+        "text": "Pain at its worst in the last 24 hours",
+        "response_type": "numeric",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "0",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "1",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "2",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "3",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "4",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "5",
+            "value": 5,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "6",
+            "value": 6,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "7",
+            "value": 7,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "8",
+            "value": 8,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "9",
+            "value": 9,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "10",
+            "value": 10,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 2,
+        "text": "Pain at its least in the last 24 hours",
+        "response_type": "numeric",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "0",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "1",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "2",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "3",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "4",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "5",
+            "value": 5,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "6",
+            "value": 6,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "7",
+            "value": 7,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "8",
+            "value": 8,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "9",
+            "value": 9,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "10",
+            "value": 10,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 3,
+        "text": "Pain on average",
+        "response_type": "numeric",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "0",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "1",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "2",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "3",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "4",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "5",
+            "value": 5,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "6",
+            "value": 6,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "7",
+            "value": 7,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "8",
+            "value": 8,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "9",
+            "value": 9,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "10",
+            "value": 10,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 4,
+        "text": "Pain right now",
+        "response_type": "numeric",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "0",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "1",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "2",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "3",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "4",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "5",
+            "value": 5,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "6",
+            "value": 6,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "7",
+            "value": 7,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "8",
+            "value": 8,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "9",
+            "value": 9,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "10",
+            "value": 10,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 5,
+        "text": "General activity",
+        "response_type": "numeric",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "0",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "1",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "2",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "3",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "4",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "5",
+            "value": 5,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "6",
+            "value": 6,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "7",
+            "value": 7,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "8",
+            "value": 8,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "9",
+            "value": 9,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "10",
+            "value": 10,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 6,
+        "text": "Mood",
+        "response_type": "numeric",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "0",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "1",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "2",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "3",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "4",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "5",
+            "value": 5,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "6",
+            "value": 6,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "7",
+            "value": 7,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "8",
+            "value": 8,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "9",
+            "value": 9,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "10",
+            "value": 10,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 7,
+        "text": "Walking ability",
+        "response_type": "numeric",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "0",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "1",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "2",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "3",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "4",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "5",
+            "value": 5,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "6",
+            "value": 6,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "7",
+            "value": 7,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "8",
+            "value": 8,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "9",
+            "value": 9,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "10",
+            "value": 10,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 8,
+        "text": "Normal work",
+        "response_type": "numeric",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "0",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "1",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "2",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "3",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "4",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "5",
+            "value": 5,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "6",
+            "value": 6,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "7",
+            "value": 7,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "8",
+            "value": 8,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "9",
+            "value": 9,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "10",
+            "value": 10,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 9,
+        "text": "Relations with other people",
+        "response_type": "numeric",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "0",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "1",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "2",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "3",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "4",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "5",
+            "value": 5,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "6",
+            "value": 6,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "7",
+            "value": 7,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "8",
+            "value": 8,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "9",
+            "value": 9,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "10",
+            "value": 10,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 10,
+        "text": "Sleep",
+        "response_type": "numeric",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "0",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "1",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "2",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "3",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "4",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "5",
+            "value": 5,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "6",
+            "value": 6,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "7",
+            "value": 7,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "8",
+            "value": 8,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "9",
+            "value": 9,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "10",
+            "value": 10,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 11,
+        "text": "Enjoyment of life",
+        "response_type": "numeric",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "0",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "1",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "2",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "3",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "4",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "5",
+            "value": 5,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "6",
+            "value": 6,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "7",
+            "value": 7,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "8",
+            "value": 8,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "9",
+            "value": 9,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "10",
+            "value": 10,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      }
+    ],
     "snomed_code": "273373002",
     "has_snomed": true
   },
@@ -1901,7 +4262,134 @@
     "license_detail": "Katz et al. (1963). Published in JAMA; public domain.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": [],
+    "items": [
+      {
+        "item_number": 1,
+        "text": "Bathing: ability to perform independently",
+        "response_type": "yes_no",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Independent",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Dependent",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 2,
+        "text": "Dressing: ability to perform independently",
+        "response_type": "yes_no",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Independent",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Dependent",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 3,
+        "text": "Toileting: ability to perform independently",
+        "response_type": "yes_no",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Independent",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Dependent",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 4,
+        "text": "Transferring: ability to perform independently",
+        "response_type": "yes_no",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Independent",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Dependent",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 5,
+        "text": "Continence: ability to perform independently",
+        "response_type": "yes_no",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Independent",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Dependent",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 6,
+        "text": "Feeding: ability to perform independently",
+        "response_type": "yes_no",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Independent",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Dependent",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      }
+    ],
     "snomed_code": "273534002",
     "has_snomed": true
   },
@@ -1926,7 +4414,176 @@
     "license_detail": "Lawton and Brody (1969). Published in Gerontologist; public domain.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": [],
+    "items": [
+      {
+        "item_number": 1,
+        "text": "Ability to use telephone",
+        "response_type": "yes_no",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Independent",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Needs assistance",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 2,
+        "text": "Shopping",
+        "response_type": "yes_no",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Independent",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Needs assistance",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 3,
+        "text": "Food preparation",
+        "response_type": "yes_no",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Independent",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Needs assistance",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 4,
+        "text": "Housekeeping",
+        "response_type": "yes_no",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Independent",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Needs assistance",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 5,
+        "text": "Laundry",
+        "response_type": "yes_no",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Independent",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Needs assistance",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 6,
+        "text": "Mode of transportation",
+        "response_type": "yes_no",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Independent",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Needs assistance",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 7,
+        "text": "Responsibility for own medications",
+        "response_type": "yes_no",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Independent",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Needs assistance",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 8,
+        "text": "Ability to handle finances",
+        "response_type": "yes_no",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Independent",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Needs assistance",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      }
+    ],
     "has_snomed": false
   },
   {
@@ -1985,7 +4642,458 @@
     "license_detail": "Fairbank et al. (1980). Published in Physiotherapy; public domain for clinical/research use.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": [],
+    "items": [
+      {
+        "item_number": 1,
+        "text": "Pain intensity",
+        "response_type": "ordinal",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Minimal/no difficulty",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Mild difficulty",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderate difficulty",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Fairly severe difficulty",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Very severe difficulty",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Worst possible",
+            "value": 5,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 2,
+        "text": "Personal care (washing, dressing)",
+        "response_type": "ordinal",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Minimal/no difficulty",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Mild difficulty",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderate difficulty",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Fairly severe difficulty",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Very severe difficulty",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Worst possible",
+            "value": 5,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 3,
+        "text": "Lifting",
+        "response_type": "ordinal",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Minimal/no difficulty",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Mild difficulty",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderate difficulty",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Fairly severe difficulty",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Very severe difficulty",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Worst possible",
+            "value": 5,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 4,
+        "text": "Walking",
+        "response_type": "ordinal",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Minimal/no difficulty",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Mild difficulty",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderate difficulty",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Fairly severe difficulty",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Very severe difficulty",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Worst possible",
+            "value": 5,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 5,
+        "text": "Sitting",
+        "response_type": "ordinal",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Minimal/no difficulty",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Mild difficulty",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderate difficulty",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Fairly severe difficulty",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Very severe difficulty",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Worst possible",
+            "value": 5,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 6,
+        "text": "Standing",
+        "response_type": "ordinal",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Minimal/no difficulty",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Mild difficulty",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderate difficulty",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Fairly severe difficulty",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Very severe difficulty",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Worst possible",
+            "value": 5,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 7,
+        "text": "Sleeping",
+        "response_type": "ordinal",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Minimal/no difficulty",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Mild difficulty",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderate difficulty",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Fairly severe difficulty",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Very severe difficulty",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Worst possible",
+            "value": 5,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 8,
+        "text": "Social life",
+        "response_type": "ordinal",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Minimal/no difficulty",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Mild difficulty",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderate difficulty",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Fairly severe difficulty",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Very severe difficulty",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Worst possible",
+            "value": 5,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 9,
+        "text": "Travelling",
+        "response_type": "ordinal",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Minimal/no difficulty",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Mild difficulty",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderate difficulty",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Fairly severe difficulty",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Very severe difficulty",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Worst possible",
+            "value": 5,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 10,
+        "text": "Changing degree of pain",
+        "response_type": "ordinal",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Minimal/no difficulty",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Mild difficulty",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderate difficulty",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Fairly severe difficulty",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Very severe difficulty",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Worst possible",
+            "value": 5,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      }
+    ],
     "snomed_code": "273808000",
     "has_snomed": true
   },
@@ -2022,7 +5130,83 @@
     "license_detail": "Karnofsky and Burchenal (1949). Public domain.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": [],
+    "items": [
+      {
+        "item_number": 1,
+        "text": "Performance status assessment",
+        "response_type": "ordinal",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "100 - Normal, no complaints",
+            "value": 100,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "90 - Able to carry on normal activity; minor symptoms",
+            "value": 90,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "80 - Normal activity with effort; some symptoms",
+            "value": 80,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "70 - Cares for self; unable to carry on normal activity",
+            "value": 70,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "60 - Requires occasional assistance",
+            "value": 60,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "50 - Requires considerable assistance and frequent medical care",
+            "value": 50,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "40 - Disabled; requires special care and assistance",
+            "value": 40,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "30 - Severely disabled; hospitalization indicated",
+            "value": 30,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "20 - Very sick; active supportive treatment necessary",
+            "value": 20,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "10 - Moribund",
+            "value": 10,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "0 - Dead",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      }
+    ],
     "snomed_code": "273544000",
     "has_snomed": true
   },
@@ -2268,7 +5452,758 @@
     "license_detail": "Bruera et al. (1991). Published by the Alberta Cancer Board; freely available.",
     "is_public_domain": true,
     "omop_coverage": "partial",
-    "items": [],
+    "items": [
+      {
+        "item_number": 1,
+        "text": "Rate your pain (0 = none, 10 = worst possible)",
+        "response_type": "numeric",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "0",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "1",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "2",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "3",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "4",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "5",
+            "value": 5,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "6",
+            "value": 6,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "7",
+            "value": 7,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "8",
+            "value": 8,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "9",
+            "value": 9,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "10",
+            "value": 10,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 2,
+        "text": "Rate your tiredness (0 = none, 10 = worst possible)",
+        "response_type": "numeric",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "0",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "1",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "2",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "3",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "4",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "5",
+            "value": 5,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "6",
+            "value": 6,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "7",
+            "value": 7,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "8",
+            "value": 8,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "9",
+            "value": 9,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "10",
+            "value": 10,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 3,
+        "text": "Rate your drowsiness (0 = none, 10 = worst possible)",
+        "response_type": "numeric",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "0",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "1",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "2",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "3",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "4",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "5",
+            "value": 5,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "6",
+            "value": 6,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "7",
+            "value": 7,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "8",
+            "value": 8,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "9",
+            "value": 9,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "10",
+            "value": 10,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 4,
+        "text": "Rate your nausea (0 = none, 10 = worst possible)",
+        "response_type": "numeric",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "0",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "1",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "2",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "3",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "4",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "5",
+            "value": 5,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "6",
+            "value": 6,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "7",
+            "value": 7,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "8",
+            "value": 8,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "9",
+            "value": 9,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "10",
+            "value": 10,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 5,
+        "text": "Rate your lack of appetite (0 = none, 10 = worst possible)",
+        "response_type": "numeric",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "0",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "1",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "2",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "3",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "4",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "5",
+            "value": 5,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "6",
+            "value": 6,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "7",
+            "value": 7,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "8",
+            "value": 8,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "9",
+            "value": 9,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "10",
+            "value": 10,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 6,
+        "text": "Rate your shortness of breath (0 = none, 10 = worst possible)",
+        "response_type": "numeric",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "0",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "1",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "2",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "3",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "4",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "5",
+            "value": 5,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "6",
+            "value": 6,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "7",
+            "value": 7,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "8",
+            "value": 8,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "9",
+            "value": 9,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "10",
+            "value": 10,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 7,
+        "text": "Rate your depression (0 = none, 10 = worst possible)",
+        "response_type": "numeric",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "0",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "1",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "2",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "3",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "4",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "5",
+            "value": 5,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "6",
+            "value": 6,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "7",
+            "value": 7,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "8",
+            "value": 8,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "9",
+            "value": 9,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "10",
+            "value": 10,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 8,
+        "text": "Rate your anxiety (0 = none, 10 = worst possible)",
+        "response_type": "numeric",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "0",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "1",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "2",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "3",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "4",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "5",
+            "value": 5,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "6",
+            "value": 6,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "7",
+            "value": 7,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "8",
+            "value": 8,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "9",
+            "value": 9,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "10",
+            "value": 10,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 9,
+        "text": "Rate your best wellbeing (0 = none, 10 = worst possible)",
+        "response_type": "numeric",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "0",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "1",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "2",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "3",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "4",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "5",
+            "value": 5,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "6",
+            "value": 6,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "7",
+            "value": 7,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "8",
+            "value": 8,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "9",
+            "value": 9,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "10",
+            "value": 10,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 10,
+        "text": "Rate your other problem (0 = none, 10 = worst possible)",
+        "response_type": "numeric",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "0",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "1",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "2",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "3",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "4",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "5",
+            "value": 5,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "6",
+            "value": 6,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "7",
+            "value": 7,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "8",
+            "value": 8,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "9",
+            "value": 9,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "10",
+            "value": 10,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      }
+    ],
     "has_snomed": false
   },
   {
@@ -2484,7 +6419,323 @@
     "license_detail": "Yesavage et al. (1982/1986). Available from Stanford University; free for clinical and research use.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": [],
+    "items": [
+      {
+        "item_number": 1,
+        "text": "Are you basically satisfied with your life?",
+        "response_type": "yes_no",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Yes",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "No",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 2,
+        "text": "Have you dropped many of your activities and interests?",
+        "response_type": "yes_no",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Yes",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "No",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 3,
+        "text": "Do you feel that your life is empty?",
+        "response_type": "yes_no",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Yes",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "No",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 4,
+        "text": "Do you often get bored?",
+        "response_type": "yes_no",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Yes",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "No",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 5,
+        "text": "Are you in good spirits most of the time?",
+        "response_type": "yes_no",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Yes",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "No",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 6,
+        "text": "Are you afraid that something bad is going to happen to you?",
+        "response_type": "yes_no",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Yes",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "No",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 7,
+        "text": "Do you feel happy most of the time?",
+        "response_type": "yes_no",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Yes",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "No",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 8,
+        "text": "Do you often feel helpless?",
+        "response_type": "yes_no",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Yes",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "No",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 9,
+        "text": "Do you prefer to stay at home rather than going out and doing things?",
+        "response_type": "yes_no",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Yes",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "No",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 10,
+        "text": "Do you feel that you have more problems with memory than most?",
+        "response_type": "yes_no",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Yes",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "No",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 11,
+        "text": "Do you think it is wonderful to be alive now?",
+        "response_type": "yes_no",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Yes",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "No",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 12,
+        "text": "Do you feel worthless the way you are now?",
+        "response_type": "yes_no",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Yes",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "No",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 13,
+        "text": "Do you feel full of energy?",
+        "response_type": "yes_no",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Yes",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "No",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 14,
+        "text": "Do you feel that your situation is hopeless?",
+        "response_type": "yes_no",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Yes",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "No",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 15,
+        "text": "Do you think that most people are better off than you are?",
+        "response_type": "yes_no",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Yes",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "No",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      }
+    ],
     "snomed_code": "273487002",
     "has_snomed": true
   },
@@ -2513,7 +6764,113 @@
     "license_detail": "Morley et al. (2012). Published in J Nutr Health Aging; free to use.",
     "is_public_domain": true,
     "omop_coverage": "partial",
-    "items": [],
+    "items": [
+      {
+        "item_number": 1,
+        "text": "Are you fatigued?",
+        "response_type": "yes_no",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Yes",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "No",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 2,
+        "text": "Can you climb one flight of stairs?",
+        "response_type": "yes_no",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Yes",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "No",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 3,
+        "text": "Can you walk one block?",
+        "response_type": "yes_no",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Yes",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "No",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 4,
+        "text": "Do you have more than 5 illnesses?",
+        "response_type": "yes_no",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Yes",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "No",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 5,
+        "text": "Have you lost more than 5% of your weight in the past 6 months?",
+        "response_type": "yes_no",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Yes",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "No",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      }
+    ],
     "has_snomed": false
   },
   {
@@ -2747,7 +7104,368 @@
     "license_detail": "GlaxoSmithKline. Free for use in clinical practice and non-commercial research. Available at catestonline.org.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": [],
+    "items": [
+      {
+        "item_number": 1,
+        "text": "I never cough / I cough all the time",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "0",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "1",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "2",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "3",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "4",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "5",
+            "value": 5,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 2,
+        "text": "I have no phlegm in my chest / My chest is completely full of phlegm",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "0",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "1",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "2",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "3",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "4",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "5",
+            "value": 5,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 3,
+        "text": "My chest does not feel tight at all / My chest feels very tight",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "0",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "1",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "2",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "3",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "4",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "5",
+            "value": 5,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 4,
+        "text": "When I walk up a hill or stairs I am not breathless / When I walk up a hill or stairs I am very breathless",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "0",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "1",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "2",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "3",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "4",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "5",
+            "value": 5,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 5,
+        "text": "I am not limited doing any activities at home / I am very limited doing activities at home",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "0",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "1",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "2",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "3",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "4",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "5",
+            "value": 5,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 6,
+        "text": "I am confident leaving my home despite my lung condition / I am not at all confident leaving my home",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "0",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "1",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "2",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "3",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "4",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "5",
+            "value": 5,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 7,
+        "text": "I sleep soundly / I don't sleep soundly because of my lung condition",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "0",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "1",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "2",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "3",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "4",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "5",
+            "value": 5,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 8,
+        "text": "I have lots of energy / I have no energy at all",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "0",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "1",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "2",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "3",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "4",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "5",
+            "value": 5,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      }
+    ],
     "snomed_code": "446660005",
     "has_snomed": true
   },
@@ -2778,7 +7496,47 @@
     "license_detail": "Public domain. Based on Fletcher et al. (1959), modified by the Medical Research Council.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": [],
+    "items": [
+      {
+        "item_number": 1,
+        "text": "Dyspnea severity grade",
+        "response_type": "ordinal",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Breathless only with strenuous exercise",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Short of breath when hurrying on level ground or walking up a slight hill",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Walks slower than people of the same age on level ground, or stops for breath when walking at own pace",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Stops for breath after walking about 100 yards or after a few minutes on level ground",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Too breathless to leave the house or breathless when dressing",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      }
+    ],
     "has_snomed": false
   },
   {
@@ -2835,7 +7593,203 @@
     "license_detail": "QualityMetric / AstraZeneca. Free for clinical use.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": [],
+    "items": [
+      {
+        "item_number": 1,
+        "text": "In the past 4 weeks, how much of the time did your asthma keep you from getting as much done at work, school, or at home?",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "All of the time",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Most of the time",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Some of the time",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "A little of the time",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "None of the time",
+            "value": 5,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 2,
+        "text": "During the past 4 weeks, how often have you had shortness of breath?",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "All of the time",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Most of the time",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Some of the time",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "A little of the time",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "None of the time",
+            "value": 5,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 3,
+        "text": "During the past 4 weeks, how often did your asthma symptoms wake you up at night or earlier than usual in the morning?",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "All of the time",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Most of the time",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Some of the time",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "A little of the time",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "None of the time",
+            "value": 5,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 4,
+        "text": "During the past 4 weeks, how often have you used your rescue inhaler or nebulizer medication?",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "All of the time",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Most of the time",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Some of the time",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "A little of the time",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "None of the time",
+            "value": 5,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 5,
+        "text": "How would you rate your asthma control during the past 4 weeks?",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "All of the time",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Most of the time",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Some of the time",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "A little of the time",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "None of the time",
+            "value": 5,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      }
+    ],
     "snomed_code": "710815001",
     "has_snomed": true
   },
@@ -3084,14 +8038,474 @@
     "license_detail": "Jellinek and Murphy. Free for non-commercial use; available from Massachusetts General Hospital.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": [],
+    "items": [
+      {
+        "item_number": 1,
+        "text": "Fidgety, unable to sit still",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Never",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Sometimes",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Often",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 2,
+        "text": "Feels sad, unhappy",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Never",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Sometimes",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Often",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 3,
+        "text": "Daydreams too much",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Never",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Sometimes",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Often",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 4,
+        "text": "Refuses to share",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Never",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Sometimes",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Often",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 5,
+        "text": "Does not understand other people's feelings",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Never",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Sometimes",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Often",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 6,
+        "text": "Feels hopeless",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Never",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Sometimes",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Often",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 7,
+        "text": "Has trouble concentrating",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Never",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Sometimes",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Often",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 8,
+        "text": "Fights with others",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Never",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Sometimes",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Often",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 9,
+        "text": "Is down on himself or herself",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Never",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Sometimes",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Often",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 10,
+        "text": "Blames others for his or her troubles",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Never",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Sometimes",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Often",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 11,
+        "text": "Seems to be having less fun",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Never",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Sometimes",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Often",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 12,
+        "text": "Does not listen to rules",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Never",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Sometimes",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Often",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 13,
+        "text": "Acts as if driven by a motor",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Never",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Sometimes",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Often",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 14,
+        "text": "Teases others",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Never",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Sometimes",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Often",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 15,
+        "text": "Worries a lot",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Never",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Sometimes",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Often",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 16,
+        "text": "Takes things that do not belong to him or her",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Never",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Sometimes",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Often",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 17,
+        "text": "Distracted easily",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Never",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Sometimes",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Often",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      }
+    ],
     "has_snomed": false
   },
   {
     "abbreviation": "NIHSS",
     "name": "National Institutes of Health Stroke Scale",
     "domain": "Neurological",
-    "item_count": 11,
+    "item_count": 15,
     "description": "Eleven-item clinician-administered neurological examination quantifying stroke severity across consciousness, vision, facial palsy, motor function (arm and leg), ataxia, sensation, language/aphasia, dysarthria, and inattention/neglect.",
     "scoring_method": {
       "type": "sum",
@@ -3114,7 +8528,485 @@
     "license_detail": "Developed by NIH/NINDS. Public domain. Available at nihstrokescale.org.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": [],
+    "items": [
+      {
+        "item_number": 1,
+        "text": "Level of consciousness",
+        "response_type": "ordinal",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Alert",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Not alert, arousable by minor stimulation",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Not alert, requires repeated stimulation",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Responds only with reflex motor or autonomic effects, or totally unresponsive",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 2,
+        "text": "LOC questions (month, age)",
+        "response_type": "ordinal",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Answers both correctly",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Answers one correctly",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Answers neither correctly",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 3,
+        "text": "LOC commands (open/close eyes, grip/release)",
+        "response_type": "ordinal",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Performs both correctly",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Performs one correctly",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Performs neither correctly",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 4,
+        "text": "Best gaze (horizontal eye movement)",
+        "response_type": "ordinal",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Normal",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Partial gaze palsy",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Forced deviation or total gaze paresis",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 5,
+        "text": "Visual fields",
+        "response_type": "ordinal",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "No visual loss",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Partial hemianopia",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Complete hemianopia",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Bilateral hemianopia (blind)",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 6,
+        "text": "Facial palsy",
+        "response_type": "ordinal",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Normal symmetrical movements",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Minor paralysis",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Partial paralysis",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Complete paralysis of one or both sides",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 7,
+        "text": "Motor arm - left",
+        "response_type": "ordinal",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "No drift",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Drift before 10 seconds",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Some effort against gravity",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "No effort against gravity",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "No movement",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 8,
+        "text": "Motor arm - right",
+        "response_type": "ordinal",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "No drift",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Drift before 10 seconds",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Some effort against gravity",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "No effort against gravity",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "No movement",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 9,
+        "text": "Motor leg - left",
+        "response_type": "ordinal",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "No drift",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Drift before 5 seconds",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Some effort against gravity",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "No effort against gravity",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "No movement",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 10,
+        "text": "Motor leg - right",
+        "response_type": "ordinal",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "No drift",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Drift before 5 seconds",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Some effort against gravity",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "No effort against gravity",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "No movement",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 11,
+        "text": "Limb ataxia",
+        "response_type": "ordinal",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Absent",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Present in one limb",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Present in two limbs",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 12,
+        "text": "Sensory",
+        "response_type": "ordinal",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Normal",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Mild-to-moderate sensory loss",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Severe or total sensory loss",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 13,
+        "text": "Best language",
+        "response_type": "ordinal",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "No aphasia",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Mild-to-moderate aphasia",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Severe aphasia",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Mute or global aphasia",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 14,
+        "text": "Dysarthria",
+        "response_type": "ordinal",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Normal",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Mild-to-moderate dysarthria",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Severe dysarthria or mute",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 15,
+        "text": "Extinction and inattention",
+        "response_type": "ordinal",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "No abnormality",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Inattention to one modality",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Profound hemi-inattention or neglect",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      }
+    ],
     "snomed_code": "450741005",
     "has_snomed": true
   },
@@ -3346,7 +9238,164 @@
     "license_detail": "Wijdicks et al. (2005). Mayo Clinic. Published in Mayo Clinic Proceedings; free for clinical use.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": [],
+    "items": [
+      {
+        "item_number": 1,
+        "text": "Eye response",
+        "response_type": "ordinal",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Eyelids open or opened, tracking or blinking to command",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Eyelids open but not tracking",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Eyelids closed but open to loud voice",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Eyelids closed but open to pain",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Eyelids remain closed with pain",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 2,
+        "text": "Motor response",
+        "response_type": "ordinal",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Thumbs-up, fist, or peace sign",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Localizing to pain",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Flexion response to pain",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Extension response to pain",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "No response to pain or generalized myoclonus status",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 3,
+        "text": "Brainstem reflexes",
+        "response_type": "ordinal",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Pupil and corneal reflexes present",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "One pupil wide and fixed",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Pupil or corneal reflexes absent",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Pupil and corneal reflexes absent",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Absent pupil, corneal, and cough reflex",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 4,
+        "text": "Respiration",
+        "response_type": "ordinal",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "Not intubated, regular breathing pattern",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Not intubated, Cheyne-Stokes breathing",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Not intubated, irregular breathing",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Breathes above ventilator rate",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Breathes at ventilator rate or apnea",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      }
+    ],
     "has_snomed": false
   },
   {
@@ -3722,7 +9771,968 @@
     "license_detail": "Bellamy et al. (1988). Nicholas Bellamy. Free for academic and clinical use. Available at womac.org.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": [],
+    "items": [
+      {
+        "item_number": 1,
+        "text": "Pain: Walking on a flat surface",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "subscale_name": "Pain",
+        "options": [
+          {
+            "text": "None",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Mild",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderate",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Severe",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Extreme",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 2,
+        "text": "Pain: Going up or down stairs",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "subscale_name": "Pain",
+        "options": [
+          {
+            "text": "None",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Mild",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderate",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Severe",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Extreme",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 3,
+        "text": "Pain: At night while in bed",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "subscale_name": "Pain",
+        "options": [
+          {
+            "text": "None",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Mild",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderate",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Severe",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Extreme",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 4,
+        "text": "Pain: Sitting or lying",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "subscale_name": "Pain",
+        "options": [
+          {
+            "text": "None",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Mild",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderate",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Severe",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Extreme",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 5,
+        "text": "Pain: Standing upright",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "subscale_name": "Pain",
+        "options": [
+          {
+            "text": "None",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Mild",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderate",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Severe",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Extreme",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 6,
+        "text": "Stiffness: How severe is your stiffness after first waking in the morning?",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "subscale_name": "Stiffness",
+        "options": [
+          {
+            "text": "None",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Mild",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderate",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Severe",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Extreme",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 7,
+        "text": "Stiffness: How severe is your stiffness after sitting, lying, or resting later in the day?",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "subscale_name": "Stiffness",
+        "options": [
+          {
+            "text": "None",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Mild",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderate",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Severe",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Extreme",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 8,
+        "text": "Function: Descending stairs",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "subscale_name": "Physical Function",
+        "options": [
+          {
+            "text": "None",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Mild",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderate",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Severe",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Extreme",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 9,
+        "text": "Function: Ascending stairs",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "subscale_name": "Physical Function",
+        "options": [
+          {
+            "text": "None",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Mild",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderate",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Severe",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Extreme",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 10,
+        "text": "Function: Rising from sitting",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "subscale_name": "Physical Function",
+        "options": [
+          {
+            "text": "None",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Mild",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderate",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Severe",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Extreme",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 11,
+        "text": "Function: Standing",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "subscale_name": "Physical Function",
+        "options": [
+          {
+            "text": "None",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Mild",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderate",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Severe",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Extreme",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 12,
+        "text": "Function: Bending to floor",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "subscale_name": "Physical Function",
+        "options": [
+          {
+            "text": "None",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Mild",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderate",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Severe",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Extreme",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 13,
+        "text": "Function: Walking on flat surface",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "subscale_name": "Physical Function",
+        "options": [
+          {
+            "text": "None",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Mild",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderate",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Severe",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Extreme",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 14,
+        "text": "Function: Getting in/out of car",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "subscale_name": "Physical Function",
+        "options": [
+          {
+            "text": "None",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Mild",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderate",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Severe",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Extreme",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 15,
+        "text": "Function: Going shopping",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "subscale_name": "Physical Function",
+        "options": [
+          {
+            "text": "None",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Mild",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderate",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Severe",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Extreme",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 16,
+        "text": "Function: Putting on socks/stockings",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "subscale_name": "Physical Function",
+        "options": [
+          {
+            "text": "None",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Mild",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderate",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Severe",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Extreme",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 17,
+        "text": "Function: Rising from bed",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "subscale_name": "Physical Function",
+        "options": [
+          {
+            "text": "None",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Mild",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderate",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Severe",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Extreme",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 18,
+        "text": "Function: Taking off socks/stockings",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "subscale_name": "Physical Function",
+        "options": [
+          {
+            "text": "None",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Mild",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderate",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Severe",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Extreme",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 19,
+        "text": "Function: Lying in bed",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "subscale_name": "Physical Function",
+        "options": [
+          {
+            "text": "None",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Mild",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderate",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Severe",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Extreme",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 20,
+        "text": "Function: Getting in/out of bath",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "subscale_name": "Physical Function",
+        "options": [
+          {
+            "text": "None",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Mild",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderate",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Severe",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Extreme",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 21,
+        "text": "Function: Sitting",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "subscale_name": "Physical Function",
+        "options": [
+          {
+            "text": "None",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Mild",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderate",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Severe",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Extreme",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 22,
+        "text": "Function: Getting on/off toilet",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "subscale_name": "Physical Function",
+        "options": [
+          {
+            "text": "None",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Mild",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderate",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Severe",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Extreme",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 23,
+        "text": "Function: Heavy domestic duties",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "subscale_name": "Physical Function",
+        "options": [
+          {
+            "text": "None",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Mild",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderate",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Severe",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Extreme",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      },
+      {
+        "item_number": 24,
+        "text": "Function: Light domestic duties",
+        "response_type": "likert",
+        "loinc_code": null,
+        "snomed_code": null,
+        "subscale_name": "Physical Function",
+        "options": [
+          {
+            "text": "None",
+            "value": 0,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Mild",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Moderate",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Severe",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "Extreme",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      }
+    ],
     "snomed_code": "273907006",
     "has_snomed": true
   },
@@ -3899,7 +10909,53 @@
     "license_detail": "American Society of Anesthesiologists. Public domain standard classification.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": [],
+    "items": [
+      {
+        "item_number": 1,
+        "text": "Physical status classification",
+        "response_type": "ordinal",
+        "loinc_code": null,
+        "snomed_code": null,
+        "options": [
+          {
+            "text": "ASA I - Normal healthy patient",
+            "value": 1,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "ASA II - Patient with mild systemic disease",
+            "value": 2,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "ASA III - Patient with severe systemic disease",
+            "value": 3,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "ASA IV - Patient with severe systemic disease that is a constant threat to life",
+            "value": 4,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "ASA V - Moribund patient not expected to survive without operation",
+            "value": 5,
+            "loinc_la_code": null,
+            "snomed_code": null
+          },
+          {
+            "text": "ASA VI - Declared brain-dead patient whose organs are being removed for donor purposes",
+            "value": 6,
+            "loinc_la_code": null,
+            "snomed_code": null
+          }
+        ]
+      }
+    ],
     "has_snomed": false
   },
   {
