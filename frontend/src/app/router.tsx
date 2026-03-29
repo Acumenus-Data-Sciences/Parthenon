@@ -401,7 +401,7 @@ export const router = createBrowserRouter(
           },
         ],
       },
-      // ── Risk Scores ──────────────────────────────────────────────────
+      // ── Risk Scores ──────���───────────────────────────────────────────
       {
         path: "risk-scores",
         children: [
@@ -409,17 +409,32 @@ export const router = createBrowserRouter(
             index: true,
             lazy: () =>
               import(
-                "@/features/risk-scores/pages/RiskScoreCataloguePage"
+                "@/features/risk-scores/pages/RiskScoreHubPage"
               ).then((m) => ({ Component: m.default })),
           },
           {
-            path: ":scoreId",
+            path: "create",
+            lazy: () =>
+              import(
+                "@/features/risk-scores/pages/RiskScoreCreatePage"
+              ).then((m) => ({ Component: m.default })),
+          },
+          {
+            path: ":id",
             lazy: () =>
               import(
                 "@/features/risk-scores/pages/RiskScoreDetailPage"
               ).then((m) => ({ Component: m.default })),
           },
         ],
+      },
+      // ── Standard PROs+ ────────────────────────────────────────────────
+      {
+        path: "standard-pros",
+        lazy: () =>
+          import(
+            "@/features/standard-pros/pages/StandardProsPage"
+          ).then((m) => ({ Component: m.default })),
       },
       {
         path: "morpheus",

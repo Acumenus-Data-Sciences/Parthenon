@@ -54,7 +54,7 @@ const TABS: { key: TabKey; label: string; icon: typeof Settings }[] = [
 // ---------------------------------------------------------------------------
 
 export default function RiskScoreDetailPage() {
-  const { id } = useParams<{ id: string }>();
+  const { scoreId: id } = useParams<{ scoreId: string }>();
   const navigate = useNavigate();
   const { activeSourceId, defaultSourceId } = useSourceStore();
   const sourceId = activeSourceId ?? defaultSourceId ?? 0;
