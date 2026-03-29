@@ -68,6 +68,9 @@ class RolePermissionSeeder extends Seeder
 
         // ── ETL mapping designer ──────────────────────────────────────────
         'etl' => ['view', 'create', 'delete', 'export'],
+
+        // ── Survey instruments / PROs ────────────────────────────────────
+        'surveys' => ['view', 'create', 'edit', 'delete'],
     ];
 
     /**
@@ -92,6 +95,7 @@ class RolePermissionSeeder extends Seeder
             'gis.view', 'gis.load-data', 'gis.import', 'gis.import.manage',
             'profiler.view', 'profiler.scan', 'profiler.delete',
             'etl.view', 'etl.create', 'etl.delete', 'etl.export',
+            'surveys.view', 'surveys.create', 'surveys.edit', 'surveys.delete',
         ],
 
         // Clinical/epidemiological researcher — primary user persona.
@@ -108,6 +112,7 @@ class RolePermissionSeeder extends Seeder
             'gis.view', 'gis.import',
             'profiler.view',
             'etl.view', 'etl.create', 'etl.export',
+            'surveys.view', 'surveys.create', 'surveys.edit',
         ],
 
         // Responsible for data pipelines and CDM quality.
@@ -147,6 +152,7 @@ class RolePermissionSeeder extends Seeder
             'gis.view',
             'profiler.view',
             'etl.view',
+            'surveys.view',
         ],
     ];
 

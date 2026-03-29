@@ -18,6 +18,7 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronDown,
+  ClipboardList,
   KeyRound,
   ShieldCheck,
   UsersRound,
@@ -107,6 +108,7 @@ const navItems: NavItem[] = [
     children: [
       { path: "/profiles", label: "Patient Profiles", icon: UserCircle },
       { path: "/risk-scores", label: "Risk Scores", icon: Activity },
+      { path: "/standard-pros", label: "Standard PROs+", icon: ClipboardList },
       { path: "/genomics", label: "Genomics", icon: Dna },
       { path: "/imaging", label: "Imaging", icon: ScanLine },
       { path: "/heor", label: "HEOR", icon: TrendingUp },

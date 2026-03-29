@@ -1,0 +1,4496 @@
+[
+  {
+    "abbreviation": "PHQ-9",
+    "name": "Patient Health Questionnaire-9",
+    "domain": "Mental Health",
+    "item_count": 10,
+    "description": "Nine-item depression screening tool derived from the PRIME-MD instrument, measuring the DSM-IV criteria for major depressive disorder. Widely used in primary care and research settings for both screening and severity assessment.",
+    "scoring_method": {
+      "type": "sum",
+      "range": [
+        0,
+        27
+      ],
+      "subscales": [],
+      "interpretation": {
+        "0-4": "None-minimal",
+        "5-9": "Mild",
+        "10-14": "Moderate",
+        "15-19": "Moderately severe",
+        "20-27": "Severe"
+      }
+    },
+    "loinc_panel_code": "44249-1",
+    "omop_concept_id": 756791,
+    "license_type": "public",
+    "license_detail": "Public Domain \u2014 Pfizer Inc. has released PHQ-9 into the public domain; no permission required to reproduce, translate, display or distribute.",
+    "is_public_domain": true,
+    "omop_coverage": "partial",
+    "items": [
+      {
+        "item_number": 1,
+        "loinc_code": "44250-9",
+        "text": "Little interest or pleasure in doing things",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not at all",
+            "loinc_la": "LA6568-5"
+          },
+          {
+            "value": 1,
+            "label": "Several days",
+            "loinc_la": "LA6569-3"
+          },
+          {
+            "value": 2,
+            "label": "More than half the days",
+            "loinc_la": "LA6570-1"
+          },
+          {
+            "value": 3,
+            "label": "Nearly every day",
+            "loinc_la": "LA6571-9"
+          }
+        ]
+      },
+      {
+        "item_number": 2,
+        "loinc_code": "44255-8",
+        "text": "Feeling down, depressed, or hopeless",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not at all",
+            "loinc_la": "LA6568-5"
+          },
+          {
+            "value": 1,
+            "label": "Several days",
+            "loinc_la": "LA6569-3"
+          },
+          {
+            "value": 2,
+            "label": "More than half the days",
+            "loinc_la": "LA6570-1"
+          },
+          {
+            "value": 3,
+            "label": "Nearly every day",
+            "loinc_la": "LA6571-9"
+          }
+        ]
+      },
+      {
+        "item_number": 3,
+        "loinc_code": "44259-0",
+        "text": "Trouble falling or staying asleep, or sleeping too much",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not at all",
+            "loinc_la": "LA6568-5"
+          },
+          {
+            "value": 1,
+            "label": "Several days",
+            "loinc_la": "LA6569-3"
+          },
+          {
+            "value": 2,
+            "label": "More than half the days",
+            "loinc_la": "LA6570-1"
+          },
+          {
+            "value": 3,
+            "label": "Nearly every day",
+            "loinc_la": "LA6571-9"
+          }
+        ]
+      },
+      {
+        "item_number": 4,
+        "loinc_code": "44254-1",
+        "text": "Feeling tired or having little energy",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not at all",
+            "loinc_la": "LA6568-5"
+          },
+          {
+            "value": 1,
+            "label": "Several days",
+            "loinc_la": "LA6569-3"
+          },
+          {
+            "value": 2,
+            "label": "More than half the days",
+            "loinc_la": "LA6570-1"
+          },
+          {
+            "value": 3,
+            "label": "Nearly every day",
+            "loinc_la": "LA6571-9"
+          }
+        ]
+      },
+      {
+        "item_number": 5,
+        "loinc_code": "44251-7",
+        "text": "Poor appetite or overeating",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not at all",
+            "loinc_la": "LA6568-5"
+          },
+          {
+            "value": 1,
+            "label": "Several days",
+            "loinc_la": "LA6569-3"
+          },
+          {
+            "value": 2,
+            "label": "More than half the days",
+            "loinc_la": "LA6570-1"
+          },
+          {
+            "value": 3,
+            "label": "Nearly every day",
+            "loinc_la": "LA6571-9"
+          }
+        ]
+      },
+      {
+        "item_number": 6,
+        "loinc_code": "44258-2",
+        "text": "Feeling bad about yourself \u2014 or that you are a failure or have let yourself or your family down",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not at all",
+            "loinc_la": "LA6568-5"
+          },
+          {
+            "value": 1,
+            "label": "Several days",
+            "loinc_la": "LA6569-3"
+          },
+          {
+            "value": 2,
+            "label": "More than half the days",
+            "loinc_la": "LA6570-1"
+          },
+          {
+            "value": 3,
+            "label": "Nearly every day",
+            "loinc_la": "LA6571-9"
+          }
+        ]
+      },
+      {
+        "item_number": 7,
+        "loinc_code": "44252-5",
+        "text": "Trouble concentrating on things, such as reading the newspaper or watching television",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not at all",
+            "loinc_la": "LA6568-5"
+          },
+          {
+            "value": 1,
+            "label": "Several days",
+            "loinc_la": "LA6569-3"
+          },
+          {
+            "value": 2,
+            "label": "More than half the days",
+            "loinc_la": "LA6570-1"
+          },
+          {
+            "value": 3,
+            "label": "Nearly every day",
+            "loinc_la": "LA6571-9"
+          }
+        ]
+      },
+      {
+        "item_number": 8,
+        "loinc_code": "44253-3",
+        "text": "Moving or speaking so slowly that other people could have noticed? Or the opposite \u2014 being so fidgety or restless that you have been moving around a lot more than usual",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not at all",
+            "loinc_la": "LA6568-5"
+          },
+          {
+            "value": 1,
+            "label": "Several days",
+            "loinc_la": "LA6569-3"
+          },
+          {
+            "value": 2,
+            "label": "More than half the days",
+            "loinc_la": "LA6570-1"
+          },
+          {
+            "value": 3,
+            "label": "Nearly every day",
+            "loinc_la": "LA6571-9"
+          }
+        ]
+      },
+      {
+        "item_number": 9,
+        "loinc_code": "44260-8",
+        "text": "Thoughts that you would be better off dead or of hurting yourself in some way",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not at all",
+            "loinc_la": "LA6568-5"
+          },
+          {
+            "value": 1,
+            "label": "Several days",
+            "loinc_la": "LA6569-3"
+          },
+          {
+            "value": 2,
+            "label": "More than half the days",
+            "loinc_la": "LA6570-1"
+          },
+          {
+            "value": 3,
+            "label": "Nearly every day",
+            "loinc_la": "LA6571-9"
+          }
+        ]
+      },
+      {
+        "item_number": 10,
+        "loinc_code": "44261-6",
+        "text": "If you checked off any problems, how difficult have these problems made it for you to do your work, take care of things at home, or get along with other people?",
+        "response_type": "ordinal",
+        "scored": false,
+        "options": [
+          {
+            "value": 0,
+            "label": "Not difficult at all"
+          },
+          {
+            "value": 1,
+            "label": "Somewhat difficult"
+          },
+          {
+            "value": 2,
+            "label": "Very difficult"
+          },
+          {
+            "value": 3,
+            "label": "Extremely difficult"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "abbreviation": "PHQ-2",
+    "name": "Patient Health Questionnaire-2",
+    "domain": "Mental Health",
+    "item_count": 2,
+    "description": "Ultra-brief two-item depression screener comprising the first two items of the PHQ-9. Used as an initial screen; a score of 3 or higher warrants administration of the full PHQ-9.",
+    "scoring_method": {
+      "type": "sum",
+      "range": [
+        0,
+        6
+      ],
+      "subscales": [],
+      "interpretation": {
+        "0-2": "Screen negative",
+        "3-6": "Screen positive \u2014 administer PHQ-9"
+      }
+    },
+    "loinc_panel_code": "55757-9",
+    "omop_concept_id": 756799,
+    "license_type": "public",
+    "license_detail": "Public Domain",
+    "is_public_domain": true,
+    "omop_coverage": "partial",
+    "items": [
+      {
+        "item_number": 1,
+        "loinc_code": "44250-9",
+        "text": "Little interest or pleasure in doing things",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not at all",
+            "loinc_la": "LA6568-5"
+          },
+          {
+            "value": 1,
+            "label": "Several days",
+            "loinc_la": "LA6569-3"
+          },
+          {
+            "value": 2,
+            "label": "More than half the days",
+            "loinc_la": "LA6570-1"
+          },
+          {
+            "value": 3,
+            "label": "Nearly every day",
+            "loinc_la": "LA6571-9"
+          }
+        ]
+      },
+      {
+        "item_number": 2,
+        "loinc_code": "44255-8",
+        "text": "Feeling down, depressed, or hopeless",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not at all",
+            "loinc_la": "LA6568-5"
+          },
+          {
+            "value": 1,
+            "label": "Several days",
+            "loinc_la": "LA6569-3"
+          },
+          {
+            "value": 2,
+            "label": "More than half the days",
+            "loinc_la": "LA6570-1"
+          },
+          {
+            "value": 3,
+            "label": "Nearly every day",
+            "loinc_la": "LA6571-9"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "abbreviation": "GAD-7",
+    "name": "Generalized Anxiety Disorder 7-item scale",
+    "domain": "Mental Health",
+    "item_count": 7,
+    "description": "Seven-item anxiety screening tool measuring the frequency of core anxiety symptoms over the prior two weeks. Validated for generalized anxiety disorder screening and as a severity measure in primary care and research settings.",
+    "scoring_method": {
+      "type": "sum",
+      "range": [
+        0,
+        21
+      ],
+      "subscales": [],
+      "interpretation": {
+        "0-4": "Minimal anxiety",
+        "5-9": "Mild anxiety",
+        "10-14": "Moderate anxiety",
+        "15-21": "Severe anxiety"
+      }
+    },
+    "loinc_panel_code": "69737-5",
+    "omop_concept_id": 756794,
+    "license_type": "public",
+    "license_detail": "Public Domain \u2014 Pfizer Inc. has released GAD-7 into the public domain.",
+    "is_public_domain": true,
+    "omop_coverage": "partial",
+    "items": [
+      {
+        "item_number": 1,
+        "loinc_code": "69725-0",
+        "text": "Feeling nervous, anxious, or on edge",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not at all",
+            "loinc_la": "LA6568-5"
+          },
+          {
+            "value": 1,
+            "label": "Several days",
+            "loinc_la": "LA6569-3"
+          },
+          {
+            "value": 2,
+            "label": "More than half the days",
+            "loinc_la": "LA6570-1"
+          },
+          {
+            "value": 3,
+            "label": "Nearly every day",
+            "loinc_la": "LA6571-9"
+          }
+        ]
+      },
+      {
+        "item_number": 2,
+        "loinc_code": "68509-9",
+        "text": "Not being able to stop or control worrying",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not at all",
+            "loinc_la": "LA6568-5"
+          },
+          {
+            "value": 1,
+            "label": "Several days",
+            "loinc_la": "LA6569-3"
+          },
+          {
+            "value": 2,
+            "label": "More than half the days",
+            "loinc_la": "LA6570-1"
+          },
+          {
+            "value": 3,
+            "label": "Nearly every day",
+            "loinc_la": "LA6571-9"
+          }
+        ]
+      },
+      {
+        "item_number": 3,
+        "loinc_code": "69733-4",
+        "text": "Worrying too much about different things",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not at all",
+            "loinc_la": "LA6568-5"
+          },
+          {
+            "value": 1,
+            "label": "Several days",
+            "loinc_la": "LA6569-3"
+          },
+          {
+            "value": 2,
+            "label": "More than half the days",
+            "loinc_la": "LA6570-1"
+          },
+          {
+            "value": 3,
+            "label": "Nearly every day",
+            "loinc_la": "LA6571-9"
+          }
+        ]
+      },
+      {
+        "item_number": 4,
+        "loinc_code": "69734-2",
+        "text": "Trouble relaxing",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not at all",
+            "loinc_la": "LA6568-5"
+          },
+          {
+            "value": 1,
+            "label": "Several days",
+            "loinc_la": "LA6569-3"
+          },
+          {
+            "value": 2,
+            "label": "More than half the days",
+            "loinc_la": "LA6570-1"
+          },
+          {
+            "value": 3,
+            "label": "Nearly every day",
+            "loinc_la": "LA6571-9"
+          }
+        ]
+      },
+      {
+        "item_number": 5,
+        "loinc_code": "69735-9",
+        "text": "Being so restless that it is hard to sit still",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not at all",
+            "loinc_la": "LA6568-5"
+          },
+          {
+            "value": 1,
+            "label": "Several days",
+            "loinc_la": "LA6569-3"
+          },
+          {
+            "value": 2,
+            "label": "More than half the days",
+            "loinc_la": "LA6570-1"
+          },
+          {
+            "value": 3,
+            "label": "Nearly every day",
+            "loinc_la": "LA6571-9"
+          }
+        ]
+      },
+      {
+        "item_number": 6,
+        "loinc_code": "69689-8",
+        "text": "Becoming easily annoyed or irritable",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not at all",
+            "loinc_la": "LA6568-5"
+          },
+          {
+            "value": 1,
+            "label": "Several days",
+            "loinc_la": "LA6569-3"
+          },
+          {
+            "value": 2,
+            "label": "More than half the days",
+            "loinc_la": "LA6570-1"
+          },
+          {
+            "value": 3,
+            "label": "Nearly every day",
+            "loinc_la": "LA6571-9"
+          }
+        ]
+      },
+      {
+        "item_number": 7,
+        "loinc_code": "69736-7",
+        "text": "Feeling afraid as if something awful might happen",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not at all",
+            "loinc_la": "LA6568-5"
+          },
+          {
+            "value": 1,
+            "label": "Several days",
+            "loinc_la": "LA6569-3"
+          },
+          {
+            "value": 2,
+            "label": "More than half the days",
+            "loinc_la": "LA6570-1"
+          },
+          {
+            "value": 3,
+            "label": "Nearly every day",
+            "loinc_la": "LA6571-9"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "abbreviation": "BDI-II",
+    "name": "Beck Depression Inventory, Second Edition",
+    "domain": "Mental Health",
+    "item_count": 21,
+    "description": "Twenty-one item self-report inventory measuring the severity of depressive symptoms in adults and adolescents aged 13 and older, aligned with DSM-IV diagnostic criteria for major depressive disorder.",
+    "scoring_method": {
+      "type": "sum",
+      "range": [
+        0,
+        63
+      ],
+      "subscales": [],
+      "interpretation": {
+        "0-13": "Minimal depression",
+        "14-19": "Mild depression",
+        "20-28": "Moderate depression",
+        "29-63": "Severe depression"
+      }
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "proprietary",
+    "license_detail": "Copyright Pearson Education. Requires purchase and licensing. Do not reproduce without permission.",
+    "is_public_domain": false,
+    "omop_coverage": "no",
+    "items": []
+  },
+  {
+    "abbreviation": "C-SSRS",
+    "name": "Columbia Suicide Severity Rating Scale",
+    "domain": "Mental Health",
+    "item_count": 16,
+    "description": "Clinician-administered scale assessing suicidal ideation and behavior across five ideation categories and four behavior categories. Developed at Columbia University and mandated by the FDA for clinical trials involving psychiatric endpoints.",
+    "scoring_method": {
+      "type": "categorical",
+      "range": [
+        0,
+        5
+      ],
+      "subscales": [
+        "Ideation Intensity",
+        "Suicidal Behavior"
+      ],
+      "note": "Worst ideation type (1-5) is the primary ideation score; behavior subscale is event-based"
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "public",
+    "license_detail": "Free for use with acknowledgment of Columbia University. Available at cssrs.columbia.edu.",
+    "is_public_domain": false,
+    "omop_coverage": "no",
+    "items": []
+  },
+  {
+    "abbreviation": "PANSS",
+    "name": "Positive and Negative Syndrome Scale",
+    "domain": "Mental Health",
+    "item_count": 30,
+    "description": "Thirty-item clinician-rated scale for assessing symptom severity in schizophrenia and related psychotic disorders, comprising positive symptom, negative symptom, and general psychopathology subscales.",
+    "scoring_method": {
+      "type": "sum",
+      "range": [
+        30,
+        210
+      ],
+      "subscales": [
+        "Positive (7 items)",
+        "Negative (7 items)",
+        "General Psychopathology (16 items)"
+      ]
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": 756792,
+    "license_type": "proprietary",
+    "license_detail": "Copyright Multi-Health Systems (MHS). Requires licensing for use.",
+    "is_public_domain": false,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "SAPS",
+    "name": "Scale for the Assessment of Positive Symptoms",
+    "domain": "Mental Health",
+    "item_count": 34,
+    "description": "Clinician-administered 34-item scale developed by Nancy Andreasen to assess the severity of positive symptoms in schizophrenia, including hallucinations, delusions, bizarre behavior, and positive formal thought disorder.",
+    "scoring_method": {
+      "type": "sum",
+      "range": [
+        0,
+        170
+      ],
+      "subscales": [
+        "Hallucinations",
+        "Delusions",
+        "Bizarre Behavior",
+        "Positive Formal Thought Disorder"
+      ]
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "public",
+    "license_detail": "Available from the University of Iowa; free to use with attribution to Dr. Nancy Andreasen.",
+    "is_public_domain": true,
+    "omop_coverage": "partial",
+    "items": []
+  },
+  {
+    "abbreviation": "SANS",
+    "name": "Scale for the Assessment of Negative Symptoms",
+    "domain": "Mental Health",
+    "item_count": 25,
+    "description": "Clinician-administered 25-item scale developed by Nancy Andreasen to quantify the severity of negative symptoms in schizophrenia, including affective flattening, alogia, avolition, anhedonia, and attention deficits.",
+    "scoring_method": {
+      "type": "sum",
+      "range": [
+        0,
+        125
+      ],
+      "subscales": [
+        "Affective Flattening/Blunting",
+        "Alogia",
+        "Avolition-Apathy",
+        "Anhedonia-Asociality",
+        "Attention"
+      ]
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "public",
+    "license_detail": "Available from the University of Iowa; free to use with attribution to Dr. Nancy Andreasen.",
+    "is_public_domain": true,
+    "omop_coverage": "partial",
+    "items": []
+  },
+  {
+    "abbreviation": "PCL-5",
+    "name": "PTSD Checklist for DSM-5",
+    "domain": "Mental Health",
+    "item_count": 20,
+    "description": "Twenty-item self-report measure assessing DSM-5 symptoms of PTSD across four symptom clusters: intrusion, avoidance, negative alterations in cognition and mood, and alterations in arousal and reactivity. Developed and released publicly by the National Center for PTSD.",
+    "scoring_method": {
+      "type": "sum",
+      "range": [
+        0,
+        80
+      ],
+      "subscales": [
+        "Intrusion (B)",
+        "Avoidance (C)",
+        "Negative Cognitions/Mood (D)",
+        "Arousal/Reactivity (E)"
+      ],
+      "interpretation": {
+        "cutoff": 31,
+        "note": "Score of 31-33+ is suggestive of PTSD; confirm with clinical interview"
+      }
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "public",
+    "license_detail": "Public domain \u2014 published by the US Department of Veterans Affairs National Center for PTSD.",
+    "is_public_domain": true,
+    "omop_coverage": "no",
+    "items": []
+  },
+  {
+    "abbreviation": "AUDIT",
+    "name": "Alcohol Use Disorders Identification Test",
+    "domain": "Substance Use",
+    "item_count": 10,
+    "description": "Ten-item WHO-developed screening tool for hazardous and harmful alcohol use and early identification of alcohol use disorders. Covers consumption (items 1-3), dependence symptoms (items 4-6), and harmful alcohol use (items 7-10).",
+    "scoring_method": {
+      "type": "sum",
+      "range": [
+        0,
+        40
+      ],
+      "subscales": [
+        "Consumption (items 1-3)",
+        "Dependence (items 4-6)",
+        "Harmful Use (items 7-10)"
+      ],
+      "interpretation": {
+        "0-7": "Low risk",
+        "8-15": "Hazardous use",
+        "16-19": "Harmful use",
+        "20-40": "Probable alcohol dependence"
+      },
+      "note": "Items 1-8 scored 0,1,2,3,4; items 9-10 scored 0,2,4 only"
+    },
+    "loinc_panel_code": "72109-2",
+    "omop_concept_id": 756800,
+    "license_type": "public",
+    "license_detail": "World Health Organization. Free to use with attribution to WHO.",
+    "is_public_domain": true,
+    "omop_coverage": "partial",
+    "items": [
+      {
+        "item_number": 1,
+        "loinc_code": "68518-0",
+        "text": "How often do you have a drink containing alcohol?",
+        "response_type": "ordinal",
+        "options": [
+          {
+            "value": 0,
+            "label": "Never"
+          },
+          {
+            "value": 1,
+            "label": "Monthly or less"
+          },
+          {
+            "value": 2,
+            "label": "2 to 4 times a month"
+          },
+          {
+            "value": 3,
+            "label": "2 to 3 times a week"
+          },
+          {
+            "value": 4,
+            "label": "4 or more times a week"
+          }
+        ]
+      },
+      {
+        "item_number": 2,
+        "loinc_code": "68519-8",
+        "text": "How many drinks containing alcohol do you have on a typical day when you are drinking?",
+        "response_type": "ordinal",
+        "options": [
+          {
+            "value": 0,
+            "label": "1 or 2"
+          },
+          {
+            "value": 1,
+            "label": "3 or 4"
+          },
+          {
+            "value": 2,
+            "label": "5 or 6"
+          },
+          {
+            "value": 3,
+            "label": "7, 8, or 9"
+          },
+          {
+            "value": 4,
+            "label": "10 or more"
+          }
+        ]
+      },
+      {
+        "item_number": 3,
+        "loinc_code": "68520-6",
+        "text": "How often do you have six or more drinks on one occasion?",
+        "response_type": "ordinal",
+        "options": [
+          {
+            "value": 0,
+            "label": "Never"
+          },
+          {
+            "value": 1,
+            "label": "Less than monthly"
+          },
+          {
+            "value": 2,
+            "label": "Monthly"
+          },
+          {
+            "value": 3,
+            "label": "Weekly"
+          },
+          {
+            "value": 4,
+            "label": "Daily or almost daily"
+          }
+        ]
+      },
+      {
+        "item_number": 4,
+        "loinc_code": "68521-4",
+        "text": "How often during the last year have you found that you were not able to stop drinking once you had started?",
+        "response_type": "ordinal",
+        "options": [
+          {
+            "value": 0,
+            "label": "Never"
+          },
+          {
+            "value": 1,
+            "label": "Less than monthly"
+          },
+          {
+            "value": 2,
+            "label": "Monthly"
+          },
+          {
+            "value": 3,
+            "label": "Weekly"
+          },
+          {
+            "value": 4,
+            "label": "Daily or almost daily"
+          }
+        ]
+      },
+      {
+        "item_number": 5,
+        "loinc_code": "68522-2",
+        "text": "How often during the last year have you failed to do what was normally expected from you because of drinking?",
+        "response_type": "ordinal",
+        "options": [
+          {
+            "value": 0,
+            "label": "Never"
+          },
+          {
+            "value": 1,
+            "label": "Less than monthly"
+          },
+          {
+            "value": 2,
+            "label": "Monthly"
+          },
+          {
+            "value": 3,
+            "label": "Weekly"
+          },
+          {
+            "value": 4,
+            "label": "Daily or almost daily"
+          }
+        ]
+      },
+      {
+        "item_number": 6,
+        "loinc_code": "68523-0",
+        "text": "How often during the last year have you needed a first drink in the morning to get yourself going after a heavy drinking session?",
+        "response_type": "ordinal",
+        "options": [
+          {
+            "value": 0,
+            "label": "Never"
+          },
+          {
+            "value": 1,
+            "label": "Less than monthly"
+          },
+          {
+            "value": 2,
+            "label": "Monthly"
+          },
+          {
+            "value": 3,
+            "label": "Weekly"
+          },
+          {
+            "value": 4,
+            "label": "Daily or almost daily"
+          }
+        ]
+      },
+      {
+        "item_number": 7,
+        "loinc_code": "68524-8",
+        "text": "How often during the last year have you had a feeling of guilt or remorse after drinking?",
+        "response_type": "ordinal",
+        "options": [
+          {
+            "value": 0,
+            "label": "Never"
+          },
+          {
+            "value": 1,
+            "label": "Less than monthly"
+          },
+          {
+            "value": 2,
+            "label": "Monthly"
+          },
+          {
+            "value": 3,
+            "label": "Weekly"
+          },
+          {
+            "value": 4,
+            "label": "Daily or almost daily"
+          }
+        ]
+      },
+      {
+        "item_number": 8,
+        "loinc_code": "68525-5",
+        "text": "How often during the last year have you been unable to remember what happened the night before because you had been drinking?",
+        "response_type": "ordinal",
+        "options": [
+          {
+            "value": 0,
+            "label": "Never"
+          },
+          {
+            "value": 1,
+            "label": "Less than monthly"
+          },
+          {
+            "value": 2,
+            "label": "Monthly"
+          },
+          {
+            "value": 3,
+            "label": "Weekly"
+          },
+          {
+            "value": 4,
+            "label": "Daily or almost daily"
+          }
+        ]
+      },
+      {
+        "item_number": 9,
+        "loinc_code": "68526-3",
+        "text": "Have you or someone else been injured as a result of your drinking?",
+        "response_type": "ordinal",
+        "options": [
+          {
+            "value": 0,
+            "label": "No"
+          },
+          {
+            "value": 2,
+            "label": "Yes, but not in the last year"
+          },
+          {
+            "value": 4,
+            "label": "Yes, during the last year"
+          }
+        ]
+      },
+      {
+        "item_number": 10,
+        "loinc_code": "68527-1",
+        "text": "Has a relative or friend, or a doctor or another health worker, been concerned about your drinking or suggested that you cut down?",
+        "response_type": "ordinal",
+        "options": [
+          {
+            "value": 0,
+            "label": "No"
+          },
+          {
+            "value": 2,
+            "label": "Yes, but not in the last year"
+          },
+          {
+            "value": 4,
+            "label": "Yes, during the last year"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "abbreviation": "DAST-10",
+    "name": "Drug Abuse Screening Test-10",
+    "domain": "Substance Use",
+    "item_count": 10,
+    "description": "Ten-item self-report questionnaire screening for problematic drug use (excluding alcohol and tobacco) over the past 12 months. Adapted from the original 28-item DAST and validated across clinical and community populations.",
+    "scoring_method": {
+      "type": "sum",
+      "range": [
+        0,
+        10
+      ],
+      "subscales": [],
+      "interpretation": {
+        "0": "No problems reported",
+        "1-2": "Low level",
+        "3-5": "Moderate level",
+        "6-8": "Substantial level",
+        "9-10": "Severe level"
+      }
+    },
+    "loinc_panel_code": "82666-9",
+    "omop_concept_id": null,
+    "license_type": "public",
+    "license_detail": "Harvey A. Skinner; freely available for clinical and research use.",
+    "is_public_domain": true,
+    "omop_coverage": "partial",
+    "items": []
+  },
+  {
+    "abbreviation": "CAGE",
+    "name": "CAGE Alcohol Questionnaire",
+    "domain": "Substance Use",
+    "item_count": 4,
+    "description": "Four-item brief alcohol misuse screening questionnaire used in primary care. The acronym CAGE stands for Cut down, Annoyed, Guilty, Eye-opener. A score of 2 or more is considered clinically significant.",
+    "scoring_method": {
+      "type": "sum",
+      "range": [
+        0,
+        4
+      ],
+      "subscales": [],
+      "interpretation": {
+        "0-1": "Screen negative",
+        "2-4": "Screen positive \u2014 further assessment recommended"
+      }
+    },
+    "loinc_panel_code": "74043-1",
+    "omop_concept_id": null,
+    "license_type": "public",
+    "license_detail": "John Ewing; published in JAMA 1984. Public domain.",
+    "is_public_domain": true,
+    "omop_coverage": "partial",
+    "items": [
+      {
+        "item_number": 1,
+        "loinc_code": "68515-6",
+        "text": "Have you ever felt you should Cut down on your drinking?",
+        "response_type": "yes_no",
+        "options": [
+          {
+            "value": 0,
+            "label": "No"
+          },
+          {
+            "value": 1,
+            "label": "Yes"
+          }
+        ]
+      },
+      {
+        "item_number": 2,
+        "loinc_code": "68516-4",
+        "text": "Have people Annoyed you by criticizing your drinking?",
+        "response_type": "yes_no",
+        "options": [
+          {
+            "value": 0,
+            "label": "No"
+          },
+          {
+            "value": 1,
+            "label": "Yes"
+          }
+        ]
+      },
+      {
+        "item_number": 3,
+        "loinc_code": "68517-2",
+        "text": "Have you ever felt bad or Guilty about your drinking?",
+        "response_type": "yes_no",
+        "options": [
+          {
+            "value": 0,
+            "label": "No"
+          },
+          {
+            "value": 1,
+            "label": "Yes"
+          }
+        ]
+      },
+      {
+        "item_number": 4,
+        "loinc_code": "68514-9",
+        "text": "Have you ever had a drink first thing in the morning to steady your nerves or to get rid of a hangover (Eye-opener)?",
+        "response_type": "yes_no",
+        "options": [
+          {
+            "value": 0,
+            "label": "No"
+          },
+          {
+            "value": 1,
+            "label": "Yes"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "abbreviation": "ASSIST",
+    "name": "Alcohol, Smoking and Substance Involvement Screening Test",
+    "domain": "Substance Use",
+    "item_count": 8,
+    "description": "Eight-item WHO-developed screening tool assessing lifetime and recent use of tobacco, alcohol, cannabis, cocaine, amphetamines, inhalants, sedatives, hallucinogens, opioids, and other drugs, as well as associated problems and dependence indicators.",
+    "scoring_method": {
+      "type": "substance_specific_sum",
+      "range": [
+        0,
+        39
+      ],
+      "subscales": [
+        "Tobacco",
+        "Alcohol",
+        "Cannabis",
+        "Cocaine",
+        "Amphetamines",
+        "Inhalants",
+        "Sedatives",
+        "Hallucinogens",
+        "Opioids",
+        "Other drugs"
+      ],
+      "interpretation": {
+        "0-3": "Lower risk",
+        "4-26": "Moderate risk \u2014 brief intervention",
+        "27+": "High risk \u2014 referral for assessment and treatment"
+      }
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "public",
+    "license_detail": "World Health Organization. Freely available at who.int.",
+    "is_public_domain": true,
+    "omop_coverage": "partial",
+    "items": []
+  },
+  {
+    "abbreviation": "SASSI-3",
+    "name": "Substance Abuse Subtle Screening Inventory-3",
+    "domain": "Substance Use",
+    "item_count": 93,
+    "description": "Ninety-three item self-report screening instrument with both direct (face-valid) and indirect (subtle) subscales for identifying individuals with high probability of a substance use disorder, including an empirically derived defensiveness scale.",
+    "scoring_method": {
+      "type": "profile",
+      "range": null,
+      "subscales": [
+        "FVA",
+        "FVOD",
+        "SAT",
+        "OAT",
+        "SYM",
+        "OBP",
+        "SAM",
+        "COR",
+        "FAM",
+        "DEF"
+      ]
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "proprietary",
+    "license_detail": "Copyright SASSI Institute. Requires purchase and certification for administration.",
+    "is_public_domain": false,
+    "omop_coverage": "partial",
+    "items": []
+  },
+  {
+    "abbreviation": "EQ-5D-3L",
+    "name": "EuroQol 5-Dimension 3-Level",
+    "domain": "Quality of Life",
+    "item_count": 6,
+    "description": "Standardized five-dimension health status instrument with three response levels (no problems, some problems, extreme problems) plus a visual analogue scale. Generates a single index value for health state utility in cost-effectiveness analyses.",
+    "scoring_method": {
+      "type": "utility_index",
+      "range": [
+        -0.594,
+        1.0
+      ],
+      "subscales": [
+        "Mobility",
+        "Self-Care",
+        "Usual Activities",
+        "Pain/Discomfort",
+        "Anxiety/Depression",
+        "VAS"
+      ],
+      "note": "Index value derived from population-based value sets; VAS scored 0-100"
+    },
+    "loinc_panel_code": "89243-0",
+    "omop_concept_id": null,
+    "license_type": "proprietary",
+    "license_detail": "Copyright EuroQol Research Foundation. Requires registration and license at euroqol.org. Free for academic non-commercial use.",
+    "is_public_domain": false,
+    "omop_coverage": "partial",
+    "items": []
+  },
+  {
+    "abbreviation": "EQ-5D-5L",
+    "name": "EuroQol 5-Dimension 5-Level",
+    "domain": "Quality of Life",
+    "item_count": 6,
+    "description": "Updated version of the EQ-5D with five response levels per dimension (no, slight, moderate, severe, extreme problems) offering greater sensitivity and reduced ceiling effects compared to the 3L version, plus a visual analogue scale.",
+    "scoring_method": {
+      "type": "utility_index",
+      "range": [
+        -0.281,
+        1.0
+      ],
+      "subscales": [
+        "Mobility",
+        "Self-Care",
+        "Usual Activities",
+        "Pain/Discomfort",
+        "Anxiety/Depression",
+        "VAS"
+      ],
+      "note": "Crosswalk value sets available; VAS scored 0-100"
+    },
+    "loinc_panel_code": "89245-5",
+    "omop_concept_id": null,
+    "license_type": "proprietary",
+    "license_detail": "Copyright EuroQol Research Foundation. Requires registration and license at euroqol.org.",
+    "is_public_domain": false,
+    "omop_coverage": "partial",
+    "items": []
+  },
+  {
+    "abbreviation": "SF-36",
+    "name": "Short Form Health Survey-36",
+    "domain": "Quality of Life",
+    "item_count": 36,
+    "description": "Thirty-six item generic health survey measuring eight health domains: physical functioning, role-physical, bodily pain, general health, vitality, social functioning, role-emotional, and mental health. Produces Physical Component Summary and Mental Component Summary scores.",
+    "scoring_method": {
+      "type": "subscale_profile",
+      "range": [
+        0,
+        100
+      ],
+      "subscales": [
+        "Physical Functioning (PF)",
+        "Role-Physical (RP)",
+        "Bodily Pain (BP)",
+        "General Health (GH)",
+        "Vitality (VT)",
+        "Social Functioning (SF)",
+        "Role-Emotional (RE)",
+        "Mental Health (MH)"
+      ],
+      "note": "Each scale scored 0-100; summary PCS and MCS computed via norm-based scoring"
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "proprietary",
+    "license_detail": "Copyright RAND Corporation / QualityMetric. Requires licensing for commercial use. RAND 36-item version is free for non-commercial use.",
+    "is_public_domain": false,
+    "omop_coverage": "partial",
+    "items": []
+  },
+  {
+    "abbreviation": "SF-12",
+    "name": "Short Form Health Survey-12",
+    "domain": "Quality of Life",
+    "item_count": 12,
+    "description": "Twelve-item abbreviated version of the SF-36 designed for large-scale population surveys where respondent burden is a concern. Produces Physical Component Summary (PCS-12) and Mental Component Summary (MCS-12) scores.",
+    "scoring_method": {
+      "type": "component_summary",
+      "range": [
+        0,
+        100
+      ],
+      "subscales": [
+        "PCS-12",
+        "MCS-12"
+      ],
+      "note": "Norm-based T-score scoring; population mean = 50, SD = 10"
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "proprietary",
+    "license_detail": "Copyright QualityMetric. Requires licensing.",
+    "is_public_domain": false,
+    "omop_coverage": "partial",
+    "items": []
+  },
+  {
+    "abbreviation": "WHOQOL-BREF",
+    "name": "WHO Quality of Life \u2014 Brief",
+    "domain": "Quality of Life",
+    "item_count": 26,
+    "description": "Twenty-six item abbreviated version of the WHOQOL-100 measuring quality of life across four domains: physical health, psychological health, social relationships, and environment. Developed cross-culturally by the WHO and validated in 15 international field centers.",
+    "scoring_method": {
+      "type": "subscale_profile",
+      "range": [
+        4,
+        20
+      ],
+      "subscales": [
+        "Physical Health (7 items)",
+        "Psychological (6 items)",
+        "Social Relationships (3 items)",
+        "Environment (8 items)"
+      ],
+      "note": "Two items (overall QoL and health satisfaction) not included in domain scores"
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "public",
+    "license_detail": "World Health Organization. Freely available for non-commercial use from who.int.",
+    "is_public_domain": true,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "HUI",
+    "name": "Health Utilities Index",
+    "domain": "Quality of Life",
+    "item_count": 15,
+    "description": "Generic preference-based health status classification system measuring functional capacity across multiple attributes including vision, hearing, speech, ambulation, dexterity, emotion, cognition, and pain. Available in HUI2 (7 attributes) and HUI3 (8 attributes) versions.",
+    "scoring_method": {
+      "type": "utility_index",
+      "range": [
+        -0.36,
+        1.0
+      ],
+      "subscales": [
+        "Vision",
+        "Hearing",
+        "Speech",
+        "Ambulation/Mobility",
+        "Dexterity",
+        "Emotion",
+        "Cognition",
+        "Pain/Discomfort"
+      ],
+      "note": "Multiplicative multi-attribute utility function; dead = 0, perfect health = 1.00"
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "proprietary",
+    "license_detail": "Copyright Health Utilities Inc. Requires licensing at healthutilities.com.",
+    "is_public_domain": false,
+    "omop_coverage": "partial",
+    "items": []
+  },
+  {
+    "abbreviation": "SF-6D",
+    "name": "Short Form 6-Dimension",
+    "domain": "Quality of Life",
+    "item_count": 6,
+    "description": "Six-dimension preference-based health status measure derived from the SF-36 using psychometric selection of eleven items from six dimensions. Converts SF-36 profile scores into a single utility index value for economic evaluation.",
+    "scoring_method": {
+      "type": "utility_index",
+      "range": [
+        0.301,
+        1.0
+      ],
+      "subscales": [
+        "Physical Functioning",
+        "Role Limitation",
+        "Social Functioning",
+        "Bodily Pain",
+        "Mental Health",
+        "Vitality"
+      ],
+      "note": "Additive and multiplicative scoring algorithms available; population-based preference weights"
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "proprietary",
+    "license_detail": "Copyright Medical Outcomes Trust / John Brazier. Requires licensing.",
+    "is_public_domain": false,
+    "omop_coverage": "partial",
+    "items": []
+  },
+  {
+    "abbreviation": "VAS-Pain",
+    "name": "Visual Analogue Scale \u2014 Pain",
+    "domain": "Pain",
+    "item_count": 1,
+    "description": "Single-item continuous scale for patient self-rating of pain intensity, presented as a 100mm horizontal line anchored at 'no pain' (0) and 'worst imaginable pain' (100). Widely used in clinical trials and acute care settings.",
+    "scoring_method": {
+      "type": "continuous",
+      "range": [
+        0,
+        100
+      ],
+      "subscales": [],
+      "note": "Measured in mm from the 'no pain' end; minimal clinically important difference approximately 9-11mm"
+    },
+    "loinc_panel_code": "38208-5",
+    "omop_concept_id": 4174084,
+    "license_type": "public",
+    "license_detail": "Public domain. Original methodology by Scott and Huskisson (1976).",
+    "is_public_domain": true,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "NRS-Pain",
+    "name": "Numeric Rating Scale \u2014 Pain",
+    "domain": "Pain",
+    "item_count": 1,
+    "description": "Single-item verbal or written 11-point scale (0-10) for pain intensity assessment where 0 = no pain and 10 = worst possible pain. The most widely used pain intensity scale in clinical practice due to its brevity and ease of administration.",
+    "scoring_method": {
+      "type": "ordinal",
+      "range": [
+        0,
+        10
+      ],
+      "subscales": [],
+      "interpretation": {
+        "0": "No pain",
+        "1-3": "Mild pain",
+        "4-6": "Moderate pain",
+        "7-10": "Severe pain"
+      }
+    },
+    "loinc_panel_code": "72514-3",
+    "omop_concept_id": 4174084,
+    "license_type": "public",
+    "license_detail": "Public domain.",
+    "is_public_domain": true,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "BPI",
+    "name": "Brief Pain Inventory",
+    "domain": "Pain",
+    "item_count": 17,
+    "description": "Seventeen-item multidimensional pain assessment tool evaluating pain severity (worst, least, average, current) and pain interference with seven functional domains including general activity, mood, walking, normal work, relations with others, sleep, and enjoyment of life.",
+    "scoring_method": {
+      "type": "subscale_mean",
+      "range": [
+        0,
+        10
+      ],
+      "subscales": [
+        "Pain Severity (4 items)",
+        "Pain Interference (7 items)"
+      ],
+      "note": "Severity score = mean of 4 severity items; Interference score = mean of 7 interference items; both on 0-10 NRS"
+    },
+    "loinc_panel_code": "38212-7",
+    "omop_concept_id": null,
+    "license_type": "public",
+    "license_detail": "Charles Cleeland / University of Texas MD Anderson Cancer Center. Free for use; available at mdanderson.org.",
+    "is_public_domain": true,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "MPQ",
+    "name": "McGill Pain Questionnaire",
+    "domain": "Pain",
+    "item_count": 78,
+    "description": "Seventy-eight item multidimensional pain assessment instrument measuring sensory, affective, evaluative, and miscellaneous pain qualities through a set of 20 subgroups of pain descriptors, plus a Present Pain Intensity scale.",
+    "scoring_method": {
+      "type": "multi_index",
+      "range": [
+        0,
+        78
+      ],
+      "subscales": [
+        "Pain Rating Index \u2014 Sensory (PRI-S)",
+        "Pain Rating Index \u2014 Affective (PRI-A)",
+        "Pain Rating Index \u2014 Evaluative (PRI-E)",
+        "Pain Rating Index \u2014 Miscellaneous (PRI-M)",
+        "Pain Rating Index \u2014 Total (PRI-T)",
+        "Number of Words Chosen (NWC)",
+        "Present Pain Intensity (PPI)"
+      ]
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "proprietary",
+    "license_detail": "Copyright Ronald Melzack / Elsevier. Requires permission for reproduction.",
+    "is_public_domain": false,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "SF-MPQ",
+    "name": "Short Form McGill Pain Questionnaire",
+    "domain": "Pain",
+    "item_count": 15,
+    "description": "Fifteen-item abbreviated version of the McGill Pain Questionnaire consisting of eleven sensory and four affective descriptors rated on a 4-point intensity scale, plus a VAS and Present Pain Intensity item. The SF-MPQ-2 extends this to neuropathic pain.",
+    "scoring_method": {
+      "type": "subscale_sum",
+      "range": [
+        0,
+        45
+      ],
+      "subscales": [
+        "Sensory (11 items, 0-33)",
+        "Affective (4 items, 0-12)",
+        "Total (0-45)",
+        "VAS (0-100)",
+        "PPI (0-5)"
+      ]
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "proprietary",
+    "license_detail": "Copyright Ronald Melzack / Elsevier. Requires permission.",
+    "is_public_domain": false,
+    "omop_coverage": "partial",
+    "items": []
+  },
+  {
+    "abbreviation": "Barthel",
+    "name": "Barthel Index of Activities of Daily Living",
+    "domain": "Functional Status",
+    "item_count": 10,
+    "description": "Ten-item functional assessment scale measuring independence in basic activities of daily living including feeding, bathing, grooming, dressing, bowel and bladder control, toilet use, transfers, mobility, and stair climbing. Originally developed for rehabilitation settings.",
+    "scoring_method": {
+      "type": "sum",
+      "range": [
+        0,
+        100
+      ],
+      "subscales": [],
+      "interpretation": {
+        "0-20": "Total dependence",
+        "21-60": "Severe dependence",
+        "61-90": "Moderate dependence",
+        "91-99": "Slight dependence",
+        "100": "Full independence"
+      },
+      "note": "Items weighted differently; scores in increments of 5"
+    },
+    "loinc_panel_code": "83254-3",
+    "omop_concept_id": null,
+    "license_type": "public",
+    "license_detail": "Mahoney and Barthel (1965). Published in the Maryland State Medical Journal; public domain.",
+    "is_public_domain": true,
+    "omop_coverage": "yes",
+    "items": [
+      {
+        "item_number": 1,
+        "text": "Feeding",
+        "response_type": "ordinal",
+        "options": [
+          {
+            "value": 0,
+            "label": "Unable"
+          },
+          {
+            "value": 5,
+            "label": "Needs help cutting, spreading butter, etc., or requires modified diet"
+          },
+          {
+            "value": 10,
+            "label": "Independent. Food provided within reach; able to eat in reasonable time"
+          }
+        ]
+      },
+      {
+        "item_number": 2,
+        "text": "Bathing",
+        "response_type": "ordinal",
+        "options": [
+          {
+            "value": 0,
+            "label": "Dependent"
+          },
+          {
+            "value": 5,
+            "label": "Independent (or in shower)"
+          }
+        ]
+      },
+      {
+        "item_number": 3,
+        "text": "Grooming",
+        "response_type": "ordinal",
+        "options": [
+          {
+            "value": 0,
+            "label": "Needs to personal care. Face/hair/teeth/shaving (implements provided)"
+          },
+          {
+            "value": 5,
+            "label": "Independent. Face/hair/teeth/shaving (implements provided)"
+          }
+        ]
+      },
+      {
+        "item_number": 4,
+        "text": "Dressing",
+        "response_type": "ordinal",
+        "options": [
+          {
+            "value": 0,
+            "label": "Dependent"
+          },
+          {
+            "value": 5,
+            "label": "Needs help but can do about half unaided"
+          },
+          {
+            "value": 10,
+            "label": "Independent. Including buttons, zips, laces, etc."
+          }
+        ]
+      },
+      {
+        "item_number": 5,
+        "text": "Bowel control",
+        "response_type": "ordinal",
+        "options": [
+          {
+            "value": 0,
+            "label": "Incontinent (or needs to be given enemas)"
+          },
+          {
+            "value": 5,
+            "label": "Occasional accident"
+          },
+          {
+            "value": 10,
+            "label": "Continent"
+          }
+        ]
+      },
+      {
+        "item_number": 6,
+        "text": "Bladder control",
+        "response_type": "ordinal",
+        "options": [
+          {
+            "value": 0,
+            "label": "Incontinent, or catheterized and unable to manage alone"
+          },
+          {
+            "value": 5,
+            "label": "Occasional accident"
+          },
+          {
+            "value": 10,
+            "label": "Continent"
+          }
+        ]
+      },
+      {
+        "item_number": 7,
+        "text": "Toilet use",
+        "response_type": "ordinal",
+        "options": [
+          {
+            "value": 0,
+            "label": "Dependent"
+          },
+          {
+            "value": 5,
+            "label": "Needs some help, but can do something alone"
+          },
+          {
+            "value": 10,
+            "label": "Independent (on and off, dressing, wiping)"
+          }
+        ]
+      },
+      {
+        "item_number": 8,
+        "text": "Transfers (bed to chair and back)",
+        "response_type": "ordinal",
+        "options": [
+          {
+            "value": 0,
+            "label": "Unable, no sitting balance"
+          },
+          {
+            "value": 5,
+            "label": "Major help (one or two people, physical), can sit"
+          },
+          {
+            "value": 10,
+            "label": "Minor help (verbal or physical)"
+          },
+          {
+            "value": 15,
+            "label": "Independent"
+          }
+        ]
+      },
+      {
+        "item_number": 9,
+        "text": "Mobility (on level surfaces)",
+        "response_type": "ordinal",
+        "options": [
+          {
+            "value": 0,
+            "label": "Immobile or < 50 yards"
+          },
+          {
+            "value": 5,
+            "label": "Wheelchair independent, including corners, > 50 yards"
+          },
+          {
+            "value": 10,
+            "label": "Walks with help of one person (verbal or physical) > 50 yards"
+          },
+          {
+            "value": 15,
+            "label": "Independent (but may use any aid; e.g., stick) > 50 yards"
+          }
+        ]
+      },
+      {
+        "item_number": 10,
+        "text": "Stairs",
+        "response_type": "ordinal",
+        "options": [
+          {
+            "value": 0,
+            "label": "Unable"
+          },
+          {
+            "value": 5,
+            "label": "Needs help (verbal, physical, carrying aid)"
+          },
+          {
+            "value": 10,
+            "label": "Independent"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "abbreviation": "Katz ADL",
+    "name": "Katz Index of Independence in Activities of Daily Living",
+    "domain": "Functional Status",
+    "item_count": 6,
+    "description": "Six-item assessment of functional independence in basic self-care activities: bathing, dressing, toileting, transferring, continence, and feeding. Commonly used in geriatric assessment, long-term care, and outcomes research.",
+    "scoring_method": {
+      "type": "sum",
+      "range": [
+        0,
+        6
+      ],
+      "subscales": [],
+      "interpretation": {
+        "6": "Full function",
+        "4": "Moderate impairment",
+        "2 or less": "Severe functional impairment"
+      }
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "public",
+    "license_detail": "Katz et al. (1963). Published in JAMA; public domain.",
+    "is_public_domain": true,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "IADL",
+    "name": "Lawton Instrumental Activities of Daily Living Scale",
+    "domain": "Functional Status",
+    "item_count": 8,
+    "description": "Eight-item scale assessing independence in more complex activities of daily living including ability to use telephone, shopping, food preparation, housekeeping, laundry, transportation, medication management, and financial management.",
+    "scoring_method": {
+      "type": "sum",
+      "range": [
+        0,
+        8
+      ],
+      "subscales": [],
+      "note": "Each item scored 0 (dependent) or 1 (independent); sex-specific norms available for some items"
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "public",
+    "license_detail": "Lawton and Brody (1969). Published in Gerontologist; public domain.",
+    "is_public_domain": true,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "FIM",
+    "name": "Functional Independence Measure",
+    "domain": "Functional Status",
+    "item_count": 18,
+    "description": "Eighteen-item clinician-rated functional assessment measuring motor (13 items) and cognitive (5 items) burden of care across self-care, sphincter control, transfers, locomotion, communication, and social cognition domains. Standard outcome measure in inpatient rehabilitation.",
+    "scoring_method": {
+      "type": "sum",
+      "range": [
+        18,
+        126
+      ],
+      "subscales": [
+        "Motor FIM (13 items, 13-91)",
+        "Cognitive FIM (5 items, 5-35)"
+      ],
+      "note": "Each item scored 1-7 (1=total assist, 7=complete independence)"
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "proprietary",
+    "license_detail": "Copyright Uniform Data System for Medical Rehabilitation (UDSMR). Requires licensing.",
+    "is_public_domain": false,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "ODI",
+    "name": "Oswestry Disability Index",
+    "domain": "Functional Status",
+    "item_count": 10,
+    "description": "Ten-item self-administered questionnaire measuring functional disability in patients with low back pain. Assesses pain intensity, personal care, lifting, walking, sitting, standing, sleeping, sex life, social life, and traveling.",
+    "scoring_method": {
+      "type": "percentage",
+      "range": [
+        0,
+        100
+      ],
+      "subscales": [],
+      "interpretation": {
+        "0-20": "Minimal disability",
+        "21-40": "Moderate disability",
+        "41-60": "Severe disability",
+        "61-80": "Crippling back pain",
+        "81-100": "Bed-bound or exaggerating symptoms"
+      },
+      "note": "Score = (total score / 50) \u00d7 100%; if one section missed, score = (total/45) \u00d7 100%"
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "public",
+    "license_detail": "Fairbank et al. (1980). Published in Physiotherapy; public domain for clinical/research use.",
+    "is_public_domain": true,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "KPS",
+    "name": "Karnofsky Performance Scale",
+    "domain": "Functional Status",
+    "item_count": 1,
+    "description": "Clinician-rated single-item performance scale measuring functional status on an 11-point scale from 100 (normal, no evidence of disease) to 0 (dead), in 10-point increments. Developed for oncology and widely used to determine patient prognosis and ability to tolerate treatment.",
+    "scoring_method": {
+      "type": "ordinal",
+      "range": [
+        0,
+        100
+      ],
+      "subscales": [],
+      "interpretation": {
+        "100": "Normal, no complaints",
+        "90": "Able to carry on normal activity; minor signs or symptoms",
+        "80": "Normal activity with effort",
+        "70": "Cares for self; unable to carry on normal activity",
+        "60": "Requires occasional assistance",
+        "50": "Requires considerable assistance and frequent medical care",
+        "40": "Disabled; requires special care and assistance",
+        "30": "Severely disabled; hospitalization indicated",
+        "20": "Very sick; active supportive treatment necessary",
+        "10": "Moribund; fatal processes progressing rapidly",
+        "0": "Dead"
+      }
+    },
+    "loinc_panel_code": "89243-0",
+    "omop_concept_id": 4148812,
+    "license_type": "public",
+    "license_detail": "Karnofsky and Burchenal (1949). Public domain.",
+    "is_public_domain": true,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "ECOG-PS",
+    "name": "Eastern Cooperative Oncology Group Performance Status",
+    "domain": "Functional Status",
+    "item_count": 1,
+    "description": "Clinician-rated single-item 6-point scale (0-5) measuring cancer patients' functional performance and ability to tolerate treatment, from fully active (0) to dead (5). The most widely used performance status scale in oncology clinical trials.",
+    "scoring_method": {
+      "type": "ordinal",
+      "range": [
+        0,
+        5
+      ],
+      "subscales": [],
+      "interpretation": {
+        "0": "Fully active, no restrictions",
+        "1": "Restricted in physically strenuous activity; ambulatory, light work",
+        "2": "Ambulatory, self-care, no work; up > 50% of waking hours",
+        "3": "Limited self-care; confined to bed/chair > 50% of waking hours",
+        "4": "Completely disabled; no self-care; confined to bed/chair",
+        "5": "Dead"
+      }
+    },
+    "loinc_panel_code": "89247-1",
+    "omop_concept_id": 4148812,
+    "license_type": "public",
+    "license_detail": "ECOG (Oken et al., 1982). Published in Am J Clin Oncol; public domain.",
+    "is_public_domain": true,
+    "omop_coverage": "yes",
+    "items": [
+      {
+        "item_number": 1,
+        "loinc_code": "89247-1",
+        "text": "What is the patient's ECOG performance status?",
+        "response_type": "ordinal",
+        "options": [
+          {
+            "value": 0,
+            "label": "Fully active, able to carry on all pre-disease activities without restriction"
+          },
+          {
+            "value": 1,
+            "label": "Restricted in physically strenuous activity but ambulatory and able to carry out work of a light or sedentary nature"
+          },
+          {
+            "value": 2,
+            "label": "Ambulatory and capable of all self-care but unable to carry out any work activities; up and about more than 50% of waking hours"
+          },
+          {
+            "value": 3,
+            "label": "Capable of only limited self-care; confined to bed or chair more than 50% of waking hours"
+          },
+          {
+            "value": 4,
+            "label": "Completely disabled; cannot carry on any self-care; totally confined to bed or chair"
+          },
+          {
+            "value": 5,
+            "label": "Dead"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "abbreviation": "RMDQ",
+    "name": "Roland-Morris Disability Questionnaire",
+    "domain": "Functional Status",
+    "item_count": 24,
+    "description": "Twenty-four item self-administered questionnaire measuring physical disability due to low back pain. Items are taken from the Sickness Impact Profile with a phrase 'because of my back' added to each. Scores the number of disability statements endorsed.",
+    "scoring_method": {
+      "type": "sum",
+      "range": [
+        0,
+        24
+      ],
+      "subscales": [],
+      "note": "Each item scored 0 (not checked) or 1 (checked); higher scores indicate greater disability"
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "public",
+    "license_detail": "Roland and Morris (1983). Published in Spine; free for non-commercial clinical and research use.",
+    "is_public_domain": true,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "NDI",
+    "name": "Neck Disability Index",
+    "domain": "Functional Status",
+    "item_count": 10,
+    "description": "Ten-section self-report questionnaire measuring functional disability due to neck pain across daily activities including pain intensity, personal care, lifting, reading, headaches, concentration, work, driving, sleeping, and recreation.",
+    "scoring_method": {
+      "type": "percentage",
+      "range": [
+        0,
+        100
+      ],
+      "subscales": [],
+      "interpretation": {
+        "0-8%": "No disability",
+        "10-28%": "Mild disability",
+        "30-48%": "Moderate disability",
+        "50-64%": "Severe disability",
+        "65-100%": "Complete disability"
+      }
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "proprietary",
+    "license_detail": "Vernon and Mior (1991). Copyright Vernon; requires permission for commercial use.",
+    "is_public_domain": false,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "EORTC QLQ-C30",
+    "name": "European Organisation for Research and Treatment of Cancer Quality of Life Questionnaire Core 30",
+    "domain": "Oncology",
+    "item_count": 30,
+    "description": "Thirty-item cancer-specific quality of life questionnaire comprising five functional scales, three symptom scales, a global health status/QoL scale, and six single items. The core instrument used in most EORTC cancer trials, supplemented by disease-specific modules.",
+    "scoring_method": {
+      "type": "subscale_profile",
+      "range": [
+        0,
+        100
+      ],
+      "subscales": [
+        "Global Health Status/QoL",
+        "Physical Functioning",
+        "Role Functioning",
+        "Emotional Functioning",
+        "Cognitive Functioning",
+        "Social Functioning",
+        "Fatigue",
+        "Nausea/Vomiting",
+        "Pain",
+        "Dyspnea",
+        "Insomnia",
+        "Appetite Loss",
+        "Constipation",
+        "Diarrhea",
+        "Financial Difficulties"
+      ]
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "proprietary",
+    "license_detail": "Copyright EORTC. Free for use in non-commercial academic research with registration at eortc.org.",
+    "is_public_domain": false,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "FACT-G",
+    "name": "Functional Assessment of Cancer Therapy \u2014 General",
+    "domain": "Oncology",
+    "item_count": 27,
+    "description": "Twenty-seven item cancer-specific quality of life instrument covering four domains: physical well-being, social/family well-being, emotional well-being, and functional well-being. Serves as the core questionnaire for the FACIT measurement system with numerous disease-specific subscales.",
+    "scoring_method": {
+      "type": "subscale_sum",
+      "range": [
+        0,
+        108
+      ],
+      "subscales": [
+        "Physical Well-Being (7 items, 0-28)",
+        "Social/Family Well-Being (7 items, 0-28)",
+        "Emotional Well-Being (6 items, 0-24)",
+        "Functional Well-Being (7 items, 0-28)"
+      ]
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "proprietary",
+    "license_detail": "Copyright FACIT.org. Free for clinical research with registration. Commercial use requires licensing.",
+    "is_public_domain": false,
+    "omop_coverage": "no",
+    "items": []
+  },
+  {
+    "abbreviation": "FACIT-F",
+    "name": "Functional Assessment of Chronic Illness Therapy \u2014 Fatigue",
+    "domain": "Oncology",
+    "item_count": 13,
+    "description": "Thirteen-item fatigue subscale from the FACIT measurement system assessing the impact of fatigue and its consequences on daily activities and function in patients with chronic illness and cancer. Can be used as a standalone scale or added to the FACT-G.",
+    "scoring_method": {
+      "type": "sum",
+      "range": [
+        0,
+        52
+      ],
+      "subscales": [],
+      "note": "Higher scores indicate less fatigue; cutpoint of 30 suggests clinically significant fatigue"
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "proprietary",
+    "license_detail": "Copyright FACIT.org. Free for clinical research with registration.",
+    "is_public_domain": false,
+    "omop_coverage": "no",
+    "items": []
+  },
+  {
+    "abbreviation": "ESAS",
+    "name": "Edmonton Symptom Assessment System",
+    "domain": "Oncology",
+    "item_count": 10,
+    "description": "Ten-item symptom rating scale designed for repeated assessment of nine common cancer symptoms (pain, tiredness, drowsiness, nausea, lack of appetite, shortness of breath, depression, anxiety, well-being) plus one patient-defined symptom, each rated on 0-10 NRS.",
+    "scoring_method": {
+      "type": "profile",
+      "range": [
+        0,
+        10
+      ],
+      "subscales": [
+        "Physical Distress Score (PDS)",
+        "Psychological Distress Score (PsDS)",
+        "Total Symptom Distress Score (TSDS)"
+      ],
+      "note": "Each item 0-10; TSDS = sum of all 9 standard items (0-90)"
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "public",
+    "license_detail": "Bruera et al. (1991). Published by the Alberta Cancer Board; freely available.",
+    "is_public_domain": true,
+    "omop_coverage": "partial",
+    "items": []
+  },
+  {
+    "abbreviation": "EPIC-26",
+    "name": "Expanded Prostate Cancer Index Composite-26",
+    "domain": "Oncology",
+    "item_count": 26,
+    "description": "Twenty-six item health-related quality of life instrument specific to prostate cancer measuring urinary, bowel, sexual, and hormonal domains. The abbreviated version of the 50-item EPIC, designed for use in routine clinical care and research.",
+    "scoring_method": {
+      "type": "subscale_mean",
+      "range": [
+        0,
+        100
+      ],
+      "subscales": [
+        "Urinary Incontinence (4 items)",
+        "Urinary Irritative/Obstructive (4 items)",
+        "Bowel (6 items)",
+        "Sexual (8 items)",
+        "Hormonal (4 items)"
+      ]
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "public",
+    "license_detail": "Wei et al. (2000). Published in J Urol; University of Michigan. Free for academic use.",
+    "is_public_domain": true,
+    "omop_coverage": "no",
+    "items": []
+  },
+  {
+    "abbreviation": "EORTC QLQ-BR23",
+    "name": "EORTC Quality of Life Questionnaire Breast Cancer 23",
+    "domain": "Oncology",
+    "item_count": 23,
+    "description": "Twenty-three item breast cancer-specific supplementary module to the EORTC QLQ-C30, assessing symptoms from systemic therapy, arm symptoms, breast symptoms, body image, sexual functioning, sexual enjoyment, and future perspective.",
+    "scoring_method": {
+      "type": "subscale_profile",
+      "range": [
+        0,
+        100
+      ],
+      "subscales": [
+        "Systemic Therapy Side Effects (10 items)",
+        "Breast Symptoms (4 items)",
+        "Arm Symptoms (3 items)",
+        "Hair Loss (1 item)",
+        "Body Image (4 items)",
+        "Sexual Functioning (2 items)",
+        "Sexual Enjoyment (1 item)",
+        "Future Perspective (1 item)"
+      ]
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "proprietary",
+    "license_detail": "Copyright EORTC. Free for non-commercial academic research with registration.",
+    "is_public_domain": false,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "FACT-An",
+    "name": "Functional Assessment of Cancer Therapy \u2014 Anemia",
+    "domain": "Oncology",
+    "item_count": 40,
+    "description": "Forty-item instrument (FACT-G plus 20-item Anemia subscale) measuring quality of life in patients with cancer-related anemia, evaluating fatigue, weakness, and functional impairment due to low hemoglobin levels.",
+    "scoring_method": {
+      "type": "subscale_sum",
+      "range": [
+        0,
+        188
+      ],
+      "subscales": [
+        "FACT-G (0-108)",
+        "Anemia Subscale (0-80)",
+        "FACT-An Total (0-188)",
+        "Fatigue subscale (0-52)"
+      ]
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "proprietary",
+    "license_detail": "Copyright FACIT.org. Free for clinical research with registration.",
+    "is_public_domain": false,
+    "omop_coverage": "no",
+    "items": []
+  },
+  {
+    "abbreviation": "MoCA",
+    "name": "Montreal Cognitive Assessment",
+    "domain": "Cognitive",
+    "item_count": 30,
+    "description": "Thirty-point cognitive screening tool assessing multiple cognitive domains including attention and concentration, executive functions, memory, language, visuoconstructional skills, conceptual thinking, calculations, and orientation. Requires approximately 10 minutes to administer.",
+    "scoring_method": {
+      "type": "sum",
+      "range": [
+        0,
+        30
+      ],
+      "subscales": [
+        "Visuospatial/Executive (5)",
+        "Naming (3)",
+        "Attention (6)",
+        "Language (3)",
+        "Abstraction (2)",
+        "Delayed Recall (5)",
+        "Orientation (6)"
+      ],
+      "interpretation": {
+        "26-30": "Normal",
+        "18-25": "Mild cognitive impairment",
+        "10-17": "Moderate cognitive impairment",
+        "0-9": "Severe cognitive impairment"
+      },
+      "note": "Add 1 point if \u226412 years of education; cutoff \u226526 for normal"
+    },
+    "loinc_panel_code": "72133-2",
+    "omop_concept_id": 4254995,
+    "license_type": "proprietary",
+    "license_detail": "Copyright Z. Nasreddine MD. Free for clinical use; commercial/research use requires licensing at mocatest.org.",
+    "is_public_domain": false,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "MMSE",
+    "name": "Mini-Mental State Examination",
+    "domain": "Cognitive",
+    "item_count": 30,
+    "description": "Thirty-point clinician-administered cognitive screening test assessing orientation, registration, attention and calculation, recall, language, and visuospatial ability. The most widely used cognitive screening instrument worldwide, though it has known floor effects and educational bias.",
+    "scoring_method": {
+      "type": "sum",
+      "range": [
+        0,
+        30
+      ],
+      "subscales": [],
+      "interpretation": {
+        "24-30": "No cognitive impairment",
+        "18-23": "Mild cognitive impairment",
+        "12-17": "Moderate cognitive impairment",
+        "0-11": "Severe cognitive impairment"
+      }
+    },
+    "loinc_panel_code": "72107-6",
+    "omop_concept_id": 4254995,
+    "license_type": "proprietary",
+    "license_detail": "Copyright Psychological Assessment Resources (PAR). Requires licensing. Previously fee-waived but now requires purchase.",
+    "is_public_domain": false,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "NIH Toolbox CB",
+    "name": "NIH Toolbox Cognition Battery",
+    "domain": "Cognitive",
+    "item_count": 12,
+    "description": "Twelve-test battery of computerized cognitive assessments developed by the NIH measuring episodic memory, executive function, attention, processing speed, working memory, and language. Normed across the lifespan (ages 3-85) for use in population-level research.",
+    "scoring_method": {
+      "type": "t_score",
+      "range": [
+        0,
+        100
+      ],
+      "subscales": [
+        "Fluid Composite",
+        "Crystallized Composite",
+        "Fully Corrected Composite",
+        "Early Childhood Composite"
+      ],
+      "note": "Age-adjusted T-scores with mean 50, SD 10; fully-corrected scores adjust for age, sex, race/ethnicity, and education"
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "public",
+    "license_detail": "National Institutes of Health. Free for non-commercial research; available through Healthmeasures.net.",
+    "is_public_domain": true,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "GDS",
+    "name": "Geriatric Depression Scale",
+    "domain": "Geriatric",
+    "item_count": 15,
+    "description": "Fifteen-item (short form) yes/no self-report scale for depression screening in older adults, adapted from the original 30-item GDS to minimize burden. Avoids somatic items that may overlap with physical illness in geriatric populations.",
+    "scoring_method": {
+      "type": "sum",
+      "range": [
+        0,
+        15
+      ],
+      "subscales": [],
+      "interpretation": {
+        "0-4": "Normal",
+        "5-8": "Mild depression",
+        "9-11": "Moderate depression",
+        "12-15": "Severe depression"
+      }
+    },
+    "loinc_panel_code": "48543-6",
+    "omop_concept_id": null,
+    "license_type": "public",
+    "license_detail": "Yesavage et al. (1982/1986). Available from Stanford University; free for clinical and research use.",
+    "is_public_domain": true,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "FRAIL",
+    "name": "FRAIL Scale",
+    "domain": "Geriatric",
+    "item_count": 5,
+    "description": "Five-item clinical questionnaire screening for frailty in older adults across five components: fatigue, resistance (stair climbing), ambulation (walking), illness burden, and loss of weight. Simple enough for use in busy clinical settings without performance testing.",
+    "scoring_method": {
+      "type": "sum",
+      "range": [
+        0,
+        5
+      ],
+      "subscales": [],
+      "interpretation": {
+        "0": "Robust",
+        "1-2": "Pre-frail",
+        "3-5": "Frail"
+      }
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "public",
+    "license_detail": "Morley et al. (2012). Published in J Nutr Health Aging; free to use.",
+    "is_public_domain": true,
+    "omop_coverage": "partial",
+    "items": []
+  },
+  {
+    "abbreviation": "Tinetti",
+    "name": "Tinetti Performance-Oriented Mobility Assessment",
+    "domain": "Geriatric",
+    "item_count": 28,
+    "description": "Clinician-administered 28-item gait and balance assessment evaluating sitting balance, arising from chair, standing balance, turning, sitting down, and gait quality including step length, symmetry, continuity, path deviation, trunk stability, and walking stance.",
+    "scoring_method": {
+      "type": "sum",
+      "range": [
+        0,
+        28
+      ],
+      "subscales": [
+        "Balance (16 points)",
+        "Gait (12 points)"
+      ],
+      "interpretation": {
+        "< 19": "High fall risk",
+        "19-23": "Moderate fall risk",
+        "24-28": "Low fall risk"
+      }
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "public",
+    "license_detail": "Tinetti (1986). Published in JAGS; public domain.",
+    "is_public_domain": true,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "FES",
+    "name": "Falls Efficacy Scale",
+    "domain": "Geriatric",
+    "item_count": 10,
+    "description": "Ten-item self-efficacy scale measuring fear of falling and confidence in performing activities of daily living without falling. Assesses confidence in performing ten specified activities on a 10-point scale from 'very confident' to 'not confident at all'.",
+    "scoring_method": {
+      "type": "sum",
+      "range": [
+        10,
+        100
+      ],
+      "subscales": [],
+      "note": "Higher scores indicate greater fear of falling; FES-I is the updated international version with 16 items"
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "proprietary",
+    "license_detail": "Tinetti et al. (1990). Copyright; requires permission for commercial use. FES-I freely available from ProFaNE.",
+    "is_public_domain": false,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "OARS/OMFAQ",
+    "name": "Older Americans Resources and Services Multidimensional Functional Assessment Questionnaire",
+    "domain": "Geriatric",
+    "item_count": 100,
+    "description": "Comprehensive multidimensional assessment of older adults covering social resources, economic resources, mental health, physical health, and activities of daily living across approximately 100 items. Developed at Duke University for clinical and population research.",
+    "scoring_method": {
+      "type": "multi_domain",
+      "range": [
+        1,
+        6
+      ],
+      "subscales": [
+        "Social Resources",
+        "Economic Resources",
+        "Mental Health",
+        "Physical Health",
+        "Activities of Daily Living"
+      ],
+      "note": "Each domain scored 1-6 (1=excellent, 6=totally impaired); summary Cumulative Impairment Score available"
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "public",
+    "license_detail": "Duke University Center for the Study of Aging (1978). Free for non-commercial use.",
+    "is_public_domain": true,
+    "omop_coverage": "partial",
+    "items": []
+  },
+  {
+    "abbreviation": "KCCQ",
+    "name": "Kansas City Cardiomyopathy Questionnaire",
+    "domain": "Cardiovascular",
+    "item_count": 23,
+    "description": "Twenty-three item disease-specific health status measure for heart failure patients assessing physical limitations, symptoms (frequency, severity, recent change), quality of life, and social interference. Produces Overall Summary Score (OSS) and Clinical Summary Score (CSS).",
+    "scoring_method": {
+      "type": "subscale_mean",
+      "range": [
+        0,
+        100
+      ],
+      "subscales": [
+        "Physical Limitation (6 items)",
+        "Symptom Stability (1 item)",
+        "Symptom Frequency (5 items)",
+        "Symptom Burden (7 items)",
+        "Self-Efficacy (2 items)",
+        "Quality of Life (2 items)",
+        "Social Limitation (4 items)"
+      ],
+      "note": "Higher scores indicate better health status; \u22655 point change considered clinically meaningful"
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "proprietary",
+    "license_detail": "Copyright John Spertus / Saint Luke's Health System. Requires licensing at cvoutcomes.org.",
+    "is_public_domain": false,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "SAQ",
+    "name": "Seattle Angina Questionnaire",
+    "domain": "Cardiovascular",
+    "item_count": 19,
+    "description": "Nineteen-item disease-specific health status measure for patients with coronary artery disease assessing physical limitations, angina stability, angina frequency, treatment satisfaction, and disease perception/quality of life.",
+    "scoring_method": {
+      "type": "subscale_mean",
+      "range": [
+        0,
+        100
+      ],
+      "subscales": [
+        "Physical Limitation (9 items)",
+        "Angina Stability (1 item)",
+        "Angina Frequency (2 items)",
+        "Treatment Satisfaction (4 items)",
+        "Disease Perception (3 items)"
+      ],
+      "note": "Higher scores indicate better health status"
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "proprietary",
+    "license_detail": "Copyright John Spertus. Requires licensing.",
+    "is_public_domain": false,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "MLHF",
+    "name": "Minnesota Living with Heart Failure Questionnaire",
+    "domain": "Cardiovascular",
+    "item_count": 21,
+    "description": "Twenty-one item self-administered disease-specific quality of life questionnaire for heart failure patients measuring physical and emotional dimensions of how heart failure limits daily activities and causes symptoms over the past month.",
+    "scoring_method": {
+      "type": "sum",
+      "range": [
+        0,
+        105
+      ],
+      "subscales": [
+        "Physical subscale (8 items, 0-40)",
+        "Emotional subscale (5 items, 0-25)"
+      ],
+      "note": "Higher scores indicate worse quality of life; \u22655 point change clinically meaningful"
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "proprietary",
+    "license_detail": "Copyright Regents of the University of Minnesota. Requires licensing.",
+    "is_public_domain": false,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "MacNew",
+    "name": "MacNew Heart Disease Health-Related Quality of Life Instrument",
+    "domain": "Cardiovascular",
+    "item_count": 27,
+    "description": "Twenty-seven item self-administered quality of life measure for patients with ischemic heart disease assessing emotional, physical, and social functioning limitations related to heart disease during the previous two weeks.",
+    "scoring_method": {
+      "type": "subscale_mean",
+      "range": [
+        1,
+        7
+      ],
+      "subscales": [
+        "Emotional (14 items)",
+        "Physical (13 items)",
+        "Social (13 items)",
+        "Global (27 items)"
+      ],
+      "note": "Higher scores indicate better quality of life; MCID approximately 0.5 points"
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "proprietary",
+    "license_detail": "Copyright MacNew Heart Disease QoL Group. Contact for licensing.",
+    "is_public_domain": false,
+    "omop_coverage": "partial",
+    "items": []
+  },
+  {
+    "abbreviation": "CAT",
+    "name": "COPD Assessment Test",
+    "domain": "Respiratory",
+    "item_count": 8,
+    "description": "Eight-item self-administered health status questionnaire for patients with COPD measuring cough, phlegm, chest tightness, breathlessness on hills/stairs, activity limitations at home, confidence leaving home, sleep, and energy.",
+    "scoring_method": {
+      "type": "sum",
+      "range": [
+        0,
+        40
+      ],
+      "subscales": [],
+      "interpretation": {
+        "0-10": "Low impact",
+        "11-20": "Medium impact",
+        "21-30": "High impact",
+        "31-40": "Very high impact"
+      }
+    },
+    "loinc_panel_code": "89772-8",
+    "omop_concept_id": null,
+    "license_type": "public",
+    "license_detail": "GlaxoSmithKline. Free for use in clinical practice and non-commercial research. Available at catestonline.org.",
+    "is_public_domain": true,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "mMRC",
+    "name": "Modified Medical Research Council Dyspnea Scale",
+    "domain": "Respiratory",
+    "item_count": 1,
+    "description": "Single-item ordinal scale (0-4) measuring the degree of breathlessness during daily activities in patients with COPD and other respiratory conditions. Grades dyspnea from only with strenuous exercise (grade 0) to too breathless to leave the house (grade 4).",
+    "scoring_method": {
+      "type": "ordinal",
+      "range": [
+        0,
+        4
+      ],
+      "subscales": [],
+      "interpretation": {
+        "0": "Breathless with strenuous exercise",
+        "1": "Short of breath when hurrying or walking up a slight hill",
+        "2": "Walks slower than people of same age or stops for breath every 100 yards",
+        "3": "Stops for breath after 100 yards or after a few minutes on level ground",
+        "4": "Too breathless to leave the house or breathless when dressing/undressing"
+      }
+    },
+    "loinc_panel_code": "89765-2",
+    "omop_concept_id": null,
+    "license_type": "public",
+    "license_detail": "Public domain. Based on Fletcher et al. (1959), modified by the Medical Research Council.",
+    "is_public_domain": true,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "SGRQ",
+    "name": "St. George's Respiratory Questionnaire",
+    "domain": "Respiratory",
+    "item_count": 50,
+    "description": "Fifty-item disease-specific health status questionnaire for patients with chronic airflow limitation measuring symptom frequency and severity, activity limitations, and social and psychological impact of respiratory disease.",
+    "scoring_method": {
+      "type": "weighted_sum",
+      "range": [
+        0,
+        100
+      ],
+      "subscales": [
+        "Symptoms (8 items)",
+        "Activity (16 items)",
+        "Impacts (26 items)",
+        "Total"
+      ],
+      "note": "Lower scores indicate better health status; MCID = 4 units"
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "proprietary",
+    "license_detail": "Copyright St. George's Hospital Medical School (Paul Jones). Free for research; requires permission.",
+    "is_public_domain": false,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "ACT",
+    "name": "Asthma Control Test",
+    "domain": "Respiratory",
+    "item_count": 5,
+    "description": "Five-item patient self-completed questionnaire assessing asthma control over the past four weeks based on daily activities, dyspnea, nocturnal symptoms, reliever use, and overall asthma control rating.",
+    "scoring_method": {
+      "type": "sum",
+      "range": [
+        5,
+        25
+      ],
+      "subscales": [],
+      "interpretation": {
+        "25": "Fully controlled",
+        "20-24": "Well-controlled",
+        "< 20": "Not well-controlled"
+      }
+    },
+    "loinc_panel_code": "56854-3",
+    "omop_concept_id": null,
+    "license_type": "public",
+    "license_detail": "QualityMetric / AstraZeneca. Free for clinical use.",
+    "is_public_domain": true,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "PAID",
+    "name": "Problem Areas in Diabetes",
+    "domain": "Diabetes",
+    "item_count": 20,
+    "description": "Twenty-item self-report scale measuring emotional distress related to living with diabetes, covering concerns about diet, hypoglycemia, social support, complications, and the emotional burden of the disease itself.",
+    "scoring_method": {
+      "type": "sum",
+      "range": [
+        0,
+        100
+      ],
+      "subscales": [],
+      "interpretation": {
+        "40+": "Clinically significant diabetes-related emotional distress"
+      },
+      "note": "Raw sum multiplied by 1.25 to produce 0-100 scale"
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "proprietary",
+    "license_detail": "Polonsky et al. (1995). Copyright; contact Joslin Diabetes Center for permission.",
+    "is_public_domain": false,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "DDS",
+    "name": "Diabetes Distress Scale",
+    "domain": "Diabetes",
+    "item_count": 17,
+    "description": "Seventeen-item self-report scale assessing diabetes-related distress across four subscales: emotional burden, physician-related distress, regimen-related distress, and interpersonal distress, all on a 6-point Likert scale.",
+    "scoring_method": {
+      "type": "subscale_mean",
+      "range": [
+        1,
+        6
+      ],
+      "subscales": [
+        "Emotional Burden (5 items)",
+        "Physician Distress (4 items)",
+        "Regimen Distress (5 items)",
+        "Interpersonal Distress (3 items)"
+      ],
+      "interpretation": {
+        "< 2.0": "Little or no distress",
+        "2.0-2.9": "Moderate distress",
+        "3.0+": "High distress"
+      }
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "public",
+    "license_detail": "Polonsky et al. (2005). Published in Diabetes Care; freely available.",
+    "is_public_domain": true,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "DTSQ",
+    "name": "Diabetes Treatment Satisfaction Questionnaire",
+    "domain": "Diabetes",
+    "item_count": 8,
+    "description": "Eight-item questionnaire assessing diabetes patients' satisfaction with current treatment regimen, including perceived frequency of hyperglycemia and hypoglycemia, willingness to continue current treatment, flexibility, convenience, and understanding of diabetes.",
+    "scoring_method": {
+      "type": "sum",
+      "range": [
+        0,
+        36
+      ],
+      "subscales": [
+        "Treatment Satisfaction (6 items, 0-36)",
+        "Perceived Frequency of Hyperglycemia (1 item)",
+        "Perceived Frequency of Hypoglycemia (1 item)"
+      ],
+      "note": "Hyperglycemia and hypoglycemia items not included in total satisfaction score"
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "proprietary",
+    "license_detail": "Copyright Clare Bradley / Royal Holloway University of London. Requires licensing.",
+    "is_public_domain": false,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "DSMQ-R",
+    "name": "Diabetes Self-Management Questionnaire \u2014 Revised",
+    "domain": "Diabetes",
+    "item_count": 16,
+    "description": "Sixteen-item self-report measure of diabetes self-management behaviors including glucose management, dietary control, physical activity, healthcare use, and self-monitoring frequency, revised for use across both type 1 and type 2 diabetes.",
+    "scoring_method": {
+      "type": "subscale_mean",
+      "range": [
+        0,
+        10
+      ],
+      "subscales": [
+        "Glucose Management",
+        "Dietary Control",
+        "Physical Activity",
+        "Healthcare Use",
+        "Sum Scale"
+      ]
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "proprietary",
+    "license_detail": "Schmitt et al. / German Diabetes Center. Contact for use.",
+    "is_public_domain": false,
+    "omop_coverage": "partial",
+    "items": []
+  },
+  {
+    "abbreviation": "PedsQL",
+    "name": "Pediatric Quality of Life Inventory",
+    "domain": "Pediatric",
+    "item_count": 23,
+    "description": "Twenty-three item multidimensional generic pediatric quality of life instrument measuring physical, emotional, social, and school functioning in children ages 2-18 and young adults ages 18-25. Available in parallel child self-report and parent proxy-report versions.",
+    "scoring_method": {
+      "type": "subscale_mean",
+      "range": [
+        0,
+        100
+      ],
+      "subscales": [
+        "Physical Functioning (8 items)",
+        "Emotional Functioning (5 items)",
+        "Social Functioning (5 items)",
+        "School Functioning (5 items)",
+        "Total Scale Score",
+        "Physical Health Summary Score",
+        "Psychosocial Health Summary Score"
+      ]
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "proprietary",
+    "license_detail": "Copyright James W. Varni. Requires licensing at pedsql.org.",
+    "is_public_domain": false,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "CBCL",
+    "name": "Child Behavior Checklist",
+    "domain": "Pediatric",
+    "item_count": 118,
+    "description": "One hundred-item parent-report behavior checklist for children ages 6-18 assessing a wide range of behavioral and emotional problems and competencies across eight syndrome scales and DSM-oriented scales. Part of the Achenbach System of Empirically Based Assessment (ASEBA).",
+    "scoring_method": {
+      "type": "t_score",
+      "range": [
+        0,
+        100
+      ],
+      "subscales": [
+        "Anxious/Depressed",
+        "Withdrawn/Depressed",
+        "Somatic Complaints",
+        "Social Problems",
+        "Thought Problems",
+        "Attention Problems",
+        "Rule-Breaking Behavior",
+        "Aggressive Behavior",
+        "Internalizing",
+        "Externalizing",
+        "Total Problems"
+      ],
+      "note": "T-scores normalized to population; T \u2265 70 = clinical range; T 65-69 = borderline clinical"
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "proprietary",
+    "license_detail": "Copyright Thomas Achenbach / ASEBA. Requires licensing at aseba.org.",
+    "is_public_domain": false,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "SDQ",
+    "name": "Strengths and Difficulties Questionnaire",
+    "domain": "Pediatric",
+    "item_count": 25,
+    "description": "Twenty-five item behavioral screening questionnaire for children ages 2-17 covering emotional symptoms, conduct problems, hyperactivity/inattention, peer relationship problems, and prosocial behavior. Available in parent, teacher, and self-report versions with impact supplement.",
+    "scoring_method": {
+      "type": "subscale_sum",
+      "range": [
+        0,
+        40
+      ],
+      "subscales": [
+        "Emotional Symptoms (5 items)",
+        "Conduct Problems (5 items)",
+        "Hyperactivity/Inattention (5 items)",
+        "Peer Relationship Problems (5 items)",
+        "Prosocial Behavior (5 items)",
+        "Total Difficulties (20 items, 0-40)"
+      ],
+      "note": "Prosocial scale not included in Total Difficulties score"
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "public",
+    "license_detail": "Copyright Robert Goodman. Free for non-commercial use. Available at sdqinfo.org.",
+    "is_public_domain": false,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "PSC-17",
+    "name": "Pediatric Symptom Checklist-17",
+    "domain": "Pediatric",
+    "item_count": 17,
+    "description": "Seventeen-item parent-completed psychosocial screener for children ages 4-16 assessing attention, internalizing, and externalizing behavioral problems. Abbreviated from the 35-item PSC for use in primary care settings.",
+    "scoring_method": {
+      "type": "subscale_sum",
+      "range": [
+        0,
+        34
+      ],
+      "subscales": [
+        "Attention (5 items)",
+        "Internalizing (5 items)",
+        "Externalizing (7 items)"
+      ],
+      "interpretation": {
+        "attention_cutoff": 7,
+        "internalizing_cutoff": 5,
+        "externalizing_cutoff": 7,
+        "total_cutoff": 15
+      }
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "public",
+    "license_detail": "Jellinek and Murphy. Free for non-commercial use; available from Massachusetts General Hospital.",
+    "is_public_domain": true,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "NIHSS",
+    "name": "National Institutes of Health Stroke Scale",
+    "domain": "Neurological",
+    "item_count": 11,
+    "description": "Eleven-item clinician-administered neurological examination quantifying stroke severity across consciousness, vision, facial palsy, motor function (arm and leg), ataxia, sensation, language/aphasia, dysarthria, and inattention/neglect.",
+    "scoring_method": {
+      "type": "sum",
+      "range": [
+        0,
+        42
+      ],
+      "subscales": [],
+      "interpretation": {
+        "0": "No stroke symptoms",
+        "1-4": "Minor stroke",
+        "5-15": "Moderate stroke",
+        "16-20": "Moderate to severe stroke",
+        "21-42": "Severe stroke"
+      }
+    },
+    "loinc_panel_code": "72503-6",
+    "omop_concept_id": null,
+    "license_type": "public",
+    "license_detail": "Developed by NIH/NINDS. Public domain. Available at nihstrokescale.org.",
+    "is_public_domain": true,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "mRS",
+    "name": "Modified Rankin Scale",
+    "domain": "Neurological",
+    "item_count": 1,
+    "description": "Single-item ordinal scale (0-6) measuring the degree of disability and dependence in daily activities following stroke or other neurological conditions. The primary outcome measure in most stroke clinical trials worldwide.",
+    "scoring_method": {
+      "type": "ordinal",
+      "range": [
+        0,
+        6
+      ],
+      "subscales": [],
+      "interpretation": {
+        "0": "No symptoms",
+        "1": "No significant disability despite symptoms",
+        "2": "Slight disability; unable to carry out all previous activities but independent",
+        "3": "Moderate disability; requires some help, able to walk unassisted",
+        "4": "Moderately severe disability; unable to walk without assistance and unable to attend to bodily needs without assistance",
+        "5": "Severe disability; bedridden, incontinent, requires constant nursing care and attention",
+        "6": "Dead"
+      }
+    },
+    "loinc_panel_code": "89243-0",
+    "omop_concept_id": 4174997,
+    "license_type": "public",
+    "license_detail": "Rankin (1957), modified by van Swieten (1988). Public domain.",
+    "is_public_domain": true,
+    "omop_coverage": "yes",
+    "items": [
+      {
+        "item_number": 1,
+        "loinc_code": "89243-0",
+        "text": "What is the patient's modified Rankin Scale score?",
+        "response_type": "ordinal",
+        "options": [
+          {
+            "value": 0,
+            "label": "No symptoms at all"
+          },
+          {
+            "value": 1,
+            "label": "No significant disability despite symptoms; able to carry out all usual duties and activities"
+          },
+          {
+            "value": 2,
+            "label": "Slight disability; unable to carry out all previous activities, but able to look after own affairs without assistance"
+          },
+          {
+            "value": 3,
+            "label": "Moderate disability requiring some help, but able to walk without assistance"
+          },
+          {
+            "value": 4,
+            "label": "Moderately severe disability; unable to walk without assistance and unable to attend to own bodily needs without assistance"
+          },
+          {
+            "value": 5,
+            "label": "Severe disability; bedridden, incontinent, and requiring constant nursing care and attention"
+          },
+          {
+            "value": 6,
+            "label": "Dead"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "abbreviation": "GCS",
+    "name": "Glasgow Coma Scale",
+    "domain": "Neurological",
+    "item_count": 3,
+    "description": "Three-component neurological scale assessing eye opening, verbal response, and motor response to evaluate level of consciousness in acute brain injury. The most widely used clinical scale for assessing and communicating consciousness level in emergency and critical care settings.",
+    "scoring_method": {
+      "type": "sum",
+      "range": [
+        3,
+        15
+      ],
+      "subscales": [
+        "Eye Opening (E, 1-4)",
+        "Verbal Response (V, 1-5)",
+        "Motor Response (M, 1-6)"
+      ],
+      "interpretation": {
+        "13-15": "Mild brain injury",
+        "9-12": "Moderate brain injury",
+        "3-8": "Severe brain injury / Coma"
+      },
+      "note": "Scores reported as GCS E+V+M (e.g., E3V4M6 = GCS 13)"
+    },
+    "loinc_panel_code": "35088-4",
+    "omop_concept_id": 4093836,
+    "license_type": "public",
+    "license_detail": "Teasdale and Jennett (1974). University of Glasgow. Public domain; available at glasgowcomascale.org.",
+    "is_public_domain": true,
+    "omop_coverage": "yes",
+    "items": [
+      {
+        "item_number": 1,
+        "component": "E",
+        "loinc_code": "9267-6",
+        "text": "Eye Opening Response",
+        "response_type": "ordinal",
+        "options": [
+          {
+            "value": 1,
+            "label": "No eye opening"
+          },
+          {
+            "value": 2,
+            "label": "Eye opening to pain"
+          },
+          {
+            "value": 3,
+            "label": "Eye opening to voice/sound"
+          },
+          {
+            "value": 4,
+            "label": "Spontaneous eye opening"
+          }
+        ]
+      },
+      {
+        "item_number": 2,
+        "component": "V",
+        "loinc_code": "9270-0",
+        "text": "Best Verbal Response",
+        "response_type": "ordinal",
+        "options": [
+          {
+            "value": 1,
+            "label": "No verbal response"
+          },
+          {
+            "value": 2,
+            "label": "Incomprehensible sounds"
+          },
+          {
+            "value": 3,
+            "label": "Inappropriate words"
+          },
+          {
+            "value": 4,
+            "label": "Confused"
+          },
+          {
+            "value": 5,
+            "label": "Oriented/normal conversation"
+          }
+        ]
+      },
+      {
+        "item_number": 3,
+        "component": "M",
+        "loinc_code": "9268-4",
+        "text": "Best Motor Response",
+        "response_type": "ordinal",
+        "options": [
+          {
+            "value": 1,
+            "label": "No motor response"
+          },
+          {
+            "value": 2,
+            "label": "Extension (decerebrate posturing)"
+          },
+          {
+            "value": 3,
+            "label": "Abnormal flexion (decorticate posturing)"
+          },
+          {
+            "value": 4,
+            "label": "Withdrawal from pain"
+          },
+          {
+            "value": 5,
+            "label": "Localizing pain"
+          },
+          {
+            "value": 6,
+            "label": "Obeys commands"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "abbreviation": "FOUR",
+    "name": "Full Outline of Unresponsiveness Score",
+    "domain": "Neurological",
+    "item_count": 4,
+    "description": "Four-component neurological scale assessing eye response, motor response, brainstem reflexes, and respiration pattern in critically ill patients. Unlike the GCS, detects locked-in syndrome and gradations within 'deep coma' and can be used in intubated patients.",
+    "scoring_method": {
+      "type": "sum",
+      "range": [
+        0,
+        16
+      ],
+      "subscales": [
+        "Eye Response (E, 0-4)",
+        "Motor Response (M, 0-4)",
+        "Brainstem Reflexes (B, 0-4)",
+        "Respiration (R, 0-4)"
+      ],
+      "note": "Score of 0 in all components indicates brain death"
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "public",
+    "license_detail": "Wijdicks et al. (2005). Mayo Clinic. Published in Mayo Clinic Proceedings; free for clinical use.",
+    "is_public_domain": true,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "PSQI",
+    "name": "Pittsburgh Sleep Quality Index",
+    "domain": "Sleep",
+    "item_count": 19,
+    "description": "Nineteen-item self-report questionnaire assessing sleep quality and disturbances over the past month, yielding seven component scores and a global score. Components include subjective sleep quality, latency, duration, efficiency, disturbances, use of sleeping medication, and daytime dysfunction.",
+    "scoring_method": {
+      "type": "sum",
+      "range": [
+        0,
+        21
+      ],
+      "subscales": [
+        "Subjective Sleep Quality",
+        "Sleep Latency",
+        "Sleep Duration",
+        "Habitual Sleep Efficiency",
+        "Sleep Disturbances",
+        "Use of Sleep Medication",
+        "Daytime Dysfunction"
+      ],
+      "interpretation": {
+        "0-5": "Good sleep quality",
+        "6-21": "Poor sleep quality (cutoff > 5)"
+      }
+    },
+    "loinc_panel_code": "58758-6",
+    "omop_concept_id": null,
+    "license_type": "public",
+    "license_detail": "Buysse et al. (1989). University of Pittsburgh. Free for clinical and non-commercial research use.",
+    "is_public_domain": true,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "ESS",
+    "name": "Epworth Sleepiness Scale",
+    "domain": "Sleep",
+    "item_count": 8,
+    "description": "Eight-item self-report questionnaire measuring daytime sleepiness by asking respondents to rate the chance of dozing in eight different sitting situations. Widely used to screen for sleep disorders including obstructive sleep apnea and narcolepsy.",
+    "scoring_method": {
+      "type": "sum",
+      "range": [
+        0,
+        24
+      ],
+      "subscales": [],
+      "interpretation": {
+        "0-10": "Normal daytime sleepiness",
+        "11-12": "Mild excessive daytime sleepiness",
+        "13-15": "Moderate excessive daytime sleepiness",
+        "16-24": "Severe excessive daytime sleepiness"
+      }
+    },
+    "loinc_panel_code": "58750-3",
+    "omop_concept_id": null,
+    "license_type": "public",
+    "license_detail": "Murray Johns (1991). Epworth Sleep Centre. Free for non-commercial use; available at epworthsleepinessscale.com.",
+    "is_public_domain": false,
+    "omop_coverage": "yes",
+    "items": [
+      {
+        "item_number": 1,
+        "loinc_code": "58754-5",
+        "text": "Sitting and reading",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Would never doze"
+          },
+          {
+            "value": 1,
+            "label": "Slight chance of dozing"
+          },
+          {
+            "value": 2,
+            "label": "Moderate chance of dozing"
+          },
+          {
+            "value": 3,
+            "label": "High chance of dozing"
+          }
+        ]
+      },
+      {
+        "item_number": 2,
+        "loinc_code": "58755-2",
+        "text": "Watching TV",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Would never doze"
+          },
+          {
+            "value": 1,
+            "label": "Slight chance of dozing"
+          },
+          {
+            "value": 2,
+            "label": "Moderate chance of dozing"
+          },
+          {
+            "value": 3,
+            "label": "High chance of dozing"
+          }
+        ]
+      },
+      {
+        "item_number": 3,
+        "loinc_code": "58756-0",
+        "text": "Sitting inactive in a public place (e.g., a theatre or a meeting)",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Would never doze"
+          },
+          {
+            "value": 1,
+            "label": "Slight chance of dozing"
+          },
+          {
+            "value": 2,
+            "label": "Moderate chance of dozing"
+          },
+          {
+            "value": 3,
+            "label": "High chance of dozing"
+          }
+        ]
+      },
+      {
+        "item_number": 4,
+        "loinc_code": "58757-8",
+        "text": "As a passenger in a car for an hour without a break",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Would never doze"
+          },
+          {
+            "value": 1,
+            "label": "Slight chance of dozing"
+          },
+          {
+            "value": 2,
+            "label": "Moderate chance of dozing"
+          },
+          {
+            "value": 3,
+            "label": "High chance of dozing"
+          }
+        ]
+      },
+      {
+        "item_number": 5,
+        "loinc_code": "58758-6",
+        "text": "Lying down to rest in the afternoon when circumstances permit",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Would never doze"
+          },
+          {
+            "value": 1,
+            "label": "Slight chance of dozing"
+          },
+          {
+            "value": 2,
+            "label": "Moderate chance of dozing"
+          },
+          {
+            "value": 3,
+            "label": "High chance of dozing"
+          }
+        ]
+      },
+      {
+        "item_number": 6,
+        "loinc_code": "58759-4",
+        "text": "Sitting and talking to someone",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Would never doze"
+          },
+          {
+            "value": 1,
+            "label": "Slight chance of dozing"
+          },
+          {
+            "value": 2,
+            "label": "Moderate chance of dozing"
+          },
+          {
+            "value": 3,
+            "label": "High chance of dozing"
+          }
+        ]
+      },
+      {
+        "item_number": 7,
+        "loinc_code": "58760-2",
+        "text": "Sitting quietly after a lunch without alcohol",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Would never doze"
+          },
+          {
+            "value": 1,
+            "label": "Slight chance of dozing"
+          },
+          {
+            "value": 2,
+            "label": "Moderate chance of dozing"
+          },
+          {
+            "value": 3,
+            "label": "High chance of dozing"
+          }
+        ]
+      },
+      {
+        "item_number": 8,
+        "loinc_code": "58761-0",
+        "text": "In a car, while stopped for a few minutes in traffic",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Would never doze"
+          },
+          {
+            "value": 1,
+            "label": "Slight chance of dozing"
+          },
+          {
+            "value": 2,
+            "label": "Moderate chance of dozing"
+          },
+          {
+            "value": 3,
+            "label": "High chance of dozing"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "abbreviation": "ISI",
+    "name": "Insomnia Severity Index",
+    "domain": "Sleep",
+    "item_count": 7,
+    "description": "Seven-item self-report questionnaire assessing the nature, severity, and impact of insomnia over the past two weeks, including difficulties initiating and maintaining sleep, early morning awakening, sleep dissatisfaction, interference with daily functioning, and distress.",
+    "scoring_method": {
+      "type": "sum",
+      "range": [
+        0,
+        28
+      ],
+      "subscales": [],
+      "interpretation": {
+        "0-7": "No clinically significant insomnia",
+        "8-14": "Subthreshold insomnia",
+        "15-21": "Clinical insomnia (moderate severity)",
+        "22-28": "Clinical insomnia (severe)"
+      }
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "proprietary",
+    "license_detail": "Charles Morin. Copyright; contact Morin Lab for permission. Free for academic non-commercial use.",
+    "is_public_domain": false,
+    "omop_coverage": "partial",
+    "items": []
+  },
+  {
+    "abbreviation": "IIEF",
+    "name": "International Index of Erectile Function",
+    "domain": "Sexual Health",
+    "item_count": 15,
+    "description": "Fifteen-item self-report questionnaire assessing male sexual function across five domains: erectile function, orgasmic function, sexual desire, intercourse satisfaction, and overall satisfaction. The reference standard for erectile dysfunction assessment in clinical trials.",
+    "scoring_method": {
+      "type": "subscale_sum",
+      "range": [
+        0,
+        75
+      ],
+      "subscales": [
+        "Erectile Function (6 items, 0-30)",
+        "Orgasmic Function (2 items, 0-10)",
+        "Sexual Desire (2 items, 0-10)",
+        "Intercourse Satisfaction (3 items, 0-15)",
+        "Overall Satisfaction (2 items, 0-10)"
+      ]
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "proprietary",
+    "license_detail": "Rosen et al. (1997). Copyright; requires permission for commercial use. Available for academic research.",
+    "is_public_domain": false,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "FSFI",
+    "name": "Female Sexual Function Index",
+    "domain": "Sexual Health",
+    "item_count": 19,
+    "description": "Nineteen-item self-report measure of female sexual function across six domains: desire, arousal, lubrication, orgasm, satisfaction, and pain. Widely used in clinical trials and population studies as the reference standard for female sexual dysfunction assessment.",
+    "scoring_method": {
+      "type": "subscale_sum",
+      "range": [
+        2.0,
+        36.0
+      ],
+      "subscales": [
+        "Desire (2 items)",
+        "Arousal (4 items)",
+        "Lubrication (4 items)",
+        "Orgasm (3 items)",
+        "Satisfaction (3 items)",
+        "Pain (3 items)"
+      ],
+      "note": "Each domain multiplied by a weighting factor; total = sum of domains; cutoff \u226426.55 indicates sexual dysfunction"
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "proprietary",
+    "license_detail": "Rosen et al. (2000). Copyright; requires permission.",
+    "is_public_domain": false,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "WOMAC",
+    "name": "Western Ontario and McMaster Universities Osteoarthritis Index",
+    "domain": "Musculoskeletal",
+    "item_count": 24,
+    "description": "Twenty-four item patient-reported outcome measure for hip and knee osteoarthritis assessing pain (5 items), stiffness (2 items), and physical function (17 items). Available in Likert, VAS, and NRS response formats.",
+    "scoring_method": {
+      "type": "subscale_sum",
+      "range": [
+        0,
+        96
+      ],
+      "subscales": [
+        "Pain (5 items, 0-20)",
+        "Stiffness (2 items, 0-8)",
+        "Physical Function (17 items, 0-68)"
+      ],
+      "note": "Normalized 0-100 versions also used; higher scores indicate worse condition"
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "public",
+    "license_detail": "Bellamy et al. (1988). Nicholas Bellamy. Free for academic and clinical use. Available at womac.org.",
+    "is_public_domain": true,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "HAQ-DI",
+    "name": "Health Assessment Questionnaire Disability Index",
+    "domain": "Musculoskeletal",
+    "item_count": 20,
+    "description": "Twenty-item patient self-report functional assessment measuring difficulty in eight functional areas: dressing and grooming, arising, eating, walking, hygiene, reach, grip, and usual activities. The primary outcome measure in rheumatoid arthritis clinical trials.",
+    "scoring_method": {
+      "type": "mean",
+      "range": [
+        0,
+        3
+      ],
+      "subscales": [
+        "Dressing",
+        "Arising",
+        "Eating",
+        "Walking",
+        "Hygiene",
+        "Reach",
+        "Grip",
+        "Usual Activities"
+      ],
+      "note": "Each category scored 0-3; overall disability index = mean of category scores, modified by aids/devices"
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "proprietary",
+    "license_detail": "Fries et al. (1980). Stanford University. Requires permission for commercial use; free for academic research.",
+    "is_public_domain": false,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "DAS28",
+    "name": "Disease Activity Score in 28 Joints",
+    "domain": "Musculoskeletal",
+    "item_count": 28,
+    "description": "Composite disease activity measure for rheumatoid arthritis comprising tender joint count (28 joints), swollen joint count (28 joints), erythrocyte sedimentation rate or CRP, and patient global assessment of disease activity on a VAS.",
+    "scoring_method": {
+      "type": "formula",
+      "range": [
+        0,
+        9.4
+      ],
+      "subscales": [
+        "Tender Joint Count 28 (TJC28)",
+        "Swollen Joint Count 28 (SJC28)",
+        "ESR or CRP",
+        "Patient Global Assessment (PGA)"
+      ],
+      "interpretation": {
+        "< 2.6": "Remission",
+        "2.6-3.2": "Low disease activity",
+        "3.2-5.1": "Moderate disease activity",
+        "> 5.1": "High disease activity"
+      },
+      "note": "DAS28-ESR = 0.56\u00d7\u221aTJC28 + 0.28\u00d7\u221aSJC28 + 0.70\u00d7ln(ESR) + 0.014\u00d7PGA"
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "public",
+    "license_detail": "van der Heijde et al. (1990). Public domain; developed by the DAS-RA Working Group.",
+    "is_public_domain": true,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "ASQoL",
+    "name": "Ankylosing Spondylitis Quality of Life",
+    "domain": "Musculoskeletal",
+    "item_count": 18,
+    "description": "Eighteen-item disease-specific quality of life questionnaire for patients with ankylosing spondylitis measuring the impact of the disease on daily activities, sleep, emotional function, independence, and relationships.",
+    "scoring_method": {
+      "type": "sum",
+      "range": [
+        0,
+        18
+      ],
+      "subscales": [],
+      "note": "Higher scores indicate worse quality of life; each item scored 0 (yes) or 1 (no)"
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "proprietary",
+    "license_detail": "Doward et al. (2003). Copyright Galen Research. Requires licensing.",
+    "is_public_domain": false,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "PRAPARE",
+    "name": "Protocol for Responding to and Assessing Patients' Assets, Risks, and Experiences",
+    "domain": "SDOH",
+    "item_count": 21,
+    "description": "Twenty-one item social determinants of health screening tool developed by the National Association of Community Health Centers measuring personal characteristics, money and resources, social and emotional health, and optional additional questions about substance use and domestic safety.",
+    "scoring_method": {
+      "type": "categorical",
+      "range": null,
+      "subscales": [
+        "Personal Characteristics (5 items)",
+        "Money and Resources (5 items)",
+        "Social and Emotional Health (5 items)",
+        "Optional Items (6 items)"
+      ],
+      "note": "No single composite score; each domain generates actionable flags for care coordination"
+    },
+    "loinc_panel_code": "93025-5",
+    "omop_concept_id": null,
+    "license_type": "public",
+    "license_detail": "National Association of Community Health Centers (NACHC). Free for use with attribution.",
+    "is_public_domain": true,
+    "omop_coverage": "partial",
+    "items": []
+  },
+  {
+    "abbreviation": "AHC HRSN",
+    "name": "Accountable Health Communities Health-Related Social Needs Screening Tool",
+    "domain": "SDOH",
+    "item_count": 10,
+    "description": "Ten-item core social needs screening tool developed by CMS for the Accountable Health Communities model, assessing housing instability, food insecurity, transportation problems, utility help needs, and interpersonal safety.",
+    "scoring_method": {
+      "type": "categorical",
+      "range": null,
+      "subscales": [
+        "Housing Instability",
+        "Food Insecurity",
+        "Transportation Problems",
+        "Utility Assistance Needs",
+        "Interpersonal Safety"
+      ],
+      "note": "Each item flags need (yes/no); supplemental questions available for additional social needs"
+    },
+    "loinc_panel_code": "96777-8",
+    "omop_concept_id": null,
+    "license_type": "public",
+    "license_detail": "Centers for Medicare and Medicaid Services. Public domain.",
+    "is_public_domain": true,
+    "omop_coverage": "partial",
+    "items": []
+  },
+  {
+    "abbreviation": "ASA-PS",
+    "name": "American Society of Anesthesiologists Physical Status Classification",
+    "domain": "Perioperative",
+    "item_count": 1,
+    "description": "Single-item ordinal classification (ASA I\u2013VI) used by anesthesiologists to estimate pre-operative physical health status and perioperative risk. The most widely used perioperative risk assessment tool in surgical settings worldwide.",
+    "scoring_method": {
+      "type": "ordinal",
+      "range": [
+        1,
+        6
+      ],
+      "subscales": [],
+      "interpretation": {
+        "I": "Normal healthy patient",
+        "II": "Patient with mild systemic disease",
+        "III": "Patient with severe systemic disease",
+        "IV": "Patient with severe systemic disease that is a constant threat to life",
+        "V": "Moribund patient not expected to survive without the operation",
+        "VI": "Brain-dead patient for organ donation"
+      }
+    },
+    "loinc_panel_code": "68793-9",
+    "omop_concept_id": null,
+    "license_type": "public",
+    "license_detail": "American Society of Anesthesiologists. Public domain standard classification.",
+    "is_public_domain": true,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "WHO SSC",
+    "name": "WHO Surgical Safety Checklist",
+    "domain": "Perioperative",
+    "item_count": 19,
+    "description": "Nineteen-item perioperative safety checklist developed by the World Health Organization for use at three critical phases of surgery: Sign In (before anesthesia), Time Out (before incision), and Sign Out (before patient leaves operating room).",
+    "scoring_method": {
+      "type": "checklist",
+      "range": [
+        0,
+        19
+      ],
+      "subscales": [
+        "Sign In (7 items)",
+        "Time Out (7 items)",
+        "Sign Out (5 items)"
+      ],
+      "note": "Items marked complete/incomplete; no composite score; compliance rate tracked"
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "public",
+    "license_detail": "World Health Organization (2008). Freely available at who.int/patientsafety.",
+    "is_public_domain": true,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "PROMIS GH-10",
+    "name": "PROMIS Global Health-10",
+    "domain": "PROMIS",
+    "item_count": 10,
+    "description": "Ten-item global health measure from the NIH PROMIS initiative assessing general health perceptions, quality of life, physical health, mental health, social health, pain, fatigue, and emotional problems. Produces Global Physical Health (GPH) and Global Mental Health (GMH) T-scores.",
+    "scoring_method": {
+      "type": "t_score",
+      "range": [
+        0,
+        100
+      ],
+      "subscales": [
+        "Global Physical Health (4 items)",
+        "Global Mental Health (4 items)"
+      ],
+      "note": "T-scores standardized to US general population (mean 50, SD 10); 2 items not included in subscale scores"
+    },
+    "loinc_panel_code": "61578-1",
+    "omop_concept_id": null,
+    "license_type": "public",
+    "license_detail": "NIH PROMIS. Free for use. Available at healthmeasures.net.",
+    "is_public_domain": true,
+    "omop_coverage": "yes",
+    "items": [
+      {
+        "item_number": 1,
+        "loinc_code": "61577-3",
+        "text": "In general, would you say your health is:",
+        "response_type": "ordinal",
+        "options": [
+          {
+            "value": 5,
+            "label": "Excellent"
+          },
+          {
+            "value": 4,
+            "label": "Very good"
+          },
+          {
+            "value": 3,
+            "label": "Good"
+          },
+          {
+            "value": 2,
+            "label": "Fair"
+          },
+          {
+            "value": 1,
+            "label": "Poor"
+          }
+        ]
+      },
+      {
+        "item_number": 2,
+        "loinc_code": "61576-5",
+        "text": "In general, would you say your quality of life is:",
+        "response_type": "ordinal",
+        "options": [
+          {
+            "value": 5,
+            "label": "Excellent"
+          },
+          {
+            "value": 4,
+            "label": "Very good"
+          },
+          {
+            "value": 3,
+            "label": "Good"
+          },
+          {
+            "value": 2,
+            "label": "Fair"
+          },
+          {
+            "value": 1,
+            "label": "Poor"
+          }
+        ]
+      },
+      {
+        "item_number": 3,
+        "loinc_code": "61575-7",
+        "text": "In general, how would you rate your physical health?",
+        "response_type": "ordinal",
+        "options": [
+          {
+            "value": 5,
+            "label": "Excellent"
+          },
+          {
+            "value": 4,
+            "label": "Very good"
+          },
+          {
+            "value": 3,
+            "label": "Good"
+          },
+          {
+            "value": 2,
+            "label": "Fair"
+          },
+          {
+            "value": 1,
+            "label": "Poor"
+          }
+        ]
+      },
+      {
+        "item_number": 4,
+        "loinc_code": "61574-0",
+        "text": "In general, how would you rate your mental health, including your mood and your ability to think?",
+        "response_type": "ordinal",
+        "options": [
+          {
+            "value": 5,
+            "label": "Excellent"
+          },
+          {
+            "value": 4,
+            "label": "Very good"
+          },
+          {
+            "value": 3,
+            "label": "Good"
+          },
+          {
+            "value": 2,
+            "label": "Fair"
+          },
+          {
+            "value": 1,
+            "label": "Poor"
+          }
+        ]
+      },
+      {
+        "item_number": 5,
+        "loinc_code": "61573-2",
+        "text": "In general, how would you rate your satisfaction with your social activities and relationships?",
+        "response_type": "ordinal",
+        "options": [
+          {
+            "value": 5,
+            "label": "Excellent"
+          },
+          {
+            "value": 4,
+            "label": "Very good"
+          },
+          {
+            "value": 3,
+            "label": "Good"
+          },
+          {
+            "value": 2,
+            "label": "Fair"
+          },
+          {
+            "value": 1,
+            "label": "Poor"
+          }
+        ]
+      },
+      {
+        "item_number": 6,
+        "loinc_code": "61572-4",
+        "text": "To what extent are you able to carry out your everyday physical activities such as walking, climbing stairs, carrying groceries, or moving a chair?",
+        "response_type": "ordinal",
+        "options": [
+          {
+            "value": 5,
+            "label": "Completely"
+          },
+          {
+            "value": 4,
+            "label": "Mostly"
+          },
+          {
+            "value": 3,
+            "label": "Moderately"
+          },
+          {
+            "value": 2,
+            "label": "Mostly not"
+          },
+          {
+            "value": 1,
+            "label": "Not at all"
+          }
+        ]
+      },
+      {
+        "item_number": 7,
+        "loinc_code": "61571-6",
+        "text": "In the past 7 days, how often have you been bothered by emotional problems such as feeling anxious, depressed or irritable?",
+        "response_type": "ordinal",
+        "options": [
+          {
+            "value": 5,
+            "label": "Never"
+          },
+          {
+            "value": 4,
+            "label": "Rarely"
+          },
+          {
+            "value": 3,
+            "label": "Sometimes"
+          },
+          {
+            "value": 2,
+            "label": "Often"
+          },
+          {
+            "value": 1,
+            "label": "Always"
+          }
+        ]
+      },
+      {
+        "item_number": 8,
+        "loinc_code": "61570-8",
+        "text": "In the past 7 days, how would you rate your fatigue on average?",
+        "response_type": "ordinal",
+        "options": [
+          {
+            "value": 5,
+            "label": "None"
+          },
+          {
+            "value": 4,
+            "label": "Mild"
+          },
+          {
+            "value": 3,
+            "label": "Moderate"
+          },
+          {
+            "value": 2,
+            "label": "Severe"
+          },
+          {
+            "value": 1,
+            "label": "Very severe"
+          }
+        ]
+      },
+      {
+        "item_number": 9,
+        "loinc_code": "61569-0",
+        "text": "In the past 7 days, how would you rate your pain on average?",
+        "response_type": "numeric",
+        "range": [
+          0,
+          10
+        ],
+        "note": "0 = No pain, 10 = Worst imaginable pain"
+      },
+      {
+        "item_number": 10,
+        "loinc_code": "61568-2",
+        "text": "In the past 7 days, how much did pain interfere with your usual activities?",
+        "response_type": "ordinal",
+        "options": [
+          {
+            "value": 5,
+            "label": "Not at all"
+          },
+          {
+            "value": 4,
+            "label": "A little bit"
+          },
+          {
+            "value": 3,
+            "label": "Somewhat"
+          },
+          {
+            "value": 2,
+            "label": "Quite a bit"
+          },
+          {
+            "value": 1,
+            "label": "Very much"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "abbreviation": "PROMIS-29",
+    "name": "PROMIS Profile-29",
+    "domain": "PROMIS",
+    "item_count": 29,
+    "description": "Twenty-nine item PROMIS profile instrument measuring seven health domains: physical function, anxiety, depression, fatigue, sleep disturbance, satisfaction with social roles and activities, and pain interference, plus a pain intensity NRS item.",
+    "scoring_method": {
+      "type": "t_score",
+      "range": [
+        0,
+        100
+      ],
+      "subscales": [
+        "Physical Function (4 items)",
+        "Anxiety (4 items)",
+        "Depression (4 items)",
+        "Fatigue (4 items)",
+        "Sleep Disturbance (4 items)",
+        "Social Roles (4 items)",
+        "Pain Interference (4 items)",
+        "Pain Intensity (1 NRS item)"
+      ],
+      "note": "Each domain scored as a T-score (mean 50, SD 10 in US general population)"
+    },
+    "loinc_panel_code": "62199-5",
+    "omop_concept_id": null,
+    "license_type": "public",
+    "license_detail": "NIH PROMIS. Free for use. Available at healthmeasures.net.",
+    "is_public_domain": true,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "PROMIS PF",
+    "name": "PROMIS Physical Function",
+    "domain": "PROMIS",
+    "item_count": 10,
+    "description": "PROMIS item bank short form measuring self-reported capability to perform physical activities, ranging from basic mobility to vigorous activities, available in 4-, 6-, 8-, or 10-item short forms or computerized adaptive testing.",
+    "scoring_method": {
+      "type": "t_score",
+      "range": [
+        0,
+        100
+      ],
+      "subscales": [],
+      "note": "T-score centered at 50 (mean of US general population, SD 10); higher scores = better physical function"
+    },
+    "loinc_panel_code": "62199-5",
+    "omop_concept_id": null,
+    "license_type": "public",
+    "license_detail": "NIH PROMIS. Free for use. Available at healthmeasures.net.",
+    "is_public_domain": true,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "PROMIS PI",
+    "name": "PROMIS Pain Interference",
+    "domain": "PROMIS",
+    "item_count": 8,
+    "description": "PROMIS item bank short form assessing how much pain interferes with daily activities, work, leisure activities, social interactions, mood, and concentration, available in 4-, 6-, or 8-item short forms or computerized adaptive testing.",
+    "scoring_method": {
+      "type": "t_score",
+      "range": [
+        0,
+        100
+      ],
+      "subscales": [],
+      "note": "Higher scores = more pain interference; T-score referenced to US general population"
+    },
+    "loinc_panel_code": "77564-3",
+    "omop_concept_id": null,
+    "license_type": "public",
+    "license_detail": "NIH PROMIS. Free for use. Available at healthmeasures.net.",
+    "is_public_domain": true,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "PROMIS Fatigue",
+    "name": "PROMIS Fatigue",
+    "domain": "PROMIS",
+    "item_count": 8,
+    "description": "PROMIS item bank short form measuring self-reported fatigue, including tiredness, energy depletion, and the functional and emotional impact of fatigue over the past 7 days, available in 4-, 6-, or 8-item short forms or CAT.",
+    "scoring_method": {
+      "type": "t_score",
+      "range": [
+        0,
+        100
+      ],
+      "subscales": [],
+      "note": "Higher scores = more fatigue; T-score referenced to US general population"
+    },
+    "loinc_panel_code": "77566-8",
+    "omop_concept_id": null,
+    "license_type": "public",
+    "license_detail": "NIH PROMIS. Free for use. Available at healthmeasures.net.",
+    "is_public_domain": true,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "PROMIS Anxiety",
+    "name": "PROMIS Emotional Distress \u2014 Anxiety",
+    "domain": "PROMIS",
+    "item_count": 8,
+    "description": "PROMIS item bank short form measuring self-reported fear, anxious misery, hyperarousal, and somatic symptoms related to arousal over the past 7 days, available in 4-, 6-, or 8-item short forms or CAT.",
+    "scoring_method": {
+      "type": "t_score",
+      "range": [
+        0,
+        100
+      ],
+      "subscales": [],
+      "note": "Higher scores = more anxiety symptoms; T-score referenced to US general population"
+    },
+    "loinc_panel_code": "77568-4",
+    "omop_concept_id": null,
+    "license_type": "public",
+    "license_detail": "NIH PROMIS. Free for use. Available at healthmeasures.net.",
+    "is_public_domain": true,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "PROMIS Depression",
+    "name": "PROMIS Emotional Distress \u2014 Depression",
+    "domain": "PROMIS",
+    "item_count": 8,
+    "description": "PROMIS item bank short form measuring self-reported negative mood, views of self, social cognition, and decreased positive affect and engagement over the past 7 days, available in 4-, 6-, or 8-item short forms or CAT.",
+    "scoring_method": {
+      "type": "t_score",
+      "range": [
+        0,
+        100
+      ],
+      "subscales": [],
+      "note": "Higher scores = more depressive symptoms; T-score referenced to US general population"
+    },
+    "loinc_panel_code": "77569-2",
+    "omop_concept_id": null,
+    "license_type": "public",
+    "license_detail": "NIH PROMIS. Free for use. Available at healthmeasures.net.",
+    "is_public_domain": true,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "PROMIS Sleep",
+    "name": "PROMIS Sleep Disturbance",
+    "domain": "PROMIS",
+    "item_count": 8,
+    "description": "PROMIS item bank short form measuring self-perceived quality and depth of sleep, difficulty falling asleep, and whether sleep is refreshing over the past 7 days, available in 4-, 6-, or 8-item short forms or CAT.",
+    "scoring_method": {
+      "type": "t_score",
+      "range": [
+        0,
+        100
+      ],
+      "subscales": [],
+      "note": "Higher scores = more sleep disturbance; T-score referenced to US general population"
+    },
+    "loinc_panel_code": "77570-0",
+    "omop_concept_id": null,
+    "license_type": "public",
+    "license_detail": "NIH PROMIS. Free for use. Available at healthmeasures.net.",
+    "is_public_domain": true,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "PROMIS SI",
+    "name": "PROMIS Social Isolation",
+    "domain": "PROMIS",
+    "item_count": 8,
+    "description": "PROMIS item bank short form measuring perceptions of being avoided, excluded, detached from, or unknown by others, available in 4-, 6-, or 8-item short forms or CAT.",
+    "scoring_method": {
+      "type": "t_score",
+      "range": [
+        0,
+        100
+      ],
+      "subscales": [],
+      "note": "Higher scores = more social isolation; T-score referenced to US general population"
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "public",
+    "license_detail": "NIH PROMIS. Free for use. Available at healthmeasures.net.",
+    "is_public_domain": true,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "PROMIS CF",
+    "name": "PROMIS Cognitive Function",
+    "domain": "PROMIS",
+    "item_count": 8,
+    "description": "PROMIS item bank short form measuring self-perceived cognitive abilities including memory, concentration, speed of processing, and ability to perform complex tasks over the past 7 days, available in 4-, 6-, or 8-item short forms or CAT.",
+    "scoring_method": {
+      "type": "t_score",
+      "range": [
+        0,
+        100
+      ],
+      "subscales": [],
+      "note": "Higher scores = better cognitive function; T-score referenced to US general population"
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "public",
+    "license_detail": "NIH PROMIS. Free for use. Available at healthmeasures.net.",
+    "is_public_domain": true,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "PROMIS PI-3a",
+    "name": "PROMIS Pain Intensity 3a",
+    "domain": "PROMIS",
+    "item_count": 3,
+    "description": "Three-item PROMIS Pain Intensity short form (version 3a) measuring current, average, and worst pain intensity over the past 7 days using 0-10 numeric rating scales.",
+    "scoring_method": {
+      "type": "t_score",
+      "range": [
+        0,
+        100
+      ],
+      "subscales": [],
+      "note": "T-score referenced to US general population; higher scores = more pain intensity"
+    },
+    "loinc_panel_code": "75897-9",
+    "omop_concept_id": null,
+    "license_type": "public",
+    "license_detail": "NIH PROMIS. Free for use. Available at healthmeasures.net.",
+    "is_public_domain": true,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "PROMIS Ped",
+    "name": "PROMIS Pediatric Measures",
+    "domain": "PROMIS",
+    "item_count": 40,
+    "description": "Suite of pediatric PROMIS short forms measuring physical function, pain interference, fatigue, depressive symptoms, anxiety, peer relationships, and asthma impact in children and adolescents ages 5-17, with parallel parent proxy versions available.",
+    "scoring_method": {
+      "type": "t_score",
+      "range": [
+        0,
+        100
+      ],
+      "subscales": [
+        "Physical Function \u2014 Mobility",
+        "Physical Function \u2014 Upper Extremity",
+        "Pain Interference",
+        "Fatigue",
+        "Depressive Symptoms",
+        "Anxiety",
+        "Peer Relationships",
+        "Asthma Impact"
+      ],
+      "note": "Pediatric norms separate from adult norms; T-score mean 50, SD 10"
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "public",
+    "license_detail": "NIH PROMIS. Free for use. Available at healthmeasures.net.",
+    "is_public_domain": true,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "NEI VFQ-25",
+    "name": "National Eye Institute Visual Functioning Questionnaire-25",
+    "domain": "Ophthalmology",
+    "item_count": 25,
+    "description": "Twenty-five item self-administered questionnaire measuring the influence of visual impairment and ocular conditions on health-related quality of life across vision-targeted functional domains and well-being, including general vision, near and distance activities, driving, peripheral vision, color vision, and ocular pain.",
+    "scoring_method": {
+      "type": "subscale_mean",
+      "range": [
+        0,
+        100
+      ],
+      "subscales": [
+        "General Vision",
+        "Near Activities",
+        "Distance Activities",
+        "Driving",
+        "Peripheral Vision",
+        "Color Vision",
+        "Ocular Pain",
+        "General Health",
+        "Role Difficulties",
+        "Dependency",
+        "Mental Health",
+        "Social Functioning",
+        "Composite Score"
+      ],
+      "note": "Higher scores indicate better visual function; composite score is mean of all vision-targeted subscale scores"
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "public",
+    "license_detail": "National Eye Institute (NEI). Public domain. Available at nei.nih.gov.",
+    "is_public_domain": true,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "YGTSS",
+    "name": "Yale Global Tic Severity Scale",
+    "domain": "Movement Disorders",
+    "item_count": 12,
+    "description": "Clinician-rated 12-item semi-structured interview assessing tic severity in Tourette syndrome and related tic disorders across motor and phonic tic dimensions (number, frequency, intensity, complexity, interference) plus an overall impairment rating.",
+    "scoring_method": {
+      "type": "sum",
+      "range": [
+        0,
+        100
+      ],
+      "subscales": [
+        "Motor Tic Score (0-25)",
+        "Phonic Tic Score (0-25)",
+        "Total Tic Score (0-50)",
+        "Impairment Score (0-50)",
+        "Global Severity Score (0-100)"
+      ]
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "public",
+    "license_detail": "Leckman et al. (1989). Yale University. Free for clinical and research use.",
+    "is_public_domain": true,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "MMAS-8",
+    "name": "Morisky Medication Adherence Scale-8",
+    "domain": "Medication Adherence",
+    "item_count": 8,
+    "description": "Eight-item self-report measure of medication-taking behavior assessing both inadvertent and intentional non-adherence across seven yes/no items and one 5-point Likert item, validated for chronic disease medication adherence in multiple conditions.",
+    "scoring_method": {
+      "type": "sum",
+      "range": [
+        0,
+        8
+      ],
+      "subscales": [],
+      "interpretation": {
+        "8": "High adherence",
+        "6-7": "Medium adherence",
+        "< 6": "Low adherence"
+      },
+      "note": "Items 1-7 scored 0 (yes) or 1 (no); item 8 scored 0-1 with fractional scoring"
+    },
+    "loinc_panel_code": null,
+    "omop_concept_id": null,
+    "license_type": "proprietary",
+    "license_detail": "Copyright Donald Morisky. Commercial licensing required at moriskyscale.com. Free for academic research with permission.",
+    "is_public_domain": false,
+    "omop_coverage": "yes",
+    "items": []
+  },
+  {
+    "abbreviation": "PHQ-SADS",
+    "name": "Patient Health Questionnaire \u2014 Somatic, Anxiety, and Depressive Symptoms",
+    "domain": "Mental Health",
+    "item_count": 35,
+    "description": "Multi-module PHQ instrument combining the PHQ-15 somatic symptom severity scale, GAD-7 anxiety module, and PHQ-9 depression module for comprehensive primary care mental health screening, enabling simultaneous assessment of somatic, anxiety, and depressive comorbidity.",
+    "scoring_method": {
+      "type": "multi_module",
+      "range": null,
+      "subscales": [
+        "PHQ-15 Somatic Symptoms (0-30)",
+        "GAD-7 Anxiety (0-21)",
+        "PHQ-9 Depression (0-27)"
+      ]
+    },
+    "loinc_panel_code": "69729-2",
+    "omop_concept_id": null,
+    "license_type": "public",
+    "license_detail": "Public Domain \u2014 Pfizer Inc. PHQ instruments released into the public domain.",
+    "is_public_domain": true,
+    "omop_coverage": "partial",
+    "items": []
+  },
+  {
+    "abbreviation": "QOL-1",
+    "name": "Quality of Life Scale \u2014 Single Item",
+    "domain": "Quality of Life",
+    "item_count": 6,
+    "description": "Single global quality of life assessment item asking patients to rate their overall quality of life on a 5-point scale; sometimes expanded to a 6-item form to capture multiple life domains including physical, psychological, social, environmental, spiritual, and overall quality of life.",
+    "scoring_method": {
+      "type": "ordinal",
+      "range": [
+        1,
+        5
+      ],
+      "subscales": [],
+      "note": "Single item or multi-domain variants depending on administration context"
+    },
+    "loinc_panel_code": "72355-1",
+    "omop_concept_id": null,
+    "license_type": "public",
+    "license_detail": "Public domain. Referenced in LOINC panel 72355-1.",
+    "is_public_domain": true,
+    "omop_coverage": "yes",
+    "items": []
+  }
+]
