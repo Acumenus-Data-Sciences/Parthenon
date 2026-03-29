@@ -8,7 +8,7 @@ date: 2026-03-28
 ---
 
 <div style={{borderRadius: '12px', overflow: 'hidden', marginBottom: '2rem'}}>
-  <img src="/img/poseidon-vulcan.png" alt="Poseidon and Vulcan — the gods of continuous data ingestion" style={{width: '100%', display: 'block'}} />
+  <img src="/docs/img/poseidon-vulcan.png" alt="Poseidon and Vulcan — the gods of continuous data ingestion" style={{width: '100%', display: 'block'}} />
 </div>
 
 Healthcare data does not arrive in neat packages. It streams — continuously, chaotically, from dozens of transactional systems that were never designed to talk to each other. EHR encounters appear as HL7 ADT messages. Lab results materialize through OBX segments hours after the draw. Radiology reports surface from PACS archives with inconsistent coding. Claims trickle in from clearinghouses days or weeks after the visit. Genomic panels arrive as VCF files from external laboratories with their own nomenclatures and timelines.
