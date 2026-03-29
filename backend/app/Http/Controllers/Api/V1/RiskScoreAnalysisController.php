@@ -35,7 +35,7 @@ class RiskScoreAnalysisController extends Controller
         $search = $request->query('search');
         $status = $request->query('status');
 
-        $query = RiskScoreAnalysis::with('author')
+        $query = RiskScoreAnalysis::with(['author', 'executions'])
             ->orderBy('updated_at', 'desc');
 
         if ($search) {
