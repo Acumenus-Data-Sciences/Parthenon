@@ -222,7 +222,7 @@ export default function StandardProsPage() {
         <button
           type="button"
           onClick={() => setShowAbout(true)}
-          className="flex items-center gap-1.5 rounded-lg border border-[#2A2A2F] bg-[#141418] px-3 py-2 text-xs font-medium text-[#8A857D] hover:text-[#F0EDE8] hover:border-[#2DD4BF]/30 transition-colors shrink-0"
+          className="flex items-center gap-2 rounded-lg bg-[#9B1B30] px-4 py-2 text-sm font-medium text-white hover:bg-[#B42240] transition-colors shrink-0"
         >
           <Info size={14} />
           About PROs+
