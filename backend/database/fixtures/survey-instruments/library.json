@@ -12208,7 +12208,2235 @@
     "license_detail": "Duke University Center for the Study of Aging (1978). Free for non-commercial use.",
     "is_public_domain": true,
     "omop_coverage": "partial",
-    "items": [],
+    "items": [
+      {
+        "item_number": 1,
+        "loinc_code": null,
+        "text": "About how many times did you talk to someone — friends, relatives, or others — on the telephone in the past week?",
+        "response_type": "categorical",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not at all",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Once",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Twice",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "3 or more times",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 2,
+        "loinc_code": null,
+        "text": "How many times during the past week did you spend some time with someone who does not live with you?",
+        "response_type": "categorical",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not at all",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Once",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Twice",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "3 or more times",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 3,
+        "loinc_code": null,
+        "text": "How many times in the past week did you visit with someone, either with people who live here or going out to friends, relatives, or neighbors?",
+        "response_type": "categorical",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not at all",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Once",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Twice",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "3 or more times",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 4,
+        "loinc_code": null,
+        "text": "Is there someone who would give you any help at all if you were sick or disabled?",
+        "response_type": "categorical",
+        "options": [
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "No one willing and able to help",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 5,
+        "loinc_code": null,
+        "text": "If you had trouble, is there someone who would take care of you as long as needed?",
+        "response_type": "categorical",
+        "options": [
+          {
+            "value": 1,
+            "label": "Yes, indefinitely",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Yes, for a short time",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 6,
+        "loinc_code": null,
+        "text": "Do you live alone or with other people?",
+        "response_type": "categorical",
+        "options": [
+          {
+            "value": 0,
+            "label": "Alone",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "With spouse only",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "With others (not spouse)",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "With spouse and others",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 7,
+        "loinc_code": null,
+        "text": "Do you see your relatives and friends as often as you want to, or not?",
+        "response_type": "categorical",
+        "options": [
+          {
+            "value": 2,
+            "label": "As often as wants to",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Not as often as wants to",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 8,
+        "loinc_code": null,
+        "text": "Do you feel lonely?",
+        "response_type": "categorical",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not lonely",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Lonely sometimes",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Lonely often",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 9,
+        "loinc_code": null,
+        "text": "Social Resources Rating (interviewer rating)",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Excellent social resources",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Good social resources",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Mildly socially impaired",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Moderately socially impaired",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severely socially impaired",
+            "loinc_la": null
+          },
+          {
+            "value": 6,
+            "label": "Totally socially impaired",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 10,
+        "loinc_code": null,
+        "text": "Are your assets and financial resources sufficient to meet emergencies?",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 11,
+        "loinc_code": null,
+        "text": "Are your expenses so heavy that you cannot meet the payments, or can you barely meet the payments, or are your payments no problem?",
+        "response_type": "categorical",
+        "options": [
+          {
+            "value": 0,
+            "label": "Cannot meet payments",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Can barely meet payments",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Payments are no problem",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 12,
+        "loinc_code": null,
+        "text": "Is your income from your and your family's sources enough to meet your needs?",
+        "response_type": "categorical",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not enough",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Just enough",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "More than enough",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 13,
+        "loinc_code": null,
+        "text": "Do you own your own home?",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 14,
+        "loinc_code": null,
+        "text": "Are you covered by any kind of health or medical insurance?",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 15,
+        "loinc_code": null,
+        "text": "Do you believe you will have enough for the future?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not at all / Poor",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Somewhat / Fair",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Well / Good",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Very well / Excellent",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 16,
+        "loinc_code": null,
+        "text": "What is the source of your income?",
+        "response_type": "categorical",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not at all / Poor",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Somewhat / Fair",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Well / Good",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Very well / Excellent",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 17,
+        "loinc_code": null,
+        "text": "How well does the amount of money you have take care of your needs?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not at all / Poor",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Somewhat / Fair",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Well / Good",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Very well / Excellent",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 18,
+        "loinc_code": null,
+        "text": "Do you usually have enough to buy small luxuries?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not at all / Poor",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Somewhat / Fair",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Well / Good",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Very well / Excellent",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 19,
+        "loinc_code": null,
+        "text": "Are you able to pay your bills?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not at all / Poor",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Somewhat / Fair",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Well / Good",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Very well / Excellent",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 20,
+        "loinc_code": null,
+        "text": "How would you rate your financial situation compared to others your age?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not at all / Poor",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Somewhat / Fair",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Well / Good",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Very well / Excellent",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 21,
+        "loinc_code": null,
+        "text": "Economic Resources Rating (interviewer rating)",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Excellent economic resources",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Good economic resources",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Mildly economically impaired",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Moderately economically impaired",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severely economically impaired",
+            "loinc_la": null
+          },
+          {
+            "value": 6,
+            "label": "Totally economically impaired",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 22,
+        "loinc_code": null,
+        "text": "Annual income range",
+        "response_type": "categorical",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not at all / Poor",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Somewhat / Fair",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Well / Good",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Very well / Excellent",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 23,
+        "loinc_code": null,
+        "text": "Income sources (check all that apply)",
+        "response_type": "categorical",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not at all / Poor",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Somewhat / Fair",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Well / Good",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Very well / Excellent",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 24,
+        "loinc_code": null,
+        "text": "Assets and savings adequacy",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not at all / Poor",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Somewhat / Fair",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Well / Good",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Very well / Excellent",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 25,
+        "loinc_code": null,
+        "text": "Is your daily life full of things that keep you interested?",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 26,
+        "loinc_code": null,
+        "text": "Have you, at times, very much wanted to leave home?",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 27,
+        "loinc_code": null,
+        "text": "Does it seem that no one understands you?",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 28,
+        "loinc_code": null,
+        "text": "Are you happy most of the time?",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 29,
+        "loinc_code": null,
+        "text": "Do you feel weak all over much of the time?",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 30,
+        "loinc_code": null,
+        "text": "Is your head clear?",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 31,
+        "loinc_code": null,
+        "text": "Do you feel there are problems with your memory?",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 32,
+        "loinc_code": null,
+        "text": "Do you find it hard to make decisions?",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 33,
+        "loinc_code": null,
+        "text": "Do you feel you are as useful and needed as you used to be?",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 34,
+        "loinc_code": null,
+        "text": "Are you worried about things?",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 35,
+        "loinc_code": null,
+        "text": "Do you have trouble sleeping or do you sleep too much?",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 36,
+        "loinc_code": null,
+        "text": "Are you comfortable meeting people?",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 37,
+        "loinc_code": null,
+        "text": "Do you often feel that life is not worth living?",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 38,
+        "loinc_code": null,
+        "text": "Do you have crying spells or feel like it?",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 39,
+        "loinc_code": null,
+        "text": "Do you feel that people are watching you and talking about you?",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 40,
+        "loinc_code": null,
+        "text": "Do you have strange and peculiar thoughts?",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 41,
+        "loinc_code": null,
+        "text": "Do you hear voices without knowing where they come from?",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 42,
+        "loinc_code": null,
+        "text": "Have you ever been treated for a mental or emotional problem?",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 43,
+        "loinc_code": null,
+        "text": "Mental Health Rating (interviewer rating)",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Excellent mental health",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Good mental health",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Mildly mentally impaired",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Moderately mentally impaired",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severely mentally impaired",
+            "loinc_la": null
+          },
+          {
+            "value": 6,
+            "label": "Completely mentally impaired",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 44,
+        "loinc_code": null,
+        "text": "Do you have any physical disabilities or health problems?",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 45,
+        "loinc_code": null,
+        "text": "Do your health problems stand in the way of your doing the things you want to do?",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 46,
+        "loinc_code": null,
+        "text": "Do you think your health is better, about the same, or worse than most people your age?",
+        "response_type": "categorical",
+        "options": [
+          {
+            "value": 2,
+            "label": "Better",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "About the same",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "Worse",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 47,
+        "loinc_code": null,
+        "text": "How is your eyesight (with glasses)?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 3,
+            "label": "Good",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Fair",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Poor",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "Totally impaired",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 48,
+        "loinc_code": null,
+        "text": "How is your hearing (with hearing aid)?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 3,
+            "label": "Good",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Fair",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Poor",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "Totally impaired",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 49,
+        "loinc_code": null,
+        "text": "Have you had a health check-up in the past year?",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 50,
+        "loinc_code": null,
+        "text": "Are you presently taking any prescription drugs?",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 51,
+        "loinc_code": null,
+        "text": "How many days in the past month have you been so sick that you were unable to carry on your usual activities?",
+        "response_type": "numeric",
+        "options": []
+      },
+      {
+        "item_number": 52,
+        "loinc_code": null,
+        "text": "Have you been hospitalized in the past 6 months?",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 53,
+        "loinc_code": null,
+        "text": "How would you rate your overall health at the present time?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 3,
+            "label": "Excellent",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Good",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Fair",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "Poor",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 54,
+        "loinc_code": null,
+        "text": "Do you have arthritis or rheumatism?",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 55,
+        "loinc_code": null,
+        "text": "Do you have glaucoma?",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 56,
+        "loinc_code": null,
+        "text": "Do you have emphysema or chronic bronchitis?",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 57,
+        "loinc_code": null,
+        "text": "Do you have high blood pressure?",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 58,
+        "loinc_code": null,
+        "text": "Do you have heart trouble?",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 59,
+        "loinc_code": null,
+        "text": "Do you have circulation trouble in your arms or legs?",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 60,
+        "loinc_code": null,
+        "text": "Do you have diabetes?",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 61,
+        "loinc_code": null,
+        "text": "Do you have cancer or a malignant tumor (not skin cancer)?",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 62,
+        "loinc_code": null,
+        "text": "Physical Health Rating (interviewer rating)",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Excellent physical health",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Good physical health",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Mildly physically impaired",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Moderately physically impaired",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severely physically impaired",
+            "loinc_la": null
+          },
+          {
+            "value": 6,
+            "label": "Totally physically impaired",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 63,
+        "loinc_code": null,
+        "text": "Can you use the telephone?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 2,
+            "label": "Without help",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "With some help",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "Completely unable",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 64,
+        "loinc_code": null,
+        "text": "Can you get to places out of walking distance?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 2,
+            "label": "Without help",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "With some help",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "Completely unable",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 65,
+        "loinc_code": null,
+        "text": "Can you go shopping for groceries or clothes?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 2,
+            "label": "Without help",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "With some help",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "Completely unable",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 66,
+        "loinc_code": null,
+        "text": "Can you prepare your own meals?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 2,
+            "label": "Without help",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "With some help",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "Completely unable",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 67,
+        "loinc_code": null,
+        "text": "Can you do your housework?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 2,
+            "label": "Without help",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "With some help",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "Completely unable",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 68,
+        "loinc_code": null,
+        "text": "Can you take your own medicine?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 2,
+            "label": "Without help",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "With some help",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "Completely unable",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 69,
+        "loinc_code": null,
+        "text": "Can you handle your own money?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 2,
+            "label": "Without help",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "With some help",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "Completely unable",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 70,
+        "loinc_code": null,
+        "text": "Can you eat?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 2,
+            "label": "Without help",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "With some help",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "Completely unable",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 71,
+        "loinc_code": null,
+        "text": "Can you dress and undress yourself?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 2,
+            "label": "Without help",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "With some help",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "Completely unable",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 72,
+        "loinc_code": null,
+        "text": "Can you take care of your own appearance?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 2,
+            "label": "Without help",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "With some help",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "Completely unable",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 73,
+        "loinc_code": null,
+        "text": "Can you walk?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 2,
+            "label": "Without help",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "With some help",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "Completely unable",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 74,
+        "loinc_code": null,
+        "text": "Can you get in and out of bed?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 2,
+            "label": "Without help",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "With some help",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "Completely unable",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 75,
+        "loinc_code": null,
+        "text": "Can you take a bath or shower?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 2,
+            "label": "Without help",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "With some help",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "Completely unable",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 76,
+        "loinc_code": null,
+        "text": "Do you ever have trouble getting to the bathroom on time?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 2,
+            "label": "Without help",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "With some help",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "Completely unable",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 77,
+        "loinc_code": null,
+        "text": "Can you do heavy work around the house?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 2,
+            "label": "Without help",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "With some help",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "Completely unable",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 78,
+        "loinc_code": null,
+        "text": "Can you do light work around the house?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 2,
+            "label": "Without help",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "With some help",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "Completely unable",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 79,
+        "loinc_code": null,
+        "text": "Can you climb stairs?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 2,
+            "label": "Without help",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "With some help",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "Completely unable",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 80,
+        "loinc_code": null,
+        "text": "Can you walk half a mile?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 2,
+            "label": "Without help",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "With some help",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "Completely unable",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 81,
+        "loinc_code": null,
+        "text": "Can you lift or carry 25 pounds?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 2,
+            "label": "Without help",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "With some help",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "Completely unable",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 82,
+        "loinc_code": null,
+        "text": "Can you stoop, crouch, or kneel?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 2,
+            "label": "Without help",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "With some help",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "Completely unable",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 83,
+        "loinc_code": null,
+        "text": "Can you reach or extend your arms above your shoulder?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 2,
+            "label": "Without help",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "With some help",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "Completely unable",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 84,
+        "loinc_code": null,
+        "text": "Can you write, or handle small objects?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 2,
+            "label": "Without help",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "With some help",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "Completely unable",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 85,
+        "loinc_code": null,
+        "text": "Can you stand for long periods?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 2,
+            "label": "Without help",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "With some help",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "Completely unable",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 86,
+        "loinc_code": null,
+        "text": "Can you sit for long periods?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 2,
+            "label": "Without help",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "With some help",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "Completely unable",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 87,
+        "loinc_code": null,
+        "text": "How many hours per day are you confined to bed?",
+        "response_type": "numeric",
+        "options": []
+      },
+      {
+        "item_number": 88,
+        "loinc_code": null,
+        "text": "Do you need help with daily activities?",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 89,
+        "loinc_code": null,
+        "text": "Is someone available to help you if you need it?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 2,
+            "label": "Without help",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "With some help",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "Completely unable",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 90,
+        "loinc_code": null,
+        "text": "Who helps you when you need assistance?",
+        "response_type": "categorical",
+        "options": [
+          {
+            "value": 1,
+            "label": "Spouse",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Child or grandchild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Other relative",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Friend or neighbor",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Paid helper",
+            "loinc_la": null
+          },
+          {
+            "value": 6,
+            "label": "No one",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 91,
+        "loinc_code": null,
+        "text": "How satisfied are you with the help you receive?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 2,
+            "label": "Without help",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "With some help",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "Completely unable",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 92,
+        "loinc_code": null,
+        "text": "Do you use any mobility aids (cane, walker, wheelchair)?",
+        "response_type": "categorical",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Cane",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Walker",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Wheelchair",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Other",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 93,
+        "loinc_code": null,
+        "text": "Have you fallen in the past year?",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 94,
+        "loinc_code": null,
+        "text": "Do you have any problems with incontinence?",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 95,
+        "loinc_code": null,
+        "text": "How many prescription medications are you currently taking?",
+        "response_type": "numeric",
+        "options": []
+      },
+      {
+        "item_number": 96,
+        "loinc_code": null,
+        "text": "Do you follow a special diet?",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 97,
+        "loinc_code": null,
+        "text": "Do you exercise regularly?",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 98,
+        "loinc_code": null,
+        "text": "How would you rate your ability to care for yourself?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 3,
+            "label": "Excellent",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Good",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Fair",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "Poor",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 99,
+        "loinc_code": null,
+        "text": "Do you have someone who checks on you daily?",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 100,
+        "loinc_code": null,
+        "text": "ADL Rating (interviewer rating)",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Excellent ADL capacity",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Good ADL capacity",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Mildly impaired",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Moderately impaired",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severely impaired",
+            "loinc_la": null
+          },
+          {
+            "value": 6,
+            "label": "Totally impaired",
+            "loinc_la": null
+          }
+        ]
+      }
+    ],
     "has_snomed": false
   },
   {
@@ -18623,7 +20851,350 @@
     "license_detail": "World Health Organization (2008). Freely available at who.int/patientsafety.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": [],
+    "items": [
+      {
+        "item_number": 1,
+        "loinc_code": null,
+        "text": "Has the patient confirmed his/her identity, site, procedure, and consent?",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not confirmed",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Confirmed",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 2,
+        "loinc_code": null,
+        "text": "Is the site marked?",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not confirmed",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Confirmed",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 3,
+        "loinc_code": null,
+        "text": "Is the anesthesia machine and medication check complete?",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not confirmed",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Confirmed",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 4,
+        "loinc_code": null,
+        "text": "Is the pulse oximeter on the patient and functioning?",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not confirmed",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Confirmed",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 5,
+        "loinc_code": null,
+        "text": "Does the patient have a known allergy?",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not confirmed",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Confirmed",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 6,
+        "loinc_code": null,
+        "text": "Difficult airway or aspiration risk? (Equipment/assistance available)",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not confirmed",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Confirmed",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 7,
+        "loinc_code": null,
+        "text": "Risk of >500ml blood loss (7ml/kg in children)? (Two IVs/central access and fluids planned)",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not confirmed",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Confirmed",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 8,
+        "loinc_code": null,
+        "text": "Confirm all team members have introduced themselves by name and role",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not confirmed",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Confirmed",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 9,
+        "loinc_code": null,
+        "text": "Confirm the patient's name, procedure, and where the incision will be made",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not confirmed",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Confirmed",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 10,
+        "loinc_code": null,
+        "text": "Has antibiotic prophylaxis been given within the last 60 minutes?",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not confirmed",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Confirmed",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 11,
+        "loinc_code": null,
+        "text": "Anticipated critical events: What are the critical or non-routine steps? (Surgeon)",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not confirmed",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Confirmed",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 12,
+        "loinc_code": null,
+        "text": "Anticipated critical events: Are there any patient-specific concerns? (Anesthesia)",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not confirmed",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Confirmed",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 13,
+        "loinc_code": null,
+        "text": "Anticipated critical events: Has sterility been confirmed? Are there equipment issues or concerns? (Nursing)",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not confirmed",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Confirmed",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 14,
+        "loinc_code": null,
+        "text": "Is essential imaging displayed?",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not confirmed",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Confirmed",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 15,
+        "loinc_code": null,
+        "text": "Nurse verbally confirms: The name of the procedure",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not confirmed",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Confirmed",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 16,
+        "loinc_code": null,
+        "text": "Completion of instrument, sponge, and needle counts",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not confirmed",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Confirmed",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 17,
+        "loinc_code": null,
+        "text": "Specimen labeling (read specimen labels aloud, including patient name)",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not confirmed",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Confirmed",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 18,
+        "loinc_code": null,
+        "text": "Are there any equipment problems to be addressed?",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not confirmed",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Confirmed",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 19,
+        "loinc_code": null,
+        "text": "What are the key concerns for recovery and management of this patient?",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not confirmed",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Confirmed",
+            "loinc_la": null
+          }
+        ]
+      }
+    ],
     "has_snomed": false
   },
   {
@@ -23919,7 +26490,883 @@
     "license_detail": "National Eye Institute (NEI). Public domain. Available at nei.nih.gov.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": [],
+    "items": [
+      {
+        "item_number": 1,
+        "loinc_code": null,
+        "text": "In general, would you say your overall health is:",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Excellent",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Very good",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Good",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Fair",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Poor",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 2,
+        "loinc_code": null,
+        "text": "At the present time, would you say your eyesight using both eyes (with glasses or contact lenses, if you wear them) is:",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Excellent",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Good",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Fair",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Poor",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Very poor",
+            "loinc_la": null
+          },
+          {
+            "value": 6,
+            "label": "Completely blind",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 3,
+        "loinc_code": null,
+        "text": "How much of the time do you worry about your eyesight?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "None of the time",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "A little of the time",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Some of the time",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Most of the time",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "All of the time",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 4,
+        "loinc_code": null,
+        "text": "How much pain or discomfort have you had in and around your eyes (for example, burning, itching, or aching)?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Severe",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Very severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 5,
+        "loinc_code": null,
+        "text": "How much difficulty do you have reading ordinary print in newspapers?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "No difficulty at all",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "A little difficulty",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate difficulty",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Extreme difficulty",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Stopped doing this because of your eyesight",
+            "loinc_la": null
+          },
+          {
+            "value": 6,
+            "label": "Stopped doing this for other reasons or not interested",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 6,
+        "loinc_code": null,
+        "text": "How much difficulty do you have doing work or hobbies that require you to see well up close, such as cooking, sewing, fixing things around the house, or using hand tools?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "No difficulty at all",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "A little difficulty",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate difficulty",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Extreme difficulty",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Stopped doing this because of your eyesight",
+            "loinc_la": null
+          },
+          {
+            "value": 6,
+            "label": "Stopped doing this for other reasons or not interested",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 7,
+        "loinc_code": null,
+        "text": "Because of your eyesight, how much difficulty do you have finding something on a crowded shelf?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "No difficulty at all",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "A little difficulty",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate difficulty",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Extreme difficulty",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Stopped doing this because of your eyesight",
+            "loinc_la": null
+          },
+          {
+            "value": 6,
+            "label": "Stopped doing this for other reasons or not interested",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 8,
+        "loinc_code": null,
+        "text": "How much difficulty do you have reading street signs or the names of stores?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "No difficulty at all",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "A little difficulty",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate difficulty",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Extreme difficulty",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Stopped doing this because of your eyesight",
+            "loinc_la": null
+          },
+          {
+            "value": 6,
+            "label": "Stopped doing this for other reasons or not interested",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 9,
+        "loinc_code": null,
+        "text": "Because of your eyesight, how much difficulty do you have going down steps, stairs, or curbs in dim light or at night?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "No difficulty at all",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "A little difficulty",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate difficulty",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Extreme difficulty",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Stopped doing this because of your eyesight",
+            "loinc_la": null
+          },
+          {
+            "value": 6,
+            "label": "Stopped doing this for other reasons or not interested",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 10,
+        "loinc_code": null,
+        "text": "Because of your eyesight, how much difficulty do you have noticing objects off to the side while you are walking along?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "No difficulty at all",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "A little difficulty",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate difficulty",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Extreme difficulty",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Stopped doing this because of your eyesight",
+            "loinc_la": null
+          },
+          {
+            "value": 6,
+            "label": "Stopped doing this for other reasons or not interested",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 11,
+        "loinc_code": null,
+        "text": "Because of your eyesight, how much difficulty do you have seeing how people react to things you say?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "No difficulty at all",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "A little difficulty",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate difficulty",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Extreme difficulty",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Stopped doing this because of your eyesight",
+            "loinc_la": null
+          },
+          {
+            "value": 6,
+            "label": "Stopped doing this for other reasons or not interested",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 12,
+        "loinc_code": null,
+        "text": "Because of your eyesight, how much difficulty do you have picking out and matching your own clothes?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "No difficulty at all",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "A little difficulty",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate difficulty",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Extreme difficulty",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Stopped doing this because of your eyesight",
+            "loinc_la": null
+          },
+          {
+            "value": 6,
+            "label": "Stopped doing this for other reasons or not interested",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 13,
+        "loinc_code": null,
+        "text": "Because of your eyesight, how much difficulty do you have visiting with people in their homes, at parties, or in restaurants?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "No difficulty at all",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "A little difficulty",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate difficulty",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Extreme difficulty",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Stopped doing this because of your eyesight",
+            "loinc_la": null
+          },
+          {
+            "value": 6,
+            "label": "Stopped doing this for other reasons or not interested",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 14,
+        "loinc_code": null,
+        "text": "Because of your eyesight, how much difficulty do you have going out to see movies, plays, or sports events?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "No difficulty at all",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "A little difficulty",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate difficulty",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Extreme difficulty",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Stopped doing this because of your eyesight",
+            "loinc_la": null
+          },
+          {
+            "value": 6,
+            "label": "Stopped doing this for other reasons or not interested",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 15,
+        "loinc_code": null,
+        "text": "Are you currently driving, at least once in a while?",
+        "response_type": "categorical",
+        "options": [
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          },
+          {
+            "value": 0,
+            "label": "No, I never drove or gave up driving",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "No, I gave up driving because of my eyesight",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "No, I gave up driving for other reasons",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 16,
+        "loinc_code": null,
+        "text": "How much difficulty do you have driving during the daytime in familiar places?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "No difficulty at all",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "A little difficulty",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate difficulty",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Extreme difficulty",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Stopped doing this because of your eyesight",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 17,
+        "loinc_code": null,
+        "text": "Do you accomplish less than you would like because of your vision?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Definitely true",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mostly true",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Not sure",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Mostly false",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Definitely false",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 18,
+        "loinc_code": null,
+        "text": "Are you limited in how long you can work or do other activities because of your vision?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Definitely true",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mostly true",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Not sure",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Mostly false",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Definitely false",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 19,
+        "loinc_code": null,
+        "text": "How much does pain or discomfort in or around your eyes, for example burning, itching, or aching, keep you from doing what you'd like to be doing?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "None of the time",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "A little of the time",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Some of the time",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Most of the time",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "All of the time",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 20,
+        "loinc_code": null,
+        "text": "I stay home most of the time because of my eyesight",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Definitely true",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mostly true",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Not sure",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Mostly false",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Definitely false",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 21,
+        "loinc_code": null,
+        "text": "I feel frustrated a lot of the time because of my eyesight",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Definitely true",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mostly true",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Not sure",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Mostly false",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Definitely false",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 22,
+        "loinc_code": null,
+        "text": "I have much less control over what I do, because of my eyesight",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Definitely true",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mostly true",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Not sure",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Mostly false",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Definitely false",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 23,
+        "loinc_code": null,
+        "text": "Because of my eyesight, I have to rely too much on what other people tell me",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Definitely true",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mostly true",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Not sure",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Mostly false",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Definitely false",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 24,
+        "loinc_code": null,
+        "text": "I need a lot of help from others because of my eyesight",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Definitely true",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mostly true",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Not sure",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Mostly false",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Definitely false",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 25,
+        "loinc_code": null,
+        "text": "I worry about doing things that will embarrass myself or others, because of my eyesight",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Definitely true",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mostly true",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Not sure",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Mostly false",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Definitely false",
+            "loinc_la": null
+          }
+        ]
+      }
+    ],
     "has_snomed": false
   },
   {
@@ -23948,7 +27395,433 @@
     "license_detail": "Leckman et al. (1989). Yale University. Free for clinical and research use.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": [],
+    "items": [
+      {
+        "item_number": 1,
+        "loinc_code": null,
+        "text": "Motor tic — Number: How many discrete motor tics?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Minimal",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 2,
+        "loinc_code": null,
+        "text": "Motor tic — Frequency: How frequently do motor tics occur?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Minimal",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 3,
+        "loinc_code": null,
+        "text": "Motor tic — Intensity: How forceful or noticeable are motor tics?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Minimal",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 4,
+        "loinc_code": null,
+        "text": "Motor tic — Complexity: How complex are motor tics?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Minimal",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 5,
+        "loinc_code": null,
+        "text": "Motor tic — Interference: How much do motor tics interfere with daily activities?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Minimal",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 6,
+        "loinc_code": null,
+        "text": "Phonic tic — Number: How many discrete phonic tics?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Minimal",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 7,
+        "loinc_code": null,
+        "text": "Phonic tic — Frequency: How frequently do phonic tics occur?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Minimal",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 8,
+        "loinc_code": null,
+        "text": "Phonic tic — Intensity: How loud or noticeable are phonic tics?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Minimal",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 9,
+        "loinc_code": null,
+        "text": "Phonic tic — Complexity: How complex are phonic tics?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Minimal",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 10,
+        "loinc_code": null,
+        "text": "Phonic tic — Interference: How much do phonic tics interfere with daily activities?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Minimal",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 11,
+        "loinc_code": null,
+        "text": "Overall impairment rating: How much do tics impair overall functioning?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 10,
+            "label": "Minimal",
+            "loinc_la": null
+          },
+          {
+            "value": 20,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 30,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 40,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 50,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 12,
+        "loinc_code": null,
+        "text": "Global severity score (Total Motor + Total Phonic + Impairment)",
+        "response_type": "numeric",
+        "options": []
+      }
+    ],
     "has_snomed": false
   },
   {
@@ -24001,7 +27874,908 @@
     "license_detail": "Public Domain — Pfizer Inc. PHQ instruments released into the public domain.",
     "is_public_domain": true,
     "omop_coverage": "partial",
-    "items": [],
+    "items": [
+      {
+        "item_number": 1,
+        "loinc_code": null,
+        "text": "During the last 4 weeks, how much have you been bothered by: Stomach pain",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not bothered at all",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Bothered a little",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Bothered a lot",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 2,
+        "loinc_code": null,
+        "text": "During the last 4 weeks, how much have you been bothered by: Back pain",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not bothered at all",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Bothered a little",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Bothered a lot",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 3,
+        "loinc_code": null,
+        "text": "During the last 4 weeks, how much have you been bothered by: Pain in your arms, legs, or joints (knees, hips, etc.)",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not bothered at all",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Bothered a little",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Bothered a lot",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 4,
+        "loinc_code": null,
+        "text": "During the last 4 weeks, how much have you been bothered by: Menstrual cramps or other problems with your periods (women only)",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not bothered at all",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Bothered a little",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Bothered a lot",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 5,
+        "loinc_code": null,
+        "text": "During the last 4 weeks, how much have you been bothered by: Headaches",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not bothered at all",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Bothered a little",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Bothered a lot",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 6,
+        "loinc_code": null,
+        "text": "During the last 4 weeks, how much have you been bothered by: Chest pain",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not bothered at all",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Bothered a little",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Bothered a lot",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 7,
+        "loinc_code": null,
+        "text": "During the last 4 weeks, how much have you been bothered by: Dizziness",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not bothered at all",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Bothered a little",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Bothered a lot",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 8,
+        "loinc_code": null,
+        "text": "During the last 4 weeks, how much have you been bothered by: Fainting spells",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not bothered at all",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Bothered a little",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Bothered a lot",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 9,
+        "loinc_code": null,
+        "text": "During the last 4 weeks, how much have you been bothered by: Feeling your heart pound or race",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not bothered at all",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Bothered a little",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Bothered a lot",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 10,
+        "loinc_code": null,
+        "text": "During the last 4 weeks, how much have you been bothered by: Shortness of breath",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not bothered at all",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Bothered a little",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Bothered a lot",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 11,
+        "loinc_code": null,
+        "text": "During the last 4 weeks, how much have you been bothered by: Pain or problems during sexual intercourse",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not bothered at all",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Bothered a little",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Bothered a lot",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 12,
+        "loinc_code": null,
+        "text": "During the last 4 weeks, how much have you been bothered by: Constipation, loose bowels, or diarrhea",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not bothered at all",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Bothered a little",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Bothered a lot",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 13,
+        "loinc_code": null,
+        "text": "During the last 4 weeks, how much have you been bothered by: Nausea, gas, or indigestion",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not bothered at all",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Bothered a little",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Bothered a lot",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 14,
+        "loinc_code": null,
+        "text": "During the last 4 weeks, how much have you been bothered by: Feeling tired or having low energy",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not bothered at all",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Bothered a little",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Bothered a lot",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 15,
+        "loinc_code": null,
+        "text": "During the last 4 weeks, how much have you been bothered by: Trouble sleeping",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not bothered at all",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Bothered a little",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Bothered a lot",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 16,
+        "loinc_code": null,
+        "text": "Over the last 2 weeks, how often have you been bothered by: Feeling nervous, anxious, or on edge",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not at all",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Several days",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "More than half the days",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Nearly every day",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 17,
+        "loinc_code": null,
+        "text": "Over the last 2 weeks, how often have you been bothered by: Not being able to stop or control worrying",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not at all",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Several days",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "More than half the days",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Nearly every day",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 18,
+        "loinc_code": null,
+        "text": "Over the last 2 weeks, how often have you been bothered by: Worrying too much about different things",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not at all",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Several days",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "More than half the days",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Nearly every day",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 19,
+        "loinc_code": null,
+        "text": "Over the last 2 weeks, how often have you been bothered by: Trouble relaxing",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not at all",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Several days",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "More than half the days",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Nearly every day",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 20,
+        "loinc_code": null,
+        "text": "Over the last 2 weeks, how often have you been bothered by: Being so restless that it is hard to sit still",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not at all",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Several days",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "More than half the days",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Nearly every day",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 21,
+        "loinc_code": null,
+        "text": "Over the last 2 weeks, how often have you been bothered by: Becoming easily annoyed or irritable",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not at all",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Several days",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "More than half the days",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Nearly every day",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 22,
+        "loinc_code": null,
+        "text": "Over the last 2 weeks, how often have you been bothered by: Feeling afraid as if something awful might happen",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not at all",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Several days",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "More than half the days",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Nearly every day",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 23,
+        "loinc_code": null,
+        "text": "Over the last 2 weeks, how often have you been bothered by: Little interest or pleasure in doing things",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not at all",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Several days",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "More than half the days",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Nearly every day",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 24,
+        "loinc_code": null,
+        "text": "Over the last 2 weeks, how often have you been bothered by: Feeling down, depressed, or hopeless",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not at all",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Several days",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "More than half the days",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Nearly every day",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 25,
+        "loinc_code": null,
+        "text": "Over the last 2 weeks, how often have you been bothered by: Trouble falling or staying asleep, or sleeping too much",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not at all",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Several days",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "More than half the days",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Nearly every day",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 26,
+        "loinc_code": null,
+        "text": "Over the last 2 weeks, how often have you been bothered by: Feeling tired or having little energy",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not at all",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Several days",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "More than half the days",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Nearly every day",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 27,
+        "loinc_code": null,
+        "text": "Over the last 2 weeks, how often have you been bothered by: Poor appetite or overeating",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not at all",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Several days",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "More than half the days",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Nearly every day",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 28,
+        "loinc_code": null,
+        "text": "Over the last 2 weeks, how often have you been bothered by: Feeling bad about yourself — or that you are a failure or have let yourself or your family down",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not at all",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Several days",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "More than half the days",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Nearly every day",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 29,
+        "loinc_code": null,
+        "text": "Over the last 2 weeks, how often have you been bothered by: Trouble concentrating on things, such as reading the newspaper or watching television",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not at all",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Several days",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "More than half the days",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Nearly every day",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 30,
+        "loinc_code": null,
+        "text": "Over the last 2 weeks, how often have you been bothered by: Moving or speaking so slowly that other people could have noticed. Or the opposite — being so fidgety or restless that you have been moving around a lot more than usual",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not at all",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Several days",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "More than half the days",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Nearly every day",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 31,
+        "loinc_code": null,
+        "text": "Over the last 2 weeks, how often have you been bothered by: Thoughts that you would be better off dead, or of hurting yourself in some way",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not at all",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Several days",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "More than half the days",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Nearly every day",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 32,
+        "loinc_code": null,
+        "text": "If you checked off any problems on this questionnaire, how difficult have these problems made it for you to do your work, take care of things at home, or get along with other people?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not difficult at all",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Somewhat difficult",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Very difficult",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Extremely difficult",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 33,
+        "loinc_code": null,
+        "text": "In the last 4 weeks, how much have your physical symptoms bothered you overall?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not bothered at all",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Bothered a little",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Bothered a lot",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 34,
+        "loinc_code": null,
+        "text": "In the last 4 weeks, how much have your anxiety symptoms bothered you overall?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not at all",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Several days",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "More than half the days",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Nearly every day",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 35,
+        "loinc_code": null,
+        "text": "In the last 4 weeks, how much have your depressive symptoms bothered you overall?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not at all",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Several days",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "More than half the days",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Nearly every day",
+            "loinc_la": null
+          }
+        ]
+      }
+    ],
     "has_snomed": false
   },
   {
@@ -24025,7 +28799,206 @@
     "license_detail": "Public domain. Referenced in LOINC panel 72355-1.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": [],
+    "items": [
+      {
+        "item_number": 1,
+        "loinc_code": null,
+        "text": "How would you rate your overall quality of life?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Very poor",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Poor",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Neither poor nor good",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Good",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Very good",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 2,
+        "loinc_code": null,
+        "text": "How would you rate your physical health?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Very poor",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Poor",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Fair",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Good",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Excellent",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 3,
+        "loinc_code": null,
+        "text": "How would you rate your mental/emotional health?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Very poor",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Poor",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Fair",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Good",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Excellent",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 4,
+        "loinc_code": null,
+        "text": "How satisfied are you with your social relationships?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Very dissatisfied",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Dissatisfied",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Neither satisfied nor dissatisfied",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Satisfied",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Very satisfied",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 5,
+        "loinc_code": null,
+        "text": "How satisfied are you with your ability to perform daily activities?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Very dissatisfied",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Dissatisfied",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Neither satisfied nor dissatisfied",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Satisfied",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Very satisfied",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 6,
+        "loinc_code": null,
+        "text": "How would you rate your overall well-being?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Very poor",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Poor",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Fair",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Good",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Excellent",
+            "loinc_la": null
+          }
+        ]
+      }
+    ],
     "has_snomed": false
   }
 ]
