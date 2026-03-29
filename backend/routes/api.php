@@ -95,6 +95,7 @@ use App\Http\Controllers\Api\V1\PatientProfileController;
 use App\Http\Controllers\Api\V1\PhenotypeLibraryController;
 use App\Http\Controllers\Api\V1\PopulationCharacterizationController;
 use App\Http\Controllers\Api\V1\PopulationRiskScoreController;
+use App\Http\Controllers\Api\V1\PoseidonController;
 use App\Http\Controllers\Api\V1\PredictionController;
 use App\Http\Controllers\Api\V1\PublicationController;
 use App\Http\Controllers\Api\V1\QueryLibraryController;
@@ -142,6 +143,10 @@ Route::prefix('v1')->group(function () {
 
     // §9.2 — Public shared cohort link (no auth required)
     Route::get('/cohort-definitions/shared/{token}', [CohortDefinitionController::class, 'showShared']);
+
+    // Poseidon webhook (Dagster → Laravel, secret-authenticated, no Sanctum)
+    Route::post('/poseidon/webhooks/run-status', [PoseidonController::class, 'webhook'])
+        ->middleware('throttle:60,1');
 
     // Protected routes
     Route::middleware(['auth:sanctum', 'source.resolve'])->group(function () {
@@ -261,6 +266,32 @@ Route::prefix('v1')->group(function () {
             Route::post('/{project}/stage-db', [IngestionProjectController::class, 'stageDb'])
                 ->middleware(['permission:ingestion.upload', 'throttle:5,10'])
                 ->where('project', '[0-9]+');
+        });
+
+        // Poseidon (dbt + Dagster CDM Orchestration)
+        Route::prefix('poseidon')->group(function () {
+            Route::get('/dashboard', [PoseidonController::class, 'dashboard'])
+                ->middleware('permission:ingestion.view');
+            Route::get('/schedules', [PoseidonController::class, 'schedules'])
+                ->middleware('permission:ingestion.view');
+            Route::post('/schedules', [PoseidonController::class, 'storeSchedule'])
+                ->middleware('permission:ingestion.run');
+            Route::put('/schedules/{schedule}', [PoseidonController::class, 'updateSchedule'])
+                ->middleware('permission:ingestion.run');
+            Route::delete('/schedules/{schedule}', [PoseidonController::class, 'destroySchedule'])
+                ->middleware('permission:ingestion.run');
+            Route::get('/runs', [PoseidonController::class, 'runs'])
+                ->middleware('permission:ingestion.view');
+            Route::get('/runs/{run}', [PoseidonController::class, 'showRun'])
+                ->middleware('permission:ingestion.view');
+            Route::post('/runs/trigger', [PoseidonController::class, 'triggerRun'])
+                ->middleware('permission:ingestion.run');
+            Route::post('/runs/{run}/cancel', [PoseidonController::class, 'cancelRun'])
+                ->middleware('permission:ingestion.run');
+            Route::get('/freshness', [PoseidonController::class, 'freshness'])
+                ->middleware('permission:ingestion.view');
+            Route::get('/lineage', [PoseidonController::class, 'lineage'])
+                ->middleware('permission:ingestion.view');
         });
 
         // Achilles (Data Characterization)

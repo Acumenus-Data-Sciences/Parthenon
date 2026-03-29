@@ -102,6 +102,12 @@ return [
         'cache_ttl' => env('GWAS_CATALOG_CACHE_TTL', 86400),
     ],
 
+    // Poseidon: dbt + Dagster orchestration for CDM maintenance
+    'poseidon' => [
+        'port' => env('POSEIDON_PORT', 3100),
+        'webhook_secret' => env('POSEIDON_WEBHOOK_SECRET'),
+    ],
+
     // Arachne: OHDSI federated execution platform (Central + Data Nodes)
     'arachne' => [
         'url' => env('ARACHNE_URL', 'http://arachne-central:8080'),

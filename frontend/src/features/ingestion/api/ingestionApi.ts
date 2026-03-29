@@ -213,6 +213,9 @@ export interface IngestionProject {
   updated_at: string;
   jobs?: IngestionJob[];
   source?: { id: number; source_name: string };
+  fhir_connection_id?: number | null;
+  last_fhir_sync_status?: string | null;
+  last_fhir_sync_at?: string | null;
   db_connection_config?: {
     dbms: string;
     host: string;
@@ -223,6 +226,37 @@ export interface IngestionProject {
     schema: string;
   } | null;
   selected_tables?: string[] | null;
+}
+
+// ── FHIR Workspace Types ──────────────────────────────────────────
+
+export interface FhirProjectWorkspace {
+  project: IngestionProject;
+  fhir_connection: import("@/features/administration/api/adminApi").FhirConnection | null;
+  recent_runs: import("@/features/administration/api/adminApi").FhirSyncRun[];
+  available_connections: import("@/features/administration/api/adminApi").FhirConnection[];
+  last_sync_run: import("@/features/administration/api/adminApi").FhirSyncRun | null;
+}
+
+export async function fetchProjectFhirWorkspace(projectId: number): Promise<FhirProjectWorkspace> {
+  const { data } = await apiClient.get(`/ingestion-projects/${projectId}/fhir`);
+  return unwrap<FhirProjectWorkspace>(data);
+}
+
+export async function attachProjectFhirConnection(
+  projectId: number,
+  payload: { fhir_connection_id: number; fhir_sync_mode?: string },
+): Promise<IngestionProject> {
+  const { data } = await apiClient.post(`/ingestion-projects/${projectId}/fhir/attach-connection`, payload);
+  return unwrap<IngestionProject>(data);
+}
+
+export async function startProjectFhirSync(
+  projectId: number,
+  forceFull: boolean,
+): Promise<{ message: string; run_id?: number }> {
+  const { data } = await apiClient.post(`/ingestion-projects/${projectId}/fhir/sync`, { force_full: forceFull });
+  return unwrap(data);
 }
 
 export interface StagingPreviewResult {

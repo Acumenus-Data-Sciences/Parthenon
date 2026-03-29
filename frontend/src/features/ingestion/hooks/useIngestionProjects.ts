@@ -10,6 +10,9 @@ import {
   connectDatabase,
   confirmTables,
   stageDatabase,
+  fetchProjectFhirWorkspace,
+  attachProjectFhirConnection,
+  startProjectFhirSync,
   type DbConnectionConfig,
 } from "../api/ingestionApi";
 
@@ -103,6 +106,39 @@ export function useStageDatabase(projectId: number) {
     mutationFn: () => stageDatabase(projectId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["ingestion-project", projectId] });
+    },
+  });
+}
+
+// ── FHIR Workspace Hooks ──────────────────────────────────────────
+
+export function useProjectFhirWorkspace(projectId: number) {
+  return useQuery({
+    queryKey: ["fhir-workspace", projectId],
+    queryFn: () => fetchProjectFhirWorkspace(projectId),
+    enabled: projectId > 0,
+    refetchInterval: 10_000,
+  });
+}
+
+export function useAttachProjectFhirConnection(projectId: number) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: { fhir_connection_id: number; fhir_sync_mode?: string }) =>
+      attachProjectFhirConnection(projectId, payload),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["fhir-workspace", projectId] });
+      qc.invalidateQueries({ queryKey: ["ingestion-projects"] });
+    },
+  });
+}
+
+export function useStartProjectFhirSync(projectId: number) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (forceFull: boolean) => startProjectFhirSync(projectId, forceFull),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["fhir-workspace", projectId] });
     },
   });
 }

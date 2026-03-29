@@ -11,17 +11,21 @@ const SourceProfilerPage = lazy(
 const EtlToolsPage = lazy(
   () => import("@/features/etl/pages/EtlToolsPage"),
 );
-const FhirIngestionPage = lazy(
-  () => import("@/features/etl/pages/FhirIngestionPage"),
+const FhirProjectWorkspacePage = lazy(
+  () => import("./FhirProjectWorkspacePage"),
+);
+const PoseidonPage = lazy(
+  () => import("@/features/poseidon/pages/PoseidonPage"),
 );
 
-type TabId = "upload" | "profiler" | "aqueduct" | "fhir";
+type TabId = "upload" | "profiler" | "aqueduct" | "poseidon" | "fhir";
 
 const TABS: { id: TabId; label: string }[] = [
   { id: "upload", label: "Ingestion" },
   { id: "profiler", label: "Source Profiler" },
   { id: "aqueduct", label: "Aqueduct" },
-  { id: "fhir", label: "FHIR Ingestion" },
+  { id: "poseidon", label: "Poseidon" },
+  { id: "fhir", label: "Vulcan" },
 ];
 
 function TabFallback() {
@@ -94,7 +98,13 @@ export default function DataIngestionPage() {
         )}
         {activeTab === "profiler" && <SourceProfilerPage />}
         {activeTab === "aqueduct" && <EtlToolsPage />}
-        {activeTab === "fhir" && <FhirIngestionPage />}
+        {activeTab === "poseidon" && <PoseidonPage />}
+        {activeTab === "fhir" && (
+          <FhirProjectWorkspacePage
+            activeProjectId={activeProjectId}
+            onActiveProjectChange={setActiveProjectId}
+          />
+        )}
       </Suspense>
     </div>
   );
