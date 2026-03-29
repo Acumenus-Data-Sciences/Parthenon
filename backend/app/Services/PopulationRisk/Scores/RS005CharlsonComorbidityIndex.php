@@ -9,30 +9,31 @@ use App\Contracts\PopulationRiskScoreInterface;
  *
  * Weighted comorbidity score predicting 10-year mortality risk.
  * Uses the Quan 2005 SNOMED-adapted coding algorithm applied to OMOP
- * condition_occurrence. 10-year mortality approximation: e^(0.9 × CCI).
+ * condition_occurrence with concept_ancestor descendant lookups for
+ * hierarchical concept matching. 10-year mortality approximation: e^(0.9 × CCI).
  *
- * Weighted condition groups (OMOP standard SNOMED concept IDs):
+ * Weighted condition groups (OMOP ancestor concept IDs — descendants included via concept_ancestor):
  *
  * Weight 1:
- *   MI (Myocardial infarction)       : 312327
- *   CHF (Congestive heart failure)   : 316139
- *   PVD (Peripheral vascular disease): 4185932
- *   CVD (Cerebrovascular disease)    : 4043838
- *   Dementia                         : 372610
+ *   MI (Myocardial infarction)       : 4329847
+ *   CHF (Congestive heart failure)   : 319835
+ *   PVD (Peripheral vascular disease): 321052
+ *   CVD (Cerebrovascular disease)    : 381591
+ *   Dementia                         : 4182210
  *   COPD                             : 255573
  *   Rheumatic disease                : 80809
- *   Peptic ulcer disease             : 4209494
+ *   Peptic ulcer disease             : 4027663
  *   Mild liver disease (cirrhosis)   : 4064161
- *   Diabetes without CC              : 201826, 201254, 443238
+ *   Diabetes without CC              : 201820 (ancestor) minus 443238 descendants
  *
  * Weight 2:
- *   Diabetes with CC                 : 443239
- *   Hemiplegia / paraplegia          : 374022
- *   Renal disease                    : 443601
- *   Any malignancy (solid)           : 4178681
+ *   Diabetes with CC                 : 443238 (Diabetic complication)
+ *   Hemiplegia / paraplegia          : 374022 (Hemiplegia) + 192606 (Paraplegia)
+ *   Renal disease                    : 46271022 (Chronic kidney disease)
+ *   Any malignancy (solid)           : 443392 (Malignant neoplastic disease)
  *
  * Weight 3:
- *   Moderate/severe liver disease    : 4245975
+ *   Moderate/severe liver disease    : 192680 (Portal hypertension)
  *
  * Weight 6:
  *   Metastatic solid tumor           : 432851
@@ -85,7 +86,7 @@ class RS005CharlsonComorbidityIndex implements PopulationRiskScoreInterface
 
     public function requiredTables(): array
     {
-        return ['condition_occurrence', 'person'];
+        return ['condition_occurrence', 'person', 'concept_ancestor'];
     }
 
     public function sqlTemplate(): string
@@ -100,77 +101,136 @@ class RS005CharlsonComorbidityIndex implements PopulationRiskScoreInterface
                     WHERE co.person_id = p.person_id
                 )
             ),
-            -- Weight-1 conditions (one EXISTS per group per patient)
+            -- Weight-1 conditions (descendant lookups via concept_ancestor)
             w1_mi AS (
                 SELECT DISTINCT person_id FROM {@cdmSchema}.condition_occurrence
-                WHERE condition_concept_id = 312327
+                WHERE condition_concept_id IN (
+                    SELECT descendant_concept_id FROM {@cdmSchema}.concept_ancestor
+                    WHERE ancestor_concept_id = 4329847  -- Myocardial infarction
+                )
             ),
             w1_chf AS (
                 SELECT DISTINCT person_id FROM {@cdmSchema}.condition_occurrence
-                WHERE condition_concept_id = 316139
+                WHERE condition_concept_id IN (
+                    SELECT descendant_concept_id FROM {@cdmSchema}.concept_ancestor
+                    WHERE ancestor_concept_id = 319835  -- Congestive heart failure
+                )
             ),
             w1_pvd AS (
                 SELECT DISTINCT person_id FROM {@cdmSchema}.condition_occurrence
-                WHERE condition_concept_id = 4185932
+                WHERE condition_concept_id IN (
+                    SELECT descendant_concept_id FROM {@cdmSchema}.concept_ancestor
+                    WHERE ancestor_concept_id = 321052  -- Peripheral vascular disease
+                )
             ),
             w1_cvd AS (
                 SELECT DISTINCT person_id FROM {@cdmSchema}.condition_occurrence
-                WHERE condition_concept_id = 4043838
+                WHERE condition_concept_id IN (
+                    SELECT descendant_concept_id FROM {@cdmSchema}.concept_ancestor
+                    WHERE ancestor_concept_id = 381591  -- Cerebrovascular disease
+                )
             ),
             w1_dementia AS (
                 SELECT DISTINCT person_id FROM {@cdmSchema}.condition_occurrence
-                WHERE condition_concept_id = 372610
+                WHERE condition_concept_id IN (
+                    SELECT descendant_concept_id FROM {@cdmSchema}.concept_ancestor
+                    WHERE ancestor_concept_id = 4182210  -- Dementia
+                )
             ),
             w1_copd AS (
                 SELECT DISTINCT person_id FROM {@cdmSchema}.condition_occurrence
-                WHERE condition_concept_id = 255573
+                WHERE condition_concept_id IN (
+                    SELECT descendant_concept_id FROM {@cdmSchema}.concept_ancestor
+                    WHERE ancestor_concept_id = 255573  -- Chronic obstructive pulmonary disease
+                )
             ),
             w1_rheum AS (
                 SELECT DISTINCT person_id FROM {@cdmSchema}.condition_occurrence
-                WHERE condition_concept_id = 80809
+                WHERE condition_concept_id IN (
+                    SELECT descendant_concept_id FROM {@cdmSchema}.concept_ancestor
+                    WHERE ancestor_concept_id = 80809  -- Rheumatoid arthritis
+                )
             ),
             w1_pud AS (
                 SELECT DISTINCT person_id FROM {@cdmSchema}.condition_occurrence
-                WHERE condition_concept_id = 4209494
+                WHERE condition_concept_id IN (
+                    SELECT descendant_concept_id FROM {@cdmSchema}.concept_ancestor
+                    WHERE ancestor_concept_id = 4027663  -- Peptic ulcer
+                )
             ),
             w1_mild_liver AS (
                 SELECT DISTINCT person_id FROM {@cdmSchema}.condition_occurrence
-                WHERE condition_concept_id = 4064161
+                WHERE condition_concept_id IN (
+                    SELECT descendant_concept_id FROM {@cdmSchema}.concept_ancestor
+                    WHERE ancestor_concept_id = 4064161  -- Cirrhosis of liver
+                )
             ),
-            w1_dm AS (
+            w1_dm_no_cc AS (
+                -- DM without complications: has DM descendant but NOT diabetic complication descendant
                 SELECT DISTINCT person_id FROM {@cdmSchema}.condition_occurrence
-                WHERE condition_concept_id IN (201826, 201254, 443238)
+                WHERE condition_concept_id IN (
+                    SELECT descendant_concept_id FROM {@cdmSchema}.concept_ancestor
+                    WHERE ancestor_concept_id = 201820  -- Diabetes mellitus
+                )
+                AND person_id NOT IN (
+                    SELECT DISTINCT person_id FROM {@cdmSchema}.condition_occurrence
+                    WHERE condition_concept_id IN (
+                        SELECT descendant_concept_id FROM {@cdmSchema}.concept_ancestor
+                        WHERE ancestor_concept_id = 443238  -- Diabetic complication
+                    )
+                )
             ),
             -- Weight-2 conditions
             w2_dm_cc AS (
                 SELECT DISTINCT person_id FROM {@cdmSchema}.condition_occurrence
-                WHERE condition_concept_id = 443239
+                WHERE condition_concept_id IN (
+                    SELECT descendant_concept_id FROM {@cdmSchema}.concept_ancestor
+                    WHERE ancestor_concept_id = 443238  -- Diabetic complication
+                )
             ),
             w2_hemi AS (
                 SELECT DISTINCT person_id FROM {@cdmSchema}.condition_occurrence
-                WHERE condition_concept_id = 374022
+                WHERE condition_concept_id IN (
+                    SELECT descendant_concept_id FROM {@cdmSchema}.concept_ancestor
+                    WHERE ancestor_concept_id IN (374022, 192606)  -- Hemiplegia + Paraplegia
+                )
             ),
             w2_renal AS (
                 SELECT DISTINCT person_id FROM {@cdmSchema}.condition_occurrence
-                WHERE condition_concept_id = 443601
+                WHERE condition_concept_id IN (
+                    SELECT descendant_concept_id FROM {@cdmSchema}.concept_ancestor
+                    WHERE ancestor_concept_id = 46271022  -- Chronic kidney disease
+                )
             ),
             w2_malignancy AS (
                 SELECT DISTINCT person_id FROM {@cdmSchema}.condition_occurrence
-                WHERE condition_concept_id = 4178681
+                WHERE condition_concept_id IN (
+                    SELECT descendant_concept_id FROM {@cdmSchema}.concept_ancestor
+                    WHERE ancestor_concept_id = 443392  -- Malignant neoplastic disease
+                )
             ),
             -- Weight-3 conditions
             w3_mod_liver AS (
                 SELECT DISTINCT person_id FROM {@cdmSchema}.condition_occurrence
-                WHERE condition_concept_id = 4245975
+                WHERE condition_concept_id IN (
+                    SELECT descendant_concept_id FROM {@cdmSchema}.concept_ancestor
+                    WHERE ancestor_concept_id = 192680  -- Portal hypertension
+                )
             ),
             -- Weight-6 conditions
             w6_metastatic AS (
                 SELECT DISTINCT person_id FROM {@cdmSchema}.condition_occurrence
-                WHERE condition_concept_id = 432851
+                WHERE condition_concept_id IN (
+                    SELECT descendant_concept_id FROM {@cdmSchema}.concept_ancestor
+                    WHERE ancestor_concept_id = 432851  -- Metastatic malignant neoplasm
+                )
             ),
             w6_aids AS (
                 SELECT DISTINCT person_id FROM {@cdmSchema}.condition_occurrence
-                WHERE condition_concept_id = 439727
+                WHERE condition_concept_id IN (
+                    SELECT descendant_concept_id FROM {@cdmSchema}.concept_ancestor
+                    WHERE ancestor_concept_id = 439727  -- Human immunodeficiency virus infection
+                )
             ),
             scored AS (
                 SELECT
@@ -187,9 +247,8 @@ class RS005CharlsonComorbidityIndex implements PopulationRiskScoreInterface
                      -- Liver: mild (w1) superseded by moderate (w3); apply only if mod_liver absent
                      CASE WHEN mliv.person_id  IS NOT NULL
                            AND modliv.person_id IS NULL     THEN 1 ELSE 0 END +
-                     -- DM without CC superseded by DM with CC
-                     CASE WHEN dm.person_id    IS NOT NULL
-                           AND dmcc.person_id  IS NULL      THEN 1 ELSE 0 END +
+                     -- DM without CC (already excludes DM-with-CC patients in the CTE)
+                     CASE WHEN dm.person_id    IS NOT NULL THEN 1 ELSE 0 END +
                      -- Weight 2 conditions
                      CASE WHEN dmcc.person_id  IS NOT NULL THEN 2 ELSE 0 END +
                      CASE WHEN hemi.person_id  IS NOT NULL THEN 2 ELSE 0 END +
@@ -217,7 +276,7 @@ class RS005CharlsonComorbidityIndex implements PopulationRiskScoreInterface
                 LEFT JOIN w1_rheum      rhm    ON e.person_id = rhm.person_id
                 LEFT JOIN w1_pud        pud    ON e.person_id = pud.person_id
                 LEFT JOIN w1_mild_liver mliv   ON e.person_id = mliv.person_id
-                LEFT JOIN w1_dm         dm     ON e.person_id = dm.person_id
+                LEFT JOIN w1_dm_no_cc   dm     ON e.person_id = dm.person_id
                 LEFT JOIN w2_dm_cc      dmcc   ON e.person_id = dmcc.person_id
                 LEFT JOIN w2_hemi       hemi   ON e.person_id = hemi.person_id
                 LEFT JOIN w2_renal      renal  ON e.person_id = renal.person_id

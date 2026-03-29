@@ -1,12 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Call to an undefined method App\\Http\\Controllers\\Api\\V1\\Commons\\CallController\:\:authorize\(\)\.$#'
-			identifier: method.notFound
-			count: 4
-			path: app/Http/Controllers/Api/V1/Commons/CallController.php
-
-		-
 			message: '#^Call to an undefined method App\\Models\\App\\SchemaMapping\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\App\\SchemaMapping\>\:\:update\(\)\.$#'
 			identifier: method.notFound
 			count: 1
@@ -39,12 +33,6 @@ parameters:
 		-
 			message: '#^Call to static method table\(\) on an unknown class App\\Services\\Ares\\DB\.$#'
 			identifier: class.notFound
-			count: 3
-			path: app/Services/Ares/DqHistoryService.php
-
-		-
-			message: '#^Call to static method table\(\) on an unknown class App\\Services\\Ares\\DB\.$#'
-			identifier: class.notFound
 			count: 1
 			path: app/Services/Ares/PatientArrivalForecastService.php
 
@@ -59,6 +47,12 @@ parameters:
 			identifier: class.notFound
 			count: 1
 			path: app/Services/Fhir/FhirNdjsonProcessorService.php
+
+		-
+			message: '#^Call to an undefined method App\\Models\\App\\FhirConnection\:\:usesSmartBackendServices\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Services/Fhir/FhirSyncDispatcherService.php
 
 		-
 			message: '#^Generator expects value type array\<string, string\>, array\<string, bool\|string\|null\> given\.$#'
